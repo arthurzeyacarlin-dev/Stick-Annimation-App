@@ -12,6 +12,8 @@
 
 # testing
 /coverage
+/.playwright-cli/
+/output/
 
 # next.js
 /.next/
@@ -22,6 +24,9 @@
 
 # misc
 .DS_Store
+.local/
+/project/doc_backups/
+/supabase/.temp/
 *.pem
 
 # debug
@@ -32,6 +37,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel

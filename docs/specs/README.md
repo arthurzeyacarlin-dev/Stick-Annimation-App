@@ -12,7 +12,7 @@ The next task must either:
 - create and approve one spec from `TEMPLATE.md`, then name it in `../SESSION_HANDOFF.md`; or
 - perform a read-only discussion/audit that does not change behavior.
 
-Recommended first candidate: a safe repository baseline and regression-harness spec covering Git preservation, canonical commands, offline validators, and browser smoke tests. Arthur may instead choose a product behavior priority.
+Recommended first candidate: a reproducible regression-harness spec covering canonical package commands, repaired offline validators, and automated browser smoke tests. Git preservation is complete. Arthur may instead choose a product behavior priority.
 
 ## Provisionally Promoted Legacy References
 

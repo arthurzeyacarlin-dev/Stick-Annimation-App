@@ -3,7 +3,7 @@
 Status: canonical repository memory
 Established: 2026-08-09
 Last reconciled with live code: 2026-08-09
-Snapshot basis: working tree on `rescue-before-restore` at `1691afb`
+Snapshot basis: functional anchor `c7de444536f3e0dd578a2063f70b0914e6af60b1` on `rescue-before-restore`; final publication tag `baseline-2026-08-09-control-plane`; draft PR `#1`
 
 ## Purpose
 

@@ -18,12 +18,14 @@ Status: active
 Goals:
 
 - establish one canonical control plane and automatic session boot sequence
-- preserve the current uncommitted application baseline safely
-- reconcile the mixed Git index without losing user work
+- preserve the recovered application baseline safely in reviewed Git history
+- keep the reconciled former index generation recoverable without confusing it with the functional branch
 - introduce a spec-first lifecycle and exact session handoffs
 - establish deterministic type/lint/test/build/browser gates
 - classify existing docs, prompts, scripts, spreadsheets, and generated artifacts
 - keep the application explicitly local-only until authentication, ownership, rate limiting, and reproducible backend schema have approved implementation specs
+
+Preservation status: the control plane, mixed-index reconciliation, reviewed baseline commit, remote recovery branch, functional branch, and draft pull request were completed on 2026-08-09. Phase 0 remains active because repeatable quality gates, CI/browser automation, and deployment-safety foundations are still incomplete.
 
 Exit gates:
 

@@ -501,7 +501,7 @@ const cloneBitmap = (bitmap: ImageData | null) => {
   const usableBitmap = getUsableBitmap(bitmap);
   if (!usableBitmap) {
     return null;
-  } 
+  }
 
   return createImageDataSafely(usableBitmap.data, usableBitmap.width, usableBitmap.height);
 };

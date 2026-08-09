@@ -9,7 +9,7 @@ Current roadmap phase: Phase 0 — Preserve and Stabilize
 
 The repository was audited across application architecture, editor/timeline paths, AI/LLM assets, persistence, backend configuration, documentation, Git/recovery posture, validation tooling, and live app mounting flows.
 
-An initial control plane was established:
+An initial control plane and durable GitHub baseline were established:
 
 - `AGENTS.md` now loads the canonical memory/read sequence automatically.
 - `docs/` is the single current source for product context, current state, roadmap, TODO, decisions, terminology, architecture, AI, verification, specs, and handoff.
@@ -17,12 +17,14 @@ An initial control plane was established:
 - `diamond-animator-docs/` is classified as reference material, with the legacy V1 motion-tween intent provisionally promoted for reconciliation rather than newly owner-approved.
 - stale current-state/status duplicates are labeled or redirected rather than silently trusted.
 - generated/artifact boundaries and a required-key `.env.example` were added.
+- the complete functional snapshot was committed, pushed, tagged, and opened as draft pull request [#1](https://github.com/arthurzeyacarlin-dev/Stick-Annimation-App/pull/1)
+- the older staged page generation was preserved on a separate pushed recovery branch before the index was replaced
 
-No application source behavior was intentionally changed.
+No application source behavior was intentionally changed; the publication follow-up only removed six trailing-whitespace characters.
 
 ## Critical Git State
 
-The original mixed index has been safely reconciled, and publication of the functional baseline is in progress.
+The original mixed index has been safely reconciled, and the functional baseline is durable locally and on GitHub.
 
 Pre-control-plane baseline:
 
@@ -37,26 +39,28 @@ Pre-control-plane baseline:
 - recovery commit: `d35e892bdaabbd66ab36eae4cc32144aa620de44`
 - pushed recovery branch: `codex/pre-baseline-staged-page-2026-08-09`
 - functional publication branch: `rescue-before-restore`
+- functional anchor commit: `c7de444536f3e0dd578a2063f70b0914e6af60b1`
+- final publication anchor: tag `baseline-2026-08-09-control-plane`
+- draft pull request: [#1](https://github.com/arthurzeyacarlin-dev/Stick-Annimation-App/pull/1), `rescue-before-restore` → `main`
 - GitHub target: public `arthurzeyacarlin-dev/Stick-Annimation-App`, default branch `main`
 
-The recovery branch intentionally contains the old index tree and is not expected to build. Do not delete it, force-push it, or open an implementation pull request for it. GIT-002 remains in progress until the functional baseline commit, branch push, and draft pull request are verified.
+The recovery branch intentionally contains the old index tree and is not expected to build. Do not delete it, move the baseline tag, force-push either branch, or open an implementation pull request for the archive. `main` remains the scaffold until draft PR #1 is explicitly reviewed and merged.
 
 ## Exact Next Start Point
 
-1. Finish GIT-002: commit the reviewed functional snapshot, push `rescue-before-restore`, and open a draft pull request to `main`.
-2. Record the exact functional commit and pull-request URL in the control plane and push that follow-up.
-3. Verify the branch is synchronized and the local working tree is clean.
-4. Ask/confirm which first spec Arthur wants to activate, including the pending AI-first stick sequencing decision if relevant.
-5. Create `docs/specs/0001-<title>.md` from `TEMPLATE.md` and mark it Approved/In progress before app implementation.
-6. Update this file with the active spec path.
+1. Run the required boot sequence and confirm the local branch is clean/synchronized.
+2. Ask/confirm which first spec Arthur wants to activate, including the pending AI-first stick sequencing decision if relevant.
+3. Create `docs/specs/0001-<title>.md` from `TEMPLATE.md` and mark it Approved/In progress before app implementation.
+4. Update this file with the active spec path.
 
-Recommended first spec: safe baseline/reproducible regression harness. It reduces the exact cross-session regression risk that prompted the control-plane work. If Arthur chooses a product feature first, its spec must still document existing baseline failures and protected flows.
+Recommended first spec: a reproducible regression harness with canonical package commands and automated browser smoke. The Git baseline is now safe; repeatable proof is the next preservation gap. If Arthur chooses a product feature first, its spec must still document existing baseline failures and protected flows.
 
 ## Known Baseline Proof
 
 - TypeScript: pass
 - ESLint: fail with 6 errors and 73 warnings
 - four selected offline validators: pass
+- final `git diff --check` and `git diff --cached --check`: pass
 - three compile-based validators: fail before assertions
 - post-control-plane live home → new → Drawing and home → new → Stick → Creator mounting flows: pass with no captured browser errors/warnings; creator Save remains disabled as recorded
 - paid AI, Supabase, export, drawing gestures, save/reopen fidelity, and motion-tween acceptance: not tested in the control-plane task
@@ -71,13 +75,12 @@ See `testing_workflow.md` for exact commands and caveats.
 - all 37 non-promoted legacy domain/operational notes have direct non-authoritative banners; the reference subtree also has a scoped `AGENTS.md`
 - shell syntax passes for the three control-plane helpers; `shellcheck` is not installed and remains unrun
 - `.env.example` values are blank, configured secret values were not copied into control-plane files, and ignore rules were spot-checked
-- the optional staging helper rejects invalid arguments and refuses the current non-empty Git index without changing it
-- `git diff --check` and `git diff --cached --check` still report only the six pre-existing `app/page.tsx` trailing-whitespace lines recorded in `testing_workflow.md`
+- the optional staging helper rejects invalid arguments and was verified to refuse the original non-empty Git index without changing it
+- `git diff --check` and `git diff --cached --check` pass after the six whitespace-only baseline findings were cleaned
 - semantic validation of active-spec agreement, links, banners, and tree freshness is still manual; automation is QLT-005
 
 ## Highest Immediate Watchouts
 
-- functional baseline is not durable until the in-progress branch commit/push and draft pull request complete
 - no conventional regression suite or CI
 - default AI task selects disabled Generate Plans
 - missing project-memory migration
@@ -87,10 +90,10 @@ See `testing_workflow.md` for exact commands and caveats.
 
 ## Systems Intentionally Left Unchanged
 
-- all `app/**/*.tsx` behavior and API route behavior
-- all `src/components/**` editor behavior
-- all `src/lib/ai/**` prompts, task availability, model routing, rendering, and reference examples
+- all `app/**/*.tsx` behavior and API route behavior; four trailing-space characters in `app/page.tsx` were removed without semantic change
+- all `src/components/**` editor behavior; one trailing-space character in `DrawingWorkspace.tsx` was removed without semantic change
+- all `src/lib/ai/**` prompts, task availability, model routing, rendering, and reference examples; one trailing-space character in `generateFramesRuntime.ts` was removed without semantic change
 - drawing/stick timeline, playback, tween, canvas, history, save/open, and export logic
 - dependencies and package scripts
 - Supabase migrations/data and environment credential values
-- Git staging, commits, branches, remotes, and deployment
+- `main`, repository visibility/settings, pull-request merge state, database contents, remote environment values, and deployment

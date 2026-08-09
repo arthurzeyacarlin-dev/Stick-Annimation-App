@@ -8,7 +8,7 @@ The current repository is a local Next.js prototype. It contains a substantial r
 
 Repository continuity is controlled by [docs/README.md](docs/README.md). Every new Codex task must begin with `AGENTS.md` and the read order defined there. The frozen initial audit is [docs/baselines/2026-08-09-repository-audit.md](docs/baselines/2026-08-09-repository-audit.md).
 
-Important: the initial audit found that almost all substantive application work was untracked or modified relative to the two scaffold commits. Do not reset, restore, broadly stage, or commit until the mixed working tree has been reviewed.
+The recovered application and control plane are preserved on `rescue-before-restore` and under draft pull request [#1](https://github.com/arthurzeyacarlin-dev/Stick-Annimation-App/pull/1). The older staged `app/page.tsx` generation is separately preserved on `codex/pre-baseline-staged-page-2026-08-09`; do not delete that recovery branch until the baseline is accepted. `main` remains the original scaffold until the pull request is reviewed and merged.
 
 ## Local Development
 

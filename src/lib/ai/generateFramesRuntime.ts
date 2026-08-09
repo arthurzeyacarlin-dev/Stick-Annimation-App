@@ -8003,7 +8003,7 @@ export const analyzeGenerateFramesRequest = ({
       ["explosion", "lightning", "shockwave", "smoke", "bouncing-ball", "rolling-ball", "morphing-ball", "punch", "kick", "walking", "running", "fighting-stance"].includes(concept),
     )
       ? "scene"
-      : 
+      :
     normalizedRequestKind === "single-frame" &&
     normalizedComponentFamilies.includes("background") &&
     (normalizedComponentFamilies.includes("character") || normalizedComponentFamilies.includes("object") || stillFrameRequested) &&

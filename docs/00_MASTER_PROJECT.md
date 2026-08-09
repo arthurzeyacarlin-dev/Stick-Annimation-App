@@ -48,7 +48,7 @@ A future custom model or fine-tuning program is a separate research track. It mu
 Phase 0 is preservation and stabilization:
 
 - establish a durable control plane
-- preserve the uncommitted implementation baseline
+- preserve the recovered implementation baseline in reviewed Git history
 - introduce spec-first work and repeatable regression proof
 - resolve launch scope and product-quality definitions
 - stabilize core document, persistence, security, and test foundations before broad feature expansion

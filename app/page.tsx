@@ -460,10 +460,10 @@ export default function Page() {
     </div>
   </>
 )}
-      
+
       {/* MAIN HOME */}
       {view === "home" && (
-        
+
 <main
   ref={homeMainRef}
   className="home-main-scroll"
@@ -636,7 +636,7 @@ export default function Page() {
                         }}
                       />
                     </div>
-                    
+
                     {/* Right text */}
                     <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                       <div style={{ fontWeight: 600, letterSpacing: "0.01em", fontSize: "18px", lineHeight: 1.1 }}>
@@ -656,7 +656,7 @@ export default function Page() {
                   </div>
                 </button>
               </div>
-          
+
               <div style={cardOuterStyle}>
                 <button
                   type="button"

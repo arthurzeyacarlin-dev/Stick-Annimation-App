@@ -13,8 +13,12 @@ Changed:
 - selected the integrated working version as the functional application baseline
 - preserved the older staged version in recovery commit `d35e892bdaabbd66ab36eae4cc32144aa620de44` on pushed branch `codex/pre-baseline-staged-page-2026-08-09`
 - reviewed the complete publish set for configured-secret matches, generated/ignored boundaries, symlinks, binaries, and GitHub size limits; no publication blocker was found
+- committed the complete recovered snapshot as `c7de444536f3e0dd578a2063f70b0914e6af60b1` on pushed branch `rescue-before-restore`
+- opened draft pull request [#1](https://github.com/arthurzeyacarlin-dev/Stick-Annimation-App/pull/1) into `main` and anchored the final publication state with tag `baseline-2026-08-09-control-plane`
+- removed six trailing-whitespace-only findings after the exact-state anchor commit
+- excluded generated `next-env.d.ts` and an obsolete empty `app/__dev/ai-costs` path from the reproducible project-tree snapshot
 
-The functional baseline commit and draft pull request remain in progress. The recovery branch is an archive, not a buildable product branch, and no pull request will be opened for it.
+Publication is complete. The recovery branch is an archive, not a buildable product branch, and no pull request was opened for it. No application behavior, dependency, database, environment value, repository visibility, default branch, or deployment setting was intentionally changed.
 
 ### 2026-08-09 — Initial control plane and repository baseline
 

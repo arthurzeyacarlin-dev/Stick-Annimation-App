@@ -27,16 +27,13 @@ git diff --cached --check
 
 Record pre-existing failures rather than hiding them. If the index is already dirty, do not run helpers that stage or commit.
 
-At the initial 2026-08-09 snapshot, both diff checks already fail on pre-existing
-trailing whitespace in `app/page.tsx`:
+At the initial 2026-08-09 snapshot, both diff checks failed on pre-existing
+trailing whitespace in two different `app/page.tsx` generations:
 
 - unstaged copy: lines 639 and 659
 - staged copy: lines 15, 59, 465, and 1179
 
-Those failures are baseline debt, not proof that a later task caused a regression.
-Future tasks must still compare the output and must not add new failing paths or
-lines. Do not clean these lines incidentally unless the active spec includes that
-source change and reconciles the mixed staged/unstaged file first.
+The mixed page versions were reconciled and preserved before cleanup. Broad staging then exposed six whitespace-only findings in the intended snapshot: four in `app/page.tsx`, one in `DrawingWorkspace.tsx`, and one in `generateFramesRuntime.ts`. Functional anchor `c7de444536f3e0dd578a2063f70b0914e6af60b1` preserves the exact recovered state; the publication follow-up removed all six mechanically. Both diff checks pass in the final tagged baseline.
 
 Read `AGENTS.md`, the canonical control-plane files, the active spec, and the relevant source path. Reproduce the issue before patching when safe.
 
@@ -62,6 +59,7 @@ node --experimental-strip-types scripts/validateTimelinePlaybackSmoothing.ts
 | TypeScript | Pass | `tsc --noEmit --incremental false` |
 | ESLint | Fail | 6 errors, 73 warnings |
 | Four offline validators above | Pass | Node emits module-type warnings for TypeScript scripts |
+| Git diff whitespace checks | Pass | `git diff --check` and `git diff --cached --check` after publication cleanup |
 | Production build | Unproven | Existing `.next` build output predates current source |
 | Browser smoke | Manual pass for shell/new/drawing/stick/creator mounting | No automated suite |
 | Unit/integration/E2E framework | Absent | Bespoke scripts only |

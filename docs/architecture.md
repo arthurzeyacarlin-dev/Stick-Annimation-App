@@ -1,0 +1,146 @@
+# Architecture and System Map
+
+Status: canonical current architecture map
+Last traced: 2026-08-09
+
+## Runtime Overview
+
+```text
+app/page.tsx
+  └─ local React view state
+      ├─ home
+      ├─ OpenProjectBrowser
+      │   └─ localStorage drawing project → DrawingWorkspace
+      ├─ new-project chooser
+      ├─ DrawingWorkspace
+      │   ├─ DrawingCanvas
+      │   ├─ DrawingTimelineRow
+      │   ├─ DrawingTopBar / DrawingToolBar / DrawingRightPanel
+      │   └─ DrawingAiPanel
+      │       ├─ POST /api/ai
+      │       │   └─ analysis → clarification/failure, direct plan, or structured-model/recovery plan
+      │       └─ generatedFramePlan
+      │           └─ browser drawingFrameExecutor
+      │               └─ timeline mutation
+      ├─ StickFigureWorkspace
+      │   ├─ StickFigureCanvas
+      │   ├─ StickFigureTimelineRow
+      │   └─ stick right/top/tool panels, including read-only AI panel
+      └─ StickFigureCreatorWorkspace
+```
+
+The main product screens are not URL routes. `app/page.tsx` owns a `view` union and mounts one surface at a time. URL routes exist for `/credits`, local AI-cost dashboards, `/api/ai`, and `/api/drawing-project-ai-memory`.
+
+## System Ownership Map
+
+| System | Primary files | Current responsibility |
+| --- | --- | --- |
+| App shell/home/new-project routing | `app/page.tsx`, `src/components/chrome/AIcreditspage.tsx`, `app/ScrollbarActivity.tsx` | Header/menu, welcome flow, home cards, local screen switching |
+| Project browser | `src/components/open-project/OpenProjectBrowser.tsx` | Lists and manages locally saved drawing projects |
+| Drawing workspace coordinator | `src/components/workspace/DrawingWorkspace.tsx` | Central drawing/timeline/history/playback/save/AI-apply state and orchestration |
+| Drawing canvas/editor | `src/components/workspace/DrawingCanvas.tsx`, `drawingText.ts` | Imperative layered canvas tools, transforms, assets, symbols, text, playback surface |
+| Drawing timeline | `DrawingTimelineRow.tsx`, `timelineStructure.ts`, `timelinePlayback.ts` | Timeline cells, mutations, playback timing helpers |
+| Drawing UI panels | `DrawingTopBar.tsx`, `DrawingToolBar.tsx`, `DrawingRightPanel.tsx` | Menus, tools, properties/assets/library presentation |
+| Workspace AI UI | `ai/DrawingAiPanel.tsx`, `ai/WorkspaceAiPanelShell.tsx` | Task/reasoning controls, chat state, request/response handling, workspace action dispatch |
+| AI contract and task orchestration | `src/lib/ai/drawingAiContract.ts`, `drawingAiTaskPipeline.ts`, `drawingAiTaskExecution.ts` | Shared request/response, command, action, task, memory, and execution contracts |
+| AI prompt/planning | `drawingAiPrompting.ts`, `generateFramesRuntime.ts`, task reference-example files | Task classification, prompt assembly, structured plan analysis, validation/recovery |
+| AI frame renderer | `drawingFrameExecutor.ts`, `app/engine/stickRig.ts` | Deterministic Canvas2D rendering and generated-frame payload creation |
+| AI server route | `app/api/ai/route.ts`, `src/lib/openai/*` | Request orchestration, model calls, normalization, optional search, cost logging |
+| Drawing project persistence | `src/lib/drawingProjectStorage.ts` | Version-1 localStorage envelope, CRUD, cloning, quota fallback |
+| Drawing AI project memory | `drawingAiProjectMemory.ts`, `drawingProjectAiMemorySync.ts`, memory API route | Per-animation-project semantic memory and optional Supabase sync |
+| Stick workspace | `src/components/workspace/stickfigure/StickFigureWorkspace.tsx` and siblings | Early graph/timeline/editor shell and creator navigation |
+| Stick creator | `StickFigureCreatorWorkspace.tsx`, `types.ts` | Standalone local rig-creation experiment; save disconnected |
+| Dev cost visibility | `src/lib/ai/devAiCostDashboard.ts`, `app/dev/ai-costs/**` | Local model-call cost logs and dashboards |
+
+## Drawing Project Data Flow
+
+1. The workspace owns React state for layers, frames, active selection, tools, playback, project identity, AI memory, and history.
+2. `DrawingCanvas` exposes a narrow imperative ref for authoring snapshots, transient-state cleanup, playback layout, selection/pending-state checks, committed-state marking, and onion-overlay content. Tools, transforms, and asset placement are internal or prop-driven.
+3. Pointer/timeline actions save raster/text snapshots into in-memory timeline frames.
+4. Manual Save/Save As serializes a version-1 project through `drawingProjectStorage.ts` into `localStorage` key `da_saved_drawing_projects`.
+5. Open Project reads the same collection and remounts `DrawingWorkspace` with the chosen envelope.
+6. Compact AI semantic memory may also sync to Supabase, but artwork remains browser-local.
+
+`DrawingProjectData.version = 1` contains tool settings, FPS, layers, timeline frames, text, tween data, optional sound attachments, current/selected positions, and counters. `StoredDrawingProject.aiMemory` is a sibling of `data`, not part of that versioned data envelope. The format lacks a migration framework and a canonical document/stage resolution.
+
+Live frame `ImageData` objects are not serialized: the save path sets bitmap fields to `null` and stores compact WebP preview URLs targeted to at most 1,280 px and 72,000 URL characters. Reopen decodes those images at their encoded dimensions and centers them in the current authoring world. Imported reusable assets and library symbols are session-only collections outside `DrawingProjectData`; raster pixels already committed into frames may persist, but reusable entries do not.
+
+## Timeline and History Model
+
+Drawing timeline positions use `kind` (`frame`, `keyframe`, or `tween`), `cellType` (`empty`, `keyframe`, `blank-keyframe`, `hold`, or `tween`), and `stateId` ownership. Workspace frames extend that metadata with bitmap/tween endpoints, a position-only `motionTween` payload, sound attachment, and text objects.
+
+History is not a single undo stack. `DrawingWorkspace` coordinates global workspace snapshots with context-scoped local drawing entries for bitmap patches, full snapshots, metadata, and timeline snapshots; structural timeline edits rebase those histories. Timeline or history work must trace both global and local ownership paths and prove undo/redo across the structural boundary.
+
+## Current Render and Export Paths
+
+- Playback reverses/composites all layers and renders text on a separate playback surface.
+- Paused editing clears the background and foreground compositing canvases and restores only the active-layer raster to the authoring canvas.
+- Project preview generation composites raster bitmaps but not text.
+- Current-frame PNG export composites raster bitmaps only at full authoring-world dimensions; it does not include text or crop to the camera stage.
+
+These are code-verified path differences. Their visual severity in realistic projects remains untested.
+
+## AI Generate Frames Flow
+
+1. `DrawingAiPanel` collects task controls, user text, workspace context, project memory, and available actions.
+2. It posts to `/api/ai` using the shared contract.
+3. The server normalizes and analyzes the request, including any search decision and deterministic runtime planning.
+4. Deterministic early outcomes can request clarification, return a controlled failure, or return an eligible direct plan without a model call. Requests routed to the structured-model branch select references/model strength and use the OpenAI Responses API with validation, retry, recovery, and deterministic fallback paths.
+5. The response returns a generated-frame plan rather than a finished image.
+6. `drawingFrameExecutor.ts` renders the plan locally with hardcoded Canvas2D scene/subject/action vocabulary, using the supplied full authoring-canvas dimensions rather than a canonical camera-stage coordinate system.
+7. `DrawingWorkspace` applies the returned frame payload to the real timeline.
+
+This is a hybrid deterministic/model-planned procedural renderer, not image generation and not a custom-trained LLM. AI panel messages and follow-ups live only in React session state. The workspace action-plan executor currently implements only `save-project`, `export-current-frame`, and `attach-sound-option-to-frame`; every other contract action returns `false`.
+
+## Stick Figure Data Flow
+
+The stick workspace owns timeline metadata and one live structure graph. The current timeline does not persist a separate pose/graph snapshot per frame, so advancing frame indices does not constitute a complete pose-animation model. The creator owns a separate local rig model and does not save it into the workspace or a library. Its right panel mounts the Drawing AI panel in read-only mode; there is no stick pose/frame apply executor.
+
+Any new stick-animation work must first specify the canonical rig, pose, frame, interpolation, identity, history, and persistence contracts. Do not copy raster assumptions into the stick model without an explicit decision.
+
+## Protected Architectural Invariants
+
+Until superseded by an approved spec:
+
+- Existing dirty work belongs to the user and must be preserved.
+- Drawing and stick workspace IDs remain `drawing` and `stick-figure` in AI contracts.
+- Motion-tween V1 remains position-only. Its legacy spec is provisionally promoted as reconciliation guidance pending owner confirmation and a current acceptance rerun.
+- A task described as disabled must exit before paid/output-generating execution.
+- AI-produced changes must enter the same timeline/project state a human edits.
+- Live AI tests are opt-in because they can spend money and contact external systems.
+- Supabase service-role credentials remain server-only.
+- `docs/` is current memory; domain-reference prose cannot override verified code by accident.
+
+## Navigation and Coordinate Boundaries
+
+`DrawingWorkspace` accepts an initial project but no exit callback, so the current mounted drawing flow has no in-app Back/Exit path. The home cards My Project, Tutorials, AI Assistant, Export, AI Project Finalizer, and AI Credits are inert. These are shell limitations, not URL-routing commitments.
+
+`DrawingCanvas` computes an authoring-world scale of 4.6 from camera limits. Six authoring canvases allocate `hostWidth × 4.6 × DPR` by `hostHeight × 4.6 × DPR`, or 21.16 times host pixel area per canvas at DPR 1 and 84.64 times at DPR 2, before the separate playback surface and history snapshots. A stable document/stage coordinate contract is therefore a prerequisite for treating viewport, memory, AI placement, persistence, and export independently.
+
+## Regression Hotspots
+
+The following surfaces require a dedicated spec and targeted regression matrix for structural changes:
+
+- `DrawingWorkspace.tsx`: central state, mirrored refs, history rebasing, playback, persistence, and AI insertion
+- `DrawingCanvas.tsx`: imperative multi-canvas editor and transient interaction sessions
+- `app/api/ai/route.ts`: classification, routing, prompting, search, response normalization, disabled-task exits, cost logging
+- `drawingAiPrompting.ts` and `generateFramesRuntime.ts`: output quality and stateful reasoning
+- `drawingFrameExecutor.ts`: visual vocabulary and deterministic rendering
+- drawing and stick timeline row components: duplicated structural behavior with different content models
+
+Incidental cleanup inside these files is prohibited unless the active spec includes it and verification covers the affected systems.
+
+## Known Architectural Gaps
+
+- stable document/stage coordinate system and resolution
+- complete, versioned project schema and migrations
+- durable autosave/recovery and project-file import/export
+- unified render/composite contract across edit, playback, save, reopen, and export
+- working stick pose/frame animation model and persistence
+- AI command transaction semantics, preview, rollback, and destructive confirmation
+- authenticated user/project ownership and rate limiting
+- repeatable unit/integration/E2E suite and CI
+- production animation export
+- modular boundaries around very large coordinator/runtime files
+
+These gaps belong in dedicated specs; this map does not prescribe their implementation.

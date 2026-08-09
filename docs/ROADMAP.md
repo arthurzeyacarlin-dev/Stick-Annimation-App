@@ -1,0 +1,114 @@
+# Roadmap
+
+Status: canonical ordered direction; not a delivery schedule
+Last updated: 2026-08-09
+
+## Roadmap Rules
+
+- Phases describe dependency order, not calendar promises.
+- Implementation work within a phase begins only after its entry decisions and active spec are approved. Read-only discovery and the initial control-plane bootstrap may establish a phase without authorizing product behavior changes.
+- A feature is not complete because code exists; its spec acceptance and regression gates must pass.
+- Paid AI calls, remote writes, deployment, and baseline commits require task-specific authorization.
+- The roadmap may change when Arthur resolves pending decisions or new evidence changes the risk order.
+
+## Phase 0 — Preserve and Stabilize
+
+Status: active
+
+Goals:
+
+- establish one canonical control plane and automatic session boot sequence
+- preserve the current uncommitted application baseline safely
+- reconcile the mixed Git index without losing user work
+- introduce a spec-first lifecycle and exact session handoffs
+- establish deterministic type/lint/test/build/browser gates
+- classify existing docs, prompts, scripts, spreadsheets, and generated artifacts
+- keep the application explicitly local-only until authentication, ownership, rate limiting, and reproducible backend schema have approved implementation specs
+
+Exit gates:
+
+- current working tree has been reviewed and durably versioned or archived
+- no mixed staged/unstaged version remains unexplained
+- every non-trivial change begins from one active spec
+- fast verification commands are repeatable and known baseline failures are resolved or explicitly grandfathered
+- a browser smoke path protects home, project choice, Drawing Workspace, and Stick Figure Workspace
+
+## Phase 1 — Core Document and Persistence Reliability
+
+Status: planned
+
+Goals:
+
+- define a canonical stage/document coordinate system and resolution
+- define a versioned project schema with migrations and validation
+- make save/reopen fidelity measurable and lossless within approved bounds
+- define durable autosave/recovery behavior
+- unify edit, playback, save, reopen, and export compositing expectations
+- isolate high-risk canvas/history/timeline logic behind tested boundaries
+- reproduce and address memory, resize, layer-compositing, and quota risks
+- establish the missing project-memory migration and the authentication/ownership/rate-limit foundation before any public deployment target
+
+Exit gates require dedicated specs and end-to-end fidelity tests; this phase does not authorize a broad rewrite.
+
+## Phase 2 — Shared Stick-Figure State and Editing Foundation
+
+Status: planned
+
+Goals:
+
+- approve canonical figure, limb, joint, pose, identity, frame, interpolation, and layer models
+- store independent poses per timeline frame
+- provide the minimum real state/executor/history operations needed by both AI and direct editing
+- define and implement enough direct select/move/rotate/pose editing to inspect, correct, and undo AI-authored changes
+- connect the creator and saved figure/library flow to the shared model at the point required by the approved vertical slice
+- save, reopen, and recover the shared stick-project state used by that slice
+- play a multi-frame stick animation deterministically
+- define onion-skin and tween behavior for rigged figures
+
+Arthur's latest direction is AI-first, with advanced direct controls available for inspection and fine-tuning. The exact sequencing is still pending P-0008: Phase 2 and Phase 3 may interleave as a narrow AI-first vertical slice once the shared model, reversible executor, and minimum corrective controls exist. This roadmap does not silently require completing an Adobe-class manual editor before any AI stick workflow.
+
+## Phase 3 — AI-First Stick Animation
+
+Status: planned
+
+Goals:
+
+- publish the AI command-to-executor support matrix
+- define preview, apply, undo, rollback, partial failure, and destructive confirmation semantics
+- let AI create and revise real figures, poses, timing, scenes, and continuity through the shared project model
+- measure character/scene continuity and temporal quality across multi-turn requests
+- introduce explicit cost, latency, model-routing, retry, and credit budgets
+- expose honest capability and failure states to beginners
+
+The AI path must manipulate the same state and history as manual tools.
+
+## Phase 4 — Professional Product Completion
+
+Status: future
+
+Candidate goals:
+
+- production animation export formats and project-file import/export
+- sound/voice workflow based on an approved product and licensing policy
+- remaining authenticated sync, abuse prevention, and deployment hardening beyond the foundational Phase 1 security gate
+- polished onboarding/tutorial/help and project viewing flows
+- real credit/billing controls and privacy/retention settings
+- performance profiling and accessibility/responsive requirements
+
+The exact launch scope depends on pending decisions about the Drawing Workspace and first-release definition.
+
+## Phase 5 — Custom Model R&D
+
+Status: future research
+
+Only begin after the product has a stable project/action schema and measurable evaluation set.
+
+Candidate work:
+
+- dataset governance and provenance
+- animation-specific planning/continuity evaluations
+- retrieval versus fine-tuning experiments
+- safety and policy evaluations
+- deployment, fallback, rollback, latency, and cost analysis
+
+Current prompt/reference example arrays are not evidence that this phase has begun.

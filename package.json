@@ -3,14 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --webpack",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "seed:generate-plans-training": "node --experimental-strip-types scripts/seedGeneratePlansTraining.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.95.3",
     "next": "16.1.6",
+    "openai": "^6.32.0",
     "react": "19.2.3",
     "react-dom": "19.2.3"
   },
@@ -21,6 +23,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "supabase": "^2.81.3",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

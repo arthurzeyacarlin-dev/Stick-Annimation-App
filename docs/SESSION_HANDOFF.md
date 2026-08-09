@@ -17,14 +17,14 @@ An initial control plane and durable GitHub baseline were established:
 - `diamond-animator-docs/` is classified as reference material, with the legacy V1 motion-tween intent provisionally promoted for reconciliation rather than newly owner-approved.
 - stale current-state/status duplicates are labeled or redirected rather than silently trusted.
 - generated/artifact boundaries and a required-key `.env.example` were added.
-- the complete functional snapshot was committed, pushed, tagged, and opened as draft pull request [#1](https://github.com/arthurzeyacarlin-dev/Stick-Annimation-App/pull/1)
+- the complete functional snapshot was committed, pushed, tagged, and merged into `main` through pull request [#1](https://github.com/arthurzeyacarlin-dev/Stick-Annimation-App/pull/1)
 - the older staged page generation was preserved on a separate pushed recovery branch before the index was replaced
 
 No application source behavior was intentionally changed; the publication follow-up only removed six trailing-whitespace characters.
 
 ## Critical Git State
 
-The original mixed index has been safely reconciled, and the functional baseline is durable locally and on GitHub.
+The original mixed index has been safely reconciled, and the functional baseline is canonical on synchronized `main` locally and on GitHub.
 
 Pre-control-plane baseline:
 
@@ -41,14 +41,16 @@ Pre-control-plane baseline:
 - functional publication branch: `rescue-before-restore`
 - functional anchor commit: `c7de444536f3e0dd578a2063f70b0914e6af60b1`
 - final publication anchor: tag `baseline-2026-08-09-control-plane`
-- draft pull request: [#1](https://github.com/arthurzeyacarlin-dev/Stick-Annimation-App/pull/1), `rescue-before-restore` → `main`
+- merged pull request: [#1](https://github.com/arthurzeyacarlin-dev/Stick-Annimation-App/pull/1), `rescue-before-restore` → `main`
+- merge commit: `093bbac82fd3b4d97984448b6c6dbd716153354d`
+- current checkout: `main`, tracking `origin/main`, clean and zero commits ahead/behind after synchronization
 - GitHub target: public `arthurzeyacarlin-dev/Stick-Annimation-App`, default branch `main`
 
-The recovery branch intentionally contains the old index tree and is not expected to build. Do not delete it, move the baseline tag, force-push either branch, or open an implementation pull request for the archive. `main` remains the scaffold until draft PR #1 is explicitly reviewed and merged.
+The recovery branch intentionally contains the old index tree and is not expected to build. Do not delete it, move the baseline tag, rewrite published history, or open an implementation pull request for the archive.
 
 ## Exact Next Start Point
 
-1. Run the required boot sequence and confirm the local branch is clean/synchronized.
+1. Run the required boot sequence from `main` and confirm it remains clean/synchronized with `origin/main`.
 2. Ask/confirm which first spec Arthur wants to activate, including the pending AI-first stick sequencing decision if relevant.
 3. Create `docs/specs/0001-<title>.md` from `TEMPLATE.md` and mark it Approved/In progress before app implementation.
 4. Update this file with the active spec path.
@@ -96,4 +98,4 @@ See `testing_workflow.md` for exact commands and caveats.
 - drawing/stick timeline, playback, tween, canvas, history, save/open, and export logic
 - dependencies and package scripts
 - Supabase migrations/data and environment credential values
-- `main`, repository visibility/settings, pull-request merge state, database contents, remote environment values, and deployment
+- repository visibility/default-branch settings, recovery branch/tag, database contents, remote environment values, and deployment

@@ -5,6 +5,15 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-09 — Baseline merged into main
+
+- marked pull request [#1](https://github.com/arthurzeyacarlin-dev/Stick-Annimation-App/pull/1) ready and merged it into `main` with merge commit `093bbac82fd3b4d97984448b6c6dbd716153354d`
+- synchronized local `main` with `origin/main` and verified a clean worktree with zero ahead/behind divergence
+- retained the recovery branch `codex/pre-baseline-staged-page-2026-08-09` and tag `baseline-2026-08-09-control-plane`
+- confirmed the previously displayed `+115,555 / -101` represented the committed branch comparison against scaffold `main`, not uncommitted local changes
+
+No application source behavior, dependency, database, environment value, repository visibility/default-branch setting, or deployment was changed by this merge-state cleanup.
+
 ### 2026-08-09 — Git baseline reconciliation and publication
 
 Changed:

@@ -2,7 +2,7 @@
 
 Status: canonical rolling snapshot
 Last verified: 2026-08-09
-Branch/commit basis: functional anchor `c7de444536f3e0dd578a2063f70b0914e6af60b1` on `rescue-before-restore`; final publication tag `baseline-2026-08-09-control-plane`; draft PR `#1`
+Branch/commit basis: `main`; pull request `#1` merge commit `093bbac82fd3b4d97984448b6c6dbd716153354d`; pre-merge tag `baseline-2026-08-09-control-plane`
 Frozen starting audit: `baselines/2026-08-09-repository-audit.md`
 
 ## Executive Summary
@@ -31,10 +31,11 @@ That mixed state was reconciled on 2026-08-09 before broad staging:
 - recovery branch `codex/pre-baseline-staged-page-2026-08-09` was pushed to `origin`; it is an archive of the old index tree, not the functional baseline and not expected to build independently
 - the working page blob `c24392097af8d578fc1f6cc501dad121ce0cb1fc` was selected for the functional baseline because it contains the current Open Project, Drawing Workspace, Stick Figure Workspace, Stick Figure Creator, stored-project, and shared-chrome integration that was live verified in this audit
 - the configured values in `.env.local` had no literal matches in the publishable set; ignored build, browser, local-log, output, backup, and Supabase temp paths remained excluded
-- the complete reviewed snapshot was committed as functional anchor `c7de444536f3e0dd578a2063f70b0914e6af60b1`, pushed on `rescue-before-restore`, and opened as draft pull request [#1](https://github.com/arthurzeyacarlin-dev/Stick-Annimation-App/pull/1) into `main`
+- the complete reviewed snapshot was committed as functional anchor `c7de444536f3e0dd578a2063f70b0914e6af60b1`, pushed on `rescue-before-restore`, and merged into `main` through pull request [#1](https://github.com/arthurzeyacarlin-dev/Stick-Annimation-App/pull/1) as merge commit `093bbac82fd3b4d97984448b6c6dbd716153354d`
 - the publication follow-up removed six trailing-whitespace defects without changing runtime semantics and is anchored by tag `baseline-2026-08-09-control-plane`
+- local `main` and `origin/main` were synchronized with a clean worktree and zero ahead/behind divergence after the merge
 
-The baseline is durable locally and remotely. Do not delete the recovery branch, move the baseline tag, force-push either branch, or merge the draft pull request without an explicit reviewed decision.
+The baseline is canonical on `main` and durable locally and remotely. Do not delete the recovery branch, move the baseline tag, or rewrite published history without an explicit reviewed decision.
 
 ## Live-Verified User Flows
 

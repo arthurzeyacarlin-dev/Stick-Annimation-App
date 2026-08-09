@@ -25,7 +25,7 @@ Goals:
 - classify existing docs, prompts, scripts, spreadsheets, and generated artifacts
 - keep the application explicitly local-only until authentication, ownership, rate limiting, and reproducible backend schema have approved implementation specs
 
-Preservation status: the control plane, mixed-index reconciliation, reviewed baseline commit, remote recovery branch, functional branch, and draft pull request were completed on 2026-08-09. Phase 0 remains active because repeatable quality gates, CI/browser automation, and deployment-safety foundations are still incomplete.
+Preservation status: the control plane, mixed-index reconciliation, reviewed baseline commit, remote recovery branch, merged pull request #1, and synchronized `main` were completed on 2026-08-09. Phase 0 remains active because repeatable quality gates, CI/browser automation, and deployment-safety foundations are still incomplete.
 
 Exit gates:
 

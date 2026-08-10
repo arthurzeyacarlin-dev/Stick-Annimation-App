@@ -1,26 +1,30 @@
 # Session Handoff
 
 Status: canonical last-known stopping point
-Last updated: 2026-08-09
+Last updated: 2026-08-10
 Active spec: none
+Proposed spec awaiting owner review: `docs/specs/0001-first-reversible-ai-stick-animation.md`
 Current roadmap phase: Phase 0 — Preserve and Stabilize
 
 ## Completed in the Last Task
 
-The repository was audited across application architecture, editor/timeline paths, AI/LLM assets, persistence, backend configuration, documentation, Git/recovery posture, validation tooling, and live app mounting flows.
+Starting from clean `main` at `87a9afb246d4daf33431e7152c03f46a04e166fb`, the current AI, Stick editor, persistence/memory, server, and verification paths were re-audited and reconciled into one narrow Proposed specification:
 
-An initial control plane and durable GitHub baseline were established:
+- exact path: `docs/specs/0001-first-reversible-ai-stick-animation.md`
+- title: `SPEC-0001 — First Reversible AI-Created Stick Animation from Workspace Chat`
+- status: Proposed, awaiting Arthur; not Approved, active, implemented, or verified
+- bounded recommendation: one exact three-pose/one-figure/12 FPS wave prompt, real independent Stick key poses, explicit Preview → Apply, one atomic Undo/Redo transaction, one manual joint correction, and separate strict local save/reopen
+- delivery structure: six phases, each one separate focused Codex task with its own deterministic fixtures, protected regressions, real-app proof where applicable, stop gate, and handoff
+- external boundary: no model request, application search, Supabase call, paid request, or remote write; only official OpenAI documentation was read after Arthur permitted external calls
 
-- `AGENTS.md` now loads the canonical memory/read sequence automatically.
-- `docs/` is the single current source for product context, current state, roadmap, TODO, decisions, terminology, architecture, AI, verification, specs, and handoff.
-- the original pre-control-plane repository state is frozen in `baselines/2026-08-09-repository-audit.md`.
-- `diamond-animator-docs/` is classified as reference material, with the legacy V1 motion-tween intent provisionally promoted for reconciliation rather than newly owner-approved.
-- stale current-state/status duplicates are labeled or redirected rather than silently trusted.
-- generated/artifact boundaries and a required-key `.env.example` were added.
-- the complete functional snapshot was committed, pushed, tagged, and merged into `main` through pull request [#1](https://github.com/arthurzeyacarlin-dev/Stick-Annimation-App/pull/1)
-- the older staged page generation was preserved on a separate pushed recovery branch before the index was replaced
+No runtime source, dependency, database, environment value, Git index/history/remotes, GitHub setting, or deployment changed. Recommendations remain unaccepted until Arthur reviews them.
 
-No application source behavior was intentionally changed; the publication follow-up only removed six trailing-whitespace characters.
+## Current Git State
+
+- branch/basis: `main` at `87a9afb246d4daf33431e7152c03f46a04e166fb`
+- working tree: unstaged documentation/control-plane-only proposal changes, including the regenerated project-structure snapshot; no runtime source file changed
+- prohibited recovery branch: untouched and not used as a development base
+- no staging, commit, push, pull request, tag, or deployment occurred in this task
 
 ## Critical Git State
 
@@ -43,19 +47,18 @@ Pre-control-plane baseline:
 - final publication anchor: tag `baseline-2026-08-09-control-plane`
 - merged pull request: [#1](https://github.com/arthurzeyacarlin-dev/Stick-Annimation-App/pull/1), `rescue-before-restore` → `main`
 - merge commit: `093bbac82fd3b4d97984448b6c6dbd716153354d`
-- current checkout: `main`, tracking `origin/main`, clean and zero commits ahead/behind after synchronization
+- publication-completion checkout: `main`, tracking `origin/main`, clean and zero commits ahead/behind after synchronization at that 2026-08-09 stopping point
 - GitHub target: public `arthurzeyacarlin-dev/Stick-Annimation-App`, default branch `main`
 
 The recovery branch intentionally contains the old index tree and is not expected to build. Do not delete it, move the baseline tag, rewrite published history, or open an implementation pull request for the archive.
 
 ## Exact Next Start Point
 
-1. Run the required boot sequence from `main` and confirm it remains clean/synchronized with `origin/main`.
-2. Ask/confirm which first spec Arthur wants to activate, including the pending AI-first stick sequencing decision if relevant.
-3. Create `docs/specs/0001-<title>.md` from `TEMPLATE.md` and mark it Approved/In progress before app implementation.
-4. Update this file with the active spec path.
-
-Recommended first spec: a reproducible regression harness with canonical package commands and automated browser smoke. The Git baseline is now safe; repeatable proof is the next preservation gap. If Arthur chooses a product feature first, its spec must still document existing baseline failures and protected flows.
+1. Run the required boot sequence from `main`, preserve the documentation changes if they are still uncommitted, and verify the exact branch/HEAD before any action.
+2. Read `docs/specs/0001-first-reversible-ai-stick-animation.md` and review its owner-decision table.
+3. Arthur accepts, changes, or rejects the proposal. Do not infer acceptance from its Proposed status and do not update `DECISIONS.md` before explicit acceptance.
+4. If Arthur explicitly approves it, change the spec to Approved, name it as active here, and run **Phase 1 only** as one new focused Codex task. Phases 2–6 remain forbidden until the immediately prior phase is independently Verified.
+5. If Arthur requests changes, keep the spec Proposed or return it to Draft while researching; do not begin implementation.
 
 ## Known Baseline Proof
 

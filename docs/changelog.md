@@ -5,6 +5,17 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-10 — First reversible Stick AI specification proposed
+
+- added [`SPEC-0001 — First Reversible AI-Created Stick Animation from Workspace Chat`](specs/0001-first-reversible-ai-stick-animation.md) as Proposed and awaiting Arthur's review
+- traced the current Drawing AI, Stick timeline/canvas, history, persistence/memory, API boundary, and offline verification paths from clean `main` at `87a9afb246d4daf33431e7152c03f46a04e166fb`
+- bounded the recommendation to one exact one-figure/three-pose/12 FPS action with independent poses, explicit Preview → Apply, one atomic reversible transaction, one manual joint correction, and strict local save/reopen
+- divided possible implementation into six stop-gated phases, each requiring a separate independently verified Codex task
+- updated the spec index, TODO, current work state, PM context, and session handoff without activating or approving implementation
+- regenerated `project/project_structure.txt` through the canonical memory helper so the Proposed spec appears in the repository snapshot
+
+No runtime source, application behavior, dependency, database, environment value, Git history, GitHub setting, or deployment was changed. No OpenAI model request, application search, Supabase call, paid request, or remote write was made; official OpenAI documentation was read only after Arthur permitted external calls.
+
 ### 2026-08-09 — Baseline merged into main
 
 - marked pull request [#1](https://github.com/arthurzeyacarlin-dev/Stick-Annimation-App/pull/1) ready and merged it into `main` with merge commit `093bbac82fd3b4d97984448b6c6dbd716153354d`

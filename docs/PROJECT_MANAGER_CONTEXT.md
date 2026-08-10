@@ -1,7 +1,7 @@
 # Project Manager Context
 
 Status: canonical owner and collaboration context
-Last updated: 2026-08-09
+Last updated: 2026-08-10
 
 ## Product Owner
 
@@ -32,6 +32,7 @@ This direction supersedes older prose that framed AI only as a passive helper or
 - Do not stop at compile success.
 - Do not create an approval gate before the required PM Review Packet.
 - Do not stage, commit, push, deploy, seed remote data, or spend live AI credits unless the task authorizes it.
+- When a specification has multiple implementation phases, run each phase as one separate focused Codex task and independently verify its stop gate before starting the next phase.
 
 ## Why This Control Plane Exists
 

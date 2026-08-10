@@ -1,18 +1,19 @@
 # Specification Index and Lifecycle
 
 Status: canonical spec registry
-Last updated: 2026-08-09
+Last updated: 2026-08-10
 
 ## Active Spec
 
-None. The initial control-plane task intentionally did not choose the first product/engineering behavior change.
+None. No spec is Approved or In progress.
 
-The next task must either:
+## Proposed Specs
 
-- create and approve one spec from `TEMPLATE.md`, then name it in `../SESSION_HANDOFF.md`; or
-- perform a read-only discussion/audit that does not change behavior.
+| Spec | Status | Review state |
+| --- | --- | --- |
+| [`SPEC-0001 — First Reversible AI-Created Stick Animation from Workspace Chat`](0001-first-reversible-ai-stick-animation.md) | Proposed | Awaiting Arthur's review; not active and no implementation is authorized. |
 
-Recommended first candidate: a reproducible regression-harness spec covering canonical package commands, repaired offline validators, and automated browser smoke tests. Git preservation is complete. Arthur may instead choose a product behavior priority.
+Exact next step: Arthur accepts, changes, or rejects SPEC-0001's owner-decision rows. Only an explicit approval may move it to Approved and make Phase 1 the active implementation spec. The regression-harness gap remains open in QLT-004/QLT-005 and becomes a named dependency if Phase 5 cannot obtain objective offline browser proof.
 
 ## Provisionally Promoted Legacy References
 

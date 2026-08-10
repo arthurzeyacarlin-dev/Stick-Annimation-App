@@ -112,6 +112,7 @@
 ./docs/feature_domain_map.md
 ./docs/operational_workflow.md
 ./docs/specs
+./docs/specs/0001-first-reversible-ai-stick-animation.md
 ./docs/specs/README.md
 ./docs/specs/TEMPLATE.md
 ./docs/testing_workflow.md

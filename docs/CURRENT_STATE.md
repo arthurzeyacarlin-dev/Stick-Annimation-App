@@ -1,8 +1,8 @@
 # Current State
 
 Status: canonical rolling snapshot
-Last verified: 2026-08-09
-Branch/commit basis: `main`; pull request `#1` merge commit `093bbac82fd3b4d97984448b6c6dbd716153354d`; pre-merge tag `baseline-2026-08-09-control-plane`
+Last verified: 2026-08-10 for project-work state and named source re-audit; visible-flow evidence remains dated 2026-08-09
+Code-audit starting basis: clean `main` at `87a9afb246d4daf33431e7152c03f46a04e166fb`; current worktree has documentation/control-plane-only proposal changes; pre-merge tag `baseline-2026-08-09-control-plane`
 Frozen starting audit: `baselines/2026-08-09-repository-audit.md`
 
 ## Executive Summary
@@ -149,8 +149,9 @@ These are not authorized fixes. Reproduce each target flow, write a spec, and pr
 ## Current Work State
 
 - Active implementation spec: none
-- Current task: reviewed baseline/control-plane publication complete
-- Next operational priority: choose and approve the first spec
+- Proposed spec: [`SPEC-0001 — First Reversible AI-Created Stick Animation from Workspace Chat`](specs/0001-first-reversible-ai-stick-animation.md), awaiting Arthur's review; no recommendation is accepted yet
+- Current task: documentation/design proposal complete; runtime implementation has not begun
+- Next operational priority: Arthur accepts, changes, or rejects SPEC-0001. If explicitly approved, Phase 1 alone becomes the next independently verified Codex task.
 - Current roadmap phase: Phase 0 — preservation and stabilization
 
 See `SESSION_HANDOFF.md` for the exact next-session start point.

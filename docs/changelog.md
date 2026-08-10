@@ -5,6 +5,15 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-10 — Proposal integration and phased-task workflow reconciled
+
+- reconciled the canonical Git state after Arthur's manual docs-only proposal commit `9a2cd373e268cc412cb0fcbea50af11513ef41c5`; runtime source remains unchanged from the prior audited basis
+- recorded Arthur as day-to-day product owner and primary user, Oliver as parent/project sponsor, and the long-lived Codex Project Manager task as advisory and read-only by default
+- recorded one implementation phase per task/worktree, a required phase PM Review Packet before Git publication, explicit post-review stage/commit/push authorization, and integration into canonical `main` before the next phase
+- recorded that the PM recommends a focused Spec Architect revision before Arthur's owner-decision review
+
+SPEC-0001 remains Proposed and inactive. No owner decision was accepted, no implementation phase was authorized, and no runtime, dependency, database, environment, provider, deployment, or remote-service behavior changed.
+
 ### 2026-08-10 — First reversible Stick AI specification proposed
 
 - added [`SPEC-0001 — First Reversible AI-Created Stick Animation from Workspace Chat`](specs/0001-first-reversible-ai-stick-animation.md) as Proposed and awaiting Arthur's review

@@ -11,9 +11,9 @@ None. No spec is Approved or In progress.
 
 | Spec | Status | Review state |
 | --- | --- | --- |
-| [`SPEC-0001 — First Reversible AI-Created Stick Animation from Workspace Chat`](0001-first-reversible-ai-stick-animation.md) | Proposed | Awaiting Arthur's review; not active and no implementation is authorized. |
+| [`SPEC-0001 — First Reversible AI-Created Stick Animation from Workspace Chat`](0001-first-reversible-ai-stick-animation.md) | Proposed | PM pre-approval revision recommended; awaiting Arthur's later review; not active and no implementation is authorized. |
 
-Exact next step: Arthur accepts, changes, or rejects SPEC-0001's owner-decision rows. Only an explicit approval may move it to Approved and make Phase 1 the active implementation spec. The regression-harness gap remains open in QLT-004/QLT-005 and becomes a named dependency if Phase 5 cannot obtain objective offline browser proof.
+Exact next step: complete the focused pre-approval revision, then Arthur accepts, changes, or rejects SPEC-0001's owner-decision rows. Only an explicit approval may move it to Approved and make Phase 1 the active implementation spec. The regression-harness gap remains open in QLT-004/QLT-005 and becomes a named dependency if Phase 5 cannot obtain objective offline browser proof.
 
 ## Provisionally Promoted Legacy References
 
@@ -48,6 +48,16 @@ Numbers are monotonic and never reused. The first new spec is `0001-...`.
 | Abandoned | Deliberately stopped; reason preserved |
 
 Only one spec should be `In progress` unless independent concurrency is documented in both specs and the handoff.
+
+## Phase Execution and Integration
+
+For a phased implementation spec:
+
+1. one implementation task and worktree executes exactly one authorized phase;
+2. that task completes the phase stop gate, acceptance and regression proof, required control-plane updates, and full PM Review Packet;
+3. the packet is review evidence and does not itself authorize staging, committing, or pushing;
+4. Git publication occurs only after an explicit post-packet instruction; and
+5. the next phase starts in a new task only after the preceding phase is Verified and durably integrated into canonical `main`.
 
 ## Promotion Rules
 

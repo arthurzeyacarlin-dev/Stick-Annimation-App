@@ -72,6 +72,8 @@ Be explicit:
 - say exactly what you verified
 - say exactly what is proven vs not proven
 
+For a phased implementation spec, one implementation task may execute exactly one authorized phase. It must complete that phase's stop gate, required acceptance and regression proof, control-plane updates, and full PM Review Packet, then stop before Git publication. The packet is review evidence, not authorization to stage, commit, or push. Those Git actions require an explicit instruction after packet review. A later phase starts in a new task only after the preceding phase is Verified and its explicitly authorized commit and push are durably integrated into canonical `main`.
+
 ## Required Control-Plane Boot Sequence
 
 `AGENTS.md` is the automatic bootloader for repository continuity. At the start of every task, before planning or editing:

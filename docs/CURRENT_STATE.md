@@ -2,7 +2,7 @@
 
 Status: canonical rolling snapshot
 Last verified: 2026-08-10 for project-work state and named source re-audit; visible-flow evidence remains dated 2026-08-09
-Code-audit starting basis: clean `main` at `87a9afb246d4daf33431e7152c03f46a04e166fb`; current worktree has documentation/control-plane-only proposal changes; pre-merge tag `baseline-2026-08-09-control-plane`
+Current Git basis (locally verified 2026-08-10): proposal commit `9a2cd373e268cc412cb0fcbea50af11513ef41c5` on `main`; the local `origin/main` tracking ref resolves to the same SHA with zero ahead/behind. That commit changed only proposal, control-plane, and generated-tree files relative to the runtime-audit basis `87a9afb246d4daf33431e7152c03f46a04e166fb`; runtime source is unchanged. Remote freshness beyond the local tracking ref was not fetched in this PM task.
 Frozen starting audit: `baselines/2026-08-09-repository-audit.md`
 
 ## Executive Summary
@@ -150,8 +150,8 @@ These are not authorized fixes. Reproduce each target flow, write a spec, and pr
 
 - Active implementation spec: none
 - Proposed spec: [`SPEC-0001 — First Reversible AI-Created Stick Animation from Workspace Chat`](specs/0001-first-reversible-ai-stick-animation.md), awaiting Arthur's review; no recommendation is accepted yet
-- Current task: documentation/design proposal complete; runtime implementation has not begun
-- Next operational priority: Arthur accepts, changes, or rejects SPEC-0001. If explicitly approved, Phase 1 alone becomes the next independently verified Codex task.
+- Current task: the proposal is durably integrated on `main`; the Project Manager is reconciling the control plane and recommending a pre-approval Spec Architect revision. Runtime implementation has not begun.
+- Next operational priority: revise the Proposed spec to resolve the PM review findings, then have Arthur accept, change, or reject its owner decisions. Phase 1 remains unauthorized.
 - Current roadmap phase: Phase 0 — preservation and stabilization
 
 See `SESSION_HANDOFF.md` for the exact next-session start point.

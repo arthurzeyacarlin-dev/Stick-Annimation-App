@@ -3,11 +3,15 @@
 Status: canonical owner and collaboration context
 Last updated: 2026-08-10
 
-## Product Owner
+## Ownership, Sponsorship, and PM Collaboration
 
-Arthur owns product vision, priorities, acceptance judgment, and final business decisions for Diamond Animator.
+Arthur is Diamond Animator's day-to-day product owner and primary user. He owns product vision, priority, acceptance, and durable product and business decisions.
 
-Codex can inspect, plan, implement, test, and maintain the repository directly in the current task. A separate ChatGPT-to-Codex handoff is not required unless Arthur explicitly chooses to split work across tasks.
+Oliver is Arthur's parent and project sponsor and established the current collaboration and process guidance. That sponsor role does not silently authorize a product decision, Git publication, paid or external-service use, privacy or legal commitment, or deployment; the action still requires an explicit instruction that covers it.
+
+The long-lived Codex Project Manager task is advisory and read-only by default. It maintains whole-product and repository context, recommends sequencing, prepares Spec Architect and implementation handoffs, and reviews returned specs and PM Review Packets. It does not implement product behavior or mutate repository or Git state unless explicitly assigned that work.
+
+Arthur is a young, capable product collaborator. Explain recommendations in direct, plain language without talking down to him or hiding important technical tradeoffs.
 
 ## Latest Direction
 
@@ -18,6 +22,7 @@ The latest product direction, captured on 2026-08-09, is:
 - Manual controls comparable in seriousness to established animation tools must remain available for fine-tuning and professional use.
 - Long-term project continuity across Codex tasks is mandatory.
 - Efficiency and cost matter alongside output quality.
+- Development progress may be shared publicly, so every update must distinguish Proposed, Implemented, and Verified work and must not overstate unfinished capability.
 - A custom Diamond Animator model may be explored later, but it is not required for the immediate product foundation.
 
 This direction supersedes older prose that framed AI only as a passive helper or described the workspaces as complete.
@@ -32,7 +37,10 @@ This direction supersedes older prose that framed AI only as a passive helper or
 - Do not stop at compile success.
 - Do not create an approval gate before the required PM Review Packet.
 - Do not stage, commit, push, deploy, seed remote data, or spend live AI credits unless the task authorizes it.
-- When a specification has multiple implementation phases, run each phase as one separate focused Codex task and independently verify its stop gate before starting the next phase.
+- Run each implementation phase in one separate focused Codex task and worktree based on the current canonical `main`; do not mix later-phase work into it.
+- Complete the authorized phase's stop gate, acceptance and regression proof, control-plane updates, and full PM Review Packet before Git publication.
+- Treat the PM Review Packet as evidence for human review, not as stage, commit, or push authorization. After explicit publication authorization, integrate the Verified phase into canonical `main` before starting the next phase in a new task.
+- Every implementation handoff should recommend the Codex model and reasoning level appropriate to that phase's risk.
 
 ## Why This Control Plane Exists
 

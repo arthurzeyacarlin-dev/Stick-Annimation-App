@@ -19,12 +19,17 @@ Starting from clean `main` at `87a9afb246d4daf33431e7152c03f46a04e166fb`, the cu
 
 No runtime source, dependency, database, environment value, Git index/history/remotes, GitHub setting, or deployment changed. Recommendations remain unaccepted until Arthur reviews them.
 
+The proposal and its control-plane updates were subsequently committed by Arthur and synchronized to the local `origin/main` tracking ref as docs-only commit `9a2cd373e268cc412cb0fcbea50af11513ef41c5`. That Git integration changed no runtime behavior, did not accept an owner decision, and did not approve or activate SPEC-0001.
+
 ## Current Git State
 
-- branch/basis: `main` at `87a9afb246d4daf33431e7152c03f46a04e166fb`
-- working tree: unstaged documentation/control-plane-only proposal changes, including the regenerated project-structure snapshot; no runtime source file changed
+- branch/HEAD at the start of the PM reconciliation: `main` at `9a2cd373e268cc412cb0fcbea50af11513ef41c5`
+- local upstream evidence: local `origin/main` resolves to the same SHA, with zero ahead/behind; no network fetch was performed in this PM task
+- starting worktree evidence: index, tracked worktree, and untracked set were clean
+- proposal integration: SPEC-0001 is tracked in the eight-file docs/control-plane/generated-tree commit `9a2cd37`; no runtime, dependency, configuration, database, or environment file changed in that commit
+- current PM work: unstaged control-plane-only reconciliation authorized by Oliver; no runtime source is modified
 - prohibited recovery branch: untouched and not used as a development base
-- no staging, commit, push, pull request, tag, or deployment occurred in this task
+- no staging, commit, push, pull request, tag, deployment, model request, or paid external operation occurred in the PM reconciliation
 
 ## Critical Git State
 
@@ -54,11 +59,13 @@ The recovery branch intentionally contains the old index tree and is not expecte
 
 ## Exact Next Start Point
 
-1. Run the required boot sequence from `main`, preserve the documentation changes if they are still uncommitted, and verify the exact branch/HEAD before any action.
-2. Read `docs/specs/0001-first-reversible-ai-stick-animation.md` and review its owner-decision table.
-3. Arthur accepts, changes, or rejects the proposal. Do not infer acceptance from its Proposed status and do not update `DECISIONS.md` before explicit acceptance.
-4. If Arthur explicitly approves it, change the spec to Approved, name it as active here, and run **Phase 1 only** as one new focused Codex task. Phases 2–6 remain forbidden until the immediately prior phase is independently Verified.
-5. If Arthur requests changes, keep the spec Proposed or return it to Draft while researching; do not begin implementation.
+1. Run the required boot sequence from current canonical `main`, preserve the PM control-plane changes if they are still uncommitted, and verify the exact branch/HEAD before any action.
+2. Send SPEC-0001 through one focused Spec Architect revision task to resolve the PM's pre-approval product, contract, phase-boundary, provider-budget, and verification findings. Keep it Proposed.
+3. Return the revised spec and PM Review Packet to the Project Manager. Arthur then accepts, changes, or rejects the owner-decision rows; Oliver's sponsor/process guidance is not acceptance of those rows.
+4. Do not change `docs/DECISIONS.md`, mark the spec Approved, or name it active until Arthur explicitly approves it.
+5. After explicit approval, verify and durably integrate the approval/status/control-plane changes into canonical `main` under separate Git authorization before creating a Phase 1 implementation task.
+6. Run Phase 1 alone in one new focused Codex task and worktree. Recommended implementation setting: `gpt-5.6-sol` with Extra High reasoning. Phases 2–6 remain forbidden until the immediately preceding phase is Verified and integrated.
+7. Each implementation task completes its phase proof, control-plane updates, and PM Review Packet, then waits for human acceptance and explicit stage/commit/push authorization. The next phase starts in a new task from the updated canonical `main`.
 
 ## Known Baseline Proof
 

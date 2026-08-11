@@ -41,6 +41,10 @@ This direction supersedes older prose that framed AI only as a passive helper or
 - Complete the authorized phase's stop gate, acceptance and regression proof, control-plane updates, and full PM Review Packet before Git publication.
 - Treat the PM Review Packet as evidence for human review, not as stage, commit, or push authorization. After explicit publication authorization, integrate the Verified phase into canonical `main` before starting the next phase in a new task.
 - Every implementation handoff should recommend the Codex model and reasoning level appropriate to that phase's risk.
+- Use progressive elaboration: make the current authorized phase exact, but turn non-blocking later-phase uncertainty into a named entry gate or follow-up rather than repeatedly rewriting the whole spec.
+- Consolidate PM findings into one review round. After one correction round, send a spec back only for a genuine blocker affecting the accepted outcome, an owner choice, material safety/cost/privacy/data risk, current-phase feasibility/proof, an authorized boundary, or a protected regression.
+- Start every implementation phase in Codex Plan mode so the new task refreshes evidence and presents its exact phase plan before implementation. Plan mode grants no additional scope or publication authority.
+- Default PM discussion, spec architecture, and normal implementation work to Extra High reasoning. Use High for small mechanical control-plane/Git work and straightforward reviews. Reserve Ultra for genuinely high-risk or conflicting work such as foundational state architecture, migration/data-loss risk, security/privacy boundaries, paid-provider authorization, or irreconcilable evidence.
 
 ## Why This Control Plane Exists
 

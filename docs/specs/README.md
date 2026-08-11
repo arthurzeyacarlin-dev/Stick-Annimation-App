@@ -1,19 +1,19 @@
 # Specification Index and Lifecycle
 
 Status: canonical spec registry
-Last updated: 2026-08-10
+Last updated: 2026-08-11
 
 ## Active Spec
 
-None. No spec is Approved or In progress.
+| Spec | Status | Active authorization |
+| --- | --- | --- |
+| [`SPEC-0001 — First Reversible AI-Created Stick Animation from Workspace Chat`](0001-first-reversible-ai-stick-animation.md) | Approved | Phase 1 only is **Authorized; Not started**. Separate Git publication/integration is required before implementation begins. |
 
 ## Proposed Specs
 
-| Spec | Status | Review state |
-| --- | --- | --- |
-| [`SPEC-0001 — First Reversible AI-Created Stick Animation from Workspace Chat`](0001-first-reversible-ai-stick-animation.md) | Proposed | PM pre-approval revision recommended; awaiting Arthur's later review; not active and no implementation is authorized. |
+None.
 
-Exact next step: complete the focused pre-approval revision, then Arthur accepts, changes, or rejects SPEC-0001's owner-decision rows. Only an explicit approval may move it to Approved and make Phase 1 the active implementation spec. The regression-harness gap remains open in QLT-004/QLT-005 and becomes a named dependency if Phase 5 cannot obtain objective offline browser proof.
+Exact next step: review this approval-recording packet, then use a separate explicit instruction to publish/integrate the control-plane state. Only after that integration may Phase 1 begin in a new Plan-mode implementation task. Phases 2–7 remain Unauthorized/Not started. The browser harness is a separate, currently unauthorized specification/implementation prerequisite after Phase 1 and before Phase 2. The Phase 7 Policy Gate, provider choices, external lookups, and paid/live requests remain deferred and unauthorized.
 
 ## Provisionally Promoted Legacy References
 
@@ -58,6 +58,14 @@ For a phased implementation spec:
 3. the packet is review evidence and does not itself authorize staging, committing, or pushing;
 4. Git publication occurs only after an explicit post-packet instruction; and
 5. the next phase starts in a new task only after the preceding phase is Verified and durably integrated into canonical `main`.
+
+Every implementation phase starts in Codex Plan mode for evidence refresh, execution-path tracing, and a phase-bounded plan before implementation begins.
+
+## Progressive Elaboration and Review Threshold
+
+Approval requires a safe, decision-complete user outcome and an implementable, verifiable current phase—not perfect foreknowledge of every later mechanic. Later-phase uncertainty should become a named entry gate, prerequisite, or follow-up unless it changes the accepted outcome or blocks the current phase.
+
+A spec returns for another correction round only when a consolidated review finds a genuine blocker: an unresolved owner choice or user-outcome change; material security, privacy, cost, data-loss, or external-service risk; an infeasible or unprovable current phase; an authorization-boundary conflict; or a protected regression. Bounded engineering details may be settled inside the authorized phase only when scope, safety, and acceptance remain unchanged.
 
 ## Promotion Rules
 

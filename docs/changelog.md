@@ -5,6 +5,58 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-11 — SPEC-0001 approved and Phase 1 authorized
+
+- recorded Arthur's explicit approval of `SPEC-0001 — First Reversible AI-Created Stick Animation from Workspace Chat`
+- accepted OD-01–OD-06 and OD-09 exactly as written and approved OD-07/08/10/11 as the governing engineering rules/prerequisites
+- deferred OD-12–OD-14, including exact provider model/reasoning/numeric policy, retention, cost-risk choice, and optional paid proof, to the separate Phase 7 Policy Gate
+- named SPEC-0001 active and Phase 1 **Authorized; Not started**; Phases 2–7 and the separate browser-harness prerequisite remain **Unauthorized; Not started**
+- preserved the requirement for separate approval-state Git publication/integration before Phase 1 may begin in a new Plan-mode implementation task
+
+This was a control-plane-only approval recording. No phase implementation, runtime, fixture, script, UI, API, storage, provider, harness, dependency, configuration, migration, environment, database, deployment, external lookup, search, Supabase request, paid/live request, staging, commit, or push occurred.
+
+### 2026-08-11 — SPEC-0001 manual/AI equality corrected
+
+- replaced the AI-only creation assumption with one human-accessible built-in `humanoid-11-v1` starter and the exact visible bounded actions needed to construct the same three-position wave without AI
+- specified honest **Hold Pose Through This Frame**, **Insert Blank Keyframe**, and **Start Pose from Previous** behavior over the same 12 canonical frame identities, followed by normal any-joint posing, playback, Undo/Redo, and local save/reopen
+- required the manual action sequence and AI command to use one mutation authority and to produce byte-identical animation-content projections/render inputs while permitting explicit revision, history, and pose-ID bookkeeping differences
+- updated only the affected Phase 1–4/6 fixtures, acceptance, regression, owner-review, and control-plane language; unrelated proof/provider/Phase 7 boundaries remain unchanged
+
+SPEC-0001 remains Proposed and inactive. Every owner row remains unaccepted. No runtime, API, dependency, configuration, migration, environment, database, external-service, paid-use, or Git publication behavior changed.
+
+### 2026-08-11 — SPEC-0001 final owner outcome corrected
+
+- kept the still-Proposed first animation at three key poses across displayed Frames 1–12, with keyframes at 1, 5, and 9 and held frames between them rather than 12 independently authored body positions
+- replaced the right-hand-only correction and permanent halo with equal manual editing for all 11 existing joints after AI Apply, fixture mount, or local reopen; held-frame edits target the controlling keyframe and use exact beginner-facing span copy
+- specified one non-persisted fixed 80-stage-unit horizontal line head centered on the editable head joint, with no circle, shape controls, extra joint, or AI-only editor state
+- updated Phase 1 fixtures/Arthur Review requirements and Phase 2–7 acceptance, persistence, regression, and later-spec boundaries without starting implementation or changing the prior proof/security/provider contracts
+
+SPEC-0001 remains Proposed and inactive. Every owner row remains unaccepted. No runtime, API, dependency, configuration, migration, environment, database, external-service, paid-use, or Git publication behavior changed.
+
+### 2026-08-10 — Progressive specification and review standard adopted
+
+- recorded durable process decision D-0008: make the current authorized phase exact and move non-blocking later-phase uncertainty to named entry gates or follow-ups
+- limited repeated spec correction rounds to genuine blockers involving the accepted outcome, owner choice, material safety/privacy/cost/data risk, current-phase feasibility/proof, authorized boundaries, or protected regressions
+- required consolidated PM findings, Plan-mode starts for every implementation phase, and risk-calibrated reasoning: Extra High by default, High for small mechanical work, and Ultra for genuinely high-risk or conflicting evidence
+- completed the bounded PM review of SPEC-0001's final proof-contract correction; the browser driver now covers the required proof operations, mounted Open is paused-only, and optional live-provider authority is one-use with no retry/restart rearm
+
+SPEC-0001 remains Proposed and inactive. No SPEC owner row, implementation phase, harness work, paid request, or Git publication was approved. No runtime behavior changed.
+
+### 2026-08-10 — SPEC-0001 final pre-approval and proof-contract corrections completed
+
+- revised the still-Proposed SPEC-0001 from clean `main` basis `c6cb52a28090510bcf78767a5c0d9c4af953b477` while preserving historical research basis `87a9afb246d4daf33431e7152c03f46a04e166fb` and docs-only proposal integration `9a2cd373e268cc412cb0fcbea50af11513ef41c5`
+- separated bounded non-wave Stick document validity from the exact wave-command profile, removed wave beats from persisted canonical poses, and proposed an explicit temporary one-humanoid/one-layer V1 cap; added truthful state-aware control copy, beginner correction/save copy, monotonic Creator-loss protection, and provider-free pre-submit availability
+- made the Phase 2 gesture boundary, asynchronous document/digest/generation publication root, canonical byte/hash/ID rules, race fixtures, raw UTF-8/duplicate-key request handling, and repeatable exact-anchor browser evidence precise
+- split the former combined mocked-chat phase into Phase 5 server raw-dispatch/mock and Phase 6 writable Stick chat/UI, renumbered provider integration to Phase 7, and stated the separate browser-harness implementation and Phase 7 Policy Gate outside the seven phase tasks
+- kept provisional byte/token/timeout/concurrency ceilings while deferring the exact model alias, provider retention, cost policy, and paid-request choices to Phase 7; retained supplied `$0.01412` arithmetic only as planning evidence and clarified that post-response usage checks cannot prevent incurred cost
+- reclassified visible owner choices, engineering defaults/prerequisites, and deferred Phase 7 gates; every row remains unaccepted
+- froze explicit versioned browser-driver, strict mount-wrapper, pre-navigation environment, and ordered channel-tagged proof-plan contracts; added an async Save pre-commit port instead of pretending synchronous Web Storage can defer; classified each required Phase 2–7 case as driver, visible UI, guarded HTTP, runner environment, or Node-only proof without undefined scenario conventions; split offline evidence, separately validated sanitized optional-live evidence, and final-diff closeout manifests, with the ignored closeout output excluded from its own attested byte set and catastrophic live-manifest loss closed through decision-bound, hash-matched, provider-free cleanup
+- made mounted Open paused-only, disables Play while its candidate is prepared, and requires the final serialized compare-and-swap to recheck paused playback so successful installation needs no second playback setter
+- required Phase 7 optional live proof to use one separately authorized root invoker, one ephemeral authorization pipe, one derived grant pipe, PID-bound process-local one-issue/one-claim counters, terminal failure states, and fresh-process/fork `absent` state; no reusable record, restart, refusal, timeout, abort, failure, or invalid response authorizes a second attempt
+- kept the spec Proposed/inactive, SPEC-001 open, every owner decision unaccepted, and every implementation phase not started
+
+No runtime/API/dependency/configuration/migration/environment/database/provider/deployment behavior changed. No external lookup, model/search/Supabase/paid request, Git stage/commit/push, or remote mutation occurred.
+
 ### 2026-08-10 — Proposal integration and phased-task workflow reconciled
 
 - reconciled the canonical Git state after Arthur's manual docs-only proposal commit `9a2cd373e268cc412cb0fcbea50af11513ef41c5`; runtime source remains unchanged from the prior audited basis

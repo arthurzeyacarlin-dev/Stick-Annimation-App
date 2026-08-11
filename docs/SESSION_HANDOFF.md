@@ -1,35 +1,49 @@
 # Session Handoff
 
 Status: canonical last-known stopping point
-Last updated: 2026-08-10
-Active spec: none
-Proposed spec awaiting owner review: `docs/specs/0001-first-reversible-ai-stick-animation.md`
+Last updated: 2026-08-11
+Active spec: `docs/specs/0001-first-reversible-ai-stick-animation.md` — Approved
+Active phase: Phase 1 — Authorized; Not started
 Current roadmap phase: Phase 0 — Preserve and Stabilize
 
 ## Completed in the Last Task
 
-Starting from clean `main` at `87a9afb246d4daf33431e7152c03f46a04e166fb`, the current AI, Stick editor, persistence/memory, server, and verification paths were re-audited and reconciled into one narrow Proposed specification:
+Starting from clean, synchronized `main` at `c6cb52a28090510bcf78767a5c0d9c4af953b477` and the preserved nine-file unstaged documentation worktree, Arthur's 2026-08-11 decision was recorded without implementation:
 
 - exact path: `docs/specs/0001-first-reversible-ai-stick-animation.md`
 - title: `SPEC-0001 — First Reversible AI-Created Stick Animation from Workspace Chat`
-- status: Proposed, awaiting Arthur; not Approved, active, implemented, or verified
-- bounded recommendation: one exact three-pose/one-figure/12 FPS wave prompt, real independent Stick key poses, explicit Preview → Apply, one atomic Undo/Redo transaction, one manual joint correction, and separate strict local save/reopen
-- delivery structure: six phases, each one separate focused Codex task with its own deterministic fixtures, protected regressions, real-app proof where applicable, stop gate, and handoff
-- external boundary: no model request, application search, Supabase call, paid request, or remote write; only official OpenAI documentation was read after Arthur permitted external calls
+- status: Approved and active; Phase 1 alone is Authorized/Not started; Phases 2–7 and the separate browser-harness prerequisite are Unauthorized/Not started
+- accepted decision: D-0009 records OD-01–OD-06 and OD-09 exactly, plus OD-07/08/10/11 as approved engineering rules/prerequisites; OD-12–OD-14 remain deferred to the Phase 7 Policy Gate
+- manual/AI-equality outcome: Home → New → Stick is approved to provide the same fixed built-in figure without AI; the exact bounded human controls hold Frame 1 through 4, insert/start independent poses at Frames 5 and 9, and hold them through 8 and 12; normal joint drags set the same three positions, and Phase 1 compares the manual and AI results through one canonical animation-content projection and renderer-input digests rather than falsely equating revision/history/pose-ID bookkeeping
+- owner-outcome revision: the result is exactly three body positions across displayed Frames 1–12—keyframes at 1, 5, and 9 with holds between them—not 12 independent positions; smoother motion and timeline authoring remain later work
+- manual editing revision: all 11 existing built-in joints use the same completed-edit path after AI Apply, fixture mount, or local reopen; a held-frame drag edits its controlling keyframe, and no joint has an always-on glow or privilege
+- rendering revision: the temporary V1 head is a derived fixed 80-stage-unit horizontal line centered on the editable head joint; it stores no shape/radius/rotation/style field and moves coherently with the head-to-neck connection
+- prompt revision: the golden sentence remains canonical, with only deterministic capitalization/exact ASCII-whitespace/one adjacent final-punctuation normalization and one suggestion chip
+- schema/control revision: canonical document poses are neutral, with `ready/inward/outward` confined to wave command/provider metadata; bounded V1 validity permits non-wave stage/FPS/timeline length/pose count/correction while accepted OD-03 applies a temporary one-humanoid/one-layer cap and plainly exposes the reduced intermediate creation/Creator-lock tradeoff; every current Stick control has truthful state-aware disposition/copy
+- safety revision: Phase 2 owns transient pointer movement, one pointer-up commit/revision, and exact pointer-cancel restoration; the workspace root atomically pairs document/revision with asynchronous ready digest and monotonic generation, blocks authoring/request/preview/apply while pending/failed, and has deterministic race proof
+- route/availability revision: provider-free pre-submit availability, a non-secret Stick transport marker, exact raw bytes/fatal UTF-8/duplicate-key parsing, and fail-closed dispatch precede the untouched Drawing path
+- proof/lifecycle revision: temporary routes are forbidden; a repository-owned browser/server-egress/offline-font harness is a separate spec/implementation between Phase 1 and Phase 2; a global proof-only exact-anchor exception requires verified preimage and byte-identical restoration in every browser phase; each phase stops at a PM Review Packet and needs separate Git publication/integration
+- proof-contract revision: the prerequisite now owns immutable versioned Workspace-driver, pre-navigation environment, and ordered channel-tagged browser-proof-plan contracts; strict workspace-mount wrappers carry baseline/generation/Creator-lock/instance policy; Preview Cancel, Request Stop, mounted Open/cancellation/races, publication tamper/failure, visible one-use Apply failure, and duplicate-at-publication cases have explicit operations; an async Save pre-commit port makes races executable without suspending synchronous Web Storage; every claimed case is classified as driver, visible UI, runner environment, guarded HTTP, or deliberately Node-only; evidence uses a non-self-referential offline proof manifest, separately validated sanitized optional-live manifest, and final-diff closeout whose byte set excludes its own ignored output, while a catastrophic live-manifest loss carries the attempted decision digest through hash-matched, provider-free cleanup and an honest null-live closeout
+- mounted-Open revision: mounted Open starts only while already paused, keeps Play unavailable while preparing, and its final serialized compare-and-swap rechecks paused playback; successful root installation therefore makes no false atomic claim over a second playback setter
+- phase revision: SPEC-0001 now has seven implementation phases—Phase 5 is server raw-dispatch/mock only, Phase 6 is writable Stick chat/UI on that verified boundary, and Phase 7 is provider integration; a separate documentation-only Phase 7 Policy Gate precedes provider implementation, so the practical project is not only seven Codex tasks
+- provider revision: the stale estimate is replaced by Arthur-supplied `$0.01412` planning arithmetic; model, retention, numerical policy, and paid proof remain Phase 7 gates; a post-response check is explicitly non-preventive, so the gate must approve a conservative pre-call mechanism or record Arthur's residual-overage-risk acceptance; optional live proof requires one separately authorized root-invoker run, one ephemeral authorization pipe, one derived grant pipe, PID-bound one-issue/one-claim authority, terminal invalidation on every failure, and fresh-process/fork absence, while offline Phase 7 may be Verified with live proof explicitly unperformed
 
-No runtime source, dependency, database, environment value, Git index/history/remotes, GitHub setting, or deployment changed. Recommendations remain unaccepted until Arthur reviews them.
+No runtime, API, dependency, configuration, migration, environment, database, provider, deployment, or Git publication behavior changed. No model request, external/application search, Supabase call, paid request, or new external lookup occurred. Only the approval/status/decision control plane changed.
 
-The proposal and its control-plane updates were subsequently committed by Arthur and synchronized to the local `origin/main` tracking ref as docs-only commit `9a2cd373e268cc412cb0fcbea50af11513ef41c5`. That Git integration changed no runtime behavior, did not accept an owner decision, and did not approve or activate SPEC-0001.
+Durable process decision D-0008 still governs execution: make the current phase exact, defer non-blocking later-phase detail to named entry gates, consolidate review findings, require a genuine blocker before another spec correction round, use risk-calibrated reasoning, and start every implementation phase in Codex Plan mode. D-0009 separately records Arthur's SPEC-0001 approval boundary.
+
+Historical evidence remains explicit: runtime research basis `87a9afb246d4daf33431e7152c03f46a04e166fb`; docs-only proposal integration `9a2cd373e268cc412cb0fcbea50af11513ef41c5`; PM control-plane publication/revision basis `c6cb52a28090510bcf78767a5c0d9c4af953b477`.
 
 ## Current Git State
 
-- branch/HEAD at the start of the PM reconciliation: `main` at `9a2cd373e268cc412cb0fcbea50af11513ef41c5`
-- local upstream evidence: local `origin/main` resolves to the same SHA, with zero ahead/behind; no network fetch was performed in this PM task
-- starting worktree evidence: index, tracked worktree, and untracked set were clean
+- branch/HEAD for the approval recording: `main` at `c6cb52a28090510bcf78767a5c0d9c4af953b477`
+- local upstream evidence: local `origin/main` resolves to the same SHA with zero ahead/behind; Arthur's supplied PM publication check also resolved GitHub `refs/heads/main` to that SHA
+- approval-task starting worktree evidence: exactly the expected nine unstaged documentation/control-plane paths were present; the index and untracked set were empty; all inherited work was preserved
 - proposal integration: SPEC-0001 is tracked in the eight-file docs/control-plane/generated-tree commit `9a2cd37`; no runtime, dependency, configuration, database, or environment file changed in that commit
-- current PM work: unstaged control-plane-only reconciliation authorized by Oliver; no runtime source is modified
+- PM publication basis: `c6cb52a` contains the later control-plane/process reconciliation and no runtime source change
+- current work: unstaged Approved-spec/decision/status control-plane revisions only; no runtime source is modified and Phase 1 has not started
 - prohibited recovery branch: untouched and not used as a development base
-- no staging, commit, push, pull request, tag, deployment, model request, or paid external operation occurred in the PM reconciliation
+- no staging, commit, push, pull request, tag, deployment, model request, search, Supabase request, or paid external operation occurred in this revision
 
 ## Critical Git State
 
@@ -59,15 +73,17 @@ The recovery branch intentionally contains the old index tree and is not expecte
 
 ## Exact Next Start Point
 
-1. Run the required boot sequence from current canonical `main`, preserve the PM control-plane changes if they are still uncommitted, and verify the exact branch/HEAD before any action.
-2. Send SPEC-0001 through one focused Spec Architect revision task to resolve the PM's pre-approval product, contract, phase-boundary, provider-budget, and verification findings. Keep it Proposed.
-3. Return the revised spec and PM Review Packet to the Project Manager. Arthur then accepts, changes, or rejects the owner-decision rows; Oliver's sponsor/process guidance is not acceptance of those rows.
-4. Do not change `docs/DECISIONS.md`, mark the spec Approved, or name it active until Arthur explicitly approves it.
-5. After explicit approval, verify and durably integrate the approval/status/control-plane changes into canonical `main` under separate Git authorization before creating a Phase 1 implementation task.
-6. Run Phase 1 alone in one new focused Codex task and worktree. Recommended implementation setting: `gpt-5.6-sol` with Extra High reasoning. Phases 2–6 remain forbidden until the immediately preceding phase is Verified and integrated.
-7. Each implementation task completes its phase proof, control-plane updates, and PM Review Packet, then waits for human acceptance and explicit stage/commit/push authorization. The next phase starts in a new task from the updated canonical `main`.
+1. Run the required boot sequence, preserve this unstaged revision, and verify branch/HEAD/upstream/worktree before any action.
+2. Review this control-plane approval packet. Arthur's accepted boundary is D-0009: OD-01–OD-06 and OD-09 accepted exactly; OD-07/08/10/11 approved as engineering rules/prerequisites; OD-12–OD-14 deferred.
+3. Stop before Git publication. A separate explicit instruction must authorize staging, committing, pushing, and integrating this approval into canonical `main`.
+4. Only after that integration may Phase 1 start in Codex Plan mode in one new task/worktree from the exact canonical-main SHA and implement Phase 1 alone. Phase 1 is currently Authorized/Not started.
+5. The repository-owned browser harness remains a separate, unauthorized specification/implementation/publication prerequisite after Phase 1 and before Phase 2.
+6. Phases 2–7 remain Unauthorized/Not started. Each requires the preceding phase's separate verification, publication, canonical-main integration, and new owner authorization.
+7. After Phase 6 is Verified/published/integrated, a separate documentation-only Phase 7 Policy Gate must be accepted/published/integrated before provider implementation. OD-12–OD-14 remain deferred. No external lookup or paid/live request is authorized by this approval; any later paid authorization permits only one named root-invoker run, one ephemeral authorization-pipe → grant-pipe chain, and one PID-bound claim, while restart/fork/direct relaunch never rearms it.
 
 ## Known Baseline Proof
+
+The results below are historical baseline evidence and were **not rerun** in this docs-only revision unless the final PM Review Packet explicitly says otherwise:
 
 - TypeScript: pass
 - ESLint: fail with 6 errors and 73 warnings
@@ -102,10 +118,10 @@ See `testing_workflow.md` for exact commands and caveats.
 
 ## Systems Intentionally Left Unchanged
 
-- all `app/**/*.tsx` behavior and API route behavior; four trailing-space characters in `app/page.tsx` were removed without semantic change
-- all `src/components/**` editor behavior; one trailing-space character in `DrawingWorkspace.tsx` was removed without semantic change
-- all `src/lib/ai/**` prompts, task availability, model routing, rendering, and reference examples; one trailing-space character in `generateFramesRuntime.ts` was removed without semantic change
+- all `app/**` runtime and API behavior
+- all `src/components/**` editor behavior
+- all `src/lib/**` contracts, prompts, task availability, model routing, rendering, storage, and memory behavior
 - drawing/stick timeline, playback, tween, canvas, history, save/open, and export logic
-- dependencies and package scripts
+- dependencies, lockfile, package scripts, TypeScript/Next configuration, migrations, and environment values
 - Supabase migrations/data and environment credential values
 - repository visibility/default-branch settings, recovery branch/tag, database contents, remote environment values, and deployment

@@ -1,8 +1,8 @@
 # Current State
 
 Status: canonical rolling snapshot
-Last verified: 2026-08-10 for project-work state and named source re-audit; visible-flow evidence remains dated 2026-08-09
-Current Git basis (locally verified 2026-08-10): proposal commit `9a2cd373e268cc412cb0fcbea50af11513ef41c5` on `main`; the local `origin/main` tracking ref resolves to the same SHA with zero ahead/behind. That commit changed only proposal, control-plane, and generated-tree files relative to the runtime-audit basis `87a9afb246d4daf33431e7152c03f46a04e166fb`; runtime source is unchanged. Remote freshness beyond the local tracking ref was not fetched in this PM task.
+Last verified: 2026-08-11 for project-work state and focused Stick source re-audit; visible-flow evidence remains dated 2026-08-09
+Current Git basis beneath the unstaged approval/control-plane revision (locally verified 2026-08-11): `main` at PM control-plane publication commit `c6cb52a28090510bcf78767a5c0d9c4af953b477`; local `origin/main` resolves to the same SHA with zero ahead/behind. Arthur's supplied PM publication check also resolved GitHub `refs/heads/main` to that SHA. Historical proposal integration is docs-only commit `9a2cd373e268cc412cb0fcbea50af11513ef41c5`; historical runtime-research basis is `87a9afb246d4daf33431e7152c03f46a04e166fb`. Path-limited comparison confirms no runtime/API/dependency/configuration/migration/environment change across those proposal/control-plane commits.
 Frozen starting audit: `baselines/2026-08-09-repository-audit.md`
 
 ## Executive Summary
@@ -148,10 +148,11 @@ These are not authorized fixes. Reproduce each target flow, write a spec, and pr
 
 ## Current Work State
 
-- Active implementation spec: none
-- Proposed spec: [`SPEC-0001 — First Reversible AI-Created Stick Animation from Workspace Chat`](specs/0001-first-reversible-ai-stick-animation.md), awaiting Arthur's review; no recommendation is accepted yet
-- Current task: the proposal is durably integrated on `main`; the Project Manager is reconciling the control plane and recommending a pre-approval Spec Architect revision. Runtime implementation has not begun.
-- Next operational priority: revise the Proposed spec to resolve the PM review findings, then have Arthur accept, change, or reject its owner decisions. Phase 1 remains unauthorized.
+- Active implementation spec: [`SPEC-0001 — First Reversible AI-Created Stick Animation from Workspace Chat`](specs/0001-first-reversible-ai-stick-animation.md), **Approved** by Arthur on 2026-08-11
+- Active authorization: **Phase 1 — Authorized; Not started.** Phases 2–7 are **Unauthorized; Not started**. The separate browser-harness prerequisite is also unauthorized and remains a separate task after Phase 1 and before Phase 2.
+- Accepted boundary: D-0009 records OD-01–OD-06 and OD-09 exactly as accepted and OD-07/08/10/11 as approved engineering rules/prerequisites. OD-12–OD-14 remain deferred and unaccepted until the Phase 7 Policy Gate.
+- Current task: control-plane approval recording only over the preserved unstaged documentation work from `c6cb52a`. No runtime contract, fixture, script, UI, API, storage, provider, harness, or phase implementation has begun.
+- Next operational priority: review this PM packet, then use a separate explicit Git-publication instruction to stage, commit, push, and integrate the approval state into canonical `main`. Only after integration may Phase 1 begin in a new Codex Plan-mode implementation task. Phases 2–7, browser-harness work, the Phase 7 Policy Gate, external lookups, and paid/live requests remain forbidden.
 - Current roadmap phase: Phase 0 — preservation and stabilization
 
 See `SESSION_HANDOFF.md` for the exact next-session start point.

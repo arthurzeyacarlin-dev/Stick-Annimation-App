@@ -53,6 +53,22 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Why: the working version is the coherent current shell and matches the live-verified Open Project, Drawing, Stick, and Creator flows; the index version is an older monolithic home/new/drawing generation.
 - Consequence: the recovery branch is historical and intentionally incomplete, receives no implementation pull request, and must remain until baseline acceptance makes deletion an explicit later decision.
 
+### D-0008 — Use progressive elaboration and risk-calibrated task starts
+
+- Date: 2026-08-10
+- Status: accepted project-operating decision under Oliver's explicit sponsor instruction; this accepts no SPEC-0001 owner row
+- Decision: make a spec decision-complete and safe for the currently authorized phase, move non-blocking later-phase uncertainty into explicit entry gates or follow-ups, consolidate PM findings into one review round, and require a genuine product/safety/current-phase blocker before another correction round. Start each implementation phase in Codex Plan mode. Use Extra High reasoning by default for PM/spec/normal implementation work, High for small mechanical control-plane or Git work, and Ultra only for genuinely high-risk or conflicting evidence.
+- Why: repeated attempts to make all later phases perfect before any implementation consumed a full working day without proportionate product-risk reduction.
+- Consequence: this standard does not lower acceptance or regression proof. User-outcome changes, owner choices, material security/privacy/cost/data-loss risk, current-phase feasibility or proof gaps, boundary violations, and protected regressions still block; bounded mechanics and later-phase details do not block earlier safe work.
+
+### D-0009 — Approve SPEC-0001 and authorize Phase 1 only
+
+- Date: 2026-08-11
+- Status: accepted by Arthur for `SPEC-0001`
+- Decision: approve [`SPEC-0001 — First Reversible AI-Created Stick Animation from Workspace Chat`](specs/0001-first-reversible-ai-stick-animation.md). Accept OD-01 through OD-06 and OD-09 exactly as written. Approve OD-07, OD-08, OD-10, and OD-11 as governing engineering rules and prerequisites. Defer OD-12 through OD-14, including exact provider model/reasoning/numeric policy, retention, cost-risk choice, and optional paid proof, until the separate Phase 7 Policy Gate.
+- Why: the spec now defines one narrow, reversible, human/AI-equivalent Stick animation outcome and divides the work into independently provable phases with explicit safety and publication boundaries.
+- Consequence: SPEC-0001 is active and Approved. Phase 1 alone is Authorized but Not started. Phases 2–7 are Unauthorized/Not started. The separate browser-harness prerequisite is not authorized by this decision. No provider integration, external lookup, search, Supabase request, retention choice, paid/live request, Git publication, or implementation work is authorized by this approval record. Phase 1 may begin only after this approval state is separately published and integrated into canonical `main`, in a new Plan-mode implementation task.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation
@@ -88,12 +104,14 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Status: pending product/architecture spec
 - Question: which commands preview, auto-apply, request confirmation, or require reversible transactions?
 - Needed before: enabling broad Other/actions or stick-workspace AI control.
+- Narrow SPEC-0001 resolution: D-0009 accepts Preview → explicit Apply and one atomic reversible transaction for the single approved Stick action only; the product-wide question remains pending.
 
 ### P-0005 — Cost and latency policy
 
 - Status: pending Arthur/product economics
 - Question: target cost, latency, token, retry, search, and model-escalation ceilings; mapping to credits.
 - Needed before: production AI defaults and paid regression gates.
+- SPEC-0001 status: OD-12 is explicitly deferred to the separate Phase 7 Policy Gate; D-0009 accepts no model, price, token, latency, or paid-request value.
 
 ### P-0006 — First usable manual stick feature set
 
@@ -106,9 +124,11 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Status: pending product/legal/security decision
 - Question: what workspace/project data can be sent to model/search providers, retained remotely, and logged locally?
 - Needed before: public deployment.
+- Narrow SPEC-0001 resolution: D-0009 accepts session-only transcript, minimized provider projection, search/tools off, and zero application-persistent Stick AI logs for this slice; provider retention and product-wide policy remain pending through OD-13/P-0007.
 
 ### P-0008 — AI-first stick vertical-slice sequencing
 
 - Status: pending Arthur/product architecture
 - Question: what minimum shared stick state model, reversible executor, persistence, and human corrective controls must exist before the first AI-led stick-animation slice, and which broader manual-editor controls can follow it?
 - Needed before: committing Phase 2/Phase 3 implementation order.
+- Narrow SPEC-0001 resolution: D-0009 accepts the seven-phase sequence, shared manual/AI mutation authority, bounded human safety floor, and separate browser-harness prerequisite for this slice; broader release sequencing remains pending.

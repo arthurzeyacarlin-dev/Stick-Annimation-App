@@ -74,6 +74,17 @@ Be explicit:
 
 For a phased implementation spec, one implementation task may execute exactly one authorized phase. It must complete that phase's stop gate, required acceptance and regression proof, control-plane updates, and full PM Review Packet, then stop before Git publication. The packet is review evidence, not authorization to stage, commit, or push. Those Git actions require an explicit instruction after packet review. A later phase starts in a new task only after the preceding phase is Verified and its explicitly authorized commit and push are durably integrated into canonical `main`.
 
+## Progressive Specification and Review Standard
+
+Specifications must be safe and decision-complete for the work they authorize; they do not need to predict every later implementation detail perfectly.
+
+- Make the currently authorized phase exact enough to implement and verify safely.
+- Record a later-phase uncertainty as a named entry gate, prerequisite, or follow-up decision when it does not change the accepted user outcome or the current phase.
+- Treat an issue as an approval blocker only when it changes the user outcome or an owner choice; creates material security, privacy, cost, data-loss, or external-service risk; makes the current phase infeasible or unprovable; breaks an authorized file/system boundary; or weakens a protected regression.
+- Allow bounded engineering mechanics to be resolved during the authorized phase when they preserve the accepted outcome, scope, safety boundaries, and proof. Material changes return to the owner or Spec Architect.
+- Consolidate PM review findings into one review packet. After one correction round, return a spec again only for a genuine blocker under the rule above; record non-blocking refinements for the relevant phase instead of chasing speculative completeness.
+- Start every implementation-phase task in Codex Plan mode for boot, evidence refresh, execution-path tracing, and an exact phase plan. Plan mode does not authorize repository mutation, later phases, Git publication, or external/paid operations; implementation begins only after leaving Plan mode under the phase's existing authorization.
+
 ## Required Control-Plane Boot Sequence
 
 `AGENTS.md` is the automatic bootloader for repository continuity. At the start of every task, before planning or editing:

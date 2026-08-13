@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "diamond-animator/spec-0001/proof-closeout-manifest-v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "closeoutVersion", "specId", "phase", "baseCommit", "headCommit", "finalizedAt", "proofManifest",
+    "trackedStateDigest", "trackedStateInventory", "indexEmpty", "allowlistedPaths", "artifactInventory",
+    "liveProofInput", "authorizationDecisionDigest", "liveProofManifestSha256", "liveProviderProof",
+    "liveProofEvidenceQuality", "liveCounts", "possibleCharge", "catastrophicEvidence"
+  ],
+  "properties": {
+    "closeoutVersion": {"const": 1},
+    "specId": {"const": "SPEC-0001"},
+    "phase": {"type": "integer", "minimum": 1, "maximum": 7},
+    "baseCommit": {"$ref": "#/$defs/gitSha"},
+    "headCommit": {"$ref": "#/$defs/gitSha"},
+    "finalizedAt": {"type": "string", "format": "date-time"},
+    "proofManifest": {"$ref": "#/$defs/fileBinding"},
+    "trackedStateDigest": {"$ref": "#/$defs/digest"},
+    "trackedStateInventory": {"type": "array", "items": {"$ref": "#/$defs/stateEntry"}},
+    "indexEmpty": {"const": true},
+    "allowlistedPaths": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "artifactInventory": {"type": "array", "items": {"$ref": "#/$defs/fileBinding"}},
+    "liveProofInput": {"type": "string"},
+    "authorizationDecisionDigest": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/rawDigest"}]},
+    "liveProofManifestSha256": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/digest"}]},
+    "liveProviderProof": {"enum": ["unperformed", "completed", "failed"]},
+    "liveProofEvidenceQuality": {"enum": ["not_attempted", "validated_manifest", "catastrophic_unproven"]},
+    "liveCounts": {"oneOf": [{"type": "null"}, {"const": "unknown"}, {"$ref": "#/$defs/liveCounts"}]},
+    "possibleCharge": {"oneOf": [{"type": "null"}, {"type": "boolean"}, {"const": "unknown"}]},
+    "catastrophicEvidence": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/catastrophicEvidence"}]}
+  },
+  "$defs": {
+    "gitSha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "rawDigest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "fileBinding": {
+      "type": "object", "additionalProperties": false, "required": ["path", "sha256", "byteLength"],
+      "properties": {"path": {"type": "string", "minLength": 1}, "sha256": {"$ref": "#/$defs/digest"}, "byteLength": {"type": "integer", "minimum": 0}}
+    },
+    "stateEntry": {
+      "type": "object", "additionalProperties": false, "required": ["path", "kind", "status", "byteLength", "sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "kind": {"enum": ["tracked", "untracked"]},
+        "status": {"enum": ["unchanged", "modified", "added"]},
+        "byteLength": {"type": "integer", "minimum": 0},
+        "sha256": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "zeroOrOne": {"type": "integer", "minimum": 0, "maximum": 1},
+    "liveCounts": {
+      "type": "object", "additionalProperties": false,
+      "required": ["authorizationDeliveryCount", "grantIssueCount", "grantClaimCount", "plannerInvocationCount", "httpTransportAttemptCount", "eligibleProviderPidCount"],
+      "properties": {
+        "authorizationDeliveryCount": {"$ref": "#/$defs/zeroOrOne"}, "grantIssueCount": {"$ref": "#/$defs/zeroOrOne"},
+        "grantClaimCount": {"$ref": "#/$defs/zeroOrOne"}, "plannerInvocationCount": {"$ref": "#/$defs/zeroOrOne"},
+        "httpTransportAttemptCount": {"$ref": "#/$defs/zeroOrOne"}, "eligibleProviderPidCount": {"$ref": "#/$defs/zeroOrOne"}
+      }
+    },
+    "catastrophicEvidence": {
+      "type": "object", "additionalProperties": false,
+      "required": ["cleanupReceipt", "observedArtifactSha256", "observedArtifactAbsent", "cleanupSucceeded", "residualArtifactCount"],
+      "properties": {
+        "cleanupReceipt": {"$ref": "#/$defs/fileBinding"},
+        "observedArtifactSha256": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/digest"}]},
+        "observedArtifactAbsent": {"type": "boolean"},
+        "cleanupSucceeded": {"const": true},
+        "residualArtifactCount": {"const": 0}
+      }
+    }
+  }
+}

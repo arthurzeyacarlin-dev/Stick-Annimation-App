@@ -1,0 +1,221 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "diamond-animator/spec-0001/proof-manifest-v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["manifestVersion", "specId", "phase", "baseCommit", "headCommit", "recordedAt", "runtime", "commandConfig", "receipts", "artifacts", "bindings", "evidence", "commandsPassed", "lintBaseline"],
+  "properties": {
+    "manifestVersion": {"const": 1},
+    "specId": {"const": "SPEC-0001"},
+    "phase": {"type": "integer", "minimum": 1, "maximum": 7},
+    "baseCommit": {"$ref": "#/$defs/gitSha"},
+    "headCommit": {"$ref": "#/$defs/gitSha"},
+    "recordedAt": {"type": "string", "format": "date-time"},
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["nodeVersion", "npmVersion", "browserVersion", "textEncoderAvailable", "webCryptoAvailable"],
+      "properties": {
+        "nodeVersion": {"type": "string", "minLength": 1},
+        "npmVersion": {"type": "string", "minLength": 1},
+        "browserVersion": {"oneOf": [{"type": "null"}, {"type": "string", "minLength": 1}]},
+        "textEncoderAvailable": {"const": true},
+        "webCryptoAvailable": {"const": true}
+      }
+    },
+    "commandConfig": {"$ref": "#/$defs/fileBinding"},
+    "receipts": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/fileBinding"}},
+    "artifacts": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/fileBinding"}},
+    "bindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sources", "fixtures", "schemas", "harness", "plans"],
+      "properties": {
+        "sources": {"type": "array", "items": {"$ref": "#/$defs/fileBinding"}},
+        "fixtures": {"type": "array", "items": {"$ref": "#/$defs/fileBinding"}},
+        "schemas": {"type": "array", "items": {"$ref": "#/$defs/fileBinding"}},
+        "harness": {"type": "array", "items": {"$ref": "#/$defs/fileBinding"}},
+        "plans": {"type": "array", "items": {"$ref": "#/$defs/fileBinding"}}
+      }
+    },
+    "evidence": {"$ref": "#/$defs/browserEvidence"},
+    "commandsPassed": {"const": true},
+    "lintBaseline": {"$ref": "#/$defs/lintBaseline"}
+  },
+  "$defs": {
+    "gitSha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "nullableDigest": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/digest"}]},
+    "safeCount": {"type": "integer", "minimum": 0},
+    "fileBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "byteLength"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/digest"},
+        "byteLength": {"$ref": "#/$defs/safeCount"}
+      }
+    },
+    "lintBaseline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["errors", "warnings", "phasePathFindings"],
+      "properties": {"errors": {"const": 6}, "warnings": {"const": 73}, "phasePathFindings": {"const": 0}}
+    },
+    "operationEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stepId", "channel", "operationId", "fixtureKind", "fixtureDigest", "outcomeCode", "assertion", "artifact"],
+      "properties": {
+        "stepId": {"type": "string", "minLength": 1},
+        "channel": {"enum": ["workspace_driver", "runner_environment", "visible_ui", "guarded_http", "node_only"]},
+        "operationId": {"type": "string", "minLength": 1},
+        "fixtureKind": {"oneOf": [{"type": "null"}, {"type": "string", "minLength": 1}]},
+        "fixtureDigest": {"$ref": "#/$defs/nullableDigest"},
+        "outcomeCode": {"type": "string", "minLength": 1},
+        "assertion": {"type": "boolean"},
+        "artifact": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/fileBinding"}]}
+      }
+    },
+    "stateCheckpoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["checkpointId", "sourceChannel", "operationId", "checkpointKind", "checkpointDigest", "assertionPassed", "artifact"],
+      "properties": {
+        "checkpointId": {"type": "string", "minLength": 1},
+        "sourceChannel": {"enum": ["workspace_driver", "runner_environment"]},
+        "operationId": {"type": "string", "minLength": 1},
+        "checkpointKind": {"enum": ["workspace", "environment"]},
+        "checkpointDigest": {"$ref": "#/$defs/digest"},
+        "assertionPassed": {"const": true},
+        "artifact": {"$ref": "#/$defs/fileBinding"}
+      }
+    },
+    "storageCheckpoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["checkpointId", "operationId", "storageDigest", "keyCount", "getAttemptCount", "getFailureCount", "setAttemptCount", "setSuccessCount", "setFailureCount", "artifact"],
+      "properties": {
+        "checkpointId": {"type": "string", "minLength": 1},
+        "operationId": {"type": "string", "minLength": 1},
+        "storageDigest": {"$ref": "#/$defs/digest"},
+        "keyCount": {"$ref": "#/$defs/safeCount"},
+        "getAttemptCount": {"$ref": "#/$defs/safeCount"},
+        "getFailureCount": {"$ref": "#/$defs/safeCount"},
+        "setAttemptCount": {"$ref": "#/$defs/safeCount"},
+        "setSuccessCount": {"$ref": "#/$defs/safeCount"},
+        "setFailureCount": {"$ref": "#/$defs/safeCount"},
+        "artifact": {"$ref": "#/$defs/fileBinding"}
+      }
+    },
+    "requestRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recordId", "operationId", "requestCount", "method", "path", "requestBodyDigest", "responseStatus", "responseBodyDigest", "artifact"],
+      "properties": {
+        "recordId": {"type": "string", "minLength": 1},
+        "operationId": {"type": "string", "minLength": 1},
+        "requestCount": {"$ref": "#/$defs/safeCount"},
+        "method": {"oneOf": [{"type": "null"}, {"type": "string", "pattern": "^[A-Z]+$"}]},
+        "path": {"oneOf": [{"type": "null"}, {"type": "string", "minLength": 1}]},
+        "requestBodyDigest": {"$ref": "#/$defs/nullableDigest"},
+        "responseStatus": {"oneOf": [{"type": "null"}, {"type": "integer", "minimum": 100, "maximum": 599}]},
+        "responseBodyDigest": {"$ref": "#/$defs/nullableDigest"},
+        "artifact": {"$ref": "#/$defs/fileBinding"}
+      }
+    },
+    "networkRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recordId", "boundary", "requestCount", "loopbackRequestCount", "nonLoopbackAttemptCount", "ledgerDigest", "artifact"],
+      "properties": {
+        "recordId": {"type": "string", "minLength": 1},
+        "boundary": {"enum": ["browser", "server", "child"]},
+        "requestCount": {"$ref": "#/$defs/safeCount"},
+        "loopbackRequestCount": {"$ref": "#/$defs/safeCount"},
+        "nonLoopbackAttemptCount": {"$ref": "#/$defs/safeCount"},
+        "ledgerDigest": {"$ref": "#/$defs/digest"},
+        "artifact": {"$ref": "#/$defs/fileBinding"}
+      }
+    },
+    "consoleRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recordId", "contextId", "warningCount", "errorCount", "ledgerDigest", "artifact"],
+      "properties": {
+        "recordId": {"type": "string", "minLength": 1},
+        "contextId": {"type": "string", "minLength": 1},
+        "warningCount": {"$ref": "#/$defs/safeCount"},
+        "errorCount": {"$ref": "#/$defs/safeCount"},
+        "ledgerDigest": {"$ref": "#/$defs/digest"},
+        "artifact": {"$ref": "#/$defs/fileBinding"}
+      }
+    },
+    "screenshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["screenshotId", "stepId", "viewport", "stateCheckpointDigest", "image"],
+      "properties": {
+        "screenshotId": {"type": "string", "minLength": 1},
+        "stepId": {"type": "string", "minLength": 1},
+        "viewport": {
+          "type": "object", "additionalProperties": false, "required": ["width", "height"],
+          "properties": {"width": {"enum": [1440, 1024]}, "height": {"enum": [900, 768]}}
+        },
+        "stateCheckpointDigest": {"$ref": "#/$defs/digest"},
+        "image": {"$ref": "#/$defs/fileBinding"}
+      }
+    },
+    "proofAnchor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "targetPath", "preimageSha256", "replacementSha256", "restoredSha256", "instrumentationAttributableDiff"],
+      "properties": {
+        "status": {"enum": ["not-applicable", "restored"]},
+        "targetPath": {"oneOf": [{"type": "null"}, {"type": "string", "minLength": 1}]},
+        "preimageSha256": {"$ref": "#/$defs/nullableDigest"},
+        "replacementSha256": {"$ref": "#/$defs/nullableDigest"},
+        "restoredSha256": {"$ref": "#/$defs/nullableDigest"},
+        "instrumentationAttributableDiff": {"oneOf": [{"type": "null"}, {"const": 0}]}
+      }
+    },
+    "cleanup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "reason", "proofAnchor", "isolatedContextCount", "closedContextCount", "activeGateCount", "activeInterceptCount", "childProcessCount", "openChildProcessCount", "residualArtifactPaths"],
+      "properties": {
+        "status": {"enum": ["not-applicable", "passed"]},
+        "reason": {"oneOf": [{"type": "null"}, {"type": "string", "minLength": 1}]},
+        "proofAnchor": {"$ref": "#/$defs/proofAnchor"},
+        "isolatedContextCount": {"$ref": "#/$defs/safeCount"},
+        "closedContextCount": {"$ref": "#/$defs/safeCount"},
+        "activeGateCount": {"$ref": "#/$defs/safeCount"},
+        "activeInterceptCount": {"$ref": "#/$defs/safeCount"},
+        "childProcessCount": {"$ref": "#/$defs/safeCount"},
+        "openChildProcessCount": {"$ref": "#/$defs/safeCount"},
+        "residualArtifactPaths": {"type": "array", "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "browserEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evidenceVersion", "browserStatus", "notApplicableReason", "browserVersion", "browserPlan", "operations", "stateCheckpoints", "storageCheckpoints", "requestRecords", "networkRecords", "consoleRecords", "screenshots", "cleanup"],
+      "properties": {
+        "evidenceVersion": {"const": 1},
+        "browserStatus": {"enum": ["not-applicable", "captured"]},
+        "notApplicableReason": {"oneOf": [{"type": "null"}, {"type": "string", "minLength": 1}]},
+        "browserVersion": {"oneOf": [{"type": "null"}, {"type": "string", "minLength": 1}]},
+        "browserPlan": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/fileBinding"}]},
+        "operations": {"type": "array", "items": {"$ref": "#/$defs/operationEvidence"}},
+        "stateCheckpoints": {"type": "array", "items": {"$ref": "#/$defs/stateCheckpoint"}},
+        "storageCheckpoints": {"type": "array", "items": {"$ref": "#/$defs/storageCheckpoint"}},
+        "requestRecords": {"type": "array", "items": {"$ref": "#/$defs/requestRecord"}},
+        "networkRecords": {"type": "array", "items": {"$ref": "#/$defs/networkRecord"}},
+        "consoleRecords": {"type": "array", "items": {"$ref": "#/$defs/consoleRecord"}},
+        "screenshots": {"type": "array", "items": {"$ref": "#/$defs/screenshot"}},
+        "cleanup": {"$ref": "#/$defs/cleanup"}
+      }
+    }
+  }
+}

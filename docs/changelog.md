@@ -5,6 +5,30 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-13 — SPEC-0001 Phase 1 blockers corrected and proof renewed
+
+- corrected the manual-action guards so each hold, blank insertion, and pose start accepts only its exact ordered predecessor state; skipped, repeated, reordered, wrong-target, wrong-owner, and malformed progressions now reject without mutation
+- strengthened the applied-wave predicate to require the approved starter identities, exact three wave profiles, frame timing, keyframe count, hold ownership, and bounded document structure
+- added independent right-arm geometry and wave-bound validation at the parsed-command boundary, including rejection of an unsafe command carrying a correctly recomputed digest
+- expanded the deterministic invalid-contract matrix to all 24 required categories and increased the contract proof from 373 to 631 assertions
+- froze strict source/fixture/schema/harness/plan bindings and the later state, storage, request, network, console, screenshot, cleanup, tracked-state, and complete sanitized Phase 7 live-proof shapes; self-tests now exercise the real receipt, manifest, finalizer, closeout, and live-manifest rejection paths
+- invalidated the 2026-08-12 proof and reran all seven commands from exact base `832d1f93630d7093514af3e81399077ebed696b4`; the final independently validated publication proof-manifest SHA-256 is `fe1d69c9d0fcc8e7131d064b6a8ee4c0bd99aea21b8a0f399840b4c2311937d7`
+- proved TypeScript passes and full lint remains exactly the known 6-error/73-warning baseline while every Phase 1 TypeScript file has zero lint findings
+- after Arthur and Project Manager review passed, published the exact reviewed 34-file Phase 1 boundary by fast-forwarding canonical `main`; Phase 1 is now Verified and integrated, while the browser-harness prerequisite and Phases 2–7 remain unauthorized and not started
+
+The earlier 2026-08-12 entry below is retained as history, but its proof manifest and premature Verified claim are superseded by this corrected, reviewed publication. No visible app, browser harness, Phase 2 work, dependency, package/lockfile, configuration, environment, migration, database, deployment, external request, or paid service changed.
+
+### 2026-08-12 — SPEC-0001 Phase 1 contracts and offline proof Verified
+
+- added the strict, browser-safe Stick V1 project/manual-action contract and bounded Stick AI request/provider-plan/command/result contract without wiring either into the visible app
+- added exactly 21 deterministic Phase 1 fixtures covering the fixed 11-joint/10-segment humanoid, three-position wave at displayed Frames 1/5/9, held frames, human/AI content equality, canonical hashes/derived IDs, prompt normalization, line-head vectors, non-wave valid documents, invalid input, and evidence schemas/commands
+- added the four authorized offline proof tools: 373-assertion contract validator, executed-command recorder, independent proof validator, and tracked-state closeout finalizer
+- recorded and independently validated all seven approved commands from exact base `832d1f93630d7093514af3e81399077ebed696b4`; proof-manifest SHA-256 is `7e3d439ebce87849b6dd04a1f8cf2f2f4cb2889ff1bd652fe989cc58f402eb1e`
+- proved TypeScript passes and full lint remains exactly the known 6-error/73-warning baseline while every Phase 1 TypeScript file has zero lint findings
+- marked Phase 1 Verified in its separate worktree and stopped before staging, commit, push, browser-harness work, Phase 2, external lookup, or any paid/live request
+
+No visible app, React component, API route, persistence/history/playback system, Drawing AI path, dependency, package/lockfile, configuration, environment, migration, database, deployment, or remote state changed. Real-app verification was not applicable by design because Phase 1 is hidden contracts/fixtures/offline proof only.
+
 ### 2026-08-11 — SPEC-0001 approved and Phase 1 authorized
 
 - recorded Arthur's explicit approval of `SPEC-0001 — First Reversible AI-Created Stick Animation from Workspace Chat`

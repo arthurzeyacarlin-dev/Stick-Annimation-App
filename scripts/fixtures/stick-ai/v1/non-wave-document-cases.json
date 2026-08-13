@@ -1,0 +1,11 @@
+{
+  "caseVersion": 1,
+  "cases": [
+    {"name": "different-stage", "source": "fresh", "operation": "set-stage", "value": {"id": "stick-stage-1600x900-v1", "width": 1600, "height": 1080}},
+    {"name": "different-fps", "source": "fresh", "operation": "set-fps", "value": 24},
+    {"name": "shorter-timeline", "source": "fresh", "operation": "slice-cells", "value": 6},
+    {"name": "canonical-blank-keyframe", "source": "fresh", "operation": "blank-keyframe", "value": 4},
+    {"name": "corrected-coordinate", "source": "fresh", "operation": "set-head-x", "value": 940},
+    {"name": "different-revision", "source": "fresh", "operation": "set-revision", "value": 1}
+  ]
+}

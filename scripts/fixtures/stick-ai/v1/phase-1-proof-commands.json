@@ -1,0 +1,51 @@
+{
+  "configVersion": 1,
+  "phase": 1,
+  "baseCommit": "832d1f93630d7093514af3e81399077ebed696b4",
+  "bindings": {
+    "sources": [
+      "src/lib/stickfigure/stickProjectContract.ts",
+      "src/lib/ai/stickFigureAiContract.ts",
+      "scripts/validateStickFigureAiContracts.ts",
+      "scripts/recordSpec0001ProofBundle.ts",
+      "scripts/validateSpec0001ProofBundle.ts",
+      "scripts/finalizeSpec0001ProofBundle.ts"
+    ],
+    "fixtures": [
+      "scripts/fixtures/stick-ai/v1/canonical-hash-vectors.json",
+      "scripts/fixtures/stick-ai/v1/derived-id-vectors.json",
+      "scripts/fixtures/stick-ai/v1/fresh-stick-project.json",
+      "scripts/fixtures/stick-ai/v1/invalid-contract-cases.json",
+      "scripts/fixtures/stick-ai/v1/manual-ai-content-equivalence.json",
+      "scripts/fixtures/stick-ai/v1/manual-wave-actions.json",
+      "scripts/fixtures/stick-ai/v1/manual-wave-applied-project.json",
+      "scripts/fixtures/stick-ai/v1/non-wave-document-cases.json",
+      "scripts/fixtures/stick-ai/v1/prompt-normalization-cases.json",
+      "scripts/fixtures/stick-ai/v1/stick-line-head-vectors.json",
+      "scripts/fixtures/stick-ai/v1/stick-manual-edit-capability-cases.json",
+      "scripts/fixtures/stick-ai/v1/wave-applied-project.json",
+      "scripts/fixtures/stick-ai/v1/wave-command-batch.json",
+      "scripts/fixtures/stick-ai/v1/wave-command-results.json",
+      "scripts/fixtures/stick-ai/v1/wave-provider-plan.json",
+      "scripts/fixtures/stick-ai/v1/wave-request.json"
+    ],
+    "schemas": [
+      "scripts/fixtures/stick-ai/v1/phase7-live-proof-manifest.schema.json",
+      "scripts/fixtures/stick-ai/v1/proof-closeout-manifest.schema.json",
+      "scripts/fixtures/stick-ai/v1/proof-command-receipt.schema.json",
+      "scripts/fixtures/stick-ai/v1/proof-manifest.schema.json"
+    ],
+    "harness": [],
+    "plans": []
+  },
+  "browserEvidenceInput": null,
+  "commands": [
+    {"name": "contract-validator", "argv": ["node", "--experimental-strip-types", "scripts/validateStickFigureAiContracts.ts"], "cwd": ".", "env": {}, "expectedExitCode": 0, "privacy": "sanitized"},
+    {"name": "proof-validator-self-test", "argv": ["node", "--experimental-strip-types", "scripts/validateSpec0001ProofBundle.ts", "--self-test"], "cwd": ".", "env": {}, "expectedExitCode": 0, "privacy": "sanitized"},
+    {"name": "proof-finalizer-self-test", "argv": ["node", "--experimental-strip-types", "scripts/finalizeSpec0001ProofBundle.ts", "--self-test"], "cwd": ".", "env": {}, "expectedExitCode": 0, "privacy": "sanitized"},
+    {"name": "typescript", "argv": ["./node_modules/.bin/tsc", "--noEmit", "--incremental", "false"], "cwd": ".", "env": {}, "expectedExitCode": 0, "privacy": "sanitized"},
+    {"name": "lint-regression", "argv": ["npm", "run", "lint"], "cwd": ".", "env": {}, "expectedExitCode": 1, "privacy": "sanitized", "lintBaseline": {"errors": 6, "warnings": 73, "phasePathFindings": 0}},
+    {"name": "diff-check", "argv": ["git", "diff", "--check"], "cwd": ".", "env": {}, "expectedExitCode": 0, "privacy": "sanitized"},
+    {"name": "status", "argv": ["git", "status", "--short", "--branch"], "cwd": ".", "env": {}, "expectedExitCode": 0, "privacy": "sanitized"}
+  ]
+}

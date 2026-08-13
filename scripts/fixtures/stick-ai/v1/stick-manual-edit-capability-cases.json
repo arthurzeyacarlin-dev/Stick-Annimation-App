@@ -1,0 +1,14 @@
+{
+  "caseVersion": 1,
+  "roles": ["head", "neck", "hip", "leftElbow", "leftHand", "rightElbow", "rightHand", "leftKnee", "leftFoot", "rightKnee", "rightFoot"],
+  "editableScenarios": [
+    {"name": "fresh-built-in", "document": "fresh-stick-project.json", "frameIndex": 0},
+    {"name": "manually-started", "document": "manual-wave-applied-project.json", "frameIndex": 4},
+    {"name": "ai-applied", "document": "wave-applied-project.json", "frameIndex": 8},
+    {"name": "fixture-mounted", "document": "wave-applied-project.json", "frameIndex": 0},
+    {"name": "locally-reopened", "document": "manual-wave-applied-project.json", "frameIndex": 8}
+  ],
+  "nonEditableScenarios": [
+    {"name": "blank-keyframe-has-no-pose", "source": "fresh-stick-project.json", "operation": "blank-keyframe", "frameIndex": 4}
+  ]
+}

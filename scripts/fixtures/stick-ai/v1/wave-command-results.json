@@ -1,0 +1,125 @@
+[
+  {
+    "kind": "stick-command-result",
+    "resultVersion": 1,
+    "requestId": "00000000-0000-4000-8000-000000000501",
+    "transactionId": "00000000-0000-4000-8000-000000000502",
+    "projectId": "00000000-0000-4000-8000-000000000001",
+    "envelopeDigest": "sha256:94bbabd3a4b96a268c7f8650e0d5f6a15e86366ddae43d3794bae58384b1775f",
+    "previousDocumentRevision": 0,
+    "preStateDigest": "sha256:81b8e9b183af1a198b1bb512c8726919ade0a764ffffe38e1d77964aeff88b2b",
+    "status": "previewed",
+    "resultingDocumentRevision": null,
+    "mutationCount": 0,
+    "candidateDigest": "sha256:bc64e2faa86d4c2bf749fdb948b5160407277f9a8f6bc3ca82a6b9323e6691f5",
+    "previewSummary": {
+      "figureCount": 1,
+      "keyPoseCount": 3,
+      "fps": 12,
+      "timelineFrameCount": 12,
+      "durationMs": 1000
+    },
+    "error": null
+  },
+  {
+    "kind": "stick-command-result",
+    "resultVersion": 1,
+    "requestId": "00000000-0000-4000-8000-000000000501",
+    "transactionId": "00000000-0000-4000-8000-000000000502",
+    "projectId": "00000000-0000-4000-8000-000000000001",
+    "envelopeDigest": "sha256:94bbabd3a4b96a268c7f8650e0d5f6a15e86366ddae43d3794bae58384b1775f",
+    "previousDocumentRevision": 0,
+    "preStateDigest": "sha256:81b8e9b183af1a198b1bb512c8726919ade0a764ffffe38e1d77964aeff88b2b",
+    "status": "applied",
+    "resultingDocumentRevision": 1,
+    "mutationCount": 1,
+    "candidateDigest": "sha256:bc64e2faa86d4c2bf749fdb948b5160407277f9a8f6bc3ca82a6b9323e6691f5",
+    "previewSummary": {
+      "figureCount": 1,
+      "keyPoseCount": 3,
+      "fps": 12,
+      "timelineFrameCount": 12,
+      "durationMs": 1000
+    },
+    "error": null
+  },
+  {
+    "kind": "stick-command-result",
+    "resultVersion": 1,
+    "requestId": "00000000-0000-4000-8000-000000000501",
+    "transactionId": "00000000-0000-4000-8000-000000000502",
+    "projectId": "00000000-0000-4000-8000-000000000001",
+    "envelopeDigest": "sha256:94bbabd3a4b96a268c7f8650e0d5f6a15e86366ddae43d3794bae58384b1775f",
+    "previousDocumentRevision": 0,
+    "preStateDigest": "sha256:81b8e9b183af1a198b1bb512c8726919ade0a764ffffe38e1d77964aeff88b2b",
+    "status": "duplicate",
+    "resultingDocumentRevision": 1,
+    "mutationCount": 0,
+    "candidateDigest": "sha256:bc64e2faa86d4c2bf749fdb948b5160407277f9a8f6bc3ca82a6b9323e6691f5",
+    "previewSummary": {
+      "figureCount": 1,
+      "keyPoseCount": 3,
+      "fps": 12,
+      "timelineFrameCount": 12,
+      "durationMs": 1000
+    },
+    "error": null
+  },
+  {
+    "kind": "stick-command-result",
+    "resultVersion": 1,
+    "requestId": "00000000-0000-4000-8000-000000000501",
+    "transactionId": "00000000-0000-4000-8000-000000000502",
+    "projectId": "00000000-0000-4000-8000-000000000001",
+    "envelopeDigest": "sha256:94bbabd3a4b96a268c7f8650e0d5f6a15e86366ddae43d3794bae58384b1775f",
+    "previousDocumentRevision": 0,
+    "preStateDigest": "sha256:81b8e9b183af1a198b1bb512c8726919ade0a764ffffe38e1d77964aeff88b2b",
+    "status": "rejected",
+    "resultingDocumentRevision": null,
+    "mutationCount": 0,
+    "candidateDigest": null,
+    "previewSummary": null,
+    "error": {
+      "code": "unsupported_prompt",
+      "message": "This request is not supported."
+    }
+  },
+  {
+    "kind": "stick-command-result",
+    "resultVersion": 1,
+    "requestId": "00000000-0000-4000-8000-000000000501",
+    "transactionId": "00000000-0000-4000-8000-000000000502",
+    "projectId": "00000000-0000-4000-8000-000000000001",
+    "envelopeDigest": "sha256:94bbabd3a4b96a268c7f8650e0d5f6a15e86366ddae43d3794bae58384b1775f",
+    "previousDocumentRevision": 0,
+    "preStateDigest": "sha256:81b8e9b183af1a198b1bb512c8726919ade0a764ffffe38e1d77964aeff88b2b",
+    "status": "failed",
+    "resultingDocumentRevision": null,
+    "mutationCount": 0,
+    "candidateDigest": null,
+    "previewSummary": null,
+    "error": {
+      "code": "transaction_failed",
+      "message": "No changes were made."
+    }
+  },
+  {
+    "kind": "stick-command-result",
+    "resultVersion": 1,
+    "requestId": "00000000-0000-4000-8000-000000000501",
+    "transactionId": "00000000-0000-4000-8000-000000000502",
+    "projectId": "00000000-0000-4000-8000-000000000001",
+    "envelopeDigest": "sha256:94bbabd3a4b96a268c7f8650e0d5f6a15e86366ddae43d3794bae58384b1775f",
+    "previousDocumentRevision": 0,
+    "preStateDigest": "sha256:81b8e9b183af1a198b1bb512c8726919ade0a764ffffe38e1d77964aeff88b2b",
+    "status": "cancelled",
+    "resultingDocumentRevision": null,
+    "mutationCount": 0,
+    "candidateDigest": null,
+    "previewSummary": null,
+    "error": {
+      "code": "preview_cancelled",
+      "message": "Preview cancelled. No changes were made."
+    }
+  }
+]

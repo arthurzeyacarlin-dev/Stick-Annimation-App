@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "diamond-animator/spec-0001/phase7-live-proof-manifest-v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "kind", "manifestVersion", "specId", "phase", "baseSha", "headSha", "transport", "liveProofStatus",
+    "authorizationDecisionDigest", "policySha256", "expectedProviderPayloadSha256", "authorizationRecordDigest",
+    "grantDigest", "eligibleProcessTreeDigest", "invokerTerminal", "issuerTerminal", "serverTerminal", "counts",
+    "closure", "result"
+  ],
+  "properties": {
+    "kind": {"const": "stick-ai-live-proof-manifest"},
+    "manifestVersion": {"const": 1},
+    "specId": {"const": "SPEC-0001"},
+    "phase": {"const": 7},
+    "baseSha": {"$ref": "#/$defs/gitSha"},
+    "headSha": {"$ref": "#/$defs/gitSha"},
+    "transport": {"enum": ["script", "browser"]},
+    "liveProofStatus": {"enum": ["completed", "failed"]},
+    "authorizationDecisionDigest": {"$ref": "#/$defs/rawDigest"},
+    "policySha256": {"$ref": "#/$defs/digest"},
+    "expectedProviderPayloadSha256": {"$ref": "#/$defs/digest"},
+    "authorizationRecordDigest": {"$ref": "#/$defs/nullableDigest"},
+    "grantDigest": {"$ref": "#/$defs/nullableDigest"},
+    "eligibleProcessTreeDigest": {"$ref": "#/$defs/nullableDigest"},
+    "invokerTerminal": {"$ref": "#/$defs/invokerTerminal"},
+    "issuerTerminal": {"$ref": "#/$defs/issuerTerminal"},
+    "serverTerminal": {"$ref": "#/$defs/serverTerminal"},
+    "counts": {"$ref": "#/$defs/counts"},
+    "closure": {"$ref": "#/$defs/closure"},
+    "result": {"$ref": "#/$defs/result"}
+  },
+  "$defs": {
+    "gitSha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "rawDigest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "nullableDigest": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/digest"}]},
+    "zeroOrOne": {"type": "integer", "minimum": 0, "maximum": 1},
+    "invokerTerminal": {
+      "oneOf": [
+        {"type": "object", "additionalProperties": false, "required": ["status"], "properties": {"status": {"const": "delivered"}}},
+        {"type": "object", "additionalProperties": false, "required": ["status", "outcome"], "properties": {"status": {"const": "invalidated"}, "outcome": {"enum": ["record_construction_failed", "launcher_spawn_failed", "authorization_pipe_write_failed", "process_exit"]}}}
+      ]
+    },
+    "issuerTerminal": {
+      "oneOf": [
+        {"type": "object", "additionalProperties": false, "required": ["status"], "properties": {"status": {"enum": ["absent", "issued"]}}},
+        {"type": "object", "additionalProperties": false, "required": ["status", "outcome"], "properties": {"status": {"const": "invalidated"}, "outcome": {"enum": ["grant_construction_failed", "child_spawn_failed", "grant_pipe_write_failed", "child_exit_before_issue", "process_exit"]}}}
+      ]
+    },
+    "serverOutcome": {"enum": ["preflight_rejected", "success", "refusal", "timeout", "abort", "network_failure", "invalid_response", "audit_overage", "client_construction_failure", "process_identity_mismatch", "process_exit"]},
+    "serverTerminal": {
+      "oneOf": [
+        {"type": "object", "additionalProperties": false, "required": ["status"], "properties": {"status": {"const": "absent"}}},
+        {"type": "object", "additionalProperties": false, "required": ["status", "outcome"], "properties": {"status": {"const": "consumed"}, "outcome": {"$ref": "#/$defs/serverOutcome"}}}
+      ]
+    },
+    "counts": {
+      "type": "object", "additionalProperties": false,
+      "required": ["authorizationDeliveryCount", "grantIssueCount", "grantClaimCount", "plannerInvocationCount", "httpTransportAttemptCount", "eligibleProviderPidCount"],
+      "properties": {
+        "authorizationDeliveryCount": {"$ref": "#/$defs/zeroOrOne"},
+        "grantIssueCount": {"$ref": "#/$defs/zeroOrOne"},
+        "grantClaimCount": {"$ref": "#/$defs/zeroOrOne"},
+        "plannerInvocationCount": {"$ref": "#/$defs/zeroOrOne"},
+        "httpTransportAttemptCount": {"$ref": "#/$defs/zeroOrOne"},
+        "eligibleProviderPidCount": {"$ref": "#/$defs/zeroOrOne"}
+      }
+    },
+    "closure": {
+      "type": "object", "additionalProperties": false,
+      "required": ["authorizationPipeClosed", "grantPipeClosed", "invokerClosed", "launcherClosed", "childClosed", "serverClosed"],
+      "properties": {
+        "authorizationPipeClosed": {"const": true}, "grantPipeClosed": {"const": true}, "invokerClosed": {"const": true},
+        "launcherClosed": {"const": true}, "childClosed": {"const": true}, "serverClosed": {"const": true}
+      }
+    },
+    "stableCode": {"enum": ["success", "record_construction_failed", "launcher_spawn_failed", "authorization_pipe_write_failed", "grant_construction_failed", "child_spawn_failed", "grant_pipe_write_failed", "child_exit_before_issue", "preflight_rejected", "provider_refusal", "timeout", "aborted", "network_failure", "invalid_response", "audit_overage", "client_construction_failure", "process_identity_mismatch", "process_exit"]},
+    "nullableCount": {"oneOf": [{"type": "null"}, {"type": "integer", "minimum": 0}]},
+    "result": {
+      "type": "object", "additionalProperties": false,
+      "required": ["stableCode", "possibleCharge", "providerModel", "reportedInputTokens", "reportedOutputTokens", "auditedUsdMicros", "durationMs", "retentionEvidenceDigest"],
+      "properties": {
+        "stableCode": {"$ref": "#/$defs/stableCode"},
+        "possibleCharge": {"type": "boolean"},
+        "providerModel": {"oneOf": [{"type": "null"}, {"type": "string", "minLength": 1}]},
+        "reportedInputTokens": {"$ref": "#/$defs/nullableCount"},
+        "reportedOutputTokens": {"$ref": "#/$defs/nullableCount"},
+        "auditedUsdMicros": {"$ref": "#/$defs/nullableCount"},
+        "durationMs": {"type": "integer", "minimum": 0},
+        "retentionEvidenceDigest": {"$ref": "#/$defs/nullableDigest"}
+      }
+    }
+  }
+}

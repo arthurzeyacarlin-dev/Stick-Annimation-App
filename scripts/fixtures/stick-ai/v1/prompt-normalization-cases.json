@@ -1,0 +1,22 @@
+{
+  "caseVersion": 1,
+  "normalizedIntent": "create a simple three-pose wave animation with one stick figure at 12 fps",
+  "accepted": [
+    {"name": "canonical", "input": "Create a simple three-pose wave animation with one stick figure at 12 FPS."},
+    {"name": "capitalization", "input": "CREATE A SIMPLE THREE-POSE WAVE ANIMATION WITH ONE STICK FIGURE AT 12 FPS."},
+    {"name": "ascii-whitespace", "input": "\tCreate  a simple\nthree-pose wave animation with one stick figure at 12 FPS.\f"},
+    {"name": "adjacent-exclamation", "input": "Create a simple three-pose wave animation with one stick figure at 12 FPS!"},
+    {"name": "adjacent-question", "input": "Create a simple three-pose wave animation with one stick figure at 12 FPS?"}
+  ],
+  "rejected": [
+    {"name": "changed-count", "input": "Create a simple four-pose wave animation with one stick figure at 12 FPS."},
+    {"name": "changed-fps", "input": "Create a simple three-pose wave animation with one stick figure at 24 FPS."},
+    {"name": "added-clause", "input": "Create a simple three-pose wave animation with one stick figure at 12 FPS and a hat."},
+    {"name": "space-before-punctuation", "input": "Create a simple three-pose wave animation with one stick figure at 12 FPS ."},
+    {"name": "doubled-punctuation", "input": "Create a simple three-pose wave animation with one stick figure at 12 FPS!!"},
+    {"name": "internal-punctuation", "input": "Create a simple, three-pose wave animation with one stick figure at 12 FPS."},
+    {"name": "nbsp-leading", "input": " Create a simple three-pose wave animation with one stick figure at 12 FPS."},
+    {"name": "nbsp-internal", "input": "Create a simple three-pose wave animation with one stick figure at 12 FPS."},
+    {"name": "wrong-hyphen", "input": "Create a simple three pose wave animation with one stick figure at 12 FPS."}
+  ]
+}

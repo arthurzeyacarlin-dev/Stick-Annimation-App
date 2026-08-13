@@ -1,0 +1,15 @@
+[
+  {"actionVersion": 1, "type": "set-joint", "targetFrameIndex": 0, "jointRole": "rightElbow", "point": {"x": 1080, "y": 360}},
+  {"actionVersion": 1, "type": "set-joint", "targetFrameIndex": 0, "jointRole": "rightHand", "point": {"x": 1160, "y": 260}},
+  {"actionVersion": 1, "type": "hold-pose-through", "targetFrameIndex": 3},
+  {"actionVersion": 1, "type": "insert-blank-keyframe", "targetFrameIndex": 4},
+  {"actionVersion": 1, "type": "start-pose-from-previous", "targetFrameIndex": 4, "newPoseId": "00000000-0000-4000-8000-000000000402"},
+  {"actionVersion": 1, "type": "set-joint", "targetFrameIndex": 4, "jointRole": "rightElbow", "point": {"x": 1080, "y": 300}},
+  {"actionVersion": 1, "type": "set-joint", "targetFrameIndex": 4, "jointRole": "rightHand", "point": {"x": 1020, "y": 220}},
+  {"actionVersion": 1, "type": "hold-pose-through", "targetFrameIndex": 7},
+  {"actionVersion": 1, "type": "insert-blank-keyframe", "targetFrameIndex": 8},
+  {"actionVersion": 1, "type": "start-pose-from-previous", "targetFrameIndex": 8, "newPoseId": "00000000-0000-4000-8000-000000000403"},
+  {"actionVersion": 1, "type": "set-joint", "targetFrameIndex": 8, "jointRole": "rightElbow", "point": {"x": 1120, "y": 300}},
+  {"actionVersion": 1, "type": "set-joint", "targetFrameIndex": 8, "jointRole": "rightHand", "point": {"x": 1280, "y": 220}},
+  {"actionVersion": 1, "type": "hold-pose-through", "targetFrameIndex": 11}
+]

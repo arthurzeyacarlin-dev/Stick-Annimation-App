@@ -1,0 +1,52 @@
+{
+  "kind": "stick-ai-request",
+  "requestVersion": 1,
+  "requestId": "00000000-0000-4000-8000-000000000501",
+  "transactionId": "00000000-0000-4000-8000-000000000502",
+  "workspaceType": "stick-figure",
+  "prompt": "Create a simple three-pose wave animation with one stick figure at 12 FPS.",
+  "capabilityManifest": {
+    "manifestVersion": 1,
+    "capabilities": ["stick.pose-sequence.create/v1"],
+    "promptIntentVersion": 1,
+    "limits": {
+      "maxActions": 1,
+      "maxRigs": 1,
+      "maxFigures": 1,
+      "maxTargetLayers": 1,
+      "maxKeyPoses": 3,
+      "maxTimelineFrames": 12,
+      "jointsPerPose": 11,
+      "segmentsPerRig": 10,
+      "allowedFps": [12],
+      "promptBytes": 128,
+      "requestBytes": 16384,
+      "providerPlanBytes": 8192,
+      "commandBytes": 32768,
+      "coordinateSpace": "stick-stage-1920x1080-v1",
+      "search": "disabled",
+      "tools": "disabled"
+    }
+  },
+  "projectContext": {
+    "kind": "stick-project-context",
+    "contextVersion": 1,
+    "schemaVersion": 1,
+    "projectId": "00000000-0000-4000-8000-000000000001",
+    "documentRevision": 0,
+    "baseDocumentDigest": "sha256:81b8e9b183af1a198b1bb512c8726919ade0a764ffffe38e1d77964aeff88b2b",
+    "workspaceType": "stick-figure",
+    "waveStarterEligible": true,
+    "coordinateSpace": "stick-stage-1920x1080-v1",
+    "fps": 12,
+    "activeLayerId": "00000000-0000-4000-8000-000000000004",
+    "layerCount": 1,
+    "targetRigId": "00000000-0000-4000-8000-000000000002",
+    "targetFigureId": "00000000-0000-4000-8000-000000000003",
+    "starterPoseId": "00000000-0000-4000-8000-000000000401",
+    "figureCount": 1,
+    "authoredPoseCount": 1,
+    "timelineFrameCount": 12,
+    "emptyCellCount": 11
+  }
+}

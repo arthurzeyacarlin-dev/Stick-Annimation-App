@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "diamond-animator/spec-0001/proof-command-receipt-v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["receiptVersion", "name", "order", "argv", "cwd", "env", "privacy", "startedAt", "durationMs", "exitCode", "expectedExitCode", "passed", "stdout", "stderr", "lintBaseline"],
+  "properties": {
+    "receiptVersion": {"const": 1},
+    "name": {"type": "string", "minLength": 1},
+    "order": {"type": "integer", "minimum": 0},
+    "argv": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "cwd": {"const": "."},
+    "env": {"type": "object", "additionalProperties": {"type": "string"}},
+    "privacy": {"const": "sanitized"},
+    "startedAt": {"type": "string", "format": "date-time"},
+    "durationMs": {"type": "integer", "minimum": 0},
+    "exitCode": {"type": "integer"},
+    "expectedExitCode": {"type": "integer"},
+    "passed": {"type": "boolean"},
+    "stdout": {"$ref": "#/$defs/capturedBytes"},
+    "stderr": {"$ref": "#/$defs/capturedBytes"},
+    "lintBaseline": {
+      "oneOf": [
+        {"type": "null"},
+        {"type": "object", "additionalProperties": false, "required": ["errors", "warnings", "phasePathFindings"], "properties": {"errors": {"const": 6}, "warnings": {"const": 73}, "phasePathFindings": {"const": 0}}}
+      ]
+    }
+  },
+  "$defs": {
+    "capturedBytes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["encoding", "byteLength", "sha256", "data"],
+      "properties": {
+        "encoding": {"const": "base64"},
+        "byteLength": {"type": "integer", "minimum": 0},
+        "sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+        "data": {"type": "string", "contentEncoding": "base64"}
+      }
+    }
+  }
+}

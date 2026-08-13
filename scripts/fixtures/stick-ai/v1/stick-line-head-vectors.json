@@ -1,0 +1,10 @@
+{
+  "vectorVersion": 1,
+  "vectors": [
+    {"name": "starter", "head": {"x": 960, "y": 240}, "expected": {"rule": "line-head-80-v1", "styleToken": "normal-body-line", "from": {"x": 920, "y": 240}, "to": {"x": 1000, "y": 240}, "length": 80}},
+    {"name": "moved-left", "head": {"x": 800, "y": 300}, "expected": {"rule": "line-head-80-v1", "styleToken": "normal-body-line", "from": {"x": 760, "y": 300}, "to": {"x": 840, "y": 300}, "length": 80}},
+    {"name": "moved-right", "head": {"x": 1200, "y": 180}, "expected": {"rule": "line-head-80-v1", "styleToken": "normal-body-line", "from": {"x": 1160, "y": 180}, "to": {"x": 1240, "y": 180}, "length": 80}}
+  ],
+  "connectivity": {"from": "head", "to": "neck"},
+  "storedHeadFields": []
+}

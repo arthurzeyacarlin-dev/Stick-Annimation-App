@@ -1,0 +1,11 @@
+{
+  "kind": "stick-wave-plan",
+  "planVersion": 1,
+  "fps": 12,
+  "totalFrames": 12,
+  "poses": [
+    {"beat": "ready", "rightElbow": {"x": 1080, "y": 360}, "rightHand": {"x": 1160, "y": 260}},
+    {"beat": "inward", "rightElbow": {"x": 1080, "y": 300}, "rightHand": {"x": 1020, "y": 220}},
+    {"beat": "outward", "rightElbow": {"x": 1120, "y": 300}, "rightHand": {"x": 1280, "y": 220}}
+  ]
+}

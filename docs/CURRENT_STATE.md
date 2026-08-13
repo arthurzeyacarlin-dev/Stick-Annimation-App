@@ -1,8 +1,8 @@
 # Current State
 
 Status: canonical rolling snapshot
-Last verified: 2026-08-11 for project-work state and focused Stick source re-audit; visible-flow evidence remains dated 2026-08-09
-Current Git basis beneath the unstaged approval/control-plane revision (locally verified 2026-08-11): `main` at PM control-plane publication commit `c6cb52a28090510bcf78767a5c0d9c4af953b477`; local `origin/main` resolves to the same SHA with zero ahead/behind. Arthur's supplied PM publication check also resolved GitHub `refs/heads/main` to that SHA. Historical proposal integration is docs-only commit `9a2cd373e268cc412cb0fcbea50af11513ef41c5`; historical runtime-research basis is `87a9afb246d4daf33431e7152c03f46a04e166fb`. Path-limited comparison confirms no runtime/API/dependency/configuration/migration/environment change across those proposal/control-plane commits.
+Last verified: 2026-08-13 for corrected SPEC-0001 Phase 1 contracts/fixtures/offline proof; visible-flow evidence remains dated 2026-08-09 because Phase 1 intentionally changes no visible app behavior
+Current Git basis: SPEC-0001 Phase 1 is published and integrated into canonical `main` by the publication commit containing this record, whose parent/base is `832d1f93630d7093514af3e81399077ebed696b4` (`Approve SPEC-0001 and authorize Phase 1`). Implementation and renewed proof were completed in the separate worktree `/Users/arthurcarlin/.codex/worktrees/89d9/stick-animation-app` on branch `codex/spec-0001-phase-1`; Arthur and the Project Manager then passed the corrected PM Review Packet before the authorized fast-forward publication. No recovery branch was used or changed.
 Frozen starting audit: `baselines/2026-08-09-repository-audit.md`
 
 ## Executive Summary
@@ -12,6 +12,8 @@ Diamond Animator is a substantial local prototype, not an empty starter and not 
 The most developed path is the raster Drawing Workspace: it has drawing tools, layers, a long timeline, playback, history, onion skinning, position-only bitmap motion tweens, text objects, inline sound playback, local project save/open, and a hybrid Generate Frames pipeline that can use a deterministic plan directly or convert structured model output into deterministic Canvas2D artwork.
 
 The Stick Figure Workspace and separate Stick Figure Creator are early functional scaffolds. Their UI exists and parts of a live skeleton graph can be edited, but timeline frames do not yet hold independent pose data, projects cannot be saved/opened, and creator Save is disabled.
+
+SPEC-0001 Phase 1 now adds hidden, unwired V1 Stick contracts and deterministic offline proof: one fixed 11-joint/10-segment humanoid, strict project/manual-action/AI-command formats, canonical WebCrypto hashing, a derived horizontal line head, identical manual/AI animation-content goldens, rejection fixtures, and a receipt/closeout proof harness. The 2026-08-13 correction makes timeline building strictly ordered, binds the applied-wave predicate to the exact starter identities/profile/timing, reruns wave-arm safety on correctly hashed commands, executes the complete invalid matrix, and freezes the full later-phase evidence/live-proof shapes. These contracts are not yet connected to the Workspace, so the visible scaffold behavior above remains unchanged.
 
 Only the Drawing AI “Generate Frames” task is enabled. Generate Plans, Generate Sounds, and Other are intentionally disabled even though their prompt/reference and orchestration code exists.
 
@@ -149,10 +151,10 @@ These are not authorized fixes. Reproduce each target flow, write a spec, and pr
 ## Current Work State
 
 - Active implementation spec: [`SPEC-0001 — First Reversible AI-Created Stick Animation from Workspace Chat`](specs/0001-first-reversible-ai-stick-animation.md), **Approved** by Arthur on 2026-08-11
-- Active authorization: **Phase 1 — Authorized; Not started.** Phases 2–7 are **Unauthorized; Not started**. The separate browser-harness prerequisite is also unauthorized and remains a separate task after Phase 1 and before Phase 2.
+- Active phase status: **Phase 1 — Verified, published, and integrated into canonical `main`.** Phases 2–7 are **Unauthorized; Not started**. The separate browser-harness prerequisite is also unauthorized and remains a separate task after Phase 1 and before Phase 2.
 - Accepted boundary: D-0009 records OD-01–OD-06 and OD-09 exactly as accepted and OD-07/08/10/11 as approved engineering rules/prerequisites. OD-12–OD-14 remain deferred and unaccepted until the Phase 7 Policy Gate.
-- Current task: control-plane approval recording only over the preserved unstaged documentation work from `c6cb52a`. No runtime contract, fixture, script, UI, API, storage, provider, harness, or phase implementation has begun.
-- Next operational priority: review this PM packet, then use a separate explicit Git-publication instruction to stage, commit, push, and integrate the approval state into canonical `main`. Only after integration may Phase 1 begin in a new Codex Plan-mode implementation task. Phases 2–7, browser-harness work, the Phase 7 Policy Gate, external lookups, and paid/live requests remain forbidden.
+- Current task result: the exact two Phase 1 contracts, 21 fixtures, and four proof tools are implemented and corrected. The 631-assertion contract validator covers the ordered-progression, applied-profile, rehashed-command safety, and complete invalid-matrix blockers. The publication proof manifest at `output/spec-0001/phase-1/proof-manifest.json` independently validates with SHA-256 `fe1d69c9d0fcc8e7131d064b6a8ee4c0bd99aea21b8a0f399840b4c2311937d7`. TypeScript passes; lint remains the known 6-error/73-warning baseline with zero findings in Phase 1 files. Real-app/browser, storage, request, network, screenshot, and anchor proof is explicitly not applicable in Phase 1 because no UI/runtime component or harness was wired.
+- Next operational priority: stop after Phase 1 publication. The separate browser-harness prerequisite may begin only under its own future specification and authorization. Phase 2 still cannot begin until that prerequisite is Verified/published/integrated and Arthur separately authorizes Phase 2. The Phase 7 Policy Gate, external lookups, and paid/live requests remain forbidden.
 - Current roadmap phase: Phase 0 — preservation and stabilization
 
 See `SESSION_HANDOFF.md` for the exact next-session start point.

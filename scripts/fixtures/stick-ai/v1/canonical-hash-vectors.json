@@ -1,0 +1,82 @@
+[
+  {
+    "name": "empty-string",
+    "value": "",
+    "canonicalText": "\"\"",
+    "utf8ByteLength": 2,
+    "utf8Hex": "2222",
+    "digest": "sha256:12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
+    "nodeCryptoDigest": "sha256:12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126"
+  },
+  {
+    "name": "abc",
+    "value": "abc",
+    "canonicalText": "\"abc\"",
+    "utf8ByteLength": 5,
+    "utf8Hex": "2261626322",
+    "digest": "sha256:6cc43f858fbb763301637b5af970e2a46b46f461f27e5a0f41e009c59b827b25",
+    "nodeCryptoDigest": "sha256:6cc43f858fbb763301637b5af970e2a46b46f461f27e5a0f41e009c59b827b25"
+  },
+  {
+    "name": "unicode-nfc",
+    "value": {
+      "word": "café",
+      "face": "😀"
+    },
+    "canonicalText": "{\"face\":\"😀\",\"word\":\"café\"}",
+    "utf8ByteLength": 30,
+    "utf8Hex": "7b2266616365223a22f09f9880222c22776f7264223a22636166c3a9227d",
+    "digest": "sha256:72ab55df11c70d11319e3f49ae29128b61ae882ea77e345c42d63197dfccf954",
+    "nodeCryptoDigest": "sha256:72ab55df11c70d11319e3f49ae29128b61ae882ea77e345c42d63197dfccf954"
+  },
+  {
+    "name": "escaped-string",
+    "value": {
+      "text": "line\\n\"quoted\"\\slash"
+    },
+    "canonicalText": "{\"text\":\"line\\\\n\\\"quoted\\\"\\\\slash\"}",
+    "utf8ByteLength": 35,
+    "utf8Hex": "7b2274657874223a226c696e655c5c6e5c2271756f7465645c225c5c736c617368227d",
+    "digest": "sha256:b2259a40a43186ade90409249aa94aa818f00cc5056d9b29c68e8ca6dfe28465",
+    "nodeCryptoDigest": "sha256:b2259a40a43186ade90409249aa94aa818f00cc5056d9b29c68e8ca6dfe28465"
+  },
+  {
+    "name": "nested-key-order",
+    "value": {
+      "z": 1,
+      "a": {
+        "y": 2,
+        "b": 3
+      }
+    },
+    "canonicalText": "{\"a\":{\"b\":3,\"y\":2},\"z\":1}",
+    "utf8ByteLength": 25,
+    "utf8Hex": "7b2261223a7b2262223a332c2279223a327d2c227a223a317d",
+    "digest": "sha256:10d6b907e50339871355376854e16e87112120f63b9ce9bca2913907cd2a124d",
+    "nodeCryptoDigest": "sha256:10d6b907e50339871355376854e16e87112120f63b9ce9bca2913907cd2a124d"
+  },
+  {
+    "name": "array-order",
+    "value": [
+      3,
+      1,
+      2
+    ],
+    "canonicalText": "[3,1,2]",
+    "utf8ByteLength": 7,
+    "utf8Hex": "5b332c312c325d",
+    "digest": "sha256:51bda7ab4e44726cde71fcb6e4b515357059bb6b6dd5146d1fc50f73f11678c6",
+    "nodeCryptoDigest": "sha256:51bda7ab4e44726cde71fcb6e4b515357059bb6b6dd5146d1fc50f73f11678c6"
+  },
+  {
+    "name": "negative-zero",
+    "value": {
+      "number": 0
+    },
+    "canonicalText": "{\"number\":0}",
+    "utf8ByteLength": 12,
+    "utf8Hex": "7b226e756d626572223a307d",
+    "digest": "sha256:37e0043fa06b9c3790cd32d713dfda30e7ce8217f30ef142d2732c18ea0024d2",
+    "nodeCryptoDigest": "sha256:37e0043fa06b9c3790cd32d713dfda30e7ce8217f30ef142d2732c18ea0024d2"
+  }
+]

@@ -1,19 +1,19 @@
 # Specification Index and Lifecycle
 
 Status: canonical spec registry
-Last updated: 2026-08-11
+Last updated: 2026-08-13
 
 ## Active Spec
 
 | Spec | Status | Active authorization |
 | --- | --- | --- |
-| [`SPEC-0001 — First Reversible AI-Created Stick Animation from Workspace Chat`](0001-first-reversible-ai-stick-animation.md) | Approved | Phase 1 only is **Authorized; Not started**. Separate Git publication/integration is required before implementation begins. |
+| [`SPEC-0001 — First Reversible AI-Created Stick Animation from Workspace Chat`](0001-first-reversible-ai-stick-animation.md) | Approved | Phase 1 is **Verified, published, and integrated into canonical `main`**. The browser-harness prerequisite and Phases 2–7 remain unauthorized and not started. |
 
 ## Proposed Specs
 
 None.
 
-Exact next step: review this approval-recording packet, then use a separate explicit instruction to publish/integrate the control-plane state. Only after that integration may Phase 1 begin in a new Plan-mode implementation task. Phases 2–7 remain Unauthorized/Not started. The browser harness is a separate, currently unauthorized specification/implementation prerequisite after Phase 1 and before Phase 2. The Phase 7 Policy Gate, provider choices, external lookups, and paid/live requests remain deferred and unauthorized.
+Exact next step: stop after the completed Phase 1 publication. The browser harness remains a separate, currently unauthorized specification/implementation prerequisite before Phase 2. Phases 2–7 remain Unauthorized/Not started. The Phase 7 Policy Gate, provider choices, external lookups, and paid/live requests remain deferred and unauthorized.
 
 ## Provisionally Promoted Legacy References
 

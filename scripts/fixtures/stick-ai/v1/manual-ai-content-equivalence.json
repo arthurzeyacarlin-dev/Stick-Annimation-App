@@ -1,0 +1,629 @@
+{
+  "equivalenceVersion": 1,
+  "manualContent": {
+    "contentVersion": 1,
+    "coordinateSpace": {
+      "height": 1080,
+      "id": "stick-stage-1920x1080-v1",
+      "kind": "stick-integer-stage-v1",
+      "origin": "top-left",
+      "width": 1920,
+      "xAxis": "right",
+      "yAxis": "down"
+    },
+    "fps": 12,
+    "rigTemplate": "humanoid-11-v1",
+    "jointRoleOrder": [
+      "head",
+      "neck",
+      "hip",
+      "leftElbow",
+      "leftHand",
+      "rightElbow",
+      "rightHand",
+      "leftKnee",
+      "leftFoot",
+      "rightKnee",
+      "rightFoot"
+    ],
+    "segmentRolePairs": [
+      {
+        "from": "head",
+        "to": "neck"
+      },
+      {
+        "from": "neck",
+        "to": "hip"
+      },
+      {
+        "from": "neck",
+        "to": "leftElbow"
+      },
+      {
+        "from": "leftElbow",
+        "to": "leftHand"
+      },
+      {
+        "from": "neck",
+        "to": "rightElbow"
+      },
+      {
+        "from": "rightElbow",
+        "to": "rightHand"
+      },
+      {
+        "from": "hip",
+        "to": "leftKnee"
+      },
+      {
+        "from": "leftKnee",
+        "to": "leftFoot"
+      },
+      {
+        "from": "hip",
+        "to": "rightKnee"
+      },
+      {
+        "from": "rightKnee",
+        "to": "rightFoot"
+      }
+    ],
+    "figureLabel": "Stick Figure 1",
+    "lineHeadRule": "line-head-80-v1",
+    "timeline": [
+      {
+        "index": 0,
+        "cellType": "keyframe",
+        "pointsByRole": [
+          {
+            "role": "head",
+            "x": 960,
+            "y": 240
+          },
+          {
+            "role": "neck",
+            "x": 960,
+            "y": 340
+          },
+          {
+            "role": "hip",
+            "x": 960,
+            "y": 620
+          },
+          {
+            "role": "leftElbow",
+            "x": 820,
+            "y": 460
+          },
+          {
+            "role": "leftHand",
+            "x": 760,
+            "y": 580
+          },
+          {
+            "role": "rightElbow",
+            "x": 1080,
+            "y": 360
+          },
+          {
+            "role": "rightHand",
+            "x": 1160,
+            "y": 260
+          },
+          {
+            "role": "leftKnee",
+            "x": 900,
+            "y": 800
+          },
+          {
+            "role": "leftFoot",
+            "x": 840,
+            "y": 980
+          },
+          {
+            "role": "rightKnee",
+            "x": 1020,
+            "y": 800
+          },
+          {
+            "role": "rightFoot",
+            "x": 1080,
+            "y": 980
+          }
+        ]
+      },
+      {
+        "index": 1,
+        "cellType": "hold",
+        "ownerIndex": 0
+      },
+      {
+        "index": 2,
+        "cellType": "hold",
+        "ownerIndex": 0
+      },
+      {
+        "index": 3,
+        "cellType": "hold",
+        "ownerIndex": 0
+      },
+      {
+        "index": 4,
+        "cellType": "keyframe",
+        "pointsByRole": [
+          {
+            "role": "head",
+            "x": 960,
+            "y": 240
+          },
+          {
+            "role": "neck",
+            "x": 960,
+            "y": 340
+          },
+          {
+            "role": "hip",
+            "x": 960,
+            "y": 620
+          },
+          {
+            "role": "leftElbow",
+            "x": 820,
+            "y": 460
+          },
+          {
+            "role": "leftHand",
+            "x": 760,
+            "y": 580
+          },
+          {
+            "role": "rightElbow",
+            "x": 1080,
+            "y": 300
+          },
+          {
+            "role": "rightHand",
+            "x": 1020,
+            "y": 220
+          },
+          {
+            "role": "leftKnee",
+            "x": 900,
+            "y": 800
+          },
+          {
+            "role": "leftFoot",
+            "x": 840,
+            "y": 980
+          },
+          {
+            "role": "rightKnee",
+            "x": 1020,
+            "y": 800
+          },
+          {
+            "role": "rightFoot",
+            "x": 1080,
+            "y": 980
+          }
+        ]
+      },
+      {
+        "index": 5,
+        "cellType": "hold",
+        "ownerIndex": 4
+      },
+      {
+        "index": 6,
+        "cellType": "hold",
+        "ownerIndex": 4
+      },
+      {
+        "index": 7,
+        "cellType": "hold",
+        "ownerIndex": 4
+      },
+      {
+        "index": 8,
+        "cellType": "keyframe",
+        "pointsByRole": [
+          {
+            "role": "head",
+            "x": 960,
+            "y": 240
+          },
+          {
+            "role": "neck",
+            "x": 960,
+            "y": 340
+          },
+          {
+            "role": "hip",
+            "x": 960,
+            "y": 620
+          },
+          {
+            "role": "leftElbow",
+            "x": 820,
+            "y": 460
+          },
+          {
+            "role": "leftHand",
+            "x": 760,
+            "y": 580
+          },
+          {
+            "role": "rightElbow",
+            "x": 1120,
+            "y": 300
+          },
+          {
+            "role": "rightHand",
+            "x": 1280,
+            "y": 220
+          },
+          {
+            "role": "leftKnee",
+            "x": 900,
+            "y": 800
+          },
+          {
+            "role": "leftFoot",
+            "x": 840,
+            "y": 980
+          },
+          {
+            "role": "rightKnee",
+            "x": 1020,
+            "y": 800
+          },
+          {
+            "role": "rightFoot",
+            "x": 1080,
+            "y": 980
+          }
+        ]
+      },
+      {
+        "index": 9,
+        "cellType": "hold",
+        "ownerIndex": 8
+      },
+      {
+        "index": 10,
+        "cellType": "hold",
+        "ownerIndex": 8
+      },
+      {
+        "index": 11,
+        "cellType": "hold",
+        "ownerIndex": 8
+      }
+    ]
+  },
+  "aiContent": {
+    "contentVersion": 1,
+    "coordinateSpace": {
+      "height": 1080,
+      "id": "stick-stage-1920x1080-v1",
+      "kind": "stick-integer-stage-v1",
+      "origin": "top-left",
+      "width": 1920,
+      "xAxis": "right",
+      "yAxis": "down"
+    },
+    "fps": 12,
+    "rigTemplate": "humanoid-11-v1",
+    "jointRoleOrder": [
+      "head",
+      "neck",
+      "hip",
+      "leftElbow",
+      "leftHand",
+      "rightElbow",
+      "rightHand",
+      "leftKnee",
+      "leftFoot",
+      "rightKnee",
+      "rightFoot"
+    ],
+    "segmentRolePairs": [
+      {
+        "from": "head",
+        "to": "neck"
+      },
+      {
+        "from": "neck",
+        "to": "hip"
+      },
+      {
+        "from": "neck",
+        "to": "leftElbow"
+      },
+      {
+        "from": "leftElbow",
+        "to": "leftHand"
+      },
+      {
+        "from": "neck",
+        "to": "rightElbow"
+      },
+      {
+        "from": "rightElbow",
+        "to": "rightHand"
+      },
+      {
+        "from": "hip",
+        "to": "leftKnee"
+      },
+      {
+        "from": "leftKnee",
+        "to": "leftFoot"
+      },
+      {
+        "from": "hip",
+        "to": "rightKnee"
+      },
+      {
+        "from": "rightKnee",
+        "to": "rightFoot"
+      }
+    ],
+    "figureLabel": "Stick Figure 1",
+    "lineHeadRule": "line-head-80-v1",
+    "timeline": [
+      {
+        "index": 0,
+        "cellType": "keyframe",
+        "pointsByRole": [
+          {
+            "role": "head",
+            "x": 960,
+            "y": 240
+          },
+          {
+            "role": "neck",
+            "x": 960,
+            "y": 340
+          },
+          {
+            "role": "hip",
+            "x": 960,
+            "y": 620
+          },
+          {
+            "role": "leftElbow",
+            "x": 820,
+            "y": 460
+          },
+          {
+            "role": "leftHand",
+            "x": 760,
+            "y": 580
+          },
+          {
+            "role": "rightElbow",
+            "x": 1080,
+            "y": 360
+          },
+          {
+            "role": "rightHand",
+            "x": 1160,
+            "y": 260
+          },
+          {
+            "role": "leftKnee",
+            "x": 900,
+            "y": 800
+          },
+          {
+            "role": "leftFoot",
+            "x": 840,
+            "y": 980
+          },
+          {
+            "role": "rightKnee",
+            "x": 1020,
+            "y": 800
+          },
+          {
+            "role": "rightFoot",
+            "x": 1080,
+            "y": 980
+          }
+        ]
+      },
+      {
+        "index": 1,
+        "cellType": "hold",
+        "ownerIndex": 0
+      },
+      {
+        "index": 2,
+        "cellType": "hold",
+        "ownerIndex": 0
+      },
+      {
+        "index": 3,
+        "cellType": "hold",
+        "ownerIndex": 0
+      },
+      {
+        "index": 4,
+        "cellType": "keyframe",
+        "pointsByRole": [
+          {
+            "role": "head",
+            "x": 960,
+            "y": 240
+          },
+          {
+            "role": "neck",
+            "x": 960,
+            "y": 340
+          },
+          {
+            "role": "hip",
+            "x": 960,
+            "y": 620
+          },
+          {
+            "role": "leftElbow",
+            "x": 820,
+            "y": 460
+          },
+          {
+            "role": "leftHand",
+            "x": 760,
+            "y": 580
+          },
+          {
+            "role": "rightElbow",
+            "x": 1080,
+            "y": 300
+          },
+          {
+            "role": "rightHand",
+            "x": 1020,
+            "y": 220
+          },
+          {
+            "role": "leftKnee",
+            "x": 900,
+            "y": 800
+          },
+          {
+            "role": "leftFoot",
+            "x": 840,
+            "y": 980
+          },
+          {
+            "role": "rightKnee",
+            "x": 1020,
+            "y": 800
+          },
+          {
+            "role": "rightFoot",
+            "x": 1080,
+            "y": 980
+          }
+        ]
+      },
+      {
+        "index": 5,
+        "cellType": "hold",
+        "ownerIndex": 4
+      },
+      {
+        "index": 6,
+        "cellType": "hold",
+        "ownerIndex": 4
+      },
+      {
+        "index": 7,
+        "cellType": "hold",
+        "ownerIndex": 4
+      },
+      {
+        "index": 8,
+        "cellType": "keyframe",
+        "pointsByRole": [
+          {
+            "role": "head",
+            "x": 960,
+            "y": 240
+          },
+          {
+            "role": "neck",
+            "x": 960,
+            "y": 340
+          },
+          {
+            "role": "hip",
+            "x": 960,
+            "y": 620
+          },
+          {
+            "role": "leftElbow",
+            "x": 820,
+            "y": 460
+          },
+          {
+            "role": "leftHand",
+            "x": 760,
+            "y": 580
+          },
+          {
+            "role": "rightElbow",
+            "x": 1120,
+            "y": 300
+          },
+          {
+            "role": "rightHand",
+            "x": 1280,
+            "y": 220
+          },
+          {
+            "role": "leftKnee",
+            "x": 900,
+            "y": 800
+          },
+          {
+            "role": "leftFoot",
+            "x": 840,
+            "y": 980
+          },
+          {
+            "role": "rightKnee",
+            "x": 1020,
+            "y": 800
+          },
+          {
+            "role": "rightFoot",
+            "x": 1080,
+            "y": 980
+          }
+        ]
+      },
+      {
+        "index": 9,
+        "cellType": "hold",
+        "ownerIndex": 8
+      },
+      {
+        "index": 10,
+        "cellType": "hold",
+        "ownerIndex": 8
+      },
+      {
+        "index": 11,
+        "cellType": "hold",
+        "ownerIndex": 8
+      }
+    ]
+  },
+  "manualCanonicalText": "{\"contentVersion\":1,\"coordinateSpace\":{\"height\":1080,\"id\":\"stick-stage-1920x1080-v1\",\"kind\":\"stick-integer-stage-v1\",\"origin\":\"top-left\",\"width\":1920,\"xAxis\":\"right\",\"yAxis\":\"down\"},\"figureLabel\":\"Stick Figure 1\",\"fps\":12,\"jointRoleOrder\":[\"head\",\"neck\",\"hip\",\"leftElbow\",\"leftHand\",\"rightElbow\",\"rightHand\",\"leftKnee\",\"leftFoot\",\"rightKnee\",\"rightFoot\"],\"lineHeadRule\":\"line-head-80-v1\",\"rigTemplate\":\"humanoid-11-v1\",\"segmentRolePairs\":[{\"from\":\"head\",\"to\":\"neck\"},{\"from\":\"neck\",\"to\":\"hip\"},{\"from\":\"neck\",\"to\":\"leftElbow\"},{\"from\":\"leftElbow\",\"to\":\"leftHand\"},{\"from\":\"neck\",\"to\":\"rightElbow\"},{\"from\":\"rightElbow\",\"to\":\"rightHand\"},{\"from\":\"hip\",\"to\":\"leftKnee\"},{\"from\":\"leftKnee\",\"to\":\"leftFoot\"},{\"from\":\"hip\",\"to\":\"rightKnee\"},{\"from\":\"rightKnee\",\"to\":\"rightFoot\"}],\"timeline\":[{\"cellType\":\"keyframe\",\"index\":0,\"pointsByRole\":[{\"role\":\"head\",\"x\":960,\"y\":240},{\"role\":\"neck\",\"x\":960,\"y\":340},{\"role\":\"hip\",\"x\":960,\"y\":620},{\"role\":\"leftElbow\",\"x\":820,\"y\":460},{\"role\":\"leftHand\",\"x\":760,\"y\":580},{\"role\":\"rightElbow\",\"x\":1080,\"y\":360},{\"role\":\"rightHand\",\"x\":1160,\"y\":260},{\"role\":\"leftKnee\",\"x\":900,\"y\":800},{\"role\":\"leftFoot\",\"x\":840,\"y\":980},{\"role\":\"rightKnee\",\"x\":1020,\"y\":800},{\"role\":\"rightFoot\",\"x\":1080,\"y\":980}]},{\"cellType\":\"hold\",\"index\":1,\"ownerIndex\":0},{\"cellType\":\"hold\",\"index\":2,\"ownerIndex\":0},{\"cellType\":\"hold\",\"index\":3,\"ownerIndex\":0},{\"cellType\":\"keyframe\",\"index\":4,\"pointsByRole\":[{\"role\":\"head\",\"x\":960,\"y\":240},{\"role\":\"neck\",\"x\":960,\"y\":340},{\"role\":\"hip\",\"x\":960,\"y\":620},{\"role\":\"leftElbow\",\"x\":820,\"y\":460},{\"role\":\"leftHand\",\"x\":760,\"y\":580},{\"role\":\"rightElbow\",\"x\":1080,\"y\":300},{\"role\":\"rightHand\",\"x\":1020,\"y\":220},{\"role\":\"leftKnee\",\"x\":900,\"y\":800},{\"role\":\"leftFoot\",\"x\":840,\"y\":980},{\"role\":\"rightKnee\",\"x\":1020,\"y\":800},{\"role\":\"rightFoot\",\"x\":1080,\"y\":980}]},{\"cellType\":\"hold\",\"index\":5,\"ownerIndex\":4},{\"cellType\":\"hold\",\"index\":6,\"ownerIndex\":4},{\"cellType\":\"hold\",\"index\":7,\"ownerIndex\":4},{\"cellType\":\"keyframe\",\"index\":8,\"pointsByRole\":[{\"role\":\"head\",\"x\":960,\"y\":240},{\"role\":\"neck\",\"x\":960,\"y\":340},{\"role\":\"hip\",\"x\":960,\"y\":620},{\"role\":\"leftElbow\",\"x\":820,\"y\":460},{\"role\":\"leftHand\",\"x\":760,\"y\":580},{\"role\":\"rightElbow\",\"x\":1120,\"y\":300},{\"role\":\"rightHand\",\"x\":1280,\"y\":220},{\"role\":\"leftKnee\",\"x\":900,\"y\":800},{\"role\":\"leftFoot\",\"x\":840,\"y\":980},{\"role\":\"rightKnee\",\"x\":1020,\"y\":800},{\"role\":\"rightFoot\",\"x\":1080,\"y\":980}]},{\"cellType\":\"hold\",\"index\":9,\"ownerIndex\":8},{\"cellType\":\"hold\",\"index\":10,\"ownerIndex\":8},{\"cellType\":\"hold\",\"index\":11,\"ownerIndex\":8}]}",
+  "aiCanonicalText": "{\"contentVersion\":1,\"coordinateSpace\":{\"height\":1080,\"id\":\"stick-stage-1920x1080-v1\",\"kind\":\"stick-integer-stage-v1\",\"origin\":\"top-left\",\"width\":1920,\"xAxis\":\"right\",\"yAxis\":\"down\"},\"figureLabel\":\"Stick Figure 1\",\"fps\":12,\"jointRoleOrder\":[\"head\",\"neck\",\"hip\",\"leftElbow\",\"leftHand\",\"rightElbow\",\"rightHand\",\"leftKnee\",\"leftFoot\",\"rightKnee\",\"rightFoot\"],\"lineHeadRule\":\"line-head-80-v1\",\"rigTemplate\":\"humanoid-11-v1\",\"segmentRolePairs\":[{\"from\":\"head\",\"to\":\"neck\"},{\"from\":\"neck\",\"to\":\"hip\"},{\"from\":\"neck\",\"to\":\"leftElbow\"},{\"from\":\"leftElbow\",\"to\":\"leftHand\"},{\"from\":\"neck\",\"to\":\"rightElbow\"},{\"from\":\"rightElbow\",\"to\":\"rightHand\"},{\"from\":\"hip\",\"to\":\"leftKnee\"},{\"from\":\"leftKnee\",\"to\":\"leftFoot\"},{\"from\":\"hip\",\"to\":\"rightKnee\"},{\"from\":\"rightKnee\",\"to\":\"rightFoot\"}],\"timeline\":[{\"cellType\":\"keyframe\",\"index\":0,\"pointsByRole\":[{\"role\":\"head\",\"x\":960,\"y\":240},{\"role\":\"neck\",\"x\":960,\"y\":340},{\"role\":\"hip\",\"x\":960,\"y\":620},{\"role\":\"leftElbow\",\"x\":820,\"y\":460},{\"role\":\"leftHand\",\"x\":760,\"y\":580},{\"role\":\"rightElbow\",\"x\":1080,\"y\":360},{\"role\":\"rightHand\",\"x\":1160,\"y\":260},{\"role\":\"leftKnee\",\"x\":900,\"y\":800},{\"role\":\"leftFoot\",\"x\":840,\"y\":980},{\"role\":\"rightKnee\",\"x\":1020,\"y\":800},{\"role\":\"rightFoot\",\"x\":1080,\"y\":980}]},{\"cellType\":\"hold\",\"index\":1,\"ownerIndex\":0},{\"cellType\":\"hold\",\"index\":2,\"ownerIndex\":0},{\"cellType\":\"hold\",\"index\":3,\"ownerIndex\":0},{\"cellType\":\"keyframe\",\"index\":4,\"pointsByRole\":[{\"role\":\"head\",\"x\":960,\"y\":240},{\"role\":\"neck\",\"x\":960,\"y\":340},{\"role\":\"hip\",\"x\":960,\"y\":620},{\"role\":\"leftElbow\",\"x\":820,\"y\":460},{\"role\":\"leftHand\",\"x\":760,\"y\":580},{\"role\":\"rightElbow\",\"x\":1080,\"y\":300},{\"role\":\"rightHand\",\"x\":1020,\"y\":220},{\"role\":\"leftKnee\",\"x\":900,\"y\":800},{\"role\":\"leftFoot\",\"x\":840,\"y\":980},{\"role\":\"rightKnee\",\"x\":1020,\"y\":800},{\"role\":\"rightFoot\",\"x\":1080,\"y\":980}]},{\"cellType\":\"hold\",\"index\":5,\"ownerIndex\":4},{\"cellType\":\"hold\",\"index\":6,\"ownerIndex\":4},{\"cellType\":\"hold\",\"index\":7,\"ownerIndex\":4},{\"cellType\":\"keyframe\",\"index\":8,\"pointsByRole\":[{\"role\":\"head\",\"x\":960,\"y\":240},{\"role\":\"neck\",\"x\":960,\"y\":340},{\"role\":\"hip\",\"x\":960,\"y\":620},{\"role\":\"leftElbow\",\"x\":820,\"y\":460},{\"role\":\"leftHand\",\"x\":760,\"y\":580},{\"role\":\"rightElbow\",\"x\":1120,\"y\":300},{\"role\":\"rightHand\",\"x\":1280,\"y\":220},{\"role\":\"leftKnee\",\"x\":900,\"y\":800},{\"role\":\"leftFoot\",\"x\":840,\"y\":980},{\"role\":\"rightKnee\",\"x\":1020,\"y\":800},{\"role\":\"rightFoot\",\"x\":1080,\"y\":980}]},{\"cellType\":\"hold\",\"index\":9,\"ownerIndex\":8},{\"cellType\":\"hold\",\"index\":10,\"ownerIndex\":8},{\"cellType\":\"hold\",\"index\":11,\"ownerIndex\":8}]}",
+  "canonicalUtf8Hex": "7b22636f6e74656e7456657273696f6e223a312c22636f6f7264696e6174655370616365223a7b22686569676874223a313038302c226964223a22737469636b2d73746167652d3139323078313038302d7631222c226b696e64223a22737469636b2d696e74656765722d73746167652d7631222c226f726967696e223a22746f702d6c656674222c227769647468223a313932302c227841786973223a227269676874222c227941786973223a22646f776e227d2c226669677572654c6162656c223a22537469636b204669677572652031222c22667073223a31322c226a6f696e74526f6c654f72646572223a5b2268656164222c226e65636b222c22686970222c226c656674456c626f77222c226c65667448616e64222c227269676874456c626f77222c22726967687448616e64222c226c6566744b6e6565222c226c656674466f6f74222c2272696768744b6e6565222c227269676874466f6f74225d2c226c696e654865616452756c65223a226c696e652d686561642d38302d7631222c2272696754656d706c617465223a2268756d616e6f69642d31312d7631222c227365676d656e74526f6c655061697273223a5b7b2266726f6d223a2268656164222c22746f223a226e65636b227d2c7b2266726f6d223a226e65636b222c22746f223a22686970227d2c7b2266726f6d223a226e65636b222c22746f223a226c656674456c626f77227d2c7b2266726f6d223a226c656674456c626f77222c22746f223a226c65667448616e64227d2c7b2266726f6d223a226e65636b222c22746f223a227269676874456c626f77227d2c7b2266726f6d223a227269676874456c626f77222c22746f223a22726967687448616e64227d2c7b2266726f6d223a22686970222c22746f223a226c6566744b6e6565227d2c7b2266726f6d223a226c6566744b6e6565222c22746f223a226c656674466f6f74227d2c7b2266726f6d223a22686970222c22746f223a2272696768744b6e6565227d2c7b2266726f6d223a2272696768744b6e6565222c22746f223a227269676874466f6f74227d5d2c2274696d656c696e65223a5b7b2263656c6c54797065223a226b65796672616d65222c22696e646578223a302c22706f696e74734279526f6c65223a5b7b22726f6c65223a2268656164222c2278223a3936302c2279223a3234307d2c7b22726f6c65223a226e65636b222c2278223a3936302c2279223a3334307d2c7b22726f6c65223a22686970222c2278223a3936302c2279223a3632307d2c7b22726f6c65223a226c656674456c626f77222c2278223a3832302c2279223a3436307d2c7b22726f6c65223a226c65667448616e64222c2278223a3736302c2279223a3538307d2c7b22726f6c65223a227269676874456c626f77222c2278223a313038302c2279223a3336307d2c7b22726f6c65223a22726967687448616e64222c2278223a313136302c2279223a3236307d2c7b22726f6c65223a226c6566744b6e6565222c2278223a3930302c2279223a3830307d2c7b22726f6c65223a226c656674466f6f74222c2278223a3834302c2279223a3938307d2c7b22726f6c65223a2272696768744b6e6565222c2278223a313032302c2279223a3830307d2c7b22726f6c65223a227269676874466f6f74222c2278223a313038302c2279223a3938307d5d7d2c7b2263656c6c54797065223a22686f6c64222c22696e646578223a312c226f776e6572496e646578223a307d2c7b2263656c6c54797065223a22686f6c64222c22696e646578223a322c226f776e6572496e646578223a307d2c7b2263656c6c54797065223a22686f6c64222c22696e646578223a332c226f776e6572496e646578223a307d2c7b2263656c6c54797065223a226b65796672616d65222c22696e646578223a342c22706f696e74734279526f6c65223a5b7b22726f6c65223a2268656164222c2278223a3936302c2279223a3234307d2c7b22726f6c65223a226e65636b222c2278223a3936302c2279223a3334307d2c7b22726f6c65223a22686970222c2278223a3936302c2279223a3632307d2c7b22726f6c65223a226c656674456c626f77222c2278223a3832302c2279223a3436307d2c7b22726f6c65223a226c65667448616e64222c2278223a3736302c2279223a3538307d2c7b22726f6c65223a227269676874456c626f77222c2278223a313038302c2279223a3330307d2c7b22726f6c65223a22726967687448616e64222c2278223a313032302c2279223a3232307d2c7b22726f6c65223a226c6566744b6e6565222c2278223a3930302c2279223a3830307d2c7b22726f6c65223a226c656674466f6f74222c2278223a3834302c2279223a3938307d2c7b22726f6c65223a2272696768744b6e6565222c2278223a313032302c2279223a3830307d2c7b22726f6c65223a227269676874466f6f74222c2278223a313038302c2279223a3938307d5d7d2c7b2263656c6c54797065223a22686f6c64222c22696e646578223a352c226f776e6572496e646578223a347d2c7b2263656c6c54797065223a22686f6c64222c22696e646578223a362c226f776e6572496e646578223a347d2c7b2263656c6c54797065223a22686f6c64222c22696e646578223a372c226f776e6572496e646578223a347d2c7b2263656c6c54797065223a226b65796672616d65222c22696e646578223a382c22706f696e74734279526f6c65223a5b7b22726f6c65223a2268656164222c2278223a3936302c2279223a3234307d2c7b22726f6c65223a226e65636b222c2278223a3936302c2279223a3334307d2c7b22726f6c65223a22686970222c2278223a3936302c2279223a3632307d2c7b22726f6c65223a226c656674456c626f77222c2278223a3832302c2279223a3436307d2c7b22726f6c65223a226c65667448616e64222c2278223a3736302c2279223a3538307d2c7b22726f6c65223a227269676874456c626f77222c2278223a313132302c2279223a3330307d2c7b22726f6c65223a22726967687448616e64222c2278223a313238302c2279223a3232307d2c7b22726f6c65223a226c6566744b6e6565222c2278223a3930302c2279223a3830307d2c7b22726f6c65223a226c656674466f6f74222c2278223a3834302c2279223a3938307d2c7b22726f6c65223a2272696768744b6e6565222c2278223a313032302c2279223a3830307d2c7b22726f6c65223a227269676874466f6f74222c2278223a313038302c2279223a3938307d5d7d2c7b2263656c6c54797065223a22686f6c64222c22696e646578223a392c226f776e6572496e646578223a387d2c7b2263656c6c54797065223a22686f6c64222c22696e646578223a31302c226f776e6572496e646578223a387d2c7b2263656c6c54797065223a22686f6c64222c22696e646578223a31312c226f776e6572496e646578223a387d5d7d",
+  "canonicalUtf8ByteLength": 2527,
+  "animationContentDigest": "sha256:2e214dd540523f33d4dfbf1195f96b917af26680d0cba7ee7205d87290f8fa43",
+  "excludedDocumentDifferences": [
+    "documentRevision",
+    "layers[0].cells[4].poses[0].poseId",
+    "layers[0].cells[8].poses[0].poseId"
+  ],
+  "renderInputDigests": [
+    {
+      "displayedFrame": 1,
+      "digest": "sha256:1474ce9bc510485b446bbc57b0cb7ecbd078f67c16532bffb9363128d7c2d8a4"
+    },
+    {
+      "displayedFrame": 5,
+      "digest": "sha256:513a100f7ba448bcf23bcc1971b74abf6a94d58f90ae0a33601fe936b0459cbe"
+    },
+    {
+      "displayedFrame": 9,
+      "digest": "sha256:75130d5f7763678a0bd949dddee00634ca63c01eb7d7177b4347942dd4c39d89"
+    }
+  ]
+}

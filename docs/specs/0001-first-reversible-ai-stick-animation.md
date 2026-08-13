@@ -4,15 +4,15 @@ Status: Approved
 Owner: Arthur
 Implementer: Codex, one independently verified task per phase
 Created: 2026-08-10
-Last updated: 2026-08-11
+Last updated: 2026-08-13
 Decision links: accepted SPEC-0001 decision D-0009 and still-broader pending decisions P-0004, P-0005, P-0007, and P-0008 in `../DECISIONS.md`
 TODO IDs: SPEC-001, AI-002, AI-003, AI-004, STICK-001, STICK-002, STICK-004, STICK-005; narrow partial coverage only
 Historical runtime research basis: clean `main` at `87a9afb246d4daf33431e7152c03f46a04e166fb`
 Proposal integration commit: docs-only `9a2cd373e268cc412cb0fcbea50af11513ef41c5`
 Pre-approval revision basis: clean, synchronized `main` at `c6cb52a28090510bcf78767a5c0d9c4af953b477`
-Last verified branch/commit: live source and control-plane evidence re-inspected at `main` HEAD `c6cb52a28090510bcf78767a5c0d9c4af953b477`; Arthur's 2026-08-11 approval was recorded as control-plane-only work over the preserved nine-file unstaged documentation/control-plane worktree; implementation remains unverified and not started
+Last verified branch/commit: Phase 1 corrections and renewed offline proof were completed from exact base `832d1f93630d7093514af3e81399077ebed696b4` in the separate worktree `/Users/arthurcarlin/.codex/worktrees/89d9/stick-animation-app` on branch `codex/spec-0001-phase-1`; after Arthur and Project Manager review passed, the exact reviewed 34-file boundary was published and integrated into canonical `main`
 
-Arthur approved this specification on 2026-08-11. OD-01 through OD-06 and OD-09 are accepted exactly as written; OD-07, OD-08, OD-10, and OD-11 are approved engineering rules/prerequisites; OD-12 through OD-14 remain deferred to the separate Phase 7 Policy Gate. This approval authorizes **Phase 1 only**, whose status is **Authorized; Not started**. Phases 2–7, the separate browser-harness prerequisite, the Phase 7 Policy Gate, and every live/paid/external request remain unauthorized. No application behavior has changed.
+Arthur approved this specification on 2026-08-11. OD-01 through OD-06 and OD-09 are accepted exactly as written; OD-07, OD-08, OD-10, and OD-11 are approved engineering rules/prerequisites; OD-12 through OD-14 remain deferred to the separate Phase 7 Policy Gate. This approval authorized **Phase 1 only**. Phase 1 is Verified, published, and integrated into canonical `main` as of 2026-08-13. Phases 2–7, the separate browser-harness prerequisite, the Phase 7 Policy Gate, and every live/paid/external request remain unauthorized and not started. No visible application behavior changed.
 
 ## 1. Exact Goal
 
@@ -1420,7 +1420,7 @@ Files explicitly outside the total boundary include `src/components/workspace/ai
 
 ## 10. Implementation Plan
 
-SPEC-0001 is Approved and **Phase 1 only** is authorized but not started. This approval never authorizes a later phase, the separate browser-harness prerequisite, the Phase 7 Policy Gate, or a paid/live request.
+SPEC-0001 remains Approved. **Phase 1 only** was authorized and is now Verified, published, and integrated into canonical `main`. This approval never authorizes a later phase, the separate browser-harness prerequisite, the Phase 7 Policy Gate, or a paid/live request. Those prerequisites and Phases 2–7 remain unauthorized and not started.
 
 ### 10.1 Global phase authorization, evidence, and publication rules
 
@@ -1589,7 +1589,7 @@ The runner requires a dedicated phase worktree that was Git-clean at the recorde
 
 | Phase | Status | Exact observable outcome | Dependencies | Stop gate |
 | --- | --- | --- | --- | --- |
-| 1 — Contracts, fixtures, focused proof harness | **Authorized; Not started** | Shared starter/manual-action/AI-command fixtures round-trip, and the manual and AI result projections have byte-identical animation content/digests while intentional bookkeeping differences are excluded. | Approved SPEC-0001; approval recorded in D-0009; separate Git publication/integration required before implementation starts | Stop with zero runtime/UI changes when both contract rejection and manual/AI content-equivalence proof pass; any need for UI/API/persistence is a blocker. |
+| 1 — Contracts, fixtures, focused proof harness | **Verified, published, and integrated into canonical `main`** | Shared starter/manual-action/AI-command fixtures round-trip, and the manual and AI result projections have byte-identical animation content/digests while intentional bookkeeping differences are excluded. | Approved SPEC-0001; approval recorded in D-0009; implementation base `832d1f93630d7093514af3e81399077ebed696b4`; corrected PM packet passed Arthur and Project Manager review | Stop with zero runtime/UI changes after the corrected contract rejection, complete invalid matrix, proof-contract, and manual/AI content-equivalence gates pass. The browser prerequisite and Phases 2–7 remain unauthorized/not started. |
 | 2 — Independent per-frame Stick state | **Unauthorized; Not started** | Home → New → Stick visibly supplies the built-in figure, and the user creates the complete three-pose/12-frame wave without AI using the bounded hold/blank/start-pose controls; all 11 joints, playback, holds, and gesture boundaries use independent canonical poses. | Phase 1 Verified/published/integrated; repository-owned offline browser harness/server-egress/font guard Verified/published/integrated; separate owner authorization | Stop until the real no-AI manual construction flow matches the Phase 1 manual content digest and all-11-role isolation, rendering, playback, held-frame, and gesture proof passes. |
 | 3 — Atomic history and minimal local persistence | **Unauthorized; Not started** | Every manual construction action and joint drag has exact Undo/Redo; explicit local save/reopen preserves the human-built wave. One AI-sized three-pose batch remains representable as one undo entry for Phase 4. | Phase 2 Verified/published/integrated; separate owner authorization | Stop until manual action history and isolated save/reopen pass, including the human-built content digest, any-joint editing, ownership, and corruption/quota safety. |
 | 4 — Validated editor command transaction | **Unauthorized; Not started** | Dry-run produces a preview without mutation; Apply composes the same pure mutations as the manual path into one all-or-nothing transaction; stale/duplicate/cancel/failure cases are exact no-ops. | Phase 3 Verified/published/integrated; separate owner authorization | Stop until every injected failure/idempotency fixture passes and the applied AI result content projection equals the Phase 1/3 manual result. |
@@ -1599,11 +1599,11 @@ The runner requires a dedicated phase worktree that was Git-clean at the recorde
 
 ### 10.3 Phase 1 — Contracts, fixtures, and focused proof harness
 
-**Status:** **Authorized; Not started.** No Phase 1 implementation has begun, and this approval-recording task does not authorize Git publication.
+**Status:** **Verified, published, and integrated into canonical `main` on 2026-08-13 after corrected PM review.** This status does not authorize beginning the browser-harness prerequisite or Phase 2. Phases 2–7 remain unauthorized and not started.
 
 **Exact observable outcome:** The shared V1 starter/document/manual-action/AI-command goldens round-trip exactly and canonical serialization is byte-stable. Applying the deterministic manual action sequence and materializing the deterministic AI command from the same starter yields byte-identical `StickAnimationContentV1` and the same `animationContentDigest`, while their intentional revision/ID/history differences remain excluded. Unknown, malformed, excessive, non-finite, dangling, duplicated, foreign, stale, or unsupported input returns a typed error and cannot mutate a deep-frozen pre-state.
 
-**Dependencies:** Arthur approved this outcome and Phase 1 in decision D-0009. The approval record must be separately published and integrated into canonical `main` before implementation begins. Exact model, provider retention, cost, and paid-request choices are not Phase 1 dependencies.
+**Dependencies:** Arthur approved this outcome and Phase 1 in decision D-0009. The approval record was published and integrated into canonical `main` at `832d1f93630d7093514af3e81399077ebed696b4`, which was the clean Phase 1 base. Exact model, provider retention, cost, and paid-request choices were not Phase 1 dependencies.
 
 **Exact authorized systems/files:**
 
@@ -1625,7 +1625,7 @@ No other runtime/fixture/script file is authorized in Phase 1; the global contro
 4. Separate provider-owned coordinate planning fields from editor/server-owned identity fields.
 5. Implement the exact SHA-256 derivation for only `pose:1`/`pose:2`; validate that AI preserves every starter rig/figure/joint/segment/layer/frame/Frame-1-pose identity. Manual fixture pose IDs come from the injected UUID fixture. No clock or counter is part of the AI derivation.
 6. Deep-freeze all validator inputs and compare pre-state bytes after every invalid case.
-7. Define the evidence/closeout/receipt/live-manifest schemas, command orchestrator, read-only closeout finalizer, and independent validator so later evidence binds exact ordered argv/env/cwd, stdout/stderr bytes and hashes, exit/duration, base SHA, fixture/harness hashes, state/storage/request/network checkpoints, screenshots, cleanup, and final diff allowlist without a manifest hashing a tracked copy of its own hash. Freeze the Phase 7-only finalizer inputs as exactly `--live-proof=none | <strict-live-manifest-path>` plus `--authorization-decision-digest=none | <64-lowercase-hex>`, the `liveProofManifestSha256` null-or-digest, `authorizationDecisionDigest` null-or-digest, `Live provider proof`, and `liveProofEvidenceQuality` closeout fields, and both allowed artifact roots (`phase-7` and `phase-7-live/<decision-digest>`). Enforce the exact four-row live-evidence tuple in section 10.1: unperformed/not-attempted; completed/validated-manifest; failed/validated-manifest; or failed/catastrophic-unproven. Self-tests must reject omitted/both/invalid live inputs, omitted/invalid/inconsistent decision inputs, a live path outside those roots, path/digest/decision mismatch, a sibling-root digest mismatch, every status/quality/SHA/count/charge combination outside that table, missing/extra/reordered/hash-mismatched/forged-exit/wrong-base receipts, post-finalization tracked writes, self-inclusion, unexpected ignored artifacts, and privacy-invalid evidence.
+7. Define the evidence/closeout/receipt/live-manifest schemas, command orchestrator, read-only closeout finalizer, and independent validator so later evidence binds exact ordered argv/env/cwd, stdout/stderr bytes and hashes, exit/duration, base SHA, fixture/harness hashes, state/storage/request/network checkpoints, screenshots, cleanup, and final diff allowlist without a manifest hashing a tracked copy of its own hash. Freeze the Phase 7-only finalizer inputs as exactly `--live-proof=none | <strict-live-manifest-path>` plus `--authorization-decision-digest=none | <64-lowercase-hex>`, the `liveProofManifestSha256` null-or-digest, `authorizationDecisionDigest` null-or-digest, `Live provider proof`, and `liveProofEvidenceQuality` closeout fields, and both allowed artifact roots (`phase-7` and `phase-7-live/<decision-digest>`). Enforce the exact four-row live-evidence tuple in section 10.1: `unperformed/not_attempted`; `completed/validated_manifest`; `failed/validated_manifest`; or `failed/catastrophic_unproven`. Self-tests must reject omitted/both/invalid live inputs, omitted/invalid/inconsistent decision inputs, a live path outside those roots, path/digest/decision mismatch, a sibling-root digest mismatch, every status/quality/SHA/count/charge combination outside that table, missing/extra/reordered/hash-mismatched/forged-exit/wrong-base receipts, post-finalization tracked writes, self-inclusion, unexpected ignored artifacts, and privacy-invalid evidence.
 
 **Deterministic fixtures:**
 
@@ -1644,7 +1644,7 @@ No other runtime/fixture/script file is authorized in Phase 1; the global contro
 - canonical byte/digest vectors for empty string, `abc`, Unicode/NFC, escaped strings, recursive key ordering, array ordering, and negative zero;
 - one checked-in preimage/full-digest/derived-ID vector for each new AI pose slot `pose:1` and `pose:2`, and UUID-form fixtures for all starter/manual identities;
 - accepted and rejected prompt-normalization cases;
-- valid evidence-manifest/closeout-manifest/receipt/ordered-command cases plus fixed fake sanitized live-manifest/finalizer cases for unperformed/not-attempted `none/none`, completed/validated and failed/validated Phase 7 implementation-root manifests with matching decisions/counts/charge booleans, failed/catastrophic-unproven implementation-root `none/matching-decision/unknown`, the equivalent validated and catastrophic live-only sibling cases using its nested `live/` subroot; missing, extra, reordered, forged, hash-mismatched, wrong-base, post-finalization-write, self-reference, omitted/both/wrong-root/invalid-live-manifest, omitted/invalid/mismatched decision, invalid status/evidence-quality/count/charge tuple, sibling-path decision mismatch, unexpected-ignored-artifact, and privacy-invalid cases;
+- valid evidence-manifest/closeout-manifest/receipt/ordered-command cases plus fixed fake sanitized live-manifest/finalizer cases for `unperformed/not_attempted` `none/none`, `completed/validated_manifest` and `failed/validated_manifest` Phase 7 implementation-root manifests with matching decisions/counts/possible-charge booleans, `failed/catastrophic_unproven` implementation-root `none/matching-decision/unknown`, the equivalent validated and catastrophic live-only sibling cases using its nested `live/` subroot; missing, extra, reordered, forged, hash-mismatched, wrong-base, post-finalization-write, self-reference, omitted/both/wrong-root/invalid-live-manifest, omitted/invalid/mismatched decision, invalid status/evidence-quality/count/possible-charge tuple, sibling-path decision mismatch, unexpected-ignored-artifact, and privacy-invalid cases;
 - `invalid-contract-cases.json` containing unknown root/nested keys, a canonical pose with extra `poseRole`/`beat`, head shape/radius/rotation/style/highlight/provenance fields, missing/unsupported versions, wrong workspace/capability/action, wrong prompt, otherwise-valid non-wave request, oversized body/output, command output with more than one action/target layer or three poses, any command rig/figure/topology object, replacement starter identity, missing/duplicate/out-of-order command beat or sequence index, wrong wave-starter/manual-progression/applied-profile cardinality, wrong command FPS/timing, document safety-cap violations, duplicate/missing/dangling/foreign/derived IDs, non-finite/fractional/out-of-bounds coordinates, invalid arm geometry, changed fixed-body point, incomplete pose, hold owned by a blank keyframe, and digest mismatch.
 
 JSON cannot encode NaN/Infinity, so the validator script must also construct those cases in memory.
@@ -1689,7 +1689,7 @@ node --experimental-strip-types scripts/validateSpec0001ProofBundle.ts output/sp
 
 `npm run lint` currently has a known 6-error/73-warning baseline; Phase 1 passes only if no new finding is attributable to its files. Real-app flow: not applicable by design, and the verification record must say so rather than imply UI proof.
 
-**Stop condition:** Stop after the pure proof passes and record Phase 1 as Verified. The phase does not pass unless the human action sequence and AI command produce equivalent animation content and neither path has an exclusive canonical figure/pose/frame representation. If strict contracts cannot be implemented without touching an existing runtime/API/persistence file, stop as blocked and propose a narrower contract follow-up; do not enter Phase 2.
+**Stop condition:** Stop after the pure proof and control-plane closeout pass, record Phase 1 as implemented with proof in its separate worktree, and await PM review plus a later separate Git-publication instruction. The phase does not pass unless the human action sequence and AI command produce equivalent animation content and neither path has an exclusive canonical figure/pose/frame representation. If strict contracts cannot be implemented without touching an existing runtime/API/persistence file, stop as blocked and propose a narrower contract follow-up; do not enter Phase 2.
 
 **Handoff requirements:** Record exact files/digests/error matrix/command output and proof-manifest hash in sections 14–15, complete section 10.1 control-plane closeout, confirm all later phases remain not started, and state whether the external browser-harness prerequisite is Verified/integrated. Phase 2 cannot start without it.
 
@@ -2419,22 +2419,27 @@ The shown root command is forbidden unless the named decision digest corresponds
 
 ## 14. Implementation Record
 
-Implementation has not begun.
+### 14.1 Phase 1 — Corrected and renewed proof completed 2026-08-13
 
-- Runtime files changed: none.
-- Application behavior changed: none.
-- Contracts/fixtures/scripts implemented: none.
-- Dependencies/migrations/config implemented: none.
-- Temporary logs/probes left behind: none.
-- OpenAI API/model calls: none.
-- Application search/Supabase/paid remote calls: none.
-- Database/deployment/Git index/history/remotes/GitHub settings changes: none.
+Phase 1 was implemented in the separate `codex/spec-0001-phase-1` worktree from exact clean base `832d1f93630d7093514af3e81399077ebed696b4`.
 
-During future work, each phase must append its exact files, deviations, durable-harness/proof cleanup, external side effects/cost, and phase status here. Recommendations may not be silently treated as accepted decisions.
+- Runtime contracts added: `src/lib/stickfigure/stickProjectContract.ts` and `src/lib/ai/stickFigureAiContract.ts`. They are shared pure contract modules and are not wired into an application component or API route in this phase.
+- Fixtures added: exactly the 21 authorized JSON files under `scripts/fixtures/stick-ai/v1/`.
+- Proof tools added: `scripts/validateStickFigureAiContracts.ts`, `scripts/recordSpec0001ProofBundle.ts`, `scripts/validateSpec0001ProofBundle.ts`, and `scripts/finalizeSpec0001ProofBundle.ts`.
+- Exact behavior implemented: strict V1 document/manual-action/request/provider-plan/command/result parsing; recursive canonical JSON and browser-safe WebCrypto SHA-256; deterministic `pose:1`/`pose:2` IDs; the derived 80-unit line head; the four bounded human actions; shared manual/AI mutation composition; content/render projection; deep-frozen invalid-input rejection; and executed-receipt/closeout proof validation.
+- PM blocker corrections: manual timeline actions now accept only the exact ordered hold-3 → blank-4 → start-4 → hold-7 → blank-8 → start-8 → hold-11 progression around the required complete wave poses; skipped, reordered, repeated, wrong-target, wrong-owner, and malformed steps reject without mutation. The applied-wave predicate now binds the exact starter project/rig/figure/layer/frame/Frame-1-pose identities, three complete golden coordinate profiles, exact keyframe/hold ownership, 12-frame timing, and 12 FPS. The command parser independently reruns the full right-arm geometry/wave bounds after parsing and before trusting a correctly recomputed payload digest.
+- Invalid/proof correction: the checked-in invalid matrix now enumerates and executes every required Phase 1 invalid category. The strict proof contract now binds categorized source/fixture/schema/harness/plan inputs; exact command receipts; state/storage/request/network/console/screenshot/cleanup evidence; explicit Phase 1 not-applicable browser evidence; exact final byte/status inventory; and the full Phase 7 sanitized live manifest/terminal/count/closure/result shape. Real validator self-tests mutate actual temporary proof/closeout state to reject post-finalization writes, self-inclusion, and unexpected artifacts.
+- Application behavior changed: none. No UI, React component, API, storage, history, playback, browser harness, provider, OpenAI, Supabase, search, dependency, package, lockfile, configuration, environment, migration, database, or deployment file was modified.
+- Intentional bookkeeping difference: the 13 manual actions produce revision 13 and UUID pose IDs; the one AI batch produces revision 1 and two deterministic `pose_...` IDs. Their canonical `StickAnimationContentV1` and Frames 1/5/9 render inputs are identical.
+- Temporary proof-generation probe: created only under `/private/tmp`, not part of the repository or proof output, and removed before closeout. The required ignored proof bundle remains under `output/spec-0001/phase-1/`.
+- External side effects/cost: none. No model, paid, search, Supabase, database, deployment, remote Git, stage, commit, or push action occurred.
+- Deviations: the first Phase 1 proof was invalidated after independent PM reproduction exposed these blockers. The corrected replacement proof is the only current Phase 1 evidence. There was no deviation from the approved file boundary or accepted observable outcome.
+
+Future phases must append their own exact implementation record and may not silently treat later recommendations as accepted decisions.
 
 ## 15. Verification Record
 
-This table separates historical proposal evidence from the 2026-08-10 pre-approval revision, the 2026-08-11 owner-outcome correction, and the 2026-08-11 approval recording. It is not implementation proof.
+This table retains historical proposal evidence and adds the current Phase 1 implementation proof.
 
 | Gate/flow | Pass/fail/skipped/unproven | Evidence |
 | --- | --- | --- |
@@ -2449,9 +2454,17 @@ This table separates historical proposal evidence from the 2026-08-10 pre-approv
 | Historical official-doc lookup | Historical only; not revalidated | The original proposal recorded a read-only documentation lookup. This revision performed no external lookup and treats exact model/price/retention as future Phase 7 gates. |
 | Supplied Luna pricing arithmetic | Pass as arithmetic only | Arthur supplied `$1/M` input and `$6/M` output; `4096×$1/M + 1500×$6/M + 25%` of input cost equals `$0.01412`. This is not model availability, an accepted cap, or provider proof. |
 | OpenAI/search/Supabase/paid/live activity in this revision | Skipped by design | No external-service request, paid usage, provider proof, or remote mutation. |
-| Approval/status consistency | Pass | SPEC-0001 is Approved and active. OD-01–OD-06 and OD-09 are accepted; OD-07/08/10/11 govern engineering; OD-12–OD-14 remain deferred. Phase 1 is Authorized/Not started; Phases 2–7 and the separate browser harness are Unauthorized/Not started. |
-| Documentation/control-plane finishing gates | Pass | `bash scripts/update_memory.sh` and `--check-only`, `git diff --check`, and `git diff --cached --check` passed. The memory helper produced no project-tree diff. Only the inherited nine documentation/control-plane paths are modified relative to HEAD; this approval recording changed only its seven authorized canonical files. `AGENTS.md` and `docs/PROJECT_MANAGER_CONTEXT.md` retain their task-start SHA-256 values; index and untracked sets remain empty. |
-| SPEC-0001 implementation/acceptance | Not started | Approval authorizes Phase 1, but no phase, runtime contract, fixture, script, UI, API, storage, provider, or browser harness has been implemented. |
+| Approval/status consistency | Pass | SPEC-0001 remains Approved and active. OD-01–OD-06 and OD-09 are accepted; OD-07/08/10/11 govern engineering; OD-12–OD-14 remain deferred. Phase 1 is Verified, published, and integrated into canonical `main`; Phases 2–7 and the separate browser harness remain Unauthorized/Not started. |
+| Documentation/control-plane finishing gates | Pass | The authorized Phase 1 control-plane files were updated, `bash scripts/update_memory.sh` regenerated the canonical tree, its later `--check-only` passed, final diff checks passed, and the read-only closeout validator bound the final non-ignored state with an empty Git index. `docs/DECISIONS.md` and `docs/PROJECT_MANAGER_CONTEXT.md` were not changed because Arthur made no new durable decision or PM-process change. |
+| Phase 1 worktree/base safety | Pass | `pwd` was `/Users/arthurcarlin/.codex/worktrees/89d9/stick-animation-app`; branch `codex/spec-0001-phase-1` was not `main`; the starting worktree was clean at exact SHA `832d1f93630d7093514af3e81399077ebed696b4`; `git worktree list --porcelain` showed both the shared main checkout and this separate worktree. |
+| Phase 1 contract acceptance | Pass | `scripts/validateStickFigureAiContracts.ts` passed 631 assertions: strict round trips, exact ordered manual progression and all named negative progression classes, exact starter-bound applied-wave identity/profile/timing checks, correctly rehashed unsafe-command rejection, complete 24-category invalid matrix, 11 joints/10 segments, Frames 1/5/9 plus nine holds, manual/AI canonical content and render equality, neutral persisted poses, line-head vectors, all-role edit equality, prompt/geometry/size/reference guards, WebCrypto/`node:crypto` vector agreement, and frozen-input non-mutation. |
+| Phase 1 official proof bundle | Pass | The obsolete proof was removed. The publication recorder executed all seven commands from `phase-1-proof-commands.json` in exact order and rebuilt all receipts. Independent validation passed for `output/spec-0001/phase-1/proof-manifest.json`; final manifest SHA-256 is `fe1d69c9d0fcc8e7131d064b6a8ee4c0bd99aea21b8a0f399840b4c2311937d7`. It binds 6 source, 16 contract-fixture, and 4 schema inputs; Phase 1 browser/state/storage/request/network/screenshot/anchor evidence is explicitly `not-applicable`, not claimed as passed. |
+| TypeScript | Pass | `./node_modules/.bin/tsc --noEmit --incremental false` exited 0 in the recorded command receipt. |
+| Lint regression | Pass with known baseline | Full `npm run lint` intentionally exited 1 with exactly the pre-existing 6 errors and 73 warnings. A focused lint run over every new Phase 1 TypeScript file exited 0 with zero findings, and the recorded lint receipt independently binds `phasePathFindings: 0`. Unrelated baseline findings were not changed. |
+| Diff/index/scope | Pass | Recorded `git diff --check` and `git status --short --branch` passed their expected results; the final closeout independently binds the exact allowed Phase 1/control-plane paths and an empty index. No unauthorized runtime/script/fixture path is present. |
+| Real-app/browser verification | Not applicable by design | Phase 1 adds hidden contracts, fixtures, and offline proof only. It changes no visible application path, so no browser harness, development server, screenshot, or real-app pass is claimed. |
+| External/live activity | Skipped by design | No external lookup, model/OpenAI request, search, Supabase request, paid request, provider proof, database action, deployment, or remote mutation occurred. |
+| Phase 1 status | Verified, published, and integrated | The corrected Phase 1 acceptance/regression gates and renewed Arthur/Project Manager review passed. The exact reviewed 34-file boundary was published to canonical `main`. The separate browser-harness prerequisite and Phases 2–7 remain outside this task and not started. |
 
 ## 16. Final State and Handoff
 
@@ -2514,18 +2527,17 @@ The following work must become separately reviewed specs rather than expanding S
 
 ### 16.3 Handoff
 
-Final spec status after Arthur's decision is **Approved** and active. **Phase 1 is Authorized; Not started.** Phases 2–7 and the separate browser-harness prerequisite are Unauthorized/Not started, and implementation work has not begun.
+Final spec status is **Approved** and active. **Phase 1 is Verified, published, and integrated into canonical `main`.** Phases 2–7 and the separate browser-harness prerequisite remain Unauthorized/Not started.
 
-Exact next step: stop after this approval-recording PM Review Packet. A separate explicit instruction is required to stage, commit, push, and integrate this approval into canonical `main`. Only after that integration may **Phase 1** start in Codex Plan mode in a new focused task/worktree from the exact canonical-main SHA. Phases 2–7, the separate browser-harness implementation, the Phase 7 Policy Gate, every external lookup, and any paid/live request remain forbidden.
+Exact next step: stop after Phase 1 publication. The separately specified browser-harness prerequisite may begin only under its own future authorization and task; Phase 2 still cannot begin until that prerequisite is Verified/published/integrated and Arthur separately authorizes Phase 2. The Phase 7 Policy Gate, every external lookup, and any paid/live request remain forbidden.
 
-Documentation/control-plane files updated by this approval recording are exactly:
+Control-plane files updated by the Phase 1 closeout are exactly:
 
 - `docs/specs/0001-first-reversible-ai-stick-animation.md`;
 - `docs/specs/README.md`;
-- `docs/DECISIONS.md`;
 - `docs/TODO.md`;
 - `docs/SESSION_HANDOFF.md`;
 - `docs/changelog.md`;
 - `docs/CURRENT_STATE.md`.
 
-`AGENTS.md` and `docs/PROJECT_MANAGER_CONTEXT.md` remain byte-for-byte unchanged. `project/project_structure.txt` may change only if the required memory helper produces a deterministic tree change; otherwise it remains unchanged. Final Git status and documentation validation are recorded in the PM Review Packet; no file is staged, committed, or pushed.
+`docs/DECISIONS.md` was not changed because Arthur made no new durable decision in Phase 1. `AGENTS.md` and `docs/PROJECT_MANAGER_CONTEXT.md` remain unchanged. `project/project_structure.txt` changes only through the required memory helper. Final Git status and closeout validation are recorded in the PM Review Packet; no file is staged, committed, or pushed.

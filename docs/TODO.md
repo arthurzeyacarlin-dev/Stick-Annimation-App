@@ -1,7 +1,7 @@
 # TODO
 
 Status: canonical actionable queue
-Last updated: 2026-08-11
+Last updated: 2026-08-13
 
 ## Queue Rules
 
@@ -16,8 +16,10 @@ Last updated: 2026-08-11
 - [x] **CP-001 — Establish the initial canonical control plane.** Proof: `AGENTS.md` boot sequence, canonical `docs/` files, frozen baseline audit, spec template/index, reference classification, safe memory helper, required-file presence check, manually verified links/redirects, and sanitized tree regeneration.
 - [x] **GIT-001 — Reconcile the mixed `app/page.tsx` index state.** The three page generations were reviewed. The integrated working blob `c24392097af8d578fc1f6cc501dad121ce0cb1fc` was selected; the older staged blob `d44892246c4a8933047c028d2508e194e1ec731a` is preserved by pushed recovery commit `d35e892bdaabbd66ab36eae4cc32144aa620de44` on `codex/pre-baseline-staged-page-2026-08-09`.
 - [x] **GIT-002 — Create a reviewed durable baseline.** Proof: complete snapshot anchor `c7de444536f3e0dd578a2063f70b0914e6af60b1`, merged pull request [#1](https://github.com/arthurzeyacarlin-dev/Stick-Annimation-App/pull/1) at `093bbac82fd3b4d97984448b6c6dbd716153354d`, synchronized clean `main`, tag `baseline-2026-08-09-control-plane`, clean configured-secret/size/generated-boundary audits, and an explained recovery branch for the old index.
-- [x] **SPEC-001 — Review and decide the first implementation spec.** Arthur approved [`SPEC-0001 — First Reversible AI-Created Stick Animation from Workspace Chat`](specs/0001-first-reversible-ai-stick-animation.md) on 2026-08-11. Decision D-0009 records OD-01–OD-06 and OD-09 as accepted exactly, OD-07/08/10/11 as approved engineering rules/prerequisites, and OD-12–OD-14 as deferred. SPEC-0001 is active; Phase 1 alone is Authorized/Not started, with no implementation begun.
-- [ ] **GIT-003 — Publish and integrate the SPEC-0001 approval record.** This control-plane approval packet must be separately reviewed, staged, committed, pushed, and integrated into canonical `main` under an explicit Git-publication instruction. Proof: clean synchronized `main` contains D-0009 and consistent Approved/active/Phase-1-authorized status across the spec, index, current state, TODO, and handoff. Phase 1 cannot begin before this proof.
+- [x] **SPEC-001 — Review and decide the first implementation spec.** Arthur approved [`SPEC-0001 — First Reversible AI-Created Stick Animation from Workspace Chat`](specs/0001-first-reversible-ai-stick-animation.md) on 2026-08-11. Decision D-0009 records OD-01–OD-06 and OD-09 as accepted exactly, OD-07/08/10/11 as approved engineering rules/prerequisites, and OD-12–OD-14 as deferred.
+- [x] **GIT-003 — Publish and integrate the SPEC-0001 approval record.** Proof: canonical `main`/`origin/main` at Phase 1 handoff contained the approval as `832d1f93630d7093514af3e81399077ebed696b4`, with zero ahead/behind and consistent Approved/active/Phase-1-authorized state.
+- [x] **STICK-006 — Complete and correct SPEC-0001 Phase 1 contracts, fixtures, and focused proof.** Proof: 631 contract assertions pass, including exact ordered manual progression, exact starter-bound applied-wave identity/profile/timing, correctly rehashed unsafe-command rejection, and every required invalid category; the replacement seven-command proof bundle independently validates at `output/spec-0001/phase-1/proof-manifest.json`; TypeScript passes; full lint remains exactly 6 errors/73 warnings with zero Phase 1 findings; the corrected proof schema freezes later source/fixture/schema/state/storage/request/network/screenshot/cleanup/live evidence. Status: Verified, published, and integrated into canonical `main` after Arthur and Project Manager review.
+- [x] **GIT-004 — Review, publish, and integrate SPEC-0001 Phase 1.** Arthur and the Project Manager passed the corrected PM Review Packet. The exact 34 approved Phase 1 paths were committed, local `main` was fast-forwarded, canonical `main` was pushed, and local/remote synchronization and clean worktrees were verified. The separate browser-harness prerequisite and Phase 2 remain not started and require separate authorization.
 
 ## P0 — Reproducibility, Verification, and Deployment Safety
 

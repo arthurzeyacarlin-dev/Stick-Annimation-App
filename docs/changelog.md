@@ -5,6 +5,26 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-14 — SPEC-0001 Phase 1.5 amendment approved and authorized
+
+- recorded Arthur's approval as D-0011 and authorized only **Phase 1.5 — Permanent Automatic Browser Tester** as **Approved; Authorized; Not started**
+- preserved Phase 1 as Verified, published, and integrated and kept Phases 2–7 Unauthorized/Not started
+- preserved the permanent developer-only boundary: the tester remains invisible and unreachable to website users, adds no tester route/page/button/API/asset/production import, makes no permanent application font/style/source/behavior change, and restores all temporary test/font setup byte-for-byte
+- kept OpenAI, search, Supabase, paid services, deployment, Phase 2, and Git publication unauthorized
+
+This was approval-state control-plane propagation only. No tester, runtime, fixture, proof script, dependency, configuration, environment, application behavior, external service, staging, commit, push, or publication changed.
+
+### 2026-08-14 — SPEC-0001 Phase 1.5 permanent browser tester amendment proposed
+
+- inserted a small **Phase 1.5 — Permanent Automatic Browser Tester** inside the existing Approved/active SPEC-0001 rather than creating a competing specification
+- kept Phase 1 Verified, published, and integrated; marked Phase 1.5 Proposed/Unauthorized/Not started; kept Phases 2–7 Unauthorized/Not started; and blocked Phase 2 until Phase 1.5 is Verified, propagated, separately published, and integrated
+- specified a permanent private-repository developer tool that starts the real app under offline browser/server egress denial, fulfills exact font requests only inside the tester from hash-bound fixtures, restores temporary setup byte-for-byte without changing application source/styling/font/visible behavior, checks Home → New → Stick, Stick → Creator → Back, and deterministic/mocked Drawing Generate Frames, and records repeatable action/error/network/screenshot/cleanup evidence
+- required automated production-exclusion failure for any tester-only route, page, control, asset, reachable URL, or application import; the tester remains repository source and is not claimed secret if the repository becomes public
+- limited the reusable Phase 2 connection to a versioned registration/checkpoint seam; later phases may add additive versioned test actions without changing accepted tester behavior
+- recorded D-0010 as published and integrated at `2029fd07e14b6f48feb6d04e02dbd52ec683d55d` and closed GIT-005
+
+This was a documentation-only amendment. Phase 1.5 was not approved, authorized, or implemented; no browser/build/app/provider test was run; no runtime, API, fixture, script, dependency, configuration, migration, environment, database, tester, external service, staging, commit, merge, push, or publication changed.
+
 ### 2026-08-13 — Strict Spec Executor / Control Plane Architect separation adopted
 
 - recorded permanent decision D-0010: a Spec Executor now implements and technically proves exactly one authorized phase, returns an Implementation Review Packet, and stops without canonical-control-plane or Git mutation

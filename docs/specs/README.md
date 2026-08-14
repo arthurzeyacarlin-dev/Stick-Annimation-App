@@ -1,19 +1,19 @@
 # Specification Index and Lifecycle
 
 Status: canonical spec registry
-Last updated: 2026-08-13
+Last updated: 2026-08-14
 
 ## Active Spec
 
 | Spec | Status | Active authorization |
 | --- | --- | --- |
-| [`SPEC-0001 — First Reversible AI-Created Stick Animation from Workspace Chat`](0001-first-reversible-ai-stick-animation.md) | Approved | Phase 1 is **Verified, published, and integrated into canonical `main`**. The browser-harness prerequisite and Phases 2–7 remain unauthorized and not started. |
+| [`SPEC-0001 — First Reversible AI-Created Stick Animation from Workspace Chat`](0001-first-reversible-ai-stick-animation.md) | Approved | Phase 1 is **Verified, published, and integrated**. Phase 1.5 is **Approved; Authorized; Not started** under D-0011. Phases 2–7 are **Unauthorized; Not started**; Phase 2 is blocked on Phase 1.5 verification, acceptance, propagation, publication, and integration. |
 
 ## Proposed Specs
 
-None.
+No second specification is proposed. The active Approved SPEC-0001 contains the approved Phase 1.5 amendment; Phase 1.5 alone is **Approved; Authorized; Not started**.
 
-Exact next step: review and separately publish the D-0010 role-separation control plane without touching Phase 1. The browser harness remains a separate, currently unauthorized specification/implementation prerequisite before Phase 2 and must use the new Spec Executor → acceptance → Control Plane Architect → publication sequence. Phases 2–7 remain Unauthorized/Not started. The Phase 7 Policy Gate, provider choices, external lookups, and paid/live requests remain deferred and unauthorized.
+Exact next step: review and separately publish/integrate the D-0011 approval record. After publication, one new Phase 1.5 Spec Executor task may start in Plan mode under D-0010; this control-plane task does not begin implementation. Phases 2–7 remain Unauthorized/Not started. The Phase 7 Policy Gate, provider choices, external lookups, and paid/live requests remain deferred and unauthorized.
 
 ## Provisionally Promoted Legacy References
 

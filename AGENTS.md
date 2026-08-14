@@ -72,7 +72,40 @@ Be explicit:
 - say exactly what you verified
 - say exactly what is proven vs not proven
 
-For a phased implementation spec, one implementation task may execute exactly one authorized phase. It must complete that phase's stop gate, required acceptance and regression proof, control-plane updates, and full PM Review Packet, then stop before Git publication. The packet is review evidence, not authorization to stage, commit, or push. Those Git actions require an explicit instruction after packet review. A later phase starts in a new task only after the preceding phase is Verified and its explicitly authorized commit and push are durably integrated into canonical `main`.
+For a phased implementation spec, one **Spec Executor** task may execute exactly one authorized phase. It completes the phase's implementation, technical tests, proof manifest, and Spec Executor Implementation Review Packet, then stops. It must not update the canonical control plane or stage, commit, merge, push, or publish.
+
+After the Spec Executor has completely stopped, Arthur and the Project Manager accept or reject the implementation. Rejected work returns to a separately authorized Spec Executor correction task. Accepted work may transfer to a **Control Plane Architect**, which takes exclusive ownership of the same worktree, verifies the accepted implementation and technical evidence, updates the canonical control plane, runs the final tracked-state closeout and Git checks, returns a Control Plane Architect PM Review Packet, and stops with an empty index.
+
+Neither packet authorizes Git publication. Only a later explicit publication instruction authorizes the Control Plane Architect to stage the exact approved implementation and control-plane paths, commit them, integrate them into canonical `main`, push, and verify synchronization. A later phase starts in a new Spec Executor task only after the preceding phase and its control-plane record are durably integrated into canonical `main`.
+
+## Strict Task Role and Worktree Separation
+
+### Spec Executor
+
+- Starts every implementation phase in Plan mode from the exact authorized canonical-main SHA and uses one dedicated phase worktree.
+- Owns that worktree exclusively while active and may change only the phase-authorized runtime, fixture, technical-test, and proof files plus ignored proof artifacts.
+- Must not edit `AGENTS.md`, any canonical file under `docs/`, or `project/project_structure.txt`.
+- Must not stage, commit, merge, push, publish, deploy, or mutate another worktree.
+- Creates and independently validates the technical proof manifest, reports its SHA and exact dirty-path allowlist, returns the Implementation Review Packet, and completely stops.
+
+### Arthur and Project Manager
+
+- Review the implementation packet and accept or reject the technical result.
+- Do not treat executor self-reporting as control-plane propagation or publication.
+- Authorize correction, ownership transfer, and publication separately.
+
+### Control Plane Architect
+
+- May take over the implementation worktree only after the Spec Executor has completely stopped and Arthur and the Project Manager have accepted the implementation.
+- Before editing, verifies the accepted base/branch, empty index, exact implementation allowlist, proof-manifest hash, worktree status, and exclusive ownership.
+- Must not change the accepted runtime, fixture, or technical-test implementation. If those bytes need correction, stop and return the work to a Spec Executor.
+- Owns canonical spec/status/TODO/decision/changelog/handoff propagation, `bash scripts/update_memory.sh`, technical-manifest revalidation, final tracked-state closeout, and the Control Plane Architect PM Review Packet.
+- Stops before staging. A separate explicit publication instruction is always required.
+- In the later publication task, stages only the accepted implementation and reviewed control-plane paths, commits on the phase branch, fast-forwards a clean canonical `main`, pushes `origin/main`, and verifies clean `0/0` synchronization. If canonical `main` advanced or any path differs, stop without pull, merge, rebase, force-push, history rewrite, or scope expansion.
+
+No Spec Executor and Control Plane Architect may edit the same worktree at the same time. Worktree ownership transfer is sequential, explicit, and recorded in the returned packets.
+
+SPEC-0001 Phase 1 is a completed historical exception under the former combined workflow. It remains Verified, published, and integrated; do not repeat, rewrite, or republish it.
 
 ## Progressive Specification and Review Standard
 
@@ -121,7 +154,7 @@ Never silently choose one side of a conflict. Record the conflict in the active 
 
 Every non-trivial behavior change or bug fix must have one active spec under `docs/specs/`. The spec must define the exact goal, current behavior, execution path, scope, non-goals, acceptance flow, regression boundaries, and proof required before implementation begins.
 
-Before finishing a task that changes repository behavior or project state, update the affected control-plane files:
+The Spec Executor never performs the updates below. After an accepted implementation and exclusive worktree transfer, the Control Plane Architect updates the affected control-plane files before its final packet:
 
 - active spec status and verification evidence
 - `docs/CURRENT_STATE.md` when the live system state changed
@@ -130,4 +163,4 @@ Before finishing a task that changes repository behavior or project state, updat
 - `docs/SESSION_HANDOFF.md` with the exact next starting point
 - `docs/DECISIONS.md` when a durable decision was made
 
-Do not create competing current-state, TODO, changelog, or handoff files elsewhere. Do not auto-stage, auto-commit, or overwrite existing work as part of a memory update.
+Do not create competing current-state, TODO, changelog, or handoff files elsewhere. Control-plane propagation never auto-stages or auto-commits. Publication is a later Control Plane Architect task under separate explicit authorization.

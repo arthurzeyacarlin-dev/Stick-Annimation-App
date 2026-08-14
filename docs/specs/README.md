@@ -13,7 +13,7 @@ Last updated: 2026-08-13
 
 None.
 
-Exact next step: stop after the completed Phase 1 publication. The browser harness remains a separate, currently unauthorized specification/implementation prerequisite before Phase 2. Phases 2–7 remain Unauthorized/Not started. The Phase 7 Policy Gate, provider choices, external lookups, and paid/live requests remain deferred and unauthorized.
+Exact next step: review and separately publish the D-0010 role-separation control plane without touching Phase 1. The browser harness remains a separate, currently unauthorized specification/implementation prerequisite before Phase 2 and must use the new Spec Executor → acceptance → Control Plane Architect → publication sequence. Phases 2–7 remain Unauthorized/Not started. The Phase 7 Policy Gate, provider choices, external lookups, and paid/live requests remain deferred and unauthorized.
 
 ## Provisionally Promoted Legacy References
 
@@ -53,13 +53,19 @@ Only one spec should be `In progress` unless independent concurrency is document
 
 For a phased implementation spec:
 
-1. one implementation task and worktree executes exactly one authorized phase;
-2. that task completes the phase stop gate, acceptance and regression proof, required control-plane updates, and full PM Review Packet;
-3. the packet is review evidence and does not itself authorize staging, committing, or pushing;
-4. Git publication occurs only after an explicit post-packet instruction; and
-5. the next phase starts in a new task only after the preceding phase is Verified and durably integrated into canonical `main`.
+1. one Spec Executor task and worktree executes and technically tests exactly one authorized phase;
+2. the executor creates and validates the technical proof manifest, returns an Implementation Review Packet, and stops without control-plane or Git mutation;
+3. Arthur and the Project Manager accept or reject that implementation;
+4. only after acceptance and executor shutdown may a Control Plane Architect take exclusive ownership of the same worktree, update the canonical control plane, validate the technical evidence, complete final tracked-state proof, return its own PM Review Packet, and stop;
+5. both packets are review evidence and neither authorizes staging, committing, merging, pushing, or publication;
+6. only a later explicit publication instruction authorizes the Control Plane Architect to publish and integrate the accepted phase; and
+7. the next phase starts in a new Spec Executor task only after the preceding phase is Verified and durably integrated into canonical `main`.
 
 Every implementation phase starts in Codex Plan mode for evidence refresh, execution-path tracing, and a phase-bounded plan before implementation begins.
+
+The Spec Executor may write only the phase-authorized implementation/fixture/technical-test boundary plus ignored proof artifacts. Canonical spec/status/TODO/decision/changelog/handoff propagation belongs only to the Control Plane Architect. The roles never edit the same worktree concurrently; transfer is sequential and recorded after the executor has completely stopped.
+
+SPEC-0001 Phase 1 is the completed historical exception under the previous combined lifecycle. Its Verified, published, and integrated status is preserved.
 
 ## Progressive Elaboration and Review Threshold
 
@@ -86,7 +92,7 @@ Thin architecture prose, chat logs, paste packs, TODO entries, code comments, an
 
 ## Required End-of-Spec Updates
 
-When a spec reaches Verified:
+After Arthur and the Project Manager accept a phase implementation, the Control Plane Architect—not the Spec Executor—performs the required end-of-phase updates:
 
 1. add its final evidence and exact files changed
 2. update `../CURRENT_STATE.md`
@@ -96,4 +102,4 @@ When a spec reaches Verified:
 6. update this index and `../SESSION_HANDOFF.md`
 7. run the control-plane and relevant code gates
 
-Do not mark Verified when any required acceptance flow remains unproven.
+Do not mark Verified when any required acceptance flow remains unproven. Stop after the Control Plane Architect PM Review Packet; Git publication remains separately authorized.

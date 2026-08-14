@@ -87,7 +87,29 @@ Do not create another current-state file, TODO, changelog, roadmap, decision log
 
 ## End-of-Task Memory Contract
 
-For every task that changes code, behavior, architecture, priorities, or proof:
+Canonical memory propagation belongs to the Control Plane Architect, not the Spec Executor. The permanent phase workflow is:
+
+```text
+Spec Executor
+→ one authorized phase implementation and technical proof
+→ Implementation Review Packet
+→ stop
+
+Arthur and Project Manager
+→ accept or reject
+
+Control Plane Architect, after exclusive worktree transfer
+→ canonical memory propagation and final tracked-state proof
+→ Control Plane Architect PM Review Packet
+→ stop
+
+Separate explicit publication instruction
+→ Control Plane Architect stages, commits, integrates into main, pushes, and verifies
+```
+
+The Spec Executor may create validated technical proof evidence but must not edit `AGENTS.md`, canonical `docs/` files, or `project/project_structure.txt`, and must never stage, commit, merge, push, or publish. The Control Plane Architect may enter the same worktree only after the executor has completely stopped and the implementation is accepted. The two roles never edit one worktree concurrently.
+
+For every accepted task that changes code, behavior, architecture, priorities, or proof, the Control Plane Architect:
 
 1. Update the active spec with implementation and verification evidence.
 2. Update `CURRENT_STATE.md` only where reality changed.
@@ -96,4 +118,8 @@ For every task that changes code, behavior, architecture, priorities, or proof:
 5. Record durable decisions in `DECISIONS.md`.
 6. Rewrite `SESSION_HANDOFF.md` so the next task can start without chat history.
 7. Run `bash scripts/update_memory.sh` to validate memory and regenerate the sanitized tree. Use `--check-only` only for a read-only task with no filesystem changes.
-8. Report the exact git state. Never auto-stage or auto-commit.
+8. Revalidate the executor's technical manifest, complete the final tracked-state closeout, and report the exact Git state with an empty index.
+
+The Control Plane Architect then stops. Staging, committing, integrating, and pushing require a later explicit publication instruction. Rejected implementation returns to a separately authorized Spec Executor correction task without control-plane propagation.
+
+SPEC-0001 Phase 1 remains the completed historical exception under the former combined workflow; its Verified and published record is not changed by this process decision.

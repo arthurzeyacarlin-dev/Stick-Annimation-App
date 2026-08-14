@@ -5,6 +5,18 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-13 — Strict Spec Executor / Control Plane Architect separation adopted
+
+- recorded permanent decision D-0010: a Spec Executor now implements and technically proves exactly one authorized phase, returns an Implementation Review Packet, and stops without canonical-control-plane or Git mutation
+- assigned Arthur and the Project Manager the independent accept/reject gate; rejected work returns to a separately authorized executor correction task without propagation or publication
+- assigned the Control Plane Architect exclusive post-acceptance worktree ownership, canonical memory propagation, technical-manifest revalidation, final tracked-state closeout, Git checks, and a separate PM Review Packet
+- retained a later explicit publication gate under which only the Control Plane Architect may stage the exact approved paths, commit, integrate into canonical `main`, push, and verify
+- prohibited simultaneous Spec Executor/Control Plane Architect editing and required the executor to stop completely before ownership transfer
+- reconciled the complete SPEC-0001 proof lifecycle, including ordinary Phase 7 and later live-only/catastrophic evidence paths: technical executors now stop after ignored proof validation and an Implementation Review Packet, while only the post-acceptance Control Plane Architect may write tracked evidence, regenerate memory, or run final closeout
+- preserved SPEC-0001 Phase 1 as the Verified, published, and integrated historical exception under the former combined workflow; no Phase 1 contract, fixture, test, proof, behavior, status, or publication was changed
+
+This was a control-plane documentation task only. The browser-harness prerequisite and Phases 2–7 remain unauthorized and not started. No runtime, API, fixture, proof-script, dependency, configuration, migration, environment, database, OpenAI, search, Supabase, deployment, stage, commit, merge, push, or publication operation occurred.
+
 ### 2026-08-13 — SPEC-0001 Phase 1 blockers corrected and proof renewed
 
 - corrected the manual-action guards so each hold, blank insertion, and pose start accepts only its exact ordered predecessor state; skipped, repeated, reordered, wrong-target, wrong-owner, and malformed progressions now reject without mutation

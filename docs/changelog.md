@@ -5,6 +5,15 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-15 — SPEC-0002 approval published and integrated
+
+- published D-0013 and the SPEC-0002 approval record in commit `8a2d4cd0e27e5299cd413146124b74e2dcf31844` (`Approve SPEC-0002 Phase 1`) with exactly the reviewed eight proposal/control-plane paths
+- verified the phase branch, canonical `main`, local `origin/main`, and live remote `main` at that commit, with canonical `main` clean and synchronized at `0/0`; GIT-009 and the publication prerequisite are complete
+- kept SPEC-0002 Phase 1 Authorized/Not started, SPEC-0002 Phase 2 Unauthorized/Not started, and SPEC-0001 Phase 2–7 Unauthorized/Not started
+- set the next implementation step to one new Plan-mode SPEC-0002 Phase 1 Spec Executor task/worktree from the then-current canonical-main SHA after a refreshed conflict audit
+
+This is documentation-only post-publication reconciliation. No implementation, runtime, fixture, proof script, dependency, configuration, migration, environment, database, external service, staging, commit, merge, push, publication, or later-phase work occurred in this reconciliation task.
+
 ### 2026-08-15 — SPEC-0002 approved; Phase 1 authorized only
 
 - recorded Arthur's exact approval as D-0013: SPEC-0002 is Approved, OD2-01 through OD2-08 are accepted exactly as written, and Phase 1 only is Authorized/Not started

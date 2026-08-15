@@ -8,13 +8,13 @@ Last updated: 2026-08-15
 | Spec | Status | Active authorization |
 | --- | --- | --- |
 | [`SPEC-0001 — First Reversible AI-Created Stick Animation from Workspace Chat`](0001-first-reversible-ai-stick-animation.md) | Approved | Phase 1 and Phase 1.5 are **Verified, published, and integrated**. Phase 2 prerequisites are satisfied, but Phases 2–7 are **Unauthorized; Not started**. |
-| [`SPEC-0002 — Lossless Local Drawing Save and Reopen`](0002-lossless-local-drawing-save-and-reopen.md) | Approved | D-0013 accepts OD2-01 through OD2-08 exactly. Phase 1 is **Authorized; Not started**. Phase 2 is **Unauthorized; Not started**. |
+| [`SPEC-0002 — Lossless Local Drawing Save and Reopen`](0002-lossless-local-drawing-save-and-reopen.md) | Approved | D-0013 and its approval record are published/integrated at `8a2d4cd0e27e5299cd413146124b74e2dcf31844`. Phase 1 is **Authorized; Not started**. Phase 2 is **Unauthorized; Not started**. |
 
 ## Proposed Specs
 
 No additional specification is currently Proposed.
 
-SPEC-0002 approves a strict version-2 local Drawing record, lossless raster/audio assets, non-destructive version-1 compatibility, transactional failure safety, finite capacity, and truthful Save/Open presentation. Its Phase 1 implementation boundary contains only new files and passed the approval-time conflict audit at `365e68fe98b27e993a1c5645c3e28c7b428c6f33`; implementation still requires separate publication/integration of D-0013 and a fresh task-start audit. It does not change SPEC-0001's status or authorization.
+SPEC-0002 approves a strict version-2 local Drawing record, lossless raster/audio assets, non-destructive version-1 compatibility, transactional failure safety, finite capacity, and truthful Save/Open presentation. Its Phase 1 implementation boundary contains only new files and passed the approval-time conflict audit at `365e68fe98b27e993a1c5645c3e28c7b428c6f33`. D-0013 and the activation record are published/integrated at `8a2d4cd0e27e5299cd413146124b74e2dcf31844`; the publication prerequisite is satisfied, and the new implementation task must refresh the conflict audit. It does not change SPEC-0001's status or authorization.
 
 The active Approved SPEC-0001 contains D-0011's Phase 1.5 tester approval and D-0012's narrow conditional Drawing correction approval. The corrected implementation stayed inside that boundary and was subsequently accepted through D-0010's executor/review/architect lifecycle.
 

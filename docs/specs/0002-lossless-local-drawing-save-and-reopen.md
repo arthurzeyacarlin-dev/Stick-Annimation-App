@@ -8,7 +8,7 @@ Last updated: 2026-08-15
 Decision links: D-0013
 TODO IDs: SPEC-002, DATA-002 (Phase 1), DATA-001 (narrow Drawing portion), RENDER-001 (save/reopen portion)
 Baseline branch/commit: `codex/spec-architect` at `365e68fe98b27e993a1c5645c3e28c7b428c6f33`, matching `origin/main` at research start
-Last verified branch/commit: approval and activation-conflict audit at `365e68fe98b27e993a1c5645c3e28c7b428c6f33`; no implementation exists
+Last verified branch/commit: D-0013 and this approval record published/integrated at `8a2d4cd0e27e5299cd413146124b74e2dcf31844`; no implementation exists
 Lifecycle: Approved and active for bounded work; Phase 1 Authorized/Not started; Phase 2 Unauthorized/Not started
 
 ## 1. Exact Goal
@@ -458,10 +458,10 @@ SPEC-0002 is Approved and active for this bounded work. Phase 1 is Authorized bu
 1. canonical `main` and local `origin/main` both at `365e68fe98b27e993a1c5645c3e28c7b428c6f33`, ahead/behind `0/0`, with a clean canonical worktree and index;
 2. SPEC-0001 has no active executor or architect, while its Phase 2 and later phases remain Unauthorized/Not started;
 3. every Phase 1 implementation path in §11.2 is new and does not overlap SPEC-0001 runtime files, the shared tester core, this approval worktree, or current control-plane ownership;
-4. implementation, after separate publication/integration of this approval, must use one new exclusive worktree and one Plan-mode Spec Executor from the then-current canonical-main SHA; and
+4. implementation must use one new exclusive worktree and one Plan-mode Spec Executor from the then-current canonical-main SHA after this approval's publication/integration; and
 5. any future runtime, tester-core, worktree, or control-plane overlap is a hard stop until a fresh Project Manager conflict decision.
 
-Phase 1 may proceed only after the approval record is published/integrated and its new task refreshes this audit. Phase 2 must not overlap any task touching shared app navigation, Drawing regressions, or browser proof infrastructure.
+D-0013 and this approval record were published/integrated at `8a2d4cd0e27e5299cd413146124b74e2dcf31844`, satisfying the publication prerequisite. Phase 1 may proceed only in a new task that refreshes this audit. Phase 2 must not overlap any task touching shared app navigation, Drawing regressions, or browser proof infrastructure.
 
 ### 10.2 Universal lifecycle
 
@@ -487,7 +487,7 @@ Neither packet authorizes staging, commit, merge, push, or publication. The Spec
 
 | Phase | Status | Exact observable outcome | Dependencies | Hard stop |
 | --- | --- | --- | --- | --- |
-| 1 — Safe save format and storage engine | Authorized; Not started | Strict V2 records/assets/sounds, pre-decode PNG safety, legacy classification, tombstoned Delete maintenance, capacity math, and injected transaction engine round-trip fixtures exactly and preserve the applicable last-good/neighbor bytes under every failure. Existing UI remains unchanged. | D-0013 accepted owner outcomes; activation record is published/integrated; the implementation task refreshes the conflict audit. | Stop after offline/browser-engine proof manifest and packet; no UI wiring or native decode after a failed preflight. |
+| 1 — Safe save format and storage engine | Authorized; Not started | Strict V2 records/assets/sounds, pre-decode PNG safety, legacy classification, tombstoned Delete maintenance, capacity math, and injected transaction engine round-trip fixtures exactly and preserve the applicable last-good/neighbor bytes under every failure. Existing UI remains unchanged. | D-0013 accepted owner outcomes; activation record published/integrated at `8a2d4cd0e27e5299cd413146124b74e2dcf31844`; the implementation task refreshes the conflict audit. | Stop after offline/browser-engine proof manifest and packet; no UI wiring or native decode after a failed preflight. |
 | 2 — Real Save/Open wiring and browser proof | Unauthorized; Not started | Real Drawing Save/Open/Delete uses the accepted engine, shows truthful state, reopens representative content exactly, migrates valid legacy only on Save, never resurfaces a tombstoned legacy card, and passes protected flows offline. | Phase 1 accepted, Verified, published/integrated; new conflict audit; accepted Phase 2 tester plan. | Stop after full real-browser manifest and packet; no autosave/cloud/export/Stick work. |
 
 ### 10.4 Control-plane closeout paths, separate from implementation
@@ -509,7 +509,7 @@ These paths are not Spec Executor permissions. The architect must also run `bash
 
 ### 11.1 Status and outcome
 
-Authorized; Not started. The exact result is a hidden, unwired V2 contract/repository whose checked-in fixtures prove semantic fidelity and failure safety. No visible application behavior changes. Implementation may begin only after D-0013 and this approval record are separately published/integrated, in a new Plan-mode Spec Executor worktree from the then-current canonical-main SHA.
+Authorized; Not started. The exact result is a hidden, unwired V2 contract/repository whose checked-in fixtures prove semantic fidelity and failure safety. No visible application behavior changes. D-0013 and this approval record are published/integrated at `8a2d4cd0e27e5299cd413146124b74e2dcf31844`; implementation may begin only in a new Plan-mode Spec Executor worktree from the then-current canonical-main SHA after refreshing the conflict audit.
 
 ### 11.2 Exact authorized implementation files
 
@@ -782,6 +782,8 @@ Engineering defaults that do not change the accepted outcome—internal helper d
 
 Final status for this task: **Approved and active for bounded work**. OD2-01 through OD2-08 are accepted exactly as written. SPEC-0002 Phase 1 is **Authorized; Not started**. SPEC-0002 Phase 2 is **Unauthorized; Not started**. SPEC-0001 remains Approved with Phase 1 and Phase 1.5 Verified/published/integrated and Phase 2 and later phases Unauthorized/Not started.
 
-Next step: the Project Manager reviews this Control Plane Architect approval packet, followed only by a separate publication instruction if accepted. After D-0013 and this activation record are published/integrated, a new Plan-mode SPEC-0002 Phase 1 Spec Executor task may start in one separate worktree from the exact then-current canonical-main SHA after refreshing the activation conflict audit.
+Publication state: D-0013 and this activation record are published/integrated in canonical `main` at `8a2d4cd0e27e5299cd413146124b74e2dcf31844`; GIT-009 and the publication prerequisite are complete. No implementation has begun.
 
-This PM Review Packet does not authorize staging, commit, push, merge, publication, implementation, external activity, SPEC-0002 Phase 2, or SPEC-0001 Phase 2.
+Next step: after this post-publication reconciliation is separately reviewed and published, start one new Plan-mode SPEC-0002 Phase 1 Spec Executor task in one separate worktree from the exact then-current canonical-main SHA after refreshing the activation conflict audit.
+
+This reconciliation does not authorize staging, commit, push, merge, publication, implementation, external activity, SPEC-0002 Phase 2, or SPEC-0001 Phase 2.

@@ -5,6 +5,17 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-15 — SPEC-0002 Phase 1 accepted implementation closed out
+
+- recorded the accepted hidden V2 Drawing persistence foundation across exactly 34 new Phase 1 contract, canonicalization, repository, IndexedDB, V1-compatibility, raster/audio codec, fixture, validator, and proof paths from detached base `82663051b30cdcfd6766cf4714cdeb2306970045`
+- recorded closure of all five PM review findings: the exact 22-code error contract and Delete subset, complete-record fixed-point `storedByteLength`, strict V1 trailing-comma rejection with zero cleanup write, over-limit Blob rejection before read/preflight/decode, and fresh caller-independent immutable repository candidates
+- revalidated the unchanged technical manifest at SHA-256 `2d20a4a63103618505b60cf590835191841d1c1968bc2bc14ef2c953253243a1`: 9 ordered receipts, 34 artifacts, 182 contract + 506 repository + 80 V1 + 23 isolated Chrome/IndexedDB assertions = 791 total, 12 validator self-tests, TypeScript pass, and exact 6-error/73-warning lint baseline with zero Phase 1 findings
+- preserved zero app mount, zero external/provider traffic, isolated ephemeral storage, retained dependency-source cleanliness, and complete dependency/profile/database/server cleanup
+- marked Phase 1 Verified/accepted/pre-publication, left visible Drawing Save/Open/Delete on the existing V1 path, and kept SPEC-0002 Phase 2 plus SPEC-0001 Phase 2–7 Unauthorized/Not started
+- opened GIT-010 as the separate publication/integration step; neither executor nor architect packet authorizes staging, commit, merge, push, or publication
+
+This is accepted-result control-plane propagation and closeout only. No accepted implementation, fixture, validator, proof-script, package/dependency/configuration, existing runtime/UI, SPEC-0001 tester, database, environment, external service, canonical-main, or other-worktree byte changed. The reviewed implementation/control-plane state remains unstaged and unpublished.
+
 ### 2026-08-15 — SPEC-0002 approval published and integrated
 
 - published D-0013 and the SPEC-0002 approval record in commit `8a2d4cd0e27e5299cd413146124b74e2dcf31844` (`Approve SPEC-0002 Phase 1`) with exactly the reviewed eight proposal/control-plane paths

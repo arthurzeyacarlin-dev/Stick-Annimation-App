@@ -3,52 +3,54 @@
 Status: canonical last-known stopping point
 Last updated: 2026-08-15
 Active specs: `docs/specs/0001-first-reversible-ai-stick-animation.md` and `docs/specs/0002-lossless-local-drawing-save-and-reopen.md` — Approved
-Active phase state: SPEC-0001 Phase 1 and Phase 1.5 — Verified, published, and integrated; SPEC-0002 Phase 1 — Authorized/Not started; SPEC-0002 Phase 2 and SPEC-0001 Phase 2–7 — Unauthorized/Not started
+Active phase state: SPEC-0001 Phase 1 and Phase 1.5 — Verified, published, and integrated; SPEC-0002 Phase 1 — Verified/accepted/pre-publication; SPEC-0002 Phase 2 and SPEC-0001 Phase 2–7 — Unauthorized/Not started
 Current roadmap phase: Phase 0 — Preserve and Stabilize
 
 ## Completed in the Last Task
 
-Arthur and the Project Manager accepted the corrected SPEC-0001 Phase 1.5 implementation, and the separately authorized publication task committed exactly the reviewed 35 paths as `8df64552e29e4170df8000097fe857b7a31dff69`, parent `3768226fd3aa3668a6cf7260da8476ceea0a084e`, with message `Implement SPEC-0001 Phase 1.5 browser tester`. The subsequent six-document control-plane publication record was published as `687cbeaf6acbf9625e0d940e78bc600251eb0604`, parent `8df64552e29e4170df8000097fe857b7a31dff69`, with message `Record SPEC-0001 Phase 1.5 integration`. The exact 27 accepted implementation paths remain bound to aggregate SHA-256 `5976fb700175a3cf5a381bd5a89f9fb0e6a2f124a35490a3e9027e0ad0e083a4`.
+Arthur and the Project Manager accepted the corrected SPEC-0002 Phase 1 technical implementation after the Spec Executor and correction task stopped completely. The Control Plane Architect took exclusive ownership of the same dedicated worktree only after verifying the stopped ownership state, exact detached base `82663051b30cdcfd6766cf4714cdeb2306970045`, empty index, unchanged accepted proof SHA, and exact 34-path untracked implementation allowlist.
 
-The historical failed run remains useful root-cause evidence, but it is superseded. D-0012-authorized temporary diagnostics uniquely identified `DrawingCanvas.tsx` authoring-canvas width assignment as the first clearing writer: the deterministic generated bitmap had been installed in the real timeline, but assigning the canvas dimension cleared the editable pixels during settlement/resize. The permanent correction stays only in `DrawingCanvas.tsx`: it avoids redundant dimension writes and snapshots/recenters the editable canvas across a real resize. All temporary `DrawingWorkspace.tsx` and `DrawingCanvas.tsx` diagnostics were removed; `DrawingWorkspace.tsx` is byte-identical to the baseline.
+The accepted hidden implementation adds strict V2 Drawing contracts, canonical complete-record bytes and browser-safe SHA-256, lossless bounded raster/audio codecs, strict V1 classification and neighbor-safe cleanup, an injected rollback-safe repository, real IndexedDB transaction/tombstone support, fixed fixtures, four focused validators, an official proof recorder/validator, and a later Control Plane Architect finalizer. All new modules remain unwired. Existing `drawingProjectStorage.ts`, DrawingWorkspace, Open Project, Save/Open/Delete UI, DrawingCanvas, SPEC-0001 tester, package/dependency/configuration, and every visible application path remain unchanged.
 
-The permanent developer-only tester is complete. `npm run test:spec0001-browser` runs the real app through pinned `playwright-core` and installed local Google Chrome with isolated browser state, loopback-only browser/server/child policy, hash-bound checked-in tester font fixtures, deterministic Drawing interception, byte-restored temporary setup, strict result contracts, and production-exclusion scanning. It creates no website route, page, API, button, panel, asset, warning, or production import, so website users cannot see or reach it.
+The separate correction task closed the five PM findings exactly:
 
-Accepted technical proof is `output/spec-0001/phase-1.5/proof-manifest.json`, SHA-256 `da2dd8cff32367a548a2e7d2e4e789fcf1a4dd129e9dc6200e25650f586f9fc9`. Independent validation passes 7 receipts and 49 artifacts: exact plan/actions/driver messages/screenshots; Home/New/Stick and Stick/Creator/Back at both viewports; exactly one mocked Drawing POST at `1440x900`; final success, usable input, and settled generated pixels; the same context and bitmap surviving resize to `1024x768` without a second POST; Undo/Redo and Play/Pause; all 37 negative cases; browser fetch/WebSocket and server fetch/HTTP/HTTPS/net/TLS/DNS/child denial; zero real API/provider/search/Supabase request; three forbidden tester URLs returning 404; a complete 152-file deployable-output scan with zero leak; and success/failure/`SIGINT`/`SIGTERM` cleanup. Phase 1's 631 assertions and TypeScript pass; full lint remains exactly the known 6 errors/73 warnings with zero Phase 1.5 findings.
+1. the runtime/fixture/validator contract now exposes only the approved 22 stable error codes, uses `asset_missing`, `candidate_readback_mismatch`, and `id_collision` correctly, and freezes Delete's exact seven-code failed union;
+2. `storedByteLength` now includes itself through bounded complete-record fixed-point accounting, with independent representative and digit-boundary goldens;
+3. malformed V1 trailing-comma roots classify as `corrupt-root` and cannot become a cleanup basis or cause a write;
+4. reported over-limit encoder/read Blobs reject as `project_too_large` before `arrayBuffer`, PNG preflight, or native decode without allocating the claimed boundary; and
+5. repository preparation clones supported caller data and Blobs, freezes only the fresh candidate, and proves caller/candidate identity/value/frozen-state independence on success and every injected failure.
 
-The accepted implementation bytes were preserved exactly while the result was propagated through the exact eight authorized canonical paths and published in the exact 35-path commit. `bash scripts/update_memory.sh` and `--check-only`, technical-manifest revalidation, final tracked-state closeout plus independent validation, and final diff/scope/status/index checks pass. The closeout manifest is ignored evidence at `output/spec-0001/phase-1.5/proof-closeout-manifest.json`, SHA-256 `d7d74d9a48e31f997ed772625cc75be53a7d408b96fe093023b50c793c421423`.
+Accepted technical evidence is `output/spec-0002/phase-1/proof-manifest.json`, SHA-256 `2d20a4a63103618505b60cf590835191841d1c1968bc2bc14ef2c953253243a1`. Independent validation proves 9 ordered receipts and 34 artifacts: 182 V2 contract assertions, 506 repository assertions, 80 V1 compatibility assertions, and 23 isolated Chrome/IndexedDB assertions, for 791 total; all 12 manifest self-tests pass. TypeScript passes. Full lint remains exactly the known 6 errors/73 warnings with zero Phase 1 findings. The isolated engine mounted no Diamond Animator app, used ephemeral IndexedDB/localStorage, recorded zero non-loopback/provider traffic, removed its database/profile/server state, and left the retained dependency source clean.
 
-Phase 1 remains Verified, published, and integrated at `21a88feb65cf1cc51138c9ad4879b962ee468569`, with official proof-manifest SHA-256 `fe1d69c9d0fcc8e7131d064b6a8ee4c0bd99aea21b8a0f399840b4c2311937d7`. D-0010 remains the required Executor → human review → Control Plane Architect → separate publication lifecycle.
+The Control Plane Architect revalidated the unchanged technical manifest before propagation, updated only the canonical SPEC-0002 status/spec/TODO/changelog/handoff/testing records, regenerated `project/project_structure.txt` only through `bash scripts/update_memory.sh`, and completed the final tracked-state closeout without staging. `docs/DECISIONS.md` remained unchanged because no new durable product or engineering decision was made: D-0013 already owns the accepted outcome and authorization boundary.
 
-In this separate documentation-only worktree based on canonical commit `365e68fe98b27e993a1c5645c3e28c7b428c6f33`, SPEC-0002 was researched and proposed for lossless local Drawing Save/Reopen. The traced V1 path writes `bitmap:null` and `tweenEndBitmap:null`, uses compact previews as reopen data, shallowly reads one localStorage collection, and has no typed durable save state. Arthur explicitly approved SPEC-0002, accepted OD2-01 through OD2-08 exactly as written, and authorized Phase 1 only through D-0013. The accepted design uses a strict V2 IndexedDB record with exact decoded pixel/structured/audio fidelity, non-destructive V1 migration on explicit Save, finite capacity, last-good preservation, truthful beginner copy, and two independently verified phases. No implementation has begun.
+## Current Git and Proof State
 
-The fresh activation audit passed: canonical `main` and local `origin/main` are clean and synchronized at `365e68fe98b27e993a1c5645c3e28c7b428c6f33`; SPEC-0001 has no active executor or architect and its Phase 2 remains unauthorized; every SPEC-0002 Phase 1 implementation path is new and does not overlap SPEC-0001 runtime files or the shared tester core. A future implementation must use one new exclusive worktree and stop if a real overlap appears.
-
-D-0013 and the SPEC-0002 approval record were subsequently published and integrated in canonical `main` as `8a2d4cd0e27e5299cd413146124b74e2dcf31844` (`Approve SPEC-0002 Phase 1`). The phase branch, canonical `main`, local `origin/main`, and live remote `main` matched that commit at clean `0/0`; GIT-009 and the publication prerequisite are complete. SPEC-0002 Phase 1 remains Authorized/Not started, and no implementation began.
-
-## Current Git State
-
-- canonical `main`, local `origin/main`, and live remote `main` are clean and synchronized at `8a2d4cd0e27e5299cd413146124b74e2dcf31844`, the published D-0013/SPEC-0002 approval commit; the approval-time activation audit remains anchored at `365e68fe98b27e993a1c5645c3e28c7b428c6f33`
-- retained worktree: `/Users/arthurcarlin/.codex/worktrees/feba/stick-animation-app`, branch `codex/spec-0001-phase-1.5-closeout`, retained at implementation commit `8df64552e29e4170df8000097fe857b7a31dff69` after publication
-- accepted technical proof and closeout remain ignored evidence under `output/spec-0001/phase-1.5/`
-- exact current branch/HEAD/ref/ahead-behind/index/worktree/untracked state must be established at the start of every task with fresh Git commands; do not infer it from this handoff
-- prohibited recovery branch: untouched and not used
+- worktree: `/Users/arthurcarlin/.codex/worktrees/2b1d/stick-animation-app`
+- HEAD/base: detached at `82663051b30cdcfd6766cf4714cdeb2306970045`
+- local `main` and local `origin/main`: both resolve to the same base at `0/0`; no live remote request was made during closeout
+- index: empty
+- implementation dirty set: exactly the 34 untracked paths bound by the technical manifest
+- control-plane dirty set: exactly `docs/CURRENT_STATE.md`, `docs/SESSION_HANDOFF.md`, `docs/TODO.md`, `docs/changelog.md`, `docs/specs/0002-lossless-local-drawing-save-and-reopen.md`, `docs/specs/README.md`, `docs/testing_workflow.md`, and generated `project/project_structure.txt`
+- technical proof: ignored `output/spec-0002/phase-1/proof-manifest.json`, accepted SHA-256 `2d20a4a63103618505b60cf590835191841d1c1968bc2bc14ef2c953253243a1`
+- tracked-state closeout: ignored `output/spec-0002/phase-1/proof-closeout-manifest.json`; its independently checked SHA-256 is reported in the Control Plane Architect PM Review Packet
+- temporary `node_modules` symlink, browser profiles, databases, and proof processes: absent
+- publication state: all implementation and control-plane paths remain unstaged, uncommitted, and unpublished
 
 ## Exact Next Start Point
 
-1. Run fresh `git rev-parse`, `git status`, index, untracked, worktree, and upstream-divergence checks to establish the exact then-current canonical-main SHA and repository state.
-2. Review and separately publish this six-document post-publication reconciliation; it changes no decision or implementation authorization.
-3. Then create one new Plan-mode SPEC-0002 Phase 1 Spec Executor task/worktree from the exact then-current canonical-main SHA.
-4. Refresh the conflict audit before implementation; stop if any real runtime, tester-core, worktree, or control-plane overlap exists.
-5. Implement only SPEC-0002 Phase 1 under §11.2. SPEC-0002 Phase 2 and SPEC-0001 Phase 2–7 remain Unauthorized/Not started. The Phase 7 Policy Gate, external lookup, and every paid/live request also remain unauthorized.
+1. Arthur and the Project Manager review the Control Plane Architect packet and its closeout-manifest SHA.
+2. Only a later explicit publication instruction may authorize the Control Plane Architect to recheck the same base, technical/closeout hashes, exact 42-path implementation-plus-control-plane set, empty index, and unchanged canonical `main`.
+3. Under that separate authority, publish exactly the accepted 34 implementation paths and reviewed eight control-plane paths; never stage ignored proof output.
+4. Integrate only by the approved clean fast-forward workflow, push, and verify canonical `main`/`origin/main` synchronization at `0/0`. Any advanced main or byte/path mismatch is a hard stop without pull, merge, rebase, force-push, or scope expansion.
+5. After successful publication/integration, confirm SPEC-0002 Phase 2 is ready for a separate owner authorization decision but remains Unauthorized/Not started. Do not begin Phase 2 in the publication task.
 
 ## Systems Intentionally Left Unchanged
 
-- `AGENTS.md`, `docs/PROJECT_MANAGER_CONTEXT.md`, and `docs/DECISIONS.md`; D-0013 was already correct and remained unchanged in this reconciliation
-- all `app/**` pages, layouts, routes, APIs, product fonts, and styles
-- every Drawing contract, request route, planner, executor, provider, storage, memory, and unrelated editor behavior
-- `DrawingWorkspace.tsx`; all temporary diagnostics are removed
-- Stick behavior, Creator behavior, Workspace UI/state, timelines, playback, history, Save/Open, and chat behavior; the only Stick source change remains the inert tester anchor comment
-- OpenAI/provider, search, Supabase, analytics, paid services, database, migration, configuration, environment, deployment, and recovery/retained-worktree state
+- `AGENTS.md`, `docs/PROJECT_MANAGER_CONTEXT.md`, `docs/DECISIONS.md`, every SPEC-0001 file, and every other canonical document outside the exact closeout allowlist
+- all existing `app/**` pages/routes/APIs, runtime Drawing/Stick/Creator components, `drawingProjectStorage.ts`, current localStorage key/data, and visible Save/Open/Delete behavior
+- permanent SPEC-0001 browser tester/core, DrawingCanvas, Drawing Generate Frames, AI contracts/routes/providers/memory, and protected generated-pixel settlement behavior
+- package files, dependencies, configuration, migrations, environment files, databases, real user browser storage, retained/recovery worktrees, canonical-main worktree bytes, deployment, and external/paid services
+- Git index/history/remotes: no stage, commit, branch, merge, push, publication, or history rewrite occurred
 
-The Phase 1 contract modules remain deliberately unwired. No Phase 2 implementation exists.
+Phase 1 is a hidden accepted foundation only. Phase 2 is still required to wire and visibly prove lossless Drawing Save/Open/Delete.

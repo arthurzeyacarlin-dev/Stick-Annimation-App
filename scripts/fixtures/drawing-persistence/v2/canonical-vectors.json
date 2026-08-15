@@ -1,0 +1,38 @@
+{
+  "fixtureVersion": 1,
+  "cases": [
+    { "name": "key-order", "accepted": true },
+    { "name": "unicode-nfc", "accepted": true },
+    { "name": "negative-zero", "accepted": false },
+    { "name": "non-finite", "accepted": false },
+    { "name": "lone-surrogate", "accepted": false },
+    { "name": "array-hole", "accepted": false },
+    { "name": "non-plain-object", "accepted": false }
+  ],
+  "storedByteLengthGoldens": [
+    {
+      "name": "representative-complete-record",
+      "projectId": "project-fixture",
+      "descriptorUtf8Bytes": 3531,
+      "assetBytes": 114,
+      "storedByteLength": 3645,
+      "descriptorSha256": "becfb9aa0836a2c02c268b54e30a6bbef6e9fee6d418ffa453cdf3edd75ae2b5"
+    },
+    {
+      "name": "digit-boundary-before",
+      "projectId": "digit-boundary",
+      "textCharacters": 6365,
+      "descriptorUtf8Bytes": 9885,
+      "assetBytes": 114,
+      "storedByteLength": 9999
+    },
+    {
+      "name": "digit-boundary-after",
+      "projectId": "digit-boundary",
+      "textCharacters": 6366,
+      "descriptorUtf8Bytes": 9887,
+      "assetBytes": 114,
+      "storedByteLength": 10001
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+{
+  "fixtureVersion": 1,
+  "cases": ["absent", "valid-array", "valid-whitespace", "empty-array", "malformed-json", "wrong-root", "trailing-comma-root", "trailing-comma-whitespace-root", "duplicate-project-id-invalid-record", "invalid-nested-data", "unsupported-version", "read-failure", "sound-optional-defaults", "future-sound-shape"]
+}

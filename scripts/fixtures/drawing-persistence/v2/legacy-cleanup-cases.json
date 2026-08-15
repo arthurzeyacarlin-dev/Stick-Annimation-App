@@ -1,0 +1,4 @@
+{
+  "fixtureVersion": 1,
+  "cases": ["not-needed", "cleaned", "lock-unavailable", "root-digest-race", "write-failure", "post-write-read-failure", "digest-mismatch", "corrupt-root", "trailing-comma-cleanup-refusal", "trailing-comma-zero-write", "neighbor-raw-slice-preservation"]
+}

@@ -1,0 +1,4 @@
+{
+  "fixtureVersion": 1,
+  "cases": ["native-transparent-png", "native-opaque-png", "native-decode-count", "oversized-encoder-before-read", "real-indexeddb-stage-readback-publish", "real-indexeddb-abort", "real-indexeddb-delete-tombstone", "catalog-reload-dedup", "injected-localstorage-cleanup", "network-fetch-denial", "network-websocket-denial", "no-app-mount"]
+}

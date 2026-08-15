@@ -1,0 +1,124 @@
+{
+  "configVersion": 1,
+  "specId": "SPEC-0002",
+  "phase": 1,
+  "baseCommit": "82663051b30cdcfd6766cf4714cdeb2306970045",
+  "bindings": {
+    "sources": [
+      "src/lib/drawingProjectV2Contract.ts",
+      "src/lib/drawingProjectV2Canonical.ts",
+      "src/lib/drawingProjectV2Repository.ts",
+      "src/lib/drawingProjectIndexedDb.ts",
+      "src/lib/drawingProjectV1Compatibility.ts",
+      "src/lib/drawingProjectRasterCodec.ts",
+      "src/lib/drawingProjectAudioCodec.ts"
+    ],
+    "fixtures": [
+      "scripts/fixtures/drawing-persistence/v2/canonical-vectors.json",
+      "scripts/fixtures/drawing-persistence/v2/valid-projects.json",
+      "scripts/fixtures/drawing-persistence/v2/invalid-contract-cases.json",
+      "scripts/fixtures/drawing-persistence/v2/capacity-cases.json",
+      "scripts/fixtures/drawing-persistence/v2/raster-byte-vectors.json",
+      "scripts/fixtures/drawing-persistence/v2/png-preflight-cases.json",
+      "scripts/fixtures/drawing-persistence/v2/audio-cases.json",
+      "scripts/fixtures/drawing-persistence/v2/v1-compatibility-cases.json",
+      "scripts/fixtures/drawing-persistence/v2/legacy-cleanup-cases.json",
+      "scripts/fixtures/drawing-persistence/v2/repository-cases.json",
+      "scripts/fixtures/drawing-persistence/v2/browser-engine-cases.json",
+      "scripts/fixtures/drawing-persistence/v2/lint-baseline.json"
+    ],
+    "schemas": [
+      "scripts/fixtures/drawing-persistence/v2/proof-command-receipt.schema.json",
+      "scripts/fixtures/drawing-persistence/v2/phase-1-proof-manifest.schema.json",
+      "scripts/fixtures/drawing-persistence/v2/browser-engine-result.schema.json",
+      "scripts/fixtures/drawing-persistence/v2/proof-closeout-manifest.schema.json"
+    ],
+    "harness": [
+      "scripts/fixtures/drawing-persistence/v2/fixtureFactory.ts",
+      "scripts/fixtures/drawing-persistence/v2/network-deny.cjs",
+      "scripts/fixtures/drawing-persistence/v2/browserEngineServer.cjs",
+      "scripts/validateDrawingProjectV2Contract.ts",
+      "scripts/validateDrawingProjectV2Repository.ts",
+      "scripts/validateDrawingProjectV1Compatibility.ts",
+      "scripts/validateDrawingProjectV2BrowserEngine.ts",
+      "scripts/recordSpec0002Phase1Proof.ts",
+      "scripts/validateSpec0002Proof.ts",
+      "scripts/finalizeSpec0002Closeout.ts"
+    ]
+  },
+  "commands": [
+    {
+      "name": "v2-contract",
+      "argv": ["node", "--experimental-strip-types", "scripts/validateDrawingProjectV2Contract.ts"],
+      "cwd": ".",
+      "env": {"NEXT_TELEMETRY_DISABLED":"1","OPENAI_API_KEY":"","SUPABASE_URL":"","SUPABASE_ANON_KEY":"","SUPABASE_SERVICE_ROLE_KEY":""},
+      "expectedExitCode": 0,
+      "privacy": "sanitized"
+    },
+    {
+      "name": "v2-repository",
+      "argv": ["node", "--experimental-strip-types", "scripts/validateDrawingProjectV2Repository.ts"],
+      "cwd": ".",
+      "env": {"NEXT_TELEMETRY_DISABLED":"1","OPENAI_API_KEY":"","SUPABASE_URL":"","SUPABASE_ANON_KEY":"","SUPABASE_SERVICE_ROLE_KEY":""},
+      "expectedExitCode": 0,
+      "privacy": "sanitized"
+    },
+    {
+      "name": "v1-compatibility",
+      "argv": ["node", "--experimental-strip-types", "scripts/validateDrawingProjectV1Compatibility.ts"],
+      "cwd": ".",
+      "env": {"NEXT_TELEMETRY_DISABLED":"1","OPENAI_API_KEY":"","SUPABASE_URL":"","SUPABASE_ANON_KEY":"","SUPABASE_SERVICE_ROLE_KEY":""},
+      "expectedExitCode": 0,
+      "privacy": "sanitized"
+    },
+    {
+      "name": "browser-engine",
+      "argv": ["node", "--experimental-strip-types", "scripts/validateDrawingProjectV2BrowserEngine.ts"],
+      "cwd": ".",
+      "env": {"NEXT_TELEMETRY_DISABLED":"1","OPENAI_API_KEY":"","SUPABASE_URL":"","SUPABASE_ANON_KEY":"","SUPABASE_SERVICE_ROLE_KEY":""},
+      "expectedExitCode": 0,
+      "privacy": "sanitized"
+    },
+    {
+      "name": "typescript",
+      "argv": ["./node_modules/.bin/tsc", "--noEmit", "--incremental", "false"],
+      "cwd": ".",
+      "env": {"NEXT_TELEMETRY_DISABLED":"1","OPENAI_API_KEY":"","SUPABASE_URL":"","SUPABASE_ANON_KEY":"","SUPABASE_SERVICE_ROLE_KEY":""},
+      "expectedExitCode": 0,
+      "privacy": "sanitized"
+    },
+    {
+      "name": "lint-regression",
+      "argv": ["npm", "run", "lint"],
+      "cwd": ".",
+      "env": {"NEXT_TELEMETRY_DISABLED":"1","OPENAI_API_KEY":"","SUPABASE_URL":"","SUPABASE_ANON_KEY":"","SUPABASE_SERVICE_ROLE_KEY":""},
+      "expectedExitCode": 1,
+      "privacy": "sanitized",
+      "lintBaseline": {"errors":6,"warnings":73,"phasePathFindings":0}
+    },
+    {
+      "name": "diff-check",
+      "argv": ["git", "diff", "--check"],
+      "cwd": ".",
+      "env": {"NEXT_TELEMETRY_DISABLED":"1","OPENAI_API_KEY":"","SUPABASE_URL":"","SUPABASE_ANON_KEY":"","SUPABASE_SERVICE_ROLE_KEY":""},
+      "expectedExitCode": 0,
+      "privacy": "sanitized"
+    },
+    {
+      "name": "cached-diff-check",
+      "argv": ["git", "diff", "--cached", "--check"],
+      "cwd": ".",
+      "env": {"NEXT_TELEMETRY_DISABLED":"1","OPENAI_API_KEY":"","SUPABASE_URL":"","SUPABASE_ANON_KEY":"","SUPABASE_SERVICE_ROLE_KEY":""},
+      "expectedExitCode": 0,
+      "privacy": "sanitized"
+    },
+    {
+      "name": "status",
+      "argv": ["git", "status", "--short", "--branch"],
+      "cwd": ".",
+      "env": {"NEXT_TELEMETRY_DISABLED":"1","OPENAI_API_KEY":"","SUPABASE_URL":"","SUPABASE_ANON_KEY":"","SUPABASE_SERVICE_ROLE_KEY":""},
+      "expectedExitCode": 0,
+      "privacy": "sanitized"
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+{
+  "fixtureVersion": 1,
+  "families": ["empty", "representative-multi-layer-four-cell", "maximum-boundary-arithmetic", "non-wave-null-audio", "non-ai"]
+}

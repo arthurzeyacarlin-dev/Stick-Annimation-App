@@ -1,0 +1,5 @@
+{
+  "fixtureVersion": 1,
+  "valid": ["sfx-wave", "sfx-null", "voice-placeholder-null", "nullable-fields", "non-null-fields"],
+  "invalid": ["optionId", "durationSeconds", "source", "mimeType", "unknown-key", "wrong-sourceTask-unsupported-version", "unknown-contentType-unsupported-version", "malformed-base64-invalid-record", "noncanonical-base64-invalid-record", "oversized-base64-project-too-large", "http-unsupported-version", "https-unsupported-version", "blob-unsupported-version", "image-unsupported-version", "unsupported-mime-version", "missing-asset", "length", "digest", "reconstruction", "future-shape"]
+}

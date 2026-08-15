@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["manifestVersion","specId","phase","baseCommit","headCommit","recordedAt","commandsPassed","commandConfig","receipts","artifacts","assertions","lintBaseline","runtime","dependencyEnvironment","git","network","cleanup"],
+  "properties": {
+    "manifestVersion":{"const":1},"specId":{"const":"SPEC-0002"},"phase":{"const":1},
+    "baseCommit":{"type":"string"},"headCommit":{"type":"string"},"recordedAt":{"type":"string"},"commandsPassed":{"const":true},
+    "commandConfig":{"type":"object"},"receipts":{"type":"array","minItems":9,"maxItems":9},"artifacts":{"type":"array"},
+    "assertions":{"type":"object"},"lintBaseline":{"type":"object"},"runtime":{"type":"object"},
+    "dependencyEnvironment":{"type":"object"},"git":{"type":"object"},"network":{"type":"object"},"cleanup":{"type":"object"}
+  }
+}

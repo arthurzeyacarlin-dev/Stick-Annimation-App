@@ -1,0 +1,4 @@
+{
+  "fixtureVersion": 1,
+  "cases": ["prepare-fresh-deep-copy", "prepare-caller-state-success", "prepare-caller-state-failures", "candidate-deep-immutable", "caller-mutation-isolation", "candidate-mutation-isolation", "save", "stage-put-throw", "quota-abort", "readback-mismatch", "head-cas-abort", "stale-revision", "orphan-cleanup", "neighbor-preservation", "save-as-collision", "save-as-id-collision", "rename", "duplicate", "v2-delete", "legacy-only-delete", "delete-failed-code-exact-union", "delete-code-leak-normalization", "tombstone-dedup", "maintenance-not-needed", "maintenance-cleaned", "maintenance-pending", "maintenance-throw-after-commit", "tombstone-removal-failure"]
+}

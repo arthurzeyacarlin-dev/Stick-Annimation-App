@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["browser","result","network","appMounted"],
+  "properties": {
+    "browser":{"type":"string"},"result":{"type":"object"},"network":{"type":"object"},"appMounted":{"const":false}
+  }
+}

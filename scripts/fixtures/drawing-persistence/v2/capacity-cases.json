@@ -1,0 +1,13 @@
+{
+  "fixtureVersion": 1,
+  "cases": [
+    { "name": "project-stored-limit", "bytes": 134217728, "accepted": true },
+    { "name": "project-stored-limit-plus-one", "bytes": 134217729, "accepted": false },
+    { "name": "collection-limit", "bytes": 536870912, "accepted": true },
+    { "name": "collection-limit-plus-one", "bytes": 536870913, "accepted": false },
+    { "name": "hydrated-limit", "bytes": 536870912, "accepted": true },
+    { "name": "hydrated-limit-plus-one", "bytes": 536870913, "accepted": false },
+    { "name": "project-count-64", "count": 64, "accepted": true },
+    { "name": "project-count-65", "count": 65, "accepted": false }
+  ]
+}

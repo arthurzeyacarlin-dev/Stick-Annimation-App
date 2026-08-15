@@ -77,6 +77,11 @@ These commands exist today:
 ./node_modules/.bin/tsc --noEmit --incremental false
 npm run lint
 npm run test:spec0001-browser
+node --experimental-strip-types scripts/validateDrawingProjectV2Contract.ts
+node --experimental-strip-types scripts/validateDrawingProjectV2Repository.ts
+node --experimental-strip-types scripts/validateDrawingProjectV1Compatibility.ts
+node --experimental-strip-types scripts/validateDrawingProjectV2BrowserEngine.ts
+node --experimental-strip-types scripts/validateSpec0002Proof.ts output/spec-0002/phase-1/proof-manifest.json
 node --experimental-strip-types scripts/validateDrawingAiControlPreferences.ts
 node --experimental-strip-types scripts/validateDrawingProjectAiMemory.ts
 node --experimental-strip-types scripts/validateDrawingProjectAiMemoryRouteSafety.ts
@@ -114,6 +119,26 @@ node --experimental-strip-types scripts/spec0001-browser/validatePhase15Proof.ts
 ```
 
 The accepted Phase 1.5 technical manifest contains 7 receipts and exactly 49 artifacts. Its SHA-256 is `da2dd8cff32367a548a2e7d2e4e789fcf1a4dd129e9dc6200e25650f586f9fc9`.
+
+## SPEC-0002 Phase 1 Hidden Persistence Engine
+
+The accepted Phase 1 proof is deliberately separate from the product-visible browser flow. It tests the strict V2 contracts/codecs/repository in Node plus one isolated local Chrome page using real ephemeral IndexedDB and injected localStorage maintenance. It does not mount Diamond Animator, touch real user storage, or claim that the visible Save/Open/Delete UI has changed.
+
+The technical proof command is:
+
+```bash
+node --experimental-strip-types scripts/validateSpec0002Proof.ts output/spec-0002/phase-1/proof-manifest.json
+```
+
+The accepted manifest contains 9 ordered receipts and exactly 34 implementation artifacts. It binds 182 contract, 506 repository, 80 V1-compatibility, and 23 isolated Chrome/IndexedDB assertions, for 791 total; TypeScript passes; full lint remains exactly 6 errors/73 warnings with zero Phase 1 findings; all 12 independent manifest self-tests pass. Browser evidence records no app mount, zero non-loopback/provider traffic, and complete profile/database/server cleanup. Technical-manifest SHA-256: `2d20a4a63103618505b60cf590835191841d1c1968bc2bc14ef2c953253243a1`.
+
+After accepted implementation and exclusive Control Plane Architect transfer, revalidate that unchanged technical manifest, propagate only canonical records, run the memory helper and Git checks, then create the ignored tracked-state closeout once:
+
+```bash
+node --experimental-strip-types scripts/finalizeSpec0002Closeout.ts --technical-manifest=output/spec-0002/phase-1/proof-manifest.json --output=output/spec-0002/phase-1/proof-closeout-manifest.json --base=82663051b30cdcfd6766cf4714cdeb2306970045 --branch=detached
+```
+
+The finalizer independently revalidates every accepted technical artifact, refuses an existing closeout output, requires the accepted base and empty index, and permits only the technical artifact list plus SPEC-0002's canonical closeout allowlist. It does not stage or publish anything.
 
 ## 2026-08-09 Known Baseline
 

@@ -1,0 +1,4 @@
+{
+  "fixtureVersion": 1,
+  "families": ["signature", "ihdr", "dimension", "profile", "chunk-crc", "chunk-order", "idat-4090-4091", "total-4096-4097", "truncation", "trailing", "corrupt-deflate", "native-failure", "post-decode-mismatch", "encoder-reported-over-limit-before-read", "stored-raster-over-limit-before-read"]
+}

@@ -1,0 +1,37 @@
+{
+  "fixtureVersion": 1,
+  "cases": ["unknown-key", "unsupported-version", "duplicate-id", "missing-raster", "missing-audio", "blank-content", "tween-flag-mismatch", "non-nfc", "invalid-timestamp", "unreferenced-asset", "unknown-error-code", "delete-error-code-leak"],
+  "stableErrorCodes": [
+    "invalid_record",
+    "unsupported_version",
+    "legacy_corrupt",
+    "legacy_read_failed",
+    "asset_missing",
+    "asset_digest_mismatch",
+    "invalid_png",
+    "unsupported_png",
+    "encode_failed",
+    "decode_failed",
+    "project_too_large",
+    "collection_too_large",
+    "project_limit_reached",
+    "quota_exceeded",
+    "storage_read_failed",
+    "storage_write_failed",
+    "transaction_aborted",
+    "stale_revision",
+    "candidate_readback_mismatch",
+    "id_collision",
+    "project_not_found",
+    "maintenance_required"
+  ],
+  "deleteFailedCodes": [
+    "project_not_found",
+    "legacy_corrupt",
+    "legacy_read_failed",
+    "storage_read_failed",
+    "storage_write_failed",
+    "transaction_aborted",
+    "stale_revision"
+  ]
+}

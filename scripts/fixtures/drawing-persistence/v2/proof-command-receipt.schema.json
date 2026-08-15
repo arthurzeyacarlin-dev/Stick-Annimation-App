@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["receiptVersion","order","name","argv","cwd","env","privacy","startedAt","durationMs","exitCode","expectedExitCode","passed","stdout","stderr","lintBaseline"],
+  "properties": {
+    "receiptVersion":{"const":1}, "order":{"type":"integer","minimum":0}, "name":{"type":"string"},
+    "argv":{"type":"array","minItems":1,"items":{"type":"string"}}, "cwd":{"const":"."}, "env":{"type":"object"},
+    "privacy":{"const":"sanitized"}, "startedAt":{"type":"string"}, "durationMs":{"type":"integer","minimum":0},
+    "exitCode":{"type":"integer"}, "expectedExitCode":{"type":"integer"}, "passed":{"const":true},
+    "stdout":{"$ref":"#/$defs/stream"}, "stderr":{"$ref":"#/$defs/stream"},
+    "lintBaseline":{"anyOf":[{"type":"null"},{"type":"object"}]}
+  },
+  "$defs":{"stream":{"type":"object","additionalProperties":false,"required":["encoding","byteLength","sha256","data"],"properties":{"encoding":{"const":"base64"},"byteLength":{"type":"integer","minimum":0},"sha256":{"type":"string"},"data":{"type":"string"}}}}
+}

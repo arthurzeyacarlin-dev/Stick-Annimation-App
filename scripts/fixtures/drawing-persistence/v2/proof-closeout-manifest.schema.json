@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["closeoutVersion","specId","phase","technicalManifest","technicalManifestSha256","baseCommit","headCommit","branch","trackedState","controlPlanePaths","createdAt"],
+  "properties": {
+    "closeoutVersion":{"const":1},"specId":{"const":"SPEC-0002"},"phase":{"const":1},"technicalManifest":{"type":"string"},"technicalManifestSha256":{"type":"string"},"baseCommit":{"type":"string"},"headCommit":{"type":"string"},"branch":{"type":"string"},"trackedState":{"type":"array"},"controlPlanePaths":{"type":"array"},"createdAt":{"type":"string"}
+  }
+}

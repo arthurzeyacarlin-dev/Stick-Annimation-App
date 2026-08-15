@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "diamond-animator/spec0001-browser/tester-result-v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["resultVersion", "specId", "phase", "status", "recordedAt", "historicalProofBase", "headCommit", "runBaseline", "browserVersion", "browserExecutable", "dependency", "plan", "fontFixture", "fontRequests", "fontResponses", "operations", "drawingSettlements", "driverMessages", "requestRecords", "screenshots", "console", "network", "production", "source", "productSource", "failureDrill", "negativeCases", "negativeEvidence", "cleanup"],
+  "properties": {
+    "resultVersion": {"const": 1}, "specId": {"const": "SPEC-0001"}, "phase": {"const": "1.5"}, "status": {"const": "passed"},
+    "recordedAt": {"type": "string"}, "historicalProofBase": {"pattern": "^[0-9a-f]{40}$"}, "headCommit": {"pattern": "^[0-9a-f]{40}$"},
+    "runBaseline": {"type": "object", "additionalProperties": false, "required": ["mode", "baselineCommit", "allowedPaths"], "properties": {"mode": {"enum": ["phase-1.5-bootstrap", "integrated-current-head"]}, "baselineCommit": {"pattern": "^[0-9a-f]{40}$"}, "allowedPaths": {"type": "array"}}},
+    "browserVersion": {"type": "string"}, "browserExecutable": {"type": "object"}, "dependency": {"type": "object"}, "plan": {"type": "object"},
+    "fontFixture": {"type": "object"}, "fontRequests": {"type": "array", "minItems": 2, "maxItems": 2}, "fontResponses": {"type": "array", "minItems": 2, "maxItems": 2},
+    "operations": {"type": "array", "minItems": 40, "maxItems": 40}, "drawingSettlements": {"type": "array", "minItems": 2, "maxItems": 2}, "driverMessages": {"type": "array", "minItems": 4, "maxItems": 4},
+    "requestRecords": {"type": "array", "minItems": 1, "maxItems": 1}, "screenshots": {"type": "array", "minItems": 13, "maxItems": 13},
+    "console": {"type": "object", "additionalProperties": false, "required": ["records", "errorCount", "warningCount", "acceptedWarningPatterns"], "properties": {"records": {"type": "array"}, "errorCount": {"const": 0}, "warningCount": {"type": "integer", "minimum": 0}, "acceptedWarningPatterns": {"type": "array", "minItems": 1, "maxItems": 1}}},
+    "network": {"type": "object"}, "production": {"type": "object"}, "source": {"type": "object"}, "productSource": {"type": "object"},
+    "failureDrill": {"type": "object"}, "negativeCases": {"type": "object"}, "negativeEvidence": {"type": "object"}, "cleanup": {"type": "object"}
+  }
+}

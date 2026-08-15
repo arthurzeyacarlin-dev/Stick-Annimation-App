@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test:spec0001-browser": "node --experimental-strip-types scripts/runSpec0001BrowserProof.ts",
     "seed:generate-plans-training": "node --experimental-strip-types scripts/seedGeneratePlansTraining.ts"
   },
   "dependencies": {
@@ -23,6 +24,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "playwright-core": "1.62.1",
     "supabase": "^2.81.3",
     "tailwindcss": "^4",
     "typescript": "^5"

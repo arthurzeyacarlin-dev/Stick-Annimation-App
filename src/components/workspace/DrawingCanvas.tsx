@@ -1676,6 +1676,14 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       const height = Math.max(1, Math.floor(rect.height * AUTHORING_WORLD_SCALE * dpr));
       invalidateAuthoringMetrics();
 
+      const editableSizeChanged = canvas.width !== width || canvas.height !== height;
+      const preservedEditableCanvas = editableSizeChanged ? document.createElement("canvas") : null;
+      if (preservedEditableCanvas) {
+        preservedEditableCanvas.width = canvas.width;
+        preservedEditableCanvas.height = canvas.height;
+        preservedEditableCanvas.getContext("2d")?.drawImage(canvas, 0, 0);
+      }
+
       for (const targetCanvas of [backgroundCanvas, onionCanvas, canvas, textCanvas, foregroundCanvas, overlayCanvas]) {
         const targetCtx =
           targetCanvas === canvas
@@ -1683,12 +1691,26 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
             : targetCanvas.getContext("2d");
         if (!targetCtx) continue;
 
-        targetCanvas.width = width;
-        targetCanvas.height = height;
+        if (targetCanvas.width !== width) targetCanvas.width = width;
+        if (targetCanvas.height !== height) targetCanvas.height = height;
         targetCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
         targetCtx.lineCap = "round";
         targetCtx.lineJoin = "round";
         targetCtx.strokeStyle = "#000000";
+      }
+
+      if (preservedEditableCanvas) {
+        const canvasCtx = canvas.getContext("2d", { desynchronized: true }) ?? canvas.getContext("2d");
+        if (canvasCtx) {
+          canvasCtx.save();
+          canvasCtx.setTransform(1, 0, 0, 1, 0, 0);
+          canvasCtx.drawImage(
+            preservedEditableCanvas,
+            Math.round((canvas.width - preservedEditableCanvas.width) / 2),
+            Math.round((canvas.height - preservedEditableCanvas.height) / 2),
+          );
+          canvasCtx.restore();
+        }
       }
     };
 

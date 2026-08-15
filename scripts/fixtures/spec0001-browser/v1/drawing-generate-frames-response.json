@@ -1,0 +1,29 @@
+{
+  "output": "Frame generated locally.",
+  "mode": "chat",
+  "resultKind": "message",
+  "taskType": "generate-frames",
+  "reasoningLevel": "medium",
+  "searchUsed": false,
+  "searchDecision": null,
+  "phaseHistory": [],
+  "execution": {"taskType": "generate-frames", "kind": "single-frame", "status": "completed-frames", "continuation": false, "supportLevel": "full", "applyMode": "single-frame", "estimatedFrameCount": 1},
+  "warnings": [],
+  "preReply": null,
+  "guidedPlanning": null,
+  "questionCardKind": null,
+  "followUpMode": "none",
+  "followUpQuestion": null,
+  "followUpMultiSelect": null,
+  "followUpOptions": null,
+  "generatedFramePlan": {
+    "requestKind": "single-frame",
+    "requestedFrameCount": 1,
+    "frames": [{"pose": "A centered solid red square", "description": "A centered solid red square on a transparent canvas."}],
+    "workspaceIntent": {"behaviorType": "tool-drawing", "toolIntents": ["shape", "timeline"], "targetLayerIntent": "active-layer", "toolBased": true, "generationAllowed": true, "backgroundGenerationAllowed": false, "fpsSuggestion": null, "applySuggestedFps": false, "fpsReason": null}
+  },
+  "generateFramesState": null,
+  "projectAiMemory": null,
+  "soundOptions": null,
+  "actionPlan": null
+}

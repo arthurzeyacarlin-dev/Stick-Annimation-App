@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "diamond-animator/spec0001-browser/closeout-v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["closeoutVersion", "specId", "phase", "baseCommit", "proof", "trackedState", "indexEmpty", "status"],
+  "properties": {
+    "closeoutVersion": {"const": 1},
+    "specId": {"const": "SPEC-0001"},
+    "phase": {"const": "1.5"},
+    "baseCommit": {"pattern": "^[0-9a-f]{40}$"},
+    "proof": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [],
+      "properties": {
+        "acceptedSha256": {"pattern": "^sha256:[0-9a-f]{64}$"},
+        "manifest": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["path", "sha256", "byteLength"],
+          "properties": {
+            "path": {"type": "string", "minLength": 1},
+            "sha256": {"pattern": "^sha256:[0-9a-f]{64}$"},
+            "byteLength": {"type": "integer", "minimum": 0}
+          }
+        },
+        "historical": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["baseCommit", "headCommit"],
+          "properties": {
+            "baseCommit": {"pattern": "^[0-9a-f]{40}$"},
+            "headCommit": {"pattern": "^[0-9a-f]{40}$"}
+          }
+        },
+        "closeoutGit": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["baselineCommit", "preflight", "prewrite", "ancestry"],
+          "properties": {
+            "baselineCommit": {"pattern": "^[0-9a-f]{40}$"},
+            "preflight": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["branch", "headCommit", "indexEmpty", "localMainCommit", "originMainCommit", "porcelainSha256"],
+              "properties": {
+                "branch": {"type": "string", "minLength": 1},
+                "headCommit": {"pattern": "^[0-9a-f]{40}$"},
+                "indexEmpty": {"const": true},
+                "localMainCommit": {"pattern": "^[0-9a-f]{40}$"},
+                "originMainCommit": {"pattern": "^[0-9a-f]{40}$"},
+                "porcelainSha256": {"pattern": "^sha256:[0-9a-f]{64}$"}
+              }
+            },
+            "prewrite": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["branch", "headCommit", "indexEmpty", "localMainCommit", "originMainCommit", "porcelainSha256"],
+              "properties": {
+                "branch": {"type": "string", "minLength": 1},
+                "headCommit": {"pattern": "^[0-9a-f]{40}$"},
+                "indexEmpty": {"const": true},
+                "localMainCommit": {"pattern": "^[0-9a-f]{40}$"},
+                "originMainCommit": {"pattern": "^[0-9a-f]{40}$"},
+                "porcelainSha256": {"pattern": "^sha256:[0-9a-f]{64}$"}
+              }
+            },
+            "ancestry": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["changedPaths", "commitCount", "from", "isAncestor", "to"],
+              "properties": {
+                "changedPaths": {"type": "array", "items": {"type": "string", "minLength": 1}},
+                "commitCount": {"type": "integer", "minimum": 0},
+                "from": {"pattern": "^[0-9a-f]{40}$"},
+                "isAncestor": {"const": true},
+                "to": {"pattern": "^[0-9a-f]{40}$"}
+              }
+            }
+          }
+        },
+        "implementation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["aggregateSha256", "controlPlanePaths", "files", "paths"],
+          "properties": {
+            "aggregateSha256": {"pattern": "^sha256:[0-9a-f]{64}$"},
+            "controlPlanePaths": {"type": "array", "items": {"type": "string", "minLength": 1}},
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["path", "sha256", "byteLength"],
+                "properties": {
+                  "path": {"type": "string", "minLength": 1},
+                  "sha256": {"pattern": "^sha256:[0-9a-f]{64}$"},
+                  "byteLength": {"type": "integer", "minimum": 0}
+                }
+              }
+            },
+            "paths": {"type": "array", "items": {"type": "string", "minLength": 1}}
+          }
+        },
+        "artifacts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["aggregateSha256", "closeoutOutputExcluded", "files", "root"],
+          "properties": {
+            "aggregateSha256": {"pattern": "^sha256:[0-9a-f]{64}$"},
+            "closeoutOutputExcluded": {"const": true},
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["path", "sha256", "byteLength"],
+                "properties": {
+                  "path": {"type": "string", "minLength": 1},
+                  "sha256": {"pattern": "^sha256:[0-9a-f]{64}$"},
+                  "byteLength": {"type": "integer", "minimum": 0}
+                }
+              }
+            },
+            "root": {"const": "output/spec-0001/phase-1.5"}
+          }
+        }
+      }
+    },
+    "trackedState": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256", "byteLength", "status"],
+        "properties": {
+          "path": {"type": "string", "minLength": 1},
+          "sha256": {"pattern": "^sha256:[0-9a-f]{64}$"},
+          "byteLength": {"type": "integer", "minimum": 0},
+          "status": {"enum": ["  ", " M", "??"]}
+        }
+      }
+    },
+    "indexEmpty": {"const": true},
+    "status": {"const": "validated"}
+  }
+}

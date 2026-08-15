@@ -241,6 +241,8 @@ export function StickFigureWorkspace({ onOpenStickFigureCreator }: StickFigureWo
     );
   }, [selectedStructureJoint, structureGraph.limbs]);
 
+  /* SPEC0001_BROWSER_DRIVER_ANCHOR_V1 */
+
   useEffect(() => {
     layersRef.current = layers;
   }, [layers]);

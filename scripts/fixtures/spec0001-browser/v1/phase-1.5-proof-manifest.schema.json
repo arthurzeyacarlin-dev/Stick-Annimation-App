@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "diamond-animator/spec0001-browser/proof-manifest-v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["manifestVersion", "specId", "phase", "baseCommit", "headCommit", "recordedAt", "runtime", "commandConfig", "receipts", "artifacts", "browserEvidence", "commandsPassed", "lintBaseline", "git"],
+  "properties": {
+    "manifestVersion": {"const": 1}, "specId": {"const": "SPEC-0001"}, "phase": {"const": "1.5"},
+    "baseCommit": {"pattern": "^[0-9a-f]{40}$"}, "headCommit": {"pattern": "^[0-9a-f]{40}$"},
+    "recordedAt": {"type": "string"}, "runtime": {"type": "object"}, "commandConfig": {"type": "object"},
+    "receipts": {"type": "array", "minItems": 7, "maxItems": 7}, "artifacts": {"type": "array", "minItems": 49, "maxItems": 49},
+    "browserEvidence": {"type": "object"}, "commandsPassed": {"const": true}, "lintBaseline": {"type": "object"}, "git": {"type": "object"}
+  }
+}

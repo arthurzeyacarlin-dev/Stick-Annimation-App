@@ -1,7 +1,7 @@
 # Verification and Regression Workflow
 
 Status: canonical proof standard and current gate baseline
-Last updated: 2026-08-09
+Last updated: 2026-08-15
 
 ## Core Rule
 
@@ -12,7 +12,7 @@ A successful compile is necessary but never sufficient. Every Spec Executor task
 - the expected state and visible result
 - persistence/reload behavior when relevant
 - all protected unrelated flows named in the active spec
-- no new browser console errors or warnings
+- no browser/page errors and no warnings except an exact spec-reviewed, evidence-bound accepted-warning rule
 - the exact checks that passed, failed, were skipped, or remain unproven
 
 ## Preflight
@@ -76,13 +76,44 @@ These commands exist today:
 ```bash
 ./node_modules/.bin/tsc --noEmit --incremental false
 npm run lint
+npm run test:spec0001-browser
 node --experimental-strip-types scripts/validateDrawingAiControlPreferences.ts
 node --experimental-strip-types scripts/validateDrawingProjectAiMemory.ts
 node --experimental-strip-types scripts/validateDrawingProjectAiMemoryRouteSafety.ts
 node --experimental-strip-types scripts/validateTimelinePlaybackSmoothing.ts
 ```
 
-`package.json` does not yet expose `typecheck`, `test`, `check`, or E2E scripts. Adding them is QLT-003, not something future tasks should assume already exists.
+`package.json` now exposes the focused permanent SPEC-0001 browser command `test:spec0001-browser`; it still does not expose general `typecheck`, `test`, or composed `check` scripts. Adding those broader commands remains QLT-003.
+
+## SPEC-0001 Permanent Browser Tester
+
+The accepted Phase 1.5 developer command is:
+
+```bash
+npm run test:spec0001-browser
+```
+
+It starts the real app with pinned `playwright-core` and installed local Google Chrome, never downloads a browser, uses a fresh isolated profile/storage context, fulfills only exact checked-in hash-bound tester font requests, denies non-loopback browser/WebSocket/server/child traffic, and restores temporary anchor/font setup byte-for-byte. It is repository test infrastructure only: there is no tester route, page, API, control, asset, visible warning, or production import.
+
+The frozen Phase 1.5 plan proves Home → New → Stick, Stick → Creator → Back, and Drawing Generate Frames. Drawing issues exactly one deterministic mocked POST at `1440x900`; after final success, usable input, and settled Canvas2D pixels are proven, the same context is resized to `1024x768` and the same applied timeline bitmap must survive without a second POST. Any second mock or real `/api/ai`, provider, search, Supabase, or non-loopback request fails the run. The plan also binds 37 negative cases, WebSocket/server guard self-tests, forbidden tester URLs, complete binary-aware deployable-output scanning, and success/failure/`SIGINT`/`SIGTERM` cleanup.
+
+For a fresh technical proof recording from the historical Phase 1.5 implementation base:
+
+```bash
+node --experimental-strip-types scripts/spec0001-browser/recordPhase15Proof.ts --base=a35a268764c21eedffcf3d82b59718699b62d4d0 --commands=scripts/fixtures/spec0001-browser/v1/phase-1.5-proof-commands.json --output=output/spec-0001/phase-1.5/proof-manifest.json
+node --experimental-strip-types scripts/spec0001-browser/validatePhase15Proof.ts --manifest=output/spec-0001/phase-1.5/proof-manifest.json
+```
+
+The reusable core command uses its strict current-run baseline/allowlist contract and is not permanently tied to that historical proof base. Later separately authorized SPEC-0001 phases may add only versioned phase extensions; they may not change the accepted Phase 1.5 plan/core bytes or silently accept unlisted dirty paths.
+
+After human acceptance and exclusive Control Plane Architect takeover, revalidate the unchanged technical manifest, propagate tracked state, then run closeout from the published D-0012 base:
+
+```bash
+node --experimental-strip-types scripts/spec0001-browser/finalizePhase15Closeout.ts --base=3768226fd3aa3668a6cf7260da8476ceea0a084e --proof=output/spec-0001/phase-1.5/proof-manifest.json --accepted-proof-sha256=<accepted-proof-sha256> --output=output/spec-0001/phase-1.5/proof-closeout-manifest.json
+node --experimental-strip-types scripts/spec0001-browser/validatePhase15Proof.ts --closeout=output/spec-0001/phase-1.5/proof-closeout-manifest.json --accepted-proof-sha256=<accepted-proof-sha256>
+```
+
+The accepted Phase 1.5 technical manifest contains 7 receipts and exactly 49 artifacts. Its SHA-256 is `da2dd8cff32367a548a2e7d2e4e789fcf1a4dd129e9dc6200e25650f586f9fc9`.
 
 ## 2026-08-09 Known Baseline
 
@@ -96,6 +127,14 @@ node --experimental-strip-types scripts/validateTimelinePlaybackSmoothing.ts
 | Browser smoke | Manual pass for shell/new/drawing/stick/creator mounting | No automated suite |
 | Unit/integration/E2E framework | Absent | Bespoke scripts only |
 | CI/pre-commit | Absent | No workflow or hooks |
+
+## 2026-08-15 Phase 1.5 Focused Proof
+
+| Gate | Result | Notes |
+| --- | --- | --- |
+| Production build/exclusion | Pass | Permanent tester built current source offline, scanned all 152 deployable files, and found no tester leak; this is not a general release certification |
+| Browser smoke/regression | Pass for protected SPEC-0001 flows | One mock across both required viewports; 40 operations and 13 screenshots |
+| Test framework scope | Focused bespoke runner only | Permanent SPEC-0001 browser tester exists; a general product suite remains absent |
 
 Known lint errors:
 
@@ -148,7 +187,7 @@ Required before a releasable milestone:
 - automated browser smoke/regression suite
 - schema migration verification against a local or dedicated test database
 
-This tier is not currently implemented.
+Phase 1.5 implements the focused SPEC-0001 browser/build/production-exclusion subset of this tier. Clean-install reproducibility, local database migration verification, and a general product-wide integration/E2E suite remain unimplemented.
 
 ### Tier 4 — Live external integration
 
@@ -167,7 +206,7 @@ Never include live paid tests in the default gate.
 
 ## Baseline Browser Smoke Matrix
 
-The first automated suite should cover at minimum:
+The browser matrix is now split between accepted Phase 1.5 coverage and later work:
 
 | ID | Flow | Required assertion |
 | --- | --- | --- |
@@ -180,6 +219,8 @@ The first automated suite should cover at minimum:
 | SMOKE-OPEN-01 | Open Project with controlled localStorage fixtures | drawing cards list/open without touching real user projects |
 
 Use isolated browser storage for automated tests. Do not delete or mutate the user's real local projects.
+
+Phase 1.5 covers `SMOKE-HOME-01`, the forward Home → New transition, `SMOKE-DRAW-01`, `SMOKE-DRAW-AI-01`, `SMOKE-STICK-01`, and `SMOKE-STICK-CREATOR-01` at both required viewports, plus the deeper deterministic Drawing settlement/resize regressions in the active spec. `SMOKE-NEW-01`'s Back-to-home leg and `SMOKE-OPEN-01` remain general-suite work and are not implied by the Phase 1.5 manifest.
 
 ## Spec-Level Regression Matrix
 

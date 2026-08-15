@@ -5,6 +5,17 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-15 — SPEC-0001 Phase 1.5 accepted implementation propagated
+
+- recorded the accepted permanent developer-only browser tester and exact one-mocked-Drawing-POST/two-viewport real-app proof; the reusable command uses pinned `playwright-core`, installed local Chrome, isolated browser state, hash-bound tester fixtures, loopback-only browser/server/child policy, strict evidence contracts, and byte-restored cleanup
+- recorded the D-0012 diagnostic result: `DrawingCanvas.tsx` authoring-canvas width assignment was the first clearing writer; the retained one-file correction skips redundant dimension assignment and preserves/recenters editable pixels across an actual resize, while all temporary `DrawingWorkspace.tsx`/Canvas diagnostics were removed
+- recorded independent acceptance of 7 receipts and 49 artifacts, 40 operations, 13 screenshots, all 37 negative cases, browser fetch/WebSocket and server egress denial, a complete 152-file production scan with zero tester leak, three tester URLs returning 404, all success/failure/signal cleanup paths, Phase 1's 631 assertions, TypeScript, and the exact 6-error/73-warning lint baseline with zero Phase 1.5 findings
+- bound accepted technical proof SHA-256 `da2dd8cff32367a548a2e7d2e4e789fcf1a4dd129e9dc6200e25650f586f9fc9` and the 27-file implementation aggregate SHA-256 `5976fb700175a3cf5a381bd5a89f9fb0e6a2f124a35490a3e9027e0ad0e083a4`
+- confirmed website users cannot see or reach the tester and that no real `/api/ai`, OpenAI/provider, search, Supabase, analytics, paid, external, database, deployment, or remote Git request occurred
+- kept Phase 1 Verified/published/integrated and Phases 2–7 Unauthorized/Not started
+
+This is accepted-result control-plane propagation and closeout in the dedicated Phase 1.5 worktree. The exact 27 implementation paths and eight canonical propagation paths remain unstaged and unpublished pending a later explicit publication task; no commit, merge, push, deployment, worktree deletion, or Phase 2 work occurred.
+
 ### 2026-08-15 — Phase 1.5 protected-Drawing correction ceiling approved
 
 - recorded Arthur's approval as D-0012 and authorized the blocked Phase 1.5 correction as **Authorized; Not started/resumed**

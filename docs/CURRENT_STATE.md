@@ -1,8 +1,8 @@
 # Current State
 
 Status: canonical rolling snapshot
-Last verified: 2026-08-15 for the clean canonical Git basis, stopped Phase 1.5 failure evidence, and Arthur-approved protected Drawing correction boundary; corrected SPEC-0001 Phase 1 contracts/fixtures/offline proof remain verified from 2026-08-13; no new app/browser pass is claimed by this documentation-only approval propagation
-Current Git basis: clean synchronized canonical `main` and `origin/main` at `a35a268764c21eedffcf3d82b59718699b62d4d0`, which published and integrated D-0011 after D-0010 at `2029fd07e14b6f48feb6d04e02dbd52ec683d55d`. Phase 1 remains published in `21a88feb65cf1cc51138c9ad4879b962ee468569`; its implementation base was `832d1f93630d7093514af3e81399077ebed696b4`. No recovery branch was used or changed.
+Last verified: 2026-08-15 for the accepted SPEC-0001 Phase 1.5 implementation, real browser proof, negative/cleanup/production gates, technical-manifest revalidation, and Control Plane Architect propagation/closeout; corrected SPEC-0001 Phase 1 proof remains verified from 2026-08-13
+Current Git basis: clean synchronized canonical `main` and `origin/main` remain at `3768226fd3aa3668a6cf7260da8476ceea0a084e`, which published D-0012. The accepted Phase 1.5 implementation and eight-path control-plane propagation are unstaged on dedicated branch `codex/spec-0001-phase-1.5-closeout` at that HEAD; they are not yet committed, pushed, published, or integrated. Phase 1 remains published in `21a88feb65cf1cc51138c9ad4879b962ee468569`; its implementation base was `832d1f93630d7093514af3e81399077ebed696b4`. No recovery branch was used or changed.
 Frozen starting audit: `baselines/2026-08-09-repository-audit.md`
 
 ## Executive Summary
@@ -14,6 +14,8 @@ The most developed path is the raster Drawing Workspace: it has drawing tools, l
 The Stick Figure Workspace and separate Stick Figure Creator are early functional scaffolds. Their UI exists and parts of a live skeleton graph can be edited, but timeline frames do not yet hold independent pose data, projects cannot be saved/opened, and creator Save is disabled.
 
 SPEC-0001 Phase 1 now adds hidden, unwired V1 Stick contracts and deterministic offline proof: one fixed 11-joint/10-segment humanoid, strict project/manual-action/AI-command formats, canonical WebCrypto hashing, a derived horizontal line head, identical manual/AI animation-content goldens, rejection fixtures, and a receipt/closeout proof harness. The 2026-08-13 correction makes timeline building strictly ordered, binds the applied-wave predicate to the exact starter identities/profile/timing, reruns wave-arm safety on correctly hashed commands, executes the complete invalid matrix, and freezes the full later-phase evidence/live-proof shapes. These contracts are not yet connected to the Workspace, so the visible scaffold behavior above remains unchanged.
+
+SPEC-0001 Phase 1.5 is now technically Verified, accepted, and propagated in its dedicated worktree, but not yet published/integrated. It adds a permanent developer-only real-browser tester with loopback-only browser/server/child enforcement, isolated storage/profiles, deterministic checked-in font and Drawing fixtures, strict evidence validation, production-exclusion scanning, and complete cleanup. Diagnostics proved `DrawingCanvas.tsx` authoring-canvas width assignment was the first writer clearing generated pixels during settlement/resize; the retained one-file correction skips redundant dimension assignment and preserves/recenters the editable bitmap across an actual resize. Website users have no tester route, page, API, control, asset, warning, or production import.
 
 Only the Drawing AI “Generate Frames” task is enabled. Generate Plans, Generate Sounds, and Other are intentionally disabled even though their prompt/reference and orchestration code exists.
 
@@ -60,7 +62,7 @@ Not exercised in this baseline: drawing gestures, save/reopen fidelity, tween ac
 | Subsystem | Current reality | Status |
 | --- | --- | --- |
 | App shell/navigation | Main screens are switched by local React `view` state in `app/page.tsx`, not URL routes. New and Open are wired. My Project, Tutorials, AI Assistant, Export, AI Project Finalizer, and AI Credits cards are inert. Drawing Workspace has no in-app exit callback. | Partial |
-| Drawing editor | Brush, eraser, fill, text, shape, knife, select/lasso, assets/symbols, pan/zoom, layers, history, and timeline logic exist in large coupled components. | Substantial prototype |
+| Drawing editor | Brush, eraser, fill, text, shape, knife, select/lasso, assets/symbols, pan/zoom, layers, history, and timeline logic exist in large coupled components. The Phase 1.5 narrow `DrawingCanvas` correction preserves the editable bitmap through the proven Generate Frames settlement/viewport-resize path. | Substantial prototype; protected Phase 1.5 path verified |
 | Drawing timeline/playback | Frame/keyframe/blank/hold/tween cells, FPS, playback, layer operations, copy/paste, onion skin, and sound attachments exist. | Code-present and regression-sensitive; full acceptance untested |
 | Motion tween | V1 supports whole-bitmap X/Y translation with explicit start/end data. A detailed legacy V1 spec is provisionally promoted for reconciliation, not newly owner-approved. | Implemented; full acceptance suite not rerun in this audit |
 | Drawing persistence | Manual Save/Save As writes a version-1 envelope to one browser `localStorage` array. Live bitmap objects are replaced by compact frame preview URLs; AI memory sits outside `DrawingProjectData`. | Local-only; raster-frame persistence is lossy and may downscale, while other envelope data follows separate paths; visual impact untested |
@@ -94,7 +96,7 @@ The default preference is therefore inconsistent with the enabled-task matrix.
 
 ## Quality Baseline
 
-Checks run against the pre-control-plane application source on 2026-08-09:
+The historical 2026-08-09 baseline is retained below, followed by the accepted Phase 1.5 focused proof:
 
 | Check | Result |
 | --- | --- |
@@ -109,6 +111,8 @@ Checks run against the pre-control-plane application source on 2026-08-09:
 | Current production build | Unproven; existing `.next` output predates current source |
 | Conventional unit/E2E test suite | Absent |
 | CI/pre-commit gate | Absent |
+| `npm run test:spec0001-browser` | Pass: real app, one mocked Drawing POST across `1440x900` then `1024x768`, 40 operations, 13 screenshots, 37 negative cases, browser/server/WebSocket denial, 152-file production scan, and all cleanup paths |
+| Phase 1.5 technical manifest | Pass: 7 receipts and 49 artifacts independently validated; SHA-256 `da2dd8cff32367a548a2e7d2e4e789fcf1a4dd129e9dc6200e25650f586f9fc9` |
 
 The exact lint failures, validator caveats, and required gates are in `testing_workflow.md`.
 
@@ -142,7 +146,7 @@ The source establishes the following facts. Their user-visible severity was not 
 
 - visible save/reopen downscaling, geometry shifts, or text/raster fidelity loss
 - memory pressure from the authoring-world/DPR canvas model and snapshot history
-- canvas loss during resize before reliable redraw
+- canvas loss during resize outside the exact Phase 1.5 generated-frame settlement path; that one protected path is now proven fixed, but broad document-resolution/resize fidelity remains unproven
 - edit/playback/export divergence in real multi-layer projects
 - drawing/stick timeline drift caused by duplicated implementations
 
@@ -151,11 +155,11 @@ These are not authorized fixes. Reproduce each target flow, write a spec, and pr
 ## Current Work State
 
 - Active implementation spec: [`SPEC-0001 — First Reversible AI-Created Stick Animation from Workspace Chat`](specs/0001-first-reversible-ai-stick-animation.md), **Approved** by Arthur on 2026-08-11
-- Active phase status: **Phase 1 — Verified, published, and integrated into canonical `main`. Phase 1.5 — Blocked; stopped Executor result unaccepted/unpublished; protected-Drawing correction Approved and Authorized but Not started/resumed.** Phases 2–7 are **Unauthorized; Not started**. Phase 2 remains blocked until Phase 1.5 is Verified, accepted, propagated, separately published, and integrated.
+- Active phase status: **Phase 1 — Verified, published, and integrated into canonical `main`. Phase 1.5 — Verified, accepted, and propagated in the dedicated worktree; awaiting separate publication/integration.** Phases 2–7 are **Unauthorized; Not started**. Phase 2 remains blocked until Phase 1.5 is published/integrated and Arthur separately authorizes Phase 2.
 - Accepted boundary: D-0009 records OD-01–OD-06 and OD-09 exactly as accepted and OD-07/08/10/11 as approved engineering rules/prerequisites. OD-12–OD-14 remain deferred and unaccepted until the Phase 7 Policy Gate.
 - Permanent process state: D-0010 strictly separates future Spec Executor implementation/technical proof from Control Plane Architect propagation/final closeout/publication. A Spec Executor cannot edit canonical memory or Git state. After acceptance and complete executor shutdown, the architect may take exclusive ownership of the same worktree, propagate/close out, stop for review, and publish only under another explicit instruction. The roles never edit one worktree concurrently.
-- Current task result: the stopped Phase 1.5 Executor's corrected tester failed closed after deterministic red Canvas2D pixels appeared and then disappeared at final AI settlement. Read-only failure SHA-256 is `53d34094cff90d2864dd2e5bfdb09cb887bb60326806e8a048e13072a6d6422b`; 33 of 37 negatives completed before the stop; no valid current Phase 1.5 proof manifest exists. D-0012 approves a diagnostic-first correction ceiling limited to `DrawingWorkspace.tsx` and `DrawingCanvas.tsx`, with a permanent change only in the proven smallest subset and a hard stop if another runtime file, broad rewrite, or unrelated behavior change is required. This Control Plane Architect task changed no runtime or tester bytes and did not mutate the stopped worktree.
-- Next operational priority: review and separately publish/integrate D-0012 and this approval-state control plane. Only afterward may a separately authorized Plan-mode Phase 1.5 correction Spec Executor take exclusive ownership of the stopped worktree, diagnose first, patch only the proven subset, and rerun the complete proof from clean owned output. Do not start Phase 2. The Phase 7 Policy Gate, external lookups, and paid/live requests remain forbidden.
+- Current task result: the accepted 27-path implementation binds to aggregate SHA-256 `5976fb700175a3cf5a381bd5a89f9fb0e6a2f124a35490a3e9027e0ad0e083a4`. D-0012 diagnostics uniquely identified `DrawingCanvas.tsx` width assignment as the first clearing writer; all diagnostics were removed and the permanent runtime diff remains one file. Technical proof-manifest SHA-256 is `da2dd8cff32367a548a2e7d2e4e789fcf1a4dd129e9dc6200e25650f586f9fc9`; independent validation passes 49 artifacts, 37 negatives, exact one-mock/two-viewport browser proof, production exclusion, network denial, cleanup, Phase 1's 631 assertions, TypeScript, and honest lint. The Control Plane Architect preserved all accepted implementation bytes and propagated only the exact eight canonical paths.
+- Next operational priority: Arthur and the Project Manager review the Control Plane Architect packet. A later explicit publication task may then stage and publish only the exact reviewed 35-path boundary. Do not start Phase 2 before Phase 1.5 is durably integrated and Arthur separately authorizes it. The Phase 7 Policy Gate, external lookups, and paid/live requests remain forbidden.
 - Current roadmap phase: Phase 0 — preservation and stabilization
 
 See `SESSION_HANDOFF.md` for the exact next-session start point.

@@ -1,0 +1,14 @@
+{
+  "configVersion": 1,
+  "phase": "1.5",
+  "baseCommit": "a35a268764c21eedffcf3d82b59718699b62d4d0",
+  "commands": [
+    {"name": "phase-1.5-validator", "argv": ["node", "--experimental-strip-types", "scripts/spec0001-browser/validatePhase15.ts"], "cwd": ".", "env": {}, "expectedExitCode": 0, "privacy": "sanitized"},
+    {"name": "phase-1-contract-regression", "argv": ["node", "--experimental-strip-types", "scripts/validateStickFigureAiContracts.ts"], "cwd": ".", "env": {}, "expectedExitCode": 0, "privacy": "sanitized"},
+    {"name": "typescript", "argv": ["./node_modules/.bin/tsc", "--noEmit", "--incremental", "false"], "cwd": ".", "env": {}, "expectedExitCode": 0, "privacy": "sanitized"},
+    {"name": "lint-regression", "argv": ["npm", "run", "lint"], "cwd": ".", "env": {}, "expectedExitCode": 1, "privacy": "sanitized", "lintBaseline": {"errors": 6, "warnings": 73, "phasePathFindings": 0}},
+    {"name": "diff-check", "argv": ["git", "diff", "--check"], "cwd": ".", "env": {}, "expectedExitCode": 0, "privacy": "sanitized"},
+    {"name": "real-browser-proof", "argv": ["npm", "run", "test:spec0001-browser"], "cwd": ".", "env": {}, "expectedExitCode": 0, "privacy": "sanitized"},
+    {"name": "status", "argv": ["git", "status", "--short", "--branch"], "cwd": ".", "env": {}, "expectedExitCode": 0, "privacy": "sanitized"}
+  ]
+}

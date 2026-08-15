@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "diamond-animator/spec0001-browser/tester-core-v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contractVersion", "operation", "payload"],
+  "properties": {
+    "contractVersion": {"const": 1},
+    "operation": {"enum": ["tester.connection.ping/v1", "stick.phase2.checkpoint/v1"]},
+    "payload": {"type": "object"}
+  }
+}

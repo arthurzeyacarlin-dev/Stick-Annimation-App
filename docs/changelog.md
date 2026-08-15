@@ -5,6 +5,16 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-15 — SPEC-0002 Phase 1 published and integrated
+
+- published the accepted hidden persistence engine and reviewed control-plane closeout in exact commit `0416fc3828a863a797ee9f1c3daa8508792ac64a`, parent `82663051b30cdcfd6766cf4714cdeb2306970045`, with message `Implement SPEC-0002 Phase 1 persistence engine` and exactly 42 paths
+- fast-forwarded clean canonical `main`, normally pushed `main` to GitHub, and verified the phase branch, local `main`, local `origin/main`, and live GitHub `main` at the publication commit with canonical `main` clean and synchronized at `0/0`
+- preserved technical-manifest SHA-256 `2d20a4a63103618505b60cf590835191841d1c1968bc2bc14ef2c953253243a1` and closeout-manifest SHA-256 `b2d50852cffa40dbf3d7535665a12abe66439cfceeffc61d6eb56195ff947b3c`; ignored proof manifests and receipts were not committed
+- completed GIT-010 and marked SPEC-0002 Phase 1 Verified/published/integrated while keeping the new engine hidden and unwired; visible Drawing Save/Open/Delete still uses the existing V1 localStorage path
+- confirmed Phase 2 prerequisites are satisfied and ready for Arthur's separate owner-authorization decision, but kept SPEC-0002 Phase 2 and SPEC-0001 Phase 2–7 Unauthorized/Not started
+
+This is records-only post-publication reconciliation. No implementation, runtime, fixture, validator, proof-script, package/dependency/configuration, SPEC-0001, database, environment, deployment, or external-service byte changed. These reconciliation records remain unstaged and unpublished pending separate review/publication.
+
 ### 2026-08-15 — SPEC-0002 Phase 1 accepted implementation closed out
 
 - recorded the accepted hidden V2 Drawing persistence foundation across exactly 34 new Phase 1 contract, canonicalization, repository, IndexedDB, V1-compatibility, raster/audio codec, fixture, validator, and proof paths from detached base `82663051b30cdcfd6766cf4714cdeb2306970045`

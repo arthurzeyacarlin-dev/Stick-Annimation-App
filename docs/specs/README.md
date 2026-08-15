@@ -3,15 +3,20 @@
 Status: canonical spec registry
 Last updated: 2026-08-15
 
-## Active Spec
+## Active Specs
 
 | Spec | Status | Active authorization |
 | --- | --- | --- |
 | [`SPEC-0001 — First Reversible AI-Created Stick Animation from Workspace Chat`](0001-first-reversible-ai-stick-animation.md) | Approved | Phase 1 and Phase 1.5 are **Verified, published, and integrated**. Phase 2 prerequisites are satisfied, but Phases 2–7 are **Unauthorized; Not started**. |
+| [`SPEC-0002 — Lossless Local Drawing Save and Reopen`](0002-lossless-local-drawing-save-and-reopen.md) | Approved | D-0013 accepts OD2-01 through OD2-08 exactly. Phase 1 is **Authorized; Not started**. Phase 2 is **Unauthorized; Not started**. |
 
 ## Proposed Specs
 
-No second specification is proposed. The active Approved SPEC-0001 contains D-0011's Phase 1.5 tester approval and D-0012's narrow conditional Drawing correction approval. The corrected implementation stayed inside that boundary and was subsequently accepted through D-0010's executor/review/architect lifecycle.
+No additional specification is currently Proposed.
+
+SPEC-0002 approves a strict version-2 local Drawing record, lossless raster/audio assets, non-destructive version-1 compatibility, transactional failure safety, finite capacity, and truthful Save/Open presentation. Its Phase 1 implementation boundary contains only new files and passed the approval-time conflict audit at `365e68fe98b27e993a1c5645c3e28c7b428c6f33`; implementation still requires separate publication/integration of D-0013 and a fresh task-start audit. It does not change SPEC-0001's status or authorization.
+
+The active Approved SPEC-0001 contains D-0011's Phase 1.5 tester approval and D-0012's narrow conditional Drawing correction approval. The corrected implementation stayed inside that boundary and was subsequently accepted through D-0010's executor/review/architect lifecycle.
 
 Phase 1.5 was published and integrated in exact canonical-main implementation commit `8df64552e29e4170df8000097fe857b7a31dff69` (parent `3768226fd3aa3668a6cf7260da8476ceea0a084e`) with the reviewed 35-path scope; its six-document control-plane publication record was published in commit `687cbeaf6acbf9625e0d940e78bc600251eb0604`. Phase 2 prerequisites are satisfied. Arthur may separately approve Phase 2, and only after that approval may a new Plan-mode Phase 2 Spec Executor task begin from the then-current canonical-main SHA. Phases 2–7, the Phase 7 Policy Gate, provider choices, external lookups, and paid/live requests remain unauthorized.
 

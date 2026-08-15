@@ -5,6 +5,25 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-15 — SPEC-0002 approved; Phase 1 authorized only
+
+- recorded Arthur's exact approval as D-0013: SPEC-0002 is Approved, OD2-01 through OD2-08 are accepted exactly as written, and Phase 1 only is Authorized/Not started
+- kept SPEC-0002 Phase 2 and SPEC-0001 Phase 2 and later phases Unauthorized/Not started
+- completed the fresh activation audit at clean synchronized canonical `main`/local `origin/main` SHA `365e68fe98b27e993a1c5645c3e28c7b428c6f33`: no SPEC-0001 executor or architect is active, and every SPEC-0002 Phase 1 implementation path is new with no shared runtime/tester-core overlap
+- required one future exclusive Plan-mode Phase 1 worktree, a refreshed conflict audit, and a hard stop if a real overlap appears
+
+This is approval-state control-plane propagation only. No runtime, fixture, proof script, dependency, configuration, migration, environment, database, external service, implementation, staging, commit, merge, push, or publication changed.
+
+### 2026-08-15 — SPEC-0002 lossless local Drawing Save/Reopen proposed
+
+- added Proposed, inactive [`SPEC-0002 — Lossless Local Drawing Save and Reopen`](specs/0002-lossless-local-drawing-save-and-reopen.md) from canonical research basis `365e68fe98b27e993a1c5645c3e28c7b428c6f33`
+- traced the current V1 localStorage Save/Open path: authoritative main/tween-end bitmaps are omitted, compact previews are used for hydration, nested validation is shallow, and failure/last-good presentation is incomplete
+- proposed a strict version-2 IndexedDB record with exact decoded pixel/structured/audio fidelity, finite capacity, transaction/read-back success semantics, non-destructive explicit-Save migration, and truthful `Saved on this browser` copy
+- corrected the proposal to the exact ten-field live sound attachment, aggregate hydrated-RGBA and bounded PNG signature/IHDR/chunk/CRC gates before native decode, and implementable authoritative IndexedDB Delete plus tombstoned best-effort same-ID legacy cleanup
+- separated hidden contract/storage proof from real Save/Open wiring and browser proof, while requiring a fresh SPEC-0001 conflict audit before activation
+
+SPEC-0002 remains Proposed and inactive; all eight owner rows and both phases are unaccepted/unauthorized. SPEC-0001 remains Approved and active with its existing phase state. No runtime, test, package, dependency, configuration, database, environment, external-service, staging, commit, merge, push, or publication behavior changed.
+
 ### 2026-08-15 — SPEC-0001 Phase 1.5 published and integrated
 
 - published exactly the reviewed 35 paths in canonical-main commit `8df64552e29e4170df8000097fe857b7a31dff69`, parent `3768226fd3aa3668a6cf7260da8476ceea0a084e`, with message `Implement SPEC-0001 Phase 1.5 browser tester`

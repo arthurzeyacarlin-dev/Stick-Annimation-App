@@ -93,6 +93,14 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Why: the stopped fail-closed tester proved that deterministic Drawing pixels appeared and then disappeared during final AI settlement, while existing evidence cannot distinguish the first clearing authority between the workspace restore/publication path and the canvas reset path. The two-file ceiling permits evidence collection at both known boundaries without pre-authorizing a guessed fix.
 - Consequence: the stopped Phase 1.5 result remains blocked, unaccepted, unpublished, and without a valid proof manifest. A separately authorized Plan-mode correction Spec Executor may resume the stopped worktree only after this approval record is reviewed, separately published, and integrated under D-0010. `app/layout.tsx`, application fonts/styles, Drawing contracts/routes/planner/executor, Stick behavior, external services, Phase 2, and all later phases remain outside scope. OpenAI, search, Supabase, paid services, deployment, Git publication, worktree deletion, and recovery-branch use remain unauthorized.
 
+### D-0013 — Approve SPEC-0002 and authorize Phase 1 only
+
+- Date: 2026-08-15
+- Status: accepted by Arthur for `SPEC-0002`
+- Decision: Arthur explicitly approved: “I approve SPEC-0002. I accept OD2-01 through OD2-08 as written. I authorize Phase 1 only. SPEC-0002 Phase 2 and SPEC-0001 Phase 2 remain unauthorized.”
+- Why: the specification defines a bounded, lossless local Drawing persistence foundation, separates the hidden format/storage engine from later real Save/Open wiring, and includes finite capacity, last-good preservation, strict legacy handling, offline proof, and conflict gates.
+- Consequence: [`SPEC-0002 — Lossless Local Drawing Save and Reopen`](specs/0002-lossless-local-drawing-save-and-reopen.md) is Approved and active for this bounded work. OD2-01 through OD2-08 are accepted exactly as written. SPEC-0002 Phase 1 is **Authorized; Not started** and may begin only after this approval record is reviewed, separately published, and integrated into canonical `main`, in one new Plan-mode Spec Executor worktree from the then-current canonical-main SHA. SPEC-0002 Phase 2 and SPEC-0001 Phase 2 and later phases remain **Unauthorized; Not started**. The activation audit at `365e68fe98b27e993a1c5645c3e28c7b428c6f33` found clean synchronized canonical `main`, no active SPEC-0001 executor or architect, and a Phase 1 allowlist consisting only of new files with no overlap in SPEC-0001 runtime files or the shared tester core. Any real future overlap is a hard stop. This decision begins no implementation and authorizes no staging, commit, push, merge, publication, deployment, external request, or paid service.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

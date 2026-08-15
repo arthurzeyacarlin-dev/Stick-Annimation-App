@@ -5,6 +5,15 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-15 — SPEC-0002 final publication-record honesty correction
+
+- recorded the already-published records commit exactly: `31396d40de5be33bada9c9acb08a202447e8fb27`, parent `0416fc3828a863a797ee9f1c3daa8508792ac64a`, message `Record SPEC-0002 Phase 1 publication`, and exactly six Markdown paths
+- recorded that canonical `main` was fast-forwarded, normally pushed, and verified clean and synchronized at `0/0` after that records publication
+- removed stale current-state and handoff claims that the six-file reconciliation was still pending, unstaged, uncommitted, or unpublished; there is no remaining SPEC-0002 Phase 1 propagation/publication work
+- preserved the exact 42-path implementation publication at `0416fc3828a863a797ee9f1c3daa8508792ac64a`, both accepted proof hashes, the hidden/unwired V1-visible behavior boundary, and Phase 2 as Unauthorized/Not started pending Arthur's separate decision
+
+The preceding entry's closing pre-publication sentence is a dated review-time snapshot that was superseded by records commit `31396d40de5be33bada9c9acb08a202447e8fb27`. This final honesty cleanup is records-only; its containing commit is intentionally not predicted, and exact HEAD must be refreshed at the next task start.
+
 ### 2026-08-15 — SPEC-0002 Phase 1 published and integrated
 
 - published the accepted hidden persistence engine and reviewed control-plane closeout in exact commit `0416fc3828a863a797ee9f1c3daa8508792ac64a`, parent `82663051b30cdcfd6766cf4714cdeb2306970045`, with message `Implement SPEC-0002 Phase 1 persistence engine` and exactly 42 paths

@@ -7,13 +7,13 @@ Last updated: 2026-08-15
 
 | Spec | Status | Active authorization |
 | --- | --- | --- |
-| [`SPEC-0001 — First Reversible AI-Created Stick Animation from Workspace Chat`](0001-first-reversible-ai-stick-animation.md) | Approved | Phase 1 is **Verified, published, and integrated**. Phase 1.5 is **Verified, accepted, and propagated in its dedicated worktree; awaiting separate publication/integration**. Phases 2–7 are **Unauthorized; Not started**. |
+| [`SPEC-0001 — First Reversible AI-Created Stick Animation from Workspace Chat`](0001-first-reversible-ai-stick-animation.md) | Approved | Phase 1 and Phase 1.5 are **Verified, published, and integrated**. Phase 2 prerequisites are satisfied, but Phases 2–7 are **Unauthorized; Not started**. |
 
 ## Proposed Specs
 
 No second specification is proposed. The active Approved SPEC-0001 contains D-0011's Phase 1.5 tester approval and D-0012's narrow conditional Drawing correction approval. The corrected implementation stayed inside that boundary and was subsequently accepted through D-0010's executor/review/architect lifecycle.
 
-Exact next step: review the Control Plane Architect PM Review Packet and, only under a later explicit publication instruction, publish/integrate the exact reviewed Phase 1.5 implementation plus propagation boundary. Phase 2 remains blocked until that canonical-main integration completes and Arthur separately authorizes Phase 2. Phases 2–7, the Phase 7 Policy Gate, provider choices, external lookups, and paid/live requests remain unauthorized.
+Phase 1.5 was published and integrated in exact canonical-main commit `8df64552e29e4170df8000097fe857b7a31dff69` (parent `3768226fd3aa3668a6cf7260da8476ceea0a084e`) with the reviewed 35-path scope. Exact next step: review and separately publish this six-document post-publication reconciliation. Only after that reconciliation is integrated may Arthur separately authorize Phase 2 and begin a new Plan-mode Spec Executor task from the resulting canonical-main SHA. Phases 2–7, the Phase 7 Policy Gate, provider choices, external lookups, and paid/live requests remain unauthorized.
 
 ## Provisionally Promoted Legacy References
 

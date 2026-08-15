@@ -5,6 +5,16 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-15 — SPEC-0001 Phase 1.5 published and integrated
+
+- published exactly the reviewed 35 paths in canonical-main commit `8df64552e29e4170df8000097fe857b7a31dff69`, parent `3768226fd3aa3668a6cf7260da8476ceea0a084e`, with message `Implement SPEC-0001 Phase 1.5 browser tester`
+- verified canonical `main`, `origin/main`, live remote `main`, and retained branch `codex/spec-0001-phase-1.5-closeout` at the publication commit with ahead/behind `0/0`, and verified both canonical and retained worktrees clean
+- preserved accepted technical proof SHA-256 `da2dd8cff32367a548a2e7d2e4e789fcf1a4dd129e9dc6200e25650f586f9fc9`, closeout SHA-256 `d7d74d9a48e31f997ed772625cc75be53a7d408b96fe093023b50c793c421423`, and the superseded failed-attempt evidence
+- closed GIT-008 and recorded Phase 1.5 as Verified, published, and integrated; the permanent tester remains developer-only and unreachable/invisible to website users; the authorized Git push was the publication operation, and no real `/api/ai`, OpenAI/provider, search, Supabase, paid, deployment, or other external request occurred
+- confirmed Phase 2 prerequisites are satisfied while Phase 2 and Phases 3–7 remain Unauthorized/Not started
+
+This is a documentation-only post-publication reconciliation. Its exact six Markdown paths remain unstaged and unpublished pending separate review/publication; no runtime/tester/fixture/package/configuration byte, project-tree path, recovery material, external service, deployment, staging, commit, push, merge, or later-phase implementation changed in this task.
+
 ### 2026-08-15 — SPEC-0001 Phase 1.5 accepted implementation propagated
 
 - recorded the accepted permanent developer-only browser tester and exact one-mocked-Drawing-POST/two-viewport real-app proof; the reusable command uses pinned `playwright-core`, installed local Chrome, isolated browser state, hash-bound tester fixtures, loopback-only browser/server/child policy, strict evidence contracts, and byte-restored cleanup

@@ -5,6 +5,25 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-15 — Phase 1.5 protected-Drawing correction ceiling approved
+
+- recorded Arthur's approval as D-0012 and authorized the blocked Phase 1.5 correction as **Authorized; Not started/resumed**
+- limited temporary diagnosis to `DrawingWorkspace.tsx` and `DrawingCanvas.tsx`, prohibited any behavior patch before the first clearing writer is proven, and limited a permanent runtime diff to the proven smallest subset
+- required a hard stop if diagnosis needs a third runtime file, broad rewrite, or unrelated behavior change
+- preserved the stopped Phase 1.5 result as unaccepted/unpublished with no valid proof manifest and kept Phase 2 and Phases 3–7 Unauthorized/Not started
+- kept `app/layout.tsx`, application fonts/styles, Drawing contracts/routes/planner/executor, Stick behavior, OpenAI, search, Supabase, paid services, deployment, and recovery material outside scope
+
+This was control-plane approval propagation only. No runtime, tester, fixture, script, dependency, configuration, environment, stopped-worktree, external-service, stage, commit, merge, push, or publication operation occurred.
+
+### 2026-08-14 — SPEC-0001 Phase 1.5 protected Drawing blocker recorded
+
+- recorded the stopped Executor's fail-closed result: deterministic red pixels appeared after Drawing Generate Frames Apply and disappeared at final AI settlement; failure artifact SHA-256 is `53d34094cff90d2864dd2e5bfdb09cb887bb60326806e8a048e13072a6d6422b`
+- marked the Phase 1.5 result blocked, unaccepted, and unpublished; no valid proof manifest exists, 33 of 37 negatives completed, and the golden result plus four post-success checks remain unproven
+- proposed a diagnostic-first correction ceiling limited to `DrawingWorkspace.tsx` and `DrawingCanvas.tsx`, with a permanent diff allowed only in the proven smallest subset and a stop if another file or broader rewrite is required
+- kept `app/layout.tsx`, application font/style behavior, routes/APIs, all unrelated Drawing/Stick behavior, external services, Phase 2, and Git publication outside scope; tester-only offline font setup must restore byte-for-byte and prove the normal published app unchanged
+
+This was a documentation-only amendment. The canonical runtime and stopped Executor worktree were read but not modified; no browser/build/TypeScript/lint/provider test was rerun, and no stage, commit, push, merge, deployment, or external request occurred.
+
 ### 2026-08-14 — SPEC-0001 Phase 1.5 amendment approved and authorized
 
 - recorded Arthur's approval as D-0011 and authorized only **Phase 1.5 — Permanent Automatic Browser Tester** as **Approved; Authorized; Not started**

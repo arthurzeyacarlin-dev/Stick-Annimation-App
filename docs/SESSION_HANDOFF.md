@@ -1,57 +1,52 @@
 # Session Handoff
 
 Status: canonical last-known stopping point
-Last updated: 2026-08-14
+Last updated: 2026-08-15
 Active spec: `docs/specs/0001-first-reversible-ai-stick-animation.md` — Approved
-Active phase state: Phase 1 — Verified, published, and integrated; Phase 1.5 — Approved, Authorized, and Not started; no implementation phase is active
+Active phase state: Phase 1 — Verified, published, and integrated; Phase 1.5 — Blocked, stopped Executor result unaccepted/unpublished, protected-Drawing correction Approved/Authorized but Not started/resumed; no implementation phase is active
 Current roadmap phase: Phase 0 — Preserve and Stabilize
 
 ## Completed in the Last Task
 
-Arthur approved the Spec Architect's documentation-only amendment that inserts **Phase 1.5 — Permanent Automatic Browser Tester** into the existing Approved SPEC-0001. D-0011 authorizes Phase 1.5 only as Approved, Authorized, and Not started; it does not create a second feature spec or begin implementation. Phase 2 remains blocked until Phase 1.5 is Verified, accepted, propagated, separately published, and integrated into canonical `main`.
+The Phase 1.5 Executor stopped correctly when the corrected fail-closed tester exposed a protected Drawing Generate Frames settlement regression outside its runtime allowlist. The deterministic mock reached at least 100 red Canvas2D pixels after Apply, but those pixels disappeared as the AI UI settled. This reproduced with empty and explicit tester-only success output. The stopped run completed 33 of 37 negative cases before the blocker; the golden result and four post-success checks are unproven. Failure artifact SHA-256 is `53d34094cff90d2864dd2e5bfdb09cb887bb60326806e8a048e13072a6d6422b`; there is no valid current Phase 1.5 proof-manifest SHA.
 
-The approved tester design is deliberately small and permanent in the private development repository: it starts the real app under an offline server/browser egress guard, fulfills only exact font requests inside the tester from hash-bound local fixtures without changing application source, styling, font selection, or visible behavior, checks Home → New → Stick, Stick → Creator → Back, and deterministic/mocked Drawing Generate Frames, captures exact actions/errors/network/screenshots/cleanup evidence, and supplies only a versioned connection/checkpoint seam for Phase 2. It must restore all temporary font/test setup byte-for-byte, never create or ship a tester page, route, control, asset, reachable URL, or application import, and fail if offline proof would require changing the real product. Repository source must not be described as secret if the repository later becomes public.
+The stopped worktree `/Users/arthurcarlin/.codex/worktrees/feba/stick-animation-app` remains read-only evidence at base `a35a268764c21eedffcf3d82b59718699b62d4d0`, with exactly 26 authorized dirty implementation paths plus ignored failure evidence. Its implementation is unaccepted and unpublished.
 
-D-0010 is already published and integrated at `2029fd07e14b6f48feb6d04e02dbd52ec683d55d`. It governs the future Phase 1.5 lifecycle through four sequential authorities:
+Fresh canonical tracing confirms the real path is `DrawingAiPanel.revealAssistantMessage` → `DrawingWorkspace.applyGeneratedFrameToWorkspace` → real timeline replacement → scheduled render/restore. The existing evidence cannot tell whether the first later clearing write comes from `DrawingWorkspace` bitmap resolution/restore or `DrawingCanvas` authoring-surface reset. D-0012 approves a diagnostic-first correction ceiling limited to those two files, followed by a permanent diff only in the proven smallest subset. No behavior patch is allowed until the first clearing writer is proven, and a required third runtime file, broad rewrite, or unrelated behavior change is a hard stop.
 
-1. A Spec Executor exclusively implements and technically tests one authorized phase, creates/validates the technical proof manifest, returns an Implementation Review Packet, and completely stops without canonical-memory or Git mutation.
-2. Arthur and the Project Manager accept or reject the implementation.
-3. After acceptance and executor shutdown, a Control Plane Architect takes exclusive ownership of the same worktree, preserves the accepted implementation bytes, propagates canonical memory, validates technical evidence, completes tracked-state closeout/Git proof, returns its PM Review Packet, and stops with an empty index.
-4. Only a later explicit publication instruction authorizes the architect to stage, commit, integrate into canonical `main`, push, and verify.
+The approved tester font boundary is unchanged and stricter than a product workaround: `app/layout.tsx`, application fonts, styles, and unrelated visible website behavior may not change. Offline font handling is tester-only temporary setup, restored byte-for-byte, and must prove the normal published application unchanged. If an offline run requires changing the product, the correction stops and reports the blocker.
 
-The roles never edit one worktree concurrently. Rejection returns to a separately authorized Spec Executor correction task. The Control Plane Architect cannot silently repair implementation bytes; those changes return to an executor.
-
-This amendment did not rerun, modify, or republish SPEC-0001 Phase 1. Phase 1 remains Verified, published, and integrated at canonical-main commit `21a88feb65cf1cc51138c9ad4879b962ee468569`, with official proof-manifest SHA-256 `fe1d69c9d0fcc8e7131d064b6a8ee4c0bd99aea21b8a0f399840b4c2311937d7`. It remains the completed historical exception under the former combined workflow.
+Phase 1 remains Verified, published, and integrated at `21a88feb65cf1cc51138c9ad4879b962ee468569`, with official proof-manifest SHA-256 `fe1d69c9d0fcc8e7131d064b6a8ee4c0bd99aea21b8a0f399840b4c2311937d7`. D-0010 remains the required Executor → human review → Control Plane Architect → separate publication lifecycle.
 
 ## Current Git State
 
 - control-plane worktree: `/Users/arthurcarlin/Projects/stick-animation-app`
-- branch/base: clean synchronized `main` began at `2029fd07e14b6f48feb6d04e02dbd52ec683d55d`, zero ahead/behind `origin/main`
-- current work: unstaged authorized documentation/control-plane changes for the Phase 1.5 amendment only; no runtime, fixture, proof-script, dependency, configuration, migration, environment, or database path changed
+- branch/base: clean synchronized `main` began at `a35a268764c21eedffcf3d82b59718699b62d4d0`, zero ahead/behind `origin/main`
+- current work: six unstaged authorized documentation/control-plane changes for the protected-Drawing blocker amendment only; no runtime, tester, fixture, dependency, configuration, migration, environment, or database path changed
 - index and untracked set: empty
-- retained Phase 1 worktree `/Users/arthurcarlin/.codex/worktrees/89d9/stick-animation-app`: clean, inactive, and untouched
 - Phase 1 status: Verified, committed, pushed, and integrated; unchanged by this amendment
-- Phase 1.5 status: Approved, Authorized, and Not started
+- Phase 1.5 status: Blocked; stopped result unaccepted/unpublished; correction Approved/Authorized but Not started/resumed
+- stopped Phase 1.5 worktree: read-only and untouched by this task
 - prohibited recovery branch: untouched and not used
 - no tester implementation, commit, merge, push, external request, or publication occurred in this task
 
 ## Exact Next Start Point
 
-1. Review this Control Plane Architect PM Review Packet and the exact unstaged approval-record diff.
-2. If accepted, use a separate explicit publication instruction; the Control Plane Architect then stages only the reviewed control-plane paths, commits, pushes canonical `main`, and verifies clean `0/0` synchronization.
-3. Only after this approval record is published/integrated may one new Phase 1.5 Spec Executor task start in Plan mode in a dedicated worktree from the exact then-current canonical-main SHA.
-4. The executor implements and technically proves only Phase 1.5, returns an Implementation Review Packet, and stops. Arthur and the Project Manager accept or reject it.
-5. Only after implementation acceptance and executor shutdown may a Control Plane Architect take exclusive ownership, propagate the implemented state, return its packet, and stop. A later explicit instruction is still required for implementation staging, commit, push, and canonical-main integration.
-6. Phase 2 may be considered for separate authorization only after Phase 1.5 is Verified, accepted, propagated, published, and integrated. Phases 2–7 remain Unauthorized/Not started now.
-7. The Phase 7 Policy Gate, provider choices, external lookups, and any paid/live proof remain separately deferred and unauthorized.
+1. Review this Control Plane Architect packet and the exact unstaged D-0012 approval-record diff.
+2. If accepted, use a separate explicit publication instruction to publish/integrate only the reviewed control-plane paths. The stopped implementation worktree remains untouched during publication.
+3. Only after D-0012 publication/integration may a separately authorized Plan-mode Phase 1.5 correction Spec Executor take exclusive ownership of the stopped worktree.
+4. The correction diagnoses first. If it cannot identify the first clearing writer inside the two-file ceiling, it stops without a behavior patch. If it can, it patches only the proven subset and reruns from clean runner-owned proof output.
+5. Completion requires final success/input usability/settled pixels, both viewports, exactly one mock and zero real route/provider/search/Supabase calls, all 37 negatives, network/WebSocket denial, production exclusion, all cleanup paths, strict 49-artifact proof validation, Phase 1's 631 assertions, TypeScript, and honest lint.
+6. The correction Executor returns its packet and stops. Acceptance, Control Plane Architect propagation, and Git publication remain separate later authorities.
+7. Phase 2 remains Unauthorized/Not started until Phase 1.5 is Verified, accepted, propagated, published, and integrated. Phases 3–7 also remain Unauthorized/Not started.
 
 ## Systems Intentionally Left Unchanged
 
 - all `app/**` UI and API behavior
-- all `src/components/**` editor behavior
-- every existing Drawing AI/runtime/storage path
+- all `src/components/**` editor behavior in this documentation task
+- every existing Drawing AI/runtime/storage path in this documentation task; D-0012 limits a future correction to the diagnostic-proven subset of `DrawingWorkspace.tsx`/`DrawingCanvas.tsx`
 - Stick Workspace state, timeline UI, Canvas interaction, playback, Undo/Redo, Save/Open, Creator, and chat UI
-- permanent automatic browser tester implementation and evidence artifacts
+- permanent automatic browser tester implementation and stopped evidence artifacts
 - OpenAI, search, Supabase, provider logging, dependencies, package scripts, lockfiles, config, environment, migrations, database, deployment, and remote Git state
 
 The Phase 1 contract modules are deliberately unwired. Visible Stick behavior remains the pre-Phase-1 scaffold until later separately authorized phases.

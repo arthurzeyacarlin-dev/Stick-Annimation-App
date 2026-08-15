@@ -1,19 +1,19 @@
 # Specification Index and Lifecycle
 
 Status: canonical spec registry
-Last updated: 2026-08-14
+Last updated: 2026-08-15
 
 ## Active Spec
 
 | Spec | Status | Active authorization |
 | --- | --- | --- |
-| [`SPEC-0001 — First Reversible AI-Created Stick Animation from Workspace Chat`](0001-first-reversible-ai-stick-animation.md) | Approved | Phase 1 is **Verified, published, and integrated**. Phase 1.5 is **Approved; Authorized; Not started** under D-0011. Phases 2–7 are **Unauthorized; Not started**; Phase 2 is blocked on Phase 1.5 verification, acceptance, propagation, publication, and integration. |
+| [`SPEC-0001 — First Reversible AI-Created Stick Animation from Workspace Chat`](0001-first-reversible-ai-stick-animation.md) | Approved | Phase 1 is **Verified, published, and integrated**. Phase 1.5 is **Blocked**: the stopped Executor result is unaccepted/unpublished with no valid proof manifest; D-0012 makes its protected-Drawing correction **Approved; Authorized; Not started/resumed**. Phases 2–7 are **Unauthorized; Not started**. |
 
 ## Proposed Specs
 
-No second specification is proposed. The active Approved SPEC-0001 contains the approved Phase 1.5 amendment; Phase 1.5 alone is **Approved; Authorized; Not started**.
+No second specification is proposed. The active Approved SPEC-0001 contains the original D-0011 Phase 1.5 approval and D-0012's narrow conditional Drawing correction approval. D-0012 does not accept the stopped implementation or claim a valid proof manifest.
 
-Exact next step: review and separately publish/integrate the D-0011 approval record. After publication, one new Phase 1.5 Spec Executor task may start in Plan mode under D-0010; this control-plane task does not begin implementation. Phases 2–7 remain Unauthorized/Not started. The Phase 7 Policy Gate, provider choices, external lookups, and paid/live requests remain deferred and unauthorized.
+Exact next step: review and separately publish/integrate D-0012 and this approval-state control plane. Only afterward may a separately authorized Plan-mode Phase 1.5 correction Spec Executor resume the stopped worktree; it must diagnose before patching and stop again with a complete valid proof packet. Phase 2 remains blocked through Phase 1.5 verification, acceptance, propagation, separate publication, and canonical-main integration. Phases 2–7, the Phase 7 Policy Gate, provider choices, external lookups, and paid/live requests remain unauthorized.
 
 ## Provisionally Promoted Legacy References
 

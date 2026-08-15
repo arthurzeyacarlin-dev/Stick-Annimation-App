@@ -85,6 +85,14 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Why: repeatable, fail-closed browser proof is a prerequisite for safely changing the real Stick workspace in Phase 2, while a product-visible or product-mutating test surface would create unacceptable regression and shipping risk.
 - Consequence: Phase 1.5 may begin only in a new Plan-mode Spec Executor task/worktree after this approval record is separately reviewed, published, and integrated into canonical `main` under D-0010. This decision does not begin implementation, authorize Git publication, authorize dependency or external acquisition, or authorize Phase 2 or Phases 3–7. Phase 1 remains Verified, published, and integrated. Phases 2–7 remain **Unauthorized; Not started**, and Phase 2 stays blocked until Phase 1.5 is Verified, accepted, propagated, separately published, and integrated.
 
+### D-0012 — Approve the Phase 1.5 protected-Drawing correction ceiling
+
+- Date: 2026-08-15
+- Status: accepted by Arthur for the blocked `SPEC-0001` Phase 1.5 correction
+- Decision: approve and authorize the Phase 1.5 correction as **Authorized; Not started/resumed**. Temporary diagnosis may occur only in `src/components/workspace/DrawingWorkspace.tsx` and `src/components/workspace/DrawingCanvas.tsx`. No behavior patch is allowed until diagnostics identify the first clearing writer. Any permanent runtime change is limited to the proven smallest subset of those two files. If diagnosis requires a third runtime file, a broad rewrite, or unrelated behavior change, the correction stops without expanding scope.
+- Why: the stopped fail-closed tester proved that deterministic Drawing pixels appeared and then disappeared during final AI settlement, while existing evidence cannot distinguish the first clearing authority between the workspace restore/publication path and the canvas reset path. The two-file ceiling permits evidence collection at both known boundaries without pre-authorizing a guessed fix.
+- Consequence: the stopped Phase 1.5 result remains blocked, unaccepted, unpublished, and without a valid proof manifest. A separately authorized Plan-mode correction Spec Executor may resume the stopped worktree only after this approval record is reviewed, separately published, and integrated under D-0010. `app/layout.tsx`, application fonts/styles, Drawing contracts/routes/planner/executor, Stick behavior, external services, Phase 2, and all later phases remain outside scope. OpenAI, search, Supabase, paid services, deployment, Git publication, worktree deletion, and recovery-branch use remain unauthorized.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

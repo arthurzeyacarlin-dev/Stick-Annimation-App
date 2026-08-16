@@ -5,6 +5,16 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-16 — SPEC-0002 Phase 2 permanent-tester compatibility corrected
+
+- recorded that the prior independent Phase 2 manifest correction is already published/integrated in exact six-path commit `727a1d9c8fb8fa93e40cb4484949cf499709e17e`, message `Correct SPEC-0002 Phase 2 proof contract`; D-0014 remains published at `8062274a83776e635e8ed81d9cd2c272d068bc56`, and Phase 2 remains **Authorized; Not started**
+- reproduced the fresh stopped-executor blocker without launching a browser or changing repository bytes: the frozen Phase 1.5 baseline policy rejects representative Phase 2 dirty paths with its exact requirement that versioned extensions define their own allowlist
+- replaced only the impossible dirty-time `npm run test:spec0001-browser` receipt with exact receipt 5 `scripts/runSpec0002BrowserProof.ts --mode=phase-2-real-browser-proof` and exact receipt 6 `--mode=phase-1.5-regression-extension`; retained exactly 12 receipts, the existing §12.2 boundary, recorder → independent Phase 2 validator ownership, and all 20 validator negative classes
+- required the Phase 2 extension to bind every frozen `PHASE15_AUTHORIZED_PATHS` byte to accepted publication `8df64552e29e4170df8000097fe857b7a31dff69`, reuse exported contract/constants/strict helpers where technically available, rerun the same protected real-app flows, and own exactly one mocked same-origin Generate Frames POST across the complete two-mode run while the primary mode owns zero and real/external requests remain zero
+- made the exact permanent npm tester mandatory twice on clean committed state: before any Phase 2 edit on the published base, and after the reviewed phase commit but before canonical-main fast-forward or push; either failure stops, and no dirty implementation may be staged, stashed, hidden, or removed to bypass the policy
+
+This is a specification/control-plane compatibility correction only. The accepted Phase 1/Phase 1.5 tester/core, prior independent-validator correction, user outcome, 22-step flow, REG-01–REG-10, runtime/proof implementation allowlist, statuses, and owner decisions remain unchanged. No runtime, fixture, validator, recorder, tester, package/dependency/configuration, database, environment, browser, provider, external service, stage, commit, push, merge, deployment, or another-worktree byte changed.
+
 ### 2026-08-16 — SPEC-0002 Phase 2 proof contract corrected
 
 - verified that D-0014 was already published/integrated in exact seven-path commit `8062274a83776e635e8ed81d9cd2c272d068bc56`, superseding the prior activation entry's dated pre-publication narration while preserving Phase 2 as **Authorized; Not started**

@@ -5,6 +5,16 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-16 — SPEC-0002 Phase 2 proof contract corrected
+
+- verified that D-0014 was already published/integrated in exact seven-path commit `8062274a83776e635e8ed81d9cd2c272d068bc56`, superseding the prior activation entry's dated pre-publication narration while preserving Phase 2 as **Authorized; Not started**
+- reproduced the stopped Plan-mode blocker: the frozen `scripts/validateSpec0002Proof.ts` rejects the former Phase 2 manifest CLI and is hard-bound to the Phase 1 path, identity/base/HEAD, nine receipts/artifacts, and `appMounted:false`
+- corrected SPEC-0002 §12.8 so the accepted Phase 1 validator remains byte-identical and the already-authorized `scripts/spec0002-browser/validatePhase2.ts` independently owns the Phase 2 manifest after the recorder completes
+- froze the Phase 2 published-base identity rule, 12 ordered command/receipt set, unchanged §12.2 dirty allowlist, Phase 1/Phase 1.5 predecessor bindings, real-app/two-viewport and IndexedDB/legacy/network/cleanup/regression evidence, external manifest SHA-256, and 20 fail-closed self-test mutation classes
+- required separate review/publication of this correction before one new exclusive Plan-mode Phase 2 Spec Executor may resume from the correction publication SHA
+
+This is a specification/control-plane correction only. No runtime, fixture, validator, recorder, finalizer, proof, package/dependency/configuration, database, environment, browser storage, external service, stage, commit, push, merge, deployment, or another-worktree byte changed.
+
 ### 2026-08-16 — SPEC-0002 Phase 2 activation recorded
 
 - recorded Arthur's D-0014 authorization of SPEC-0002 Phase 2 as **Authorized; Not started**; Phase 1 remains Verified/published/integrated and the hidden V2 engine remains unwired

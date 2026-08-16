@@ -3,44 +3,43 @@
 Status: canonical last-known stopping point
 Last updated: 2026-08-16
 Active specs: `docs/specs/0001-first-reversible-ai-stick-animation.md` and `docs/specs/0002-lossless-local-drawing-save-and-reopen.md` — Approved
-Active phase state: SPEC-0001 Phase 1 and Phase 1.5 — Verified, published, and integrated; SPEC-0002 Phase 1 — Verified, published, and integrated; SPEC-0002 Phase 2 — Authorized/Not started pending publication of D-0014; SPEC-0001 Phase 2–7 — Unauthorized/Not started
+Active phase state: SPEC-0001 Phase 1 and Phase 1.5 — Verified, published, and integrated; SPEC-0002 Phase 1 — Verified, published, and integrated; SPEC-0002 Phase 2 — Authorized/Not started; SPEC-0001 Phase 2–7 — Unauthorized/Not started
 Current roadmap phase: Phase 0 — Preserve and Stabilize
 
 ## Completed in the Last Task
 
-Arthur authorized SPEC-0002 Phase 2 through D-0014 as **Authorized; Not started**. The fresh audit resolved canonical `main`, local `origin/main`, and the canonical worktree to `4835244e522c0f4206af8946a631d9244f2c9945`, with clean `0/0` synchronization. It confirmed no active Phase 2 executor, no canonical SPEC-0003 file, no import of the accepted V2 modules into the application, and no overlap between SPEC-0002 Phase 2's Drawing/navigation/browser-extension boundary and SPEC-0001 Phase 2's Stick-only boundary.
+The SPEC-0002 Phase 2 proof-contract blocker was verified and corrected in the specification/control plane only. D-0014 was already published/integrated in exact seven-path commit `8062274a83776e635e8ed81d9cd2c272d068bc56`; the stale “pending publication” narration is superseded. Phase 2 remains **Authorized; Not started**.
 
-The accepted Phase 1 engine remains hidden and unwired: strict V2 contracts, canonical bytes, lossless raster/audio codecs, V1 compatibility, injected repository, real IndexedDB transactions/tombstones, fixtures, validators, and proof tooling are unchanged. Existing `drawingProjectStorage.ts`, DrawingWorkspace, Open Project, Save/Open/Delete UI, DrawingCanvas, the SPEC-0001 tester, package/dependency/configuration, and every visible application path still use the V1 flow.
+The stopped Plan-mode executor evidence was reproduced directly: `scripts/validateSpec0002Proof.ts` accepts only `output/spec-0002/phase-1/proof-manifest.json`, asserts Phase 1 identity/base/HEAD, requires the nine Phase 1 receipts/artifacts and `appMounted:false`, and rejects the former Phase 2 CLI before reading a manifest. Its accepted SHA-256 remains `1b12cdc360f14b3cfb16ff0d8718ec222bcfcd35b9449a87c59506ae371fd1d9`.
 
-This activation record is not implementation and is not yet published. It authorizes no executor until this packet is reviewed and D-0014 is separately published to canonical `main`.
+Corrected SPEC-0002 §12.8 now keeps the Phase 1 validator byte-identical and makes the already-authorized `scripts/spec0002-browser/validatePhase2.ts` the sole independent Phase 2 manifest validator through the one exact external invocation frozen there.
+
+The contract freezes the future executor's exact published-correction base rule, 12 ordered receipts/commands, existing §12.2 dirty allowlist, Phase 1/Phase 1.5 predecessor identities, real-app mount, both viewports, IndexedDB/legacy/network/cleanup/regression evidence, external manifest SHA-256, and 20 fail-closed validator self-test mutation classes. The external flow is recorder first, independent Phase 2 validator second. No Phase 2 implementation path was added.
 
 ## Current Git and Proof State
 
-- review worktree: `/Users/arthurcarlin/.codex/worktrees/9455/stick-animation-app` (detached, control-plane-only changes; no executor created)
-- canonical starting checkpoint: `4835244e522c0f4206af8946a631d9244f2c9945` for local `main` and local `origin/main`
-- implementation publication: `0416fc3828a863a797ee9f1c3daa8508792ac64a`; parent `82663051b30cdcfd6766cf4714cdeb2306970045`; message `Implement SPEC-0002 Phase 1 persistence engine`; exactly 42 committed paths
-- records publication: `31396d40de5be33bada9c9acb08a202447e8fb27`; parent `0416fc3828a863a797ee9f1c3daa8508792ac64a`; message `Record SPEC-0002 Phase 1 publication`; exactly six Markdown paths
-- starting synchronization: canonical `main` and local `origin/main` were verified clean at `0/0`; no publication occurs in this task
-- index: empty
-- implementation state: committed and byte-bound by the accepted manifests; no implementation byte changed by this activation record
-- technical proof: ignored `output/spec-0002/phase-1/proof-manifest.json`, accepted SHA-256 `2d20a4a63103618505b60cf590835191841d1c1968bc2bc14ef2c953253243a1`
-- tracked-state closeout: ignored `output/spec-0002/phase-1/proof-closeout-manifest.json`, SHA-256 `b2d50852cffa40dbf3d7535665a12abe66439cfceeffc61d6eb56195ff947b3c`
-- temporary `node_modules` symlink, browser profiles, databases, and proof processes: absent
-- publication state: Phase 1 is published/integrated; D-0014 is an uncommitted activation record pending separate review/publication
-- refresh rule: before publication or executor start, refresh canonical refs, index/worktree state, D-0014's exact published SHA, and the conflict audit
+- correction worktree: `/Users/arthurcarlin/.codex/worktrees/9b35/stick-animation-app` (detached at task-start base; control-plane-only changes)
+- task-start canonical checkpoint: `8062274a83776e635e8ed81d9cd2c272d068bc56` for `HEAD`, local `main`, and local `origin/main`; ahead/behind `0/0`; clean index and empty untracked set
+- D-0014 publication: exact commit `8062274a83776e635e8ed81d9cd2c272d068bc56`, message `Authorize SPEC-0002 Phase 2`, exactly seven Markdown paths
+- Phase 1 implementation publication: `0416fc3828a863a797ee9f1c3daa8508792ac64a`; accepted technical-manifest SHA-256 `2d20a4a63103618505b60cf590835191841d1c1968bc2bc14ef2c953253243a1`; closeout SHA-256 `b2d50852cffa40dbf3d7535665a12abe66439cfceeffc61d6eb56195ff947b3c`
+- frozen Phase 1 proof-source SHA-256: validator `1b12cdc360f14b3cfb16ff0d8718ec222bcfcd35b9449a87c59506ae371fd1d9`; recorder `a9ea6b6b633daf107c6fe79554f44256e7cf98bb289b623c0dadfafc52bc0758`; finalizer `f1c8aff5582fdcab2332142c422f3ad496f9c03465ac9aadabbc88c542ec12a1`; command config `9b8d62c51a20847ee3bff2901af0fe129b146af7bfce73c904d493cf8b41612d`
+- review diff: only `docs/CURRENT_STATE.md`, `docs/SESSION_HANDOFF.md`, `docs/TODO.md`, `docs/changelog.md`, `docs/specs/0002-lossless-local-drawing-save-and-reopen.md`, and `docs/specs/README.md`
+- index: empty; no stage, commit, push, merge, deployment, external request, paid service, or another-worktree mutation occurred
+- publication state: this proof-contract correction remains unstaged/unpublished pending separate review and publication
 
 ## Exact Next Start Point
 
-1. Review this D-0014 activation packet, then separately publish only its reviewed control-plane paths to canonical `main`.
-2. After publication, create one new exclusive Plan-mode SPEC-0002 Phase 2 Spec Executor task from the exact published authorization SHA. It must refresh the conflict audit before implementation and stop if any executor overlaps `app/page.tsx`, Drawing persistence/navigation, or shared browser proof.
-3. Do not create the executor in this task. SPEC-0001 Phase 2–7 remain Unauthorized/Not started, and SPEC-0003 remains absent from canonical main and untouched.
+1. Review this proof-contract-correction packet, then separately publish only the six reviewed canonical Markdown paths listed above.
+2. After publication, create one new exclusive Plan-mode SPEC-0002 Phase 2 Spec Executor task/worktree from the exact correction publication SHA. It must refresh the conflict audit before implementation and freeze that exact SHA in the new Phase 2 proof command fixture.
+3. The executor must preserve every accepted Phase 1/Phase 1.5 byte, stay inside the unchanged SPEC-0002 §12.2 implementation boundary, use the recorder → independent `validatePhase2.ts` flow, and stop if another executor touches `app/page.tsx`, Drawing persistence/navigation, or shared browser proof.
+4. Do not start SPEC-0001 Phase 2–7, SPEC-0003, autosave/cloud/export work, external lookups, or paid/live requests.
 
 ## Systems Intentionally Left Unchanged
 
-- `AGENTS.md`, `docs/PROJECT_MANAGER_CONTEXT.md`, `docs/DECISIONS.md`, every SPEC-0001 file, and every other canonical document outside this records-only reconciliation allowlist
-- all existing `app/**` pages/routes/APIs, runtime Drawing/Stick/Creator components, `drawingProjectStorage.ts`, current localStorage key/data, and visible Save/Open/Delete behavior
-- permanent SPEC-0001 browser tester/core, DrawingCanvas, Drawing Generate Frames, AI contracts/routes/providers/memory, and protected generated-pixel settlement behavior
-- package files, dependencies, configuration, migrations, environment files, databases, real user browser storage, retained/recovery worktrees, canonical-main worktree bytes, deployment, and external/paid services
-- implementation/proof history anchored by `0416fc3828a863a797ee9f1c3daa8508792ac64a` and records publication history anchored by `31396d40de5be33bada9c9acb08a202447e8fb27`; this final cleanup changes records only and predicts no future Git SHA
+- `AGENTS.md`, `docs/PROJECT_MANAGER_CONTEXT.md`, `docs/DECISIONS.md`, every SPEC-0001 file, and every canonical document outside the six-path correction allowlist
+- all accepted Phase 1 runtime, fixture, validator, recorder, finalizer, schema, technical-proof, and closeout bytes; the frozen Phase 1 validator remains Phase 1-only
+- all `app/**` pages/routes/APIs, Drawing/Stick/Creator runtime components, `drawingProjectStorage.ts`, current localStorage/IndexedDB behavior, and visible Save/Open/Delete behavior
+- permanent SPEC-0001 browser tester/core, `DrawingCanvas.tsx`, Drawing Generate Frames, AI contracts/routes/providers/memory, package/dependency/configuration, migrations, environment, database, browser storage, deployment, and external/paid services
+- retained/recovery worktrees and `codex/pre-baseline-staged-page-2026-08-09`; neither was used or modified
 
-Phase 1 is a hidden accepted foundation only. Phase 2 is still required to wire and visibly prove lossless Drawing Save/Open/Delete.
+Phase 1 remains a hidden accepted foundation. Phase 2 remains Authorized/Not started and cannot resume until this correction is separately published.

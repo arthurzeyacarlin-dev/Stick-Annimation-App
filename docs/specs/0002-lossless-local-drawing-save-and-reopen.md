@@ -8,8 +8,8 @@ Last updated: 2026-08-16
 Decision links: D-0013, D-0014
 TODO IDs: SPEC-002, DATA-002 (Phase 1), DATA-003 (Phase 2), DATA-001 (narrow Drawing portion), RENDER-001 (save/reopen portion)
 Baseline branch/commit: `codex/spec-architect` at `365e68fe98b27e993a1c5645c3e28c7b428c6f33`, matching `origin/main` at research start
-Last verified branch/commit: Phase 1 published/integrated at `0416fc3828a863a797ee9f1c3daa8508792ac64a`, parent `82663051b30cdcfd6766cf4714cdeb2306970045`; technical-manifest SHA-256 `2d20a4a63103618505b60cf590835191841d1c1968bc2bc14ef2c953253243a1`; closeout-manifest SHA-256 `b2d50852cffa40dbf3d7535665a12abe66439cfceeffc61d6eb56195ff947b3c`
-Lifecycle: Approved and active for bounded work; Phase 1 Verified/published/integrated; Phase 2 Authorized/Not started, pending separate publication of this activation record
+Last verified branch/commit: Phase 1 published/integrated at `0416fc3828a863a797ee9f1c3daa8508792ac64a`, parent `82663051b30cdcfd6766cf4714cdeb2306970045`; technical-manifest SHA-256 `2d20a4a63103618505b60cf590835191841d1c1968bc2bc14ef2c953253243a1`; closeout-manifest SHA-256 `b2d50852cffa40dbf3d7535665a12abe66439cfceeffc61d6eb56195ff947b3c`; D-0014 published/integrated at `8062274a83776e635e8ed81d9cd2c272d068bc56`
+Lifecycle: Approved and active for bounded work; Phase 1 Verified/published/integrated; Phase 2 Authorized/Not started; execution paused until this proof-contract correction is reviewed, separately published, and used as the next executor base
 
 ## 1. Exact Goal
 
@@ -29,7 +29,7 @@ The recommended V1 outcome for this spec is:
 - truthful saved/unsaved/saving/too-large/failed presentation; and
 - fully offline deterministic and real-browser proof.
 
-Arthur accepted these recommendations exactly through D-0013. The corrected Phase 1 implementation is Verified, published, and integrated at `0416fc3828a863a797ee9f1c3daa8508792ac64a`. D-0014 separately authorizes Phase 2 as **Authorized; Not started**. This activation record remains subject to separate review and publication; it does not begin Phase 2.
+Arthur accepted these recommendations exactly through D-0013. The corrected Phase 1 implementation is Verified, published, and integrated at `0416fc3828a863a797ee9f1c3daa8508792ac64a`. D-0014 separately authorizes Phase 2 as **Authorized; Not started** and was published/integrated at `8062274a83776e635e8ed81d9cd2c272d068bc56`. A stopped Plan-mode executor preflight then proved that the former §12.8 sent the Phase 2 manifest to the frozen Phase 1-only validator. This specification-only correction removes that contradiction without beginning Phase 2; execution may resume only after the correction is reviewed and separately published.
 
 ## 2. Current Behavior and Evidence
 
@@ -51,6 +51,7 @@ Arthur accepted these recommendations exactly through D-0013. The corrected Phas
 | Open Project | Live isolated inspection showed Home → Open Project lists the saved Drawing card and clicking it remounts Drawing Workspace. | Preserve that navigation while adding async loading/error/legacy states. | Current list is synchronous/localStorage-only. | Existing navigation plus new IDB and legacy fixtures. |
 | AI memory | `aiMemory` is a sibling of `DrawingProjectData`; workspace open also starts a same-origin remote-memory request. | Preserve sanitized local memory as auxiliary local data, outside artwork fidelity digest; do not redesign or call the remote service in default proof. | Migration could otherwise orphan current local memory. | Local companion round trip; all route/Supabase requests fulfilled/denied by the tester. |
 | Reusable assets | Imported reusable assets and library symbols are mounted-session collections; placed pixels become raster state. | Continue saving placed pixels, but explicitly exclude reusable source entries from this project envelope. | Current UI can imply more persistence than the schema provides. | Reopen proves placed pixels; fixture proves reusable entries are absent. |
+| Phase 2 proof validation | Frozen `scripts/validateSpec0002Proof.ts` accepts only `output/spec-0002/phase-1/proof-manifest.json`, requires `phase === 1`, the historical Phase 1 base/HEAD, nine Phase 1 receipts/artifacts, and `appMounted === false`; the former Phase 2 CLI is rejected before reading a manifest. | The already-authorized `scripts/spec0002-browser/validatePhase2.ts` independently validates the Phase 2 manifest and real-app evidence through the exact §12.8 invocation while the Phase 1 validator remains byte-identical. | The former §12.8 command made Phase 2 proof impossible without corrupting the accepted Phase 1 contract. | Exact CLI rejection, frozen-source SHA-256, one Phase 2 validator owner/invocation, 12 ordered receipts, strict manifest/schema bindings, and independent positive/negative self-tests. |
 
 ### 2.2 Fresh evidence labels
 
@@ -64,6 +65,7 @@ Arthur accepted these recommendations exactly through D-0013. The corrected Phas
 | Stored record inspected in isolated browser | The saved frame held `bitmap:null`, `tweenEndBitmap:null`, `previewUrl:null` for the empty frame, version 1, and a lossy project-card WebP. | Live verified |
 | Representative multi-frame raster/text/tween/sound fidelity | Not executed in this research task. | Unproven; Phase 2 acceptance |
 | Failure/quota/corruption UI | Not executed. | Hidden engine failure semantics are Phase 1 check-verified; visible UI remains unproven and belongs to Phase 2. |
+| Phase 2 proof-contract preflight | The exact former Phase 2 invocation of `scripts/validateSpec0002Proof.ts` exited 1 with the Phase 1-only usage contract. Direct source trace confirmed the fixed Phase 1 path, phase/base/HEAD, nine receipts, Phase 1 artifacts, and `appMounted:false`; no Phase 2 proof path exists yet because Phase 2 has not started. | Check and code verified; correction required before executor implementation |
 
 The isolated inspection did not submit AI, call OpenAI/search, or contact Supabase. It used a local fixture response for `/api/drawing-project-ai-memory`.
 
@@ -453,7 +455,7 @@ Delete V2 or exact classified legacy-only project
 
 ### 10.1 Activation and concurrency gate
 
-SPEC-0002 is Approved and active for this bounded work. Phase 1 is Verified, published, and integrated. D-0014 records Arthur's separate Phase 2 authorization as **Authorized; Not started**; no Phase 2 Spec Executor is active, and this activation record still requires separate review and publication before execution. The 2026-08-15 Phase 1 activation audit recorded:
+SPEC-0002 is Approved and active for this bounded work. Phase 1 is Verified, published, and integrated. D-0014 records Arthur's separate Phase 2 authorization as **Authorized; Not started** and was published/integrated at `8062274a83776e635e8ed81d9cd2c272d068bc56`; no Phase 2 Spec Executor is active. The 2026-08-15 Phase 1 activation audit recorded:
 
 1. canonical `main` and local `origin/main` both at `365e68fe98b27e993a1c5645c3e28c7b428c6f33`, ahead/behind `0/0`, with a clean canonical worktree and index;
 2. SPEC-0001 has no active executor or architect, while its Phase 2 and later phases remain Unauthorized/Not started;
@@ -461,7 +463,7 @@ SPEC-0002 is Approved and active for this bounded work. Phase 1 is Verified, pub
 4. implementation must use one new exclusive worktree and one Plan-mode Spec Executor from the then-current canonical-main SHA after this approval's publication/integration; and
 5. any future runtime, tester-core, worktree, or control-plane overlap is a hard stop until a fresh Project Manager conflict decision.
 
-D-0013 and its approval record were published/integrated at `8a2d4cd0e27e5299cd413146124b74e2dcf31844`, satisfying the Phase 1 start prerequisite. The implementation task refreshed the audit, stayed within the 34 new Phase 1 paths, and stopped after accepted technical proof. The accepted implementation and reviewed closeout were later published/integrated at `0416fc3828a863a797ee9f1c3daa8508792ac64a`, satisfying Phase 2's Phase 1 publication prerequisite. The fresh D-0014 conflict audit at canonical `main`/`origin/main` `4835244e522c0f4206af8946a631d9244f2c9945` found the canonical worktree clean and synchronized at `0/0`, the Phase 1 V2 modules still unwired, no active Phase 2 executor, no canonical SPEC-0003 file, and no file overlap with SPEC-0001 Phase 2's Stick-only boundary. Phase 2 may begin only after this D-0014 activation record is separately published to canonical `main`, in one new exclusive Plan-mode Spec Executor task from that published authorization SHA. It must run sequentially and must not overlap any executor touching `app/page.tsx`, Drawing persistence/navigation, or shared browser proof infrastructure.
+D-0013 and its approval record were published/integrated at `8a2d4cd0e27e5299cd413146124b74e2dcf31844`, satisfying the Phase 1 start prerequisite. The implementation task refreshed the audit, stayed within the 34 new Phase 1 paths, and stopped after accepted technical proof. The accepted implementation and reviewed closeout were later published/integrated at `0416fc3828a863a797ee9f1c3daa8508792ac64a`, satisfying Phase 2's Phase 1 publication prerequisite. The fresh D-0014 conflict audit at canonical `main`/`origin/main` `4835244e522c0f4206af8946a631d9244f2c9945` found the canonical worktree clean and synchronized at `0/0`, the Phase 1 V2 modules still unwired, no active Phase 2 executor, no canonical SPEC-0003 file, and no file overlap with SPEC-0001 Phase 2's Stick-only boundary. D-0014 was then published/integrated in the exact seven-path commit `8062274a83776e635e8ed81d9cd2c272d068bc56`, and canonical `main`/`origin/main` were reverified there at `0/0` at this correction task's start. A later Plan-mode executor stopped before implementation after proving the §12.8 validator contradiction. Phase 2 remains Authorized/Not started and may resume only in one new exclusive Plan-mode Spec Executor from the separately published proof-contract-correction SHA after a fresh conflict audit. It must run sequentially and must not overlap any executor touching `app/page.tsx`, Drawing persistence/navigation, or shared browser proof infrastructure.
 
 ### 10.2 Universal lifecycle
 
@@ -488,7 +490,7 @@ Neither packet authorizes staging, commit, merge, push, or publication. The Spec
 | Phase | Status | Exact observable outcome | Dependencies | Hard stop |
 | --- | --- | --- | --- | --- |
 | 1 — Safe save format and storage engine | **Verified, published, and integrated** | Strict V2 records/assets/sounds, pre-decode PNG safety, legacy classification, tombstoned Delete maintenance, capacity math, and injected transaction engine round-trip fixtures exactly and preserve the applicable last-good/neighbor bytes under every failure. Existing UI remains unchanged. | D-0013 accepted owner outcomes; activation record published/integrated at `8a2d4cd0e27e5299cd413146124b74e2dcf31844`; implementation and correction audits passed from base `82663051b30cdcfd6766cf4714cdeb2306970045`. | Passed: 791 assertions, TypeScript, exact lint baseline with zero Phase 1 findings, isolated Chrome/IndexedDB proof, independent manifest validation, accepted five-finding correction review, and exact 42-path publication/integration at `0416fc3828a863a797ee9f1c3daa8508792ac64a`. |
-| 2 — Real Save/Open wiring and browser proof | **Authorized; Not started** (activation record pending separate publication) | Real Drawing Save/Open/Delete uses the accepted engine, shows truthful state, reopens representative content exactly, migrates valid legacy only on Save, never resurfaces a tombstoned legacy card, and passes protected flows offline. | Phase 1 accepted, Verified, published/integrated; D-0014 activation record separately published; fresh executor-start conflict audit; accepted Phase 2 tester plan. | Stop after full real-browser manifest and packet; no autosave/cloud/export/Stick work. |
+| 2 — Real Save/Open wiring and browser proof | **Authorized; Not started** | Real Drawing Save/Open/Delete uses the accepted engine, shows truthful state, reopens representative content exactly, migrates valid legacy only on Save, never resurfaces a tombstoned legacy card, and passes protected flows offline. | Phase 1 accepted, Verified, published/integrated; D-0014 published at `8062274a83776e635e8ed81d9cd2c272d068bc56`; this corrected proof contract reviewed and separately published; fresh executor-start conflict audit; accepted Phase 2 tester plan. | Stop after full real-browser manifest and packet; no autosave/cloud/export/Stick work. |
 
 ### 10.4 Control-plane closeout paths, separate from implementation
 
@@ -509,7 +511,7 @@ These paths are not Spec Executor permissions. The architect must also run `bash
 
 ### 11.1 Status and outcome
 
-**Verified, published, and integrated.** The result is a hidden, unwired V2 contract/repository whose checked-in fixtures prove semantic fidelity and failure safety. No visible application behavior changed. The stopped Spec Executor and correction task stayed within the exact §11.2 boundary from detached base `82663051b30cdcfd6766cf4714cdeb2306970045`; Arthur and the Project Manager accepted the corrected technical result. The 34 implementation paths and eight reviewed control-plane paths were published/integrated as exact commit `0416fc3828a863a797ee9f1c3daa8508792ac64a`. Phase 2 is ready for a distinct owner-authorization decision but remains Unauthorized/Not started.
+**Verified, published, and integrated.** The result is a hidden, unwired V2 contract/repository whose checked-in fixtures prove semantic fidelity and failure safety. No visible application behavior changed. The stopped Spec Executor and correction task stayed within the exact §11.2 boundary from detached base `82663051b30cdcfd6766cf4714cdeb2306970045`; Arthur and the Project Manager accepted the corrected technical result. The 34 implementation paths and eight reviewed control-plane paths were published/integrated as exact commit `0416fc3828a863a797ee9f1c3daa8508792ac64a`. Phase 2 was later authorized through published D-0014 and remains Authorized/Not started.
 
 ### 11.2 Exact authorized implementation files
 
@@ -526,7 +528,7 @@ These paths are not Spec Executor permissions. The architect must also run `bash
 - `scripts/validateDrawingProjectV1Compatibility.ts` (new)
 - `scripts/validateDrawingProjectV2BrowserEngine.ts` (new; installed local Chrome/Playwright only, no app mount)
 - `scripts/recordSpec0002Phase1Proof.ts` (new)
-- `scripts/validateSpec0002Proof.ts` (new and frozen for Phase 2 consumption)
+- `scripts/validateSpec0002Proof.ts` (new; frozen Phase 1-only manifest validator that never receives a Phase 2 manifest path)
 - `scripts/finalizeSpec0002Closeout.ts` (new; Control Plane Architect use only)
 - ignored `output/spec-0002/phase-1/**`
 
@@ -610,7 +612,7 @@ Stop unless every deterministic gate passes, including exact sound fields, aggre
 
 ### 12.1 Status, dependencies, and outcome
 
-Authorized; Not started. It may begin only after the D-0014 activation record is separately published to canonical `main`, from that published authorization SHA, plus a fresh executor-start SPEC-0001/file conflict audit. The observable result is the complete §6 flow in the real app, offline.
+Authorized; Not started. D-0014 is already published/integrated at `8062274a83776e635e8ed81d9cd2c272d068bc56`. Phase 2 may resume only after this proof-contract correction is reviewed and separately published to canonical `main`, from that correction publication SHA, plus a fresh executor-start SPEC-0001/file conflict audit. The observable result is the complete §6 flow in the real app, offline.
 
 ### 12.2 Exact authorized implementation files
 
@@ -626,7 +628,7 @@ Authorized; Not started. It may begin only after the D-0014 activation record is
 - `scripts/recordSpec0002Phase2Proof.ts` (new)
 - ignored `output/spec-0002/phase-2/**`
 
-Every accepted Phase 1 module/fixture/proof byte is read-only in Phase 2, as are `scripts/runSpec0001BrowserProof.ts`, `scripts/spec0001-browser/**`, `DrawingCanvas.tsx`, package files, and dependencies. The Phase 2 extension must bind the accepted Phase 1.5 core/hash and may invoke `npm run test:spec0001-browser` as a protected gate; it must not edit or overload that core. If real wiring exposes a Phase 1 semantic/engine defect or the new plan cannot run without changing the frozen core, stop and return the exact blocker for a separately authorized correction task.
+Every accepted Phase 1 module/fixture/proof byte is read-only in Phase 2, including `scripts/recordSpec0002Phase1Proof.ts`, `scripts/validateSpec0002Proof.ts`, `scripts/finalizeSpec0002Closeout.ts`, `scripts/fixtures/drawing-persistence/v2/**`, and the accepted ignored Phase 1 proof when present. The frozen Phase 1 validator remains byte-identical and may validate only `output/spec-0002/phase-1/proof-manifest.json`; no Phase 2 command may pass it a Phase 2 path or imply that it validates a mounted application. Also read-only are `scripts/runSpec0001BrowserProof.ts`, `scripts/spec0001-browser/**`, `DrawingCanvas.tsx`, package files, and dependencies. The Phase 2 extension must bind the accepted Phase 1 and Phase 1.5 source/proof identities, rerun the already-required deterministic predecessors, and invoke `npm run test:spec0001-browser` as a protected gate; it must not edit or overload either accepted proof system. If real wiring exposes a Phase 1 semantic/engine defect or the new plan cannot run without changing the frozen core, stop and return the exact blocker for a separately authorized correction task. This correction does not add any implementation path beyond the §12.2 list.
 
 ### 12.3 Implementation steps
 
@@ -694,14 +696,50 @@ Systems not retested as product acceptance: export, cloud, authentication, billi
 
 ### 12.8 Exact commands and stop gate
 
-The checked-in `scripts/fixtures/spec0002-browser/v1/phase-2-proof-commands.json` is the exact ordered workload owned by the Phase 2 recorder:
+#### 12.8.1 Phase 2 identity and proof ownership
+
+The Phase 2 executor starts from the exact canonical-main commit that separately publishes this correction. That 40-character SHA is resolved during the mandatory executor boot, then frozen as `baseCommit` in `scripts/fixtures/spec0002-browser/v1/phase-2-proof-commands.json`. The command config must have exactly `configVersion:1`, `specId:"SPEC-0002"`, `phase:2`, that `baseCommit`, strict binding groups, and the ordered commands below. The recorder and independent validator must require all of the following: manifest `manifestVersion === 1`; `specId === "SPEC-0002"`; `phase === 2`; manifest `baseCommit`, manifest `headCommit`, command-config `baseCommit`, and current `HEAD` all equal that one frozen SHA; the index is empty; and no symbolic value such as `main`, `origin/main`, or `HEAD` substitutes for the recorded SHA.
+
+`scripts/recordSpec0002Phase2Proof.ts` owns command execution and evidence recording only. It must not import, call, or copy a success result from the manifest-validation mode. After the recorder exits successfully and closes the manifest bytes, `scripts/spec0002-browser/validatePhase2.ts` independently parses the manifest, command config, receipts, bound artifacts, and raw browser/storage/network/cleanup evidence. It may consume strict schemas and self-test vectors under `scripts/fixtures/spec0002-browser/v1/**`, but it must not trust recorder booleans or recorder-only validation helpers. `scripts/validateSpec0002Proof.ts` remains the frozen Phase 1-only validator and is never in the Phase 2 external proof flow.
+
+The accepted Phase 1 publication commit `0416fc3828a863a797ee9f1c3daa8508792ac64a` is the tracked-byte predecessor. The Phase 2 validator independently requires every §11.2 tracked Phase 1 path to match that commit and to be absent from the dirty set. In particular, the frozen SHA-256 values remain:
+
+- `scripts/validateSpec0002Proof.ts`: `1b12cdc360f14b3cfb16ff0d8718ec222bcfcd35b9449a87c59506ae371fd1d9`;
+- `scripts/recordSpec0002Phase1Proof.ts`: `a9ea6b6b633daf107c6fe79554f44256e7cf98bb289b623c0dadfafc52bc0758`;
+- `scripts/finalizeSpec0002Closeout.ts`: `f1c8aff5582fdcab2332142c422f3ad496f9c03465ac9aadabbc88c542ec12a1`; and
+- `scripts/fixtures/drawing-persistence/v2/phase-1-proof-commands.json`: `9b8d62c51a20847ee3bff2901af0fe129b146af7bfce73c904d493cf8b41612d`.
+
+The manifest records the accepted Phase 1 technical-manifest SHA-256 `2d20a4a63103618505b60cf590835191841d1c1968bc2bc14ef2c953253243a1` and Phase 1.5 technical-manifest SHA-256 `da2dd8cff32367a548a2e7d2e4e789fcf1a4dd129e9dc6200e25650f586f9fc9` as predecessor identities; neither historical ignored manifest is regenerated or rewritten. The four Phase 1 deterministic validators and the unmodified Phase 1.5 browser command remain the executable predecessor gates listed below.
+
+#### 12.8.2 Exact ordered workload and receipts
+
+The checked-in `scripts/fixtures/spec0002-browser/v1/phase-2-proof-commands.json` owns exactly these 12 ordered receipt names and argv values:
+
+| Order | Receipt name | Exact argv |
+| --- | --- | --- |
+| 0 | `phase-1-v2-contract` | `node --experimental-strip-types scripts/validateDrawingProjectV2Contract.ts` |
+| 1 | `phase-1-v2-repository` | `node --experimental-strip-types scripts/validateDrawingProjectV2Repository.ts` |
+| 2 | `phase-1-v1-compatibility` | `node --experimental-strip-types scripts/validateDrawingProjectV1Compatibility.ts` |
+| 3 | `phase-1-browser-engine` | `node --experimental-strip-types scripts/validateDrawingProjectV2BrowserEngine.ts` |
+| 4 | `phase-2-validator-self-test` | `node --experimental-strip-types scripts/spec0002-browser/validatePhase2.ts --self-test` |
+| 5 | `phase-2-real-browser-proof` | `node --experimental-strip-types scripts/runSpec0002BrowserProof.ts` |
+| 6 | `phase-1.5-browser-regression` | `npm run test:spec0001-browser` |
+| 7 | `typescript` | `./node_modules/.bin/tsc --noEmit --incremental false` |
+| 8 | `lint-regression` | `npm run lint` |
+| 9 | `diff-check` | `git diff --check` |
+| 10 | `cached-diff-check` | `git diff --cached --check` |
+| 11 | `status` | `git status --short --branch` |
+
+Every command uses `cwd:"."`, `privacy:"sanitized"`, `NEXT_TELEMETRY_DISABLED=1`, and empty `OPENAI_API_KEY`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY`. Expected exit is 0 except `lint-regression`, whose expected exit is 1 while the accepted 6-error/73-warning repository baseline may stay equal or improve and added/changed Phase 2 lines have zero findings. Missing, extra, repeated, reconstructed, or reordered commands/receipts reject.
+
+The executable workload is therefore:
 
 ```bash
 node --experimental-strip-types scripts/validateDrawingProjectV2Contract.ts
 node --experimental-strip-types scripts/validateDrawingProjectV2Repository.ts
 node --experimental-strip-types scripts/validateDrawingProjectV1Compatibility.ts
 node --experimental-strip-types scripts/validateDrawingProjectV2BrowserEngine.ts
-node --experimental-strip-types scripts/spec0002-browser/validatePhase2.ts
+node --experimental-strip-types scripts/spec0002-browser/validatePhase2.ts --self-test
 node --experimental-strip-types scripts/runSpec0002BrowserProof.ts
 npm run test:spec0001-browser
 ./node_modules/.bin/tsc --noEmit --incremental false
@@ -711,14 +749,35 @@ git diff --cached --check
 git status --short --branch
 ```
 
-The executor invokes the recorder and validator externally as:
+#### 12.8.3 Strict manifest and evidence contract
+
+The Phase 2 manifest accepts exactly these top-level fields: `manifestVersion`, `specId`, `phase`, `baseCommit`, `headCommit`, `recordedAt`, `commandsPassed`, `commandConfig`, `receipts`, `artifacts`, `predecessors`, `browserEvidence`, `assertions`, `lintBaseline`, `runtime`, `git`, `network`, and `cleanup`. The checked-in strict schema under `scripts/fixtures/spec0002-browser/v1/**` owns the exact nested fields and rejects unknown keys. The independent validator must reconstruct and require:
+
+- exactly 12 receipt bindings in §12.8.2 order, with exact argv/cwd/env/privacy/expected exit and byte/SHA-256 bindings for stdout and stderr;
+- an artifact list equal to the sorted current dirty-path set, with exact byte length/SHA-256 for every artifact and no proof-output self-binding;
+- an empty index and an exact dirty allowlist consisting only of the five runtime files, four Phase 2 proof scripts, and `scripts/fixtures/spec0002-browser/v1/**` already listed in §12.2; a missing current dirty artifact or any additional file rejects;
+- Phase 1/Phase 1.5 predecessor identities and tracked-byte checks from §12.8.1, plus successful receipts for all five predecessor commands;
+- `appMounted:true`, the exact viewport set `{1440×900, 1024×768}`, the complete §6 action/accessibility/screenshot ledger at both viewports, and no partial mount on any rejected Open;
+- exact IndexedDB candidate/head/read-back/abort/Delete/tombstone counters and outcomes for each named scenario; aggregate hydration, Blob-read, PNG-preflight, native-decode, scratch-release, sound, and rejection-stage evidence matching §§4.2, 4.6–4.8, and 12.5–12.6;
+- exact legacy raw-root and unrelated-entry-slice digests, target presence `present | unknown` where applicable, tombstone/catalog visibility, bounded retry, and `not-needed | cleaned | pending` maintenance evidence;
+- REG-01 through REG-10 individually present and passed, including exactly one mocked Drawing Generate Frames POST, unchanged disabled tasks, the unmodified Phase 1.5 gate, and unchanged Stick persistence state;
+- loopback-only browser/server/child enforcement, zero non-loopback/provider/search/Supabase traffic, zero real `/api/ai` request, only the exact mocked same-origin memory/AI requests allowed by the fixture, and complete bound browser/server ledgers; and
+- collision refusal plus zero open contexts, servers, ports, profiles, databases, intercepts, temporary instrumentation, or instrumentation-attributable tracked diff after success, injected failure, `SIGINT`, and `SIGTERM` cleanup drills.
+
+The final manifest SHA-256 is not stored inside the manifest. After the recorder closes the file, the independent validator computes SHA-256 over the exact manifest bytes, prints it with the pass result, and the Implementation Review Packet reports that exact digest. This avoids a self-referential manifest while making the reviewed bytes unambiguous.
+
+#### 12.8.4 Independent self-tests, invocation, and stop gate
+
+`validatePhase2.ts --self-test` must accept one complete synthetic positive evidence graph and reject exactly one independent mutation in each of these 20 classes: missing top-level field; extra top-level field; wrong spec/phase; wrong base/head/current-HEAD identity; command-config binding tamper; receipt missing/extra/reorder; receipt argv/env/exit/privacy tamper; artifact missing/extra/hash tamper; dirty-path mismatch; unauthorized dirty path; Phase 1 predecessor byte/hash tamper; Phase 1.5 predecessor byte/hash tamper; `appMounted` or viewport tamper; browser action/accessibility/screenshot tamper; IndexedDB/count/rejection-stage/partial-mount tamper; legacy/tombstone/catalog/neighbor tamper; network/request/ledger tamper; cleanup/collision/instrumentation tamper; missing/failed REG-01–REG-10 result; and false `commandsPassed` or worsened lint evidence. The validator CLI accepts only the exact `--self-test` mode or the exact Phase 2 `--manifest` mode shown below; positional paths, the Phase 1 path, duplicate/extra flags, and another output path reject.
+
+The executor invokes the recorder first and the one independent Phase 2 manifest validator second, exactly as:
 
 ```bash
 node --experimental-strip-types scripts/recordSpec0002Phase2Proof.ts --commands=scripts/fixtures/spec0002-browser/v1/phase-2-proof-commands.json --output=output/spec-0002/phase-2/proof-manifest.json
-node --experimental-strip-types scripts/validateSpec0002Proof.ts output/spec-0002/phase-2/proof-manifest.json
+node --experimental-strip-types scripts/spec0002-browser/validatePhase2.ts --manifest=output/spec-0002/phase-2/proof-manifest.json
 ```
 
-Stop if any fidelity, aggregate reject-before-read, PNG preflight-before-native-decode, sound-field/data-URL, last-good preservation, authoritative-Delete/tombstone/deduplication, neighbor-safe cleanup, network denial, tester-core hash, regression, cleanup, TypeScript, or phase-file allowlist gate fails. Return the packet and do not begin autosave/cloud/export/Stick work or any later task.
+Stop if the recorder calls or substitutes for the independent manifest validator; the validator trusts a recorder-only pass flag; the Phase 1 validator or any accepted predecessor byte changes; or any identity, receipt, manifest-schema/hash, fidelity, aggregate reject-before-read, PNG preflight-before-native-decode, sound-field/data-URL, last-good preservation, authoritative-Delete/tombstone/deduplication, neighbor-safe cleanup, real-app/two-viewport, network denial, tester-core hash, regression, cleanup, TypeScript, or phase-file allowlist gate fails. Return the packet and do not begin autosave/cloud/export/Stick work or any later task.
 
 ## 13. Acceptance Criteria Summary
 
@@ -739,7 +798,7 @@ Stop if any fidelity, aggregate reject-before-read, PNG preflight-before-native-
 
 ## 14. Verification and Evidence Rules
 
-Proof output is ignored and collision-refusing under `output/spec-0002/phase-N/`. A technical manifest binds base SHA, phase, exact dirty allowlist, fixture/code hashes, command receipts, runtime versions, assertion totals, browser plan/result where applicable, network policy, screenshots, and cleanup. It never stores user content or reusable service credentials.
+Proof output is ignored and collision-refusing under `output/spec-0002/phase-N/`. A technical manifest binds base SHA, phase, exact dirty allowlist, fixture/code hashes, command receipts, runtime versions, assertion totals, browser plan/result where applicable, network policy, screenshots, and cleanup. It never stores user content or reusable service credentials. Phase 1 and Phase 2 have separate frozen validators: `scripts/validateSpec0002Proof.ts` owns only the accepted Phase 1 manifest contract, while `scripts/spec0002-browser/validatePhase2.ts` owns only the Phase 2 contract and exact §12.8 invocation.
 
 The Spec Executor produces/validates the technical manifest and stops. After acceptance, the Control Plane Architect revalidates it, updates tracked evidence/control plane, runs `bash scripts/update_memory.sh` and `--check-only`, and creates a non-self-referential final closeout manifest over the reviewed tracked state. Publication remains separate.
 
@@ -766,6 +825,7 @@ The accepted implementation and reviewed closeout were published/integrated on 2
 | Phase 1 isolated Chrome/IndexedDB engine | Pass | 23 assertions in Chrome `151.0.7922.138`; exact raster/audio round trips, reject-before-read sentinel, real ephemeral IndexedDB transaction/abort/delete behavior, injected localStorage maintenance, no app mount, zero non-loopback traffic, and cleanup. |
 | Phase 1 official technical proof | Pass | Nine ordered receipts, 791 total assertions, TypeScript pass, exact 6-error/73-warning lint baseline with zero Phase 1 findings, and 12 independent proof-validator self-tests. Manifest SHA-256 `2d20a4a63103618505b60cf590835191841d1c1968bc2bc14ef2c953253243a1`. |
 | Phase 1 publication and integration | Pass | Exact commit `0416fc3828a863a797ee9f1c3daa8508792ac64a`, parent `82663051b30cdcfd6766cf4714cdeb2306970045`, required message, 42 paths, normal push, clean canonical `main` at `0/0`, and unchanged technical/closeout manifest hashes. |
+| D-0014 publication and Phase 2 proof-contract preflight | D-0014 publication pass; former proof contract rejected | Exact seven-path authorization commit `8062274a83776e635e8ed81d9cd2c272d068bc56` matched `main`/`origin/main` at correction-task boot, clean at `0/0`. The frozen Phase 1 validator's SHA-256 remained `1b12cdc360f14b3cfb16ff0d8718ec222bcfcd35b9449a87c59506ae371fd1d9`; the former Phase 2 CLI exited 1 with the Phase 1-only usage contract before manifest read. §12.8 now assigns independent Phase 2 validation to the already-authorized `validatePhase2.ts`; implementation remains unstarted. |
 | Representative real-app fidelity and visible failure/quota/migration UI | Unproven | Phase 1 is hidden and unwired; these remain Phase 2 proof and are not implied by the engine validator. |
 | TypeScript/lint | Pass in accepted technical proof | TypeScript exited 0; full lint remained exactly 6 errors/73 warnings with zero Phase 1 findings. The Control Plane Architect revalidated the bound receipts/artifacts rather than rerunning implementation proof. |
 | Production build | Unproven / not applicable to Phase 1 claim | No existing runtime imports the hidden modules; Phase 1 claims no product build or visible flow. |
@@ -773,7 +833,7 @@ The accepted implementation and reviewed closeout were published/integrated on 2
 
 ## 17. Owner Decisions Accepted by Arthur
 
-Arthur accepted OD2-01 through OD2-08 exactly as written in D-0013 and authorized Phase 1 only at decision time. The corrected Phase 1 implementation is now Verified/published/integrated. D-0014 separately authorizes SPEC-0002 Phase 2 as Authorized/Not started, pending separate publication of this activation record. SPEC-0001 Phase 2 and later phases remain Unauthorized/Not started; neither the original acceptance, implementation acceptance, nor Phase 1 publication authorizes them.
+Arthur accepted OD2-01 through OD2-08 exactly as written in D-0013 and authorized Phase 1 only at decision time. The corrected Phase 1 implementation is now Verified/published/integrated. D-0014 separately authorizes SPEC-0002 Phase 2 as Authorized/Not started and is published/integrated at `8062274a83776e635e8ed81d9cd2c272d068bc56`. This proof-contract correction changes no owner outcome and requires no new decision. SPEC-0001 Phase 2 and later phases remain Unauthorized/Not started; neither the original acceptance, implementation acceptance, Phase 1 publication, nor D-0014 authorizes them.
 
 | ID | Plain-language choice | Recommendation | Alternative/tradeoff | Status |
 | --- | --- | --- | --- | --- |
@@ -790,10 +850,10 @@ Engineering defaults that do not change the accepted outcome—internal helper d
 
 ## 18. Final State and Handoff
 
-Final status for this task: **Approved and active for bounded work**. OD2-01 through OD2-08 are accepted exactly as written. SPEC-0002 Phase 1 is **Verified, published, and integrated**. D-0014 records SPEC-0002 Phase 2 as **Authorized; Not started**, pending separate publication of this activation record. SPEC-0001 remains Approved with Phase 1 and Phase 1.5 Verified/published/integrated and Phase 2 and later phases Unauthorized/Not started.
+Final status for this task: **Approved and active for bounded work**. OD2-01 through OD2-08 are accepted exactly as written. SPEC-0002 Phase 1 is **Verified, published, and integrated**. D-0014 is published/integrated at `8062274a83776e635e8ed81d9cd2c272d068bc56`, and SPEC-0002 Phase 2 remains **Authorized; Not started**. The proof-contract correction assigns Phase 2 manifest validation to its already-authorized validator without changing the user outcome, safety boundary, or implementation allowlist. SPEC-0001 remains Approved with Phase 1 and Phase 1.5 Verified/published/integrated and Phase 2 and later phases Unauthorized/Not started.
 
 Publication state: D-0013, the accepted 34-path Phase 1 implementation, and the reviewed closeout record are published/integrated in canonical `main`. Exact publication commit is `0416fc3828a863a797ee9f1c3daa8508792ac64a`, parent `82663051b30cdcfd6766cf4714cdeb2306970045`, with 42 paths. Technical-manifest SHA-256 remains `2d20a4a63103618505b60cf590835191841d1c1968bc2bc14ef2c953253243a1`; closeout-manifest SHA-256 remains `b2d50852cffa40dbf3d7535665a12abe66439cfceeffc61d6eb56195ff947b3c`.
 
-Next step: after this activation packet is accepted and D-0014 is separately published, create one new exclusive Plan-mode SPEC-0002 Phase 2 Spec Executor task from the published authorization SHA. Before implementation, that executor must refresh the conflict audit and stop if any concurrent executor touches `app/page.tsx`, Drawing persistence/navigation, or shared browser proof. No executor is created by this record.
+Next step: review and separately publish this proof-contract correction. Only afterward create one new exclusive Plan-mode SPEC-0002 Phase 2 Spec Executor task from the correction's published SHA. Before implementation, that executor must refresh the conflict audit and stop if any concurrent executor touches `app/page.tsx`, Drawing persistence/navigation, or shared browser proof. No executor is created by this correction record.
 
-This records-only reconciliation authorizes only the Phase 2 status described above; it does not begin implementation and does not authorize staging, commit, push, merge, publication, external activity, or SPEC-0001 Phase 2.
+This records-only correction preserves the already-published Phase 2 authorization; it does not begin implementation and does not authorize staging, commit, push, merge, publication, external activity, or SPEC-0001 Phase 2.

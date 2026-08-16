@@ -4,12 +4,12 @@ Status: Approved
 Owner: Arthur
 Implementer: Codex
 Created: 2026-08-15
-Last updated: 2026-08-15
-Decision links: D-0013
-TODO IDs: SPEC-002, DATA-002 (Phase 1), DATA-001 (narrow Drawing portion), RENDER-001 (save/reopen portion)
+Last updated: 2026-08-16
+Decision links: D-0013, D-0014
+TODO IDs: SPEC-002, DATA-002 (Phase 1), DATA-003 (Phase 2), DATA-001 (narrow Drawing portion), RENDER-001 (save/reopen portion)
 Baseline branch/commit: `codex/spec-architect` at `365e68fe98b27e993a1c5645c3e28c7b428c6f33`, matching `origin/main` at research start
 Last verified branch/commit: Phase 1 published/integrated at `0416fc3828a863a797ee9f1c3daa8508792ac64a`, parent `82663051b30cdcfd6766cf4714cdeb2306970045`; technical-manifest SHA-256 `2d20a4a63103618505b60cf590835191841d1c1968bc2bc14ef2c953253243a1`; closeout-manifest SHA-256 `b2d50852cffa40dbf3d7535665a12abe66439cfceeffc61d6eb56195ff947b3c`
-Lifecycle: Approved and active for bounded work; Phase 1 Verified/published/integrated; Phase 2 prerequisites satisfied, Unauthorized/Not started
+Lifecycle: Approved and active for bounded work; Phase 1 Verified/published/integrated; Phase 2 Authorized/Not started, pending separate publication of this activation record
 
 ## 1. Exact Goal
 
@@ -29,7 +29,7 @@ The recommended V1 outcome for this spec is:
 - truthful saved/unsaved/saving/too-large/failed presentation; and
 - fully offline deterministic and real-browser proof.
 
-Arthur accepted these recommendations exactly through D-0013. The corrected Phase 1 implementation is Verified, published, and integrated at `0416fc3828a863a797ee9f1c3daa8508792ac64a`. This satisfies Phase 2's Phase 1 publication prerequisite but does not authorize or begin Phase 2.
+Arthur accepted these recommendations exactly through D-0013. The corrected Phase 1 implementation is Verified, published, and integrated at `0416fc3828a863a797ee9f1c3daa8508792ac64a`. D-0014 separately authorizes Phase 2 as **Authorized; Not started**. This activation record remains subject to separate review and publication; it does not begin Phase 2.
 
 ## 2. Current Behavior and Evidence
 
@@ -453,7 +453,7 @@ Delete V2 or exact classified legacy-only project
 
 ### 10.1 Activation and concurrency gate
 
-SPEC-0002 is Approved and active for this bounded work. Phase 1 is Verified, published, and integrated; Phase 2 prerequisites are satisfied, but Phase 2 remains Unauthorized/Not started. The 2026-08-15 activation audit recorded:
+SPEC-0002 is Approved and active for this bounded work. Phase 1 is Verified, published, and integrated. D-0014 records Arthur's separate Phase 2 authorization as **Authorized; Not started**; no Phase 2 Spec Executor is active, and this activation record still requires separate review and publication before execution. The 2026-08-15 Phase 1 activation audit recorded:
 
 1. canonical `main` and local `origin/main` both at `365e68fe98b27e993a1c5645c3e28c7b428c6f33`, ahead/behind `0/0`, with a clean canonical worktree and index;
 2. SPEC-0001 has no active executor or architect, while its Phase 2 and later phases remain Unauthorized/Not started;
@@ -461,7 +461,7 @@ SPEC-0002 is Approved and active for this bounded work. Phase 1 is Verified, pub
 4. implementation must use one new exclusive worktree and one Plan-mode Spec Executor from the then-current canonical-main SHA after this approval's publication/integration; and
 5. any future runtime, tester-core, worktree, or control-plane overlap is a hard stop until a fresh Project Manager conflict decision.
 
-D-0013 and this approval record were published/integrated at `8a2d4cd0e27e5299cd413146124b74e2dcf31844`, satisfying the Phase 1 start prerequisite. The implementation task refreshed the audit, stayed within the 34 new Phase 1 paths, and stopped after accepted technical proof. The accepted implementation and reviewed closeout were later published/integrated at `0416fc3828a863a797ee9f1c3daa8508792ac64a`, satisfying Phase 2's Phase 1 publication prerequisite. Phase 2 still requires Arthur's separate owner authorization, a published authorization record, and a fresh conflict audit; it must not overlap any task touching shared app navigation, Drawing regressions, or browser proof infrastructure.
+D-0013 and its approval record were published/integrated at `8a2d4cd0e27e5299cd413146124b74e2dcf31844`, satisfying the Phase 1 start prerequisite. The implementation task refreshed the audit, stayed within the 34 new Phase 1 paths, and stopped after accepted technical proof. The accepted implementation and reviewed closeout were later published/integrated at `0416fc3828a863a797ee9f1c3daa8508792ac64a`, satisfying Phase 2's Phase 1 publication prerequisite. The fresh D-0014 conflict audit at canonical `main`/`origin/main` `4835244e522c0f4206af8946a631d9244f2c9945` found the canonical worktree clean and synchronized at `0/0`, the Phase 1 V2 modules still unwired, no active Phase 2 executor, no canonical SPEC-0003 file, and no file overlap with SPEC-0001 Phase 2's Stick-only boundary. Phase 2 may begin only after this D-0014 activation record is separately published to canonical `main`, in one new exclusive Plan-mode Spec Executor task from that published authorization SHA. It must run sequentially and must not overlap any executor touching `app/page.tsx`, Drawing persistence/navigation, or shared browser proof infrastructure.
 
 ### 10.2 Universal lifecycle
 
@@ -488,7 +488,7 @@ Neither packet authorizes staging, commit, merge, push, or publication. The Spec
 | Phase | Status | Exact observable outcome | Dependencies | Hard stop |
 | --- | --- | --- | --- | --- |
 | 1 — Safe save format and storage engine | **Verified, published, and integrated** | Strict V2 records/assets/sounds, pre-decode PNG safety, legacy classification, tombstoned Delete maintenance, capacity math, and injected transaction engine round-trip fixtures exactly and preserve the applicable last-good/neighbor bytes under every failure. Existing UI remains unchanged. | D-0013 accepted owner outcomes; activation record published/integrated at `8a2d4cd0e27e5299cd413146124b74e2dcf31844`; implementation and correction audits passed from base `82663051b30cdcfd6766cf4714cdeb2306970045`. | Passed: 791 assertions, TypeScript, exact lint baseline with zero Phase 1 findings, isolated Chrome/IndexedDB proof, independent manifest validation, accepted five-finding correction review, and exact 42-path publication/integration at `0416fc3828a863a797ee9f1c3daa8508792ac64a`. |
-| 2 — Real Save/Open wiring and browser proof | Unauthorized; Not started | Real Drawing Save/Open/Delete uses the accepted engine, shows truthful state, reopens representative content exactly, migrates valid legacy only on Save, never resurfaces a tombstoned legacy card, and passes protected flows offline. | Phase 1 accepted, Verified, published/integrated; new conflict audit; accepted Phase 2 tester plan. | Stop after full real-browser manifest and packet; no autosave/cloud/export/Stick work. |
+| 2 — Real Save/Open wiring and browser proof | **Authorized; Not started** (activation record pending separate publication) | Real Drawing Save/Open/Delete uses the accepted engine, shows truthful state, reopens representative content exactly, migrates valid legacy only on Save, never resurfaces a tombstoned legacy card, and passes protected flows offline. | Phase 1 accepted, Verified, published/integrated; D-0014 activation record separately published; fresh executor-start conflict audit; accepted Phase 2 tester plan. | Stop after full real-browser manifest and packet; no autosave/cloud/export/Stick work. |
 
 ### 10.4 Control-plane closeout paths, separate from implementation
 
@@ -610,7 +610,7 @@ Stop unless every deterministic gate passes, including exact sound fields, aggre
 
 ### 12.1 Status, dependencies, and outcome
 
-Unauthorized; Not started. It may begin only after Phase 1 is accepted, Verified, published, and integrated, plus a fresh SPEC-0001/file conflict audit. The observable result is the complete §6 flow in the real app, offline.
+Authorized; Not started. It may begin only after the D-0014 activation record is separately published to canonical `main`, from that published authorization SHA, plus a fresh executor-start SPEC-0001/file conflict audit. The observable result is the complete §6 flow in the real app, offline.
 
 ### 12.2 Exact authorized implementation files
 
@@ -773,7 +773,7 @@ The accepted implementation and reviewed closeout were published/integrated on 2
 
 ## 17. Owner Decisions Accepted by Arthur
 
-Arthur accepted OD2-01 through OD2-08 exactly as written in D-0013 and authorized Phase 1 only at decision time. The corrected Phase 1 implementation is now Verified/published/integrated. SPEC-0002 Phase 2 prerequisites are satisfied and ready for Arthur's separate owner-authorization decision, but SPEC-0002 Phase 2 and SPEC-0001 Phase 2 remain Unauthorized/Not started; the original acceptance, implementation acceptance, and Phase 1 publication do not authorize later-phase work.
+Arthur accepted OD2-01 through OD2-08 exactly as written in D-0013 and authorized Phase 1 only at decision time. The corrected Phase 1 implementation is now Verified/published/integrated. D-0014 separately authorizes SPEC-0002 Phase 2 as Authorized/Not started, pending separate publication of this activation record. SPEC-0001 Phase 2 and later phases remain Unauthorized/Not started; neither the original acceptance, implementation acceptance, nor Phase 1 publication authorizes them.
 
 | ID | Plain-language choice | Recommendation | Alternative/tradeoff | Status |
 | --- | --- | --- | --- | --- |
@@ -790,10 +790,10 @@ Engineering defaults that do not change the accepted outcome—internal helper d
 
 ## 18. Final State and Handoff
 
-Final status for this task: **Approved and active for bounded work**. OD2-01 through OD2-08 are accepted exactly as written. SPEC-0002 Phase 1 is **Verified, published, and integrated**. SPEC-0002 Phase 2 prerequisites are satisfied and ready for Arthur's separate owner-authorization decision, but Phase 2 is **Unauthorized; Not started**. SPEC-0001 remains Approved with Phase 1 and Phase 1.5 Verified/published/integrated and Phase 2 and later phases Unauthorized/Not started.
+Final status for this task: **Approved and active for bounded work**. OD2-01 through OD2-08 are accepted exactly as written. SPEC-0002 Phase 1 is **Verified, published, and integrated**. D-0014 records SPEC-0002 Phase 2 as **Authorized; Not started**, pending separate publication of this activation record. SPEC-0001 remains Approved with Phase 1 and Phase 1.5 Verified/published/integrated and Phase 2 and later phases Unauthorized/Not started.
 
 Publication state: D-0013, the accepted 34-path Phase 1 implementation, and the reviewed closeout record are published/integrated in canonical `main`. Exact publication commit is `0416fc3828a863a797ee9f1c3daa8508792ac64a`, parent `82663051b30cdcfd6766cf4714cdeb2306970045`, with 42 paths. Technical-manifest SHA-256 remains `2d20a4a63103618505b60cf590835191841d1c1968bc2bc14ef2c953253243a1`; closeout-manifest SHA-256 remains `b2d50852cffa40dbf3d7535665a12abe66439cfceeffc61d6eb56195ff947b3c`.
 
-Next step: Arthur may separately decide whether to authorize SPEC-0002 Phase 2. Until that explicit authorization is separately recorded and published, Phase 2 remains Unauthorized/Not started and no Phase 2 Spec Executor task may begin.
+Next step: after this activation packet is accepted and D-0014 is separately published, create one new exclusive Plan-mode SPEC-0002 Phase 2 Spec Executor task from the published authorization SHA. Before implementation, that executor must refresh the conflict audit and stop if any concurrent executor touches `app/page.tsx`, Drawing persistence/navigation, or shared browser proof. No executor is created by this record.
 
-This records-only reconciliation does not authorize staging, commit, push, merge, publication, external activity, SPEC-0002 Phase 2, or SPEC-0001 Phase 2.
+This records-only reconciliation authorizes only the Phase 2 status described above; it does not begin implementation and does not authorize staging, commit, push, merge, publication, external activity, or SPEC-0001 Phase 2.

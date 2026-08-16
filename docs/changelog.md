@@ -5,6 +5,15 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-16 — SPEC-0002 Phase 2 activation recorded
+
+- recorded Arthur's D-0014 authorization of SPEC-0002 Phase 2 as **Authorized; Not started**; Phase 1 remains Verified/published/integrated and the hidden V2 engine remains unwired
+- completed a fresh conflict audit at canonical `main`/`origin/main` `4835244e522c0f4206af8946a631d9244f2c9945`, clean and synchronized at `0/0`: Phase 2 has no active executor, no canonical SPEC-0003 file exists, and its specified Drawing/navigation/browser-extension boundary does not overlap SPEC-0001 Phase 2's Stick-only files
+- required separate review/publication of this activation record before one new exclusive Plan-mode SPEC-0002 Phase 2 Spec Executor may start from the published authorization SHA; it must run sequentially with no overlapping executor touching `app/page.tsx`, Drawing persistence/navigation, or shared browser proof
+- kept SPEC-0001 Phase 2 and later phases Unauthorized/Not started; kept SPEC-0003 absent from canonical `main`; preserved the recovery branch and all accepted Phase 1/Phase 1.5 bytes
+
+This is control-plane authorization only. No runtime, fixture, test, proof, package, configuration, database, environment, external-service, staging, commit, push, merge, publication, or implementation change occurred.
+
 ### 2026-08-15 — SPEC-0002 final publication-record honesty correction
 
 - recorded the already-published records commit exactly: `31396d40de5be33bada9c9acb08a202447e8fb27`, parent `0416fc3828a863a797ee9f1c3daa8508792ac64a`, message `Record SPEC-0002 Phase 1 publication`, and exactly six Markdown paths

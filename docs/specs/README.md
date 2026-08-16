@@ -1,20 +1,20 @@
 # Specification Index and Lifecycle
 
 Status: canonical spec registry
-Last updated: 2026-08-15
+Last updated: 2026-08-16
 
 ## Active Specs
 
 | Spec | Status | Active authorization |
 | --- | --- | --- |
 | [`SPEC-0001 — First Reversible AI-Created Stick Animation from Workspace Chat`](0001-first-reversible-ai-stick-animation.md) | Approved | Phase 1 and Phase 1.5 are **Verified, published, and integrated**. Phase 2 prerequisites are satisfied, but Phases 2–7 are **Unauthorized; Not started**. |
-| [`SPEC-0002 — Lossless Local Drawing Save and Reopen`](0002-lossless-local-drawing-save-and-reopen.md) | Approved | Phase 1 is **Verified, published, and integrated** at `0416fc3828a863a797ee9f1c3daa8508792ac64a`. Phase 2 prerequisites are satisfied and ready for Arthur's separate owner-authorization decision, but Phase 2 is **Unauthorized; Not started**. |
+| [`SPEC-0002 — Lossless Local Drawing Save and Reopen`](0002-lossless-local-drawing-save-and-reopen.md) | Approved | Phase 1 is **Verified, published, and integrated** at `0416fc3828a863a797ee9f1c3daa8508792ac64a`. D-0014 records Phase 2 as **Authorized; Not started**, pending separate publication of this activation record. |
 
 ## Proposed Specs
 
 No additional specification is currently Proposed.
 
-SPEC-0002 approves a strict version-2 local Drawing record, lossless raster/audio assets, non-destructive version-1 compatibility, transactional failure safety, finite capacity, and truthful Save/Open presentation. Its corrected 34-path Phase 1 implementation and eight reviewed control-plane paths were published/integrated in exact commit `0416fc3828a863a797ee9f1c3daa8508792ac64a`, parent `82663051b30cdcfd6766cf4714cdeb2306970045`, with exactly 42 paths. Technical-manifest SHA-256 remains `2d20a4a63103618505b60cf590835191841d1c1968bc2bc14ef2c953253243a1`; closeout-manifest SHA-256 remains `b2d50852cffa40dbf3d7535665a12abe66439cfceeffc61d6eb56195ff947b3c`. The hidden engine remains unwired, so visible Drawing Save/Open/Delete still uses the V1 path. Phase 2 prerequisites are satisfied, but Phase 2 cannot begin unless Arthur separately authorizes it and that authorization is recorded/published. SPEC-0001's status and authorization are unchanged.
+SPEC-0002 approves a strict version-2 local Drawing record, lossless raster/audio assets, non-destructive version-1 compatibility, transactional failure safety, finite capacity, and truthful Save/Open presentation. Its corrected 34-path Phase 1 implementation and eight reviewed control-plane paths were published/integrated in exact commit `0416fc3828a863a797ee9f1c3daa8508792ac64a`, parent `82663051b30cdcfd6766cf4714cdeb2306970045`, with exactly 42 paths. Technical-manifest SHA-256 remains `2d20a4a63103618505b60cf590835191841d1c1968bc2bc14ef2c953253243a1`; closeout-manifest SHA-256 remains `b2d50852cffa40dbf3d7535665a12abe66439cfceeffc61d6eb56195ff947b3c`. The hidden engine remains unwired, so visible Drawing Save/Open/Delete still uses the V1 path. D-0014 authorizes Phase 2 as Not started; execution still requires separate publication of this record, then one new Plan-mode executor from the published authorization SHA after its conflict audit. SPEC-0001's status and authorization are unchanged.
 
 The active Approved SPEC-0001 contains D-0011's Phase 1.5 tester approval and D-0012's narrow conditional Drawing correction approval. The corrected implementation stayed inside that boundary and was subsequently accepted through D-0010's executor/review/architect lifecycle.
 

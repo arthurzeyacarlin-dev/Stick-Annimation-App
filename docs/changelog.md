@@ -5,6 +5,16 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-17 — SPEC-0002 urgent realistic-size Save correction published and integrated
+
+- recorded exact 13-path commit `5c36870f7671033e30dc9341ba757e36c6572cc2`, parent `92e6143641c5dd2542277052fe21c6bad742139f`, message `Fix realistic Drawing project Save crash`, containing the accepted seven implementation/proof paths and six reviewed control-plane paths without changing any reviewed byte
+- recorded the clean committed-branch permanent-tester PASS: 40 operations, 13 screenshots, exactly one deterministic mocked Drawing request, and no real/external request; temporary offline dependencies, `.next`, tester evidence, profiles, servers, and ports were cleaned afterward
+- recorded that canonical `main` was fast-forwarded and normally pushed and that the correction branch, local `main`, local `origin/main`, and live remote `main` matched `5c36870f7671033e30dc9341ba757e36c6572cc2` cleanly at `0/0`; the recovery branch remained unchanged
+- closed DATA-004 and GIT-014, restored SPEC-0002 to Verified/published/integrated/complete, preserved technical-manifest SHA-256 `9d6c2bd8bc607c947265b72b3b0387909065f6b1305baa7e49a6f51e991c54fd` and closeout-manifest SHA-256 `f0f60e9598859d8b356bf24aa802f01a8e75fb8129cc2aa975683b0f626047c0`, and authorized no new SPEC-0002 phase
+- returned the next dependency-safe implementation position to the paused D-0016-approved SPEC-0001 tester compatibility correction after this records reconciliation is reviewed/published; SPEC-0003 remains paused/unchanged
+
+This is a six-document post-publication reconciliation only. No accepted runtime/test/fixture/proof byte, package/dependency/configuration, owner decision, manifest artifact, other worktree, recovery branch, external service, deployment, stage, commit, merge, push, or later-phase implementation changed in this task. These record bytes remain unstaged pending separate review/publication.
+
 ### 2026-08-17 — SPEC-0002 urgent realistic-size Save correction accepted and propagated
 
 - recorded the newly observed regression in the previously integrated Phase 2: each realistic `4563×3302` RGBA bitmap contained 60,268,104 typed bytes, Save and V2 Open expanded them into giant boxed arrays with `Array.from`, and Save preparation occurred outside its failure boundary so `RangeError: Invalid array length` reached the Next overlay

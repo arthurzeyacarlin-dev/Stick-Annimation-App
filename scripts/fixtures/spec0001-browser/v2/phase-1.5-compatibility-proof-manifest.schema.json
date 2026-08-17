@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "diamond-animator/spec0001-browser/phase-1.5-compatibility-proof-manifest-v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "manifestVersion", "specId", "phase", "baseCommit", "headCommit", "recordedAt", "runtime",
+    "preEditNoPlan", "commandConfig", "receipts", "artifacts", "testerExtension", "lintRegression",
+    "gitState", "network", "cleanup", "commandsPassed"
+  ],
+  "properties": {
+    "manifestVersion": {"const": 2},
+    "specId": {"const": "SPEC-0001"},
+    "phase": {"const": "1.5-compatibility"},
+    "baseCommit": {"$ref": "#/$defs/gitSha"},
+    "headCommit": {"$ref": "#/$defs/gitSha"},
+    "recordedAt": {"type": "string", "format": "date-time"},
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["nodeVersion", "npmVersion", "playwrightCoreVersion", "browserVersion", "browserExecutable", "environmentPolicy"],
+      "properties": {
+        "nodeVersion": {"type": "string", "minLength": 1},
+        "npmVersion": {"type": "string", "minLength": 1},
+        "playwrightCoreVersion": {"const": "1.62.1"},
+        "browserVersion": {"type": "string", "minLength": 1},
+        "browserExecutable": {"$ref": "#/$defs/browserExecutable"},
+        "environmentPolicy": {"const": "proof-scrubbed-v2"}
+      }
+    },
+    "preEditNoPlan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["resultSha256", "resultByteLength", "operationCount", "screenshotCount", "driverMessageCount", "requestCount", "nonLoopbackAttemptCount", "realApiRouteRequestCount", "cleanupPassed"],
+      "properties": {
+        "resultSha256": {"$ref": "#/$defs/digest"},
+        "resultByteLength": {"type": "integer", "minimum": 1},
+        "operationCount": {"const": 40},
+        "screenshotCount": {"const": 13},
+        "driverMessageCount": {"const": 4},
+        "requestCount": {"const": 1},
+        "nonLoopbackAttemptCount": {"const": 0},
+        "realApiRouteRequestCount": {"const": 0},
+        "cleanupPassed": {"const": true}
+      }
+    },
+    "commandConfig": {"$ref": "#/$defs/fileBinding"},
+    "receipts": {"type": "array", "minItems": 9, "maxItems": 9, "items": {"$ref": "#/$defs/fileBinding"}},
+    "artifacts": {"type": "array", "minItems": 43, "maxItems": 43, "items": {"$ref": "#/$defs/fileBinding"}},
+    "testerExtension": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["result", "authorizationId", "materializationKind", "derivedGitState", "observedDirtyPaths", "dirtyExpectedPaths", "cleanExpectedPaths", "selectedExpectedPaths", "catalog", "plan", "registry", "adapter"],
+      "properties": {
+        "result": {"$ref": "#/$defs/fileBinding"},
+        "authorizationId": {"const": "phase-1.5-compatibility-synthetic/v1"},
+        "materializationKind": {"const": "materialized"},
+        "derivedGitState": {"const": "dirty-executor"},
+        "observedDirtyPaths": {"$ref": "#/$defs/pathSet"},
+        "dirtyExpectedPaths": {"$ref": "#/$defs/pathSet"},
+        "cleanExpectedPaths": {"type": "array", "maxItems": 0},
+        "selectedExpectedPaths": {"$ref": "#/$defs/pathSet"},
+        "catalog": {"$ref": "#/$defs/fileBinding"},
+        "plan": {"$ref": "#/$defs/fileBinding"},
+        "registry": {"$ref": "#/$defs/fileBinding"},
+        "adapter": {"$ref": "#/$defs/fileBinding"}
+      }
+    },
+    "lintRegression": {"type": "object"},
+    "gitState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["before", "after", "unchanged"],
+      "properties": {
+        "before": {"$ref": "#/$defs/sourceState"},
+        "after": {"$ref": "#/$defs/sourceState"},
+        "unchanged": {"const": true}
+      }
+    },
+    "network": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["browserNonLoopbackAttempts", "serverNonLoopbackAttempts", "childNonLoopbackAttempts"],
+      "properties": {
+        "browserNonLoopbackAttempts": {"const": 0},
+        "serverNonLoopbackAttempts": {"const": 0},
+        "childNonLoopbackAttempts": {"const": 0}
+      }
+    },
+    "cleanup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["passed", "residualPaths"],
+      "properties": {
+        "passed": {"const": true},
+        "residualPaths": {"type": "array", "maxItems": 0}
+      }
+    },
+    "commandsPassed": {"const": true}
+  },
+  "$defs": {
+    "gitSha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "fileBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "byteLength"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/digest"},
+        "byteLength": {"type": "integer", "minimum": 0}
+      }
+    },
+    "browserExecutable": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "byteLength"],
+      "properties": {
+        "path": {"const": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"},
+        "sha256": {"$ref": "#/$defs/digest"},
+        "byteLength": {"type": "integer", "minimum": 1}
+      }
+    },
+    "pathSet": {
+      "type": "array",
+      "minItems": 23,
+      "maxItems": 23,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "sourceState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["headCommit", "indexEmpty", "observedDirtyPaths", "files", "sha256"],
+      "properties": {
+        "headCommit": {"$ref": "#/$defs/gitSha"},
+        "indexEmpty": {"const": true},
+        "observedDirtyPaths": {"$ref": "#/$defs/pathSet"},
+        "files": {"type": "array", "minItems": 23, "maxItems": 23, "items": {"$ref": "#/$defs/fileBinding"}},
+        "sha256": {"$ref": "#/$defs/digest"}
+      }
+    }
+  }
+}

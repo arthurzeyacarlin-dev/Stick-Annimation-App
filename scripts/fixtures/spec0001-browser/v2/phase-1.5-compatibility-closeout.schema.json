@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "diamond-animator/spec0001-browser/phase-1.5-compatibility-closeout-v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["closeoutVersion", "specId", "phase", "baseCommit", "headCommit", "finalizedAt", "acceptedProofSha256", "proofManifest", "implementation", "acceptedDirty", "controlPlanePaths", "git", "lifecycle", "status"],
+  "properties": {
+    "closeoutVersion": {"const": 2},
+    "specId": {"const": "SPEC-0001"},
+    "phase": {"const": "1.5-compatibility"},
+    "baseCommit": {"$ref": "#/$defs/gitSha"},
+    "headCommit": {"$ref": "#/$defs/gitSha"},
+    "finalizedAt": {"type": "string", "format": "date-time"},
+    "acceptedProofSha256": {"$ref": "#/$defs/digest"},
+    "proofManifest": {"$ref": "#/$defs/fileBinding"},
+    "implementation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["paths", "files", "aggregateSha256"],
+      "properties": {
+        "paths": {"$ref": "#/$defs/pathSet"},
+        "files": {"type": "array", "minItems": 23, "maxItems": 23, "items": {"$ref": "#/$defs/fileBinding"}},
+        "aggregateSha256": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "acceptedDirty": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["derivedGitState", "observedDirtyPaths", "dirtyExpectedPaths", "cleanExpectedPaths", "catalog", "plan", "registry", "adapter"],
+      "properties": {
+        "derivedGitState": {"const": "dirty-executor"},
+        "observedDirtyPaths": {"$ref": "#/$defs/pathSet"},
+        "dirtyExpectedPaths": {"$ref": "#/$defs/pathSet"},
+        "cleanExpectedPaths": {"type": "array", "maxItems": 0},
+        "catalog": {"$ref": "#/$defs/fileBinding"},
+        "plan": {"$ref": "#/$defs/fileBinding"},
+        "registry": {"$ref": "#/$defs/fileBinding"},
+        "adapter": {"$ref": "#/$defs/fileBinding"}
+      }
+    },
+    "controlPlanePaths": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "git": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["beforeValidation", "beforeWrite", "afterWrite"],
+      "properties": {
+        "beforeValidation": {"$ref": "#/$defs/gitSnapshot"},
+        "beforeWrite": {"$ref": "#/$defs/gitSnapshot"},
+        "afterWrite": {"$ref": "#/$defs/gitSnapshot"}
+      }
+    },
+    "lifecycle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dirtyCloseoutValidated", "postCloseoutRevalidation", "cleanPublicationValidation"],
+      "properties": {
+        "dirtyCloseoutValidated": {"const": true},
+        "postCloseoutRevalidation": {"const": "required"},
+        "cleanPublicationValidation": {"const": "required"}
+      }
+    },
+    "status": {"const": "validated-control-plane-dirty"}
+  },
+  "$defs": {
+    "gitSha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "fileBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "byteLength"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/digest"},
+        "byteLength": {"type": "integer", "minimum": 0}
+      }
+    },
+    "pathSet": {
+      "type": "array",
+      "minItems": 23,
+      "maxItems": 23,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "trackedEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "status", "sha256", "byteLength"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "status": {"type": "string", "minLength": 2, "maxLength": 2},
+        "sha256": {"$ref": "#/$defs/digest"},
+        "byteLength": {"type": "integer", "minimum": 0}
+      }
+    },
+    "gitSnapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["headCommit", "mainCommit", "originMainCommit", "indexEmpty", "porcelainSha256", "records"],
+      "properties": {
+        "headCommit": {"$ref": "#/$defs/gitSha"},
+        "mainCommit": {"$ref": "#/$defs/gitSha"},
+        "originMainCommit": {"$ref": "#/$defs/gitSha"},
+        "indexEmpty": {"const": true},
+        "porcelainSha256": {"$ref": "#/$defs/digest"},
+        "records": {"type": "array", "minItems": 31, "maxItems": 31, "items": {"$ref": "#/$defs/trackedEntry"}}
+      }
+    }
+  }
+}

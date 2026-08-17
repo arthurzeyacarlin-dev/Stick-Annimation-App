@@ -1,0 +1,204 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "diamond-animator/spec-0001/proof-command-receipt-v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["receiptVersion", "name", "order", "argv", "cwd", "env", "privacy", "startedAt", "durationMs", "exitCode", "expectedExitCode", "passed", "stdout", "stderr", "execution", "lintRegression"],
+  "properties": {
+    "receiptVersion": {"const": 2},
+    "name": {"type": "string", "minLength": 1},
+    "order": {"type": "integer", "minimum": 0},
+    "argv": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+    "cwd": {"const": "."},
+    "env": {
+      "type": "object",
+      "propertyNames": {"not": {"pattern": "^(?:GIT_|NODE_OPTIONS$|NODE_PATH$)"}},
+      "additionalProperties": {"type": "string"}
+    },
+    "privacy": {"const": "sanitized"},
+    "startedAt": {"type": "string", "format": "date-time"},
+    "durationMs": {"$ref": "#/$defs/safeCount"},
+    "exitCode": {"type": "integer"},
+    "expectedExitCode": {"type": "integer"},
+    "passed": {"type": "boolean"},
+    "stdout": {"$ref": "#/$defs/capturedBytes"},
+    "stderr": {"$ref": "#/$defs/capturedBytes"},
+    "execution": {"$ref": "#/$defs/execution"},
+    "lintRegression": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/lintRegression"}]}
+  },
+  "$defs": {
+    "gitSha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "safeCount": {"type": "integer", "minimum": 0},
+    "safePath": {"type": "string", "minLength": 1, "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"},
+    "capturedBytes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["encoding", "byteLength", "sha256", "data"],
+      "properties": {
+        "encoding": {"const": "base64"},
+        "byteLength": {"$ref": "#/$defs/safeCount"},
+        "sha256": {"$ref": "#/$defs/digest"},
+        "data": {"type": "string", "contentEncoding": "base64"}
+      }
+    },
+    "fileBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "byteLength"],
+      "properties": {
+        "path": {"$ref": "#/$defs/safePath"},
+        "sha256": {"$ref": "#/$defs/digest"},
+        "byteLength": {"$ref": "#/$defs/safeCount"}
+      }
+    },
+    "execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["policy", "executable", "argv", "environment"],
+      "properties": {
+        "policy": {"const": "closed-executable-v1"},
+        "executable": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["logicalId", "sha256", "byteLength"],
+          "properties": {
+            "logicalId": {"enum": ["node:process.execPath", "system:/usr/bin/git"]},
+            "sha256": {"$ref": "#/$defs/digest"},
+            "byteLength": {"type": "integer", "minimum": 1}
+          }
+        },
+        "argv": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+        "environment": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["policy", "keys", "sha256"],
+          "properties": {
+            "policy": {"enum": ["proof-scrubbed-v2", "proof-scrubbed-git-v2"]},
+            "keys": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+            "sha256": {"$ref": "#/$defs/digest"}
+          }
+        }
+      }
+    },
+    "dependencyBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "byteLength", "version"],
+      "properties": {
+        "path": {"$ref": "#/$defs/safePath"},
+        "sha256": {"$ref": "#/$defs/digest"},
+        "byteLength": {"$ref": "#/$defs/safeCount"},
+        "version": {"oneOf": [{"type": "null"}, {"type": "string", "minLength": 1}]}
+      }
+    },
+    "rawOutput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stdoutSha256", "stdoutByteLength", "stderrSha256", "stderrByteLength"],
+      "properties": {
+        "stdoutSha256": {"$ref": "#/$defs/digest"},
+        "stdoutByteLength": {"$ref": "#/$defs/safeCount"},
+        "stderrSha256": {"$ref": "#/$defs/digest"},
+        "stderrByteLength": {"$ref": "#/$defs/safeCount"}
+      }
+    },
+    "lintRun": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["exitCode", "errors", "warnings", "rawOutput"],
+      "properties": {
+        "exitCode": {"enum": [0, 1]},
+        "errors": {"$ref": "#/$defs/safeCount"},
+        "warnings": {"$ref": "#/$defs/safeCount"},
+        "rawOutput": {"$ref": "#/$defs/rawOutput"}
+      }
+    },
+    "lintFinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "line", "endLine", "column", "endColumn", "severity", "ruleId", "messageSha256"],
+      "properties": {
+        "path": {"type": "string", "pattern": "\\.(?:cjs|cts|js|jsx|mjs|mts|ts|tsx)$"},
+        "line": {"type": "integer", "minimum": 1},
+        "endLine": {"type": "integer", "minimum": 1},
+        "column": {"type": "integer", "minimum": 1},
+        "endColumn": {"oneOf": [{"type": "null"}, {"type": "integer", "minimum": 1}]},
+        "severity": {"enum": [1, 2]},
+        "ruleId": {"oneOf": [{"type": "null"}, {"type": "string", "minLength": 1}]},
+        "messageSha256": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "lintRegression": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["measurementVersion", "specId", "baseCommit", "headCommit", "baseTree", "measuredAt", "runtime", "bindings", "base", "result", "changedJavaScriptPaths", "newJavaScriptPaths", "changedLineFindings", "newFileFindings", "gitState", "network", "cleanup", "passed"],
+      "properties": {
+        "measurementVersion": {"const": 2},
+        "specId": {"const": "SPEC-0001"},
+        "baseCommit": {"$ref": "#/$defs/gitSha"},
+        "headCommit": {"$ref": "#/$defs/gitSha"},
+        "baseTree": {"$ref": "#/$defs/gitSha"},
+        "measuredAt": {"type": "string", "format": "date-time"},
+        "runtime": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["nodeVersion", "eslintVersion"],
+          "properties": {"nodeVersion": {"type": "string", "minLength": 1}, "eslintVersion": {"type": "string", "minLength": 1}}
+        },
+        "bindings": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["package", "packageLock", "eslintConfig", "networkGuard", "installedPackageLock", "eslintPackage", "eslintConfigNextPackage", "typescriptPackage", "dependencyTree", "measurer"],
+          "properties": {
+            "package": {"$ref": "#/$defs/fileBinding"},
+            "packageLock": {"$ref": "#/$defs/fileBinding"},
+            "eslintConfig": {"$ref": "#/$defs/fileBinding"},
+            "networkGuard": {"$ref": "#/$defs/fileBinding"},
+            "installedPackageLock": {"$ref": "#/$defs/dependencyBinding"},
+            "eslintPackage": {"$ref": "#/$defs/dependencyBinding"},
+            "eslintConfigNextPackage": {"$ref": "#/$defs/dependencyBinding"},
+            "typescriptPackage": {"$ref": "#/$defs/dependencyBinding"},
+            "dependencyTree": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["path", "sha256", "entryCount", "byteLength"],
+              "properties": {
+                "path": {"const": "node_modules"},
+                "sha256": {"$ref": "#/$defs/digest"},
+                "entryCount": {"type": "integer", "minimum": 1},
+                "byteLength": {"type": "integer", "minimum": 1}
+              }
+            },
+            "measurer": {"$ref": "#/$defs/fileBinding"}
+          }
+        },
+        "base": {"$ref": "#/$defs/lintRun"},
+        "result": {"$ref": "#/$defs/lintRun"},
+        "changedJavaScriptPaths": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/safePath"}},
+        "newJavaScriptPaths": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/safePath"}},
+        "changedLineFindings": {"type": "array", "maxItems": 0, "items": {"$ref": "#/$defs/lintFinding"}},
+        "newFileFindings": {"type": "array", "maxItems": 0, "items": {"$ref": "#/$defs/lintFinding"}},
+        "gitState": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["beforeSha256", "afterSha256", "unchanged"],
+          "properties": {"beforeSha256": {"$ref": "#/$defs/digest"}, "afterSha256": {"$ref": "#/$defs/digest"}, "unchanged": {"const": true}}
+        },
+        "network": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["baseRecordCount", "resultRecordCount", "nonLoopbackAttemptCount"],
+          "properties": {"baseRecordCount": {"const": 0}, "resultRecordCount": {"const": 0}, "nonLoopbackAttemptCount": {"const": 0}}
+        },
+        "cleanup": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["temporaryRootRemoved"],
+          "properties": {"temporaryRootRemoved": {"const": true}}
+        },
+        "passed": {"const": true}
+      }
+    }
+  }
+}

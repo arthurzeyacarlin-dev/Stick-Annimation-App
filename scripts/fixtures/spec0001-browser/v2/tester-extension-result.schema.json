@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "diamond-animator/spec0001-browser/tester-extension-result-v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["resultVersion", "specId", "proofPurpose", "status", "recordedAt", "productPhaseClaimed", "runtime", "derivedGitState", "baseCommit", "headCommit", "observedDirtyPaths", "dirtyExpectedPaths", "cleanExpectedPaths", "selectedExpectedPaths", "authorization", "bindings", "execution", "evidence", "network", "cleanup"],
+  "properties": {
+    "resultVersion": {"const": 2}, "specId": {"const": "SPEC-0001"},
+    "proofPurpose": {"enum": ["phase-1.5-compatibility-synthetic", "phase-2"]}, "status": {"const": "passed"},
+    "recordedAt": {"type": "string", "format": "date-time"}, "productPhaseClaimed": {"type": "boolean"},
+    "runtime": {"type": "object", "additionalProperties": false, "required": ["nodeVersion", "playwrightCoreVersion", "browserVersion", "browserExecutable"], "properties": {"nodeVersion": {"type": "string", "minLength": 1}, "playwrightCoreVersion": {"const": "1.62.1"}, "browserVersion": {"type": "string", "minLength": 1}, "browserExecutable": {"$ref": "#/$defs/browserExecutable"}}},
+    "derivedGitState": {"enum": ["dirty-executor", "clean-committed"]},
+    "baseCommit": {"$ref": "#/$defs/gitSha"}, "headCommit": {"$ref": "#/$defs/gitSha"},
+    "observedDirtyPaths": {"$ref": "#/$defs/paths"}, "dirtyExpectedPaths": {"$ref": "#/$defs/paths"},
+    "cleanExpectedPaths": {"const": []}, "selectedExpectedPaths": {"$ref": "#/$defs/paths"},
+    "authorization": {"type": "object", "additionalProperties": false, "required": ["authorizationId", "materializationKind"], "properties": {"authorizationId": {"enum": ["phase-1.5-compatibility-synthetic/v1", "phase-2/v1"]}, "materializationKind": {"enum": ["materialized", "deferred"]}}},
+    "bindings": {"type": "object", "additionalProperties": false, "required": ["catalog", "plan", "registry", "adapter"], "properties": {"catalog": {"$ref": "#/$defs/binding"}, "plan": {"$ref": "#/$defs/binding"}, "registry": {"$ref": "#/$defs/binding"}, "adapter": {"$ref": "#/$defs/binding"}}},
+    "execution": {"type": "object", "additionalProperties": false, "required": ["selectedActionIds", "actionCount", "checkpointCount", "screenshotCount", "protectedRegressionGroups"], "properties": {"selectedActionIds": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/handle"}}, "actionCount": {"$ref": "#/$defs/count"}, "checkpointCount": {"$ref": "#/$defs/count"}, "screenshotCount": {"$ref": "#/$defs/count"}, "protectedRegressionGroups": {"$ref": "#/$defs/regressions"}}},
+    "evidence": {"type": "object", "additionalProperties": false, "required": ["ledgerKinds", "screenshotIds", "protectedRegressionGroups"], "properties": {"ledgerKinds": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}, "screenshotIds": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/handle"}}, "protectedRegressionGroups": {"$ref": "#/$defs/regressions"}}},
+    "network": {"type": "object", "additionalProperties": false, "required": ["browserNonLoopbackAttempts", "serverNonLoopbackAttempts", "childNonLoopbackAttempts"], "properties": {"browserNonLoopbackAttempts": {"const": 0}, "serverNonLoopbackAttempts": {"const": 0}, "childNonLoopbackAttempts": {"const": 0}}},
+    "cleanup": {"type": "object", "additionalProperties": false, "required": ["anchorRestored", "sourceRestored", "browserContextsOpen", "activeGates", "activeIntercepts", "openChildProcesses", "openPorts", "residualPaths"], "properties": {"anchorRestored": {"const": true}, "sourceRestored": {"const": true}, "browserContextsOpen": {"const": 0}, "activeGates": {"const": 0}, "activeIntercepts": {"const": 0}, "openChildProcesses": {"const": 0}, "openPorts": {"const": 0}, "residualPaths": {"const": []}}}
+  },
+  "$defs": {
+    "gitSha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "path": {"type": "string", "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?/)(?!.*\\\\)[^/]+(?:/[^/]+)*$"},
+    "paths": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/path"}},
+    "handle": {"type": "string", "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9._:-]{0,126}[A-Za-z0-9])?$"},
+    "count": {"type": "integer", "minimum": 0},
+    "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "binding": {"type": "object", "additionalProperties": false, "required": ["path", "byteLength", "sha256"], "properties": {"path": {"$ref": "#/$defs/path"}, "byteLength": {"$ref": "#/$defs/count"}, "sha256": {"$ref": "#/$defs/digest"}}},
+    "browserExecutable": {"type": "object", "additionalProperties": false, "required": ["path", "byteLength", "sha256"], "properties": {"path": {"const": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"}, "byteLength": {"type": "integer", "minimum": 1}, "sha256": {"$ref": "#/$defs/digest"}}},
+    "regressions": {"type": "array", "uniqueItems": true, "items": {"enum": ["home-new-drawing", "home-new-stick", "stick-creator-back", "drawing-generate-frames", "drawing-undo-redo-play-pause"]}}
+  }
+}

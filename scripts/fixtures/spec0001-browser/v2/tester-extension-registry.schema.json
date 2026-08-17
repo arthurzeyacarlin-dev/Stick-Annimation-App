@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "diamond-animator/spec0001-browser/tester-extension-registry-v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["registryVersion", "specId", "authorizationId", "operationFamilies", "adapter", "fixtures", "actions"],
+  "properties": {
+    "registryVersion": {"const": 2}, "specId": {"const": "SPEC-0001"},
+    "authorizationId": {"enum": ["phase-1.5-compatibility-synthetic/v1", "phase-2/v1"]},
+    "operationFamilies": {"type": "array", "uniqueItems": true, "items": {"enum": ["checkpoint", "fixture", "pointer", "protected-regression", "runner-environment", "screenshot", "visible-role", "visible-testid", "workspace-driver"]}},
+    "adapter": {"$ref": "#/$defs/binding"},
+    "fixtures": {"type": "array", "uniqueItems": true, "items": {"oneOf": [
+      {"type": "object", "additionalProperties": false, "required": ["fixtureId", "fixtureKind", "sourceKind", "expectedFixtureDigest"], "properties": {"fixtureId": {"$ref": "#/$defs/handle"}, "fixtureKind": {"$ref": "#/$defs/fixtureKind"}, "sourceKind": {"const": "adapter-built-in"}, "expectedFixtureDigest": {"$ref": "#/$defs/digest"}}},
+      {"type": "object", "additionalProperties": false, "required": ["fixtureId", "fixtureKind", "sourceKind", "binding", "expectedFixtureDigest"], "properties": {"fixtureId": {"$ref": "#/$defs/handle"}, "fixtureKind": {"$ref": "#/$defs/fixtureKind"}, "sourceKind": {"const": "repository-json"}, "binding": {"$ref": "#/$defs/binding"}, "expectedFixtureDigest": {"$ref": "#/$defs/digest"}}}
+    ]}},
+    "actions": {"type": "array", "minItems": 1, "items": {"oneOf": [
+      {"$ref": "#/$defs/visibleRole"}, {"$ref": "#/$defs/visibleTestId"}, {"$ref": "#/$defs/pointer"},
+      {"$ref": "#/$defs/driver"}, {"$ref": "#/$defs/environment"}, {"$ref": "#/$defs/checkpoint"},
+      {"$ref": "#/$defs/screenshot"}, {"$ref": "#/$defs/regressionAction"}
+    ]}}
+  },
+  "$defs": {
+    "path": {"type": "string", "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?/)(?!.*\\\\)[^/]+(?:/[^/]+)*$"},
+    "handle": {"type": "string", "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9._:-]{0,126}[A-Za-z0-9])?$"},
+    "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "fixtureKind": {"enum": ["stick-browser-environment-gate-release-v1", "stick-browser-environment-plan-v1", "stick-completed-joint-edit-v1", "stick-document-publication-completion-v1", "stick-document-publication-plan-v1", "stick-workspace-document-mount-v1"]},
+    "binding": {"type": "object", "additionalProperties": false, "required": ["path", "byteLength", "sha256"], "properties": {"path": {"$ref": "#/$defs/path"}, "byteLength": {"type": "integer", "minimum": 0}, "sha256": {"$ref": "#/$defs/digest"}}},
+    "regression": {"enum": ["home-new-drawing", "home-new-stick", "stick-creator-back", "drawing-generate-frames", "drawing-undo-redo-play-pause"]},
+    "visibleRole": {"type": "object", "additionalProperties": false, "required": ["actionId", "family", "operation", "role", "accessibleName", "input"], "properties": {"actionId": {"$ref": "#/$defs/handle"}, "family": {"const": "visible-role"}, "operation": {"enum": ["click", "fill", "press", "assert-visible", "assert-hidden", "assert-enabled", "assert-disabled"]}, "role": {"$ref": "#/$defs/handle"}, "accessibleName": {"type": "string", "minLength": 1}, "input": {"oneOf": [{"type": "null"}, {"type": "object", "additionalProperties": false, "required": ["text"], "properties": {"text": {"type": "string"}}}, {"type": "object", "additionalProperties": false, "required": ["key"], "properties": {"key": {"enum": ["Enter", "Escape", "Space"]}}}]}}},
+    "visibleTestId": {"type": "object", "additionalProperties": false, "required": ["actionId", "family", "operation", "testId"], "properties": {"actionId": {"$ref": "#/$defs/handle"}, "family": {"const": "visible-testid"}, "operation": {"enum": ["click", "assert-visible", "assert-enabled", "assert-disabled"]}, "testId": {"$ref": "#/$defs/handle"}}},
+    "pointer": {"type": "object", "additionalProperties": false, "required": ["actionId", "family", "operation", "targetId", "pointerId", "button", "point", "expectedEvidenceDigest"], "properties": {"actionId": {"$ref": "#/$defs/handle"}, "family": {"const": "pointer"}, "operation": {"enum": ["down", "move", "up", "cancel"]}, "targetId": {"$ref": "#/$defs/handle"}, "pointerId": {"type": "integer", "minimum": 0}, "button": {"const": 0}, "point": {"type": "object", "additionalProperties": false, "required": ["x", "y"], "properties": {"x": {"type": "integer", "minimum": 0}, "y": {"type": "integer", "minimum": 0}}}, "expectedEvidenceDigest": {"$ref": "#/$defs/digest"}}},
+    "driver": {"type": "object", "additionalProperties": false, "required": ["actionId", "family", "operation", "fixtureId", "operationId", "expectedEvidenceDigest"], "properties": {"actionId": {"$ref": "#/$defs/handle"}, "family": {"const": "workspace-driver"}, "operation": {"enum": ["mountDocument", "dispatchCompletedJointEdit", "beginDocumentPublication", "completeDocumentPublication", "readCheckpoint"]}, "fixtureId": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/handle"}]}, "operationId": {"$ref": "#/$defs/handle"}, "expectedEvidenceDigest": {"$ref": "#/$defs/digest"}}},
+    "environment": {"type": "object", "additionalProperties": false, "required": ["actionId", "family", "operation", "fixtureId", "operationId", "expectedEvidenceDigest"], "properties": {"actionId": {"$ref": "#/$defs/handle"}, "family": {"const": "runner-environment"}, "operation": {"enum": ["installEnvironmentPlan", "releaseEnvironmentGate", "readEnvironmentCheckpoint", "clearEnvironmentPlan"]}, "fixtureId": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/handle"}]}, "operationId": {"$ref": "#/$defs/handle"}, "expectedEvidenceDigest": {"$ref": "#/$defs/digest"}}},
+    "checkpoint": {"type": "object", "additionalProperties": false, "required": ["actionId", "family", "channel", "checkpointId", "expectedEvidenceDigest"], "properties": {"actionId": {"$ref": "#/$defs/handle"}, "family": {"const": "checkpoint"}, "channel": {"enum": ["workspace-driver", "runner-environment"]}, "checkpointId": {"$ref": "#/$defs/handle"}, "expectedEvidenceDigest": {"$ref": "#/$defs/digest"}}},
+    "screenshot": {"type": "object", "additionalProperties": false, "required": ["actionId", "family", "screenshotId"], "properties": {"actionId": {"$ref": "#/$defs/handle"}, "family": {"const": "screenshot"}, "screenshotId": {"$ref": "#/$defs/handle"}}},
+    "regressionAction": {"type": "object", "additionalProperties": false, "required": ["actionId", "family", "group"], "properties": {"actionId": {"$ref": "#/$defs/handle"}, "family": {"const": "protected-regression"}, "group": {"$ref": "#/$defs/regression"}}}
+  }
+}

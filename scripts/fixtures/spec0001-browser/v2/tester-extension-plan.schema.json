@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "diamond-animator/spec0001-browser/tester-extension-plan-v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["planVersion", "specId", "proofPurpose", "authorizationId", "baseCommit", "dirtyExpectedPaths", "cleanExpectedPaths", "outputRoot", "operationFamilies", "registry", "contexts", "steps", "evidence"],
+  "properties": {
+    "planVersion": {"const": 2}, "specId": {"const": "SPEC-0001"},
+    "proofPurpose": {"enum": ["phase-1.5-compatibility-synthetic", "phase-2"]},
+    "authorizationId": {"enum": ["phase-1.5-compatibility-synthetic/v1", "phase-2/v1"]},
+    "baseCommit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "dirtyExpectedPaths": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/path"}},
+    "cleanExpectedPaths": {"const": []}, "outputRoot": {"$ref": "#/$defs/path"},
+    "operationFamilies": {"type": "array", "uniqueItems": true, "items": {"enum": ["checkpoint", "fixture", "pointer", "protected-regression", "runner-environment", "screenshot", "visible-role", "visible-testid", "workspace-driver"]}},
+    "registry": {"$ref": "#/$defs/binding"},
+    "contexts": {
+      "type": "array", "minItems": 1,
+      "items": {"type": "object", "additionalProperties": false, "required": ["contextId", "viewport"], "properties": {
+        "contextId": {"$ref": "#/$defs/handle"},
+        "viewport": {"oneOf": [
+          {"type": "object", "additionalProperties": false, "required": ["width", "height"], "properties": {"width": {"const": 1024}, "height": {"const": 768}}},
+          {"type": "object", "additionalProperties": false, "required": ["width", "height"], "properties": {"width": {"const": 1440}, "height": {"const": 900}}}
+        ]}
+      }}
+    },
+    "steps": {"type": "array", "minItems": 1, "items": {"type": "object", "additionalProperties": false, "required": ["stepId", "actionId", "contextId"], "properties": {"stepId": {"$ref": "#/$defs/handle"}, "actionId": {"$ref": "#/$defs/handle"}, "contextId": {"$ref": "#/$defs/handle"}}}},
+    "evidence": {"type": "object", "additionalProperties": false, "required": ["ledgerKinds", "screenshotIds", "protectedRegressionGroups", "productPhaseClaimed"], "properties": {
+      "ledgerKinds": {"type": "array", "uniqueItems": true, "items": {"enum": ["action", "negative", "checkpoint", "storage", "request", "network", "console", "regression", "cleanup"]}},
+      "screenshotIds": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/handle"}},
+      "protectedRegressionGroups": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/regression"}},
+      "productPhaseClaimed": {"type": "boolean"}
+    }}
+  },
+  "$defs": {
+    "path": {"type": "string", "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?/)(?!.*\\\\)[^/]+(?:/[^/]+)*$"},
+    "handle": {"type": "string", "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9._:-]{0,126}[A-Za-z0-9])?$"},
+    "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "binding": {"type": "object", "additionalProperties": false, "required": ["path", "byteLength", "sha256"], "properties": {"path": {"$ref": "#/$defs/path"}, "byteLength": {"type": "integer", "minimum": 0}, "sha256": {"$ref": "#/$defs/digest"}}},
+    "regression": {"enum": ["home-new-drawing", "home-new-stick", "stick-creator-back", "drawing-generate-frames", "drawing-undo-redo-play-pause"]}
+  }
+}

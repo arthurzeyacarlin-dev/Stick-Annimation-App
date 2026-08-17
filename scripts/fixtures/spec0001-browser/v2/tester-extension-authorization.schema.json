@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "diamond-animator/spec0001-browser/tester-extension-authorization-v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["catalogVersion", "specId", "authorizations"],
+  "properties": {
+    "catalogVersion": {"const": 1},
+    "specId": {"const": "SPEC-0001"},
+    "authorizations": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "prefixItems": [
+        {"$ref": "#/$defs/materialized"},
+        {"$ref": "#/$defs/deferred"}
+      ],
+      "items": false
+    }
+  },
+  "$defs": {
+    "path": {"type": "string", "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?/)(?!.*\\\\)[^/]+(?:/[^/]+)*$"},
+    "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "count": {"type": "integer", "minimum": 0},
+    "families": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"enum": ["checkpoint", "fixture", "pointer", "protected-regression", "runner-environment", "screenshot", "visible-role", "visible-testid", "workspace-driver"]}
+    },
+    "resultSchema": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "resultVersion"],
+      "properties": {
+        "path": {"const": "scripts/fixtures/spec0001-browser/v2/tester-extension-result.schema.json"},
+        "resultVersion": {"const": 2}
+      }
+    },
+    "materializedFile": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "schemaPath", "byteLength", "sha256"],
+      "properties": {
+        "path": {"$ref": "#/$defs/path"}, "schemaPath": {"$ref": "#/$defs/path"},
+        "byteLength": {"$ref": "#/$defs/count"}, "sha256": {"$ref": "#/$defs/digest"},
+        "planVersion": {"const": 2}, "registryVersion": {"const": 2}
+      },
+      "oneOf": [
+        {"required": ["planVersion"], "not": {"required": ["registryVersion"]}},
+        {"required": ["registryVersion"], "not": {"required": ["planVersion"]}}
+      ]
+    },
+    "deferredFile": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "schemaPath"],
+      "properties": {
+        "path": {"$ref": "#/$defs/path"}, "schemaPath": {"$ref": "#/$defs/path"},
+        "planVersion": {"const": 2}, "registryVersion": {"const": 2}
+      },
+      "oneOf": [
+        {"required": ["planVersion"], "not": {"required": ["registryVersion"]}},
+        {"required": ["registryVersion"], "not": {"required": ["planVersion"]}}
+      ]
+    },
+    "materializedAdapter": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "grammarId", "declarationVersion", "byteLength", "sha256"],
+      "properties": {
+        "path": {"$ref": "#/$defs/path"}, "grammarId": {"const": "spec0001-browser-adapter-declaration/v1"},
+        "declarationVersion": {"const": 1}, "byteLength": {"$ref": "#/$defs/count"}, "sha256": {"$ref": "#/$defs/digest"}
+      }
+    },
+    "deferredAdapter": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "grammarId", "declarationVersion"],
+      "properties": {
+        "path": {"$ref": "#/$defs/path"}, "grammarId": {"const": "spec0001-browser-adapter-declaration/v1"}, "declarationVersion": {"const": 1}
+      }
+    },
+    "materialized": {
+      "type": "object", "additionalProperties": false,
+      "required": ["authorizationId", "proofPurpose", "materializationKind", "plan", "registry", "adapter", "resultSchema", "operationFamilies", "outputRoot", "pathCeiling"],
+      "properties": {
+        "authorizationId": {"const": "phase-1.5-compatibility-synthetic/v1"},
+        "proofPurpose": {"const": "phase-1.5-compatibility-synthetic"}, "materializationKind": {"const": "materialized"},
+        "plan": {"$ref": "#/$defs/materializedFile"}, "registry": {"$ref": "#/$defs/materializedFile"},
+        "adapter": {"$ref": "#/$defs/materializedAdapter"}, "resultSchema": {"$ref": "#/$defs/resultSchema"},
+        "operationFamilies": {"$ref": "#/$defs/families"}, "outputRoot": {"const": "output/spec-0001/phase-1.5-compatibility"},
+        "pathCeiling": {"type": "array", "minItems": 23, "maxItems": 23, "uniqueItems": true, "items": {"$ref": "#/$defs/path"}}
+      }
+    },
+    "deferred": {
+      "type": "object", "additionalProperties": false,
+      "required": ["authorizationId", "proofPurpose", "materializationKind", "plan", "registry", "adapter", "resultSchema", "operationFamilies", "outputRoot", "pathCeiling"],
+      "properties": {
+        "authorizationId": {"const": "phase-2/v1"}, "proofPurpose": {"const": "phase-2"}, "materializationKind": {"const": "deferred"},
+        "plan": {"$ref": "#/$defs/deferredFile"}, "registry": {"$ref": "#/$defs/deferredFile"},
+        "adapter": {"$ref": "#/$defs/deferredAdapter"}, "resultSchema": {"$ref": "#/$defs/resultSchema"},
+        "operationFamilies": {"$ref": "#/$defs/families"}, "outputRoot": {"const": "output/spec-0001/phase-2"},
+        "pathCeiling": {"type": "array", "minItems": 22, "maxItems": 22, "uniqueItems": true, "items": {"$ref": "#/$defs/path"}}
+      }
+    }
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "configVersion": 2,
+  "specId": "SPEC-0001",
+  "phase": "1.5-compatibility",
+  "baseCommit": "8b663d2b80144e9aeba9ea0ecf0f78ccefa78926",
+  "outputRoot": "output/spec-0001/phase-1.5-compatibility",
+  "preEditNoPlan": {
+    "resultSha256": "sha256:47e9e63508ce28f1acf4afcec53180420418182e7e43ab977bd2ec58cded7585",
+    "resultByteLength": 79799,
+    "operationCount": 40,
+    "screenshotCount": 13,
+    "driverMessageCount": 4,
+    "requestCount": 1,
+    "nonLoopbackAttemptCount": 0,
+    "realApiRouteRequestCount": 0,
+    "cleanupPassed": true
+  },
+  "commands": [
+    {
+      "name": "compatibility-self-test",
+      "argv": ["node", "--experimental-strip-types", "scripts/spec0001-browser/validatePhase15Compatibility.ts", "--self-test"],
+      "cwd": ".",
+      "env": {},
+      "expectedExitCode": 0,
+      "privacy": "sanitized"
+    },
+    {
+      "name": "shared-proof-self-test",
+      "argv": ["node", "--experimental-strip-types", "scripts/validateSpec0001ProofBundle.ts", "--self-test"],
+      "cwd": ".",
+      "env": {},
+      "expectedExitCode": 0,
+      "privacy": "sanitized"
+    },
+    {
+      "name": "closeout-self-test",
+      "argv": ["node", "--experimental-strip-types", "scripts/spec0001-browser/finalizePhase15CompatibilityCloseout.ts", "--self-test"],
+      "cwd": ".",
+      "env": {},
+      "expectedExitCode": 0,
+      "privacy": "sanitized"
+    },
+    {
+      "name": "phase-1-contract-regression",
+      "argv": ["node", "--experimental-strip-types", "scripts/validateStickFigureAiContracts.ts"],
+      "cwd": ".",
+      "env": {},
+      "expectedExitCode": 0,
+      "privacy": "sanitized"
+    },
+    {
+      "name": "typescript",
+      "argv": ["./node_modules/.bin/tsc", "--noEmit", "--incremental", "false"],
+      "cwd": ".",
+      "env": {},
+      "expectedExitCode": 0,
+      "privacy": "sanitized"
+    },
+    {
+      "name": "lint-regression",
+      "argv": ["node", "--experimental-strip-types", "scripts/spec0001-proof/measureSpec0001LintRegression.ts", "--base=8b663d2b80144e9aeba9ea0ecf0f78ccefa78926"],
+      "cwd": ".",
+      "env": {},
+      "expectedExitCode": 0,
+      "privacy": "sanitized",
+      "capturesLintMeasurement": true
+    },
+    {
+      "name": "diff-check",
+      "argv": ["git", "diff", "--check"],
+      "cwd": ".",
+      "env": {},
+      "expectedExitCode": 0,
+      "privacy": "sanitized"
+    },
+    {
+      "name": "synthetic-browser",
+      "argv": ["node", "--experimental-strip-types", "scripts/runSpec0001BrowserProof.ts", "--plan=scripts/fixtures/spec0001-browser/v2/phase-1.5-compatibility-browser-plan.json"],
+      "cwd": ".",
+      "env": {},
+      "expectedExitCode": 0,
+      "privacy": "sanitized"
+    },
+    {
+      "name": "status",
+      "argv": ["git", "status", "--short", "--branch"],
+      "cwd": ".",
+      "env": {},
+      "expectedExitCode": 0,
+      "privacy": "sanitized"
+    }
+  ]
+}

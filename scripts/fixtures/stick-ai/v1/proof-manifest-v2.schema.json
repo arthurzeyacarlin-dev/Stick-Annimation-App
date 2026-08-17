@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "diamond-animator/spec-0001/proof-manifest-v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["manifestVersion", "specId", "phase", "baseCommit", "headCommit", "recordedAt", "runtime", "commandConfig", "receipts", "artifacts", "bindings", "evidence", "commandsPassed", "lintRegression"],
+  "properties": {
+    "manifestVersion": {"const": 2},
+    "specId": {"const": "SPEC-0001"},
+    "phase": {"type": "integer", "minimum": 2, "maximum": 7},
+    "baseCommit": {"$ref": "#/$defs/gitSha"},
+    "headCommit": {"$ref": "#/$defs/gitSha"},
+    "recordedAt": {"type": "string", "format": "date-time"},
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["nodeVersion", "npmVersion", "browserVersion", "browserExecutable", "textEncoderAvailable", "webCryptoAvailable"],
+      "properties": {
+        "nodeVersion": {"type": "string", "minLength": 1},
+        "npmVersion": {"type": "string", "minLength": 1},
+        "browserVersion": {"oneOf": [{"type": "null"}, {"type": "string", "minLength": 1}]},
+        "browserExecutable": {"$ref": "#/$defs/browserExecutable"},
+        "textEncoderAvailable": {"const": true},
+        "webCryptoAvailable": {"const": true}
+      }
+    },
+    "commandConfig": {"$ref": "#/$defs/fileBinding"},
+    "receipts": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/fileBinding"}},
+    "artifacts": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/fileBinding"}},
+    "bindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sources", "fixtures", "schemas", "harness", "plans"],
+      "properties": {
+        "sources": {"type": "array", "items": {"$ref": "#/$defs/fileBinding"}},
+        "fixtures": {"type": "array", "items": {"$ref": "#/$defs/fileBinding"}},
+        "schemas": {"type": "array", "items": {"$ref": "#/$defs/fileBinding"}},
+        "harness": {"type": "array", "items": {"$ref": "#/$defs/fileBinding"}},
+        "plans": {"type": "array", "items": {"$ref": "#/$defs/fileBinding"}}
+      }
+    },
+    "evidence": {"$ref": "#/$defs/evidence"},
+    "commandsPassed": {"const": true},
+    "lintRegression": {"$ref": "proof-command-receipt-v2.schema.json#/$defs/lintRegression"}
+  },
+  "$defs": {
+    "gitSha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "safeCount": {"type": "integer", "minimum": 0},
+    "safePath": {"type": "string", "minLength": 1, "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"},
+    "fileBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "byteLength"],
+      "properties": {
+        "path": {"$ref": "#/$defs/safePath"},
+        "sha256": {"$ref": "#/$defs/digest"},
+        "byteLength": {"$ref": "#/$defs/safeCount"}
+      }
+    },
+    "browserExecutable": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "byteLength"],
+      "properties": {
+        "path": {"const": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"},
+        "sha256": {"$ref": "#/$defs/digest"},
+        "byteLength": {"type": "integer", "minimum": 1}
+      }
+    },
+    "stringPathArray": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/safePath"}},
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evidenceVersion", "browserStatus", "runnerResult", "derivedGitState", "baseCommit", "headCommit", "observedDirtyPaths", "dirtyExpectedPaths", "cleanExpectedPaths", "selectedExpectedPaths", "authorization", "bindings"],
+      "properties": {
+        "evidenceVersion": {"const": 2},
+        "browserStatus": {"const": "captured"},
+        "runnerResult": {"$ref": "#/$defs/fileBinding"},
+        "derivedGitState": {"enum": ["dirty-executor", "clean-committed"]},
+        "baseCommit": {"$ref": "#/$defs/gitSha"},
+        "headCommit": {"$ref": "#/$defs/gitSha"},
+        "observedDirtyPaths": {"$ref": "#/$defs/stringPathArray"},
+        "dirtyExpectedPaths": {"$ref": "#/$defs/stringPathArray"},
+        "cleanExpectedPaths": {"type": "array", "maxItems": 0},
+        "selectedExpectedPaths": {"$ref": "#/$defs/stringPathArray"},
+        "authorization": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["authorizationId", "materializationKind"],
+          "properties": {
+            "authorizationId": {"enum": ["phase-1.5-compatibility-synthetic/v1", "phase-2/v1"]},
+            "materializationKind": {"enum": ["materialized", "deferred"]}
+          }
+        },
+        "bindings": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["catalog", "plan", "registry", "adapter"],
+          "properties": {
+            "catalog": {"$ref": "#/$defs/fileBinding"},
+            "plan": {"$ref": "#/$defs/fileBinding"},
+            "registry": {"$ref": "#/$defs/fileBinding"},
+            "adapter": {"$ref": "#/$defs/fileBinding"}
+          }
+        }
+      }
+    }
+  }
+}

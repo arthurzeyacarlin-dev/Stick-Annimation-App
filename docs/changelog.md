@@ -5,6 +5,17 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-17 — SPEC-0001 Phase 1.5 compatibility correction accepted and propagated
+
+- recorded Arthur and the Project Manager's acceptance of the stopped Spec Executor's renewed §10.4A result from exact base/HEAD `8b663d2b80144e9aeba9ea0ecf0f78ccefa78926`: exactly 23 implementation/proof paths, empty index, no product/package/configuration drift, and technical-manifest SHA-256 `53202d21ba7248e46a3e3423a623fbc785b5c3beedd6dd4d2a984b37614cffe8` (39,386 bytes)
+- independently archived-revalidated the unchanged 9-receipt/43-artifact manifest without restoring dependencies; it binds exact dirty-23/clean-empty Git expectations, 37 compatibility negatives, Phase 1's 631 assertions, TypeScript, isolated base/result lint at 5 errors/73 warnings with zero changed-line/new-file findings, zero real/non-loopback requests, production exclusion, and exact success/failure/`SIGINT`/`SIGTERM` cleanup
+- recorded the real compatibility browser proof honestly: 27 closed synthetic actions, 4 checkpoints, 1 screenshot, and the five protected Home/New/Drawing, Home/New/Stick, Stick/Creator/Back, Drawing Generate Frames, and Drawing Undo/Redo/Play/Pause regression groups; the adapter is test-owned and Phase-2-shaped, `productPhaseClaimed` is false, and no product Phase 2 behavior was implemented or tested
+- ran the accepted tracked-state finalizer with the literal required `--accepted-proof-sha256=53202d21ba7248e46a3e3423a623fbc785b5c3beedd6dd4d2a984b37614cffe8` flag; it created and immediately validated the ignored closeout against the exact 23 accepted implementation paths plus eight control-plane paths, and the same exact four-flag command revalidated the existing closeout without changing tracked bytes
+- preserved byte-for-byte historical no-plan/v1 semantics, the accepted 23 implementation/proof bytes, package/lock/product code, SPEC-0002's complete published state, the separate SPEC-0003 Proposed/inactive worktree, `docs/DECISIONS.md`, and the recovery branch
+- marked the correction technically Verified/accepted but unstaged, unpublished, and unintegrated; kept Phase 2 Authorized/Not started/blocked until a separate publication task passes the clean no-plan and byte-identical synthetic-plan gates, integrates the correction, and a later activation names a new Phase 2 base/executor; kept Phases 3–7 Unauthorized/Not started
+
+This is accepted-result control-plane propagation and tracked-state closeout only. No accepted implementation/fixture/test/proof byte was changed; no stage, commit, merge, push, publication, deployment, external/provider/search/Supabase/paid request, Phase 2 work, SPEC-0002 work, SPEC-0003 work, or other-worktree mutation occurred.
+
 ### 2026-08-17 — SPEC-0002 urgent realistic-size Save correction published and integrated
 
 - recorded exact 13-path commit `5c36870f7671033e30dc9341ba757e36c6572cc2`, parent `92e6143641c5dd2542277052fe21c6bad742139f`, message `Fix realistic Drawing project Save crash`, containing the accepted seven implementation/proof paths and six reviewed control-plane paths without changing any reviewed byte

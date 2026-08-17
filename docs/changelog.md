@@ -5,6 +5,27 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-17 — SPEC-0001 Phase 1.5 compatibility correction approved and authorized
+
+- recorded D-0016 from Arthur's explicit autopilot authorization and Project Manager acceptance: the exact §10.4A proof-infrastructure correction is **Approved; Authorized; Not started**, with no user-facing behavior, product outcome, or owner-choice change
+- preserved the exact 23-path ceiling, nine ordered commands, 21-file pre-closeout proof tree, one immutable plan with `dirtyExpectedPaths`/`cleanExpectedPaths`, Git-derived dirty/clean state, and deferred future Phase 2 hash binding exactly as proposed
+- kept historical Phase 1/Phase 1.5 Verified/published/integrated; kept Phase 2 Authorized/Not started/blocked until the correction is implemented, technically accepted, propagated, separately published/integrated, and followed by a new activation SHA/executor; kept Phases 3–7 Unauthorized/Not started
+- made separate publication of D-0016 the exact next step; correction implementation, Phase 2, external services, and Git publication remain outside this task
+
+This is a seven-file documentation/control-plane acceptance record only. No runtime, tester, fixture, schema, package/dependency, configuration, environment, database, SPEC-0002, SPEC-0003, other-worktree, recovery, external-service, stage, commit, merge, push, publication, or deployment byte changed.
+
+### 2026-08-17 — SPEC-0001 Phase 1.5 compatibility correction proposed
+
+- reconciled the already-published D-0015 activation: exact eight-path canonical-main commit `a85690de9396cf97e3063005cbb6da85f109ae1d`, parent `af89b26c89d83eb61f77d91b4a50c105b7c12079`, message `Authorize SPEC-0001 Phase 2`; GIT-012 is complete
+- traced the stopped Phase 2 proof path and recorded six hard blockers: the permanent runner ignores required `--plan`; it loads no later-phase registry/action module; the current Stick scaffold cannot supply the required Phase 2 application evidence; the v1 clean/Phase-1.5-only baseline policy rejects authorized Phase 2 dirty bytes; shared v1 lint evidence is frozen at historical 6 errors/73 warnings while clean canonical `a85690d` measures 5/73; and the required proof correction lies outside Phase 2 §10.5
+- proposed one unnumbered **Phase 1.5 Compatibility Correction for Phase 2 Proof** that preserves the exact default no-plan suite while adding a validated plan → registry → declarative browser-adapter path, exact Phase 2 dirty allowlisting, fail-closed unknown-data handling, and no broader route/network/filesystem/product-mutation authority
+- corrected the consolidated PM feasibility blocker without widening scope: each immutable plan now carries exact `dirtyExpectedPaths` and `cleanExpectedPaths`; the runner derives dirty versus clean from actual Git-visible state and base/HEAD relations; the same byte-identical synthetic plan/registry/adapter/catalog must pass dirty proof and clean publication; and the future Phase 2 catalog entry pre-authorizes only paths/schemas/operations/output/§10.5 ceiling, never unknowable future hash/length values
+- proposed version-2 lint evidence that records measured base/result totals, rejects new or worse findings, requires zero findings on changed lines/new files, and leaves the historical accepted 6/73 receipts and schemas valid and byte-identical
+- froze one exact 23-path proof-infrastructure implementation allowlist, deterministic compatibility and negative self-tests, one Phase-2-shaped synthetic extension, exact technical proof artifacts, and separate clean committed no-plan plus synthetic publication gates; the future Phase 2 executor would create only its own already-authorized §10.5 extension files and invoke—not alter—the integrated tester core
+- kept SPEC-0001 Approved/active; Phase 1 and historical Phase 1.5 Verified/published/integrated; the correction **Proposed; Unauthorized**; Phase 2 **Authorized; Not started; blocked** until separate correction acceptance, implementation, propagation, publication/integration, and a new activation SHA/executor; and Phases 3–7 Unauthorized/Not started
+
+This is a documentation/control-plane proposal only. No correction or Phase 2 implementation, runtime/UI/product source, tester/schema/fixture/package/dependency/configuration/environment/database byte, external or paid request, other-worktree byte, stage, commit, merge, push, publication, or deployment changed. The separate SPEC-0003 proposal worktree, `docs/DECISIONS.md`, and `codex/pre-baseline-staged-page-2026-08-09` remain untouched.
+
 ### 2026-08-17 — SPEC-0002 completed and SPEC-0001 Phase 2 activation recorded
 
 - recorded SPEC-0002 Phase 2 as Verified, published, integrated, and durably complete in exact 21-path commit `af89b26c89d83eb61f77d91b4a50c105b7c12079`, parent `e85003089e793791f9a191a56b29c1c377ef5d26`, message `Implement SPEC-0002 Phase 2 local persistence`

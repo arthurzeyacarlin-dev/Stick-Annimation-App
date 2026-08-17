@@ -476,7 +476,7 @@ const isBitmapDataShapeValid = (bitmap: { width: number; height: number; data: {
 };
 
 const createImageDataSafely = (
-  data: Uint8ClampedArray | number[],
+  data: Uint8ClampedArray | Uint8Array | number[],
   width: number,
   height: number,
 ): ImageData | null => {
@@ -892,7 +892,7 @@ const serializeBitmap = (bitmap: ImageData | null): SerializedBitmap | null => {
     ? {
         width: usableBitmap.width,
         height: usableBitmap.height,
-        data: Array.from(usableBitmap.data),
+        data: new Uint8ClampedArray(usableBitmap.data),
       }
     : null;
 };
@@ -7797,22 +7797,22 @@ export function DrawingWorkspace({ initialProject = null }: DrawingWorkspaceProp
         return null;
       }
 
-      if (options?.commitMode === "commitWithoutHistory") {
-        commitCurrentFrameSnapshotWithoutHistory("file-menu-save-as-commit-current-frame");
-      } else {
-        saveCurrentFrameSnapshot(currentFrameIndexRef.current, activeLayerIdRef.current, {
-          captureOptions: { includePreviewUrl: false },
-          debugCaller: options?.forceNew ? "file-menu-save-as" : "file-menu-save",
-        });
-      }
-
-      const nextProjectData = createPersistedProjectSnapshot();
       const capturedWorkspaceInstanceId = workspaceInstanceIdRef.current;
-      const capturedGeneration = documentGenerationRef.current;
       saveInFlightRef.current = true;
       setSaveState("saving");
 
       try {
+        if (options?.commitMode === "commitWithoutHistory") {
+          commitCurrentFrameSnapshotWithoutHistory("file-menu-save-as-commit-current-frame");
+        } else {
+          saveCurrentFrameSnapshot(currentFrameIndexRef.current, activeLayerIdRef.current, {
+            captureOptions: { includePreviewUrl: false },
+            debugCaller: options?.forceNew ? "file-menu-save-as" : "file-menu-save",
+          });
+        }
+
+        const nextProjectData = createPersistedProjectSnapshot();
+        const capturedGeneration = documentGenerationRef.current;
         const saved = await saveStoredDrawingProject({
           id: options?.forceNew ? null : projectId,
           name: options?.nameOverride ?? projectTitle,

@@ -5,6 +5,16 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-17 — SPEC-0002 urgent realistic-size Save correction accepted and propagated
+
+- recorded the newly observed regression in the previously integrated Phase 2: each realistic `4563×3302` RGBA bitmap contained 60,268,104 typed bytes, Save and V2 Open expanded them into giant boxed arrays with `Array.from`, and Save preparation occurred outside its failure boundary so `RangeError: Invalid array length` reached the Next overlay
+- recorded the accepted seven-path correction from exact base `92e6143641c5dd2542277052fe21c6bad742139f`: owning compact typed-byte Save snapshots, direct typed storage encoding, typed V2 hydration, unchanged legacy `number[]` support/V1 strict validation, and current-frame/snapshot/pre-storage preparation inside truthful failure handling
+- independently revalidated technical-manifest SHA-256 `9d6c2bd8bc607c947265b72b3b0387909065f6b1305baa7e49a6f51e991c54fd`: 12 receipts, 890 assertions, 20 validator mutation classes, 10 protected regressions, the exact `1440×900` two-keyframe/held-frame/Onion flow, Save/edit/Save, safe preparation failure without publication, Save As/reload/original-copy reopen, matching dimensions/digests, zero page/range/overlay errors, and zero external/provider requests
+- preserved the exact V2 PNG/IndexedDB schema, bytes, digests, limits, atomic head swap, race guards, local-only behavior, Save As semantics, frozen SPEC-0001 tester core, and every unrelated Drawing/Stick/Creator surface
+- marked the correction technically Verified and accepted but not yet published/integrated; opened GIT-014 as the separate publication gate, including the clean committed-branch permanent SPEC-0001 tester before integration/push; kept SPEC-0001 compatibility work and SPEC-0003 paused/unchanged
+
+This is accepted-result control-plane propagation and closeout only. Accepted implementation/proof bytes remain unchanged. No stage, commit, merge, push, publication, deployment, provider/external request, package/configuration change, or recovery-branch mutation occurred.
+
 ### 2026-08-17 — D-0016 publication reconciled
 
 - recorded the completed normal publication of D-0016 and the SPEC-0001 Phase 1.5 compatibility-correction approval in exact seven-path commit `6c2973caecb742334fb432bdda8fbc674bb7db42`, parent `a85690de9396cf97e3063005cbb6da85f109ae1d`, message `Authorize SPEC-0001 tester compatibility correction`, on `codex/spec-0001-tester-compatibility-authorization`

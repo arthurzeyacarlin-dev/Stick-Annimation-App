@@ -8,8 +8,8 @@ Last updated: 2026-08-17
 Decision links: D-0013, D-0014
 TODO IDs: SPEC-002, DATA-002 (Phase 1), DATA-003 (Phase 2), DATA-001 (narrow Drawing portion), RENDER-001 (save/reopen portion)
 Baseline branch/commit: `codex/spec-architect` at `365e68fe98b27e993a1c5645c3e28c7b428c6f33`, matching `origin/main` at research start
-Last verified branch/commit: Phase 1 published/integrated at `0416fc3828a863a797ee9f1c3daa8508792ac64a`, parent `82663051b30cdcfd6766cf4714cdeb2306970045`; Phase 1 technical-manifest SHA-256 `2d20a4a63103618505b60cf590835191841d1c1968bc2bc14ef2c953253243a1`; Phase 1 closeout-manifest SHA-256 `b2d50852cffa40dbf3d7535665a12abe66439cfceeffc61d6eb56195ff947b3c`; Phase 2 published/integrated at `af89b26c89d83eb61f77d91b4a50c105b7c12079`, parent `e85003089e793791f9a191a56b29c1c377ef5d26`, with exactly 21 reviewed paths; technical-manifest SHA-256 `0a5ea38f8146641430d37ddc272fa0b1169181252b596e0ba14886c2bb4f2657`; closeout-manifest SHA-256 `00f7f07e05b43e685b350e512c152421c51d741297bc55cb4d59e3974e265191`
-Lifecycle: Approved; Phase 1 and Phase 2 Verified, published, integrated, and durably complete
+Last verified branch/commit: Phase 1 published/integrated at `0416fc3828a863a797ee9f1c3daa8508792ac64a`, parent `82663051b30cdcfd6766cf4714cdeb2306970045`; Phase 1 technical-manifest SHA-256 `2d20a4a63103618505b60cf590835191841d1c1968bc2bc14ef2c953253243a1`; Phase 1 closeout-manifest SHA-256 `b2d50852cffa40dbf3d7535665a12abe66439cfceeffc61d6eb56195ff947b3c`; Phase 2 published/integrated at `af89b26c89d83eb61f77d91b4a50c105b7c12079`, parent `e85003089e793791f9a191a56b29c1c377ef5d26`, with exactly 21 reviewed paths; technical-manifest SHA-256 `0a5ea38f8146641430d37ddc272fa0b1169181252b596e0ba14886c2bb4f2657`; closeout-manifest SHA-256 `00f7f07e05b43e685b350e512c152421c51d741297bc55cb4d59e3974e265191`. The accepted urgent Save correction is based at `92e6143641c5dd2542277052fe21c6bad742139f`; its independently revalidated technical-manifest SHA-256 is `9d6c2bd8bc607c947265b72b3b0387909065f6b1305baa7e49a6f51e991c54fd`
+Lifecycle: Approved and implemented; Phase 1 and the original Phase 2 publication remain Verified/published/integrated; the urgent realistic-size Save/Save As correction is technically Verified and accepted, with publication/integration pending
 
 ## 1. Exact Goal
 
@@ -29,7 +29,9 @@ The recommended V1 outcome for this spec is:
 - truthful saved/unsaved/saving/too-large/failed presentation; and
 - fully offline deterministic and real-browser proof.
 
-Arthur accepted these recommendations exactly through D-0013. The corrected Phase 1 implementation is Verified, published, and integrated at `0416fc3828a863a797ee9f1c3daa8508792ac64a`. D-0014 and both Phase 2 proof-contract corrections were separately published, ending at the exact Phase 2 base `e85003089e793791f9a191a56b29c1c377ef5d26`. The Phase 2 Spec Executor then passed the clean pre-edit permanent tester, implemented only the §12.2 boundary, recorded all 12 receipts, completed the 22-step real-app flow at both viewports plus REG-01–REG-10, and produced an independently valid 889-assertion manifest at SHA-256 `0a5ea38f8146641430d37ddc272fa0b1169181252b596e0ba14886c2bb4f2657`. Arthur and the Project Manager accepted that technical implementation, the executor stopped, and the reviewed result was published and integrated in exact 21-path commit `af89b26c89d83eb61f77d91b4a50c105b7c12079`. SPEC-0002 is now durably complete.
+Arthur accepted these recommendations exactly through D-0013. The corrected Phase 1 implementation is Verified, published, and integrated at `0416fc3828a863a797ee9f1c3daa8508792ac64a`. D-0014 and both Phase 2 proof-contract corrections were separately published, ending at the exact Phase 2 base `e85003089e793791f9a191a56b29c1c377ef5d26`. The original Phase 2 result was published and integrated in exact 21-path commit `af89b26c89d83eb61f77d91b4a50c105b7c12079`.
+
+On 2026-08-17, Arthur's realistic Drawing project exposed a newly observed regression in that integrated result: a `1440×900` authoring session produced each `4563×3302` RGBA bitmap as 60,268,104 bytes, and Save/Save As expanded those typed bytes into giant boxed `number[]` values through `Array.from`. V2 Open repeated the same expansion, while Save snapshot preparation happened outside its failure boundary, allowing `RangeError: Invalid array length` to reach the Next error overlay. The accepted correction keeps the V2 schema and bytes unchanged, uses an owning compact typed-byte snapshot, encodes typed views directly while retaining legacy `number[]` input, returns typed bytes from V2 hydration, and encloses current-frame commit, snapshot, and all pre-storage preparation in truthful failure handling. Its exact keyframe → hold → keyframe plus Onion Skin flow, Save/edit/Save again, injected preparation failure, Save As, reload, and reopen-original/reopen-copy proof passed with matching dimensions/digests and no overlay or page error. The correction is technically Verified and accepted at manifest SHA-256 `9d6c2bd8bc607c947265b72b3b0387909065f6b1305baa7e49a6f51e991c54fd`; it is not yet published or integrated.
 
 ## 2. Current Behavior and Evidence
 
@@ -457,7 +459,7 @@ Delete V2 or exact classified legacy-only project
 
 ### 10.1 Activation and concurrency gate
 
-SPEC-0002 is Approved and durably complete. Phase 1 and Phase 2 are Verified, published, and integrated. Phase 2 was separately authorized by D-0014, executed from the published compatibility-correction base `e85003089e793791f9a191a56b29c1c377ef5d26`, accepted by Arthur and the Project Manager, and published as exact commit `af89b26c89d83eb61f77d91b4a50c105b7c12079`. The 2026-08-15 Phase 1 activation audit recorded:
+SPEC-0002 remains Approved and implemented. Phase 1 and the original Phase 2 result are Verified, published, and integrated; the urgent realistic-size Save correction is technically Verified/accepted and awaiting publication/integration. Phase 2 was separately authorized by D-0014, executed from the published compatibility-correction base `e85003089e793791f9a191a56b29c1c377ef5d26`, accepted by Arthur and the Project Manager, and published as exact commit `af89b26c89d83eb61f77d91b4a50c105b7c12079`. The 2026-08-15 Phase 1 activation audit recorded:
 
 1. canonical `main` and local `origin/main` both at `365e68fe98b27e993a1c5645c3e28c7b428c6f33`, ahead/behind `0/0`, with a clean canonical worktree and index;
 2. SPEC-0001 has no active executor or architect, while its Phase 2 and later phases remain Unauthorized/Not started;
@@ -614,7 +616,7 @@ Stop unless every deterministic gate passes, including exact sound fields, aggre
 
 ### 12.1 Status, dependencies, and outcome
 
-Verified, published, integrated, and durably complete at exact commit `af89b26c89d83eb61f77d91b4a50c105b7c12079`. The executor began from exact published base `e85003089e793791f9a191a56b29c1c377ef5d26`, passed the §12.8.1 clean pre-edit permanent tester, stayed within §12.2, completed the observable §6 flow offline, produced the accepted technical manifest, returned its packet, and stopped. After acceptance and Control Plane Architect closeout, the publication task committed exactly 21 reviewed paths, passed the clean integrated-current-head permanent tester, fast-forwarded canonical `main`, pushed normally, and verified clean `0/0` synchronization.
+The original Phase 2 result was Verified, published, and integrated at exact commit `af89b26c89d83eb61f77d91b4a50c105b7c12079`. The executor began from exact published base `e85003089e793791f9a191a56b29c1c377ef5d26`, passed the §12.8.1 clean pre-edit permanent tester, stayed within §12.2, completed the observable §6 flow offline, produced the accepted technical manifest, returned its packet, and stopped. After acceptance and Control Plane Architect closeout, the publication task committed exactly 21 reviewed paths, passed the clean integrated-current-head permanent tester, fast-forwarded canonical `main`, pushed normally, and verified clean `0/0` synchronization. The later realistic-size Save regression and accepted pending correction are recorded in §15.1 and §16.
 
 ### 12.2 Exact authorized implementation files
 
@@ -836,6 +838,26 @@ The Spec Executor recorded exactly 12 receipts and independently validated 889 a
 
 The later publication task published and integrated the reviewed result on 2026-08-17 as exact commit `af89b26c89d83eb61f77d91b4a50c105b7c12079`, parent `e85003089e793791f9a191a56b29c1c377ef5d26`, message `Implement SPEC-0002 Phase 2 local persistence`, with exactly 21 reviewed paths. The permanent tester passed on the clean committed head in integrated-current-head mode with 40 operations, 13 screenshots, exactly one deterministic mocked Drawing request, and zero real API or non-loopback requests. Technical-manifest SHA-256 remained `0a5ea38f8146641430d37ddc272fa0b1169181252b596e0ba14886c2bb4f2657`; closeout-manifest SHA-256 remained `00f7f07e05b43e685b350e512c152421c51d741297bc55cb4d59e3974e265191`. The phase branch, local `main`, local `origin/main`, and live remote `main` matched at clean `0/0`, and both relevant worktrees were clean. GIT-011 is complete.
 
+### 15.1 Urgent realistic-size Save correction
+
+The previously integrated Phase 2 had a newly observed Save/Save As regression at realistic authoring size. The confirmed root cause was `Array.from(usableBitmap.data)` in the workspace serialization bridge and the same boxed-byte conversion during V2 Open hydration. A 60,268,104-byte typed bitmap therefore became tens of millions of boxed JavaScript numbers. Because current-frame commit and snapshot/pre-storage preparation occurred before `persistProject` entered its `try/catch`, the resulting `RangeError` escaped into the Next overlay.
+
+The accepted correction changes exactly these seven implementation/proof paths:
+
+- `src/components/workspace/DrawingWorkspace.tsx`
+- `src/lib/drawingProjectStorage.ts`
+- `scripts/runSpec0002BrowserProof.ts`
+- `scripts/spec0002-browser/browserProofContract.ts`
+- `scripts/spec0002-browser/validatePhase2.ts`
+- `scripts/fixtures/spec0002-browser/v1/phase-2-proof-commands.json`
+- `scripts/fixtures/spec0002-browser/v1/phase-2-proof-manifest.schema.json`
+
+The internal bitmap bridge now accepts legacy `number[]` and compact typed bytes. Save captures an owning typed-byte copy, storage consumes typed bytes without boxing them, and V2 hydration returns typed bytes; strict V1 JSON number-array validation is unchanged. Current-frame commit, snapshot creation, and every pre-storage preparation step are inside the existing truthful `try/catch/finally`, so Save and Save As report failed/too-large states without an application overlay. V2 PNG/IndexedDB schema, encoded bytes, digests, capacity limits, staged read-back, atomic head swap, race guards, local-only behavior, and Save As semantics remain unchanged.
+
+The accepted technical proof contains 12 receipts and 890 assertions, including 20 validator mutation classes and 10 protected regressions. In isolated browser storage at `1440×900`, it used two `4563×3302` owning keyframe bitmaps with a held middle frame and Onion Skin enabled; proved Save, edit and Save again, a preparation-error failure with no storage publication, Save As, reload, and reopen of original and copy; and matched frame structure, bitmap dimensions/digests, held frame, Onion state, and overlay pixels. Page errors, `RangeError`, `Invalid array length`, Next overlays, external requests, and provider requests were all zero. The accepted proof-manifest SHA-256 is `9d6c2bd8bc607c947265b72b3b0387909065f6b1305baa7e49a6f51e991c54fd`. TypeScript passed; focused lint had zero errors; full lint remained the repository baseline of 5 errors/73 warnings with zero changed-line findings. The clean-only permanent SPEC-0001 tester is a publication gate on the committed clean branch, not a post-fix dirty-worktree receipt.
+
+Arthur and the Project Manager accepted this correction after the Spec Executor stopped. It remains unstaged, uncommitted, unpublished, and unintegrated until the separate publication task. SPEC-0001 compatibility work and SPEC-0003 remain paused and unchanged while this urgent correction closes.
+
 ## 16. Verification Record
 
 | Gate/flow | Result | Evidence |
@@ -857,6 +879,7 @@ The later publication task published and integrated the reviewed result on 2026-
 | Phase 2 protected regression extension | Pass | REG-01–REG-10 at both viewports, including canonical execution-disable checks for Generate Plans/Sounds/Other with no automatic POST/action and exactly one mocked Generate Frames POST; four screenshots; frozen Phase 1.5 bytes unchanged. |
 | Phase 2 official technical proof | Pass and independently revalidated | Exactly 12 receipts, 14 artifacts, 889 assertions, 20 negative validator classes, TypeScript pass, lint improved from accepted 6 errors/73 warnings to 5 errors/73 warnings with zero changed-line findings, both diff checks, empty index, zero real/external requests, and complete cleanup. Manifest SHA-256 `0a5ea38f8146641430d37ddc272fa0b1169181252b596e0ba14886c2bb4f2657`. |
 | Phase 2 publication and integration | Pass | Exact 21-path commit `af89b26c89d83eb61f77d91b4a50c105b7c12079`, parent `e85003089e793791f9a191a56b29c1c377ef5d26`, message `Implement SPEC-0002 Phase 2 local persistence`; integrated-current-head permanent tester passed with 40 operations, 13 screenshots, exactly one deterministic mocked Drawing request, and zero real API/non-loopback requests; technical SHA `0a5ea38f8146641430d37ddc272fa0b1169181252b596e0ba14886c2bb4f2657`; closeout SHA `00f7f07e05b43e685b350e512c152421c51d741297bc55cb4d59e3974e265191`; phase branch/local main/local origin/live main matched cleanly at `0/0`. |
+| Urgent realistic-size Save/Save As correction | Pass; technically Verified and accepted; publication pending | Exact seven-path correction from base `92e6143641c5dd2542277052fe21c6bad742139f`; 12 receipts, 890 assertions, 20 validator mutations, 10 protected regressions, TypeScript, focused lint zero, full lint 5/73 with zero changed-line findings, exact 60,268,104-byte bitmap flow, safe preparation failure with no publication, Save As/reload/original/copy fidelity, zero overlay/page/range errors, and zero external/provider requests. Manifest SHA-256 `9d6c2bd8bc607c947265b72b3b0387909065f6b1305baa7e49a6f51e991c54fd`. |
 | Representative real-app fidelity and visible failure/quota/migration UI | Pass for SPEC-0002 Phase 2 | Bound by the accepted two-viewport browser evidence and independently validated technical manifest; broader export/cloud/autosave/browser-matrix behavior remains outside scope. |
 | TypeScript/lint | Pass in accepted Phase 2 technical proof | TypeScript exited 0; full lint improved to 5 errors/73 warnings versus the accepted 6/73 baseline, with zero changed-line findings. |
 | Production build | Unproven / not applicable to Phase 1 claim | No existing runtime imports the hidden modules; Phase 1 claims no product build or visible flow. |
@@ -881,10 +904,10 @@ Engineering defaults that do not change the accepted outcome—internal helper d
 
 ## 18. Final State and Handoff
 
-Final status: **Approved and durably complete**. OD2-01 through OD2-08 remain accepted exactly as written. SPEC-0002 Phase 1 and Phase 2 are **Verified, published, and integrated**. Phase 2 publication commit is `af89b26c89d83eb61f77d91b4a50c105b7c12079`; technical-manifest SHA-256 is `0a5ea38f8146641430d37ddc272fa0b1169181252b596e0ba14886c2bb4f2657`; closeout-manifest SHA-256 is `00f7f07e05b43e685b350e512c152421c51d741297bc55cb4d59e3974e265191`. GIT-011 is complete.
+Final status: **Approved and implemented**. OD2-01 through OD2-08 remain accepted exactly as written. SPEC-0002 Phase 1 and the original Phase 2 result remain **Verified, published, and integrated** at `af89b26c89d83eb61f77d91b4a50c105b7c12079`. The newly observed realistic-size Save/Save As correction is **technically Verified and accepted, with publication/integration pending** at technical-manifest SHA-256 `9d6c2bd8bc607c947265b72b3b0387909065f6b1305baa7e49a6f51e991c54fd`.
 
 Publication state: the phase branch, local `main`, local `origin/main`, and verified live remote `main` matched the publication commit at clean `0/0`; both relevant worktrees were clean after publication. Exact integrated-current-head tester evidence is 40 operations, 13 screenshots, exactly one deterministic mocked Drawing request, and zero real API/non-loopback requests.
 
-Exact next step outside this completed spec: publish and integrate D-0015's SPEC-0001 Phase 2 activation record. Only afterward may one new dedicated Plan-mode SPEC-0001 Phase 2 Spec Executor task/worktree start from that activation publication SHA after a refreshed conflict audit. SPEC-0003 remains only a separate Proposed dirty documentation worktree and is not part of SPEC-0002.
+Exact next step: under a separate explicit publication instruction, publish only the reviewed seven-file correction plus its reviewed canonical control-plane paths, run the clean committed permanent SPEC-0001 tester before integration/push, fast-forward canonical `main`, and verify synchronization. SPEC-0001 compatibility work and SPEC-0003 remain paused/unchanged; no later phase begins before this correction is durably integrated.
 
 This completed spec authorizes no new staging, commit, push, merge, deployment, external activity, SPEC-0001 implementation, SPEC-0003 implementation, autosave/cloud/export work, or later phase.

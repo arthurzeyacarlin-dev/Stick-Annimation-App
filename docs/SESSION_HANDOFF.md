@@ -3,54 +3,44 @@
 Status: canonical last-known stopping point
 Last updated: 2026-08-17
 Active specs: `docs/specs/0001-first-reversible-ai-stick-animation.md` and `docs/specs/0002-lossless-local-drawing-save-and-reopen.md` — Approved
-Active phase state: SPEC-0001 Phase 1 and historical Phase 1.5 — Verified/published/integrated; SPEC-0002 Phase 1 and Phase 2 — Verified/published/integrated/durably complete; SPEC-0001 Phase 2 — Authorized/Not started/blocked; SPEC-0001 Phase 1.5 compatibility correction — Approved/Authorized/Not started under published/integrated D-0016; SPEC-0001 Phases 3–7 — Unauthorized/Not started
+Active correction state: SPEC-0002 urgent realistic-size Save/Save As correction — technically Verified and accepted; publication/integration pending
 Current roadmap phase: Phase 0 — Preserve and Stabilize
 
 ## Completed in the Last Task
 
-D-0016 and the SPEC-0001 Phase 1.5 compatibility-correction approval were published and integrated in exact seven-path commit `6c2973caecb742334fb432bdda8fbc674bb7db42`, parent `a85690de9396cf97e3063005cbb6da85f109ae1d`, message `Authorize SPEC-0001 tester compatibility correction`, on `codex/spec-0001-tester-compatibility-authorization`. Canonical `main` was fast-forwarded and normally pushed without force. The publication branch, local `main`, local `origin/main`, and live remote `main` matched cleanly at `0/0`. GIT-013 is complete. Phase 1 and historical Phase 1.5 remain Verified/published/integrated; the correction remains Approved/Authorized/Not started; Phase 2 remains Authorized/Not started/blocked; Phases 3–7 remain Unauthorized/Not started. No implementation began.
+Arthur's real Drawing project exposed an urgent regression in the previously published SPEC-0002 Phase 2 Save path. At `1440×900`, the authoring world produced `4563×3302` RGBA bitmaps, or 60,268,104 bytes each. `DrawingWorkspace` used `Array.from` to expand those typed bytes into giant boxed number arrays for Save, `drawingProjectStorage` repeated the conversion during V2 Open, and current-frame/snapshot preparation occurred outside `persistProject`'s failure boundary. Save and Save As could therefore throw `RangeError: Invalid array length` into the Next error overlay.
 
-The exact published paths were `docs/CURRENT_STATE.md`, `docs/DECISIONS.md`, `docs/SESSION_HANDOFF.md`, `docs/TODO.md`, `docs/changelog.md`, `docs/specs/0001-first-reversible-ai-stick-animation.md`, and `docs/specs/README.md`.
+The accepted seven-path correction keeps bitmap bytes compact and owning across the asynchronous Save boundary, consumes typed bytes without boxing during storage encoding, returns typed bytes from V2 hydration, preserves legacy `number[]` and strict V1 JSON validation, and moves current-frame commit, snapshot, and all pre-storage preparation inside truthful `try/catch/finally` handling. V2 PNG/IndexedDB schema, encoded bytes, digests, capacity limits, staged read-back, atomic head swap, race guards, local-only behavior, and Save As behavior are unchanged.
 
-D-0015 and the SPEC-0001 Phase 2 activation record remain published in exact eight-path canonical-main commit `a85690de9396cf97e3063005cbb6da85f109ae1d`, parent `af89b26c89d83eb61f77d91b4a50c105b7c12079`, message `Authorize SPEC-0001 Phase 2`. GIT-012 remains complete.
+The stopped Spec Executor proved the exact realistic flow in isolated browser storage: two `4563×3302` owning keyframes separated by a held frame, Onion Skin enabled, Save, edit and Save again, injected preparation failure with safe failed UI and no storage publication, Save As, reload, and reopen original and copy. Frame structure, bitmap dimensions/digests, held frame, Onion state, and overlay pixels matched. Page errors, `RangeError`, `Invalid array length`, Next overlays, external requests, and provider requests were zero. The technical proof contains 12 receipts, 890 assertions, 20 validator mutation classes, and 10 protected regressions. TypeScript passed; focused lint had zero errors; full lint remained 5 errors/73 warnings with zero changed-line findings.
 
-This Spec Architect task started from a new clean detached worktree at that exact SHA and traced the real runner, browser contract, v1 schemas, historical/current recorders and validators, package command, current Stick gesture/timeline state, Phase 2 fixtures/authorized paths, and stopped Phase 2 worktree. It proved six blockers:
-
-- `runSpec0001BrowserProof.ts` hard-codes the Phase 1.5 plan and ignores the required `--plan`;
-- no Phase 2 registry/action module is loaded;
-- the current Stick scaffold cannot produce the required manual-wave, drag/up/cancel, publication/race, fixture, or checkpoint evidence;
-- the v1 baseline policy rejects legitimate Phase 2 dirty bytes;
-- shared v1 proof code/schemas require historical 6/73 while the clean `a85690d` base freshly measures 5/73; and
-- correcting those proof mechanics requires files outside Phase 2 §10.5, so the Phase 2 executor correctly changed nothing.
-
-SPEC-0001 §10.4A defines one named **Phase 1.5 Compatibility Correction for Phase 2 Proof**. D-0016 records Arthur's autopilot authorization and Project Manager acceptance as **Approved; Authorized; Not started**, and that approval is now published/integrated at `6c2973caecb742334fb432bdda8fbc674bb7db42`. It is not a product feature or numbered Phase 2 rewrite. The accepted correction preserves the exact no-plan Phase 1.5 suite; adds one explicit validated plan → registry → browser-adapter path; gives each immutable plan exact `dirtyExpectedPaths` and `cleanExpectedPaths` while deriving state from real Git-visible bytes rather than a caller flag; pre-authorizes future Phase 2 paths/schemas/operations/ceiling without impossible future hashes; denies broader filesystem/network/route/product-source/storage/evaluation authority; versions new lint evidence as measured base/result with zero changed-line findings; requires deterministic negative self-tests plus one synthetic Phase-2-shaped extension; and freezes the same exact 23-path proof-only implementation allowlist. No implementation occurred.
+Arthur and the Project Manager accepted the result after the executor stopped. This Control Plane Architect took exclusive ownership, independently revalidated the technical manifest, preserved every accepted implementation/proof byte, and propagated the accepted facts through the canonical control plane. SPEC-0002 remains Approved and implemented; the urgent correction is technically Verified/accepted but not yet published/integrated.
 
 ## Current Git and Proof State
 
-- canonical worktree: `/Users/arthurcarlin/Projects/stick-animation-app`; branch `main`; exact starting `HEAD`, local remote-tracking `origin/main`, and verified live remote `main` `6c2973caecb742334fb432bdda8fbc674bb7db42`; synchronized `0/0` before this reconciliation
-- publication worktree: `/Users/arthurcarlin/.codex/worktrees/867a/stick-animation-app`; branch `codex/spec-0001-tester-compatibility-authorization`; clean exact `HEAD` `6c2973caecb742334fb432bdda8fbc674bb7db42`
-- stopped Phase 2 worktree: `/Users/arthurcarlin/.codex/worktrees/14fd/stick-animation-app`; detached at `a85690de9396cf97e3063005cbb6da85f109ae1d`; clean; no executor implementation byte
-- this task's intended diff is documentation-only: `docs/specs/0001-first-reversible-ai-stick-animation.md`, `docs/specs/README.md`, `docs/TODO.md`, `docs/CURRENT_STATE.md`, `docs/SESSION_HANDOFF.md`, and `docs/changelog.md`; `project/project_structure.txt` may change only if `scripts/update_memory.sh` deterministically requires it
-- `docs/DECISIONS.md` already contains published D-0016 and remains unchanged; `AGENTS.md` and `docs/PROJECT_MANAGER_CONTEXT.md` remain unchanged
-- separate SPEC-0003 proposal worktree `/Users/arthurcarlin/.codex/worktrees/b3d2/stick-animation-app` retained its exact starting dirty-state SHA-256 `637a938f0a15a2c569fbc75e6451be85b08b6d99180ad2cebd88fe5c9fb01f5f`, tracked diff SHA-256 `eb9ee7dd2f93a3c6eea82b20c2c576f2bd1c0aba64f828f84b7cdc0ac8528e9f`, and untracked SPEC-0003 SHA-256 `ec80a6e0761a1ccf62eca8c19044c248927d63ae8eb35c5ca8f4b647fc8527f3`; it was not modified
-- protected branch `codex/pre-baseline-staged-page-2026-08-09` and every unrelated worktree remain untouched
-- fresh clean canonical lint measurement at exact `a85690d`: exit 1, 5 errors, 73 warnings; historical accepted Phase 1/Phase 1.5 evidence remains 6/73
-- the only remote operation in this reconciliation was a read-only live-main verification; no browser/server/product implementation, external request to an application/provider service, install, deployment, OpenAI/search/Supabase/paid work, stage, commit, merge, push, or publication occurred
+- worktree: `/Users/arthurcarlin/.codex/worktrees/a97d/stick-animation-app`
+- detached base/HEAD: `92e6143641c5dd2542277052fe21c6bad742139f`
+- accepted technical manifest: `output/spec-0002/phase-2/proof-manifest.json`
+- accepted technical-manifest SHA-256: `9d6c2bd8bc607c947265b72b3b0387909065f6b1305baa7e49a6f51e991c54fd`
+- accepted implementation/proof paths: `src/components/workspace/DrawingWorkspace.tsx`, `src/lib/drawingProjectStorage.ts`, `scripts/runSpec0002BrowserProof.ts`, `scripts/spec0002-browser/browserProofContract.ts`, `scripts/spec0002-browser/validatePhase2.ts`, `scripts/fixtures/spec0002-browser/v1/phase-2-proof-commands.json`, and `scripts/fixtures/spec0002-browser/v1/phase-2-proof-manifest.schema.json`
+- reviewed control-plane paths: `docs/specs/0002-lossless-local-drawing-save-and-reopen.md`, `docs/specs/README.md`, `docs/CURRENT_STATE.md`, `docs/TODO.md`, `docs/SESSION_HANDOFF.md`, and `docs/changelog.md`; `project/project_structure.txt` may appear only if deterministic memory regeneration changes it
+- `docs/DECISIONS.md`, `docs/testing_workflow.md`, accepted runtime/test/fixture/proof bytes, package/dependency/configuration, and all other paths remain unchanged
+- index must remain empty; proof output is ignored and must contain no raw pixel content
 
 ## Exact Next Start Point
 
-Arthur and the Project Manager review this six-file Control Plane Architect reconciliation packet, then issue a separate publication-only instruction for this post-publication record. No executor may start from the still-unpublished reconciliation bytes.
+Arthur and the Project Manager review the Control Plane Architect packet, then issue one separate explicit publication-only instruction for this reviewed combined correction/control-plane set.
 
-After this reconciliation is separately published/integrated, one focused Plan-mode compatibility Spec Executor starts from that reconciliation publication SHA and may change only the 23 paths in §10.4A plus ignored `output/spec-0001/phase-1.5-compatibility/**` proof. It must create/independently validate the technical manifest, return the Implementation Review Packet, and stop without docs or Git mutation. D-0010 acceptance, exclusive Control Plane Architect propagation/closeout, and later explicit publication remain separate. Publication must pass both the clean no-plan permanent tester and the same byte-identical synthetic plan in derived clean mode before integration/push; a second plan or byte rewrite is forbidden.
+That publication task must verify the exact base, accepted seven-file hashes, reviewed control-plane allowlist, accepted technical-manifest SHA, closeout SHA, empty index, and no unexpected/untracked paths before staging. It stages only the reviewed paths, commits on the correction branch, and runs the clean-only permanent `npm run test:spec0001-browser` on the clean committed branch. Only after that gate passes may it fast-forward a clean canonical `main`, push normally, and prove local/remote `0/0` synchronization. If canonical `main` advanced or any reviewed byte differs, stop without pull, merge, rebase, force-push, history rewrite, or scope expansion.
 
-Do not resume Phase 2 from `a85690d`. Only after the compatibility correction is accepted, implemented, propagated, clean-gate verified, published/integrated, and a later activation names a new exact Phase 2 base/executor may one new Phase 2 Spec Executor begin. SPEC-0003 implementation and SPEC-0001 Phases 3–7 remain unauthorized.
+SPEC-0001 tester compatibility work and SPEC-0003 remain paused and unchanged. No later phase begins before this urgent correction is published and integrated.
 
 ## Systems Intentionally Left Unchanged
 
-- historical Phase 1/Phase 1.5 implementation, proof manifests, v1 schemas/receipts, accepted 6/73 evidence, and status
-- every runtime/UI/product source file; `app/**`; `src/**`; every Drawing/Stick/Creator behavior; product routes/APIs/assets/styles/fonts
-- package/dependency/lock/configuration/environment, migrations/database, Supabase/OpenAI/search/provider, deployment, external/paid services
-- SPEC-0002 completed implementation/evidence/control plane and the separate SPEC-0003 proposal worktree
-- `AGENTS.md`, `docs/PROJECT_MANAGER_CONTEXT.md`, recovery material, Git index/history/remotes, and `codex/pre-baseline-staged-page-2026-08-09`
+- original SPEC-0002 Phase 1/Phase 2 publication history, schemas, PNG bytes/digests, IndexedDB limits/atomicity, V1 strict validation, local-only boundary, and accepted owner decisions
+- frozen SPEC-0001 permanent tester core and its historical proof; the clean post-correction run remains a publication gate because the tester requires a clean committed branch
+- SPEC-0001 compatibility-correction implementation/status, SPEC-0001 Phase 2, SPEC-0003, and all later phases
+- Drawing tools, timeline/history/playback/Generate Frames behavior outside the accepted proof extension; Home/New Drawing, Home/New Stick, Stick Creator/Back, and all unrelated runtime/UI
+- `AGENTS.md`, `docs/DECISIONS.md`, `docs/testing_workflow.md`, `docs/PROJECT_MANAGER_CONTEXT.md`, package/dependencies/configuration/environment, databases/migrations, provider/external services, deployment, remotes, other worktrees, and `codex/pre-baseline-staged-page-2026-08-09`
 
-This task records the completed D-0016 approval publication while keeping the correction Not started. It begins no implementation and authorizes no staging, commit, integration, push, publication, deployment, or external application/provider activity.
+This task authorizes no staging, commit, merge, push, publication, deployment, or external/provider activity. It stops with an empty index.

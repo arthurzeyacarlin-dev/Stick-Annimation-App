@@ -16,7 +16,9 @@ import {
   PHASE1_PATHS,
   PHASE1_PREFIX,
   PHASE1_PUBLICATION,
+  PHASE2_BROWSER_ASSERTIONS,
   PREDECESSOR_MANIFESTS,
+  REALISTIC_AUTHORING_BITMAP,
   RECEIPT_DEFINITIONS,
   REGRESSION_IDS,
   SANITIZED_ENV,
@@ -174,16 +176,35 @@ const validateScenario = (value: unknown, viewport: string) => {
   }, "Failure preservation evidence");
 };
 
+const realisticScenario = (value: unknown) => {
+  const scenario = object(value, ["viewport", "canvas", "structure", "artwork", "persistence", "reopen", "errors"], "Realistic authoring scenario");
+  assert.equal(scenario.viewport, REALISTIC_AUTHORING_BITMAP.viewport);
+  exact(scenario.canvas, {
+    width: REALISTIC_AUTHORING_BITMAP.width,
+    height: REALISTIC_AUTHORING_BITMAP.height,
+    rgbaByteLength: REALISTIC_AUTHORING_BITMAP.rgbaByteLength,
+  }, "Realistic authoring bitmap");
+  exact(scenario.structure, { cellTypes: ["keyframe", "hold", "keyframe"], owningBitmapCount: 2, heldFrameIndex: 1, onionEnabled: true }, "Realistic timeline structure");
+  const artwork = object(scenario.artwork, ["firstKeyframeRgbaSha256", "secondKeyframeBeforeSaveRgbaSha256", "editedDuringSaveRgbaSha256", "firstSaveCapturedPreEdit", "secondSaveCapturedEdit"], "Realistic artwork evidence");
+  for (const key of ["firstKeyframeRgbaSha256", "secondKeyframeBeforeSaveRgbaSha256", "editedDuringSaveRgbaSha256"] as const) assert.match(artwork[key] as string, HEX);
+  assert.notEqual(artwork.firstKeyframeRgbaSha256, artwork.secondKeyframeBeforeSaveRgbaSha256);
+  assert.notEqual(artwork.secondKeyframeBeforeSaveRgbaSha256, artwork.editedDuringSaveRgbaSha256);
+  assert.ok(artwork.firstSaveCapturedPreEdit && artwork.secondSaveCapturedEdit);
+  exact(scenario.persistence, { firstSaveRevision: 1, secondSaveRevision: 2, saveAsHeadCount: 2, preparationFailurePublished: false }, "Realistic persistence evidence");
+  exact(scenario.reopen, { originalDigestMatched: true, copyDigestMatched: true, allArtworkDimensionsAndDigestsMatched: true, originalOnionOverlayOpaque: true, copyOnionOverlayOpaque: true }, "Realistic reopen evidence");
+  exact(scenario.errors, { pageErrors: 0, rangeErrors: 0, invalidArrayLengthErrors: 0, nextOverlayErrors: 0 }, "Realistic error evidence");
+};
+
 const validateBrowserResult = (value: Json, mode: (typeof SPEC0002_MODES)[number], verifyBindings: boolean) => {
   const result = object(value, [
     "appMounted", "assertions", "baseCommit", "cleanup", "completedAt", "failure", "flowSteps", "frozenBindings", "frozenContract",
-    "headCommit", "mode", "network", "phase", "phase2Scenarios", "regressions", "requests", "resultVersion", "runtime", "screenshots",
+    "headCommit", "mode", "network", "phase", "phase2Scenarios", "realisticAuthoringScenario", "regressions", "requests", "resultVersion", "runtime", "screenshots",
     "serverOutputSha256", "specId", "startedAt", "status", "viewports",
   ], `${mode} result`);
   exact([result.resultVersion, result.specId, result.phase, result.mode, result.baseCommit, result.headCommit, result.status, result.failure, result.appMounted], [1, SPEC0002_ID, SPEC0002_PHASE, mode, SPEC0002_BASE, SPEC0002_BASE, "passed", null, true], `${mode} identity`);
   exact(result.viewports, VIEWPORTS, `${mode} viewports`);
   const assertions = list(result.assertions, `${mode} assertions`);
-  assert.ok(assertions.length >= (mode === "phase-2-real-browser-proof" ? 11 : 13));
+  assert.ok(assertions.length >= (mode === "phase-2-real-browser-proof" ? PHASE2_BROWSER_ASSERTIONS : 13));
   assertions.forEach((entry, index) => assert.equal(object(entry, ["id", "passed", "detail"], `${mode} assertion ${index}`).passed, true));
   const screenshots = list(result.screenshots, `${mode} screenshots`);
   assert.equal(screenshots.length, mode === "phase-2-real-browser-proof" ? 10 : 4);
@@ -204,9 +225,11 @@ const validateBrowserResult = (value: Json, mode: (typeof SPEC0002_MODES)[number
     const scenarios = list(result.phase2Scenarios, "Phase 2 scenarios");
     assert.equal(scenarios.length, 2);
     VIEWPORTS.forEach((viewport, index) => validateScenario(scenarios[index], `${viewport.width}x${viewport.height}`));
+    realisticScenario(result.realisticAuthoringScenario);
   } else {
     assert.equal(flow.length, 0);
     assert.equal(list(result.phase2Scenarios, "Regression scenarios").length, 0);
+    assert.equal(result.realisticAuthoringScenario, null);
   }
   const regressions = list(result.regressions, `${mode} regressions`);
   assert.equal(regressions.length, REGRESSION_IDS.length);
@@ -310,9 +333,9 @@ const validateGraph = (graph: EvidenceGraph, verifyFiles: boolean) => {
   exact([lint.acceptedErrors, lint.acceptedWarnings, lint.changedLineFindings], [6, 73, 0], "Lint contract");
   assert.ok(Number(lint.actualErrors) <= 6 && Number(lint.actualWarnings) <= 73, "Lint baseline worsened.");
   const assertions = object(manifest.assertions, ["phase1", "validatorNegativeClasses", "phase2Browser", "regressionBrowser", "flowSteps", "regressions", "total"], "Assertion totals");
-  assert.equal(assertions.validatorNegativeClasses, 20); assert.equal(assertions.phase2Browser, 11); assert.equal(assertions.regressionBrowser, 13); assert.equal(assertions.flowSteps, 44); assert.equal(assertions.regressions, 10);
+  assert.equal(assertions.validatorNegativeClasses, 20); assert.equal(assertions.phase2Browser, PHASE2_BROWSER_ASSERTIONS); assert.equal(assertions.regressionBrowser, 13); assert.equal(assertions.flowSteps, 44); assert.equal(assertions.regressions, 10);
   const phase1AssertionTotal = Object.values(assertions.phase1 as Json).map(Number).reduce((sum, value) => sum + value, 0);
-  assert.equal(assertions.total, phase1AssertionTotal + 20 + 11 + 13 + 44 + 10);
+  assert.equal(assertions.total, phase1AssertionTotal + 20 + PHASE2_BROWSER_ASSERTIONS + 13 + 44 + 10);
   const runtime = object(manifest.runtime, ["nodeVersion", "npmVersion", "typescriptVersion", "eslintVersion", "playwrightCoreVersion", "chromeExecutable", "downloads"], "Runtime");
   assert.equal(runtime.playwrightCoreVersion, "1.62.1"); assert.equal(runtime.chromeExecutable, "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"); assert.equal(runtime.downloads, 0);
   const cleanup = object(manifest.cleanup, ["status", "browserProfiles", "servers", "ports", "nextAbsent", "temporaryAbsent", "instrumentationAbsent", "collisionsRefused", "nodeModulesRemoved"], "Manifest cleanup");
@@ -344,12 +367,21 @@ const syntheticResult = (mode: (typeof SPEC0002_MODES)[number]): Json => {
     failures: { corruptOpenPreservedEditor: true, unsupportedAudioPreservedEditor: true, encodeFailurePreservedEditor: true, tooLargePreservedEditor: true, deleteAbortPreservedCard: true, typedMessagesVisible: true },
   });
   const aiCount = phase2 ? 0 : 1;
+  const syntheticRealisticAuthoring = phase2 ? {
+    viewport: REALISTIC_AUTHORING_BITMAP.viewport,
+    canvas: { width: REALISTIC_AUTHORING_BITMAP.width, height: REALISTIC_AUTHORING_BITMAP.height, rgbaByteLength: REALISTIC_AUTHORING_BITMAP.rgbaByteLength },
+    structure: { cellTypes: ["keyframe", "hold", "keyframe"], owningBitmapCount: 2, heldFrameIndex: 1, onionEnabled: true },
+    artwork: { firstKeyframeRgbaSha256: "9".repeat(64), secondKeyframeBeforeSaveRgbaSha256: "a".repeat(64), editedDuringSaveRgbaSha256: "b".repeat(64), firstSaveCapturedPreEdit: true, secondSaveCapturedEdit: true },
+    persistence: { firstSaveRevision: 1, secondSaveRevision: 2, saveAsHeadCount: 2, preparationFailurePublished: false },
+    reopen: { originalDigestMatched: true, copyDigestMatched: true, allArtworkDimensionsAndDigestsMatched: true, originalOnionOverlayOpaque: true, copyOnionOverlayOpaque: true },
+    errors: { pageErrors: 0, rangeErrors: 0, invalidArrayLengthErrors: 0, nextOverlayErrors: 0 },
+  } : null;
   return {
     resultVersion: 1, specId: SPEC0002_ID, phase: SPEC0002_PHASE, mode, baseCommit: SPEC0002_BASE, headCommit: SPEC0002_BASE,
     startedAt: new Date(0).toISOString(), completedAt: new Date(1).toISOString(), status: "passed", failure: null, appMounted: true,
-    viewports: VIEWPORTS, flowSteps, phase2Scenarios: phase2 ? VIEWPORTS.map(scenario) : [],
+    viewports: VIEWPORTS, flowSteps, phase2Scenarios: phase2 ? VIEWPORTS.map(scenario) : [], realisticAuthoringScenario: syntheticRealisticAuthoring,
     regressions: REGRESSION_IDS.map((id) => ({ id, passed: true, detail: id })),
-    assertions: Array.from({ length: phase2 ? 11 : 13 }, (_, index) => ({ id: `A-${index}`, passed: true, detail: "passed" })),
+    assertions: Array.from({ length: phase2 ? PHASE2_BROWSER_ASSERTIONS : 13 }, (_, index) => ({ id: `A-${index}`, passed: true, detail: "passed" })),
     screenshots,
     requests: aiCount ? [{ method: "POST", path: "/api/ai", mocked: "ai", bodySha256: `sha256:${"6".repeat(64)}` }] : [],
     network: { externalAttempts: [], realApiRequests: [], mockedAiPosts: aiCount, mockedMemoryRequests: 0, serverLedgerEntries: 1, serverDeniedEntries: 0 },
@@ -385,7 +417,7 @@ const syntheticGraph = (): EvidenceGraph => {
     artifacts: dirty.map(syntheticBinding),
     predecessors: { phase1TechnicalManifestSha256: PREDECESSOR_MANIFESTS.phase1, phase15TechnicalManifestSha256: PREDECESSOR_MANIFESTS.phase15, cleanPreEditGate: CLEAN_PRE_EDIT_GATE, phase1Publication: PHASE1_PUBLICATION, phase1Files: phase1, phase15Publication: PHASE15_PUBLICATION, phase15Files: phase15, frozenBindings: frozen },
     browserEvidence: { phase2Result: syntheticBinding("synthetic/phase2.json"), regressionResult: syntheticBinding("synthetic/regression.json"), phase2ServerLedger: syntheticBinding("synthetic/phase2-ledger.jsonl"), regressionServerLedger: syntheticBinding("synthetic/regression-ledger.jsonl"), screenshots },
-    assertions: { phase1: phase1Totals, validatorNegativeClasses: 20, phase2Browser: 11, regressionBrowser: 13, flowSteps: 44, regressions: 10, total: Object.values(phase1Totals).reduce((sum, value) => sum + value, 20 + 11 + 13 + 44 + 10) },
+    assertions: { phase1: phase1Totals, validatorNegativeClasses: 20, phase2Browser: PHASE2_BROWSER_ASSERTIONS, regressionBrowser: 13, flowSteps: 44, regressions: 10, total: Object.values(phase1Totals).reduce((sum, value) => sum + value, 20 + PHASE2_BROWSER_ASSERTIONS + 13 + 44 + 10) },
     lintBaseline: { acceptedErrors: 6, acceptedWarnings: 73, actualErrors: 5, actualWarnings: 72, changedLineFindings: 0 },
     runtime: { nodeVersion: process.version, npmVersion: "11", typescriptVersion: "5", eslintVersion: "9", playwrightCoreVersion: "1.62.1", chromeExecutable: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", downloads: 0 },
     git: { indexEmpty: true, dirtyPaths: dirty, statusSha256: "8".repeat(64) },

@@ -2,7 +2,7 @@
   "configVersion": 1,
   "specId": "SPEC-0002",
   "phase": 2,
-  "baseCommit": "e85003089e793791f9a191a56b29c1c377ef5d26",
+  "baseCommit": "92e6143641c5dd2542277052fe21c6bad742139f",
   "bindings": {
     "phase2": [
       "scripts/spec0002-browser/browserProofContract.ts",

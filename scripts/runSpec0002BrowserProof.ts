@@ -17,6 +17,7 @@ import {
   FROZEN_ACTIONS,
   FROZEN_DRAWING_PROMPT,
   FROZEN_PHASE15_PATHS,
+  REALISTIC_AUTHORING_BITMAP,
   REGRESSION_IDS,
   SPEC0002_BASE,
   SPEC0002_ID,
@@ -81,6 +82,7 @@ const realApiRequests: string[] = [];
 const screenshots: ScreenshotEvidence[] = [];
 const flowSteps: FlowEvidence[] = [];
 const phase2Scenarios: Array<Record<string, unknown>> = [];
+let realisticAuthoringScenario: Record<string, unknown> | null = null;
 const regressions = new Map<string, string>();
 const consoleErrors: string[] = [];
 const pageErrors: string[] = [];
@@ -385,6 +387,248 @@ const clickCardAction = async (page: Page, name: string, action: "Duplicate" | "
   if (prompt !== undefined) page.once("dialog", (dialog) => void dialog.accept(prompt));
   await page.getByRole("button", { name: `Project actions for ${name}`, exact: true }).click();
   await page.getByRole("menuitem", { name: action, exact: true }).click();
+};
+
+const canvasDigest = (page: Page, selector: string) => page.locator(selector).evaluate(async (canvas) => {
+  const element = canvas as HTMLCanvasElement;
+  const context = element.getContext("2d", { willReadFrequently: true });
+  if (!context) throw new Error("Canvas 2D unavailable.");
+  const data = context.getImageData(0, 0, element.width, element.height).data;
+  let opaquePixels = 0;
+  for (let index = 3; index < data.length; index += 4) {
+    if (data[index] > 0) opaquePixels += 1;
+  }
+  const digest = new Uint8Array(await crypto.subtle.digest("SHA-256", data));
+  return {
+    width: element.width,
+    height: element.height,
+    rgbaByteLength: data.byteLength,
+    rgbaSha256: [...digest].map((byte) => byte.toString(16).padStart(2, "0")).join(""),
+    opaquePixels,
+  };
+});
+
+const drawStroke = async (page: Page, start: { x: number; y: number }, end: { x: number; y: number }) => {
+  const bounds = await page.locator('[data-workspace-canvas="editable"]').boundingBox();
+  assert.ok(bounds, "Editable canvas bounds unavailable.");
+  await page.mouse.move(bounds.x + bounds.width * start.x, bounds.y + bounds.height * start.y);
+  await page.mouse.down();
+  await page.mouse.move(bounds.x + bounds.width * end.x, bounds.y + bounds.height * end.y, { steps: 12 });
+  await page.mouse.up();
+  await page.waitForTimeout(100);
+};
+
+const insertAfterTimelineCell = async (page: Page, index: number, action: "Insert Frame" | "Insert Keyframe") => {
+  const cell = page.locator(`[data-timeline-cell="true"][data-layer-id="layer-1"][data-frame-index="${index}"]`);
+  await cell.click({ button: "right" });
+  await page.getByRole("button", { name: action, exact: true }).click();
+  await page.locator(`[data-timeline-cell="true"][data-layer-id="layer-1"][data-frame-index="${index + 1}"]`).waitFor();
+};
+
+const findStoredProject = (state: Awaited<ReturnType<typeof idbState>>, title: string) => {
+  const heads = state.heads as Array<Record<string, unknown>>;
+  const versions = state.versions as Array<Record<string, unknown>>;
+  const head = heads.find((entry) => entry.title === title);
+  assert.ok(head, `Missing stored head: ${title}`);
+  const record = versions.find((entry) =>
+    entry.projectId === head.projectId && entry.storageRevision === head.activeStorageRevision
+  );
+  assert.ok(record, `Missing active stored version: ${title}`);
+  return { head, record };
+};
+
+const rasterForFrame = (record: Record<string, unknown>, frameIndex: number) => {
+  const document = record.document as {
+    isOnionEnabled: boolean;
+    layers: Array<{ timelineFrames: Array<{ cellType: string; bitmap: { assetId: string } | null }> }>;
+  };
+  const frame = document.layers[0].timelineFrames[frameIndex];
+  assert.ok(frame?.bitmap, `Frame ${frameIndex} has no raster reference.`);
+  const asset = (record.assets as Array<Record<string, unknown>>).find((entry) => entry.assetId === frame.bitmap?.assetId);
+  assert.ok(asset, `Frame ${frameIndex} raster asset is missing.`);
+  return { document, frame, asset };
+};
+
+const runRealisticAuthoringScenario = async (port: number) => {
+  const viewport = { width: 1440, height: 900 };
+  const viewportId = `${viewport.width}x${viewport.height}`;
+  const baseUrl = `http://127.0.0.1:${port}/`;
+  const { context, profile } = await createContext("realistic-authoring-1440x900", viewport);
+  try {
+    const page = context.pages()[0] ?? await context.newPage();
+    preparePage(page);
+    await page.goto(baseUrl, { waitUntil: "domcontentloaded" });
+    await dismissWelcome(page);
+    await openNewWorkspace(page, "Drawing Animation");
+    await page.getByText("Not saved", { exact: true }).waitFor();
+    await page.locator('button[title="Brush"]').click();
+
+    await drawStroke(page, { x: 0.47, y: 0.46 }, { x: 0.49, y: 0.49 });
+    const firstArtwork = await canvasDigest(page, '[data-workspace-canvas="editable"]');
+    assert.deepEqual(
+      [firstArtwork.width, firstArtwork.height, firstArtwork.rgbaByteLength],
+      [REALISTIC_AUTHORING_BITMAP.width, REALISTIC_AUTHORING_BITMAP.height, REALISTIC_AUTHORING_BITMAP.rgbaByteLength],
+      "The focused proof must exercise Arthur's realistic 1440x900 authoring bitmap.",
+    );
+
+    await page.getByRole("button", { name: "Onion", exact: true }).click();
+    await insertAfterTimelineCell(page, 0, "Insert Frame");
+    await insertAfterTimelineCell(page, 1, "Insert Keyframe");
+    await drawStroke(page, { x: 0.51, y: 0.46 }, { x: 0.53, y: 0.50 });
+    const secondArtworkBeforeSave = await canvasDigest(page, '[data-workspace-canvas="editable"]');
+    const onionBeforeSave = await canvasDigest(page, '[data-workspace-canvas="onion"]');
+    assert.notEqual(secondArtworkBeforeSave.rgbaSha256, firstArtwork.rgbaSha256);
+    assert.ok(onionBeforeSave.opaquePixels > 0, "Onion overlay must be visibly populated before Save.");
+
+    await page.evaluate(() => {
+      const original = HTMLCanvasElement.prototype.toBlob;
+      (window as typeof window & { __spec0002ToBlob?: typeof original }).__spec0002ToBlob = original;
+      HTMLCanvasElement.prototype.toBlob = function(callback, type, quality) {
+        return original.call(this, (blob) => setTimeout(() => callback(blob), 500), type, quality);
+      };
+    });
+    await fileAction(page, "Save");
+    await page.getByText("Saving…", { exact: true }).waitFor();
+    await drawStroke(page, { x: 0.48, y: 0.53 }, { x: 0.52, y: 0.53 });
+    const editedDuringSave = await canvasDigest(page, '[data-workspace-canvas="editable"]');
+    assert.notEqual(editedDuringSave.rgbaSha256, secondArtworkBeforeSave.rgbaSha256);
+    await page.getByText("Unsaved changes", { exact: true }).waitFor({ timeout: 60_000 });
+    await page.evaluate(() => {
+      const holder = window as typeof window & { __spec0002ToBlob?: typeof HTMLCanvasElement.prototype.toBlob };
+      if (holder.__spec0002ToBlob) HTMLCanvasElement.prototype.toBlob = holder.__spec0002ToBlob;
+      delete holder.__spec0002ToBlob;
+    });
+
+    const firstSaveState = await idbState(page);
+    const firstSaved = findStoredProject(firstSaveState, "Unnamed drawing project");
+    const firstSavedFrame = rasterForFrame(firstSaved.record, 2);
+    assert.equal(firstSavedFrame.asset.rgbaSha256, secondArtworkBeforeSave.rgbaSha256, "In-flight edits changed the captured Save snapshot.");
+    assert.notEqual(firstSavedFrame.asset.rgbaSha256, editedDuringSave.rgbaSha256, "The first Save incorrectly included the later edit.");
+
+    await fileAction(page, "Save");
+    await page.getByText("Saved on this browser", { exact: true }).waitFor({ timeout: 60_000 });
+    const secondSaveState = await idbState(page);
+    const secondSaved = findStoredProject(secondSaveState, "Unnamed drawing project");
+    const secondSavedFrame = rasterForFrame(secondSaved.record, 2);
+    assert.equal(secondSavedFrame.asset.rgbaSha256, editedDuringSave.rgbaSha256, "The second Save omitted the later edit.");
+
+    const beforePreparationFailure = stableJson(secondSaveState);
+    await page.evaluate(() => {
+      const holder = window as typeof window & { __spec0002Uint8ClampedArray?: Uint8ClampedArrayConstructor };
+      const Native = Uint8ClampedArray;
+      holder.__spec0002Uint8ClampedArray = Native;
+      const injected = new Proxy(Native, {
+        construct(target, argumentsList) {
+          const source = argumentsList[0];
+          if (ArrayBuffer.isView(source) && source.byteLength >= 50_000_000) {
+            throw new Error("Injected snapshot preparation failure.");
+          }
+          return Reflect.construct(target, argumentsList) as Uint8ClampedArray;
+        },
+      });
+      Object.defineProperty(globalThis, "Uint8ClampedArray", { configurable: true, writable: true, value: injected });
+    });
+    await fileAction(page, "Save");
+    await page.getByText("Save failed", { exact: true }).waitFor({ timeout: 30_000 });
+    await page.evaluate(() => {
+      const holder = window as typeof window & { __spec0002Uint8ClampedArray?: Uint8ClampedArrayConstructor };
+      if (holder.__spec0002Uint8ClampedArray) {
+        Object.defineProperty(globalThis, "Uint8ClampedArray", { configurable: true, writable: true, value: holder.__spec0002Uint8ClampedArray });
+      }
+      delete holder.__spec0002Uint8ClampedArray;
+    });
+    const afterPreparationFailure = await idbState(page);
+    assert.equal(stableJson(afterPreparationFailure), beforePreparationFailure, "Preparation failure published storage bytes.");
+
+    const copyName = `Realistic Copy ${viewportId}`;
+    page.once("dialog", (dialog) => void dialog.accept(copyName));
+    await fileAction(page, "Save As");
+    await page.getByText("Saved on this browser", { exact: true }).waitFor({ timeout: 60_000 });
+    const afterSaveAs = await idbState(page);
+    const original = findStoredProject(afterSaveAs, "Unnamed drawing project");
+    const copy = findStoredProject(afterSaveAs, copyName);
+    const originalDocument = original.record.document as { isOnionEnabled: boolean; layers: Array<{ timelineFrames: Array<{ cellType: string; bitmap: { assetId: string } | null }> }> };
+    const copyDocument = copy.record.document as typeof originalDocument;
+    const cellTypes = originalDocument.layers[0].timelineFrames.map((frame) => frame.cellType);
+    assert.deepEqual(cellTypes, ["keyframe", "hold", "keyframe"]);
+    assert.deepEqual(copyDocument.layers[0].timelineFrames.map((frame) => frame.cellType), cellTypes);
+    assert.equal(originalDocument.isOnionEnabled, true);
+    assert.equal(copyDocument.isOnionEnabled, true);
+    const originalFirstFrame = rasterForFrame(original.record, 0).asset;
+    const originalSecondFrame = rasterForFrame(original.record, 2).asset;
+    const copyFirstFrame = rasterForFrame(copy.record, 0).asset;
+    const copySecondFrame = rasterForFrame(copy.record, 2).asset;
+    for (const [originalAsset, copyAsset, expectedDigest] of [
+      [originalFirstFrame, copyFirstFrame, firstArtwork.rgbaSha256],
+      [originalSecondFrame, copySecondFrame, editedDuringSave.rgbaSha256],
+    ] as const) {
+      assert.deepEqual(
+        [originalAsset.width, originalAsset.height, originalAsset.rgbaByteLength, originalAsset.rgbaSha256],
+        [REALISTIC_AUTHORING_BITMAP.width, REALISTIC_AUTHORING_BITMAP.height, REALISTIC_AUTHORING_BITMAP.rgbaByteLength, expectedDigest],
+      );
+      assert.deepEqual(
+        [copyAsset.width, copyAsset.height, copyAsset.rgbaByteLength, copyAsset.rgbaSha256],
+        [originalAsset.width, originalAsset.height, originalAsset.rgbaByteLength, originalAsset.rgbaSha256],
+      );
+    }
+
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await page.getByRole("button", { name: /^New Project\b/ }).waitFor({ state: "visible", timeout: 30_000 });
+    await openProjectBrowser(page);
+    await page.getByRole("button", { name: "Open Unnamed drawing project", exact: true }).click();
+    await page.getByText("Saved on this browser", { exact: true }).waitFor({ timeout: 60_000 });
+    const reopenedOriginal = await canvasDigest(page, '[data-workspace-canvas="editable"]');
+    const reopenedOriginalOnion = await canvasDigest(page, '[data-workspace-canvas="onion"]');
+    assert.equal(reopenedOriginal.rgbaSha256, editedDuringSave.rgbaSha256);
+    assert.ok(reopenedOriginalOnion.opaquePixels > 0);
+    await page.locator('[data-timeline-cell="true"][data-layer-id="layer-1"][data-frame-index="0"]').click();
+    await page.waitForTimeout(150);
+    const reopenedOriginalFirstFrame = await canvasDigest(page, '[data-workspace-canvas="editable"]');
+    assert.equal(reopenedOriginalFirstFrame.rgbaSha256, firstArtwork.rgbaSha256);
+
+    await gotoHome(page, baseUrl);
+    await openProjectBrowser(page);
+    await page.getByRole("button", { name: `Open ${copyName}`, exact: true }).click();
+    await page.getByText("Saved on this browser", { exact: true }).waitFor({ timeout: 60_000 });
+    const reopenedCopy = await canvasDigest(page, '[data-workspace-canvas="editable"]');
+    const reopenedCopyOnion = await canvasDigest(page, '[data-workspace-canvas="onion"]');
+    assert.equal(reopenedCopy.rgbaSha256, editedDuringSave.rgbaSha256);
+    assert.ok(reopenedCopyOnion.opaquePixels > 0);
+    await page.locator('[data-timeline-cell="true"][data-layer-id="layer-1"][data-frame-index="0"]').click();
+    await page.waitForTimeout(150);
+    const reopenedCopyFirstFrame = await canvasDigest(page, '[data-workspace-canvas="editable"]');
+    assert.equal(reopenedCopyFirstFrame.rgbaSha256, firstArtwork.rgbaSha256);
+
+    const bodyText = await page.locator("body").innerText();
+    const nextOverlayText = await page.locator("nextjs-portal").evaluateAll((portals) =>
+      portals.map((portal) => portal.shadowRoot?.textContent ?? "").join("\n")
+    );
+    assert.doesNotMatch(`${bodyText}\n${nextOverlayText}`, /RangeError|Invalid array length|Unhandled Runtime Error|Application error/i);
+    assert.deepEqual(pageErrors, []);
+    pass("realistic-authoring-save-round-trip", true, "Two 60,268,104-byte keyframe snapshots, one held frame, Onion Skin, Save/edit/Save As/reload/Open, and preparation failure all passed without publication or overlay errors.");
+    realisticAuthoringScenario = {
+      viewport: viewportId,
+      canvas: { width: firstArtwork.width, height: firstArtwork.height, rgbaByteLength: firstArtwork.rgbaByteLength },
+      structure: { cellTypes, owningBitmapCount: 2, heldFrameIndex: 1, onionEnabled: true },
+      artwork: {
+        firstKeyframeRgbaSha256: firstArtwork.rgbaSha256,
+        secondKeyframeBeforeSaveRgbaSha256: secondArtworkBeforeSave.rgbaSha256,
+        editedDuringSaveRgbaSha256: editedDuringSave.rgbaSha256,
+        firstSaveCapturedPreEdit: true,
+        secondSaveCapturedEdit: true,
+      },
+      persistence: {
+        firstSaveRevision: firstSaved.head.activeStorageRevision,
+        secondSaveRevision: secondSaved.head.activeStorageRevision,
+        saveAsHeadCount: afterSaveAs.heads.length,
+        preparationFailurePublished: false,
+      },
+      reopen: { originalDigestMatched: true, copyDigestMatched: true, allArtworkDimensionsAndDigestsMatched: true, originalOnionOverlayOpaque: true, copyOnionOverlayOpaque: true },
+      errors: { pageErrors: 0, rangeErrors: 0, invalidArrayLengthErrors: 0, nextOverlayErrors: 0 },
+    };
+  } finally {
+    await closeContext(context, profile);
+  }
 };
 
 const runPhase2Viewport = async (port: number, viewport: { width: number; height: number }) => {
@@ -786,6 +1030,7 @@ const main = async () => {
   try {
     const port = await startServer();
     if (MODE === "phase-2-real-browser-proof") {
+      await runRealisticAuthoringScenario(port);
       for (const viewport of VIEWPORTS) await runPhase2Viewport(port, viewport);
       assert.equal(flowSteps.length, VIEWPORTS.length * FLOW_STEP_IDS.length);
     } else {
@@ -836,6 +1081,7 @@ const main = async () => {
       viewports: VIEWPORTS,
       flowSteps,
       phase2Scenarios,
+      realisticAuthoringScenario,
       regressions: REGRESSION_IDS.map((id) => ({ id, passed: regressions.has(id), detail: regressions.get(id) ?? "Covered by the complementary Phase 2 browser mode." })),
       assertions,
       screenshots,

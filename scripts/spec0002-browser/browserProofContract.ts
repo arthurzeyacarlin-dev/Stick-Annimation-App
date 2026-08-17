@@ -14,7 +14,7 @@ import {
 
 export const SPEC0002_ID = "SPEC-0002" as const;
 export const SPEC0002_PHASE = "2" as const;
-export const SPEC0002_BASE = "e85003089e793791f9a191a56b29c1c377ef5d26" as const;
+export const SPEC0002_BASE = "92e6143641c5dd2542277052fe21c6bad742139f" as const;
 export const SPEC0002_OUTPUT_ROOT = "output/spec-0002/phase-2" as const;
 export const SPEC0002_FIXTURE_ROOT = "scripts/fixtures/spec0002-browser/v1" as const;
 export const SPEC0002_MODES = ["phase-2-real-browser-proof", "phase-1.5-regression-extension"] as const;
@@ -27,7 +27,7 @@ export const FROZEN_PHASE15_PATHS = PHASE15_AUTHORIZED_PATHS;
 export const CLEAN_PRE_EDIT_GATE = Object.freeze({
   command: "npm run test:spec0001-browser",
   exitCode: 0,
-  baseCommit: SPEC0002_BASE,
+  baseCommit: "e85003089e793791f9a191a56b29c1c377ef5d26",
   runBaselineMode: "integrated-current-head",
   resultSha256: "0f80ca47bb182f551bc352bc04a0d705d87522c90452fae7aeb6fc0c49ce427d",
   mockedAiPosts: 1,
@@ -69,6 +69,13 @@ export const PREDECESSOR_MANIFESTS = Object.freeze({
 
 export const REGRESSION_IDS = ["REG-01", "REG-02", "REG-03", "REG-04", "REG-05", "REG-06", "REG-07", "REG-08", "REG-09", "REG-10"] as const;
 export const FLOW_STEP_IDS = Array.from({ length: 22 }, (_, index) => `STEP-${String(index + 1).padStart(2, "0")}`);
+export const PHASE2_BROWSER_ASSERTIONS = 12 as const;
+export const REALISTIC_AUTHORING_BITMAP = Object.freeze({
+  viewport: "1440x900",
+  width: 4563,
+  height: 3302,
+  rgbaByteLength: 60_268_104,
+});
 
 export const NEGATIVE_VALIDATOR_CLASSES = [
   "missing-top-level-field",

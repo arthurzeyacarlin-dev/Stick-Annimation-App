@@ -31,7 +31,11 @@ import {
 import { encodeDrawingRasterAsset, verifyDrawingProjectRasters } from "./drawingProjectRasterCodec.ts";
 import { hydrateDrawingSoundAttachment, snapshotDrawingSoundAttachment } from "./drawingProjectAudioCodec.ts";
 
-export type SerializedBitmap = { width: number; height: number; data: number[] };
+export type SerializedBitmap = {
+  width: number;
+  height: number;
+  data: number[] | Uint8Array | Uint8ClampedArray;
+};
 
 export type StoredMotionTweenData = {
   mode: "position";
@@ -293,7 +297,9 @@ const encodeBitmap = async (
   assets: Map<string, DrawingProjectAssetV2>,
 ) => {
   if (!value) return null;
-  const rgba = Uint8Array.from(value.data);
+  const rgba = Array.isArray(value.data)
+    ? Uint8Array.from(value.data)
+    : new Uint8Array(value.data.buffer, value.data.byteOffset, value.data.byteLength);
   const digest = await sha256Hex(rgba);
   const assetId = `raster-${digest}`;
   if (!assets.has(assetId)) {
@@ -384,7 +390,7 @@ const createV2Document = async (data: DrawingProjectData) => {
 };
 
 const serializedBitmap = (value: { width: number; height: number; rgba: Uint8Array } | undefined): SerializedBitmap | null =>
-  value ? { width: value.width, height: value.height, data: Array.from(value.rgba) } : null;
+  value ? { width: value.width, height: value.height, data: value.rgba.slice() } : null;
 
 const hydrateV2Project = async (
   head: DrawingProjectHeadV2,

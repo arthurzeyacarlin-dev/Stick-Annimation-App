@@ -5,6 +5,17 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-17 — SPEC-0002 completed and SPEC-0001 Phase 2 activation recorded
+
+- recorded SPEC-0002 Phase 2 as Verified, published, integrated, and durably complete in exact 21-path commit `af89b26c89d83eb61f77d91b4a50c105b7c12079`, parent `e85003089e793791f9a191a56b29c1c377ef5d26`, message `Implement SPEC-0002 Phase 2 local persistence`
+- recorded the clean integrated-current-head permanent-tester PASS: 40 operations, 13 screenshots, exactly one deterministic mocked Drawing request, zero real API/non-loopback requests, technical-manifest SHA-256 `0a5ea38f8146641430d37ddc272fa0b1169181252b596e0ba14886c2bb4f2657`, and closeout-manifest SHA-256 `00f7f07e05b43e685b350e512c152421c51d741297bc55cb4d59e3974e265191`
+- closed GIT-011 and recorded that the phase branch, local `main`, local `origin/main`, and live remote `main` matched at clean `0/0` after publication, with both relevant worktrees clean
+- added D-0015 from Arthur's dependency-safe autopilot direction: SPEC-0001 Phase 1 and Phase 1.5 remain Verified/published/integrated; Phase 2 alone is **Authorized; Not started**; Phases 3–7 remain **Unauthorized; Not started**
+- preserved Phase 2's exact §10.5 scope and permanent-tester/proof contract; required a separately published activation record before one new dedicated Plan-mode executor begins from that publication SHA after a refreshed conflict audit
+- confirmed no worktree owns dirty SPEC-0001 Phase 2 Stick implementation paths; kept the separate SPEC-0003 Proposed dirty documentation worktree read-only and untouched; preserved sequential completion because SPEC-0002 and later SPEC-0003 work both use `app/page.tsx`
+
+This is documentation/control-plane reconciliation and authorization only. No runtime, fixture, proof script, package/dependency, configuration, environment, database, migration, recovery material, other-worktree byte, implementation, external request, OpenAI, search, Supabase, paid service, deployment, stage, commit, merge, push, or publication occurred in this task. GIT-012 is the separate publication-only next step.
+
 ### 2026-08-17 — SPEC-0002 Phase 2 accepted implementation propagated and closed out
 
 - recorded Arthur/Project Manager acceptance and exclusive Control Plane Architect takeover after the Spec Executor stopped; exact implementation base/HEAD is `e85003089e793791f9a191a56b29c1c377ef5d26`

@@ -122,7 +122,7 @@ The accepted Phase 1.5 technical manifest contains 7 receipts and exactly 49 art
 
 ## SPEC-0001 Phase 1.5 Compatibility Correction
 
-The §10.4A correction is technically Verified/accepted in its dedicated worktree and remains unpublished/unintegrated. It adds the registered v2 form without changing the default no-plan/v1 meaning:
+The §10.4A correction is Verified, published, and integrated in exact canonical-main commit `e07268cc80751baba99ac6708a1e8a93d4fc4756`. That commit is the exact technical/publication prerequisite and tested runtime/proof foundation for the Phase 2 activation. The correction adds the registered v2 form without changing the default no-plan/v1 meaning:
 
 ```bash
 npm run test:spec0001-browser -- --plan=scripts/fixtures/spec0001-browser/v2/phase-1.5-compatibility-browser-plan.json
@@ -137,7 +137,7 @@ node --experimental-strip-types scripts/spec0001-browser/recordPhase15Compatibil
 node --experimental-strip-types scripts/spec0001-browser/validatePhase15CompatibilityProof.ts --manifest=output/spec-0001/phase-1.5-compatibility/proof-manifest.json
 ```
 
-Technical-manifest SHA-256 is `53202d21ba7248e46a3e3423a623fbc785b5c3beedd6dd4d2a984b37614cffe8` (39,386 bytes). It binds 9 ordered receipts, 43 artifacts, 37 negative cases, a v2 lint comparison of base/result 5 errors and 73 warnings with zero changed-line/new-file findings, and exact network/source/anchor/lifecycle cleanup. The real isolated runner exercised 27 closed actions, 4 checkpoints, 1 screenshot, and five protected regression groups: Home/New/Drawing, Home/New/Stick, Stick/Creator/Back, Drawing Generate Frames, and Drawing Undo/Redo/Play/Pause. One intercepted test-owned `/api/ai` request occurred; real API-route and non-loopback browser/server/child attempts were zero.
+Technical-manifest SHA-256 is `53202d21ba7248e46a3e3423a623fbc785b5c3beedd6dd4d2a984b37614cffe8` (39,386 bytes); accepted closeout SHA-256 is `8972c63420728183ad27454cb5484ab0859361b8fd92797f0531bdc79a773b30`. The manifest binds 9 ordered receipts, 43 artifacts, 37 negative cases, a v2 lint comparison of base/result 5 errors and 73 warnings with zero changed-line/new-file findings, and exact network/source/anchor/lifecycle cleanup. The accepted dirty runner exercised 27 closed actions, 4 checkpoints, 1 screenshot, and five protected regression groups: Home/New/Drawing, Home/New/Stick, Stick/Creator/Back, Drawing Generate Frames, and Drawing Undo/Redo/Play/Pause. One intercepted test-owned `/api/ai` request occurred; real API-route and non-loopback browser/server/child attempts were zero.
 
 This proof is deliberately split from product Phase 2. Its in-memory adapter is synthetic and Phase-2-shaped, and the result requires `productPhaseClaimed: false`. It does not prove canonical Stick documents, independent product poses, the visible human manual-wave flow, product gesture/publication semantics, or any Phase 2 runtime/UI behavior.
 
@@ -149,14 +149,16 @@ node --experimental-strip-types scripts/spec0001-browser/finalizePhase15Compatib
 
 The four option names are closed; the literal digit-bearing `--accepted-proof-sha256` spelling is required. The finalizer validates the unchanged technical manifest, exact accepted implementation bindings, exact eight-path control-plane set, empty index, and two stable Git snapshots before an exclusive write, then validates the written closeout immediately. Repeating the same command revalidates the existing dirty closeout without overwriting it.
 
-After the Control Plane Architect's dirty tracked-state closeout and a separate publication authorization, the clean committed phase branch must run both commands below before canonical-main integration or push:
+After the Control Plane Architect's dirty tracked-state closeout and separate publication authorization, the clean committed phase branch ran both required commands below before canonical-main integration and push:
 
 ```bash
 npm run test:spec0001-browser
 npm run test:spec0001-browser -- --plan=scripts/fixtures/spec0001-browser/v2/phase-1.5-compatibility-browser-plan.json
 ```
 
-The second run must derive `clean-committed`, observe no dirty path, select `cleanExpectedPaths: []`, prove the base-to-HEAD projection across the frozen ceiling equals the accepted 23 paths, and bind catalog/plan/registry/adapter bytes identical to the accepted dirty proof. These publication gates are not yet run and must be reported as not tested until that task executes them.
+Both gates passed. The no-plan gate completed 40 ordered operations, 13 screenshots, 4 tester-driver messages, and exactly one deterministic mocked Drawing POST with zero real API requests and zero non-loopback violations. The second run derived `clean-committed`, observed no dirty path (`[]`), selected `cleanExpectedPaths: []`, proved the base-to-HEAD projection across the frozen ceiling equals the accepted 23 paths, and bound catalog/plan/registry/adapter bytes identical to the accepted dirty proof; it completed 27 closed actions, 4 checkpoints, and 1 screenshot with `productPhaseClaimed: false`.
+
+These results prove only the named compatibility machinery and protected flows. They do not implement or test product Phase 2, and the tester did not cover Drawing Save or its separately corrected crash; Arthur's manual Save verification is separate evidence. Phase 2 remains **Authorized; Not started** and becomes dispatchable only after the seven-file activation record is separately reviewed, published, and integrated. The exact executor checkout is the resulting clean canonical-main activation-publication commit SHA resolved by the later publication report and copied exactly into the new Plan-mode executor handoff; after main advances, the executor must not use `e07268c`.
 
 ## SPEC-0002 Phase 1 Hidden Persistence Engine
 

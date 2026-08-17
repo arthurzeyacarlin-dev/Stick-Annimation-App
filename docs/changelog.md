@@ -5,6 +5,17 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-17 — SPEC-0001 §10.4A publication activated for Phase 2 dispatch
+
+- recorded exact canonical-main commit `e07268cc80751baba99ac6708a1e8a93d4fc4756` as the Verified, published, and integrated §10.4A technical/publication prerequisite and tested runtime/proof foundation; preserved accepted technical-manifest SHA-256 `53202d21ba7248e46a3e3423a623fbc785b5c3beedd6dd4d2a984b37614cffe8` and closeout SHA-256 `8972c63420728183ad27454cb5484ab0859361b8fd92797f0531bdc79a773b30`
+- recorded the clean no-plan publication gate PASS: 40 ordered operations, 13 screenshots, 4 tester-driver messages, exactly one deterministic mocked Drawing POST, zero real API requests, and zero non-loopback violations
+- recorded the byte-identical synthetic-plan publication gate PASS: derived `clean-committed`, observed dirty set `[]`, selected `cleanExpectedPaths: []`, exact accepted 23-path base projection, matching catalog/plan/registry/adapter bindings, 27 closed actions, 4 checkpoints, 1 screenshot, and `productPhaseClaimed: false`
+- closed GIT-015 and QLT-006; kept Phase 2 **Authorized; Not started** and made dispatch conditional on separate review/publication/integration of this activation record; the later publication report must resolve the resulting clean canonical-main activation-publication SHA and copy it exactly into the new Plan-mode executor handoff, which must not use `e07268c` after main advances
+- kept Phases 3–7 Unauthorized/Not started, SPEC-0002 complete/protected, and SPEC-0003 Proposed/inactive in its byte-for-byte untouched stopped worktree
+- recorded explicit non-coverage: product Phase 2 was not implemented or tested, and the tester did not cover Drawing Save; Arthur's manual Save verification remains separate evidence
+
+This is a seven-document control-plane activation only. No runtime, fixture, test, package/lock, dependency, configuration, environment, database, API, external service, deployment, owner decision, product behavior, other worktree, or recovery byte changed. This activation remains unstaged, uncommitted, unpublished, and unintegrated pending separate review/publication; no commit is asked to preclaim its own future SHA.
+
 ### 2026-08-17 — SPEC-0001 Phase 1.5 compatibility correction accepted and propagated
 
 - recorded Arthur and the Project Manager's acceptance of the stopped Spec Executor's renewed §10.4A result from exact base/HEAD `8b663d2b80144e9aeba9ea0ecf0f78ccefa78926`: exactly 23 implementation/proof paths, empty index, no product/package/configuration drift, and technical-manifest SHA-256 `53202d21ba7248e46a3e3423a623fbc785b5c3beedd6dd4d2a984b37614cffe8` (39,386 bytes)

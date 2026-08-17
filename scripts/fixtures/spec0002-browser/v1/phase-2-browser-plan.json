@@ -1,0 +1,12 @@
+{
+  "planVersion": 1,
+  "specId": "SPEC-0002",
+  "phase": "2",
+  "viewports": [{"width":1440,"height":900},{"width":1024,"height":768}],
+  "modes": {
+    "phase-2-real-browser-proof": {"mockedAiPosts":0,"flowSteps":22},
+    "phase-1.5-regression-extension": {"mockedAiPosts":1,"regressions":10}
+  },
+  "network": {"loopbackOnly":true,"realApiRequests":0,"externalAttempts":0},
+  "storage": {"database":"diamond-animator-local","legacyKey":"da_saved_drawing_projects"}
+}

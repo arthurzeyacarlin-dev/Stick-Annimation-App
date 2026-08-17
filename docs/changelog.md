@@ -5,6 +5,17 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-17 — SPEC-0002 Phase 2 accepted implementation propagated and closed out
+
+- recorded Arthur/Project Manager acceptance and exclusive Control Plane Architect takeover after the Spec Executor stopped; exact implementation base/HEAD is `e85003089e793791f9a191a56b29c1c377ef5d26`
+- recorded the accepted five-runtime-file plus nine-proof/fixture implementation: real Drawing Save/Open/Delete now uses the strict V2 IndexedDB engine in this worktree, preserves authoritative raster/tween/motion/text/timing/supported-WAV content, validates complete Open candidates before mount, migrates V1 only after explicit durable Save, and keeps authoritative Delete/race/failure states truthful and local-first
+- independently revalidated the unchanged 14-artifact technical manifest at SHA-256 `0a5ea38f8146641430d37ddc272fa0b1169181252b596e0ba14886c2bb4f2657`: exactly 12 receipts, 889 assertions, 20 validator negatives, the 22-step application flow at both `1440x900` and `1024x768`, REG-01–REG-10, TypeScript, lint improvement to 5 errors/73 warnings with zero changed-line findings, both diff checks, empty index, and complete cleanup
+- preserved the corrected REG-06 execution contract: canonical availability returns disabled for Generate Plans/Sounds/Other, selecting them performs no POST/action, and Generate Frames owns the one deterministic mocked AI POST in the regression extension; the primary Phase 2 mode owns zero AI POSTs and real/external requests are zero
+- closed DATA-003 as Verified/accepted in the worktree and opened GIT-011 as publication-only; SPEC-0002 remains not durably complete until the reviewed bytes are committed, exact `npm run test:spec0001-browser` passes on the clean committed phase branch, canonical `main` is fast-forwarded, and `origin/main` is pushed/verified
+- preserved SPEC-0001 Phase 1/1.5 lifecycle and all later-phase authorization exactly; no new Arthur decision was required, so `docs/DECISIONS.md` remains unchanged
+
+This is accepted-result control-plane propagation and final closeout only. The accepted implementation/proof bytes and ignored technical proof remain unchanged. The reviewed implementation and control-plane state is unstaged, uncommitted, unpublished, and unintegrated; no external request, install, deployment, Supabase/OpenAI/paid work, stage, commit, merge, push, SPEC-0001 Phase 2, or SPEC-0003 work occurred.
+
 ### 2026-08-16 — SPEC-0002 Phase 2 permanent-tester compatibility corrected
 
 - recorded that the prior independent Phase 2 manifest correction is already published/integrated in exact six-path commit `727a1d9c8fb8fa93e40cb4484949cf499709e17e`, message `Correct SPEC-0002 Phase 2 proof contract`; D-0014 remains published at `8062274a83776e635e8ed81d9cd2c272d068bc56`, and Phase 2 remains **Authorized; Not started**

@@ -33,6 +33,7 @@ import { collapseTimelineRange } from "./timelineStructure";
 import {
   saveStoredDrawingProject,
   updateStoredDrawingProjectAiMemory,
+  type DrawingProjectOpenCandidate,
   type DrawingProjectData,
   type SerializedBitmap,
   type StoredDrawingSoundAttachment,
@@ -41,6 +42,7 @@ import {
   type StoredDrawingTimelineFrame,
   type StoredMotionTweenData,
 } from "@/src/lib/drawingProjectStorage";
+import { DrawingProjectV2Error } from "@/src/lib/drawingProjectV2Contract";
 import type {
   DrawingAiActionPlan,
   DrawingAiProjectMemory,
@@ -951,10 +953,10 @@ const serializeTimelineFrame = (frame: WorkspaceTimelineFrame): StoredDrawingTim
   stateId: frame.stateId,
   isBlank: frame.isBlank,
   hasTweenEndpoint: frame.hasTweenEndpoint,
-  bitmap: null,
+  bitmap: frame.cellType === "blank-keyframe" ? null : serializeBitmap(frame.bitmap),
   previewUrl:
     frame.cellType === "blank-keyframe" ? null : (createStoredBitmapPreviewUrl(frame.bitmap) ?? frame.previewUrl ?? null),
-  tweenEndBitmap: null,
+  tweenEndBitmap: frame.cellType === "blank-keyframe" ? null : serializeBitmap(frame.tweenEndBitmap),
   tweenEndPreviewUrl:
     frame.cellType === "blank-keyframe"
       ? null
@@ -3475,15 +3477,16 @@ const resizeTimelineSpanCells = (
 const PLAYBACK_INTERACTION_BLOCKER_Z_INDEX = 6;
 
 type DrawingWorkspaceProps = {
-  initialProject?: StoredDrawingProject | null;
+  initialProject?: DrawingProjectOpenCandidate | null;
 };
 
 export function DrawingWorkspace({ initialProject = null }: DrawingWorkspaceProps) {
-  const initialWorkspaceState = createDrawingWorkspaceInitialState(initialProject);
+  const openedInitialProject = initialProject?.project ?? null;
+  const initialWorkspaceState = createDrawingWorkspaceInitialState(openedInitialProject);
   const [projectId, setProjectId] = useState<string | null>(initialWorkspaceState.projectId);
   const [projectTitle, setProjectTitle] = useState(initialWorkspaceState.projectTitle);
   const [projectAiMemory, setProjectAiMemory] = useState<DrawingAiProjectMemory | null>(
-    bindDrawingAiProjectMemoryToProject(initialProject?.aiMemory ?? null, initialWorkspaceState.projectId),
+    bindDrawingAiProjectMemoryToProject(openedInitialProject?.aiMemory ?? null, initialWorkspaceState.projectId),
   );
   const [activeTool, setActiveTool] = useState<DrawingToolName>(initialWorkspaceState.activeTool);
   const [brushSize, setBrushSize] = useState(initialWorkspaceState.brushSize);
@@ -3497,6 +3500,9 @@ export function DrawingWorkspace({ initialProject = null }: DrawingWorkspaceProp
   const [selectedTimelineIndex, setSelectedTimelineIndex] = useState(initialWorkspaceState.selectedTimelineIndex);
   const [isTimelinePlaying, setIsTimelinePlaying] = useState(false);
   const [isOnionEnabled, setIsOnionEnabled] = useState(initialWorkspaceState.isOnionEnabled);
+  const [saveState, setSaveState] = useState<"not-saved" | "unsaved" | "saving" | "saved" | "too-large" | "failed">(
+    initialProject ? "saved" : "not-saved",
+  );
   const [canvasOverlayRect, setCanvasOverlayRect] = useState<CanvasOverlayRect | null>(null);
   const [saveNotification, setSaveNotification] = useState<{ projectName: string; isVisible: boolean } | null>(null);
   const [canUndoHistory, setCanUndoHistory] = useState(false);
@@ -3543,6 +3549,15 @@ export function DrawingWorkspace({ initialProject = null }: DrawingWorkspaceProp
   const suppressNextWorkspaceAutosaveRef = useRef(false);
   const saveNotificationHideTimeoutRef = useRef<number | null>(null);
   const saveNotificationRemoveTimeoutRef = useRef<number | null>(null);
+  const workspaceInstanceIdRef = useRef(globalThis.crypto?.randomUUID?.() ?? `drawing-workspace-${Date.now()}`);
+  const documentGenerationRef = useRef(0);
+  const persistedStateEffectReadyRef = useRef(false);
+  const suppressNextPersistedStateEffectRef = useRef(false);
+  const activeStorageRevisionRef = useRef(initialProject?.head?.activeStorageRevision ?? null);
+  const projectCreatedAtRef = useRef(initialProject?.head?.createdAt ?? openedInitialProject?.created_at ?? null);
+  const legacyRecordDigestRef = useRef(initialProject?.legacyRecordDigest ?? null);
+  const saveInFlightRef = useRef(false);
+  const workspaceMountedRef = useRef(true);
   const historyEntriesRef = useRef<DrawingWorkspaceHistoryEntry[]>([]);
   const currentHistoryIndexRef = useRef(-1);
   const isApplyingHistoryRef = useRef(false);
@@ -3571,6 +3586,17 @@ export function DrawingWorkspace({ initialProject = null }: DrawingWorkspaceProp
       nextTimelineFrameId: nextTimelineFrameIdRef.current,
       nextLayerNumber: nextLayerNumberRef.current,
       historyIndex: currentHistoryIndexRef.current,
+    };
+  }, []);
+
+  useEffect(() => {
+    workspaceMountedRef.current = true;
+    if (workspaceInstanceIdRef.current.endsWith("-unmounted")) {
+      workspaceInstanceIdRef.current = globalThis.crypto?.randomUUID?.() ?? `drawing-workspace-${Date.now()}`;
+    }
+    return () => {
+      workspaceMountedRef.current = false;
+      workspaceInstanceIdRef.current = `${workspaceInstanceIdRef.current}-unmounted`;
     };
   }, []);
 
@@ -3907,25 +3933,26 @@ export function DrawingWorkspace({ initialProject = null }: DrawingWorkspaceProp
   }, [createHistoryEntryFromWorkspace, initializeHistoryTimeline]);
 
   useEffect(() => {
-    if (!initialProject) {
+    if (!openedInitialProject) {
       return;
     }
 
     let isCancelled = false;
 
-    void hydrateStoredProjectLayers(initialProject).then((hydratedLayers) => {
+    void hydrateStoredProjectLayers(openedInitialProject).then((hydratedLayers) => {
       if (isCancelled || hydratedLayers.length === 0) {
         return;
       }
 
       const maxTimelineIndex = Math.max(0, getGlobalTimelineFrameCount(hydratedLayers) - 1);
-      const resolvedActiveLayer = getLayerById(hydratedLayers, initialProject.data.activeLayerId) ?? hydratedLayers[0];
-      const nextCurrentFrameIndex = Math.max(0, Math.min(initialProject.data.currentFrameIndex ?? 0, maxTimelineIndex));
+      const resolvedActiveLayer = getLayerById(hydratedLayers, openedInitialProject.data.activeLayerId) ?? hydratedLayers[0];
+      const nextCurrentFrameIndex = Math.max(0, Math.min(openedInitialProject.data.currentFrameIndex ?? 0, maxTimelineIndex));
       const nextSelectedTimelineIndex = Math.max(
         0,
-        Math.min(initialProject.data.selectedTimelineIndex ?? 0, maxTimelineIndex),
+        Math.min(openedInitialProject.data.selectedTimelineIndex ?? 0, maxTimelineIndex),
       );
 
+      suppressNextPersistedStateEffectRef.current = true;
       layersRef.current = hydratedLayers;
       activeLayerIdRef.current = resolvedActiveLayer.id;
       timelineFramesRef.current = resolvedActiveLayer.timelineFrames;
@@ -3949,13 +3976,17 @@ export function DrawingWorkspace({ initialProject = null }: DrawingWorkspaceProp
     return () => {
       isCancelled = true;
     };
-  }, [initialProject, initializeHistoryTimeline]);
+  }, [openedInitialProject, initializeHistoryTimeline]);
 
   useEffect(() => {
-    setProjectId(initialProject?.id ?? null);
-    setProjectTitle(initialProject?.name ?? DEFAULT_PROJECT_TITLE);
-    setProjectAiMemory(bindDrawingAiProjectMemoryToProject(initialProject?.aiMemory ?? null, initialProject?.id ?? null));
-  }, [initialProject]);
+    setProjectId(openedInitialProject?.id ?? null);
+    setProjectTitle(openedInitialProject?.name ?? DEFAULT_PROJECT_TITLE);
+    setProjectAiMemory(bindDrawingAiProjectMemoryToProject(openedInitialProject?.aiMemory ?? null, openedInitialProject?.id ?? null));
+    activeStorageRevisionRef.current = initialProject?.head?.activeStorageRevision ?? null;
+    projectCreatedAtRef.current = initialProject?.head?.createdAt ?? openedInitialProject?.created_at ?? null;
+    legacyRecordDigestRef.current = initialProject?.legacyRecordDigest ?? null;
+    setSaveState(initialProject ? "saved" : "not-saved");
+  }, [initialProject, openedInitialProject]);
 
   useEffect(() => {
     if (!projectId) {
@@ -3972,7 +4003,7 @@ export function DrawingWorkspace({ initialProject = null }: DrawingWorkspaceProp
       setProjectAiMemory((currentMemory) => {
         const preferredMemory = chooseNewerDrawingAiProjectMemory(currentMemory, remoteMemory, projectId);
         if (preferredMemory === remoteMemory) {
-          updateStoredDrawingProjectAiMemory(projectId, remoteMemory);
+          void updateStoredDrawingProjectAiMemory(projectId, remoteMemory);
         }
         return preferredMemory;
       });
@@ -3989,7 +4020,7 @@ export function DrawingWorkspace({ initialProject = null }: DrawingWorkspaceProp
     }
 
     const scopedMemory = bindDrawingAiProjectMemoryToProject(projectAiMemory, projectId);
-    updateStoredDrawingProjectAiMemory(projectId, scopedMemory);
+    void updateStoredDrawingProjectAiMemory(projectId, scopedMemory);
     if (scopedMemory) {
       void saveDrawingProjectAiMemoryToSupabase(projectId, scopedMemory).then((saveResult) => {
         if (saveResult !== "rejected-stale") {
@@ -4004,7 +4035,7 @@ export function DrawingWorkspace({ initialProject = null }: DrawingWorkspaceProp
           setProjectAiMemory((currentMemory) => {
             const preferredMemory = chooseNewerDrawingAiProjectMemory(currentMemory, remoteMemory, projectId);
             if (preferredMemory === remoteMemory) {
-              updateStoredDrawingProjectAiMemory(projectId, remoteMemory);
+              void updateStoredDrawingProjectAiMemory(projectId, remoteMemory);
             }
             return preferredMemory;
           });
@@ -4124,6 +4155,33 @@ export function DrawingWorkspace({ initialProject = null }: DrawingWorkspaceProp
   useEffect(() => {
     selectedTimelineIndexRef.current = selectedTimelineIndex;
   }, [selectedTimelineIndex]);
+
+  useEffect(() => {
+    if (!persistedStateEffectReadyRef.current) {
+      const readyFrame = window.requestAnimationFrame(() => {
+        persistedStateEffectReadyRef.current = true;
+      });
+      return () => window.cancelAnimationFrame(readyFrame);
+    }
+    if (suppressNextPersistedStateEffectRef.current) {
+      suppressNextPersistedStateEffectRef.current = false;
+      return;
+    }
+    documentGenerationRef.current += 1;
+    setSaveState((current) => current === "saving" ? current : "unsaved");
+  }, [
+    activeLayerId,
+    activeTool,
+    brushSize,
+    currentFrameIndex,
+    eraserSize,
+    fillColor,
+    isOnionEnabled,
+    layers,
+    selectedTimelineIndex,
+    shapeType,
+    timelineFps,
+  ]);
 
   useEffect(() => {
     syncHistoryAvailability();
@@ -6992,11 +7050,7 @@ export function DrawingWorkspace({ initialProject = null }: DrawingWorkspaceProp
       nextLayerNumber: nextLayerNumberRef.current,
     } satisfies DrawingProjectData;
 
-    try {
-      return structuredClone(snapshot);
-    } catch {
-      return JSON.parse(JSON.stringify(snapshot)) as DrawingProjectData;
-    }
+    return snapshot;
   }, [activeTool, brushSize, eraserSize, fillColor, isOnionEnabled, shapeType, timelineFps]);
 
   const handleUndo = useCallback(() => {
@@ -7731,14 +7785,15 @@ export function DrawingWorkspace({ initialProject = null }: DrawingWorkspaceProp
       return null;
     }
   }, []);
+  void createProjectPreview;
 
   const persistProject = useCallback(
-    (options?: {
+    async (options?: {
       forceNew?: boolean;
       nameOverride?: string;
       commitMode?: "snapshot" | "commitWithoutHistory";
     }) => {
-      if (isTimelinePlayingRef.current) {
+      if (isTimelinePlayingRef.current || saveInFlightRef.current) {
         return null;
       }
 
@@ -7752,26 +7807,51 @@ export function DrawingWorkspace({ initialProject = null }: DrawingWorkspaceProp
       }
 
       const nextProjectData = createPersistedProjectSnapshot();
-      const nextProjectPreviewDataUrl = createProjectPreview();
+      const capturedWorkspaceInstanceId = workspaceInstanceIdRef.current;
+      const capturedGeneration = documentGenerationRef.current;
+      saveInFlightRef.current = true;
+      setSaveState("saving");
 
-      const savedProject = saveStoredDrawingProject({
-        id: options?.forceNew ? null : projectId,
-        name: options?.nameOverride ?? projectTitle,
-        previewDataUrl: nextProjectPreviewDataUrl,
-        data: nextProjectData,
-        aiMemory: projectAiMemory,
-      });
-
-      setProjectId(savedProject.id);
-      setProjectTitle(savedProject.name);
-      setProjectAiMemory(savedProject.aiMemory ?? null);
-      showSaveNotification(savedProject.name);
-      return savedProject;
+      try {
+        const saved = await saveStoredDrawingProject({
+          id: options?.forceNew ? null : projectId,
+          name: options?.nameOverride ?? projectTitle,
+          previewDataUrl: null,
+          data: nextProjectData,
+          aiMemory: projectAiMemory,
+          expectedRevision: options?.forceNew ? null : activeStorageRevisionRef.current,
+          createdAt: options?.forceNew ? null : projectCreatedAtRef.current,
+          legacyRecordDigest: options?.forceNew ? null : legacyRecordDigestRef.current,
+        });
+        if (!workspaceMountedRef.current || workspaceInstanceIdRef.current !== capturedWorkspaceInstanceId) {
+          return saved;
+        }
+        activeStorageRevisionRef.current = saved.head.activeStorageRevision;
+        projectCreatedAtRef.current = saved.head.createdAt;
+        legacyRecordDigestRef.current = null;
+        setProjectId(saved.project.id);
+        setProjectTitle(saved.project.name);
+        setProjectAiMemory(saved.project.aiMemory ?? null);
+        if (documentGenerationRef.current === capturedGeneration) {
+          setSaveState("saved");
+          showSaveNotification(saved.project.name);
+        } else {
+          setSaveState("unsaved");
+        }
+        return saved;
+      } catch (error) {
+        if (workspaceMountedRef.current && workspaceInstanceIdRef.current === capturedWorkspaceInstanceId) {
+          const code = error instanceof DrawingProjectV2Error ? error.code : null;
+          setSaveState(code === "project_too_large" || code === "collection_too_large" || code === "project_limit_reached" ? "too-large" : "failed");
+        }
+        return null;
+      } finally {
+        saveInFlightRef.current = false;
+      }
     },
     [
       commitCurrentFrameSnapshotWithoutHistory,
       createPersistedProjectSnapshot,
-      createProjectPreview,
       projectAiMemory,
       projectId,
       projectTitle,
@@ -7780,8 +7860,8 @@ export function DrawingWorkspace({ initialProject = null }: DrawingWorkspaceProp
     ],
   );
 
-  const saveProject = useCallback(() => {
-    persistProject();
+  const saveProject = useCallback(async () => {
+    await persistProject();
   }, [persistProject]);
 
   const exportCurrentFrame = useCallback(() => {
@@ -7845,7 +7925,7 @@ export function DrawingWorkspace({ initialProject = null }: DrawingWorkspaceProp
       }
 
       if (actionPlan.action === "save-project") {
-        return Boolean(persistProject());
+        return Boolean(await persistProject());
       }
 
       if (actionPlan.action === "export-current-frame") {
@@ -8091,7 +8171,7 @@ export function DrawingWorkspace({ initialProject = null }: DrawingWorkspaceProp
     ],
   );
 
-  const handleSaveAs = useCallback(() => {
+  const handleSaveAs = useCallback(async () => {
     if (isTimelinePlayingRef.current) {
       return;
     }
@@ -8106,7 +8186,7 @@ export function DrawingWorkspace({ initialProject = null }: DrawingWorkspaceProp
       return;
     }
 
-    persistProject({
+    await persistProject({
       forceNew: true,
       nameOverride: trimmedProjectName,
       commitMode: "commitWithoutHistory",
@@ -8451,6 +8531,8 @@ export function DrawingWorkspace({ initialProject = null }: DrawingWorkspaceProp
         projectTitle={projectTitle}
         onSave={saveProject}
         onSaveAs={handleSaveAs}
+        saveState={saveState}
+        isLegacyProject={initialProject?.kind === "legacy" && activeStorageRevisionRef.current === null}
         onUndo={handleUndo}
         onRedo={handleRedo}
         canUndo={!isTimelinePlaying && canUndoHistory}

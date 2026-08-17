@@ -1,0 +1,92 @@
+{
+  "id": "spec0002-legacy-full-project",
+  "name": "Phase 2 Legacy Fixture",
+  "data": {
+    "version": 1,
+    "activeTool": "Brush",
+    "brushSize": 7,
+    "eraserSize": 19,
+    "fillColor": "#123456",
+    "timelineFps": 18,
+    "shapeType": "Circle",
+    "activeLayerId": "layer-1",
+    "currentFrameIndex": 1,
+    "selectedTimelineIndex": 1,
+    "isOnionEnabled": true,
+    "layers": [
+      {
+        "id": "layer-1",
+        "name": "Action",
+        "orderIndex": 0,
+        "timelineFrames": [
+          {
+            "id": 1,
+            "kind": "keyframe",
+            "cellType": "keyframe",
+            "stateId": 1,
+            "isBlank": false,
+            "hasTweenEndpoint": false,
+            "bitmap": {"width": 2, "height": 2, "data": [255,0,0,255, 0,255,0,255, 0,0,255,255, 255,255,0,128]},
+            "previewUrl": null,
+            "tweenEndBitmap": null,
+            "tweenEndPreviewUrl": null,
+            "motionTween": null,
+            "soundAttachment": {
+              "id": "sound-1",
+              "title": "Fixture sound",
+              "description": "Lossless WAV fixture",
+              "timingFeel": "snappy",
+              "intensityFeel": "medium",
+              "audioDataUrl": "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=",
+              "contentType": "sfx",
+              "speechText": null,
+              "sourceTask": "generate-sounds",
+              "attachedAt": "2026-08-16T00:00:00.000Z"
+            },
+            "textObjects": [{"id":"text-1","text":"Phase 2 exact text","x":1,"y":1,"width":120,"flipX":true,"flipY":false,"rotation":12,"fontFamily":"Arial","fontSize":24,"color":"#abcdef","bold":true,"italic":true}]
+          },
+          {
+            "id": 2,
+            "kind": "tween",
+            "cellType": "tween",
+            "stateId": 2,
+            "isBlank": false,
+            "hasTweenEndpoint": true,
+            "bitmap": {"width": 2, "height": 2, "data": [10,20,30,255, 40,50,60,255, 70,80,90,255, 100,110,120,255]},
+            "previewUrl": null,
+            "tweenEndBitmap": {"width": 2, "height": 2, "data": [120,110,100,255, 90,80,70,255, 60,50,40,255, 30,20,10,255]},
+            "tweenEndPreviewUrl": null,
+            "motionTween": {
+              "mode": "position",
+              "stageWidth": 640,
+              "stageHeight": 360,
+              "spriteBitmap": {"width": 2, "height": 2, "data": [1,2,3,255, 4,5,6,255, 7,8,9,255, 10,11,12,255]},
+              "startOrigin": {"x": 12.5, "y": 24.25},
+              "endOrigin": {"x": 300.75, "y": 180.5}
+            },
+            "soundAttachment": null,
+            "textObjects": []
+          },
+          {"id":3,"kind":"frame","cellType":"hold","stateId":2,"isBlank":false,"hasTweenEndpoint":false,"bitmap":null,"previewUrl":null,"tweenEndBitmap":null,"tweenEndPreviewUrl":null,"motionTween":null,"soundAttachment":null,"textObjects":[]},
+          {"id":4,"kind":"frame","cellType":"empty","stateId":0,"isBlank":false,"hasTweenEndpoint":false,"bitmap":null,"previewUrl":null,"tweenEndBitmap":null,"tweenEndPreviewUrl":null,"motionTween":null,"soundAttachment":null,"textObjects":[]}
+        ]
+      },
+      {
+        "id": "layer-2",
+        "name": "Background",
+        "orderIndex": 1,
+        "timelineFrames": [
+          {"id":5,"kind":"keyframe","cellType":"keyframe","stateId":5,"isBlank":false,"hasTweenEndpoint":false,"bitmap":{"width":2,"height":2,"data":[5,10,15,255, 20,25,30,255, 35,40,45,255, 50,55,60,255]},"previewUrl":null,"tweenEndBitmap":null,"tweenEndPreviewUrl":null,"motionTween":null,"soundAttachment":null,"textObjects":[]},
+          {"id":6,"kind":"frame","cellType":"hold","stateId":5,"isBlank":false,"hasTweenEndpoint":false,"bitmap":null,"previewUrl":null,"tweenEndBitmap":null,"tweenEndPreviewUrl":null,"motionTween":null,"soundAttachment":null,"textObjects":[]},
+          {"id":7,"kind":"frame","cellType":"empty","stateId":0,"isBlank":false,"hasTweenEndpoint":false,"bitmap":null,"previewUrl":null,"tweenEndBitmap":null,"tweenEndPreviewUrl":null,"motionTween":null,"soundAttachment":null,"textObjects":[]},
+          {"id":8,"kind":"frame","cellType":"empty","stateId":0,"isBlank":false,"hasTweenEndpoint":false,"bitmap":null,"previewUrl":null,"tweenEndBitmap":null,"tweenEndPreviewUrl":null,"motionTween":null,"soundAttachment":null,"textObjects":[]}
+        ]
+      }
+    ],
+    "nextTimelineFrameId": 9,
+    "nextLayerNumber": 3
+  },
+  "previewDataUrl": null,
+  "created_at": "2026-08-16T00:00:00.000Z",
+  "updated_at": "2026-08-16T00:00:00.000Z"
+}

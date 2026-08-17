@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "spec0002-phase2-proof-manifest-v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "manifestVersion", "specId", "phase", "baseCommit", "headCommit", "recordedAt", "commandsPassed",
+    "commandConfig", "receipts", "artifacts", "predecessors", "browserEvidence", "assertions", "lintBaseline",
+    "runtime", "git", "network", "cleanup"
+  ],
+  "properties": {
+    "manifestVersion": {"const": 1},
+    "specId": {"const": "SPEC-0002"},
+    "phase": {"const": 2},
+    "baseCommit": {"const": "e85003089e793791f9a191a56b29c1c377ef5d26"},
+    "headCommit": {"const": "e85003089e793791f9a191a56b29c1c377ef5d26"},
+    "recordedAt": {"type": "string", "format": "date-time"},
+    "commandsPassed": {"const": true},
+    "commandConfig": {"type": "object"},
+    "receipts": {"type": "array", "minItems": 12, "maxItems": 12},
+    "artifacts": {"type": "array", "minItems": 1, "uniqueItems": true},
+    "predecessors": {"type": "object"},
+    "browserEvidence": {"type": "object"},
+    "assertions": {"type": "object"},
+    "lintBaseline": {"type": "object"},
+    "runtime": {"type": "object"},
+    "git": {"type": "object"},
+    "network": {"type": "object"},
+    "cleanup": {"type": "object"}
+  }
+}

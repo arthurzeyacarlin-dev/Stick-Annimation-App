@@ -1,48 +1,51 @@
 # Session Handoff
 
 Status: canonical last-known stopping point
-Last updated: 2026-08-16
+Last updated: 2026-08-17
 Active specs: `docs/specs/0001-first-reversible-ai-stick-animation.md` and `docs/specs/0002-lossless-local-drawing-save-and-reopen.md` — Approved
-Active phase state: SPEC-0001 Phase 1 and Phase 1.5 — Verified, published, and integrated; SPEC-0002 Phase 1 — Verified, published, and integrated; SPEC-0002 Phase 2 — Authorized/Not started; SPEC-0001 Phase 2–7 — Unauthorized/Not started
+Active phase state: SPEC-0001 Phase 1 and Phase 1.5 — Verified, published, and integrated; SPEC-0002 Phase 1 — Verified, published, and integrated; SPEC-0002 Phase 2 — Verified and accepted in worktree, unpublished/unintegrated; SPEC-0001 Phase 2–7 — Unauthorized/Not started
 Current roadmap phase: Phase 0 — Preserve and Stabilize
 
 ## Completed in the Last Task
 
-The earlier SPEC-0002 Phase 2 manifest correction is already published/integrated in exact six-path commit `727a1d9c8fb8fa93e40cb4484949cf499709e17e`, message `Correct SPEC-0002 Phase 2 proof contract`. It preserves the frozen Phase 1-only validator and assigns the Phase 2 manifest to the independent `scripts/spec0002-browser/validatePhase2.ts`. D-0014 remains published at `8062274a83776e635e8ed81d9cd2c272d068bc56`, and Phase 2 remains **Authorized; Not started**.
+Arthur and the Overarching Project Manager accepted the SPEC-0002 Phase 2 Spec Executor result and transferred exclusive ownership of `/Users/arthurcarlin/.codex/worktrees/82b0/stick-animation-app` to the Control Plane Architect. The executor is stopped. The accepted implementation began from exact published base `e85003089e793791f9a191a56b29c1c377ef5d26`, passed the clean pre-edit permanent SPEC-0001 tester, changed exactly five runtime files plus nine new Phase 2 proof/fixture paths, and did not alter any frozen Phase 1/Phase 1.5, DrawingCanvas, AI, Stick, Creator, package/config/environment, or control-plane byte.
 
-A fresh Plan-mode executor stopped cleanly with no edits after proving the remaining compatibility blocker. Frozen `scripts/spec0001-browser/browserTesterContract.ts` accepts only the historical Phase 1.5 bootstrap allowlist or a clean integrated-current-HEAD tree, and `scripts/runSpec0001BrowserProof.ts` enforces it before browser launch. Read-only policy execution reproduced the exact rejection for representative Phase 2 dirty paths: `Reusable browser proof requires a clean integrated worktree; versioned extensions must define their own exact allowlist.`
+The real Drawing path now uses the accepted V2 persistence engine in this worktree. Explicit Save/Save As captures authoritative raster, tween endpoint, motion sprite, text, layers, timing, tool state, and supported WAV content; Open validates the complete head/version/assets before mounting; valid V1 migrates only after explicit durable V2 Save; Delete commits local authority before best-effort remote-memory cleanup; and save-generation/workspace/revision guards prevent stale success or overwrite. UI state is truthful that saving is local to this browser.
 
-Corrected SPEC-0002 §12.8 keeps every accepted Phase 1.5 tester/core byte read-only and hash-bound to publication `8df64552e29e4170df8000097fe857b7a31dff69`. The exact permanent tester is now mandatory on the clean published base before any executor edit and again on the clean reviewed phase commit before canonical integration/push. Dirty-time proof uses two exact modes in the already-authorized `scripts/runSpec0002BrowserProof.ts`: receipt 5 `--mode=phase-2-real-browser-proof` and receipt 6 `--mode=phase-1.5-regression-extension`.
+The accepted technical manifest at `output/spec-0002/phase-2/proof-manifest.json` independently validates at SHA-256 `0a5ea38f8146641430d37ddc272fa0b1169181252b596e0ba14886c2bb4f2657` with 889 assertions. Its exact 12 receipts include all four Phase 1 validators, 20 Phase 2 validator negative classes, `--mode=phase-2-real-browser-proof`, `--mode=phase-1.5-regression-extension`, TypeScript, the accepted lint non-regression, both diff checks, and status. The real app passed the 22-step flow at `1440x900` and `1024x768`, REG-01–REG-10, zero AI POSTs in the primary mode, exactly one deterministic mocked Generate Frames POST in the regression extension, zero real/external requests, and complete cleanup. REG-06 preserves the canonical execution-disable contract: Generate Plans, Generate Sounds, and Other remain selectable but their availability guard returns true and selection causes no POST/action; Generate Frames alone executes.
 
-The contract still has exactly 12 ordered receipts, the unchanged §12.2 dirty allowlist, the 22-step real-app flow, REG-01–REG-10, both viewports, Phase 1/Phase 1.5 predecessor identities, IndexedDB/legacy/network/cleanup evidence, external manifest SHA-256, and 20 fail-closed validator self-test classes. Across the two browser modes, only the regression extension owns exactly one mocked same-origin Generate Frames POST; the primary mode owns zero, and real/external requests remain zero. The external manifest flow remains recorder first, independent Phase 2 validator second. No Phase 2 implementation path was added.
+The Control Plane Architect revalidated the unchanged technical manifest and every accepted artifact byte before updating the canonical records. No new Arthur decision was required, so `docs/DECISIONS.md` remains unchanged. SPEC-0001 lifecycle/status remains exactly unchanged.
 
 ## Current Git and Proof State
 
-- correction worktree: `/Users/arthurcarlin/.codex/worktrees/9b35/stick-animation-app` on branch `codex/spec-0002-phase-2-proof-contract`; control-plane-only changes
-- task-start canonical checkpoint: `727a1d9c8fb8fa93e40cb4484949cf499709e17e` for `HEAD`, local `main`, and local `origin/main`; ahead/behind `0/0`; clean index and empty untracked set
-- D-0014 publication: exact commit `8062274a83776e635e8ed81d9cd2c272d068bc56`, message `Authorize SPEC-0002 Phase 2`, exactly seven Markdown paths
-- independent Phase 2 validator correction publication: exact commit `727a1d9c8fb8fa93e40cb4484949cf499709e17e`, message `Correct SPEC-0002 Phase 2 proof contract`, exactly six Markdown paths
-- Phase 1 implementation publication: `0416fc3828a863a797ee9f1c3daa8508792ac64a`; accepted technical-manifest SHA-256 `2d20a4a63103618505b60cf590835191841d1c1968bc2bc14ef2c953253243a1`; closeout SHA-256 `b2d50852cffa40dbf3d7535665a12abe66439cfceeffc61d6eb56195ff947b3c`
-- frozen Phase 1 proof-source SHA-256: validator `1b12cdc360f14b3cfb16ff0d8718ec222bcfcd35b9449a87c59506ae371fd1d9`; recorder `a9ea6b6b633daf107c6fe79554f44256e7cf98bb289b623c0dadfafc52bc0758`; finalizer `f1c8aff5582fdcab2332142c422f3ad496f9c03465ac9aadabbc88c542ec12a1`; command config `9b8d62c51a20847ee3bff2901af0fe129b146af7bfce73c904d493cf8b41612d`
-- frozen Phase 1.5 proof-source SHA-256: runner `b15c9024146fa3155d319f67864e618afa72d6567ec62091aa34bd12ea42560d`; contract `e055e80b5e64c90eed4cdf02241504c5752d91a7e67401b82523538d121b9028`; plan `6eaca77480f1d5dabd16264ecb8b11fadc366689712bc8e4b9ada0cbabde7143`; every exported `PHASE15_AUTHORIZED_PATHS` byte matches publication `8df64552e29e4170df8000097fe857b7a31dff69`
-- review diff: only `docs/CURRENT_STATE.md`, `docs/SESSION_HANDOFF.md`, `docs/TODO.md`, `docs/changelog.md`, `docs/specs/0002-lossless-local-drawing-save-and-reopen.md`, and `docs/specs/README.md`
-- index: empty; no runtime/test/script/package/config edit, app/browser/provider run, stage, commit, push, merge, deployment, external request, paid service, or another-worktree mutation occurred
-- publication state: this permanent-tester compatibility correction remains unstaged/unpublished pending separate review and publication
+- worktree: `/Users/arthurcarlin/.codex/worktrees/82b0/stick-animation-app`; detached HEAD
+- base/HEAD/local `main`/`origin/main`: exact `e85003089e793791f9a191a56b29c1c377ef5d26`; ahead/behind `0/0`
+- accepted technical manifest: `output/spec-0002/phase-2/proof-manifest.json`; SHA-256 `0a5ea38f8146641430d37ddc272fa0b1169181252b596e0ba14886c2bb4f2657`; 889 assertions; independent validator PASS
+- accepted implementation/proof dirty set: exact 14 paths bound by that manifest; every byte length and SHA-256 rechecked
+- reviewed control-plane paths: `docs/specs/0002-lossless-local-drawing-save-and-reopen.md`, `docs/specs/README.md`, `docs/TODO.md`, `docs/CURRENT_STATE.md`, `docs/SESSION_HANDOFF.md`, `docs/changelog.md`, and generated `project/project_structure.txt`
+- `docs/DECISIONS.md`, `AGENTS.md`, every SPEC-0001 file, SPEC-0003, accepted runtime/proof bytes, packages/config/environment, and other worktrees remain unchanged
+- index: empty; accepted implementation/control-plane bytes are unstaged, uncommitted, unpublished, and unintegrated
+- ignored Phase 2 technical proof is preserved unchanged; the closeout adds `output/spec-0002/phase-2/proof-closeout-manifest.json`
+- no node_modules, `.next`, browser profile, server, port, temporary instrumentation, external request, install, deployment, Supabase, OpenAI, paid work, stage, commit, merge, or push remains/occurred in closeout
 
 ## Exact Next Start Point
 
-1. Review this permanent-tester compatibility packet, then separately publish only the six reviewed canonical Markdown paths listed above.
-2. After publication, create one new exclusive Plan-mode SPEC-0002 Phase 2 Spec Executor task/worktree from the exact correction publication SHA. It must refresh the conflict audit, run `npm run test:spec0001-browser` on the clean base before any edit, and freeze that exact SHA in the Phase 2 command fixture.
-3. The executor must preserve every accepted Phase 1/Phase 1.5 byte, stay inside the unchanged SPEC-0002 §12.2 implementation boundary, record exactly 12 dirty-time receipts with the two exact Phase 2 runner modes, use recorder → independent `validatePhase2.ts`, and stop if another executor touches `app/page.tsx`, Drawing persistence/navigation, or shared browser proof.
-4. After Arthur/PM acceptance, Control Plane Architect closeout, and a separately authorized commit, the publication task must run `npm run test:spec0001-browser` on the clean reviewed phase commit before fast-forwarding canonical `main` or pushing. Failure stops publication and returns the implementation for correction.
-5. Do not start SPEC-0001 Phase 2–7, SPEC-0003, autosave/cloud/export work, external lookups, or paid/live requests.
+One separately authorized publication-only Control Plane Architect task must:
+
+1. verify this handoff, accepted technical-manifest SHA, closeout-manifest SHA, exact 21-path reviewed set, empty index, and unchanged canonical `main`/`origin/main` base;
+2. create/switch to the reviewed Phase 2 branch if required and stage only the accepted 14 implementation/proof paths plus the seven reviewed control-plane paths;
+3. commit those exact bytes without changing implementation or records;
+4. on the resulting clean phase-branch commit, run exact `npm run test:spec0001-browser` in `integrated-current-head` mode before any canonical-main fast-forward or push;
+5. if that permanent tester fails, stop without integration or push and return the implementation for a separately authorized correction; and
+6. only on PASS, fast-forward a still-clean canonical `main`, normally push `origin/main`, and prove clean `0/0` synchronization and exact publication identity.
+
+Do not pull, merge, rebase, force-push, rewrite history, expand scope, or start another phase/spec if canonical `main` advanced or any reviewed byte differs. SPEC-0002 is not durably complete until this publication succeeds.
 
 ## Systems Intentionally Left Unchanged
 
-- `AGENTS.md`, `docs/PROJECT_MANAGER_CONTEXT.md`, `docs/DECISIONS.md`, every SPEC-0001 file, and every canonical document outside the six-path correction allowlist
-- all accepted Phase 1 runtime, fixture, validator, recorder, finalizer, schema, technical-proof, and closeout bytes; the frozen Phase 1 validator remains Phase 1-only and the independent Phase 2 validator correction remains unchanged except for future receipt schema/argv implementation inside its existing authorization
-- all `app/**` pages/routes/APIs, Drawing/Stick/Creator runtime components, `drawingProjectStorage.ts`, current localStorage/IndexedDB behavior, and visible Save/Open/Delete behavior
-- permanent SPEC-0001 browser tester/core, `DrawingCanvas.tsx`, Drawing Generate Frames, AI contracts/routes/providers/memory, package/dependency/configuration, migrations, environment, database, browser storage, deployment, and external/paid services
-- retained/recovery worktrees and `codex/pre-baseline-staged-page-2026-08-09`; neither was used or modified
+- SPEC-0001 remains Approved with Phase 1 and Phase 1.5 Verified/published/integrated and Phase 2–7 Unauthorized/Not started
+- SPEC-0003 remains untouched/unauthorized
+- `DrawingCanvas.tsx`, Drawing AI panel/availability/route/provider behavior, Stick/Creator behavior and persistence, packages/dependencies/configuration/environment, migrations, database, authentication, deployment, export, autosave, cloud sync, billing, and external/paid services
+- retained/recovery worktrees and `codex/pre-baseline-staged-page-2026-08-09`
 
-Phase 1 remains a hidden accepted foundation. Phase 2 remains Authorized/Not started and cannot resume until this permanent-tester compatibility correction is separately published.
+This closeout is control-plane propagation and final review evidence only. It authorizes no staging, commit, integration, push, publication, deployment, external activity, or new phase.

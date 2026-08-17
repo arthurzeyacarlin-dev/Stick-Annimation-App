@@ -2,8 +2,10 @@ import { useEffect, useRef, useState } from "react";
 
 type DrawingTopBarProps = {
   projectTitle?: string;
-  onSave?: () => void;
-  onSaveAs?: () => void;
+  onSave?: () => void | Promise<void>;
+  onSaveAs?: () => void | Promise<void>;
+  saveState?: "not-saved" | "unsaved" | "saving" | "saved" | "too-large" | "failed";
+  isLegacyProject?: boolean;
   onUndo?: () => void;
   onRedo?: () => void;
   canUndo?: boolean;
@@ -52,6 +54,8 @@ export function DrawingTopBar({
   projectTitle = "Unnamed drawing project",
   onSave,
   onSaveAs,
+  saveState = "not-saved",
+  isLegacyProject = false,
   onUndo,
   onRedo,
   canUndo = false,
@@ -78,10 +82,19 @@ export function DrawingTopBar({
     return () => document.removeEventListener("pointerdown", handlePointerDown);
   }, [isFileMenuOpen]);
 
-  const runFileAction = (action?: () => void) => {
+  const runFileAction = (action?: () => void | Promise<void>) => {
     setIsFileMenuOpen(false);
-    action?.();
+    void action?.();
   };
+  const isSaving = saveState === "saving";
+  const saveStateLabel = {
+    "not-saved": "Not saved",
+    unsaved: "Unsaved changes",
+    saving: "Saving…",
+    saved: "Saved on this browser",
+    "too-large": "Too large to save",
+    failed: "Save failed",
+  }[saveState];
 
   return (
     <div
@@ -136,6 +149,7 @@ export function DrawingTopBar({
               <button
                 type="button"
                 role="menuitem"
+                disabled={isSaving}
                 onClick={() => runFileAction(onSave)}
                 style={{
                   width: "100%",
@@ -146,7 +160,8 @@ export function DrawingTopBar({
                   color: "rgba(255,255,255,0.88)",
                   fontSize: 12,
                   textAlign: "left",
-                  cursor: "pointer",
+                  cursor: isSaving ? "default" : "pointer",
+                  opacity: isSaving ? 0.5 : 1,
                 }}
               >
                 Save
@@ -154,6 +169,7 @@ export function DrawingTopBar({
               <button
                 type="button"
                 role="menuitem"
+                disabled={isSaving}
                 onClick={() => runFileAction(onSaveAs)}
                 style={{
                   width: "100%",
@@ -164,7 +180,8 @@ export function DrawingTopBar({
                   color: "rgba(255,255,255,0.88)",
                   fontSize: 12,
                   textAlign: "left",
-                  cursor: "pointer",
+                  cursor: isSaving ? "default" : "pointer",
+                  opacity: isSaving ? 0.5 : 1,
                 }}
               >
                 Save As
@@ -238,6 +255,22 @@ export function DrawingTopBar({
       </div>
 
       <div style={{ flex: 1 }} />
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", lineHeight: 1.2 }}>
+        <div
+          role="status"
+          aria-live="polite"
+          style={{
+            fontSize: 12,
+            fontWeight: 650,
+            color: saveState === "failed" || saveState === "too-large" ? "#ff9e9e" : "rgba(255,255,255,0.78)",
+          }}
+        >
+          {saveStateLabel}
+        </div>
+        <div style={{ fontSize: 10, color: "rgba(255,255,255,0.48)" }}>
+          {isLegacyProject ? "Older local project — Save to upgrade on this browser" : "Local only — not synced to another device"}
+        </div>
+      </div>
     </div>
   );
 }

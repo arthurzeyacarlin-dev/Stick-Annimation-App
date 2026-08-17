@@ -3,24 +3,26 @@
 import {
   deleteStoredDrawingProject,
   duplicateStoredDrawingProject,
-  getStoredDrawingProjectSizeBytes,
   listStoredDrawingProjects,
+  openStoredDrawingProject,
   renameStoredDrawingProject,
-  type StoredDrawingProject,
+  type DrawingProjectCatalogEntry,
+  type DrawingProjectOpenCandidate,
 } from "@/src/lib/drawingProjectStorage";
 import { deleteDrawingProjectAiMemoryFromSupabase } from "@/src/lib/ai/drawingProjectAiMemorySync";
-import { useEffect, useState } from "react";
+import { DRAWING_PROJECT_V2_LIMITS } from "@/src/lib/drawingProjectV2Contract";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 type OpenProjectBrowserProps = {
   activeDrawingProjectId?: string | null;
   onBack: () => void;
-  onOpenDrawingProject: (project: StoredDrawingProject) => void;
+  onOpenDrawingProject: (project: DrawingProjectOpenCandidate) => void;
   onDrawingProjectDeleted?: (projectId: string) => void;
 };
 
 const OPEN_PROJECT_MENU_WIDTH = 164;
 const OPEN_PROJECT_MENU_HEIGHT = 162;
-const DRAWING_PROJECT_STORAGE_REFERENCE_BYTES = 512 * 1024;
+const DRAWING_PROJECT_STORAGE_REFERENCE_BYTES = DRAWING_PROJECT_V2_LIMITS.projectStoredBytes;
 const openProjectEmptyStateStyle = {
   minHeight: 220,
   display: "flex",
@@ -96,22 +98,6 @@ const getDrawingProjectStorageDisplayRatio = (usageRatio: number) => {
   return Math.max(0.04, Math.pow(clampedRatio, 0.82));
 };
 
-const getDrawingProjectStorageStatus = (usageRatio: number) => {
-  if (usageRatio >= 0.85) {
-    return "Critical";
-  }
-
-  if (usageRatio >= 0.6) {
-    return "High";
-  }
-
-  if (usageRatio >= 0.3) {
-    return "Elevated";
-  }
-
-  return "Safe";
-};
-
 export function OpenProjectBrowser({
   activeDrawingProjectId = null,
   onBack,
@@ -119,15 +105,26 @@ export function OpenProjectBrowser({
   onDrawingProjectDeleted,
 }: OpenProjectBrowserProps) {
   const [openProjectBackHover, setOpenProjectBackHover] = useState(false);
-  const [savedDrawingProjects, setSavedDrawingProjects] = useState<StoredDrawingProject[]>([]);
+  const [savedDrawingProjects, setSavedDrawingProjects] = useState<DrawingProjectCatalogEntry[]>([]);
+  const [catalogState, setCatalogState] = useState<"loading" | "ready" | "failed">("loading");
+  const [operationMessage, setOperationMessage] = useState<string | null>(null);
+  const [busyProjectId, setBusyProjectId] = useState<string | null>(null);
+  const openAttemptRef = useRef(0);
   const [activeOpenProjectTab, setActiveOpenProjectTab] = useState<"drawing" | "stickFigure">("drawing");
   const [openProjectCardMenu, setOpenProjectCardMenu] = useState<{ projectId: string; top: number; left: number } | null>(null);
   const [hoveredProjectMenuButtonId, setHoveredProjectMenuButtonId] = useState<string | null>(null);
   const [hoveredProjectMenuActionId, setHoveredProjectMenuActionId] = useState<string | null>(null);
 
-  const refreshSavedDrawingProjects = () => {
-    setSavedDrawingProjects(listStoredDrawingProjects());
-  };
+  const refreshSavedDrawingProjects = useCallback(async () => {
+    setCatalogState("loading");
+    try {
+      setSavedDrawingProjects(await listStoredDrawingProjects());
+      setCatalogState("ready");
+    } catch {
+      setCatalogState("failed");
+      setOperationMessage("Local projects could not be read. Nothing was changed.");
+    }
+  }, []);
 
   const closeOpenProjectCardMenu = () => {
     setOpenProjectCardMenu(null);
@@ -159,36 +156,70 @@ export function OpenProjectBrowser({
     setHoveredProjectMenuActionId(null);
   };
 
-  const handleDeleteDrawingProject = (projectId: string) => {
-    if (!deleteStoredDrawingProject(projectId)) {
-      return;
+  const findProject = (entryId: string) => savedDrawingProjects.find((project) => project.id === entryId) ?? null;
+
+  const handleOpenDrawingProject = async (entry: DrawingProjectCatalogEntry) => {
+    if (entry.kind === "unavailable" || busyProjectId) return;
+    const attempt = ++openAttemptRef.current;
+    setBusyProjectId(entry.id);
+    setOperationMessage("Checking the complete local project before opening…");
+    try {
+      const candidate = await openStoredDrawingProject(entry);
+      if (openAttemptRef.current !== attempt) return;
+      setOperationMessage(null);
+      onOpenDrawingProject(candidate);
+    } catch {
+      if (openAttemptRef.current === attempt) setOperationMessage("This project could not be opened safely. The current editor was not changed.");
+    } finally {
+      if (openAttemptRef.current === attempt) setBusyProjectId(null);
     }
-
-    void deleteDrawingProjectAiMemoryFromSupabase(projectId);
-
-    if (activeDrawingProjectId === projectId) {
-      onDrawingProjectDeleted?.(projectId);
-    }
-
-    refreshSavedDrawingProjects();
-    closeOpenProjectCardMenu();
   };
 
-  const handleDuplicateDrawingProject = (projectId: string) => {
-    const duplicatedProject = duplicateStoredDrawingProject(projectId);
-    if (!duplicatedProject) {
+  const handleDeleteDrawingProject = async (entryId: string) => {
+    const entry = findProject(entryId);
+    if (!entry || entry.kind === "unavailable" || busyProjectId || !window.confirm(`Delete “${entry.name}” from this browser?`)) {
       return;
     }
-
-    refreshSavedDrawingProjects();
-    closeOpenProjectCardMenu();
+    setBusyProjectId(entry.id);
+    setOperationMessage("Deleting local project…");
+    try {
+      const result = await deleteStoredDrawingProject(entry);
+      if (result.status === "failed") {
+        setOperationMessage(`Delete failed (${result.code}). The project was left unchanged.`);
+        return;
+      }
+      if (entry.projectId) void deleteDrawingProjectAiMemoryFromSupabase(entry.projectId);
+      if (entry.projectId && activeDrawingProjectId === entry.projectId) onDrawingProjectDeleted?.(entry.projectId);
+      setOperationMessage(result.legacyCleanup === "pending" ? "Deleted locally. Background cleanup is still pending." : "Deleted from this browser.");
+      await refreshSavedDrawingProjects();
+      closeOpenProjectCardMenu();
+    } catch {
+      setOperationMessage("Delete failed. The project was left unchanged.");
+    } finally {
+      setBusyProjectId(null);
+    }
   };
 
-  const handleRenameDrawingProject = (projectId: string) => {
-    const targetProject = savedDrawingProjects.find((project) => project.id === projectId) ?? null;
-    if (!targetProject) {
-      return;
+  const handleDuplicateDrawingProject = async (entryId: string) => {
+    const entry = findProject(entryId);
+    if (!entry || entry.kind === "unavailable" || busyProjectId) return;
+    setBusyProjectId(entry.id);
+    setOperationMessage("Duplicating local project…");
+    try {
+      await duplicateStoredDrawingProject(entry);
+      setOperationMessage("Duplicate saved on this browser.");
+      await refreshSavedDrawingProjects();
+      closeOpenProjectCardMenu();
+    } catch {
+      setOperationMessage("Duplicate failed. The source project was not changed.");
+    } finally {
+      setBusyProjectId(null);
     }
+  };
+
+  const handleRenameDrawingProject = async (entryId: string) => {
+    const targetProject = findProject(entryId);
+    if (!targetProject || targetProject.kind !== "v2" || busyProjectId) return;
 
     const promptedProjectName = window.prompt("Rename project", targetProject.name);
     if (promptedProjectName === null) {
@@ -200,17 +231,29 @@ export function OpenProjectBrowser({
       return;
     }
 
-    if (!renameStoredDrawingProject(projectId, trimmedProjectName)) {
-      return;
+    setBusyProjectId(targetProject.id);
+    try {
+      await renameStoredDrawingProject(targetProject, trimmedProjectName);
+      setOperationMessage("Project renamed on this browser.");
+      await refreshSavedDrawingProjects();
+      closeOpenProjectCardMenu();
+    } catch {
+      setOperationMessage("Rename failed. The project was not changed.");
+    } finally {
+      setBusyProjectId(null);
     }
-
-    refreshSavedDrawingProjects();
-    closeOpenProjectCardMenu();
   };
 
   useEffect(() => {
-    refreshSavedDrawingProjects();
-  }, []);
+    let cancelled = false;
+    void refreshSavedDrawingProjects().then(() => {
+      if (cancelled) openAttemptRef.current += 1;
+    });
+    return () => {
+      cancelled = true;
+      openAttemptRef.current += 1;
+    };
+  }, [refreshSavedDrawingProjects]);
 
   useEffect(() => {
     if (!openProjectCardMenu) {
@@ -243,6 +286,8 @@ export function OpenProjectBrowser({
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
+
+  const activeMenuProject = openProjectCardMenu ? findProject(openProjectCardMenu.projectId) : null;
 
   return (
     <div
@@ -398,13 +443,30 @@ export function OpenProjectBrowser({
                 gap: "16px",
               }}
             >
-              {savedDrawingProjects.length > 0 ? (
+              {operationMessage ? (
+                <div role="status" aria-live="polite" style={{ color: "rgba(255,255,255,0.72)", fontSize: 12 }}>
+                  {operationMessage}
+                </div>
+              ) : null}
+              {catalogState === "loading" && savedDrawingProjects.length === 0 ? (
+                <div style={openProjectEmptyStateStyle}>Loading local projects…</div>
+              ) : catalogState === "failed" ? (
+                <div style={openProjectEmptyStateStyle}>
+                  <button type="button" onClick={() => void refreshSavedDrawingProjects()}>Retry local projects</button>
+                </div>
+              ) : savedDrawingProjects.length > 0 ? (
                 savedDrawingProjects.map((project) => {
-                  const projectSizeBytes = getStoredDrawingProjectSizeBytes(project);
+                  const projectSizeBytes = project.storedByteLength;
                   const projectUsageRatio = getDrawingProjectStorageUsageRatio(projectSizeBytes);
                   const projectUsageDisplayRatio = getDrawingProjectStorageDisplayRatio(projectUsageRatio);
                   const projectUsageColor = getDrawingProjectStorageUsageColor(projectUsageRatio);
-                  const projectUsageStatus = getDrawingProjectStorageStatus(projectUsageRatio);
+                  const projectUsageStatus = project.kind === "v2"
+                    ? "Saved on this browser"
+                    : project.kind === "legacy"
+                      ? "Older local project — Save to upgrade"
+                      : project.detail;
+                  const isUnavailable = project.kind === "unavailable";
+                  const isBusy = busyProjectId === project.id;
 
                   return (
                     <div
@@ -423,9 +485,11 @@ export function OpenProjectBrowser({
                     >
                       <button
                         type="button"
+                        disabled={isUnavailable || isBusy}
+                        aria-label={isUnavailable ? `${project.name} unavailable` : `Open ${project.name}`}
                         onClick={() => {
                           closeOpenProjectCardMenu();
-                          onOpenDrawingProject(project);
+                          void handleOpenDrawingProject(project);
                         }}
                         style={{
                           flex: 1,
@@ -438,7 +502,8 @@ export function OpenProjectBrowser({
                           padding: 0,
                           color: "inherit",
                           textAlign: "left",
-                          cursor: "pointer",
+                          cursor: isUnavailable || isBusy ? "default" : "pointer",
+                          opacity: isUnavailable ? 0.72 : 1,
                         }}
                       >
                         <div
@@ -497,7 +562,7 @@ export function OpenProjectBrowser({
                               fontSize: "12px",
                             }}
                           >
-                            <span>{formatProjectUpdatedAt(project.updated_at) ?? "Saved project"}</span>
+                            <span>{formatProjectUpdatedAt(project.updatedAt) ?? "Local project"}</span>
                             <span style={{ color: "rgba(255,255,255,0.48)", whiteSpace: "nowrap" }}>
                               {formatProjectStorageSize(projectSizeBytes)}
                             </span>
@@ -518,7 +583,7 @@ export function OpenProjectBrowser({
                                 color: projectUsageColor,
                               }}
                             >
-                              {projectUsageStatus}
+                              {isBusy ? "Working…" : projectUsageStatus}
                             </span>
                           </div>
                           <div
@@ -556,6 +621,7 @@ export function OpenProjectBrowser({
                           onMouseLeave={() =>
                             setHoveredProjectMenuButtonId((currentId) => (currentId === project.id ? null : currentId))
                           }
+                          disabled={isUnavailable || isBusy}
                           onClick={(event) => {
                             event.stopPropagation();
                             toggleOpenProjectCardMenu(event.currentTarget, project.id);
@@ -573,7 +639,8 @@ export function OpenProjectBrowser({
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            cursor: "pointer",
+                            cursor: isUnavailable || isBusy ? "default" : "pointer",
+                            opacity: isUnavailable ? 0.45 : 1,
                             transition: "background 140ms ease",
                           }}
                         >
@@ -624,13 +691,14 @@ export function OpenProjectBrowser({
           <button
             type="button"
             role="menuitem"
+            disabled={!activeMenuProject || activeMenuProject.kind === "unavailable" || Boolean(busyProjectId)}
             onMouseEnter={() => setHoveredProjectMenuActionId(`${openProjectCardMenu.projectId}:duplicate`)}
             onMouseLeave={() =>
               setHoveredProjectMenuActionId((currentId) =>
                 currentId === `${openProjectCardMenu.projectId}:duplicate` ? null : currentId,
               )
             }
-            onClick={() => handleDuplicateDrawingProject(openProjectCardMenu.projectId)}
+            onClick={() => void handleDuplicateDrawingProject(openProjectCardMenu.projectId)}
             style={{
               minHeight: 42,
               border: "none",
@@ -651,13 +719,14 @@ export function OpenProjectBrowser({
           <button
             type="button"
             role="menuitem"
+            disabled={!activeMenuProject || activeMenuProject.kind !== "v2" || Boolean(busyProjectId)}
             onMouseEnter={() => setHoveredProjectMenuActionId(`${openProjectCardMenu.projectId}:rename`)}
             onMouseLeave={() =>
               setHoveredProjectMenuActionId((currentId) =>
                 currentId === `${openProjectCardMenu.projectId}:rename` ? null : currentId,
               )
             }
-            onClick={() => handleRenameDrawingProject(openProjectCardMenu.projectId)}
+            onClick={() => void handleRenameDrawingProject(openProjectCardMenu.projectId)}
             style={{
               minHeight: 42,
               border: "none",
@@ -678,13 +747,14 @@ export function OpenProjectBrowser({
           <button
             type="button"
             role="menuitem"
+            disabled={!activeMenuProject || activeMenuProject.kind === "unavailable" || Boolean(busyProjectId)}
             onMouseEnter={() => setHoveredProjectMenuActionId(`${openProjectCardMenu.projectId}:delete`)}
             onMouseLeave={() =>
               setHoveredProjectMenuActionId((currentId) =>
                 currentId === `${openProjectCardMenu.projectId}:delete` ? null : currentId,
               )
             }
-            onClick={() => handleDeleteDrawingProject(openProjectCardMenu.projectId)}
+            onClick={() => void handleDeleteDrawingProject(openProjectCardMenu.projectId)}
             style={{
               minHeight: 42,
               border: "none",

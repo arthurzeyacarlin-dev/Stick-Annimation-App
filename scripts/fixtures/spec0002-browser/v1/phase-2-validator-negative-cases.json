@@ -1,0 +1,25 @@
+{
+  "fixtureVersion": 1,
+  "classes": [
+    "missing-top-level-field",
+    "extra-top-level-field",
+    "wrong-spec-phase-base-head",
+    "command-config-binding-tamper",
+    "receipt-missing-extra-reorder",
+    "receipt-argv-env-exit-privacy-tamper",
+    "artifact-missing-extra-hash-tamper",
+    "dirty-path-mismatch",
+    "unauthorized-dirty-path",
+    "phase1-predecessor-tamper",
+    "phase15-predecessor-tamper",
+    "app-mounted-viewport-tamper",
+    "browser-action-accessibility-screenshot-tamper",
+    "idb-count-stage-partial-mount-tamper",
+    "legacy-tombstone-catalog-neighbor-tamper",
+    "network-request-ledger-tamper",
+    "cleanup-collision-instrumentation-tamper",
+    "missing-failed-regression",
+    "false-commands-passed",
+    "worsened-lint"
+  ]
+}

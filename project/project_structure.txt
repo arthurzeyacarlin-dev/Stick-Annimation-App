@@ -175,6 +175,13 @@
 ./scripts/fixtures/spec0001-browser/v1/tester-action-registry.schema.json
 ./scripts/fixtures/spec0001-browser/v1/tester-core.schema.json
 ./scripts/fixtures/spec0001-browser/v1/tester-result.schema.json
+./scripts/fixtures/spec0002-browser
+./scripts/fixtures/spec0002-browser/v1
+./scripts/fixtures/spec0002-browser/v1/legacy-full-project.json
+./scripts/fixtures/spec0002-browser/v1/phase-2-browser-plan.json
+./scripts/fixtures/spec0002-browser/v1/phase-2-proof-commands.json
+./scripts/fixtures/spec0002-browser/v1/phase-2-proof-manifest.schema.json
+./scripts/fixtures/spec0002-browser/v1/phase-2-validator-negative-cases.json
 ./scripts/fixtures/stick-ai
 ./scripts/fixtures/stick-ai/v1
 ./scripts/fixtures/stick-ai/v1/canonical-hash-vectors.json
@@ -201,7 +208,9 @@
 ./scripts/generate_project_tree.sh
 ./scripts/recordSpec0001ProofBundle.ts
 ./scripts/recordSpec0002Phase1Proof.ts
+./scripts/recordSpec0002Phase2Proof.ts
 ./scripts/runSpec0001BrowserProof.ts
+./scripts/runSpec0002BrowserProof.ts
 ./scripts/seedGeneratePlansTraining.ts
 ./scripts/spec0001-browser
 ./scripts/spec0001-browser/browserTesterContract.ts
@@ -210,6 +219,9 @@
 ./scripts/spec0001-browser/recordPhase15Proof.ts
 ./scripts/spec0001-browser/validatePhase15.ts
 ./scripts/spec0001-browser/validatePhase15Proof.ts
+./scripts/spec0002-browser
+./scripts/spec0002-browser/browserProofContract.ts
+./scripts/spec0002-browser/validatePhase2.ts
 ./scripts/sync_docs_to_github.sh
 ./scripts/traceExplosionLivePath.ts
 ./scripts/traceGenerateSoundsLivePath.mjs

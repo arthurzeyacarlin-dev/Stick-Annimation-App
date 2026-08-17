@@ -1,0 +1,40 @@
+{
+  "configVersion": 1,
+  "specId": "SPEC-0002",
+  "phase": 2,
+  "baseCommit": "e85003089e793791f9a191a56b29c1c377ef5d26",
+  "bindings": {
+    "phase2": [
+      "scripts/spec0002-browser/browserProofContract.ts",
+      "scripts/spec0002-browser/validatePhase2.ts",
+      "scripts/runSpec0002BrowserProof.ts",
+      "scripts/recordSpec0002Phase2Proof.ts"
+    ],
+    "fixtures": [
+      "scripts/fixtures/spec0002-browser/v1/legacy-full-project.json",
+      "scripts/fixtures/spec0002-browser/v1/phase-2-browser-plan.json",
+      "scripts/fixtures/spec0002-browser/v1/phase-2-proof-manifest.schema.json",
+      "scripts/fixtures/spec0002-browser/v1/phase-2-validator-negative-cases.json"
+    ],
+    "frozen": [
+      "scripts/runSpec0001BrowserProof.ts",
+      "scripts/spec0001-browser/browserTesterContract.ts",
+      "scripts/fixtures/spec0001-browser/v1/phase-1.5-browser-plan.json",
+      "scripts/validateSpec0002Proof.ts"
+    ]
+  },
+  "commands": [
+    {"name":"phase-1-v2-contract","argv":["node","--experimental-strip-types","scripts/validateDrawingProjectV2Contract.ts"],"cwd":".","env":{"NEXT_TELEMETRY_DISABLED":"1","OPENAI_API_KEY":"","SUPABASE_URL":"","SUPABASE_ANON_KEY":"","SUPABASE_SERVICE_ROLE_KEY":""},"privacy":"sanitized","expectedExitCode":0},
+    {"name":"phase-1-v2-repository","argv":["node","--experimental-strip-types","scripts/validateDrawingProjectV2Repository.ts"],"cwd":".","env":{"NEXT_TELEMETRY_DISABLED":"1","OPENAI_API_KEY":"","SUPABASE_URL":"","SUPABASE_ANON_KEY":"","SUPABASE_SERVICE_ROLE_KEY":""},"privacy":"sanitized","expectedExitCode":0},
+    {"name":"phase-1-v1-compatibility","argv":["node","--experimental-strip-types","scripts/validateDrawingProjectV1Compatibility.ts"],"cwd":".","env":{"NEXT_TELEMETRY_DISABLED":"1","OPENAI_API_KEY":"","SUPABASE_URL":"","SUPABASE_ANON_KEY":"","SUPABASE_SERVICE_ROLE_KEY":""},"privacy":"sanitized","expectedExitCode":0},
+    {"name":"phase-1-browser-engine","argv":["node","--experimental-strip-types","scripts/validateDrawingProjectV2BrowserEngine.ts"],"cwd":".","env":{"NEXT_TELEMETRY_DISABLED":"1","OPENAI_API_KEY":"","SUPABASE_URL":"","SUPABASE_ANON_KEY":"","SUPABASE_SERVICE_ROLE_KEY":""},"privacy":"sanitized","expectedExitCode":0},
+    {"name":"phase-2-validator-self-test","argv":["node","--experimental-strip-types","scripts/spec0002-browser/validatePhase2.ts","--self-test"],"cwd":".","env":{"NEXT_TELEMETRY_DISABLED":"1","OPENAI_API_KEY":"","SUPABASE_URL":"","SUPABASE_ANON_KEY":"","SUPABASE_SERVICE_ROLE_KEY":""},"privacy":"sanitized","expectedExitCode":0},
+    {"name":"phase-2-real-browser-proof","argv":["node","--experimental-strip-types","scripts/runSpec0002BrowserProof.ts","--mode=phase-2-real-browser-proof"],"cwd":".","env":{"NEXT_TELEMETRY_DISABLED":"1","OPENAI_API_KEY":"","SUPABASE_URL":"","SUPABASE_ANON_KEY":"","SUPABASE_SERVICE_ROLE_KEY":""},"privacy":"sanitized","expectedExitCode":0},
+    {"name":"phase-1.5-regression-extension","argv":["node","--experimental-strip-types","scripts/runSpec0002BrowserProof.ts","--mode=phase-1.5-regression-extension"],"cwd":".","env":{"NEXT_TELEMETRY_DISABLED":"1","OPENAI_API_KEY":"","SUPABASE_URL":"","SUPABASE_ANON_KEY":"","SUPABASE_SERVICE_ROLE_KEY":""},"privacy":"sanitized","expectedExitCode":0},
+    {"name":"typescript","argv":["./node_modules/.bin/tsc","--noEmit","--incremental","false"],"cwd":".","env":{"NEXT_TELEMETRY_DISABLED":"1","OPENAI_API_KEY":"","SUPABASE_URL":"","SUPABASE_ANON_KEY":"","SUPABASE_SERVICE_ROLE_KEY":""},"privacy":"sanitized","expectedExitCode":0},
+    {"name":"lint-regression","argv":["npm","run","lint"],"cwd":".","env":{"NEXT_TELEMETRY_DISABLED":"1","OPENAI_API_KEY":"","SUPABASE_URL":"","SUPABASE_ANON_KEY":"","SUPABASE_SERVICE_ROLE_KEY":""},"privacy":"sanitized","expectedExitCode":1},
+    {"name":"diff-check","argv":["git","diff","--check"],"cwd":".","env":{"NEXT_TELEMETRY_DISABLED":"1","OPENAI_API_KEY":"","SUPABASE_URL":"","SUPABASE_ANON_KEY":"","SUPABASE_SERVICE_ROLE_KEY":""},"privacy":"sanitized","expectedExitCode":0},
+    {"name":"cached-diff-check","argv":["git","diff","--cached","--check"],"cwd":".","env":{"NEXT_TELEMETRY_DISABLED":"1","OPENAI_API_KEY":"","SUPABASE_URL":"","SUPABASE_ANON_KEY":"","SUPABASE_SERVICE_ROLE_KEY":""},"privacy":"sanitized","expectedExitCode":0},
+    {"name":"status","argv":["git","status","--short","--branch"],"cwd":".","env":{"NEXT_TELEMETRY_DISABLED":"1","OPENAI_API_KEY":"","SUPABASE_URL":"","SUPABASE_ANON_KEY":"","SUPABASE_SERVICE_ROLE_KEY":""},"privacy":"sanitized","expectedExitCode":0}
+  ]
+}

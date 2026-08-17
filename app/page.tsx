@@ -5,7 +5,7 @@ import { OpenProjectBrowser } from "@/src/components/open-project/OpenProjectBro
 import { DrawingWorkspace } from "@/src/components/workspace/DrawingWorkspace";
 import { StickFigureCreatorWorkspace } from "@/src/components/workspace/stickfigure/StickFigureCreatorWorkspace";
 import { StickFigureWorkspace } from "@/src/components/workspace/stickfigure/StickFigureWorkspace";
-import type { StoredDrawingProject } from "@/src/lib/drawingProjectStorage";
+import type { DrawingProjectOpenCandidate } from "@/src/lib/drawingProjectStorage";
 import { useEffect, useRef, useState } from "react";
 
 type HomeCardId = "new" | "open" | "myProject" | "tutorials" | "assistant" | "export" | "aiProject" | "aiCredits";
@@ -18,7 +18,7 @@ export default function Page() {
   const [welcomeOpen, setWelcomeOpen] = useState(false);
   const [welcomeStep, setWelcomeStep] = useState<0 | 1>(0);
   const [guidedChoices, setGuidedChoices] = useState<string[]>([]);
-  const [activeDrawingProject, setActiveDrawingProject] = useState<StoredDrawingProject | null>(null);
+  const [activeDrawingProject, setActiveDrawingProject] = useState<DrawingProjectOpenCandidate | null>(null);
   const [hoveredCard, setHoveredCard] = useState<HomeCardId | null>(null);
   const homeMainRef = useRef<HTMLElement | null>(null);
   const homeScrollHideTimeoutRef = useRef<number | null>(null);
@@ -1250,14 +1250,14 @@ export default function Page() {
       )}
 {view === "openProject" && (
   <OpenProjectBrowser
-    activeDrawingProjectId={activeDrawingProject?.id ?? null}
+    activeDrawingProjectId={activeDrawingProject?.project.id ?? null}
     onBack={() => setView("home")}
     onOpenDrawingProject={(project) => {
       setActiveDrawingProject(project);
       setView("drawingWorkspace");
     }}
     onDrawingProjectDeleted={(projectId) => {
-      if (activeDrawingProject?.id === projectId) {
+      if (activeDrawingProject?.project.id === projectId) {
         setActiveDrawingProject(null);
       }
     }}
@@ -1431,7 +1431,7 @@ background: "rgb(26, 27, 36)",
   </div>
 )} {/* DRAWING WORKSPACE (layout only) */}
 {view === "drawingWorkspace" && (
-  <DrawingWorkspace key={activeDrawingProject?.id ?? "unsaved-drawing-workspace"} initialProject={activeDrawingProject} />
+  <DrawingWorkspace key={activeDrawingProject?.project.id ?? "unsaved-drawing-workspace"} initialProject={activeDrawingProject} />
 )}
 {view === "stickFigureWorkspace" && (
   <StickFigureWorkspace onOpenStickFigureCreator={() => setView("stickFigureCreatorWorkspace")} />

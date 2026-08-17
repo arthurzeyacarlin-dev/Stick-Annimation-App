@@ -5,6 +5,15 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-17 — D-0016 publication reconciled
+
+- recorded the completed normal publication of D-0016 and the SPEC-0001 Phase 1.5 compatibility-correction approval in exact seven-path commit `6c2973caecb742334fb432bdda8fbc674bb7db42`, parent `a85690de9396cf97e3063005cbb6da85f109ae1d`, message `Authorize SPEC-0001 tester compatibility correction`, on `codex/spec-0001-tester-compatibility-authorization`
+- recorded that canonical `main` was fast-forwarded, the push was normal and not forced, and the publication branch, local `main`, local `origin/main`, and live remote `main` matched cleanly at `0/0`; GIT-013 is complete
+- kept the correction **Approved; Authorized; Not started**, kept Phase 2 **Authorized; Not started; blocked**, and kept Phases 3–7 **Unauthorized; Not started**; no implementation began
+- made separate publication of this reconciliation the next gate, followed by one new dedicated Plan-mode compatibility Spec Executor from that future reconciliation publication SHA with only §10.4A's exact 23-path ceiling
+
+This is a six-file documentation/control-plane reconciliation only. D-0016's decision substance, all runtime/tester/fixture/schema/package/configuration bytes, SPEC-0002, SPEC-0003, protected worktrees/branches, external services, and deployment remain unchanged. Nothing was staged, committed, merged, pushed, or published in this reconciliation task.
+
 ### 2026-08-17 — SPEC-0001 Phase 1.5 compatibility correction approved and authorized
 
 - recorded D-0016 from Arthur's explicit autopilot authorization and Project Manager acceptance: the exact §10.4A proof-infrastructure correction is **Approved; Authorized; Not started**, with no user-facing behavior, product outcome, or owner-choice change

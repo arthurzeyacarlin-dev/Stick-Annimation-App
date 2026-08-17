@@ -1,0 +1,10 @@
+{
+  "fixtureVersion": 1,
+  "starterPath": "scripts/fixtures/stick-ai/v1/fresh-stick-project.json",
+  "actionsPath": "scripts/fixtures/stick-ai/v1/manual-wave-actions.json",
+  "cases": [
+    {"name": "pose-2-is-independent", "poseIndex": 1, "jointRole": "head", "replacement": {"x": 1011, "y": 211}, "unchangedPoseIndexes": [0, 2]},
+    {"name": "pose-3-is-independent", "poseIndex": 2, "jointRole": "leftFoot", "replacement": {"x": 700, "y": 1000}, "unchangedPoseIndexes": [0, 1]},
+    {"name": "returned-document-is-independent", "poseIndex": 0, "jointRole": "hip", "replacement": {"x": 901, "y": 601}, "unchangedPoseIndexes": [1, 2]}
+  ]
+}

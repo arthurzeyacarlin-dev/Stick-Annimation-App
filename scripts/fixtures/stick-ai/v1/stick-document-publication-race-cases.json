@@ -1,0 +1,29 @@
+{
+  "fixtureVersion": 1,
+  "gateIds": ["phase2-digest-gate"],
+  "gateId": "phase2-digest-gate",
+  "bootstrapCases": [
+    {"source": "new", "savedBaseline": "none", "creatorEntryLocked": false, "generation": 0},
+    {"source": "fixture", "savedBaseline": "none", "creatorEntryLocked": true, "generation": 1},
+    {"source": "fixture", "savedBaseline": "candidate_document", "creatorEntryLocked": true, "generation": 1}
+  ],
+  "invalidBootstrapCases": [
+    {"source": "new", "savedBaseline": "candidate_document", "creatorEntryLocked": false},
+    {"source": "fixture", "savedBaseline": "none", "creatorEntryLocked": false}
+  ],
+  "browserPublicationPlan": {
+    "fixtureVersion": 1,
+    "plans": [
+      {"operationId": "publication-a", "action": {"actionVersion": 1, "type": "set-joint", "targetFrameIndex": 0, "jointRole": "head", "point": {"x": 950, "y": 245}}},
+      {"operationId": "publication-b", "supersede": true, "action": {"actionVersion": 1, "type": "set-joint", "targetFrameIndex": 0, "jointRole": "neck", "point": {"x": 965, "y": 345}}}
+    ]
+  },
+  "browserPublicationCompletion": {
+    "fixtureVersion": 1,
+    "completions": [
+      {"operationId": "publication-b", "outcome": "ready"},
+      {"operationId": "publication-a", "outcome": "ready"}
+    ]
+  },
+  "requiredCases": ["bootstrap-pending", "bootstrap-failed", "bootstrap-retry", "mounted-pending-old-document", "mounted-ready-atomic", "mounted-failed-old-document", "retry-last-published", "out-of-order-completion", "intervening-mutation", "project-switch", "tampered-current-digest"]
+}

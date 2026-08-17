@@ -158,7 +158,22 @@ npm run test:spec0001-browser -- --plan=scripts/fixtures/spec0001-browser/v2/pha
 
 Both gates passed. The no-plan gate completed 40 ordered operations, 13 screenshots, 4 tester-driver messages, and exactly one deterministic mocked Drawing POST with zero real API requests and zero non-loopback violations. The second run derived `clean-committed`, observed no dirty path (`[]`), selected `cleanExpectedPaths: []`, proved the base-to-HEAD projection across the frozen ceiling equals the accepted 23 paths, and bound catalog/plan/registry/adapter bytes identical to the accepted dirty proof; it completed 27 closed actions, 4 checkpoints, and 1 screenshot with `productPhaseClaimed: false`.
 
-These results prove only the named compatibility machinery and protected flows. They do not implement or test product Phase 2, and the tester did not cover Drawing Save or its separately corrected crash; Arthur's manual Save verification is separate evidence. Phase 2 remains **Authorized; Not started** and becomes dispatchable only after the seven-file activation record is separately reviewed, published, and integrated. The exact executor checkout is the resulting clean canonical-main activation-publication commit SHA resolved by the later publication report and copied exactly into the new Plan-mode executor handoff; after main advances, the executor must not use `e07268c`.
+These results prove only the named compatibility machinery and protected flows. They did not implement or test product Phase 2 and remain historical prerequisite evidence.
+
+## SPEC-0001 Phase 2 Permanent-Tester Evidence
+
+Phase 2 was implemented from exact clean activation base/HEAD `68338d54542bbfd3fb1f0fab06548f0424871f80`. Its stopped Spec Executor result is now Verified and accepted, ready for publication, but not yet published/integrated. The exact 27 accepted technical paths have prior-definition aggregate SHA-256 `d5526fcba1e0480a20164ab73d8391f49edf6fc66378d641e8b2c0c951fcabd2` over the 4,351-byte canonical binding input. The accepted proof manifest is `output/spec-0001/phase-2/proof-manifest.json`, 33,410 bytes, SHA-256 `87a24054299da3037e6682bc50595fd8be3c7004222287c3433156264b322212`. The executor's read-only addendum established that its alternative stable-JSON digest beginning `1dd18` used a different, non-accepted reporting definition; no technical byte or proof binding changed.
+
+Independent technical validation records 277 Phase 2 assertions, all 631 Phase 1 regressions, TypeScript PASS, measured lint from 5 errors/73 warnings at base to 5/72 in the result with zero changed-line/new-file findings, and diff-check PASS. The exact permanent-browser proof passed 86/86 actions, 4 checkpoints, 1 screenshot, and the five protected groups: `drawing-generate-frames`, `drawing-undo-redo-play-pause`, `home-new-drawing`, `home-new-stick`, and `stick-creator-back`. It recorded zero non-loopback attempts, zero real API-route requests, and full cleanup.
+
+The accepted 27 paths include four bounded proof-checker corrections: stable driver-key ordering; closeout-safe validation; one shared UTF-8 byte-wise canonical path ordering for both observed and expected inventories with strict order-sensitive equality and a passing mixed-case self-test; and internal `phase-2-closeout` context propagation through `validateV2Evidence → validateExtensionResult → loadTesterExtensionGraph`. Closeout context observes exactly the live 36-path state while the archived runner remains bound to the original 27-path technical state; missing, extra, tampered, staged, hidden, or wrong-base state rejects, and no relaxed public CLI mode exists. After accepted implementation and exclusive Control Plane Architect transfer, closeout uses:
+
+```bash
+node --experimental-strip-types scripts/finalizeSpec0001ProofBundle.ts --phase=2 --base=68338d54542bbfd3fb1f0fab06548f0424871f80 --proof=output/spec-0001/phase-2/proof-manifest.json --output=output/spec-0001/phase-2/proof-closeout-manifest.json
+node --experimental-strip-types scripts/validateSpec0001ProofBundle.ts --closeout=output/spec-0001/phase-2/proof-closeout-manifest.json
+```
+
+The closeout gate requires exactly 27 accepted technical paths plus the nine canonical record paths, exactly 36 dirty paths total, an empty index, no hidden flags, no redirected Git state, and a byte-identical technical aggregate. Drawing Save was not part of the 86 automated actions; Arthur's separate manual Save verification is human evidence only and must never be described as tester coverage. No Stick AI, Stick Save/Open, Stick Undo/Redo, provider, external service, deployment, or Phase 3 behavior is proven here.
 
 ## SPEC-0002 Phase 1 Hidden Persistence Engine
 

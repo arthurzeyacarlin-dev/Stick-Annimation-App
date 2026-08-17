@@ -44,3 +44,20 @@ export type StickFigureSelection =
   | { target: "figure"; figureId: string }
   | { target: "joint"; figureId: string; jointId: string }
   | { target: "element"; figureId: string; elementId: string };
+
+export type StickFigureGestureTerminalState = "active" | "committed" | "cancelled";
+
+export type StickFigureDragPreview = {
+  pointerId: number;
+  jointId: string;
+  point: StickFigurePoint;
+  terminalState: StickFigureGestureTerminalState;
+};
+
+export type StickFigureCanvasStage = {
+  left: number;
+  top: number;
+  scale: number;
+  width: number;
+  height: number;
+};

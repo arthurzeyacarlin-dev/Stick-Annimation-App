@@ -1,0 +1,17 @@
+{
+  "fixtureVersion": 1,
+  "coordinateCases": [
+    {"name": "offset-and-scale", "client": {"x": 420, "y": 260}, "stage": {"left": 100, "top": 80, "scale": 0.5}, "offset": {"x": 10, "y": -10}, "space": {"width": 1920, "height": 1080}, "expected": {"x": 650, "y": 350}},
+    {"name": "positive-half-rounding", "client": {"x": 10.5, "y": 20.5}, "stage": {"left": 0, "top": 0, "scale": 1}, "offset": {"x": 0, "y": 0}, "space": {"width": 1920, "height": 1080}, "expected": {"x": 11, "y": 21}},
+    {"name": "negative-half-rounding-and-clamp", "client": {"x": -0.5, "y": -1.5}, "stage": {"left": 0, "top": 0, "scale": 1}, "offset": {"x": 0, "y": 0}, "space": {"width": 1920, "height": 1080}, "expected": {"x": 0, "y": 0}},
+    {"name": "maximum-clamp", "client": {"x": 3000, "y": 2000}, "stage": {"left": 0, "top": 0, "scale": 1}, "offset": {"x": 0, "y": 0}, "space": {"width": 1920, "height": 1080}, "expected": {"x": 1919, "y": 1079}}
+  ],
+  "requiredGuards": ["primary-pointer", "left-button", "select-tool", "pan-off", "paused", "publication-ready", "nonblank-pose", "joint-hit"],
+  "requiredCancellationPaths": ["pointercancel", "lostpointercapture", "escape", "tool-change", "playback-start", "frame-switch", "project-switch", "unmount", "wrong-workspace-instance", "stale-revision", "stale-digest", "stale-generation", "same-project-remount"],
+  "terminalSequences": [
+    {"events": ["down", "move", "up", "lostpointercapture"], "completedEdits": 1, "terminal": "committed"},
+    {"events": ["down", "move", "pointercancel", "lostpointercapture"], "completedEdits": 0, "terminal": "cancelled"},
+    {"events": ["down", "up", "up"], "completedEdits": 1, "terminal": "committed"},
+    {"events": ["down", "same-point-up"], "completedEdits": 0, "terminal": "committed"}
+  ]
+}

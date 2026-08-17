@@ -624,7 +624,7 @@ const recordV2 = (
     throw new Error("Version 2 runner runtime binding is invalid.");
   }
   const runnerBrowserExecutable = exactKeys(runnerRuntime.browserExecutable, ["path", "sha256", "byteLength"], "Runner browser executable binding");
-  if (JSON.stringify(runnerBrowserExecutable) !== JSON.stringify(v2BrowserExecutableBinding())) throw new Error("Version 2 runner browser executable binding drifted.");
+  if (stableJson(runnerBrowserExecutable) !== stableJson(v2BrowserExecutableBinding())) throw new Error("Version 2 runner browser executable binding drifted.");
   const npmPackagePath = resolve(dirname(process.execPath), "../lib/node_modules/npm/package.json");
   const npmPackage = JSON.parse(readFileSync(npmPackagePath, "utf8")) as {version?: unknown};
   if (typeof npmPackage.version !== "string" || npmPackage.version.length === 0) throw new Error("Unable to bind the Node-runtime npm version.");

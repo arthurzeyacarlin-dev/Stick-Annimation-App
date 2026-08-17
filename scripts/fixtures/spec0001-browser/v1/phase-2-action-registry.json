@@ -1,0 +1,882 @@
+{
+  "registryVersion": 2,
+  "specId": "SPEC-0001",
+  "authorizationId": "phase-2/v1",
+  "operationFamilies": [
+    "checkpoint",
+    "fixture",
+    "pointer",
+    "protected-regression",
+    "runner-environment",
+    "screenshot",
+    "visible-role",
+    "visible-testid",
+    "workspace-driver"
+  ],
+  "adapter": {
+    "path": "scripts/spec0001-browser/actions/phase2.ts",
+    "byteLength": 1284,
+    "sha256": "sha256:97d10b49c9aaee80253b9de9977beb57e19a0efbbee37c00e501d9d4fbc33b89"
+  },
+  "fixtures": [
+    {
+      "fixtureId": "phase2-manual-document",
+      "fixtureKind": "stick-workspace-document-mount-v1",
+      "sourceKind": "repository-json",
+      "binding": {
+        "path": "scripts/fixtures/stick-ai/v1/stick-manual-wave-build-cases.json",
+        "byteLength": 2532,
+        "sha256": "sha256:80c02566aa95ecd96f97cf7554bfb6c17d92315317eeb6bb53ca6f249d64441a"
+      },
+      "expectedFixtureDigest": "sha256:80c02566aa95ecd96f97cf7554bfb6c17d92315317eeb6bb53ca6f249d64441a"
+    },
+    {
+      "fixtureId": "phase2-joint-edits",
+      "fixtureKind": "stick-completed-joint-edit-v1",
+      "sourceKind": "repository-json",
+      "binding": {
+        "path": "scripts/fixtures/stick-ai/v1/wave-any-joint-corrections.json",
+        "byteLength": 1021,
+        "sha256": "sha256:24939cbf1f43b2bb01212ea215ee1035af87ae7cbc36af51028d0a15aa283982"
+      },
+      "expectedFixtureDigest": "sha256:24939cbf1f43b2bb01212ea215ee1035af87ae7cbc36af51028d0a15aa283982"
+    },
+    {
+      "fixtureId": "phase2-publication-plan",
+      "fixtureKind": "stick-document-publication-plan-v1",
+      "sourceKind": "repository-json",
+      "binding": {
+        "path": "scripts/fixtures/stick-ai/v1/stick-document-publication-race-cases.json",
+        "byteLength": 1565,
+        "sha256": "sha256:c739685f079a2867a97a1cac8436613f3b613d3125524f936a8ffaa89a8e4e1e"
+      },
+      "expectedFixtureDigest": "sha256:c739685f079a2867a97a1cac8436613f3b613d3125524f936a8ffaa89a8e4e1e"
+    },
+    {
+      "fixtureId": "phase2-publication-completion",
+      "fixtureKind": "stick-document-publication-completion-v1",
+      "sourceKind": "repository-json",
+      "binding": {
+        "path": "scripts/fixtures/stick-ai/v1/stick-document-publication-race-cases.json",
+        "byteLength": 1565,
+        "sha256": "sha256:c739685f079a2867a97a1cac8436613f3b613d3125524f936a8ffaa89a8e4e1e"
+      },
+      "expectedFixtureDigest": "sha256:c739685f079a2867a97a1cac8436613f3b613d3125524f936a8ffaa89a8e4e1e"
+    },
+    {
+      "fixtureId": "phase2-environment-plan",
+      "fixtureKind": "stick-browser-environment-plan-v1",
+      "sourceKind": "repository-json",
+      "binding": {
+        "path": "scripts/fixtures/stick-ai/v1/stick-document-publication-race-cases.json",
+        "byteLength": 1565,
+        "sha256": "sha256:c739685f079a2867a97a1cac8436613f3b613d3125524f936a8ffaa89a8e4e1e"
+      },
+      "expectedFixtureDigest": "sha256:c739685f079a2867a97a1cac8436613f3b613d3125524f936a8ffaa89a8e4e1e"
+    },
+    {
+      "fixtureId": "phase2-gate-release",
+      "fixtureKind": "stick-browser-environment-gate-release-v1",
+      "sourceKind": "repository-json",
+      "binding": {
+        "path": "scripts/fixtures/stick-ai/v1/stick-document-publication-race-cases.json",
+        "byteLength": 1565,
+        "sha256": "sha256:c739685f079a2867a97a1cac8436613f3b613d3125524f936a8ffaa89a8e4e1e"
+      },
+      "expectedFixtureDigest": "sha256:c739685f079a2867a97a1cac8436613f3b613d3125524f936a8ffaa89a8e4e1e"
+    }
+  ],
+  "actions": [
+    {
+      "actionId": "assert-stick-stage",
+      "family": "visible-testid",
+      "operation": "assert-visible",
+      "testId": "stick-stage"
+    },
+    {
+      "actionId": "checkpoint-starter",
+      "family": "checkpoint",
+      "channel": "workspace-driver",
+      "checkpointId": "starter",
+      "expectedEvidenceDigest": "sha256:8fab98b2f580909a7d9a3ecbb78f95b72843c9b1fa044b484f92809e006fdc23"
+    },
+    {
+      "actionId": "open-tools-fresh",
+      "family": "visible-role",
+      "operation": "click",
+      "role": "button",
+      "accessibleName": "Stick Figure Tools",
+      "input": null
+    },
+    {
+      "actionId": "creator-fresh-enabled",
+      "family": "visible-role",
+      "operation": "assert-enabled",
+      "role": "button",
+      "accessibleName": "Create New Stick Figure",
+      "input": null
+    },
+    {
+      "actionId": "open-properties",
+      "family": "visible-role",
+      "operation": "click",
+      "role": "button",
+      "accessibleName": "Stick Figure Properties",
+      "input": null
+    },
+    {
+      "actionId": "ready-elbow-down",
+      "family": "pointer",
+      "operation": "down",
+      "targetId": "phase-2-stick-canvas",
+      "pointerId": 1,
+      "button": 0,
+      "point": {
+        "x": 610,
+        "y": 479
+      },
+      "expectedEvidenceDigest": "sha256:4ab7d04854f90a384526ec21757eeadc34eefb40f6cd822ad18d7c00ba684c32"
+    },
+    {
+      "actionId": "ready-elbow-move",
+      "family": "pointer",
+      "operation": "move",
+      "targetId": "phase-2-stick-canvas",
+      "pointerId": 1,
+      "button": 0,
+      "point": {
+        "x": 600,
+        "y": 429
+      },
+      "expectedEvidenceDigest": "sha256:3dcdf3a5f76c399a6cd790f4b371461e9a536b9009be77730ae88c0d160f577c"
+    },
+    {
+      "actionId": "ready-elbow-up",
+      "family": "pointer",
+      "operation": "up",
+      "targetId": "phase-2-stick-canvas",
+      "pointerId": 1,
+      "button": 0,
+      "point": {
+        "x": 600,
+        "y": 429
+      },
+      "expectedEvidenceDigest": "sha256:28ee65bf6e3d0ca3f3776a0bf8fa67181d5e9f4d2b803dddd5abb5aa87739fd8"
+    },
+    {
+      "actionId": "ready-hand-down",
+      "family": "pointer",
+      "operation": "down",
+      "targetId": "phase-2-stick-canvas",
+      "pointerId": 2,
+      "button": 0,
+      "point": {
+        "x": 640,
+        "y": 539
+      },
+      "expectedEvidenceDigest": "sha256:4de5bab2a581586d98f2b687fefef3592c001cd780cf8ab4c0f952e8aba8ea23"
+    },
+    {
+      "actionId": "ready-hand-move",
+      "family": "pointer",
+      "operation": "move",
+      "targetId": "phase-2-stick-canvas",
+      "pointerId": 2,
+      "button": 0,
+      "point": {
+        "x": 640,
+        "y": 379
+      },
+      "expectedEvidenceDigest": "sha256:666343f438ed5caa0597ec6564409ae0998551179fc04fd03592efa71769fbc5"
+    },
+    {
+      "actionId": "ready-hand-up",
+      "family": "pointer",
+      "operation": "up",
+      "targetId": "phase-2-stick-canvas",
+      "pointerId": 2,
+      "button": 0,
+      "point": {
+        "x": 640,
+        "y": 379
+      },
+      "expectedEvidenceDigest": "sha256:690d9a3f6f312abae1732cb48043959f9b8e162de25445ce65591828563904db"
+    },
+    {
+      "actionId": "open-tools-locked",
+      "family": "visible-role",
+      "operation": "click",
+      "role": "button",
+      "accessibleName": "Stick Figure Tools",
+      "input": null
+    },
+    {
+      "actionId": "creator-locked-disabled",
+      "family": "visible-role",
+      "operation": "assert-disabled",
+      "role": "button",
+      "accessibleName": "Create New Stick Figure",
+      "input": null
+    },
+    {
+      "actionId": "properties-after-lock",
+      "family": "visible-role",
+      "operation": "click",
+      "role": "button",
+      "accessibleName": "Stick Figure Properties",
+      "input": null
+    },
+    {
+      "actionId": "frame4-actions",
+      "family": "visible-testid",
+      "operation": "click",
+      "testId": "stick-frame-actions-4"
+    },
+    {
+      "actionId": "hold-through-4",
+      "family": "visible-role",
+      "operation": "click",
+      "role": "menuitem",
+      "accessibleName": "Hold Pose Through This Frame",
+      "input": null
+    },
+    {
+      "actionId": "frame5-actions",
+      "family": "visible-testid",
+      "operation": "click",
+      "testId": "stick-frame-actions-5"
+    },
+    {
+      "actionId": "blank-frame5",
+      "family": "visible-role",
+      "operation": "click",
+      "role": "menuitem",
+      "accessibleName": "Insert Blank Keyframe",
+      "input": null
+    },
+    {
+      "actionId": "assert-blank5",
+      "family": "visible-testid",
+      "operation": "assert-visible",
+      "testId": "stick-blank-canvas"
+    },
+    {
+      "actionId": "start-frame5",
+      "family": "visible-role",
+      "operation": "click",
+      "role": "button",
+      "accessibleName": "Start Pose from Previous",
+      "input": null
+    },
+    {
+      "actionId": "inward-elbow-down",
+      "family": "pointer",
+      "operation": "down",
+      "targetId": "phase-2-stick-canvas",
+      "pointerId": 3,
+      "button": 0,
+      "point": {
+        "x": 600,
+        "y": 429
+      },
+      "expectedEvidenceDigest": "sha256:a2a59684926aa643d19956f8563f9cd514697b1acdd5d225e4daed1f829c98a2"
+    },
+    {
+      "actionId": "inward-elbow-move",
+      "family": "pointer",
+      "operation": "move",
+      "targetId": "phase-2-stick-canvas",
+      "pointerId": 3,
+      "button": 0,
+      "point": {
+        "x": 600,
+        "y": 399
+      },
+      "expectedEvidenceDigest": "sha256:a5e2febdd3757874e32663fdb0d05d2ea2d7cec7f9b3110afd7e555a86c3ea34"
+    },
+    {
+      "actionId": "inward-elbow-up",
+      "family": "pointer",
+      "operation": "up",
+      "targetId": "phase-2-stick-canvas",
+      "pointerId": 3,
+      "button": 0,
+      "point": {
+        "x": 600,
+        "y": 399
+      },
+      "expectedEvidenceDigest": "sha256:7948e26d52b60f4a3c075e7dd296cc4625206db2e8dd4142d679847d0b8d1b33"
+    },
+    {
+      "actionId": "inward-hand-down",
+      "family": "pointer",
+      "operation": "down",
+      "targetId": "phase-2-stick-canvas",
+      "pointerId": 4,
+      "button": 0,
+      "point": {
+        "x": 640,
+        "y": 379
+      },
+      "expectedEvidenceDigest": "sha256:9007d5308f6cd74cee55f511c9962a087ac293e28788ab22427953afffa4688c"
+    },
+    {
+      "actionId": "inward-hand-move",
+      "family": "pointer",
+      "operation": "move",
+      "targetId": "phase-2-stick-canvas",
+      "pointerId": 4,
+      "button": 0,
+      "point": {
+        "x": 570,
+        "y": 359
+      },
+      "expectedEvidenceDigest": "sha256:827ecb4006f872c7a2a5811a1c7853887ece19ed4d844e8d1d5129757d149678"
+    },
+    {
+      "actionId": "inward-hand-up",
+      "family": "pointer",
+      "operation": "up",
+      "targetId": "phase-2-stick-canvas",
+      "pointerId": 4,
+      "button": 0,
+      "point": {
+        "x": 570,
+        "y": 359
+      },
+      "expectedEvidenceDigest": "sha256:7da5783ed80ea55f433a5fc49886df81eb18741230f6a8838d485fbd954fd23f"
+    },
+    {
+      "actionId": "frame8-actions",
+      "family": "visible-testid",
+      "operation": "click",
+      "testId": "stick-frame-actions-8"
+    },
+    {
+      "actionId": "hold-through-8",
+      "family": "visible-role",
+      "operation": "click",
+      "role": "menuitem",
+      "accessibleName": "Hold Pose Through This Frame",
+      "input": null
+    },
+    {
+      "actionId": "frame9-actions",
+      "family": "visible-testid",
+      "operation": "click",
+      "testId": "stick-frame-actions-9"
+    },
+    {
+      "actionId": "blank-frame9",
+      "family": "visible-role",
+      "operation": "click",
+      "role": "menuitem",
+      "accessibleName": "Insert Blank Keyframe",
+      "input": null
+    },
+    {
+      "actionId": "assert-blank9",
+      "family": "visible-testid",
+      "operation": "assert-visible",
+      "testId": "stick-blank-canvas"
+    },
+    {
+      "actionId": "start-frame9",
+      "family": "visible-role",
+      "operation": "click",
+      "role": "button",
+      "accessibleName": "Start Pose from Previous",
+      "input": null
+    },
+    {
+      "actionId": "outward-elbow-down",
+      "family": "pointer",
+      "operation": "down",
+      "targetId": "phase-2-stick-canvas",
+      "pointerId": 5,
+      "button": 0,
+      "point": {
+        "x": 600,
+        "y": 399
+      },
+      "expectedEvidenceDigest": "sha256:ce7cc66b7869337b59385b4b43170170f2fb6238d829d82de4bab5008dce500f"
+    },
+    {
+      "actionId": "outward-elbow-move",
+      "family": "pointer",
+      "operation": "move",
+      "targetId": "phase-2-stick-canvas",
+      "pointerId": 5,
+      "button": 0,
+      "point": {
+        "x": 620,
+        "y": 399
+      },
+      "expectedEvidenceDigest": "sha256:cc914ea4b76f618cdde9fa11cb78f1591b798deb9feb89bbfef0d9b5ee3215cd"
+    },
+    {
+      "actionId": "outward-elbow-up",
+      "family": "pointer",
+      "operation": "up",
+      "targetId": "phase-2-stick-canvas",
+      "pointerId": 5,
+      "button": 0,
+      "point": {
+        "x": 620,
+        "y": 399
+      },
+      "expectedEvidenceDigest": "sha256:b9ff57f18ab5375ffc658ec287961ddbdea31edf42639eaafa48313945963eac"
+    },
+    {
+      "actionId": "outward-hand-down",
+      "family": "pointer",
+      "operation": "down",
+      "targetId": "phase-2-stick-canvas",
+      "pointerId": 6,
+      "button": 0,
+      "point": {
+        "x": 570,
+        "y": 359
+      },
+      "expectedEvidenceDigest": "sha256:89cbee8b5b96d68ecb258a601cab13f10156161cf7cb9d6e06ef3caaedddb649"
+    },
+    {
+      "actionId": "outward-hand-move",
+      "family": "pointer",
+      "operation": "move",
+      "targetId": "phase-2-stick-canvas",
+      "pointerId": 6,
+      "button": 0,
+      "point": {
+        "x": 700,
+        "y": 359
+      },
+      "expectedEvidenceDigest": "sha256:28f012789e3cdbcb365fa85ae66746768d02ddedf603552bee974c97d48888e9"
+    },
+    {
+      "actionId": "outward-hand-up",
+      "family": "pointer",
+      "operation": "up",
+      "targetId": "phase-2-stick-canvas",
+      "pointerId": 6,
+      "button": 0,
+      "point": {
+        "x": 700,
+        "y": 359
+      },
+      "expectedEvidenceDigest": "sha256:f5beddab9f8dbda86c9c3edcf40be1c0e61473c46ecbfa0d374ca918d37a6e38"
+    },
+    {
+      "actionId": "frame12-actions",
+      "family": "visible-testid",
+      "operation": "click",
+      "testId": "stick-frame-actions-12"
+    },
+    {
+      "actionId": "hold-through-12",
+      "family": "visible-role",
+      "operation": "click",
+      "role": "menuitem",
+      "accessibleName": "Hold Pose Through This Frame",
+      "input": null
+    },
+    {
+      "actionId": "checkpoint-golden-wave",
+      "family": "checkpoint",
+      "channel": "workspace-driver",
+      "checkpointId": "golden-wave",
+      "expectedEvidenceDigest": "sha256:72eaf91a7bc5424f4329e39677a6ee9a7faf342b70697305dd3fb320f21ea543"
+    },
+    {
+      "actionId": "select-held-frame2",
+      "family": "visible-testid",
+      "operation": "click",
+      "testId": "stick-frame-2"
+    },
+    {
+      "actionId": "assert-held-guidance",
+      "family": "visible-testid",
+      "operation": "assert-visible",
+      "testId": "stick-edit-guidance"
+    },
+    {
+      "actionId": "held-head-down",
+      "family": "pointer",
+      "operation": "down",
+      "targetId": "phase-2-stick-canvas",
+      "pointerId": 7,
+      "button": 0,
+      "point": {
+        "x": 540,
+        "y": 369
+      },
+      "expectedEvidenceDigest": "sha256:307f56468f2ac727e357a22bdb0c2b380cb9aa647677b1a96faba7e7e96f25ed"
+    },
+    {
+      "actionId": "held-head-move",
+      "family": "pointer",
+      "operation": "move",
+      "targetId": "phase-2-stick-canvas",
+      "pointerId": 7,
+      "button": 0,
+      "point": {
+        "x": 545,
+        "y": 374
+      },
+      "expectedEvidenceDigest": "sha256:ec984586ae91b9b7823e0214f3feb564e032fc225d0c687bd2d02d51379906de"
+    },
+    {
+      "actionId": "held-head-up",
+      "family": "pointer",
+      "operation": "up",
+      "targetId": "phase-2-stick-canvas",
+      "pointerId": 7,
+      "button": 0,
+      "point": {
+        "x": 545,
+        "y": 374
+      },
+      "expectedEvidenceDigest": "sha256:41393705a286fdfe5d4093dbe9825665a56195f7490cb0481e30423781ffded1"
+    },
+    {
+      "actionId": "select-frame5",
+      "family": "visible-testid",
+      "operation": "click",
+      "testId": "stick-frame-5"
+    },
+    {
+      "actionId": "body-down",
+      "family": "pointer",
+      "operation": "down",
+      "targetId": "phase-2-stick-canvas",
+      "pointerId": 8,
+      "button": 0,
+      "point": {
+        "x": 540,
+        "y": 559
+      },
+      "expectedEvidenceDigest": "sha256:6be084100c8bdcf16575d08d4e9c60ce8c41f3617a0e71699ac0fba8494b7185"
+    },
+    {
+      "actionId": "body-move",
+      "family": "pointer",
+      "operation": "move",
+      "targetId": "phase-2-stick-canvas",
+      "pointerId": 8,
+      "button": 0,
+      "point": {
+        "x": 535,
+        "y": 562
+      },
+      "expectedEvidenceDigest": "sha256:f4506c781bae8fb72dbddf1f1af0a5c0504010bc860f229a9b0624b40cc93183"
+    },
+    {
+      "actionId": "body-up",
+      "family": "pointer",
+      "operation": "up",
+      "targetId": "phase-2-stick-canvas",
+      "pointerId": 8,
+      "button": 0,
+      "point": {
+        "x": 535,
+        "y": 562
+      },
+      "expectedEvidenceDigest": "sha256:721af1eb59fc5290e3312d8add86a2523fc1a7c9d6742fd6e4bca52dadba4afa"
+    },
+    {
+      "actionId": "select-frame9",
+      "family": "visible-testid",
+      "operation": "click",
+      "testId": "stick-frame-9"
+    },
+    {
+      "actionId": "leg-down",
+      "family": "pointer",
+      "operation": "down",
+      "targetId": "phase-2-stick-canvas",
+      "pointerId": 9,
+      "button": 0,
+      "point": {
+        "x": 510,
+        "y": 649
+      },
+      "expectedEvidenceDigest": "sha256:620de2e9265dd2ee00b161f29bbc5c2a644b9a15848da2b33e5ba68f7aaaa6d2"
+    },
+    {
+      "actionId": "leg-move",
+      "family": "pointer",
+      "operation": "move",
+      "targetId": "phase-2-stick-canvas",
+      "pointerId": 9,
+      "button": 0,
+      "point": {
+        "x": 505,
+        "y": 654
+      },
+      "expectedEvidenceDigest": "sha256:d99b61d731e899d24fba64d845e44d434c76e7617700386a0413221e164bd663"
+    },
+    {
+      "actionId": "leg-up",
+      "family": "pointer",
+      "operation": "up",
+      "targetId": "phase-2-stick-canvas",
+      "pointerId": 9,
+      "button": 0,
+      "point": {
+        "x": 505,
+        "y": 654
+      },
+      "expectedEvidenceDigest": "sha256:b3363127df4b8807f467ed534a59e1c7a888f12567e3be3f5f1bbb28052fc231"
+    },
+    {
+      "actionId": "cancel-neck-down",
+      "family": "pointer",
+      "operation": "down",
+      "targetId": "phase-2-stick-canvas",
+      "pointerId": 10,
+      "button": 0,
+      "point": {
+        "x": 540,
+        "y": 419
+      },
+      "expectedEvidenceDigest": "sha256:9f8915adda2ddc1877ef09fe2226daf24ba6722813b9b8c9d69a79af2f635d87"
+    },
+    {
+      "actionId": "cancel-neck-move",
+      "family": "pointer",
+      "operation": "move",
+      "targetId": "phase-2-stick-canvas",
+      "pointerId": 10,
+      "button": 0,
+      "point": {
+        "x": 545,
+        "y": 424
+      },
+      "expectedEvidenceDigest": "sha256:08c0903e1d5f66b1a7ea9f6876ff098bfd43f9aeb016e3d58d9ccac82a9031a5"
+    },
+    {
+      "actionId": "cancel-neck-terminal",
+      "family": "pointer",
+      "operation": "cancel",
+      "targetId": "phase-2-stick-canvas",
+      "pointerId": 10,
+      "button": 0,
+      "point": {
+        "x": 545,
+        "y": 424
+      },
+      "expectedEvidenceDigest": "sha256:123ef87abd5a867196e295beb56488da6695f8ccf2c1e5b657a3bf33bf6de7bb"
+    },
+    {
+      "actionId": "select-frame1-playback",
+      "family": "visible-testid",
+      "operation": "click",
+      "testId": "stick-frame-1"
+    },
+    {
+      "actionId": "play-wave",
+      "family": "visible-role",
+      "operation": "click",
+      "role": "button",
+      "accessibleName": "Play",
+      "input": null
+    },
+    {
+      "actionId": "playback-cycle-checkpoint",
+      "family": "checkpoint",
+      "channel": "workspace-driver",
+      "checkpointId": "playback-cycle",
+      "expectedEvidenceDigest": "sha256:7433b382a7d250d04c231a88aaa496dea372b2caa1bcfd1148c9918589081a17"
+    },
+    {
+      "actionId": "pause-wave",
+      "family": "visible-role",
+      "operation": "click",
+      "role": "button",
+      "accessibleName": "Pause",
+      "input": null
+    },
+    {
+      "actionId": "open-library",
+      "family": "visible-role",
+      "operation": "click",
+      "role": "button",
+      "accessibleName": "Stick Figure Library",
+      "input": null
+    },
+    {
+      "actionId": "open-assets",
+      "family": "visible-role",
+      "operation": "click",
+      "role": "button",
+      "accessibleName": "Stick Figure Assets",
+      "input": null
+    },
+    {
+      "actionId": "return-properties",
+      "family": "visible-role",
+      "operation": "click",
+      "role": "button",
+      "accessibleName": "Stick Figure Properties",
+      "input": null
+    },
+    {
+      "actionId": "toggle-pan",
+      "family": "visible-role",
+      "operation": "click",
+      "role": "checkbox",
+      "accessibleName": "Pan canvas",
+      "input": null
+    },
+    {
+      "actionId": "reset-view",
+      "family": "visible-role",
+      "operation": "click",
+      "role": "button",
+      "accessibleName": "Reset view (0, 0)",
+      "input": null
+    },
+    {
+      "actionId": "manual-wave-screenshot",
+      "family": "screenshot",
+      "screenshotId": "phase-2-manual-wave"
+    },
+    {
+      "actionId": "driver-mount-applied",
+      "family": "workspace-driver",
+      "operation": "mountDocument",
+      "fixtureId": "phase2-manual-document",
+      "operationId": "driver-mount-applied",
+      "expectedEvidenceDigest": "sha256:afeb87f0df6a477bc26143c295736a4fd59d9080be60ef067ecd87d32afca835"
+    },
+    {
+      "actionId": "driver-valid-head-edit",
+      "family": "workspace-driver",
+      "operation": "dispatchCompletedJointEdit",
+      "fixtureId": "phase2-joint-edits",
+      "operationId": "driver-valid-head-edit",
+      "expectedEvidenceDigest": "sha256:e713a315330d2918a2dffa69575dc7adcdb18dea3ed51c673039d0bc1772f64b"
+    },
+    {
+      "actionId": "driver-valid-body-edit",
+      "family": "workspace-driver",
+      "operation": "dispatchCompletedJointEdit",
+      "fixtureId": "phase2-joint-edits",
+      "operationId": "driver-valid-body-edit",
+      "expectedEvidenceDigest": "sha256:97c51c84cd10376806fc05477ac8913d0bc5ae99a7c7cd0654b2971fe72aa11f"
+    },
+    {
+      "actionId": "driver-valid-leg-edit",
+      "family": "workspace-driver",
+      "operation": "dispatchCompletedJointEdit",
+      "fixtureId": "phase2-joint-edits",
+      "operationId": "driver-valid-leg-edit",
+      "expectedEvidenceDigest": "sha256:82e2f051ef678e7488e9f0f54c276b6cc5fcf97e5a531b4cd28a86052838cdb0"
+    },
+    {
+      "actionId": "driver-valid-arm-edit",
+      "family": "workspace-driver",
+      "operation": "dispatchCompletedJointEdit",
+      "fixtureId": "phase2-joint-edits",
+      "operationId": "driver-valid-arm-edit",
+      "expectedEvidenceDigest": "sha256:7dc7d1478e81dd71f1cce7b60dec213eeafb8d4a1b420f5c2151b8b3901f140c"
+    },
+    {
+      "actionId": "driver-stale-remount-edit",
+      "family": "workspace-driver",
+      "operation": "dispatchCompletedJointEdit",
+      "fixtureId": "phase2-joint-edits",
+      "operationId": "driver-stale-remount-edit",
+      "expectedEvidenceDigest": "sha256:fc449698da8dea8cbe3700b82119fcc270e656b059e47d071706c09b532b9852"
+    },
+    {
+      "actionId": "publication-begin-a",
+      "family": "workspace-driver",
+      "operation": "beginDocumentPublication",
+      "fixtureId": "phase2-publication-plan",
+      "operationId": "publication-a",
+      "expectedEvidenceDigest": "sha256:bba628e2fa519acbe5db54203031bd92ea3e651aac172e73e31dfd5e173e14bb"
+    },
+    {
+      "actionId": "publication-begin-b",
+      "family": "workspace-driver",
+      "operation": "beginDocumentPublication",
+      "fixtureId": "phase2-publication-plan",
+      "operationId": "publication-b",
+      "expectedEvidenceDigest": "sha256:9e411666d02336401f02d8eee21b07bea542014a8762ed15d2ab8a5c6ce1bd8c"
+    },
+    {
+      "actionId": "publication-complete-b",
+      "family": "workspace-driver",
+      "operation": "completeDocumentPublication",
+      "fixtureId": "phase2-publication-completion",
+      "operationId": "publication-b",
+      "expectedEvidenceDigest": "sha256:64ba1513f24ca856214f58daaa8e8f83b292dae75aec5b3cefc8d9ef4316d5c2"
+    },
+    {
+      "actionId": "publication-complete-a",
+      "family": "workspace-driver",
+      "operation": "completeDocumentPublication",
+      "fixtureId": "phase2-publication-completion",
+      "operationId": "publication-a",
+      "expectedEvidenceDigest": "sha256:eaba2ae4b33118897fb9b02542850903c5eb558730c67ae95d669fd9700e5b0a"
+    },
+    {
+      "actionId": "environment-install",
+      "family": "runner-environment",
+      "operation": "installEnvironmentPlan",
+      "fixtureId": "phase2-environment-plan",
+      "operationId": "environment-install",
+      "expectedEvidenceDigest": "sha256:2629890136eb26eb00977a3f3c460d927063188487b7a93c522567d710b8cd9e"
+    },
+    {
+      "actionId": "environment-release",
+      "family": "runner-environment",
+      "operation": "releaseEnvironmentGate",
+      "fixtureId": "phase2-gate-release",
+      "operationId": "environment-release",
+      "expectedEvidenceDigest": "sha256:4554fa007a5c959fab86dfe61c8dd8fdfaa9d6066ceca16f24ef37a7d42613e7"
+    },
+    {
+      "actionId": "environment-checkpoint",
+      "family": "runner-environment",
+      "operation": "readEnvironmentCheckpoint",
+      "fixtureId": null,
+      "operationId": "environment-checkpoint",
+      "expectedEvidenceDigest": "sha256:e181d37caed074c879dcd908e7229fe9e68884dc1f40df1c6a4d4bbf1fb37a06"
+    },
+    {
+      "actionId": "regression-home-new-drawing",
+      "family": "protected-regression",
+      "group": "home-new-drawing"
+    },
+    {
+      "actionId": "regression-home-new-stick",
+      "family": "protected-regression",
+      "group": "home-new-stick"
+    },
+    {
+      "actionId": "regression-stick-creator-back",
+      "family": "protected-regression",
+      "group": "stick-creator-back"
+    },
+    {
+      "actionId": "regression-drawing-generate",
+      "family": "protected-regression",
+      "group": "drawing-generate-frames"
+    },
+    {
+      "actionId": "regression-drawing-controls",
+      "family": "protected-regression",
+      "group": "drawing-undo-redo-play-pause"
+    },
+    {
+      "actionId": "environment-clear",
+      "family": "runner-environment",
+      "operation": "clearEnvironmentPlan",
+      "fixtureId": null,
+      "operationId": "environment-clear",
+      "expectedEvidenceDigest": "sha256:63c9b21a9f493552ed2c8ef517ab1f27bcdc6d7ac813e82e2004f9ed42ecd084"
+    }
+  ]
+}

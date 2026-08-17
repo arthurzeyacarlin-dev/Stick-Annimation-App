@@ -18,6 +18,9 @@ export const COMPATIBILITY_PLAN_PATH = "scripts/fixtures/spec0001-browser/v2/pha
 export const COMPATIBILITY_REGISTRY_PATH = "scripts/fixtures/spec0001-browser/v2/phase-1.5-compatibility-action-registry.json" as const;
 export const COMPATIBILITY_ADAPTER_PATH = "scripts/spec0001-browser/actions/phase15CompatibilitySynthetic.ts" as const;
 
+export const sortProofPaths = (paths: readonly string[]) => [...paths]
+  .sort((left, right) => Buffer.compare(Buffer.from(left, "utf8"), Buffer.from(right, "utf8")));
+
 export const CORRECTION_PATHS = [
   "scripts/fixtures/spec0001-browser/v2/phase-1.5-compatibility-action-registry.json",
   "scripts/fixtures/spec0001-browser/v2/phase-1.5-compatibility-browser-plan.json",
@@ -45,7 +48,9 @@ export const CORRECTION_PATHS = [
 ] as const;
 
 export const PHASE2_PATHS = [
+  "scripts/finalizeSpec0001ProofBundle.ts",
   "scripts/fixtures/spec0001-browser/v1/phase-2-action-registry.json",
+  "scripts/fixtures/spec0001-browser/v2/tester-extension-authorizations.json",
   "scripts/fixtures/stick-ai/v1/phase-2-browser-proof-plan.json",
   "scripts/fixtures/stick-ai/v1/phase-2-proof-commands.json",
   "scripts/fixtures/stick-ai/v1/stick-control-disposition-cases.json",
@@ -56,7 +61,10 @@ export const PHASE2_PATHS = [
   "scripts/fixtures/stick-ai/v1/stick-pose-aliasing-cases.json",
   "scripts/fixtures/stick-ai/v1/wave-any-joint-corrections.json",
   "scripts/fixtures/stick-ai/v1/wave-cell-resolution.json",
+  "scripts/recordSpec0001ProofBundle.ts",
   "scripts/spec0001-browser/actions/phase2.ts",
+  "scripts/spec0001-browser/browserTesterExtensionContract.ts",
+  "scripts/validateSpec0001ProofBundle.ts",
   "scripts/validateStickPoseTimeline.ts",
   "src/components/workspace/stickfigure/StickFigureCanvas.tsx",
   "src/components/workspace/stickfigure/StickFigureRightPanel.tsx",
@@ -68,6 +76,20 @@ export const PHASE2_PATHS = [
   "src/lib/stickfigure/stickProjectContract.ts",
   "src/lib/stickfigure/stickTimeline.ts",
 ] as const;
+
+export const PHASE2_CLOSEOUT_RECORD_PATHS = [
+  "docs/CURRENT_STATE.md",
+  "docs/SESSION_HANDOFF.md",
+  "docs/TODO.md",
+  "docs/architecture.md",
+  "docs/changelog.md",
+  "docs/specs/0001-first-reversible-ai-stick-animation.md",
+  "docs/specs/README.md",
+  "docs/testing_workflow.md",
+  "project/project_structure.txt",
+] as const;
+
+export const PHASE2_CLOSEOUT_PATHS = sortProofPaths([...PHASE2_PATHS, ...PHASE2_CLOSEOUT_RECORD_PATHS]);
 
 export const OPERATION_FAMILIES = [
   "checkpoint", "fixture", "pointer", "protected-regression", "runner-environment",
@@ -776,6 +798,8 @@ export type GitObservationOverride = {
   committedChangedPaths: string[];
 };
 
+export type ExtensionValidationMode = "technical" | "phase-2-closeout";
+
 const validateObservationOverride = (value: GitObservationOverride): GitObservationOverride => ({
   headCommit: gitSha(value.headCommit, "observation headCommit"),
   stagedPaths: canonicalStrings(value.stagedPaths, "observation stagedPaths").map((entry) => assertSafeRepositoryPath(entry)),
@@ -827,12 +851,35 @@ export const deriveGitState = (root: string, plan: ExtensionPlan, ceiling: reado
   return {derivedGitState: "clean-committed", baseCommit: plan.baseCommit, headCommit: observation.headCommit, observedDirtyPaths: [], dirtyExpectedPaths: [...plan.dirtyExpectedPaths], cleanExpectedPaths: [], selectedExpectedPaths: []};
 };
 
+export const derivePhase2CloseoutGraphGitState = (root: string, plan: ExtensionPlan, ceiling: readonly string[], observationOverride?: GitObservationOverride): DerivedGitState => {
+  exact(plan.authorizationId, "phase-2/v1", "closeout plan authorizationId");
+  exact(ceiling, [...PHASE2_PATHS], "closeout technical path ceiling");
+  exact(plan.dirtyExpectedPaths, [...PHASE2_PATHS], "closeout recorded technical paths");
+  const observation = observationOverride === undefined ? observeGit(root, plan.baseCommit) : validateObservationOverride(observationOverride);
+  exact(observation.stagedPaths, [], "closeout staged paths");
+  exact(observation.hiddenIndexPaths, [], "closeout hidden index paths");
+  exact(observation.headCommit, plan.baseCommit, "closeout HEAD/base");
+  exact(observation.baseIsStrictAncestor, false, "closeout base ancestry");
+  exact(observation.committedChangedPaths, [], "closeout committed paths");
+  const observedCloseoutPaths = sortProofPaths([...new Set([...observation.trackedDirtyPaths, ...observation.untrackedPaths])]);
+  exact(observedCloseoutPaths, PHASE2_CLOSEOUT_PATHS, "closeout observed paths");
+  return {
+    derivedGitState: "dirty-executor",
+    baseCommit: plan.baseCommit,
+    headCommit: plan.baseCommit,
+    observedDirtyPaths: [...plan.dirtyExpectedPaths],
+    dirtyExpectedPaths: [...plan.dirtyExpectedPaths],
+    cleanExpectedPaths: [],
+    selectedExpectedPaths: [...plan.dirtyExpectedPaths],
+  };
+};
+
 const validateResultBindingGroup = (value: unknown) => {
   const record = object(value, ["catalog", "plan", "registry", "adapter"], "result bindings");
   return {catalog: parseBinding(record.catalog, "result catalog binding"), plan: parseBinding(record.plan, "result plan binding"), registry: parseBinding(record.registry, "result registry binding"), adapter: parseBinding(record.adapter, "result adapter binding")};
 };
 
-export const validateExtensionResult = (value: unknown, root: string, verifyBindings = true): ExtensionResult => {
+export const validateExtensionResult = (value: unknown, root: string, verifyBindings = true, validationMode: ExtensionValidationMode = "technical"): ExtensionResult => {
   const record = object(value, ["resultVersion", "specId", "proofPurpose", "status", "recordedAt", "productPhaseClaimed", "runtime", "derivedGitState", "baseCommit", "headCommit", "observedDirtyPaths", "dirtyExpectedPaths", "cleanExpectedPaths", "selectedExpectedPaths", "authorization", "bindings", "execution", "evidence", "network", "cleanup"], "extension result");
   exact(record.resultVersion, 2, "resultVersion");
   exact(record.specId, "SPEC-0001", "result specId");
@@ -883,7 +930,7 @@ export const validateExtensionResult = (value: unknown, root: string, verifyBind
   exact(cleanupRecord, {anchorRestored: true, sourceRestored: true, browserContextsOpen: 0, activeGates: 0, activeIntercepts: 0, openChildProcesses: 0, openPorts: 0, residualPaths: []}, "result cleanup");
   const validated: ExtensionResult = {resultVersion: 2, specId: "SPEC-0001", proofPurpose, status: "passed", recordedAt, productPhaseClaimed, runtime, derivedGitState, baseCommit, headCommit, observedDirtyPaths, dirtyExpectedPaths, cleanExpectedPaths: [], selectedExpectedPaths, authorization: {authorizationId, materializationKind: synthetic ? "materialized" : "deferred"}, bindings, execution, evidence, network: {browserNonLoopbackAttempts: 0, serverNonLoopbackAttempts: 0, childNonLoopbackAttempts: 0}, cleanup: {anchorRestored: true, sourceRestored: true, browserContextsOpen: 0, activeGates: 0, activeIntercepts: 0, openChildProcesses: 0, openPorts: 0, residualPaths: []}};
   if (verifyBindings) {
-    const graph = loadTesterExtensionGraph(root, bindings.plan.path);
+    const graph = loadTesterExtensionGraph(root, bindings.plan.path, validationMode);
     exact(validated.authorization, {authorizationId: graph.authorizationId, materializationKind: graph.materializationKind}, "result/graph authorization");
     exact(validated.bindings, {catalog: graph.catalogBinding, plan: graph.planBinding, registry: graph.registryBinding, adapter: graph.adapterBinding}, "result/graph bindings");
     exact({derivedGitState: validated.derivedGitState, baseCommit: validated.baseCommit, headCommit: validated.headCommit, observedDirtyPaths: validated.observedDirtyPaths, dirtyExpectedPaths: validated.dirtyExpectedPaths, cleanExpectedPaths: validated.cleanExpectedPaths, selectedExpectedPaths: validated.selectedExpectedPaths}, graph.git, "result/graph Git state");
@@ -905,7 +952,7 @@ const trackedAtHead = (root: string, path: string) => {
   if (result.status !== 0) fail(`Clean committed extension byte is not tracked at HEAD: ${path}.`);
 };
 
-export const loadTesterExtensionGraph = (root: string, planPath: string): ValidatedTesterExtension => {
+export const loadTesterExtensionGraph = (root: string, planPath: string, validationMode: ExtensionValidationMode = "technical"): ValidatedTesterExtension => {
   const safePlanPath = assertSafeRepositoryPath(planPath, "selected plan path");
   const catalog = validateAuthorizationCatalogValue(readStrictJson(root, CATALOG_PATH));
   const authorization = catalog.authorizations.find((entry) => entry.plan.path === safePlanPath) ?? fail(`Plan path is not registered: ${safePlanPath}.`);
@@ -976,7 +1023,9 @@ export const loadTesterExtensionGraph = (root: string, planPath: string): Valida
     }
     if (action.family === "pointer" && !pointerTargets.has(action.targetId)) fail(`Pointer target ${action.targetId} is not declared by the adapter.`);
   }
-  const git = deriveGitState(root, plan, authorization.pathCeiling);
+  const git = validationMode === "phase-2-closeout"
+    ? derivePhase2CloseoutGraphGitState(root, plan, authorization.pathCeiling)
+    : deriveGitState(root, plan, authorization.pathCeiling);
   if (git.derivedGitState === "clean-committed") for (const path of [CATALOG_PATH, planBinding.path, registryBinding.path, adapterBinding.path]) trackedAtHead(root, path);
   return {authorizationId: authorization.authorizationId, materializationKind: authorization.materializationKind, outputRoot: authorization.outputRoot, pathCeiling: authorization.pathCeiling, operationFamilies: authorization.operationFamilies, catalogBinding, planBinding, registryBinding, adapterBinding, plan, registry, adapter, git};
 };

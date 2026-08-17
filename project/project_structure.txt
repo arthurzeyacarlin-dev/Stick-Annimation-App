@@ -172,6 +172,7 @@
 ./scripts/fixtures/spec0001-browser/v1/phase-1.5-negative-cases.json
 ./scripts/fixtures/spec0001-browser/v1/phase-1.5-proof-commands.json
 ./scripts/fixtures/spec0001-browser/v1/phase-1.5-proof-manifest.schema.json
+./scripts/fixtures/spec0001-browser/v1/phase-2-action-registry.json
 ./scripts/fixtures/spec0001-browser/v1/tester-action-registry.schema.json
 ./scripts/fixtures/spec0001-browser/v1/tester-core.schema.json
 ./scripts/fixtures/spec0001-browser/v1/tester-result.schema.json
@@ -205,6 +206,8 @@
 ./scripts/fixtures/stick-ai/v1/manual-wave-applied-project.json
 ./scripts/fixtures/stick-ai/v1/non-wave-document-cases.json
 ./scripts/fixtures/stick-ai/v1/phase-1-proof-commands.json
+./scripts/fixtures/stick-ai/v1/phase-2-browser-proof-plan.json
+./scripts/fixtures/stick-ai/v1/phase-2-proof-commands.json
 ./scripts/fixtures/stick-ai/v1/phase7-live-proof-manifest.schema.json
 ./scripts/fixtures/stick-ai/v1/prompt-normalization-cases.json
 ./scripts/fixtures/stick-ai/v1/proof-closeout-manifest.schema.json
@@ -212,9 +215,17 @@
 ./scripts/fixtures/stick-ai/v1/proof-command-receipt.schema.json
 ./scripts/fixtures/stick-ai/v1/proof-manifest-v2.schema.json
 ./scripts/fixtures/stick-ai/v1/proof-manifest.schema.json
+./scripts/fixtures/stick-ai/v1/stick-control-disposition-cases.json
+./scripts/fixtures/stick-ai/v1/stick-correction-affordance-cases.json
+./scripts/fixtures/stick-ai/v1/stick-document-publication-race-cases.json
+./scripts/fixtures/stick-ai/v1/stick-gesture-cases.json
 ./scripts/fixtures/stick-ai/v1/stick-line-head-vectors.json
 ./scripts/fixtures/stick-ai/v1/stick-manual-edit-capability-cases.json
+./scripts/fixtures/stick-ai/v1/stick-manual-wave-build-cases.json
+./scripts/fixtures/stick-ai/v1/stick-pose-aliasing-cases.json
+./scripts/fixtures/stick-ai/v1/wave-any-joint-corrections.json
 ./scripts/fixtures/stick-ai/v1/wave-applied-project.json
+./scripts/fixtures/stick-ai/v1/wave-cell-resolution.json
 ./scripts/fixtures/stick-ai/v1/wave-command-batch.json
 ./scripts/fixtures/stick-ai/v1/wave-command-results.json
 ./scripts/fixtures/stick-ai/v1/wave-provider-plan.json
@@ -229,6 +240,7 @@
 ./scripts/spec0001-browser
 ./scripts/spec0001-browser/actions
 ./scripts/spec0001-browser/actions/phase15CompatibilitySynthetic.ts
+./scripts/spec0001-browser/actions/phase2.ts
 ./scripts/spec0001-browser/browserTesterContract.ts
 ./scripts/spec0001-browser/browserTesterExtensionContract.ts
 ./scripts/spec0001-browser/finalizePhase15Closeout.ts
@@ -270,6 +282,7 @@
 ./scripts/validateSpec0001ProofBundle.ts
 ./scripts/validateSpec0002Proof.ts
 ./scripts/validateStickFigureAiContracts.ts
+./scripts/validateStickPoseTimeline.ts
 ./scripts/validateTimelinePlaybackSmoothing.ts
 ./src
 ./src/components
@@ -347,6 +360,7 @@
 ./src/lib/openai/generateAiText.ts
 ./src/lib/stickfigure
 ./src/lib/stickfigure/stickProjectContract.ts
+./src/lib/stickfigure/stickTimeline.ts
 ./supabase
 ./supabase/migrations
 ./supabase/migrations/create_plans_training_table.sql

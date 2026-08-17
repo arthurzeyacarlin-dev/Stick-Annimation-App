@@ -1,0 +1,19 @@
+{
+  "fixtureVersion": 1,
+  "documentPath": "scripts/fixtures/stick-ai/v1/manual-wave-applied-project.json",
+  "roles": ["head", "neck", "hip", "leftElbow", "leftHand", "rightElbow", "rightHand", "leftKnee", "leftFoot", "rightKnee", "rightFoot"],
+  "selectionCases": [
+    {"selectionKind": "keyframe", "selectedFrameIndex": 4, "expectedOwnerIndex": 4, "delta": {"x": 3, "y": 5}},
+    {"selectionKind": "held-frame", "selectedFrameIndex": 6, "expectedOwnerIndex": 4, "delta": {"x": -4, "y": 7}}
+  ],
+  "browserEdits": {
+    "fixtureVersion": 1,
+    "edits": [
+      {"selectedFrameIndex": 1, "jointRole": "head", "to": {"x": 970, "y": 250}},
+      {"selectedFrameIndex": 4, "jointRole": "hip", "to": {"x": 950, "y": 625}},
+      {"selectedFrameIndex": 8, "jointRole": "leftKnee", "to": {"x": 890, "y": 810}},
+      {"selectedFrameIndex": 8, "jointRole": "rightHand", "to": {"x": 1260, "y": 230}},
+      {"selectedFrameIndex": 0, "jointRole": "neck", "to": {"x": 955, "y": 345}, "staleWorkspaceInstance": true}
+    ]
+  }
+}

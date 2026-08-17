@@ -4,11 +4,23 @@ import {createHash} from "node:crypto";
 import {existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, readlinkSync, realpathSync, rmSync, unlinkSync, writeFileSync} from "node:fs";
 import {dirname, relative, resolve, sep} from "node:path";
 import {pathToFileURL} from "node:url";
-import {validateExtensionResult} from "./spec0001-browser/browserTesterExtensionContract.ts";
+import {
+  PHASE2_CLOSEOUT_PATHS,
+  PHASE2_CLOSEOUT_RECORD_PATHS,
+  PHASE2_PATHS,
+  deriveGitState,
+  derivePhase2CloseoutGraphGitState,
+  loadTesterExtensionGraph,
+  sortProofPaths,
+  validateExtensionResult,
+} from "./spec0001-browser/browserTesterExtensionContract.ts";
 import {BROWSER_EXECUTABLE} from "./spec0001-browser/browserTesterContract.ts";
+
+export {PHASE2_CLOSEOUT_PATHS, PHASE2_CLOSEOUT_RECORD_PATHS, sortProofPaths};
 
 type JsonObject = Record<string, unknown>;
 type FileBinding = {path: string; sha256: string; byteLength: number};
+type ProofValidationMode = "technical" | "closeout" | "historical-recorded";
 
 const ROOT = process.cwd();
 const HASH_PATTERN = /^sha256:[0-9a-f]{64}$/;
@@ -21,7 +33,7 @@ const PROOF_ENVIRONMENT_KEYS = ["HOME", "USER", "LOGNAME", "SHELL", "TERM", "TMP
 
 const sha256Bytes = (bytes: Uint8Array | string) => `sha256:${createHash("sha256").update(bytes).digest("hex")}`;
 
-const assertNoProofRelevantGitEnvironment = (environment: NodeJS.ProcessEnv) => {
+export const assertNoProofRelevantGitEnvironment = (environment: NodeJS.ProcessEnv) => {
   const redirected = Object.keys(environment).filter((key) => PROOF_RELEVANT_GIT_ENV.test(key)).sort();
   assert.deepEqual(redirected, [], `Proof-relevant Git environment variables are forbidden: ${redirected.join(", ")}`);
 };
@@ -52,6 +64,27 @@ const gitBytes = (...argv: string[]) => {
 };
 
 const gitV2 = (...argv: string[]) => gitBytes(...argv).toString("utf8");
+
+const hiddenIndexPathsFromEntries = (entries: readonly string[]) => entries
+  .filter((entry) => entry.length > 2 && (entry[0] === "S" || entry[0] === entry[0].toLowerCase()))
+  .map((entry) => entry.slice(2))
+  .sort((left, right) => left.localeCompare(right));
+
+export const assertNoHiddenIndexFlags = () => {
+  const entries = gitBytes("ls-files", "-v", "-z").toString("utf8").split("\0").filter(Boolean);
+  assert.deepEqual(hiddenIndexPathsFromEntries(entries), [], "Hidden Git index flags are forbidden.");
+};
+
+const assertNoStagedPaths = (paths: readonly string[]) => assert.deepEqual(paths, [], "Git index contains staged changes.");
+
+export const assertEmptyProofIndex = () => {
+  const paths = gitBytes("diff", "--cached", "--name-only", "-z").toString("utf8").split("\0").filter(Boolean);
+  assertNoStagedPaths(paths);
+};
+
+export const assertPhaseCloseoutPaths = (phase: number, paths: readonly string[]) => {
+  if (phase === 2) assert.deepEqual(paths, PHASE2_CLOSEOUT_PATHS, "Phase 2 final diff must equal the exact technical/control-plane closeout ceiling.");
+};
 
 const strictObject = (value: unknown, keys: readonly string[], label: string): JsonObject => {
   assert.ok(value !== null && typeof value === "object" && !Array.isArray(value), `${label} must be an object.`);
@@ -439,7 +472,7 @@ const repositoryStateDigestV2 = () => {
   return `sha256:${digest.digest("hex")}`;
 };
 
-export const validateV2LintMeasurement = (value: unknown, expectedBase?: string, expectedHead?: string, verifyCurrentState = true) => {
+const validateV2LintMeasurementInternal = (value: unknown, expectedBase: string | undefined, expectedHead: string | undefined, mode: ProofValidationMode) => {
   assertNoProofRelevantGitEnvironment(process.env);
   const measurement = strictObject(value, [
     "measurementVersion", "specId", "baseCommit", "headCommit", "baseTree", "measuredAt", "runtime", "bindings",
@@ -453,7 +486,7 @@ export const validateV2LintMeasurement = (value: unknown, expectedBase?: string,
   assert.match(measurement.baseTree as string, GIT_SHA_PATTERN, "Version 2 lint base tree is invalid.");
   if (expectedBase !== undefined) assert.equal(measurement.baseCommit, expectedBase, "Version 2 lint base binding mismatch.");
   if (expectedHead !== undefined) assert.equal(measurement.headCommit, expectedHead, "Version 2 lint HEAD binding mismatch.");
-  if (verifyCurrentState) assert.equal(measurement.headCommit, gitV2("rev-parse", "HEAD").trim(), "Version 2 lint HEAD is not the current repository HEAD.");
+  if (mode !== "historical-recorded") assert.equal(measurement.headCommit, gitV2("rev-parse", "HEAD").trim(), "Version 2 lint HEAD is not the current repository HEAD.");
   assert.equal(measurement.baseTree, gitV2("rev-parse", `${measurement.baseCommit}^{tree}`).trim(), "Version 2 lint base-tree binding mismatch.");
   assert.ok(typeof measurement.measuredAt === "string" && !Number.isNaN(Date.parse(measurement.measuredAt)), "Version 2 lint timestamp is invalid.");
   const runtime = strictObject(measurement.runtime, ["nodeVersion", "eslintVersion"], "version 2 lint runtime");
@@ -471,10 +504,11 @@ export const validateV2LintMeasurement = (value: unknown, expectedBase?: string,
       assert.equal(sha256Bytes(baseBytes), binding.sha256, `Version 2 lint ${key} base SHA mismatch.`);
     }
   }
-  const installedPackageLock = validateVersionedDependencyBinding(bindings.installedPackageLock, "version 2 lint installed lock binding", verifyCurrentState);
-  const eslintPackage = validateVersionedDependencyBinding(bindings.eslintPackage, "version 2 lint ESLint binding", verifyCurrentState);
-  const eslintConfigNextPackage = validateVersionedDependencyBinding(bindings.eslintConfigNextPackage, "version 2 lint ESLint-config-Next binding", verifyCurrentState);
-  const typescriptPackage = validateVersionedDependencyBinding(bindings.typescriptPackage, "version 2 lint TypeScript binding", verifyCurrentState);
+  const verifyInstalledDependencies = mode === "technical";
+  const installedPackageLock = validateVersionedDependencyBinding(bindings.installedPackageLock, "version 2 lint installed lock binding", verifyInstalledDependencies);
+  const eslintPackage = validateVersionedDependencyBinding(bindings.eslintPackage, "version 2 lint ESLint binding", verifyInstalledDependencies);
+  const eslintConfigNextPackage = validateVersionedDependencyBinding(bindings.eslintConfigNextPackage, "version 2 lint ESLint-config-Next binding", verifyInstalledDependencies);
+  const typescriptPackage = validateVersionedDependencyBinding(bindings.typescriptPackage, "version 2 lint TypeScript binding", verifyInstalledDependencies);
   assert.equal(installedPackageLock.path, "node_modules/.package-lock.json", "Installed lock binding path mismatch.");
   assert.equal(eslintPackage.path, "node_modules/eslint/package.json", "ESLint binding path mismatch.");
   assert.equal(eslintConfigNextPackage.path, "node_modules/eslint-config-next/package.json", "ESLint-config-Next binding path mismatch.");
@@ -484,7 +518,7 @@ export const validateV2LintMeasurement = (value: unknown, expectedBase?: string,
   requireDigest(dependencyTree.sha256, "Version 2 lint dependency-tree SHA");
   assert.ok(requireCount(dependencyTree.entryCount, "Version 2 lint dependency-tree entry count") > 0, "Version 2 lint dependency tree is empty.");
   assert.ok(requireCount(dependencyTree.byteLength, "Version 2 lint dependency-tree byte length") > 0, "Version 2 lint dependency tree has no bytes.");
-  if (verifyCurrentState) assert.deepEqual(dependencyTree, currentDependencyTreeBinding(), "Version 2 lint dependency-tree binding mismatch.");
+  if (verifyInstalledDependencies) assert.deepEqual(dependencyTree, currentDependencyTreeBinding(), "Version 2 lint dependency-tree binding mismatch.");
   assert.equal(installedPackageLock.version, null, "Installed lock binding must not invent a package version.");
   assert.equal(eslintPackage.version, runtime.eslintVersion, "ESLint runtime/package versions differ.");
   const packageLock = readJson("package-lock.json") as JsonObject;
@@ -515,7 +549,7 @@ export const validateV2LintMeasurement = (value: unknown, expectedBase?: string,
   requireDigest(gitState.afterSha256, "Version 2 lint post-state SHA");
   assert.equal(gitState.unchanged, true, "Version 2 lint changed Git state.");
   assert.equal(gitState.afterSha256, gitState.beforeSha256, "Version 2 lint pre/post Git state differs.");
-  if (verifyCurrentState) assert.equal(gitState.afterSha256, repositoryStateDigestV2(), "Version 2 lint repository state drifted after measurement.");
+  if (mode === "technical") assert.equal(gitState.afterSha256, repositoryStateDigestV2(), "Version 2 lint repository state drifted after measurement.");
   const network = strictObject(measurement.network, ["baseRecordCount", "resultRecordCount", "nonLoopbackAttemptCount"], "version 2 lint network");
   assert.equal(network.baseRecordCount, 0, "Base lint performed a network operation.");
   assert.equal(network.resultRecordCount, 0, "Result lint performed a network operation.");
@@ -529,6 +563,9 @@ export const validateV2LintMeasurement = (value: unknown, expectedBase?: string,
   assert.equal(measurement.passed, true, "Version 2 lint result is not passing.");
   return measurement;
 };
+
+export const validateV2LintMeasurement = (value: unknown, expectedBase?: string, expectedHead?: string, verifyCurrentState = true) =>
+  validateV2LintMeasurementInternal(value, expectedBase, expectedHead, verifyCurrentState ? "technical" : "historical-recorded");
 
 const validateEvidenceFileBinding = (value: unknown, label: string, artifactPaths: Set<string>) => {
   const binding = validateBinding(value, label);
@@ -864,7 +901,7 @@ const validateV2CommandConfig = (value: unknown, phase: number, base: string) =>
   return {commands, executions, bindingPaths, browserEvidenceInput: config.browserEvidenceInput as string};
 };
 
-const validateV2Receipt = (value: unknown, command: JsonObject, expectedExecution: ClosedExecutionReceipt, order: number, base: string, head: string) => {
+const validateV2Receipt = (value: unknown, command: JsonObject, expectedExecution: ClosedExecutionReceipt, order: number, base: string, head: string, mode: ProofValidationMode = "technical") => {
   const receipt = strictObject(value, [
     "receiptVersion", "name", "order", "argv", "cwd", "env", "privacy", "startedAt", "durationMs", "exitCode",
     "expectedExitCode", "passed", "stdout", "stderr", "execution", "lintRegression",
@@ -888,14 +925,14 @@ const validateV2Receipt = (value: unknown, command: JsonObject, expectedExecutio
   if (command.name === "lint-regression") {
     const parsed = JSON.parse(stdout.toString("utf8")) as unknown;
     assert.deepEqual(receipt.lintRegression, parsed, "Version 2 lint receipt does not equal captured stdout.");
-    validateV2LintMeasurement(receipt.lintRegression, base, head);
+    validateV2LintMeasurementInternal(receipt.lintRegression, base, head, mode);
     return receipt.lintRegression as JsonObject;
   }
   assert.equal(receipt.lintRegression, null, `Version 2 receipt ${order} must not carry lint evidence.`);
   return null;
 };
 
-const validateV2Evidence = (value: unknown, manifest: JsonObject, browserEvidenceInput: string, artifactPaths: Set<string>) => {
+const validateV2Evidence = (value: unknown, manifest: JsonObject, browserEvidenceInput: string, artifactPaths: Set<string>, mode: ProofValidationMode = "technical") => {
   const evidence = strictObject(value, [
     "evidenceVersion", "browserStatus", "runnerResult", "derivedGitState", "baseCommit", "headCommit", "observedDirtyPaths",
     "dirtyExpectedPaths", "cleanExpectedPaths", "selectedExpectedPaths", "authorization", "bindings",
@@ -907,7 +944,9 @@ const validateV2Evidence = (value: unknown, manifest: JsonObject, browserEvidenc
   const runnerBinding = validateV2EvidenceFileBinding(evidence.runnerResult, "version 2 runner result", artifactPaths);
   assert.equal(runnerBinding.path, browserEvidenceInput, "Version 2 runner result path mismatch.");
   const runner = readJson(runnerBinding.path) as JsonObject;
-  const validatedRunner = manifest.phase === 2 ? validateExtensionResult(runner, ROOT, true) : null;
+  const validatedRunner = manifest.phase === 2
+    ? validateExtensionResult(runner, ROOT, true, mode === "closeout" ? "phase-2-closeout" : "technical")
+    : null;
   const runnerRuntime = strictObject(runner.runtime, ["browserExecutable", "browserVersion", "nodeVersion", "playwrightCoreVersion"], "version 2 runner runtime");
   const manifestRuntime = manifest.runtime as JsonObject;
   assert.equal(runnerRuntime.playwrightCoreVersion, "1.62.1", "Version 2 runner Playwright Core version mismatch.");
@@ -955,7 +994,7 @@ const validateV2Evidence = (value: unknown, manifest: JsonObject, browserEvidenc
   return evidence;
 };
 
-const validateProofManifestV2 = (manifestPath: string, allowedOutputArtifacts: string[] = []) => {
+const validateProofManifestV2 = (manifestPath: string, allowedOutputArtifacts: string[] = [], mode: ProofValidationMode = "technical") => {
   safeV2RepositoryPath(manifestPath, "version 2 proof manifest");
   const manifest = strictObject(readJson(manifestPath), [
     "manifestVersion", "specId", "phase", "baseCommit", "headCommit", "recordedAt", "runtime", "commandConfig", "receipts",
@@ -985,12 +1024,12 @@ const validateProofManifestV2 = (manifestPath: string, allowedOutputArtifacts: s
     const binding = validateV2Binding(bindingValue, `version 2 receipt binding ${order}`);
     assert.ok(!receiptPaths.has(binding.path), `Duplicate version 2 receipt path ${binding.path}.`);
     receiptPaths.add(binding.path);
-    const observed = validateV2Receipt(readJson(binding.path), config.commands[order], config.executions[order], order, manifest.baseCommit as string, manifest.headCommit as string);
+    const observed = validateV2Receipt(readJson(binding.path), config.commands[order], config.executions[order], order, manifest.baseCommit as string, manifest.headCommit as string, mode);
     if (observed !== null) lintRegression = observed;
   });
   assert.ok(lintRegression !== null, "Version 2 lint receipt is missing.");
   assert.deepEqual(manifest.lintRegression, lintRegression, "Version 2 manifest/receipt lint evidence differs.");
-  validateV2LintMeasurement(manifest.lintRegression, manifest.baseCommit as string, manifest.headCommit as string);
+  validateV2LintMeasurementInternal(manifest.lintRegression, manifest.baseCommit as string, manifest.headCommit as string, mode);
   const receiptDirectory = dirname(resolve(ROOT, (manifest.receipts as FileBinding[])[0].path));
   assert.deepEqual(
     readdirSync(receiptDirectory).filter((name) => /^\d{3}-.*\.json$/.test(name)).sort(),
@@ -1018,7 +1057,7 @@ const validateProofManifestV2 = (manifestPath: string, allowedOutputArtifacts: s
       boundPaths.add(binding.path);
     }
   }
-  validateV2Evidence(manifest.evidence, manifest, config.browserEvidenceInput, artifactPaths);
+  validateV2Evidence(manifest.evidence, manifest, config.browserEvidenceInput, artifactPaths, mode);
   const proofDirectory = dirname(resolve(ROOT, manifestPath));
   const proofDirectoryPrefix = `${relative(ROOT, proofDirectory)}/`;
   const expectedOutputFiles = new Set([manifestPath, ...receiptPaths, ...[...artifactPaths].filter((path) => path.startsWith(proofDirectoryPrefix)), ...allowedOutputArtifacts]);
@@ -1029,17 +1068,23 @@ const validateProofManifestV2 = (manifestPath: string, allowedOutputArtifacts: s
   return manifest;
 };
 
-export const validateProofManifest = (manifestPath: string, allowedOutputArtifacts: string[] = []) => {
+const validateProofManifestInternal = (manifestPath: string, allowedOutputArtifacts: string[], mode: ProofValidationMode) => {
   const value = readJson(manifestPath);
   assert.ok(value !== null && typeof value === "object" && !Array.isArray(value), "Proof manifest must be an object.");
   const version = (value as JsonObject).manifestVersion;
   if (version === 1) return validateProofManifestV1(manifestPath, allowedOutputArtifacts);
   if (version === 2) {
     assertNoProofRelevantGitEnvironment(process.env);
-    return validateProofManifestV2(manifestPath, allowedOutputArtifacts);
+    return validateProofManifestV2(manifestPath, allowedOutputArtifacts, mode);
   }
   throw new Error("Proof manifest must use exact version 1 or version 2 semantics.");
 };
+
+export const validateProofManifest = (manifestPath: string, allowedOutputArtifacts: string[] = []) =>
+  validateProofManifestInternal(manifestPath, allowedOutputArtifacts, "technical");
+
+export const validateProofManifestForCloseout = (manifestPath: string, allowedOutputArtifacts: string[] = []) =>
+  validateProofManifestInternal(manifestPath, allowedOutputArtifacts, "closeout");
 
 const git = (...argv: string[]) => {
   const result = spawnSync("git", argv, {cwd: ROOT, encoding: "utf8"});
@@ -1252,6 +1297,8 @@ const validateLiveManifestBinding = (tuple: LiveTuple, baseCommit: string) => {
 };
 
 export const validateCloseoutManifest = (closeoutPath: string) => {
+  assertNoProofRelevantGitEnvironment(process.env);
+  assertNoHiddenIndexFlags();
   const closeout = strictObject(
     readJson(closeoutPath),
     ["closeoutVersion", "specId", "phase", "baseCommit", "headCommit", "finalizedAt", "proofManifest", "trackedStateDigest", "trackedStateInventory", "indexEmpty", "allowlistedPaths", "artifactInventory", "liveProofInput", "authorizationDecisionDigest", "liveProofManifestSha256", "liveProviderProof", "liveProofEvidenceQuality", "liveCounts", "possibleCharge", "catastrophicEvidence"],
@@ -1280,19 +1327,20 @@ export const validateCloseoutManifest = (closeoutPath: string) => {
     assert.deepEqual(receipt, liveTuple.catastrophicEvidence.cleanupReceipt, "Catastrophic cleanup receipt binding mismatch.");
   }
   validateLiveManifestBinding(liveTuple, closeout.baseCommit as string);
-  const proof = validateProofManifest(proofBinding.path, liveTuple.liveProofInput === "none" ? [] : [liveTuple.liveProofInput]);
+  const proof = validateProofManifestForCloseout(proofBinding.path, liveTuple.liveProofInput === "none" ? [] : [liveTuple.liveProofInput]);
   assert.equal(proof.phase, closeout.phase, "Proof/closeout phase mismatch.");
   assert.equal(proof.baseCommit, closeout.baseCommit, "Proof/closeout base mismatch.");
   const state = buildTrackedStateInventory(closeout.baseCommit as string);
   assert.equal(closeout.trackedStateDigest, state.digest, "Post-finalization tracked/untracked state changed.");
   assert.deepEqual(closeout.trackedStateInventory, state.entries, "Post-finalization tracked/untracked byte/status inventory changed.");
   assert.equal(closeout.indexEmpty, true, "Git index must be empty.");
-  assert.equal(git("diff", "--cached", "--name-only").trim(), "", "Git index contains staged changes.");
-  const changed = [...new Set([
+  assertEmptyProofIndex();
+  const changed = sortProofPaths([...new Set([
     ...nulList(git("diff", "--name-only", "-z", closeout.baseCommit as string)),
     ...nulList(git("ls-files", "--others", "--exclude-standard", "-z")),
-  ])].sort();
+  ])]);
   assert.deepEqual(closeout.allowlistedPaths, changed, "Closeout allowlist does not equal final non-ignored diff.");
+  assertPhaseCloseoutPaths(closeout.phase as number, changed);
   assert.ok(Array.isArray(closeout.artifactInventory), "Closeout artifact inventory must be an array.");
   const declaredArtifacts = closeout.artifactInventory.map((binding, index) => {
     const object = strictObject(binding, ["path", "sha256", "byteLength"], `closeout artifact ${index}`);
@@ -1311,6 +1359,18 @@ const mustReject = (name: string, operation: () => void) => {
 const runSelfTest = () => {
   assertNoProofRelevantGitEnvironment(process.env);
   mustReject("redirected Git environment", () => assertNoProofRelevantGitEnvironment({...process.env, GIT_INDEX_FILE: "/tmp/forbidden-index"}));
+  assert.deepEqual(hiddenIndexPathsFromEntries(["H ordinary.ts"]), [], "Ordinary index entries must remain accepted.");
+  assert.deepEqual(hiddenIndexPathsFromEntries(["S skipped.ts", "h assumed.ts"]), ["assumed.ts", "skipped.ts"], "Hidden index entry detection mismatch.");
+  assertNoStagedPaths([]);
+  mustReject("staged Phase 2 path", () => assertNoStagedPaths(["scripts/validateSpec0001ProofBundle.ts"]));
+  assert.deepEqual(
+    sortProofPaths(["docs/architecture.md", "docs/CURRENT_STATE.md"]),
+    ["docs/CURRENT_STATE.md", "docs/architecture.md"],
+    "Proof paths must use canonical UTF-8 byte-wise ordering.",
+  );
+  assertPhaseCloseoutPaths(2, PHASE2_CLOSEOUT_PATHS);
+  mustReject("missing Phase 2 closeout path", () => assertPhaseCloseoutPaths(2, PHASE2_CLOSEOUT_PATHS.slice(1)));
+  mustReject("extra Phase 2 closeout path", () => assertPhaseCloseoutPaths(2, sortProofPaths([...PHASE2_CLOSEOUT_PATHS, "unauthorized/extra.txt"])));
   const baseCommand: JsonObject = {name: "test", argv: ["node", "test.ts"], cwd: ".", env: {}, expectedExitCode: 0, privacy: "sanitized"};
   const captured = (text: string) => {
     const bytes = Buffer.from(text);
@@ -1357,6 +1417,50 @@ const runSelfTest = () => {
   };
   validateV2CommandConfig(phaseTwoConfig, 2, currentSha);
   mustReject("reordered phase 2 commands", () => validateV2CommandConfig({...phaseTwoConfig, commands: [phaseTwoCommands[1], phaseTwoCommands[0], ...phaseTwoCommands.slice(2)]}, 2, currentSha));
+  const phaseTwoPlanPath = "scripts/fixtures/stick-ai/v1/phase-2-browser-proof-plan.json";
+  const phaseTwoObservation = (paths: readonly string[]) => ({
+    headCommit: currentSha,
+    stagedPaths: [],
+    hiddenIndexPaths: [],
+    trackedDirtyPaths: [...paths].sort((left, right) => left.localeCompare(right)),
+    untrackedPaths: [],
+    baseIsStrictAncestor: false,
+    committedChangedPaths: [],
+  });
+  const technicalGraph = loadTesterExtensionGraph(ROOT, phaseTwoPlanPath, "technical");
+  mustReject("technical extension graph rejects closeout record", () => deriveGitState(
+    ROOT,
+    technicalGraph.plan,
+    technicalGraph.pathCeiling,
+    phaseTwoObservation([...PHASE2_PATHS, "docs/architecture.md"]),
+  ));
+  const closeoutGit = derivePhase2CloseoutGraphGitState(
+    ROOT,
+    technicalGraph.plan,
+    technicalGraph.pathCeiling,
+    phaseTwoObservation(PHASE2_CLOSEOUT_PATHS),
+  );
+  assert.deepEqual(closeoutGit.observedDirtyPaths, [...PHASE2_PATHS], "Closeout graph must retain the archived technical result state.");
+  mustReject("live closeout extension graph rejects missing records", () => loadTesterExtensionGraph(ROOT, phaseTwoPlanPath, "phase-2-closeout"));
+  mustReject("closeout extension graph missing record", () => derivePhase2CloseoutGraphGitState(
+    ROOT,
+    technicalGraph.plan,
+    technicalGraph.pathCeiling,
+    phaseTwoObservation(PHASE2_CLOSEOUT_PATHS.filter((path) => path !== "docs/architecture.md")),
+  ));
+  mustReject("closeout extension graph extra record", () => derivePhase2CloseoutGraphGitState(
+    ROOT,
+    technicalGraph.plan,
+    technicalGraph.pathCeiling,
+    phaseTwoObservation([...PHASE2_CLOSEOUT_PATHS, "docs/unauthorized-closeout.md"]),
+  ));
+  const relaxedCli = spawnSync(process.execPath, [
+    "--experimental-strip-types",
+    resolve(ROOT, "scripts/validateSpec0001ProofBundle.ts"),
+    "--validation-mode=phase-2-closeout",
+  ], {cwd: ROOT, encoding: "utf8", env: v2Environment()});
+  assert.notEqual(relaxedCli.status, 0, "Public CLI must not expose the internal closeout validation mode.");
+  assert.match(`${relaxedCli.stdout}${relaxedCli.stderr}`, /Use --self-test, <proof-manifest>, or --closeout=<manifest>\./, "Public CLI relaxed-mode rejection mismatch.");
   const dependencyTree = currentDependencyTreeBinding();
   const stateDigest = repositoryStateDigestV2();
   const emptyRaw = {stdoutSha256: sha256Bytes("[]"), stdoutByteLength: 2, stderrSha256: sha256Bytes(""), stderrByteLength: 0};
@@ -1389,6 +1493,8 @@ const runSelfTest = () => {
   const stateBeforeProbe = repositoryStateDigestV2();
   try {
     writeFileSync(stateProbePath, "alpha\n");
+    mustReject("strict technical mode repository drift", () => validateV2LintMeasurement(lintV2, currentSha, currentSha));
+    validateV2LintMeasurementInternal(lintV2, currentSha, currentSha, "closeout");
     const firstProbeDigest = repositoryStateDigestV2();
     writeFileSync(stateProbePath, "bravo\n");
     const secondProbeDigest = repositoryStateDigestV2();
@@ -1397,6 +1503,10 @@ const runSelfTest = () => {
     rmSync(stateProbePath, {force: true});
   }
   assert.equal(repositoryStateDigestV2(), stateBeforeProbe, "Version 2 Git-visible state probe did not restore exact state.");
+  mustReject("closeout bound technical-byte tamper", () => validateV2Binding({
+    ...bindExisting("scripts/recordSpec0001ProofBundle.ts"),
+    sha256: `sha256:${"0".repeat(64)}`,
+  }, "closeout bound technical-byte tamper"));
   const noLive: LiveTuple = {liveProofInput: "none", authorizationDecisionDigest: null, liveProofManifestSha256: null, liveProviderProof: "unperformed", liveProofEvidenceQuality: "not_attempted", liveCounts: null, possibleCharge: null, catastrophicEvidence: null};
   validateLiveTuple(1, noLive);
   validateLiveTuple(7, noLive);

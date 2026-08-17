@@ -128,6 +128,87 @@ export type StickEditorViewStateV1 = {
   selectedTimelineIndex: number;
 };
 
+export type StickEditorSnapshotV1 = {
+  document: StickProjectDocumentV1;
+  viewState: StickEditorViewStateV1;
+};
+
+export type StickEditorVersionV1 = {
+  snapshot: StickEditorSnapshotV1;
+  documentDigest: string;
+};
+
+export type StickEditorCurrentRootV1 = {
+  current: StickEditorVersionV1;
+};
+
+export type StickBootstrapPublicationV1 =
+  | {
+      status: "pending";
+      operationId: string;
+      candidateProjectId: string;
+      candidateDocumentRevision: number;
+    }
+  | {
+      status: "failed";
+      operationId: string;
+      candidateProjectId: string;
+      candidateDocumentRevision: number;
+      errorCode: "document_digest_failed";
+    };
+
+export type StickMountedDocumentPublicationV1 =
+  | {
+      status: "ready";
+      operationId: null;
+      projectId: string;
+      documentRevision: number;
+      currentDocumentDigest: string;
+    }
+  | {
+      status: "pending";
+      operationId: string;
+      baseProjectId: string;
+      baseDocumentRevision: number;
+      baseDocumentDigest: string;
+      baseWorkspaceGeneration: number;
+      candidateProjectId: string;
+      candidateDocumentRevision: number;
+    }
+  | {
+      status: "failed";
+      operationId: string;
+      publishedProjectId: string;
+      publishedDocumentRevision: number;
+      errorCode: "document_digest_failed";
+    };
+
+export type StickWorkspaceBootstrapRootV1 = {
+  rootStatus: "bootstrapping";
+  bootstrapSource: "new" | "fixture";
+  bootstrapSavedBaseline: "none" | "candidate_document";
+  workspaceInstanceId: string;
+  editorRoot: null;
+  workspaceGeneration: 0;
+  documentPublication: StickBootstrapPublicationV1;
+  lastSavedDocumentDigest: null;
+  creatorEntryLocked: boolean;
+};
+
+export type StickMountedWorkspaceRootV1<TEditorRoot extends StickEditorCurrentRootV1> = {
+  rootStatus: "mounted";
+  workspaceInstanceId: string;
+  editorRoot: TEditorRoot;
+  workspaceGeneration: number;
+  documentPublication: StickMountedDocumentPublicationV1;
+  lastSavedDocumentDigest: string | null;
+  creatorEntryLocked: boolean;
+};
+
+export type StickWorkspaceRootPhase2V1 =
+  | StickWorkspaceBootstrapRootV1
+  | StickMountedWorkspaceRootV1<StickEditorCurrentRootV1>;
+
 export type StickSetJointActionV1 = {
   actionVersion: 1;
   type: "set-joint";

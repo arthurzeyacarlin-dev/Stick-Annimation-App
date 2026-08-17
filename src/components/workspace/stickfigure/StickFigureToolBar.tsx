@@ -158,7 +158,7 @@ function StickFigureToolIcon({ tool }: { tool: StickFigureToolName }) {
 export function StickFigureToolBar({ activeTool, onSelectTool }: StickFigureToolBarProps) {
   return (
     <div
-      aria-label="Stick figure workspace tool layout preview"
+      aria-label="Stick figure workspace tools"
       style={{
         height: 56,
         width: "calc(100% - min(420px, 46vw) + 1px)",
@@ -213,17 +213,18 @@ export function StickFigureToolBar({ activeTool, onSelectTool }: StickFigureTool
 
         return (
           <div key={tool} style={{ position: "relative" }}>
-            <div
-              title={tool}
-              aria-label={`${tool} tool placeholder`}
-              aria-disabled="true"
+            <button
+              type="button"
+              disabled
+              title={`${tool} is unavailable in this version.`}
+              aria-label={`${tool} tool unavailable`}
               style={{
                 ...toolCellStyle,
-                pointerEvents: "none",
+                cursor: "default",
               }}
             >
               <StickFigureToolIcon tool={tool} />
-            </div>
+            </button>
           </div>
         );
       })}

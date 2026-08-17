@@ -1,7 +1,7 @@
 # Architecture and System Map
 
 Status: canonical current architecture map
-Last traced: 2026-08-09
+Last traced: 2026-08-17 through accepted SPEC-0001 Phase 2
 
 ## Runtime Overview
 
@@ -25,6 +25,7 @@ app/page.tsx
       ├─ StickFigureWorkspace
       │   ├─ StickFigureCanvas
       │   ├─ StickFigureTimelineRow
+      │   ├─ canonical Phase 2 editor root / publication state
       │   └─ stick right/top/tool panels, including read-only AI panel
       └─ StickFigureCreatorWorkspace
 ```
@@ -48,7 +49,7 @@ The main product screens are not URL routes. `app/page.tsx` owns a `view` union 
 | AI server route | `app/api/ai/route.ts`, `src/lib/openai/*` | Request orchestration, model calls, normalization, optional search, cost logging |
 | Drawing project persistence | `src/lib/drawingProjectStorage.ts` | Version-1 localStorage envelope, CRUD, cloning, quota fallback |
 | Drawing AI project memory | `drawingAiProjectMemory.ts`, `drawingProjectAiMemorySync.ts`, memory API route | Per-animation-project semantic memory and optional Supabase sync |
-| Stick workspace | `src/components/workspace/stickfigure/StickFigureWorkspace.tsx` and siblings | Early graph/timeline/editor shell and creator navigation |
+| Stick workspace | `src/components/workspace/stickfigure/StickFigureWorkspace.tsx` and siblings, `src/lib/stickfigure/stickTimeline.ts`, `stickProjectContract.ts` | Phase 2 canonical history-free editor root, built-in figure, independent keyframe poses/holds, bounded manual-wave mutations, playback, and transient joint-edit publication; creator navigation and read-only AI panel remain separate |
 | Stick creator | `StickFigureCreatorWorkspace.tsx`, `types.ts` | Standalone local rig-creation experiment; save disconnected |
 | Dev cost visibility | `src/lib/ai/devAiCostDashboard.ts`, `app/dev/ai-costs/**` | Local model-call cost logs and dashboards |
 
@@ -94,9 +95,11 @@ This is a hybrid deterministic/model-planned procedural renderer, not image gene
 
 ## Stick Figure Data Flow
 
-The stick workspace owns timeline metadata and one live structure graph. The current timeline does not persist a separate pose/graph snapshot per frame, so advancing frame indices does not constitute a complete pose-animation model. The creator owns a separate local rig model and does not save it into the workspace or a library. Its right panel mounts the Drawing AI panel in read-only mode; there is no stick pose/frame apply executor.
+Accepted SPEC-0001 Phase 2 replaces the shared-graph-only content path with one canonical, history-free editor root. A fresh Stick workspace asynchronously publishes the fixed `humanoid-11-v1` starter and its digest. Complete poses live independently on controlling keyframes; held cells reference their controlling keyframe and resolve that pose for selection, rendering, editing, and playback. The bounded Hold Pose Through This Frame, Insert Blank Keyframe, and Start Pose from Previous operations mutate the same canonical document without shifting the 12 starter cells.
 
-Any new stick-animation work must first specify the canonical rig, pose, frame, interpolation, identity, history, and persistence contracts. Do not copy raster assumptions into the stick model without an explicit decision.
+`StickFigureCanvas` renders canonical 1920×1080 coordinates through a letterboxed viewport and derives the fixed horizontal line head from the editable `head` joint. Pointer movement is transient. A valid release hashes and publishes one candidate document/revision/generation; cancellation, stale instance/generation, remount, and competing completion cases are no-ops. Held-frame edits target the controlling keyframe while preserving selected-frame identity.
+
+Phase 2 deliberately has no Stick history, Save/Open, Creator-library integration, or writable AI executor. The creator still owns a separate unsaved rig experiment, and the right panel still mounts the Drawing AI panel read-only. Those later systems must consume the canonical Phase 2 state rather than reintroducing a parallel graph or raster assumption.
 
 ## Protected Architectural Invariants
 
@@ -136,7 +139,7 @@ Incidental cleanup inside these files is prohibited unless the active spec inclu
 - complete, versioned project schema and migrations
 - durable autosave/recovery and project-file import/export
 - unified render/composite contract across edit, playback, save, reopen, and export
-- working stick pose/frame animation model and persistence
+- Stick history, persistence/Open, AI transactions, and broader timeline/rig authoring beyond the verified Phase 2 bounded model
 - AI command transaction semantics, preview, rollback, and destructive confirmation
 - authenticated user/project ownership and rate limiting
 - repeatable unit/integration/E2E suite and CI

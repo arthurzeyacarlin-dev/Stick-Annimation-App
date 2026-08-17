@@ -1,0 +1,519 @@
+{
+  "planVersion": 2,
+  "specId": "SPEC-0001",
+  "proofPurpose": "phase-2",
+  "authorizationId": "phase-2/v1",
+  "baseCommit": "68338d54542bbfd3fb1f0fab06548f0424871f80",
+  "dirtyExpectedPaths": [
+    "scripts/finalizeSpec0001ProofBundle.ts",
+    "scripts/fixtures/spec0001-browser/v1/phase-2-action-registry.json",
+    "scripts/fixtures/spec0001-browser/v2/tester-extension-authorizations.json",
+    "scripts/fixtures/stick-ai/v1/phase-2-browser-proof-plan.json",
+    "scripts/fixtures/stick-ai/v1/phase-2-proof-commands.json",
+    "scripts/fixtures/stick-ai/v1/stick-control-disposition-cases.json",
+    "scripts/fixtures/stick-ai/v1/stick-correction-affordance-cases.json",
+    "scripts/fixtures/stick-ai/v1/stick-document-publication-race-cases.json",
+    "scripts/fixtures/stick-ai/v1/stick-gesture-cases.json",
+    "scripts/fixtures/stick-ai/v1/stick-manual-wave-build-cases.json",
+    "scripts/fixtures/stick-ai/v1/stick-pose-aliasing-cases.json",
+    "scripts/fixtures/stick-ai/v1/wave-any-joint-corrections.json",
+    "scripts/fixtures/stick-ai/v1/wave-cell-resolution.json",
+    "scripts/recordSpec0001ProofBundle.ts",
+    "scripts/spec0001-browser/actions/phase2.ts",
+    "scripts/spec0001-browser/browserTesterExtensionContract.ts",
+    "scripts/validateSpec0001ProofBundle.ts",
+    "scripts/validateStickPoseTimeline.ts",
+    "src/components/workspace/stickfigure/StickFigureCanvas.tsx",
+    "src/components/workspace/stickfigure/StickFigureRightPanel.tsx",
+    "src/components/workspace/stickfigure/StickFigureTimelineRow.tsx",
+    "src/components/workspace/stickfigure/StickFigureToolBar.tsx",
+    "src/components/workspace/stickfigure/StickFigureTopBar.tsx",
+    "src/components/workspace/stickfigure/StickFigureWorkspace.tsx",
+    "src/components/workspace/stickfigure/types.ts",
+    "src/lib/stickfigure/stickProjectContract.ts",
+    "src/lib/stickfigure/stickTimeline.ts"
+  ],
+  "cleanExpectedPaths": [],
+  "outputRoot": "output/spec-0001/phase-2",
+  "operationFamilies": [
+    "checkpoint",
+    "fixture",
+    "pointer",
+    "protected-regression",
+    "runner-environment",
+    "screenshot",
+    "visible-role",
+    "visible-testid",
+    "workspace-driver"
+  ],
+  "registry": {
+    "path": "scripts/fixtures/spec0001-browser/v1/phase-2-action-registry.json",
+    "byteLength": 26379,
+    "sha256": "sha256:a99362c8f55aa6751c4a4be6ab19c5f0b1f37201368d06e0cb4ac928306b168c"
+  },
+  "contexts": [
+    {
+      "contextId": "synthetic-1024x768",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      }
+    }
+  ],
+  "steps": [
+    {
+      "stepId": "001-assert-stick-stage",
+      "actionId": "assert-stick-stage",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "002-checkpoint-starter",
+      "actionId": "checkpoint-starter",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "003-open-tools-fresh",
+      "actionId": "open-tools-fresh",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "004-creator-fresh-enabled",
+      "actionId": "creator-fresh-enabled",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "005-open-properties",
+      "actionId": "open-properties",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "006-ready-elbow-down",
+      "actionId": "ready-elbow-down",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "007-ready-elbow-move",
+      "actionId": "ready-elbow-move",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "008-ready-elbow-up",
+      "actionId": "ready-elbow-up",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "009-ready-hand-down",
+      "actionId": "ready-hand-down",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "010-ready-hand-move",
+      "actionId": "ready-hand-move",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "011-ready-hand-up",
+      "actionId": "ready-hand-up",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "012-open-tools-locked",
+      "actionId": "open-tools-locked",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "013-creator-locked-disabled",
+      "actionId": "creator-locked-disabled",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "014-properties-after-lock",
+      "actionId": "properties-after-lock",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "015-frame4-actions",
+      "actionId": "frame4-actions",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "016-hold-through-4",
+      "actionId": "hold-through-4",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "017-frame5-actions",
+      "actionId": "frame5-actions",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "018-blank-frame5",
+      "actionId": "blank-frame5",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "019-assert-blank5",
+      "actionId": "assert-blank5",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "020-start-frame5",
+      "actionId": "start-frame5",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "021-inward-elbow-down",
+      "actionId": "inward-elbow-down",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "022-inward-elbow-move",
+      "actionId": "inward-elbow-move",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "023-inward-elbow-up",
+      "actionId": "inward-elbow-up",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "024-inward-hand-down",
+      "actionId": "inward-hand-down",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "025-inward-hand-move",
+      "actionId": "inward-hand-move",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "026-inward-hand-up",
+      "actionId": "inward-hand-up",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "027-frame8-actions",
+      "actionId": "frame8-actions",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "028-hold-through-8",
+      "actionId": "hold-through-8",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "029-frame9-actions",
+      "actionId": "frame9-actions",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "030-blank-frame9",
+      "actionId": "blank-frame9",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "031-assert-blank9",
+      "actionId": "assert-blank9",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "032-start-frame9",
+      "actionId": "start-frame9",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "033-outward-elbow-down",
+      "actionId": "outward-elbow-down",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "034-outward-elbow-move",
+      "actionId": "outward-elbow-move",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "035-outward-elbow-up",
+      "actionId": "outward-elbow-up",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "036-outward-hand-down",
+      "actionId": "outward-hand-down",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "037-outward-hand-move",
+      "actionId": "outward-hand-move",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "038-outward-hand-up",
+      "actionId": "outward-hand-up",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "039-frame12-actions",
+      "actionId": "frame12-actions",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "040-hold-through-12",
+      "actionId": "hold-through-12",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "041-checkpoint-golden-wave",
+      "actionId": "checkpoint-golden-wave",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "042-select-held-frame2",
+      "actionId": "select-held-frame2",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "043-assert-held-guidance",
+      "actionId": "assert-held-guidance",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "044-held-head-down",
+      "actionId": "held-head-down",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "045-held-head-move",
+      "actionId": "held-head-move",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "046-held-head-up",
+      "actionId": "held-head-up",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "047-select-frame5",
+      "actionId": "select-frame5",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "048-body-down",
+      "actionId": "body-down",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "049-body-move",
+      "actionId": "body-move",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "050-body-up",
+      "actionId": "body-up",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "051-select-frame9",
+      "actionId": "select-frame9",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "052-leg-down",
+      "actionId": "leg-down",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "053-leg-move",
+      "actionId": "leg-move",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "054-leg-up",
+      "actionId": "leg-up",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "055-cancel-neck-down",
+      "actionId": "cancel-neck-down",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "056-cancel-neck-move",
+      "actionId": "cancel-neck-move",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "057-cancel-neck-terminal",
+      "actionId": "cancel-neck-terminal",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "058-select-frame1-playback",
+      "actionId": "select-frame1-playback",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "059-play-wave",
+      "actionId": "play-wave",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "060-playback-cycle-checkpoint",
+      "actionId": "playback-cycle-checkpoint",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "061-pause-wave",
+      "actionId": "pause-wave",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "062-open-library",
+      "actionId": "open-library",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "063-open-assets",
+      "actionId": "open-assets",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "064-return-properties",
+      "actionId": "return-properties",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "065-toggle-pan",
+      "actionId": "toggle-pan",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "066-reset-view",
+      "actionId": "reset-view",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "067-manual-wave-screenshot",
+      "actionId": "manual-wave-screenshot",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "068-driver-mount-applied",
+      "actionId": "driver-mount-applied",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "069-driver-valid-head-edit",
+      "actionId": "driver-valid-head-edit",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "070-driver-valid-body-edit",
+      "actionId": "driver-valid-body-edit",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "071-driver-valid-leg-edit",
+      "actionId": "driver-valid-leg-edit",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "072-driver-valid-arm-edit",
+      "actionId": "driver-valid-arm-edit",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "073-driver-stale-remount-edit",
+      "actionId": "driver-stale-remount-edit",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "074-publication-begin-a",
+      "actionId": "publication-begin-a",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "075-publication-begin-b",
+      "actionId": "publication-begin-b",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "076-publication-complete-b",
+      "actionId": "publication-complete-b",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "077-publication-complete-a",
+      "actionId": "publication-complete-a",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "078-environment-install",
+      "actionId": "environment-install",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "079-environment-release",
+      "actionId": "environment-release",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "080-environment-checkpoint",
+      "actionId": "environment-checkpoint",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "081-regression-home-new-drawing",
+      "actionId": "regression-home-new-drawing",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "082-regression-home-new-stick",
+      "actionId": "regression-home-new-stick",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "083-regression-stick-creator-back",
+      "actionId": "regression-stick-creator-back",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "084-regression-drawing-generate",
+      "actionId": "regression-drawing-generate",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "085-regression-drawing-controls",
+      "actionId": "regression-drawing-controls",
+      "contextId": "synthetic-1024x768"
+    },
+    {
+      "stepId": "086-environment-clear",
+      "actionId": "environment-clear",
+      "contextId": "synthetic-1024x768"
+    }
+  ],
+  "evidence": {
+    "ledgerKinds": [
+      "action",
+      "checkpoint",
+      "cleanup",
+      "console",
+      "negative",
+      "network",
+      "regression",
+      "request",
+      "storage"
+    ],
+    "screenshotIds": [
+      "phase-2-manual-wave"
+    ],
+    "protectedRegressionGroups": [
+      "drawing-generate-frames",
+      "drawing-undo-redo-play-pause",
+      "home-new-drawing",
+      "home-new-stick",
+      "stick-creator-back"
+    ],
+    "productPhaseClaimed": true
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "fixtureVersion": 1,
+  "documentPath": "scripts/fixtures/stick-ai/v1/manual-wave-applied-project.json",
+  "cases": [
+    {"index": 0, "ownerIndex": 0, "span": [1, 4]},
+    {"index": 1, "ownerIndex": 0, "span": [1, 4]},
+    {"index": 2, "ownerIndex": 0, "span": [1, 4]},
+    {"index": 3, "ownerIndex": 0, "span": [1, 4]},
+    {"index": 4, "ownerIndex": 4, "span": [5, 8]},
+    {"index": 5, "ownerIndex": 4, "span": [5, 8]},
+    {"index": 6, "ownerIndex": 4, "span": [5, 8]},
+    {"index": 7, "ownerIndex": 4, "span": [5, 8]},
+    {"index": 8, "ownerIndex": 8, "span": [9, 12]},
+    {"index": 9, "ownerIndex": 8, "span": [9, 12]},
+    {"index": 10, "ownerIndex": 8, "span": [9, 12]},
+    {"index": 11, "ownerIndex": 8, "span": [9, 12]}
+  ]
+}

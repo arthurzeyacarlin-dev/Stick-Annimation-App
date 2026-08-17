@@ -1,983 +1,483 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { MutableRefObject } from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import {
-  advancePlaybackAccumulator,
-  getAuthoredPlaybackFrameCount,
-  getClampedPlaybackFrameDurationMs,
-} from "../timelinePlayback";
-import { collapseTimelineRange } from "../timelineStructure";
-import { StickFigureCanvas } from "./StickFigureCanvas";
-import { StickFigureRightPanel } from "./StickFigureRightPanel";
-import type { StickFigureRightPanelTab } from "./StickFigureRightPanel";
-import { StickFigureTimelineRow } from "./StickFigureTimelineRow";
-import type { TimelineFrame, TimelineFrameKind, TimelineLayer } from "./StickFigureTimelineRow";
-import { StickFigureToolBar } from "./StickFigureToolBar";
-import type { StickFigureToolName } from "./StickFigureToolBar";
-import { StickFigureTopBar } from "./StickFigureTopBar";
+  applyStickManualAction,
+  canonicalJson,
+  digestCanonical,
+  parseStickProjectDocument,
+  projectStickAnimationContent,
+} from "../../../lib/stickfigure/stickProjectContract";
 import type {
-  StickFigureFigureItem,
-  StickFigurePoint,
-  StickFigureSelection,
-  StickFigureStructureGraph,
-  StickFigureStructureSegmentDraft,
-  StickFigureStructureTool,
-} from "./types";
+  StickEditorSnapshotV1,
+  StickManualActionV1,
+  StickProjectDocumentV1,
+  StickWorkspaceRootPhase2V1,
+} from "../../../lib/stickfigure/stickProjectContract";
+import {
+  applyCompletedStickJointEdit,
+  beginStickDocumentPublication,
+  completeStickBootstrap,
+  completeStickDocumentPublication,
+  createStickBootstrapRoot,
+  createStickWaveStarterV1,
+  failStickBootstrap,
+  failStickDocumentPublication,
+  newStickUuid,
+  resolveStickTimelinePose,
+  retryStickDocumentPublication,
+  updateStickViewState,
+} from "../../../lib/stickfigure/stickTimeline";
+import type {
+  StickCompletedJointEditV1,
+  StickDocumentPublicationOperationV1,
+} from "../../../lib/stickfigure/stickTimeline";
+import {StickFigureCanvas} from "./StickFigureCanvas";
+import {StickFigureRightPanel} from "./StickFigureRightPanel";
+import type {StickFigureRightPanelTab} from "./StickFigureRightPanel";
+import {StickFigureTimelineRow} from "./StickFigureTimelineRow";
+import {StickFigureToolBar} from "./StickFigureToolBar";
+import type {StickFigureToolName} from "./StickFigureToolBar";
+import {StickFigureTopBar} from "./StickFigureTopBar";
+import type {StickFigurePoint} from "./types";
 
-type StickFigureTimelineLayer = TimelineLayer;
-type StickFigureWorkspaceHistoryEntry = {
-  layers: StickFigureTimelineLayer[];
-  activeLayerId: string;
-  currentFrameIndex: number;
-  selectedTimelineIndex: number;
+type StickFigureWorkspaceProps = {onOpenStickFigureCreator: () => void};
+type GestureCheckpoint = {state: "idle" | "active" | "committed" | "cancelled"; preview: StickFigurePoint | null};
+type FixtureMount = {
+  fixtureVersion: 1;
+  source: "fixture";
+  savedBaseline: "none" | "candidate_document";
+  workspaceInstanceId: string;
+  document: unknown;
+};
+type DriverEditFixture = {
+  fixtureVersion: 1;
+  edits: Array<{selectedFrameIndex: number; jointRole: StickCompletedJointEditV1["jointRole"]; to: StickFigurePoint; staleWorkspaceInstance?: boolean}>;
+};
+type DriverPublicationPlan = {
+  fixtureVersion: 1;
+  plans: Array<{operationId: string; action: StickManualActionV1; supersede?: boolean}>;
+};
+type DriverPublicationCompletion = {
+  fixtureVersion: 1;
+  completions: Array<{operationId: string; outcome: "ready" | "failed"}>;
 };
 
-type StickFigureTimelineDraftState = {
-  layers: StickFigureTimelineLayer[];
-  activeLayerId: string;
-  currentFrameIndex: number;
-  selectedTimelineIndex: number;
-};
-
-const DEFAULT_STICK_CAMERA_ZOOM = 0.85;
-const DEFAULT_STICK_CAMERA_PAN: StickFigurePoint = { x: 0, y: 0 };
-const MIN_STICK_CAMERA_ZOOM = 0.5;
-const MAX_STICK_CAMERA_ZOOM = 3;
-
-const clampStickCameraZoom = (zoom: number) => Math.min(MAX_STICK_CAMERA_ZOOM, Math.max(MIN_STICK_CAMERA_ZOOM, zoom));
-const formatStickCameraZoom = (zoom: number) => `${Math.round(zoom * 100)}%`;
-
-const createTimelineFrame = (
-  id: number,
-  kind: TimelineFrame["kind"],
-  cellType: TimelineFrame["cellType"],
-  stateId: number,
-): TimelineFrame => ({
-  id,
-  kind,
-  cellType,
-  stateId,
-  isBlank: cellType === "blank-keyframe",
-  hasTweenEndpoint: false,
-});
-
-const createEmptyTimelineFrame = (id: number) => createTimelineFrame(id, "frame", "empty", id);
-
-const ensureFramesLength = (frames: TimelineFrame[], length: number, nextFrameIdRef: MutableRefObject<number>) => {
-  const nextFrames = [...frames];
-
-  while (nextFrames.length < length) {
-    nextFrames.push(createEmptyTimelineFrame(nextFrameIdRef.current++));
+const DEFAULT_ZOOM = 8 / 9;
+const DEFAULT_PAN = {x: 0, y: 0};
+const goldenIds = [
+  "00000000-0000-4000-8000-000000000001",
+  "00000000-0000-4000-8000-000000000002",
+  "00000000-0000-4000-8000-000000000003",
+  "00000000-0000-4000-8000-000000000004",
+  ...Array.from({length: 11}, (_, index) => `00000000-0000-4000-8000-${String(201 + index).padStart(12, "0")}`),
+  ...Array.from({length: 12}, (_, index) => `00000000-0000-4000-8000-${String(101 + index).padStart(12, "0")}`),
+  "00000000-0000-4000-8000-000000000401",
+  ...Array.from({length: 10}, (_, index) => `00000000-0000-4000-8000-${String(301 + index).padStart(12, "0")}`),
+];
+const createGoldenAppliedDocument = () => {
+  let cursor = 0;
+  let document = createStickWaveStarterV1(() => goldenIds[cursor++]);
+  const actions: StickManualActionV1[] = [
+    {actionVersion: 1, type: "set-joint", targetFrameIndex: 0, jointRole: "rightElbow", point: {x: 1080, y: 360}},
+    {actionVersion: 1, type: "set-joint", targetFrameIndex: 0, jointRole: "rightHand", point: {x: 1160, y: 260}},
+    {actionVersion: 1, type: "hold-pose-through", targetFrameIndex: 3},
+    {actionVersion: 1, type: "insert-blank-keyframe", targetFrameIndex: 4},
+    {actionVersion: 1, type: "start-pose-from-previous", targetFrameIndex: 4, newPoseId: "00000000-0000-4000-8000-000000000402"},
+    {actionVersion: 1, type: "set-joint", targetFrameIndex: 4, jointRole: "rightElbow", point: {x: 1080, y: 300}},
+    {actionVersion: 1, type: "set-joint", targetFrameIndex: 4, jointRole: "rightHand", point: {x: 1020, y: 220}},
+    {actionVersion: 1, type: "hold-pose-through", targetFrameIndex: 7},
+    {actionVersion: 1, type: "insert-blank-keyframe", targetFrameIndex: 8},
+    {actionVersion: 1, type: "start-pose-from-previous", targetFrameIndex: 8, newPoseId: "00000000-0000-4000-8000-000000000403"},
+    {actionVersion: 1, type: "set-joint", targetFrameIndex: 8, jointRole: "rightElbow", point: {x: 1120, y: 300}},
+    {actionVersion: 1, type: "set-joint", targetFrameIndex: 8, jointRole: "rightHand", point: {x: 1280, y: 220}},
+    {actionVersion: 1, type: "hold-pose-through", targetFrameIndex: 11},
+  ];
+  for (const action of actions) {
+    const next = applyStickManualAction(document, action);
+    if (!next.ok) throw new Error("Golden browser fixture could not be materialized.");
+    document = next.value;
   }
-
-  return nextFrames;
+  return document;
 };
 
-const findPreviousFilledFrameIndex = (frames: TimelineFrame[], targetIndex: number) => {
-  for (let index = targetIndex - 1; index >= 0; index -= 1) {
-    if (frames[index] && frames[index].cellType !== "empty") {
-      return index;
-    }
-  }
-
-  return -1;
-};
-
-const isFrameStateStart = (frame?: Pick<TimelineFrame, "cellType"> | null) =>
-  frame?.cellType === "keyframe" || frame?.cellType === "blank-keyframe";
-
-const cloneTimelineFrame = (frame: TimelineFrame): TimelineFrame => ({ ...frame });
-
-const cloneTimelineLayer = (layer: StickFigureTimelineLayer): StickFigureTimelineLayer => ({
-  ...layer,
-  frames: layer.frames.map(cloneTimelineFrame),
-});
-
-const cloneTimelineLayers = (layers: StickFigureTimelineLayer[]) => layers.map(cloneTimelineLayer);
-
-const findStateStartIndex = (frames: TimelineFrame[], stateId: number) => {
-  const explicitStateStartIndex = frames.findIndex((frame) => frame.stateId === stateId && isFrameStateStart(frame));
-  if (explicitStateStartIndex >= 0) {
-    return explicitStateStartIndex;
-  }
-
-  return frames.findIndex((frame, index) => {
-    if (frame.stateId !== stateId || frame.cellType === "empty") {
-      return false;
-    }
-
-    const previousFrame = frames[index - 1];
-    return index === 0 || !previousFrame || previousFrame.cellType === "empty" || previousFrame.stateId !== stateId;
-  });
-};
-
-const resolveStateStartIndex = (frames: TimelineFrame[], frameIndex: number) => {
-  const frame = frames[frameIndex];
-  if (!frame) return -1;
-
-  return findStateStartIndex(frames, frame.stateId);
-};
-
-const getFrameDurationEndIndex = (frames: TimelineFrame[], frameIndex: number) => {
-  const frame = frames[frameIndex];
-  if (!frame) return frameIndex;
-
-  let endIndex = frameIndex;
-  while (endIndex + 1 < frames.length && frames[endIndex + 1].stateId === frame.stateId && frames[endIndex + 1].cellType !== "empty") {
-    endIndex += 1;
-  }
-
-  return endIndex;
-};
-
-const reassignTrailingStateCells = (frames: TimelineFrame[], insertedIndex: number, fromStateId: number, toStateId: number) => {
-  for (let index = insertedIndex + 1; index < frames.length; index += 1) {
-    const frame = frames[index];
-    if (frame.stateId !== fromStateId || isFrameStateStart(frame) || frame.cellType === "empty") {
-      break;
-    }
-
-    frames[index] = {
-      ...frame,
-      stateId: toStateId,
-      kind: "frame",
-      cellType: "hold",
-    };
-  }
-};
-
-const fillTimelineRangeWithFrameSpan = (
-  frames: TimelineFrame[],
-  startIndex: number,
-  endIndex: number,
-  stateId: number,
-  nextFrameIdRef: MutableRefObject<number>,
-) => {
-  for (let index = startIndex; index <= endIndex; index += 1) {
-    const existingFrame = frames[index];
-    const spanFrame =
-      existingFrame && existingFrame.cellType === "empty"
-        ? createTimelineFrame(existingFrame.id, "frame", "hold", stateId)
-        : createTimelineFrame(nextFrameIdRef.current++, "frame", "hold", stateId);
-
-    if (existingFrame && existingFrame.cellType === "empty") {
-      frames[index] = spanFrame;
-      continue;
-    }
-
-    if (existingFrame) {
-      frames.splice(index, 0, spanFrame);
-      continue;
-    }
-
-    frames.push(spanFrame);
-  }
-};
-
-const getAuthoredPlaybackFrameCountForLayers = (layers: StickFigureTimelineLayer[]) =>
-  getAuthoredPlaybackFrameCount(layers.map((layer) => layer.frames));
-
-type StickFigureWorkspaceProps = {
-  onOpenStickFigureCreator: () => void;
-};
-
-export function StickFigureWorkspace({ onOpenStickFigureCreator }: StickFigureWorkspaceProps) {
-  const nextFrameIdRef = useRef(2);
-  const nextStateIdRef = useRef(2);
-  const nextLayerIdRef = useRef(2);
-  const nextStructureJointIdRef = useRef(1);
-  const nextStructureLimbIdRef = useRef(1);
-  const layersRef = useRef<StickFigureTimelineLayer[]>([]);
-  const currentFrameIndexRef = useRef(0);
-  const selectedTimelineIndexRef = useRef(0);
-  const activeLayerIdRef = useRef("stick-layer-1");
-  const isTimelinePlayingRef = useRef(false);
-  const [timelineFps, setTimelineFps] = useState(12);
-  const [isTimelinePlaying, setIsTimelinePlaying] = useState(false);
+export function StickFigureWorkspace({onOpenStickFigureCreator}: StickFigureWorkspaceProps) {
+  const starterRef = useRef<StickProjectDocumentV1 | null>(null);
+  if (!starterRef.current) starterRef.current = createStickWaveStarterV1();
+  const initialOperationRef = useRef(newStickUuid());
+  const [root, setRootState] = useState<StickWorkspaceRootPhase2V1>(() => createStickBootstrapRoot(starterRef.current!, "new", "none", initialOperationRef.current));
+  const rootRef = useRef(root);
+  const mountedRef = useRef(true);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const isPlayingRef = useRef(false);
+  const [playbackFrameIndex, setPlaybackFrameIndex] = useState(0);
+  const playbackFrameIndexRef = useRef(0);
+  const playbackVisitedRef = useRef(new Set<number>());
+  const playbackWrappedRef = useRef(false);
   const [isOnionEnabled, setIsOnionEnabled] = useState(false);
-  const [currentFrameIndex, setCurrentFrameIndex] = useState(0);
-  const [selectedTimelineIndex, setSelectedTimelineIndex] = useState(0);
-  const [activeLayerId, setActiveLayerId] = useState("stick-layer-1");
-  const [layers, setLayers] = useState<StickFigureTimelineLayer[]>([
-    {
-      id: "stick-layer-1",
-      name: "Layer 1",
-      frames: [createTimelineFrame(1, "keyframe", "keyframe", 1)],
-    },
-  ]);
-  const [figures] = useState<StickFigureFigureItem[]>([]);
-  const [selection, setSelection] = useState<StickFigureSelection>({ target: "workspace" });
   const [activeTool, setActiveTool] = useState<StickFigureToolName | null>("Select");
   const [rightPanelTab, setRightPanelTab] = useState<StickFigureRightPanelTab>("Properties");
   const [canvasMovementEnabled, setCanvasMovementEnabled] = useState(false);
-  const [stickCameraZoom, setStickCameraZoom] = useState(DEFAULT_STICK_CAMERA_ZOOM);
-  const [stickZoomInputValue, setStickZoomInputValue] = useState(formatStickCameraZoom(DEFAULT_STICK_CAMERA_ZOOM));
-  const [stickCameraPan, setStickCameraPan] = useState<StickFigurePoint>(DEFAULT_STICK_CAMERA_PAN);
+  const [cameraZoom, setCameraZoom] = useState(DEFAULT_ZOOM);
+  const [cameraPan, setCameraPan] = useState<StickFigurePoint>(DEFAULT_PAN);
   const [canvasBackgroundColor, setCanvasBackgroundColor] = useState("#f5f5f5");
-  const [structureTool, setStructureTool] = useState<StickFigureStructureTool>("idle");
-  const [structureGraph, setStructureGraph] = useState<StickFigureStructureGraph>({
-    joints: [],
-    limbs: [],
-    activeJointId: null,
-  });
-  const [undoStack, setUndoStack] = useState<StickFigureWorkspaceHistoryEntry[]>([]);
-  const [redoStack, setRedoStack] = useState<StickFigureWorkspaceHistoryEntry[]>([]);
-  const undoStackRef = useRef<StickFigureWorkspaceHistoryEntry[]>([]);
-  const redoStackRef = useRef<StickFigureWorkspaceHistoryEntry[]>([]);
-  const authoredPlaybackFrameCount = useMemo(() => getAuthoredPlaybackFrameCountForLayers(layers), [layers]);
-  const selectedStructureJoint = useMemo(
-    () => structureGraph.joints.find((joint) => joint.id === structureGraph.activeJointId) ?? null,
-    [structureGraph.activeJointId, structureGraph.joints],
-  );
-  const selectedStructureJointConnectionCount = useMemo(() => {
-    if (!selectedStructureJoint) {
-      return 0;
-    }
+  const [gestureCheckpoint, setGestureCheckpoint] = useState<GestureCheckpoint>({state: "idle", preview: null});
+  const gestureCheckpointRef = useRef<GestureCheckpoint>({state: "idle", preview: null});
+  const [completedEditCount, setCompletedEditCount] = useState(0);
+  const completedEditCountRef = useRef(0);
+  const publicationOperationsRef = useRef(new Map<string, StickDocumentPublicationOperationV1>());
+  const driverBeginCursorRef = useRef(0);
+  const driverCompletionCursorRef = useRef(0);
+  const driverEditCursorRef = useRef(0);
+  const rootTransitionCountRef = useRef(0);
+  const readyPublicationCountRef = useRef(0);
+  const staleCompletionCountRef = useRef(0);
+  const lastReadyRootRef = useRef<StickWorkspaceRootPhase2V1 | null>(null);
 
-    return structureGraph.limbs.reduce(
-      (count, limb) =>
-        count +
-        (limb.startJointId === selectedStructureJoint.id || limb.endJointId === selectedStructureJoint.id ? 1 : 0),
-      0,
-    );
-  }, [selectedStructureJoint, structureGraph.limbs]);
+  const publishRoot = useCallback((next: StickWorkspaceRootPhase2V1) => {
+    if (!mountedRef.current || next === rootRef.current) return;
+    rootRef.current = next;
+    if (next.rootStatus === "mounted" && next.documentPublication.status === "ready") lastReadyRootRef.current = next;
+    rootTransitionCountRef.current += 1;
+    setRootState(next);
+  }, []);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    const candidate = starterRef.current!;
+    const operationId = initialOperationRef.current;
+    let cancelled = false;
+    void digestCanonical(candidate).then((digest) => {
+      if (cancelled) return;
+      const next = rootRef.current.rootStatus === "bootstrapping"
+        ? completeStickBootstrap(rootRef.current, candidate, operationId, digest)
+        : rootRef.current;
+      if (next !== rootRef.current) readyPublicationCountRef.current += 1;
+      publishRoot(next);
+    }).catch(() => {
+      if (!cancelled && rootRef.current.rootStatus === "bootstrapping") publishRoot(failStickBootstrap(rootRef.current, operationId));
+    });
+    return () => {cancelled = true; mountedRef.current = false;};
+  }, [publishRoot]);
+
+  useEffect(() => {
+    isPlayingRef.current = isPlaying;
+    if (!isPlaying || root.rootStatus !== "mounted" || root.documentPublication.status !== "ready") return;
+    const interval = window.setInterval(() => {
+      setPlaybackFrameIndex((current) => {
+        const next = (current + 1) % 12;
+        if (next < current) playbackWrappedRef.current = true;
+        playbackVisitedRef.current.add(next);
+        playbackFrameIndexRef.current = next;
+        return next;
+      });
+    }, 1000 / root.editorRoot.current.snapshot.document.fps);
+    return () => window.clearInterval(interval);
+  }, [isPlaying, root]);
+
+  const publishSnapshot = useCallback(async (
+    candidateSnapshot: StickEditorSnapshotV1,
+    operationId = newStickUuid(),
+    lockCreator = true,
+  ) => {
+    const begun = beginStickDocumentPublication(rootRef.current, candidateSnapshot, operationId, lockCreator);
+    if (!begun.operation) return {accepted: false, outcome: "rejected" as const};
+    publicationOperationsRef.current.set(operationId, begun.operation);
+    publishRoot(begun.root);
+    try {
+      const digest = await digestCanonical(begun.operation.candidateSnapshot.document);
+      const before = rootRef.current;
+      const completed = completeStickDocumentPublication(before, begun.operation, digest);
+      if (completed === before) {
+        staleCompletionCountRef.current += 1;
+        return {accepted: false, outcome: "stale" as const};
+      }
+      readyPublicationCountRef.current += 1;
+      publishRoot(completed);
+      return {accepted: true, outcome: "ready" as const};
+    } catch {
+      const failed = failStickDocumentPublication(rootRef.current, begun.operation);
+      publishRoot(failed);
+      return {accepted: false, outcome: "failed" as const};
+    } finally {
+      publicationOperationsRef.current.delete(operationId);
+    }
+  }, [publishRoot]);
+
+  const performManualAction = useCallback((action: StickManualActionV1) => {
+    const live = rootRef.current;
+    if (live.rootStatus !== "mounted" || live.documentPublication.status !== "ready" || isPlayingRef.current) return;
+    const result = applyStickManualAction(live.editorRoot.current.snapshot.document, action);
+    if (!result.ok) return;
+    void publishSnapshot({...live.editorRoot.current.snapshot, document: result.value});
+  }, [publishSnapshot]);
+
+  const performCompletedEdit = useCallback((edit: StickCompletedJointEditV1) => {
+    const live = rootRef.current;
+    const candidate = applyCompletedStickJointEdit(live, edit);
+    if (!candidate || live.rootStatus !== "mounted") return;
+    completedEditCountRef.current += 1;
+    setCompletedEditCount(completedEditCountRef.current);
+    void publishSnapshot({...live.editorRoot.current.snapshot, document: candidate});
+  }, [publishSnapshot]);
+
+  const selectFrame = useCallback((index: number) => {
+    const live = rootRef.current;
+    if (isPlayingRef.current || live.rootStatus !== "mounted" || live.documentPublication.status !== "ready") return;
+    const next = updateStickViewState(live, {...live.editorRoot.current.snapshot.viewState, currentFrameIndex: index, selectedTimelineIndex: index});
+    playbackFrameIndexRef.current = index;
+    setPlaybackFrameIndex(index);
+    publishRoot(next);
+  }, [publishRoot]);
+
+  const handlePlay = () => {
+    const live = rootRef.current;
+    if (live.rootStatus !== "mounted" || live.documentPublication.status !== "ready") return;
+    setGestureCheckpoint({state: "cancelled", preview: null});
+    gestureCheckpointRef.current = {state: "cancelled", preview: null};
+    playbackFrameIndexRef.current = live.editorRoot.current.snapshot.viewState.selectedTimelineIndex;
+    playbackVisitedRef.current = new Set([playbackFrameIndexRef.current]);
+    playbackWrappedRef.current = false;
+    setPlaybackFrameIndex(playbackFrameIndexRef.current);
+    setIsPlaying(true);
+    isPlayingRef.current = true;
+  };
+
+  const handlePause = () => {
+    setIsPlaying(false);
+    isPlayingRef.current = false;
+    const live = rootRef.current;
+    if (live.rootStatus === "mounted" && live.documentPublication.status === "ready") {
+      publishRoot(updateStickViewState(live, {...live.editorRoot.current.snapshot.viewState, currentFrameIndex: playbackFrameIndexRef.current, selectedTimelineIndex: playbackFrameIndexRef.current}));
+    }
+  };
+
+  const mountDriverDocument = useCallback(async (fixtureValue: unknown) => {
+    const fixtureContainer = fixtureValue as {browserMount?: FixtureMount & {documentPath?: string}};
+    const fixture = (fixtureContainer?.browserMount ?? fixtureValue) as FixtureMount & {documentPath?: string};
+    const documentValue = fixture?.document ?? (fixture?.documentPath === "scripts/fixtures/stick-ai/v1/manual-wave-applied-project.json" ? createGoldenAppliedDocument() : null);
+    const parsed = parseStickProjectDocument(documentValue);
+    if (!parsed.ok || fixture.fixtureVersion !== 1 || fixture.source !== "fixture") return {accepted: false, outcome: "invalid_fixture"};
+    setIsPlaying(false);
+    isPlayingRef.current = false;
+    const operationId = newStickUuid();
+    const bootstrap = createStickBootstrapRoot(parsed.value, "fixture", fixture.savedBaseline, operationId, fixture.workspaceInstanceId);
+    publishRoot(bootstrap);
+    try {
+      const digest = await digestCanonical(parsed.value);
+      const completed = completeStickBootstrap(bootstrap, parsed.value, operationId, digest);
+      readyPublicationCountRef.current += 1;
+      publishRoot(completed);
+      return {accepted: true, outcome: "ready", revision: parsed.value.documentRevision, generation: 1};
+    } catch {
+      publishRoot(failStickBootstrap(bootstrap, operationId));
+      return {accepted: false, outcome: "failed"};
+    }
+  }, [publishRoot]);
+
+  const dispatchDriverEdit = useCallback(async (fixtureValue: unknown) => {
+    const fixture = ((fixtureValue as {browserEdits?: DriverEditFixture})?.browserEdits ?? fixtureValue) as DriverEditFixture;
+    const spec = fixture?.edits?.[driverEditCursorRef.current++];
+    const live = rootRef.current;
+    if (!spec || live.rootStatus !== "mounted" || live.documentPublication.status !== "ready") return {accepted: false, outcome: "invalid_fixture"};
+    const resolved = resolveStickTimelinePose(live.editorRoot.current.snapshot.document, spec.selectedFrameIndex);
+    if (!resolved) return {accepted: false, outcome: "blank"};
+    const rig = live.editorRoot.current.snapshot.document.rigs[0];
+    const joint = rig.joints.find((candidate) => candidate.role === spec.jointRole)!;
+    const point = resolved.pose.points.find((candidate) => candidate.jointId === joint.jointId)!;
+    const edit: StickCompletedJointEditV1 = {
+      baseWorkspaceInstanceId: spec.staleWorkspaceInstance ? "00000000-0000-4000-8000-000000009999" : live.workspaceInstanceId,
+      projectId: live.editorRoot.current.snapshot.document.projectId,
+      baseRevision: live.editorRoot.current.snapshot.document.documentRevision,
+      baseWorkspaceGeneration: live.workspaceGeneration,
+      selectedFrameId: resolved.selectedCell.frameId,
+      selectedFrameIndex: spec.selectedFrameIndex,
+      controllingFrameId: resolved.controllingCell.frameId,
+      controllingFrameIndex: resolved.controllingFrameIndex,
+      poseId: resolved.pose.poseId,
+      jointId: joint.jointId,
+      jointRole: joint.role,
+      from: {x: point.x, y: point.y},
+      to: spec.to,
+      preStateDigest: live.editorRoot.current.documentDigest,
+    };
+    const candidate = applyCompletedStickJointEdit(live, edit);
+    if (!candidate) return {accepted: false, outcome: "stale"};
+    const outcome = await publishSnapshot({...live.editorRoot.current.snapshot, document: candidate});
+    return {...outcome, revision: rootRef.current.rootStatus === "mounted" ? rootRef.current.editorRoot.current.snapshot.document.documentRevision : null};
+  }, [publishSnapshot]);
+
+  const beginDriverPublication = useCallback(async (fixtureValue: unknown) => {
+    const fixture = ((fixtureValue as {browserPublicationPlan?: DriverPublicationPlan})?.browserPublicationPlan ?? fixtureValue) as DriverPublicationPlan;
+    const spec = fixture?.plans?.[driverBeginCursorRef.current++];
+    let live = rootRef.current;
+    if (!spec) return {accepted: false, outcome: "invalid_fixture"};
+    if (spec.supersede && lastReadyRootRef.current) live = lastReadyRootRef.current;
+    if (live.rootStatus !== "mounted" || live.documentPublication.status !== "ready") return {accepted: false, outcome: "unavailable"};
+    const candidate = applyStickManualAction(live.editorRoot.current.snapshot.document, spec.action);
+    if (!candidate.ok) return {accepted: false, outcome: "invalid_action"};
+    const begun = beginStickDocumentPublication(live, {...live.editorRoot.current.snapshot, document: candidate.value}, spec.operationId, true);
+    if (!begun.operation) return {accepted: false, outcome: "unavailable"};
+    publicationOperationsRef.current.set(spec.operationId, begun.operation);
+    publishRoot(begun.root);
+    return {accepted: true, outcome: "pending", operationId: spec.operationId};
+  }, [publishRoot]);
+
+  const completeDriverPublication = useCallback(async (fixtureValue: unknown) => {
+    const fixture = ((fixtureValue as {browserPublicationCompletion?: DriverPublicationCompletion})?.browserPublicationCompletion ?? fixtureValue) as DriverPublicationCompletion;
+    const spec = fixture?.completions?.[driverCompletionCursorRef.current++];
+    const operation = spec ? publicationOperationsRef.current.get(spec.operationId) : null;
+    if (!spec || !operation) return {accepted: false, outcome: "missing_operation"};
+    const before = rootRef.current;
+    if (spec.outcome === "failed") {
+      const failed = failStickDocumentPublication(before, operation);
+      publishRoot(failed);
+      return {accepted: failed !== before, outcome: failed === before ? "stale" : "failed"};
+    }
+    const digest = await digestCanonical(operation.candidateSnapshot.document);
+    const completed = completeStickDocumentPublication(before, operation, digest);
+    if (completed === before) {
+      staleCompletionCountRef.current += 1;
+      return {accepted: false, outcome: "stale"};
+    }
+    readyPublicationCountRef.current += 1;
+    publishRoot(completed);
+    return {accepted: true, outcome: "ready"};
+  }, [publishRoot]);
+
+  const readCheckpoint = useCallback(async (operationId: unknown) => {
+    if (operationId === "playback-cycle") await new Promise((resolve) => window.setTimeout(resolve, 1200));
+    const live = rootRef.current;
+    const document = live.rootStatus === "mounted" ? live.editorRoot.current.snapshot.document : null;
+    const content = document ? projectStickAnimationContent(document) : null;
+    const contentDigest = content?.ok ? await digestCanonical(content.value) : null;
+    return {
+      rootStatus: live.rootStatus,
+      publicationStatus: live.documentPublication.status,
+      hasMountedDocument: document !== null,
+      revision: document?.documentRevision ?? null,
+      workspaceGeneration: live.workspaceGeneration,
+      creatorEntryLocked: live.creatorEntryLocked,
+      readyDigestMatchesDocument: live.rootStatus === "mounted" && live.documentPublication.status === "ready"
+        ? await digestCanonical(document!) === live.editorRoot.current.documentDigest && live.documentPublication.currentDocumentDigest === live.editorRoot.current.documentDigest
+        : null,
+      selectedFrameIndex: live.rootStatus === "mounted" ? live.editorRoot.current.snapshot.viewState.selectedTimelineIndex : null,
+      currentFrameIndex: live.rootStatus === "mounted" ? live.editorRoot.current.snapshot.viewState.currentFrameIndex : null,
+      isPlaying: isPlayingRef.current,
+      playbackVisitedPoseSpans: [
+        [0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11],
+      ].map((span) => span.some((index) => playbackVisitedRef.current.has(index))),
+      playbackWrapped: playbackWrappedRef.current,
+      cellTypes: document?.layers[0].cells.map((cell) => cell.cellType === "keyframe" && cell.poses.length === 0 ? "blank" : cell.cellType) ?? [],
+      frameIdsPreserved: document ? new Set(document.layers[0].cells.map((cell) => cell.frameId)).size === 12 : false,
+      contentDigest,
+      gestureState: gestureCheckpointRef.current.state,
+      gesturePreview: gestureCheckpointRef.current.preview,
+      completedEditCount: completedEditCountRef.current,
+      historyDepth: 0,
+      rootTransitionCount: rootTransitionCountRef.current,
+      readyPublicationCount: readyPublicationCountRef.current,
+      staleCompletionCount: staleCompletionCountRef.current,
+      canonicalDocumentBytes: document ? new TextEncoder().encode(canonicalJson(document)).byteLength : 0,
+    };
+  }, []);
+
+  const spec0001Phase2BrowserPortsV1 = {
+    mountDocument: mountDriverDocument,
+    dispatchCompletedJointEdit: dispatchDriverEdit,
+    beginDocumentPublication: beginDriverPublication,
+    completeDocumentPublication: completeDriverPublication,
+    readCheckpoint,
+  };
+  void spec0001Phase2BrowserPortsV1;
 
   /* SPEC0001_BROWSER_DRIVER_ANCHOR_V1 */
 
-  useEffect(() => {
-    layersRef.current = layers;
-  }, [layers]);
-
-  useEffect(() => {
-    currentFrameIndexRef.current = currentFrameIndex;
-  }, [currentFrameIndex]);
-
-  useEffect(() => {
-    selectedTimelineIndexRef.current = selectedTimelineIndex;
-  }, [selectedTimelineIndex]);
-
-  useEffect(() => {
-    activeLayerIdRef.current = activeLayerId;
-  }, [activeLayerId]);
-
-  useEffect(() => {
-    isTimelinePlayingRef.current = isTimelinePlaying;
-  }, [isTimelinePlaying]);
-
-  useEffect(() => {
-    undoStackRef.current = undoStack;
-  }, [undoStack]);
-
-  useEffect(() => {
-    redoStackRef.current = redoStack;
-  }, [redoStack]);
-
-  const applyFrameSelection = useCallback((nextCurrentFrameIndex: number, nextSelectedFrameIndex = nextCurrentFrameIndex) => {
-    currentFrameIndexRef.current = nextCurrentFrameIndex;
-    setCurrentFrameIndex(nextCurrentFrameIndex);
-    selectedTimelineIndexRef.current = nextSelectedFrameIndex;
-    setSelectedTimelineIndex(nextSelectedFrameIndex);
-  }, []);
-
-  const selectTimelinePosition = useCallback((nextIndex: number) => {
-    const clampedIndex = Math.max(0, nextIndex);
-    selectedTimelineIndexRef.current = clampedIndex;
-    setSelectedTimelineIndex(clampedIndex);
-  }, []);
-
-  const applyActiveLayer = useCallback((nextLayerId: string) => {
-    activeLayerIdRef.current = nextLayerId;
-    setActiveLayerId(nextLayerId);
-  }, []);
-
-  const createHistoryEntry = useCallback(
-    (): StickFigureWorkspaceHistoryEntry => ({
-      layers: cloneTimelineLayers(layersRef.current),
-      activeLayerId: activeLayerIdRef.current,
-      currentFrameIndex: currentFrameIndexRef.current,
-      selectedTimelineIndex: selectedTimelineIndexRef.current,
-    }),
-    [],
-  );
-
-  const commitTimelineStructureChange = useCallback(
-    (mutateDraft: (draft: StickFigureTimelineDraftState) => boolean) => {
-      if (isTimelinePlayingRef.current) {
-        return;
-      }
-
-      const previousEntry = createHistoryEntry();
-
-      const draft: StickFigureTimelineDraftState = {
-        layers: cloneTimelineLayers(layersRef.current),
-        activeLayerId: activeLayerIdRef.current,
-        currentFrameIndex: currentFrameIndexRef.current,
-        selectedTimelineIndex: selectedTimelineIndexRef.current,
-      };
-
-      if (!mutateDraft(draft)) {
-        return;
-      }
-
-      const resolvedActiveLayerId = draft.layers.some((layer) => layer.id === draft.activeLayerId)
-        ? draft.activeLayerId
-        : draft.layers[0]?.id ?? "stick-layer-1";
-      const maxFrameIndex = Math.max(0, getAuthoredPlaybackFrameCountForLayers(draft.layers) - 1);
-      const nextCurrentFrameIndex = Math.max(0, Math.min(draft.currentFrameIndex, maxFrameIndex));
-      const nextSelectedFrameIndex = Math.max(0, Math.min(draft.selectedTimelineIndex, maxFrameIndex));
-
-      const nextUndoStack = [...undoStackRef.current, previousEntry];
-      undoStackRef.current = nextUndoStack;
-      redoStackRef.current = [];
-      setUndoStack(nextUndoStack);
-      setRedoStack([]);
-      layersRef.current = draft.layers;
-      setLayers(draft.layers);
-      applyActiveLayer(resolvedActiveLayerId);
-      applyFrameSelection(nextCurrentFrameIndex, nextSelectedFrameIndex);
-    },
-    [applyActiveLayer, applyFrameSelection, createHistoryEntry],
-  );
-
-  const activateLayer = useCallback(
-    (layerId: string) => {
-      const nextLayer = layersRef.current.find((layer) => layer.id === layerId);
-      if (!nextLayer || nextLayer.id === activeLayerIdRef.current) {
-        return;
-      }
-
-      applyActiveLayer(nextLayer.id);
-    },
-    [applyActiveLayer],
-  );
-
-  useEffect(() => {
-    const maxAuthoredIndex = Math.max(0, authoredPlaybackFrameCount - 1);
-    const shouldClampCurrentFrame = currentFrameIndexRef.current > maxAuthoredIndex;
-    const shouldClampSelectedFrame = selectedTimelineIndexRef.current > maxAuthoredIndex;
-    const shouldStopPlayback = authoredPlaybackFrameCount <= 1 && isTimelinePlayingRef.current;
-
-    if (!shouldClampCurrentFrame && !shouldClampSelectedFrame && !shouldStopPlayback) {
-      return;
-    }
-
-    let frameId = 0;
-    frameId = window.requestAnimationFrame(() => {
-      if (shouldClampCurrentFrame) {
-        applyFrameSelection(maxAuthoredIndex, Math.min(selectedTimelineIndexRef.current, maxAuthoredIndex));
-      } else if (shouldClampSelectedFrame) {
-        selectedTimelineIndexRef.current = maxAuthoredIndex;
-        setSelectedTimelineIndex(maxAuthoredIndex);
-      }
-
-      if (shouldStopPlayback) {
-        setIsTimelinePlaying(false);
-      }
-    });
-
-    return () => window.cancelAnimationFrame(frameId);
-  }, [applyFrameSelection, authoredPlaybackFrameCount]);
-
-  useEffect(() => {
-    if (!isTimelinePlaying || authoredPlaybackFrameCount <= 1) {
-      return undefined;
-    }
-
-    let frameId = 0;
-    let lastTimestamp = 0;
-    let accumulatorMs = 0;
-
-    const tick = (timestamp: number) => {
-      if (!isTimelinePlayingRef.current) {
-        return;
-      }
-
-      if (lastTimestamp === 0) {
-        lastTimestamp = timestamp;
-        frameId = window.requestAnimationFrame(tick);
-        return;
-      }
-
-      const frameDurationMs = getClampedPlaybackFrameDurationMs(timelineFps);
-      const { accumulatorMs: nextAccumulatorMs, steps } = advancePlaybackAccumulator(
-        accumulatorMs,
-        timestamp - lastTimestamp,
-        frameDurationMs,
-      );
-
-      accumulatorMs = nextAccumulatorMs;
-      lastTimestamp = timestamp;
-
-      if (steps > 0) {
-        let nextIndex = currentFrameIndexRef.current;
-        let shouldStopPlayback = false;
-
-        for (let step = 0; step < steps; step += 1) {
-          const frameCount = getAuthoredPlaybackFrameCountForLayers(layersRef.current);
-          if (frameCount <= 1) {
-            shouldStopPlayback = true;
-            break;
-          }
-
-          nextIndex = nextIndex >= frameCount - 1 ? 0 : nextIndex + 1;
-        }
-
-        if (shouldStopPlayback) {
-          setIsTimelinePlaying(false);
-          return;
-        }
-
-        applyFrameSelection(nextIndex);
-      }
-
-      frameId = window.requestAnimationFrame(tick);
-    };
-
-    frameId = window.requestAnimationFrame(tick);
-    return () => window.cancelAnimationFrame(frameId);
-  }, [applyFrameSelection, authoredPlaybackFrameCount, isTimelinePlaying, timelineFps]);
-
-  const switchToFrame = useCallback(
-    (index: number) => {
-      const frameCount = getAuthoredPlaybackFrameCountForLayers(layersRef.current);
-      const maxFrameIndex = Math.max(0, frameCount - 1);
-      const nextIndex = Math.max(0, Math.min(index, maxFrameIndex));
-      applyFrameSelection(nextIndex);
-    },
-    [applyFrameSelection],
-  );
-
-  const handlePlayTimeline = useCallback(() => {
-    const frameCount = getAuthoredPlaybackFrameCountForLayers(layersRef.current);
-    const clampedIndex = Math.max(0, Math.min(currentFrameIndexRef.current, frameCount - 1));
-
-    applyFrameSelection(clampedIndex);
-
-    if (frameCount <= 1) {
-      setIsTimelinePlaying(false);
-      return;
-    }
-
-    setIsTimelinePlaying(true);
-  }, [applyFrameSelection]);
-
-  const handlePauseTimeline = useCallback(() => {
-    setIsTimelinePlaying(false);
-  }, []);
-
-  const addLayer = useCallback(() => {
-    commitTimelineStructureChange((draft) => {
-      const nextLayerId = `stick-layer-${nextLayerIdRef.current++}`;
-      draft.layers = [
-        ...draft.layers,
-        {
-          id: nextLayerId,
-          name: `Layer ${draft.layers.length + 1}`,
-          frames: [createTimelineFrame(nextFrameIdRef.current++, "keyframe", "keyframe", nextStateIdRef.current++)],
-        },
-      ];
-      draft.activeLayerId = nextLayerId;
-      return true;
-    });
-  }, [commitTimelineStructureChange]);
-
-  const deleteActiveLayer = useCallback(() => {
-    commitTimelineStructureChange((draft) => {
-      if (draft.layers.length <= 1) {
-        return false;
-      }
-
-      const layerIdToDelete = draft.activeLayerId;
-      const nextLayers = draft.layers.filter((layer) => layer.id !== layerIdToDelete);
-      if (nextLayers.length === draft.layers.length) {
-        return false;
-      }
-
-      draft.layers = nextLayers;
-      draft.activeLayerId = nextLayers[0]?.id ?? "stick-layer-1";
-      return true;
-    });
-  }, [commitTimelineStructureChange]);
-
-  const addTimelineFrame = useCallback((
-    layerId: string,
-    kind: TimelineFrameKind,
-    targetIndex: number,
-    options?: { blank?: boolean },
-  ) => {
-    const nextTargetIndex = Math.max(0, targetIndex);
-    const normalizedKind = kind === "keyframe" ? "keyframe" : "frame";
-    commitTimelineStructureChange((draft) => {
-      const layerIndex = draft.layers.findIndex((layer) => layer.id === layerId);
-      if (layerIndex < 0) {
-        return false;
-      }
-
-      const layer = draft.layers[layerIndex];
-      const nextFrames = ensureFramesLength(layer.frames, nextTargetIndex + 1, nextFrameIdRef);
-      const targetFrame = nextFrames[nextTargetIndex];
-      let nextSelectedIndex = nextTargetIndex;
-
-      if (!targetFrame || targetFrame.cellType === "empty") {
-        if (normalizedKind === "keyframe") {
-          const targetFrameId = targetFrame?.id ?? nextFrameIdRef.current++;
-          nextFrames[nextTargetIndex] = createTimelineFrame(
-            targetFrameId,
-            "keyframe",
-            options?.blank ? "blank-keyframe" : "keyframe",
-            nextStateIdRef.current++,
-          );
-        } else {
-          const previousFilledFrameIndex = findPreviousFilledFrameIndex(nextFrames, nextTargetIndex);
-          if (previousFilledFrameIndex < 0) {
-            const targetFrameId = targetFrame?.id ?? nextFrameIdRef.current++;
-            nextFrames[nextTargetIndex] = createTimelineFrame(targetFrameId, "keyframe", "keyframe", nextStateIdRef.current++);
-          } else {
-            const sourceEndIndex = getFrameDurationEndIndex(nextFrames, previousFilledFrameIndex);
-            fillTimelineRangeWithFrameSpan(
-              nextFrames,
-              sourceEndIndex + 1,
-              nextTargetIndex,
-              nextFrames[previousFilledFrameIndex].stateId,
-              nextFrameIdRef,
-            );
-          }
-        }
-      } else if (normalizedKind === "frame") {
-        const insertIndex = getFrameDurationEndIndex(nextFrames, nextTargetIndex) + 1;
-        fillTimelineRangeWithFrameSpan(nextFrames, insertIndex, insertIndex, targetFrame.stateId, nextFrameIdRef);
-        nextSelectedIndex = insertIndex;
-      } else {
-        const insertIndex = nextTargetIndex + 1;
-        const nextFrameId = nextFrameIdRef.current++;
-        const nextStateId = nextStateIdRef.current++;
-        nextFrames.splice(
-          insertIndex,
-          0,
-          createTimelineFrame(nextFrameId, "keyframe", options?.blank ? "blank-keyframe" : "keyframe", nextStateId),
-        );
-        reassignTrailingStateCells(nextFrames, insertIndex, targetFrame.stateId, nextStateId);
-        nextSelectedIndex = insertIndex;
-      }
-
-      draft.layers[layerIndex] = { ...layer, frames: nextFrames };
-      draft.activeLayerId = layerId;
-      draft.currentFrameIndex = nextSelectedIndex;
-      draft.selectedTimelineIndex = nextSelectedIndex;
-      return true;
-    });
-  }, [commitTimelineStructureChange]);
-
-  const removeTimelineFrame = useCallback((layerId: string, targetIndex: number) => {
-    commitTimelineStructureChange((draft) => {
-      const layerIndex = draft.layers.findIndex((layer) => layer.id === layerId);
-      if (layerIndex < 0) {
-        return false;
-      }
-
-      const layer = draft.layers[layerIndex];
-      const clampedTarget = Math.max(0, Math.min(targetIndex, layer.frames.length - 1));
-      const targetFrame = layer.frames[clampedTarget];
-      if (!targetFrame || targetFrame.cellType === "empty") {
-        return false;
-      }
-
-      let removeStartIndex = clampedTarget;
-      let removeEndIndex = clampedTarget;
-
-      if (isFrameStateStart(targetFrame)) {
-        removeEndIndex = getFrameDurationEndIndex(layer.frames, clampedTarget);
-      } else if (targetFrame.cellType === "hold") {
-        removeStartIndex = resolveStateStartIndex(layer.frames, clampedTarget);
-        removeEndIndex = getFrameDurationEndIndex(layer.frames, removeStartIndex);
-      }
-
-      const { frames: nextFrames, removedFrameCount } = collapseTimelineRange(
-        layer.frames,
-        removeStartIndex,
-        removeEndIndex,
-        () => createEmptyTimelineFrame(nextFrameIdRef.current++),
-      );
-
-      if (removedFrameCount === 0) {
-        return false;
-      }
-
-      if (draft.currentFrameIndex >= removeStartIndex && draft.currentFrameIndex <= removeEndIndex) {
-        draft.currentFrameIndex = removeStartIndex;
-      } else if (draft.currentFrameIndex > removeEndIndex) {
-        draft.currentFrameIndex -= removedFrameCount;
-      }
-
-      if (draft.selectedTimelineIndex >= removeStartIndex && draft.selectedTimelineIndex <= removeEndIndex) {
-        draft.selectedTimelineIndex = removeStartIndex;
-      } else if (draft.selectedTimelineIndex > removeEndIndex) {
-        draft.selectedTimelineIndex -= removedFrameCount;
-      }
-
-      draft.layers[layerIndex] = { ...layer, frames: nextFrames };
-      draft.activeLayerId = layerId;
-      return true;
-    });
-  }, [commitTimelineStructureChange]);
-
-  const resizeTimelineSpan = useCallback((layerId: string, stateId: number, _spanType: "frame" | "tween", nextEndIndex: number) => {
-    commitTimelineStructureChange((draft) => {
-      const layerIndex = draft.layers.findIndex((layer) => layer.id === layerId);
-      if (layerIndex < 0) {
-        return false;
-      }
-
-      const layer = draft.layers[layerIndex];
-      const nextFrames = ensureFramesLength(layer.frames, nextEndIndex + 1, nextFrameIdRef);
-      const startIndex = nextFrames.findIndex((frame) => frame.stateId === stateId && frame.cellType !== "empty");
-      if (startIndex < 0) {
-        return false;
-      }
-
-      let previousEndIndex = startIndex;
-      for (let index = startIndex + 1; index < nextFrames.length; index += 1) {
-        if (nextFrames[index].stateId !== stateId) {
-          break;
-        }
-        previousEndIndex = index;
-      }
-
-      if (nextEndIndex === previousEndIndex) {
-        return false;
-      }
-
-      for (let index = startIndex + 1; index < nextFrames.length; index += 1) {
-        if (index <= nextEndIndex) {
-          nextFrames[index] = createTimelineFrame(
-            nextFrameIdRef.current++,
-            "frame",
-            "hold",
-            stateId,
-          );
-        } else if (nextFrames[index].stateId !== stateId) {
-          break;
-        }
-      }
-
-      if (nextEndIndex < previousEndIndex) {
-        const removeStartIndex = nextEndIndex + 1;
-        const removeEndIndex = previousEndIndex;
-        const { frames: collapsedFrames, removedFrameCount } = collapseTimelineRange(
-          nextFrames,
-          removeStartIndex,
-          removeEndIndex,
-          () => createEmptyTimelineFrame(nextFrameIdRef.current++),
-        );
-
-        if (removedFrameCount > 0) {
-          if (draft.currentFrameIndex >= removeStartIndex && draft.currentFrameIndex <= removeEndIndex) {
-            draft.currentFrameIndex = nextEndIndex;
-          } else if (draft.currentFrameIndex > removeEndIndex) {
-            draft.currentFrameIndex -= removedFrameCount;
-          }
-
-          if (draft.selectedTimelineIndex >= removeStartIndex && draft.selectedTimelineIndex <= removeEndIndex) {
-            draft.selectedTimelineIndex = nextEndIndex;
-          } else if (draft.selectedTimelineIndex > removeEndIndex) {
-            draft.selectedTimelineIndex -= removedFrameCount;
-          }
-        }
-
-        draft.layers[layerIndex] = { ...layer, frames: collapsedFrames };
-      } else {
-        draft.layers[layerIndex] = { ...layer, frames: nextFrames };
-      }
-
-      draft.activeLayerId = layerId;
-      return true;
-    });
-  }, [commitTimelineStructureChange]);
-
-  const selectFigure = (figureId: string) => {
-    setSelection({ target: "figure", figureId });
-  };
-
-  const activateSelectTool = useCallback(() => {
-    setSelection({ target: "workspace" });
-    setActiveTool("Select");
-    setStructureTool("idle");
-    setRightPanelTab("Properties");
-  }, []);
-
-  const activateStructureLimbTool = useCallback(() => {
-    setSelection({ target: "workspace" });
-    setActiveTool(null);
-    setCanvasMovementEnabled(false);
-    setStructureTool("addLimb");
-    setRightPanelTab("Stick Figure Tools");
-    setStructureGraph((current) =>
-      current.activeJointId === null
-        ? current
-        : {
-            ...current,
-            activeJointId: null,
-          },
+  if (root.rootStatus === "bootstrapping") {
+    const failed = root.documentPublication.status === "failed";
+    return (
+      <div style={{height: "100vh", display: "grid", placeItems: "center", background: "#111720", color: "rgba(255,255,255,.85)"}}>
+        <div role="status" style={{textAlign: "center"}}>
+          <p>{failed ? "This Stick project could not be prepared safely. Retry." : "Preparing this Stick project…"}</p>
+          {failed ? <button type="button" onClick={() => {
+            const operationId = newStickUuid();
+            const retryRoot = createStickBootstrapRoot(starterRef.current!, "new", "none", operationId, root.workspaceInstanceId);
+            publishRoot(retryRoot);
+            void digestCanonical(starterRef.current!).then((digest) => {
+              readyPublicationCountRef.current += 1;
+              publishRoot(completeStickBootstrap(retryRoot, starterRef.current!, operationId, digest));
+            }).catch(() => publishRoot(failStickBootstrap(retryRoot, operationId)));
+          }}>Retry</button> : null}
+        </div>
+      </div>
     );
-  }, []);
+  }
 
-  const selectStructureJoint = useCallback((jointId: string | null) => {
-    setSelection({ target: "workspace" });
-    setRightPanelTab("Properties");
-    setStructureGraph((current) => {
-      if (current.activeJointId === jointId) {
-        return current;
-      }
-
-      return {
-        ...current,
-        activeJointId: jointId,
-      };
-    });
-  }, []);
-
-  const clearStructureSelection = useCallback(() => {
-    selectStructureJoint(null);
-  }, [selectStructureJoint]);
-
-  const resetStickCanvasView = useCallback(() => {
-    setStickCameraZoom(DEFAULT_STICK_CAMERA_ZOOM);
-    setStickZoomInputValue(formatStickCameraZoom(DEFAULT_STICK_CAMERA_ZOOM));
-    setStickCameraPan(DEFAULT_STICK_CAMERA_PAN);
-  }, []);
-
-  const updateStickCameraZoom = useCallback((nextZoom: number) => {
-    const clampedZoom = clampStickCameraZoom(nextZoom);
-    setStickCameraZoom(clampedZoom);
-    setStickZoomInputValue(formatStickCameraZoom(clampedZoom));
-  }, []);
-
-  const applyStickZoomInput = useCallback(() => {
-    const match = stickZoomInputValue.match(/-?\d+(\.\d+)?/);
-    if (!match) {
-      setStickZoomInputValue(formatStickCameraZoom(stickCameraZoom));
-      return;
-    }
-
-    const parsedPercent = Number(match[0]);
-    if (!Number.isFinite(parsedPercent)) {
-      setStickZoomInputValue(formatStickCameraZoom(stickCameraZoom));
-      return;
-    }
-
-    updateStickCameraZoom(parsedPercent / 100);
-  }, [stickCameraZoom, stickZoomInputValue, updateStickCameraZoom]);
-
-  const clearStickCanvasContent = useCallback(() => {
-    if (!window.confirm("Clear the current canvas? This will remove the visible artwork on this canvas.")) {
-      return;
-    }
-
-    setSelection({ target: "workspace" });
-    setStructureGraph({ joints: [], limbs: [], activeJointId: null });
-  }, []);
-
-  const setStickCanvasMovementEnabled = useCallback((enabled: boolean) => {
-    setCanvasMovementEnabled(enabled);
-    setRightPanelTab("Properties");
-
-    if (!enabled) {
-      return;
-    }
-
-    setStructureGraph((current) =>
-      current.activeJointId === null
-        ? current
-        : {
-            ...current,
-            activeJointId: null,
-          },
-    );
-  }, []);
-
-  const moveStructureJoint = useCallback((jointId: string, point: StickFigureStructureSegmentDraft["startPoint"]) => {
-    setStructureGraph((current) => {
-      let didMove = false;
-      const nextJoints = current.joints.map((joint) => {
-        if (joint.id !== jointId) {
-          return joint;
-        }
-
-        if (joint.x === point.x && joint.y === point.y) {
-          return joint;
-        }
-
-        didMove = true;
-        return {
-          ...joint,
-          x: point.x,
-          y: point.y,
-        };
-      });
-
-      if (!didMove) {
-        return current.activeJointId === jointId ? current : { ...current, activeJointId: jointId };
-      }
-
-      return {
-        ...current,
-        joints: nextJoints,
-        activeJointId: jointId,
-      };
-    });
-  }, []);
-
-  const commitStructureSegment = useCallback((draft: StickFigureStructureSegmentDraft) => {
-    const segmentLength = Math.hypot(draft.endPoint.x - draft.startPoint.x, draft.endPoint.y - draft.startPoint.y);
-    if (segmentLength < 18) {
-      return false;
-    }
-
-    let didCommit = false;
-
-    setStructureGraph((current) => {
-      const jointsById = new Map(current.joints.map((joint) => [joint.id, joint]));
-      const nextJoints = [...current.joints];
-
-      const resolveJointId = (existingId: string | null | undefined, point: StickFigureStructureSegmentDraft["startPoint"]) => {
-        if (existingId && jointsById.has(existingId)) {
-          return existingId;
-        }
-
-        const nextJointId = `stick-joint-${nextStructureJointIdRef.current++}`;
-        const nextJoint = {
-          id: nextJointId,
-          x: point.x,
-          y: point.y,
-        };
-
-        jointsById.set(nextJointId, nextJoint);
-        nextJoints.push(nextJoint);
-        return nextJointId;
-      };
-
-      const startJointId = resolveJointId(draft.startJointId, draft.startPoint);
-      const endJointId = resolveJointId(draft.endJointId, draft.endPoint);
-
-      if (startJointId === endJointId) {
-        return current;
-      }
-
-      const limbAlreadyExists = current.limbs.some(
-        (limb) =>
-          (limb.startJointId === startJointId && limb.endJointId === endJointId) ||
-          (limb.startJointId === endJointId && limb.endJointId === startJointId),
-      );
-      if (limbAlreadyExists) {
-        return {
-          ...current,
-          activeJointId: endJointId,
-        };
-      }
-
-      didCommit = true;
-
-      return {
-        joints: nextJoints,
-        limbs: [
-          ...current.limbs,
-          {
-            id: `stick-limb-${nextStructureLimbIdRef.current++}`,
-            startJointId,
-            endJointId,
-          },
-        ],
-        activeJointId: endJointId,
-      };
-    });
-
-    return didCommit;
-  }, []);
-
-  const unavailableHistoryAction = useCallback(() => {
-    // Stick Figure top-bar undo/redo is intentionally reserved for future content history.
-  }, []);
+  const document = root.editorRoot.current.snapshot.document;
+  const viewState = root.editorRoot.current.snapshot.viewState;
+  const publicationReady = root.documentPublication.status === "ready";
+  const renderFrameIndex = isPlaying ? playbackFrameIndex : viewState.currentFrameIndex;
 
   return (
-    <div
-      style={{
-        height: "100vh",
-        background: "rgb(26, 27, 36)",
-        display: "flex",
-        flexDirection: "column",
-        overflow: "hidden",
-      }}
-    >
-      <StickFigureTopBar
-        projectTitle="Unnamed stick figure project"
-        onUndo={unavailableHistoryAction}
-        onRedo={unavailableHistoryAction}
-        canUndo={false}
-        canRedo={false}
-      />
+    <div style={{height: "100vh", background: "#1a1b24", display: "flex", flexDirection: "column", overflow: "hidden"}}>
+      <StickFigureTopBar projectTitle={document.title} />
       <StickFigureTimelineRow
-        fps={timelineFps}
-        isPlaying={isTimelinePlaying}
+        document={document}
+        currentFrameIndex={renderFrameIndex}
+        selectedTimelineIndex={viewState.selectedTimelineIndex}
+        isPlaying={isPlaying}
         isOnionEnabled={isOnionEnabled}
-        currentFrameIndex={currentFrameIndex}
-        selectedTimelineIndex={selectedTimelineIndex}
-        activeLayerId={activeLayerId}
-        layers={layers}
-        onFpsChange={(nextFps) => setTimelineFps(Math.max(1, Math.min(55, nextFps)))}
-        onCurrentFrameChange={switchToFrame}
-        onTimelinePositionSelect={selectTimelinePosition}
-        onActiveLayerChange={activateLayer}
-        onAddLayer={addLayer}
-        onDeleteLayer={deleteActiveLayer}
-        canDeleteLayer={layers.length > 1}
-        onToggleOnion={() => setIsOnionEnabled((current) => !current)}
-        onPlay={handlePlayTimeline}
-        onPause={handlePauseTimeline}
-        onAddFrame={addTimelineFrame}
-        onRemoveFrame={removeTimelineFrame}
-        onResizeTimelineSpan={resizeTimelineSpan}
+        authoringReady={publicationReady}
+        onTimelinePositionSelect={selectFrame}
+        onToggleOnion={() => setIsOnionEnabled((value) => !value)}
+        onPlay={handlePlay}
+        onPause={handlePause}
+        onManualAction={performManualAction}
       />
-      <div style={{ flex: 1, minHeight: 0, display: "flex" }}>
+      <div style={{flex: 1, minHeight: 0, display: "flex"}}>
         <StickFigureCanvas
-          figures={figures}
-          selection={selection}
-          onSelectFigure={selectFigure}
+          document={document}
+          frameIndex={renderFrameIndex}
+          workspaceInstanceId={root.workspaceInstanceId}
+          workspaceGeneration={root.workspaceGeneration}
+          documentDigest={root.editorRoot.current.documentDigest}
+          publicationReady={publicationReady}
+          isPlaying={isPlaying}
           activeTool={activeTool}
-          structureTool={structureTool}
-          structureGraph={structureGraph}
           canvasMovementEnabled={canvasMovementEnabled}
-          cameraZoom={stickCameraZoom}
-          cameraPan={stickCameraPan}
+          cameraZoom={cameraZoom}
+          cameraPan={cameraPan}
           canvasBackgroundColor={canvasBackgroundColor}
-          onCommitStructureSegment={commitStructureSegment}
-          onSelectStructureJoint={selectStructureJoint}
-          onMoveStructureJoint={moveStructureJoint}
-          onCameraZoomChange={updateStickCameraZoom}
-          onCameraPanChange={setStickCameraPan}
+          onCameraPanChange={setCameraPan}
+          onCompletedJointEdit={performCompletedEdit}
+          onGestureCheckpoint={(checkpoint) => {gestureCheckpointRef.current = checkpoint; setGestureCheckpoint(checkpoint);}}
         />
         <StickFigureRightPanel
           activeTab={rightPanelTab}
           onActiveTabChange={setRightPanelTab}
-          activeTool={activeTool}
-          structureTool={structureTool}
-          structureJointCount={structureGraph.joints.length}
-          structureLimbCount={structureGraph.limbs.length}
-          selectedStructureJoint={selectedStructureJoint}
-          selectedStructureJointConnectionCount={selectedStructureJointConnectionCount}
+          document={document}
+          selectedFrameIndex={viewState.selectedTimelineIndex}
+          publicationStatus={root.documentPublication.status}
+          creatorEntryLocked={root.creatorEntryLocked}
+          isPlaying={isPlaying}
+          hasActiveDrag={gestureCheckpoint.state === "active"}
           canvasMovementEnabled={canvasMovementEnabled}
-          zoomInputValue={stickZoomInputValue}
+          cameraZoom={cameraZoom}
+          cameraPan={cameraPan}
           canvasBackgroundColor={canvasBackgroundColor}
-          onActivateStructureLimb={activateStructureLimbTool}
-          onOpenStickFigureCreator={onOpenStickFigureCreator}
-          onCanvasMovementChange={setStickCanvasMovementEnabled}
-          onClearStructureSelection={clearStructureSelection}
-          onZoomInputChange={setStickZoomInputValue}
-          onApplyZoomInput={applyStickZoomInput}
-          onResetCanvasView={resetStickCanvasView}
-          onClearCanvasContent={clearStickCanvasContent}
+          onStartPoseFromPrevious={() => performManualAction({actionVersion: 1, type: "start-pose-from-previous", targetFrameIndex: viewState.selectedTimelineIndex, newPoseId: newStickUuid()})}
+          onOpenStickFigureCreator={() => {
+            if (publicationReady && !root.creatorEntryLocked && !isPlaying && gestureCheckpoint.state !== "active") onOpenStickFigureCreator();
+          }}
+          onCanvasMovementChange={(enabled) => {setCanvasMovementEnabled(enabled); if (enabled) setActiveTool("Select");}}
+          onCameraZoomChange={(zoom) => setCameraZoom(Math.min(1.8, Math.max(.5, zoom)))}
+          onResetCanvasView={() => {setCameraZoom(DEFAULT_ZOOM); setCameraPan(DEFAULT_PAN);}}
           onCanvasBackgroundColorChange={setCanvasBackgroundColor}
         />
       </div>
-      <StickFigureToolBar activeTool={activeTool} onSelectTool={activateSelectTool} />
+      <StickFigureToolBar activeTool={activeTool} onSelectTool={(tool) => {setCanvasMovementEnabled(false); setActiveTool(tool);}} />
+      <output data-testid="stick-publication-state" style={{position: "absolute", left: -10000}}>{root.documentPublication.status}:{document.documentRevision}:{root.workspaceGeneration}:{completedEditCount}</output>
+      {root.documentPublication.status === "failed" ? (
+        <button type="button" onClick={() => {void retryStickDocumentPublication(rootRef.current).then(publishRoot);}} style={{position: "fixed", right: 380, top: 52, zIndex: 50}}>Retry document preparation</button>
+      ) : null}
     </div>
   );
 }

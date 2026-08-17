@@ -3,7 +3,20 @@ import {spawnSync} from "node:child_process";
 import {createHash} from "node:crypto";
 import {existsSync, lstatSync, readFileSync, readdirSync, writeFileSync} from "node:fs";
 import {dirname, relative, resolve, sep} from "node:path";
-import {buildTrackedStateInventory, validateLiveTuple, validatePhase7LiveProofManifest, validateProofManifest, type LiveTuple} from "./validateSpec0001ProofBundle.ts";
+import {
+  PHASE2_CLOSEOUT_PATHS,
+  assertEmptyProofIndex,
+  assertNoHiddenIndexFlags,
+  assertNoProofRelevantGitEnvironment,
+  assertPhaseCloseoutPaths,
+  buildTrackedStateInventory,
+  validateCloseoutManifest,
+  validateLiveTuple,
+  validatePhase7LiveProofManifest,
+  validateProofManifestForCloseout,
+  sortProofPaths,
+  type LiveTuple,
+} from "./validateSpec0001ProofBundle.ts";
 
 const ROOT = process.cwd();
 const HASH_PATTERN = /^sha256:[0-9a-f]{64}$/;
@@ -22,6 +35,11 @@ const git = (...argv: string[]) => {
 };
 
 const nulList = (value: string) => value.split("\0").filter(Boolean);
+
+const currentChangedPaths = (base: string) => sortProofPaths([...new Set([
+  ...nulList(git("diff", "--name-only", "-z", base)),
+  ...nulList(git("ls-files", "--others", "--exclude-standard", "-z")),
+])]);
 
 const repositoryPath = (path: string, label: string) => {
   const absolute = resolve(ROOT, path);
@@ -167,6 +185,11 @@ const buildLiveTuple = (phase: number, liveProof: string | undefined, decisionIn
 };
 
 export const runFinalizerSelfTest = () => {
+  assertNoProofRelevantGitEnvironment(process.env);
+  assert.throws(() => assertNoProofRelevantGitEnvironment({...process.env, GIT_WORK_TREE: "/tmp/forbidden-worktree"}));
+  assertPhaseCloseoutPaths(2, PHASE2_CLOSEOUT_PATHS);
+  assert.throws(() => assertPhaseCloseoutPaths(2, PHASE2_CLOSEOUT_PATHS.slice(0, -1)));
+  assert.throws(() => assertPhaseCloseoutPaths(2, sortProofPaths([...PHASE2_CLOSEOUT_PATHS, "unauthorized/extra.txt"])));
   const noLive = buildLiveTuple(1, undefined, undefined);
   validateLiveTuple(1, noLive);
   assert.throws(() => buildLiveTuple(1, "none", "none"));
@@ -177,11 +200,12 @@ export const runFinalizerSelfTest = () => {
   assert.throws(() => buildLiveTuple(7, "none", "invalid"));
   assert.throws(() => buildLiveTuple(7, "none", "a".repeat(64)));
   assert.throws(() => repositoryPath("../../escape", "test"));
-  console.log("SPEC-0001 proof finalizer self-test passed (live arguments/tuple/roots/path escapes rejected)." );
+  console.log("SPEC-0001 proof finalizer self-test passed (closeout ceiling/Git environment/live arguments/tuple/roots/path escapes rejected)." );
 };
 
 const main = () => {
   if (process.argv.length === 3 && process.argv[2] === "--self-test") return runFinalizerSelfTest();
+  assertNoProofRelevantGitEnvironment(process.env);
   const args = parseArgs();
   if (!Number.isSafeInteger(args.phase) || args.phase < 1 || args.phase > 7) throw new Error("Phase must be 1..7.");
   if (!/^[0-9a-f]{40}$/.test(args.base)) throw new Error("Base must be a full lowercase Git SHA.");
@@ -202,20 +226,28 @@ const main = () => {
   if (existsSync(resolve(ROOT, args.output)) && lstatSync(resolve(ROOT, args.output)).isSymbolicLink()) throw new Error("Closeout output may not be a symlink.");
   const liveTuple = buildLiveTuple(args.phase, args.liveProof, args.decision, args.proof);
   validateLiveTuple(args.phase, liveTuple);
-  const proof = validateProofManifest(args.proof, liveTuple.liveProofInput === "none" ? [] : [liveTuple.liveProofInput]);
-  if (proof.phase !== args.phase || proof.baseCommit !== args.base) throw new Error("Proof phase/base mismatch.");
   const head = git("rev-parse", "HEAD").trim();
   if (head !== args.base) throw new Error("Finalization must occur before Git publication on the exact phase base.");
-  if (git("diff", "--cached", "--name-only").trim() !== "") throw new Error("Git index must be empty.");
-  const allowlistedPaths = [...new Set([
-    ...nulList(git("diff", "--name-only", "-z", args.base)),
-    ...nulList(git("ls-files", "--others", "--exclude-standard", "-z")),
-  ])].sort();
+  assertEmptyProofIndex();
+  assertNoHiddenIndexFlags();
+  const allowlistedPaths = currentChangedPaths(args.base);
+  assertPhaseCloseoutPaths(args.phase, allowlistedPaths);
   if (args.phase === 1) {
     const outside = allowlistedPaths.filter((path) => !phaseOneAllowed.has(path));
     if (outside.length > 0) throw new Error(`Phase 1 final diff contains unauthorized paths: ${outside.join(", ")}`);
   }
+  const stateBeforeValidation = buildTrackedStateInventory(args.base);
+  const proof = validateProofManifestForCloseout(args.proof, liveTuple.liveProofInput === "none" ? [] : [liveTuple.liveProofInput]);
+  if (proof.phase !== args.phase || proof.baseCommit !== args.base) throw new Error("Proof phase/base mismatch.");
+  assert.equal(git("rev-parse", "HEAD").trim(), head, "Repository HEAD changed during finalization.");
+  assertEmptyProofIndex();
+  assertNoHiddenIndexFlags();
+  const pathsAfterValidation = currentChangedPaths(args.base);
+  assert.deepEqual(pathsAfterValidation, allowlistedPaths, "Final diff changed during proof validation.");
+  assertPhaseCloseoutPaths(args.phase, pathsAfterValidation);
   const state = buildTrackedStateInventory(args.base);
+  assert.equal(state.digest, stateBeforeValidation.digest, "Tracked/non-ignored repository bytes changed during proof validation.");
+  assert.deepEqual(state.entries, stateBeforeValidation.entries, "Tracked/non-ignored repository inventory changed during proof validation.");
   const closeout = {
     closeoutVersion: 1,
     specId: "SPEC-0001",
@@ -232,6 +264,7 @@ const main = () => {
     ...liveTuple,
   };
   writeFileSync(resolve(ROOT, args.output), `${JSON.stringify(closeout, null, 2)}\n`, {encoding: "utf8", mode: 0o600});
+  validateCloseoutManifest(args.output);
   console.log(`Finalized read-only tracked-state closeout at ${args.output}.`);
   console.log(`Tracked/non-ignored state digest: ${state.digest}; index empty; ${allowlistedPaths.length} allowlisted changed paths.`);
 };

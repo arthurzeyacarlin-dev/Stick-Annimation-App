@@ -1,0 +1,37 @@
+{
+  "fixtureVersion": 1,
+  "starterPath": "scripts/fixtures/stick-ai/v1/fresh-stick-project.json",
+  "actionsPath": "scripts/fixtures/stick-ai/v1/manual-wave-actions.json",
+  "appliedPath": "scripts/fixtures/stick-ai/v1/manual-wave-applied-project.json",
+  "expectedActionCount": 13,
+  "expectedRevision": 13,
+  "expectedContentDigest": "sha256:2e214dd540523f33d4dfbf1195f96b917af26680d0cba7ee7205d87290f8fa43",
+  "expectedDocumentDigest": "sha256:632430c76b34e8194814d9b26edb2b0325fdcc5c457cdcbf33d4902e2a16d3e0",
+  "expectedRenderDigests": {
+    "0": "sha256:1474ce9bc510485b446bbc57b0cb7ecbd078f67c16532bffb9363128d7c2d8a4",
+    "4": "sha256:513a100f7ba448bcf23bcc1971b74abf6a94d58f90ae0a33601fe936b0459cbe",
+    "8": "sha256:75130d5f7763678a0bd949dddee00634ca63c01eb7d7177b4347942dd4c39d89"
+  },
+  "structuralCheckpoints": [
+    {"afterAction": 3, "cellTypes": ["keyframe", "hold", "hold", "hold", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"]},
+    {"afterAction": 4, "cellTypes": ["keyframe", "hold", "hold", "hold", "blank", "empty", "empty", "empty", "empty", "empty", "empty", "empty"]},
+    {"afterAction": 5, "cellTypes": ["keyframe", "hold", "hold", "hold", "keyframe", "empty", "empty", "empty", "empty", "empty", "empty", "empty"]},
+    {"afterAction": 8, "cellTypes": ["keyframe", "hold", "hold", "hold", "keyframe", "hold", "hold", "hold", "empty", "empty", "empty", "empty"]},
+    {"afterAction": 9, "cellTypes": ["keyframe", "hold", "hold", "hold", "keyframe", "hold", "hold", "hold", "blank", "empty", "empty", "empty"]},
+    {"afterAction": 10, "cellTypes": ["keyframe", "hold", "hold", "hold", "keyframe", "hold", "hold", "hold", "keyframe", "empty", "empty", "empty"]},
+    {"afterAction": 13, "cellTypes": ["keyframe", "hold", "hold", "hold", "keyframe", "hold", "hold", "hold", "keyframe", "hold", "hold", "hold"]}
+  ],
+  "invalidActions": [
+    {"actionVersion": 1, "type": "hold-pose-through", "targetFrameIndex": 7},
+    {"actionVersion": 1, "type": "insert-blank-keyframe", "targetFrameIndex": 8},
+    {"actionVersion": 1, "type": "insert-blank-keyframe", "targetFrameIndex": 3},
+    {"actionVersion": 1, "type": "start-pose-from-previous", "targetFrameIndex": 4, "newPoseId": "00000000-0000-4000-8000-000000000999"}
+  ],
+  "browserMount": {
+    "fixtureVersion": 1,
+    "source": "fixture",
+    "savedBaseline": "none",
+    "workspaceInstanceId": "00000000-0000-4000-8000-000000009001",
+    "documentPath": "scripts/fixtures/stick-ai/v1/manual-wave-applied-project.json"
+  }
+}

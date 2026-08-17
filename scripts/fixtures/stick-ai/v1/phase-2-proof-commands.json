@@ -1,0 +1,66 @@
+{
+  "configVersion": 2,
+  "phase": 2,
+  "baseCommit": "68338d54542bbfd3fb1f0fab06548f0424871f80",
+  "bindings": {
+    "sources": [
+      "src/components/workspace/stickfigure/StickFigureCanvas.tsx",
+      "src/components/workspace/stickfigure/StickFigureRightPanel.tsx",
+      "src/components/workspace/stickfigure/StickFigureTimelineRow.tsx",
+      "src/components/workspace/stickfigure/StickFigureToolBar.tsx",
+      "src/components/workspace/stickfigure/StickFigureTopBar.tsx",
+      "src/components/workspace/stickfigure/StickFigureWorkspace.tsx",
+      "src/components/workspace/stickfigure/types.ts",
+      "src/lib/stickfigure/stickProjectContract.ts",
+      "src/lib/stickfigure/stickTimeline.ts"
+    ],
+    "fixtures": [
+      "scripts/fixtures/spec0001-browser/v1/phase-2-action-registry.json",
+      "scripts/fixtures/spec0001-browser/v2/tester-extension-authorizations.json",
+      "scripts/fixtures/stick-ai/v1/stick-control-disposition-cases.json",
+      "scripts/fixtures/stick-ai/v1/stick-correction-affordance-cases.json",
+      "scripts/fixtures/stick-ai/v1/stick-document-publication-race-cases.json",
+      "scripts/fixtures/stick-ai/v1/stick-gesture-cases.json",
+      "scripts/fixtures/stick-ai/v1/stick-manual-wave-build-cases.json",
+      "scripts/fixtures/stick-ai/v1/stick-pose-aliasing-cases.json",
+      "scripts/fixtures/stick-ai/v1/wave-any-joint-corrections.json",
+      "scripts/fixtures/stick-ai/v1/wave-cell-resolution.json",
+      "scripts/fixtures/stick-ai/v1/fresh-stick-project.json",
+      "scripts/fixtures/stick-ai/v1/manual-wave-actions.json",
+      "scripts/fixtures/stick-ai/v1/manual-wave-applied-project.json",
+      "scripts/fixtures/stick-ai/v1/stick-line-head-vectors.json"
+    ],
+    "schemas": [
+      "scripts/fixtures/spec0001-browser/v2/tester-extension-authorization.schema.json",
+      "scripts/fixtures/spec0001-browser/v2/tester-extension-plan.schema.json",
+      "scripts/fixtures/spec0001-browser/v2/tester-extension-registry.schema.json",
+      "scripts/fixtures/spec0001-browser/v2/tester-extension-result.schema.json",
+      "scripts/fixtures/stick-ai/v1/proof-command-receipt-v2.schema.json",
+      "scripts/fixtures/stick-ai/v1/proof-manifest-v2.schema.json"
+    ],
+    "harness": [
+      "scripts/finalizeSpec0001ProofBundle.ts",
+      "scripts/recordSpec0001ProofBundle.ts",
+      "scripts/spec0001-browser/actions/phase2.ts",
+      "scripts/spec0001-browser/browserTesterContract.ts",
+      "scripts/spec0001-browser/browserTesterExtensionContract.ts",
+      "scripts/spec0001-proof/measureSpec0001LintRegression.ts",
+      "scripts/runSpec0001BrowserProof.ts",
+      "scripts/validateSpec0001ProofBundle.ts",
+      "scripts/validateStickFigureAiContracts.ts",
+      "scripts/validateStickPoseTimeline.ts"
+    ],
+    "plans": [
+      "scripts/fixtures/stick-ai/v1/phase-2-browser-proof-plan.json"
+    ]
+  },
+  "browserEvidenceInput": "output/spec-0001/phase-2/browser/runner-result.json",
+  "commands": [
+    {"name": "phase-2-pose-timeline", "argv": ["node", "--experimental-strip-types", "scripts/validateStickPoseTimeline.ts"], "cwd": ".", "env": {}, "expectedExitCode": 0, "privacy": "sanitized"},
+    {"name": "phase-1-contract-regression", "argv": ["node", "--experimental-strip-types", "scripts/validateStickFigureAiContracts.ts"], "cwd": ".", "env": {}, "expectedExitCode": 0, "privacy": "sanitized"},
+    {"name": "typescript", "argv": ["./node_modules/.bin/tsc", "--noEmit", "--incremental", "false"], "cwd": ".", "env": {}, "expectedExitCode": 0, "privacy": "sanitized"},
+    {"name": "lint-regression", "argv": ["node", "--experimental-strip-types", "scripts/spec0001-proof/measureSpec0001LintRegression.ts", "--base=68338d54542bbfd3fb1f0fab06548f0424871f80"], "cwd": ".", "env": {}, "expectedExitCode": 0, "privacy": "sanitized"},
+    {"name": "diff-check", "argv": ["git", "diff", "--check"], "cwd": ".", "env": {}, "expectedExitCode": 0, "privacy": "sanitized"},
+    {"name": "phase-2-browser", "argv": ["node", "--experimental-strip-types", "scripts/runSpec0001BrowserProof.ts", "--plan=scripts/fixtures/stick-ai/v1/phase-2-browser-proof-plan.json"], "cwd": ".", "env": {}, "expectedExitCode": 0, "privacy": "sanitized"}
+  ]
+}

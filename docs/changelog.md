@@ -5,6 +5,17 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-17 — SPEC-0001 Phase 2 accepted and closed out for publication review
+
+- recorded Arthur and the Project Manager's acceptance of the stopped Phase 2 Spec Executor result from exact base/HEAD `68338d54542bbfd3fb1f0fab06548f0424871f80`: exactly 27 technical paths, empty index, accepted prior-definition aggregate SHA-256 `d5526fcba1e0480a20164ab73d8391f49edf6fc66378d641e8b2c0c951fcabd2` over the 4,351-byte canonical input, and 33,410-byte proof-manifest SHA-256 `87a24054299da3037e6682bc50595fd8be3c7004222287c3433156264b322212`; the executor addendum proved its alternative stable-JSON digest beginning `1dd18` was the wrong reporting definition, not a byte or proof error
+- independently revalidated the accepted technical manifest after an offline dependency restore: 277 Phase 2 assertions, 631 Phase 1 regressions, TypeScript PASS, measured lint improving from 5 errors/73 warnings to 5/72 with zero changed-line/new-file findings, and `git diff --check` PASS
+- recorded the exact browser proof honestly: 86/86 actions, 4 checkpoints, 1 screenshot, five protected regression groups, zero non-loopback attempts, zero real API-route requests, and complete cleanup; Drawing Save was not in the automated action set, while Arthur's separate manual Save verification remains human evidence only
+- recorded the four bounded proof-checker corrections included in the accepted 27 paths: stable driver-key ordering; closeout-safe validation; shared UTF-8 byte-wise canonical path order for observed/expected inventories with strict equality and a passing mixed-case self-test; and internal `phase-2-closeout` propagation through `validateV2Evidence → validateExtensionResult → loadTesterExtensionGraph`, which observes exact live 36-path state while validating the archived runner as the original 27-path technical state and exposes no public relaxed CLI mode
+- marked Phase 2 **Verified and accepted; ready for publication; not yet published/integrated**; kept Phase 3 and later phases Unauthorized/Not started, SPEC-0002 complete/protected, and SPEC-0003 Proposed/inactive in its separate untouched worktree
+- opened GIT-017 for the separate exact 36-path publication step: 27 frozen technical paths plus nine canonical record paths
+
+This is accepted-result control-plane propagation and tracked-state closeout only. The accepted technical bytes remain unchanged. No stage, commit, merge, push, publication, deployment, OpenAI/provider/search/Supabase/paid/external request, Stick AI, Stick Save/Open, Stick Undo/Redo, Phase 3 work, SPEC-0002 change, SPEC-0003 change, other-worktree mutation, or recovery action occurred.
+
 ### 2026-08-17 — SPEC-0001 §10.4A publication activated for Phase 2 dispatch
 
 - recorded exact canonical-main commit `e07268cc80751baba99ac6708a1e8a93d4fc4756` as the Verified, published, and integrated §10.4A technical/publication prerequisite and tested runtime/proof foundation; preserved accepted technical-manifest SHA-256 `53202d21ba7248e46a3e3423a623fbc785b5c3beedd6dd4d2a984b37614cffe8` and closeout SHA-256 `8972c63420728183ad27454cb5484ab0859361b8fd92797f0531bdc79a773b30`

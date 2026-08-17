@@ -1,0 +1,14 @@
+{
+  "fixtureVersion": 1,
+  "keyframeGuidance": "Drag any joint to adjust this body position.",
+  "heldGuidanceTemplate": "Editing the keyframe used by Frames {start}–{end}.",
+  "blankGuidance": "This keyframe is blank. Start this body position from the previous pose.",
+  "lineHead": {"rule": "line-head-80-v1", "styleToken": "normal-body-line", "length": 80, "storedShape": false, "separateHitTarget": false},
+  "editableRoles": ["head", "neck", "hip", "leftElbow", "leftHand", "rightElbow", "rightHand", "leftKnee", "leftFoot", "rightKnee", "rightFoot"],
+  "highlightCases": [
+    {"origin": "fresh", "alwaysOnRole": null, "persistedSelection": false},
+    {"origin": "manual", "alwaysOnRole": null, "persistedSelection": false},
+    {"origin": "fixture", "alwaysOnRole": null, "persistedSelection": false},
+    {"origin": "ai-applied", "alwaysOnRole": null, "persistedSelection": false}
+  ]
+}

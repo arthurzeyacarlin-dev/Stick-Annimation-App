@@ -1,0 +1,15 @@
+{
+  "fixtureVersion": 1,
+  "cases": [
+    {"state": "bootstrap-pending", "documentControlsVisible": false, "authoringEnabled": false, "creatorEnabled": false, "copy": "Preparing this Stick project…"},
+    {"state": "bootstrap-failed", "documentControlsVisible": false, "authoringEnabled": false, "creatorEnabled": false, "copy": "This Stick project could not be prepared safely. Retry."},
+    {"state": "mounted-pending", "documentControlsVisible": true, "authoringEnabled": false, "creatorEnabled": false, "copy": "Preparing this Stick project…"},
+    {"state": "mounted-failed", "documentControlsVisible": true, "authoringEnabled": false, "creatorEnabled": false, "copy": "This Stick project could not be prepared safely. Retry."},
+    {"state": "fresh-ready", "documentControlsVisible": true, "authoringEnabled": true, "creatorEnabled": true, "fps": 12},
+    {"state": "selected-blank", "documentControlsVisible": true, "authoringEnabled": true, "creatorEnabled": false, "startPoseEnabled": true},
+    {"state": "manual-complete", "documentControlsVisible": true, "authoringEnabled": true, "creatorEnabled": false, "fps": 12},
+    {"state": "bounded-non-wave", "documentControlsVisible": true, "authoringEnabled": true, "creatorEnabled": false, "fps": 18, "waveClaim": false}
+  ],
+  "alwaysUnavailable": ["Insert Keyframe", "Add Layer", "Remove Layer", "Remove Frame", "Add Limb", "Clear Canvas", "Save", "Save As", "Open", "Undo", "Redo", "Lasso", "Brush", "Eraser", "Fill", "Text", "Knife"],
+  "creatorLockedCopy": "Creator opens a separate workspace and cannot return to this Workspace session. Return Home and start a new Stick project to use Creator."
+}

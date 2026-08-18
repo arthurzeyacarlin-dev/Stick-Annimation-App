@@ -524,7 +524,10 @@ const recordV2 = (
   };
   const allBindingPaths = Object.values(bindingPathsByKind).flat();
   if (new Set(allBindingPaths).size !== allBindingPaths.length) throw new Error("Version 2 evidence binding paths must be unique across categories.");
-  if (typeof config.browserEvidenceInput !== "string" || !config.browserEvidenceInput.startsWith(`output/spec-0001/phase-${args.phase}/`) ||
+  const acceptedBrowserRoots = args.phase === 2
+    ? ["output/spec-0001/phase-2/", "output/spec-0001/phase-2-ui-restoration-correction/"]
+    : [`output/spec-0001/phase-${args.phase}/`];
+  if (typeof config.browserEvidenceInput !== "string" || !acceptedBrowserRoots.some((root) => (config.browserEvidenceInput as string).startsWith(root)) ||
     relative(ROOT, resolve(ROOT, config.browserEvidenceInput)) !== config.browserEvidenceInput || config.browserEvidenceInput.includes("\\")) {
     throw new Error("Version 2 browserEvidenceInput must use the selected phase output root.");
   }
@@ -630,7 +633,11 @@ const recordV2 = (
   if (typeof npmPackage.version !== "string" || npmPackage.version.length === 0) throw new Error("Unable to bind the Node-runtime npm version.");
   const bindingManifest = Object.fromEntries(Object.entries(bindingPathsByKind).map(([kind, paths]) => [kind, paths.map(v2FileBinding)]));
   const artifacts = [...new Map(
-    [...collectArtifacts(args.commands, commands, allBindingPaths, config.browserEvidenceInput, 2), ...generatedArtifacts]
+    [
+      ...collectArtifacts(args.commands, commands, allBindingPaths, config.browserEvidenceInput, 2),
+      ...generatedArtifacts,
+      v2FileBinding(config.browserEvidenceInput),
+    ]
       .map((binding) => [binding.path, binding]),
   ).values()].sort((left, right) => left.path.localeCompare(right.path));
   const manifest = {

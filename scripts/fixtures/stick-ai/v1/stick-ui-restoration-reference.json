@@ -1,0 +1,28 @@
+{
+  "historicalCommit": "68338d54542bbfd3fb1f0fab06548f0424871f80",
+  "viewports": [
+    {"width": 1440, "height": 900},
+    {"width": 1024, "height": 768}
+  ],
+  "shell": {
+    "topBarHeight": 44,
+    "timelineCellWidth": 17,
+    "timelineRulerHeight": 10,
+    "timelineLayerRowHeight": 38,
+    "timelineLeftRailHeight": 54,
+    "rightPanelTabs": ["Stick Figure Tools", "Properties", "Library", "Assets"]
+  },
+  "historicalFileSha256": {
+    "src/components/workspace/stickfigure/StickFigureCanvas.tsx": "825a50af3639effe5d634759ba7fca0177647600b17b1d9f5379ac841bea98db",
+    "src/components/workspace/stickfigure/StickFigureRightPanel.tsx": "afcb6feed5f7c6f5fc7060cd7341b9ffba547e8ca6b9c7921e1428e03b4a8aa3",
+    "src/components/workspace/stickfigure/StickFigureTimelineRow.tsx": "5f0bbfff2a660b237329f5cb9163c604fe9de077a4224d9cb9fc0899b70252d8",
+    "src/components/workspace/stickfigure/StickFigureToolBar.tsx": "af53e1eebccf04930a224058ca57b6f6925517844f4690a4a1d3cc912cc39c27",
+    "src/components/workspace/stickfigure/StickFigureTopBar.tsx": "2b65245c8646339a58e37038d72c592c45298e307a5bbe965b6214ba7b3214a2",
+    "src/components/workspace/stickfigure/StickFigureWorkspace.tsx": "014ef472cbd46674663d5a7462ca1b0e704bbc8f35e739b193d7d09447875654"
+  },
+  "permittedVisualDifferences": [
+    "timeline authored-state markers",
+    "timeline context-menu actions",
+    "user-authored canvas content"
+  ]
+}

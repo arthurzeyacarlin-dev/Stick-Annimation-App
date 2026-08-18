@@ -1,0 +1,20 @@
+{
+  "mutableCategories": [
+    "figures-array",
+    "figure-object",
+    "structure-graph",
+    "joints-array",
+    "joint-object",
+    "limbs-array",
+    "limb-object"
+  ],
+  "protectedOwners": [
+    "source-keyframe",
+    "sibling-keyframe",
+    "clipboard",
+    "other-layer",
+    "original-fixture"
+  ],
+  "holdRule": "selected hold edits only its controlling keyframe",
+  "insertRule": "inserted keyframe is deeply independent before later edit"
+}

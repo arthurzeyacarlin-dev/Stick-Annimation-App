@@ -1,0 +1,24 @@
+{
+  "fresh": {
+    "fps": 12,
+    "layerCount": 1,
+    "frameTypes": ["blank-keyframe"],
+    "playbackFrameCount": 1
+  },
+  "operations": [
+    {"name": "insert-frame", "expectedTypes": ["keyframe", "hold"]},
+    {"name": "insert-keyframe", "expectedTypes": ["keyframe", "keyframe", "hold"]},
+    {"name": "insert-blank-keyframe", "expectedTypes": ["keyframe", "blank-keyframe", "keyframe", "hold"]},
+    {"name": "remove-frame", "expectedTypes": ["keyframe", "keyframe", "hold"]},
+    {"name": "span-extend", "expectedTypes": ["keyframe", "hold", "hold"]},
+    {"name": "span-collapse", "expectedTypes": ["keyframe"]}
+  ],
+  "invalidCases": [
+    "unknown-layer",
+    "negative-index",
+    "remove-empty",
+    "resize-before-owner",
+    "resize-over-authored-cell",
+    "delete-last-layer"
+  ]
+}

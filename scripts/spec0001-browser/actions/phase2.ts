@@ -1,6 +1,6 @@
 export default {
   declarationVersion: 1,
-  adapterId: "phase-2-independent-stick-state",
+  adapterId: "phase-2-ui-restoration-correction",
   authorizationId: "phase-2/v1",
   adapterKind: "phase-2-product-ports/v1",
   executionProfile: "phase2-workspace-ports/v1",

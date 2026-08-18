@@ -30,6 +30,28 @@ export type StickFigureStructureGraph = {
   activeJointId: string | null;
 };
 
+export type StickFigureFrameContent = {
+  figures: StickFigureFigureItem[];
+  structureGraph: StickFigureStructureGraph;
+};
+
+export const createEmptyStickFigureFrameContent = (): StickFigureFrameContent => ({
+  figures: [],
+  structureGraph: {joints: [], limbs: [], activeJointId: null},
+});
+
+export const cloneStickFigureFrameContent = (content: StickFigureFrameContent): StickFigureFrameContent => ({
+  figures: content.figures.map((figure) => ({...figure})),
+  structureGraph: {
+    joints: content.structureGraph.joints.map((joint) => ({...joint})),
+    limbs: content.structureGraph.limbs.map((limb) => ({...limb})),
+    activeJointId: content.structureGraph.activeJointId,
+  },
+});
+
+export const isStickFigureFrameContentEmpty = (content: StickFigureFrameContent) =>
+  content.figures.length === 0 && content.structureGraph.joints.length === 0 && content.structureGraph.limbs.length === 0;
+
 export type StickFigureStructureTool = "idle" | "addLimb";
 
 export type StickFigureStructureSegmentDraft = {

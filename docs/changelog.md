@@ -5,6 +5,25 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-18 — SPEC-0001 §10.5A correction accepted and closed out for publication review
+
+- took exclusive Control Plane Architect ownership after complete executor shutdown and Arthur/Project Manager acceptance; verified dedicated branch `codex/spec0001-phase-2-ui-correction`, exact base/HEAD `1f9746a6188e5e13aca1fbd62bea2e1e27bba627`, exactly 20 accepted implementation/proof paths, empty index, and unchanged accepted hashes
+- revalidated `output/spec-0001/phase-2/proof-manifest.json` at SHA-256 `edda3028b9fbe2759e31059455f16cc3ee02ac9b242149107454071dae62de90`; retained the registered 15/15-action, two-screenshot, five-protected-group browser pass plus 311 deterministic timeline assertions, 631 Phase 1 regressions, TypeScript, focused/measured lint, and diff evidence
+- completed the fail-closed applicability audit with zero protected Drawing/SPEC-0002/Open/storage/`app/page.tsx` or relevant shared-dependency runtime-byte diff; recorded the obsolete historical SPEC-0002 command as `not-applicable`, never passed, and excluded both temporary alternate harness failures from accepted proof
+- accepted the separately reviewed one-file `scripts/finalizeSpec0001ProofBundle.ts` repair at SHA-256 `e6795e9f686117d89824bea4f9de3ed766077ba9a8d00c51c27b074708c396f9`; its explicit `--purpose=phase-2-ui-restoration-correction` mode preserves the historical/default finalizer, binds the exact 29-path state and accepted technical/protected/browser evidence, creates the ignored correction-specific closeout, and revalidates it without claiming the frozen SPEC-0002 command passed
+- reconciled the seven reviewed Spec Architect documents, deterministically regenerated `project/project_structure.txt` through `bash scripts/update_memory.sh`, recorded D-0018's exact future Phase 3 onion contract, and marked §10.5A **Verified and accepted in this worktree; pending separate publication/integration** while Phase 3 remains Unauthorized/Not started
+
+This is accepted-result control-plane propagation and closeout only. Accepted runtime, fixture, technical-test, browser-plan, recorder, validator, and deterministic-test bytes remain unchanged; the only proof-script difference is the separately accepted finalizer repair recorded above. Nothing was staged, committed, merged, pushed, published, deployed, or sent to any external/provider/search/Supabase service.
+
+### 2026-08-18 — §10.5A proof applicability and Phase 3 Stick onion behavior specified
+
+- made Arthur's visibly accepted, stopped §10.5A executor evidence eligible for later PM/Control Plane Architect closeout without propagating its 20 dirty paths or marking the correction Verified/published/integrated; recorded the registered 15/15 actions, two compact screenshots, five protected groups, and proof-manifest SHA-256 `edda3028b9fbe2759e31059455f16cc3ee02ac9b242149107454071dae62de90`
+- recorded the obsolete SPEC-0002 command as `not-applicable`, not passed, because its frozen expected SPEC-0001 runner SHA-256 `b15c9024146fa3155d319f67864e618afa72d6567ec62091aa34bd12ea42560d` differs from current `17056ea7b6bedcc297f57f3a7fc3f681a52ace23567921097ddf9bdf82ed97da`; required exact zero protected-runtime diff, published SPEC-0002 proof, Arthur's human Drawing Save check, and current protected groups as replacement evidence, with any relevant diff/failure blocking closeout
+- added D-0018 and amended still-Unauthorized Phase 3 so the existing Stick Onion button will render Drawing-consistent nearest-distinct active-layer overlays with exact previous/next tints, hold skipping, blank boundaries, duplicate collapse, playback/OFF suppression, non-interactivity, origin-independent rendering, and zero project/history/storage/digest/AI mutation
+- removed onion skin from the later tween/interpolation deferral while keeping tweening, automatic in-betweens, easing, and motion frames deferred; preserved Drawing, SPEC-0002, SPEC-0003, runtime/tests/config/dependencies, external services, Git history, and every other worktree
+
+This is a documentation/specification amendment only. SPEC-0001 remains Approved/active; §10.5A retains its canonical Approved/Authorized/Not started label in this task; Phase 3 remains Unauthorized/Not started. Nothing was staged, committed, pushed, published, or implemented.
+
 ### 2026-08-18 — SPEC-0001 §10.5A correction approved and authorized
 
 - recorded Arthur's rejection of the published Phase 2 visible result and approval of §10.5A through durable decision D-0017

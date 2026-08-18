@@ -24,15 +24,28 @@ import {
   beginStickDocumentPublication,
   completeStickBootstrap,
   completeStickDocumentPublication,
+  addEditableStickLayer,
+  copyEditableStickTimelineFrame,
+  createFreshEditableStickTimelineState,
+  deleteEditableStickLayer,
   createStickBootstrapRoot,
   createStickWaveStarterV1,
   failStickBootstrap,
   failStickDocumentPublication,
   projectPointFromClient,
+  getEditableStickPlaybackFrameCount,
+  insertEditableStickTimelineFrame,
+  pasteEditableStickTimelineFrame,
+  removeEditableStickTimelineFrame,
+  replaceEditableStickResolvedContent,
+  resizeEditableStickTimelineSpan,
+  resolveEditableStickContent,
   resolveStickTimelinePose,
   retryStickDocumentPublication,
   roundedClampedJointPoint,
 } from "../src/lib/stickfigure/stickTimeline.ts";
+import {cloneStickFigureFrameContent} from "../src/components/workspace/stickfigure/types.ts";
+import type {StickFigureFrameContent} from "../src/components/workspace/stickfigure/types.ts";
 
 const readJson = <T>(path: string): T => JSON.parse(readFileSync(path, "utf8")) as T;
 const fixtureRoot = "scripts/fixtures/stick-ai/v1";
@@ -247,13 +260,109 @@ check(retried.rootStatus === "mounted" && retried.documentPublication.status ===
 if (retried.rootStatus !== "mounted") throw new Error("Retry root narrowing failed.");
 equal(retried.workspaceGeneration, failed.workspaceGeneration, "Retry must not increment generation.");
 
-const correctionCopy = readJson<{editableRoles: string[]; lineHead: {storedShape: boolean; separateHitTarget: boolean}; highlightCases: Array<{alwaysOnRole: null; persistedSelection: boolean}>}>(`${fixtureRoot}/stick-correction-affordance-cases.json`);
-equal(correctionCopy.editableRoles, STICK_JOINT_ROLES, "Correction affordance roles drifted.");
-equal(correctionCopy.lineHead, {...correctionCopy.lineHead, storedShape: false, separateHitTarget: false}, "Line head must not be stored or separately targeted.");
-check(correctionCopy.highlightCases.every((item) => item.alwaysOnRole === null && item.persistedSelection === false), "Permanent role highlights are forbidden.");
-const controls = readJson<{cases: unknown[]; alwaysUnavailable: string[]; creatorLockedCopy: string}>(`${fixtureRoot}/stick-control-disposition-cases.json`);
-equal(controls.cases.length, 8, "Control disposition matrix drifted.");
-check(controls.alwaysUnavailable.includes("Undo") && controls.alwaysUnavailable.includes("Save") && controls.alwaysUnavailable.includes("Add Limb"), "Unavailable controls are incomplete.");
-equal(controls.creatorLockedCopy, "Creator opens a separate workspace and cannot return to this Workspace session. Return Home and start a new Stick project to use Creator.", "Creator lock copy drifted.");
+const editableCases = readJson<{
+  fresh: {fps: number; layerCount: number; frameTypes: string[]; playbackFrameCount: number};
+  operations: Array<{name: string; expectedTypes: string[]}>;
+  invalidCases: string[];
+}>(`${fixtureRoot}/stick-editable-timeline-cases.json`);
+const aliasMatrix = readJson<{
+  mutableCategories: string[];
+  protectedOwners: string[];
+  holdRule: string;
+  insertRule: string;
+}>(`${fixtureRoot}/stick-editable-timeline-alias-cases.json`);
 
-console.log(`Stick pose timeline validation PASS: ${assertions} assertions, 13 manual actions, 12 cell resolutions, 22 all-joint correction cases, 0 history entries.`);
+const frameTypes = (state: ReturnType<typeof createFreshEditableStickTimelineState>, layerId = state.activeLayerId) =>
+  state.layers.find((layer) => layer.id === layerId)!.frames.map((frame) => frame.cellType);
+const expectedOperation = (name: string) => editableCases.operations.find((item) => item.name === name)!.expectedTypes;
+const authoredContent: StickFigureFrameContent = {
+  figures: [{id: "figure-1", name: "Figure 1", x: 20, y: 30, scale: 1, rotation: 0}],
+  structureGraph: {
+    joints: [{id: "joint-1", x: 100, y: 110}, {id: "joint-2", x: 160, y: 210}],
+    limbs: [{id: "limb-1", startJointId: "joint-1", endJointId: "joint-2"}],
+    activeJointId: "joint-2",
+  },
+};
+
+let editable = createFreshEditableStickTimelineState();
+equal(editable.fps, editableCases.fresh.fps, "Fresh editable FPS drifted.");
+equal(editable.layers.length, editableCases.fresh.layerCount, "Fresh editable layer count drifted.");
+equal(frameTypes(editable), editableCases.fresh.frameTypes, "Fresh editable timeline must contain one blank keyframe.");
+equal(getEditableStickPlaybackFrameCount(editable), editableCases.fresh.playbackFrameCount, "Fresh playback span drifted.");
+equal(resolveEditableStickContent(editable, editable.activeLayerId, 0)!.content, {figures: [], structureGraph: {joints: [], limbs: [], activeJointId: null}}, "Fresh editable content must be empty.");
+
+editable = replaceEditableStickResolvedContent(editable, editable.activeLayerId, 0, authoredContent)!;
+const originalAuthoredBytes = canonicalJson(resolveEditableStickContent(editable, editable.activeLayerId, 0)!.content);
+editable = insertEditableStickTimelineFrame(editable, editable.activeLayerId, "frame", 0)!;
+equal(frameTypes(editable), expectedOperation("insert-frame"), "Insert Frame must add one hold after the authored span.");
+equal(resolveEditableStickContent(editable, editable.activeLayerId, 1)!.ownerIndex, 0, "Held frame owner drifted.");
+
+editable = insertEditableStickTimelineFrame(editable, editable.activeLayerId, "keyframe", 0)!;
+equal(frameTypes(editable), expectedOperation("insert-keyframe"), "Insert Keyframe shift/hold normalization drifted.");
+const sourceContent = resolveEditableStickContent(editable, editable.activeLayerId, 0)!.content;
+const clonedContent = resolveEditableStickContent(editable, editable.activeLayerId, 1)!.content;
+check(sourceContent !== clonedContent, "Inserted keyframe content must not alias its source.");
+check(sourceContent.figures !== clonedContent.figures && sourceContent.figures[0] !== clonedContent.figures[0], "Inserted figure containers must be deep independent.");
+check(sourceContent.structureGraph !== clonedContent.structureGraph, "Inserted structure graph must be deep independent.");
+check(sourceContent.structureGraph.joints !== clonedContent.structureGraph.joints && sourceContent.structureGraph.joints[0] !== clonedContent.structureGraph.joints[0], "Inserted joint containers must be deep independent.");
+check(sourceContent.structureGraph.limbs !== clonedContent.structureGraph.limbs && sourceContent.structureGraph.limbs[0] !== clonedContent.structureGraph.limbs[0], "Inserted limb containers must be deep independent.");
+const movedClone = cloneStickFigureFrameContent(clonedContent);
+movedClone.figures[0].x += 9;
+movedClone.structureGraph.joints[0].x += 17;
+editable = replaceEditableStickResolvedContent(editable, editable.activeLayerId, 1, movedClone)!;
+equal(canonicalJson(resolveEditableStickContent(editable, editable.activeLayerId, 0)!.content), originalAuthoredBytes, "Editing an inserted keyframe mutated its source.");
+
+editable = insertEditableStickTimelineFrame(editable, editable.activeLayerId, "keyframe", 0, {blank: true})!;
+equal(frameTypes(editable), expectedOperation("insert-blank-keyframe"), "Insert Blank Keyframe shift semantics drifted.");
+equal(resolveEditableStickContent(editable, editable.activeLayerId, 1)!.content, {figures: [], structureGraph: {joints: [], limbs: [], activeJointId: null}}, "Blank keyframe must have empty content.");
+editable = removeEditableStickTimelineFrame(editable, editable.activeLayerId, 1)!;
+equal(frameTypes(editable), expectedOperation("remove-frame"), "Remove Frame must collapse exactly the resolved state span.");
+
+const clipboard = copyEditableStickTimelineFrame(editable, editable.activeLayerId, 0)!;
+check(clipboard !== resolveEditableStickContent(editable, editable.activeLayerId, 0)!.content, "Clipboard content must be detached.");
+clipboard.figures[0].y += 5;
+equal(canonicalJson(resolveEditableStickContent(editable, editable.activeLayerId, 0)!.content), originalAuthoredBytes, "Mutating the clipboard changed its source.");
+const clipboardBytes = canonicalJson(clipboard);
+editable = pasteEditableStickTimelineFrame(editable, editable.activeLayerId, 2, clipboard)!;
+const pasted = resolveEditableStickContent(editable, editable.activeLayerId, 2)!.content;
+check(pasted !== clipboard && pasted.figures !== clipboard.figures && pasted.figures[0] !== clipboard.figures[0], "Pasted figures must not alias the clipboard.");
+check(pasted.structureGraph !== clipboard.structureGraph && pasted.structureGraph.joints[0] !== clipboard.structureGraph.joints[0] && pasted.structureGraph.limbs[0] !== clipboard.structureGraph.limbs[0], "Pasted graph members must not alias the clipboard.");
+const changedPaste = cloneStickFigureFrameContent(pasted);
+changedPaste.structureGraph.limbs[0].endJointId = "joint-1";
+editable = replaceEditableStickResolvedContent(editable, editable.activeLayerId, 2, changedPaste)!;
+equal(canonicalJson(clipboard), clipboardBytes, "Editing pasted content mutated the clipboard.");
+
+let spanState = replaceEditableStickResolvedContent(createFreshEditableStickTimelineState(), "stick-layer-1", 0, authoredContent)!;
+const spanStateId = spanState.layers[0].frames[0].stateId;
+spanState = resizeEditableStickTimelineSpan(spanState, "stick-layer-1", spanStateId, 2)!;
+equal(frameTypes(spanState), expectedOperation("span-extend"), "Span extension must create holds only.");
+const heldEdit = cloneStickFigureFrameContent(resolveEditableStickContent(spanState, "stick-layer-1", 2)!.content);
+heldEdit.structureGraph.joints[1].y += 31;
+spanState = replaceEditableStickResolvedContent(spanState, "stick-layer-1", 2, heldEdit)!;
+equal(resolveEditableStickContent(spanState, "stick-layer-1", 2)!.ownerIndex, 0, "Held edit must retain the controlling keyframe.");
+equal(resolveEditableStickContent(spanState, "stick-layer-1", 0)!.content.structureGraph.joints[1].y, authoredContent.structureGraph.joints[1].y + 31, "Held edit must update its controlling keyframe.");
+spanState = resizeEditableStickTimelineSpan(spanState, "stick-layer-1", spanStateId, 0)!;
+equal(frameTypes(spanState), expectedOperation("span-collapse"), "Span collapse must remove only its holds.");
+
+const firstLayerBytes = canonicalJson(resolveEditableStickContent(editable, editable.layers[0].id, 0)!.content);
+const withLayer = addEditableStickLayer(editable);
+equal(withLayer.layers.length, 2, "+ Layer must add exactly one layer.");
+equal(frameTypes(withLayer, withLayer.activeLayerId), ["blank-keyframe"], "New layer must start with one blank keyframe.");
+equal(canonicalJson(resolveEditableStickContent(withLayer, withLayer.layers[0].id, 0)!.content), firstLayerBytes, "Adding a layer mutated the prior layer.");
+const afterDelete = deleteEditableStickLayer(withLayer, withLayer.activeLayerId)!;
+equal(afterDelete.layers.length, 1, "Delete Layer must remove only the targeted layer.");
+equal(afterDelete.activeLayerId, afterDelete.layers[0].id, "Delete Layer must repair the active layer.");
+
+check(insertEditableStickTimelineFrame(editable, "missing-layer", "frame", 0) === null, "Unknown-layer insertion must reject.");
+check(insertEditableStickTimelineFrame(editable, editable.activeLayerId, "frame", -1) === null, "Negative insertion index must reject.");
+const emptyExtended = insertEditableStickTimelineFrame(createFreshEditableStickTimelineState(), "stick-layer-1", "keyframe", 3, {blank: true})!;
+check(removeEditableStickTimelineFrame(emptyExtended, "stick-layer-1", 1) === null, "Removing an empty cell must reject.");
+check(resizeEditableStickTimelineSpan(spanState, "stick-layer-1", spanStateId, -1) === null, "Resize before owner must reject.");
+const authoredNeighbor = insertEditableStickTimelineFrame(replaceEditableStickResolvedContent(createFreshEditableStickTimelineState(), "stick-layer-1", 0, authoredContent)!, "stick-layer-1", "keyframe", 0)!;
+check(resizeEditableStickTimelineSpan(authoredNeighbor, "stick-layer-1", authoredNeighbor.layers[0].frames[0].stateId, 1) === null, "Resize over authored content must reject.");
+check(deleteEditableStickLayer(createFreshEditableStickTimelineState(), "stick-layer-1") === null, "Deleting the last layer must reject.");
+equal(editableCases.invalidCases.length, 6, "Editable invalid-case inventory drifted.");
+equal(aliasMatrix.mutableCategories.length, 7, "Alias matrix must enumerate every current mutable nested category.");
+equal(aliasMatrix.protectedOwners.length, 5, "Alias matrix protected-owner inventory drifted.");
+
+console.log(`Stick pose timeline validation PASS: ${assertions} assertions, rejected Phase 2 contract regression plus editable timeline isolation/alias/hold/layer vectors, 0 history entries.`);

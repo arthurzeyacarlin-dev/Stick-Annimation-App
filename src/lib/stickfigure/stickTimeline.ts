@@ -22,6 +22,12 @@ import type {
   StickWorkspaceBootstrapRootV1,
   StickWorkspaceRootPhase2V1,
 } from "./stickProjectContract.ts";
+import {
+  cloneStickFigureFrameContent,
+  createEmptyStickFigureFrameContent,
+  isStickFigureFrameContentEmpty,
+} from "../../components/workspace/stickfigure/types.ts";
+import type {StickFigureFrameContent} from "../../components/workspace/stickfigure/types.ts";
 
 export type StickCompletedJointEditV1 = {
   baseWorkspaceInstanceId: string;
@@ -400,3 +406,352 @@ export const rootDocument = (root: StickWorkspaceRootPhase2V1) => root.rootStatu
 
 export const rootReady = (root: StickWorkspaceRootPhase2V1) =>
   root.rootStatus === "mounted" && root.documentPublication.status === "ready";
+
+export type EditableStickFrameKind = "frame" | "keyframe" | "tween";
+export type EditableStickCellType = "empty" | "keyframe" | "blank-keyframe" | "hold" | "tween";
+
+export type EditableStickTimelineFrame = {
+  id: number;
+  kind: EditableStickFrameKind;
+  cellType: EditableStickCellType;
+  stateId: number;
+  isBlank: boolean;
+  hasTweenEndpoint: false;
+  content?: StickFigureFrameContent;
+};
+
+export type EditableStickTimelineLayer = {
+  id: string;
+  name: string;
+  frames: EditableStickTimelineFrame[];
+};
+
+export type EditableStickTimelineState = {
+  fps: number;
+  layers: EditableStickTimelineLayer[];
+  activeLayerId: string;
+  currentFrameIndex: number;
+  selectedTimelineIndex: number;
+  nextFrameId: number;
+  nextStateId: number;
+  nextLayerNumber: number;
+};
+
+export type EditableStickResolvedContent = {
+  layer: EditableStickTimelineLayer;
+  selectedFrame: EditableStickTimelineFrame;
+  selectedIndex: number;
+  ownerFrame: EditableStickTimelineFrame;
+  ownerIndex: number;
+  spanEndIndex: number;
+  content: StickFigureFrameContent;
+};
+
+const editableFrame = (
+  id: number,
+  cellType: EditableStickCellType,
+  stateId: number,
+  content?: StickFigureFrameContent,
+): EditableStickTimelineFrame => ({
+  id,
+  kind: cellType === "keyframe" || cellType === "blank-keyframe" ? "keyframe" : "frame",
+  cellType,
+  stateId,
+  isBlank: cellType === "blank-keyframe",
+  hasTweenEndpoint: false,
+  ...(content ? {content: cloneStickFigureFrameContent(content)} : {}),
+});
+
+const emptyEditableFrame = (id: number) => editableFrame(id, "empty", id);
+
+export const cloneEditableStickFrame = (frame: EditableStickTimelineFrame): EditableStickTimelineFrame => ({
+  ...frame,
+  ...(frame.content ? {content: cloneStickFigureFrameContent(frame.content)} : {}),
+});
+
+export const cloneEditableStickTimelineState = (state: EditableStickTimelineState): EditableStickTimelineState => ({
+  ...state,
+  layers: state.layers.map((layer) => ({...layer, frames: layer.frames.map(cloneEditableStickFrame)})),
+});
+
+export const createFreshEditableStickTimelineState = (): EditableStickTimelineState => ({
+  fps: 12,
+  layers: [{
+    id: "stick-layer-1",
+    name: "Layer 1",
+    frames: [editableFrame(1, "blank-keyframe", 1, createEmptyStickFigureFrameContent())],
+  }],
+  activeLayerId: "stick-layer-1",
+  currentFrameIndex: 0,
+  selectedTimelineIndex: 0,
+  nextFrameId: 2,
+  nextStateId: 2,
+  nextLayerNumber: 2,
+});
+
+const isEditableStateStart = (frame?: EditableStickTimelineFrame | null) =>
+  frame?.cellType === "keyframe" || frame?.cellType === "blank-keyframe";
+
+const editableStateStartIndex = (frames: EditableStickTimelineFrame[], index: number) => {
+  const frame = frames[index];
+  if (!frame || frame.cellType === "empty") return -1;
+  if (isEditableStateStart(frame)) return index;
+  for (let cursor = index - 1; cursor >= 0; cursor -= 1) {
+    const candidate = frames[cursor];
+    if (candidate.stateId !== frame.stateId || candidate.cellType === "empty") return -1;
+    if (isEditableStateStart(candidate)) return cursor;
+  }
+  return -1;
+};
+
+const editableSpanEndIndex = (frames: EditableStickTimelineFrame[], ownerIndex: number) => {
+  const owner = frames[ownerIndex];
+  if (!owner || !isEditableStateStart(owner)) return ownerIndex;
+  let end = ownerIndex;
+  while (end + 1 < frames.length && frames[end + 1].cellType === "hold" && frames[end + 1].stateId === owner.stateId) end += 1;
+  return end;
+};
+
+export const resolveEditableStickContent = (
+  state: EditableStickTimelineState,
+  layerId: string,
+  index: number,
+): EditableStickResolvedContent | null => {
+  const layer = state.layers.find((candidate) => candidate.id === layerId);
+  const selectedFrame = layer?.frames[index];
+  if (!layer || !selectedFrame || selectedFrame.cellType === "empty") return null;
+  const ownerIndex = editableStateStartIndex(layer.frames, index);
+  const ownerFrame = layer.frames[ownerIndex];
+  if (ownerIndex < 0 || !ownerFrame || !isEditableStateStart(ownerFrame) || !ownerFrame.content) return null;
+  return {
+    layer,
+    selectedFrame,
+    selectedIndex: index,
+    ownerFrame,
+    ownerIndex,
+    spanEndIndex: editableSpanEndIndex(layer.frames, ownerIndex),
+    content: ownerFrame.content,
+  };
+};
+
+export const getEditableStickPlaybackFrameCount = (state: EditableStickTimelineState) =>
+  Math.max(1, ...state.layers.map((layer) => Math.max(1, layer.frames.length)));
+
+const ensureEditableFrameIndex = (state: EditableStickTimelineState, frames: EditableStickTimelineFrame[], targetIndex: number) => {
+  while (frames.length <= targetIndex) frames.push(emptyEditableFrame(state.nextFrameId++));
+};
+
+const previousEditableOwner = (frames: EditableStickTimelineFrame[], targetIndex: number) => {
+  for (let index = Math.min(targetIndex, frames.length - 1); index >= 0; index -= 1) {
+    const ownerIndex = editableStateStartIndex(frames, index);
+    if (ownerIndex >= 0) return ownerIndex;
+  }
+  return -1;
+};
+
+const normalizeEditableSelection = (state: EditableStickTimelineState) => {
+  const maxIndex = Math.max(0, getEditableStickPlaybackFrameCount(state) - 1);
+  state.currentFrameIndex = Math.max(0, Math.min(state.currentFrameIndex, maxIndex));
+  state.selectedTimelineIndex = Math.max(0, Math.min(state.selectedTimelineIndex, maxIndex));
+  if (!state.layers.some((layer) => layer.id === state.activeLayerId)) state.activeLayerId = state.layers[0]?.id ?? "stick-layer-1";
+};
+
+export const insertEditableStickTimelineFrame = (
+  source: EditableStickTimelineState,
+  layerId: string,
+  kind: "frame" | "keyframe",
+  targetIndex: number,
+  options?: {blank?: boolean},
+): EditableStickTimelineState | null => {
+  const state = cloneEditableStickTimelineState(source);
+  const layer = state.layers.find((candidate) => candidate.id === layerId);
+  if (!layer || targetIndex < 0) return null;
+  ensureEditableFrameIndex(state, layer.frames, targetIndex);
+  const target = layer.frames[targetIndex];
+  let nextIndex = targetIndex;
+  if (kind === "frame") {
+    if (target.cellType === "empty") {
+      const ownerIndex = previousEditableOwner(layer.frames, targetIndex - 1);
+      if (ownerIndex < 0) {
+        const content = createEmptyStickFigureFrameContent();
+        layer.frames[targetIndex] = editableFrame(target.id, "blank-keyframe", state.nextStateId++, content);
+      } else {
+        const owner = layer.frames[ownerIndex];
+        const sourceEnd = editableSpanEndIndex(layer.frames, ownerIndex);
+        for (let index = sourceEnd + 1; index <= targetIndex; index += 1) {
+          const existing = layer.frames[index];
+          layer.frames[index] = editableFrame(existing?.id ?? state.nextFrameId++, "hold", owner.stateId);
+        }
+      }
+    } else {
+      const ownerIndex = editableStateStartIndex(layer.frames, targetIndex);
+      if (ownerIndex < 0) return null;
+      const owner = layer.frames[ownerIndex];
+      const insertIndex = editableSpanEndIndex(layer.frames, ownerIndex) + 1;
+      layer.frames.splice(insertIndex, 0, editableFrame(state.nextFrameId++, "hold", owner.stateId));
+      nextIndex = insertIndex;
+    }
+  } else {
+    const resolved = resolveEditableStickContent(state, layerId, targetIndex) ?? (() => {
+      const ownerIndex = previousEditableOwner(layer.frames, targetIndex - 1);
+      return ownerIndex >= 0 ? resolveEditableStickContent(state, layerId, ownerIndex) : null;
+    })();
+    const content = options?.blank || !resolved ? createEmptyStickFigureFrameContent() : cloneStickFigureFrameContent(resolved.content);
+    const cellType = options?.blank || isStickFigureFrameContentEmpty(content) ? "blank-keyframe" : "keyframe";
+    const newStateId = state.nextStateId++;
+    if (target.cellType === "empty") {
+      layer.frames[targetIndex] = editableFrame(target.id, cellType, newStateId, content);
+    } else {
+      const previousStateId = target.stateId;
+      const insertIndex = targetIndex + 1;
+      layer.frames.splice(insertIndex, 0, editableFrame(state.nextFrameId++, cellType, newStateId, content));
+      for (let index = insertIndex + 1; index < layer.frames.length; index += 1) {
+        const trailing = layer.frames[index];
+        if (trailing.cellType !== "hold" || trailing.stateId !== previousStateId) break;
+        layer.frames[index] = editableFrame(trailing.id, "hold", newStateId);
+      }
+      nextIndex = insertIndex;
+    }
+  }
+  state.activeLayerId = layerId;
+  state.currentFrameIndex = nextIndex;
+  state.selectedTimelineIndex = nextIndex;
+  normalizeEditableSelection(state);
+  return state;
+};
+
+export const removeEditableStickTimelineFrame = (
+  source: EditableStickTimelineState,
+  layerId: string,
+  targetIndex: number,
+): EditableStickTimelineState | null => {
+  const state = cloneEditableStickTimelineState(source);
+  const layer = state.layers.find((candidate) => candidate.id === layerId);
+  if (!layer) return null;
+  const ownerIndex = editableStateStartIndex(layer.frames, targetIndex);
+  if (ownerIndex < 0) return null;
+  const endIndex = editableSpanEndIndex(layer.frames, ownerIndex);
+  const removedCount = endIndex - ownerIndex + 1;
+  layer.frames.splice(ownerIndex, removedCount);
+  if (layer.frames.length === 0) layer.frames.push(editableFrame(state.nextFrameId++, "blank-keyframe", state.nextStateId++, createEmptyStickFigureFrameContent()));
+  const repair = (value: number) => value >= ownerIndex && value <= endIndex ? ownerIndex : value > endIndex ? value - removedCount : value;
+  state.currentFrameIndex = repair(state.currentFrameIndex);
+  state.selectedTimelineIndex = repair(state.selectedTimelineIndex);
+  state.activeLayerId = layerId;
+  normalizeEditableSelection(state);
+  return state;
+};
+
+export const copyEditableStickTimelineFrame = (
+  state: EditableStickTimelineState,
+  layerId: string,
+  targetIndex: number,
+) => {
+  const resolved = resolveEditableStickContent(state, layerId, targetIndex);
+  return resolved ? cloneStickFigureFrameContent(resolved.content) : null;
+};
+
+export const pasteEditableStickTimelineFrame = (
+  source: EditableStickTimelineState,
+  layerId: string,
+  targetIndex: number,
+  clipboard: StickFigureFrameContent,
+): EditableStickTimelineState | null => {
+  const state = cloneEditableStickTimelineState(source);
+  const layer = state.layers.find((candidate) => candidate.id === layerId);
+  if (!layer || targetIndex < 0) return null;
+  ensureEditableFrameIndex(state, layer.frames, targetIndex);
+  const target = layer.frames[targetIndex];
+  const previousStateId = target.cellType === "empty" ? null : target.stateId;
+  const content = cloneStickFigureFrameContent(clipboard);
+  const stateId = state.nextStateId++;
+  layer.frames[targetIndex] = editableFrame(target.id, isStickFigureFrameContentEmpty(content) ? "blank-keyframe" : "keyframe", stateId, content);
+  if (previousStateId !== null) {
+    for (let index = targetIndex + 1; index < layer.frames.length; index += 1) {
+      const trailing = layer.frames[index];
+      if (trailing.cellType !== "hold" || trailing.stateId !== previousStateId) break;
+      layer.frames[index] = editableFrame(trailing.id, "hold", stateId);
+    }
+  }
+  state.activeLayerId = layerId;
+  state.currentFrameIndex = targetIndex;
+  state.selectedTimelineIndex = targetIndex;
+  normalizeEditableSelection(state);
+  return state;
+};
+
+export const resizeEditableStickTimelineSpan = (
+  source: EditableStickTimelineState,
+  layerId: string,
+  stateId: number,
+  nextEndIndex: number,
+): EditableStickTimelineState | null => {
+  const state = cloneEditableStickTimelineState(source);
+  const layer = state.layers.find((candidate) => candidate.id === layerId);
+  const ownerIndex = layer?.frames.findIndex((frame) => isEditableStateStart(frame) && frame.stateId === stateId) ?? -1;
+  if (!layer || ownerIndex < 0 || nextEndIndex < ownerIndex) return null;
+  const previousEnd = editableSpanEndIndex(layer.frames, ownerIndex);
+  if (nextEndIndex === previousEnd) return null;
+  if (nextEndIndex > previousEnd) {
+    ensureEditableFrameIndex(state, layer.frames, nextEndIndex);
+    for (let index = previousEnd + 1; index <= nextEndIndex; index += 1) {
+      if (layer.frames[index].cellType !== "empty") return null;
+    }
+    for (let index = previousEnd + 1; index <= nextEndIndex; index += 1) layer.frames[index] = editableFrame(layer.frames[index].id, "hold", stateId);
+  } else {
+    layer.frames.splice(nextEndIndex + 1, previousEnd - nextEndIndex);
+  }
+  state.activeLayerId = layerId;
+  state.currentFrameIndex = Math.min(state.currentFrameIndex, nextEndIndex);
+  state.selectedTimelineIndex = nextEndIndex;
+  normalizeEditableSelection(state);
+  return state;
+};
+
+export const addEditableStickLayer = (source: EditableStickTimelineState): EditableStickTimelineState => {
+  const state = cloneEditableStickTimelineState(source);
+  const layerId = `stick-layer-${state.nextLayerNumber}`;
+  const layer = {
+    id: layerId,
+    name: `Layer ${state.nextLayerNumber}`,
+    frames: [editableFrame(state.nextFrameId++, "blank-keyframe", state.nextStateId++, createEmptyStickFigureFrameContent())],
+  };
+  state.nextLayerNumber += 1;
+  const activeIndex = state.layers.findIndex((candidate) => candidate.id === state.activeLayerId);
+  state.layers.splice(activeIndex >= 0 ? activeIndex + 1 : state.layers.length, 0, layer);
+  state.activeLayerId = layerId;
+  state.currentFrameIndex = 0;
+  state.selectedTimelineIndex = 0;
+  return state;
+};
+
+export const deleteEditableStickLayer = (
+  source: EditableStickTimelineState,
+  layerId: string,
+): EditableStickTimelineState | null => {
+  if (source.layers.length <= 1) return null;
+  const state = cloneEditableStickTimelineState(source);
+  const index = state.layers.findIndex((candidate) => candidate.id === layerId);
+  if (index < 0) return null;
+  state.layers.splice(index, 1);
+  state.activeLayerId = state.layers[Math.min(index, state.layers.length - 1)].id;
+  normalizeEditableSelection(state);
+  return state;
+};
+
+export const replaceEditableStickResolvedContent = (
+  source: EditableStickTimelineState,
+  layerId: string,
+  selectedIndex: number,
+  nextContent: StickFigureFrameContent,
+): EditableStickTimelineState | null => {
+  const state = cloneEditableStickTimelineState(source);
+  const resolved = resolveEditableStickContent(state, layerId, selectedIndex);
+  if (!resolved) return null;
+  resolved.ownerFrame.content = cloneStickFigureFrameContent(nextContent);
+  resolved.ownerFrame.cellType = isStickFigureFrameContentEmpty(nextContent) ? "blank-keyframe" : "keyframe";
+  resolved.ownerFrame.kind = "keyframe";
+  resolved.ownerFrame.isBlank = resolved.ownerFrame.cellType === "blank-keyframe";
+  state.activeLayerId = layerId;
+  return state;
+};

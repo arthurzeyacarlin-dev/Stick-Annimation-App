@@ -868,7 +868,10 @@ const validateV2CommandConfig = (value: unknown, phase: number, base: string) =>
   })) as Record<"sources" | "fixtures" | "schemas" | "harness" | "plans", string[]>;
   const everyBindingPath = Object.values(bindingPaths).flat();
   assert.equal(new Set(everyBindingPath).size, everyBindingPath.length, "Version 2 binding paths must be unique across categories.");
-  assert.ok(typeof config.browserEvidenceInput === "string" && config.browserEvidenceInput.startsWith(`output/spec-0001/phase-${phase}/`) &&
+  const acceptedBrowserRoots = phase === 2
+    ? ["output/spec-0001/phase-2/", "output/spec-0001/phase-2-ui-restoration-correction/"]
+    : [`output/spec-0001/phase-${phase}/`];
+  assert.ok(typeof config.browserEvidenceInput === "string" && acceptedBrowserRoots.some((root) => (config.browserEvidenceInput as string).startsWith(root)) &&
     relative(ROOT, resolve(ROOT, config.browserEvidenceInput)) === config.browserEvidenceInput && !config.browserEvidenceInput.includes("\\"), "Version 2 browser evidence path is outside its exact phase root.");
   assert.ok(Array.isArray(config.commands) && config.commands.length > 0, "Version 2 command config must declare commands.");
   const commands = (config.commands as unknown[]).map((entry, index) => {

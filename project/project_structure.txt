@@ -218,11 +218,14 @@
 ./scripts/fixtures/stick-ai/v1/stick-control-disposition-cases.json
 ./scripts/fixtures/stick-ai/v1/stick-correction-affordance-cases.json
 ./scripts/fixtures/stick-ai/v1/stick-document-publication-race-cases.json
+./scripts/fixtures/stick-ai/v1/stick-editable-timeline-alias-cases.json
+./scripts/fixtures/stick-ai/v1/stick-editable-timeline-cases.json
 ./scripts/fixtures/stick-ai/v1/stick-gesture-cases.json
 ./scripts/fixtures/stick-ai/v1/stick-line-head-vectors.json
 ./scripts/fixtures/stick-ai/v1/stick-manual-edit-capability-cases.json
 ./scripts/fixtures/stick-ai/v1/stick-manual-wave-build-cases.json
 ./scripts/fixtures/stick-ai/v1/stick-pose-aliasing-cases.json
+./scripts/fixtures/stick-ai/v1/stick-ui-restoration-reference.json
 ./scripts/fixtures/stick-ai/v1/wave-any-joint-corrections.json
 ./scripts/fixtures/stick-ai/v1/wave-applied-project.json
 ./scripts/fixtures/stick-ai/v1/wave-cell-resolution.json

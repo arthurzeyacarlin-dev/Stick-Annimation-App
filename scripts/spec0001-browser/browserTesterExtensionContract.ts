@@ -56,9 +56,12 @@ export const PHASE2_PATHS = [
   "scripts/fixtures/stick-ai/v1/stick-control-disposition-cases.json",
   "scripts/fixtures/stick-ai/v1/stick-correction-affordance-cases.json",
   "scripts/fixtures/stick-ai/v1/stick-document-publication-race-cases.json",
+  "scripts/fixtures/stick-ai/v1/stick-editable-timeline-alias-cases.json",
+  "scripts/fixtures/stick-ai/v1/stick-editable-timeline-cases.json",
   "scripts/fixtures/stick-ai/v1/stick-gesture-cases.json",
   "scripts/fixtures/stick-ai/v1/stick-manual-wave-build-cases.json",
   "scripts/fixtures/stick-ai/v1/stick-pose-aliasing-cases.json",
+  "scripts/fixtures/stick-ai/v1/stick-ui-restoration-reference.json",
   "scripts/fixtures/stick-ai/v1/wave-any-joint-corrections.json",
   "scripts/fixtures/stick-ai/v1/wave-cell-resolution.json",
   "scripts/recordSpec0001ProofBundle.ts",
@@ -444,7 +447,7 @@ const parseAuthorization = (value: unknown, expectedId: AuthorizationId): Valida
   const operationFamilies = canonicalStrings(record.operationFamilies, "authorization.operationFamilies").map((entry) => enumeration(entry, OPERATION_FAMILIES, "authorization operation family"));
   exact(operationFamilies, [...OPERATION_FAMILIES], "authorization operation families");
   const outputRoot = assertSafeRepositoryPath(record.outputRoot, "authorization.outputRoot");
-  exact(outputRoot, synthetic ? COMPATIBILITY_OUTPUT_ROOT : "output/spec-0001/phase-2", "authorization.outputRoot");
+  exact(outputRoot, synthetic ? COMPATIBILITY_OUTPUT_ROOT : "output/spec-0001/phase-2-ui-restoration-correction", "authorization.outputRoot");
   const pathCeiling = canonicalStrings(record.pathCeiling, "authorization.pathCeiling").map((path) => assertSafeRepositoryPath(path));
   exact(pathCeiling, synthetic ? [...CORRECTION_PATHS] : [...PHASE2_PATHS], "authorization.pathCeiling");
   return {
@@ -507,7 +510,7 @@ export const validateExtensionPlanValue = (value: unknown): ExtensionPlan => {
   }
   exact(record.cleanExpectedPaths, [], "plan cleanExpectedPaths");
   const outputRoot = assertSafeRepositoryPath(record.outputRoot, "plan outputRoot");
-  exact(outputRoot, synthetic ? COMPATIBILITY_OUTPUT_ROOT : "output/spec-0001/phase-2", "plan outputRoot");
+  exact(outputRoot, synthetic ? COMPATIBILITY_OUTPUT_ROOT : "output/spec-0001/phase-2-ui-restoration-correction", "plan outputRoot");
   const operationFamilies = parseOperationFamilies(record.operationFamilies, "plan operationFamilies");
   const registry = parseBinding(record.registry, "plan registry binding");
   exact(registry.path, synthetic ? COMPATIBILITY_REGISTRY_PATH : PHASE2_REGISTRY_PATH, "plan registry path");

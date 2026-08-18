@@ -5,6 +5,19 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-18 — SPEC-0001 Phase 3 stale Drawing-memory proof blocker bounded
+
+- recorded exact clean canonical-main/Phase 3 base `54234b7c7b95201e274975a804859fa9c36806a1`, the preserved stopped-executor tree's empty index and exact 29-path dirty set, and its corroborating 71-action/7-checkpoint/4-screenshot two-viewport pass with five protected groups, TypeScript, zero lint regression, deterministic history/persistence/onion checks, and unchanged Drawing runtime bytes
+- reproduced `node --experimental-strip-types scripts/validateDrawingProjectAiMemory.ts` failing identically at clean base and Phase 3 result with `TypeError: listStoredDrawingProjects(...).map is not a function`; bound unchanged validator blob `ab3d483704cf3bdaee8e9d9d816980489011ac2d` and Drawing storage blob `badbc5f8cf7188f758fa83acd97889a59b9ac637`
+- traced the root mismatch: the stale validator mocks only localStorage and consumes the persistence API synchronously, while current Drawing storage is asynchronous, IndexedDB-backed, and uses current typed Save/Delete results; the recorder correctly emitted no technical manifest
+- kept Phase 3 **Authorized; In progress; proof-blocked** and authorized only `scripts/validateDrawingProjectAiMemory.ts` as a newly dirty path, plus path-only additive updates in the already-dirty Phase 3 catalog, browser plan, and typed tester contract; the resulting exact dirty set is the existing 29 paths plus that validator
+- required direct negative/self-test proof of the old synchronous error and positive awaited IndexedDB behavior, followed by the exact fresh recorder, independent manifest validation, complete 71-action browser proof, TypeScript, lint comparison, diff checks, protected regressions, exact 30-path projection, network denial, and cleanup
+- preserved the exact product outcome—Stick Undo/Redo, local Save/Open, and D-0018 onion only—plus §10.5A/Creator/Drawing protection, Spec Executor/Control Plane/Git separation, Phase 4 prohibition, and all external/provider/OpenAI/search/Supabase/paid/deployment prohibitions
+- after the Spec Architect stopped, transferred exclusive ownership of the correction worktree to the Control Plane Architect; reverified exact base/HEAD `54234b7c7b95201e274975a804859fa9c36806a1`, empty index, exact six-document diff, clean canonical `main`, the untouched preserved 29-path Phase 3 tree, matching protected blobs, absent technical manifest, and unchanged local/remote recovery refs
+- reconciled the current validator baseline from a false historical `Pass` to the reproduced exact failure, preserved the one-validator/no-fixture plus three-mechanical-binding boundary, and set the exact next handoff to a later explicit six-document publication task before any proof-only executor takeover
+
+This is a six-document documentation/control-plane correction and closeout only. No product/runtime/fixture/test/proof/package/configuration/API/database/environment/decision/external/deployment byte or Git publication state changed; nothing was staged, committed, merged, pushed, or published.
+
 ### 2026-08-18 — SPEC-0001 Phase 3 tester registration and Creator preservation accepted for publication
 
 - recorded the stopped Phase 3 executor's no-edit feasibility finding from exact clean canonical `45504214dffb528e930194b93fc2ab78dc730ebc`: the current catalog has only Phase 1.5 synthetic and Phase 2 entries, and the closed schemas/typed contract/runner/recorder/validator cannot represent Phase 3

@@ -5,6 +5,13 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-18 — SPEC-0001 Phase 2 publication recorded
+
+- recorded exact 36-path publication commit `adbda9dd4f42a103c3c5af41ccc19b110b6825c0`, parent `68338d54542bbfd3fb1f0fab06548f0424871f80`, and message `Implement SPEC-0001 Phase 2 independent Stick poses`
+- recorded canonical `main`, local `origin/main`, live GitHub `main`, and branch `codex/spec-0001-phase-2-independent-stick-poses` synchronized cleanly at `0/0` after a normal push
+- preserved technical-manifest SHA-256 `87a24054299da3037e6682bc50595fd8be3c7004222287c3433156264b322212`, closeout-manifest SHA-256 `cfe9b5c4e695b8e4d77be3e22e94e75a9b4d264a5046a2dcbf3d4f924db125a1`, and the Drawing Save manual-only evidence boundary
+- marked Phase 2 Verified/published/integrated; kept Phases 3–7 Unauthorized/Not started, SPEC-0002 complete/protected, and SPEC-0003 Proposed/inactive
+
 ### 2026-08-17 — SPEC-0001 Phase 2 accepted and closed out for publication review
 
 - recorded Arthur and the Project Manager's acceptance of the stopped Phase 2 Spec Executor result from exact base/HEAD `68338d54542bbfd3fb1f0fab06548f0424871f80`: exactly 27 technical paths, empty index, accepted prior-definition aggregate SHA-256 `d5526fcba1e0480a20164ab73d8391f49edf6fc66378d641e8b2c0c951fcabd2` over the 4,351-byte canonical input, and 33,410-byte proof-manifest SHA-256 `87a24054299da3037e6682bc50595fd8be3c7004222287c3433156264b322212`; the executor addendum proved its alternative stable-JSON digest beginning `1dd18` was the wrong reporting definition, not a byte or proof error

@@ -5,6 +5,16 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-18 — SPEC-0001 Phase 3 tester registration and Creator preservation accepted for publication
+
+- recorded the stopped Phase 3 executor's no-edit feasibility finding from exact clean canonical `45504214dffb528e930194b93fc2ab78dc730ebc`: the current catalog has only Phase 1.5 synthetic and Phase 2 entries, and the closed schemas/typed contract/runner/recorder/validator cannot represent Phase 3
+- corrected §10.6 to authorize exactly nine shared tester paths for a closed additive `phase-3/v1` registration/port, exact old-mode/hash/path/Git/source-restoration/network/negative-case protection, and later clean reruns of the no-plan, Phase 1.5 synthetic, Phase 2, and Phase 3 suites
+- replaced all current Phase 3 Creator-lock fields, fixture/checkpoint assertions, and replacement copy with visible Creator preservation before/after edits, Undo/Redo, Save, Open, reload, fixtures, and terminal failures; Creator Save/library remains unchanged
+- made the published §10.5A shell/manual timeline the exact Phase 3 baseline; prohibited automatic figure/wave/twelve cells, fat cells, new colors/green state, animation/glow, font/size/spacing/tab/menu/toolbar/panel redesign, and Drawing changes; preserved D-0018 exactly
+- after Arthur explicitly accepted the reviewed outcome, added D-0020 as the durable accepted correction decision; kept Phase 3 Authorized/Not started and Phases 4–7 Unauthorized/Not started; left GIT-019 as the separate publication/integration prerequisite for replacement execution
+
+This is an accepted documentation/control-plane closeout only. No runtime, fixture, test, proof, package, configuration, API, database, environment, external/paid service, deployment, staging, commit, merge, push, or publication change occurred.
+
 ### 2026-08-18 — SPEC-0001 Phase 3 authorized after §10.5A integration
 
 - recorded that the accepted §10.5A correction is Verified, published, and integrated in exact canonical-main commit `edfb3dea023119b91336e6e5da645d4982a9f068`, completing GIT-018 and the Phase 3 entry prerequisite

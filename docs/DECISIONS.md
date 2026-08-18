@@ -157,6 +157,14 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Why: the sole Phase 3 entry prerequisite is now durably satisfied, and Arthur has explicitly selected Phase 3 as the next bounded implementation phase without splitting onion skin into separate work.
 - Consequence: after this authorization record is reviewed, published, and integrated, exactly one new dedicated Plan-mode Phase 3 Spec Executor task may begin from this activation publication's final canonical-main SHA and implement only SPEC-0001 §10.6. This record begins no Phase 3 runtime/test/proof work, authorizes no Phase 4–7 work, and authorizes no external request, OpenAI, search, Supabase, paid service, deployment, or broader product change. Phases 4–7 remain **Unauthorized; Not started**.
 
+### D-0020 — Accept the Phase 3 tester-registration and Creator-preservation correction
+
+- Date: 2026-08-18
+- Status: accepted by Arthur as the exact corrected SPEC-0001 Phase 3 implementation and proof boundary
+- Decision: keep D-0018 exact and Phase 3 **Authorized; Not started** until this accepted correction record is separately published and integrated. Phase 3 implements only Stick Undo/Redo, local Save/Open, and D-0018 onion on the published §10.5A compact shell/manual timeline. Preserve Stick Figure Creator presence and usability before and after edits, Undo/Redo, Save, Open, reload, fixtures, and terminal failures; add no Creator lock/copy or history/storage/document/digest/request/checkpoint lock field, and do not broaden Creator Save/library behavior. Accept exactly the nine named shared tester paths in corrected §10.6 for an additive, fail-closed `phase-3/v1` registration/port while preserving the legacy no-plan, Phase 1.5 synthetic, and Phase 2 meanings and modes. Add no redesign, fat frames, automatic figure/wave/twelve cells, new colors or bright-green state, animation/glow, font/size/spacing/layout/tab/menu/toolbar/panel change, removed control, or Drawing change.
+- Why: the stopped first Phase 3 executor changed no file and proved at exact clean canonical `45504214dffb528e930194b93fc2ab78dc730ebc` that the two-entry tester and its closed schemas/types/runner/recorder/validator cannot register or prove Phase 3. The accepted correction resolves that feasibility blocker without widening the product outcome or weakening protected older tester modes.
+- Consequence: GIT-019 must publish/integrate only this reviewed seven-document correction and report the resulting exact clean canonical-main SHA. Only then may one replacement dedicated Plan-mode Phase 3 Spec Executor implement corrected §10.6 and stop after its technical proof/Implementation Review Packet. This decision implements nothing, authorizes no staging/commit/merge/push/publication by itself, and leaves Phases 4–7 **Unauthorized; Not started**.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

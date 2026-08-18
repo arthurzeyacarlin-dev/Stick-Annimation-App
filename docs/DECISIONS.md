@@ -149,6 +149,14 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Finalizer repair: after separate Spec Executor repair and Arthur/Project Manager acceptance, `scripts/finalizeSpec0001ProofBundle.ts` at SHA-256 `e6795e9f686117d89824bea4f9de3ed766077ba9a8d00c51c27b074708c396f9` adds the explicit `--purpose=phase-2-ui-restoration-correction` mode without changing the historical/default mode. The correction mode binds the exact 29-path tracked state, accepted technical manifest and 20/20 hashes, 16/16 protected zero diffs, sole obsolete SPEC-0002 runner-hash mismatch, registered browser evidence, empty index, and correction-specific ignored closeout. Historical SPEC-0002 remains `not-applicable`, never passed.
 - Consequence: §10.5A is **Verified and accepted in the dedicated worktree; pending separate publication/integration**. This closeout does not stage, commit, merge, push, publish, authorize Phase 3, or change D-0018. Phase 3 remains **Unauthorized; Not started**.
 
+### D-0019 — Authorize SPEC-0001 Phase 3 after §10.5A integration
+
+- Date: 2026-08-18
+- Status: accepted by Arthur for `SPEC-0001` Phase 3
+- Decision: Arthur explicitly instructed that onion skin remains inside Phase 3, that the already accepted D-0018 outcome must be included unchanged, and that Phase 3 should be prepared for implementation but not started in this task. The §10.5A correction is now **Verified, published, and integrated** in canonical `main` at `edfb3dea023119b91336e6e5da645d4982a9f068`. SPEC-0001 Phase 3 — **Atomic history and minimal local persistence**, including the exact D-0018 Stick onion-skin contract — is therefore **Authorized; Not started**. The rest of Phase 3's approved scope, proof, non-goals, and protected regressions remain unchanged.
+- Why: the sole Phase 3 entry prerequisite is now durably satisfied, and Arthur has explicitly selected Phase 3 as the next bounded implementation phase without splitting onion skin into separate work.
+- Consequence: after this authorization record is reviewed, published, and integrated, exactly one new dedicated Plan-mode Phase 3 Spec Executor task may begin from this activation publication's final canonical-main SHA and implement only SPEC-0001 §10.6. This record begins no Phase 3 runtime/test/proof work, authorizes no Phase 4–7 work, and authorizes no external request, OpenAI, search, Supabase, paid service, deployment, or broader product change. Phases 4–7 remain **Unauthorized; Not started**.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

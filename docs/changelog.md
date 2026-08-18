@@ -5,6 +5,15 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-18 — SPEC-0001 Phase 3 authorized after §10.5A integration
+
+- recorded that the accepted §10.5A correction is Verified, published, and integrated in exact canonical-main commit `edfb3dea023119b91336e6e5da645d4982a9f068`, completing GIT-018 and the Phase 3 entry prerequisite
+- added D-0019 from Arthur's explicit direction and marked SPEC-0001 Phase 3 **Authorized; Not started** without beginning runtime, fixture, test, proof, history, persistence, Open, or onion-skin implementation
+- preserved D-0018 unchanged as the exact accepted Phase 3 onion outcome and preserved the rest of §10.6's existing history, storage, Open, safety, proof, non-goal, and regression boundaries
+- set the exact next task to one new dedicated Plan-mode Phase 3 Spec Executor task from this activation publication's final canonical-main SHA; kept Phases 4–7 Unauthorized/Not started
+
+This is a documentation/control-plane activation only. No runtime, test, fixture, proof, package, configuration, API, database, environment, external service, paid request, deployment, or later-phase implementation changed.
+
 ### 2026-08-18 — SPEC-0001 §10.5A correction accepted and closed out for publication review
 
 - took exclusive Control Plane Architect ownership after complete executor shutdown and Arthur/Project Manager acceptance; verified dedicated branch `codex/spec0001-phase-2-ui-correction`, exact base/HEAD `1f9746a6188e5e13aca1fbd62bea2e1e27bba627`, exactly 20 accepted implementation/proof paths, empty index, and unchanged accepted hashes

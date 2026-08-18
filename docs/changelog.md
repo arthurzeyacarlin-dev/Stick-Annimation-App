@@ -5,6 +5,22 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-18 — SPEC-0001 §10.5A correction approved and authorized
+
+- recorded Arthur's rejection of the published Phase 2 visible result and approval of §10.5A through durable decision D-0017
+- marked the correction **Approved; Authorized; Not started** while preserving `adbda9dd4f42a103c3c5af41ccc19b110b6825c0` and its proof as immutable historical owner-rejected evidence
+- preserved the exact restoration/timeline outcome, nine-runtime-file ceiling, bounded proof contract, Arthur visible-review stop gate, and Phase 3/SPEC-0003/external-service prohibitions
+- left the implementation base unset until this activation record is separately published and integrated; no executor, implementation, staging, commit, push, or publication began
+
+### 2026-08-18 — SPEC-0001 Phase 2 UI correction proposed after owner rejection
+
+- preserved original Phase 2 commit `adbda9dd4f42a103c3c5af41ccc19b110b6825c0` and its proof as historical publication records while recording Arthur's rejection of the visible workspace result
+- reproduced the rejected current UI and exact `68338d54542bbfd3fb1f0fab06548f0424871f80` historical Stick baseline in isolated local browser state; verified the nine runtime files changed by 1,415 insertions/4,095 deletions and traced current Drawing timeline semantics
+- added SPEC-0001 §10.5A as one **Proposed; Unauthorized; Not started** correction: restore the old shell precisely, start with one empty keyframe/no automatic figure, add applicable Drawing-style frame/layer actions, isolate editable keyframes, and restore old tools/right-panel order/Creator access
+- kept Phase 3 and Phases 4–7 Unauthorized/Not started, SPEC-0002 complete/protected, SPEC-0003 Proposed/inactive and untouched, and `docs/DECISIONS.md` unchanged pending a later Control Plane Architect decision record
+
+This is a specification/control-plane proposal only. No runtime, fixture, test, proof, package, dependency, configuration, environment, database, API, external service, deployment, other worktree, recovery branch, staging, commit, push, propagation, or publication change occurred.
+
 ### 2026-08-18 — SPEC-0001 Phase 2 publication recorded
 
 - recorded exact 36-path publication commit `adbda9dd4f42a103c3c5af41ccc19b110b6825c0`, parent `68338d54542bbfd3fb1f0fab06548f0424871f80`, and message `Implement SPEC-0001 Phase 2 independent Stick poses`

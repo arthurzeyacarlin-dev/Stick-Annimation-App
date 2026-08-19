@@ -5,6 +5,16 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-19 — SPEC-0001 Phase 4 authorized with exact tester-permission correction
+
+- reconciled the completed Phase 3 publication at exact 38-path canonical-main commit `3fe3a5487389647b67216e9466121e00f1a73856`, parent `b8d8406ca6b51c3b83adb29fa20f20160c871c54`, while preserving technical-manifest SHA-256 `07bd09c413a28ffcc706be85d00d1d4466cde1e336daceab23d9a1617153b675`
+- recorded Arthur's D-0022 approval of SPEC-0001 Phase 4 as **Authorized; Not started**, conditional on separate publication/integration of this documentation record
+- corrected §10.7's proof-feasibility contradiction with an exact 22-path technical ceiling: 12 original Phase 4 product/fixture/action paths plus exactly 10 additive catalog/schema/runner/contract/recorder/validator/finalizer paths for strict `phase-4/v1` registration, execution, recording, independent validation, and closeout
+- required new schemas under `scripts/fixtures/spec0001-browser/v4/` and preserved every accepted v2/v3 schema and older tester entry, meaning, mode, hash, registered path, source-restoration rule, network denial, cleanup, and production-exclusion behavior
+- kept the Phase 4 product outcome unchanged and Phases 5–7 Unauthorized/Not started
+
+This is a documentation/control-plane correction only. No Phase 4 runtime/tester implementation, product behavior, package, configuration, API, storage, Drawing, Creator, external request, staging, commit, push, merge, publication, or deployment occurred.
+
 ### 2026-08-19 — SPEC-0001 Phase 3 accepted technical result closed out for publication review
 
 - recorded permanent decision D-0021: before any future visible implementation is accepted or published, the Project Manager must give Arthur a current separate worktree review copy through its local app URL, screenshots from that exact worktree, or both; rejection returns to a correction executor, and publication waits for Arthur's explicit acceptance

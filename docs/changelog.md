@@ -5,6 +5,16 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-19 — SPEC-0001 Phase 4 published and integrated
+
+- published the exact accepted 22 technical paths and eight reviewed canonical record paths in commit `71841e96499f7627139c53d87114bba65e19d29d`, parent `62f046adff7418d2e644365fc04bd5d6312dcca9`, message `Implement SPEC-0001 Phase 4 command transaction`
+- fast-forwarded clean canonical `main` and pushed normally; the Phase 4 branch, local `main`, local `origin/main`, and live GitHub `main` matched the publication commit cleanly at `0/0`
+- preserved technical-manifest SHA-256 `d34d589373713ac7930984aeb3ef0640539316c00e1f510cf8d798aee931bf46`, browser-runner SHA-256 `353f4937972d30b1959f1c7aee3075f5ebafb308d04a778db69372969e7b906f`, and pre-publication closeout-manifest SHA-256 `eacff7372b77e7c66e87be90807ced7343c28c7644b2d7a513db8e3118f626ab`
+- passed the clean no-plan tester, Phase 1.5 compatibility plan, and Phase 4 plan; the historical Phase 2 and Phase 3 clean plans failed closed before browser startup because the later Phase 4 commit legitimately changes paths outside those frozen historical clean ceilings, not because a product assertion failed
+- closed GIT-022 and recorded Phase 4 as **Verified, published, and integrated** without authorizing or starting Phases 5–7
+
+This post-publication reconciliation changes canonical records only. It does not modify the published runtime, fixtures, schemas, tester, technical tests, or proof bytes; it performs no further staging, commit, push, deployment, external request, or Phase 5 work.
+
 ### 2026-08-19 — SPEC-0001 Phase 4 accepted technical result closed out for publication review
 
 - recorded exact activation/base/HEAD/local-main/origin-main SHA `62f046adff7418d2e644365fc04bd5d6312dcca9`, exclusive Control Plane Architect takeover after executor shutdown, an empty index, and the exact accepted 22-path technical projection

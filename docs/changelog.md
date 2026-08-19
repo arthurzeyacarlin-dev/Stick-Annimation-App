@@ -5,15 +5,27 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-19 — SPEC-0001 Phase 5 tester-permission contradiction corrected
+
+- reconciled D-0024's exact seven-document activation publication at canonical-main commit `245ac7e8bceeca76b522ff21c4327fa0219a3805` and the fresh Phase 5 executor's correct no-edit stop
+- traced the permanent tester's actual authorization graph: the catalog and v4 schemas require exactly four entries through `phase-4/v1`; the typed extension contract, runner, recorder, independent validator, and finalizer support only the earlier modes; and the current `/api/ai` browser evidence intercepts Drawing responses while asserting zero real-route requests
+- recorded D-0025 without changing Phase 5's product outcome: the original 14 product/fixture/validator paths gain exactly 10 shared catalog/v5-schema/runner/contract/recorder/validator/finalizer paths, making the exact technical ceiling 24 tracked paths
+- made `phase-5/v1` route-only: the already-authorized `stick-ai-raw-route-cases.json` is its v5 registry, exact request bytes travel through guarded Node loopback HTTP to the real `/api/ai`, and exact status/header/body/log/network/cleanup evidence covers marked availability GET, marked Stick POST, and marker-free Drawing-fallthrough POST
+- prohibited a Phase 5 action adapter, workspace port, in-page driver operation, pointer/visible action, screenshot claim, tester route/page/control/asset, browser-mocked route result, product UI, or writable Stick chat
+- required exact dirty/clean and later closeout path checks, an empty index/no hidden flags, preserved first-four catalog entries and v2-v4 schemas/modes, and fail-closed rejection of incompatible historical or extra Phase 5 state
+- kept Phase 5 **Authorized; Not started** pending separate publication of this correction and kept Phases 6 and 7 **Unauthorized; Not started**
+
+This is a seven-Markdown-file specification/control-plane correction only. No runtime, tester, fixture, technical-test, proof, package, dependency, environment, application, database, deployment, external-service, or Git publication byte changed; no server/browser/provider request ran; and nothing was staged, committed, merged, pushed, or published.
+
 ### 2026-08-19 — SPEC-0001 Phase 5 server/mock boundary authorized
 
-- preserved SPEC-0001 Phase 4 as **Verified, published, and integrated** at exact implementation commit `71841e96499f7627139c53d87114bba65e19d29d`, with current clean canonical record basis `617aa61a81b9c16b781e6d333255fdd5b65fced2`
+- preserved SPEC-0001 Phase 4 as **Verified, published, and integrated** at exact implementation commit `71841e96499f7627139c53d87114bba65e19d29d`, from clean authorization-draft basis `617aa61a81b9c16b781e6d333255fdd5b65fced2`
 - recorded D-0024: Phase 5 alone is **Authorized; Not started** with exactly section 10.8's provider-free server raw-dispatch, strict marked-request parsing, deterministic mock-envelope, Drawing-fallthrough, and no-egress boundary
 - required the Phase 5 implementation to start only after separate activation publication, in one brand-new dedicated Plan-mode Spec Executor worktree from that publication SHA
 - required one later Arthur review of the exact unpublished Phase 5 app copy; because Phase 5 has no new visible Stick UI, the review confirms the existing app still looks and works the same while automated evidence proves the hidden mock route
 - kept Phases 6 and 7 **Unauthorized; Not started** and authorized no writable Stick chat/UI, OpenAI/provider/search/Supabase/paid request, deployment, or external operation
 
-This is a control-plane activation draft only. No runtime, fixture, proof, test, script, dependency, configuration, environment, or database byte changed; Phase 5 did not begin; and nothing was staged, committed, pushed, or published.
+This control-plane activation was later published as exact seven-document canonical-main commit `245ac7e8bceeca76b522ff21c4327fa0219a3805`, message `Authorize SPEC-0001 Phase 5`. It changed no runtime, fixture, proof, test, script, dependency, configuration, environment, or database byte. The first executor then stopped before edits on the separately recorded D-0025 proof-feasibility blocker, so Phase 5 implementation did not begin.
 
 ### 2026-08-19 — SPEC-0001 Phase 4 published and integrated
 

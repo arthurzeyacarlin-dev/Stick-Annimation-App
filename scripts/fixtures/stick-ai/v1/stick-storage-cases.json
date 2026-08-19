@@ -1,0 +1,1 @@
+{"fixtureVersion":1,"storageKey":"da_saved_stick_projects_v1","recordLimit":32,"byteLimit":4194304,"cases":["absent","empty-corrupt","invalid-json","unsupported-version","duplicate-id","deterministic-order","replace-preserves-createdAt","read-failure","quota","write-failure","capacity"]}

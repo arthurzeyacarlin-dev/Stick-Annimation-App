@@ -59,6 +59,8 @@ import {
   COMPATIBILITY_OUTPUT_ROOT,
   loadTesterExtensionGraph,
   parseBrowserProofCli,
+  sortProofPaths,
+  validateExtensionPlanValue,
   validateExtensionResult,
   type ExtensionResult,
   type NormalizedAction,
@@ -116,15 +118,15 @@ const DRIVER_INSTRUMENTATION = `  useEffect(() => {
       contractVersion: 1,
       operation: "stick.phase2.checkpoint/v1",
       payload: {
-        activeLayerId,
+        activeLayerId: timeline.activeLayerId,
         authoredFrameCount: authoredPlaybackFrameCount,
-        currentFrameIndex,
-        jointCount: structureGraph.joints.length,
-        limbCount: structureGraph.limbs.length,
-        selectedTimelineIndex,
+        currentFrameIndex: timeline.currentFrameIndex,
+        jointCount: activeContent.structureGraph.joints.length,
+        limbCount: activeContent.structureGraph.limbs.length,
+        selectedTimelineIndex: timeline.selectedTimelineIndex,
       },
     });
-  }, [activeLayerId, authoredPlaybackFrameCount, currentFrameIndex, selectedTimelineIndex, structureGraph.joints.length, structureGraph.limbs.length]);`;
+  }, [activeContent.structureGraph.joints.length, activeContent.structureGraph.limbs.length, authoredPlaybackFrameCount, timeline.activeLayerId, timeline.currentFrameIndex, timeline.selectedTimelineIndex]);`;
 
 const COMPATIBILITY_DRIVER_INSTRUMENTATION = `  const spec0001CompatibilityStateRef = useRef({
     fixtureId: null as string | null,
@@ -280,6 +282,39 @@ const PHASE2_WORKSPACE_PORT_INSTRUMENTATION = `  useEffect(() => {
     return () => window.removeEventListener(${JSON.stringify(COMPATIBILITY_COMMAND_EVENT)}, listener);
   }, []);`;
 
+const PHASE3_WORKSPACE_PORT_INSTRUMENTATION = `  useEffect(() => {
+    const ports = spec0001Phase3BrowserPortsV1;
+    const required = ["mountEditorHistoryRoot", "dispatchEditorTransaction", "beginDocumentPublication", "completeDocumentPublication", "beginMountedOpen", "completeMountedOpen", "cancelMountedOpen", "readCheckpoint"] as const;
+    for (const name of required) {
+      if (typeof ports[name] !== "function") throw new Error("SPEC0001_PHASE3_PORT_MISSING:" + name);
+    }
+    const publish = (operation: string, payload: Record<string, unknown>) => {
+      const binding = (window as Window & {${COMPATIBILITY_DRIVER_BINDING}?: (message: unknown) => Promise<void>}).${COMPATIBILITY_DRIVER_BINDING};
+      if (typeof binding === "function") void binding({contractVersion: 2, operation, payload});
+    };
+    const onCommand = async (event: Event) => {
+      const detail = (event as CustomEvent<{commandId?: unknown; operation?: unknown; payload?: unknown}>).detail;
+      if (!detail || typeof detail.commandId !== "string" || typeof detail.operation !== "string" || typeof detail.payload !== "object" || detail.payload === null || Array.isArray(detail.payload)) return;
+      const payload = detail.payload as Record<string, unknown>;
+      let response: unknown;
+      if (detail.operation === "workspace.mount-editor-history-root/v1") response = await ports.mountEditorHistoryRoot(payload.fixture, payload.operationId);
+      else if (detail.operation === "workspace.dispatch-editor-transaction/v1") response = await ports.dispatchEditorTransaction(payload.fixture, payload.operationId);
+      else if (detail.operation === "workspace.begin-document-publication/v1") response = await ports.beginDocumentPublication(payload.fixture, payload.operationId);
+      else if (detail.operation === "workspace.complete-document-publication/v1") response = await ports.completeDocumentPublication(payload.fixture, payload.operationId);
+      else if (detail.operation === "workspace.begin-mounted-open/v1") response = await ports.beginMountedOpen(payload.fixture, payload.operationId);
+      else if (detail.operation === "workspace.complete-mounted-open/v1") response = await ports.completeMountedOpen(payload.fixture, payload.operationId);
+      else if (detail.operation === "workspace.cancel-mounted-open/v1") response = await ports.cancelMountedOpen(payload.fixture, payload.operationId);
+      else if (detail.operation === "workspace.read-checkpoint/v1") response = await ports.readCheckpoint(payload.operationId);
+      else return;
+      const checkpoint = detail.operation === "workspace.read-checkpoint/v1" ? response : await ports.readCheckpoint(payload.operationId);
+      publish("compatibility.command-result/v2", {commandId: detail.commandId, operation: detail.operation, response, checkpoint});
+    };
+    const listener = (event: Event) => { void onCommand(event); };
+    window.addEventListener(${JSON.stringify(COMPATIBILITY_COMMAND_EVENT)}, listener);
+    publish("tester.connection.ping/v2", {connected: true, transport: "playwright-binding", adapterKind: "phase-3-product-ports/v1"});
+    return () => window.removeEventListener(${JSON.stringify(COMPATIBILITY_COMMAND_EVENT)}, listener);
+  }, []);`;
+
 type Operation = {id: string; viewport: string; action: string; target: string; passed: true; at: string};
 type ScreenshotEvidence = FileBinding & {id: string; viewport: {width: number; height: number}};
 type RunningServer = {child: ChildProcess; port: number; mode: "development" | "production"};
@@ -340,6 +375,12 @@ const compatibilityPendingCommands = new Map<string, {contextId: string; operati
 const compatibilityOwnedContexts = new Map<BrowserContext, string>();
 const compatibilityEnvironment = {installedFixtureId: null as string | null, activeGates: new Set<string>(), revision: 0};
 const compatibilityBrowserVersions = new Set<string>();
+const phase3OnionInvariantByContext = new Map<string, JsonObject>();
+const phase3ShellVisualBaselineByContext = new Map<string, JsonObject>();
+const PHASE3_BASE_SHELL_ELEMENTS_DIGESTS = {
+  "1024x768": "sha256:ebe631f6a24f7f56b666b83def1ac35e68478da3091914ac6577ea8d45d7faf2",
+  "1440x900": "sha256:a8283fc14ea1370d7a55053be28379da7bff36c241dfa211a5cba1b848b7a871",
+} as const;
 let compatibilityGraph: ValidatedTesterExtension | null = null;
 let compatibilityOutputInitialized = false;
 let compatibilityAnchorOriginal: Buffer | null = null;
@@ -380,6 +421,37 @@ const git = (...argv: string[]) => {
   const result = spawnSync(GIT_EXECUTABLE, argv, {cwd: ROOT, env: GIT_ENVIRONMENT, encoding: "utf8", shell: false});
   assert.equal(result.status, 0, result.stderr || `git ${argv.join(" ")} failed`);
   return result.stdout.trim();
+};
+
+const assertPhase3VisualSourceBoundary = (baseCommit: string) => {
+  const protectedVisualPaths = [
+    "src/components/workspace/stickfigure/StickFigureTimelineRow.tsx",
+    "src/components/workspace/stickfigure/StickFigureRightPanel.tsx",
+    "src/components/workspace/stickfigure/StickFigureToolBar.tsx",
+    "src/components/workspace/stickfigure/StickFigureCreatorWorkspace.tsx",
+    "src/components/workspace/DrawingWorkspace.tsx",
+    "src/components/workspace/DrawingCanvas.tsx",
+  ];
+  assert.equal(git("diff", "--name-only", baseCommit, "--", ...protectedVisualPaths), "", "Protected shell/Creator/Drawing visual source changed.");
+  const runtimePaths = [
+    "app/page.tsx",
+    "src/components/open-project/OpenProjectBrowser.tsx",
+    "src/components/workspace/stickfigure/StickFigureCanvas.tsx",
+    "src/components/workspace/stickfigure/StickFigureTopBar.tsx",
+    "src/components/workspace/stickfigure/StickFigureWorkspace.tsx",
+  ];
+  const addedLines = git("diff", "--unified=0", baseCommit, "--", ...runtimePaths).split("\n")
+    .filter((line) => line.startsWith("+") && !line.startsWith("+++"));
+  assert.deepEqual(addedLines.filter((line) => /@keyframes|\banimation(?:Name|Duration)?\s*:|\btransition\s*:|textShadow\s*:|\b(?:glow|pulse|halo)\b/i.test(line)), [], "Phase 3 added a motion/glow declaration.");
+  const addedShadows = addedLines.filter((line) => /boxShadow\s*:/.test(line));
+  assert.deepEqual(addedShadows, ['+                      boxShadow: "0 14px 34px rgba(0,0,0,0.16)",'], "Phase 3 added an unrecognized shadow declaration.");
+  assert.ok(git("show", `${baseCommit}:src/components/open-project/OpenProjectBrowser.tsx`).includes(addedShadows[0].slice(1).trim()), "Stick Open card shadow is not an exact reuse of the base Drawing card style.");
+  assert.deepEqual(addedLines.filter((line) => /#0{0,1}f{2}0{0,1}\b|rgba?\(\s*0\s*,\s*255\s*,\s*0/i.test(line)), [], "Phase 3 added a bright-green declaration.");
+  negativeResults.push(
+    {name: "phase-3-protected-visual-source-bytes", status: "passed", expectedCode: "unchanged"},
+    {name: "phase-3-no-new-motion-glow-green", status: "passed", expectedCode: "absent"},
+    {name: "phase-3-open-card-style-reuse", status: "passed", expectedCode: "base-style-exact"},
+  );
 };
 
 const configureExtensionOutputPaths = (graph: ValidatedTesterExtension) => {
@@ -458,7 +530,7 @@ const appendExtensionJsonLine = (path: string, value: unknown) => {
 };
 
 const snapshotExtensionSourceState = (graph: ValidatedTesterExtension) => {
-  const paths = [...new Set([
+  const sourcePaths = [...new Set([
     ...graph.git.dirtyExpectedPaths,
     graph.catalogBinding.path,
     graph.planBinding.path,
@@ -468,7 +540,10 @@ const snapshotExtensionSourceState = (graph: ValidatedTesterExtension) => {
     NETWORK_GUARD_PATH,
     "package.json",
     "package-lock.json",
-  ])].sort((left, right) => left.localeCompare(right));
+  ])];
+  const paths = graph.authorizationId === "phase-3/v1"
+    ? sortProofPaths(sourcePaths)
+    : sourcePaths.sort((left, right) => left.localeCompare(right));
   const entries = paths.map((path) => {
     const absolute = repositoryPath(ROOT, path, "Source snapshot path");
     assert.ok(existsSync(absolute), `Source snapshot path is missing: ${path}`);
@@ -784,13 +859,17 @@ const installCompatibilityAnchor = () => {
   const text = bytes.toString("utf8");
   assert.equal(text.split(ANCHOR_MARKER).length - 1, 1, "Compatibility anchor marker must appear exactly once.");
   const phase2Profile = compatibilityGraph.adapter.executionProfile === "phase2-workspace-ports/v1";
+  const phase3Profile = compatibilityGraph.adapter.executionProfile === "phase3-workspace-ports/v1";
   if (phase2Profile) {
     assert.equal(compatibilityGraph.adapter.workspacePortBinding, "spec0001Phase2BrowserPortsV1");
     assert.match(text, /\bspec0001Phase2BrowserPortsV1\b/, "Phase 2 workspace port object is absent from the exact anchor preimage.");
+  } else if (phase3Profile) {
+    assert.equal(compatibilityGraph.adapter.workspacePortBinding, "spec0001Phase3BrowserPortsV1");
+    assert.match(text, /\bspec0001Phase3BrowserPortsV1\b/, "Phase 3 workspace port object is absent from the exact anchor preimage.");
   } else assert.equal(compatibilityGraph.adapter.workspacePortBinding, null);
   compatibilityAnchorOriginal = bytes;
   compatibilityAnchorOriginalHash = sha256Bytes(bytes);
-  const instrumentation = phase2Profile ? PHASE2_WORKSPACE_PORT_INSTRUMENTATION : COMPATIBILITY_DRIVER_INSTRUMENTATION;
+  const instrumentation = phase2Profile ? PHASE2_WORKSPACE_PORT_INSTRUMENTATION : phase3Profile ? PHASE3_WORKSPACE_PORT_INSTRUMENTATION : COMPATIBILITY_DRIVER_INSTRUMENTATION;
   const replaced = text.replace(`  ${ANCHOR_MARKER}`, instrumentation);
   assert.notEqual(replaced, text);
   assert.equal(replaced.includes(ANCHOR_MARKER), false);
@@ -1998,6 +2077,15 @@ const dispatchCompatibilityCommand = async (page: Page, contextId: string, opera
   return response;
 };
 
+const readPhase3WorkspaceCheckpoint = async (page: Page, contextId: string, checkpointId: string) => {
+  assert.equal(compatibilityGraph?.authorizationId, "phase-3/v1");
+  await waitForCompatibilityDriver(page, contextId);
+  const message = await dispatchCompatibilityCommand(page, contextId, "workspace.read-checkpoint/v1", {operationId: checkpointId});
+  const payload = strictObject(message.payload, ["checkpoint", "commandId", "operation", "response"], `Phase 3 checkpoint ${checkpointId}`);
+  assert.deepEqual(payload.response, payload.checkpoint, `Phase 3 checkpoint ${checkpointId} response mismatch.`);
+  return payload.checkpoint as JsonObject;
+};
+
 const dispatchCompatibilityPointer = async (page: Page, contextId: string, action: Extract<NormalizedAction, {family: "pointer"}>) => {
   assert.ok(compatibilityGraph?.adapter.pointerTargets.some((target) => target.targetId === action.targetId && target.targetKind === "authorized-canvas"));
   const authorizedCanvases = page.locator('[style*="touch-action: none"]:not([aria-hidden="true"])');
@@ -2061,7 +2149,7 @@ const resolveCompatibilityFixture = (graph: ValidatedTesterExtension, fixtureId:
     assert.equal(fixture.expectedFixtureDigest, implementationDigest, `Built-in fixture semantic digest drift: ${fixtureId}`);
     return {fixtureId, fixtureKind: fixture.fixtureKind, sourceKind: fixture.sourceKind, implementationDigest, value};
   }
-  assert.equal(graph.adapter.executionProfile, "phase2-workspace-ports/v1");
+  assert.ok(graph.adapter.executionProfile === "phase2-workspace-ports/v1" || graph.adapter.executionProfile === "phase3-workspace-ports/v1");
   const observed = bindFile(ROOT, fixture.binding.path);
   assert.deepEqual(observed, fixture.binding, `Repository fixture binding drift: ${fixtureId}`);
   assert.equal(fixture.expectedFixtureDigest, observed.sha256, `Repository fixture digest drift: ${fixtureId}`);
@@ -2080,6 +2168,21 @@ const compatibilityDriverPayload = (graph: ValidatedTesterExtension, action: Ext
       completeDocumentPublication: "workspace.complete-document-publication/v1",
       readCheckpoint: "workspace.read-checkpoint/v1",
     } as const;
+    const operation = operationByPort[action.operation as keyof typeof operationByPort];
+    assert.ok(operation, `Phase 2 operation is not bound: ${action.operation}`);
+    return {operation, payload: {operationId: action.operationId, fixtureId: action.fixtureId, fixture: fixture?.value ?? null}};
+  }
+  if (graph.adapter.executionProfile === "phase3-workspace-ports/v1") {
+    const operationByPort: Record<string, string> = {
+      mountEditorHistoryRoot: "workspace.mount-editor-history-root/v1",
+      dispatchEditorTransaction: "workspace.dispatch-editor-transaction/v1",
+      beginDocumentPublication: "workspace.begin-document-publication/v1",
+      completeDocumentPublication: "workspace.complete-document-publication/v1",
+      beginMountedOpen: "workspace.begin-mounted-open/v1",
+      completeMountedOpen: "workspace.complete-mounted-open/v1",
+      cancelMountedOpen: "workspace.cancel-mounted-open/v1",
+      readCheckpoint: "workspace.read-checkpoint/v1",
+    };
     return {operation: operationByPort[action.operation], payload: {operationId: action.operationId, fixtureId: action.fixtureId, fixture: fixture?.value ?? null}};
   }
   if (action.operation === "mountDocument") {
@@ -2211,10 +2314,12 @@ const readCompatibilityStorage = async (page: Page, contextId: string, checkpoin
       const keys = (root as unknown as {keys(): AsyncIterableIterator<string>}).keys();
       for await (const name of keys) opfsEntries.push(name);
     }
+    const indexedDatabases = await indexedDB.databases();
     return {
       localStorageKeys: Object.keys(window.localStorage).sort(),
       sessionStorageKeys: Object.keys(window.sessionStorage).sort(),
-      indexedDatabaseCount: (await indexedDB.databases()).length,
+      indexedDatabaseCount: indexedDatabases.length,
+      indexedDatabaseNames: indexedDatabases.map((entry) => entry.name ?? "").sort(),
       cacheCount: (await caches.keys()).length,
       serviceWorkerCount: (await navigator.serviceWorker.getRegistrations()).length,
       opfsAvailable,
@@ -2224,10 +2329,29 @@ const readCompatibilityStorage = async (page: Page, contextId: string, checkpoin
   const productPreferenceCheckpoint =
     (contextId === "synthetic-1024x768" && (checkpoint === "after-actions" || checkpoint === "before-close")) ||
     (contextId.startsWith("regression-") && checkpoint === "before-close");
-  const expectedLocalStorageKeys = productPreferenceCheckpoint
+  const phaseThreeProductCheckpoint = compatibilityGraph?.authorizationId === "phase-3/v1" &&
+    (contextId === "compact-1024x768" || contextId === "desktop-1440x900" || contextId === "regression-home-new-stick") &&
+    checkpoint === "after-actions";
+  const phaseThreeCleanupCheckpoint = compatibilityGraph?.authorizationId === "phase-3/v1" && checkpoint === "before-close";
+  const phaseThreeOnionCheckpoint = compatibilityGraph?.authorizationId === "phase-3/v1" &&
+    (contextId === "onion-1440x900" || contextId === "ports-1440x900") && checkpoint === "after-actions";
+  const expectedIndexedDatabaseNames = compatibilityGraph?.authorizationId === "phase-3/v1" &&
+    contextId === "regression-home-new-stick" && checkpoint === "before-close"
+    ? ["diamond-animator-local"]
+    : [];
+  if (phaseThreeCleanupCheckpoint) assert.ok(evidence.localStorageKeys.every((key) => [
+    "da_drawing_ai_control_preferences_v1", "da_saved_stick_projects_v1", "da_welcome_seen",
+  ].includes(key)), `Unexpected Phase 3 cleanup storage key in ${contextId}.`);
+  const expectedLocalStorageKeys = phaseThreeProductCheckpoint
+    ? ["da_drawing_ai_control_preferences_v1", "da_saved_stick_projects_v1", "da_welcome_seen"]
+    : phaseThreeOnionCheckpoint
+    ? ["da_drawing_ai_control_preferences_v1", "da_welcome_seen"]
+    : phaseThreeCleanupCheckpoint
+    ? evidence.localStorageKeys
+    : productPreferenceCheckpoint
     ? ["da_drawing_ai_control_preferences_v1", "da_welcome_seen"]
     : [];
-  assert.deepEqual(evidence, {localStorageKeys: expectedLocalStorageKeys, sessionStorageKeys: [], indexedDatabaseCount: 0, cacheCount: 0, serviceWorkerCount: 0, opfsAvailable: evidence.opfsAvailable, opfsEntries: []}, `Unexpected browser storage state in ${contextId}:${checkpoint}`);
+  assert.deepEqual(evidence, {localStorageKeys: expectedLocalStorageKeys, sessionStorageKeys: [], indexedDatabaseCount: expectedIndexedDatabaseNames.length, indexedDatabaseNames: expectedIndexedDatabaseNames, cacheCount: 0, serviceWorkerCount: 0, opfsAvailable: evidence.opfsAvailable, opfsEntries: []}, `Unexpected browser storage state in ${contextId}:${checkpoint}`);
   assert.equal(typeof evidence.opfsAvailable, "boolean", `OPFS availability evidence is invalid in ${contextId}:${checkpoint}.`);
   const record = {contextId, checkpoint, ...evidence};
   compatibilityStorage.push(record);
@@ -2275,7 +2399,162 @@ const runCompatibilityProtectedRegressions = async (server: RunningServer) => {
       await compatibilityOpenNewProject(page);
       await (await visible(page, "button", /^Stick Figure Animation\b/)).click();
       await visible(page, "button", "Stick Figure Tools");
-      pushCompatibilityRegression("home-new-stick", ["Home New Project visible", "project chooser visible", "Stick workspace opened"]);
+      const assertions = ["Home New Project visible", "project chooser visible", "Stick workspace opened"];
+      if (compatibilityGraph?.authorizationId === "phase-3/v1") {
+        await waitForCompatibilityDriver(page, "regression-home-new-stick");
+        await (await visible(page, "button", "Stick Figure Tools")).click();
+        await (await visible(page, "button", /^Add Limb\b/)).click();
+        const stage = page.getByTestId("stick-stage");
+        const stageBox = await stage.boundingBox();
+        assert.ok(stageBox && stageBox.width > 300 && stageBox.height > 240);
+        const start = {x: stageBox.x + stageBox.width * 0.42, y: stageBox.y + stageBox.height * 0.42};
+        const end = {x: start.x + 110, y: start.y + 80};
+        await page.mouse.move(start.x, start.y);
+        await page.mouse.down();
+        await page.mouse.move(end.x, end.y, {steps: 5});
+        await page.mouse.up();
+        const afterLimb = await readPhase3WorkspaceCheckpoint(page, "regression-home-new-stick", "visible-limb-complete");
+        assert.equal(afterLimb.undoDepth, 1);
+        assert.equal(await stage.locator('svg > line:not([data-onion-side])').count(), 1);
+        assert.equal(await stage.locator('svg > circle:not([data-onion-side])').count(), 2);
+
+        await (await visible(page, "button", "Select tool")).click();
+        const firstJoint = stage.locator('svg > circle:not([data-onion-side])').first();
+        await firstJoint.waitFor({state: "visible", timeout: 30_000});
+        const firstJointBox = await firstJoint.boundingBox();
+        assert.ok(firstJointBox);
+        const jointPoint = {x: firstJointBox.x + firstJointBox.width / 2, y: firstJointBox.y + firstJointBox.height / 2};
+        await page.mouse.move(jointPoint.x, jointPoint.y);
+        await page.mouse.down();
+        await page.mouse.move(jointPoint.x + 45, jointPoint.y + 24, {steps: 3});
+        await stage.dispatchEvent("pointercancel", {pointerId: 1, pointerType: "mouse", isPrimary: true, button: 0, buttons: 0, clientX: jointPoint.x + 45, clientY: jointPoint.y + 24});
+        await page.waitForTimeout(50);
+        await page.mouse.up();
+        const afterCancel = await readPhase3WorkspaceCheckpoint(page, "regression-home-new-stick", "visible-joint-cancel");
+        assert.equal(afterCancel.undoDepth, afterLimb.undoDepth);
+        assert.equal(afterCancel.documentDigest, afterLimb.documentDigest);
+
+        const currentJoint = stage.locator('svg > circle:not([data-onion-side])').first();
+        const currentJointBox = await currentJoint.boundingBox();
+        assert.ok(currentJointBox);
+        const currentJointPoint = {x: currentJointBox.x + currentJointBox.width / 2, y: currentJointBox.y + currentJointBox.height / 2};
+        await page.mouse.move(currentJointPoint.x, currentJointPoint.y);
+        await page.mouse.down();
+        await page.mouse.move(currentJointPoint.x + 36, currentJointPoint.y + 20, {steps: 4});
+        await page.mouse.up();
+        const afterDrag = await readPhase3WorkspaceCheckpoint(page, "regression-home-new-stick", "visible-joint-complete");
+        assert.equal(afterDrag.undoDepth, 2);
+        assert.equal(afterDrag.documentRevision, Number(afterLimb.documentRevision) + 1);
+        assert.notEqual(afterDrag.documentDigest, afterLimb.documentDigest);
+
+        const fps = await visible(page, "spinbutton", "Timeline FPS");
+        await fps.fill("17");
+        await fps.press("Enter");
+        const undo = await visible(page, "button", "Undo");
+        for (let attempt = 0; attempt < 100 && !(await undo.isEnabled()); attempt += 1) await page.waitForTimeout(50);
+        assert.equal(await undo.isEnabled(), true, "Phase 3 authored FPS edit did not publish one Undo entry.");
+        await (await visible(page, "button", "File")).click();
+        await (await visible(page, "menuitem", "Save")).click();
+        const saveStatus = page.getByTestId("stick-project-save-status");
+        await page.getByText("Saved on this browser", {exact: true}).waitFor({state: "visible", timeout: 30_000});
+        assert.match(await saveStatus.getAttribute("aria-label") ?? "", /does not cloud-sync/);
+        const firstSavedRaw = await page.evaluate(() => window.localStorage.getItem("da_saved_stick_projects_v1"));
+        assert.ok(firstSavedRaw);
+        const firstSaved = JSON.parse(firstSavedRaw) as {storageVersion: number; projects: Array<{document: {fps: number}}>};
+        assert.equal(firstSaved.storageVersion, 1);
+        assert.equal(firstSaved.projects.length, 1);
+        assert.equal(firstSaved.projects[0].document.fps, 17);
+
+        await page.reload({waitUntil: "networkidle"});
+        await visible(page, "heading", "Workspace");
+        await (await visible(page, "button", "Open Project Open an existing project.")).click();
+        await visible(page, "button", "← Back");
+        await (await visible(page, "button", "Stick Figure")).click();
+        await (await visible(page, "button", "Open Unnamed stick figure project")).click();
+        const reopenedFps = await visible(page, "spinbutton", "Timeline FPS");
+        assert.equal(await reopenedFps.inputValue(), "17");
+        const reopenedCheckpoint = await readPhase3WorkspaceCheckpoint(page, "regression-home-new-stick", "reopened-saved-project");
+        assert.equal(reopenedCheckpoint.playbackState, "paused");
+        assert.equal(reopenedCheckpoint.onionEnabled, false);
+        assert.equal(reopenedCheckpoint.previousOnionRenderInputDigest, null);
+        assert.equal(reopenedCheckpoint.nextOnionRenderInputDigest, null);
+        await page.getByText("Saved on this browser", {exact: true}).waitFor({state: "visible", timeout: 30_000});
+
+        await reopenedFps.fill("18");
+        await reopenedFps.press("Enter");
+        await page.evaluate(() => {
+          const target = window as Window & {__spec0001Phase3OriginalSetItem?: Storage["setItem"]};
+          target.__spec0001Phase3OriginalSetItem = Storage.prototype.setItem;
+          Storage.prototype.setItem = function () { throw new DOMException("proof quota", "QuotaExceededError"); };
+        });
+        await (await visible(page, "button", "File")).click();
+        await (await visible(page, "menuitem", "Save")).click();
+        await page.getByText("Save failed — this browser does not have enough local storage. Your changes are still unsaved.", {exact: true}).waitFor({state: "visible", timeout: 30_000});
+        assert.equal(await page.evaluate(() => window.localStorage.getItem("da_saved_stick_projects_v1")), firstSavedRaw, "Quota failure changed saved bytes.");
+        await page.evaluate(() => {
+          const target = window as Window & {__spec0001Phase3OriginalSetItem?: Storage["setItem"]};
+          if (!target.__spec0001Phase3OriginalSetItem) throw new Error("Missing exact storage restoration handle.");
+          Storage.prototype.setItem = target.__spec0001Phase3OriginalSetItem;
+          delete target.__spec0001Phase3OriginalSetItem;
+        });
+        await (await visible(page, "button", "File")).click();
+        await (await visible(page, "menuitem", "Save")).click();
+        await page.getByText("Saved on this browser", {exact: true}).waitFor({state: "visible", timeout: 30_000});
+        const secondSavedRaw = await page.evaluate(() => window.localStorage.getItem("da_saved_stick_projects_v1"));
+        assert.ok(secondSavedRaw && secondSavedRaw !== firstSavedRaw);
+
+        await page.reload({waitUntil: "networkidle"});
+        await page.evaluate(() => window.localStorage.setItem("da_saved_stick_projects_v1", "{corrupt"));
+        await visible(page, "heading", "Workspace");
+        await (await visible(page, "button", "Open Project Open an existing project.")).click();
+        await visible(page, "button", "← Back");
+        await (await visible(page, "button", "Stick Figure")).click();
+        await page.getByText("Saved Stick projects are invalid or unsupported. No project data changed.", {exact: true}).waitFor({state: "visible", timeout: 30_000});
+        assert.equal(await page.getByRole("button", {name: "Open Unnamed stick figure project", exact: true}).count(), 0);
+        await page.evaluate((raw) => window.localStorage.setItem("da_saved_stick_projects_v1", raw), secondSavedRaw);
+        await (await visible(page, "button", "Retry local Stick projects")).click();
+        await (await visible(page, "button", "Open Unnamed stick figure project")).click();
+        assert.equal(await (await visible(page, "spinbutton", "Timeline FPS")).inputValue(), "18");
+        const recoveredCheckpoint = await readPhase3WorkspaceCheckpoint(page, "regression-home-new-stick", "reopened-after-corrupt-recovery");
+        assert.equal(recoveredCheckpoint.playbackState, "paused");
+        assert.equal(recoveredCheckpoint.onionEnabled, false);
+        assert.equal(recoveredCheckpoint.previousOnionRenderInputDigest, null);
+        assert.equal(recoveredCheckpoint.nextOnionRenderInputDigest, null);
+        await (await visible(page, "button", "Stick Figure Tools")).click();
+        await (await visible(page, "button", "Create New Stick Figure")).click();
+        await (await visible(page, "button", "Back")).click();
+        await visible(page, "button", "Stick Figure Tools");
+        const drawingDatabaseEvidence = await page.evaluate(async () => {
+          const database = await new Promise<IDBDatabase>((resolve, reject) => {
+            const request = indexedDB.open("diamond-animator-local", 1);
+            request.addEventListener("success", () => resolve(request.result), {once: true});
+            request.addEventListener("error", () => reject(request.error), {once: true});
+          });
+          try {
+            const storeNames = [...database.objectStoreNames].sort();
+            const transaction = database.transaction(storeNames, "readonly");
+            const counts = await Promise.all(storeNames.map((storeName) => new Promise<[string, number]>((resolve, reject) => {
+              const request = transaction.objectStore(storeName).count();
+              request.addEventListener("success", () => resolve([storeName, request.result]), {once: true});
+              request.addEventListener("error", () => reject(request.error), {once: true});
+            })));
+            return Object.fromEntries(counts);
+          } finally {
+            database.close();
+          }
+        });
+        assert.deepEqual(Object.values(drawingDatabaseEvidence), [0, 0, 0, 0, 0], "Opening the shared project browser must not create Drawing project records during the Stick flow.");
+        assertions.push(
+          "normal visible Add Limb and completed joint drag each created one history action while pointer cancel restored exact bytes and added none",
+          "explicit local Save wrote one strict Stick catalog record",
+          "hard reload plus Home Open Stick restored exact FPS and paused Onion-OFF state",
+          "quota failure preserved current unsaved work and prior saved bytes",
+          "corrupt Open failed safely, retry restored the valid catalog, and exact reopen succeeded",
+          "Creator remained usable after Save, reload, Open, and failure recovery",
+          "the unchanged shared Open Project route created only its empty local Drawing catalog database; Stick persistence remained exclusively in localStorage",
+        );
+      }
+      pushCompatibilityRegression("home-new-stick", assertions);
     } finally { await closeCompatibilityContext(context, profile); }
   }
 
@@ -2365,6 +2644,82 @@ const waitForCompatibilityDriver = async (page: Page, contextId: string) => {
   throw new Error(`Compatibility driver did not connect in context ${contextId}.`);
 };
 
+const readPhase3ShellVisualSignature = async (page: Page) => {
+  const controls = [
+    ["file", page.getByRole("button", {name: "File", exact: true})],
+    ["edit", page.getByRole("button", {name: "Edit", exact: true})],
+    ["view", page.getByRole("button", {name: "View", exact: true})],
+    ["window", page.getByRole("button", {name: "Window", exact: true})],
+    ["help", page.getByRole("button", {name: "Help", exact: true})],
+    ["undo", page.getByRole("button", {name: "Undo", exact: true})],
+    ["redo", page.getByRole("button", {name: "Redo", exact: true})],
+    ["fps", page.getByRole("spinbutton", {name: "Timeline FPS", exact: true})],
+    ["add-layer", page.getByRole("button", {name: "+ Layer", exact: true})],
+    ["onion", page.getByRole("button", {name: "Onion", exact: true})],
+    ["play", page.getByRole("button", {name: "Play", exact: true})],
+    ["pause", page.getByRole("button", {name: "Pause", exact: true})],
+    ["stick-tools", page.getByRole("button", {name: "Stick Figure Tools", exact: true})],
+    ["properties", page.getByRole("button", {name: "Properties", exact: true})],
+    ["library", page.getByRole("button", {name: "Library", exact: true})],
+    ["assets", page.getByRole("button", {name: "Assets", exact: true})],
+    ["stage", page.getByTestId("stick-stage")],
+    ["toolbar", page.getByLabel("Stick figure workspace tool layout preview", {exact: true})],
+  ] as const;
+  const elements: Record<string, JsonObject> = {};
+  for (const [id, locator] of controls) {
+    await locator.waitFor({state: "visible", timeout: 30_000});
+    const box = await locator.boundingBox();
+    assert.ok(box, `Missing visual box for ${id}.`);
+    elements[id] = await locator.evaluate((node, input) => {
+      const style = getComputedStyle(node);
+      const round = (value: number) => Math.round(value * 1000) / 1000;
+      return {
+        box: {x: round(input.x), y: round(input.y), width: round(input.width), height: round(input.height)},
+        fontFamily: style.fontFamily,
+        fontSize: style.fontSize,
+        fontWeight: style.fontWeight,
+        lineHeight: style.lineHeight,
+        borderRadius: style.borderRadius,
+        ...(input.staticAppearance ? {
+          color: style.color,
+          backgroundColor: style.backgroundColor,
+          borderColor: style.borderColor,
+          boxShadow: style.boxShadow,
+        } : {}),
+      };
+    }, {...box, staticAppearance: ["file", "edit", "view", "window", "help", "properties", "stage", "toolbar"].includes(id)});
+  }
+  const motionInventory = await page.locator("body *").evaluateAll((nodes) => nodes.map((node) => {
+    const style = getComputedStyle(node);
+    return `${style.animationName}|${style.animationDuration}|${style.transitionProperty}|${style.transitionDuration}`;
+  }).sort().reduce<Array<[string, number]>>((entries, value) => {
+    const previous = entries.at(-1);
+    if (previous?.[0] === value) previous[1] += 1;
+    else entries.push([value, 1]);
+    return entries;
+  }, []));
+  const orderedLabels = (items: Array<[string, string]>) => items.sort((left, right) => {
+    const leftBox = elements[left[0]].box as JsonObject;
+    const rightBox = elements[right[0]].box as JsonObject;
+    return Number(leftBox.x) - Number(rightBox.x);
+  }).map((entry) => entry[1]);
+  const order = {
+    topBar: orderedLabels([["file", "File"], ["edit", "Edit"], ["view", "View"], ["window", "Window"], ["help", "Help"], ["undo", "Undo"], ["redo", "Redo"]]),
+    timeline: orderedLabels([["add-layer", "+ Layer"], ["onion", "Onion"], ["play", "Play"], ["pause", "Pause"]]),
+    tabs: orderedLabels([["stick-tools", "Stick Figure Tools"], ["properties", "Properties"], ["library", "Library"], ["assets", "Assets"]]),
+  };
+  assert.deepEqual(order, {
+    topBar: ["File", "Edit", "View", "Window", "Help", "Undo", "Redo"],
+    timeline: ["+ Layer", "Onion", "Play", "Pause"],
+    tabs: ["Stick Figure Tools", "Properties", "Library", "Assets"],
+  }, "Protected Stick shell control order changed.");
+  return {
+    order,
+    elements,
+    motionInventory,
+  } as JsonObject;
+};
+
 const executeCompatibilityAction = async (
   step: ValidatedTesterExtension["plan"]["steps"][number],
   action: NormalizedAction,
@@ -2385,7 +2740,10 @@ const executeCompatibilityAction = async (
       } else if (action.operation === "press") {
         assert.ok(action.input && "key" in action.input);
         await locator.press(action.input.key);
-      } else if (action.operation === "assert-enabled") assert.equal(await locator.isEnabled(), true);
+      } else if (action.operation === "assert-enabled") {
+        for (let attempt = 0; attempt < 100 && !(await locator.isEnabled()); attempt += 1) await page.waitForTimeout(50);
+        assert.equal(await locator.isEnabled(), true);
+      }
       else if (action.operation === "assert-disabled") assert.equal(await locator.isDisabled(), true);
       else assert.equal(action.operation, "assert-visible");
     }
@@ -2408,6 +2766,71 @@ const executeCompatibilityAction = async (
     const message = await dispatchCompatibilityCommand(page, step.contextId, command.operation, command.payload);
     evidence = canonicalCompatibilityCommandEvidence(message.payload, action.actionId);
     if (action.operation === "readCheckpoint") compatibilityCheckpoints.push({channel: "workspace-driver", checkpointId: action.operationId, ...evidence});
+    if (compatibilityGraph?.authorizationId === "phase-3/v1") {
+      const commandEvidence = evidence as {response: JsonObject; checkpoint: JsonObject};
+      const checkpoint = commandEvidence.checkpoint;
+      if (action.operation === "mountEditorHistoryRoot") {
+        assert.deepEqual(commandEvidence.response, {accepted: true, outcomeCode: "mounted", errorCode: null});
+        assert.equal(checkpoint.checkpointVersion, 1);
+        assert.equal(checkpoint.rootStatus, "ready");
+        assert.equal(checkpoint.workspaceGeneration, 1);
+        assert.equal(checkpoint.undoDepth, 1);
+        assert.equal(checkpoint.redoDepth, 0);
+        assert.equal(checkpoint.onionEnabled, false);
+      }
+      if (action.operation === "readCheckpoint" && action.operationId.startsWith("onion-")) {
+        const onionNodes = page.locator("[data-onion-side]");
+        const invariant = {
+          documentDigest: checkpoint.documentDigest,
+          documentRevision: checkpoint.documentRevision,
+          historyRootDigest: checkpoint.historyRootDigest,
+          undoDepth: checkpoint.undoDepth,
+          redoDepth: checkpoint.redoDepth,
+          storageDigest: checkpoint.storageDigest,
+          workspaceGeneration: checkpoint.workspaceGeneration,
+        };
+        if (action.operationId === "onion-paused") {
+          assert.equal(checkpoint.playbackState, "paused");
+          assert.equal(checkpoint.onionEnabled, true);
+          assert.match(String(checkpoint.previousOnionRenderInputDigest), /^sha256:[0-9a-f]{64}$/);
+          assert.match(String(checkpoint.nextOnionRenderInputDigest), /^sha256:[0-9a-f]{64}$/);
+          assert.ok(await onionNodes.count() > 0);
+          const overlayDom = await onionNodes.evaluateAll((nodes) => nodes.map((node) => ({
+            side: node.getAttribute("data-onion-side"),
+            tint: node.getAttribute("data-onion-tint"),
+            excluded: node instanceof SVGElement
+              ? (node.closest("svg") as SVGElement | null)?.style.pointerEvents === "none"
+              : (node as HTMLElement).style.pointerEvents === "none",
+          })));
+          assert.deepEqual([...new Set(overlayDom.map((entry) => entry.side))].sort(), ["next", "previous"]);
+          assert.deepEqual([...new Set(overlayDom.filter((entry) => entry.side === "previous").map((entry) => entry.tint))], ["rgba(92, 63, 158, 0.58)"]);
+          assert.deepEqual([...new Set(overlayDom.filter((entry) => entry.side === "next").map((entry) => entry.tint))], ["rgba(44, 122, 91, 0.56)"]);
+          assert.ok(overlayDom.every((entry) => entry.excluded), "Every onion element must be outside pointer hit testing.");
+          phase3OnionInvariantByContext.set(step.contextId, invariant);
+        } else {
+          assert.deepEqual(invariant, phase3OnionInvariantByContext.get(step.contextId), `Onion changed canonical/history/storage state at ${action.operationId}.`);
+          if (action.operationId === "onion-playing") {
+            assert.equal(checkpoint.playbackState, "playing");
+            assert.equal(checkpoint.onionEnabled, true);
+            assert.equal(checkpoint.previousOnionRenderInputDigest, null);
+            assert.equal(checkpoint.nextOnionRenderInputDigest, null);
+            assert.equal(await onionNodes.count(), 0);
+          } else if (action.operationId === "onion-paused-again") {
+            assert.equal(checkpoint.playbackState, "paused");
+            assert.equal(checkpoint.onionEnabled, true);
+            assert.ok(checkpoint.previousOnionRenderInputDigest !== null || checkpoint.nextOnionRenderInputDigest !== null);
+            assert.ok(await onionNodes.count() > 0);
+          } else {
+            assert.equal(action.operationId, "onion-off");
+            assert.equal(checkpoint.playbackState, "paused");
+            assert.equal(checkpoint.onionEnabled, false);
+            assert.equal(checkpoint.previousOnionRenderInputDigest, null);
+            assert.equal(checkpoint.nextOnionRenderInputDigest, null);
+            assert.equal(await onionNodes.count(), 0);
+          }
+        }
+      }
+    }
   } else if (action.family === "runner-environment") {
     if (action.fixtureId !== null) assert.ok(compatibilityGraph?.registry.fixtures.some((fixture) => fixture.fixtureId === action.fixtureId));
     evidence = runCompatibilityEnvironmentAction(action);
@@ -2429,7 +2852,22 @@ const executeCompatibilityAction = async (
     writeFileSync(secureExtensionFilePath(path, true), screenshotBytes, {mode: 0o600, flag: "wx"});
     const binding = {...bindFile(ROOT, path), id: action.screenshotId, viewport};
     compatibilityScreenshots.push(binding);
-    evidence = binding;
+    if (compatibilityGraph?.authorizationId === "phase-3/v1") {
+      const visualSignature = await readPhase3ShellVisualSignature(page);
+      const viewportKey = `${viewport.width}x${viewport.height}` as keyof typeof PHASE3_BASE_SHELL_ELEMENTS_DIGESTS;
+      const expectedBaseDigest = PHASE3_BASE_SHELL_ELEMENTS_DIGESTS[viewportKey];
+      assert.ok(expectedBaseDigest, `No frozen §10.5A visual baseline for ${viewportKey}.`);
+      const shellElementsDigest = sha256Bytes(stableJson(visualSignature.elements));
+      assert.equal(shellElementsDigest, expectedBaseDigest, `Stick shell geometry/font/style differs from exact base ${viewportKey}.`);
+      if (action.screenshotId.includes("01-fresh-stick")) {
+        phase3ShellVisualBaselineByContext.set(step.contextId, visualSignature);
+      } else {
+        const baseline = phase3ShellVisualBaselineByContext.get(step.contextId);
+        assert.ok(baseline, `Missing fresh visual signature for ${step.contextId}.`);
+        assert.deepEqual(visualSignature, baseline, `Stick shell geometry/font/style/motion inventory changed in ${step.contextId}.`);
+      }
+      evidence = {...binding, visualSignature, shellElementsDigest, expectedBaseDigest, exactBaseAndFreshFinalShellMatch: true};
+    } else evidence = binding;
   } else {
     assert.equal(action.family, "protected-regression");
     await runCompatibilityProtectedRegressions(server);
@@ -2672,6 +3110,7 @@ const cleanupCompatibility = () => {
 const runVersion2Proof = async (graph: ValidatedTesterExtension) => {
   compatibilityGraph = graph;
   configureExtensionOutputPaths(graph);
+  if (graph.authorizationId === "phase-3/v1") assertPhase3VisualSourceBoundary(graph.plan.baseCommit);
   ensureCompatibilityNoCollisions();
   const collisionPreservation = runCompatibilityCollisionPreservationSelfTest(graph);
   const browserExecutable = compatibilityExecutableEvidence(BROWSER_EXECUTABLE);
@@ -2755,14 +3194,23 @@ const runVersion2Proof = async (graph: ValidatedTesterExtension) => {
     });
     assert.equal(compatibilityExpectedSyntheticState.lastPublication, "publication-b", "Out-of-order publication A must not replace ready winner B.");
   }
-  assert.deepEqual(compatibilityScreenshots.map((entry) => entry.id), graph.plan.evidence.screenshotIds);
+  const observedScreenshotIds = compatibilityScreenshots.map((entry) => entry.id);
+  assert.deepEqual(
+    graph.authorizationId === "phase-3/v1" ? observedScreenshotIds.sort() : observedScreenshotIds,
+    graph.plan.evidence.screenshotIds,
+  );
   if (graph.adapter.executionProfile === "synthetic-state-machine/v1") assert.equal(compatibilityScreenshots.length, 1, "Compatibility synthetic proof requires exactly one screenshot.");
   assert.deepEqual(compatibilityRegressions.map((entry) => String(entry.group)).sort(), [...graph.plan.evidence.protectedRegressionGroups].sort());
   assert.equal(compatibilityRequests.length, 1, "Compatibility protected Drawing regressions require exactly one mocked request.");
   assert.equal(compatibilityEnvironment.activeGates.size, 0);
   assert.equal(compatibilityEnvironment.installedFixtureId, null);
   assert.equal(compatibilityBrowserVersions.size, 1);
-  assert.deepEqual(changedPaths(), graph.git.observedDirtyPaths, "Compatibility proof changed tracked or nonignored source bytes.");
+  const finalChangedPaths = changedPaths();
+  assert.deepEqual(
+    graph.authorizationId === "phase-3/v1" ? sortProofPaths(finalChangedPaths) : finalChangedPaths,
+    graph.git.observedDirtyPaths,
+    "Compatibility proof changed tracked or nonignored source bytes.",
+  );
   const serverNetwork = readNdjson(COMPATIBILITY_SERVER_NETWORK_LEDGER);
   const browserNetworkEvidence = readNdjson(COMPATIBILITY_BROWSER_NETWORK_LEDGER);
   const browserConsoleEvidence = readNdjson(COMPATIBILITY_BROWSER_CONSOLE_LEDGER);
@@ -2786,9 +3234,16 @@ const runVersion2Proof = async (graph: ValidatedTesterExtension) => {
   };
   assert.deepEqual(observedCleanup, {anchorRestored: true, sourceRestored: true, browserContextsOpen: 0, activeGates: 0, activeIntercepts: 0, openChildProcesses: 0, openPorts: 0, residualPaths: []});
   const cleanupEvidence = observedCleanup as ExtensionResult["cleanup"];
-  const storageResidue = compatibilityStorage.some((entry) =>
-    (entry.localStorageKeys as unknown[]).some((key) => key !== "da_drawing_ai_control_preferences_v1" && key !== "da_welcome_seen") || (entry.sessionStorageKeys as unknown[]).length !== 0 ||
-    entry.indexedDatabaseCount !== 0 || entry.cacheCount !== 0 || entry.serviceWorkerCount !== 0 || (entry.opfsEntries as unknown[]).length !== 0);
+  const allowedLocalStorageKeys = compatibilityGraph?.authorizationId === "phase-3/v1"
+    ? ["da_drawing_ai_control_preferences_v1", "da_saved_stick_projects_v1", "da_welcome_seen"]
+    : ["da_drawing_ai_control_preferences_v1", "da_welcome_seen"];
+  const storageResidue = compatibilityStorage.some((entry) => {
+    const permittedSharedDrawingCatalog = compatibilityGraph?.authorizationId === "phase-3/v1" &&
+      entry.contextId === "regression-home-new-stick" && entry.checkpoint === "before-close" &&
+      entry.indexedDatabaseCount === 1 && JSON.stringify(entry.indexedDatabaseNames) === JSON.stringify(["diamond-animator-local"]);
+    return (entry.localStorageKeys as unknown[]).some((key) => !allowedLocalStorageKeys.includes(String(key))) || (entry.sessionStorageKeys as unknown[]).length !== 0 ||
+      (!permittedSharedDrawingCatalog && entry.indexedDatabaseCount !== 0) || entry.cacheCount !== 0 || entry.serviceWorkerCount !== 0 || (entry.opfsEntries as unknown[]).length !== 0;
+  });
   assert.equal(storageResidue, false, "Compatibility storage ledger contains residue.");
 
   writeExtensionJson(COMPATIBILITY_ACTION_LEDGER, {ledgerVersion: 1, authorizationId: graph.authorizationId, actions: compatibilityOperations});
@@ -2802,7 +3257,7 @@ const runVersion2Proof = async (graph: ValidatedTesterExtension) => {
   assert.deepEqual(compatibilityExecutableEvidence(BROWSER_EXECUTABLE), browserExecutable, "Compatibility browser executable changed during proof execution.");
 
   const result: ExtensionResult = {
-    resultVersion: 2,
+    resultVersion: graph.authorizationId === "phase-3/v1" ? 3 : 2,
     specId: "SPEC-0001",
     proofPurpose: graph.plan.proofPurpose,
     status: "passed",
@@ -3040,7 +3495,11 @@ const reportCompatibilityFailure = async (error: unknown) => {
         cleanupError: cleanupError === null ? null : cleanupError instanceof Error ? cleanupError.message : String(cleanupError),
         cleanup: {
           anchorRestored: compatibilityAnchorOriginalHash === null || sha256Bytes(readFileSync(repositoryPath(ROOT, ANCHOR_PATH))) === compatibilityAnchorOriginalHash,
-          sourceRestored: compatibilityGraph === null || JSON.stringify(changedPaths()) === JSON.stringify(compatibilityGraph.git.observedDirtyPaths),
+          sourceRestored: compatibilityGraph === null || JSON.stringify(
+            compatibilityGraph.authorizationId === "phase-3/v1"
+              ? sortProofPaths(changedPaths())
+              : changedPaths(),
+          ) === JSON.stringify(compatibilityGraph.git.observedDirtyPaths),
           browserContextsOpen: compatibilityOwnedContexts.size,
           activeGates: compatibilityEnvironment.activeGates.size,
           openChildProcesses: activeServer === null ? 0 : 1,
@@ -3200,8 +3659,78 @@ const runCompatibilityLifecycleDrills = async (graph: ValidatedTesterExtension) 
 ];
 
 const dispatchBrowserProof = () => {
+  const rawArgs = process.argv.slice(2);
+  if (rawArgs.some((argument) => argument.startsWith("--self-test"))) {
+    if (rawArgs.length !== 1 || rawArgs[0] !== "--self-test=phase-3-registration") {
+      console.error("Phase 3 registration self-test accepts only --self-test=phase-3-registration.");
+      process.exitCode = 1;
+      return;
+    }
+    try {
+      const graph = loadTesterExtensionGraph(ROOT, "scripts/fixtures/stick-ai/v1/phase-3-browser-proof-plan.json");
+      assert.equal(graph.authorizationId, "phase-3/v1");
+      assert.equal(graph.plan.planVersion, 3);
+      assert.equal(graph.registry.registryVersion, 3);
+      assert.deepEqual(graph.adapter, {
+        declarationVersion: 1,
+        adapterId: "phase-3-history-storage-onion",
+        authorizationId: "phase-3/v1",
+        adapterKind: "phase-3-product-ports/v1",
+        executionProfile: "phase3-workspace-ports/v1",
+        workspacePortBinding: "spec0001Phase3BrowserPortsV1",
+        productPhaseClaimed: true,
+        driverOperations: [
+          {operation: "mountEditorHistoryRoot", fixtureKinds: ["stick-workspace-history-mount-v1"]},
+          {operation: "dispatchEditorTransaction", fixtureKinds: ["stick-editor-transaction-v1"]},
+          {operation: "beginDocumentPublication", fixtureKinds: ["stick-document-publication-plan-v1"]},
+          {operation: "completeDocumentPublication", fixtureKinds: ["stick-document-publication-completion-v1"]},
+          {operation: "beginMountedOpen", fixtureKinds: ["stick-mounted-open-candidate-v1"]},
+          {operation: "completeMountedOpen", fixtureKinds: ["stick-mounted-open-completion-v1"]},
+          {operation: "cancelMountedOpen", fixtureKinds: ["stick-mounted-open-cancel-v1"]},
+          {operation: "readCheckpoint", fixtureKinds: []},
+        ],
+        environmentOperations: [
+          {operation: "installEnvironmentPlan", fixtureKinds: ["stick-browser-environment-plan-v1"]},
+          {operation: "releaseEnvironmentGate", fixtureKinds: ["stick-browser-environment-gate-release-v1"]},
+          {operation: "readEnvironmentCheckpoint", fixtureKinds: []},
+          {operation: "clearEnvironmentPlan", fixtureKinds: []},
+        ],
+        pointerTargets: [{targetId: "phase-3-stick-canvas", targetKind: "authorized-canvas"}],
+        checkpointKinds: ["environment", "workspace"],
+      });
+      const catalog = readJson(ROOT, "scripts/fixtures/spec0001-browser/v2/tester-extension-authorizations.json") as {catalogVersion: number; authorizations: Array<{authorizationId: string}>};
+      assert.equal(catalog.catalogVersion, 2);
+      assert.deepEqual(catalog.authorizations.map((entry) => entry.authorizationId), ["phase-1.5-compatibility-synthetic/v1", "phase-2/v1", "phase-3/v1"]);
+      const knownPathPair = ["src/lib/stickfigure/stickProjectHistory.ts", "src/lib/stickProjectStorage.ts"];
+      const canonicalKnownPathPair = ["src/lib/stickProjectStorage.ts", "src/lib/stickfigure/stickProjectHistory.ts"];
+      assert.deepEqual(sortProofPaths(knownPathPair), canonicalKnownPathPair, "Phase 3 proof paths must use deterministic UTF-8 byte-wise order.");
+      assert.deepEqual([...knownPathPair].sort(), canonicalKnownPathPair, "Phase 3 proof-path order must match the independent manifest validator.");
+      for (const paths of [graph.pathCeiling, graph.plan.dirtyExpectedPaths, graph.git.observedDirtyPaths]) {
+        assert.deepEqual(paths.filter((path) => canonicalKnownPathPair.includes(path)), canonicalKnownPathPair, "Contract and runner must emit the known path pair in canonical order.");
+      }
+      const misorderedPlan = structuredClone(graph.plan);
+      const storageIndex = misorderedPlan.dirtyExpectedPaths.indexOf(canonicalKnownPathPair[0]);
+      const historyIndex = misorderedPlan.dirtyExpectedPaths.indexOf(canonicalKnownPathPair[1]);
+      assert.ok(storageIndex >= 0 && historyIndex >= 0);
+      [misorderedPlan.dirtyExpectedPaths[storageIndex], misorderedPlan.dirtyExpectedPaths[historyIndex]] = [
+        misorderedPlan.dirtyExpectedPaths[historyIndex],
+        misorderedPlan.dirtyExpectedPaths[storageIndex],
+      ];
+      assert.throws(() => validateExtensionPlanValue(misorderedPlan), /plan dirtyExpectedPaths canonical proof-path order/);
+      assert.throws(() => parseBrowserProofCli([
+        "--plan=scripts/fixtures/stick-ai/v1/phase-3-browser-proof-plan.json",
+        "--run-base=54234b7c7b95201e274975a804859fa9c36806a1",
+      ]), /cannot be combined/);
+      assert.equal(graph.git.derivedGitState, "dirty-executor");
+      console.log("SPEC-0001 Phase 3 tester registration self-test PASS: v3 graph, exact ports, canonical byte-wise proof paths with reverse-order rejection, dirty Git derivation, and cross-phase selection rejection.");
+    } catch (error) {
+      console.error(error);
+      process.exitCode = 1;
+    }
+    return;
+  }
   let invocation: ReturnType<typeof parseBrowserProofCli>;
-  try { invocation = parseBrowserProofCli(process.argv.slice(2)); }
+  try { invocation = parseBrowserProofCli(rawArgs); }
   catch (error) {
     console.error(error);
     process.exitCode = 1;

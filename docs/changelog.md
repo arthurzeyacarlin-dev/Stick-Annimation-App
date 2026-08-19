@@ -5,6 +5,19 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-19 — SPEC-0001 Phase 3 accepted technical result closed out for publication review
+
+- recorded permanent decision D-0021: before any future visible implementation is accepted or published, the Project Manager must give Arthur a current separate worktree review copy through its local app URL, screenshots from that exact worktree, or both; rejection returns to a correction executor, and publication waits for Arthur's explicit acceptance
+- recorded Arthur's completed visible human review and acceptance of the exact Phase 3 result: truthful Stick Undo/Redo, explicit browser-local Save/Open, D-0018 onion, preserved §10.5A shell/manual timeline, and preserved Creator access
+- verified exclusive Control Plane Architect takeover of `/Users/arthurcarlin/.codex/worktrees/cdb2/stick-animation-app` at exact base/HEAD `54234b7c7b95201e274975a804859fa9c36806a1`, empty index, and exact 30-path accepted implementation/fixture/test set
+- independently revalidated `output/spec-0001/phase-3/proof-manifest.json` at SHA-256 `07bd09c413a28ffcc706be85d00d1d4466cde1e336daceab23d9a1617153b675`; it binds 11 successful receipts and 63 artifacts, including the corrected async Drawing-memory validator, history/persistence/onion checks, TypeScript, zero lint regression, diff checks, registration self-test, inherited tester run, and the full Phase 3 browser plan
+- recorded the separately accepted proof-only closeout correction in exactly `scripts/spec0001-browser/browserTesterExtensionContract.ts` and `scripts/validateSpec0001ProofBundle.ts`: it adds a strict Phase 3 closeout context for the exact 30 technical plus eight canonical record paths, with missing/extra-path self-tests, while leaving accepted product behavior and every other accepted technical path unchanged
+- preserved accepted browser result SHA-256 `880daaa01c45356e9ae6c1fd652be90bbdf4070bd4e97ea62fb8412c4762fcc3` with 71 actions, 7 checkpoints, 4 screenshots at both required viewports, five protected groups, zero real/non-loopback/provider requests, and complete cleanup
+- carried forward canonical `main`'s later documentation-only proof-blocker record `b8d8406ca6b51c3b83adb29fa20f20160c871c54` into this closeout, while recording that a later publication task must not merge, rebase, force-push, rewrite history, or silently overwrite the newer canonical records
+- kept Phase 4 and Phases 5–7 Unauthorized/Not started; changed no accepted runtime/fixture/test byte and performed no staging, commit, merge, rebase, push, publication, deployment, external request, OpenAI, search, Supabase, or paid operation
+
+Phase 3 is accepted and technically Verified in its dedicated worktree, pending a separately authorized publication/integration task and the required clean four-suite publication gate.
+
 ### 2026-08-18 — SPEC-0001 Phase 3 stale Drawing-memory proof blocker bounded
 
 - recorded exact clean canonical-main/Phase 3 base `54234b7c7b95201e274975a804859fa9c36806a1`, the preserved stopped-executor tree's empty index and exact 29-path dirty set, and its corroborating 71-action/7-checkpoint/4-screenshot two-viewport pass with five protected groups, TypeScript, zero lint regression, deterministic history/persistence/onion checks, and unchanged Drawing runtime bytes

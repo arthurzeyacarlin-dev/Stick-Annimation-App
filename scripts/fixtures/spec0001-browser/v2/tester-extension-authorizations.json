@@ -1,5 +1,5 @@
 {
-  "catalogVersion": 1,
+  "catalogVersion": 2,
   "specId": "SPEC-0001",
   "authorizations": [
     {
@@ -79,6 +79,50 @@
         "src/components/workspace/stickfigure/types.ts",
         "src/lib/stickfigure/stickProjectContract.ts",
         "src/lib/stickfigure/stickTimeline.ts"
+      ]
+    },
+    {
+      "authorizationId": "phase-3/v1",
+      "proofPurpose": "phase-3",
+      "materializationKind": "deferred",
+      "plan": {"path": "scripts/fixtures/stick-ai/v1/phase-3-browser-proof-plan.json", "schemaPath": "scripts/fixtures/spec0001-browser/v3/tester-extension-plan.schema.json", "planVersion": 3},
+      "registry": {"path": "scripts/fixtures/spec0001-browser/v1/phase-3-action-registry.json", "schemaPath": "scripts/fixtures/spec0001-browser/v3/tester-extension-registry.schema.json", "registryVersion": 3},
+      "adapter": {"path": "scripts/spec0001-browser/actions/phase3.ts", "grammarId": "spec0001-browser-adapter-declaration/v1", "declarationVersion": 1},
+      "resultSchema": {"path": "scripts/fixtures/spec0001-browser/v3/tester-extension-result.schema.json", "resultVersion": 3},
+      "operationFamilies": ["checkpoint", "fixture", "pointer", "protected-regression", "runner-environment", "screenshot", "visible-role", "visible-testid", "workspace-driver"],
+      "outputRoot": "output/spec-0001/phase-3",
+      "pathCeiling": [
+        "app/page.tsx",
+        "scripts/fixtures/spec0001-browser/v1/phase-3-action-registry.json",
+        "scripts/fixtures/spec0001-browser/v2/tester-extension-authorizations.json",
+        "scripts/fixtures/spec0001-browser/v3/tester-extension-authorization.schema.json",
+        "scripts/fixtures/spec0001-browser/v3/tester-extension-plan.schema.json",
+        "scripts/fixtures/spec0001-browser/v3/tester-extension-registry.schema.json",
+        "scripts/fixtures/spec0001-browser/v3/tester-extension-result.schema.json",
+        "scripts/fixtures/stick-ai/v1/manual-wave-saved-project.json",
+        "scripts/fixtures/stick-ai/v1/non-wave-saved-project.json",
+        "scripts/fixtures/stick-ai/v1/phase-3-browser-proof-plan.json",
+        "scripts/fixtures/stick-ai/v1/phase-3-proof-commands.json",
+        "scripts/fixtures/stick-ai/v1/stick-history-cases.json",
+        "scripts/fixtures/stick-ai/v1/stick-history-publication-race-cases.json",
+        "scripts/fixtures/stick-ai/v1/stick-manual-action-history-cases.json",
+        "scripts/fixtures/stick-ai/v1/stick-saved-projects.json",
+        "scripts/fixtures/stick-ai/v1/stick-storage-cases.json",
+        "scripts/fixtures/stick-ai/v1/wave-editor-history-root.json",
+        "scripts/recordSpec0001ProofBundle.ts",
+        "scripts/runSpec0001BrowserProof.ts",
+        "scripts/spec0001-browser/actions/phase3.ts",
+        "scripts/spec0001-browser/browserTesterExtensionContract.ts",
+        "scripts/validateDrawingProjectAiMemory.ts",
+        "scripts/validateSpec0001ProofBundle.ts",
+        "scripts/validateStickHistoryPersistence.ts",
+        "src/components/open-project/OpenProjectBrowser.tsx",
+        "src/components/workspace/stickfigure/StickFigureCanvas.tsx",
+        "src/components/workspace/stickfigure/StickFigureTopBar.tsx",
+        "src/components/workspace/stickfigure/StickFigureWorkspace.tsx",
+        "src/lib/stickProjectStorage.ts",
+        "src/lib/stickfigure/stickProjectContract.ts",
+        "src/lib/stickfigure/stickProjectHistory.ts"
       ]
     }
   ]

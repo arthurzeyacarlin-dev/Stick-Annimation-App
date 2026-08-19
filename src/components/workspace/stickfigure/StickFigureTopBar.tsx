@@ -9,6 +9,8 @@ type StickFigureTopBarProps = {
   canUndo?: boolean;
   canRedo?: boolean;
   historyScopeLabel?: string;
+  statusText?: string;
+  statusDisclosure?: string;
 };
 
 const topBarButtonStyle = (isActive = false, cursor: "pointer" | "default" = "default") =>
@@ -58,6 +60,8 @@ export function StickFigureTopBar({
   canUndo = false,
   canRedo = false,
   historyScopeLabel,
+  statusText,
+  statusDisclosure,
 }: StickFigureTopBarProps) {
   const [isFileMenuOpen, setIsFileMenuOpen] = useState(false);
   const [hoveredHistoryAction, setHoveredHistoryAction] = useState<"undo" | "redo" | null>(null);
@@ -255,6 +259,22 @@ export function StickFigureTopBar({
       </div>
 
       <div style={{ flex: 1 }} />
+
+      {statusText ? (
+        <div
+          data-testid="stick-project-save-status"
+          title={statusDisclosure}
+          aria-label={statusDisclosure ? `${statusText}. ${statusDisclosure}` : statusText}
+          style={{
+            color: "rgba(255,255,255,0.58)",
+            fontSize: 11,
+            whiteSpace: "nowrap",
+            userSelect: "none",
+          }}
+        >
+          {statusText}
+        </div>
+      ) : null}
     </div>
   );
 }

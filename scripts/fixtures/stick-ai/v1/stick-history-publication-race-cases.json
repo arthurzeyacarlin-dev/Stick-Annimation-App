@@ -1,0 +1,9 @@
+{
+  "fixtureVersion": 1,
+  "kind": "stick-document-publication-completion-v1",
+  "completionVersion": 1,
+  "targetOperationId": "document-publication-main",
+  "action": "resolve",
+  "expectedDocumentDigest": "sha256:4e1844363ec0400141ba5989febcc2d3f8f869e7bfbbd4ad0bad1780bfa4feac",
+  "cases": ["late-authored-completion","save-during-publication-preserves-live-baseline","stale-workspace-instance","failed-digest-keeps-current","undo-redo-verify-before-publication"]
+}

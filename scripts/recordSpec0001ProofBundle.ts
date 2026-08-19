@@ -260,6 +260,20 @@ const phaseTwoExactCommands = (base: string) => [
   ["node", "--experimental-strip-types", "scripts/runSpec0001BrowserProof.ts", "--plan=scripts/fixtures/stick-ai/v1/phase-2-browser-proof-plan.json"],
 ];
 
+const phaseThreeExactCommands = (base: string) => [
+  ["node", "--experimental-strip-types", "scripts/validateStickHistoryPersistence.ts"],
+  ["node", "--experimental-strip-types", "scripts/validateStickPoseTimeline.ts"],
+  ["node", "--experimental-strip-types", "scripts/validateStickFigureAiContracts.ts"],
+  ["node", "--experimental-strip-types", "scripts/validateDrawingProjectAiMemory.ts"],
+  ["node", "--experimental-strip-types", "scripts/validateDrawingProjectAiMemoryRouteSafety.ts"],
+  ["./node_modules/.bin/tsc", "--noEmit", "--incremental", "false"],
+  ["node", "--experimental-strip-types", "scripts/spec0001-proof/measureSpec0001LintRegression.ts", `--base=${base}`],
+  ["git", "diff", "--check"],
+  ["node", "--experimental-strip-types", "scripts/runSpec0001BrowserProof.ts", "--self-test=phase-3-registration"],
+  ["node", "--experimental-strip-types", "scripts/runSpec0001BrowserProof.ts"],
+  ["node", "--experimental-strip-types", "scripts/runSpec0001BrowserProof.ts", "--plan=scripts/fixtures/stick-ai/v1/phase-3-browser-proof-plan.json"],
+];
+
 const nulList = (value: string) => value.split("\0").filter(Boolean);
 
 const collectArtifacts = (configPath: string, commands: CommandConfig[], bindingPaths: string[], browserEvidenceInput: string | null, version: 1 | 2 = 1) => {
@@ -451,8 +465,10 @@ const validateV2LintMeasurementForRecording = (value: unknown, baseCommit: strin
   return measurement;
 };
 
-const summarizeV2Evidence = (path: string, baseCommit: string, headCommit: string) => {
+const summarizeV2Evidence = (path: string, baseCommit: string, headCommit: string, phase: number) => {
   const runnerResult = JSON.parse(readFileSync(resolve(ROOT, path), "utf8")) as Record<string, unknown>;
+  const expectedResultVersion = phase === 3 ? 3 : 2;
+  if (runnerResult.resultVersion !== expectedResultVersion) throw new Error(`Phase ${phase} runner result version must be ${expectedResultVersion}.`);
   const derivedGitState = runnerResult.derivedGitState;
   if (derivedGitState !== "dirty-executor" && derivedGitState !== "clean-committed") throw new Error("Version 2 runner result derived Git state is invalid.");
   if (runnerResult.baseCommit !== baseCommit || runnerResult.headCommit !== headCommit) throw new Error("Version 2 runner result Git binding mismatch.");
@@ -461,7 +477,8 @@ const summarizeV2Evidence = (path: string, baseCommit: string, headCommit: strin
   const cleanExpectedPaths = requireStringArray(runnerResult.cleanExpectedPaths, "Runner clean expectations");
   const selectedExpectedPaths = requireStringArray(runnerResult.selectedExpectedPaths, "Runner selected expectations");
   const authorization = exactKeys(runnerResult.authorization, ["authorizationId", "materializationKind"], "Runner authorization");
-  if (authorization.authorizationId !== "phase-1.5-compatibility-synthetic/v1" && authorization.authorizationId !== "phase-2/v1") throw new Error("Runner authorization ID is invalid.");
+  const expectedAuthorization = phase === 3 ? "phase-3/v1" : "phase-2/v1";
+  if (authorization.authorizationId !== expectedAuthorization) throw new Error(`Phase ${phase} runner authorization ID is invalid.`);
   if (authorization.materializationKind !== "materialized" && authorization.materializationKind !== "deferred") throw new Error("Runner materialization kind is invalid.");
   const resultBindings = exactKeys(runnerResult.bindings, ["adapter", "catalog", "plan", "registry"], "Runner bindings");
   const bindings = {
@@ -560,6 +577,15 @@ const recordV2 = (
       if (command.expectedExitCode !== 0 || Object.keys(command.env).length !== 0) throw new Error(`Phase 2 command ${index + 1} must use empty declared env and expect exit 0.`);
     });
   }
+  if (args.phase === 3) {
+    const expectedCommands = phaseThreeExactCommands(args.base);
+    if (commands.length !== expectedCommands.length) throw new Error("Phase 3 proof requires exactly eleven commands.");
+    commands.forEach((command, index) => {
+      if (JSON.stringify(command.argv) !== JSON.stringify(expectedCommands[index])) throw new Error(`Phase 3 command ${index + 1} argv/order mismatch.`);
+      const expectedExitCode = index === 9 ? 1 : 0;
+      if (command.expectedExitCode !== expectedExitCode || Object.keys(command.env).length !== 0) throw new Error(`Phase 3 command ${index + 1} must use empty declared env and expect exit ${expectedExitCode}.`);
+    });
+  }
   const executions = commands.map((command) => closeV2Command(command, allBindingPaths));
 
   const existingOutputFiles = listFilesRecursively(outputDirectory);
@@ -620,7 +646,7 @@ const recordV2 = (
     .map(v2FileBinding);
   if (!existsSync(resolve(ROOT, config.browserEvidenceInput))) throw new Error("Version 2 browser evidence input was not produced by the ordered commands.");
   safeV2Path(config.browserEvidenceInput);
-  const evidence = summarizeV2Evidence(config.browserEvidenceInput, args.base, headCommit);
+  const evidence = summarizeV2Evidence(config.browserEvidenceInput, args.base, headCommit, args.phase);
   const runnerForRuntime = JSON.parse(readFileSync(resolve(ROOT, config.browserEvidenceInput), "utf8")) as Record<string, unknown>;
   const runnerRuntime = exactKeys(runnerForRuntime.runtime, ["browserExecutable", "browserVersion", "nodeVersion", "playwrightCoreVersion"], "Runner runtime");
   if (typeof runnerRuntime.browserVersion !== "string" || runnerRuntime.browserVersion.length === 0 || runnerRuntime.nodeVersion !== process.version || runnerRuntime.playwrightCoreVersion !== "1.62.1") {

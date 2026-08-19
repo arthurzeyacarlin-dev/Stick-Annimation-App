@@ -1,0 +1,564 @@
+{
+  "kind": "stick-workspace-history-mount-v1",
+  "mountVersion": 1,
+  "editorHistoryRoot": {
+    "current": {
+      "snapshot": {
+        "document": {
+          "documentRevision": 3,
+          "fps": 12,
+          "layers": [
+            {
+              "frames": [
+                {
+                  "cellType": "keyframe",
+                  "content": {
+                    "figures": [
+                      {
+                        "id": "figure-1",
+                        "name": "Review figure",
+                        "rotation": 0,
+                        "scale": 1,
+                        "x": -50,
+                        "y": -25
+                      }
+                    ],
+                    "structureGraph": {
+                      "activeJointId": null,
+                      "joints": [
+                        {
+                          "id": "stick-joint-1",
+                          "x": 210,
+                          "y": 180
+                        },
+                        {
+                          "id": "stick-joint-2",
+                          "x": 310,
+                          "y": 280
+                        }
+                      ],
+                      "limbs": [
+                        {
+                          "endJointId": "stick-joint-2",
+                          "id": "stick-limb-1",
+                          "startJointId": "stick-joint-1"
+                        }
+                      ]
+                    }
+                  },
+                  "hasTweenEndpoint": false,
+                  "id": 1,
+                  "isBlank": false,
+                  "kind": "keyframe",
+                  "stateId": 1
+                },
+                {
+                  "cellType": "hold",
+                  "hasTweenEndpoint": false,
+                  "id": 2,
+                  "isBlank": false,
+                  "kind": "frame",
+                  "stateId": 1
+                },
+                {
+                  "cellType": "keyframe",
+                  "content": {
+                    "figures": [
+                      {
+                        "id": "figure-1",
+                        "name": "Review figure",
+                        "rotation": 0,
+                        "scale": 1,
+                        "x": 0,
+                        "y": 0
+                      }
+                    ],
+                    "structureGraph": {
+                      "activeJointId": null,
+                      "joints": [
+                        {
+                          "id": "stick-joint-1",
+                          "x": 260,
+                          "y": 180
+                        },
+                        {
+                          "id": "stick-joint-2",
+                          "x": 360,
+                          "y": 280
+                        }
+                      ],
+                      "limbs": [
+                        {
+                          "endJointId": "stick-joint-2",
+                          "id": "stick-limb-1",
+                          "startJointId": "stick-joint-1"
+                        }
+                      ]
+                    }
+                  },
+                  "hasTweenEndpoint": false,
+                  "id": 3,
+                  "isBlank": false,
+                  "kind": "keyframe",
+                  "stateId": 2
+                },
+                {
+                  "cellType": "keyframe",
+                  "content": {
+                    "figures": [
+                      {
+                        "id": "figure-1",
+                        "name": "Review figure",
+                        "rotation": 0,
+                        "scale": 1,
+                        "x": 55,
+                        "y": 27.5
+                      }
+                    ],
+                    "structureGraph": {
+                      "activeJointId": null,
+                      "joints": [
+                        {
+                          "id": "stick-joint-1",
+                          "x": 315,
+                          "y": 180
+                        },
+                        {
+                          "id": "stick-joint-2",
+                          "x": 415,
+                          "y": 280
+                        }
+                      ],
+                      "limbs": [
+                        {
+                          "endJointId": "stick-joint-2",
+                          "id": "stick-limb-1",
+                          "startJointId": "stick-joint-1"
+                        }
+                      ]
+                    }
+                  },
+                  "hasTweenEndpoint": false,
+                  "id": 4,
+                  "isBlank": false,
+                  "kind": "keyframe",
+                  "stateId": 3
+                },
+                {
+                  "cellType": "keyframe",
+                  "content": {
+                    "figures": [
+                      {
+                        "id": "figure-1",
+                        "name": "Review figure",
+                        "rotation": 0,
+                        "scale": 1,
+                        "x": 55,
+                        "y": 27.5
+                      }
+                    ],
+                    "structureGraph": {
+                      "activeJointId": null,
+                      "joints": [
+                        {
+                          "id": "stick-joint-1",
+                          "x": 315,
+                          "y": 180
+                        },
+                        {
+                          "id": "stick-joint-2",
+                          "x": 415,
+                          "y": 280
+                        }
+                      ],
+                      "limbs": [
+                        {
+                          "endJointId": "stick-joint-2",
+                          "id": "stick-limb-1",
+                          "startJointId": "stick-joint-1"
+                        }
+                      ]
+                    }
+                  },
+                  "hasTweenEndpoint": false,
+                  "id": 5,
+                  "isBlank": false,
+                  "kind": "keyframe",
+                  "stateId": 4
+                }
+              ],
+              "id": "stick-layer-1",
+              "name": "Layer 1"
+            },
+            {
+              "frames": [
+                {
+                  "cellType": "keyframe",
+                  "content": {
+                    "figures": [],
+                    "structureGraph": {
+                      "activeJointId": null,
+                      "joints": [
+                        {
+                          "id": "stick-joint-1",
+                          "x": 280,
+                          "y": 180
+                        },
+                        {
+                          "id": "stick-joint-2",
+                          "x": 380,
+                          "y": 280
+                        }
+                      ],
+                      "limbs": [
+                        {
+                          "endJointId": "stick-joint-2",
+                          "id": "stick-limb-1",
+                          "startJointId": "stick-joint-1"
+                        }
+                      ]
+                    }
+                  },
+                  "hasTweenEndpoint": false,
+                  "id": 6,
+                  "isBlank": false,
+                  "kind": "keyframe",
+                  "stateId": 5
+                },
+                {
+                  "cellType": "hold",
+                  "hasTweenEndpoint": false,
+                  "id": 7,
+                  "isBlank": false,
+                  "kind": "frame",
+                  "stateId": 5
+                },
+                {
+                  "cellType": "hold",
+                  "hasTweenEndpoint": false,
+                  "id": 8,
+                  "isBlank": false,
+                  "kind": "frame",
+                  "stateId": 5
+                },
+                {
+                  "cellType": "hold",
+                  "hasTweenEndpoint": false,
+                  "id": 9,
+                  "isBlank": false,
+                  "kind": "frame",
+                  "stateId": 5
+                },
+                {
+                  "cellType": "hold",
+                  "hasTweenEndpoint": false,
+                  "id": 10,
+                  "isBlank": false,
+                  "kind": "frame",
+                  "stateId": 5
+                }
+              ],
+              "id": "stick-layer-2",
+              "name": "Layer 2"
+            }
+          ],
+          "nextFrameId": 11,
+          "nextLayerNumber": 3,
+          "nextStateId": 6,
+          "projectId": "33333333-3333-4333-8333-333333333333",
+          "projectType": "stick-figure",
+          "schemaVersion": 1,
+          "title": "Manual onion review project"
+        },
+        "viewState": {
+          "activeLayerId": "stick-layer-1",
+          "currentFrameIndex": 2,
+          "selectedTimelineIndex": 2
+        }
+      },
+      "documentDigest": "sha256:8d462814a0b8f4ac57cf5e53245b3099e4742d8e2c3cd074f4d0293366959e08"
+    },
+    "undo": [
+      {
+        "snapshot": {
+          "document": {
+            "documentRevision": 2,
+            "fps": 11,
+            "layers": [
+              {
+                "frames": [
+                  {
+                    "cellType": "keyframe",
+                    "content": {
+                      "figures": [
+                        {
+                          "id": "figure-1",
+                          "name": "Review figure",
+                          "rotation": 0,
+                          "scale": 1,
+                          "x": -50,
+                          "y": -25
+                        }
+                      ],
+                      "structureGraph": {
+                        "activeJointId": null,
+                        "joints": [
+                          {
+                            "id": "stick-joint-1",
+                            "x": 210,
+                            "y": 180
+                          },
+                          {
+                            "id": "stick-joint-2",
+                            "x": 310,
+                            "y": 280
+                          }
+                        ],
+                        "limbs": [
+                          {
+                            "endJointId": "stick-joint-2",
+                            "id": "stick-limb-1",
+                            "startJointId": "stick-joint-1"
+                          }
+                        ]
+                      }
+                    },
+                    "hasTweenEndpoint": false,
+                    "id": 1,
+                    "isBlank": false,
+                    "kind": "keyframe",
+                    "stateId": 1
+                  },
+                  {
+                    "cellType": "hold",
+                    "hasTweenEndpoint": false,
+                    "id": 2,
+                    "isBlank": false,
+                    "kind": "frame",
+                    "stateId": 1
+                  },
+                  {
+                    "cellType": "keyframe",
+                    "content": {
+                      "figures": [
+                        {
+                          "id": "figure-1",
+                          "name": "Review figure",
+                          "rotation": 0,
+                          "scale": 1,
+                          "x": 0,
+                          "y": 0
+                        }
+                      ],
+                      "structureGraph": {
+                        "activeJointId": null,
+                        "joints": [
+                          {
+                            "id": "stick-joint-1",
+                            "x": 260,
+                            "y": 180
+                          },
+                          {
+                            "id": "stick-joint-2",
+                            "x": 360,
+                            "y": 280
+                          }
+                        ],
+                        "limbs": [
+                          {
+                            "endJointId": "stick-joint-2",
+                            "id": "stick-limb-1",
+                            "startJointId": "stick-joint-1"
+                          }
+                        ]
+                      }
+                    },
+                    "hasTweenEndpoint": false,
+                    "id": 3,
+                    "isBlank": false,
+                    "kind": "keyframe",
+                    "stateId": 2
+                  },
+                  {
+                    "cellType": "keyframe",
+                    "content": {
+                      "figures": [
+                        {
+                          "id": "figure-1",
+                          "name": "Review figure",
+                          "rotation": 0,
+                          "scale": 1,
+                          "x": 55,
+                          "y": 27.5
+                        }
+                      ],
+                      "structureGraph": {
+                        "activeJointId": null,
+                        "joints": [
+                          {
+                            "id": "stick-joint-1",
+                            "x": 315,
+                            "y": 180
+                          },
+                          {
+                            "id": "stick-joint-2",
+                            "x": 415,
+                            "y": 280
+                          }
+                        ],
+                        "limbs": [
+                          {
+                            "endJointId": "stick-joint-2",
+                            "id": "stick-limb-1",
+                            "startJointId": "stick-joint-1"
+                          }
+                        ]
+                      }
+                    },
+                    "hasTweenEndpoint": false,
+                    "id": 4,
+                    "isBlank": false,
+                    "kind": "keyframe",
+                    "stateId": 3
+                  },
+                  {
+                    "cellType": "keyframe",
+                    "content": {
+                      "figures": [
+                        {
+                          "id": "figure-1",
+                          "name": "Review figure",
+                          "rotation": 0,
+                          "scale": 1,
+                          "x": 55,
+                          "y": 27.5
+                        }
+                      ],
+                      "structureGraph": {
+                        "activeJointId": null,
+                        "joints": [
+                          {
+                            "id": "stick-joint-1",
+                            "x": 315,
+                            "y": 180
+                          },
+                          {
+                            "id": "stick-joint-2",
+                            "x": 415,
+                            "y": 280
+                          }
+                        ],
+                        "limbs": [
+                          {
+                            "endJointId": "stick-joint-2",
+                            "id": "stick-limb-1",
+                            "startJointId": "stick-joint-1"
+                          }
+                        ]
+                      }
+                    },
+                    "hasTweenEndpoint": false,
+                    "id": 5,
+                    "isBlank": false,
+                    "kind": "keyframe",
+                    "stateId": 4
+                  }
+                ],
+                "id": "stick-layer-1",
+                "name": "Layer 1"
+              },
+              {
+                "frames": [
+                  {
+                    "cellType": "keyframe",
+                    "content": {
+                      "figures": [],
+                      "structureGraph": {
+                        "activeJointId": null,
+                        "joints": [
+                          {
+                            "id": "stick-joint-1",
+                            "x": 280,
+                            "y": 180
+                          },
+                          {
+                            "id": "stick-joint-2",
+                            "x": 380,
+                            "y": 280
+                          }
+                        ],
+                        "limbs": [
+                          {
+                            "endJointId": "stick-joint-2",
+                            "id": "stick-limb-1",
+                            "startJointId": "stick-joint-1"
+                          }
+                        ]
+                      }
+                    },
+                    "hasTweenEndpoint": false,
+                    "id": 6,
+                    "isBlank": false,
+                    "kind": "keyframe",
+                    "stateId": 5
+                  },
+                  {
+                    "cellType": "hold",
+                    "hasTweenEndpoint": false,
+                    "id": 7,
+                    "isBlank": false,
+                    "kind": "frame",
+                    "stateId": 5
+                  },
+                  {
+                    "cellType": "hold",
+                    "hasTweenEndpoint": false,
+                    "id": 8,
+                    "isBlank": false,
+                    "kind": "frame",
+                    "stateId": 5
+                  },
+                  {
+                    "cellType": "hold",
+                    "hasTweenEndpoint": false,
+                    "id": 9,
+                    "isBlank": false,
+                    "kind": "frame",
+                    "stateId": 5
+                  },
+                  {
+                    "cellType": "hold",
+                    "hasTweenEndpoint": false,
+                    "id": 10,
+                    "isBlank": false,
+                    "kind": "frame",
+                    "stateId": 5
+                  }
+                ],
+                "id": "stick-layer-2",
+                "name": "Layer 2"
+              }
+            ],
+            "nextFrameId": 11,
+            "nextLayerNumber": 3,
+            "nextStateId": 6,
+            "projectId": "33333333-3333-4333-8333-333333333333",
+            "projectType": "stick-figure",
+            "schemaVersion": 1,
+            "title": "Manual onion review project"
+          },
+          "viewState": {
+            "activeLayerId": "stick-layer-1",
+            "currentFrameIndex": 2,
+            "selectedTimelineIndex": 2
+          }
+        },
+        "documentDigest": "sha256:85a88b0903fce0c3df970ba3f5b2863993d755ed285ec4674a11033fb15d67d4"
+      }
+    ],
+    "redo": []
+  },
+  "savedBaselineMode": "none",
+  "expectedWorkspaceGeneration": 1,
+  "workspaceInstancePolicy": "new_deterministic_uuid"
+}

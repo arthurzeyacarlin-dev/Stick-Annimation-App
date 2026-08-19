@@ -11,12 +11,19 @@ import {
 } from "@/src/lib/drawingProjectStorage";
 import { deleteDrawingProjectAiMemoryFromSupabase } from "@/src/lib/ai/drawingProjectAiMemorySync";
 import { DRAWING_PROJECT_V2_LIMITS } from "@/src/lib/drawingProjectV2Contract";
+import {
+  listStickSavedProjects,
+  openStickSavedProject,
+  stickStorageErrorMessage,
+  type StickSavedProjectRecordV1,
+} from "@/src/lib/stickProjectStorage";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 type OpenProjectBrowserProps = {
   activeDrawingProjectId?: string | null;
   onBack: () => void;
   onOpenDrawingProject: (project: DrawingProjectOpenCandidate) => void;
+  onOpenStickProject: (project: StickSavedProjectRecordV1) => void;
   onDrawingProjectDeleted?: (projectId: string) => void;
 };
 
@@ -102,11 +109,14 @@ export function OpenProjectBrowser({
   activeDrawingProjectId = null,
   onBack,
   onOpenDrawingProject,
+  onOpenStickProject,
   onDrawingProjectDeleted,
 }: OpenProjectBrowserProps) {
   const [openProjectBackHover, setOpenProjectBackHover] = useState(false);
   const [savedDrawingProjects, setSavedDrawingProjects] = useState<DrawingProjectCatalogEntry[]>([]);
+  const [savedStickProjects, setSavedStickProjects] = useState<StickSavedProjectRecordV1[]>([]);
   const [catalogState, setCatalogState] = useState<"loading" | "ready" | "failed">("loading");
+  const [stickCatalogState, setStickCatalogState] = useState<"loading" | "ready" | "failed">("loading");
   const [operationMessage, setOperationMessage] = useState<string | null>(null);
   const [busyProjectId, setBusyProjectId] = useState<string | null>(null);
   const openAttemptRef = useRef(0);
@@ -124,6 +134,19 @@ export function OpenProjectBrowser({
       setCatalogState("failed");
       setOperationMessage("Local projects could not be read. Nothing was changed.");
     }
+  }, []);
+
+  const refreshSavedStickProjects = useCallback(() => {
+    setStickCatalogState("loading");
+    const result = listStickSavedProjects(window.localStorage);
+    if (!result.ok) {
+      setSavedStickProjects([]);
+      setStickCatalogState("failed");
+      setOperationMessage(stickStorageErrorMessage(result.error));
+      return;
+    }
+    setSavedStickProjects(result.value);
+    setStickCatalogState("ready");
   }, []);
 
   const closeOpenProjectCardMenu = () => {
@@ -173,6 +196,21 @@ export function OpenProjectBrowser({
     } finally {
       if (openAttemptRef.current === attempt) setBusyProjectId(null);
     }
+  };
+
+  const handleOpenStickProject = (projectId: string) => {
+    if (busyProjectId) return;
+    setBusyProjectId(projectId);
+    setOperationMessage("Checking the complete local Stick project before opening…");
+    const result = openStickSavedProject(window.localStorage, projectId);
+    if (!result.ok) {
+      setOperationMessage(stickStorageErrorMessage(result.error));
+      setBusyProjectId(null);
+      return;
+    }
+    setOperationMessage(null);
+    setBusyProjectId(null);
+    onOpenStickProject(result.value);
   };
 
   const handleDeleteDrawingProject = async (entryId: string) => {
@@ -249,11 +287,12 @@ export function OpenProjectBrowser({
     void refreshSavedDrawingProjects().then(() => {
       if (cancelled) openAttemptRef.current += 1;
     });
+    refreshSavedStickProjects();
     return () => {
       cancelled = true;
       openAttemptRef.current += 1;
     };
-  }, [refreshSavedDrawingProjects]);
+  }, [refreshSavedDrawingProjects, refreshSavedStickProjects]);
 
   useEffect(() => {
     if (!openProjectCardMenu) {
@@ -415,6 +454,7 @@ export function OpenProjectBrowser({
                 onClick={() => {
                   closeOpenProjectCardMenu();
                   setActiveOpenProjectTab("stickFigure");
+                  refreshSavedStickProjects();
                 }}
                 style={{
                   minWidth: 116,
@@ -661,8 +701,61 @@ export function OpenProjectBrowser({
               )}
             </div>
           ) : (
-            <div style={openProjectEmptyStateStyle}>
-              No stick figure projects yet.
+            <div style={{display: "grid", gridTemplateColumns: "1fr", gap: "16px"}}>
+              {operationMessage ? (
+                <div role="status" aria-live="polite" style={{color: "rgba(255,255,255,0.72)", fontSize: 12}}>
+                  {operationMessage}
+                </div>
+              ) : null}
+              <div style={{color: "rgba(255,255,255,0.52)", fontSize: 11}}>
+                Saved only in this browser. This version does not cloud-sync, appear on another device, or automatically recover after data is cleared or lost.
+              </div>
+              {stickCatalogState === "loading" && savedStickProjects.length === 0 ? (
+                <div style={openProjectEmptyStateStyle}>Loading local Stick projects…</div>
+              ) : stickCatalogState === "failed" ? (
+                <div style={openProjectEmptyStateStyle}>
+                  <button type="button" onClick={refreshSavedStickProjects}>Retry local Stick projects</button>
+                </div>
+              ) : savedStickProjects.length > 0 ? savedStickProjects.map((project) => {
+                const isBusy = busyProjectId === project.projectId;
+                return (
+                  <button
+                    key={project.projectId}
+                    type="button"
+                    aria-label={`Open ${project.document.title}`}
+                    disabled={isBusy}
+                    onClick={() => handleOpenStickProject(project.projectId)}
+                    style={{
+                      borderRadius: "16px",
+                      border: "1px solid rgba(255,255,255,0.05)",
+                      background: "rgba(255,255,255,0.035)",
+                      boxShadow: "0 14px 34px rgba(0,0,0,0.16)",
+                      padding: "14px 16px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: "14px",
+                      color: "rgba(255,255,255,0.90)",
+                      textAlign: "left",
+                      cursor: isBusy ? "default" : "pointer",
+                    }}
+                  >
+                    <span style={{display: "flex", flexDirection: "column", gap: 8, minWidth: 0}}>
+                      <span style={{fontSize: "15px", fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis"}}>
+                        {project.document.title}
+                      </span>
+                      <span style={{color: "rgba(255,255,255,0.58)", fontSize: "12px"}}>
+                        {formatProjectUpdatedAt(project.updatedAt) ?? "Local project"} · {project.document.layers.length} {project.document.layers.length === 1 ? "layer" : "layers"}
+                      </span>
+                    </span>
+                    <span style={{fontSize: "11px", fontWeight: 600, color: "rgba(255,255,255,0.58)", whiteSpace: "nowrap"}}>
+                      {isBusy ? "Working…" : "Saved on this browser"}
+                    </span>
+                  </button>
+                );
+              }) : (
+                <div style={openProjectEmptyStateStyle}>No stick figure projects yet.</div>
+              )}
             </div>
           )}
         </div>

@@ -1,0 +1,20 @@
+{
+  "fixtureVersion": 1,
+  "kind": "stick-editor-transaction-v1",
+  "transactionVersion": 1,
+  "baseDocumentDigest": "sha256:8d462814a0b8f4ac57cf5e53245b3099e4742d8e2c3cd074f4d0293366959e08",
+  "baseWorkspaceGeneration": 1,
+  "mutation": {"operation": "set_fps", "fps": 15},
+  "expectedDocumentDigest": "sha256:dbc002b6ee0cf8b0d0c00c073021b3de72c5a571970091e2ca093aedf957911c",
+  "cases": [
+    {"id":"fps","expectedEntries":1},
+    {"id":"insert-keyframe","expectedEntries":1},
+    {"id":"insert-blank","expectedEntries":1},
+    {"id":"paste","expectedEntries":1},
+    {"id":"resize","expectedEntries":1},
+    {"id":"layer-add-delete","expectedEntries":1},
+    {"id":"joint-or-limb-complete","expectedEntries":1},
+    {"id":"copy-selection-camera-tool-onion","expectedEntries":0},
+    {"id":"pointer-cancel","expectedEntries":0}
+  ]
+}

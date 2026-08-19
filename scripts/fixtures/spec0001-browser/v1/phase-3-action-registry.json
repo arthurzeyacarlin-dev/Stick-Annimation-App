@@ -1,0 +1,173 @@
+{
+  "registryVersion": 3,
+  "specId": "SPEC-0001",
+  "authorizationId": "phase-3/v1",
+  "operationFamilies": [
+    "checkpoint",
+    "fixture",
+    "pointer",
+    "protected-regression",
+    "runner-environment",
+    "screenshot",
+    "visible-role",
+    "visible-testid",
+    "workspace-driver"
+  ],
+  "adapter": {
+    "path": "scripts/spec0001-browser/actions/phase3.ts",
+    "byteLength": 1553,
+    "sha256": "sha256:c8222e8b70a52dac8908c7935a982c9f23d58a3896b4bdf5c6b938aa2c02ab3c"
+  },
+  "fixtures": [
+    {
+      "fixtureId": "manual-onion-history-root",
+      "fixtureKind": "stick-workspace-history-mount-v1",
+      "sourceKind": "repository-json",
+      "binding": {
+        "path": "scripts/fixtures/stick-ai/v1/wave-editor-history-root.json",
+        "byteLength": 18902,
+        "sha256": "sha256:6d5092945dff1921a0007923833dbf1ce243c3aec75560c2f7b3332cec1b834d"
+      },
+      "expectedFixtureDigest": "sha256:6d5092945dff1921a0007923833dbf1ce243c3aec75560c2f7b3332cec1b834d"
+    },
+    {
+      "fixtureId": "prepared-fps-transaction",
+      "fixtureKind": "stick-editor-transaction-v1",
+      "sourceKind": "repository-json",
+      "binding": {
+        "path": "scripts/fixtures/stick-ai/v1/stick-manual-action-history-cases.json",
+        "byteLength": 836,
+        "sha256": "sha256:9e9cdc053b8e76e168eeede4ec1eb9d5b85c67f100bf84682a659fb3c7f6fd35"
+      },
+      "expectedFixtureDigest": "sha256:9e9cdc053b8e76e168eeede4ec1eb9d5b85c67f100bf84682a659fb3c7f6fd35"
+    },
+    {
+      "fixtureId": "authored-publication-plan",
+      "fixtureKind": "stick-document-publication-plan-v1",
+      "sourceKind": "repository-json",
+      "binding": {
+        "path": "scripts/fixtures/stick-ai/v1/stick-history-cases.json",
+        "byteLength": 578,
+        "sha256": "sha256:56fe1a20726af47b0a9f460e9dddca1c4cb456218d5b557695e69985a943982e"
+      },
+      "expectedFixtureDigest": "sha256:56fe1a20726af47b0a9f460e9dddca1c4cb456218d5b557695e69985a943982e"
+    },
+    {
+      "fixtureId": "authored-publication-completion",
+      "fixtureKind": "stick-document-publication-completion-v1",
+      "sourceKind": "repository-json",
+      "binding": {
+        "path": "scripts/fixtures/stick-ai/v1/stick-history-publication-race-cases.json",
+        "byteLength": 470,
+        "sha256": "sha256:43b9d911d7fecc42df4f50c3741ac7b9b7c82d7575746281a3af4901ee687e73"
+      },
+      "expectedFixtureDigest": "sha256:43b9d911d7fecc42df4f50c3741ac7b9b7c82d7575746281a3af4901ee687e73"
+    },
+    {
+      "fixtureId": "mounted-open-candidate",
+      "fixtureKind": "stick-mounted-open-candidate-v1",
+      "sourceKind": "repository-json",
+      "binding": {
+        "path": "scripts/fixtures/stick-ai/v1/manual-wave-saved-project.json",
+        "byteLength": 658,
+        "sha256": "sha256:02263ed035f17c02283f31eabc76771310cb6066152b34706705c2a264802560"
+      },
+      "expectedFixtureDigest": "sha256:02263ed035f17c02283f31eabc76771310cb6066152b34706705c2a264802560"
+    },
+    {
+      "fixtureId": "mounted-open-completion",
+      "fixtureKind": "stick-mounted-open-completion-v1",
+      "sourceKind": "repository-json",
+      "binding": {
+        "path": "scripts/fixtures/stick-ai/v1/non-wave-saved-project.json",
+        "byteLength": 388,
+        "sha256": "sha256:d72a18815fc3779f9dbf388cb94cadc70cd068d7fea6b24d3b78be020f2fd623"
+      },
+      "expectedFixtureDigest": "sha256:d72a18815fc3779f9dbf388cb94cadc70cd068d7fea6b24d3b78be020f2fd623"
+    },
+    {
+      "fixtureId": "mounted-open-cancel",
+      "fixtureKind": "stick-mounted-open-cancel-v1",
+      "sourceKind": "repository-json",
+      "binding": {
+        "path": "scripts/fixtures/stick-ai/v1/stick-saved-projects.json",
+        "byteLength": 177,
+        "sha256": "sha256:82ee26ef095f5a8c6c982d9c59d8132c263a2cc77ff703a0691fbe62d0955e9e"
+      },
+      "expectedFixtureDigest": "sha256:82ee26ef095f5a8c6c982d9c59d8132c263a2cc77ff703a0691fbe62d0955e9e"
+    }
+  ],
+  "actions": [
+    {"actionId":"desktop-stage","family":"visible-testid","operation":"assert-visible","testId":"stick-stage"},
+    {"actionId":"desktop-frame","family":"visible-testid","operation":"assert-visible","testId":"stick-frame-1"},
+    {"actionId":"desktop-fresh","family":"screenshot","screenshotId":"desktop-01-fresh-stick"},
+    {"actionId":"desktop-fps-fill","family":"visible-role","operation":"fill","role":"spinbutton","accessibleName":"Timeline FPS","input":{"text":"13"}},
+    {"actionId":"desktop-fps-commit","family":"visible-role","operation":"press","role":"spinbutton","accessibleName":"Timeline FPS","input":{"key":"Enter"}},
+    {"actionId":"desktop-undo-enabled","family":"visible-role","operation":"assert-enabled","role":"button","accessibleName":"Undo","input":null},
+    {"actionId":"desktop-undo","family":"visible-role","operation":"click","role":"button","accessibleName":"Undo","input":null},
+    {"actionId":"desktop-redo-enabled","family":"visible-role","operation":"assert-enabled","role":"button","accessibleName":"Redo","input":null},
+    {"actionId":"desktop-redo","family":"visible-role","operation":"click","role":"button","accessibleName":"Redo","input":null},
+    {"actionId":"desktop-file","family":"visible-role","operation":"click","role":"button","accessibleName":"File","input":null},
+    {"actionId":"desktop-save","family":"visible-role","operation":"click","role":"menuitem","accessibleName":"Save","input":null},
+    {"actionId":"desktop-saved-status","family":"visible-testid","operation":"assert-visible","testId":"stick-project-save-status"},
+    {"actionId":"desktop-tools","family":"visible-role","operation":"click","role":"button","accessibleName":"Stick Figure Tools","input":null},
+    {"actionId":"desktop-creator-enabled","family":"visible-role","operation":"assert-enabled","role":"button","accessibleName":"Create New Stick Figure","input":null},
+    {"actionId":"desktop-open-creator","family":"visible-role","operation":"click","role":"button","accessibleName":"Create New Stick Figure","input":null},
+    {"actionId":"desktop-creator-save-disabled","family":"visible-role","operation":"assert-disabled","role":"button","accessibleName":"Save Stick Figure","input":null},
+    {"actionId":"desktop-creator-back","family":"visible-role","operation":"click","role":"button","accessibleName":"Back","input":null},
+    {"actionId":"desktop-returned-stage","family":"visible-testid","operation":"assert-visible","testId":"stick-stage"},
+    {"actionId":"desktop-mount-onion-fixture","family":"workspace-driver","operation":"mountEditorHistoryRoot","fixtureId":"manual-onion-history-root","operationId":"manual-onion-mount","expectedEvidenceDigest":"sha256:2283729395c58936ec2b456e08d73e027795a57a4f3cb135c6287e6a8396a974"},
+    {"actionId":"desktop-onion","family":"visible-role","operation":"click","role":"button","accessibleName":"Onion","input":null},
+    {"actionId":"desktop-onion-checkpoint","family":"workspace-driver","operation":"readCheckpoint","fixtureId":null,"operationId":"onion-paused","expectedEvidenceDigest":"sha256:1300bb2bc4d004675e8015e234d2ed0f84ee948999d4096e80a2dc5f122135ac"},
+    {"actionId":"desktop-play","family":"visible-role","operation":"click","role":"button","accessibleName":"Play","input":null},
+    {"actionId":"desktop-playing-checkpoint","family":"workspace-driver","operation":"readCheckpoint","fixtureId":null,"operationId":"onion-playing","expectedEvidenceDigest":"sha256:e8632aa2989389bd77fd86e737aa9b53b5568f4b808b795fcdaf4b9330c5f907"},
+    {"actionId":"desktop-pause","family":"visible-role","operation":"click","role":"button","accessibleName":"Pause","input":null},
+    {"actionId":"desktop-paused-checkpoint","family":"workspace-driver","operation":"readCheckpoint","fixtureId":null,"operationId":"onion-paused-again","expectedEvidenceDigest":"sha256:1300bb2bc4d004675e8015e234d2ed0f84ee948999d4096e80a2dc5f122135ac"},
+    {"actionId":"desktop-onion-off","family":"visible-role","operation":"click","role":"button","accessibleName":"Onion","input":null},
+    {"actionId":"desktop-onion-off-checkpoint","family":"workspace-driver","operation":"readCheckpoint","fixtureId":null,"operationId":"onion-off","expectedEvidenceDigest":"sha256:322c941ff908b964d1e3cb8330cf70f2d4156ba63c71d9e13fbb845f9f692ca4"},
+    {"actionId":"desktop-final","family":"screenshot","screenshotId":"desktop-02-phase-3-stick"},
+    {"actionId":"ports-mount","family":"workspace-driver","operation":"mountEditorHistoryRoot","fixtureId":"manual-onion-history-root","operationId":"ports-history-mount","expectedEvidenceDigest":"sha256:43778eb3ccb1d1db7179b134306a3b22e52435533911f2b9db4dcf9dbcee75db"},
+    {"actionId":"ports-transaction","family":"workspace-driver","operation":"dispatchEditorTransaction","fixtureId":"prepared-fps-transaction","operationId":"prepared-fps-main","expectedEvidenceDigest":"sha256:06f989855690c3f2d56d13240f762b2fe9e9923ea69b1001e8c4738010acaea2"},
+    {"actionId":"ports-transaction-stale","family":"workspace-driver","operation":"dispatchEditorTransaction","fixtureId":"prepared-fps-transaction","operationId":"prepared-fps-stale","expectedEvidenceDigest":"sha256:78f2b247bfb29ec3d6367e00a96ba7723064b418be490d03dbaaa2744046ae05"},
+    {"actionId":"ports-publication-begin","family":"workspace-driver","operation":"beginDocumentPublication","fixtureId":"authored-publication-plan","operationId":"document-publication-main","expectedEvidenceDigest":"sha256:bb7e8f895c3f28ec1c62257695d1ce847f18be6afb65dcdae626ddfcb8042450"},
+    {"actionId":"ports-publication-pending","family":"workspace-driver","operation":"readCheckpoint","fixtureId":null,"operationId":"document-publication-pending","expectedEvidenceDigest":"sha256:ac61b06bdbff1f4cc8f7b40a88ec30f835f2a2477633858b8758919dc3a22243"},
+    {"actionId":"ports-publication-complete","family":"workspace-driver","operation":"completeDocumentPublication","fixtureId":"authored-publication-completion","operationId":"document-publication-complete","expectedEvidenceDigest":"sha256:7fffd7cd33f602b90833a4c954f34585281c1e714e04f11697893246e7ba7bb3"},
+    {"actionId":"ports-publication-stale","family":"workspace-driver","operation":"completeDocumentPublication","fixtureId":"authored-publication-completion","operationId":"document-publication-complete-again","expectedEvidenceDigest":"sha256:f7cdf32f668462e4d4070d3789ff7586c240188e14e5cb44b90092112ee0f440"},
+    {"actionId":"ports-open-cancel-begin","family":"workspace-driver","operation":"beginMountedOpen","fixtureId":"mounted-open-candidate","operationId":"mounted-open-cancel","expectedEvidenceDigest":"sha256:ad21389b9e3d9952a6743b6e0e703c261a6b414da0724b3d08fc64af30799983"},
+    {"actionId":"ports-open-cancel","family":"workspace-driver","operation":"cancelMountedOpen","fixtureId":"mounted-open-cancel","operationId":"mounted-open-cancel-request","expectedEvidenceDigest":"sha256:aec0aaba64d86c5756fe157fc3229a99a5144138a674407548d6f08f670917d5"},
+    {"actionId":"ports-open-cancel-terminal","family":"workspace-driver","operation":"cancelMountedOpen","fixtureId":"mounted-open-cancel","operationId":"mounted-open-cancel-again","expectedEvidenceDigest":"sha256:926dd847820f920af9924172f583dcad856e02c513f9468042523d98ae3d2d6a"},
+    {"actionId":"ports-open-begin","family":"workspace-driver","operation":"beginMountedOpen","fixtureId":"mounted-open-candidate","operationId":"mounted-open-main","expectedEvidenceDigest":"sha256:7a14b3c378ffb9de25b869cc79c068b1d8127c58a9c7092c92be6445783f46bc"},
+    {"actionId":"ports-open-pending","family":"workspace-driver","operation":"readCheckpoint","fixtureId":null,"operationId":"mounted-open-pending","expectedEvidenceDigest":"sha256:c246a20411d034fb08d22534abe3403662436378e0b69ae54cf03a9965126d7d"},
+    {"actionId":"ports-open-complete","family":"workspace-driver","operation":"completeMountedOpen","fixtureId":"mounted-open-completion","operationId":"mounted-open-complete","expectedEvidenceDigest":"sha256:b23eb535570bae4ea32c12083bb5aeeee7b5d1c51e2815eb6b30d34f56818904"},
+    {"actionId":"ports-open-stale","family":"workspace-driver","operation":"completeMountedOpen","fixtureId":"mounted-open-completion","operationId":"mounted-open-complete-again","expectedEvidenceDigest":"sha256:e18f7ebc7d6ad7c3f1679aac9bf9908c155bd4bf9c2f7f56add3aae80c8796cc"},
+    {"actionId":"ports-play","family":"visible-role","operation":"click","role":"button","accessibleName":"Play","input":null},
+    {"actionId":"ports-open-playing-rejected","family":"workspace-driver","operation":"beginMountedOpen","fixtureId":"mounted-open-candidate","operationId":"mounted-open-playing","expectedEvidenceDigest":"sha256:72a4cd481a8338d9c7e920741cac95e6311563a720121ebd1042f0745557bedd"},
+    {"actionId":"ports-pause","family":"visible-role","operation":"click","role":"button","accessibleName":"Pause","input":null},
+    {"actionId":"ports-final-checkpoint","family":"workspace-driver","operation":"readCheckpoint","fixtureId":null,"operationId":"ports-final","expectedEvidenceDigest":"sha256:532651056d024b606bc6b1b62618b743527b3502063273899c8ab4df23a6b1f7"},
+    {"actionId":"compact-stage","family":"visible-testid","operation":"assert-visible","testId":"stick-stage"},
+    {"actionId":"compact-frame","family":"visible-testid","operation":"assert-visible","testId":"stick-frame-1"},
+    {"actionId":"compact-fresh","family":"screenshot","screenshotId":"compact-01-fresh-stick"},
+    {"actionId":"compact-fps-fill","family":"visible-role","operation":"fill","role":"spinbutton","accessibleName":"Timeline FPS","input":{"text":"14"}},
+    {"actionId":"compact-fps-commit","family":"visible-role","operation":"press","role":"spinbutton","accessibleName":"Timeline FPS","input":{"key":"Enter"}},
+    {"actionId":"compact-undo-enabled","family":"visible-role","operation":"assert-enabled","role":"button","accessibleName":"Undo","input":null},
+    {"actionId":"compact-undo","family":"visible-role","operation":"click","role":"button","accessibleName":"Undo","input":null},
+    {"actionId":"compact-redo-enabled","family":"visible-role","operation":"assert-enabled","role":"button","accessibleName":"Redo","input":null},
+    {"actionId":"compact-redo","family":"visible-role","operation":"click","role":"button","accessibleName":"Redo","input":null},
+    {"actionId":"compact-file","family":"visible-role","operation":"click","role":"button","accessibleName":"File","input":null},
+    {"actionId":"compact-save","family":"visible-role","operation":"click","role":"menuitem","accessibleName":"Save","input":null},
+    {"actionId":"compact-saved-status","family":"visible-testid","operation":"assert-visible","testId":"stick-project-save-status"},
+    {"actionId":"compact-tools","family":"visible-role","operation":"click","role":"button","accessibleName":"Stick Figure Tools","input":null},
+    {"actionId":"compact-creator-enabled","family":"visible-role","operation":"assert-enabled","role":"button","accessibleName":"Create New Stick Figure","input":null},
+    {"actionId":"compact-open-creator","family":"visible-role","operation":"click","role":"button","accessibleName":"Create New Stick Figure","input":null},
+    {"actionId":"compact-creator-save-disabled","family":"visible-role","operation":"assert-disabled","role":"button","accessibleName":"Save Stick Figure","input":null},
+    {"actionId":"compact-creator-back","family":"visible-role","operation":"click","role":"button","accessibleName":"Back","input":null},
+    {"actionId":"compact-returned-stage","family":"visible-testid","operation":"assert-visible","testId":"stick-stage"},
+    {"actionId":"compact-onion","family":"visible-role","operation":"click","role":"button","accessibleName":"Onion","input":null},
+    {"actionId":"compact-final","family":"screenshot","screenshotId":"compact-02-phase-3-stick"},
+    {"actionId":"protect-home-new-drawing","family":"protected-regression","group":"home-new-drawing"},
+    {"actionId":"protect-home-new-stick","family":"protected-regression","group":"home-new-stick"},
+    {"actionId":"protect-stick-creator-back","family":"protected-regression","group":"stick-creator-back"},
+    {"actionId":"protect-drawing-generate","family":"protected-regression","group":"drawing-generate-frames"},
+    {"actionId":"protect-drawing-history-playback","family":"protected-regression","group":"drawing-undo-redo-play-pause"}
+  ]
+}

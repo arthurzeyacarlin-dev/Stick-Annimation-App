@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent, WheelEvent as ReactWheelEvent } from "react";
 
 import type { StickFigureToolName } from "./StickFigureToolBar";
@@ -21,13 +21,15 @@ type StickFigureCanvasProps = {
   activeTool: StickFigureToolName | null;
   structureTool: StickFigureStructureTool;
   structureGraph: StickFigureStructureGraph;
+  selectedStructureJointId: string | null;
+  onionOverlays?: Array<{side: "previous" | "next"; content: StickFigureFrameContent; tint: string}>;
   canvasMovementEnabled: boolean;
   cameraZoom: number;
   cameraPan: StickFigurePoint;
   canvasBackgroundColor: string;
-  onCommitStructureSegment: (draft: StickFigureStructureSegmentDraft) => boolean;
+  onCommitStructureSegment: (draft: StickFigureStructureSegmentDraft) => void;
   onSelectStructureJoint: (jointId: string | null) => void;
-  onMoveStructureJoint: (jointId: string, point: StickFigurePoint) => void;
+  onCommitStructureJointMove: (jointId: string, point: StickFigurePoint) => void;
   onCameraZoomChange: (zoom: number) => void;
   onCameraPanChange: (pan: StickFigurePoint) => void;
 };
@@ -44,6 +46,8 @@ type JointDragState = {
   jointId: string;
   offsetX: number;
   offsetY: number;
+  startPoint: StickFigurePoint;
+  currentPoint: StickFigurePoint;
 };
 
 type CanvasPanState = {
@@ -62,7 +66,7 @@ const MIN_CAMERA_ZOOM = 0.5;
 const MAX_CAMERA_ZOOM = 3;
 const PAN_BASE_LIMIT_FACTOR = 0.5;
 
-function StickFigureStageGlyph({ scale, rotation }: { scale: number; rotation: number }) {
+function StickFigureStageGlyph({ scale, rotation, color = "#10131b" }: { scale: number; rotation: number; color?: string }) {
   return (
     <svg
       viewBox="0 0 64 120"
@@ -74,11 +78,11 @@ function StickFigureStageGlyph({ scale, rotation }: { scale: number; rotation: n
         transform: `rotate(${rotation}deg)`,
       }}
     >
-      <circle cx="32" cy="18" r="12" fill="none" stroke="#10131b" strokeWidth="4" />
-      <line x1="32" y1="30" x2="32" y2="70" stroke="#10131b" strokeWidth="4" strokeLinecap="round" />
-      <line x1="12" y1="48" x2="52" y2="48" stroke="#10131b" strokeWidth="4" strokeLinecap="round" />
-      <line x1="32" y1="70" x2="12" y2="106" stroke="#10131b" strokeWidth="4" strokeLinecap="round" />
-      <line x1="32" y1="70" x2="52" y2="106" stroke="#10131b" strokeWidth="4" strokeLinecap="round" />
+      <circle cx="32" cy="18" r="12" fill="none" stroke={color} strokeWidth="4" />
+      <line x1="32" y1="30" x2="32" y2="70" stroke={color} strokeWidth="4" strokeLinecap="round" />
+      <line x1="12" y1="48" x2="52" y2="48" stroke={color} strokeWidth="4" strokeLinecap="round" />
+      <line x1="32" y1="70" x2="12" y2="106" stroke={color} strokeWidth="4" strokeLinecap="round" />
+      <line x1="32" y1="70" x2="52" y2="106" stroke={color} strokeWidth="4" strokeLinecap="round" />
     </svg>
   );
 }
@@ -91,13 +95,15 @@ export function StickFigureCanvas({
   activeTool,
   structureTool,
   structureGraph,
+  selectedStructureJointId,
+  onionOverlays = [],
   canvasMovementEnabled,
   cameraZoom,
   cameraPan,
   canvasBackgroundColor,
   onCommitStructureSegment,
   onSelectStructureJoint,
-  onMoveStructureJoint,
+  onCommitStructureJointMove,
   onCameraZoomChange,
   onCameraPanChange,
 }: StickFigureCanvasProps) {
@@ -110,9 +116,13 @@ export function StickFigureCanvas({
   const [jointDrag, setJointDrag] = useState<JointDragState | null>(null);
   const [isPanning, setIsPanning] = useState(false);
 
+  const renderedStructureGraph = useMemo<StickFigureStructureGraph>(() => jointDrag ? {
+    ...structureGraph,
+    joints: structureGraph.joints.map((joint) => joint.id === jointDrag.jointId ? {...joint, ...jointDrag.currentPoint} : joint),
+  } : structureGraph, [jointDrag, structureGraph]);
   const jointsById = useMemo(
-    () => new Map(structureGraph.joints.map((joint) => [joint.id, joint])),
-    [structureGraph.joints],
+    () => new Map(renderedStructureGraph.joints.map((joint) => [joint.id, joint])),
+    [renderedStructureGraph.joints],
   );
   const backgroundGraphs = useMemo(
     () => backgroundContents.map((content) => ({
@@ -160,6 +170,16 @@ export function StickFigureCanvas({
   const previewEndPoint = previewEndJoint
     ? { x: previewEndJoint.x, y: previewEndJoint.y }
     : dragPreview?.currentPoint ?? null;
+
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setJointDrag(null);
+      setDragPreview(null);
+    };
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, []);
 
   const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
@@ -245,7 +265,7 @@ export function StickFigureCanvas({
   };
 
   const handleSelectPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (activeTool !== "Select" || canvasMovementEnabled || event.button !== 0) {
+    if (activeTool !== "Select" || canvasMovementEnabled || !event.isPrimary || event.button !== 0) {
       return;
     }
 
@@ -266,6 +286,8 @@ export function StickFigureCanvas({
       jointId: selectedJoint.id,
       offsetX: selectedJoint.x - stagePoint.x,
       offsetY: selectedJoint.y - stagePoint.y,
+      startPoint: {x: selectedJoint.x, y: selectedJoint.y},
+      currentPoint: {x: selectedJoint.x, y: selectedJoint.y},
     });
     stageRef.current?.setPointerCapture(event.pointerId);
     event.preventDefault();
@@ -286,10 +308,10 @@ export function StickFigureCanvas({
       return;
     }
 
-    onMoveStructureJoint(jointDrag.jointId, {
-      x: stagePoint.x + jointDrag.offsetX,
-      y: stagePoint.y + jointDrag.offsetY,
-    });
+    setJointDrag((current) => current && current.pointerId === event.pointerId ? {
+      ...current,
+      currentPoint: {x: stagePoint.x + current.offsetX, y: stagePoint.y + current.offsetY},
+    } : current);
     event.preventDefault();
   };
 
@@ -301,15 +323,20 @@ export function StickFigureCanvas({
     if (stageRef.current?.hasPointerCapture(event.pointerId)) {
       stageRef.current.releasePointerCapture(event.pointerId);
     }
+    if (jointDrag.currentPoint.x !== jointDrag.startPoint.x || jointDrag.currentPoint.y !== jointDrag.startPoint.y) {
+      onCommitStructureJointMove(jointDrag.jointId, jointDrag.currentPoint);
+    }
     setJointDrag(null);
   };
 
   const cancelSelectDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
-    completeSelectDrag(event);
+    if (!jointDrag || event.pointerId !== jointDrag.pointerId) return;
+    if (stageRef.current?.hasPointerCapture(event.pointerId)) stageRef.current.releasePointerCapture(event.pointerId);
+    setJointDrag(null);
   };
 
   const handleStructurePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (structureTool !== "addLimb" || event.button !== 0) {
+    if (structureTool !== "addLimb" || !event.isPrimary || event.button !== 0) {
       return;
     }
 
@@ -409,7 +436,8 @@ export function StickFigureCanvas({
       return;
     }
 
-    completeSelectDrag(event);
+    if (activeTool !== "Select" || canvasMovementEnabled) cancelSelectDrag(event);
+    else completeSelectDrag(event);
   };
 
   const handleStagePointerCancel = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -509,6 +537,7 @@ export function StickFigureCanvas({
           onPointerMove={handleStagePointerMove}
           onPointerUp={handleStagePointerUp}
           onPointerCancel={handleStagePointerCancel}
+          onLostPointerCapture={handleStagePointerCancel}
         >
           <svg
             aria-hidden="true"
@@ -539,7 +568,19 @@ export function StickFigureCanvas({
                 );
               }),
             )}
-            {structureGraph.limbs.map((limb) => {
+            {onionOverlays.flatMap((overlay) => {
+              const onionJoints = new Map(overlay.content.structureGraph.joints.map((joint) => [joint.id, joint]));
+              return [
+                ...overlay.content.structureGraph.limbs.map((limb) => {
+                  const startJoint = onionJoints.get(limb.startJointId);
+                  const endJoint = onionJoints.get(limb.endJointId);
+                  if (!startJoint || !endJoint) return null;
+                  return <line key={`onion-${overlay.side}-limb-${limb.id}`} data-onion-side={overlay.side} data-onion-tint={overlay.tint} x1={startJoint.x} y1={startJoint.y} x2={endJoint.x} y2={endJoint.y} stroke={overlay.tint} strokeWidth="8" strokeLinecap="round" />;
+                }),
+                ...overlay.content.structureGraph.joints.map((joint) => <circle key={`onion-${overlay.side}-joint-${joint.id}`} data-onion-side={overlay.side} data-onion-tint={overlay.tint} cx={joint.x} cy={joint.y} r={JOINT_RADIUS} fill={overlay.tint} stroke={overlay.tint} strokeWidth="3" />),
+              ];
+            })}
+            {renderedStructureGraph.limbs.map((limb) => {
               const startJoint = jointsById.get(limb.startJointId);
               const endJoint = jointsById.get(limb.endJointId);
 
@@ -574,9 +615,9 @@ export function StickFigureCanvas({
               />
             ) : null}
 
-            {structureGraph.joints.map((joint) => {
+            {renderedStructureGraph.joints.map((joint) => {
               const isEndpoint = (jointDegreeById.get(joint.id) ?? 0) <= 1;
-              const isActive = structureGraph.activeJointId === joint.id;
+              const isActive = selectedStructureJointId === joint.id;
 
               return (
                 <circle
@@ -607,6 +648,24 @@ export function StickFigureCanvas({
               }}
             >
               <StickFigureStageGlyph scale={figure.scale} rotation={figure.rotation} />
+            </div>
+          )))}
+
+          {onionOverlays.flatMap((overlay) => overlay.content.figures.map((figure) => (
+            <div
+              key={`onion-${overlay.side}-figure-${figure.id}`}
+              data-onion-side={overlay.side}
+              data-onion-tint={overlay.tint}
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                left: `calc(50% + ${figure.x}px)`,
+                top: `calc(50% + ${figure.y}px)`,
+                transform: "translate(-50%, -50%)",
+                pointerEvents: "none",
+              }}
+            >
+              <StickFigureStageGlyph scale={figure.scale} rotation={figure.rotation} color={overlay.tint} />
             </div>
           )))}
 

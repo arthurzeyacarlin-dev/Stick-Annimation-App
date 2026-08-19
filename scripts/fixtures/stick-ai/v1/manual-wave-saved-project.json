@@ -1,0 +1,17 @@
+{
+  "fixtureVersion": 1,
+  "kind": "stick-mounted-open-candidate-v1",
+  "candidateVersion": 1,
+  "baseDocumentDigest": "sha256:4e1844363ec0400141ba5989febcc2d3f8f869e7bfbbd4ad0bad1780bfa4feac",
+  "baseWorkspaceGeneration": 3,
+  "candidateIdentity": {
+    "projectId": "44444444-4444-4444-8444-444444444444",
+    "documentRevision": 0,
+    "title": "Mounted open fixture",
+    "fps": 18
+  },
+  "expectedDocumentDigest": "sha256:9b4e3e43057c00f6e9359d46ed3c568ef31003bb8cb12050766b636f23c94262",
+  "purpose": "bounded manually authored renderer fixture; never a product initializer",
+  "frameOffsets": [0,24,-18],
+  "expectedOnionSides": ["previous","next"]
+}

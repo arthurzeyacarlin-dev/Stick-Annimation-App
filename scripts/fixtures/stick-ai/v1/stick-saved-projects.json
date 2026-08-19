@@ -1,0 +1,8 @@
+{
+  "fixtureVersion": 1,
+  "kind": "stick-mounted-open-cancel-v1",
+  "cancelVersion": 1,
+  "targetOperationId": "mounted-open-cancel",
+  "storageVersion": 1,
+  "projects": []
+}

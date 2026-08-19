@@ -1,0 +1,1 @@
+{"$schema":"https://json-schema.org/draft/2020-12/schema","additionalProperties":false,"properties":{"authorizations":{"items":{"type":"object"},"maxItems":3,"minItems":3,"type":"array"},"catalogVersion":{"const":2},"specId":{"const":"SPEC-0001"}},"required":["catalogVersion","specId","authorizations"],"type":"object"}

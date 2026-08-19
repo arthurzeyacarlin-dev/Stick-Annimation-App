@@ -1,0 +1,13 @@
+{
+  "fixtureVersion": 1,
+  "kind": "stick-mounted-open-completion-v1",
+  "completionVersion": 1,
+  "targetOperationId": "mounted-open-main",
+  "action": "apply",
+  "expectedDocumentDigest": "sha256:9b4e3e43057c00f6e9359d46ed3c568ef31003bb8cb12050766b636f23c94262",
+  "purpose": "bounded non-wave exact reopen fixture",
+  "layers": 2,
+  "frames": 3,
+  "fps": 18,
+  "waveEligible": false
+}

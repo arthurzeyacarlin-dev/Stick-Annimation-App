@@ -5,6 +5,16 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-19 — SPEC-0001 Phase 5 server/mock boundary authorized
+
+- preserved SPEC-0001 Phase 4 as **Verified, published, and integrated** at exact implementation commit `71841e96499f7627139c53d87114bba65e19d29d`, with current clean canonical record basis `617aa61a81b9c16b781e6d333255fdd5b65fced2`
+- recorded D-0024: Phase 5 alone is **Authorized; Not started** with exactly section 10.8's provider-free server raw-dispatch, strict marked-request parsing, deterministic mock-envelope, Drawing-fallthrough, and no-egress boundary
+- required the Phase 5 implementation to start only after separate activation publication, in one brand-new dedicated Plan-mode Spec Executor worktree from that publication SHA
+- required one later Arthur review of the exact unpublished Phase 5 app copy; because Phase 5 has no new visible Stick UI, the review confirms the existing app still looks and works the same while automated evidence proves the hidden mock route
+- kept Phases 6 and 7 **Unauthorized; Not started** and authorized no writable Stick chat/UI, OpenAI/provider/search/Supabase/paid request, deployment, or external operation
+
+This is a control-plane activation draft only. No runtime, fixture, proof, test, script, dependency, configuration, environment, or database byte changed; Phase 5 did not begin; and nothing was staged, committed, pushed, or published.
+
 ### 2026-08-19 — SPEC-0001 Phase 4 published and integrated
 
 - published the exact accepted 22 technical paths and eight reviewed canonical record paths in commit `71841e96499f7627139c53d87114bba65e19d29d`, parent `62f046adff7418d2e644365fc04bd5d6312dcca9`, message `Implement SPEC-0001 Phase 4 command transaction`

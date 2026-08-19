@@ -1,0 +1,48 @@
+{
+  "fixtureVersion": 1,
+  "cases": [
+    {
+      "id": "gated-apply-publication",
+      "steps": [
+        "preview_ready",
+        "apply_publication_pending",
+        "commit_in_progress",
+        "applied",
+        "duplicate"
+      ]
+    },
+    {"id": "authored-change-before-completion", "expectedCode": "stale_document", "mustBeNoOp": true},
+    {"id": "project-switch-before-completion", "expectedCode": "project_switched", "mustBeNoOp": true},
+    {"id": "failure-after-history-construction", "expectedCode": "transaction_failed", "mustBeNoOp": true}
+  ],
+  "browserScenarios": {
+    "publication-begin": {"kind": "stick-command-apply-publication-plan-v1", "starterFixturePath": "scripts/fixtures/stick-ai/v1/fresh-stick-project.json", "envelopeFixturePath": "scripts/fixtures/stick-ai/v1/wave-command-batch.json"},
+    "publication-complete": {"kind": "stick-command-apply-publication-completion-v1", "starterFixturePath": "scripts/fixtures/stick-ai/v1/fresh-stick-project.json", "envelopeFixturePath": "scripts/fixtures/stick-ai/v1/wave-command-batch.json", "completionMode": "complete-active"},
+    "publication-redelivery": {"kind": "stick-command-redelivery-v1", "starterFixturePath": "scripts/fixtures/stick-ai/v1/fresh-stick-project.json", "envelopeFixturePath": "scripts/fixtures/stick-ai/v1/wave-command-batch.json"},
+    "project-mounted-open-candidate": {
+      "fixtureVersion": 1,
+      "kind": "stick-mounted-open-candidate-v1",
+      "candidateVersion": 1,
+      "baseDocumentDigest": "sha256:24c00bb4ae1fe1730511dfe38d5bed1487c5c695ea318f1668dd0125d9e53476",
+      "baseWorkspaceGeneration": 1,
+      "candidateIdentity": {"projectId":"66666666-6666-4666-8666-666666666666","documentRevision":0,"title":"Phase 4 switched project","fps":18},
+      "expectedDocumentDigest": "sha256:4d86927d83ea9252e83e0f86230d3e8fbc9fc67b37c2b6bf5914abbc6d9ef241",
+      "purpose": "deterministic Phase 4 project-switch proof from the exact eligible fresh root",
+      "frameOffsets": [],
+      "expectedOnionSides": []
+    },
+    "project-mounted-open-completion": {
+      "fixtureVersion": 1,
+      "kind": "stick-mounted-open-completion-v1",
+      "completionVersion": 1,
+      "targetOperationId": "project-mounted-open-candidate",
+      "action": "apply",
+      "expectedDocumentDigest": "sha256:4d86927d83ea9252e83e0f86230d3e8fbc9fc67b37c2b6bf5914abbc6d9ef241",
+      "purpose": "deterministic non-wave mounted project for Phase 4 stale-completion proof",
+      "layers": 1,
+      "frames": 1,
+      "fps": 18,
+      "waveEligible": false
+    }
+  }
+}

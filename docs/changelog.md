@@ -5,6 +5,16 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-19 — SPEC-0001 Phase 4 accepted technical result closed out for publication review
+
+- recorded exact activation/base/HEAD/local-main/origin-main SHA `62f046adff7418d2e644365fc04bd5d6312dcca9`, exclusive Control Plane Architect takeover after executor shutdown, an empty index, and the exact accepted 22-path technical projection
+- independently revalidated `output/spec-0001/phase-4/proof-manifest.json` at SHA-256 `d34d589373713ac7930984aeb3ef0640539316c00e1f510cf8d798aee931bf46`; it binds 12 successful receipts and 61 artifacts, including 138 Phase 4 transaction assertions, Phase 3/2/1 and Drawing regressions, TypeScript, lint `5/72 → 5/72` with zero changed-line/new-file findings, and diff proof
+- preserved browser-runner SHA-256 `353f4937972d30b1959f1c7aee3075f5ebafb308d04a778db69372969e7b906f`, which records 105 closed actions, 31 checkpoints, 2 screenshots, five protected regression groups, zero browser/server/child non-loopback attempts, and complete anchor/source/context/gate/intercept/process/port cleanup
+- recorded Arthur's exact-worktree acceptance of Play, atomic Undo/Redo, manual joint drag, and Creator/Back under D-0023; Phase 4 is now **Verified and accepted in its dedicated worktree; pending separate publication/integration**
+- preserved the shared editor/history mutation path, strict atomic Preview/Apply/duplicate/cancel/abort/stale/project-switch/failure semantics, and the absence of writable chat, an API/provider route, external requests, or Phase 5 work
+
+This is accepted-result control-plane propagation and closeout only. The accepted 22 technical bytes were not changed. Nothing was staged, committed, merged, pushed, published, deployed, or sent to OpenAI, search, Supabase, or another external/paid service. Phases 5–7 remain Unauthorized/Not started.
+
 ### 2026-08-19 — SPEC-0001 Phase 4 authorized with exact tester-permission correction
 
 - reconciled the completed Phase 3 publication at exact 38-path canonical-main commit `3fe3a5487389647b67216e9466121e00f1a73856`, parent `b8d8406ca6b51c3b83adb29fa20f20160c871c54`, while preserving technical-manifest SHA-256 `07bd09c413a28ffcc706be85d00d1d4466cde1e336daceab23d9a1617153b675`

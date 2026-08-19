@@ -1,11 +1,26 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {canonicalJson, digestCanonical} from "../../../lib/stickfigure/stickProjectContract";
+import {
+  canonicalJson,
+  digestCanonical,
+  parseStickProjectDocument,
+} from "../../../lib/stickfigure/stickProjectContract";
+import {
+  STICK_COMMAND_FAILURE_POINTS,
+  StickFigureCommandTransactionV1,
+  createStickCommandWorkspaceRoot,
+  type StickCommandFailurePointV1,
+  type StickCommandOperationOutcomeV1,
+  type StickCommandWorkspaceRootV1,
+} from "../../../lib/ai/stickFigureCommandExecutor";
+import {parseStickCommandBatch, type StickCommandBatchV1, type StickCommandResultV1} from "../../../lib/ai/stickFigureAiContract";
 import {
   commitEditableStickHistory,
   createEditableStickHistoryRoot,
+  editableStickTimelineFromCanonicalWave,
   editableStickDocumentFromTimeline,
   editableStickTimelineFromSnapshot,
   editableStickViewFromTimeline,
+  isEligibleEditableStickWaveStarter,
   redoEditableStickHistory,
   replaceEditableStickCurrentView,
   resolveEditableStickOnionOverlays,
@@ -68,6 +83,19 @@ type StickMountedWorkspaceRoot = {
   workspaceGeneration: number;
   documentPublication: StickPublicationState;
   lastSavedDocumentDigest: string | null;
+  phase4: Phase4MountedCommandState | null;
+};
+
+type Phase4MountedCommandState = {
+  commandRoot: StickCommandWorkspaceRootV1;
+  canonicalStarterDigest: string;
+  baseWorkspaceInstanceId: string;
+  baseWorkspaceGeneration: number;
+  baseDocumentDigest: string;
+  pendingApplyOperationId: string | null;
+  lastCommandOutcomeCode: StickCommandOperationOutcomeV1["outcomeCode"] | null;
+  lastCommandResult: StickCommandResultV1 | null;
+  commandRootTransitionCount: number;
 };
 
 type PendingDocumentPublication = {
@@ -82,6 +110,12 @@ type PendingMountedOpen = {
   operationId: string;
   baseRoot: StickMountedWorkspaceRoot;
   candidateEditorRoot: EditableStickEditorHistoryRootV1;
+};
+
+type InvalidatedPhase4Publication = {
+  machine: StickFigureCommandTransactionV1;
+  baseWorkspaceInstanceId: string;
+  canonicalStarterDigest: string;
 };
 
 const DEFAULT_STICK_CAMERA_ZOOM = 0.85;
@@ -132,6 +166,9 @@ export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject =
   const mountedOpenRef = useRef<{status: string | null; operationId: string | null}>({status: null, operationId: null});
   const pendingDocumentPublicationRef = useRef<PendingDocumentPublication | null>(null);
   const pendingMountedOpenRef = useRef<PendingMountedOpen | null>(null);
+  const phase4ExecutorRef = useRef<StickFigureCommandTransactionV1 | null>(null);
+  const invalidatedPhase4PublicationRef = useRef<InvalidatedPhase4Publication | null>(null);
+  const phase4NextVisibleFailureRef = useRef<StickCommandFailurePointV1 | null>(null);
   const [hasCopiedFrame, setHasCopiedFrame] = useState(false);
   const [isTimelinePlaying, setIsTimelinePlaying] = useState(false);
   const [isOnionEnabled, setIsOnionEnabled] = useState(false);
@@ -149,8 +186,13 @@ export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject =
   const [structureTool, setStructureTool] = useState<StickFigureStructureTool>("idle");
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  const installRoot = useCallback((next: StickMountedWorkspaceRoot) => {
+  const installRoot = useCallback((
+    next: StickMountedWorkspaceRoot,
+    phase4Machine: StickFigureCommandTransactionV1 | null | undefined = undefined,
+  ) => {
     workspaceRootTransitionCountRef.current += 1;
+    if (phase4Machine !== undefined) phase4ExecutorRef.current = phase4Machine;
+    else if (next.phase4 === null) phase4ExecutorRef.current = null;
     workspaceRootRef.current = next;
     timelineRef.current = editableStickTimelineFromSnapshot(next.editorRoot.current.snapshot);
     setWorkspaceRoot(next);
@@ -166,6 +208,7 @@ export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject =
         workspaceGeneration: initialProject ? 1 : 0,
         documentPublication: {status: "ready"},
         lastSavedDocumentDigest: initialProject ? editorRoot.current.documentDigest : null,
+        phase4: null,
       });
       readyDocumentPublicationCountRef.current += 1;
     });
@@ -509,12 +552,19 @@ export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject =
     const previous = onionOverlaysRef.current.find((overlay) => overlay.side === "previous") ?? null;
     const next = onionOverlaysRef.current.find((overlay) => overlay.side === "next") ?? null;
     const storedBytes = window.localStorage.getItem("da_saved_stick_projects_v1");
+    const legacyWorkspaceRoot = root ? {
+      workspaceInstanceId: root.workspaceInstanceId,
+      editorRoot: root.editorRoot,
+      workspaceGeneration: root.workspaceGeneration,
+      documentPublication: root.documentPublication,
+      lastSavedDocumentDigest: root.lastSavedDocumentDigest,
+    } : null;
     return {
       checkpointVersion: 1,
       rootStatus: root?.documentPublication.status ?? "mounting",
       documentDigestStatus: root?.documentPublication.status ?? "mounting",
       editorRootDigest: root ? await digestCanonical(root.editorRoot.current) : null,
-      workspaceRootDigest: root ? await digestCanonical(root) : null,
+      workspaceRootDigest: legacyWorkspaceRoot ? await digestCanonical(legacyWorkspaceRoot) : null,
       documentDigest: root?.editorRoot.current.documentDigest ?? null,
       documentRevision: root?.editorRoot.current.snapshot.document.documentRevision ?? null,
       viewDigest: root ? await digestCanonical(root.editorRoot.current.snapshot.viewState) : null,
@@ -585,6 +635,7 @@ export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject =
     setHasCopiedFrame(false);
     pendingDocumentPublicationRef.current = null;
     pendingMountedOpenRef.current = null;
+    invalidatedPhase4PublicationRef.current = null;
     mountedOpenRef.current = {status: null, operationId: null};
     installRoot({
       workspaceInstanceId: await deterministicWorkspaceId(operationId),
@@ -592,6 +643,7 @@ export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject =
       workspaceGeneration: 1,
       documentPublication: {status: "ready"},
       lastSavedDocumentDigest: fixture.savedBaselineMode === "current_document" ? candidate.current.documentDigest : null,
+      phase4: null,
     });
     readyDocumentPublicationCountRef.current += 1;
     setSaveError(null);
@@ -784,6 +836,13 @@ export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject =
     pendingMountedOpenRef.current = null;
     pendingDocumentPublicationRef.current = null;
     mountedOpenRef.current = {status: "applied", operationId: fixture.targetOperationId};
+    if (live.phase4?.pendingApplyOperationId && phase4ExecutorRef.current) {
+      invalidatedPhase4PublicationRef.current = {
+        machine: phase4ExecutorRef.current.fork(),
+        baseWorkspaceInstanceId: live.workspaceInstanceId,
+        canonicalStarterDigest: live.phase4.canonicalStarterDigest,
+      };
+    } else invalidatedPhase4PublicationRef.current = null;
     setIsTimelinePlaying(false);
     setIsOnionEnabled(false);
     setSelection({target: "workspace"});
@@ -797,6 +856,7 @@ export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject =
       workspaceGeneration: 1,
       documentPublication: {status: "ready"},
       lastSavedDocumentDigest: pending.candidateEditorRoot.current.documentDigest,
+      phase4: null,
     });
     readyDocumentPublicationCountRef.current += 1;
     return {accepted: true, outcomeCode: "mounted_open_applied", errorCode: null};
@@ -818,6 +878,330 @@ export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject =
     installRoot({...pending.baseRoot, documentPublication: {status: "ready"}});
     return {accepted: true, outcomeCode: "mounted_open_cancelled", errorCode: null};
   };
+
+  const phase4FixtureInput = async (fixture: unknown) => {
+    if (!isPlainRecord(fixture) || !("starter" in fixture) || !("envelope" in fixture)) return null;
+    const starterResult = parseStickProjectDocument(fixture.starter);
+    if (!starterResult.ok) return null;
+    const envelopeResult = await parseStickCommandBatch(fixture.envelope, starterResult.value);
+    if (!envelopeResult.ok) return null;
+    return {
+      starter: starterResult.value,
+      starterDigest: await digestCanonical(starterResult.value),
+      envelope: envelopeResult.value,
+    };
+  };
+
+  type Phase4MachineInput = {
+    live: StickMountedWorkspaceRoot;
+    machine: StickFigureCommandTransactionV1;
+    envelope: StickCommandBatchV1;
+    starterDigest: string;
+  };
+
+  const phase4MachineInput = async (fixture: unknown): Promise<Phase4MachineInput | null> => {
+    const parsed = await phase4FixtureInput(fixture);
+    const visible = workspaceRootRef.current;
+    if (!parsed || !visible || visible.documentPublication.status !== "ready" || isTimelinePlayingRef.current) return null;
+    if (visible.phase4) {
+      const machine = phase4ExecutorRef.current;
+      if (!machine || visible.phase4.canonicalStarterDigest !== parsed.starterDigest ||
+        canonicalJson(machine.snapshot()) !== canonicalJson(visible.phase4.commandRoot)) return null;
+      return {live: visible, machine: machine.fork(), envelope: parsed.envelope, starterDigest: parsed.starterDigest};
+    }
+    if (!isEligibleEditableStickWaveStarter(visible.editorRoot)) return null;
+    const machine = new StickFigureCommandTransactionV1(
+      await createStickCommandWorkspaceRoot(parsed.starter, `${visible.workspaceInstanceId}:phase4`, visible.workspaceGeneration),
+    );
+    invalidatedPhase4PublicationRef.current = null;
+    const live = workspaceRootRef.current;
+    if (!live || live.workspaceInstanceId !== visible.workspaceInstanceId || live.workspaceGeneration !== visible.workspaceGeneration ||
+      live.documentPublication.status !== "ready" || live.editorRoot.current.documentDigest !== visible.editorRoot.current.documentDigest || live.phase4) return null;
+    return {live, machine, envelope: parsed.envelope, starterDigest: parsed.starterDigest};
+  };
+
+  const phase4BaseMatches = (input: Phase4MachineInput, live: StickMountedWorkspaceRoot) =>
+    live.workspaceInstanceId === input.live.workspaceInstanceId &&
+    live.workspaceGeneration === input.live.workspaceGeneration &&
+    live.documentPublication.status === "ready" &&
+    live.editorRoot.current.documentDigest === input.live.editorRoot.current.documentDigest &&
+    canonicalJson(live.phase4?.commandRoot ?? null) === canonicalJson(input.live.phase4?.commandRoot ?? null);
+
+  const phase4ApplyBaseMatches = (input: Phase4MachineInput, live: StickMountedWorkspaceRoot) => {
+    if (!phase4BaseMatches(input, live)) return false;
+    const phase4 = input.live.phase4;
+    return phase4 === null || (
+      live.workspaceInstanceId === phase4.baseWorkspaceInstanceId &&
+      live.workspaceGeneration === phase4.baseWorkspaceGeneration &&
+      live.editorRoot.current.documentDigest === phase4.baseDocumentDigest
+    );
+  };
+
+  const phase4StateForOutcome = (
+    input: Phase4MachineInput,
+    outcome: StickCommandOperationOutcomeV1,
+    pendingApplyOperationId: string | null,
+  ): Phase4MountedCommandState => ({
+    commandRoot: outcome.root,
+    canonicalStarterDigest: input.starterDigest,
+    baseWorkspaceInstanceId: input.live.phase4?.baseWorkspaceInstanceId ?? input.live.workspaceInstanceId,
+    baseWorkspaceGeneration: input.live.phase4?.baseWorkspaceGeneration ?? input.live.workspaceGeneration,
+    baseDocumentDigest: input.live.phase4?.baseDocumentDigest ?? input.live.editorRoot.current.documentDigest,
+    pendingApplyOperationId,
+    lastCommandOutcomeCode: outcome.outcomeCode,
+    lastCommandResult: outcome.result,
+    commandRootTransitionCount: (input.live.phase4?.commandRootTransitionCount ?? 0) + 1,
+  });
+
+  const phase4Response = (
+    outcome: StickCommandOperationOutcomeV1,
+    testerOutcomeCode: string = outcome.outcomeCode,
+    testerErrorCode: string | null | "inherit" = "inherit",
+  ) => ({
+    accepted: outcome.outcomeCode !== "rejected" && outcome.outcomeCode !== "failed",
+    outcomeCode: testerOutcomeCode,
+    errorCode: testerErrorCode === "inherit" ? outcome.result?.error?.code ?? null : testerErrorCode,
+  });
+
+  const installPhase4Outcome = (
+    input: Phase4MachineInput,
+    machine: StickFigureCommandTransactionV1,
+    outcome: StickCommandOperationOutcomeV1,
+    pendingApplyOperationId: string | null,
+  ) => {
+    const live = workspaceRootRef.current;
+    if (!live || !phase4BaseMatches(input, live)) return false;
+    installRoot({...live, phase4: phase4StateForOutcome(input, outcome, pendingApplyOperationId)}, machine);
+    return true;
+  };
+
+  const rejectPhase4VisibleRace = async (
+    input: Phase4MachineInput,
+    committingMachine: StickFigureCommandTransactionV1,
+  ) => {
+    const live = workspaceRootRef.current;
+    const code = live?.workspaceInstanceId === input.live.workspaceInstanceId ? "stale_document" : "project_switched";
+    const outcome = await committingMachine.rejectActive(input.envelope, code);
+    if (live && code === "stale_document" && live.documentPublication.status === "ready" &&
+      canonicalJson(live.phase4?.commandRoot ?? null) === canonicalJson(input.live.phase4?.commandRoot ?? null)) {
+      installRoot({...live, phase4: phase4StateForOutcome(input, outcome, null)}, committingMachine);
+    }
+    return phase4Response(outcome, "rejected");
+  };
+
+  const publishPhase4AppliedOutcome = async (
+    input: Phase4MachineInput,
+    machine: StickFigureCommandTransactionV1,
+    committingMachine: StickFigureCommandTransactionV1,
+    outcome: StickCommandOperationOutcomeV1,
+  ) => {
+    if (outcome.outcomeCode !== "applied") {
+      if (!installPhase4Outcome(input, machine, outcome, null)) return rejectPhase4VisibleRace(input, committingMachine);
+      return phase4Response(outcome, outcome.outcomeCode === "failed" ? "transaction_failed" : outcome.outcomeCode);
+    }
+    const preparationLive = workspaceRootRef.current;
+    if (!preparationLive || !phase4ApplyBaseMatches(input, preparationLive)) return rejectPhase4VisibleRace(input, committingMachine);
+    const nextTimeline = editableStickTimelineFromCanonicalWave(
+      outcome.root.editorRoot.current.snapshot.document,
+      editableStickTimelineFromSnapshot(preparationLive.editorRoot.current.snapshot),
+    );
+    const currentDocument = preparationLive.editorRoot.current.snapshot.document;
+    const nextDocument = editableStickDocumentFromTimeline(nextTimeline, {
+      projectId: currentDocument.projectId,
+      documentRevision: currentDocument.documentRevision + 1,
+      title: currentDocument.title,
+    });
+    let editorRoot = await commitEditableStickHistory(preparationLive.editorRoot, {
+      document: nextDocument,
+      viewState: editableStickViewFromTimeline(nextTimeline),
+    });
+    const live = workspaceRootRef.current;
+    if (!live || !phase4ApplyBaseMatches(input, live)) return rejectPhase4VisibleRace(input, committingMachine);
+    editorRoot = replaceEditableStickCurrentView(editorRoot, live.editorRoot.current.snapshot.viewState);
+    installRoot({
+      ...live,
+      editorRoot,
+      workspaceGeneration: live.workspaceGeneration + 1,
+      phase4: phase4StateForOutcome(input, outcome, null),
+    }, machine);
+    readyDocumentPublicationCountRef.current += 1;
+    setSaveError(null);
+    return phase4Response(outcome);
+  };
+
+  const beginStickRequest = async (fixture: unknown) => {
+    const input = await phase4MachineInput(fixture);
+    if (!input) return {accepted: false, outcomeCode: "rejected", errorCode: "invalid_request"};
+    const outcome = await input.machine.beginRequest(input.envelope);
+    if (!installPhase4Outcome(input, input.machine, outcome, null)) return {accepted: false, outcomeCode: "rejected", errorCode: "stale_document"};
+    return phase4Response(outcome, outcome.outcomeCode === "requesting" ? "request_started" : outcome.outcomeCode, outcome.outcomeCode === "requesting" ? null : "inherit");
+  };
+
+  const abortStickRequest = async (fixture: unknown) => {
+    const input = await phase4MachineInput(fixture);
+    if (!input) return {accepted: false, outcomeCode: "rejected", errorCode: "invalid_request"};
+    const outcome = await input.machine.abortRequest(input.envelope);
+    if (!installPhase4Outcome(input, input.machine, outcome, null)) return {accepted: false, outcomeCode: "rejected", errorCode: "stale_document"};
+    return phase4Response(outcome, outcome.outcomeCode === "aborted" ? "request_aborted" : outcome.outcomeCode);
+  };
+
+  const previewStickCommand = async (fixture: unknown) => {
+    const input = await phase4MachineInput(fixture);
+    if (!input) return {accepted: false, outcomeCode: "rejected", errorCode: "invalid_request"};
+    const outcome = await input.machine.preview(input.envelope);
+    if (!installPhase4Outcome(input, input.machine, outcome, null)) return {accepted: false, outcomeCode: "rejected", errorCode: "stale_document"};
+    return phase4Response(outcome, outcome.outcomeCode === "preview_ready" ? "previewed" : outcome.outcomeCode);
+  };
+
+  const cancelStickPreview = async (fixture: unknown) => {
+    const input = await phase4MachineInput(fixture);
+    if (!input) return {accepted: false, outcomeCode: "rejected", errorCode: "invalid_request"};
+    const outcome = await input.machine.cancelPreview(input.envelope);
+    if (!installPhase4Outcome(input, input.machine, outcome, null)) return {accepted: false, outcomeCode: "rejected", errorCode: "stale_document"};
+    return phase4Response(outcome, outcome.outcomeCode === "cancelled" ? "preview_cancelled" : outcome.outcomeCode);
+  };
+
+  const applyStickCommand = async (fixture: unknown) => {
+    const input = await phase4MachineInput(fixture);
+    if (!input) return {accepted: false, outcomeCode: "rejected", errorCode: "invalid_request"};
+    if (phase4NextVisibleFailureRef.current) {
+      input.machine.armFailure(phase4NextVisibleFailureRef.current);
+      phase4NextVisibleFailureRef.current = null;
+    }
+    const preview = await input.machine.preview(input.envelope);
+    if (preview.outcomeCode !== "preview_ready" && preview.outcomeCode !== "preview_reused") {
+      if (!installPhase4Outcome(input, input.machine, preview, null)) return {accepted: false, outcomeCode: "rejected", errorCode: "stale_document"};
+      return phase4Response(preview, preview.outcomeCode === "failed" ? "transaction_failed" : preview.outcomeCode);
+    }
+    const pending = await input.machine.beginApplyPublication(input.envelope);
+    if (pending.outcomeCode !== "apply_publication_pending") {
+      if (!installPhase4Outcome(input, input.machine, pending, null)) return {accepted: false, outcomeCode: "rejected", errorCode: "stale_document"};
+      return phase4Response(pending, pending.outcomeCode === "failed" ? "transaction_failed" : pending.outcomeCode);
+    }
+    const committingMachine = input.machine.fork();
+    const active = pending.root.transactionState.active;
+    if (!active || active.phase !== "committing") return {accepted: false, outcomeCode: "rejected", errorCode: "stale_document"};
+    const outcome = await input.machine.completeApplyPublication(active.operationId, input.envelope);
+    return publishPhase4AppliedOutcome(input, input.machine, committingMachine, outcome);
+  };
+
+  const beginApplyPublication = async (fixture: unknown) => {
+    const input = await phase4MachineInput(fixture);
+    if (!input) return {accepted: false, outcomeCode: "rejected", errorCode: "invalid_request"};
+    const preview = await input.machine.preview(input.envelope);
+    if (preview.outcomeCode !== "preview_ready" && preview.outcomeCode !== "preview_reused") {
+      if (!installPhase4Outcome(input, input.machine, preview, null)) return {accepted: false, outcomeCode: "rejected", errorCode: "stale_document"};
+      return phase4Response(preview);
+    }
+    const outcome = await input.machine.beginApplyPublication(input.envelope);
+    const pendingApplyOperationId = outcome.root.transactionState.active?.phase === "committing"
+      ? outcome.root.transactionState.active.operationId
+      : null;
+    if (!installPhase4Outcome(input, input.machine, outcome, pendingApplyOperationId)) return {accepted: false, outcomeCode: "rejected", errorCode: "stale_document"};
+    return phase4Response(outcome);
+  };
+
+  const completeApplyPublication = async (fixture: unknown) => {
+    const input = await phase4MachineInput(fixture);
+    if (!input) {
+      const parsed = await phase4FixtureInput(fixture);
+      const invalidated = invalidatedPhase4PublicationRef.current;
+      if (parsed && invalidated && parsed.starterDigest === invalidated.canonicalStarterDigest &&
+        workspaceRootRef.current?.workspaceInstanceId !== invalidated.baseWorkspaceInstanceId) {
+        invalidatedPhase4PublicationRef.current = null;
+        const outcome = await invalidated.machine.rejectActive(parsed.envelope, "project_switched");
+        return phase4Response(outcome, "rejected");
+      }
+    }
+    const operationId = input?.live.phase4?.pendingApplyOperationId ?? null;
+    if (!input || !operationId) return {accepted: false, outcomeCode: "rejected", errorCode: "stale_document"};
+    const committingMachine = input.machine.fork();
+    const outcome = await input.machine.completeApplyPublication(operationId, input.envelope);
+    return publishPhase4AppliedOutcome(input, input.machine, committingMachine, outcome);
+  };
+
+  const redeliverStickCommand = async (fixture: unknown) => {
+    const input = await phase4MachineInput(fixture);
+    if (!input) return {accepted: false, outcomeCode: "rejected", errorCode: "invalid_request"};
+    const outcome = await input.machine.redeliver(input.envelope);
+    const testerOutcomeCode = outcome.outcomeCode === "cancelled" || outcome.outcomeCode === "failed" || outcome.outcomeCode === "rejected"
+      ? "stored_terminal"
+      : outcome.outcomeCode;
+    if (!installPhase4Outcome(input, input.machine, outcome, input.live.phase4?.pendingApplyOperationId ?? null)) {
+      return {accepted: false, outcomeCode: "rejected", errorCode: "stale_document"};
+    }
+    return phase4Response(outcome, testerOutcomeCode);
+  };
+
+  const executeInjectedTransactionFailure = async (fixture: unknown) => {
+    const input = await phase4MachineInput(fixture);
+    if (!input || !isPlainRecord(fixture) || typeof fixture.failurePoint !== "string" ||
+      !STICK_COMMAND_FAILURE_POINTS.includes(fixture.failurePoint as StickCommandFailurePointV1)) {
+      return {accepted: false, outcomeCode: "rejected", errorCode: "invalid_request"};
+    }
+    input.machine.armFailure(fixture.failurePoint as StickCommandFailurePointV1);
+    const outcome = await input.machine.apply(input.envelope);
+    if (!installPhase4Outcome(input, input.machine, outcome, null)) return {accepted: false, outcomeCode: "rejected", errorCode: "stale_document"};
+    return phase4Response(outcome, outcome.outcomeCode === "failed" ? "transaction_failed" : outcome.outcomeCode);
+  };
+
+  const armNextVisibleApplyFailure = async (fixture: unknown) => {
+    if (!isPlainRecord(fixture) || typeof fixture.failurePoint !== "string" ||
+      !STICK_COMMAND_FAILURE_POINTS.includes(fixture.failurePoint as StickCommandFailurePointV1)) {
+      return {accepted: false, outcomeCode: "rejected", errorCode: "invalid_request"};
+    }
+    phase4NextVisibleFailureRef.current = fixture.failurePoint as StickCommandFailurePointV1;
+    return {accepted: true, outcomeCode: "apply_failure_armed", errorCode: null};
+  };
+
+  const readPhase4Checkpoint = async () => {
+    const legacy = await readCheckpoint();
+    const phase4 = workspaceRootRef.current?.phase4 ?? null;
+    const aiRoot = phase4?.commandRoot ?? null;
+    const active = aiRoot?.transactionState.active ?? null;
+    const terminalLedger = aiRoot?.transactionState.terminalLedger ?? [];
+    return {
+      ...legacy,
+      checkpointVersion: 4,
+      aiRootDigest: aiRoot ? await digestCanonical(aiRoot) : null,
+      aiCanonicalDocumentDigest: aiRoot?.editorRoot.current.documentDigest ?? null,
+      aiCanonicalHistoryRootDigest: aiRoot ? await digestCanonical(aiRoot.editorRoot) : null,
+      aiWorkspaceInstanceDigest: aiRoot ? await digestCanonical(aiRoot.workspaceInstanceId) : null,
+      aiWorkspaceGeneration: aiRoot?.workspaceGeneration ?? null,
+      transactionStateDigest: aiRoot ? await digestCanonical(aiRoot.transactionState) : null,
+      activeTransactionPhase: active?.phase ?? "idle",
+      activeTransactionDigest: active ? await digestCanonical(active) : null,
+      terminalLedgerDigest: await digestCanonical(terminalLedger),
+      terminalLedgerLength: terminalLedger.length,
+      pendingApplyOperationDigest: phase4?.pendingApplyOperationId
+        ? await digestCanonical(phase4.pendingApplyOperationId)
+        : null,
+      lastCommandOutcomeCode: phase4?.lastCommandOutcomeCode ?? null,
+      lastCommandResultDigest: phase4?.lastCommandResult
+        ? await digestCanonical(phase4.lastCommandResult)
+        : null,
+      commandRootTransitionCount: phase4?.commandRootTransitionCount ?? 0,
+    };
+  };
+
+  const spec0001Phase4BrowserPortsV1 = {
+    mountEditorHistoryRoot,
+    dispatchEditorTransaction,
+    beginMountedOpen,
+    completeMountedOpen,
+    beginStickRequest,
+    abortStickRequest,
+    previewStickCommand,
+    cancelStickPreview,
+    applyStickCommand,
+    beginApplyPublication,
+    completeApplyPublication,
+    redeliverStickCommand,
+    executeInjectedTransactionFailure,
+    armNextVisibleApplyFailure,
+    readCheckpoint: readPhase4Checkpoint,
+  };
+  void spec0001Phase4BrowserPortsV1;
 
   const spec0001Phase3BrowserPortsV1 = {
     mountEditorHistoryRoot,

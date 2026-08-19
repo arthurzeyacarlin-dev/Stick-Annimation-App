@@ -1,0 +1,67 @@
+{
+  "fixtureVersion": 1,
+  "terminalLedgerLimit": 128,
+  "cases": [
+    {"id": "preview-no-mutation", "operation": "preview", "expectedOutcome": "preview_ready", "expectedMutationCount": 0},
+    {"id": "preview-redelivery", "operation": "redeliver-before-apply", "expectedOutcome": "preview_reused", "expectedMutationCount": 0},
+    {"id": "apply-one-swap", "operation": "apply", "expectedOutcome": "applied", "expectedMutationCount": 1},
+    {"id": "duplicate-after-apply", "operation": "redeliver-after-apply", "expectedOutcome": "duplicate", "expectedMutationCount": 0},
+    {"id": "conflicting-duplicate", "operation": "conflicting-redelivery", "expectedOutcome": "rejected", "expectedCode": "idempotency_conflict"},
+    {"id": "cancel-preview", "operation": "cancel", "expectedOutcome": "cancelled", "expectedCode": "preview_cancelled"},
+    {"id": "abort-request", "operation": "abort", "expectedOutcome": "aborted", "expectedCode": "aborted"},
+    {"id": "stale-document", "operation": "stale", "expectedOutcome": "rejected", "expectedCode": "stale_document"},
+    {"id": "project-switched", "operation": "project-switch", "expectedOutcome": "rejected", "expectedCode": "project_switched"},
+    {"id": "concurrent-request", "operation": "conflict", "expectedOutcome": "rejected", "expectedCode": "concurrency_conflict"}
+  ],
+  "failurePoints": [
+    "after_envelope_validation",
+    "after_action_application",
+    "after_candidate_validation",
+    "during_candidate_hashing",
+    "after_history_construction"
+  ],
+  "browserScenarios": {
+    "request-main": {"kind": "stick-active-request-v1", "starterFixturePath": "scripts/fixtures/stick-ai/v1/fresh-stick-project.json", "envelopeFixturePath": "scripts/fixtures/stick-ai/v1/wave-command-batch.json"},
+    "abort-main": {"kind": "stick-request-abort-v1", "starterFixturePath": "scripts/fixtures/stick-ai/v1/fresh-stick-project.json", "envelopeFixturePath": "scripts/fixtures/stick-ai/v1/wave-command-batch.json"},
+    "preview-main": {"kind": "stick-command-envelope-v1", "starterFixturePath": "scripts/fixtures/stick-ai/v1/fresh-stick-project.json", "envelopeFixturePath": "scripts/fixtures/stick-ai/v1/wave-command-batch.json"},
+    "cancel-main": {"kind": "stick-preview-cancel-v1", "starterFixturePath": "scripts/fixtures/stick-ai/v1/fresh-stick-project.json", "envelopeFixturePath": "scripts/fixtures/stick-ai/v1/wave-command-batch.json"},
+    "apply-main": {"kind": "stick-command-apply-v1", "starterFixturePath": "scripts/fixtures/stick-ai/v1/fresh-stick-project.json", "envelopeFixturePath": "scripts/fixtures/stick-ai/v1/wave-command-batch.json"},
+    "redelivery-main": {"kind": "stick-command-redelivery-v1", "starterFixturePath": "scripts/fixtures/stick-ai/v1/fresh-stick-project.json", "envelopeFixturePath": "scripts/fixtures/stick-ai/v1/wave-command-batch.json"},
+    "redelivery-conflict": {"kind": "stick-command-redelivery-v1", "starterFixturePath": "scripts/fixtures/stick-ai/v1/fresh-stick-project.json", "envelopeFixturePath": "scripts/fixtures/stick-ai/v1/wave-command-batch.json", "envelopeRequestId": "00000000-0000-4000-8000-000000000503"},
+    "failure-envelope-validation": {"kind": "stick-injected-transaction-failure-v1", "starterFixturePath": "scripts/fixtures/stick-ai/v1/fresh-stick-project.json", "envelopeFixturePath": "scripts/fixtures/stick-ai/v1/wave-command-batch.json", "failurePoint": "after_envelope_validation"},
+    "failure-action-application": {"kind": "stick-injected-transaction-failure-v1", "starterFixturePath": "scripts/fixtures/stick-ai/v1/fresh-stick-project.json", "envelopeFixturePath": "scripts/fixtures/stick-ai/v1/wave-command-batch.json", "failurePoint": "after_action_application"},
+    "failure-candidate-validation": {"kind": "stick-injected-transaction-failure-v1", "starterFixturePath": "scripts/fixtures/stick-ai/v1/fresh-stick-project.json", "envelopeFixturePath": "scripts/fixtures/stick-ai/v1/wave-command-batch.json", "failurePoint": "after_candidate_validation"},
+    "failure-candidate-hashing": {"kind": "stick-injected-transaction-failure-v1", "starterFixturePath": "scripts/fixtures/stick-ai/v1/fresh-stick-project.json", "envelopeFixturePath": "scripts/fixtures/stick-ai/v1/wave-command-batch.json", "failurePoint": "during_candidate_hashing"},
+    "failure-history-construction": {"kind": "stick-injected-transaction-failure-v1", "starterFixturePath": "scripts/fixtures/stick-ai/v1/fresh-stick-project.json", "envelopeFixturePath": "scripts/fixtures/stick-ai/v1/wave-command-batch.json", "failurePoint": "after_history_construction"},
+    "arm-visible-failure": {"kind": "stick-next-visible-apply-failure-v1", "failurePoint": "after_history_construction"},
+    "project-eligible-mount": {
+      "kind": "stick-workspace-history-mount-v1",
+      "mountVersion": 1,
+      "editorHistoryRoot": {
+        "current": {
+          "snapshot": {
+            "document": {
+              "documentRevision": 0,
+              "fps": 12,
+              "layers": [{"frames":[{"cellType":"blank-keyframe","content":{"figures":[],"structureGraph":{"activeJointId":null,"joints":[],"limbs":[]}},"hasTweenEndpoint":false,"id":1,"isBlank":true,"kind":"keyframe","stateId":1}],"id":"stick-layer-1","name":"Layer 1"}],
+              "nextFrameId": 2,
+              "nextLayerNumber": 2,
+              "nextStateId": 2,
+              "projectId": "55555555-5555-4555-8555-555555555555",
+              "projectType": "stick-figure",
+              "schemaVersion": 1,
+              "title": "Phase 4 eligible project"
+            },
+            "viewState": {"activeLayerId":"stick-layer-1","currentFrameIndex":0,"selectedTimelineIndex":0}
+          },
+          "documentDigest": "sha256:24c00bb4ae1fe1730511dfe38d5bed1487c5c695ea318f1668dd0125d9e53476"
+        },
+        "undo": [],
+        "redo": []
+      },
+      "savedBaselineMode": "none",
+      "expectedWorkspaceGeneration": 1,
+      "workspaceInstancePolicy": "new_deterministic_uuid"
+    }
+  }
+}

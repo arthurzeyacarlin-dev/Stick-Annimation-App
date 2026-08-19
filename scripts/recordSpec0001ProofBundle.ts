@@ -274,6 +274,21 @@ const phaseThreeExactCommands = (base: string) => [
   ["node", "--experimental-strip-types", "scripts/runSpec0001BrowserProof.ts", "--plan=scripts/fixtures/stick-ai/v1/phase-3-browser-proof-plan.json"],
 ];
 
+const phaseFourExactCommands = (base: string) => [
+  ["node", "--experimental-strip-types", "scripts/validateStickFigureCommandTransaction.ts"],
+  ["node", "--experimental-strip-types", "scripts/validateStickHistoryPersistence.ts"],
+  ["node", "--experimental-strip-types", "scripts/validateStickPoseTimeline.ts"],
+  ["node", "--experimental-strip-types", "scripts/validateStickFigureAiContracts.ts"],
+  ["node", "--experimental-strip-types", "scripts/validateDrawingAiControlPreferences.ts"],
+  ["node", "--experimental-strip-types", "scripts/validateDrawingProjectAiMemory.ts"],
+  ["node", "--experimental-strip-types", "scripts/validateDrawingProjectAiMemoryRouteSafety.ts"],
+  ["node", "--experimental-strip-types", "scripts/validateTimelinePlaybackSmoothing.ts"],
+  ["./node_modules/.bin/tsc", "--noEmit", "--incremental", "false"],
+  ["node", "--experimental-strip-types", "scripts/spec0001-proof/measureSpec0001LintRegression.ts", `--base=${base}`],
+  ["git", "diff", "--check"],
+  ["node", "--experimental-strip-types", "scripts/runSpec0001BrowserProof.ts", "--plan=scripts/fixtures/stick-ai/v1/phase-4-browser-proof-plan.json"],
+];
+
 const nulList = (value: string) => value.split("\0").filter(Boolean);
 
 const collectArtifacts = (configPath: string, commands: CommandConfig[], bindingPaths: string[], browserEvidenceInput: string | null, version: 1 | 2 = 1) => {
@@ -467,7 +482,7 @@ const validateV2LintMeasurementForRecording = (value: unknown, baseCommit: strin
 
 const summarizeV2Evidence = (path: string, baseCommit: string, headCommit: string, phase: number) => {
   const runnerResult = JSON.parse(readFileSync(resolve(ROOT, path), "utf8")) as Record<string, unknown>;
-  const expectedResultVersion = phase === 3 ? 3 : 2;
+  const expectedResultVersion = phase === 4 ? 4 : phase === 3 ? 3 : 2;
   if (runnerResult.resultVersion !== expectedResultVersion) throw new Error(`Phase ${phase} runner result version must be ${expectedResultVersion}.`);
   const derivedGitState = runnerResult.derivedGitState;
   if (derivedGitState !== "dirty-executor" && derivedGitState !== "clean-committed") throw new Error("Version 2 runner result derived Git state is invalid.");
@@ -477,7 +492,7 @@ const summarizeV2Evidence = (path: string, baseCommit: string, headCommit: strin
   const cleanExpectedPaths = requireStringArray(runnerResult.cleanExpectedPaths, "Runner clean expectations");
   const selectedExpectedPaths = requireStringArray(runnerResult.selectedExpectedPaths, "Runner selected expectations");
   const authorization = exactKeys(runnerResult.authorization, ["authorizationId", "materializationKind"], "Runner authorization");
-  const expectedAuthorization = phase === 3 ? "phase-3/v1" : "phase-2/v1";
+  const expectedAuthorization = phase === 4 ? "phase-4/v1" : phase === 3 ? "phase-3/v1" : "phase-2/v1";
   if (authorization.authorizationId !== expectedAuthorization) throw new Error(`Phase ${phase} runner authorization ID is invalid.`);
   if (authorization.materializationKind !== "materialized" && authorization.materializationKind !== "deferred") throw new Error("Runner materialization kind is invalid.");
   const resultBindings = exactKeys(runnerResult.bindings, ["adapter", "catalog", "plan", "registry"], "Runner bindings");
@@ -584,6 +599,14 @@ const recordV2 = (
       if (JSON.stringify(command.argv) !== JSON.stringify(expectedCommands[index])) throw new Error(`Phase 3 command ${index + 1} argv/order mismatch.`);
       const expectedExitCode = index === 9 ? 1 : 0;
       if (command.expectedExitCode !== expectedExitCode || Object.keys(command.env).length !== 0) throw new Error(`Phase 3 command ${index + 1} must use empty declared env and expect exit ${expectedExitCode}.`);
+    });
+  }
+  if (args.phase === 4) {
+    const expectedCommands = phaseFourExactCommands(args.base);
+    if (commands.length !== expectedCommands.length) throw new Error("Phase 4 proof requires exactly twelve commands.");
+    commands.forEach((command, index) => {
+      if (JSON.stringify(command.argv) !== JSON.stringify(expectedCommands[index])) throw new Error(`Phase 4 command ${index + 1} argv/order mismatch.`);
+      if (command.expectedExitCode !== 0 || Object.keys(command.env).length !== 0) throw new Error(`Phase 4 command ${index + 1} must use empty declared env and expect exit 0.`);
     });
   }
   const executions = commands.map((command) => closeV2Command(command, allBindingPaths));

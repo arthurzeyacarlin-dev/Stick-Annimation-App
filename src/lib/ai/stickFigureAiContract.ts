@@ -772,7 +772,8 @@ export const parseStickCommandBatch = async (
     return envelope;
   });
 
-const waveActionsFromCommand = (command: StickWaveCommandV1): StickManualActionV1[] => {
+/** Shared manual-action trace used by both the Phase 1 contract and Phase 4 executor. */
+export const stickManualActionsFromCommand = (command: StickWaveCommandV1): StickManualActionV1[] => {
   const actions: StickManualActionV1[] = [];
   command.poseEntries.forEach((entry, index) => {
     if (index > 0) {
@@ -796,7 +797,7 @@ export const applyStickCommandBatch = async (
   captureAsync(async () => {
     const parsed = await parseStickCommandBatch(envelopeInput, starterInput);
     if (!parsed.ok) return fail(parsed.error.code, parsed.error.path, parsed.error.message);
-    const result = applyStickManualActions(starterInput, waveActionsFromCommand(parsed.value.commands[0]), "single", "allow-derived");
+    const result = applyStickManualActions(starterInput, stickManualActionsFromCommand(parsed.value.commands[0]), "single", "allow-derived");
     if (!result.ok) return fail(result.error.code, result.error.path, result.error.message);
     if (!isStickManualWaveApplied(result.value, starterInput)) return fail("transaction_failed", "$document", "Command did not materialize the wave profile.");
     return result.value;

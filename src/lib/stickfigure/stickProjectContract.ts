@@ -1206,8 +1206,8 @@ const preservesWaveStarterIdentity = (document: StickProjectDocumentV1, starter:
 };
 
 export const isStickManualWaveApplied = (
-  documentInput: StickProjectDocumentV1,
-  starterInput: StickProjectDocumentV1,
+  documentInput: unknown,
+  starterInput: unknown,
 ): boolean => {
   const parsed = parseStickProjectDocument(documentInput);
   const parsedStarter = parseStickProjectDocument(starterInput);

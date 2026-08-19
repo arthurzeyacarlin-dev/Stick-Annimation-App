@@ -57,13 +57,17 @@ import {
 } from "./spec0001-browser/browserTesterContract.ts";
 import {
   COMPATIBILITY_OUTPUT_ROOT,
+  PHASE4_MATERIALIZED_FIXTURE_PATHS,
   loadTesterExtensionGraph,
   parseBrowserProofCli,
   sortProofPaths,
+  validateAuthorizationCatalogValue,
   validateExtensionPlanValue,
   validateExtensionResult,
+  validatePhase4CheckpointValue,
   type ExtensionResult,
   type NormalizedAction,
+  type StickPhase4CheckpointV1,
   type ValidatedTesterExtension,
 } from "./spec0001-browser/browserTesterExtensionContract.ts";
 
@@ -315,6 +319,78 @@ const PHASE3_WORKSPACE_PORT_INSTRUMENTATION = `  useEffect(() => {
     return () => window.removeEventListener(${JSON.stringify(COMPATIBILITY_COMMAND_EVENT)}, listener);
   }, []);`;
 
+const PHASE4_WORKSPACE_PORT_INSTRUMENTATION = `  useEffect(() => {
+    const ports = spec0001Phase4BrowserPortsV1;
+    const required = ["beginStickRequest", "abortStickRequest", "previewStickCommand", "cancelStickPreview", "applyStickCommand", "beginApplyPublication", "completeApplyPublication", "redeliverStickCommand", "executeInjectedTransactionFailure", "armNextVisibleApplyFailure", "mountEditorHistoryRoot", "beginMountedOpen", "completeMountedOpen", "readCheckpoint"] as const;
+    for (const name of required) {
+      if (typeof ports[name] !== "function") throw new Error("SPEC0001_PHASE4_PORT_MISSING:" + name);
+    }
+    const publish = (operation: string, payload: Record<string, unknown>) => {
+      const binding = (window as Window & {${COMPATIBILITY_DRIVER_BINDING}?: (message: unknown) => Promise<void>}).${COMPATIBILITY_DRIVER_BINDING};
+      if (typeof binding === "function") void binding({contractVersion: 2, operation, payload});
+    };
+    const onCommand = async (event: Event) => {
+      const detail = (event as CustomEvent<{commandId?: unknown; operation?: unknown; payload?: unknown}>).detail;
+      if (!detail || typeof detail.commandId !== "string" || typeof detail.operation !== "string" || typeof detail.payload !== "object" || detail.payload === null || Array.isArray(detail.payload)) return;
+      const payload = detail.payload as Record<string, unknown>;
+      if (typeof payload.scenarioId !== "string" || typeof payload.operationId !== "string") return;
+      const operationByWire = {
+        "workspace.begin-stick-request/v1": "beginStickRequest",
+        "workspace.abort-stick-request/v1": "abortStickRequest",
+        "workspace.preview-stick-command/v1": "previewStickCommand",
+        "workspace.cancel-stick-preview/v1": "cancelStickPreview",
+        "workspace.apply-stick-command/v1": "applyStickCommand",
+        "workspace.begin-apply-publication/v1": "beginApplyPublication",
+        "workspace.complete-apply-publication/v1": "completeApplyPublication",
+        "workspace.redeliver-stick-command/v1": "redeliverStickCommand",
+        "workspace.execute-injected-transaction-failure/v1": "executeInjectedTransactionFailure",
+        "workspace.arm-next-visible-apply-failure/v1": "armNextVisibleApplyFailure",
+        "workspace.mount-editor-history-root/v1": "mountEditorHistoryRoot",
+        "workspace.begin-mounted-open/v1": "beginMountedOpen",
+        "workspace.complete-mounted-open/v1": "completeMountedOpen",
+        "workspace.read-checkpoint/v1": "readCheckpoint",
+      } as const;
+      const operation = operationByWire[detail.operation as keyof typeof operationByWire];
+      if (!operation) return;
+      let domainResult: unknown;
+      let checkpoint: unknown;
+      if (operation === "readCheckpoint") {
+        checkpoint = await ports.readCheckpoint();
+        domainResult = {outcomeCode: "checkpoint_read", errorCode: null};
+      } else if (operation === "mountEditorHistoryRoot") {
+        domainResult = await ports.mountEditorHistoryRoot(payload.fixture, payload.operationId);
+        checkpoint = await ports.readCheckpoint();
+      } else if (operation === "beginMountedOpen") {
+        domainResult = await ports.beginMountedOpen(payload.fixture, payload.operationId);
+        checkpoint = await ports.readCheckpoint();
+      } else if (operation === "completeMountedOpen") {
+        domainResult = await ports.completeMountedOpen(payload.fixture);
+        checkpoint = await ports.readCheckpoint();
+      } else {
+        domainResult = await ports[operation](payload.fixture);
+        checkpoint = await ports.readCheckpoint();
+      }
+      if (typeof domainResult !== "object" || domainResult === null || Array.isArray(domainResult)) throw new Error("SPEC0001_PHASE4_PORT_RESULT_INVALID:" + operation);
+      const domain = domainResult as Record<string, unknown>;
+      const response = {
+        driverVersion: 1,
+        phaseUnderTest: 4,
+        operation,
+        scenarioId: payload.scenarioId,
+        operationId: payload.operationId,
+        driverStatus: "ok",
+        outcomeCode: domain.outcomeCode,
+        errorCode: domain.errorCode,
+        checkpoint,
+      };
+      publish("compatibility.command-result/v2", {commandId: detail.commandId, operation: detail.operation, response, checkpoint});
+    };
+    const listener = (event: Event) => { void onCommand(event); };
+    window.addEventListener(${JSON.stringify(COMPATIBILITY_COMMAND_EVENT)}, listener);
+    publish("tester.connection.ping/v2", {connected: true, transport: "playwright-binding", adapterKind: "phase-4-product-ports/v1"});
+    return () => window.removeEventListener(${JSON.stringify(COMPATIBILITY_COMMAND_EVENT)}, listener);
+  }, []);`;
+
 type Operation = {id: string; viewport: string; action: string; target: string; passed: true; at: string};
 type ScreenshotEvidence = FileBinding & {id: string; viewport: {width: number; height: number}};
 type RunningServer = {child: ChildProcess; port: number; mode: "development" | "production"};
@@ -377,6 +453,7 @@ const compatibilityEnvironment = {installedFixtureId: null as string | null, act
 const compatibilityBrowserVersions = new Set<string>();
 const phase3OnionInvariantByContext = new Map<string, JsonObject>();
 const phase3ShellVisualBaselineByContext = new Map<string, JsonObject>();
+const phase4CheckpointByAction = new Map<string, StickPhase4CheckpointV1>();
 const PHASE3_BASE_SHELL_ELEMENTS_DIGESTS = {
   "1024x768": "sha256:ebe631f6a24f7f56b666b83def1ac35e68478da3091914ac6577ea8d45d7faf2",
   "1440x900": "sha256:a8283fc14ea1370d7a55053be28379da7bff36c241dfa211a5cba1b848b7a871",
@@ -454,8 +531,8 @@ const assertPhase3VisualSourceBoundary = (baseCommit: string) => {
   );
 };
 
-const configureExtensionOutputPaths = (graph: ValidatedTesterExtension) => {
-  const executionLeaf = graph.adapter.executionProfile === "synthetic-state-machine/v1" ? "synthetic" : "browser";
+const configureExtensionOutputPaths = (graph: ValidatedTesterExtension, review = false) => {
+  const executionLeaf = review ? "review" : graph.adapter.executionProfile === "synthetic-state-machine/v1" ? "synthetic" : "browser";
   COMPATIBILITY_SYNTHETIC_ROOT = `${graph.outputRoot}/${executionLeaf}`;
   COMPATIBILITY_SCREENSHOT_ROOT = `${COMPATIBILITY_SYNTHETIC_ROOT}/screenshots`;
   COMPATIBILITY_TEMP_ROOT = `${COMPATIBILITY_SYNTHETIC_ROOT}/temporary`;
@@ -541,7 +618,7 @@ const snapshotExtensionSourceState = (graph: ValidatedTesterExtension) => {
     "package.json",
     "package-lock.json",
   ])];
-  const paths = graph.authorizationId === "phase-3/v1"
+  const paths = graph.authorizationId === "phase-3/v1" || graph.authorizationId === "phase-4/v1"
     ? sortProofPaths(sourcePaths)
     : sourcePaths.sort((left, right) => left.localeCompare(right));
   const entries = paths.map((path) => {
@@ -860,16 +937,20 @@ const installCompatibilityAnchor = () => {
   assert.equal(text.split(ANCHOR_MARKER).length - 1, 1, "Compatibility anchor marker must appear exactly once.");
   const phase2Profile = compatibilityGraph.adapter.executionProfile === "phase2-workspace-ports/v1";
   const phase3Profile = compatibilityGraph.adapter.executionProfile === "phase3-workspace-ports/v1";
+  const phase4Profile = compatibilityGraph.adapter.executionProfile === "phase4-workspace-ports/v1";
   if (phase2Profile) {
     assert.equal(compatibilityGraph.adapter.workspacePortBinding, "spec0001Phase2BrowserPortsV1");
     assert.match(text, /\bspec0001Phase2BrowserPortsV1\b/, "Phase 2 workspace port object is absent from the exact anchor preimage.");
   } else if (phase3Profile) {
     assert.equal(compatibilityGraph.adapter.workspacePortBinding, "spec0001Phase3BrowserPortsV1");
     assert.match(text, /\bspec0001Phase3BrowserPortsV1\b/, "Phase 3 workspace port object is absent from the exact anchor preimage.");
+  } else if (phase4Profile) {
+    assert.equal(compatibilityGraph.adapter.workspacePortBinding, "spec0001Phase4BrowserPortsV1");
+    assert.match(text, /\bspec0001Phase4BrowserPortsV1\b/, "Phase 4 workspace port object is absent from the exact anchor preimage.");
   } else assert.equal(compatibilityGraph.adapter.workspacePortBinding, null);
   compatibilityAnchorOriginal = bytes;
   compatibilityAnchorOriginalHash = sha256Bytes(bytes);
-  const instrumentation = phase2Profile ? PHASE2_WORKSPACE_PORT_INSTRUMENTATION : phase3Profile ? PHASE3_WORKSPACE_PORT_INSTRUMENTATION : COMPATIBILITY_DRIVER_INSTRUMENTATION;
+  const instrumentation = phase2Profile ? PHASE2_WORKSPACE_PORT_INSTRUMENTATION : phase3Profile ? PHASE3_WORKSPACE_PORT_INSTRUMENTATION : phase4Profile ? PHASE4_WORKSPACE_PORT_INSTRUMENTATION : COMPATIBILITY_DRIVER_INSTRUMENTATION;
   const replaced = text.replace(`  ${ANCHOR_MARKER}`, instrumentation);
   assert.notEqual(replaced, text);
   assert.equal(replaced.includes(ANCHOR_MARKER), false);
@@ -1304,6 +1385,7 @@ const createCompatibilityContext = async (
   port: number,
   apiResponse: unknown | null = null,
   selfTest = false,
+  headless = true,
 ) => {
   const profile = `${COMPATIBILITY_TEMP_ROOT}/profiles/${contextId}`;
   assert.ok(!existsSync(repositoryPath(ROOT, profile)), `Compatibility profile collision: ${profile}`);
@@ -1311,7 +1393,7 @@ const createCompatibilityContext = async (
   ownedProfiles.add(profile);
   const context = await chromium.launchPersistentContext(repositoryPath(ROOT, profile), {
     executablePath: BROWSER_EXECUTABLE,
-    headless: true,
+    headless,
     handleSIGINT: false,
     handleSIGTERM: false,
     handleSIGHUP: false,
@@ -2094,17 +2176,34 @@ const dispatchCompatibilityPointer = async (page: Page, contextId: string, actio
   await canvas.waitFor({state: "visible", timeout: 30_000});
   const messageCount = compatibilityDriverMessages.length;
   const eventName = action.operation === "down" ? "pointerdown" : action.operation === "move" ? "pointermove" : action.operation === "up" ? "pointerup" : "pointercancel";
-  await canvas.dispatchEvent(eventName, {
-    pointerId: action.pointerId,
-    pointerType: "mouse",
-    isPrimary: true,
-    button: action.button,
-    buttons: action.operation === "up" || action.operation === "cancel" ? 0 : 1,
-    clientX: action.point.x,
-    clientY: action.point.y,
-  });
-  if (compatibilityGraph?.adapter.executionProfile === "phase2-workspace-ports/v1") {
-    const message = await dispatchCompatibilityCommand(page, contextId, "workspace.read-checkpoint/v1", {operationId: `pointer-${action.actionId}`});
+  if (compatibilityGraph?.adapter.executionProfile === "phase4-workspace-ports/v1" && action.operation !== "cancel") {
+    assert.equal(action.button, 0, `Phase 4 pointer ${action.actionId} must use the primary mouse button.`);
+    if (action.operation === "down") {
+      await page.mouse.move(action.point.x, action.point.y);
+      await page.mouse.down({button: "left"});
+    } else if (action.operation === "move") {
+      await page.mouse.move(action.point.x, action.point.y, {steps: 2});
+    } else {
+      await page.mouse.up({button: "left"});
+    }
+  } else {
+    await canvas.dispatchEvent(eventName, {
+      pointerId: action.pointerId,
+      pointerType: "mouse",
+      isPrimary: true,
+      button: action.button,
+      buttons: action.operation === "up" || action.operation === "cancel" ? 0 : 1,
+      clientX: action.point.x,
+      clientY: action.point.y,
+    });
+  }
+  if (compatibilityGraph?.adapter.executionProfile === "phase2-workspace-ports/v1" ||
+    compatibilityGraph?.adapter.executionProfile === "phase4-workspace-ports/v1") {
+    if (compatibilityGraph.adapter.executionProfile === "phase4-workspace-ports/v1") await page.waitForTimeout(0);
+    const message = await dispatchCompatibilityCommand(page, contextId, "workspace.read-checkpoint/v1", {
+      scenarioId: contextId,
+      operationId: `pointer-${action.actionId}`,
+    });
     return message.payload;
   }
   for (let attempt = 0; attempt < 100 && compatibilityDriverMessages.length === messageCount; attempt += 1) await page.waitForTimeout(20);
@@ -2126,6 +2225,304 @@ const canonicalCompatibilityCommandEvidence = (value: JsonObject, actionId: stri
   return canonical;
 };
 
+const PHASE4_EXPECTED_DRIVER_RESULTS: Readonly<Record<string, {outcomeCode: string; errorCode: string | null}>> = {
+  "abort-request-start": {outcomeCode: "request_started", errorCode: null},
+  "abort-requesting-checkpoint": {outcomeCode: "checkpoint_read", errorCode: null},
+  "abort-request": {outcomeCode: "request_aborted", errorCode: "aborted"},
+  "abort-terminal-checkpoint": {outcomeCode: "checkpoint_read", errorCode: null},
+  "cancel-request-start": {outcomeCode: "request_started", errorCode: null},
+  "cancel-preview": {outcomeCode: "previewed", errorCode: null},
+  "cancel-preview-redelivery": {outcomeCode: "preview_reused", errorCode: null},
+  "cancel-preview-action": {outcomeCode: "preview_cancelled", errorCode: "preview_cancelled"},
+  "cancel-terminal-redelivery": {outcomeCode: "stored_terminal", errorCode: "preview_cancelled"},
+  "cancel-terminal-checkpoint": {outcomeCode: "checkpoint_read", errorCode: null},
+  "apply-request-start": {outcomeCode: "request_started", errorCode: null},
+  "apply-preview": {outcomeCode: "previewed", errorCode: null},
+  "apply-command": {outcomeCode: "applied", errorCode: null},
+  "apply-duplicate-redelivery": {outcomeCode: "duplicate", errorCode: null},
+  "apply-applied-checkpoint": {outcomeCode: "checkpoint_read", errorCode: null},
+  "apply-undone-checkpoint": {outcomeCode: "checkpoint_read", errorCode: null},
+  "apply-redone-checkpoint": {outcomeCode: "checkpoint_read", errorCode: null},
+  "apply-manual-edit-checkpoint": {outcomeCode: "checkpoint_read", errorCode: null},
+  "apply-manual-undone-checkpoint": {outcomeCode: "checkpoint_read", errorCode: null},
+  "apply-manual-redone-checkpoint": {outcomeCode: "checkpoint_read", errorCode: null},
+  "apply-playing-checkpoint": {outcomeCode: "checkpoint_read", errorCode: null},
+  "apply-paused-checkpoint": {outcomeCode: "checkpoint_read", errorCode: null},
+  "publication-request-start": {outcomeCode: "request_started", errorCode: null},
+  "publication-preview": {outcomeCode: "previewed", errorCode: null},
+  "publication-begin-action": {outcomeCode: "apply_publication_pending", errorCode: null},
+  "publication-commit-redelivery": {outcomeCode: "commit_in_progress", errorCode: null},
+  "publication-committing-checkpoint": {outcomeCode: "checkpoint_read", errorCode: null},
+  "publication-complete-action": {outcomeCode: "applied", errorCode: null},
+  "publication-duplicate-redelivery": {outcomeCode: "duplicate", errorCode: null},
+  "publication-applied-checkpoint": {outcomeCode: "checkpoint_read", errorCode: null},
+  "failure-envelope-request-start": {outcomeCode: "request_started", errorCode: null},
+  "failure-envelope-baseline": {outcomeCode: "checkpoint_read", errorCode: null},
+  "failure-envelope-execute": {outcomeCode: "transaction_failed", errorCode: "transaction_failed"},
+  "failure-envelope-terminal": {outcomeCode: "checkpoint_read", errorCode: null},
+  "failure-action-request-start": {outcomeCode: "request_started", errorCode: null},
+  "failure-action-baseline": {outcomeCode: "checkpoint_read", errorCode: null},
+  "failure-action-execute": {outcomeCode: "transaction_failed", errorCode: "transaction_failed"},
+  "failure-action-terminal": {outcomeCode: "checkpoint_read", errorCode: null},
+  "failure-candidate-request-start": {outcomeCode: "request_started", errorCode: null},
+  "failure-candidate-baseline": {outcomeCode: "checkpoint_read", errorCode: null},
+  "failure-candidate-execute": {outcomeCode: "transaction_failed", errorCode: "transaction_failed"},
+  "failure-candidate-terminal": {outcomeCode: "checkpoint_read", errorCode: null},
+  "failure-hashing-request-start": {outcomeCode: "request_started", errorCode: null},
+  "failure-hashing-baseline": {outcomeCode: "checkpoint_read", errorCode: null},
+  "failure-hashing-execute": {outcomeCode: "transaction_failed", errorCode: "transaction_failed"},
+  "failure-hashing-terminal": {outcomeCode: "checkpoint_read", errorCode: null},
+  "failure-history-request-start": {outcomeCode: "request_started", errorCode: null},
+  "failure-history-baseline": {outcomeCode: "checkpoint_read", errorCode: null},
+  "failure-history-execute": {outcomeCode: "transaction_failed", errorCode: "transaction_failed"},
+  "failure-history-terminal": {outcomeCode: "checkpoint_read", errorCode: null},
+  "arm-request-start": {outcomeCode: "request_started", errorCode: null},
+  "arm-preview": {outcomeCode: "previewed", errorCode: null},
+  "arm-next-visible": {outcomeCode: "apply_failure_armed", errorCode: null},
+  "arm-apply": {outcomeCode: "transaction_failed", errorCode: "transaction_failed"},
+  "arm-terminal-checkpoint": {outcomeCode: "checkpoint_read", errorCode: null},
+  "conflict-request-start": {outcomeCode: "request_started", errorCode: null},
+  "conflict-preview": {outcomeCode: "previewed", errorCode: null},
+  "conflict-preview-reject": {outcomeCode: "stored_terminal", errorCode: "idempotency_conflict"},
+  "conflict-preview-exact": {outcomeCode: "preview_reused", errorCode: null},
+  "conflict-begin-apply": {outcomeCode: "apply_publication_pending", errorCode: null},
+  "conflict-committing-reject": {outcomeCode: "stored_terminal", errorCode: "idempotency_conflict"},
+  "conflict-committing-exact": {outcomeCode: "commit_in_progress", errorCode: null},
+  "conflict-complete-apply": {outcomeCode: "applied", errorCode: null},
+  "conflict-terminal-reject": {outcomeCode: "stored_terminal", errorCode: "idempotency_conflict"},
+  "conflict-terminal-exact": {outcomeCode: "duplicate", errorCode: null},
+  "conflict-final-checkpoint": {outcomeCode: "checkpoint_read", errorCode: null},
+  "authored-request-start": {outcomeCode: "request_started", errorCode: null},
+  "authored-preview": {outcomeCode: "previewed", errorCode: null},
+  "authored-begin-apply": {outcomeCode: "apply_publication_pending", errorCode: null},
+  "authored-pending-checkpoint": {outcomeCode: "checkpoint_read", errorCode: null},
+  "authored-edited-checkpoint": {outcomeCode: "checkpoint_read", errorCode: null},
+  "authored-complete-apply": {outcomeCode: "rejected", errorCode: "stale_document"},
+  "authored-final-checkpoint": {outcomeCode: "checkpoint_read", errorCode: null},
+  "project-prep-mount": {outcomeCode: "mounted", errorCode: null},
+  "project-request-start": {outcomeCode: "request_started", errorCode: null},
+  "project-preview": {outcomeCode: "previewed", errorCode: null},
+  "project-begin-apply": {outcomeCode: "apply_publication_pending", errorCode: null},
+  "project-pending-checkpoint": {outcomeCode: "checkpoint_read", errorCode: null},
+  "project-open-begin": {outcomeCode: "mounted_open_pending", errorCode: null},
+  "project-open-complete": {outcomeCode: "mounted_open_applied", errorCode: null},
+  "project-switched-checkpoint": {outcomeCode: "checkpoint_read", errorCode: null},
+  "project-complete-apply": {outcomeCode: "rejected", errorCode: "project_switched"},
+  "project-final-checkpoint": {outcomeCode: "checkpoint_read", errorCode: null},
+};
+
+const stablePhase4EvidenceForDigest = (evidence: JsonObject) => {
+  const normalized = structuredClone(evidence);
+  const maskCheckpoint = (value: unknown) => {
+    if (value === null || typeof value !== "object" || Array.isArray(value)) return;
+    const checkpoint = value as JsonObject;
+    for (const field of [
+      "editorRootDigest", "workspaceRootDigest", "documentDigest", "historyRootDigest", "lastSavedDocumentDigest",
+      "workspaceInstanceDigest", "aiRootDigest", "aiWorkspaceInstanceDigest", "transactionStateDigest",
+      "activeTransactionDigest", "terminalLedgerDigest", "lastCommandResultDigest",
+    ]) if (checkpoint[field] !== null && typeof checkpoint[field] === "string") checkpoint[field] = `sha256:${"0".repeat(64)}`;
+  };
+  maskCheckpoint(normalized.checkpoint);
+  if (normalized.response !== null && typeof normalized.response === "object" && !Array.isArray(normalized.response)) {
+    maskCheckpoint((normalized.response as JsonObject).checkpoint);
+  }
+  return normalized;
+};
+
+const validatePhase4DriverEvidence = (evidence: JsonObject, action: Extract<NormalizedAction, {family: "workspace-driver"}>) => {
+  const response = strictObject(evidence.response, ["driverVersion", "phaseUnderTest", "operation", "scenarioId", "operationId", "driverStatus", "outcomeCode", "errorCode", "checkpoint"], `Phase 4 driver response ${action.actionId}`);
+  assert.equal(response.driverVersion, 1);
+  assert.equal(response.phaseUnderTest, 4);
+  assert.equal(response.operation, action.operation);
+  assert.equal(response.scenarioId, action.actionId.split("-")[0]);
+  assert.equal(response.operationId, action.operationId);
+  assert.equal(response.driverStatus, "ok");
+  const expected = PHASE4_EXPECTED_DRIVER_RESULTS[action.actionId];
+  assert.ok(expected, `Phase 4 action has no exact result allocation: ${action.actionId}`);
+  assert.equal(response.outcomeCode, expected.outcomeCode, `Phase 4 outcome drift: ${action.actionId}`);
+  assert.equal(response.errorCode, expected.errorCode, `Phase 4 error drift: ${action.actionId}`);
+  const checkpoint = validatePhase4CheckpointValue(response.checkpoint, `Phase 4 checkpoint ${action.actionId}`);
+  assert.deepEqual(checkpoint, evidence.checkpoint, `Phase 4 response/checkpoint mismatch: ${action.actionId}`);
+  return checkpoint;
+};
+
+const phase4VisibleContentProjection = (checkpoint: StickPhase4CheckpointV1) => ({
+  documentDigest: checkpoint.documentDigest,
+  documentRevision: checkpoint.documentRevision,
+  historyRootDigest: checkpoint.historyRootDigest,
+  undoDepth: checkpoint.undoDepth,
+  redoDepth: checkpoint.redoDepth,
+  lastSavedDocumentDigest: checkpoint.lastSavedDocumentDigest,
+  dirty: checkpoint.dirty,
+  workspaceInstanceDigest: checkpoint.workspaceInstanceDigest,
+  workspaceGeneration: checkpoint.workspaceGeneration,
+  storageDigest: checkpoint.storageDigest,
+});
+
+const phase4AiCanonicalProjection = (checkpoint: StickPhase4CheckpointV1) => ({
+  aiRootDigest: checkpoint.aiRootDigest,
+  aiCanonicalDocumentDigest: checkpoint.aiCanonicalDocumentDigest,
+  aiCanonicalHistoryRootDigest: checkpoint.aiCanonicalHistoryRootDigest,
+  aiWorkspaceInstanceDigest: checkpoint.aiWorkspaceInstanceDigest,
+  aiWorkspaceGeneration: checkpoint.aiWorkspaceGeneration,
+  transactionStateDigest: checkpoint.transactionStateDigest,
+  activeTransactionPhase: checkpoint.activeTransactionPhase,
+  activeTransactionDigest: checkpoint.activeTransactionDigest,
+  terminalLedgerDigest: checkpoint.terminalLedgerDigest,
+  terminalLedgerLength: checkpoint.terminalLedgerLength,
+  pendingApplyOperationDigest: checkpoint.pendingApplyOperationDigest,
+});
+
+const requiredPhase4Checkpoint = (actionId: string) => {
+  const checkpoint = phase4CheckpointByAction.get(actionId);
+  assert.ok(checkpoint, `Phase 4 relational checkpoint is missing: ${actionId}`);
+  return checkpoint;
+};
+
+const assertPhase4CheckpointRelations = (actionId: string, checkpoint: StickPhase4CheckpointV1) => {
+  phase4CheckpointByAction.set(actionId, checkpoint);
+  const sameVisible = (baselineId: string, label: string) => assert.deepEqual(
+    phase4VisibleContentProjection(checkpoint),
+    phase4VisibleContentProjection(requiredPhase4Checkpoint(baselineId)),
+    label,
+  );
+  const sameAi = (baselineId: string, label: string) => assert.deepEqual(
+    phase4AiCanonicalProjection(checkpoint),
+    phase4AiCanonicalProjection(requiredPhase4Checkpoint(baselineId)),
+    label,
+  );
+
+  const failureMatch = /^(failure-(?:envelope|action|candidate|hashing|history))-terminal$/.exec(actionId);
+  if (failureMatch) {
+    const baseline = requiredPhase4Checkpoint(`${failureMatch[1]}-baseline`);
+    sameVisible(`${failureMatch[1]}-baseline`, `${actionId} leaked a half-applied visible document/history/storage change.`);
+    assert.equal(checkpoint.activeTransactionPhase, "idle", `${actionId} did not return the transaction to idle.`);
+    assert.equal(checkpoint.pendingApplyOperationDigest, null, `${actionId} left an Apply publication pending.`);
+    assert.equal(checkpoint.terminalLedgerLength, baseline.terminalLedgerLength + 1, `${actionId} did not record exactly one failure terminal.`);
+  }
+
+  if (actionId === "arm-terminal-checkpoint") {
+    sameVisible("arm-preview", "The injected visible Apply failure leaked a half-applied visible document/history/storage change.");
+    assert.equal(checkpoint.activeTransactionPhase, "idle");
+    assert.equal(checkpoint.pendingApplyOperationDigest, null);
+  }
+
+  if (["conflict-preview-reject", "conflict-preview-exact"].includes(actionId)) {
+    sameVisible("conflict-preview", `${actionId} changed visible content.`);
+    sameAi("conflict-preview", `${actionId} changed canonical transaction state for a duplicate/conflict lookup.`);
+  }
+  if (["conflict-committing-reject", "conflict-committing-exact"].includes(actionId)) {
+    sameVisible("conflict-begin-apply", `${actionId} changed visible content before publication.`);
+    sameAi("conflict-begin-apply", `${actionId} changed the pending canonical candidate.`);
+  }
+  if (["conflict-terminal-reject", "conflict-terminal-exact", "conflict-final-checkpoint"].includes(actionId)) {
+    sameVisible("conflict-complete-apply", `${actionId} changed the already-published document.`);
+    sameAi("conflict-complete-apply", `${actionId} changed the terminal canonical transaction state.`);
+  }
+
+  if (actionId === "authored-edited-checkpoint") {
+    const pending = requiredPhase4Checkpoint("authored-pending-checkpoint");
+    assert.notEqual(checkpoint.documentDigest, pending.documentDigest, `${actionId} did not publish the human-authored edit.`);
+    assert.notEqual(checkpoint.historyRootDigest, pending.historyRootDigest, `${actionId} did not add the human edit to history.`);
+    assert.equal(checkpoint.workspaceGeneration, Number(pending.workspaceGeneration) + 1, `${actionId} did not advance the visible generation exactly once.`);
+    assert.equal(checkpoint.undoDepth, pending.undoDepth + 1, `${actionId} did not add exactly one human Undo entry.`);
+    assert.deepEqual({
+      aiCanonicalDocumentDigest: checkpoint.aiCanonicalDocumentDigest,
+      aiCanonicalHistoryRootDigest: checkpoint.aiCanonicalHistoryRootDigest,
+      activeTransactionPhase: checkpoint.activeTransactionPhase,
+      activeTransactionDigest: checkpoint.activeTransactionDigest,
+      pendingApplyOperationDigest: checkpoint.pendingApplyOperationDigest,
+    }, {
+      aiCanonicalDocumentDigest: pending.aiCanonicalDocumentDigest,
+      aiCanonicalHistoryRootDigest: pending.aiCanonicalHistoryRootDigest,
+      activeTransactionPhase: pending.activeTransactionPhase,
+      activeTransactionDigest: pending.activeTransactionDigest,
+      pendingApplyOperationDigest: pending.pendingApplyOperationDigest,
+    }, `${actionId} altered the prepared AI candidate instead of only the live human document.`);
+  }
+  if (["authored-complete-apply", "authored-final-checkpoint"].includes(actionId)) {
+    sameVisible("authored-edited-checkpoint", `${actionId} overwrote the human edit with stale AI output.`);
+    assert.equal(checkpoint.activeTransactionPhase, "idle");
+    assert.equal(checkpoint.pendingApplyOperationDigest, null);
+  }
+
+  if (actionId === "project-open-begin") {
+    const pending = requiredPhase4Checkpoint("project-pending-checkpoint");
+    assert.deepEqual({
+      documentDigest: checkpoint.documentDigest,
+      historyRootDigest: checkpoint.historyRootDigest,
+      workspaceInstanceDigest: checkpoint.workspaceInstanceDigest,
+      workspaceGeneration: checkpoint.workspaceGeneration,
+    }, {
+      documentDigest: pending.documentDigest,
+      historyRootDigest: pending.historyRootDigest,
+      workspaceInstanceDigest: pending.workspaceInstanceDigest,
+      workspaceGeneration: pending.workspaceGeneration,
+    }, "Beginning a mounted Open changed the current project before completion.");
+    assert.equal(checkpoint.rootStatus, "pending");
+  }
+  if (actionId === "project-open-complete" || actionId === "project-switched-checkpoint") {
+    const pending = requiredPhase4Checkpoint("project-pending-checkpoint");
+    assert.notEqual(checkpoint.workspaceInstanceDigest, pending.workspaceInstanceDigest, "Mounted Open did not switch project identity.");
+    assert.notEqual(checkpoint.documentDigest, pending.documentDigest, "Mounted Open did not publish the selected project.");
+    assert.deepEqual({
+      aiRootDigest: checkpoint.aiRootDigest,
+      aiCanonicalDocumentDigest: checkpoint.aiCanonicalDocumentDigest,
+      aiCanonicalHistoryRootDigest: checkpoint.aiCanonicalHistoryRootDigest,
+      aiWorkspaceInstanceDigest: checkpoint.aiWorkspaceInstanceDigest,
+      aiWorkspaceGeneration: checkpoint.aiWorkspaceGeneration,
+      transactionStateDigest: checkpoint.transactionStateDigest,
+      activeTransactionPhase: checkpoint.activeTransactionPhase,
+      activeTransactionDigest: checkpoint.activeTransactionDigest,
+      terminalLedgerDigest: checkpoint.terminalLedgerDigest,
+      terminalLedgerLength: checkpoint.terminalLedgerLength,
+      pendingApplyOperationDigest: checkpoint.pendingApplyOperationDigest,
+    }, {
+      aiRootDigest: null,
+      aiCanonicalDocumentDigest: null,
+      aiCanonicalHistoryRootDigest: null,
+      aiWorkspaceInstanceDigest: null,
+      aiWorkspaceGeneration: null,
+      transactionStateDigest: null,
+      activeTransactionPhase: "idle",
+      activeTransactionDigest: null,
+      terminalLedgerDigest: "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      terminalLedgerLength: 0,
+      pendingApplyOperationDigest: null,
+    }, "The old project command root or prepared candidate leaked into the newly opened project.");
+  }
+  if (actionId === "project-complete-apply" || actionId === "project-final-checkpoint") {
+    sameVisible("project-switched-checkpoint", `${actionId} overwrote the newly opened project with stale AI output.`);
+    assert.equal(checkpoint.aiRootDigest, null);
+  }
+
+  if (["apply-manual-joint-down", "apply-manual-joint-move"].includes(actionId)) {
+    sameVisible("apply-redone-checkpoint", `${actionId} committed a joint edit before pointer-up.`);
+  }
+  if (actionId === "apply-manual-joint-up" || actionId === "apply-manual-edit-checkpoint") {
+    const applied = requiredPhase4Checkpoint("apply-redone-checkpoint");
+    assert.notEqual(checkpoint.documentDigest, applied.documentDigest, `${actionId} did not commit the manual joint correction.`);
+    assert.notEqual(checkpoint.historyRootDigest, applied.historyRootDigest, `${actionId} did not add the manual correction to history.`);
+    assert.equal(checkpoint.workspaceGeneration, Number(applied.workspaceGeneration) + 1, `${actionId} did not advance the visible generation exactly once.`);
+    assert.equal(checkpoint.undoDepth, applied.undoDepth + 1, `${actionId} did not add exactly one manual Undo entry.`);
+    assert.deepEqual({
+      aiRootDigest: checkpoint.aiRootDigest,
+      commandRootTransitionCount: checkpoint.commandRootTransitionCount,
+      terminalLedgerDigest: checkpoint.terminalLedgerDigest,
+    }, {
+      aiRootDigest: applied.aiRootDigest,
+      commandRootTransitionCount: applied.commandRootTransitionCount,
+      terminalLedgerDigest: applied.terminalLedgerDigest,
+    }, `${actionId} incorrectly changed the completed AI command ledger.`);
+  }
+  if (actionId === "apply-manual-undone-checkpoint") {
+    assert.equal(checkpoint.documentDigest, requiredPhase4Checkpoint("apply-redone-checkpoint").documentDigest, "Undo did not restore the exact AI-applied document after the manual correction.");
+  }
+  if (actionId === "apply-manual-redone-checkpoint") {
+    assert.equal(checkpoint.documentDigest, requiredPhase4Checkpoint("apply-manual-edit-checkpoint").documentDigest, "Redo did not restore the exact manual joint correction.");
+  }
+};
+
 const SYNTHETIC_BUILT_IN_FIXTURES: Record<string, JsonObject> = {
   "synthetic-environment-plan": {fixtureVersion: 1, gateIds: ["environment-release"], isolation: "in-memory"},
   "synthetic-gate-release": {fixtureVersion: 1, gateId: "environment-release"},
@@ -2135,7 +2532,82 @@ const SYNTHETIC_BUILT_IN_FIXTURES: Record<string, JsonObject> = {
   "synthetic-wave-document": {fixtureVersion: 1, documentId: "synthetic-wave-document", frameCount: 3, storage: "test-owned-memory"},
 };
 
-const resolveCompatibilityFixture = (graph: ValidatedTesterExtension, fixtureId: string, operation: string, channel: "driver" | "environment") => {
+const materializePhase4BrowserScenario = (sourcePath: string, sourceValue: JsonObject, operationId: string, expectedFixtureKind: string) => {
+  const transactionPath = "scripts/fixtures/stick-ai/v1/stick-command-transaction-cases.json";
+  const publicationPath = "scripts/fixtures/stick-ai/v1/stick-command-publication-race-cases.json";
+  const source = sourcePath === transactionPath
+    ? strictObject(sourceValue, ["fixtureVersion", "terminalLedgerLimit", "cases", "failurePoints", "browserScenarios"], "Phase 4 transaction cases")
+    : sourcePath === publicationPath
+      ? strictObject(sourceValue, ["fixtureVersion", "cases", "browserScenarios"], "Phase 4 publication race cases")
+      : assert.fail(`Unknown Phase 4 scenario source: ${sourcePath}`);
+  assert.equal(source.fixtureVersion, 1, "Phase 4 browser-scenario fixture version mismatch.");
+  const scenarios = strictObject(
+    source.browserScenarios,
+    sourcePath === transactionPath
+      ? [
+        "request-main", "abort-main", "preview-main", "cancel-main", "apply-main", "redelivery-main", "redelivery-conflict",
+        "failure-envelope-validation", "failure-action-application", "failure-candidate-validation", "failure-candidate-hashing",
+        "failure-history-construction", "arm-visible-failure", "project-eligible-mount",
+      ]
+      : ["publication-begin", "publication-complete", "publication-redelivery", "project-mounted-open-candidate", "project-mounted-open-completion"],
+    "Phase 4 browserScenarios",
+  );
+  const scenario = scenarios[operationId];
+  assert.ok(scenario !== null && typeof scenario === "object" && !Array.isArray(scenario), `Phase 4 browser scenario is absent: ${operationId}`);
+  const scenarioRecord = scenario as JsonObject;
+  const directScenarioKeys: Partial<Record<string, readonly string[]>> = {
+    "stick-workspace-history-mount-v1": [
+      "kind", "mountVersion", "editorHistoryRoot", "savedBaselineMode", "expectedWorkspaceGeneration", "workspaceInstancePolicy",
+    ],
+    "stick-mounted-open-candidate-v1": [
+      "fixtureVersion", "kind", "candidateVersion", "baseDocumentDigest", "baseWorkspaceGeneration", "candidateIdentity",
+      "expectedDocumentDigest", "purpose", "frameOffsets", "expectedOnionSides",
+    ],
+    "stick-mounted-open-completion-v1": [
+      "fixtureVersion", "kind", "completionVersion", "targetOperationId", "action", "expectedDocumentDigest",
+      "purpose", "layers", "frames", "fps", "waveEligible",
+    ],
+  };
+  const directKeys = directScenarioKeys[expectedFixtureKind];
+  if (directKeys) {
+    const direct = strictObject(scenarioRecord, directKeys, `Phase 4 browser scenario ${operationId}`);
+    assert.equal(direct.kind, expectedFixtureKind, `Phase 4 fixture kind mismatch for ${operationId}.`);
+    return {value: structuredClone(direct), materializedBindings: [] as FileBinding[]};
+  }
+  const hasFixturePaths = Object.hasOwn(scenarioRecord, "starterFixturePath") || Object.hasOwn(scenarioRecord, "envelopeFixturePath");
+  const metadataKey = Object.hasOwn(scenarioRecord, "failurePoint") ? "failurePoint" : Object.hasOwn(scenarioRecord, "completionMode") ? "completionMode" : null;
+  const hasEnvelopeRequestId = Object.hasOwn(scenarioRecord, "envelopeRequestId");
+  const expectedKeys = ["kind", ...(hasFixturePaths ? ["starterFixturePath", "envelopeFixturePath"] : []), ...(metadataKey ? [metadataKey] : []), ...(hasEnvelopeRequestId ? ["envelopeRequestId"] : [])];
+  const strictScenario = strictObject(scenarioRecord, expectedKeys, `Phase 4 browser scenario ${operationId}`);
+  assert.equal(strictScenario.kind, expectedFixtureKind, `Phase 4 fixture kind mismatch for ${operationId}.`);
+  const materializedBindings: FileBinding[] = [];
+  const materialized: JsonObject = {kind: expectedFixtureKind};
+  if (hasFixturePaths) {
+    assert.equal(typeof strictScenario.starterFixturePath, "string");
+    assert.equal(typeof strictScenario.envelopeFixturePath, "string");
+    const referencedPaths = [strictScenario.starterFixturePath, strictScenario.envelopeFixturePath] as string[];
+    assert.deepEqual(referencedPaths, [...PHASE4_MATERIALIZED_FIXTURE_PATHS], `Phase 4 materialized fixture paths drifted for ${operationId}.`);
+    const [starterPath, envelopePath] = referencedPaths;
+    const starterBinding = bindFile(ROOT, starterPath);
+    const envelopeBinding = bindFile(ROOT, envelopePath);
+    materializedBindings.push(starterBinding, envelopeBinding);
+    materialized.starter = readJson(ROOT, starterPath);
+    materialized.envelope = readJson(ROOT, envelopePath);
+    if (hasEnvelopeRequestId) {
+      assert.equal(typeof strictScenario.envelopeRequestId, "string", `Phase 4 envelopeRequestId must be a string for ${operationId}.`);
+      const envelopeRequestId = strictScenario.envelopeRequestId as string;
+      assert.match(envelopeRequestId, /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-8[0-9a-f]{3}-[0-9a-f]{12}$/);
+      materialized.envelope = {...materialized.envelope as JsonObject, requestId: envelopeRequestId};
+    }
+  }
+  if (metadataKey !== null) {
+    assert.equal(typeof strictScenario[metadataKey], "string", `Phase 4 ${metadataKey} must be a string.`);
+    materialized[metadataKey] = strictScenario[metadataKey];
+  }
+  return {value: materialized, materializedBindings};
+};
+
+const resolveCompatibilityFixture = (graph: ValidatedTesterExtension, fixtureId: string, operation: string, channel: "driver" | "environment", operationId?: string) => {
   const fixture = graph.registry.fixtures.find((entry) => entry.fixtureId === fixtureId);
   assert.ok(fixture, `Unknown compatibility fixture: ${fixtureId}`);
   const ports = channel === "driver" ? graph.adapter.driverOperations : graph.adapter.environmentOperations;
@@ -2149,17 +2621,29 @@ const resolveCompatibilityFixture = (graph: ValidatedTesterExtension, fixtureId:
     assert.equal(fixture.expectedFixtureDigest, implementationDigest, `Built-in fixture semantic digest drift: ${fixtureId}`);
     return {fixtureId, fixtureKind: fixture.fixtureKind, sourceKind: fixture.sourceKind, implementationDigest, value};
   }
-  assert.ok(graph.adapter.executionProfile === "phase2-workspace-ports/v1" || graph.adapter.executionProfile === "phase3-workspace-ports/v1");
+  assert.ok(graph.adapter.executionProfile === "phase2-workspace-ports/v1" || graph.adapter.executionProfile === "phase3-workspace-ports/v1" || graph.adapter.executionProfile === "phase4-workspace-ports/v1");
   const observed = bindFile(ROOT, fixture.binding.path);
   assert.deepEqual(observed, fixture.binding, `Repository fixture binding drift: ${fixtureId}`);
   assert.equal(fixture.expectedFixtureDigest, observed.sha256, `Repository fixture digest drift: ${fixtureId}`);
   const value = readJson(ROOT, fixture.binding.path);
   assert.ok(typeof value === "object" && value !== null && !Array.isArray(value), `Repository fixture must be an object: ${fixtureId}`);
-  return {fixtureId, fixtureKind: fixture.fixtureKind, sourceKind: fixture.sourceKind, binding: fixture.binding, value: value as JsonObject};
+  if (graph.adapter.executionProfile === "phase4-workspace-ports/v1") {
+    assert.ok(operationId, `Phase 4 fixture ${fixtureId} requires an operationId.`);
+    const phase4ScenarioSources = new Set([
+      "scripts/fixtures/stick-ai/v1/stick-command-transaction-cases.json",
+      "scripts/fixtures/stick-ai/v1/stick-command-publication-race-cases.json",
+    ]);
+    if (phase4ScenarioSources.has(fixture.binding.path)) {
+      const materialized = materializePhase4BrowserScenario(fixture.binding.path, value as JsonObject, operationId, fixture.fixtureKind);
+      return {fixtureId, fixtureKind: fixture.fixtureKind, sourceKind: fixture.sourceKind, binding: fixture.binding, ...materialized};
+    }
+    return {fixtureId, fixtureKind: fixture.fixtureKind, sourceKind: fixture.sourceKind, binding: fixture.binding, value: value as JsonObject, materializedBindings: []};
+  }
+  return {fixtureId, fixtureKind: fixture.fixtureKind, sourceKind: fixture.sourceKind, binding: fixture.binding, value: value as JsonObject, materializedBindings: []};
 };
 
 const compatibilityDriverPayload = (graph: ValidatedTesterExtension, action: Extract<NormalizedAction, {family: "workspace-driver"}>): {operation: string; payload: JsonObject} => {
-  const fixture = action.fixtureId === null ? null : resolveCompatibilityFixture(graph, action.fixtureId, action.operation, "driver");
+  const fixture = action.fixtureId === null ? null : resolveCompatibilityFixture(graph, action.fixtureId, action.operation, "driver", action.operationId);
   if (graph.adapter.executionProfile === "phase2-workspace-ports/v1") {
     const operationByPort = {
       mountDocument: "workspace.mount-document/v1",
@@ -2184,6 +2668,27 @@ const compatibilityDriverPayload = (graph: ValidatedTesterExtension, action: Ext
       readCheckpoint: "workspace.read-checkpoint/v1",
     };
     return {operation: operationByPort[action.operation], payload: {operationId: action.operationId, fixtureId: action.fixtureId, fixture: fixture?.value ?? null}};
+  }
+  if (graph.adapter.executionProfile === "phase4-workspace-ports/v1") {
+    const operationByPort: Record<string, string> = {
+      beginStickRequest: "workspace.begin-stick-request/v1",
+      abortStickRequest: "workspace.abort-stick-request/v1",
+      previewStickCommand: "workspace.preview-stick-command/v1",
+      cancelStickPreview: "workspace.cancel-stick-preview/v1",
+      applyStickCommand: "workspace.apply-stick-command/v1",
+      beginApplyPublication: "workspace.begin-apply-publication/v1",
+      completeApplyPublication: "workspace.complete-apply-publication/v1",
+      redeliverStickCommand: "workspace.redeliver-stick-command/v1",
+      executeInjectedTransactionFailure: "workspace.execute-injected-transaction-failure/v1",
+      armNextVisibleApplyFailure: "workspace.arm-next-visible-apply-failure/v1",
+      mountEditorHistoryRoot: "workspace.mount-editor-history-root/v1",
+      beginMountedOpen: "workspace.begin-mounted-open/v1",
+      completeMountedOpen: "workspace.complete-mounted-open/v1",
+      readCheckpoint: "workspace.read-checkpoint/v1",
+    };
+    const operation = operationByPort[action.operation];
+    assert.ok(operation, `Phase 4 operation is not bound: ${action.operation}`);
+    return {operation, payload: {scenarioId: action.actionId.split("-")[0], operationId: action.operationId, fixtureId: action.fixtureId, fixture: fixture?.value ?? null}};
   }
   if (action.operation === "mountDocument") {
     assert.ok(action.fixtureId);
@@ -2333,6 +2838,7 @@ const readCompatibilityStorage = async (page: Page, contextId: string, checkpoin
     (contextId === "compact-1024x768" || contextId === "desktop-1440x900" || contextId === "regression-home-new-stick") &&
     checkpoint === "after-actions";
   const phaseThreeCleanupCheckpoint = compatibilityGraph?.authorizationId === "phase-3/v1" && checkpoint === "before-close";
+  const phaseFourCleanupCheckpoint = compatibilityGraph?.authorizationId === "phase-4/v1" && (checkpoint === "after-actions" || checkpoint === "before-close");
   const phaseThreeOnionCheckpoint = compatibilityGraph?.authorizationId === "phase-3/v1" &&
     (contextId === "onion-1440x900" || contextId === "ports-1440x900") && checkpoint === "after-actions";
   const expectedIndexedDatabaseNames = compatibilityGraph?.authorizationId === "phase-3/v1" &&
@@ -2342,11 +2848,16 @@ const readCompatibilityStorage = async (page: Page, contextId: string, checkpoin
   if (phaseThreeCleanupCheckpoint) assert.ok(evidence.localStorageKeys.every((key) => [
     "da_drawing_ai_control_preferences_v1", "da_saved_stick_projects_v1", "da_welcome_seen",
   ].includes(key)), `Unexpected Phase 3 cleanup storage key in ${contextId}.`);
+  if (phaseFourCleanupCheckpoint) assert.ok(evidence.localStorageKeys.every((key) => [
+    "da_drawing_ai_control_preferences_v1", "da_saved_stick_projects_v1", "da_welcome_seen",
+  ].includes(key)), `Unexpected Phase 4 cleanup storage key in ${contextId}.`);
   const expectedLocalStorageKeys = phaseThreeProductCheckpoint
     ? ["da_drawing_ai_control_preferences_v1", "da_saved_stick_projects_v1", "da_welcome_seen"]
     : phaseThreeOnionCheckpoint
     ? ["da_drawing_ai_control_preferences_v1", "da_welcome_seen"]
     : phaseThreeCleanupCheckpoint
+    ? evidence.localStorageKeys
+    : phaseFourCleanupCheckpoint
     ? evidence.localStorageKeys
     : productPreferenceCheckpoint
     ? ["da_drawing_ai_control_preferences_v1", "da_welcome_seen"]
@@ -2759,12 +3270,21 @@ const executeCompatibilityAction = async (
   } else if (action.family === "pointer") {
     await waitForCompatibilityDriver(page, step.contextId);
     evidence = canonicalCompatibilityCommandEvidence(await dispatchCompatibilityPointer(page, step.contextId, action), action.actionId);
+    if (compatibilityGraph?.authorizationId === "phase-4/v1") {
+      const pointerEvidence = evidence as {checkpoint: unknown};
+      const checkpoint = validatePhase4CheckpointValue(pointerEvidence.checkpoint, `Phase 4 pointer checkpoint ${action.actionId}`);
+      assertPhase4CheckpointRelations(action.actionId, checkpoint);
+    }
   } else if (action.family === "workspace-driver") {
     await waitForCompatibilityDriver(page, step.contextId);
     if (action.fixtureId !== null) assert.ok(compatibilityGraph?.registry.fixtures.some((fixture) => fixture.fixtureId === action.fixtureId));
     const command = compatibilityDriverPayload(compatibilityGraph!, action);
     const message = await dispatchCompatibilityCommand(page, step.contextId, command.operation, command.payload);
     evidence = canonicalCompatibilityCommandEvidence(message.payload, action.actionId);
+    if (compatibilityGraph?.authorizationId === "phase-4/v1") {
+      const checkpoint = validatePhase4DriverEvidence(evidence, action);
+      assertPhase4CheckpointRelations(action.actionId, checkpoint);
+    }
     if (action.operation === "readCheckpoint") compatibilityCheckpoints.push({channel: "workspace-driver", checkpointId: action.operationId, ...evidence});
     if (compatibilityGraph?.authorizationId === "phase-3/v1") {
       const commandEvidence = evidence as {response: JsonObject; checkpoint: JsonObject};
@@ -2879,7 +3399,7 @@ const executeCompatibilityAction = async (
   let ledgerEvidence = evidence;
   if ((action.family === "workspace-driver" || action.family === "runner-environment") && action.fixtureId !== null) {
     const fixture = compatibilityGraph!.registry.fixtures.find((entry) => entry.fixtureId === action.fixtureId)!;
-    const resolved = resolveCompatibilityFixture(compatibilityGraph!, action.fixtureId, action.operation, action.family === "workspace-driver" ? "driver" : "environment");
+    const resolved = resolveCompatibilityFixture(compatibilityGraph!, action.fixtureId, action.operation, action.family === "workspace-driver" ? "driver" : "environment", action.operationId);
     ledgerEvidence = {
       result: evidence,
       fixture: {
@@ -2889,12 +3409,14 @@ const executeCompatibilityAction = async (
         expectedFixtureDigest: fixture.expectedFixtureDigest,
         observedFixtureDigest: "implementationDigest" in resolved ? resolved.implementationDigest : resolved.binding.sha256,
         binding: "binding" in resolved ? resolved.binding : null,
+        materializedBindings: "materializedBindings" in resolved ? resolved.materializedBindings : [],
       },
     };
   }
   const stateful = action.family === "pointer" || action.family === "workspace-driver" || action.family === "runner-environment" || action.family === "checkpoint";
   const expectedEvidenceDigest = (action as NormalizedAction & {expectedEvidenceDigest?: unknown}).expectedEvidenceDigest;
-  const observedEvidenceDigest = stateful ? sha256Bytes(stableJson(evidence)) : undefined;
+  const digestEvidence = compatibilityGraph?.authorizationId === "phase-4/v1" ? stablePhase4EvidenceForDigest(evidence) : evidence;
+  const observedEvidenceDigest = stateful ? sha256Bytes(stableJson(digestEvidence)) : undefined;
   if (stateful) {
     assert.equal(typeof expectedEvidenceDigest, "string", `Stateful action ${action.actionId} is missing its frozen expected evidence digest.`);
     assert.equal(observedEvidenceDigest, expectedEvidenceDigest, `Stateful action evidence drift: ${action.actionId}`);
@@ -3107,6 +3629,57 @@ const cleanupCompatibility = () => {
   return compatibilityCleanupPromise;
 };
 
+export const runPhase4PostApplyReview = async (planPath: string) => {
+  const graph = loadTesterExtensionGraph(ROOT, planPath);
+  assert.equal(graph.authorizationId, "phase-4/v1", "Interactive review is restricted to the Phase 4 authorization.");
+  assert.equal(graph.adapter.executionProfile, "phase4-workspace-ports/v1", "Interactive review requires the Phase 4 workspace adapter.");
+  compatibilityGraph = graph;
+  configureExtensionOutputPaths(graph, true);
+  assert.ok(!existsSync(assertExtensionOwnedPath(COMPATIBILITY_SYNTHETIC_ROOT).absolute), "Phase 4 review output already exists; a prior review was not cleaned up.");
+  assert.ok(!existsSync(assertExtensionOwnedPath(NEXT_DIR).absolute), "Phase 4 review requires no pre-existing .next output.");
+  ensureSafeExtensionDirectory(COMPATIBILITY_TEMP_ROOT);
+  compatibilityOwnsTempRoot = true;
+  compatibilityOutputInitialized = true;
+  for (const ledger of [COMPATIBILITY_SERVER_LOG, COMPATIBILITY_SERVER_NETWORK_LEDGER, COMPATIBILITY_BROWSER_NETWORK_LEDGER, COMPATIBILITY_BROWSER_CONSOLE_LEDGER]) {
+    writeFileSync(secureExtensionFilePath(ledger, true), "", {encoding: "utf8", mode: 0o600, flag: "wx"});
+  }
+  const font = prepareCompatibilityFontMock();
+  prepareCompatibilityNetworkGuardV2();
+  installCompatibilityAnchor();
+  const server = await startCompatibilityServer("development", font.path);
+  const contextInfo = await createCompatibilityContext("phase4-post-apply-review", {width: 1440, height: 900}, server.port, null, false, false);
+  await compatibilityDismissWelcome(contextInfo.page);
+  await compatibilityOpenNewProject(contextInfo.page);
+  await (await visible(contextInfo.page, "button", /^Stick Figure Animation\b/)).click();
+  await visible(contextInfo.page, "button", "Stick Figure Tools");
+  await waitForCompatibilityDriver(contextInfo.page, "phase4-post-apply-review");
+  const actions = new Map(graph.registry.actions.map((action) => [action.actionId, action]));
+  let checkpoint: ReturnType<typeof validatePhase4CheckpointValue> | null = null;
+  for (const actionId of ["apply-request-start", "apply-preview", "apply-command", "apply-applied-checkpoint"] as const) {
+    const action = actions.get(actionId);
+    assert.ok(action?.family === "workspace-driver", `Phase 4 review action is absent or not a workspace operation: ${actionId}`);
+    const command = compatibilityDriverPayload(graph, action);
+    const message = await dispatchCompatibilityCommand(contextInfo.page, "phase4-post-apply-review", command.operation, command.payload);
+    const evidence = canonicalCompatibilityCommandEvidence(message.payload, actionId);
+    checkpoint = validatePhase4DriverEvidence(evidence, action);
+  }
+  assert.ok(checkpoint);
+  assert.equal(checkpoint.rootStatus, "ready", "Phase 4 review did not reach a ready visible workspace.");
+  assert.equal(checkpoint.activeTransactionPhase, "idle", "Phase 4 review left an active command transaction.");
+  assert.equal(checkpoint.lastCommandOutcomeCode, "applied", "Phase 4 review did not leave the applied command result visible.");
+  assert.equal(checkpoint.commandRootTransitionCount, 3, "Phase 4 review did not execute exactly request, preview, and Apply.");
+  const consoleErrors = compatibilityConsole.filter((entry) => entry.type === "error" || entry.type === "pageerror");
+  assert.deepEqual(consoleErrors, [], `Phase 4 review console errors: ${stableJson(consoleErrors)}`);
+  process.stdout.write(`SPEC0001_PHASE4_REVIEW_READY:${JSON.stringify({
+    url: `http://127.0.0.1:${server.port}/`,
+    state: "post-apply",
+    documentDigest: checkpoint.documentDigest,
+    historyRootDigest: checkpoint.historyRootDigest,
+    aiRootDigest: checkpoint.aiRootDigest,
+  })}\n`);
+  await new Promise<never>(() => {});
+};
+
 const runVersion2Proof = async (graph: ValidatedTesterExtension) => {
   compatibilityGraph = graph;
   configureExtensionOutputPaths(graph);
@@ -3196,7 +3769,7 @@ const runVersion2Proof = async (graph: ValidatedTesterExtension) => {
   }
   const observedScreenshotIds = compatibilityScreenshots.map((entry) => entry.id);
   assert.deepEqual(
-    graph.authorizationId === "phase-3/v1" ? observedScreenshotIds.sort() : observedScreenshotIds,
+    graph.authorizationId === "phase-3/v1" || graph.authorizationId === "phase-4/v1" ? observedScreenshotIds.sort() : observedScreenshotIds,
     graph.plan.evidence.screenshotIds,
   );
   if (graph.adapter.executionProfile === "synthetic-state-machine/v1") assert.equal(compatibilityScreenshots.length, 1, "Compatibility synthetic proof requires exactly one screenshot.");
@@ -3207,7 +3780,7 @@ const runVersion2Proof = async (graph: ValidatedTesterExtension) => {
   assert.equal(compatibilityBrowserVersions.size, 1);
   const finalChangedPaths = changedPaths();
   assert.deepEqual(
-    graph.authorizationId === "phase-3/v1" ? sortProofPaths(finalChangedPaths) : finalChangedPaths,
+    graph.authorizationId === "phase-3/v1" || graph.authorizationId === "phase-4/v1" ? sortProofPaths(finalChangedPaths) : finalChangedPaths,
     graph.git.observedDirtyPaths,
     "Compatibility proof changed tracked or nonignored source bytes.",
   );
@@ -3234,11 +3807,11 @@ const runVersion2Proof = async (graph: ValidatedTesterExtension) => {
   };
   assert.deepEqual(observedCleanup, {anchorRestored: true, sourceRestored: true, browserContextsOpen: 0, activeGates: 0, activeIntercepts: 0, openChildProcesses: 0, openPorts: 0, residualPaths: []});
   const cleanupEvidence = observedCleanup as ExtensionResult["cleanup"];
-  const allowedLocalStorageKeys = compatibilityGraph?.authorizationId === "phase-3/v1"
+  const allowedLocalStorageKeys = compatibilityGraph?.authorizationId === "phase-3/v1" || compatibilityGraph?.authorizationId === "phase-4/v1"
     ? ["da_drawing_ai_control_preferences_v1", "da_saved_stick_projects_v1", "da_welcome_seen"]
     : ["da_drawing_ai_control_preferences_v1", "da_welcome_seen"];
   const storageResidue = compatibilityStorage.some((entry) => {
-    const permittedSharedDrawingCatalog = compatibilityGraph?.authorizationId === "phase-3/v1" &&
+    const permittedSharedDrawingCatalog = (compatibilityGraph?.authorizationId === "phase-3/v1" || compatibilityGraph?.authorizationId === "phase-4/v1") &&
       entry.contextId === "regression-home-new-stick" && entry.checkpoint === "before-close" &&
       entry.indexedDatabaseCount === 1 && JSON.stringify(entry.indexedDatabaseNames) === JSON.stringify(["diamond-animator-local"]);
     return (entry.localStorageKeys as unknown[]).some((key) => !allowedLocalStorageKeys.includes(String(key))) || (entry.sessionStorageKeys as unknown[]).length !== 0 ||
@@ -3257,7 +3830,7 @@ const runVersion2Proof = async (graph: ValidatedTesterExtension) => {
   assert.deepEqual(compatibilityExecutableEvidence(BROWSER_EXECUTABLE), browserExecutable, "Compatibility browser executable changed during proof execution.");
 
   const result: ExtensionResult = {
-    resultVersion: graph.authorizationId === "phase-3/v1" ? 3 : 2,
+    resultVersion: graph.authorizationId === "phase-4/v1" ? 4 : graph.authorizationId === "phase-3/v1" ? 3 : 2,
     specId: "SPEC-0001",
     proofPurpose: graph.plan.proofPurpose,
     status: "passed",
@@ -3485,7 +4058,7 @@ const reportCompatibilityFailure = async (error: unknown) => {
   if (compatibilityOutputInitialized) {
     try {
       writeExtensionJson(COMPATIBILITY_RESULT_PATH, {
-        resultVersion: 2,
+        resultVersion: compatibilityGraph?.authorizationId === "phase-4/v1" ? 4 : compatibilityGraph?.authorizationId === "phase-3/v1" ? 3 : 2,
         specId: "SPEC-0001",
         proofPurpose: compatibilityGraph?.plan.proofPurpose ?? "phase-1.5-compatibility-synthetic",
         status: "failed",
@@ -3496,7 +4069,7 @@ const reportCompatibilityFailure = async (error: unknown) => {
         cleanup: {
           anchorRestored: compatibilityAnchorOriginalHash === null || sha256Bytes(readFileSync(repositoryPath(ROOT, ANCHOR_PATH))) === compatibilityAnchorOriginalHash,
           sourceRestored: compatibilityGraph === null || JSON.stringify(
-            compatibilityGraph.authorizationId === "phase-3/v1"
+            compatibilityGraph.authorizationId === "phase-3/v1" || compatibilityGraph.authorizationId === "phase-4/v1"
               ? sortProofPaths(changedPaths())
               : changedPaths(),
           ) === JSON.stringify(compatibilityGraph.git.observedDirtyPaths),
@@ -3574,8 +4147,11 @@ export const runCompatibilityLifecycleDrill = async (planPath: string, mode: Com
     throw new Error("SPEC0001_INJECTED_V2_LIFECYCLE_FAILURE");
   } catch (error) {
     if (mode !== "failure" || !(error instanceof Error) || error.message !== "SPEC0001_INJECTED_V2_LIFECYCLE_FAILURE") {
+      const serverDiagnostic = existsSync(assertExtensionOwnedPath(COMPATIBILITY_SERVER_LOG).absolute)
+        ? readFileSync(assertExtensionOwnedPath(COMPATIBILITY_SERVER_LOG).absolute, "utf8").slice(-4_000)
+        : "server log unavailable";
       try { await cleanupCompatibility(); } catch {}
-      throw error;
+      throw new Error(`${error instanceof Error ? error.message : String(error)}\nCompatibility server diagnostic:\n${serverDiagnostic}`);
     }
   }
   await cleanupCompatibility();
@@ -3660,13 +4236,64 @@ const runCompatibilityLifecycleDrills = async (graph: ValidatedTesterExtension) 
 
 const dispatchBrowserProof = () => {
   const rawArgs = process.argv.slice(2);
+  if (rawArgs.length === 1 && rawArgs[0] === "--review=phase-4-post-apply") {
+    let graph: ValidatedTesterExtension;
+    try { graph = loadTesterExtensionGraph(ROOT, "scripts/fixtures/stick-ai/v1/phase-4-browser-proof-plan.json"); }
+    catch (error) {
+      console.error(error);
+      process.exitCode = 1;
+      return;
+    }
+    activeTopLevelCleanup = cleanupCompatibility;
+    process.once("SIGINT", () => onSignal("SIGINT"));
+    process.once("SIGTERM", () => onSignal("SIGTERM"));
+    void runPhase4PostApplyReview(graph.planBinding.path).catch(reportCompatibilityFailure);
+    return;
+  }
   if (rawArgs.some((argument) => argument.startsWith("--self-test"))) {
-    if (rawArgs.length !== 1 || rawArgs[0] !== "--self-test=phase-3-registration") {
-      console.error("Phase 3 registration self-test accepts only --self-test=phase-3-registration.");
+    if (rawArgs.length !== 1 || !["--self-test=phase-3-registration", "--self-test=phase-4-registration"].includes(rawArgs[0])) {
+      console.error("Registration self-test accepts exactly one known Phase 3 or Phase 4 self-test selector.");
       process.exitCode = 1;
       return;
     }
     try {
+      if (rawArgs[0] === "--self-test=phase-4-registration") {
+        const graph = loadTesterExtensionGraph(ROOT, "scripts/fixtures/stick-ai/v1/phase-4-browser-proof-plan.json");
+        assert.equal(graph.authorizationId, "phase-4/v1");
+        assert.equal(graph.plan.planVersion, 4);
+        assert.equal(graph.registry.registryVersion, 4);
+        assert.equal(graph.adapter.workspacePortBinding, "spec0001Phase4BrowserPortsV1");
+        assert.equal(graph.adapter.driverOperations.length, 14);
+        assert.deepEqual(graph.adapter.driverOperations.map((entry) => entry.operation), [
+          "beginStickRequest", "abortStickRequest", "previewStickCommand", "cancelStickPreview", "applyStickCommand",
+          "beginApplyPublication", "completeApplyPublication", "redeliverStickCommand", "executeInjectedTransactionFailure",
+          "armNextVisibleApplyFailure", "mountEditorHistoryRoot", "beginMountedOpen", "completeMountedOpen", "readCheckpoint",
+        ]);
+        const catalogPath = "scripts/fixtures/spec0001-browser/v2/tester-extension-authorizations.json";
+        const catalog = readJson(ROOT, catalogPath) as {authorizations: JsonObject[]};
+        validateAuthorizationCatalogValue(catalog);
+        const baseCatalog = JSON.parse(git("show", `${graph.plan.baseCommit}:${catalogPath}`)) as {authorizations: JsonObject[]};
+        assert.deepEqual(catalog.authorizations.slice(0, 3), baseCatalog.authorizations, "Phase 4 changed an older tester authorization entry.");
+        for (const schemaPath of [
+          "scripts/fixtures/spec0001-browser/v2/tester-extension-authorization.schema.json",
+          "scripts/fixtures/spec0001-browser/v2/tester-extension-plan.schema.json",
+          "scripts/fixtures/spec0001-browser/v2/tester-extension-registry.schema.json",
+          "scripts/fixtures/spec0001-browser/v2/tester-extension-result.schema.json",
+          "scripts/fixtures/spec0001-browser/v3/tester-extension-authorization.schema.json",
+          "scripts/fixtures/spec0001-browser/v3/tester-extension-plan.schema.json",
+          "scripts/fixtures/spec0001-browser/v3/tester-extension-registry.schema.json",
+          "scripts/fixtures/spec0001-browser/v3/tester-extension-result.schema.json",
+        ]) assert.equal(readFileSync(repositoryPath(ROOT, schemaPath), "utf8").trim(), git("show", `${graph.plan.baseCommit}:${schemaPath}`), `Older tester schema changed: ${schemaPath}`);
+        const missing = structuredClone(catalog);
+        missing.authorizations.pop();
+        assert.throws(() => validateAuthorizationCatalogValue(missing), /catalog authorization count/);
+        const extra = structuredClone(catalog);
+        extra.authorizations.push(structuredClone(catalog.authorizations.at(-1)!));
+        assert.throws(() => validateAuthorizationCatalogValue(extra), /catalog authorization count/);
+        assert.equal(graph.git.derivedGitState, "dirty-executor");
+        console.log("SPEC-0001 Phase 4 tester registration self-test PASS: exact v4 graph/ports, preserved older entries/schemas, strict four-entry catalog, and dirty Git derivation.");
+        return;
+      }
       const graph = loadTesterExtensionGraph(ROOT, "scripts/fixtures/stick-ai/v1/phase-3-browser-proof-plan.json");
       assert.equal(graph.authorizationId, "phase-3/v1");
       assert.equal(graph.plan.planVersion, 3);

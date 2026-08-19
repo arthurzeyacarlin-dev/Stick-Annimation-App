@@ -129,6 +129,48 @@ export const PHASE3_CLOSEOUT_RECORD_PATHS = [
 
 export const PHASE3_CLOSEOUT_PATHS = sortProofPaths([...PHASE3_DIRTY_PATHS, ...PHASE3_CLOSEOUT_RECORD_PATHS]);
 
+export const PHASE4_BASE_COMMIT = "62f046adff7418d2e644365fc04bd5d6312dcca9" as const;
+
+export const PHASE4_PATHS = sortProofPaths([
+  "scripts/finalizeSpec0001ProofBundle.ts",
+  "scripts/fixtures/spec0001-browser/v1/phase-4-action-registry.json",
+  "scripts/fixtures/spec0001-browser/v2/tester-extension-authorizations.json",
+  "scripts/fixtures/spec0001-browser/v4/tester-extension-authorization.schema.json",
+  "scripts/fixtures/spec0001-browser/v4/tester-extension-plan.schema.json",
+  "scripts/fixtures/spec0001-browser/v4/tester-extension-registry.schema.json",
+  "scripts/fixtures/spec0001-browser/v4/tester-extension-result.schema.json",
+  "scripts/fixtures/stick-ai/v1/phase-4-browser-proof-plan.json",
+  "scripts/fixtures/stick-ai/v1/phase-4-proof-commands.json",
+  "scripts/fixtures/stick-ai/v1/stick-command-publication-race-cases.json",
+  "scripts/fixtures/stick-ai/v1/stick-command-transaction-cases.json",
+  "scripts/recordSpec0001ProofBundle.ts",
+  "scripts/runSpec0001BrowserProof.ts",
+  "scripts/spec0001-browser/actions/phase4.ts",
+  "scripts/spec0001-browser/browserTesterExtensionContract.ts",
+  "scripts/validateSpec0001ProofBundle.ts",
+  "scripts/validateStickFigureCommandTransaction.ts",
+  "src/components/workspace/stickfigure/StickFigureWorkspace.tsx",
+  "src/lib/ai/stickFigureAiContract.ts",
+  "src/lib/ai/stickFigureCommandExecutor.ts",
+  "src/lib/stickfigure/stickProjectContract.ts",
+  "src/lib/stickfigure/stickProjectHistory.ts",
+]);
+
+export const PHASE4_DIRTY_PATHS = PHASE4_PATHS;
+
+export const PHASE4_CLOSEOUT_RECORD_PATHS = [
+  "docs/CURRENT_STATE.md",
+  "docs/DECISIONS.md",
+  "docs/SESSION_HANDOFF.md",
+  "docs/TODO.md",
+  "docs/changelog.md",
+  "docs/specs/0001-first-reversible-ai-stick-animation.md",
+  "docs/specs/README.md",
+  "project/project_structure.txt",
+] as const;
+
+export const PHASE4_CLOSEOUT_PATHS = sortProofPaths([...PHASE4_DIRTY_PATHS, ...PHASE4_CLOSEOUT_RECORD_PATHS]);
+
 export const PHASE2_CLOSEOUT_RECORD_PATHS = [
   "docs/CURRENT_STATE.md",
   "docs/SESSION_HANDOFF.md",
@@ -148,7 +190,7 @@ export const OPERATION_FAMILIES = [
   "screenshot", "visible-role", "visible-testid", "workspace-driver",
 ] as const;
 export type OperationFamily = typeof OPERATION_FAMILIES[number];
-export type AuthorizationId = "phase-1.5-compatibility-synthetic/v1" | "phase-2/v1" | "phase-3/v1";
+export type AuthorizationId = "phase-1.5-compatibility-synthetic/v1" | "phase-2/v1" | "phase-3/v1" | "phase-4/v1";
 export type DerivedGitStateName = "dirty-executor" | "clean-committed";
 export type Digest = `sha256:${string}`;
 
@@ -157,6 +199,72 @@ export type ExternalFileBinding = {path: typeof BROWSER_EXECUTABLE; byteLength: 
 export type BrowserProofCli =
   | {mode: "legacy"; runBase: string | null}
   | {mode: "extension"; planPath: string};
+
+export type Phase4DriverOperation =
+  | "beginStickRequest"
+  | "abortStickRequest"
+  | "previewStickCommand"
+  | "cancelStickPreview"
+  | "applyStickCommand"
+  | "beginApplyPublication"
+  | "completeApplyPublication"
+  | "redeliverStickCommand"
+  | "executeInjectedTransactionFailure"
+  | "armNextVisibleApplyFailure"
+  | "readCheckpoint";
+
+export type StickPhase4CheckpointV1 = {
+  checkpointVersion: 4;
+  rootStatus: "mounting" | "ready" | "pending" | "failed";
+  documentDigestStatus: "mounting" | "ready" | "pending" | "failed";
+  editorRootDigest: Digest | null;
+  workspaceRootDigest: Digest | null;
+  documentDigest: Digest | null;
+  documentRevision: number | null;
+  viewDigest: Digest | null;
+  historyRootDigest: Digest | null;
+  undoDepth: number;
+  redoDepth: number;
+  lastSavedDocumentDigest: Digest | null;
+  dirty: boolean | null;
+  workspaceInstanceDigest: Digest | null;
+  workspaceGeneration: number | null;
+  storageDigest: Digest | null;
+  currentFrameIndex: number;
+  selectedTimelineIndex: number;
+  gestureState: null;
+  dragPreviewPoint: null;
+  completedEditCount: number;
+  playbackState: "paused" | "playing";
+  playbackFrameIndex: number;
+  playbackControlAvailable: boolean;
+  mountedOpenStatus: string | null;
+  mountedOpenOperationDigest: Digest | null;
+  onionEnabled: boolean;
+  previousOnionRenderInputDigest: Digest | null;
+  nextOnionRenderInputDigest: Digest | null;
+  readyDocumentPublicationCount: number;
+  workspaceRootTransitionCount: number;
+  aiRootDigest: Digest | null;
+  aiCanonicalDocumentDigest: Digest | null;
+  aiCanonicalHistoryRootDigest: Digest | null;
+  aiWorkspaceInstanceDigest: Digest | null;
+  aiWorkspaceGeneration: number | null;
+  transactionStateDigest: Digest | null;
+  activeTransactionPhase: "idle" | "requesting" | "preview_ready" | "committing";
+  activeTransactionDigest: Digest | null;
+  terminalLedgerDigest: Digest;
+  terminalLedgerLength: number;
+  pendingApplyOperationDigest: Digest | null;
+  lastCommandOutcomeCode: string | null;
+  lastCommandResultDigest: Digest | null;
+  commandRootTransitionCount: number;
+};
+
+export type StickPhase4PortResultV1 = {
+  outcomeCode: string;
+  errorCode: string | null;
+};
 
 export type ProtectedRegressionGroup =
   | "home-new-drawing"
@@ -169,16 +277,16 @@ export type NormalizedAction =
   | {actionId: string; family: "visible-role"; operation: "click" | "fill" | "press" | "assert-visible" | "assert-hidden" | "assert-enabled" | "assert-disabled"; role: string; accessibleName: string; input: null | {text: string} | {key: "Enter" | "Escape" | "Space"}}
   | {actionId: string; family: "visible-testid"; operation: "click" | "assert-visible" | "assert-enabled" | "assert-disabled"; testId: string}
   | {actionId: string; family: "pointer"; operation: "down" | "move" | "up" | "cancel"; targetId: string; pointerId: number; button: 0; point: {x: number; y: number}; expectedEvidenceDigest: Digest}
-  | {actionId: string; family: "workspace-driver"; operation: "mountDocument" | "dispatchCompletedJointEdit" | "mountEditorHistoryRoot" | "dispatchEditorTransaction" | "beginDocumentPublication" | "completeDocumentPublication" | "beginMountedOpen" | "completeMountedOpen" | "cancelMountedOpen" | "readCheckpoint"; fixtureId: string | null; operationId: string; expectedEvidenceDigest: Digest}
+  | {actionId: string; family: "workspace-driver"; operation: "mountDocument" | "dispatchCompletedJointEdit" | "mountEditorHistoryRoot" | "dispatchEditorTransaction" | "beginDocumentPublication" | "completeDocumentPublication" | "beginMountedOpen" | "completeMountedOpen" | "cancelMountedOpen" | Phase4DriverOperation; fixtureId: string | null; operationId: string; expectedEvidenceDigest: Digest}
   | {actionId: string; family: "runner-environment"; operation: "installEnvironmentPlan" | "releaseEnvironmentGate" | "readEnvironmentCheckpoint" | "clearEnvironmentPlan"; fixtureId: string | null; operationId: string; expectedEvidenceDigest: Digest}
   | {actionId: string; family: "checkpoint"; channel: "workspace-driver" | "runner-environment"; checkpointId: string; expectedEvidenceDigest: Digest}
   | {actionId: string; family: "screenshot"; screenshotId: string}
   | {actionId: string; family: "protected-regression"; group: ProtectedRegressionGroup};
 
 export type ExtensionPlan = {
-  planVersion: 2 | 3;
+  planVersion: 2 | 3 | 4;
   specId: "SPEC-0001";
-  proofPurpose: "phase-1.5-compatibility-synthetic" | "phase-2" | "phase-3";
+  proofPurpose: "phase-1.5-compatibility-synthetic" | "phase-2" | "phase-3" | "phase-4";
   authorizationId: AuthorizationId;
   baseCommit: string;
   dirtyExpectedPaths: string[];
@@ -197,7 +305,7 @@ export type ExtensionPlan = {
 };
 
 export type ExtensionRegistry = {
-  registryVersion: 2 | 3;
+  registryVersion: 2 | 3 | 4;
   specId: "SPEC-0001";
   authorizationId: AuthorizationId;
   operationFamilies: OperationFamily[];
@@ -213,9 +321,9 @@ export type AdapterDeclaration = {
   declarationVersion: 1;
   adapterId: string;
   authorizationId: AuthorizationId;
-  adapterKind: "in-memory-phase2-shaped-synthetic/v1" | "phase-2-product-ports/v1" | "phase-3-product-ports/v1";
-  executionProfile: "synthetic-state-machine/v1" | "phase2-workspace-ports/v1" | "phase3-workspace-ports/v1";
-  workspacePortBinding: null | "spec0001Phase2BrowserPortsV1" | "spec0001Phase3BrowserPortsV1";
+  adapterKind: "in-memory-phase2-shaped-synthetic/v1" | "phase-2-product-ports/v1" | "phase-3-product-ports/v1" | "phase-4-product-ports/v1";
+  executionProfile: "synthetic-state-machine/v1" | "phase2-workspace-ports/v1" | "phase3-workspace-ports/v1" | "phase4-workspace-ports/v1";
+  workspacePortBinding: null | "spec0001Phase2BrowserPortsV1" | "spec0001Phase3BrowserPortsV1" | "spec0001Phase4BrowserPortsV1";
   productPhaseClaimed: boolean;
   driverOperations: {operation: string; fixtureKinds: string[]}[];
   environmentOperations: {operation: string; fixtureKinds: string[]}[];
@@ -234,9 +342,9 @@ export type DerivedGitState = {
 };
 
 export type ExtensionResult = {
-  resultVersion: 2 | 3;
+  resultVersion: 2 | 3 | 4;
   specId: "SPEC-0001";
-  proofPurpose: "phase-1.5-compatibility-synthetic" | "phase-2" | "phase-3";
+  proofPurpose: "phase-1.5-compatibility-synthetic" | "phase-2" | "phase-3" | "phase-4";
   status: "passed";
   recordedAt: string;
   productPhaseClaimed: boolean;
@@ -259,17 +367,17 @@ export type ExtensionResult = {
 type MaterializationKind = "materialized" | "deferred";
 export type ValidatedAuthorization = {
   authorizationId: AuthorizationId;
-  proofPurpose: "phase-1.5-compatibility-synthetic" | "phase-2" | "phase-3";
+  proofPurpose: "phase-1.5-compatibility-synthetic" | "phase-2" | "phase-3" | "phase-4";
   materializationKind: MaterializationKind;
-  plan: {path: string; schemaPath: string; planVersion: 2 | 3; byteLength?: number; sha256?: Digest};
-  registry: {path: string; schemaPath: string; registryVersion: 2 | 3; byteLength?: number; sha256?: Digest};
+  plan: {path: string; schemaPath: string; planVersion: 2 | 3 | 4; byteLength?: number; sha256?: Digest};
+  registry: {path: string; schemaPath: string; registryVersion: 2 | 3 | 4; byteLength?: number; sha256?: Digest};
   adapter: {path: string; grammarId: "spec0001-browser-adapter-declaration/v1"; declarationVersion: 1; byteLength?: number; sha256?: Digest};
-  resultSchema: {path: string; resultVersion: 2 | 3};
+  resultSchema: {path: string; resultVersion: 2 | 3 | 4};
   operationFamilies: OperationFamily[];
   outputRoot: string;
   pathCeiling: string[];
 };
-export type ValidatedAuthorizationCatalog = {catalogVersion: 2; specId: "SPEC-0001"; authorizations: [ValidatedAuthorization, ValidatedAuthorization, ValidatedAuthorization]};
+export type ValidatedAuthorizationCatalog = {catalogVersion: 2; specId: "SPEC-0001"; authorizations: [ValidatedAuthorization, ValidatedAuthorization, ValidatedAuthorization, ValidatedAuthorization]};
 
 export type ValidatedTesterExtension = {
   authorizationId: AuthorizationId;
@@ -347,6 +455,125 @@ const gitSha = (value: unknown, label: string): string => {
 const handle = (value: unknown, label: string): string => {
   const result = string(value, label);
   if (result.normalize("NFC") !== result || !HANDLE_PATTERN.test(result)) fail(`${label} must be a bounded NFC ASCII handle.`);
+  return result;
+};
+
+const digestOrNull = (value: unknown, label: string): Digest | null => value === null ? null : digest(value, label);
+const integerOrNull = (value: unknown, label: string): number | null => value === null ? null : integer(value, label);
+
+export const validatePhase4CheckpointValue = (value: unknown, label = "Phase 4 checkpoint"): StickPhase4CheckpointV1 => {
+  const record = object(value, [
+    "checkpointVersion", "rootStatus", "documentDigestStatus", "editorRootDigest", "workspaceRootDigest", "documentDigest",
+    "documentRevision", "viewDigest", "historyRootDigest", "undoDepth", "redoDepth", "lastSavedDocumentDigest", "dirty",
+    "workspaceInstanceDigest", "workspaceGeneration", "storageDigest", "currentFrameIndex", "selectedTimelineIndex", "gestureState",
+    "dragPreviewPoint", "completedEditCount", "playbackState", "playbackFrameIndex", "playbackControlAvailable", "mountedOpenStatus",
+    "mountedOpenOperationDigest", "onionEnabled", "previousOnionRenderInputDigest", "nextOnionRenderInputDigest",
+    "readyDocumentPublicationCount", "workspaceRootTransitionCount", "aiRootDigest", "aiCanonicalDocumentDigest",
+    "aiCanonicalHistoryRootDigest", "aiWorkspaceInstanceDigest", "aiWorkspaceGeneration", "transactionStateDigest",
+    "activeTransactionPhase", "activeTransactionDigest", "terminalLedgerDigest", "terminalLedgerLength", "pendingApplyOperationDigest",
+    "lastCommandOutcomeCode", "lastCommandResultDigest", "commandRootTransitionCount",
+  ], label);
+  exact(record.checkpointVersion, 4, `${label}.checkpointVersion`);
+  const rootStatus = enumeration(record.rootStatus, ["mounting", "ready", "pending", "failed"] as const, `${label}.rootStatus`);
+  const documentDigestStatus = enumeration(record.documentDigestStatus, ["mounting", "ready", "pending", "failed"] as const, `${label}.documentDigestStatus`);
+  exact(documentDigestStatus, rootStatus, `${label} root/digest status`);
+  const dirty = record.dirty === null || typeof record.dirty === "boolean" ? record.dirty : fail(`${label}.dirty is invalid.`);
+  const playbackControlAvailable = typeof record.playbackControlAvailable === "boolean" ? record.playbackControlAvailable : fail(`${label}.playbackControlAvailable is invalid.`);
+  const onionEnabled = typeof record.onionEnabled === "boolean" ? record.onionEnabled : fail(`${label}.onionEnabled is invalid.`);
+  exact(record.gestureState, null, `${label}.gestureState`);
+  exact(record.dragPreviewPoint, null, `${label}.dragPreviewPoint`);
+  const mountedOpenStatus = record.mountedOpenStatus === null ? null : handle(record.mountedOpenStatus, `${label}.mountedOpenStatus`);
+  const lastCommandOutcomeCode = record.lastCommandOutcomeCode === null ? null : handle(record.lastCommandOutcomeCode, `${label}.lastCommandOutcomeCode`);
+  const activeTransactionPhase = enumeration(record.activeTransactionPhase, ["idle", "requesting", "preview_ready", "committing"] as const, `${label}.activeTransactionPhase`);
+  const activeTransactionDigest = digestOrNull(record.activeTransactionDigest, `${label}.activeTransactionDigest`);
+  const pendingApplyOperationDigest = digestOrNull(record.pendingApplyOperationDigest, `${label}.pendingApplyOperationDigest`);
+  exact(activeTransactionDigest === null, activeTransactionPhase === "idle", `${label} active phase/digest nullability`);
+  exact(pendingApplyOperationDigest === null, activeTransactionPhase !== "committing", `${label} committing gate nullability`);
+  const terminalLedgerLength = integer(record.terminalLedgerLength, `${label}.terminalLedgerLength`);
+  if (terminalLedgerLength > 128) fail(`${label}.terminalLedgerLength exceeds 128.`);
+  const workspaceGeneration = integerOrNull(record.workspaceGeneration, `${label}.workspaceGeneration`);
+  const aiWorkspaceGeneration = integerOrNull(record.aiWorkspaceGeneration, `${label}.aiWorkspaceGeneration`);
+  const documentDigest = digestOrNull(record.documentDigest, `${label}.documentDigest`);
+  const aiCanonicalDocumentDigest = digestOrNull(record.aiCanonicalDocumentDigest, `${label}.aiCanonicalDocumentDigest`);
+  const workspaceInstanceDigest = digestOrNull(record.workspaceInstanceDigest, `${label}.workspaceInstanceDigest`);
+  const aiWorkspaceInstanceDigest = digestOrNull(record.aiWorkspaceInstanceDigest, `${label}.aiWorkspaceInstanceDigest`);
+  const result: StickPhase4CheckpointV1 = {
+    checkpointVersion: 4,
+    rootStatus,
+    documentDigestStatus,
+    editorRootDigest: digestOrNull(record.editorRootDigest, `${label}.editorRootDigest`),
+    workspaceRootDigest: digestOrNull(record.workspaceRootDigest, `${label}.workspaceRootDigest`),
+    documentDigest,
+    documentRevision: integerOrNull(record.documentRevision, `${label}.documentRevision`),
+    viewDigest: digestOrNull(record.viewDigest, `${label}.viewDigest`),
+    historyRootDigest: digestOrNull(record.historyRootDigest, `${label}.historyRootDigest`),
+    undoDepth: integer(record.undoDepth, `${label}.undoDepth`),
+    redoDepth: integer(record.redoDepth, `${label}.redoDepth`),
+    lastSavedDocumentDigest: digestOrNull(record.lastSavedDocumentDigest, `${label}.lastSavedDocumentDigest`),
+    dirty,
+    workspaceInstanceDigest,
+    workspaceGeneration,
+    storageDigest: digestOrNull(record.storageDigest, `${label}.storageDigest`),
+    currentFrameIndex: integer(record.currentFrameIndex, `${label}.currentFrameIndex`),
+    selectedTimelineIndex: integer(record.selectedTimelineIndex, `${label}.selectedTimelineIndex`),
+    gestureState: null,
+    dragPreviewPoint: null,
+    completedEditCount: integer(record.completedEditCount, `${label}.completedEditCount`),
+    playbackState: enumeration(record.playbackState, ["paused", "playing"] as const, `${label}.playbackState`),
+    playbackFrameIndex: integer(record.playbackFrameIndex, `${label}.playbackFrameIndex`),
+    playbackControlAvailable,
+    mountedOpenStatus,
+    mountedOpenOperationDigest: digestOrNull(record.mountedOpenOperationDigest, `${label}.mountedOpenOperationDigest`),
+    onionEnabled,
+    previousOnionRenderInputDigest: digestOrNull(record.previousOnionRenderInputDigest, `${label}.previousOnionRenderInputDigest`),
+    nextOnionRenderInputDigest: digestOrNull(record.nextOnionRenderInputDigest, `${label}.nextOnionRenderInputDigest`),
+    readyDocumentPublicationCount: integer(record.readyDocumentPublicationCount, `${label}.readyDocumentPublicationCount`),
+    workspaceRootTransitionCount: integer(record.workspaceRootTransitionCount, `${label}.workspaceRootTransitionCount`),
+    aiRootDigest: digestOrNull(record.aiRootDigest, `${label}.aiRootDigest`),
+    aiCanonicalDocumentDigest,
+    aiCanonicalHistoryRootDigest: digestOrNull(record.aiCanonicalHistoryRootDigest, `${label}.aiCanonicalHistoryRootDigest`),
+    aiWorkspaceInstanceDigest,
+    aiWorkspaceGeneration,
+    transactionStateDigest: digestOrNull(record.transactionStateDigest, `${label}.transactionStateDigest`),
+    activeTransactionPhase,
+    activeTransactionDigest,
+    terminalLedgerDigest: digest(record.terminalLedgerDigest, `${label}.terminalLedgerDigest`),
+    terminalLedgerLength,
+    pendingApplyOperationDigest,
+    lastCommandOutcomeCode,
+    lastCommandResultDigest: digestOrNull(record.lastCommandResultDigest, `${label}.lastCommandResultDigest`),
+    commandRootTransitionCount: integer(record.commandRootTransitionCount, `${label}.commandRootTransitionCount`),
+  };
+  if (rootStatus === "ready") for (const [field, fieldValue] of Object.entries({
+    editorRootDigest: result.editorRootDigest,
+    workspaceRootDigest: result.workspaceRootDigest,
+    documentDigest: result.documentDigest,
+    documentRevision: result.documentRevision,
+    viewDigest: result.viewDigest,
+    historyRootDigest: result.historyRootDigest,
+    workspaceInstanceDigest: result.workspaceInstanceDigest,
+    workspaceGeneration: result.workspaceGeneration,
+  })) if (fieldValue === null) fail(`${label}.${field} is required while ready.`);
+  const hasAiRoot = result.aiRootDigest !== null;
+  for (const [field, fieldValue] of Object.entries({
+    aiCanonicalDocumentDigest: result.aiCanonicalDocumentDigest,
+    aiCanonicalHistoryRootDigest: result.aiCanonicalHistoryRootDigest,
+    aiWorkspaceInstanceDigest: result.aiWorkspaceInstanceDigest,
+    aiWorkspaceGeneration: result.aiWorkspaceGeneration,
+    transactionStateDigest: result.transactionStateDigest,
+  })) exact(fieldValue !== null, hasAiRoot, `${label}.${field} AI-root nullability`);
+  if (!hasAiRoot) {
+    exact(result.activeTransactionPhase, "idle", `${label} absent AI root active phase`);
+    exact(result.activeTransactionDigest, null, `${label} absent AI root active digest`);
+    exact(result.pendingApplyOperationDigest, null, `${label} absent AI root pending publication`);
+    exact(result.lastCommandOutcomeCode, null, `${label} absent AI root last outcome`);
+    exact(result.lastCommandResultDigest, null, `${label} absent AI root last result`);
+  }
+  if (result.lastCommandOutcomeCode === "requesting") {
+    exact(result.lastCommandResultDigest, null, `${label} requesting command result`);
+  } else {
+    exact(result.lastCommandResultDigest === null, result.lastCommandOutcomeCode === null, `${label} last command tuple nullability`);
+  }
   return result;
 };
 
@@ -460,8 +687,14 @@ const PHASE3_RESULT_SCHEMA_PATH = "scripts/fixtures/spec0001-browser/v3/tester-e
 const PHASE3_PLAN_PATH = "scripts/fixtures/stick-ai/v1/phase-3-browser-proof-plan.json";
 const PHASE3_REGISTRY_PATH = "scripts/fixtures/spec0001-browser/v1/phase-3-action-registry.json";
 const PHASE3_ADAPTER_PATH = "scripts/spec0001-browser/actions/phase3.ts";
+const PHASE4_PLAN_SCHEMA_PATH = "scripts/fixtures/spec0001-browser/v4/tester-extension-plan.schema.json";
+const PHASE4_REGISTRY_SCHEMA_PATH = "scripts/fixtures/spec0001-browser/v4/tester-extension-registry.schema.json";
+const PHASE4_RESULT_SCHEMA_PATH = "scripts/fixtures/spec0001-browser/v4/tester-extension-result.schema.json";
+const PHASE4_PLAN_PATH = "scripts/fixtures/stick-ai/v1/phase-4-browser-proof-plan.json";
+const PHASE4_REGISTRY_PATH = "scripts/fixtures/spec0001-browser/v1/phase-4-action-registry.json";
+const PHASE4_ADAPTER_PATH = "scripts/spec0001-browser/actions/phase4.ts";
 
-const parseCatalogFile = (value: unknown, label: string, expected: {path: string; schemaPath: string; versionKey: "planVersion" | "registryVersion"; version: 2 | 3}, materialized: boolean) => {
+const parseCatalogFile = (value: unknown, label: string, expected: {path: string; schemaPath: string; versionKey: "planVersion" | "registryVersion"; version: 2 | 3 | 4}, materialized: boolean) => {
   const keys = materialized ? ["path", "schemaPath", expected.versionKey, "byteLength", "sha256"] : ["path", "schemaPath", expected.versionKey];
   const record = object(value, keys, label);
   exact(assertSafeRepositoryPath(record.path, `${label}.path`), expected.path, `${label}.path`);
@@ -494,32 +727,38 @@ const parseAuthorization = (value: unknown, expectedId: AuthorizationId): Valida
   exact(record.authorizationId, expectedId, "authorizationId");
   const synthetic = expectedId === "phase-1.5-compatibility-synthetic/v1";
   const phase3 = expectedId === "phase-3/v1";
+  const phase4 = expectedId === "phase-4/v1";
   const materialized = synthetic;
-  exact(record.proofPurpose, synthetic ? "phase-1.5-compatibility-synthetic" : phase3 ? "phase-3" : "phase-2", "authorization.proofPurpose");
+  const proofPurpose = synthetic ? "phase-1.5-compatibility-synthetic" : phase4 ? "phase-4" : phase3 ? "phase-3" : "phase-2";
+  exact(record.proofPurpose, proofPurpose, "authorization.proofPurpose");
   exact(record.materializationKind, materialized ? "materialized" : "deferred", "authorization.materializationKind");
-  const planPath = synthetic ? COMPATIBILITY_PLAN_PATH : phase3 ? PHASE3_PLAN_PATH : PHASE2_PLAN_PATH;
-  const registryPath = synthetic ? COMPATIBILITY_REGISTRY_PATH : phase3 ? PHASE3_REGISTRY_PATH : PHASE2_REGISTRY_PATH;
-  const adapterPath = synthetic ? COMPATIBILITY_ADAPTER_PATH : phase3 ? PHASE3_ADAPTER_PATH : PHASE2_ADAPTER_PATH;
-  const plan = parseCatalogFile(record.plan, "authorization.plan", {path: planPath, schemaPath: phase3 ? PHASE3_PLAN_SCHEMA_PATH : PLAN_SCHEMA_PATH, versionKey: "planVersion", version: phase3 ? 3 : 2}, materialized) as ValidatedAuthorization["plan"];
-  const registry = parseCatalogFile(record.registry, "authorization.registry", {path: registryPath, schemaPath: phase3 ? PHASE3_REGISTRY_SCHEMA_PATH : REGISTRY_SCHEMA_PATH, versionKey: "registryVersion", version: phase3 ? 3 : 2}, materialized) as ValidatedAuthorization["registry"];
+  const planPath = synthetic ? COMPATIBILITY_PLAN_PATH : phase4 ? PHASE4_PLAN_PATH : phase3 ? PHASE3_PLAN_PATH : PHASE2_PLAN_PATH;
+  const registryPath = synthetic ? COMPATIBILITY_REGISTRY_PATH : phase4 ? PHASE4_REGISTRY_PATH : phase3 ? PHASE3_REGISTRY_PATH : PHASE2_REGISTRY_PATH;
+  const adapterPath = synthetic ? COMPATIBILITY_ADAPTER_PATH : phase4 ? PHASE4_ADAPTER_PATH : phase3 ? PHASE3_ADAPTER_PATH : PHASE2_ADAPTER_PATH;
+  const version = phase4 ? 4 : phase3 ? 3 : 2;
+  const planSchemaPath = phase4 ? PHASE4_PLAN_SCHEMA_PATH : phase3 ? PHASE3_PLAN_SCHEMA_PATH : PLAN_SCHEMA_PATH;
+  const registrySchemaPath = phase4 ? PHASE4_REGISTRY_SCHEMA_PATH : phase3 ? PHASE3_REGISTRY_SCHEMA_PATH : REGISTRY_SCHEMA_PATH;
+  const resultSchemaPath = phase4 ? PHASE4_RESULT_SCHEMA_PATH : phase3 ? PHASE3_RESULT_SCHEMA_PATH : RESULT_SCHEMA_PATH;
+  const plan = parseCatalogFile(record.plan, "authorization.plan", {path: planPath, schemaPath: planSchemaPath, versionKey: "planVersion", version}, materialized) as ValidatedAuthorization["plan"];
+  const registry = parseCatalogFile(record.registry, "authorization.registry", {path: registryPath, schemaPath: registrySchemaPath, versionKey: "registryVersion", version}, materialized) as ValidatedAuthorization["registry"];
   const adapter = parseCatalogAdapter(record.adapter, adapterPath, materialized);
   const resultSchemaRecord = object(record.resultSchema, ["path", "resultVersion"], "authorization.resultSchema");
-  exact(resultSchemaRecord.path, phase3 ? PHASE3_RESULT_SCHEMA_PATH : RESULT_SCHEMA_PATH, "authorization.resultSchema.path");
-  exact(resultSchemaRecord.resultVersion, phase3 ? 3 : 2, "authorization.resultSchema.resultVersion");
+  exact(resultSchemaRecord.path, resultSchemaPath, "authorization.resultSchema.path");
+  exact(resultSchemaRecord.resultVersion, version, "authorization.resultSchema.resultVersion");
   const operationFamilies = canonicalStrings(record.operationFamilies, "authorization.operationFamilies").map((entry) => enumeration(entry, OPERATION_FAMILIES, "authorization operation family"));
   exact(operationFamilies, [...OPERATION_FAMILIES], "authorization operation families");
   const outputRoot = assertSafeRepositoryPath(record.outputRoot, "authorization.outputRoot");
-  exact(outputRoot, synthetic ? COMPATIBILITY_OUTPUT_ROOT : phase3 ? "output/spec-0001/phase-3" : "output/spec-0001/phase-2-ui-restoration-correction", "authorization.outputRoot");
-  const pathCeiling = (phase3 ? canonicalProofPaths : canonicalStrings)(record.pathCeiling, "authorization.pathCeiling").map((path) => assertSafeRepositoryPath(path));
-  exact(pathCeiling, synthetic ? [...CORRECTION_PATHS] : phase3 ? PHASE3_PATHS : [...PHASE2_PATHS], "authorization.pathCeiling");
+  exact(outputRoot, synthetic ? COMPATIBILITY_OUTPUT_ROOT : phase4 ? "output/spec-0001/phase-4" : phase3 ? "output/spec-0001/phase-3" : "output/spec-0001/phase-2-ui-restoration-correction", "authorization.outputRoot");
+  const pathCeiling = (phase3 || phase4 ? canonicalProofPaths : canonicalStrings)(record.pathCeiling, "authorization.pathCeiling").map((path) => assertSafeRepositoryPath(path));
+  exact(pathCeiling, synthetic ? [...CORRECTION_PATHS] : phase4 ? PHASE4_PATHS : phase3 ? PHASE3_PATHS : [...PHASE2_PATHS], "authorization.pathCeiling");
   return {
     authorizationId: expectedId,
-    proofPurpose: synthetic ? "phase-1.5-compatibility-synthetic" : phase3 ? "phase-3" : "phase-2",
+    proofPurpose,
     materializationKind: materialized ? "materialized" : "deferred",
     plan,
     registry,
     adapter,
-    resultSchema: {path: phase3 ? PHASE3_RESULT_SCHEMA_PATH : RESULT_SCHEMA_PATH, resultVersion: phase3 ? 3 : 2},
+    resultSchema: {path: resultSchemaPath, resultVersion: version},
     operationFamilies,
     outputRoot,
     pathCeiling,
@@ -531,7 +770,7 @@ export const validateAuthorizationCatalogValue = (value: unknown): ValidatedAuth
   exact(record.catalogVersion, 2, "catalogVersion");
   exact(record.specId, "SPEC-0001", "catalog specId");
   const authorizations = array(record.authorizations, "catalog authorizations");
-  exact(authorizations.length, 3, "catalog authorization count");
+  exact(authorizations.length, 4, "catalog authorization count");
   return {
     catalogVersion: 2,
     specId: "SPEC-0001",
@@ -539,6 +778,7 @@ export const validateAuthorizationCatalogValue = (value: unknown): ValidatedAuth
       parseAuthorization(authorizations[0], "phase-1.5-compatibility-synthetic/v1"),
       parseAuthorization(authorizations[1], "phase-2/v1"),
       parseAuthorization(authorizations[2], "phase-3/v1"),
+      parseAuthorization(authorizations[3], "phase-4/v1"),
     ],
   };
 };
@@ -557,20 +797,24 @@ const parseRegressionGroups = (value: unknown, label: string): ProtectedRegressi
 export const validateExtensionPlanValue = (value: unknown): ExtensionPlan => {
   const record = object(value, ["planVersion", "specId", "proofPurpose", "authorizationId", "baseCommit", "dirtyExpectedPaths", "cleanExpectedPaths", "outputRoot", "operationFamilies", "registry", "contexts", "steps", "evidence"], "extension plan");
   exact(record.specId, "SPEC-0001", "plan specId");
-  const authorizationId = enumeration(record.authorizationId, ["phase-1.5-compatibility-synthetic/v1", "phase-2/v1", "phase-3/v1"] as const, "plan authorizationId");
+  const authorizationId = enumeration(record.authorizationId, ["phase-1.5-compatibility-synthetic/v1", "phase-2/v1", "phase-3/v1", "phase-4/v1"] as const, "plan authorizationId");
   const synthetic = authorizationId === "phase-1.5-compatibility-synthetic/v1";
   const phase3 = authorizationId === "phase-3/v1";
-  const planVersion = phase3 ? 3 : 2;
+  const phase4 = authorizationId === "phase-4/v1";
+  const planVersion = phase4 ? 4 : phase3 ? 3 : 2;
   exact(record.planVersion, planVersion, "planVersion");
-  const proofPurpose = synthetic ? "phase-1.5-compatibility-synthetic" : phase3 ? "phase-3" : "phase-2";
+  const proofPurpose = synthetic ? "phase-1.5-compatibility-synthetic" : phase4 ? "phase-4" : phase3 ? "phase-3" : "phase-2";
   exact(record.proofPurpose, proofPurpose, "plan proofPurpose");
   const baseCommit = gitSha(record.baseCommit, "plan baseCommit");
   if (synthetic) exact(baseCommit, CORRECTION_BASE_COMMIT, "correction baseCommit");
   if (phase3) exact(baseCommit, "54234b7c7b95201e274975a804859fa9c36806a1", "Phase 3 baseCommit");
-  const dirtyExpectedPaths = (phase3 ? canonicalProofPaths : canonicalStrings)(record.dirtyExpectedPaths, "plan dirtyExpectedPaths").map((path) => assertSafeRepositoryPath(path));
+  if (phase4) exact(baseCommit, PHASE4_BASE_COMMIT, "Phase 4 baseCommit");
+  const dirtyExpectedPaths = (phase3 || phase4 ? canonicalProofPaths : canonicalStrings)(record.dirtyExpectedPaths, "plan dirtyExpectedPaths").map((path) => assertSafeRepositoryPath(path));
   if (synthetic) exact(dirtyExpectedPaths, [...CORRECTION_PATHS], "correction dirtyExpectedPaths");
   else if (phase3) {
     exact(dirtyExpectedPaths, PHASE3_DIRTY_PATHS, "Phase 3 dirtyExpectedPaths");
+  } else if (phase4) {
+    exact(dirtyExpectedPaths, PHASE4_DIRTY_PATHS, "Phase 4 dirtyExpectedPaths");
   } else {
     if (dirtyExpectedPaths.length === 0) fail("Phase 2 dirtyExpectedPaths must be nonempty.");
     if (!dirtyExpectedPaths.includes(PHASE2_PLAN_PATH) || !dirtyExpectedPaths.includes(PHASE2_REGISTRY_PATH) || !dirtyExpectedPaths.includes(PHASE2_ADAPTER_PATH)) fail("Phase 2 dirtyExpectedPaths must include its plan, registry, and adapter.");
@@ -578,10 +822,10 @@ export const validateExtensionPlanValue = (value: unknown): ExtensionPlan => {
   }
   exact(record.cleanExpectedPaths, [], "plan cleanExpectedPaths");
   const outputRoot = assertSafeRepositoryPath(record.outputRoot, "plan outputRoot");
-  exact(outputRoot, synthetic ? COMPATIBILITY_OUTPUT_ROOT : phase3 ? "output/spec-0001/phase-3" : "output/spec-0001/phase-2-ui-restoration-correction", "plan outputRoot");
+  exact(outputRoot, synthetic ? COMPATIBILITY_OUTPUT_ROOT : phase4 ? "output/spec-0001/phase-4" : phase3 ? "output/spec-0001/phase-3" : "output/spec-0001/phase-2-ui-restoration-correction", "plan outputRoot");
   const operationFamilies = parseOperationFamilies(record.operationFamilies, "plan operationFamilies");
   const registry = parseBinding(record.registry, "plan registry binding");
-  exact(registry.path, synthetic ? COMPATIBILITY_REGISTRY_PATH : phase3 ? PHASE3_REGISTRY_PATH : PHASE2_REGISTRY_PATH, "plan registry path");
+  exact(registry.path, synthetic ? COMPATIBILITY_REGISTRY_PATH : phase4 ? PHASE4_REGISTRY_PATH : phase3 ? PHASE3_REGISTRY_PATH : PHASE2_REGISTRY_PATH, "plan registry path");
   const contexts = array(record.contexts, "plan contexts").map((entry, index) => {
     const context = object(entry, ["contextId", "viewport"], `plan contexts[${index}]`);
     const viewport = object(context.viewport, ["width", "height"], `plan contexts[${index}].viewport`);
@@ -611,13 +855,21 @@ export const validateExtensionPlanValue = (value: unknown): ExtensionPlan => {
 
 const PHASE2_DRIVER_OPERATIONS = ["mountDocument", "dispatchCompletedJointEdit", "beginDocumentPublication", "completeDocumentPublication", "readCheckpoint"] as const;
 const PHASE3_DRIVER_OPERATIONS = ["mountEditorHistoryRoot", "dispatchEditorTransaction", "beginDocumentPublication", "completeDocumentPublication", "beginMountedOpen", "completeMountedOpen", "cancelMountedOpen", "readCheckpoint"] as const;
-const DRIVER_OPERATIONS = [...PHASE2_DRIVER_OPERATIONS, ...PHASE3_DRIVER_OPERATIONS] as const;
+const PHASE4_DRIVER_OPERATIONS = [
+  "beginStickRequest", "abortStickRequest", "previewStickCommand", "cancelStickPreview", "applyStickCommand",
+  "beginApplyPublication", "completeApplyPublication", "redeliverStickCommand", "executeInjectedTransactionFailure",
+  "armNextVisibleApplyFailure", "mountEditorHistoryRoot", "beginMountedOpen", "completeMountedOpen", "readCheckpoint",
+] as const;
+const DRIVER_OPERATIONS = [...PHASE2_DRIVER_OPERATIONS, ...PHASE3_DRIVER_OPERATIONS, ...PHASE4_DRIVER_OPERATIONS] as const;
 const ENVIRONMENT_OPERATIONS = ["installEnvironmentPlan", "releaseEnvironmentGate", "readEnvironmentCheckpoint", "clearEnvironmentPlan"] as const;
 const FIXTURE_KINDS = [
   "stick-browser-environment-gate-release-v1", "stick-browser-environment-plan-v1", "stick-completed-joint-edit-v1",
   "stick-document-publication-completion-v1", "stick-document-publication-plan-v1", "stick-workspace-document-mount-v1",
   "stick-workspace-history-mount-v1", "stick-editor-transaction-v1", "stick-mounted-open-candidate-v1", "stick-mounted-open-completion-v1",
   "stick-mounted-open-cancel-v1",
+  "stick-active-request-v1", "stick-request-abort-v1", "stick-command-envelope-v1", "stick-preview-cancel-v1",
+  "stick-command-apply-v1", "stick-command-apply-publication-plan-v1", "stick-command-apply-publication-completion-v1",
+  "stick-command-redelivery-v1", "stick-injected-transaction-failure-v1", "stick-next-visible-apply-failure-v1",
 ] as const;
 const DRIVER_FIXTURE_KINDS: Record<typeof DRIVER_OPERATIONS[number], readonly string[]> = {
   mountDocument: ["stick-workspace-document-mount-v1"],
@@ -630,6 +882,16 @@ const DRIVER_FIXTURE_KINDS: Record<typeof DRIVER_OPERATIONS[number], readonly st
   beginMountedOpen: ["stick-mounted-open-candidate-v1"],
   completeMountedOpen: ["stick-mounted-open-completion-v1"],
   cancelMountedOpen: ["stick-mounted-open-cancel-v1"],
+  beginStickRequest: ["stick-active-request-v1"],
+  abortStickRequest: ["stick-request-abort-v1"],
+  previewStickCommand: ["stick-command-envelope-v1"],
+  cancelStickPreview: ["stick-preview-cancel-v1"],
+  applyStickCommand: ["stick-command-apply-v1"],
+  beginApplyPublication: ["stick-command-apply-publication-plan-v1"],
+  completeApplyPublication: ["stick-command-apply-publication-completion-v1"],
+  redeliverStickCommand: ["stick-command-redelivery-v1"],
+  executeInjectedTransactionFailure: ["stick-injected-transaction-failure-v1"],
+  armNextVisibleApplyFailure: ["stick-next-visible-apply-failure-v1"],
 };
 const ENVIRONMENT_FIXTURE_KINDS: Record<typeof ENVIRONMENT_OPERATIONS[number], readonly string[]> = {
   installEnvironmentPlan: ["stick-browser-environment-plan-v1"],
@@ -660,6 +922,14 @@ const PHASE3_READABLE_FIXTURE_PATHS = [
   "scripts/fixtures/stick-ai/v1/stick-saved-projects.json",
   "scripts/fixtures/stick-ai/v1/stick-storage-cases.json",
   "scripts/fixtures/stick-ai/v1/wave-editor-history-root.json",
+] as const;
+const PHASE4_READABLE_FIXTURE_PATHS = [
+  "scripts/fixtures/stick-ai/v1/stick-command-publication-race-cases.json",
+  "scripts/fixtures/stick-ai/v1/stick-command-transaction-cases.json",
+] as const;
+export const PHASE4_MATERIALIZED_FIXTURE_PATHS = [
+  "scripts/fixtures/stick-ai/v1/fresh-stick-project.json",
+  "scripts/fixtures/stick-ai/v1/wave-command-batch.json",
 ] as const;
 
 const parseInput = (value: unknown): null | {text: string} | {key: "Enter" | "Escape" | "Space"} => {
@@ -717,13 +987,14 @@ const parseAction = (value: unknown, index: number): NormalizedAction => {
 export const validateExtensionRegistryValue = (value: unknown): ExtensionRegistry => {
   const record = object(value, ["registryVersion", "specId", "authorizationId", "operationFamilies", "adapter", "fixtures", "actions"], "extension registry");
   exact(record.specId, "SPEC-0001", "registry specId");
-  const authorizationId = enumeration(record.authorizationId, ["phase-1.5-compatibility-synthetic/v1", "phase-2/v1", "phase-3/v1"] as const, "registry authorizationId");
+  const authorizationId = enumeration(record.authorizationId, ["phase-1.5-compatibility-synthetic/v1", "phase-2/v1", "phase-3/v1", "phase-4/v1"] as const, "registry authorizationId");
   const phase3 = authorizationId === "phase-3/v1";
-  const registryVersion = phase3 ? 3 : 2;
+  const phase4 = authorizationId === "phase-4/v1";
+  const registryVersion = phase4 ? 4 : phase3 ? 3 : 2;
   exact(record.registryVersion, registryVersion, "registryVersion");
   const operationFamilies = parseOperationFamilies(record.operationFamilies, "registry operationFamilies");
   const adapter = parseBinding(record.adapter, "registry adapter binding");
-  exact(adapter.path, authorizationId === "phase-1.5-compatibility-synthetic/v1" ? COMPATIBILITY_ADAPTER_PATH : phase3 ? PHASE3_ADAPTER_PATH : PHASE2_ADAPTER_PATH, "registry adapter path");
+  exact(adapter.path, authorizationId === "phase-1.5-compatibility-synthetic/v1" ? COMPATIBILITY_ADAPTER_PATH : phase4 ? PHASE4_ADAPTER_PATH : phase3 ? PHASE3_ADAPTER_PATH : PHASE2_ADAPTER_PATH, "registry adapter path");
   const fixtures = array(record.fixtures, "registry fixtures").map((entry, index): ExtensionRegistry["fixtures"][number] => {
     if (!isRecord(entry)) throw new Error(`registry fixtures[${index}] must be an object.`);
     const fixtureValue: JsonRecord = entry;
@@ -785,15 +1056,16 @@ const adapterLiteral = (expression: tsTypes.Expression, label: string): unknown 
 const validateAdapterValue = (value: unknown): AdapterDeclaration => {
   const record = object(value, ["declarationVersion", "adapterId", "authorizationId", "adapterKind", "executionProfile", "workspacePortBinding", "productPhaseClaimed", "driverOperations", "environmentOperations", "pointerTargets", "checkpointKinds"], "adapter declaration");
   exact(record.declarationVersion, 1, "adapter declarationVersion");
-  const authorizationId = enumeration(record.authorizationId, ["phase-1.5-compatibility-synthetic/v1", "phase-2/v1", "phase-3/v1"] as const, "adapter authorizationId");
+  const authorizationId = enumeration(record.authorizationId, ["phase-1.5-compatibility-synthetic/v1", "phase-2/v1", "phase-3/v1", "phase-4/v1"] as const, "adapter authorizationId");
   const synthetic = authorizationId === "phase-1.5-compatibility-synthetic/v1";
   const phase3 = authorizationId === "phase-3/v1";
-  const adapterKind = enumeration(record.adapterKind, ["in-memory-phase2-shaped-synthetic/v1", "phase-2-product-ports/v1", "phase-3-product-ports/v1"] as const, "adapterKind");
-  exact(adapterKind, synthetic ? "in-memory-phase2-shaped-synthetic/v1" : phase3 ? "phase-3-product-ports/v1" : "phase-2-product-ports/v1", "adapterKind/authorization binding");
-  const executionProfile = enumeration(record.executionProfile, ["synthetic-state-machine/v1", "phase2-workspace-ports/v1", "phase3-workspace-ports/v1"] as const, "adapter executionProfile");
-  exact(executionProfile, synthetic ? "synthetic-state-machine/v1" : phase3 ? "phase3-workspace-ports/v1" : "phase2-workspace-ports/v1", "adapter execution profile");
-  const workspacePortBinding = record.workspacePortBinding === null ? null : enumeration(record.workspacePortBinding, ["spec0001Phase2BrowserPortsV1", "spec0001Phase3BrowserPortsV1"] as const, "adapter workspacePortBinding");
-  exact(workspacePortBinding, synthetic ? null : phase3 ? "spec0001Phase3BrowserPortsV1" : "spec0001Phase2BrowserPortsV1", "adapter workspace port binding");
+  const phase4 = authorizationId === "phase-4/v1";
+  const adapterKind = enumeration(record.adapterKind, ["in-memory-phase2-shaped-synthetic/v1", "phase-2-product-ports/v1", "phase-3-product-ports/v1", "phase-4-product-ports/v1"] as const, "adapterKind");
+  exact(adapterKind, synthetic ? "in-memory-phase2-shaped-synthetic/v1" : phase4 ? "phase-4-product-ports/v1" : phase3 ? "phase-3-product-ports/v1" : "phase-2-product-ports/v1", "adapterKind/authorization binding");
+  const executionProfile = enumeration(record.executionProfile, ["synthetic-state-machine/v1", "phase2-workspace-ports/v1", "phase3-workspace-ports/v1", "phase4-workspace-ports/v1"] as const, "adapter executionProfile");
+  exact(executionProfile, synthetic ? "synthetic-state-machine/v1" : phase4 ? "phase4-workspace-ports/v1" : phase3 ? "phase3-workspace-ports/v1" : "phase2-workspace-ports/v1", "adapter execution profile");
+  const workspacePortBinding = record.workspacePortBinding === null ? null : enumeration(record.workspacePortBinding, ["spec0001Phase2BrowserPortsV1", "spec0001Phase3BrowserPortsV1", "spec0001Phase4BrowserPortsV1"] as const, "adapter workspacePortBinding");
+  exact(workspacePortBinding, synthetic ? null : phase4 ? "spec0001Phase4BrowserPortsV1" : phase3 ? "spec0001Phase3BrowserPortsV1" : "spec0001Phase2BrowserPortsV1", "adapter workspace port binding");
   const productPhaseClaimed = typeof record.productPhaseClaimed === "boolean" ? record.productPhaseClaimed : fail("adapter productPhaseClaimed must be boolean.");
   if (productPhaseClaimed !== !synthetic) fail("adapter productPhaseClaimed mismatch.");
   const parsePorts = (portsValue: unknown, operations: readonly string[], label: string) => array(portsValue, label).map((entry, index) => {
@@ -802,7 +1074,7 @@ const validateAdapterValue = (value: unknown): AdapterDeclaration => {
     const fixtureKinds = canonicalStrings(port.fixtureKinds, `${label} fixtureKinds`).map((kind) => enumeration(kind, FIXTURE_KINDS, `${label} fixture kind`));
     return {operation, fixtureKinds};
   });
-  const expectedDriverOperations = phase3 ? PHASE3_DRIVER_OPERATIONS : PHASE2_DRIVER_OPERATIONS;
+  const expectedDriverOperations = phase4 ? PHASE4_DRIVER_OPERATIONS : phase3 ? PHASE3_DRIVER_OPERATIONS : PHASE2_DRIVER_OPERATIONS;
   const driverOperations = parsePorts(record.driverOperations, expectedDriverOperations, "adapter driverOperations");
   const environmentOperations = parsePorts(record.environmentOperations, ENVIRONMENT_OPERATIONS, "adapter environmentOperations");
   unique(driverOperations.map((entry) => entry.operation), "adapter driver operations");
@@ -892,7 +1164,7 @@ export type GitObservationOverride = {
   committedChangedPaths: string[];
 };
 
-export type ExtensionValidationMode = "technical" | "phase-2-closeout" | "phase-3-closeout";
+export type ExtensionValidationMode = "technical" | "phase-2-closeout" | "phase-3-closeout" | "phase-4-closeout";
 
 const validateObservationOverride = (value: GitObservationOverride): GitObservationOverride => ({
   headCommit: gitSha(value.headCommit, "observation headCommit"),
@@ -933,7 +1205,7 @@ export const deriveGitState = (root: string, plan: ExtensionPlan, ceiling: reado
   if (observation.stagedPaths.length > 0) fail(`Staged paths are forbidden: ${observation.stagedPaths.join(", ")}.`);
   if (observation.hiddenIndexPaths.length > 0) fail(`Hidden index flags are forbidden: ${observation.hiddenIndexPaths.join(", ")}.`);
   const dirtyPaths = [...new Set([...observation.trackedDirtyPaths, ...observation.untrackedPaths])];
-  const observedDirtyPaths = plan.authorizationId === "phase-3/v1"
+  const observedDirtyPaths = plan.authorizationId === "phase-3/v1" || plan.authorizationId === "phase-4/v1"
     ? sortProofPaths(dirtyPaths)
     : dirtyPaths.sort((left, right) => left.localeCompare(right));
   for (const path of observedDirtyPaths) if (!ceiling.includes(path)) fail(`Observed dirty path is outside the authorization ceiling: ${path}.`);
@@ -944,7 +1216,7 @@ export const deriveGitState = (root: string, plan: ExtensionPlan, ceiling: reado
   }
   if (!observation.baseIsStrictAncestor) fail("Clean committed state requires baseCommit to be a strict ancestor of HEAD.");
   const committedProjection = observation.committedChangedPaths.filter((path) => ceiling.includes(path));
-  const ceilingProjection = plan.authorizationId === "phase-3/v1"
+  const ceilingProjection = plan.authorizationId === "phase-3/v1" || plan.authorizationId === "phase-4/v1"
     ? sortProofPaths(committedProjection)
     : committedProjection.sort((left, right) => left.localeCompare(right));
   const allowedPhase2CloseoutOnly = plan.authorizationId === "phase-2/v1" ? ["scripts/finalizeSpec0001ProofBundle.ts"] : [];
@@ -1001,6 +1273,29 @@ export const derivePhase3CloseoutGraphGitState = (root: string, plan: ExtensionP
   };
 };
 
+export const derivePhase4CloseoutGraphGitState = (root: string, plan: ExtensionPlan, ceiling: readonly string[], observationOverride?: GitObservationOverride): DerivedGitState => {
+  exact(plan.authorizationId, "phase-4/v1", "Phase 4 closeout plan authorizationId");
+  exact(ceiling, PHASE4_PATHS, "Phase 4 closeout technical path ceiling");
+  exact(plan.dirtyExpectedPaths, PHASE4_DIRTY_PATHS, "Phase 4 closeout recorded technical paths");
+  const observation = observationOverride === undefined ? observeGit(root, plan.baseCommit) : validateObservationOverride(observationOverride);
+  exact(observation.stagedPaths, [], "Phase 4 closeout staged paths");
+  exact(observation.hiddenIndexPaths, [], "Phase 4 closeout hidden index paths");
+  exact(observation.headCommit, plan.baseCommit, "Phase 4 closeout HEAD/base");
+  exact(observation.baseIsStrictAncestor, false, "Phase 4 closeout base ancestry");
+  exact(observation.committedChangedPaths, [], "Phase 4 closeout committed paths");
+  const observedCloseoutPaths = sortProofPaths([...new Set([...observation.trackedDirtyPaths, ...observation.untrackedPaths])]);
+  exact(observedCloseoutPaths, PHASE4_CLOSEOUT_PATHS, "Phase 4 closeout observed paths");
+  return {
+    derivedGitState: "dirty-executor",
+    baseCommit: plan.baseCommit,
+    headCommit: plan.baseCommit,
+    observedDirtyPaths: [...plan.dirtyExpectedPaths],
+    dirtyExpectedPaths: [...plan.dirtyExpectedPaths],
+    cleanExpectedPaths: [],
+    selectedExpectedPaths: [...plan.dirtyExpectedPaths],
+  };
+};
+
 const validateResultBindingGroup = (value: unknown) => {
   const record = object(value, ["catalog", "plan", "registry", "adapter"], "result bindings");
   return {catalog: parseBinding(record.catalog, "result catalog binding"), plan: parseBinding(record.plan, "result plan binding"), registry: parseBinding(record.registry, "result registry binding"), adapter: parseBinding(record.adapter, "result adapter binding")};
@@ -1011,12 +1306,13 @@ export const validateExtensionResult = (value: unknown, root: string, verifyBind
   exact(record.specId, "SPEC-0001", "result specId");
   exact(record.status, "passed", "result status");
   const authorizationRecord = object(record.authorization, ["authorizationId", "materializationKind"], "result authorization");
-  const authorizationId = enumeration(authorizationRecord.authorizationId, ["phase-1.5-compatibility-synthetic/v1", "phase-2/v1", "phase-3/v1"] as const, "result authorizationId");
+  const authorizationId = enumeration(authorizationRecord.authorizationId, ["phase-1.5-compatibility-synthetic/v1", "phase-2/v1", "phase-3/v1", "phase-4/v1"] as const, "result authorizationId");
   const synthetic = authorizationId === "phase-1.5-compatibility-synthetic/v1";
   const phase3 = authorizationId === "phase-3/v1";
-  const resultVersion = phase3 ? 3 : 2;
+  const phase4 = authorizationId === "phase-4/v1";
+  const resultVersion = phase4 ? 4 : phase3 ? 3 : 2;
   exact(record.resultVersion, resultVersion, "resultVersion");
-  const proofPurpose = synthetic ? "phase-1.5-compatibility-synthetic" : phase3 ? "phase-3" : "phase-2";
+  const proofPurpose = synthetic ? "phase-1.5-compatibility-synthetic" : phase4 ? "phase-4" : phase3 ? "phase-3" : "phase-2";
   exact(record.proofPurpose, proofPurpose, "result proofPurpose");
   exact(authorizationRecord.materializationKind, synthetic ? "materialized" : "deferred", "result materializationKind");
   const recordedAt = typeof record.recordedAt === "string" ? record.recordedAt : fail("result recordedAt must be a string.");
@@ -1029,7 +1325,7 @@ export const validateExtensionResult = (value: unknown, root: string, verifyBind
   const derivedGitState = enumeration(record.derivedGitState, ["dirty-executor", "clean-committed"] as const, "result derivedGitState");
   const baseCommit = gitSha(record.baseCommit, "result baseCommit");
   const headCommit = gitSha(record.headCommit, "result headCommit");
-  const parseResultPaths = phase3 ? canonicalProofPaths : canonicalStrings;
+  const parseResultPaths = phase3 || phase4 ? canonicalProofPaths : canonicalStrings;
   const observedDirtyPaths = parseResultPaths(record.observedDirtyPaths, "result observedDirtyPaths").map((entry) => assertSafeRepositoryPath(entry));
   const dirtyExpectedPaths = parseResultPaths(record.dirtyExpectedPaths, "result dirtyExpectedPaths").map((entry) => assertSafeRepositoryPath(entry));
   exact(record.cleanExpectedPaths, [], "result cleanExpectedPaths");
@@ -1039,9 +1335,9 @@ export const validateExtensionResult = (value: unknown, root: string, verifyBind
   if (derivedGitState === "dirty-executor") exact(headCommit, baseCommit, "result dirty HEAD/base");
   const bindings = validateResultBindingGroup(record.bindings);
   exact(bindings.catalog.path, CATALOG_PATH, "result catalog path");
-  exact(bindings.plan.path, synthetic ? COMPATIBILITY_PLAN_PATH : phase3 ? PHASE3_PLAN_PATH : PHASE2_PLAN_PATH, "result plan path");
-  exact(bindings.registry.path, synthetic ? COMPATIBILITY_REGISTRY_PATH : phase3 ? PHASE3_REGISTRY_PATH : PHASE2_REGISTRY_PATH, "result registry path");
-  exact(bindings.adapter.path, synthetic ? COMPATIBILITY_ADAPTER_PATH : phase3 ? PHASE3_ADAPTER_PATH : PHASE2_ADAPTER_PATH, "result adapter path");
+  exact(bindings.plan.path, synthetic ? COMPATIBILITY_PLAN_PATH : phase4 ? PHASE4_PLAN_PATH : phase3 ? PHASE3_PLAN_PATH : PHASE2_PLAN_PATH, "result plan path");
+  exact(bindings.registry.path, synthetic ? COMPATIBILITY_REGISTRY_PATH : phase4 ? PHASE4_REGISTRY_PATH : phase3 ? PHASE3_REGISTRY_PATH : PHASE2_REGISTRY_PATH, "result registry path");
+  exact(bindings.adapter.path, synthetic ? COMPATIBILITY_ADAPTER_PATH : phase4 ? PHASE4_ADAPTER_PATH : phase3 ? PHASE3_ADAPTER_PATH : PHASE2_ADAPTER_PATH, "result adapter path");
   if (verifyBindings) for (const [name, binding] of Object.entries(bindings)) verifyBinding(root, binding, `result ${name} binding`);
   const executionRecord = object(record.execution, ["selectedActionIds", "actionCount", "checkpointCount", "screenshotCount", "protectedRegressionGroups"], "result execution");
   const selectedActionIds = array(executionRecord.selectedActionIds, "result selectedActionIds").map((entry, index) => handle(entry, `selectedActionIds[${index}]`));
@@ -1110,8 +1406,8 @@ export const loadTesterExtensionGraph = (root: string, planPath: string, validat
   exact(adapter.authorizationId, authorization.authorizationId, "adapter/catalog authorizationId");
   for (const fixture of registry.fixtures) {
     if (fixture.sourceKind === "repository-json") {
-      if (authorization.authorizationId !== "phase-2/v1" && authorization.authorizationId !== "phase-3/v1") fail("Repository-backed fixtures require a product-phase authorization.");
-      const readablePaths = authorization.authorizationId === "phase-3/v1" ? PHASE3_READABLE_FIXTURE_PATHS : PHASE2_READABLE_FIXTURE_PATHS;
+      if (authorization.authorizationId !== "phase-2/v1" && authorization.authorizationId !== "phase-3/v1" && authorization.authorizationId !== "phase-4/v1") fail("Repository-backed fixtures require a product-phase authorization.");
+      const readablePaths = authorization.authorizationId === "phase-4/v1" ? PHASE4_READABLE_FIXTURE_PATHS : authorization.authorizationId === "phase-3/v1" ? PHASE3_READABLE_FIXTURE_PATHS : PHASE2_READABLE_FIXTURE_PATHS;
       if (!(readablePaths as readonly string[]).includes(fixture.binding.path)) fail(`Fixture binding path is not phase-authorized: ${fixture.binding.path}.`);
       verifyBinding(root, fixture.binding, `fixture ${fixture.fixtureId}`);
       readStrictJson(root, fixture.binding.path);
@@ -1158,6 +1454,8 @@ export const loadTesterExtensionGraph = (root: string, planPath: string, validat
     ? derivePhase2CloseoutGraphGitState(root, plan, authorization.pathCeiling, observation)
     : validationMode === "phase-3-closeout"
       ? derivePhase3CloseoutGraphGitState(root, plan, authorization.pathCeiling, observation)
+      : validationMode === "phase-4-closeout"
+        ? derivePhase4CloseoutGraphGitState(root, plan, authorization.pathCeiling, observation)
       : deriveGitState(root, plan, authorization.pathCeiling, observation);
   if (git.derivedGitState === "clean-committed") for (const path of [CATALOG_PATH, planBinding.path, registryBinding.path, adapterBinding.path]) trackedAtHead(root, path);
   return {authorizationId: authorization.authorizationId, materializationKind: authorization.materializationKind, outputRoot: authorization.outputRoot, pathCeiling: authorization.pathCeiling, operationFamilies: authorization.operationFamilies, catalogBinding, planBinding, registryBinding, adapterBinding, plan, registry, adapter, git};

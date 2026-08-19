@@ -188,6 +188,14 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Why: the current permanent tester recognizes only the already integrated Phase 1.5, Phase 2, and Phase 3 modes. The former §10.7 simultaneously required a new Phase 4 plan/registry/action module and prohibited the shared tester from registering, dispatching, recording, validating, or finalizing that new mode. The exact additive ceiling fixes this internal authorization contradiction without changing what Phase 4 does for the user.
 - Consequence: this decision changes no product outcome and implements nothing. Phase 4 may begin only after this reviewed record is separately published and integrated into canonical `main`, in one new dedicated Plan-mode Spec Executor worktree from that exact publication SHA. The executor may change only §10.7's 22 technical paths plus ignored Phase 4 proof artifacts, must prove the unchanged older tester modes as well as strict `phase-4/v1`, and must stop after its Implementation Review Packet. It may not edit canonical control-plane files or stage, commit, merge, push, publish, deploy, call an external service, or begin Phase 5. Phases 5–7 remain **Unauthorized; Not started**.
 
+### D-0023 — Accept the exact SPEC-0001 Phase 4 technical result without authorizing Phase 5
+
+- Date: 2026-08-19
+- Status: accepted by Arthur for the stopped SPEC-0001 Phase 4 implementation
+- Decision: Arthur explicitly accepted the exact unpublished Phase 4 worktree after reviewing Play, atomic Undo/Redo, manual joint drag, and Creator/Back. The accepted result is the exact 22-path technical projection from base/HEAD `62f046adff7418d2e644365fc04bd5d6312dcca9`, bound by technical-manifest SHA-256 `d34d589373713ac7930984aeb3ef0640539316c00e1f510cf8d798aee931bf46` and browser-runner SHA-256 `353f4937972d30b1959f1c7aee3075f5ebafb308d04a778db69372969e7b906f`.
+- Why: the implementation satisfies D-0022's validated transaction outcome and the separate D-0021 visible-review gate. Its proof records 12 successful receipts, 61 artifacts, 138 deterministic transaction assertions, inherited Stick/Drawing regressions, TypeScript, zero lint regression, 105 browser actions, 31 checkpoints, 2 screenshots, five protected groups, zero non-loopback traffic, and complete cleanup.
+- Consequence: Phase 4 is **Verified and accepted in its dedicated worktree; pending separate publication/integration**. The Control Plane Architect may propagate and close out the accepted bytes but may not change them. This acceptance does not authorize staging, commit, merge, push, publication, deployment, any external/provider operation, or Phase 5. Phases 5–7 remain **Unauthorized; Not started**; a later explicit publication instruction is required before integration.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

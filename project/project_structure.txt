@@ -174,6 +174,7 @@
 ./scripts/fixtures/spec0001-browser/v1/phase-1.5-proof-manifest.schema.json
 ./scripts/fixtures/spec0001-browser/v1/phase-2-action-registry.json
 ./scripts/fixtures/spec0001-browser/v1/phase-3-action-registry.json
+./scripts/fixtures/spec0001-browser/v1/phase-4-action-registry.json
 ./scripts/fixtures/spec0001-browser/v1/tester-action-registry.schema.json
 ./scripts/fixtures/spec0001-browser/v1/tester-core.schema.json
 ./scripts/fixtures/spec0001-browser/v1/tester-result.schema.json
@@ -194,6 +195,11 @@
 ./scripts/fixtures/spec0001-browser/v3/tester-extension-plan.schema.json
 ./scripts/fixtures/spec0001-browser/v3/tester-extension-registry.schema.json
 ./scripts/fixtures/spec0001-browser/v3/tester-extension-result.schema.json
+./scripts/fixtures/spec0001-browser/v4
+./scripts/fixtures/spec0001-browser/v4/tester-extension-authorization.schema.json
+./scripts/fixtures/spec0001-browser/v4/tester-extension-plan.schema.json
+./scripts/fixtures/spec0001-browser/v4/tester-extension-registry.schema.json
+./scripts/fixtures/spec0001-browser/v4/tester-extension-result.schema.json
 ./scripts/fixtures/spec0002-browser
 ./scripts/fixtures/spec0002-browser/v1
 ./scripts/fixtures/spec0002-browser/v1/legacy-full-project.json
@@ -218,6 +224,8 @@
 ./scripts/fixtures/stick-ai/v1/phase-2-proof-commands.json
 ./scripts/fixtures/stick-ai/v1/phase-3-browser-proof-plan.json
 ./scripts/fixtures/stick-ai/v1/phase-3-proof-commands.json
+./scripts/fixtures/stick-ai/v1/phase-4-browser-proof-plan.json
+./scripts/fixtures/stick-ai/v1/phase-4-proof-commands.json
 ./scripts/fixtures/stick-ai/v1/phase7-live-proof-manifest.schema.json
 ./scripts/fixtures/stick-ai/v1/prompt-normalization-cases.json
 ./scripts/fixtures/stick-ai/v1/proof-closeout-manifest.schema.json
@@ -225,6 +233,8 @@
 ./scripts/fixtures/stick-ai/v1/proof-command-receipt.schema.json
 ./scripts/fixtures/stick-ai/v1/proof-manifest-v2.schema.json
 ./scripts/fixtures/stick-ai/v1/proof-manifest.schema.json
+./scripts/fixtures/stick-ai/v1/stick-command-publication-race-cases.json
+./scripts/fixtures/stick-ai/v1/stick-command-transaction-cases.json
 ./scripts/fixtures/stick-ai/v1/stick-control-disposition-cases.json
 ./scripts/fixtures/stick-ai/v1/stick-correction-affordance-cases.json
 ./scripts/fixtures/stick-ai/v1/stick-document-publication-race-cases.json
@@ -261,6 +271,7 @@
 ./scripts/spec0001-browser/actions/phase15CompatibilitySynthetic.ts
 ./scripts/spec0001-browser/actions/phase2.ts
 ./scripts/spec0001-browser/actions/phase3.ts
+./scripts/spec0001-browser/actions/phase4.ts
 ./scripts/spec0001-browser/browserTesterContract.ts
 ./scripts/spec0001-browser/browserTesterExtensionContract.ts
 ./scripts/spec0001-browser/finalizePhase15Closeout.ts
@@ -302,6 +313,7 @@
 ./scripts/validateSpec0001ProofBundle.ts
 ./scripts/validateSpec0002Proof.ts
 ./scripts/validateStickFigureAiContracts.ts
+./scripts/validateStickFigureCommandTransaction.ts
 ./scripts/validateStickHistoryPersistence.ts
 ./scripts/validateStickPoseTimeline.ts
 ./scripts/validateTimelinePlaybackSmoothing.ts
@@ -366,6 +378,7 @@
 ./src/lib/ai/plansTraining.ts
 ./src/lib/ai/plansTrainingStore.ts
 ./src/lib/ai/stickFigureAiContract.ts
+./src/lib/ai/stickFigureCommandExecutor.ts
 ./src/lib/dbAdmin.ts
 ./src/lib/dbClient.ts
 ./src/lib/drawingProjectAudioCodec.ts

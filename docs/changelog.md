@@ -5,7 +5,15 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
-### 2026-08-20 — SPEC-0001 Phase 5 accepted and technically verified pending publication
+### 2026-08-20 — SPEC-0001 Phase 5 published and integrated
+
+- published the exact accepted 22 technical paths and eight reviewed canonical record paths in commit `9bbcc1df2fe4c79c0947601d0ea6274a85732d85`, parent `a2b4f3e0fc492df9cd63bda32554e382a344cdb6`, message `Implement SPEC-0001 Phase 5 raw Stick dispatch`
+- preserved proof-manifest SHA-256 `f9024a5d86cc1febbac7df3d4219348cd8289d17723406bac5d90929d4cf5c0f` and pre-publication closeout-manifest SHA-256 `fd71afec8e637bb3736a63dbbe245c6616e14a4330b91f7e354297d96c2c24dd`
+- fast-forwarded clean canonical `main` and pushed normally without force; the Phase 5 branch, local `main`, local `origin/main`, and live GitHub `main` matched the publication commit cleanly at `0/0`
+- marked Phase 5 **Verified, published, and integrated** while keeping Phases 6 and 7 **Unauthorized; Not started**
+- made this post-publication reconciliation record-only: no technical, runtime, test, fixture, proof, package, configuration, provider, deployment, or later-phase work changed
+
+### Historical pre-publication record — 2026-08-20 — SPEC-0001 Phase 5 accepted and technically verified
 
 - accepted the exact 22-path Phase 5 implementation after Arthur reviewed the exact unpublished app copy and reported that everything looked normal
 - added the hidden first-operation Stick boundary to the real `/api/ai` route: strict captured raw bytes, safe coarse availability, deterministic provider-free mock output, rejection before Drawing work, and original unread Drawing fallthrough
@@ -13,7 +21,7 @@ Format: newest entries first; describe observed behavior and repository operatio
 - recorded the publication-packaging correction that removed exactly one extra terminal LF from six accepted technical files, changed no logic, passed explicit EOF/UTF-8/whitespace proof, and produced executor-reported corrected aggregate `sha256:78e00dd35e1be1bc97ea2498abad6b09042216d57765ff6bbaec0a7e19e7d55c`
 - recorded zero browser/server/child/runner non-loopback attempts and zero provider/editor/history/storage calls; no visible Stick UI, workspace adapter, OpenAI/search/Supabase/paid request, or deployment was added
 - recorded the production build honestly as not a Phase 5 gate and not passed: it stopped on the pre-existing untouched AI-cost dashboard `PageProps` type error
-- kept Phases 6 and 7 **Unauthorized; Not started**; the only next step is exact Phase 5 publication/integration
+- kept Phases 6 and 7 **Unauthorized; Not started**; at that pre-publication point, the only next step was exact Phase 5 publication/integration
 
 ### 2026-08-19 — SPEC-0001 Phase 5 tester-permission contradiction corrected
 

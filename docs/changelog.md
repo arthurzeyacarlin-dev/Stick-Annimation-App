@@ -5,6 +5,17 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-20 — SPEC-0001 Phase 6 typo-friendly intent approved and activated
+
+- recorded Arthur's D-0027 product decision that the pretend AI must accept a closed set of meaning-equivalent phrasing, safely implied three poses/12 FPS, audited unique spelling corrections such as `wwave`, `animaton`, and `onne`, and the narrow repeated-digit `122 FPS` correction without requiring the canonical sentence
+- defined one server-authoritative canonical interpreted-intent V2, exact ASCII normalization/tokenization, closed grammar, fixed typo map and token-length distance/correction budgets, `122 FPS` as the only accepted numeric typo, ambiguity rejection, and the complete A01–A15/R01–R36 fixture matrix
+- required the exact pre-Apply copy “Understood: one stick figure, a three-pose wave, 12 frames at 12 FPS. No changes have been made.” and preserved Preview → explicit Apply, the same manual-editable animation outcome, Phase 4 transaction semantics, and all semantic/count/FPS/action/prop/background rejection boundaries
+- traced the published Phase 5 implementation and corrected Phase 6's feasibility boundary to an exact 26 technical paths: additive V2 matcher/contract/mock/UI plus `phase-6/v1` V6 tester registration, while keeping the route/raw-reader/classifier/availability path, all V1 fixtures/proof/history, and prior accepted behavior immutable
+- updated Phase 7 to consume the same canonical server intent and canonical golden prompt, never raw user wording/correction metadata, without changing its separate same-day provider-policy gate or authorizing any provider request
+- kept Phase 5 **Verified, published, and integrated** at `9bbcc1df2fe4c79c0947601d0ea6274a85732d85`; recorded Phase 6 as **Approved; Authorized; Not started** pending activation publication; kept Phase 7 **Unauthorized; Not started**
+
+This is an unstaged seven-Markdown-file Control Plane Architect activation from exact clean canonical-main basis `da7c258078a0240da32018b9ecfa7f33ae27d5ac`. No runtime, UI, API, test, fixture, script, proof, package, dependency, configuration, environment, database, provider, external-service, deployment, staging, commit, merge, push, or publication action occurred.
+
 ### 2026-08-20 — SPEC-0001 Phase 5 published and integrated
 
 - published the exact accepted 22 technical paths and eight reviewed canonical record paths in commit `9bbcc1df2fe4c79c0947601d0ea6274a85732d85`, parent `a2b4f3e0fc492df9cd63bda32554e382a344cdb6`, message `Implement SPEC-0001 Phase 5 raw Stick dispatch`

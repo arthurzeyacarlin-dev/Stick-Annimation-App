@@ -5,18 +5,18 @@ Owner: Arthur
 Implementers: one Spec Executor per phase; one Control Plane Architect after accepted implementation
 Created: 2026-08-10
 Last updated: 2026-08-20
-Decision links: accepted SPEC-0001 decision D-0009, permanent role-separation decision D-0010, Phase 1.5 approval decision D-0011, protected-Drawing correction decision D-0012, Phase 2-only authorization decision D-0015, Phase 1.5 compatibility-correction decision D-0016, Phase 2 visible-result correction decision D-0017, Phase 3 Stick onion-skin decision D-0018, Phase 3 authorization decision D-0019, accepted Phase 3 tester-registration/Creator-preservation correction D-0020, separate visible-review rule D-0021, Phase 4 authorization/tester-permission correction D-0022, accepted Phase 4 technical result D-0023, Phase 5 server/mock-boundary authorization D-0024, Phase 5 tester-permission correction D-0025, accepted Phase 5 technical result D-0026, and still-broader pending decisions P-0004, P-0005, P-0007, and P-0008 in `../DECISIONS.md`
-TODO IDs: SPEC-001, AI-002, AI-003, AI-004, STICK-001, STICK-002, STICK-004, STICK-005, STICK-008, STICK-009, STICK-010, GIT-022, GIT-023, GIT-024, GIT-025; narrow partial coverage only; STICK-009, STICK-010, and GIT-022 through GIT-025 are complete
+Decision links: accepted SPEC-0001 decision D-0009, permanent role-separation decision D-0010, Phase 1.5 approval decision D-0011, protected-Drawing correction decision D-0012, Phase 2-only authorization decision D-0015, Phase 1.5 compatibility-correction decision D-0016, Phase 2 visible-result correction decision D-0017, Phase 3 Stick onion-skin decision D-0018, Phase 3 authorization decision D-0019, accepted Phase 3 tester-registration/Creator-preservation correction D-0020, separate visible-review rule D-0021, Phase 4 authorization/tester-permission correction D-0022, accepted Phase 4 technical result D-0023, Phase 5 server/mock-boundary authorization D-0024, Phase 5 tester-permission correction D-0025, accepted Phase 5 technical result D-0026, Phase 6 typo-friendly intent correction D-0027, and still-broader pending decisions P-0004, P-0005, P-0007, and P-0008 in `../DECISIONS.md`
+TODO IDs: SPEC-001, AI-002, AI-003, AI-004, STICK-001, STICK-002, STICK-004, STICK-005, STICK-008, STICK-009, STICK-010, STICK-011, GIT-022, GIT-023, GIT-024, GIT-025, GIT-026; narrow partial coverage only; STICK-009, STICK-010, and GIT-022 through GIT-025 are complete
 Historical runtime research basis: clean `main` at `87a9afb246d4daf33431e7152c03f46a04e166fb`
 Proposal integration commit: docs-only `9a2cd373e268cc412cb0fcbea50af11513ef41c5`
 Pre-approval revision basis: clean, synchronized `main` at `c6cb52a28090510bcf78767a5c0d9c4af953b477`
-Last verified branch/commit: Phase 1 through Phase 4 retain their recorded published commits and proof. D-0024's Phase 5 activation was published at `245ac7e8bceeca76b522ff21c4327fa0219a3805`; D-0025's exact tester-permission correction was published at `a2b4f3e0fc492df9cd63bda32554e382a344cdb6`, which became the Phase 5 implementation parent. The corrected exact 22-path Phase 5 result plus eight reviewed records were published and integrated in commit `9bbcc1df2fe4c79c0947601d0ea6274a85732d85`, parent `a2b4f3e0fc492df9cd63bda32554e382a344cdb6`, message `Implement SPEC-0001 Phase 5 raw Stick dispatch`. Proof-manifest SHA-256 is `f9024a5d86cc1febbac7df3d4219348cd8289d17723406bac5d90929d4cf5c0f`; pre-publication closeout-manifest SHA-256 is `fd71afec8e637bb3736a63dbbe245c6616e14a4330b91f7e354297d96c2c24dd`.
+Last verified branch/commit: this D-0027 docs-only revision began from exact clean canonical-main record `da7c258078a0240da32018b9ecfa7f33ae27d5ac`. Phase 1 through Phase 4 retain their recorded published commits and proof. D-0024's Phase 5 activation was published at `245ac7e8bceeca76b522ff21c4327fa0219a3805`; D-0025's exact tester-permission correction was published at `a2b4f3e0fc492df9cd63bda32554e382a344cdb6`, which became the Phase 5 implementation parent. The corrected exact 22-path Phase 5 result plus eight reviewed records were published and integrated in commit `9bbcc1df2fe4c79c0947601d0ea6274a85732d85`, parent `a2b4f3e0fc492df9cd63bda32554e382a344cdb6`, message `Implement SPEC-0001 Phase 5 raw Stick dispatch`. Proof-manifest SHA-256 is `f9024a5d86cc1febbac7df3d4219348cd8289d17723406bac5d90929d4cf5c0f`; pre-publication closeout-manifest SHA-256 is `fd71afec8e637bb3736a63dbbe245c6616e14a4330b91f7e354297d96c2c24dd`.
 
-Arthur approved this specification on 2026-08-11. OD-01 through OD-06 and OD-09 are accepted exactly as written; OD-07, OD-08, OD-10, and OD-11 are approved engineering rules/prerequisites; OD-12 through OD-14 remain deferred to the separate Phase 7 Policy Gate. Phase 1, historical Phase 1.5, §10.4A, §10.5A, Phase 3, Phase 4, and Phase 5 are Verified, published, and integrated. Phases 6 and 7, the Phase 7 Policy Gate, and every live/paid/external request remain unauthorized and not started.
+Arthur approved this specification on 2026-08-11. OD-01 through OD-06 and OD-09 are accepted, with D-0027 superseding only OD-01's former exact-sentence prompt boundary; OD-07, OD-08, OD-10, and OD-11 are approved engineering rules/prerequisites; OD-12 through OD-14 remain deferred to the separate Phase 7 Policy Gate. Phase 1, historical Phase 1.5, §10.4A, §10.5A, Phase 3, Phase 4, and Phase 5 are Verified, published, and integrated. Phase 6 is **Approved; Authorized; Not started**, blocked until D-0027's activation record is separately published/integrated. Phase 7, the Phase 7 Policy Gate, and every live/paid/external request remain unauthorized and not started.
 
 On 2026-08-18 Arthur rejected Phase 2's published visible workspace result without rewriting its historical publication. D-0017 approved §10.5A as the sole focused correction, and its authorization was published/integrated in exact canonical-main commit `1f9746a6188e5e13aca1fbd62bea2e1e27bba627`, the correction executor's exact base. Arthur later accepted the visible §10.5A result; its accepted implementation, proof, and control-plane record were published/integrated in exact canonical-main commit `edfb3dea023119b91336e6e5da645d4982a9f068`.
 
-D-0018 fixes real Stick onion skin as part of Phase 3 without changing Drawing onion behavior. D-0019 authorized Phase 3. D-0020 kept that authorization and D-0018 unchanged, added the required versioned tester registration ceiling, superseded the rejected Creator-lock requirements, and made the published §10.5A shell/manual timeline the exact Phase 3 baseline. Phase 3 is now **Verified, published, and integrated** at `3fe3a5487389647b67216e9466121e00f1a73856`. D-0022/D-0023 govern the published Phase 4 result at `71841e96499f7627139c53d87114bba65e19d29d`. D-0024/D-0025 authorized and bounded Phase 5; D-0026 accepted its exact 22-path technical result, now published and integrated at `9bbcc1df2fe4c79c0947601d0ea6274a85732d85`. Phases 6 and 7 remain **Unauthorized; Not started**.
+D-0018 fixes real Stick onion skin as part of Phase 3 without changing Drawing onion behavior. D-0019 authorized Phase 3. D-0020 kept that authorization and D-0018 unchanged, added the required versioned tester registration ceiling, superseded the rejected Creator-lock requirements, and made the published §10.5A shell/manual timeline the exact Phase 3 baseline. Phase 3 is now **Verified, published, and integrated** at `3fe3a5487389647b67216e9466121e00f1a73856`. D-0022/D-0023 govern the published Phase 4 result at `71841e96499f7627139c53d87114bba65e19d29d`. D-0024/D-0025 authorized and bounded Phase 5; D-0026 accepted its exact 22-path technical result, now published and integrated at `9bbcc1df2fe4c79c0947601d0ea6274a85732d85`. D-0027 accepts the typo-friendly Phase 6 specification correction and exact feasibility boundary and authorizes Phase 6 only after activation publication. Phase 6 is **Approved; Authorized; Not started**; Phase 7 remains **Unauthorized; Not started**.
 
 ## 1. Exact Goal
 
@@ -26,7 +26,7 @@ Recommend and bound the first AI-first Stick Figure Workspace vertical slice so 
 
 The exact candidate outcome to approve is:
 
-> In a fresh Stick Figure Workspace, the built-in `humanoid-11-v1` figure is already available on displayed Frame 1 without AI. A human can use visible bounded timeline actions to hold that pose through Frame 4, create and start independent body positions at Frames 5 and 9, hold them through Frames 8 and 12, move any of the figure's 11 joints on any controlling keyframe, and save/reopen the result. Or the user enters: “Create a simple three-pose wave animation with one stick figure at 12 FPS.” The app sends versioned Stick-project context through the server-side AI boundary, receives a validated structured command batch, previews the proposed change without mutating the project, and applies it only after explicit confirmation as one atomic and undoable transaction. Both paths produce equivalent animation content in the same canonical Stick project: three independent key poses at displayed Frames 1, 5, and 9, their held frames, one fixed line-head rule, 12 displayed frames at 12 FPS, normal manual editability, and local save/reopen.
+> In a fresh Stick Figure Workspace, the built-in `humanoid-11-v1` figure is already available on displayed Frame 1 without AI. A human can use visible bounded timeline actions to hold that pose through Frame 4, create and start independent body positions at Frames 5 and 9, hold them through Frames 8 and 12, move any of the figure's 11 joints on any controlling keyframe, and save/reopen the result. Or the user asks for that same single result using the canonical sentence or one of section 4.3's bounded paraphrase/typo forms. The server maps accepted wording to one canonical intent, the app plainly previews the understood one-figure/three-pose/12-frame/12-FPS change without mutating the project, and only explicit confirmation applies it as one atomic and undoable transaction. Both paths produce equivalent animation content in the same canonical Stick project: three independent key poses at displayed Frames 1, 5, and 9, their held frames, one fixed line-head rule, 12 displayed frames at 12 FPS, normal manual editability, and local save/reopen.
 
 The recommendation is **Preview → Apply**, never auto-apply, for this action. The AI and human tools must read and write one canonical Stick project/timeline/history state through the same mutation functions. Manual construction may create several normal history entries while AI Apply creates one atomic history entry. Their full project bytes are therefore not required to match; their exact animation-content projection must match. A second demo-only animation state or an AI-only figure/keyframe type is forbidden.
 
@@ -54,7 +54,7 @@ No OpenAI API request, external or application search, Supabase request, saved-p
 
 | Area | Observed current behavior | Intended behavior for this slice | Gap | Required proof |
 | --- | --- | --- | --- | --- |
-| Stick chat | `StickFigureRightPanel` mounts `DrawingAiPanel` with `readOnly`; it receives no Stick context or executor. | A writable panel visibly labeled and scoped to Stick Figure Workspace. | No writable Stick adapter or capability boundary. | Real-app assertion that the Stick input accepts the exact prompt and the request says `workspaceType: "stick-figure"`. |
+| Stick chat | `StickFigureRightPanel` mounts `DrawingAiPanel` with `readOnly`; it receives no Stick context or executor. | A writable panel visibly labeled and scoped to Stick Figure Workspace. | No writable Stick adapter or capability boundary. | Real-app assertion that the Stick input accepts every closed V2 fixture case expected to accept, safely rejects the negative matrix, and sends `workspaceType: "stick-figure"`. |
 | Workspace discriminator | `DrawingAiPanel` hardcodes `workspaceType: "drawing"`; `/api/ai` validates `workspaceType` but uses it only in development logging. | Exact discriminated Stick request and isolated Stick server handler. | The field is metadata, not an orchestration boundary. | Mocked route test proves Stick dispatch while Drawing dispatch remains byte-for-byte compatible. |
 | Drawing AI | Generate Frames is the sole enabled Drawing task. Generate Plans, Generate Sounds, and Other are disabled; the default preference still selects disabled Generate Plans. | Leave this availability and its known inconsistency unchanged. | The current Drawing path cannot be reused as a safe Stick executor. | Existing control-preference validator plus Drawing Generate Frames mocked regression flow. |
 | Drawing apply semantics | A successful generated-frame plan is rendered and sent to `onApplyGeneratedFrame` immediately; no Preview/Apply transaction exists. | Preview does not mutate; only explicit Apply commits. | Auto-apply and no pending transaction/revision binding. | Canonical project/history/storage bytes are identical before and after preview/cancel/failure. |
@@ -243,7 +243,7 @@ All trust-boundary data is parsed into JSON-compatible plain objects, arrays, st
 
 Canonical serialization is exact:
 
-1. Every string must be well-formed UTF-16 and NFC. Lone surrogates reject. Except for the explicitly normalized user prompt in section 4.3, trust-boundary strings that are not already NFC reject.
+1. Every string must be well-formed UTF-16 and NFC. Lone surrogates reject. The published V1 prompt keeps its exact normalization exception; V2 prompt interpretation instead rejects all non-ASCII before any Unicode normalization as specified in section 4.3. Other trust-boundary strings that are not already NFC reject.
 2. Object keys are sorted recursively by raw UTF-16 code-unit order using `<`/`>` comparisons, never locale-sensitive collation. All schema-defined keys are ASCII. Arrays retain their schema-declared order.
 3. Keys and string values use the exact escaping produced by ECMAScript `JSON.stringify` for one validated well-formed string. `/` and non-ASCII characters are not additionally escaped. No whitespace, byte-order mark, or trailing newline is emitted.
 4. The canonical text is encoded once with `TextEncoder` as UTF-8. Those exact bytes are the canonical bytes.
@@ -318,7 +318,7 @@ The corrected §10.5A editor is the Phase 3 product baseline: one small blank st
 | Normalized floating point 0–1 | Resolution neutral | Float drift, harder canonical equality, awkward manual coordinates | Reject for V1. |
 | Current DOM/stage pixels | Smallest immediate code change | Resize/viewport dependent and unsafe for save/reopen | Reject. |
 
-### 4.3 Exact approved prompt intent and output bounds
+### 4.3 Versioned typo-friendly approved prompt intent and output bounds
 
 The canonical golden fixture remains this 74-byte UTF-8 sentence:
 
@@ -326,19 +326,147 @@ The canonical golden fixture remains this 74-byte UTF-8 sentence:
 Create a simple three-pose wave animation with one stick figure at 12 FPS.
 ```
 
-The panel includes one beginner-facing suggestion chip labeled **Create a three-pose wave**. It inserts the canonical sentence into the composer and never submits automatically.
+The panel keeps the beginner-facing suggestion chip labeled **Create a three-pose wave**. It inserts the canonical sentence into the composer and never submits automatically. Typing that exact sentence is no longer required.
 
-This is a tiny deterministic intent boundary, not broad natural-language support. Both client and server apply the same function:
+Phase 5's published `promptIntentVersion: 1` exact-sentence behavior and fixtures remain immutable historical compatibility. Phase 6 introduces `promptIntentVersion: 2`, a deterministic closed grammar for bounded paraphrases, safely implied defaults, and a small audited typo map. It is still pretend AI: no model, search, provider, dictionary, locale service, or general fuzzy-language system participates.
 
-1. reject ill-formed UTF-16/lone surrogates; `rawPromptBytes` is the UTF-8 byte length of this well-formed decoded string **before** NFC or any other normalization;
-2. normalize the string to Unicode NFC;
-3. remove leading/trailing runs containing only the exact ASCII set space, tab, carriage return, line feed, or form feed; do not use JavaScript's broader Unicode `trim()` semantics;
-4. collapse each remaining run of that same exact ASCII set to one ASCII space;
-5. convert only ASCII `A..Z` to lowercase;
-6. remove zero or one final `.`, `!`, or `?` only when it is immediately adjacent to `fps`; a space before terminal punctuation, doubled terminal punctuation, or any other occurrence of `.`, `!`, or `?` rejects; the hyphen in `three-pose` is required and is not part of this punctuation set;
-7. compare exactly with `create a simple three-pose wave animation with one stick figure at 12 fps`.
+#### Canonical interpreted intent
 
-The normalized form is used only to decide intent. The server sends the canonical golden sentence—not user capitalization, spacing, or punctuation—to the mock/provider projection. The raw prompt limit remains 128 exact UTF-8 bytes before normalization. Any semantic addition, attachment, prior-turn dependency, different pose count, FPS, figure count, action, prop, background, or other expansion returns `unsupported_prompt` without a mock/provider call or mutation. Fixtures must accept capitalization, the exact ASCII-whitespace set, and one adjacent terminal-punctuation variant independently; they must reject changed words/numbers, space-before-punctuation, internal/doubled punctuation, NBSP and other non-ASCII whitespace at the start, end, or between words, and added clauses.
+Every accepted V2 prompt resolves to this one byte-canonical object and no other intent:
+
+```json
+{
+  "kind": "stick-ai-interpreted-intent",
+  "intentVersion": 2,
+  "capability": "stick.pose-sequence.create/v1",
+  "figureCount": 1,
+  "figureKind": "stick-figure",
+  "action": "wave",
+  "keyPoseCount": 3,
+  "timelineFrameCount": 12,
+  "fps": 12,
+  "durationMs": 1000
+}
+```
+
+Correction/default metadata is ephemeral matcher evidence only. It is never part of this canonical intent, the command, project, history, storage, transcript, or future provider input. The client may use the shared matcher for local preflight, but the server independently interprets the raw prompt and is authoritative. A V2 response carries the server's exact canonical interpreted-intent object. The adapter rejects any absent, unknown, non-canonical, or command-inconsistent intent and derives preview copy only from the validated server response and dry-run candidate, never from the raw prompt or a client guess.
+
+#### Exact V2 normalization and tokenization
+
+The shared `interpretStickAiPromptV2` function performs these operations in order:
+
+1. Require a string with well-formed UTF-16 and no lone surrogate. Measure `rawPromptBytes` as its exact UTF-8 byte length before any other operation and reject more than 128 bytes.
+2. Reject every non-ASCII code point before normalization. V2 performs no NFC/NFKC or confusable folding. NBSP, smart punctuation, full-width digits, non-breaking hyphens, Cyrillic/Greek lookalikes, combining marks, and emoji all reject rather than being translated.
+3. Permit only ASCII letters, ASCII digits, the exact whitespace set space/tab/carriage-return/line-feed/form-feed, ASCII hyphen, and terminal `.`, `!`, or `?`. Every other character, including comma, quote, slash, colon, semicolon, underscore, and vertical tab, rejects.
+4. Remove leading/trailing runs and collapse internal runs of only that exact ASCII-whitespace set to one ASCII space. Convert only ASCII `A..Z` to lowercase.
+5. Strip zero or one final `.`, `!`, or `?`, allowing ASCII whitespace immediately before it. A doubled terminal mark or any internal occurrence of those marks rejects. Trim the one resulting terminal ASCII-space run.
+6. A hyphen is valid only as one character directly between two ASCII alphanumeric runs. It becomes a token boundary, so `three-pose`/`three pose` and `stick-figure`/`stick figure` parse identically. Leading, trailing, spaced, or doubled hyphens reject.
+7. Tokenize into ASCII letter runs and ASCII digit runs. There is no stemming, sound-alike matching, free-form synonym table, or dictionary-based replacement.
+
+#### Closed V2 grammar and implied values
+
+After the audited typo step below, the complete accepted language is this EBNF; every token must be consumed by exactly one production:
+
+```text
+PROMPT          := [PLEASE] (OUTCOME_FIRST | SUBJECT_FIRST)
+OUTCOME_FIRST   := COMMAND [A] [SIMPLE] [POSE_PHRASE] WAVE [ANIMATION]
+                   WITH SINGULAR_FIGURE [FPS_PHRASE]
+SUBJECT_FIRST   := COMMAND SINGULAR_FIGURE SUBJECT_ACTION [FPS_PHRASE]
+COMMAND         := CREATE | MAKE | ANIMATE
+SINGULAR_FIGURE := (A | ONE | "1" | SINGLE | THE | THIS | THIS ONE) STICK FIGURE
+SUBJECT_ACTION  := WAVE | THAT WAVES | TO WAVE | WAVING
+POSE_PHRASE     := (THREE | "3") (POSE | POSES)
+FPS_PHRASE      := [AT] FPS_VALUE (FPS | FRAMES PER SECOND)
+FPS_VALUE       := "12" | TWELVE | "122"
+```
+
+`please`, `a` before the outcome phrase, `simple`, `animation`, the pose phrase, and the FPS phrase are optional only where shown. If `POSE_PHRASE` is absent after an otherwise complete supported wave parse, it means exactly three key poses. If `FPS_PHRASE` is absent after an otherwise complete parse, it means exactly 12 FPS. Figure count is inferred as one only from an accepted grammatically singular `SINGULAR_FIGURE`; bare `stick figure`, plural `stick figures`, or an absent figure phrase rejects. `pose|poses`, `wave|waves|waving`, and the hyphen/space forms are the only enumerated inflection handling. No general pluralization, conjugation, stemming, or synonym expansion is allowed.
+
+Any unconsumed token, second request, conjunction, dependent clause, attachment reference, prior-turn reference, prop, background, style, different real noun/verb, different action, or explicit unsupported count/FPS rejects as `unsupported_prompt`. Defaults are applied only after the entire remaining prompt has matched one production; they never repair a partial or ambiguous request.
+
+#### Audited typo correction and ambiguity rule
+
+Exact accepted vocabulary is checked first. The only letter-token corrections are the following versioned map:
+
+```text
+plese→please   craete→create   creat→create   maek→make   animte→animate
+simlpe→simple pses→poses      stik→stick      stcik→stick
+figuer→figure fgiure→figure   onne→one        singel→single
+wwave→wave    waev→wave       waevs→waves     wavig→waving
+animaton→animation            animtion→animation          fpps→fps
+```
+
+An input letter token corrects only when it is an exact source entry in that map. Unknown tokens are never assigned to the nearest word. Each prompt may correct at most two tokens and the sum of correction distances may be at most two. The fixture validator computes case-insensitive Optimal String Alignment Damerau-Levenshtein distance and requires each map entry to be unique across the active accepted lexicon: target length 1–3 permits distance 1, length 4–7 permits distance 1, and length 8–12 permits distance 2. Each source must be lowercase ASCII letters, must not itself be accepted vocabulary, must name exactly one target, and must have exactly one nearest allowed target inside the applicable limit. An invalid/duplicate/ambiguous map fails the Phase 6 gate; an input with no unique audited mapping rejects. Digit-containing tokens never enter this correction path. Thus `wwave` and `animaton` may be corrected together, while real words such as `clown`, `fish`, `jump`, `fight`, `walk`, `none`, or `crate` are not changed merely because a spelling is close. `wavs`, which is equally close to supported wave forms, rejects as ambiguous and is intentionally absent from the map.
+
+#### Exact numeric handling
+
+Digit runs are classified before letter correction and never receive generic edit-distance matching:
+
+- the singular figure slot accepts only `1` or the enumerated singular words; any other explicit figure count rejects;
+- the pose slot accepts only `3|three`; any other explicit pose count rejects;
+- the FPS slot accepts only `12|twelve` plus Arthur's exact `122` repeated-second-digit typo;
+- `122` is accepted only in the FPS-value slot immediately followed by `fps` or `frames per second`, where it resolves to 12 FPS. No generalized repeated-pair rule exists: `112`, `121`, `111`, `1122`, `1222`, a bare `122`, or `122` in a figure/pose slot rejects;
+- every other explicit FPS—including `13`, `24`, and `30`—rejects. The sole 12 FPS default is used only when the complete FPS phrase is absent, never when an unsupported value is present.
+
+#### Closed fixture matrix
+
+`scripts/fixtures/stick-ai/v2/stick-ai-intent-cases.json` is the single closed V2 matrix. The strict UI-adapter validator requires exactly the IDs below with exact raw strings/escaped-byte constructions, expected correction/default evidence, and either the canonical interpreted-intent object above or the exact rejection reason. It fails on a missing, duplicate, renamed, or unexpected case.
+
+| ID | Exact input or construction | Expected result |
+| --- | --- | --- |
+| A01 | `Create a simple three-pose wave animation with one stick figure at 12 FPS.` | Accept canonical intent; no default/correction. |
+| A02 | `Make this one stick figure wave.` | Accept; pose count and FPS default. |
+| A03 | `Make a stick figure that waves at 12 FPS.` | Accept; pose count defaults. |
+| A04 | `Create a simple three-pose wwave animaton with one stick figure at 12 FPS.` | Accept; `wwave→wave`, `animaton→animation`. |
+| A05 | `Make onne stick figure wave.` | Accept; `onne→one`; pose count and FPS default. |
+| A06 | `Make a stick figure wave at 122 FPS.` | Accept; repeated second digit resolves uniquely to 12. |
+| A07 | `  PLEASE\tMAKE A STICK-FIGURE WAVE !\r\n` | Accept; ASCII case/whitespace, hyphen, and spaced terminal punctuation normalize; pose/FPS default. |
+| A08 | `Please animate a stick figure waving!` | Accept; subject inflection; pose/FPS default. |
+| A09 | `Create a three pose wave with a single stick figure.` | Accept; spaced pose phrase; FPS defaults. |
+| A10 | `Create a simple wave animation with one stick figure at twelve frames per second.` | Accept; pose count defaults; word-form FPS. |
+| A11 | `Make the stick figure wave` | Accept; singular grammar; pose/FPS default. |
+| A12 | `Make one stick figure to wave at 12 fps?` | Accept; enumerated relative form. |
+| A13 | `Please make one stick figure wave at twelve FPS.` | Accept; word-form FPS; pose count defaults. |
+| A14 | `Create a simple 3 poses wave with 1 stick figure at 12 fps.` | Accept; exact numeric pose/figure forms. |
+| A15 | `Animate this stick-figure waving at 12 FPS.` | Accept; hyphen form; pose count defaults. |
+| R01 | `Make a stick figure wave at 13 FPS.` | Reject unsupported explicit FPS. |
+| R02 | `Make a stick figure wave at 24 FPS.` | Reject unsupported explicit FPS. |
+| R03 | `Make a stick figure wave at 30 FPS.` | Reject unsupported explicit FPS. |
+| R04 | `Make 122 stick figures wave at 12 FPS.` | Reject repeated-digit form outside FPS and plural figure. |
+| R05 | `Make two stick figures wave.` | Reject explicit multiple figures. |
+| R06 | `Make multiple stick figures wave.` | Reject multiple figures. |
+| R07 | `Make stick figure wave.` | Reject absent singular grammar/count. |
+| R08 | `Create a four-pose wave animation with one stick figure.` | Reject unsupported pose count. |
+| R09 | `Create a two-pose wave animation with one stick figure.` | Reject unsupported pose count. |
+| R10 | `Make a clown wave.` | Reject different real noun. |
+| R11 | `Make a fish wave.` | Reject different real noun. |
+| R12 | `Make a stick figure jump.` | Reject different real action. |
+| R13 | `Make a stick figure fight.` | Reject different real action. |
+| R14 | `Make a stick figure walk.` | Reject different real action. |
+| R15 | `Make a stick figure wave with a hat.` | Reject prop/additional phrase. |
+| R16 | `Make a stick figure wave on a beach background.` | Reject background/additional phrase. |
+| R17 | `Make a stick figure wave and then jump.` | Reject conjunction/second action. |
+| R18 | `Make a stick figure wave; make it faster.` | Reject forbidden punctuation and added clause. |
+| R19 | `Make a stick figure wavs.` | Reject ambiguous/non-audited correction. |
+| R20 | `Crate a stick figure wave.` | Reject different real word; no nearest-word correction. |
+| R21 | `Make none stick figure wave.` | Reject different real word; no correction to `one`. |
+| R22 | `Craete a simlpe three-pose wwave animation with one stick figure.` | Reject three corrections / total distance over budget. |
+| R23 | `Make a stick figure wave at 122.` | Reject repeated-digit token without FPS unit. |
+| R24 | `Make a stick figure wave at 112 FPS.` | Reject unapproved repeated-first-digit numeric typo. |
+| R25 | `Make a stick figure wave at 1122 FPS.` | Reject more than one duplicated pair / wrong length. |
+| R26 | `Make a stick figure wave!!` | Reject doubled terminal punctuation. |
+| R27 | `Create a three--pose wave with one stick figure.` | Reject doubled hyphen. |
+| R28 | `Make a stick figure, wave.` | Reject comma/internal punctuation. |
+| R29 | `Make\u00a0a stick figure wave.` | Reject NBSP. |
+| R30 | `Make a stick figure wаve.` where the second character is Cyrillic `U+0430` | Reject Unicode/confusable input. |
+| R31 | `Make a stick figure wave at １２ FPS.` | Reject full-width digits. |
+| R32 | `Create a three‑pose wave with one stick figure.` with `U+2011` | Reject non-breaking hyphen. |
+| R33 | `Make a stick figure wave.”` | Reject smart punctuation. |
+| R34 | `Make a stick figure wave 👋.` | Reject emoji/additional content. |
+| R35 | canonical A01 plus exactly 55 trailing ASCII spaces (129 UTF-8 bytes total) | Reject `unsupported_prompt` for the raw 128-byte prompt ceiling before normalization. |
+| R36 | `Make a stick figure wave at 12.` | Reject numeric value without FPS unit. |
+
+The normalized/matched form decides only this bounded intent. The server projects the canonical golden sentence and canonical interpreted intent—not user wording, corrections, capitalization, spacing, or punctuation—to the mock and later provider boundary. Any rejected prompt, including bad encoding/characters or prompt-byte excess, returns the existing typed `unsupported_prompt` without mock/provider work, preview, or mutation. The separate 16 KiB raw request-envelope ceiling retains `request_too_large`.
 
 The sole action also requires a valid document satisfying `StickWaveStarterV1`. An otherwise valid document with a different stage, FPS, rig, figure, layer/cell structure, revision, or authored content returns `unsupported_project_state` before mock/provider invocation; it does not become an invalid Stick document. Undoing the one AI batch restores the exact eligible starter snapshot, but the old transaction remains consumed in the mounted-session ledger.
 
@@ -364,17 +492,17 @@ Those wave/body/segment constraints apply only while validating and materializin
 | Artifact | Version discriminator | Required ownership |
 | --- | --- | --- |
 | Availability response | `availabilityVersion: 1`, kind `stick-ai-availability` | Server reports only bounded capability readiness and a stable coarse reason; it never exposes credential names/values, exact mode, provider identity, environment names/values, or secrets. |
-| Client request | `requestVersion: 1`, kind `stick-ai-request` | Browser creates `requestId`/`transactionId`, includes project ID/revision/digest, manifest, and bounded user prompt. Server re-normalizes it. The adapter separately binds session-only `workspaceInstanceId`/`workspaceGeneration`; neither is serialized. |
+| Client request | Published Phase 5 `requestVersion: 1`; Phase 6 UI `requestVersion: 2`; kind `stick-ai-request` | V1 remains exact-sentence compatible. V2 carries the same bounded raw prompt/context/correlation fields with manifest V2; the browser may preflight but the server reinterprets the raw prompt authoritatively. The adapter separately binds session-only `workspaceInstanceId`/`workspaceGeneration`; neither is serialized. |
 | Project context | `contextVersion: 1`, kind `stick-project-context` | Editor derives it from the canonical project; the server validates it but never treats it as authority to mutate. |
-| Capability manifest | `manifestVersion: 1`, capability `stick.pose-sequence.create/v1` | Shared code defines the exact allowlist and bounds; client and server manifests must match exactly. |
+| Capability manifest | Published Phase 5 `manifestVersion: 1`, `promptIntentVersion: 1`; Phase 6 `manifestVersion: 2`, `promptIntentVersion: 2`; capability remains `stick.pose-sequence.create/v1` | Shared code defines the exact allowlist and bounds. V2 changes only prompt interpretation/version binding; all action/output limits remain byte-equivalent. Client and server manifests must match exactly. |
 | Live proof authorization/grant | authorization record v1 plus `grantVersion: 1`, kind `stick-ai-live-proof-grant` | One separately authorized root-invoker run creates one in-memory record and anonymous pipe; one launcher may issue one derived grant over a second anonymous pipe to one PID-bound final child. Invoker, issuer, and server counters are process-local/one-use; no reusable file, HTTP body/header, ordinary environment value, policy fixture, mode, argv, restart, or fork can arm/rearm them. |
 | Provider plan | `planVersion: 1`, kind `stick-wave-plan` | OpenAI returns only right-elbow/right-hand coordinates for `ready`, `inward`, and `outward`, plus fixed timing. It chooses no IDs, body points, topology, project fields, or commands. |
-| Command envelope | `envelopeVersion: 1`, `commandVersion: 1`, kind `stick-command-batch` | Server wraps a validated plan with browser-owned correlation fields, preserved starter identities, and only two deterministic new pose IDs. Exactly one command is present. |
+| Command envelope | Published Phase 5 `envelopeVersion: 1`; Phase 6 `envelopeVersion: 2`; `commandVersion: 1`, kind `stick-command-batch` | V2 adds only the server-authoritative canonical `interpretedIntent`; the command bytes/semantics remain V1. Server wraps a validated plan with browser-owned correlation fields, preserved starter identities, and only two deterministic new pose IDs. Exactly one command is present. |
 | Preview result | `resultVersion: 1`, kind `stick-command-result`, status `previewed` | Editor executor dry-runs the envelope against a clone and owns `preStateDigest`, `candidateDigest`, and the bounded preview summary. |
 | Apply result | Same result version; `applied | duplicate | rejected | failed | cancelled` | In the final Phase 4 path, the executor requests one transaction; the Phase 3 reducer creates history/authored state, and Phase 4 publishes it with the ledger as one root. |
 | Saved project | root `storageVersion: 1`, document `schemaVersion: 1` | Strict local storage adapter owns encoding/decoding; no provider or chat state enters it. |
 
-The capability manifest is exact; all fields are required and unknown fields reject:
+The published Phase 5 V1 capability manifest below remains exact; all fields are required and unknown fields reject:
 
 ```json
 {
@@ -402,7 +530,35 @@ The capability manifest is exact; all fields are required and unknown fields rej
 }
 ```
 
-The client request is exact; placeholder IDs/digests below stand for values matching their validators:
+Phase 6 adds this exact V2 manifest. It is not a broader action manifest; every limit and capability is intentionally unchanged:
+
+```json
+{
+  "manifestVersion": 2,
+  "capabilities": ["stick.pose-sequence.create/v1"],
+  "promptIntentVersion": 2,
+  "limits": {
+    "maxActions": 1,
+    "maxRigs": 1,
+    "maxFigures": 1,
+    "maxTargetLayers": 1,
+    "maxKeyPoses": 3,
+    "maxTimelineFrames": 12,
+    "jointsPerPose": 11,
+    "segmentsPerRig": 10,
+    "allowedFps": [12],
+    "promptBytes": 128,
+    "requestBytes": 16384,
+    "providerPlanBytes": 8192,
+    "commandBytes": 32768,
+    "coordinateSpace": "stick-stage-1920x1080-v1",
+    "search": "disabled",
+    "tools": "disabled"
+  }
+}
+```
+
+The published V1 client request below remains exact; placeholder IDs/digests stand for values matching their validators:
 
 ```json
 {
@@ -459,9 +615,11 @@ The client request is exact; placeholder IDs/digests below stand for values matc
 }
 ```
 
+The Phase 6 V2 request has the same exact key set/order and validators. Only `requestVersion` changes to `2`, and its nested capability manifest is exactly the V2 object above. It does not carry a client-authored interpreted-intent claim. The server computes that object from the raw `prompt`; adding such a claim, correction list, default list, transcript, or unknown field rejects.
+
 The manifest limits are capability constraints for this command, not permanent document-validity limits. The separate V1 document safety caps in section 4.2 are intentionally absent from the provider capability manifest.
 
-Every Stick POST also carries the non-secret transport discriminator `X-Diamond-AI-Workspace: stick-figure`. It is routing metadata, not authentication, and the body discriminator remains mandatory. Header/body disagreement stays in the Stick handler and rejects; it must never fall through to Drawing. The server independently normalizes and validates the request's raw `prompt` under `promptIntentVersion: 1`.
+Every Stick POST also carries the non-secret transport discriminator `X-Diamond-AI-Workspace: stick-figure`. It is routing metadata, not authentication, and the body discriminator remains mandatory. Header/body disagreement stays in the Stick handler and rejects; it must never fall through to Drawing. The server independently validates the request's raw `prompt` under the manifest-bound intent version. V1 continues to use the published exact normalizer. V2 must use the exact section 4.3 interpreter; version mixing, downgrade, or V2 prompt acceptance through V1 rejects.
 
 The provider-free availability request is `GET /api/ai` with `X-Diamond-AI-Workspace: stick-figure` and `Accept: application/json`. Its exact no-store response is:
 
@@ -498,11 +656,11 @@ The deterministic golden provider plan is exactly below. A live plan has the ide
 }
 ```
 
-After domain validation and deterministic ID/body materialization, the exact envelope fields are:
+After domain validation and deterministic ID/body materialization, V1 keeps its published envelope fields. V2 has the same fields and order with `envelopeVersion: 2`, plus required `interpretedIntent` immediately after `capabilityManifestVersion`; that value must be byte-canonical equal to section 4.3. The exact command array, payload digest input, and command semantics are unchanged:
 
 | Object | Required fields |
 | --- | --- |
-| Envelope | `kind`, `envelopeVersion`, `commandVersion`, `requestId`, `transactionId`, `workspaceType`, `projectId`, `baseDocumentRevision`, `baseDocumentDigest`, `capabilityManifestVersion`, `payloadDigest`, `commands` |
+| Envelope | V1: `kind`, `envelopeVersion`, `commandVersion`, `requestId`, `transactionId`, `workspaceType`, `projectId`, `baseDocumentRevision`, `baseDocumentDigest`, `capabilityManifestVersion`, `payloadDigest`, `commands`. V2: same ordered fields with required `interpretedIntent` after `capabilityManifestVersion`. |
 | Sole command | `type: "stick.pose-sequence.create"`, `actionVersion: 1`, `targetLayerId`, `targetRigId`, `targetFigureId`, `keyframeIndexes: [0,4,8]`, `holdFramesPerPose: 4`, the exact 12 preserved frame IDs, and exactly three ordered `poseEntries`; no rig/figure/topology object is accepted |
 | Existing rig/figure binding | IDs must equal the eligible starter context and resolve to its exact `humanoid-11-v1` topology and `Stick Figure 1`; command materialization preserves their complete canonical bytes |
 | `StickWaveCommandPoseV1` | `{sequenceIndex, beat, ownerFrameIndex, pose}`. The exact tuples are `(0, ready, 0)`, `(1, inward, 4)`, and `(2, outward, 8)` in that order. `beat` and `sequenceIndex` are command-only validation metadata. `pose` is the neutral canonical shape `{poseId,figureId,rigId,points}` with exactly 11 ordered points. Pose 0 must preserve the starter pose ID; poses 1/2 must equal the deterministic `pose:1`/`pose:2` IDs. Materialization writes only `pose` into the owner keyframe and persists no beat/role field. |
@@ -584,7 +742,7 @@ Transaction rules:
 ```mermaid
 stateDiagram-v2
     [*] --> Idle
-    Idle --> Requesting: exact supported prompt
+    Idle --> Requesting: V2 closed-grammar prompt passes local preflight
     Requesting --> PreviewReady: server + editor validation / dry-run
     Requesting --> UnchangedFailure: invalid / timeout / network / abort
     PreviewReady --> Cancelled: Cancel
@@ -861,7 +1019,7 @@ The persistent status copy is exact:
 ## 5. Non-Goals
 
 - General-purpose arbitrary AI application control.
-- Any Stick AI action other than `stick.pose-sequence.create/v1` for the exact approved golden prompt boundary.
+- Any Stick AI action other than `stick.pose-sequence.create/v1` or any prompt outside section 4.3's closed V2 grammar/matrix.
 - Multi-character scenes.
 - Twelve unique body positions, smoother hand motion, additional keyframes, automatic in-betweens, motion frames, interpolation, tweening, or general frame-by-frame authoring.
 - Props, swords, symbols, fire, backgrounds, camera animation, sound, voice, or export.
@@ -916,7 +1074,7 @@ This is the mandatory end-to-end AI acceptance flow after the separate human pat
 1. Start the app through the Verified Phase 1.5 permanent automatic browser tester with a new isolated browser context and empty storage for both `da_saved_stick_projects_v1` and the existing Drawing key. Its client and tested-process guard must fail any non-loopback request.
 2. Choose Home → New Project → Stick Figure Animation.
 3. Confirm the right sidebar is visibly labeled “Stick Figure Workspace,” shows the **Create a three-pose wave** suggestion, does not show Drawing task choices, and completes one provider-free no-store availability `GET /api/ai`. The composer and suggestion remain disabled while checking and whenever capability or project eligibility is unavailable; only the bounded readiness reason is exposed, never a credential name/value, exact mode, provider identity, environment name/value, or secret.
-4. Choose the suggestion and confirm it fills the canonical golden sentence without submitting. Submit the canonical sentence; separately prove one allowed capitalization/exact-ASCII-whitespace/adjacent-terminal-punctuation variant maps to the same intent and does not widen semantics.
+4. Choose the suggestion and confirm it fills the canonical golden sentence without submitting. Separately type every section 4.3 A-case through the visible composer and prove each maps to the same server-authoritative canonical intent; exercise representative R-cases visibly and the complete R-set through shared/guarded-route proof with no preview or mutation.
 5. Assert exactly one `POST /api/ai` for the submission, with `X-Diamond-AI-Workspace: stick-figure`, body `workspaceType: "stick-figure"`, request/context/manifest version 1, the current project ID/revision, a request ID, a transaction ID, and search/tools disabled. The earlier availability GET is not a provider request. Assert no search, Supabase, provider, or other remote request in mock mode.
 6. Return one mocked, strictly valid `stick-command-batch` and show a preview summarizing one figure, three key poses, 12 FPS, 12 frames/1 second, with Apply and Cancel.
 7. Before Apply, compare canonical project, history, and storage bytes with their pre-request values; all must be identical. Switching timeline frames must still show the original built-in starter state.
@@ -982,12 +1140,13 @@ sequenceDiagram
 
     P->>R: GET bounded Stick availability
     R-->>P: available / stable unavailable reason
-    U->>P: Submit normalized bounded intent
+    U->>P: Submit bounded raw prompt (V2 local preflight only)
     P->>A: capture workspace instance, projectId, revision, digest, local generation
-    A->>R: marked POST request v1 + manifest v1
+    A->>R: marked POST request v2 + manifest v2
+    R->>R: authoritative V2 interpretation
     R->>V: minimized structured-output input
     V-->>R: untrusted plan v1
-    R-->>A: validated command envelope v1
+    R-->>A: validated command envelope v2 + canonical intent
     A->>X: dry-run immutable envelope
     X-->>P: preview + pre/candidate digests
     Note over S: No state/history/storage mutation
@@ -1002,7 +1161,7 @@ sequenceDiagram
 
 | Layer | May decide | Must not do |
 | --- | --- | --- |
-| Panel | Display availability, accept the bounded normalized intent, request Apply/Cancel, show honest messages | Parse provider output as trusted, mutate project, persist transcript |
+| Panel | Display availability, run bounded V2 preflight, request Apply/Cancel, and show the authoritative understood-result or honest errors | Treat client interpretation as authority, parse provider output as trusted, mutate project, persist transcript |
 | Workspace adapter | Capture current identifiers/generation, abort/invalidate, call executor | Construct ad hoc project mutations or reuse Drawing context |
 | `/api/ai` Stick dispatcher | Validate body/size/version/manifest, choose off/mock/live mode, enforce budget | Let Stick intent fall through to Drawing, enable search, mutate editor |
 | Provider planner | Propose three bounded right-arm coordinate pairs under strict schema | Choose body coordinates, IDs, revisions, capabilities, storage, commands, or tools |
@@ -1041,27 +1200,39 @@ The raw tuple exists only for the synchronous Stick dispatch lifetime. It is not
 
 ### 8.1 Schema/version/migration impact
 
-- New Stick-only project/document, request/context/manifest, provider-plan, command-envelope, result, history, and storage V1 schemas are required.
+- Stick project/document/context/provider-plan/command/result/history/storage V1 schemas remain the product-data boundary. Published request/manifest/envelope V1 stays exact for Phase 5; Phase 6 adds non-persisted request/manifest/envelope and interpreted-intent V2 only.
 - There is no persisted Stick schema to migrate. Existing ephemeral Stick state is not durable and may be initialized into the new V1 editor state at mount.
 - Drawing project storage version/key and Drawing AI contracts remain unchanged.
 - Unknown future versions return typed `unsupported_version`; no forward-compatible field stripping is allowed.
-- A future schema requires an explicit migration function and a later spec. SPEC-0001 authorizes only V1-to-V1 round trips.
+- A future persisted project/storage schema requires an explicit migration function and a later spec. SPEC-0001 still authorizes only V1-to-V1 project/storage round trips; the V2 prompt protocol creates no persistence migration.
 
 ### 8.2 Exact client-to-server fields
 
-The browser sends only the request shape in section 4.4: kind/version, request ID, transaction ID, exact workspace discriminator, bounded user prompt, capability manifest, and compact starter-eligibility context. It sends no transcript, project title, user identity, email, bitmap, image, audio, asset, free-form memory, Drawing context, camera, browser storage, or prior provider output. The server independently normalizes intent and sends only the canonical golden prompt to a provider.
+The browser sends only the request shape in section 4.4: kind/version, request ID, transaction ID, exact workspace discriminator, bounded raw user prompt, capability manifest, and compact starter-eligibility context. It sends no client-authored interpreted intent, correction metadata, transcript, project title, user identity, email, bitmap, image, audio, asset, free-form memory, Drawing context, camera, browser storage, or prior provider output. The server independently interprets V2, returns the one canonical interpreted-intent object to the client, and later sends only that object plus the canonical golden prompt—not the raw user wording or corrections—to a provider.
 
 ### 8.3 Exact fields sent to OpenAI
 
-Phases 1–6 do not select a model and do not depend on provider pricing or retention. In Phase 7, after a same-day owner-reviewed `StickAiProviderPolicyV1` fixture exists, the provider receives exactly this Responses API object. `STICK_WAVE_PLAN_V1_SCHEMA` is the strict schema for the exact provider-plan shape in section 4.4, with every property required and `additionalProperties: false` at every object level:
+Phases 1–6 do not select a model and do not depend on provider pricing or retention. In Phase 7, after a same-day owner-reviewed `StickAiProviderPolicyV1` fixture exists, the server must first possess the valid server-authoritative section 4.3 intent. The provider then receives exactly this Responses API object. `STICK_WAVE_PLAN_V1_SCHEMA` is the strict schema for the exact provider-plan shape in section 4.4, with every property required and `additionalProperties: false` at every object level:
 
 ```ts
 {
   model: approvedPolicy.model,
   input: canonicalJson({
     kind: "stick-wave-input",
-    inputVersion: 1,
+    inputVersion: 2,
     prompt: "Create a simple three-pose wave animation with one stick figure at 12 FPS.",
+    interpretedIntent: {
+      kind: "stick-ai-interpreted-intent",
+      intentVersion: 2,
+      capability: "stick.pose-sequence.create/v1",
+      figureCount: 1,
+      figureKind: "stick-figure",
+      action: "wave",
+      keyPoseCount: 3,
+      timelineFrameCount: 12,
+      fps: 12,
+      durationMs: 1000
+    },
     context: {
       contextVersion: 1,
       workspaceType: "stick-figure",
@@ -1365,7 +1536,8 @@ Controlled proof bundles are not application logging. Offline bundles may contai
 | Mounted Open while playing | “Pause playback before opening another Stick project.” | Reject before creating an Open token; current root and playback continue unchanged. |
 | Mounted Open preparing | “Opening this Stick project…”; Play is unavailable with “Finish opening this project before playback.” | The already-paused project remains mounted; final CAS rechecks the same paused flag and root tuple. Failure/stale/cancel keeps it paused and unchanged. |
 | Ineligible edited project | “Start a new empty 12 FPS Stick project to create this wave.” | Local project predicate; no availability POST/provider call. |
-| Unsupported prompt | “This first AI capability only supports the three-pose, one-figure, 12 FPS wave prompt.” | Reject before provider. |
+| Supported interpretation / preview | “Understood: one stick figure, a three-pose wave, 12 frames at 12 FPS. No changes have been made.” | Display only after server V2 intent and dry-run candidate both validate; Apply and Cancel are visible, and no mutation has occurred. |
+| Unsupported or ambiguous prompt | “I couldn’t safely match that request to the one supported result: one stick figure, a three-pose wave, 12 frames at 12 FPS. No changes were made.” | Reject before mock/provider and preview; do not suggest that an exact sentence is required. The suggestion chip remains available as a shortcut. |
 | Non-eligible project | “This AI shortcut works only before you change the built-in starter. You can still build the wave with the timeline controls. No changes were made.” | Reject before mock/provider; do not imply the project is empty or that manual creation is unavailable. |
 | Invalid/malformed/excessive output | “The AI response was invalid and was not applied.” | No preview, no mutation, no raw output shown/logged. |
 | Unsupported command/version | “That AI command is not supported by this editor version.” | No dry-run/commit. |
@@ -1411,7 +1583,8 @@ This matrix is the total likely boundary across all future phases. Each phase na
 | New `src/lib/stickfigure/stickTimeline.ts` | Shared pure hold/blank/start-pose/joint mutations plus keyframe/held-frame pose resolution | Human construction and AI Apply reach the same document semantics without pretending holds own poses | Existing timeline indexing/wrap behavior; no general insertion/removal/resize |
 | New `src/lib/stickfigure/stickProjectHistory.ts` | Sole transaction reducer, 128-entry atomic snapshots, undo/redo | Wrap Phase 2 completed edits and later AI commits | Canvas owns gesture completion; Drawing history untouched |
 | New `src/lib/stickProjectStorage.ts` | Separate strict local Stick save/open store | Save/reopen and corruption safety | `drawingProjectStorage.ts` and its key unchanged |
-| New `src/lib/ai/stickFigureAiContract.ts` | Versioned request/manifest/plan/envelope/result contracts | Narrow trust boundary | `drawingAiContract.ts` unchanged |
+| `src/lib/ai/stickFigureAiContract.ts` | Published Phase 5 V1 remains exact; Phase 6 additively parses request/manifest/envelope V2 and binds the server-authoritative intent | Narrow versioned trust boundary without reopening V1 | `drawingAiContract.ts`, Phase 5 route/raw behavior, and V1 fixtures unchanged |
+| New `src/lib/ai/stickFigureAiIntentMatcher.ts` | Phase 6 pure shared V2 normalizer/tokenizer/closed grammar/audited typo map/canonical intent | Identical client preflight and server interpretation with one server authority | No model, dictionary, generic fuzzy matcher, or new action |
 | New `src/lib/ai/stickFigureCommandExecutor.ts` | Pure preview, domain validation, idempotency/stale checks, and Phase 3 transaction construction | Safe AI command boundary | `drawingFrameExecutor.ts` unchanged |
 | New `src/lib/ai/stickFigureAiWorkspaceAdapter.ts` | Phase 6 binds panel request to active canonical project/revision/ready digest/generation | Prevent disconnected/stale writes | Drawing adapter/panel unchanged |
 | New `src/components/workspace/stickfigure/StickFigureAiPanel.tsx` | Phase 6 writable scoped chat, preview, Apply/Cancel, honest states | User-facing primary interface | No Drawing panel rename/redesign |
@@ -1626,8 +1799,8 @@ The runner requires a dedicated phase worktree that was Git-clean at the recorde
 | Phase 2 UI Restoration and Editable Timeline Correction (§10.5A) | **Verified, published, and integrated** | Restores the exact `68338d…` Stick shell, starts with one blank keyframe/no automatic content, and adds only applicable current-Drawing-style timeline/layer behavior with independent editable Stick keyframes and restored Creator/tools. | D-0017 accepted; exact 29-path publication commit `edfb3dea023119b91336e6e5da645d4982a9f068` | Passed: one Spec Executor technical packet, Arthur's visible desktop/compact review, independent closeout, and separate publication/integration completed. |
 | 3 — Atomic history and minimal local persistence | **Verified, published, and integrated** | Every manual construction action and joint drag has exact Undo/Redo; explicit local save/reopen preserves user-authored content. One AI-sized three-pose batch remains representable as one undo entry for Phase 4 without exposing an AI path. The existing Onion control implements the exact D-0018 paused active-layer neighbor renderer. | Exact publication `3fe3a5487389647b67216e9466121e00f1a73856`; exact 30 technical plus eight record paths; technical-manifest SHA-256 `07bd09c413a28ffcc706be85d00d1d4466cde1e336daceab23d9a1617153b675`; Arthur visible acceptance | Complete. D-0022's later Phase 4 activation is published at `62f046adff7418d2e644365fc04bd5d6312dcca9`. |
 | 4 — Validated editor command transaction | **Verified, published, and integrated** | Dry-run produces a preview without mutation; Apply composes the same pure mutations as the manual path into one all-or-nothing transaction; stale/duplicate/cancel/failure cases are exact no-ops. | Exact 22 technical paths from activation base `62f046adff7418d2e644365fc04bd5d6312dcca9`; technical-manifest SHA-256 `d34d589373713ac7930984aeb3ef0640539316c00e1f510cf8d798aee931bf46`; runner SHA-256 `353f4937972d30b1959f1c7aee3075f5ebafb308d04a778db69372969e7b906f`; Arthur visible acceptance under D-0023; exact 30-path publication `71841e96499f7627139c53d87114bba65e19d29d` | Complete. |
-| 5 — Server raw-dispatch and mocked boundary | **Verified, published, and integrated** | Marked availability and mock POST work through a guarded real `/api/ai`; malformed/oversized Stick intent fails before Drawing, while marker-free Drawing reaches the original unread path; no editor/UI mutation is possible. | Exact publication commit `9bbcc1df2fe4c79c0947601d0ea6274a85732d85`, parent `a2b4f3e0fc492df9cd63bda32554e382a344cdb6`; corrected exact 22 technical paths plus eight records; proof SHA `f9024a5d86cc1febbac7df3d4219348cd8289d17723406bac5d90929d4cf5c0f`; closeout SHA `fd71afec8e637bb3736a63dbbe245c6616e14a4330b91f7e354297d96c2c24dd`; 362 source assertions; 31 real-route cases; Arthur visible acceptance under D-0026 | Complete. Phase 6 remains unauthorized and requires separate owner authorization. |
-| 6 — Writable Stick chat and UI integration | **Unauthorized; Not started** | Exact prompt in real scoped Stick chat yields a visible mock preview; Apply uses Phase 4; its resulting animation-content digest and render inputs equal the already proven human-only result; the complete mocked acceptance flow passes through Phase 5 without non-loopback traffic. | Phase 5 Verified/published/integrated; separate owner authorization | Stop until all 20 requirements and the explicit manual-versus-mocked-AI comparison pass through their versioned visible-UI/driver/environment/HTTP/Node channels, including failure and Creator-preservation states, Drawing Generate Frames, and required shell/Creator flows. |
+| 5 — Server raw-dispatch and mocked boundary | **Verified, published, and integrated** | Marked availability and mock POST work through a guarded real `/api/ai`; malformed/oversized Stick intent fails before Drawing, while marker-free Drawing reaches the original unread path; no editor/UI mutation is possible. | Exact publication commit `9bbcc1df2fe4c79c0947601d0ea6274a85732d85`, parent `a2b4f3e0fc492df9cd63bda32554e382a344cdb6`; corrected exact 22 technical paths plus eight records; proof SHA `f9024a5d86cc1febbac7df3d4219348cd8289d17723406bac5d90929d4cf5c0f`; closeout SHA `fd71afec8e637bb3736a63dbbe245c6616e14a4330b91f7e354297d96c2c24dd`; 362 source assertions; 31 real-route cases; Arthur visible acceptance under D-0026 | Complete. Phase 6 is separately authorized through D-0027 but remains blocked until activation publication. |
+| 6 — Writable Stick chat and UI integration | **Approved; Authorized; Not started** | The closed typo-friendly V2 grammar in real scoped Stick chat maps every accepted spelling/paraphrase/default to one server-authoritative intent and visible no-mutation preview; Apply uses Phase 4; its animation-content digest/render inputs equal the proven human result; unsupported/ambiguous/expanded requests reject; the complete mock flow passes through the unchanged Phase 5 route without non-loopback traffic. | Phase 5 Verified/published/integrated; D-0027 activation published/integrated before executor start | Stop until the exact A01–A15/R01–R36 matrix, V1 preservation, client/server parity, V6 tester registration, explicit manual-versus-mocked-AI comparison, failure/Creator states, Drawing Generate Frames, and required shell/Creator flows pass through their assigned visible-UI/driver/environment/HTTP/Node channels. |
 | 7 — Feature-flagged bounded OpenAI integration | **Unauthorized; Not started** | Offline provider capture proves the feature-flagged provider implementation plus one-use root-invoker/issuer delivery and PID-bound server `absent → armed → consumed/claim_acquired → terminal` authority against the separately approved same-day policy fixture. Optional paid proof is tracked separately. | Phase 6 Verified/published/integrated; separate Phase 7 Policy Gate published/integrated; separate owner authorization; no live call required for offline verification | Offline implementation may become Verified only after double-delivery/issue/claim, restart/fork/PID, and terminal-consumption proof passes. Record live-provider proof separately as `unperformed | failed | completed`; never imply it ran. |
 
 ### 10.3 Phase 1 — Contracts, fixtures, and focused proof harness
@@ -2604,54 +2777,80 @@ The source-direct validator does not substitute for route integration. The Verif
 
 ### 10.9 Phase 6 — Writable Stick chat and UI integration
 
-**Status:** **Unauthorized; Not started.** May begin only under separate owner authorization in a new task/worktree after Phase 5 is Verified, separately published, and integrated into canonical `main`.
+**Status:** **Approved; Authorized; Not started.** May begin only after D-0027's exact activation record is separately published/integrated, in one new dedicated Plan-mode Spec Executor worktree from that publication's canonical-main SHA.
 
-**Exact observable outcome:** Using the already Verified Phase 5 mock boundary, the Stick sidebar presents scoped availability before submission, accepts the golden prompt or its tiny normalized variants, shows a non-mutating validated preview, and applies only through Phase 4. The mocked AI result uses the same editor/history authority as human actions and has no permanent joint glow. The complete mocked browser acceptance flow—including manual comparison, edits, Undo/Redo, Save/Open, honest failures, and preserved Creator access—passes with zero non-loopback traffic.
+**Exact observable outcome:** Using the already Verified Phase 5 mock boundary, the Stick sidebar presents scoped availability before submission and accepts the section 4.3 V2 closed grammar, including Arthur's named paraphrases, safely implied three-pose/12-FPS values, the audited `wwave`/`animaton`/`onne` corrections, and the uniquely bounded `122 FPS` repeated-digit correction. Before Apply it visibly says exactly **“Understood: one stick figure, a three-pose wave, 12 frames at 12 FPS. No changes have been made.”** and shows the validated candidate. Only explicit Apply invokes Phase 4. Rejected/ambiguous/expanded prompts create no preview and no mutation. The mocked result uses the same editor/history authority as human actions and has no permanent joint glow. The complete mocked browser acceptance flow—including client/server interpretation parity, manual comparison, edits, Undo/Redo, Save/Open, honest failures, and preserved Creator access—passes with zero non-loopback traffic.
 
-**Dependencies:** Phases 1–5 and Phase 1.5 Verified/published/integrated; current sidebar/shell/Workspace state freshly traced. Any server-contract correction returns to a new Phase 5 correction task rather than widening Phase 6.
+**Dependencies:** Phases 1–5 and Phase 1.5 Verified/published/integrated; current sidebar/shell/Workspace, published Phase 5 parser/mock path, and tester-extension catalog freshly traced. Phase 6 may add V2 interpretation beside V1 in the exact shared files named below because the live Phase 5 dispatcher already delegates semantic parsing/materialization there. It may not rewrite V1, the raw reader/classifier, route ownership, availability, or Phase 5 history/proof.
 
 **Exact authorized systems/files:**
 
-- new `src/components/workspace/stickfigure/StickFigureAiPanel.tsx`;
-- new `src/lib/ai/stickFigureAiWorkspaceAdapter.ts`;
-- `src/components/workspace/stickfigure/StickFigureRightPanel.tsx` only to mount the scoped panel and preserve the Phase 2 control/Creator disposition;
-- `src/components/workspace/stickfigure/StickFigureWorkspace.tsx` only to expose the exact Phase 4 executor/root adapter and session lock/request lifecycle;
-- `src/components/workspace/ai/WorkspaceAiPanelShell.tsx` only for backward-compatible optional title/subtitle/capability props whose defaults render Drawing identically;
-- new `scripts/validateStickFigureAiUiAdapter.ts`;
-- exact new fixtures `scripts/fixtures/stick-ai/v1/stick-ai-ui-cases.json`, `scripts/fixtures/stick-ai/v1/stick-ai-creator-preservation-cases.json`, `scripts/fixtures/stick-ai/v1/phase-6-browser-proof-plan.json`, and `scripts/fixtures/stick-ai/v1/phase-6-proof-commands.json`;
-- ignored proof output only under `output/spec-0001/phase-6/`.
+Exactly these 26 technical paths are mandatory; no optional technical path exists:
 
-Phase 5 route/parser/availability/mock files and Phase 1–4 contracts/executor/history/storage are consumed read-only. They are not authorized modifications. The section 10.1 proof-only anchor exception applies during browser proof and leaves no lasting instrumentation diff.
+1. new `src/lib/ai/stickFigureAiIntentMatcher.ts` for the shared V2 normalization/tokenization/grammar/map and canonical interpreted intent;
+2. `src/lib/ai/stickFigureAiContract.ts` only for additive V2 request/manifest/envelope parsing and explicit V1/V2 dispatch; all published V1 canonical request/manifest/envelope bytes, exports, and fixture results remain exact;
+3. `src/lib/ai/stickFigureAiMockServer.ts` only to accept a valid V2 parsed request and return envelope V2 with the server-authoritative canonical interpreted intent; V1 results remain exact;
+4. new `src/components/workspace/stickfigure/StickFigureAiPanel.tsx`;
+5. new `src/lib/ai/stickFigureAiWorkspaceAdapter.ts`;
+6. `src/components/workspace/stickfigure/StickFigureRightPanel.tsx` only to mount the scoped panel and preserve the current control/Creator disposition;
+7. `src/components/workspace/stickfigure/StickFigureWorkspace.tsx` only to expose the exact Phase 4 executor/root adapter and session request lifecycle;
+8. `src/components/workspace/ai/WorkspaceAiPanelShell.tsx` only for backward-compatible optional title/subtitle/capability props whose defaults render Drawing identically;
+9. new `scripts/validateStickFigureAiUiAdapter.ts` covering matcher, V1 preservation, V2 client/server/envelope/preview/apply behavior, and UI adapter fixtures;
+10. new `scripts/fixtures/stick-ai/v2/stick-ai-intent-cases.json` containing exactly the closed section 4.3 matrix;
+11. new `scripts/fixtures/stick-ai/v2/stick-ai-ui-cases.json`;
+12. new `scripts/fixtures/stick-ai/v2/stick-ai-creator-preservation-cases.json`;
+13. new `scripts/fixtures/stick-ai/v2/phase-6-browser-proof-plan.json`;
+14. new `scripts/fixtures/stick-ai/v2/phase-6-proof-commands.json`;
+15. new `scripts/spec0001-browser/actions/phase6.ts` for Phase 6-only visible actions/product ports;
+16. `scripts/fixtures/spec0001-browser/v2/tester-extension-authorizations.json` only to append exact authorization `phase-6/v1` after the unchanged first five records;
+17. new `scripts/fixtures/spec0001-browser/v6/tester-extension-authorization.schema.json`;
+18. new `scripts/fixtures/spec0001-browser/v6/tester-extension-plan.schema.json`;
+19. new `scripts/fixtures/spec0001-browser/v6/tester-extension-registry.schema.json`;
+20. new `scripts/fixtures/spec0001-browser/v6/tester-extension-result.schema.json`;
+21. new `scripts/fixtures/spec0001-browser/v6/phase-6-action-registry.json`;
+22. `scripts/runSpec0001BrowserProof.ts` only for additive Phase 6 registration/loading/execution/self-test while earlier modes remain byte-semantic equivalent;
+23. `scripts/spec0001-browser/browserTesterExtensionContract.ts` only for additive V6 authorization/plan/registry/result/product-port/checkpoint types and validation;
+24. `scripts/recordSpec0001ProofBundle.ts` only to record Phase 6's exact commands/evidence/path ceiling;
+25. `scripts/validateSpec0001ProofBundle.ts` only to validate the Phase 6 manifest, registration, result, and exact ceiling while earlier phases retain their accepted validation;
+26. `scripts/finalizeSpec0001ProofBundle.ts` only to close out Phase 6 with the same restoration/index/byte-binding rules.
 
-**Explicit non-goals:** Route/parser/mock/availability changes, live provider/model/policy, OpenAI/search/tools, transcript persistence, memory/Supabase, Drawing panel/task redesign, generic adapter refactor, new prompts/actions, or structural/timing editor enablement beyond the already integrated bounded human path.
+Ignored proof output is allowed only under `output/spec-0001/phase-6/` and is not a 27th tracked path. The section 10.1 proof-only anchor exception may temporarily instrument its already named anchor only during the browser run and must restore it byte-for-byte before proof finalization.
+
+**Immutable/read-only boundary:** `app/api/ai/route.ts`, `src/lib/ai/stickFigureAiServerDispatch.ts`, `src/lib/ai/strictStickJson.ts`, `src/lib/ai/stickFigureAiAvailability.ts`, every `scripts/fixtures/stick-ai/v1/*` fixture, all existing tester v2–v5 schema files and the first five authorization records, all Phase 1–5 proof artifacts/records, Phase 1–4 executor/history/storage/canonical-document behavior, `DrawingAiPanel`, Drawing AI/runtime/storage/memory, Creator, dependencies/package scripts, config, environment, and deployment. If V2 cannot be implemented within the exact 26-path ceiling without changing the accepted result, the executor stops; it does not reopen Phase 5 or expand scope.
+
+**Explicit non-goals:** General fuzzy matching, runtime edit-distance search, arbitrary synonyms, other prompts/actions/counts/FPS, route/raw-parser/classifier/availability changes, live provider/model/policy, OpenAI/search/tools, transcript persistence, memory/Supabase, Drawing panel/task redesign, generic adapter refactor, or structural/timing editor enablement beyond the integrated bounded human path.
 
 **Implementation steps:**
 
-1. Add the narrow Stick panel and optional shared-shell labels with explicit “Stick Figure Workspace” scope and capability. Drawing defaults remain identical.
-2. On mount/project change, perform only the marked provider-free availability GET. While checking/unavailable/ineligible or document digest pending/failed, disable composer/suggestion and show section 8.7 copy before submission; never expose secret/mode/environment details.
-3. Add the **Create a three-pose wave** suggestion, exact client prompt normalization, session-only transcript, Request/Stop, stable errors, Preview/Cancel/Apply, and candidate-derived bounded preview summary.
-4. Bind request to the current mounted-ready workspace instance/project/revision/digest/generation. Submission and every terminal request outcome preserve the same Creator availability; no Creator field is added to request, editor, workspace, history, storage, or checkpoint state.
-5. Send exactly one marked/versioned POST to the Phase 5 mock boundary; validate the response again in the adapter. Planning/preview never mutates document/history/storage.
-6. Route Apply exclusively through Phase 4's executor/composite-root publication and shared mutation functions; never set timeline/graph/history fields directly. Disable Apply after any ready-digest/generation/project invalidation.
-7. Run the no-AI Human path in one isolated context and the mocked AI path from a byte-equivalent starter in another. Compare their exact content projections/digests and Frame 1/5/9 render inputs before any post-Apply correction. Then edit at least two different joint kinds through normal visible controls, including one held-frame-selected edit; prove no permanent glow, exact Undo/Redo, Save/Open, and honest status/local-only messages. Protect Drawing Generate Frames by fulfilling its mocked response in-browser while the server guard denies all non-loopback traffic.
+1. Implement the V2 matcher as a pure shared function and validate its fixed typo map offline. Keep the V1 exact normalizer and every V1 request/mock fixture result unchanged. V2 must produce either the one canonical interpreted intent or one typed rejection; no partial score/candidate list escapes.
+2. Add exact request/manifest/envelope V2 support in the shared contract and mock builder. Server V2 recomputes from the raw prompt, returns the canonical interpreted intent, and constructs the same command V1 bytes. Request/manifest/envelope version mixing rejects. No route/dispatcher/raw-reader change is permitted.
+3. Add the narrow Stick panel and optional shared-shell labels with explicit “Stick Figure Workspace” scope and capability. Drawing defaults remain identical. Keep the suggestion chip as a fill-only beginner shortcut.
+4. On mount/project change, perform only the marked provider-free availability GET. While checking/unavailable/ineligible or document digest pending/failed, disable composer/suggestion and show section 8.7 copy before submission; never expose secret/mode/environment details.
+5. Run local V2 interpretation only as immediate preflight. Bind the raw prompt/request to the mounted-ready workspace instance/project/revision/digest/generation and send exactly one marked request V2. The server result remains authoritative; client/server intent disagreement, V1 downgrade, malformed V2 envelope, or command/intent mismatch shows a safe failure and no preview.
+6. Dry-run the returned command through Phase 4, then show the exact understood-result copy and candidate-derived bounded preview. Planning/preview never mutates document/history/storage. Preview, Cancel, Request/Stop, errors, and session-only transcript do not persist.
+7. Route Apply exclusively through Phase 4's executor/composite-root publication and shared mutation functions; never set timeline/graph/history fields directly. Disable Apply after any ready-digest/generation/project invalidation.
+8. Register `phase-6/v1` as the sixth tester extension with schema/result version 6, a Phase 6 product-port adapter, and only the operation families `visible-role`, `visible-testid`, `pointer`, `workspace-driver`, `runner-environment`, `guarded-http`, `checkpoint`, `screenshot`, `protected-regression`, and `fixture`. Rerun the five earlier accepted plans/modes without changing their fixtures or meaning.
+9. Run the no-AI Human path in one isolated context and mocked V2 AI path from a byte-equivalent starter in another. Compare their exact content projections/digests and Frame 1/5/9 render inputs before any post-Apply correction. Then edit at least two different joint kinds through normal visible controls, including one held-frame-selected edit; prove no permanent glow, exact Undo/Redo, Save/Open, and honest status/local-only messages. Protect Drawing Generate Frames by fulfilling its mocked response in-browser while the server guard denies all non-loopback traffic.
 
-**Deterministic fixtures:** Phase 1 manual/AI content-equivalence golden; paired bounded editor contexts; available/off/production/temporarily-unavailable/invalid availability; eligible/ineligible/pending/failed document states; prompt normalization accept/reject; suggestion fill; valid request/envelope/preview; delayed timeout/Stop/stale/project switch; invalid/unsupported response; active-preview duplicate/conflict; Preview Cancel; Apply failure; and visible Creator-preservation cases for availability-only, successful request, timeout, Stop, invalid output, stale response, Cancel, Undo, Save, Open, and project switch.
+**Deterministic fixtures:** The exact section 4.3 accepted/rejected set; typo-map uniqueness/distance/budget failures; V1 exact-normalizer and mock-route preservation; request/manifest/envelope V1/V2 version-crossing failures; byte-identical client/server canonical intent; accepted local preflight followed by authoritative server rejection/disagreement; paired bounded editor contexts; available/off/production/temporarily-unavailable/invalid availability; eligible/ineligible/pending/failed document states; suggestion fill; valid V2 request/envelope/preview; delayed timeout/Stop/stale/project switch; invalid/unsupported response; active-preview duplicate/conflict; Preview Cancel; Apply failure; and visible Creator-preservation cases for availability-only, successful request, timeout, Stop, invalid output, stale response, Cancel, Undo, Save, Open, and project switch.
 
 **Acceptance criteria:**
 
 - Availability and local eligibility are visibly resolved before submission; composer/suggestion cannot submit while checking/unavailable/ineligible/pending/failed, and only bounded coarse readiness is shown.
-- Stick chat is writable only when available/eligible and explicitly scoped; Drawing task selectors/text are absent; suggestion fills the canonical sentence without submitting.
-- Exactly one bounded marked POST contains `workspaceType: "stick-figure"`, versioned context/manifest, ready document digest, and no search/tools. `workspaceInstanceId` and `workspaceGeneration` stay adapter-local.
-- Preview is visible before mutation; pre-Apply document/history/storage bytes and saved baseline are exact. Cancel changes none of them.
+- Stick chat is writable only when available/eligible and explicitly scoped; Drawing task selectors/text are absent; suggestion fills the canonical sentence without submitting, while every section 4.3 accepted prompt also succeeds.
+- The entire closed matrix passes exactly: all Arthur examples and bounded spelling/paraphrase/default/punctuation variants accept to one canonical object; explicit other numbers/counts/actions/nouns/props/backgrounds/clauses, non-ASCII/confusables, ambiguous corrections, excessive corrections, and oversized input reject before mock/provider work.
+- Exactly one bounded marked POST contains `workspaceType: "stick-figure"`, request/manifest V2, the raw bounded prompt, ready document digest, and no search/tools. `workspaceInstanceId` and `workspaceGeneration` stay adapter-local. Server and client produce byte-identical canonical intent on accepted inputs, but only the server-returned value authorizes preview.
+- Preview visibly says **“Understood: one stick figure, a three-pose wave, 12 frames at 12 FPS. No changes have been made.”** before Apply. Pre-Apply document/history/storage bytes and saved baseline are exact. Cancel changes none of them.
 - Before any later manual correction, the mocked AI result and separately constructed human result have byte-identical `StickAnimationContentV1`, identical `animationContentDigest`, and identical resolved render-input digests at displayed Frames 1/5/9. Their expected revision/history/new-pose-ID differences are separately asserted and never treated as content inequality or silently erased.
 - Apply publishes one Phase 4 root; playback shows three body positions across 12 frames. Normal visible UI edits at least two different joint kinds after Apply (one arm and one head/neck/body/leg role, including a held-frame-selected edit), with no permanent role highlight. Exact Undo/Redo, derived line-head behavior where applicable, Save/Open, identities/FPS/keyframe/hold timing, and local-only disclosure satisfy section 6.
 - First user AI submission, timeout, Stop, invalid/stale response, Cancel, Undo, Save, and Open leave the real Creator control present and usable after terminal resolution; availability GET does the same.
 - Every failure message is honest and leaves the required project/history/storage state exact; intentional transcript/request/ledger transitions are separately asserted and no Creator state transition exists.
+- Published Phase 5 V1 prompt/mock/raw-route cases remain exact, including exact-sentence-only V1 rejection behavior. The Phase 5 proof/history is not regenerated or relabeled.
 - Client and server network guards prove zero OpenAI/search/Supabase/non-loopback traffic. Drawing Generate Frames and disabled Drawing tasks retain their current behavior.
 
 **Protected regression flows:** All section 6 step 19 flows; corrected Home → New → Stick empty canvas/manual timeline; Stick → Creator → Back before and after edits/local/request outcomes; Stick timeline/playback/manual/history/persistence; Drawing panel/task selection, Generate Frames mocked request/render/apply, project operations, storage, and memory boundaries. No lock explanation may appear.
 
-**Exact verification commands and real-app flow:** `phase-6-proof-commands.json` contains exactly these argv-equivalent entries in order:
+**Exact verification commands and real-app flow:** `scripts/fixtures/stick-ai/v2/phase-6-proof-commands.json` contains exactly these argv-equivalent entries in order:
 
 ```bash
 OPENAI_API_KEY= SUPABASE_SERVICE_ROLE_KEY= NEXT_PUBLIC_SUPABASE_URL= NEXT_PUBLIC_SUPABASE_ANON_KEY= NEXT_TELEMETRY_DISABLED=1 DIAMOND_STICK_AI_V1_MODE=mock node --experimental-strip-types scripts/validateStickFigureAiUiAdapter.ts
@@ -2667,29 +2866,32 @@ node --experimental-strip-types scripts/validateTimelinePlaybackSmoothing.ts
 ./node_modules/.bin/tsc --noEmit --incremental false
 node --experimental-strip-types scripts/spec0001-proof/measureSpec0001LintRegression.ts --base=<phase-base-sha>
 git diff --check
-node --experimental-strip-types scripts/runSpec0001BrowserProof.ts --plan=scripts/fixtures/stick-ai/v1/phase-6-browser-proof-plan.json
+node --experimental-strip-types scripts/runSpec0001BrowserProof.ts --self-test=phase-6-registration
+node --experimental-strip-types scripts/runSpec0001BrowserProof.ts --plan=scripts/fixtures/stick-ai/v2/phase-6-browser-proof-plan.json
 ```
 
 ```bash
-node --experimental-strip-types scripts/recordSpec0001ProofBundle.ts --phase=6 --base=<phase-base-sha> --commands=scripts/fixtures/stick-ai/v1/phase-6-proof-commands.json --output=output/spec-0001/phase-6/proof-manifest.json
+node --experimental-strip-types scripts/recordSpec0001ProofBundle.ts --phase=6 --base=<phase-base-sha> --commands=scripts/fixtures/stick-ai/v2/phase-6-proof-commands.json --output=output/spec-0001/phase-6/proof-manifest.json
 node --experimental-strip-types scripts/validateSpec0001ProofBundle.ts output/spec-0001/phase-6/proof-manifest.json
 ```
 
-The Verified harness executes the Human path and mocked AI path through normal visible UI in separate fresh isolated contexts created from the same fixed starter fixture. It records their content/render digests before any post-Apply edit, then executes the remaining section 6 actions/failures with exact request/root/history/storage/generation/lock/ledger/publication checkpoints and sanitized screenshots/network/console evidence. Malformed raw bytes remain guarded-HTTP plus Node proof, exhaustive internal failure points remain driver plus Node proof, and only user-reachable controls/messages are claimed as visible UI. Direct driver operations cannot substitute for either the human timeline clicks or panel Preview/Cancel/Request/Stop/Apply clicks. The one visible injected failure uses `armNextVisibleApplyFailure` then the real Apply button. Environment fixtures supply delayed/aborted/invalid HTTP, digest, and storage schedules. Drawing requests are browser-fulfilled and server egress is independently denied. Manual memory or old screenshots do not substitute.
+The V6 authorization/catalog validator requires exactly six ordered records and binds the Phase 6 plan, registry, result schema, action module, 26-path ceiling, and fixture hashes. The first five records and all v2–v5 schemas/plans/registries/results remain byte-identical. Phase 6 technical and closeout modes must reject a missing/extra/reordered path, wrong authorization, direct-driver substitution, changed earlier fixture, unregistered operation, unbound matcher matrix, or un-restored proof anchor.
 
-**Stop condition:** Do not enter the Phase 7 Policy Gate until the full Human path, mocked AI path, exact content/render equivalence, Creator-preservation matrix, Drawing regressions, proof restoration, and no-egress checks pass. Any AI-only state/mutation power, direct UI mutation, server-boundary modification, hidden remote attempt, or unavailable repeatable browser proof blocks Phase 6.
+The Verified harness executes every A01–A15 accepted prompt through the visible composer to an authoritative server-returned preview and Cancel, then performs one complete A01 Preview → Apply path. R01–R36 run through the shared Node matcher and guarded real HTTP boundary; representative semantic, numeric, ambiguous, Unicode, and oversized rejections also run visibly and prove no preview/mutation. The harness separately executes the Human path and mocked AI path through normal visible UI in fresh isolated contexts created from the same fixed starter fixture. It records their content/render digests before any post-Apply edit, then executes the remaining section 6 actions/failures with exact request/root/history/storage/generation/ledger/publication checkpoints and sanitized screenshots/network/console evidence. Malformed raw bytes remain guarded-HTTP plus Node proof, exhaustive internal failure points remain driver plus Node proof, and only user-reachable controls/messages are claimed as visible UI. Direct driver operations cannot substitute for human timeline clicks or panel typing/Preview/Cancel/Request/Stop/Apply clicks. The one visible injected failure uses `armNextVisibleApplyFailure` then the real Apply button. Environment fixtures supply delayed/aborted/invalid HTTP, digest, and storage schedules. Drawing requests are browser-fulfilled and server egress is independently denied. Manual memory or old screenshots do not substitute.
 
-**Handoff requirements:** The Spec Executor records both visible paths, their exact base/content/render digests and declared bookkeeping differences, availability/UI/request/result/root and Creator-preservation matrices, full acceptance and Drawing regression, proof-manifest/anchor-restoration hashes, and client/server network evidence in its Implementation Review Packet, then stops. After acceptance and exclusive transfer, the Control Plane Architect records the accepted result in canonical evidence, completes section 10.1 closeout, and keeps live mode off and Phase 7 not started.
+**Stop condition:** Do not enter the Phase 7 Policy Gate until the exact matcher matrix, V1 preservation, client/server canonical-intent parity, visible understood-result copy, full Human and mocked AI paths, content/render equivalence, Creator-preservation matrix, Drawing regressions, proof restoration, and no-egress checks pass. Any general fuzzy correction, accepted unsupported semantic/number, silent/defaulted explicit conflict, AI-only state/mutation power, direct UI mutation, immutable-boundary modification, hidden remote attempt, or unavailable repeatable browser proof blocks Phase 6.
 
-**Future work forbidden during this phase:** Route/parser/mock changes, provider/model/policy/live mode, search/tools, retries, production enablement, auth/rate limits, memory/Supabase, new prompts/actions, structural/timing control enablement, and Drawing refactor.
+**Handoff requirements:** The Spec Executor records the exact 26-path dirty allowlist; V1 preservation digests; typo-map validation; every A/R fixture result; client/server/canonical-intent/envelope parity; visible preview copy and no-mutation checkpoints; both visible paths and their base/content/render digests; declared bookkeeping differences; availability/UI/request/result/root and Creator-preservation matrices; full acceptance and Drawing regression; proof-manifest/anchor-restoration hashes; and client/server network evidence in its Implementation Review Packet, then stops. After acceptance and exclusive transfer, the Control Plane Architect records the accepted result in canonical evidence, completes section 10.1 closeout, and keeps live mode off and Phase 7 not started.
 
-**Systems intentionally unchanged:** Phase 5 server boundary and route behavior, OpenAI helpers/client, all Drawing contracts/prompting/runtime/executor/storage/memory, Stick storage schema/history/executor semantics, Creator implementation, dependencies/package scripts, production/deployment settings.
+**Future work forbidden during this phase:** Broad/general language support, runtime fuzzy search, new capabilities/actions/output, route/raw-reader/classifier/availability changes, provider/model/policy/live mode, search/tools, retries, production enablement, auth/rate limits, memory/Supabase, structural/timing control enablement, and Drawing refactor.
+
+**Systems intentionally unchanged:** Published Phase 5 V1 contract behavior/fixtures/proof/history and server route/raw-dispatch/availability behavior; OpenAI helpers/client; all Drawing contracts/prompting/runtime/executor/storage/memory; Stick canonical document/storage schema/history/executor/transaction semantics and accepted animation outcome; Creator implementation; dependencies/package scripts; config/environment; production/deployment settings.
 
 ### 10.10 Phase 7 — Feature-flagged bounded OpenAI integration
 
 **Status:** **Unauthorized; Not started.** May begin only under separate owner authorization in a new task/worktree after Phase 6 is Verified, separately published, and integrated into canonical `main`, and after the separate Phase 7 owner-policy gate is recorded/published/integrated. Offline implementation may become Verified without a paid request; live-provider proof has a separate status.
 
-**Exact observable outcome:** With live mode off by default and forbidden in production, an injected fake provider captures one strict request for the same three-body-position wave and exactly matches the same-day owner-approved policy fixture, with one call/attempt, zero retries/search/tools/fallback, strict deadline/concurrency, minimized fields, fail-closed validation, and exact one-use root-invoker/issuer delivery plus PID-bound server `absent → armed → consumed/claim_acquired → terminal` authority. Fresh/restarted/forked processes with the same live configuration/argv remain absent or fail before client construction. Optional paid proof is independently recorded as `unperformed`, `failed`, or `completed` and never changes the offline phase result.
+**Exact observable outcome:** With live mode off by default and forbidden in production, an injected fake provider consumes the same validated server-authoritative section 4.3 canonical interpreted intent, not the user's raw wording or correction metadata, and captures one strict request for the same three-body-position wave. It exactly matches the same-day owner-approved policy fixture, with one call/attempt, zero retries/search/tools/fallback, strict deadline/concurrency, minimized fields, fail-closed validation, and exact one-use root-invoker/issuer delivery plus PID-bound server `absent → armed → consumed/claim_acquired → terminal` authority. Fresh/restarted/forked processes with the same live configuration/argv remain absent or fail before client construction. Optional paid proof is independently recorded as `unperformed`, `failed`, or `completed` and never changes the offline phase result.
 
 **Dependencies:** Phase 6 Verified/published/integrated. Then a separate, documentation/control-plane-only **Phase 7 Policy Gate** task performs the separately authorized same-day model/availability/pricing/token-bound/retention review, proposes every exact `StickAiProviderPolicyV1` value and either an approved conservative pre-call exposure bound or Arthur's explicit acceptance of residual post-call-overage risk, and accepts or rejects the fixed two-pipe one-use issuer/grant mechanism. It obtains Arthur's explicit choices, records only accepted values in SPEC-0001/`DECISIONS.md`, produces its PM Review Packet, and receives separate Git publication/integration. That gate makes no provider call, creates no authorization record/grant, and implements no runtime/fixture/script. Only after its accepted record is on canonical `main` may the Phase 7 implementation task begin. Any new external lookup and any paid request require their own explicit authorization. Policy acceptance, live mode, a key, and `liveProofTransport` never authorize or arm a request; one later paid proof needs a new explicit Arthur authorization, one ephemeral authorization delivery, and one derived one-use grant. Zero retries/search/tools/fallback and one call/attempt remain subject to the separate Phase 7 Policy Gate and are not accepted by this initial approval.
 
@@ -2716,7 +2918,7 @@ The Verified harness executes the Human path and mocked AI path through normal v
 - new separately opt-in root `scripts/invokeStickFigureAiLiveProof.ts`, its non-direct launcher `scripts/launchStickFigureAiLiveProof.ts`, and the launcher's non-direct child `scripts/verifyStickFigureAiLive.ts`;
 - Phase 7 implementation-task ignored proof output only under `output/spec-0001/phase-7/`; an authorized live run uses only `output/spec-0001/phase-7/live/<authorization-decision-sha256>/live-proof-manifest.json`. A later separately authorized live-proof-only evidence task uses the collision-free sibling `output/spec-0001/phase-7-live/<authorization-decision-sha256>/` layout, with its paid live final/temporary artifact isolated under the nested `live/` subroot while the regenerated offline proof remains at the outer root; neither path is runtime/product output.
 
-The section 10.1 global proof-only anchor exception may instrument `StickFigureWorkspace.tsx` during the Phase 7 browser regression/live transport only; the file is not a lasting Phase 7 product-change target and must end byte-identical. Phase 6 panel/adapter/Workspace files are otherwise read-only.
+The section 10.1 global proof-only anchor exception may instrument `StickFigureWorkspace.tsx` during the Phase 7 browser regression/live transport only; the file is not a lasting Phase 7 product-change target and must end byte-identical. Phase 6 panel/adapter/Workspace files and the Phase 6 V2 matcher are otherwise read-only. Phase 7 consumes its canonical output; it does not add a second interpreter, expand the typo map/grammar, or forward raw user wording.
 
 `src/lib/openai/generateAiText.ts` and `src/lib/openai/client.ts` remain intentionally unchanged because their current retry/raw-output or default-client behavior does not satisfy this slice. The new server planner imports the installed SDK directly and owns its injected `maxRetries: 0` client, one transport attempt, timeout/signal, schema, `store: false`, and zero-persistent-log policy.
 
@@ -2726,11 +2928,11 @@ The section 10.1 global proof-only anchor exception may instrument `StickFigureW
 
 1. Add `live` as a server-only mode that defaults off and is rejected in production until SEC-001 is complete; never accept mode from request data or reveal it through availability. Launcher and server startup always create `absent` issuer/grant authorities even if live configuration/argv are inherited.
 2. Materialize the already accepted canonical-main policy record into `phase7-provider-policy.json` and its strict schema, then prove exact field-for-field equality before any provider implementation. Configured model/options must equal it and any mismatch fails before client creation/call. If evidence requires changing any accepted value, stop and return to a new Policy Gate; do not improvise inside Phase 7.
-3. Build the exact minimized projection in section 8.3; exclude all correlation/project identity fields, enforce the UTF-8 length of canonical JSON for the complete first-argument payload, execute the accepted pre-call cost-exposure decision before client construction, use the accepted reported-token/output/timeout fields, set `store: false`, and omit service tier/background/conversation/tools. If the policy requires a guaranteed billed-dollar cap that its mechanism cannot guarantee, return unavailable without a call.
+3. Require the valid V2 server-authoritative canonical interpreted intent and build the exact minimized inputVersion-2 projection in section 8.3 from it. Never send the raw user prompt, typo/default evidence, or run a provider-specific/second fuzzy matcher. Exclude all correlation/project identity fields, enforce the UTF-8 length of canonical JSON for the complete first-argument payload, execute the accepted pre-call cost-exposure decision before client construction, use the accepted reported-token/output/timeout fields, set `store: false`, and omit service tier/background/conversation/tools. If the policy requires a guaranteed billed-dollar cap that its mechanism cannot guarantee, return unavailable without a call.
 4. Implement the exact root invoker plus private one-use invoker/issuer/server authorities and both strict anonymous-pipe readers in section 8.3. Only one separately authorized root-invoker run may construct/deliver one authorization descriptor to one launcher; that launcher may issue one grant descriptor to one final provider-capable child. No reusable file, direct launcher/child invocation, HTTP/env/mode/policy/CLI count, restart, or fork path can arm or rearm a process; a fresh process remains absent. Bind the armed grant privately to the final child's PID and reject/invalidate every copied/forked authority before client construction.
 5. After pure preflight, atomically claim the grant as `consumed/claim_acquired` at the provider-capable transport boundary before client construction/call; require the opaque lease and matching PID in the client/counted transport wrapper. Enforce issue count at most 1 and claim/planner/HTTP counters at most `1/1/1`, `maxRetries: 0`, zero fallback/escalation, one per-project concurrency slot, and one approved abort/deadline shared across server work and transport. Pure preflight rejection remains `0/0/0` after the one issue, records terminal `consumed/preflight_rejected`, and terminates the child; every post-claim outcome updates only the consumed terminal outcome.
 6. Treat refusal, truncation, schema failure, semantic failure, timeout, abort, network failure, late completion, client-construction failure, and process exit as typed no-preview/no-mutation terminal outcomes; none rearms the grant.
-7. Validate provider plan independently of schema conformance, derive/recheck IDs through the exact SHA-256 helper/preimages in section 4.2, and return the existing V1 envelope.
+7. Validate provider plan independently of schema conformance, derive/recheck IDs through the exact SHA-256 helper/preimages in section 4.2, and return envelope V2 carrying the unchanged authoritative interpreted intent and command V1. V1 Phase 5 compatibility remains mock-only historical behavior and is not reinterpreted.
 8. Add no persistent Stick logging or telemetry. Bypass shared raw prompt/output logs and restrict console failures to content-free stable codes; proof records only authorization/grant/process digests, process counts, and invoker/issuer/claim/planner/transport counters.
 9. Keep the Phase 5 mock server and complete Phase 6 UI flow as the default regression path and add a pure server-planning/authorization validator with an injected fake Responses client and fake anonymous-pipe child that capture the complete outgoing request/state transitions regardless of environment mode.
 10. Make the root invoker atomically write the strict sanitized `StickAiLiveProofManifestV1` only after the child/process chain is terminal and closed. Validate it independently; never put the paid command in the offline command list or reconstruct its receipt from console text. Add the separately named cleanup utility that can operate only on one of the two exact decision-bound live artifact roots. It accepts `--expected-invalid-sha=<64-lowercase-hex> | absent`, resolves without symlinks, and may remove exactly one schema-invalid regular file named `live-proof-manifest.json` or `live-proof-manifest.json.tmp` only when its bytes match that expected digest; `absent` requires both names absent and performs no deletion. It rejects a valid manifest, a hash mismatch, both files, any extra entry, non-regular file, symlink, path traversal, root/decision mismatch, or path outside the two allowlisted roots. It never loads provider configuration, imports an invoker/launcher/child/provider module, constructs authority, or makes a request.
@@ -2752,7 +2954,7 @@ The section 10.1 global proof-only anchor exception may instrument `StickFigureW
 - After every injected-policy/provider gate passes, Arthur and the Project Manager accept the technical result, and the Control Plane Architect completes canonical propagation and closeout, Phase 7 offline status may become `Verified`. `Live provider proof` remains a separate `unperformed | failed | completed` field.
 - If one live request is separately authorized, exactly its selected transport runs and provider/HTTP counts are each at most 1. `Live provider proof: completed` requires `validated_manifest` evidence and exactly `1/1`; ordinary `failed/validated_manifest` records the exact `0/0`, `1/0`, or `1/1` claim/transport result as applicable plus the exact boolean possible-charge value. Only catastrophic process death with no valid manifest may use `failed/catastrophic_unproven`, unknown counts, and possible charge unknown; it must carry the attempted decision digest, observed artifact SHA-or-absent, and successful cleanup assertions. Approved model/usage/cost/duration/retention evidence is recorded only when returned. Apply is unnecessary because transaction behavior is already proven with the same envelope.
 
-**Protected regression flows:** Entire Phase 5 server-mock boundary and Phase 6 mocked UI flow; Drawing Generate Frames deterministic/structured mock paths; all disabled Drawing tasks; missing-key Drawing error behavior; local Stick/Drawing storage; no Supabase/search; route non-Stick behavior.
+**Protected regression flows:** Entire published Phase 5 V1 server-mock boundary and complete Phase 6 V2 typo-friendly mocked UI/matcher flow; Drawing Generate Frames deterministic/structured mock paths; all disabled Drawing tasks; missing-key Drawing error behavior; local Stick/Drawing storage; no Supabase/search; route non-Stick behavior.
 
 **Exact verification commands and real-app flow:** `phase-7-proof-commands.json` contains exactly these **offline** argv-equivalent entries in this order, with exact environment overrides represented as manifest fields:
 
@@ -2834,11 +3036,11 @@ SPEC-0001 may be marked Verified only when all accepted offline implementation c
 
 | ID | Pass/fail criterion |
 | --- | --- |
-| AC-01 Contract | Every valid bounded V1 document, manual action, content projection, and request/context/manifest/plan/envelope/result fixture round-trips with exact canonical bytes. The starter contains the normal built-in rig/figure/neutral Frame 1 pose and 11 empty cells; canonical blank keyframes have no pose. Canonical poses contain no wave role/beat, head shape, joint highlight, or origin privilege, while command metadata enforces/strips exact `ready/inward/outward`. Document validity permits non-wave stage/FPS/timeline length/pose count/blank/correction, while the manual/AI wave profiles independently enforce the exact three-key-pose/12-cell/12-FPS/1920×1080 progression and all malformed/excessive/unsupported cases fail closed. All 11 roles share manual-edit eligibility when a pose exists; the line head has exact 80-unit vectors but no canonical field. |
-| AC-02 Scope | The canonical 74-byte sentence and only the section 4.3 capitalization/exact-ASCII-whitespace/adjacent-single-terminal-punctuation variants normalize to one intent. Changed pose/FPS/figure/action/prop/semantics, space-before-punctuation, and non-ASCII whitespace reject before mock/provider invocation. |
-| AC-03 UI scope | Pre-submit availability and project eligibility govern a Stick-labeled composer/suggestion; it shows only the bounded wave capability, exposes no Drawing task selector, and reveals only the bounded readiness reason—not credential names/values, exact mode, provider identity, environment names/values, or secrets. |
-| AC-04 Request | One submit sends exactly one marked/versioned POST with `workspaceType: "stick-figure"`, current project/revision/digest, request/transaction IDs, exact manifest, and search/tools disabled; availability is a separate provider-free GET and workspace instance/generation remain adapter-local. |
-| AC-05 Preview | A validated candidate preview shows one figure/three poses/12 FPS/12 frames and Apply/Cancel; project, history, and storage bytes are unchanged until Apply. |
+| AC-01 Contract | Every valid bounded V1 document/manual/content/provider/command/result fixture and every published Phase 5 request/manifest/envelope V1 fixture retains exact canonical bytes. Additive request/manifest/envelope V2 and the canonical interpreted-intent V2 round-trip strictly with no version mixing or unknown fields. The starter contains the normal built-in rig/figure/neutral Frame 1 pose and 11 empty cells; canonical blank keyframes have no pose. Canonical poses contain no wave role/beat, head shape, joint highlight, or origin privilege, while command metadata enforces/strips exact `ready/inward/outward`. Document validity permits non-wave stage/FPS/timeline length/pose count/blank/correction, while the manual/AI wave profiles independently enforce the exact three-key-pose/12-cell/12-FPS/1920×1080 progression and all malformed/excessive/unsupported cases fail closed. All 11 roles share manual-edit eligibility when a pose exists; the line head has exact 80-unit vectors but no canonical field. |
+| AC-02 Scope | Exactly A01–A15 accept and R01–R36 reject as specified, with set equality enforced by the fixture validator. All accepted raw prompts map to the one byte-canonical V2 intent. The safe map is exact, unique, distance/budget validated, and never performs runtime nearest-word correction; numeric handling accepts only 12/twelve and Arthur's exact `122 FPS` repeated-second-digit typo. Unsupported/ambiguous nouns, actions, counts, FPS—including `112 FPS`—props, backgrounds, clauses, punctuation, Unicode/confusables, and excessive bytes/corrections reject before mock/provider invocation or preview. Published V1 exact-sentence behavior remains unchanged. |
+| AC-03 UI scope | Pre-submit availability and project eligibility govern a Stick-labeled composer/suggestion; it shows only the bounded wave capability, accepts the closed V2 language without requiring the canonical sentence, exposes no Drawing task selector, and reveals only the bounded readiness reason—not credential names/values, exact mode, provider identity, environment names/values, or secrets. |
+| AC-04 Request | One submit sends exactly one marked request/manifest V2 POST with `workspaceType: "stick-figure"`, raw bounded prompt, current project/revision/digest, request/transaction IDs, exact manifest, and search/tools disabled; availability is a separate provider-free GET and workspace instance/generation remain adapter-local. Server recomputation is authoritative, and response envelope V2 carries the exact canonical intent. |
+| AC-05 Preview | Only after authoritative intent/envelope and dry-run candidate validation, the preview shows exactly “Understood: one stick figure, a three-pose wave, 12 frames at 12 FPS. No changes have been made.” plus Apply/Cancel; project, history, and storage bytes are unchanged until Apply. Client/server disagreement or any rejected prompt yields no preview. |
 | AC-06 Apply | Apply revalidates the built-in starter, preserves its rig/figure/topology/layer/all 12 frame/Frame-1-pose identities, commits three complete independent neutral key poses at zero-based 0/4/8 and nine holds at 1–3/5–7/9–11, and performs one revision/generation increment plus one undo entry in one atomic real Stick workspace-root publication. It composes the shared manual mutation functions; command beats do not persist and no AI-only edit state exists. |
 | AC-07 Playback | Selection and 12 FPS playback visibly render three distinct body positions: the Frame 1 keyframe through held Frames 2–4, Frame 5 through held Frames 6–8, and Frame 9 through held Frames 10–12, then wrap after index 11. No held frame is claimed to own an independent pose. |
 | AC-08 Undo/Redo | Every human hold/blank/start-pose/joint action is one normal history entry and Undo/Redo traverses its exact state. Separately, one Undo after AI Apply restores the exact built-in starter digest and one Redo restores the exact applied digest, including IDs, FPS, timing, selection, and revision. |
@@ -2848,14 +3050,14 @@ SPEC-0001 may be marked Verified only when all accepted offline implementation c
 | AC-12 Atomic publication/failure | Every authored mutation, Undo, Redo, Open, and project switch publishes document/revision, ready digest, and incremented generation coherently after asynchronous hashing. Pending/failed disables authoring/request/preview/Apply; mounted Open separately requires paused playback and disables Play until terminal resolution. No checkpoint shows a new document with an old digest or a successful mounted Open with playing playback. Malformed, unsupported, excessive, stale-digest/generation, conflicting duplicate, cancelled, aborted, switched-project, timeout, network, hash, and injected-before-swap failures preserve the specified complete pre-state. |
 | AC-13 Idempotency | Same project/transaction/envelope digest is resolved before stale checks: it reuses one active preview, returns `duplicate` for a prior Apply, or returns the stored cancelled/rejected/failed result; same transaction/different digest rejects. No case adds history/persistence, and the 128-entry FIFO bound is deterministic. |
 | AC-14 Honest errors | Every condition in section 8.7 shows the specified scoped message or equivalent approved copy, never raw exception/provider output, and explicitly says no changes were made when true. |
-| AC-15 Data minimization | Captured fake-provider request contains only section 8.3 fields; no transcript/title/project ID/revision/request ID/transaction ID/generated ID/memory/media/search/tool content is sent. |
+| AC-15 Data minimization | Captured fake-provider request contains only section 8.3 fields, including the server-authoritative canonical intent and canonical golden prompt; no raw user wording/correction metadata, transcript/title/project ID/revision/request ID/transaction ID/generated ID/memory/media/search/tool content is sent. |
 | AC-16 Budgets/cost risk | Before one planner/HTTP attempt, enforce the accepted Phase 7 model, payload bytes, output/deadline/concurrency, selected cost-decision branch, and one matching root-invoker/two-pipe/PID-bound live-proof grant with zero retry/search/tools/fallback. One authorized root invocation may deliver one record and issue at most one grant to exactly one eligible provider PID. Pure preflight rejection records issue 1 and claim/planner/transport `0/0/0`, marks the grant terminal `consumed/preflight_rejected`, closes the child, and requires new authorization for any later live request; at the provider-capable boundary one atomic `claim_acquired` transition permanently consumes the grant and no claim/planner/transport counter may exceed `1/1/1`. A copied/forked PID and a losing concurrent POST fail before client construction; the latter returns `temporarily_unavailable`/503. `pre_call_bound` computes/rejects exposure; `residual_overage_risk_accepted` validates Arthur's accepted decision ID and claims no cap. Provider-reported input tokens/USD remain post-response audit unless independently bounded by the accepted mechanism and cannot prevent an incurred charge. `$0.01412` is provisional planning arithmetic, not an accepted cap; one sample never claims p95. |
 | AC-17 Logging | No application-persistent Stick AI log or telemetry sink exists; prompt/context/output/coordinate/ID canaries are absent from console, storage, files, memory-route, and Supabase traffic. |
 | AC-18 Offline default | Every default validator/browser flow uses the verified client/server egress guard, live mode off, and zero OpenAI/search/Supabase/non-loopback calls. Scrubbed credentials alone are not proof. |
 | AC-19 Regression | Home/New/Stick built-in starter, complete human-only wave, fresh Creator/Back, Stick timeline/history/save, Drawing project flows, and Drawing Generate Frames pass their required protected proofs. |
 | AC-20 Live proof | Phase 7 offline implementation can be Verified while `Live provider proof: unperformed` with evidence quality `not_attempted`. If separately authorized, exactly one root invoker and selected transport receive one ephemeral authorization pipe, one derived grant pipe, and one PID-bound non-restarted/non-forked eligible child. A `completed/validated_manifest` result requires provider/HTTP `1/1`; a `failed/validated_manifest` result records exact provider/HTTP counts of zero or one, the exact possible-charge boolean, terminal invoker/issuer/server states/counters, process-tree evidence, all process/pipe closure, and byte-identical proof-anchor restoration. Delivery/issue failure invalidates the chain; preflight rejection is `consumed/preflight_rejected`; claim/success/refusal/timeout/abort/network/invalid/overage/PID-mismatch and any **post-claim** crash remain consumed. If catastrophic process death prevents a valid manifest, record only `failed/catastrophic_unproven`, the non-null attempted decision digest, observed artifact SHA-or-absent, successful cleanup, and independently proven facts; counts, possible charge, and terminal state remain `unknown` rather than guessed. That catastrophic result still forbids retry or reuse. Fresh/restarted processes are absent and a later request needs a new explicit authorization/new pipes/grant. No reusable authorization file, direct launcher/child invocation, retry, or second transport is allowed, and no unperformed behavior is claimed verified. |
 | AC-21 Raw dispatch | Exact raw bytes/length are transiently preserved after read, `rawText` only after fatal decode, and `parsedValue` only after full strict parse; captured oversize, invalid UTF-8/BOM, duplicate keys, header/proven-marker malformed requests, and schema-invalid markers fail closed before Drawing logging/search; marker-free valid JSON retains the original Drawing path. |
-| AC-22 Evidence | Phase 1.5 has one independently valid strict 49-artifact proof bundle bound to its base SHA, tester-core/fixture/font hashes, exact initial action outcomes, both viewports, final Drawing success/input/settled-pixel evidence, all 37 negative cases, click/visible/screenshot/console/browser+server+WebSocket-network/unchanged-product/production-exclusion evidence, success/failure/`SIGINT`/`SIGTERM` cleanup, anchor preimage/replacement/restoration, temporary font-setup cleanup, and final diff allowlist. Every later browser phase adds only a versioned owning-phase extension, reruns all earlier accepted plans, and binds its own state evidence. No undefined scenario convention, temporary routable proof page, permanent anchor replacement, `app/layout.tsx` or product font/style change, or retroactive change to accepted tester behavior remains. |
+| AC-22 Evidence | Phase 1.5 has one independently valid strict 49-artifact proof bundle bound to its base SHA, tester-core/fixture/font hashes, exact initial action outcomes, both viewports, final Drawing success/input/settled-pixel evidence, all 37 negative cases, click/visible/screenshot/console/browser+server+WebSocket-network/unchanged-product/production-exclusion evidence, success/failure/`SIGINT`/`SIGTERM` cleanup, anchor preimage/replacement/restoration, temporary font-setup cleanup, and final diff allowlist. Every later browser phase adds only a versioned owning-phase extension, reruns all earlier accepted plans, and binds its own state evidence. Phase 6 appends the sixth `phase-6/v1` record with V6 schemas/registry/result and exact 26-path ceiling while the first five records and v2–v5 semantics remain unchanged. No undefined scenario convention, temporary routable proof page, permanent anchor replacement, `app/layout.tsx` or product font/style change, or retroactive change to accepted tester behavior remains. |
 | AC-23 Manual/AI equality | From one byte-identical built-in starter, the exact manual action fixture and AI command fixture produce byte-identical canonical `StickAnimationContentV1`, identical `animationContentDigest`, and identical resolved render-input digests for displayed Frames 1/5/9. The projection includes rig template/role topology, figure label, fixed line-head rule, all joint coordinates, keyframe indexes, hold owner indexes, FPS, and timeline length; it excludes only the enumerated IDs/revision/history/session/storage/request bookkeeping. Phase 2 proves the no-AI visible construction, Phase 3 proves its history/save/reopen, Phase 4 proves shared mutation authority, and Phase 6 compares the real mocked AI result with the proven manual result. |
 
 ## 12. Regression Matrix
@@ -2879,6 +3081,7 @@ SPEC-0001 may be marked Verified only when all accepted offline implementation c
 | REG-15 | Availability UX and live-proof readiness | New same-origin GET and optional shell labels could leak server configuration, alter Drawing presentation, or accidentally claim/rearm paid authority | Exact response allowlist/no-store/no secret fields; checking/unavailable states before submit; repeated GET is read-only; absent/consumed/restarted authority stays unavailable; shared-shell defaults match current Drawing text/appearance. |
 | REG-16 | Browser proof protocol | Later phases could overload a fixture/scenario, change accepted tests, or claim a Node-only case as browser proof | Phase 1.5 tester-core self-tests its exact initial registry/plan; every later phase adds a separately versioned, hash-bound extension and reruns all earlier accepted plans. Each manifest rejects core/prior-fixture drift, wrong fixture kind, protocol/domain conflation, or direct-driver substitution for required visible UI. |
 | REG-17 | Human/AI content equality | The AI executor could drift into a private document builder or the manual controls could produce different hold/pose semantics | Phase 1 pure projection equality, Phase 2 real no-AI construction, Phase 3 human history/save/reopen, Phase 4 shared-mutation trace, and Phase 6 paired visible contexts must all match the same `animationContentDigest` and Frame 1/5/9 render-input digests. |
+| REG-18 | Prompt interpretation and Phase 5 compatibility | Typo support could silently broaden semantics, let client/server disagree, or rewrite the published V1 route behavior | Exact A01–A15/R01–R36 set equality, audited-map uniqueness/distance/budget checks, guarded real-route V2 parity, forced client/server disagreement rejection, and byte-exact rerun of every published V1 prompt/mock/raw-route fixture. |
 
 Systems intentionally not broadly retested by this spec: exhaustive Drawing brush/eraser/fill/text/knife/lasso/tween fidelity; sounds; export; credits; production deployment; remote Supabase behavior; creator drawing gestures beyond mount/back. Phase 1.5 nevertheless runs the representative Drawing canvas/timeline/render checks named in REG-07 because its D-0012-approved correction touches that boundary. Any incidental diff outside the exact diagnosed settlement fix invalidates the boundary and must be removed or separately approved.
 
@@ -3218,7 +3421,7 @@ This table retains historical proposal/failed-run/Phase 1 evidence and adds the 
 | OpenAI/search/Supabase/paid/live activity in this revision | Skipped by design | No external-service request, paid usage, provider proof, or remote mutation. |
 | Phase 1.5 compatibility proposal-time blocker trace | Pass for historical specification basis | At exact `a85690de9396cf97e3063005cbb6da85f109ae1d`, source inspection proved the runner ignored `--plan`, loaded no later-phase registry/module, and rejected Phase 2 dirty bytes; the current Stick flow could not provide required manual-wave/gesture/publication checkpoints. That historical blocker justified §10.4A; the superseding accepted implementation evidence is recorded above. |
 | Current lint truth | Pass as measured non-regression; repository lint still fails | The accepted Phase 2 measurement at exact base/HEAD `68338d54542bbfd3fb1f0fab06548f0424871f80` records base 5 errors/73 warnings and result 5 errors/72 warnings with zero changed-line/new-file findings. Historical Phase 1/Phase 1.5 measurements remain valid only for their recorded commits. |
-| Approval/status consistency | Pass for current accepted implementation state | SPEC-0001 remains Approved and active. Phase 1, historical Phase 1.5, §10.4A, §10.5A, Phase 3, Phase 4, and Phase 5 are published/integrated. The exact 22-path Phase 5 result plus eight reviewed records were published at `9bbcc1df2fe4c79c0947601d0ea6274a85732d85`. Phases 6 and 7 remain Unauthorized/Not started. SPEC-0002 remains complete/protected; SPEC-0003 remains separate Proposed/inactive. |
+| Approval/status consistency | Pass for current accepted implementation state | SPEC-0001 remains Approved and active. Phase 1, historical Phase 1.5, §10.4A, §10.5A, Phase 3, Phase 4, and Phase 5 are published/integrated. The exact 22-path Phase 5 result plus eight reviewed records were published at `9bbcc1df2fe4c79c0947601d0ea6274a85732d85`. Phase 6 is Approved/Authorized/Not started pending activation publication; Phase 7 remains Unauthorized/Not started. SPEC-0002 remains complete/protected; SPEC-0003 remains separate Proposed/inactive. |
 | Phase 5 proof-feasibility trace | Pass for specification evidence; no implementation claimed | Fresh source tracing at exact clean base `245ac7e8bceeca76b522ff21c4327fa0219a3805` confirmed `app/api/ai/route.ts` currently exposes only the legacy `POST` and first consumes Drawing input through `req.json()`. The permanent tester catalog contains exactly Phase 1.5 synthetic, Phase 2, Phase 3, and Phase 4 entries; its typed contract, runner result, recorder, validator, and finalizer accept versions only through 4. The runner's current `/api/ai` handling is mocked/intercepted Drawing proof and explicitly asserts zero real-route requests. Therefore §10.8's registered real-route raw HTTP proof cannot be produced without the exact D-0025 extension. No server, browser, external request, or technical byte changed during this trace. |
 | Phase 5 accepted technical manifest | Pass; published and integrated | Corrected exact 22-path result from parent `a2b4f3e0fc492df9cd63bda32554e382a344cdb6`, published with eight reviewed records at `9bbcc1df2fe4c79c0947601d0ea6274a85732d85`; proof-manifest SHA-256 `f9024a5d86cc1febbac7df3d4219348cd8289d17723406bac5d90929d4cf5c0f`; pre-publication closeout-manifest SHA-256 `fd71afec8e637bb3736a63dbbe245c6616e14a4330b91f7e354297d96c2c24dd`; six terminal-LF bytes removed with no logic change; 12 successful receipts; 53 artifacts; 362 source assertions; 31 guarded real-route cases; inherited regressions, TypeScript, measured lint non-regression, diff, registration, EOF/UTF-8/whitespace proof; zero non-loopback/provider/editor/history/storage calls; complete cleanup. Arthur reviewed the exact unpublished app copy and found it normal. Production build was not a gate and stopped on the untouched pre-existing AI-cost dashboard `PageProps` type error. |
 | Phase 1.5 compatibility proposal closeout (historical) | Pass | The earlier proposal task's exact six Markdown paths were its complete diff; it changed no implementation byte. That proposal-time closeout is superseded for current implementation status by the accepted technical proof and eight-path Control Plane Architect closeout recorded above and below. |
@@ -3240,13 +3443,13 @@ This table retains historical proposal/failed-run/Phase 1 evidence and adds the 
 
 #### Accepted product and privacy choices
 
-Arthur accepted OD-01 through OD-06 and OD-09 exactly as written on 2026-08-11.
+Arthur accepted OD-01 through OD-06 and OD-09 on 2026-08-11. D-0027 later supersedes only OD-01's prompt-input boundary; the accepted animation outcome remains unchanged.
 
 The table below is retained as the durable historical decision record. Arthur's later 2026-08-18 instruction rejects OD-03's published visible Phase 2 realization without rewriting D-0009; D-0017 durably records §10.5A as the separately approved and authorized correction.
 
 | ID | Accepted choice | Meaningful alternative or tradeoff |
 | --- | --- | --- | --- |
-| OD-01 | Make the first outcome one built-in figure performing three body positions across 12 frames at 12 FPS: keyframes at displayed Frames 1, 5, and 9, with held frames between them. A human must be able to build this exact content without AI; the golden sentence, tiny normalization boundary, and suggestion chip are only a faster route. Do **not** create 12 separate body positions. | Twelve unique positions or smoother motion would require more keyframes, frame-by-frame authoring, or interpolation/tween rules and is later work. Exact-byte-only input would be unfriendly; broader language/counts/FPS/actions becomes a larger intent product. |
+| OD-01 | Make the first outcome one built-in figure performing three body positions across 12 frames at 12 FPS: keyframes at displayed Frames 1, 5, and 9, with held frames between them. A human must be able to build this exact content without AI; the golden sentence, section 4.3's versioned typo-friendly deterministic grammar, and suggestion chip are only a faster route. Do **not** create 12 separate body positions. | Twelve unique positions or smoother motion would require more keyframes, frame-by-frame authoring, or interpolation/tween rules and is later work. D-0027 replaces exact-sentence dependence with bounded paraphrases/safe corrections while continuing to reject broader actions, real semantic changes, counts, and FPS. |
 | OD-02 | Require Preview → explicit Apply, one atomic AI transaction, and exact Undo/Redo. | Auto-apply is faster but removes informed control and weakens reversal/failure proof. |
 | OD-03 | Historical D-0009/Phase 2 wave-floor choice is superseded for current product execution by D-0017's published §10.5A correction and Arthur's latest explicit Phase 3 instruction. Fresh Stick remains one compact blank cell/empty canvas with the corrected manual timeline and Creator access. Phase 3 adds only Undo/Redo, local Save/Open, and D-0018 onion; no automatic figure/wave/twelve cells or Creator lock returns. Creator Save/library, custom product expansion, and AI remain outside Phase 3. | This preserves the accepted current editor and prevents the old owner-rejected Phase 2 realization from being reintroduced through history/persistence work. Historical Phase 1/Phase 2 fixtures and proof records remain historical evidence, not the fresh product initializer. |
 | OD-04 | Let the user move any of the built-in figure's 11 joints through one normal editor path in the fresh starter, a manually started keyframe, AI output, fixture, or local reopen. A held-frame drag edits its controlling keyframe and explains the span. Use no permanent glow. Render the head as a fixed 80-stage-unit line centered on the editable head joint. Each move is transient, release is one edit, and cancel changes nothing. | Limiting correction to one hand or reserving keyframe creation for AI makes AI content artificially privileged. Full topology, multi-joint transforms, head-shape tools, extra arbitrary keyframes, and tweening remain later specs. |
@@ -3275,7 +3478,7 @@ No row below is accepted now, and none blocks Phases 1–6.
 | OD-13 | Review and accept the exact provider retention/project setting before live mode. Keep `store: false`, live off by default, and live forbidden in production. | No live request may run while retention is unknown or unaccepted. |
 | OD-14 | Decide later whether to authorize exactly one paid `script` or `browser` proof. One authorization permits one root-invoker run, one ephemeral authorization-pipe → grant-pipe chain, and one PID-bound process-local claim only. Delivery/issue failure invalidates it; preflight rejects it terminally; claim/success/refusal/timeout/abort/network/invalid/overage/PID-mismatch/crash remains consumed. Restart, fork, or direct relaunch stays unarmed, and every later live request requires Arthur's new explicit authorization/decision digest and new one-use pipes/grant. Offline Phase 7 may be Verified with live proof `unperformed`. | Requiring paid proof to close offline implementation conflates evidence types; a reusable record, restart rearm, both transports, or retry risks extra charges. The process-local design prevents supported automatic reuse but is not a durable defense against deliberately replacing/rerunning the reviewed root invoker without authorization. |
 
-Decision D-0009 records the original product/phase approval boundary: OD-01–OD-06 and OD-09 are accepted exactly; OD-07/08/10/11 are approved engineering rules/prerequisites; OD-12–OD-14 are explicitly deferred and unaccepted until the Phase 7 Policy Gate. D-0010 supersedes only OD-10's former combined executor/control-plane mechanics. D-0017 governs the §10.5A correction, now Verified/published/integrated at `edfb3dea023119b91336e6e5da645d4982a9f068`. D-0018 fixes the exact Phase 3 Stick onion-skin behavior. D-0019 authorized Phase 3; D-0020 accepts its exact tester-registration/Creator-preservation boundary at `54234b7c7b95201e274975a804859fa9c36806a1`; and Phase 3 is published/integrated at `3fe3a5487389647b67216e9466121e00f1a73856`. D-0022 authorized only Phase 4 and accepted its exact 22-path proof-feasibility correction. D-0024 now authorizes only Phase 5's section 10.8 provider-free server/mock boundary. It does not authorize Phase 6–7, the Phase 7 Policy Gate, an external lookup, or a paid/live request.
+Decision D-0009 records the original product/phase approval boundary: OD-01–OD-06 and OD-09 are accepted exactly; OD-07/08/10/11 are approved engineering rules/prerequisites; OD-12–OD-14 are explicitly deferred and unaccepted until the Phase 7 Policy Gate. D-0010 supersedes only OD-10's former combined executor/control-plane mechanics. D-0017 governs the §10.5A correction, now Verified/published/integrated at `edfb3dea023119b91336e6e5da645d4982a9f068`. D-0018 fixes the exact Phase 3 Stick onion-skin behavior. D-0019 authorized Phase 3; D-0020 accepts its exact tester-registration/Creator-preservation boundary at `54234b7c7b95201e274975a804859fa9c36806a1`; and Phase 3 is published/integrated at `3fe3a5487389647b67216e9466121e00f1a73856`. D-0022 authorized only Phase 4 and accepted its exact 22-path proof-feasibility correction. D-0024 authorized only Phase 5's section 10.8 provider-free server/mock boundary. D-0027 accepts the section 4.3 typo-friendly Phase 6 outcome, the exact 26-path feasibility correction, and Phase 6-only authorization while leaving Phase 5 V1 history immutable. Phase 7, the Phase 7 Policy Gate, external lookup, and paid/live requests remain unauthorized.
 
 **Accepted correction boundary:** temporary diagnostics may run only in `DrawingWorkspace.tsx` and `DrawingCanvas.tsx`, followed by a permanent correction only in the diagnostic-proven smallest subset. Diagnosis must identify the first clearing writer before any behavior patch; a required third runtime file, broader rewrite, or unrelated behavior change is a stop. The intended visible outcome is preservation of the already-applied generated frame through normal final settlement, not a new Drawing feature. No new dependency or external operation is authorized. `app/layout.tsx`, application fonts/styles, Drawing contracts/routes/planner/executor, Stick behavior, and unrelated website behavior remain excluded.
 
@@ -3299,9 +3502,9 @@ The following work must become separately reviewed specs rather than expanding S
 
 ### 16.3 Handoff
 
-Final spec status is **Approved** and active. **Phase 1, historical Phase 1.5, §10.4A, §10.5A, Phase 3, Phase 4, and Phase 5 are Verified, published, and integrated.** Phase 5 was published in exact commit `9bbcc1df2fe4c79c0947601d0ea6274a85732d85`, parent `a2b4f3e0fc492df9cd63bda32554e382a344cdb6`, with corrected exact 22-path technical-manifest SHA-256 `f9024a5d86cc1febbac7df3d4219348cd8289d17723406bac5d90929d4cf5c0f` and pre-publication closeout-manifest SHA-256 `fd71afec8e637bb3736a63dbbe245c6616e14a4330b91f7e354297d96c2c24dd`; 362 source assertions, 31 guarded real-route cases, 12 receipts, 53 artifacts, inherited regressions, EOF/UTF-8/whitespace, zero-egress, and cleanup passed. Phases 6 and 7 remain **Unauthorized; Not started**. SPEC-0002 remains complete/protected, and SPEC-0003 remains Proposed/inactive in its separate preserved worktree.
+Final spec status is **Approved** and active. **Phase 1, historical Phase 1.5, §10.4A, §10.5A, Phase 3, Phase 4, and Phase 5 are Verified, published, and integrated.** Phase 5 was published in exact commit `9bbcc1df2fe4c79c0947601d0ea6274a85732d85`, parent `a2b4f3e0fc492df9cd63bda32554e382a344cdb6`, with corrected exact 22-path technical-manifest SHA-256 `f9024a5d86cc1febbac7df3d4219348cd8289d17723406bac5d90929d4cf5c0f` and pre-publication closeout-manifest SHA-256 `fd71afec8e637bb3736a63dbbe245c6616e14a4330b91f7e354297d96c2c24dd`; 362 source assertions, 31 guarded real-route cases, 12 receipts, 53 artifacts, inherited regressions, EOF/UTF-8/whitespace, zero-egress, and cleanup passed. D-0027 replaces Phase 6's exact-sentence requirement with the bounded V2 intent contract, corrects its implementation/proof ceiling, and makes Phase 6 **Approved; Authorized; Not started** pending activation publication; it does not modify or re-prove Phase 5. Phase 7 remains **Unauthorized; Not started**. SPEC-0002 remains complete/protected, and SPEC-0003 remains Proposed/inactive in its separate preserved worktree.
 
-Exact next step: Arthur and the Project Manager may discuss the next product priority. Phase 6 may begin only after a separate explicit owner authorization and its own published activation record; it never starts automatically from Phase 5 completion.
+Exact next step: under a later explicit publication-only instruction, publish/integrate only the reviewed seven control-plane paths. One new dedicated Plan-mode Phase 6 Spec Executor may start only from that activation publication's exact canonical-main SHA. This task does not start implementation.
 
 The historical pre-publication Phase 5 closeout changed only these canonical record paths:
 

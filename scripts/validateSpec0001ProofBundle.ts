@@ -16,13 +16,20 @@ import {
   PHASE4_CLOSEOUT_PATHS,
   PHASE4_CLOSEOUT_RECORD_PATHS,
   PHASE4_PATHS,
+  PHASE5_DIRTY_PATHS,
+  PHASE5_CLOSEOUT_PATHS,
+  PHASE5_CLOSEOUT_RECORD_PATHS,
+  PHASE5_PATHS,
   deriveGitState,
   derivePhase2CloseoutGraphGitState,
   derivePhase3CloseoutGraphGitState,
   derivePhase4CloseoutGraphGitState,
+  derivePhase5CloseoutGraphGitState,
+  loadPhase5RouteGraph,
   loadTesterExtensionGraph,
   sortProofPaths,
   validateExtensionResult,
+  validatePhase5RouteResult,
 } from "./spec0001-browser/browserTesterExtensionContract.ts";
 import {BROWSER_EXECUTABLE} from "./spec0001-browser/browserTesterContract.ts";
 
@@ -37,6 +44,10 @@ export {
   PHASE4_CLOSEOUT_RECORD_PATHS,
   PHASE4_DIRTY_PATHS,
   PHASE4_PATHS,
+  PHASE5_CLOSEOUT_PATHS,
+  PHASE5_CLOSEOUT_RECORD_PATHS,
+  PHASE5_DIRTY_PATHS,
+  PHASE5_PATHS,
   sortProofPaths,
 };
 
@@ -108,6 +119,7 @@ export const assertPhaseCloseoutPaths = (phase: number, paths: readonly string[]
   if (phase === 2) assert.deepEqual(paths, PHASE2_CLOSEOUT_PATHS, "Phase 2 final diff must equal the exact technical/control-plane closeout ceiling.");
   if (phase === 3) assert.deepEqual(paths, PHASE3_CLOSEOUT_PATHS, "Phase 3 final diff must equal the exact technical/control-plane closeout ceiling.");
   if (phase === 4) assert.deepEqual(paths, PHASE4_CLOSEOUT_PATHS, "Phase 4 final diff must equal the exact technical/control-plane closeout ceiling.");
+  if (phase === 5) assert.deepEqual(paths, PHASE5_CLOSEOUT_PATHS, "Phase 5 final diff must equal the exact recorded technical/control-plane closeout projection.");
 };
 
 const strictObject = (value: unknown, keys: readonly string[], label: string): JsonObject => {
@@ -322,6 +334,30 @@ const phaseFourExpectedCommandArgv = (base: string) => [
   ["node", "--experimental-strip-types", "scripts/spec0001-proof/measureSpec0001LintRegression.ts", `--base=${base}`],
   ["git", "diff", "--check"],
   ["node", "--experimental-strip-types", "scripts/runSpec0001BrowserProof.ts", "--plan=scripts/fixtures/stick-ai/v1/phase-4-browser-proof-plan.json"],
+];
+
+const PHASE5_SOURCE_DIRECT_ENVIRONMENT = {
+  DIAMOND_STICK_AI_V1_MODE: "mock",
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: "",
+  NEXT_PUBLIC_SUPABASE_URL: "",
+  NEXT_TELEMETRY_DISABLED: "1",
+  OPENAI_API_KEY: "",
+  SUPABASE_SERVICE_ROLE_KEY: "",
+} as const;
+
+const phaseFiveExpectedCommandArgv = (base: string) => [
+  ["node", "--experimental-strip-types", "scripts/validateStickFigureAiMockRoute.ts"],
+  ["node", "--experimental-strip-types", "scripts/validateStickFigureCommandTransaction.ts"],
+  ["node", "--experimental-strip-types", "scripts/validateStickHistoryPersistence.ts"],
+  ["node", "--experimental-strip-types", "scripts/validateStickPoseTimeline.ts"],
+  ["node", "--experimental-strip-types", "scripts/validateStickFigureAiContracts.ts"],
+  ["node", "--experimental-strip-types", "scripts/validateDrawingAiControlPreferences.ts"],
+  ["node", "--experimental-strip-types", "scripts/validateTimelinePlaybackSmoothing.ts"],
+  ["./node_modules/.bin/tsc", "--noEmit", "--incremental", "false"],
+  ["node", "--experimental-strip-types", "scripts/spec0001-proof/measureSpec0001LintRegression.ts", `--base=${base}`],
+  ["git", "diff", "--check"],
+  ["node", "--experimental-strip-types", "scripts/runSpec0001BrowserProof.ts", "--self-test=phase-5-registration"],
+  ["node", "--experimental-strip-types", "scripts/runSpec0001BrowserProof.ts", "--plan=scripts/fixtures/stick-ai/v1/phase-5-browser-proof-plan.json"],
 ];
 
 const validateV1CommandConfig = (value: unknown, phase: number, base: string) => {
@@ -971,6 +1007,15 @@ const validateV2CommandConfig = (value: unknown, phase: number, base: string) =>
       assert.deepEqual(command.env, {}, `Phase 4 command ${index + 1} declared env must be empty.`);
     });
   }
+  if (phase === 5) {
+    const expected = phaseFiveExpectedCommandArgv(base);
+    assert.equal(commands.length, expected.length, "Phase 5 proof requires exactly twelve commands.");
+    commands.forEach((command, index) => {
+      assert.deepEqual(command.argv, expected[index], `Phase 5 command ${index + 1} argv/order mismatch.`);
+      assert.equal(command.expectedExitCode, 0, `Phase 5 command ${index + 1} must expect exit 0.`);
+      assert.deepEqual(command.env, index === 0 ? PHASE5_SOURCE_DIRECT_ENVIRONMENT : {}, `Phase 5 command ${index + 1} declared env mismatch.`);
+    });
+  }
   const executions = commands.map((command) => expectedV2Execution(command, everyBindingPath));
   return {commands, executions, bindingPaths, browserEvidenceInput: config.browserEvidenceInput as string};
 };
@@ -1018,14 +1063,16 @@ const validateV2Evidence = (value: unknown, manifest: JsonObject, browserEvidenc
   const runnerBinding = validateV2EvidenceFileBinding(evidence.runnerResult, "version 2 runner result", artifactPaths);
   assert.equal(runnerBinding.path, browserEvidenceInput, "Version 2 runner result path mismatch.");
   const runner = readJson(runnerBinding.path) as JsonObject;
-  const validatedRunner = manifest.phase === 2 || manifest.phase === 3 || manifest.phase === 4
-    ? validateExtensionResult(
+  const validatedRunner = manifest.phase === 5
+    ? validatePhase5RouteResult(runner, ROOT, true, mode === "closeout" ? "phase-5-closeout" : "technical")
+    : manifest.phase === 2 || manifest.phase === 3 || manifest.phase === 4
+      ? validateExtensionResult(
       runner,
       ROOT,
       true,
       mode === "closeout" ? manifest.phase === 2 ? "phase-2-closeout" : manifest.phase === 3 ? "phase-3-closeout" : "phase-4-closeout" : "technical",
     )
-    : null;
+      : null;
   const runnerRuntime = strictObject(runner.runtime, ["browserExecutable", "browserVersion", "nodeVersion", "playwrightCoreVersion"], "version 2 runner runtime");
   const manifestRuntime = manifest.runtime as JsonObject;
   assert.equal(runnerRuntime.playwrightCoreVersion, "1.62.1", "Version 2 runner Playwright Core version mismatch.");
@@ -1066,12 +1113,14 @@ const validateV2Evidence = (value: unknown, manifest: JsonObject, browserEvidenc
     assert.equal(gitV2("merge-base", "--is-ancestor", manifest.baseCommit as string, manifest.headCommit as string).trim(), "", "Clean version 2 base is not an ancestor of HEAD.");
   }
   const authorization = strictObject(evidence.authorization, ["authorizationId", "materializationKind"], "version 2 evidence authorization");
-  if (manifest.phase === 4) assert.equal(authorization.authorizationId, "phase-4/v1", "Phase 4 authorization ID invalid.");
+  if (manifest.phase === 5) assert.equal(authorization.authorizationId, "phase-5/v1", "Phase 5 authorization ID invalid.");
+  else if (manifest.phase === 4) assert.equal(authorization.authorizationId, "phase-4/v1", "Phase 4 authorization ID invalid.");
   else if (manifest.phase === 3) assert.equal(authorization.authorizationId, "phase-3/v1", "Phase 3 authorization ID invalid.");
   else assert.ok(authorization.authorizationId === "phase-1.5-compatibility-synthetic/v1" || authorization.authorizationId === "phase-2/v1", "Legacy version 2 authorization ID invalid.");
   assert.ok(authorization.materializationKind === "materialized" || authorization.materializationKind === "deferred", "Version 2 materialization kind invalid.");
-  const resultBindings = strictObject(evidence.bindings, ["adapter", "catalog", "plan", "registry"], "version 2 evidence bindings");
-  for (const field of ["catalog", "plan", "registry", "adapter"] as const) validateV2EvidenceFileBinding(resultBindings[field], `version 2 ${field}`, artifactPaths);
+  const bindingFields = manifest.phase === 5 ? ["catalog", "plan", "registry"] as const : ["adapter", "catalog", "plan", "registry"] as const;
+  const resultBindings = strictObject(evidence.bindings, bindingFields, "version 2 evidence bindings");
+  for (const field of bindingFields) validateV2EvidenceFileBinding(resultBindings[field], `version 2 ${field}`, artifactPaths);
   return evidence;
 };
 
@@ -1458,6 +1507,9 @@ const runSelfTest = () => {
   assertPhaseCloseoutPaths(4, PHASE4_CLOSEOUT_PATHS);
   mustReject("missing Phase 4 closeout path", () => assertPhaseCloseoutPaths(4, PHASE4_CLOSEOUT_PATHS.slice(1)));
   mustReject("extra Phase 4 closeout path", () => assertPhaseCloseoutPaths(4, sortProofPaths([...PHASE4_CLOSEOUT_PATHS, "docs/unauthorized-closeout.md"])));
+  assertPhaseCloseoutPaths(5, PHASE5_CLOSEOUT_PATHS);
+  mustReject("missing Phase 5 closeout path", () => assertPhaseCloseoutPaths(5, PHASE5_CLOSEOUT_PATHS.slice(1)));
+  mustReject("extra Phase 5 closeout path", () => assertPhaseCloseoutPaths(5, sortProofPaths([...PHASE5_CLOSEOUT_PATHS, "docs/unauthorized-closeout.md"])));
   const baseCommand: JsonObject = {name: "test", argv: ["node", "test.ts"], cwd: ".", env: {}, expectedExitCode: 0, privacy: "sanitized"};
   const captured = (text: string) => {
     const bytes = Buffer.from(text);
@@ -1505,9 +1557,14 @@ const runSelfTest = () => {
   validateV2CommandConfig(phaseTwoConfig, 2, currentSha);
   mustReject("reordered phase 2 commands", () => validateV2CommandConfig({...phaseTwoConfig, commands: [phaseTwoCommands[1], phaseTwoCommands[0], ...phaseTwoCommands.slice(2)]}, 2, currentSha));
   const phaseFourConfig = readJson("scripts/fixtures/stick-ai/v1/phase-4-proof-commands.json") as JsonObject;
-  validateV2CommandConfig(phaseFourConfig, 4, currentSha);
+  validateV2CommandConfig(phaseFourConfig, 4, phaseFourConfig.baseCommit as string);
   const phaseFourCommands = phaseFourConfig.commands as JsonObject[];
-  mustReject("reordered Phase 4 commands", () => validateV2CommandConfig({...phaseFourConfig, commands: [phaseFourCommands[1], phaseFourCommands[0], ...phaseFourCommands.slice(2)]}, 4, currentSha));
+  mustReject("reordered Phase 4 commands", () => validateV2CommandConfig({...phaseFourConfig, commands: [phaseFourCommands[1], phaseFourCommands[0], ...phaseFourCommands.slice(2)]}, 4, phaseFourConfig.baseCommit as string));
+  const phaseFiveConfig = readJson("scripts/fixtures/stick-ai/v1/phase-5-proof-commands.json") as JsonObject;
+  validateV2CommandConfig(phaseFiveConfig, 5, phaseFiveConfig.baseCommit as string);
+  const phaseFiveCommands = phaseFiveConfig.commands as JsonObject[];
+  mustReject("reordered Phase 5 commands", () => validateV2CommandConfig({...phaseFiveConfig, commands: [phaseFiveCommands[1], phaseFiveCommands[0], ...phaseFiveCommands.slice(2)]}, 5, phaseFiveConfig.baseCommit as string));
+  mustReject("missing Phase 5 source-direct environment", () => validateV2CommandConfig({...phaseFiveConfig, commands: [{...phaseFiveCommands[0], env: {}}, ...phaseFiveCommands.slice(1)]}, 5, phaseFiveConfig.baseCommit as string));
   const phaseTwoPlanPath = "scripts/fixtures/stick-ai/v1/phase-2-browser-proof-plan.json";
   const phaseTwoPlan = readJson(phaseTwoPlanPath) as JsonObject;
   const phaseTwoBase = phaseTwoPlan.baseCommit as string;
@@ -1624,6 +1681,45 @@ const runSelfTest = () => {
     phaseFourTechnicalGraph.plan,
     phaseFourTechnicalGraph.pathCeiling,
     phaseFourObservation([...PHASE4_CLOSEOUT_PATHS, "docs/unauthorized-closeout.md"]),
+  ));
+  const phaseFivePlanPath = "scripts/fixtures/stick-ai/v1/phase-5-browser-proof-plan.json";
+  const phaseFivePlan = readJson(phaseFivePlanPath) as JsonObject;
+  const phaseFiveBase = phaseFivePlan.baseCommit as string;
+  const phaseFiveObservation = (paths: readonly string[]) => ({
+    headCommit: phaseFiveBase,
+    stagedPaths: [],
+    hiddenIndexPaths: [],
+    trackedDirtyPaths: [...paths].sort((left, right) => left.localeCompare(right)),
+    untrackedPaths: [],
+    baseIsStrictAncestor: false,
+    committedChangedPaths: [],
+  });
+  const phaseFiveTechnicalGraph = loadPhase5RouteGraph(ROOT, phaseFivePlanPath, "technical", phaseFiveObservation(PHASE5_DIRTY_PATHS));
+  assert.deepEqual(phaseFiveTechnicalGraph.pathCeiling, PHASE5_PATHS, "Phase 5 technical graph must preserve the exact 24-path ceiling.");
+  mustReject("Phase 5 technical extension graph rejects closeout records", () => deriveGitState(
+    ROOT,
+    phaseFiveTechnicalGraph.plan,
+    phaseFiveTechnicalGraph.pathCeiling,
+    phaseFiveObservation(PHASE5_CLOSEOUT_PATHS),
+  ));
+  const phaseFiveCloseoutGit = derivePhase5CloseoutGraphGitState(
+    ROOT,
+    phaseFiveTechnicalGraph.plan,
+    phaseFiveTechnicalGraph.pathCeiling,
+    phaseFiveObservation(PHASE5_CLOSEOUT_PATHS),
+  );
+  assert.deepEqual(phaseFiveCloseoutGit.observedDirtyPaths, PHASE5_DIRTY_PATHS, "Phase 5 closeout graph must retain the exact recorded technical projection.");
+  mustReject("Phase 5 closeout graph missing record", () => derivePhase5CloseoutGraphGitState(
+    ROOT,
+    phaseFiveTechnicalGraph.plan,
+    phaseFiveTechnicalGraph.pathCeiling,
+    phaseFiveObservation(PHASE5_CLOSEOUT_PATHS.filter((path) => path !== "docs/CURRENT_STATE.md")),
+  ));
+  mustReject("Phase 5 closeout graph extra record", () => derivePhase5CloseoutGraphGitState(
+    ROOT,
+    phaseFiveTechnicalGraph.plan,
+    phaseFiveTechnicalGraph.pathCeiling,
+    phaseFiveObservation([...PHASE5_CLOSEOUT_PATHS, "docs/unauthorized-closeout.md"]),
   ));
   const relaxedCli = spawnSync(process.execPath, [
     "--experimental-strip-types",

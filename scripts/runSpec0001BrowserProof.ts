@@ -20,7 +20,7 @@ import {
   closeSync,
   writeFileSync,
 } from "node:fs";
-import {get as httpGet} from "node:http";
+import {get as httpGet, request as httpRequest} from "node:http";
 import {dirname, relative, resolve, sep} from "node:path";
 import {chromium, type BrowserContext, type Page, type Route, type WebSocketRoute} from "playwright-core";
 import {
@@ -57,6 +57,11 @@ import {
 } from "./spec0001-browser/browserTesterContract.ts";
 import {
   COMPATIBILITY_OUTPUT_ROOT,
+  PHASE5_BASE_COMMIT,
+  PHASE5_DIRTY_PATHS,
+  PHASE5_PATHS,
+  PHASE5_PLAN_PATH,
+  loadPhase5RouteGraph,
   PHASE4_MATERIALIZED_FIXTURE_PATHS,
   loadTesterExtensionGraph,
   parseBrowserProofCli,
@@ -64,8 +69,14 @@ import {
   validateAuthorizationCatalogValue,
   validateExtensionPlanValue,
   validateExtensionResult,
+  validatePhase5RouteResult,
+  validatePhase5RoutePlanValue,
+  validatePhase5RouteRegistryValue,
   validatePhase4CheckpointValue,
   type ExtensionResult,
+  type Phase5RouteCase,
+  type Phase5RouteResult,
+  type ValidatedPhase5RouteGraph,
   type NormalizedAction,
   type StickPhase4CheckpointV1,
   type ValidatedTesterExtension,
@@ -459,6 +470,7 @@ const PHASE3_BASE_SHELL_ELEMENTS_DIGESTS = {
   "1440x900": "sha256:a8283fc14ea1370d7a55053be28379da7bff36c241dfa211a5cba1b848b7a871",
 } as const;
 let compatibilityGraph: ValidatedTesterExtension | null = null;
+let activePhase5RouteGraph: ValidatedPhase5RouteGraph | null = null;
 let compatibilityOutputInitialized = false;
 let compatibilityAnchorOriginal: Buffer | null = null;
 let compatibilityAnchorOriginalHash: string | null = null;
@@ -551,6 +563,17 @@ const configureExtensionOutputPaths = (graph: ValidatedTesterExtension, review =
   COMPATIBILITY_BROWSER_CONSOLE_LEDGER = `${COMPATIBILITY_TEMP_ROOT}/console.ndjson`;
 };
 
+const configurePhase5RouteOutputPaths = (graph: ValidatedPhase5RouteGraph) => {
+  COMPATIBILITY_SYNTHETIC_ROOT = `${graph.outputRoot}/route`;
+  COMPATIBILITY_SCREENSHOT_ROOT = `${COMPATIBILITY_SYNTHETIC_ROOT}/screenshots`;
+  COMPATIBILITY_TEMP_ROOT = `${COMPATIBILITY_SYNTHETIC_ROOT}/temporary`;
+  COMPATIBILITY_RESULT_PATH = `${COMPATIBILITY_SYNTHETIC_ROOT}/runner-result.json`;
+  COMPATIBILITY_SERVER_LOG = `${COMPATIBILITY_TEMP_ROOT}/server.log`;
+  COMPATIBILITY_SERVER_NETWORK_LEDGER = `${COMPATIBILITY_TEMP_ROOT}/server-network.ndjson`;
+  COMPATIBILITY_BROWSER_NETWORK_LEDGER = `${COMPATIBILITY_TEMP_ROOT}/browser-network.ndjson`;
+  COMPATIBILITY_BROWSER_CONSOLE_LEDGER = `${COMPATIBILITY_TEMP_ROOT}/console.ndjson`;
+};
+
 const assertExtensionOwnedPath = (path: string) => {
   const absolute = repositoryPath(ROOT, path, "Extension-owned path");
   const local = relative(ROOT, absolute);
@@ -636,6 +659,36 @@ const snapshotExtensionSourceState = (graph: ValidatedTesterExtension) => {
   });
   const status = spawnSync(GIT_EXECUTABLE, ["status", "--porcelain=v2", "-z", "--", ...paths], {cwd: ROOT, env: GIT_ENVIRONMENT, encoding: "buffer", shell: false, maxBuffer: 16 * 1024 * 1024});
   assert.equal(status.status, 0, Buffer.from(status.stderr ?? []).toString("utf8") || "Unable to snapshot source Git status.");
+  const statusBytes = Buffer.from(status.stdout ?? []);
+  return {paths, entries, gitStatus: {byteLength: statusBytes.byteLength, sha256: sha256Bytes(statusBytes)}};
+};
+
+const snapshotPhase5SourceState = (graph: ValidatedPhase5RouteGraph) => {
+  const paths = sortProofPaths([...new Set([
+    ...graph.git.dirtyExpectedPaths,
+    graph.catalogBinding.path,
+    graph.planBinding.path,
+    graph.registryBinding.path,
+    ANCHOR_PATH,
+    NETWORK_GUARD_PATH,
+    "package.json",
+    "package-lock.json",
+  ])]);
+  const entries = paths.map((path) => {
+    const absolute = repositoryPath(ROOT, path, "Phase 5 source snapshot path");
+    assert.ok(existsSync(absolute), `Phase 5 source snapshot path is missing: ${path}`);
+    let current = ROOT;
+    for (const part of relative(ROOT, absolute).split(sep).filter(Boolean)) {
+      current = resolve(current, part);
+      verifyRealPathComponent(current);
+    }
+    const status = lstatSync(absolute);
+    assert.equal(status.isFile(), true, `Phase 5 source snapshot path is not a regular file: ${path}`);
+    const bytes = readFileSync(absolute);
+    return {path, mode: status.mode & 0o7777, byteLength: bytes.byteLength, sha256: sha256Bytes(bytes)};
+  });
+  const status = spawnSync(GIT_EXECUTABLE, ["status", "--porcelain=v2", "-z", "--", ...paths], {cwd: ROOT, env: GIT_ENVIRONMENT, encoding: "buffer", shell: false, maxBuffer: 16 * 1024 * 1024});
+  assert.equal(status.status, 0, Buffer.from(status.stderr ?? []).toString("utf8") || "Unable to snapshot Phase 5 source Git status.");
   const statusBytes = Buffer.from(status.stdout ?? []);
   return {paths, entries, gitStatus: {byteLength: statusBytes.byteLength, sha256: sha256Bytes(statusBytes)}};
 };
@@ -1133,7 +1186,7 @@ const startServer = async (mode: "development" | "production", fontMockPath: str
   return running;
 };
 
-const compatibilityScrubbedEnvironment = (fontMockPath: string) => {
+const compatibilityScrubbedEnvironment = (fontMockPath: string, phase5MockRoute = false) => {
   assert.ok(compatibilityNetworkGuardV2Path, "Compatibility v2 network guard must be prepared before server startup.");
   const env = {} as NodeJS.ProcessEnv;
   for (const key of ["PATH", "TMPDIR", "TEMP", "TMP", "LANG", "LC_ALL", "SHELL", "TERM"]) {
@@ -1147,6 +1200,14 @@ const compatibilityScrubbedEnvironment = (fontMockPath: string) => {
     NODE_OPTIONS: `--require=${compatibilityNetworkGuardV2Path}`,
     SPEC0001_NETWORK_LEDGER: secureExtensionFilePath(COMPATIBILITY_SERVER_NETWORK_LEDGER, true),
     SPEC0001_REPOSITORY_ROOT: ROOT,
+    ...(phase5MockRoute ? {
+      DIAMOND_STICK_AI_V1_MODE: "mock",
+      OPENAI_API_KEY: "",
+      OPENAI_ORG_ID: "",
+      OPENAI_PROJECT_ID: "",
+      SUPABASE_SERVICE_ROLE_KEY: "",
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "",
+    } : {}),
   };
 };
 
@@ -1163,7 +1224,7 @@ const removeCompatibilityNextIfOwned = () => {
   compatibilityOwnsNext = false;
 };
 
-const startCompatibilityServer = async (mode: "development" | "production", fontMockPath: string): Promise<RunningServer> => {
+const startCompatibilityServer = async (mode: "development" | "production", fontMockPath: string, phase5MockRoute = false): Promise<RunningServer> => {
   claimCompatibilityNextOutput();
   const port = await allocatePort();
   ownedPorts.add(port);
@@ -1173,7 +1234,7 @@ const startCompatibilityServer = async (mode: "development" | "production", font
     : [nextBin, "start", "--hostname", "127.0.0.1", "--port", String(port)];
   const child = spawn(process.execPath, args, {
     cwd: ROOT,
-    env: compatibilityScrubbedEnvironment(fontMockPath),
+    env: compatibilityScrubbedEnvironment(fontMockPath, phase5MockRoute),
     shell: false,
     detached: true,
     stdio: ["ignore", "pipe", "pipe"],
@@ -3680,6 +3741,180 @@ export const runPhase4PostApplyReview = async (planPath: string) => {
   await new Promise<never>(() => {});
 };
 
+const readPhase5ServerLog = () => {
+  const path = secureExtensionFilePath(COMPATIBILITY_SERVER_LOG);
+  return existsSync(path) ? readFileSync(path) : Buffer.alloc(0);
+};
+
+const sendPhase5RawRouteRequest = (server: RunningServer, routeCase: Phase5RouteCase) => new Promise<{status: number; headers: Phase5RouteCase["expected"]["headers"]; body: Buffer}>((resolveResponse, rejectResponse) => {
+  const body = Buffer.from(routeCase.request.body.data, "base64");
+  const headers = Object.fromEntries(routeCase.request.headers);
+  const request = httpRequest({hostname: "127.0.0.1", port: server.port, method: routeCase.request.method, path: routeCase.request.path, headers}, (response) => {
+    const chunks: Buffer[] = [];
+    response.on("data", (chunk) => chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)));
+    response.on("end", () => {
+      try {
+        const selectedHeaders = routeCase.expected.headers.map(([name]) => {
+          const value = response.headers[name];
+          if (typeof value !== "string") throw new Error(`Phase 5 ${routeCase.caseId} response header ${name} is missing or non-scalar.`);
+          return [name, value] as const;
+        });
+        resolveResponse({status: response.statusCode ?? 0, headers: selectedHeaders, body: Buffer.concat(chunks)});
+      } catch (error) { rejectResponse(error); }
+    });
+  });
+  request.setTimeout(15_000, () => request.destroy(new Error(`Phase 5 route request timed out: ${routeCase.caseId}`)));
+  request.on("error", rejectResponse);
+  if (body.byteLength > 0) request.write(body);
+  request.end();
+});
+
+const assertPhase5LegacyCheckpoint = (routeCase: Phase5RouteCase, responseBody: Buffer) => {
+  const checkpoint = routeCase.expected.legacyCheckpoint;
+  if (checkpoint === null) return null;
+  if (Object.keys(checkpoint.expectedJsonFields).length > 0) {
+    const parsed = JSON.parse(responseBody.toString("utf8")) as Record<string, unknown>;
+    for (const [key, expectedValue] of Object.entries(checkpoint.expectedJsonFields)) {
+      assert.deepEqual(parsed[key], expectedValue, `Phase 5 ${routeCase.caseId} legacy Drawing checkpoint field drifted: ${key}.`);
+    }
+  }
+  return {checkpointKind: checkpoint.checkpointKind, matched: true as const};
+};
+
+const validatePhase5ServerNetwork = (entries: JsonObject[], selfTest: ReturnType<typeof runCompatibilityNetworkGuardSelfTest>) => {
+  const prefix = entries.slice(0, selfTest.ledgerEntryCount);
+  assert.equal(sha256Bytes(stableJson(prefix)), selfTest.ledgerSha256, "Phase 5 server network self-test ledger prefix changed.");
+  const runtime = entries.slice(selfTest.ledgerEntryCount).map((entry, index) => strictObject(entry, ["at", "pid", "primitive", "result", "target"], `Phase 5 server network entry ${index}`));
+  const denials = runtime.filter((entry) => entry.result === "denied");
+  assert.deepEqual(denials, [], `Phase 5 server or child attempted non-loopback egress: ${stableJson(denials)}`);
+  for (const entry of runtime) {
+    if (entry.result === "suppressed") {
+      assert.ok([
+        "v2.framework.next.getVersionInfo",
+        "v2.framework.next.telemetry.flushDetached",
+      ].includes(String(entry.primitive)), `Unexpected Phase 5 suppression primitive: ${String(entry.primitive)}`);
+      continue;
+    }
+    assert.equal(entry.result, "allowed", `Unexpected Phase 5 network result: ${String(entry.result)}`);
+    const target = String(entry.target);
+    assert.equal(target === "next-internal-node-child" || isExactLoopbackTarget(target), true, `Phase 5 allowed a non-loopback target: ${target}`);
+  }
+  return {runtimeEntryCount: runtime.length, denialCount: 0 as const, ledgerSha256: sha256Bytes(stableJson(entries))};
+};
+
+const runPhase5RouteProof = async (graph: ValidatedPhase5RouteGraph) => {
+  configurePhase5RouteOutputPaths(graph);
+  compatibilityGraph = null;
+  activePhase5RouteGraph = graph;
+  compatibilityCleanupPromise = null;
+  ensureCompatibilityNoCollisions();
+  assert.equal(git("diff", "--cached", "--name-only"), "", "Phase 5 route proof requires an empty index.");
+  const browserExecutable = compatibilityExecutableEvidence(BROWSER_EXECUTABLE);
+  const browserVersionResult = spawnSync(BROWSER_EXECUTABLE, ["--version"], {encoding: "utf8", shell: false});
+  assert.equal(browserVersionResult.status, 0, browserVersionResult.stderr || "Unable to record the browser version without opening a page.");
+  const browserVersion = browserVersionResult.stdout.trim();
+  assert.ok(browserVersion.length > 0, "Phase 5 browser version evidence is empty.");
+  const anchorPreimageSha256 = sha256Bytes(readFileSync(repositoryPath(ROOT, ANCHOR_PATH)));
+  const preRunSourceSnapshot = snapshotPhase5SourceState(graph);
+  ensureSafeExtensionDirectory(COMPATIBILITY_TEMP_ROOT);
+  compatibilityOwnsTempRoot = true;
+  compatibilityOutputInitialized = true;
+  for (const ledger of [COMPATIBILITY_SERVER_LOG, COMPATIBILITY_SERVER_NETWORK_LEDGER, COMPATIBILITY_BROWSER_NETWORK_LEDGER, COMPATIBILITY_BROWSER_CONSOLE_LEDGER]) {
+    writeFileSync(secureExtensionFilePath(ledger, true), "", {encoding: "utf8", mode: 0o600, flag: "wx"});
+  }
+  const font = prepareCompatibilityFontMock();
+  const guardV2 = prepareCompatibilityNetworkGuardV2();
+  const guardSelfTest = runCompatibilityNetworkGuardSelfTest(guardV2.path);
+  const caseEvidence: Phase5RouteResult["evidence"]["cases"] = [];
+  let server: RunningServer | null = null;
+  try {
+    server = await startCompatibilityServer("development", font.path, true);
+    for (const routeCase of graph.registry.cases) {
+      const requestBody = Buffer.from(routeCase.request.body.data, "base64");
+      assert.equal(requestBody.byteLength, routeCase.request.body.byteLength, `Phase 5 ${routeCase.caseId} request byte length drifted before transport.`);
+      assert.equal(sha256Bytes(requestBody), routeCase.request.body.sha256, `Phase 5 ${routeCase.caseId} request digest drifted before transport.`);
+      const logBefore = readPhase5ServerLog().byteLength;
+      const response = await sendPhase5RawRouteRequest(server, routeCase);
+      await new Promise((resolveDelay) => setTimeout(resolveDelay, 100));
+      assert.equal(response.status, routeCase.expected.status, `Phase 5 ${routeCase.caseId} status drifted.`);
+      assert.deepEqual(response.headers, routeCase.expected.headers, `Phase 5 ${routeCase.caseId} selected response headers drifted.`);
+      const responseBinding = {byteLength: response.body.byteLength, sha256: sha256Bytes(response.body)};
+      if (routeCase.expected.body !== null) assert.deepEqual(responseBinding, routeCase.expected.body, `Phase 5 ${routeCase.caseId} exact response body drifted.`);
+      const legacyCheckpoint = assertPhase5LegacyCheckpoint(routeCase, response.body);
+      const completeLog = readPhase5ServerLog();
+      const logDelta = completeLog.subarray(logBefore);
+      for (const forbidden of routeCase.expected.logAssertions.forbiddenSubstrings) {
+        assert.equal(logDelta.includes(Buffer.from(forbidden, "utf8")), false, `Phase 5 ${routeCase.caseId} leaked a forbidden string to server logs.`);
+      }
+      if (requestBody.byteLength > 0) assert.equal(logDelta.includes(requestBody), false, `Phase 5 ${routeCase.caseId} leaked the raw request body to server logs.`);
+      caseEvidence.push({
+        caseId: routeCase.caseId,
+        operationKind: routeCase.operationKind,
+        request: {method: routeCase.request.method, path: "/api/ai", headerSha256: sha256Bytes(JSON.stringify(routeCase.request.headers)) as Phase5RouteResult["evidence"]["cases"][number]["request"]["headerSha256"], bodyByteLength: requestBody.byteLength, bodySha256: sha256Bytes(requestBody) as Phase5RouteResult["evidence"]["cases"][number]["request"]["bodySha256"]},
+        response: {status: response.status, selectedHeaders: response.headers, bodyByteLength: response.body.byteLength, bodySha256: sha256Bytes(response.body) as Phase5RouteResult["evidence"]["cases"][number]["response"]["bodySha256"]},
+        legacyCheckpoint,
+        logs: {byteLength: logDelta.byteLength, sha256: sha256Bytes(logDelta) as Phase5RouteResult["evidence"]["cases"][number]["logs"]["sha256"], forbiddenSubstringsAbsent: true, rawBodyAbsent: true},
+        nonLoopbackAttempts: 0,
+      });
+    }
+  } finally {
+    await stopServer(server);
+  }
+  const completeServerLog = readPhase5ServerLog();
+  const realApiRouteRequests = (completeServerLog.toString("utf8").match(/\b(?:GET|POST) \/api\/ai\b/g) ?? []).length;
+  assert.equal(realApiRouteRequests, graph.registry.cases.length, "Phase 5 did not send every case through the real /api/ai route.");
+  const serverNetworkEntries = readNdjson(COMPATIBILITY_SERVER_NETWORK_LEDGER);
+  const serverNetwork = validatePhase5ServerNetwork(serverNetworkEntries, guardSelfTest);
+  assert.equal(serverNetwork.denialCount, 0);
+  assert.equal(readNdjson(COMPATIBILITY_BROWSER_NETWORK_LEDGER).length, 0, "Phase 5 route proof unexpectedly recorded browser network activity.");
+  assert.equal(readNdjson(COMPATIBILITY_BROWSER_CONSOLE_LEDGER).length, 0, "Phase 5 route proof unexpectedly recorded browser console activity.");
+  await cleanupCompatibility();
+  const postRunSourceSnapshot = snapshotPhase5SourceState(graph);
+  assert.deepEqual(postRunSourceSnapshot, preRunSourceSnapshot, "Phase 5 route proof changed source bytes, modes, or Git status.");
+  assert.deepEqual(sortProofPaths(changedPaths()), graph.git.observedDirtyPaths, "Phase 5 route proof changed tracked or nonignored source bytes.");
+  assert.equal(sha256Bytes(readFileSync(repositoryPath(ROOT, ANCHOR_PATH))), anchorPreimageSha256, "Phase 5 route proof changed the browser anchor despite using no page operation.");
+  const observedCleanup = {
+    anchorRestored: true,
+    sourceRestored: true,
+    browserContextsOpen: 0,
+    activeGates: 0,
+    activeIntercepts: 0,
+    openChildProcesses: activeServer === null ? 0 : 1,
+    openPorts: ownedPorts.size,
+    residualPaths: [COMPATIBILITY_TEMP_ROOT, NEXT_DIR].filter((path) => existsSync(assertExtensionOwnedPath(path).absolute)),
+    residualProfiles: [...ownedProfiles],
+  };
+  assert.deepEqual(observedCleanup, {anchorRestored: true, sourceRestored: true, browserContextsOpen: 0, activeGates: 0, activeIntercepts: 0, openChildProcesses: 0, openPorts: 0, residualPaths: [], residualProfiles: []});
+  const cleanupEvidence: Phase5RouteResult["cleanup"] = {anchorRestored: true, sourceRestored: true, browserContextsOpen: 0, activeGates: 0, activeIntercepts: 0, openChildProcesses: 0, openPorts: 0, residualPaths: [], residualProfiles: []};
+  assert.deepEqual(compatibilityExecutableEvidence(BROWSER_EXECUTABLE), browserExecutable, "Phase 5 browser executable changed during route proof.");
+  const result: Phase5RouteResult = {
+    resultVersion: 5,
+    specId: "SPEC-0001",
+    proofPurpose: "phase-5",
+    status: "passed",
+    recordedAt: now(),
+    productPhaseClaimed: true,
+    runtime: {nodeVersion: process.version, playwrightCoreVersion: "1.62.1", browserVersion, browserExecutable},
+    derivedGitState: graph.git.derivedGitState,
+    baseCommit: graph.git.baseCommit,
+    headCommit: graph.git.headCommit,
+    observedDirtyPaths: graph.git.observedDirtyPaths,
+    dirtyExpectedPaths: graph.git.dirtyExpectedPaths,
+    cleanExpectedPaths: graph.git.cleanExpectedPaths,
+    selectedExpectedPaths: graph.git.selectedExpectedPaths,
+    authorization: {authorizationId: "phase-5/v1", materializationKind: "deferred"},
+    bindings: {catalog: graph.catalogBinding, plan: graph.planBinding, registry: graph.registryBinding},
+    execution: {selectedCaseIds: graph.plan.selectedCaseIds, caseCount: caseEvidence.length, operationKinds: [...new Set(caseEvidence.map((entry) => entry.operationKind))]},
+    evidence: {routePath: "/api/ai", requestTransport: "guarded-node-loopback-http-exact-bytes/v1", cases: caseEvidence, realApiRouteRequests, browserPageOperations: 0, browserMockedApiResponses: 0, screenshotClaims: 0, sanitizedServerLogs: true},
+    network: {browserNonLoopbackAttempts: 0, serverNonLoopbackAttempts: 0, childNonLoopbackAttempts: 0, runnerNonLoopbackAttempts: 0, runnerLoopbackRequests: caseEvidence.length},
+    cleanup: cleanupEvidence,
+  };
+  assert.deepEqual(result.execution.operationKinds, ["marked-availability-get", "marked-raw-stick-post", "marker-free-drawing-fallthrough-post"], "Phase 5 operation-kind order drifted.");
+  validatePhase5RouteResult(result, ROOT, true);
+  writeExtensionJson(COMPATIBILITY_RESULT_PATH, result);
+  console.log(`SPEC-0001 Phase 5 route proof PASS: ${caseEvidence.length} exact real-route cases, ${realApiRouteRequests} /api/ai requests, zero browser/page/screenshot operations, zero non-loopback attempts.`);
+};
+
 const runVersion2Proof = async (graph: ValidatedTesterExtension) => {
   compatibilityGraph = graph;
   configureExtensionOutputPaths(graph);
@@ -4058,21 +4293,23 @@ const reportCompatibilityFailure = async (error: unknown) => {
   if (compatibilityOutputInitialized) {
     try {
       writeExtensionJson(COMPATIBILITY_RESULT_PATH, {
-        resultVersion: compatibilityGraph?.authorizationId === "phase-4/v1" ? 4 : compatibilityGraph?.authorizationId === "phase-3/v1" ? 3 : 2,
+        resultVersion: activePhase5RouteGraph !== null ? 5 : compatibilityGraph?.authorizationId === "phase-4/v1" ? 4 : compatibilityGraph?.authorizationId === "phase-3/v1" ? 3 : 2,
         specId: "SPEC-0001",
-        proofPurpose: compatibilityGraph?.plan.proofPurpose ?? "phase-1.5-compatibility-synthetic",
+        proofPurpose: activePhase5RouteGraph?.plan.proofPurpose ?? compatibilityGraph?.plan.proofPurpose ?? "phase-1.5-compatibility-synthetic",
         status: "failed",
         recordedAt: now(),
-        productPhaseClaimed: compatibilityGraph?.adapter.productPhaseClaimed ?? false,
+        productPhaseClaimed: activePhase5RouteGraph !== null || compatibilityGraph?.adapter.productPhaseClaimed === true,
         error: error instanceof Error ? error.message : String(error),
         cleanupError: cleanupError === null ? null : cleanupError instanceof Error ? cleanupError.message : String(cleanupError),
         cleanup: {
           anchorRestored: compatibilityAnchorOriginalHash === null || sha256Bytes(readFileSync(repositoryPath(ROOT, ANCHOR_PATH))) === compatibilityAnchorOriginalHash,
-          sourceRestored: compatibilityGraph === null || JSON.stringify(
-            compatibilityGraph.authorizationId === "phase-3/v1" || compatibilityGraph.authorizationId === "phase-4/v1"
-              ? sortProofPaths(changedPaths())
-              : changedPaths(),
-          ) === JSON.stringify(compatibilityGraph.git.observedDirtyPaths),
+          sourceRestored: activePhase5RouteGraph !== null
+            ? JSON.stringify(sortProofPaths(changedPaths())) === JSON.stringify(activePhase5RouteGraph.git.observedDirtyPaths)
+            : compatibilityGraph === null || JSON.stringify(
+              compatibilityGraph.authorizationId === "phase-3/v1" || compatibilityGraph.authorizationId === "phase-4/v1"
+                ? sortProofPaths(changedPaths())
+                : changedPaths(),
+            ) === JSON.stringify(compatibilityGraph.git.observedDirtyPaths),
           browserContextsOpen: compatibilityOwnedContexts.size,
           activeGates: compatibilityEnvironment.activeGates.size,
           openChildProcesses: activeServer === null ? 0 : 1,
@@ -4251,12 +4488,69 @@ const dispatchBrowserProof = () => {
     return;
   }
   if (rawArgs.some((argument) => argument.startsWith("--self-test"))) {
-    if (rawArgs.length !== 1 || !["--self-test=phase-3-registration", "--self-test=phase-4-registration"].includes(rawArgs[0])) {
-      console.error("Registration self-test accepts exactly one known Phase 3 or Phase 4 self-test selector.");
+    if (rawArgs.length !== 1 || !["--self-test=phase-3-registration", "--self-test=phase-4-registration", "--self-test=phase-5-registration"].includes(rawArgs[0])) {
+      console.error("Registration self-test accepts exactly one known Phase 3, Phase 4, or Phase 5 self-test selector.");
       process.exitCode = 1;
       return;
     }
     try {
+      if (rawArgs[0] === "--self-test=phase-5-registration") {
+        const graph = loadPhase5RouteGraph(ROOT, PHASE5_PLAN_PATH);
+        assert.equal(graph.authorizationId, "phase-5/v1");
+        assert.equal(graph.plan.planVersion, 5);
+        assert.equal(graph.registry.registryVersion, 5);
+        assert.deepEqual(graph.operationFamilies, ["guarded-http", "runner-environment"]);
+        assert.equal(graph.pathCeiling.length, 24);
+        assert.deepEqual(graph.pathCeiling, PHASE5_PATHS);
+        assert.equal(graph.plan.dirtyExpectedPaths.length, 22);
+        assert.deepEqual(graph.plan.dirtyExpectedPaths, PHASE5_DIRTY_PATHS);
+        assert.equal(graph.registry.cases.length, 31);
+        assert.deepEqual(graph.plan.selectedCaseIds, graph.registry.cases.map((entry) => entry.caseId));
+        validatePhase5RoutePlanValue(readJson(ROOT, PHASE5_PLAN_PATH));
+        validatePhase5RouteRegistryValue(readJson(ROOT, graph.registryBinding.path));
+        assert.throws(() => loadTesterExtensionGraph(ROOT, PHASE5_PLAN_PATH), /Browser plan path is not registered/);
+        const catalogPath = "scripts/fixtures/spec0001-browser/v2/tester-extension-authorizations.json";
+        const catalog = readJson(ROOT, catalogPath) as {authorizations: JsonObject[]};
+        validateAuthorizationCatalogValue(catalog);
+        const baseCatalog = JSON.parse(git("show", `${PHASE5_BASE_COMMIT}:${catalogPath}`)) as {authorizations: JsonObject[]};
+        assert.equal(baseCatalog.authorizations.length, 4, "Phase 5 base catalog must contain the frozen first four entries.");
+        assert.deepEqual(catalog.authorizations.slice(0, 4), baseCatalog.authorizations, "Phase 5 changed one of the first four tester authorization entries.");
+        for (const schemaPath of [
+          "scripts/fixtures/spec0001-browser/v2/tester-extension-authorization.schema.json",
+          "scripts/fixtures/spec0001-browser/v2/tester-extension-plan.schema.json",
+          "scripts/fixtures/spec0001-browser/v2/tester-extension-registry.schema.json",
+          "scripts/fixtures/spec0001-browser/v2/tester-extension-result.schema.json",
+          "scripts/fixtures/spec0001-browser/v3/tester-extension-authorization.schema.json",
+          "scripts/fixtures/spec0001-browser/v3/tester-extension-plan.schema.json",
+          "scripts/fixtures/spec0001-browser/v3/tester-extension-registry.schema.json",
+          "scripts/fixtures/spec0001-browser/v3/tester-extension-result.schema.json",
+          "scripts/fixtures/spec0001-browser/v4/tester-extension-authorization.schema.json",
+          "scripts/fixtures/spec0001-browser/v4/tester-extension-plan.schema.json",
+          "scripts/fixtures/spec0001-browser/v4/tester-extension-registry.schema.json",
+          "scripts/fixtures/spec0001-browser/v4/tester-extension-result.schema.json",
+        ]) assert.equal(readFileSync(repositoryPath(ROOT, schemaPath), "utf8").trim(), git("show", `${PHASE5_BASE_COMMIT}:${schemaPath}`), `Older tester schema changed: ${schemaPath}`);
+        const missing = structuredClone(catalog);
+        missing.authorizations.pop();
+        assert.throws(() => validateAuthorizationCatalogValue(missing), /catalog authorization count/);
+        const duplicate = structuredClone(catalog);
+        duplicate.authorizations[4] = structuredClone(duplicate.authorizations[3]!);
+        assert.throws(() => validateAuthorizationCatalogValue(duplicate), /fields mismatch|Phase 5 authorizationId/);
+        const reordered = structuredClone(catalog);
+        [reordered.authorizations[0], reordered.authorizations[1]] = [reordered.authorizations[1]!, reordered.authorizations[0]!];
+        assert.throws(() => validateAuthorizationCatalogValue(reordered), /authorizationId/);
+        const sixth = structuredClone(catalog);
+        sixth.authorizations.push(structuredClone(sixth.authorizations[4]!));
+        assert.throws(() => validateAuthorizationCatalogValue(sixth), /catalog authorization count/);
+        const withAdapter = structuredClone(catalog);
+        withAdapter.authorizations[4]!.adapter = {path: "scripts/spec0001-browser/actions/phase5.ts"};
+        assert.throws(() => validateAuthorizationCatalogValue(withAdapter), /fields mismatch/);
+        const withWorkspacePort = structuredClone(catalog);
+        withWorkspacePort.authorizations[4]!.workspacePortBinding = "spec0001Phase5BrowserPortsV1";
+        assert.throws(() => validateAuthorizationCatalogValue(withWorkspacePort), /fields mismatch/);
+        assert.equal(graph.git.derivedGitState, "dirty-executor");
+        console.log("SPEC-0001 Phase 5 tester registration self-test PASS: exact route-only v5 graph, five-entry catalog, frozen v2-v4 schemas/entries, no adapter/workspace port, 22-of-24 dirty projection, and strict negative registration cases.");
+        return;
+      }
       if (rawArgs[0] === "--self-test=phase-4-registration") {
         const graph = loadTesterExtensionGraph(ROOT, "scripts/fixtures/stick-ai/v1/phase-4-browser-proof-plan.json");
         assert.equal(graph.authorizationId, "phase-4/v1");
@@ -4367,6 +4661,20 @@ const dispatchBrowserProof = () => {
     process.once("SIGINT", () => onSignal("SIGINT"));
     process.once("SIGTERM", () => onSignal("SIGTERM"));
     void main().catch(reportLegacyFailure);
+    return;
+  }
+  if (invocation.planPath === PHASE5_PLAN_PATH) {
+    let graph: ValidatedPhase5RouteGraph;
+    try { graph = loadPhase5RouteGraph(ROOT, invocation.planPath); }
+    catch (error) {
+      console.error(error);
+      process.exitCode = 1;
+      return;
+    }
+    activeTopLevelCleanup = cleanupCompatibility;
+    process.once("SIGINT", () => onSignal("SIGINT"));
+    process.once("SIGTERM", () => onSignal("SIGTERM"));
+    void runPhase5RouteProof(graph).catch(reportCompatibilityFailure);
     return;
   }
   let graph: ValidatedTesterExtension;

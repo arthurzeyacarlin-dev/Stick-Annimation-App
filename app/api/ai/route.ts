@@ -120,6 +120,10 @@ import {
   buildTemporarilyDisabledTaskResponseFields,
   isDrawingAiTaskExecutionTemporarilyDisabled,
 } from "@/src/lib/ai/drawingAiTaskAvailability";
+import {
+  dispatchStickFigureAiPost,
+  handleStickFigureAiAvailabilityGet,
+} from "@/src/lib/ai/stickFigureAiServerDispatch";
 import { AI_TEXT_BALANCED_MODEL, AI_TEXT_ECONOMY_MODEL, AI_TEXT_MODEL, generateAiText } from "@/src/lib/openai/generateAiText";
 import { NextResponse } from "next/server";
 
@@ -2041,7 +2045,14 @@ const buildVoicePlaceholderSoundOption = (
   };
 };
 
+export async function GET(req: Request) {
+  return handleStickFigureAiAvailabilityGet(req);
+}
+
 export async function POST(req: Request) {
+  const stickFigureAiResponse = await dispatchStickFigureAiPost(req);
+  if (stickFigureAiResponse !== null) return stickFigureAiResponse;
+
   let prompt = "";
   let requestedSearch: boolean | null = null;
   let reasoningLevel: DrawingAiReasoningLevel = DEFAULT_DRAWING_AI_REASONING_LEVEL;

@@ -1,0 +1,1920 @@
+{
+  "registryVersion": 5,
+  "specId": "SPEC-0001",
+  "authorizationId": "phase-5/v1",
+  "operationFamilies": [
+    "guarded-http",
+    "runner-environment"
+  ],
+  "cases": [
+    {
+      "caseId": "availability-marked-mock",
+      "operationKind": "marked-availability-get",
+      "request": {
+        "method": "GET",
+        "path": "/api/ai",
+        "headers": [
+          [
+            "connection",
+            "close"
+          ],
+          [
+            "host",
+            "phase5.invalid"
+          ],
+          [
+            "x-diamond-ai-workspace",
+            "stick-figure"
+          ]
+        ],
+        "body": {
+          "encoding": "base64",
+          "byteLength": 0,
+          "sha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "data": ""
+        }
+      },
+      "expected": {
+        "outcome": "exact-response",
+        "status": 200,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ]
+        ],
+        "body": {
+          "byteLength": 39,
+          "sha256": "sha256:8d907dbd30dcb2c27937a06e6064483bad75a8b76869c2f6a9cda114b6aaaf86"
+        },
+        "legacyCheckpoint": null,
+        "logAssertions": {
+          "forbiddenSubstrings": [
+            "PHASE5_PRIVATE_SENTINEL",
+            "PHASE5_DRAWING_SENTINEL",
+            "OPENAI_API_KEY",
+            "SUPABASE_SERVICE_ROLE_KEY"
+          ],
+          "rawBodyMustNotAppear": true
+        },
+        "nonLoopbackAttempts": 0
+      }
+    },
+    {
+      "caseId": "availability-unmarked-rejected",
+      "operationKind": "marked-availability-get",
+      "request": {
+        "method": "GET",
+        "path": "/api/ai",
+        "headers": [
+          [
+            "connection",
+            "close"
+          ],
+          [
+            "host",
+            "phase5.invalid"
+          ]
+        ],
+        "body": {
+          "encoding": "base64",
+          "byteLength": 0,
+          "sha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "data": ""
+        }
+      },
+      "expected": {
+        "outcome": "exact-response",
+        "status": 405,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ]
+        ],
+        "body": {
+          "byteLength": 89,
+          "sha256": "sha256:7e1aa2cba91fa14cc8a05b8a47ef0ed2dc952365be871361d3f6861a7c435f76"
+        },
+        "legacyCheckpoint": null,
+        "logAssertions": {
+          "forbiddenSubstrings": [
+            "PHASE5_PRIVATE_SENTINEL",
+            "PHASE5_DRAWING_SENTINEL",
+            "OPENAI_API_KEY",
+            "SUPABASE_SERVICE_ROLE_KEY"
+          ],
+          "rawBodyMustNotAppear": true
+        },
+        "nonLoopbackAttempts": 0
+      }
+    },
+    {
+      "caseId": "availability-wrong-marker-rejected",
+      "operationKind": "marked-availability-get",
+      "request": {
+        "method": "GET",
+        "path": "/api/ai",
+        "headers": [
+          [
+            "connection",
+            "close"
+          ],
+          [
+            "host",
+            "phase5.invalid"
+          ],
+          [
+            "x-diamond-ai-workspace",
+            "drawing"
+          ]
+        ],
+        "body": {
+          "encoding": "base64",
+          "byteLength": 0,
+          "sha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "data": ""
+        }
+      },
+      "expected": {
+        "outcome": "exact-response",
+        "status": 405,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ]
+        ],
+        "body": {
+          "byteLength": 89,
+          "sha256": "sha256:7e1aa2cba91fa14cc8a05b8a47ef0ed2dc952365be871361d3f6861a7c435f76"
+        },
+        "legacyCheckpoint": null,
+        "logAssertions": {
+          "forbiddenSubstrings": [
+            "PHASE5_PRIVATE_SENTINEL",
+            "PHASE5_DRAWING_SENTINEL",
+            "OPENAI_API_KEY",
+            "SUPABASE_SERVICE_ROLE_KEY"
+          ],
+          "rawBodyMustNotAppear": true
+        },
+        "nonLoopbackAttempts": 0
+      }
+    },
+    {
+      "caseId": "valid-marked-mock",
+      "operationKind": "marked-raw-stick-post",
+      "request": {
+        "method": "POST",
+        "path": "/api/ai",
+        "headers": [
+          [
+            "connection",
+            "close"
+          ],
+          [
+            "content-length",
+            "1405"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "host",
+            "phase5.invalid"
+          ],
+          [
+            "x-diamond-ai-workspace",
+            "stick-figure"
+          ]
+        ],
+        "body": {
+          "encoding": "base64",
+          "byteLength": 1405,
+          "sha256": "sha256:4c52772bb53533105653f9847675258b015a8d1d43a711c50a510d3a54c269db",
+          "data": "eyJraW5kIjoic3RpY2stYWktcmVxdWVzdCIsInJlcXVlc3RWZXJzaW9uIjoxLCJyZXF1ZXN0SWQiOiIwMDAwMDAwMC0wMDAwLTQwMDAtODAwMC0wMDAwMDAwMDA1MDEiLCJ0cmFuc2FjdGlvbklkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwNTAyIiwid29ya3NwYWNlVHlwZSI6InN0aWNrLWZpZ3VyZSIsInByb21wdCI6IkNyZWF0ZSBhIHNpbXBsZSB0aHJlZS1wb3NlIHdhdmUgYW5pbWF0aW9uIHdpdGggb25lIHN0aWNrIGZpZ3VyZSBhdCAxMiBGUFMuIiwiY2FwYWJpbGl0eU1hbmlmZXN0Ijp7Im1hbmlmZXN0VmVyc2lvbiI6MSwiY2FwYWJpbGl0aWVzIjpbInN0aWNrLnBvc2Utc2VxdWVuY2UuY3JlYXRlL3YxIl0sInByb21wdEludGVudFZlcnNpb24iOjEsImxpbWl0cyI6eyJtYXhBY3Rpb25zIjoxLCJtYXhSaWdzIjoxLCJtYXhGaWd1cmVzIjoxLCJtYXhUYXJnZXRMYXllcnMiOjEsIm1heEtleVBvc2VzIjozLCJtYXhUaW1lbGluZUZyYW1lcyI6MTIsImpvaW50c1BlclBvc2UiOjExLCJzZWdtZW50c1BlclJpZyI6MTAsImFsbG93ZWRGcHMiOlsxMl0sInByb21wdEJ5dGVzIjoxMjgsInJlcXVlc3RCeXRlcyI6MTYzODQsInByb3ZpZGVyUGxhbkJ5dGVzIjo4MTkyLCJjb21tYW5kQnl0ZXMiOjMyNzY4LCJjb29yZGluYXRlU3BhY2UiOiJzdGljay1zdGFnZS0xOTIweDEwODAtdjEiLCJzZWFyY2giOiJkaXNhYmxlZCIsInRvb2xzIjoiZGlzYWJsZWQifX0sInByb2plY3RDb250ZXh0Ijp7ImtpbmQiOiJzdGljay1wcm9qZWN0LWNvbnRleHQiLCJjb250ZXh0VmVyc2lvbiI6MSwic2NoZW1hVmVyc2lvbiI6MSwicHJvamVjdElkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMDAxIiwiZG9jdW1lbnRSZXZpc2lvbiI6MCwiYmFzZURvY3VtZW50RGlnZXN0Ijoic2hhMjU2OjgxYjhlOWIxODNhZjFhMTk4YjFiYjUxMmM4NzI2OTE5YWRlMGE3NjRmZmZmZTM4ZTFkNzc5NjRhZWZmODhiMmIiLCJ3b3Jrc3BhY2VUeXBlIjoic3RpY2stZmlndXJlIiwid2F2ZVN0YXJ0ZXJFbGlnaWJsZSI6dHJ1ZSwiY29vcmRpbmF0ZVNwYWNlIjoic3RpY2stc3RhZ2UtMTkyMHgxMDgwLXYxIiwiZnBzIjoxMiwiYWN0aXZlTGF5ZXJJZCI6IjAwMDAwMDAwLTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDAwNCIsImxheWVyQ291bnQiOjEsInRhcmdldFJpZ0lkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMDAyIiwidGFyZ2V0RmlndXJlSWQiOiIwMDAwMDAwMC0wMDAwLTQwMDAtODAwMC0wMDAwMDAwMDAwMDMiLCJzdGFydGVyUG9zZUlkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwNDAxIiwiZmlndXJlQ291bnQiOjEsImF1dGhvcmVkUG9zZUNvdW50IjoxLCJ0aW1lbGluZUZyYW1lQ291bnQiOjEyLCJlbXB0eUNlbGxDb3VudCI6MTF9fQ=="
+        }
+      },
+      "expected": {
+        "outcome": "exact-response",
+        "status": 200,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ]
+        ],
+        "body": {
+          "byteLength": 4163,
+          "sha256": "sha256:b7b3fb757476a6e425cc8829359bb1a4fdae889a23cfded5c920782449c58006"
+        },
+        "legacyCheckpoint": null,
+        "logAssertions": {
+          "forbiddenSubstrings": [
+            "PHASE5_PRIVATE_SENTINEL",
+            "PHASE5_DRAWING_SENTINEL",
+            "OPENAI_API_KEY",
+            "SUPABASE_SERVICE_ROLE_KEY"
+          ],
+          "rawBodyMustNotAppear": true
+        },
+        "nonLoopbackAttempts": 0
+      }
+    },
+    {
+      "caseId": "header-body-marker-mismatch",
+      "operationKind": "marked-raw-stick-post",
+      "request": {
+        "method": "POST",
+        "path": "/api/ai",
+        "headers": [
+          [
+            "connection",
+            "close"
+          ],
+          [
+            "content-length",
+            "36"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "host",
+            "phase5.invalid"
+          ],
+          [
+            "x-diamond-ai-workspace",
+            "stick-figure"
+          ]
+        ],
+        "body": {
+          "encoding": "base64",
+          "byteLength": 36,
+          "sha256": "sha256:2c1904105fa19e038838555624e3ca093ec3179640eba0574d4aa04323f29515",
+          "data": "eyJwcm9tcHQiOiJQSEFTRTVfUFJJVkFURV9TRU5USU5FTCJ9"
+        }
+      },
+      "expected": {
+        "outcome": "exact-response",
+        "status": 400,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ]
+        ],
+        "body": {
+          "byteLength": 89,
+          "sha256": "sha256:7e1aa2cba91fa14cc8a05b8a47ef0ed2dc952365be871361d3f6861a7c435f76"
+        },
+        "legacyCheckpoint": null,
+        "logAssertions": {
+          "forbiddenSubstrings": [
+            "PHASE5_PRIVATE_SENTINEL",
+            "PHASE5_DRAWING_SENTINEL",
+            "OPENAI_API_KEY",
+            "SUPABASE_SERVICE_ROLE_KEY"
+          ],
+          "rawBodyMustNotAppear": true
+        },
+        "nonLoopbackAttempts": 0
+      }
+    },
+    {
+      "caseId": "body-marker-missing-header",
+      "operationKind": "marked-raw-stick-post",
+      "request": {
+        "method": "POST",
+        "path": "/api/ai",
+        "headers": [
+          [
+            "connection",
+            "close"
+          ],
+          [
+            "content-length",
+            "1405"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "host",
+            "phase5.invalid"
+          ]
+        ],
+        "body": {
+          "encoding": "base64",
+          "byteLength": 1405,
+          "sha256": "sha256:4c52772bb53533105653f9847675258b015a8d1d43a711c50a510d3a54c269db",
+          "data": "eyJraW5kIjoic3RpY2stYWktcmVxdWVzdCIsInJlcXVlc3RWZXJzaW9uIjoxLCJyZXF1ZXN0SWQiOiIwMDAwMDAwMC0wMDAwLTQwMDAtODAwMC0wMDAwMDAwMDA1MDEiLCJ0cmFuc2FjdGlvbklkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwNTAyIiwid29ya3NwYWNlVHlwZSI6InN0aWNrLWZpZ3VyZSIsInByb21wdCI6IkNyZWF0ZSBhIHNpbXBsZSB0aHJlZS1wb3NlIHdhdmUgYW5pbWF0aW9uIHdpdGggb25lIHN0aWNrIGZpZ3VyZSBhdCAxMiBGUFMuIiwiY2FwYWJpbGl0eU1hbmlmZXN0Ijp7Im1hbmlmZXN0VmVyc2lvbiI6MSwiY2FwYWJpbGl0aWVzIjpbInN0aWNrLnBvc2Utc2VxdWVuY2UuY3JlYXRlL3YxIl0sInByb21wdEludGVudFZlcnNpb24iOjEsImxpbWl0cyI6eyJtYXhBY3Rpb25zIjoxLCJtYXhSaWdzIjoxLCJtYXhGaWd1cmVzIjoxLCJtYXhUYXJnZXRMYXllcnMiOjEsIm1heEtleVBvc2VzIjozLCJtYXhUaW1lbGluZUZyYW1lcyI6MTIsImpvaW50c1BlclBvc2UiOjExLCJzZWdtZW50c1BlclJpZyI6MTAsImFsbG93ZWRGcHMiOlsxMl0sInByb21wdEJ5dGVzIjoxMjgsInJlcXVlc3RCeXRlcyI6MTYzODQsInByb3ZpZGVyUGxhbkJ5dGVzIjo4MTkyLCJjb21tYW5kQnl0ZXMiOjMyNzY4LCJjb29yZGluYXRlU3BhY2UiOiJzdGljay1zdGFnZS0xOTIweDEwODAtdjEiLCJzZWFyY2giOiJkaXNhYmxlZCIsInRvb2xzIjoiZGlzYWJsZWQifX0sInByb2plY3RDb250ZXh0Ijp7ImtpbmQiOiJzdGljay1wcm9qZWN0LWNvbnRleHQiLCJjb250ZXh0VmVyc2lvbiI6MSwic2NoZW1hVmVyc2lvbiI6MSwicHJvamVjdElkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMDAxIiwiZG9jdW1lbnRSZXZpc2lvbiI6MCwiYmFzZURvY3VtZW50RGlnZXN0Ijoic2hhMjU2OjgxYjhlOWIxODNhZjFhMTk4YjFiYjUxMmM4NzI2OTE5YWRlMGE3NjRmZmZmZTM4ZTFkNzc5NjRhZWZmODhiMmIiLCJ3b3Jrc3BhY2VUeXBlIjoic3RpY2stZmlndXJlIiwid2F2ZVN0YXJ0ZXJFbGlnaWJsZSI6dHJ1ZSwiY29vcmRpbmF0ZVNwYWNlIjoic3RpY2stc3RhZ2UtMTkyMHgxMDgwLXYxIiwiZnBzIjoxMiwiYWN0aXZlTGF5ZXJJZCI6IjAwMDAwMDAwLTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDAwNCIsImxheWVyQ291bnQiOjEsInRhcmdldFJpZ0lkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMDAyIiwidGFyZ2V0RmlndXJlSWQiOiIwMDAwMDAwMC0wMDAwLTQwMDAtODAwMC0wMDAwMDAwMDAwMDMiLCJzdGFydGVyUG9zZUlkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwNDAxIiwiZmlndXJlQ291bnQiOjEsImF1dGhvcmVkUG9zZUNvdW50IjoxLCJ0aW1lbGluZUZyYW1lQ291bnQiOjEyLCJlbXB0eUNlbGxDb3VudCI6MTF9fQ=="
+        }
+      },
+      "expected": {
+        "outcome": "exact-response",
+        "status": 400,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ]
+        ],
+        "body": {
+          "byteLength": 89,
+          "sha256": "sha256:7e1aa2cba91fa14cc8a05b8a47ef0ed2dc952365be871361d3f6861a7c435f76"
+        },
+        "legacyCheckpoint": null,
+        "logAssertions": {
+          "forbiddenSubstrings": [
+            "PHASE5_PRIVATE_SENTINEL",
+            "PHASE5_DRAWING_SENTINEL",
+            "OPENAI_API_KEY",
+            "SUPABASE_SERVICE_ROLE_KEY"
+          ],
+          "rawBodyMustNotAppear": true
+        },
+        "nonLoopbackAttempts": 0
+      }
+    },
+    {
+      "caseId": "body-marker-wrong-header",
+      "operationKind": "marked-raw-stick-post",
+      "request": {
+        "method": "POST",
+        "path": "/api/ai",
+        "headers": [
+          [
+            "connection",
+            "close"
+          ],
+          [
+            "content-length",
+            "1405"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "host",
+            "phase5.invalid"
+          ],
+          [
+            "x-diamond-ai-workspace",
+            "drawing"
+          ]
+        ],
+        "body": {
+          "encoding": "base64",
+          "byteLength": 1405,
+          "sha256": "sha256:4c52772bb53533105653f9847675258b015a8d1d43a711c50a510d3a54c269db",
+          "data": "eyJraW5kIjoic3RpY2stYWktcmVxdWVzdCIsInJlcXVlc3RWZXJzaW9uIjoxLCJyZXF1ZXN0SWQiOiIwMDAwMDAwMC0wMDAwLTQwMDAtODAwMC0wMDAwMDAwMDA1MDEiLCJ0cmFuc2FjdGlvbklkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwNTAyIiwid29ya3NwYWNlVHlwZSI6InN0aWNrLWZpZ3VyZSIsInByb21wdCI6IkNyZWF0ZSBhIHNpbXBsZSB0aHJlZS1wb3NlIHdhdmUgYW5pbWF0aW9uIHdpdGggb25lIHN0aWNrIGZpZ3VyZSBhdCAxMiBGUFMuIiwiY2FwYWJpbGl0eU1hbmlmZXN0Ijp7Im1hbmlmZXN0VmVyc2lvbiI6MSwiY2FwYWJpbGl0aWVzIjpbInN0aWNrLnBvc2Utc2VxdWVuY2UuY3JlYXRlL3YxIl0sInByb21wdEludGVudFZlcnNpb24iOjEsImxpbWl0cyI6eyJtYXhBY3Rpb25zIjoxLCJtYXhSaWdzIjoxLCJtYXhGaWd1cmVzIjoxLCJtYXhUYXJnZXRMYXllcnMiOjEsIm1heEtleVBvc2VzIjozLCJtYXhUaW1lbGluZUZyYW1lcyI6MTIsImpvaW50c1BlclBvc2UiOjExLCJzZWdtZW50c1BlclJpZyI6MTAsImFsbG93ZWRGcHMiOlsxMl0sInByb21wdEJ5dGVzIjoxMjgsInJlcXVlc3RCeXRlcyI6MTYzODQsInByb3ZpZGVyUGxhbkJ5dGVzIjo4MTkyLCJjb21tYW5kQnl0ZXMiOjMyNzY4LCJjb29yZGluYXRlU3BhY2UiOiJzdGljay1zdGFnZS0xOTIweDEwODAtdjEiLCJzZWFyY2giOiJkaXNhYmxlZCIsInRvb2xzIjoiZGlzYWJsZWQifX0sInByb2plY3RDb250ZXh0Ijp7ImtpbmQiOiJzdGljay1wcm9qZWN0LWNvbnRleHQiLCJjb250ZXh0VmVyc2lvbiI6MSwic2NoZW1hVmVyc2lvbiI6MSwicHJvamVjdElkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMDAxIiwiZG9jdW1lbnRSZXZpc2lvbiI6MCwiYmFzZURvY3VtZW50RGlnZXN0Ijoic2hhMjU2OjgxYjhlOWIxODNhZjFhMTk4YjFiYjUxMmM4NzI2OTE5YWRlMGE3NjRmZmZmZTM4ZTFkNzc5NjRhZWZmODhiMmIiLCJ3b3Jrc3BhY2VUeXBlIjoic3RpY2stZmlndXJlIiwid2F2ZVN0YXJ0ZXJFbGlnaWJsZSI6dHJ1ZSwiY29vcmRpbmF0ZVNwYWNlIjoic3RpY2stc3RhZ2UtMTkyMHgxMDgwLXYxIiwiZnBzIjoxMiwiYWN0aXZlTGF5ZXJJZCI6IjAwMDAwMDAwLTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDAwNCIsImxheWVyQ291bnQiOjEsInRhcmdldFJpZ0lkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMDAyIiwidGFyZ2V0RmlndXJlSWQiOiIwMDAwMDAwMC0wMDAwLTQwMDAtODAwMC0wMDAwMDAwMDAwMDMiLCJzdGFydGVyUG9zZUlkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwNDAxIiwiZmlndXJlQ291bnQiOjEsImF1dGhvcmVkUG9zZUNvdW50IjoxLCJ0aW1lbGluZUZyYW1lQ291bnQiOjEyLCJlbXB0eUNlbGxDb3VudCI6MTF9fQ=="
+        }
+      },
+      "expected": {
+        "outcome": "exact-response",
+        "status": 400,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ]
+        ],
+        "body": {
+          "byteLength": 89,
+          "sha256": "sha256:7e1aa2cba91fa14cc8a05b8a47ef0ed2dc952365be871361d3f6861a7c435f76"
+        },
+        "legacyCheckpoint": null,
+        "logAssertions": {
+          "forbiddenSubstrings": [
+            "PHASE5_PRIVATE_SENTINEL",
+            "PHASE5_DRAWING_SENTINEL",
+            "OPENAI_API_KEY",
+            "SUPABASE_SERVICE_ROLE_KEY"
+          ],
+          "rawBodyMustNotAppear": true
+        },
+        "nonLoopbackAttempts": 0
+      }
+    },
+    {
+      "caseId": "unsupported-prompt",
+      "operationKind": "marked-raw-stick-post",
+      "request": {
+        "method": "POST",
+        "path": "/api/ai",
+        "headers": [
+          [
+            "connection",
+            "close"
+          ],
+          [
+            "content-length",
+            "1354"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "host",
+            "phase5.invalid"
+          ],
+          [
+            "x-diamond-ai-workspace",
+            "stick-figure"
+          ]
+        ],
+        "body": {
+          "encoding": "base64",
+          "byteLength": 1354,
+          "sha256": "sha256:afe707cb1fc76b9f85e82f82ff50b258f31747019c21c6c021dddf025f7fd6b7",
+          "data": "eyJraW5kIjoic3RpY2stYWktcmVxdWVzdCIsInJlcXVlc3RWZXJzaW9uIjoxLCJyZXF1ZXN0SWQiOiIwMDAwMDAwMC0wMDAwLTQwMDAtODAwMC0wMDAwMDAwMDA1MDEiLCJ0cmFuc2FjdGlvbklkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwNTAyIiwid29ya3NwYWNlVHlwZSI6InN0aWNrLWZpZ3VyZSIsInByb21wdCI6IlBIQVNFNV9QUklWQVRFX1NFTlRJTkVMIiwiY2FwYWJpbGl0eU1hbmlmZXN0Ijp7Im1hbmlmZXN0VmVyc2lvbiI6MSwiY2FwYWJpbGl0aWVzIjpbInN0aWNrLnBvc2Utc2VxdWVuY2UuY3JlYXRlL3YxIl0sInByb21wdEludGVudFZlcnNpb24iOjEsImxpbWl0cyI6eyJtYXhBY3Rpb25zIjoxLCJtYXhSaWdzIjoxLCJtYXhGaWd1cmVzIjoxLCJtYXhUYXJnZXRMYXllcnMiOjEsIm1heEtleVBvc2VzIjozLCJtYXhUaW1lbGluZUZyYW1lcyI6MTIsImpvaW50c1BlclBvc2UiOjExLCJzZWdtZW50c1BlclJpZyI6MTAsImFsbG93ZWRGcHMiOlsxMl0sInByb21wdEJ5dGVzIjoxMjgsInJlcXVlc3RCeXRlcyI6MTYzODQsInByb3ZpZGVyUGxhbkJ5dGVzIjo4MTkyLCJjb21tYW5kQnl0ZXMiOjMyNzY4LCJjb29yZGluYXRlU3BhY2UiOiJzdGljay1zdGFnZS0xOTIweDEwODAtdjEiLCJzZWFyY2giOiJkaXNhYmxlZCIsInRvb2xzIjoiZGlzYWJsZWQifX0sInByb2plY3RDb250ZXh0Ijp7ImtpbmQiOiJzdGljay1wcm9qZWN0LWNvbnRleHQiLCJjb250ZXh0VmVyc2lvbiI6MSwic2NoZW1hVmVyc2lvbiI6MSwicHJvamVjdElkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMDAxIiwiZG9jdW1lbnRSZXZpc2lvbiI6MCwiYmFzZURvY3VtZW50RGlnZXN0Ijoic2hhMjU2OjgxYjhlOWIxODNhZjFhMTk4YjFiYjUxMmM4NzI2OTE5YWRlMGE3NjRmZmZmZTM4ZTFkNzc5NjRhZWZmODhiMmIiLCJ3b3Jrc3BhY2VUeXBlIjoic3RpY2stZmlndXJlIiwid2F2ZVN0YXJ0ZXJFbGlnaWJsZSI6dHJ1ZSwiY29vcmRpbmF0ZVNwYWNlIjoic3RpY2stc3RhZ2UtMTkyMHgxMDgwLXYxIiwiZnBzIjoxMiwiYWN0aXZlTGF5ZXJJZCI6IjAwMDAwMDAwLTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDAwNCIsImxheWVyQ291bnQiOjEsInRhcmdldFJpZ0lkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMDAyIiwidGFyZ2V0RmlndXJlSWQiOiIwMDAwMDAwMC0wMDAwLTQwMDAtODAwMC0wMDAwMDAwMDAwMDMiLCJzdGFydGVyUG9zZUlkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwNDAxIiwiZmlndXJlQ291bnQiOjEsImF1dGhvcmVkUG9zZUNvdW50IjoxLCJ0aW1lbGluZUZyYW1lQ291bnQiOjEyLCJlbXB0eUNlbGxDb3VudCI6MTF9fQ=="
+        }
+      },
+      "expected": {
+        "outcome": "exact-response",
+        "status": 400,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ]
+        ],
+        "body": {
+          "byteLength": 92,
+          "sha256": "sha256:86892a77268f36d3f97eaf097453c4f3a5d3f0fad6c8687d29f8b13bdf461321"
+        },
+        "legacyCheckpoint": null,
+        "logAssertions": {
+          "forbiddenSubstrings": [
+            "PHASE5_PRIVATE_SENTINEL",
+            "PHASE5_DRAWING_SENTINEL",
+            "OPENAI_API_KEY",
+            "SUPABASE_SERVICE_ROLE_KEY"
+          ],
+          "rawBodyMustNotAppear": true
+        },
+        "nonLoopbackAttempts": 0
+      }
+    },
+    {
+      "caseId": "unsupported-version",
+      "operationKind": "marked-raw-stick-post",
+      "request": {
+        "method": "POST",
+        "path": "/api/ai",
+        "headers": [
+          [
+            "connection",
+            "close"
+          ],
+          [
+            "content-length",
+            "1405"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "host",
+            "phase5.invalid"
+          ],
+          [
+            "x-diamond-ai-workspace",
+            "stick-figure"
+          ]
+        ],
+        "body": {
+          "encoding": "base64",
+          "byteLength": 1405,
+          "sha256": "sha256:b631923e00c477ca2227af4b8edd95cc110fba704ccc6ab9c51255bd04ff6be3",
+          "data": "eyJraW5kIjoic3RpY2stYWktcmVxdWVzdCIsInJlcXVlc3RWZXJzaW9uIjoyLCJyZXF1ZXN0SWQiOiIwMDAwMDAwMC0wMDAwLTQwMDAtODAwMC0wMDAwMDAwMDA1MDEiLCJ0cmFuc2FjdGlvbklkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwNTAyIiwid29ya3NwYWNlVHlwZSI6InN0aWNrLWZpZ3VyZSIsInByb21wdCI6IkNyZWF0ZSBhIHNpbXBsZSB0aHJlZS1wb3NlIHdhdmUgYW5pbWF0aW9uIHdpdGggb25lIHN0aWNrIGZpZ3VyZSBhdCAxMiBGUFMuIiwiY2FwYWJpbGl0eU1hbmlmZXN0Ijp7Im1hbmlmZXN0VmVyc2lvbiI6MSwiY2FwYWJpbGl0aWVzIjpbInN0aWNrLnBvc2Utc2VxdWVuY2UuY3JlYXRlL3YxIl0sInByb21wdEludGVudFZlcnNpb24iOjEsImxpbWl0cyI6eyJtYXhBY3Rpb25zIjoxLCJtYXhSaWdzIjoxLCJtYXhGaWd1cmVzIjoxLCJtYXhUYXJnZXRMYXllcnMiOjEsIm1heEtleVBvc2VzIjozLCJtYXhUaW1lbGluZUZyYW1lcyI6MTIsImpvaW50c1BlclBvc2UiOjExLCJzZWdtZW50c1BlclJpZyI6MTAsImFsbG93ZWRGcHMiOlsxMl0sInByb21wdEJ5dGVzIjoxMjgsInJlcXVlc3RCeXRlcyI6MTYzODQsInByb3ZpZGVyUGxhbkJ5dGVzIjo4MTkyLCJjb21tYW5kQnl0ZXMiOjMyNzY4LCJjb29yZGluYXRlU3BhY2UiOiJzdGljay1zdGFnZS0xOTIweDEwODAtdjEiLCJzZWFyY2giOiJkaXNhYmxlZCIsInRvb2xzIjoiZGlzYWJsZWQifX0sInByb2plY3RDb250ZXh0Ijp7ImtpbmQiOiJzdGljay1wcm9qZWN0LWNvbnRleHQiLCJjb250ZXh0VmVyc2lvbiI6MSwic2NoZW1hVmVyc2lvbiI6MSwicHJvamVjdElkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMDAxIiwiZG9jdW1lbnRSZXZpc2lvbiI6MCwiYmFzZURvY3VtZW50RGlnZXN0Ijoic2hhMjU2OjgxYjhlOWIxODNhZjFhMTk4YjFiYjUxMmM4NzI2OTE5YWRlMGE3NjRmZmZmZTM4ZTFkNzc5NjRhZWZmODhiMmIiLCJ3b3Jrc3BhY2VUeXBlIjoic3RpY2stZmlndXJlIiwid2F2ZVN0YXJ0ZXJFbGlnaWJsZSI6dHJ1ZSwiY29vcmRpbmF0ZVNwYWNlIjoic3RpY2stc3RhZ2UtMTkyMHgxMDgwLXYxIiwiZnBzIjoxMiwiYWN0aXZlTGF5ZXJJZCI6IjAwMDAwMDAwLTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDAwNCIsImxheWVyQ291bnQiOjEsInRhcmdldFJpZ0lkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMDAyIiwidGFyZ2V0RmlndXJlSWQiOiIwMDAwMDAwMC0wMDAwLTQwMDAtODAwMC0wMDAwMDAwMDAwMDMiLCJzdGFydGVyUG9zZUlkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwNDAxIiwiZmlndXJlQ291bnQiOjEsImF1dGhvcmVkUG9zZUNvdW50IjoxLCJ0aW1lbGluZUZyYW1lQ291bnQiOjEyLCJlbXB0eUNlbGxDb3VudCI6MTF9fQ=="
+        }
+      },
+      "expected": {
+        "outcome": "exact-response",
+        "status": 400,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ]
+        ],
+        "body": {
+          "byteLength": 93,
+          "sha256": "sha256:5c20dbfdae56f32a81a30c2394eccbd21f9a0a55bc0a38128db2c5cf66a70012"
+        },
+        "legacyCheckpoint": null,
+        "logAssertions": {
+          "forbiddenSubstrings": [
+            "PHASE5_PRIVATE_SENTINEL",
+            "PHASE5_DRAWING_SENTINEL",
+            "OPENAI_API_KEY",
+            "SUPABASE_SERVICE_ROLE_KEY"
+          ],
+          "rawBodyMustNotAppear": true
+        },
+        "nonLoopbackAttempts": 0
+      }
+    },
+    {
+      "caseId": "unsupported-capability",
+      "operationKind": "marked-raw-stick-post",
+      "request": {
+        "method": "POST",
+        "path": "/api/ai",
+        "headers": [
+          [
+            "connection",
+            "close"
+          ],
+          [
+            "content-length",
+            "1396"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "host",
+            "phase5.invalid"
+          ],
+          [
+            "x-diamond-ai-workspace",
+            "stick-figure"
+          ]
+        ],
+        "body": {
+          "encoding": "base64",
+          "byteLength": 1396,
+          "sha256": "sha256:95241a439401b2748b1b5b7becaa25f19b82b5cf4503b0e32d9d63f5c85a71fc",
+          "data": "eyJraW5kIjoic3RpY2stYWktcmVxdWVzdCIsInJlcXVlc3RWZXJzaW9uIjoxLCJyZXF1ZXN0SWQiOiIwMDAwMDAwMC0wMDAwLTQwMDAtODAwMC0wMDAwMDAwMDA1MDEiLCJ0cmFuc2FjdGlvbklkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwNTAyIiwid29ya3NwYWNlVHlwZSI6InN0aWNrLWZpZ3VyZSIsInByb21wdCI6IkNyZWF0ZSBhIHNpbXBsZSB0aHJlZS1wb3NlIHdhdmUgYW5pbWF0aW9uIHdpdGggb25lIHN0aWNrIGZpZ3VyZSBhdCAxMiBGUFMuIiwiY2FwYWJpbGl0eU1hbmlmZXN0Ijp7Im1hbmlmZXN0VmVyc2lvbiI6MSwiY2FwYWJpbGl0aWVzIjpbInN0aWNrLnVuc3VwcG9ydGVkL3YxIl0sInByb21wdEludGVudFZlcnNpb24iOjEsImxpbWl0cyI6eyJtYXhBY3Rpb25zIjoxLCJtYXhSaWdzIjoxLCJtYXhGaWd1cmVzIjoxLCJtYXhUYXJnZXRMYXllcnMiOjEsIm1heEtleVBvc2VzIjozLCJtYXhUaW1lbGluZUZyYW1lcyI6MTIsImpvaW50c1BlclBvc2UiOjExLCJzZWdtZW50c1BlclJpZyI6MTAsImFsbG93ZWRGcHMiOlsxMl0sInByb21wdEJ5dGVzIjoxMjgsInJlcXVlc3RCeXRlcyI6MTYzODQsInByb3ZpZGVyUGxhbkJ5dGVzIjo4MTkyLCJjb21tYW5kQnl0ZXMiOjMyNzY4LCJjb29yZGluYXRlU3BhY2UiOiJzdGljay1zdGFnZS0xOTIweDEwODAtdjEiLCJzZWFyY2giOiJkaXNhYmxlZCIsInRvb2xzIjoiZGlzYWJsZWQifX0sInByb2plY3RDb250ZXh0Ijp7ImtpbmQiOiJzdGljay1wcm9qZWN0LWNvbnRleHQiLCJjb250ZXh0VmVyc2lvbiI6MSwic2NoZW1hVmVyc2lvbiI6MSwicHJvamVjdElkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMDAxIiwiZG9jdW1lbnRSZXZpc2lvbiI6MCwiYmFzZURvY3VtZW50RGlnZXN0Ijoic2hhMjU2OjgxYjhlOWIxODNhZjFhMTk4YjFiYjUxMmM4NzI2OTE5YWRlMGE3NjRmZmZmZTM4ZTFkNzc5NjRhZWZmODhiMmIiLCJ3b3Jrc3BhY2VUeXBlIjoic3RpY2stZmlndXJlIiwid2F2ZVN0YXJ0ZXJFbGlnaWJsZSI6dHJ1ZSwiY29vcmRpbmF0ZVNwYWNlIjoic3RpY2stc3RhZ2UtMTkyMHgxMDgwLXYxIiwiZnBzIjoxMiwiYWN0aXZlTGF5ZXJJZCI6IjAwMDAwMDAwLTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDAwNCIsImxheWVyQ291bnQiOjEsInRhcmdldFJpZ0lkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMDAyIiwidGFyZ2V0RmlndXJlSWQiOiIwMDAwMDAwMC0wMDAwLTQwMDAtODAwMC0wMDAwMDAwMDAwMDMiLCJzdGFydGVyUG9zZUlkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwNDAxIiwiZmlndXJlQ291bnQiOjEsImF1dGhvcmVkUG9zZUNvdW50IjoxLCJ0aW1lbGluZUZyYW1lQ291bnQiOjEyLCJlbXB0eUNlbGxDb3VudCI6MTF9fQ=="
+        }
+      },
+      "expected": {
+        "outcome": "exact-response",
+        "status": 400,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ]
+        ],
+        "body": {
+          "byteLength": 89,
+          "sha256": "sha256:7e1aa2cba91fa14cc8a05b8a47ef0ed2dc952365be871361d3f6861a7c435f76"
+        },
+        "legacyCheckpoint": null,
+        "logAssertions": {
+          "forbiddenSubstrings": [
+            "PHASE5_PRIVATE_SENTINEL",
+            "PHASE5_DRAWING_SENTINEL",
+            "OPENAI_API_KEY",
+            "SUPABASE_SERVICE_ROLE_KEY"
+          ],
+          "rawBodyMustNotAppear": true
+        },
+        "nonLoopbackAttempts": 0
+      }
+    },
+    {
+      "caseId": "exact-16384-byte-request",
+      "operationKind": "marked-raw-stick-post",
+      "request": {
+        "method": "POST",
+        "path": "/api/ai",
+        "headers": [
+          [
+            "connection",
+            "close"
+          ],
+          [
+            "content-length",
+            "16384"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "host",
+            "phase5.invalid"
+          ],
+          [
+            "x-diamond-ai-workspace",
+            "stick-figure"
+          ]
+        ],
+        "body": {
+          "encoding": "base64",
+          "byteLength": 16384,
+          "sha256": "sha256:d9626024e09d95e555c0e60ac22d455e47548166b98aa52963e37bf732ef7c36",
+          "data": "eyJraW5kIjoic3RpY2stYWktcmVxdWVzdCIsInJlcXVlc3RWZXJzaW9uIjoxLCJyZXF1ZXN0SWQiOiIwMDAwMDAwMC0wMDAwLTQwMDAtODAwMC0wMDAwMDAwMDA1MDEiLCJ0cmFuc2FjdGlvbklkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwNTAyIiwid29ya3NwYWNlVHlwZSI6InN0aWNrLWZpZ3VyZSIsInByb21wdCI6IkNyZWF0ZSBhIHNpbXBsZSB0aHJlZS1wb3NlIHdhdmUgYW5pbWF0aW9uIHdpdGggb25lIHN0aWNrIGZpZ3VyZSBhdCAxMiBGUFMuIiwiY2FwYWJpbGl0eU1hbmlmZXN0Ijp7Im1hbmlmZXN0VmVyc2lvbiI6MSwiY2FwYWJpbGl0aWVzIjpbInN0aWNrLnBvc2Utc2VxdWVuY2UuY3JlYXRlL3YxIl0sInByb21wdEludGVudFZlcnNpb24iOjEsImxpbWl0cyI6eyJtYXhBY3Rpb25zIjoxLCJtYXhSaWdzIjoxLCJtYXhGaWd1cmVzIjoxLCJtYXhUYXJnZXRMYXllcnMiOjEsIm1heEtleVBvc2VzIjozLCJtYXhUaW1lbGluZUZyYW1lcyI6MTIsImpvaW50c1BlclBvc2UiOjExLCJzZWdtZW50c1BlclJpZyI6MTAsImFsbG93ZWRGcHMiOlsxMl0sInByb21wdEJ5dGVzIjoxMjgsInJlcXVlc3RCeXRlcyI6MTYzODQsInByb3ZpZGVyUGxhbkJ5dGVzIjo4MTkyLCJjb21tYW5kQnl0ZXMiOjMyNzY4LCJjb29yZGluYXRlU3BhY2UiOiJzdGljay1zdGFnZS0xOTIweDEwODAtdjEiLCJzZWFyY2giOiJkaXNhYmxlZCIsInRvb2xzIjoiZGlzYWJsZWQifX0sInByb2plY3RDb250ZXh0Ijp7ImtpbmQiOiJzdGljay1wcm9qZWN0LWNvbnRleHQiLCJjb250ZXh0VmVyc2lvbiI6MSwic2NoZW1hVmVyc2lvbiI6MSwicHJvamVjdElkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMDAxIiwiZG9jdW1lbnRSZXZpc2lvbiI6MCwiYmFzZURvY3VtZW50RGlnZXN0Ijoic2hhMjU2OjgxYjhlOWIxODNhZjFhMTk4YjFiYjUxMmM4NzI2OTE5YWRlMGE3NjRmZmZmZTM4ZTFkNzc5NjRhZWZmODhiMmIiLCJ3b3Jrc3BhY2VUeXBlIjoic3RpY2stZmlndXJlIiwid2F2ZVN0YXJ0ZXJFbGlnaWJsZSI6dHJ1ZSwiY29vcmRpbmF0ZVNwYWNlIjoic3RpY2stc3RhZ2UtMTkyMHgxMDgwLXYxIiwiZnBzIjoxMiwiYWN0aXZlTGF5ZXJJZCI6IjAwMDAwMDAwLTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDAwNCIsImxheWVyQ291bnQiOjEsInRhcmdldFJpZ0lkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMDAyIiwidGFyZ2V0RmlndXJlSWQiOiIwMDAwMDAwMC0wMDAwLTQwMDAtODAwMC0wMDAwMDAwMDAwMDMiLCJzdGFydGVyUG9zZUlkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwNDAxIiwiZmlndXJlQ291bnQiOjEsImF1dGhvcmVkUG9zZUNvdW50IjoxLCJ0aW1lbGluZUZyYW1lQ291bnQiOjEyLCJlbXB0eUNlbGxDb3VudCI6MTF9fSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA=="
+        }
+      },
+      "expected": {
+        "outcome": "exact-response",
+        "status": 200,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ]
+        ],
+        "body": {
+          "byteLength": 4163,
+          "sha256": "sha256:b7b3fb757476a6e425cc8829359bb1a4fdae889a23cfded5c920782449c58006"
+        },
+        "legacyCheckpoint": null,
+        "logAssertions": {
+          "forbiddenSubstrings": [
+            "PHASE5_PRIVATE_SENTINEL",
+            "PHASE5_DRAWING_SENTINEL",
+            "OPENAI_API_KEY",
+            "SUPABASE_SERVICE_ROLE_KEY"
+          ],
+          "rawBodyMustNotAppear": true
+        },
+        "nonLoopbackAttempts": 0
+      }
+    },
+    {
+      "caseId": "plus-one-16385-byte-request",
+      "operationKind": "marked-raw-stick-post",
+      "request": {
+        "method": "POST",
+        "path": "/api/ai",
+        "headers": [
+          [
+            "connection",
+            "close"
+          ],
+          [
+            "content-length",
+            "16385"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "host",
+            "phase5.invalid"
+          ],
+          [
+            "x-diamond-ai-workspace",
+            "stick-figure"
+          ]
+        ],
+        "body": {
+          "encoding": "base64",
+          "byteLength": 16385,
+          "sha256": "sha256:9abf9c55bde7c46d0fe8e7f866a2969f6f142f67e6ca1695de026120834f3473",
+          "data": "eyJraW5kIjoic3RpY2stYWktcmVxdWVzdCIsInJlcXVlc3RWZXJzaW9uIjoxLCJyZXF1ZXN0SWQiOiIwMDAwMDAwMC0wMDAwLTQwMDAtODAwMC0wMDAwMDAwMDA1MDEiLCJ0cmFuc2FjdGlvbklkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwNTAyIiwid29ya3NwYWNlVHlwZSI6InN0aWNrLWZpZ3VyZSIsInByb21wdCI6IkNyZWF0ZSBhIHNpbXBsZSB0aHJlZS1wb3NlIHdhdmUgYW5pbWF0aW9uIHdpdGggb25lIHN0aWNrIGZpZ3VyZSBhdCAxMiBGUFMuIiwiY2FwYWJpbGl0eU1hbmlmZXN0Ijp7Im1hbmlmZXN0VmVyc2lvbiI6MSwiY2FwYWJpbGl0aWVzIjpbInN0aWNrLnBvc2Utc2VxdWVuY2UuY3JlYXRlL3YxIl0sInByb21wdEludGVudFZlcnNpb24iOjEsImxpbWl0cyI6eyJtYXhBY3Rpb25zIjoxLCJtYXhSaWdzIjoxLCJtYXhGaWd1cmVzIjoxLCJtYXhUYXJnZXRMYXllcnMiOjEsIm1heEtleVBvc2VzIjozLCJtYXhUaW1lbGluZUZyYW1lcyI6MTIsImpvaW50c1BlclBvc2UiOjExLCJzZWdtZW50c1BlclJpZyI6MTAsImFsbG93ZWRGcHMiOlsxMl0sInByb21wdEJ5dGVzIjoxMjgsInJlcXVlc3RCeXRlcyI6MTYzODQsInByb3ZpZGVyUGxhbkJ5dGVzIjo4MTkyLCJjb21tYW5kQnl0ZXMiOjMyNzY4LCJjb29yZGluYXRlU3BhY2UiOiJzdGljay1zdGFnZS0xOTIweDEwODAtdjEiLCJzZWFyY2giOiJkaXNhYmxlZCIsInRvb2xzIjoiZGlzYWJsZWQifX0sInByb2plY3RDb250ZXh0Ijp7ImtpbmQiOiJzdGljay1wcm9qZWN0LWNvbnRleHQiLCJjb250ZXh0VmVyc2lvbiI6MSwic2NoZW1hVmVyc2lvbiI6MSwicHJvamVjdElkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMDAxIiwiZG9jdW1lbnRSZXZpc2lvbiI6MCwiYmFzZURvY3VtZW50RGlnZXN0Ijoic2hhMjU2OjgxYjhlOWIxODNhZjFhMTk4YjFiYjUxMmM4NzI2OTE5YWRlMGE3NjRmZmZmZTM4ZTFkNzc5NjRhZWZmODhiMmIiLCJ3b3Jrc3BhY2VUeXBlIjoic3RpY2stZmlndXJlIiwid2F2ZVN0YXJ0ZXJFbGlnaWJsZSI6dHJ1ZSwiY29vcmRpbmF0ZVNwYWNlIjoic3RpY2stc3RhZ2UtMTkyMHgxMDgwLXYxIiwiZnBzIjoxMiwiYWN0aXZlTGF5ZXJJZCI6IjAwMDAwMDAwLTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDAwNCIsImxheWVyQ291bnQiOjEsInRhcmdldFJpZ0lkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMDAyIiwidGFyZ2V0RmlndXJlSWQiOiIwMDAwMDAwMC0wMDAwLTQwMDAtODAwMC0wMDAwMDAwMDAwMDMiLCJzdGFydGVyUG9zZUlkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwNDAxIiwiZmlndXJlQ291bnQiOjEsImF1dGhvcmVkUG9zZUNvdW50IjoxLCJ0aW1lbGluZUZyYW1lQ291bnQiOjEyLCJlbXB0eUNlbGxDb3VudCI6MTF9fSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA="
+        }
+      },
+      "expected": {
+        "outcome": "exact-response",
+        "status": 413,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ]
+        ],
+        "body": {
+          "byteLength": 91,
+          "sha256": "sha256:74326568182b38144d129602261fe3474de746650554c6194f17d9e594bca27d"
+        },
+        "legacyCheckpoint": null,
+        "logAssertions": {
+          "forbiddenSubstrings": [
+            "PHASE5_PRIVATE_SENTINEL",
+            "PHASE5_DRAWING_SENTINEL",
+            "OPENAI_API_KEY",
+            "SUPABASE_SERVICE_ROLE_KEY"
+          ],
+          "rawBodyMustNotAppear": true
+        },
+        "nonLoopbackAttempts": 0
+      }
+    },
+    {
+      "caseId": "multibyte-byte-oversize",
+      "operationKind": "marked-raw-stick-post",
+      "request": {
+        "method": "POST",
+        "path": "/api/ai",
+        "headers": [
+          [
+            "connection",
+            "close"
+          ],
+          [
+            "content-length",
+            "17418"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "host",
+            "phase5.invalid"
+          ],
+          [
+            "x-diamond-ai-workspace",
+            "stick-figure"
+          ]
+        ],
+        "body": {
+          "encoding": "base64",
+          "byteLength": 17418,
+          "sha256": "sha256:be0a3ea233fbf90b70aa92a17f91aed9e6b97afe45fda5d3e9d1e193624529d2",
+          "data": "eyJraW5kIjoic3RpY2stYWktcmVxdWVzdCIsInJlcXVlc3RWZXJzaW9uIjoxLCJyZXF1ZXN0SWQiOiIwMDAwMDAwMC0wMDAwLTQwMDAtODAwMC0wMDAwMDAwMDA1MDEiLCJ0cmFuc2FjdGlvbklkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwNTAyIiwid29ya3NwYWNlVHlwZSI6InN0aWNrLWZpZ3VyZSIsInByb21wdCI6IkNyZWF0ZSBhIHNpbXBsZSB0aHJlZS1wb3NlIHdhdmUgYW5pbWF0aW9uIHdpdGggb25lIHN0aWNrIGZpZ3VyZSBhdCAxMiBGUFMuIiwiY2FwYWJpbGl0eU1hbmlmZXN0Ijp7Im1hbmlmZXN0VmVyc2lvbiI6MSwiY2FwYWJpbGl0aWVzIjpbInN0aWNrLnBvc2Utc2VxdWVuY2UuY3JlYXRlL3YxIl0sInByb21wdEludGVudFZlcnNpb24iOjEsImxpbWl0cyI6eyJtYXhBY3Rpb25zIjoxLCJtYXhSaWdzIjoxLCJtYXhGaWd1cmVzIjoxLCJtYXhUYXJnZXRMYXllcnMiOjEsIm1heEtleVBvc2VzIjozLCJtYXhUaW1lbGluZUZyYW1lcyI6MTIsImpvaW50c1BlclBvc2UiOjExLCJzZWdtZW50c1BlclJpZyI6MTAsImFsbG93ZWRGcHMiOlsxMl0sInByb21wdEJ5dGVzIjoxMjgsInJlcXVlc3RCeXRlcyI6MTYzODQsInByb3ZpZGVyUGxhbkJ5dGVzIjo4MTkyLCJjb21tYW5kQnl0ZXMiOjMyNzY4LCJjb29yZGluYXRlU3BhY2UiOiJzdGljay1zdGFnZS0xOTIweDEwODAtdjEiLCJzZWFyY2giOiJkaXNhYmxlZCIsInRvb2xzIjoiZGlzYWJsZWQifX0sInByb2plY3RDb250ZXh0Ijp7ImtpbmQiOiJzdGljay1wcm9qZWN0LWNvbnRleHQiLCJjb250ZXh0VmVyc2lvbiI6MSwic2NoZW1hVmVyc2lvbiI6MSwicHJvamVjdElkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMDAxIiwiZG9jdW1lbnRSZXZpc2lvbiI6MCwiYmFzZURvY3VtZW50RGlnZXN0Ijoic2hhMjU2OjgxYjhlOWIxODNhZjFhMTk4YjFiYjUxMmM4NzI2OTE5YWRlMGE3NjRmZmZmZTM4ZTFkNzc5NjRhZWZmODhiMmIiLCJ3b3Jrc3BhY2VUeXBlIjoic3RpY2stZmlndXJlIiwid2F2ZVN0YXJ0ZXJFbGlnaWJsZSI6dHJ1ZSwiY29vcmRpbmF0ZVNwYWNlIjoic3RpY2stc3RhZ2UtMTkyMHgxMDgwLXYxIiwiZnBzIjoxMiwiYWN0aXZlTGF5ZXJJZCI6IjAwMDAwMDAwLTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDAwNCIsImxheWVyQ291bnQiOjEsInRhcmdldFJpZ0lkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMDAyIiwidGFyZ2V0RmlndXJlSWQiOiIwMDAwMDAwMC0wMDAwLTQwMDAtODAwMC0wMDAwMDAwMDAwMDMiLCJzdGFydGVyUG9zZUlkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwNDAxIiwiZmlndXJlQ291bnQiOjEsImF1dGhvcmVkUG9zZUNvdW50IjoxLCJ0aW1lbGluZUZyYW1lQ291bnQiOjEyLCJlbXB0eUNlbGxDb3VudCI6MTF9LCJwYWRkaW5nIjoiw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqcOpw6nDqSJ9"
+        }
+      },
+      "expected": {
+        "outcome": "exact-response",
+        "status": 413,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ]
+        ],
+        "body": {
+          "byteLength": 91,
+          "sha256": "sha256:74326568182b38144d129602261fe3474de746650554c6194f17d9e594bca27d"
+        },
+        "legacyCheckpoint": null,
+        "logAssertions": {
+          "forbiddenSubstrings": [
+            "PHASE5_PRIVATE_SENTINEL",
+            "PHASE5_DRAWING_SENTINEL",
+            "OPENAI_API_KEY",
+            "SUPABASE_SERVICE_ROLE_KEY"
+          ],
+          "rawBodyMustNotAppear": true
+        },
+        "nonLoopbackAttempts": 0
+      }
+    },
+    {
+      "caseId": "captured-invalid-utf8",
+      "operationKind": "marked-raw-stick-post",
+      "request": {
+        "method": "POST",
+        "path": "/api/ai",
+        "headers": [
+          [
+            "connection",
+            "close"
+          ],
+          [
+            "content-length",
+            "40"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "host",
+            "phase5.invalid"
+          ],
+          [
+            "x-diamond-ai-workspace",
+            "stick-figure"
+          ]
+        ],
+        "body": {
+          "encoding": "base64",
+          "byteLength": 40,
+          "sha256": "sha256:c80543e7494d97bfb3851448961421905da249ad1bcf39741a3f0b0b19473d0c",
+          "data": "eyJraW5kIjoic3RpY2stYWktcmVxdWVzdCIsInZhbHVlIjoiwygifQ=="
+        }
+      },
+      "expected": {
+        "outcome": "exact-response",
+        "status": 400,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ]
+        ],
+        "body": {
+          "byteLength": 89,
+          "sha256": "sha256:7e1aa2cba91fa14cc8a05b8a47ef0ed2dc952365be871361d3f6861a7c435f76"
+        },
+        "legacyCheckpoint": null,
+        "logAssertions": {
+          "forbiddenSubstrings": [
+            "PHASE5_PRIVATE_SENTINEL",
+            "PHASE5_DRAWING_SENTINEL",
+            "OPENAI_API_KEY",
+            "SUPABASE_SERVICE_ROLE_KEY"
+          ],
+          "rawBodyMustNotAppear": true
+        },
+        "nonLoopbackAttempts": 0
+      }
+    },
+    {
+      "caseId": "captured-utf8-bom",
+      "operationKind": "marked-raw-stick-post",
+      "request": {
+        "method": "POST",
+        "path": "/api/ai",
+        "headers": [
+          [
+            "connection",
+            "close"
+          ],
+          [
+            "content-length",
+            "1408"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "host",
+            "phase5.invalid"
+          ],
+          [
+            "x-diamond-ai-workspace",
+            "stick-figure"
+          ]
+        ],
+        "body": {
+          "encoding": "base64",
+          "byteLength": 1408,
+          "sha256": "sha256:d61f1ee609391009d575427b099d04c09c113a5ebbd96ce6fee4b18561417a9b",
+          "data": "77u/eyJraW5kIjoic3RpY2stYWktcmVxdWVzdCIsInJlcXVlc3RWZXJzaW9uIjoxLCJyZXF1ZXN0SWQiOiIwMDAwMDAwMC0wMDAwLTQwMDAtODAwMC0wMDAwMDAwMDA1MDEiLCJ0cmFuc2FjdGlvbklkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwNTAyIiwid29ya3NwYWNlVHlwZSI6InN0aWNrLWZpZ3VyZSIsInByb21wdCI6IkNyZWF0ZSBhIHNpbXBsZSB0aHJlZS1wb3NlIHdhdmUgYW5pbWF0aW9uIHdpdGggb25lIHN0aWNrIGZpZ3VyZSBhdCAxMiBGUFMuIiwiY2FwYWJpbGl0eU1hbmlmZXN0Ijp7Im1hbmlmZXN0VmVyc2lvbiI6MSwiY2FwYWJpbGl0aWVzIjpbInN0aWNrLnBvc2Utc2VxdWVuY2UuY3JlYXRlL3YxIl0sInByb21wdEludGVudFZlcnNpb24iOjEsImxpbWl0cyI6eyJtYXhBY3Rpb25zIjoxLCJtYXhSaWdzIjoxLCJtYXhGaWd1cmVzIjoxLCJtYXhUYXJnZXRMYXllcnMiOjEsIm1heEtleVBvc2VzIjozLCJtYXhUaW1lbGluZUZyYW1lcyI6MTIsImpvaW50c1BlclBvc2UiOjExLCJzZWdtZW50c1BlclJpZyI6MTAsImFsbG93ZWRGcHMiOlsxMl0sInByb21wdEJ5dGVzIjoxMjgsInJlcXVlc3RCeXRlcyI6MTYzODQsInByb3ZpZGVyUGxhbkJ5dGVzIjo4MTkyLCJjb21tYW5kQnl0ZXMiOjMyNzY4LCJjb29yZGluYXRlU3BhY2UiOiJzdGljay1zdGFnZS0xOTIweDEwODAtdjEiLCJzZWFyY2giOiJkaXNhYmxlZCIsInRvb2xzIjoiZGlzYWJsZWQifX0sInByb2plY3RDb250ZXh0Ijp7ImtpbmQiOiJzdGljay1wcm9qZWN0LWNvbnRleHQiLCJjb250ZXh0VmVyc2lvbiI6MSwic2NoZW1hVmVyc2lvbiI6MSwicHJvamVjdElkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMDAxIiwiZG9jdW1lbnRSZXZpc2lvbiI6MCwiYmFzZURvY3VtZW50RGlnZXN0Ijoic2hhMjU2OjgxYjhlOWIxODNhZjFhMTk4YjFiYjUxMmM4NzI2OTE5YWRlMGE3NjRmZmZmZTM4ZTFkNzc5NjRhZWZmODhiMmIiLCJ3b3Jrc3BhY2VUeXBlIjoic3RpY2stZmlndXJlIiwid2F2ZVN0YXJ0ZXJFbGlnaWJsZSI6dHJ1ZSwiY29vcmRpbmF0ZVNwYWNlIjoic3RpY2stc3RhZ2UtMTkyMHgxMDgwLXYxIiwiZnBzIjoxMiwiYWN0aXZlTGF5ZXJJZCI6IjAwMDAwMDAwLTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDAwNCIsImxheWVyQ291bnQiOjEsInRhcmdldFJpZ0lkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMDAyIiwidGFyZ2V0RmlndXJlSWQiOiIwMDAwMDAwMC0wMDAwLTQwMDAtODAwMC0wMDAwMDAwMDAwMDMiLCJzdGFydGVyUG9zZUlkIjoiMDAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwNDAxIiwiZmlndXJlQ291bnQiOjEsImF1dGhvcmVkUG9zZUNvdW50IjoxLCJ0aW1lbGluZUZyYW1lQ291bnQiOjEyLCJlbXB0eUNlbGxDb3VudCI6MTF9fQ=="
+        }
+      },
+      "expected": {
+        "outcome": "exact-response",
+        "status": 400,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ]
+        ],
+        "body": {
+          "byteLength": 89,
+          "sha256": "sha256:7e1aa2cba91fa14cc8a05b8a47ef0ed2dc952365be871361d3f6861a7c435f76"
+        },
+        "legacyCheckpoint": null,
+        "logAssertions": {
+          "forbiddenSubstrings": [
+            "PHASE5_PRIVATE_SENTINEL",
+            "PHASE5_DRAWING_SENTINEL",
+            "OPENAI_API_KEY",
+            "SUPABASE_SERVICE_ROLE_KEY"
+          ],
+          "rawBodyMustNotAppear": true
+        },
+        "nonLoopbackAttempts": 0
+      }
+    },
+    {
+      "caseId": "captured-malformed-header",
+      "operationKind": "marked-raw-stick-post",
+      "request": {
+        "method": "POST",
+        "path": "/api/ai",
+        "headers": [
+          [
+            "connection",
+            "close"
+          ],
+          [
+            "content-length",
+            "26"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "host",
+            "phase5.invalid"
+          ],
+          [
+            "x-diamond-ai-workspace",
+            "stick-figure"
+          ]
+        ],
+        "body": {
+          "encoding": "base64",
+          "byteLength": 26,
+          "sha256": "sha256:84df497b77231cab01b6029031d009b2729d559403ce5ccca25385d7bc0c38af",
+          "data": "eyJraW5kIjoic3RpY2stYWktcmVxdWVzdCI="
+        }
+      },
+      "expected": {
+        "outcome": "exact-response",
+        "status": 400,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ]
+        ],
+        "body": {
+          "byteLength": 89,
+          "sha256": "sha256:7e1aa2cba91fa14cc8a05b8a47ef0ed2dc952365be871361d3f6861a7c435f76"
+        },
+        "legacyCheckpoint": null,
+        "logAssertions": {
+          "forbiddenSubstrings": [
+            "PHASE5_PRIVATE_SENTINEL",
+            "PHASE5_DRAWING_SENTINEL",
+            "OPENAI_API_KEY",
+            "SUPABASE_SERVICE_ROLE_KEY"
+          ],
+          "rawBodyMustNotAppear": true
+        },
+        "nonLoopbackAttempts": 0
+      }
+    },
+    {
+      "caseId": "marker-before-later-syntax",
+      "operationKind": "marked-raw-stick-post",
+      "request": {
+        "method": "POST",
+        "path": "/api/ai",
+        "headers": [
+          [
+            "connection",
+            "close"
+          ],
+          [
+            "content-length",
+            "35"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "host",
+            "phase5.invalid"
+          ]
+        ],
+        "body": {
+          "encoding": "base64",
+          "byteLength": 35,
+          "sha256": "sha256:686726cedfccdae19369127172dc65cfa694d31240445d0f151f4dc557257f8d",
+          "data": "eyJraW5kIjoic3RpY2stYWktcmVxdWVzdCIsImxhdGVyIjo="
+        }
+      },
+      "expected": {
+        "outcome": "exact-response",
+        "status": 400,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ]
+        ],
+        "body": {
+          "byteLength": 89,
+          "sha256": "sha256:7e1aa2cba91fa14cc8a05b8a47ef0ed2dc952365be871361d3f6861a7c435f76"
+        },
+        "legacyCheckpoint": null,
+        "logAssertions": {
+          "forbiddenSubstrings": [
+            "PHASE5_PRIVATE_SENTINEL",
+            "PHASE5_DRAWING_SENTINEL",
+            "OPENAI_API_KEY",
+            "SUPABASE_SERVICE_ROLE_KEY"
+          ],
+          "rawBodyMustNotAppear": true
+        },
+        "nonLoopbackAttempts": 0
+      }
+    },
+    {
+      "caseId": "root-duplicate-marker-first",
+      "operationKind": "marked-raw-stick-post",
+      "request": {
+        "method": "POST",
+        "path": "/api/ai",
+        "headers": [
+          [
+            "connection",
+            "close"
+          ],
+          [
+            "content-length",
+            "42"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "host",
+            "phase5.invalid"
+          ]
+        ],
+        "body": {
+          "encoding": "base64",
+          "byteLength": 42,
+          "sha256": "sha256:d57fbd8be6f1210f4cd34067876137df3bb8644ec43f118f701bdaf3b5d248da",
+          "data": "eyJraW5kIjoic3RpY2stYWktcmVxdWVzdCIsImtpbmQiOiJvdGhlciJ9"
+        }
+      },
+      "expected": {
+        "outcome": "exact-response",
+        "status": 400,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ]
+        ],
+        "body": {
+          "byteLength": 89,
+          "sha256": "sha256:7e1aa2cba91fa14cc8a05b8a47ef0ed2dc952365be871361d3f6861a7c435f76"
+        },
+        "legacyCheckpoint": null,
+        "logAssertions": {
+          "forbiddenSubstrings": [
+            "PHASE5_PRIVATE_SENTINEL",
+            "PHASE5_DRAWING_SENTINEL",
+            "OPENAI_API_KEY",
+            "SUPABASE_SERVICE_ROLE_KEY"
+          ],
+          "rawBodyMustNotAppear": true
+        },
+        "nonLoopbackAttempts": 0
+      }
+    },
+    {
+      "caseId": "root-duplicate-marker-last",
+      "operationKind": "marked-raw-stick-post",
+      "request": {
+        "method": "POST",
+        "path": "/api/ai",
+        "headers": [
+          [
+            "connection",
+            "close"
+          ],
+          [
+            "content-length",
+            "42"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "host",
+            "phase5.invalid"
+          ]
+        ],
+        "body": {
+          "encoding": "base64",
+          "byteLength": 42,
+          "sha256": "sha256:5e3962a86eb2d0e09b47461ed98f110759b2c63b3cd35002b2812a8a727fa207",
+          "data": "eyJraW5kIjoib3RoZXIiLCJraW5kIjoic3RpY2stYWktcmVxdWVzdCJ9"
+        }
+      },
+      "expected": {
+        "outcome": "exact-response",
+        "status": 400,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ]
+        ],
+        "body": {
+          "byteLength": 89,
+          "sha256": "sha256:7e1aa2cba91fa14cc8a05b8a47ef0ed2dc952365be871361d3f6861a7c435f76"
+        },
+        "legacyCheckpoint": null,
+        "logAssertions": {
+          "forbiddenSubstrings": [
+            "PHASE5_PRIVATE_SENTINEL",
+            "PHASE5_DRAWING_SENTINEL",
+            "OPENAI_API_KEY",
+            "SUPABASE_SERVICE_ROLE_KEY"
+          ],
+          "rawBodyMustNotAppear": true
+        },
+        "nonLoopbackAttempts": 0
+      }
+    },
+    {
+      "caseId": "escape-equivalent-duplicate",
+      "operationKind": "marked-raw-stick-post",
+      "request": {
+        "method": "POST",
+        "path": "/api/ai",
+        "headers": [
+          [
+            "connection",
+            "close"
+          ],
+          [
+            "content-length",
+            "63"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "host",
+            "phase5.invalid"
+          ]
+        ],
+        "body": {
+          "encoding": "base64",
+          "byteLength": 63,
+          "sha256": "sha256:63ee0b9676de76e63a0048308f175002b1565961e0d1cd9671f02d1349416bc7",
+          "data": "eyJ3b3Jrc3BhY2VUeXBlIjoic3RpY2stZmlndXJlIiwiXHUwMDc3b3Jrc3BhY2VUeXBlIjoiZHJhd2luZyJ9"
+        }
+      },
+      "expected": {
+        "outcome": "exact-response",
+        "status": 400,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ]
+        ],
+        "body": {
+          "byteLength": 89,
+          "sha256": "sha256:7e1aa2cba91fa14cc8a05b8a47ef0ed2dc952365be871361d3f6861a7c435f76"
+        },
+        "legacyCheckpoint": null,
+        "logAssertions": {
+          "forbiddenSubstrings": [
+            "PHASE5_PRIVATE_SENTINEL",
+            "PHASE5_DRAWING_SENTINEL",
+            "OPENAI_API_KEY",
+            "SUPABASE_SERVICE_ROLE_KEY"
+          ],
+          "rawBodyMustNotAppear": true
+        },
+        "nonLoopbackAttempts": 0
+      }
+    },
+    {
+      "caseId": "nested-duplicate-marker",
+      "operationKind": "marked-raw-stick-post",
+      "request": {
+        "method": "POST",
+        "path": "/api/ai",
+        "headers": [
+          [
+            "connection",
+            "close"
+          ],
+          [
+            "content-length",
+            "66"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "host",
+            "phase5.invalid"
+          ]
+        ],
+        "body": {
+          "encoding": "base64",
+          "byteLength": 66,
+          "sha256": "sha256:c0874c550a2de52c7c429f88bd29b71ef3cf60a5e3244b4ed81ac2382f863b0b",
+          "data": "eyJwcm9qZWN0Q29udGV4dCI6eyJraW5kIjoic3RpY2stcHJvamVjdC1jb250ZXh0Iiwia2luZCI6Im90aGVyIn19"
+        }
+      },
+      "expected": {
+        "outcome": "exact-response",
+        "status": 400,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ]
+        ],
+        "body": {
+          "byteLength": 89,
+          "sha256": "sha256:7e1aa2cba91fa14cc8a05b8a47ef0ed2dc952365be871361d3f6861a7c435f76"
+        },
+        "legacyCheckpoint": null,
+        "logAssertions": {
+          "forbiddenSubstrings": [
+            "PHASE5_PRIVATE_SENTINEL",
+            "PHASE5_DRAWING_SENTINEL",
+            "OPENAI_API_KEY",
+            "SUPABASE_SERVICE_ROLE_KEY"
+          ],
+          "rawBodyMustNotAppear": true
+        },
+        "nonLoopbackAttempts": 0
+      }
+    },
+    {
+      "caseId": "unrelated-duplicate-before-marker",
+      "operationKind": "marked-raw-stick-post",
+      "request": {
+        "method": "POST",
+        "path": "/api/ai",
+        "headers": [
+          [
+            "connection",
+            "close"
+          ],
+          [
+            "content-length",
+            "47"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "host",
+            "phase5.invalid"
+          ]
+        ],
+        "body": {
+          "encoding": "base64",
+          "byteLength": 47,
+          "sha256": "sha256:70dbb7bfabc4f1c369026a315f9c47532e38beeb0d79c3eab8f40d5924208475",
+          "data": "eyJvdGhlciI6MSwib3RoZXIiOjIsImtpbmQiOiJzdGljay1haS1yZXF1ZXN0In0="
+        }
+      },
+      "expected": {
+        "outcome": "exact-response",
+        "status": 400,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ]
+        ],
+        "body": {
+          "byteLength": 89,
+          "sha256": "sha256:7e1aa2cba91fa14cc8a05b8a47ef0ed2dc952365be871361d3f6861a7c435f76"
+        },
+        "legacyCheckpoint": null,
+        "logAssertions": {
+          "forbiddenSubstrings": [
+            "PHASE5_PRIVATE_SENTINEL",
+            "PHASE5_DRAWING_SENTINEL",
+            "OPENAI_API_KEY",
+            "SUPABASE_SERVICE_ROLE_KEY"
+          ],
+          "rawBodyMustNotAppear": true
+        },
+        "nonLoopbackAttempts": 0
+      }
+    },
+    {
+      "caseId": "root-workspace-marker-only",
+      "operationKind": "marked-raw-stick-post",
+      "request": {
+        "method": "POST",
+        "path": "/api/ai",
+        "headers": [
+          [
+            "connection",
+            "close"
+          ],
+          [
+            "content-length",
+            "32"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "host",
+            "phase5.invalid"
+          ]
+        ],
+        "body": {
+          "encoding": "base64",
+          "byteLength": 32,
+          "sha256": "sha256:939a1c2347ec02706ae38a153e212665e658d0ce0ddb0b798fd0abeff01d3907",
+          "data": "eyJ3b3Jrc3BhY2VUeXBlIjoic3RpY2stZmlndXJlIn0="
+        }
+      },
+      "expected": {
+        "outcome": "exact-response",
+        "status": 400,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ]
+        ],
+        "body": {
+          "byteLength": 89,
+          "sha256": "sha256:7e1aa2cba91fa14cc8a05b8a47ef0ed2dc952365be871361d3f6861a7c435f76"
+        },
+        "legacyCheckpoint": null,
+        "logAssertions": {
+          "forbiddenSubstrings": [
+            "PHASE5_PRIVATE_SENTINEL",
+            "PHASE5_DRAWING_SENTINEL",
+            "OPENAI_API_KEY",
+            "SUPABASE_SERVICE_ROLE_KEY"
+          ],
+          "rawBodyMustNotAppear": true
+        },
+        "nonLoopbackAttempts": 0
+      }
+    },
+    {
+      "caseId": "project-context-kind-marker-only",
+      "operationKind": "marked-raw-stick-post",
+      "request": {
+        "method": "POST",
+        "path": "/api/ai",
+        "headers": [
+          [
+            "connection",
+            "close"
+          ],
+          [
+            "content-length",
+            "51"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "host",
+            "phase5.invalid"
+          ]
+        ],
+        "body": {
+          "encoding": "base64",
+          "byteLength": 51,
+          "sha256": "sha256:8ef8947dafe0b86dc7e446d5980757f47d38bb69e457599afb6bf0946e23a9e1",
+          "data": "eyJwcm9qZWN0Q29udGV4dCI6eyJraW5kIjoic3RpY2stcHJvamVjdC1jb250ZXh0In19"
+        }
+      },
+      "expected": {
+        "outcome": "exact-response",
+        "status": 400,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ]
+        ],
+        "body": {
+          "byteLength": 89,
+          "sha256": "sha256:7e1aa2cba91fa14cc8a05b8a47ef0ed2dc952365be871361d3f6861a7c435f76"
+        },
+        "legacyCheckpoint": null,
+        "logAssertions": {
+          "forbiddenSubstrings": [
+            "PHASE5_PRIVATE_SENTINEL",
+            "PHASE5_DRAWING_SENTINEL",
+            "OPENAI_API_KEY",
+            "SUPABASE_SERVICE_ROLE_KEY"
+          ],
+          "rawBodyMustNotAppear": true
+        },
+        "nonLoopbackAttempts": 0
+      }
+    },
+    {
+      "caseId": "project-context-workspace-marker-only",
+      "operationKind": "marked-raw-stick-post",
+      "request": {
+        "method": "POST",
+        "path": "/api/ai",
+        "headers": [
+          [
+            "connection",
+            "close"
+          ],
+          [
+            "content-length",
+            "51"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "host",
+            "phase5.invalid"
+          ]
+        ],
+        "body": {
+          "encoding": "base64",
+          "byteLength": 51,
+          "sha256": "sha256:7d0e6d4559cc3538fd3373686dfda23643491d3c4361da3c651e862eb8c28633",
+          "data": "eyJwcm9qZWN0Q29udGV4dCI6eyJ3b3Jrc3BhY2VUeXBlIjoic3RpY2stZmlndXJlIn19"
+        }
+      },
+      "expected": {
+        "outcome": "exact-response",
+        "status": 400,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ]
+        ],
+        "body": {
+          "byteLength": 89,
+          "sha256": "sha256:7e1aa2cba91fa14cc8a05b8a47ef0ed2dc952365be871361d3f6861a7c435f76"
+        },
+        "legacyCheckpoint": null,
+        "logAssertions": {
+          "forbiddenSubstrings": [
+            "PHASE5_PRIVATE_SENTINEL",
+            "PHASE5_DRAWING_SENTINEL",
+            "OPENAI_API_KEY",
+            "SUPABASE_SERVICE_ROLE_KEY"
+          ],
+          "rawBodyMustNotAppear": true
+        },
+        "nonLoopbackAttempts": 0
+      }
+    },
+    {
+      "caseId": "capability-marker-only",
+      "operationKind": "marked-raw-stick-post",
+      "request": {
+        "method": "POST",
+        "path": "/api/ai",
+        "headers": [
+          [
+            "connection",
+            "close"
+          ],
+          [
+            "content-length",
+            "73"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "host",
+            "phase5.invalid"
+          ]
+        ],
+        "body": {
+          "encoding": "base64",
+          "byteLength": 73,
+          "sha256": "sha256:a9bc405c2f61a5c47c446cf9aa391478e53b9c42db8271839842144459da86ae",
+          "data": "eyJjYXBhYmlsaXR5TWFuaWZlc3QiOnsiY2FwYWJpbGl0aWVzIjpbInN0aWNrLnBvc2Utc2VxdWVuY2UuY3JlYXRlL3YxIl19fQ=="
+        }
+      },
+      "expected": {
+        "outcome": "exact-response",
+        "status": 400,
+        "headers": [
+          [
+            "cache-control",
+            "no-store"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ]
+        ],
+        "body": {
+          "byteLength": 89,
+          "sha256": "sha256:7e1aa2cba91fa14cc8a05b8a47ef0ed2dc952365be871361d3f6861a7c435f76"
+        },
+        "legacyCheckpoint": null,
+        "logAssertions": {
+          "forbiddenSubstrings": [
+            "PHASE5_PRIVATE_SENTINEL",
+            "PHASE5_DRAWING_SENTINEL",
+            "OPENAI_API_KEY",
+            "SUPABASE_SERVICE_ROLE_KEY"
+          ],
+          "rawBodyMustNotAppear": true
+        },
+        "nonLoopbackAttempts": 0
+      }
+    },
+    {
+      "caseId": "syntax-before-marker",
+      "operationKind": "marker-free-drawing-fallthrough-post",
+      "request": {
+        "method": "POST",
+        "path": "/api/ai",
+        "headers": [
+          [
+            "connection",
+            "close"
+          ],
+          [
+            "content-length",
+            "31"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "host",
+            "phase5.invalid"
+          ]
+        ],
+        "body": {
+          "encoding": "base64",
+          "byteLength": 31,
+          "sha256": "sha256:e80ea3d574e4838ca36a0c13f8ce7944feaa71c86c03c794b87017c533f0953f",
+          "data": "e2JhZCwia2luZCI6InN0aWNrLWFpLXJlcXVlc3QifQ=="
+        }
+      },
+      "expected": {
+        "outcome": "legacy-fallthrough",
+        "status": 500,
+        "headers": [
+          [
+            "content-type",
+            "application/json"
+          ]
+        ],
+        "body": null,
+        "legacyCheckpoint": {
+          "checkpointKind": "legacy-drawing-parser-error",
+          "expectedJsonFields": {}
+        },
+        "logAssertions": {
+          "forbiddenSubstrings": [
+            "PHASE5_PRIVATE_SENTINEL",
+            "PHASE5_DRAWING_SENTINEL",
+            "OPENAI_API_KEY",
+            "SUPABASE_SERVICE_ROLE_KEY"
+          ],
+          "rawBodyMustNotAppear": true
+        },
+        "nonLoopbackAttempts": 0
+      }
+    },
+    {
+      "caseId": "marker-like-prompt-string",
+      "operationKind": "marker-free-drawing-fallthrough-post",
+      "request": {
+        "method": "POST",
+        "path": "/api/ai",
+        "headers": [
+          [
+            "connection",
+            "close"
+          ],
+          [
+            "content-length",
+            "139"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "host",
+            "phase5.invalid"
+          ]
+        ],
+        "body": {
+          "encoding": "base64",
+          "byteLength": 139,
+          "sha256": "sha256:75da06a502d714240d7d003c0f23ba0736a1c2f05058b5da998cca566e8a15d8",
+          "data": "eyJwcm9tcHQiOiJQSEFTRTVfUFJJVkFURV9TRU5USU5FTCBraW5kIHN0aWNrLWFpLXJlcXVlc3Qgd29ya3NwYWNlVHlwZSBzdGljay1maWd1cmUiLCJ0YXNrVHlwZSI6ImdlbmVyYXRlLXBsYW5zIiwid29ya3NwYWNlVHlwZSI6ImRyYXdpbmcifQ=="
+        }
+      },
+      "expected": {
+        "outcome": "legacy-fallthrough",
+        "status": 200,
+        "headers": [
+          [
+            "content-type",
+            "application/json"
+          ]
+        ],
+        "body": null,
+        "legacyCheckpoint": {
+          "checkpointKind": "legacy-drawing-generate-plans",
+          "expectedJsonFields": {
+            "taskType": "generate-plans"
+          }
+        },
+        "logAssertions": {
+          "forbiddenSubstrings": [
+            "PHASE5_PRIVATE_SENTINEL",
+            "PHASE5_DRAWING_SENTINEL",
+            "OPENAI_API_KEY",
+            "SUPABASE_SERVICE_ROLE_KEY"
+          ],
+          "rawBodyMustNotAppear": true
+        },
+        "nonLoopbackAttempts": 0
+      }
+    },
+    {
+      "caseId": "marker-free-valid-drawing",
+      "operationKind": "marker-free-drawing-fallthrough-post",
+      "request": {
+        "method": "POST",
+        "path": "/api/ai",
+        "headers": [
+          [
+            "connection",
+            "close"
+          ],
+          [
+            "content-length",
+            "90"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "host",
+            "phase5.invalid"
+          ]
+        ],
+        "body": {
+          "encoding": "base64",
+          "byteLength": 90,
+          "sha256": "sha256:17e7c25a4cac73f1677c33f99d8d565e11405fbe05dbb120b3820923c28908d4",
+          "data": "eyJwcm9tcHQiOiJQSEFTRTVfRFJBV0lOR19TRU5USU5FTCIsInRhc2tUeXBlIjoiZ2VuZXJhdGUtcGxhbnMiLCJ3b3Jrc3BhY2VUeXBlIjoiZHJhd2luZyJ9"
+        }
+      },
+      "expected": {
+        "outcome": "legacy-fallthrough",
+        "status": 200,
+        "headers": [
+          [
+            "content-type",
+            "application/json"
+          ]
+        ],
+        "body": null,
+        "legacyCheckpoint": {
+          "checkpointKind": "legacy-drawing-generate-plans",
+          "expectedJsonFields": {
+            "taskType": "generate-plans"
+          }
+        },
+        "logAssertions": {
+          "forbiddenSubstrings": [
+            "PHASE5_PRIVATE_SENTINEL",
+            "PHASE5_DRAWING_SENTINEL",
+            "OPENAI_API_KEY",
+            "SUPABASE_SERVICE_ROLE_KEY"
+          ],
+          "rawBodyMustNotAppear": true
+        },
+        "nonLoopbackAttempts": 0
+      }
+    },
+    {
+      "caseId": "marker-free-duplicate-drawing",
+      "operationKind": "marker-free-drawing-fallthrough-post",
+      "request": {
+        "method": "POST",
+        "path": "/api/ai",
+        "headers": [
+          [
+            "connection",
+            "close"
+          ],
+          [
+            "content-length",
+            "102"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "host",
+            "phase5.invalid"
+          ]
+        ],
+        "body": {
+          "encoding": "base64",
+          "byteLength": 102,
+          "sha256": "sha256:b6ee84761bc5b87070c1f406c6ba7bf7532caeab737eb90c9b53f4d89eb3aa07",
+          "data": "eyJwcm9tcHQiOiJQSEFTRTVfRFJBV0lOR19TRU5USU5FTCIsInByb21wdCI6IiIsInRhc2tUeXBlIjoiZ2VuZXJhdGUtcGxhbnMiLCJ3b3Jrc3BhY2VUeXBlIjoiZHJhd2luZyJ9"
+        }
+      },
+      "expected": {
+        "outcome": "legacy-fallthrough",
+        "status": 400,
+        "headers": [
+          [
+            "content-type",
+            "application/json"
+          ]
+        ],
+        "body": null,
+        "legacyCheckpoint": {
+          "checkpointKind": "legacy-drawing-missing-prompt",
+          "expectedJsonFields": {
+            "error": "Missing or invalid prompt"
+          }
+        },
+        "logAssertions": {
+          "forbiddenSubstrings": [
+            "PHASE5_PRIVATE_SENTINEL",
+            "PHASE5_DRAWING_SENTINEL",
+            "OPENAI_API_KEY",
+            "SUPABASE_SERVICE_ROLE_KEY"
+          ],
+          "rawBodyMustNotAppear": true
+        },
+        "nonLoopbackAttempts": 0
+      }
+    },
+    {
+      "caseId": "marker-free-invalid-drawing",
+      "operationKind": "marker-free-drawing-fallthrough-post",
+      "request": {
+        "method": "POST",
+        "path": "/api/ai",
+        "headers": [
+          [
+            "connection",
+            "close"
+          ],
+          [
+            "content-length",
+            "35"
+          ],
+          [
+            "content-type",
+            "application/json"
+          ],
+          [
+            "host",
+            "phase5.invalid"
+          ]
+        ],
+        "body": {
+          "encoding": "base64",
+          "byteLength": 35,
+          "sha256": "sha256:e7daff937b7bfa41a3b8e55235d1322416bc1e115be990fe511ccd6a4ad25b29",
+          "data": "eyJwcm9tcHQiOiJQSEFTRTVfRFJBV0lOR19TRU5USU5FTCI="
+        }
+      },
+      "expected": {
+        "outcome": "legacy-fallthrough",
+        "status": 500,
+        "headers": [
+          [
+            "content-type",
+            "application/json"
+          ]
+        ],
+        "body": null,
+        "legacyCheckpoint": {
+          "checkpointKind": "legacy-drawing-parser-error",
+          "expectedJsonFields": {}
+        },
+        "logAssertions": {
+          "forbiddenSubstrings": [
+            "PHASE5_PRIVATE_SENTINEL",
+            "PHASE5_DRAWING_SENTINEL",
+            "OPENAI_API_KEY",
+            "SUPABASE_SERVICE_ROLE_KEY"
+          ],
+          "rawBodyMustNotAppear": true
+        },
+        "nonLoopbackAttempts": 0
+      }
+    }
+  ]
+}

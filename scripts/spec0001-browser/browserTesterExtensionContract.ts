@@ -171,6 +171,59 @@ export const PHASE4_CLOSEOUT_RECORD_PATHS = [
 
 export const PHASE4_CLOSEOUT_PATHS = sortProofPaths([...PHASE4_DIRTY_PATHS, ...PHASE4_CLOSEOUT_RECORD_PATHS]);
 
+export const PHASE5_BASE_COMMIT = "a2b4f3e0fc492df9cd63bda32554e382a344cdb6" as const;
+export const PHASE5_PLAN_PATH = "scripts/fixtures/stick-ai/v1/phase-5-browser-proof-plan.json" as const;
+export const PHASE5_REGISTRY_PATH = "scripts/fixtures/stick-ai/v1/stick-ai-raw-route-cases.json" as const;
+export const PHASE5_OUTPUT_ROOT = "output/spec-0001/phase-5" as const;
+export const PHASE5_ROUTE_OPERATION_FAMILIES = ["guarded-http", "runner-environment"] as const;
+
+export const PHASE5_PATHS = sortProofPaths([
+  ".env.example",
+  "app/api/ai/route.ts",
+  "scripts/finalizeSpec0001ProofBundle.ts",
+  "scripts/fixtures/spec0001-browser/v2/tester-extension-authorizations.json",
+  "scripts/fixtures/spec0001-browser/v5/tester-extension-authorization.schema.json",
+  "scripts/fixtures/spec0001-browser/v5/tester-extension-plan.schema.json",
+  "scripts/fixtures/spec0001-browser/v5/tester-extension-registry.schema.json",
+  "scripts/fixtures/spec0001-browser/v5/tester-extension-result.schema.json",
+  "scripts/fixtures/stick-ai/v1/phase-5-browser-proof-plan.json",
+  "scripts/fixtures/stick-ai/v1/phase-5-proof-commands.json",
+  "scripts/fixtures/stick-ai/v1/stick-ai-availability-cases.json",
+  "scripts/fixtures/stick-ai/v1/stick-ai-mock-server-cases.json",
+  "scripts/fixtures/stick-ai/v1/stick-ai-raw-route-cases.json",
+  "scripts/recordSpec0001ProofBundle.ts",
+  "scripts/runSpec0001BrowserProof.ts",
+  "scripts/spec0001-browser/browserTesterExtensionContract.ts",
+  "scripts/validateSpec0001ProofBundle.ts",
+  "scripts/validateStickFigureAiMockRoute.ts",
+  "src/lib/ai/stickFigureAiAvailability.ts",
+  "src/lib/ai/stickFigureAiContract.ts",
+  "src/lib/ai/stickFigureAiMockServer.ts",
+  "src/lib/ai/stickFigureAiServerDispatch.ts",
+  "src/lib/ai/strictStickJson.ts",
+  "src/lib/stickfigure/stickProjectContract.ts",
+]);
+
+export const PHASE5_OPTIONAL_CONTRACT_PATHS = sortProofPaths([
+  "src/lib/ai/stickFigureAiContract.ts",
+  "src/lib/stickfigure/stickProjectContract.ts",
+]);
+
+export const PHASE5_DIRTY_PATHS = PHASE5_PATHS.filter((path) => !PHASE5_OPTIONAL_CONTRACT_PATHS.includes(path));
+
+export const PHASE5_CLOSEOUT_RECORD_PATHS = [
+  "docs/CURRENT_STATE.md",
+  "docs/DECISIONS.md",
+  "docs/SESSION_HANDOFF.md",
+  "docs/TODO.md",
+  "docs/changelog.md",
+  "docs/specs/0001-first-reversible-ai-stick-animation.md",
+  "docs/specs/README.md",
+  "project/project_structure.txt",
+] as const;
+
+export const PHASE5_CLOSEOUT_PATHS = sortProofPaths([...PHASE5_DIRTY_PATHS, ...PHASE5_CLOSEOUT_RECORD_PATHS]);
+
 export const PHASE2_CLOSEOUT_RECORD_PATHS = [
   "docs/CURRENT_STATE.md",
   "docs/SESSION_HANDOFF.md",
@@ -191,6 +244,7 @@ export const OPERATION_FAMILIES = [
 ] as const;
 export type OperationFamily = typeof OPERATION_FAMILIES[number];
 export type AuthorizationId = "phase-1.5-compatibility-synthetic/v1" | "phase-2/v1" | "phase-3/v1" | "phase-4/v1";
+export type Phase5AuthorizationId = "phase-5/v1";
 export type DerivedGitStateName = "dirty-executor" | "clean-committed";
 export type Digest = `sha256:${string}`;
 
@@ -364,6 +418,125 @@ export type ExtensionResult = {
   cleanup: {anchorRestored: true; sourceRestored: true; browserContextsOpen: 0; activeGates: 0; activeIntercepts: 0; openChildProcesses: 0; openPorts: 0; residualPaths: []};
 };
 
+export type Phase5RouteOperationKind = "marked-availability-get" | "marked-raw-stick-post" | "marker-free-drawing-fallthrough-post";
+export type Phase5HeaderTuple = readonly [string, string];
+export type Phase5RouteCase = {
+  caseId: string;
+  operationKind: Phase5RouteOperationKind;
+  request: {method: "GET" | "POST"; path: "/api/ai"; headers: Phase5HeaderTuple[]; body: {encoding: "base64"; byteLength: number; sha256: Digest; data: string}};
+  expected: {
+    outcome: "exact-response" | "legacy-fallthrough";
+    status: number;
+    headers: Phase5HeaderTuple[];
+    body: null | {byteLength: number; sha256: Digest};
+    legacyCheckpoint: null | {checkpointKind: string; expectedJsonFields: Record<string, unknown>};
+    logAssertions: {forbiddenSubstrings: string[]; rawBodyMustNotAppear: true};
+    nonLoopbackAttempts: 0;
+  };
+};
+
+export type Phase5RoutePlan = {
+  planVersion: 5;
+  specId: "SPEC-0001";
+  proofPurpose: "phase-5";
+  authorizationId: Phase5AuthorizationId;
+  baseCommit: typeof PHASE5_BASE_COMMIT;
+  dirtyExpectedPaths: string[];
+  cleanExpectedPaths: [];
+  outputRoot: typeof PHASE5_OUTPUT_ROOT;
+  operationFamilies: (typeof PHASE5_ROUTE_OPERATION_FAMILIES)[number][];
+  registry: FileBinding;
+  selectedCaseIds: string[];
+  evidence: {
+    routePath: "/api/ai";
+    requestTransport: "guarded-node-loopback-http-exact-bytes/v1";
+    exactRequestBytes: true;
+    exactResponseBindings: true;
+    legacyDrawingFallthrough: true;
+    sanitizedServerLogs: true;
+    browserPageOperations: 0;
+    screenshotClaims: 0;
+    nonLoopbackAttempts: 0;
+    cleanupFields: string[];
+  };
+};
+
+export type Phase5RouteRegistry = {
+  registryVersion: 5;
+  specId: "SPEC-0001";
+  authorizationId: Phase5AuthorizationId;
+  operationFamilies: (typeof PHASE5_ROUTE_OPERATION_FAMILIES)[number][];
+  cases: Phase5RouteCase[];
+};
+
+export type Phase5Authorization = {
+  authorizationId: Phase5AuthorizationId;
+  proofPurpose: "phase-5";
+  materializationKind: "deferred";
+  plan: {path: typeof PHASE5_PLAN_PATH; schemaPath: "scripts/fixtures/spec0001-browser/v5/tester-extension-plan.schema.json"; planVersion: 5};
+  registry: {path: typeof PHASE5_REGISTRY_PATH; schemaPath: "scripts/fixtures/spec0001-browser/v5/tester-extension-registry.schema.json"; registryVersion: 5};
+  resultSchema: {path: "scripts/fixtures/spec0001-browser/v5/tester-extension-result.schema.json"; resultVersion: 5};
+  operationFamilies: (typeof PHASE5_ROUTE_OPERATION_FAMILIES)[number][];
+  outputRoot: typeof PHASE5_OUTPUT_ROOT;
+  pathCeiling: string[];
+};
+
+export type ValidatedPhase5RouteGraph = {
+  authorizationId: Phase5AuthorizationId;
+  materializationKind: "deferred";
+  outputRoot: typeof PHASE5_OUTPUT_ROOT;
+  pathCeiling: readonly string[];
+  operationFamilies: readonly (typeof PHASE5_ROUTE_OPERATION_FAMILIES)[number][];
+  catalogBinding: FileBinding;
+  planBinding: FileBinding;
+  registryBinding: FileBinding;
+  plan: Phase5RoutePlan;
+  registry: Phase5RouteRegistry;
+  git: DerivedGitState;
+};
+
+export type Phase5RouteCaseEvidence = {
+  caseId: string;
+  operationKind: Phase5RouteOperationKind;
+  request: {method: "GET" | "POST"; path: "/api/ai"; headerSha256: Digest; bodyByteLength: number; bodySha256: Digest};
+  response: {status: number; selectedHeaders: Phase5HeaderTuple[]; bodyByteLength: number; bodySha256: Digest};
+  legacyCheckpoint: null | {checkpointKind: string; matched: true};
+  logs: {byteLength: number; sha256: Digest; forbiddenSubstringsAbsent: true; rawBodyAbsent: true};
+  nonLoopbackAttempts: 0;
+};
+
+export type Phase5RouteResult = {
+  resultVersion: 5;
+  specId: "SPEC-0001";
+  proofPurpose: "phase-5";
+  status: "passed";
+  recordedAt: string;
+  productPhaseClaimed: true;
+  runtime: ExtensionResult["runtime"];
+  derivedGitState: DerivedGitStateName;
+  baseCommit: string;
+  headCommit: string;
+  observedDirtyPaths: string[];
+  dirtyExpectedPaths: string[];
+  cleanExpectedPaths: [];
+  selectedExpectedPaths: string[];
+  authorization: {authorizationId: Phase5AuthorizationId; materializationKind: "deferred"};
+  bindings: {catalog: FileBinding; plan: FileBinding; registry: FileBinding};
+  execution: {selectedCaseIds: string[]; caseCount: number; operationKinds: Phase5RouteOperationKind[]};
+  evidence: {
+    routePath: "/api/ai";
+    requestTransport: "guarded-node-loopback-http-exact-bytes/v1";
+    cases: Phase5RouteCaseEvidence[];
+    realApiRouteRequests: number;
+    browserPageOperations: 0;
+    browserMockedApiResponses: 0;
+    screenshotClaims: 0;
+    sanitizedServerLogs: true;
+  };
+  network: {browserNonLoopbackAttempts: 0; serverNonLoopbackAttempts: 0; childNonLoopbackAttempts: 0; runnerNonLoopbackAttempts: 0; runnerLoopbackRequests: number};
+  cleanup: ExtensionResult["cleanup"] & {residualProfiles: []};
+};
+
 type MaterializationKind = "materialized" | "deferred";
 export type ValidatedAuthorization = {
   authorizationId: AuthorizationId;
@@ -377,7 +550,7 @@ export type ValidatedAuthorization = {
   outputRoot: string;
   pathCeiling: string[];
 };
-export type ValidatedAuthorizationCatalog = {catalogVersion: 2; specId: "SPEC-0001"; authorizations: [ValidatedAuthorization, ValidatedAuthorization, ValidatedAuthorization, ValidatedAuthorization]};
+export type ValidatedAuthorizationCatalog = {catalogVersion: 2; specId: "SPEC-0001"; authorizations: [ValidatedAuthorization, ValidatedAuthorization, ValidatedAuthorization, ValidatedAuthorization, Phase5Authorization]};
 
 export type ValidatedTesterExtension = {
   authorizationId: AuthorizationId;
@@ -693,6 +866,9 @@ const PHASE4_RESULT_SCHEMA_PATH = "scripts/fixtures/spec0001-browser/v4/tester-e
 const PHASE4_PLAN_PATH = "scripts/fixtures/stick-ai/v1/phase-4-browser-proof-plan.json";
 const PHASE4_REGISTRY_PATH = "scripts/fixtures/spec0001-browser/v1/phase-4-action-registry.json";
 const PHASE4_ADAPTER_PATH = "scripts/spec0001-browser/actions/phase4.ts";
+const PHASE5_PLAN_SCHEMA_PATH = "scripts/fixtures/spec0001-browser/v5/tester-extension-plan.schema.json" as const;
+const PHASE5_REGISTRY_SCHEMA_PATH = "scripts/fixtures/spec0001-browser/v5/tester-extension-registry.schema.json" as const;
+const PHASE5_RESULT_SCHEMA_PATH = "scripts/fixtures/spec0001-browser/v5/tester-extension-result.schema.json" as const;
 
 const parseCatalogFile = (value: unknown, label: string, expected: {path: string; schemaPath: string; versionKey: "planVersion" | "registryVersion"; version: 2 | 3 | 4}, materialized: boolean) => {
   const keys = materialized ? ["path", "schemaPath", expected.versionKey, "byteLength", "sha256"] : ["path", "schemaPath", expected.versionKey];
@@ -765,12 +941,43 @@ const parseAuthorization = (value: unknown, expectedId: AuthorizationId): Valida
   };
 };
 
+const parsePhase5Authorization = (value: unknown): Phase5Authorization => {
+  const record = object(value, ["authorizationId", "proofPurpose", "materializationKind", "plan", "registry", "resultSchema", "operationFamilies", "outputRoot", "pathCeiling"], "authorization phase-5/v1");
+  exact(record.authorizationId, "phase-5/v1", "Phase 5 authorizationId");
+  exact(record.proofPurpose, "phase-5", "Phase 5 proofPurpose");
+  exact(record.materializationKind, "deferred", "Phase 5 materializationKind");
+  const planRecord = object(record.plan, ["path", "schemaPath", "planVersion"], "Phase 5 authorization.plan");
+  exact(planRecord, {path: PHASE5_PLAN_PATH, schemaPath: PHASE5_PLAN_SCHEMA_PATH, planVersion: 5}, "Phase 5 authorization.plan");
+  const registryRecord = object(record.registry, ["path", "schemaPath", "registryVersion"], "Phase 5 authorization.registry");
+  exact(registryRecord, {path: PHASE5_REGISTRY_PATH, schemaPath: PHASE5_REGISTRY_SCHEMA_PATH, registryVersion: 5}, "Phase 5 authorization.registry");
+  const resultSchemaRecord = object(record.resultSchema, ["path", "resultVersion"], "Phase 5 authorization.resultSchema");
+  exact(resultSchemaRecord, {path: PHASE5_RESULT_SCHEMA_PATH, resultVersion: 5}, "Phase 5 authorization.resultSchema");
+  const operationFamilies = canonicalStrings(record.operationFamilies, "Phase 5 authorization.operationFamilies")
+    .map((entry) => enumeration(entry, PHASE5_ROUTE_OPERATION_FAMILIES, "Phase 5 authorization operation family"));
+  exact(operationFamilies, [...PHASE5_ROUTE_OPERATION_FAMILIES], "Phase 5 authorization operation families");
+  const outputRoot = assertSafeRepositoryPath(record.outputRoot, "Phase 5 authorization.outputRoot");
+  exact(outputRoot, PHASE5_OUTPUT_ROOT, "Phase 5 authorization.outputRoot");
+  const pathCeiling = canonicalProofPaths(record.pathCeiling, "Phase 5 authorization.pathCeiling").map((path) => assertSafeRepositoryPath(path));
+  exact(pathCeiling, PHASE5_PATHS, "Phase 5 authorization.pathCeiling");
+  return {
+    authorizationId: "phase-5/v1",
+    proofPurpose: "phase-5",
+    materializationKind: "deferred",
+    plan: {path: PHASE5_PLAN_PATH, schemaPath: PHASE5_PLAN_SCHEMA_PATH, planVersion: 5},
+    registry: {path: PHASE5_REGISTRY_PATH, schemaPath: PHASE5_REGISTRY_SCHEMA_PATH, registryVersion: 5},
+    resultSchema: {path: PHASE5_RESULT_SCHEMA_PATH, resultVersion: 5},
+    operationFamilies,
+    outputRoot: PHASE5_OUTPUT_ROOT,
+    pathCeiling,
+  };
+};
+
 export const validateAuthorizationCatalogValue = (value: unknown): ValidatedAuthorizationCatalog => {
   const record = object(value, ["catalogVersion", "specId", "authorizations"], "tester extension authorization catalog");
   exact(record.catalogVersion, 2, "catalogVersion");
   exact(record.specId, "SPEC-0001", "catalog specId");
   const authorizations = array(record.authorizations, "catalog authorizations");
-  exact(authorizations.length, 4, "catalog authorization count");
+  exact(authorizations.length, 5, "catalog authorization count");
   return {
     catalogVersion: 2,
     specId: "SPEC-0001",
@@ -779,8 +986,141 @@ export const validateAuthorizationCatalogValue = (value: unknown): ValidatedAuth
       parseAuthorization(authorizations[1], "phase-2/v1"),
       parseAuthorization(authorizations[2], "phase-3/v1"),
       parseAuthorization(authorizations[3], "phase-4/v1"),
+      parsePhase5Authorization(authorizations[4]),
     ],
   };
+};
+
+const parsePhase5Headers = (value: unknown, label: string): Phase5HeaderTuple[] => {
+  const headers = array(value, label).map((entry, index): Phase5HeaderTuple => {
+    const tuple = array(entry, `${label}[${index}]`);
+    exact(tuple.length, 2, `${label}[${index}] length`);
+    const name = string(tuple[0], `${label}[${index}] name`);
+    const headerValue = string(tuple[1], `${label}[${index}] value`);
+    if (!/^[a-z0-9-]+$/.test(name)) fail(`${label}[${index}] name must be lowercase ASCII.`);
+    if (/[^\x20-\x7e]/.test(headerValue)) fail(`${label}[${index}] value must be printable ASCII.`);
+    return [name, headerValue];
+  });
+  unique(headers.map(([name]) => name), `${label} names`);
+  exact(headers.map(([name]) => name), [...headers.map(([name]) => name)].sort(), `${label} canonical order`);
+  return headers;
+};
+
+const parsePhase5RouteCase = (value: unknown, index: number): Phase5RouteCase => {
+  const record = object(value, ["caseId", "operationKind", "request", "expected"], `Phase 5 registry cases[${index}]`);
+  const caseId = handle(record.caseId, `Phase 5 registry cases[${index}].caseId`);
+  const operationKind = enumeration(record.operationKind, ["marked-availability-get", "marked-raw-stick-post", "marker-free-drawing-fallthrough-post"] as const, `Phase 5 case ${caseId} operationKind`);
+  const requestRecord = object(record.request, ["method", "path", "headers", "body"], `Phase 5 case ${caseId} request`);
+  const method = enumeration(requestRecord.method, ["GET", "POST"] as const, `Phase 5 case ${caseId} method`);
+  if ((operationKind === "marked-availability-get") !== (method === "GET")) fail(`Phase 5 case ${caseId} operation/method mismatch.`);
+  exact(requestRecord.path, "/api/ai", `Phase 5 case ${caseId} path`);
+  const headers = parsePhase5Headers(requestRecord.headers, `Phase 5 case ${caseId} request headers`);
+  const bodyRecord = object(requestRecord.body, ["encoding", "byteLength", "sha256", "data"], `Phase 5 case ${caseId} request body`);
+  exact(bodyRecord.encoding, "base64", `Phase 5 case ${caseId} body encoding`);
+  const bodyData = typeof bodyRecord.data === "string" ? bodyRecord.data : fail(`Phase 5 case ${caseId} body data must be a string.`);
+  const bodyBytes = Buffer.from(bodyData, "base64");
+  exact(bodyBytes.toString("base64"), bodyData, `Phase 5 case ${caseId} canonical base64`);
+  const body = {
+    encoding: "base64" as const,
+    byteLength: integer(bodyRecord.byteLength, `Phase 5 case ${caseId} body byteLength`),
+    sha256: digest(bodyRecord.sha256, `Phase 5 case ${caseId} body sha256`),
+    data: bodyData,
+  };
+  exact(body.byteLength, bodyBytes.byteLength, `Phase 5 case ${caseId} bound request length`);
+  exact(body.sha256, sha256(bodyBytes), `Phase 5 case ${caseId} bound request digest`);
+  if (method === "GET") exact(body.byteLength, 0, `Phase 5 case ${caseId} GET body length`);
+  const contentLength = headers.find(([name]) => name === "content-length")?.[1];
+  if (method === "POST") exact(contentLength, String(body.byteLength), `Phase 5 case ${caseId} content-length`);
+
+  const expectedRecord = object(record.expected, ["outcome", "status", "headers", "body", "legacyCheckpoint", "logAssertions", "nonLoopbackAttempts"], `Phase 5 case ${caseId} expected`);
+  const outcome = enumeration(expectedRecord.outcome, ["exact-response", "legacy-fallthrough"] as const, `Phase 5 case ${caseId} outcome`);
+  exact(outcome, operationKind === "marker-free-drawing-fallthrough-post" ? "legacy-fallthrough" : "exact-response", `Phase 5 case ${caseId} operation/outcome`);
+  const status = integer(expectedRecord.status, `Phase 5 case ${caseId} status`);
+  if (status < 100 || status > 599) fail(`Phase 5 case ${caseId} status is outside the HTTP range.`);
+  const expectedHeaders = parsePhase5Headers(expectedRecord.headers, `Phase 5 case ${caseId} expected headers`);
+  let expectedBody: Phase5RouteCase["expected"]["body"];
+  if (expectedRecord.body === null) {
+    expectedBody = null;
+  } else {
+    const expectedBodyRecord = object(expectedRecord.body, ["byteLength", "sha256"], `Phase 5 case ${caseId} expected body`);
+    expectedBody = {byteLength: integer(expectedBodyRecord.byteLength, `Phase 5 case ${caseId} expected body length`), sha256: digest(expectedBodyRecord.sha256, `Phase 5 case ${caseId} expected body digest`)};
+  }
+  if (outcome === "exact-response" && expectedBody === null) fail(`Phase 5 exact-response case ${caseId} requires a body binding.`);
+  let legacyCheckpoint: Phase5RouteCase["expected"]["legacyCheckpoint"];
+  if (expectedRecord.legacyCheckpoint === null) {
+    legacyCheckpoint = null;
+  } else {
+    const checkpointRecord = object(expectedRecord.legacyCheckpoint, ["checkpointKind", "expectedJsonFields"], `Phase 5 case ${caseId} legacy checkpoint`);
+    if (!isRecord(checkpointRecord.expectedJsonFields)) fail(`Phase 5 case ${caseId} expectedJsonFields must be an object.`);
+    const expectedJsonFields = checkpointRecord.expectedJsonFields as Record<string, unknown>;
+    legacyCheckpoint = {checkpointKind: handle(checkpointRecord.checkpointKind, `Phase 5 case ${caseId} checkpointKind`), expectedJsonFields};
+  }
+  exact(legacyCheckpoint === null, outcome === "exact-response", `Phase 5 case ${caseId} checkpoint/outcome`);
+  const logRecord = object(expectedRecord.logAssertions, ["forbiddenSubstrings", "rawBodyMustNotAppear"], `Phase 5 case ${caseId} log assertions`);
+  const forbiddenSubstrings = array(logRecord.forbiddenSubstrings, `Phase 5 case ${caseId} forbiddenSubstrings`).map((entry, forbiddenIndex) => string(entry, `Phase 5 case ${caseId} forbiddenSubstrings[${forbiddenIndex}]`));
+  unique(forbiddenSubstrings, `Phase 5 case ${caseId} forbiddenSubstrings`);
+  exact(logRecord.rawBodyMustNotAppear, true, `Phase 5 case ${caseId} raw-body log rule`);
+  exact(expectedRecord.nonLoopbackAttempts, 0, `Phase 5 case ${caseId} non-loopback attempts`);
+  return {
+    caseId,
+    operationKind,
+    request: {method, path: "/api/ai", headers, body},
+    expected: {outcome, status, headers: expectedHeaders, body: expectedBody, legacyCheckpoint, logAssertions: {forbiddenSubstrings, rawBodyMustNotAppear: true}, nonLoopbackAttempts: 0},
+  };
+};
+
+export const validatePhase5RouteRegistryValue = (value: unknown): Phase5RouteRegistry => {
+  const record = object(value, ["registryVersion", "specId", "authorizationId", "operationFamilies", "cases"], "Phase 5 route registry");
+  exact(record.registryVersion, 5, "Phase 5 registryVersion");
+  exact(record.specId, "SPEC-0001", "Phase 5 registry specId");
+  exact(record.authorizationId, "phase-5/v1", "Phase 5 registry authorizationId");
+  const operationFamilies = canonicalStrings(record.operationFamilies, "Phase 5 registry operationFamilies")
+    .map((entry) => enumeration(entry, PHASE5_ROUTE_OPERATION_FAMILIES, "Phase 5 registry operation family"));
+  exact(operationFamilies, [...PHASE5_ROUTE_OPERATION_FAMILIES], "Phase 5 registry operationFamilies");
+  const cases = array(record.cases, "Phase 5 registry cases").map(parsePhase5RouteCase);
+  if (cases.length === 0) fail("Phase 5 route registry must contain at least one case.");
+  unique(cases.map((entry) => entry.caseId), "Phase 5 route case IDs");
+  const observedKinds = [...new Set(cases.map((entry) => entry.operationKind))].sort();
+  exact(observedKinds, ["marked-availability-get", "marked-raw-stick-post", "marker-free-drawing-fallthrough-post"].sort(), "Phase 5 route operation coverage");
+  return {registryVersion: 5, specId: "SPEC-0001", authorizationId: "phase-5/v1", operationFamilies, cases};
+};
+
+export const validatePhase5RoutePlanValue = (value: unknown): Phase5RoutePlan => {
+  const record = object(value, ["planVersion", "specId", "proofPurpose", "authorizationId", "baseCommit", "dirtyExpectedPaths", "cleanExpectedPaths", "outputRoot", "operationFamilies", "registry", "selectedCaseIds", "evidence"], "Phase 5 route plan");
+  exact(record.planVersion, 5, "Phase 5 planVersion");
+  exact(record.specId, "SPEC-0001", "Phase 5 plan specId");
+  exact(record.proofPurpose, "phase-5", "Phase 5 plan proofPurpose");
+  exact(record.authorizationId, "phase-5/v1", "Phase 5 plan authorizationId");
+  exact(record.baseCommit, PHASE5_BASE_COMMIT, "Phase 5 plan baseCommit");
+  const dirtyExpectedPaths = canonicalProofPaths(record.dirtyExpectedPaths, "Phase 5 dirtyExpectedPaths").map((path) => assertSafeRepositoryPath(path));
+  if (dirtyExpectedPaths.length < PHASE5_DIRTY_PATHS.length || dirtyExpectedPaths.length > PHASE5_PATHS.length) fail("Phase 5 dirtyExpectedPaths count is outside the 22–24 boundary.");
+  for (const path of PHASE5_DIRTY_PATHS) if (!dirtyExpectedPaths.includes(path)) fail(`Missing mandatory Phase 5 dirty path: ${path}.`);
+  for (const path of dirtyExpectedPaths) if (!PHASE5_PATHS.includes(path)) fail(`Unauthorized Phase 5 dirty path: ${path}.`);
+  exact(record.cleanExpectedPaths, [], "Phase 5 cleanExpectedPaths");
+  exact(record.outputRoot, PHASE5_OUTPUT_ROOT, "Phase 5 outputRoot");
+  const operationFamilies = canonicalStrings(record.operationFamilies, "Phase 5 plan operationFamilies")
+    .map((entry) => enumeration(entry, PHASE5_ROUTE_OPERATION_FAMILIES, "Phase 5 plan operation family"));
+  exact(operationFamilies, [...PHASE5_ROUTE_OPERATION_FAMILIES], "Phase 5 plan operationFamilies");
+  const registry = parseBinding(record.registry, "Phase 5 plan registry binding");
+  exact(registry.path, PHASE5_REGISTRY_PATH, "Phase 5 plan registry path");
+  const selectedCaseIds = array(record.selectedCaseIds, "Phase 5 selectedCaseIds").map((entry, index) => handle(entry, `Phase 5 selectedCaseIds[${index}]`));
+  if (selectedCaseIds.length === 0) fail("Phase 5 selectedCaseIds must be nonempty.");
+  unique(selectedCaseIds, "Phase 5 selectedCaseIds");
+  const evidenceRecord = object(record.evidence, ["routePath", "requestTransport", "exactRequestBytes", "exactResponseBindings", "legacyDrawingFallthrough", "sanitizedServerLogs", "browserPageOperations", "screenshotClaims", "nonLoopbackAttempts", "cleanupFields"], "Phase 5 plan evidence");
+  const expectedEvidence = {
+    routePath: "/api/ai",
+    requestTransport: "guarded-node-loopback-http-exact-bytes/v1",
+    exactRequestBytes: true,
+    exactResponseBindings: true,
+    legacyDrawingFallthrough: true,
+    sanitizedServerLogs: true,
+    browserPageOperations: 0,
+    screenshotClaims: 0,
+    nonLoopbackAttempts: 0,
+    cleanupFields: ["anchorRestored", "sourceRestored", "browserContextsOpen", "activeGates", "activeIntercepts", "openChildProcesses", "openPorts", "residualPaths", "residualProfiles"],
+  } as const;
+  exact(evidenceRecord, expectedEvidence, "Phase 5 plan evidence");
+  return {planVersion: 5, specId: "SPEC-0001", proofPurpose: "phase-5", authorizationId: "phase-5/v1", baseCommit: PHASE5_BASE_COMMIT, dirtyExpectedPaths, cleanExpectedPaths: [], outputRoot: PHASE5_OUTPUT_ROOT, operationFamilies, registry, selectedCaseIds, evidence: {...expectedEvidence, cleanupFields: [...expectedEvidence.cleanupFields]}};
 };
 
 const parseOperationFamilies = (value: unknown, label: string): OperationFamily[] => {
@@ -1164,7 +1504,7 @@ export type GitObservationOverride = {
   committedChangedPaths: string[];
 };
 
-export type ExtensionValidationMode = "technical" | "phase-2-closeout" | "phase-3-closeout" | "phase-4-closeout";
+export type ExtensionValidationMode = "technical" | "phase-2-closeout" | "phase-3-closeout" | "phase-4-closeout" | "phase-5-closeout";
 
 const validateObservationOverride = (value: GitObservationOverride): GitObservationOverride => ({
   headCommit: gitSha(value.headCommit, "observation headCommit"),
@@ -1200,12 +1540,12 @@ const observeGit = (root: string, baseCommit: string): GitObservationOverride =>
   return {headCommit, stagedPaths, hiddenIndexPaths, trackedDirtyPaths, untrackedPaths, baseIsStrictAncestor: ancestorResult.status === 0 && baseCommit !== headCommit, committedChangedPaths};
 };
 
-export const deriveGitState = (root: string, plan: ExtensionPlan, ceiling: readonly string[], observationOverride?: GitObservationOverride): DerivedGitState => {
+export const deriveGitState = (root: string, plan: ExtensionPlan | Phase5RoutePlan, ceiling: readonly string[], observationOverride?: GitObservationOverride): DerivedGitState => {
   const observation = observationOverride === undefined ? observeGit(root, plan.baseCommit) : validateObservationOverride(observationOverride);
   if (observation.stagedPaths.length > 0) fail(`Staged paths are forbidden: ${observation.stagedPaths.join(", ")}.`);
   if (observation.hiddenIndexPaths.length > 0) fail(`Hidden index flags are forbidden: ${observation.hiddenIndexPaths.join(", ")}.`);
   const dirtyPaths = [...new Set([...observation.trackedDirtyPaths, ...observation.untrackedPaths])];
-  const observedDirtyPaths = plan.authorizationId === "phase-3/v1" || plan.authorizationId === "phase-4/v1"
+  const observedDirtyPaths = plan.authorizationId === "phase-3/v1" || plan.authorizationId === "phase-4/v1" || plan.authorizationId === "phase-5/v1"
     ? sortProofPaths(dirtyPaths)
     : dirtyPaths.sort((left, right) => left.localeCompare(right));
   for (const path of observedDirtyPaths) if (!ceiling.includes(path)) fail(`Observed dirty path is outside the authorization ceiling: ${path}.`);
@@ -1216,7 +1556,7 @@ export const deriveGitState = (root: string, plan: ExtensionPlan, ceiling: reado
   }
   if (!observation.baseIsStrictAncestor) fail("Clean committed state requires baseCommit to be a strict ancestor of HEAD.");
   const committedProjection = observation.committedChangedPaths.filter((path) => ceiling.includes(path));
-  const ceilingProjection = plan.authorizationId === "phase-3/v1" || plan.authorizationId === "phase-4/v1"
+  const ceilingProjection = plan.authorizationId === "phase-3/v1" || plan.authorizationId === "phase-4/v1" || plan.authorizationId === "phase-5/v1"
     ? sortProofPaths(committedProjection)
     : committedProjection.sort((left, right) => left.localeCompare(right));
   const allowedPhase2CloseoutOnly = plan.authorizationId === "phase-2/v1" ? ["scripts/finalizeSpec0001ProofBundle.ts"] : [];
@@ -1285,6 +1625,36 @@ export const derivePhase4CloseoutGraphGitState = (root: string, plan: ExtensionP
   exact(observation.committedChangedPaths, [], "Phase 4 closeout committed paths");
   const observedCloseoutPaths = sortProofPaths([...new Set([...observation.trackedDirtyPaths, ...observation.untrackedPaths])]);
   exact(observedCloseoutPaths, PHASE4_CLOSEOUT_PATHS, "Phase 4 closeout observed paths");
+  return {
+    derivedGitState: "dirty-executor",
+    baseCommit: plan.baseCommit,
+    headCommit: plan.baseCommit,
+    observedDirtyPaths: [...plan.dirtyExpectedPaths],
+    dirtyExpectedPaths: [...plan.dirtyExpectedPaths],
+    cleanExpectedPaths: [],
+    selectedExpectedPaths: [...plan.dirtyExpectedPaths],
+  };
+};
+
+export const derivePhase5CloseoutGraphGitState = (root: string, plan: Phase5RoutePlan, ceiling: readonly string[], observationOverride?: GitObservationOverride): DerivedGitState => {
+  exact(plan.authorizationId, "phase-5/v1", "Phase 5 closeout plan authorizationId");
+  exact(ceiling, PHASE5_PATHS, "Phase 5 closeout technical path ceiling");
+  const allowedDirtySets = [
+    PHASE5_DIRTY_PATHS,
+    sortProofPaths([...PHASE5_DIRTY_PATHS, PHASE5_OPTIONAL_CONTRACT_PATHS[0]]),
+    sortProofPaths([...PHASE5_DIRTY_PATHS, PHASE5_OPTIONAL_CONTRACT_PATHS[1]]),
+    PHASE5_PATHS,
+  ];
+  if (!allowedDirtySets.some((paths) => JSON.stringify(paths) === JSON.stringify(plan.dirtyExpectedPaths))) fail("Phase 5 closeout recorded technical paths mismatch.");
+  const observation = observationOverride === undefined ? observeGit(root, plan.baseCommit) : validateObservationOverride(observationOverride);
+  exact(observation.stagedPaths, [], "Phase 5 closeout staged paths");
+  exact(observation.hiddenIndexPaths, [], "Phase 5 closeout hidden index paths");
+  exact(observation.headCommit, plan.baseCommit, "Phase 5 closeout HEAD/base");
+  exact(observation.baseIsStrictAncestor, false, "Phase 5 closeout base ancestry");
+  exact(observation.committedChangedPaths, [], "Phase 5 closeout committed paths");
+  const expectedCloseoutPaths = sortProofPaths([...plan.dirtyExpectedPaths, ...PHASE5_CLOSEOUT_RECORD_PATHS]);
+  const observedCloseoutPaths = sortProofPaths([...new Set([...observation.trackedDirtyPaths, ...observation.untrackedPaths])]);
+  exact(observedCloseoutPaths, expectedCloseoutPaths, "Phase 5 closeout observed paths");
   return {
     derivedGitState: "dirty-executor",
     baseCommit: plan.baseCommit,
@@ -1368,6 +1738,108 @@ export const validateExtensionResult = (value: unknown, root: string, verifyBind
   return validated;
 };
 
+export const validatePhase5RouteResult = (value: unknown, root: string, verifyBindings = true, validationMode: "technical" | "phase-5-closeout" = "technical"): Phase5RouteResult => {
+  const record = object(value, ["resultVersion", "specId", "proofPurpose", "status", "recordedAt", "productPhaseClaimed", "runtime", "derivedGitState", "baseCommit", "headCommit", "observedDirtyPaths", "dirtyExpectedPaths", "cleanExpectedPaths", "selectedExpectedPaths", "authorization", "bindings", "execution", "evidence", "network", "cleanup"], "Phase 5 route result");
+  exact(record.resultVersion, 5, "Phase 5 resultVersion");
+  exact(record.specId, "SPEC-0001", "Phase 5 result specId");
+  exact(record.proofPurpose, "phase-5", "Phase 5 result proofPurpose");
+  exact(record.status, "passed", "Phase 5 result status");
+  exact(record.productPhaseClaimed, true, "Phase 5 product claim");
+  const recordedAt = typeof record.recordedAt === "string" ? record.recordedAt : fail("Phase 5 recordedAt must be a string.");
+  if (Number.isNaN(Date.parse(recordedAt))) fail("Phase 5 recordedAt must be an ISO-compatible timestamp.");
+  const runtimeRecord = object(record.runtime, ["nodeVersion", "playwrightCoreVersion", "browserVersion", "browserExecutable"], "Phase 5 result runtime");
+  const runtime = {nodeVersion: string(runtimeRecord.nodeVersion, "Phase 5 nodeVersion"), playwrightCoreVersion: enumeration(runtimeRecord.playwrightCoreVersion, ["1.62.1"] as const, "Phase 5 playwrightCoreVersion"), browserVersion: string(runtimeRecord.browserVersion, "Phase 5 browserVersion"), browserExecutable: parseBrowserExecutableBinding(runtimeRecord.browserExecutable, "Phase 5 browserExecutable")};
+  if (verifyBindings) exact(runtime.browserExecutable, bindBrowserExecutable(), "Phase 5 browser executable binding");
+  const derivedGitState = enumeration(record.derivedGitState, ["dirty-executor", "clean-committed"] as const, "Phase 5 derivedGitState");
+  const baseCommit = gitSha(record.baseCommit, "Phase 5 result baseCommit");
+  const headCommit = gitSha(record.headCommit, "Phase 5 result headCommit");
+  const observedDirtyPaths = canonicalProofPaths(record.observedDirtyPaths, "Phase 5 observedDirtyPaths").map((path) => assertSafeRepositoryPath(path));
+  const dirtyExpectedPaths = canonicalProofPaths(record.dirtyExpectedPaths, "Phase 5 result dirtyExpectedPaths").map((path) => assertSafeRepositoryPath(path));
+  exact(record.cleanExpectedPaths, [], "Phase 5 result cleanExpectedPaths");
+  const selectedExpectedPaths = canonicalProofPaths(record.selectedExpectedPaths, "Phase 5 selectedExpectedPaths").map((path) => assertSafeRepositoryPath(path));
+  exact(selectedExpectedPaths, derivedGitState === "dirty-executor" ? dirtyExpectedPaths : [], "Phase 5 selectedExpectedPaths");
+  exact(observedDirtyPaths, selectedExpectedPaths, "Phase 5 observed/selected paths");
+  if (derivedGitState === "dirty-executor") exact(headCommit, baseCommit, "Phase 5 dirty HEAD/base");
+  const authorizationRecord = object(record.authorization, ["authorizationId", "materializationKind"], "Phase 5 result authorization");
+  exact(authorizationRecord, {authorizationId: "phase-5/v1", materializationKind: "deferred"}, "Phase 5 result authorization");
+  const bindingsRecord = object(record.bindings, ["catalog", "plan", "registry"], "Phase 5 result bindings");
+  const bindings = {catalog: parseBinding(bindingsRecord.catalog, "Phase 5 result catalog binding"), plan: parseBinding(bindingsRecord.plan, "Phase 5 result plan binding"), registry: parseBinding(bindingsRecord.registry, "Phase 5 result registry binding")};
+  exact(bindings.catalog.path, CATALOG_PATH, "Phase 5 result catalog path");
+  exact(bindings.plan.path, PHASE5_PLAN_PATH, "Phase 5 result plan path");
+  exact(bindings.registry.path, PHASE5_REGISTRY_PATH, "Phase 5 result registry path");
+  if (verifyBindings) for (const [name, binding] of Object.entries(bindings)) verifyBinding(root, binding, `Phase 5 result ${name} binding`);
+  const executionRecord = object(record.execution, ["selectedCaseIds", "caseCount", "operationKinds"], "Phase 5 result execution");
+  const selectedCaseIds = array(executionRecord.selectedCaseIds, "Phase 5 result selectedCaseIds").map((entry, index) => handle(entry, `Phase 5 result selectedCaseIds[${index}]`));
+  unique(selectedCaseIds, "Phase 5 result selectedCaseIds");
+  const caseCount = integer(executionRecord.caseCount, "Phase 5 result caseCount");
+  exact(caseCount, selectedCaseIds.length, "Phase 5 result caseCount");
+  const operationKinds = array(executionRecord.operationKinds, "Phase 5 result operationKinds").map((entry, index) => enumeration(entry, ["marked-availability-get", "marked-raw-stick-post", "marker-free-drawing-fallthrough-post"] as const, `Phase 5 result operationKinds[${index}]`));
+  exact(operationKinds, ["marked-availability-get", "marked-raw-stick-post", "marker-free-drawing-fallthrough-post"], "Phase 5 result operationKinds");
+  const evidenceRecord = object(record.evidence, ["routePath", "requestTransport", "cases", "realApiRouteRequests", "browserPageOperations", "browserMockedApiResponses", "screenshotClaims", "sanitizedServerLogs"], "Phase 5 result evidence");
+  exact(evidenceRecord.routePath, "/api/ai", "Phase 5 result routePath");
+  exact(evidenceRecord.requestTransport, "guarded-node-loopback-http-exact-bytes/v1", "Phase 5 request transport");
+  exact(evidenceRecord.browserPageOperations, 0, "Phase 5 browser page operations");
+  exact(evidenceRecord.browserMockedApiResponses, 0, "Phase 5 browser mocked responses");
+  exact(evidenceRecord.screenshotClaims, 0, "Phase 5 screenshot claims");
+  exact(evidenceRecord.sanitizedServerLogs, true, "Phase 5 sanitized server logs");
+  const graph = verifyBindings ? loadPhase5RouteGraph(root, bindings.plan.path, validationMode) : null;
+  const registry = graph?.registry ?? validatePhase5RouteRegistryValue(readStrictJson(root, PHASE5_REGISTRY_PATH));
+  exact(selectedCaseIds, registry.cases.map((entry) => entry.caseId), "Phase 5 result/registry cases");
+  const evidenceCases = array(evidenceRecord.cases, "Phase 5 result evidence cases").map((entry, index): Phase5RouteCaseEvidence => {
+    const expectedCase = registry.cases[index] ?? fail(`Unexpected Phase 5 evidence case ${index}.`);
+    const caseRecord = object(entry, ["caseId", "operationKind", "request", "response", "legacyCheckpoint", "logs", "nonLoopbackAttempts"], `Phase 5 evidence case ${index}`);
+    exact(caseRecord.caseId, expectedCase.caseId, `Phase 5 evidence case ${index} ID`);
+    exact(caseRecord.operationKind, expectedCase.operationKind, `Phase 5 evidence case ${index} operationKind`);
+    const requestRecord = object(caseRecord.request, ["method", "path", "headerSha256", "bodyByteLength", "bodySha256"], `Phase 5 evidence case ${index} request`);
+    const expectedHeaderDigest = sha256(Buffer.from(JSON.stringify(expectedCase.request.headers), "utf8"));
+    exact(requestRecord, {method: expectedCase.request.method, path: "/api/ai", headerSha256: expectedHeaderDigest, bodyByteLength: expectedCase.request.body.byteLength, bodySha256: expectedCase.request.body.sha256}, `Phase 5 evidence case ${index} request binding`);
+    const responseRecord = object(caseRecord.response, ["status", "selectedHeaders", "bodyByteLength", "bodySha256"], `Phase 5 evidence case ${index} response`);
+    const selectedHeaders = parsePhase5Headers(responseRecord.selectedHeaders, `Phase 5 evidence case ${index} response headers`);
+    exact(responseRecord.status, expectedCase.expected.status, `Phase 5 evidence case ${index} response status`);
+    exact(selectedHeaders, expectedCase.expected.headers, `Phase 5 evidence case ${index} response headers`);
+    const bodyByteLength = integer(responseRecord.bodyByteLength, `Phase 5 evidence case ${index} response body length`);
+    const bodySha256 = digest(responseRecord.bodySha256, `Phase 5 evidence case ${index} response body digest`);
+    if (expectedCase.expected.body !== null) exact({byteLength: bodyByteLength, sha256: bodySha256}, expectedCase.expected.body, `Phase 5 evidence case ${index} response body binding`);
+    let legacyCheckpoint: Phase5RouteCaseEvidence["legacyCheckpoint"];
+    if (caseRecord.legacyCheckpoint === null) legacyCheckpoint = null;
+    else {
+      const checkpointRecord = object(caseRecord.legacyCheckpoint, ["checkpointKind", "matched"], `Phase 5 evidence case ${index} checkpoint`);
+      exact(checkpointRecord.matched, true, `Phase 5 evidence case ${index} checkpoint matched`);
+      const checkpointKind = handle(checkpointRecord.checkpointKind, `Phase 5 evidence case ${index} checkpointKind`);
+      legacyCheckpoint = {checkpointKind, matched: true};
+    }
+    exact(legacyCheckpoint, expectedCase.expected.legacyCheckpoint === null ? null : {checkpointKind: expectedCase.expected.legacyCheckpoint.checkpointKind, matched: true}, `Phase 5 evidence case ${index} legacy checkpoint`);
+    const logsRecord = object(caseRecord.logs, ["byteLength", "sha256", "forbiddenSubstringsAbsent", "rawBodyAbsent"], `Phase 5 evidence case ${index} logs`);
+    const logs = {byteLength: integer(logsRecord.byteLength, `Phase 5 evidence case ${index} log length`), sha256: digest(logsRecord.sha256, `Phase 5 evidence case ${index} log digest`), forbiddenSubstringsAbsent: logsRecord.forbiddenSubstringsAbsent as true, rawBodyAbsent: logsRecord.rawBodyAbsent as true};
+    exact(logsRecord.forbiddenSubstringsAbsent, true, `Phase 5 evidence case ${index} forbidden log strings`);
+    exact(logsRecord.rawBodyAbsent, true, `Phase 5 evidence case ${index} raw-body log rule`);
+    exact(caseRecord.nonLoopbackAttempts, 0, `Phase 5 evidence case ${index} non-loopback attempts`);
+    return {caseId: expectedCase.caseId, operationKind: expectedCase.operationKind, request: {method: expectedCase.request.method, path: "/api/ai", headerSha256: expectedHeaderDigest, bodyByteLength: expectedCase.request.body.byteLength, bodySha256: expectedCase.request.body.sha256}, response: {status: expectedCase.expected.status, selectedHeaders, bodyByteLength, bodySha256}, legacyCheckpoint, logs, nonLoopbackAttempts: 0};
+  });
+  exact(evidenceCases.length, registry.cases.length, "Phase 5 evidence case count");
+  const realApiRouteRequests = integer(evidenceRecord.realApiRouteRequests, "Phase 5 real route request count");
+  exact(realApiRouteRequests, registry.cases.length, "Phase 5 real route request count");
+  const networkRecord = object(record.network, ["browserNonLoopbackAttempts", "serverNonLoopbackAttempts", "childNonLoopbackAttempts", "runnerNonLoopbackAttempts", "runnerLoopbackRequests"], "Phase 5 result network");
+  exact(networkRecord, {browserNonLoopbackAttempts: 0, serverNonLoopbackAttempts: 0, childNonLoopbackAttempts: 0, runnerNonLoopbackAttempts: 0, runnerLoopbackRequests: registry.cases.length}, "Phase 5 result network denial");
+  const cleanupRecord = object(record.cleanup, ["anchorRestored", "sourceRestored", "browserContextsOpen", "activeGates", "activeIntercepts", "openChildProcesses", "openPorts", "residualPaths", "residualProfiles"], "Phase 5 result cleanup");
+  const expectedCleanup = {anchorRestored: true, sourceRestored: true, browserContextsOpen: 0, activeGates: 0, activeIntercepts: 0, openChildProcesses: 0, openPorts: 0, residualPaths: [], residualProfiles: []} as const;
+  exact(cleanupRecord, expectedCleanup, "Phase 5 result cleanup");
+  if (graph !== null) {
+    exact({derivedGitState, baseCommit, headCommit, observedDirtyPaths, dirtyExpectedPaths, cleanExpectedPaths: [], selectedExpectedPaths}, graph.git, "Phase 5 result/graph Git state");
+    exact(bindings, {catalog: graph.catalogBinding, plan: graph.planBinding, registry: graph.registryBinding}, "Phase 5 result/graph bindings");
+    exact(selectedCaseIds, graph.plan.selectedCaseIds, "Phase 5 result/plan selected cases");
+  }
+  return {
+    resultVersion: 5, specId: "SPEC-0001", proofPurpose: "phase-5", status: "passed", recordedAt, productPhaseClaimed: true,
+    runtime, derivedGitState, baseCommit, headCommit, observedDirtyPaths, dirtyExpectedPaths, cleanExpectedPaths: [], selectedExpectedPaths,
+    authorization: {authorizationId: "phase-5/v1", materializationKind: "deferred"}, bindings,
+    execution: {selectedCaseIds, caseCount, operationKinds},
+    evidence: {routePath: "/api/ai", requestTransport: "guarded-node-loopback-http-exact-bytes/v1", cases: evidenceCases, realApiRouteRequests, browserPageOperations: 0, browserMockedApiResponses: 0, screenshotClaims: 0, sanitizedServerLogs: true},
+    network: {browserNonLoopbackAttempts: 0, serverNonLoopbackAttempts: 0, childNonLoopbackAttempts: 0, runnerNonLoopbackAttempts: 0, runnerLoopbackRequests: registry.cases.length},
+    cleanup: {...expectedCleanup, residualPaths: [], residualProfiles: []},
+  };
+};
+
 const trackedAtHead = (root: string, path: string) => {
   const result = spawnSync("/usr/bin/git", ["ls-files", "--error-unmatch", "--", path], {
     cwd: root,
@@ -1381,7 +1853,7 @@ const trackedAtHead = (root: string, path: string) => {
 export const loadTesterExtensionGraph = (root: string, planPath: string, validationMode: ExtensionValidationMode = "technical", observation?: GitObservationOverride): ValidatedTesterExtension => {
   const safePlanPath = assertSafeRepositoryPath(planPath, "selected plan path");
   const catalog = validateAuthorizationCatalogValue(readStrictJson(root, CATALOG_PATH));
-  const authorization = catalog.authorizations.find((entry) => entry.plan.path === safePlanPath) ?? fail(`Plan path is not registered: ${safePlanPath}.`);
+  const authorization = catalog.authorizations.find((entry): entry is ValidatedAuthorization => entry.authorizationId !== "phase-5/v1" && entry.plan.path === safePlanPath) ?? fail(`Browser plan path is not registered: ${safePlanPath}.`);
   const plan = validateExtensionPlanValue(readStrictJson(root, safePlanPath));
   exact(plan.authorizationId, authorization.authorizationId, "plan/catalog authorizationId");
   exact(plan.outputRoot, authorization.outputRoot, "plan/catalog outputRoot");
@@ -1459,4 +1931,31 @@ export const loadTesterExtensionGraph = (root: string, planPath: string, validat
       : deriveGitState(root, plan, authorization.pathCeiling, observation);
   if (git.derivedGitState === "clean-committed") for (const path of [CATALOG_PATH, planBinding.path, registryBinding.path, adapterBinding.path]) trackedAtHead(root, path);
   return {authorizationId: authorization.authorizationId, materializationKind: authorization.materializationKind, outputRoot: authorization.outputRoot, pathCeiling: authorization.pathCeiling, operationFamilies: authorization.operationFamilies, catalogBinding, planBinding, registryBinding, adapterBinding, plan, registry, adapter, git};
+};
+
+export const loadPhase5RouteGraph = (root: string, planPath: string, validationMode: "technical" | "phase-5-closeout" = "technical", observation?: GitObservationOverride): ValidatedPhase5RouteGraph => {
+  const safePlanPath = assertSafeRepositoryPath(planPath, "selected Phase 5 plan path");
+  exact(safePlanPath, PHASE5_PLAN_PATH, "selected Phase 5 plan path");
+  const catalog = validateAuthorizationCatalogValue(readStrictJson(root, CATALOG_PATH));
+  const authorization = catalog.authorizations[4];
+  exact(authorization.authorizationId, "phase-5/v1", "Phase 5 catalog authorizationId");
+  exact(authorization.plan.path, safePlanPath, "Phase 5 plan/catalog path");
+  const plan = validatePhase5RoutePlanValue(readStrictJson(root, safePlanPath));
+  exact(plan.authorizationId, authorization.authorizationId, "Phase 5 plan/catalog authorizationId");
+  exact(plan.outputRoot, authorization.outputRoot, "Phase 5 plan/catalog outputRoot");
+  exact(plan.operationFamilies, authorization.operationFamilies, "Phase 5 plan/catalog operation families");
+  exact(plan.dirtyExpectedPaths.every((path) => authorization.pathCeiling.includes(path)), true, "Phase 5 plan/catalog dirty ceiling");
+  const catalogBinding = bindRepositoryFile(root, CATALOG_PATH);
+  const planBinding = bindRepositoryFile(root, safePlanPath);
+  const registryBinding = bindRepositoryFile(root, authorization.registry.path);
+  exact(plan.registry, registryBinding, "Phase 5 plan/registry binding");
+  const registry = validatePhase5RouteRegistryValue(readStrictJson(root, registryBinding.path));
+  exact(registry.authorizationId, authorization.authorizationId, "Phase 5 registry/catalog authorizationId");
+  exact(registry.operationFamilies, authorization.operationFamilies, "Phase 5 registry/catalog operation families");
+  exact(plan.selectedCaseIds, registry.cases.map((entry) => entry.caseId), "Phase 5 selected route cases");
+  const git = validationMode === "phase-5-closeout"
+    ? derivePhase5CloseoutGraphGitState(root, plan, authorization.pathCeiling, observation)
+    : deriveGitState(root, plan, authorization.pathCeiling, observation);
+  if (git.derivedGitState === "clean-committed") for (const path of [CATALOG_PATH, planBinding.path, registryBinding.path]) trackedAtHead(root, path);
+  return {authorizationId: "phase-5/v1", materializationKind: "deferred", outputRoot: PHASE5_OUTPUT_ROOT, pathCeiling: authorization.pathCeiling, operationFamilies: authorization.operationFamilies, catalogBinding, planBinding, registryBinding, plan, registry, git};
 };

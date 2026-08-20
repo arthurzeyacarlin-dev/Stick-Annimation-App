@@ -1,0 +1,72 @@
+{
+  "fixtureVersion": 1,
+  "requestFixture": "scripts/fixtures/stick-ai/v1/wave-request.json",
+  "envelopeFixture": "scripts/fixtures/stick-ai/v1/wave-command-batch.json",
+  "providerPlanFixture": "scripts/fixtures/stick-ai/v1/wave-provider-plan.json",
+  "cases": [
+    {
+      "caseId": "valid-golden",
+      "mutation": null,
+      "expected": {
+        "ok": true,
+        "errorCode": null
+      }
+    },
+    {
+      "caseId": "unsupported-prompt",
+      "mutation": {
+        "path": "prompt",
+        "value": "PHASE5_PRIVATE_SENTINEL"
+      },
+      "expected": {
+        "ok": false,
+        "errorCode": "unsupported_prompt"
+      }
+    },
+    {
+      "caseId": "stale-project-digest",
+      "mutation": {
+        "path": "projectContext.baseDocumentDigest",
+        "value": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "expected": {
+        "ok": false,
+        "errorCode": "stale_document"
+      }
+    },
+    {
+      "caseId": "manifest-search-enabled",
+      "mutation": {
+        "path": "capabilityManifest.limits.search",
+        "value": "enabled"
+      },
+      "expected": {
+        "ok": false,
+        "errorCode": "capability_mismatch"
+      }
+    },
+    {
+      "caseId": "unsupported-request-version",
+      "mutation": {
+        "path": "requestVersion",
+        "value": 2
+      },
+      "expected": {
+        "ok": false,
+        "errorCode": "unsupported_version"
+      }
+    },
+    {
+      "caseId": "unknown-root-field",
+      "mutation": {
+        "path": "unexpected",
+        "value": true
+      },
+      "expected": {
+        "ok": false,
+        "errorCode": "invalid_request"
+      }
+    }
+  ],
+  "repeatabilityRuns": 3
+}

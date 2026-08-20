@@ -6,6 +6,7 @@ import {dirname, relative, resolve, sep} from "node:path";
 import {
   PHASE2_CLOSEOUT_PATHS,
   PHASE4_CLOSEOUT_PATHS,
+  PHASE5_CLOSEOUT_PATHS,
   assertEmptyProofIndex,
   assertNoHiddenIndexFlags,
   assertNoProofRelevantGitEnvironment,
@@ -796,6 +797,9 @@ export const runFinalizerSelfTest = () => {
   assertPhaseCloseoutPaths(4, PHASE4_CLOSEOUT_PATHS);
   assert.throws(() => assertPhaseCloseoutPaths(4, PHASE4_CLOSEOUT_PATHS.slice(0, -1)));
   assert.throws(() => assertPhaseCloseoutPaths(4, sortProofPaths([...PHASE4_CLOSEOUT_PATHS, "unauthorized/extra.txt"])));
+  assertPhaseCloseoutPaths(5, PHASE5_CLOSEOUT_PATHS);
+  assert.throws(() => assertPhaseCloseoutPaths(5, PHASE5_CLOSEOUT_PATHS.slice(0, -1)));
+  assert.throws(() => assertPhaseCloseoutPaths(5, sortProofPaths([...PHASE5_CLOSEOUT_PATHS, "unauthorized/extra.txt"])));
   const noLive = buildLiveTuple(1, undefined, undefined);
   validateLiveTuple(1, noLive);
   assert.throws(() => buildLiveTuple(1, "none", "none"));

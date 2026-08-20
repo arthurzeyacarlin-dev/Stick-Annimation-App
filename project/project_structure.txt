@@ -200,6 +200,11 @@
 ./scripts/fixtures/spec0001-browser/v4/tester-extension-plan.schema.json
 ./scripts/fixtures/spec0001-browser/v4/tester-extension-registry.schema.json
 ./scripts/fixtures/spec0001-browser/v4/tester-extension-result.schema.json
+./scripts/fixtures/spec0001-browser/v5
+./scripts/fixtures/spec0001-browser/v5/tester-extension-authorization.schema.json
+./scripts/fixtures/spec0001-browser/v5/tester-extension-plan.schema.json
+./scripts/fixtures/spec0001-browser/v5/tester-extension-registry.schema.json
+./scripts/fixtures/spec0001-browser/v5/tester-extension-result.schema.json
 ./scripts/fixtures/spec0002-browser
 ./scripts/fixtures/spec0002-browser/v1
 ./scripts/fixtures/spec0002-browser/v1/legacy-full-project.json
@@ -226,6 +231,8 @@
 ./scripts/fixtures/stick-ai/v1/phase-3-proof-commands.json
 ./scripts/fixtures/stick-ai/v1/phase-4-browser-proof-plan.json
 ./scripts/fixtures/stick-ai/v1/phase-4-proof-commands.json
+./scripts/fixtures/stick-ai/v1/phase-5-browser-proof-plan.json
+./scripts/fixtures/stick-ai/v1/phase-5-proof-commands.json
 ./scripts/fixtures/stick-ai/v1/phase7-live-proof-manifest.schema.json
 ./scripts/fixtures/stick-ai/v1/prompt-normalization-cases.json
 ./scripts/fixtures/stick-ai/v1/proof-closeout-manifest.schema.json
@@ -233,6 +240,9 @@
 ./scripts/fixtures/stick-ai/v1/proof-command-receipt.schema.json
 ./scripts/fixtures/stick-ai/v1/proof-manifest-v2.schema.json
 ./scripts/fixtures/stick-ai/v1/proof-manifest.schema.json
+./scripts/fixtures/stick-ai/v1/stick-ai-availability-cases.json
+./scripts/fixtures/stick-ai/v1/stick-ai-mock-server-cases.json
+./scripts/fixtures/stick-ai/v1/stick-ai-raw-route-cases.json
 ./scripts/fixtures/stick-ai/v1/stick-command-publication-race-cases.json
 ./scripts/fixtures/stick-ai/v1/stick-command-transaction-cases.json
 ./scripts/fixtures/stick-ai/v1/stick-control-disposition-cases.json
@@ -313,6 +323,7 @@
 ./scripts/validateSpec0001ProofBundle.ts
 ./scripts/validateSpec0002Proof.ts
 ./scripts/validateStickFigureAiContracts.ts
+./scripts/validateStickFigureAiMockRoute.ts
 ./scripts/validateStickFigureCommandTransaction.ts
 ./scripts/validateStickHistoryPersistence.ts
 ./scripts/validateStickPoseTimeline.ts
@@ -377,8 +388,12 @@
 ./src/lib/ai/generateFramesRuntime.ts
 ./src/lib/ai/plansTraining.ts
 ./src/lib/ai/plansTrainingStore.ts
+./src/lib/ai/stickFigureAiAvailability.ts
 ./src/lib/ai/stickFigureAiContract.ts
+./src/lib/ai/stickFigureAiMockServer.ts
+./src/lib/ai/stickFigureAiServerDispatch.ts
 ./src/lib/ai/stickFigureCommandExecutor.ts
+./src/lib/ai/strictStickJson.ts
 ./src/lib/dbAdmin.ts
 ./src/lib/dbClient.ts
 ./src/lib/drawingProjectAudioCodec.ts

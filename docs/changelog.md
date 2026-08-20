@@ -5,6 +5,16 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-20 — SPEC-0001 Phase 5 accepted and technically verified pending publication
+
+- accepted the exact 22-path Phase 5 implementation after Arthur reviewed the exact unpublished app copy and reported that everything looked normal
+- added the hidden first-operation Stick boundary to the real `/api/ai` route: strict captured raw bytes, safe coarse availability, deterministic provider-free mock output, rejection before Drawing work, and original unread Drawing fallthrough
+- independently revalidated 362 source assertions, 31 guarded real-route cases, 12 successful receipts, 53 artifacts, inherited regressions, TypeScript, measured lint non-regression, diff/registration/cleanup proof, and corrected proof-manifest SHA-256 `f9024a5d86cc1febbac7df3d4219348cd8289d17723406bac5d90929d4cf5c0f`
+- recorded the publication-packaging correction that removed exactly one extra terminal LF from six accepted technical files, changed no logic, passed explicit EOF/UTF-8/whitespace proof, and produced executor-reported corrected aggregate `sha256:78e00dd35e1be1bc97ea2498abad6b09042216d57765ff6bbaec0a7e19e7d55c`
+- recorded zero browser/server/child/runner non-loopback attempts and zero provider/editor/history/storage calls; no visible Stick UI, workspace adapter, OpenAI/search/Supabase/paid request, or deployment was added
+- recorded the production build honestly as not a Phase 5 gate and not passed: it stopped on the pre-existing untouched AI-cost dashboard `PageProps` type error
+- kept Phases 6 and 7 **Unauthorized; Not started**; the only next step is exact Phase 5 publication/integration
+
 ### 2026-08-19 — SPEC-0001 Phase 5 tester-permission contradiction corrected
 
 - reconciled D-0024's exact seven-document activation publication at canonical-main commit `245ac7e8bceeca76b522ff21c4327fa0219a3805` and the fresh Phase 5 executor's correct no-edit stop

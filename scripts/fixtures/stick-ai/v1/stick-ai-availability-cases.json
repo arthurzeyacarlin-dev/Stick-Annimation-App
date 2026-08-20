@@ -1,0 +1,117 @@
+{
+  "fixtureVersion": 1,
+  "reasonCodes": [
+    "available",
+    "capability_disabled",
+    "server_not_configured",
+    "production_forbidden",
+    "temporarily_unavailable"
+  ],
+  "cases": [
+    {
+      "caseId": "development-mock",
+      "environment": {
+        "nodeEnv": "development",
+        "configuredMode": "mock"
+      },
+      "expected": {
+        "available": true,
+        "reason": "available"
+      }
+    },
+    {
+      "caseId": "test-mock",
+      "environment": {
+        "nodeEnv": "test",
+        "configuredMode": "mock"
+      },
+      "expected": {
+        "available": true,
+        "reason": "available"
+      }
+    },
+    {
+      "caseId": "development-off",
+      "environment": {
+        "nodeEnv": "development",
+        "configuredMode": "off"
+      },
+      "expected": {
+        "available": false,
+        "reason": "capability_disabled"
+      }
+    },
+    {
+      "caseId": "development-absent",
+      "environment": {
+        "nodeEnv": "development"
+      },
+      "expected": {
+        "available": false,
+        "reason": "server_not_configured"
+      }
+    },
+    {
+      "caseId": "development-unknown",
+      "environment": {
+        "nodeEnv": "development",
+        "configuredMode": "unexpected"
+      },
+      "expected": {
+        "available": false,
+        "reason": "server_not_configured"
+      }
+    },
+    {
+      "caseId": "development-live-forbidden",
+      "environment": {
+        "nodeEnv": "development",
+        "configuredMode": "live"
+      },
+      "expected": {
+        "available": false,
+        "reason": "temporarily_unavailable"
+      }
+    },
+    {
+      "caseId": "production-mock-forbidden",
+      "environment": {
+        "nodeEnv": "production",
+        "configuredMode": "mock"
+      },
+      "expected": {
+        "available": false,
+        "reason": "production_forbidden"
+      }
+    },
+    {
+      "caseId": "production-off-forbidden",
+      "environment": {
+        "nodeEnv": "production",
+        "configuredMode": "off"
+      },
+      "expected": {
+        "available": false,
+        "reason": "production_forbidden"
+      }
+    }
+  ],
+  "contradictoryPairs": [
+    [
+      "available",
+      "capability_disabled"
+    ],
+    [
+      "available",
+      "server_not_configured"
+    ],
+    [
+      "available",
+      "production_forbidden"
+    ],
+    [
+      "available",
+      "temporarily_unavailable"
+    ]
+  ]
+}

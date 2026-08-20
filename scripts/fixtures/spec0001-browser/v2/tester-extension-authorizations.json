@@ -159,6 +159,42 @@
         "src/lib/stickfigure/stickProjectContract.ts",
         "src/lib/stickfigure/stickProjectHistory.ts"
       ]
+    },
+    {
+      "authorizationId": "phase-5/v1",
+      "proofPurpose": "phase-5",
+      "materializationKind": "deferred",
+      "plan": {"path": "scripts/fixtures/stick-ai/v1/phase-5-browser-proof-plan.json", "schemaPath": "scripts/fixtures/spec0001-browser/v5/tester-extension-plan.schema.json", "planVersion": 5},
+      "registry": {"path": "scripts/fixtures/stick-ai/v1/stick-ai-raw-route-cases.json", "schemaPath": "scripts/fixtures/spec0001-browser/v5/tester-extension-registry.schema.json", "registryVersion": 5},
+      "resultSchema": {"path": "scripts/fixtures/spec0001-browser/v5/tester-extension-result.schema.json", "resultVersion": 5},
+      "operationFamilies": ["guarded-http", "runner-environment"],
+      "outputRoot": "output/spec-0001/phase-5",
+      "pathCeiling": [
+        ".env.example",
+        "app/api/ai/route.ts",
+        "scripts/finalizeSpec0001ProofBundle.ts",
+        "scripts/fixtures/spec0001-browser/v2/tester-extension-authorizations.json",
+        "scripts/fixtures/spec0001-browser/v5/tester-extension-authorization.schema.json",
+        "scripts/fixtures/spec0001-browser/v5/tester-extension-plan.schema.json",
+        "scripts/fixtures/spec0001-browser/v5/tester-extension-registry.schema.json",
+        "scripts/fixtures/spec0001-browser/v5/tester-extension-result.schema.json",
+        "scripts/fixtures/stick-ai/v1/phase-5-browser-proof-plan.json",
+        "scripts/fixtures/stick-ai/v1/phase-5-proof-commands.json",
+        "scripts/fixtures/stick-ai/v1/stick-ai-availability-cases.json",
+        "scripts/fixtures/stick-ai/v1/stick-ai-mock-server-cases.json",
+        "scripts/fixtures/stick-ai/v1/stick-ai-raw-route-cases.json",
+        "scripts/recordSpec0001ProofBundle.ts",
+        "scripts/runSpec0001BrowserProof.ts",
+        "scripts/spec0001-browser/browserTesterExtensionContract.ts",
+        "scripts/validateSpec0001ProofBundle.ts",
+        "scripts/validateStickFigureAiMockRoute.ts",
+        "src/lib/ai/stickFigureAiAvailability.ts",
+        "src/lib/ai/stickFigureAiContract.ts",
+        "src/lib/ai/stickFigureAiMockServer.ts",
+        "src/lib/ai/stickFigureAiServerDispatch.ts",
+        "src/lib/ai/strictStickJson.ts",
+        "src/lib/stickfigure/stickProjectContract.ts"
+      ]
     }
   ]
 }

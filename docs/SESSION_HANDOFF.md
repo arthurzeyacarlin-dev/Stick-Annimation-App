@@ -1,32 +1,30 @@
 # Session Handoff
 
 Status: canonical last-known stopping point
-Last updated: 2026-08-19
+Last updated: 2026-08-20
 Active specs: `docs/specs/0001-first-reversible-ai-stick-animation.md` and `docs/specs/0002-lossless-local-drawing-save-and-reopen.md` — Approved
-Current result: SPEC-0001 Phase 4 remains **Verified, published, and integrated** in exact 30-path implementation commit `71841e96499f7627139c53d87114bba65e19d29d`, parent `62f046adff7418d2e644365fc04bd5d6312dcca9`. D-0024's seven-document Phase 5 activation is published at exact canonical-main commit `245ac7e8bceeca76b522ff21c4327fa0219a3805`. A fresh executor booted from that clean SHA and stopped before edits on the proven permanent-tester authorization gap. D-0025 keeps Phase 5 **Authorized; Not started** and corrects only that proof-feasibility ceiling. Phases 6 and 7 remain **Unauthorized; Not started**.
+Current result: SPEC-0001 Phase 4 remains **Verified, published, and integrated** in `71841e96499f7627139c53d87114bba65e19d29d`. D-0024/D-0025's Phase 5 authorization and tester correction are published through exact executor base `a2b4f3e0fc492df9cd63bda32554e382a344cdb6`. Under D-0026, the corrected exact 22-path Phase 5 implementation is **Implemented, Arthur-reviewed, accepted, and technically Verified; pending publication/integration**. The six-byte terminal-LF-only packaging correction changed no logic; its fresh proof manifest has SHA-256 `f9024a5d86cc1febbac7df3d4219348cd8289d17723406bac5d90929d4cf5c0f`. Phases 6 and 7 remain **Unauthorized; Not started**.
 Current roadmap phase: Phase 0 — Preserve and Stabilize
 
 ## Completed in This Task
 
-Fresh tracing confirmed the published tester catalog, v4 schemas, typed contract, runner, recorder, independent validator, and finalizer end at Phase 4, while §10.8 mandates a registered `phase-5/v1` real-route proof and proof bundle. The runner's existing Drawing `/api/ai` evidence is intercepted and explicitly asserts zero real-route requests, so it cannot stand in for exact raw HTTP route proof. The first executor correctly stopped without edits.
+The stopped Phase 5 executor implemented exactly 22 mandatory technical paths from D-0025. The hidden boundary handles marked availability and raw Stick POST as the first operation in the real `/api/ai` route, validates exact bounded bytes, rejects malformed/duplicate/oversized/unsupported captured Stick input before Drawing work, returns deterministic provider-free mock output, and preserves the original unread Request for marker-free Drawing fallthrough. It adds no visible Stick chat/UI, workspace adapter, editor/history/storage mutation, provider, search, Supabase, paid request, or deployment.
 
-D-0025 preserves D-0024's exact 14 product/fixture/validator paths and adds exactly 10 shared tester paths: the existing catalog; four new v5 schemas; runner; typed extension contract; recorder; independent validator; and finalizer. The complete Phase 5 ceiling is exactly 24 tracked paths. The v5 mode is route-only: `stick-ai-raw-route-cases.json` is its registry and the runner sends exact bytes through guarded Node loopback HTTP to the real `/api/ai`. It adds no action adapter, workspace port, in-page operation, tester route/page/control/asset, writable Stick chat, or visible UI.
-
-This correction changes seven canonical Markdown documents only. It does not implement Phase 5, change an accepted Phase 4 or tester byte, start a server or browser, make an external request, or authorize Git publication. Phase 4 evidence remains unchanged: technical-manifest SHA-256 `d34d589373713ac7930984aeb3ef0640539316c00e1f510cf8d798aee931bf46` and browser-runner SHA-256 `353f4937972d30b1959f1c7aee3075f5ebafb308d04a778db69372969e7b906f`.
-
-Arthur's later Phase 5 acceptance requires one review of the exact unpublished app copy after the Spec Executor has completed technical proof and stopped. Phase 5 intentionally adds no visible Stick UI, so the review confirms that the existing app still looks and works the same; the hidden mock route is proved by the automated Phase 5 evidence.
+Independent takeover validation passed before record edits. The proof manifest binds 12 successful receipts and 53 artifacts, 362 source-direct assertions, 31 guarded real-route cases, inherited Phase 1–4 and Drawing regressions, TypeScript, measured lint non-regression, diff/registration checks, zero non-loopback/provider/editor/history/storage calls, and complete cleanup. Arthur reviewed the exact unpublished app copy and reported that everything looked normal. The separate production build attempt was not a Phase 5 gate and stopped on the pre-existing untouched AI-cost dashboard `PageProps` type error; it is not recorded as passed.
 
 ## Exact Git and Phase State
 
-- exact clean canonical `main`/`origin/main` basis before this correction worktree: `245ac7e8bceeca76b522ff21c4327fa0219a3805`
-- dedicated Spec Architect worktree: `/private/tmp/stick-animation-spec0001-phase5-tester-permission-correction`
-- dedicated branch: `codex/spec0001-phase5-tester-permission-correction`
+- exact canonical/executor base and detached HEAD: `a2b4f3e0fc492df9cd63bda32554e382a344cdb6`
+- accepted implementation worktree: `/Users/arthurcarlin/.codex/worktrees/e271/stick-animation-app`
 - Phase 4 implementation publication: `71841e96499f7627139c53d87114bba65e19d29d`
 - index: empty
+- exact Git-visible technical paths: 22
+- exact canonical closeout-record paths: 8
+- expected combined publication paths: 30
 - Phase 4: **Verified, published, and integrated**
-- Phase 5 activation publication: `245ac7e8bceeca76b522ff21c4327fa0219a3805`
-- Phase 5: **Authorized; Not started** through D-0024/D-0025
-- replacement Phase 5 executor base: intentionally unset until this correction is separately published and integrated
+- Phase 5: **Implemented, Arthur-reviewed, accepted, and technically Verified; pending publication/integration**
+- technical proof SHA-256: `f9024a5d86cc1febbac7df3d4219348cd8289d17723406bac5d90929d4cf5c0f`
+- executor-reported corrected technical aggregate: `sha256:78e00dd35e1be1bc97ea2498abad6b09042216d57765ff6bbaec0a7e19e7d55c`
 - Phases 6 and 7: **Unauthorized; Not started**
 - Phase 7 Policy Gate and every live/paid/external request: unauthorized
 - SPEC-0002: complete/protected and unchanged
@@ -35,25 +33,25 @@ Arthur's later Phase 5 acceptance requires one review of the exact unpublished a
 
 ## Exact Next Start Point
 
-First obtain separate publication authorization for this D-0025 tester-permission correction. The resulting canonical-main publication SHA becomes the exact base for one brand-new dedicated Plan-mode replacement Phase 5 Spec Executor worktree. That executor may implement and technically prove only section 10.8's exact 24-path ceiling, return its Implementation Review Packet, and stop. After it stops, the Project Manager gives Arthur the exact unpublished app copy once for the unchanged-visible-app review. No Control Plane Architect propagation or implementation publication occurs unless Arthur and the Project Manager accept that result and authorize the later steps separately.
+Publish and integrate only the accepted 22 technical paths plus the eight reviewed canonical closeout-record paths after separate publication authorization. Preserve the technical and closeout hashes, fast-forward only from the unchanged clean canonical base, push normally, and verify clean `0/0` synchronization. Do not start or authorize Phase 6 as part of publication.
 
 ## Proven and Not Proven
 
 Proven:
 
-- clean canonical `main`/`origin/main` basis `245ac7e8bceeca76b522ff21c4327fa0219a3805` before this correction worktree;
+- clean canonical `main`/local `origin/main` and executor base `a2b4f3e0fc492df9cd63bda32554e382a344cdb6` before propagation;
 - Phase 4 remains Verified/published/integrated with its accepted hashes unchanged;
-- D-0024's Phase 5 activation is published and still authorizes only the already specified server/mock product boundary;
-- the mandatory Phase 5 proof is infeasible under the Phase-4-closed tester graph;
-- D-0025's exact 10-path additive tester ceiling makes the already-mandatory route-only proof implementable without adding a product/tester UI or workspace adapter;
-- control-plane scope only; no runtime, fixture, technical-test, proof, dependency, configuration, environment, migration, or database change.
+- exact 22-path Phase 5 technical result and unchanged manifest SHA independently validate;
+- 362 source assertions, 31 guarded real-route cases, 12 receipts, 53 artifacts, inherited regressions, and zero-egress/cleanup evidence passed;
+- Arthur reviewed the exact unpublished copy and found the visible app normal;
+- no visible UI/editor/history/storage/provider/external behavior was added.
 
 Not proven or not performed:
 
-- publication of this tester-permission correction;
-- Phase 5 implementation, technical proof, or Arthur's one-time unpublished-app review;
-- writable Stick chat/UI, OpenAI/provider/search/Supabase/paid traffic, deployment, Phase 6, Phase 7, or broader product completion.
+- Phase 5 publication/integration;
+- the production build, which stopped on the untouched pre-existing AI-cost dashboard `PageProps` type error and was not a phase gate;
+- writable Stick chat/UI, real OpenAI/provider/search/Supabase/paid traffic, deployment, Phase 6, Phase 7, or broader product completion.
 
 ## Systems Intentionally Left Unchanged
 
-All accepted Phase 4 runtime, fixture, schema, runner, recorder, validator, finalizer, technical-test, and proof bytes; all current permanent-tester bytes; `AGENTS.md`; `docs/PROJECT_MANAGER_CONTEXT.md`; `docs/architecture.md`; `docs/testing_workflow.md`; `project/project_structure.txt` unless deterministic memory regeneration proves a tree change; package/lock/configuration bytes; Drawing and Stick runtime/UI/history/persistence; Creator; SPEC-0002; the separate SPEC-0003 worktree; databases/migrations; environment files; deployment; external services; other worktrees; and recovery material remain unchanged. Nothing is staged, committed, merged, pushed, published, deployed, or sent to an external service in this task.
+The accepted 22 technical bytes; Phase 1–4 product meanings and proof; visible Drawing/Stick UI; editor/history/storage behavior; Creator; `AGENTS.md`; `docs/PROJECT_MANAGER_CONTEXT.md`; `docs/architecture.md`; `docs/testing_workflow.md`; package/lock/configuration bytes; SPEC-0002; the separate SPEC-0003 worktree; databases/migrations; deployment; external services; other worktrees; and recovery material remain unchanged by Control Plane Architect propagation. Nothing is staged, committed, merged, pushed, published, deployed, or sent to an external service in this task.

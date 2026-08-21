@@ -5,6 +5,20 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-21 — SPEC-0001 Phase 6 first review rejected; visible correction accepted and closed out
+
+- recorded D-0027's exact seven-document activation publication at `f46ed3b13e6bca3a09c9b2926c972bea8c331f2c`, parent `da7c258078a0240da32018b9ecfa7f33ae27d5ac`, while preserving canonical `main` with no Phase 6 runtime
+- recorded Arthur's direct rejection of the first separate unpublished Phase 6 review copy; no rejected implementation byte or proof was accepted, copied, inspected, propagated, or published
+- restored the protected initial panel requirement: source-authored `Generate frames • Clean drawings • Animate faster`, exact `Chat here`, original white 28×28 circular checkmark send control, exact unboxed/muted `Ask the assistant for help with your stick figure.`, and no pre-send readiness warning, suggestion chip, shortcut explanation, preview, Apply, or Cancel
+- required user-first sending; exact non-mutating understood-result preview; Cancel with the one-cell empty canvas and no figure; and explicit Apply visibly rendering the real 11-joint/10-limb built-in graph across Frames 1/5/9 and their holds
+- required paused Onion on Frame 5 to visibly render the previous complete figure in exact purple `rgba(92, 63, 158, 0.58)` and the next complete figure in exact green `rgba(44, 122, 91, 0.56)`
+- strengthened the permanent browser proof to bind canonical/render inputs to live SVG geometry, transformed screen coordinates, clipped-stage pixels/color clusters, hold equality, Onion OFF cleanup, and exact-base/result visual masks at `1440×900` and `1024×768`; counts or screenshots assumed correct no longer pass
+- retained the maximum 26-path Phase 6 ceiling with an exact bound dirty subset; kept `StickFigureCanvas.tsx`, the Phase 3 onion resolver/tints, Phase 4 transaction, Phase 5 V1/history/proof, Drawing, Creator, dependencies, configuration, environment, database, and Phase 7 policy unchanged
+- recorded Arthur and the Project Manager's acceptance and the Control Plane Architect's independent canonical-source, feasibility, lifecycle, scope, and documentation closeout; publication remains a separate explicit action
+- marked GIT-026 complete, opened GIT-027 for this correction's later publication, and set Phase 6 to **Approved; Authorized; correction required** while Phase 5 stays **Verified, published, and integrated** and Phase 7 stays **Unauthorized; Not started**
+
+This is an unstaged seven-Markdown-path Control Plane Architect closeout from exact clean canonical-main basis `f46ed3b13e6bca3a09c9b2926c972bea8c331f2c`. No runtime, UI, API, test, fixture, script, proof, package, dependency, configuration, environment, database, provider, external-service, deployment, staging, commit, merge, push, or publication action occurred.
+
 ### 2026-08-20 — SPEC-0001 Phase 6 typo-friendly intent approved and activated
 
 - recorded Arthur's D-0027 product decision that the pretend AI must accept a closed set of meaning-equivalent phrasing, safely implied three poses/12 FPS, audited unique spelling corrections such as `wwave`, `animaton`, and `onne`, and the narrow repeated-digit `122 FPS` correction without requiring the canonical sentence
@@ -12,9 +26,9 @@ Format: newest entries first; describe observed behavior and repository operatio
 - required the exact pre-Apply copy “Understood: one stick figure, a three-pose wave, 12 frames at 12 FPS. No changes have been made.” and preserved Preview → explicit Apply, the same manual-editable animation outcome, Phase 4 transaction semantics, and all semantic/count/FPS/action/prop/background rejection boundaries
 - traced the published Phase 5 implementation and corrected Phase 6's feasibility boundary to an exact 26 technical paths: additive V2 matcher/contract/mock/UI plus `phase-6/v1` V6 tester registration, while keeping the route/raw-reader/classifier/availability path, all V1 fixtures/proof/history, and prior accepted behavior immutable
 - updated Phase 7 to consume the same canonical server intent and canonical golden prompt, never raw user wording/correction metadata, without changing its separate same-day provider-policy gate or authorizing any provider request
-- kept Phase 5 **Verified, published, and integrated** at `9bbcc1df2fe4c79c0947601d0ea6274a85732d85`; recorded Phase 6 as **Approved; Authorized; Not started** pending activation publication; kept Phase 7 **Unauthorized; Not started**
+- kept Phase 5 **Verified, published, and integrated** at `9bbcc1df2fe4c79c0947601d0ea6274a85732d85`; recorded Phase 6 as **Approved; Authorized; Not started** at that historical activation point; kept Phase 7 **Unauthorized; Not started**
 
-This is an unstaged seven-Markdown-file Control Plane Architect activation from exact clean canonical-main basis `da7c258078a0240da32018b9ecfa7f33ae27d5ac`. No runtime, UI, API, test, fixture, script, proof, package, dependency, configuration, environment, database, provider, external-service, deployment, staging, commit, merge, push, or publication action occurred.
+That exact seven-Markdown-file activation was later published/integrated in commit `f46ed3b13e6bca3a09c9b2926c972bea8c331f2c`, parent `da7c258078a0240da32018b9ecfa7f33ae27d5ac`, message `Authorize SPEC-0001 Phase 6 typo-friendly prompts`. It contained no runtime, UI, API, test, fixture, script, proof, package, dependency, configuration, environment, database, provider, external-service, or deployment change.
 
 ### 2026-08-20 — SPEC-0001 Phase 5 published and integrated
 

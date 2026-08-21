@@ -313,6 +313,24 @@ const phaseFiveExactCommands = (base: string) => [
   ["node", "--experimental-strip-types", "scripts/runSpec0001BrowserProof.ts", "--plan=scripts/fixtures/stick-ai/v1/phase-5-browser-proof-plan.json"],
 ];
 
+const phaseSixExactCommands = (base: string) => [
+  ["node", "--experimental-strip-types", "scripts/validateStickFigureAiUiAdapter.ts"],
+  ["node", "--experimental-strip-types", "scripts/validateStickFigureAiMockRoute.ts"],
+  ["node", "--experimental-strip-types", "scripts/validateStickFigureCommandTransaction.ts"],
+  ["node", "--experimental-strip-types", "scripts/validateStickHistoryPersistence.ts"],
+  ["node", "--experimental-strip-types", "scripts/validateStickPoseTimeline.ts"],
+  ["node", "--experimental-strip-types", "scripts/validateStickFigureAiContracts.ts"],
+  ["node", "--experimental-strip-types", "scripts/validateDrawingAiControlPreferences.ts"],
+  ["node", "--experimental-strip-types", "scripts/validateDrawingProjectAiMemory.ts"],
+  ["node", "--experimental-strip-types", "scripts/validateDrawingProjectAiMemoryRouteSafety.ts"],
+  ["node", "--experimental-strip-types", "scripts/validateTimelinePlaybackSmoothing.ts"],
+  ["./node_modules/.bin/tsc", "--noEmit", "--incremental", "false"],
+  ["node", "--experimental-strip-types", "scripts/spec0001-proof/measureSpec0001LintRegression.ts", `--base=${base}`],
+  ["git", "diff", "--check"],
+  ["node", "--experimental-strip-types", "scripts/runSpec0001BrowserProof.ts", "--self-test=phase-6-registration"],
+  ["node", "--experimental-strip-types", "scripts/runSpec0001BrowserProof.ts", "--plan=scripts/fixtures/stick-ai/v2/phase-6-browser-proof-plan.json"],
+];
+
 const nulList = (value: string) => value.split("\0").filter(Boolean);
 
 const collectArtifacts = (configPath: string, commands: CommandConfig[], bindingPaths: string[], browserEvidenceInput: string | null, version: 1 | 2 = 1) => {
@@ -507,7 +525,7 @@ const validateV2LintMeasurementForRecording = (value: unknown, baseCommit: strin
 const summarizeV2Evidence = (path: string, baseCommit: string, headCommit: string, phase: number) => {
   const runnerResult = JSON.parse(readFileSync(resolve(ROOT, path), "utf8")) as Record<string, unknown>;
   if (phase === 5) validatePhase5RouteResult(runnerResult, ROOT, true);
-  const expectedResultVersion = phase === 5 ? 5 : phase === 4 ? 4 : phase === 3 ? 3 : 2;
+  const expectedResultVersion = phase === 6 ? 6 : phase === 5 ? 5 : phase === 4 ? 4 : phase === 3 ? 3 : 2;
   if (runnerResult.resultVersion !== expectedResultVersion) throw new Error(`Phase ${phase} runner result version must be ${expectedResultVersion}.`);
   const derivedGitState = runnerResult.derivedGitState;
   if (derivedGitState !== "dirty-executor" && derivedGitState !== "clean-committed") throw new Error("Version 2 runner result derived Git state is invalid.");
@@ -517,7 +535,7 @@ const summarizeV2Evidence = (path: string, baseCommit: string, headCommit: strin
   const cleanExpectedPaths = requireStringArray(runnerResult.cleanExpectedPaths, "Runner clean expectations");
   const selectedExpectedPaths = requireStringArray(runnerResult.selectedExpectedPaths, "Runner selected expectations");
   const authorization = exactKeys(runnerResult.authorization, ["authorizationId", "materializationKind"], "Runner authorization");
-  const expectedAuthorization = phase === 5 ? "phase-5/v1" : phase === 4 ? "phase-4/v1" : phase === 3 ? "phase-3/v1" : "phase-2/v1";
+  const expectedAuthorization = phase === 6 ? "phase-6/v1" : phase === 5 ? "phase-5/v1" : phase === 4 ? "phase-4/v1" : phase === 3 ? "phase-3/v1" : "phase-2/v1";
   if (authorization.authorizationId !== expectedAuthorization) throw new Error(`Phase ${phase} runner authorization ID is invalid.`);
   if (authorization.materializationKind !== "materialized" && authorization.materializationKind !== "deferred") throw new Error("Runner materialization kind is invalid.");
   const resultBindings = exactKeys(runnerResult.bindings, phase === 5 ? ["catalog", "plan", "registry"] : ["adapter", "catalog", "plan", "registry"], "Runner bindings");
@@ -641,6 +659,15 @@ const recordV2 = (
       if (JSON.stringify(command.argv) !== JSON.stringify(expectedCommands[index])) throw new Error(`Phase 5 command ${index + 1} argv/order mismatch.`);
       const expectedEnvironment = index === 0 ? PHASE5_SOURCE_DIRECT_ENVIRONMENT : {};
       if (command.expectedExitCode !== 0 || stableJson(command.env) !== stableJson(expectedEnvironment)) throw new Error(`Phase 5 command ${index + 1} declared environment/exit mismatch.`);
+    });
+  }
+  if (args.phase === 6) {
+    const expectedCommands = phaseSixExactCommands(args.base);
+    if (commands.length !== expectedCommands.length) throw new Error("Phase 6 proof requires exactly fifteen commands.");
+    commands.forEach((command, index) => {
+      if (JSON.stringify(command.argv) !== JSON.stringify(expectedCommands[index])) throw new Error(`Phase 6 command ${index + 1} argv/order mismatch.`);
+      const expectedEnvironment = index < 2 ? PHASE5_SOURCE_DIRECT_ENVIRONMENT : {};
+      if (command.expectedExitCode !== 0 || stableJson(command.env) !== stableJson(expectedEnvironment)) throw new Error(`Phase 6 command ${index + 1} declared environment/exit mismatch.`);
     });
   }
   const executions = commands.map((command) => closeV2Command(command, allBindingPaths));
@@ -767,7 +794,10 @@ else if (liveOnlyOutput) {
   if (local === ".." || local.startsWith(`..${sep}`)) throw new Error("Live-only output escapes the repository.");
 }
 else throw new Error(`Output must use the exact Phase ${args.phase} ordinary proof root${args.phase === 7 ? " or a decision-bound live-only root" : ""}.`);
-if (args.commands !== `scripts/fixtures/stick-ai/v1/phase-${args.phase}-proof-commands.json`) {
+const expectedCommandConfigPath = args.phase === 6
+  ? "scripts/fixtures/stick-ai/v2/phase-6-proof-commands.json"
+  : `scripts/fixtures/stick-ai/v1/phase-${args.phase}-proof-commands.json`;
+if (args.commands !== expectedCommandConfigPath) {
   throw new Error(`Phase ${args.phase} must use its checked-in command configuration.`);
 }
 

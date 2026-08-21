@@ -7,11 +7,15 @@ import {
   PHASE2_CLOSEOUT_PATHS,
   PHASE4_CLOSEOUT_PATHS,
   PHASE5_CLOSEOUT_PATHS,
+  PHASE6_CLOSEOUT_RECORD_PATHS,
+  PHASE6_PATHS,
   assertEmptyProofIndex,
   assertNoHiddenIndexFlags,
   assertNoProofRelevantGitEnvironment,
   assertPhaseCloseoutPaths,
   buildTrackedStateInventory,
+  phase6CloseoutPathsForTechnicalSubset,
+  phase6TechnicalPathsFromProofManifest,
   validateCloseoutManifest,
   validateLiveTuple,
   validatePhase7LiveProofManifest,
@@ -160,6 +164,15 @@ const currentChangedPaths = (base: string) => sortProofPaths([...new Set([
   ...nulList(git("diff", "--name-only", "-z", base)),
   ...nulList(git("ls-files", "--others", "--exclude-standard", "-z")),
 ])]);
+
+const assertPreProofCloseoutPaths = (phase: number, paths: readonly string[]) => {
+  if (phase !== 6) return assertPhaseCloseoutPaths(phase, paths);
+  assert.deepEqual(paths, sortProofPaths([...new Set(paths)]), "Phase 6 pre-proof closeout paths must be canonical and unique.");
+  const permitted = new Set([...PHASE6_PATHS, ...PHASE6_CLOSEOUT_RECORD_PATHS]);
+  assert.deepEqual(paths.filter((path) => !permitted.has(path)), [], "Phase 6 pre-proof closeout contains a path outside the technical ceiling and record allowlist.");
+  assert.deepEqual(paths.filter((path) => PHASE6_CLOSEOUT_RECORD_PATHS.includes(path as typeof PHASE6_CLOSEOUT_RECORD_PATHS[number])), [...PHASE6_CLOSEOUT_RECORD_PATHS], "Phase 6 pre-proof closeout must contain the exact record allowlist.");
+  assert.ok(paths.some((path) => PHASE6_PATHS.includes(path)), "Phase 6 pre-proof closeout must contain a technical subset.");
+};
 
 const repositoryPath = (path: string, label: string) => {
   const absolute = resolve(ROOT, path);
@@ -800,6 +813,17 @@ export const runFinalizerSelfTest = () => {
   assertPhaseCloseoutPaths(5, PHASE5_CLOSEOUT_PATHS);
   assert.throws(() => assertPhaseCloseoutPaths(5, PHASE5_CLOSEOUT_PATHS.slice(0, -1)));
   assert.throws(() => assertPhaseCloseoutPaths(5, sortProofPaths([...PHASE5_CLOSEOUT_PATHS, "unauthorized/extra.txt"])));
+  const phaseSixTechnicalPaths = PHASE6_PATHS.filter((path) => path !== "src/components/workspace/ai/WorkspaceAiPanelShell.tsx");
+  const phaseSixCloseoutPaths = phase6CloseoutPathsForTechnicalSubset(phaseSixTechnicalPaths);
+  assert.equal(PHASE6_PATHS.length, 26, "Phase 6 authorization ceiling must remain 26 paths.");
+  assert.equal(phaseSixTechnicalPaths.length, 25, "Phase 6 accepted technical subset must remain 25 paths.");
+  assertPreProofCloseoutPaths(6, phaseSixCloseoutPaths);
+  assertPhaseCloseoutPaths(6, phaseSixCloseoutPaths, phaseSixTechnicalPaths);
+  assert.throws(() => assertPhaseCloseoutPaths(6, phase6CloseoutPathsForTechnicalSubset(PHASE6_PATHS), phaseSixTechnicalPaths));
+  assert.throws(() => assertPhaseCloseoutPaths(6, phaseSixCloseoutPaths.filter((path) => path !== phaseSixTechnicalPaths[0]), phaseSixTechnicalPaths));
+  assert.throws(() => assertPhaseCloseoutPaths(6, sortProofPaths([...phaseSixCloseoutPaths, "scripts/unauthorized-phase-6.ts"]), phaseSixTechnicalPaths));
+  assert.throws(() => assertPreProofCloseoutPaths(6, phaseSixCloseoutPaths.filter((path) => path !== PHASE6_CLOSEOUT_RECORD_PATHS[0])));
+  assert.throws(() => assertPreProofCloseoutPaths(6, sortProofPaths([...phaseSixCloseoutPaths, "docs/unauthorized-closeout.md"])));
   const noLive = buildLiveTuple(1, undefined, undefined);
   validateLiveTuple(1, noLive);
   assert.throws(() => buildLiveTuple(1, "none", "none"));
@@ -843,7 +867,7 @@ const main = () => {
   assertEmptyProofIndex();
   assertNoHiddenIndexFlags();
   const allowlistedPaths = currentChangedPaths(args.base);
-  assertPhaseCloseoutPaths(args.phase, allowlistedPaths);
+  assertPreProofCloseoutPaths(args.phase, allowlistedPaths);
   if (args.phase === 1) {
     const outside = allowlistedPaths.filter((path) => !phaseOneAllowed.has(path));
     if (outside.length > 0) throw new Error(`Phase 1 final diff contains unauthorized paths: ${outside.join(", ")}`);
@@ -851,12 +875,13 @@ const main = () => {
   const stateBeforeValidation = buildTrackedStateInventory(args.base);
   const proof = validateProofManifestForCloseout(args.proof, liveTuple.liveProofInput === "none" ? [] : [liveTuple.liveProofInput]);
   if (proof.phase !== args.phase || proof.baseCommit !== args.base) throw new Error("Proof phase/base mismatch.");
+  const phase6TechnicalPaths = args.phase === 6 ? phase6TechnicalPathsFromProofManifest(proof) : undefined;
   assert.equal(git("rev-parse", "HEAD").trim(), head, "Repository HEAD changed during finalization.");
   assertEmptyProofIndex();
   assertNoHiddenIndexFlags();
   const pathsAfterValidation = currentChangedPaths(args.base);
   assert.deepEqual(pathsAfterValidation, allowlistedPaths, "Final diff changed during proof validation.");
-  assertPhaseCloseoutPaths(args.phase, pathsAfterValidation);
+  assertPhaseCloseoutPaths(args.phase, pathsAfterValidation, phase6TechnicalPaths);
   const state = buildTrackedStateInventory(args.base);
   assert.equal(state.digest, stateBeforeValidation.digest, "Tracked/non-ignored repository bytes changed during proof validation.");
   assert.deepEqual(state.entries, stateBeforeValidation.entries, "Tracked/non-ignored repository inventory changed during proof validation.");

@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 
-import { DrawingAiPanel } from "../ai/DrawingAiPanel";
+import type {StickFigureAiWorkspaceAdapterV2} from "../../../lib/ai/stickFigureAiWorkspaceAdapter";
+import {StickFigureAiPanel} from "./StickFigureAiPanel";
 import type { StickFigureToolName } from "./StickFigureToolBar";
 import type { StickFigureStructureJoint, StickFigureStructureTool } from "./types";
 
@@ -143,6 +144,7 @@ type FauxSectionProps = {
 };
 
 type StickFigureRightPanelProps = {
+  aiAdapter: StickFigureAiWorkspaceAdapterV2;
   activeTab: StickFigureRightPanelTab;
   onActiveTabChange: (tab: StickFigureRightPanelTab) => void;
   activeTool: StickFigureToolName | null;
@@ -723,6 +725,7 @@ function AssetsTabContent() {
 }
 
 export function StickFigureRightPanel({
+  aiAdapter,
   activeTab,
   onActiveTabChange,
   activeTool,
@@ -860,7 +863,7 @@ export function StickFigureRightPanel({
         {rightPanelContent}
       </div>
 
-      <DrawingAiPanel readOnly />
+      <StickFigureAiPanel adapter={aiAdapter} />
     </div>
   );
 }

@@ -1,0 +1,52 @@
+{
+  "planVersion": 6,
+  "specId": "SPEC-0001",
+  "proofPurpose": "phase-6",
+  "authorizationId": "phase-6/v1",
+  "baseCommit": "f46ed3b13e6bca3a09c9b2926c972bea8c331f2c",
+  "dirtyExpectedPaths": [
+    "scripts/finalizeSpec0001ProofBundle.ts",
+    "scripts/fixtures/spec0001-browser/v2/tester-extension-authorizations.json",
+    "scripts/fixtures/spec0001-browser/v6/phase-6-action-registry.json",
+    "scripts/fixtures/spec0001-browser/v6/tester-extension-authorization.schema.json",
+    "scripts/fixtures/spec0001-browser/v6/tester-extension-plan.schema.json",
+    "scripts/fixtures/spec0001-browser/v6/tester-extension-registry.schema.json",
+    "scripts/fixtures/spec0001-browser/v6/tester-extension-result.schema.json",
+    "scripts/fixtures/stick-ai/v2/phase-6-browser-proof-plan.json",
+    "scripts/fixtures/stick-ai/v2/phase-6-proof-commands.json",
+    "scripts/fixtures/stick-ai/v2/stick-ai-creator-preservation-cases.json",
+    "scripts/fixtures/stick-ai/v2/stick-ai-intent-cases.json",
+    "scripts/fixtures/stick-ai/v2/stick-ai-ui-cases.json",
+    "scripts/recordSpec0001ProofBundle.ts",
+    "scripts/runSpec0001BrowserProof.ts",
+    "scripts/spec0001-browser/actions/phase6.ts",
+    "scripts/spec0001-browser/browserTesterExtensionContract.ts",
+    "scripts/validateSpec0001ProofBundle.ts",
+    "scripts/validateStickFigureAiUiAdapter.ts",
+    "src/components/workspace/stickfigure/StickFigureAiPanel.tsx",
+    "src/components/workspace/stickfigure/StickFigureRightPanel.tsx",
+    "src/components/workspace/stickfigure/StickFigureWorkspace.tsx",
+    "src/lib/ai/stickFigureAiContract.ts",
+    "src/lib/ai/stickFigureAiIntentMatcher.ts",
+    "src/lib/ai/stickFigureAiMockServer.ts",
+    "src/lib/ai/stickFigureAiWorkspaceAdapter.ts"
+  ],
+  "cleanExpectedPaths": [],
+  "outputRoot": "output/spec-0001/phase-6",
+  "operationFamilies": ["guarded-http","protected-regression","runner-environment","screenshot","visible-role"],
+  "registry": {"path":"scripts/fixtures/spec0001-browser/v6/phase-6-action-registry.json","byteLength":3491,"sha256":"sha256:2a61136753e146739354b5bcd70cc9099a48030d2adfa8707b731493048b5bd2"},
+  "selectedActionIds": [
+    "accepted-A01","accepted-A02","accepted-A03","accepted-A04","accepted-A05","accepted-A06","accepted-A07","accepted-A08","accepted-A09","accepted-A10","accepted-A11","accepted-A12","accepted-A13","accepted-A14","accepted-A15",
+    "reject-R01","reject-R05","reject-R10","reject-R12","reject-R17","reject-R19","reject-R22","reject-R24","reject-R26","reject-R29","reject-R30","reject-R31","reject-R35",
+    "apply-once","invalid-response","project-switch","creator-back","drawing-generate"
+  ],
+  "evidence": {
+    "viewports": [{"width":1440,"height":900},{"width":1024,"height":768}],
+    "previewCopy": "Understood: one stick figure, a three-pose wave, 12 frames at 12 FPS. No changes have been made.",
+    "acceptedVisibleCaseCount": 15,
+    "representativeVisibleRejectionCount": 13,
+    "completeApplyCount": 1,
+    "screenshotIds": ["phase6-initial-1440x900","phase6-initial-1024x768","phase6-preview-before-apply","phase6-post-apply-frame1","phase6-post-apply-frame5","phase6-post-apply-frame9","phase6-onion-frame5","phase6-post-apply-1024x768","phase6-creator-back-1024x768","phase6-drawing-protected"],
+    "nonLoopbackAttempts": 0
+  }
+}

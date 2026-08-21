@@ -23,6 +23,9 @@ import {
 import {get as httpGet, request as httpRequest} from "node:http";
 import {dirname, relative, resolve, sep} from "node:path";
 import {chromium, type BrowserContext, type Page, type Route, type WebSocketRoute} from "playwright-core";
+import sharp from "sharp";
+import {STICK_AI_CAPABILITY_MANIFEST_V2} from "../src/lib/ai/stickFigureAiContract.ts";
+import {STICK_FIGURE_AI_MOCK_STARTER} from "../src/lib/ai/stickFigureAiMockServer.ts";
 import {
   ACTIONS,
   ACCEPTED_CONSOLE_WARNING_PATTERNS,
@@ -61,6 +64,10 @@ import {
   PHASE5_DIRTY_PATHS,
   PHASE5_PATHS,
   PHASE5_PLAN_PATH,
+  PHASE6_BASE_COMMIT,
+  PHASE6_PATHS,
+  PHASE6_PLAN_PATH,
+  loadPhase6Graph,
   loadPhase5RouteGraph,
   PHASE4_MATERIALIZED_FIXTURE_PATHS,
   loadTesterExtensionGraph,
@@ -72,11 +79,14 @@ import {
   validatePhase5RouteResult,
   validatePhase5RoutePlanValue,
   validatePhase5RouteRegistryValue,
+  validatePhase6PlanValue,
+  validatePhase6RegistryValue,
   validatePhase4CheckpointValue,
   type ExtensionResult,
   type Phase5RouteCase,
   type Phase5RouteResult,
   type ValidatedPhase5RouteGraph,
+  type ValidatedPhase6Graph,
   type NormalizedAction,
   type StickPhase4CheckpointV1,
   type ValidatedTesterExtension,
@@ -457,6 +467,7 @@ const compatibilityPolicyViolations: JsonObject[] = [];
 const compatibilityExpectedDenials: JsonObject[] = [];
 const compatibilityRegressions: JsonObject[] = [];
 const compatibilityScreenshots: ScreenshotEvidence[] = [];
+const PHASE6_REAL_API_ROUTE = Symbol("phase6-real-api-route");
 const compatibilityDriverMessages: CompatibilityCommandMessage[] = [];
 const compatibilityPendingCommands = new Map<string, {contextId: string; operation: string; resolve: (message: CompatibilityCommandMessage) => void; reject: (error: Error) => void}>();
 const compatibilityOwnedContexts = new Map<BrowserContext, string>();
@@ -471,6 +482,7 @@ const PHASE3_BASE_SHELL_ELEMENTS_DIGESTS = {
 } as const;
 let compatibilityGraph: ValidatedTesterExtension | null = null;
 let activePhase5RouteGraph: ValidatedPhase5RouteGraph | null = null;
+let phase6UsesPhase4Ports = false;
 let compatibilityOutputInitialized = false;
 let compatibilityAnchorOriginal: Buffer | null = null;
 let compatibilityAnchorOriginalHash: string | null = null;
@@ -567,6 +579,24 @@ const configurePhase5RouteOutputPaths = (graph: ValidatedPhase5RouteGraph) => {
   COMPATIBILITY_SYNTHETIC_ROOT = `${graph.outputRoot}/route`;
   COMPATIBILITY_SCREENSHOT_ROOT = `${COMPATIBILITY_SYNTHETIC_ROOT}/screenshots`;
   COMPATIBILITY_TEMP_ROOT = `${COMPATIBILITY_SYNTHETIC_ROOT}/temporary`;
+  COMPATIBILITY_RESULT_PATH = `${COMPATIBILITY_SYNTHETIC_ROOT}/runner-result.json`;
+  COMPATIBILITY_SERVER_LOG = `${COMPATIBILITY_TEMP_ROOT}/server.log`;
+  COMPATIBILITY_SERVER_NETWORK_LEDGER = `${COMPATIBILITY_TEMP_ROOT}/server-network.ndjson`;
+  COMPATIBILITY_BROWSER_NETWORK_LEDGER = `${COMPATIBILITY_TEMP_ROOT}/browser-network.ndjson`;
+  COMPATIBILITY_BROWSER_CONSOLE_LEDGER = `${COMPATIBILITY_TEMP_ROOT}/console.ndjson`;
+};
+
+const configurePhase6OutputPaths = (graph: ValidatedPhase6Graph) => {
+  COMPATIBILITY_SYNTHETIC_ROOT = `${graph.outputRoot}/browser`;
+  COMPATIBILITY_SCREENSHOT_ROOT = `${COMPATIBILITY_SYNTHETIC_ROOT}/screenshots`;
+  COMPATIBILITY_TEMP_ROOT = `${COMPATIBILITY_SYNTHETIC_ROOT}/temporary`;
+  COMPATIBILITY_ACTION_LEDGER = `${COMPATIBILITY_SYNTHETIC_ROOT}/action-ledger.json`;
+  COMPATIBILITY_CHECKPOINT_LEDGER = `${COMPATIBILITY_SYNTHETIC_ROOT}/checkpoint-ledger.json`;
+  COMPATIBILITY_REQUEST_LEDGER = `${COMPATIBILITY_SYNTHETIC_ROOT}/request-ledger.json`;
+  COMPATIBILITY_NETWORK_LEDGER = `${COMPATIBILITY_SYNTHETIC_ROOT}/network-ledger.json`;
+  COMPATIBILITY_CONSOLE_LEDGER = `${COMPATIBILITY_SYNTHETIC_ROOT}/console-ledger.json`;
+  COMPATIBILITY_REGRESSION_LEDGER = `${COMPATIBILITY_SYNTHETIC_ROOT}/regression-ledger.json`;
+  COMPATIBILITY_CLEANUP_LEDGER = `${COMPATIBILITY_SYNTHETIC_ROOT}/cleanup.json`;
   COMPATIBILITY_RESULT_PATH = `${COMPATIBILITY_SYNTHETIC_ROOT}/runner-result.json`;
   COMPATIBILITY_SERVER_LOG = `${COMPATIBILITY_TEMP_ROOT}/server.log`;
   COMPATIBILITY_SERVER_NETWORK_LEDGER = `${COMPATIBILITY_TEMP_ROOT}/server-network.ndjson`;
@@ -982,25 +1012,25 @@ const atomicWriteCompatibilityAnchor = (bytes: Uint8Array | string) => {
   renameSync(temporaryPath, repositoryPath(ROOT, ANCHOR_PATH));
 };
 
-const installCompatibilityAnchor = () => {
-  assert.ok(compatibilityGraph, "Compatibility graph is required before anchor installation.");
+const installCompatibilityAnchor = (forcedProfile: "phase4" | null = null) => {
+  assert.ok(compatibilityGraph || forcedProfile === "phase4", "Compatibility graph or an exact forced Phase 4 profile is required before anchor installation.");
   const path = repositoryPath(ROOT, ANCHOR_PATH);
   const bytes = readFileSync(path);
   const text = bytes.toString("utf8");
   assert.equal(text.split(ANCHOR_MARKER).length - 1, 1, "Compatibility anchor marker must appear exactly once.");
-  const phase2Profile = compatibilityGraph.adapter.executionProfile === "phase2-workspace-ports/v1";
-  const phase3Profile = compatibilityGraph.adapter.executionProfile === "phase3-workspace-ports/v1";
-  const phase4Profile = compatibilityGraph.adapter.executionProfile === "phase4-workspace-ports/v1";
+  const phase2Profile = compatibilityGraph?.adapter.executionProfile === "phase2-workspace-ports/v1";
+  const phase3Profile = compatibilityGraph?.adapter.executionProfile === "phase3-workspace-ports/v1";
+  const phase4Profile = forcedProfile === "phase4" || compatibilityGraph?.adapter.executionProfile === "phase4-workspace-ports/v1";
   if (phase2Profile) {
-    assert.equal(compatibilityGraph.adapter.workspacePortBinding, "spec0001Phase2BrowserPortsV1");
+    assert.equal(compatibilityGraph?.adapter.workspacePortBinding, "spec0001Phase2BrowserPortsV1");
     assert.match(text, /\bspec0001Phase2BrowserPortsV1\b/, "Phase 2 workspace port object is absent from the exact anchor preimage.");
   } else if (phase3Profile) {
-    assert.equal(compatibilityGraph.adapter.workspacePortBinding, "spec0001Phase3BrowserPortsV1");
+    assert.equal(compatibilityGraph?.adapter.workspacePortBinding, "spec0001Phase3BrowserPortsV1");
     assert.match(text, /\bspec0001Phase3BrowserPortsV1\b/, "Phase 3 workspace port object is absent from the exact anchor preimage.");
   } else if (phase4Profile) {
-    assert.equal(compatibilityGraph.adapter.workspacePortBinding, "spec0001Phase4BrowserPortsV1");
+    if (forcedProfile === null) assert.equal(compatibilityGraph?.adapter.workspacePortBinding, "spec0001Phase4BrowserPortsV1");
     assert.match(text, /\bspec0001Phase4BrowserPortsV1\b/, "Phase 4 workspace port object is absent from the exact anchor preimage.");
-  } else assert.equal(compatibilityGraph.adapter.workspacePortBinding, null);
+  } else assert.equal(compatibilityGraph?.adapter.workspacePortBinding, null);
   compatibilityAnchorOriginal = bytes;
   compatibilityAnchorOriginalHash = sha256Bytes(bytes);
   const instrumentation = phase2Profile ? PHASE2_WORKSPACE_PORT_INSTRUMENTATION : phase3Profile ? PHASE3_WORKSPACE_PORT_INSTRUMENTATION : phase4Profile ? PHASE4_WORKSPACE_PORT_INSTRUMENTATION : COMPATIBILITY_DRIVER_INSTRUMENTATION;
@@ -1373,7 +1403,7 @@ const browserWebSocketRoute = async (webSocket: WebSocketRoute, networkMode: "en
   webSocket.connectToServer();
 };
 
-const compatibilityBrowserRoute = async (route: Route, apiResponse: unknown | null, selfTest = false) => {
+const compatibilityBrowserRoute = async (route: Route, apiResponse: unknown | null | typeof PHASE6_REAL_API_ROUTE, selfTest = false) => {
   const request = route.request();
   const url = new URL(request.url());
   const isLoopback = url.hostname === "127.0.0.1" || url.hostname === "::1";
@@ -1387,6 +1417,10 @@ const compatibilityBrowserRoute = async (route: Route, apiResponse: unknown | nu
     return;
   }
   if (url.pathname === "/api/ai") {
+    if (apiResponse === PHASE6_REAL_API_ROUTE) {
+      await route.continue();
+      return;
+    }
     if (apiResponse === null || compatibilityRequests.length !== 0) {
       compatibilityPolicyViolations.push({...entry, code: "SPEC0001_UNEXPECTED_API_REQUEST"});
       await route.abort("blockedbyclient");
@@ -1427,7 +1461,7 @@ const validateCompatibilityDriverMessage = (value: unknown): {operation: string;
     ? ["adapterKind", "connected", "transport"]
     : ["checkpoint", "commandId", "operation", "response"], "Compatibility driver payload");
   if (envelope.operation === "tester.connection.ping/v2") {
-    assert.deepEqual(payload, {connected: true, transport: "playwright-binding", adapterKind: compatibilityGraph?.adapter.adapterKind});
+    assert.deepEqual(payload, {connected: true, transport: "playwright-binding", adapterKind: phase6UsesPhase4Ports ? "phase-4-product-ports/v1" : compatibilityGraph?.adapter.adapterKind});
   } else {
     assert.equal(typeof payload.commandId, "string");
     assert.equal(typeof payload.operation, "string");
@@ -1444,7 +1478,7 @@ const createCompatibilityContext = async (
   contextId: string,
   viewport: {width: number; height: number},
   port: number,
-  apiResponse: unknown | null = null,
+  apiResponse: unknown | null | typeof PHASE6_REAL_API_ROUTE = null,
   selfTest = false,
   headless = true,
 ) => {
@@ -2418,6 +2452,23 @@ const phase4VisibleContentProjection = (checkpoint: StickPhase4CheckpointV1) => 
   workspaceInstanceDigest: checkpoint.workspaceInstanceDigest,
   workspaceGeneration: checkpoint.workspaceGeneration,
   storageDigest: checkpoint.storageDigest,
+});
+
+const phase6PreservedProjectProjection = (checkpoint: StickPhase4CheckpointV1) => ({
+  editorRootDigest: checkpoint.editorRootDigest,
+  documentDigest: checkpoint.documentDigest,
+  documentRevision: checkpoint.documentRevision,
+  viewDigest: checkpoint.viewDigest,
+  historyRootDigest: checkpoint.historyRootDigest,
+  undoDepth: checkpoint.undoDepth,
+  redoDepth: checkpoint.redoDepth,
+  lastSavedDocumentDigest: checkpoint.lastSavedDocumentDigest,
+  dirty: checkpoint.dirty,
+  workspaceInstanceDigest: checkpoint.workspaceInstanceDigest,
+  storageDigest: checkpoint.storageDigest,
+  currentFrameIndex: checkpoint.currentFrameIndex,
+  selectedTimelineIndex: checkpoint.selectedTimelineIndex,
+  completedEditCount: checkpoint.completedEditCount,
 });
 
 const phase4AiCanonicalProjection = (checkpoint: StickPhase4CheckpointV1) => ({
@@ -3664,6 +3715,7 @@ const performCompatibilityCleanup = async () => {
   activeContext = null;
   try { await stopServer(activeServer); } catch (error) { failures.push(error); }
   try { restoreCompatibilityAnchor(); } catch (error) { failures.push(error); }
+  phase6UsesPhase4Ports = false;
   for (const [commandId, pending] of compatibilityPendingCommands) {
     pending.reject(new Error(`Compatibility cleanup cancelled pending command: ${commandId}`));
     compatibilityPendingCommands.delete(commandId);
@@ -3800,6 +3852,824 @@ const validatePhase5ServerNetwork = (entries: JsonObject[], selfTest: ReturnType
     assert.equal(target === "next-internal-node-child" || isExactLoopbackTarget(target), true, `Phase 5 allowed a non-loopback target: ${target}`);
   }
   return {runtimeEntryCount: runtime.length, denialCount: 0 as const, ledgerSha256: sha256Bytes(stableJson(entries))};
+};
+
+const sendPhase6JsonRequest = (server: RunningServer, body: unknown) => new Promise<{status: number; body: JsonObject}>((resolveResponse, rejectResponse) => {
+  const bytes = Buffer.from(JSON.stringify(body), "utf8");
+  const request = httpRequest({
+    hostname: "127.0.0.1",
+    port: server.port,
+    method: "POST",
+    path: "/api/ai",
+    headers: {
+      accept: "application/json",
+      "content-type": "application/json",
+      "content-length": String(bytes.byteLength),
+      "x-diamond-ai-workspace": "stick-figure",
+    },
+  }, (response) => {
+    const chunks: Buffer[] = [];
+    response.on("data", (chunk) => chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)));
+    response.on("end", () => {
+      try {
+        resolveResponse({status: response.statusCode ?? 0, body: JSON.parse(Buffer.concat(chunks).toString("utf8")) as JsonObject});
+      } catch (error) { rejectResponse(error); }
+    });
+  });
+  request.setTimeout(15_000, () => request.destroy(new Error("Phase 6 real-route request timed out.")));
+  request.on("error", rejectResponse);
+  request.end(bytes);
+});
+
+type Phase6Viewport = {width: 1440; height: 900} | {width: 1024; height: 768};
+type Phase6VisualRect = {left: number; top: number; right: number; bottom: number};
+type Phase6ExpectedContent = {structureGraph: {joints: Array<{id: string; x: number; y: number}>; limbs: Array<{id: string; startJointId: string; endJointId: string}>}};
+
+const phase6StableCoordinate = (value: number) => Math.round(value * 1000) / 1000;
+
+const phase6RasterEvidence = async (bytes: Buffer) => {
+  const {data, info} = await sharp(bytes).ensureAlpha().raw().toBuffer({resolveWithObject: true});
+  let darkPixels = 0;
+  let purplePixels = 0;
+  let greenPixels = 0;
+  for (let index = 0; index < data.length; index += 4) {
+    const red = data[index]; const green = data[index + 1]; const blue = data[index + 2]; const alpha = data[index + 3];
+    if (alpha > 32 && red < 80 && green < 80 && blue < 80) darkPixels += 1;
+    if (alpha > 32 && blue > 120 && blue > red + 20 && blue > green + 10 && red < 220) purplePixels += 1;
+    if (alpha > 32 && green > 100 && green > red + 18 && green > blue + 5 && red < 220) greenPixels += 1;
+  }
+  return {width: info.width, height: info.height, darkPixels, purplePixels, greenPixels, sha256: sha256Bytes(bytes)};
+};
+
+const phase6VisualDiffMask = async (before: Buffer, after: Buffer, allowedRects: Phase6VisualRect[]) => {
+  const beforeRaw = await sharp(before).ensureAlpha().raw().toBuffer({resolveWithObject: true});
+  const afterRaw = await sharp(after).ensureAlpha().raw().toBuffer({resolveWithObject: true});
+  assert.deepEqual(afterRaw.info, beforeRaw.info, "Phase 6 visual-mask screenshots have different raster metadata.");
+  let changedPixels = 0;
+  let changedOutsideMask = 0;
+  let outsideBounds: Phase6VisualRect | null = null;
+  for (let index = 0; index < beforeRaw.data.length; index += 4) {
+    if (beforeRaw.data[index] === afterRaw.data[index] && beforeRaw.data[index + 1] === afterRaw.data[index + 1] &&
+      beforeRaw.data[index + 2] === afterRaw.data[index + 2] && beforeRaw.data[index + 3] === afterRaw.data[index + 3]) continue;
+    changedPixels += 1;
+    const pixel = index / 4;
+    const x = pixel % beforeRaw.info.width;
+    const y = Math.floor(pixel / beforeRaw.info.width);
+    if (!allowedRects.some((rect) => x >= Math.floor(rect.left) - 2 && x <= Math.ceil(rect.right) + 2 &&
+      y >= Math.floor(rect.top) - 2 && y <= Math.ceil(rect.bottom) + 2)) {
+      changedOutsideMask += 1;
+      outsideBounds = outsideBounds
+        ? {left: Math.min(outsideBounds.left, x), top: Math.min(outsideBounds.top, y), right: Math.max(outsideBounds.right, x), bottom: Math.max(outsideBounds.bottom, y)}
+        : {left: x, top: y, right: x, bottom: y};
+    }
+  }
+  return {
+    beforeSha256: sha256Bytes(before),
+    afterSha256: sha256Bytes(after),
+    changedPixels,
+    changedOutsideMask,
+    outsideBounds,
+  };
+};
+
+const phase6Box = async (locator: ReturnType<Page["locator"]>, label: string): Promise<Phase6VisualRect> => {
+  const box = await locator.boundingBox();
+  assert.ok(box && box.width > 0 && box.height > 0, `${label} has no visible bounding box.`);
+  return {left: box.x, top: box.y, right: box.x + box.width, bottom: box.y + box.height};
+};
+
+const phase6AiShell = (page: Page) => page.getByRole("textbox", {name: "Stick Figure AI request", exact: true})
+  .locator("xpath=ancestor::div[contains(@style, 'flex: 0 0 55%')][1]");
+
+const readPhase6RenderedGeometry = async (page: Page, side: "previous" | "next" | null = null) => page.evaluate((requestedSide) => {
+  const stage = document.querySelector<HTMLElement>("[data-testid='stick-stage']");
+  const svg = stage?.querySelector("svg");
+  if (!stage || !svg) throw new Error("Stick stage SVG is unavailable.");
+  const suffix = requestedSide === null ? ":not([data-onion-side])" : `[data-onion-side='${requestedSide}']`;
+  const lines = [...svg.querySelectorAll<SVGLineElement>(`svg > line${suffix}`)].map((line) => ({
+    x1: Number(line.getAttribute("x1")), y1: Number(line.getAttribute("y1")),
+    x2: Number(line.getAttribute("x2")), y2: Number(line.getAttribute("y2")),
+    stroke: line.getAttribute("stroke"), strokeWidth: line.getAttribute("stroke-width"),
+    strokeLinecap: line.getAttribute("stroke-linecap"), side: line.getAttribute("data-onion-side"),
+    tint: line.getAttribute("data-onion-tint"), box: (() => { const box = line.getBoundingClientRect(); return {left: box.left, top: box.top, right: box.right, bottom: box.bottom}; })(),
+  }));
+  const circles = [...svg.querySelectorAll<SVGCircleElement>(`svg > circle${suffix}`)].map((circle) => ({
+    cx: Number(circle.getAttribute("cx")), cy: Number(circle.getAttribute("cy")), r: circle.getAttribute("r"),
+    fill: circle.getAttribute("fill"), stroke: circle.getAttribute("stroke"), strokeWidth: circle.getAttribute("stroke-width"),
+    side: circle.getAttribute("data-onion-side"), tint: circle.getAttribute("data-onion-tint"),
+    box: (() => { const box = circle.getBoundingClientRect(); return {left: box.left, top: box.top, right: box.right, bottom: box.bottom}; })(),
+  }));
+  const box = stage.getBoundingClientRect();
+  return {
+    stage: {offsetWidth: stage.offsetWidth, offsetHeight: stage.offsetHeight, left: box.left, top: box.top, right: box.right, bottom: box.bottom},
+    lines,
+    circles,
+  };
+}, side);
+
+const assertPhase6RenderedGeometry = async (
+  page: Page,
+  content: Phase6ExpectedContent,
+  label: string,
+  side: "previous" | "next" | null = null,
+) => {
+  const actual = await readPhase6RenderedGeometry(page, side);
+  assert.equal(actual.lines.length, 10, `${label} must render exactly 10 limbs.`);
+  assert.equal(actual.circles.length, 11, `${label} must render exactly 11 joints.`);
+  const scale = Math.min(actual.stage.offsetWidth / 960, actual.stage.offsetHeight / 594);
+  const offsetX = (actual.stage.offsetWidth - 960 * scale) / 2;
+  const offsetY = (actual.stage.offsetHeight - 594 * scale) / 2;
+  const joints = content.structureGraph.joints.map((joint) => ({
+    ...joint,
+    x: phase6StableCoordinate(offsetX + joint.x * scale),
+    y: phase6StableCoordinate(offsetY + joint.y * scale),
+  }));
+  const jointsById = new Map(joints.map((joint) => [joint.id, joint]));
+  const tint = side === "previous" ? "rgba(92, 63, 158, 0.58)" : side === "next" ? "rgba(44, 122, 91, 0.56)" : null;
+  const expectedLines = content.structureGraph.limbs.map((limb) => {
+    const start = jointsById.get(limb.startJointId)!;
+    const end = jointsById.get(limb.endJointId)!;
+    return {x1: start.x, y1: start.y, x2: end.x, y2: end.y};
+  });
+  assert.deepEqual(actual.lines.map(({x1, y1, x2, y2}) => ({x1, y1, x2, y2})), expectedLines, `${label} limb coordinates differ from the canonical projected pose.`);
+  assert.deepEqual(actual.circles.map(({cx, cy}) => ({cx, cy})), joints.map((joint) => ({cx: joint.x, cy: joint.y})), `${label} joint coordinates differ from the canonical projected pose.`);
+  const degreeById = new Map<string, number>();
+  for (const limb of content.structureGraph.limbs) {
+    degreeById.set(limb.startJointId, (degreeById.get(limb.startJointId) ?? 0) + 1);
+    degreeById.set(limb.endJointId, (degreeById.get(limb.endJointId) ?? 0) + 1);
+  }
+  for (const line of actual.lines) {
+    assert.equal(line.stroke, tint ?? "#10131b", `${label} limb stroke drifted.`);
+    assert.equal(line.strokeWidth, "8", `${label} limb width drifted.`);
+    assert.equal(line.strokeLinecap, "round", `${label} limb cap drifted.`);
+    assert.equal(line.side, side, `${label} limb side attribute drifted.`);
+    assert.equal(line.tint, tint, `${label} limb tint attribute drifted.`);
+  }
+  actual.circles.forEach((circle, index) => {
+    assert.equal(circle.r, "6", `${label} joint radius drifted.`);
+    assert.equal(circle.fill, tint ?? "#ffffff", `${label} joint fill drifted.`);
+    assert.equal(circle.stroke, tint ?? ((degreeById.get(content.structureGraph.joints[index].id) ?? 0) <= 1 ? "#10131b" : "rgba(16,19,27,0.76)"), `${label} joint stroke drifted.`);
+    assert.equal(circle.strokeWidth, "3", `${label} joint width drifted.`);
+    assert.equal(circle.side, side, `${label} joint side attribute drifted.`);
+    assert.equal(circle.tint, tint, `${label} joint tint attribute drifted.`);
+  });
+  for (const node of [...actual.lines, ...actual.circles]) {
+    assert.ok(node.box.left >= actual.stage.left - 1 && node.box.right <= actual.stage.right + 1 &&
+      node.box.top >= actual.stage.top - 1 && node.box.bottom <= actual.stage.bottom + 1,
+      `${label} contains clipped/off-stage geometry.`);
+  }
+  const renderedLines = actual.lines.map((line) => ({
+    x1: line.x1, y1: line.y1, x2: line.x2, y2: line.y2, stroke: line.stroke,
+    strokeWidth: line.strokeWidth, strokeLinecap: line.strokeLinecap, side: line.side, tint: line.tint,
+  }));
+  const renderedCircles = actual.circles.map((circle) => ({
+    cx: circle.cx, cy: circle.cy, r: circle.r, fill: circle.fill, stroke: circle.stroke,
+    strokeWidth: circle.strokeWidth, side: circle.side, tint: circle.tint,
+  }));
+  return {
+    stage: actual.stage,
+    canonicalGeometrySha256: sha256Bytes(stableJson(content.structureGraph)),
+    renderedGeometrySha256: sha256Bytes(stableJson({lines: renderedLines, circles: renderedCircles})),
+    lines: renderedLines,
+    circles: renderedCircles,
+  };
+};
+
+const capturePhase6InitialPresentation = async (page: Page, viewport: Phase6Viewport) => {
+  await page.setViewportSize(viewport);
+  await page.waitForTimeout(100);
+  const composer = page.getByRole("textbox", {name: "Stick Figure AI request", exact: true});
+  const submit = page.getByRole("button", {name: "Send Stick Figure AI request", exact: true});
+  const idle = page.getByText("Ask the assistant for help with your stick figure.", {exact: true});
+  const shell = phase6AiShell(page);
+  await idle.waitFor({state: "visible"});
+  assert.equal(await composer.getAttribute("placeholder"), "Chat here", "Stick AI placeholder drifted.");
+  assert.equal(await shell.getByText("Generate frames • Clean drawings • Animate faster", {exact: true}).count(), 1, "Protected Stick AI helper copy drifted.");
+  const shellText = await shell.innerText();
+  assert.match(shellText, /AI\s+ANIMATOR/, "Protected AI ANIMATOR title drifted.");
+  for (const forbidden of ["Create a three-pose wave", "Preview", "Apply", "Cancel", "Pretend AI", "This AI shortcut works only", "Ready for one stick figure"]) {
+    assert.equal(shellText.includes(forbidden), false, `Initial Stick AI panel exposed forbidden content: ${forbidden}.`);
+  }
+  const submitBox = await submit.boundingBox();
+  assert.ok(submitBox);
+  assert.equal(submitBox.width, 28, "Stick AI submit width drifted.");
+  assert.equal(submitBox.height, 28, "Stick AI submit height drifted.");
+  const styles = await page.evaluate(([idleNode, submitNode]) => {
+    const idleStyle = getComputedStyle(idleNode as Element);
+    const submitStyle = getComputedStyle(submitNode as Element);
+    return {
+      idle: {color: idleStyle.color, fontSize: idleStyle.fontSize, backgroundColor: idleStyle.backgroundColor, borderStyle: idleStyle.borderStyle, borderWidth: idleStyle.borderWidth},
+      submit: {backgroundColor: submitStyle.backgroundColor, borderRadius: submitStyle.borderRadius, borderStyle: submitStyle.borderStyle},
+    };
+  }, [await idle.elementHandle(), await submit.elementHandle()]);
+  assert.deepEqual(styles.idle, {color: "rgba(255, 255, 255, 0.34)", fontSize: "14px", backgroundColor: "rgba(0, 0, 0, 0)", borderStyle: "solid", borderWidth: "0px"}, "Initial idle presentation drifted.");
+  assert.equal(styles.submit.backgroundColor, "rgba(255, 255, 255, 0.96)", "Stick AI submit background drifted.");
+  assert.equal(styles.submit.borderStyle, "none", "Stick AI submit border drifted.");
+  assert.ok(parseFloat(styles.submit.borderRadius) >= 14, "Stick AI submit is not circular.");
+  const stage = page.getByTestId("stick-stage");
+  const geometry = await readPhase6RenderedGeometry(page);
+  assert.equal(geometry.lines.length, 0, "Fresh Stick stage unexpectedly contains current limbs.");
+  assert.equal(geometry.circles.length, 0, "Fresh Stick stage unexpectedly contains current joints.");
+  const stageBytes = await stage.screenshot();
+  return {viewport, styles, shellText, stage: await phase6RasterEvidence(stageBytes), fullPageBytes: await page.screenshot({fullPage: false}), stageBytes};
+};
+
+const runPhase6BrowserProof = async (graph: ValidatedPhase6Graph) => {
+  configurePhase6OutputPaths(graph);
+  compatibilityGraph = null;
+  activePhase5RouteGraph = null;
+  compatibilityCleanupPromise = null;
+  ensureCompatibilityNoCollisions();
+  assert.equal(git("diff", "--cached", "--name-only"), "", "Phase 6 proof requires an empty index.");
+  ensureSafeExtensionDirectory(COMPATIBILITY_SCREENSHOT_ROOT);
+  ensureSafeExtensionDirectory(COMPATIBILITY_TEMP_ROOT);
+  compatibilityOwnsTempRoot = true;
+  compatibilityOutputInitialized = true;
+  for (const ledger of [COMPATIBILITY_SERVER_LOG, COMPATIBILITY_SERVER_NETWORK_LEDGER, COMPATIBILITY_BROWSER_NETWORK_LEDGER, COMPATIBILITY_BROWSER_CONSOLE_LEDGER]) {
+    writeFileSync(secureExtensionFilePath(ledger, true), "", {encoding: "utf8", mode: 0o600, flag: "wx"});
+  }
+  const browserExecutable = compatibilityExecutableEvidence(BROWSER_EXECUTABLE);
+  const font = prepareCompatibilityFontMock();
+  const guardV2 = prepareCompatibilityNetworkGuardV2();
+  const guardSelfTest = runCompatibilityNetworkGuardSelfTest(guardV2.path);
+  phase6UsesPhase4Ports = true;
+  installCompatibilityAnchor("phase4");
+  const viewport: Phase6Viewport = {width: 1440, height: 900};
+  const compactViewport: Phase6Viewport = {width: 1024, height: 768};
+  const previewCopy = "Understood: one stick figure, a three-pose wave, 12 frames at 12 FPS. No changes have been made.";
+  const unsupportedCopy = "I couldn’t safely match that request to the one supported result: one stick figure, a three-pose wave, 12 frames at 12 FPS. No changes were made.";
+  const intentFixture = readJson(ROOT, "scripts/fixtures/stick-ai/v2/stick-ai-intent-cases.json") as {
+    accepted: Array<{id: string; prompt: string}>;
+    rejected: Array<{id: string; prompt?: string; promptConstruction?: {baseAcceptedId: string; trailingAsciiSpaces: number}}>;
+  };
+  const acceptedById = new Map(intentFixture.accepted.map((entry) => [entry.id, entry.prompt]));
+  const rejectedPrompt = (entry: typeof intentFixture.rejected[number]) => entry.prompt ?? `${acceptedById.get(entry.promptConstruction!.baseAcceptedId)}${" ".repeat(entry.promptConstruction!.trailingAsciiSpaces)}`;
+  const equivalenceFixture = readJson(ROOT, "scripts/fixtures/stick-ai/v1/manual-ai-content-equivalence.json") as {
+    aiContent: {
+      jointRoleOrder: string[];
+      timeline: Array<{index: number; cellType: "keyframe"; pointsByRole: Array<{role: string; x: number; y: number}>} | {index: number; cellType: "hold"; ownerIndex: number}>;
+    };
+  };
+  const canonicalRig = STICK_FIGURE_AI_MOCK_STARTER.rigs[0];
+  const jointIdByRole = new Map<string, string>(canonicalRig.joints.map((joint) => [joint.role, joint.jointId]));
+  const expectedContentAt = (index: number) => {
+    const entry = equivalenceFixture.aiContent.timeline[index];
+    assert.ok(entry, `Canonical expected frame ${index + 1} did not resolve.`);
+    const owner = entry.cellType === "keyframe" ? entry : equivalenceFixture.aiContent.timeline[entry.ownerIndex];
+    assert.ok(owner?.cellType === "keyframe", `Canonical expected frame ${index + 1} owner did not resolve.`);
+    return {
+      structureGraph: {
+        joints: owner.pointsByRole.map((point) => ({id: jointIdByRole.get(point.role)!, x: Math.round(point.x * 0.5), y: Math.round(point.y * 0.55)})),
+        limbs: canonicalRig.segments.map((segment) => ({id: segment.segmentId, startJointId: segment.fromJointId, endJointId: segment.toJointId})),
+      },
+    };
+  };
+  const actionEvidence: JsonObject[] = [];
+  const screenshots: ScreenshotEvidence[] = [];
+  const saveScreenshot = async (page: Page, id: string) => {
+    const path = `${COMPATIBILITY_SCREENSHOT_ROOT}/${id}.png`;
+    await page.screenshot({path: secureExtensionFilePath(path, true), fullPage: false});
+    const currentViewport = page.viewportSize();
+    assert.ok(currentViewport && ((currentViewport.width === 1440 && currentViewport.height === 900) || (currentViewport.width === 1024 && currentViewport.height === 768)), `Unsupported Phase 6 screenshot viewport: ${stableJson(currentViewport)}.`);
+    const binding = {...bindFile(ROOT, path), id, viewport: currentViewport};
+    screenshots.push(binding);
+    return binding;
+  };
+  const closePhase6Context = async (context: BrowserContext, profile: string) => {
+    await context.close();
+    compatibilityOwnedContexts.delete(context);
+    if (activeContext === context) activeContext = null;
+    safeRemoveCompatibilityOwned(profile);
+    ownedProfiles.delete(profile);
+  };
+  const openStick = async (page: Page) => {
+    await compatibilityDismissWelcome(page);
+    await compatibilityOpenNewProject(page);
+    const availabilityResponse = page.waitForResponse((response) => response.request().method() === "GET" && new URL(response.url()).pathname === "/api/ai");
+    await (await visible(page, "button", /^Stick Figure Animation\b/)).click();
+    const response = await availabilityResponse;
+    assert.equal(response.status(), 200, "Phase 6 availability GET did not return HTTP 200.");
+    await visible(page, "textbox", "Stick Figure AI request");
+    assert.equal(await page.getByRole("button", {name: "Create a three-pose wave", exact: true}).count(), 0, "Phase 6 exposed a forbidden starter suggestion.");
+  };
+  const assertCreatorRoundTrip = async (page: Page, label: string) => {
+    await (await visible(page, "button", "Stick Figure Tools")).click();
+    await (await visible(page, "button", "Create New Stick Figure")).click();
+    assert.equal(await (await visible(page, "button", "Save Stick Figure")).isDisabled(), true, `${label}: Creator Save unexpectedly enabled.`);
+    await (await visible(page, "button", "Back")).click();
+    await visible(page, "button", "Stick Figure Tools");
+  };
+  const readPhase6Checkpoint = async (page: Page, contextId: string, operationId: string) => {
+    await waitForCompatibilityDriver(page, contextId);
+    const message = await dispatchCompatibilityCommand(page, contextId, "workspace.read-checkpoint/v1", {
+      scenarioId: contextId, operationId, fixtureId: null, fixture: null,
+    });
+    return validatePhase4CheckpointValue(message.payload.checkpoint, `Phase 6 checkpoint ${operationId}`);
+  };
+  const timelineStatus = (page: Page, value: string) => page.getByText(value, {exact: true});
+
+  let server: RunningServer | null = null;
+  try {
+    server = await startCompatibilityServer("development", font.path, true);
+
+    const v1Template = readJson(ROOT, "scripts/fixtures/stick-ai/v1/wave-request.json") as JsonObject;
+    for (const entry of intentFixture.rejected) {
+      const body = {...v1Template, requestVersion: 2, prompt: rejectedPrompt(entry), capabilityManifest: STICK_AI_CAPABILITY_MANIFEST_V2};
+      const response = await sendPhase6JsonRequest(server, body);
+      assert.equal(response.status, 400, `Phase 6 real route accepted ${entry.id}.`);
+      assert.equal((response.body.error as JsonObject)?.code, "unsupported_prompt", `Phase 6 real route rejection code drifted for ${entry.id}.`);
+    }
+    actionEvidence.push({actionId: "server-rejected-matrix", channel: "guarded-http", caseCount: 36, status: "passed"});
+
+    const main = await createCompatibilityContext("phase6-main", viewport, server.port, PHASE6_REAL_API_ROUTE);
+    try {
+      await openStick(main.page);
+      const composer = main.page.getByRole("textbox", {name: "Stick Figure AI request", exact: true});
+      const send = main.page.getByRole("button", {name: "Send Stick Figure AI request", exact: true});
+      const initialWide = await capturePhase6InitialPresentation(main.page, viewport);
+      await saveScreenshot(main.page, "phase6-initial-1440x900");
+      const initialCompact = await capturePhase6InitialPresentation(main.page, compactViewport);
+      await saveScreenshot(main.page, "phase6-initial-1024x768");
+      await main.page.setViewportSize(viewport);
+      await main.page.waitForTimeout(100);
+      const restoredFreshStage = await main.page.getByTestId("stick-stage").screenshot();
+      assert.equal(sha256Bytes(restoredFreshStage), initialWide.stage.sha256, "Fresh empty stage did not return to its exact wide-viewport pixels.");
+      actionEvidence.push({
+        actionId: "protected-initial-presentation",
+        channel: "visible-ui",
+        viewports: [
+          {viewport: initialWide.viewport, styles: initialWide.styles, stage: initialWide.stage},
+          {viewport: initialCompact.viewport, styles: initialCompact.styles, stage: initialCompact.stage},
+        ],
+        forbiddenContentAbsent: true,
+        status: "passed",
+      });
+      await timelineStatus(main.page, "1:1:0:0").waitFor({state: "visible"});
+
+      for (const entry of intentFixture.accepted) {
+        await composer.fill(entry.prompt);
+        await send.click();
+        await main.page.getByText(previewCopy, {exact: true}).waitFor({state: "visible", timeout: 30_000});
+        await timelineStatus(main.page, "1:1:0:0").waitFor({state: "visible"});
+        const previewGeometry = await readPhase6RenderedGeometry(main.page);
+        assert.equal(previewGeometry.lines.length, 0, `${entry.id} preview created current limbs.`);
+        assert.equal(previewGeometry.circles.length, 0, `${entry.id} preview created current joints.`);
+        assert.equal(sha256Bytes(await main.page.getByTestId("stick-stage").screenshot()), initialWide.stage.sha256, `${entry.id} preview changed fresh-stage pixels.`);
+        assert.equal(await main.page.getByRole("button", {name: "Apply", exact: true}).count(), 1, `${entry.id} preview missing Apply.`);
+        await (await visible(main.page, "button", "Cancel")).click();
+        await main.page.getByText("Preview cancelled. No changes were made.", {exact: true}).waitFor({state: "visible"});
+        await timelineStatus(main.page, "1:1:0:0").waitFor({state: "visible"});
+        const cancelledGeometry = await readPhase6RenderedGeometry(main.page);
+        assert.equal(cancelledGeometry.lines.length, 0, `${entry.id} Cancel created current limbs.`);
+        assert.equal(cancelledGeometry.circles.length, 0, `${entry.id} Cancel created current joints.`);
+        assert.equal(sha256Bytes(await main.page.getByTestId("stick-stage").screenshot()), initialWide.stage.sha256, `${entry.id} Cancel changed fresh-stage pixels.`);
+        actionEvidence.push({actionId: `accepted-${entry.id}`, channel: "visible-ui", previewCopy, cancelled: true, timeline: "1:1:0:0", status: "passed"});
+      }
+
+      const representativeRejects = new Set(["R01","R05","R10","R12","R17","R19","R22","R24","R26","R29","R30","R31","R35"]);
+      for (const entry of intentFixture.rejected.filter((candidate) => representativeRejects.has(candidate.id))) {
+        await composer.fill(rejectedPrompt(entry));
+        await send.click();
+        await main.page.getByText(unsupportedCopy, {exact: true}).waitFor({state: "visible"});
+        assert.equal(await main.page.getByRole("button", {name: "Apply", exact: true}).count(), 0, `${entry.id} exposed a preview.`);
+        await timelineStatus(main.page, "1:1:0:0").waitFor({state: "visible"});
+        actionEvidence.push({actionId: `reject-${entry.id}`, channel: "visible-ui", previewAbsent: true, timeline: "1:1:0:0", status: "passed"});
+      }
+
+      await composer.fill(acceptedById.get("A01")!);
+      await send.click();
+      await main.page.getByText(previewCopy, {exact: true}).waitFor({state: "visible"});
+      const protectedToolbar = main.page.locator('[aria-label="Stick figure workspace tool layout preview"]');
+      const previewToolbarMarkup = await protectedToolbar.evaluate((node) => node.outerHTML);
+      const previewPageBytes = await main.page.screenshot({fullPage: false});
+      const previewMask = await phase6VisualDiffMask(initialWide.fullPageBytes, previewPageBytes, [await phase6Box(phase6AiShell(main.page), "Stick AI shell")]);
+      assert.ok(previewMask.changedPixels > 0, "Preview did not visibly change the Stick AI panel.");
+      assert.equal(previewMask.changedOutsideMask, 0, "Preview changed pixels outside the protected bottom-right AI panel.");
+      await saveScreenshot(main.page, "phase6-preview-before-apply");
+      await (await visible(main.page, "button", "Apply")).click();
+      await main.page.getByText("The three-pose wave was applied as one undoable change.", {exact: true}).waitFor({state: "visible", timeout: 30_000});
+      await timelineStatus(main.page, "1:12:0:0").waitFor({state: "visible"});
+      assert.equal(await main.page.getByRole("button", {name: "Apply", exact: true}).count(), 0, "Apply remained reachable after one completion.");
+      assert.equal(await protectedToolbar.evaluate((node) => node.outerHTML), previewToolbarMarkup, "Apply changed the protected toolbar DOM/attributes.");
+      const postApplyPageBytes = await main.page.screenshot({fullPage: false});
+      const aiShellMask = await phase6Box(phase6AiShell(main.page), "Stick AI shell after Apply");
+      const postApplyMask = await phase6VisualDiffMask(previewPageBytes, postApplyPageBytes, [
+        {...aiShellMask, left: Math.max(0, aiShellMask.left - 64), top: Math.max(0, aiShellMask.top - 4), bottom: viewport.height},
+        await phase6Box(main.page.getByTestId("stick-stage"), "Stick stage after Apply"),
+        await phase6Box(protectedToolbar, "protected toolbar repaint mask"),
+        {left: 0, top: 0, right: viewport.width, bottom: 190},
+      ]);
+      assert.ok(postApplyMask.changedPixels > 0, "Apply did not visibly change the canvas/timeline/panel.");
+      assert.equal(postApplyMask.changedOutsideMask, 0, `Apply changed pixels outside its canvas/timeline/panel/history mask: ${stableJson(postApplyMask.outsideBounds)}.`);
+
+      const frame1Geometry = await assertPhase6RenderedGeometry(main.page, expectedContentAt(0), "Frame 1 current figure");
+      const frame1Bytes = await main.page.getByTestId("stick-stage").screenshot();
+      const frame1Pixels = await phase6RasterEvidence(frame1Bytes);
+      assert.ok(frame1Pixels.darkPixels > initialWide.stage.darkPixels + 150, "Frame 1 has no visible dark figure-pixel cluster.");
+      await saveScreenshot(main.page, "phase6-post-apply-frame1");
+
+      const assertHoldMatches = async (frameNumber: number, ownerGeometry: typeof frame1Geometry, ownerPixels: typeof frame1Pixels) => {
+        await main.page.getByRole("button", {name: `Frame ${frameNumber}, hold`, exact: true}).click();
+        const geometry = await assertPhase6RenderedGeometry(main.page, expectedContentAt(frameNumber - 1), `Frame ${frameNumber} held current figure`);
+        assert.equal(geometry.renderedGeometrySha256, ownerGeometry.renderedGeometrySha256, `Frame ${frameNumber} geometry differs from its owner keyframe.`);
+        const bytes = await main.page.getByTestId("stick-stage").screenshot();
+        const pixels = await phase6RasterEvidence(bytes);
+        assert.equal(pixels.sha256, ownerPixels.sha256, `Frame ${frameNumber} visible pixels differ from its owner keyframe.`);
+      };
+      for (const frameNumber of [2, 3, 4]) await assertHoldMatches(frameNumber, frame1Geometry, frame1Pixels);
+
+      await main.page.getByRole("button", {name: "Frame 5, keyframe", exact: true}).click();
+      const frame5Geometry = await assertPhase6RenderedGeometry(main.page, expectedContentAt(4), "Frame 5 current figure");
+      const frame5Bytes = await main.page.getByTestId("stick-stage").screenshot();
+      const frame5Pixels = await phase6RasterEvidence(frame5Bytes);
+      assert.ok(frame5Pixels.darkPixels > initialWide.stage.darkPixels + 150, "Frame 5 has no visible dark figure-pixel cluster.");
+      await saveScreenshot(main.page, "phase6-post-apply-frame5");
+      for (const frameNumber of [6, 7, 8]) await assertHoldMatches(frameNumber, frame5Geometry, frame5Pixels);
+
+      await main.page.getByRole("button", {name: "Frame 9, keyframe", exact: true}).click();
+      const frame9Geometry = await assertPhase6RenderedGeometry(main.page, expectedContentAt(8), "Frame 9 current figure");
+      const frame9Bytes = await main.page.getByTestId("stick-stage").screenshot();
+      const frame9Pixels = await phase6RasterEvidence(frame9Bytes);
+      assert.ok(frame9Pixels.darkPixels > initialWide.stage.darkPixels + 150, "Frame 9 has no visible dark figure-pixel cluster.");
+      await saveScreenshot(main.page, "phase6-post-apply-frame9");
+      for (const frameNumber of [10, 11, 12]) await assertHoldMatches(frameNumber, frame9Geometry, frame9Pixels);
+      assert.equal(new Set([frame1Geometry.renderedGeometrySha256, frame5Geometry.renderedGeometrySha256, frame9Geometry.renderedGeometrySha256]).size, 3, "Frames 1/5/9 do not have three distinct geometries.");
+      assert.equal(new Set([frame1Pixels.sha256, frame5Pixels.sha256, frame9Pixels.sha256]).size, 3, "Frames 1/5/9 do not have three distinct visible pixel masks.");
+
+      await main.page.getByRole("button", {name: "Frame 5, keyframe", exact: true}).click();
+      await (await visible(main.page, "button", "Onion")).click();
+      await main.page.locator("[data-onion-side]").first().waitFor({state: "attached"});
+      assert.equal(await main.page.locator("[data-onion-side='previous']").count(), 21, "Frame 5 previous onion figure is incomplete.");
+      assert.equal(await main.page.locator("[data-onion-side='next']").count(), 21, "Frame 5 next onion figure is incomplete.");
+      const previousOnionGeometry = await assertPhase6RenderedGeometry(main.page, expectedContentAt(0), "Frame 5 previous onion figure", "previous");
+      const nextOnionGeometry = await assertPhase6RenderedGeometry(main.page, expectedContentAt(8), "Frame 5 next onion figure", "next");
+      const onionBytes = await main.page.getByTestId("stick-stage").screenshot();
+      const onionPixels = await phase6RasterEvidence(onionBytes);
+      assert.ok(onionPixels.purplePixels > frame5Pixels.purplePixels + 10, "Frame 5 onion view has no visible purple previous-pose cluster.");
+      assert.ok(onionPixels.greenPixels > frame5Pixels.greenPixels + 10, "Frame 5 onion view has no visible green next-pose cluster.");
+      await saveScreenshot(main.page, "phase6-onion-frame5");
+      await (await visible(main.page, "button", "Onion")).click();
+      assert.equal(await main.page.locator("[data-onion-side]").count(), 0, "Onion OFF left overlay DOM behind.");
+      const onionOffPixels = await phase6RasterEvidence(await main.page.getByTestId("stick-stage").screenshot());
+      assert.equal(onionOffPixels.sha256, frame5Pixels.sha256, "Onion OFF did not restore exact Frame 5 pixels.");
+
+      await main.page.setViewportSize(compactViewport);
+      await main.page.waitForTimeout(100);
+      const compactFrame5Geometry = await assertPhase6RenderedGeometry(main.page, expectedContentAt(4), "Frame 5 compact current figure");
+      const compactFrame5Pixels = await phase6RasterEvidence(await main.page.getByTestId("stick-stage").screenshot());
+      assert.ok(compactFrame5Pixels.darkPixels > initialCompact.stage.darkPixels + 100, "Compact Frame 5 has no visible figure-pixel cluster.");
+      await saveScreenshot(main.page, "phase6-post-apply-1024x768");
+      await main.page.setViewportSize(viewport);
+      await main.page.waitForTimeout(100);
+      await assertPhase6RenderedGeometry(main.page, expectedContentAt(4), "Frame 5 restored wide current figure");
+      actionEvidence.push({
+        actionId: "rendered-figure-proof",
+        channel: "visible-ui",
+        keyframes: [
+          {frame: 1, geometry: frame1Geometry.renderedGeometrySha256, pixels: frame1Pixels.sha256},
+          {frame: 5, geometry: frame5Geometry.renderedGeometrySha256, pixels: frame5Pixels.sha256},
+          {frame: 9, geometry: frame9Geometry.renderedGeometrySha256, pixels: frame9Pixels.sha256},
+        ],
+        holdsExact: [2,3,4,6,7,8,10,11,12],
+        compact: {geometry: compactFrame5Geometry.renderedGeometrySha256, pixels: compactFrame5Pixels.sha256},
+        onion: {previous: previousOnionGeometry.renderedGeometrySha256, next: nextOnionGeometry.renderedGeometrySha256, pixels: onionPixels.sha256, purplePixels: onionPixels.purplePixels, greenPixels: onionPixels.greenPixels},
+        masks: {preview: previewMask, apply: postApplyMask},
+        status: "passed",
+      });
+
+      const appliedBeforeCreator = await readPhase6Checkpoint(main.page, "phase6-main", "creator-applied-before");
+      const appliedStorageBeforeCreator = await main.page.evaluate(() => localStorage.getItem("da_saved_stick_projects_v1"));
+      await (await visible(main.page, "button", "Stick Figure Tools")).click();
+      await (await visible(main.page, "button", "Create New Stick Figure")).click();
+      assert.equal(await (await visible(main.page, "button", "Save Stick Figure")).isDisabled(), true, "Applied-project Creator Save unexpectedly enabled.");
+      await main.page.setViewportSize(compactViewport);
+      await (await visible(main.page, "button", "Back")).click();
+      await timelineStatus(main.page, "1:12:4:4").waitFor({state: "visible"});
+      await main.page.waitForFunction(() => {
+        const stage = document.querySelector<HTMLElement>("[data-testid='stick-stage']");
+        const svg = stage?.querySelector("svg");
+        if (!stage || !svg) return false;
+        const stageBox = stage.getBoundingClientRect();
+        const nodes = [...svg.querySelectorAll<SVGGraphicsElement>("svg > line:not([data-onion-side]), svg > circle:not([data-onion-side])")];
+        return nodes.length === 21 && nodes.every((node) => {
+          const box = node.getBoundingClientRect();
+          return box.left >= stageBox.left - 1 && box.right <= stageBox.right + 1 &&
+            box.top >= stageBox.top - 1 && box.bottom <= stageBox.bottom + 1;
+        });
+      }, undefined, {timeout: 10_000});
+      const appliedAfterCreator = await readPhase6Checkpoint(main.page, "phase6-main", "creator-applied-after");
+      assert.deepEqual(appliedAfterCreator, appliedBeforeCreator, "Visible Creator/Back changed the applied project root, selection, history, storage, or identity.");
+      assert.equal(await main.page.evaluate(() => localStorage.getItem("da_saved_stick_projects_v1")), appliedStorageBeforeCreator, "Visible Creator/Back changed applied-project storage bytes.");
+      const appliedCreatorGeometry = await assertPhase6RenderedGeometry(main.page, expectedContentAt(4), "Frame 5 after compact Creator/Back");
+      const appliedCreatorPixels = await phase6RasterEvidence(await main.page.getByTestId("stick-stage").screenshot());
+      assert.ok(appliedCreatorPixels.darkPixels > initialCompact.stage.darkPixels + 100, "Creator/Back left no visible compact figure-pixel cluster.");
+      await saveScreenshot(main.page, "phase6-creator-back-1024x768");
+
+      const undo = await visible(main.page, "button", "Undo");
+      const redo = await visible(main.page, "button", "Redo");
+      assert.equal(await undo.isEnabled(), true, "AI Apply did not publish one Undo action.");
+      await undo.click();
+      await timelineStatus(main.page, "1:1:0:0").waitFor({state: "visible"});
+      assert.equal(await redo.isEnabled(), true, "Atomic Undo did not enable Redo.");
+      const creatorUndoGeometry = await readPhase6RenderedGeometry(main.page);
+      assert.equal(creatorUndoGeometry.lines.length, 0, "Undo after Creator/Back did not remove every AI limb.");
+      assert.equal(creatorUndoGeometry.circles.length, 0, "Undo after Creator/Back did not remove every AI joint.");
+      assert.equal(sha256Bytes(await main.page.getByTestId("stick-stage").screenshot()), initialCompact.stage.sha256, "Undo after Creator/Back did not restore exact fresh compact-stage pixels.");
+      await redo.click();
+      await timelineStatus(main.page, "1:12:4:4").waitFor({state: "visible"});
+      const appliedAfterCreatorRedo = await readPhase6Checkpoint(main.page, "phase6-main", "creator-applied-redo");
+      assert.deepEqual(phase6PreservedProjectProjection(appliedAfterCreatorRedo), phase6PreservedProjectProjection(appliedBeforeCreator), "Redo after Creator/Back did not restore the exact applied document/history/selection/storage projection.");
+      const appliedCreatorRedoGeometry = await assertPhase6RenderedGeometry(main.page, expectedContentAt(4), "Frame 5 after Creator/Back atomic Redo");
+      assert.equal(appliedCreatorRedoGeometry.renderedGeometrySha256, appliedCreatorGeometry.renderedGeometrySha256, "Redo after Creator/Back changed compact rendered geometry.");
+      assert.equal(sha256Bytes(await main.page.getByTestId("stick-stage").screenshot()), appliedCreatorPixels.sha256, "Redo after Creator/Back changed compact visible pixels.");
+      await main.page.setViewportSize(viewport);
+      await main.page.waitForTimeout(100);
+      await assertPhase6RenderedGeometry(main.page, expectedContentAt(4), "Frame 5 restored wide after Creator/Back Redo");
+      await (await visible(main.page, "button", "Play")).click();
+      await main.page.waitForTimeout(300);
+      await (await visible(main.page, "button", "Pause")).click();
+
+      await (await visible(main.page, "button", "File")).click();
+      await (await visible(main.page, "menuitem", "Save")).click();
+      await main.page.getByText("Saved on this browser", {exact: true}).waitFor({state: "visible", timeout: 30_000});
+      const saved = await main.page.evaluate(() => localStorage.getItem("da_saved_stick_projects_v1"));
+      assert.ok(saved, "Applied Stick project was not saved locally.");
+      await main.page.reload({waitUntil: "networkidle"});
+      await visible(main.page, "heading", "Workspace");
+      await (await visible(main.page, "button", "Open Project Open an existing project.")).click();
+      await (await visible(main.page, "button", "Stick Figure")).click();
+      await (await visible(main.page, "button", "Open Unnamed stick figure project")).click();
+      const reopenedTimeline = main.page.getByTestId("stick-editable-timeline-state");
+      await reopenedTimeline.waitFor({state: "attached"});
+      const reopenedTimelineState = (await reopenedTimeline.textContent())?.trim() ?? "";
+      assert.match(reopenedTimelineState, /^1:12:\d+:\d+$/, "Reopened project did not preserve the applied 12-frame timeline.");
+
+      await (await visible(main.page, "button", "Select tool")).click();
+      const manualBase = await readPhase6Checkpoint(main.page, "phase6-main", "manual-edit-base");
+      const dragJoint = async (jointIndex: number, delta: {x: number; y: number}, label: string) => {
+        const joint = main.page.getByTestId("stick-stage").locator("svg > circle:not([data-onion-side])").nth(jointIndex);
+        await joint.waitFor({state: "visible"});
+        const beforeJoint = await joint.boundingBox();
+        assert.ok(beforeJoint);
+        await main.page.mouse.move(beforeJoint.x + beforeJoint.width / 2, beforeJoint.y + beforeJoint.height / 2);
+        await main.page.mouse.down();
+        await main.page.mouse.move(beforeJoint.x + beforeJoint.width / 2 + delta.x, beforeJoint.y + beforeJoint.height / 2 + delta.y, {steps: 4});
+        await main.page.mouse.up();
+        const afterJoint = await joint.boundingBox();
+        assert.ok(afterJoint && (afterJoint.x !== beforeJoint.x || afterJoint.y !== beforeJoint.y), `${label} did not remain editable after Apply/Open.`);
+        await main.page.waitForTimeout(150);
+      };
+      await main.page.getByRole("button", {name: "Frame 2, hold", exact: true}).click();
+      await dragJoint(0, {x: 18, y: 12}, "Held-frame-selected head joint");
+      await main.page.getByRole("button", {name: "Frame 6, hold", exact: true}).click();
+      await dragJoint(6, {x: 22, y: -14}, "Held-frame-selected right-hand joint");
+      assert.equal(await undo.isEnabled(), true, "Manual post-Apply joint edit did not enter history.");
+
+      const manualBeforeCreator = await readPhase6Checkpoint(main.page, "phase6-main", "creator-manual-before");
+      assert.notEqual(manualBeforeCreator.documentDigest, manualBase.documentDigest, "Manual joint edits did not change the document before Creator.");
+      assert.equal(manualBeforeCreator.undoDepth, manualBase.undoDepth + 2, "Both manual joint edits did not enter history before Creator.");
+      const manualGeometryBeforeCreator = await readPhase6RenderedGeometry(main.page);
+      assert.equal(manualGeometryBeforeCreator.lines.length, 10, "Manual project lost limbs before Creator.");
+      assert.equal(manualGeometryBeforeCreator.circles.length, 11, "Manual project lost joints before Creator.");
+      const manualPixelsBeforeCreator = await phase6RasterEvidence(await main.page.getByTestId("stick-stage").screenshot());
+      await (await visible(main.page, "button", "Stick Figure Tools")).click();
+      await (await visible(main.page, "button", "Create New Stick Figure")).click();
+      assert.equal(await (await visible(main.page, "button", "Save Stick Figure")).isDisabled(), true, "Creator Save unexpectedly enabled.");
+      await (await visible(main.page, "button", "Back")).click();
+      await reopenedTimeline.waitFor({state: "attached"});
+      const afterCreatorTimelineState = (await reopenedTimeline.textContent())?.trim() ?? "";
+      assert.match(afterCreatorTimelineState, /^1:12:\d+:\d+$/, "Creator/Back lost the AI timeline.");
+      const manualAfterCreator = await readPhase6Checkpoint(main.page, "phase6-main", "creator-manual-after");
+      assert.deepEqual(manualAfterCreator, manualBeforeCreator, "Creator/Back changed the manually edited project root, selection, history, storage, or identity.");
+      const manualGeometryAfterCreator = await readPhase6RenderedGeometry(main.page);
+      assert.deepEqual(manualGeometryAfterCreator, manualGeometryBeforeCreator, "Creator/Back changed the visible manually edited figure geometry.");
+      assert.equal(sha256Bytes(await main.page.getByTestId("stick-stage").screenshot()), manualPixelsBeforeCreator.sha256, "Creator/Back changed the manually edited figure pixels.");
+
+      await undo.click();
+      await main.page.waitForTimeout(150);
+      const manualAfterUndo = await readPhase6Checkpoint(main.page, "phase6-main", "creator-manual-undo");
+      assert.notEqual(manualAfterUndo.documentDigest, manualBeforeCreator.documentDigest, "Undo after manual Creator/Back did not remove the latest manual edit.");
+      assert.equal(manualAfterUndo.undoDepth, manualBeforeCreator.undoDepth - 1, "Undo after manual Creator/Back did not traverse exactly one history entry.");
+      await redo.click();
+      await main.page.waitForTimeout(150);
+      const manualAfterRedo = await readPhase6Checkpoint(main.page, "phase6-main", "creator-manual-redo");
+      assert.deepEqual(phase6PreservedProjectProjection(manualAfterRedo), phase6PreservedProjectProjection(manualBeforeCreator), "Redo after manual Creator/Back did not restore the exact edit/history/selection/storage projection.");
+      assert.deepEqual(await readPhase6RenderedGeometry(main.page), manualGeometryBeforeCreator, "Redo after manual Creator/Back did not restore exact figure geometry.");
+      assert.equal(sha256Bytes(await main.page.getByTestId("stick-stage").screenshot()), manualPixelsBeforeCreator.sha256, "Redo after manual Creator/Back did not restore exact figure pixels.");
+
+      const stageBeforeSave = await main.page.getByTestId("stick-stage").boundingBox();
+      assert.ok(stageBeforeSave);
+      await main.page.mouse.click(stageBeforeSave.x + 20, stageBeforeSave.y + 20);
+      await main.page.waitForTimeout(50);
+      const manualGeometryBeforeSave = await readPhase6RenderedGeometry(main.page);
+      const manualPixelsBeforeSave = await phase6RasterEvidence(await main.page.getByTestId("stick-stage").screenshot());
+
+      await (await visible(main.page, "button", "File")).click();
+      await (await visible(main.page, "menuitem", "Save")).click();
+      await main.page.getByText("Saved on this browser", {exact: true}).waitFor({state: "visible", timeout: 30_000});
+      const manualSavedStorage = await main.page.evaluate(() => localStorage.getItem("da_saved_stick_projects_v1"));
+      assert.ok(manualSavedStorage, "Manually edited project was not saved after Creator/Back Undo/Redo.");
+      await main.page.reload({waitUntil: "networkidle"});
+      await visible(main.page, "heading", "Workspace");
+      await (await visible(main.page, "button", "Open Project Open an existing project.")).click();
+      await (await visible(main.page, "button", "Stick Figure")).click();
+      await (await visible(main.page, "button", "Open Unnamed stick figure project")).click();
+      await reopenedTimeline.waitFor({state: "attached"});
+      assert.match((await reopenedTimeline.textContent())?.trim() ?? "", /^1:12:\d+:\d+$/, "Save/Open after Creator/Back lost the manually edited 12-frame project.");
+      await main.page.waitForTimeout(100);
+      const manualAfterOpen = await readPhase6Checkpoint(main.page, "phase6-main", "creator-manual-open");
+      assert.equal(manualAfterOpen.documentDigest, manualBeforeCreator.documentDigest, "Save/Open after Creator/Back changed the manual document.");
+      assert.equal(await main.page.evaluate(() => localStorage.getItem("da_saved_stick_projects_v1")), manualSavedStorage, "Save/Open after Creator/Back changed stored bytes.");
+      assert.deepEqual(await readPhase6RenderedGeometry(main.page), manualGeometryBeforeSave, "Save/Open after Creator/Back changed manual figure geometry.");
+      assert.equal(sha256Bytes(await main.page.getByTestId("stick-stage").screenshot()), manualPixelsBeforeSave.sha256, "Save/Open after Creator/Back changed manual figure pixels.");
+      const savedBeforeCreator = await readPhase6Checkpoint(main.page, "phase6-main", "creator-saved-before");
+      await assertCreatorRoundTrip(main.page, "saved manual project");
+      const savedAfterCreator = await readPhase6Checkpoint(main.page, "phase6-main", "creator-saved-after");
+      assert.deepEqual(savedAfterCreator, savedBeforeCreator, "Creator/Back changed the reopened saved project root.");
+      assert.deepEqual(await readPhase6RenderedGeometry(main.page), manualGeometryBeforeSave, "Creator/Back changed reopened saved figure geometry.");
+      actionEvidence.push({actionId: "apply-once", channel: "visible-ui", frames: 12, fps: 12, currentLimbs: 10, currentJoints: 11, distinctKeyPoses: [1,5,9], exactHeldFrames: [2,3,4,6,7,8,10,11,12], completeOnionFigures: {previous: 21, next: 21}, undoRedo: "atomic", saveOpen: true, onion: true, playPause: true, manualJoint: true, status: "passed"});
+      actionEvidence.push({
+        actionId: "creator-back",
+        channel: "visible-ui",
+        route: ["Stick Figure Tools", "Create New Stick Figure", "Back"],
+        restoredTimeline: afterCreatorTimelineState,
+        appliedRootExact: true,
+        responsiveRemount: {from: viewport, to: compactViewport, geometry: appliedCreatorGeometry.renderedGeometrySha256, pixels: appliedCreatorPixels.sha256},
+        applyUndoRedoAfterBack: "atomic-exact",
+        manualEditHistoryAfterBack: "undo-redo-exact",
+        saveOpenAfterBack: true,
+        status: "passed",
+      });
+    } finally { await closePhase6Context(main.context, main.profile); }
+
+    const invalid = await createCompatibilityContext("phase6-invalid-response", viewport, server.port, PHASE6_REAL_API_ROUTE);
+    try {
+      await invalid.page.route("**/api/ai", async (route) => {
+        if (route.request().method() === "POST") await route.fulfill({status: 200, contentType: "application/json", body: JSON.stringify({kind: "stick-command-batch", envelopeVersion: 2})});
+        else await route.continue();
+      });
+      await openStick(invalid.page);
+      const composer = invalid.page.getByRole("textbox", {name: "Stick Figure AI request", exact: true});
+      await composer.fill(acceptedById.get("A01")!);
+      await (await visible(invalid.page, "button", "Send Stick Figure AI request")).click();
+      await invalid.page.getByText("The AI response was invalid and was not applied.", {exact: true}).waitFor({state: "visible"});
+      await timelineStatus(invalid.page, "1:1:0:0").waitFor({state: "visible"});
+      await assertCreatorRoundTrip(invalid.page, "invalid response");
+      actionEvidence.push({actionId: "invalid-response", channel: "visible-ui", timeline: "1:1:0:0", status: "passed"});
+    } finally { await closePhase6Context(invalid.context, invalid.profile); }
+
+    const stopped = await createCompatibilityContext("phase6-stop", viewport, server.port, PHASE6_REAL_API_ROUTE);
+    let releaseStoppedRoute = () => {};
+    try {
+      const stoppedGate = new Promise<void>((resolveGate) => { releaseStoppedRoute = resolveGate; });
+      await stopped.page.route("**/api/ai", async (route) => {
+        if (route.request().method() !== "POST") return route.continue();
+        await stoppedGate;
+        await route.abort("aborted").catch(() => {});
+      });
+      await openStick(stopped.page);
+      const composer = stopped.page.getByRole("textbox", {name: "Stick Figure AI request", exact: true});
+      await composer.fill(acceptedById.get("A01")!);
+      await (await visible(stopped.page, "button", "Send Stick Figure AI request")).click();
+      await (await visible(stopped.page, "button", "Stop")).click();
+      releaseStoppedRoute();
+      await stopped.page.getByText("Request stopped. No changes were made.", {exact: true}).waitFor({state: "visible"});
+      await timelineStatus(stopped.page, "1:1:0:0").waitFor({state: "visible"});
+      await assertCreatorRoundTrip(stopped.page, "stopped request");
+      actionEvidence.push({actionId: "request-stop", channel: "visible-ui", timeline: "1:1:0:0", status: "passed"});
+    } finally {
+      releaseStoppedRoute();
+      await closePhase6Context(stopped.context, stopped.profile);
+    }
+
+    const timedOut = await createCompatibilityContext("phase6-timeout", viewport, server.port, PHASE6_REAL_API_ROUTE);
+    let releaseTimedOutRoute = () => {};
+    try {
+      const timeoutGate = new Promise<void>((resolveGate) => { releaseTimedOutRoute = resolveGate; });
+      await timedOut.page.route("**/api/ai", async (route) => {
+        if (route.request().method() !== "POST") return route.continue();
+        await timeoutGate;
+        await route.abort("timedout").catch(() => {});
+      });
+      await openStick(timedOut.page);
+      const composer = timedOut.page.getByRole("textbox", {name: "Stick Figure AI request", exact: true});
+      await composer.fill(acceptedById.get("A01")!);
+      await (await visible(timedOut.page, "button", "Send Stick Figure AI request")).click();
+      await timedOut.page.getByText("The AI request timed out. No changes were made.", {exact: true}).waitFor({state: "visible", timeout: 15_000});
+      releaseTimedOutRoute();
+      await timelineStatus(timedOut.page, "1:1:0:0").waitFor({state: "visible"});
+      await assertCreatorRoundTrip(timedOut.page, "timed-out request");
+      actionEvidence.push({actionId: "request-timeout", channel: "visible-ui", timeoutMs: 10_000, timeline: "1:1:0:0", status: "passed"});
+    } finally {
+      releaseTimedOutRoute();
+      await closePhase6Context(timedOut.context, timedOut.profile);
+    }
+
+    const failedApply = await createCompatibilityContext("phase6-visible-failure", viewport, server.port, PHASE6_REAL_API_ROUTE);
+    try {
+      await openStick(failedApply.page);
+      const composer = failedApply.page.getByRole("textbox", {name: "Stick Figure AI request", exact: true});
+      await composer.fill(acceptedById.get("A01")!);
+      await (await visible(failedApply.page, "button", "Send Stick Figure AI request")).click();
+      await failedApply.page.getByText(previewCopy, {exact: true}).waitFor({state: "visible"});
+      await waitForCompatibilityDriver(failedApply.page, "phase6-visible-failure");
+      const armed = await dispatchCompatibilityCommand(failedApply.page, "phase6-visible-failure", "workspace.arm-next-visible-apply-failure/v1", {
+        scenarioId: "phase6-visible-failure",
+        operationId: "arm-phase6-visible-failure",
+        fixtureId: "phase6-visible-failure",
+        fixture: {failurePoint: "after_history_construction"},
+      });
+      assert.equal((armed.payload.response as JsonObject).outcomeCode, "apply_failure_armed", "Visible Apply failure was not armed.");
+      await (await visible(failedApply.page, "button", "Apply")).click();
+      await failedApply.page.getByText("The change could not be applied and was rolled back. No project data changed.", {exact: true}).waitFor({state: "visible"});
+      await timelineStatus(failedApply.page, "1:1:0:0").waitFor({state: "visible"});
+      assert.equal(await (await visible(failedApply.page, "button", "Undo")).isEnabled(), false, "Failed visible Apply added history.");
+      await assertCreatorRoundTrip(failedApply.page, "failed Apply");
+      actionEvidence.push({actionId: "visible-injected-failure", channel: "visible-ui", armedBy: "workspace_driver", timeline: "1:1:0:0", status: "passed"});
+    } finally { await closePhase6Context(failedApply.context, failedApply.profile); }
+
+    const switched = await createCompatibilityContext("phase6-project-switch", viewport, server.port, PHASE6_REAL_API_ROUTE);
+    try {
+      await openStick(switched.page);
+      const composer = switched.page.getByRole("textbox", {name: "Stick Figure AI request", exact: true});
+      await composer.fill(acceptedById.get("A01")!);
+      await (await visible(switched.page, "button", "Send Stick Figure AI request")).click();
+      await switched.page.getByText(previewCopy, {exact: true}).waitFor({state: "visible"});
+      await switched.page.goto(new URL("/", switched.page.url()).toString(), {waitUntil: "networkidle"});
+      await visible(switched.page, "heading", "Workspace");
+      await compatibilityOpenNewProject(switched.page);
+      await (await visible(switched.page, "button", /^Stick Figure Animation\b/)).click();
+      await timelineStatus(switched.page, "1:1:0:0").waitFor({state: "visible"});
+      assert.equal(await switched.page.getByRole("button", {name: "Apply", exact: true}).count(), 0, "Old preview crossed a project switch.");
+      await assertCreatorRoundTrip(switched.page, "project switch");
+      actionEvidence.push({actionId: "project-switch", channel: "visible-ui", replacementTimeline: "1:1:0:0", oldApplyAbsent: true, status: "passed"});
+    } finally { await closePhase6Context(switched.context, switched.profile); }
+
+    const drawingResponse = readJson(ROOT, DRAWING_RESPONSE_PATH);
+    const drawing = await createCompatibilityContext("phase6-drawing", viewport, server.port, drawingResponse);
+    try {
+      await compatibilityDismissWelcome(drawing.page);
+      await compatibilityOpenNewProject(drawing.page);
+      await (await visible(drawing.page, "button", /^Drawing Animation\b/)).click();
+      await (await visible(drawing.page, "button", /Task: Generate Plans/)).click();
+      await (await visible(drawing.page, "menuitemradio", /^Generate Frames\b/)).click();
+      const textarea = drawing.page.getByPlaceholder("Chat here");
+      const canvas = drawing.page.locator('[data-workspace-canvas="editable"]');
+      await textarea.fill(FIXED_DRAWING_PROMPT);
+      await textarea.press("Enter");
+      let pixels = await canvasPixelEvidence(canvas);
+      for (let attempt = 0; attempt < 120 && pixels.redPixels < 100; attempt += 1) {
+        await drawing.page.waitForTimeout(250);
+        pixels = await canvasPixelEvidence(canvas);
+      }
+      assert.ok(pixels.redPixels >= 100, "Protected Drawing Generate Frames output did not render.");
+      await drawing.page.getByText(validateFixturePlan().settledSuccessText, {exact: true}).waitFor({state: "visible", timeout: 30_000});
+      await saveScreenshot(drawing.page, "phase6-drawing-protected");
+      const undo = await visible(drawing.page, "button", "Undo");
+      await undo.click();
+      const redo = await visible(drawing.page, "button", "Redo");
+      await redo.click();
+      await (await visible(drawing.page, "button", "Play")).click();
+      await drawing.page.waitForTimeout(250);
+      await (await visible(drawing.page, "button", "Pause")).click();
+      actionEvidence.push({actionId: "drawing-generate", channel: "visible-ui", generatedRedPixels: pixels.redPixels, undoRedo: true, playPause: true, status: "passed"});
+    } finally { await closePhase6Context(drawing.context, drawing.profile); }
+  } finally {
+    await stopServer(server);
+  }
+
+  assert.deepEqual(compatibilityPolicyViolations, [], `Phase 6 browser policy violation: ${stableJson(compatibilityPolicyViolations)}`);
+  const consoleErrors = compatibilityConsole.filter((entry) => entry.type === "error" || entry.type === "pageerror");
+  assert.deepEqual(consoleErrors, [], `Phase 6 browser console errors: ${stableJson(consoleErrors)}`);
+  const serverNetwork = validatePhase5ServerNetwork(readNdjson(COMPATIBILITY_SERVER_NETWORK_LEDGER), guardSelfTest);
+  assert.equal(serverNetwork.denialCount, 0);
+  const realApiRouteRequests = (readPhase5ServerLog().toString("utf8").match(/\b(?:GET|POST) \/api\/ai\b/g) ?? []).length;
+  writeExtensionJson(COMPATIBILITY_ACTION_LEDGER, {ledgerVersion: 1, authorizationId: "phase-6/v1", actions: actionEvidence});
+  writeExtensionJson(COMPATIBILITY_REQUEST_LEDGER, {ledgerVersion: 1, authorizationId: "phase-6/v1", realApiRouteRequests, drawingInterceptedRequests: compatibilityRequests.length});
+  writeExtensionJson(COMPATIBILITY_NETWORK_LEDGER, {ledgerVersion: 1, authorizationId: "phase-6/v1", guard: guardV2, server: serverNetwork, browserPolicyViolations: []});
+  writeExtensionJson(COMPATIBILITY_CONSOLE_LEDGER, {ledgerVersion: 1, authorizationId: "phase-6/v1", application: compatibilityConsole, errorCount: 0});
+  writeExtensionJson(COMPATIBILITY_REGRESSION_LEDGER, {ledgerVersion: 1, authorizationId: "phase-6/v1", regressions: ["atomic-undo-redo","save-open","onion","play-pause","manual-joint-edit","creator-back","drawing-generate-frames"]});
+  await cleanupCompatibility();
+  assert.deepEqual(sortProofPaths(changedPaths()), graph.git.observedDirtyPaths, "Phase 6 proof changed tracked or nonignored source bytes.");
+  const cleanup = {anchorRestored: true, sourceRestored: true, browserContextsOpen: 0, activeGates: 0, activeIntercepts: 0, openChildProcesses: 0, openPorts: 0, residualPaths: [], residualProfiles: []};
+  writeExtensionJson(COMPATIBILITY_CLEANUP_LEDGER, cleanup);
+  const browserVersion = [...compatibilityBrowserVersions][0];
+  assert.ok(browserVersion, "Phase 6 browser version evidence is missing.");
+  const result = {
+    resultVersion: 6, specId: "SPEC-0001", proofPurpose: "phase-6", status: "passed", recordedAt: now(), productPhaseClaimed: true,
+    runtime: {nodeVersion: process.version, playwrightCoreVersion: "1.62.1", browserVersion, browserExecutable},
+    derivedGitState: graph.git.derivedGitState, baseCommit: graph.git.baseCommit, headCommit: graph.git.headCommit,
+    observedDirtyPaths: graph.git.observedDirtyPaths, dirtyExpectedPaths: graph.git.dirtyExpectedPaths, cleanExpectedPaths: graph.git.cleanExpectedPaths, selectedExpectedPaths: graph.git.selectedExpectedPaths,
+    authorization: {authorizationId: "phase-6/v1", materializationKind: "deferred"},
+    bindings: {catalog: graph.catalogBinding, plan: graph.planBinding, registry: graph.registryBinding, adapter: graph.adapterBinding},
+    execution: {selectedActionIds: graph.plan.selectedActionIds, acceptedVisibleCaseCount: 15, visibleRejectionCount: 13, guardedRejectedCaseCount: 36, completeApplyCount: 1},
+    evidence: {previewCopy, actions: actionEvidence, screenshots, realApiRouteRequests, drawingInterceptedRequests: compatibilityRequests.length},
+    network: {browserNonLoopbackAttempts: 0, serverNonLoopbackAttempts: 0, childNonLoopbackAttempts: 0, runnerNonLoopbackAttempts: 0},
+    cleanup,
+  };
+  validateJsonSchema(result, readJson(ROOT, "scripts/fixtures/spec0001-browser/v6/tester-extension-result.schema.json"), "Phase 6 result schema");
+  writeExtensionJson(COMPATIBILITY_RESULT_PATH, result);
+  console.log(`SPEC-0001 Phase 6 browser proof PASS: 15 accepted visible previews/cancels, 13 visible rejections, 36 guarded real-route rejections, one visible Apply with canonical figure/onion geometry and pixel masks, exact responsive Creator/Back root/history/storage/Undo/Redo preservation, ten screenshots across both required viewports, and protected Stick/Drawing regressions.`);
 };
 
 const runPhase5RouteProof = async (graph: ValidatedPhase5RouteGraph) => {
@@ -4488,12 +5358,47 @@ const dispatchBrowserProof = () => {
     return;
   }
   if (rawArgs.some((argument) => argument.startsWith("--self-test"))) {
-    if (rawArgs.length !== 1 || !["--self-test=phase-3-registration", "--self-test=phase-4-registration", "--self-test=phase-5-registration"].includes(rawArgs[0])) {
-      console.error("Registration self-test accepts exactly one known Phase 3, Phase 4, or Phase 5 self-test selector.");
+    if (rawArgs.length !== 1 || !["--self-test=phase-3-registration", "--self-test=phase-4-registration", "--self-test=phase-5-registration", "--self-test=phase-6-registration"].includes(rawArgs[0])) {
+      console.error("Registration self-test accepts exactly one known Phase 3, Phase 4, Phase 5, or Phase 6 self-test selector.");
       process.exitCode = 1;
       return;
     }
     try {
+      if (rawArgs[0] === "--self-test=phase-6-registration") {
+        const graph = loadPhase6Graph(ROOT, PHASE6_PLAN_PATH);
+        assert.equal(graph.authorizationId, "phase-6/v1");
+        assert.equal(graph.plan.planVersion, 6);
+        assert.equal(graph.registry.registryVersion, 6);
+        assert.deepEqual(graph.pathCeiling, PHASE6_PATHS);
+        assert.equal(graph.pathCeiling.length, 26);
+        assert.deepEqual(graph.plan.dirtyExpectedPaths, PHASE6_PATHS.filter((path) => path !== "src/components/workspace/ai/WorkspaceAiPanelShell.tsx"));
+        assert.equal(graph.registry.actions.length, 33);
+        assert.deepEqual(graph.plan.selectedActionIds, graph.registry.actions.map((entry) => entry.actionId));
+        validatePhase6PlanValue(readJson(ROOT, PHASE6_PLAN_PATH));
+        validatePhase6RegistryValue(readJson(ROOT, graph.registryBinding.path));
+        const catalogPath = "scripts/fixtures/spec0001-browser/v2/tester-extension-authorizations.json";
+        const catalog = readJson(ROOT, catalogPath) as {authorizations: JsonObject[]};
+        validateAuthorizationCatalogValue(catalog);
+        const baseCatalog = JSON.parse(git("show", `${PHASE6_BASE_COMMIT}:${catalogPath}`)) as {authorizations: JsonObject[]};
+        assert.equal(baseCatalog.authorizations.length, 5, "Phase 6 base catalog must contain five frozen earlier entries.");
+        assert.deepEqual(catalog.authorizations.slice(0, 5), baseCatalog.authorizations, "Phase 6 changed an earlier tester authorization entry.");
+        for (const version of [2, 3, 4, 5]) for (const kind of ["authorization", "plan", "registry", "result"]) {
+          const schemaPath = `scripts/fixtures/spec0001-browser/v${version}/tester-extension-${kind}.schema.json`;
+          assert.equal(readFileSync(repositoryPath(ROOT, schemaPath), "utf8").trim(), git("show", `${PHASE6_BASE_COMMIT}:${schemaPath}`), `Earlier tester schema changed: ${schemaPath}`);
+        }
+        const missing = structuredClone(catalog);
+        missing.authorizations.pop();
+        assert.throws(() => validateAuthorizationCatalogValue(missing), /catalog authorization count/);
+        const extra = structuredClone(catalog);
+        extra.authorizations.push(structuredClone(catalog.authorizations[5]!));
+        assert.throws(() => validateAuthorizationCatalogValue(extra), /catalog authorization count/);
+        const wrongCeiling = structuredClone(catalog);
+        (wrongCeiling.authorizations[5]!.pathCeiling as unknown[]).pop();
+        assert.throws(() => validateAuthorizationCatalogValue(wrongCeiling), /pathCeiling/);
+        assert.equal(graph.git.derivedGitState, "dirty-executor");
+        console.log("SPEC-0001 Phase 6 tester registration self-test PASS: exact six-entry catalog, frozen v2-v5 entries/schemas, V6 plan/registry/adapter bindings, exact 26-path ceiling, and strict negative registration cases.");
+        return;
+      }
       if (rawArgs[0] === "--self-test=phase-5-registration") {
         const graph = loadPhase5RouteGraph(ROOT, PHASE5_PLAN_PATH);
         assert.equal(graph.authorizationId, "phase-5/v1");
@@ -4661,6 +5566,20 @@ const dispatchBrowserProof = () => {
     process.once("SIGINT", () => onSignal("SIGINT"));
     process.once("SIGTERM", () => onSignal("SIGTERM"));
     void main().catch(reportLegacyFailure);
+    return;
+  }
+  if (invocation.planPath === PHASE6_PLAN_PATH) {
+    let graph: ValidatedPhase6Graph;
+    try { graph = loadPhase6Graph(ROOT, invocation.planPath); }
+    catch (error) {
+      console.error(error);
+      process.exitCode = 1;
+      return;
+    }
+    activeTopLevelCleanup = cleanupCompatibility;
+    process.once("SIGINT", () => onSignal("SIGINT"));
+    process.once("SIGTERM", () => onSignal("SIGTERM"));
+    void runPhase6BrowserProof(graph).catch(reportCompatibilityFailure);
     return;
   }
   if (invocation.planPath === PHASE5_PLAN_PATH) {

@@ -1,0 +1,15 @@
+{
+  "fixtureVersion": 2,
+  "previewCopy": "Understood: one stick figure, a three-pose wave, 12 frames at 12 FPS. No changes have been made.",
+  "cases": [
+    {"id":"protected-initial-presentation","channel":"visible-ui","assertions":["exact-shared-header","chat-here-placeholder","white-28px-checkmark-submit","transparent-idle-copy","no-warning","no-suggestion","no-shortcut-copy","no-preview-controls","dual-viewport"]},
+    {"id":"accepted-preview-cancel","channel":"visible-ui","promptCaseIds":["A01","A04","A05","A06"],"assertions":["server-authoritative-intent","exact-preview-copy","timeline-unchanged","cancel-no-op"]},
+    {"id":"accepted-matrix-visible","channel":"visible-ui","promptCaseIds":["A01","A02","A03","A04","A05","A06","A07","A08","A09","A10","A11","A12","A13","A14","A15"],"assertions":["preview-visible","cancelled","timeline-unchanged"]},
+    {"id":"representative-rejections-visible","channel":"visible-ui","promptCaseIds":["R01","R05","R10","R12","R17","R19","R22","R24","R26","R29","R30","R31","R35"],"assertions":["no-preview","timeline-unchanged"]},
+    {"id":"apply-once","channel":"visible-ui","promptCaseIds":["A01"],"assertions":["twelve-frames","twelve-fps","one-undo-entry","apply-control-consumed","ten-current-limbs","eleven-current-joints","canonical-transformed-geometry","visible-figure-pixels"]},
+    {"id":"stale-project","channel":"visible-ui","promptCaseIds":["A01"],"assertions":["old-preview-not-applicable","replacement-project-unchanged"]},
+    {"id":"invalid-response","channel":"visible-ui","promptCaseIds":["A01"],"assertions":["response-rejected","timeline-unchanged"]},
+    {"id":"post-apply-regressions","channel":"visible-ui","assertions":["play-pause","undo-redo","distinct-key-pose-geometry","exact-held-geometry","complete-previous-next-onion-figures","purple-green-onion-pixels","onion-off-clears-overlays","save-open","manual-joint-edit","creator-back"]},
+    {"id":"drawing-protected","channel":"visible-ui","assertions":["generate-frames","drawing-undo-redo","drawing-play-pause"]}
+  ]
+}

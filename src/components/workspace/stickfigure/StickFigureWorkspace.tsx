@@ -14,6 +14,12 @@ import {
 } from "../../../lib/ai/stickFigureCommandExecutor";
 import {parseStickCommandBatch, type StickCommandBatchV1, type StickCommandResultV1} from "../../../lib/ai/stickFigureAiContract";
 import {
+  STICK_AI_EDITOR_RENDER_SPACE_V2,
+  StickFigureAiWorkspaceAdapterV2,
+  isStickAiCanonicalStructureGraphV2,
+  stickAiPhase4FixtureV2,
+} from "../../../lib/ai/stickFigureAiWorkspaceAdapter";
+import {
   commitEditableStickHistory,
   createEditableStickHistoryRoot,
   editableStickTimelineFromCanonicalWave,
@@ -53,6 +59,7 @@ import {
   type EditableStickTimelineState,
 } from "../../../lib/stickfigure/stickTimeline";
 import {StickFigureCanvas} from "./StickFigureCanvas";
+import {StickFigureCreatorWorkspace} from "./StickFigureCreatorWorkspace";
 import {StickFigureRightPanel, type StickFigureRightPanelTab} from "./StickFigureRightPanel";
 import {StickFigureTimelineRow, type TimelineFrameKind} from "./StickFigureTimelineRow";
 import {StickFigureToolBar, type StickFigureToolName} from "./StickFigureToolBar";
@@ -136,6 +143,51 @@ const deterministicWorkspaceId = async (operationId: string) => {
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-4${hex.slice(13, 16)}-8${hex.slice(17, 20)}-${hex.slice(20, 32)}`;
 };
 
+type StickAiStageProjection = {
+  scale: number;
+  offsetX: number;
+  offsetY: number;
+};
+
+const stableCoordinate = (value: number) => Math.round(value * 1000) / 1000;
+
+const createStickAiStageProjection = (width: number, height: number): StickAiStageProjection | null => {
+  if (!(width > 0) || !(height > 0)) return null;
+  const scale = Math.min(
+    width / STICK_AI_EDITOR_RENDER_SPACE_V2.width,
+    height / STICK_AI_EDITOR_RENDER_SPACE_V2.height,
+  );
+  return {
+    scale,
+    offsetX: (width - STICK_AI_EDITOR_RENDER_SPACE_V2.width * scale) / 2,
+    offsetY: (height - STICK_AI_EDITOR_RENDER_SPACE_V2.height * scale) / 2,
+  };
+};
+
+const projectStickAiPoint = (point: StickFigurePoint, projection: StickAiStageProjection): StickFigurePoint => ({
+  x: stableCoordinate(projection.offsetX + point.x * projection.scale),
+  y: stableCoordinate(projection.offsetY + point.y * projection.scale),
+});
+
+const unprojectStickAiPoint = (point: StickFigurePoint, projection: StickAiStageProjection): StickFigurePoint => ({
+  x: stableCoordinate((point.x - projection.offsetX) / projection.scale),
+  y: stableCoordinate((point.y - projection.offsetY) / projection.scale),
+});
+
+const projectStickAiContent = (
+  content: StickFigureFrameContent,
+  projection: StickAiStageProjection | null,
+): StickFigureFrameContent => {
+  if (!projection || !isStickAiCanonicalStructureGraphV2(content.structureGraph)) return content;
+  return {
+    ...content,
+    structureGraph: {
+      ...content.structureGraph,
+      joints: content.structureGraph.joints.map((joint) => ({...joint, ...projectStickAiPoint(joint, projection)})),
+    },
+  };
+};
+
 const newProjectSnapshot = (): EditableStickProjectSnapshotV1 => {
   const timeline = createFreshEditableStickTimelineState();
   return {
@@ -157,6 +209,7 @@ export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject =
   }
   const initialTimelineRef = useRef(editableStickTimelineFromSnapshot(initialSnapshotRef.current));
   const [workspaceRoot, setWorkspaceRoot] = useState<StickMountedWorkspaceRoot | null>(null);
+  const [isCreatorOpen, setIsCreatorOpen] = useState(false);
   const workspaceRootRef = useRef<StickMountedWorkspaceRoot | null>(null);
   const timelineRef = useRef(initialTimelineRef.current);
   const isTimelinePlayingRef = useRef(false);
@@ -185,6 +238,8 @@ export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject =
   const [canvasBackgroundColor, setCanvasBackgroundColor] = useState("#f5f5f5");
   const [structureTool, setStructureTool] = useState<StickFigureStructureTool>("idle");
   const [saveError, setSaveError] = useState<string | null>(null);
+  const canvasColumnRef = useRef<HTMLDivElement | null>(null);
+  const [stickStageSize, setStickStageSize] = useState<{width: number; height: number} | null>(null);
 
   const installRoot = useCallback((
     next: StickMountedWorkspaceRoot,
@@ -216,6 +271,21 @@ export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject =
   }, [initialProject, installRoot]);
 
   useEffect(() => { isTimelinePlayingRef.current = isTimelinePlaying; }, [isTimelinePlaying]);
+
+  useEffect(() => {
+    if (isCreatorOpen) return;
+    const stage = canvasColumnRef.current?.querySelector<HTMLElement>("[data-testid='stick-stage']") ?? null;
+    if (!stage) return;
+    const publishSize = () => {
+      const width = stage.offsetWidth;
+      const height = stage.offsetHeight;
+      setStickStageSize((current) => current?.width === width && current.height === height ? current : {width, height});
+    };
+    publishSize();
+    const observer = new ResizeObserver(publishSize);
+    observer.observe(stage);
+    return () => observer.disconnect();
+  }, [isCreatorOpen]);
 
   const timeline = workspaceRoot
     ? editableStickTimelineFromSnapshot(workspaceRoot.editorRoot.current.snapshot)
@@ -305,6 +375,25 @@ export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject =
   const onionOverlays = useMemo(() => isOnionEnabled && !isTimelinePlaying
     ? resolveEditableStickOnionOverlays(timeline, timeline.selectedTimelineIndex)
     : [], [isOnionEnabled, isTimelinePlaying, timeline]);
+  const stickAiStageProjection = useMemo(() => stickStageSize
+    ? createStickAiStageProjection(stickStageSize.width, stickStageSize.height)
+    : null, [stickStageSize]);
+  const activeUsesStickAiProjection = isStickAiCanonicalStructureGraphV2(activeContent.structureGraph);
+  const renderedActiveContent = useMemo(
+    () => projectStickAiContent(activeContent, stickAiStageProjection),
+    [activeContent, stickAiStageProjection],
+  );
+  const renderedBackgroundContents = useMemo(
+    () => backgroundContents.map((content) => projectStickAiContent(content, stickAiStageProjection)),
+    [backgroundContents, stickAiStageProjection],
+  );
+  const renderedOnionOverlays = useMemo(
+    () => onionOverlays.map((overlay) => ({
+      ...overlay,
+      content: projectStickAiContent(overlay.content, stickAiStageProjection),
+    })),
+    [onionOverlays, stickAiStageProjection],
+  );
   onionEnabledRef.current = isOnionEnabled;
   onionOverlaysRef.current = onionOverlays;
   const selectedStructureJoint = useMemo(
@@ -468,17 +557,25 @@ export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject =
     if (enabled) setSelectedStructureJointId(null);
   }, []);
   const moveJoint = useCallback((jointId: string, point: StickFigurePoint) => {
+    const documentPoint = activeUsesStickAiProjection && stickAiStageProjection
+      ? unprojectStickAiPoint(point, stickAiStageProjection)
+      : point;
     updateContent((content) => {
       const joint = content.structureGraph.joints.find((candidate) => candidate.id === jointId);
-      if (!joint || (joint.x === point.x && joint.y === point.y)) return false;
-      joint.x = point.x;
-      joint.y = point.y;
+      if (!joint || (joint.x === documentPoint.x && joint.y === documentPoint.y)) return false;
+      joint.x = documentPoint.x;
+      joint.y = documentPoint.y;
       content.structureGraph.activeJointId = null;
       return true;
     });
-  }, [updateContent]);
+  }, [activeUsesStickAiProjection, stickAiStageProjection, updateContent]);
   const commitSegment = useCallback((draft: StickFigureStructureSegmentDraft) => {
     if (Math.hypot(draft.endPoint.x - draft.startPoint.x, draft.endPoint.y - draft.startPoint.y) < 18) return;
+    const documentDraft = activeUsesStickAiProjection && stickAiStageProjection ? {
+      ...draft,
+      startPoint: unprojectStickAiPoint(draft.startPoint, stickAiStageProjection),
+      endPoint: unprojectStickAiPoint(draft.endPoint, stickAiStageProjection),
+    } : draft;
     updateContent((content) => {
       const graph = content.structureGraph;
       let nextJoint = Math.max(0, ...graph.joints.map((joint) => Number(joint.id.match(/^stick-joint-(\d+)$/)?.[1] ?? 0))) + 1;
@@ -489,8 +586,8 @@ export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject =
         graph.joints.push({id, x: point.x, y: point.y});
         return id;
       };
-      const startJointId = resolveJoint(draft.startJointId, draft.startPoint);
-      const endJointId = resolveJoint(draft.endJointId, draft.endPoint);
+      const startJointId = resolveJoint(documentDraft.startJointId, documentDraft.startPoint);
+      const endJointId = resolveJoint(documentDraft.endJointId, documentDraft.endPoint);
       if (startJointId === endJointId || graph.limbs.some((limb) =>
         (limb.startJointId === startJointId && limb.endJointId === endJointId) ||
         (limb.startJointId === endJointId && limb.endJointId === startJointId))) return false;
@@ -498,7 +595,7 @@ export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject =
       graph.activeJointId = null;
       return true;
     });
-  }, [updateContent]);
+  }, [activeUsesStickAiProjection, stickAiStageProjection, updateContent]);
 
   const traverseHistory = useCallback(async (direction: "undo" | "redo") => {
     const base = workspaceRootRef.current;
@@ -1203,6 +1300,30 @@ export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject =
   };
   void spec0001Phase4BrowserPortsV1;
 
+  const aiAdapterRef = useRef<StickFigureAiWorkspaceAdapterV2 | null>(null);
+  if (!aiAdapterRef.current) {
+    aiAdapterRef.current = new StickFigureAiWorkspaceAdapterV2({
+      getSnapshot: () => {
+        const current = workspaceRootRef.current;
+        if (!current) return null;
+        const document = current.editorRoot.current.snapshot.document;
+        return {
+          workspaceInstanceId: current.workspaceInstanceId,
+          workspaceGeneration: current.workspaceGeneration,
+          projectId: document.projectId,
+          documentRevision: document.documentRevision,
+          documentDigest: current.editorRoot.current.documentDigest,
+          ready: current.documentPublication.status === "ready",
+          eligible: isEligibleEditableStickWaveStarter(current.editorRoot),
+          playing: isTimelinePlayingRef.current,
+        };
+      },
+      preview: (envelope) => previewStickCommand(stickAiPhase4FixtureV2(envelope)),
+      cancel: (envelope) => cancelStickPreview(stickAiPhase4FixtureV2(envelope)),
+      apply: (envelope) => applyStickCommand(stickAiPhase4FixtureV2(envelope)),
+    });
+  }
+
   const spec0001Phase3BrowserPortsV1 = {
     mountEditorHistoryRoot,
     dispatchEditorTransaction,
@@ -1222,6 +1343,15 @@ export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject =
   const statusDisclosure = !saveError && !isDirty
     ? "Saved only in this browser. This version does not cloud-sync, appear on another device, or automatically recover after data is cleared or lost."
     : undefined;
+
+  const openCreator = () => {
+    if (typeof onOpenStickFigureCreator === "function") {
+      setIsTimelinePlaying(false);
+      setIsCreatorOpen(true);
+    }
+  };
+
+  if (isCreatorOpen) return <StickFigureCreatorWorkspace onExit={() => setIsCreatorOpen(false)} />;
 
   return (
     <div style={{height: "100vh", background: "rgb(26, 27, 36)", display: "flex", flexDirection: "column", overflow: "hidden"}}>
@@ -1265,17 +1395,17 @@ export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject =
         canPasteFrame={hasCopiedFrame}
         onResizeTimelineSpan={resizeTimelineSpan}
       />
-      <div style={{flex: 1, minHeight: 0, display: "flex"}}>
+      <div ref={canvasColumnRef} style={{flex: 1, minHeight: 0, display: "flex"}}>
         <StickFigureCanvas
-          figures={activeContent.figures}
-          backgroundContents={backgroundContents}
+          figures={renderedActiveContent.figures}
+          backgroundContents={renderedBackgroundContents}
           selection={selection}
           onSelectFigure={(figureId) => setSelection({target: "figure", figureId})}
           activeTool={activeTool}
           structureTool={structureTool}
-          structureGraph={activeContent.structureGraph}
+          structureGraph={renderedActiveContent.structureGraph}
           selectedStructureJointId={selectedStructureJointId}
-          onionOverlays={onionOverlays}
+          onionOverlays={renderedOnionOverlays}
           canvasMovementEnabled={canvasMovementEnabled}
           cameraZoom={stickCameraZoom}
           cameraPan={stickCameraPan}
@@ -1287,6 +1417,7 @@ export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject =
           onCameraPanChange={setStickCameraPan}
         />
         <StickFigureRightPanel
+          aiAdapter={aiAdapterRef.current}
           activeTab={rightPanelTab}
           onActiveTabChange={setRightPanelTab}
           activeTool={activeTool}
@@ -1299,7 +1430,7 @@ export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject =
           zoomInputValue={stickZoomInputValue}
           canvasBackgroundColor={canvasBackgroundColor}
           onActivateStructureLimb={activateStructureLimbTool}
-          onOpenStickFigureCreator={onOpenStickFigureCreator}
+          onOpenStickFigureCreator={openCreator}
           onCanvasMovementChange={setCanvasMovement}
           onClearStructureSelection={() => selectStructureJoint(null)}
           onZoomInputChange={setStickZoomInputValue}

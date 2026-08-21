@@ -21,6 +21,11 @@ import {
   type StickPoseV1,
   type StickProjectDocumentV1,
 } from "../stickfigure/stickProjectContract.ts";
+import {
+  STICK_AI_CANONICAL_INTENT_V2,
+  interpretStickAiPromptV2,
+  type StickAiInterpretedIntentV2,
+} from "./stickFigureAiIntentMatcher.ts";
 
 export const STICK_AI_CAPABILITY = "stick.pose-sequence.create/v1" as const;
 export const STICK_AI_CANONICAL_PROMPT =
@@ -50,6 +55,12 @@ export const STICK_AI_CAPABILITY_MANIFEST = {
     search: "disabled",
     tools: "disabled",
   },
+} as const;
+
+export const STICK_AI_CAPABILITY_MANIFEST_V2 = {
+  ...STICK_AI_CAPABILITY_MANIFEST,
+  manifestVersion: 2,
+  promptIntentVersion: 2,
 } as const;
 
 export type StickAiErrorCodeV1 =
@@ -86,6 +97,7 @@ export type StickAiContractResult<T> =
   | {ok: false; error: StickAiContractErrorV1};
 
 export type StickAiCapabilityManifestV1 = typeof STICK_AI_CAPABILITY_MANIFEST;
+export type StickAiCapabilityManifestV2 = typeof STICK_AI_CAPABILITY_MANIFEST_V2;
 
 export type StickAiProjectContextV1 = {
   kind: "stick-project-context";
@@ -119,6 +131,19 @@ export type StickAiRequestV1 = {
   capabilityManifest: StickAiCapabilityManifestV1;
   projectContext: StickAiProjectContextV1;
 };
+
+export type StickAiRequestV2 = {
+  kind: "stick-ai-request";
+  requestVersion: 2;
+  requestId: string;
+  transactionId: string;
+  workspaceType: "stick-figure";
+  prompt: string;
+  capabilityManifest: StickAiCapabilityManifestV2;
+  projectContext: StickAiProjectContextV1;
+};
+
+export type StickAiRequest = StickAiRequestV1 | StickAiRequestV2;
 
 export type StickWaveBeatV1 = "ready" | "inward" | "outward";
 
@@ -166,6 +191,12 @@ export type StickCommandBatchV1 = {
   capabilityManifestVersion: 1;
   payloadDigest: string;
   commands: [StickWaveCommandV1];
+};
+
+export type StickCommandBatchV2 = Omit<StickCommandBatchV1, "envelopeVersion" | "capabilityManifestVersion"> & {
+  envelopeVersion: 2;
+  capabilityManifestVersion: 2;
+  interpretedIntent: StickAiInterpretedIntentV2;
 };
 
 export type StickCommandResultStatusV1 =
@@ -329,7 +360,7 @@ export const normalizeStickAiPrompt = (rawPrompt: unknown): StickAiContractResul
     return STICK_AI_NORMALIZED_INTENT;
   });
 
-const parseManifest = (value: unknown): StickAiCapabilityManifestV1 => {
+const parseManifest = (value: unknown): StickAiCapabilityManifestV1 | StickAiCapabilityManifestV2 => {
   const root = object(value, ["manifestVersion", "capabilities", "promptIntentVersion", "limits"], "$request.capabilityManifest");
   const limits = object(
     root.limits,
@@ -340,12 +371,16 @@ const parseManifest = (value: unknown): StickAiCapabilityManifestV1 => {
     ],
     "$request.capabilityManifest.limits",
   );
+  const manifestVersion = integer(root.manifestVersion, "$request.capabilityManifest.manifestVersion", 1, 2);
+  if (!(manifestVersion === 1 || manifestVersion === 2)) {
+    return fail("unsupported_version", "$request.capabilityManifest.manifestVersion", "Unsupported capability manifest version.");
+  }
   const parsed = {
-    manifestVersion: literal(root.manifestVersion, 1, "$request.capabilityManifest.manifestVersion"),
+    manifestVersion,
     capabilities: array(root.capabilities, "$request.capabilityManifest.capabilities").map((entry, index) =>
       literal(entry, STICK_AI_CAPABILITY, `$request.capabilityManifest.capabilities[${index}]`),
     ),
-    promptIntentVersion: literal(root.promptIntentVersion, 1, "$request.capabilityManifest.promptIntentVersion"),
+    promptIntentVersion: integer(root.promptIntentVersion, "$request.capabilityManifest.promptIntentVersion", 1, 2),
     limits: {
       maxActions: integer(limits.maxActions, "$request.capabilityManifest.limits.maxActions"),
       maxRigs: integer(limits.maxRigs, "$request.capabilityManifest.limits.maxRigs"),
@@ -367,10 +402,11 @@ const parseManifest = (value: unknown): StickAiCapabilityManifestV1 => {
       tools: text(limits.tools, "$request.capabilityManifest.limits.tools"),
     },
   };
-  if (!equalCanonical(parsed, STICK_AI_CAPABILITY_MANIFEST)) {
-    return fail("capability_mismatch", "$request.capabilityManifest", "Capability manifest does not exactly match V1.");
+  const expected = manifestVersion === 1 ? STICK_AI_CAPABILITY_MANIFEST : STICK_AI_CAPABILITY_MANIFEST_V2;
+  if (!equalCanonical(parsed, expected)) {
+    return fail("capability_mismatch", "$request.capabilityManifest", `Capability manifest does not exactly match V${manifestVersion}.`);
   }
-  return cloneCanonical(STICK_AI_CAPABILITY_MANIFEST);
+  return cloneCanonical(expected);
 };
 
 const parseProjectContext = (value: unknown): StickAiProjectContextV1 => {
@@ -445,7 +481,7 @@ export const buildStickAiProjectContext = async (
 export const parseStickAiRequest = (
   value: unknown,
   expectedStarter?: StickProjectDocumentV1,
-): StickAiContractResult<StickAiRequestV1> =>
+): StickAiContractResult<StickAiRequest> =>
   capture(() => {
     if (new TextEncoder().encode(canonicalJson(value)).byteLength > 16_384) {
       return fail("request_too_large", "$request", "Canonical request exceeds 16 KiB.");
@@ -456,18 +492,33 @@ export const parseStickAiRequest = (
       "$request",
     );
     const prompt = text(root.prompt, "$request.prompt");
-    const normalized = normalizeStickAiPrompt(prompt);
-    if (!normalized.ok) return fail(normalized.error.code, normalized.error.path, normalized.error.message);
-    const request: StickAiRequestV1 = {
+    const requestVersion = integer(root.requestVersion, "$request.requestVersion", 1, 2);
+    if (!(requestVersion === 1 || requestVersion === 2)) {
+      return fail("unsupported_version", "$request.requestVersion", "Unsupported Stick AI request version.");
+    }
+    if (requestVersion === 1) {
+      const normalized = normalizeStickAiPrompt(prompt);
+      if (!normalized.ok) return fail(normalized.error.code, normalized.error.path, normalized.error.message);
+    } else {
+      const interpreted = interpretStickAiPromptV2(prompt);
+      if (!interpreted.ok) return fail("unsupported_prompt", "$request.prompt", interpreted.error.reason);
+    }
+    const manifest = parseManifest(root.capabilityManifest);
+    if (manifest.manifestVersion !== requestVersion || manifest.promptIntentVersion !== requestVersion) {
+      return requestVersion === 2 && manifest.manifestVersion === 1
+        ? fail("unsupported_version", "$request.requestVersion", "A V2 request requires the V2 capability manifest.")
+        : fail("capability_mismatch", "$request.capabilityManifest", "Request and manifest versions must match exactly.");
+    }
+    const request = {
       kind: literal(root.kind, "stick-ai-request", "$request.kind"),
-      requestVersion: literal(root.requestVersion, 1, "$request.requestVersion"),
+      requestVersion,
       requestId: uuid(root.requestId, "$request.requestId"),
       transactionId: uuid(root.transactionId, "$request.transactionId"),
       workspaceType: literal(root.workspaceType, "stick-figure", "$request.workspaceType"),
       prompt,
-      capabilityManifest: parseManifest(root.capabilityManifest),
+      capabilityManifest: manifest,
       projectContext: parseProjectContext(root.projectContext),
-    };
+    } as StickAiRequest;
     if (expectedStarter) {
       const parsed = parseStickProjectDocument(expectedStarter);
       if (!parsed.ok || !isStickWaveStarter(parsed.value)) {
@@ -590,7 +641,7 @@ const poseWithArm = (
 
 export const materializeStickWaveCommandBatch = async (
   starterInput: StickProjectDocumentV1,
-  requestInput: StickAiRequestV1,
+  requestInput: StickAiRequest,
   planInput: StickWaveProviderPlanV1,
 ): Promise<StickAiContractResult<StickCommandBatchV1>> =>
   captureAsync(async () => {
@@ -632,7 +683,7 @@ export const materializeStickWaveCommandBatch = async (
       frameIds: starter.layers[0].cells.map((cell) => cell.frameId),
       poseEntries,
     };
-    const envelope: StickCommandBatchV1 = {
+    const envelopeV1: StickCommandBatchV1 = {
       kind: "stick-command-batch",
       envelopeVersion: 1,
       commandVersion: 1,
@@ -646,10 +697,18 @@ export const materializeStickWaveCommandBatch = async (
       payloadDigest: await digestCanonical([command]),
       commands: [command],
     };
+    const envelope = request.requestVersion === 1
+      ? envelopeV1
+      : ({
+          ...envelopeV1,
+          envelopeVersion: 2,
+          capabilityManifestVersion: 2,
+          interpretedIntent: {...STICK_AI_CANONICAL_INTENT_V2},
+        } satisfies StickCommandBatchV2);
     if (new TextEncoder().encode(canonicalJson(envelope)).byteLength > 32_768) {
       return fail("unsupported_command", "$envelope", "Command envelope exceeds 32 KiB.");
     }
-    return envelope;
+    return envelope as unknown as StickCommandBatchV1;
   });
 
 const parseCommandPose = (value: unknown, path: string, starter: StickProjectDocumentV1): StickWaveCommandPoseV1 => {
@@ -680,9 +739,19 @@ export const parseStickCommandBatch = async (
     const starterResult = parseStickProjectDocument(starterInput);
     if (!starterResult.ok || !isStickWaveStarter(starterResult.value)) return fail("unsupported_project_state", "$document", "Document is not starter eligible.");
     const starter = starterResult.value;
+    if (!isPlainObject(value)) return fail("invalid_request", "$envelope", "Expected a plain object.");
+    const envelopeVersion = integer(value.envelopeVersion, "$envelope.envelopeVersion", 1, 2);
+    if (!(envelopeVersion === 1 || envelopeVersion === 2)) {
+      return fail("unsupported_version", "$envelope.envelopeVersion", "Unsupported command envelope version.");
+    }
+    if (envelopeVersion === 2 && value.capabilityManifestVersion === 1 && !("interpretedIntent" in value)) {
+      return fail("unsupported_version", "$envelope.envelopeVersion", "A V2 envelope requires the complete V2 contract.");
+    }
     const root = object(
       value,
-      ["kind", "envelopeVersion", "commandVersion", "requestId", "transactionId", "workspaceType", "projectId", "baseDocumentRevision", "baseDocumentDigest", "capabilityManifestVersion", "payloadDigest", "commands"],
+      envelopeVersion === 1
+        ? ["kind", "envelopeVersion", "commandVersion", "requestId", "transactionId", "workspaceType", "projectId", "baseDocumentRevision", "baseDocumentDigest", "capabilityManifestVersion", "payloadDigest", "commands"]
+        : ["kind", "envelopeVersion", "commandVersion", "requestId", "transactionId", "workspaceType", "projectId", "baseDocumentRevision", "baseDocumentDigest", "capabilityManifestVersion", "interpretedIntent", "payloadDigest", "commands"],
       "$envelope",
     );
     const commands = array(root.commands, "$envelope.commands");
@@ -708,9 +777,9 @@ export const parseStickCommandBatch = async (
       frameIds,
       poseEntries,
     };
-    const envelope: StickCommandBatchV1 = {
+    const baseEnvelope: StickCommandBatchV1 = {
       kind: literal(root.kind, "stick-command-batch", "$envelope.kind"),
-      envelopeVersion: literal(root.envelopeVersion, 1, "$envelope.envelopeVersion"),
+      envelopeVersion: 1,
       commandVersion: literal(root.commandVersion, 1, "$envelope.commandVersion"),
       requestId: uuid(root.requestId, "$envelope.requestId"),
       transactionId: uuid(root.transactionId, "$envelope.transactionId"),
@@ -718,10 +787,27 @@ export const parseStickCommandBatch = async (
       projectId: uuid(root.projectId, "$envelope.projectId"),
       baseDocumentRevision: integer(root.baseDocumentRevision, "$envelope.baseDocumentRevision"),
       baseDocumentDigest: digest(root.baseDocumentDigest, "$envelope.baseDocumentDigest"),
-      capabilityManifestVersion: literal(root.capabilityManifestVersion, 1, "$envelope.capabilityManifestVersion"),
+      capabilityManifestVersion: 1,
       payloadDigest: digest(root.payloadDigest, "$envelope.payloadDigest"),
       commands: [command],
     };
+    const envelope = envelopeVersion === 1
+      ? (() => {
+          literal(root.capabilityManifestVersion, 1, "$envelope.capabilityManifestVersion");
+          return baseEnvelope;
+        })()
+      : (() => {
+          literal(root.capabilityManifestVersion, 2, "$envelope.capabilityManifestVersion");
+          if (!equalCanonical(root.interpretedIntent, STICK_AI_CANONICAL_INTENT_V2)) {
+            return fail("unsupported_command", "$envelope.interpretedIntent", "Server interpreted intent is not canonical V2.");
+          }
+          return {
+            ...baseEnvelope,
+            envelopeVersion: 2,
+            capabilityManifestVersion: 2,
+            interpretedIntent: {...STICK_AI_CANONICAL_INTENT_V2},
+          } satisfies StickCommandBatchV2;
+        })();
     const expectedTuples = [[0, "ready", 0], [1, "inward", 4], [2, "outward", 8]] as const;
     const first = starter.layers[0].cells[0];
     if (first.cellType !== "keyframe" || first.poses.length !== 1) return fail("unsupported_project_state", "$document", "Starter pose missing.");
@@ -769,7 +855,7 @@ export const parseStickCommandBatch = async (
       (index) => `$envelope.commands[0].poseEntries[${index}].pose`,
     );
     if (envelope.payloadDigest !== await digestCanonical([command])) return fail("unsupported_command", "$envelope.payloadDigest", "Payload digest mismatch.");
-    return envelope;
+    return envelope as unknown as StickCommandBatchV1;
   });
 
 /** Shared manual-action trace used by both the Phase 1 contract and Phase 4 executor. */

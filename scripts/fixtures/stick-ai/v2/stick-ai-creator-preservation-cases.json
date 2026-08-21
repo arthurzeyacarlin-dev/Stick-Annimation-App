@@ -1,0 +1,9 @@
+{
+  "fixtureVersion": 2,
+  "cases": [
+    {"id":"fresh-starter","entry":"Stick Figure Tools","action":"Create New Stick Figure → Back","expected":"Creator opens through the user-visible controls; Save Stick Figure remains disabled; Back restores the exact same mounted fresh Stick workspace root."},
+    {"id":"after-ai-apply","entry":"Stick Figure Tools","action":"Create New Stick Figure → resize to 1024×768 → Back → Undo → Redo","expected":"Back preserves the exact applied project, selection, identity, storage, one-entry history, 12 frames, and fully visible 10-limb/11-joint figure; Undo removes the full AI wave atomically and Redo restores it exactly."},
+    {"id":"after-save-open","entry":"Stick Figure Tools","action":"Manual joint edits → Create New Stick Figure → Back → Undo → Redo → Save/Open","expected":"Back preserves the edited figure and history exactly; Undo/Redo traverses the manual edit; later Save/Open restores the same visible document and stored bytes."},
+    {"id":"drawing-isolation","entry":"Home → New Project","action":"Drawing Animation","expected":"Drawing AI controls and Generate Frames behavior remain Drawing-scoped and unchanged."}
+  ]
+}

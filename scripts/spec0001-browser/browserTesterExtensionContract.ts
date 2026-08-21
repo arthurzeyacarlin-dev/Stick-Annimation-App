@@ -224,6 +224,59 @@ export const PHASE5_CLOSEOUT_RECORD_PATHS = [
 
 export const PHASE5_CLOSEOUT_PATHS = sortProofPaths([...PHASE5_DIRTY_PATHS, ...PHASE5_CLOSEOUT_RECORD_PATHS]);
 
+export const PHASE6_BASE_COMMIT = "f46ed3b13e6bca3a09c9b2926c972bea8c331f2c" as const;
+export const PHASE6_PLAN_PATH = "scripts/fixtures/stick-ai/v2/phase-6-browser-proof-plan.json" as const;
+export const PHASE6_REGISTRY_PATH = "scripts/fixtures/spec0001-browser/v6/phase-6-action-registry.json" as const;
+export const PHASE6_ADAPTER_PATH = "scripts/spec0001-browser/actions/phase6.ts" as const;
+export const PHASE6_OUTPUT_ROOT = "output/spec-0001/phase-6" as const;
+export const PHASE6_OPERATION_FAMILIES = ["guarded-http", "protected-regression", "runner-environment", "screenshot", "visible-role"] as const;
+export const PHASE6_PATHS = sortProofPaths([
+  "scripts/finalizeSpec0001ProofBundle.ts",
+  "scripts/fixtures/spec0001-browser/v2/tester-extension-authorizations.json",
+  "scripts/fixtures/spec0001-browser/v6/phase-6-action-registry.json",
+  "scripts/fixtures/spec0001-browser/v6/tester-extension-authorization.schema.json",
+  "scripts/fixtures/spec0001-browser/v6/tester-extension-plan.schema.json",
+  "scripts/fixtures/spec0001-browser/v6/tester-extension-registry.schema.json",
+  "scripts/fixtures/spec0001-browser/v6/tester-extension-result.schema.json",
+  "scripts/fixtures/stick-ai/v2/phase-6-browser-proof-plan.json",
+  "scripts/fixtures/stick-ai/v2/phase-6-proof-commands.json",
+  "scripts/fixtures/stick-ai/v2/stick-ai-creator-preservation-cases.json",
+  "scripts/fixtures/stick-ai/v2/stick-ai-intent-cases.json",
+  "scripts/fixtures/stick-ai/v2/stick-ai-ui-cases.json",
+  "scripts/recordSpec0001ProofBundle.ts",
+  "scripts/runSpec0001BrowserProof.ts",
+  "scripts/spec0001-browser/actions/phase6.ts",
+  "scripts/spec0001-browser/browserTesterExtensionContract.ts",
+  "scripts/validateSpec0001ProofBundle.ts",
+  "scripts/validateStickFigureAiUiAdapter.ts",
+  "src/components/workspace/ai/WorkspaceAiPanelShell.tsx",
+  "src/components/workspace/stickfigure/StickFigureAiPanel.tsx",
+  "src/components/workspace/stickfigure/StickFigureRightPanel.tsx",
+  "src/components/workspace/stickfigure/StickFigureWorkspace.tsx",
+  "src/lib/ai/stickFigureAiContract.ts",
+  "src/lib/ai/stickFigureAiIntentMatcher.ts",
+  "src/lib/ai/stickFigureAiMockServer.ts",
+  "src/lib/ai/stickFigureAiWorkspaceAdapter.ts",
+]);
+
+export const PHASE6_CLOSEOUT_RECORD_PATHS = [
+  "docs/CURRENT_STATE.md",
+  "docs/DECISIONS.md",
+  "docs/SESSION_HANDOFF.md",
+  "docs/TODO.md",
+  "docs/changelog.md",
+  "docs/specs/0001-first-reversible-ai-stick-animation.md",
+  "docs/specs/README.md",
+  "project/project_structure.txt",
+] as const;
+
+export const phase6CloseoutPathsForTechnicalSubset = (technicalPaths: readonly string[]) => {
+  const canonicalTechnicalPaths = sortProofPaths([...new Set(technicalPaths)]);
+  exact(technicalPaths, canonicalTechnicalPaths, "Phase 6 manifest-bound technical paths");
+  for (const path of canonicalTechnicalPaths) if (!PHASE6_PATHS.includes(path)) fail(`Phase 6 manifest-bound technical path is outside the authorization ceiling: ${path}.`);
+  return sortProofPaths([...canonicalTechnicalPaths, ...PHASE6_CLOSEOUT_RECORD_PATHS]);
+};
+
 export const PHASE2_CLOSEOUT_RECORD_PATHS = [
   "docs/CURRENT_STATE.md",
   "docs/SESSION_HANDOFF.md",
@@ -245,6 +298,7 @@ export const OPERATION_FAMILIES = [
 export type OperationFamily = typeof OPERATION_FAMILIES[number];
 export type AuthorizationId = "phase-1.5-compatibility-synthetic/v1" | "phase-2/v1" | "phase-3/v1" | "phase-4/v1";
 export type Phase5AuthorizationId = "phase-5/v1";
+export type Phase6AuthorizationId = "phase-6/v1";
 export type DerivedGitStateName = "dirty-executor" | "clean-committed";
 export type Digest = `sha256:${string}`;
 
@@ -537,6 +591,84 @@ export type Phase5RouteResult = {
   cleanup: ExtensionResult["cleanup"] & {residualProfiles: []};
 };
 
+export type Phase6Action = {
+  actionId: string;
+  kind: "visible-preview-cancel" | "visible-rejection" | "visible-apply-regression" | "visible-invalid-response" | "visible-project-switch" | "protected-regression";
+  caseId: string | null;
+};
+export type Phase6Plan = {
+  planVersion: 6;
+  specId: "SPEC-0001";
+  proofPurpose: "phase-6";
+  authorizationId: Phase6AuthorizationId;
+  baseCommit: typeof PHASE6_BASE_COMMIT;
+  dirtyExpectedPaths: string[];
+  cleanExpectedPaths: [];
+  outputRoot: typeof PHASE6_OUTPUT_ROOT;
+  operationFamilies: (typeof PHASE6_OPERATION_FAMILIES)[number][];
+  registry: FileBinding;
+  selectedActionIds: string[];
+  evidence: Record<string, unknown>;
+};
+export type Phase6Registry = {
+  registryVersion: 6;
+  specId: "SPEC-0001";
+  authorizationId: Phase6AuthorizationId;
+  operationFamilies: (typeof PHASE6_OPERATION_FAMILIES)[number][];
+  adapter: FileBinding;
+  fixtures: FileBinding[];
+  actions: Phase6Action[];
+};
+export type Phase6Authorization = {
+  authorizationId: Phase6AuthorizationId;
+  proofPurpose: "phase-6";
+  materializationKind: "deferred";
+  plan: {path: typeof PHASE6_PLAN_PATH; schemaPath: "scripts/fixtures/spec0001-browser/v6/tester-extension-plan.schema.json"; planVersion: 6};
+  registry: {path: typeof PHASE6_REGISTRY_PATH; schemaPath: "scripts/fixtures/spec0001-browser/v6/tester-extension-registry.schema.json"; registryVersion: 6};
+  adapter: {path: typeof PHASE6_ADAPTER_PATH; grammarId: "spec0001-browser-adapter-declaration/v1"; declarationVersion: 1};
+  resultSchema: {path: "scripts/fixtures/spec0001-browser/v6/tester-extension-result.schema.json"; resultVersion: 6};
+  operationFamilies: (typeof PHASE6_OPERATION_FAMILIES)[number][];
+  outputRoot: typeof PHASE6_OUTPUT_ROOT;
+  pathCeiling: string[];
+};
+export type ValidatedPhase6Graph = {
+  authorizationId: Phase6AuthorizationId;
+  materializationKind: "deferred";
+  outputRoot: typeof PHASE6_OUTPUT_ROOT;
+  pathCeiling: readonly string[];
+  operationFamilies: readonly (typeof PHASE6_OPERATION_FAMILIES)[number][];
+  catalogBinding: FileBinding;
+  planBinding: FileBinding;
+  registryBinding: FileBinding;
+  adapterBinding: FileBinding;
+  plan: Phase6Plan;
+  registry: Phase6Registry;
+  git: DerivedGitState;
+};
+
+export type Phase6Result = {
+  resultVersion: 6;
+  specId: "SPEC-0001";
+  proofPurpose: "phase-6";
+  status: "passed";
+  recordedAt: string;
+  productPhaseClaimed: true;
+  runtime: ExtensionResult["runtime"];
+  derivedGitState: DerivedGitStateName;
+  baseCommit: string;
+  headCommit: string;
+  observedDirtyPaths: string[];
+  dirtyExpectedPaths: string[];
+  cleanExpectedPaths: [];
+  selectedExpectedPaths: string[];
+  authorization: {authorizationId: Phase6AuthorizationId; materializationKind: "deferred"};
+  bindings: {catalog: FileBinding; plan: FileBinding; registry: FileBinding; adapter: FileBinding};
+  execution: {selectedActionIds: string[]; acceptedVisibleCaseCount: 15; visibleRejectionCount: 13; guardedRejectedCaseCount: 36; completeApplyCount: 1};
+  evidence: {previewCopy: string; actions: unknown[]; screenshots: Array<FileBinding & {id: string; viewport: {width: 1440; height: 900} | {width: 1024; height: 768}}> ; realApiRouteRequests: number; drawingInterceptedRequests: number};
+  network: {browserNonLoopbackAttempts: 0; serverNonLoopbackAttempts: 0; childNonLoopbackAttempts: 0; runnerNonLoopbackAttempts: 0};
+  cleanup: ExtensionResult["cleanup"] & {residualProfiles: []};
+};
+
 type MaterializationKind = "materialized" | "deferred";
 export type ValidatedAuthorization = {
   authorizationId: AuthorizationId;
@@ -550,7 +682,7 @@ export type ValidatedAuthorization = {
   outputRoot: string;
   pathCeiling: string[];
 };
-export type ValidatedAuthorizationCatalog = {catalogVersion: 2; specId: "SPEC-0001"; authorizations: [ValidatedAuthorization, ValidatedAuthorization, ValidatedAuthorization, ValidatedAuthorization, Phase5Authorization]};
+export type ValidatedAuthorizationCatalog = {catalogVersion: 2; specId: "SPEC-0001"; authorizations: [ValidatedAuthorization, ValidatedAuthorization, ValidatedAuthorization, ValidatedAuthorization, Phase5Authorization, Phase6Authorization]};
 
 export type ValidatedTesterExtension = {
   authorizationId: AuthorizationId;
@@ -869,6 +1001,9 @@ const PHASE4_ADAPTER_PATH = "scripts/spec0001-browser/actions/phase4.ts";
 const PHASE5_PLAN_SCHEMA_PATH = "scripts/fixtures/spec0001-browser/v5/tester-extension-plan.schema.json" as const;
 const PHASE5_REGISTRY_SCHEMA_PATH = "scripts/fixtures/spec0001-browser/v5/tester-extension-registry.schema.json" as const;
 const PHASE5_RESULT_SCHEMA_PATH = "scripts/fixtures/spec0001-browser/v5/tester-extension-result.schema.json" as const;
+const PHASE6_PLAN_SCHEMA_PATH = "scripts/fixtures/spec0001-browser/v6/tester-extension-plan.schema.json" as const;
+const PHASE6_REGISTRY_SCHEMA_PATH = "scripts/fixtures/spec0001-browser/v6/tester-extension-registry.schema.json" as const;
+const PHASE6_RESULT_SCHEMA_PATH = "scripts/fixtures/spec0001-browser/v6/tester-extension-result.schema.json" as const;
 
 const parseCatalogFile = (value: unknown, label: string, expected: {path: string; schemaPath: string; versionKey: "planVersion" | "registryVersion"; version: 2 | 3 | 4}, materialized: boolean) => {
   const keys = materialized ? ["path", "schemaPath", expected.versionKey, "byteLength", "sha256"] : ["path", "schemaPath", expected.versionKey];
@@ -972,12 +1107,41 @@ const parsePhase5Authorization = (value: unknown): Phase5Authorization => {
   };
 };
 
+const parsePhase6Authorization = (value: unknown): Phase6Authorization => {
+  const record = object(value, ["authorizationId", "proofPurpose", "materializationKind", "plan", "registry", "adapter", "resultSchema", "operationFamilies", "outputRoot", "pathCeiling"], "authorization phase-6/v1");
+  exact(record.authorizationId, "phase-6/v1", "Phase 6 authorizationId");
+  exact(record.proofPurpose, "phase-6", "Phase 6 proofPurpose");
+  exact(record.materializationKind, "deferred", "Phase 6 materializationKind");
+  const plan = object(record.plan, ["path", "schemaPath", "planVersion"], "Phase 6 authorization.plan");
+  exact(plan, {path: PHASE6_PLAN_PATH, schemaPath: PHASE6_PLAN_SCHEMA_PATH, planVersion: 6}, "Phase 6 authorization.plan");
+  const registry = object(record.registry, ["path", "schemaPath", "registryVersion"], "Phase 6 authorization.registry");
+  exact(registry, {path: PHASE6_REGISTRY_PATH, schemaPath: PHASE6_REGISTRY_SCHEMA_PATH, registryVersion: 6}, "Phase 6 authorization.registry");
+  const adapter = object(record.adapter, ["path", "grammarId", "declarationVersion"], "Phase 6 authorization.adapter");
+  exact(adapter, {path: PHASE6_ADAPTER_PATH, grammarId: "spec0001-browser-adapter-declaration/v1", declarationVersion: 1}, "Phase 6 authorization.adapter");
+  const resultSchema = object(record.resultSchema, ["path", "resultVersion"], "Phase 6 authorization.resultSchema");
+  exact(resultSchema, {path: PHASE6_RESULT_SCHEMA_PATH, resultVersion: 6}, "Phase 6 authorization.resultSchema");
+  const operationFamilies = canonicalStrings(record.operationFamilies, "Phase 6 authorization operationFamilies")
+    .map((entry) => enumeration(entry, PHASE6_OPERATION_FAMILIES, "Phase 6 operation family"));
+  exact(operationFamilies, [...PHASE6_OPERATION_FAMILIES], "Phase 6 authorization operationFamilies");
+  exact(record.outputRoot, PHASE6_OUTPUT_ROOT, "Phase 6 authorization.outputRoot");
+  const pathCeiling = canonicalProofPaths(record.pathCeiling, "Phase 6 authorization.pathCeiling").map((path) => assertSafeRepositoryPath(path));
+  exact(pathCeiling, PHASE6_PATHS, "Phase 6 authorization.pathCeiling");
+  return {
+    authorizationId: "phase-6/v1", proofPurpose: "phase-6", materializationKind: "deferred",
+    plan: {path: PHASE6_PLAN_PATH, schemaPath: PHASE6_PLAN_SCHEMA_PATH, planVersion: 6},
+    registry: {path: PHASE6_REGISTRY_PATH, schemaPath: PHASE6_REGISTRY_SCHEMA_PATH, registryVersion: 6},
+    adapter: {path: PHASE6_ADAPTER_PATH, grammarId: "spec0001-browser-adapter-declaration/v1", declarationVersion: 1},
+    resultSchema: {path: PHASE6_RESULT_SCHEMA_PATH, resultVersion: 6},
+    operationFamilies, outputRoot: PHASE6_OUTPUT_ROOT, pathCeiling,
+  };
+};
+
 export const validateAuthorizationCatalogValue = (value: unknown): ValidatedAuthorizationCatalog => {
   const record = object(value, ["catalogVersion", "specId", "authorizations"], "tester extension authorization catalog");
   exact(record.catalogVersion, 2, "catalogVersion");
   exact(record.specId, "SPEC-0001", "catalog specId");
   const authorizations = array(record.authorizations, "catalog authorizations");
-  exact(authorizations.length, 5, "catalog authorization count");
+  exact(authorizations.length, 6, "catalog authorization count");
   return {
     catalogVersion: 2,
     specId: "SPEC-0001",
@@ -987,6 +1151,7 @@ export const validateAuthorizationCatalogValue = (value: unknown): ValidatedAuth
       parseAuthorization(authorizations[2], "phase-3/v1"),
       parseAuthorization(authorizations[3], "phase-4/v1"),
       parsePhase5Authorization(authorizations[4]),
+      parsePhase6Authorization(authorizations[5]),
     ],
   };
 };
@@ -1121,6 +1286,66 @@ export const validatePhase5RoutePlanValue = (value: unknown): Phase5RoutePlan =>
   } as const;
   exact(evidenceRecord, expectedEvidence, "Phase 5 plan evidence");
   return {planVersion: 5, specId: "SPEC-0001", proofPurpose: "phase-5", authorizationId: "phase-5/v1", baseCommit: PHASE5_BASE_COMMIT, dirtyExpectedPaths, cleanExpectedPaths: [], outputRoot: PHASE5_OUTPUT_ROOT, operationFamilies, registry, selectedCaseIds, evidence: {...expectedEvidence, cleanupFields: [...expectedEvidence.cleanupFields]}};
+};
+
+export const validatePhase6RegistryValue = (value: unknown): Phase6Registry => {
+  const record = object(value, ["registryVersion", "specId", "authorizationId", "operationFamilies", "adapter", "fixtures", "actions"], "Phase 6 registry");
+  exact(record.registryVersion, 6, "Phase 6 registryVersion");
+  exact(record.specId, "SPEC-0001", "Phase 6 registry specId");
+  exact(record.authorizationId, "phase-6/v1", "Phase 6 registry authorizationId");
+  const operationFamilies = canonicalStrings(record.operationFamilies, "Phase 6 registry operationFamilies")
+    .map((entry) => enumeration(entry, PHASE6_OPERATION_FAMILIES, "Phase 6 registry operation family"));
+  exact(operationFamilies, [...PHASE6_OPERATION_FAMILIES], "Phase 6 registry operationFamilies");
+  const adapter = parseBinding(record.adapter, "Phase 6 registry adapter");
+  exact(adapter.path, PHASE6_ADAPTER_PATH, "Phase 6 adapter path");
+  const fixtures = array(record.fixtures, "Phase 6 registry fixtures").map((entry, index) => parseBinding(entry, `Phase 6 fixture ${index}`));
+  exact(fixtures.map((entry) => entry.path), [
+    "scripts/fixtures/stick-ai/v2/stick-ai-intent-cases.json",
+    "scripts/fixtures/stick-ai/v2/stick-ai-ui-cases.json",
+    "scripts/fixtures/stick-ai/v2/stick-ai-creator-preservation-cases.json",
+  ], "Phase 6 fixture paths");
+  const actions = array(record.actions, "Phase 6 registry actions").map((entry, index): Phase6Action => {
+    const action = object(entry, ["actionId", "kind", "caseId"], `Phase 6 action ${index}`);
+    return {
+      actionId: handle(action.actionId, `Phase 6 action ${index} ID`),
+      kind: enumeration(action.kind, ["visible-preview-cancel", "visible-rejection", "visible-apply-regression", "visible-invalid-response", "visible-project-switch", "protected-regression"] as const, `Phase 6 action ${index} kind`),
+      caseId: action.caseId === null ? null : handle(action.caseId, `Phase 6 action ${index} caseId`),
+    };
+  });
+  exact(actions.length, 33, "Phase 6 action count");
+  unique(actions.map((entry) => entry.actionId), "Phase 6 action IDs");
+  exact(actions.filter((entry) => entry.kind === "visible-preview-cancel").map((entry) => entry.caseId), Array.from({length: 15}, (_, index) => `A${String(index + 1).padStart(2, "0")}`), "Phase 6 accepted visible case set");
+  exact(actions.filter((entry) => entry.kind === "visible-rejection").map((entry) => entry.caseId), ["R01","R05","R10","R12","R17","R19","R22","R24","R26","R29","R30","R31","R35"], "Phase 6 visible rejection set");
+  return {registryVersion: 6, specId: "SPEC-0001", authorizationId: "phase-6/v1", operationFamilies, adapter, fixtures, actions};
+};
+
+export const validatePhase6PlanValue = (value: unknown): Phase6Plan => {
+  const record = object(value, ["planVersion", "specId", "proofPurpose", "authorizationId", "baseCommit", "dirtyExpectedPaths", "cleanExpectedPaths", "outputRoot", "operationFamilies", "registry", "selectedActionIds", "evidence"], "Phase 6 plan");
+  exact(record.planVersion, 6, "Phase 6 planVersion");
+  exact(record.specId, "SPEC-0001", "Phase 6 plan specId");
+  exact(record.proofPurpose, "phase-6", "Phase 6 plan proofPurpose");
+  exact(record.authorizationId, "phase-6/v1", "Phase 6 plan authorizationId");
+  exact(record.baseCommit, PHASE6_BASE_COMMIT, "Phase 6 plan baseCommit");
+  const dirtyExpectedPaths = canonicalProofPaths(record.dirtyExpectedPaths, "Phase 6 dirtyExpectedPaths").map((path) => assertSafeRepositoryPath(path));
+  exact(dirtyExpectedPaths, PHASE6_PATHS.filter((path) => path !== "src/components/workspace/ai/WorkspaceAiPanelShell.tsx"), "Phase 6 correction exact dirty subset within the 26-path ceiling");
+  exact(record.cleanExpectedPaths, [], "Phase 6 cleanExpectedPaths");
+  exact(record.outputRoot, PHASE6_OUTPUT_ROOT, "Phase 6 outputRoot");
+  const operationFamilies = canonicalStrings(record.operationFamilies, "Phase 6 plan operationFamilies")
+    .map((entry) => enumeration(entry, PHASE6_OPERATION_FAMILIES, "Phase 6 plan operation family"));
+  exact(operationFamilies, [...PHASE6_OPERATION_FAMILIES], "Phase 6 plan operationFamilies");
+  const registry = parseBinding(record.registry, "Phase 6 plan registry");
+  exact(registry.path, PHASE6_REGISTRY_PATH, "Phase 6 plan registry path");
+  const selectedActionIds = array(record.selectedActionIds, "Phase 6 selectedActionIds").map((entry, index) => handle(entry, `Phase 6 selected action ${index}`));
+  exact(selectedActionIds.length, 33, "Phase 6 selected action count");
+  unique(selectedActionIds, "Phase 6 selected action IDs");
+  const evidence = object(record.evidence, ["viewports", "previewCopy", "acceptedVisibleCaseCount", "representativeVisibleRejectionCount", "completeApplyCount", "screenshotIds", "nonLoopbackAttempts"], "Phase 6 plan evidence");
+  exact(evidence.viewports, [{width: 1440, height: 900}, {width: 1024, height: 768}], "Phase 6 proof viewports");
+  exact(evidence.previewCopy, "Understood: one stick figure, a three-pose wave, 12 frames at 12 FPS. No changes have been made.", "Phase 6 preview copy");
+  exact(evidence.acceptedVisibleCaseCount, 15, "Phase 6 accepted visible count");
+  exact(evidence.representativeVisibleRejectionCount, 13, "Phase 6 rejection visible count");
+  exact(evidence.completeApplyCount, 1, "Phase 6 complete Apply count");
+  exact(evidence.nonLoopbackAttempts, 0, "Phase 6 non-loopback attempts");
+  return {planVersion: 6, specId: "SPEC-0001", proofPurpose: "phase-6", authorizationId: "phase-6/v1", baseCommit: PHASE6_BASE_COMMIT, dirtyExpectedPaths, cleanExpectedPaths: [], outputRoot: PHASE6_OUTPUT_ROOT, operationFamilies, registry, selectedActionIds, evidence: evidence as Record<string, unknown>};
 };
 
 const parseOperationFamilies = (value: unknown, label: string): OperationFamily[] => {
@@ -1504,7 +1729,7 @@ export type GitObservationOverride = {
   committedChangedPaths: string[];
 };
 
-export type ExtensionValidationMode = "technical" | "phase-2-closeout" | "phase-3-closeout" | "phase-4-closeout" | "phase-5-closeout";
+export type ExtensionValidationMode = "technical" | "phase-2-closeout" | "phase-3-closeout" | "phase-4-closeout" | "phase-5-closeout" | "phase-6-closeout";
 
 const validateObservationOverride = (value: GitObservationOverride): GitObservationOverride => ({
   headCommit: gitSha(value.headCommit, "observation headCommit"),
@@ -1540,12 +1765,12 @@ const observeGit = (root: string, baseCommit: string): GitObservationOverride =>
   return {headCommit, stagedPaths, hiddenIndexPaths, trackedDirtyPaths, untrackedPaths, baseIsStrictAncestor: ancestorResult.status === 0 && baseCommit !== headCommit, committedChangedPaths};
 };
 
-export const deriveGitState = (root: string, plan: ExtensionPlan | Phase5RoutePlan, ceiling: readonly string[], observationOverride?: GitObservationOverride): DerivedGitState => {
+export const deriveGitState = (root: string, plan: ExtensionPlan | Phase5RoutePlan | Phase6Plan, ceiling: readonly string[], observationOverride?: GitObservationOverride): DerivedGitState => {
   const observation = observationOverride === undefined ? observeGit(root, plan.baseCommit) : validateObservationOverride(observationOverride);
   if (observation.stagedPaths.length > 0) fail(`Staged paths are forbidden: ${observation.stagedPaths.join(", ")}.`);
   if (observation.hiddenIndexPaths.length > 0) fail(`Hidden index flags are forbidden: ${observation.hiddenIndexPaths.join(", ")}.`);
   const dirtyPaths = [...new Set([...observation.trackedDirtyPaths, ...observation.untrackedPaths])];
-  const observedDirtyPaths = plan.authorizationId === "phase-3/v1" || plan.authorizationId === "phase-4/v1" || plan.authorizationId === "phase-5/v1"
+  const observedDirtyPaths = plan.authorizationId === "phase-3/v1" || plan.authorizationId === "phase-4/v1" || plan.authorizationId === "phase-5/v1" || plan.authorizationId === "phase-6/v1"
     ? sortProofPaths(dirtyPaths)
     : dirtyPaths.sort((left, right) => left.localeCompare(right));
   for (const path of observedDirtyPaths) if (!ceiling.includes(path)) fail(`Observed dirty path is outside the authorization ceiling: ${path}.`);
@@ -1556,7 +1781,7 @@ export const deriveGitState = (root: string, plan: ExtensionPlan | Phase5RoutePl
   }
   if (!observation.baseIsStrictAncestor) fail("Clean committed state requires baseCommit to be a strict ancestor of HEAD.");
   const committedProjection = observation.committedChangedPaths.filter((path) => ceiling.includes(path));
-  const ceilingProjection = plan.authorizationId === "phase-3/v1" || plan.authorizationId === "phase-4/v1" || plan.authorizationId === "phase-5/v1"
+  const ceilingProjection = plan.authorizationId === "phase-3/v1" || plan.authorizationId === "phase-4/v1" || plan.authorizationId === "phase-5/v1" || plan.authorizationId === "phase-6/v1"
     ? sortProofPaths(committedProjection)
     : committedProjection.sort((left, right) => left.localeCompare(right));
   const allowedPhase2CloseoutOnly = plan.authorizationId === "phase-2/v1" ? ["scripts/finalizeSpec0001ProofBundle.ts"] : [];
@@ -1655,6 +1880,30 @@ export const derivePhase5CloseoutGraphGitState = (root: string, plan: Phase5Rout
   const expectedCloseoutPaths = sortProofPaths([...plan.dirtyExpectedPaths, ...PHASE5_CLOSEOUT_RECORD_PATHS]);
   const observedCloseoutPaths = sortProofPaths([...new Set([...observation.trackedDirtyPaths, ...observation.untrackedPaths])]);
   exact(observedCloseoutPaths, expectedCloseoutPaths, "Phase 5 closeout observed paths");
+  return {
+    derivedGitState: "dirty-executor",
+    baseCommit: plan.baseCommit,
+    headCommit: plan.baseCommit,
+    observedDirtyPaths: [...plan.dirtyExpectedPaths],
+    dirtyExpectedPaths: [...plan.dirtyExpectedPaths],
+    cleanExpectedPaths: [],
+    selectedExpectedPaths: [...plan.dirtyExpectedPaths],
+  };
+};
+
+export const derivePhase6CloseoutGraphGitState = (root: string, plan: Phase6Plan, ceiling: readonly string[], observationOverride?: GitObservationOverride): DerivedGitState => {
+  exact(plan.authorizationId, "phase-6/v1", "Phase 6 closeout plan authorizationId");
+  exact(ceiling, PHASE6_PATHS, "Phase 6 closeout technical path ceiling");
+  phase6CloseoutPathsForTechnicalSubset(plan.dirtyExpectedPaths);
+  const observation = observationOverride === undefined ? observeGit(root, plan.baseCommit) : validateObservationOverride(observationOverride);
+  exact(observation.stagedPaths, [], "Phase 6 closeout staged paths");
+  exact(observation.hiddenIndexPaths, [], "Phase 6 closeout hidden index paths");
+  exact(observation.headCommit, plan.baseCommit, "Phase 6 closeout HEAD/base");
+  exact(observation.baseIsStrictAncestor, false, "Phase 6 closeout base ancestry");
+  exact(observation.committedChangedPaths, [], "Phase 6 closeout committed paths");
+  const expectedCloseoutPaths = phase6CloseoutPathsForTechnicalSubset(plan.dirtyExpectedPaths);
+  const observedCloseoutPaths = sortProofPaths([...new Set([...observation.trackedDirtyPaths, ...observation.untrackedPaths])]);
+  exact(observedCloseoutPaths, expectedCloseoutPaths, "Phase 6 closeout observed paths");
   return {
     derivedGitState: "dirty-executor",
     baseCommit: plan.baseCommit,
@@ -1853,7 +2102,7 @@ const trackedAtHead = (root: string, path: string) => {
 export const loadTesterExtensionGraph = (root: string, planPath: string, validationMode: ExtensionValidationMode = "technical", observation?: GitObservationOverride): ValidatedTesterExtension => {
   const safePlanPath = assertSafeRepositoryPath(planPath, "selected plan path");
   const catalog = validateAuthorizationCatalogValue(readStrictJson(root, CATALOG_PATH));
-  const authorization = catalog.authorizations.find((entry): entry is ValidatedAuthorization => entry.authorizationId !== "phase-5/v1" && entry.plan.path === safePlanPath) ?? fail(`Browser plan path is not registered: ${safePlanPath}.`);
+  const authorization = catalog.authorizations.find((entry): entry is ValidatedAuthorization => entry.authorizationId !== "phase-5/v1" && entry.authorizationId !== "phase-6/v1" && entry.plan.path === safePlanPath) ?? fail(`Browser plan path is not registered: ${safePlanPath}.`);
   const plan = validateExtensionPlanValue(readStrictJson(root, safePlanPath));
   exact(plan.authorizationId, authorization.authorizationId, "plan/catalog authorizationId");
   exact(plan.outputRoot, authorization.outputRoot, "plan/catalog outputRoot");
@@ -1958,4 +2207,98 @@ export const loadPhase5RouteGraph = (root: string, planPath: string, validationM
     : deriveGitState(root, plan, authorization.pathCeiling, observation);
   if (git.derivedGitState === "clean-committed") for (const path of [CATALOG_PATH, planBinding.path, registryBinding.path]) trackedAtHead(root, path);
   return {authorizationId: "phase-5/v1", materializationKind: "deferred", outputRoot: PHASE5_OUTPUT_ROOT, pathCeiling: authorization.pathCeiling, operationFamilies: authorization.operationFamilies, catalogBinding, planBinding, registryBinding, plan, registry, git};
+};
+
+export const loadPhase6Graph = (root: string, planPath: string, validationMode: "technical" | "phase-6-closeout" = "technical", observation?: GitObservationOverride): ValidatedPhase6Graph => {
+  const safePlanPath = assertSafeRepositoryPath(planPath, "selected Phase 6 plan path");
+  exact(safePlanPath, PHASE6_PLAN_PATH, "selected Phase 6 plan path");
+  const catalog = validateAuthorizationCatalogValue(readStrictJson(root, CATALOG_PATH));
+  const authorization = catalog.authorizations[5];
+  exact(authorization.authorizationId, "phase-6/v1", "Phase 6 catalog authorizationId");
+  const plan = validatePhase6PlanValue(readStrictJson(root, safePlanPath));
+  const catalogBinding = bindRepositoryFile(root, CATALOG_PATH);
+  const planBinding = bindRepositoryFile(root, safePlanPath);
+  const registryBinding = bindRepositoryFile(root, authorization.registry.path);
+  const adapterBinding = bindRepositoryFile(root, authorization.adapter.path);
+  exact(plan.registry, registryBinding, "Phase 6 plan/registry binding");
+  const registry = validatePhase6RegistryValue(readStrictJson(root, registryBinding.path));
+  exact(registry.adapter, adapterBinding, "Phase 6 registry/adapter binding");
+  for (const fixture of registry.fixtures) verifyBinding(root, fixture, `Phase 6 fixture ${fixture.path}`);
+  exact(plan.selectedActionIds, registry.actions.map((entry) => entry.actionId), "Phase 6 selected actions");
+  const git = validationMode === "phase-6-closeout"
+    ? derivePhase6CloseoutGraphGitState(root, plan, authorization.pathCeiling, observation)
+    : deriveGitState(root, plan, authorization.pathCeiling, observation);
+  return {
+    authorizationId: "phase-6/v1", materializationKind: "deferred", outputRoot: PHASE6_OUTPUT_ROOT,
+    pathCeiling: authorization.pathCeiling, operationFamilies: authorization.operationFamilies,
+    catalogBinding, planBinding, registryBinding, adapterBinding, plan, registry, git,
+  };
+};
+
+export const validatePhase6Result = (value: unknown, root: string, verifyBindings = true, validationMode: "technical" | "phase-6-closeout" = "technical"): Phase6Result => {
+  const record = object(value, ["resultVersion", "specId", "proofPurpose", "status", "recordedAt", "productPhaseClaimed", "runtime", "derivedGitState", "baseCommit", "headCommit", "observedDirtyPaths", "dirtyExpectedPaths", "cleanExpectedPaths", "selectedExpectedPaths", "authorization", "bindings", "execution", "evidence", "network", "cleanup"], "Phase 6 result");
+  exact(record.resultVersion, 6, "Phase 6 resultVersion");
+  exact(record.specId, "SPEC-0001", "Phase 6 specId");
+  exact(record.proofPurpose, "phase-6", "Phase 6 proofPurpose");
+  exact(record.status, "passed", "Phase 6 status");
+  exact(record.productPhaseClaimed, true, "Phase 6 product claim");
+  const recordedAt = string(record.recordedAt, "Phase 6 recordedAt");
+  if (Number.isNaN(Date.parse(recordedAt))) fail("Phase 6 recordedAt must be an ISO-compatible timestamp.");
+  const runtimeRecord = object(record.runtime, ["nodeVersion", "playwrightCoreVersion", "browserVersion", "browserExecutable"], "Phase 6 runtime");
+  const runtime = {nodeVersion: string(runtimeRecord.nodeVersion, "Phase 6 nodeVersion"), playwrightCoreVersion: enumeration(runtimeRecord.playwrightCoreVersion, ["1.62.1"] as const, "Phase 6 playwrightCoreVersion"), browserVersion: string(runtimeRecord.browserVersion, "Phase 6 browserVersion"), browserExecutable: parseBrowserExecutableBinding(runtimeRecord.browserExecutable, "Phase 6 browserExecutable")};
+  if (verifyBindings) exact(runtime.browserExecutable, bindBrowserExecutable(), "Phase 6 browser executable binding");
+  const derivedGitState = enumeration(record.derivedGitState, ["dirty-executor", "clean-committed"] as const, "Phase 6 derivedGitState");
+  const baseCommit = gitSha(record.baseCommit, "Phase 6 baseCommit");
+  const headCommit = gitSha(record.headCommit, "Phase 6 headCommit");
+  const observedDirtyPaths = canonicalProofPaths(record.observedDirtyPaths, "Phase 6 observed paths").map((path) => assertSafeRepositoryPath(path));
+  const dirtyExpectedPaths = canonicalProofPaths(record.dirtyExpectedPaths, "Phase 6 dirty paths").map((path) => assertSafeRepositoryPath(path));
+  exact(record.cleanExpectedPaths, [], "Phase 6 clean paths");
+  const selectedExpectedPaths = canonicalProofPaths(record.selectedExpectedPaths, "Phase 6 selected paths").map((path) => assertSafeRepositoryPath(path));
+  exact(selectedExpectedPaths, derivedGitState === "dirty-executor" ? dirtyExpectedPaths : [], "Phase 6 selected paths");
+  exact(observedDirtyPaths, selectedExpectedPaths, "Phase 6 observed/selected paths");
+  const authorizationRecord = object(record.authorization, ["authorizationId", "materializationKind"], "Phase 6 authorization");
+  exact(authorizationRecord, {authorizationId: "phase-6/v1", materializationKind: "deferred"}, "Phase 6 authorization");
+  const bindingsRecord = object(record.bindings, ["catalog", "plan", "registry", "adapter"], "Phase 6 bindings");
+  const bindings = {catalog: parseBinding(bindingsRecord.catalog, "Phase 6 catalog binding"), plan: parseBinding(bindingsRecord.plan, "Phase 6 plan binding"), registry: parseBinding(bindingsRecord.registry, "Phase 6 registry binding"), adapter: parseBinding(bindingsRecord.adapter, "Phase 6 adapter binding")};
+  const graph = verifyBindings ? loadPhase6Graph(root, bindings.plan.path, validationMode) : null;
+  if (graph) {
+    exact(bindings, {catalog: graph.catalogBinding, plan: graph.planBinding, registry: graph.registryBinding, adapter: graph.adapterBinding}, "Phase 6 graph bindings");
+    exact({derivedGitState, baseCommit, headCommit, observedDirtyPaths, dirtyExpectedPaths, cleanExpectedPaths: [], selectedExpectedPaths}, graph.git, "Phase 6 graph Git state");
+  }
+  const executionRecord = object(record.execution, ["selectedActionIds", "acceptedVisibleCaseCount", "visibleRejectionCount", "guardedRejectedCaseCount", "completeApplyCount"], "Phase 6 execution");
+  const selectedActionIds = array(executionRecord.selectedActionIds, "Phase 6 action IDs").map((entry, index) => handle(entry, `Phase 6 action ${index}`));
+  if (graph) exact(selectedActionIds, graph.plan.selectedActionIds, "Phase 6 selected actions");
+  exact(executionRecord.acceptedVisibleCaseCount, 15, "Phase 6 accepted visible count");
+  exact(executionRecord.visibleRejectionCount, 13, "Phase 6 visible rejection count");
+  exact(executionRecord.guardedRejectedCaseCount, 36, "Phase 6 guarded rejection count");
+  exact(executionRecord.completeApplyCount, 1, "Phase 6 complete Apply count");
+  const evidenceRecord = object(record.evidence, ["previewCopy", "actions", "screenshots", "realApiRouteRequests", "drawingInterceptedRequests"], "Phase 6 evidence");
+  const actions = array(evidenceRecord.actions, "Phase 6 evidence actions");
+  const screenshots = array(evidenceRecord.screenshots, "Phase 6 screenshots").map((entry, index) => {
+    const screenshotRecord = object(entry, ["path", "sha256", "byteLength", "id", "viewport"], `Phase 6 screenshot ${index}`);
+    const binding = parseBinding({path: screenshotRecord.path, sha256: screenshotRecord.sha256, byteLength: screenshotRecord.byteLength}, `Phase 6 screenshot ${index} binding`);
+    if (verifyBindings) verifyBinding(root, binding, `Phase 6 screenshot ${index} binding`);
+    const id = handle(screenshotRecord.id, `Phase 6 screenshot ${index} ID`);
+    const viewport = object(screenshotRecord.viewport, ["width", "height"], `Phase 6 screenshot ${index} viewport`);
+    const normalizedViewport = viewport.width === 1440 && viewport.height === 900
+      ? {width: 1440 as const, height: 900 as const}
+      : viewport.width === 1024 && viewport.height === 768
+        ? {width: 1024 as const, height: 768 as const}
+        : fail(`Phase 6 screenshot ${index} viewport is unsupported.`);
+    return {...binding, id, viewport: normalizedViewport};
+  });
+  const realApiRouteRequests = integer(evidenceRecord.realApiRouteRequests, "Phase 6 real API route requests");
+  const drawingInterceptedRequests = integer(evidenceRecord.drawingInterceptedRequests, "Phase 6 Drawing intercepted requests");
+  if (graph) {
+    exact(evidenceRecord.previewCopy, graph.plan.evidence.previewCopy, "Phase 6 preview copy");
+    exact(screenshots.map((entry) => entry.id), graph.plan.evidence.screenshotIds, "Phase 6 screenshots");
+  }
+  if (actions.length < selectedActionIds.length) fail("Phase 6 evidence is missing selected actions.");
+  if (realApiRouteRequests < 1) fail("Phase 6 did not exercise the real /api/ai route.");
+  exact(drawingInterceptedRequests, 1, "Phase 6 Drawing intercepted request count");
+  const networkRecord = object(record.network, ["browserNonLoopbackAttempts", "serverNonLoopbackAttempts", "childNonLoopbackAttempts", "runnerNonLoopbackAttempts"], "Phase 6 network");
+  exact(networkRecord, {browserNonLoopbackAttempts: 0, serverNonLoopbackAttempts: 0, childNonLoopbackAttempts: 0, runnerNonLoopbackAttempts: 0}, "Phase 6 network denial");
+  const cleanupRecord = object(record.cleanup, ["anchorRestored", "sourceRestored", "browserContextsOpen", "activeGates", "activeIntercepts", "openChildProcesses", "openPorts", "residualPaths", "residualProfiles"], "Phase 6 cleanup");
+  exact(cleanupRecord, {anchorRestored: true, sourceRestored: true, browserContextsOpen: 0, activeGates: 0, activeIntercepts: 0, openChildProcesses: 0, openPorts: 0, residualPaths: [], residualProfiles: []}, "Phase 6 cleanup");
+  return {resultVersion: 6, specId: "SPEC-0001", proofPurpose: "phase-6", status: "passed", recordedAt, productPhaseClaimed: true, runtime, derivedGitState, baseCommit, headCommit, observedDirtyPaths, dirtyExpectedPaths, cleanExpectedPaths: [], selectedExpectedPaths, authorization: {authorizationId: "phase-6/v1", materializationKind: "deferred"}, bindings, execution: {selectedActionIds, acceptedVisibleCaseCount: 15, visibleRejectionCount: 13, guardedRejectedCaseCount: 36, completeApplyCount: 1}, evidence: {previewCopy: evidenceRecord.previewCopy as string, actions, screenshots, realApiRouteRequests, drawingInterceptedRequests}, network: {browserNonLoopbackAttempts: 0, serverNonLoopbackAttempts: 0, childNonLoopbackAttempts: 0, runnerNonLoopbackAttempts: 0}, cleanup: {anchorRestored: true, sourceRestored: true, browserContextsOpen: 0, activeGates: 0, activeIntercepts: 0, openChildProcesses: 0, openPorts: 0, residualPaths: [], residualProfiles: []}};
 };

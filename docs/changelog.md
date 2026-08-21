@@ -5,6 +5,19 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-21 — Corrected SPEC-0001 Phase 6 accepted and technically Verified
+
+- recorded Arthur's direct acceptance of the corrected unpublished Phase 6 app after the Spec Executor stopped and the Control Plane Architect took exclusive ownership of the exact implementation worktree
+- accepted the restored initial panel (`Generate frames • Clean drawings • Animate faster`, `Chat here`, the original white circular checkmark sender, and `Ask the assistant for help with your stick figure.`), with no warning, suggestion, preview, Apply, or Cancel before the first send
+- accepted the bounded typo-friendly V2 flow: non-mutating understood-result preview, Cancel/no-op, and one explicit Apply of the canonical 12-frame/12-FPS three-pose wave
+- accepted responsive visible projection of the complete 10-limb/11-joint figure, distinct Frames 1/5/9 and holds, exact purple previous/green next onion figures, and same-root Creator → Back continuity for project, figure, history, storage, selection, and view state
+- recorded the two corrected root causes: canonical `960×594` rig coordinates were clipped when drawn 1:1 into a smaller SVG without a `viewBox`; and the remounted post-Creator canvas was clipped after a viewport change because observation remained bound to the detached pre-Creator canvas
+- independently revalidated exactly 25 technical paths inside the published 26-path ceiling; `WorkspaceAiPanelShell.tsx` remained intentionally unchanged; proof-manifest SHA-256 `c0d13c9234087855784ad805410667e9d583ac0f03dbe847257db778fea39297` (48,147 bytes), browser-runner SHA-256 `b1be9c83951f027687e2b50fa7df702ffa09b2e8213a7c30b6c7b0e9fa6220bd`, and framed aggregate `3bf3290f09f72787fa28db4f1a96003ab5f13e846358361e5805812904078aa2` over 1,065,268 bytes
+- recorded 15/15 successful receipts, 88 artifacts, 338 matcher/UI-adapter assertions, 15 accepted visible requests, 36 guarded rejections, 13 visible rejections, responsive geometry/pixel/onion proof, Creator → Back Undo/Redo/manual-edit/Save/Open proof, inherited Phase 1–5 and Drawing protections, TypeScript, measured lint non-regression, zero non-loopback/provider attempts, and cleanup
+- marked Phase 6 **accepted and technically Verified; pending separate publication/integration** under D-0029; kept Phase 7 **Unauthorized; Not started**, SPEC-0002 complete/protected, and SPEC-0003 Proposed/inactive in its separate preserved worktree
+
+This closeout updates only the exact eight canonical record paths and does not stage, commit, merge, push, publish, deploy, contact a provider, or begin Phase 7.
+
 ### 2026-08-21 — SPEC-0001 Phase 6 first review rejected; visible correction accepted and closed out
 
 - recorded D-0027's exact seven-document activation publication at `f46ed3b13e6bca3a09c9b2926c972bea8c331f2c`, parent `da7c258078a0240da32018b9ecfa7f33ae27d5ac`, while preserving canonical `main` with no Phase 6 runtime

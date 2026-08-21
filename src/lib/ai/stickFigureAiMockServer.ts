@@ -3,7 +3,6 @@ import {
   materializeStickWaveCommandBatch,
   parseStickAiRequest,
   type StickAiContractResult,
-  type StickAiRequestV1,
   type StickCommandBatchV1,
 } from "./stickFigureAiContract.ts";
 import type {StickProjectDocumentV1} from "../stickfigure/stickProjectContract.ts";
@@ -276,7 +275,7 @@ export const buildDeterministicStickFigureAiMockEnvelope = async (
   if (!request.ok) return request;
   return materializeStickWaveCommandBatch(
     STICK_FIGURE_AI_MOCK_STARTER,
-    request.value as StickAiRequestV1,
+    request.value,
     STICK_GOLDEN_PROVIDER_PLAN,
   );
 };

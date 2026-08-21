@@ -5,6 +5,16 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-21 — SPEC-0001 Phase 6 published and integrated
+
+- published the accepted Phase 6 package in exact 33-path canonical-main commit `caa6c2d946780f384d0a8c58f4ea75a771483bcd`, parent `f19955c336be43b19b2c4cc13d16abcc7ded7247`, message `Implement SPEC-0001 Phase 6 deterministic Stick chat`
+- preserved the accepted proof-manifest SHA-256 `c0d13c9234087855784ad805410667e9d583ac0f03dbe847257db778fea39297`, browser-runner SHA-256 `b1be9c83951f027687e2b50fa7df702ffa09b2e8213a7c30b6c7b0e9fa6220bd`, framed 25-path aggregate `3bf3290f09f72787fa28db4f1a96003ab5f13e846358361e5805812904078aa2`, and closeout-manifest SHA-256 `a1c81479251b1d3562840caf653c37b1e83e398c6b107045ff081e0845eefd5b`
+- clean committed verification passed the permanent browser plan; local `main`, local `origin/main`, live GitHub `main`, and the publication branch matched at the new commit with clean `0/0` synchronization
+- marked Phase 6 **accepted, technically Verified, published, and integrated** while preserving its visible pretend-AI behavior and same-root Creator → Back continuity; Phase 7 remains **Unauthorized; Not started**
+- no OpenAI, provider, search, Supabase, paid request, deployment, or Phase 7 work occurred
+
+This post-publication reconciliation changes canonical records only. It remains unstaged and unpublished until a separate publication-only instruction.
+
 ### 2026-08-21 — Corrected SPEC-0001 Phase 6 accepted and technically Verified
 
 - recorded Arthur's direct acceptance of the corrected unpublished Phase 6 app after the Spec Executor stopped and the Control Plane Architect took exclusive ownership of the exact implementation worktree

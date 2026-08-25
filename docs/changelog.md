@@ -5,6 +5,28 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-25 — SPEC-0003 approved and its one implementation authorized
+
+- recorded Arthur's direct approval as D-0030 without changing the corrected showcase-only outcome
+- marked SPEC-0003 **Approved and active** and its one implementation **Authorized; Not started**
+- kept the exact full-screen Tutorials result, exact copy and four-card hierarchy, Back/focus behavior, static `COMING LATER` semantics, removal of inert Home AI Credits, ten-path implementation ceiling, three-viewport proof, and early Arthur review requirement unchanged
+- preserved SPEC-0001 Phases 1–6 as Verified/published/integrated, SPEC-0001 Phase 7 as Unauthorized/Not started, and SPEC-0002 as complete/protected
+- required separate publication/integration of this activation record before one new Plan-mode Spec Executor may start from the resulting canonical-main SHA
+
+This is control-plane approval only. No runtime, style, test, fixture, proof, dependency, configuration, environment, database, provider, external, paid, deployment, staging, commit, push, or implementation action occurred.
+
+### 2026-08-24 — SPEC-0003 corrected to Arthur's fixed future-video showcase
+
+- recovered and read the complete prior SPEC-0003 proposal from its supplied reference-only worktree, then refreshed it from exact clean current-main basis `7bfcdebc2763c6ed0ef3cf047b80cc1e15f6536a`
+- freshly traced `app/page.tsx`, Home/header navigation, New/Open/Drawing/Stick/Creator boundaries, integrated SPEC-0001 Phase 6, completed SPEC-0002 Save/Open, and the current SPEC-0001-only permanent tester ownership
+- reproduced in the real loopback app that Home Tutorials and AI Credits are inert buttons: each click leaves Home visible, with no application request or page error
+- corrected the earlier proposal misunderstanding after Arthur's direct instruction: Tutorials is only a future-video showcase, not a general help surface or another place to choose a workspace
+- fixed the exact visible result to `Welcome to Diamond Animator`, one measurably dominant static `Start Here` placeholder, and exactly three smaller ordered static placeholders, with all four marked `COMING LATER`, non-interactive, and free of media/delivery behavior
+- kept exactly one implementation with ten authorized runtime/style/fixture/proof paths, a dedicated SPEC-0003 proof at `1440x900`, `1024x768`, and `390x844`, strict no-redesign protections, and early review of the exact unpublished app by Arthur
+- removed the earlier product questions because Arthur fixed the result directly; kept SPEC-0003 **Proposed and inactive** and its one implementation **Unauthorized; Not started**
+
+This is proposal/control-plane work only. It changes no runtime, style, test, fixture, dependency, configuration, environment, database, provider, paid, deployment, staging, commit, merge, push, or publication state; `docs/DECISIONS.md` remains unchanged.
+
 ### 2026-08-21 — SPEC-0001 Phase 6 published and integrated
 
 - published the accepted Phase 6 package in exact 33-path canonical-main commit `caa6c2d946780f384d0a8c58f4ea75a771483bcd`, parent `f19955c336be43b19b2c4cc13d16abcc7ded7247`, message `Implement SPEC-0001 Phase 6 deterministic Stick chat`

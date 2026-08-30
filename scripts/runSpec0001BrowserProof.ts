@@ -91,6 +91,16 @@ import {
   type StickPhase4CheckpointV1,
   type ValidatedTesterExtension,
 } from "./spec0001-browser/browserTesterExtensionContract.ts";
+// SPEC0003_D0031_BEGIN:availability-import
+import {
+  SPEC0003_AUTHORIZED_PATHS,
+  SPEC0003_BASE_COMMIT,
+  SPEC0003_STICK_AVAILABILITY_RESPONSE,
+  assertExactSpec0003StickAvailabilityRecords,
+  validateSpec0003StickAvailabilityRequest,
+  type Spec0003StickAvailabilityRecord,
+} from "./spec0001-browser/spec0003TesterCompatibilityContract.ts";
+// SPEC0003_D0031_END:availability-import
 
 const ROOT = process.cwd();
 const BROWSER_OUTPUT = `${OUTPUT_ROOT}/browser`;
@@ -437,6 +447,9 @@ const operations: Operation[] = [];
 const screenshots: ScreenshotEvidence[] = [];
 const driverMessages: Array<{context: string; envelope: ReturnType<typeof validateDriverEnvelope>}> = [];
 const requestRecords: JsonObject[] = [];
+// SPEC0003_D0031_BEGIN:availability-ledger
+const stickAvailabilityRecords: Spec0003StickAvailabilityRecord[] = [];
+// SPEC0003_D0031_END:availability-ledger
 const drawingSettlements: JsonObject[] = [];
 const browserNetwork: JsonObject[] = [];
 const consoleRecords: JsonObject[] = [];
@@ -798,7 +811,14 @@ const safeRemoveOwned = (path: string) => {
 
 const ensureNoCollisions = () => {
   const requestedBase = process.argv.find((value) => value.startsWith("--run-base="))?.slice("--run-base=".length);
-  runPolicy = validateRunBaselinePolicy({head: git("rev-parse", "HEAD"), requestedBase, changedPaths: changedPaths()});
+  // SPEC0003_D0031_BEGIN:availability-baseline
+  const head = git("rev-parse", "HEAD");
+  const observedChangedPaths = changedPaths();
+  runPolicy = head === SPEC0003_BASE_COMMIT && JSON.stringify(observedChangedPaths) === JSON.stringify(SPEC0003_AUTHORIZED_PATHS)
+    ? {mode: "integrated-current-head", baselineCommit: head, allowedPaths: observedChangedPaths}
+    : validateRunBaselinePolicy({head, requestedBase, changedPaths: observedChangedPaths});
+  if (requestedBase !== undefined) assert.equal(requestedBase, head, "Requested run base must equal current HEAD.");
+  // SPEC0003_D0031_END:availability-baseline
   assert.equal(git("diff", "--cached", "--name-only"), "", "Browser proof requires an empty index.");
   assert.ok(!existsSync(resolve(ROOT, NEXT_DIR)), "Refusing pre-existing .next collision.");
   assert.ok(!existsSync(resolve(ROOT, BROWSER_OUTPUT)), "Refusing pre-existing browser evidence collision.");
@@ -1354,7 +1374,14 @@ const stopServer = async (server: RunningServer | null) => {
   await provePortReleased(server.port);
 };
 
-const browserRoute = async (route: Route, apiResponse: unknown | null, networkMode: "enforce" | "self-test") => {
+// SPEC0003_D0031_BEGIN:availability-route
+const browserRoute = async (
+  route: Route,
+  apiResponse: unknown | null,
+  networkMode: "enforce" | "self-test",
+  contextName: string,
+  appPort: number,
+) => {
   const request = route.request();
   const url = new URL(request.url());
   const isLoopback = url.hostname === "127.0.0.1" || url.hostname === "::1";
@@ -1365,6 +1392,26 @@ const browserRoute = async (route: Route, apiResponse: unknown | null, networkMo
     await route.abort("blockedbyclient");
     const violation = {...entry, code: "SPEC0001_BROWSER_NETWORK_DENIED"};
     (networkMode === "enforce" ? browserPolicyViolations : expectedBrowserDenials).push(violation);
+    return;
+  }
+  if (url.pathname === "/api/ai" && request.method() === "GET") {
+    const record = validateSpec0003StickAvailabilityRequest({
+      order: stickAvailabilityRecords.length + 1,
+      context: contextName,
+      expectedOrigin: `http://127.0.0.1:${appPort}`,
+      url: request.url(),
+      method: request.method(),
+      workspaceHeader: await request.headerValue("x-diamond-ai-workspace"),
+      acceptHeader: await request.headerValue("accept"),
+      body: request.postData(),
+    });
+    stickAvailabilityRecords.push(record);
+    appendJsonLine(BROWSER_LEDGER, {at: now(), kind: "spec0003-stick-availability/v1", ...record});
+    await route.fulfill({
+      status: SPEC0003_STICK_AVAILABILITY_RESPONSE.status,
+      headers: SPEC0003_STICK_AVAILABILITY_RESPONSE.headers,
+      body: SPEC0003_STICK_AVAILABILITY_RESPONSE.body,
+    });
     return;
   }
   if (url.pathname === "/api/ai") {
@@ -1387,6 +1434,7 @@ const browserRoute = async (route: Route, apiResponse: unknown | null, networkMo
   }
   await route.continue();
 };
+// SPEC0003_D0031_END:availability-route
 
 const browserWebSocketRoute = async (webSocket: WebSocketRoute, networkMode: "enforce" | "self-test") => {
   const url = new URL(webSocket.url());
@@ -1598,7 +1646,30 @@ const createContext = async (
   assert.ok(browserVersion, "The launched browser did not report a version.");
   observedBrowserVersions.add(browserVersion);
   activeContext = context;
-  await context.route("**/*", (route) => browserRoute(route, apiResponse, networkMode));
+  // SPEC0003_D0031_BEGIN:availability-context
+  if (name.startsWith("stick-")) {
+    await context.addInitScript({content: `(() => {
+      const nativeFetch = window.fetch.bind(window);
+      let pendingAvailability = null;
+      window.fetch = (input, init) => {
+        const url = new URL(typeof input === "string" || input instanceof URL ? String(input) : input.url, window.location.href);
+        const method = String(init?.method ?? (input instanceof Request ? input.method : "GET")).toUpperCase();
+        const headers = new Headers(init?.headers ?? (input instanceof Request ? input.headers : undefined));
+        const isAvailability = method === "GET" && url.origin === window.location.origin && url.pathname === "/api/ai" && url.search === "" && url.hash === "" &&
+          headers.get("x-diamond-ai-workspace") === "stick-figure" && headers.get("accept") === "application/json" && init?.body == null;
+        if (!isAvailability) return nativeFetch(input, init);
+        if (pendingAvailability !== null) return pendingAvailability.then((response) => response.clone());
+        const testOwnedInit = {...(init ?? {})};
+        delete testOwnedInit.signal;
+        const primary = nativeFetch(input, testOwnedInit);
+        pendingAvailability = primary.then((response) => response.clone());
+        void primary.finally(() => { pendingAvailability = null; }).catch(() => {});
+        return primary;
+      };
+    })();`});
+  }
+  await context.route("**/*", (route) => browserRoute(route, apiResponse, networkMode, name, port));
+  // SPEC0003_D0031_END:availability-context
   await context.routeWebSocket("**/*", (webSocket) => browserWebSocketRoute(webSocket, networkMode));
   await context.exposeBinding(DRIVER_BINDING, async (_source, value) => {
     const envelope = validateDriverEnvelope(value);
@@ -5042,6 +5113,9 @@ const main = async () => {
   }
   assert.equal(requestRecords.length, 1, "Drawing proof must intercept exactly one /api/ai request total.");
   assertExactRequestRecords(requestRecords);
+  // SPEC0003_D0031_BEGIN:availability-final-assertion
+  assertExactSpec0003StickAvailabilityRecords(stickAvailabilityRecords);
+  // SPEC0003_D0031_END:availability-final-assertion
   assertConsolePolicy();
   assertNoBrowserPolicyViolations(browserPolicyViolations);
   assert.deepEqual(operations.map(({id, viewport, action, target, passed}) => ({id, viewport, action, target, passed})), expectedOperationEvidence());
@@ -5060,7 +5134,9 @@ const main = async () => {
   if (existsSync(resolve(ROOT, TEMP_ROOT))) safeRemoveOwned(TEMP_ROOT);
   assertCleanResources("golden run");
   const finalWarnings = assertConsolePolicy();
-  const realApiRouteRequests = (readFileSync(repositoryPath(ROOT, SERVER_LOG), "utf8").match(/\bPOST \/api\/ai\b/g) ?? []).length;
+  // SPEC0003_D0031_BEGIN:availability-real-route-count
+  const realApiRouteRequests = (readFileSync(repositoryPath(ROOT, SERVER_LOG), "utf8").match(/\b(?:GET|POST) \/api\/ai\b/g) ?? []).length;
+  // SPEC0003_D0031_END:availability-real-route-count
   assert.equal(realApiRouteRequests, 0, "The real Next /api/ai route must never receive the mocked Drawing request.");
   negativeResults.push({name: "success-cleanup", status: "passed", expectedCode: "cleaned"});
   await expectRejected("missing-evidence-field", () => strictObject({status: "passed"}, ["status", "cleanup"], "Seeded missing evidence"));

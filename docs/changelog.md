@@ -5,6 +5,15 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-30 — SPEC-0003 tester prerequisite accepted and closed out
+
+- accepted the stopped executor's exact seven-path D-0031 tester/fixture/proof result from published authorization base `57ef6ff5ff9d2da7ca3ab1e154aac9f506cc6b81`; no product/runtime byte changed
+- independently revalidated the 14,344-byte `output/spec-0003/permanent-tester-prerequisite/proof-manifest.json` at SHA-256 `adc3ad5534027470e436d92c0cbeaa6bc51fd5821303bb008f771b57da91edb3`, with 11 receipts and 29 artifacts
+- recorded the permanent tester pass: 40 operations, 13 screenshots, 4 driver messages, all 37 historical negatives, exactly four expected provider-free Stick availability GETs, exactly one mocked Drawing POST, and zero real API-route/non-loopback/provider attempts
+- marked the prerequisite accepted and technically Verified pending publication/integration; SPEC-0003's product implementation remains Authorized/Not started and blocked until the accepted package is published and its corrected clean committed tester passes
+
+This closeout changed only canonical records after technical acceptance. No Tutorials implementation, stage, commit, push, deployment, provider, external, or paid action occurred.
+
 ### 2026-08-26 — Authorized SPEC-0003's narrow permanent-tester prerequisite
 
 - reconciled D-0030's activation publication to exact canonical-main commit `4cd1a98b2f0b53c89d50ede453d1ab14bccbc9c7`

@@ -1,0 +1,54 @@
+{
+  "contractVersion": 1,
+  "contractId": "spec0003-stick-availability/v1",
+  "requests": [
+    {
+      "order": 1,
+      "context": "stick-1440x900",
+      "method": "GET",
+      "path": "/api/ai",
+      "sameOriginLoopback": true,
+      "query": "",
+      "hash": "",
+      "body": null,
+      "headers": {"X-Diamond-AI-Workspace": "stick-figure", "Accept": "application/json"},
+      "response": {"status": 200, "headers": {"cache-control": "no-store", "content-type": "application/json"}, "body": "{\"available\":false,\"reason\":\"server_not_configured\"}"}
+    },
+    {
+      "order": 2,
+      "context": "stick-1440x900",
+      "method": "GET",
+      "path": "/api/ai",
+      "sameOriginLoopback": true,
+      "query": "",
+      "hash": "",
+      "body": null,
+      "headers": {"X-Diamond-AI-Workspace": "stick-figure", "Accept": "application/json"},
+      "response": {"status": 200, "headers": {"cache-control": "no-store", "content-type": "application/json"}, "body": "{\"available\":false,\"reason\":\"server_not_configured\"}"}
+    },
+    {
+      "order": 3,
+      "context": "stick-1024x768",
+      "method": "GET",
+      "path": "/api/ai",
+      "sameOriginLoopback": true,
+      "query": "",
+      "hash": "",
+      "body": null,
+      "headers": {"X-Diamond-AI-Workspace": "stick-figure", "Accept": "application/json"},
+      "response": {"status": 200, "headers": {"cache-control": "no-store", "content-type": "application/json"}, "body": "{\"available\":false,\"reason\":\"server_not_configured\"}"}
+    },
+    {
+      "order": 4,
+      "context": "stick-1024x768",
+      "method": "GET",
+      "path": "/api/ai",
+      "sameOriginLoopback": true,
+      "query": "",
+      "hash": "",
+      "body": null,
+      "headers": {"X-Diamond-AI-Workspace": "stick-figure", "Accept": "application/json"},
+      "response": {"status": 200, "headers": {"cache-control": "no-store", "content-type": "application/json"}, "body": "{\"available\":false,\"reason\":\"server_not_configured\"}"}
+    }
+  ]
+}

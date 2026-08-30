@@ -158,6 +158,11 @@
 ./scripts/fixtures/drawing-persistence/v2/v1-compatibility-cases.json
 ./scripts/fixtures/drawing-persistence/v2/valid-projects.json
 ./scripts/fixtures/spec0001-browser
+./scripts/fixtures/spec0001-browser/spec0003-prerequisite
+./scripts/fixtures/spec0001-browser/spec0003-prerequisite/v1
+./scripts/fixtures/spec0001-browser/spec0003-prerequisite/v1/proof-commands.json
+./scripts/fixtures/spec0001-browser/spec0003-prerequisite/v1/proof-manifest.schema.json
+./scripts/fixtures/spec0001-browser/spec0003-prerequisite/v1/stick-availability-contract.json
 ./scripts/fixtures/spec0001-browser/v1
 ./scripts/fixtures/spec0001-browser/v1/drawing-generate-frames-response.json
 ./scripts/fixtures/spec0001-browser/v1/fonts
@@ -303,10 +308,13 @@
 ./scripts/spec0001-browser/networkDeny.cjs
 ./scripts/spec0001-browser/recordPhase15CompatibilityProof.ts
 ./scripts/spec0001-browser/recordPhase15Proof.ts
+./scripts/spec0001-browser/recordSpec0003TesterCompatibilityProof.ts
+./scripts/spec0001-browser/spec0003TesterCompatibilityContract.ts
 ./scripts/spec0001-browser/validatePhase15.ts
 ./scripts/spec0001-browser/validatePhase15Compatibility.ts
 ./scripts/spec0001-browser/validatePhase15CompatibilityProof.ts
 ./scripts/spec0001-browser/validatePhase15Proof.ts
+./scripts/spec0001-browser/validateSpec0003TesterCompatibilityProof.ts
 ./scripts/spec0001-proof
 ./scripts/spec0001-proof/measureSpec0001LintRegression.ts
 ./scripts/spec0002-browser

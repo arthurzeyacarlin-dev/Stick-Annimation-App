@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "diamond-animator/spec0003/permanent-tester-prerequisite-proof-v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["manifestVersion", "specId", "prerequisiteId", "baseCommit", "headCommit", "productRuntimeReferenceCommit", "recordedAt", "commandConfig", "contract", "receipts", "artifacts", "gitState", "permanentTester", "lintRegression", "registrations", "cleanup", "commandsPassed"],
+  "properties": {
+    "manifestVersion": {"const": 1},
+    "specId": {"const": "SPEC-0003"},
+    "prerequisiteId": {"const": "D-0031"},
+    "baseCommit": {"const": "57ef6ff5ff9d2da7ca3ab1e154aac9f506cc6b81"},
+    "headCommit": {"const": "57ef6ff5ff9d2da7ca3ab1e154aac9f506cc6b81"},
+    "productRuntimeReferenceCommit": {"const": "4cd1a98b2f0b53c89d50ede453d1ab14bccbc9c7"},
+    "recordedAt": {"type": "string", "format": "date-time"},
+    "commandConfig": {"$ref": "#/$defs/fileBinding"},
+    "contract": {"$ref": "#/$defs/fileBinding"},
+    "receipts": {"type": "array", "minItems": 11, "maxItems": 11, "items": {"$ref": "#/$defs/fileBinding"}},
+    "artifacts": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/fileBinding"}},
+    "gitState": {
+      "type": "object", "additionalProperties": false,
+      "required": ["indexEmpty", "hiddenFlags", "dirtyPaths", "productRuntimeChangedPaths", "runnerDiffScoped"],
+      "properties": {
+        "indexEmpty": {"const": true},
+        "hiddenFlags": {"type": "array", "maxItems": 0},
+        "dirtyPaths": {"type": "array", "minItems": 7, "maxItems": 7, "uniqueItems": true, "items": {"type": "string"}},
+        "productRuntimeChangedPaths": {"type": "array", "maxItems": 0},
+        "runnerDiffScoped": {"const": true}
+      }
+    },
+    "permanentTester": {
+      "type": "object", "additionalProperties": false,
+      "required": ["result", "availabilityExchanges", "operationCount", "screenshotCount", "driverMessageCount", "drawingPostCount", "negativeCaseCount", "realApiRouteRequestCount", "browserNonLoopbackAttemptCount", "policyViolationCount", "consoleErrorCount"],
+      "properties": {
+        "result": {"$ref": "#/$defs/fileBinding"},
+        "availabilityExchanges": {"type": "array", "minItems": 4, "maxItems": 4, "items": {"type": "object"}},
+        "operationCount": {"const": 40},
+        "screenshotCount": {"const": 13},
+        "driverMessageCount": {"const": 4},
+        "drawingPostCount": {"const": 1},
+        "negativeCaseCount": {"const": 37},
+        "realApiRouteRequestCount": {"const": 0},
+        "browserNonLoopbackAttemptCount": {"const": 0},
+        "policyViolationCount": {"const": 0},
+        "consoleErrorCount": {"const": 0}
+      }
+    },
+    "lintRegression": {"type": "object", "additionalProperties": false, "required": ["baseCommit", "passed"], "properties": {"baseCommit": {"const": "57ef6ff5ff9d2da7ca3ab1e154aac9f506cc6b81"}, "passed": {"const": true}}},
+    "registrations": {"type": "array", "minItems": 4, "maxItems": 4, "items": {"type": "string", "enum": ["phase-3", "phase-4", "phase-5", "phase-6"]}},
+    "cleanup": {"type": "object", "additionalProperties": false, "required": ["passed", "legacyOutputRemoved", "nextBuildPresent", "residualProfiles", "residualPorts"], "properties": {"passed": {"const": true}, "legacyOutputRemoved": {"const": true}, "nextBuildPresent": {"const": false}, "residualProfiles": {"const": 0}, "residualPorts": {"const": 0}}},
+    "commandsPassed": {"const": true}
+  },
+  "$defs": {
+    "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "fileBinding": {"type": "object", "additionalProperties": false, "required": ["path", "sha256", "byteLength"], "properties": {"path": {"type": "string", "minLength": 1}, "sha256": {"$ref": "#/$defs/digest"}, "byteLength": {"type": "integer", "minimum": 0}}}
+  }
+}

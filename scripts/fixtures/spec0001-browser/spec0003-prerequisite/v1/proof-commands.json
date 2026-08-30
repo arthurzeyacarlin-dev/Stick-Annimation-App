@@ -1,0 +1,21 @@
+{
+  "configVersion": 1,
+  "specId": "SPEC-0003",
+  "prerequisiteId": "D-0031",
+  "baseCommit": "57ef6ff5ff9d2da7ca3ab1e154aac9f506cc6b81",
+  "productRuntimeReferenceCommit": "4cd1a98b2f0b53c89d50ede453d1ab14bccbc9c7",
+  "outputRoot": "output/spec-0003/permanent-tester-prerequisite",
+  "commands": [
+    {"name": "contract-self-test", "argv": ["node", "--experimental-strip-types", "scripts/spec0001-browser/validateSpec0003TesterCompatibilityProof.ts", "--self-test"], "expectedExitCode": 0},
+    {"name": "typescript", "argv": ["./node_modules/.bin/tsc", "--noEmit", "--incremental", "false"], "expectedExitCode": 0},
+    {"name": "lint-regression", "argv": ["node", "--experimental-strip-types", "scripts/spec0001-proof/measureSpec0001LintRegression.ts", "--base=57ef6ff5ff9d2da7ca3ab1e154aac9f506cc6b81"], "expectedExitCode": 0},
+    {"name": "diff-check", "argv": ["git", "diff", "--check"], "expectedExitCode": 0},
+    {"name": "cached-diff-check", "argv": ["git", "diff", "--cached", "--check"], "expectedExitCode": 0},
+    {"name": "phase-3-registration", "argv": ["npm", "run", "test:spec0001-browser", "--", "--self-test=phase-3-registration"], "expectedExitCode": 0},
+    {"name": "phase-4-registration", "argv": ["npm", "run", "test:spec0001-browser", "--", "--self-test=phase-4-registration"], "expectedExitCode": 0},
+    {"name": "phase-5-registration", "argv": ["npm", "run", "test:spec0001-browser", "--", "--self-test=phase-5-registration"], "expectedExitCode": 0},
+    {"name": "phase-6-registration", "argv": ["npm", "run", "test:spec0001-browser", "--", "--self-test=phase-6-registration"], "expectedExitCode": 0},
+    {"name": "permanent-no-plan-browser", "argv": ["npm", "run", "test:spec0001-browser"], "expectedExitCode": 0},
+    {"name": "status", "argv": ["git", "status", "--short", "--branch"], "expectedExitCode": 0}
+  ]
+}

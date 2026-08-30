@@ -5,6 +5,16 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-26 — Authorized SPEC-0003's narrow permanent-tester prerequisite
+
+- reconciled D-0030's activation publication to exact canonical-main commit `4cd1a98b2f0b53c89d50ede453d1ab14bccbc9c7`
+- reproduced the mandatory no-plan tester failure on that clean base before any tracked edit: Phase 6's mounted Stick panel sent its marked same-origin availability `GET /api/ai`, and the older runner rejected it outside the Drawing step
+- traced the complete mount -> `StickFigureAiPanel` -> GET -> route -> strict availability-dispatch path and confirmed the request is already-integrated, provider-free behavior rather than a Tutorials defect
+- recorded D-0031 and an exact seven-path tester-only prerequisite that recognizes only four ordered Stick availability GETs, keeps one Drawing POST and zero real-route/non-loopback requests, preserves every other tester mode and every product byte, and produces its own independently validated proof
+- kept SPEC-0003 **Approved and active**, its one product implementation **Authorized; Not started**, and its fixed welcome/featured-card/three-card/Back/AI-Credits outcome unchanged; product work is entry-gated until the accepted prerequisite is propagated and separately published
+
+This is specification/control-plane correction only. No runtime, tester, fixture, proof, dependency, configuration, environment, provider, external, paid, deployment, staging, commit, push, or Tutorials implementation action occurred.
+
 ### 2026-08-25 — SPEC-0003 approved and its one implementation authorized
 
 - recorded Arthur's direct approval as D-0030 without changing the corrected showcase-only outcome

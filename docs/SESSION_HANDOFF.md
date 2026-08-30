@@ -1,66 +1,67 @@
 # Session Handoff
 
 Status: canonical last-known stopping point
-Last updated: 2026-08-25
+Last updated: 2026-08-26
 Active Approved specs: `docs/specs/0001-first-reversible-ai-stick-animation.md`, `docs/specs/0002-lossless-local-drawing-save-and-reopen.md`, and `docs/specs/0003-tutorials-and-cleaner-home-screen.md`
-Current result: Arthur approved SPEC-0003's exact corrected outcome through D-0030. SPEC-0003 is **Approved and active**; its one implementation is **Authorized; Not started**. This activation record is not yet published, so no Spec Executor may begin until a later publication task supplies the exact new canonical-main SHA. SPEC-0001 Phases 1–6 and SPEC-0002 remain protected; SPEC-0001 Phase 7 remains **Unauthorized; Not started**.
+Current result: SPEC-0003 remains **Approved and active**. Its one product implementation remains **Authorized; Not started** and its visible result is unchanged. D-0031 authorizes one separate **Authorized; Not started** tester-compatibility prerequisite that must be accepted, propagated, and published before product work starts.
 Current roadmap phase: Phase 0 — Preserve and Stabilize
 
-## Completed in This Task
+## Current D-0031 Result
 
-Took exclusive ownership after the Spec Architect stopped, verified the exact six-path proposal state and SPEC-0003 SHA-256 `a105c102d28d84d617744b91298e938de7922591edcad3d29f51bb567aa3354c`, performed the full control-plane boot, and independently confirmed the current `app/page.tsx` path and SPEC-0001/SPEC-0002 protections. D-0030 now records Arthur's approval without changing the accepted proposal outcome.
+Started in a new dedicated correction worktree from clean published canonical-main SHA `4cd1a98b2f0b53c89d50ede453d1ab14bccbc9c7`, completed the required boot, and independently traced the live Phase 6 Stick mount, API availability dispatch, permanent no-plan tester route, plan-mode route, and proof boundaries.
 
-Fresh real-app verification proved Home Tutorials and AI Credits are present inert buttons. Clicking either leaves Home visible. The normal Home header remains visible because no Tutorials view exists. The observed clicks produced no application request and no page error.
+Before any tracked edit, the clean mandatory command failed during the first protected Stick flow:
 
-The corrected proposal defines one small outcome only: Tutorials opens a polished full-screen dark-navy/blue future-video showcase without the Home header; its only `h1` says exactly `Welcome to Diamond Animator`; one large, dominant static `Start Here` placeholder appears above exactly three smaller ordered static placeholders; every placeholder says `COMING LATER`; one Back control returns focus to the Home Tutorials card; and the inert Home AI Credits card is removed. Actual tutorial recording, assets, playback, captions, delivery, progress, and analytics remain a different future spec.
+```text
+AssertionError [ERR_ASSERTION]: Unexpected /api/ai request outside Drawing proof.
+at browserRoute (.../scripts/runSpec0001BrowserProof.ts:1371:12)
+```
 
-## Fresh Conflict Result
+Every `StickFigureAiPanel` mount sends the already-integrated same-origin availability `GET /api/ai`. The no-plan tester's older route rule allows only its Drawing POST and rejects that GET. The two viewport Stick flows mount before Creator and after Back, so they produce exactly four availability GETs. The request is provider-free in the scrubbed proof environment. No Tutorials runtime is involved.
 
-- SPEC-0001 Phase 6 is Verified/published/integrated and protected. It did not change `app/page.tsx`; its Stick runtime/UI/contracts/fixtures/proof and current permanent tester remain read-only.
-- SPEC-0002 is complete/protected. Its Save/Open implementation overlaps `app/page.tsx`, so SPEC-0003 freezes active-project selection, fresh-project clearing, Open callbacks, component keys, and stored-project behavior and requires an isolated save/open/fresh-entry/reopen regression.
-- the permanent tester is now SPEC-0001-only through `phase-6/v1`; SPEC-0003 uses a dedicated ten-path runtime/style/fixture/proof boundary and may not alter that tester.
-- no conflict requires splitting SPEC-0003. It remains one implementation.
+D-0031 now authorizes the smallest safe correction: one seven-path tester prerequisite, its own technical proof, no product/runtime change, no weaker network rule, and no permanent-gate waiver. The Tutorials outcome, ten-path product ceiling, three viewports, and early Arthur review remain unchanged.
+
+## Exact Prerequisite Boundary
+
+Only a future dedicated prerequisite Spec Executor may change:
+
+- `scripts/runSpec0001BrowserProof.ts`
+- `scripts/fixtures/spec0001-browser/spec0003-prerequisite/v1/stick-availability-contract.json`
+- `scripts/fixtures/spec0001-browser/spec0003-prerequisite/v1/proof-commands.json`
+- `scripts/fixtures/spec0001-browser/spec0003-prerequisite/v1/proof-manifest.schema.json`
+- `scripts/spec0001-browser/spec0003TesterCompatibilityContract.ts`
+- `scripts/spec0001-browser/recordSpec0003TesterCompatibilityProof.ts`
+- `scripts/spec0001-browser/validateSpec0003TesterCompatibilityProof.ts`
+
+It must test-fulfill exactly two availability GETs in `stick-1440x900` followed by two in `stick-1024x768`, keep exactly one mocked Drawing POST, keep real API-route and non-loopback counts at zero, preserve 40 operations/13 screenshots/4 driver messages/37 historical negatives, preserve every plan-mode registration meaning, validate its dedicated manifest, and stop.
 
 ## Exact Git and Lifecycle State
 
-- proposal worktree: `/Users/arthurcarlin/.codex/worktrees/6631/stick-animation-app`
-- starting and current HEAD: `7bfcdebc2763c6ed0ef3cf047b80cc1e15f6536a`
-- worktree attachment: detached HEAD
-- canonical `main` and `origin/main` at audit: `7bfcdebc2763c6ed0ef3cf047b80cc1e15f6536a`
-- starting proposal state: exactly six expected dirty proposal/control-plane/tree paths; index remains empty
-- final reviewed dirty scope: `docs/CURRENT_STATE.md`, `docs/DECISIONS.md`, `docs/SESSION_HANDOFF.md`, `docs/TODO.md`, `docs/changelog.md`, `docs/specs/0003-tutorials-and-cleaner-home-screen.md`, `docs/specs/README.md`, and `project/project_structure.txt`
-- SPEC-0003 status: Approved/active through D-0030; activation publication pending
-- SPEC-0003 implementation: Authorized/Not started; blocked only on separate publication/integration of this activation record
-- visible result: fixed directly by Arthur; no product question remains; D-0030 records approval
-- staging, commit, merge, push, publication, deployment, provider/external/paid work: not authorized and not performed
+- correction worktree: `/private/tmp/spec0003-tester-compat-spec-correction-4cd1a98`
+- branch: `codex/spec0003-tester-compat-spec-correction`
+- starting and current HEAD: `4cd1a98b2f0b53c89d50ede453d1ab14bccbc9c7`
+- canonical `main` and local `origin/main` at audit: the same SHA, clean `0/0`
+- D-0030 activation publication: complete at `4cd1a98b…`
+- D-0031 tester prerequisite: Authorized/Not started; this correction publication is pending
+- SPEC-0003 product implementation: Authorized/Not started; blocked on accepted prerequisite publication
+- index: empty
+- implementation, staging, commit, merge, push, publication, deployment, provider/external/paid work: not performed
 
 ## Exact Next Handoff
 
-A separate publication-only Control Plane Architect task must publish exactly this reviewed approval/activation record. The resulting clean canonical-main commit—not `7bfcdebc2763c6ed0ef3cf047b80cc1e15f6536a`—becomes the sole implementation base.
+1. A separate publication-only Control Plane Architect publishes this reviewed D-0031 specification/control-plane correction and records its exact clean canonical-main SHA.
+2. One new Plan-mode prerequisite Spec Executor starts from that SHA, changes only the seven authorized technical paths, validates `output/spec-0003/permanent-tester-prerequisite/proof-manifest.json`, returns its Implementation Review Packet, and stops.
+3. Arthur and the Project Manager accept or reject that technical result. Accepted work transfers exclusively to a Control Plane Architect for propagation and a separate later publication.
+4. The prerequisite publication reruns the corrected clean permanent tester. Its exact synchronized canonical-main SHA becomes the sole base for the fresh ten-path SPEC-0003 product executor.
 
-Only after that publication may one new dedicated Plan-mode Spec Executor implement exactly the ten authorized runtime/style/fixture/proof paths, prove `1440x900`, `1024x768`, and `390x844`, validate the dedicated manifest, and stop. Arthur then reviews the exact unpublished app copy. Accepted work transfers exclusively to a Control Plane Architect for propagation/closeout. Implementation publication remains another later separate instruction.
-
-SPEC-0001 Phase 7 remains a separate Unauthorized/Not started discussion and does not begin through SPEC-0003.
+Only after all four steps may Tutorials implementation start. SPEC-0001 Phase 7 remains separate and Unauthorized/Not started.
 
 ## Proven and Not Proven
 
-Proven:
+Proven: the exact clean published basis and current no-plan failure; the Phase 6 Stick mount -> availability GET -> same-origin route path; four expected GET contexts/order; the older no-plan rule as the blocker; a seven-path provider-free tester correction without product/runtime changes; and no change to the product result or ten-path ceiling.
 
-- exact clean current-main basis and detached proposal-worktree state;
-- complete old-proposal recovery;
-- current inert Tutorials/AI Credits behavior in the real app;
-- current local-view/header execution path;
-- Arthur's corrected future-video-showcase outcome, exact welcome heading, exact four-card hierarchy, and removal of the earlier help/workspace surface;
-- exact overlap/protection boundary and feasibility of one implementation; and
-- proposal/control-plane consistency after required validation; and
-- Arthur's approval, D-0030, and the Authorized/Not started lifecycle.
-
-Not proven or not performed:
-
-- implementation, technical proof, screenshots of a future Tutorials page, or Arthur's future visible acceptance;
-- runtime/test/fixture/dependency/configuration changes;
-- staging, commit, integration, push, deployment, or any provider/external/paid request.
+Not proven or performed: prerequisite implementation/proof; a passing corrected tester; Tutorials implementation/screenshots/future acceptance; staging, commit, publication, deployment, or any provider/external/paid request.
 
 ## Systems Intentionally Left Unchanged
 
-All runtime and style files; Home masthead/header/chrome; retained Home cards; New/Open; Drawing; Stick; Creator; timelines; AI panels; SPEC-0001 Phase 6; SPEC-0002 Save/Open; permanent tester/core/catalog/schemas/fixtures/proof; packages/dependencies/configuration/environment/database/public assets/deployment; other worktrees; and recovery material remain unchanged by this approval task. Nothing is staged, committed, pushed, deployed, or sent to an external service.
+All product runtime and styles; Home/header/chrome; New/Open; Drawing; Stick; Creator; timelines; AI panels; SPEC-0001 Phase 6 behavior; SPEC-0002 Save/Open; all current tester/fixture/proof bytes; packages/dependencies/configuration/environment/database/public assets/deployment; other worktrees; and recovery material remain unchanged by this specification correction.

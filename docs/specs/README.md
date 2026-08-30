@@ -1,7 +1,7 @@
 # Specification Index and Lifecycle
 
 Status: canonical spec registry
-Last updated: 2026-08-25
+Last updated: 2026-08-26
 
 ## Active Specs
 
@@ -9,11 +9,11 @@ Last updated: 2026-08-25
 | --- | --- | --- |
 | [`SPEC-0001 — First Reversible AI-Created Stick Animation from Workspace Chat`](0001-first-reversible-ai-stick-animation.md) | Approved | Phase 1 through Phase 6 are **Verified, published, and integrated**. D-0027 is published at `f46ed3b13e6bca3a09c9b2926c972bea8c331f2c`; D-0028's corrected visible outcome is published at `f19955c336be43b19b2c4cc13d16abcc7ded7247`; and D-0029's accepted exact 25-path implementation plus eight records is published/integrated in exact 33-path commit `caa6c2d946780f384d0a8c58f4ea75a771483bcd`. Proof-manifest SHA-256 is `c0d13c9234087855784ad805410667e9d583ac0f03dbe847257db778fea39297`; browser-runner SHA-256 is `b1be9c83951f027687e2b50fa7df702ffa09b2e8213a7c30b6c7b0e9fa6220bd`; accepted framed aggregate is `3bf3290f09f72787fa28db4f1a96003ab5f13e846358361e5805812904078aa2`. Phase 7 remains **Unauthorized; Not started**. |
 | [`SPEC-0002 — Lossless Local Drawing Save and Reopen`](0002-lossless-local-drawing-save-and-reopen.md) | Approved | Phase 1, Phase 2, and the realistic-size Save/Save As correction are **Verified/published/integrated**; SPEC-0002 is complete again. The exact 13-path correction commit is `5c36870f7671033e30dc9341ba757e36c6572cc2`. Technical-manifest SHA-256: `9d6c2bd8bc607c947265b72b3b0387909065f6b1305baa7e49a6f51e991c54fd`; closeout-manifest SHA-256: `f0f60e9598859d8b356bf24aa802f01a8e75fb8129cc2aa975683b0f626047c0`. |
-| [`SPEC-0003 — Tutorials and Cleaner Home Screen`](0003-tutorials-and-cleaner-home-screen.md) | Approved | D-0030 accepts the exact corrected showcase-only outcome. The one implementation is **Authorized; Not started** and may begin only after this activation record is separately published/integrated. Its exact executor base will be that future publication SHA. |
+| [`SPEC-0003 — Tutorials and Cleaner Home Screen`](0003-tutorials-and-cleaner-home-screen.md) | Approved | D-0030's exact corrected showcase-only outcome is published in `4cd1a98b2f0b53c89d50ede453d1ab14bccbc9c7`. The one product implementation remains **Authorized; Not started** and is blocked on D-0031's separate **Authorized; Not started** seven-path permanent-tester compatibility prerequisite. Only the later accepted prerequisite-publication SHA may start the product executor. |
 
 ## Proposed Specs
 
-No additional specification is currently Proposed for implementation. SPEC-0003 moved to Approved/active through D-0030; its authorization still requires separate publication before execution.
+No additional product specification is currently Proposed for implementation. SPEC-0003 remains Approved/active through D-0030. D-0031's tester-only prerequisite is an entry gate inside SPEC-0003, not a new product spec or a fake phase; it must be implemented, accepted, propagated, and separately published before the one product implementation starts.
 
 SPEC-0002 approves a strict version-2 local Drawing record, lossless raster/audio assets, non-destructive version-1 compatibility, transactional failure safety, finite capacity, and truthful Save/Open presentation. Its original two phases remain published/integrated, ending at `af89b26c89d83eb61f77d91b4a50c105b7c12079`. A real `1440×900` project later exposed boxed-byte expansion of two 60,268,104-byte bitmaps and an out-of-boundary Save preparation error. The accepted correction uses owning typed-byte snapshots and typed V2 hydration/encoding while retaining legacy `number[]`, and moves every pre-storage step inside truthful failure handling without changing the V2 schema or persistence semantics. Its 12-receipt, 890-assertion realistic authoring proof passed Save, edit/save, safe preparation failure, Save As, reload, and original/copy reopen with matching dimensions/digests, held frame, Onion Skin, zero overlays/page errors, and zero external/provider requests. It was published and integrated in exact 13-path commit `5c36870f7671033e30dc9341ba757e36c6572cc2`; the clean permanent tester passed 40 operations and 13 screenshots with one deterministic mocked Drawing request and no real/external request. Technical-manifest SHA-256 is `9d6c2bd8bc607c947265b72b3b0387909065f6b1305baa7e49a6f51e991c54fd`; closeout-manifest SHA-256 is `f0f60e9598859d8b356bf24aa802f01a8e75fb8129cc2aa975683b0f626047c0`.
 

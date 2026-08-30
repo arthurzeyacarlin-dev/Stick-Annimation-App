@@ -115,6 +115,16 @@ It starts the real app with pinned `playwright-core` and installed local Google 
 
 The frozen Phase 1.5 plan proves Home → New → Stick, Stick → Creator → Back, and Drawing Generate Frames. Drawing issues exactly one deterministic mocked POST at `1440x900`; after final success, usable input, and settled Canvas2D pixels are proven, the same context is resized to `1024x768` and the same applied timeline bitmap must survive without a second POST. Any second mock or real `/api/ai`, provider, search, Supabase, or non-loopback request fails the run. The plan also binds 37 negative cases, WebSocket/server guard self-tests, forbidden tester URLs, complete binary-aware deployable-output scanning, and success/failure/`SIGINT`/`SIGTERM` cleanup.
 
+### Current SPEC-0003 pre-implementation compatibility gate
+
+On clean published current main `4cd1a98b2f0b53c89d50ede453d1ab14bccbc9c7`, the no-plan command currently fails before any SPEC-0003 edit. Integrated Phase 6 mounts `StickFigureAiPanel` during each protected Stick visit, and that panel sends a marked same-origin availability `GET /api/ai`. The older no-plan `browserRoute` rejects every `/api/ai` outside its Drawing step and raises `Unexpected /api/ai request outside Drawing proof.` The registered Phase 6 plan already handles its real-route availability path; only the no-plan branch is stale.
+
+D-0031 does not waive the command. It authorizes one seven-path prerequisite that changes only the shared runner plus new dedicated SPEC-0003-prerequisite contract/fixture/proof files. The corrected no-plan run must test-fulfill exactly four provider-free availability GETs—two in `stick-1440x900`, then two in `stick-1024x768`—with exact `X-Diamond-AI-Workspace: stick-figure`, no request body/query/hash, and exact unavailable JSON. Those four requests never reach the real route and never enter the Drawing ledger.
+
+The corrected result must still prove exactly 40 operations, 13 screenshots, 4 tester-driver messages, 37 historical negative cases, and one deterministic Drawing POST, with zero real API-route and non-loopback attempts. Missing/extra/reordered/wrong-context availability events and every other `/api/ai` request fail. Existing v1–v6 fixtures, schemas, catalogs, contracts, adapters, recorders, validators, finalizers, plan selectors, and registration meanings remain byte-identical. All product/runtime bytes remain unchanged.
+
+The prerequisite's dedicated proof is recorded under `output/spec-0003/permanent-tester-prerequisite/**` and independently validated through the new seven-path ceiling named in SPEC-0003 §8.1. It must be implemented, accepted, propagated, and separately published before the ten-path Tutorials product executor starts. The prerequisite publication reruns the corrected clean no-plan command and supplies the sole product executor base.
+
 For a fresh technical proof recording from the historical Phase 1.5 implementation base:
 
 ```bash

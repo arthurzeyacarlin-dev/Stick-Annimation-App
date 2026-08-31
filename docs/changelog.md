@@ -5,6 +5,16 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-31 — SPEC-0003 Tutorials published and integrated
+
+- published the exact accepted SPEC-0003 implementation and reviewed records in 20-path commit `9fa1b819aacc7823711af5838b79e70921469a93`, parent `2cd25fd0bdfb8a775370641ffd65db315cc94532`, message `Implement SPEC-0003 Tutorials screen`
+- preserved the independently validated 3,084-byte technical manifest at SHA-256 `4b63e1dc171cf9536aecbed067f271793dffc17137200afc8d136e1072d04d6d` and every accepted product/proof source hash
+- passed the corrected clean permanent tester with 40 operations, 13 screenshots, 4 driver messages, all 37 historical negatives, four ordered provider-free Stick availability GETs, one deterministic Drawing POST, zero real-route/non-loopback/provider requests, and complete cleanup; result SHA-256 `8c3647aecec11f2660c5bc47b2e656da6fc1b19b816c9a317c709d759f661412`, browser-network-ledger SHA-256 `514d163f272a938a7babb374cda98ea5f362a36f5566ee0e34afbab4db1130ac`
+- safely fast-forwarded and pushed canonical `main`; publication branch, local `main`, local `origin/main`, and live GitHub `main` matched at the publication SHA with both worktrees clean and `0/0` synchronization
+- closed GIT-032 and marked SPEC-0003 fully **Verified, published, and integrated**; no next feature was selected or authorized, and SPEC-0001 Phase 7 remains **Unauthorized; Not started**
+
+The final record-only closeout containing this entry changes exactly eight canonical documents and no product/proof byte. Its own commit SHA and present branch/main/origin/live refs are deliberately not embedded and must be verified directly from Git. It starts no next feature, contacts no provider/external/paid service, and performs no deployment.
+
 ### 2026-08-31 — SPEC-0003 Tutorials accepted and technically closed out
 
 - reconciled the D-0031 prerequisite publication at exact canonical-main commit `2cd25fd0bdfb8a775370641ffd65db315cc94532`, confirmed clean synchronized `main`/`origin/main`, and recorded that the corrected clean permanent tester passed before product work began

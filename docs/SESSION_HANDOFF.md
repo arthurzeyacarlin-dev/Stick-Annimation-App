@@ -1,66 +1,74 @@
 # Session Handoff
 
 Status: canonical last-known stopping point
-Last updated: 2026-08-30
-Active Approved specs: `docs/specs/0001-first-reversible-ai-stick-animation.md`, `docs/specs/0002-lossless-local-drawing-save-and-reopen.md`, and `docs/specs/0003-tutorials-and-cleaner-home-screen.md`
-Current result: SPEC-0003 remains **Approved and active**. Its one product implementation remains **Authorized; Not started** and its visible result is unchanged. D-0031's exact seven-path tester prerequisite is accepted and **technically Verified pending publication/integration**; product work remains blocked until that package is published and its corrected clean tester passes.
+Last updated: 2026-08-31
+Active Approved/Verified specs: `docs/specs/0001-first-reversible-ai-stick-animation.md`, `docs/specs/0002-lossless-local-drawing-save-and-reopen.md`, and `docs/specs/0003-tutorials-and-cleaner-home-screen.md`
+Current result: SPEC-0003's one product implementation is accepted and technically Verified through D-0032. Control-plane propagation and explicit tracked-state closeout are complete in the unpublished worktree; separate publication/integration remains pending. No next feature is authorized or started.
 Current roadmap phase: Phase 0 — Preserve and Stabilize
 
-## Current D-0031 Result
+## Current SPEC-0003 Result
 
-The D-0031 authorization is published at canonical-main SHA `57ef6ff5ff9d2da7ca3ab1e154aac9f506cc6b81`. A dedicated Spec Executor implemented exactly the seven authorized tester/fixture/proof paths, returned its packet, and stopped. Arthur/PM accepted the invisible result and transferred exclusive ownership of `/Users/arthurcarlin/.codex/worktrees/17bf/stick-animation-app` to the Control Plane Architect.
+The D-0031 permanent-tester prerequisite plus reviewed records are published/integrated in exact canonical-main commit `2cd25fd0bdfb8a775370641ffd65db315cc94532`, parent `57ef6ff5ff9d2da7ca3ab1e154aac9f506cc6b81`, message `Update permanent tester for SPEC-0003`. Canonical `main` and local `origin/main` are clean, synchronized, and `0/0` at that SHA. The corrected clean permanent tester passed before the product executor edited, and that exact commit became the product base.
 
-Before any tracked edit, the clean mandatory command failed during the first protected Stick flow:
+One dedicated Spec Executor completed the exact ten-path product implementation, proved it, returned its packet, and stopped. Arthur reviewed the local app copy and explicitly accepted it. The Project Manager accepted the recovered technical result and transferred exclusive ownership of `/Users/arthurcarlin/.codex/worktrees/f1a4/stick-animation-app` to the Control Plane Architect.
 
-```text
-AssertionError [ERR_ASSERTION]: Unexpected /api/ai request outside Drawing proof.
-at browserRoute (.../scripts/runSpec0001BrowserProof.ts:1371:12)
-```
+The accepted visible result is:
 
-Every `StickFigureAiPanel` mount sends the already-integrated same-origin availability `GET /api/ai`. The no-plan tester's older route rule allows only its Drawing POST and rejects that GET. The two viewport Stick flows mount before Creator and after Back, so they produce exactly four availability GETs. The request is provider-free in the scrubbed proof environment. No Tutorials runtime is involved.
+- Home Tutorials opens a polished full-screen dark-navy/blue Tutorials page.
+- The Home header is absent inside Tutorials.
+- The only `h1` is `Welcome to Diamond Animator`.
+- One dominant blue-outlined `Start Here` card appears first.
+- Three smaller cards follow in exact order: `Create Your First Animation`, `Create with AI`, and `Finalize Your Animation`.
+- All four cards say `COMING LATER` and are static/non-interactive.
+- Back returns Home and restores focus to the Home Tutorials card.
+- The inert Home AI Credits card is removed.
 
-The accepted 14,344-byte proof manifest has SHA-256 `adc3ad5534027470e436d92c0cbeaa6bc51fd5821303bb008f771b57da91edb3`, 11 receipts, and 29 artifacts. It proves 40 operations, 13 screenshots, 4 driver messages, 37 historical negatives, exactly four expected Stick availability GETs, exactly one mocked Drawing POST, and zero real API-route/non-loopback/provider attempts. No product/runtime byte changed and no permanent gate was waived.
+## Exact Accepted Technical Boundary
 
-## Exact Prerequisite Boundary
+The accepted product/proof paths are exactly:
 
-The stopped prerequisite Spec Executor changed exactly:
+- `app/page.tsx`
+- `src/components/tutorials/TutorialsScreen.tsx`
+- `src/components/tutorials/TutorialsScreen.module.css`
+- `src/lib/tutorials/tutorialCatalog.ts`
+- `scripts/fixtures/spec0003-tutorials/v1/browser-plan.json`
+- `scripts/fixtures/spec0003-tutorials/v1/proof-commands.json`
+- `scripts/spec0003-tutorials/browserProofContract.ts`
+- `scripts/runSpec0003TutorialsBrowserProof.ts`
+- `scripts/recordSpec0003TutorialsProof.ts`
+- `scripts/validateSpec0003TutorialsProof.ts`
 
-- `scripts/runSpec0001BrowserProof.ts`
-- `scripts/fixtures/spec0001-browser/spec0003-prerequisite/v1/stick-availability-contract.json`
-- `scripts/fixtures/spec0001-browser/spec0003-prerequisite/v1/proof-commands.json`
-- `scripts/fixtures/spec0001-browser/spec0003-prerequisite/v1/proof-manifest.schema.json`
-- `scripts/spec0001-browser/spec0003TesterCompatibilityContract.ts`
-- `scripts/spec0001-browser/recordSpec0003TesterCompatibilityProof.ts`
-- `scripts/spec0001-browser/validateSpec0003TesterCompatibilityProof.ts`
+The fresh technical manifest is `output/spec-0003/single-implementation/proof-manifest.json`, 3,084 bytes, SHA-256 `4b63e1dc171cf9536aecbed067f271793dffc17137200afc8d136e1072d04d6d`. Independent validation passes with six receipts and four artifacts. Its browser result covers `1440×900`, `1024×768`, and `390×844`; three screenshots; 14 assertion groups; exact copy/order/geometry/static semantics; Back/focus; no overflow; zero console/page errors; and zero API/external requests. TypeScript, focused lint, and both diff checks pass. Full lint remains the accepted 5-error/72-warning baseline with no accepted changed-path finding.
 
-Those accepted bytes test-fulfill exactly two availability GETs in `stick-1440x900` followed by two in `stick-1024x768`, keep exactly one mocked Drawing POST, keep real API-route and non-loopback counts at zero, preserve 40 operations/13 screenshots/4 driver messages/37 historical negatives, preserve every plan-mode registration meaning, and independently validate their dedicated manifest.
+The original accepted output was erased before recovery. The regenerated screenshots and manifest prove the same exact replayed source result but are not claimed byte-identical to the historical manifest whose SHA-256 began `1059c0…`. The ten accepted product/proof source paths were hash-frozen on takeover and remained unchanged through Control Plane Architect propagation and closeout.
 
 ## Exact Git and Lifecycle State
 
-- implementation/closeout worktree: `/Users/arthurcarlin/.codex/worktrees/17bf/stick-animation-app`
-- state: detached HEAD at exact published D-0031 authorization base `57ef6ff5ff9d2da7ca3ab1e154aac9f506cc6b81`
-- canonical `main` and local `origin/main` at takeover: the same SHA, clean `0/0`
-- D-0030 activation publication: complete at `4cd1a98b…`
-- D-0031 tester prerequisite: accepted and technically Verified; publication/integration pending
-- SPEC-0003 product implementation: Authorized/Not started; blocked on accepted prerequisite publication
-- publication-ready dirty scope: exactly seven accepted technical paths plus nine reviewed records (`docs/CURRENT_STATE.md`, `docs/DECISIONS.md`, `docs/SESSION_HANDOFF.md`, `docs/TODO.md`, `docs/changelog.md`, `docs/specs/0003-tutorials-and-cleaner-home-screen.md`, `docs/specs/README.md`, `docs/testing_workflow.md`, and generated `project/project_structure.txt`)
+- accepted worktree: `/Users/arthurcarlin/.codex/worktrees/f1a4/stick-animation-app`
+- state: detached HEAD at exact published base `2cd25fd0bdfb8a775370641ffd65db315cc94532`
+- canonical `main` and local `origin/main`: the same SHA, clean `0/0`
+- SPEC-0003 implementation: accepted and technically Verified; publication/integration pending
 - index: empty
-- implementation, staging, commit, merge, push, publication, deployment, provider/external/paid work: not performed
+- accepted technical paths: exactly ten, unchanged from takeover
+- publication-ready control-plane paths: `docs/CURRENT_STATE.md`, `docs/DECISIONS.md`, `docs/SESSION_HANDOFF.md`, `docs/TODO.md`, `docs/architecture.md`, `docs/changelog.md`, `docs/specs/0003-tutorials-and-cleaner-home-screen.md`, `docs/specs/README.md`, `docs/testing_workflow.md`, and regenerated `project/project_structure.txt`
+- staging, commit, merge, push, product publication, deployment, provider/external/paid work: not performed by this closeout
 
 ## Exact Next Handoff
 
-1. A separate publication-only Control Plane Architect publishes the accepted seven technical paths plus the reviewed control-plane records.
-2. That publication reruns the corrected clean permanent tester and verifies clean synchronized canonical `main`/`origin/main`.
-3. Its exact synchronized publication SHA becomes the sole base for one new Plan-mode ten-path SPEC-0003 product executor.
+1. Review the Control Plane Architect PM Review Packet and exact publication-ready path list.
+2. Under a separate explicit publication instruction, the Control Plane Architect stages only the accepted ten technical paths plus the ten reviewed control-plane paths.
+3. Commit on the feature branch, rerun the corrected clean permanent tester, and stop on any failure or byte/scope drift.
+4. If canonical `main` is still exact and clean, fast-forward it, push normally to `origin/main`, and verify feature branch/local main/origin/live GitHub match cleanly at `0/0`.
+5. Stop. Do not start another feature until Arthur selects the next milestone.
 
-Only after all three steps may Tutorials implementation start. SPEC-0001 Phase 7 remains separate and Unauthorized/Not started.
+SPEC-0001 Phase 7 remains separate and Unauthorized/Not started. Real tutorial media/playback, AI Assistant, Export, AI Project Finalizer, My Project behavior, and every other future Home feature remain unauthorized/not started.
 
 ## Proven and Not Proven
 
-Proven: the exact published basis and former no-plan failure; the Phase 6 Stick mount -> availability GET path; the accepted seven-path provider-free correction; independent manifest validation; exact four-GET/one-POST/zero-real-or-external ledger; all preserved operation/screenshot/message/negative counts; and no product/runtime change.
+Proven: exact accepted base and ten-path scope; executor shutdown and exclusive transfer; Arthur/PM acceptance; visible Tutorials result at all three required viewports; static-card semantics; Back/focus; Home AI Credits removal; manifest/hash revalidation; TypeScript/focused-lint/diff evidence; zero API/external requests; accepted-byte preservation; explicit control-plane closeout; and empty index.
 
-Not proven or performed: clean committed prerequisite publication rerun; Tutorials implementation/screenshots/future acceptance; staging, commit, publication, deployment, or any provider/external/paid request.
+Not yet performed: staging, product commit, clean committed product tester rerun, canonical-main integration, push, live-GitHub synchronization, deployment, real tutorial media, or any next feature.
 
 ## Systems Intentionally Left Unchanged
 
-All product runtime and styles; Home/header/chrome; New/Open; Drawing; Stick; Creator; timelines; AI panels; SPEC-0001 Phase 6 behavior; SPEC-0002 Save/Open; packages/dependencies/configuration/environment/database/public assets/deployment; other worktrees; and recovery material remain unchanged. The accepted seven tester/fixture/proof paths were created by the stopped Spec Executor and were hash-frozen; the Control Plane Architect did not alter them.
+Home masthead/header/menu/notification and every retained Home card; New Project; Open Project; My Project; Home AI Assistant; Export; AI Project Finalizer; Drawing; Stick; Creator; timelines; AI panels; save/open; undo/redo; SPEC-0001 Phases 1–6; SPEC-0002; SPEC-0001 Phase 7 authorization; fonts and global styles; packages/dependencies/configuration/environment/database/public assets/deployment; external/provider/paid services; other worktrees; and recovery material remain unchanged.

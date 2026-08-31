@@ -1,7 +1,7 @@
 # Architecture and System Map
 
 Status: canonical current architecture map
-Last traced: 2026-08-17 through accepted SPEC-0001 Phase 2
+Last traced: 2026-08-31 through accepted SPEC-0003 Tutorials navigation
 
 ## Runtime Overview
 
@@ -9,6 +9,8 @@ Last traced: 2026-08-17 through accepted SPEC-0001 Phase 2
 app/page.tsx
   └─ local React view state
       ├─ home
+      ├─ TutorialsScreen
+      │   └─ fixed static tutorial catalog; Back restores Home Tutorials-card focus
       ├─ OpenProjectBrowser
       │   └─ localStorage drawing project → DrawingWorkspace
       ├─ new-project chooser
@@ -36,7 +38,8 @@ The main product screens are not URL routes. `app/page.tsx` owns a `view` union 
 
 | System | Primary files | Current responsibility |
 | --- | --- | --- |
-| App shell/home/new-project routing | `app/page.tsx`, `src/components/chrome/AIcreditspage.tsx`, `app/ScrollbarActivity.tsx` | Header/menu, welcome flow, home cards, local screen switching |
+| App shell/home/new-project routing | `app/page.tsx`, `src/components/chrome/AIcreditspage.tsx`, `app/ScrollbarActivity.tsx` | Header/menu, welcome flow, home cards, local screen switching, and Tutorials focus return |
+| Tutorials showcase | `src/components/tutorials/TutorialsScreen.tsx`, `TutorialsScreen.module.css`, `src/lib/tutorials/tutorialCatalog.ts` | Full-screen local static showcase with one featured and three secondary `COMING LATER` cards; no media, workspace action, API, analytics, or persistence |
 | Project browser | `src/components/open-project/OpenProjectBrowser.tsx` | Lists and manages locally saved drawing projects |
 | Drawing workspace coordinator | `src/components/workspace/DrawingWorkspace.tsx` | Central drawing/timeline/history/playback/save/AI-apply state and orchestration |
 | Drawing canvas/editor | `src/components/workspace/DrawingCanvas.tsx`, `drawingText.ts` | Imperative layered canvas tools, transforms, assets, symbols, text, playback surface |
@@ -116,7 +119,7 @@ Until superseded by an approved spec:
 
 ## Navigation and Coordinate Boundaries
 
-`DrawingWorkspace` accepts an initial project but no exit callback, so the current mounted drawing flow has no in-app Back/Exit path. The home cards My Project, Tutorials, AI Assistant, Export, AI Project Finalizer, and AI Credits are inert. These are shell limitations, not URL-routing commitments.
+`DrawingWorkspace` accepts an initial project but no exit callback, so the current mounted drawing flow has no in-app Back/Exit path. Home Tutorials now opens a local full-screen showcase and returns with focus restored; the Home header is not mounted inside Tutorials. Home AI Credits was removed. My Project, AI Assistant, Export, and AI Project Finalizer remain inert. These are local shell choices, not URL-routing commitments; refresh from Tutorials returns Home.
 
 `DrawingCanvas` computes an authoring-world scale of 4.6 from camera limits. Six authoring canvases allocate `hostWidth × 4.6 × DPR` by `hostHeight × 4.6 × DPR`, or 21.16 times host pixel area per canvas at DPR 1 and 84.64 times at DPR 2, before the separate playback surface and history snapshots. A stable document/stage coordinate contract is therefore a prerequisite for treating viewport, memory, AI placement, persistence, and export independently.
 

@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "welcomeHeading": "Welcome to Diamond Animator",
+  "status": "COMING LATER",
+  "cards": [
+    {"id": "start-here", "title": "Start Here", "featured": true},
+    {"id": "first-animation", "title": "Create Your First Animation", "featured": false},
+    {"id": "create-with-ai", "title": "Create with AI", "featured": false},
+    {"id": "finalize-animation", "title": "Finalize Your Animation", "featured": false}
+  ],
+  "viewports": [
+    {"id": "desktop", "width": 1440, "height": 900},
+    {"id": "tablet", "width": 1024, "height": 768},
+    {"id": "phone", "width": 390, "height": 844}
+  ]
+}

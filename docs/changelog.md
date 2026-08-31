@@ -5,6 +5,17 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-08-31 — SPEC-0003 Tutorials accepted and technically closed out
+
+- reconciled the D-0031 prerequisite publication at exact canonical-main commit `2cd25fd0bdfb8a775370641ffd65db315cc94532`, confirmed clean synchronized `main`/`origin/main`, and recorded that the corrected clean permanent tester passed before product work began
+- accepted Arthur's exact unpublished Tutorials copy and recorded D-0032: Home Tutorials opens a full-screen dark-navy/blue page without Home chrome; the exact welcome heading, one dominant `Start Here`, three ordered smaller cards, four `COMING LATER` statuses, Back/focus restoration, and removal of inert Home AI Credits match the approved result
+- independently revalidated the fresh 3,084-byte technical manifest at SHA-256 `4b63e1dc171cf9536aecbed067f271793dffc17137200afc8d136e1072d04d6d`, with six receipts, four artifacts, three required viewports/screenshots, 14 assertion groups, TypeScript/focused-lint/diff passes, and zero API/external requests
+- preserved the proof-recovery distinction: the ten accepted source paths exactly replay the archived accepted patch stream, while regenerated screenshots/manifest are not claimed byte-identical to the erased historical manifest whose SHA began `1059c0…`
+- froze and rechecked every accepted product/proof hash, updated the directly affected navigation/testing records, regenerated canonical memory, and completed the explicit tracked-state closeout with the index empty and no accepted-byte change
+- marked SPEC-0003's one implementation **accepted and technically Verified; publication/integration pending**, opened GIT-032 for the later separate publication, and kept every next feature unauthorized/not started
+
+This Control Plane Architect closeout changes only reviewed canonical records and generated project structure after technical acceptance. It does not alter accepted product/proof bytes or stage, commit, merge, push, publish, deploy, contact a provider, or start another feature.
+
 ### 2026-08-30 — SPEC-0003 tester prerequisite accepted and closed out
 
 - accepted the stopped executor's exact seven-path D-0031 tester/fixture/proof result from published authorization base `57ef6ff5ff9d2da7ca3ab1e154aac9f506cc6b81`; no product/runtime byte changed

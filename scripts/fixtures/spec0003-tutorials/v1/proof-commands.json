@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "commands": [
+    "node --experimental-strip-types scripts/validateSpec0003TutorialsProof.ts --self-test",
+    "./node_modules/.bin/tsc --noEmit --incremental false",
+    "./node_modules/.bin/eslint app/page.tsx src/components/tutorials/TutorialsScreen.tsx src/lib/tutorials/tutorialCatalog.ts scripts/spec0003-tutorials/browserProofContract.ts scripts/runSpec0003TutorialsBrowserProof.ts scripts/recordSpec0003TutorialsProof.ts scripts/validateSpec0003TutorialsProof.ts",
+    "node --experimental-strip-types scripts/runSpec0003TutorialsBrowserProof.ts",
+    "git diff --check",
+    "git diff --cached --check"
+  ]
+}

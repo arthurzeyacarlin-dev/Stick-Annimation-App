@@ -1,7 +1,7 @@
 # Verification and Regression Workflow
 
 Status: canonical proof standard and current gate baseline
-Last updated: 2026-08-18
+Last updated: 2026-08-31
 
 ## Core Rule
 
@@ -90,6 +90,8 @@ These commands exist today:
 ./node_modules/.bin/tsc --noEmit --incremental false
 npm run lint
 npm run test:spec0001-browser
+node --experimental-strip-types scripts/runSpec0003TutorialsBrowserProof.ts
+node --experimental-strip-types scripts/validateSpec0003TutorialsProof.ts output/spec-0003/single-implementation/proof-manifest.json
 node --experimental-strip-types scripts/validateDrawingProjectV2Contract.ts
 node --experimental-strip-types scripts/validateDrawingProjectV2Repository.ts
 node --experimental-strip-types scripts/validateDrawingProjectV1Compatibility.ts
@@ -123,7 +125,25 @@ The accepted seven-path prerequisite changes only the shared runner plus dedicat
 
 The corrected result must still prove exactly 40 operations, 13 screenshots, 4 tester-driver messages, 37 historical negative cases, and one deterministic Drawing POST, with zero real API-route and non-loopback attempts. Missing/extra/reordered/wrong-context availability events and every other `/api/ai` request fail. Existing v1–v6 fixtures, schemas, catalogs, contracts, adapters, recorders, validators, finalizers, plan selectors, and registration meanings remain byte-identical. All product/runtime bytes remain unchanged.
 
-The accepted dedicated proof is recorded under `output/spec-0003/permanent-tester-prerequisite/**`. Its independently validated 14,344-byte manifest has SHA-256 `adc3ad5534027470e436d92c0cbeaa6bc51fd5821303bb008f771b57da91edb3`, 11 receipts, and 29 artifacts, and records 40 operations, 13 screenshots, 4 messages, 37 historical negatives, four exact Stick GETs, one mocked Drawing POST, and zero real API-route/non-loopback/provider attempts. It must be separately published before the ten-path Tutorials product executor starts; publication reruns the corrected clean no-plan command and supplies the sole product executor base.
+The accepted dedicated proof is recorded under `output/spec-0003/permanent-tester-prerequisite/**`. Its independently validated 14,344-byte manifest has SHA-256 `adc3ad5534027470e436d92c0cbeaa6bc51fd5821303bb008f771b57da91edb3`, 11 receipts, and 29 artifacts, and records 40 operations, 13 screenshots, 4 messages, 37 historical negatives, four exact Stick GETs, one mocked Drawing POST, and zero real API-route/non-loopback/provider attempts. Its later publication reran the corrected clean no-plan command and supplied the sole product executor base.
+
+The prerequisite and reviewed records were published/integrated in exact canonical-main commit `2cd25fd0bdfb8a775370641ffd65db315cc94532`. The corrected clean permanent tester passed, and that SHA became the accepted Tutorials product executor base.
+
+### Accepted SPEC-0003 product proof
+
+The exact ten-path SPEC-0003 product result is accepted and technically Verified pending separate publication/integration. Its dedicated real-browser proof uses the already-installed local Chrome at exactly `1440×900`, `1024×768`, and `390×844`; it adds no package command, dependency, external service, or production tester surface.
+
+The fresh accepted manifest is `output/spec-0003/single-implementation/proof-manifest.json`, 3,084 bytes, SHA-256 `4b63e1dc171cf9536aecbed067f271793dffc17137200afc8d136e1072d04d6d`, with six successful receipts and four artifacts. The browser artifact records three screenshots, 14 assertion groups, exact heading/card copy and order, feature-versus-secondary geometry, static non-interactive semantics, Back/focus behavior, no viewport overflow, no console/page errors, and zero API/external requests. TypeScript, focused lint, and both diff checks pass. Full lint retains the accepted 5-error/72-warning repository baseline with no accepted changed-path finding.
+
+The original accepted proof output was erased before recovery. The regenerated source result exactly replays the archived accepted ten-path patch stream, but the fresh screenshots and manifest are not claimed byte-identical to the historical manifest whose SHA-256 began `1059c0…`.
+
+Independent technical revalidation is:
+
+```bash
+node --experimental-strip-types scripts/validateSpec0003TutorialsProof.ts output/spec-0003/single-implementation/proof-manifest.json
+```
+
+SPEC-0003 has no dedicated tracked-state finalizer. After acceptance and exclusive Control Plane Architect takeover, closeout therefore uses that unchanged manifest validator plus `bash scripts/update_memory.sh`, `bash scripts/update_memory.sh --check-only`, both diff checks, local-link and lifecycle/status/handoff consistency audits, exact accepted/control-plane path checks, accepted-source hash preservation, hidden-flag/symlink checks, process/port cleanup, and a final empty-index/untracked-output audit. The later publication task reruns the corrected clean permanent tester before canonical-main integration and push.
 
 For a fresh technical proof recording from the historical Phase 1.5 implementation base:
 

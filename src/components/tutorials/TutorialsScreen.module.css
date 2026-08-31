@@ -1,0 +1,187 @@
+.screen {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  color: rgba(246, 249, 255, 0.98);
+  background:
+    radial-gradient(circle at 50% -15%, rgba(36, 102, 181, 0.18), transparent 45%),
+    linear-gradient(180deg, #060f18 0%, #08111b 48%, #09131d 100%);
+}
+
+.backButton {
+  position: fixed;
+  top: 22px;
+  left: 22px;
+  z-index: 2;
+  min-width: 84px;
+  min-height: 44px;
+  padding: 10px 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid rgba(123, 156, 203, 0.38);
+  border-radius: 11px;
+  background: rgba(11, 26, 45, 0.92);
+  box-shadow: 0 12px 28px rgba(0, 5, 15, 0.28);
+  color: rgba(241, 247, 255, 0.94);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+}
+
+.backButton:hover {
+  border-color: rgba(84, 157, 255, 0.78);
+  background: rgba(14, 42, 75, 0.96);
+  box-shadow: 0 12px 28px rgba(0, 5, 15, 0.34), 0 0 18px rgba(32, 113, 222, 0.12);
+}
+
+.backButton:focus-visible {
+  outline: 3px solid rgba(109, 179, 255, 0.92);
+  outline-offset: 3px;
+}
+
+.backArrow {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.content {
+  width: min(1100px, calc(100% - 96px));
+  min-height: 100%;
+  margin: 0 auto;
+  padding: 86px 0 58px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.heading {
+  margin: 0 0 32px;
+  color: rgba(246, 249, 255, 0.98);
+  font-size: clamp(32px, 3.1vw, 46px);
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+  text-align: center;
+}
+
+.featuredCard,
+.secondaryCard {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  color: rgba(247, 250, 255, 0.98);
+  background:
+    linear-gradient(145deg, rgba(18, 41, 70, 0.98), rgba(10, 25, 45, 0.99));
+  border-radius: 18px;
+  box-shadow: 0 22px 46px rgba(1, 7, 18, 0.3);
+}
+
+.featuredCard {
+  width: 100%;
+  min-height: 232px;
+  padding: 42px 46px;
+  border: 2px solid rgba(70, 148, 255, 0.9);
+  box-shadow:
+    0 28px 62px rgba(1, 7, 18, 0.42),
+    inset 0 0 52px rgba(42, 115, 212, 0.08),
+    0 0 28px rgba(29, 111, 225, 0.11);
+}
+
+.secondaryGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 34px;
+}
+
+.secondaryCard {
+  min-width: 0;
+  min-height: 145px;
+  padding: 24px 25px;
+  border: 1px solid rgba(89, 132, 190, 0.48);
+  border-radius: 14px;
+}
+
+.featuredTitle,
+.secondaryTitle,
+.status {
+  margin: 0;
+}
+
+.featuredTitle {
+  font-size: 38px;
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+}
+
+.secondaryTitle {
+  font-size: 23px;
+  line-height: 1.18;
+  letter-spacing: -0.015em;
+}
+
+.status {
+  margin-top: 15px;
+  color: rgba(126, 189, 255, 0.94);
+  font-size: 12px;
+  font-weight: 760;
+  line-height: 1.2;
+  letter-spacing: 0.15em;
+}
+
+@media (max-width: 700px) {
+  .backButton {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+  }
+
+  .content {
+    width: min(100% - 32px, 520px);
+    padding: 86px 0 34px;
+    justify-content: flex-start;
+  }
+
+  .heading {
+    margin-bottom: 24px;
+    font-size: 31px;
+    text-align: left;
+  }
+
+  .featuredCard {
+    min-height: 210px;
+    padding: 34px 28px;
+  }
+
+  .secondaryGrid {
+    grid-template-columns: 1fr;
+    gap: 13px;
+    margin-top: 28px;
+  }
+
+  .secondaryCard {
+    min-height: 118px;
+    padding: 21px 22px;
+  }
+
+  .featuredTitle {
+    font-size: 34px;
+  }
+
+  .secondaryTitle {
+    font-size: 22px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backButton {
+    transition: none;
+  }
+}

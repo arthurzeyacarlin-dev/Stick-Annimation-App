@@ -224,6 +224,10 @@
 ./scripts/fixtures/spec0002-browser/v1/phase-2-proof-commands.json
 ./scripts/fixtures/spec0002-browser/v1/phase-2-proof-manifest.schema.json
 ./scripts/fixtures/spec0002-browser/v1/phase-2-validator-negative-cases.json
+./scripts/fixtures/spec0003-tutorials
+./scripts/fixtures/spec0003-tutorials/v1
+./scripts/fixtures/spec0003-tutorials/v1/browser-plan.json
+./scripts/fixtures/spec0003-tutorials/v1/proof-commands.json
 ./scripts/fixtures/stick-ai
 ./scripts/fixtures/stick-ai/v1
 ./scripts/fixtures/stick-ai/v1/canonical-hash-vectors.json
@@ -291,8 +295,10 @@
 ./scripts/recordSpec0001ProofBundle.ts
 ./scripts/recordSpec0002Phase1Proof.ts
 ./scripts/recordSpec0002Phase2Proof.ts
+./scripts/recordSpec0003TutorialsProof.ts
 ./scripts/runSpec0001BrowserProof.ts
 ./scripts/runSpec0002BrowserProof.ts
+./scripts/runSpec0003TutorialsBrowserProof.ts
 ./scripts/seedGeneratePlansTraining.ts
 ./scripts/spec0001-browser
 ./scripts/spec0001-browser/actions
@@ -320,6 +326,8 @@
 ./scripts/spec0002-browser
 ./scripts/spec0002-browser/browserProofContract.ts
 ./scripts/spec0002-browser/validatePhase2.ts
+./scripts/spec0003-tutorials
+./scripts/spec0003-tutorials/browserProofContract.ts
 ./scripts/sync_docs_to_github.sh
 ./scripts/traceExplosionLivePath.ts
 ./scripts/traceGenerateSoundsLivePath.mjs
@@ -344,6 +352,7 @@
 ./scripts/validateSoundProfiles.ts
 ./scripts/validateSpec0001ProofBundle.ts
 ./scripts/validateSpec0002Proof.ts
+./scripts/validateSpec0003TutorialsProof.ts
 ./scripts/validateStickFigureAiContracts.ts
 ./scripts/validateStickFigureAiMockRoute.ts
 ./scripts/validateStickFigureAiUiAdapter.ts
@@ -357,6 +366,9 @@
 ./src/components/chrome/AIcreditspage.tsx
 ./src/components/open-project
 ./src/components/open-project/OpenProjectBrowser.tsx
+./src/components/tutorials
+./src/components/tutorials/TutorialsScreen.module.css
+./src/components/tutorials/TutorialsScreen.tsx
 ./src/components/workspace
 ./src/components/workspace/DrawingCanvas.tsx
 ./src/components/workspace/DrawingRightPanel.tsx
@@ -438,6 +450,8 @@
 ./src/lib/stickfigure/stickProjectContract.ts
 ./src/lib/stickfigure/stickProjectHistory.ts
 ./src/lib/stickfigure/stickTimeline.ts
+./src/lib/tutorials
+./src/lib/tutorials/tutorialCatalog.ts
 ./supabase
 ./supabase/migrations
 ./supabase/migrations/create_plans_training_table.sql

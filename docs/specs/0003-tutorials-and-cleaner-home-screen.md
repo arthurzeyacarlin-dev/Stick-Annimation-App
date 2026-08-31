@@ -1,26 +1,26 @@
 # SPEC-0003 — Tutorials and Cleaner Home Screen
 
-Status: Approved
+Status: Verified (accepted; publication/integration pending)
 Owner: Arthur
-Implementer: one product Spec Executor, only after the accepted tester-compatibility prerequisite is published and its clean committed tester passes
+Implementer: completed by one stopped product Spec Executor; accepted worktree transferred exclusively to the Control Plane Architect
 Created: 2026-08-16
-Last corrected: 2026-08-30
-Lifecycle: Approved and active; the one single product implementation is Authorized; Not started; blocked on publication/integration of the accepted, technically Verified pre-implementation tester-compatibility prerequisite in D-0031
+Last corrected: 2026-08-31
+Lifecycle: the one product implementation is accepted and technically Verified; control-plane propagation is complete in the unpublished worktree and separate publication/integration remains pending
 Owner outcome: fixed directly by Arthur on 2026-08-24; no visible product decision remains open in this spec
 TODO ID: SPEC-003
-Decision links: D-0030 and D-0031 in `../DECISIONS.md`
-Prerequisite acceptance basis: exact published D-0031 authorization commit `57ef6ff5ff9d2da7ca3ab1e154aac9f506cc6b81`; accepted seven-path technical proof manifest SHA-256 `adc3ad5534027470e436d92c0cbeaa6bc51fd5821303bb008f771b57da91edb3`
+Decision links: D-0030, D-0031, and D-0032 in `../DECISIONS.md`
+Implementation basis: exact published prerequisite/canonical-main SHA `2cd25fd0bdfb8a775370641ffd65db315cc94532`; accepted ten-path product proof manifest SHA-256 `4b63e1dc171cf9536aecbed067f271793dffc17137200afc8d136e1072d04d6d`
 Recovered proposal source: complete reference-only file at `/Users/arthurcarlin/.codex/worktrees/6aac/stick-animation-app/docs/specs/0003-tutorials-and-cleaner-home-screen.md`
 
 ## 1. Status and authorization boundary
 
-This is Arthur's approved corrected product specification. It is **Approved and active** through D-0030. The exact visible result is settled, and its one product implementation is **Authorized; Not started**. D-0031 does not change that result. Its separate invisible tester prerequisite is accepted and technically Verified; the product executor stays blocked until that package is published and its clean committed tester passes.
+This is Arthur's approved corrected product specification. D-0030 fixes the exact visible result, D-0031 records the tester prerequisite, and D-0032 records Arthur's acceptance of the completed product result. The one product implementation is now **accepted and technically Verified; publication/integration pending**.
 
 SPEC-0001 Phases 1 through 6 are Verified, published, and integrated. Phase 6's corrected deterministic Stick chat is integrated in `caa6c2d946780f384d0a8c58f4ea75a771483bcd`, and its later canonical publication record is integrated at the current-main basis above. SPEC-0001 Phase 7 remains Unauthorized and Not started. SPEC-0002 is complete, protected, and integrated, including the realistic-size Drawing Save correction at `5c36870f7671033e30dc9341ba757e36c6572cc2`.
 
 SPEC-0003 contains exactly **one small implementation** and no phases. Actual tutorial recording, video assets, playback, captions, delivery, progress, and analytics require a different future specification after the app is much more complete.
 
-The D-0030 approval/activation is published in exact canonical-main commit `4cd1a98b2f0b53c89d50ede453d1ab14bccbc9c7`, and D-0031's authorization is published in `57ef6ff5ff9d2da7ca3ab1e154aac9f506cc6b81`. The stopped prerequisite executor implemented and proved exactly seven authorized tester/fixture/proof paths; Arthur/PM accepted the result and the Control Plane Architect revalidated its manifest. Product implementation may begin only after a separate task publishes that accepted package to canonical `main` and reruns the corrected clean permanent tester. That synchronized publication SHA—not `4cd1a98b…` or `57ef6ff…`—becomes the sole product executor base.
+The D-0030 approval/activation is published in exact canonical-main commit `4cd1a98b2f0b53c89d50ede453d1ab14bccbc9c7`, and D-0031's authorization is published in `57ef6ff5ff9d2da7ca3ab1e154aac9f506cc6b81`. The accepted prerequisite plus reviewed records were published/integrated in exact canonical-main commit `2cd25fd0bdfb8a775370641ffd65db315cc94532`, and the corrected clean permanent tester passed before product implementation. The stopped product executor started from that exact SHA, changed only section 8.2's ten paths, proved the result, and left the unpublished worktree for Arthur's review. Arthur accepted that exact copy; the Project Manager accepted the recovered technical result; and the Control Plane Architect took exclusive ownership without changing any accepted product or proof byte.
 
 ## 2. Exact one-bite product outcome
 
@@ -465,7 +465,7 @@ The Spec Executor leaves the completed unpublished worktree available after tech
 
 ## 12. Lifecycle, stop gates, and later control-plane ownership
 
-The product executor does not start from `4cd1a98b…` or `57ef6ff…`. It remains Authorized/Not started and entry-gated until the accepted tester prerequisite is published and its corrected clean tester passes. The completed prerequisite executor stopped with exactly seven technical paths; any later correction would require a separately authorized executor rather than widening this accepted result.
+The product executor correctly did not start from `4cd1a98b…` or `57ef6ff…`. It started only after the accepted tester prerequisite was published/integrated at exact SHA `2cd25fd0bdfb8a775370641ffd65db315cc94532` and the corrected clean tester passed. It then completed the exact ten-path implementation from that base and stopped. Any correction to the now-accepted product or proof bytes requires a separately authorized Spec Executor rather than widening this result.
 
 After prerequisite publication, the product executor stops without implementation if its exact base is not clean, the corrected permanent tester fails, another executor owns an overlapping worktree/system, a required product change needs an 11th path, a corrected tester byte would need alteration, the feature is not measurably dominant, a placeholder becomes interactive, protected visual measurements drift, or any acceptance item cannot be proved.
 
@@ -521,7 +521,26 @@ Separate explicit publication task
 
 Neither review packet authorizes Git publication. No one may implement real tutorial media or delivery under this spec.
 
-## 13. Proposal verification record
+## 13. Accepted implementation and verification record
+
+Arthur accepted the exact unpublished app copy from detached base/HEAD `2cd25fd0bdfb8a775370641ffd65db315cc94532`. The result changes exactly the four authorized runtime/style paths and six dedicated proof paths in section 8.2. The index remains empty and no accepted byte was staged, committed, merged, pushed, published, or deployed by the executor or this Control Plane Architect closeout.
+
+The accepted visible result is exact:
+
+- Home Tutorials opens a full-screen dark-navy/blue page with no Home header;
+- the only `h1` is `Welcome to Diamond Animator`;
+- one dominant blue-outlined `Start Here` card appears above `Create Your First Animation`, `Create with AI`, and `Finalize Your Animation` in that order;
+- all four static non-interactive cards say `COMING LATER`;
+- Back returns Home and restores focus to the Home Tutorials card; and
+- the inert Home AI Credits card is removed while retained Home, New/Open, Drawing, Stick, Creator, AI-panel, persistence, and outside-service boundaries remain protected.
+
+The fresh accepted technical manifest is `output/spec-0003/single-implementation/proof-manifest.json`, 3,084 bytes, SHA-256 `4b63e1dc171cf9536aecbed067f271793dffc17137200afc8d136e1072d04d6d`, with six successful receipts and four artifacts. It binds three screenshots and a three-viewport browser result for `1440×900`, `1024×768`, and `390×844`; 14 assertion groups; exact card copy/order/geometry/static semantics; Back/focus behavior; zero console/page errors; and zero API/external requests. TypeScript, focused lint with zero findings, both diff checks, the exact ten-path/empty-index audit, and independent manifest validation pass. Full lint remains the accepted repository baseline of 5 errors and 72 warnings with no accepted changed-path finding.
+
+The original accepted proof output was erased before recovery. The regenerated screenshots and manifest prove the same accepted source result but are not claimed byte-identical to the historical manifest whose SHA-256 began `1059c0…`. The accepted product and proof source files are exact replay of the archived accepted patch stream. The Control Plane Architect revalidated the fresh manifest and froze/rechecked all ten accepted source hashes without altering them.
+
+There is no dedicated tracked-state finalizer for SPEC-0003. The Control Plane Architect therefore used the existing manifest validator plus explicit memory, diff, link, lifecycle/status/handoff, exact-scope, accepted-hash, hidden-flag, process/port, index, and untracked-output checks required by this spec. Separate publication must stage only the reviewed implementation and control-plane paths, commit on the feature branch, rerun the corrected clean permanent tester, safely fast-forward a still-clean canonical `main`, push normally, and verify clean `0/0` synchronization.
+
+## 14. Proposal verification record
 
 | Gate | Result |
 | --- | --- |
@@ -536,7 +555,7 @@ Neither review packet authorizes Git publication. No one may implement real tuto
 | One-bite lifecycle | Pass: the Tutorials result remains one implementation only. The tester prerequisite follows its own executor -> Arthur/PM review -> CPA propagation -> separate publication chain and is not a product phase. |
 | Generated tree and proposal integrity | Pass after correction: `bash scripts/update_memory.sh`, check-only, relative-link/lifecycle/stale-word audits, both diff checks, and exact scope checks. The generated tree remains deterministic and has no tracked content change. |
 | Exact scope | Pass after correction: only the reviewed SPEC-0003/control-plane/testing-workflow Markdown paths are dirty; the index is empty; runtime, test, fixture, dependency, configuration, generated-tree, and public-asset bytes are unchanged. |
-| D-0031 prerequisite implementation/proof | Pass and accepted pending publication: exact seven technical paths; independently validated 14,344-byte manifest SHA-256 `adc3ad5534027470e436d92c0cbeaa6bc51fd5821303bb008f771b57da91edb3`; 11 receipts; 29 artifacts; 40 operations; 13 screenshots; 4 messages; 37 historical negatives; four exact Stick GETs; one mocked Drawing POST; zero real API-route/non-loopback/provider attempts; no product/runtime byte changed. |
-| Tutorials implementation/proof | Not run. The ten-path product implementation remains Authorized/Not started and blocked until prerequisite publication and the corrected clean committed tester. No service, deployment, provider, external, or paid action occurred. |
+| D-0031 prerequisite implementation/proof | Pass, published, and integrated at `2cd25fd0bdfb8a775370641ffd65db315cc94532`: exact seven technical paths; independently validated 14,344-byte manifest SHA-256 `adc3ad5534027470e436d92c0cbeaa6bc51fd5821303bb008f771b57da91edb3`; 11 receipts; 29 artifacts; 40 operations; 13 screenshots; 4 messages; 37 historical negatives; four exact Stick GETs; one mocked Drawing POST; zero real API-route/non-loopback/provider attempts; no product/runtime byte changed. The corrected clean tester passed before the product executor edited. |
+| Tutorials implementation/proof | Pass and accepted pending publication: exact ten technical paths from base/HEAD `2cd25fd0bdfb8a775370641ffd65db315cc94532`; independently validated 3,084-byte manifest SHA-256 `4b63e1dc171cf9536aecbed067f271793dffc17137200afc8d136e1072d04d6d`; 6 receipts; 4 artifacts; 3 viewports; 3 screenshots; 14 assertion groups; exact visible hierarchy/static semantics/Back-focus flow; TypeScript and focused lint pass; zero API/external request. The fresh regenerated proof output is not claimed byte-identical to the erased historical `1059c0…` manifest. |
 
-Final approved state: **SPEC-0003 is Approved and active; its one product implementation remains Authorized; Not started; its exact visible outcome is unchanged and no product question remains. The separate D-0031 tester prerequisite is accepted and technically Verified pending publication/integration. It must be published and pass its clean committed rerun before product work starts.**
+Final accepted state: **SPEC-0003's one implementation is accepted and technically Verified in the unpublished worktree; control-plane propagation is complete and separate publication/integration remains pending. No next feature is authorized or started.**

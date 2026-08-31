@@ -2,6 +2,7 @@
 
 import { AppChrome as MainScreenHeader } from "@/src/components/chrome/AIcreditspage";
 import { OpenProjectBrowser } from "@/src/components/open-project/OpenProjectBrowser";
+import { TutorialsScreen } from "@/src/components/tutorials/TutorialsScreen";
 import { DrawingWorkspace } from "@/src/components/workspace/DrawingWorkspace";
 import { StickFigureCreatorWorkspace } from "@/src/components/workspace/stickfigure/StickFigureCreatorWorkspace";
 import { StickFigureWorkspace } from "@/src/components/workspace/stickfigure/StickFigureWorkspace";
@@ -9,11 +10,11 @@ import type { DrawingProjectOpenCandidate } from "@/src/lib/drawingProjectStorag
 import type { StickSavedProjectRecordV1 } from "@/src/lib/stickProjectStorage";
 import { useEffect, useRef, useState } from "react";
 
-type HomeCardId = "new" | "open" | "myProject" | "tutorials" | "assistant" | "export" | "aiProject" | "aiCredits";
+type HomeCardId = "new" | "open" | "myProject" | "tutorials" | "assistant" | "export" | "aiProject";
 
 export default function Page() {
   const [view, setView] = useState<
-    "home" | "openProject" | "newProject" | "drawingWorkspace" | "stickFigureWorkspace" | "stickFigureCreatorWorkspace"
+    "home" | "tutorials" | "openProject" | "newProject" | "drawingWorkspace" | "stickFigureWorkspace" | "stickFigureCreatorWorkspace"
   >("home");
   const [newProjectBackHover, setNewProjectBackHover] = useState(false);
   const [welcomeOpen, setWelcomeOpen] = useState(false);
@@ -24,6 +25,8 @@ export default function Page() {
   const [hoveredCard, setHoveredCard] = useState<HomeCardId | null>(null);
   const homeMainRef = useRef<HTMLElement | null>(null);
   const homeScrollHideTimeoutRef = useRef<number | null>(null);
+  const tutorialsButtonRef = useRef<HTMLButtonElement | null>(null);
+  const restoreTutorialsFocusRef = useRef(false);
   const CARD_W = "656px";
   const CARD_MAX_W = "calc(100vw - 64px)";
   const homeRootBackground =
@@ -168,6 +171,20 @@ export default function Page() {
     };
   }, [view]);
 
+  useEffect(() => {
+    if (view !== "home" || !restoreTutorialsFocusRef.current) return;
+
+    const timeoutId = window.setTimeout(() => {
+      const tutorialsButton = tutorialsButtonRef.current;
+      if (!tutorialsButton) return;
+      tutorialsButton.scrollIntoView({behavior: "auto", block: "nearest"});
+      tutorialsButton.focus({preventScroll: true});
+      restoreTutorialsFocusRef.current = false;
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [view]);
+
   const toggleGuidedChoice = (key: string) => {
     setGuidedChoices((prev) => (prev.includes(key) ? prev.filter((x) => x !== key) : [...prev, key]));
   };
@@ -190,7 +207,7 @@ export default function Page() {
   className="app"
   style={{
     height: "100vh",
-    background: view === "home" ? homeRootBackground : "rgb(26, 27, 36)",
+    background: view === "home" || view === "tutorials" ? homeRootBackground : "rgb(26, 27, 36)",
     display: "flex",
     flexDirection: "column",
     overflow: "hidden", // IMPORTANT: keep page scrollbar from being on <body>
@@ -780,7 +797,12 @@ export default function Page() {
                   }}
                 >
                   <button
+                    ref={tutorialsButtonRef}
                     type="button"
+                    onClick={() => {
+                      setHoveredCard(null);
+                      setView("tutorials");
+                    }}
                     onMouseEnter={() => setHoveredCard("tutorials")}
                     onMouseLeave={() => setHoveredCard(null)}
                     style={cardStyle(hoveredCard === "tutorials")}
@@ -1174,82 +1196,20 @@ export default function Page() {
                     </div>
                   </button>
 
-                  <button
-                    type="button"
-                    onMouseEnter={() => setHoveredCard("aiCredits")}
-                    onMouseLeave={() => setHoveredCard(null)}
-                    style={cardStyle(hoveredCard === "aiCredits")}
-                  >
-                    <div style={{ display: "flex", alignItems: "center", gap: "18px", transform: "translateX(-34px)" }}>
-                      <div
-                        aria-hidden="true"
-                        style={{
-                          width: "42px",
-                          height: "42px",
-                          background: "transparent",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          flexShrink: 0,
-                          boxSizing: "border-box",
-                          transform: "scale(1.1)",
-                          transformOrigin: "center",
-                        }}
-                      >
-                        <svg
-                          viewBox="0 0 34 34"
-                          fill="none"
-                          style={{ width: "42px", height: "42px" }}
-                        >
-                          <circle
-                            cx="17"
-                            cy="17"
-                            r="12.1"
-                            stroke="rgba(255,255,255,0.94)"
-                            strokeWidth="2.05"
-                          />
-                          <line x1="5.31" y1="13.87" x2="7.63" y2="14.49" stroke="rgba(255,255,255,0.94)" strokeWidth="1.9" strokeLinecap="round" />
-                          <line x1="8.44" y1="8.44" x2="10.14" y2="10.14" stroke="rgba(255,255,255,0.94)" strokeWidth="1.9" strokeLinecap="round" />
-                          <line x1="13.87" y1="5.31" x2="14.49" y2="7.63" stroke="rgba(255,255,255,0.94)" strokeWidth="1.9" strokeLinecap="round" />
-                          <line x1="20.13" y1="5.31" x2="19.51" y2="7.63" stroke="rgba(255,255,255,0.94)" strokeWidth="1.9" strokeLinecap="round" />
-                          <line x1="25.56" y1="8.44" x2="23.86" y2="10.14" stroke="rgba(255,255,255,0.94)" strokeWidth="1.9" strokeLinecap="round" />
-                          <line x1="28.69" y1="13.87" x2="26.37" y2="14.49" stroke="rgba(255,255,255,0.94)" strokeWidth="1.9" strokeLinecap="round" />
-                          <line
-                            x1="17"
-                            y1="17"
-                            x2="24.55"
-                            y2="11.79"
-                            stroke="rgba(77, 163, 255, 0.96)"
-                            strokeWidth="2.35"
-                            strokeLinecap="round"
-                          />
-                          <circle cx="17" cy="17" r="2.45" fill="rgba(255,255,255,0.94)" />
-                        </svg>
-                      </div>
-
-                      <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                        <div style={{ fontWeight: 600, letterSpacing: "0.01em", fontSize: "18px", lineHeight: 1.1 }}>
-                          AI Credits
-                        </div>
-                        <div
-                          style={{
-                            fontSize: "13px",
-                            lineHeight: 1.25,
-                            color: homeCardBodyColor,
-                            userSelect: "none",
-                          }}
-                        >
-                          Review your AI credit usage.
-                        </div>
-                      </div>
-                    </div>
-                  </button>
                 </div>
               </div>
             </div>
           </section>
         </main>
       )}
+{view === "tutorials" && (
+  <TutorialsScreen
+    onBack={() => {
+      restoreTutorialsFocusRef.current = true;
+      setView("home");
+    }}
+  />
+)}
 {view === "openProject" && (
   <OpenProjectBrowser
     activeDrawingProjectId={activeDrawingProject?.project.id ?? null}

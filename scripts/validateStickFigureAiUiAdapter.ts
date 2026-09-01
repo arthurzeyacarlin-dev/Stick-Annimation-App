@@ -188,6 +188,7 @@ const baseSnapshot: StickAiWorkspaceSnapshotV2 = {
   documentDigest: projectContext.value.baseDocumentDigest,
   ready: true,
   eligible: true,
+  aiCreationConsumed: false,
   playing: false,
 };
 let liveSnapshot = clone(baseSnapshot);
@@ -207,7 +208,7 @@ equal(previewCalls, 1, "preview port called exactly once");
 for (const [field, value] of [
   ["workspaceInstanceId", "workspace-b"], ["workspaceGeneration", 4], ["projectId", "20000000-0000-4000-8000-000000000001"],
   ["documentRevision", 1], ["documentDigest", "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"],
-  ["ready", false], ["playing", true],
+  ["ready", false], ["playing", true], ["aiCreationConsumed", true],
 ] as const) {
   liveSnapshot = {...baseSnapshot, [field]: value};
   equal(await adapter.apply(binding!, firstEnvelope as unknown as StickCommandBatchV1), {accepted: false, outcomeCode: "rejected", errorCode: "stale_document"}, `adapter rejects changed ${field}`);

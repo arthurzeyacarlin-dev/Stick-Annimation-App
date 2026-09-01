@@ -199,6 +199,73 @@ export type StickCommandBatchV2 = Omit<StickCommandBatchV1, "envelopeVersion" | 
   interpretedIntent: StickAiInterpretedIntentV2;
 };
 
+export const STICK_ANIMATION_PLAN_VERSION = 1 as const;
+export const STICK_ANIMATION_PLAN_MIN_FRAMES = 8;
+export const STICK_ANIMATION_PLAN_MAX_FRAMES = 24;
+export const STICK_ANIMATION_PLAN_ALLOWED_FPS = [12, 24] as const;
+
+export type StickAnimationPlanJointV1 = {
+  role: (typeof STICK_JOINT_ROLES)[number];
+  x: number;
+  y: number;
+};
+
+export type StickAnimationSetTimingCommandV1 = {
+  type: "set_timing";
+  commandVersion: 1;
+  fps: 12 | 24;
+  totalFrameCount: number;
+};
+
+export type StickAnimationCreateKeyPoseCommandV1 = {
+  type: "create_key_pose";
+  commandVersion: 1;
+  poseName: string;
+  frameIndex: number;
+  targetLayerId: string;
+  targetRigId: string;
+  targetFigureId: string;
+  joints: StickAnimationPlanJointV1[];
+};
+
+export type StickAnimationHoldPoseCommandV1 = {
+  type: "hold_pose";
+  commandVersion: 1;
+  poseName: string;
+  startFrameIndex: number;
+  endFrameIndex: number;
+};
+
+export type StickAnimationFinishCommandV1 = {
+  type: "finish";
+  commandVersion: 1;
+};
+
+export type StickAnimationPlanCommandV1 =
+  | StickAnimationSetTimingCommandV1
+  | StickAnimationCreateKeyPoseCommandV1
+  | StickAnimationHoldPoseCommandV1
+  | StickAnimationFinishCommandV1;
+
+/**
+ * SPEC-0004 Phase 1's fixture-only, action-neutral plan.  `poseName` is an
+ * opaque local reference; no action label or natural-language token is part
+ * of the executable contract.
+ */
+export type StickAnimationPlanV1 = {
+  kind: "stick-animation-plan";
+  planVersion: 1;
+  requestId: string;
+  transactionId: string;
+  workspaceType: "stick-figure";
+  projectId: string;
+  baseDocumentRevision: number;
+  baseDocumentDigest: string;
+  commands: StickAnimationPlanCommandV1[];
+};
+
+export type StickCommandInputV1 = StickCommandBatchV1 | StickAnimationPlanV1;
+
 export type StickCommandResultStatusV1 =
   | "previewed"
   | "applied"
@@ -222,10 +289,10 @@ export type StickCommandResultV1 = {
   candidateDigest: string | null;
   previewSummary: {
     figureCount: 1;
-    keyPoseCount: 3;
-    fps: 12;
-    timelineFrameCount: 12;
-    durationMs: 1000;
+    keyPoseCount: number;
+    fps: 12 | 24;
+    timelineFrameCount: number;
+    durationMs: number;
   } | null;
   error: {code: StickAiErrorCodeV1; message: string} | null;
 };
@@ -858,6 +925,216 @@ export const parseStickCommandBatch = async (
     return envelope as unknown as StickCommandBatchV1;
   });
 
+const planCommandType = (value: unknown, path: string) => {
+  if (!isPlainObject(value)) return fail("invalid_request", path, "Expected a plain command object.");
+  const descriptor = Object.getOwnPropertyDescriptor(value, "type");
+  if (!descriptor || !("value" in descriptor) || typeof descriptor.value !== "string") {
+    return fail("invalid_request", `${path}.type`, "A command type is required.");
+  }
+  return descriptor.value;
+};
+
+const parsePlanPoseName = (value: unknown, path: string) => {
+  const name = text(value, path);
+  if (!/^[a-z][a-z0-9_-]{0,31}$/.test(name)) {
+    return fail("unsupported_command", path, "Pose names must be bounded lowercase opaque identifiers.");
+  }
+  return name;
+};
+
+/** Strict parser for the action-neutral SPEC-0004 Phase 1 fixture plan. */
+export const parseStickAnimationPlan = async (
+  value: unknown,
+  starterInput: StickProjectDocumentV1,
+): Promise<StickAiContractResult<StickAnimationPlanV1>> =>
+  captureAsync(async () => {
+    if (new TextEncoder().encode(canonicalJson(value)).byteLength > 32_768) {
+      return fail("unsupported_command", "$plan", "Plan exceeds 32 KiB.");
+    }
+    const starterResult = parseStickProjectDocument(starterInput);
+    if (!starterResult.ok || !isStickWaveStarter(starterResult.value)) {
+      return fail("unsupported_project_state", "$document", "Document is not the exact fresh one-figure starter.");
+    }
+    const starter = starterResult.value;
+    const root = object(
+      value,
+      [
+        "kind", "planVersion", "requestId", "transactionId", "workspaceType", "projectId",
+        "baseDocumentRevision", "baseDocumentDigest", "commands",
+      ],
+      "$plan",
+    );
+    const commandsInput = array(root.commands, "$plan.commands");
+    if (commandsInput.length < 3 || commandsInput.length > 50) {
+      return fail("unsupported_command", "$plan.commands", "Plan command count is outside the Phase 1 bound.");
+    }
+
+    const plan: StickAnimationPlanV1 = {
+      kind: literal(root.kind, "stick-animation-plan", "$plan.kind"),
+      planVersion: literal(root.planVersion, STICK_ANIMATION_PLAN_VERSION, "$plan.planVersion"),
+      requestId: uuid(root.requestId, "$plan.requestId"),
+      transactionId: uuid(root.transactionId, "$plan.transactionId"),
+      workspaceType: literal(root.workspaceType, "stick-figure", "$plan.workspaceType"),
+      projectId: uuid(root.projectId, "$plan.projectId"),
+      baseDocumentRevision: integer(root.baseDocumentRevision, "$plan.baseDocumentRevision"),
+      baseDocumentDigest: digest(root.baseDocumentDigest, "$plan.baseDocumentDigest"),
+      commands: [],
+    };
+    if (plan.projectId !== starter.projectId) {
+      return fail("unsupported_command", "$plan.projectId", "Plan project identity does not match the starter.");
+    }
+    if (plan.baseDocumentRevision !== starter.documentRevision) {
+      return fail("stale_document", "$plan.baseDocumentRevision", "Plan document revision is stale.");
+    }
+    if (plan.baseDocumentDigest !== await digestCanonical(starter)) {
+      return fail("stale_document", "$plan.baseDocumentDigest", "Plan document digest is stale.");
+    }
+
+    let timing: StickAnimationSetTimingCommandV1 | null = null;
+    let coverageCursor = 0;
+    let activePoseName: string | null = null;
+    let finishCount = 0;
+    const poseNames = new Set<string>();
+    const poseIndexes = new Set<number>();
+    const heldPoseNames = new Set<string>();
+
+    for (const [commandIndex, commandInput] of commandsInput.entries()) {
+      const path = `$plan.commands[${commandIndex}]`;
+      const type = planCommandType(commandInput, path);
+      if (type === "set_timing") {
+        const command = object(commandInput, ["type", "commandVersion", "fps", "totalFrameCount"], path);
+        if (commandIndex !== 0 || timing !== null) {
+          return fail("unsupported_command", path, "set_timing must appear exactly once and first.");
+        }
+        const fps = integer(command.fps, `${path}.fps`, 12, 24);
+        if (!(STICK_ANIMATION_PLAN_ALLOWED_FPS as readonly number[]).includes(fps)) {
+          return fail("unsupported_command", `${path}.fps`, "Phase 1 supports only 12 or 24 FPS.");
+        }
+        timing = {
+          type: literal(command.type, "set_timing", `${path}.type`),
+          commandVersion: literal(command.commandVersion, 1, `${path}.commandVersion`),
+          fps: fps as 12 | 24,
+          totalFrameCount: integer(
+            command.totalFrameCount,
+            `${path}.totalFrameCount`,
+            STICK_ANIMATION_PLAN_MIN_FRAMES,
+            STICK_ANIMATION_PLAN_MAX_FRAMES,
+          ),
+        };
+        plan.commands.push(timing);
+        continue;
+      }
+      if (timing === null) return fail("unsupported_command", path, "set_timing must be the first command.");
+      if (type === "create_key_pose") {
+        const command = object(
+          commandInput,
+          ["type", "commandVersion", "poseName", "frameIndex", "targetLayerId", "targetRigId", "targetFigureId", "joints"],
+          path,
+        );
+        const poseName = parsePlanPoseName(command.poseName, `${path}.poseName`);
+        if (poseNames.has(poseName)) return fail("unsupported_command", `${path}.poseName`, "Pose names must be unique.");
+        const frameIndex = integer(command.frameIndex, `${path}.frameIndex`, 0, timing.totalFrameCount - 1);
+        if (poseIndexes.has(frameIndex)) return fail("unsupported_command", `${path}.frameIndex`, "Key-pose frame indexes must be unique.");
+        if (frameIndex !== coverageCursor) {
+          return fail("unsupported_command", `${path}.frameIndex`, "Key poses and holds must cover the timeline contiguously in order.");
+        }
+        const targetLayerId = uuid(command.targetLayerId, `${path}.targetLayerId`);
+        const targetRigId = uuid(command.targetRigId, `${path}.targetRigId`);
+        const targetFigureId = uuid(command.targetFigureId, `${path}.targetFigureId`);
+        if (targetLayerId !== starter.layers[0].layerId || targetRigId !== starter.rigs[0].rigId || targetFigureId !== starter.figures[0].figureId) {
+          return fail("unsupported_command", path, "A key pose must target the one existing layer, rig, and figure.");
+        }
+        const jointsInput = array(command.joints, `${path}.joints`);
+        if (jointsInput.length !== STICK_JOINT_ROLES.length) {
+          return fail("unsupported_command", `${path}.joints`, `A complete pose requires exactly ${STICK_JOINT_ROLES.length} joints.`);
+        }
+        const joints = jointsInput.map((jointInput, jointIndex): StickAnimationPlanJointV1 => {
+          const jointPath = `${path}.joints[${jointIndex}]`;
+          const joint = object(jointInput, ["role", "x", "y"], jointPath);
+          const role = text(joint.role, `${jointPath}.role`);
+          if (role !== STICK_JOINT_ROLES[jointIndex]) {
+            return fail("unsupported_command", `${jointPath}.role`, "Joint roles must be complete, unique, and in canonical order.");
+          }
+          return {
+            role,
+            x: integer(joint.x, `${jointPath}.x`, 0, starter.coordinateSpace.width - 1),
+            y: integer(joint.y, `${jointPath}.y`, 0, starter.coordinateSpace.height - 1),
+          };
+        });
+        const parsed: StickAnimationCreateKeyPoseCommandV1 = {
+          type: literal(command.type, "create_key_pose", `${path}.type`),
+          commandVersion: literal(command.commandVersion, 1, `${path}.commandVersion`),
+          poseName,
+          frameIndex,
+          targetLayerId,
+          targetRigId,
+          targetFigureId,
+          joints,
+        };
+        poseNames.add(poseName);
+        poseIndexes.add(frameIndex);
+        activePoseName = poseName;
+        coverageCursor += 1;
+        plan.commands.push(parsed);
+        continue;
+      }
+      if (type === "hold_pose") {
+        const command = object(commandInput, ["type", "commandVersion", "poseName", "startFrameIndex", "endFrameIndex"], path);
+        const poseName = parsePlanPoseName(command.poseName, `${path}.poseName`);
+        if (!poseNames.has(poseName) || poseName !== activePoseName) {
+          return fail("unsupported_command", `${path}.poseName`, "A hold must name the immediately active earlier key pose.");
+        }
+        if (heldPoseNames.has(poseName)) return fail("unsupported_command", `${path}.poseName`, "A pose may have only one explicit hold range.");
+        const startFrameIndex = integer(command.startFrameIndex, `${path}.startFrameIndex`, 0, timing.totalFrameCount - 1);
+        const endFrameIndex = integer(command.endFrameIndex, `${path}.endFrameIndex`, 0, timing.totalFrameCount - 1);
+        if (startFrameIndex !== coverageCursor || endFrameIndex < startFrameIndex) {
+          return fail("unsupported_command", path, "A hold range must be non-empty, contiguous, ordered, and non-overlapping.");
+        }
+        const parsed: StickAnimationHoldPoseCommandV1 = {
+          type: literal(command.type, "hold_pose", `${path}.type`),
+          commandVersion: literal(command.commandVersion, 1, `${path}.commandVersion`),
+          poseName,
+          startFrameIndex,
+          endFrameIndex,
+        };
+        heldPoseNames.add(poseName);
+        coverageCursor = endFrameIndex + 1;
+        plan.commands.push(parsed);
+        continue;
+      }
+      if (type === "finish") {
+        const command = object(commandInput, ["type", "commandVersion"], path);
+        if (commandIndex !== commandsInput.length - 1 || finishCount !== 0) {
+          return fail("unsupported_command", path, "finish must appear exactly once and last.");
+        }
+        finishCount += 1;
+        plan.commands.push({
+          type: literal(command.type, "finish", `${path}.type`),
+          commandVersion: literal(command.commandVersion, 1, `${path}.commandVersion`),
+        });
+        continue;
+      }
+      return fail("unsupported_command", `${path}.type`, "Unknown Phase 1 plan command.");
+    }
+    if (finishCount !== 1 || plan.commands.at(-1)?.type !== "finish") {
+      return fail("unsupported_command", "$plan.commands", "finish must appear exactly once and last.");
+    }
+    if (timing === null || poseNames.size === 0 || coverageCursor !== timing.totalFrameCount) {
+      return fail("unsupported_command", "$plan.commands", "The complete bounded timeline must resolve without gaps.");
+    }
+    return cloneCanonical(plan);
+  });
+
+export const parseStickCommandInput = async (
+  value: unknown,
+  starter: StickProjectDocumentV1,
+): Promise<StickAiContractResult<StickCommandInputV1>> => {
+  if (isPlainObject(value) && Object.getOwnPropertyDescriptor(value, "kind")?.value === "stick-animation-plan") {
+    return parseStickAnimationPlan(value, starter);
+  }
+  return parseStickCommandBatch(value, starter);
+};
+
 /** Shared manual-action trace used by both the Phase 1 contract and Phase 4 executor. */
 export const stickManualActionsFromCommand = (command: StickWaveCommandV1): StickManualActionV1[] => {
   const actions: StickManualActionV1[] = [];
@@ -899,12 +1176,21 @@ const AI_ERROR_CODES = new Set<StickAiErrorCodeV1>([
 
 const parsePreviewSummary = (value: unknown, path: string) => {
   const root = object(value, ["figureCount", "keyPoseCount", "fps", "timelineFrameCount", "durationMs"], path);
+  const fps = integer(root.fps, `${path}.fps`, 12, 24);
+  if (!(STICK_ANIMATION_PLAN_ALLOWED_FPS as readonly number[]).includes(fps)) {
+    return fail("invalid_request", `${path}.fps`, "Preview FPS is outside the supported set.");
+  }
   return {
     figureCount: literal(root.figureCount, 1, `${path}.figureCount`),
-    keyPoseCount: literal(root.keyPoseCount, 3, `${path}.keyPoseCount`),
-    fps: literal(root.fps, 12, `${path}.fps`),
-    timelineFrameCount: literal(root.timelineFrameCount, 12, `${path}.timelineFrameCount`),
-    durationMs: literal(root.durationMs, 1000, `${path}.durationMs`),
+    keyPoseCount: integer(root.keyPoseCount, `${path}.keyPoseCount`, 1, STICK_ANIMATION_PLAN_MAX_FRAMES),
+    fps: fps as 12 | 24,
+    timelineFrameCount: integer(
+      root.timelineFrameCount,
+      `${path}.timelineFrameCount`,
+      STICK_ANIMATION_PLAN_MIN_FRAMES,
+      STICK_ANIMATION_PLAN_MAX_FRAMES,
+    ),
+    durationMs: integer(root.durationMs, `${path}.durationMs`, 1, 2000),
   };
 };
 

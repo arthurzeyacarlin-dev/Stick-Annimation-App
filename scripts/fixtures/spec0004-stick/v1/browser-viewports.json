@@ -1,0 +1,9 @@
+{
+  "fixtureVersion": 1,
+  "viewports": [
+    {"name":"desktop","width":1440,"height":900},
+    {"name":"compact-desktop","width":1024,"height":768}
+  ],
+  "requiredFlows": ["preview", "cancel", "apply", "play-pause", "manual-joint-edit", "undo-redo", "save-open", "stale-rejection", "post-apply-noop"],
+  "forbiddenRequestClasses": ["external", "provider", "api-post"]
+}

@@ -3,6 +3,11 @@ import type {
   EditableStickProjectDocumentV1,
   EditableStickProjectViewStateV1,
 } from "./stickfigure/stickProjectHistory.ts";
+import {
+  createStickAiCreationLatch,
+  isValidStickAiCreationLatch,
+  type StickAiCreationLatchV1,
+} from "./stickfigure/stickProjectHistory.ts";
 
 export const STICK_PROJECT_STORAGE_KEY = "da_saved_stick_projects_v1";
 export const STICK_PROJECT_STORAGE_VERSION = 1;
@@ -21,7 +26,7 @@ export type StickStorageErrorCodeV1 =
 
 export type StickStorageResult<T> = {ok: true; value: T} | {ok: false; error: StickStorageErrorCodeV1};
 
-export type StickSavedProjectRecordV1 = {
+export type StickSavedProjectRecordLegacyV1 = {
   recordVersion: 1;
   projectId: string;
   createdAt: string;
@@ -29,6 +34,19 @@ export type StickSavedProjectRecordV1 = {
   document: EditableStickProjectDocumentV1;
   reopenState: EditableStickProjectViewStateV1;
 };
+
+export type StickSavedProjectRecordV2 = {
+  recordVersion: 2;
+  projectId: string;
+  createdAt: string;
+  updatedAt: string;
+  document: EditableStickProjectDocumentV1;
+  reopenState: EditableStickProjectViewStateV1;
+  aiCreationLatch: StickAiCreationLatchV1;
+};
+
+/** Kept under the historical exported name so existing Open consumers remain source-compatible. */
+export type StickSavedProjectRecordV1 = StickSavedProjectRecordLegacyV1 | StickSavedProjectRecordV2;
 
 export type StickSavedProjectsEnvelopeV1 = {
   storageVersion: 1;
@@ -118,9 +136,20 @@ export const validateEditableStickProjectViewState = (
 };
 
 const validateRecord = (value: unknown): value is StickSavedProjectRecordV1 => {
-  if (!isObject(value) || !exactKeys(value, ["createdAt", "document", "projectId", "recordVersion", "reopenState", "updatedAt"]) || value.recordVersion !== 1 ||
-    typeof value.projectId !== "string" || !isCanonicalTimestamp(value.createdAt) || !isCanonicalTimestamp(value.updatedAt) || !validateEditableStickProjectDocument(value.document)) return false;
-  return value.projectId === value.document.projectId && validateEditableStickProjectViewState(value.reopenState, value.document);
+  if (!isObject(value) || typeof value.projectId !== "string" ||
+    !isCanonicalTimestamp(value.createdAt) || !isCanonicalTimestamp(value.updatedAt) ||
+    !validateEditableStickProjectDocument(value.document)) return false;
+  const commonValid = value.projectId === value.document.projectId &&
+    validateEditableStickProjectViewState(value.reopenState, value.document);
+  if (!commonValid) return false;
+  if (value.recordVersion === 1) {
+    return exactKeys(value, ["createdAt", "document", "projectId", "recordVersion", "reopenState", "updatedAt"]);
+  }
+  if (value.recordVersion === 2) {
+    return exactKeys(value, ["aiCreationLatch", "createdAt", "document", "projectId", "recordVersion", "reopenState", "updatedAt"]) &&
+      isValidStickAiCreationLatch(value.aiCreationLatch, value.projectId);
+  }
+  return false;
 };
 
 export const parseStickSavedProjectsEnvelope = (raw: string | null): StickStorageResult<StickSavedProjectsEnvelopeV1> => {
@@ -164,6 +193,7 @@ export const prepareStickProjectSave = (
   document: EditableStickProjectDocumentV1,
   reopenState: EditableStickProjectViewStateV1,
   now: () => string,
+  aiCreationLatch?: StickAiCreationLatchV1,
 ): StickStorageResult<StickStorageCommitInputV1> => {
   const parsed = parseStickSavedProjectsEnvelope(previousRawBytes);
   if (!parsed.ok) return parsed;
@@ -171,13 +201,17 @@ export const prepareStickProjectSave = (
   const timestamp = now();
   if (!isCanonicalTimestamp(timestamp)) return {ok: false, error: "invalid_saved_project"};
   const existing = parsed.value.projects.find((project) => project.projectId === document.projectId);
-  const record: StickSavedProjectRecordV1 = {
-    recordVersion: 1,
+  const latch = aiCreationLatch ??
+    (existing?.recordVersion === 2 ? existing.aiCreationLatch : createStickAiCreationLatch(document.projectId, "consumed"));
+  if (!isValidStickAiCreationLatch(latch, document.projectId)) return {ok: false, error: "invalid_saved_project"};
+  const record: StickSavedProjectRecordV2 = {
+    recordVersion: 2,
     projectId: document.projectId,
     createdAt: existing?.createdAt ?? timestamp,
     updatedAt: timestamp,
     document: JSON.parse(canonicalJson(document)) as EditableStickProjectDocumentV1,
     reopenState: JSON.parse(canonicalJson(reopenState)) as EditableStickProjectViewStateV1,
+    aiCreationLatch: JSON.parse(canonicalJson(latch)) as StickAiCreationLatchV1,
   };
   const projects = parsed.value.projects.filter((project) => project.projectId !== record.projectId).concat(record)
     .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt) || left.projectId.localeCompare(right.projectId));
@@ -203,11 +237,17 @@ export const saveStickProject = async (
   storage: Storage,
   document: EditableStickProjectDocumentV1,
   reopenState: EditableStickProjectViewStateV1,
-  options: {now?: () => string; commitPort?: StickStorageCommitPortV1} = {},
+  options: {now?: () => string; commitPort?: StickStorageCommitPortV1; aiCreationLatch?: StickAiCreationLatchV1} = {},
 ): Promise<StickStorageResult<void>> => {
   const read = readStickSavedProjects(storage);
   if (!read.ok) return read;
-  const prepared = prepareStickProjectSave(read.value.raw, document, reopenState, options.now ?? (() => new Date().toISOString()));
+  const prepared = prepareStickProjectSave(
+    read.value.raw,
+    document,
+    reopenState,
+    options.now ?? (() => new Date().toISOString()),
+    options.aiCreationLatch,
+  );
   if (!prepared.ok) return prepared;
   return (options.commitPort ?? createBrowserStickStorageCommitPort(storage)).commit(prepared.value);
 };

@@ -2,12 +2,46 @@
 
 Status: canonical last-known stopping point
 Last updated: 2026-09-01
-Active Approved/Verified specs: `docs/specs/0001-first-reversible-ai-stick-animation.md`, `docs/specs/0002-lossless-local-drawing-save-and-reopen.md`, and `docs/specs/0003-tutorials-and-cleaner-home-screen.md`
-SPEC-0004 status: `docs/specs/0004-future-real-ai-animator-requirements.md` is **Approved for Phase 1 only — Authorized; Not started**.
-Current result: SPEC-0003's one product implementation is fully Verified, published, and integrated through D-0032 in exact commit `9fa1b819aacc7823711af5838b79e70921469a93`. D-0033 preserves SPEC-0001 Phases 1–6 and retires old Phase 7; D-0034 records the complete eight-phase SPEC-0004 direction; D-0035 authorizes only its exact provider-free Phase 1. Phases 2–8 remain unauthorized and no implementation has started.
+Active Approved/Verified specs: `docs/specs/0001-first-reversible-ai-stick-animation.md`, `docs/specs/0002-lossless-local-drawing-save-and-reopen.md`, `docs/specs/0003-tutorials-and-cleaner-home-screen.md`, and `docs/specs/0004-future-real-ai-animator-requirements.md`
+SPEC-0004 status: **Phase 1 accepted and technically Verified; publication/integration pending.** Phases 2–8 remain unauthorized.
+Current result: one stopped Spec Executor completed the exact provider-free Phase 1 engine from activation/base `9fae072359f3c0d10f1ed2bcee8da9ebc11d54ec`. Arthur reviewed and accepted the private app copy. One Control Plane Architect then took exclusive ownership, preserved every accepted technical byte, propagated this record, and stopped before Git publication.
 Current roadmap phase: Phase 0 — Preserve and Stabilize
 
-## Current SPEC-0003 Result
+## Accepted SPEC-0004 Phase 1 Result
+
+The accepted engine is the narrow first foundation for future Stick Generate Frames. A strict action-neutral plan uses only ordered `set_timing`, complete independent `create_key_pose`, contiguous bounded `hold_pose`, and terminal `finish` commands. One shared executor materializes fixed checked-in `wave`, `jump`, `bow`, and `dodge` plans without action-name branches. It remains bounded to one figure, one existing layer, the white background, the derived horizontal line head, 8–24 frames, and 12 or 24 FPS.
+
+Preview, Cancel, and every failure leave the document, history, storage, and latch unchanged. Apply publishes exactly one history action and consumes a durable project-bound latch. Undo cannot reopen AI; Redo restores exact accepted bytes; explicit Save/Open preserves the latch; legacy V1 Stick saves remain readable and conservatively consumed; and every generated joint remains normal manually editable data. After Apply, later AI messages return `AI editing comes later; use manual tools.` before executor/provider work.
+
+This phase adds no broad chat understanding, free recipe matcher, Terra/provider/API/key use, paid work, smooth interpolation, multiple figures, layer/background/color changes, working Task/Reasoning controls, user-visible Mode, post-Apply AI editing, Drawing change, dashboard work, deployment, or Phase 2 behavior.
+
+### Exact accepted technical boundary
+
+The accepted technical paths are exactly:
+
+- `scripts/fixtures/spec0004-stick/v1/browser-viewports.json`
+- `scripts/fixtures/spec0004-stick/v1/phase1-plan-cases.json`
+- `scripts/fixtures/stick-ai/v3/bow.json`
+- `scripts/fixtures/stick-ai/v3/dodge.json`
+- `scripts/fixtures/stick-ai/v3/jump.json`
+- `scripts/fixtures/stick-ai/v3/wave.json`
+- `scripts/spec0004-stick/phase1BrowserProof.ts`
+- `scripts/spec0004-stick/recordPhase1Proof.ts`
+- `scripts/spec0004-stick/validatePhase1Proof.ts`
+- `scripts/validateStickFigureAiUiAdapter.ts`
+- `src/components/workspace/stickfigure/StickFigureAiPanel.tsx`
+- `src/components/workspace/stickfigure/StickFigureWorkspace.tsx`
+- `src/lib/ai/stickFigureAiContract.ts`
+- `src/lib/ai/stickFigureAiWorkspaceAdapter.ts`
+- `src/lib/ai/stickFigureCommandExecutor.ts`
+- `src/lib/stickProjectStorage.ts`
+- `src/lib/stickfigure/stickProjectHistory.ts`
+
+The technical manifest is `output/spec-0004/phase-1/proof-manifest.json`, 15,683 bytes, SHA-256 `ee3a92edf8f4227dfa91ec3b84de3599fa158d5fb5f3df83155ab5192c076e4a`. Executor-time independent validation passed 126 checks while the private loopback server was live. It binds 14 receipts and 27 artifacts: 707 assertions, four valid fixtures, 26 invalid-plan rejections, 12 browser flows, 11 screenshots at `1440×900` and `1024×768`, TypeScript, focused lint, unchanged full-lint baseline, diff proof, protected Stick/Drawing flows, and zero external/API/provider requests.
+
+The blue `PRIVATE REVIEW` fixture picker was never product UI. The browser-proof script made a temporary isolated copy and injected the proof client/ports only there. The temporary copy/server are removed. Its identifying tokens are absent from `app`, `src`, and `public`; no product route, picker, overlay, public asset, or query-controlled review surface exists. The proof script remains developer-only technical evidence and is never imported by the app.
+
+## Prior Completed SPEC-0003 Result
 
 The D-0031 permanent-tester prerequisite plus reviewed records are published/integrated in exact canonical-main commit `2cd25fd0bdfb8a775370641ffd65db315cc94532`, parent `57ef6ff5ff9d2da7ca3ab1e154aac9f506cc6b81`, message `Update permanent tester for SPEC-0003`. The corrected clean permanent tester passed before the product executor edited, and that exact commit became the product base.
 
@@ -24,7 +58,7 @@ The accepted visible result is:
 - Back returns Home and restores focus to the Home Tutorials card.
 - The inert Home AI Credits card is removed.
 
-## Exact Accepted Technical Boundary
+## Prior SPEC-0003 Exact Accepted Technical Boundary
 
 The accepted product/proof paths are exactly:
 
@@ -47,6 +81,19 @@ The original accepted output was erased before recovery. The regenerated screens
 
 ## Durable Git and Lifecycle Record
 
+Current SPEC-0004 Phase 1 closeout state:
+
+- activation/base, detached worktree HEAD, and canonical local `main`: `9fae072359f3c0d10f1ed2bcee8da9ebc11d54ec`
+- local `origin/main`: `a853bf96f193b1e4ae297dc8e76c4fceb485612c`; local `main` is intentionally one docs-only activation commit ahead
+- accepted/closeout worktree: `/Users/arthurcarlin/.codex/worktrees/b8ad/stick-animation-app`
+- executor stopped; exclusive ownership transferred to the Control Plane Architect; index empty
+- accepted 17 technical hashes/byte sizes frozen before propagation and rechecked afterward
+- Control Plane Architect record/tree paths: `docs/AI_SYSTEM.md`, `docs/CURRENT_STATE.md`, `docs/DECISIONS.md`, `docs/SESSION_HANDOFF.md`, `docs/TODO.md`, `docs/architecture.md`, `docs/changelog.md`, `docs/specs/0004-future-real-ai-animator-requirements.md`, `docs/specs/README.md`, `docs/testing_workflow.md`, and `project/project_structure.txt`
+- combined publication-ready scope: exactly 28 paths, comprising the 17 accepted technical paths plus these 11 records/tree paths
+- no stage, commit, merge, push, provider/API/paid request, deployment, or Phase 2 work performed by the executor or propagation closeout
+
+Prior SPEC-0003 publication record:
+
 - publication worktree/branch used: `/Users/arthurcarlin/.codex/worktrees/f1a4/stick-animation-app`, `codex/spec0003-publication`
 - exact product publication: commit `9fa1b819aacc7823711af5838b79e70921469a93`, parent `2cd25fd0bdfb8a775370641ffd65db315cc94532`, message `Implement SPEC-0003 Tutorials screen`, exactly 20 reviewed paths
 - immediately after product publication: publication branch, canonical local `main`, local `origin/main`, and live GitHub `main` matched at `9fa1b819…`; both relevant worktrees were clean; canonical synchronization was `0/0`
@@ -58,16 +105,18 @@ The original accepted output was erased before recovery. The regenerated screens
 
 ## Stopping Point
 
-The next task is one dedicated SPEC-0004 Phase 1 Spec Executor. It starts in Plan mode, runs the required repository boot, verifies the then-current clean canonical-main SHA and exact Git state directly, and confirms an empty index, exclusive dedicated worktree, and the unchanged Phase 1 allowlist before implementing. It may implement Phase 1 only and must stop for review; Phases 2–8 are unauthorized.
+GIT-033 is the next and only authorized repository task: publish and integrate accepted SPEC-0004 Phase 1.
 
-Old SPEC-0001 Phase 7 is **Superseded by SPEC-0004; retired; unauthorized; and must not be implemented as written**. SPEC-0004 is approved only for its provider-free Phase 1: its Task/Reasoning boundary, free/Terra routing direction, no-Mode rule, post-Apply no-edit rule, and Phase 1 proof are set; Phase 3/6/7/8 owner gates remain closed. No provider/model configuration, paid request, production choice, or Phase 2–8 implementation is authorized. Real tutorial media/playback, AI Assistant, Export, AI Project Finalizer, My Project behavior, and every other future Home feature remain unauthorized/not started.
+The publication task must take exclusive ownership of this same worktree and first re-verify the base, exact 28-path reviewed scope, empty index, accepted 17 source hashes, technical-manifest SHA/size, reviewed record bytes, and an unchanged clean canonical `main`. It then stages only those 28 paths, commits on the Phase 1 branch, safely fast-forwards canonical `main`, pushes normally without force, runs the required clean post-publication permanent tester, and verifies the publication branch, local `main`, local `origin/main`, and live GitHub `main` match with clean `0/0` synchronization. If main advanced or any path differs, stop without pull, merge, rebase, force-push, history rewrite, or scope expansion.
+
+The private review copy/overlay must not be recreated or included in the product. No provider/API/paid/deployment work is part of publication. Stop after clean publication and tell Arthur Phase 1 is fully finished. Do not start Phase 2; it requires a new explicit Arthur authorization after Phase 1 is durably published/integrated and the clean post-publication proof passes.
 
 ## Proven and Not Proven
 
-Proven: exact accepted base and ten-path scope; executor shutdown and exclusive transfer; Arthur/PM acceptance; visible Tutorials result at all three required viewports; static-card semantics; Back/focus; Home AI Credits removal; manifest/hash revalidation; TypeScript/focused-lint/diff evidence; zero API/external requests; accepted-byte preservation; exact 20-path product commit and parent; clean committed permanent tester pass; safe canonical-main fast-forward and normal push; immediate post-product-publication branch/local-main/origin/live-GitHub SHA equality, clean worktrees, and `0/0` synchronization; and an exact eight-document record-only closeout with no product/proof change.
+Proven for SPEC-0004 Phase 1: exact activation/base and 17-path scope; executor shutdown/exclusive transfer; Arthur acceptance; exact engine/transaction/latch/storage/manual-edit behavior; manifest hash/size and 126 executor-time validation checks; all 41 bound artifacts/receipts revalidated after server cleanup; 707 assertions; four fixtures; 26 rejection cases; 12 browser flows; 11 screenshots; both viewports; TypeScript/focused-lint/diff proof; unchanged full-lint baseline; zero external/API/provider requests; blue-box product exclusion; accepted-byte preservation through control-plane propagation; exact 28-path publication-ready scope; empty index; and no unexpected tracked/untracked path.
 
-Not performed: deployment, real tutorial media, SPEC-0004 implementation, provider/API use, paid work, or any other next feature. D-0035 authorizes implementation only for a later dedicated Phase 1 executor; it has not started. The current commit, index, branch, main, origin, and live-GitHub state are operational facts to verify directly from Git and are not frozen into this handoff.
+Not yet performed: stage, commit, canonical-main integration, GitHub push, clean committed post-publication permanent tester, final branch/main/origin/live-GitHub equality, Phase 2, provider/API/paid work, deployment, or any other next feature.
 
 ## Systems Intentionally Left Unchanged
 
-Home masthead/header/menu/notification and every retained Home card; New Project; Open Project; My Project; Home AI Assistant; Export; AI Project Finalizer; Drawing; Stick; Creator; timelines; AI panels; save/open; undo/redo; SPEC-0001 Phases 1–6; SPEC-0002; SPEC-0003; the historical bytes of old SPEC-0001 Phase 7 below its retirement warnings; fonts and global styles; packages/dependencies/configuration/environment/database/public assets/deployment; external/provider/paid services; other worktrees; and recovery material remain unchanged. Only the docs-only Phase 7 retirement/SPEC-0004 requirements transition and Phase 1 activation record are new.
+SPEC-0001 Phases 1–6 and the visible Phase 6 wave behavior; SPEC-0002; SPEC-0003; Home/Tutorials/New/Open/My Project/AI Assistant/Export/AI Project Finalizer; Drawing workspace and Drawing AI; Stick manual menus/tools/layout, Play/Pause, onion, Creator presentation, and line-head appearance; provider/API/search/Supabase/model configuration; Terra/Luna/Sol routing; packages/dependencies/configuration/environment/database/public assets; dashboard/auth/billing/deployment; other worktrees; and recovery material remain unchanged.

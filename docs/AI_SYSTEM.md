@@ -1,11 +1,13 @@
 # AI System Snapshot
 
 Status: canonical current AI architecture and gap map
-Last traced: 2026-08-09
+Last traced: 2026-09-01 through accepted SPEC-0004 Phase 1
 
 ## What Exists Today
 
 Diamond Animator currently uses a hybrid drawing-workspace path. Deterministic request analysis can ask for clarification, return a controlled failure, or produce an eligible frame plan directly; requests routed to the structured-model branch use the OpenAI Responses API and recovery paths. Validated plans become deterministic browser-side Canvas2D operations.
+
+The Stick workspace separately has the published deterministic Phase 6 wave chat and an accepted unpublished SPEC-0004 Phase 1 engine. Phase 1 adds a strict local action-neutral plan/executor for fixed wave, jump, bow, and dodge fixtures, isolated Preview/Cancel, one atomic Apply, a durable project latch, and continued manual editability. It does not add broad natural-language matching, Terra, a provider/API call, or a user-visible fixture picker.
 
 There is no custom-trained Diamond Animator LLM, fine-tuning pipeline, embeddings system, vector database, or model-serving stack in this repository.
 
@@ -46,7 +48,25 @@ The contract can describe more actions than the current enabled executor paths s
 
 The code default is Generate Plans, which conflicts with the enabled matrix; a persisted user selection can override it. A fresh drawing workspace therefore presents a disabled mode first until the user selects Generate Frames.
 
-The Stick Figure Workspace mounts the same panel as read-only. It has no stick pose/frame apply executor, so this availability table must not be read as a working stick-AI capability matrix.
+The Stick Figure Workspace no longer mounts the Drawing panel read-only. Its published Phase 6 panel provides only the bounded deterministic wave flow. The accepted unpublished SPEC-0004 Phase 1 engine sits behind fixed proof fixtures and is not yet normal broad Generate Frames chat; this Drawing availability table still must not be read as a Stick capability matrix.
+
+## Stick One-Time Creation Engine
+
+The accepted SPEC-0004 Phase 1 path is fully local and provider-free:
+
+```text
+fixed checked-in wave/jump/bow/dodge plan
+  → strict plan validation against the exact fresh Stick starter
+  → action-neutral plan executor
+  → isolated editable candidate
+  → Preview / Cancel or one atomic Apply
+  → durable project-bound consumed latch
+  → normal manual editing, Undo/Redo, and Save/Open
+```
+
+The plan language permits only `set_timing`, complete 11-joint `create_key_pose`, contiguous `hold_pose`, and `finish`, with one figure, one layer, 8–24 frames, and 12 or 24 FPS. The same executor handles all four fixtures without an action-name branch. After Apply, the latch blocks further AI creation even after Undo and the panel returns `AI editing comes later; use manual tools.` without executor or provider work.
+
+The accepted browser proof used a blue fixture picker injected into an isolated temporary app copy. It is technical proof only: no product route, product overlay, public asset, user Mode, API request, provider call, or paid request was added. Normal chat matching for the broader engine remains a later SPEC-0004 phase.
 
 ## Generate Frames Execution Path
 
@@ -101,6 +121,7 @@ Existing mechanisms:
 - maximum output token inputs
 - retry/recovery metadata
 - local model-call logging and dev dashboards under `/dev/ai-costs`
+- the accepted SPEC-0004 Phase 1 Stick fixture engine costs $0 and records zero API/provider requests
 
 In local development, the cost log writes the full user prompt along with request/model/usage metadata to `.local/ai-cost-dashboard/requests.jsonl`. That directory is ignored by Git, but no approved redaction or retention policy exists.
 

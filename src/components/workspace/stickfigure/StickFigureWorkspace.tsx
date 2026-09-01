@@ -12,7 +12,7 @@ import {
   type StickCommandOperationOutcomeV1,
   type StickCommandWorkspaceRootV1,
 } from "../../../lib/ai/stickFigureCommandExecutor";
-import {parseStickCommandBatch, type StickCommandBatchV1, type StickCommandResultV1} from "../../../lib/ai/stickFigureAiContract";
+import {parseStickCommandInput, type StickCommandInputV1, type StickCommandResultV1} from "../../../lib/ai/stickFigureAiContract";
 import {
   STICK_AI_EDITOR_RENDER_SPACE_V2,
   StickFigureAiWorkspaceAdapterV2,
@@ -21,11 +21,14 @@ import {
 } from "../../../lib/ai/stickFigureAiWorkspaceAdapter";
 import {
   commitEditableStickHistory,
+  consumeStickAiCreationLatch,
+  createStickAiCreationLatch,
   createEditableStickHistoryRoot,
-  editableStickTimelineFromCanonicalWave,
+  editableStickTimelineFromCanonicalAnimation,
   editableStickDocumentFromTimeline,
   editableStickTimelineFromSnapshot,
   editableStickViewFromTimeline,
+  isEligibleEditableStickAiStarter,
   isEligibleEditableStickWaveStarter,
   redoEditableStickHistory,
   replaceEditableStickCurrentView,
@@ -34,8 +37,10 @@ import {
   verifyEditableStickEditorVersion,
   type EditableStickEditorHistoryRootV1,
   type EditableStickProjectSnapshotV1,
+  type StickAiCreationLatchV1,
 } from "../../../lib/stickfigure/stickProjectHistory";
 import {
+  openStickSavedProject,
   saveStickProject,
   stickStorageErrorMessage,
   validateEditableStickProjectDocument,
@@ -87,6 +92,7 @@ type StickPublicationState =
 type StickMountedWorkspaceRoot = {
   workspaceInstanceId: string;
   editorRoot: EditableStickEditorHistoryRootV1;
+  aiCreationLatch: StickAiCreationLatchV1;
   workspaceGeneration: number;
   documentPublication: StickPublicationState;
   lastSavedDocumentDigest: string | null;
@@ -207,6 +213,15 @@ export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject =
       ? {document: initialProject.document, viewState: initialProject.reopenState}
       : newProjectSnapshot();
   }
+  const initialAiCreationLatchRef = useRef<StickAiCreationLatchV1 | null>(null);
+  if (!initialAiCreationLatchRef.current) {
+    initialAiCreationLatchRef.current = initialProject?.recordVersion === 2
+      ? JSON.parse(canonicalJson(initialProject.aiCreationLatch)) as StickAiCreationLatchV1
+      : createStickAiCreationLatch(
+          initialSnapshotRef.current.document.projectId,
+          initialProject ? "consumed" : "unconsumed",
+        );
+  }
   const initialTimelineRef = useRef(editableStickTimelineFromSnapshot(initialSnapshotRef.current));
   const [workspaceRoot, setWorkspaceRoot] = useState<StickMountedWorkspaceRoot | null>(null);
   const [isCreatorOpen, setIsCreatorOpen] = useState(false);
@@ -260,6 +275,7 @@ export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject =
       installRoot({
         workspaceInstanceId: newWorkspaceId(),
         editorRoot,
+        aiCreationLatch: initialAiCreationLatchRef.current!,
         workspaceGeneration: initialProject ? 1 : 0,
         documentPublication: {status: "ready"},
         lastSavedDocumentDigest: initialProject ? editorRoot.current.documentDigest : null,
@@ -629,7 +645,7 @@ export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject =
     if (!captured || captured.documentPublication.status !== "ready") return;
     const {document, viewState} = captured.editorRoot.current.snapshot;
     const capturedDigest = captured.editorRoot.current.documentDigest;
-    void saveStickProject(window.localStorage, document, viewState).then((result) => {
+    void saveStickProject(window.localStorage, document, viewState, {aiCreationLatch: captured.aiCreationLatch}).then((result) => {
       if (!result.ok) {
         setSaveError(stickStorageErrorMessage(result.error));
         return;
@@ -737,6 +753,10 @@ export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject =
     installRoot({
       workspaceInstanceId: await deterministicWorkspaceId(operationId),
       editorRoot: JSON.parse(canonicalJson(candidate)) as EditableStickEditorHistoryRootV1,
+      aiCreationLatch: createStickAiCreationLatch(
+        candidate.current.snapshot.document.projectId,
+        isEligibleEditableStickWaveStarter(candidate) ? "unconsumed" : "consumed",
+      ),
       workspaceGeneration: 1,
       documentPublication: {status: "ready"},
       lastSavedDocumentDigest: fixture.savedBaselineMode === "current_document" ? candidate.current.documentDigest : null,
@@ -950,6 +970,7 @@ export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject =
     installRoot({
       workspaceInstanceId: await deterministicWorkspaceId(fixture.targetOperationId),
       editorRoot: pending.candidateEditorRoot,
+      aiCreationLatch: createStickAiCreationLatch(pending.candidateEditorRoot.current.snapshot.document.projectId, "consumed"),
       workspaceGeneration: 1,
       documentPublication: {status: "ready"},
       lastSavedDocumentDigest: pending.candidateEditorRoot.current.documentDigest,
@@ -980,7 +1001,7 @@ export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject =
     if (!isPlainRecord(fixture) || !("starter" in fixture) || !("envelope" in fixture)) return null;
     const starterResult = parseStickProjectDocument(fixture.starter);
     if (!starterResult.ok) return null;
-    const envelopeResult = await parseStickCommandBatch(fixture.envelope, starterResult.value);
+    const envelopeResult = await parseStickCommandInput(fixture.envelope, starterResult.value);
     if (!envelopeResult.ok) return null;
     return {
       starter: starterResult.value,
@@ -992,7 +1013,7 @@ export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject =
   type Phase4MachineInput = {
     live: StickMountedWorkspaceRoot;
     machine: StickFigureCommandTransactionV1;
-    envelope: StickCommandBatchV1;
+    envelope: StickCommandInputV1;
     starterDigest: string;
   };
 
@@ -1006,7 +1027,7 @@ export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject =
         canonicalJson(machine.snapshot()) !== canonicalJson(visible.phase4.commandRoot)) return null;
       return {live: visible, machine: machine.fork(), envelope: parsed.envelope, starterDigest: parsed.starterDigest};
     }
-    if (!isEligibleEditableStickWaveStarter(visible.editorRoot)) return null;
+    if (!isEligibleEditableStickAiStarter(visible.editorRoot, visible.aiCreationLatch)) return null;
     const machine = new StickFigureCommandTransactionV1(
       await createStickCommandWorkspaceRoot(parsed.starter, `${visible.workspaceInstanceId}:phase4`, visible.workspaceGeneration),
     );
@@ -1022,6 +1043,7 @@ export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject =
     live.workspaceGeneration === input.live.workspaceGeneration &&
     live.documentPublication.status === "ready" &&
     live.editorRoot.current.documentDigest === input.live.editorRoot.current.documentDigest &&
+    canonicalJson(live.aiCreationLatch) === canonicalJson(input.live.aiCreationLatch) &&
     canonicalJson(live.phase4?.commandRoot ?? null) === canonicalJson(input.live.phase4?.commandRoot ?? null);
 
   const phase4ApplyBaseMatches = (input: Phase4MachineInput, live: StickMountedWorkspaceRoot) => {
@@ -1098,7 +1120,7 @@ export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject =
     }
     const preparationLive = workspaceRootRef.current;
     if (!preparationLive || !phase4ApplyBaseMatches(input, preparationLive)) return rejectPhase4VisibleRace(input, committingMachine);
-    const nextTimeline = editableStickTimelineFromCanonicalWave(
+    const nextTimeline = editableStickTimelineFromCanonicalAnimation(
       outcome.root.editorRoot.current.snapshot.document,
       editableStickTimelineFromSnapshot(preparationLive.editorRoot.current.snapshot),
     );
@@ -1115,9 +1137,12 @@ export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject =
     const live = workspaceRootRef.current;
     if (!live || !phase4ApplyBaseMatches(input, live)) return rejectPhase4VisibleRace(input, committingMachine);
     editorRoot = replaceEditableStickCurrentView(editorRoot, live.editorRoot.current.snapshot.viewState);
+    const consumedLatch = consumeStickAiCreationLatch(live.aiCreationLatch, currentDocument.projectId);
+    if (!consumedLatch) return rejectPhase4VisibleRace(input, committingMachine);
     installRoot({
       ...live,
       editorRoot,
+      aiCreationLatch: consumedLatch,
       workspaceGeneration: live.workspaceGeneration + 1,
       phase4: phase4StateForOutcome(input, outcome, null),
     }, machine);
@@ -1199,9 +1224,17 @@ export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject =
   };
 
   const completeApplyPublication = async (fixture: unknown) => {
+    const parsedFixture = await phase4FixtureInput(fixture);
+    const invalidatedFixture = invalidatedPhase4PublicationRef.current;
+    if (parsedFixture && invalidatedFixture && parsedFixture.starterDigest === invalidatedFixture.canonicalStarterDigest &&
+      workspaceRootRef.current?.workspaceInstanceId !== invalidatedFixture.baseWorkspaceInstanceId) {
+      invalidatedPhase4PublicationRef.current = null;
+      const outcome = await invalidatedFixture.machine.rejectActive(parsedFixture.envelope, "project_switched");
+      return phase4Response(outcome, "rejected");
+    }
     const input = await phase4MachineInput(fixture);
     if (!input) {
-      const parsed = await phase4FixtureInput(fixture);
+      const parsed = parsedFixture;
       const invalidated = invalidatedPhase4PublicationRef.current;
       if (parsed && invalidated && parsed.starterDigest === invalidated.canonicalStarterDigest &&
         workspaceRootRef.current?.workspaceInstanceId !== invalidated.baseWorkspaceInstanceId) {
@@ -1278,8 +1311,134 @@ export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject =
         ? await digestCanonical(phase4.lastCommandResult)
         : null,
       commandRootTransitionCount: phase4?.commandRootTransitionCount ?? 0,
+      aiCreationLatchStatus: workspaceRootRef.current?.aiCreationLatch.status ?? null,
+      aiCreationLatchDigest: workspaceRootRef.current
+        ? await digestCanonical(workspaceRootRef.current.aiCreationLatch)
+        : null,
     };
   };
+
+  const resetSpec0004FreshProject = async (preservePendingForProjectSwitch = false) => {
+    const current = workspaceRootRef.current;
+    if (preservePendingForProjectSwitch && current?.phase4 && phase4ExecutorRef.current) {
+      invalidatedPhase4PublicationRef.current = {
+        machine: phase4ExecutorRef.current.fork(),
+        baseWorkspaceInstanceId: current.workspaceInstanceId,
+        canonicalStarterDigest: current.phase4.canonicalStarterDigest,
+      };
+    } else invalidatedPhase4PublicationRef.current = null;
+    const snapshot = newProjectSnapshot();
+    const editorRoot = await createEditableStickHistoryRoot(snapshot);
+    setIsTimelinePlaying(false);
+    setIsOnionEnabled(false);
+    setSelection({target: "workspace"});
+    setSelectedStructureJointId(null);
+    setStructureTool("idle");
+    clipboardRef.current = null;
+    setHasCopiedFrame(false);
+    pendingDocumentPublicationRef.current = null;
+    pendingMountedOpenRef.current = null;
+    mountedOpenRef.current = {status: null, operationId: null};
+    installRoot({
+      workspaceInstanceId: newWorkspaceId(),
+      editorRoot,
+      aiCreationLatch: createStickAiCreationLatch(snapshot.document.projectId, "unconsumed"),
+      workspaceGeneration: 0,
+      documentPublication: {status: "ready"},
+      lastSavedDocumentDigest: null,
+      phase4: null,
+    });
+    readyDocumentPublicationCountRef.current += 1;
+    setSaveError(null);
+    return {accepted: true, outcomeCode: preservePendingForProjectSwitch ? "project_switched" : "fresh_project", errorCode: null};
+  };
+
+  const readSpec0004PreviewCandidate = async () => {
+    const active = phase4ExecutorRef.current?.snapshot().transactionState.active;
+    const document = active?.phase === "preview_ready"
+      ? phase4ExecutorRef.current?.readPreviewCandidate(active.transactionId) ?? null
+      : null;
+    return document ? JSON.parse(canonicalJson(document)) : null;
+  };
+
+  const saveSpec0004Project = async () => {
+    const captured = workspaceRootRef.current;
+    if (!captured || captured.documentPublication.status !== "ready") {
+      return {accepted: false, outcomeCode: "save_rejected", errorCode: "document_not_ready"};
+    }
+    const {document, viewState} = captured.editorRoot.current.snapshot;
+    const result = await saveStickProject(window.localStorage, document, viewState, {aiCreationLatch: captured.aiCreationLatch});
+    if (!result.ok) return {accepted: false, outcomeCode: "save_rejected", errorCode: result.error};
+    const live = workspaceRootRef.current;
+    if (!live || live.workspaceInstanceId !== captured.workspaceInstanceId ||
+      live.editorRoot.current.snapshot.document.projectId !== document.projectId) {
+      return {accepted: false, outcomeCode: "save_stale", errorCode: "stale_document"};
+    }
+    installRoot({...live, lastSavedDocumentDigest: captured.editorRoot.current.documentDigest});
+    setSaveError(null);
+    return {accepted: true, outcomeCode: "saved", errorCode: null};
+  };
+
+  const reopenSpec0004Project = async () => {
+    const current = workspaceRootRef.current;
+    const projectId = current?.editorRoot.current.snapshot.document.projectId;
+    if (!projectId) return {accepted: false, outcomeCode: "open_rejected", errorCode: "project_not_found"};
+    const opened = openStickSavedProject(window.localStorage, projectId);
+    if (!opened.ok) return {accepted: false, outcomeCode: "open_rejected", errorCode: opened.error};
+    const editorRoot = await createEditableStickHistoryRoot({document: opened.value.document, viewState: opened.value.reopenState});
+    const latch = opened.value.recordVersion === 2
+      ? opened.value.aiCreationLatch
+      : createStickAiCreationLatch(projectId, "consumed");
+    installRoot({
+      workspaceInstanceId: newWorkspaceId(),
+      editorRoot,
+      aiCreationLatch: JSON.parse(canonicalJson(latch)) as StickAiCreationLatchV1,
+      workspaceGeneration: 1,
+      documentPublication: {status: "ready"},
+      lastSavedDocumentDigest: editorRoot.current.documentDigest,
+      phase4: null,
+    });
+    readyDocumentPublicationCountRef.current += 1;
+    return {accepted: true, outcomeCode: "opened", errorCode: null};
+  };
+
+  const moveSpec0004Joint = async (jointIndex = 0, deltaX = 7, deltaY = 0) => {
+    const current = cloneEditableStickTimelineState(timelineRef.current);
+    const resolved = resolveEditableStickContent(current, current.activeLayerId, current.currentFrameIndex);
+    const joint = resolved?.content.structureGraph.joints[jointIndex];
+    if (!resolved || !joint) return {accepted: false, outcomeCode: "manual_edit_rejected", errorCode: "joint_not_found"};
+    const content = cloneStickFigureFrameContent(resolved.content);
+    const target = content.structureGraph.joints[jointIndex];
+    target.x += deltaX;
+    target.y += deltaY;
+    const next = replaceEditableStickResolvedContent(current, current.activeLayerId, current.currentFrameIndex, content);
+    if (!next) return {accepted: false, outcomeCode: "manual_edit_rejected", errorCode: "joint_not_found"};
+    const accepted = await publishAuthored(next);
+    return {accepted, outcomeCode: accepted ? "manual_edit_applied" : "manual_edit_rejected", errorCode: accepted ? null : "stale_document"};
+  };
+
+  const spec0004Phase1BrowserPortsV1 = {
+    resetFreshProject: () => resetSpec0004FreshProject(false),
+    switchProject: () => resetSpec0004FreshProject(true),
+    previewFixture: previewStickCommand,
+    cancelFixture: cancelStickPreview,
+    applyFixture: applyStickCommand,
+    beginApplyPublication,
+    completeApplyPublication,
+    readPreviewCandidate: readSpec0004PreviewCandidate,
+    readCheckpoint: readPhase4Checkpoint,
+    undo: async () => { await traverseHistory("undo"); return readPhase4Checkpoint(); },
+    redo: async () => { await traverseHistory("redo"); return readPhase4Checkpoint(); },
+    save: saveSpec0004Project,
+    reopen: reopenSpec0004Project,
+    moveJoint: moveSpec0004Joint,
+    openCreator: async () => {
+      setIsTimelinePlaying(false);
+      setIsCreatorOpen(true);
+      return {accepted: true, outcomeCode: "creator_opened", errorCode: null};
+    },
+  };
+  void spec0004Phase1BrowserPortsV1;
 
   const spec0001Phase4BrowserPortsV1 = {
     mountEditorHistoryRoot,
@@ -1314,7 +1473,8 @@ export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject =
           documentRevision: document.documentRevision,
           documentDigest: current.editorRoot.current.documentDigest,
           ready: current.documentPublication.status === "ready",
-          eligible: isEligibleEditableStickWaveStarter(current.editorRoot),
+          eligible: isEligibleEditableStickAiStarter(current.editorRoot, current.aiCreationLatch),
+          aiCreationConsumed: current.aiCreationLatch.status === "consumed",
           playing: isTimelinePlayingRef.current,
         };
       },

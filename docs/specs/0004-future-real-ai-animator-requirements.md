@@ -1,16 +1,16 @@
 # SPEC-0004 — One-Time Stick Figure AI Animator
 
-Status: **Approved for Phase 1 only — Authorized; Not started.** Phases 2–8 remain unauthorized.
+Status: **Phase 1 accepted and technically Verified; publication/integration pending.** Phases 2–8 remain unauthorized.
 
 Owner: Arthur
 Spec role: Spec Architect
 Created: 2026-08-31
 Last updated: 2026-09-01
-Decision links: [D-0033, D-0034, and D-0035](../DECISIONS.md)
-Control-plane anchor: clean canonical-main basis `a853bf96f193b1e4ae297dc8e76c4fceb485612c`
+Decision links: [D-0033, D-0034, D-0035, and D-0036](../DECISIONS.md)
+Control-plane anchor: Phase 1 activation/base `9fae072359f3c0d10f1ed2bcee8da9ebc11d54ec`
 Related work: [`TODO SPEC-004`](../TODO.md), [`Current State`](../CURRENT_STATE.md), [`Session Handoff`](../SESSION_HANDOFF.md)
 
-> **Authorization boundary.** D-0035 approves and authorizes **only Phase 1**. It authorizes one later, separate Phase 1 Spec Executor to implement exactly the Phase 1 scope and allowlist after re-verifying a then-clean canonical-main basis, empty index, and exclusive dedicated worktree. It authorizes no product code in this control-plane task, no provider/API/key use, paid request, deployment, or work in another worktree. Phases 2–8 each need their own separate authorization after the preceding phase is accepted, integrated, and recorded.
+> **Lifecycle boundary.** D-0035 authorized **only Phase 1**; its dedicated executor has now stopped and D-0036 accepts the exact result. Publication/integration is still pending and separate. No provider/API/key use, paid request, deployment, Phase 2 work, or work in another worktree is authorized. Phases 2–8 each need their own separate authorization after the preceding phase is accepted, integrated, and recorded.
 
 > **Historical boundary.** SPEC-0001 Phases 1–6, including the accepted deterministic single-stick-figure wave, are completed history and remain unchanged. Old SPEC-0001 Phase 7 is retired under D-0033: it has zero implementation authority. This specification replaces it; it does not revive, import, or approve its old provider policy, costs, commands, proof mechanics, or gates.
 
@@ -228,6 +228,38 @@ The new SPEC-0004-only proof paths and `v3` contract fixtures are not a revival 
 
 **Explicitly excluded.** Terra, free-language matching, smooth interpolation/in-betweens, multiple figures, layer changes, working Task/Reasoning, color/background changes, dashboard work, and post-Apply AI editing.
 
+#### Phase 1 accepted implementation and proof
+
+Arthur reviewed the unpublished private app copy and accepted the Phase 1 engine on 2026-09-01. The accepted result implements the strict action-neutral plan and shared executor for the four fixed fixtures `wave`, `jump`, `bow`, and `dodge`; the one-time project-bound latch; isolated Preview/Cancel; one atomic Apply; post-Apply manual-tools response; exact Undo/Redo; V1-compatible and V2-latch Save/Open; and continued manual joint editing. It does not add natural-language understanding, a provider/API route, smooth interpolation, multiple figures, a user-visible Mode, working Task/Reasoning controls, or Phase 2 behavior.
+
+The exact accepted technical result is 17 paths:
+
+```text
+scripts/fixtures/spec0004-stick/v1/browser-viewports.json
+scripts/fixtures/spec0004-stick/v1/phase1-plan-cases.json
+scripts/fixtures/stick-ai/v3/bow.json
+scripts/fixtures/stick-ai/v3/dodge.json
+scripts/fixtures/stick-ai/v3/jump.json
+scripts/fixtures/stick-ai/v3/wave.json
+scripts/spec0004-stick/phase1BrowserProof.ts
+scripts/spec0004-stick/recordPhase1Proof.ts
+scripts/spec0004-stick/validatePhase1Proof.ts
+scripts/validateStickFigureAiUiAdapter.ts
+src/components/workspace/stickfigure/StickFigureAiPanel.tsx
+src/components/workspace/stickfigure/StickFigureWorkspace.tsx
+src/lib/ai/stickFigureAiContract.ts
+src/lib/ai/stickFigureAiWorkspaceAdapter.ts
+src/lib/ai/stickFigureCommandExecutor.ts
+src/lib/stickProjectStorage.ts
+src/lib/stickfigure/stickProjectHistory.ts
+```
+
+The 15,683-byte technical manifest at `output/spec-0004/phase-1/proof-manifest.json` independently passed 126 checks at SHA-256 `ee3a92edf8f4227dfa91ec3b84de3599fa158d5fb5f3df83155ab5192c076e4a`. It binds 14 receipts and 27 artifacts: 707 deterministic assertions, four valid fixtures, 26 invalid-plan rejections, 12 browser flows, 11 screenshots at `1440×900` and `1024×768`, TypeScript, focused lint, unchanged full-lint baseline, diff proof, protected Stick/Drawing behavior, and zero external/API/provider requests.
+
+The blue `PRIVATE REVIEW` fixture picker was created only inside an isolated temporary copy by `scripts/spec0004-stick/phase1BrowserProof.ts`. It is not imported by product code; the tokens `PRIVATE REVIEW`, `spec0004-phase1-review`, `__spec0004_review`, and `Preview wave` are absent from `app`, `src`, and `public`. The temporary copy and server were removed after Arthur's review. The proof script remains developer-only technical evidence and cannot make the blue box appear in the published app.
+
+Phase 1 is accepted and technically Verified pending its separately reviewed publication/integration step. Phase 2 remains unauthorized until Phase 1 is committed, integrated into canonical `main`, pushed, and clean post-publication proof passes.
+
 ### Phase 2 — Pose and Smooth Motion Engine
 
 **Scope.** Add body-length/rig constraints, readable-key-pose rules, safe interpolation/in-betweens, easing, arcs, timing, and smooth playback while keeping key poses and generated content manual-editable. Smoothness is based on meaningful motion between poses, not an FPS increase alone.
@@ -326,6 +358,6 @@ These gates do not block the complete Phase 1 proof because it is local, fixed-f
 
 ## 11. Handoff
 
-Status is **Approved for Phase 1 only — Authorized; Not started.** Phases 2–8 remain unauthorized.
+Status is **Phase 1 accepted and technically Verified; publication/integration pending.** Phases 2–8 remain unauthorized.
 
-The next work is one separate Phase 1 Spec Executor task, starting in Plan mode from a freshly verified clean canonical-main SHA, empty index, exclusive dedicated worktree, and this unchanged Phase 1 boundary. It may implement only Phase 1; it must not start Phases 2–8. No provider, API key, paid proof, deployment, staging, commit, push, merge, or publication is authorized for that executor.
+The next work is the separate publication step for the exact accepted 17-path Phase 1 result plus the reviewed Control Plane Architect record paths. It must stage only that reviewed scope, commit from activation base `9fae072359f3c0d10f1ed2bcee8da9ebc11d54ec`, safely fast-forward an unchanged clean canonical `main`, push normally, run the required clean post-publication tester, and verify local main/origin/live GitHub equality and clean `0/0` synchronization. It must not include the private review copy/overlay or begin Phase 2. Phase 2 needs a new explicit authorization after Phase 1 is durably published and integrated.

@@ -1,8 +1,13 @@
 import {
-  parseStickCommandBatch,
+  assertNoAiOnlyStickRepresentation,
+  assertStickTopologyIsFixed,
+  parseStickAnimationPlan,
+  parseStickCommandInput,
   stickManualActionsFromCommand,
   type StickAiErrorCodeV1,
-  type StickCommandBatchV1,
+  type StickAiContractResult,
+  type StickAnimationPlanV1,
+  type StickCommandInputV1,
   type StickCommandResultV1,
 } from "./stickFigureAiContract.ts";
 import {
@@ -13,8 +18,10 @@ import {
   isSha256Digest,
   isStickManualWaveApplied,
   parseStickProjectDocument,
+  projectStickAnimationContent,
   type StickEditorViewStateV1,
   type StickProjectDocumentV1,
+  type StickTimelineCellV1,
 } from "../stickfigure/stickProjectContract.ts";
 import {
   commitCanonicalStickHistory,
@@ -95,7 +102,7 @@ export type StickCommandWorkspaceRootV1 = {
 };
 
 type PreparedPreviewV1 = {
-  envelope: StickCommandBatchV1;
+  envelope: StickCommandInputV1;
   envelopeDigest: string;
   candidate: StickProjectDocumentV1;
   candidateDigest: string;
@@ -137,22 +144,25 @@ type ExecutorOptionsV1 = {
 
 const cloneRoot = (root: StickCommandWorkspaceRootV1): StickCommandWorkspaceRootV1 => cloneCanonical(root);
 
-const previewSummary = {
+type StickPreviewSummaryV1 = NonNullable<StickCommandResultV1["previewSummary"]>;
+
+const summarizeCandidate = (document: StickProjectDocumentV1): StickPreviewSummaryV1 => ({
   figureCount: 1,
-  keyPoseCount: 3,
-  fps: 12,
-  timelineFrameCount: 12,
-  durationMs: 1000,
-} as const;
+  keyPoseCount: document.layers[0].cells.filter((cell) => cell.cellType === "keyframe" && cell.poses.length === 1).length,
+  fps: document.fps as 12 | 24,
+  timelineFrameCount: document.layers[0].cells.length,
+  durationMs: Math.round(document.layers[0].cells.length / document.fps * 1000),
+});
 
 const makeResult = (
-  envelope: StickCommandBatchV1,
+  envelope: StickCommandInputV1,
   envelopeDigest: string,
   status: StickCommandResultV1["status"],
   preStateDigest: string,
   candidateDigest: string | null,
   resultingDocumentRevision: number | null,
   error: StickCommandResultV1["error"] = null,
+  summary: StickPreviewSummaryV1 | null = null,
 ): StickCommandResultV1 => ({
   kind: "stick-command-result",
   resultVersion: 1,
@@ -166,7 +176,7 @@ const makeResult = (
   mutationCount: status === "applied" ? 1 : 0,
   preStateDigest,
   candidateDigest,
-  previewSummary: candidateDigest === null ? null : previewSummary,
+  previewSummary: candidateDigest === null ? null : summary,
   error,
 });
 
@@ -184,7 +194,7 @@ const errorMessage = (code: StickAiErrorCodeV1) => {
 
 const failureResult = async (
   root: StickCommandWorkspaceRootV1,
-  envelope: StickCommandBatchV1,
+  envelope: StickCommandInputV1,
   status: "rejected" | "failed" | "cancelled",
   code: StickAiErrorCodeV1,
   suppliedEnvelopeDigest?: string,
@@ -203,7 +213,7 @@ const appendTerminal = (
   entry: StickCommandTerminalLedgerEntryV1,
 ) => [...ledger, cloneCanonical(entry)].slice(-STICK_TERMINAL_LEDGER_LIMIT);
 
-const sameBase = (root: StickCommandWorkspaceRootV1, envelope: StickCommandBatchV1) =>
+const sameBase = (root: StickCommandWorkspaceRootV1, envelope: StickCommandInputV1) =>
   root.documentPublication === "ready" &&
   root.editorRoot.current.snapshot.document.projectId === envelope.projectId &&
   root.editorRoot.current.snapshot.document.documentRevision === envelope.baseDocumentRevision &&
@@ -214,6 +224,102 @@ const defaultView = (document: StickProjectDocumentV1): StickEditorViewStateV1 =
   currentFrameIndex: 0,
   selectedTimelineIndex: 0,
 });
+
+const deriveGeneralPlanHex = async (plan: StickAnimationPlanV1, slot: string) => {
+  const bytes = new TextEncoder().encode([
+    "diamond-animator/spec-0004-phase-1/v1",
+    plan.projectId,
+    plan.transactionId,
+    slot,
+  ].join("\0"));
+  const digest = new Uint8Array(await globalThis.crypto.subtle.digest("SHA-256", bytes));
+  return [...digest].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+};
+
+const deriveGeneralPlanFrameId = async (plan: StickAnimationPlanV1, frameIndex: number) => {
+  const hex = await deriveGeneralPlanHex(plan, `frame:${frameIndex}`);
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-4${hex.slice(13, 16)}-8${hex.slice(17, 20)}-${hex.slice(20, 32)}`;
+};
+
+const deriveGeneralPlanPoseId = async (plan: StickAnimationPlanV1, poseName: string, frameIndex: number) =>
+  `pose_${(await deriveGeneralPlanHex(plan, `pose:${poseName}:${frameIndex}`)).slice(0, 32)}`;
+
+const materializeParsedStickAnimationPlan = async (
+  plan: StickAnimationPlanV1,
+  starter: StickProjectDocumentV1,
+): Promise<StickAiContractResult<StickProjectDocumentV1>> => {
+  const timing = plan.commands[0];
+  if (timing.type !== "set_timing") {
+    return {ok: false, error: {code: "unsupported_command", path: "$plan.commands[0]", message: "Timing is missing."}};
+  }
+  const frameIds = await Promise.all(Array.from({length: timing.totalFrameCount}, (_, frameIndex) =>
+    starter.layers[0].cells[frameIndex]?.frameId ?? deriveGeneralPlanFrameId(plan, frameIndex),
+  ));
+  const cells: StickTimelineCellV1[] = frameIds.map((frameId, index) => ({frameId, index, cellType: "empty"}));
+  const ownerFrameIdByPoseName = new Map<string, string>();
+
+  for (const command of plan.commands) {
+    switch (command.type) {
+      case "set_timing":
+        break;
+      case "create_key_pose": {
+        const poseId = await deriveGeneralPlanPoseId(plan, command.poseName, command.frameIndex);
+        cells[command.frameIndex] = {
+          frameId: frameIds[command.frameIndex],
+          index: command.frameIndex,
+          cellType: "keyframe",
+          poses: [{
+            poseId,
+            figureId: command.targetFigureId,
+            rigId: command.targetRigId,
+            points: command.joints.map((joint, jointIndex) => ({
+              jointId: starter.rigs[0].joints[jointIndex].jointId,
+              x: joint.x,
+              y: joint.y,
+            })),
+          }],
+        };
+        ownerFrameIdByPoseName.set(command.poseName, frameIds[command.frameIndex]);
+        break;
+      }
+      case "hold_pose": {
+        const ownerFrameId = ownerFrameIdByPoseName.get(command.poseName);
+        if (!ownerFrameId) {
+          return {ok: false, error: {code: "unsupported_command", path: "$plan.commands", message: "Hold owner is missing."}};
+        }
+        for (let frameIndex = command.startFrameIndex; frameIndex <= command.endFrameIndex; frameIndex += 1) {
+          cells[frameIndex] = {frameId: frameIds[frameIndex], index: frameIndex, cellType: "hold", ownerFrameId};
+        }
+        break;
+      }
+      case "finish":
+        break;
+    }
+  }
+
+  const candidate = {
+    ...cloneCanonical(starter),
+    documentRevision: starter.documentRevision + 1,
+    fps: timing.fps,
+    layers: [{...cloneCanonical(starter.layers[0]), cells}],
+  };
+  const parsed = parseStickProjectDocument(candidate);
+  if (!parsed.ok) return {ok: false, error: parsed.error};
+  const projection = projectStickAnimationContent(parsed.value);
+  if (!projection.ok || !assertStickTopologyIsFixed(parsed.value) || !assertNoAiOnlyStickRepresentation(parsed.value)) {
+    return {ok: false, error: {code: "transaction_failed", path: "$document", message: "The plan did not materialize safe editable Stick content."}};
+  }
+  return {ok: true, value: parsed.value};
+};
+
+/** Materializes every Phase 1 fixture with the same four-command executor. */
+export const materializeStickAnimationPlan = async (
+  value: unknown,
+  starter: StickProjectDocumentV1,
+): Promise<StickAiContractResult<StickProjectDocumentV1>> => {
+  const parsed = await parseStickAnimationPlan(value, starter);
+  return parsed.ok ? materializeParsedStickAnimationPlan(parsed.value, starter) : parsed;
+};
 
 export const createStickCommandWorkspaceRoot = async (
   document: StickProjectDocumentV1,
@@ -250,6 +356,15 @@ export class StickFigureCommandTransactionV1 {
 
   snapshot() { return cloneRoot(this.#root); }
 
+  /** Read-only candidate access used by the isolated Phase 1 proof/review harness. */
+  readPreviewCandidate(transactionId?: string) {
+    const active = this.#root.transactionState.active;
+    const resolvedTransactionId = transactionId ?? active?.transactionId;
+    if (!resolvedTransactionId || active?.phase !== "preview_ready" || active.transactionId !== resolvedTransactionId) return null;
+    const preview = this.#previews.get(resolvedTransactionId);
+    return preview ? cloneCanonical(preview.candidate) : null;
+  }
+
   /** Creates an isolated working copy so a caller can prepare one composite publication before making it authoritative. */
   fork() {
     const next = new StickFigureCommandTransactionV1(this.#root, {
@@ -281,7 +396,7 @@ export class StickFigureCommandTransactionV1 {
     return true;
   }
 
-  async #terminalOrConflict(envelope: StickCommandBatchV1, envelopeDigest: string) {
+  async #terminalOrConflict(envelope: StickCommandInputV1, envelopeDigest: string) {
     const terminal = this.#root.transactionState.terminalLedger.find((entry) => entry.transactionId === envelope.transactionId);
     if (!terminal) return null;
     if (terminal.envelopeDigest !== envelopeDigest) {
@@ -303,7 +418,7 @@ export class StickFigureCommandTransactionV1 {
     };
   }
 
-  async #activeConflict(envelope: StickCommandBatchV1, envelopeDigest: string) {
+  async #activeConflict(envelope: StickCommandInputV1, envelopeDigest: string) {
     const active = this.#root.transactionState.active;
     if (!active || active.transactionId !== envelope.transactionId || active.envelopeDigest === envelopeDigest) return null;
     const result = await failureResult(this.#root, envelope, "rejected", "idempotency_conflict", envelopeDigest);
@@ -311,7 +426,7 @@ export class StickFigureCommandTransactionV1 {
   }
 
   async #rejectUnseen(
-    envelope: StickCommandBatchV1,
+    envelope: StickCommandInputV1,
     envelopeDigest: string,
     code: StickAiErrorCodeV1,
     remember = true,
@@ -329,7 +444,7 @@ export class StickFigureCommandTransactionV1 {
     return {root: this.snapshot(), result, outcomeCode: "rejected"};
   }
 
-  async beginRequest(envelope: StickCommandBatchV1): Promise<StickCommandOperationOutcomeV1> {
+  async beginRequest(envelope: StickCommandInputV1): Promise<StickCommandOperationOutcomeV1> {
     const envelopeDigest = await digestCanonical(envelope);
     const terminal = await this.#terminalOrConflict(envelope, envelopeDigest);
     if (terminal) return terminal;
@@ -362,7 +477,7 @@ export class StickFigureCommandTransactionV1 {
     return {root: this.snapshot(), result: null, outcomeCode: "requesting"};
   }
 
-  async preview(envelope: StickCommandBatchV1): Promise<StickCommandOperationOutcomeV1> {
+  async preview(envelope: StickCommandInputV1): Promise<StickCommandOperationOutcomeV1> {
     const envelopeDigest = await digestCanonical(envelope);
     const terminal = await this.#terminalOrConflict(envelope, envelopeDigest);
     if (terminal) return terminal;
@@ -381,29 +496,42 @@ export class StickFigureCommandTransactionV1 {
     if (!requesting || requesting.phase !== "requesting" || requesting.transactionId !== envelope.transactionId || requesting.envelopeDigest !== envelopeDigest) {
       return this.#rejectUnseen(envelope, envelopeDigest, "concurrency_conflict");
     }
-    const parsed = await parseStickCommandBatch(envelope, this.#root.editorRoot.current.snapshot.document);
+    const parsed = await parseStickCommandInput(envelope, this.#root.editorRoot.current.snapshot.document);
     if (!parsed.ok || this.#consumeFailure("after_envelope_validation")) {
       return this.#failActive(envelope, envelopeDigest, parsed.ok ? "transaction_failed" : parsed.error.code as StickAiErrorCodeV1);
     }
-    const candidateResult = applyStickManualActions(
-      this.#root.editorRoot.current.snapshot.document,
-      stickManualActionsFromCommand(parsed.value.commands[0]),
-      "single",
-      "allow-derived",
-    );
+    const candidateResult = parsed.value.kind === "stick-animation-plan"
+      ? await materializeParsedStickAnimationPlan(parsed.value, this.#root.editorRoot.current.snapshot.document)
+      : applyStickManualActions(
+          this.#root.editorRoot.current.snapshot.document,
+          stickManualActionsFromCommand(parsed.value.commands[0]),
+          "single",
+          "allow-derived",
+        );
     if (!candidateResult.ok || this.#consumeFailure("after_action_application")) {
       return this.#failActive(envelope, envelopeDigest, candidateResult.ok ? "transaction_failed" : candidateResult.error.code as StickAiErrorCodeV1);
     }
     const candidateParsed = parseStickProjectDocument(candidateResult.value);
-    if (!candidateParsed.ok ||
-      !isStickManualWaveApplied(candidateParsed.value, this.#root.editorRoot.current.snapshot.document) ||
+    const candidateMatchesInput = candidateParsed.ok && (parsed.value.kind === "stick-animation-plan"
+      ? projectStickAnimationContent(candidateParsed.value).ok && assertStickTopologyIsFixed(candidateParsed.value) && assertNoAiOnlyStickRepresentation(candidateParsed.value)
+      : isStickManualWaveApplied(candidateParsed.value, this.#root.editorRoot.current.snapshot.document));
+    if (!candidateParsed.ok || !candidateMatchesInput ||
       this.#consumeFailure("after_candidate_validation")) {
       return this.#failActive(envelope, envelopeDigest, "transaction_failed");
     }
     if (this.#consumeFailure("during_candidate_hashing")) return this.#failActive(envelope, envelopeDigest, "transaction_failed");
     const candidateDigest = await this.#candidateHasher(candidateParsed.value);
     if (!isSha256Digest(candidateDigest)) return this.#failActive(envelope, envelopeDigest, "transaction_failed");
-    const result = makeResult(envelope, envelopeDigest, "previewed", this.#root.editorRoot.current.documentDigest, candidateDigest, null);
+    const result = makeResult(
+      envelope,
+      envelopeDigest,
+      "previewed",
+      this.#root.editorRoot.current.documentDigest,
+      candidateDigest,
+      null,
+      null,
+      summarizeCandidate(candidateParsed.value),
+    );
     const previewResultDigest = await digestCanonical(result);
     this.#previews.set(envelope.transactionId, deepFreeze({
       envelope: cloneCanonical(envelope), envelopeDigest, candidate: candidateParsed.value, candidateDigest, previewResult: result,
@@ -424,7 +552,7 @@ export class StickFigureCommandTransactionV1 {
     return {root: this.snapshot(), result: cloneCanonical(result), outcomeCode: "preview_ready"};
   }
 
-  async #failActive(envelope: StickCommandBatchV1, envelopeDigest: string, code: StickAiErrorCodeV1): Promise<StickCommandOperationOutcomeV1> {
+  async #failActive(envelope: StickCommandInputV1, envelopeDigest: string, code: StickAiErrorCodeV1): Promise<StickCommandOperationOutcomeV1> {
     const result = await failureResult(this.#root, envelope, "failed", code, envelopeDigest);
     this.#previews.delete(envelope.transactionId);
     this.#root.transactionState.active = null;
@@ -436,7 +564,7 @@ export class StickFigureCommandTransactionV1 {
 
   /** Consumes the active transaction as one stable terminal rejection without publishing its candidate. */
   async rejectActive(
-    envelope: StickCommandBatchV1,
+    envelope: StickCommandInputV1,
     code: Extract<StickAiErrorCodeV1, "stale_document" | "project_switched" | "concurrency_conflict">,
   ): Promise<StickCommandOperationOutcomeV1> {
     const envelopeDigest = await digestCanonical(envelope);
@@ -467,7 +595,7 @@ export class StickFigureCommandTransactionV1 {
     return {root: this.snapshot(), result, outcomeCode: "rejected"};
   }
 
-  async cancelPreview(envelope: StickCommandBatchV1): Promise<StickCommandOperationOutcomeV1> {
+  async cancelPreview(envelope: StickCommandInputV1): Promise<StickCommandOperationOutcomeV1> {
     const envelopeDigest = await digestCanonical(envelope);
     const terminal = await this.#terminalOrConflict(envelope, envelopeDigest);
     if (terminal) return terminal;
@@ -486,7 +614,7 @@ export class StickFigureCommandTransactionV1 {
     return {root: this.snapshot(), result, outcomeCode: "cancelled"};
   }
 
-  async abortRequest(envelope: StickCommandBatchV1): Promise<StickCommandOperationOutcomeV1> {
+  async abortRequest(envelope: StickCommandInputV1): Promise<StickCommandOperationOutcomeV1> {
     const envelopeDigest = await digestCanonical(envelope);
     const terminal = await this.#terminalOrConflict(envelope, envelopeDigest);
     if (terminal) return terminal;
@@ -505,7 +633,7 @@ export class StickFigureCommandTransactionV1 {
     return {root: this.snapshot(), result, outcomeCode: "aborted"};
   }
 
-  async beginApplyPublication(envelope: StickCommandBatchV1): Promise<StickCommandOperationOutcomeV1> {
+  async beginApplyPublication(envelope: StickCommandInputV1): Promise<StickCommandOperationOutcomeV1> {
     const envelopeDigest = await digestCanonical(envelope);
     const terminal = await this.#terminalOrConflict(envelope, envelopeDigest);
     if (terminal) return terminal;
@@ -563,7 +691,7 @@ export class StickFigureCommandTransactionV1 {
 
   async completeApplyPublication(
     operationId: string,
-    envelope: StickCommandBatchV1,
+    envelope: StickCommandInputV1,
   ): Promise<StickCommandOperationOutcomeV1> {
     const active = this.#root.transactionState.active;
     const prepared = this.#applies.get(operationId) ?? this.#invalidatedApplies.get(operationId);
@@ -598,6 +726,8 @@ export class StickFigureCommandTransactionV1 {
       active.baseDocumentDigest,
       prepared.candidateDigest,
       prepared.historyRoot.current.snapshot.document.documentRevision,
+      null,
+      prepared.previewResult.previewSummary,
     );
     const terminal: StickCommandTerminalLedgerEntryV1 = {
       transactionId: prepared.envelope.transactionId,
@@ -620,7 +750,7 @@ export class StickFigureCommandTransactionV1 {
     return {root: this.snapshot(), result, outcomeCode: "applied"};
   }
 
-  async apply(envelope: StickCommandBatchV1): Promise<StickCommandOperationOutcomeV1> {
+  async apply(envelope: StickCommandInputV1): Promise<StickCommandOperationOutcomeV1> {
     const preview = await this.preview(envelope);
     if (preview.outcomeCode !== "preview_ready" && preview.outcomeCode !== "preview_reused") return preview;
     const pending = await this.beginApplyPublication(envelope);
@@ -632,7 +762,7 @@ export class StickFigureCommandTransactionV1 {
     return this.completeApplyPublication(active.operationId, envelope);
   }
 
-  async redeliver(envelope: StickCommandBatchV1): Promise<StickCommandOperationOutcomeV1> {
+  async redeliver(envelope: StickCommandInputV1): Promise<StickCommandOperationOutcomeV1> {
     const envelopeDigest = await digestCanonical(envelope);
     const terminal = await this.#terminalOrConflict(envelope, envelopeDigest);
     if (terminal) return terminal;
@@ -683,12 +813,12 @@ export class StickFigureCommandTransactionV1 {
 
 export const previewStickCommandBatch = async (
   preState: StickCommandWorkspaceRootV1,
-  envelope: StickCommandBatchV1,
+  envelope: StickCommandInputV1,
   options: ExecutorOptionsV1 = {},
 ) => new StickFigureCommandTransactionV1(preState, options).preview(envelope);
 
 export const applyStickCommandBatch = async (
   preState: StickCommandWorkspaceRootV1,
-  envelope: StickCommandBatchV1,
+  envelope: StickCommandInputV1,
   options: ExecutorOptionsV1 = {},
 ) => new StickFigureCommandTransactionV1(preState, options).apply(envelope);

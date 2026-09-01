@@ -1,0 +1,20 @@
+{
+  "kind": "stick-animation-plan",
+  "planVersion": 1,
+  "requestId": "00000000-0000-4000-8000-000000000711",
+  "transactionId": "00000000-0000-4000-8000-000000000712",
+  "workspaceType": "stick-figure",
+  "projectId": "00000000-0000-4000-8000-000000000001",
+  "baseDocumentRevision": 0,
+  "baseDocumentDigest": "sha256:81b8e9b183af1a198b1bb512c8726919ade0a764ffffe38e1d77964aeff88b2b",
+  "commands": [
+    {"type":"set_timing","commandVersion":1,"fps":12,"totalFrameCount":12},
+    {"type":"create_key_pose","commandVersion":1,"poseName":"pose-0","frameIndex":0,"targetLayerId":"00000000-0000-4000-8000-000000000004","targetRigId":"00000000-0000-4000-8000-000000000002","targetFigureId":"00000000-0000-4000-8000-000000000003","joints":[{"role":"head","x":960,"y":340},{"role":"neck","x":960,"y":430},{"role":"hip","x":960,"y":650},{"role":"leftElbow","x":830,"y":500},{"role":"leftHand","x":780,"y":620},{"role":"rightElbow","x":1090,"y":500},{"role":"rightHand","x":1140,"y":620},{"role":"leftKnee","x":880,"y":760},{"role":"leftFoot","x":820,"y":900},{"role":"rightKnee","x":1040,"y":760},{"role":"rightFoot","x":1100,"y":900}]},
+    {"type":"hold_pose","commandVersion":1,"poseName":"pose-0","startFrameIndex":1,"endFrameIndex":3},
+    {"type":"create_key_pose","commandVersion":1,"poseName":"pose-1","frameIndex":4,"targetLayerId":"00000000-0000-4000-8000-000000000004","targetRigId":"00000000-0000-4000-8000-000000000002","targetFigureId":"00000000-0000-4000-8000-000000000003","joints":[{"role":"head","x":960,"y":120},{"role":"neck","x":960,"y":220},{"role":"hip","x":960,"y":500},{"role":"leftElbow","x":800,"y":260},{"role":"leftHand","x":740,"y":150},{"role":"rightElbow","x":1120,"y":260},{"role":"rightHand","x":1180,"y":150},{"role":"leftKnee","x":850,"y":650},{"role":"leftFoot","x":790,"y":590},{"role":"rightKnee","x":1070,"y":650},{"role":"rightFoot","x":1130,"y":590}]},
+    {"type":"hold_pose","commandVersion":1,"poseName":"pose-1","startFrameIndex":5,"endFrameIndex":7},
+    {"type":"create_key_pose","commandVersion":1,"poseName":"pose-2","frameIndex":8,"targetLayerId":"00000000-0000-4000-8000-000000000004","targetRigId":"00000000-0000-4000-8000-000000000002","targetFigureId":"00000000-0000-4000-8000-000000000003","joints":[{"role":"head","x":960,"y":280},{"role":"neck","x":960,"y":380},{"role":"hip","x":960,"y":640},{"role":"leftElbow","x":830,"y":500},{"role":"leftHand","x":790,"y":630},{"role":"rightElbow","x":1090,"y":500},{"role":"rightHand","x":1130,"y":630},{"role":"leftKnee","x":890,"y":790},{"role":"leftFoot","x":830,"y":960},{"role":"rightKnee","x":1030,"y":790},{"role":"rightFoot","x":1090,"y":960}]},
+    {"type":"hold_pose","commandVersion":1,"poseName":"pose-2","startFrameIndex":9,"endFrameIndex":11},
+    {"type":"finish","commandVersion":1}
+  ]
+}

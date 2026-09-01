@@ -2,7 +2,7 @@ import {
   STICK_AI_CAPABILITY_MANIFEST_V2,
   buildStickAiProjectContext,
   type StickAiRequestV2,
-  type StickCommandBatchV1,
+  type StickCommandInputV1,
 } from "./stickFigureAiContract.ts";
 import {STICK_FIGURE_AI_MOCK_STARTER} from "./stickFigureAiMockServer.ts";
 
@@ -37,6 +37,7 @@ export type StickAiWorkspaceSnapshotV2 = {
   documentDigest: string;
   ready: boolean;
   eligible: boolean;
+  aiCreationConsumed: boolean;
   playing: boolean;
 };
 
@@ -53,13 +54,13 @@ export type StickAiWorkspaceBindingV2 = Pick<
 
 type StickAiWorkspacePortsV2 = {
   getSnapshot: () => StickAiWorkspaceSnapshotV2 | null;
-  preview: (envelope: StickCommandBatchV1) => Promise<StickAiWorkspaceCommandOutcomeV2>;
-  cancel: (envelope: StickCommandBatchV1) => Promise<StickAiWorkspaceCommandOutcomeV2>;
-  apply: (envelope: StickCommandBatchV1) => Promise<StickAiWorkspaceCommandOutcomeV2>;
+  preview: (envelope: StickCommandInputV1) => Promise<StickAiWorkspaceCommandOutcomeV2>;
+  cancel: (envelope: StickCommandInputV1) => Promise<StickAiWorkspaceCommandOutcomeV2>;
+  apply: (envelope: StickCommandInputV1) => Promise<StickAiWorkspaceCommandOutcomeV2>;
 };
 
 const bindingMatches = (binding: StickAiWorkspaceBindingV2, current: StickAiWorkspaceSnapshotV2 | null) =>
-  Boolean(current?.ready && !current.playing && current.workspaceInstanceId === binding.workspaceInstanceId &&
+  Boolean(current?.ready && !current.playing && !current.aiCreationConsumed && current.workspaceInstanceId === binding.workspaceInstanceId &&
     current.workspaceGeneration === binding.workspaceGeneration && current.projectId === binding.projectId &&
     current.documentRevision === binding.documentRevision && current.documentDigest === binding.documentDigest);
 
@@ -76,7 +77,7 @@ export class StickFigureAiWorkspaceAdapterV2 {
 
   captureBinding(): StickAiWorkspaceBindingV2 | null {
     const current = this.#ports.getSnapshot();
-    if (!current?.ready || current.playing || !current.eligible) return null;
+    if (!current?.ready || current.playing || current.aiCreationConsumed || !current.eligible) return null;
     return {
       workspaceInstanceId: current.workspaceInstanceId,
       workspaceGeneration: current.workspaceGeneration,
@@ -86,18 +87,18 @@ export class StickFigureAiWorkspaceAdapterV2 {
     };
   }
 
-  async preview(binding: StickAiWorkspaceBindingV2, envelope: StickCommandBatchV1) {
+  async preview(binding: StickAiWorkspaceBindingV2, envelope: StickCommandInputV1) {
     if (!bindingMatches(binding, this.#ports.getSnapshot())) {
       return {accepted: false, outcomeCode: "rejected", errorCode: "stale_document"};
     }
     return this.#ports.preview(envelope);
   }
 
-  async cancel(envelope: StickCommandBatchV1) {
+  async cancel(envelope: StickCommandInputV1) {
     return this.#ports.cancel(envelope);
   }
 
-  async apply(binding: StickAiWorkspaceBindingV2, envelope: StickCommandBatchV1) {
+  async apply(binding: StickAiWorkspaceBindingV2, envelope: StickCommandInputV1) {
     if (!bindingMatches(binding, this.#ports.getSnapshot())) {
       return {accepted: false, outcomeCode: "rejected", errorCode: "stale_document"};
     }
@@ -120,7 +121,7 @@ export const buildStickAiRequestV2 = async (prompt: string): Promise<StickAiRequ
   };
 };
 
-export const stickAiPhase4FixtureV2 = (envelope: StickCommandBatchV1) => ({
+export const stickAiPhase4FixtureV2 = (envelope: StickCommandInputV1) => ({
   starter: STICK_FIGURE_AI_MOCK_STARTER,
   envelope,
 });

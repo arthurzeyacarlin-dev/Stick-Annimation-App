@@ -5,6 +5,17 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-01 — SPEC-0004 Phase 1 accepted and technically closed out
+
+- recorded D-0036: Arthur accepted the exact 17-path Safe One-Time Animation Builder after reviewing the unpublished private app copy
+- accepted the strict action-neutral wave/jump/bow/dodge plan/executor, isolated Preview/Cancel, one atomic Apply, durable project latch, exact Undo/Redo and V1/V2 Save/Open behavior, post-Apply manual-tools response, and continued manual joint editing
+- independently preserved/revalidated the 15,683-byte proof manifest at SHA-256 `ee3a92edf8f4227dfa91ec3b84de3599fa158d5fb5f3df83155ab5192c076e4a`, with 126 executor-time validation checks, 14 receipts, 27 artifacts, 707 assertions, four fixtures, 26 rejection cases, 12 browser flows, 11 screenshots, and zero external/API/provider requests
+- proved the blue `PRIVATE REVIEW` fixture picker existed only in the isolated temporary proof copy: its identifying tokens are absent from `app`, `src`, and `public`; the temporary copy/server are removed; no product route, picker, overlay, or public asset will be published
+- updated the active spec, current state, TODO, decision, architecture/AI/testing maps, spec index, handoff, changelog, and regenerated project tree without changing any accepted technical byte
+- marked Phase 1 **accepted and technically Verified; publication/integration pending**, opened GIT-033 for the separate publication, and kept Phases 2–8 unauthorized
+
+This Control Plane Architect closeout changes only reviewed canonical records and generated project structure after technical acceptance. It does not change accepted product/proof bytes, stage, commit, merge, push, publish, deploy, contact a provider, make a paid request, or begin Phase 2.
+
 ### 2026-09-01 — Approved SPEC-0004 Phase 1 only
 
 - recorded D-0035: Arthur accepts the complete SPEC-0004 direction and authorizes only Phase 1, Safe One-Time Animation Builder, as **Authorized; Not started**

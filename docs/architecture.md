@@ -1,7 +1,7 @@
 # Architecture and System Map
 
 Status: canonical current architecture map
-Last traced: 2026-08-31 through accepted SPEC-0003 Tutorials navigation
+Last traced: 2026-09-01 through accepted SPEC-0004 Phase 1 one-time Stick animation engine
 
 ## Runtime Overview
 
@@ -27,8 +27,9 @@ app/page.tsx
       ├─ StickFigureWorkspace
       │   ├─ StickFigureCanvas
       │   ├─ StickFigureTimelineRow
-      │   ├─ canonical Phase 2 editor root / publication state
-      │   └─ stick right/top/tool panels, including read-only AI panel
+      │   ├─ canonical editable editor/history/storage root
+      │   ├─ SPEC-0004 Phase 1 strict plan/executor and durable one-time latch
+      │   └─ stick right/top/tool panels, including the published Phase 6 wave chat
       └─ StickFigureCreatorWorkspace
 ```
 
@@ -52,7 +53,8 @@ The main product screens are not URL routes. `app/page.tsx` owns a `view` union 
 | AI server route | `app/api/ai/route.ts`, `src/lib/openai/*` | Request orchestration, model calls, normalization, optional search, cost logging |
 | Drawing project persistence | `src/lib/drawingProjectStorage.ts` | Version-1 localStorage envelope, CRUD, cloning, quota fallback |
 | Drawing AI project memory | `drawingAiProjectMemory.ts`, `drawingProjectAiMemorySync.ts`, memory API route | Per-animation-project semantic memory and optional Supabase sync |
-| Stick workspace | `src/components/workspace/stickfigure/StickFigureWorkspace.tsx` and siblings, `src/lib/stickfigure/stickTimeline.ts`, `stickProjectContract.ts` | Phase 2 canonical history-free editor root, built-in figure, independent keyframe poses/holds, bounded manual-wave mutations, playback, and transient joint-edit publication; creator navigation and read-only AI panel remain separate |
+| Stick workspace | `src/components/workspace/stickfigure/StickFigureWorkspace.tsx` and siblings, `src/lib/stickfigure/stickTimeline.ts`, `stickProjectContract.ts`, `stickProjectHistory.ts`, `stickProjectStorage.ts` | Canonical editable timeline/history/storage root, independent keyframe poses/holds, manual joint edits, playback/onion, Creator continuity, and the accepted unpublished SPEC-0004 Phase 1 one-time creation latch/transaction wiring |
+| Stick animation plan/executor | `src/lib/ai/stickFigureAiContract.ts`, `stickFigureCommandExecutor.ts`, `stickFigureAiWorkspaceAdapter.ts` | Published Phase 6 wave contract plus accepted unpublished SPEC-0004 Phase 1 strict action-neutral fixed-fixture plan; creates isolated candidates and publishes only one atomic manually editable Apply |
 | Stick creator | `StickFigureCreatorWorkspace.tsx`, `types.ts` | Standalone local rig-creation experiment; save disconnected |
 | Dev cost visibility | `src/lib/ai/devAiCostDashboard.ts`, `app/dev/ai-costs/**` | Local model-call cost logs and dashboards |
 
@@ -98,11 +100,13 @@ This is a hybrid deterministic/model-planned procedural renderer, not image gene
 
 ## Stick Figure Data Flow
 
-Accepted SPEC-0001 Phase 2 replaces the shared-graph-only content path with one canonical, history-free editor root. A fresh Stick workspace asynchronously publishes the fixed `humanoid-11-v1` starter and its digest. Complete poses live independently on controlling keyframes; held cells reference their controlling keyframe and resolve that pose for selection, rendering, editing, and playback. The bounded Hold Pose Through This Frame, Insert Blank Keyframe, and Start Pose from Previous operations mutate the same canonical document without shifting the 12 starter cells.
+The published SPEC-0001 sequence now provides one canonical editable editor root with complete poses on controlling keyframes, held cells that resolve their owner pose, history, browser-local Save/Open, onion skin, Creator → Back root continuity, and the writable deterministic Phase 6 wave chat. `StickFigureCanvas` renders canonical 1920×1080 coordinates through a letterboxed viewport and derives the fixed horizontal line head from the editable `head` joint. Pointer movement is transient. A valid release hashes and publishes one candidate document/revision/generation; cancellation, stale instance/generation, remount, and competing completion cases are no-ops.
 
-`StickFigureCanvas` renders canonical 1920×1080 coordinates through a letterboxed viewport and derives the fixed horizontal line head from the editable `head` joint. Pointer movement is transient. A valid release hashes and publishes one candidate document/revision/generation; cancellation, stale instance/generation, remount, and competing completion cases are no-ops. Held-frame edits target the controlling keyframe while preserving selected-frame identity.
+The accepted unpublished SPEC-0004 Phase 1 extends that same root rather than adding a locked AI format. A strict action-neutral plan supports only ordered `set_timing`, complete independent `create_key_pose`, bounded contiguous `hold_pose`, and terminal `finish` commands. The shared executor materializes wave, jump, bow, and dodge fixtures without action-name branches, validates one figure/one layer/11 joints/8–24 frames/12 or 24 FPS, and holds the result in an isolated candidate. Preview/Cancel/failure do not mutate canonical state. Apply rechecks the captured binding, publishes exactly one history action, and atomically consumes a project-bound latch outside Undo/Redo.
 
-Phase 2 deliberately has no Stick history, Save/Open, Creator-library integration, or writable AI executor. The creator still owns a separate unsaved rig experiment, and the right panel still mounts the Drawing AI panel read-only. Those later systems must consume the canonical Phase 2 state rather than reintroducing a parallel graph or raster assumption.
+Stick saved record version 2 stores that latch beside the editable document/view state. Existing record version 1 remains readable and conservatively defaults to consumed; opening does not rewrite it, while a normal explicit Save writes version 2. After successful Apply, later AI submissions return `AI editing comes later; use manual tools.` before executor/provider work. The normal published chat still recognizes only its prior wave wording; natural-language routing for the broader engine is a later phase.
+
+The blue `PRIVATE REVIEW` fixture controls used for Arthur's acceptance were injected only into a temporary isolated copy by the dedicated browser-proof script. Product source contains no route, picker, overlay, or query-controlled review surface. The workspace keeps an unexported proof-port object for isolated source-copy injection, but product code neither exposes it on `window` nor imports the proof client.
 
 ## Protected Architectural Invariants
 
@@ -142,8 +146,8 @@ Incidental cleanup inside these files is prohibited unless the active spec inclu
 - complete, versioned project schema and migrations
 - durable autosave/recovery and project-file import/export
 - unified render/composite contract across edit, playback, save, reopen, and export
-- Stick history, persistence/Open, AI transactions, and broader timeline/rig authoring beyond the verified Phase 2 bounded model
-- AI command transaction semantics, preview, rollback, and destructive confirmation
+- broader Stick scene/motion/language/model behavior beyond the accepted one-time single-figure fixed-fixture Phase 1 engine
+- general AI editing, recoloring, continuation, and multi-step transaction semantics after Apply
 - authenticated user/project ownership and rate limiting
 - repeatable unit/integration/E2E suite and CI
 - production animation export

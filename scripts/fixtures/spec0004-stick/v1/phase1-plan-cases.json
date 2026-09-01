@@ -1,0 +1,33 @@
+{
+  "fixtureVersion": 1,
+  "validFixtures": ["wave", "jump", "bow", "dodge"],
+  "validBoundCases": ["minimum-8-frames-12-fps", "maximum-24-frames-24-fps"],
+  "invalidCases": [
+    {"id":"unknown-command","operation":"unknown-command"},
+    {"id":"missing-command","operation":"missing-command"},
+    {"id":"reordered-command","operation":"reordered-command"},
+    {"id":"duplicate-timing","operation":"duplicate-timing"},
+    {"id":"missing-finish","operation":"missing-finish"},
+    {"id":"duplicate-finish","operation":"duplicate-finish"},
+    {"id":"missing-joint","operation":"missing-joint"},
+    {"id":"extra-joint","operation":"extra-joint"},
+    {"id":"aliased-joint","operation":"aliased-joint"},
+    {"id":"out-of-bounds-point","operation":"out-of-bounds-point"},
+    {"id":"non-integer-point","operation":"non-integer-point"},
+    {"id":"duplicate-pose-index","operation":"duplicate-pose-index"},
+    {"id":"out-of-range-pose-index","operation":"out-of-range-pose-index"},
+    {"id":"overlapping-hold","operation":"overlapping-hold"},
+    {"id":"timeline-gap","operation":"timeline-gap"},
+    {"id":"invalid-hold-owner","operation":"invalid-hold-owner"},
+    {"id":"frame-oversize","operation":"frame-oversize"},
+    {"id":"fps-oversize","operation":"fps-oversize"},
+    {"id":"wrong-layer","operation":"wrong-layer"},
+    {"id":"wrong-rig","operation":"wrong-rig"},
+    {"id":"wrong-figure","operation":"wrong-figure"},
+    {"id":"non-fresh-state","operation":"non-fresh-state"},
+    {"id":"digest-mismatch","operation":"digest-mismatch"},
+    {"id":"revision-mismatch","operation":"revision-mismatch"},
+    {"id":"unknown-plan-field","operation":"unknown-plan-field"},
+    {"id":"unknown-command-field","operation":"unknown-command-field"}
+  ]
+}

@@ -55,6 +55,37 @@ export type EditableStickEditorHistoryRootV1 = {
   redo: EditableStickEditorVersionV1[];
 };
 
+export type StickAiCreationLatchV1 = {
+  latchVersion: 1;
+  projectId: string;
+  status: "unconsumed" | "consumed";
+};
+
+export const createStickAiCreationLatch = (
+  projectId: string,
+  status: StickAiCreationLatchV1["status"],
+): StickAiCreationLatchV1 => ({latchVersion: 1, projectId, status});
+
+export const isValidStickAiCreationLatch = (
+  value: unknown,
+  projectId: string,
+): value is StickAiCreationLatchV1 => {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const record = value as Record<string, unknown>;
+  const keys = Object.keys(record).sort();
+  return keys.join(",") === "latchVersion,projectId,status" &&
+    record.latchVersion === 1 && record.projectId === projectId &&
+    (record.status === "unconsumed" || record.status === "consumed");
+};
+
+export const consumeStickAiCreationLatch = (
+  latch: StickAiCreationLatchV1,
+  projectId: string,
+): StickAiCreationLatchV1 | null =>
+  isValidStickAiCreationLatch(latch, projectId) && latch.status === "unconsumed"
+    ? createStickAiCreationLatch(projectId, "consumed")
+    : null;
+
 const cloneValue = <T,>(value: T): T => JSON.parse(canonicalJson(value)) as T;
 
 export const editableStickDocumentFromTimeline = (
@@ -126,6 +157,12 @@ export const isEligibleEditableStickWaveStarter = (
   return canonicalJson(current) === canonicalJson(expected);
 };
 
+export const isEligibleEditableStickAiStarter = (
+  root: EditableStickEditorHistoryRootV1,
+  latch: StickAiCreationLatchV1,
+) => isValidStickAiCreationLatch(latch, root.current.snapshot.document.projectId) &&
+  latch.status === "unconsumed" && isEligibleEditableStickWaveStarter(root);
+
 /** Projects the validated canonical wave into the existing Phase 3 editable model without publishing it. */
 export const editableStickTimelineFromCanonicalWave = (
   document: StickProjectDocumentV1,
@@ -181,6 +218,9 @@ export const editableStickTimelineFromCanonicalWave = (
     nextLayerNumber: Math.max(2, current.nextLayerNumber),
   };
 };
+
+/** Action-neutral name for SPEC-0004; the historical wave export remains byte-compatible. */
+export const editableStickTimelineFromCanonicalAnimation = editableStickTimelineFromCanonicalWave;
 
 export const editableStickHistoryVersionByteLength = (version: EditableStickEditorVersionV1) =>
   new TextEncoder().encode(canonicalJson(version)).byteLength;

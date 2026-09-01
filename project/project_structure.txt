@@ -115,6 +115,7 @@
 ./docs/specs/0001-first-reversible-ai-stick-animation.md
 ./docs/specs/0002-lossless-local-drawing-save-and-reopen.md
 ./docs/specs/0003-tutorials-and-cleaner-home-screen.md
+./docs/specs/0004-future-real-ai-animator-requirements.md
 ./docs/specs/README.md
 ./docs/specs/TEMPLATE.md
 ./docs/testing_workflow.md
@@ -228,6 +229,10 @@
 ./scripts/fixtures/spec0003-tutorials/v1
 ./scripts/fixtures/spec0003-tutorials/v1/browser-plan.json
 ./scripts/fixtures/spec0003-tutorials/v1/proof-commands.json
+./scripts/fixtures/spec0004-stick
+./scripts/fixtures/spec0004-stick/v1
+./scripts/fixtures/spec0004-stick/v1/browser-viewports.json
+./scripts/fixtures/spec0004-stick/v1/phase1-plan-cases.json
 ./scripts/fixtures/stick-ai
 ./scripts/fixtures/stick-ai/v1
 ./scripts/fixtures/stick-ai/v1/canonical-hash-vectors.json
@@ -291,6 +296,11 @@
 ./scripts/fixtures/stick-ai/v2/stick-ai-creator-preservation-cases.json
 ./scripts/fixtures/stick-ai/v2/stick-ai-intent-cases.json
 ./scripts/fixtures/stick-ai/v2/stick-ai-ui-cases.json
+./scripts/fixtures/stick-ai/v3
+./scripts/fixtures/stick-ai/v3/bow.json
+./scripts/fixtures/stick-ai/v3/dodge.json
+./scripts/fixtures/stick-ai/v3/jump.json
+./scripts/fixtures/stick-ai/v3/wave.json
 ./scripts/generate_project_tree.sh
 ./scripts/recordSpec0001ProofBundle.ts
 ./scripts/recordSpec0002Phase1Proof.ts
@@ -328,6 +338,10 @@
 ./scripts/spec0002-browser/validatePhase2.ts
 ./scripts/spec0003-tutorials
 ./scripts/spec0003-tutorials/browserProofContract.ts
+./scripts/spec0004-stick
+./scripts/spec0004-stick/phase1BrowserProof.ts
+./scripts/spec0004-stick/recordPhase1Proof.ts
+./scripts/spec0004-stick/validatePhase1Proof.ts
 ./scripts/sync_docs_to_github.sh
 ./scripts/traceExplosionLivePath.ts
 ./scripts/traceGenerateSoundsLivePath.mjs

@@ -31,6 +31,7 @@ type PreviewState = {
 const PREVIEW_COPY = "Understood: one stick figure, a three-pose wave, 12 frames at 12 FPS. No changes have been made.";
 const UNSUPPORTED_COPY = "I couldn’t safely match that request to the one supported result: one stick figure, a three-pose wave, 12 frames at 12 FPS. No changes were made.";
 const IDLE_COPY = "Ask the assistant for help with your stick figure.";
+const POST_APPLY_COPY = "AI editing comes later; use manual tools.";
 const REQUEST_TIMEOUT_MS = 10_000;
 
 const availabilityCopy = (availability: AvailabilityState) => {
@@ -106,6 +107,10 @@ export function StickFigureAiPanel({adapter}: {adapter: StickFigureAiWorkspaceAd
     }
     if (snapshot.playing) {
       setMessage("Pause playback before requesting or applying an AI change.");
+      return;
+    }
+    if (snapshot.aiCreationConsumed) {
+      setMessage(POST_APPLY_COPY);
       return;
     }
     if (!snapshot.eligible) {
@@ -264,4 +269,8 @@ export function StickFigureAiPanel({adapter}: {adapter: StickFigureAiWorkspaceAd
   return <WorkspaceAiPanelShell body={body} composer={composer} />;
 }
 
-export {PREVIEW_COPY as STICK_AI_PREVIEW_COPY, UNSUPPORTED_COPY as STICK_AI_UNSUPPORTED_COPY};
+export {
+  POST_APPLY_COPY as STICK_AI_POST_APPLY_COPY,
+  PREVIEW_COPY as STICK_AI_PREVIEW_COPY,
+  UNSUPPORTED_COPY as STICK_AI_UNSUPPORTED_COPY,
+};

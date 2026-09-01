@@ -92,6 +92,8 @@ npm run lint
 npm run test:spec0001-browser
 node --experimental-strip-types scripts/runSpec0003TutorialsBrowserProof.ts
 node --experimental-strip-types scripts/validateSpec0003TutorialsProof.ts output/spec-0003/single-implementation/proof-manifest.json
+node --experimental-strip-types scripts/spec0004-stick/recordPhase1Proof.ts
+node --experimental-strip-types scripts/spec0004-stick/validatePhase1Proof.ts --manifest output/spec-0004/phase-1/proof-manifest.json
 node --experimental-strip-types scripts/validateDrawingProjectV2Contract.ts
 node --experimental-strip-types scripts/validateDrawingProjectV2Repository.ts
 node --experimental-strip-types scripts/validateDrawingProjectV1Compatibility.ts
@@ -144,6 +146,16 @@ node --experimental-strip-types scripts/validateSpec0003TutorialsProof.ts output
 ```
 
 SPEC-0003 has no dedicated tracked-state finalizer. After acceptance and exclusive Control Plane Architect takeover, closeout therefore uses that unchanged manifest validator plus `bash scripts/update_memory.sh`, `bash scripts/update_memory.sh --check-only`, both diff checks, local-link and lifecycle/status/handoff consistency audits, exact accepted/control-plane path checks, accepted-source hash preservation, hidden-flag/symlink checks, process/port cleanup, and a final empty-index/untracked-output audit. The later separately authorized product publication reran the corrected permanent tester on the clean committed branch before canonical-main integration and push. It passed 40 operations, 13 screenshots, 4 driver messages, all 37 historical negatives, four ordered test-fulfilled provider-free Stick availability GETs, one deterministic mocked Drawing POST, zero real-route/non-loopback/provider requests, and complete cleanup. Result SHA-256 is `8c3647aecec11f2660c5bc47b2e656da6fc1b19b816c9a317c709d759f661412`; browser-network-ledger SHA-256 is `514d163f272a938a7babb374cda98ea5f362a36f5566ee0e34afbab4db1130ac`. Immediately after product publication, the publication branch, local `main`, local `origin/main`, and live GitHub `main` matched at `9fa1b819aacc7823711af5838b79e70921469a93` with clean `0/0` synchronization. The final closeout containing this testing record changes exactly eight canonical documents and no product/proof byte; its own SHA and present Git refs must be verified directly from Git.
+
+### Accepted SPEC-0004 Phase 1 proof
+
+The exact 17-path SPEC-0004 Phase 1 result is accepted and technically Verified pending publication. Its technical manifest is `output/spec-0004/phase-1/proof-manifest.json`, 15,683 bytes, SHA-256 `ee3a92edf8f4227dfa91ec3b84de3599fa158d5fb5f3df83155ab5192c076e4a`. Independent executor-time validation passed 126 checks while the private loopback review server was still live; the validation receipt remains at `output/spec-0004/phase-1/proof-manifest-validation.json`. After Arthur's review and safe cleanup of the isolated copy/server, the Control Plane Architect revalidated every one of the 27 artifact and 14 technical-receipt hashes/sizes plus exact live scope/index without pretending the removed review server was still available.
+
+The manifest binds 707 unit assertions, four fixed valid plans, 26 invalid-plan rejections, 12 browser flows, 11 screenshots at `1440×900` and `1024×768`, TypeScript, focused lint, the unchanged full-lint baseline, diff proof, protected Stick/Drawing flows, and zero external/API/provider requests. The browser flows cover Preview, Cancel, Apply, Play/Pause, onion, manual joint edit, Undo/Redo, Save/Open, Creator, Drawing, stale rejection, and the post-Apply no-op.
+
+The blue `PRIVATE REVIEW` fixture picker is not a product surface. `scripts/spec0004-stick/phase1BrowserProof.ts` copied the source into a temporary directory, injected the proof ports/client only there, and served that isolated copy on a non-3000 loopback port. Product `app`, `src`, and `public` contain none of the picker/query tokens. The proof script remains a developer-only test artifact and is never imported by the app.
+
+SPEC-0004 Phase 1 has no dedicated tracked-state finalizer. Its accepted closeout therefore uses the unchanged technical manifest plus the preserved successful live-server validation receipt, complete offline artifact/receipt revalidation after cleanup, `bash scripts/update_memory.sh`, `bash scripts/update_memory.sh --check-only`, accepted-byte hash preservation, exact implementation/control-plane scope checks, lifecycle/link/status checks, hidden-flag/symlink/process/port audits, both diff checks, and a final empty-index/untracked-output audit. The later publication task must run the required clean permanent tester after commit and before canonical-main push/integration claims.
 
 For a fresh technical proof recording from the historical Phase 1.5 implementation base:
 

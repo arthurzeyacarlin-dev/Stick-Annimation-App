@@ -5,6 +5,17 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-01 — SPEC-0004 Phase 1 published and integrated
+
+- published the accepted 17 technical paths plus 11 reviewed control-plane/tree paths in exact 28-path commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d`, parent `9fae072359f3c0d10f1ed2bcee8da9ebc11d54ec`, message `Implement SPEC-0004 Phase 1 animation builder`
+- preserved the 15,683-byte technical manifest at SHA-256 `ee3a92edf8f4227dfa91ec3b84de3599fa158d5fb5f3df83155ab5192c076e4a` and every accepted product/proof byte
+- passed the required clean permanent tester with 40 operations, 13 screenshots, 4 driver messages, all 37 historical negatives, four protected Stick availability GETs, one deterministic mocked Drawing POST, zero real API/nonloopback/provider requests, and complete cleanup; result SHA-256 `bd037bc7a0ce9e48522ef6e626084ac3e9eaddfaaa475859d6c00e6c1960448e`
+- safely fast-forwarded and pushed canonical `main`; publication branch, local `main`, local `origin/main`, live GitHub `main`, and GitHub API matched at the publication commit with clean worktrees and `0/0` synchronization
+- confirmed the blue private review box was not published: its tokens/imports remain absent from product/deployable paths, and its review process, port, and temporary copy are gone
+- closed GIT-033 and marked SPEC-0004 Phase 1 **Verified, published, and integrated**; Phase 2 did not start and remains unauthorized pending a separate Arthur discussion and authorization
+
+The final record-only reconciliation containing this entry changes no app/runtime/fixture/test/proof byte. Its own commit SHA and present refs are deliberately not embedded and must be verified directly from Git. It starts no provider/API/paid/deployment or Phase 2 work.
+
 ### 2026-09-01 — SPEC-0004 Phase 1 accepted and technically closed out
 
 - recorded D-0036: Arthur accepted the exact 17-path Safe One-Time Animation Builder after reviewing the unpublished private app copy

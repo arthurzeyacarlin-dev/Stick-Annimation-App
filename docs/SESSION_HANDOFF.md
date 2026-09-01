@@ -3,8 +3,8 @@
 Status: canonical last-known stopping point
 Last updated: 2026-09-01
 Active Approved/Verified specs: `docs/specs/0001-first-reversible-ai-stick-animation.md`, `docs/specs/0002-lossless-local-drawing-save-and-reopen.md`, `docs/specs/0003-tutorials-and-cleaner-home-screen.md`, and `docs/specs/0004-future-real-ai-animator-requirements.md`
-SPEC-0004 status: **Phase 1 accepted and technically Verified; publication/integration pending.** Phases 2–8 remain unauthorized.
-Current result: one stopped Spec Executor completed the exact provider-free Phase 1 engine from activation/base `9fae072359f3c0d10f1ed2bcee8da9ebc11d54ec`. Arthur reviewed and accepted the private app copy. One Control Plane Architect then took exclusive ownership, preserved every accepted technical byte, propagated this record, and stopped before Git publication.
+SPEC-0004 status: **Phase 1 Verified, published, and integrated.** GIT-033 is complete. Phases 2–8 remain unauthorized.
+Current result: the accepted provider-free Phase 1 engine is published/integrated in exact 28-path commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d`, parent `9fae072359f3c0d10f1ed2bcee8da9ebc11d54ec`, message `Implement SPEC-0004 Phase 1 animation builder`. The normal push and required clean permanent tester passed; the blue private review box was not published. This final record-only reconciliation changes no product/proof byte, and its own later publication SHA must be read directly from Git.
 Current roadmap phase: Phase 0 — Preserve and Stabilize
 
 ## Accepted SPEC-0004 Phase 1 Result
@@ -83,14 +83,18 @@ The original accepted output was erased before recovery. The regenerated screens
 
 Current SPEC-0004 Phase 1 closeout state:
 
-- activation/base, detached worktree HEAD, and canonical local `main`: `9fae072359f3c0d10f1ed2bcee8da9ebc11d54ec`
-- local `origin/main`: `a853bf96f193b1e4ae297dc8e76c4fceb485612c`; local `main` is intentionally one docs-only activation commit ahead
-- accepted/closeout worktree: `/Users/arthurcarlin/.codex/worktrees/b8ad/stick-animation-app`
-- executor stopped; exclusive ownership transferred to the Control Plane Architect; index empty
-- accepted 17 technical hashes/byte sizes frozen before propagation and rechecked afterward
-- Control Plane Architect record/tree paths: `docs/AI_SYSTEM.md`, `docs/CURRENT_STATE.md`, `docs/DECISIONS.md`, `docs/SESSION_HANDOFF.md`, `docs/TODO.md`, `docs/architecture.md`, `docs/changelog.md`, `docs/specs/0004-future-real-ai-animator-requirements.md`, `docs/specs/README.md`, `docs/testing_workflow.md`, and `project/project_structure.txt`
-- combined publication-ready scope: exactly 28 paths, comprising the 17 accepted technical paths plus these 11 records/tree paths
-- no stage, commit, merge, push, provider/API/paid request, deployment, or Phase 2 work performed by the executor or propagation closeout
+- exact publication commit: `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d`
+- exact parent: `9fae072359f3c0d10f1ed2bcee8da9ebc11d54ec`
+- exact message: `Implement SPEC-0004 Phase 1 animation builder`
+- exact scope: 28 paths, comprising the accepted 17 technical paths plus 11 reviewed control-plane/tree paths
+- publication worktree/branch: `/Users/arthurcarlin/.codex/worktrees/b8ad/stick-animation-app`, `codex/spec0004-phase1-publication`
+- normal non-force push: complete; publication branch, canonical local `main`, local `origin/main`, live GitHub `main`, and GitHub API were verified equal at `086420e…`
+- post-publication repository state: both publication and canonical worktrees clean, empty indexes, canonical synchronization `0/0`
+- clean permanent tester: PASS with 40 operations, 13 screenshots, 4 driver messages, all 37 historical negatives, four protected Stick availability GETs, one deterministic mocked Drawing POST, zero real API/nonloopback/provider requests, and complete cleanup
+- tester result: 84,209 bytes, SHA-256 `bd037bc7a0ce9e48522ef6e626084ac3e9eaddfaaa475859d6c00e6c1960448e`; browser ledger SHA-256 `de3827a21b0fbb112963a6d273dcb73a9daa78a0e9fd4c72cf66f9c7166755e1`; server ledger SHA-256 `9e70d65d645031c92fd04c41c058cb1e34940efdc20a3a340ff6a9a1f4dd8e34`
+- accepted technical manifest remains 15,683 bytes at SHA-256 `ee3a92edf8f4227dfa91ec3b84de3599fa158d5fb5f3df83155ab5192c076e4a`
+- blue review tokens/imports are absent from product/deployable paths; the review process, port, and copy are absent
+- no provider/API/paid request, deployment, Phase 2 implementation, or next-feature work was performed
 
 Prior SPEC-0003 publication record:
 
@@ -105,17 +109,15 @@ Prior SPEC-0003 publication record:
 
 ## Stopping Point
 
-GIT-033 is the next and only authorized repository task: publish and integrate accepted SPEC-0004 Phase 1.
+SPEC-0004 Phase 1 is fully closed: accepted, Verified, published, integrated, cleanly tested, and synchronized. GIT-033 is complete.
 
-The publication task must take exclusive ownership of this same worktree and first re-verify the base, exact 28-path reviewed scope, empty index, accepted 17 source hashes, technical-manifest SHA/size, reviewed record bytes, and an unchanged clean canonical `main`. It then stages only those 28 paths, commits on the Phase 1 branch, safely fast-forwards canonical `main`, pushes normally without force, runs the required clean post-publication permanent tester, and verifies the publication branch, local `main`, local `origin/main`, and live GitHub `main` match with clean `0/0` synchronization. If main advanced or any path differs, stop without pull, merge, rebase, force-push, history rewrite, or scope expansion.
-
-The private review copy/overlay must not be recreated or included in the product. No provider/API/paid/deployment work is part of publication. Stop after clean publication and tell Arthur Phase 1 is fully finished. Do not start Phase 2; it requires a new explicit Arthur authorization after Phase 1 is durably published/integrated and the clean post-publication proof passes.
+The next product action is for Arthur and the Project Manager to discuss Phase 2 and, only if Arthur wants it, separately authorize one new Phase 2 Spec Executor. Phase 2 has not started and has no implementation authorization yet. Do not reuse the Phase 1 worktree as a Phase 2 executor, recreate the blue review box, or begin any provider/API/paid/deployment work.
 
 ## Proven and Not Proven
 
-Proven for SPEC-0004 Phase 1: exact activation/base and 17-path scope; executor shutdown/exclusive transfer; Arthur acceptance; exact engine/transaction/latch/storage/manual-edit behavior; manifest hash/size and 126 executor-time validation checks; all 41 bound artifacts/receipts revalidated after server cleanup; 707 assertions; four fixtures; 26 rejection cases; 12 browser flows; 11 screenshots; both viewports; TypeScript/focused-lint/diff proof; unchanged full-lint baseline; zero external/API/provider requests; blue-box product exclusion; accepted-byte preservation through control-plane propagation; exact 28-path publication-ready scope; empty index; and no unexpected tracked/untracked path.
+Proven for SPEC-0004 Phase 1: exact activation/base and 17-path scope; executor shutdown/exclusive transfer; Arthur acceptance; exact engine/transaction/latch/storage/manual-edit behavior; manifest hash/size and 126 executor-time validation checks; all 41 bound artifacts/receipts revalidated after server cleanup; 707 assertions; four fixtures; 26 rejection cases; 12 browser flows; 11 screenshots; both viewports; TypeScript/focused-lint/diff proof; unchanged full-lint baseline; zero external/API/provider requests; blue-box product exclusion; exact 28-path commit/parent/message; normal GitHub push; clean 40-operation/13-screenshot permanent tester; final publication-branch/local-main/origin/live-GitHub/GitHub-API equality; clean worktrees, empty indexes, and `0/0` synchronization.
 
-Not yet performed: stage, commit, canonical-main integration, GitHub push, clean committed post-publication permanent tester, final branch/main/origin/live-GitHub equality, Phase 2, provider/API/paid work, deployment, or any other next feature.
+Not performed or proven: Phase 2, smooth-motion behavior, broader natural-language matching, Terra/provider/API/paid work, deployment, or any other next feature. The Phase 1 fixed fixtures and engine do not by themselves prove the later professional-quality goal.
 
 ## Systems Intentionally Left Unchanged
 

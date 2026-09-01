@@ -1,16 +1,16 @@
 # SPEC-0004 — One-Time Stick Figure AI Animator
 
-Status: **Phase 1 accepted and technically Verified; publication/integration pending.** Phases 2–8 remain unauthorized.
+Status: **Phase 1 Verified, published, and integrated.** Phases 2–8 remain unauthorized.
 
 Owner: Arthur
 Spec role: Spec Architect
 Created: 2026-08-31
 Last updated: 2026-09-01
 Decision links: [D-0033, D-0034, D-0035, and D-0036](../DECISIONS.md)
-Control-plane anchor: Phase 1 activation/base `9fae072359f3c0d10f1ed2bcee8da9ebc11d54ec`
+Control-plane anchor: Phase 1 publication commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d` from base `9fae072359f3c0d10f1ed2bcee8da9ebc11d54ec`
 Related work: [`TODO SPEC-004`](../TODO.md), [`Current State`](../CURRENT_STATE.md), [`Session Handoff`](../SESSION_HANDOFF.md)
 
-> **Lifecycle boundary.** D-0035 authorized **only Phase 1**; its dedicated executor has now stopped and D-0036 accepts the exact result. Publication/integration is still pending and separate. No provider/API/key use, paid request, deployment, Phase 2 work, or work in another worktree is authorized. Phases 2–8 each need their own separate authorization after the preceding phase is accepted, integrated, and recorded.
+> **Lifecycle boundary.** D-0035 authorized **only Phase 1**; D-0036 accepted it, and exact 28-path commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d` published/integrated it after the required clean tester passed. No provider/API/key use, paid request, deployment, Phase 2 work, or work in another worktree is authorized. Phases 2–8 each need their own separate authorization after the preceding phase is accepted, integrated, and recorded.
 
 > **Historical boundary.** SPEC-0001 Phases 1–6, including the accepted deterministic single-stick-figure wave, are completed history and remain unchanged. Old SPEC-0001 Phase 7 is retired under D-0033: it has zero implementation authority. This specification replaces it; it does not revive, import, or approve its old provider policy, costs, commands, proof mechanics, or gates.
 
@@ -258,7 +258,7 @@ The 15,683-byte technical manifest at `output/spec-0004/phase-1/proof-manifest.j
 
 The blue `PRIVATE REVIEW` fixture picker was created only inside an isolated temporary copy by `scripts/spec0004-stick/phase1BrowserProof.ts`. It is not imported by product code; the tokens `PRIVATE REVIEW`, `spec0004-phase1-review`, `__spec0004_review`, and `Preview wave` are absent from `app`, `src`, and `public`. The temporary copy and server were removed after Arthur's review. The proof script remains developer-only technical evidence and cannot make the blue box appear in the published app.
 
-Phase 1 is accepted and technically Verified pending its separately reviewed publication/integration step. Phase 2 remains unauthorized until Phase 1 is committed, integrated into canonical `main`, pushed, and clean post-publication proof passes.
+Phase 1 is Verified, published, and integrated in exact commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d`, parent `9fae072359f3c0d10f1ed2bcee8da9ebc11d54ec`, message `Implement SPEC-0004 Phase 1 animation builder`, with exactly 28 reviewed paths. The required clean permanent tester passed 40 operations, 13 screenshots, 4 driver messages, all 37 historical negatives, four protected Stick GETs, one mocked Drawing POST, zero real API/nonloopback/provider requests, and complete cleanup; result SHA-256 `bd037bc7a0ce9e48522ef6e626084ac3e9eaddfaaa475859d6c00e6c1960448e`. Publication branch, canonical local `main`, local `origin/main`, live GitHub `main`, and GitHub API matched with clean `0/0` synchronization. The blue private review box was not published. Phase 2 did not start and remains unauthorized until Arthur separately discusses and authorizes it.
 
 ### Phase 2 — Pose and Smooth Motion Engine
 
@@ -358,6 +358,6 @@ These gates do not block the complete Phase 1 proof because it is local, fixed-f
 
 ## 11. Handoff
 
-Status is **Phase 1 accepted and technically Verified; publication/integration pending.** Phases 2–8 remain unauthorized.
+Status is **Phase 1 Verified, published, and integrated** in exact 28-path commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d`. GIT-033 is complete. Phases 2–8 remain unauthorized.
 
-The next work is the separate publication step for the exact accepted 17-path Phase 1 result plus the reviewed Control Plane Architect record paths. It must stage only that reviewed scope, commit from activation base `9fae072359f3c0d10f1ed2bcee8da9ebc11d54ec`, safely fast-forward an unchanged clean canonical `main`, push normally, run the required clean post-publication tester, and verify local main/origin/live GitHub equality and clean `0/0` synchronization. It must not include the private review copy/overlay or begin Phase 2. Phase 2 needs a new explicit authorization after Phase 1 is durably published and integrated.
+The next product action is an Arthur/Project Manager discussion of Phase 2. Only a later explicit Arthur authorization may start one dedicated Phase 2 Spec Executor in a new worktree. No Phase 2 implementation, provider/API/paid work, deployment, or private-review-box recreation is authorized now.

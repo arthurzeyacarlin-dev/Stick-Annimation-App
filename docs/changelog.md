@@ -5,6 +5,34 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-01 — Approved SPEC-0004 Phase 1 only
+
+- recorded D-0035: Arthur accepts the complete SPEC-0004 direction and authorizes only Phase 1, Safe One-Time Animation Builder, as **Authorized; Not started**
+- preserved the exact Phase 1 fixed-fixture scope/allowlist and its no-provider/no-paid/no-Drawing boundary; Phases 2–8 remain unauthorized
+- set the next task to one dedicated Phase 1 Spec Executor starting in Plan mode after clean-base, empty-index, exclusive-worktree, and exact-allowlist verification
+- retained SPEC-0001 Phases 1–6 and Phase 6's deterministic wave exactly as completed history; old Phase 7 remains retired with zero authority
+
+This is documentation/control-plane activation only. It changes no product/runtime/fixture/proof byte, provider/API/key/cost/privacy/production state, external or paid service, deployment, or other worktree. D-0035 separately permits only the reviewed docs-only commit and local canonical-main fast-forward; it does not permit a GitHub push.
+
+### 2026-08-31 — Completed the Proposed eight-phase SPEC-0004 design
+
+- recorded D-0034: Arthur's complete requirements pass for the Stick Figure Workspace-only, one-time AI Animator; Phase 1 is decision-complete for later authorization but no phase starts here
+- made Preview / Apply / Cancel, one atomic editable Apply, durable post-Apply no-AI-edit latch, one white layer, derived line head, manual Save/Open/Undo/Redo, hidden no-Mode routing, and Phase 1's four fixed-plan proof exact
+- defined later Phases 2–8: smooth motion, larger one-layer scenes, $0 recipe catalog, Generate Frames UI/fake provider, gated Terra original creation, one pre-Apply repair, and private cost/privacy/abuse/release controls
+- named the unresolved owner gates instead of inventing them: final timeline cap, same-day official Terra facts/live authorization, benchmark/quality rubric, and final cost/privacy/release policy
+
+This is specification/control-plane work only. It changes no Drawing or Stick runtime, UI, Phase 1–6 fixture/proof byte, package, configuration, environment value, database, provider/API/key state, external or paid service, deployment, other worktree, Git index, commit, merge, push, or publication state.
+
+### 2026-08-31 — Retired old SPEC-0001 Phase 7 and opened SPEC-0004
+
+- recorded Arthur's D-0033 decision to preserve SPEC-0001 Phases 1–6 exactly as completed history, including the existing Phase 6 pretend/deterministic single-stick-figure wave feature
+- retained the old Phase 7 text only as superseded history, marked it retired and prohibited from implementation, and redirected all future real AI Animator requirements to SPEC-0004
+- initially added SPEC-0004 as the safe requirements boundary; D-0034 later completed its Proposed eight-phase product direction without granting implementation authority
+- recorded that `off`/`mock`/`live` are hidden development/server concepts and must not become an app-user Mode choice
+- updated only the minimum canonical spec/status/decision/TODO/handoff/changelog records needed to prevent a future task from starting old Phase 7
+
+This is specification/control-plane work only. It changes no Drawing or Stick runtime, UI, task/reasoning controls, Phase 1–6 fixture/proof bytes, package, configuration, environment value, database, provider/API/key state, external or paid service, deployment, other worktree, Git index, commit, merge, push, or publication state.
+
 ### 2026-08-31 — SPEC-0003 Tutorials published and integrated
 
 - published the exact accepted SPEC-0003 implementation and reviewed records in 20-path commit `9fa1b819aacc7823711af5838b79e70921469a93`, parent `2cd25fd0bdfb8a775370641ffd65db315cc94532`, message `Implement SPEC-0003 Tutorials screen`

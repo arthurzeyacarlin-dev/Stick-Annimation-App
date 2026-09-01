@@ -1,7 +1,7 @@
 # Project Manager Context
 
 Status: canonical owner and collaboration context
-Last updated: 2026-08-13
+Last updated: 2026-09-01
 
 ## Ownership, Sponsorship, and PM Collaboration
 
@@ -24,6 +24,9 @@ The latest product direction, captured on 2026-08-09, is:
 - Efficiency and cost matter alongside output quality.
 - Development progress may be shared publicly, so every update must distinguish Proposed, Implemented, and Verified work and must not overstate unfinished capability.
 - A custom Diamond Animator model may be explored later, but it is not required for the immediate product foundation.
+- SPEC-0004 Phase 2 is the current authorized milestone after its activation publication: one hidden local pose/smooth-motion engine that bakes every generated frame into ordinary independently editable Stick data. It must not add a visible tester box, provider, language matcher, or Drawing/workspace change.
+- Future Terra economics should prefer compact important-pose/timing plans, local in-betweens, safe $0 recipes first, at most one later bounded pre-Apply repair, measured private-dashboard cost, and monthly budgets/credits rather than unlimited use. Exact provider pricing/policy is a later same-day official-source gate.
+- Arthur is interested in a possible later unified Animation Workspace with one project/timeline/canvas/save/history/AI surface and typed Stick/Drawing layers. This is a future separate-spec question after Phase 2, not current authorization.
 
 This direction supersedes older prose that framed AI only as a passive helper or described the workspaces as complete.
 
@@ -74,5 +77,6 @@ These are not blockers for preserving the repository, but they must be resolved 
 6. What manual stick-figure editing features are required for the first usable release?
 7. What user data may be sent to model/search providers, and how long is memory retained?
 8. What minimum shared stick state/executor and corrective manual controls should precede the first AI-led vertical slice, versus the broader manual editor that can follow?
+9. Should a later unified Animation Workspace replace the separate Drawing/Stick project choice, and what project-format/layer migration would keep both systems safe?
 
 Pending decisions and their status live in `DECISIONS.md`.

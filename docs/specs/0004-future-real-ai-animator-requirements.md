@@ -1,16 +1,16 @@
 # SPEC-0004 — One-Time Stick Figure AI Animator
 
-Status: **Phase 1 Verified, published, and integrated.** Phases 2–8 remain unauthorized.
+Status: **Phase 1 Verified, published, and integrated. Phase 2 Authorized; Not started.** Phases 3–8 remain unauthorized.
 
 Owner: Arthur
 Spec role: Spec Architect
 Created: 2026-08-31
 Last updated: 2026-09-01
-Decision links: [D-0033, D-0034, D-0035, and D-0036](../DECISIONS.md)
+Decision links: [D-0033, D-0034, D-0035, D-0036, D-0037, and D-0038](../DECISIONS.md)
 Control-plane anchor: Phase 1 publication commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d` from base `9fae072359f3c0d10f1ed2bcee8da9ebc11d54ec`
 Related work: [`TODO SPEC-004`](../TODO.md), [`Current State`](../CURRENT_STATE.md), [`Session Handoff`](../SESSION_HANDOFF.md)
 
-> **Lifecycle boundary.** D-0035 authorized **only Phase 1**; D-0036 accepted it, and exact 28-path commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d` published/integrated it after the required clean tester passed. No provider/API/key use, paid request, deployment, Phase 2 work, or work in another worktree is authorized. Phases 2–8 each need their own separate authorization after the preceding phase is accepted, integrated, and recorded.
+> **Lifecycle boundary.** D-0035 authorized **only Phase 1**; D-0036 accepted it, and exact 28-path commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d` published/integrated it after the required clean tester passed. D-0037 now authorizes **only Phase 2**, but its implementation must wait until this docs-only activation is separately reviewed, published, and integrated. No provider/API/key use, paid request, deployment, Phase 3 work, or work in another worktree is authorized. Phases 3–8 each need their own separate authorization after the preceding phase is accepted, integrated, and recorded.
 
 > **Historical boundary.** SPEC-0001 Phases 1–6, including the accepted deterministic single-stick-figure wave, are completed history and remain unchanged. Old SPEC-0001 Phase 7 is retired under D-0033: it has zero implementation authority. This specification replaces it; it does not revive, import, or approve its old provider policy, costs, commands, proof mechanics, or gates.
 
@@ -38,10 +38,12 @@ This architect pass re-read the control plane, the full SPEC-0001 history, `AI_S
 | `src/components/workspace/stickfigure/StickFigureAiPanel.tsx` | The right panel accepts only a narrow wave prompt, performs local V2 wave matching, asks `/api/ai`, and exposes Preview / Apply / Cancel. It says an ineligible project can still use manual timeline controls. | Preserve the safe transaction affordance, but replace the one-wave-only product contract through later phases. Do not borrow Drawing UI behavior. |
 | `src/lib/ai/stickFigureAiContract.ts`, `stickFigureAiMockServer.ts`, `stickFigureCommandExecutor.ts` | The V1/V2 capability is `stick.pose-sequence.create/v1`: one rig/figure/layer, three poses, 12 frames, 12 FPS. The executor builds an isolated candidate and commits it to canonical history only on Apply. | Phase 1 replaces the fixed wave payload with a strict general plan/executor while retaining isolated candidate, stale/idempotency, cancellation, and atomic history safety. |
 | `src/lib/stickfigure/stickProjectContract.ts` | The document validator currently requires exactly one layer and derives the head as a horizontal line from the stored `head` joint. | One layer and the derived horizontal line head remain hard boundaries. No stored circle/custom head, background, prop, camera, or layer tool is introduced. |
+| `src/lib/stickfigure/stickTimeline.ts`, `stickProjectHistory.ts` | An editable `hold` resolves to its owner keyframe; replacing content while a held frame is selected replaces that owner content. Distinct keyframes own distinct editable content/state IDs. | Phase 2 must bake every generated slot as its own complete keyframe. It may not use a hold/tween owner span for generated in-betweens or visually repeated frames. |
 | `src/lib/stickfigure/stickProjectHistory.ts`, `src/lib/stickProjectStorage.ts` | The visible fresh starter and local history/storage are explicit. Current first-wave eligibility is document/history based; Save/Open and Undo/Redo are available. | Phase 1 adds a durable one-time-creation latch that survives Save/Open and does not become undoable, while the animation document itself stays one atomic undoable action. |
 | `src/components/workspace/stickfigure/StickFigureWorkspace.tsx`, `stickFigureAiWorkspaceAdapter.ts` | The adapter captures project/revision/digest/workspace binding and rejects stale or playing state; normal human Play/Pause remains workspace-owned. | AI work must not toggle unrelated human view state. Temporary creation preview may render/play only inside its own check flow before Apply. Human onion skin remains unchanged and AI onion control is out of scope. |
 | `src/lib/ai/stickFigureAiAvailability.ts` | `DIAMOND_STICK_AI_V1_MODE` is a hidden server/development availability idea (`off`, `mock`, `live`), never a user chooser. | It is not a product Mode and must not be exposed. Future free-versus-Terra routing is internal and policy-gated. |
 | `src/components/workspace/ai/*` and Drawing AI paths | Drawing has its own Task and Reasoning UI and provider behavior. | Drawing is expressly out of scope. Its UI, model settings, routing, storage, and behavior must not be copied or changed by this spec. |
+| Drawing `motionTween` fields and the legacy motion-tween reference | Drawing tweening persists a position-only owner/span controller in project data. | This is reference evidence only and is deliberately not reused for Phase 2. Interpolation may exist only during candidate formation; the accepted Stick result is independent ordinary frames. |
 
 The currently published Phase 6 wave, including its approved typo behavior, is a protected regression. It remains usable as the baseline deterministic result until a later accepted phase deliberately replaces its internal implementation without changing its accepted visible/manual safety guarantees.
 
@@ -258,17 +260,112 @@ The 15,683-byte technical manifest at `output/spec-0004/phase-1/proof-manifest.j
 
 The blue `PRIVATE REVIEW` fixture picker was created only inside an isolated temporary copy by `scripts/spec0004-stick/phase1BrowserProof.ts`. It is not imported by product code; the tokens `PRIVATE REVIEW`, `spec0004-phase1-review`, `__spec0004_review`, and `Preview wave` are absent from `app`, `src`, and `public`. The temporary copy and server were removed after Arthur's review. The proof script remains developer-only technical evidence and cannot make the blue box appear in the published app.
 
-Phase 1 is Verified, published, and integrated in exact commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d`, parent `9fae072359f3c0d10f1ed2bcee8da9ebc11d54ec`, message `Implement SPEC-0004 Phase 1 animation builder`, with exactly 28 reviewed paths. The required clean permanent tester passed 40 operations, 13 screenshots, 4 driver messages, all 37 historical negatives, four protected Stick GETs, one mocked Drawing POST, zero real API/nonloopback/provider requests, and complete cleanup; result SHA-256 `bd037bc7a0ce9e48522ef6e626084ac3e9eaddfaaa475859d6c00e6c1960448e`. Publication branch, canonical local `main`, local `origin/main`, live GitHub `main`, and GitHub API matched with clean `0/0` synchronization. The blue private review box was not published. Phase 2 did not start and remains unauthorized until Arthur separately discusses and authorizes it.
+Phase 1 is Verified, published, and integrated in exact commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d`, parent `9fae072359f3c0d10f1ed2bcee8da9ebc11d54ec`, message `Implement SPEC-0004 Phase 1 animation builder`, with exactly 28 reviewed paths. The required clean permanent tester passed 40 operations, 13 screenshots, 4 driver messages, all 37 historical negatives, four protected Stick GETs, one mocked Drawing POST, zero real API/nonloopback/provider requests, and complete cleanup; result SHA-256 `bd037bc7a0ce9e48522ef6e626084ac3e9eaddfaaa475859d6c00e6c1960448e`. Publication branch, canonical local `main`, local `origin/main`, live GitHub `main`, and GitHub API matched with clean `0/0` synchronization. The blue private review box was not published. Phase 1 remains unchanged; D-0037 later authorized Phase 2 only.
 
 ### Phase 2 — Pose and Smooth Motion Engine
 
-**Scope.** Add body-length/rig constraints, readable-key-pose rules, safe interpolation/in-betweens, easing, arcs, timing, and smooth playback while keeping key poses and generated content manual-editable. Smoothness is based on meaningful motion between poses, not an FPS increase alone.
+**Authorized outcome.** Phase 2 adds one hidden, deterministic local motion engine that turns the important poses and timing in a validated Phase 1 plan into an ordinary frame-by-frame Stick animation. The engine is shared infrastructure for later free Pretend AI recipes and later Terra original plans, but neither system is connected in this phase. The fixed Phase 1 `wave`, `jump`, `bow`, and `dodge` plans are the only accepted inputs and review examples.
 
-**Entry gate.** Phase 1 is Verified, published, and integrated; no Phase 1 fixture/transaction/manual-edit regression is open. The phase defines measurable body/pose/timing validators and deterministic interpolation inputs before implementation.
+The plan supplies the important poses. Diamond Animator locally creates the in-between poses. Interpolation math exists only while building the isolated candidate. Before Preview, every result frame is baked into the same ordinary Stick timeline data used by human tools. There is no persistent motion-tween span, procedural controller, hidden AI owner, green tween range, locked body part, regeneration rule, or AI-only format.
 
-**Visible review/proof.** Arthur can review the Phase 1 fixture plans played with editable key poses and inspect in-betweens. Deterministic tests cover body lengths, joint/segment topology, bounds, interpolation/easing/arc limits, timing, holds, playback, manual key-pose edits, undo/redo, and no generated locked data. No language/model route is added.
+#### Phase 2 current-code finding and safe ownership rule
 
-**Stop boundary.** No free matcher, Task/Reasoning UI, Terra, multiple figures, background, layer management, provider/cost work, or AI editing.
+Fresh tracing at canonical base `b7f9ecbf0a15b6243955bea34d9b9518440bab53` found that the current editable Stick timeline resolves a `hold` cell to its owner keyframe. Editing a held display frame therefore edits the owner's shared content and can change several displayed frames. That behavior is valid for current manual holds, but it would violate Arthur's Phase 2 rule that every generated in-between remains independently editable.
+
+Phase 2 therefore uses this exact materialization rule:
+
+1. Every generated timeline slot—important pose, interpolated pose, and visually repeated/trailing pose—is a complete ordinary `keyframe` with one complete 11-joint pose.
+2. A Phase 2 candidate contains zero `hold` cells and zero `tween` cells. Repeated-looking frames are independent deep copies, not references to an owner.
+3. Every frame has a unique deterministic frame ID, pose ID, editable state ID after projection, and independently owned joint content. No object/array/pose reference may be shared between frames.
+4. Editing frame `N` after Apply changes only frame `N` plus normal revision/history data. Canonical animation-content digests for every other frame remain identical.
+5. Apply ends all engine control. A later human joint move may stretch a segment because Phase 2 adds no human constraint tool. The engine may not repair, snap back, regenerate, or undo that edit. Body rules guide candidate generation and validation only.
+
+The existing Drawing motion tween is **not** the implementation model for this phase: Drawing retains a persistent owner/span and a position-only tween payload. No Drawing tween path or behavior changes.
+
+#### Deterministic body, pose, and interpolation contract
+
+The engine uses the current `humanoid-11-v1` topology: exactly the 11 roles `head`, `neck`, `hip`, left/right elbow, left/right hand, left/right knee, and left/right foot, connected by the existing exact 10-segment tree. The fresh built-in starter pose supplies the one canonical reference length for each segment.
+
+For every input important pose, in this order:
+
+1. The pose must contain all 11 roles exactly once, use integer stage coordinates, preserve the exact rig/figure IDs, and have every segment length within **40% through 160% inclusive** of its canonical starter length. A zero-length segment fails.
+2. The engine keeps the input hip coordinate and each segment's direction, then rebuilds the body outward with canonical reference lengths in this fixed order: hip → neck → head; neck → left/right elbow → left/right hand; hip → left/right knee → left/right foot.
+3. Every rebuilt joint must remain inside `0..1919 × 0..1079`; the derived horizontal line head must retain a 40-pixel stage-edge margin. The engine rejects the whole candidate rather than clamping a joint.
+4. Important-pose frame indices remain exact and strictly increase. Adjacent important poses must be at least two frame indices apart, must differ at one or more joints, and may move the hip by at most 480 pixels. Each segment's shortest signed angular change must be at most 170 degrees; an ambiguous flip is rejected.
+
+For an important pose at frame `a` followed by one at frame `b`, every frame `i` from `a` through `b` uses:
+
+```text
+u = (i - a) / (b - a)
+e = 3u² - 2u³
+```
+
+- Hip `x` and `y` move from start to end using `e`.
+- Each segment angle moves by its shortest signed turn using `e`.
+- The body is rebuilt outward using the fixed canonical segment lengths, creating stable limbs and joint-centered arcs.
+- Final coordinates use ECMAScript `Math.round`. Important-pose frames equal their normalized important poses exactly.
+- Any frame after the final important pose is an independent complete copy of that final normalized pose.
+- No point is clamped. Any generated out-of-bounds point rejects the complete candidate and leaves document, history, storage, latch, and view state unchanged.
+
+A valid output has exactly the input plan's 8–24 frames and exact 12 or 24 FPS, one existing layer, one figure, one rig, white background, and the current derived line head. Every one of its frames is a keyframe containing all 11 joints. After integer rounding, every segment length must be within two pixels of its canonical reference length. Important frames must match their normalized poses; golden in-between coordinates must match exactly; eased hip positions and unwrapped segment angles must be monotonic without overshoot; at least one interior frame in each transition must differ from both endpoints; and the candidate must pass normal canonical document/project validation.
+
+#### Compatibility and runtime entry point
+
+Phase 1 remains byte-compatible and protected. `materializeStickAnimationPlan` and the default `StickFigureCommandTransactionV1` behavior keep producing the accepted Phase 1 held-frame result so its historical proof and current chat behavior do not silently change. Phase 2 adds a separately named motion materializer and a fail-closed transaction option that selects it. The option must survive `fork()` exactly; omission must remain the Phase 1 default. No action-name branch may be added: all four plans pass through the same pose/timing/motion rules.
+
+This new entry point is hidden engine infrastructure only. Normal Stick chat, the existing deterministic Phase 6 wave, current Task/Reasoning presentation, and the Phase 1 transaction continue to use their current routes. A later separately authorized phase must deliberately connect Pretend AI or Terra to the Phase 2 entry point.
+
+#### Exact Phase 2 implementation allowlist
+
+One dedicated Spec Executor may change only these eight tracked paths. The four `v1` Phase 1 plans are read-only inputs and must not change.
+
+```text
+src/lib/ai/stickFigureMotionEngine.ts
+src/lib/ai/stickFigureCommandExecutor.ts
+scripts/fixtures/spec0004-stick/v2/browser-viewports.json
+scripts/fixtures/spec0004-stick/v2/phase2-motion-cases.json
+scripts/spec0004-stick/phase2BrowserProof.ts
+scripts/spec0004-stick/recordPhase2Proof.ts
+scripts/spec0004-stick/validatePhase2Proof.ts
+scripts/validateStickFigureMotionEngine.ts
+```
+
+Ignored proof artifacts may exist only under `output/spec-0004/phase-2/**`. If another tracked product/proof path is genuinely necessary, the executor stops for a spec correction. It may not edit the Workspace, panel, timeline/history/storage model, Phase 1 fixtures/proof, Drawing code, package/dependency/configuration/environment files, or canonical control-plane files.
+
+#### Entry gate and executor boundary
+
+D-0037 authorizes Phase 2 only. Implementation may start only after this activation record is reviewed, published, and integrated into clean canonical `main`. One new Spec Executor starts in Plan mode from that exact activation SHA, proves an empty index and exclusive worktree, re-traces the live plan → transaction → canonical candidate → editable timeline/history/storage path, and confirms the eight-path allowlist before editing. Recommended executor: `gpt-5.6-sol`, reasoning `xhigh`, because frame ownership, deterministic geometry, and transaction regression proof are coupled and high risk.
+
+The executor must not create a provider client, make a network/API/paid request, change a normal app control, or begin Phase 3. It produces and independently validates a technical manifest, returns its Implementation Review Packet, and stops with an empty index before any control-plane update, stage, commit, or push.
+
+#### Technical proof and manifest rules
+
+The recorder owns one manifest at `output/spec-0004/phase-2/proof-manifest.json`. The independent validator must recompute every tracked-input/result SHA-256 and byte count, bind exact base/HEAD/branch, bind the exact dirty eight-path ceiling and empty index, verify every receipt/artifact path remains under the authorized roots, reject duplicates/extra/missing/symlink/hidden/untracked tracked-scope data, and fail closed on one-byte, length, count, status, command, base, or path mutation. It must record zero external/API/provider requests.
+
+Required deterministic and browser evidence proves:
+
+- all four unchanged Phase 1 plans validate through one action-neutral Phase 2 engine and exact golden normalized/in-between coordinates;
+- exact 11-role/10-segment topology, canonical-length normalization, 40–160% input bounds, two-pixel output tolerance, derived-head margin, important-pose spacing/change/480-pixel hip/170-degree turn limits, bounds rejection, cubic easing, shortest-turn arcs, monotonic no-overshoot motion, exact frame count/FPS, and independent trailing frames;
+- invalid/missing/duplicate joints, zero or extreme segments, ambiguous turn, out-of-order/too-close pose indices, out-of-bounds normalization or interpolation, tampered fixture, shared frame/pose/content identity, `hold`, `tween`, or hidden motion payload all fail closed;
+- Preview/Cancel/failure change no canonical document/history/storage/latch/view state; Apply is exactly one history change; Undo returns exact pre-Apply bytes; Redo returns exact accepted bytes; Save/Open preserves the accepted independent frames;
+- every generated frame is visible in the normal timeline and every normal joint can be moved with existing tools; editing one generated frame persists through selection change, playback, Undo/Redo, and Save/Open without changing any unrelated frame digest or regenerating/snap-backing;
+- normal human frame actions, manual joint editing, Play/Pause, onion skin, Creator/Back, Phase 1 fixture transaction/latch/stale/idempotency/concurrency/no-op behavior, the published Phase 6 wave/typos, Drawing protected flows, and the permanent tester remain unchanged; and
+- TypeScript, focused lint with zero accepted changed-path findings, measured full-lint non-regression, both diff checks, exact allowlist/index/Git checks, and complete process/port/temp-copy cleanup pass.
+
+#### Arthur's private visible review — no blue box
+
+Arthur must never see the former large blue `PRIVATE REVIEW` box again, including in the unpublished Phase 2 copy. The review proof creates four separate disposable loopback-only app copies/links—one prepared sample each for wave, jump, bow, and dodge. Each opens the ordinary Stick workspace already holding that sample in the normal preview flow. There is no floating overlay, tester button, fixture picker, query flag, product route, public asset, import, or permanent review UI. The normal canvas, timeline, AI Preview/Apply/Cancel area, and manual tools are the only visible controls. The review helper exists only inside disposable copies, is excluded from product bytes and the publication allowlist, and every copy/process/port is destroyed after review.
+
+Arthur reviews this exact checklist in the private copy:
+
+1. Play and scrub all four samples: movement is smooth, readable, and has no teleport/snap, broken limb, or strange backward arc.
+2. See one ordinary timeline frame for every in-between; no green tween span or hidden long frame exists.
+3. Apply one sample, select an in-between, and move its head/hand/knee with normal tools. The edit stays and unrelated frames do not move.
+4. Confirm Preview and Cancel change nothing; Apply is one Undo; Redo returns it; Save/Open returns the same edited animation.
+5. Check normal Play/Pause, onion skin, Creator/Back, timeline actions, and the Drawing workspace still work.
+6. Fail the review for any blue test box, special visible tester control, locked joint/frame, regeneration/snap-back, shared-frame edit, persistent tween controller, API/provider request, or unrelated visual/product change.
+
+**Stop boundary.** No natural-language/free matcher, new recipe, Task/Reasoning behavior, Terra/provider/API/paid call, multiple figure, duration/frame/FPS expansion, background, layer management, Drawing change, workspace integration, dashboard/cost implementation, deployment, or post-Apply AI editing is included. Phases 3–8 remain unauthorized.
 
 ### Phase 3 — Larger One-Layer Stick Scenes
 
@@ -344,7 +441,7 @@ The Spec Executor stops after its Implementation Review Packet with no control-p
 
 - Stick-only scope; one-time eligible-fresh creation; durable post-Apply no-AI lock; Preview/Apply/Cancel/history/storage/manual-edit guarantees.
 - White background, one existing layer, derived horizontal line head, human Play/Pause/onion protection, and all listed non-goals.
-- Phase ordering, exact Phase 1 language/bounds/fixtures/proof/allowlist, Phase 4 catalog families/routing rules, UI behavior, Terra intended role/no auto-switch, quality evidence shape, and private dashboard boundary.
+- Phase ordering; exact Phase 1 language/bounds/fixtures/proof/allowlist; exact Phase 2 baked independent-frame ownership, body normalization, interpolation/easing/arc/timing bounds, proof/allowlist, and no-blue-box private review; Phase 4 catalog families/routing rules; UI behavior; Terra intended role/no auto-switch; quality evidence shape; and private dashboard boundary.
 - The old Phase 7 retirement and Phase 6 wave protection.
 
 ### Deliberately later, named owner gates
@@ -354,10 +451,10 @@ The Spec Executor stops after its Implementation Review Packet with no control-p
 - Phase 7: quantitative first-preview benchmark/test environment, final original-scene review matrix, quality rubric, comparison protocol, and single-repair budget consent.
 - Phase 8: final cost/credit/auth/rate-limit/privacy/retention/logging/release policy and dashboard access terms.
 
-These gates do not block the complete Phase 1 proof because it is local, fixed-fixture, single-figure, small-bound, and provider-free. They do block the affected later phase; no implementation task may fill them in by assumption.
+These gates do not block Phase 2 because it is local, fixed-fixture, single-figure, 8–24-frame, 12/24-FPS, one-layer, and provider-free. They do block the affected later phase; no implementation task may fill them in by assumption.
 
 ## 11. Handoff
 
-Status is **Phase 1 Verified, published, and integrated** in exact 28-path commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d`. GIT-033 is complete. Phases 2–8 remain unauthorized.
+Status is **Phase 1 Verified, published, and integrated** in exact 28-path commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d`. GIT-033 is complete. D-0037 authorizes **Phase 2 only** as Authorized; Not started. Phases 3–8 remain unauthorized.
 
-The next product action is an Arthur/Project Manager discussion of Phase 2. Only a later explicit Arthur authorization may start one dedicated Phase 2 Spec Executor in a new worktree. No Phase 2 implementation, provider/API/paid work, deployment, or private-review-box recreation is authorized now.
+The exact next action is separate review/publication/integration of this Phase 2 docs-only activation record. Only after that publication may one new Plan-mode Phase 2 Spec Executor start from the resulting clean canonical-main SHA in a new dedicated worktree and change the exact eight implementation/proof paths above. No provider/API/paid work, deployment, Phase 3 work, or blue private-review-box recreation is authorized.

@@ -3,8 +3,8 @@
 Status: canonical last-known stopping point
 Last updated: 2026-09-01
 Active Approved/Verified specs: `docs/specs/0001-first-reversible-ai-stick-animation.md`, `docs/specs/0002-lossless-local-drawing-save-and-reopen.md`, `docs/specs/0003-tutorials-and-cleaner-home-screen.md`, and `docs/specs/0004-future-real-ai-animator-requirements.md`
-SPEC-0004 status: **Phase 1 Verified, published, and integrated.** GIT-033 is complete. Phases 2–8 remain unauthorized.
-Current result: the accepted provider-free Phase 1 engine is published/integrated in exact 28-path commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d`, parent `9fae072359f3c0d10f1ed2bcee8da9ebc11d54ec`, message `Implement SPEC-0004 Phase 1 animation builder`. The normal push and required clean permanent tester passed; the blue private review box was not published. This final record-only reconciliation changes no product/proof byte, and its own later publication SHA must be read directly from Git.
+SPEC-0004 status: **Phase 1 Verified, published, and integrated. Phase 2 Authorized; Not started; blocked on activation publication.** GIT-033 is complete; GIT-034 is open. Phases 3–8 remain unauthorized.
+Current result: the accepted provider-free Phase 1 engine is published/integrated in exact 28-path commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d`. Arthur's D-0037 now authorizes Phase 2 only. This docs-only activation starts from clean canonical `b7f9ecbf0a15b6243955bea34d9b9518440bab53`; it makes the baked independent-frame motion result decision-complete but changes no product/proof byte. GIT-034 must review/publish/integrate it before one new Phase 2 executor begins.
 Current roadmap phase: Phase 0 — Preserve and Stabilize
 
 ## Accepted SPEC-0004 Phase 1 Result
@@ -40,6 +40,29 @@ The accepted technical paths are exactly:
 The technical manifest is `output/spec-0004/phase-1/proof-manifest.json`, 15,683 bytes, SHA-256 `ee3a92edf8f4227dfa91ec3b84de3599fa158d5fb5f3df83155ab5192c076e4a`. Executor-time independent validation passed 126 checks while the private loopback server was live. It binds 14 receipts and 27 artifacts: 707 assertions, four valid fixtures, 26 invalid-plan rejections, 12 browser flows, 11 screenshots at `1440×900` and `1024×768`, TypeScript, focused lint, unchanged full-lint baseline, diff proof, protected Stick/Drawing flows, and zero external/API/provider requests.
 
 The blue `PRIVATE REVIEW` fixture picker was never product UI. The browser-proof script made a temporary isolated copy and injected the proof client/ports only there. The temporary copy/server are removed. Its identifying tokens are absent from `app`, `src`, and `public`; no product route, picker, overlay, public asset, or query-controlled review surface exists. The proof script remains developer-only technical evidence and is never imported by the app.
+
+## Authorized SPEC-0004 Phase 2 Starting Point
+
+Phase 2 adds one hidden local smooth-motion engine for the unchanged fixed wave/jump/bow/dodge plans. It normalizes the current exact 11-joint/10-segment body, creates deterministic cubic-eased shortest-turn in-betweens, and bakes every important, in-between, and repeated-looking slot into its own complete ordinary keyframe before Preview. Current Stick held-frame edits resolve to one owner, so Phase 2 candidates must contain zero holds/tweens and no shared frame/pose/content identity. After Apply, the engine has no control: a manual edit stays, changes only that frame, and may never regenerate or snap back.
+
+Phase 1 default behavior stays byte-compatible. Phase 2 adds a separately named materializer and fail-closed transaction option; omission remains the Phase 1 held-frame default. It adds no matcher, new recipe, Task/Reasoning behavior, Terra/provider/API/paid call, multi-figure/timing-bound expansion, background/layer/Drawing/workspace/dashboard/deployment work, or post-Apply AI editing.
+
+The exact implementation ceiling is eight paths:
+
+- `src/lib/ai/stickFigureMotionEngine.ts`
+- `src/lib/ai/stickFigureCommandExecutor.ts`
+- `scripts/fixtures/spec0004-stick/v2/browser-viewports.json`
+- `scripts/fixtures/spec0004-stick/v2/phase2-motion-cases.json`
+- `scripts/spec0004-stick/phase2BrowserProof.ts`
+- `scripts/spec0004-stick/recordPhase2Proof.ts`
+- `scripts/spec0004-stick/validatePhase2Proof.ts`
+- `scripts/validateStickFigureMotionEngine.ts`
+
+Ignored proof may exist only under `output/spec-0004/phase-2/**`. If another tracked path is needed, stop for a spec correction. Recommended executor is `gpt-5.6-sol` at `xhigh` reasoning. It starts in Plan mode only after GIT-034 from the exact activation publication SHA, returns technical proof and an Implementation Review Packet, and stops before control-plane or Git publication.
+
+Arthur's visible review must use four separate disposable normal-looking loopback copies/links, one preloaded wave/jump/bow/dodge sample each. The normal canvas, timeline, AI Preview/Apply/Cancel area, and manual tools are the only visible controls. The former blue box, any floating tester/picker/button, query flag, route, public asset, or product import is forbidden even in the private copy and must not be published.
+
+D-0038 also preserves two future notes without authority: use compact Terra key-pose plans/local in-betweens/free recipes first/measured budgets later, and consider a separate future unified Drawing+Stick Animation Workspace spec after Phase 2. Neither is Phase 2 work.
 
 ## Prior Completed SPEC-0003 Result
 
@@ -109,15 +132,15 @@ Prior SPEC-0003 publication record:
 
 ## Stopping Point
 
-SPEC-0004 Phase 1 is fully closed: accepted, Verified, published, integrated, cleanly tested, and synchronized. GIT-033 is complete.
+SPEC-0004 Phase 1 is fully closed: accepted, Verified, published, integrated, cleanly tested, and synchronized. GIT-033 is complete. Phase 2 alone is Authorized; Not started.
 
-The next product action is for Arthur and the Project Manager to discuss Phase 2 and, only if Arthur wants it, separately authorize one new Phase 2 Spec Executor. Phase 2 has not started and has no implementation authorization yet. Do not reuse the Phase 1 worktree as a Phase 2 executor, recreate the blue review box, or begin any provider/API/paid/deployment work.
+The next action is GIT-034: separately review, publish, and integrate this exact docs-only Phase 2 activation. Then start one new dedicated Plan-mode Phase 2 executor from the activation publication SHA. Do not reuse the Phase 1 worktree, begin implementation before GIT-034, recreate the blue review box, widen the eight-path ceiling, or begin Phase 3/provider/API/paid/Drawing/workspace-integration/deployment work.
 
 ## Proven and Not Proven
 
 Proven for SPEC-0004 Phase 1: exact activation/base and 17-path scope; executor shutdown/exclusive transfer; Arthur acceptance; exact engine/transaction/latch/storage/manual-edit behavior; manifest hash/size and 126 executor-time validation checks; all 41 bound artifacts/receipts revalidated after server cleanup; 707 assertions; four fixtures; 26 rejection cases; 12 browser flows; 11 screenshots; both viewports; TypeScript/focused-lint/diff proof; unchanged full-lint baseline; zero external/API/provider requests; blue-box product exclusion; exact 28-path commit/parent/message; normal GitHub push; clean 40-operation/13-screenshot permanent tester; final publication-branch/local-main/origin/live-GitHub/GitHub-API equality; clean worktrees, empty indexes, and `0/0` synchronization.
 
-Not performed or proven: Phase 2, smooth-motion behavior, broader natural-language matching, Terra/provider/API/paid work, deployment, or any other next feature. The Phase 1 fixed fixtures and engine do not by themselves prove the later professional-quality goal.
+Not performed or proven: Phase 2 implementation or smooth-motion behavior, broader natural-language matching, Terra/provider/API/paid work, deployment, unified workspace behavior, or any other next feature. The Phase 2 design and Phase 1 fixed fixtures do not by themselves prove the later professional-quality goal.
 
 ## Systems Intentionally Left Unchanged
 

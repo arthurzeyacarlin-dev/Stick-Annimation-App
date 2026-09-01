@@ -5,6 +5,18 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-01 — Authorized SPEC-0004 Phase 2 pose and smooth-motion engine
+
+- recorded D-0037: Arthur authorizes Phase 2 only after its docs-only activation is separately reviewed, published, and integrated; Phases 3–8 remain unauthorized
+- freshly traced the Phase 1 plan/executor, 11-joint Stick contract, editable timeline/history/storage projection, normal workspace tools, and Drawing tween reference; found that current Stick hold edits resolve to one owner and therefore cannot safely represent independently editable generated in-betweens
+- made the Phase 2 result exact: normalize fixed important poses against canonical humanoid segment lengths; generate cubic-eased shortest-turn hip/segment motion; and bake every important, in-between, and repeated-looking slot into a unique ordinary keyframe before Preview, with no hold/tween controller, hidden AI ownership, lock, regeneration, or post-Apply constraint authority
+- preserved Phase 1's default held-frame materializer and normal Stick chat/UI; added a separate hidden Phase 2 transaction entry point, exact eight-path implementation ceiling, deterministic body/easing/arc/materialization proof, one-frame-only manual-edit/Undo/Redo/Save/Open evidence, and protected Stick/Drawing/permanent-tester gates
+- prohibited the former blue private review box even in the new unpublished copy; required four separate disposable normal-looking loopback links, one preloaded wave/jump/bow/dodge sample each, with no floating tester controls, query, product route, public asset, permanent import, or published helper
+- recorded D-0038 as future planning only: compact Terra key-pose/timing plans with local in-betweens/free recipes first/one bounded later repair/measured monthly budgets, and a possible separate unified Drawing+Stick Animation Workspace spec after Phase 2
+- opened GIT-034 for separate docs activation publication and STICK-013 for the later one-phase executor; no Phase 2 implementation may begin before GIT-034
+
+This is specification/control-plane activation only. It changes no app/runtime/fixture/test/proof byte, normal UI, Drawing/workspace/storage/layer behavior, provider/API/key/paid/cost-dashboard state, dependency/config/environment/deployment state, other worktree, Git index, commit, merge, push, or publication.
+
 ### 2026-09-01 — SPEC-0004 Phase 1 published and integrated
 
 - published the accepted 17 technical paths plus 11 reviewed control-plane/tree paths in exact 28-path commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d`, parent `9fae072359f3c0d10f1ed2bcee8da9ebc11d54ec`, message `Implement SPEC-0004 Phase 1 animation builder`

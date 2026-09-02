@@ -1,6 +1,6 @@
 # SPEC-0004 — One-Time Stick Figure AI Animator
 
-Status: **Phases 1 and 2 Verified, published, and integrated. Phase 2.5 Approved/Authorized/Not started; waiting only for GIT-036 activation publication.** Phases 3–8 remain unauthorized.
+Status: **Phases 1 and 2 Verified, published, and integrated. Phase 2.5 Approved/Authorized/Not started; activation published; ready for one new Plan-mode executor.** Phases 3–8 remain unauthorized.
 
 Owner: Arthur
 Spec role: Spec Architect
@@ -10,8 +10,8 @@ Decision links: [D-0033 through D-0040](../DECISIONS.md)
 Control-plane anchors: Phase 1 publication commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d`; Phase 2 activation commit and accepted executor base `70bf7b0799bcff8d703525bcb50c378b8a122ebf`
 Related work: [`TODO SPEC-004`](../TODO.md), [`Current State`](../CURRENT_STATE.md), [`Session Handoff`](../SESSION_HANDOFF.md)
 
-> **Lifecycle boundary.** D-0035 authorized **only Phase 1**; D-0036 accepted it, and exact 28-path commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d` published/integrated it. D-0037 authorized **only Phase 2**; GIT-034 published that activation at `70bf7b0799bcff8d703525bcb50c378b8a122ebf`; D-0039 accepted the exact eight-path result; and GIT-035 published/integrated it in exact 20-path commit `e3ec6a33438c2f3d2e075b6477f18b8eb1b58e24`. No Phase 2.5 app code, provider/API/key use, paid request, deployment, Phase 3 work, or work in another worktree is authorized. GIT-036 must publish the reconciled Phase 2.5 activation before one new executor starts.
-> **Phase 2.5 authorization boundary.** D-0040 authorizes only **Phase 2.5 — Action Timing and Spacing Engine**. Its published Phase 2 prerequisite is satisfied, but implementation cannot start until GIT-036 separately publishes this reviewed docs-only activation. This task changes no app code, starts no review server, and authorizes no provider/API/key use, paid request, deployment, Phase 3 work, or work in another worktree.
+> **Lifecycle boundary.** D-0035 authorized **only Phase 1**; D-0036 accepted it, and exact 28-path commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d` published/integrated it. D-0037 authorized **only Phase 2**; GIT-034 published that activation at `70bf7b0799bcff8d703525bcb50c378b8a122ebf`; D-0039 accepted the exact eight-path result; and GIT-035 published/integrated it in exact 20-path commit `e3ec6a33438c2f3d2e075b6477f18b8eb1b58e24`. GIT-036 published the reconciled Phase 2.5 activation at `a755f892d7737c6a10d9c381ec59c1e2fdba4d47`. No Phase 2.5 app code, provider/API/key use, paid request, deployment, Phase 3 work, or work in another worktree was included.
+> **Phase 2.5 authorization boundary.** D-0040 authorizes only **Phase 2.5 — Action Timing and Spacing Engine**. Its published Phase 2 and GIT-036 activation prerequisites are satisfied. One new dedicated Plan-mode executor may implement only the exact seven-path ceiling from the final clean record SHA. No provider/API/key use, paid request, deployment, Phase 3 work, or work in another worktree is authorized.
 
 > **Historical boundary.** SPEC-0001 Phases 1–6, including the accepted deterministic single-stick-figure wave, are completed history and remain unchanged. Old SPEC-0001 Phase 7 is retired under D-0033: it has zero implementation authority. This specification replaces it; it does not revive, import, or approve its old provider policy, costs, commands, proof mechanics, or gates.
 
@@ -389,11 +389,11 @@ The 11,493-byte technical manifest at `output/spec-0004/phase-2/proof-manifest.j
 
 The four review copies had no blue box, fixture picker, query flag, product route, public asset, visible tester control, or permanent product import. Their loopback processes are stopped and their isolated temporary directories are removed. That cleanup is not a proof failure: the preserved successful live validation receipt proves the server-dependent checks, while closeout separately proves all durable hashes, scope, cleanup, and repository state.
 
-GIT-035 published Phase 2 in exact commit `e3ec6a33438c2f3d2e075b6477f18b8eb1b58e24`, parent `70bf7b0799bcff8d703525bcb50c378b8a122ebf`, message `Implement SPEC-0004 Phase 2 motion engine`. The clean tester passed 40 operations, 13 screenshots, four driver messages, all 37 historical negatives, one deterministic mocked Drawing POST, zero real-route/non-loopback/provider requests, and complete cleanup. Arthur's accepted review identified the next bounded gap: one fixed cubic curve cannot express action-specific acceleration, deceleration, impact, recovery, or deliberately mechanical constant motion. D-0040 authorizes Phase 2.5 to close that gap after GIT-036 publishes this activation. Phase 3 remains unauthorized.
+GIT-035 published Phase 2 in exact commit `e3ec6a33438c2f3d2e075b6477f18b8eb1b58e24`, parent `70bf7b0799bcff8d703525bcb50c378b8a122ebf`, message `Implement SPEC-0004 Phase 2 motion engine`. The clean tester passed 40 operations, 13 screenshots, four driver messages, all 37 historical negatives, one deterministic mocked Drawing POST, zero real-route/non-loopback/provider requests, and complete cleanup. Arthur's accepted review identified the next bounded gap: one fixed cubic curve cannot express action-specific acceleration, deceleration, impact, recovery, or deliberately mechanical constant motion. D-0040 authorizes Phase 2.5 to close that gap, and GIT-036 published its activation at `a755f892d7737c6a10d9c381ec59c1e2fdba4d47`. Phase 3 remains unauthorized.
 
 ### Phase 2.5 — Action Timing and Spacing Engine
 
-**Authorized outcome.** After GIT-036 publishes this activation, add one hidden, deterministic local timing layer on top of the exact published Phase 2 motion engine. The important poses still decide **what** the body does. The Phase 2.5 timing contract decides **how quickly each transition travels at each baked frame**. Natural/organic motion must not accidentally move at one constant pace. Constant/mechanical motion is allowed only through an explicit structured choice.
+**Authorized outcome.** Add one hidden, deterministic local timing layer on top of the exact published Phase 2 motion engine. The important poses still decide **what** the body does. The Phase 2.5 timing contract decides **how quickly each transition travels at each baked frame**. Natural/organic motion must not accidentally move at one constant pace. Constant/mechanical motion is allowed only through an explicit structured choice.
 
 This engine contract is shared infrastructure for later free Pretend-AI recipes and later Terra original plans. Phase 2.5 connects neither route, interprets no user sentence, and makes no provider/API request. Dictated references to “Tara” in owner discussion mean **Terra**.
 
@@ -499,7 +499,7 @@ scripts/validateStickFigureActionTiming.ts
 
 Ignored proof artifacts may exist only under `output/spec-0004/phase-2.5/**`. The executor must treat every Phase 1 and Phase 2 runtime, fixture, test, proof, manifest, and control-plane path outside that seven-path list as read-only. If another tracked path is genuinely needed, it stops for a spec correction. Recommended executor: `gpt-5.6-sol` at `xhigh` reasoning because deterministic timing math, transaction options, frame ownership, and visible motion proof are coupled.
 
-The executor starts only from the exact clean canonical-main SHA that contains both the accepted/published Phase 2 result and the published Phase 2.5 activation. It must first re-run the full boot, prove an empty index and exclusive worktree, revalidate the accepted Phase 2 manifest/bytes, trace the live plan → timing sidecar → motion engine → transaction → independent frames path, and confirm the exact ceiling. It must not edit app UI, connect a route, create a provider client, contact an external service, or begin another phase.
+The executor starts only from the exact final clean canonical-main record SHA after GIT-036, which contains both the accepted/published Phase 2 result and published Phase 2.5 activation. It must first re-run the full boot, prove an empty index and exclusive worktree, revalidate the accepted Phase 2 manifest/bytes, trace the live plan → timing sidecar → motion engine → transaction → independent frames path, and confirm the exact ceiling. It must not edit app UI, connect a route, create a provider client, contact an external service, or begin another phase.
 
 #### Technical proof and manifest
 
@@ -622,16 +622,16 @@ The Spec Executor stops after its Implementation Review Packet with no control-p
 
 ### Deliberately later, named owner gates
 
-- Phase 2.5: execution waits only for GIT-036 publication of this activation; no final duration/FPS/frame/multi-figure decision is delegated to it.
+- Phase 2.5: activation is published; execution starts only in one new Plan-mode executor from the final clean record SHA; no final duration/FPS/frame/multi-figure decision is delegated to it.
 - Phase 3: compatible final duration/frame/FPS ceiling and bounded multi-figure parameter support.
 - Phase 6: same-day official Terra alias/pricing/retention/privacy facts, budget/caps, credential custody, and explicit paid/live request authorization.
 - Phase 7: quantitative first-preview benchmark/test environment, final original-scene review matrix, quality rubric, comparison protocol, and single-repair budget consent.
 - Phase 8: final cost/credit/auth/rate-limit/privacy/retention/logging/release policy and dashboard access terms.
 
-These gates block only their affected later phase; no implementation task may fill them in by assumption. Phase 2.5's published-Phase-2 prerequisite is already satisfied, and GIT-036 is its only remaining start gate.
+These gates block only their affected later phase; no implementation task may fill them in by assumption. Phase 2.5's published-Phase-2 and GIT-036 activation prerequisites are satisfied.
 
 ## 11. Handoff
 
-Phase 1 is Verified, published, and integrated in exact 28-path commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d`. Phase 2 is Verified, published, and integrated in exact 20-path commit `e3ec6a33438c2f3d2e075b6477f18b8eb1b58e24`. GIT-033 through GIT-035 are complete. D-0040 authorizes Phase 2.5; Phases 3–8 remain unauthorized.
+Phase 1 is Verified, published, and integrated in exact 28-path commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d`. Phase 2 is Verified, published, and integrated in exact 20-path commit `e3ec6a33438c2f3d2e075b6477f18b8eb1b58e24`. GIT-033 through GIT-036 are complete. D-0040 authorizes Phase 2.5, and its activation is published in exact 11-document commit `a755f892d7737c6a10d9c381ec59c1e2fdba4d47`. Phases 3–8 remain unauthorized.
 
-The exact next action is the separate GIT-036 publication turn for these reviewed docs-only activation bytes. Only after that clean publication may one new dedicated Plan-mode Phase 2.5 executor change the exact seven paths above. No Phase 2.5 app code or review copy is created by this activation task. No provider/API/paid work, deployment, Phase 3 work, or blue private-review-box recreation is authorized.
+The exact next action is one new dedicated Plan-mode Phase 2.5 executor from the final clean canonical record SHA. It may change only the exact seven paths above plus ignored proof, produce four ordinary no-blue-box review copies, and stop before control-plane or Git publication. No provider/API/paid work, deployment, Phase 3 work, or blue private-review-box recreation is authorized.

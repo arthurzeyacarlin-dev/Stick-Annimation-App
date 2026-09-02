@@ -3,8 +3,8 @@
 Status: canonical last-known stopping point
 Last updated: 2026-09-02
 Active Approved/Verified specs: `docs/specs/0001-first-reversible-ai-stick-animation.md`, `docs/specs/0002-lossless-local-drawing-save-and-reopen.md`, `docs/specs/0003-tutorials-and-cleaner-home-screen.md`, and `docs/specs/0004-future-real-ai-animator-requirements.md`
-SPEC-0004 status: **Phases 1 and 2 Verified, published, and integrated. Phase 2.5 Approved/Authorized/Not started; docs-only publication pending.** GIT-033 through GIT-035 are complete. D-0040 is reconciled; GIT-036 must publish it before one new Phase 2.5 executor starts. Phases 3–8 remain unauthorized.
-Current result: the provider-free Phase 1 engine is published/integrated in exact 28-path commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d`. GIT-034 published the Phase 2 activation at `70bf7b0799bcff8d703525bcb50c378b8a122ebf`; GIT-035 published the accepted exact eight-path technical result plus reviewed records in exact 20-path commit `e3ec6a33438c2f3d2e075b6477f18b8eb1b58e24`. Its 11,493-byte manifest SHA-256 remains `a6e656d930781b589a3350abec62000818fade6553638ada0899ec7183b24d3f`. D-0040 now fixes the exact Phase 2.5 timing contract and seven-path executor ceiling without changing app code.
+SPEC-0004 status: **Phases 1 and 2 Verified, published, and integrated. Phase 2.5 Approved/Authorized/Not started; docs-only activation published.** GIT-033 through GIT-036 are complete. D-0040 is published; one new Plan-mode Phase 2.5 executor is next. Phases 3–8 remain unauthorized.
+Current result: the provider-free Phase 1 engine is published/integrated in exact 28-path commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d`. GIT-034 published the Phase 2 activation at `70bf7b0799bcff8d703525bcb50c378b8a122ebf`; GIT-035 published the accepted exact eight-path technical result plus reviewed records in exact 20-path commit `e3ec6a33438c2f3d2e075b6477f18b8eb1b58e24`. Its 11,493-byte manifest SHA-256 remains `a6e656d930781b589a3350abec62000818fade6553638ada0899ec7183b24d3f`. GIT-036 published D-0040's exact 11-document Phase 2.5 activation in `a755f892d7737c6a10d9c381ec59c1e2fdba4d47` without changing app code.
 Current roadmap phase: Phase 0 — Preserve and Stabilize
 
 ## Accepted SPEC-0004 Phase 1 Result
@@ -90,7 +90,7 @@ The exact later executor ceiling is seven tracked paths:
 - `scripts/spec0004-stick/validatePhase25Proof.ts`
 - `scripts/validateStickFigureActionTiming.ts`
 
-Ignored proof may exist only under `output/spec-0004/phase-2.5/**`. Recommended executor is `gpt-5.6-sol` at `xhigh`. It starts in a new Plan-mode worktree only after GIT-036 publication. The later private review provides four ordinary disposable non-3000 loopback links—timed wave, detailed jump, bow, dodge—with no blue box, query, picker, overlay, special control, product route/import/asset, or permanent review code.
+Ignored proof may exist only under `output/spec-0004/phase-2.5/**`. Recommended executor is `gpt-5.6-sol` at `xhigh`. It starts in a new Plan-mode worktree from the final clean canonical record SHA after this GIT-036 closeout. The later private review provides four ordinary disposable non-3000 loopback links—timed wave, detailed jump, bow, dodge—with no blue box, query, picker, overlay, special control, product route/import/asset, or permanent review code.
 
 Backgrounds, colors, custom stick shapes/rigs, layers, accurate non-humanoid bodies, AI onion control, variable duration/FPS/final caps, multiple figures, post-Apply AI editing, Drawing/workspace integration, dashboard/provider/API/paid/deployment work, and Phases 3–8 remain future work.
 
@@ -162,15 +162,15 @@ Prior SPEC-0003 publication record:
 
 ## Stopping Point
 
-SPEC-0004 Phases 1 and 2 are fully closed, published, and integrated. GIT-033 through GIT-035 are complete.
+SPEC-0004 Phases 1 and 2 are fully closed, published, and integrated. GIT-033 through GIT-036 are complete. The exact D-0040 activation commit is `a755f892d7737c6a10d9c381ec59c1e2fdba4d47`; it changed only the 11 reviewed documents.
 
-The next action is the separate GIT-036 publication turn: stage and publish only the reviewed D-0040 Phase 2.5 activation documents, safely fast-forward clean canonical `main`, push normally, and prove clean branch/main/origin/live-GitHub equality. Only then may one new Plan-mode Phase 2.5 executor begin. Do not begin app code, Phase 3, provider/API/paid, Drawing/workspace-integration, or deployment work in this activation task.
+The next action is one new dedicated Plan-mode Phase 2.5 Spec Executor in a separate worktree from the final clean canonical record SHA. It may implement only the spec's exact seven-path ceiling and ignored proof output, then stop at an unpublished app copy for Arthur's review. Do not begin Phase 3, provider/API/paid, Drawing/workspace-integration, or deployment work.
 
 ## Proven and Not Proven
 
 Proven for SPEC-0004 Phase 2: exact activation/base and eight-path technical scope; exact 20-path publication commit; executor shutdown/exclusive transfer; Arthur acceptance; deterministic body normalization/cubic easing/shortest-turn/baked-independent-keyframe behavior; one-frame-only manual ownership; Preview/Cancel/Apply/Undo/Redo/Save/Open and protected regressions; exact 11,493-byte manifest hash; prior 210-check live validation; all 19 unique durable artifacts revalidated after server cleanup; 1,734 assertions; four fixtures; 20 rejection cases; 40 browser flows; eight screenshots; TypeScript/focused-lint/diff and full-lint non-regression proof; zero external/API/provider requests; no blue-box/product helper; clean 40-operation/13-screenshot publication tester; normal push; and final clean equality.
 
-Not yet performed or proven: GIT-036 publication; Phase 2.5 app behavior; broader natural-language matching; Terra/provider/API/paid work; deployment; unified workspace behavior; or professional-quality action-aware timing. The published Phase 2 fixed-fixture smoothstep engine and this Phase 2.5 design do not themselves prove future fast/slow action timing or the final professional-quality goal.
+Not yet performed or proven: Phase 2.5 app behavior; broader natural-language matching; Terra/provider/API/paid work; deployment; unified workspace behavior; or professional-quality action-aware timing. The published Phase 2 fixed-fixture smoothstep engine and published Phase 2.5 design do not themselves prove future fast/slow action timing or the final professional-quality goal.
 
 ## Systems Intentionally Left Unchanged
 

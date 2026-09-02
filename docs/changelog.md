@@ -5,6 +5,16 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-02 — SPEC-0004 Phase 2.5 activation published
+
+- published the reviewed D-0040 docs-only activation in exact 11-document commit `a755f892d7737c6a10d9c381ec59c1e2fdba4d47`, parent `2d94cd79f0af16bfa3010c6f3dfc74fd13f7471c`, message `Authorize SPEC-0004 Phase 2.5 timing engine`
+- preserved the reviewed 513,409 document bytes and framed aggregate SHA-256 `3d2279a3b91c79bd56dc24f047bf15d338fe39d115a9988f9d8c08f2fdc6adbb`
+- safely fast-forwarded clean canonical `main` and normally pushed without force; publication branch, local main, origin, live GitHub, and GitHub API were equal at the activation commit before this record-only reconciliation
+- closed GIT-036 and named one new dedicated Plan-mode Phase 2.5 Spec Executor as next from the final clean canonical record SHA
+- changed no app/runtime/fixture/test/proof byte, created no review copy, and performed no provider/API/paid/deployment/Phase 3 work
+
+The final record-only reconciliation containing this entry changes canonical documents only. Its own SHA and current refs must be verified directly from Git; it is the exact clean executor base after publication.
+
 ### 2026-09-02 — Authorized SPEC-0004 Phase 2.5 action timing and spacing engine
 
 - reconciled the reviewed Phase 2.5 draft onto clean current main without changing the published Phase 2 product or proof record

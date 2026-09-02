@@ -1,18 +1,18 @@
 # SPEC-0004 — One-Time Stick Figure AI Animator
 
-Status: **Phases 1 and 2 are Verified, published, and integrated. Phase 2.5 is accepted and technically Verified as the timing/spacing primitive only; its seven paths are uncommitted and pending separate publication/integration. Phase 2.6 is decision-complete and Approved/Authorized/Not started under D-0041, entry-gated on GIT-037 publication/integration.** Phases 3–8 remain unauthorized. No Phase 2.7 exists.
+Status: **Phases 1, 2, and timing-only Phase 2.5 are Verified, published, and integrated. Phase 2.6 is decision-complete/Not started and awaiting Arthur's separate implementation authorization under D-0042.** Phases 3–8 remain unauthorized. No Phase 2.7 exists.
 
 Owner: Arthur
 Spec role: Spec Architect
 Created: 2026-08-31
 Last updated: 2026-09-02
-Decision links: [D-0033 through D-0041](../DECISIONS.md)
-Control-plane anchors: Phase 1 publication commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d`; Phase 2 activation commit and accepted executor base `70bf7b0799bcff8d703525bcb50c378b8a122ebf`; Phase 2.5 accepted base/HEAD `f131e75aafccec0d1b8ecb717e2d95b518355d39`; reviewed Phase 2.6 source SHA-256 before lifecycle reconciliation `dc7f968b0aab4a44bd3f70557a1b0e708a974cd2dd1c9050775ec56cfed83e56`
+Decision links: [D-0033 through D-0042](../DECISIONS.md)
+Control-plane anchors: Phase 1 publication commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d`; Phase 2 activation commit and accepted executor base `70bf7b0799bcff8d703525bcb50c378b8a122ebf`; Phase 2.5 accepted base `f131e75aafccec0d1b8ecb717e2d95b518355d39`; Phase 2.5 exact 19-path publication commit `16799539fb7db31e345a878aa892d4485115188b`; reviewed Phase 2.6 source SHA-256 before lifecycle reconciliation `dc7f968b0aab4a44bd3f70557a1b0e708a974cd2dd1c9050775ec56cfed83e56`
 Related work: [`TODO SPEC-004`](../TODO.md), [`Current State`](../CURRENT_STATE.md), [`Session Handoff`](../SESSION_HANDOFF.md)
 
 > **Lifecycle boundary.** D-0035 authorized **only Phase 1**; D-0036 accepted it, and exact 28-path commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d` published/integrated it. D-0037 authorized **only Phase 2**; GIT-034 published that activation at `70bf7b0799bcff8d703525bcb50c378b8a122ebf`; D-0039 accepted the exact eight-path result; and GIT-035 published/integrated it in exact 20-path commit `e3ec6a33438c2f3d2e075b6477f18b8eb1b58e24`. GIT-036 published the reconciled Phase 2.5 activation at `a755f892d7737c6a10d9c381ec59c1e2fdba4d47`. No Phase 2.5 app code, provider/API/key use, paid request, deployment, Phase 3 work, or work in another worktree was included.
-> **Phase 2.5 evidence boundary.** D-0040 authorized **Phase 2.5 — Action Timing and Spacing Engine** and its seven-path executor ran from clean canonical `f131e75aafccec0d1b8ecb717e2d95b518355d39`. The formulas, strict `stick.action-timing/v1` binding, six profiles, independent-frame baking, and technical proof passed. Arthur rejected the human review samples as unnatural because their action plans, key poses, frame allocations, contacts, and weight mechanics were wrong. D-0041 accepts and closes Phase 2.5 narrowly as the timing/spacing primitive it actually proves; its old fixture poses and review samples remain rejected as natural-action evidence. The exact seven accepted paths remain uncommitted and unpublished until GIT-037.
-> **Phase 2.6 authorization boundary.** D-0041 makes **Phase 2.6 — Natural Action Planning, Weight, and Intent Guard** decision-complete and Approved/Authorized/Not started. A Phase 2.6 executor must not begin until this combined Phase 2.5 acceptance and Phase 2.6 amendment are reviewed, published, and integrated through GIT-037 in canonical `main`. Phase 2.6 is the final planned shared-motion-foundation correction; there is no Phase 2.7. It connects neither normal chat nor Pretend AI nor Terra and makes no provider/API/paid request.
+> **Phase 2.5 evidence boundary.** D-0040 authorized **Phase 2.5 — Action Timing and Spacing Engine** and its seven-path executor ran from clean canonical `f131e75aafccec0d1b8ecb717e2d95b518355d39`. The formulas, strict `stick.action-timing/v1` binding, six profiles, independent-frame baking, and technical proof passed. Arthur rejected the human review samples as unnatural because their action plans, key poses, frame allocations, contacts, and weight mechanics were wrong. D-0041 accepts and closes Phase 2.5 narrowly as the timing/spacing primitive it actually proves; its old fixture poses and review samples remain rejected as natural-action evidence. GIT-037 published the exact seven accepted technical paths plus 12 reviewed records/tree paths in `16799539fb7db31e345a878aa892d4485115188b`.
+> **Phase 2.6 authorization boundary.** D-0041 makes **Phase 2.6 — Natural Action Planning, Weight, and Intent Guard** decision-complete. D-0042 preserves that reviewed contract but records implementation as Not started and awaiting Arthur's separate authorization; no executor is authorized or active. Phase 2.6 is the final planned shared-motion-foundation correction; there is no Phase 2.7. It connects neither normal chat nor Pretend AI nor Terra and makes no provider/API/paid request.
 
 > **Historical boundary.** SPEC-0001 Phases 1–6, including the accepted deterministic single-stick-figure wave, are completed history and remain unchanged. Old SPEC-0001 Phase 7 is retired under D-0033: it has zero implementation authority. This specification replaces it; it does not revive, import, or approve its old provider policy, costs, commands, proof mechanics, or gates.
 
@@ -59,7 +59,7 @@ The stopped Phase 2.5 executor worktree was inspected read-only; no byte there w
 4. The dodge reached one extreme frame and reversed at maximum speed while both feet slid.
 5. Phase 2.5's formulas worked as specified. Timing curves cannot invent action knowledge, support/contact, weight, balance, anticipation, landing mechanics, or intent purity when the supplied poses and allocations omit them.
 
-Phase 2.6 owns this missing foundation in one bounded shared contract. The rejected samples are evidence, not accepted product behavior and not a reason to rewrite or falsely publish the Phase 2.5 candidate.
+Phase 2.6 owns this missing foundation in one bounded shared contract. The rejected samples are evidence, not accepted product behavior and not a reason to rewrite the published timing primitive or falsely promote it as natural-action proof.
 
 **Recorded documentation conflict.** `architecture.md` and `AI_SYSTEM.md` still describe the Stick AI panel as read-only/no writable executor. The freshly traced Phase 6 source above shows the narrower writable deterministic wave preview/apply path. This specification uses the live-code fact for current behavior and preserves both files as broader historical maps in this docs-only transition; a later accepted control-plane closeout should reconcile their stale wording without treating it as a product change.
 
@@ -560,7 +560,7 @@ Phase 2.5 closeout must verify that every disposable copy/process/port was destr
 
 The executor completed the exact seven-path technical result from base/HEAD `f131e75aafccec0d1b8ecb717e2d95b518355d39`. The strict timing schema and all six formulas passed deterministic, browser, TypeScript, lint-non-regression, permanent-browser-regression, no-egress, and independent-manifest validation. The accepted manifest is 14,601 bytes with SHA-256 `783e6396cf994ce48fb9d7c94dc58674594dd545f888a9c25fe3c1f654a788d1`; the Control Plane Architect revalidated it at 250 checks before stopping the exact four recorded review process groups and removing only their four isolated temporary copies.
 
-Arthur rejected the wave/jump/bow/dodge samples as natural motion. That rejection is binding for visible quality and does not invalidate the narrow timing math. D-0041 accepts and closes Phase 2.5 only as the timing/spacing primitive it actually proves; the old fixture poses and human-review quality claims are not promoted as natural-action evidence. The seven accepted technical paths are frozen, uncommitted, and unpublished pending GIT-037. Phase 2.6 cannot start until GIT-037 publishes/integrates those exact bytes and this reviewed amendment into canonical `main`.
+Arthur rejected the wave/jump/bow/dodge samples as natural motion. That rejection is binding for visible quality and does not invalidate the narrow timing math. D-0041 accepts and closes Phase 2.5 only as the timing/spacing primitive it actually proves; the old fixture poses and human-review quality claims are not promoted as natural-action evidence. GIT-037 published the seven frozen accepted technical paths and this reviewed amendment in exact commit `16799539fb7db31e345a878aa892d4485115188b`. Under D-0042, Phase 2.6 still cannot start until Arthur separately authorizes implementation.
 
 ### Phase 2.6 — Natural Action Planning, Weight, and Intent Guard
 
@@ -728,13 +728,13 @@ The new runtime module owns strict schema parsing and action/body validators. Th
 
 #### Entry gate, proof manifest, and required command order
 
-Phase 2.6 cannot start from current clean canonical `f131e75…` or directly from this dirty Phase 2.5 closeout worktree. Before any Phase 2.6 edit:
+Phase 2.6 cannot start until Arthur separately authorizes implementation. Before any Phase 2.6 edit:
 
 1. **Satisfied by D-0041:** Arthur/PM accept Phase 2.5 as the narrow timing/spacing primitive despite rejecting its natural-action samples.
 2. **Satisfied by this closeout:** the Phase 2.5 Spec Executor is completely stopped; the Control Plane Architect took exclusive ownership, preserved every accepted technical byte, revalidated the manifest, completed control-plane/technical closeout, and stopped before publication.
-3. **Still required:** GIT-037 publishes/integrates exactly the accepted Phase 2.5 seven paths plus the reviewed control-plane/tree paths, and records the final canonical-main commit with the accepted manifest SHA/size.
-4. **Satisfied by D-0041, pending durable publication:** Arthur/PM approved and authorized this reviewed Phase 2.6 amendment. The current Control Plane Architect task does not start a Phase 2.6 executor.
-5. Only after GIT-037, one fresh dedicated worktree starts in Plan mode from the then-current clean canonical `main`, with an empty index and no overlap with any other executor. The Phase 2.6 executor revalidates the accepted Phase 2.5 manifest and hashes, traces plan → action foundation → timing → contact-aware bake → transaction → ordinary editable frames, and confirms the eight-path ceiling.
+3. **Satisfied by GIT-037:** exact commit `16799539fb7db31e345a878aa892d4485115188b` publishes/integrates the accepted Phase 2.5 seven paths plus 12 reviewed control-plane/tree paths and preserves the accepted manifest SHA/size.
+4. **Still required under D-0042:** Arthur separately authorizes Phase 2.6 implementation. Decision-complete specification text is not executor authority.
+5. Only after that separate authorization, one fresh dedicated worktree starts in Plan mode from the then-current clean canonical `main`, with an empty index and no overlap with any other executor. The Phase 2.6 executor revalidates the accepted Phase 2.5 manifest and hashes, traces plan → action foundation → timing → contact-aware bake → transaction → ordinary editable frames, and confirms the eight-path ceiling.
 
 The recorder writes `output/spec-0004/phase-2.6/proof-manifest.json`; the independent validator command is:
 
@@ -854,17 +854,17 @@ The Spec Executor stops after its Implementation Review Packet with no control-p
 
 ### Deliberately later, named owner gates
 
-- Phase 2.5 publication: GIT-037 must publish/integrate the exact accepted timing-only bytes and manifest together with this reviewed control-plane amendment. Its rejected sample-naturalness claims remain rejected.
-- Phase 2.6 execution: D-0041 supplies the explicit authorization, but no executor may start until GIT-037 durably publishes/integrates the accepted Phase 2.5 result and this amendment into clean canonical `main`.
+- Phase 2.5 publication: satisfied by exact GIT-037 commit `16799539fb7db31e345a878aa892d4485115188b`. Its rejected sample-naturalness claims remain rejected.
+- Phase 2.6 execution: the contract is decision-complete, but D-0042 requires Arthur's separate implementation authorization before any executor starts.
 - Phase 3: compatible final duration/frame/FPS ceiling and bounded multi-figure parameter support.
 - Phase 6: same-day official Terra alias/pricing/retention/privacy facts, budget/caps, credential custody, and explicit paid/live request authorization.
 - Phase 7: quantitative first-preview benchmark/test environment, final original-scene review matrix, quality rubric, comparison protocol, and single-repair budget consent.
 - Phase 8: final cost/credit/auth/rate-limit/privacy/retention/logging/release policy and dashboard access terms.
 
-These gates block only their affected later phase; no implementation task may fill them in by assumption. Phase 2.5's exact result is accepted and technically Verified but not published. Phase 2.6 is Approved/Authorized/Not started and remains entry-gated until GIT-037 satisfies every remaining prerequisite in its section.
+These gates block only their affected later phase; no implementation task may fill them in by assumption. Phase 2.5's exact timing-only result is Verified, published, and integrated. Phase 2.6 is decision-complete/Not started and remains closed until Arthur separately authorizes implementation.
 
 ## 11. Handoff
 
-Phase 1 is Verified, published, and integrated in exact 28-path commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d`. Phase 2 is Verified, published, and integrated in exact 20-path commit `e3ec6a33438c2f3d2e075b6477f18b8eb1b58e24`. GIT-033 through GIT-036 are complete. D-0040's Phase 2.5 activation is published in exact 11-document commit `a755f892d7737c6a10d9c381ec59c1e2fdba4d47`. D-0041 accepts the later seven-path result at base/HEAD `f131e75aafccec0d1b8ecb717e2d95b518355d39` narrowly as the timing/spacing primitive; its 14,601-byte manifest SHA-256 is `783e6396cf994ce48fb9d7c94dc58674594dd545f888a9c25fe3c1f654a788d1`. The old samples remain rejected as natural-action evidence. Phase 2.6 is decision-complete and Approved/Authorized/Not started under D-0041. Phases 3–8 remain unauthorized, and no Phase 2.7 exists.
+Phase 1 is Verified, published, and integrated in exact 28-path commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d`. Phase 2 is Verified, published, and integrated in exact 20-path commit `e3ec6a33438c2f3d2e075b6477f18b8eb1b58e24`. GIT-033 through GIT-037 are complete. D-0040's Phase 2.5 activation is published in exact 11-document commit `a755f892d7737c6a10d9c381ec59c1e2fdba4d47`. D-0041 accepts the later seven-path result from base `f131e75aafccec0d1b8ecb717e2d95b518355d39` narrowly as the timing/spacing primitive; GIT-037 publishes it within exact 19-path commit `16799539fb7db31e345a878aa892d4485115188b`; and its 14,601-byte manifest SHA-256 is `783e6396cf994ce48fb9d7c94dc58674594dd545f888a9c25fe3c1f654a788d1`. The old samples remain rejected as natural-action evidence. Phase 2.6 is decision-complete/Not started under D-0042 and awaits Arthur's separate implementation authorization. Phases 3–8 remain unauthorized, and no Phase 2.7 exists.
 
-The exact next lifecycle action is GIT-037: separately publish/integrate the frozen seven accepted Phase 2.5 technical paths plus the reviewed control-plane/tree paths from this CPA packet. Only after GIT-037 may one fresh Plan-mode Phase 2.6 Spec Executor start from the then-current clean canonical `main` under D-0041 and change only its exact eight-path ceiling. No Phase 2.6 implementation starts in this closeout. No provider/API/paid work, deployment, Phase 3 work, Phase 2.7, or blue/special review UI is authorized.
+The exact next lifecycle action is Arthur's separate decision whether to authorize one fresh Plan-mode Phase 2.6 Spec Executor from the then-current clean canonical `main`. Until that happens, no executor may start or change any of the exact eight implementation paths. No provider/API/paid work, deployment, Phase 3 work, Phase 2.7, or blue/special review UI is authorized.

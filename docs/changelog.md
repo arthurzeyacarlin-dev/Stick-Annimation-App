@@ -5,6 +5,17 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-02 — SPEC-0004 Phase 2.5 timing primitive published
+
+- completed GIT-037 in exact 19-path commit `16799539fb7db31e345a878aa892d4485115188b`, parent `f131e75aafccec0d1b8ecb717e2d95b518355d39`, message `Publish SPEC-0004 Phase 2.5 timing and Phase 2.6 foundation`; the commit contains exactly seven accepted technical paths plus 12 reviewed control-plane/tree paths
+- preserved all seven accepted technical hashes and the exact 14,601-byte manifest SHA-256 `783e6396cf994ce48fb9d7c94dc58674594dd545f888a9c25fe3c1f654a788d1`; offline revalidation matched seven source and 21 artifact bindings
+- reran the clean timing/inherited validators, TypeScript, focused lint, exact 5-error/72-warning full-lint non-regression, both diff checks, memory check, and permanent tester; the tester passed 40 operations, 13 screenshots, four driver messages, 37 negatives, one deterministic mocked Drawing POST, zero real API/non-loopback/provider requests, and cleanup
+- recorded tester result SHA-256 `de043f7b3daa647961b952bc48890c79a8f8a858f6ffc9d9afc52623bdf636b3` (84,507 bytes), browser-ledger SHA-256 `683ea5224642a884a94eda5e1a0aaf146d6ebe1bd58787694903789d351e87cf` (23,017 bytes), and server-ledger SHA-256 `b8f6ad815ef3b6cb95e7ddf7c0115f3db54ed27096a80912a1de6c41111fc50b` (5,082 bytes)
+- fast-forwarded clean canonical `main`, pushed normally without force, and verified publication branch/local main/origin/live GitHub/GitHub API equality at `16799539…` with `0/0` synchronization before this record-only reconciliation
+- recorded D-0042: Phase 2.6's reviewed foundation remains decision-complete and Not started, but Arthur's separate implementation authorization is still required; no executor, Phase 2.6 code, review copy, provider/API/Terra work, deployment, or Phase 2.7 started
+
+This final record-only reconciliation changes canonical records only and no accepted technical/proof byte. Its own commit SHA and present refs must be verified directly from Git.
+
 ### 2026-09-02 — SPEC-0004 Phase 2.5 accepted for timing; final Phase 2.6 authorized
 
 - recorded D-0041: Arthur accepts and closes the stopped exact seven-path Phase 2.5 result only as the shared timing/spacing primitive; its `stick.action-timing/v1` validator and separately selected local materializer remain provider-free and bake complete independent ordinary editable Stick keyframes

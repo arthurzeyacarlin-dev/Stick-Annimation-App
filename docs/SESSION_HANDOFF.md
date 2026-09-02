@@ -3,8 +3,8 @@
 Status: canonical last-known stopping point
 Last updated: 2026-09-02
 Active Approved/Verified specs: `docs/specs/0001-first-reversible-ai-stick-animation.md`, `docs/specs/0002-lossless-local-drawing-save-and-reopen.md`, `docs/specs/0003-tutorials-and-cleaner-home-screen.md`, and `docs/specs/0004-future-real-ai-animator-requirements.md`
-SPEC-0004 status: **Phases 1 and 2 Verified, published, and integrated.** GIT-033 through GIT-035 are complete. Phase 2.5 activation reconciliation/publication is next under GIT-036; Phases 3–8 remain unauthorized.
-Current result: the provider-free Phase 1 engine is published/integrated in exact 28-path commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d`. GIT-034 published the Phase 2 activation at `70bf7b0799bcff8d703525bcb50c378b8a122ebf`; GIT-035 published the accepted exact eight-path technical result plus reviewed records in exact 20-path commit `e3ec6a33438c2f3d2e075b6477f18b8eb1b58e24`. Its 11,493-byte manifest SHA-256 remains `a6e656d930781b589a3350abec62000818fade6553638ada0899ec7183b24d3f`.
+SPEC-0004 status: **Phases 1 and 2 Verified, published, and integrated. Phase 2.5 Approved/Authorized/Not started; docs-only publication pending.** GIT-033 through GIT-035 are complete. D-0040 is reconciled; GIT-036 must publish it before one new Phase 2.5 executor starts. Phases 3–8 remain unauthorized.
+Current result: the provider-free Phase 1 engine is published/integrated in exact 28-path commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d`. GIT-034 published the Phase 2 activation at `70bf7b0799bcff8d703525bcb50c378b8a122ebf`; GIT-035 published the accepted exact eight-path technical result plus reviewed records in exact 20-path commit `e3ec6a33438c2f3d2e075b6477f18b8eb1b58e24`. Its 11,493-byte manifest SHA-256 remains `a6e656d930781b589a3350abec62000818fade6553638ada0899ec7183b24d3f`. D-0040 now fixes the exact Phase 2.5 timing contract and seven-path executor ceiling without changing app code.
 Current roadmap phase: Phase 0 — Preserve and Stabilize
 
 ## Accepted SPEC-0004 Phase 1 Result
@@ -62,7 +62,37 @@ Ignored proof exists only under `output/spec-0004/phase-2/**`. The accepted mani
 
 Arthur's visible review used four separate disposable normal-looking loopback copies/links, one preloaded wave/jump/bow/dodge sample each. The normal canvas, timeline, AI Preview/Apply/Cancel area, and manual tools were the only visible controls. The former blue box, any floating tester/picker/button, query flag, route, public asset, or product import is absent and must not be published.
 
-D-0038 also preserves two future notes without authority: use compact Terra key-pose plans/local in-betweens/free recipes first/measured budgets later, and consider a separate future unified Drawing+Stick Animation Workspace spec after Phase 2. The separately drafted Phase 2.5 Action Timing and Spacing activation remains outside this publication worktree and unpublished. GIT-036 must reconcile it onto current main and publish it before one new Phase 2.5 executor starts. Neither note is Phase 2 work.
+D-0038 also preserves two future notes without authority: use compact Terra key-pose plans/local in-betweens/free recipes first/measured budgets later, and consider a separate future unified Drawing+Stick Animation Workspace spec. Neither note is Phase 2 work.
+
+## Authorized SPEC-0004 Phase 2.5 Starting Point
+
+D-0040 inserts **Phase 2.5 — Action Timing and Spacing Engine** after Phase 2. It is shared infrastructure, not Pretend-AI-only. Later free/Pretend-AI recipes and future Terra original non-hardcoded plans must both use this exact local sequence:
+
+```text
+important key poses
+→ one validated timing profile per adjacent transition
+→ local smooth in-betweens with acceleration/deceleration and fast/slow spacing
+→ complete independent editable Stick keyframes
+→ Preview
+```
+
+Phase 2.5 connects neither route and interprets no language. The strict plan-bound `stick.action-timing/v1` sidecar allows `ease_in = u²`, `ease_out = 1-(1-u)²`, `ease_in_out = 3u²-2u³` as the safe natural default, `constant = u` only under explicit `mechanical_explicit`, and paired `impact = u³` / `recovery = 1-(1-u)³`. Wider baked-frame gaps mean faster movement; tighter gaps mean slower movement. Timing data disappears after baking; no live tween, controller, shared hold owner, lock, AI-only data, regeneration, or snap-back enters the project.
+
+Proof covers timed wave, the existing jump, deliberately unequal bow, paired impact/recovery dodge, a mechanical constant positive/negative pair, and a technical-only 24-frame/12-FPS jump with seven important poses: stand 0, crouch 3, launch 6, peak 10, landing 15, knee bend 17, recovered stand 23. The jump uses `ease_in`, `ease_out`, `ease_out`, `ease_in`, `impact`, `recovery` in that order to show fast launch, slow near the peak, accelerating fall, landing compression, and recovery.
+
+The exact later executor ceiling is seven tracked paths:
+
+- `src/lib/ai/stickFigureMotionEngine.ts`
+- `src/lib/ai/stickFigureCommandExecutor.ts`
+- `scripts/fixtures/spec0004-stick/v3/phase25-timing-cases.json`
+- `scripts/spec0004-stick/phase25BrowserProof.ts`
+- `scripts/spec0004-stick/recordPhase25Proof.ts`
+- `scripts/spec0004-stick/validatePhase25Proof.ts`
+- `scripts/validateStickFigureActionTiming.ts`
+
+Ignored proof may exist only under `output/spec-0004/phase-2.5/**`. Recommended executor is `gpt-5.6-sol` at `xhigh`. It starts in a new Plan-mode worktree only after GIT-036 publication. The later private review provides four ordinary disposable non-3000 loopback links—timed wave, detailed jump, bow, dodge—with no blue box, query, picker, overlay, special control, product route/import/asset, or permanent review code.
+
+Backgrounds, colors, custom stick shapes/rigs, layers, accurate non-humanoid bodies, AI onion control, variable duration/FPS/final caps, multiple figures, post-Apply AI editing, Drawing/workspace integration, dashboard/provider/API/paid/deployment work, and Phases 3–8 remain future work.
 
 ## Prior Completed SPEC-0003 Result
 
@@ -134,13 +164,13 @@ Prior SPEC-0003 publication record:
 
 SPEC-0004 Phases 1 and 2 are fully closed, published, and integrated. GIT-033 through GIT-035 are complete.
 
-The next action is GIT-036: reconcile the separate docs-only Phase 2.5 Action Timing and Spacing activation onto current clean main, correct its stale Git/task references and Phase 2 assumptions, return a review packet, and publish it separately before any Phase 2.5 executor begins. Do not begin Phase 2.5 app code, Phase 3, provider/API/paid, Drawing/workspace-integration, or deployment work here.
+The next action is the separate GIT-036 publication turn: stage and publish only the reviewed D-0040 Phase 2.5 activation documents, safely fast-forward clean canonical `main`, push normally, and prove clean branch/main/origin/live-GitHub equality. Only then may one new Plan-mode Phase 2.5 executor begin. Do not begin app code, Phase 3, provider/API/paid, Drawing/workspace-integration, or deployment work in this activation task.
 
 ## Proven and Not Proven
 
 Proven for SPEC-0004 Phase 2: exact activation/base and eight-path technical scope; exact 20-path publication commit; executor shutdown/exclusive transfer; Arthur acceptance; deterministic body normalization/cubic easing/shortest-turn/baked-independent-keyframe behavior; one-frame-only manual ownership; Preview/Cancel/Apply/Undo/Redo/Save/Open and protected regressions; exact 11,493-byte manifest hash; prior 210-check live validation; all 19 unique durable artifacts revalidated after server cleanup; 1,734 assertions; four fixtures; 20 rejection cases; 40 browser flows; eight screenshots; TypeScript/focused-lint/diff and full-lint non-regression proof; zero external/API/provider requests; no blue-box/product helper; clean 40-operation/13-screenshot publication tester; normal push; and final clean equality.
 
-Not yet performed or proven: Phase 2 publication/integration or its post-publication clean tester; Phase 2.5 app behavior; broader natural-language matching; Terra/provider/API/paid work; deployment; unified workspace behavior; or professional-quality action-aware timing. The Phase 2 fixed-fixture smoothstep engine does not itself prove future Phase 2.5 fast/slow action timing or the final professional-quality goal.
+Not yet performed or proven: GIT-036 publication; Phase 2.5 app behavior; broader natural-language matching; Terra/provider/API/paid work; deployment; unified workspace behavior; or professional-quality action-aware timing. The published Phase 2 fixed-fixture smoothstep engine and this Phase 2.5 design do not themselves prove future fast/slow action timing or the final professional-quality goal.
 
 ## Systems Intentionally Left Unchanged
 

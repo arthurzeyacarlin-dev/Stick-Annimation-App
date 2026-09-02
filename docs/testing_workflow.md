@@ -1,7 +1,7 @@
 # Verification and Regression Workflow
 
 Status: canonical proof standard and current gate baseline
-Last updated: 2026-08-31
+Last updated: 2026-09-02
 
 ## Core Rule
 
@@ -172,6 +172,23 @@ The recorder wrote `output/spec-0004/phase-2/proof-manifest.json`, 11,493 bytes,
 After acceptance, the Control Plane Architect froze the eight accepted technical hashes and revalidated all 19 unique manifest artifact hashes and sizes offline; the manifest's 10 technical-receipt references point into that artifact list rather than adding ten separate files. Re-running the complete validator after cleanup reaches only the expected process-liveness check and reports `ESRCH` because the four temporary review servers were deliberately stopped; it does not report any durable hash, size, count, scope, Git, code, or evidence mismatch. The preserved successful live validation receipt remains authoritative for its server-dependent checks. Closeout used that receipt plus full offline artifact revalidation, accepted-byte hash preservation, `bash scripts/update_memory.sh`, `bash scripts/update_memory.sh --check-only`, both diff checks, exact implementation/control-plane scope checks, lifecycle/link/status checks, hidden-flag/symlink/process/port audits, and a final empty-index/untracked-output audit.
 
 GIT-035 then published the exact accepted eight technical paths plus 12 reviewed control-plane/tree paths in commit `e3ec6a33438c2f3d2e075b6477f18b8eb1b58e24`, parent `70bf7b0799bcff8d703525bcb50c378b8a122ebf`, message `Implement SPEC-0004 Phase 2 motion engine`. Motion/protected validators, TypeScript, focused lint, exact 5-error/72-warning full-lint non-regression, manifest/source hashes, no-blue-box/provider/process/port checks, and the clean permanent tester passed before main integration. The tester passed 40 operations, 13 screenshots, four driver messages, all 37 historical negatives, one deterministic mocked Drawing POST, zero real-route/non-loopback/provider requests, and complete cleanup. Result SHA-256 is `e1a4aed02949c246011e18d10a22ed86fdaf118b8d62e7d7edaf7d1f6ab70566` (84,507 bytes); browser-network-ledger SHA-256 is `740a4a6f8ad4585aeb6e64f13d098327c612aafc6a8a81bd3e34ff73bd8e89f2` (23,017 bytes); server-network-ledger SHA-256 is `dafed39e7856d5cedeb1a7bd6539abd3455a42fcf4585d9863ddb856e2b752c6` (5,082 bytes). Publication branch, local main, origin, live GitHub, and GitHub API matched cleanly at the product commit with `0/0` synchronization.
+
+### Authorized SPEC-0004 Phase 2.5 proof boundary
+
+D-0040 authorizes Phase 2.5 implementation after GIT-036 publishes this docs-only activation; the Phase 2 prerequisite is already satisfied. The later executor owns exactly the seven tracked paths listed in SPEC-0004 plus ignored `output/spec-0004/phase-2.5/**`; all Phase 1/2 technical and control-plane paths outside that ceiling are read-only. Recommended executor is `gpt-5.6-sol` at `xhigh` in a new Plan-mode task/worktree.
+
+The deterministic proof must validate exact `stick.action-timing/v1` plan/project/transaction binding, one ordered timing entry per adjacent important-pose pair, the safe `ease_in_out` natural-default policy, explicit-only mechanical `constant`, paired `impact`/`recovery`, all six exact progress functions, progress-gap ordering, exact golden baked coordinates, endpoints/monotonicity/no overshoot, and every inherited Phase 2 body/arc/bounds/independent-frame rule. It covers timed wave, existing jump, deliberately unequal bow, dodge, one technical-only 24-frame seven-pose jump, and a mechanical constant positive/negative pair. Every missing/extra/unknown/reordered/mismatched/tampered timing field or unsupported curve fails closed.
+
+The real-browser proof provides four separate disposable non-3000 loopback copies for timed wave, detailed jump, bow, and dodge. Each exposes only the ordinary Stick workspace/canvas/timeline/Preview/Apply/Cancel/manual controls. No blue box, query flag, picker, overlay, special control, product route/import/asset, or permanent review helper is allowed. It proves visible fast/slow spacing, complete action beats, one-frame-only manual edit ownership, Preview/Cancel no-op, one Apply, Undo/Redo, Save/Open, playback/onion/Creator continuity, protected Phase 1/2/6 and Drawing flows, zero provider traffic, and complete copy/process/port cleanup.
+
+The recorder and independent validator are:
+
+```bash
+node --experimental-strip-types scripts/spec0004-stick/recordPhase25Proof.ts
+node --experimental-strip-types scripts/spec0004-stick/validatePhase25Proof.ts --manifest output/spec-0004/phase-2.5/proof-manifest.json
+```
+
+The manifest must bind exact base/HEAD/branch/seven-path dirty ceiling/empty index, every artifact/receipt hash and byte size, both diff checks, TypeScript, focused lint, measured full-lint non-regression, proof-validator mutation cases, permanent tester, zero external/API/provider requests, and cleanup. The executor returns its Implementation Review Packet and stops before docs, staging, commit, push, or another phase. Phase 2.5 connects neither Pretend AI nor Terra; later Phase 4 and Phase 6 must both feed the same timing/pose engine contract.
 
 For a fresh technical proof recording from the historical Phase 1.5 implementation base:
 

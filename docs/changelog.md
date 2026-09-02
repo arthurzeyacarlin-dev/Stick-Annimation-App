@@ -5,6 +5,18 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-02 — Authorized SPEC-0004 Phase 2.5 action timing and spacing engine
+
+- reconciled the reviewed Phase 2.5 draft onto clean current main without changing the published Phase 2 product or proof record
+- recorded D-0040: Arthur authorizes Phase 2.5, **Action Timing and Spacing Engine**, as Approved/Authorized/Not started; GIT-036 docs-only publication is its only remaining entry gate
+- defined strict `stick.action-timing/v1` plan binding, one profile per adjacent important-pose transition, exact `ease_in`/`ease_out`/`ease_in_out`/explicit-mechanical `constant`/paired `impact` and `recovery` math, fail-closed validation, and wider-gap-faster/tighter-gap-slower proof
+- made the shared engine boundary explicit: later free/Pretend-AI recipes and future Terra original non-hardcoded plans both use important poses → timing choice → smooth local fast/slow in-betweens → complete independent editable Stick keyframes; Phase 2.5 connects neither route
+- froze timed wave/existing-jump/unequal-bow/dodge examples plus one technical-only 24-frame seven-pose jump with fast launch, slow peak, accelerating fall, knee-bend impact, recovery, and stand; retained Phase 3 duration/FPS/frame/multi-figure ownership
+- fixed the exact seven-path executor ceiling, independent manifest/negative proof, `gpt-5.6-sol`/`xhigh` recommendation, and four ordinary disposable no-blue-box review links
+- preserved backgrounds, colors, custom stick shapes/rigs, layers, accurate non-humanoid bodies, AI onion control, post-Apply editing, Drawing/workspace integration, dashboard/provider/API/paid/deployment work, and Phase 3–8 implementation as future work
+
+This activation reconciliation changes only canonical documentation. It creates no Phase 2.5 app code or review copy and does not stage, commit, merge, push, publish, deploy, contact a provider, or spend money. GIT-036 remains a separate publication step.
+
 ### 2026-09-02 — SPEC-0004 Phase 2 published and integrated
 
 - published the accepted eight technical paths plus 12 reviewed control-plane/tree paths in exact 20-path commit `e3ec6a33438c2f3d2e075b6477f18b8eb1b58e24`, parent `70bf7b0799bcff8d703525bcb50c378b8a122ebf`, message `Implement SPEC-0004 Phase 2 motion engine`
@@ -28,7 +40,6 @@ The final record-only reconciliation containing this entry changes no app/runtim
 - marked Phase 2 **accepted and technically Verified; publication/integration pending**, opened GIT-035 for the separate publication, and kept Phase 2.5 app code plus Phases 3–8 unauthorized
 
 This Control Plane Architect closeout changes only reviewed canonical records and the generated project structure after technical acceptance. It does not change accepted runtime/fixture/test/proof bytes, stage, commit, merge, push, publish, deploy, contact a provider, make a paid request, edit the separate Phase 2.5 architect worktree, or begin Phase 2.5 app code.
-
 ### 2026-09-01 — Authorized SPEC-0004 Phase 2 pose and smooth-motion engine
 
 - recorded D-0037: Arthur authorizes Phase 2 only after its docs-only activation is separately reviewed, published, and integrated; Phases 3–8 remain unauthorized

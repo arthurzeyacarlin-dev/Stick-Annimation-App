@@ -1,7 +1,7 @@
 # AI System Snapshot
 
 Status: canonical current AI architecture and gap map
-Last traced: 2026-09-02 through published SPEC-0004 Phase 1 and accepted, technically Verified SPEC-0004 Phase 2
+Last traced: 2026-09-02 through published SPEC-0004 Phases 1 and 2
 
 ## What Exists Today
 
@@ -9,7 +9,7 @@ Diamond Animator currently uses a hybrid drawing-workspace path. Deterministic r
 
 The Stick workspace separately has the published deterministic Phase 6 wave chat and published SPEC-0004 Phase 1 engine. Phase 1 adds a strict local action-neutral plan/executor for fixed wave, jump, bow, and dodge fixtures, isolated Preview/Cancel, one atomic Apply, a durable project latch, and continued manual editability. It does not add broad natural-language matching, Terra, a provider/API call, or a user-visible fixture picker.
 
-GIT-034 published the D-0037 activation at `70bf7b0799bcff8d703525bcb50c378b8a122ebf`, and D-0039 accepts the exact eight-path Phase 2 result as technically Verified. Phase 2 normalizes the unchanged fixed plans' important poses, creates deterministic cubic-eased shortest-turn in-betweens, and bakes every output slot into its own ordinary Stick keyframe before Preview. It deliberately adds no natural-language route, recipe catalog, Terra/provider/API call, working Task/Reasoning control, or normal visible UI. Phase 1 remains the default transaction behavior unless the separately named Phase 2 materializer is selected. Publication/integration is pending GIT-035.
+GIT-035 published D-0039's exact Phase 2 result in commit `e3ec6a33438c2f3d2e075b6477f18b8eb1b58e24`. Phase 2 normalizes the unchanged fixed plans' important poses, creates deterministic cubic-eased shortest-turn in-betweens, and bakes every output slot into its own ordinary Stick keyframe before Preview. It deliberately adds no natural-language route, recipe catalog, Terra/provider/API call, working Task/Reasoning control, or normal visible UI. Phase 1 remains the default transaction behavior unless the separately named Phase 2 materializer is selected.
 
 There is no custom-trained Diamond Animator LLM, fine-tuning pipeline, embeddings system, vector database, or model-serving stack in this repository.
 
@@ -126,7 +126,7 @@ Existing mechanisms:
 - retry/recovery metadata
 - local model-call logging and dev dashboards under `/dev/ai-costs`
 - the accepted SPEC-0004 Phase 1 Stick fixture engine costs $0 and records zero API/provider requests
-- the accepted Phase 2 motion engine remains fully local/$0/provider-free; it sends no prompt or project data anywhere and is publication-pending
+- the published Phase 2 motion engine remains fully local/$0/provider-free; it sends no prompt or project data anywhere
 - D-0038 preserves a future cost strategy only: compact Terra key-pose/timing plans, local in-betweens, safe free recipes first, at most one later bounded pre-Apply repair, measured dashboard usage, monthly budgets/credits, and no unlimited Terra. Exact pricing/model/privacy must be freshly checked at the later paid gate.
 
 In local development, the cost log writes the full user prompt along with request/model/usage metadata to `.local/ai-cost-dashboard/requests.jsonl`. That directory is ignored by Git, but no approved redaction or retention policy exists.

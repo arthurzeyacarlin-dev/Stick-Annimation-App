@@ -3,8 +3,8 @@
 Status: canonical last-known stopping point
 Last updated: 2026-09-02
 Active Approved/Verified specs: `docs/specs/0001-first-reversible-ai-stick-animation.md`, `docs/specs/0002-lossless-local-drawing-save-and-reopen.md`, `docs/specs/0003-tutorials-and-cleaner-home-screen.md`, and `docs/specs/0004-future-real-ai-animator-requirements.md`
-SPEC-0004 status: **Phase 1 Verified, published, and integrated. Phase 2 accepted and technically Verified; publication/integration pending.** GIT-033 and GIT-034 are complete; GIT-035 is open. Phases 3–8 remain unauthorized.
-Current result: the accepted provider-free Phase 1 engine is published/integrated in exact 28-path commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d`. GIT-034 published the Phase 2 activation in exact commit `70bf7b0799bcff8d703525bcb50c378b8a122ebf`. Arthur accepted the stopped exact eight-path Phase 2 result under D-0039. Its 11,493-byte manifest SHA-256 is `a6e656d930781b589a3350abec62000818fade6553638ada0899ec7183b24d3f`. GIT-035 must publish/integrate that accepted result before the separate Phase 2.5 activation is reconciled/published or any Phase 2.5 app code starts.
+SPEC-0004 status: **Phases 1 and 2 Verified, published, and integrated.** GIT-033 through GIT-035 are complete. Phase 2.5 activation reconciliation/publication is next under GIT-036; Phases 3–8 remain unauthorized.
+Current result: the provider-free Phase 1 engine is published/integrated in exact 28-path commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d`. GIT-034 published the Phase 2 activation at `70bf7b0799bcff8d703525bcb50c378b8a122ebf`; GIT-035 published the accepted exact eight-path technical result plus reviewed records in exact 20-path commit `e3ec6a33438c2f3d2e075b6477f18b8eb1b58e24`. Its 11,493-byte manifest SHA-256 remains `a6e656d930781b589a3350abec62000818fade6553638ada0899ec7183b24d3f`.
 Current roadmap phase: Phase 0 — Preserve and Stabilize
 
 ## Accepted SPEC-0004 Phase 1 Result
@@ -58,11 +58,11 @@ The exact accepted technical boundary is eight paths:
 - `scripts/spec0004-stick/validatePhase2Proof.ts`
 - `scripts/validateStickFigureMotionEngine.ts`
 
-Ignored proof exists only under `output/spec-0004/phase-2/**`. The accepted manifest is 11,493 bytes at SHA-256 `a6e656d930781b589a3350abec62000818fade6553638ada0899ec7183b24d3f`. Its prior live validation passed 210 checks and binds 10 technical receipts, 19 artifacts, 1,734 assertions, four fixed plans, 20 invalid cases, 40 browser flows, eight screenshots, TypeScript/lint/diff and protected-regression evidence, and zero external/API/provider requests. CPA closeout revalidated all 29 durable receipt/artifact bindings after the temporary review servers stopped. The executor is stopped, the index is empty, and all accepted technical hashes remain frozen.
+Ignored proof exists only under `output/spec-0004/phase-2/**`. The accepted manifest is 11,493 bytes at SHA-256 `a6e656d930781b589a3350abec62000818fade6553638ada0899ec7183b24d3f`. Its prior live validation passed 210 checks and references 10 technical receipts within 19 unique artifacts, 1,734 assertions, four fixed plans, 20 invalid cases, 40 browser flows, eight screenshots, TypeScript/lint/diff and protected-regression evidence, and zero external/API/provider requests. CPA closeout revalidated all 19 unique durable artifacts after the temporary review servers stopped. All accepted technical hashes remain frozen.
 
 Arthur's visible review used four separate disposable normal-looking loopback copies/links, one preloaded wave/jump/bow/dodge sample each. The normal canvas, timeline, AI Preview/Apply/Cancel area, and manual tools were the only visible controls. The former blue box, any floating tester/picker/button, query flag, route, public asset, or product import is absent and must not be published.
 
-D-0038 also preserves two future notes without authority: use compact Terra key-pose plans/local in-betweens/free recipes first/measured budgets later, and consider a separate future unified Drawing+Stick Animation Workspace spec after Phase 2. The separately drafted Phase 2.5 Action Timing and Spacing activation is outside this worktree and unpublished. It must be reconciled after GIT-035 and published before one new Phase 2.5 executor starts. Neither note is Phase 2 work.
+D-0038 also preserves two future notes without authority: use compact Terra key-pose plans/local in-betweens/free recipes first/measured budgets later, and consider a separate future unified Drawing+Stick Animation Workspace spec after Phase 2. The separately drafted Phase 2.5 Action Timing and Spacing activation remains outside this publication worktree and unpublished. GIT-036 must reconcile it onto current main and publish it before one new Phase 2.5 executor starts. Neither note is Phase 2 work.
 
 ## Prior Completed SPEC-0003 Result
 
@@ -132,13 +132,13 @@ Prior SPEC-0003 publication record:
 
 ## Stopping Point
 
-SPEC-0004 Phase 1 is fully closed. GIT-034 is complete. SPEC-0004 Phase 2 is accepted and technically Verified in its stopped exclusive worktree; publication and integration are still pending.
+SPEC-0004 Phases 1 and 2 are fully closed, published, and integrated. GIT-033 through GIT-035 are complete.
 
-The next action is GIT-035: separately publish the exact accepted eight Phase 2 technical paths plus reviewed closeout records, run the clean permanent tester, safely fast-forward clean canonical `main`, push normally, and verify clean equality. After that, reconcile and publish the separate Phase 2.5 activation before any Phase 2.5 executor begins. Do not begin Phase 2.5 app code, Phase 3, provider/API/paid, Drawing/workspace-integration, or deployment work here.
+The next action is GIT-036: reconcile the separate docs-only Phase 2.5 Action Timing and Spacing activation onto current clean main, correct its stale Git/task references and Phase 2 assumptions, return a review packet, and publish it separately before any Phase 2.5 executor begins. Do not begin Phase 2.5 app code, Phase 3, provider/API/paid, Drawing/workspace-integration, or deployment work here.
 
 ## Proven and Not Proven
 
-Proven for SPEC-0004 Phase 2: exact activation/base and eight-path scope; executor shutdown/exclusive transfer; Arthur acceptance; deterministic body normalization/cubic easing/shortest-turn/baked-independent-keyframe behavior; one-frame-only manual ownership; Preview/Cancel/Apply/Undo/Redo/Save/Open and protected regressions; exact 11,493-byte manifest hash; prior 210-check live validation; all 29 durable bindings revalidated after server cleanup; 1,734 assertions; four fixtures; 20 rejection cases; 40 browser flows; eight screenshots; TypeScript/focused-lint/diff and full-lint non-regression proof; zero external/API/provider requests; and no blue-box/product helper.
+Proven for SPEC-0004 Phase 2: exact activation/base and eight-path technical scope; exact 20-path publication commit; executor shutdown/exclusive transfer; Arthur acceptance; deterministic body normalization/cubic easing/shortest-turn/baked-independent-keyframe behavior; one-frame-only manual ownership; Preview/Cancel/Apply/Undo/Redo/Save/Open and protected regressions; exact 11,493-byte manifest hash; prior 210-check live validation; all 19 unique durable artifacts revalidated after server cleanup; 1,734 assertions; four fixtures; 20 rejection cases; 40 browser flows; eight screenshots; TypeScript/focused-lint/diff and full-lint non-regression proof; zero external/API/provider requests; no blue-box/product helper; clean 40-operation/13-screenshot publication tester; normal push; and final clean equality.
 
 Not yet performed or proven: Phase 2 publication/integration or its post-publication clean tester; Phase 2.5 app behavior; broader natural-language matching; Terra/provider/API/paid work; deployment; unified workspace behavior; or professional-quality action-aware timing. The Phase 2 fixed-fixture smoothstep engine does not itself prove future Phase 2.5 fast/slow action timing or the final professional-quality goal.
 

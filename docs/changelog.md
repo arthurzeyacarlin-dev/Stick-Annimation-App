@@ -5,6 +5,17 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-02 — SPEC-0004 Phase 2 published and integrated
+
+- published the accepted eight technical paths plus 12 reviewed control-plane/tree paths in exact 20-path commit `e3ec6a33438c2f3d2e075b6477f18b8eb1b58e24`, parent `70bf7b0799bcff8d703525bcb50c378b8a122ebf`, message `Implement SPEC-0004 Phase 2 motion engine`
+- preserved the exact 11,493-byte technical manifest at SHA-256 `a6e656d930781b589a3350abec62000818fade6553638ada0899ec7183b24d3f`, all eight accepted technical hashes, all 19 unique artifact bindings, and zero provider/API/paid behavior
+- passed the Phase 2 motion validator with 1,734 assertions, protected transaction/contract/UI/history/timeline validators, TypeScript, focused lint, and the unchanged full-lint baseline of 5 errors/72 warnings with zero Phase 2 findings
+- passed the required clean permanent tester with 40 operations, 13 screenshots, four driver messages, all 37 historical negatives, one deterministic mocked Drawing POST, zero real-route/non-loopback/provider requests, and complete cleanup; result SHA-256 `e1a4aed02949c246011e18d10a22ed86fdaf118b8d62e7d7edaf7d1f6ab70566`
+- safely fast-forwarded and normally pushed canonical `main`; publication branch, local main, origin, live GitHub, and GitHub API matched cleanly at the product commit with `0/0` synchronization
+- closed GIT-035 and marked Phase 2 **Verified, published, and integrated**; opened GIT-036 for separate reconciliation/publication of the docs-only Phase 2.5 activation before any Phase 2.5 app code begins
+
+The final record-only reconciliation containing this entry changes no app/runtime/fixture/test/proof byte. Its own commit SHA and present refs are deliberately not embedded and must be verified directly from Git. It starts no Phase 2.5 app code, provider/API/paid request, deployment, Drawing/workspace integration, or Phase 3 work.
+
 ### 2026-09-02 — SPEC-0004 Phase 2 accepted and technically closed out
 
 - reconciled GIT-034 as complete in exact 11-document activation commit `70bf7b0799bcff8d703525bcb50c378b8a122ebf`, parent `b7f9ecbf0a15b6243955bea34d9b9518440bab53`, message `Authorize SPEC-0004 Phase 2 motion engine`
@@ -12,7 +23,7 @@ Format: newest entries first; describe observed behavior and repository operatio
 - accepted the hidden separately selected `phase-2-baked-motion` materializer: canonical 11-joint/10-segment normalization, cubic-smoothstep shortest-turn in-betweens, and one complete independent ordinary keyframe for every output slot while Phase 1 remains the default route
 - preserved human ownership: zero generated holds/tweens/controllers/hidden AI state/locks/regeneration/snap-back; one-frame-only manual edits persist; Preview/Cancel/failure are no-ops; Apply/Undo/Redo/Save/Open remain exact
 - preserved and independently revalidated the 11,493-byte manifest at SHA-256 `a6e656d930781b589a3350abec62000818fade6553638ada0899ec7183b24d3f`: prior 210-check live validation, 10 technical receipts, 19 artifacts, 1,734 assertions, four fixtures, 20 rejection cases, 40 browser flows, eight screenshots, accepted lint/type/diff and protected-regression evidence, and zero external/API/provider requests
-- after temporary review-server cleanup, revalidated all 29 durable manifest bindings offline, froze all eight accepted technical hashes, and recorded the expected later `ESRCH` only at the validator's live-process check without misreporting a proof-byte failure
+- after temporary review-server cleanup, revalidated all 19 unique durable artifact bindings offline, froze all eight accepted technical hashes, and recorded the expected later `ESRCH` only at the validator's live-process check without misreporting a proof-byte failure; the 10 technical-receipt references are entries within those artifacts, not ten extra files
 - updated the active spec, current state, TODO, decision log, architecture/AI/testing/PM maps, spec registry, handoff, changelog, and regenerated project tree without changing any accepted technical byte
 - marked Phase 2 **accepted and technically Verified; publication/integration pending**, opened GIT-035 for the separate publication, and kept Phase 2.5 app code plus Phases 3–8 unauthorized
 

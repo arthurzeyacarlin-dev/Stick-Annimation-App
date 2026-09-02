@@ -1,0 +1,7 @@
+{
+  "fixtureVersion": 2,
+  "viewports": [
+    {"name": "desktop", "width": 1440, "height": 900},
+    {"name": "compact", "width": 1024, "height": 768}
+  ]
+}

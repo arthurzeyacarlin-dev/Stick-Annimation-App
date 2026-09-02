@@ -1,7 +1,7 @@
 # Architecture and System Map
 
 Status: canonical current architecture map
-Last traced: 2026-09-01 through accepted SPEC-0004 Phase 1 and D-0037's Phase 2 motion-engine design
+Last traced: 2026-09-02 through accepted SPEC-0004 Phase 1 and accepted, technically Verified SPEC-0004 Phase 2
 
 ## Runtime Overview
 
@@ -54,7 +54,7 @@ The main product screens are not URL routes. `app/page.tsx` owns a `view` union 
 | Drawing project persistence | `src/lib/drawingProjectStorage.ts` | Version-1 localStorage envelope, CRUD, cloning, quota fallback |
 | Drawing AI project memory | `drawingAiProjectMemory.ts`, `drawingProjectAiMemorySync.ts`, memory API route | Per-animation-project semantic memory and optional Supabase sync |
 | Stick workspace | `src/components/workspace/stickfigure/StickFigureWorkspace.tsx` and siblings, `src/lib/stickfigure/stickTimeline.ts`, `stickProjectContract.ts`, `stickProjectHistory.ts`, `stickProjectStorage.ts` | Canonical editable timeline/history/storage root, independent keyframe poses plus owner-resolved holds, manual joint edits, playback/onion, Creator continuity, and the published SPEC-0004 Phase 1 one-time creation latch/transaction wiring. Editing a held slot currently edits its owner content, so Phase 2 generated output must not use holds. |
-| Stick animation plan/executor | `src/lib/ai/stickFigureAiContract.ts`, `stickFigureCommandExecutor.ts`, future `stickFigureMotionEngine.ts`, `stickFigureAiWorkspaceAdapter.ts` | Published Phase 6 wave contract plus published SPEC-0004 Phase 1 strict action-neutral fixed-fixture plan. D-0037 authorizes a separately selected Phase 2 materializer that bakes every generated slot as an independent keyframe; the Phase 1 default and normal route remain unchanged. |
+| Stick animation plan/executor | `src/lib/ai/stickFigureAiContract.ts`, `stickFigureCommandExecutor.ts`, `stickFigureMotionEngine.ts`, `stickFigureAiWorkspaceAdapter.ts` | Published Phase 6 wave contract plus published SPEC-0004 Phase 1 strict action-neutral fixed-fixture plan. D-0039 accepts a separately selected Phase 2 materializer that bakes every generated slot as an independent keyframe; the Phase 1 default and normal route remain unchanged. Phase 2 publication/integration is pending GIT-035. |
 | Stick creator | `StickFigureCreatorWorkspace.tsx`, `types.ts` | Standalone local rig-creation experiment; save disconnected |
 | Dev cost visibility | `src/lib/ai/devAiCostDashboard.ts`, `app/dev/ai-costs/**` | Local model-call cost logs and dashboards |
 
@@ -104,7 +104,7 @@ The published SPEC-0001 sequence now provides one canonical editable editor root
 
 Published SPEC-0004 Phase 1 extends that same root rather than adding a locked AI format. A strict action-neutral plan supports only ordered `set_timing`, complete independent `create_key_pose`, bounded contiguous `hold_pose`, and terminal `finish` commands. The shared executor materializes wave, jump, bow, and dodge fixtures without action-name branches, validates one figure/one layer/11 joints/8–24 frames/12 or 24 FPS, and holds the result in an isolated candidate. Preview/Cancel/failure do not mutate canonical state. Apply rechecks the captured binding, publishes exactly one history action, and atomically consumes a project-bound latch outside Undo/Redo.
 
-D-0037's authorized Phase 2 architecture treats the plan's key poses as input only. A hidden local motion engine normalizes the 11-joint body against starter segment lengths, eases hip and shortest-turn segment angles with deterministic cubic smoothstep, rebuilds the 10-segment tree, and materializes every important/in-between/repeated slot as a complete unique keyframe before Preview. Interpolation state is temporary and discarded; there is no hold/tween owner span, motion payload/controller, hidden AI ownership, lock, or post-Apply regeneration. This is intentionally different from Drawing's persistent position-only motion tween. Phase 1's existing materializer remains the default until a later authorized caller opts into Phase 2.
+D-0039's accepted Phase 2 architecture treats the plan's key poses as input only. The hidden local motion engine normalizes the 11-joint body against starter segment lengths, eases hip and shortest-turn segment angles with deterministic cubic smoothstep, rebuilds the 10-segment tree, and materializes every important/in-between/repeated slot as a complete unique keyframe before Preview. Interpolation state is temporary and discarded; there is no hold/tween owner span, motion payload/controller, hidden AI ownership, lock, or post-Apply regeneration. This is intentionally different from Drawing's persistent position-only motion tween. Phase 1's existing materializer remains the default; the separately named Phase 2 option must be selected explicitly. The accepted implementation is not yet published/integrated.
 
 Stick saved record version 2 stores that latch beside the editable document/view state. Existing record version 1 remains readable and conservatively defaults to consumed; opening does not rewrite it, while a normal explicit Save writes version 2. After successful Apply, later AI submissions return `AI editing comes later; use manual tools.` before executor/provider work. The normal published chat still recognizes only its prior wave wording; natural-language routing for the broader engine is a later phase.
 

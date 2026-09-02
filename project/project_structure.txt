@@ -233,6 +233,9 @@
 ./scripts/fixtures/spec0004-stick/v1
 ./scripts/fixtures/spec0004-stick/v1/browser-viewports.json
 ./scripts/fixtures/spec0004-stick/v1/phase1-plan-cases.json
+./scripts/fixtures/spec0004-stick/v2
+./scripts/fixtures/spec0004-stick/v2/browser-viewports.json
+./scripts/fixtures/spec0004-stick/v2/phase2-motion-cases.json
 ./scripts/fixtures/stick-ai
 ./scripts/fixtures/stick-ai/v1
 ./scripts/fixtures/stick-ai/v1/canonical-hash-vectors.json
@@ -340,8 +343,11 @@
 ./scripts/spec0003-tutorials/browserProofContract.ts
 ./scripts/spec0004-stick
 ./scripts/spec0004-stick/phase1BrowserProof.ts
+./scripts/spec0004-stick/phase2BrowserProof.ts
 ./scripts/spec0004-stick/recordPhase1Proof.ts
+./scripts/spec0004-stick/recordPhase2Proof.ts
 ./scripts/spec0004-stick/validatePhase1Proof.ts
+./scripts/spec0004-stick/validatePhase2Proof.ts
 ./scripts/sync_docs_to_github.sh
 ./scripts/traceExplosionLivePath.ts
 ./scripts/traceGenerateSoundsLivePath.mjs
@@ -371,6 +377,7 @@
 ./scripts/validateStickFigureAiMockRoute.ts
 ./scripts/validateStickFigureAiUiAdapter.ts
 ./scripts/validateStickFigureCommandTransaction.ts
+./scripts/validateStickFigureMotionEngine.ts
 ./scripts/validateStickHistoryPersistence.ts
 ./scripts/validateStickPoseTimeline.ts
 ./scripts/validateTimelinePlaybackSmoothing.ts
@@ -445,6 +452,7 @@
 ./src/lib/ai/stickFigureAiServerDispatch.ts
 ./src/lib/ai/stickFigureAiWorkspaceAdapter.ts
 ./src/lib/ai/stickFigureCommandExecutor.ts
+./src/lib/ai/stickFigureMotionEngine.ts
 ./src/lib/ai/strictStickJson.ts
 ./src/lib/dbAdmin.ts
 ./src/lib/dbClient.ts

@@ -28,6 +28,10 @@ import {
   createCanonicalStickHistoryRoot,
   type CanonicalStickEditorHistoryRootV1,
 } from "../stickfigure/stickProjectHistory.ts";
+import {
+  STICK_PHASE2_MOTION_MATERIALIZER,
+  materializeParsedStickAnimationMotionPlan,
+} from "./stickFigureMotionEngine.ts";
 
 export const STICK_TERMINAL_LEDGER_LIMIT = 128;
 
@@ -137,9 +141,12 @@ export type StickCommandOperationOutcomeV1 =
     | "failed";
     };
 
-type ExecutorOptionsV1 = {
+export type StickAnimationPlanMaterializerV1 = "phase-1-holds" | typeof STICK_PHASE2_MOTION_MATERIALIZER;
+
+export type StickFigureCommandTransactionOptionsV1 = {
   failurePoint?: StickCommandFailurePointV1 | null;
   candidateHasher?: (document: StickProjectDocumentV1) => Promise<string>;
+  animationPlanMaterializer?: StickAnimationPlanMaterializerV1;
 };
 
 const cloneRoot = (root: StickCommandWorkspaceRootV1): StickCommandWorkspaceRootV1 => cloneCanonical(root);
@@ -346,12 +353,18 @@ export class StickFigureCommandTransactionV1 {
   #invalidatedApplies = new Map<string, PreparedApplyV1>();
   #failurePoint: StickCommandFailurePointV1 | null;
   #candidateHasher: (document: StickProjectDocumentV1) => Promise<string>;
+  #animationPlanMaterializer: StickAnimationPlanMaterializerV1;
   #operationCounter = 0;
 
-  constructor(root: StickCommandWorkspaceRootV1, options: ExecutorOptionsV1 = {}) {
+  constructor(root: StickCommandWorkspaceRootV1, options: StickFigureCommandTransactionOptionsV1 = {}) {
     this.#root = cloneRoot(root);
     this.#failurePoint = options.failurePoint ?? null;
     this.#candidateHasher = options.candidateHasher ?? digestCanonical;
+    const materializer = options.animationPlanMaterializer ?? "phase-1-holds";
+    if (materializer !== "phase-1-holds" && materializer !== STICK_PHASE2_MOTION_MATERIALIZER) {
+      throw new TypeError("Unknown Stick animation-plan materializer.");
+    }
+    this.#animationPlanMaterializer = materializer;
   }
 
   snapshot() { return cloneRoot(this.#root); }
@@ -370,6 +383,7 @@ export class StickFigureCommandTransactionV1 {
     const next = new StickFigureCommandTransactionV1(this.#root, {
       failurePoint: this.#failurePoint,
       candidateHasher: this.#candidateHasher,
+      animationPlanMaterializer: this.#animationPlanMaterializer,
     });
     next.#previews = new Map([...this.#previews].map(([key, value]) => [key, cloneCanonical(value)]));
     next.#applies = new Map([...this.#applies].map(([key, value]) => [key, cloneCanonical(value)]));
@@ -501,7 +515,9 @@ export class StickFigureCommandTransactionV1 {
       return this.#failActive(envelope, envelopeDigest, parsed.ok ? "transaction_failed" : parsed.error.code as StickAiErrorCodeV1);
     }
     const candidateResult = parsed.value.kind === "stick-animation-plan"
-      ? await materializeParsedStickAnimationPlan(parsed.value, this.#root.editorRoot.current.snapshot.document)
+      ? this.#animationPlanMaterializer === STICK_PHASE2_MOTION_MATERIALIZER
+        ? await materializeParsedStickAnimationMotionPlan(parsed.value, this.#root.editorRoot.current.snapshot.document)
+        : await materializeParsedStickAnimationPlan(parsed.value, this.#root.editorRoot.current.snapshot.document)
       : applyStickManualActions(
           this.#root.editorRoot.current.snapshot.document,
           stickManualActionsFromCommand(parsed.value.commands[0]),
@@ -814,11 +830,11 @@ export class StickFigureCommandTransactionV1 {
 export const previewStickCommandBatch = async (
   preState: StickCommandWorkspaceRootV1,
   envelope: StickCommandInputV1,
-  options: ExecutorOptionsV1 = {},
+  options: StickFigureCommandTransactionOptionsV1 = {},
 ) => new StickFigureCommandTransactionV1(preState, options).preview(envelope);
 
 export const applyStickCommandBatch = async (
   preState: StickCommandWorkspaceRootV1,
   envelope: StickCommandInputV1,
-  options: ExecutorOptionsV1 = {},
+  options: StickFigureCommandTransactionOptionsV1 = {},
 ) => new StickFigureCommandTransactionV1(preState, options).apply(envelope);

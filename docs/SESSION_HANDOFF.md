@@ -1,10 +1,10 @@
 # Session Handoff
 
 Status: canonical last-known stopping point
-Last updated: 2026-09-01
+Last updated: 2026-09-02
 Active Approved/Verified specs: `docs/specs/0001-first-reversible-ai-stick-animation.md`, `docs/specs/0002-lossless-local-drawing-save-and-reopen.md`, `docs/specs/0003-tutorials-and-cleaner-home-screen.md`, and `docs/specs/0004-future-real-ai-animator-requirements.md`
-SPEC-0004 status: **Phase 1 Verified, published, and integrated. Phase 2 Authorized; Not started; blocked on activation publication.** GIT-033 is complete; GIT-034 is open. Phases 3–8 remain unauthorized.
-Current result: the accepted provider-free Phase 1 engine is published/integrated in exact 28-path commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d`. Arthur's D-0037 now authorizes Phase 2 only. This docs-only activation starts from clean canonical `b7f9ecbf0a15b6243955bea34d9b9518440bab53`; it makes the baked independent-frame motion result decision-complete but changes no product/proof byte. GIT-034 must review/publish/integrate it before one new Phase 2 executor begins.
+SPEC-0004 status: **Phase 1 Verified, published, and integrated. Phase 2 accepted and technically Verified; publication/integration pending.** GIT-033 and GIT-034 are complete; GIT-035 is open. Phases 3–8 remain unauthorized.
+Current result: the accepted provider-free Phase 1 engine is published/integrated in exact 28-path commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d`. GIT-034 published the Phase 2 activation in exact commit `70bf7b0799bcff8d703525bcb50c378b8a122ebf`. Arthur accepted the stopped exact eight-path Phase 2 result under D-0039. Its 11,493-byte manifest SHA-256 is `a6e656d930781b589a3350abec62000818fade6553638ada0899ec7183b24d3f`. GIT-035 must publish/integrate that accepted result before the separate Phase 2.5 activation is reconciled/published or any Phase 2.5 app code starts.
 Current roadmap phase: Phase 0 — Preserve and Stabilize
 
 ## Accepted SPEC-0004 Phase 1 Result
@@ -41,13 +41,13 @@ The technical manifest is `output/spec-0004/phase-1/proof-manifest.json`, 15,683
 
 The blue `PRIVATE REVIEW` fixture picker was never product UI. The browser-proof script made a temporary isolated copy and injected the proof client/ports only there. The temporary copy/server are removed. Its identifying tokens are absent from `app`, `src`, and `public`; no product route, picker, overlay, public asset, or query-controlled review surface exists. The proof script remains developer-only technical evidence and is never imported by the app.
 
-## Authorized SPEC-0004 Phase 2 Starting Point
+## Accepted SPEC-0004 Phase 2 Result
 
 Phase 2 adds one hidden local smooth-motion engine for the unchanged fixed wave/jump/bow/dodge plans. It normalizes the current exact 11-joint/10-segment body, creates deterministic cubic-eased shortest-turn in-betweens, and bakes every important, in-between, and repeated-looking slot into its own complete ordinary keyframe before Preview. Current Stick held-frame edits resolve to one owner, so Phase 2 candidates must contain zero holds/tweens and no shared frame/pose/content identity. After Apply, the engine has no control: a manual edit stays, changes only that frame, and may never regenerate or snap back.
 
 Phase 1 default behavior stays byte-compatible. Phase 2 adds a separately named materializer and fail-closed transaction option; omission remains the Phase 1 held-frame default. It adds no matcher, new recipe, Task/Reasoning behavior, Terra/provider/API/paid call, multi-figure/timing-bound expansion, background/layer/Drawing/workspace/dashboard/deployment work, or post-Apply AI editing.
 
-The exact implementation ceiling is eight paths:
+The exact accepted technical boundary is eight paths:
 
 - `src/lib/ai/stickFigureMotionEngine.ts`
 - `src/lib/ai/stickFigureCommandExecutor.ts`
@@ -58,11 +58,11 @@ The exact implementation ceiling is eight paths:
 - `scripts/spec0004-stick/validatePhase2Proof.ts`
 - `scripts/validateStickFigureMotionEngine.ts`
 
-Ignored proof may exist only under `output/spec-0004/phase-2/**`. If another tracked path is needed, stop for a spec correction. Recommended executor is `gpt-5.6-sol` at `xhigh` reasoning. It starts in Plan mode only after GIT-034 from the exact activation publication SHA, returns technical proof and an Implementation Review Packet, and stops before control-plane or Git publication.
+Ignored proof exists only under `output/spec-0004/phase-2/**`. The accepted manifest is 11,493 bytes at SHA-256 `a6e656d930781b589a3350abec62000818fade6553638ada0899ec7183b24d3f`. Its prior live validation passed 210 checks and binds 10 technical receipts, 19 artifacts, 1,734 assertions, four fixed plans, 20 invalid cases, 40 browser flows, eight screenshots, TypeScript/lint/diff and protected-regression evidence, and zero external/API/provider requests. CPA closeout revalidated all 29 durable receipt/artifact bindings after the temporary review servers stopped. The executor is stopped, the index is empty, and all accepted technical hashes remain frozen.
 
-Arthur's visible review must use four separate disposable normal-looking loopback copies/links, one preloaded wave/jump/bow/dodge sample each. The normal canvas, timeline, AI Preview/Apply/Cancel area, and manual tools are the only visible controls. The former blue box, any floating tester/picker/button, query flag, route, public asset, or product import is forbidden even in the private copy and must not be published.
+Arthur's visible review used four separate disposable normal-looking loopback copies/links, one preloaded wave/jump/bow/dodge sample each. The normal canvas, timeline, AI Preview/Apply/Cancel area, and manual tools were the only visible controls. The former blue box, any floating tester/picker/button, query flag, route, public asset, or product import is absent and must not be published.
 
-D-0038 also preserves two future notes without authority: use compact Terra key-pose plans/local in-betweens/free recipes first/measured budgets later, and consider a separate future unified Drawing+Stick Animation Workspace spec after Phase 2. Neither is Phase 2 work.
+D-0038 also preserves two future notes without authority: use compact Terra key-pose plans/local in-betweens/free recipes first/measured budgets later, and consider a separate future unified Drawing+Stick Animation Workspace spec after Phase 2. The separately drafted Phase 2.5 Action Timing and Spacing activation is outside this worktree and unpublished. It must be reconciled after GIT-035 and published before one new Phase 2.5 executor starts. Neither note is Phase 2 work.
 
 ## Prior Completed SPEC-0003 Result
 
@@ -132,15 +132,15 @@ Prior SPEC-0003 publication record:
 
 ## Stopping Point
 
-SPEC-0004 Phase 1 is fully closed: accepted, Verified, published, integrated, cleanly tested, and synchronized. GIT-033 is complete. Phase 2 alone is Authorized; Not started.
+SPEC-0004 Phase 1 is fully closed. GIT-034 is complete. SPEC-0004 Phase 2 is accepted and technically Verified in its stopped exclusive worktree; publication and integration are still pending.
 
-The next action is GIT-034: separately review, publish, and integrate this exact docs-only Phase 2 activation. Then start one new dedicated Plan-mode Phase 2 executor from the activation publication SHA. Do not reuse the Phase 1 worktree, begin implementation before GIT-034, recreate the blue review box, widen the eight-path ceiling, or begin Phase 3/provider/API/paid/Drawing/workspace-integration/deployment work.
+The next action is GIT-035: separately publish the exact accepted eight Phase 2 technical paths plus reviewed closeout records, run the clean permanent tester, safely fast-forward clean canonical `main`, push normally, and verify clean equality. After that, reconcile and publish the separate Phase 2.5 activation before any Phase 2.5 executor begins. Do not begin Phase 2.5 app code, Phase 3, provider/API/paid, Drawing/workspace-integration, or deployment work here.
 
 ## Proven and Not Proven
 
-Proven for SPEC-0004 Phase 1: exact activation/base and 17-path scope; executor shutdown/exclusive transfer; Arthur acceptance; exact engine/transaction/latch/storage/manual-edit behavior; manifest hash/size and 126 executor-time validation checks; all 41 bound artifacts/receipts revalidated after server cleanup; 707 assertions; four fixtures; 26 rejection cases; 12 browser flows; 11 screenshots; both viewports; TypeScript/focused-lint/diff proof; unchanged full-lint baseline; zero external/API/provider requests; blue-box product exclusion; exact 28-path commit/parent/message; normal GitHub push; clean 40-operation/13-screenshot permanent tester; final publication-branch/local-main/origin/live-GitHub/GitHub-API equality; clean worktrees, empty indexes, and `0/0` synchronization.
+Proven for SPEC-0004 Phase 2: exact activation/base and eight-path scope; executor shutdown/exclusive transfer; Arthur acceptance; deterministic body normalization/cubic easing/shortest-turn/baked-independent-keyframe behavior; one-frame-only manual ownership; Preview/Cancel/Apply/Undo/Redo/Save/Open and protected regressions; exact 11,493-byte manifest hash; prior 210-check live validation; all 29 durable bindings revalidated after server cleanup; 1,734 assertions; four fixtures; 20 rejection cases; 40 browser flows; eight screenshots; TypeScript/focused-lint/diff and full-lint non-regression proof; zero external/API/provider requests; and no blue-box/product helper.
 
-Not performed or proven: Phase 2 implementation or smooth-motion behavior, broader natural-language matching, Terra/provider/API/paid work, deployment, unified workspace behavior, or any other next feature. The Phase 2 design and Phase 1 fixed fixtures do not by themselves prove the later professional-quality goal.
+Not yet performed or proven: Phase 2 publication/integration or its post-publication clean tester; Phase 2.5 app behavior; broader natural-language matching; Terra/provider/API/paid work; deployment; unified workspace behavior; or professional-quality action-aware timing. The Phase 2 fixed-fixture smoothstep engine does not itself prove future Phase 2.5 fast/slow action timing or the final professional-quality goal.
 
 ## Systems Intentionally Left Unchanged
 

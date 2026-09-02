@@ -1,16 +1,16 @@
 # SPEC-0004 — One-Time Stick Figure AI Animator
 
-Status: **Phase 1 Verified, published, and integrated. Phase 2 Authorized; Not started.** Phases 3–8 remain unauthorized.
+Status: **Phase 1 Verified, published, and integrated. Phase 2 accepted and technically Verified; publication/integration pending.** Phases 3–8 remain unauthorized.
 
 Owner: Arthur
 Spec role: Spec Architect
 Created: 2026-08-31
-Last updated: 2026-09-01
-Decision links: [D-0033, D-0034, D-0035, D-0036, D-0037, and D-0038](../DECISIONS.md)
-Control-plane anchor: Phase 1 publication commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d` from base `9fae072359f3c0d10f1ed2bcee8da9ebc11d54ec`
+Last updated: 2026-09-02
+Decision links: [D-0033 through D-0039](../DECISIONS.md)
+Control-plane anchors: Phase 1 publication commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d`; Phase 2 activation commit and accepted executor base `70bf7b0799bcff8d703525bcb50c378b8a122ebf`
 Related work: [`TODO SPEC-004`](../TODO.md), [`Current State`](../CURRENT_STATE.md), [`Session Handoff`](../SESSION_HANDOFF.md)
 
-> **Lifecycle boundary.** D-0035 authorized **only Phase 1**; D-0036 accepted it, and exact 28-path commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d` published/integrated it after the required clean tester passed. D-0037 now authorizes **only Phase 2**, but its implementation must wait until this docs-only activation is separately reviewed, published, and integrated. No provider/API/key use, paid request, deployment, Phase 3 work, or work in another worktree is authorized. Phases 3–8 each need their own separate authorization after the preceding phase is accepted, integrated, and recorded.
+> **Lifecycle boundary.** D-0035 authorized **only Phase 1**; D-0036 accepted it, and exact 28-path commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d` published/integrated it after the required clean tester passed. D-0037 authorized **only Phase 2**; GIT-034 published that activation in exact commit `70bf7b0799bcff8d703525bcb50c378b8a122ebf`; and D-0039 accepts its exact eight-path technical result. Phase 2 is now technically Verified and ready for a separate publication task, not yet published or integrated. No provider/API/key use, paid request, deployment, Phase 3 work, or work in another worktree is authorized. Phases 3–8 each need their own separate authorization after the preceding phase is accepted, integrated, and recorded.
 
 > **Historical boundary.** SPEC-0001 Phases 1–6, including the accepted deterministic single-stick-figure wave, are completed history and remain unchanged. Old SPEC-0001 Phase 7 is retired under D-0033: it has zero implementation authority. This specification replaces it; it does not revive, import, or approve its old provider policy, costs, commands, proof mechanics, or gates.
 
@@ -367,6 +367,29 @@ Arthur reviews this exact checklist in the private copy:
 
 **Stop boundary.** No natural-language/free matcher, new recipe, Task/Reasoning behavior, Terra/provider/API/paid call, multiple figure, duration/frame/FPS expansion, background, layer management, Drawing change, workspace integration, dashboard/cost implementation, deployment, or post-Apply AI editing is included. Phases 3–8 remain unauthorized.
 
+#### Phase 2 accepted implementation and proof
+
+Arthur reviewed the four ordinary unpublished Phase 2 samples and accepted the result on 2026-09-02. The accepted engine uses the unchanged fixed `wave`, `jump`, `bow`, and `dodge` plans, normalizes the built-in 11-joint/10-segment humanoid, creates cubic-smoothstep shortest-turn in-betweens, and bakes every output slot as a complete independent ordinary keyframe. Phase 1 remains the default route unless the separately named `phase-2-baked-motion` option is selected. No normal chat route, visible control, provider, API, paid request, or post-Apply engine ownership was added.
+
+The exact accepted tracked result is eight paths:
+
+```text
+scripts/fixtures/spec0004-stick/v2/browser-viewports.json
+scripts/fixtures/spec0004-stick/v2/phase2-motion-cases.json
+scripts/spec0004-stick/phase2BrowserProof.ts
+scripts/spec0004-stick/recordPhase2Proof.ts
+scripts/spec0004-stick/validatePhase2Proof.ts
+scripts/validateStickFigureMotionEngine.ts
+src/lib/ai/stickFigureCommandExecutor.ts
+src/lib/ai/stickFigureMotionEngine.ts
+```
+
+The 11,493-byte technical manifest at `output/spec-0004/phase-2/proof-manifest.json` has SHA-256 `a6e656d930781b589a3350abec62000818fade6553638ada0899ec7183b24d3f`. Executor-time independent validation passed 210 checks while all four temporary review servers were live. It binds 10 technical receipts and 19 artifacts: 1,734 deterministic assertions, four valid fixed plans, 20 invalid-motion rejections, 40 browser flows, eight screenshots across two viewports, TypeScript, focused lint, full-lint non-regression at the accepted 5-error/72-warning baseline with zero Phase 2 findings, protected Stick/Drawing behavior, and zero external/API/provider requests. The Control Plane Architect later revalidated all 29 bound receipt/artifact hashes and sizes offline after the temporary review servers stopped; the accepted manifest and all eight tracked technical hashes remained unchanged.
+
+The four review copies had no blue box, fixture picker, query flag, product route, public asset, visible tester control, or permanent product import. Their loopback processes are stopped and their isolated temporary directories are removed. That cleanup is not a proof failure: the preserved successful live validation receipt proves the server-dependent checks, while closeout separately proves all durable hashes, scope, cleanup, and repository state.
+
+Phase 2 is accepted and technically Verified but remains unstaged, uncommitted, unpublished, and unintegrated until its separate publication task. The separately drafted Phase 2.5 Action Timing and Spacing activation remains unpublished outside this worktree and has no app-code authority here. It may be reconciled and published only after Phase 2 is durably integrated. Phase 3 remains unauthorized.
+
 ### Phase 3 — Larger One-Layer Stick Scenes
 
 **Scope.** Add multiple figures in the single existing layer and safe variable FPS/duration/frame count. Maintain white background, derived line heads, one-layer topology, and complete manual editability.
@@ -455,6 +478,6 @@ These gates do not block Phase 2 because it is local, fixed-fixture, single-figu
 
 ## 11. Handoff
 
-Status is **Phase 1 Verified, published, and integrated** in exact 28-path commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d`. GIT-033 is complete. D-0037 authorizes **Phase 2 only** as Authorized; Not started. Phases 3–8 remain unauthorized.
+Phase 1 is Verified, published, and integrated in exact 28-path commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d`. GIT-033 is complete. GIT-034 published the Phase 2 activation in exact commit `70bf7b0799bcff8d703525bcb50c378b8a122ebf`. D-0039 accepts Phase 2's exact eight-path technical result as technically Verified and ready for separate publication; it is not yet committed, published, or integrated. Phases 3–8 remain unauthorized.
 
-The exact next action is separate review/publication/integration of this Phase 2 docs-only activation record. Only after that publication may one new Plan-mode Phase 2 Spec Executor start from the resulting clean canonical-main SHA in a new dedicated worktree and change the exact eight implementation/proof paths above. No provider/API/paid work, deployment, Phase 3 work, or blue private-review-box recreation is authorized.
+The exact next action is GIT-035, a separate Control Plane Architect publication task for the accepted eight Phase 2 technical paths plus the reviewed Phase 2 closeout records. It must commit on the Phase 2 branch, safely fast-forward clean canonical `main`, push normally, run the required clean permanent tester, and verify branch/local-main/origin/live-GitHub equality at clean `0/0`. Only after that may the separately drafted Phase 2.5 activation be reconciled onto current main and published before one new Phase 2.5 executor starts. No Phase 2.5 app code, provider/API/paid work, deployment, Phase 3 work, or blue private-review-box recreation is authorized here.

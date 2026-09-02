@@ -1,7 +1,7 @@
 # Project Manager Context
 
 Status: canonical owner and collaboration context
-Last updated: 2026-09-01
+Last updated: 2026-09-02
 
 ## Ownership, Sponsorship, and PM Collaboration
 
@@ -24,7 +24,8 @@ The latest product direction, captured on 2026-08-09, is:
 - Efficiency and cost matter alongside output quality.
 - Development progress may be shared publicly, so every update must distinguish Proposed, Implemented, and Verified work and must not overstate unfinished capability.
 - A custom Diamond Animator model may be explored later, but it is not required for the immediate product foundation.
-- SPEC-0004 Phase 2 is the current authorized milestone after its activation publication: one hidden local pose/smooth-motion engine that bakes every generated frame into ordinary independently editable Stick data. It must not add a visible tester box, provider, language matcher, or Drawing/workspace change.
+- SPEC-0004 Phase 2 is accepted and technically Verified after Arthur reviewed the four ordinary no-blue-box samples. Its exact eight-path hidden local pose/smooth-motion engine bakes every generated frame into ordinary independently editable Stick data. It remains unpublished pending GIT-035 and adds no provider, language matcher, or Drawing/workspace change.
+- Phase 2.5 is the next planned shared Action Timing and Spacing milestone for both future free recipes and future Terra plans, but its separate activation is still unpublished and no Phase 2.5 app code may start until Phase 2 is published and that activation is reconciled/published.
 - Future Terra economics should prefer compact important-pose/timing plans, local in-betweens, safe $0 recipes first, at most one later bounded pre-Apply repair, measured private-dashboard cost, and monthly budgets/credits rather than unlimited use. Exact provider pricing/policy is a later same-day official-source gate.
 - Arthur is interested in a possible later unified Animation Workspace with one project/timeline/canvas/save/history/AI surface and typed Stick/Drawing layers. This is a future separate-spec question after Phase 2, not current authorization.
 

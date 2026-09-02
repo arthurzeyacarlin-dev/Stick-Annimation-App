@@ -30,7 +30,9 @@ import {
 } from "../stickfigure/stickProjectHistory.ts";
 import {
   STICK_PHASE2_MOTION_MATERIALIZER,
+  STICK_PHASE25_TIMED_MOTION_MATERIALIZER,
   materializeParsedStickAnimationMotionPlan,
+  materializeParsedStickAnimationTimedMotionPlan,
 } from "./stickFigureMotionEngine.ts";
 
 export const STICK_TERMINAL_LEDGER_LIMIT = 128;
@@ -141,15 +143,27 @@ export type StickCommandOperationOutcomeV1 =
     | "failed";
     };
 
-export type StickAnimationPlanMaterializerV1 = "phase-1-holds" | typeof STICK_PHASE2_MOTION_MATERIALIZER;
+export type StickAnimationPlanMaterializerV1 =
+  | "phase-1-holds"
+  | typeof STICK_PHASE2_MOTION_MATERIALIZER
+  | typeof STICK_PHASE25_TIMED_MOTION_MATERIALIZER;
 
 export type StickFigureCommandTransactionOptionsV1 = {
   failurePoint?: StickCommandFailurePointV1 | null;
   candidateHasher?: (document: StickProjectDocumentV1) => Promise<string>;
   animationPlanMaterializer?: StickAnimationPlanMaterializerV1;
+  actionTimingSidecar?: unknown;
 };
 
 const cloneRoot = (root: StickCommandWorkspaceRootV1): StickCommandWorkspaceRootV1 => cloneCanonical(root);
+const INVALID_ACTION_TIMING_SIDECAR = deepFreeze({invalid: true});
+const cloneUntrustedActionTiming = (value: unknown) => {
+  try {
+    return deepFreeze(cloneCanonical(value));
+  } catch {
+    return INVALID_ACTION_TIMING_SIDECAR;
+  }
+};
 
 type StickPreviewSummaryV1 = NonNullable<StickCommandResultV1["previewSummary"]>;
 
@@ -354,6 +368,7 @@ export class StickFigureCommandTransactionV1 {
   #failurePoint: StickCommandFailurePointV1 | null;
   #candidateHasher: (document: StickProjectDocumentV1) => Promise<string>;
   #animationPlanMaterializer: StickAnimationPlanMaterializerV1;
+  #actionTimingSidecar: unknown;
   #operationCounter = 0;
 
   constructor(root: StickCommandWorkspaceRootV1, options: StickFigureCommandTransactionOptionsV1 = {}) {
@@ -361,10 +376,21 @@ export class StickFigureCommandTransactionV1 {
     this.#failurePoint = options.failurePoint ?? null;
     this.#candidateHasher = options.candidateHasher ?? digestCanonical;
     const materializer = options.animationPlanMaterializer ?? "phase-1-holds";
-    if (materializer !== "phase-1-holds" && materializer !== STICK_PHASE2_MOTION_MATERIALIZER) {
+    if (materializer !== "phase-1-holds" && materializer !== STICK_PHASE2_MOTION_MATERIALIZER &&
+      materializer !== STICK_PHASE25_TIMED_MOTION_MATERIALIZER) {
       throw new TypeError("Unknown Stick animation-plan materializer.");
     }
+    const hasActionTiming = Object.prototype.hasOwnProperty.call(options, "actionTimingSidecar");
+    if (materializer === STICK_PHASE25_TIMED_MOTION_MATERIALIZER && !hasActionTiming) {
+      throw new TypeError("The Phase 2.5 materializer requires an action-timing sidecar.");
+    }
+    if (materializer !== STICK_PHASE25_TIMED_MOTION_MATERIALIZER && hasActionTiming) {
+      throw new TypeError("Action timing is accepted only by the Phase 2.5 materializer.");
+    }
     this.#animationPlanMaterializer = materializer;
+    this.#actionTimingSidecar = hasActionTiming
+      ? cloneUntrustedActionTiming(options.actionTimingSidecar)
+      : null;
   }
 
   snapshot() { return cloneRoot(this.#root); }
@@ -380,11 +406,15 @@ export class StickFigureCommandTransactionV1 {
 
   /** Creates an isolated working copy so a caller can prepare one composite publication before making it authoritative. */
   fork() {
-    const next = new StickFigureCommandTransactionV1(this.#root, {
+    const options: StickFigureCommandTransactionOptionsV1 = {
       failurePoint: this.#failurePoint,
       candidateHasher: this.#candidateHasher,
       animationPlanMaterializer: this.#animationPlanMaterializer,
-    });
+    };
+    if (this.#animationPlanMaterializer === STICK_PHASE25_TIMED_MOTION_MATERIALIZER) {
+      options.actionTimingSidecar = this.#actionTimingSidecar;
+    }
+    const next = new StickFigureCommandTransactionV1(this.#root, options);
     next.#previews = new Map([...this.#previews].map(([key, value]) => [key, cloneCanonical(value)]));
     next.#applies = new Map([...this.#applies].map(([key, value]) => [key, cloneCanonical(value)]));
     next.#invalidatedApplies = new Map([...this.#invalidatedApplies].map(([key, value]) => [key, cloneCanonical(value)]));
@@ -515,9 +545,15 @@ export class StickFigureCommandTransactionV1 {
       return this.#failActive(envelope, envelopeDigest, parsed.ok ? "transaction_failed" : parsed.error.code as StickAiErrorCodeV1);
     }
     const candidateResult = parsed.value.kind === "stick-animation-plan"
-      ? this.#animationPlanMaterializer === STICK_PHASE2_MOTION_MATERIALIZER
-        ? await materializeParsedStickAnimationMotionPlan(parsed.value, this.#root.editorRoot.current.snapshot.document)
-        : await materializeParsedStickAnimationPlan(parsed.value, this.#root.editorRoot.current.snapshot.document)
+      ? this.#animationPlanMaterializer === STICK_PHASE25_TIMED_MOTION_MATERIALIZER
+        ? await materializeParsedStickAnimationTimedMotionPlan(
+            parsed.value,
+            this.#actionTimingSidecar,
+            this.#root.editorRoot.current.snapshot.document,
+          )
+        : this.#animationPlanMaterializer === STICK_PHASE2_MOTION_MATERIALIZER
+          ? await materializeParsedStickAnimationMotionPlan(parsed.value, this.#root.editorRoot.current.snapshot.document)
+          : await materializeParsedStickAnimationPlan(parsed.value, this.#root.editorRoot.current.snapshot.document)
       : applyStickManualActions(
           this.#root.editorRoot.current.snapshot.document,
           stickManualActionsFromCommand(parsed.value.commands[0]),

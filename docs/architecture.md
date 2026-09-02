@@ -1,7 +1,7 @@
 # Architecture and System Map
 
 Status: canonical current architecture map
-Last traced: 2026-09-02 through published SPEC-0004 Phases 1 and 2 and D-0040's Phase 2.5 timing/spacing design
+Last traced: 2026-09-02 through published SPEC-0004 Phases 1 and 2, accepted unpublished Phase 2.5 timing bytes, and D-0041's authorized Phase 2.6 action foundation
 
 ## Runtime Overview
 
@@ -54,7 +54,7 @@ The main product screens are not URL routes. `app/page.tsx` owns a `view` union 
 | Drawing project persistence | `src/lib/drawingProjectStorage.ts` | Version-1 localStorage envelope, CRUD, cloning, quota fallback |
 | Drawing AI project memory | `drawingAiProjectMemory.ts`, `drawingProjectAiMemorySync.ts`, memory API route | Per-animation-project semantic memory and optional Supabase sync |
 | Stick workspace | `src/components/workspace/stickfigure/StickFigureWorkspace.tsx` and siblings, `src/lib/stickfigure/stickTimeline.ts`, `stickProjectContract.ts`, `stickProjectHistory.ts`, `stickProjectStorage.ts` | Canonical editable timeline/history/storage root, independent keyframe poses plus owner-resolved holds, manual joint edits, playback/onion, Creator continuity, and the published SPEC-0004 Phase 1 one-time creation latch/transaction wiring. Editing a held slot currently edits its owner content, so Phase 2 generated output must not use holds. |
-| Stick animation plan/executor | `src/lib/ai/stickFigureAiContract.ts`, `stickFigureCommandExecutor.ts`, `stickFigureMotionEngine.ts`, `stickFigureAiWorkspaceAdapter.ts` | Published Phase 6 wave contract plus published SPEC-0004 Phase 1 strict action-neutral fixed-fixture plan. Published Phase 2 adds a separately selected materializer that bakes every generated slot as an independent keyframe; the Phase 1 default and normal route remain unchanged. D-0040's Phase 2.5 contract adds one bounded timing profile per important-pose transition for both future free/Pretend-AI recipes and future Terra original plans, but connects neither route. |
+| Stick animation plan/executor | `src/lib/ai/stickFigureAiContract.ts`, `stickFigureCommandExecutor.ts`, `stickFigureMotionEngine.ts`, `stickFigureAiWorkspaceAdapter.ts` | Published Phase 6 wave contract plus published SPEC-0004 Phase 1 strict action-neutral fixed-fixture plan. Published Phase 2 adds a separately selected independent-keyframe materializer. Accepted unpublished Phase 2.5 adds the strict plan-bound timing sidecar and six bounded profiles while preserving Phase 1/2 defaults. D-0041 authorizes final Phase 2.6 to add the shared action-purity/contact/support/weight/balance foundation before Preview. Neither Phase 2.5 nor Phase 2.6 connects Pretend AI or Terra. |
 | Stick creator | `StickFigureCreatorWorkspace.tsx`, `types.ts` | Standalone local rig-creation experiment; save disconnected |
 | Dev cost visibility | `src/lib/ai/devAiCostDashboard.ts`, `app/dev/ai-costs/**` | Local model-call cost logs and dashboards |
 
@@ -106,7 +106,9 @@ Published SPEC-0004 Phase 1 extends that same root rather than adding a locked A
 
 D-0039's published Phase 2 architecture treats the plan's key poses as input only. The hidden local motion engine normalizes the 11-joint body against starter segment lengths, eases hip and shortest-turn segment angles with deterministic cubic smoothstep, rebuilds the 10-segment tree, and materializes every important/in-between/repeated slot as a complete unique keyframe before Preview. Interpolation state is temporary and discarded; there is no hold/tween owner span, motion payload/controller, hidden AI ownership, lock, or post-Apply regeneration. This is intentionally different from Drawing's persistent position-only motion tween. Phase 1's existing materializer remains the default; the separately named Phase 2 option must be selected explicitly.
 
-D-0040's Phase 2.5 layer binds a strict `stick.action-timing/v1` sidecar to the exact plan and selects one of `ease_in`, `ease_out`, `ease_in_out`, explicit-mechanical `constant`, or paired `impact`/`recovery` for every adjacent important-pose transition. The selected progress drives the same Phase 2 hip/angle rebuild, then disappears when the complete independent frames are baked. The shared future path is identical for free/Pretend-AI recipes and Terra original non-hardcoded plans: important poses → validated timing choice → smooth local in-betweens with fast/slow spacing → ordinary editable frames. Natural-language recognition belongs to Phase 4/6, not the engine. Phase 2.5 adds no route, provider, app UI, live tween, controller, or stored timing payload.
+D-0041 accepts Phase 2.5's exact seven-path result as the timing/spacing primitive only. Its strict `stick.action-timing/v1` sidecar binds to the exact plan and selects one of `ease_in`, `ease_out`, `ease_in_out`, explicit-mechanical `constant`, or paired `impact`/`recovery` for every adjacent important-pose transition. The transaction accepts timing only with the separately named `phase-2.5-timed-motion` materializer, clones/freezes it across `fork()`, rejects missing/cross-materializer timing, hashes the accepted timing into deterministic frame/pose IDs, applies its progress to the unchanged Phase 2 hip/shortest-turn rebuild, and discards the sidecar when complete independent frames are baked. Phase 1 and Phase 2 entry points remain behaviorally protected.
+
+The human review boundary is equally architectural: Phase 2.5 proves timing math, not natural action planning. Its old jump inherited a wave hand and floated, its bow was too compressed, and its dodge reversed while both feet slid. D-0041 authorizes one final Phase 2.6 `stick.action-foundation/v1` layer shared by future free/Pretend-AI recipes and Terra plans. It binds action-pure ordered beats, complete poses, contact/support/weight/balance/landing recovery, the accepted timing sidecar, and exact plan; validates before and after baking; and fails closed before Preview. Phase 2.6 adds no route, language interpretation, provider/API call, app UI, live tween/controller, stored action metadata, or Phase 2.7.
 
 Stick saved record version 2 stores that latch beside the editable document/view state. Existing record version 1 remains readable and conservatively defaults to consumed; opening does not rewrite it, while a normal explicit Save writes version 2. After successful Apply, later AI submissions return `AI editing comes later; use manual tools.` before executor/provider work. The normal published chat still recognizes only its prior wave wording; natural-language routing for the broader engine is a later phase.
 
@@ -150,7 +152,7 @@ Incidental cleanup inside these files is prohibited unless the active spec inclu
 - complete, versioned project schema and migrations
 - durable autosave/recovery and project-file import/export
 - unified render/composite contract across edit, playback, save, reopen, and export
-- broader Stick scene/motion/language/model behavior beyond the accepted one-time single-figure fixed-fixture Phase 1 engine
+- broader Stick scene/language/model behavior beyond published Phases 1–2 and the accepted unpublished Phase 2.5 timing primitive; D-0041's authorized Phase 2.6 action foundation is not implemented
 - general AI editing, recoloring, continuation, and multi-step transaction semantics after Apply
 - authenticated user/project ownership and rate limiting
 - repeatable unit/integration/E2E suite and CI

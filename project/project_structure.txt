@@ -236,6 +236,8 @@
 ./scripts/fixtures/spec0004-stick/v2
 ./scripts/fixtures/spec0004-stick/v2/browser-viewports.json
 ./scripts/fixtures/spec0004-stick/v2/phase2-motion-cases.json
+./scripts/fixtures/spec0004-stick/v3
+./scripts/fixtures/spec0004-stick/v3/phase25-timing-cases.json
 ./scripts/fixtures/stick-ai
 ./scripts/fixtures/stick-ai/v1
 ./scripts/fixtures/stick-ai/v1/canonical-hash-vectors.json
@@ -343,10 +345,13 @@
 ./scripts/spec0003-tutorials/browserProofContract.ts
 ./scripts/spec0004-stick
 ./scripts/spec0004-stick/phase1BrowserProof.ts
+./scripts/spec0004-stick/phase25BrowserProof.ts
 ./scripts/spec0004-stick/phase2BrowserProof.ts
 ./scripts/spec0004-stick/recordPhase1Proof.ts
+./scripts/spec0004-stick/recordPhase25Proof.ts
 ./scripts/spec0004-stick/recordPhase2Proof.ts
 ./scripts/spec0004-stick/validatePhase1Proof.ts
+./scripts/spec0004-stick/validatePhase25Proof.ts
 ./scripts/spec0004-stick/validatePhase2Proof.ts
 ./scripts/sync_docs_to_github.sh
 ./scripts/traceExplosionLivePath.ts
@@ -373,6 +378,7 @@
 ./scripts/validateSpec0001ProofBundle.ts
 ./scripts/validateSpec0002Proof.ts
 ./scripts/validateSpec0003TutorialsProof.ts
+./scripts/validateStickFigureActionTiming.ts
 ./scripts/validateStickFigureAiContracts.ts
 ./scripts/validateStickFigureAiMockRoute.ts
 ./scripts/validateStickFigureAiUiAdapter.ts

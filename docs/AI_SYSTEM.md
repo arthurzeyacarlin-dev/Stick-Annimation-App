@@ -1,7 +1,7 @@
 # AI System Snapshot
 
 Status: canonical current AI architecture and gap map
-Last traced: 2026-09-02 through published SPEC-0004 Phases 1 and 2 and D-0040's Phase 2.5 timing/spacing contract
+Last traced: 2026-09-02 through published SPEC-0004 Phases 1 and 2, accepted unpublished Phase 2.5 timing bytes, and D-0041's authorized Phase 2.6 action foundation
 
 ## What Exists Today
 
@@ -11,7 +11,9 @@ The Stick workspace separately has the published deterministic Phase 6 wave chat
 
 GIT-035 published D-0039's exact Phase 2 result in commit `e3ec6a33438c2f3d2e075b6477f18b8eb1b58e24`. Phase 2 normalizes the unchanged fixed plans' important poses, creates deterministic cubic-eased shortest-turn in-betweens, and bakes every output slot into its own ordinary Stick keyframe before Preview. It deliberately adds no natural-language route, recipe catalog, Terra/provider/API call, working Task/Reasoning control, or normal visible UI. Phase 1 remains the default transaction behavior unless the separately named Phase 2 materializer is selected.
 
-D-0040 authorizes the next local Phase 2.5 timing layer, and GIT-036 published its docs-only activation at `a755f892d7737c6a10d9c381ec59c1e2fdba4d47`. Its strict plan-bound sidecar supplies one supported profile for each adjacent important-pose transition: acceleration/ease-in, deceleration/ease-out, natural ease-in-out, explicit-mechanical constant, or paired impact/recovery. Both later free/Pretend-AI recipes and future Terra original non-hardcoded plans must use the same engine sequence: important key poses → validated timing choice → smooth local in-betweens with fast/slow spacing → independent editable Stick frames. Phase 2.5 connects neither route and makes no model/API request. Language matching belongs to Phase 4; Terra planning belongs to Phase 6.
+D-0041 accepts the exact seven-path Phase 2.5 result as the shared timing/spacing primitive only. Its strict plan-bound sidecar supplies one supported profile for each adjacent important-pose transition: acceleration/ease-in, deceleration/ease-out, natural ease-in-out, explicit-mechanical constant, or paired impact/recovery. The 14,601-byte manifest at SHA-256 `783e6396cf994ce48fb9d7c94dc58674594dd545f888a9c25fe3c1f654a788d1` passed 250 independent checks. The old review samples are not accepted natural-action evidence: their action poses, frame allocations, contact, and weight were wrong even though the timing formulas passed.
+
+D-0041 also authorizes final Phase 2.6, `stick.action-foundation/v1`, as Approved/Authorized/Not started behind GIT-037 publication. Both later free/Pretend-AI recipes and future Terra original plans must use the same engine sequence: action-pure important poses and contact/weight facts → accepted timing choice → locally validated/baked independent editable Stick frames → Preview. Phase 2.6 covers wave, jump/hop, bow, dodge, walk, run, and a general `reach_up` structural case with explicit no-extra-action negatives and mechanically tied balance motion. Neither Phase 2.5 nor Phase 2.6 connects a chat/recipe route, makes a model/API call, or adds UI. Language matching remains Phase 4; Terra planning remains Phase 6; no Phase 2.7 exists.
 
 There is no custom-trained Diamond Animator LLM, fine-tuning pipeline, embeddings system, vector database, or model-serving stack in this repository.
 
@@ -74,6 +76,8 @@ The accepted browser proof used a blue fixture picker injected into an isolated 
 
 Phase 2's private review followed the stricter rule: Arthur saw four separate disposable loopback copies/links preloaded with wave, jump, bow, and dodge one at a time and only the ordinary Stick canvas, timeline, AI transaction area, and manual tools. No query-controlled review surface, tester overlay/control, product route, public asset, or review import was added. The temporary review servers are stopped and their isolated copies are removed.
 
+Phase 2.5 keeps Phase 1 and Phase 2 behavior as the defaults and adds only the separately selected `phase-2.5-timed-motion` transaction option. Timing input is strict, cloned/frozen, bound to the canonical plan digest, preserved through transaction forks, used for deterministic baked-frame IDs and interpolation progress, and discarded before the candidate reaches Preview. Its four ordinary review process groups and isolated copies are stopped/removed; their durable proof remains. Phase 2.6 will add the final shared pose/intent/contact/weight validator only after GIT-037 and a fresh Plan-mode executor; it is not current runtime behavior.
+
 ## Generate Frames Execution Path
 
 ```text
@@ -129,7 +133,8 @@ Existing mechanisms:
 - local model-call logging and dev dashboards under `/dev/ai-costs`
 - the accepted SPEC-0004 Phase 1 Stick fixture engine costs $0 and records zero API/provider requests
 - the published Phase 2 motion engine remains fully local/$0/provider-free; it sends no prompt or project data anywhere
-- the authorized Phase 2.5 timing design is fully local/$0/provider-free; it sends no prompt or project data anywhere
+- the accepted unpublished Phase 2.5 timing primitive is fully local/$0/provider-free; it sends no prompt or project data anywhere
+- the authorized but unimplemented Phase 2.6 action foundation is also local/provider-free by contract and cannot connect chat, Pretend AI, or Terra
 - D-0038 preserves a future cost strategy only: compact Terra key-pose/timing plans, local in-betweens, safe free recipes first, at most one later bounded pre-Apply repair, measured dashboard usage, monthly budgets/credits, and no unlimited Terra. Exact pricing/model/privacy must be freshly checked at the later paid gate.
 
 In local development, the cost log writes the full user prompt along with request/model/usage metadata to `.local/ai-cost-dashboard/requests.jsonl`. That directory is ignored by Git, but no approved redaction or retention policy exists.

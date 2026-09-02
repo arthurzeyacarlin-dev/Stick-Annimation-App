@@ -9,6 +9,7 @@ import {
 import {
   STICK_JOINT_ROLES,
   cloneCanonical,
+  digestCanonical,
   parseStickProjectDocument,
   projectStickAnimationContent,
   type StickJointRoleV1,
@@ -25,6 +26,34 @@ export const STICK_PHASE2_OUTPUT_LENGTH_TOLERANCE_PX = 2;
 export const STICK_PHASE2_MAX_HIP_TRAVEL_PX = 480;
 export const STICK_PHASE2_MAX_SEGMENT_TURN_DEGREES = 170;
 export const STICK_PHASE2_HEAD_EDGE_MARGIN_PX = 40;
+export const STICK_ACTION_TIMING_CONTRACT_VERSION = "stick.action-timing/v1" as const;
+export const STICK_PHASE25_TIMED_MOTION_MATERIALIZER = "phase-2.5-timed-motion" as const;
+export const STICK_ACTION_TIMING_PROFILES = [
+  "ease_in",
+  "ease_out",
+  "ease_in_out",
+  "constant",
+  "impact",
+  "recovery",
+] as const;
+
+export type StickActionTimingProfileV1 = typeof STICK_ACTION_TIMING_PROFILES[number];
+export type StickActionTimingMotionIntentV1 = "natural" | "mechanical_explicit";
+export type StickActionTimingTransitionV1 = {
+  fromPoseName: string;
+  fromFrameIndex: number;
+  toPoseName: string;
+  toFrameIndex: number;
+  profile: StickActionTimingProfileV1;
+};
+export type StickActionTimingSidecarV1 = {
+  contractVersion: typeof STICK_ACTION_TIMING_CONTRACT_VERSION;
+  projectId: string;
+  transactionId: string;
+  planSha256: string;
+  motionIntent: StickActionTimingMotionIntentV1;
+  transitions: StickActionTimingTransitionV1[];
+};
 
 type RolePoint = {x: number; y: number};
 type RolePointMap = Record<StickJointRoleV1, RolePoint>;
@@ -53,6 +82,136 @@ const motionFailure = (path: string, message: string): MotionError => ({
   ok: false,
   error: {code: "transaction_failed", path, message},
 });
+
+const exactDataRecord = (
+  value: unknown,
+  exactKeys: readonly string[],
+  path: string,
+): StickAiContractResult<Record<string, unknown>> => {
+  if (value === null || typeof value !== "object" || Array.isArray(value) || Object.getPrototypeOf(value) !== Object.prototype) {
+    return motionFailure(path, "Expected a strict plain JSON object.");
+  }
+  const ownKeys = Reflect.ownKeys(value);
+  if (ownKeys.some((key) => typeof key !== "string") ||
+    ownKeys.length !== exactKeys.length ||
+    [...ownKeys].sort().some((key, index) => key !== [...exactKeys].sort()[index])) {
+    return motionFailure(path, "Object fields must match the timing contract exactly.");
+  }
+  for (const key of ownKeys as string[]) {
+    const descriptor = Object.getOwnPropertyDescriptor(value, key);
+    if (!descriptor || !("value" in descriptor) || !descriptor.enumerable) {
+      return motionFailure(`${path}.${key}`, "Timing fields must be enumerable data properties.");
+    }
+  }
+  return {ok: true, value: value as Record<string, unknown>};
+};
+
+export const evaluateStickActionTimingProfile = (profile: StickActionTimingProfileV1, u: number) => {
+  if (!Number.isFinite(u) || u < 0 || u > 1) throw new RangeError("Timing progress must be finite and inside 0..1.");
+  switch (profile) {
+    case "ease_in": return u * u;
+    case "ease_out": return 1 - (1 - u) * (1 - u);
+    case "ease_in_out": return 3 * u * u - 2 * u * u * u;
+    case "constant": return u;
+    case "impact": return u * u * u;
+    case "recovery": return 1 - (1 - u) * (1 - u) * (1 - u);
+  }
+};
+
+export const canonicalStickAnimationPlanSha256 = async (plan: StickAnimationPlanV1) =>
+  (await digestCanonical(plan)).slice("sha256:".length);
+
+/** Strictly validates the temporary plan-bound Phase 2.5 timing sidecar. */
+export const parseStickActionTimingSidecar = async (
+  value: unknown,
+  plan: StickAnimationPlanV1,
+): Promise<StickAiContractResult<StickActionTimingSidecarV1>> => {
+  try {
+    cloneCanonical(value);
+  } catch {
+    return motionFailure("$timing", "Timing must be strict dense canonical JSON without accessors or extra array fields.");
+  }
+  const rootResult = exactDataRecord(value, [
+    "contractVersion", "projectId", "transactionId", "planSha256", "motionIntent", "transitions",
+  ], "$timing");
+  if (!rootResult.ok) return rootResult;
+  const root = rootResult.value;
+  if (root.contractVersion !== STICK_ACTION_TIMING_CONTRACT_VERSION) {
+    return motionFailure("$timing.contractVersion", "Unknown action-timing contract version.");
+  }
+  if (root.projectId !== plan.projectId) {
+    return motionFailure("$timing.projectId", "Timing project identity does not match the plan.");
+  }
+  if (root.transactionId !== plan.transactionId) {
+    return motionFailure("$timing.transactionId", "Timing transaction identity does not match the plan.");
+  }
+  const expectedPlanSha256 = await canonicalStickAnimationPlanSha256(plan);
+  if (typeof root.planSha256 !== "string" || !/^[0-9a-f]{64}$/.test(root.planSha256) || root.planSha256 !== expectedPlanSha256) {
+    return motionFailure("$timing.planSha256", "Timing plan SHA-256 does not match the canonical parsed plan.");
+  }
+  if (root.motionIntent !== "natural" && root.motionIntent !== "mechanical_explicit") {
+    return motionFailure("$timing.motionIntent", "Unknown motion intent.");
+  }
+  if (!Array.isArray(root.transitions)) {
+    return motionFailure("$timing.transitions", "Timing transitions must be an ordered array.");
+  }
+  const importantCommands = plan.commands.filter(
+    (command): command is StickAnimationCreateKeyPoseCommandV1 => command.type === "create_key_pose",
+  );
+  if (root.transitions.length !== importantCommands.length - 1) {
+    return motionFailure("$timing.transitions", "Timing must cover every adjacent important-pose transition exactly once.");
+  }
+  const transitions: StickActionTimingTransitionV1[] = [];
+  for (let index = 0; index < root.transitions.length; index += 1) {
+    const path = `$timing.transitions[${index}]`;
+    const transitionResult = exactDataRecord(root.transitions[index], [
+      "fromPoseName", "fromFrameIndex", "toPoseName", "toFrameIndex", "profile",
+    ], path);
+    if (!transitionResult.ok) return transitionResult;
+    const transition = transitionResult.value;
+    const from = importantCommands[index];
+    const to = importantCommands[index + 1];
+    if (transition.fromPoseName !== from.poseName || transition.fromFrameIndex !== from.frameIndex ||
+      transition.toPoseName !== to.poseName || transition.toFrameIndex !== to.frameIndex) {
+      return motionFailure(path, "Timing transition does not name the exact adjacent important-pose pair in plan order.");
+    }
+    if (typeof transition.profile !== "string" ||
+      !(STICK_ACTION_TIMING_PROFILES as readonly string[]).includes(transition.profile)) {
+      return motionFailure(`${path}.profile`, "Unknown or missing timing profile.");
+    }
+    const profile = transition.profile as StickActionTimingProfileV1;
+    if (root.motionIntent === "natural" && profile === "constant") {
+      return motionFailure(`${path}.profile`, "Natural motion may not use the constant profile.");
+    }
+    transitions.push({
+      fromPoseName: transition.fromPoseName as string,
+      fromFrameIndex: transition.fromFrameIndex as number,
+      toPoseName: transition.toPoseName as string,
+      toFrameIndex: transition.toFrameIndex as number,
+      profile,
+    });
+  }
+  for (let index = 0; index < transitions.length; index += 1) {
+    const profile = transitions[index].profile;
+    if (profile === "impact" && transitions[index + 1]?.profile !== "recovery") {
+      return motionFailure(`$timing.transitions[${index}].profile`, "Impact must be immediately followed by recovery.");
+    }
+    if (profile === "recovery" && transitions[index - 1]?.profile !== "impact") {
+      return motionFailure(`$timing.transitions[${index}].profile`, "Recovery must be immediately preceded by impact.");
+    }
+  }
+  return {
+    ok: true,
+    value: cloneCanonical({
+      contractVersion: STICK_ACTION_TIMING_CONTRACT_VERSION,
+      projectId: root.projectId,
+      transactionId: root.transactionId,
+      planSha256: root.planSha256,
+      motionIntent: root.motionIntent,
+      transitions,
+    }) as StickActionTimingSidecarV1,
+  };
+};
 
 const rolePointsFromPose = (document: StickProjectDocumentV1, pose: StickPoseV1): RolePointMap => {
   const result = {} as RolePointMap;
@@ -225,24 +384,31 @@ const validateImportantPosePair = (
 
 const smoothstep = (u: number) => 3 * u * u - 2 * u * u * u;
 
-const deriveMotionHex = async (plan: StickAnimationPlanV1, slot: string) => {
+const deriveMotionHex = async (
+  plan: StickAnimationPlanV1,
+  slot: string,
+  timingDigest: string | null = null,
+) => {
   const bytes = new TextEncoder().encode([
-    "diamond-animator/spec-0004-phase-2/v1",
+    timingDigest === null
+      ? "diamond-animator/spec-0004-phase-2/v1"
+      : "diamond-animator/spec-0004-phase-2.5/v1",
     plan.projectId,
     plan.transactionId,
+    ...(timingDigest === null ? [] : [timingDigest]),
     slot,
   ].join("\0"));
   const digest = new Uint8Array(await globalThis.crypto.subtle.digest("SHA-256", bytes));
   return [...digest].map((byte) => byte.toString(16).padStart(2, "0")).join("");
 };
 
-const deriveMotionFrameId = async (plan: StickAnimationPlanV1, frameIndex: number) => {
-  const hex = await deriveMotionHex(plan, `frame:${frameIndex}`);
+const deriveMotionFrameId = async (plan: StickAnimationPlanV1, frameIndex: number, timingDigest: string | null) => {
+  const hex = await deriveMotionHex(plan, `frame:${frameIndex}`, timingDigest);
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-4${hex.slice(13, 16)}-8${hex.slice(17, 20)}-${hex.slice(20, 32)}`;
 };
 
-const deriveMotionPoseId = async (plan: StickAnimationPlanV1, frameIndex: number) =>
-  `pose_${(await deriveMotionHex(plan, `pose:${frameIndex}`)).slice(0, 32)}`;
+const deriveMotionPoseId = async (plan: StickAnimationPlanV1, frameIndex: number, timingDigest: string | null) =>
+  `pose_${(await deriveMotionHex(plan, `pose:${frameIndex}`, timingDigest)).slice(0, 32)}`;
 
 const posePoints = (
   starter: StickProjectDocumentV1,
@@ -295,10 +461,10 @@ export const assertIndependentBakedStickMotion = (document: StickProjectDocument
     projectStickAnimationContent(parsed.value).ok;
 };
 
-/** Materializes a parsed Phase 1 plan as complete independent Phase 2 keyframes. */
-export const materializeParsedStickAnimationMotionPlan = async (
+const materializeParsedStickAnimationMotionPlanInternal = async (
   plan: StickAnimationPlanV1,
   starter: StickProjectDocumentV1,
+  actionTiming: StickActionTimingSidecarV1 | null = null,
 ): Promise<StickAiContractResult<StickProjectDocumentV1>> => {
   const timing = plan.commands[0];
   if (timing?.type !== "set_timing") return motionFailure("$plan.commands[0]", "Timing is missing.");
@@ -337,7 +503,9 @@ export const materializeParsedStickAnimationMotionPlan = async (
         continue;
       }
       const u = (frameIndex - from.frameIndex) / (to.frameIndex - from.frameIndex);
-      const eased = smoothstep(u);
+      const eased = actionTiming === null
+        ? smoothstep(u)
+        : evaluateStickActionTimingProfile(actionTiming.transitions[poseIndex].profile, u);
       const hip = {
         x: from.hip.x + (to.hip.x - from.hip.x) * eased,
         y: from.hip.y + (to.hip.y - from.hip.y) * eased,
@@ -370,10 +538,11 @@ export const materializeParsedStickAnimationMotionPlan = async (
     return motionFailure("$motion.frames", "The motion engine did not fill the exact requested timeline.");
   }
 
+  const timingDigest = actionTiming === null ? null : await digestCanonical(actionTiming);
   const frameIds = await Promise.all(framePoints.map((_, frameIndex) =>
-    starter.layers[0].cells[frameIndex]?.frameId ?? deriveMotionFrameId(plan, frameIndex),
+    starter.layers[0].cells[frameIndex]?.frameId ?? deriveMotionFrameId(plan, frameIndex, timingDigest),
   ));
-  const poseIds = await Promise.all(framePoints.map((_, frameIndex) => deriveMotionPoseId(plan, frameIndex)));
+  const poseIds = await Promise.all(framePoints.map((_, frameIndex) => deriveMotionPoseId(plan, frameIndex, timingDigest)));
   const cells: StickTimelineCellV1[] = framePoints.map((points, index) => ({
     frameId: frameIds[index],
     index,
@@ -407,6 +576,12 @@ export const materializeParsedStickAnimationMotionPlan = async (
   return {ok: true, value: parsed.value};
 };
 
+/** Materializes a parsed Phase 1 plan as complete independent Phase 2 keyframes. */
+export const materializeParsedStickAnimationMotionPlan = async (
+  plan: StickAnimationPlanV1,
+  starter: StickProjectDocumentV1,
+) => materializeParsedStickAnimationMotionPlanInternal(plan, starter);
+
 /** Separately named, hidden Phase 2 entry point. The Phase 1 materializer remains unchanged. */
 export const materializeStickAnimationMotionPlan = async (
   value: unknown,
@@ -414,4 +589,23 @@ export const materializeStickAnimationMotionPlan = async (
 ): Promise<StickAiContractResult<StickProjectDocumentV1>> => {
   const parsed = await parseStickAnimationPlan(value, starter);
   return parsed.ok ? materializeParsedStickAnimationMotionPlan(parsed.value, starter) : parsed;
+};
+
+/** Separately named Phase 2.5 entry point; timing is validated and discarded after baking. */
+export const materializeParsedStickAnimationTimedMotionPlan = async (
+  plan: StickAnimationPlanV1,
+  actionTiming: unknown,
+  starter: StickProjectDocumentV1,
+): Promise<StickAiContractResult<StickProjectDocumentV1>> => {
+  const timing = await parseStickActionTimingSidecar(actionTiming, plan);
+  return timing.ok ? materializeParsedStickAnimationMotionPlanInternal(plan, starter, timing.value) : timing;
+};
+
+export const materializeStickAnimationTimedMotionPlan = async (
+  value: unknown,
+  actionTiming: unknown,
+  starter: StickProjectDocumentV1,
+): Promise<StickAiContractResult<StickProjectDocumentV1>> => {
+  const parsed = await parseStickAnimationPlan(value, starter);
+  return parsed.ok ? materializeParsedStickAnimationTimedMotionPlan(parsed.value, actionTiming, starter) : parsed;
 };

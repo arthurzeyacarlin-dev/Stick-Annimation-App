@@ -5,6 +5,18 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-02 — SPEC-0004 Phase 2.5 accepted for timing; final Phase 2.6 authorized
+
+- recorded D-0041: Arthur accepts and closes the stopped exact seven-path Phase 2.5 result only as the shared timing/spacing primitive; its `stick.action-timing/v1` validator and separately selected local materializer remain provider-free and bake complete independent ordinary editable Stick keyframes
+- preserved the exact 14,601-byte manifest at SHA-256 `783e6396cf994ce48fb9d7c94dc58674594dd545f888a9c25fe3c1f654a788d1`, all seven accepted source hashes, 21 artifact bindings, 12 technical receipts, and the successful 250-check independent live validation
+- recorded the binding natural-action rejection: the jump retained a wave-hand pose and floated, the roughly one-third-second bow lacked a readable settle, and the dodge instantly reversed while its feet slid; those samples are not accepted natural-motion evidence
+- imported the reviewed Phase 2.6 amendment from source SHA-256 `dc7f968b0aab4a44bd3f70557a1b0e708a974cd2dd1c9050775ec56cfed83e56` and reconciled lifecycle facts only: D-0041 makes the one final `stick.action-foundation/v1` phase decision-complete and Approved/Authorized/Not started behind GIT-037; no Phase 2.7 exists
+- bounded Phase 2.6 to action-pure important poses, contact/support/weight/body mechanics, exact 12-FPS allocations, the accepted Phase 2.5 timing sidecar, pre-Preview fail-closed validation, complete ordinary keyframes, six ordinary non-3000 links only after the permanent browser tester passes, and the exact eight-path ceiling
+- stopped the four exact Phase 2.5 review process groups and child processes, confirmed ports `52187`, `52204`, `52222`, and `52240` closed, removed only the four exact disposable review directories, and preserved durable proof output
+- updated only the active spec, current-state/TODO/decision/changelog/handoff/spec-registry records, directly affected architecture/AI/testing/PM maps, and generated project structure; opened GIT-037 for the later exact publication of seven accepted technical paths plus 12 reviewed control-plane/tree paths
+
+This Control Plane Architect closeout does not alter an accepted technical byte, stage, commit, merge, push, publish, deploy, start Phase 2.6, create Phase 2.7, contact a provider/API/Terra service, incur cost, or change unrelated product systems. Publication remains a separate explicitly authorized task.
+
 ### 2026-09-02 — SPEC-0004 Phase 2.5 activation published
 
 - published the reviewed D-0040 docs-only activation in exact 11-document commit `a755f892d7737c6a10d9c381ec59c1e2fdba4d47`, parent `2d94cd79f0af16bfa3010c6f3dfc74fd13f7471c`, message `Authorize SPEC-0004 Phase 2.5 timing engine`

@@ -1,7 +1,7 @@
 # Roadmap
 
 Status: canonical ordered direction; not a delivery schedule
-Last updated: 2026-08-09
+Last updated: 2026-09-04
 
 ## Roadmap Rules
 
@@ -69,6 +69,8 @@ Goals:
 
 Arthur's latest direction is AI-first, with advanced direct controls available for inspection and fine-tuning. The exact sequencing is still pending P-0008: Phase 2 and Phase 3 may interleave as a narrow AI-first vertical slice once the shared model, reversible executor, and minimum corrective controls exist. This roadmap does not silently require completing an Adobe-class manual editor before any AI stick workflow.
 
+Current shared-motion prerequisite: SPEC-0004 Phases 1, 2, and timing-only 2.5 are published/integrated. Its unpublished Phase 2.6 result was rejected and is superseded by decision-complete SPEC-0005. SPEC-0005 now owns the seven-step movement-goal → whole-body pose → support/weight → natural path/timing → locomotion → semantic action → provider-free planner-door foundation. It preserves ordinary independent editable keyframes and must be completed phase-by-phase before broader SPEC-0004 scene/provider work resumes.
+
 ## Phase 3 — AI-First Stick Animation
 
 Status: planned
@@ -83,6 +85,8 @@ Goals:
 - expose honest capability and failure states to beginners
 
 The AI path must manipulate the same state and history as manual tools.
+
+SPEC-0004 is explicitly paused before its Phase 3 until all seven SPEC-0005 phases are accepted, published, and integrated. This dependency does not authorize the later real Terra/provider phase, move its cost/privacy gates, or connect a live provider during SPEC-0005.
 
 ## Phase 4 — Professional Product Completion
 

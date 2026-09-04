@@ -116,6 +116,7 @@
 ./docs/specs/0002-lossless-local-drawing-save-and-reopen.md
 ./docs/specs/0003-tutorials-and-cleaner-home-screen.md
 ./docs/specs/0004-future-real-ai-animator-requirements.md
+./docs/specs/0005-professional-shared-stick-motion-engine.md
 ./docs/specs/README.md
 ./docs/specs/TEMPLATE.md
 ./docs/testing_workflow.md

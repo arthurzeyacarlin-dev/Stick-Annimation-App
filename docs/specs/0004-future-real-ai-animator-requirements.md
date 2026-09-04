@@ -1,24 +1,24 @@
 # SPEC-0004 — One-Time Stick Figure AI Animator
 
-Status: **Phases 1, 2, and timing-only Phase 2.5 are Verified, published, and integrated. Phase 2.6 is decision-complete/Not started and awaiting Arthur's separate implementation authorization under D-0042.** Phases 3–8 remain unauthorized. No Phase 2.7 exists.
+Status: **Phases 1, 2, and timing-only Phase 2.5 are Verified, published, and integrated. The unpublished Phase 2.6 executor result was rejected and Phase 2.6's intended job is superseded by SPEC-0005 under D-0043. SPEC-0004 is paused before Phase 3 until SPEC-0005 is accepted, published, and integrated.** Phases 3–8 remain unauthorized. No Phase 2.7 exists.
 
 Owner: Arthur
 Spec role: Spec Architect
 Created: 2026-08-31
-Last updated: 2026-09-02
-Decision links: [D-0033 through D-0042](../DECISIONS.md)
+Last updated: 2026-09-04
+Decision links: [D-0033 through D-0043](../DECISIONS.md)
 Control-plane anchors: Phase 1 publication commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d`; Phase 2 activation commit and accepted executor base `70bf7b0799bcff8d703525bcb50c378b8a122ebf`; Phase 2.5 accepted base `f131e75aafccec0d1b8ecb717e2d95b518355d39`; Phase 2.5 exact 19-path publication commit `16799539fb7db31e345a878aa892d4485115188b`; reviewed Phase 2.6 source SHA-256 before lifecycle reconciliation `dc7f968b0aab4a44bd3f70557a1b0e708a974cd2dd1c9050775ec56cfed83e56`
 Related work: [`TODO SPEC-004`](../TODO.md), [`Current State`](../CURRENT_STATE.md), [`Session Handoff`](../SESSION_HANDOFF.md)
 
 > **Lifecycle boundary.** D-0035 authorized **only Phase 1**; D-0036 accepted it, and exact 28-path commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d` published/integrated it. D-0037 authorized **only Phase 2**; GIT-034 published that activation at `70bf7b0799bcff8d703525bcb50c378b8a122ebf`; D-0039 accepted the exact eight-path result; and GIT-035 published/integrated it in exact 20-path commit `e3ec6a33438c2f3d2e075b6477f18b8eb1b58e24`. GIT-036 published the reconciled Phase 2.5 activation at `a755f892d7737c6a10d9c381ec59c1e2fdba4d47`. No Phase 2.5 app code, provider/API/key use, paid request, deployment, Phase 3 work, or work in another worktree was included.
 > **Phase 2.5 evidence boundary.** D-0040 authorized **Phase 2.5 — Action Timing and Spacing Engine** and its seven-path executor ran from clean canonical `f131e75aafccec0d1b8ecb717e2d95b518355d39`. The formulas, strict `stick.action-timing/v1` binding, six profiles, independent-frame baking, and technical proof passed. Arthur rejected the human review samples as unnatural because their action plans, key poses, frame allocations, contacts, and weight mechanics were wrong. D-0041 accepts and closes Phase 2.5 narrowly as the timing/spacing primitive it actually proves; its old fixture poses and review samples remain rejected as natural-action evidence. GIT-037 published the exact seven accepted technical paths plus 12 reviewed records/tree paths in `16799539fb7db31e345a878aa892d4485115188b`.
-> **Phase 2.6 authorization boundary.** D-0041 makes **Phase 2.6 — Natural Action Planning, Weight, and Intent Guard** decision-complete. D-0042 preserves that reviewed contract but records implementation as Not started and awaiting Arthur's separate authorization; no executor is authorized or active. Phase 2.6 is the final planned shared-motion-foundation correction; there is no Phase 2.7. It connects neither normal chat nor Pretend AI nor Terra and makes no provider/API/paid request.
+> **Phase 2.6 supersession boundary.** One executor later produced the former exact eight-path Phase 2.6 result from canonical `4c1da7fa4ea14ed82af950f7ed748b86387a7e0a`. Its technical manifest was green, but Arthur rejected the visible motion. No Phase 2.6 byte was accepted, propagated, published, or integrated. D-0043 supersedes Phase 2.6's intended shared-motion job with [`SPEC-0005`](0005-professional-shared-stick-motion-engine.md); the former Phase 2.6 text and rejected worktree remain historical evidence with zero implementation authority.
 
 > **Historical boundary.** SPEC-0001 Phases 1–6, including the accepted deterministic single-stick-figure wave, are completed history and remain unchanged. Old SPEC-0001 Phase 7 is retired under D-0033: it has zero implementation authority. This specification replaces it; it does not revive, import, or approve its old provider policy, costs, commands, proof mechanics, or gates.
 
 ## 1. Plain-language outcome
 
-SPEC-0004 is for the **Stick Figure Workspace only**. It will eventually let a person ask for one new stick animation on an eligible fresh Stick project, examine a temporary preview, and either Apply or Cancel it. Applying creates the complete animation as one undoable human-editable change. The person can then use the normal manual tools, Save/Open, Undo, and Redo. The AI does not edit, recolor, or refine that accepted animation later; that is future **SPEC-0005** work.
+SPEC-0004 is for the **Stick Figure Workspace only**. It will eventually let a person ask for one new stick animation on an eligible fresh Stick project, examine a temporary preview, and either Apply or Cancel it. Applying creates the complete animation as one undoable human-editable change. The person can then use the normal manual tools, Save/Open, Undo, and Redo. The AI does not edit, recolor, or refine that accepted animation later; follow-up AI editing remains future work outside SPEC-0004 and SPEC-0005.
 
 Arthur's long-term product test is: an AI-assisted animation should be faster and better than his roughly week-long manual process, with a usable result finished in one day or less. This is a product-quality target, not a compilation claim. The release evidence must record a rapid first editable preview, readable smooth motion without broken bodies, a representative prompt set, and Arthur's final side-by-side quality acceptance. No phase may claim a professional result, a one-day result, or a “better than Arthur” result merely because code or a mechanical validator passes.
 
@@ -59,7 +59,7 @@ The stopped Phase 2.5 executor worktree was inspected read-only; no byte there w
 4. The dodge reached one extreme frame and reversed at maximum speed while both feet slid.
 5. Phase 2.5's formulas worked as specified. Timing curves cannot invent action knowledge, support/contact, weight, balance, anticipation, landing mechanics, or intent purity when the supplied poses and allocations omit them.
 
-Phase 2.6 owns this missing foundation in one bounded shared contract. The rejected samples are evidence, not accepted product behavior and not a reason to rewrite the published timing primitive or falsely promote it as natural-action proof.
+SPEC-0005 now owns this missing foundation through seven bounded phases. The rejected samples are evidence, not accepted product behavior and not a reason to rewrite the published timing primitive or falsely promote it as natural-action proof.
 
 **Recorded documentation conflict.** `architecture.md` and `AI_SYSTEM.md` still describe the Stick AI panel as read-only/no writable executor. The freshly traced Phase 6 source above shows the narrower writable deterministic wave preview/apply path. This specification uses the live-code fact for current behavior and preserves both files as broader historical maps in this docs-only transition; a later accepted control-plane closeout should reconcile their stale wording without treating it as a product change.
 
@@ -72,7 +72,7 @@ Phase 2.6 owns this missing foundation in one bounded shared contract. The rejec
 3. Preview is an isolated temporary candidate; it never mutates canonical project bytes, history, local saved record, or human Play/Pause/onion state.
 4. Apply is the only commit point. It commits the whole completed creation as exactly one document/history action. Undo returns to the exact pre-Apply document; Redo returns the exact accepted document bytes. The one-time latch remains consumed even if the person later Undo/Redos, so Undo cannot reopen AI creation.
 5. The consumed latch is persistently bound to the project ID and saved/reopened with the Stick project. It is changed only by a successful Apply, never by preview/cancel/failure, manual edits, Undo/Redo, or a request payload. It must be validated rather than trusted from a model/provider response.
-6. After Apply, every later Stick AI message receives the short honest result **“AI editing comes later; use manual tools.”** It makes no project/history/storage mutation and no local recipe, fake-provider, Terra, or other provider call. Follow-up editing, recoloring, refinement, continuation, or recreation is reserved for SPEC-0005.
+6. After Apply, every later Stick AI message receives the short honest result **“AI editing comes later; use manual tools.”** It makes no project/history/storage mutation and no local recipe, fake-provider, Terra, or other provider call. Follow-up editing, recoloring, refinement, continuation, or recreation remains future work outside SPEC-0004 and SPEC-0005.
 7. Every supported generated frame, key pose, figure, all 11 humanoid joint positions, timing choice, and supported content is represented in the same editable Stick project model used by manual tools. There is no locked AI-only format and no raw executable code.
 
 ### 3.2 Scene, timing, and visual boundaries
@@ -82,7 +82,7 @@ Phase 2.6 owns this missing foundation in one bounded shared contract. The rejec
 - The head stays the current derived horizontal line from the `head` joint. Do not store a circle, custom head, or head asset.
 - The creation may select/change FPS or obey an explicit user FPS. When omitted, the recommended default is **one centered figure, 24 FPS, normal speed, and a recipe-specific safe duration**.
 - Arthur's examples include smooth original animations around five seconds and an uncertain “not more than 100 frames.” Five seconds at 24 FPS is 120 frames, so this spec deliberately does not pretend those statements are compatible. Phase 3 has the owner entry gate that selects the final maximum duration and frame count together.
-- Higher FPS alone does not make animation smooth. Smoothness requires action-appropriate important poses, support/contact and weight mechanics, intent-pure beats, meaningful intermediate poses, intentional timing/spacing/easing/arcs, and visible playback review. Phase 2 supplies the local baked-motion foundation; Phase 2.5 supplies bounded timing profiles; Phase 2.6 supplies the final shared action-planning, weight, and intent-purity guard before later routing/provider phases.
+- Higher FPS alone does not make animation smooth. Smoothness requires action-appropriate important poses, support/contact and weight mechanics, intent-pure beats, meaningful intermediate poses, intentional timing/spacing/easing/arcs, and visible playback review. Phase 2 supplies the local baked-motion foundation; Phase 2.5 supplies bounded timing profiles; SPEC-0005 now owns the shared pose/mechanics/path/quality engine required before later routing/provider phases.
 - Existing human Play/Pause controls remain. A pre-Apply creation pipeline may render/play its own temporary preview for checks, but Pretend AI and Terra must not alter unrelated user view state. Human onion skin remains as-is; AI onion-skin control is out of scope.
 
 ### 3.3 Internal routing: Pretend AI first, Terra only under a later gate
@@ -550,8 +550,8 @@ Phase 2.5 closeout must verify that every disposable copy/process/port was destr
 
 #### Later-phase contract links
 
-- **Phase 4:** every accepted free recipe must emit complete important poses inside the shared Phase 2.6 `stick.action-foundation/v1` contract, including one complete validated `stick.action-timing/v1` sidecar. It may interpret natural wording such as “robotic” or “constant pace” and emit `mechanical_explicit`; Phase 2.5/2.6 never interpret language.
-- **Phase 6:** every accepted Terra original plan must emit that same strict Phase 2.6 action-foundation contract. Terra may create original poses but may not bypass action purity, contacts, weight, timing, local validation/baking, or ordinary editable output; it may not return raw code, arbitrary curves, a second format, or unbounded timing.
+- **Phase 4:** every accepted free recipe must emit one complete `stick.movement-goal/v1` object through the integrated SPEC-0005 planner door. It may interpret natural wording such as “robotic” or “constant pace” and emit explicit mechanical intent; SPEC-0005 never interprets language.
+- **Phase 6:** every accepted Terra original plan must emit that same strict movement-goal contract. Terra provides bounded intent, not raw joint coordinates or executable code, and may not bypass local pose/mechanics/path validation/baking, use a second format, or supply arbitrary/unbounded curves.
 - **Phase 7:** mechanical and Arthur-visible quality review must check action purity, support/weight/body mechanics, realistic intentional timing/spacing, and complete action beats—not only intact limbs, FPS, and basic smoothness.
 
 **Stop boundary.** Phase 2.5 does not connect Pretend AI, Terra, natural-language recognition, Task/Reasoning UI, fake/live provider, API/key/paid call, post-Apply AI edit, a new product recipe, multiple figures, variable FPS/duration/final frame cap, layer/background/camera/prop/color/custom rig/body shape, accurate dolphin/dinosaur body, Drawing/workspace integration, dashboard, deployment, or Phase 3–8 implementation. Backgrounds, stick color, and custom stick shapes/rigs belong to future separate specifications.
@@ -560,11 +560,13 @@ Phase 2.5 closeout must verify that every disposable copy/process/port was destr
 
 The executor completed the exact seven-path technical result from base/HEAD `f131e75aafccec0d1b8ecb717e2d95b518355d39`. The strict timing schema and all six formulas passed deterministic, browser, TypeScript, lint-non-regression, permanent-browser-regression, no-egress, and independent-manifest validation. The accepted manifest is 14,601 bytes with SHA-256 `783e6396cf994ce48fb9d7c94dc58674594dd545f888a9c25fe3c1f654a788d1`; the Control Plane Architect revalidated it at 250 checks before stopping the exact four recorded review process groups and removing only their four isolated temporary copies.
 
-Arthur rejected the wave/jump/bow/dodge samples as natural motion. That rejection is binding for visible quality and does not invalidate the narrow timing math. D-0041 accepts and closes Phase 2.5 only as the timing/spacing primitive it actually proves; the old fixture poses and human-review quality claims are not promoted as natural-action evidence. GIT-037 published the seven frozen accepted technical paths and this reviewed amendment in exact commit `16799539fb7db31e345a878aa892d4485115188b`. Under D-0042, Phase 2.6 still cannot start until Arthur separately authorizes implementation.
+Arthur rejected the wave/jump/bow/dodge samples as natural motion. That rejection is binding for visible quality and does not invalidate the narrow timing math. D-0041 accepts and closes Phase 2.5 only as the timing/spacing primitive it actually proves; the old fixture poses and human-review quality claims are not promoted as natural-action evidence. GIT-037 published the seven frozen accepted technical paths and this reviewed amendment in exact commit `16799539fb7db31e345a878aa892d4485115188b`. D-0043 later closed Phase 2.6 permanently after its unpublished result was rejected and transferred the intended shared-motion work to SPEC-0005.
 
-### Phase 2.6 — Natural Action Planning, Weight, and Intent Guard
+### Phase 2.6 — Natural Action Planning, Weight, and Intent Guard — superseded historical design
 
-**Approved/Authorized outcome; implementation not started.** Add the final shared motion-foundation layer before Preview. One strict action-foundation contract binds the requested action, action-pure ordered beats, complete important poses, ground/contact/support/weight facts, the accepted Phase 2.5 timing sidecar, and the exact animation plan. The engine validates the contract before baking and validates the baked candidate again before Preview. Any missing, malformed, unrelated, mechanically inconsistent, or unexplained motion fails closed with no candidate shown and no canonical mutation.
+> **Do not implement this section.** The unpublished executor result was rejected by Arthur and was never accepted, propagated, published, or integrated. D-0043 transfers the intended shared-motion outcome to SPEC-0005. The schema, examples, allowlist, proof commands, review method, and stop boundary below remain readable only to explain the rejected approach; they authorize no correction executor and no reuse of its bytes.
+
+**Superseded historical outcome; rejected and closed.** The former design proposed a final shared motion-foundation layer before Preview. The following requirements describe what the rejected executor attempted; they are not current authority.
 
 This one phase owns natural action planning, weight, contact, body mechanics, landing/recovery, direction, frame allocation, and action purity for the bounded samples below. It is deliberately not split again; there is no Phase 2.7. Later free/Pretend-AI recipes and future **Terra** original planners must emit the same contract and use the same validator/motion engine. Phase 2.6 itself does not read or interpret user text, connect normal chat, choose a recipe, call Terra, instantiate a provider/API client, or incur cost.
 
@@ -707,9 +709,9 @@ One technical-only `original` positive case uses `requestedAction: reach_up`, 13
 
 This case proves only that the shared contract/engine can accept a structurally valid non-catalog action without an executor branch for every possible verb. Later Terra or other planners create the original important poses and assert their structured intent/action tags. The local engine can validate digest binding, declared action purity, beat order, contacts, weight, balance, non-rotation, timing, geometry, and unexplained excursions; it does **not** semantically understand every possible original user request or guarantee that a dishonest original planner chose artistically correct poses. Phase 6/7 retain planner-quality, semantic, rendered-review, and Arthur-acceptance ownership.
 
-#### Exact Phase 2.6 implementation ceiling
+#### Historical rejected Phase 2.6 implementation ceiling
 
-Only after every entry gate passes, one dedicated Plan-mode Spec Executor may change exactly these eight tracked paths:
+The rejected executor was bounded to exactly these eight tracked paths:
 
 ```text
 src/lib/ai/stickFigureActionFoundation.ts
@@ -724,17 +726,17 @@ scripts/validateStickFigureActionFoundation.ts
 
 Ignored proof artifacts may exist only under `output/spec-0004/phase-2.6/**`. The final accepted/published Phase 2.5 seven paths and manifest are read-only inputs except for the two runtime files explicitly shared above. Phase 1/2 fixtures, older proof, workspace/panel/UI, timeline/history/storage, Drawing, `app/api/ai/route.ts`, packages, lockfile, config, environment, public assets, canonical docs, and `project/project_structure.txt` are read-only. If a ninth tracked path is required, the executor stops for a spec correction. Recommended executor: `gpt-5.6-sol` at `xhigh`.
 
-The new runtime module owns strict schema parsing and action/body validators. The motion engine may add only the contact-aware planted-foot/balance mechanics and post-bake validation needed by this contract while preserving Phase 2 and accepted Phase 2.5 entry points byte-for-byte in behavior. The transaction adds one separately named `phase-2.6-natural-action-foundation` materializer option that requires this complete contract, clones/freezes it before async work, preserves it through `fork()`, and rejects use with any older materializer. No action name may select an alternate executor; named-class rules are data/validation rules within the one shared engine.
+The former design assigned strict schema/action/body validation to the new runtime module and contact-aware mechanics to the motion engine. That design is retained only for diagnosis. SPEC-0005 replaces it with an action-independent movement goal and staged pose/mechanics/path engine.
 
 #### Entry gate, proof manifest, and required command order
 
-Phase 2.6 cannot start until Arthur separately authorizes implementation. Before any Phase 2.6 edit:
+Phase 2.6 is permanently closed to implementation under D-0043. The following former entry-gate text is retained as superseded history only:
 
 1. **Satisfied by D-0041:** Arthur/PM accept Phase 2.5 as the narrow timing/spacing primitive despite rejecting its natural-action samples.
 2. **Satisfied by this closeout:** the Phase 2.5 Spec Executor is completely stopped; the Control Plane Architect took exclusive ownership, preserved every accepted technical byte, revalidated the manifest, completed control-plane/technical closeout, and stopped before publication.
 3. **Satisfied by GIT-037:** exact commit `16799539fb7db31e345a878aa892d4485115188b` publishes/integrates the accepted Phase 2.5 seven paths plus 12 reviewed control-plane/tree paths and preserves the accepted manifest SHA/size.
-4. **Still required under D-0042:** Arthur separately authorizes Phase 2.6 implementation. Decision-complete specification text is not executor authority.
-5. Only after that separate authorization, one fresh dedicated worktree starts in Plan mode from the then-current clean canonical `main`, with an empty index and no overlap with any other executor. The Phase 2.6 executor revalidates the accepted Phase 2.5 manifest and hashes, traces plan → action foundation → timing → contact-aware bake → transaction → ordinary editable frames, and confirms the eight-path ceiling.
+4. **Historical and superseded:** D-0042 required separate authorization before the executor that later ran.
+5. **Historical and superseded:** that executor started from clean canonical `4c1da7fa4ea14ed82af950f7ed748b86387a7e0a`, produced an exact eight-path result, and stopped. Arthur rejected its visible motion; no correction or reuse is authorized.
 
 The recorder writes `output/spec-0004/phase-2.6/proof-manifest.json`; the independent validator command is:
 
@@ -769,7 +771,7 @@ Arthur reviews exactly:
 
 Human review fails for any missing/reordered beat, action impurity, unexplained joint excursion, unstable non-participating joint, planted-foot drift over 2 px, false contact/airborne state, unsupported weight, long hover/crouch, weak landing compression, floating bow, instant dodge reversal, sliding gait, wrong direction, locked/shared/AI-only frame, tween/controller, snap-back/regeneration, malformed review copy, special tester UI, unrelated regression, or any external/provider/API request. Review servers remain live until Arthur accepts/rejects, then every copy/process/port is destroyed and excluded from publication.
 
-**Stop boundary.** Phase 2.6 ends after one executor implements the exact eight paths, validates the manifest, provides the six review links, returns its Implementation Review Packet, and stops with an empty index. It performs no control-plane update, stage, commit, merge, push, publication, provider/API call, or later phase. No Phase 2.7 exists.
+**Historical stop boundary.** The executor stopped after its exact eight-path result and review evidence. Arthur rejected the result. No control-plane propagation, stage, commit, merge, push, publication, provider/API call, or later phase followed. No Phase 2.7 exists.
 
 **Explicit non-goals.** No provider/Terra call; normal-chat or Pretend-AI routing; user-text interpretation; Task/Reasoning UI; background; layers; colors; custom rigs/shapes; multiple figures; variable FPS/duration/final-cap controls; sound; Drawing AI; post-Apply AI editing; dashboard/auth/billing/deployment; or publication. Phase 3 retains its published-spec ownership of broader variable FPS/duration/frame-cap and multiple-figure work.
 
@@ -777,7 +779,7 @@ Human review fails for any missing/reordered beat, action impurity, unexplained 
 
 **Scope.** Add multiple figures in the single existing layer and safe variable FPS/duration/frame count. Maintain white background, derived line heads, one-layer topology, and complete manual editability.
 
-**Foundation entry gate.** The accepted Phase 2.5 timing primitive and Phase 2.6 action foundation must both be closed, published, and integrated first. Phase 3 may expand figure/count/FPS/duration bounds but may not weaken or fork their shared pose/timing/contact/weight/purity engine.
+**Foundation entry gate.** SPEC-0004 is paused before Phase 3. The accepted Phase 2.5 timing primitive and all seven SPEC-0005 shared-motion phases must be closed, published, and integrated first. Phase 3 may then expand figure/count/FPS/duration bounds but may not weaken or fork the shared movement-goal/pose/mechanics/path/locomotion engine.
 
 **Owner entry gate — final timeline cap.** Before implementation Arthur explicitly selects one final compatible maximum duration and frame count (and whether maximum FPS can make that duration exceed 100 frames). The recorded choice must resolve the five-second-at-24-FPS = 120-frame conflict; no engineer may infer “100 frames” as final. It also confirms the safe multi-figure/count/direction limits for the one-layer model.
 
@@ -787,9 +789,9 @@ Human review fails for any missing/reordered beat, action impurity, unexplained 
 
 ### Phase 4 — Free Recipe Understanding
 
-**Scope.** Build the versioned parameterized $0 catalog for wave, jump, walk, run, punch, kick, turn, crouch, and nod; broad tested casual wording, safe defaults, negation, ambiguity handling, confidence decision, and exact free-versus-needs-Terra disposition. Every accepted complete recipe must emit one complete `stick.action-foundation/v1` object containing its important-pose annotations and nested accepted `stick.action-timing/v1` sidecar before local materialization. Preserve all current Phase 6 wave and approved typo behavior.
+**Scope.** Build the versioned parameterized $0 catalog for wave, jump, walk, run, punch, kick, turn, crouch, and nod; broad tested casual wording, safe defaults, negation, ambiguity handling, confidence decision, and exact free-versus-needs-Terra disposition. Every accepted complete recipe must emit one complete `stick.movement-goal/v1` object for the integrated SPEC-0005 engine before local materialization. It may not emit raw joint coordinates or bypass the shared pose/mechanics/path pipeline. Preserve all current Phase 6 wave and approved typo behavior.
 
-**Entry gate.** Phases 2.5, 2.6, and 3 are integrated; every catalog parameter, action beat, contact/weight declaration, purity tag, and timing-profile choice has an explicit supported range and safe response. Parameters incompatible with the actual one-layer/multi-figure limit are rejected/deferred, not quietly approximated. Recognition of “robotic,” “mechanical,” “constant pace,” or equivalent wording belongs here, not Phase 2.5/2.6, and may emit `mechanical_explicit` only on a complete safe match. Free recipes may not bypass the Phase 2.6 action-purity guard with recipe-specific executors.
+**Entry gate.** All seven SPEC-0005 phases and this spec's Phase 3 are integrated; every catalog parameter, semantic movement field, and timing/path choice has an explicit supported range and safe response. Parameters incompatible with the actual one-layer/multi-figure limit are rejected/deferred, not quietly approximated. Recognition of “robotic,” “mechanical,” “constant pace,” or equivalent wording belongs here, not SPEC-0005, and may emit explicit mechanical intent only on a complete safe match. Free recipes may not bypass the shared SPEC-0005 planner door or engine with recipe-specific executors.
 
 **Exact fixture matrix.** Checked-in accepted/rejected cases cover each family; omission defaults (one centered figure, 24 FPS, normal speed, recipe-safe duration); direction/speed/FPS/duration/count where supported; synonyms; case/punctuation/spacing; common misspellings; `u`/`pls`/`idk`; “make him jump”; negated action such as “don’t wave”; collision/ambiguous wording; multi-action requests; oversize/malformed input; unsafe parameter; current Phase 6 wave typo fixtures; full local $0 success; no-safe-match/needs-Terra; and no-real-enabled unavailable. Each row states expected plan/disposition and asserts no partial output or accidental provider call.
 
@@ -809,7 +811,7 @@ Human review fails for any missing/reordered beat, action impurity, unexplained 
 
 ### Phase 6 — Terra Original-Creation Connection
 
-**Scope.** Connect intended GPT-5.6 Terra behind server-only, off-by-default policy. Accept only strict structured plan/tool data and compact validated project context. Every accepted original plan must emit the same complete `stick.action-foundation/v1` object, including its nested accepted `stick.action-timing/v1` sidecar, used by free recipes and Phase 2.6 before local baking. Terra may create original important poses, but it may not bypass local intent-purity/contact/weight/timing validation, return raw executable code, use a separate animation format, or supply an unbounded curve. Disable search/RAG and all tools except the exact app plan functions. Bound request/output bytes, deadline, concurrency, retries, and no-post-Apply behavior. Never auto-switch to Luna or Sol.
+**Scope.** Connect intended GPT-5.6 Terra behind server-only, off-by-default policy. Accept only strict structured plan/tool data and compact validated project context. Every accepted original plan must emit the same complete `stick.movement-goal/v1` object used by free recipes and the integrated SPEC-0005 planner door before local pose/mechanics/path/keyframe generation. Terra provides bounded intent/goals only; it may not return raw joint coordinates, create a separate animation format, bypass local validation, return executable code, or supply an unbounded curve. Disable search/RAG and all tools except the exact app plan functions. Bound request/output bytes, deadline, concurrency, retries, and no-post-Apply behavior. Never auto-switch to Luna or Sol.
 
 **Paid-provider entry gate.** Before any configuration or live request, the owner/PM records fresh same-day official OpenAI-source verification of the exact available Terra alias, pricing, retention/privacy terms, budget/cost basis, and explicit live-request authorization. It defines server credential custody, request caps, expected failure/no-op behavior, and the separate proof authorization. Without every item, retain fake/unavailable behavior and do not instantiate a provider client.
 
@@ -849,22 +851,22 @@ The Spec Executor stops after its Implementation Review Packet with no control-p
 
 - Stick-only scope; one-time eligible-fresh creation; durable post-Apply no-AI lock; Preview/Apply/Cancel/history/storage/manual-edit guarantees.
 - White background, one existing layer, derived horizontal line head, human Play/Pause/onion protection, and all listed non-goals.
-- Phase ordering; exact Phase 1 language/bounds/fixtures/proof/allowlist; exact Phase 2 baked independent-frame ownership/body normalization/local smoothstep foundation; exact Phase 2.5 timing schema and narrow primitive; and exact Phase 2.6 `stick.action-foundation/v1` schema, action-purity/contact/weight/body/timing rules, fixed wave/jump/bow/dodge/walk/run allocations, original structural case, proof matrix, eight-path ceiling, six-link ordinary-app review, and no-provider/non-goals boundary. Phase 4 catalog families/routing rules, UI behavior, Terra intended role/no auto-switch, quality evidence shape, and private dashboard boundary remain recorded.
+- Phase ordering; exact Phase 1 language/bounds/fixtures/proof/allowlist; exact Phase 2 baked independent-frame ownership/body normalization/local smoothstep foundation; and exact Phase 2.5 timing schema and narrow primitive. The former Phase 2.6 contract is retained only as rejected history and is superseded by SPEC-0005. Phase 4 catalog families/routing rules, UI behavior, Terra intended role/no auto-switch, quality evidence shape, and private dashboard boundary remain recorded.
 - The old Phase 7 retirement and Phase 6 wave protection.
 
 ### Deliberately later, named owner gates
 
 - Phase 2.5 publication: satisfied by exact GIT-037 commit `16799539fb7db31e345a878aa892d4485115188b`. Its rejected sample-naturalness claims remain rejected.
-- Phase 2.6 execution: the contract is decision-complete, but D-0042 requires Arthur's separate implementation authorization before any executor starts.
+- Phase 2.6 execution: permanently closed; SPEC-0005 supersedes its intended job.
 - Phase 3: compatible final duration/frame/FPS ceiling and bounded multi-figure parameter support.
 - Phase 6: same-day official Terra alias/pricing/retention/privacy facts, budget/caps, credential custody, and explicit paid/live request authorization.
 - Phase 7: quantitative first-preview benchmark/test environment, final original-scene review matrix, quality rubric, comparison protocol, and single-repair budget consent.
 - Phase 8: final cost/credit/auth/rate-limit/privacy/retention/logging/release policy and dashboard access terms.
 
-These gates block only their affected later phase; no implementation task may fill them in by assumption. Phase 2.5's exact timing-only result is Verified, published, and integrated. Phase 2.6 is decision-complete/Not started and remains closed until Arthur separately authorizes implementation.
+These gates block only their affected later phase; no implementation task may fill them in by assumption. Phase 2.5's exact timing-only result is Verified, published, and integrated. The unpublished Phase 2.6 result is rejected and superseded; SPEC-0004 remains paused before Phase 3 until SPEC-0005 is fully integrated.
 
 ## 11. Handoff
 
-Phase 1 is Verified, published, and integrated in exact 28-path commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d`. Phase 2 is Verified, published, and integrated in exact 20-path commit `e3ec6a33438c2f3d2e075b6477f18b8eb1b58e24`. GIT-033 through GIT-037 are complete. D-0040's Phase 2.5 activation is published in exact 11-document commit `a755f892d7737c6a10d9c381ec59c1e2fdba4d47`. D-0041 accepts the later seven-path result from base `f131e75aafccec0d1b8ecb717e2d95b518355d39` narrowly as the timing/spacing primitive; GIT-037 publishes it within exact 19-path commit `16799539fb7db31e345a878aa892d4485115188b`; and its 14,601-byte manifest SHA-256 is `783e6396cf994ce48fb9d7c94dc58674594dd545f888a9c25fe3c1f654a788d1`. The old samples remain rejected as natural-action evidence. Phase 2.6 is decision-complete/Not started under D-0042 and awaits Arthur's separate implementation authorization. Phases 3–8 remain unauthorized, and no Phase 2.7 exists.
+Phase 1 is Verified, published, and integrated in exact 28-path commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d`. Phase 2 is Verified, published, and integrated in exact 20-path commit `e3ec6a33438c2f3d2e075b6477f18b8eb1b58e24`. GIT-033 through GIT-037 are complete. D-0040's Phase 2.5 activation is published in exact 11-document commit `a755f892d7737c6a10d9c381ec59c1e2fdba4d47`. D-0041 accepts the later seven-path result from base `f131e75aafccec0d1b8ecb717e2d95b518355d39` narrowly as the timing/spacing primitive; GIT-037 publishes it within exact 19-path commit `16799539fb7db31e345a878aa892d4485115188b`; and its 14,601-byte manifest SHA-256 is `783e6396cf994ce48fb9d7c94dc58674594dd545f888a9c25fe3c1f654a788d1`. The old samples remain rejected as natural-action evidence. The later unpublished Phase 2.6 executor result was also rejected after human review and has no accepted/published state. D-0043 supersedes its intended job with SPEC-0005 and pauses this spec before Phase 3.
 
-The exact next lifecycle action is Arthur's separate decision whether to authorize one fresh Plan-mode Phase 2.6 Spec Executor from the then-current clean canonical `main`. Until that happens, no executor may start or change any of the exact eight implementation paths. No provider/API/paid work, deployment, Phase 3 work, Phase 2.7, or blue/special review UI is authorized.
+The exact next lifecycle action is review and separate publication/integration of the SPEC-0005 docs-only activation. Only then may one fresh Plan-mode SPEC-0005 Phase 1 Spec Executor start from that publication SHA. Do not start or correct Phase 2.6, resume Phase 3, contact a provider/API, perform paid work, deploy, create Phase 2.7, or add a blue/special review UI.

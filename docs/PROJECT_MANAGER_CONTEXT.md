@@ -1,7 +1,7 @@
 # Project Manager Context
 
 Status: canonical owner and collaboration context
-Last updated: 2026-09-02
+Last updated: 2026-09-04
 
 ## Ownership, Sponsorship, and PM Collaboration
 
@@ -15,7 +15,7 @@ Arthur is a young, capable product collaborator. Explain recommendations in dire
 
 ## Latest Direction
 
-The latest product direction, captured on 2026-08-09, is:
+The latest product direction, updated through 2026-09-04, is:
 
 - Diamond Animator should primarily help beginners create professional-grade stick-figure animation through AI conversation.
 - AI should integrate with the real editor and manipulate the same advanced capabilities a human animator can use.
@@ -25,9 +25,12 @@ The latest product direction, captured on 2026-08-09, is:
 - Development progress may be shared publicly, so every update must distinguish Proposed, Implemented, and Verified work and must not overstate unfinished capability.
 - A custom Diamond Animator model may be explored later, but it is not required for the immediate product foundation.
 - SPEC-0004 Phase 2 is Verified, published, and integrated in exact 20-path commit `e3ec6a33438c2f3d2e075b6477f18b8eb1b58e24`. Its eight-path hidden local pose/smooth-motion engine bakes every generated frame into ordinary independently editable Stick data and adds no provider, language matcher, or Drawing/workspace change.
-- D-0041 accepts Phase 2.5 as done for its narrow shared timing/spacing purpose. GIT-037 published the exact seven-path result from base `f131e75aafccec0d1b8ecb717e2d95b518355d39` within exact 19-path commit `16799539fb7db31e345a878aa892d4485115188b`; its 250-check 14,601-byte manifest SHA-256 is `783e6396cf994ce48fb9d7c94dc58674594dd545f888a9c25fe3c1f654a788d1`. The old wave/jump/bow/dodge review samples remain rejected as natural-action evidence: jump inherited a wave hand and floated, bow was over-compressed, and dodge reversed with sliding feet. Phase 2.6 is the one final shared natural-action/weight/contact/intent foundation and has no Phase 2.7. D-0042 records it as decision-complete/Not started and awaiting Arthur's separate implementation authorization; no executor is active.
+- D-0041 accepts Phase 2.5 as done for its narrow shared timing/spacing purpose. GIT-037 published the exact seven-path result from base `f131e75aafccec0d1b8ecb717e2d95b518355d39` within exact 19-path commit `16799539fb7db31e345a878aa892d4485115188b`; its 250-check 14,601-byte manifest SHA-256 is `783e6396cf994ce48fb9d7c94dc58674594dd545f888a9c25fe3c1f654a788d1`. The old wave/jump/bow/dodge review samples remain rejected as natural-action evidence.
+- One later SPEC-0004 Phase 2.6 executor produced the former exact eight-path unpublished result in `/Users/arthurcarlin/.codex/worktrees/8de8/stick-animation-app`. Although its manifest was technically green, Arthur rejected the overall motion after visible review. It is not accepted, propagated, published, integrated, or correction-authorized. Its proof did not require a full playback traversal and its exact frozen frames came from the same generation path.
+- D-0043 makes decision-complete SPEC-0005 the replacement shared-motion foundation and pauses SPEC-0004 before Phase 3. Exactly seven phases establish independent accepted references/full playback, action-independent whole-body pose creation, support/weight/ground mechanics, natural paths/timing/gravity, distinct walk/run, semantic core-action recipes, and one provider-free shared Pretend-AI/future-Terra planning door. All output remains ordinary independent editable Stick keyframes; no raw joint-coordinate planner format, live controller, provider, key, paid request, or moved SPEC-0004 Terra phase.
+- This is a docs-only activation. Phase 1 becomes the next implementation task only after the activation is reviewed and separately published/integrated. It changes no runtime and protects the older accepted wave with a real `0 → … → last → 0` playback quality gate and independent mutation/reference evidence.
 - Future Terra economics should prefer compact important-pose/timing plans, local in-betweens, safe $0 recipes first, at most one later bounded pre-Apply repair, measured private-dashboard cost, and monthly budgets/credits rather than unlimited use. Exact provider pricing/policy is a later same-day official-source gate.
-- Arthur is interested in a possible later unified Animation Workspace with one project/timeline/canvas/save/history/AI surface and typed Stick/Drawing layers. This is a future separate-spec question, not current authorization. Backgrounds, stick colors, custom stick shapes/rigs, accurate non-humanoid bodies, and layers are also later separate-spec work, not Phase 2.5 or Phase 2.6.
+- Arthur is interested in a possible later unified Animation Workspace with one project/timeline/canvas/save/history/AI surface and typed Stick/Drawing layers. This is a future separate-spec question, not current authorization. Backgrounds, stick colors, custom stick shapes/rigs, accurate non-humanoid bodies, and layers are also later separate-spec work, not SPEC-0005.
 
 This direction supersedes older prose that framed AI only as a passive helper or described the workspaces as complete.
 

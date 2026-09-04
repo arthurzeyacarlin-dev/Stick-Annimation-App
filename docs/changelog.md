@@ -5,6 +5,17 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-04 — Authored SPEC-0005 professional shared Stick motion-engine activation
+
+- recorded D-0043: Arthur rejected the unpublished SPEC-0004 Phase 2.6 result after human motion review; it remains unaccepted, unpropagated, unpublished, and unintegrated, while published SPEC-0004 Phases 1, 2, and timing-only 2.5 remain unchanged
+- inspected the rejected `/Users/arthurcarlin/.codex/worktrees/8de8/stick-animation-app` worktree read-only and recorded the gap between its green manifest and user outcome: raw action-specific joint-coordinate recipes, an immediate Play/Pause browser check without a full cycle, same-path regenerated exact goldens, and static screenshots
+- created decision-complete [`SPEC-0005`](specs/0005-professional-shared-stick-motion-engine.md) with exactly seven sequential phases for accepted-reference/full-playback proof, action-independent whole-body poses, support/weight/ground mechanics, natural paths/timing/gravity, real walk/run, semantic action recipes, and a provider-free shared Pretend-AI/future-Terra planning door
+- fixed `stick.movement-goal/v1` as the only planned planner-to-engine contract: semantic body/support/path intent in, complete ordinary independent editable Stick keyframes out; no raw joint coordinates/code, second animation format, live tween/controller, hidden AI authority, regeneration, or snap-back
+- bound Phase 1 to the published SPEC-0001 12-frame wave, ordered `0 → … → last → 0` playback with elapsed-time evidence, independently authored reference/bad-motion oracles, permanent-browser proof, and one ordinary review link; its implementation remains entry-gated on separate review/publication of this docs-only activation
+- paused SPEC-0004 before Phase 3 until all seven SPEC-0005 phases are accepted/published/integrated and preserved its later real-provider/Terra, scene, repair, policy, and release ownership unchanged
+
+This Spec Architect task changes specification/control-plane records and generated project structure only. It changes no runtime, fixture, technical-test, proof, package/config/environment, other worktree, provider/API/key/cost, review server, deployment, Git index, commit, merge, push, or publication state.
+
 ### 2026-09-02 — SPEC-0004 Phase 2.5 timing primitive published
 
 - completed GIT-037 in exact 19-path commit `16799539fb7db31e345a878aa892d4485115188b`, parent `f131e75aafccec0d1b8ecb717e2d95b518355d39`, message `Publish SPEC-0004 Phase 2.5 timing and Phase 2.6 foundation`; the commit contains exactly seven accepted technical paths plus 12 reviewed control-plane/tree paths

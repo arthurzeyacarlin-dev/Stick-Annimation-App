@@ -4,8 +4,8 @@ Status: canonical last-known stopping point
 Last updated: 2026-09-04
 Active specs: `docs/specs/0001-first-reversible-ai-stick-animation.md`, `docs/specs/0002-lossless-local-drawing-save-and-reopen.md`, `docs/specs/0003-tutorials-and-cleaner-home-screen.md`, paused `docs/specs/0004-future-real-ai-animator-requirements.md`, and Approved `docs/specs/0005-professional-shared-stick-motion-engine.md`
 SPEC-0004 status: **Phases 1, 2, and timing-only Phase 2.5 are Verified, published, and integrated. The unpublished Phase 2.6 result was rejected and is superseded by SPEC-0005; SPEC-0004 is paused before Phase 3.** GIT-033 through GIT-037 remain complete. D-0043 records the rejected-result truth and new seven-phase shared-motion direction. There is no Phase 2.7; Phases 3–8 remain unauthorized.
-SPEC-0005 status: **Activation published/integrated at `2b4f00e7a122c196b2c0600144cd638b461bbb2f`; Phase 1 accepted by Arthur and technically Verified under D-0044; publication/integration pending under GIT-039.** Phase 2 is unauthorized and no executor is active.
-Current result: the exact six-path SPEC-0005 Phase 1 proof-only quality gate is accepted with manifest SHA-256 `af287680b7ae73fd4c543edf8076d9fbb7fb65474a5d4508f8b17dde56174e84` (10,011 bytes). It changes no runtime motion. Published SPEC-0004 Phases 1, 2, and timing-only 2.5 remain unchanged at `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d`, `e3ec6a33438c2f3d2e075b6477f18b8eb1b58e24`, and `16799539fb7db31e345a878aa892d4485115188b`; rejected Phase 2.6 remains unpublished/unintegrated and SPEC-0004 remains paused before Phase 3.
+SPEC-0005 status: **Phase 1 is Verified, published, and integrated under completed GIT-039 at `2436a9414221e8ee7ef40151284cb8f4e069e828`. D-0045 makes Phase 2 Approved; Authorized; Not started, pending separate publication of this activation record.** Phases 3–7 remain Unauthorized/Not started and no executor is active.
+Current result: the exact six-path SPEC-0005 Phase 1 proof-only quality gate is published within the exact 20-path Phase 1 commit. Its manifest SHA-256 is `af287680b7ae73fd4c543edf8076d9fbb7fb65474a5d4508f8b17dde56174e84` (10,011 bytes), and its clean permanent-tester result SHA-256 is `bc7d5c978926b1b55babc8aee92827a4baef94adbca9570741b5dcc0e88f881d` (84,506 bytes). It changes no runtime motion. Published SPEC-0004 Phases 1, 2, and timing-only 2.5 remain unchanged; rejected Phase 2.6 remains unpublished/unintegrated and SPEC-0004 remains paused before Phase 3.
 Current roadmap phase: Phase 0 — Preserve and Stabilize
 
 ## Accepted SPEC-0005 Phase 1 Result
@@ -25,7 +25,9 @@ The accepted manifest is `output/spec-0005/phase-1/proof-manifest.json`, exactly
 
 After Arthur's review, later local GETs appended 200 bytes to the live `review-server.log`, and normal process termination appended a seven-byte terminal-reset sequence, leaving 501 bytes total. Its original 294 manifest-bound bytes remain an exact prefix at SHA-256 `637d481e2da0de2923489e85b4c8cd35db6456360d20e86c275a9aeb67a392ae`; all other 12 artifacts and all six source files match their complete manifest bindings. CPA closeout stopped only PID/PGID `90076`, verified port `58451` closed, removed only `/var/folders/6l/2_fgg86s2h3_y9wg5npsfzyh0000gn/T/diamond-spec0005-phase1-wave-review-GTk0su`, and preserved durable ignored evidence.
 
-GIT-039 is the exact next task and is already explicitly authorized for a later sequential publication turn after PM review of this CPA packet. It may stage only the six frozen accepted paths plus reviewed control-plane/tree paths, publish them, fast-forward clean canonical `main`, push normally, and prove `0/0`. Phase 2 must not start first.
+GIT-039 is complete in commit `2436a9414221e8ee7ef40151284cb8f4e069e828`, parent `2b4f00e7a122c196b2c0600144cd638b461bbb2f`, message `Publish SPEC-0005 Phase 1 quality gate`, with exactly 20 paths. Local `main`, local `origin/main`, live GitHub `main`, and the clean publication branch matched at `0/0`. The clean permanent tester passed 40 operations, 13 screenshots, four messages, three negative cases, zero non-loopback attempts, zero real API-route requests, zero policy violations, zero production leaks, zero console errors, and cleanup.
+
+The exact next task is GIT-040: review and separately publish only the D-0045 Phase 2 activation records. Only after that publication is integrated may the Project Manager create one new dedicated Plan-mode Phase 2 Spec Executor from the activation-publication SHA under the exact nine-path ceiling. No Phase 2 product byte or executor exists yet.
 
 ## Accepted SPEC-0004 Phase 1 Result
 
@@ -112,7 +114,7 @@ Read-only inspection found the proof gap: action fixtures still supplied full ra
 
 D-0043 activates [`SPEC-0005 — Professional Shared Stick Motion Engine`](specs/0005-professional-shared-stick-motion-engine.md) as the decision-complete replacement. Its exact pipeline is Pretend AI or future Terra movement goal → whole-body key poses → weight/support/ground mechanics → natural timed paths/in-betweens → complete ordinary independent editable Stick keyframes → full-playback automation and Arthur review. It has exactly seven sequential phases and preserves every SPEC-0004 transaction/manual/protected-system boundary.
 
-The docs-only activation was published/integrated in exact commit `2b4f00e7a122c196b2c0600144cd638b461bbb2f`. Phase 1 then completed and was accepted under D-0044 with exactly these six tracked paths:
+The docs-only activation was published/integrated in exact commit `2b4f00e7a122c196b2c0600144cd638b461bbb2f`. Phase 1 then completed, was accepted under D-0044, and was published/integrated at `2436a9414221e8ee7ef40151284cb8f4e069e828` with exactly these six technical paths:
 
 - `scripts/fixtures/spec0005-stick/v1/quality-baseline-cases.json`
 - `scripts/fixtures/spec0005-stick/v1/playback-quality-review-plan.json`
@@ -121,7 +123,7 @@ The docs-only activation was published/integrated in exact commit `2b4f00e7a122c
 - `scripts/spec0005-stick/validatePhase1Proof.ts`
 - `scripts/validateStickMotionQualityBaseline.ts`
 
-Phase 1 changes no runtime and writes ignored artifacts only under `output/spec-0005/phase-1/**`. It protects the published 12-frame wave, proves ordered full playback `0 → … → 11 → 0`, binds independent reference/bad-motion oracles, and passed the permanent-browser and ordinary-review gates. Publication remains pending.
+Phase 1 changes no runtime and writes ignored artifacts only under `output/spec-0005/phase-1/**`. It protects the published 12-frame wave, proves ordered full playback `0 → … → 11 → 0`, binds independent reference/bad-motion oracles, and passed the permanent-browser and ordinary-review gates. Its publication is complete.
 
 ## Prior Completed SPEC-0003 Result
 
@@ -193,7 +195,7 @@ Prior SPEC-0003 publication record:
 
 SPEC-0004 Phases 1, 2, and timing-only Phase 2.5 are fully closed, published, and integrated. GIT-033 through GIT-037 are complete. Exact GIT-037 publication commit `16799539fb7db31e345a878aa892d4485115188b` contains only the accepted seven technical paths plus 12 reviewed control-plane/tree paths. The later unpublished Phase 2.6 result was rejected and is superseded, not completed. SPEC-0004 is paused before Phase 3.
 
-The exact next lifecycle action is GIT-039: later sequential publication/integration of the frozen six accepted SPEC-0005 Phase 1 paths plus reviewed control-plane/tree paths. Until that publication is complete, do not start Phase 2 or another executor, touch the rejected `/8de8/` worktree, correct Phase 2.6, create Phase 2.7, or perform SPEC-0004 Phase 3, provider/API/paid, Drawing/workspace-integration, or deployment work.
+The exact next lifecycle action is GIT-040: separate publication/integration of D-0045 and the SPEC-0005 Phase 2 activation record. Until that publication is complete, do not start Phase 2 or another executor. After it is complete, the Project Manager may create exactly one new Plan-mode Phase 2 Spec Executor from that publication SHA under the exact nine-path ceiling. Do not touch the rejected `/8de8/` worktree, correct Phase 2.6, create Phase 2.7, or perform SPEC-0004 Phase 3, provider/API/paid, Drawing/workspace-integration, or deployment work.
 
 ## Proven and Not Proven
 

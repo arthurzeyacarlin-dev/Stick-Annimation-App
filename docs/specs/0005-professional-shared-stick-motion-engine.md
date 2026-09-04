@@ -1,15 +1,15 @@
 # SPEC-0005 — Professional Shared Stick Motion Engine
 
-Status: **Approved. Phase 1 is accepted by Arthur and technically Verified; publication/integration is pending. Phase 2 is not authorized and must not start before Phase 1 publication.**
+Status: **Approved. Phase 1 is Verified, published, and integrated. Phase 2 is Approved; Authorized; Not started, pending publication of its activation record. Phases 3–7 are Unauthorized; Not started.**
 
 Owner: Arthur
 Spec role: Spec Architect
 Created: 2026-09-04
 Last updated: 2026-09-04
-Decision links: [D-0043 and D-0044](../DECISIONS.md)
+Decision links: [D-0043 through D-0045](../DECISIONS.md)
 Related work: [`SPEC-0004`](0004-future-real-ai-animator-requirements.md), [`TODO SPEC-005`](../TODO.md), [`Current State`](../CURRENT_STATE.md), [`Session Handoff`](../SESSION_HANDOFF.md)
 
-> **Lifecycle boundary.** The docs-only activation was published/integrated in exact commit `2b4f00e7a122c196b2c0600144cd638b461bbb2f`. One dedicated Phase 1 Spec Executor then completed the exact six-path proof-only result from that base and stopped. Arthur accepted the historical wave as the Phase 1 readability floor, and the Control Plane Architect completed propagation/closeout without changing the six accepted bytes. Phase 1 publication remains a separate later operation; Phase 2 cannot start before that publication is complete.
+> **Lifecycle boundary.** The docs-only activation was published/integrated in exact commit `2b4f00e7a122c196b2c0600144cd638b461bbb2f`. One dedicated Phase 1 Spec Executor then completed the exact six-path proof-only result from that base and stopped. Arthur accepted the historical wave as the Phase 1 readability floor, and GIT-039 published/integrated its exact 20-path package in `2436a9414221e8ee7ef40151284cb8f4e069e828`. D-0045 authorizes Phase 2 only, but no executor may start until this activation record is separately reviewed, published, and integrated; that publication SHA becomes its exact base.
 >
 > **SPEC-0004 relationship.** SPEC-0004 Phases 1, 2, and timing-only Phase 2.5 remain Verified, published, and integrated. The unpublished Phase 2.6 executor result was rejected by Arthur after human motion review and is not accepted, propagated, published, or runtime truth. This spec supersedes Phase 2.6's intended shared-motion job. SPEC-0004 is paused before Phase 3 until all seven SPEC-0005 phases are accepted, published, and integrated. This does not move, authorize, or rewrite SPEC-0004's later real-provider/Terra phase.
 
@@ -223,7 +223,7 @@ The proof records six successful technical receipts: independent quality baselin
 
 The preserved successful independent validation receipt records 102 passing checks against the exact manifest. After Arthur's review, later local GETs appended 200 bytes to the live server log, and normal process termination appended a seven-byte terminal-reset sequence, leaving 501 bytes total; the original 294 manifest-bound bytes remain an exact SHA-256-matching prefix, while all other 12 artifacts and all six source files still match their complete bound hashes/sizes. CPA closeout stopped only manifest-recorded PID/PGID `90076`, verified loopback port `58451` closed, removed only the exact disposable copy, and preserved durable ignored evidence. This append-only review traffic is not an accepted source-byte or runtime change.
 
-Phase 1 is therefore accepted and technically Verified, with publication/integration pending. Phase 2 remains unauthorized until the exact Phase 1 result and reviewed control-plane record are separately published/integrated into clean canonical `main`.
+Phase 1 is Verified, published, and integrated in exact 20-path commit `2436a9414221e8ee7ef40151284cb8f4e069e828`, parent `2b4f00e7a122c196b2c0600144cd638b461bbb2f`, message `Publish SPEC-0005 Phase 1 quality gate`. The required clean permanent tester passed 40 operations, 13 screenshots, four driver messages, three negative cases, zero non-loopback attempts, zero real API-route requests, zero policy violations, zero production leaks, zero console errors, and cleanup. Its 84,506-byte result has SHA-256 `bc7d5c978926b1b55babc8aee92827a4baef94adbca9570741b5dcc0e88f881d`. D-0045 authorizes Phase 2 as Not started; its executor still waits for separate publication of the activation record.
 
 ### Phase 2 — Action-Independent Whole-Body Key-Pose Maker
 
@@ -253,7 +253,7 @@ Ignored output: `output/spec-0005/phase-2/**`. No UI, old fixture, provider, pac
 
 **Non-goals.** No airborne mechanics, automatic mechanics-pose insertion, new path/timing model, gait, final action recipe, language routing, planner connection, UI, provider, or cap expansion.
 
-**Entry gate.** Phase 1 is accepted, closed, and published/integrated; its independent quality harness revalidates unchanged. Phase 2 starts in a new Plan-mode worktree from that publication SHA.
+**Entry gate.** Phase 1 is accepted, closed, and published/integrated at `2436a9414221e8ee7ef40151284cb8f4e069e828`; its independent quality harness must revalidate unchanged. D-0045 authorizes Phase 2, but implementation starts only after this activation record is separately published/integrated, in one new Plan-mode worktree from that later activation-publication SHA with a refreshed conflict audit.
 
 **App-copy review.** Four ordinary links show semantic reach-high-right, centered compression, left support shift, and neutral recovery. Arthur watches two loops, scrubs important poses, and checks that the whole body cooperates instead of only one joint moving.
 
@@ -536,4 +536,4 @@ Named gates that do not block Phase 1:
 
 ## 10. Handoff
 
-The exact next lifecycle action is the separately authorized publication/integration of the accepted six Phase 1 paths plus reviewed control-plane/tree paths. Until that publication is completed and verified, do not start Phase 2 or another executor. Do not touch the rejected `/8de8/` worktree, resume SPEC-0004 Phase 3, contact a provider, create another review copy, deploy, or expand scope.
+The exact next lifecycle action is separate publication/integration of D-0045 and this Phase 2 activation record. After that publication is cleanly verified, the Project Manager may create one new dedicated Plan-mode Phase 2 Spec Executor from the activation-publication SHA under the exact nine-path ceiling. Until then, do not start an executor. Do not touch the rejected `/8de8/` worktree, resume SPEC-0004 Phase 3, contact a provider, create a review copy, deploy, or expand scope.

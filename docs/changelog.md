@@ -5,6 +5,17 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-04 — Recorded SPEC-0005 Phase 1 publication and authorized Phase 2
+
+- closed GIT-039 with exact 20-path commit `2436a9414221e8ee7ef40151284cb8f4e069e828`, parent `2b4f00e7a122c196b2c0600144cd638b461bbb2f`, message `Publish SPEC-0005 Phase 1 quality gate`; local `main`, local `origin/main`, live GitHub `main`, and the clean publication branch matched at `0/0`
+- preserved the accepted 10,011-byte Phase 1 manifest at SHA-256 `af287680b7ae73fd4c543edf8076d9fbb7fb65474a5d4508f8b17dde56174e84`; the 84,506-byte clean permanent-tester result at SHA-256 `bc7d5c978926b1b55babc8aee92827a4baef94adbca9570741b5dcc0e88f881d` passed 40 operations, 13 screenshots, four driver messages, three negative cases, zero non-loopback attempts, zero real API-route requests, zero policy violations, zero production leaks, zero console errors, and cleanup
+- recorded D-0045: Arthur authorizes only SPEC-0005 Phase 2, Action-Independent Whole-Body Key-Pose Maker, as **Approved; Authorized; Not started**, behind a separately reviewed and published activation record
+- preserved the exact nine-path Phase 2 ceiling and its semantic grounded whole-body outcome: connected body/limb cooperation, fixed limb lengths, planted feet, balance response, and complete independent editable frames through the existing timing/baker/transaction path
+- kept Phases 3–7 Unauthorized/Not started; added no Phase 3 support/weight insertion, Phase 4 paths/gravity, Phase 5 gait, Phase 6 action recipes, Phase 7 planner door, UI, provider, Terra/API/paid request, deployment, or SPEC-0004 change
+- kept SPEC-0004 paused and the rejected `/8de8/` Phase 2.6 result rejected, unpublished, and untouched; no Phase 2 executor or review server was created
+
+This Control Plane Architect activation changes canonical records only. GIT-040 remains the separate publication step; only its publication SHA may become the base for one new dedicated Plan-mode Phase 2 Spec Executor.
+
 ### 2026-09-04 — Accepted and technically closed SPEC-0005 Phase 1
 
 - recorded D-0044: Arthur accepted the published SPEC-0001 12-frame/12-FPS three-pose wave as SPEC-0005 Phase 1's historical readability floor; this accepts the quality gate and does not claim any runtime-motion improvement or final professional smoothness

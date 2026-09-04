@@ -1,0 +1,161 @@
+{
+  "fixtureVersion": 1,
+  "phase": "SPEC-0005 Phase 1 — Accepted Motion References and Full-Playback Quality Gate",
+  "provenance": {
+    "catalogAuthor": "source-authored independent acceptance catalog",
+    "catalogRelationshipToCandidate": "The manual applied project is the oracle. The current runtime transport is checked against it and is never used to author expected quality data.",
+    "engineGeneratedOracle": false,
+    "acceptedReferenceSources": [
+      {
+        "path": "scripts/fixtures/stick-ai/v1/wave-request.json",
+        "sha256": "sha256:f550656daf7e32e5a537b074dc157712e9a9bf896ba35502e6be7eb027043132",
+        "purpose": "accepted user intent"
+      },
+      {
+        "path": "scripts/fixtures/stick-ai/v1/wave-command-batch.json",
+        "sha256": "sha256:ab10a3c708ef58b26f20c69586c35fc8c4e4fa88d97c1fa311efaafd86a5d3d9",
+        "purpose": "accepted command intent"
+      },
+      {
+        "path": "scripts/fixtures/stick-ai/v1/manual-wave-applied-project.json",
+        "sha256": "sha256:1f02c71285dfbae10570d8737c1f4be7f0cf19a53d8083b55361788dbe01e343",
+        "purpose": "independently human-authored applied-project quality oracle"
+      }
+    ],
+    "runtimeTransportSources": [
+      {
+        "path": "scripts/fixtures/stick-ai/v1/fresh-stick-project.json",
+        "sha256": "sha256:f2c3a2c05c884205a0ef1dce9de40f8f6eef729fe040aae99ad49fc83826c697"
+      },
+      {
+        "path": "scripts/fixtures/stick-ai/v3/wave.json",
+        "sha256": "sha256:ab1317a9399a69fca635c97938bfbe70c50eb0e12ebea867bf2d741610235696"
+      }
+    ]
+  },
+  "acceptedWave": {
+    "name": "published-spec0001-three-pose-wave",
+    "frameCount": 12,
+    "fps": 12,
+    "minimumCycleMs": 750,
+    "maximumCycleMs": 1500,
+    "orderedCycle": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 0],
+    "landmarkFrameIndexes": [0, 4, 8],
+    "landmarkNames": ["ready", "inward", "outward"],
+    "jointRoleOrder": [
+      "head",
+      "neck",
+      "hip",
+      "leftElbow",
+      "leftHand",
+      "rightElbow",
+      "rightHand",
+      "leftKnee",
+      "leftFoot",
+      "rightKnee",
+      "rightFoot"
+    ],
+    "unrelatedStableRoles": [
+      "head",
+      "neck",
+      "hip",
+      "leftElbow",
+      "leftHand",
+      "leftKnee",
+      "leftFoot",
+      "rightKnee",
+      "rightFoot"
+    ],
+    "actingRoles": ["rightElbow", "rightHand"],
+    "segmentRolePairs": [
+      ["head", "neck"],
+      ["neck", "hip"],
+      ["neck", "leftElbow"],
+      ["leftElbow", "leftHand"],
+      ["neck", "rightElbow"],
+      ["rightElbow", "rightHand"],
+      ["hip", "leftKnee"],
+      ["leftKnee", "leftFoot"],
+      ["hip", "rightKnee"],
+      ["rightKnee", "rightFoot"]
+    ],
+    "landmarks": [
+      {
+        "name": "ready",
+        "frameIndex": 0,
+        "pointsByRole": {
+          "head": [960, 240],
+          "neck": [960, 340],
+          "hip": [960, 620],
+          "leftElbow": [820, 460],
+          "leftHand": [760, 580],
+          "rightElbow": [1080, 360],
+          "rightHand": [1160, 260],
+          "leftKnee": [900, 800],
+          "leftFoot": [840, 980],
+          "rightKnee": [1020, 800],
+          "rightFoot": [1080, 980]
+        }
+      },
+      {
+        "name": "inward",
+        "frameIndex": 4,
+        "pointsByRole": {
+          "head": [960, 240],
+          "neck": [960, 340],
+          "hip": [960, 620],
+          "leftElbow": [820, 460],
+          "leftHand": [760, 580],
+          "rightElbow": [1080, 300],
+          "rightHand": [1020, 220],
+          "leftKnee": [900, 800],
+          "leftFoot": [840, 980],
+          "rightKnee": [1020, 800],
+          "rightFoot": [1080, 980]
+        }
+      },
+      {
+        "name": "outward",
+        "frameIndex": 8,
+        "pointsByRole": {
+          "head": [960, 240],
+          "neck": [960, 340],
+          "hip": [960, 620],
+          "leftElbow": [820, 460],
+          "leftHand": [760, 580],
+          "rightElbow": [1120, 300],
+          "rightHand": [1280, 220],
+          "leftKnee": [900, 800],
+          "leftFoot": [840, 980],
+          "rightKnee": [1020, 800],
+          "rightFoot": [1080, 980]
+        }
+      }
+    ],
+    "semanticOracle": {
+      "ready": "The right hand is raised outside the right elbow.",
+      "inward": "The right hand crosses inward of the right elbow.",
+      "outward": "The right hand reaches farther outward than the ready pose.",
+      "minimumCanonicalWristExcursion": 240,
+      "stableBodyCoordinateTolerance": 0,
+      "renderedLandmarkTolerancePixels": 2,
+      "renderedLimbLengthTolerancePixels": 2,
+      "maximumOneFrameRenderedWristTravelPixels": 120
+    }
+  },
+  "requiredMutationCases": [
+    {"id": "immediate-play-pause", "expectedFailure": "complete_cycle_missing"},
+    {"id": "skipped-frame", "expectedFailure": "ordered_cycle_mismatch"},
+    {"id": "out-of-order-frame", "expectedFailure": "ordered_cycle_mismatch"},
+    {"id": "frozen-all-frames", "expectedFailure": "wave_landmarks_missing"},
+    {"id": "missing-inward-landmark", "expectedFailure": "inward_landmark_missing"},
+    {"id": "missing-outward-landmark", "expectedFailure": "outward_landmark_missing"},
+    {"id": "one-frame-wrist-teleport", "expectedFailure": "wrist_teleport"},
+    {"id": "root-foot-drift", "expectedFailure": "unrelated_body_drift"},
+    {"id": "broken-limb-length", "expectedFailure": "limb_length_mismatch"},
+    {"id": "wrong-cycle-timing", "expectedFailure": "cycle_timing_out_of_bounds"},
+    {"id": "screenshot-only", "expectedFailure": "timestamped_trace_missing"},
+    {"id": "wrong-source-hash", "expectedFailure": "accepted_source_hash_mismatch"},
+    {"id": "circular-self-generated-reference", "expectedFailure": "independent_oracle_missing"}
+  ]
+}

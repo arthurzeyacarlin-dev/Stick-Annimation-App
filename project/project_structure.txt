@@ -239,6 +239,10 @@
 ./scripts/fixtures/spec0004-stick/v2/phase2-motion-cases.json
 ./scripts/fixtures/spec0004-stick/v3
 ./scripts/fixtures/spec0004-stick/v3/phase25-timing-cases.json
+./scripts/fixtures/spec0005-stick
+./scripts/fixtures/spec0005-stick/v1
+./scripts/fixtures/spec0005-stick/v1/playback-quality-review-plan.json
+./scripts/fixtures/spec0005-stick/v1/quality-baseline-cases.json
 ./scripts/fixtures/stick-ai
 ./scripts/fixtures/stick-ai/v1
 ./scripts/fixtures/stick-ai/v1/canonical-hash-vectors.json
@@ -354,6 +358,10 @@
 ./scripts/spec0004-stick/validatePhase1Proof.ts
 ./scripts/spec0004-stick/validatePhase25Proof.ts
 ./scripts/spec0004-stick/validatePhase2Proof.ts
+./scripts/spec0005-stick
+./scripts/spec0005-stick/phase1BrowserProof.ts
+./scripts/spec0005-stick/recordPhase1Proof.ts
+./scripts/spec0005-stick/validatePhase1Proof.ts
 ./scripts/sync_docs_to_github.sh
 ./scripts/traceExplosionLivePath.ts
 ./scripts/traceGenerateSoundsLivePath.mjs
@@ -386,6 +394,7 @@
 ./scripts/validateStickFigureCommandTransaction.ts
 ./scripts/validateStickFigureMotionEngine.ts
 ./scripts/validateStickHistoryPersistence.ts
+./scripts/validateStickMotionQualityBaseline.ts
 ./scripts/validateStickPoseTimeline.ts
 ./scripts/validateTimelinePlaybackSmoothing.ts
 ./src

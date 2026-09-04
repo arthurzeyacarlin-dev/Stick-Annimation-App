@@ -5,6 +5,18 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-04 — Accepted and technically closed SPEC-0005 Phase 1
+
+- recorded D-0044: Arthur accepted the published SPEC-0001 12-frame/12-FPS three-pose wave as SPEC-0005 Phase 1's historical readability floor; this accepts the quality gate and does not claim any runtime-motion improvement or final professional smoothness
+- preserved the stopped executor's exact six authorized proof/fixture paths from activation/base `2b4f00e7a122c196b2c0600144cd638b461bbb2f` and the exact 10,011-byte manifest SHA-256 `af287680b7ae73fd4c543edf8076d9fbb7fb65474a5d4508f8b17dde56174e84`
+- recorded 13 bad-motion mutation rejections, 11 proof-contract mutations, two complete browser `0..11..0` cycles in 1,262.4/1,085.0 ms, 26 timestamped geometry samples, six landmarks, 260 limb checks, four images, TypeScript/scoped-lint/diff proof, the 40-operation permanent tester, and zero external/API/provider traffic or actionable browser errors
+- preserved the successful 102-check manifest validation receipt; revalidated all six source files and 12 immutable artifacts exactly, plus the live log's exact 294-byte manifest-bound prefix after 200 bytes of successful review GETs and a seven-byte process-termination sequence were appended, leaving 501 bytes total
+- stopped only manifest-recorded PID/PGID `90076`, verified port `58451` closed, removed only its exact disposable review copy, and retained durable ignored proof under `output/spec-0005/phase-1/**`
+- marked Phase 1 accepted/technically Verified with publication pending, completed GIT-038/STICK-016, and opened explicitly authorized GIT-039 for the later exact publication; Phase 2 remains unauthorized
+- preserved rejected SPEC-0004 Phase 2.6 as unpublished/unintegrated and kept SPEC-0004 paused before Phase 3
+
+This Control Plane Architect closeout changes only canonical records and generated project structure. It changes no accepted six-file implementation/proof-source byte, runtime/component/current fixture/package/config/environment/provider/API/deployment state, Git index/history, or `/8de8/` worktree; it does not publish Phase 1 or begin Phase 2.
+
 ### 2026-09-04 — Authored SPEC-0005 professional shared Stick motion-engine activation
 
 - recorded D-0043: Arthur rejected the unpublished SPEC-0004 Phase 2.6 result after human motion review; it remains unaccepted, unpropagated, unpublished, and unintegrated, while published SPEC-0004 Phases 1, 2, and timing-only 2.5 remain unchanged

@@ -1,15 +1,15 @@
 # SPEC-0005 — Professional Shared Stick Motion Engine
 
-Status: **Proposed and decision-complete. Arthur has approved the product/spec direction and selected Phase 1 as the next implementation only after this docs-only activation is reviewed, published, and integrated. No implementation phase is active.**
+Status: **Approved. Phase 1 is accepted by Arthur and technically Verified; publication/integration is pending. Phase 2 is not authorized and must not start before Phase 1 publication.**
 
 Owner: Arthur
 Spec role: Spec Architect
 Created: 2026-09-04
 Last updated: 2026-09-04
-Decision link: [D-0043](../DECISIONS.md)
+Decision links: [D-0043 and D-0044](../DECISIONS.md)
 Related work: [`SPEC-0004`](0004-future-real-ai-animator-requirements.md), [`TODO SPEC-005`](../TODO.md), [`Current State`](../CURRENT_STATE.md), [`Session Handoff`](../SESSION_HANDOFF.md)
 
-> **Lifecycle boundary.** This task creates specification and control-plane records only. It does not implement, stage, commit, merge, push, publish, deploy, start an executor, create a review server, contact a provider, or spend money. Phase 1 becomes the next implementation task only after this exact activation is reviewed and separately published/integrated into clean canonical `main`.
+> **Lifecycle boundary.** The docs-only activation was published/integrated in exact commit `2b4f00e7a122c196b2c0600144cd638b461bbb2f`. One dedicated Phase 1 Spec Executor then completed the exact six-path proof-only result from that base and stopped. Arthur accepted the historical wave as the Phase 1 readability floor, and the Control Plane Architect completed propagation/closeout without changing the six accepted bytes. Phase 1 publication remains a separate later operation; Phase 2 cannot start before that publication is complete.
 >
 > **SPEC-0004 relationship.** SPEC-0004 Phases 1, 2, and timing-only Phase 2.5 remain Verified, published, and integrated. The unpublished Phase 2.6 executor result was rejected by Arthur after human motion review and is not accepted, propagated, published, or runtime truth. This spec supersedes Phase 2.6's intended shared-motion job. SPEC-0004 is paused before Phase 3 until all seven SPEC-0005 phases are accepted, published, and integrated. This does not move, authorize, or rewrite SPEC-0004's later real-provider/Terra phase.
 
@@ -197,7 +197,7 @@ Ignored artifacts may exist only under `output/spec-0005/phase-1/**`. Every runt
 
 **Non-goals.** No motion-engine, app, fixture-source, playback-runtime, UI, provider, dependency, or project-data change. Phase 1 judges proof quality only; it does not claim the historical held wave is the final smooth-motion target.
 
-**Entry gate.** This SPEC-0005 activation is reviewed, published, and integrated into clean canonical `main`; the executor starts from that exact SHA with empty index, exclusive worktree, and the six-path ceiling. Phase 1 is the only selected next implementation.
+**Entry gate.** Satisfied: the SPEC-0005 activation was reviewed, published, and integrated in clean canonical `main` at `2b4f00e7a122c196b2c0600144cd638b461bbb2f`; the executor started from that exact detached SHA with empty index, exclusive worktree, and the six-path ceiling.
 
 **App-copy review.** One ordinary link loads the accepted historical wave. Arthur presses Play, watches two complete loops, confirms ready → inward → outward is readable and the rest of the body is stable, pauses, scrubs frames `0`, `4`, and `8`, and confirms normal timeline/manual controls remain present.
 
@@ -212,6 +212,18 @@ Ignored artifacts may exist only under `output/spec-0005/phase-1/**`. Every runt
 **Stop boundary / later relationship.** Return an Implementation Review Packet and stop with empty index. No engine code or Phase 2 begins. Phase 2 may rely on this harness only after Phase 1 is human-accepted, CPA-closed, and separately published/integrated.
 
 **Recommended executor.** `gpt-5.6-sol`, `xhigh`, because proof independence and real-browser timing are high-risk even though runtime scope is zero.
+
+#### Phase 1 accepted implementation and evidence
+
+Arthur accepted the historical wave as the protected Phase 1 readability floor after watching the ordinary app review flow. This acceptance does not claim that Phase 1 improves motion or that the held historical wave is the later professional smooth-motion target.
+
+The stopped executor added exactly the six authorized fixture/proof paths from exact base/HEAD `2b4f00e7a122c196b2c0600144cd638b461bbb2f`, with an empty index and no runtime/component/current-fixture/package/config/control-plane change. The accepted manifest is `output/spec-0005/phase-1/proof-manifest.json`, exactly 10,011 bytes at SHA-256 `af287680b7ae73fd4c543edf8076d9fbb7fb65474a5d4508f8b17dde56174e84`.
+
+The proof records six successful technical receipts: independent quality baseline plus 13 required bad-motion mutations; TypeScript; scoped lint; 11-case proof-validator mutation contract; exact Git/diff/scope; and the clean permanent browser regression. The two real-browser runs observed `0..11..0` at `1440×900` in 1,262.4 ms and `390×844` in 1,085.0 ms, with 26 timestamped geometry samples, six landmark checks, 260 limb-length checks, four ordinary/time-based screenshots, and zero external/API/provider requests or actionable console/page errors. The permanent tester passed 40 operations, 13 screenshots, three historical negative cases, zero real API/non-loopback/provider traffic, and complete cleanup.
+
+The preserved successful independent validation receipt records 102 passing checks against the exact manifest. After Arthur's review, later local GETs appended 200 bytes to the live server log, and normal process termination appended a seven-byte terminal-reset sequence, leaving 501 bytes total; the original 294 manifest-bound bytes remain an exact SHA-256-matching prefix, while all other 12 artifacts and all six source files still match their complete bound hashes/sizes. CPA closeout stopped only manifest-recorded PID/PGID `90076`, verified loopback port `58451` closed, removed only the exact disposable copy, and preserved durable ignored evidence. This append-only review traffic is not an accepted source-byte or runtime change.
+
+Phase 1 is therefore accepted and technically Verified, with publication/integration pending. Phase 2 remains unauthorized until the exact Phase 1 result and reviewed control-plane record are separately published/integrated into clean canonical `main`.
 
 ### Phase 2 — Action-Independent Whole-Body Key-Pose Maker
 
@@ -524,6 +536,4 @@ Named gates that do not block Phase 1:
 
 ## 10. Handoff
 
-After this docs-only activation is reviewed and separately published/integrated, the exact next task is one new dedicated Plan-mode **SPEC-0005 Phase 1 Spec Executor** from that clean canonical-main publication SHA, using only the six Phase 1 paths and `output/spec-0005/phase-1/**`.
-
-Until that publication occurs, do not start an executor. Do not touch the rejected `/8de8/` worktree, implement any engine phase, resume SPEC-0004 Phase 3, contact a provider, create a review copy, stage, commit, merge, push, publish, or deploy.
+The exact next lifecycle action is the separately authorized publication/integration of the accepted six Phase 1 paths plus reviewed control-plane/tree paths. Until that publication is completed and verified, do not start Phase 2 or another executor. Do not touch the rejected `/8de8/` worktree, resume SPEC-0004 Phase 3, contact a provider, create another review copy, deploy, or expand scope.

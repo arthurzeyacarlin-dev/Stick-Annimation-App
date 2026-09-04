@@ -2,11 +2,30 @@
 
 Status: canonical last-known stopping point
 Last updated: 2026-09-04
-Active specs: `docs/specs/0001-first-reversible-ai-stick-animation.md`, `docs/specs/0002-lossless-local-drawing-save-and-reopen.md`, `docs/specs/0003-tutorials-and-cleaner-home-screen.md`, paused `docs/specs/0004-future-real-ai-animator-requirements.md`, and Proposed/decision-complete `docs/specs/0005-professional-shared-stick-motion-engine.md`
+Active specs: `docs/specs/0001-first-reversible-ai-stick-animation.md`, `docs/specs/0002-lossless-local-drawing-save-and-reopen.md`, `docs/specs/0003-tutorials-and-cleaner-home-screen.md`, paused `docs/specs/0004-future-real-ai-animator-requirements.md`, and Approved `docs/specs/0005-professional-shared-stick-motion-engine.md`
 SPEC-0004 status: **Phases 1, 2, and timing-only Phase 2.5 are Verified, published, and integrated. The unpublished Phase 2.6 result was rejected and is superseded by SPEC-0005; SPEC-0004 is paused before Phase 3.** GIT-033 through GIT-037 remain complete. D-0043 records the rejected-result truth and new seven-phase shared-motion direction. There is no Phase 2.7; Phases 3–8 remain unauthorized.
-SPEC-0005 status: **Proposed/decision-complete docs-only activation awaiting review and separate publication/integration.** Phase 1 is conditionally selected next only after that publication. No implementation executor is active.
-Current result: the provider-free Phase 1 engine is published/integrated in exact 28-path commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d`. GIT-034 published the Phase 2 activation at `70bf7b0799bcff8d703525bcb50c378b8a122ebf`; GIT-035 published the accepted exact eight-path technical result plus reviewed records in exact 20-path commit `e3ec6a33438c2f3d2e075b6477f18b8eb1b58e24`. GIT-036 published D-0040's exact 11-document Phase 2.5 activation in `a755f892d7737c6a10d9c381ec59c1e2fdba4d47`. GIT-037 then published the exact seven accepted Phase 2.5 technical paths plus 12 reviewed control-plane/tree paths in exact commit `16799539fb7db31e345a878aa892d4485115188b`, parent `f131e75aafccec0d1b8ecb717e2d95b518355d39`, message `Publish SPEC-0004 Phase 2.5 timing and Phase 2.6 foundation`.
+SPEC-0005 status: **Activation published/integrated at `2b4f00e7a122c196b2c0600144cd638b461bbb2f`; Phase 1 accepted by Arthur and technically Verified under D-0044; publication/integration pending under GIT-039.** Phase 2 is unauthorized and no executor is active.
+Current result: the exact six-path SPEC-0005 Phase 1 proof-only quality gate is accepted with manifest SHA-256 `af287680b7ae73fd4c543edf8076d9fbb7fb65474a5d4508f8b17dde56174e84` (10,011 bytes). It changes no runtime motion. Published SPEC-0004 Phases 1, 2, and timing-only 2.5 remain unchanged at `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d`, `e3ec6a33438c2f3d2e075b6477f18b8eb1b58e24`, and `16799539fb7db31e345a878aa892d4485115188b`; rejected Phase 2.6 remains unpublished/unintegrated and SPEC-0004 remains paused before Phase 3.
 Current roadmap phase: Phase 0 — Preserve and Stabilize
+
+## Accepted SPEC-0005 Phase 1 Result
+
+D-0044 records Arthur's acceptance of the published SPEC-0001 three-pose wave as the historical readability floor. This is an acceptance of the quality harness, not a claim that Phase 1 changed or improved visible motion. The later shared motion engine, mechanics, natural paths, gait, semantic actions, and planner door remain unimplemented.
+
+The stopped Spec Executor started from exact activation/base/HEAD `2b4f00e7a122c196b2c0600144cd638b461bbb2f`, kept an empty index, and added exactly:
+
+- `scripts/fixtures/spec0005-stick/v1/quality-baseline-cases.json`
+- `scripts/fixtures/spec0005-stick/v1/playback-quality-review-plan.json`
+- `scripts/spec0005-stick/phase1BrowserProof.ts`
+- `scripts/spec0005-stick/recordPhase1Proof.ts`
+- `scripts/spec0005-stick/validatePhase1Proof.ts`
+- `scripts/validateStickMotionQualityBaseline.ts`
+
+The accepted manifest is `output/spec-0005/phase-1/proof-manifest.json`, exactly 10,011 bytes at SHA-256 `af287680b7ae73fd4c543edf8076d9fbb7fb65474a5d4508f8b17dde56174e84`. The preserved successful validator receipt passed 102 checks. The harness rejected all 13 required bad-motion cases and all 11 material manifest mutations. Desktop and compact browser runs each observed `0..11..0` after one Play and before Pause, in 1,262.4 ms and 1,085.0 ms; total evidence is 26 timestamped geometry samples, six landmarks, 260 limb checks, four images, and zero external/API/provider requests or actionable browser errors. TypeScript, scoped lint, exact scope/diff, and the permanent tester passed; the permanent tester recorded 40 operations and 13 screenshots with zero real API/non-loopback/provider traffic.
+
+After Arthur's review, later local GETs appended 200 bytes to the live `review-server.log`, and normal process termination appended a seven-byte terminal-reset sequence, leaving 501 bytes total. Its original 294 manifest-bound bytes remain an exact prefix at SHA-256 `637d481e2da0de2923489e85b4c8cd35db6456360d20e86c275a9aeb67a392ae`; all other 12 artifacts and all six source files match their complete manifest bindings. CPA closeout stopped only PID/PGID `90076`, verified port `58451` closed, removed only `/var/folders/6l/2_fgg86s2h3_y9wg5npsfzyh0000gn/T/diamond-spec0005-phase1-wave-review-GTk0su`, and preserved durable ignored evidence.
+
+GIT-039 is the exact next task and is already explicitly authorized for a later sequential publication turn after PM review of this CPA packet. It may stage only the six frozen accepted paths plus reviewed control-plane/tree paths, publish them, fast-forward clean canonical `main`, push normally, and prove `0/0`. Phase 2 must not start first.
 
 ## Accepted SPEC-0004 Phase 1 Result
 
@@ -93,7 +112,7 @@ Read-only inspection found the proof gap: action fixtures still supplied full ra
 
 D-0043 activates [`SPEC-0005 — Professional Shared Stick Motion Engine`](specs/0005-professional-shared-stick-motion-engine.md) as the decision-complete replacement. Its exact pipeline is Pretend AI or future Terra movement goal → whole-body key poses → weight/support/ground mechanics → natural timed paths/in-betweens → complete ordinary independent editable Stick keyframes → full-playback automation and Arthur review. It has exactly seven sequential phases and preserves every SPEC-0004 transaction/manual/protected-system boundary.
 
-The docs-only activation is not yet published. After review and separate publication/integration, the next task is one new Plan-mode Phase 1 executor with exactly these six tracked paths:
+The docs-only activation was published/integrated in exact commit `2b4f00e7a122c196b2c0600144cd638b461bbb2f`. Phase 1 then completed and was accepted under D-0044 with exactly these six tracked paths:
 
 - `scripts/fixtures/spec0005-stick/v1/quality-baseline-cases.json`
 - `scripts/fixtures/spec0005-stick/v1/playback-quality-review-plan.json`
@@ -102,7 +121,7 @@ The docs-only activation is not yet published. After review and separate publica
 - `scripts/spec0005-stick/validatePhase1Proof.ts`
 - `scripts/validateStickMotionQualityBaseline.ts`
 
-Phase 1 changes no runtime and may write ignored artifacts only under `output/spec-0005/phase-1/**`. It protects the published 12-frame wave, requires ordered full playback `0 → … → last → 0`, independent reference/bad-motion oracles, permanent-browser proof, and one ordinary review link.
+Phase 1 changes no runtime and writes ignored artifacts only under `output/spec-0005/phase-1/**`. It protects the published 12-frame wave, proves ordered full playback `0 → … → 11 → 0`, binds independent reference/bad-motion oracles, and passed the permanent-browser and ordinary-review gates. Publication remains pending.
 
 ## Prior Completed SPEC-0003 Result
 
@@ -174,13 +193,15 @@ Prior SPEC-0003 publication record:
 
 SPEC-0004 Phases 1, 2, and timing-only Phase 2.5 are fully closed, published, and integrated. GIT-033 through GIT-037 are complete. Exact GIT-037 publication commit `16799539fb7db31e345a878aa892d4485115188b` contains only the accepted seven technical paths plus 12 reviewed control-plane/tree paths. The later unpublished Phase 2.6 result was rejected and is superseded, not completed. SPEC-0004 is paused before Phase 3.
 
-The exact next lifecycle action is human review and separate publication/integration of this SPEC-0005 docs-only activation. Only after that publication may one fresh dedicated Plan-mode SPEC-0005 Phase 1 Spec Executor start from the activation SHA under its exact six-path ceiling. Until then, do not create/start an executor, touch the rejected `/8de8/` worktree, correct Phase 2.6, create Phase 2.7, or perform SPEC-0004 Phase 3, provider/API/paid, Drawing/workspace-integration, or deployment work.
+The exact next lifecycle action is GIT-039: later sequential publication/integration of the frozen six accepted SPEC-0005 Phase 1 paths plus reviewed control-plane/tree paths. Until that publication is complete, do not start Phase 2 or another executor, touch the rejected `/8de8/` worktree, correct Phase 2.6, create Phase 2.7, or perform SPEC-0004 Phase 3, provider/API/paid, Drawing/workspace-integration, or deployment work.
 
 ## Proven and Not Proven
 
 Proven for SPEC-0004 Phase 2.5: exact base `f131e75aafccec0d1b8ecb717e2d95b518355d39`; exclusive transfer from the stopped executor; exact seven-path implementation within exact 19-path publication commit `16799539fb7db31e345a878aa892d4485115188b`; strict bound timing-sidecar validation and separately selected local timing materializer; complete independent ordinary keyframes; transaction and protected regressions; exact 14,601-byte manifest at SHA-256 `783e6396cf994ce48fb9d7c94dc58674594dd545f888a9c25fe3c1f654a788d1`; 250-check independent live validation; 21 bound artifacts; 12 technical receipts; 1,609 assertions; five valid plans; 30 timing rejections; 20 inherited Phase 2 cases; 40 browser flows; eight screenshots; zero external/API/provider requests; frozen accepted source hashes; and exact temporary-server/copy cleanup. The clean publication tester passed 40 operations, 13 screenshots, four messages, all 37 negatives, one mocked Drawing POST, zero real API/non-loopback/provider requests, and cleanup. Result SHA-256 is `de043f7b3daa647961b952bc48890c79a8f8a858f6ffc9d9afc52623bdf636b3`; browser-ledger SHA-256 is `683ea5224642a884a94eda5e1a0aaf146d6ebe1bd58787694903789d351e87cf`; server-ledger SHA-256 is `b8f6ad815ef3b6cb95e7ddf7c0115f3db54ed27096a80912a1de6c41111fc50b`.
 
-Explicitly not proven or accepted by Phase 2.5: natural action poses, contact/weight/body mechanics, readable landing/recovery, action intent purity, or professional-quality visible motion. The old wave/jump/bow/dodge samples are rejected natural-action evidence. The later Phase 2.6 executor proved strict technical properties but not accepted visible quality; its bytes remain unpublished/rejected and are not current behavior. SPEC-0005 is specification only and proves no new runtime behavior. Broader natural-language matching, Terra/provider/API/paid work, deployment, unified workspace behavior, and SPEC-0004 Phases 3–8 also remain unperformed.
+Proven for SPEC-0005 Phase 1: the exact independent historical-reference catalog, all required bad-motion rejections, complete two-viewport playback capture, timing/landmark/stability/limb checks, TypeScript/scoped-lint/diff/scope, permanent regression, zero-egress evidence, exact source/artifact bindings, Arthur's readability-floor acceptance, and review cleanup. Explicitly not proven or changed: improved/new runtime motion, whole-body pose creation, contact/weight/body mechanics, natural path quality, gait, semantic action generation, planner routing, provider behavior, or professional-release quality.
+
+The old SPEC-0004 wave/jump/bow/dodge samples remain rejected natural-action evidence. The later Phase 2.6 executor proved strict technical properties but not accepted visible quality; its bytes remain unpublished/rejected and are not current behavior. Broader natural-language matching, Terra/provider/API/paid work, deployment, unified workspace behavior, and SPEC-0004 Phases 3–8 also remain unperformed.
 
 ## Systems Intentionally Left Unchanged
 

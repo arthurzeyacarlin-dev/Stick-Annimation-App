@@ -1,0 +1,61 @@
+{
+  "planVersion": 1,
+  "phase": "SPEC-0005 Phase 1 — Accepted Motion References and Full-Playback Quality Gate",
+  "sourceHead": "2b4f00e7a122c196b2c0600144cd638b461bbb2f",
+  "qualityCatalogPath": "scripts/fixtures/spec0005-stick/v1/quality-baseline-cases.json",
+  "viewports": [
+    {"name": "desktop-1440x900", "width": 1440, "height": 900},
+    {"name": "compact-390x844", "width": 390, "height": 844}
+  ],
+  "automatedFlow": [
+    "open ordinary Stick workspace with the accepted wave preloaded",
+    "confirm normal controls and twelve timeline cells",
+    "select frame 0 before sampling",
+    "start timestamped frame-and-geometry observer",
+    "click Play exactly once",
+    "observe 0 through 11 and the wrap to 0 without a frame click",
+    "click Pause only after the wrap",
+    "verify elapsed time, landmarks, stable unrelated body, and all ten rendered limb lengths",
+    "capture an ordinary screenshot and a time-labelled playback contact sheet",
+    "confirm zero API, provider, and external requests and zero actionable page errors"
+  ],
+  "humanReview": {
+    "loopsToWatch": 2,
+    "steps": [
+      "Open the ordinary loopback link.",
+      "Confirm the normal Stick workspace, timeline, and manual controls are visible.",
+      "Press Play once and watch at least two uninterrupted loops.",
+      "Press Pause after a loop completes.",
+      "Scrub Frames 1, 5, and 9 (indexes 0, 4, and 8).",
+      "Confirm ready, inward, and outward wave poses are readable and the head, root, feet, legs, and non-waving arm remain stable."
+    ],
+    "requiredDecision": "Arthur accepts or rejects the historical wave as the protected readability floor; automation does not award professional quality."
+  },
+  "reviewSurface": {
+    "loopbackHost": "127.0.0.1",
+    "port3000Forbidden": true,
+    "queryFlagForbidden": true,
+    "hashFlagForbidden": true,
+    "privateReviewBoxForbidden": true,
+    "pickerForbidden": true,
+    "overlayForbidden": true,
+    "testerButtonForbidden": true,
+    "productRouteForbidden": true,
+    "appCodeChangeForbidden": true
+  },
+  "requiredMutationIds": [
+    "immediate-play-pause",
+    "skipped-frame",
+    "out-of-order-frame",
+    "frozen-all-frames",
+    "missing-inward-landmark",
+    "missing-outward-landmark",
+    "one-frame-wrist-teleport",
+    "root-foot-drift",
+    "broken-limb-length",
+    "wrong-cycle-timing",
+    "screenshot-only",
+    "wrong-source-hash",
+    "circular-self-generated-reference"
+  ]
+}

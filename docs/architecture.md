@@ -1,7 +1,7 @@
 # Architecture and System Map
 
 Status: canonical current architecture map
-Last traced: 2026-09-04 through published SPEC-0004 Phases 1, 2, and timing-only 2.5, the rejected unpublished Phase 2.6 evidence, and D-0043's decision-complete SPEC-0005 boundary
+Last traced: 2026-09-04 through published SPEC-0004 Phases 1, 2, and timing-only 2.5, rejected unpublished Phase 2.6 evidence, and accepted proof-only SPEC-0005 Phase 1
 
 ## Runtime Overview
 
@@ -54,7 +54,7 @@ The main product screens are not URL routes. `app/page.tsx` owns a `view` union 
 | Drawing project persistence | `src/lib/drawingProjectStorage.ts` | Version-1 localStorage envelope, CRUD, cloning, quota fallback |
 | Drawing AI project memory | `drawingAiProjectMemory.ts`, `drawingProjectAiMemorySync.ts`, memory API route | Per-animation-project semantic memory and optional Supabase sync |
 | Stick workspace | `src/components/workspace/stickfigure/StickFigureWorkspace.tsx` and siblings, `src/lib/stickfigure/stickTimeline.ts`, `stickProjectContract.ts`, `stickProjectHistory.ts`, `stickProjectStorage.ts` | Canonical editable timeline/history/storage root, independent keyframe poses plus owner-resolved holds, manual joint edits, playback/onion, Creator continuity, and the published SPEC-0004 Phase 1 one-time creation latch/transaction wiring. Editing a held slot currently edits its owner content, so Phase 2 generated output must not use holds. |
-| Stick animation plan/executor | `src/lib/ai/stickFigureAiContract.ts`, `stickFigureCommandExecutor.ts`, `stickFigureMotionEngine.ts`, `stickFigureAiWorkspaceAdapter.ts` | Published Phase 6 wave contract plus published SPEC-0004 Phase 1 strict fixed-fixture plan. Published Phase 2 adds a separately selected independent-keyframe materializer. Published timing-only Phase 2.5 adds the strict plan-bound timing sidecar and six bounded profiles while preserving Phase 1/2 defaults. The unpublished Phase 2.6 result was rejected and is not runtime truth. SPEC-0005 now defines the future shared movement-goal → pose → mechanics → path → ordinary-keyframe architecture; no SPEC-0005 runtime exists yet. |
+| Stick animation plan/executor | `src/lib/ai/stickFigureAiContract.ts`, `stickFigureCommandExecutor.ts`, `stickFigureMotionEngine.ts`, `stickFigureAiWorkspaceAdapter.ts` | Published Phase 6 wave contract plus published SPEC-0004 Phase 1 strict fixed-fixture plan. Published Phase 2 adds a separately selected independent-keyframe materializer. Published timing-only Phase 2.5 adds the strict plan-bound timing sidecar and six bounded profiles while preserving Phase 1/2 defaults. The unpublished Phase 2.6 result was rejected and is not runtime truth. SPEC-0005 Phase 1 adds only an accepted independent full-playback proof gate; the future movement-goal → pose → mechanics → path → ordinary-keyframe runtime still does not exist. |
 | Stick creator | `StickFigureCreatorWorkspace.tsx`, `types.ts` | Standalone local rig-creation experiment; save disconnected |
 | Dev cost visibility | `src/lib/ai/devAiCostDashboard.ts`, `app/dev/ai-costs/**` | Local model-call cost logs and dashboards |
 
@@ -110,7 +110,7 @@ D-0041 accepts Phase 2.5's exact seven-path result as the timing/spacing primiti
 
 The human review boundary is equally architectural: Phase 2.5 proves timing math, not natural action planning. Its old jump inherited a wave hand and floated, its bow was too compressed, and its dodge reversed while both feet slid. A later unpublished Phase 2.6 attempted an action-specific `stick.action-foundation/v1` validator around full coordinate recipes. Its technical manifest was green, but Arthur rejected the visible motion; its browser proof did not observe a full playback cycle and its frozen expected frames were regenerated through the same implementation path. Those bytes are not accepted or published.
 
-D-0043 replaces that approach with SPEC-0005's one strict `stick.movement-goal/v1` boundary and staged local architecture: planner intent → action-independent whole-body pose creation → support/weight/ground mechanics → natural paths/timing/gravity → complete ordinary independent keyframes. Pretend AI and a future Terra adapter must use the same bounded intent and local engine. The planner cannot return raw coordinates/code or select another animation format. SPEC-0005 currently changes documentation only and connects no route, language interpretation, provider/API call, app UI, live tween/controller, or stored AI authority.
+D-0043 replaces that approach with SPEC-0005's one strict `stick.movement-goal/v1` boundary and staged local architecture: planner intent → action-independent whole-body pose creation → support/weight/ground mechanics → natural paths/timing/gravity → complete ordinary independent keyframes. Pretend AI and a future Terra adapter must use the same bounded intent and local engine. The planner cannot return raw coordinates/code or select another animation format. D-0044 accepts Phase 1's proof-only independent reference/full-playback gate; it connects no engine/runtime, route, language interpretation, provider/API call, app UI, live tween/controller, or stored AI authority.
 
 Stick saved record version 2 stores that latch beside the editable document/view state. Existing record version 1 remains readable and conservatively defaults to consumed; opening does not rewrite it, while a normal explicit Save writes version 2. After successful Apply, later AI submissions return `AI editing comes later; use manual tools.` before executor/provider work. The normal published chat still recognizes only its prior wave wording; natural-language routing for the broader engine is a later phase.
 
@@ -154,7 +154,7 @@ Incidental cleanup inside these files is prohibited unless the active spec inclu
 - complete, versioned project schema and migrations
 - durable autosave/recovery and project-file import/export
 - unified render/composite contract across edit, playback, save, reopen, and export
-- broader Stick scene/language/model behavior beyond published SPEC-0004 Phases 1–2.5; rejected Phase 2.6 is not runtime truth, and SPEC-0005 has no implementation yet
+- broader Stick scene/language/model behavior beyond published SPEC-0004 Phases 1–2.5; rejected Phase 2.6 is not runtime truth, and accepted SPEC-0005 Phase 1 is proof infrastructure rather than engine implementation
 - general AI editing, recoloring, continuation, and multi-step transaction semantics after Apply
 - authenticated user/project ownership and rate limiting
 - repeatable unit/integration/E2E suite and CI

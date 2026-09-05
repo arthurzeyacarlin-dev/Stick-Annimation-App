@@ -5,6 +5,18 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-05 — Corrected SPEC-0005 Phase 2/3 API and Phase 4 airborne ceiling
+
+- recorded completed GIT-041 at canonical `46b97556ec4e9c9249a1ff354c546f7b1c32ea4d` and the distinct stopped `/7dfc/` Phase 2 body-safety result as implemented-but-publication-blocked, not accepted/Verified/published or the older rejected pose-maker
+- recorded historical manifest SHA-256 `ea7ab9c5a142843b109ad49924f4709660347265099740312a666eca07972cd4` (17,826 bytes) as read-only non-acceptance evidence
+- added D-0047's two-stage safety contract: checked immutable important-pose selection receives no final frames/document; stationary-rest qualification comes only from independently checked identical important-pose intervals; final completion recomputes binding/selection and validates every rounded/post-repair frame and semantic continuity before the one final candidate/Preview door
+- preserved the exact eight Phase 2 paths and at least 10,000 fixed-seed valid/invalid plus 10,000 mirror property floor; added selection-before-test-local-bake proof and tampered/stale/rounded/repair/helper/legacy/trust/skip/action/fixture bypass negatives; direction/mirror/rise-lower cases are explicitly 2D placement proof, not travel or jumps
+- expanded future Phase 4's exact ceiling from nine to twelve paths by adding the body-safety module and both current validators; mechanics-qualified airborne requires the complete important-pose/mechanics sequence at selection and full baked sequence at completion, with no Phase 2 airborne generation or caller flag
+- preserved every numerical anatomy/bend/continuity/manual-ownership rule and deferred deliberate hyperextension/unusual left-right semantics to a separate future custom/unusual-body spec
+- made independent PM review → separate GIT-042 docs publication → later explicit same-worktree `/7dfc/` correction authorization the exact handoff; basis reconciliation preserves the eight dirty bytes, the historical manifest is not overwritten, and only one same-worktree ordinary review process may exist
+
+This docs-only task changed the same twelve canonical documents and nothing else. Phase 2 correction is not started; `/7dfc/`, its server, runtime/proof bytes, Git state, app copies, providers, deployment, and Phases 3–8 remain unchanged.
+
 ### 2026-09-05 — Clarified SPEC-0005 Phase 2 ordinary regression-review delivery
 
 - preserved the exact eight-phase plan, eight-path Phase 2 implementation ceiling, planner-independent body-safety rules, technical proof, product non-goals, provider prohibition, and Phase 3–8 authorization state

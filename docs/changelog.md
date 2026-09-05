@@ -5,6 +5,28 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-05 — Clarified SPEC-0005 Phase 2 ordinary regression-review delivery
+
+- preserved the exact eight-phase plan, eight-path Phase 2 implementation ceiling, planner-independent body-safety rules, technical proof, product non-goals, provider prohibition, and Phase 3–8 authorization state
+- recorded Arthur's request that, only after every Phase 2 technical gate passes, the executor leave exactly one fresh ordinary app instance served unchanged directly from its exact unpublished worktree at one loopback-only non-`3000` root URL so he can smoke-check existing app behavior
+- prohibited any duplicated/injected review source, blue box, picker, overlay, tester control, fixture injection, preloaded new action/project, query/hash flag, special route, public asset, product/UI change, or claim that the ordinary app demonstrates the new safety kernel
+- required the Phase 2 manifest to bind the review URL/port, launch command, PID/process group, exact worktree path, base/HEAD/index/eight-path dirty source identity and hashes/sizes, startup/network logs, regression-only purpose, false safety/new-motion claims, and bounded cleanup instructions
+- kept Phase 2 technical-only and Phase 3 as the first human review of new safety-gated motion
+
+This reconciliation changes only the same reviewed specification/control-plane paths. It creates no runtime/test/fixture/proof byte or app process, performs no Git publication, and leaves GIT-041 as the next separate lifecycle action.
+
+### 2026-09-04 — Restructured SPEC-0005 around a planner-independent body-safety gate
+
+- recorded GIT-040 as complete in exact 12-document commit `b5ddd5e3f4fb3b19e5c7c2be8a1bd35b0f8d6070`, message `Authorize SPEC-0005 Phase 2 whole-body poses`
+- recorded Arthur's rejection of the technically green first former SPEC-0005 Phase 2 motion result: no runtime/fixture/test/proof byte was accepted, propagated, committed, published, or integrated, and its disposable app/worktree was removed
+- recorded D-0046 and restructured SPEC-0005 to exactly eight phases: accepted reference/full playback; planner-independent Body Safety Gate/Foundation; whole-body poses; mechanics/weight/contact; paths/timing/gravity; walk/run; core actions; and the shared provider-free planner door; no fractional SPEC-0005 phase exists
+- made the exact pipeline non-bypassable: movement goal → enumerate candidates → important-pose safety → mechanics/required insertion → path/timing bake → post-rounding/post-contact safety → final semantic/continuity → Preview
+- froze the concrete `humanoid-11-v1` topology, coordinate/sign/mirroring conventions, safety limits, branch enumeration/selection, fail-closed behavior, and safety-module integration contract needed to prevent unsafe branches, near-locks, unwanted movement, overshoot, unsafe in-betweens, recovery drift, and loop snaps
+- authorized only the fresh restructured technical-only Phase 2 after separate D-0046 publication, with an exact eight-path ceiling, ignored `output/spec-0005/phase-2/**`, an independent non-importing oracle, at least 10,000 fixed-seed property/mirror cases, named catastrophic negatives, source/AST bypass checks, and inherited regressions
+- kept Phase 2 technical-only and deferred Arthur's first new visible-output review to Phase 3; the 2026-09-05 entry above adds one ordinary existing-app regression-smoke instance without changing this new-motion boundary; kept Phases 3–8 Unauthorized/Not started and preserved SPEC-0005 Phase 1 and every accepted SPEC-0004 byte unchanged
+
+This Spec Architect task changes canonical documentation and the generated project tree only. GIT-041 remains the separate publication step; only its publication SHA may become the base for one fresh dedicated Plan-mode Phase 2 Spec Executor. No runtime/test/product implementation, stage, commit, merge, push, deployment, provider/API/paid request, or review app occurred.
+
 ### 2026-09-04 — Recorded SPEC-0005 Phase 1 publication and authorized Phase 2
 
 - closed GIT-039 with exact 20-path commit `2436a9414221e8ee7ef40151284cb8f4e069e828`, parent `2b4f00e7a122c196b2c0600144cd638b461bbb2f`, message `Publish SPEC-0005 Phase 1 quality gate`; local `main`, local `origin/main`, live GitHub `main`, and the clean publication branch matched at `0/0`

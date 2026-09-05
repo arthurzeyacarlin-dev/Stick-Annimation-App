@@ -1,7 +1,7 @@
 # AI System Snapshot
 
 Status: canonical current AI architecture and gap map
-Last traced: 2026-09-04 through published SPEC-0004 Phases 1, 2, and timing-only 2.5, rejected unpublished Phase 2.6 evidence, published proof-only SPEC-0005 Phase 1, and D-0045's not-started Phase 2 authorization
+Last traced: 2026-09-05 through published SPEC-0004 Phases 1, 2, and timing-only 2.5, both rejected unpublished motion attempts, published proof-only SPEC-0005 Phase 1, GIT-040 publication, D-0046's restructured not-started technical-only Phase 2 authorization, and its ordinary existing-app regression-review delivery clarification
 
 ## What Exists Today
 
@@ -13,7 +13,9 @@ GIT-035 published D-0039's exact Phase 2 result in commit `e3ec6a33438c2f3d2e075
 
 D-0041 accepts the exact seven-path Phase 2.5 result as the shared timing/spacing primitive only. Its strict plan-bound sidecar supplies one supported profile for each adjacent important-pose transition: acceleration/ease-in, deceleration/ease-out, natural ease-in-out, explicit-mechanical constant, or paired impact/recovery. The 14,601-byte manifest at SHA-256 `783e6396cf994ce48fb9d7c94dc58674594dd545f888a9c25fe3c1f654a788d1` passed 250 independent checks, and GIT-037 published the exact result in `16799539fb7db31e345a878aa892d4485115188b`. The old review samples are not accepted natural-action evidence: their action poses, frame allocations, contact, and weight were wrong even though the timing formulas passed.
 
-The later unpublished SPEC-0004 Phase 2.6 result is rejected and not current runtime truth. It validated action-specific `stick.action-foundation/v1` data around complete raw coordinate recipes; Arthur rejected the visible motion even though the technical manifest was green. D-0043 supersedes its intended job with SPEC-0005's seven-phase shared engine. Both later free/Pretend-AI recipes and future Terra original plans must emit the same bounded `stick.movement-goal/v1` intent and use one local sequence: whole-body poses → weight/support/ground mechanics → natural timed paths/in-betweens → complete independent editable Stick frames → Preview. D-0044's published Phase 1 adds only the independent proof gate. D-0045 authorizes the hidden, action-independent whole-body key-pose foundation only after activation publication; it does not add an AI route, model/API call, provider client, or UI. SPEC-0004 language matching and real Terra/provider work remain in their original later phases; no Phase 2.7 exists.
+The later unpublished SPEC-0004 Phase 2.6 result is rejected and not current runtime truth. It validated action-specific `stick.action-foundation/v1` data around complete raw coordinate recipes; Arthur rejected the visible motion even though the technical manifest was green. D-0043 superseded its intended job with SPEC-0005. D-0044's published Phase 1 adds only the independent proof gate. GIT-040 published D-0045's first former Phase 2 authorization in `b5ddd5e3f4fb3b19e5c7c2be8a1bd35b0f8d6070`, but Arthur rejected that executor's visible result; none of its code/proof was accepted, propagated, committed, published, or integrated, and its disposable app/worktree was removed.
+
+D-0046 corrects SPEC-0005 to exactly eight phases and one local non-bypassable sequence for both later free/Pretend-AI recipes and future Terra original plans: movement goal → enumerate candidates → important-pose safety → mechanics/required insertion → path/timing bake → post-rounding/post-contact safety → final semantic/continuity → Preview. Restructured Phase 2 authorizes only the planner-independent `humanoid-11-v1` Body Safety Gate/Foundation after D-0046 publication. It is technical-only and does not add visible motion, an AI route, model/API call, provider client, or UI. After all technical gates pass, one ordinary unchanged-source app instance may be served directly from the exact unpublished executor worktree at one loopback-only non-`3000` root URL solely for Arthur's existing-app regression smoke check; it includes no injected/preloaded review behavior and cannot demonstrate the safety seam. Arthur first reviews new safety-gated output in Phase 3. SPEC-0004 language matching and real Terra/provider work remain in their original later phases; no SPEC-0004 Phase 2.7 or fractional SPEC-0005 phase exists.
 
 There is no custom-trained Diamond Animator LLM, fine-tuning pipeline, embeddings system, vector database, or model-serving stack in this repository.
 
@@ -50,6 +52,7 @@ Planned Stick contract under SPEC-0005, not current runtime:
 - it rejects raw joint points, stored angles, executable code, arbitrary curves, unknown fields, and planner-specific animation formats;
 - Pretend AI and the provider-free Terra-shaped adapter must canonicalize to the same goal digest and may not select different engines;
 - the local engine alone creates complete ordinary editable keyframes, and all temporary planning/mechanics data is discarded before Preview.
+- the local engine must enumerate valid limb solutions and pass both the important-pose and post-rounding/post-contact safety gates before final semantic/continuity checks can expose Preview; no planner or legacy materializer may bypass those gates.
 
 ## Drawing Workspace Task Availability
 
@@ -84,7 +87,7 @@ The accepted browser proof used a blue fixture picker injected into an isolated 
 
 Phase 2's private review followed the stricter rule: Arthur saw four separate disposable loopback copies/links preloaded with wave, jump, bow, and dodge one at a time and only the ordinary Stick canvas, timeline, AI transaction area, and manual tools. No query-controlled review surface, tester overlay/control, product route, public asset, or review import was added. The temporary review servers are stopped and their isolated copies are removed.
 
-Published Phase 2.5 keeps Phase 1 and Phase 2 behavior as the defaults and adds only the separately selected `phase-2.5-timed-motion` transaction option. Timing input is strict, cloned/frozen, bound to the canonical plan digest, preserved through transaction forks, used for deterministic baked-frame IDs and interpolation progress, and discarded before the candidate reaches Preview. Its four ordinary review process groups and isolated copies are stopped/removed; their durable proof remains. The later unpublished Phase 2.6 result is rejected/superseded and must not be routed or corrected. SPEC-0005 Phase 1 is published proof infrastructure only. Phase 2 is authorized in control-plane records but has not started; no shared motion-engine or planner-door runtime has begun.
+Published Phase 2.5 keeps Phase 1 and Phase 2 behavior as the defaults and adds only the separately selected `phase-2.5-timed-motion` transaction option. Timing input is strict, cloned/frozen, bound to the canonical plan digest, preserved through transaction forks, used for deterministic baked-frame IDs and interpolation progress, and discarded before the candidate reaches Preview. Its four ordinary review process groups and isolated copies are stopped/removed; their durable proof remains. The later unpublished SPEC-0004 Phase 2.6 and first former SPEC-0005 Phase 2 results are rejected/superseded and must not be routed, corrected, or reused. SPEC-0005 Phase 1 is published proof infrastructure only. The restructured Phase 2 safety foundation is authorized in control-plane records behind D-0046 publication but has not started; no shared motion-engine or planner-door runtime has begun.
 
 ## Generate Frames Execution Path
 
@@ -143,7 +146,7 @@ Existing mechanisms:
 - the published Phase 2 motion engine remains fully local/$0/provider-free; it sends no prompt or project data anywhere
 - the published Phase 2.5 timing primitive is fully local/$0/provider-free; it sends no prompt or project data anywhere
 - the rejected unpublished Phase 2.6 result is not product/runtime truth and cannot be connected to chat, Pretend AI, or Terra
-- SPEC-0005's approved shared movement engine and planner door remain provider-free through all seven phases; published Phase 1 is proof-only, D-0045's not-started Phase 2 remains local and action-independent, and no phase may contact Terra or another provider
+- SPEC-0005's approved shared movement engine and planner door remain provider-free through all eight phases; published Phase 1 is proof-only, D-0046's restructured not-started Phase 2 remains local, planner-independent, and technical-only, and no phase may contact Terra or another provider
 - D-0038 preserves a future cost strategy only: compact Terra key-pose/timing plans, local in-betweens, safe free recipes first, at most one later bounded pre-Apply repair, measured dashboard usage, monthly budgets/credits, and no unlimited Terra. Exact pricing/model/privacy must be freshly checked at the later paid gate.
 
 In local development, the cost log writes the full user prompt along with request/model/usage metadata to `.local/ai-cost-dashboard/requests.jsonl`. That directory is ignored by Git, but no approved redaction or retention policy exists.

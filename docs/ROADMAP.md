@@ -1,7 +1,7 @@
 # Roadmap
 
 Status: canonical ordered direction; not a delivery schedule
-Last updated: 2026-09-04
+Last updated: 2026-09-05
 
 ## Roadmap Rules
 
@@ -69,7 +69,7 @@ Goals:
 
 Arthur's latest direction is AI-first, with advanced direct controls available for inspection and fine-tuning. The exact sequencing is still pending P-0008: Phase 2 and Phase 3 may interleave as a narrow AI-first vertical slice once the shared model, reversible executor, and minimum corrective controls exist. This roadmap does not silently require completing an Adobe-class manual editor before any AI stick workflow.
 
-Current shared-motion prerequisite: SPEC-0004 Phases 1, 2, and timing-only 2.5 are published/integrated. Its unpublished Phase 2.6 result was rejected and is superseded by decision-complete SPEC-0005. SPEC-0005 now owns the seven-step movement-goal → whole-body pose → support/weight → natural path/timing → locomotion → semantic action → provider-free planner-door foundation. Phase 1's proof-only historical-wave quality gate is Verified/published/integrated at `2436a9414221e8ee7ef40151284cb8f4e069e828`; it changes no runtime. D-0045 authorizes only Phase 2's whole-body key-pose maker, which remains Not started pending activation publication. The remaining phases must still be accepted and published sequentially before broader SPEC-0004 scene/provider work resumes.
+Current shared-motion prerequisite: SPEC-0004 Phases 1, 2, and timing-only 2.5 are published/integrated. Its unpublished Phase 2.6 result was rejected and is superseded by SPEC-0005. Phase 1's proof-only historical-wave quality gate remains Verified/published/integrated at `2436a9414221e8ee7ef40151284cb8f4e069e828`; it changes no runtime. GIT-040 published D-0045's first former Phase 2 authorization at `b5ddd5e3f4fb3b19e5c7c2be8a1bd35b0f8d6070`, but Arthur rejected that technically green executor result and none of its code/proof was accepted or published. D-0046 now makes SPEC-0005 exactly eight phases: reference/full playback → planner-independent body safety → whole-body pose → mechanics/weight/contact → paths/timing/gravity → walk/run → core actions → provider-free planner door. The restructured technical-only Phase 2 remains Not started pending D-0046 publication. After its technical gates pass, one ordinary unchanged-source loopback/non-`3000` app instance from the exact unpublished executor worktree is allowed solely for Arthur's existing-app regression smoke check; it adds no product behavior and proves no safety or new motion. The remaining phases must still be accepted and published sequentially before broader SPEC-0004 scene/provider work resumes.
 
 ## Phase 3 — AI-First Stick Animation
 
@@ -86,7 +86,7 @@ Goals:
 
 The AI path must manipulate the same state and history as manual tools.
 
-SPEC-0004 is explicitly paused before its Phase 3 until all seven SPEC-0005 phases are accepted, published, and integrated. This dependency does not authorize the later real Terra/provider phase, move its cost/privacy gates, or connect a live provider during SPEC-0005.
+SPEC-0004 is explicitly paused before its Phase 3 until all eight SPEC-0005 phases are accepted, published, and integrated. This dependency does not authorize the later real Terra/provider phase, move its cost/privacy gates, or connect a live provider during SPEC-0005.
 
 ## Phase 4 — Professional Product Completion
 

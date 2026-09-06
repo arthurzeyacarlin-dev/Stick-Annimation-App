@@ -243,6 +243,8 @@
 ./scripts/fixtures/spec0005-stick/v1
 ./scripts/fixtures/spec0005-stick/v1/playback-quality-review-plan.json
 ./scripts/fixtures/spec0005-stick/v1/quality-baseline-cases.json
+./scripts/fixtures/spec0005-stick/v2
+./scripts/fixtures/spec0005-stick/v2/body-safety-cases.json
 ./scripts/fixtures/stick-ai
 ./scripts/fixtures/stick-ai/v1
 ./scripts/fixtures/stick-ai/v1/canonical-hash-vectors.json
@@ -361,7 +363,9 @@
 ./scripts/spec0005-stick
 ./scripts/spec0005-stick/phase1BrowserProof.ts
 ./scripts/spec0005-stick/recordPhase1Proof.ts
+./scripts/spec0005-stick/recordPhase2SafetyProof.ts
 ./scripts/spec0005-stick/validatePhase1Proof.ts
+./scripts/spec0005-stick/validatePhase2SafetyProof.ts
 ./scripts/sync_docs_to_github.sh
 ./scripts/traceExplosionLivePath.ts
 ./scripts/traceGenerateSoundsLivePath.mjs
@@ -387,6 +391,8 @@
 ./scripts/validateSpec0001ProofBundle.ts
 ./scripts/validateSpec0002Proof.ts
 ./scripts/validateSpec0003TutorialsProof.ts
+./scripts/validateStickBodySafety.ts
+./scripts/validateStickBodySafetyIntegration.ts
 ./scripts/validateStickFigureActionTiming.ts
 ./scripts/validateStickFigureAiContracts.ts
 ./scripts/validateStickFigureAiMockRoute.ts
@@ -467,6 +473,7 @@
 ./src/lib/ai/stickFigureAiMockServer.ts
 ./src/lib/ai/stickFigureAiServerDispatch.ts
 ./src/lib/ai/stickFigureAiWorkspaceAdapter.ts
+./src/lib/ai/stickFigureBodySafety.ts
 ./src/lib/ai/stickFigureCommandExecutor.ts
 ./src/lib/ai/stickFigureMotionEngine.ts
 ./src/lib/ai/strictStickJson.ts

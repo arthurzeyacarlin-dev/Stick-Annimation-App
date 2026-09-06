@@ -5,6 +5,16 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-06 — Accepted and technically closed SPEC-0005 Phase 2 correction
+
+- recorded completed GIT-042 at exact twelve-document commit `1861db92e8f599afa811b0ab6fdd46cc475f9f1c` and added D-0048 accepting the stopped exact eight-path D-0047 correction as technically Verified pending publication/integration
+- recorded the 17,520-byte correction manifest SHA-256 `e8a3fbbbb1a1cdf63e5d3648422def4736a4a1bf212ecc27335d2aa842db7874`, 168 manifest checks, 20,305 integration assertions, 81 named negatives, separate 10,000+10,000 runtime and independent-oracle cases, inherited validators, TypeScript/lint/diff gates, and the 40-operation/13-screenshot zero-egress permanent tester
+- preserved historical manifest `ea7ab9c5a142843b109ad49924f4709660347265099740312a666eca07972cd4` unchanged and recorded the accepted proof as bounded evidence rather than universal body-safety or motion-quality proof
+- recorded Arthur's ordinary unchanged-app review as separate smoke evidence only, stopped only the manifest-recorded review process, and verified port `57795` closed
+- opened GIT-043 as the separate publication-only next step; Phase 3–8, visible motion, provider/API/search/Supabase/paid work, Drawing/persistence, package/configuration, deployment, and unusual-body overrides remain unauthorized and unchanged
+
+This Control Plane Architect closeout preserves all eight accepted technical bytes and both ignored manifests, changes only canonical records, and stops with an empty index before publication.
+
 ### 2026-09-05 — Corrected SPEC-0005 Phase 2/3 API and Phase 4 airborne ceiling
 
 - recorded completed GIT-041 at canonical `46b97556ec4e9c9249a1ff354c546f7b1c32ea4d` and the distinct stopped `/7dfc/` Phase 2 body-safety result as implemented-but-publication-blocked, not accepted/Verified/published or the older rejected pose-maker

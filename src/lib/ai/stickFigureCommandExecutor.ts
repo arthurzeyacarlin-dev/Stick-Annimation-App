@@ -31,6 +31,7 @@ import {
 import {
   STICK_PHASE2_MOTION_MATERIALIZER,
   STICK_PHASE25_TIMED_MOTION_MATERIALIZER,
+  finalizeStickSpec0005MotionCandidate,
   materializeParsedStickAnimationMotionPlan,
   materializeParsedStickAnimationTimedMotionPlan,
 } from "./stickFigureMotionEngine.ts";
@@ -153,6 +154,7 @@ export type StickFigureCommandTransactionOptionsV1 = {
   candidateHasher?: (document: StickProjectDocumentV1) => Promise<string>;
   animationPlanMaterializer?: StickAnimationPlanMaterializerV1;
   actionTimingSidecar?: unknown;
+  bodySafetyCompletion?: unknown;
 };
 
 const cloneRoot = (root: StickCommandWorkspaceRootV1): StickCommandWorkspaceRootV1 => cloneCanonical(root);
@@ -369,12 +371,21 @@ export class StickFigureCommandTransactionV1 {
   #candidateHasher: (document: StickProjectDocumentV1) => Promise<string>;
   #animationPlanMaterializer: StickAnimationPlanMaterializerV1;
   #actionTimingSidecar: unknown;
+  #bodySafetyCompletion: unknown;
+  #usesBodySafetyCompletion: boolean;
   #operationCounter = 0;
 
   constructor(root: StickCommandWorkspaceRootV1, options: StickFigureCommandTransactionOptionsV1 = {}) {
     this.#root = cloneRoot(root);
     this.#failurePoint = options.failurePoint ?? null;
     this.#candidateHasher = options.candidateHasher ?? digestCanonical;
+    const hasExplicitMaterializer = Object.prototype.hasOwnProperty.call(options, "animationPlanMaterializer");
+    const hasBodySafetyCompletion = Object.prototype.hasOwnProperty.call(options, "bodySafetyCompletion");
+    const hasLegacyBodySafetyCandidate = Object.prototype.hasOwnProperty.call(options, "bodySafetyCandidate");
+    if (hasLegacyBodySafetyCandidate) throw new TypeError("Legacy body-safety candidate routing is not accepted.");
+    if (hasBodySafetyCompletion && hasExplicitMaterializer) {
+      throw new TypeError("Body-safety completion selects its finalizer internally; caller-supplied materializers are rejected.");
+    }
     const materializer = options.animationPlanMaterializer ?? "phase-1-holds";
     if (materializer !== "phase-1-holds" && materializer !== STICK_PHASE2_MOTION_MATERIALIZER &&
       materializer !== STICK_PHASE25_TIMED_MOTION_MATERIALIZER) {
@@ -388,8 +399,12 @@ export class StickFigureCommandTransactionV1 {
       throw new TypeError("Action timing is accepted only by the Phase 2.5 materializer.");
     }
     this.#animationPlanMaterializer = materializer;
+    this.#usesBodySafetyCompletion = hasBodySafetyCompletion;
     this.#actionTimingSidecar = hasActionTiming
       ? cloneUntrustedActionTiming(options.actionTimingSidecar)
+      : null;
+    this.#bodySafetyCompletion = hasBodySafetyCompletion
+      ? cloneUntrustedActionTiming(options.bodySafetyCompletion)
       : null;
   }
 
@@ -409,9 +424,13 @@ export class StickFigureCommandTransactionV1 {
     const options: StickFigureCommandTransactionOptionsV1 = {
       failurePoint: this.#failurePoint,
       candidateHasher: this.#candidateHasher,
-      animationPlanMaterializer: this.#animationPlanMaterializer,
     };
-    if (this.#animationPlanMaterializer === STICK_PHASE25_TIMED_MOTION_MATERIALIZER) {
+    if (this.#usesBodySafetyCompletion) {
+      options.bodySafetyCompletion = this.#bodySafetyCompletion;
+    } else {
+      options.animationPlanMaterializer = this.#animationPlanMaterializer;
+    }
+    if (!this.#usesBodySafetyCompletion && this.#animationPlanMaterializer === STICK_PHASE25_TIMED_MOTION_MATERIALIZER) {
       options.actionTimingSidecar = this.#actionTimingSidecar;
     }
     const next = new StickFigureCommandTransactionV1(this.#root, options);
@@ -544,8 +563,27 @@ export class StickFigureCommandTransactionV1 {
     if (!parsed.ok || this.#consumeFailure("after_envelope_validation")) {
       return this.#failActive(envelope, envelopeDigest, parsed.ok ? "transaction_failed" : parsed.error.code as StickAiErrorCodeV1);
     }
+    if (this.#usesBodySafetyCompletion && parsed.value.kind !== "stick-animation-plan") {
+      return this.#failActive(envelope, envelopeDigest, "transaction_failed");
+    }
     const candidateResult = parsed.value.kind === "stick-animation-plan"
-      ? this.#animationPlanMaterializer === STICK_PHASE25_TIMED_MOTION_MATERIALIZER
+      ? this.#usesBodySafetyCompletion
+        ? await (async () => {
+            const finalized = await finalizeStickSpec0005MotionCandidate(
+              this.#bodySafetyCompletion,
+              this.#root.editorRoot.current.snapshot.document,
+              {
+                projectId: envelope.projectId,
+                transactionId: envelope.transactionId,
+                baseDocumentRevision: envelope.baseDocumentRevision,
+                baseDocumentDigest: envelope.baseDocumentDigest,
+              },
+            );
+            return finalized.ok
+              ? {ok: true as const, value: finalized.value.document}
+              : {ok: false as const, error: {code: "transaction_failed" as const, path: "$bodySafety", message: finalized.error.message}};
+          })()
+        : this.#animationPlanMaterializer === STICK_PHASE25_TIMED_MOTION_MATERIALIZER
         ? await materializeParsedStickAnimationTimedMotionPlan(
             parsed.value,
             this.#actionTimingSidecar,

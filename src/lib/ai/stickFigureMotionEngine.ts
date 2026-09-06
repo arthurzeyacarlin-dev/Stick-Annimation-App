@@ -8,6 +8,7 @@ import {
 } from "./stickFigureAiContract.ts";
 import {
   STICK_JOINT_ROLES,
+  canonicalJson,
   cloneCanonical,
   digestCanonical,
   parseStickProjectDocument,
@@ -18,6 +19,11 @@ import {
   type StickProjectDocumentV1,
   type StickTimelineCellV1,
 } from "../stickfigure/stickProjectContract.ts";
+import {
+  finalizeStickBodySafetyCandidate,
+  type StickBodySafetyBindingV1,
+  type StickBodySafetyResult,
+} from "./stickFigureBodySafety.ts";
 
 export const STICK_PHASE2_MOTION_MATERIALIZER = "phase-2-baked-motion" as const;
 export const STICK_PHASE2_INPUT_LENGTH_MIN_RATIO = 0.4;
@@ -608,4 +614,44 @@ export const materializeStickAnimationTimedMotionPlan = async (
 ): Promise<StickAiContractResult<StickProjectDocumentV1>> => {
   const parsed = await parseStickAnimationPlan(value, starter);
   return parsed.ok ? materializeParsedStickAnimationTimedMotionPlan(parsed.value, actionTiming, starter) : parsed;
+};
+
+/**
+ * The sole SPEC-0005 completion seam. It cannot return a document that did not pass the
+ * shared planner-independent body-safety kernel and ordinary independent-frame check.
+ */
+export const finalizeStickSpec0005MotionCandidate = async (
+  safetyCandidate: unknown,
+  starter: StickProjectDocumentV1,
+  expectedBinding: StickBodySafetyBindingV1,
+): Promise<StickBodySafetyResult> => {
+  const result = await finalizeStickBodySafetyCandidate(safetyCandidate, starter);
+  if (!result.ok) return result;
+  if (canonicalJson(result.value.binding) !== canonicalJson(expectedBinding)) {
+    return {
+      ok: false,
+      error: {
+        reason: "integration_bypass",
+        stage: "integration",
+        message: "The completed safety binding does not match the active transaction envelope.",
+        frameIndex: null,
+        transitionIndex: null,
+        roles: [],
+      },
+    };
+  }
+  if (!assertIndependentBakedStickMotion(result.value.document)) {
+    return {
+      ok: false,
+      error: {
+        reason: "integration_bypass",
+        stage: "integration",
+        message: "The safety-qualified candidate is not complete independent ordinary Stick data.",
+        frameIndex: null,
+        transitionIndex: null,
+        roles: [],
+      },
+    };
+  }
+  return result;
 };

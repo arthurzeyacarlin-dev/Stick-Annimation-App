@@ -1,7 +1,7 @@
 # Architecture and System Map
 
 Status: canonical current architecture map
-Last traced: 2026-09-06 through published SPEC-0005 Phase 1, GIT-042/D-0047 publication at `1861db92e8f599afa811b0ab6fdd46cc475f9f1c`, and D-0048 acceptance of the exact stopped eight-path Phase 2 body-safety correction as technically Verified pending publication
+Last traced: 2026-09-06 through published SPEC-0005 Phases 1–2, GIT-043 at `e52454354c39b962ac2710a8602a5306ffd62ad5`, and D-0049 authorization of Phase 3 as Not started pending GIT-044
 
 ## Runtime Overview
 
@@ -54,7 +54,7 @@ The main product screens are not URL routes. `app/page.tsx` owns a `view` union 
 | Drawing project persistence | `src/lib/drawingProjectStorage.ts` | Version-1 localStorage envelope, CRUD, cloning, quota fallback |
 | Drawing AI project memory | `drawingAiProjectMemory.ts`, `drawingProjectAiMemorySync.ts`, memory API route | Per-animation-project semantic memory and optional Supabase sync |
 | Stick workspace | `src/components/workspace/stickfigure/StickFigureWorkspace.tsx` and siblings, `src/lib/stickfigure/stickTimeline.ts`, `stickProjectContract.ts`, `stickProjectHistory.ts`, `stickProjectStorage.ts` | Canonical editable timeline/history/storage root, independent keyframe poses plus owner-resolved holds, manual joint edits, playback/onion, Creator continuity, and the published SPEC-0004 Phase 1 one-time creation latch/transaction wiring. Editing a held slot currently edits its owner content, so Phase 2 generated output must not use holds. |
-| Stick animation plan/executor | `src/lib/ai/stickFigureAiContract.ts`, `stickFigureCommandExecutor.ts`, `stickFigureMotionEngine.ts`, `stickFigureAiWorkspaceAdapter.ts` | Published SPEC-0004 Phases 1/2/2.5 remain normal runtime truth. SPEC-0005 Phase 1 is a published proof gate. D-0048 accepts the exact stopped eight-path planner-independent Phase 2 body-safety seam as technically Verified, pending publication; no normal route invokes it yet. It provides checked selection before bake, independent final rounded/post-repair revalidation, and one final candidate/Preview door. The later movement-goal → pose → mechanics → path → safety → Preview runtime does not exist. |
+| Stick animation plan/executor | `src/lib/ai/stickFigureAiContract.ts`, `stickFigureCommandExecutor.ts`, `stickFigureMotionEngine.ts`, `stickFigureAiWorkspaceAdapter.ts` | Published SPEC-0004 Phases 1/2/2.5 remain normal runtime truth. SPEC-0005 Phase 1 is a published proof gate. GIT-043 publishes the planner-independent Phase 2 body-safety seam; no normal route invokes it yet. It provides checked selection before bake, independent final rounded/post-repair revalidation, and one final candidate/Preview door. D-0049 authorizes the Phase 3 movement-goal/pose slice after GIT-044, but it does not exist yet; mechanics, paths, gait, actions, and planner routing remain later unauthorized work. |
 | Stick creator | `StickFigureCreatorWorkspace.tsx`, `types.ts` | Standalone local rig-creation experiment; save disconnected |
 | Dev cost visibility | `src/lib/ai/devAiCostDashboard.ts`, `app/dev/ai-costs/**` | Local model-call cost logs and dashboards |
 
@@ -114,7 +114,7 @@ D-0043 replaced that approach with SPEC-0005's strict `stick.movement-goal/v1` b
 
 D-0046's exact eight-phase architecture is published at `46b97556…`. D-0047 makes its safety ordering implementable without circularity: selection accepts bound important-pose candidates and no final frames/document, returns checked immutable selected poses, and only the final completion operation accepts rounded/post-repair frames/document and recomputes binding/selection plus all final/semantic rules. The motion engine has exactly one final SPEC-0005 candidate door; movement-goal callers cannot select a legacy materializer or assert trust/skip/action/fixture state. Phase 4's exact twelve-path ceiling includes the safety module and both current validators so mechanics-qualified `grounded anticipation → takeoff → airborne → contact → compression → recovery` can be checked at important-sequence selection and full-baked completion. Phase 2 still rejects airborne; every phase keeps the same bend/continuity/manual-ownership rules. Pretend AI and future Terra use the same safety regardless of 2D direction.
 
-D-0048 accepts the implemented D-0047 route as technically Verified on exact base `1861db92…`, pending publication. Its independent oracle imports no runtime safety/engine/executor module; the bounded evidence covers normal and mirrored elbow/knee bends, torso faults, branch flips, intersections, unsafe rounded/post-repair output, and all declared bypasses. This proves the accepted finite safety contract, not universal anatomy or motion quality. Phase 3 remains unauthorized.
+GIT-043 publishes the implemented D-0047/D-0048 route at `e524543…`. Its independent oracle imports no runtime safety/engine/executor module; the bounded evidence covers normal and mirrored elbow/knee bends, torso faults, branch flips, intersections, unsafe rounded/post-repair output, and all declared bypasses. This proves the accepted finite safety contract, not universal anatomy or motion quality. D-0049 authorizes Phase 3, but it remains Not started until GIT-044.
 
 Stick saved record version 2 stores that latch beside the editable document/view state. Existing record version 1 remains readable and conservatively defaults to consumed; opening does not rewrite it, while a normal explicit Save writes version 2. After successful Apply, later AI submissions return `AI editing comes later; use manual tools.` before executor/provider work. The normal published chat still recognizes only its prior wave wording; natural-language routing for the broader engine is a later phase.
 
@@ -158,7 +158,7 @@ Incidental cleanup inside these files is prohibited unless the active spec inclu
 - complete, versioned project schema and migrations
 - durable autosave/recovery and project-file import/export
 - unified render/composite contract across edit, playback, save, reopen, and export
-- broader Stick scene/language/model behavior beyond published SPEC-0004 Phases 1–2.5; neither rejected motion attempt is runtime truth, published SPEC-0005 Phase 1 is proof infrastructure, and the restructured authorized/not-started technical-only Phase 2 is not current engine implementation
+- broader Stick scene/language/model behavior beyond published SPEC-0004 Phases 1–2.5; neither rejected motion attempt is runtime truth, SPEC-0005 Phases 1–2 are published foundations, and authorized Phase 3 whole-body pose behavior is not implemented until after GIT-044
 - general AI editing, recoloring, continuation, and multi-step transaction semantics after Apply
 - authenticated user/project ownership and rate limiting
 - repeatable unit/integration/E2E suite and CI

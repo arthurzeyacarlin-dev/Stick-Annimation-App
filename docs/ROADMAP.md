@@ -69,7 +69,7 @@ Goals:
 
 Arthur's latest direction is AI-first, with advanced direct controls available for inspection and fine-tuning. The exact sequencing is still pending P-0008: Phase 2 and Phase 3 may interleave as a narrow AI-first vertical slice once the shared model, reversible executor, and minimum corrective controls exist. This roadmap does not silently require completing an Adobe-class manual editor before any AI stick workflow.
 
-Current shared-motion prerequisite: SPEC-0004 Phases 1, 2, and timing-only 2.5 are published/integrated. SPEC-0005 Phase 1 remains Verified/published/integrated at `2436a9414221e8ee7ef40151284cb8f4e069e828`. GIT-042 published D-0047 at `1861db92e8f599afa811b0ab6fdd46cc475f9f1c`; D-0048 accepts the exact eight-path Phase 2 planner-independent body-safety correction as technically Verified, pending GIT-043 publication/integration. The correction adds no visible motion and Arthur's ordinary-app review is smoke-only. Phases 3–8 remain Unauthorized/Not started and must be accepted/published sequentially before broader SPEC-0004 scene/provider work resumes.
+Current shared-motion prerequisite: SPEC-0004 Phases 1, 2, and timing-only 2.5 are published/integrated. SPEC-0005 Phases 1 and 2 are Verified/published/integrated; GIT-043 published the exact accepted Phase 2 body-safety package at `e52454354c39b962ac2710a8602a5306ffd62ad5`. The safety result adds no visible motion and Arthur's ordinary-app review remains smoke-only. D-0049 authorizes only Phase 3's existing grounded non-locomotion whole-body pose contract after GIT-044; Phases 4–8 remain Unauthorized/Not started and must be accepted/published sequentially before broader SPEC-0004 scene/provider work resumes.
 
 ## Phase 3 — AI-First Stick Animation
 

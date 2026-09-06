@@ -5,6 +5,16 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-06 — Recorded Phase 2 publication and authorized SPEC-0005 Phase 3
+
+- recorded completed GIT-043: exact 21-path commit `e52454354c39b962ac2710a8602a5306ffd62ad5`, parent `1861db92e8f599afa811b0ab6fdd46cc475f9f1c`, message `Implement SPEC-0005 Phase 2 body safety`, with clean canonical/local/live `0/0` synchronization
+- recorded the required clean tester pass—40 operations, 13 screenshots, four messages, all 37 negatives, one deterministic mocked Drawing POST, zero real API-route/non-loopback/provider requests, and cleanup—at result SHA-256 `c2887be734fe073191aa7d81fc9ffcf2cd6009da0bd188b67ddd9ad77aaebb63`
+- added D-0049 authorizing only the existing SPEC-0005 Phase 3 Action-Independent Whole-Body Key-Pose Maker: reach-high-right, centered compression, left support shift, and neutral recovery through the published Phase 2 safety gates
+- opened GIT-044 as the separate authorization-record publication step; Phase 3 remains Not started until that publication supplies its exact executor base, and Phases 4–8 remain Unauthorized/Not started
+- preserved walk/run/no-crab in Phase 6 and excluded Pretend-AI chat, Terra/provider, mechanics insertion, professional paths/timing/gravity, final actions, Drawing/persistence, paid/external work, deployment, executor creation, app-copy launch, and implementation
+
+This task changes only canonical control-plane records, keeps the index empty, and stops before publication or Phase 3 implementation.
+
 ### 2026-09-06 — Accepted and technically closed SPEC-0005 Phase 2 correction
 
 - recorded completed GIT-042 at exact twelve-document commit `1861db92e8f599afa811b0ab6fdd46cc475f9f1c` and added D-0048 accepting the stopped exact eight-path D-0047 correction as technically Verified pending publication/integration

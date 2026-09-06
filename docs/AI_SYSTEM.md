@@ -1,7 +1,7 @@
 # AI System Snapshot
 
 Status: canonical current AI architecture and gap map
-Last traced: 2026-09-06 through published SPEC-0005 Phase 1, GIT-042/D-0047 at `1861db92e8f599afa811b0ab6fdd46cc475f9f1c`, and D-0048 acceptance of the exact stopped Phase 2 body-safety correction as technically Verified pending publication
+Last traced: 2026-09-06 through published SPEC-0005 Phases 1–2, GIT-043 at `e52454354c39b962ac2710a8602a5306ffd62ad5`, and D-0049 authorization of Phase 3 as Not started pending GIT-044
 
 ## What Exists Today
 
@@ -15,7 +15,7 @@ D-0041 accepts the exact seven-path Phase 2.5 result as the shared timing/spacin
 
 The later unpublished SPEC-0004 Phase 2.6 result is rejected and not current runtime truth. It validated action-specific `stick.action-foundation/v1` data around complete raw coordinate recipes; Arthur rejected the visible motion even though the technical manifest was green. D-0043 superseded its intended job with SPEC-0005. D-0044's published Phase 1 adds only the independent proof gate. GIT-040 published D-0045's first former Phase 2 authorization in `b5ddd5e3f4fb3b19e5c7c2be8a1bd35b0f8d6070`, but Arthur rejected that executor's visible result; none of its code/proof was accepted, propagated, committed, published, or integrated, and its disposable app/worktree was removed.
 
-GIT-042 published D-0047's exact two-stage contract at `1861db92…`. D-0048 accepts its exact eight-path implementation as technically Verified, pending publication. Checked immutable important-pose selection receives no final frames/document; final completion recomputes binding/selection and validates every rounded/post-repair frame and semantic continuity; exactly one motion-engine candidate door may expose Preview. The correction changes no visible motion, AI route, provider/UI, anatomy number, or manual post-Apply ownership. Phase 3–8 remain unauthorized.
+GIT-043 published the exact accepted 21-path Phase 2 package at `e524543…`. Checked immutable important-pose selection receives no final frames/document; final completion recomputes binding/selection and validates every rounded/post-repair frame and semantic continuity; exactly one motion-engine candidate door may expose Preview. The correction changes no visible motion, AI route, provider/UI, anatomy number, or manual post-Apply ownership. D-0049 authorizes only Phase 3's local grounded non-locomotion whole-body pose maker after GIT-044; Phases 4–8 remain unauthorized.
 
 There is no custom-trained Diamond Animator LLM, fine-tuning pipeline, embeddings system, vector database, or model-serving stack in this repository.
 
@@ -87,7 +87,7 @@ The accepted browser proof used a blue fixture picker injected into an isolated 
 
 Phase 2's private review followed the stricter rule: Arthur saw four separate disposable loopback copies/links preloaded with wave, jump, bow, and dodge one at a time and only the ordinary Stick canvas, timeline, AI transaction area, and manual tools. No query-controlled review surface, tester overlay/control, product route, public asset, or review import was added. The temporary review servers are stopped and their isolated copies are removed.
 
-Published Phase 2.5 keeps Phase 1 and Phase 2 behavior as defaults. Rejected SPEC-0004 Phase 2.6 and first former SPEC-0005 Phase 2 results remain unavailable. SPEC-0005 Phase 1 is published proof infrastructure. D-0048 accepts the distinct stopped restructured Phase 2 safety foundation as technically Verified, pending publication; it is not yet normal runtime truth and no planner door exists.
+Published Phase 2.5 keeps Phase 1 and Phase 2 behavior as defaults. Rejected SPEC-0004 Phase 2.6 and first former SPEC-0005 Phase 2 results remain unavailable. SPEC-0005 Phase 1 is published proof infrastructure, and the distinct restructured Phase 2 safety foundation is published/integrated at `e524543…`. No normal route invokes it and no planner door exists. Phase 3 is authorized but Not started pending GIT-044.
 
 ## Generate Frames Execution Path
 
@@ -146,7 +146,7 @@ Existing mechanisms:
 - the published Phase 2 motion engine remains fully local/$0/provider-free; it sends no prompt or project data anywhere
 - the published Phase 2.5 timing primitive is fully local/$0/provider-free; it sends no prompt or project data anywhere
 - the rejected unpublished Phase 2.6 result is not product/runtime truth and cannot be connected to chat, Pretend AI, or Terra
-- SPEC-0005 remains provider-free through all eight phases; published Phase 1 is proof-only, accepted Phase 2 remains local, planner-independent, technical-only, and pending publication, and no phase may contact Terra or another provider
+- SPEC-0005 remains provider-free through all eight phases; published Phases 1–2 are local and Phase 3 is authorized only for a local grounded non-locomotion pose maker after GIT-044; no phase may contact Terra or another provider
 - D-0038 preserves a future cost strategy only: compact Terra key-pose/timing plans, local in-betweens, safe free recipes first, at most one later bounded pre-Apply repair, measured dashboard usage, monthly budgets/credits, and no unlimited Terra. Exact pricing/model/privacy must be freshly checked at the later paid gate.
 
 In local development, the cost log writes the full user prompt along with request/model/usage metadata to `.local/ai-cost-dashboard/requests.jsonl`. That directory is ignored by Git, but no approved redaction or retention policy exists.

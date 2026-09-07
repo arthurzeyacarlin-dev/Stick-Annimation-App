@@ -5,8 +5,8 @@ Status: **Phases 1, 2, and timing-only Phase 2.5 are Verified, published, and in
 Owner: Arthur
 Spec role: Spec Architect
 Created: 2026-08-31
-Last updated: 2026-09-04
-Decision links: [D-0033 through D-0043](../DECISIONS.md)
+Last updated: 2026-09-07
+Decision links: [D-0033 through D-0050](../DECISIONS.md)
 Control-plane anchors: Phase 1 publication commit `086420e6b0cbe683adbb8f0024e65a2fc1d68d6d`; Phase 2 activation commit and accepted executor base `70bf7b0799bcff8d703525bcb50c378b8a122ebf`; Phase 2.5 accepted base `f131e75aafccec0d1b8ecb717e2d95b518355d39`; Phase 2.5 exact 19-path publication commit `16799539fb7db31e345a878aa892d4485115188b`; reviewed Phase 2.6 source SHA-256 before lifecycle reconciliation `dc7f968b0aab4a44bd3f70557a1b0e708a974cd2dd1c9050775ec56cfed83e56`
 Related work: [`TODO SPEC-004`](../TODO.md), [`Current State`](../CURRENT_STATE.md), [`Session Handoff`](../SESSION_HANDOFF.md)
 
@@ -59,7 +59,7 @@ The stopped Phase 2.5 executor worktree was inspected read-only; no byte there w
 4. The dodge reached one extreme frame and reversed at maximum speed while both feet slid.
 5. Phase 2.5's formulas worked as specified. Timing curves cannot invent action knowledge, support/contact, weight, balance, anticipation, landing mechanics, or intent purity when the supplied poses and allocations omit them.
 
-SPEC-0005 now owns this missing foundation through seven bounded phases. The rejected samples are evidence, not accepted product behavior and not a reason to rewrite the published timing primitive or falsely promote it as natural-action proof.
+SPEC-0005 now owns this missing foundation through eight bounded phases. The rejected samples are evidence, not accepted product behavior and not a reason to rewrite the published timing primitive or falsely promote it as natural-action proof.
 
 **Recorded documentation conflict.** `architecture.md` and `AI_SYSTEM.md` still describe the Stick AI panel as read-only/no writable executor. The freshly traced Phase 6 source above shows the narrower writable deterministic wave preview/apply path. This specification uses the live-code fact for current behavior and preserves both files as broader historical maps in this docs-only transition; a later accepted control-plane closeout should reconcile their stale wording without treating it as a product change.
 
@@ -779,7 +779,7 @@ Human review fails for any missing/reordered beat, action impurity, unexplained 
 
 **Scope.** Add multiple figures in the single existing layer and safe variable FPS/duration/frame count. Maintain white background, derived line heads, one-layer topology, and complete manual editability.
 
-**Foundation entry gate.** SPEC-0004 is paused before Phase 3. The accepted Phase 2.5 timing primitive and all seven SPEC-0005 shared-motion phases must be closed, published, and integrated first. Phase 3 may then expand figure/count/FPS/duration bounds but may not weaken or fork the shared movement-goal/pose/mechanics/path/locomotion engine.
+**Foundation entry gate.** SPEC-0004 is paused before Phase 3. The accepted Phase 2.5 timing primitive and all eight SPEC-0005 shared-motion phases must be closed, published, and integrated first. Phase 3 may then expand figure/count/FPS/duration bounds but may not weaken or fork the shared movement-goal/pose/mechanics/path/locomotion engine.
 
 **Owner entry gate — final timeline cap.** Before implementation Arthur explicitly selects one final compatible maximum duration and frame count (and whether maximum FPS can make that duration exceed 100 frames). The recorded choice must resolve the five-second-at-24-FPS = 120-frame conflict; no engineer may infer “100 frames” as final. It also confirms the safe multi-figure/count/direction limits for the one-layer model.
 
@@ -791,7 +791,7 @@ Human review fails for any missing/reordered beat, action impurity, unexplained 
 
 **Scope.** Build the versioned parameterized $0 catalog for wave, jump, walk, run, punch, kick, turn, crouch, and nod; broad tested casual wording, safe defaults, negation, ambiguity handling, confidence decision, and exact free-versus-needs-Terra disposition. Every accepted complete recipe must emit one complete `stick.movement-goal/v1` object for the integrated SPEC-0005 engine before local materialization. It may not emit raw joint coordinates or bypass the shared pose/mechanics/path pipeline. Preserve all current Phase 6 wave and approved typo behavior.
 
-**Entry gate.** All seven SPEC-0005 phases and this spec's Phase 3 are integrated; every catalog parameter, semantic movement field, and timing/path choice has an explicit supported range and safe response. Parameters incompatible with the actual one-layer/multi-figure limit are rejected/deferred, not quietly approximated. Recognition of “robotic,” “mechanical,” “constant pace,” or equivalent wording belongs here, not SPEC-0005, and may emit explicit mechanical intent only on a complete safe match. Free recipes may not bypass the shared SPEC-0005 planner door or engine with recipe-specific executors.
+**Entry gate.** All eight SPEC-0005 phases and this spec's Phase 3 are integrated; every catalog parameter, semantic movement field, and timing/path choice has an explicit supported range and safe response. Parameters incompatible with the actual one-layer/multi-figure limit are rejected/deferred, not quietly approximated. Recognition of “robotic,” “mechanical,” “constant pace,” or equivalent wording belongs here, not SPEC-0005, and may emit explicit mechanical intent only on a complete safe match. Free recipes may not bypass the shared SPEC-0005 planner door or engine with recipe-specific executors.
 
 **Exact fixture matrix.** Checked-in accepted/rejected cases cover each family; omission defaults (one centered figure, 24 FPS, normal speed, recipe-safe duration); direction/speed/FPS/duration/count where supported; synonyms; case/punctuation/spacing; common misspellings; `u`/`pls`/`idk`; “make him jump”; negated action such as “don’t wave”; collision/ambiguous wording; multi-action requests; oversize/malformed input; unsafe parameter; current Phase 6 wave typo fixtures; full local $0 success; no-safe-match/needs-Terra; and no-real-enabled unavailable. Each row states expected plan/disposition and asserts no partial output or accidental provider call.
 

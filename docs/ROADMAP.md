@@ -1,7 +1,7 @@
 # Roadmap
 
 Status: canonical ordered direction; not a delivery schedule
-Last updated: 2026-09-05
+Last updated: 2026-09-07
 
 ## Roadmap Rules
 
@@ -69,7 +69,7 @@ Goals:
 
 Arthur's latest direction is AI-first, with advanced direct controls available for inspection and fine-tuning. The exact sequencing is still pending P-0008: Phase 2 and Phase 3 may interleave as a narrow AI-first vertical slice once the shared model, reversible executor, and minimum corrective controls exist. This roadmap does not silently require completing an Adobe-class manual editor before any AI stick workflow.
 
-Current shared-motion prerequisite: SPEC-0004 Phases 1, 2, and timing-only 2.5 are published/integrated. SPEC-0005 Phases 1 and 2 are Verified/published/integrated; GIT-043 published the exact accepted Phase 2 body-safety package at `e52454354c39b962ac2710a8602a5306ffd62ad5`. The safety result adds no visible motion and Arthur's ordinary-app review remains smoke-only. D-0049 authorizes only Phase 3's existing grounded non-locomotion whole-body pose contract after GIT-044; Phases 4–8 remain Unauthorized/Not started and must be accepted/published sequentially before broader SPEC-0004 scene/provider work resumes.
+Current shared-motion prerequisite: SPEC-0004 Phases 1, 2, and timing-only 2.5 are published/integrated. SPEC-0005 Phase 1 and numeric-safety Phase 2 v1 remain published/integrated. GIT-044 published the former Phase 3 authorization at exact docs-only commit `269ac82335ee4576cb471bd9dffc8f7ce9bdec0f`, but Arthur rejected that executor's visible motion and none of its bytes is reusable. D-0050 authorizes one body-local Phase 2 v2 safety correction pending GIT-045; corrected Phase 3 is decision-complete but unauthorized until Phase 2 v2 is accepted and separately published. Phases 4–8 remain Unauthorized/Not started and retain mechanics, paths/timing, gait, recipes, and planner-door ownership in sequence.
 
 ## Phase 3 — AI-First Stick Animation
 

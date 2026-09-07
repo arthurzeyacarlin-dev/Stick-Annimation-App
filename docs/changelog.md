@@ -5,6 +5,18 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-07 — Reopened Phase 2 safety and rewrote SPEC-0005 Phase 3 after visible rejection
+
+- recorded GIT-044 as exact docs-only commit `269ac82335ee4576cb471bd9dffc8f7ce9bdec0f` and recorded Arthur's rejection of the Phase 3 executor result authorized from it; none of that result's runtime, fixture, test, proof, or review-UI bytes is accepted or reusable
+- recorded the root cause: Phase 2 v1's screen-coordinate bend signs and broad numeric limits could pass a visibly backward elbow, while Phase 3's shallow branch/candidate choice, score, key-step easing, recovery, and gesture semantics could produce stops, raised recovery, and a reach instead of a wave
+- added D-0050 without adding a ninth or fractional phase: one formal Phase 2 v2 body-local correction is Approved/Authorized/Not started pending GIT-045, and corrected Phase 3 remains decision-complete but Unauthorized/Not started
+- specified performer-facing projection, permitted limb planes, joint-guide half-planes, safe flexion bands, controlled projected-sign transitions, backward-bend/sudden-flip rejection, forbidden-extra-movement checks, final rounded validation, and fail-closed no Preview
+- rewrote Phase 3 around semantic no-coordinate goals, bounded whole-body candidates, hard safety before deterministic naturalness ranking, sparse non-stop landmarks/guides, and independent human-authored quality/mutation cases with named thresholds
+- preserved exactly eight phases and their ownership: Phase 4 mechanics, Phase 5 paths/timing, Phase 6 gait, Phase 7 recipes, and Phase 8 as the sole provider-free planner door; manual behavior and all excluded systems remain unchanged
+- opened GIT-045 as the next docs-only publication step; after it publishes, one fresh Phase 2 v2 executor may use only the spec's exact eight-path allowlist and proof root
+
+This Spec Architect task changes only required canonical control-plane records, regenerates the repository memory index, keeps the Git index empty, and stops before staging, publication, or implementation.
+
 ### 2026-09-06 — Recorded Phase 2 publication and authorized SPEC-0005 Phase 3
 
 - recorded completed GIT-043: exact 21-path commit `e52454354c39b962ac2710a8602a5306ffd62ad5`, parent `1861db92e8f599afa811b0ab6fdd46cc475f9f1c`, message `Implement SPEC-0005 Phase 2 body safety`, with clean canonical/local/live `0/0` synchronization

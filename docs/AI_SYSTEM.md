@@ -1,7 +1,7 @@
 # AI System Snapshot
 
 Status: canonical current AI architecture and gap map
-Last traced: 2026-09-06 through published SPEC-0005 Phases 1–2, GIT-043 at `e52454354c39b962ac2710a8602a5306ffd62ad5`, and D-0049 authorization of Phase 3 as Not started pending GIT-044
+Last traced: 2026-09-07 at exact local canonical `269ac82335ee4576cb471bd9dffc8f7ce9bdec0f`: published SPEC-0005 Phase 1 and Phase 2 v1 remain runtime truth; the GIT-044-authorized Phase 3 result is rejected; D-0050 authorizes Phase 2 v2 correction pending GIT-045 and leaves corrected Phase 3 unauthorized
 
 ## What Exists Today
 
@@ -15,7 +15,9 @@ D-0041 accepts the exact seven-path Phase 2.5 result as the shared timing/spacin
 
 The later unpublished SPEC-0004 Phase 2.6 result is rejected and not current runtime truth. It validated action-specific `stick.action-foundation/v1` data around complete raw coordinate recipes; Arthur rejected the visible motion even though the technical manifest was green. D-0043 superseded its intended job with SPEC-0005. D-0044's published Phase 1 adds only the independent proof gate. GIT-040 published D-0045's first former Phase 2 authorization in `b5ddd5e3f4fb3b19e5c7c2be8a1bd35b0f8d6070`, but Arthur rejected that executor's visible result; none of its code/proof was accepted, propagated, committed, published, or integrated, and its disposable app/worktree was removed.
 
-GIT-043 published the exact accepted 21-path Phase 2 package at `e524543…`. Checked immutable important-pose selection receives no final frames/document; final completion recomputes binding/selection and validates every rounded/post-repair frame and semantic continuity; exactly one motion-engine candidate door may expose Preview. The correction changes no visible motion, AI route, provider/UI, anatomy number, or manual post-Apply ownership. D-0049 authorizes only Phase 3's local grounded non-locomotion whole-body pose maker after GIT-044; Phases 4–8 remain unauthorized.
+GIT-043 published the exact accepted 21-path Phase 2 v1 package at `e524543…`. Checked immutable important-pose selection receives no final frames/document; final completion recomputes binding/selection and validates every rounded/post-repair frame and semantic continuity; exactly one motion-engine candidate door may expose Preview. That finite numeric contract remains current code, but it does not prove body-local anatomical direction or natural pose quality.
+
+GIT-044 published the former Phase 3 authorization at exact docs-only commit `269ac82335ee4576cb471bd9dffc8f7ce9bdec0f`. Arthur rejected its executor result; alternate screen-space IK, broad flexion limits, shallow candidate ranking, key-step stops, raised recovery, and reach-like gesture are binding negative evidence. D-0050 authorizes one Phase 2 v2 correction after GIT-045 and makes corrected Phase 3 decision-complete but unauthorized. None of the rejected executor's runtime, fixture, test, proof, or review-UI bytes is accepted or reusable.
 
 There is no custom-trained Diamond Animator LLM, fine-tuning pipeline, embeddings system, vector database, or model-serving stack in this repository.
 
@@ -45,14 +47,14 @@ Canonical code contract in `src/lib/ai/drawingAiContract.ts`:
 
 The contract can describe more actions than the current enabled executor paths support. A future spec must publish an explicit command-to-executor support matrix.
 
-Planned Stick contract under SPEC-0005, not current runtime:
+Corrected planned Stick contract under SPEC-0005, not current runtime:
 
 - `stick.movement-goal/v1` is the only future planner-to-motion-engine object;
-- it contains bounded project/transaction binding, frame/FPS limits, facing/travel, semantic root/support/posture/limb/energy/path beats, and optional one-cycle walk/run intent;
+- it contains bounded project/transaction binding, frame/FPS limits, performer facing, support, root/torso/head goals, semantic effector targets, joint guides, limb plane, safe flexion band, active/passive roles, sparse landmarks, forbidden extra movement, energy/path beats, and optional one-cycle walk/run intent;
 - it rejects raw joint points, stored angles, executable code, arbitrary curves, unknown fields, and planner-specific animation formats;
 - Pretend AI and the provider-free Terra-shaped adapter must canonicalize to the same goal digest and may not select different engines;
 - the local engine alone creates complete ordinary editable keyframes, and all temporary planning/mechanics data is discarded before Preview.
-- the local engine must return a checked immutable important-pose selection before baking, then independently revalidate binding/selection and every rounded/post-repair frame before final semantic/continuity checks can expose Preview through exactly one final candidate door; no planner or legacy materializer may bypass those gates.
+- Phase 2 v2 must qualify body-local plane/bend/transition safety and final rounded output before exactly one Preview door; Phase 3 must enumerate bounded whole-body candidates, hard-filter safety first, then rank safe complete sequences by prompt match, comfort, line of action, balance, silhouette, continuity, and minimum unrequested movement; no planner or legacy materializer may bypass those gates.
 
 ## Drawing Workspace Task Availability
 
@@ -87,7 +89,7 @@ The accepted browser proof used a blue fixture picker injected into an isolated 
 
 Phase 2's private review followed the stricter rule: Arthur saw four separate disposable loopback copies/links preloaded with wave, jump, bow, and dodge one at a time and only the ordinary Stick canvas, timeline, AI transaction area, and manual tools. No query-controlled review surface, tester overlay/control, product route, public asset, or review import was added. The temporary review servers are stopped and their isolated copies are removed.
 
-Published Phase 2.5 keeps Phase 1 and Phase 2 behavior as defaults. Rejected SPEC-0004 Phase 2.6 and first former SPEC-0005 Phase 2 results remain unavailable. SPEC-0005 Phase 1 is published proof infrastructure, and the distinct restructured Phase 2 safety foundation is published/integrated at `e524543…`. No normal route invokes it and no planner door exists. Phase 3 is authorized but Not started pending GIT-044.
+Published Phase 2.5 keeps Phase 1 and Phase 2 behavior as defaults. Rejected SPEC-0004 Phase 2.6 and rejected SPEC-0005 motion results remain unavailable. SPEC-0005 Phase 1 is published proof infrastructure, and Phase 2 v1's numeric safety foundation is published/integrated at `e524543…`; no normal route invokes it and no planner door exists. Phase 2 v2 is authorized pending GIT-045. Corrected Phase 3 is unauthorized and unimplemented.
 
 ## Generate Frames Execution Path
 
@@ -146,7 +148,7 @@ Existing mechanisms:
 - the published Phase 2 motion engine remains fully local/$0/provider-free; it sends no prompt or project data anywhere
 - the published Phase 2.5 timing primitive is fully local/$0/provider-free; it sends no prompt or project data anywhere
 - the rejected unpublished Phase 2.6 result is not product/runtime truth and cannot be connected to chat, Pretend AI, or Terra
-- SPEC-0005 remains provider-free through all eight phases; published Phases 1–2 are local and Phase 3 is authorized only for a local grounded non-locomotion pose maker after GIT-044; no phase may contact Terra or another provider
+- SPEC-0005 remains provider-free through all eight phases; published Phase 1/Phase 2 v1 and the authorized Phase 2 v2 correction are local, corrected Phase 3 is unauthorized, and no phase may contact Terra or another provider
 - D-0038 preserves a future cost strategy only: compact Terra key-pose/timing plans, local in-betweens, safe free recipes first, at most one later bounded pre-Apply repair, measured dashboard usage, monthly budgets/credits, and no unlimited Terra. Exact pricing/model/privacy must be freshly checked at the later paid gate.
 
 In local development, the cost log writes the full user prompt along with request/model/usage metadata to `.local/ai-cost-dashboard/requests.jsonl`. That directory is ignored by Git, but no approved redaction or retention policy exists.

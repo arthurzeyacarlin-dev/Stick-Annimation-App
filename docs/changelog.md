@@ -5,6 +5,18 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-07 — Corrected SPEC-0005 to one bounded movement sequence before execution
+
+- recorded GIT-045 as complete at exact 13-document commit `a4589664b6857eb10a828189e177e0e7d47e3f69`, parent `269ac82335ee4576cb471bd9dffc8f7ce9bdec0f`, message `Correct SPEC-0005 Phase 2 safety and Phase 3 plan`; D-0050 and its published history remain intact
+- added D-0051 after fresh source tracing found that the still-unshipped single whole-goal facing/support/limb state could not encode turns, foot/hand/pelvis contact changes, non-neutral base return, simultaneous parts, sequential handoffs, or run-plus-jump-plus-wave-plus-land-plus-continue
+- corrected `stick.movement-goal/v1` to one strict bounded ordered semantic sequence with an exact base binding, requested parts, complete per-landmark state, adjacent transitions, and exact hold/return/continuation; raw geometry and implicit actions remain forbidden
+- preserved exactly eight phase owners while making their boundaries explicit: all-context/final-frame safety; grounded compound poses; contact/airborne mechanics; permanent default-natural motion law; gait/turns; full actions/compositions; and identical Pretend-AI/Terra-shaped provider-free planning after the existing Phase 1 proof gate
+- expanded the human-authored matrix to include non-neutral and compound poses, push-up support, turns/direction changes, and simultaneous/sequential compositions; self-generated evidence is secondary, hard expected accepts/rejects must pass `100%` with zero false accepts/rejects, visible cases retain `85` per sample/`90` mean, and Arthur must accept every required sample
+- made injury/deformation/unusual wording permanently incapable of bypassing built-in-humanoid anatomy; any such future depiction requires a separate approved spec
+- opened GIT-046 as the next docs-only publication step; Phase 2 v2 is Approved but not implementation-authorized until that publication and its unchanged exact eight-path executor boundary may not begin here
+
+This Spec Architect task changes only the reviewed canonical control-plane records, keeps the Git index empty, and stops before runtime, fixture, test, proof, review-app, provider, deployment, staging, commit, push, publication, or implementation work.
+
 ### 2026-09-07 — Reopened Phase 2 safety and rewrote SPEC-0005 Phase 3 after visible rejection
 
 - recorded GIT-044 as exact docs-only commit `269ac82335ee4576cb471bd9dffc8f7ce9bdec0f` and recorded Arthur's rejection of the Phase 3 executor result authorized from it; none of that result's runtime, fixture, test, proof, or review-UI bytes is accepted or reusable

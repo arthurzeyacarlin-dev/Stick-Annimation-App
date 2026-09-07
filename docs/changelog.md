@@ -5,6 +5,15 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-07 — Defined SPEC-0005 front-view knee projection (D-0052 / GIT-047)
+
+- recorded GIT-046 publication at `55b05e2daad649ac1e0027722a75762a9714d281` and the later executor-reported front-knee specification blocker, without claiming Phase 2 implementation acceptance
+- resolved the undefined front/frontal `forward` knee guide with a deterministic anatomical-role/torso-local outward projection perpendicular to the hip–foot chord; profiles keep their forward convention
+- distinguished wrong-side, insufficient positive clearance, singular chain, and ambiguous projection failures; preserved the qualified straight-neutral exception, all hard safety limits, final-frame validation, no injury/deformation bypass, and every phase owner/allowlist
+- required independent safe compression/support/base-return/near-extension and mirror positives paired with adverse projection/boundary/context/rounding cases; analytical leg checks are not full-body/runtime or visible-naturalness proof
+- updated the control-plane continuation gate: after exact GIT-047 publication verification, PM supplies the correction SHA and continuation/base instruction to the blocked Phase 2 executor; this task does not touch its worktree or start another executor
+- this latest task explicitly authorizes docs-only correction and normal Git publication; runtime, fixture, test/proof files, apps, UI, providers, deployment, prior decision entries, and accepted implementation bytes remain unchanged
+
 ### 2026-09-07 — Corrected SPEC-0005 to one bounded movement sequence before execution
 
 - recorded GIT-045 as complete at exact 13-document commit `a4589664b6857eb10a828189e177e0e7d47e3f69`, parent `269ac82335ee4576cb471bd9dffc8f7ce9bdec0f`, message `Correct SPEC-0005 Phase 2 safety and Phase 3 plan`; D-0050 and its published history remain intact

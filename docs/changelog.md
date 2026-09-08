@@ -5,6 +5,16 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-08 — Record GIT-048 completion, permanent review-copy cleanup, and Phase 3 activation (D-0054)
+
+- GIT-048 publication is complete at `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`, parent `5d0299a00459d39d6c4bff5eeb345f72c5abde4e`, message `Implement SPEC-0005 Phase 2 v2 body-local safety`, exactly 22 paths (eight technical, thirteen Markdown records, one generated tree). Main/local origin/live GitHub matched cleanly at `0/0` on this task's fresh check. Preserved technical proof is under `output/spec-0005/git-048/05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14/accepted-technical-proof/`; the clean tester result is in its sibling `clean-publication-browser/result.json`. Preserved technical manifest SHA-256 remains `a8c8db1bc81dbc6191975b7544027139f581a7493345e3b9e8bfeba6ecc29c65` (30,333 bytes). Clean publication tester result SHA-256 is `9c264119f61f8ff43defc51239ba6467ed8b786b1f5ec65d5000ac480802746e` (84,802 bytes): PASS, 40 operations, 13 screenshots, four messages, 37 negatives, four marked Stick GETs, one mocked Drawing POST, zero real API/non-loopback/provider requests, and cleanup. These are preserved publication results, not new browser runs in this docs-only task.
+- Cleanup is complete: exactly canonical `/Users/arthurcarlin/Projects/stick-animation-app` and active PM `/Users/arthurcarlin/.codex/worktrees/ef4e/stick-animation-app` remain registered. The owner/PM cleanup report records seven obsolete worktrees and six obsolete local branches removed after backup of unique rejected/superseded work at `/private/tmp/diamond-animator-old-copy-backups.xlkF6g`. That private recovery archive is not an app copy and grants no rejected-byte reuse. This task verifies the two-worktree inventory and backup presence; it performs no removal.
+- recorded Arthur's durable one-review-copy rule in AGENTS and PM context: accepted copies close after publication; rejected unique bytes are backed up before obsolete copies/branches are removed; canonical main and the active PM worktree are protected
+- authorized only corrected SPEC-0005 Phase 3 as Approved/Authorized/Not started; kept the technical contract and ten-path ceiling unchanged, Astra allowed for hard engine work, all eight review cases retained behind one loopback app-copy URL, and Phases 4–8 Unauthorized/Not started
+- GIT-049 remains the separate publication-only next step; a fresh Plan-mode executor must use its future published main SHA, never rejected bytes
+- changed documentation only; no implementation, server/app copy, dependency, proof regeneration, provider, staging, commit, push, or deployment
+
+
 ### 2026-09-08 — Accepted SPEC-0005 Phase 2 v2 safety closeout (D-0053; publication pending)
 
 - recorded Arthur's ordinary-app smoke acceptance and PM's technical acceptance after exclusive transfer from the stopped executor in `/8673/` at `5d0299a00459d39d6c4bff5eeb345f72c5abde4e`

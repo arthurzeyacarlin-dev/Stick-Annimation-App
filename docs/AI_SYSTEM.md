@@ -1,7 +1,7 @@
 # AI System Snapshot
 
 Status: canonical current AI architecture and gap map
-Last traced: 2026-09-08 in accepted `/8673/` at `5d0299a00459d39d6c4bff5eeb345f72c5abde4e`. The eight-path v2 safety implementation is accepted/technically Verified under D-0053, pending GIT-048 publication/integration. Canonical main still contains v1; corrected Phase 3 remains unauthorized.
+Last traced: 2026-09-08 in accepted `/8673/` at `5d0299a00459d39d6c4bff5eeb345f72c5abde4e`. The eight-path v2 safety implementation is Verified, published, and integrated through GIT-048 at `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`. Canonical main contains v2; D-0054 authorizes corrected SPEC-0005 Phase 3 only, Not started pending GIT-049 publication.
 
 ## What Exists Today
 
@@ -17,7 +17,7 @@ The later unpublished SPEC-0004 Phase 2.6 result is rejected and not current run
 
 GIT-043 published the exact accepted 21-path Phase 2 v1 package at `e524543…`. Checked immutable important-pose selection receives no final frames/document; final completion recomputes binding/selection and validates every rounded/post-repair frame and semantic continuity; exactly one motion-engine candidate door may expose Preview. That finite numeric contract remains current code, but it does not prove body-local anatomical direction or natural pose quality.
 
-GIT-044 published the former Phase 3 authorization at exact docs-only commit `269ac82335ee4576cb471bd9dffc8f7ce9bdec0f`. Arthur rejected its executor result; alternate screen-space IK, broad flexion limits, shallow candidate ranking, key-step stops, raised recovery, and reach-like gesture are binding negative evidence. GIT-045 published D-0050's first Phase 2 v2/Phase 3 correction at exact 13-document commit `a4589664b6857eb10a828189e177e0e7d47e3f69`. D-0051 corrects only its incomplete single-state goal/start gate; v2 is accepted/technically Verified under D-0053, pending separate GIT-048 publication/integration, and corrected Phase 3 remains unauthorized. None of the rejected executor's bytes is accepted or reusable.
+GIT-044 published the former Phase 3 authorization at exact docs-only commit `269ac82335ee4576cb471bd9dffc8f7ce9bdec0f`. Arthur rejected its executor result; alternate screen-space IK, broad flexion limits, shallow candidate ranking, key-step stops, raised recovery, and reach-like gesture are binding negative evidence. GIT-045 published D-0050's first Phase 2 v2/Phase 3 correction at exact 13-document commit `a4589664b6857eb10a828189e177e0e7d47e3f69`. D-0051 corrects only its incomplete single-state goal/start gate; v2 is Verified, published, and integrated through GIT-048 at `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`, and corrected SPEC-0005 Phase 3 is Authorized/Not started under D-0054, pending GIT-049 publication. None of the rejected executor's bytes is accepted or reusable.
 
 There is no custom-trained Diamond Animator LLM, fine-tuning pipeline, embeddings system, vector database, or model-serving stack in this repository.
 
@@ -89,7 +89,7 @@ The accepted browser proof used a blue fixture picker injected into an isolated 
 
 Phase 2's private review followed the stricter rule: Arthur saw four separate disposable loopback copies/links preloaded with wave, jump, bow, and dodge one at a time and only the ordinary Stick canvas, timeline, AI transaction area, and manual tools. No query-controlled review surface, tester overlay/control, product route, public asset, or review import was added. The temporary review servers are stopped and their isolated copies are removed.
 
-Published Phase 2.5 keeps Phase 1 and Phase 2 behavior as defaults. Rejected SPEC-0004 Phase 2.6 and rejected SPEC-0005 motion results remain unavailable. SPEC-0005 Phase 1 is published proof infrastructure, and Phase 2 v1's numeric safety foundation is published/integrated at `e524543…`; no normal route invokes it and no planner door exists. GIT-045 is published at `a4589664…`; corrected Phase 2 v2 is accepted/technically Verified under D-0053, pending separate GIT-048 publication/integration. Corrected Phase 3 is unauthorized and unimplemented.
+Published Phase 2.5 keeps Phase 1 and Phase 2 behavior as defaults. Rejected SPEC-0004 Phase 2.6 and rejected SPEC-0005 motion results remain unavailable. SPEC-0005 Phase 1 is published proof infrastructure, and Phase 2 v1's numeric safety foundation is published/integrated at `e524543…`; no normal route invokes it and no planner door exists. GIT-045 is published at `a4589664…`; corrected Phase 2 v2 is Verified, published, and integrated through GIT-048 at `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`. Corrected SPEC-0005 Phase 3 is Authorized/Not started under D-0054, pending GIT-049 publication; it remains unimplemented.
 
 ## Generate Frames Execution Path
 
@@ -148,7 +148,7 @@ Existing mechanisms:
 - the published Phase 2 motion engine remains fully local/$0/provider-free; it sends no prompt or project data anywhere
 - the published Phase 2.5 timing primitive is fully local/$0/provider-free; it sends no prompt or project data anywhere
 - the rejected unpublished Phase 2.6 result is not product/runtime truth and cannot be connected to chat, Pretend AI, or Terra
-- SPEC-0005 remains provider-free through all eight phases; published Phase 1/Phase 2 v1 and the accepted/technically Verified Phase 2 v2 correction awaiting GIT-048 are local, corrected Phase 3 is unauthorized, and no phase may contact Terra or another provider
+- SPEC-0005 remains provider-free through all eight phases; published Phase 1/Phase 2 v1 and the Verified/published/integrated Phase 2 v2 correction at GIT-048 are local, corrected SPEC-0005 Phase 3 is Authorized/Not started under D-0054 (GIT-049 pending), and no phase may contact Terra or another provider
 - D-0038 preserves a future cost strategy only: compact Terra key-pose/timing plans, local in-betweens, safe free recipes first, at most one later bounded pre-Apply repair, measured dashboard usage, monthly budgets/credits, and no unlimited Terra. Exact pricing/model/privacy must be freshly checked at the later paid gate.
 
 In local development, the cost log writes the full user prompt along with request/model/usage metadata to `.local/ai-cost-dashboard/requests.jsonl`. That directory is ignored by Git, but no approved redaction or retention policy exists.

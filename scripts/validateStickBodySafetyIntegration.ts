@@ -8,6 +8,9 @@ import {
   STICK_BODY_SAFETY_FAILURE_REASONS,
   STICK_BODY_SAFETY_SELECTION_CONTRACT_VERSION,
   finalizeStickBodySafetyCandidate,
+  finalizeStickBodySafetyCandidateV2,
+  qualifyStickBodySafetyCandidateSequencesV2,
+  type StickBodySafetyCompletionInputV2,
   selectStickBodySafetyImportantPoses,
   type StickBodySafetyAnimationIntentV1,
   type StickBodySafetyChain,
@@ -36,7 +39,14 @@ import {
   type StickJointRoleV1,
   type StickProjectDocumentV1,
 } from "../src/lib/stickfigure/stickProjectContract.ts";
-import type {StickAnimationPlanV1, StickCommandBatchV1} from "../src/lib/ai/stickFigureAiContract.ts";
+import {parseStickAnimationPlan, type StickAnimationPlanV1, type StickCommandBatchV1} from "../src/lib/ai/stickFigureAiContract.ts";
+import {
+  buildOracleCase, catalog as naturalCatalog, chains as naturalChains,
+  chainRoles as naturalChainRoles, solveOracleChain,
+  contextFor as naturalContextFor, oracleFinal, oracleFrame, oracleContextAt, oracleRequest,
+  oracleOwner, propertyProbe, mirrorOracle, kneeGuideProbe, posedProject, roundPose,
+  type NaturalRequest, type Pose, type Context, type OracleFinalFrame,
+} from "./validateStickBodyNaturalSafety.ts";
 
 type Catalog = {
   fixtureVersion: number;
@@ -870,7 +880,7 @@ const scanClosedRoute = (bodyText: string, motionText: string, executorText: str
     ts.forEachChild(node, walkBody);
   };
   const walkMotion = (node: ts.Node) => {
-    if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && node.expression.text === "finalizeStickBodySafetyCandidate") bodyCalls += 1;
+    if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && node.expression.text === "finalizeStickBodySafetyCandidateV2") bodyCalls += 1;
     ts.forEachChild(node, walkMotion);
   };
   walkBody(bodyAst);
@@ -879,14 +889,14 @@ const scanClosedRoute = (bodyText: string, motionText: string, executorText: str
   const executorAwaitsFinalDoor = executorText.includes("const finalized = await finalizeStickSpec0005MotionCandidate(");
   const rejectsCallerMaterializer = executorText.includes("hasBodySafetyCompletion && hasExplicitMaterializer");
   return !forbiddenBodyNode &&
-    exportedCallable === "selectStickBodySafetyImportantPoses;finalizeStickBodySafetyCandidate;" &&
+    exportedCallable === "selectStickBodySafetyImportantPoses;finalizeStickBodySafetyCandidate;qualifyStickBodySafetyCandidateSequencesV2;finalizeStickBodySafetyCandidateV2;" &&
     bodyCalls === 1 && executorHasClosedKindGuard && executorAwaitsFinalDoor && rejectsCallerMaterializer;
 };
 const motionSource = readFileSync(resolve(ROOT, "src/lib/ai/stickFigureMotionEngine.ts"), "utf8");
 const executorSource = readFileSync(resolve(ROOT, "src/lib/ai/stickFigureCommandExecutor.ts"), "utf8");
 ok(scanClosedRoute(source, motionSource, executorSource), "AST/control-flow scan proves one closed exported completion route");
 equal(scanClosedRoute(`${source}\nconst trusted = true;`, motionSource, executorSource), false, "AST scan rejects a forged trust mutation");
-equal(scanClosedRoute(source, motionSource.replace("await finalizeStickBodySafetyCandidate(safetyCandidate, starter)", "({ok: true, value: safetyCandidate})"), executorSource), false, "AST scan rejects removal of the kernel call");
+equal(scanClosedRoute(source, motionSource.replace("await finalizeStickBodySafetyCandidateV2(safetyCandidate, starter)", "({ok: true, value: safetyCandidate})"), executorSource), false, "AST scan rejects removal of the kernel call");
 equal(scanClosedRoute(source, motionSource, executorSource.replace("parsed.value.kind !== \"stick-animation-plan\"", "false")), false, "control-flow scan rejects removal of wrong-kind fail-closed guard");
 
 const swapRole = (role: StickJointRoleV1): StickJointRoleV1 => role.startsWith("left")
@@ -1214,10 +1224,8 @@ const bakeReturnedSelection = async (
 };
 const routingCompletion = await bakeReturnedSelection(routingPending.selectionRequest, routingSelection.value);
 const expectedBinding = cloneCanonical(routingPending.selectionRequest.binding);
-const bridged = await finalizeStickSpec0005MotionCandidate(routingCompletion, starter, expectedBinding);
-if (!bridged.ok) throw new Error(`selection/motion/completion bridge failed: ${canonicalJson(bridged.error)}`);
-equal(bridged.ok, true, "selection -> motion bake -> completion -> async final door succeeds");
-observedPositives.add("selection-motion-completion-preview");
+const bridged = await finalizeStickSpec0005MotionCandidate(routingCompletion, starter, planEnvelope);
+equal(bridged.ok, false, "historical V1 remains numerically testable but is revoked at the SPEC-0005 door");
 
 await expectFailure("stable-selection-final-frame-replacement", mutate(routingCompletion, (draft) => {
   draft.finalFrames[4].points.hip.x += 1;
@@ -1308,8 +1316,8 @@ await expectFailure("airborne-phase2-rejected", makeInput([{points: crouch(20), 
   const root = await createStickCommandWorkspaceRoot(starter, "spec0005-body-safety-plan");
   const machine = new StickFigureCommandTransactionV1(root, {bodySafetyCompletion: routingCompletion});
   const outcome = await machine.preview(planEnvelope);
-  equal(outcome.outcomeCode, "preview_ready", "qualified candidate reaches preview");
-  ok(machine.readPreviewCandidate(planEnvelope.transactionId), "qualified preview candidate is readable");
+  equal(outcome.outcomeCode, "failed", "historical V1 completion cannot reach corrected Preview");
+  equal(machine.readPreviewCandidate(planEnvelope.transactionId), null, "historical V1 exposes no candidate");
 
   const unsafeRoot = await createStickCommandWorkspaceRoot(starter, "spec0005-body-safety-unsafe");
   const unsafe = mutate(routingCompletion, (draft) => { draft.selectionRequest.importantPoses[0].seed.leftHand.x -= 40; });
@@ -1319,6 +1327,293 @@ await expectFailure("airborne-phase2-rejected", makeInput([{points: crouch(20), 
   equal(unsafeOutcome.outcomeCode, "failed", "unsafe safety candidate fails before preview");
   equal(unsafeMachine.readPreviewCandidate(planEnvelope.transactionId), null, "unsafe candidate creates no preview");
   equal(unsafeOutcome.root.editorRoot, unsafeBefore.editorRoot, "unsafe preview failure is a project/history no-op");
+}
+
+// V2 expectations are imported from the separately authored, pre-runtime hash-frozen oracle.
+const v2Source = source.replace('"../stickfigure/stickProjectContract.ts"', JSON.stringify(contractUrl)) + `
+export const __frameV2 = (p, c, starter, stage = "important_pose", rest = false) => {
+  const metrics = metricsFromStarter(starter);
+  return "reason" in metrics ? metrics : validateFrameV2(p,c,metrics,stage,0,rest);
+};`;
+const v2Private = await import(`data:text/javascript;base64,${Buffer.from(ts.transpileModule(v2Source, {
+  compilerOptions: {module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022},
+}).outputText).toString("base64")}`) as {__frameV2:(p:Pose,c:Context,s:StickProjectDocumentV1,stage?:string,rest?:boolean)=>{reason:string;stage:string}|null};
+const brief = (result: {ok:boolean;error?:{reason:string;stage:string}}) => result.ok ? null : {reason:result.error!.reason,stage:result.error!.stage};
+const v2Fixed: Array<{id:string;qualification:unknown;final:unknown;owner:number|null}> = [];
+const v2Completion = async (request:NaturalRequest,document:StickProjectDocumentV1,override?:OracleFinalFrame[]) => {
+  const graph=await qualifyStickBodySafetyCandidateSequencesV2(request,document);
+  if(!graph.ok) return {graph,completion:null};
+  const indexes=[graph.value.edges[0][0].from];
+  for(const edges of graph.value.edges)indexes.push(edges.find(e=>e.from===indexes.at(-1))!.to);
+  const frames=override??Array.from({length:request.frameCount},(_,frameIndex)=>{
+    const n=request.landmarks.findLastIndex(l=>l.frameIndex<=frameIndex),p=graph.value.candidates[n][indexes[n]];
+    return {frameIndex,sourcePoints:cloneCanonical(p),points:roundPose(p),context:oracleContextAt(request,frameIndex)};
+  });
+  const candidate=cloneCanonical(document);candidate.documentRevision++;candidate.fps=request.fps;
+  candidate.layers[0].cells=frames.map((f,i)=>({frameId:document.layers[0].cells[i]?.frameId??`30000000-0000-4000-8000-${String(i+1).padStart(12,"0")}`,index:i,cellType:"keyframe",poses:[{
+    poseId:`40000000-0000-4000-8000-${String(i+1).padStart(12,"0")}`,figureId:document.figures[0].figureId,rigId:document.rigs[0].rigId,
+    points:document.rigs[0].joints.map(j=>({jointId:j.jointId,...f.points[j.role]})),
+  }]}));
+  const completion:StickBodySafetyCompletionInputV2={contractVersion:"stick.body-safety-completion/v2",selectionRequest:cloneCanonical(request),qualifiedGraph:graph.value,selectedIndexes:indexes,finalFrames:frames,candidateDocument:candidate};
+  return {graph,completion};
+};
+for(const test of naturalCatalog.fixedCases){
+  const input=await buildOracleCase(test),prepared=await v2Completion(input.request,input.starter);
+  const expected=test.expect==="safe"?null:{reason:test.expect,stage:test.stage};
+  equal(brief(prepared.graph),expected,`${test.id}: v2 graph agrees with frozen analytical expectation`);
+  if(!prepared.completion){
+    const malformed={contractVersion:"stick.body-safety-completion/v2",selectionRequest:input.request,qualifiedGraph:{},selectedIndexes:[],finalFrames:[],candidateDocument:input.starter};
+    equal(brief(await finalizeStickBodySafetyCandidateV2(malformed,input.starter)),expected,`${test.id}: finalizer retains original qualification cause`);
+    v2Fixed.push({id:test.id,qualification:expected,final:expected,owner:null});continue;
+  }
+  const completion=prepared.completion,expectedFinal=oracleFinal(input.request,input.base,completion.finalFrames);
+  const finalized=await finalizeStickBodySafetyCandidateV2(completion,input.starter);
+  const isolatedPlaneJump=test.operation==="arm-plane"||test.operation==="leg-plane";
+  equal(brief(finalized),isolatedPlaneJump?{reason:"projected_branch_transition",stage:"final_frame"}:expectedFinal,
+    `${test.id}: final oracle plus explicit two-moving-step transition requirement`);
+  if(finalized.ok)equal(finalized.value.requiredOwnerPhase,oracleOwner(input.request),`${test.id}: later semantics defer to named owner`);
+  v2Fixed.push({id:test.id,qualification:null,final:brief(finalized),owner:finalized.ok?finalized.value.requiredOwnerPhase:null});
+}
+const v2Families:Record<string,number>={};let v2Accepted=0,v2Rejected=0;
+for(let i=0;i<naturalCatalog.propertyCount;i++){
+  const p=await propertyProbe(i),expected=oracleFrame(p.points,p.base,p.context)?.reason??"safe";
+  equal(v2Private.__frameV2(p.points,p.context,posedProject(p.base))?.reason??"safe",expected,`V2 whole-body property ${i} ${p.family}`);
+  const m=mirrorOracle(p.base,p.points,p.context);
+  equal(v2Private.__frameV2(m.points,m.context,posedProject(m.base))?.reason??"safe",oracleFrame(m.points,m.base,m.context)?.reason??"safe",`V2 mirrored whole-body property ${i}`);
+  v2Families[p.family]=(v2Families[p.family]??0)+1;if(expected==="safe")v2Accepted++;else v2Rejected++;
+}
+for(const clearance of naturalCatalog.guideThresholdsH){const p=kneeGuideProbe(clearance);equal(v2Private.__frameV2(p.points,p.context,posedProject(p.base))?.reason??"safe",oracleFrame(p.points,p.base,p.context)?.reason??"safe",`whole-body ${clearance}H guide boundary`);}
+for(const degrees of naturalCatalog.nearExtensionKneeDegrees){const p=kneeGuideProbe(0,degrees);equal(v2Private.__frameV2(p.points,p.context,posedProject(p.base)),null,`near extension ${degrees} degrees`);}
+let v2BandChecks=0;
+for(const chain of ["leftArm","leftLeg"]as const){
+  const base=naturalCatalog.frontBase,ctx=naturalContextFor(base),[root,joint,end]=naturalChainRoles[chain];
+  ctx.limbs[chain].movementRole="active";ctx.limbs[chain].jointGuide=chain==="leftArm"?"outward":"forward";ctx.limbs[chain].targetRegion={height:"middle",direction:"outward",reach:"medium"};ctx.requiredOutcomes=["reach_apex"];
+  if(chain==="leftLeg"){ctx.supportContacts.leftFoot=null;ctx.supportContacts.rightFoot=null;ctx.supportMode="airborne";ctx.limbs.rightLeg.movementRole="active";ctx.limbs.rightLeg.targetRegion={height:"middle",direction:"outward",reach:"medium"};}
+  const names=["extended","comfortable","folded","near_extension_limit","near_flexion_limit"]as const;
+  const limits=naturalCatalog.bandEdges[chain==="leftArm"?"arm":"leg"];
+  for(let band=0;band<names.length;band++)for(const degrees of [limits[band][0]-.0001,limits[band][0],limits[band][1],limits[band][1]+.0001]){
+    const p=cloneCanonical(base),a=(chain==="leftArm"?20:40)*Math.PI/180,b=a+degrees*Math.PI/180;
+    const first=Math.hypot(base[root].x-base[joint].x,base[root].y-base[joint].y),second=Math.hypot(base[end].x-base[joint].x,base[end].y-base[joint].y);
+    p[joint]={x:p[root].x+first*Math.cos(a),y:p[root].y+first*Math.sin(a)};p[end]={x:p[joint].x+second*Math.cos(b),y:p[joint].y+second*Math.sin(b)};ctx.limbs[chain].flexionBand=names[band];
+    const expected=oracleFrame(p,base,ctx);equal(v2Private.__frameV2(p,ctx,posedProject(base))?.reason??"safe",expected?.reason??"safe",`${chain} ${names[band]} ${degrees} exact independent band boundary`);
+    if(degrees===limits[band][0]||degrees===limits[band][1])equal(expected,null,`${chain} band edge is a complete safe body`);
+    const m=mirrorOracle(base,p,ctx);equal(v2Private.__frameV2(m.points,m.context,posedProject(m.base))?.reason??"safe",expected?.reason??"safe",`${chain} band-edge anatomical mirror`);v2BandChecks+=2;
+  }
+}
+for(const operation of ["arm-plane","leg-plane"]){
+  const input=await buildOracleCase(naturalCatalog.fixedCases.find(c=>c.operation===operation)!);
+  const chain=operation==="arm-plane"?"leftArm":"leftLeg",[root,joint,end]=naturalChainRoles[chain];
+  // An independently constructed 13.7-degree corridor has enough clearance for
+  // two rounded moving steps while retaining the unchanged near-extension band.
+  input.base[joint].y-=1;input.request.landmarks[0].candidates=[cloneCanonical(input.base)];input.request.landmarks[1].candidates[0][joint].y+=1;
+  input.starter=posedProject(input.base);input.request.binding.baseDocumentDigest=await digestCanonical(input.starter);input.request.basePoseBinding.sourceFrameDigest=await digestCanonical(input.starter.layers[0].cells[0]);
+  const built=await v2Completion(input.request,input.starter);if(!built.completion)throw new Error("missing plane graph");
+  const frames=cloneCanonical(built.completion.finalFrames),lengthA=Math.hypot(input.base[joint].x-input.base[root].x,input.base[joint].y-input.base[root].y),lengthB=Math.hypot(input.base[end].x-input.base[joint].x,input.base[end].y-input.base[joint].y);
+  for(const [frame,dy,endDy]of [[9,.1,-.01],[10,.55,-.05]]){
+    const p=frames[frame].sourcePoints;
+    p[joint].y+=dy;p[joint].x=p[root].x+Math.sqrt(lengthA**2-(p[joint].y-p[root].y)**2);
+    p[end].y+=endDy;p[end].x=p[joint].x+Math.sqrt(lengthB**2-(p[end].y-p[joint].y)**2);
+    frames[frame].points=roundPose(p);
+    equal(oracleFrame(p,input.base,frames[frame].context),null,`${operation}: intermediate source geometry independently safe`);
+    equal(oracleFrame(frames[frame].points,input.base,frames[frame].context,"final_frame"),null,`${operation}: intermediate rounded geometry independently safe`);
+  }
+  const complete=await v2Completion(input.request,input.starter,frames);if(!complete.completion)throw new Error("missing plane completion");
+  const result=await finalizeStickBodySafetyCandidateV2(complete.completion,input.starter);ok(result.ok,`${operation}: declared transition has multiple moving frames and passes every final cap: ${canonicalJson(result)}`);
+  const oneStep=await finalizeStickBodySafetyCandidateV2(built.completion,input.starter);equal(brief(oneStep),{reason:"projected_branch_transition",stage:"final_frame"},`${operation}: one moving step is rejected`);
+  const undeclared=cloneCanonical(input.request);undeclared.landmarks[1].kind="true_key_pose";
+  equal(brief(await qualifyStickBodySafetyCandidateSequencesV2(undeclared,input.starter)),{reason:"branch_flip",stage:"important_pose"},`${operation}: undeclared plane change is rejected`);
+  const tooShort=cloneCanonical(input.request),last=cloneCanonical(tooShort.landmarks[1]);tooShort.landmarks[1].frameIndex=1;last.landmarkId="finished";last.kind="hold";tooShort.landmarks.push(last);
+  tooShort.segments[0].exitIntent="continue";tooShort.segments.push({...cloneCanonical(tooShort.segments[0]),fromLandmarkId:tooShort.landmarks[1].landmarkId,toLandmarkId:last.landmarkId,exitIntent:"settle"});
+  equal(brief(await qualifyStickBodySafetyCandidateSequencesV2(tooShort,input.starter)),{reason:"projected_branch_transition",stage:"important_pose"},`${operation}: one-frame declared branch interval is rejected`);
+}
+{
+  const base=naturalCatalog.frontBase,p=cloneCanonical(base),ctx=naturalContextFor(base);
+  ctx.limbs.leftArm={movementRole:"active",targetRegion:{height:"middle",direction:"outward",reach:"medium"},limbPlane:"frontal",jointGuide:"outward",flexionBand:"comfortable"};
+  const first=Math.hypot(base.neck.x-base.leftElbow.x,base.neck.y-base.leftElbow.y),second=Math.hypot(base.leftHand.x-base.leftElbow.x,base.leftHand.y-base.leftElbow.y);
+  p.leftElbow=pointAt(p.neck,20,first);p.leftHand=pointAt(p.leftElbow,77,second);
+  equal(oracleFrame(p,base,ctx),null,"57-degree guide-correct arm is a safe whole body");
+  equal(v2Private.__frameV2(p,ctx,posedProject(base)),null,"57-degree guide-correct arm survives runtime");
+  solveOracleChain(p,base,"leftArm",ctx,true);
+  ok(Math.abs(Math.abs(bend(p.neck,p.leftElbow,p.leftHand))-57)<1e-9,"opposite branch retains exactly 57 degrees");
+  equal(oracleFrame(p,base,ctx)?.reason,"backward_bend","57-degree numeric bend alone cannot establish anatomy");
+  equal(v2Private.__frameV2(p,ctx,posedProject(base))?.reason,"backward_bend","runtime rejects the independently wrong 57-degree branch");
+}
+{
+  const input=await buildOracleCase(naturalCatalog.fixedCases[0]),last=input.request.landmarks[1],p=last.candidates[0];
+  for(const role of STICK_JOINT_ROLES.filter(r=>!r.endsWith("Knee")&&!r.endsWith("Foot")))p[role].y+=100;
+  last.kind="impact";last.context.posture="compress";last.context.rootGoal="lower";last.context.motionPhase="contact";
+  for(const c of ["leftLeg","rightLeg"]as const){last.context.limbs[c].flexionBand="folded";solveOracleChain(p,input.base,c,last.context);}
+  input.request.completion.outgoingContext=cloneCanonical(last.context);
+  const built=await v2Completion(input.request,input.starter);if(!built.completion)throw new Error("genuine impact graph rejected");
+  equal(oracleFinal(input.request,input.base,built.completion.finalFrames),null,"100px compression and >35-degree knee change independently satisfy impact caps");
+  const result=await finalizeStickBodySafetyCandidateV2(built.completion,input.starter);ok(result.ok,`genuine impact passes safety classification: ${canonicalJson(result)}`);if(result.ok)equal(result.value.requiredOwnerPhase,4,"genuine impact still waits for mechanics");
+  const normal=cloneCanonical(input.request);normal.landmarks[1].kind="true_key_pose";normal.landmarks[1].context.motionPhase="moving";normal.completion.outgoingContext=cloneCanonical(normal.landmarks[1].context);
+  const plain=await v2Completion(normal,input.starter);if(!plain.completion)throw new Error("ordinary comparison graph rejected");
+  equal(brief(await finalizeStickBodySafetyCandidateV2(plain.completion,input.starter)),{reason:"continuity",stage:"final_frame"},"identical real motion without impact context fails ordinary caps");
+}
+{
+  const probe=kneeGuideProbe(0,13),ctx=cloneCanonical(probe.context);ctx.facing="left";ctx.supportMode="airborne";
+  for(const contact of ["leftFoot","rightFoot","leftHand","rightHand","hip"]as const)ctx.supportContacts[contact]=null;
+  for(const c of naturalChains)ctx.limbs[c].limbPlane="sagittal_near";
+  const seed=cloneCanonical(probe.points);for(const c of ["leftLeg","rightLeg"]as const)solveOracleChain(seed,probe.base,c,ctx);
+  const base=roundPose(seed),document=posedProject(base),request=(await buildOracleCase(naturalCatalog.fixedCases[0])).request;
+  request.binding.baseDocumentDigest=await digestCanonical(document);request.basePoseBinding={sourceFrameId:document.layers[0].cells[0].frameId,sourceFrameDigest:await digestCanonical(document.layers[0].cells[0]),context:cloneCanonical(ctx)};
+  request.landmarks=(["left","front","right"]as const).map((facing,i)=>{
+    const context=cloneCanonical(ctx);context.facing=facing;for(const c of naturalChains)context.limbs[c].limbPlane=facing==="front"?"frontal":"sagittal_near";
+    const points=cloneCanonical(base);for(const c of ["leftLeg","rightLeg"]as const)solveOracleChain(points,base,c,context);
+    return {landmarkId:`facing-${facing}`,frameIndex:[0,5,11][i],kind:i?"plane_transition"as const:"hold"as const,context,candidates:[points]};
+  });
+  request.segments=request.landmarks.slice(1).map((l,i)=>({fromLandmarkId:request.landmarks[i].landmarkId,toLandmarkId:l.landmarkId,activePartIds:["hold"],facingTransition:i?"turn_right":"through_front",supportTransition:"airborne",pathIntent:"natural_arc",exitIntent:i?"settle":"continue"}));
+  request.completion.outgoingContext=cloneCanonical(request.landmarks.at(-1)!.context);
+  equal(oracleRequest(request,base),null,"through-front pose, context, and transitions independently qualify");
+  const graph=await qualifyStickBodySafetyCandidateSequencesV2(request,document);ok(graph.ok,`explicit through-front turn remains classifiable: ${canonicalJson(graph)}`);
+  const forged=cloneCanonical(request);forged.segments[0].facingTransition="hold";equal(brief(await qualifyStickBodySafetyCandidateSequencesV2(forged,document)),{reason:"context_transition",stage:"integration"},"forged through-front transition is rejected");
+  const supported=cloneCanonical(request);supported.requestedParts[0].requiredOutcomeIds=["reach_apex"];
+  for(const landmark of supported.landmarks){landmark.context.supportMode="grounded";for(const c of ["leftLeg","rightLeg"]as const){landmark.context.limbs[c].movementRole="support";landmark.context.limbs[c].targetRegion="none";const end=naturalChainRoles[c][2];landmark.context.supportContacts[end as "leftFoot"|"rightFoot"]={...base[end]};}}
+  supported.basePoseBinding.context=cloneCanonical(supported.landmarks[0].context);supported.completion.outgoingContext=cloneCanonical(supported.landmarks.at(-1)!.context);for(const s of supported.segments)s.supportTransition="hold";
+  equal(brief(await qualifyStickBodySafetyCandidateSequencesV2(supported,document)),{reason:"projected_branch_transition",stage:"important_pose"},"declared turn cannot flip an independently required supported near-limit knee");
+}
+
+const holdPlan:StickAnimationPlanV1={...cloneCanonical(planEnvelope),commands:[
+  {type:"set_timing",commandVersion:1,fps:12,totalFrameCount:12},
+  {type:"create_key_pose",commandVersion:1,poseName:"stationary",frameIndex:0,targetLayerId:starter.layers[0].layerId,targetRigId:starter.rigs[0].rigId,targetFigureId:starter.figures[0].figureId,joints:STICK_JOINT_ROLES.map(role=>({role,...neutral[role]}))},
+  {type:"hold_pose",commandVersion:1,poseName:"stationary",startFrameIndex:1,endFrameIndex:11},
+  {type:"finish",commandVersion:1},
+]};
+const holdParsed=await parseStickAnimationPlan(holdPlan,starter);ok(holdParsed.ok,"stationary hold is a real parsed animation request");
+if(!holdParsed.ok)throw new Error(holdParsed.error.message);
+const holdRequest=(await buildOracleCase(naturalCatalog.fixedCases[0])).request;
+holdRequest.binding={projectId:starter.projectId,transactionId:holdPlan.transactionId,baseDocumentRevision:starter.documentRevision,baseDocumentDigest:starterDigest};
+holdRequest.animationRequestDigest=await digestCanonical(holdParsed.value);
+const holdContext=naturalContextFor(neutral);
+for(const c of naturalChains){holdContext.limbs[c].movementRole="passive_relax";holdContext.limbs[c].jointGuide="neutral";holdContext.limbs[c].flexionBand="extended";}
+holdRequest.basePoseBinding={sourceFrameId:starterCell.frameId,sourceFrameDigest:await digestCanonical(starterCell),context:cloneCanonical(holdContext)};
+for(const l of holdRequest.landmarks){l.candidates=[cloneCanonical(neutral)];l.context=cloneCanonical(holdContext);}
+holdRequest.completion.outgoingContext=cloneCanonical(holdContext);
+const holdPrepared=await v2Completion(holdRequest,starter);
+if(!holdPrepared.completion)throw new Error(canonicalJson(holdPrepared.graph));
+const holdCompletion=holdPrepared.completion;
+for(const [id,change]of [
+  ["non-neutral-rest",(c:Context)=>{c.posture="compress";}],
+  ["single-contact-rest",(c:Context)=>{c.supportContacts.rightFoot=null;}],
+  ["contradictory-rest-band",(c:Context)=>{c.limbs.leftLeg.flexionBand="comfortable";}],
+]as const){
+  const request=cloneCanonical(holdRequest);for(const l of request.landmarks)change(l.context);request.basePoseBinding.context=cloneCanonical(request.landmarks[0].context);request.completion.outgoingContext=cloneCanonical(request.landmarks[1].context);
+  equal(brief(await qualifyStickBodySafetyCandidateSequencesV2(request,starter)),{reason:"branch_singularity",stage:"important_pose"},`${id}: cannot broaden the qualified straight-neutral exception`);
+}
+const holdDoor=await finalizeStickSpec0005MotionCandidate(holdCompletion,starter,holdParsed.value);
+ok(holdDoor.ok,`stationary hold passes corrected completion door: ${canonicalJson(holdDoor)}`);
+const makeMachine=async(completion:unknown=holdCompletion,options:Record<string,unknown>={})=>new StickFigureCommandTransactionV1(await createStickCommandWorkspaceRoot(starter,"v2-real-request"),{bodySafetyCompletion:completion,...options});
+const noPreview=async(id:string,completion:unknown,plan=holdPlan,options:Record<string,unknown>={})=>{
+  const machine=await makeMachine(completion,options),before=machine.snapshot(),outcome=await machine.preview(plan);
+  equal([outcome.outcomeCode,machine.readPreviewCandidate(plan.transactionId),outcome.root.editorRoot],["failed",null,before.editorRoot],`${id}: no Preview and exact project/history no-op`);
+};
+const transactionCases=new Set<string>();
+const attack=async(id:string,change:(c:StickBodySafetyCompletionInputV2,p:StickAnimationPlanV1)=>void)=>{const c=cloneCanonical(holdCompletion),p=cloneCanonical(holdPlan);change(c,p);await noPreview(id,c,p);transactionCases.add(id);};
+await attack("request-id",(_,p)=>{p.requestId="00000000-0000-4000-8000-000000000098";});
+await attack("request-command",(_,p)=>{const key=p.commands[1];if(key.type==="create_key_pose")key.joints[0].x++;});
+await attack("request-fps",(_,p)=>{const t=p.commands[0];if(t.type==="set_timing")t.fps=24;});
+await attack("request-count",(_,p)=>{const t=p.commands[0],h=p.commands[2];if(t.type==="set_timing")t.totalFrameCount=13;if(h.type==="hold_pose")h.endFrameIndex=12;});
+await attack("request-result-substitution",c=>{c.selectionRequest.animationRequestDigest=`sha256:${"9".repeat(64)}`;});
+const docAttacks:Record<string,(d:StickProjectDocumentV1)=>void>={title:d=>{d.title+=" forged";},fps:d=>{d.fps=24;},"layer-name":d=>{d.layers[0].name+=" forged";},"layer-id":d=>{d.layers[0].layerId="00000000-0000-4000-8000-000000000097";},"rig-id":d=>{d.rigs[0].rigId="00000000-0000-4000-8000-000000000097";},"figure-label":d=>{d.figures[0].label+=" forged";},"figure-id":d=>{d.figures[0].figureId="00000000-0000-4000-8000-000000000097";},"coordinate-space":d=>{d.coordinateSpace.width=1800 as never;}};
+for(const [id,change]of Object.entries(docAttacks))await attack(id,c=>change(c.candidateDocument));
+await attack("graph",c=>{c.qualifiedGraph.candidates[0][0].leftHand.x++;});
+await attack("selection",c=>{c.selectedIndexes[0]=999;});
+await attack("final-context",c=>{c.finalFrames[5].context.facing="left";});
+await attack("final-rounding",c=>{c.finalFrames[5].points.leftKnee.x++;});
+await attack("post-repair",c=>{const f=c.candidateDocument.layers[0].cells[5];if(f.cellType==="keyframe")f.poses[0].points[0].x++;});
+for(const key of ["plannerIdentity","actionLabel","fixtureId","trusted","skipSafety","injury","deformation","activeChains"]){
+  await attack(`unrecognized-${key}`,c=>{(c.selectionRequest as unknown as Record<string,unknown>)[key]=true;});
+}
+await noPreview("v1",routingCompletion);transactionCases.add("v1");
+await noPreview("selection-only",holdPrepared.graph.ok?holdPrepared.graph.value:null);transactionCases.add("selection-only");
+for(const [id,options]of Object.entries({materializer:{animationPlanMaterializer:"phase-1-holds"},trusted:{trusted:true},skip:{skipSafety:true},injury:{injuryMode:true},deformation:{allowDeformation:true}})){
+  await assert.rejects(makeMachine(holdCompletion,options),TypeError);assertions++;transactionCases.add(id);
+}
+await noPreview("hasher-mutation",holdCompletion,holdPlan,{candidateHasher:async(d:StickProjectDocumentV1)=>{d.title="forged";return digestCanonical(d);}});transactionCases.add("hasher-mutation");
+await noPreview("hasher-substitution",holdCompletion,holdPlan,{candidateHasher:async()=>`sha256:${"8".repeat(64)}`});transactionCases.add("hasher-substitution");
+{
+  const machine=await makeMachine(),before=machine.snapshot();equal((await machine.preview(holdPlan)).outcomeCode,"preview_ready","V2 successful Preview");
+  equal(machine.snapshot().editorRoot,before.editorRoot,"Preview does not mutate project/history");
+  const read=machine.readPreviewCandidate()!;read.title="external mutation";
+  equal(machine.readPreviewCandidate(),holdCompletion.candidateDocument,"Preview read access is detached");
+  equal((await machine.apply(holdPlan)).outcomeCode,"applied","V2 successful Apply");
+  equal(machine.snapshot().editorRoot.current.snapshot.document,holdCompletion.candidateDocument,"Apply publishes exact checked bytes");
+  equal(machine.snapshot().editorRoot.undo.length,before.editorRoot.undo.length+1,"Apply adds one undo entry");
+  const applied=machine.snapshot();equal((await machine.apply(holdPlan)).outcomeCode,"duplicate","duplicate Apply is one-shot");equal(machine.snapshot(),applied,"duplicate does not mutate any state");transactionCases.add("duplicate");
+  const conflict=cloneCanonical(holdPlan);conflict.requestId="00000000-0000-4000-8000-000000000096";equal((await machine.preview(conflict)).outcomeCode,"rejected","conflicting redelivery rejected");equal(machine.snapshot(),applied,"conflict leaves applied root exact");transactionCases.add("conflicting-redelivery");
+  observedPositives.add("selection-motion-completion-preview");
+}
+for(const action of ["cancel","abort","stale","project-switch"]as const){
+  const machine=await makeMachine();await machine.preview(holdPlan);const before=machine.snapshot();
+  if(action==="cancel")await machine.cancelPreview(holdPlan);
+  if(action==="abort")await machine.abortRequest(holdPlan);
+  if(action==="stale")machine.setDocumentPublication("pending");
+  if(action==="project-switch")await machine.replaceProject(starter,"replaced-workspace");
+  const protectedRoot=machine.snapshot().editorRoot;const result=await machine.apply(holdPlan);
+  ok(!["applied","preview_ready","preview_reused"].includes(result.outcomeCode),`${action} cannot Apply`);
+  equal(machine.snapshot().editorRoot,protectedRoot,`${action} is project/history no-op`);
+  if(action==="cancel"||action==="abort")equal(protectedRoot,before.editorRoot,`${action} preserves original root`);
+  transactionCases.add(action);
+}
+{
+  const machine=await makeMachine();await machine.preview(holdPlan);await machine.beginApplyPublication(holdPlan);
+  const active=machine.snapshot().transactionState.active;if(active?.phase!=="committing")throw new Error("missing prepared Apply");
+  const before=machine.snapshot().editorRoot,forged=cloneCanonical(holdPlan);forged.requestId="00000000-0000-4000-8000-000000000095";
+  equal((await machine.completeApplyPublication(active.operationId,forged)).outcomeCode,"rejected","Apply publication rejects substituted envelope");equal(machine.snapshot().editorRoot,before,"substituted publication no-op");
+}
+for(const test of naturalCatalog.transactionMutations)ok(transactionCases.has(test),`${test}: catalogued transaction attack executed`);
+for(const stop of ["abort","replace","rejecting-hasher"]as const){
+  let release!:()=>void,entered!:()=>void;
+  const waitForHash=new Promise<void>(resolve=>{entered=resolve;}),gate=new Promise<void>(resolve=>{release=resolve;});
+  const machine=await makeMachine(holdCompletion,{candidateHasher:async(d:StickProjectDocumentV1)=>{entered();await gate;if(stop==="rejecting-hasher")throw new Error("late hash failure");return digestCanonical(d);}});
+  const preview=machine.preview(holdPlan);await waitForHash;
+  if(stop==="replace")await machine.replaceProject(starter,"async-replacement");else await machine.abortRequest(holdPlan);
+  const protectedState=machine.snapshot();release();const result=await preview;
+  ok(result.outcomeCode!=="preview_ready",`${stop}: late hash cannot revive Preview`);
+  equal(machine.snapshot(),protectedState,`${stop}: async completion preserves exact root, view and transaction state`);
+  equal(machine.readPreviewCandidate(),null,`${stop}: no leaked frozen candidate`);
+}
+for(const operation of ["zero-chord","parallel-guide","tangent"]){
+  const request=cloneCanonical(holdRequest),last=request.landmarks[1],p=last.candidates[0],c=last.context;
+  const length=Math.hypot(neutral.hip.x-neutral.leftKnee.x,neutral.hip.y-neutral.leftKnee.y);
+  c.limbs.leftLeg={movementRole:"active",targetRegion:{height:"middle",direction:"outward",reach:"medium"},limbPlane:"frontal",jointGuide:"forward",flexionBand:"comfortable"};
+  c.supportContacts.leftFoot=null;c.motionPhase="moving";last.kind="true_key_pose";
+  if(operation==="zero-chord"){p.leftFoot={...p.hip};p.leftKnee={x:p.hip.x+length,y:p.hip.y};}
+  if(operation==="parallel-guide"){p.leftFoot={x:p.hip.x+length,y:p.hip.y};p.leftKnee={x:p.hip.x+length/2,y:p.hip.y+Math.sqrt(3)*length/2};}
+  if(operation==="tangent"){p.leftFoot={x:p.hip.x,y:p.hip.y+2*length};p.leftKnee={x:p.hip.x,y:p.hip.y+length};}
+  request.segments[0].supportTransition="release";request.completion.outgoingContext=cloneCanonical(c);
+  const completion={...cloneCanonical(holdCompletion),selectionRequest:request};
+  const expected={reason:operation==="parallel-guide"?"facing_projection":"branch_singularity",stage:"important_pose"};
+  equal(brief(await qualifyStickBodySafetyCandidateSequencesV2(request,starter)),expected,`${operation}: valid ordinary starter retains exact earliest cause`);
+  equal(brief(await finalizeStickBodySafetyCandidateV2(completion,starter)),expected,`${operation}: recomputation retains exact cause`);
+  equal(brief(await finalizeStickSpec0005MotionCandidate(completion,starter,holdPlan)),expected,`${operation}: sole door retains exact cause`);
+  await noPreview(operation,completion);
+}
+
+// Owner deferral is exercised with parseable ordinary requests, not just invalid
+// non-neutral starters. It cannot become an alternate successful Preview route.
+for(const [owner,change]of [
+  [3,(r:NaturalRequest)=>{r.requestedParts[0].semanticKind="effector_reach";}],
+  [4,(r:NaturalRequest)=>{r.requestedParts[0].semanticKind="impact";}],
+  [5,(r:NaturalRequest)=>{r.motionStyle="mechanical_stepped";}],
+  [6,(r:NaturalRequest)=>{r.requestedParts[0].semanticKind="locomotion";}],
+  [7,(r:NaturalRequest)=>{r.requestedParts[0].semanticKind="effector_oscillation";}],
+]as const){
+  const request=cloneCanonical(holdRequest);change(request);const built=await v2Completion(request,starter);if(!built.completion)throw new Error(canonicalJson(built.graph));
+  const result=await finalizeStickSpec0005MotionCandidate(built.completion,starter,holdPlan);
+  equal(brief(result),{reason:"unsupported_owner_phase",stage:"integration"},`safe owner ${owner} stops at sole door`);
+  if(!result.ok)ok(result.error.message.includes(`Phase ${owner}`),`deferred owner ${owner} named`);
+  await noPreview(`owner ${owner}`,built.completion);
+}
+{
+  const release=await buildOracleCase(naturalCatalog.fixedCases.find(c=>c.operation==="release")!);
+  const step=await buildOracleCase(naturalCatalog.fixedCases.find(c=>c.operation==="step")!);
+  equal(release.request,step.request,"frozen release and step fixtures contain identical step semantics");
+  release.request.landmarks[1].context.motionPhase="moving";release.request.completion.outgoingContext=cloneCanonical(release.request.landmarks[1].context);
+  equal(oracleOwner(release.request),4,"pure release has mechanics ownership independently");
+  const built=await v2Completion(release.request,release.starter);if(!built.completion)throw new Error("pure release did not qualify");
+  const result=await finalizeStickBodySafetyCandidateV2(built.completion,release.starter);ok(result.ok,"pure release is safely classified");if(result.ok)equal(result.value.requiredOwnerPhase,4,"pure release waits for Phase 4");
 }
 
 for (const test of catalog.negativeCases) {
@@ -1340,6 +1635,7 @@ console.log(JSON.stringify({
   propertyFamilies: Object.fromEntries(propertyFamilies),
   propertyPasses,
   propertyRejections,
+  v2: {fixed:v2Fixed,propertyCandidates:naturalCatalog.propertyCount,mirroredCandidates:naturalCatalog.mirrorCount,seed:naturalCatalog.seed,propertyFamilies:v2Families,accepted:v2Accepted,rejected:v2Rejected,bandChecks:v2BandChecks,transactionCases:[...transactionCases].sort(),stationaryHoldPreviewApply:true},
   externalRequests: 0,
   providerRequests: 0,
   stage: catalog.stage,

@@ -20,9 +20,8 @@ import {
   type StickTimelineCellV1,
 } from "../stickfigure/stickProjectContract.ts";
 import {
-  finalizeStickBodySafetyCandidate,
-  type StickBodySafetyBindingV1,
-  type StickBodySafetyResult,
+  finalizeStickBodySafetyCandidateV2,
+  type StickBodySafetyResultV2,
 } from "./stickFigureBodySafety.ts";
 
 export const STICK_PHASE2_MOTION_MATERIALIZER = "phase-2-baked-motion" as const;
@@ -623,11 +622,23 @@ export const materializeStickAnimationTimedMotionPlan = async (
 export const finalizeStickSpec0005MotionCandidate = async (
   safetyCandidate: unknown,
   starter: StickProjectDocumentV1,
-  expectedBinding: StickBodySafetyBindingV1,
-): Promise<StickBodySafetyResult> => {
-  const result = await finalizeStickBodySafetyCandidate(safetyCandidate, starter);
+  animationRequest: unknown,
+): Promise<StickBodySafetyResultV2> => {
+  const rejected = (message: string): StickBodySafetyResultV2 => ({ok: false, error: {
+    reason: "integration_bypass", stage: "integration", message,
+    frameIndex: null, transitionIndex: null, roles: [],
+  }});
+  const parsed = await parseStickAnimationPlan(animationRequest, starter);
+  if (!parsed.ok) return rejected("The completion door requires the exact parsed animation request.");
+  const result = await finalizeStickBodySafetyCandidateV2(safetyCandidate, starter);
   if (!result.ok) return result;
-  if (canonicalJson(result.value.binding) !== canonicalJson(expectedBinding)) {
+  const plan = parsed.value;
+  const timing = plan.commands.find(command => command.type === "set_timing");
+  const expectedBinding = {projectId: plan.projectId, transactionId: plan.transactionId,
+    baseDocumentRevision: plan.baseDocumentRevision, baseDocumentDigest: plan.baseDocumentDigest};
+  if (canonicalJson(result.value.binding) !== canonicalJson(expectedBinding) ||
+    result.value.animationRequestDigest !== await digestCanonical(plan) ||
+    !timing || result.value.document.fps !== timing.fps || result.value.document.layers[0].cells.length !== timing.totalFrameCount) {
     return {
       ok: false,
       error: {
@@ -640,6 +651,20 @@ export const finalizeStickSpec0005MotionCandidate = async (
       },
     };
   }
+  for (const command of plan.commands) {
+    if (command.type !== "create_key_pose") continue;
+    const cell = result.value.document.layers[0].cells[command.frameIndex];
+    if (cell?.cellType !== "keyframe" || command.joints.some(joint => {
+      const id = starter.rigs[0].joints.find(item => item.role === joint.role)?.jointId;
+      const point = cell.poses[0].points.find(item => item.jointId === id);
+      return !point || point.x !== joint.x || point.y !== joint.y;
+    })) return rejected("The checked key pose differs from the bound animation request.");
+  }
+  if (result.value.requiredOwnerPhase !== null) return {ok: false, error: {
+    reason: "unsupported_owner_phase", stage: "integration",
+    message: `This safe classification requires Phase ${result.value.requiredOwnerPhase}; Phase 2 cannot complete it.`,
+    frameIndex: null, transitionIndex: null, roles: [],
+  }};
   if (!assertIndependentBakedStickMotion(result.value.document)) {
     return {
       ok: false,

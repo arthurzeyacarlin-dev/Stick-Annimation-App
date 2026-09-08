@@ -5,6 +5,15 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-08 — Accepted SPEC-0005 Phase 2 v2 safety closeout (D-0053; publication pending)
+
+- recorded Arthur's ordinary-app smoke acceptance and PM's technical acceptance after exclusive transfer from the stopped executor in `/8673/` at `5d0299a00459d39d6c4bff5eeb345f72c5abde4e`
+- marked the exact eight-path body-local qualification/final-safety result technically Verified, pending separate GIT-048 publication/integration; all accepted technical/proof bytes remain unchanged
+- preserved manifest `a8c8db1bc81dbc6191975b7544027139f581a7493345e3b9e8bfeba6ecc29c65` (30,333 bytes), 15 receipts, 49 unique bindings and 744-mutation independent CPA validation; recorded the bounded oracle/integration checks and separate clean-baseline browser coverage honestly
+- stopped only the verified review process group 63034/listener 63035 and confirmed port 54945 closed; retained ignored proof and used complete offline binding checks after cleanup, without claiming the strict live-validator passes on a stopped server or propagated docs
+- retained v1/Phase 1 and rejected-result history, exactly eight phase owners, no new visible motion/naturalness claim, no external/provider work, and Phase 3–8 Unauthorized/Not started
+- GIT-047 is complete at the exact executor base; GIT-048 remains pending PM review and separate publication. The owner requires obsolete Phase 2 worktree/branch cleanup only after successful clean publication, with proof/recovery and canonical main/PM worktree protected
+
 ### 2026-09-07 — Defined SPEC-0005 front-view knee projection (D-0052 / GIT-047)
 
 - recorded GIT-046 publication at `55b05e2daad649ac1e0027722a75762a9714d281` and the later executor-reported front-knee specification blocker, without claiming Phase 2 implementation acceptance

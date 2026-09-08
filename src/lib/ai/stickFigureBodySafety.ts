@@ -40,7 +40,10 @@ export const STICK_BODY_SAFETY_FAILURE_REASONS = [
   "integration_bypass",
 ] as const;
 
-export type StickBodySafetyFailureReason = typeof STICK_BODY_SAFETY_FAILURE_REASONS[number];
+export type StickBodySafetyFailureReason = typeof STICK_BODY_SAFETY_FAILURE_REASONS[number] |
+  "facing_projection" | "limb_plane" | "backward_bend" | "joint_guide_clearance" | "flexion_band" |
+  "projected_branch_transition" | "context_transition" | "base_pose_mismatch" | "composition_unrequested" |
+  "forbidden_extra_movement" | "naturalness_unproven" | "unsupported_owner_phase";
 export type StickBodySafetyStage = "important_pose" | "final_frame" | "final_animation" | "integration";
 export type StickBodySafetyChain = "leftArm" | "rightArm" | "leftLeg" | "rightLeg";
 export type StickBodySafetyLimbIntent = "unspecified" | "relax" | "recover" | "balance" | "act" | "guard" | "support" | "step" | "swing";
@@ -1249,4 +1252,525 @@ export const finalizeStickBodySafetyCandidate = async (
   } catch {
     return failure("integration_bypass", "integration", "Body-safety completion failed closed on invalid input.");
   }
+};
+
+// V2 is a safety classifier, never a pose generator or naturalness selector. V1 above
+// remains independently testable history; only the V2 completion has Preview authority.
+export type StickBodySafetyLimbV2 = {
+  movementRole: "active" | "passive_relax" | "passive_balance" | "support" | "recover";
+  targetRegion: "none" | {height: "low" | "middle" | "shoulder" | "high"; direction: "forward" | "inward" | "outward" | "center"; reach: "near" | "medium" | "far"};
+  limbPlane: "frontal" | "sagittal_near" | "sagittal_far";
+  jointGuide: "neutral" | "forward" | "outward" | "toward_hip";
+  flexionBand: "extended" | "comfortable" | "folded" | "near_extension_limit" | "near_flexion_limit";
+};
+type ContactV2 = "leftFoot" | "rightFoot" | "leftHand" | "rightHand" | "hip";
+export type StickBodySafetyFrameContextV2 = {
+  facing: "front" | "left" | "right";
+  supportMode: "grounded" | "airborne";
+  supportContacts: Record<ContactV2, StickBodySafetyPoint | null>;
+  limbs: Record<StickBodySafetyChain, StickBodySafetyLimbV2>;
+  posture: StickBodySafetyPosture;
+  motionPhase: StickBodySafetyMotionPhase | "step" | "swing";
+  rootGoal: "hold" | "shift_left" | "shift_right" | "rise" | "lower" | "travel";
+  torsoLine: "upright" | "toward_action" | "away_from_action" | "compress" | "extend" | "hinge";
+  headLine: "follow_torso" | "look_toward_action" | "neutral";
+  activePartIds: string[];
+  requiredOutcomes: string[];
+  forbiddenExtraMovement: string[];
+};
+export type StickBodySafetyLandmarkV2 = {
+  landmarkId: string;
+  frameIndex: number;
+  kind: "true_key_pose" | "pass_through_guide" | "plane_transition" | "hold" | "contact" | "impact";
+  context: StickBodySafetyFrameContextV2;
+  candidates: StickBodySafetyPointMap[];
+};
+export type StickBodySafetyPartV2 = {
+  partId: string;
+  semanticKind: "effector_reach" | "effector_oscillation" | "posture_change" | "locomotion" | "airborne_transfer" | "facing_change" | "impact" | "recovery" | "hold";
+  affectedRoles: StickBodySafetyChain[];
+  requiredOutcomeIds: string[];
+};
+export type StickBodySafetySegmentV2 = {
+  fromLandmarkId: string; toLandmarkId: string; activePartIds: string[];
+  facingTransition: "hold" | "turn_left" | "turn_right" | "through_front";
+  supportTransition: "hold" | "release" | "acquire" | "airborne";
+  pathIntent: "natural_arc" | "direct_mechanical" | "ballistic";
+  exitIntent: "continue" | "settle" | "return_to_base" | "continue_cycle";
+};
+export type StickBodySafetySelectionRequestV2 = {
+  contractVersion: "stick.body-safety-selection/v2";
+  binding: StickBodySafetyBindingV1;
+  animationRequestDigest: string;
+  basePoseBinding: {sourceFrameId: string; sourceFrameDigest: string; context: StickBodySafetyFrameContextV2};
+  frameCount: number; fps: number; motionStyle: "natural_smooth" | "mechanical_robotic" | "mechanical_stepped";
+  requestedParts: StickBodySafetyPartV2[];
+  landmarks: StickBodySafetyLandmarkV2[];
+  segments: StickBodySafetySegmentV2[];
+  completion: {kind: "hold_last" | "return_to_base" | "continue_sequence"; continuingPartIds: string[]; outgoingContext: StickBodySafetyFrameContextV2};
+};
+export type StickBodySafetyQualifiedGraphV2 = {
+  contractVersion: "stick.body-safety-selection-result/v2";
+  binding: StickBodySafetyBindingV1;
+  requestDigest: string;
+  animationRequestDigest: string;
+  candidates: StickBodySafetyPointMap[][];
+  edges: Array<Array<{from: number; to: number}>>;
+  ikSolutionsEnumerated: number;
+};
+export type StickBodySafetyFinalFrameV2 = {
+  frameIndex: number;
+  sourcePoints: StickBodySafetyPointMap;
+  points: StickBodySafetyPointMap;
+  context: StickBodySafetyFrameContextV2;
+};
+export type StickBodySafetyCompletionInputV2 = {
+  contractVersion: "stick.body-safety-completion/v2";
+  selectionRequest: StickBodySafetySelectionRequestV2;
+  qualifiedGraph: StickBodySafetyQualifiedGraphV2;
+  selectedIndexes: number[];
+  finalFrames: StickBodySafetyFinalFrameV2[];
+  candidateDocument: StickProjectDocumentV1;
+};
+export type StickBodySafetyQualifiedOutputV2 = {
+  contractVersion: "stick.body-safety-completion/v2";
+  binding: StickBodySafetyBindingV1;
+  requestDigest: string;
+  animationRequestDigest: string;
+  document: StickProjectDocumentV1;
+  requiredOwnerPhase: 3 | 4 | 5 | 6 | 7 | null;
+};
+export type StickBodySafetyResultV2 = {ok: true; value: Readonly<StickBodySafetyQualifiedOutputV2>} | {ok: false; error: StickBodySafetyFailure};
+type GraphResultV2 = {ok: true; value: Readonly<StickBodySafetyQualifiedGraphV2>} | {ok: false; error: StickBodySafetyFailure};
+const CONTACTS_V2 = ["leftFoot", "rightFoot", "leftHand", "rightHand", "hip"] as const;
+const OUTCOMES_V2 = ["reach_apex", "compression_bottom", "support_shift_complete", "wave_inward_apex", "wave_outward_apex", "punch_extension", "push_up_bottom", "jump_anticipation", "takeoff", "flight_apex", "landing_contact", "stride_contact", "stride_pass", "turn_complete", "settled_transition", "base_pose_restored"] as const;
+const FORBIDDEN_V2 = ["other_arm_gesture", "clap", "unrequested_wave", "unrequested_hop", "unrequested_head_motion", "foot_lift", "root_travel", "extra_peak", "pre_action", "crab_projection", "neutral_reset"] as const;
+const PARTS_V2 = ["effector_reach", "effector_oscillation", "posture_change", "locomotion", "airborne_transfer", "facing_change", "impact", "recovery", "hold"] as const;
+const BANDS_V2 = ["extended", "comfortable", "folded", "near_extension_limit", "near_flexion_limit"] as const;
+const BAND_LIMITS_V2 = {arm: [[15,60],[45,110],[95,140],[8,20],[140,150]], leg: [[10,35],[25,80],[70,115],[6,14],[115,125]]};
+const setOfV2 = (value: unknown, allowed: readonly string[], min = 0, max = allowed.length): value is string[] =>
+  denseArray(value) && value.length >= min && value.length <= max && new Set(value).size === value.length && value.every(v => typeof v === "string" && allowed.includes(v));
+const slugV2 = (value: unknown): value is string => typeof value === "string" && /^[a-z0-9][a-z0-9_-]{0,63}$/.test(value);
+const issueV2 = (reason: StickBodySafetyFailureReason, stage: StickBodySafetyStage, message: string, frameIndex: number | null = null) =>
+  failure(reason, stage, message, frameIndex).error;
+
+const parseContextV2 = (value: unknown): StickBodySafetyFrameContextV2 | null => {
+  if (!exactKeys(value, ["facing", "supportMode", "supportContacts", "limbs", "posture", "motionPhase", "rootGoal", "torsoLine", "headLine", "activePartIds", "requiredOutcomes", "forbiddenExtraMovement"]) ||
+    !enumValue(value.facing, ["front", "left", "right"]) || !enumValue(value.supportMode, ["grounded", "airborne"]) ||
+    !exactKeys(value.supportContacts, CONTACTS_V2) || !exactKeys(value.limbs, CHAINS) || !enumValue(value.posture, POSTURES) ||
+    !enumValue(value.motionPhase, [...MOTION_PHASES, "step", "swing"]) || !enumValue(value.rootGoal, ["hold", "shift_left", "shift_right", "rise", "lower", "travel"]) ||
+    !enumValue(value.torsoLine, ["upright", "toward_action", "away_from_action", "compress", "extend", "hinge"]) || !enumValue(value.headLine, ["follow_torso", "look_toward_action", "neutral"]) ||
+    !denseArray(value.activePartIds) || value.activePartIds.length > 4 || !value.activePartIds.every(slugV2) || new Set(value.activePartIds).size !== value.activePartIds.length ||
+    !setOfV2(value.requiredOutcomes, OUTCOMES_V2, 0, 4) || !setOfV2(value.forbiddenExtraMovement, FORBIDDEN_V2, 1)) return null;
+  for (const contact of CONTACTS_V2) if (value.supportContacts[contact] !== null && !finitePoint(value.supportContacts[contact])) return null;
+  for (const chain of CHAINS) {
+    const limb = value.limbs[chain];
+    if (!exactKeys(limb, ["movementRole", "targetRegion", "limbPlane", "jointGuide", "flexionBand"]) ||
+      !enumValue(limb.movementRole, ["active", "passive_relax", "passive_balance", "support", "recover"]) ||
+      !enumValue(limb.limbPlane, ["frontal", "sagittal_near", "sagittal_far"]) || !enumValue(limb.jointGuide, ["neutral", "forward", "outward", "toward_hip"]) ||
+      !enumValue(limb.flexionBand, BANDS_V2)) return null;
+    if (limb.movementRole === "active") {
+      if (!exactKeys(limb.targetRegion, ["height", "direction", "reach"]) || !enumValue(limb.targetRegion.height, ["low", "middle", "shoulder", "high"]) ||
+        !enumValue(limb.targetRegion.direction, ["forward", "inward", "outward", "center"]) || !enumValue(limb.targetRegion.reach, ["near", "medium", "far"])) return null;
+    } else if (limb.targetRegion !== "none") return null;
+  }
+  return cloneCanonical(value) as StickBodySafetyFrameContextV2;
+};
+
+const parseRequestV2 = (input: unknown): StickBodySafetySelectionRequestV2 | StickBodySafetyFailure => {
+  try {
+    if (new TextEncoder().encode(canonicalJson(input)).length > 1_048_576) return invalidIntegration("The bounded safety candidate graph is too large.");
+  } catch { return invalidIntegration("V2 safety requires finite dense plain JSON data."); }
+  if (!exactKeys(input, ["contractVersion", "binding", "animationRequestDigest", "basePoseBinding", "frameCount", "fps", "motionStyle", "requestedParts", "landmarks", "segments", "completion"]) ||
+    input.contractVersion !== "stick.body-safety-selection/v2" || !parseBinding(input.binding) || typeof input.animationRequestDigest !== "string" || !isSha256Digest(input.animationRequestDigest) ||
+    !Number.isSafeInteger(input.frameCount) || (input.frameCount as number) < 8 || (input.frameCount as number) > 24 || ![12,24].includes(input.fps as number) ||
+    !enumValue(input.motionStyle, ["natural_smooth", "mechanical_robotic", "mechanical_stepped"]) ||
+    !exactKeys(input.basePoseBinding, ["sourceFrameId", "sourceFrameDigest", "context"]) || typeof input.basePoseBinding.sourceFrameId !== "string" || !UUID.test(input.basePoseBinding.sourceFrameId) ||
+    typeof input.basePoseBinding.sourceFrameDigest !== "string" || !isSha256Digest(input.basePoseBinding.sourceFrameDigest) || !parseContextV2(input.basePoseBinding.context)) return invalidIntegration("Invalid bound V2 request fields.");
+  if (!denseArray(input.requestedParts) || input.requestedParts.length < 1 || input.requestedParts.length > 8) return invalidIntegration("Invalid requested parts.");
+  const partIds: string[] = [];
+  for (const part of input.requestedParts) {
+    if (!exactKeys(part, ["partId", "semanticKind", "affectedRoles", "requiredOutcomeIds"]) || !slugV2(part.partId) || partIds.includes(part.partId) ||
+      !enumValue(part.semanticKind, PARTS_V2) || !setOfV2(part.affectedRoles, CHAINS, 1) || !setOfV2(part.requiredOutcomeIds, OUTCOMES_V2)) return invalidIntegration("Invalid semantic part declaration.");
+    partIds.push(part.partId);
+  }
+  if (!denseArray(input.landmarks) || input.landmarks.length < 2 || input.landmarks.length > 12) return invalidIntegration("Invalid landmark count.");
+  const ids: string[] = [];
+  for (const landmark of input.landmarks) {
+    if (!exactKeys(landmark, ["landmarkId", "frameIndex", "kind", "context", "candidates"]) || !slugV2(landmark.landmarkId) || ids.includes(landmark.landmarkId) ||
+      !safeFrameIndex(landmark.frameIndex) || !enumValue(landmark.kind, ["true_key_pose", "pass_through_guide", "plane_transition", "hold", "contact", "impact"]) ||
+      !parseContextV2(landmark.context) || !denseArray(landmark.candidates) || landmark.candidates.length < 1 || landmark.candidates.length > 32 ||
+      landmark.candidates.some(p => !parsePointMap(p))) return invalidIntegration("Invalid landmark/candidate declaration.");
+    ids.push(landmark.landmarkId);
+  }
+  if (!denseArray(input.segments) || input.segments.length !== ids.length - 1) return issueV2("context_transition", "integration", "Every adjacent landmark needs exactly one transition.");
+  for (const s of input.segments) {
+    if (!exactKeys(s, ["fromLandmarkId", "toLandmarkId", "activePartIds", "facingTransition", "supportTransition", "pathIntent", "exitIntent"]) ||
+      !setOfV2(s.activePartIds, partIds, 0, 4) || !enumValue(s.facingTransition, ["hold", "turn_left", "turn_right", "through_front"]) ||
+      !enumValue(s.supportTransition, ["hold", "release", "acquire", "airborne"]) || !enumValue(s.pathIntent, ["natural_arc", "direct_mechanical", "ballistic"]) ||
+      !enumValue(s.exitIntent, ["continue", "settle", "return_to_base", "continue_cycle"])) return issueV2("context_transition", "integration", "Invalid declared transition.");
+  }
+  if (!exactKeys(input.completion, ["kind", "continuingPartIds", "outgoingContext"]) || !enumValue(input.completion.kind, ["hold_last", "return_to_base", "continue_sequence"]) ||
+    !setOfV2(input.completion.continuingPartIds, partIds) || !parseContextV2(input.completion.outgoingContext)) return invalidIntegration("Invalid completion declaration.");
+  return cloneCanonical(input) as StickBodySafetySelectionRequestV2;
+};
+
+const contextIssueV2 = (request: StickBodySafetySelectionRequestV2): StickBodySafetyFailure | null => {
+  const first = request.landmarks[0], last = request.landmarks.at(-1)!;
+  const bad = (message: string) => issueV2("context_transition", "integration", message);
+  if (first.frameIndex !== 0 || last.frameIndex !== request.frameCount - 1 || canonicalJson(request.basePoseBinding.context) !== canonicalJson(first.context) ||
+    canonicalJson(request.completion.outgoingContext) !== canonicalJson(last.context)) return bad("Base, final frame and outgoing context must match their exact landmarks.");
+  const parts = new Map(request.requestedParts.map(p => [p.partId, p]));
+  for (const landmark of request.landmarks) {
+    const ctx = landmark.context;
+    if (!setOfV2(ctx.activePartIds, [...parts.keys()], 0, 4)) return issueV2("composition_unrequested", "integration", "A landmark names an unrequested part.");
+    const affected = new Set(ctx.activePartIds.flatMap(id => parts.get(id)!.affectedRoles));
+    for (const chain of CHAINS) {
+      const limb = ctx.limbs[chain], end = CHAIN_ROLES[chain].effector as ContactV2;
+      if (limb.movementRole === "active" && !affected.has(chain)) return issueV2("composition_unrequested", "integration", "An active chain has no requested part.");
+      if (limb.movementRole === "support" && ctx.supportContacts[end] === null) return bad("A support limb has no matching contact declaration.");
+      if (limb.flexionBand.startsWith("near_") && limb.movementRole !== "active" &&
+        !ctx.activePartIds.some(id => parts.get(id)!.affectedRoles.includes(chain) &&
+          parts.get(id)!.requiredOutcomeIds.some(outcome => ctx.requiredOutcomes.includes(outcome)))) {
+        return issueV2("flexion_band", "important_pose", "A passive/support near-limit endpoint is not independently required.", landmark.frameIndex);
+      }
+    }
+    if ((ctx.supportMode === "airborne") !== CONTACTS_V2.every(c => ctx.supportContacts[c] === null)) return bad("Support mode and complete contact set disagree.");
+    if (landmark.kind === "impact" && !["contact", "landing"].includes(ctx.motionPhase) || landmark.kind === "contact" && !["contact", "landing", "support_transition"].includes(ctx.motionPhase)) return bad("Contact/impact kind and motion phase disagree.");
+  }
+  for (const part of request.requestedParts) {
+    if (!request.landmarks.some(l => l.context.activePartIds.includes(part.partId)) ||
+      part.requiredOutcomeIds.some(outcome => !request.landmarks.some(l => l.context.activePartIds.includes(part.partId) && l.context.requiredOutcomes.includes(outcome)))) {
+      return issueV2("composition_unrequested", "integration", "A requested part or its required outcome is absent.");
+    }
+  }
+  for (let i = 0; i < request.segments.length; i++) {
+    const s = request.segments[i], a = request.landmarks[i], b = request.landmarks[i+1], ac = a.context, bc = b.context;
+    if (s.fromLandmarkId !== a.landmarkId || s.toLandmarkId !== b.landmarkId || b.frameIndex <= a.frameIndex) return bad("Transition order does not match adjacent landmarks.");
+    const active = [...new Set([...ac.activePartIds, ...bc.activePartIds])].sort();
+    if (canonicalJson([...s.activePartIds].sort()) !== canonicalJson(active)) return bad("Transition active parts do not match its endpoints.");
+    const turn = ac.facing !== bc.facing;
+    if ((s.facingTransition === "hold") === turn || turn && ac.facing !== "front" && bc.facing !== "front" ||
+      s.facingTransition === "turn_left" && bc.facing !== "left" || s.facingTransition === "turn_right" && bc.facing !== "right" ||
+      s.facingTransition === "through_front" && bc.facing !== "front") return bad("Facing transition is missing, contradictory, or skips front.");
+    const released = CONTACTS_V2.filter(c => ac.supportContacts[c] && !bc.supportContacts[c]);
+    const acquired = CONTACTS_V2.filter(c => !ac.supportContacts[c] && bc.supportContacts[c]);
+    const expected = ac.supportMode === "airborne" || bc.supportMode === "airborne" ? "airborne" : released.length ? "release" : acquired.length ? "acquire" : "hold";
+    if (s.supportTransition !== expected || released.length && acquired.length) return bad("Support transition does not describe its actual release/acquisition.");
+    for (const c of CONTACTS_V2) if (ac.supportContacts[c] && bc.supportContacts[c] && canonicalJson(ac.supportContacts[c]) !== canonicalJson(bc.supportContacts[c])) return bad("A continuously supported contact changes anchor.");
+    if (s.exitIntent === "return_to_base" && i !== request.segments.length-1 || s.exitIntent === "continue_cycle" && request.completion.kind !== "continue_sequence") return bad("Exit intent contradicts completion.");
+  }
+  const endExit = request.segments.at(-1)!.exitIntent;
+  if (request.completion.kind === "return_to_base" && endExit !== "return_to_base" || request.completion.kind === "hold_last" && endExit !== "settle" ||
+    request.completion.kind === "continue_sequence" && endExit !== "continue_cycle") return bad("Final exit does not implement the declared completion.");
+  if (request.completion.kind === "continue_sequence") {
+    if (!request.completion.continuingPartIds.length || canonicalJson([...request.completion.continuingPartIds].sort()) !== canonicalJson([...last.context.activePartIds].sort())) return bad("Continuation loses the outgoing active parts.");
+  } else if (request.completion.continuingPartIds.length) return bad("A non-continuing sequence has outgoing active parts.");
+  return null;
+};
+
+const restExceptionV2 = (points: StickBodySafetyPointMap, context: StickBodySafetyFrameContextV2, chain: StickBodySafetyChain, metrics: Metrics, stationary: boolean) => {
+  if (!stationary || !chain.endsWith("Leg") || !["rest", "settle"].includes(context.motionPhase)) return false;
+  const limb = context.limbs[chain], {joint, effector} = CHAIN_ROLES[chain], anchor = context.supportContacts[effector as ContactV2];
+  if(context.posture!=="neutral"||context.supportMode!=="grounded"||!context.supportContacts.leftFoot||!context.supportContacts.rightFoot||
+    context.rootGoal!=="hold"||limb.flexionBand!=="extended"||distance(points.hip,metrics.neutral.hip)>1e-9*metrics.standingBodyHeight||
+    (["leftLeg","rightLeg"]as const).some(c=>!["passive_relax","recover"].includes(context.limbs[c].movementRole)))return false;
+  return Math.abs(bend(points, chain)) <= 2 + 1e-9 && ["passive_relax", "recover"].includes(limb.movementRole) && limb.jointGuide === "neutral" && anchor !== null &&
+    Math.abs(points[effector].x-anchor.x) <= 2 && Math.abs(points[effector].y-anchor.y) <= 2 &&
+    distance(points[effector], transportedNeutral(metrics, points, effector)) <= 2 + 1e-9*metrics.standingBodyHeight &&
+    distance(points[joint], transportedNeutral(metrics, points, joint)) <= .03*metrics.standingBodyHeight + 1e-9*metrics.standingBodyHeight;
+};
+
+const projectionIssueV2 = (points: StickBodySafetyPointMap, context: StickBodySafetyFrameContextV2, metrics: Metrics, stage: "important_pose" | "final_frame", frameIndex: number, stationary: boolean) => {
+  const H = metrics.standingBodyHeight, epsilon = 1e-9*H;
+  const torso = {x: points.neck.x-points.hip.x, y: points.neck.y-points.hip.y};
+  const torsoLength = Math.hypot(torso.x, torso.y);
+  const right = {x: -torso.y/torsoLength, y: torso.x/torsoLength};
+  for (const chain of CHAINS) {
+    const limb = context.limbs[chain], {root, joint, effector} = CHAIN_ROLES[chain], leg = chain.endsWith("Leg");
+    const bad = (reason: StickBodySafetyFailureReason, message: string) => ({...issueV2(reason, stage, message, frameIndex), roles: [joint]});
+    if ((context.facing === "front") !== (limb.limbPlane === "frontal")) return bad("facing_projection", "Facing and limb projection are incompatible.");
+    if (restExceptionV2(points, context, chain, metrics, stationary)) continue;
+    const chord = {x: points[effector].x-points[root].x, y: points[effector].y-points[root].y}, chordLength = Math.hypot(chord.x,chord.y);
+    const value = Math.abs(bend(points, chain));
+    // D-0052: retain the exact zero-chord/tangent failure before band checks or IK normalization.
+    if (chordLength <= epsilon || value <= 1e-9) return bad("branch_singularity", "The two-bone chord is zero or tangent.");
+    let clearance = 0;
+    if (leg || limb.movementRole === "active") {
+      if (limb.jointGuide === "neutral" || leg && limb.jointGuide !== "forward") return bad("limb_plane", "An active/flexed chain requires its anatomical guide.");
+      let guide: StickBodySafetyPoint;
+      if (!leg && limb.jointGuide === "toward_hip") guide = {x: -torso.x/torsoLength, y: -torso.y/torsoLength};
+      else {
+        const direction = leg ? (context.facing === "front" ? (chain === "leftLeg" ? 1 : -1) : context.facing === "right" ? 1 : -1)
+          : limb.jointGuide === "forward" ? (context.facing === "right" ? 1 : context.facing === "left" ? -1 : 0) : chain === "leftArm" ? 1 : -1;
+        guide = {x: right.x*direction, y: right.y*direction};
+      }
+      const d = {x: chord.x/chordLength, y: chord.y/chordLength}, parallel = guide.x*d.x+guide.y*d.y;
+      const perpendicular = {x: guide.x-parallel*d.x, y: guide.y-parallel*d.y}, size = Math.hypot(perpendicular.x,perpendicular.y);
+      if (size <= 1e-9) return bad("facing_projection", "The guide cannot distinguish chord sides.");
+      clearance = ((points[joint].x-points[root].x)*perpendicular.x + (points[joint].y-points[root].y)*perpendicular.y)/size;
+    }
+    if (value < (leg ? 6 : 8)-1e-9 || value > (leg ? 125 : 150)+1e-9) return bad(leg ? "knee_bend" : "elbow_bend", "The hard flexion corridor is violated.");
+    const [minimum, maximum] = BAND_LIMITS_V2[leg ? "leg" : "arm"][BANDS_V2.indexOf(limb.flexionBand)];
+    if (value < minimum-1e-9 || value > maximum+1e-9 || limb.flexionBand.startsWith("near_") && !context.requiredOutcomes.length) return bad("flexion_band", "The requested flexion band or near-limit obligation is not satisfied.");
+    if (leg || limb.movementRole === "active") {
+      if (clearance < -epsilon) return bad("backward_bend", "The joint lies opposite its body-local guide.");
+      if (Math.abs(clearance) <= epsilon) return bad("branch_singularity", "The projected joint is singular.");
+      if (limb.flexionBand !== "near_extension_limit" && clearance < (leg ? .015 : .01)*H-epsilon) return bad("joint_guide_clearance", "Positive joint-guide clearance is insufficient.");
+    }
+  }
+  return null;
+};
+
+const validateFrameV2 = (points: StickBodySafetyPointMap, context: StickBodySafetyFrameContextV2, metrics: Metrics, stage: "important_pose" | "final_frame", frameIndex: number, stationary: boolean): StickBodySafetyFailure | null => {
+  const H = metrics.standingBodyHeight, e = 1e-9*H;
+  const bad = (reason: StickBodySafetyFailureReason, message: string) => issueV2(reason, stage, message, frameIndex);
+  for (const role of STICK_JOINT_ROLES) if (!Number.isFinite(points[role].x) || !Number.isFinite(points[role].y)) return bad("non_finite_geometry", "Non-finite joint geometry.");
+  for (const [a,b] of STICK_SEGMENT_ROLE_PAIRS) {
+    const length = distance(points[a],points[b]);
+    if (length <= e || stage === "final_frame" && length < 2-e || Math.abs(length-metrics.lengths.get(segmentKey(a,b))!) > (stage === "final_frame" ? 2 : 1e-6)+e) return bad("segment_length", "Segment length differs from the bound base.");
+  }
+  if (STICK_JOINT_ROLES.some(r => points[r].x < 0 || points[r].x > 1919 || points[r].y < 0 || points[r].y > 1079) || points.head.x < 40 || points.head.x > 1879) return bad("stage_bounds", "Joint or derived head lies outside the stage.");
+  const projected = projectionIssueV2(points, context, metrics, stage, frameIndex, stationary);
+  if (projected) return projected;
+  const headAngle = wrap(angle(points.neck,points.head)-angle(points.hip,points.neck));
+  if (Math.abs(wrap(angle(points.hip,points.neck)+90)) > (context.posture === "hinge" ? 50 : 30)+1e-9 || Math.abs(headAngle) > 20+1e-9 || points.head.y >= points.neck.y) return bad("torso_head", "Torso/head alignment is unsafe.");
+  const line = deriveStickLineHead(points.head);
+  for (let i=0; i<STICK_SEGMENT_ROLE_PAIRS.length; i++) {
+    const [a,b] = STICK_SEGMENT_ROLE_PAIRS[i];
+    if (!["head","neck"].includes(a) && !["head","neck"].includes(b) && (segmentsTouch(points[a],points[b],points.neck,points.head,e) || segmentsTouch(points[a],points[b],line.from,line.to,e))) return bad("torso_head", "A limb crosses the neck or derived head.");
+    for (let j=i+1; j<STICK_SEGMENT_ROLE_PAIRS.length; j++) {
+      const [c,d] = STICK_SEGMENT_ROLE_PAIRS[j], shared = a===c || a===d ? a : b===c || b===d ? b : null;
+      if (shared) {
+        const left=points[a===shared?b:a],right=points[c===shared?d:c],root=points[shared];
+        if (Math.abs(orientation(root,left,right)) <= e && (left.x-root.x)*(right.x-root.x)+(left.y-root.y)*(right.y-root.y) > e*e) return bad("body_crossing", "Adjacent segments overlap.");
+      } else if (segmentsTouch(points[a],points[b],points[c],points[d],e)) return bad("body_crossing", "Non-adjacent segments intersect.");
+    }
+  }
+  for (const hand of ["leftHand","rightHand"] as const) if (pointSegmentDistance(points[hand],points.hip,points.neck) < .03*H-e || distance(points[hand],points.head) < .055*H-e || pointSegmentDistance(points[hand],line.from,line.to) < .055*H-e) return bad("clearance", "Hand clearance is unsafe.");
+  const planted = CONTACTS_V2.filter(c => context.supportContacts[c] !== null);
+  if ((context.supportMode === "airborne") !== (planted.length === 0)) return bad("support_contact", "Support declarations disagree.");
+  for (const role of planted) {
+    const anchor = context.supportContacts[role]!;
+    if (Math.abs(points[role].x-anchor.x) > 2 || Math.abs(points[role].y-anchor.y) > 2 || Math.abs(points[role].y-metrics.groundY) > 2) return bad("support_contact", "A planted contact does not match ground geometry.");
+  }
+  if (STICK_JOINT_ROLES.some(r => points[r].y > metrics.groundY+2)) return bad("support_contact", "A joint penetrates ground.");
+  const balanceX=(2*points.hip.x+points.neck.x+points.head.x)/4;
+  const xs=planted.map(c=>context.supportContacts[c]!.x), margin=(planted.length===1?.16:.12)*H;
+  if (planted.length && (balanceX < Math.min(...xs)-margin-e || balanceX > Math.max(...xs)+margin+e)) return bad("balance", "The support balance floor is violated.");
+  const supportCenter=planted.length ? (Math.min(...xs)+Math.max(...xs))/2 : balanceX;
+  const supportError=balanceX-supportCenter;
+  const actingDisplacement = Math.max(0,...CHAINS.filter(c=>context.limbs[c].movementRole==="active").map(c=>distance(points[CHAIN_ROLES[c].effector],transportedNeutral(metrics,points,CHAIN_ROLES[c].effector))));
+  for (const chain of CHAINS) {
+    const limb=context.limbs[chain],{joint,effector}=CHAIN_ROLES[chain],leg=chain.endsWith("Leg");
+    if (limb.movementRole === "passive_relax" && (distance(points[joint],transportedNeutral(metrics,points,joint)) > (leg?.04:.05)*H+e || distance(points[effector],transportedNeutral(metrics,points,effector)) > (leg?.02:.08)*H+e)) return bad("unrequested_motion", "A relaxed limb leaves its transported-base corridor.");
+    if (limb.movementRole === "passive_balance") {
+      const neutral=transportedNeutral(metrics,points,effector),displacement=distance(points[effector],neutral),dx=points[effector].x-neutral.x;
+      if (displacement > .12*H+e || displacement > .6*Math.max(actingDisplacement,distance(points.hip,metrics.neutral.hip))+e ||
+        Math.abs(supportError) <= .01*H && displacement > e || supportError > .01*H && dx >= -e || supportError < -.01*H && dx <= e) return bad("balance", "A balance limb is not a proportional opposing correction.");
+    }
+  }
+  if (context.posture !== "lower" && context.posture !== "compress" && points.hip.y-metrics.neutral.hip.y > .05*H+e) return bad("unrequested_motion", "Unrequested root lowering.");
+  if(context.limbs.leftArm.movementRole!=="active"&&context.limbs.rightArm.movementRole!=="active"&&
+    points.leftElbow.y<points.neck.y+.08*H&&points.rightElbow.y<points.neck.y+.08*H&&
+    points.leftHand.y<points.leftElbow.y&&points.rightHand.y<points.rightElbow.y&&
+    (points.leftElbow.x-points.neck.x)*(points.rightElbow.x-points.neck.x)<0)return bad("unrequested_motion","An unrequested W-arm pose is forbidden.");
+  if (context.headLine !== "look_toward_action" && Math.abs(wrap(headAngle-wrap(angle(metrics.neutral.neck,metrics.neutral.head)-angle(metrics.neutral.hip,metrics.neutral.neck)))) > 8+1e-9) return bad("unrequested_motion", "Unrequested head motion.");
+  return null;
+};
+
+const transitionIssueV2 = (
+  from: StickBodySafetyPointMap, to: StickBodySafetyPointMap,
+  a: StickBodySafetyLandmarkV2, b: StickBodySafetyLandmarkV2, metrics: Metrics,
+  stage: "important_pose" | "final_frame", frameIndex: number, span: number,
+): StickBodySafetyFailure | null => {
+  const H=metrics.standingBodyHeight,e=1e-9*H;
+  const bad=(reason:StickBodySafetyFailureReason,message:string)=>issueV2(reason,stage,message,frameIndex);
+  const impact=a.kind==="impact"||b.kind==="impact"||a.kind==="contact"||b.kind==="contact";
+  for(const chain of CHAINS){
+    const before=bend(from,chain),after=bend(to,chain),{joint,effector}=CHAIN_ROLES[chain];
+    if(Math.abs(before)>2+1e-9&&Math.abs(after)>2+1e-9&&Math.sign(before)!==Math.sign(after)){
+      if(a.kind!=="plane_transition"&&b.kind!=="plane_transition")return bad("branch_flip","Undeclared projected branch change.");
+      if(a.context.limbs[chain].movementRole!=="active"||b.context.limbs[chain].movementRole!=="active"||
+        a.context.supportContacts[effector as ContactV2]||b.context.supportContacts[effector as ContactV2]||
+        a.context.limbs[chain].limbPlane===b.context.limbs[chain].limbPlane||impact||b.frameIndex-a.frameIndex<2||
+        Math.abs(before)<12-1e-9||Math.abs(before)>30+1e-9||Math.abs(after)<12-1e-9||Math.abs(after)>30+1e-9||
+        distance(from[joint],to[joint])>.035*H*span+e||Math.abs(wrap(after-before))>35+1e-9) return bad("projected_branch_transition","Projected transition violates plane, contact, flexion, duration or travel constraints.");
+    }
+    if(stage==="final_frame"&&Math.abs(wrap(after-before))>(impact?55:35)+1e-9)return bad("continuity","Final bend changes too quickly.");
+  }
+  const recoveryRoles=CHAINS.filter(c=>b.context.limbs[c].movementRole==="recover").flatMap(c=>[CHAIN_ROLES[c].joint,CHAIN_ROLES[c].effector]);
+  if(a.context.facing===b.context.facing&&a.kind!=="plane_transition"&&b.kind!=="plane_transition"&&CHAINS.some(c=>a.context.limbs[c].limbPlane!==b.context.limbs[c].limbPlane))return bad("context_transition","A plane change has no explicit transition landmark.");
+  if(recoveryRoles.length){
+    const before=rmsFromNeutral(metrics,from,recoveryRoles),after=rmsFromNeutral(metrics,to,recoveryRoles);
+    if(after>.06*H&&before-after<.005*H-e||recoveryRoles.some(r=>!b.context.supportContacts[r as ContactV2]&&distance(to[r],transportedNeutral(metrics,to,r))-distance(from[r],transportedNeutral(metrics,from,r))>.02*H+e))return bad("recovery","Recovery moves away from or fails to converge to the bound base.");
+  }
+  if(stage==="final_frame"){
+    for(const role of STICK_JOINT_ROLES){const effector=role.endsWith("Hand")||role.endsWith("Foot"),cap=(impact?(effector?.30:.20):(effector?.18:.12))*H;if(distance(from[role],to[role])>cap+e)return bad("continuity","Final joint travel exceeds the continuity cap.");}
+    const headA=wrap(angle(from.neck,from.head)-angle(from.hip,from.neck)),headB=wrap(angle(to.neck,to.head)-angle(to.hip,to.neck));
+    if(Math.abs(wrap(headB-headA))>8+1e-9)return bad("torso_head","Final head-to-torso change exceeds eight degrees.");
+  }
+  return null;
+};
+
+const qualifyParsedV2 = async (request: StickBodySafetySelectionRequestV2, starter: StickProjectDocumentV1): Promise<GraphResultV2> => {
+  const metrics=metricsFromStarter(starter);
+  if("reason" in metrics)return {ok:false,error:metrics};
+  if(request.binding.projectId!==starter.projectId||request.binding.baseDocumentRevision!==starter.documentRevision||request.binding.baseDocumentDigest!==await digestCanonical(starter))return failure("integration_bypass","integration","V2 selection does not bind the exact project.");
+  const first=starter.layers[0].cells[0];
+  if(request.basePoseBinding.sourceFrameId!==first.frameId||request.basePoseBinding.sourceFrameDigest!==await digestCanonical(first))return failure("base_pose_mismatch","integration","The bound source frame differs from the starting frame.");
+  const contextIssue=contextIssueV2(request);if(contextIssue)return {ok:false,error:contextIssue};
+  const candidateSets:StickBodySafetyPointMap[][]=[];
+  const edges:StickBodySafetyQualifiedGraphV2["edges"]=[];
+  let ikSolutionsEnumerated=0;
+  for(let index=0;index<request.landmarks.length;index++){
+    const landmark=request.landmarks[index],stationary=landmark.kind==="hold"||index===0||index===request.landmarks.length-1;
+    let earliest:StickBodySafetyFailure|null=null;const safe:StickBodySafetyPointMap[]=[];
+    // Active chains come only from the complete semantic role set. There is no caller
+    // activeChains switch capable of skipping IK qualification.
+    const active=CHAINS.filter(c=>landmark.context.limbs[c].movementRole==="active");
+    for(const seed of landmark.candidates){
+      const preflight=validateFrameV2(seed,landmark.context,metrics,"important_pose",landmark.frameIndex,stationary);
+      if(preflight&&["non_finite_geometry","segment_length","stage_bounds","branch_singularity","facing_projection"].includes(preflight.reason)){earliest??=preflight;continue;}
+      let expanded=[clonePoints(seed)];
+      for(const chain of active){
+        const {root,joint,effector}=CHAIN_ROLES[chain];
+        const solutions=enumerateTwoCircle(seed[root],seed[effector],metrics.lengths.get(segmentKey(root,joint))!,metrics.lengths.get(segmentKey(joint,effector))!,1e-9*metrics.standingBodyHeight);
+        ikSolutionsEnumerated+=solutions.length;
+        if(!solutions.length){earliest??=issueV2(distance(seed[root],seed[effector])<=1e-9*metrics.standingBodyHeight?"branch_singularity":"no_safe_sequence","important_pose","No finite active-chain circle solution.",landmark.frameIndex);expanded=[];break;}
+        expanded=expanded.flatMap(p=>solutions.map(j=>({...clonePoints(p),[joint]:{...j}})));
+      }
+      for(const points of expanded){
+        const issue=validateFrameV2(points,landmark.context,metrics,"important_pose",landmark.frameIndex,stationary);
+        if(issue){earliest??=issue;continue;}
+        if(index===0&&STICK_JOINT_ROLES.some(r=>distance(points[r],metrics.neutral[r])>1e-6)){earliest??=issueV2("base_pose_mismatch","important_pose","Landmark zero is not the exact bound base pose.",0);continue;}
+        if(index===request.landmarks.length-1&&request.completion.kind==="return_to_base"&&STICK_JOINT_ROLES.some(r=>distance(points[r],metrics.neutral[r])>2)){earliest??=issueV2("base_pose_mismatch","final_animation","The selected completion does not restore the bound base.",landmark.frameIndex);continue;}
+        if(!safe.some(p=>canonicalJson(p)===canonicalJson(points)))safe.push(points);
+      }
+    }
+    if(!safe.length)return {ok:false,error:earliest??issueV2("no_safe_sequence","important_pose","No candidate survives whole-body qualification.",landmark.frameIndex)};
+    safe.sort((a,b)=>canonicalJson(a).localeCompare(canonicalJson(b),"en"));
+    candidateSets.push(safe);
+    if(index){
+      const prior=request.landmarks[index-1],connections:Array<{from:number;to:number}>=[];
+      let earliestTransition:StickBodySafetyFailure|null=null;
+      candidateSets[index-1].forEach((a,from)=>safe.forEach((b,to)=>{
+        const issue=transitionIssueV2(a,b,prior,landmark,metrics,"important_pose",landmark.frameIndex,landmark.frameIndex-prior.frameIndex);
+        if(issue){earliestTransition??=issue;return;}
+        if(index>1&&CHAINS.some(c=>restExceptionV2(a,prior.context,c,metrics,true))&&(!samePoints(a,b)||!edges[index-2].some(edge=>edge.to===from&&samePoints(candidateSets[index-2][edge.from],a)))){earliestTransition??=issueV2("knee_bend","important_pose","An interior straight knee is not a stationary interval.",prior.frameIndex);return;}
+        connections.push({from,to});
+      }));
+      if(!connections.length)return {ok:false,error:earliestTransition??issueV2("no_safe_sequence","important_pose","No safe adjacent candidate edge.",landmark.frameIndex)};
+      edges.push(connections);
+    }
+  }
+  // Keep exactly edges belonging to at least one complete path. Reachability, rather
+  // than a local winner or naturalness cost, determines membership.
+  let reachable=new Set(candidateSets[0].map((_,i)=>i));
+  for(let i=0;i<edges.length;i++){edges[i]=edges[i].filter(e=>reachable.has(e.from));reachable=new Set(edges[i].map(e=>e.to));}
+  if(!reachable.size)return failure("no_safe_sequence","important_pose","No complete safe sequence exists.");
+  for(let i=edges.length-1;i>=0;i--){edges[i]=edges[i].filter(e=>reachable.has(e.to));reachable=new Set(edges[i].map(e=>e.from));}
+  const value:StickBodySafetyQualifiedGraphV2={contractVersion:"stick.body-safety-selection-result/v2",binding:cloneCanonical(request.binding),requestDigest:await digestCanonical(request),animationRequestDigest:request.animationRequestDigest,candidates:candidateSets,edges,ikSolutionsEnumerated};
+  return {ok:true,value:deepFreeze(cloneCanonical(value))};
+};
+
+/** Qualifies every supplied branch/context before any bake; never selects a natural winner. */
+export const qualifyStickBodySafetyCandidateSequencesV2 = async (requestValue: unknown, starterInput: StickProjectDocumentV1): Promise<GraphResultV2> => {
+  try {
+    const request=parseRequestV2(requestValue);
+    if("reason" in request)return {ok:false,error:request};
+    return await qualifyParsedV2(request,deepFreeze(cloneCanonical(starterInput)));
+  } catch {return failure("integration_bypass","integration","V2 qualification failed closed.");}
+};
+
+const ownerPhaseV2 = (request: StickBodySafetySelectionRequestV2): StickBodySafetyQualifiedOutputV2["requiredOwnerPhase"] => {
+  let owner:StickBodySafetyQualifiedOutputV2["requiredOwnerPhase"]=null;
+  const defer=(phase:3|4|5|6|7)=>{if(owner===null||phase>owner)owner=phase;};
+  for(const p of request.requestedParts){
+    if(p.semanticKind!=="hold")defer(3);
+    if(p.semanticKind==="impact"||p.semanticKind==="airborne_transfer")defer(4);
+    if(p.semanticKind==="locomotion"||p.semanticKind==="facing_change")defer(6);
+    if(p.semanticKind==="effector_oscillation")defer(7);
+  }
+  const outcomeOwners:Record<typeof OUTCOMES_V2[number],3|4|6|7|null>={reach_apex:3,compression_bottom:3,support_shift_complete:3,wave_inward_apex:7,wave_outward_apex:7,punch_extension:7,push_up_bottom:7,jump_anticipation:4,takeoff:4,flight_apex:4,landing_contact:4,stride_contact:6,stride_pass:6,turn_complete:6,settled_transition:3,base_pose_restored:null};
+  for(const l of request.landmarks){
+    if(l.kind!=="hold")defer(3);
+    if(l.kind==="contact"||l.kind==="impact"||l.context.supportMode==="airborne"||l.context.supportContacts.leftHand||l.context.supportContacts.rightHand||l.context.supportContacts.hip)defer(4);
+    if(["step","swing"].includes(l.context.motionPhase)||l.context.rootGoal==="travel")defer(6);
+    for(const outcome of l.context.requiredOutcomes){const phase=outcomeOwners[outcome as typeof OUTCOMES_V2[number]];if(phase)defer(phase);}
+  }
+  for(const s of request.segments){if(s.supportTransition!=="hold")defer(4);if(s.facingTransition!=="hold")defer(6);if(s.pathIntent!=="natural_arc")defer(5);}
+  if(request.motionStyle!=="natural_smooth")defer(5);
+  if(request.completion.kind==="continue_sequence")defer(6);
+  return owner;
+};
+
+/** Recomputes graph, selected path, contexts, rounding and protected project bytes as one unit. */
+export const finalizeStickBodySafetyCandidateV2 = async (completionValue: unknown, starterInput: StickProjectDocumentV1): Promise<StickBodySafetyResultV2> => {
+  try {
+    canonicalJson(completionValue);
+    if(!exactKeys(completionValue,["contractVersion","selectionRequest","qualifiedGraph","selectedIndexes","finalFrames","candidateDocument"])||completionValue.contractVersion!=="stick.body-safety-completion/v2")return failure("integration_bypass","integration","Only the closed V2 completion is accepted.");
+    const frozen=deepFreeze(cloneCanonical(completionValue)),starter=deepFreeze(cloneCanonical(starterInput));
+    const request=parseRequestV2(frozen.selectionRequest);if("reason" in request)return {ok:false,error:request};
+    const recomputed=await qualifyParsedV2(request,starter);if(!recomputed.ok)return recomputed;
+    if(canonicalJson(frozen.qualifiedGraph)!==canonicalJson(recomputed.value))return failure("integration_bypass","integration","Qualification graph differs from independent recomputation.");
+    const indexes=frozen.selectedIndexes;
+    if(!denseArray(indexes)||indexes.length!==request.landmarks.length||indexes.some((n,i)=>!Number.isSafeInteger(n)||(n as number)<0||(n as number)>=recomputed.value.candidates[i].length))return failure("integration_bypass","integration","Selected path is outside the qualified graph.");
+    const selected=(indexes as number[]).map((n,i)=>recomputed.value.candidates[i][n]);
+    if(recomputed.value.edges.some((edges,i)=>!edges.some(e=>e.from===indexes[i]&&e.to===indexes[i+1])))return failure("integration_bypass","integration","Selected path crosses an unqualified edge.");
+    const metrics=metricsFromStarter(starter);if("reason" in metrics)return {ok:false,error:metrics};
+    if(!denseArray(frozen.finalFrames)||frozen.finalFrames.length!==request.frameCount)return failure("integration_bypass","integration","Final frames do not match the requested count.");
+    const frames:StickBodySafetyFinalFrameV2[]=[];
+    for(let i=0;i<frozen.finalFrames.length;i++){
+      const raw=frozen.finalFrames[i];
+      if(!exactKeys(raw,["frameIndex","sourcePoints","points","context"])||raw.frameIndex!==i||!parsePointMap(raw.sourcePoints)||!parsePointMap(raw.points)||!parseContextV2(raw.context))return failure("integration_bypass","integration","Invalid final frame fields.",i);
+      const frame=cloneCanonical(raw) as StickBodySafetyFinalFrameV2;
+      const ownerIndex=request.landmarks.findLastIndex(l=>l.frameIndex<=i),landmark=request.landmarks[ownerIndex];
+      if(canonicalJson(frame.context)!==canonicalJson(landmark.context))return failure("context_transition","final_frame","Final context is not derived from the original landmark sequence.",i);
+      if(!samePoints(roundedPoints(frame.sourcePoints),frame.points)||STICK_JOINT_ROLES.some(r=>!Number.isSafeInteger(frame.points[r].x)||!Number.isSafeInteger(frame.points[r].y)))return failure("integration_bypass","final_frame","Final points differ from exact per-axis rounding.",i);
+      const endpoint=i===0||i===request.frameCount-1;
+      const stationary=endpoint||i>0&&samePoints(frames[i-1].points,frame.points)&&i+1<request.frameCount&&isPlainRecord(frozen.finalFrames[i+1])&&samePoints(frame.points,(frozen.finalFrames[i+1] as StickBodySafetyFinalFrameV2).points);
+      const issue=validateFrameV2(frame.sourcePoints,frame.context,metrics,"important_pose",i,stationary)??validateFrameV2(frame.points,frame.context,metrics,"final_frame",i,stationary);
+      if(issue)return {ok:false,error:{...issue,stage:"final_frame"}};
+      if(i){
+        const prevIndex=request.landmarks.findLastIndex(l=>l.frameIndex<=i-1),a=request.landmarks[prevIndex];
+        const transition=transitionIssueV2(frames[i-1].points,frame.points,a,landmark,metrics,"final_frame",i,1);
+        if(transition)return {ok:false,error:transition};
+        if(CHAINS.some(c=>Math.abs(bend(frames[i-1].points,c))>2&&Math.abs(bend(frame.points,c))>2&&Math.sign(bend(frames[i-1].points,c))!==Math.sign(bend(frame.points,c))&&
+          (i<2||distance(frames[i-2].points[CHAIN_ROLES[c].joint],frames[i-1].points[CHAIN_ROLES[c].joint])<=1e-9*metrics.standingBodyHeight)))return failure("projected_branch_transition","final_frame","A projected transition has only one moving final-frame step.",i);
+      }
+      frames.push(frame);
+    }
+    for(let i=0;i<selected.length;i++)if(!samePoints(frames[request.landmarks[i].frameIndex].points,roundedPoints(selected[i]))||!STICK_JOINT_ROLES.every(r=>distance(frames[request.landmarks[i].frameIndex].sourcePoints[r],selected[i][r])<=1e-6))return failure("integration_bypass","integration","Final important pose differs from the selected candidate.",request.landmarks[i].frameIndex);
+    for(let n=1;n<request.landmarks.length;n++){
+      const start=request.landmarks[n-1].frameIndex,end=request.landmarks[n].frameIndex;
+      for(let i=start+1;i<end;i++)for(const role of STICK_JOINT_ROLES){
+        const a=frames[start].points[role],b=frames[end].points[role],p=frames[i].points[role],dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy);
+        const t=len>1e-9*metrics.standingBodyHeight?((p.x-a.x)*dx+(p.y-a.y)*dy)/(len*len):0;
+        const deviation=len>1e-9*metrics.standingBodyHeight?Math.abs((p.x-a.x)*dy-(p.y-a.y)*dx)/len:distance(p,a);
+        if(t<-.03-1e-9||t>1.03+1e-9||deviation>.12*metrics.standingBodyHeight+1e-9*metrics.standingBodyHeight)return failure("overshoot","final_animation","A final path overshoots its declared endpoints or corridor.",i);
+      }
+    }
+    if(request.segments.at(-1)!.exitIntent==="continue_cycle"){
+      const a=frames.at(-1)!.points,b=frames[0].points,H=metrics.standingBodyHeight;
+      if(STICK_JOINT_ROLES.some(r=>distance(a[r],b[r])>(r.endsWith("Hand")||r.endsWith("Foot")?.10:.06)*H+1e-9*H)||CHAINS.some(c=>Math.abs(wrap(bend(a,c)-bend(b,c)))>25+1e-9))return failure("loop_snap","final_animation","The final-to-first step exceeds the loop closure cap.");
+    }
+    if(request.completion.kind==="return_to_base"&&STICK_JOINT_ROLES.some(r=>distance(frames.at(-1)!.points[r],roundedPoints(metrics.neutral)[r])>2))return failure("base_pose_mismatch","final_animation","Completion does not restore the exact bound base.");
+    const requiredOwnerPhase=ownerPhaseV2(request);
+    if(requiredOwnerPhase===null){
+      // Phase 2 can complete only a stationary hold. This one condition proves every
+      // forbidden extra absent and prevents semantic labels from enabling later motion.
+      if(frames.some(f=>!samePoints(f.points,frames[0].points))||request.landmarks.some(l=>canonicalJson(l.context)!==canonicalJson(request.landmarks[0].context)))return failure("forbidden_extra_movement","final_animation","A stationary hold contains movement or a semantic change.");
+    }
+    const parsed=parseStickProjectDocument(frozen.candidateDocument);
+    if(!parsed.ok)return failure("integration_bypass","integration","Candidate is not a valid ordinary project.");
+    const document=parsed.value;
+    const expected={...cloneCanonical(starter),documentRevision:starter.documentRevision+1,fps:request.fps,layers:[{...cloneCanonical(starter.layers[0]),cells:document.layers[0]?.cells}]};
+    if(canonicalJson(document)!==canonicalJson(expected)||document.layers[0].cells.length!==request.frameCount)return failure("integration_bypass","integration","Protected project metadata or requested timing changed.");
+    for(let i=0;i<frames.length;i++){
+      const cell=document.layers[0].cells[i],points=documentPoints(document,i);
+      if(cell.cellType!=="keyframe"||!points||!samePoints(points,frames[i].points)||cell.poses[0].figureId!==starter.figures[0].figureId||cell.poses[0].rigId!==starter.rigs[0].rigId||starter.layers[0].cells[i]&&cell.frameId!==starter.layers[0].cells[i].frameId)return failure("integration_bypass","integration","Document frame, figure, rig or coordinates differ from the checked candidate.",i);
+    }
+    return {ok:true,value:deepFreeze(cloneCanonical({contractVersion:"stick.body-safety-completion/v2",binding:request.binding,requestDigest:recomputed.value.requestDigest,animationRequestDigest:request.animationRequestDigest,document,requiredOwnerPhase}))};
+  } catch {return failure("integration_bypass","integration","V2 finalization failed closed.");}
 };

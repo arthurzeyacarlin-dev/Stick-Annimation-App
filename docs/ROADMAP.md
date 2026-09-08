@@ -1,7 +1,7 @@
 # Roadmap
 
 Status: canonical ordered direction; not a delivery schedule
-Last updated: 2026-09-07
+Last updated: 2026-09-08
 
 ## Roadmap Rules
 
@@ -69,7 +69,7 @@ Goals:
 
 Arthur's latest direction is AI-first, with advanced direct controls available for inspection and fine-tuning. The exact sequencing is still pending P-0008: Phase 2 and Phase 3 may interleave as a narrow AI-first vertical slice once the shared model, reversible executor, and minimum corrective controls exist. This roadmap does not silently require completing an Adobe-class manual editor before any AI stick workflow.
 
-Current shared-motion prerequisite: SPEC-0004 Phases 1, 2, and timing-only 2.5 are published/integrated. SPEC-0005 Phase 1 and numeric-safety Phase 2 v1 remain published/integrated. GIT-044's Phase 3 result is rejected and non-reusable. GIT-045 published D-0050 at exact commit `a4589664b6857eb10a828189e177e0e7d47e3f69`; D-0051 makes one final pre-execution correction from a single whole-goal state to an ordered semantic sequence with non-neutral base preservation, per-landmark facing/contact, explicit simultaneous/sequential parts, and exact completion. Phase 2 v2 is Approved; its reported front-knee blocker is addressed by D-0052/GIT-047 before PM continuation. Corrected Phase 3 and Phases 4–8 remain Unauthorized/Not started. Exactly eight owners remain: proof gate; all-context safety; grounded compound poses; foot/hand/pelvis and airborne mechanics; motion law; gait/turns; full actions/compositions; and the identical Pretend-AI/Terra-shaped provider-free planner door.
+Current shared-motion prerequisite: SPEC-0004 Phases 1, 2, and timing-only 2.5 are published/integrated. SPEC-0005 Phase 1 and numeric-safety Phase 2 v1 remain published/integrated. GIT-044's Phase 3 result is rejected and non-reusable. GIT-045 published D-0050 at exact commit `a4589664b6857eb10a828189e177e0e7d47e3f69`; D-0051 makes one final pre-execution correction from a single whole-goal state to an ordered semantic sequence with non-neutral base preservation, per-landmark facing/contact, explicit simultaneous/sequential parts, and exact completion. Phase 2 v2 is accepted/technically Verified under D-0053, pending separate GIT-048 publication/integration. Corrected Phase 3 and Phases 4–8 remain Unauthorized/Not started. Exactly eight owners remain: proof gate; all-context safety; grounded compound poses; foot/hand/pelvis and airborne mechanics; motion law; gait/turns; full actions/compositions; and the identical Pretend-AI/Terra-shaped provider-free planner door.
 
 ## Phase 3 — AI-First Stick Animation
 

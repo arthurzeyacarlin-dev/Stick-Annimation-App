@@ -11,6 +11,7 @@ import {
   type StickCommandResultV1,
 } from "./stickFigureAiContract.ts";
 import {
+  canonicalJson,
   cloneCanonical,
   deepFreeze,
   digestCanonical,
@@ -373,10 +374,12 @@ export class StickFigureCommandTransactionV1 {
   #actionTimingSidecar: unknown;
   #bodySafetyCompletion: unknown;
   #usesBodySafetyCompletion: boolean;
+  #bodySafetyOrigin: {workspaceInstanceId: string; workspaceGeneration: number};
   #operationCounter = 0;
 
   constructor(root: StickCommandWorkspaceRootV1, options: StickFigureCommandTransactionOptionsV1 = {}) {
     this.#root = cloneRoot(root);
+    this.#bodySafetyOrigin = {workspaceInstanceId: root.workspaceInstanceId, workspaceGeneration: root.workspaceGeneration};
     this.#failurePoint = options.failurePoint ?? null;
     this.#candidateHasher = options.candidateHasher ?? digestCanonical;
     const hasExplicitMaterializer = Object.prototype.hasOwnProperty.call(options, "animationPlanMaterializer");
@@ -385,6 +388,10 @@ export class StickFigureCommandTransactionV1 {
     if (hasLegacyBodySafetyCandidate) throw new TypeError("Legacy body-safety candidate routing is not accepted.");
     if (hasBodySafetyCompletion && hasExplicitMaterializer) {
       throw new TypeError("Body-safety completion selects its finalizer internally; caller-supplied materializers are rejected.");
+    }
+    if (hasBodySafetyCompletion && Object.keys(options).some(key =>
+      !["bodySafetyCompletion", "failurePoint", "candidateHasher"].includes(key))) {
+      throw new TypeError("Unknown body-safety completion option.");
     }
     const materializer = options.animationPlanMaterializer ?? "phase-1-holds";
     if (materializer !== "phase-1-holds" && materializer !== STICK_PHASE2_MOTION_MATERIALIZER &&
@@ -434,6 +441,7 @@ export class StickFigureCommandTransactionV1 {
       options.actionTimingSidecar = this.#actionTimingSidecar;
     }
     const next = new StickFigureCommandTransactionV1(this.#root, options);
+    next.#bodySafetyOrigin = {...this.#bodySafetyOrigin};
     next.#previews = new Map([...this.#previews].map(([key, value]) => [key, cloneCanonical(value)]));
     next.#applies = new Map([...this.#applies].map(([key, value]) => [key, cloneCanonical(value)]));
     next.#invalidatedApplies = new Map([...this.#invalidatedApplies].map(([key, value]) => [key, cloneCanonical(value)]));
@@ -541,9 +549,14 @@ export class StickFigureCommandTransactionV1 {
   }
 
   async preview(envelope: StickCommandInputV1): Promise<StickCommandOperationOutcomeV1> {
+    if (this.#usesBodySafetyCompletion) envelope = deepFreeze(cloneCanonical(envelope));
     const envelopeDigest = await digestCanonical(envelope);
     const terminal = await this.#terminalOrConflict(envelope, envelopeDigest);
     if (terminal) return terminal;
+    if (this.#usesBodySafetyCompletion && (this.#root.workspaceInstanceId !== this.#bodySafetyOrigin.workspaceInstanceId ||
+      this.#root.workspaceGeneration !== this.#bodySafetyOrigin.workspaceGeneration)) {
+      return this.#rejectUnseen(envelope, envelopeDigest, "stale_document", false);
+    }
     const activeConflict = await this.#activeConflict(envelope, envelopeDigest);
     if (activeConflict) return activeConflict;
     const active = this.#root.transactionState.active;
@@ -572,12 +585,7 @@ export class StickFigureCommandTransactionV1 {
             const finalized = await finalizeStickSpec0005MotionCandidate(
               this.#bodySafetyCompletion,
               this.#root.editorRoot.current.snapshot.document,
-              {
-                projectId: envelope.projectId,
-                transactionId: envelope.transactionId,
-                baseDocumentRevision: envelope.baseDocumentRevision,
-                baseDocumentDigest: envelope.baseDocumentDigest,
-              },
+              parsed.value,
             );
             return finalized.ok
               ? {ok: true as const, value: finalized.value.document}
@@ -610,7 +618,16 @@ export class StickFigureCommandTransactionV1 {
       return this.#failActive(envelope, envelopeDigest, "transaction_failed");
     }
     if (this.#consumeFailure("during_candidate_hashing")) return this.#failActive(envelope, envelopeDigest, "transaction_failed");
-    const candidateDigest = await this.#candidateHasher(candidateParsed.value);
+    if (this.#usesBodySafetyCompletion) deepFreeze(candidateParsed.value);
+    let candidateDigest: string;
+    try { candidateDigest = await this.#candidateHasher(candidateParsed.value); }
+    catch (error) {
+      if (!this.#usesBodySafetyCompletion) throw error;
+      return this.#failActive(envelope, envelopeDigest, "transaction_failed");
+    }
+    if (this.#usesBodySafetyCompletion && candidateDigest !== await digestCanonical(candidateParsed.value)) {
+      return this.#failActive(envelope, envelopeDigest, "transaction_failed");
+    }
     if (!isSha256Digest(candidateDigest)) return this.#failActive(envelope, envelopeDigest, "transaction_failed");
     const result = makeResult(
       envelope,
@@ -623,6 +640,11 @@ export class StickFigureCommandTransactionV1 {
       summarizeCandidate(candidateParsed.value),
     );
     const previewResultDigest = await digestCanonical(result);
+    if (this.#usesBodySafetyCompletion && (this.#root.transactionState.active !== requesting ||
+      !sameBase(this.#root, envelope) || this.#root.workspaceGeneration !== requesting.baseWorkspaceGeneration ||
+      this.#root.workspaceInstanceId !== requesting.workspaceInstanceId)) {
+      return this.#rejectUnseen(envelope, envelopeDigest, "stale_document", false);
+    }
     this.#previews.set(envelope.transactionId, deepFreeze({
       envelope: cloneCanonical(envelope), envelopeDigest, candidate: candidateParsed.value, candidateDigest, previewResult: result,
     }));
@@ -643,7 +665,12 @@ export class StickFigureCommandTransactionV1 {
   }
 
   async #failActive(envelope: StickCommandInputV1, envelopeDigest: string, code: StickAiErrorCodeV1): Promise<StickCommandOperationOutcomeV1> {
+    const active = this.#root.transactionState.active;
     const result = await failureResult(this.#root, envelope, "failed", code, envelopeDigest);
+    if (this.#usesBodySafetyCompletion && (!active || this.#root.transactionState.active !== active ||
+      active.transactionId !== envelope.transactionId || active.envelopeDigest !== envelopeDigest)) {
+      return {root: this.snapshot(), result, outcomeCode: "failed"};
+    }
     this.#previews.delete(envelope.transactionId);
     this.#root.transactionState.active = null;
     this.#root.transactionState.terminalLedger = appendTerminal(this.#root.transactionState.terminalLedger, {
@@ -724,6 +751,7 @@ export class StickFigureCommandTransactionV1 {
   }
 
   async beginApplyPublication(envelope: StickCommandInputV1): Promise<StickCommandOperationOutcomeV1> {
+    if (this.#usesBodySafetyCompletion) envelope = deepFreeze(cloneCanonical(envelope));
     const envelopeDigest = await digestCanonical(envelope);
     const terminal = await this.#terminalOrConflict(envelope, envelopeDigest);
     if (terminal) return terminal;
@@ -760,6 +788,12 @@ export class StickFigureCommandTransactionV1 {
       operationId, envelopeDigest, candidateDigest: preview.candidateDigest,
       currentDigest: historyRoot.current.documentDigest, undoDepth: historyRoot.undo.length, redoDepth: historyRoot.redo.length,
     });
+    if (this.#usesBodySafetyCompletion && (this.#root.transactionState.active !== active ||
+      !sameBase(this.#root, envelope) || this.#root.workspaceGeneration !== active.baseWorkspaceGeneration ||
+      this.#root.workspaceInstanceId !== active.workspaceInstanceId ||
+      historyRoot.current.documentDigest !== preview.candidateDigest)) {
+      return this.#rejectUnseen(envelope, envelopeDigest, "stale_document", false);
+    }
     const prepared = deepFreeze({...preview, operationId, historyRoot, preparedTransactionPlanDigest});
     this.#applies.set(operationId, prepared);
     this.#root.transactionState.active = {
@@ -786,6 +820,7 @@ export class StickFigureCommandTransactionV1 {
     const active = this.#root.transactionState.active;
     const prepared = this.#applies.get(operationId) ?? this.#invalidatedApplies.get(operationId);
     if (!active || active.phase !== "committing" || active.operationId !== operationId || !prepared ||
+      this.#usesBodySafetyCompletion && canonicalJson(envelope) !== canonicalJson(prepared.envelope) ||
       active.preparedTransactionPlanDigest !== prepared.preparedTransactionPlanDigest ||
       this.#root.workspaceInstanceId !== active.workspaceInstanceId || this.#root.workspaceGeneration !== active.baseWorkspaceGeneration ||
       this.#root.editorRoot.current.documentDigest !== active.baseDocumentDigest || this.#root.documentPublication !== "ready") {

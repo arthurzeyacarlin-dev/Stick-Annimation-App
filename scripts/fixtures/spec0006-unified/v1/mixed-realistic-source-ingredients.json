@@ -1,0 +1,15 @@
+{
+  "fixtureVersion": 1,
+  "fixtureId": "MIXED-REALISTIC-01",
+  "stage": {"width":1920, "height":1080, "fps":12, "timelinePositions":48},
+  "drawing": {
+    "backgroundRasterSources": [
+      {"width":4563, "height":3302, "rgbaByteLength":60268104, "role":"background-a"},
+      {"width":4563, "height":3302, "rgbaByteLength":60268104, "role":"background-b"}
+    ],
+    "requiredContent": ["hold-span", "text", "position-tween", "small-wav", "upper-text-layer"]
+  },
+  "stick": {"figures":1, "minimumIndependentKeyPoses":4, "requiresHeldCells":true},
+  "oracleRule": "Source and canonical digests are frozen by an independent oracle that imports no migration or contract module.",
+  "phaseUse": "Ingredients frozen in Phase 1; full materialized performance fixture begins in Phase 3."
+}

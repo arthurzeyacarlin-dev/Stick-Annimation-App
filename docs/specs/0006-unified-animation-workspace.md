@@ -1,18 +1,18 @@
 # SPEC-0006 — Unified Animation Workspace
 
-Status: SPEC-0006 is **Approved and active** under D-0057. Arthur reviewed and approved the exact seven-phase design and explicitly authorized **Phase 1 only: Authorized; Not started** in a brand-new dedicated review worktree. **Phases 2–7 remain Unauthorized; Not started.** Approval is not an implementation or verification claim; current runtime remains split.
+Status: SPEC-0006 is **Approved and active**. Phase 1 is **accepted and technically Verified; pending GIT-051 publication/integration** under D-0058. **Phases 2–7 remain Unauthorized; Not started.** Current ordinary runtime remains split.
 Owner: Arthur
 Spec role: Spec Architect
 Created: 2026-09-09
 Last updated: 2026-09-09
-Decision links: [D-0055, D-0056, and D-0057](../DECISIONS.md)
-TODO IDs: `PLAN-006`, `SPEC-006`, `UNIFY-001`, `GIT-050`
-Baseline branch/commit: canonical `main` at `de54aed275c2f6da6e7c3f4a7f65091e8d5370c0`, with the reviewed-but-unpublished D-0055 records transition already present as thirteen unstaged Markdown paths
-Last verified branch/commit: live code and ordinary loopback app re-traced on 2026-09-09 from that basis; proposed architecture only
+Decision links: [D-0055 through D-0058](../DECISIONS.md)
+TODO IDs: `PLAN-006`, `SPEC-006`, `UNIFY-001`, `GIT-050`, `GIT-051`
+Baseline branch/commit: GIT-050 canonical `main` activation `3b784cc6a68ff6f10fa390d96b81376b46e54b44`
+Last verified branch/commit: accepted detached Phase 1 worktree base/HEAD `3b784cc6a68ff6f10fa390d96b81376b46e54b44`; exact 11-path technical result independently revalidated by CPA on 2026-09-09
 
-> **Lifecycle boundary.** Arthur has approved the seven-phase design and authorized Phase 1 only under D-0057. Execution waits for separate publication of the reviewed activation records and clean canonical-main synchronization; the exact resulting SHA is the Phase 1 implementation base and cannot be named before publication. The fresh Phase 1 Spec Executor starts in Plan mode in one brand-new dedicated review worktree, freezes the exact phase paths, implements/tests only that phase, returns technical proof plus an Implementation Review Packet, and stops. Arthur's review, exclusive CPA propagation, and separate publication are required before any later phase. Phases 2–7 remain Unauthorized; Not started. This turn records approval only and does not create an executor or change product/fixture/proof/dependency/configuration/provider/deployment bytes.
+> **Lifecycle boundary.** GIT-050 published the activation at `3b784cc6a68ff6f10fa390d96b81376b46e54b44`. The Phase 1 Spec Executor completed exactly one 11-path technical result from that base and stopped. Arthur/PM accepted it; the CPA independently revalidated and propagated D-0058 without changing accepted technical bytes. GIT-051 publication/integration remains separately gated. Phases 2–7 remain Unauthorized; Not started.
 >
-> **Current dirty-tree boundary.** The inherited D-0055 transition and SPEC-0006/D-0056 proposal predate this approval and remain preserved. D-0057 records Arthur's subsequent acceptance and Phase 1-only authorization. GIT-050 still requires a separate exact publication instruction for the combined reviewed record set; nothing is staged or published here.
+> **Current dirty-tree boundary.** The accepted worktree contains exactly 11 new technical paths plus CPA control-plane changes, with an empty index. The ignored Phase 1 manifest remains at its accepted hash/size. Nothing is staged, committed, merged, pushed, or published by this CPA propagation.
 >
 > **Exactly seven phases.** This spec has exactly the seven implementation phases in §12. A correction to one phase does not create an eighth phase. Material outcome changes return to Arthur; bounded mechanics may be settled inside the authorized phase only when they preserve the contract, scope, safety, and proof below.
 >
@@ -22,7 +22,7 @@ Last verified branch/commit: live code and ordinary loopback app re-traced on 20
 
 | Phase | Authorization | Implementation |
 | --- | --- | --- |
-| 1 — Contract and read-only legacy migration | Authorized | Not started; awaits activation publication and existing entry gates |
+| 1 — Contract and read-only legacy migration | Accepted; technically Verified | Exact 11-path result complete in review worktree; GIT-051 publication/integration pending |
 | 2 — Shell/New/Open | Unauthorized | Not started |
 | 3 — Stage/compositing | Unauthorized | Not started |
 | 4 — Timeline/playback/onion | Unauthorized | Not started |
@@ -296,7 +296,7 @@ Systems intentionally outside SPEC-0006: new AI quality, provider/model/video/tr
 
 **Non-goals.** No shell, stage, timeline, tool, history, canonical save repository, normal-route behavior, AI work, or legacy cleanup.
 
-**Entry gate.** SPEC-0006 is approved; D-0055/SPEC-0006 records are published; exact canonical main is clean/synchronized; no executor/review copy exists; Phase 1 path list is frozen; migration oracle and `MIXED-REALISTIC-01` source ingredients are independently defined.
+**Entry gate.** Satisfied historically by GIT-050 at `3b784cc6a68ff6f10fa390d96b81376b46e54b44`, a clean/synchronized canonical main, one fresh dedicated worktree, the frozen 11-path list, and independent migration fixtures/oracle.
 
 **Normal app-copy human review.** Open the ordinary app and confirm Home, current New Project split, Drawing, Stick, and Open tabs still look/work exactly as before. This is regression smoke, not a demonstration of the hidden contract.
 
@@ -514,7 +514,25 @@ This map is not an executor allowlist. Each authorized phase must freeze its exa
 
 ## 15. Implementation and verification records
 
-No SPEC-0006 implementation has begun. Phase 1 is Authorized; Not started; Phases 2–7 are Unauthorized; Not started. The Spec Executor records technical truth only in its manifest/packet, never here. After Arthur/PM acceptance and exclusive transfer, the CPA records accepted evidence and publication status. The proposal-time checks below remain historical evidence, not new app/test execution in this approval turn.
+Phase 1 is accepted and technically Verified in `/Users/arthurcarlin/.codex/worktrees/ac2f/stick-animation-app`; GIT-051 publication/integration is pending. The exact accepted technical boundary is:
+
+- `scripts/fixtures/spec0006-unified/v1/mixed-realistic-source-ingredients.json`
+- `scripts/fixtures/spec0006-unified/v1/phase1-cases.json`
+- `scripts/fixtures/spec0006-unified/v1/proof-commands.json`
+- `scripts/spec0006-unified/phase1BrowserProof.ts`
+- `scripts/spec0006-unified/phase1FixtureFactory.ts`
+- `scripts/spec0006-unified/phase1MigrationOracle.ts`
+- `scripts/spec0006-unified/recordPhase1Proof.ts`
+- `scripts/spec0006-unified/validatePhase1Migration.ts`
+- `scripts/spec0006-unified/validatePhase1Proof.ts`
+- `src/lib/animation/unifiedAnimationContract.ts`
+- `src/lib/animation/unifiedAnimationMigration.ts`
+
+The accepted manifest is `output/spec-0006/phase-1/proof-manifest.json`, exactly 9,257 bytes at SHA-256 `83614635c02f22d81205c441c46de3bff3a75f1c948661a1670a36eca75dbb29`. CPA independently replayed 160 manifest checks. The migration suite passed 56 valid cases, 124 invalid/tamper cases, 1,000 deterministic repeats, 3,516 assertions, Drawing V1/V2 and Stick V1/V2, an implementation-independent oracle, and zero source writes. TypeScript, focused lint, Drawing V1/V2 contract/repository validators, Stick history/timeline validators, source bindings, scope/diff/index checks pass. Full lint remains the pre-existing 5-error/72-warning baseline with zero Phase 1 finding.
+
+Arthur accepted the unchanged ordinary-app review. The bound browser result records 10 operations/five screenshots across Home, current New split, Drawing, Stick, Creator/Back, and current Open tabs; four deterministic Stick availability requests; zero real API/external requests; zero console/page errors; and no review-only UI. The historical review port `56261` is closed. No existing runtime file or source store changed. Phases 2–7 remain Unauthorized; Not started.
+
+The proposal-time checks below remain historical evidence, not Phase 1 proof.
 
 Historical proposal verification — before D-0057 approval:
 
@@ -529,6 +547,6 @@ Historical proposal verification — before D-0057 approval:
 
 ## 16. Final state and handoff
 
-Arthur has approved the exact desired outcome, typed contract, lossless migration, one-root ownership, visible layout, realistic mixed fixture, performance/memory targets, regression boundaries, and seven phases. SPEC-0006 is **Approved and active** under D-0057. Arthur reviewed and approved the exact seven-phase design and explicitly authorized **Phase 1 only: Authorized; Not started** in a brand-new dedicated review worktree. **Phases 2–7 remain Unauthorized; Not started.** Approval is not an implementation or verification claim; current runtime remains split. SPEC-0006 alone owns the complete workspace unification through its seven phases. Do not create a spec-helping-spec chain or move its contract, migration, tester, shell, or integration responsibility into another prerequisite spec. Bounded corrections belong in SPEC-0006 under the existing amendment/review rules; material changes return to Arthur without silently expanding a phase.
+Arthur has approved the exact desired outcome, typed contract, lossless migration, one-root ownership, visible layout, realistic mixed fixture, performance/memory targets, regression boundaries, and seven phases. GIT-050 activation is published. D-0058 accepts Phase 1's exact hidden contract/read-only migration result as technically Verified pending GIT-051 publication/integration. **Phases 2–7 remain Unauthorized; Not started.** Current ordinary runtime remains split. SPEC-0006 alone owns the complete workspace unification through its seven phases.
 
-Next step: complete this CPA review packet, then obtain the separate publication-only instruction for the exact reviewed combined D-0055/SPEC-0006/D-0057 record set. After those records are published and canonical main is clean/synchronized, one brand-new dedicated SPEC-0006 Phase 1 Spec Executor/review worktree starts in Plan mode from that exact publication SHA under Arthur's existing Phase 1 authorization. Freeze its exact paths within the 18-path ceiling and satisfy the existing Phase 1 entry/one-copy gates. Do not start from this dirty pre-publication checkout or reuse a rejected copy. No executor, review app, or publication is created by this CPA turn.
+Next step: after this CPA packet is reviewed, a later explicit GIT-051 instruction may publish only the exact accepted 11 technical paths plus the reviewed control-plane/tree allowlist. Phase 2 requires a later separate owner authorization after Phase 1 is durably integrated and cleanly synchronized.

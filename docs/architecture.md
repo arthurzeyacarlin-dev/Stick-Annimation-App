@@ -1,13 +1,19 @@
 # Architecture and System Map
 
 Status: canonical current architecture map
-Last traced: published v2 safety evidence retained from 2026-09-08; current New/Open/Drawing/Stick source and ordinary loopback behavior rechecked on 2026-09-09 at `de54aed275c2f6da6e7c3f4a7f65091e8d5370c0` for Proposed SPEC-0006. No runtime change. SPEC-0005 Phase 1 and Phase 2 v1/v2 remain accepted, Verified, published, and integrated; later rejected/superseded work stays inactive under D-0055.
+Last traced: accepted SPEC-0006 Phase 1 contract/read-only migration independently revalidated on 2026-09-09 from exact GIT-050 base/HEAD `3b784cc6a68ff6f10fa390d96b81376b46e54b44`. Phase 1 is technically Verified pending GIT-051 publication/integration and modifies no existing runtime file. Current ordinary New/Open/Drawing/Stick behavior remains split.
 
 ## Approved architecture transition (D-0055/D-0056/D-0057)
 
 SPEC-0004 Phases 1, 2, and timing-only Phase 2.5 remain Verified, published, and integrated. Phase 2.6 remains rejected, unpublished, and superseded historical evidence. Under D-0055, unfinished Phases 3–8 are Superseded by future SPEC-0008, inactive, and must not be implemented.
 
-[`SPEC-0006`](specs/0006-unified-animation-workspace.md) is the approved seven-phase target for one typed Drawing/Stick project, root, stage, timeline, existing tool layout, history, and persistence. SPEC-0006 is **Approved and active** under D-0057. Arthur reviewed and approved the exact seven-phase design and explicitly authorized **Phase 1 only: Authorized; Not started** in a brand-new dedicated review worktree. **Phases 2–7 remain Unauthorized; Not started.** Approval is not an implementation or verification claim; current runtime remains split. SPEC-0006 alone owns the complete workspace unification through its seven phases. Do not create a spec-helping-spec chain or move its contract, migration, tester, shell, or integration responsibility into another prerequisite spec. Bounded corrections belong in SPEC-0006 under the existing amendment/review rules; material changes return to Arthur without silently expanding a phase.
+[`SPEC-0006`](specs/0006-unified-animation-workspace.md) is the approved seven-phase target for one typed Drawing/Stick project, root, stage, timeline, existing tool layout, history, and persistence. GIT-050 published the activation at `3b784cc6a68ff6f10fa390d96b81376b46e54b44`. D-0058 accepts Phase 1's exact 11-path strict contract/read-only migration result as technically Verified pending GIT-051 publication/integration. **Phases 2–7 remain Unauthorized; Not started.** Current runtime remains split. SPEC-0006 alone owns the complete workspace unification through its seven phases.
+
+## Accepted SPEC-0006 Phase 1 hidden architecture
+
+Phase 1 adds only two new product-library modules plus nine new fixture/proof files. `unifiedAnimationMigration.ts` dispatches strict Drawing V1, Drawing V2 head/version/assets, Stick V1, and Stick V2 sources through the current accepted parsers, maps them without writes, and returns an in-memory candidate or stable typed rejection. `unifiedAnimationContract.ts` validates the typed Drawing/Stick layer union, owner/hold rules, content-addressed assets, source-space display transform, reopen selection, auxiliary Drawing memory and Stick latch rebinding, deterministic source-bound UUID/digests, and resolved asset bytes. Nothing imports these modules into the ordinary app yet, and no existing source parser or write path changed.
+
+The accepted manifest is 9,257 bytes at SHA-256 `83614635c02f22d81205c441c46de3bff3a75f1c948661a1670a36eca75dbb29`. Independent proof covers 56 valid, 124 invalid, 1,000 repeated mappings, 3,516 assertions, all four source kinds, implementation-independent oracle behavior, and zero source writes. This proves the hidden Phase 1 contract/migration boundary only; it does not prove one shell, mixed rendering, a unified timeline/history/repository, canonical Save, or retirement of split owners.
 
 ## Runtime Overview
 
@@ -131,7 +137,7 @@ Stick saved record version 2 stores that latch beside the editable document/view
 
 The blue `PRIVATE REVIEW` fixture controls used for Arthur's acceptance were injected only into a temporary isolated copy by the dedicated browser-proof script. Product source contains no route, picker, overlay, or query-controlled review surface. The workspace keeps an unexported proof-port object for isolated source-copy injection, but product code neither exposes it on `window` nor imports the proof client.
 
-## Approved SPEC-0006 target — not current runtime
+## Approved SPEC-0006 final target — not current runtime
 
 If Arthur/PM approve and all seven phases are separately executed, accepted, propagated, and published, the normal path becomes:
 
@@ -147,7 +153,7 @@ Home New/Open
   → one atomic history and revision-bound IndexedDB repository
 ```
 
-Drawing and Stick remain typed layer payloads; neither is flattened into the other. Legacy open performs no write, first Save creates a new canonical identity, and source bytes are not deleted or overwritten. The exact design is approved under D-0057, but only Phase 1's hidden contract/read-only migration scope is authorized after record publication. All runtime changes remain unimplemented; Phases 2–7 are unauthorized.
+Drawing and Stick remain typed layer payloads; neither is flattened into the other. Phase 1 now provides the accepted hidden contract/read-only mapping boundary, but it is not yet published/integrated and no ordinary route imports it. First Save/new canonical identity, the shared shell/stage/timeline/tools/history/repository, and split-path retirement remain unimplemented. Phases 2–7 are unauthorized.
 
 ## Protected Architectural Invariants
 

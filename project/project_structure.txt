@@ -247,6 +247,11 @@
 ./scripts/fixtures/spec0005-stick/v2
 ./scripts/fixtures/spec0005-stick/v2/body-safety-cases.json
 ./scripts/fixtures/spec0005-stick/v2/body-safety-natural-correction-cases.json
+./scripts/fixtures/spec0006-unified
+./scripts/fixtures/spec0006-unified/v1
+./scripts/fixtures/spec0006-unified/v1/mixed-realistic-source-ingredients.json
+./scripts/fixtures/spec0006-unified/v1/phase1-cases.json
+./scripts/fixtures/spec0006-unified/v1/proof-commands.json
 ./scripts/fixtures/stick-ai
 ./scripts/fixtures/stick-ai/v1
 ./scripts/fixtures/stick-ai/v1/canonical-hash-vectors.json
@@ -370,6 +375,13 @@
 ./scripts/spec0005-stick/validatePhase1Proof.ts
 ./scripts/spec0005-stick/validatePhase2NaturalSafetyCorrectionProof.ts
 ./scripts/spec0005-stick/validatePhase2SafetyProof.ts
+./scripts/spec0006-unified
+./scripts/spec0006-unified/phase1BrowserProof.ts
+./scripts/spec0006-unified/phase1FixtureFactory.ts
+./scripts/spec0006-unified/phase1MigrationOracle.ts
+./scripts/spec0006-unified/recordPhase1Proof.ts
+./scripts/spec0006-unified/validatePhase1Migration.ts
+./scripts/spec0006-unified/validatePhase1Proof.ts
 ./scripts/sync_docs_to_github.sh
 ./scripts/traceExplosionLivePath.ts
 ./scripts/traceGenerateSoundsLivePath.mjs
@@ -482,6 +494,9 @@
 ./src/lib/ai/stickFigureCommandExecutor.ts
 ./src/lib/ai/stickFigureMotionEngine.ts
 ./src/lib/ai/strictStickJson.ts
+./src/lib/animation
+./src/lib/animation/unifiedAnimationContract.ts
+./src/lib/animation/unifiedAnimationMigration.ts
 ./src/lib/dbAdmin.ts
 ./src/lib/dbClient.ts
 ./src/lib/drawingProjectAudioCodec.ts

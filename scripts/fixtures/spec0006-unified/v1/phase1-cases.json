@@ -1,0 +1,24 @@
+{
+  "fixtureVersion": 1,
+  "validFamilies": [
+    {"name":"drawing-v1-tool-settings", "count":8},
+    {"name":"drawing-v1-cell-payloads", "count":8},
+    {"name":"drawing-v1-unicode-and-boundaries", "count":8},
+    {"name":"drawing-v2-assets-and-tweens", "count":8},
+    {"name":"stick-v1-rig-and-holds", "count":8},
+    {"name":"stick-v2-latch-and-reopen", "count":8},
+    {"name":"deterministic-identity-and-source-space", "count":8}
+  ],
+  "invalidFamilies": [
+    {"name":"unknown-or-missing-fields", "count":16},
+    {"name":"unsupported-versions-and-kinds", "count":12},
+    {"name":"duplicate-or-dangling-identities", "count":16},
+    {"name":"invalid-cell-ownership", "count":16},
+    {"name":"asset-missing-or-mismatched", "count":16},
+    {"name":"non-finite-negative-zero-or-unicode", "count":16},
+    {"name":"limits-and-source-space", "count":16},
+    {"name":"digest-provenance-and-source-mutation", "count":16}
+  ],
+  "requiredRepeatedMappings": 1000,
+  "requiredSourceKinds": ["drawing-v1", "drawing-v2", "stick-v1", "stick-v2"]
+}

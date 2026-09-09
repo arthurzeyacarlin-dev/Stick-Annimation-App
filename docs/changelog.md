@@ -5,6 +5,13 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-09 — Accept and technically verify SPEC-0006 Phase 1 (D-0058)
+
+- Recorded GIT-050 activation publication at `3b784cc6a68ff6f10fa390d96b81376b46e54b44` and Arthur/PM acceptance of the exact 11-path hidden unified contract/read-only Drawing V1/V2 and Stick V1/V2 migration result.
+- Bound the accepted 9,257-byte manifest at SHA-256 `83614635c02f22d81205c441c46de3bff3a75f1c948661a1670a36eca75dbb29`. CPA replay passed 160 manifest checks, 56 valid/124 invalid cases, 1,000 deterministic repeats, 3,516 assertions, four source kinds, an independent oracle, and zero source writes.
+- Fresh TypeScript, focused lint, inherited Drawing/Stick validators, scope/diff/index checks, and the established 5-error/72-warning full-lint non-regression passed. Arthur accepted the unchanged ordinary-app review; bound browser evidence has 10 operations/five screenshots, zero real API/external requests, zero page/console errors, and no review-only UI. Port `56261` is closed.
+- Phase 1 is technically Verified pending separate GIT-051 publication/integration. Phases 2–7 remain Unauthorized/Not started. No accepted technical byte, existing runtime/write path, source store, package/configuration, provider/network/deployment system, canonical main, or other worktree changed during CPA propagation.
+
 ### 2026-09-09 — Approve SPEC-0006 and authorize Phase 1 only (D-0057)
 
 - Recorded Arthur's review/approval of the exact seven-phase unified-workspace design and Phase 1-only authorization in a brand-new dedicated review worktree. Phase 1 is Authorized; Not started; Phases 2–7 remain Unauthorized; Not started.

@@ -7,7 +7,7 @@ Last traced: published v2 safety evidence retained from 2026-09-08; canonical so
 
 SPEC-0004 Phases 1, 2, and timing-only Phase 2.5 remain Verified, published, and integrated. Phase 2.6 remains rejected, unpublished, and superseded historical evidence. Under D-0055, unfinished Phases 3–8 are Superseded by future SPEC-0008, inactive, and must not be implemented.
 
-Current lifecycle update (D-0057): SPEC-0006 now exists and is Approved under D-0057, with Phase 1 only Authorized; Not started and Phases 2–7 Unauthorized; Not started. Future SPEC-0007/0008 remain absent and unauthorized: manual Stick expansion follows SPEC-0006's full completion gate; motion-video → body/rig tracking → editable animation frames remains later planning only. No new AI/provider/model/video/tracking, paid service, or deployment is authorized. D-0055's earlier planning-only state remains in the decision history; completed/superseded SPEC-0004/0005 statuses do not change.
+Current lifecycle update (D-0058): SPEC-0006 is Approved under D-0057; GIT-050 published its Phase 1 activation at `3b784cc6a68ff6f10fa390d96b81376b46e54b44`. Arthur accepted the hidden Phase 1 contract/read-only migration result, which is technically Verified pending GIT-051 publication/integration. Phases 2–7 remain Unauthorized; Not started. Future SPEC-0007/0008 remain absent and unauthorized. Phase 1 changes no AI route, adapter, model, prompt, provider, video/tracking, paid service, or deployment behavior; completed/superseded SPEC-0004/0005 statuses do not change.
 
 ## What Exists Today
 

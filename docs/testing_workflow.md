@@ -109,9 +109,13 @@ node --experimental-strip-types scripts/validateTimelinePlaybackSmoothing.ts
 
 `package.json` now exposes the focused permanent SPEC-0001 browser command `test:spec0001-browser`; it still does not expose general `typecheck`, `test`, or composed `check` scripts. Adding those broader commands remains QLT-003.
 
-## Approved SPEC-0006 verification standard — Phase 1 only authorized
+## Accepted SPEC-0006 Phase 1 proof — publication pending
 
-[`SPEC-0006`](specs/0006-unified-animation-workspace.md) is Approved; Phase 1 is Authorized; Not started under D-0057. Phases 2–7 remain Unauthorized; Not started. The unchanged Phase 1 gate requires independent migration oracles, at least 50 valid/boundary and 100 invalid/tamper cases, 1,000 repeated seeded mappings, byte-preservation/no-write proof, inherited regressions, and ordinary unchanged-app smoke. No implementation/test/proof/app is created by this records task. After publication the Phase 1 executor freezes exact paths within the 18-path ceiling; proof corrections stay within SPEC-0006, not a helper-spec chain.
+[`SPEC-0006`](specs/0006-unified-animation-workspace.md) is Approved. GIT-050 published activation at `3b784cc6a68ff6f10fa390d96b81376b46e54b44`. D-0058 accepts the exact 11-path Phase 1 result as technically Verified pending GIT-051 publication/integration; Phases 2–7 remain Unauthorized; Not started.
+
+The accepted technical manifest is `output/spec-0006/phase-1/proof-manifest.json`, 9,257 bytes, SHA-256 `83614635c02f22d81205c441c46de3bff3a75f1c948661a1670a36eca75dbb29`. Independent CPA revalidation passed 160 manifest checks. Fresh migration execution passed 56 valid/boundary cases, 124 invalid/tamper cases, 1,000 repeated seeded mappings, 3,516 assertions, all four legacy source kinds, stable typed errors, an oracle that imports no implementation under test, and zero source writes. Fresh TypeScript, focused lint, Drawing V1/V2 contract/repository, Stick history/timeline, exact hash/scope/diff/index checks passed. Full lint remains the accepted pre-existing 5-error/72-warning baseline with zero Phase 1 finding.
+
+The preserved ordinary-app browser result records 10 operations, five screenshots, four deterministic Stick availability requests, zero real API/external requests, zero console/page errors, and no review-only UI. Arthur accepted that unchanged-app review. The historical review URL was `http://127.0.0.1:56261/`; its port is closed. No dedicated Phase 1 tracked-state finalizer exists, so CPA closeout uses the unchanged manifest validator, complete source/receipt/artifact hash-and-size replay, `bash scripts/update_memory.sh`, check-only memory verification, exact technical-plus-record scope, lifecycle/link/diff/index/hidden-flag/symlink/process/port checks, and final empty index. Publication remains a later GIT-051 instruction.
 
 Every phase requires:
 

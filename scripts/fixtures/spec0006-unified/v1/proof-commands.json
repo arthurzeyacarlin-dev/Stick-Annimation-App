@@ -1,0 +1,15 @@
+{
+  "fixtureVersion": 1,
+  "commands": [
+    "node --experimental-strip-types scripts/spec0006-unified/validatePhase1Migration.ts",
+    "npx tsc --noEmit",
+    "npx eslint src/lib/animation/unifiedAnimationContract.ts src/lib/animation/unifiedAnimationMigration.ts scripts/spec0006-unified/*.ts",
+    "node --experimental-strip-types scripts/validateDrawingProjectV1Compatibility.ts",
+    "node --experimental-strip-types scripts/validateDrawingProjectV2Contract.ts",
+    "node --experimental-strip-types scripts/validateDrawingProjectV2Repository.ts",
+    "node --experimental-strip-types scripts/validateStickHistoryPersistence.ts",
+    "node --experimental-strip-types scripts/validateStickPoseTimeline.ts",
+    "npx eslint . (accepted baseline must remain exactly 5 errors / 72 warnings)",
+    "git diff --check"
+  ]
+}

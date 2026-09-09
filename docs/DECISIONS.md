@@ -553,6 +553,17 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Preserved history/systems: completed SPEC-0001–0005 results, D-0055's rejected/unpublished/non-reusable Phase 3 history and superseded unfinished phases, D-0054 cleanup, D-0010 role separation, saved projects, existing proofs, AGENTS.md, other worktrees and recovery material remain unchanged. SPEC-0007/0008 remain absent and unauthorized.
 - This task: canonical control-plane approval records only. No runtime/test/fixture/proof/dependency/config/environment/database edit, executor/review app, provider/API/search/Supabase/paid/network/deployment action, cleanup, staging, commit, merge, push, or publication. Local main/origin remain at `de54aed275c2f6da6e7c3f4a7f65091e8d5370c0`; live remote is not refreshed in this records-only turn.
 
+### D-0058 — Accept SPEC-0006 Phase 1 contract and read-only migration result
+
+- Date: 2026-09-09
+- Status: Accepted by Arthur and the Project Manager; technically Verified in the dedicated worktree; pending separate GIT-051 publication/integration.
+- Activation/base: GIT-050 is complete in exact 16-path commit `3b784cc6a68ff6f10fa390d96b81376b46e54b44`, parent `de54aed275c2f6da6e7c3f4a7f65091e8d5370c0`, message `Publish GIT-050 unified workspace activation records`. Canonical `main`, local `origin/main`, and accepted detached base/HEAD match that SHA; canonical local synchronization is `0/0`, and the accepted index is empty.
+- Decision: accept exactly the 11 new Phase 1 technical paths under `src/lib/animation/`, `scripts/spec0006-unified/`, and `scripts/fixtures/spec0006-unified/v1/`. They add one strict `diamond-animation-project/v1`/document contract, deterministic source-bound canonical IDs/digests, content-addressed Drawing raster/audio assets, structured Stick payload/latch preservation, source-space display transforms, and read-only migration adapters for Drawing V1/V2 and Stick V1/V2. No existing runtime file, component, page, store-write path, package/configuration, API route, AI behavior, or ordinary visible flow changes.
+- Evidence: accepted technical manifest `output/spec-0006/phase-1/proof-manifest.json` is exactly 9,257 bytes at SHA-256 `83614635c02f22d81205c441c46de3bff3a75f1c948661a1670a36eca75dbb29`. CPA independently replayed 160 manifest checks and the migration suite: 56 valid cases, 124 invalid/tamper cases, 1,000 repeated seeded mappings, 3,516 assertions, all four source kinds, stable typed failures, no implementation import in the oracle, and zero source writes. TypeScript, focused lint, Drawing V1/V2 contract/repository validators, Stick history/timeline validators, source hashes, exact scope, both diff checks, and empty-index checks pass. Full lint remains the pre-existing 5-error/72-warning baseline with zero Phase 1 finding.
+- Human/regression evidence: Arthur accepted the unchanged ordinary-app review. The bound browser result records 10 operations and five screenshots covering Home, the existing New split, Drawing, Stick, Creator/Back, and the existing Open type tabs; it has four deterministic Stick availability requests, zero real API/external requests, zero console/page errors, and no review-only UI. Review URL `http://127.0.0.1:56261/` is historical evidence; port `56261` is closed and no persistent process owns the accepted worktree.
+- Lifecycle consequence: Phase 1 is **accepted and technically Verified; pending GIT-051 publication/integration**. This decision and CPA propagation do not stage, commit, merge, push, publish, deploy, or authorize Phase 2. A later exact GIT-051 instruction may publish only the accepted 11 technical paths plus the reviewed control-plane/tree allowlist, after which clean synchronization and D-0054 accepted-copy cleanup are mandatory. Phase 2 and Phases 3–7 remain **Unauthorized; Not started**.
+- Preserved systems: current split Home/New/Open/Drawing/Stick UI and runtime ownership; all accepted SPEC-0001–0005 behavior/proof; D-0055 rejected/superseded history; legacy source bytes/stores; Drawing/Stick write paths; AI/provider/search/Supabase/model configuration; packages/dependencies; database/auth/billing/export/deployment; other worktrees and recovery material remain unchanged.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation
@@ -567,7 +578,7 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 
 ### P-0001 — Launch role of the Drawing Workspace
 
-- Status: resolved for intended architecture by D-0056; D-0057 approves SPEC-0006 and authorizes Phase 1 only, Not started. Phases 2–7 remain Unauthorized/Not started.
+- Status: resolved for intended architecture by D-0056; Phase 1 is technically Verified and accepted under D-0058, with GIT-051 publication/integration pending. Phases 2–7 remain Unauthorized/Not started.
 - Resolution: Drawing becomes a typed editable content system inside the one Animation Workspace rather than a separate New Project choice or separate saved-project pillar. Drawing-specific feature expansion still requires its own scope.
 
 ### P-0002 — Official product name
@@ -619,6 +630,6 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 
 ### P-0009 — Possible unified Animation Workspace
 
-- Status: resolved for intended architecture by D-0056; SPEC-0006 Approved under D-0057, Phase 1 Authorized/Not started; Phases 2–7 Unauthorized/Not started.
+- Status: resolved for intended architecture by D-0056; SPEC-0006 is Approved and Phase 1 is technically Verified and accepted under D-0058, with GIT-051 publication/integration pending. Phases 2–7 remain Unauthorized/Not started.
 - Resolution: one project/timeline/stage/save/history/AI surface replaces the separate Drawing/Stick choice using typed Drawing and Stick layers, lossless non-destructive legacy adoption, and one canonical writable root. See SPEC-0006 for the exact seven phases and proof gates.
-- Current boundary: the app remains split today. No phase may implement the resolution until Arthur/PM approve the spec and later authorize that phase from a published clean canonical base.
+- Current boundary: the app remains split today. Phase 1 is hidden contract/migration infrastructure only; no later phase may implement the visible resolution until Arthur/PM separately authorize that phase from a published clean canonical base.

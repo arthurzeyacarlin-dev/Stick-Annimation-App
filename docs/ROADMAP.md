@@ -1,7 +1,7 @@
 # Roadmap
 
 Status: canonical ordered direction; not a delivery schedule
-Last updated: 2026-09-08
+Last updated: 2026-09-09
 
 ## Roadmap Rules
 
@@ -10,6 +10,12 @@ Last updated: 2026-09-08
 - A feature is not complete because code exists; its spec acceptance and regression gates must pass.
 - Paid AI calls, remote writes, deployment, and baseline commits require task-specific authorization.
 - The roadmap may change when Arthur resolves pending decisions or new evidence changes the risk order.
+
+## Current owner sequence — 2026-09-09 (D-0055/D-0056/D-0057)
+
+[`SPEC-0006`](specs/0006-unified-animation-workspace.md) owns the exact seven-phase workspace unification: contract/migration; shell/New/Open; stage/compositing; timeline/playback/onion; existing manual tools/layout; history/persistence/recovery; retirement/full proof. SPEC-0006 is **Approved and active** under D-0057. Arthur reviewed and approved the exact seven-phase design and explicitly authorized **Phase 1 only: Authorized; Not started** in a brand-new dedicated review worktree. **Phases 2–7 remain Unauthorized; Not started.** Approval is not an implementation or verification claim; current runtime remains split. SPEC-0006 alone owns the complete workspace unification through its seven phases. Do not create a spec-helping-spec chain or move its contract, migration, tester, shell, or integration responsibility into another prerequisite spec. Bounded corrections belong in SPEC-0006 under the existing amendment/review rules; material changes return to Arthur without silently expanding a phase.
+
+Future SPEC-0007 follows only after SPEC-0006's exact eleven-part completion gate; future SPEC-0008 remains later motion-video/tracking planning. Neither is created or authorized. The broad roadmap categories below are context, not execution permission. Next step: complete this CPA review packet, then obtain the separate publication-only instruction for the exact reviewed combined D-0055/SPEC-0006/D-0057 record set. After those records are published and canonical main is clean/synchronized, one brand-new dedicated SPEC-0006 Phase 1 Spec Executor/review worktree starts in Plan mode from that exact publication SHA under Arthur's existing Phase 1 authorization. Freeze its exact paths within the 18-path ceiling and satisfy the existing Phase 1 entry/one-copy gates. Do not start from this dirty pre-publication checkout or reuse a rejected copy. No executor, review app, or publication is created by this CPA turn.
 
 ## Phase 0 — Preserve and Stabilize
 
@@ -69,7 +75,7 @@ Goals:
 
 Arthur's latest direction is AI-first, with advanced direct controls available for inspection and fine-tuning. The exact sequencing is still pending P-0008: Phase 2 and Phase 3 may interleave as a narrow AI-first vertical slice once the shared model, reversible executor, and minimum corrective controls exist. This roadmap does not silently require completing an Adobe-class manual editor before any AI stick workflow.
 
-Current shared-motion prerequisite: SPEC-0004 Phases 1, 2, and timing-only 2.5 are published/integrated. SPEC-0005 Phase 1 and numeric-safety Phase 2 v1 remain published/integrated. GIT-044's Phase 3 result is rejected and non-reusable. GIT-045 published D-0050 at exact commit `a4589664b6857eb10a828189e177e0e7d47e3f69`; D-0051 makes one final pre-execution correction from a single whole-goal state to an ordered semantic sequence with non-neutral base preservation, per-landmark facing/contact, explicit simultaneous/sequential parts, and exact completion. Phase 2 v2 is Verified, published, and integrated through GIT-048 at `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`. D-0054 authorizes corrected SPEC-0005 Phase 3 as Approved/Authorized/Not started, pending GIT-049 publication. Phases 4–8 remain Unauthorized/Not started. Exactly eight owners remain: proof gate; all-context safety; grounded compound poses; foot/hand/pelvis and airborne mechanics; motion law; gait/turns; full actions/compositions; and the identical Pretend-AI/Terra-shaped provider-free planner door.
+Current retained foundation: SPEC-0004 Phases 1, 2, and timing-only Phase 2.5 remain Verified, published, and integrated. Phase 2.6 remains rejected, unpublished, and superseded historical evidence. Under D-0055, unfinished Phases 3–8 are Superseded by future SPEC-0008, inactive, and must not be implemented. SPEC-0005 Phase 1 and Phase 2 v1/v2 remain accepted, Verified, published, and integrated; v2 is complete at GIT-048 `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`. GIT-049 published the later Phase 3 authorization at `de54aed275c2f6da6e7c3f4a7f65091e8d5370c0`. A Phase 3 executor then ran, but Arthur rejected its visible result: it is unpublished, unaccepted, non-reusable, and not completed. D-0055 supersedes Phase 3 and unfinished Phases 4–8 by future SPEC-0008; they are inactive with no implementation authority.
 
 ## Phase 3 — AI-First Stick Animation
 
@@ -86,7 +92,7 @@ Goals:
 
 The AI path must manipulate the same state and history as manual tools.
 
-SPEC-0004 is explicitly paused before its Phase 3 until all eight SPEC-0005 phases are accepted, published, and integrated. This dependency does not authorize the later real Terra/provider phase, move its cost/privacy gates, or connect a live provider during SPEC-0005.
+D-0055 closes the former SPEC-0004-after-SPEC-0005 dependency. The unfinished phases are superseded, not queued to resume. No provider, pricing, privacy, motion-video service, or release policy is selected or authorized here.
 
 ## Phase 4 — Professional Product Completion
 
@@ -101,7 +107,7 @@ Candidate goals:
 - real credit/billing controls and privacy/retention settings
 - performance profiling and accessibility/responsive requirements
 
-The exact launch scope depends on pending decisions about the Drawing Workspace and first-release definition.
+Drawing's architectural role is resolved by D-0056: it becomes typed content inside one Animation Workspace. The exact launch scope still depends on SPEC-0006 completion and the remaining first-release definition.
 
 ## Phase 5 — Custom Model R&D
 

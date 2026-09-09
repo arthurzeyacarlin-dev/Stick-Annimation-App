@@ -1,7 +1,7 @@
 # Diamond Animator Master Project Charter
 
 Status: canonical product intent
-Last updated: 2026-08-09
+Last updated: 2026-09-09
 
 ## Product Mission
 
@@ -33,7 +33,7 @@ The goal is not to hide a weak editor behind a chat box. The goal is one capable
 
 ## Current Strategic Position
 
-The repository contains both a Drawing Workspace and a Stick Figure Workspace. The latest direction emphasizes stick-figure animation as the primary product wedge. Whether the Drawing Workspace remains an equal launch pillar, becomes a supporting renderer/tooling surface, or moves to a later phase is an unresolved product decision recorded in `DECISIONS.md`.
+The repository currently contains separate Drawing and Stick Figure workspaces, but D-0056 resolves the intended architecture: one Animation Workspace owns one project, stage, timeline, history, persistence path, and AI surface while preserving Drawing and Stick data as distinct editable typed layers. Drawing becomes a supporting authored-content system inside the same animation project rather than a separate New Project choice. [`SPEC-0006`](specs/0006-unified-animation-workspace.md) now has Arthur's seven-phase approval under D-0057; Phase 1 alone is Authorized; Not started, pending activation publication. Phases 2–7 remain Unauthorized; Not started; no unified runtime is claimed.
 
 The current code is a prototype foundation, not a finished Version 1. Existing documents that called either workspace “complete” described a past visual milestone and are superseded by `CURRENT_STATE.md`.
 
@@ -52,6 +52,7 @@ Phase 0 is preservation and stabilization:
 - introduce spec-first work and repeatable regression proof
 - resolve launch scope and product-quality definitions
 - stabilize core document, persistence, security, and test foundations before broad feature expansion
+- review and, only through separately authorized phases, establish the lossless unified workspace before expanding manual Stick tools or motion-video AI
 
 The ordered phase plan lives in `ROADMAP.md`.
 

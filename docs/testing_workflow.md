@@ -1,7 +1,7 @@
 # Verification and Regression Workflow
 
 Status: canonical proof standard and current gate baseline
-Last updated: 2026-09-08
+Last updated: 2026-09-09
 
 ## Core Rule
 
@@ -109,6 +109,24 @@ node --experimental-strip-types scripts/validateTimelinePlaybackSmoothing.ts
 
 `package.json` now exposes the focused permanent SPEC-0001 browser command `test:spec0001-browser`; it still does not expose general `typecheck`, `test`, or composed `check` scripts. Adding those broader commands remains QLT-003.
 
+## Approved SPEC-0006 verification standard — Phase 1 only authorized
+
+[`SPEC-0006`](specs/0006-unified-animation-workspace.md) is Approved; Phase 1 is Authorized; Not started under D-0057. Phases 2–7 remain Unauthorized; Not started. The unchanged Phase 1 gate requires independent migration oracles, at least 50 valid/boundary and 100 invalid/tamper cases, 1,000 repeated seeded mappings, byte-preservation/no-write proof, inherited regressions, and ordinary unchanged-app smoke. No implementation/test/proof/app is created by this records task. After publication the Phase 1 executor freezes exact paths within the 18-path ceiling; proof corrections stay within SPEC-0006, not a helper-spec chain.
+
+Every phase requires:
+
+- strict typed contract/reducer/repository tests with independent oracles that do not import the implementation under test;
+- named corrupt/unsupported/over-limit/stale/race/failure cases and source-store before/after byte snapshots;
+- exact document, payload, raster/audio, provenance, history, and storage digests as applicable;
+- inherited Drawing V1/V2 storage, Drawing tool/timeline/history/AI-memory, Stick contract/history/storage/timeline/Creator/AI transaction, SPEC-0004, SPEC-0005 accepted-phase, Home/Tutorial, and permanent-browser regressions selected by the phase execution path;
+- production-build ordinary-root browser proof at `1440×900` DPR 1 and `390×844` DPR 2 browser profile, one loopback non-`3000` review copy, no review-only product surface, and Arthur's normal human review;
+- a deny-by-default loopback-only network ledger that blocks or deterministically fulfills `/api/ai`, Supabase, provider, search, telemetry, and all non-loopback traffic; zero live/provider/paid request;
+- TypeScript, focused lint, changed-line/full-lint non-regression, `git diff --check`, exact dirty-path ceiling, empty index, source scans, artifact hashes/sizes, process/port ownership, D-0054 one-copy evidence, and a validated technical manifest.
+
+From Phase 3 onward, `MIXED-REALISTIC-01` is mandatory: 48 positions at 12 FPS, two distinct `4563×3302` Drawing rasters, Drawing text/tween/sound, one editable Stick rig with independent poses/holds, and an upper Drawing/text layer. Phase 7 binds all prior accepted phase manifests and repeats the complete mixed/New/legacy/failure/accessibility flow. The exact latency, playback, long-task, decoded-byte, JS-heap, responsive, and eleven-part pre-SPEC-0007 completion gates live in SPEC-0006 §§9 and 13 and must not be weakened by a phase proof script.
+
+Compact viewport proof is browser-profile evidence only, not a physical low-end-phone claim. A green technical suite cannot replace Arthur's visible acceptance, and a failed visible review rejects the result even if the manifest is internally valid.
+
 ## SPEC-0001 Permanent Browser Tester
 
 The accepted Phase 1.5 developer command is:
@@ -197,7 +215,7 @@ GIT-037 published those exact 19 reviewed paths in commit `16799539fb7db31e345a8
 
 One Phase 2.6 executor ran in `/Users/arthurcarlin/.codex/worktrees/8de8/stick-animation-app` from canonical `4c1da7fa4ea14ed82af950f7ed748b86387a7e0a`. It stopped with an empty index and the former exact eight dirty paths. Its ignored manifest SHA-256 `900f1faf0fbdddbccd8301a62628cd6889990e1a3c75ca2977fdcd56995a8d5e` reported 624 assertions, eight valid fixtures, 62 invalid foundation cases, 66 browser flows, 12 screenshots, 43 artifacts, and zero provider/external traffic. Arthur rejected the overall visible motion. The result is not accepted, propagated, published, integrated, or current runtime truth.
 
-Read-only inspection records the proof weakness that SPEC-0005 must prevent:
+Historical inspection recorded proof weaknesses for the former SPEC-0005 plan; these remain negative evidence, not a current execution assignment:
 
 - browser automation clicked Play, waited only for `playing`, immediately clicked Pause, and never required an ordered complete timeline traversal;
 - the validator built the frozen fixture and regenerated its expected frames through the same implementation path before exact comparison;
@@ -206,9 +224,9 @@ Read-only inspection records the proof weakness that SPEC-0005 must prevent:
 
 Do not rerun, correct, publish, or treat that Phase 2.6 proof as acceptance evidence under D-0043.
 
-### Decision-complete SPEC-0005 proof standard
+### Historical SPEC-0005 proof standard — unfinished phases superseded (D-0055)
 
-SPEC-0005 has exactly eight sequential phases. Each gets one new Plan-mode Spec Executor/worktree, the phase's exact tracked-path ceiling, ignored output only under `output/spec-0005/phase-N/**`, an independently validated technical manifest, visible Arthur review where output exists, sequential CPA closeout after acceptance, and separate publication/integration before the next phase. Restructured Phase 2 is technical-only and has no new-motion review. After every technical gate passes, it may leave exactly one ordinary unchanged-source regression-smoke app instance served directly from the exact unpublished executor worktree at a loopback-only non-`3000` root URL. Arthur first reviews new safety-gated visible output in Phase 3.
+The retained eight-phase design below is historical: Phase 1/2 v1/v2 accepted proof stays protected, while Phase 3 and Phases 4–8 are superseded/inactive with no execution authority under D-0055. The post-GIT-049 Phase 3 executor ran and Arthur rejected it. Arthur/PM report the post-GIT-049 rejected Phase 3 attempt in `/Users/arthurcarlin/.codex/worktrees/5200/stick-animation-app`, branch `codex/spec0005-phase3-whole-body-poses`, base/HEAD `de54aed275c2f6da6e7c3f4a7f65091e8d5370c0`, empty index and ten dirty technical paths. Reported ignored manifest: `output/spec-0005/phase-3/proof-manifest.json`, 55,941 bytes, SHA-256 `1420012f2213dcbf6c31483c700879f69e39881fd2bda8594fae1ec5d29947f3`. This is attributed rejected evidence, not independently revalidated proof or acceptance. The CPA does not open, modify, validate, recover, reuse, or remove that worktree or its proof in this task.
 
 The shared full-playback definition is exact: after one Play action, automation observes ordered frame indexes `0, 1, …, last, 0`, performs no manual frame selection during that cycle, and records elapsed time within `75%..150%` of `frameCount / fps`. It records timestamped per-frame body geometry at desktop `1440×900` and compact `390×844`. Pause occurs only after wrap. Still screenshots and a Play/Pause state toggle are supporting evidence, never full-playback proof.
 
@@ -254,13 +272,13 @@ The permanent tester passed 40 operations and 13 screenshots in a clean isolated
 
 The accepted path is v2 qualification → test-local selection/bake → final rounded/context safety → sole motion-engine/executor door. The test-local builder is not product generation. No visible wave/run creation, naturalness ranking, later-owner Preview, provider, UI, history/storage change, or Phase 3 implementation is claimed. Existing SPEC-0004 compatibility routes remain protected; v1-to-SPEC-0005 Preview is intentionally fail-closed.
 
-CPA verified and stopped only review process group `63034` (parent `63034`, listener `63035`), then verified port `54945` closed. The accepted manifest remains unchanged, including its historical executor/review-pending/live-server fields. This phase has no dedicated tracked-state finalizer: final closeout uses the successful pre-cleanup validator result, complete offline source/receipt/artifact hash-and-size revalidation (original spec against its bound base commit; live logs by their bound prefixes), exact technical-plus-record path audit, memory/link/lifecycle/diff checks, empty index, no hidden flags, and process/port checks. The strict live eight-path CLI is not misreported as passing after cleanup or record propagation. At this historical closeout, publication and Phase 3 authorization were still pending. Current status: GIT-048 published and integrated accepted SPEC-0005 Phase 2 v2 at `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`; Phase 2 v2 is complete and Verified. Phase 1 and Phase 2 v1 remain immutable published history. D-0054 records Arthur's explicit authorization of corrected SPEC-0005 Phase 3 only as Approved; Authorized; Not started, pending separate publication of this activation record. Phases 4–8 remain Unauthorized/Not started.
+CPA verified and stopped only review process group `63034` (parent `63034`, listener `63035`), then verified port `54945` closed. The accepted manifest remains unchanged, including its historical executor/review-pending/live-server fields. This phase has no dedicated tracked-state finalizer: final closeout uses the successful pre-cleanup validator result, complete offline source/receipt/artifact hash-and-size revalidation (original spec against its bound base commit; live logs by their bound prefixes), exact technical-plus-record path audit, memory/link/lifecycle/diff checks, empty index, no hidden flags, and process/port checks. The strict live eight-path CLI is not misreported as passing after cleanup or record propagation. At this historical closeout, publication and Phase 3 authorization were still pending. Current status: SPEC-0005 Phase 1 and Phase 2 v1/v2 remain accepted, Verified, published, and integrated; v2 is complete at GIT-048 `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`. GIT-049 published the later Phase 3 authorization at `de54aed275c2f6da6e7c3f4a7f65091e8d5370c0`. A Phase 3 executor then ran, but Arthur rejected its visible result: it is unpublished, unaccepted, non-reusable, and not completed. D-0055 supersedes Phase 3 and unfinished Phases 4–8 by future SPEC-0008; they are inactive with no implementation authority.
 
 The expanded human-written `SPEC0005-HUMANOID-NATURALNESS-v1` matrix covers front/left/right/profile, non-neutral bases, multiple active limbs, turns, contact changes, takeoff/airborne/landing, valid/invalid mirrors, and simultaneous/sequential composition. Required visible families include wave from valid poses, squat-plus-wave, push-up-plus-wave with contact support, left/right walk/run and turns, and run-plus-jump-plus-wave-plus-land-plus-continue. Phase 3 proves only constant-contact grounded compound probes; Phase 4 contact/airborne mechanics; Phase 5 default natural versus explicit mechanical motion law with no teleport/stutter/unintended stops/one-joint-first/equal default spacing/lag; Phase 6 gait/turns; Phase 7 full compositions; Phase 8 cross-adapter identity. The same `100%` hard and zero-false-result rule plus `85`/`90`/Arthur visible gate applies at each owning phase.
 
-Phase 4's future proof ceiling is exactly twelve paths, including the safety module and both current safety validators. Phase 2 classifies future changing-contact/airborne anatomy but the sole door rejects it as unsupported until Phase 4. Phase 4 selection may enable it only from the complete ordered mechanics sequence; completion rechecks the full bake. Every foot/hand/pelvis contact must match geometry and release/acquire explicitly; flight requires anticipation/takeoff, no contact during flight, landing/contact/compression/recovery, no penetration, and all unchanged safety/manual-ownership rules. Caller airborne/contact/trust/skip/injury flags are bypass failures.
+Historical superseded Phase 4 proof ceiling (no execution authority): exactly twelve paths, including the safety module and both current safety validators. The existing accepted safety contract is unchanged; future SPEC-0008 must define its own approved proof/scope and cannot bypass protected regression requirements.
 
-GIT-044 published the former D-0049 Phase 3 authorization, but Arthur rejected that executor's visible result; technical green status did not satisfy natural-motion acceptance, and none of its bytes may be reused. GIT-045 published D-0050; GIT-046 published D-0051 at `55b05e2daad649ac1e0027722a75762a9714d281`; GIT-047 published D-0052 and D-0053's accepted v2 result is Verified, published, and integrated through GIT-048 at `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`. D-0054 authorizes corrected SPEC-0005 Phase 3 as Approved/Authorized/Not started; execution waits for GIT-049 publication and a fresh Plan-mode worktree from its exact SHA. Phases 4–8 remain unauthorized and later own foot/hand/pelvis and airborne mechanics, permanent motion law, locomotion/turns, full actions/compositions, and the identical shared provider-free planner door in order. At boot, each visible phase verifies that its clean canonical base contains the preceding accepted source/control-plane anchors and recorded manifest hashes; after edits, it reruns inherited current focused suites and keeps complete ordinary independent editable frames plus all protected transaction/editor behaviors. A failed visible review rejects the phase even when all technical commands pass.
+GIT-044's earlier Phase 3 attempt and GIT-049's later attempt were both rejected. SPEC-0005 Phase 1 and Phase 2 v1/v2 remain accepted, Verified, published, and integrated; v2 is complete at GIT-048 `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`. GIT-049 published the later Phase 3 authorization at `de54aed275c2f6da6e7c3f4a7f65091e8d5370c0`. A Phase 3 executor then ran, but Arthur rejected its visible result: it is unpublished, unaccepted, non-reusable, and not completed. D-0055 supersedes Phase 3 and unfinished Phases 4–8 by future SPEC-0008; they are inactive with no implementation authority. The Phase 3 manifest reported by PM is rejection evidence only; no technical validation or human acceptance is claimed here. A failed visible review rejects a result even when its technical commands pass.
 
 For a fresh technical proof recording from the historical Phase 1.5 implementation base:
 

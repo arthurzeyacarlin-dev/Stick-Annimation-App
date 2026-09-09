@@ -5,6 +5,30 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-09 — Approve SPEC-0006 and authorize Phase 1 only (D-0057)
+
+- Recorded Arthur's review/approval of the exact seven-phase unified-workspace design and Phase 1-only authorization in a brand-new dedicated review worktree. Phase 1 is Authorized; Not started; Phases 2–7 remain Unauthorized; Not started.
+- Preserved the accepted technical contract, 18-path Phase 1 ceiling, read-only lossless migration, proof/human-review gates, and all later-phase boundaries. SPEC-0006 alone owns unification; no spec-helping-spec chain is created.
+- Kept inherited D-0055 transition and D-0056 proposal history. Updated current approval/status/TODO/handoff references; GIT-050 still requires a separate exact publication instruction before the new Plan-mode executor can use the activation publication SHA.
+- Documentation only: no implementation, saved-project access/write, app/review worktree, proof/test run, runtime/dependency/configuration/AGENTS change, other-worktree mutation, provider/network/deployment, staging, commit, or push. Historical app observations remain attributed to the preceding architecture pass.
+
+### 2026-09-09 — Propose SPEC-0006 Unified Animation Workspace (D-0056)
+
+- Added [`SPEC-0006`](specs/0006-unified-animation-workspace.md) as **Proposed; Unauthorized** with exactly seven sequential implementation phases and no phase authorization.
+- Defined one typed Drawing/Stick project and writable root, neutral `Untitled Project`, one Open collection, one stage/timeline/history/persistence path, the Stick-layout direction, existing Drawing tools along the bottom, and AI Animator at bottom right.
+- Defined strict read-only migration and non-destructive first-Save adoption for Drawing V1/V2 and Stick V1/V2, preserving raster/audio digests, text/tween values, rig/pose structure, source bytes, and failure atomicity.
+- Added a deterministic realistic mixed fixture, exact desktop/compact latency and memory bounds, per-phase human review/technical proof/negative/regression/stop gates, D-0054 one-copy handling, and the exact completion gate before future SPEC-0007.
+- Updated only specification/control-plane records. Current app/runtime remains split. No implementation, executor, stage/commit/push/publication, legacy deletion, dependency, AI/provider/model/video/tracking/paid/external action, or deployment occurred. D-0055's inherited thirteen-path records remain preserved and GIT-050 remains separately gated.
+
+### 2026-09-09 — Supersede unfinished SPEC-0004/0005 work and record planning order (D-0055)
+
+- GIT-049 is complete at `de54aed275c2f6da6e7c3f4a7f65091e8d5370c0`, parent `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`, message `Record GIT-049 cleanup rule and authorize SPEC-0005 Phase 3`, exactly 14 Markdown paths. The publication was reported clean/synchronized; this records-only task independently verifies local main and local origin/main at that SHA with `0/0`, without refreshing the live remote because network access is outside this task.
+- Preserved SPEC-0004 Phases 1/2/timing-only 2.5 and SPEC-0005 Phase 1/2 v1/v2 as accepted published history. SPEC-0004 Phase 2.6 remains rejected/unpublished/superseded.
+- Corrected the post-GIT-049 Phase 3 history: an executor ran; Arthur rejected its visible result. Arthur/PM report the post-GIT-049 rejected Phase 3 attempt in `/Users/arthurcarlin/.codex/worktrees/5200/stick-animation-app`, branch `codex/spec0005-phase3-whole-body-poses`, base/HEAD `de54aed275c2f6da6e7c3f4a7f65091e8d5370c0`, empty index and ten dirty technical paths. Reported ignored manifest: `output/spec-0005/phase-3/proof-manifest.json`, 55,941 bytes, SHA-256 `1420012f2213dcbf6c31483c700879f69e39881fd2bda8594fae1ec5d29947f3`. This is attributed rejected evidence, not independently revalidated proof or acceptance. The CPA does not open, modify, validate, recover, reuse, or remove that worktree or its proof in this task.
+- Superseded unfinished SPEC-0004 Phases 3–8 and SPEC-0005 Phase 3/Phases 4–8 by future SPEC-0008, without marking unfinished work completed or allowing rejected-byte reuse.
+- Planning order only: future SPEC-0006 unifies the Drawing and Stick workspace; future SPEC-0007 improves human/manual Stick tools in that unified workspace, including later colors and shape/head options with exact scope to be decided with Arthur; future SPEC-0008 replaces the unfinished AI Animator motion plan with temporary motion-video → body/rig tracking → ordinary editable animation frames. No SPEC-0006, SPEC-0007, or SPEC-0008 file is created, approved, active, or implementation-authorized by this record. Arthur designs SPEC-0006 with the PM next.
+- D-0054 cleanup and D-0010 role/publication separation remain unchanged. Records only; no app/test/proof/dependency/server/other-worktree/network/cleanup change. GIT-050 publication remains pending a separate instruction.
+
 ### 2026-09-08 — Record GIT-048 completion, permanent review-copy cleanup, and Phase 3 activation (D-0054)
 
 - GIT-048 publication is complete at `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`, parent `5d0299a00459d39d6c4bff5eeb345f72c5abde4e`, message `Implement SPEC-0005 Phase 2 v2 body-local safety`, exactly 22 paths (eight technical, thirteen Markdown records, one generated tree). Main/local origin/live GitHub matched cleanly at `0/0` on this task's fresh check. Preserved technical proof is under `output/spec-0005/git-048/05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14/accepted-technical-proof/`; the clean tester result is in its sibling `clean-publication-browser/result.json`. Preserved technical manifest SHA-256 remains `a8c8db1bc81dbc6191975b7544027139f581a7493345e3b9e8bfeba6ecc29c65` (30,333 bytes). Clean publication tester result SHA-256 is `9c264119f61f8ff43defc51239ba6467ed8b786b1f5ec65d5000ac480802746e` (84,802 bytes): PASS, 40 operations, 13 screenshots, four messages, 37 negatives, four marked Stick GETs, one mocked Drawing POST, zero real API/non-loopback/provider requests, and cleanup. These are preserved publication results, not new browser runs in this docs-only task.

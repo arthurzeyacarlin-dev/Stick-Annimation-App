@@ -1,7 +1,13 @@
 # AI System Snapshot
 
 Status: canonical current AI architecture and gap map
-Last traced: 2026-09-08 in accepted `/8673/` at `5d0299a00459d39d6c4bff5eeb345f72c5abde4e`. The eight-path v2 safety implementation is Verified, published, and integrated through GIT-048 at `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`. Canonical main contains v2; D-0054 authorizes corrected SPEC-0005 Phase 3 only, Not started pending GIT-049 publication.
+Last traced: published v2 safety evidence retained from 2026-09-08; canonical source seam rechecked read-only on 2026-09-09 at `de54aed275c2f6da6e7c3f4a7f65091e8d5370c0`. No runtime change. SPEC-0005 Phase 1 and Phase 2 v1/v2 remain accepted, Verified, published, and integrated; v2 is complete at GIT-048 `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`. GIT-049 published the later Phase 3 authorization at `de54aed275c2f6da6e7c3f4a7f65091e8d5370c0`. A Phase 3 executor then ran, but Arthur rejected its visible result: it is unpublished, unaccepted, non-reusable, and not completed. D-0055 supersedes Phase 3 and unfinished Phases 4–8 by future SPEC-0008; they are inactive with no implementation authority.
+
+## Planning-only transition (D-0055)
+
+SPEC-0004 Phases 1, 2, and timing-only Phase 2.5 remain Verified, published, and integrated. Phase 2.6 remains rejected, unpublished, and superseded historical evidence. Under D-0055, unfinished Phases 3–8 are Superseded by future SPEC-0008, inactive, and must not be implemented.
+
+Current lifecycle update (D-0057): SPEC-0006 now exists and is Approved under D-0057, with Phase 1 only Authorized; Not started and Phases 2–7 Unauthorized; Not started. Future SPEC-0007/0008 remain absent and unauthorized: manual Stick expansion follows SPEC-0006's full completion gate; motion-video → body/rig tracking → editable animation frames remains later planning only. No new AI/provider/model/video/tracking, paid service, or deployment is authorized. D-0055's earlier planning-only state remains in the decision history; completed/superseded SPEC-0004/0005 statuses do not change.
 
 ## What Exists Today
 
@@ -17,7 +23,7 @@ The later unpublished SPEC-0004 Phase 2.6 result is rejected and not current run
 
 GIT-043 published the exact accepted 21-path Phase 2 v1 package at `e524543…`. Checked immutable important-pose selection receives no final frames/document; final completion recomputes binding/selection and validates every rounded/post-repair frame and semantic continuity; exactly one motion-engine candidate door may expose Preview. That finite numeric contract remains current code, but it does not prove body-local anatomical direction or natural pose quality.
 
-GIT-044 published the former Phase 3 authorization at exact docs-only commit `269ac82335ee4576cb471bd9dffc8f7ce9bdec0f`. Arthur rejected its executor result; alternate screen-space IK, broad flexion limits, shallow candidate ranking, key-step stops, raised recovery, and reach-like gesture are binding negative evidence. GIT-045 published D-0050's first Phase 2 v2/Phase 3 correction at exact 13-document commit `a4589664b6857eb10a828189e177e0e7d47e3f69`. D-0051 corrects only its incomplete single-state goal/start gate; v2 is Verified, published, and integrated through GIT-048 at `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`, and corrected SPEC-0005 Phase 3 is Authorized/Not started under D-0054, pending GIT-049 publication. None of the rejected executor's bytes is accepted or reusable.
+GIT-044 published the former Phase 3 authorization at exact docs-only commit `269ac82335ee4576cb471bd9dffc8f7ce9bdec0f`. Arthur rejected its executor result; alternate screen-space IK, broad flexion limits, shallow candidate ranking, key-step stops, raised recovery, and reach-like gesture are binding negative evidence. GIT-045 published D-0050's first Phase 2 v2/Phase 3 correction at exact 13-document commit `a4589664b6857eb10a828189e177e0e7d47e3f69`. D-0051 corrects only its incomplete single-state goal/start gate; v2 is Verified, published, and integrated through GIT-048 at `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`, and SPEC-0005 Phase 3 ran after GIT-049 but was rejected/unpublished; D-0055 supersedes unfinished Phases 3–8 by future SPEC-0008 with no implementation authority. None of the rejected executor's bytes is accepted or reusable.
 
 There is no custom-trained Diamond Animator LLM, fine-tuning pipeline, embeddings system, vector database, or model-serving stack in this repository.
 
@@ -47,7 +53,7 @@ Canonical code contract in `src/lib/ai/drawingAiContract.ts`:
 
 The contract can describe more actions than the current enabled executor paths support. A future spec must publish an explicit command-to-executor support matrix.
 
-Corrected planned Stick contract under SPEC-0005, not current runtime:
+Historical unimplemented Stick contract under superseded SPEC-0005 Phases 3–8 (not current runtime, not implementation authority, and not an approved SPEC-0008 contract):
 
 - `stick.movement-goal/v1` is the only future planner-to-motion-engine object and is one bounded ordered semantic sequence;
 - it contains exact project/transaction/base-pose binding, frame/FPS/style limits, one through eight requested parts, two through twelve complete per-landmark facing/support/foot-hand-pelvis contact/root/torso/head/four-limb states, adjacent transitions, active-part overlap, required outcomes, forbidden extras, and exact hold/return/continuation completion;
@@ -85,11 +91,11 @@ fixed checked-in wave/jump/bow/dodge plan
 
 The plan language permits only `set_timing`, complete 11-joint `create_key_pose`, contiguous `hold_pose`, and `finish`, with one figure, one layer, 8–24 frames, and 12 or 24 FPS. The same executor handles all four fixtures without an action-name branch. After Apply, the latch blocks further AI creation even after Undo and the panel returns `AI editing comes later; use manual tools.` without executor or provider work.
 
-The accepted browser proof used a blue fixture picker injected into an isolated temporary app copy. It is technical proof only: no product route, product overlay, public asset, user Mode, API request, provider call, or paid request was added. Normal chat matching for the broader engine remains a later SPEC-0004 phase.
+The accepted browser proof used a blue fixture picker injected into an isolated temporary app copy. It is technical proof only: no product route, product overlay, public asset, user Mode, API request, provider call, or paid request was added. Broader chat matching in unfinished SPEC-0004 is superseded by future SPEC-0008 under D-0055; no such implementation is authorized.
 
 Phase 2's private review followed the stricter rule: Arthur saw four separate disposable loopback copies/links preloaded with wave, jump, bow, and dodge one at a time and only the ordinary Stick canvas, timeline, AI transaction area, and manual tools. No query-controlled review surface, tester overlay/control, product route, public asset, or review import was added. The temporary review servers are stopped and their isolated copies are removed.
 
-Published Phase 2.5 keeps Phase 1 and Phase 2 behavior as defaults. Rejected SPEC-0004 Phase 2.6 and rejected SPEC-0005 motion results remain unavailable. SPEC-0005 Phase 1 is published proof infrastructure, and Phase 2 v1's numeric safety foundation is published/integrated at `e524543…`; no normal route invokes it and no planner door exists. GIT-045 is published at `a4589664…`; corrected Phase 2 v2 is Verified, published, and integrated through GIT-048 at `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`. Corrected SPEC-0005 Phase 3 is Authorized/Not started under D-0054, pending GIT-049 publication; it remains unimplemented.
+Published Phase 2.5 keeps Phase 1 and Phase 2 behavior as defaults. Rejected SPEC-0004 Phase 2.6 and rejected SPEC-0005 motion results remain unavailable. SPEC-0005 Phase 1 is published proof infrastructure, and Phase 2 v1's numeric safety foundation is published/integrated at `e524543…`; no normal route invokes it and no planner door exists. GIT-045 is published at `a4589664…`; corrected Phase 2 v2 is Verified, published, and integrated through GIT-048 at `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`. SPEC-0005 Phase 3 was implemented in a separate copy after GIT-049 but rejected by Arthur and never accepted/published/integrated. D-0055 supersedes unfinished Phases 3–8 by future SPEC-0008; there is no implementation authority.
 
 ## Generate Frames Execution Path
 
@@ -148,7 +154,7 @@ Existing mechanisms:
 - the published Phase 2 motion engine remains fully local/$0/provider-free; it sends no prompt or project data anywhere
 - the published Phase 2.5 timing primitive is fully local/$0/provider-free; it sends no prompt or project data anywhere
 - the rejected unpublished Phase 2.6 result is not product/runtime truth and cannot be connected to chat, Pretend AI, or Terra
-- SPEC-0005 remains provider-free through all eight phases; published Phase 1/Phase 2 v1 and the Verified/published/integrated Phase 2 v2 correction at GIT-048 are local, corrected SPEC-0005 Phase 3 is Authorized/Not started under D-0054 (GIT-049 pending), and no phase may contact Terra or another provider
+- SPEC-0005 remains provider-free through all eight phases; published Phase 1/Phase 2 v1 and the Verified/published/integrated Phase 2 v2 correction at GIT-048 are local, unfinished SPEC-0005 Phases 3–8 are superseded/inactive under D-0055 after the rejected unpublished Phase 3 attempt, and no phase may contact Terra or another provider
 - D-0038 preserves a future cost strategy only: compact Terra key-pose/timing plans, local in-betweens, safe free recipes first, at most one later bounded pre-Apply repair, measured dashboard usage, monthly budgets/credits, and no unlimited Terra. Exact pricing/model/privacy must be freshly checked at the later paid gate.
 
 In local development, the cost log writes the full user prompt along with request/model/usage metadata to `.local/ai-cost-dashboard/requests.jsonl`. That directory is ignored by Git, but no approved redaction or retention policy exists.

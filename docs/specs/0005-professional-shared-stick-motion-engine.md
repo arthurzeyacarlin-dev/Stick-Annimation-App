@@ -1,12 +1,12 @@
 # SPEC-0005 — Professional Shared Stick Motion Engine
 
-Status: **Approved; Phase 2 v2 Verified, published, and integrated; Phase 3 Approved/Authorized/Not started.** GIT-048 published and integrated accepted SPEC-0005 Phase 2 v2 at `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`; Phase 2 v2 is complete and Verified. Phase 1 and Phase 2 v1 remain immutable published history. D-0054 records Arthur's explicit authorization of corrected SPEC-0005 Phase 3 only as Approved; Authorized; Not started, pending separate publication of this activation record. Phases 4–8 remain Unauthorized/Not started.
+Status: **Completed Phase 1 and Phase 2 v1/v2 preserved; Phase 3 rejected/unpublished; unfinished Phases 3–8 Superseded by future SPEC-0008 under D-0055; inactive.** SPEC-0005 Phase 1 and Phase 2 v1/v2 remain accepted, Verified, published, and integrated; v2 is complete at GIT-048 `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`. GIT-049 published the later Phase 3 authorization at `de54aed275c2f6da6e7c3f4a7f65091e8d5370c0`. A Phase 3 executor then ran, but Arthur rejected its visible result: it is unpublished, unaccepted, non-reusable, and not completed. D-0055 supersedes Phase 3 and unfinished Phases 4–8 by future SPEC-0008; they are inactive with no implementation authority.
 
 Owner: Arthur
 Spec role: Spec Architect
 Created: 2026-09-04
-Last updated: 2026-09-08
-Decision links: [D-0043 through D-0054](../DECISIONS.md)
+Last updated: 2026-09-09
+Decision links: [D-0043 through D-0055](../DECISIONS.md)
 Related work: [`SPEC-0004`](0004-future-real-ai-animator-requirements.md), [`TODO SPEC-005`](../TODO.md), [`Current State`](../CURRENT_STATE.md), [`Session Handoff`](../SESSION_HANDOFF.md)
 
 > **Lifecycle boundary.** The docs-only activation was published/integrated in exact commit `2b4f00e7a122c196b2c0600144cd638b461bbb2f`. One dedicated Phase 1 Spec Executor then completed the exact six-path proof-only result from that base and stopped. Arthur accepted the historical wave as the Phase 1 readability floor, and GIT-039 published/integrated its exact 20-path package in `2436a9414221e8ee7ef40151284cb8f4e069e828`. GIT-040 published D-0045's former whole-body-pose Phase 2 authorization in `b5ddd5e3f4fb3b19e5c7c2be8a1bd35b0f8d6070`. The first executor result under that authorization was technically green but visually rejected by Arthur; its code/proof bytes were never accepted, propagated, committed, or published, and its disposable review app/worktree was removed. D-0046 supersedes that implementation authorization, restructures this spec to eight phases, and authorizes only the new body-safety Phase 2 after D-0046 is separately published/integrated.
@@ -23,7 +23,15 @@ Related work: [`SPEC-0004`](0004-future-real-ai-animator-requirements.md), [`TOD
 >
 > **2026-09-07 bounded-sequence and composition correction.** GIT-045 published D-0050 and the first v2 plan in exact commit `a4589664b6857eb10a828189e177e0e7d47e3f69`, parent `269ac823…`, message `Correct SPEC-0005 Phase 2 safety and Phase 3 plan`. Fresh review then found one real contract gap before implementation: one whole-goal facing, support state, limb-role set, and recovery target cannot represent turning, changing hand/foot/pelvis support, a non-neutral base pose, or explicitly requested simultaneous/sequential movement. D-0051 corrects the still-unshipped goal to a bounded ordered semantic sequence, preserves all eight phase owners, and required its now-complete GIT-046 publication at `55b05e2daad649ac1e0027722a75762a9714d281`. D-0052 below resolves the subsequently reported front-knee projection blocker. No D-0050 history or accepted runtime byte is rewritten.
 >
-> **SPEC-0004 relationship.** SPEC-0004 Phases 1, 2, and timing-only Phase 2.5 remain Verified, published, and integrated. The unpublished Phase 2.6 executor result was rejected by Arthur after human motion review and is not accepted, propagated, published, or runtime truth. This spec supersedes Phase 2.6's intended shared-motion job. SPEC-0004 is paused before Phase 3 until all eight SPEC-0005 phases are accepted, published, and integrated. This does not move, authorize, or rewrite SPEC-0004's later real-provider/Terra phase.
+> **Current supersession boundary (D-0055).** SPEC-0004 Phases 1, 2, and timing-only Phase 2.5 remain Verified, published, and integrated. Phase 2.6 remains rejected, unpublished, and superseded historical evidence. Under D-0055, unfinished Phases 3–8 are Superseded by future SPEC-0008, inactive, and must not be implemented. This spec's Phase 3 and unfinished Phases 4–8 are also superseded/inactive. Historical contracts, allowlists, commands, model recommendations and entry gates below cannot authorize execution or prescribe future SPEC-0008. Accepted Phase 1/2 contracts and proof remain unchanged.
+
+> Current lifecycle update (D-0057): SPEC-0006 now exists and is Approved under D-0057, with Phase 1 only Authorized; Not started and Phases 2–7 Unauthorized; Not started. Future SPEC-0007/0008 remain absent and unauthorized: manual Stick expansion follows SPEC-0006's full completion gate; motion-video → body/rig tracking → editable animation frames remains later planning only. No new AI/provider/model/video/tracking, paid service, or deployment is authorized. D-0055's earlier planning-only state remains in the decision history; completed/superseded SPEC-0004/0005 statuses do not change.
+
+### Post-GIT-049 rejected Phase 3 evidence — 2026-09-09
+
+GIT-049 is complete at `de54aed275c2f6da6e7c3f4a7f65091e8d5370c0`, parent `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`, message `Record GIT-049 cleanup rule and authorize SPEC-0005 Phase 3`, exactly 14 Markdown paths. The publication was reported clean/synchronized; this records-only task independently verifies local main and local origin/main at that SHA with `0/0`, without refreshing the live remote because network access is outside this task.
+
+Arthur/PM report the post-GIT-049 rejected Phase 3 attempt in `/Users/arthurcarlin/.codex/worktrees/5200/stick-animation-app`, branch `codex/spec0005-phase3-whole-body-poses`, base/HEAD `de54aed275c2f6da6e7c3f4a7f65091e8d5370c0`, empty index and ten dirty technical paths. Reported ignored manifest: `output/spec-0005/phase-3/proof-manifest.json`, 55,941 bytes, SHA-256 `1420012f2213dcbf6c31483c700879f69e39881fd2bda8594fae1ec5d29947f3`. This is attributed rejected evidence, not independently revalidated proof or acceptance. The CPA does not open, modify, validate, recover, reuse, or remove that worktree or its proof in this task.
 
 ## 1. Owner outcome
 
@@ -343,7 +351,7 @@ Phase 1 is Verified, published, and integrated in exact 20-path commit `2436a941
 
 ### Phase 2 — Planner-Independent Body-Local Natural Safety Correction
 
-**Lifecycle/status.** GIT-048 published and integrated accepted SPEC-0005 Phase 2 v2 at `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`; Phase 2 v2 is complete and Verified. Phase 1 and Phase 2 v1 remain immutable published history. D-0054 records Arthur's explicit authorization of corrected SPEC-0005 Phase 3 only as Approved; Authorized; Not started, pending separate publication of this activation record. Phases 4–8 remain Unauthorized/Not started. It remains Phase 2, not a new or fractional phase. GIT-043 v1 and every rejected-result record remain immutable history.
+**Lifecycle/status.** SPEC-0005 Phase 1 and Phase 2 v1/v2 remain accepted, Verified, published, and integrated; v2 is complete at GIT-048 `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`. GIT-049 published the later Phase 3 authorization at `de54aed275c2f6da6e7c3f4a7f65091e8d5370c0`. A Phase 3 executor then ran, but Arthur rejected its visible result: it is unpublished, unaccepted, non-reusable, and not completed. D-0055 supersedes Phase 3 and unfinished Phases 4–8 by future SPEC-0008; they are inactive with no implementation authority. It remains Phase 2, not a new or fractional phase. GIT-043 v1 and every rejected-result record remain immutable history.
 
 **Owner summary.** Add body-local anatomy and projection meaning to the published number-safety floor before another pose maker may create visible output.
 
@@ -398,11 +406,11 @@ Ignored output may exist only under `output/spec-0005/phase-2-natural-safety-cor
 
 ### Phase 2 v2 publication and current activation — 2026-09-08
 
-GIT-048 publication is complete at `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`, parent `5d0299a00459d39d6c4bff5eeb345f72c5abde4e`, message `Implement SPEC-0005 Phase 2 v2 body-local safety`, exactly 22 paths (eight technical, thirteen Markdown records, one generated tree). Main/local origin/live GitHub matched cleanly at `0/0` on this task's fresh check. Preserved technical proof is under `output/spec-0005/git-048/05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14/accepted-technical-proof/`; the clean tester result is in its sibling `clean-publication-browser/result.json`. Preserved technical manifest SHA-256 remains `a8c8db1bc81dbc6191975b7544027139f581a7493345e3b9e8bfeba6ecc29c65` (30,333 bytes). Clean publication tester result SHA-256 is `9c264119f61f8ff43defc51239ba6467ed8b786b1f5ec65d5000ac480802746e` (84,802 bytes): PASS, 40 operations, 13 screenshots, four messages, 37 negatives, four marked Stick GETs, one mocked Drawing POST, zero real API/non-loopback/provider requests, and cleanup. These are preserved publication results, not new browser runs in this docs-only task.
+GIT-048 publication is complete at `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`, parent `5d0299a00459d39d6c4bff5eeb345f72c5abde4e`, message `Implement SPEC-0005 Phase 2 v2 body-local safety`, exactly 22 paths (eight technical, thirteen Markdown records, one generated tree). At the recorded GIT-048 publication check, main/local origin/live GitHub matched cleanly at `0/0`; this task does not refresh the live remote. Preserved technical proof is under `output/spec-0005/git-048/05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14/accepted-technical-proof/`; the clean tester result is in its sibling `clean-publication-browser/result.json`. Preserved technical manifest SHA-256 remains `a8c8db1bc81dbc6191975b7544027139f581a7493345e3b9e8bfeba6ecc29c65` (30,333 bytes). Clean publication tester result SHA-256 is `9c264119f61f8ff43defc51239ba6467ed8b786b1f5ec65d5000ac480802746e` (84,802 bytes): PASS, 40 operations, 13 screenshots, four messages, 37 negatives, four marked Stick GETs, one mocked Drawing POST, zero real API/non-loopback/provider requests, and cleanup. These are preserved publication results, not new browser runs in this docs-only task.
 
-Cleanup is complete: exactly canonical `/Users/arthurcarlin/Projects/stick-animation-app` and active PM `/Users/arthurcarlin/.codex/worktrees/ef4e/stick-animation-app` remain registered. The owner/PM cleanup report records seven obsolete worktrees and six obsolete local branches removed after backup of unique rejected/superseded work at `/private/tmp/diamond-animator-old-copy-backups.xlkF6g`. That private recovery archive is not an app copy and grants no rejected-byte reuse. This task verifies the two-worktree inventory and backup presence; it performs no removal.
+D-0054's earlier two-worktree cleanup snapshot is historical, not today's inventory: the later rejected `/5200/` attempt exists in the PM report. The permanent one-review-copy rule remains unchanged. Canonical main, the active `/ef4e/` PM worktree, rejected worktrees, existing recovery material and `/private/tmp/diamond-animator-old-copy-backups.xlkF6g` are protected. This task performs no worktree/server/branch cleanup; any later cleanup must follow D-0054's ownership and verified-backup rules.
 
-D-0054 authorizes Phase 3 only, pending separate GIT-049 activation publication. The following dated closeout evidence is history, not a current instruction to restore the removed worktree or repeat Phase 2.
+D-0054's Phase 3 activation was published through GIT-049; the later executor result was rejected by Arthur. D-0055 closes it as superseded. The following dated accepted Phase 2 closeout remains history, not an instruction to repeat it.
 
 ### Historical accepted Phase 2 v2 closeout evidence — 2026-09-08
 
@@ -414,11 +422,13 @@ The permanent tester passed 40 operations and 13 screenshots in a clean isolated
 
 The accepted path is v2 qualification → test-local selection/bake → final rounded/context safety → sole motion-engine/executor door. The test-local builder is not product generation. No visible wave/run creation, naturalness ranking, later-owner Preview, provider, UI, history/storage change, or Phase 3 implementation is claimed. Existing SPEC-0004 compatibility routes remain protected; v1-to-SPEC-0005 Preview is intentionally fail-closed.
 
-CPA verified and stopped only review process group `63034` (parent `63034`, listener `63035`), then verified port `54945` closed. The accepted manifest remains unchanged, including its historical executor/review-pending/live-server fields. This phase has no dedicated tracked-state finalizer: final closeout uses the successful pre-cleanup validator result, complete offline source/receipt/artifact hash-and-size revalidation (original spec against its bound base commit; live logs by their bound prefixes), exact technical-plus-record path audit, memory/link/lifecycle/diff checks, empty index, no hidden flags, and process/port checks. The strict live eight-path CLI is not misreported as passing after cleanup or record propagation. At this historical closeout, publication and Phase 3 authorization were still pending. Current status: GIT-048 published and integrated accepted SPEC-0005 Phase 2 v2 at `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`; Phase 2 v2 is complete and Verified. Phase 1 and Phase 2 v1 remain immutable published history. D-0054 records Arthur's explicit authorization of corrected SPEC-0005 Phase 3 only as Approved; Authorized; Not started, pending separate publication of this activation record. Phases 4–8 remain Unauthorized/Not started.
+CPA verified and stopped only review process group `63034` (parent `63034`, listener `63035`), then verified port `54945` closed. The accepted manifest remains unchanged, including its historical executor/review-pending/live-server fields. This phase has no dedicated tracked-state finalizer: final closeout uses the successful pre-cleanup validator result, complete offline source/receipt/artifact hash-and-size revalidation (original spec against its bound base commit; live logs by their bound prefixes), exact technical-plus-record path audit, memory/link/lifecycle/diff checks, empty index, no hidden flags, and process/port checks. The strict live eight-path CLI is not misreported as passing after cleanup or record propagation. At this historical closeout, publication and Phase 3 authorization were still pending. Current status: SPEC-0005 Phase 1 and Phase 2 v1/v2 remain accepted, Verified, published, and integrated; v2 is complete at GIT-048 `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`. GIT-049 published the later Phase 3 authorization at `de54aed275c2f6da6e7c3f4a7f65091e8d5370c0`. A Phase 3 executor then ran, but Arthur rejected its visible result: it is unpublished, unaccepted, non-reusable, and not completed. D-0055 supersedes Phase 3 and unfinished Phases 4–8 by future SPEC-0008; they are inactive with no implementation authority.
 
 ### Phase 3 — Action-Independent Whole-Body Key-Pose Maker
 
-**Lifecycle/status.** The executor result produced under D-0049/GIT-044 is rejected and closed without acceptance, propagation, or publication. None of its bytes may be copied or patched. Phase 2 v2 is Verified/published/integrated at GIT-048 `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`. D-0054 records Arthur's explicit approval and authorization of this corrected Phase 3 only: **Approved; Authorized; Not started**. Execution waits for separate GIT-049 publication, then one fresh Plan-mode executor from that exact published SHA. Phases 4–8 remain Unauthorized/Not started.
+**Lifecycle/status: Superseded by future SPEC-0008 (D-0055); inactive; no implementation authority.** The scope, allowlist, commands, and entry/review gates below are preserved historical design, not permission to execute or a specification for SPEC-0008.
+
+**Lifecycle/status.** The earlier D-0049/GIT-044 attempt and the later D-0054/GIT-049 attempt are distinct rejected results; neither is accepted or reusable. The later Phase 3 executor did run after GIT-049, but Arthur rejected its visible result. Phase 3 is rejected/unpublished/not completed and Superseded by future SPEC-0008 under D-0055. Phase 2 v2 remains Verified/published/integrated. Phases 4–8 are superseded/inactive, not authorized.
 
 **Owner summary.** Turn the constant-contact grounded slice of a bounded semantic sequence into several safe coordinated whole-body alternatives and select the one that best reads as the requested natural pose without forcing a neutral base.
 
@@ -447,7 +457,7 @@ Ignored output: `output/spec-0005/phase-3/**`. No UI, old fixture, provider, pac
 
 **Non-goals.** No facing change/turn, contact-set change, weight/contact mechanics insertion, hand/pelvis support enablement, airborne output, root travel, continuous-path/timing rewrite, gait cycle, full wave/walk/run/composed-run/punch/jump/push-up recipe, language routing, planner connection, UI, provider, or cap expansion. Action-family labels may exist only in the independent oracle; the core branches on semantic fields.
 
-**Entry gate.** One fresh dedicated Plan-mode executor/worktree begins only from GIT-049's future clean canonical-main publication SHA containing this Phase 3 activation record and accepted Phase 2 v2. It refreshes the conflict audit, verifies current v2 manifest/source anchors and safety/integration tests, empty index, exclusive ownership, exact ten-path ceiling, and absence of reused rejected bytes. Confirm no obsolete review copy/server remains; canonical main and the active PM worktree are protected and the PM worktree is not a review copy. Any need to change Phase 2 returns to a separately authorized Phase 2 correction; Phase 3 cannot patch safety. No executor is created by this docs-only task.
+**Entry gate — closed.** D-0055 supersedes this Phase 3. GIT-049's completed publication does not authorize another executor, correction, or reuse of rejected bytes. The ten-path contract and proof text remain historical only.
 
 **App-copy review.** One real loopback review URL serves one ordinary unpublished app copy. The PM message gives clear clickable case instructions for eight representative constant-contact grounded sequences, loaded sequentially in that same copy: right and left high-outward reach mirrors, front-facing both-arm coordinated reach, profile lunge/pass-pose reach, squat compression-and-wave-in/out compound landmarks, right punch-extension pose/recovery, left support-shift recovery, and return from a gesture to the exact bound non-neutral base. This delivery rule adds no product picker, overlay, route/query flag, or UI change; if a case requires process replacement, stop and verify the old instance closed before starting its replacement. Labels must state that these are pose/transition probes, not complete wave, punch, jump, push-up, run, or gait actions. Arthur watches two loops, scrubs sparse true keys/guides, and checks prompt match, per-landmark facing, elbow/knee direction, comfort, line of action, balance, multiple-limb coordination, base preservation, continuity, and absence of neutral reset or extra movement.
 
@@ -461,9 +471,11 @@ Ignored output: `output/spec-0005/phase-3/**`. No UI, old fixture, provider, pac
 
 **Stop boundary / later relationship.** Stop after the constant-contact grounded compound pose/transition set. It proves only the named Phase 3 benchmark slice—not full actions, support changes, gait, physics, continuous paths, or universal perfection. Phase 4 retains foot/hand/pelvis contact and airborne mechanics, Phase 5 permanent motion law and smooth in-betweens, Phase 6 walk/run gait and turns, Phase 7 semantic action recipes/compositions, and Phase 8 the shared Pretend-AI/future-Terra entry.
 
-**Recommended executor.** Astra is allowed for hard engine work under D-0054; use the phase's foundational-risk reasoning level. This is a development-task model choice, not an app-provider integration or paid-request authorization. Plan mode, the ten-path ceiling, independent proof, and human acceptance remain mandatory.
+**Historical executor recommendation — inactive.** D-0054's former development-model choice grants no dispatch authority after D-0055. No Phase 3 executor or replacement is authorized.
 
 ### Phase 4 — Mechanics, Weight, Contact, and Required-Pose Insertion
+
+**Lifecycle/status: Superseded by future SPEC-0008 (D-0055); inactive; no implementation authority.** The scope, allowlist, commands, and entry/review gates below are preserved historical design, not permission to execute or a specification for SPEC-0008.
 
 **Owner summary.** Make foot/hand/pelvis support, contact release/acquisition, and grounded/airborne transitions mechanically readable, and let the engine insert poses that physics requires.
 
@@ -516,6 +528,8 @@ The three Phase 2 safety paths are authorized only for the mechanics-qualified g
 
 ### Phase 5 — Paths, Timing, Gravity, and In-Betweens
 
+**Lifecycle/status: Superseded by future SPEC-0008 (D-0055); inactive; no implementation authority.** The scope, allowlist, commands, and entry/review gates below are preserved historical design, not permission to execute or a specification for SPEC-0008.
+
 **Owner summary.** Establish the permanent motion law that connects good mechanical poses with coordinated motion that accelerates, decelerates, arcs, follows through, and obeys gravity.
 
 **Goal.** Make `natural_smooth` the default permanent motion law across all moving roles, replace one generic segment interpolation assumption with mechanics-aware body/limb paths and velocity-continuous timing, and permit intentionally mechanical/stepped motion only through explicit `mechanical_robotic` or `mechanical_stepped` structured intent, while still baking ordinary keyframes.
@@ -559,6 +573,8 @@ Ignored output: `output/spec-0005/phase-5/**`.
 **Recommended executor.** `gpt-5.6-sol`, `ultra`, because temporal/physics behavior needs high-confidence reasoning and browser proof.
 
 ### Phase 6 — Walk and Run Locomotion
+
+**Lifecycle/status: Superseded by future SPEC-0008 (D-0055); inactive; no implementation authority.** The scope, allowlist, commands, and entry/review gates below are preserved historical design, not permission to execute or a specification for SPEC-0008.
 
 **Owner summary.** Produce distinct believable left/right walk and run locomotion, turns, and direction changes instead of a crab walk or a sped-up walk.
 
@@ -605,6 +621,8 @@ Ignored output: `output/spec-0005/phase-6/**`.
 
 ### Phase 7 — Core Actions Through the Shared Engine
 
+**Lifecycle/status: Superseded by future SPEC-0008 (D-0055); inactive; no implementation authority.** The scope, allowlist, commands, and entry/review gates below are preserved historical design, not permission to execute or a specification for SPEC-0008.
+
 **Owner summary.** Rebuild complete actions and explicit simultaneous/sequential compositions—including wave from a valid base, squat-plus-wave, push-up-plus-wave, and run-plus-jump-plus-wave-plus-land-plus-continue—as semantic recipes, then accept them in the ordinary app.
 
 **Goal.** Replace raw coordinate recipe piles with bounded ordered `stick.movement-goal/v1` recipes consumed by Phases 2–6, preserving exact requested parts, overlap, handoffs, contact/facing state, base-pose completion, and locomotion continuation.
@@ -647,6 +665,8 @@ Ignored output: `output/spec-0005/phase-7/**`. The accepted lower engine files a
 
 ### Phase 8 — Shared Pretend-AI / Terra-Ready Planning Door and Final Gate
 
+**Lifecycle/status: Superseded by future SPEC-0008 (D-0055); inactive; no implementation authority.** The scope, allowlist, commands, and entry/review gates below are preserved historical design, not permission to execute or a specification for SPEC-0008.
+
 **Owner summary.** Prove that local Pretend AI and a future Terra-shaped planner describe the same bounded semantic sequence and use the same engine, without contacting a provider.
 
 **Goal.** Add one strict planner door, connect a local Pretend-AI adapter to the Phase 7 ordered recipes, validate a provider-free Terra-shaped test adapter against the identical bounded sequence contract, and run the complete quality/ownership regression gate.
@@ -684,7 +704,7 @@ Ignored output: `output/spec-0005/phase-8/**`. No provider client, route, key, e
 
 **Protected regressions.** Everything in §4 plus all earlier accepted manifests and the current SPEC-0004 future-provider ownership.
 
-**Stop boundary / later relationship.** Stop after the provider-free planner door and final acceptance packet. Do not contact Terra or another model, change a key/config/route/UI, move SPEC-0004's real-provider phase, publish, or resume SPEC-0004 Phase 3. SPEC-0004 resumes only after Phase 8 is accepted, CPA-closed, separately published/integrated, and a later task explicitly authorizes its next phase.
+**Stop boundary / later relationship.** Stop after the provider-free planner door and final acceptance packet. Do not contact Terra or another model, change a key/config/route/UI, move SPEC-0004's real-provider phase, publish, or resume SPEC-0004 Phase 3. This former resumption dependency is superseded by D-0055; SPEC-0004 unfinished phases must not resume.
 
 **Recommended executor.** `gpt-5.6-sol`, `ultra`, because the final shared boundary must prevent format/authority drift and reprove the whole system.
 
@@ -692,9 +712,9 @@ Ignored output: `output/spec-0005/phase-8/**`. No provider client, route, key, e
 
 Exactly eight phases exist. There is no Phase 2.5, Phase 2.6, Phase 2A/2B, Phase 8.5, or silent repair phase inside SPEC-0005.
 
-D-0051 does not create a ninth or fractional phase. It preserves D-0050/GIT-045 as published history, supersedes only their incomplete single-state goal and executor-start gate, closes the GIT-044 Phase 3 attempt as rejected, and required the now-published GIT-046. D-0052/GIT-047 resolve only the front-knee projection rule and continuation gate; the corrected Phase 2 lifecycle is complete at GIT-048, and D-0054 authorizes Phase 3 subject to GIT-049 publication. Rejection never transfers implementation bytes forward.
+D-0051/D-0052/GIT-046/GIT-047 remain accepted history, and Phase 2 v2 remains complete at GIT-048. GIT-049 published D-0054; its later Phase 3 attempt was rejected. D-0055 supersedes all unfinished execution under this spec. Rejection never transfers implementation bytes forward.
 
-For each phase:
+Historical phase process below (D-0055 closes all unfinished phases; this is not dispatch authority):
 
 1. the preceding phase and control-plane record must be accepted, published, and integrated in canonical `main`;
 2. one new dedicated Spec Executor starts in Plan mode from that exact SHA, verifies clean base/empty index/exclusive ownership/exact path ceiling, traces the real execution path, and executes only that phase;
@@ -743,6 +763,6 @@ Named later-phase gates that do not block Phase 2 after the D-0052 publication/c
 
 ## 10. Handoff
 
-GIT-048 published and integrated accepted SPEC-0005 Phase 2 v2 at `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`; Phase 2 v2 is complete and Verified. Phase 1 and Phase 2 v1 remain immutable published history. D-0054 records Arthur's explicit authorization of corrected SPEC-0005 Phase 3 only as Approved; Authorized; Not started, pending separate publication of this activation record. Phases 4–8 remain Unauthorized/Not started. GIT-045 remains immutable at `a4589664b6857eb10a828189e177e0e7d47e3f69`; no runtime byte is rewritten.
+SPEC-0005 Phase 1 and Phase 2 v1/v2 remain accepted, Verified, published, and integrated; v2 is complete at GIT-048 `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`. GIT-049 published the later Phase 3 authorization at `de54aed275c2f6da6e7c3f4a7f65091e8d5370c0`. A Phase 3 executor then ran, but Arthur rejected its visible result: it is unpublished, unaccepted, non-reusable, and not completed. D-0055 supersedes Phase 3 and unfinished Phases 4–8 by future SPEC-0008; they are inactive with no implementation authority. GIT-045 remains immutable at `a4589664b6857eb10a828189e177e0e7d47e3f69`; no runtime byte is rewritten.
 
-Next step: PM review of this unstaged documentation packet, then separate publication-only authorization for GIT-049. Recheck clean canonical main/local origin/main/live GitHub at `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`, publish only the exact reviewed documentation paths, and verify clean `0/0`. Stop on any base/path/byte drift without pull, merge, rebase, force, or scope expansion. Only the resulting activation publication SHA may be the base for one new dedicated Plan-mode SPEC-0005 Phase 3 Spec Executor worktree. Do not reuse rejected bytes; preserve the ten-path allowlist, v2 safety, independent proof and Arthur review gates. No executor, app copy, server, or implementation starts in this control-plane task. Preserve the exact eight-path Phase 2 boundary and every later-phase authorization gate. No provider, deployment, rejected-worktree reuse, or scope expansion.
+Next step: complete this CPA review packet, then obtain the separate publication-only instruction for the exact reviewed combined D-0055/SPEC-0006/D-0057 record set. After those records are published and canonical main is clean/synchronized, one brand-new dedicated SPEC-0006 Phase 1 Spec Executor/review worktree starts in Plan mode from that exact publication SHA under Arthur's existing Phase 1 authorization. Freeze its exact paths within the 18-path ceiling and satisfy the existing Phase 1 entry/one-copy gates. Do not start from this dirty pre-publication checkout or reuse a rejected copy. No executor, review app, or publication is created by this CPA turn. This historical spec grants no implementation authority; follow the approved SPEC-0006 only.

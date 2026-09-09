@@ -1,7 +1,13 @@
 # Architecture and System Map
 
 Status: canonical current architecture map
-Last traced: 2026-09-08 in accepted `/8673/` at `5d0299a00459d39d6c4bff5eeb345f72c5abde4e`. The eight-path v2 safety implementation is Verified, published, and integrated through GIT-048 at `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`. Canonical main contains v2; D-0054 authorizes corrected SPEC-0005 Phase 3 only, Not started pending GIT-049 publication.
+Last traced: published v2 safety evidence retained from 2026-09-08; current New/Open/Drawing/Stick source and ordinary loopback behavior rechecked on 2026-09-09 at `de54aed275c2f6da6e7c3f4a7f65091e8d5370c0` for Proposed SPEC-0006. No runtime change. SPEC-0005 Phase 1 and Phase 2 v1/v2 remain accepted, Verified, published, and integrated; later rejected/superseded work stays inactive under D-0055.
+
+## Approved architecture transition (D-0055/D-0056/D-0057)
+
+SPEC-0004 Phases 1, 2, and timing-only Phase 2.5 remain Verified, published, and integrated. Phase 2.6 remains rejected, unpublished, and superseded historical evidence. Under D-0055, unfinished Phases 3–8 are Superseded by future SPEC-0008, inactive, and must not be implemented.
+
+[`SPEC-0006`](specs/0006-unified-animation-workspace.md) is the approved seven-phase target for one typed Drawing/Stick project, root, stage, timeline, existing tool layout, history, and persistence. SPEC-0006 is **Approved and active** under D-0057. Arthur reviewed and approved the exact seven-phase design and explicitly authorized **Phase 1 only: Authorized; Not started** in a brand-new dedicated review worktree. **Phases 2–7 remain Unauthorized; Not started.** Approval is not an implementation or verification claim; current runtime remains split. SPEC-0006 alone owns the complete workspace unification through its seven phases. Do not create a spec-helping-spec chain or move its contract, migration, tester, shell, or integration responsibility into another prerequisite spec. Bounded corrections belong in SPEC-0006 under the existing amendment/review rules; material changes return to Arthur without silently expanding a phase.
 
 ## Runtime Overview
 
@@ -12,7 +18,8 @@ app/page.tsx
       ├─ TutorialsScreen
       │   └─ fixed static tutorial catalog; Back restores Home Tutorials-card focus
       ├─ OpenProjectBrowser
-      │   └─ localStorage drawing project → DrawingWorkspace
+      │   ├─ Drawing IndexedDB V2 and legacy localStorage → DrawingWorkspace
+      │   └─ Stick localStorage V1/V2 → StickFigureWorkspace
       ├─ new-project chooser
       ├─ DrawingWorkspace
       │   ├─ DrawingCanvas
@@ -41,7 +48,7 @@ The main product screens are not URL routes. `app/page.tsx` owns a `view` union 
 | --- | --- | --- |
 | App shell/home/new-project routing | `app/page.tsx`, `src/components/chrome/AIcreditspage.tsx`, `app/ScrollbarActivity.tsx` | Header/menu, welcome flow, home cards, local screen switching, and Tutorials focus return |
 | Tutorials showcase | `src/components/tutorials/TutorialsScreen.tsx`, `TutorialsScreen.module.css`, `src/lib/tutorials/tutorialCatalog.ts` | Full-screen local static showcase with one featured and three secondary `COMING LATER` cards; no media, workspace action, API, analytics, or persistence |
-| Project browser | `src/components/open-project/OpenProjectBrowser.tsx` | Lists and manages locally saved drawing projects |
+| Project browser | `src/components/OpenProjectBrowser.tsx` | Separately lists Drawing IndexedDB/V1-compatibility entries and Stick localStorage entries behind a type tab, then opens the selected workspace |
 | Drawing workspace coordinator | `src/components/workspace/DrawingWorkspace.tsx` | Central drawing/timeline/history/playback/save/AI-apply state and orchestration |
 | Drawing canvas/editor | `src/components/workspace/DrawingCanvas.tsx`, `drawingText.ts` | Imperative layered canvas tools, transforms, assets, symbols, text, playback surface |
 | Drawing timeline | `DrawingTimelineRow.tsx`, `timelineStructure.ts`, `timelinePlayback.ts` | Timeline cells, mutations, playback timing helpers |
@@ -51,7 +58,7 @@ The main product screens are not URL routes. `app/page.tsx` owns a `view` union 
 | AI prompt/planning | `drawingAiPrompting.ts`, `generateFramesRuntime.ts`, task reference-example files | Task classification, prompt assembly, structured plan analysis, validation/recovery |
 | AI frame renderer | `drawingFrameExecutor.ts`, `app/engine/stickRig.ts` | Deterministic Canvas2D rendering and generated-frame payload creation |
 | AI server route | `app/api/ai/route.ts`, `src/lib/openai/*` | Request orchestration, model calls, normalization, optional search, cost logging |
-| Drawing project persistence | `src/lib/drawingProjectStorage.ts` | Version-1 localStorage envelope, CRUD, cloning, quota fallback |
+| Drawing project persistence | `src/lib/drawingProjectStorage.ts`, `drawingProjectV2Contract.ts`, `drawingProjectV2Repository.ts`, `drawingProjectIndexedDb.ts`, V1 compatibility/PNG/audio codecs | Live V1-shaped workspace data adapted to strict transactional Drawing V2 IndexedDB heads/version records/content-addressed PNG/audio assets, plus read compatibility for legacy localStorage |
 | Drawing AI project memory | `drawingAiProjectMemory.ts`, `drawingProjectAiMemorySync.ts`, memory API route | Per-animation-project semantic memory and optional Supabase sync |
 | Stick workspace | `src/components/workspace/stickfigure/StickFigureWorkspace.tsx` and siblings, `src/lib/stickfigure/stickTimeline.ts`, `stickProjectContract.ts`, `stickProjectHistory.ts`, `stickProjectStorage.ts` | Canonical editable timeline/history/storage root, independent keyframe poses plus owner-resolved holds, manual joint edits, playback/onion, Creator continuity, and the published SPEC-0004 Phase 1 one-time creation latch/transaction wiring. Editing a held slot currently edits its owner content, so Phase 2 generated output must not use holds. |
 | Stick animation plan/executor | `src/lib/ai/stickFigureAiContract.ts`, `stickFigureCommandExecutor.ts`, `stickFigureMotionEngine.ts`, `stickFigureAiWorkspaceAdapter.ts` | Published SPEC-0004 Phases 1/2/2.5 remain normal runtime truth. SPEC-0005 Phase 1 is a published proof gate. GIT-043 publishes Phase 2 v1's finite numeric body-safety seam; no normal route invokes it yet. D-0051 requires Phase 2 v2 to validate ordered per-landmark body-local facing/plane/guide/band/base/context and every final rounded frame, with no injury/deformation bypass and no false accepts/rejects. GIT-047 is published at `5d0299a00459d39d6c4bff5eeb345f72c5abde4e`; D-0053's accepted eight-path v2 result is Verified, published, and integrated through GIT-048 at `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`. The rejected Phase 3 result is not architecture. Corrected compound poses, contact/airborne mechanics, motion law, gait/turns, compositions, and planner routing remain unimplemented. |
@@ -63,13 +70,13 @@ The main product screens are not URL routes. `app/page.tsx` owns a `view` union 
 1. The workspace owns React state for layers, frames, active selection, tools, playback, project identity, AI memory, and history.
 2. `DrawingCanvas` exposes a narrow imperative ref for authoring snapshots, transient-state cleanup, playback layout, selection/pending-state checks, committed-state marking, and onion-overlay content. Tools, transforms, and asset placement are internal or prop-driven.
 3. Pointer/timeline actions save raster/text snapshots into in-memory timeline frames.
-4. Manual Save/Save As serializes a version-1 project through `drawingProjectStorage.ts` into `localStorage` key `da_saved_drawing_projects`.
-5. Open Project reads the same collection and remounts `DrawingWorkspace` with the chosen envelope.
+4. Manual Save/Save As snapshots the live V1-shaped data, encodes/deduplicates PNG/audio assets, and transactionally publishes a strict Drawing V2 version/head in IndexedDB. Supported older localStorage records are read through a non-destructive compatibility layer.
+5. Open Project reads both Drawing V2 and classified legacy candidates and remounts `DrawingWorkspace` only after validation/hydration succeeds.
 6. Compact AI semantic memory may also sync to Supabase, but artwork remains browser-local.
 
-`DrawingProjectData.version = 1` contains tool settings, FPS, layers, timeline frames, text, tween data, optional sound attachments, current/selected positions, and counters. `StoredDrawingProject.aiMemory` is a sibling of `data`, not part of that versioned data envelope. The format lacks a migration framework and a canonical document/stage resolution.
+`DrawingProjectData.version = 1` is still the live workspace-shaped object and contains tool settings, FPS, layers, timeline frames, text, tween data, optional sound attachments, current/selected positions, and counters. The V2 persistence contract replaces live bitmap/audio bytes with content-addressed asset references and stores project heads plus immutable version records. `StoredDrawingProject.aiMemory` remains auxiliary/project-scoped rather than authored animation content. Drawing still lacks a shared Drawing/Stick contract and a viewport-independent canonical stage.
 
-Live frame `ImageData` objects are not serialized: the save path sets bitmap fields to `null` and stores compact WebP preview URLs targeted to at most 1,280 px and 72,000 URL characters. Reopen decodes those images at their encoded dimensions and centers them in the current authoring world. Imported reusable assets and library symbols are session-only collections outside `DrawingProjectData`; raster pixels already committed into frames may persist, but reusable entries do not.
+Live frame `ImageData` is encoded losslessly as PNG assets with RGBA/encoded digests and hydrated back to typed bytes on open; audio is likewise asset-backed. Project-card preview data is separate. Imported reusable assets and library symbols remain session-only collections outside `DrawingProjectData`; raster pixels/audio already committed into frames persist, but reusable entries do not become a saved library.
 
 ## Timeline and History Model
 
@@ -124,6 +131,24 @@ Stick saved record version 2 stores that latch beside the editable document/view
 
 The blue `PRIVATE REVIEW` fixture controls used for Arthur's acceptance were injected only into a temporary isolated copy by the dedicated browser-proof script. Product source contains no route, picker, overlay, or query-controlled review surface. The workspace keeps an unexported proof-port object for isolated source-copy injection, but product code neither exposes it on `window` nor imports the proof client.
 
+## Approved SPEC-0006 target — not current runtime
+
+If Arthur/PM approve and all seven phases are separately executed, accepted, propagated, and published, the normal path becomes:
+
+```text
+Home New/Open
+  → one collection/bootstrap controller
+  → read-only Drawing V1/V2, Stick V1/V2, or canonical V1 candidate
+  → one UnifiedWorkspaceRoot and typed command dispatcher
+  → one common cell-owner resolver
+  → typed Drawing/Stick render adapters
+  → one 1920×1080 logical stage and playback/onion clock
+  → one contextual tool/panel surface
+  → one atomic history and revision-bound IndexedDB repository
+```
+
+Drawing and Stick remain typed layer payloads; neither is flattened into the other. Legacy open performs no write, first Save creates a new canonical identity, and source bytes are not deleted or overwritten. The exact design is approved under D-0057, but only Phase 1's hidden contract/read-only migration scope is authorized after record publication. All runtime changes remain unimplemented; Phases 2–7 are unauthorized.
+
 ## Protected Architectural Invariants
 
 Until superseded by an approved spec:
@@ -162,7 +187,7 @@ Incidental cleanup inside these files is prohibited unless the active spec inclu
 - complete, versioned project schema and migrations
 - durable autosave/recovery and project-file import/export
 - unified render/composite contract across edit, playback, save, reopen, and export
-- broader Stick scene/language/model behavior beyond published SPEC-0004 Phases 1–2.5; rejected motion attempts are not runtime truth, SPEC-0005 Phase 2 v1 is only the published numeric-safety foundation, corrected Phase 2 v2 is Verified, published, and integrated through GIT-048 at `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`, and corrected SPEC-0005 Phase 3 whole-body pose behavior is Authorized/Not started under D-0054, pending GIT-049 publication
+- broader Stick scene/language/model behavior beyond published SPEC-0004 Phases 1–2.5; rejected motion attempts are not runtime truth, SPEC-0005 Phase 2 v1 is only the published numeric-safety foundation, corrected Phase 2 v2 is Verified, published, and integrated through GIT-048 at `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`, and SPEC-0005 Phase 3's later visible result is rejected/unpublished and unfinished Phases 3–8 are superseded/inactive under D-0055
 - general AI editing, recoloring, continuation, and multi-step transaction semantics after Apply
 - authenticated user/project ownership and rate limiting
 - repeatable unit/integration/E2E suite and CI

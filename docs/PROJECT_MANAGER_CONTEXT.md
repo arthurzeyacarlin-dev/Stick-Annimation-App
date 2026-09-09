@@ -1,7 +1,7 @@
 # Project Manager Context
 
 Status: canonical owner and collaboration context
-Last updated: 2026-09-08
+Last updated: 2026-09-09
 
 ## Ownership, Sponsorship, and PM Collaboration
 
@@ -15,7 +15,7 @@ Arthur is a young, capable product collaborator. Explain recommendations in dire
 
 ## Latest Direction
 
-The latest product direction, updated through 2026-09-07, is:
+The latest product direction, updated through 2026-09-09, is:
 
 - Diamond Animator should primarily help beginners create professional-grade stick-figure animation through AI conversation.
 - AI should integrate with the real editor and manipulate the same advanced capabilities a human animator can use.
@@ -27,12 +27,12 @@ The latest product direction, updated through 2026-09-07, is:
 - SPEC-0004 Phase 2 is Verified, published, and integrated in exact 20-path commit `e3ec6a33438c2f3d2e075b6477f18b8eb1b58e24`. Its eight-path hidden local pose/smooth-motion engine bakes every generated frame into ordinary independently editable Stick data and adds no provider, language matcher, or Drawing/workspace change.
 - D-0041 accepts Phase 2.5 as done for its narrow shared timing/spacing purpose. GIT-037 published the exact seven-path result from base `f131e75aafccec0d1b8ecb717e2d95b518355d39` within exact 19-path commit `16799539fb7db31e345a878aa892d4485115188b`; its 250-check 14,601-byte manifest SHA-256 is `783e6396cf994ce48fb9d7c94dc58674594dd545f888a9c25fe3c1f654a788d1`. The old wave/jump/bow/dodge review samples remain rejected as natural-action evidence.
 - One later SPEC-0004 Phase 2.6 executor produced the former exact eight-path unpublished result in `/Users/arthurcarlin/.codex/worktrees/8de8/stick-animation-app`. Although its manifest was technically green, Arthur rejected the overall motion after visible review. It is not accepted, propagated, published, integrated, or correction-authorized. Its proof did not require a full playback traversal and its exact frozen frames came from the same generation path.
-- D-0043 made SPEC-0005 the replacement shared-motion foundation and paused SPEC-0004 before Phase 3. D-0046 now corrects SPEC-0005 to exactly eight phases: independent accepted references/full playback, a planner-independent Body Safety Gate/Foundation, action-independent whole-body pose creation, mechanics/weight/contact, paths/timing/gravity, distinct walk/run, semantic core-action recipes, and one provider-free shared Pretend-AI/future-Terra planning door. The exact non-bypassable sequence is movement goal → enumerate candidates → important-pose safety → mechanics/required insertion → path/timing bake → post-rounding/post-contact safety → final semantic/continuity → Preview. All output remains ordinary independent editable Stick keyframes; no raw joint-coordinate planner format, live controller, provider, key, paid request, or moved SPEC-0004 Terra phase.
+- D-0043 originally made SPEC-0005 the replacement shared-motion foundation. D-0055 now supersedes unfinished SPEC-0004 Phases 3–8 and SPEC-0005 Phases 3–8 by future SPEC-0008; neither old sequence may resume. Published completed results and all rejected-result history are preserved.
 - SPEC-0005 Phase 1 and numeric-safety Phase 2 v1 are published/integrated; GIT-043 published the exact accepted Phase 2 v1 package at `e52454354c39b962ac2710a8602a5306ffd62ad5`. GIT-044 is exact docs-only commit `269ac82335ee4576cb471bd9dffc8f7ce9bdec0f`. Arthur rejected the Phase 3 executor result authorized from it because technically valid screen-space branches, broad angle bounds, shallow candidates/scoring, key-step stops, raised recovery, and reach-like gesture did not produce natural motion. None of that executor's bytes is accepted or reusable.
-- GIT-045 published D-0050's first Phase 2 v2/Phase 3 correction in exact 13-document commit `a4589664b6857eb10a828189e177e0e7d47e3f69`. D-0051 makes one final pre-execution correction: `stick.movement-goal/v1` is a bounded ordered semantic sequence, not one whole-goal facing/support/limb state. It binds the exact starting pose, per-landmark facing/support/foot-hand-pelvis contacts/four-limb obligations/active parts, adjacent transitions, and exact return/hold/continuation. Phase 2 v2 is Verified, published, and integrated through GIT-048 at `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`. D-0054 authorizes corrected SPEC-0005 Phase 3 only as Approved/Authorized/Not started, pending GIT-049 publication; Phases 4–8 remain Unauthorized/Not started.
-- Exactly eight phases remain. Phase 2 proves action-independent safety across every context/facing/final frame with zero false accepts/rejects and no injury/deformation bypass. Phase 3 owns grounded compound poses from non-neutral bases; Phase 4 foot/hand/pelvis contacts and airborne transitions; Phase 5 `natural_smooth` default and explicit mechanical styles without teleport/stutter/stops/one-joint-first/equal mechanical spacing/lag; Phase 6 walk/run/turns; Phase 7 full actions/compositions including squat-plus-wave, push-up-plus-wave, and run-plus-jump-plus-wave-plus-land-plus-continue; Phase 8 the identical Pretend-AI/Terra-shaped provider-free sequence. Human-authored examples are primary, self-generated evidence secondary, hard checks are `100%`, visible thresholds are `85` per case/`90` mean, and Arthur accepts every required visible sample. Manual behavior and independent editable keyframes remain unchanged.
+- SPEC-0005 Phase 1 and Phase 2 v1/v2 remain accepted, Verified, published, and integrated; v2 is complete at GIT-048 `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`. GIT-049 published the later Phase 3 authorization at `de54aed275c2f6da6e7c3f4a7f65091e8d5370c0`. A Phase 3 executor then ran, but Arthur rejected its visible result: it is unpublished, unaccepted, non-reusable, and not completed. D-0055 supersedes Phase 3 and unfinished Phases 4–8 by future SPEC-0008; they are inactive with no implementation authority.
+- The old eight-phase SPEC-0005 design remains historical reference, not future dispatch authority. Do not reuse rejected implementations, call their motion accepted, or automatically carry the unimplemented contract into a new spec.
 - Future Terra economics should prefer compact important-pose/timing plans, local in-betweens, safe $0 recipes first, at most one later bounded pre-Apply repair, measured private-dashboard cost, and monthly budgets/credits rather than unlimited use. Exact provider pricing/policy is a later same-day official-source gate.
-- Arthur is interested in a possible later unified Animation Workspace with one project/timeline/canvas/save/history/AI surface and typed Stick/Drawing layers. This is a future separate-spec question, not current authorization. Backgrounds, stick colors, custom stick shapes/rigs, accurate non-humanoid bodies, and layers are also later separate-spec work, not SPEC-0005.
+- D-0056 records Arthur's intended one-workspace outcome. SPEC-0006 is **Approved and active** under D-0057. Arthur reviewed and approved the exact seven-phase design and explicitly authorized **Phase 1 only: Authorized; Not started** in a brand-new dedicated review worktree. **Phases 2–7 remain Unauthorized; Not started.** Approval is not an implementation or verification claim; current runtime remains split. SPEC-0006 alone owns the complete workspace unification through its seven phases. Do not create a spec-helping-spec chain or move its contract, migration, tester, shell, or integration responsibility into another prerequisite spec. Bounded corrections belong in SPEC-0006 under the existing amendment/review rules; material changes return to Arthur without silently expanding a phase. Future SPEC-0007/0008 remain absent and unauthorized.
 
 This direction supersedes older prose that framed AI only as a passive helper or described the workspaces as complete.
 
@@ -70,9 +70,13 @@ Arthur requires only one active review app copy for the current milestone. This 
 - Never remove canonical main or the active Project Manager worktree. Never delete a worktree still owned by an active executor/architect. Stop if identity, ownership, unique-byte preservation, or publication is uncertain.
 - The PM coordinates sequential handoff/cleanup under Arthur's authority; the authorized cleanup task performs removal. Spec Executors still cannot publish, edit the control plane, or mutate another worktree. This rule grants no implementation, Git publication, provider, or deployment authority.
 
-## Phase 3 dispatch after activation publication
+## Current SPEC-0006 approval — Phase 1 only
 
-SPEC-0005 Phase 3 alone is Approved; Authorized; Not started under D-0054. Start one fresh dedicated Plan-mode Spec Executor from GIT-049's future canonical-main publication SHA, never from rejected copies or the pre-activation base. Astra is allowed for hard engine work; this is a development-task model choice, not permission to add or call an app provider. Follow the unchanged ten-path scope, proof and human-review gates. Give Arthur one real loopback review URL with a clear clickable list of the eight named cases in the PM message; load cases sequentially in the single ordinary review copy without adding a picker, overlay, route/query flag, or product UI. If delivery cannot fit those boundaries, return to PM before changing them. Phases 4–8 remain Unauthorized/Not started.
+SPEC-0005 Phase 1 and Phase 2 v1/v2 remain accepted, Verified, published, and integrated; v2 is complete at GIT-048 `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`. GIT-049 published the later Phase 3 authorization at `de54aed275c2f6da6e7c3f4a7f65091e8d5370c0`. A Phase 3 executor then ran, but Arthur rejected its visible result: it is unpublished, unaccepted, non-reusable, and not completed. D-0055 supersedes Phase 3 and unfinished Phases 4–8 by future SPEC-0008; they are inactive with no implementation authority.
+
+Arthur/PM report the post-GIT-049 rejected Phase 3 attempt in `/Users/arthurcarlin/.codex/worktrees/5200/stick-animation-app`, branch `codex/spec0005-phase3-whole-body-poses`, base/HEAD `de54aed275c2f6da6e7c3f4a7f65091e8d5370c0`, empty index and ten dirty technical paths. Reported ignored manifest: `output/spec-0005/phase-3/proof-manifest.json`, 55,941 bytes, SHA-256 `1420012f2213dcbf6c31483c700879f69e39881fd2bda8594fae1ec5d29947f3`. This is attributed rejected evidence, not independently revalidated proof or acceptance. The CPA does not open, modify, validate, recover, reuse, or remove that worktree or its proof in this task.
+
+Next step: complete this CPA review packet, then obtain the separate publication-only instruction for the exact reviewed combined D-0055/SPEC-0006/D-0057 record set. After those records are published and canonical main is clean/synchronized, one brand-new dedicated SPEC-0006 Phase 1 Spec Executor/review worktree starts in Plan mode from that exact publication SHA under Arthur's existing Phase 1 authorization. Freeze its exact paths within the 18-path ceiling and satisfy the existing Phase 1 entry/one-copy gates. Do not start from this dirty pre-publication checkout or reuse a rejected copy. No executor, review app, or publication is created by this CPA turn.
 
 ## Why This Control Plane Exists
 
@@ -89,7 +93,7 @@ The remedy is repository-owned continuity:
 
 These are not blockers for preserving the repository, but they must be resolved before relevant implementation:
 
-1. Is the Drawing Workspace an equal launch product, a supporting system, or a later phase?
+1. D-0056 resolves Drawing's architectural role: it is typed authored content inside one Animation Workspace. Launch breadth beyond SPEC-0006 remains a later release decision.
 2. Is the official brand “Diamond Animator” or “Diamond Animator Pro”?
 3. What measurable gates define “professional-grade” for the first release?
 4. When may AI auto-apply changes, and when must it preview or request confirmation?
@@ -97,6 +101,6 @@ These are not blockers for preserving the repository, but they must be resolved 
 6. What manual stick-figure editing features are required for the first usable release?
 7. What user data may be sent to model/search providers, and how long is memory retained?
 8. What minimum shared stick state/executor and corrective manual controls should precede the first AI-led vertical slice, versus the broader manual editor that can follow?
-9. Should a later unified Animation Workspace replace the separate Drawing/Stick project choice, and what project-format/layer migration would keep both systems safe?
+9. SPEC-0006's seven-phase preservation/migration design is approved under D-0057; Phase 1 only is authorized. Resolve bounded implementation mechanics inside its existing scope; do not seek another architecture approval or invent a helper spec. Publication and every later phase remain separately gated.
 
 Pending decisions and their status live in `DECISIONS.md`.

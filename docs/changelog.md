@@ -5,6 +5,15 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-09 — Publish Phase 1 and accept corrected SPEC-0006 Phase 2 (D-0059)
+
+- recorded GIT-051 completion at exact 27-path commit `804ff39dc73c88d4799570cce2ef18987745a0be`, publishing Phase 1's 11 technical paths, 15 reviewed records, and generated project tree
+- accepted the corrected exact 15-path Phase 2 shell/New/Open result as technically Verified pending GIT-052; manifest SHA-256 `ebfeb699c0d9bcedd5b6b7c90d5cb4b71a3fe3ea89326a2820b86882e2c27cb7`, 16,649 bytes
+- New now opens Untitled Project directly; Open preserves the inherited Projects layout while combining Drawing V1/V2 and Stick V1/V2 without a type selector/badges; invalid entries are disabled; one inherited compatibility editor mounts through `AnimationWorkspace`
+- independently revalidated 15 source bindings, 19 receipts, 38 artifacts, 18 negative mutation cases, frozen Phase 1 hashes, 40 browser operations/13 screenshots, zero writes/real API/external requests/errors, production compile/generate, TypeScript, lint non-regression, inherited validators, scope, diff, and empty index
+- preserved separate Drawing/Stick editor internals and their existing save paths; no mixed compositor/timeline/tools/history/canonical repository, AI/provider/dependency/cloud/export/deployment change, Git publication, or cleanup in this CPA propagation
+- left Phases 3–7 Unauthorized/Not started; GIT-052 is the next publication task
+
 ### 2026-09-09 — Accept and technically verify SPEC-0006 Phase 1 (D-0058)
 
 - Recorded GIT-050 activation publication at `3b784cc6a68ff6f10fa390d96b81376b46e54b44` and Arthur/PM acceptance of the exact 11-path hidden unified contract/read-only Drawing V1/V2 and Stick V1/V2 migration result.

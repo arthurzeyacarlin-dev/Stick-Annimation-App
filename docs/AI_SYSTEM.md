@@ -7,7 +7,7 @@ Last traced: published v2 safety evidence retained from 2026-09-08; canonical so
 
 SPEC-0004 Phases 1, 2, and timing-only Phase 2.5 remain Verified, published, and integrated. Phase 2.6 remains rejected, unpublished, and superseded historical evidence. Under D-0055, unfinished Phases 3–8 are Superseded by future SPEC-0008, inactive, and must not be implemented.
 
-Current lifecycle update (D-0058): SPEC-0006 is Approved under D-0057; GIT-050 published its Phase 1 activation at `3b784cc6a68ff6f10fa390d96b81376b46e54b44`. Arthur accepted the hidden Phase 1 contract/read-only migration result, which is technically Verified pending GIT-051 publication/integration. Phases 2–7 remain Unauthorized; Not started. Future SPEC-0007/0008 remain absent and unauthorized. Phase 1 changes no AI route, adapter, model, prompt, provider, video/tracking, paid service, or deployment behavior; completed/superseded SPEC-0004/0005 statuses do not change.
+Current lifecycle update (D-0059): SPEC-0006 Phase 1 is Verified/published/integrated through GIT-051 `804ff39dc73c88d4799570cce2ef18987745a0be`; corrected Phase 2 is accepted and technically Verified pending GIT-052 publication/integration. Phase 2 routes direct New and combined Open candidates to one inherited compatibility editor, but does not change Drawing or Stick AI semantics, adapters, models, prompts, provider behavior, video/tracking, paid service, or deployment. Phases 3–7 remain Unauthorized; Not started; future SPEC-0007/0008 remain absent and unauthorized.
 
 ## What Exists Today
 

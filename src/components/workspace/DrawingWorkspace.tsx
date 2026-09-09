@@ -3478,16 +3478,19 @@ const PLAYBACK_INTERACTION_BLOCKER_Z_INDEX = 6;
 
 type DrawingWorkspaceProps = {
   initialProject?: DrawingProjectOpenCandidate | null;
+  initialTitle?: string;
+  deferInitialMemorySync?: boolean;
 };
 
-export function DrawingWorkspace({ initialProject = null }: DrawingWorkspaceProps) {
+export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT_PROJECT_TITLE, deferInitialMemorySync = false }: DrawingWorkspaceProps) {
   const openedInitialProject = initialProject?.project ?? null;
-  const initialWorkspaceState = createDrawingWorkspaceInitialState(openedInitialProject);
+  const initialWorkspaceState = openedInitialProject ? createDrawingWorkspaceInitialState(openedInitialProject) : createDefaultDrawingWorkspaceState(initialTitle);
   const [projectId, setProjectId] = useState<string | null>(initialWorkspaceState.projectId);
   const [projectTitle, setProjectTitle] = useState(initialWorkspaceState.projectTitle);
   const [projectAiMemory, setProjectAiMemory] = useState<DrawingAiProjectMemory | null>(
     bindDrawingAiProjectMemoryToProject(openedInitialProject?.aiMemory ?? null, initialWorkspaceState.projectId),
   );
+  const initialMemoryFingerprint = JSON.stringify(bindDrawingAiProjectMemoryToProject(openedInitialProject?.aiMemory ?? null, openedInitialProject?.id ?? null));
   const [activeTool, setActiveTool] = useState<DrawingToolName>(initialWorkspaceState.activeTool);
   const [brushSize, setBrushSize] = useState(initialWorkspaceState.brushSize);
   const [eraserSize, setEraserSize] = useState(initialWorkspaceState.eraserSize);
@@ -3980,16 +3983,16 @@ export function DrawingWorkspace({ initialProject = null }: DrawingWorkspaceProp
 
   useEffect(() => {
     setProjectId(openedInitialProject?.id ?? null);
-    setProjectTitle(openedInitialProject?.name ?? DEFAULT_PROJECT_TITLE);
+    setProjectTitle(openedInitialProject?.name ?? initialTitle);
     setProjectAiMemory(bindDrawingAiProjectMemoryToProject(openedInitialProject?.aiMemory ?? null, openedInitialProject?.id ?? null));
     activeStorageRevisionRef.current = initialProject?.head?.activeStorageRevision ?? null;
     projectCreatedAtRef.current = initialProject?.head?.createdAt ?? openedInitialProject?.created_at ?? null;
     legacyRecordDigestRef.current = initialProject?.legacyRecordDigest ?? null;
     setSaveState(initialProject ? "saved" : "not-saved");
-  }, [initialProject, openedInitialProject]);
+  }, [initialProject, openedInitialProject, initialTitle]);
 
   useEffect(() => {
-    if (!projectId) {
+    if (!projectId || deferInitialMemorySync) {
       return;
     }
 
@@ -4012,12 +4015,16 @@ export function DrawingWorkspace({ initialProject = null }: DrawingWorkspaceProp
     return () => {
       cancelled = true;
     };
-  }, [projectId]);
+  }, [projectId, deferInitialMemorySync]);
 
   useEffect(() => {
     if (!projectId) {
       return;
     }
+
+    // Opening is read-only. Resume the existing synchronization only after an
+    // explicit memory change or Save gives this session a different identity.
+    if (deferInitialMemorySync && projectId === openedInitialProject?.id && JSON.stringify(projectAiMemory) === initialMemoryFingerprint) return;
 
     const scopedMemory = bindDrawingAiProjectMemoryToProject(projectAiMemory, projectId);
     void updateStoredDrawingProjectAiMemory(projectId, scopedMemory);
@@ -4044,7 +4051,7 @@ export function DrawingWorkspace({ initialProject = null }: DrawingWorkspaceProp
     } else {
       void deleteDrawingProjectAiMemoryFromSupabase(projectId);
     }
-  }, [projectAiMemory, projectId]);
+  }, [projectAiMemory, projectId, deferInitialMemorySync, openedInitialProject, initialMemoryFingerprint]);
 
   const activeLayer = useMemo(() => getLayerById(layers, activeLayerId) ?? layers[0] ?? null, [activeLayerId, layers]);
   const timelineFrames = activeLayer?.timelineFrames ?? EMPTY_TIMELINE_FRAMES;

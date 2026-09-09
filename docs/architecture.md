@@ -1,19 +1,21 @@
 # Architecture and System Map
 
 Status: canonical current architecture map
-Last traced: accepted SPEC-0006 Phase 1 contract/read-only migration independently revalidated on 2026-09-09 from exact GIT-050 base/HEAD `3b784cc6a68ff6f10fa390d96b81376b46e54b44`. Phase 1 is technically Verified pending GIT-051 publication/integration and modifies no existing runtime file. Current ordinary New/Open/Drawing/Stick behavior remains split.
+Last traced: accepted corrected SPEC-0006 Phase 2 shell/New/Open result independently revalidated on 2026-09-09 from exact GIT-051 base/HEAD `804ff39dc73c88d4799570cce2ef18987745a0be`. Phase 1 is published/integrated; Phase 2 is technically Verified pending GIT-052 publication/integration.
 
-## Approved architecture transition (D-0055/D-0056/D-0057)
+## Approved architecture transition (D-0055/D-0056/D-0057/D-0059)
 
-SPEC-0004 Phases 1, 2, and timing-only Phase 2.5 remain Verified, published, and integrated. Phase 2.6 remains rejected, unpublished, and superseded historical evidence. Under D-0055, unfinished Phases 3–8 are Superseded by future SPEC-0008, inactive, and must not be implemented.
+SPEC-0004 and SPEC-0005 completed phases remain published and protected; their unfinished motion phases remain superseded/inactive under D-0055. [`SPEC-0006`](specs/0006-unified-animation-workspace.md) remains the sole approved seven-phase owner for one typed Drawing/Stick project, root, stage, timeline, tools, history, and persistence.
 
-[`SPEC-0006`](specs/0006-unified-animation-workspace.md) is the approved seven-phase target for one typed Drawing/Stick project, root, stage, timeline, existing tool layout, history, and persistence. GIT-050 published the activation at `3b784cc6a68ff6f10fa390d96b81376b46e54b44`. D-0058 accepts Phase 1's exact 11-path strict contract/read-only migration result as technically Verified pending GIT-051 publication/integration. **Phases 2–7 remain Unauthorized; Not started.** Current runtime remains split. SPEC-0006 alone owns the complete workspace unification through its seven phases.
+GIT-051 publishes Phase 1's strict contract/read-only migration. Phase 2 now owns the ordinary New/Open transition and compatibility-editor mounting: New creates one Untitled Project, Open builds one deterministic combined collection, and one `AnimationWorkspace` chooses the matching inherited editor. **Phases 3–7 remain Unauthorized; Not started.**
 
-## Accepted SPEC-0006 Phase 1 hidden architecture
+## Accepted SPEC-0006 Phase 1 and Phase 2 architecture
 
-Phase 1 adds only two new product-library modules plus nine new fixture/proof files. `unifiedAnimationMigration.ts` dispatches strict Drawing V1, Drawing V2 head/version/assets, Stick V1, and Stick V2 sources through the current accepted parsers, maps them without writes, and returns an in-memory candidate or stable typed rejection. `unifiedAnimationContract.ts` validates the typed Drawing/Stick layer union, owner/hold rules, content-addressed assets, source-space display transform, reopen selection, auxiliary Drawing memory and Stick latch rebinding, deterministic source-bound UUID/digests, and resolved asset bytes. Nothing imports these modules into the ordinary app yet, and no existing source parser or write path changed.
+`unifiedAnimationMigration.ts` remains the strict read-only mapper for Drawing V1/V2 and Stick V1/V2. Phase 2 adds `unifiedProjectSourceReader.ts`, `unifiedProjectCollection.ts`, and `unifiedWorkspaceBootstrap.ts` around that boundary. The source reader obtains current browser-local records; the collection normalizes ordering and availability; the bootstrap generation/revision gate rejects stale or failed opens before root replacement.
 
-The accepted manifest is 9,257 bytes at SHA-256 `83614635c02f22d81205c441c46de3bff3a75f1c948661a1670a36eca75dbb29`. Independent proof covers 56 valid, 124 invalid, 1,000 repeated mappings, 3,516 assertions, all four source kinds, implementation-independent oracle behavior, and zero source writes. This proves the hidden Phase 1 contract/migration boundary only; it does not prove one shell, mixed rendering, a unified timeline/history/repository, canonical Save, or retirement of split owners.
+`app/page.tsx` now owns `home | tutorials | openProject | animationWorkspace`. New builds the canonical Phase 1 candidate in memory. Open renders `OpenProjectBrowser`, whose inherited Projects layout now holds one combined collection without the old type selector or new type badges. `AnimationWorkspace` mounts exactly one compatibility editor based on the candidate source kind. Drawing open plumbing accepts the prepared candidate without adding a new write door.
+
+The compatibility editors remain separate sources of editing truth below the wrapper. Drawing still owns Drawing render/timeline/history/Save/Save As; Stick still owns Stick render/timeline/history/Save. No mixed compositor, shared clock, unified tool dispatcher/history, canonical repository, or split-owner retirement exists yet.
 
 ## Runtime Overview
 
@@ -22,40 +24,33 @@ app/page.tsx
   └─ local React view state
       ├─ home
       ├─ TutorialsScreen
-      │   └─ fixed static tutorial catalog; Back restores Home Tutorials-card focus
       ├─ OpenProjectBrowser
-      │   ├─ Drawing IndexedDB V2 and legacy localStorage → DrawingWorkspace
-      │   └─ Stick localStorage V1/V2 → StickFigureWorkspace
-      ├─ new-project chooser
-      ├─ DrawingWorkspace
-      │   ├─ DrawingCanvas
-      │   ├─ DrawingTimelineRow
-      │   ├─ DrawingTopBar / DrawingToolBar / DrawingRightPanel
-      │   └─ DrawingAiPanel
-      │       ├─ POST /api/ai
-      │       │   └─ analysis → clarification/failure, direct plan, or structured-model/recovery plan
-      │       └─ generatedFramePlan
-      │           └─ browser drawingFrameExecutor
-      │               └─ timeline mutation
-      ├─ StickFigureWorkspace
-      │   ├─ StickFigureCanvas
-      │   ├─ StickFigureTimelineRow
-      │   ├─ canonical editable editor/history/storage root
-      │   ├─ SPEC-0004 Phase 1 strict plan/executor and durable one-time latch
-      │   └─ stick right/top/tool panels, including the published Phase 6 wave chat
-      └─ StickFigureCreatorWorkspace
+      │   └─ createBrowserProjectSourceReader
+      │       └─ listProjectCollection (Drawing V1/V2 + Stick V1/V2, read-only)
+      └─ AnimationWorkspace
+          ├─ WorkspaceBootstrap + Phase 1 mapper/validator
+          ├─ DrawingWorkspace compatibility editor
+          │   ├─ DrawingCanvas / DrawingTimelineRow / Drawing panels
+          │   ├─ Drawing history + IndexedDB/V1-compatible persistence
+          │   └─ Drawing AI path
+          └─ StickFigureWorkspace compatibility editor
+              ├─ Stick canvas/timeline/panels/Creator
+              ├─ Stick history + localStorage persistence
+              └─ accepted bounded Stick AI path
 ```
 
-The main product screens are not URL routes. `app/page.tsx` owns a `view` union and mounts one surface at a time. URL routes exist for `/credits`, local AI-cost dashboards, `/api/ai`, and `/api/drawing-project-ai-memory`.
+The main product screens are local view states rather than URL routes. URL routes remain for `/credits`, local AI-cost dashboards, `/api/ai`, and `/api/drawing-project-ai-memory`.
 
 ## System Ownership Map
 
 | System | Primary files | Current responsibility |
 | --- | --- | --- |
-| App shell/home/new-project routing | `app/page.tsx`, `src/components/chrome/AIcreditspage.tsx`, `app/ScrollbarActivity.tsx` | Header/menu, welcome flow, home cards, local screen switching, and Tutorials focus return |
+| App shell/home/New/Open routing | `app/page.tsx`, `src/components/chrome/AIcreditspage.tsx`, `app/ScrollbarActivity.tsx` | Header/menu, welcome, home cards, direct Untitled Project creation, local screen switching, and Home focus return |
 | Tutorials showcase | `src/components/tutorials/TutorialsScreen.tsx`, `TutorialsScreen.module.css`, `src/lib/tutorials/tutorialCatalog.ts` | Full-screen local static showcase with one featured and three secondary `COMING LATER` cards; no media, workspace action, API, analytics, or persistence |
-| Project browser | `src/components/OpenProjectBrowser.tsx` | Separately lists Drawing IndexedDB/V1-compatibility entries and Stick localStorage entries behind a type tab, then opens the selected workspace |
-| Drawing workspace coordinator | `src/components/workspace/DrawingWorkspace.tsx` | Central drawing/timeline/history/playback/save/AI-apply state and orchestration |
+| Unified read/collection/bootstrap | `src/lib/animation/unifiedProjectSourceReader.ts`, `unifiedProjectCollection.ts`, `unifiedWorkspaceBootstrap.ts`, Phase 1 contract/migration | Read-only source access, deterministic combined ordering/availability, typed mapping, and stale-safe mounted-root publication |
+| Project browser | `src/components/open-project/OpenProjectBrowser.tsx` | Preserves the established Projects presentation; lists all supported local sources together, disables invalid entries, and requests one bootstrap/open without source writes |
+| Compatibility workspace wrapper | `src/components/workspace/AnimationWorkspace.tsx` | Mounts exactly one Drawing or Stick compatibility editor for the accepted candidate; adds no visible wrapper chrome and owns no shared editor state yet |
+| Drawing workspace coordinator | `src/components/workspace/DrawingWorkspace.tsx` | Existing drawing/timeline/history/playback/save/AI-apply orchestration, plus narrow prepared-candidate open input |
 | Drawing canvas/editor | `src/components/workspace/DrawingCanvas.tsx`, `drawingText.ts` | Imperative layered canvas tools, transforms, assets, symbols, text, playback surface |
 | Drawing timeline | `DrawingTimelineRow.tsx`, `timelineStructure.ts`, `timelinePlayback.ts` | Timeline cells, mutations, playback timing helpers |
 | Drawing UI panels | `DrawingTopBar.tsx`, `DrawingToolBar.tsx`, `DrawingRightPanel.tsx` | Menus, tools, properties/assets/library presentation |
@@ -64,11 +59,11 @@ The main product screens are not URL routes. `app/page.tsx` owns a `view` union 
 | AI prompt/planning | `drawingAiPrompting.ts`, `generateFramesRuntime.ts`, task reference-example files | Task classification, prompt assembly, structured plan analysis, validation/recovery |
 | AI frame renderer | `drawingFrameExecutor.ts`, `app/engine/stickRig.ts` | Deterministic Canvas2D rendering and generated-frame payload creation |
 | AI server route | `app/api/ai/route.ts`, `src/lib/openai/*` | Request orchestration, model calls, normalization, optional search, cost logging |
-| Drawing project persistence | `src/lib/drawingProjectStorage.ts`, `drawingProjectV2Contract.ts`, `drawingProjectV2Repository.ts`, `drawingProjectIndexedDb.ts`, V1 compatibility/PNG/audio codecs | Live V1-shaped workspace data adapted to strict transactional Drawing V2 IndexedDB heads/version records/content-addressed PNG/audio assets, plus read compatibility for legacy localStorage |
+| Drawing project persistence | `src/lib/drawingProjectStorage.ts`, `drawingProjectV2Contract.ts`, `drawingProjectV2Repository.ts`, `drawingProjectIndexedDb.ts`, V1 compatibility/PNG/audio codecs | Existing Drawing V2 transactional storage and legacy read compatibility; Phase 2 adds no unified write repository |
 | Drawing AI project memory | `drawingAiProjectMemory.ts`, `drawingProjectAiMemorySync.ts`, memory API route | Per-animation-project semantic memory and optional Supabase sync |
-| Stick workspace | `src/components/workspace/stickfigure/StickFigureWorkspace.tsx` and siblings, `src/lib/stickfigure/stickTimeline.ts`, `stickProjectContract.ts`, `stickProjectHistory.ts`, `stickProjectStorage.ts` | Canonical editable timeline/history/storage root, independent keyframe poses plus owner-resolved holds, manual joint edits, playback/onion, Creator continuity, and the published SPEC-0004 Phase 1 one-time creation latch/transaction wiring. Editing a held slot currently edits its owner content, so Phase 2 generated output must not use holds. |
-| Stick animation plan/executor | `src/lib/ai/stickFigureAiContract.ts`, `stickFigureCommandExecutor.ts`, `stickFigureMotionEngine.ts`, `stickFigureAiWorkspaceAdapter.ts` | Published SPEC-0004 Phases 1/2/2.5 remain normal runtime truth. SPEC-0005 Phase 1 is a published proof gate. GIT-043 publishes Phase 2 v1's finite numeric body-safety seam; no normal route invokes it yet. D-0051 requires Phase 2 v2 to validate ordered per-landmark body-local facing/plane/guide/band/base/context and every final rounded frame, with no injury/deformation bypass and no false accepts/rejects. GIT-047 is published at `5d0299a00459d39d6c4bff5eeb345f72c5abde4e`; D-0053's accepted eight-path v2 result is Verified, published, and integrated through GIT-048 at `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`. The rejected Phase 3 result is not architecture. Corrected compound poses, contact/airborne mechanics, motion law, gait/turns, compositions, and planner routing remain unimplemented. |
-| Stick creator | `StickFigureCreatorWorkspace.tsx`, `types.ts` | Standalone local rig-creation experiment; save disconnected |
+| Stick workspace | `src/components/workspace/stickfigure/StickFigureWorkspace.tsx` and siblings, `src/lib/stickfigure/stickTimeline.ts`, `stickProjectContract.ts`, `stickProjectHistory.ts`, `stickProjectStorage.ts` | Existing Stick editor/timeline/history/localStorage owner, manual editing, Creator continuity, playback/onion, and accepted bounded AI behavior |
+| Stick animation plan/executor | `src/lib/ai/stickFigureAiContract.ts`, `stickFigureCommandExecutor.ts`, `stickFigureMotionEngine.ts`, `stickFigureAiWorkspaceAdapter.ts` | Published SPEC-0004 Phases 1/2/2.5 and SPEC-0005 accepted safety results; rejected/superseded motion work remains unavailable |
+| Stick creator | `StickFigureCreatorWorkspace.tsx`, `types.ts` | Standalone local rig-creation experiment; save remains disconnected |
 | Dev cost visibility | `src/lib/ai/devAiCostDashboard.ts`, `app/dev/ai-costs/**` | Local model-call cost logs and dashboards |
 
 ## Drawing Project Data Flow
@@ -77,10 +72,10 @@ The main product screens are not URL routes. `app/page.tsx` owns a `view` union 
 2. `DrawingCanvas` exposes a narrow imperative ref for authoring snapshots, transient-state cleanup, playback layout, selection/pending-state checks, committed-state marking, and onion-overlay content. Tools, transforms, and asset placement are internal or prop-driven.
 3. Pointer/timeline actions save raster/text snapshots into in-memory timeline frames.
 4. Manual Save/Save As snapshots the live V1-shaped data, encodes/deduplicates PNG/audio assets, and transactionally publishes a strict Drawing V2 version/head in IndexedDB. Supported older localStorage records are read through a non-destructive compatibility layer.
-5. Open Project reads both Drawing V2 and classified legacy candidates and remounts `DrawingWorkspace` only after validation/hydration succeeds.
+5. Open Project lists Drawing sources alongside Stick sources; a selected Drawing entry passes through the unified read/migration/bootstrap path and mounts `DrawingWorkspace` only after validation/hydration succeeds.
 6. Compact AI semantic memory may also sync to Supabase, but artwork remains browser-local.
 
-`DrawingProjectData.version = 1` is still the live workspace-shaped object and contains tool settings, FPS, layers, timeline frames, text, tween data, optional sound attachments, current/selected positions, and counters. The V2 persistence contract replaces live bitmap/audio bytes with content-addressed asset references and stores project heads plus immutable version records. `StoredDrawingProject.aiMemory` remains auxiliary/project-scoped rather than authored animation content. Drawing still lacks a shared Drawing/Stick contract and a viewport-independent canonical stage.
+`DrawingProjectData.version = 1` is still the live workspace-shaped object and contains tool settings, FPS, layers, timeline frames, text, tween data, optional sound attachments, current/selected positions, and counters. The V2 persistence contract replaces live bitmap/audio bytes with content-addressed asset references and stores project heads plus immutable version records. `StoredDrawingProject.aiMemory` remains auxiliary/project-scoped rather than authored animation content. The shared Phase 1 contract exists, but Drawing still lacks the Phase 3 viewport-independent canonical stage and shared mixed compositor.
 
 Live frame `ImageData` is encoded losslessly as PNG assets with RGBA/encoded digests and hydrated back to typed bytes on open; audio is likewise asset-backed. Project-card preview data is separate. Imported reusable assets and library symbols remain session-only collections outside `DrawingProjectData`; raster pixels/audio already committed into frames persist, but reusable entries do not become a saved library.
 
@@ -153,7 +148,7 @@ Home New/Open
   → one atomic history and revision-bound IndexedDB repository
 ```
 
-Drawing and Stick remain typed layer payloads; neither is flattened into the other. Phase 1 now provides the accepted hidden contract/read-only mapping boundary, but it is not yet published/integrated and no ordinary route imports it. First Save/new canonical identity, the shared shell/stage/timeline/tools/history/repository, and split-path retirement remain unimplemented. Phases 2–7 are unauthorized.
+Drawing and Stick remain typed layer payloads; neither is flattened into the other. Phase 1's contract/read-only mapping is published, and Phase 2 now imports it through the ordinary New/Open/bootstrap path. The one visible wrapper/collection exists, while the shared mixed stage/timeline/tools/history/repository, first canonical Save identity, and split-owner retirement remain unimplemented. Phases 3–7 are unauthorized.
 
 ## Protected Architectural Invariants
 

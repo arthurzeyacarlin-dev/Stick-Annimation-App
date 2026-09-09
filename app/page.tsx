@@ -3,25 +3,28 @@
 import { AppChrome as MainScreenHeader } from "@/src/components/chrome/AIcreditspage";
 import { OpenProjectBrowser } from "@/src/components/open-project/OpenProjectBrowser";
 import { TutorialsScreen } from "@/src/components/tutorials/TutorialsScreen";
-import { DrawingWorkspace } from "@/src/components/workspace/DrawingWorkspace";
-import { StickFigureCreatorWorkspace } from "@/src/components/workspace/stickfigure/StickFigureCreatorWorkspace";
-import { StickFigureWorkspace } from "@/src/components/workspace/stickfigure/StickFigureWorkspace";
-import type { DrawingProjectOpenCandidate } from "@/src/lib/drawingProjectStorage";
-import type { StickSavedProjectRecordV1 } from "@/src/lib/stickProjectStorage";
+import { AnimationWorkspace } from "@/src/components/workspace/AnimationWorkspace";
+import { createUntitledWorkspace, prepareCollectionWorkspace, WorkspaceBootstrap, type MountedWorkspace } from "@/src/lib/animation/unifiedWorkspaceBootstrap";
+import { createBrowserProjectSourceReader } from "@/src/lib/animation/unifiedProjectSourceReader";
+import type { ProjectCollectionEntry } from "@/src/lib/animation/unifiedProjectCollection";
 import { useEffect, useRef, useState } from "react";
 
 type HomeCardId = "new" | "open" | "myProject" | "tutorials" | "assistant" | "export" | "aiProject";
 
 export default function Page() {
   const [view, setView] = useState<
-    "home" | "tutorials" | "openProject" | "newProject" | "drawingWorkspace" | "stickFigureWorkspace" | "stickFigureCreatorWorkspace"
+    "home" | "tutorials" | "openProject" | "animationWorkspace"
   >("home");
-  const [newProjectBackHover, setNewProjectBackHover] = useState(false);
   const [welcomeOpen, setWelcomeOpen] = useState(false);
   const [welcomeStep, setWelcomeStep] = useState<0 | 1>(0);
   const [guidedChoices, setGuidedChoices] = useState<string[]>([]);
-  const [activeDrawingProject, setActiveDrawingProject] = useState<DrawingProjectOpenCandidate | null>(null);
-  const [activeStickProject, setActiveStickProject] = useState<StickSavedProjectRecordV1 | null>(null);
+  const [bootstrap] = useState(() => new WorkspaceBootstrap());
+  const [workspace, setWorkspace] = useState<MountedWorkspace | null>(null);
+  const [bootstrapMessage, setBootstrapMessage] = useState<string | null>(null);
+  const homeFocusRef = useRef<"new" | "open">("new");
+  const newProjectButtonRef = useRef<HTMLButtonElement | null>(null);
+  const openProjectButtonRef = useRef<HTMLButtonElement | null>(null);
+  const restoreHomeFocus = useRef(false);
   const [hoveredCard, setHoveredCard] = useState<HomeCardId | null>(null);
   const homeMainRef = useRef<HTMLElement | null>(null);
   const homeScrollHideTimeoutRef = useRef<number | null>(null);
@@ -76,24 +79,6 @@ export default function Page() {
     transform: "translateX(-28px)",
   } as const;
 
-  const backButtonStyle = (isHover: boolean) =>
-    ({
-      position: "absolute",
-      top: 22,
-      left: 22,
-      padding: "10px 12px",
-      borderRadius: "10px",
-      border: isHover ? "1px solid rgba(64,142,255,0.58)" : "1px solid rgba(255,255,255,0.15)",
-      background: isHover ? "rgba(12,45,86,0.42)" : "rgba(255,255,255,0.05)",
-      boxShadow: isHover ? "0 0 14px rgba(22,96,194,0.16), 0 8px 18px rgba(0,0,0,0.28)" : "none",
-      color: "rgba(255,255,255,0.88)",
-      fontSize: "13px",
-      cursor: "pointer",
-      outline: "none",
-      appearance: "none",
-      transition: "all 160ms ease",
-    } as const);
-
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -129,13 +114,6 @@ export default function Page() {
     // Prevent stale hover/focus state when switching screens
     if (view === "home") return;
     const timeoutId = window.setTimeout(() => setHoveredCard(null), 0);
-    return () => window.clearTimeout(timeoutId);
-  }, [view]);
-
-  useEffect(() => {
-    // Fix: New Project back button hover can get "stuck" if we switch views while hovered.
-    if (view === "newProject") return;
-    const timeoutId = window.setTimeout(() => setNewProjectBackHover(false), 0);
     return () => window.clearTimeout(timeoutId);
   }, [view]);
 
@@ -184,6 +162,19 @@ export default function Page() {
 
     return () => window.clearTimeout(timeoutId);
   }, [view]);
+
+  useEffect(() => {
+    if (view === "home" && restoreHomeFocus.current) {
+      (homeFocusRef.current === "new" ? newProjectButtonRef.current : openProjectButtonRef.current)?.focus();
+      restoreHomeFocus.current = false;
+    }
+  }, [view]);
+  useEffect(() => () => bootstrap.cancel(), [bootstrap, view]);
+  const openProject = async (entry: ProjectCollectionEntry) => {
+    const result = await bootstrap.open(() => prepareCollectionWorkspace(createBrowserProjectSourceReader(), entry));
+    if (result.status === "opened") { setWorkspace(result.root); setView("animationWorkspace"); }
+    return result;
+  };
 
   const toggleGuidedChoice = (key: string) => {
     setGuidedChoices((prev) => (prev.includes(key) ? prev.filter((x) => x !== key) : [...prev, key]));
@@ -545,13 +536,17 @@ export default function Page() {
             >
               <div style={{ ...cardOuterStyle, display: "flex", flexDirection: "column", gap: "24px" }}>
                 <button
+                  ref={newProjectButtonRef}
                   onClick={(e) => {
                     // Prevent the button from looking “stuck” when returning
                     (e.currentTarget as HTMLButtonElement).blur();
                     setHoveredCard(null);
-                    setNewProjectBackHover(false);
-                    setActiveDrawingProject(null);
-                    setView("newProject");
+                    homeFocusRef.current = "new";
+                    setBootstrapMessage("Creating project…");
+                    void bootstrap.open(createUntitledWorkspace).then((result) => {
+                      if (result.status === "opened") { setWorkspace(result.root); setView("animationWorkspace"); setBootstrapMessage(null); }
+                      else if (result.status === "failed") setBootstrapMessage(`Could not create project (${result.code}).`);
+                    });
                   }}
                   onMouseEnter={() => setHoveredCard("new")}
                   onMouseLeave={() => setHoveredCard(null)}
@@ -593,9 +588,13 @@ export default function Page() {
 
               <div style={cardOuterStyle}>
                 <button
+                  ref={openProjectButtonRef}
                   onClick={(e) => {
                     (e.currentTarget as HTMLButtonElement).blur();
                     setHoveredCard(null);
+                    homeFocusRef.current = "open";
+                    setBootstrapMessage(null);
+                    bootstrap.cancel();
                     setView("openProject");
                   }}
                   onMouseEnter={() => setHoveredCard("open")}
@@ -1210,204 +1209,17 @@ export default function Page() {
     }}
   />
 )}
+{bootstrapMessage && view === "home" ? <div role="status" style={{ position: "fixed", bottom: 12, left: 12, color: "white", background: "#182334", padding: 12, borderRadius: 8 }}>{bootstrapMessage}</div> : null}
+{workspace && view === "animationWorkspace" && (
+  <AnimationWorkspace root={workspace} />
+)}
 {view === "openProject" && (
-  <OpenProjectBrowser
-    activeDrawingProjectId={activeDrawingProject?.project.id ?? null}
-    onBack={() => setView("home")}
-    onOpenDrawingProject={(project) => {
-      setActiveDrawingProject(project);
-      setView("drawingWorkspace");
-    }}
-    onOpenStickProject={(project) => {
-      setActiveStickProject(project);
-      setView("stickFigureWorkspace");
-    }}
-    onDrawingProjectDeleted={(projectId) => {
-      if (activeDrawingProject?.project.id === projectId) {
-        setActiveDrawingProject(null);
-      }
-    }}
-  />
+  <OpenProjectBrowser onOpenProject={openProject} onBack={() => {
+    bootstrap.cancel();
+    restoreHomeFocus.current = true;
+    setView("home");
+  }} />
 )}
-{/* NEW PROJECT SCREEN */}
-{view === "newProject" && (
-  <div
-    style={{
-      minHeight: "100vh",
-background: "rgb(26, 27, 36)",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      padding: "40px 20px 80px 20px",
-      gap: "26px",
-      position: "relative",
-    }}
-  >
-    {/* Back button (top-left) */}
-    <button
-      type="button"
-      onClick={(e) => {
-        (e.currentTarget as HTMLButtonElement).blur();
-        setHoveredCard(null);
-        setNewProjectBackHover(false);
-        setView("home");
-      }}
-      onMouseEnter={() => setNewProjectBackHover(true)}
-      onMouseLeave={() => setNewProjectBackHover(false)}
-      onBlur={() => setNewProjectBackHover(false)}
-      style={backButtonStyle(newProjectBackHover)}
-    >
-      ← Back
-    </button>
-
-    {/* Page header stack */}
-    <div
-      style={{
-        width: "min(920px, calc(100vw - 40px))",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        marginTop: "34px",
-        gap: "10px",
-      }}
-    >
-      <div
-        style={{
-          fontSize: "12px",
-          letterSpacing: "0.12em",
-          textTransform: "uppercase",
-          color: "rgba(180,220,255,0.75)",
-        }}
-      >
-        New Project
-      </div>
-      <div style={{ color: "rgba(255,255,255,0.92)", fontSize: "32px", fontWeight: 800 }}>
-        Create a new project
-      </div>
-      <div style={{ color: "rgba(255,255,255,0.62)", fontSize: "14px", marginTop: "2px" }}>
-        What would you like to create?
-      </div>
-      <div
-        style={{
-          width: "760px",
-          maxWidth: "calc(100vw - 80px)",
-          height: "1px",
-          background: "rgba(255,255,255,0.10)",
-          marginTop: "14px",
-        }}
-      />
-    </div>
-
-    <div
-      style={{
-        display: "flex",
-        gap: "24px",
-        marginTop: "10px",
-        width: "min(920px, calc(100vw - 40px))",
-        justifyContent: "center",
-        flexWrap: "wrap",
-      }}
-    >
-      {/* DRAWING */}
-      <button
-        type="button"
-        onClick={(e) => {
-          (e.currentTarget as HTMLButtonElement).blur();
-          setActiveDrawingProject(null);
-          setView("drawingWorkspace");
-        }}
-        style={{
-          width: "360px",
-          height: "170px",
-          borderRadius: "12px",
-          border: "1px solid rgba(70, 120, 210, 0.30)",
-          background: "rgba(255,255,255,0.04)",
-          color: "white",
-          padding: "20px",
-          textAlign: "left",
-          cursor: "pointer",
-          outline: "none",
-          transition: "transform 240ms ease, border-color 160ms ease, background 160ms ease",
-        }}
-      >
-        <div style={{ fontSize: "18px", fontWeight: 700 }}>
-          Drawing Animation
-        </div>
-
-        <div
-          style={{
-            fontSize: "13px",
-            color: "rgba(255,255,255,0.60)",
-            marginTop: "6px",
-          }}
-        >
-          Create hand-drawn animations.
-        </div>
-      </button>
-
-      {/* STICK FIGURES */}
-      <button
-        type="button"
-        onClick={(e) => {
-          (e.currentTarget as HTMLButtonElement).blur();
-          setActiveStickProject(null);
-          setView("stickFigureWorkspace");
-        }}
-        style={{
-          width: "360px",
-          height: "170px",
-          borderRadius: "12px",
-          border: "1px solid rgba(70, 120, 210, 0.30)",
-          background: "rgba(255,255,255,0.04)",
-          color: "white",
-          padding: "20px",
-          textAlign: "left",
-          cursor: "pointer",
-          transition: "transform 240ms ease, border-color 160ms ease, background 160ms ease",
-        }}
-      >
-        <div style={{ fontSize: "18px", fontWeight: 700 }}>
-          Stick Figure Animation
-        </div>
-
-        <div
-          style={{
-            fontSize: "13px",
-            color: "rgba(255,255,255,0.60)",
-            marginTop: "6px",
-          }}
-        >
-          Animate stick figure characters.
-        </div>
-      </button>
-    </div>
-    {/* Future modes hint */}
-    <div
-      style={{
-        marginTop: "auto",
-        marginBottom: "-66px",
-        fontSize: "12px",
-        color: "rgba(180,220,255,0.45)",
-        textAlign: "center",
-        letterSpacing: "0.02em",
-        userSelect: "none",
-      }}
-    >
-      Additional creation modes may appear here in future updates.
-    </div>
-  </div>
-)} {/* DRAWING WORKSPACE (layout only) */}
-{view === "drawingWorkspace" && (
-  <DrawingWorkspace key={activeDrawingProject?.project.id ?? "unsaved-drawing-workspace"} initialProject={activeDrawingProject} />
-)}
-{view === "stickFigureWorkspace" && (
-  <StickFigureWorkspace
-    key={activeStickProject?.projectId ?? "unsaved-stick-workspace"}
-    initialProject={activeStickProject}
-    onOpenStickFigureCreator={() => setView("stickFigureCreatorWorkspace")}
-  />
-)}
-{view === "stickFigureCreatorWorkspace" && <StickFigureCreatorWorkspace onExit={() => setView("stickFigureWorkspace")} />}
     </div>
   );
 }

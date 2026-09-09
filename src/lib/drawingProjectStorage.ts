@@ -392,9 +392,10 @@ const createV2Document = async (data: DrawingProjectData) => {
 const serializedBitmap = (value: { width: number; height: number; rgba: Uint8Array } | undefined): SerializedBitmap | null =>
   value ? { width: value.width, height: value.height, data: value.rgba.slice() } : null;
 
-const hydrateV2Project = async (
+export const hydrateV2Project = async (
   head: DrawingProjectHeadV2,
   record: DrawingProjectVersionRecordV2,
+  capturedMemory?: DrawingAiProjectMemory | null,
 ): Promise<StoredDrawingProject> => {
   const verifiedRasters = await verifyDrawingProjectRasters(record.document, record.assets, nativePngDecoder);
   const assets = new Map(record.assets.map((asset) => [asset.assetId, asset]));
@@ -443,7 +444,7 @@ const hydrateV2Project = async (
     id: head.projectId,
     name: head.title,
     previewDataUrl: null,
-    aiMemory: await readAuxiliaryMemory(head.projectId).catch(() => null),
+    aiMemory: capturedMemory !== undefined ? capturedMemory : await readAuxiliaryMemory(head.projectId).catch(() => null),
     created_at: head.createdAt,
     updated_at: head.updatedAt,
     data: {

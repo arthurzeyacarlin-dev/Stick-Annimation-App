@@ -109,14 +109,17 @@ node --experimental-strip-types scripts/validateTimelinePlaybackSmoothing.ts
 
 `package.json` now exposes the focused permanent SPEC-0001 browser command `test:spec0001-browser`; it still does not expose general `typecheck`, `test`, or composed `check` scripts. Adding those broader commands remains QLT-003.
 
-## Accepted SPEC-0006 Phase 1 proof — publication pending
+## Accepted SPEC-0006 Phase 1 proof — published
 
-[`SPEC-0006`](specs/0006-unified-animation-workspace.md) is Approved. GIT-050 published activation at `3b784cc6a68ff6f10fa390d96b81376b46e54b44`. D-0058 accepts the exact 11-path Phase 1 result as technically Verified pending GIT-051 publication/integration; Phases 2–7 remain Unauthorized; Not started.
+GIT-051 published/integrated Phase 1 in exact commit `804ff39dc73c88d4799570cce2ef18987745a0be`. Its accepted technical manifest remains `output/spec-0006/phase-1/proof-manifest.json`, 9,257 bytes, SHA-256 `83614635c02f22d81205c441c46de3bff3a75f1c948661a1670a36eca75dbb29`. The accepted 160-check/3,516-assertion migration proof covers 56 valid, 124 invalid/tamper, 1,000 repeated mappings, all four source kinds, an implementation-independent oracle, and zero source writes.
 
-The accepted technical manifest is `output/spec-0006/phase-1/proof-manifest.json`, 9,257 bytes, SHA-256 `83614635c02f22d81205c441c46de3bff3a75f1c948661a1670a36eca75dbb29`. Independent CPA revalidation passed 160 manifest checks. Fresh migration execution passed 56 valid/boundary cases, 124 invalid/tamper cases, 1,000 repeated seeded mappings, 3,516 assertions, all four legacy source kinds, stable typed errors, an oracle that imports no implementation under test, and zero source writes. Fresh TypeScript, focused lint, Drawing V1/V2 contract/repository, Stick history/timeline, exact hash/scope/diff/index checks passed. Full lint remains the accepted pre-existing 5-error/72-warning baseline with zero Phase 1 finding.
+## Accepted SPEC-0006 Phase 2 proof — publication pending
 
-The preserved ordinary-app browser result records 10 operations, five screenshots, four deterministic Stick availability requests, zero real API/external requests, zero console/page errors, and no review-only UI. Arthur accepted that unchanged-app review. The historical review URL was `http://127.0.0.1:56261/`; its port is closed. No dedicated Phase 1 tracked-state finalizer exists, so CPA closeout uses the unchanged manifest validator, complete source/receipt/artifact hash-and-size replay, `bash scripts/update_memory.sh`, check-only memory verification, exact technical-plus-record scope, lifecycle/link/diff/index/hidden-flag/symlink/process/port checks, and final empty index. Publication remains a later GIT-051 instruction.
+D-0059 accepts the corrected exact 15-path Phase 2 result from base/HEAD `804ff39dc73c88d4799570cce2ef18987745a0be`, within the 16-path ceiling. Manifest `output/spec-0006/phase-2/proof-manifest.json` is 16,649 bytes at SHA-256 `ebfeb699c0d9bcedd5b6b7c90d5cb4b71a3fe3ea89326a2820b86882e2c27cb7`. CPA ran the strict unchanged-tree validator before record propagation; it passed 15 source bindings, 19 receipts, 38 artifacts, 18 negative mutation cases, exact scope, and empty index. Final record closeout uses artifact-only validation plus explicit source-binding and dirty-path partition checks because reviewed control-plane paths are intentionally added after executor stop.
 
+The browser proof passed 40 operations and 13 screenshots at desktop/compact across Home/New/one collection/Drawing V1/V2/Stick V1/V2. It proves the accepted inherited Projects and editor presentation, direct Untitled New, invalid/missing/stale/storage failures, zero source writes, zero real API/external requests, zero page/console errors, and no review-only surface. Production compile/generate, TypeScript, focused/full lint non-regression, inherited Drawing/Stick/AI suites, and diff checks pass. The compact result is browser-profile evidence, not a physical-phone claim. Review URL `http://127.0.0.1:56362/` remains preserved until GIT-052 and D-0054 cleanup.
+
+Every phase requires:
 Every phase requires:
 
 - strict typed contract/reducer/repository tests with independent oracles that do not import the implementation under test;

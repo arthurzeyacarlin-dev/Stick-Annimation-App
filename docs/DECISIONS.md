@@ -564,6 +564,16 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Lifecycle consequence: Phase 1 is **accepted and technically Verified; pending GIT-051 publication/integration**. This decision and CPA propagation do not stage, commit, merge, push, publish, deploy, or authorize Phase 2. A later exact GIT-051 instruction may publish only the accepted 11 technical paths plus the reviewed control-plane/tree allowlist, after which clean synchronization and D-0054 accepted-copy cleanup are mandatory. Phase 2 and Phases 3–7 remain **Unauthorized; Not started**.
 - Preserved systems: current split Home/New/Open/Drawing/Stick UI and runtime ownership; all accepted SPEC-0001–0005 behavior/proof; D-0055 rejected/superseded history; legacy source bytes/stores; Drawing/Stick write paths; AI/provider/search/Supabase/model configuration; packages/dependencies; database/auth/billing/export/deployment; other worktrees and recovery material remain unchanged.
 
+### D-0059 — Accept corrected SPEC-0006 Phase 2 shell and unified New/Open result
+
+- Date: 2026-09-09
+- Status: Accepted by Arthur and the Project Manager; technically Verified in the dedicated worktree; pending GIT-052 publication/integration.
+- Published prerequisite: GIT-051 is complete in exact 27-path commit `804ff39dc73c88d4799570cce2ef18987745a0be`, parent `3b784cc6a68ff6f10fa390d96b81376b46e54b44`, message `Implement SPEC-0006 Phase 1 unified contract`. Canonical `main`, local `origin/main`, and live remote `main` were freshly verified at that SHA and `0/0`; its Phase 1 contract and migration hashes remain frozen.
+- Decision: accept exactly the corrected 15-path Phase 2 technical result in `/Users/arthurcarlin/.codex/worktrees/e4f3/stick-animation-app` from detached base/HEAD `804ff39dc73c88d4799570cce2ef18987745a0be`, with empty index. New Project creates **Untitled Project** directly through one `AnimationWorkspace`. Open Project keeps the established dark Projects screen, Back/centered heading/spacing/card treatment, removes the Drawing/Stick selector, combines all four supported source kinds without type badges or new wrapper chrome, disables invalid entries, and mounts exactly one inherited compatibility editor at the top of the viewport.
+- Evidence: accepted manifest `output/spec-0006/phase-2/proof-manifest.json` is 16,649 bytes at SHA-256 `ebfeb699c0d9bcedd5b6b7c90d5cb4b71a3fe3ea89326a2820b86882e2c27cb7`. CPA replay passed its 15 source bindings, 19 receipts, 38 artifacts, 18 negative mutation cases, frozen Phase 1 hashes, and empty-index check. Browser proof passed 40 operations/13 screenshots at desktop and compact across New, collection, Drawing V1/V2, Stick V1/V2, invalid/missing/stale/storage failures, with zero source writes, real API/external requests, page errors, console errors, or review-only product surface. Arthur's acceptance occurred after the immutable executor manifest was written, so its historical `humanAcceptance: pending Arthur` field remains unchanged while this decision records the later acceptance. Production compile/generate, TypeScript, lint non-regression, inherited validators, scope, and diff checks pass.
+- Lifecycle consequence: Phase 2 is **accepted and technically Verified; pending GIT-052 publication/integration**. A later already-authorized publication task may stage only the accepted 15 technical paths plus this reviewed control-plane/tree allowlist, commit, fast-forward unchanged clean canonical main, push, verify `0/0`, and complete D-0054 cleanup. Phase 3 and Phases 4–7 remain **Unauthorized; Not started**.
+- Preserved boundary: compatibility editors remain separate and keep their existing Drawing Save/Save As and Stick Save behavior. No mixed compositor, unified timeline/tools/history, canonical Save/repository, legacy deletion/rewrite, new AI/provider/model/prompt, external/paid request, dependency/configuration, cloud/auth, export, or deployment is accepted or implemented.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation
@@ -578,7 +588,7 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 
 ### P-0001 — Launch role of the Drawing Workspace
 
-- Status: resolved for intended architecture by D-0056; Phase 1 is technically Verified and accepted under D-0058, with GIT-051 publication/integration pending. Phases 2–7 remain Unauthorized/Not started.
+- Status: resolved for intended architecture by D-0056; Phase 1 is Verified/published/integrated at GIT-051, and Phase 2 is accepted/technically Verified under D-0059 pending GIT-052. Phases 3–7 remain Unauthorized/Not started.
 - Resolution: Drawing becomes a typed editable content system inside the one Animation Workspace rather than a separate New Project choice or separate saved-project pillar. Drawing-specific feature expansion still requires its own scope.
 
 ### P-0002 — Official product name
@@ -612,7 +622,7 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 
 - Status: pending product spec
 - Question: minimum creator, rig, pose, timeline, tween, history, library, persistence, and export controls for a usable release.
-- Needed before: Phase 2 implementation.
+- Needed before: SPEC-0006 Phase 5 manual-tool integration and future SPEC-0007 scope.
 
 ### P-0007 — Data/search/privacy policy
 
@@ -625,11 +635,11 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 
 - Status: pending Arthur/product architecture
 - Question: what minimum shared stick state model, reversible executor, persistence, and human corrective controls must exist before the first AI-led stick-animation slice, and which broader manual-editor controls can follow it?
-- Needed before: committing Phase 2/Phase 3 implementation order.
+- Needed before: committing the future SPEC-0008 AI-first vertical-slice order.
 - Narrow SPEC-0001 resolution: D-0009 accepts the seven-phase sequence, shared manual/AI mutation authority, bounded human safety floor, and separate browser-harness prerequisite for this slice; broader release sequencing remains pending.
 
 ### P-0009 — Possible unified Animation Workspace
 
-- Status: resolved for intended architecture by D-0056; SPEC-0006 is Approved and Phase 1 is technically Verified and accepted under D-0058, with GIT-051 publication/integration pending. Phases 2–7 remain Unauthorized/Not started.
+- Status: resolved for intended architecture by D-0056; SPEC-0006 is Approved, Phase 1 is Verified/published/integrated at GIT-051, and Phase 2 is accepted/technically Verified under D-0059 pending GIT-052. Phases 3–7 remain Unauthorized/Not started.
 - Resolution: one project/timeline/stage/save/history/AI surface replaces the separate Drawing/Stick choice using typed Drawing and Stick layers, lossless non-destructive legacy adoption, and one canonical writable root. See SPEC-0006 for the exact seven phases and proof gates.
-- Current boundary: the app remains split today. Phase 1 is hidden contract/migration infrastructure only; no later phase may implement the visible resolution until Arthur/PM separately authorize that phase from a published clean canonical base.
+- Current boundary: Phase 2 unifies ordinary New/Open navigation and compatibility mounting only. Drawing and Stick editor internals, compositing, timelines, tools, histories, and persistence remain separate until later authorized phases.

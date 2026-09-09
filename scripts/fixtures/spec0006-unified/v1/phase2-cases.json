@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "baseSha": "804ff39dc73c88d4799570cce2ef18987745a0be",
+  "mapperSha256": "093ccf4127bfe66adbf3ae6819c5118389e7e3a70efa53469eb9551065e6c28e",
+  "contractSha256": "249cfd4640b129927fa7206cf3c8b17bb0c98f4ecf46af0adb2d33125fc9168d",
+  "collectionCases": ["empty", "all-four-kinds", "updated-descending", "stable-id-tie", "same-title-different-id", "exact-duplicate", "conflicting-identity", "canonical-provenance-dedupe", "changed-source-separate", "invalid-entry-visible", "unsupported-entry-visible", "missing-asset-visible"],
+  "raceCases": ["double-click", "latest-open-wins", "open-during-bootstrap", "cancel-during-bootstrap", "stale-failure", "source-changes-after-list", "source-removed-after-list", "duplicate-added-after-list", "missing-asset-after-list", "invalid-entry", "IndexedDB-unavailable", "localStorage-read-error", "refresh"],
+  "viewports": [{"width":1440,"height":900,"deviceScaleFactor":1},{"width":390,"height":844,"deviceScaleFactor":2}],
+  "browserFlows": ["home-welcome", "tutorials-back-focus", "new-direct-title", "inherited-workspace-chrome", "new-drawing-tools-history", "one-combined-collection", "inherited-projects-shell", "no-project-type-selector", "no-project-type-badges", "drawing-v1-open", "drawing-v2-open", "stick-v1-open", "stick-v2-open", "stick-edit-history-creator", "source-change-rejection", "missing-asset-rejection", "invalid-disabled", "double-open-single-editor", "open-cancel-root-preserved", "refresh-home", "empty-storage", "storage-faults", "compact-inherited-controls", "source-zero-writes"]
+}

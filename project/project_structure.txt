@@ -251,6 +251,7 @@
 ./scripts/fixtures/spec0006-unified/v1
 ./scripts/fixtures/spec0006-unified/v1/mixed-realistic-source-ingredients.json
 ./scripts/fixtures/spec0006-unified/v1/phase1-cases.json
+./scripts/fixtures/spec0006-unified/v1/phase2-cases.json
 ./scripts/fixtures/spec0006-unified/v1/proof-commands.json
 ./scripts/fixtures/stick-ai
 ./scripts/fixtures/stick-ai/v1
@@ -379,9 +380,14 @@
 ./scripts/spec0006-unified/phase1BrowserProof.ts
 ./scripts/spec0006-unified/phase1FixtureFactory.ts
 ./scripts/spec0006-unified/phase1MigrationOracle.ts
+./scripts/spec0006-unified/phase2BrowserProof.ts
+./scripts/spec0006-unified/phase2FixtureFactory.ts
 ./scripts/spec0006-unified/recordPhase1Proof.ts
+./scripts/spec0006-unified/recordPhase2Proof.ts
 ./scripts/spec0006-unified/validatePhase1Migration.ts
 ./scripts/spec0006-unified/validatePhase1Proof.ts
+./scripts/spec0006-unified/validatePhase2Navigation.ts
+./scripts/spec0006-unified/validatePhase2Proof.ts
 ./scripts/sync_docs_to_github.sh
 ./scripts/traceExplosionLivePath.ts
 ./scripts/traceGenerateSoundsLivePath.mjs
@@ -430,6 +436,8 @@
 ./src/components/tutorials/TutorialsScreen.module.css
 ./src/components/tutorials/TutorialsScreen.tsx
 ./src/components/workspace
+./src/components/workspace/AnimationWorkspace.module.css
+./src/components/workspace/AnimationWorkspace.tsx
 ./src/components/workspace/DrawingCanvas.tsx
 ./src/components/workspace/DrawingRightPanel.tsx
 ./src/components/workspace/DrawingTimelineRow.tsx
@@ -497,6 +505,9 @@
 ./src/lib/animation
 ./src/lib/animation/unifiedAnimationContract.ts
 ./src/lib/animation/unifiedAnimationMigration.ts
+./src/lib/animation/unifiedProjectCollection.ts
+./src/lib/animation/unifiedProjectSourceReader.ts
+./src/lib/animation/unifiedWorkspaceBootstrap.ts
 ./src/lib/dbAdmin.ts
 ./src/lib/dbClient.ts
 ./src/lib/drawingProjectAudioCodec.ts

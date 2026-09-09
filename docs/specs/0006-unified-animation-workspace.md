@@ -1,29 +1,29 @@
 # SPEC-0006 — Unified Animation Workspace
 
-Status: SPEC-0006 is **Approved and active**. Phase 1 is **accepted and technically Verified; pending GIT-051 publication/integration** under D-0058. **Phases 2–7 remain Unauthorized; Not started.** Current ordinary runtime remains split.
+Status: SPEC-0006 is **Approved and active**. Phase 1 is **Verified, published, and integrated** at GIT-051 `804ff39dc73c88d4799570cce2ef18987745a0be`. Phase 2 is **accepted and technically Verified; pending GIT-052 publication/integration** under D-0059. **Phases 3–7 remain Unauthorized; Not started.**
 Owner: Arthur
 Spec role: Spec Architect
 Created: 2026-09-09
 Last updated: 2026-09-09
-Decision links: [D-0055 through D-0058](../DECISIONS.md)
-TODO IDs: `PLAN-006`, `SPEC-006`, `UNIFY-001`, `GIT-050`, `GIT-051`
-Baseline branch/commit: GIT-050 canonical `main` activation `3b784cc6a68ff6f10fa390d96b81376b46e54b44`
-Last verified branch/commit: accepted detached Phase 1 worktree base/HEAD `3b784cc6a68ff6f10fa390d96b81376b46e54b44`; exact 11-path technical result independently revalidated by CPA on 2026-09-09
+Decision links: [D-0055 through D-0059](../DECISIONS.md)
+TODO IDs: `PLAN-006`, `SPEC-006`, `UNIFY-001`, `UNIFY-002`, `GIT-050`, `GIT-051`, `GIT-052`
+Baseline branch/commit: GIT-051 canonical `main` `804ff39dc73c88d4799570cce2ef18987745a0be`
+Last verified branch/commit: accepted detached Phase 2 worktree base/HEAD `804ff39dc73c88d4799570cce2ef18987745a0be`; exact corrected 15-path technical result independently revalidated by CPA on 2026-09-09
 
-> **Lifecycle boundary.** GIT-050 published the activation at `3b784cc6a68ff6f10fa390d96b81376b46e54b44`. The Phase 1 Spec Executor completed exactly one 11-path technical result from that base and stopped. Arthur/PM accepted it; the CPA independently revalidated and propagated D-0058 without changing accepted technical bytes. GIT-051 publication/integration remains separately gated. Phases 2–7 remain Unauthorized; Not started.
+> **Lifecycle boundary.** GIT-051 published/integrated Phase 1 at `804ff39dc73c88d4799570cce2ef18987745a0be`. The corrected Phase 2 Spec Executor completed exactly one 15-path technical result from that base and stopped. Arthur/PM accepted it; the CPA independently revalidated and propagated D-0059 without changing accepted technical bytes. GIT-052 publication/integration is the next authorized later task. Phases 3–7 remain Unauthorized; Not started.
 >
-> **Current dirty-tree boundary.** The accepted worktree contains exactly 11 new technical paths plus CPA control-plane changes, with an empty index. The ignored Phase 1 manifest remains at its accepted hash/size. Nothing is staged, committed, merged, pushed, or published by this CPA propagation.
+> **Current dirty-tree boundary.** The accepted worktree contains exactly 15 dirty technical paths plus CPA control-plane changes, with an empty index. The ignored Phase 2 manifest remains at its accepted hash/size. Nothing is staged, committed, merged, pushed, or published by this CPA propagation.
 >
 > **Exactly seven phases.** This spec has exactly the seven implementation phases in §12. A correction to one phase does not create an eighth phase. Material outcome changes return to Arthur; bounded mechanics may be settled inside the authorized phase only when they preserve the contract, scope, safety, and proof below.
 >
 > **Sole ownership.** SPEC-0006 alone owns the complete workspace unification through its seven phases. Do not create a spec-helping-spec chain or move its contract, migration, tester, shell, or integration responsibility into another prerequisite spec. Bounded corrections belong in SPEC-0006 under the existing amendment/review rules; material changes return to Arthur without silently expanding a phase.
 
-### Current phase authorization — D-0057
+### Current phase authorization — D-0057/D-0059
 
 | Phase | Authorization | Implementation |
 | --- | --- | --- |
-| 1 — Contract and read-only legacy migration | Accepted; technically Verified | Exact 11-path result complete in review worktree; GIT-051 publication/integration pending |
-| 2 — Shell/New/Open | Unauthorized | Not started |
+| 1 — Contract and read-only legacy migration | Verified/published/integrated | Exact 11-path result published in GIT-051 `804ff39dc73c88d4799570cce2ef18987745a0be` |
+| 2 — Shell/New/Open | Accepted; technically Verified | Corrected exact 15-path result complete; GIT-052 publication/integration pending |
 | 3 — Stage/compositing | Unauthorized | Not started |
 | 4 — Timeline/playback/onion | Unauthorized | Not started |
 | 5 — Existing manual tools/layout | Unauthorized | Not started |
@@ -47,7 +47,7 @@ Drawing pixels/text/tweens remain Drawing data. Stick rigs/figures/joints/limbs/
 
 ## 2. Current problem and verified evidence
 
-### 2.1 Ordinary user flow — live verified 2026-09-09
+### 2.1 Baseline ordinary user flow — verified before Phase 2
 
 At the ordinary root app on loopback port `3000`:
 
@@ -60,10 +60,10 @@ At the ordinary root app on loopback port `3000`:
 
 Screens were observed at the ordinary desktop viewport; no review-only source or special route was used.
 
-### 2.2 Code/data path — code verified 2026-09-09
+### 2.2 Baseline code/data path — verified before Phase 2
 
 - `app/page.tsx` owns separate `drawingWorkspace` and `stickFigureWorkspace` views, separate active-project variables, two New Project cards, and two Open callbacks.
-- `src/components/OpenProjectBrowser.tsx` separately lists Drawing IndexedDB/V1-compatibility entries and Stick localStorage entries, then opens them through different functions.
+- `src/components/open-project/OpenProjectBrowser.tsx` separately listed Drawing IndexedDB/V1-compatibility entries and Stick localStorage entries, then opened them through different functions.
 - `src/components/workspace/DrawingWorkspace.tsx` owns Drawing layers, frames, bitmap/text/tween/sound state, playback, two-scope history, persistence, and Drawing AI application. Its initial title is `Unnamed drawing project`.
 - `src/components/workspace/DrawingCanvas.tsx` owns a six-canvas authoring surface, Drawing tool sessions, selection, text, imported assets, library symbols, camera state, and panel behavior. Its authoring allocation is based on host size × `4.6` × device-pixel ratio rather than a document-fixed backing size.
 - `src/lib/drawingProjectStorage.ts` adapts live `DrawingProjectData.version = 1` to a strict Drawing V2 repository. Drawing V2 stores project heads/version records and PNG/audio assets transactionally in IndexedDB; its accepted limits include 128 MiB per stored project, 512 MiB per collection, 512 MiB referenced hydrated RGBA, 256 MiB per raster, and 64 projects. It also recognizes older localStorage Drawing records without rewriting them on open.
@@ -74,7 +74,13 @@ Screens were observed at the ordinary desktop viewport; no review-only source or
 - `StickFigureCanvas.tsx` composites Stick layers only; `DrawingWorkspace.tsx` composites Drawing layers only. Each timeline and onion resolver knows only its own payload type.
 - Current Drawing and Stick AI paths have different adapters. This spec does not broaden either path.
 
-### 2.3 Missing foundation / root cause
+### 2.3 Current Phase 2 implementation boundary — accepted 2026-09-09
+
+Phase 2 replaces the baseline navigation branch: Home New now creates an in-memory Untitled Project through `WorkspaceBootstrap`; Home Open renders one combined `ProjectCollectionEntry` list and maps a selected source through the Phase 1 migration boundary; `AnimationWorkspace` mounts exactly one Drawing or Stick compatibility editor. The accepted correction preserves the inherited Projects screen and editor chrome: no type selector or badges, no new wrapper header/navigation strip/drawer, and the editor begins at viewport pixel 0. Invalid entries are disabled. The source readers/list/open flow remain read-only.
+
+The underlying editors remain architecturally separate. Drawing and Stick still own different compositor, timeline, tools, history, and save systems. Phase 2 does not provide mixed content, canonical persistence, one Save/Save As contract, or a shared editing transaction root.
+
+### 2.4 Missing foundation / root cause
 
 The split is architectural, not only navigational. There is no canonical project union, no common layer/cell ownership contract, no shared compositor, no one history transaction root, no one save repository, and no lossless migration boundary spanning both current formats. The two large coordinators can each consider themselves authoritative because `app/page.tsx` chooses between them before a project is created or opened.
 
@@ -326,11 +332,11 @@ Systems intentionally outside SPEC-0006: new AI quality, provider/model/video/tr
 
 **Entry gate.** Phase 1 accepted, propagated, published, synchronized; candidate mapper API/hash frozen; exact collection dedupe/invalid-entry fixtures accepted; one review-copy slot free.
 
-**Normal app-copy human review.** At desktop and compact viewports, Home → New goes directly to the one shell/title; reload → Home → Open shows one collection with canonical/legacy/invalid labels and no type toggle; valid Drawing and Stick entries open; Back/focus and ordinary Home remain usable.
+**Normal app-copy human review.** At desktop and compact viewports, Home → New goes directly to Untitled Project with the inherited editor top bar at viewport pixel 0; reload → Home → Open preserves the established dark Projects layout, Back control, centered heading, spacing, and cards while removing the Drawing/Stick selector and showing one collection without type badges; valid Drawing V1/V2 and Stick V1/V2 entries open; invalid entries are disabled; Back/focus and ordinary Home remain usable.
 
 **Measurable acceptance.** Zero Drawing/Stick choice controls; exact title Untitled Project; one collection ordering rule (`updatedAt` descending, stable ID tie-break); exactly one mounted `AnimationWorkspace` and never two legacy compatibility editors at once; open writes zero bytes; stale/failed open leaves the current bootstrap/candidate digest unchanged; no page overflow at required viewports.
 
-**Negative tests.** Double-click/racing opens, open during bootstrap, invalid entry, missing asset, source changed after list, duplicate provenance, same title/different ID, empty collection, IndexedDB unavailable, localStorage read error, refresh, compact drawer escape/focus.
+**Negative tests.** Double-click/racing opens, open during bootstrap, invalid entry, missing asset, source changed after list, duplicate provenance, same title/different ID, empty collection, IndexedDB unavailable, localStorage read error, reload/refresh, compact Back/focus, accidental type badge/selector, added wrapper chrome, or source-store mutation.
 
 **Protected regressions.** REG-01, REG-04–REG-12. Both legacy editor experiences remain usable inside the new shell until their owners move in later phases.
 
@@ -514,39 +520,38 @@ This map is not an executor allowlist. Each authorized phase must freeze its exa
 
 ## 15. Implementation and verification records
 
-Phase 1 is accepted and technically Verified in `/Users/arthurcarlin/.codex/worktrees/ac2f/stick-animation-app`; GIT-051 publication/integration is pending. The exact accepted technical boundary is:
+### Phase 1 — published and integrated
 
-- `scripts/fixtures/spec0006-unified/v1/mixed-realistic-source-ingredients.json`
-- `scripts/fixtures/spec0006-unified/v1/phase1-cases.json`
-- `scripts/fixtures/spec0006-unified/v1/proof-commands.json`
-- `scripts/spec0006-unified/phase1BrowserProof.ts`
-- `scripts/spec0006-unified/phase1FixtureFactory.ts`
-- `scripts/spec0006-unified/phase1MigrationOracle.ts`
-- `scripts/spec0006-unified/recordPhase1Proof.ts`
-- `scripts/spec0006-unified/validatePhase1Migration.ts`
-- `scripts/spec0006-unified/validatePhase1Proof.ts`
-- `src/lib/animation/unifiedAnimationContract.ts`
-- `src/lib/animation/unifiedAnimationMigration.ts`
+Phase 1's exact 11 technical paths plus reviewed records/tree are published in GIT-051 `804ff39dc73c88d4799570cce2ef18987745a0be`, parent `3b784cc6a68ff6f10fa390d96b81376b46e54b44`, message `Implement SPEC-0006 Phase 1 unified contract`, exactly 27 paths. The accepted manifest remains `output/spec-0006/phase-1/proof-manifest.json`, 9,257 bytes at SHA-256 `83614635c02f22d81205c441c46de3bff3a75f1c948661a1670a36eca75dbb29`. The migration suite passed 56 valid, 124 invalid/tamper, 1,000 repeated mappings, 3,516 assertions, all four source kinds, an independent oracle, and zero writes. Frozen library hashes carried into Phase 2 are `249cfd4640b129927fa7206cf3c8b17bb0c98f4ecf46af0adb2d33125fc9168d` for `unifiedAnimationContract.ts` and `093ccf4127bfe66adbf3ae6819c5118389e7e3a70efa53469eb9551065e6c28e` for `unifiedAnimationMigration.ts`.
 
-The accepted manifest is `output/spec-0006/phase-1/proof-manifest.json`, exactly 9,257 bytes at SHA-256 `83614635c02f22d81205c441c46de3bff3a75f1c948661a1670a36eca75dbb29`. CPA independently replayed 160 manifest checks. The migration suite passed 56 valid cases, 124 invalid/tamper cases, 1,000 deterministic repeats, 3,516 assertions, Drawing V1/V2 and Stick V1/V2, an implementation-independent oracle, and zero source writes. TypeScript, focused lint, Drawing V1/V2 contract/repository validators, Stick history/timeline validators, source bindings, scope/diff/index checks pass. Full lint remains the pre-existing 5-error/72-warning baseline with zero Phase 1 finding.
+### Phase 2 — accepted and technically Verified; publication pending
 
-Arthur accepted the unchanged ordinary-app review. The bound browser result records 10 operations/five screenshots across Home, current New split, Drawing, Stick, Creator/Back, and current Open tabs; four deterministic Stick availability requests; zero real API/external requests; zero console/page errors; and no review-only UI. The historical review port `56261` is closed. No existing runtime file or source store changed. Phases 2–7 remain Unauthorized; Not started.
+The accepted corrected technical boundary in `/Users/arthurcarlin/.codex/worktrees/e4f3/stick-animation-app`, detached at GIT-051 base/HEAD `804ff39dc73c88d4799570cce2ef18987745a0be`, is exactly:
 
-The proposal-time checks below remain historical evidence, not Phase 1 proof.
+- `app/page.tsx`
+- `src/components/open-project/OpenProjectBrowser.tsx`
+- `src/components/workspace/AnimationWorkspace.tsx`
+- `src/components/workspace/AnimationWorkspace.module.css`
+- `src/lib/animation/unifiedProjectCollection.ts`
+- `src/lib/animation/unifiedProjectSourceReader.ts`
+- `src/lib/animation/unifiedWorkspaceBootstrap.ts`
+- `src/components/workspace/DrawingWorkspace.tsx`
+- `src/lib/drawingProjectStorage.ts`
+- `scripts/fixtures/spec0006-unified/v1/phase2-cases.json`
+- `scripts/spec0006-unified/phase2FixtureFactory.ts`
+- `scripts/spec0006-unified/validatePhase2Navigation.ts`
+- `scripts/spec0006-unified/phase2BrowserProof.ts`
+- `scripts/spec0006-unified/recordPhase2Proof.ts`
+- `scripts/spec0006-unified/validatePhase2Proof.ts`
 
-Historical proposal verification — before D-0057 approval:
+The accepted manifest is `output/spec-0006/phase-2/proof-manifest.json`, exactly 16,649 bytes at SHA-256 `ebfeb699c0d9bcedd5b6b7c90d5cb4b71a3fe3ea89326a2820b86882e2c27cb7`. CPA independently replayed the unchanged manifest before control-plane edits: PASS, 15 source bindings, 19 receipts, 38 artifacts, 18 negative mutation cases, exact scope, and empty index. TypeScript, focused lint, unchanged full-lint baseline with zero new/changed-line findings, Drawing V1/V2 and Stick contract/history/storage/timeline/AI validators, production compile/generate, and diff checks pass.
 
-| Gate | Result | Evidence |
-| --- | --- | --- |
-| Required control-plane boot | Passed | canonical docs/spec/live paths read from current worktree |
-| Live code trace | Passed | separate page/open/workspace/history/storage/render/timeline paths enumerated in §2 |
-| Ordinary app trace | Passed | Home → New → Drawing, Home → New → Stick, and Home → Open observed on loopback `3000` |
-| Runtime/product mutation | None | proposal changes documentation/control plane only |
-| External/provider/paid activity | None | ordinary loopback inspection only |
-| Implementation authorization | None | status remains Proposed/Unauthorized |
+The bound browser result records 40 operations and 13 screenshots across desktop/compact Home/New/collection and Drawing V1/V2/Stick V1/V2 opens. It proves the corrected inherited presentation, invalid/missing/stale/storage failure behavior, zero source writes, zero real API/external requests, zero console/page errors, and no review-only product surface. Arthur accepted this corrected visible result. Review URL `http://127.0.0.1:56362/` remains preserved until GIT-052 publication and D-0054 cleanup.
+
+Phase 2 does not merge the compatibility editors. Mixed compositor/timeline/tools/history/canonical Save and unified persistence remain unimplemented; Phase 6 owns the final repository/write path. Phases 3–7 remain Unauthorized; Not started.
 
 ## 16. Final state and handoff
 
-Arthur has approved the exact desired outcome, typed contract, lossless migration, one-root ownership, visible layout, realistic mixed fixture, performance/memory targets, regression boundaries, and seven phases. GIT-050 activation is published. D-0058 accepts Phase 1's exact hidden contract/read-only migration result as technically Verified pending GIT-051 publication/integration. **Phases 2–7 remain Unauthorized; Not started.** Current ordinary runtime remains split. SPEC-0006 alone owns the complete workspace unification through its seven phases.
+SPEC-0006 remains Approved and active. Phase 1 is Verified/published/integrated at GIT-051 `804ff39dc73c88d4799570cce2ef18987745a0be`. D-0059 accepts the corrected exact 15-path Phase 2 result as technically Verified pending GIT-052 publication/integration. The current ordinary app has direct New, one inherited combined Open collection, and one compatibility editor mounted through `AnimationWorkspace`; it does not yet have mixed rendering, a unified timeline/tools/history, canonical Save, or one persistence owner.
 
-Next step: after this CPA packet is reviewed, a later explicit GIT-051 instruction may publish only the exact accepted 11 technical paths plus the reviewed control-plane/tree allowlist. Phase 2 requires a later separate owner authorization after Phase 1 is durably integrated and cleanly synchronized.
+Next step: the already-authorized later GIT-052 task may publish only the accepted Phase 2 technical paths plus the reviewed CPA control-plane/tree allowlist, then verify clean synchronization and perform D-0054 accepted-copy cleanup. Phase 3 requires a later separate owner authorization after Phase 2 is durably integrated. Phases 3–7 remain Unauthorized; Not started.

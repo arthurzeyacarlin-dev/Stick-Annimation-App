@@ -1,4 +1,5 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import type {ReactNode} from "react";
 import {
   canonicalJson,
   digestCanonical,
@@ -82,6 +83,7 @@ import {
 type StickFigureWorkspaceProps = {
   onOpenStickFigureCreator: () => void;
   initialProject?: StickSavedProjectRecordV1 | null;
+  renderStage?: (index: number, sourceLayerId: string, content: StickFigureFrameContent) => ReactNode;
 };
 
 type StickPublicationState =
@@ -206,7 +208,7 @@ const newProjectSnapshot = (): EditableStickProjectSnapshotV1 => {
   };
 };
 
-export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject = null}: StickFigureWorkspaceProps) {
+export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject = null, renderStage}: StickFigureWorkspaceProps) {
   const initialSnapshotRef = useRef<EditableStickProjectSnapshotV1 | null>(null);
   if (!initialSnapshotRef.current) {
     initialSnapshotRef.current = initialProject
@@ -391,9 +393,9 @@ export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject =
   const onionOverlays = useMemo(() => isOnionEnabled && !isTimelinePlaying
     ? resolveEditableStickOnionOverlays(timeline, timeline.selectedTimelineIndex)
     : [], [isOnionEnabled, isTimelinePlaying, timeline]);
-  const stickAiStageProjection = useMemo(() => stickStageSize
+  const stickAiStageProjection = useMemo(() => !renderStage && stickStageSize
     ? createStickAiStageProjection(stickStageSize.width, stickStageSize.height)
-    : null, [stickStageSize]);
+    : null, [stickStageSize, renderStage]);
   const activeUsesStickAiProjection = isStickAiCanonicalStructureGraphV2(activeContent.structureGraph);
   const renderedActiveContent = useMemo(
     () => projectStickAiContent(activeContent, stickAiStageProjection),
@@ -1555,8 +1557,9 @@ export function StickFigureWorkspace({onOpenStickFigureCreator, initialProject =
         canPasteFrame={hasCopiedFrame}
         onResizeTimelineSpan={resizeTimelineSpan}
       />
-      <div ref={canvasColumnRef} style={{flex: 1, minHeight: 0, display: "flex"}}>
+      <div ref={canvasColumnRef} data-stage-layout={renderStage ? "authored" : undefined} style={{flex: 1, minHeight: 0, display: "flex"}}>
         <StickFigureCanvas
+          renderSurface={renderStage ? content => renderStage(timeline.currentFrameIndex, timeline.activeLayerId, content) : undefined}
           figures={renderedActiveContent.figures}
           backgroundContents={renderedBackgroundContents}
           selection={selection}

@@ -252,6 +252,7 @@
 ./scripts/fixtures/spec0006-unified/v1/mixed-realistic-source-ingredients.json
 ./scripts/fixtures/spec0006-unified/v1/phase1-cases.json
 ./scripts/fixtures/spec0006-unified/v1/phase2-cases.json
+./scripts/fixtures/spec0006-unified/v1/phase3-render-cases.json
 ./scripts/fixtures/spec0006-unified/v1/proof-commands.json
 ./scripts/fixtures/stick-ai
 ./scripts/fixtures/stick-ai/v1
@@ -382,12 +383,17 @@
 ./scripts/spec0006-unified/phase1MigrationOracle.ts
 ./scripts/spec0006-unified/phase2BrowserProof.ts
 ./scripts/spec0006-unified/phase2FixtureFactory.ts
+./scripts/spec0006-unified/phase3BrowserProof.ts
+./scripts/spec0006-unified/phase3FixtureFactory.ts
+./scripts/spec0006-unified/phase3RenderOracle.ts
 ./scripts/spec0006-unified/recordPhase1Proof.ts
 ./scripts/spec0006-unified/recordPhase2Proof.ts
+./scripts/spec0006-unified/recordPhase3Proof.ts
 ./scripts/spec0006-unified/validatePhase1Migration.ts
 ./scripts/spec0006-unified/validatePhase1Proof.ts
 ./scripts/spec0006-unified/validatePhase2Navigation.ts
 ./scripts/spec0006-unified/validatePhase2Proof.ts
+./scripts/spec0006-unified/validatePhase3Proof.ts
 ./scripts/sync_docs_to_github.sh
 ./scripts/traceExplosionLivePath.ts
 ./scripts/traceGenerateSoundsLivePath.mjs
@@ -444,6 +450,7 @@
 ./src/components/workspace/DrawingToolBar.tsx
 ./src/components/workspace/DrawingTopBar.tsx
 ./src/components/workspace/DrawingWorkspace.tsx
+./src/components/workspace/UnifiedAnimationStage.tsx
 ./src/components/workspace/ai
 ./src/components/workspace/ai/DrawingAiPanel.tsx
 ./src/components/workspace/ai/WorkspaceAiPanelShell.tsx
@@ -505,8 +512,13 @@
 ./src/lib/animation
 ./src/lib/animation/unifiedAnimationContract.ts
 ./src/lib/animation/unifiedAnimationMigration.ts
+./src/lib/animation/unifiedCellResolver.ts
+./src/lib/animation/unifiedDrawingRenderAdapter.ts
 ./src/lib/animation/unifiedProjectCollection.ts
 ./src/lib/animation/unifiedProjectSourceReader.ts
+./src/lib/animation/unifiedStageGeometry.ts
+./src/lib/animation/unifiedStageRenderer.ts
+./src/lib/animation/unifiedStickRenderAdapter.ts
 ./src/lib/animation/unifiedWorkspaceBootstrap.ts
 ./src/lib/dbAdmin.ts
 ./src/lib/dbClient.ts

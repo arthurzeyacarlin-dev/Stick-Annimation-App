@@ -9,3 +9,45 @@
 .editor > div {
   height: 100% !important;
 }
+
+/* A full-width authored stage must remain usable beside the inherited panel.
+   Compact presentation stacks the existing regions without adding chrome. */
+@media (max-width: 640px) {
+  .mixed .editor > div > :nth-child(2) {
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: 54px 54px;
+    height: 108px !important;
+    min-height: 108px !important;
+    padding-left: 0 !important;
+  }
+  .mixed .editor > div > :nth-child(2) > div {
+    grid-column: 1 !important;
+    margin-left: 0 !important;
+    min-width: 0;
+  }
+  .mixed .editor > div > :nth-child(2) > div:first-of-type {
+    overflow-x: auto;
+    padding-inline: 10px;
+  }
+  .mixed .editor > div > :nth-child(2) > div:first-of-type > * {
+    flex-shrink: 0;
+  }
+  .mixed [data-stage-layout="authored"] {
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .mixed [data-stage-layout="authored"] > :first-child {
+    flex: 0 0 236px !important;
+    min-height: 236px;
+  }
+  .mixed [data-stage-layout="authored"] > :last-child {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 340px !important;
+    flex-shrink: 0;
+  }
+  .mixed [data-stage-layout="authored"] > :last-child > :nth-child(2) {
+    overflow-x: auto;
+  }
+}

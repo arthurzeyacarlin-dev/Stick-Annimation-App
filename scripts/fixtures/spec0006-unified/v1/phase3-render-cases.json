@@ -1,0 +1,102 @@
+{
+  "fixtureId": "MIXED-REALISTIC-01",
+  "version": 1,
+  "stage": [
+    1920,
+    1080
+  ],
+  "fps": 12,
+  "positions": 48,
+  "rasterSize": [
+    4563,
+    3302
+  ],
+  "order": [
+    "Background",
+    "Stick figure",
+    "Foreground lettering"
+  ],
+  "keyPoses": [
+    0,
+    12,
+    24,
+    36
+  ],
+  "backgroundKeys": [
+    0,
+    12,
+    24
+  ],
+  "tweenCells": [
+    13,
+    23
+  ],
+  "tweenOrigins": [
+    [
+      0,
+      0
+    ],
+    [
+      240,
+      0
+    ]
+  ],
+  "text": "DRAWING + STICK",
+  "upperMask": [
+    750,
+    792,
+    420,
+    58
+  ],
+  "negativeCases": [
+    "missing-asset",
+    "decode-failure",
+    "hidden-layer",
+    "locked-layer",
+    "blank-owner",
+    "empty-cell",
+    "held-owner",
+    "tween-boundaries",
+    "extreme-aspect",
+    "dpr-change",
+    "zero-size",
+    "rapid-resize",
+    "adapter-throw",
+    "invalid-command",
+    "drawing-above-stick",
+    "drawing-below-stick",
+    "text-only"
+  ],
+  "frozen": {
+    "document": "7fecc265857a0c99a552cb72fee6f714fc0a1b286f40d2920b2e277104186d1d",
+    "source": "2998338cdf8c3ec5e912d541c63ff224858667b45cdbc5ff9737d9ada872708f",
+    "assets": [
+      {
+        "id": "raster-png-54c8cad31212673af2021698180010e60d9b34cf3841d6592b2f7613980edcdd",
+        "bytes": 72060,
+        "sha256": "54c8cad31212673af2021698180010e60d9b34cf3841d6592b2f7613980edcdd",
+        "rgba": "0069931f4a66c4cccb4706d45f0621e87f05ff526bc922b02b70c9d5689aacae"
+      },
+      {
+        "id": "raster-png-20e592fef1f6bc6fda6244d6073106e5364944eb734f15181032400bc749f59a",
+        "bytes": 72060,
+        "sha256": "20e592fef1f6bc6fda6244d6073106e5364944eb734f15181032400bc749f59a",
+        "rgba": "a880949d3d83bae757ab2a6d020b358d1ee826ccb0b705441b54359392c9e3ac"
+      },
+      {
+        "id": "raster-png-454821a56ef4ca3f5bd4695d42c853217af44e7b2ab6ef4cdfb890fd6b5f0dcb",
+        "bytes": 8476,
+        "sha256": "454821a56ef4ca3f5bd4695d42c853217af44e7b2ab6ef4cdfb890fd6b5f0dcb",
+        "rgba": "47fdb717b5a9ff3b95e0896f565a85aa1e5184f4a511c63c20abbcec80fb28fb"
+      },
+      {
+        "id": "audio-26131825c935435301fb05d3549d815bc93b1e717d6228d890ee9578dd00025e",
+        "bytes": 844,
+        "sha256": "26131825c935435301fb05d3549d815bc93b1e717d6228d890ee9578dd00025e",
+        "rgba": null
+      }
+    ],
+    "renderLists": "b9d72c5fc9ad982b2fce42fdd423686eb7aa0bf1ef0804faf10a4577e7798435"
+  },
+  "stickGeometry": "Four independently owned cells contain identical neutral pose geometry; no Stick interpolation or animated gesture."
+}

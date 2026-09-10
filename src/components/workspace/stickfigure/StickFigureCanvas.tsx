@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { PointerEvent as ReactPointerEvent, WheelEvent as ReactWheelEvent } from "react";
+import type { PointerEvent as ReactPointerEvent, WheelEvent as ReactWheelEvent, ReactNode } from "react";
+import { fitAuthoredStage } from "../../../lib/animation/unifiedStageGeometry";
 
 import type { StickFigureToolName } from "./StickFigureToolBar";
 import type {
@@ -14,6 +15,7 @@ import type {
 } from "./types";
 
 type StickFigureCanvasProps = {
+  renderSurface?: (content: StickFigureFrameContent) => ReactNode;
   figures: StickFigureFigureItem[];
   backgroundContents?: StickFigureFrameContent[];
   selection: StickFigureSelection;
@@ -88,6 +90,7 @@ function StickFigureStageGlyph({ scale, rotation, color = "#10131b" }: { scale: 
 }
 
 export function StickFigureCanvas({
+  renderSurface,
   figures,
   backgroundContents = [],
   selection,
@@ -111,6 +114,16 @@ export function StickFigureCanvas({
   const stageInset = `${((1 - stageScale) * 100) / 2}%`;
   const canvasHostRef = useRef<HTMLDivElement | null>(null);
   const stageRef = useRef<HTMLDivElement | null>(null);
+  const [presentation, setPresentation] = useState<ReturnType<typeof fitAuthoredStage>>(null);
+  const fixedStage = Boolean(renderSurface);
+  useEffect(() => {
+    if (!fixedStage || !canvasHostRef.current) return;
+    const host = canvasHostRef.current;
+    const measure = () => setPresentation(fitAuthoredStage(host.clientWidth, host.clientHeight));
+    measure();
+    const observer = new ResizeObserver(measure); observer.observe(host);
+    return () => observer.disconnect();
+  }, [fixedStage]);
   const canvasPanStartRef = useRef<CanvasPanState | null>(null);
   const [dragPreview, setDragPreview] = useState<DragPreview | null>(null);
   const [jointDrag, setJointDrag] = useState<JointDragState | null>(null);
@@ -493,6 +506,11 @@ export function StickFigureCanvas({
   };
 
   const cameraTransform = `translate(${cameraPan.x}px, ${cameraPan.y}px) scale(${cameraZoom})`;
+  const authoredStyle = fixedStage ? {
+    inset: "auto", left: "50%", top: "50%", width: 1920, height: 1080,
+    transform: `translate(-50%, -50%) translate(${cameraPan.x}px, ${cameraPan.y}px) scale(${(presentation?.scale ?? 0) * cameraZoom / .85})`,
+    transformOrigin: "center center",
+  } : {};
   const isSelectToolActive = activeTool === "Select" && structureTool !== "addLimb";
 
   return (
@@ -518,6 +536,7 @@ export function StickFigureCanvas({
             pointerEvents: "none",
             transform: cameraTransform,
             transformOrigin: "center center",
+            ...authoredStyle,
           }}
         />
 
@@ -532,6 +551,7 @@ export function StickFigureCanvas({
             touchAction: "none",
             transform: cameraTransform,
             transformOrigin: "center center",
+            ...authoredStyle,
           }}
           onPointerDown={handleStagePointerDown}
           onPointerMove={handleStagePointerMove}
@@ -539,6 +559,8 @@ export function StickFigureCanvas({
           onPointerCancel={handleStagePointerCancel}
           onLostPointerCapture={handleStagePointerCancel}
         >
+          {renderSurface?.({ figures, structureGraph: renderedStructureGraph })}
+          <div style={{ display: fixedStage ? "none" : "contents" }}>
           <svg
             aria-hidden="true"
             style={{
@@ -728,6 +750,10 @@ export function StickFigureCanvas({
                 </button>
               );
             })}
+          </div>
+          {fixedStage && selectedStructureJointId ? <svg aria-hidden="true" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}>
+            {renderedStructureGraph.joints.filter(joint => joint.id === selectedStructureJointId).map(joint => <circle key={joint.id} cx={joint.x} cy={joint.y} r={6} fill="#7bb0ff" stroke="#10131b" strokeWidth={4} />)}
+          </svg> : null}
         </div>
 
         <div

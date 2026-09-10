@@ -1,30 +1,30 @@
 # SPEC-0006 — Unified Animation Workspace
 
-Status: SPEC-0006 is **Approved and active**. Phase 1 is **Verified, published, and integrated** at GIT-051 `804ff39dc73c88d4799570cce2ef18987745a0be`. Phase 2 is **Verified, published, and integrated** at GIT-052 `d2096109900cc50a0a4dae2f603bd74b7b4a3427`. Under D-0060, Phase 3 is **Approved; Authorized; Not started** from that exact runtime base. **Phases 4–7 remain Unauthorized; Not started.**
+Status: SPEC-0006 is **Approved and active**. Phases 1–2 remain Verified/published/integrated through GIT-051 and GIT-052 `d2096109900cc50a0a4dae2f603bd74b7b4a3427`. Phase 3 is **accepted and Verified in the dedicated worktree; unpublished and not integrated**, under D-0061. **Phases 4–7 remain Unauthorized/Not started.**
 Owner: Arthur
 Spec role: Spec Architect
 Created: 2026-09-09
 Last updated: 2026-09-10
-Decision links: [D-0055 through D-0060](../DECISIONS.md)
-TODO IDs: `PLAN-006`, `SPEC-006`, `UNIFY-001`, `UNIFY-002`, `UNIFY-003`, `GIT-050`, `GIT-051`, `GIT-052`, `GIT-053`
+Decision links: [D-0055 through D-0061](../DECISIONS.md)
+TODO IDs: `PLAN-006`, `SPEC-006`, `UNIFY-001`, `UNIFY-002`, `UNIFY-003`, `GIT-050`, `GIT-051`, `GIT-052`, `GIT-053`, `GIT-054`
 Baseline branch/commit: GIT-052 canonical runtime `main` `d2096109900cc50a0a4dae2f603bd74b7b4a3427`
-Last verified branch/commit: GIT-052 `d2096109900cc50a0a4dae2f603bd74b7b4a3427`; exact corrected 15-path Phase 2 result published and local main/local origin/live GitHub equality freshly verified on 2026-09-10
+Last verified branch/commit: 2026-09-10 CPA closeout in detached c6b0 at authorization/HEAD `916a4d913c6fdf8340b67bcc88dcea184d67cd32`, runtime parent `d2096109900cc50a0a4dae2f603bd74b7b4a3427`, exact accepted 16 technical paths plus 14 CPA records/tree paths; canonical main/local origin remain clean at `916a4d913c6fdf8340b67bcc88dcea184d67cd32`, 0/0. Phase 3 is not committed or integrated; live remote not refreshed in this turn.
 
-> **Lifecycle boundary.** GIT-051 published/integrated Phase 1 at `804ff39dc73c88d4799570cce2ef18987745a0be`. GIT-052 published/integrated the corrected exact 15-path Phase 2 result at `d2096109900cc50a0a4dae2f603bd74b7b4a3427`. Arthur's D-0060 instruction authorizes one new dedicated Phase 3 Spec Executor from that exact runtime base. Phase 3 remains Not started; its executor must bind the later records-only authorization commit/spec bytes, satisfy the existing entry gate, and stop before control-plane or Git publication work. Phases 4–7 remain Unauthorized; Not started.
+> **Lifecycle boundary.** Phases 1–2 are published/integrated. D-0060/GIT-053 authorized the completed Phase 3 implementation from runtime base `d2096109900cc50a0a4dae2f603bd74b7b4a3427` and authorization commit `916a4d913c6fdf8340b67bcc88dcea184d67cd32`. Arthur/PM accepted it under D-0061 after the executor stopped. CPA propagation and tracked-state closeout are complete in the same worktree; separate GIT-054 publication is next. Phases 4–7 remain Unauthorized; Not started.
 >
-> **Current repository boundary.** The Phase 2 publication is committed at `d2096109900cc50a0a4dae2f603bd74b7b4a3427`; its technical manifest remains at the accepted hash/size. The obsolete Phase 2 review process is stopped, port `56362` is closed, and its executor worktree is no longer registered. This post-publication reconciliation changes canonical control-plane/tree bytes only and implements no Phase 3 runtime.
+> **Current repository boundary.** The accepted 16 technical paths and immutable manifest remain unchanged through CPA propagation. Only the 14 canonical records/tree paths were added by CPA. No staging, commit, push, integration, deployment, review-server shutdown, or worktree cleanup occurs in this turn. See §15 for exact evidence and §16 for the next handoff.
 >
 > **Exactly seven phases.** This spec has exactly the seven implementation phases in §12. A correction to one phase does not create an eighth phase. Material outcome changes return to Arthur; bounded mechanics may be settled inside the authorized phase only when they preserve the contract, scope, safety, and proof below.
 >
 > **Sole ownership.** SPEC-0006 alone owns the complete workspace unification through its seven phases. Do not create a spec-helping-spec chain or move its contract, migration, tester, shell, or integration responsibility into another prerequisite spec. Bounded corrections belong in SPEC-0006 under the existing amendment/review rules; material changes return to Arthur without silently expanding a phase.
 
-### Current phase authorization — D-0057/D-0059/D-0060
+### Current phase authorization — D-0057/D-0059/D-0060/D-0061
 
 | Phase | Authorization | Implementation |
 | --- | --- | --- |
 | 1 — Contract and read-only legacy migration | Verified/published/integrated | Exact 11-path result published in GIT-051 `804ff39dc73c88d4799570cce2ef18987745a0be` |
 | 2 — Shell/New/Open | Verified/published/integrated | Corrected exact 15-path result published in GIT-052 `d2096109900cc50a0a4dae2f603bd74b7b4a3427` |
-| 3 — Stage/compositing | Approved; Authorized | Not started; exact runtime base `d2096109900cc50a0a4dae2f603bd74b7b4a3427`; existing entry gate remains mandatory |
+| 3 — Stage/compositing | Accepted/Verified under D-0061 | Exact 16-path result in c6b0; CPA propagation complete; unpublished/not integrated; GIT-054 pending |
 | 4 — Timeline/playback/onion | Unauthorized | Not started |
 | 5 — Existing manual tools/layout | Unauthorized | Not started |
 | 6 — History/persistence/recovery | Unauthorized | Not started |
@@ -74,17 +74,23 @@ Screens were observed at the ordinary desktop viewport; no review-only source or
 - `StickFigureCanvas.tsx` composites Stick layers only; `DrawingWorkspace.tsx` composites Drawing layers only. Each timeline and onion resolver knows only its own payload type.
 - Current Drawing and Stick AI paths have different adapters. This spec does not broaden either path.
 
-### 2.3 Current Phase 2 implementation boundary — accepted 2026-09-09
+### 2.3 Phase 2 implementation boundary — accepted 2026-09-09
 
 Phase 2 replaces the baseline navigation branch: Home New now creates an in-memory Untitled Project through `WorkspaceBootstrap`; Home Open renders one combined `ProjectCollectionEntry` list and maps a selected source through the Phase 1 migration boundary; `AnimationWorkspace` mounts exactly one Drawing or Stick compatibility editor. The accepted correction preserves the inherited Projects screen and editor chrome: no type selector or badges, no new wrapper header/navigation strip/drawer, and the editor begins at viewport pixel 0. Invalid entries are disabled. The source readers/list/open flow remain read-only.
 
 The underlying editors remain architecturally separate. Drawing and Stick still own different compositor, timeline, tools, history, and save systems. Phase 2 does not provide mixed content, canonical persistence, one Save/Save As contract, or a shared editing transaction root.
 
-### 2.4 Missing foundation / root cause
+### 2.4 Original missing foundation / root cause — before Phases 1–3
 
 The split is architectural, not only navigational. There is no canonical project union, no common layer/cell ownership contract, no shared compositor, no one history transaction root, no one save repository, and no lossless migration boundary spanning both current formats. The two large coordinators can each consider themselves authoritative because `app/page.tsx` chooses between them before a project is created or opened.
 
 Simply removing the two cards would hide this conflict. Simply serializing both legacy objects into one JSON blob would preserve neither referential integrity nor a single action order. Simply rasterizing Stick output would destroy editability. SPEC-0006 must replace the ownership seams in an ordered way while keeping both accepted systems usable after every phase.
+
+### 2.5 Accepted Phase 3 boundary — 2026-09-10
+
+`AnimationWorkspace` detects mixed typed layers and supplies a read snapshot of the existing Stick active owner to `UnifiedAnimationStage`. The common resolver and typed adapters render the ordered snapshot on fixed 1920×1080 front/work canvases; completed frames publish atomically and failed/stale renders preserve the last complete frame. The fixed stage uses presentation-only scaling and the existing Stick gesture/history transaction path. No canonical document/history write occurs from rendering.
+
+This is a seeded mixed-stage foundation. Ordinary New/Open still uses the published Phase 2 path and existing source stores. DrawingCanvas, common timeline mutation UI, tool integration, shared history, canonical mixed Save and legacy retirement are not completed here. The scene is manually authored neutral proof content, not AI-generated motion. See §15 for the accepted result and its limits.
 
 ## 3. Canonical unified contract
 
@@ -348,7 +354,7 @@ Systems intentionally outside SPEC-0006: new AI quality, provider/model/video/tr
 
 ### Phase 3 — Unified stage, renderer, and mixed compositing
 
-**Authorization — D-0060 (2026-09-10).** Arthur explicitly authorizes this Phase 3 only. One new dedicated Spec Executor may begin in Plan mode with its technical/runtime diff based exactly on GIT-052 `d2096109900cc50a0a4dae2f603bd74b7b4a3427`. Because the authorization record is a later records-only successor, the executor must also bind that exact authorization commit and this spec's bytes in its plan/proof before editing. It must freeze its exact technical paths within the 16-path ceiling and satisfy the existing mixed-fixture/reference-render/coordinate-transform/parity entry gate. No Phase 4 work or Git publication is authorized.
+**Original execution authorization — D-0060 (2026-09-10); completed and accepted under D-0061.** D-0060 authorized one Plan-mode Spec Executor for this stage/compositing phase from exact runtime base `d2096109900cc50a0a4dae2f603bd74b7b4a3427`, binding the later records-only authorization commit/spec, freezing at most 16 technical paths and satisfying the mixed-fixture/reference-render/coordinate-transform/parity entry gate. The accepted recovery binds authorization `916a4d913c6fdf8340b67bcc88dcea184d67cd32` and exactly 16 technical paths. This is the completed mandate, not a new executor dispatch or Phase 4/publication authorization; see §15–16.
 
 **Plain outcome.** A seeded mixed project visibly renders Drawing background/text/tween content and editable Stick content together on one stable stage at desktop and compact sizes.
 
@@ -550,10 +556,66 @@ The accepted manifest is `output/spec-0006/phase-2/proof-manifest.json`, exactly
 
 The bound browser result records 40 operations and 13 screenshots across desktop/compact Home/New/collection and Drawing V1/V2/Stick V1/V2 opens. It proves the corrected inherited presentation, invalid/missing/stale/storage failure behavior, zero source writes, zero real API/external requests, zero console/page errors, and no review-only product surface. Arthur accepted this corrected visible result. After GIT-052 publication, the obsolete review process was stopped, port `56362` was closed, and the executor worktree was removed from the registered worktree inventory under D-0054.
 
-Phase 2 does not merge the compatibility editors. Mixed compositor/timeline/tools/history/canonical Save and unified persistence remain unimplemented; Phase 6 owns the final repository/write path. Phase 3 stage/compositing is Authorized/Not started under D-0060; Phases 4–7 remain Unauthorized/Not started.
+Phase 2 did not merge the compatibility editors. Its recorded no-mixed-compositor boundary is historical; the accepted Phase 3 rendering-only result is recorded below. One timeline/tools/history/canonical Save and unified persistence remain later unauthorized work; Phase 6 owns the final repository/write path.
+
+### Phase 3 — accepted and Verified; unpublished/not integrated
+
+D-0061 records Arthur's visible acceptance and PM acceptance/ownership transfer after the recovered executor stopped. Runtime base is `d2096109900cc50a0a4dae2f603bd74b7b4a3427`; authorization and detached HEAD are `916a4d913c6fdf8340b67bcc88dcea184d67cd32`. This exact 16-path technical boundary remains byte-frozen:
+
+- `scripts/fixtures/spec0006-unified/v1/phase3-render-cases.json`
+- `scripts/spec0006-unified/phase3BrowserProof.ts`
+- `scripts/spec0006-unified/phase3FixtureFactory.ts`
+- `scripts/spec0006-unified/phase3RenderOracle.ts`
+- `scripts/spec0006-unified/recordPhase3Proof.ts`
+- `scripts/spec0006-unified/validatePhase3Proof.ts`
+- `src/components/workspace/AnimationWorkspace.module.css`
+- `src/components/workspace/AnimationWorkspace.tsx`
+- `src/components/workspace/UnifiedAnimationStage.tsx`
+- `src/components/workspace/stickfigure/StickFigureCanvas.tsx`
+- `src/components/workspace/stickfigure/StickFigureWorkspace.tsx`
+- `src/lib/animation/unifiedCellResolver.ts`
+- `src/lib/animation/unifiedDrawingRenderAdapter.ts`
+- `src/lib/animation/unifiedStageGeometry.ts`
+- `src/lib/animation/unifiedStageRenderer.ts`
+- `src/lib/animation/unifiedStickRenderAdapter.ts`
+
+The accepted technical manifest is `output/spec-0006/phase-3/proof-manifest.json`, exactly 22,897 bytes at SHA-256 `207aea2a7d664e49d28dd6b8c4704e50da9fae8d5197d9164ccbac871db4fcc0`: 16 source bindings, 20 receipts, and 60 artifacts. CPA reran the unchanged validator before propagation: PASS, 3,725 assertions and 18 negative manifest cases. All accepted technical and proof bytes remain unchanged.
+
+Every visible element in `MIXED-REALISTIC-01` is manually seeded review content, not AI output. Its four independently owned Stick keyframes at indices 0/12/24/36 have identical neutral geometry and 44 holds; only the existing Drawing position tween moves. No AI model, prompt, generation, pose/motion engine, video, tracking/reconstruction, provider, or API behavior changed.
+
+The original patch history, including the final neutral fixture, was replayed after loss of the former uncommitted review worktree. Recovered fixture source SHA-256 is `2998338cdf8c3ec5e912d541c63ff224858667b45cdbc5ff9737d9ada872708f`; document SHA-256 is `7fecc265857a0c99a552cb72fee6f714fc0a1b286f40d2920b2e277104186d1d`; neutral geometry SHA-256 is `9885a9f46b4d34f2da833b2332555275904656defdac0b1f539023cd6c7f4987`. The regenerated proof is fresh, not byte-identical to erased historical proof.
+
+The accepted proof passed 9,145 contract assertions; desktop 1440×900 DPR 1 and compact 390×844 DPR 2 rendering; eight mixed and four type-isolated pixel comparisons per profile with zero differences; five measured full 0…47→0 playback loops per profile after warmup; joint drag, held-owner editing, independent-owner preservation and exact Undo/Redo; resize/DPR/zero-size/failure recovery; and the stage performance/memory bounds. Compact stage is 352×198 with no page overflow. Production compile/generate, TypeScript, focused lint, all 16 inherited validators, and the inherited 40-operation/13-screenshot New/Open/Drawing/Stick browser suite passed. Full lint remains the exact inherited 5-error/72-warning baseline, with zero new findings. Real API/external requests, source-store writes, and render-triggered document/history writes were zero.
+
+Measured open medians were 191 ms desktop and 199 ms compact; worst selection/render p95 was 13.9 ms and 10.4 ms respectively. The minimum timely playback fraction was 97.9167%, with complete ordered traversal and no skipped authored index in every measured loop. Peak renderer-owned decoded/backing allocation was 145,419,408 bytes against the 290,838,816-byte peak limit; idle stayed within 153,713,808 bytes. These are the bound recovery run measurements, not newly rerun browser benchmarks during CPA.
+
+The shared front/work backing, sequential hash-checked asset decode, bounded cache, generation guard, and complete-frame publication preserve typed order and failure safety. Manual pointer transforms use the fixed authored stage while the existing Stick command owner retains history. The render callback bypasses only the old viewport projection when the mixed authored surface is active; ordinary Stick projection and all AI/motion source modules are unchanged. All protected runtime/test bytes match authorization-base bytes. Of the original 157 protected bindings, 156 files remain byte-identical; the original AI overview is resolved at the authorization commit because CPA updates only its current lifecycle paragraph.
+
+Physical-phone performance and native/GPU memory remain unproven; the compact result is a desktop Chrome browser profile. Existing compact title clipping remains. No unified timeline/playback/onion owner (Phase 4), tools/panels integration (Phase 5), shared history/canonical Save/Open/recovery (Phase 6), or legacy retirement (Phase 7) is implemented or authorized by this acceptance. The accepted full-loop evidence exercises composition through the existing Stick clock; it does not complete Phase 4. No natural-motion or AI-output quality claim is made.
+
+CPA closeout is preserved under `output/spec-0006/phase-3/cpa/`: `takeover.json`, `ownership-transfer.json`, `pre-propagation-validation.log`, and `closeout-manifest.json`. The strict executor validator was run before records changed. After propagation, independently revalidate all accepted source/receipt/artifact hashes and sizes, the 157 original protected bindings, and all five frozen bindings. Resolve the original spec and original `docs/AI_SYSTEM.md` snapshot at the bound authorization commit; the other 156 protected files remain byte-identical, and no protected runtime/test byte changes. Do not rewrite the accepted manifest or claim its strict live 16-dirty-path/current-spec CLI passes after CPA records are added. Its historical pending-Arthur/executor-ownership/publication fields describe the stopped executor snapshot; D-0061 records subsequent acceptance and sequential CPA ownership.
+
+CPA changed exactly these 14 canonical records/tree paths; no accepted implementation, fixture, technical test, original proof, `AGENTS.md`, package, config, or other worktree byte changed:
+
+- `docs/00_MASTER_PROJECT.md`
+- `docs/AI_SYSTEM.md`
+- `docs/CURRENT_STATE.md`
+- `docs/DECISIONS.md`
+- `docs/PROJECT_MANAGER_CONTEXT.md`
+- `docs/ROADMAP.md`
+- `docs/SESSION_HANDOFF.md`
+- `docs/TODO.md`
+- `docs/architecture.md`
+- `docs/changelog.md`
+- `docs/specs/0006-unified-animation-workspace.md`
+- `docs/specs/README.md`
+- `docs/testing_workflow.md`
+- `project/project_structure.txt`
+
+The review server at `http://127.0.0.1:56463/` remains preserved (listener PID 331, ignored `output/spec-0006/phase-3/review-app` cwd). Open Project → MIXED-REALISTIC-01 shows the accepted neutral review fixture. No product route, seed, review button, or debug control is added. The executor's optional CDP inspection was declined and skipped; no further approval-gated browser call was required for CPA evidence validation. Canonical main/local origin remain `916a4d913c6fdf8340b67bcc88dcea184d67cd32`, clean at 0/0; no live-remote refresh or Git publication occurred.
 
 ## 16. Final state and handoff
 
-SPEC-0006 remains Approved and active. Phase 1 is Verified/published/integrated at GIT-051 `804ff39dc73c88d4799570cce2ef18987745a0be`; Phase 2 is Verified/published/integrated at GIT-052 `d2096109900cc50a0a4dae2f603bd74b7b4a3427`. The current ordinary app has direct New, one inherited combined Open collection, and one compatibility editor mounted through `AnimationWorkspace`; it does not yet have mixed rendering, a unified timeline/tools/history, canonical Save, or one persistence owner. D-0060 authorizes Phase 3 stage/compositing only; no Phase 3 implementation exists yet.
+SPEC-0006 remains Approved and active. Phases 1–2 remain Verified/published/integrated through GIT-052 `d2096109900cc50a0a4dae2f603bd74b7b4a3427`. Phase 3 is **accepted and Verified in the dedicated worktree; unpublished and not integrated**, under D-0061. **Phases 4–7 remain Unauthorized/Not started.** The accepted Phase 3 stage/compositing result and CPA records exist only in c6b0; ordinary navigation/source stores retain Phase 2 behavior, and timeline/tools/history/canonical Save remain later work.
 
-Next step: after this records-only authorization reconciliation is published, one new dedicated Plan-mode Phase 3 Spec Executor may implement exactly §12 Phase 3. Its technical diff starts from `d2096109900cc50a0a4dae2f603bd74b7b4a3427`, it must bind the authorization-record commit/spec bytes, freeze its exact paths within the 16-path ceiling, satisfy the entry gate, create and validate its technical proof manifest, return its Implementation Review Packet, and stop. Phases 4–7 remain Unauthorized; Not started.
+Next step: a separate explicitly authorized CPA publication turn may verify the unchanged accepted 16 technical paths plus the 14 reviewed control-plane/tree paths, create the phase publication branch from detached `916a4d913c6fdf8340b67bcc88dcea184d67cd32`, stage only that exact set, commit, fast-forward clean unchanged canonical `main`, push normally, and verify clean 0/0 synchronization. If canonical main advanced or any reviewed path differs, stop without pull, merge, rebase, force-push, history rewrite, or scope expansion. This CPA propagation turn stages, commits, integrates, and pushes nothing. Preserve the accepted review server/worktree/proof until publication, integration, and synchronization succeed; D-0054 cleanup follows only in an authorized cleanup step. No Phase 4 executor starts without separate authorization and durable Phase 3 integration.

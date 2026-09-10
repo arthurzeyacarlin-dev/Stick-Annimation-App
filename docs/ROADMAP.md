@@ -11,11 +11,11 @@ Last updated: 2026-09-10
 - Paid AI calls, remote writes, deployment, and baseline commits require task-specific authorization.
 - The roadmap may change when Arthur resolves pending decisions or new evidence changes the risk order.
 
-## Current owner sequence — 2026-09-10 (D-0055/D-0056/D-0057/D-0060)
+## Current owner sequence — 2026-09-10 (D-0055/D-0056/D-0057/D-0060/D-0061)
 
-[`SPEC-0006`](specs/0006-unified-animation-workspace.md) owns the exact seven-phase workspace unification: contract/migration; shell/New/Open; stage/compositing; timeline/playback/onion; existing manual tools/layout; history/persistence/recovery; retirement/full proof. Phase 1 is Verified/published/integrated through GIT-051 `804ff39dc73c88d4799570cce2ef18987745a0be`; Phase 2 is Verified/published/integrated through GIT-052 `d2096109900cc50a0a4dae2f603bd74b7b4a3427`. The ordinary app now has direct Untitled New, one inherited combined Open collection, and one compatibility editor through `AnimationWorkspace`; editor internals remain separate. D-0060 authorizes Phase 3 stage/compositing only from exact runtime base `d2096109900cc50a0a4dae2f603bd74b7b4a3427`; Phase 3 is Authorized/Not started. **Phases 4–7 remain Unauthorized/Not started.**
+[`SPEC-0006`](specs/0006-unified-animation-workspace.md) owns exactly seven phases: contract/migration; shell/New/Open; stage/compositing; timeline/playback/onion; existing tools/layout; history/persistence/recovery; retirement/full proof. Phases 1–2 are published through GIT-052 `d2096109900cc50a0a4dae2f603bd74b7b4a3427`. Phase 3 is **accepted and Verified in the dedicated worktree; unpublished and not integrated**, under D-0061. **Phases 4–7 remain Unauthorized/Not started.** Its neutral seeded mixed rendering adds no AI/motion behavior. The separate compatibility editing and storage owners remain until later authorized phases.
 
-Future SPEC-0007 follows only after SPEC-0006's exact eleven-part completion gate; future SPEC-0008 remains later motion-video/tracking planning. Neither is created or authorized. The broad roadmap categories below are context, not execution permission. Next implementation step is one new dedicated Phase 3 Spec Executor after the records-only authorization commit is published; the executor starts its technical diff from `d2096109900cc50a0a4dae2f603bd74b7b4a3427`, binds the authorization record/spec bytes, and satisfies the existing entry gate before editing.
+Future SPEC-0007 follows only after SPEC-0006’s eleven-part completion gate; future SPEC-0008 remains later motion-video/tracking planning. Neither exists or is authorized. The immediate next step is separate GIT-054 CPA publication of the accepted Phase 3 technical result and reviewed records, followed by authorized D-0054 cleanup after clean synchronization. No new implementation task is authorized by this roadmap.
 
 ## Phase 0 — Preserve and Stabilize
 

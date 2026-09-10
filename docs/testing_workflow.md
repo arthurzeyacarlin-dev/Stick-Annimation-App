@@ -1,7 +1,7 @@
 # Verification and Regression Workflow
 
 Status: canonical proof standard and current gate baseline
-Last updated: 2026-09-09
+Last updated: 2026-09-10
 
 ## Core Rule
 
@@ -119,7 +119,24 @@ D-0059 accepts the corrected exact 15-path Phase 2 result from base/HEAD `804ff3
 
 The browser proof passed 40 operations and 13 screenshots at desktop/compact across Home/New/one collection/Drawing V1/V2/Stick V1/V2. It proves the accepted inherited Projects and editor presentation, direct Untitled New, invalid/missing/stale/storage failures, zero source writes, zero real API/external requests, zero page/console errors, and no review-only surface. Production compile/generate, TypeScript, focused/full lint non-regression, inherited Drawing/Stick/AI suites, and diff checks pass. The compact result is browser-profile evidence, not a physical-phone claim. GIT-052 published the bound result at `d2096109900cc50a0a4dae2f603bd74b7b4a3427`; the obsolete review server is stopped, port `56362` is closed, and the executor worktree is no longer registered.
 
-Every phase requires:
+## Accepted SPEC-0006 Phase 3 proof — unpublished
+
+Phases 4–7 remain Unauthorized/Not started.
+
+The accepted technical manifest is `output/spec-0006/phase-3/proof-manifest.json`, exactly 22,897 bytes at SHA-256 `207aea2a7d664e49d28dd6b8c4704e50da9fae8d5197d9164ccbac871db4fcc0`: 16 source bindings, 20 receipts, and 60 artifacts. CPA reran the unchanged validator before propagation: PASS, 3,725 assertions and 18 negative manifest cases. All accepted technical and proof bytes remain unchanged.
+
+Every visible element in `MIXED-REALISTIC-01` is manually seeded review content, not AI output. Its four independently owned Stick keyframes at indices 0/12/24/36 have identical neutral geometry and 44 holds; only the existing Drawing position tween moves. No AI model, prompt, generation, pose/motion engine, video, tracking/reconstruction, provider, or API behavior changed.
+
+The accepted proof passed 9,145 contract assertions; desktop 1440×900 DPR 1 and compact 390×844 DPR 2 rendering; eight mixed and four type-isolated pixel comparisons per profile with zero differences; five measured full 0…47→0 playback loops per profile after warmup; joint drag, held-owner editing, independent-owner preservation and exact Undo/Redo; resize/DPR/zero-size/failure recovery; and the stage performance/memory bounds. Compact stage is 352×198 with no page overflow. Production compile/generate, TypeScript, focused lint, all 16 inherited validators, and the inherited 40-operation/13-screenshot New/Open/Drawing/Stick browser suite passed. Full lint remains the exact inherited 5-error/72-warning baseline, with zero new findings. Real API/external requests, source-store writes, and render-triggered document/history writes were zero.
+
+Physical-phone performance and native/GPU memory remain unproven; the compact result is a desktop Chrome browser profile. Existing compact title clipping remains. No unified timeline/playback/onion owner (Phase 4), tools/panels integration (Phase 5), shared history/canonical Save/Open/recovery (Phase 6), or legacy retirement (Phase 7) is implemented or authorized by this acceptance. The accepted full-loop evidence exercises composition through the existing Stick clock; it does not complete Phase 4. No natural-motion or AI-output quality claim is made.
+
+CPA closeout is preserved under `output/spec-0006/phase-3/cpa/`: `takeover.json`, `ownership-transfer.json`, `pre-propagation-validation.log`, and `closeout-manifest.json`. The strict executor validator was run before records changed. After propagation, independently revalidate all accepted source/receipt/artifact hashes and sizes, the 157 original protected bindings, and all five frozen bindings. Resolve the original spec and original `docs/AI_SYSTEM.md` snapshot at the bound authorization commit; the other 156 protected files remain byte-identical, and no protected runtime/test byte changes. Do not rewrite the accepted manifest or claim its strict live 16-dirty-path/current-spec CLI passes after CPA records are added. Its historical pending-Arthur/executor-ownership/publication fields describe the stopped executor snapshot; D-0061 records subsequent acceptance and sequential CPA ownership.
+
+The CPA final closeout binds exactly 16 technical paths plus 14 canonical records/tree paths, empty index, unchanged authorization/HEAD and clean canonical main/local origin at `916a4d913c6fdf8340b67bcc88dcea184d67cd32` (0/0), current review process/cwd/port identity, the preserved source-copy injections, memory regeneration/check, links, lifecycle consistency, and both diff checks. Live remote was not refreshed and no optional browser/CDP probe was retried. Revalidating the bound browser/build/test receipts is not a fresh execution of those suites. Arthur’s later app-copy acceptance is recorded in D-0061 separately from the immutable executor manifest.
+
+## Shared SPEC-0006 phase proof requirements
+
 Every phase requires:
 
 - strict typed contract/reducer/repository tests with independent oracles that do not import the implementation under test;

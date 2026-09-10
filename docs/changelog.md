@@ -5,6 +5,15 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-10 — Accept SPEC-0006 Phase 3 and complete CPA propagation (D-0061)
+
+- Arthur accepted the recovered neutral review app; PM accepted the technical result and transferred c6b0 exclusively after the executor completed. Phase 3 is Verified in the worktree, unpublished/not integrated; separate GIT-054 publication remains next.
+- Preserved all 16 accepted technical files from runtime `d2096109900cc50a0a4dae2f603bd74b7b4a3427` and authorization/HEAD `916a4d913c6fdf8340b67bcc88dcea184d67cd32`. The fixed 1920×1080 mixed compositor renders typed Drawing/text/tween and editable Stick content using the existing gesture/history owner.
+- Every scene element is manually seeded review content. Four independent Stick owners have identical neutral geometry and 44 holds; only the existing Drawing position tween moves. No AI/model/prompt/generation/pose/motion/video/tracking/provider/API change is included.
+- Preserved manifest `207aea2a7d664e49d28dd6b8c4704e50da9fae8d5197d9164ccbac871db4fcc0` (22,897 bytes), 20 receipts/60 artifacts; CPA validator rerun passed 3,725 assertions/18 tamper cases. Revalidated the accepted contract/browser/build/inherited evidence and all 157 original protected bindings (156 current files unchanged; original AI overview verified at authorization); exact full-lint baseline remains 5 errors/72 warnings with zero new findings.
+- Updated exactly 13 canonical Markdown records plus the generated project tree; accepted implementation/fixture/test/original-proof bytes and AGENTS remain unchanged. Final closeout separately binds the original authorization-spec bytes and the updated CPA records.
+- Kept the review server/worktree/proof available on loopback port 56463. Canonical main/local origin remain clean at `916a4d913c6fdf8340b67bcc88dcea184d67cd32`, 0/0; empty index. No staging, commit, integration, push, deployment, provider/external/paid action, or cleanup occurred. Phases 4–7 remain Unauthorized/Not started.
+
 ### 2026-09-10 — Reconcile GIT-052 and authorize SPEC-0006 Phase 3 (D-0060/GIT-053)
 
 - freshly verified canonical `HEAD`/`main`, local `origin/main`, GitHub's live `main`, and `git ls-remote` at exact GIT-052 commit `d2096109900cc50a0a4dae2f603bd74b7b4a3427`, parent `804ff39dc73c88d4799570cce2ef18987745a0be`, message `Implement SPEC-0006 Phase 2 unified shell`, clean and synchronized at `0/0`

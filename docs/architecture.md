@@ -1,13 +1,13 @@
 # Architecture and System Map
 
 Status: canonical current architecture map
-Last traced: published SPEC-0006 Phase 2 shell/New/Open runtime at exact GIT-052 commit `d2096109900cc50a0a4dae2f603bd74b7b4a3427`, parent GIT-051 `804ff39dc73c88d4799570cce2ef18987745a0be`; canonical/local-origin/live-remote equality was freshly verified on 2026-09-10. D-0060 authorizes Phase 3 stage/compositing from that exact runtime base; implementation is Not started.
+Last traced: 2026-09-10 accepted Phase 3 source and evidence in c6b0, authorization/HEAD `916a4d913c6fdf8340b67bcc88dcea184d67cd32`, runtime parent `d2096109900cc50a0a4dae2f603bd74b7b4a3427`. Phase 3 is Verified but unpublished/not integrated; canonical main/local origin remain clean at `916a4d913c6fdf8340b67bcc88dcea184d67cd32`, 0/0. No runtime byte changed during CPA tracing/propagation.
 
-## Approved architecture transition (D-0055/D-0056/D-0057/D-0059/D-0060)
+## Approved architecture transition (D-0055/D-0056/D-0057/D-0059/D-0060/D-0061)
 
 SPEC-0004 and SPEC-0005 completed phases remain published and protected; their unfinished motion phases remain superseded/inactive under D-0055. [`SPEC-0006`](specs/0006-unified-animation-workspace.md) remains the sole approved seven-phase owner for one typed Drawing/Stick project, root, stage, timeline, tools, history, and persistence.
 
-GIT-051 publishes Phase 1's strict contract/read-only migration. GIT-052 `d2096109900cc50a0a4dae2f603bd74b7b4a3427` publishes Phase 2's ordinary New/Open transition and compatibility-editor mounting: New creates one Untitled Project, Open builds one deterministic combined collection, and one `AnimationWorkspace` chooses the matching inherited editor. D-0060 authorizes Phase 3's shared stage/renderer/mixed-compositing scope from that exact runtime base; no Phase 3 runtime exists yet. **Phases 4–7 remain Unauthorized/Not started.**
+GIT-051 publishes Phase 1’s contract/read-only migration; GIT-052 `d2096109900cc50a0a4dae2f603bd74b7b4a3427` publishes Phase 2’s direct New, combined Open and compatibility mounting. D-0061 accepts the exact 16-path Phase 3 stage/compositing result from authorization `916a4d913c6fdf8340b67bcc88dcea184d67cd32`. It is Verified in c6b0 with CPA propagation complete, but unpublished/not integrated. Phases 4–7 remain Unauthorized/Not started.
 
 ## Accepted SPEC-0006 Phase 1 and Phase 2 architecture
 
@@ -15,7 +15,15 @@ GIT-051 publishes Phase 1's strict contract/read-only migration. GIT-052 `d20961
 
 `app/page.tsx` now owns `home | tutorials | openProject | animationWorkspace`. New builds the canonical Phase 1 candidate in memory. Open renders `OpenProjectBrowser`, whose inherited Projects layout now holds one combined collection without the old type selector or new type badges. `AnimationWorkspace` mounts exactly one compatibility editor based on the candidate source kind. Drawing open plumbing accepts the prepared candidate without adding a new write door.
 
-The compatibility editors remain separate sources of editing truth below the wrapper. Drawing still owns Drawing render/timeline/history/Save/Save As; Stick still owns Stick render/timeline/history/Save. No mixed compositor, shared clock, unified tool dispatcher/history, canonical repository, or split-owner retirement exists yet.
+The compatibility editors remain separate sources of editing truth. Drawing retains DrawingCanvas/timeline/history/Save/Save As; Stick retains its timeline/gestures/history/Save. Accepted Phase 3 adds a conditional mixed render seam described below. No shared clock, unified tool dispatcher/history, canonical repository, or split-owner retirement exists yet.
+
+## Accepted Phase 3 rendering seam — unpublished
+
+`AnimationWorkspace` detects mixed Drawing/Stick layers and builds a read snapshot containing the live active Stick owner from the existing editor. It supplies `UnifiedAnimationStage` through the optional Stick workspace/canvas render callback. `unifiedCellResolver` resolves empty/blank/keyframe/hold/tween ownership and orders visible layers; typed Drawing/Stick adapters create render commands. `UnifiedStageRenderer` paints a private work canvas, checks asset hashes, bounds sequential decoding/cache ownership, and publishes only complete current-generation frames onto the front canvas. Both backing canvases are fixed at 1920×1080. Snapshot consumers use the same front canvas.
+
+`fitAuthoredStage` scales the fixed authored DOM surface for the host; pointer handling maps back through the existing Stick gesture/history owner. The old viewport projection is bypassed only for this mixed authored surface; ordinary Stick projection and AI/motion modules are unchanged. Mixed-only compact CSS stacks existing regions without adding product chrome. The DrawingCanvas allocation/tool system is untouched. Review-only fixture seeding and instrumentation exist only in the ignored source copy, not the production navigation or project stores.
+
+The seeded neutral fixture proves typed composition, text/tween rendering, coordinate preservation and existing manual editability. It does not create one timeline/tools/history/write owner, canonical mixed Save, new AI output, or new motion capability. Phases 4–7 remain unauthorized.
 
 ## Runtime Overview
 
@@ -35,6 +43,7 @@ app/page.tsx
           │   └─ Drawing AI path
           └─ StickFigureWorkspace compatibility editor
               ├─ Stick canvas/timeline/panels/Creator
+              ├─ optional mixed read snapshot → UnifiedAnimationStage → typed compositor
               ├─ Stick history + localStorage persistence
               └─ accepted bounded Stick AI path
 ```
@@ -75,7 +84,7 @@ The main product screens are local view states rather than URL routes. URL route
 5. Open Project lists Drawing sources alongside Stick sources; a selected Drawing entry passes through the unified read/migration/bootstrap path and mounts `DrawingWorkspace` only after validation/hydration succeeds.
 6. Compact AI semantic memory may also sync to Supabase, but artwork remains browser-local.
 
-`DrawingProjectData.version = 1` is still the live workspace-shaped object and contains tool settings, FPS, layers, timeline frames, text, tween data, optional sound attachments, current/selected positions, and counters. The V2 persistence contract replaces live bitmap/audio bytes with content-addressed asset references and stores project heads plus immutable version records. `StoredDrawingProject.aiMemory` remains auxiliary/project-scoped rather than authored animation content. The shared Phase 1 contract exists, but Drawing still lacks the Phase 3 viewport-independent canonical stage and shared mixed compositor.
+`DrawingProjectData.version = 1` is still the live workspace-shaped object and contains tool settings, FPS, layers, timeline frames, text, tween data, optional sound attachments, current/selected positions, and counters. The V2 persistence contract replaces live bitmap/audio bytes with content-addressed asset references and stores project heads plus immutable version records. `StoredDrawingProject.aiMemory` remains auxiliary/project-scoped rather than authored animation content. The Phase 1 contract exists and accepted Phase 3 supplies a fixed mixed render surface. Ordinary DrawingCanvas still uses its inherited authoring allocation; Phase 3 does not migrate Drawing tools or persistence.
 
 Live frame `ImageData` is encoded losslessly as PNG assets with RGBA/encoded digests and hydrated back to typed bytes on open; audio is likewise asset-backed. Project-card preview data is separate. Imported reusable assets and library symbols remain session-only collections outside `DrawingProjectData`; raster pixels/audio already committed into frames persist, but reusable entries do not become a saved library.
 
@@ -148,7 +157,7 @@ Home New/Open
   → one atomic history and revision-bound IndexedDB repository
 ```
 
-Drawing and Stick remain typed layer payloads; neither is flattened into the other. Phase 1's contract/read-only mapping and Phase 2's ordinary New/Open/bootstrap path are published. The one visible wrapper/collection exists, while the shared mixed stage/timeline/tools/history/repository, first canonical Save identity, and split-owner retirement remain unimplemented. Phase 3 stage/compositing is authorized but Not started; Phases 4–7 are unauthorized.
+Drawing and Stick remain typed layer payloads; neither is flattened into the other. Phases 1–2 are published; accepted Phase 3 adds the seeded mixed stage but remains unpublished/not integrated. The unified timeline/clock, tools, history/repository, canonical Save identity, and split-owner retirement remain unimplemented. Phases 4–7 remain unauthorized.
 
 ## Protected Architectural Invariants
 

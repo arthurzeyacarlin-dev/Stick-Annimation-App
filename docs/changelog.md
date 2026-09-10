@@ -5,6 +5,14 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-10 — Reconcile GIT-052 and authorize SPEC-0006 Phase 3 (D-0060/GIT-053)
+
+- freshly verified canonical `HEAD`/`main`, local `origin/main`, GitHub's live `main`, and `git ls-remote` at exact GIT-052 commit `d2096109900cc50a0a4dae2f603bd74b7b4a3427`, parent `804ff39dc73c88d4799570cce2ef18987745a0be`, message `Implement SPEC-0006 Phase 2 unified shell`, clean and synchronized at `0/0`
+- recorded GIT-052 as the exact 29-path Phase 2 publication: 15 accepted technical paths plus 14 previously reviewed control-plane/tree paths; preserved the 16,649-byte Phase 2 manifest SHA-256 `ebfeb699c0d9bcedd5b6b7c90d5cb4b71a3fe3ea89326a2820b86882e2c27cb7`
+- verified D-0054 accepted-copy cleanup: the former `/e4f3/` executor worktree is unregistered, PID `72206` is absent, and port `56362` is closed
+- recorded Arthur's explicit Phase 3-only authorization: one new dedicated Plan-mode Spec Executor may implement §12 stage/renderer/mixed compositing with its technical diff based exactly on `d2096109900cc50a0a4dae2f603bd74b7b4a3427`, while binding the later D-0060 authorization commit/spec bytes and satisfying the existing entry gate
+- kept Phase 3 Not started and Phases 4–7 Unauthorized/Not started; changed no runtime, fixture, technical-test, package, config, proof, provider/external/paid, deployment, or unrelated worktree byte/system
+
 ### 2026-09-09 — Publish Phase 1 and accept corrected SPEC-0006 Phase 2 (D-0059)
 
 - recorded GIT-051 completion at exact 27-path commit `804ff39dc73c88d4799570cce2ef18987745a0be`, publishing Phase 1's 11 technical paths, 15 reviewed records, and generated project tree

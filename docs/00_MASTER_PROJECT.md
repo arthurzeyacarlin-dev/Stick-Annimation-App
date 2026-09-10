@@ -1,7 +1,7 @@
 # Diamond Animator Master Project Charter
 
 Status: canonical product intent
-Last updated: 2026-09-09
+Last updated: 2026-09-10
 
 ## Product Mission
 
@@ -33,7 +33,7 @@ The goal is not to hide a weak editor behind a chat box. The goal is one capable
 
 ## Current Strategic Position
 
-D-0056 resolves the intended architecture: one Animation Workspace owns one project, stage, timeline, history, persistence path, and AI surface while preserving Drawing and Stick data as distinct editable typed layers. [`SPEC-0006`](specs/0006-unified-animation-workspace.md) has Arthur's seven-phase approval under D-0057. GIT-051 published and integrated Phase 1's strict contract/read-only migration in `804ff39dc73c88d4799570cce2ef18987745a0be`. Arthur has now accepted the corrected 15-path Phase 2 shell/New/Open result, which is technically Verified under D-0059 pending GIT-052 publication/integration. New Project goes directly to an **Untitled Project** through one `AnimationWorkspace`, and Open Project preserves its established Projects presentation while showing one combined supported-project collection without a Drawing/Stick selector or type badges. The mounted Drawing and Stick compatibility editors remain separate internally; mixed compositing, one timeline/tool/history/save owner, and canonical persistence are later phases. Phases 3–7 remain Unauthorized; Not started.
+D-0056 resolves the intended architecture: one Animation Workspace owns one project, stage, timeline, history, persistence path, and AI surface while preserving Drawing and Stick data as distinct editable typed layers. [`SPEC-0006`](specs/0006-unified-animation-workspace.md) has Arthur's seven-phase approval under D-0057. GIT-051 published and integrated Phase 1's strict contract/read-only migration in `804ff39dc73c88d4799570cce2ef18987745a0be`; GIT-052 published and integrated the corrected exact 15-path Phase 2 shell/New/Open result in `d2096109900cc50a0a4dae2f603bd74b7b4a3427`. New Project goes directly to an **Untitled Project** through one `AnimationWorkspace`, and Open Project preserves its established Projects presentation while showing one combined supported-project collection without a Drawing/Stick selector or type badges. The mounted Drawing and Stick compatibility editors remain separate internally. Under D-0060, Arthur explicitly authorizes Phase 3 stage/compositing implementation from exact runtime base `d2096109900cc50a0a4dae2f603bd74b7b4a3427`; it is Authorized/Not started. Phases 4–7 remain Unauthorized/Not started, and one timeline/tool/history/save owner plus canonical persistence remain later phases.
 
 The current code is a prototype foundation, not a finished Version 1. Existing documents that called either workspace “complete” described a past visual milestone and are superseded by `CURRENT_STATE.md`.
 

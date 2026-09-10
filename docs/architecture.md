@@ -1,13 +1,13 @@
 # Architecture and System Map
 
 Status: canonical current architecture map
-Last traced: accepted corrected SPEC-0006 Phase 2 shell/New/Open result independently revalidated on 2026-09-09 from exact GIT-051 base/HEAD `804ff39dc73c88d4799570cce2ef18987745a0be`. Phase 1 is published/integrated; Phase 2 is technically Verified pending GIT-052 publication/integration.
+Last traced: published SPEC-0006 Phase 2 shell/New/Open runtime at exact GIT-052 commit `d2096109900cc50a0a4dae2f603bd74b7b4a3427`, parent GIT-051 `804ff39dc73c88d4799570cce2ef18987745a0be`; canonical/local-origin/live-remote equality was freshly verified on 2026-09-10. D-0060 authorizes Phase 3 stage/compositing from that exact runtime base; implementation is Not started.
 
-## Approved architecture transition (D-0055/D-0056/D-0057/D-0059)
+## Approved architecture transition (D-0055/D-0056/D-0057/D-0059/D-0060)
 
 SPEC-0004 and SPEC-0005 completed phases remain published and protected; their unfinished motion phases remain superseded/inactive under D-0055. [`SPEC-0006`](specs/0006-unified-animation-workspace.md) remains the sole approved seven-phase owner for one typed Drawing/Stick project, root, stage, timeline, tools, history, and persistence.
 
-GIT-051 publishes Phase 1's strict contract/read-only migration. Phase 2 now owns the ordinary New/Open transition and compatibility-editor mounting: New creates one Untitled Project, Open builds one deterministic combined collection, and one `AnimationWorkspace` chooses the matching inherited editor. **Phases 3–7 remain Unauthorized; Not started.**
+GIT-051 publishes Phase 1's strict contract/read-only migration. GIT-052 `d2096109900cc50a0a4dae2f603bd74b7b4a3427` publishes Phase 2's ordinary New/Open transition and compatibility-editor mounting: New creates one Untitled Project, Open builds one deterministic combined collection, and one `AnimationWorkspace` chooses the matching inherited editor. D-0060 authorizes Phase 3's shared stage/renderer/mixed-compositing scope from that exact runtime base; no Phase 3 runtime exists yet. **Phases 4–7 remain Unauthorized/Not started.**
 
 ## Accepted SPEC-0006 Phase 1 and Phase 2 architecture
 
@@ -148,7 +148,7 @@ Home New/Open
   → one atomic history and revision-bound IndexedDB repository
 ```
 
-Drawing and Stick remain typed layer payloads; neither is flattened into the other. Phase 1's contract/read-only mapping is published, and Phase 2 now imports it through the ordinary New/Open/bootstrap path. The one visible wrapper/collection exists, while the shared mixed stage/timeline/tools/history/repository, first canonical Save identity, and split-owner retirement remain unimplemented. Phases 3–7 are unauthorized.
+Drawing and Stick remain typed layer payloads; neither is flattened into the other. Phase 1's contract/read-only mapping and Phase 2's ordinary New/Open/bootstrap path are published. The one visible wrapper/collection exists, while the shared mixed stage/timeline/tools/history/repository, first canonical Save identity, and split-owner retirement remain unimplemented. Phase 3 stage/compositing is authorized but Not started; Phases 4–7 are unauthorized.
 
 ## Protected Architectural Invariants
 

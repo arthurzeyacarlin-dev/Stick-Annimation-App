@@ -1,30 +1,30 @@
 # SPEC-0006 — Unified Animation Workspace
 
-Status: SPEC-0006 is **Approved and active**. Phase 1 is **Verified, published, and integrated** at GIT-051 `804ff39dc73c88d4799570cce2ef18987745a0be`. Phase 2 is **accepted and technically Verified; pending GIT-052 publication/integration** under D-0059. **Phases 3–7 remain Unauthorized; Not started.**
+Status: SPEC-0006 is **Approved and active**. Phase 1 is **Verified, published, and integrated** at GIT-051 `804ff39dc73c88d4799570cce2ef18987745a0be`. Phase 2 is **Verified, published, and integrated** at GIT-052 `d2096109900cc50a0a4dae2f603bd74b7b4a3427`. Under D-0060, Phase 3 is **Approved; Authorized; Not started** from that exact runtime base. **Phases 4–7 remain Unauthorized; Not started.**
 Owner: Arthur
 Spec role: Spec Architect
 Created: 2026-09-09
-Last updated: 2026-09-09
-Decision links: [D-0055 through D-0059](../DECISIONS.md)
-TODO IDs: `PLAN-006`, `SPEC-006`, `UNIFY-001`, `UNIFY-002`, `GIT-050`, `GIT-051`, `GIT-052`
-Baseline branch/commit: GIT-051 canonical `main` `804ff39dc73c88d4799570cce2ef18987745a0be`
-Last verified branch/commit: accepted detached Phase 2 worktree base/HEAD `804ff39dc73c88d4799570cce2ef18987745a0be`; exact corrected 15-path technical result independently revalidated by CPA on 2026-09-09
+Last updated: 2026-09-10
+Decision links: [D-0055 through D-0060](../DECISIONS.md)
+TODO IDs: `PLAN-006`, `SPEC-006`, `UNIFY-001`, `UNIFY-002`, `UNIFY-003`, `GIT-050`, `GIT-051`, `GIT-052`, `GIT-053`
+Baseline branch/commit: GIT-052 canonical runtime `main` `d2096109900cc50a0a4dae2f603bd74b7b4a3427`
+Last verified branch/commit: GIT-052 `d2096109900cc50a0a4dae2f603bd74b7b4a3427`; exact corrected 15-path Phase 2 result published and local main/local origin/live GitHub equality freshly verified on 2026-09-10
 
-> **Lifecycle boundary.** GIT-051 published/integrated Phase 1 at `804ff39dc73c88d4799570cce2ef18987745a0be`. The corrected Phase 2 Spec Executor completed exactly one 15-path technical result from that base and stopped. Arthur/PM accepted it; the CPA independently revalidated and propagated D-0059 without changing accepted technical bytes. GIT-052 publication/integration is the next authorized later task. Phases 3–7 remain Unauthorized; Not started.
+> **Lifecycle boundary.** GIT-051 published/integrated Phase 1 at `804ff39dc73c88d4799570cce2ef18987745a0be`. GIT-052 published/integrated the corrected exact 15-path Phase 2 result at `d2096109900cc50a0a4dae2f603bd74b7b4a3427`. Arthur's D-0060 instruction authorizes one new dedicated Phase 3 Spec Executor from that exact runtime base. Phase 3 remains Not started; its executor must bind the later records-only authorization commit/spec bytes, satisfy the existing entry gate, and stop before control-plane or Git publication work. Phases 4–7 remain Unauthorized; Not started.
 >
-> **Current dirty-tree boundary.** The accepted worktree contains exactly 15 dirty technical paths plus CPA control-plane changes, with an empty index. The ignored Phase 2 manifest remains at its accepted hash/size. Nothing is staged, committed, merged, pushed, or published by this CPA propagation.
+> **Current repository boundary.** The Phase 2 publication is committed at `d2096109900cc50a0a4dae2f603bd74b7b4a3427`; its technical manifest remains at the accepted hash/size. The obsolete Phase 2 review process is stopped, port `56362` is closed, and its executor worktree is no longer registered. This post-publication reconciliation changes canonical control-plane/tree bytes only and implements no Phase 3 runtime.
 >
 > **Exactly seven phases.** This spec has exactly the seven implementation phases in §12. A correction to one phase does not create an eighth phase. Material outcome changes return to Arthur; bounded mechanics may be settled inside the authorized phase only when they preserve the contract, scope, safety, and proof below.
 >
 > **Sole ownership.** SPEC-0006 alone owns the complete workspace unification through its seven phases. Do not create a spec-helping-spec chain or move its contract, migration, tester, shell, or integration responsibility into another prerequisite spec. Bounded corrections belong in SPEC-0006 under the existing amendment/review rules; material changes return to Arthur without silently expanding a phase.
 
-### Current phase authorization — D-0057/D-0059
+### Current phase authorization — D-0057/D-0059/D-0060
 
 | Phase | Authorization | Implementation |
 | --- | --- | --- |
 | 1 — Contract and read-only legacy migration | Verified/published/integrated | Exact 11-path result published in GIT-051 `804ff39dc73c88d4799570cce2ef18987745a0be` |
-| 2 — Shell/New/Open | Accepted; technically Verified | Corrected exact 15-path result complete; GIT-052 publication/integration pending |
-| 3 — Stage/compositing | Unauthorized | Not started |
+| 2 — Shell/New/Open | Verified/published/integrated | Corrected exact 15-path result published in GIT-052 `d2096109900cc50a0a4dae2f603bd74b7b4a3427` |
+| 3 — Stage/compositing | Approved; Authorized | Not started; exact runtime base `d2096109900cc50a0a4dae2f603bd74b7b4a3427`; existing entry gate remains mandatory |
 | 4 — Timeline/playback/onion | Unauthorized | Not started |
 | 5 — Existing manual tools/layout | Unauthorized | Not started |
 | 6 — History/persistence/recovery | Unauthorized | Not started |
@@ -348,6 +348,8 @@ Systems intentionally outside SPEC-0006: new AI quality, provider/model/video/tr
 
 ### Phase 3 — Unified stage, renderer, and mixed compositing
 
+**Authorization — D-0060 (2026-09-10).** Arthur explicitly authorizes this Phase 3 only. One new dedicated Spec Executor may begin in Plan mode with its technical/runtime diff based exactly on GIT-052 `d2096109900cc50a0a4dae2f603bd74b7b4a3427`. Because the authorization record is a later records-only successor, the executor must also bind that exact authorization commit and this spec's bytes in its plan/proof before editing. It must freeze its exact technical paths within the 16-path ceiling and satisfy the existing mixed-fixture/reference-render/coordinate-transform/parity entry gate. No Phase 4 work or Git publication is authorized.
+
 **Plain outcome.** A seeded mixed project visibly renders Drawing background/text/tween content and editable Stick content together on one stable stage at desktop and compact sizes.
 
 **Problem solved.** Current renderers composite only their own layer type and Drawing authoring allocation depends on viewport/DPR.
@@ -524,9 +526,9 @@ This map is not an executor allowlist. Each authorized phase must freeze its exa
 
 Phase 1's exact 11 technical paths plus reviewed records/tree are published in GIT-051 `804ff39dc73c88d4799570cce2ef18987745a0be`, parent `3b784cc6a68ff6f10fa390d96b81376b46e54b44`, message `Implement SPEC-0006 Phase 1 unified contract`, exactly 27 paths. The accepted manifest remains `output/spec-0006/phase-1/proof-manifest.json`, 9,257 bytes at SHA-256 `83614635c02f22d81205c441c46de3bff3a75f1c948661a1670a36eca75dbb29`. The migration suite passed 56 valid, 124 invalid/tamper, 1,000 repeated mappings, 3,516 assertions, all four source kinds, an independent oracle, and zero writes. Frozen library hashes carried into Phase 2 are `249cfd4640b129927fa7206cf3c8b17bb0c98f4ecf46af0adb2d33125fc9168d` for `unifiedAnimationContract.ts` and `093ccf4127bfe66adbf3ae6819c5118389e7e3a70efa53469eb9551065e6c28e` for `unifiedAnimationMigration.ts`.
 
-### Phase 2 — accepted and technically Verified; publication pending
+### Phase 2 — Verified, published, and integrated
 
-The accepted corrected technical boundary in `/Users/arthurcarlin/.codex/worktrees/e4f3/stick-animation-app`, detached at GIT-051 base/HEAD `804ff39dc73c88d4799570cce2ef18987745a0be`, is exactly:
+The accepted corrected technical boundary from GIT-051 base `804ff39dc73c88d4799570cce2ef18987745a0be`, published in GIT-052 `d2096109900cc50a0a4dae2f603bd74b7b4a3427`, is exactly:
 
 - `app/page.tsx`
 - `src/components/open-project/OpenProjectBrowser.tsx`
@@ -546,12 +548,12 @@ The accepted corrected technical boundary in `/Users/arthurcarlin/.codex/worktre
 
 The accepted manifest is `output/spec-0006/phase-2/proof-manifest.json`, exactly 16,649 bytes at SHA-256 `ebfeb699c0d9bcedd5b6b7c90d5cb4b71a3fe3ea89326a2820b86882e2c27cb7`. CPA independently replayed the unchanged manifest before control-plane edits: PASS, 15 source bindings, 19 receipts, 38 artifacts, 18 negative mutation cases, exact scope, and empty index. TypeScript, focused lint, unchanged full-lint baseline with zero new/changed-line findings, Drawing V1/V2 and Stick contract/history/storage/timeline/AI validators, production compile/generate, and diff checks pass.
 
-The bound browser result records 40 operations and 13 screenshots across desktop/compact Home/New/collection and Drawing V1/V2/Stick V1/V2 opens. It proves the corrected inherited presentation, invalid/missing/stale/storage failure behavior, zero source writes, zero real API/external requests, zero console/page errors, and no review-only product surface. Arthur accepted this corrected visible result. Review URL `http://127.0.0.1:56362/` remains preserved until GIT-052 publication and D-0054 cleanup.
+The bound browser result records 40 operations and 13 screenshots across desktop/compact Home/New/collection and Drawing V1/V2/Stick V1/V2 opens. It proves the corrected inherited presentation, invalid/missing/stale/storage failure behavior, zero source writes, zero real API/external requests, zero console/page errors, and no review-only product surface. Arthur accepted this corrected visible result. After GIT-052 publication, the obsolete review process was stopped, port `56362` was closed, and the executor worktree was removed from the registered worktree inventory under D-0054.
 
-Phase 2 does not merge the compatibility editors. Mixed compositor/timeline/tools/history/canonical Save and unified persistence remain unimplemented; Phase 6 owns the final repository/write path. Phases 3–7 remain Unauthorized; Not started.
+Phase 2 does not merge the compatibility editors. Mixed compositor/timeline/tools/history/canonical Save and unified persistence remain unimplemented; Phase 6 owns the final repository/write path. Phase 3 stage/compositing is Authorized/Not started under D-0060; Phases 4–7 remain Unauthorized/Not started.
 
 ## 16. Final state and handoff
 
-SPEC-0006 remains Approved and active. Phase 1 is Verified/published/integrated at GIT-051 `804ff39dc73c88d4799570cce2ef18987745a0be`. D-0059 accepts the corrected exact 15-path Phase 2 result as technically Verified pending GIT-052 publication/integration. The current ordinary app has direct New, one inherited combined Open collection, and one compatibility editor mounted through `AnimationWorkspace`; it does not yet have mixed rendering, a unified timeline/tools/history, canonical Save, or one persistence owner.
+SPEC-0006 remains Approved and active. Phase 1 is Verified/published/integrated at GIT-051 `804ff39dc73c88d4799570cce2ef18987745a0be`; Phase 2 is Verified/published/integrated at GIT-052 `d2096109900cc50a0a4dae2f603bd74b7b4a3427`. The current ordinary app has direct New, one inherited combined Open collection, and one compatibility editor mounted through `AnimationWorkspace`; it does not yet have mixed rendering, a unified timeline/tools/history, canonical Save, or one persistence owner. D-0060 authorizes Phase 3 stage/compositing only; no Phase 3 implementation exists yet.
 
-Next step: the already-authorized later GIT-052 task may publish only the accepted Phase 2 technical paths plus the reviewed CPA control-plane/tree allowlist, then verify clean synchronization and perform D-0054 accepted-copy cleanup. Phase 3 requires a later separate owner authorization after Phase 2 is durably integrated. Phases 3–7 remain Unauthorized; Not started.
+Next step: after this records-only authorization reconciliation is published, one new dedicated Plan-mode Phase 3 Spec Executor may implement exactly §12 Phase 3. Its technical diff starts from `d2096109900cc50a0a4dae2f603bd74b7b4a3427`, it must bind the authorization-record commit/spec bytes, freeze its exact paths within the 16-path ceiling, satisfy the entry gate, create and validate its technical proof manifest, return its Implementation Review Packet, and stop. Phases 4–7 remain Unauthorized; Not started.

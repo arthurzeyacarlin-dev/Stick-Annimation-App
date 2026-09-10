@@ -574,6 +574,16 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Lifecycle consequence: Phase 2 is **accepted and technically Verified; pending GIT-052 publication/integration**. A later already-authorized publication task may stage only the accepted 15 technical paths plus this reviewed control-plane/tree allowlist, commit, fast-forward unchanged clean canonical main, push, verify `0/0`, and complete D-0054 cleanup. Phase 3 and Phases 4–7 remain **Unauthorized; Not started**.
 - Preserved boundary: compatibility editors remain separate and keep their existing Drawing Save/Save As and Stick Save behavior. No mixed compositor, unified timeline/tools/history, canonical Save/repository, legacy deletion/rewrite, new AI/provider/model/prompt, external/paid request, dependency/configuration, cloud/auth, export, or deployment is accepted or implemented.
 
+### D-0060 — Reconcile GIT-052 publication and authorize SPEC-0006 Phase 3 stage/compositing
+
+- Date: 2026-09-10
+- Authority/status: Arthur explicitly authorized any required Git/GitHub bookkeeping before Phase 3 and explicitly authorized SPEC-0006 Phase 3 implementation. GIT-052 is now recorded as Verified, published, and integrated. Phase 3 is **Approved; Authorized; Not started**. Phases 4–7 remain **Unauthorized; Not started**.
+- Verified publication fact: canonical `HEAD`, local `main`, local `origin/main`, GitHub's live `main` ref, and `git ls-remote origin refs/heads/main` were freshly verified equal at exact GIT-052 commit `d2096109900cc50a0a4dae2f603bd74b7b4a3427`, parent `804ff39dc73c88d4799570cce2ef18987745a0be`, message `Implement SPEC-0006 Phase 2 unified shell`, with `0/0` divergence, clean worktree, and empty index. That 29-path commit contains exactly the accepted 15 Phase 2 technical paths plus the 14 previously reviewed control-plane/tree paths. The accepted manifest remains 16,649 bytes at SHA-256 `ebfeb699c0d9bcedd5b6b7c90d5cb4b71a3fe3ea89326a2820b86882e2c27cb7`.
+- D-0054 cleanup fact: the former accepted Phase 2 executor worktree `/Users/arthurcarlin/.codex/worktrees/e4f3/stick-animation-app` is no longer registered, PID `72206` is absent, and port `56362` has no listener. The accepted manifest identity and technical evidence remain preserved in the canonical D-0059/GIT-052 records; the ignored manifest file is not present in this canonical worktree, so this reconciliation did not rerun or alter it. No recovery or unrelated worktree was entered or changed.
+- Authorized Phase 3: implement only §12 Phase 3's unified stage, renderer, and mixed Drawing/Stick compositing result. The existing plain outcome, execution path, 16-tracked-technical-path ceiling, non-goals, entry gate, human review, acceptance, negative tests, regressions, proof, and stop boundary remain unchanged. No Phase 4 timeline mutation UI, unified tools/history/persistence, legacy retirement, AI/provider/model/video/tracking, dependency/configuration, deployment, or external/paid operation is authorized.
+- Exact base and records binding: per Arthur's explicit instruction, the Phase 3 technical/runtime diff starts from exact published GIT-052 runtime base `d2096109900cc50a0a4dae2f603bd74b7b4a3427`. This D-0060 reconciliation is a later records-only successor. The new dedicated Spec Executor must start in Plan mode, bind the exact published D-0060 authorization commit and current SPEC-0006 bytes in its plan/proof, confirm the runtime parent/base is `d2096109900cc50a0a4dae2f603bd74b7b4a3427`, freeze its exact path list within the 16-path ceiling, and satisfy the existing mixed-fixture/reference-render/coordinate-transform/parity entry gate before editing.
+- Lifecycle: this task performs only canonical control-plane/tree reconciliation and its explicitly authorized normal Git publication. It does not create the Phase 3 executor/worktree/app copy, implement Phase 3, alter any runtime/fixture/technical-test/package/config/proof byte, deploy, or contact a provider/external/paid service. The future executor returns an Implementation Review Packet and stops; Arthur/PM acceptance, CPA propagation, and Phase 3 publication remain separate later steps.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation
@@ -588,7 +598,7 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 
 ### P-0001 — Launch role of the Drawing Workspace
 
-- Status: resolved for intended architecture by D-0056; Phase 1 is Verified/published/integrated at GIT-051, and Phase 2 is accepted/technically Verified under D-0059 pending GIT-052. Phases 3–7 remain Unauthorized/Not started.
+- Status: resolved for intended architecture by D-0056; Phase 1 is Verified/published/integrated at GIT-051, Phase 2 is Verified/published/integrated at GIT-052 `d2096109900cc50a0a4dae2f603bd74b7b4a3427`, and Phase 3 is Authorized/Not started under D-0060. Phases 4–7 remain Unauthorized/Not started.
 - Resolution: Drawing becomes a typed editable content system inside the one Animation Workspace rather than a separate New Project choice or separate saved-project pillar. Drawing-specific feature expansion still requires its own scope.
 
 ### P-0002 — Official product name
@@ -640,6 +650,6 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 
 ### P-0009 — Possible unified Animation Workspace
 
-- Status: resolved for intended architecture by D-0056; SPEC-0006 is Approved, Phase 1 is Verified/published/integrated at GIT-051, and Phase 2 is accepted/technically Verified under D-0059 pending GIT-052. Phases 3–7 remain Unauthorized/Not started.
+- Status: resolved for intended architecture by D-0056; SPEC-0006 is Approved, Phase 1 is Verified/published/integrated at GIT-051, Phase 2 is Verified/published/integrated at GIT-052 `d2096109900cc50a0a4dae2f603bd74b7b4a3427`, and Phase 3 is Authorized/Not started under D-0060. Phases 4–7 remain Unauthorized/Not started.
 - Resolution: one project/timeline/stage/save/history/AI surface replaces the separate Drawing/Stick choice using typed Drawing and Stick layers, lossless non-destructive legacy adoption, and one canonical writable root. See SPEC-0006 for the exact seven phases and proof gates.
 - Current boundary: Phase 2 unifies ordinary New/Open navigation and compatibility mounting only. Drawing and Stick editor internals, compositing, timelines, tools, histories, and persistence remain separate until later authorized phases.

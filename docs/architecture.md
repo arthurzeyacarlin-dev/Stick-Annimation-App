@@ -1,29 +1,23 @@
 # Architecture and System Map
 
-Status: canonical current architecture map
-Last traced: 2026-09-10 accepted Phase 3 source and evidence in c6b0, authorization/HEAD `916a4d913c6fdf8340b67bcc88dcea184d67cd32`, runtime parent `d2096109900cc50a0a4dae2f603bd74b7b4a3427`. Phase 3 is Verified but unpublished/not integrated; canonical main/local origin remain clean at `916a4d913c6fdf8340b67bcc88dcea184d67cd32`, 0/0. No runtime byte changed during CPA tracing/propagation.
+Status: canonical architecture map, current vs intended distinguished
+Last traced: 2026-09-11 published and rejected source in /6e90/ at e11f6c453f13772ee9bd4b172a17bc68e1de65b9; docs-only, no fresh browser/remote check.
 
-## Approved architecture transition (D-0055/D-0056/D-0057/D-0059/D-0060/D-0061)
+## Current implementation and required correction (D-0062)
 
-SPEC-0004 and SPEC-0005 completed phases remain published and protected; their unfinished motion phases remain superseded/inactive under D-0055. [`SPEC-0006`](specs/0006-unified-animation-workspace.md) remains the sole approved seven-phase owner for one typed Drawing/Stick project, root, stage, timeline, tools, history, and persistence.
+SPEC-0006 Phases 1–3 are Verified/published/integrated through GIT-054 `e11f6c453f13772ee9bd4b172a17bc68e1de65b9`. Arthur rejected the former Phase 4 typed-layer result; it remains unpublished and non-reusable. D-0062 corrects the same spec to neutral layers with ordered typed items in the same cell. Seven numbered phases remain; corrected Phase 4 has internal 4A (12 paths, model/read migration/minimal repository) then 4B (24 paths, ordinary neutral New/Open, controlled item editing, shared history/render/timeline/playback/onion), ending in one visible Phase 4 review. Correction implementation is not started.
 
-GIT-051 publishes Phase 1’s contract/read-only migration; GIT-052 `d2096109900cc50a0a4dae2f603bd74b7b4a3427` publishes Phase 2’s direct New, combined Open and compatibility mounting. D-0061 accepts the exact 16-path Phase 3 stage/compositing result from authorization `916a4d913c6fdf8340b67bcc88dcea184d67cd32`. It is Verified in c6b0 with CPA propagation complete, but unpublished/not integrated. Phases 4–7 remain Unauthorized/Not started.
+Published V1 uses `layer.contentKind`, per-layer Drawing transforms and exclusive Drawing/Stick owner payloads. `unifiedAnimationMigration` creates typed layers; bootstrap chooses one compatibility editor. The published resolver/renderer composes separate typed layers through fixed 1920×1080 stage rendering. The rejected local timeline/reducer/bridge extends typed clipboard/onion targeting and only projects Stick edits; it does not implement neutral same-cell content or common chronological history. See SPEC-0006 §2.6/2.7 for the complete path/assumption inventory.
 
-## Accepted SPEC-0006 Phase 1 and Phase 2 architecture
+## Approved corrected target — not yet implemented
 
-`unifiedAnimationMigration.ts` remains the strict read-only mapper for Drawing V1/V2 and Stick V1/V2. Phase 2 adds `unifiedProjectSourceReader.ts`, `unifiedProjectCollection.ts`, and `unifiedWorkspaceBootstrap.ts` around that boundary. The source reader obtains current browser-local records; the collection normalizes ordering and availability; the bootstrap generation/revision gate rejects stale or failed opens before root replacement.
+Neutral V2 layers contain cells owning ordered raster/text/structured-rig/bitmap-symbol items. IDs/selection and Drawing source transforms belong to items; holds/clipboard/onion resolve the complete mixed owner. One command/history root receives controlled item-adapter commits; one renderer emits every item in order. A minimal complete V2 repository precedes ordinary New cutover so Save cannot drop mixed content. Project-owned current bitmap definitions/instances and catalog metadata complete in Phase 5; all-source adoption/recovery in Phase 6; retirement/full proof in Phase 7.
 
-`app/page.tsx` now owns `home | tutorials | openProject | animationWorkspace`. New builds the canonical Phase 1 candidate in memory. Open renders `OpenProjectBrowser`, whose inherited Projects layout now holds one combined collection without the old type selector or new type badges. `AnimationWorkspace` mounts exactly one compatibility editor based on the candidate source kind. Drawing open plumbing accepts the prepared candidate without adding a new write door.
+Phase 4A (12 paths) establishes model/read migration/repository and fault proof. Phase 4B (24 paths) integrates ordinary neutral New/canonical Open, current Drawing/Stick item editing, render/history/timeline/playback/onion and safe native mixed Save/Save As. Both are internal checkpoints under one final visible Phase 4 review. Existing V1/legacy sources remain readable, unmodified; no whole-project V2-to-legacy write projection, hidden typed lanes, advanced symbol engine or AI change.
 
-The compatibility editors remain separate sources of editing truth. Drawing retains DrawingCanvas/timeline/history/Save/Save As; Stick retains its timeline/gestures/history/Save. Accepted Phase 3 adds a conditional mixed render seam described below. No shared clock, unified tool dispatcher/history, canonical repository, or split-owner retirement exists yet.
+Arthur already authorizes proceeding after safe architecture. PM coordinates separately authorized records publication and verified same-copy recovery, then sequential 4A → stopped-owner checkpoint → 4B in the retained `/6e90/` worktree under SPEC-0006 §12/16. No invisible checkpoint is product acceptance. No extra Plan-click or pasted-prompt approval is required. This docs-only task starts no executor/server and performs no Git publication or cleanup. Later numbered phases still require prior acceptance, CPA propagation and separate publication/integration.
 
-## Accepted Phase 3 rendering seam — unpublished
-
-`AnimationWorkspace` detects mixed Drawing/Stick layers and builds a read snapshot containing the live active Stick owner from the existing editor. It supplies `UnifiedAnimationStage` through the optional Stick workspace/canvas render callback. `unifiedCellResolver` resolves empty/blank/keyframe/hold/tween ownership and orders visible layers; typed Drawing/Stick adapters create render commands. `UnifiedStageRenderer` paints a private work canvas, checks asset hashes, bounds sequential decoding/cache ownership, and publishes only complete current-generation frames onto the front canvas. Both backing canvases are fixed at 1920×1080. Snapshot consumers use the same front canvas.
-
-`fitAuthoredStage` scales the fixed authored DOM surface for the host; pointer handling maps back through the existing Stick gesture/history owner. The old viewport projection is bypassed only for this mixed authored surface; ordinary Stick projection and AI/motion modules are unchanged. Mixed-only compact CSS stacks existing regions without adding product chrome. The DrawingCanvas allocation/tool system is untouched. Review-only fixture seeding and instrumentation exist only in the ignored source copy, not the production navigation or project stores.
-
-The seeded neutral fixture proves typed composition, text/tween rendering, coordinate preservation and existing manual editability. It does not create one timeline/tools/history/write owner, canonical mixed Save, new AI output, or new motion capability. Phases 4–7 remain unauthorized.
+## Published runtime path (historical V1 ownership; local rejected diff is not accepted)
 
 ## Runtime Overview
 
@@ -141,23 +135,17 @@ Stick saved record version 2 stores that latch beside the editable document/view
 
 The blue `PRIVATE REVIEW` fixture controls used for Arthur's acceptance were injected only into a temporary isolated copy by the dedicated browser-proof script. Product source contains no route, picker, overlay, or query-controlled review surface. The workspace keeps an unexported proof-port object for isolated source-copy injection, but product code neither exposes it on `window` nor imports the proof client.
 
-## Approved SPEC-0006 final target — not current runtime
-
-If Arthur/PM approve and all seven phases are separately executed, accepted, propagated, and published, the normal path becomes:
+## Final neutral ownership path — intended
 
 ```text
-Home New/Open
-  → one collection/bootstrap controller
-  → read-only Drawing V1/V2, Stick V1/V2, or canonical V1 candidate
-  → one UnifiedWorkspaceRoot and typed command dispatcher
-  → one common cell-owner resolver
-  → typed Drawing/Stick render adapters
-  → one 1920×1080 logical stage and playback/onion clock
-  → one contextual tool/panel surface
-  → one atomic history and revision-bound IndexedDB repository
+Home New/Open → source reader / V2 factory / repository
+  → one validated neutral document and command/history root
+  → complete mixed cell owner → ordered typed item render/tool adapters
+  → one fixed stage, neutral timeline, playback/onion and selection
+  → current tools/panels/project catalog → full V2 Save/Save As/recovery
 ```
 
-Drawing and Stick remain typed layer payloads; neither is flattened into the other. Phases 1–2 are published; accepted Phase 3 adds the seeded mixed stage but remains unpublished/not integrated. The unified timeline/clock, tools, history/repository, canonical Save identity, and split-owner retirement remain unimplemented. Phases 4–7 remain unauthorized.
+No layer has a content kind. Drawing raster/text/symbol and structured Stick items coexist in the same layer/frame. Current ordinary runtime has not reached this target; D-0062 owns the correction. AI code/envelopes/providers/prompts/motion remain protected, with no new AI/manual future-spec capability.
 
 ## Protected Architectural Invariants
 

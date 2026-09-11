@@ -1,7 +1,7 @@
 # Terminology
 
 Status: canonical vocabulary
-Last updated: 2026-08-09
+Last updated: 2026-09-11
 
 ## Product and Workspaces
 
@@ -36,6 +36,9 @@ Last updated: 2026-08-09
 
 | Term | Meaning |
 | --- | --- |
+| Neutral layer | A named visible/locked container of cells, with no content kind |
+| Content item | A typed raster/text/symbol-instance/structured-rig object inside one neutral owner cell; multiple kinds coexist |
+| Bitmap symbol instance | A separately transformed reference to a project-owned immutable bitmap definition; current session-only flattened behavior is being corrected under SPEC-0006 |
 | Timeline position | An indexed time slot in one layer's timeline |
 | Timeline cell | The metadata at a timeline position, classified as empty, keyframe, blank keyframe, hold, or tween |
 | Authored frame | Content/state owned for animation at a timeline position; not every displayed timeline position owns one independently |

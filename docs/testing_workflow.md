@@ -119,9 +119,9 @@ D-0059 accepts the corrected exact 15-path Phase 2 result from base/HEAD `804ff3
 
 The browser proof passed 40 operations and 13 screenshots at desktop/compact across Home/New/one collection/Drawing V1/V2/Stick V1/V2. It proves the accepted inherited Projects and editor presentation, direct Untitled New, invalid/missing/stale/storage failures, zero source writes, zero real API/external requests, zero page/console errors, and no review-only surface. Production compile/generate, TypeScript, focused/full lint non-regression, inherited Drawing/Stick/AI suites, and diff checks pass. The compact result is browser-profile evidence, not a physical-phone claim. GIT-052 published the bound result at `d2096109900cc50a0a4dae2f603bd74b7b4a3427`; the obsolete review server is stopped, port `56362` is closed, and the executor worktree is no longer registered.
 
-## Accepted SPEC-0006 Phase 3 proof — unpublished
+## Published SPEC-0006 Phase 3 — historical proof
 
-Phases 4–7 remain Unauthorized/Not started.
+GIT-054 e11f6c453f13772ee9bd4b172a17bc68e1de65b9 published this accepted result. The CPA snapshot below is preserved history; D-0062 supersedes its Phase 4/dispatch assumptions. No historical validator is claimed freshly rerun.
 
 The accepted technical manifest is `output/spec-0006/phase-3/proof-manifest.json`, exactly 22,897 bytes at SHA-256 `207aea2a7d664e49d28dd6b8c4704e50da9fae8d5197d9164ccbac871db4fcc0`: 16 source bindings, 20 receipts, and 60 artifacts. CPA reran the unchanged validator before propagation: PASS, 3,725 assertions and 18 negative manifest cases. All accepted technical and proof bytes remain unchanged.
 
@@ -134,6 +134,14 @@ Physical-phone performance and native/GPU memory remain unproven; the compact re
 CPA closeout is preserved under `output/spec-0006/phase-3/cpa/`: `takeover.json`, `ownership-transfer.json`, `pre-propagation-validation.log`, and `closeout-manifest.json`. The strict executor validator was run before records changed. After propagation, independently revalidate all accepted source/receipt/artifact hashes and sizes, the 157 original protected bindings, and all five frozen bindings. Resolve the original spec and original `docs/AI_SYSTEM.md` snapshot at the bound authorization commit; the other 156 protected files remain byte-identical, and no protected runtime/test byte changes. Do not rewrite the accepted manifest or claim its strict live 16-dirty-path/current-spec CLI passes after CPA records are added. Its historical pending-Arthur/executor-ownership/publication fields describe the stopped executor snapshot; D-0061 records subsequent acceptance and sequential CPA ownership.
 
 The CPA final closeout binds exactly 16 technical paths plus 14 canonical records/tree paths, empty index, unchanged authorization/HEAD and clean canonical main/local origin at `916a4d913c6fdf8340b67bcc88dcea184d67cd32` (0/0), current review process/cwd/port identity, the preserved source-copy injections, memory regeneration/check, links, lifecycle consistency, and both diff checks. Live remote was not refreshed and no optional browser/CDP probe was retried. Revalidating the bound browser/build/test receipts is not a fresh execution of those suites. Arthur’s later app-copy acceptance is recorded in D-0061 separately from the immutable executor manifest.
+
+## D-0062 neutral Phase 4 correction proof
+
+Phase 4A exact12 model/read-migration/minimal repository paths produce an independently validated technical checkpoint manifest; no human-visible completion is claimed. After executor stop and PM hash/index/scope verification, Phase 4B exact24 paths bind that checkpoint and produce final combined proof (36 planned, maximum37 with the conditional app/page.tsx path) and one visible review. No intermediate CPA/publication is required for these internal gates. SPEC-0006 §12/16 owns the exact authority, allowlists and same-copy backup/replacement rules.
+
+Phase 4B additionally runs focused app/page.tsx/OpenProjectBrowser prop, full TypeScript and production-build checks. Disk onOpenProject is already correct; a reported unsaved stale editor buffer is not a code defect. app/page.tsx may change only if cutover requires it (25 maximum for 4B, 37 combined); do not save/overwrite the user buffer.
+
+Ordinary empty New must create a neutral Layer 1, then normal controls add Drawing and editable Stick data into the same owner cell. Neutral copy/paste/layer/frame/playback/onion/history and native mixed Save/Save As/reload/Open must pass; seeded MIXED fixtures cannot substitute. Source/build/store/asset checks prove no automatic fixture artwork, labels, demo rig or instrumentation. Final library-instance UI and all-source adoption matrices complete in Phases 5/6; no earlier claim is made. Preserve historical V1 and rejected manifest snapshots unchanged; validate original spec bindings against their original commits, never regenerate evidence to match current docs.
 
 ## Shared SPEC-0006 phase proof requirements
 

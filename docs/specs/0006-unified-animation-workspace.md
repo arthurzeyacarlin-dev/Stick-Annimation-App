@@ -1,49 +1,37 @@
 # SPEC-0006 — Unified Animation Workspace
 
-Status: SPEC-0006 is **Approved and active**. Phases 1–2 remain Verified/published/integrated through GIT-051 and GIT-052 `d2096109900cc50a0a4dae2f603bd74b7b4a3427`. Phase 3 is **accepted and Verified in the dedicated worktree; unpublished and not integrated**, under D-0061. **Phases 4–7 remain Unauthorized/Not started.**
+Status: **Approved outcome; architecture corrected under D-0062; correction implementation not started.** Phases 1–3 are Verified/published/integrated. The former Phase 4 timeline implementation was **executed and rejected by Arthur**, unpublished and non-reusable. It is replaced by the Phase 4–7 sequence below.
 Owner: Arthur
-Spec role: Spec Architect
+Task role: SPEC-0006 architecture correction owner, explicitly delegated by PM in the stopped rejected `/6e90/` worktree
 Created: 2026-09-09
-Last updated: 2026-09-10
-Decision links: [D-0055 through D-0061](../DECISIONS.md)
-TODO IDs: `PLAN-006`, `SPEC-006`, `UNIFY-001`, `UNIFY-002`, `UNIFY-003`, `GIT-050`, `GIT-051`, `GIT-052`, `GIT-053`, `GIT-054`
-Baseline branch/commit: GIT-052 canonical runtime `main` `d2096109900cc50a0a4dae2f603bd74b7b4a3427`
-Last verified branch/commit: 2026-09-10 CPA closeout in detached c6b0 at authorization/HEAD `916a4d913c6fdf8340b67bcc88dcea184d67cd32`, runtime parent `d2096109900cc50a0a4dae2f603bd74b7b4a3427`, exact accepted 16 technical paths plus 14 CPA records/tree paths; canonical main/local origin remain clean at `916a4d913c6fdf8340b67bcc88dcea184d67cd32`, 0/0. Phase 3 is not committed or integrated; live remote not refreshed in this turn.
+Last updated: 2026-09-11
+Decision links: [D-0055–D-0062](../DECISIONS.md)
+TODO IDs: `PLAN-006`, `SPEC-006`, `UNIFY-001`–`UNIFY-007`, `GIT-050`–`GIT-055`
+Fresh local evidence: detached HEAD, local `main`, and local `origin/main` are `e11f6c453f13772ee9bd4b172a17bc68e1de65b9` (GIT-054, `Implement SPEC-0006 Phase 3 mixed stage`), parent `916a4d913c6fdf8340b67bcc88dcea184d67cd32`. Index empty. Remote synchronization was not refreshed in this architecture-only task.
 
-> **Lifecycle boundary.** Phases 1–2 are published/integrated. D-0060/GIT-053 authorized the completed Phase 3 implementation from runtime base `d2096109900cc50a0a4dae2f603bd74b7b4a3427` and authorization commit `916a4d913c6fdf8340b67bcc88dcea184d67cd32`. Arthur/PM accepted it under D-0061 after the executor stopped. CPA propagation and tracked-state closeout are complete in the same worktree; separate GIT-054 publication is next. Phases 4–7 remain Unauthorized; Not started.
->
-> **Current repository boundary.** The accepted 16 technical paths and immutable manifest remain unchanged through CPA propagation. Only the 14 canonical records/tree paths were added by CPA. No staging, commit, push, integration, deployment, review-server shutdown, or worktree cleanup occurs in this turn. See §15 for exact evidence and §16 for the next handoff.
->
-> **Exactly seven phases.** This spec has exactly the seven implementation phases in §12. A correction to one phase does not create an eighth phase. Material outcome changes return to Arthur; bounded mechanics may be settled inside the authorized phase only when they preserve the contract, scope, safety, and proof below.
->
-> **Sole ownership.** SPEC-0006 alone owns the complete workspace unification through its seven phases. Do not create a spec-helping-spec chain or move its contract, migration, tester, shell, or integration responsibility into another prerequisite spec. Bounded corrections belong in SPEC-0006 under the existing amendment/review rules; material changes return to Arthur without silently expanding a phase.
+**Authority and sequencing.** Arthur requires neutral layers and a visible corrected Phase 4 in the same app copy. This supersedes D-0056/D-0057's typed-layer design and the former Phase 4 timeline-only boundary, not the three published historical results. SPEC-0006 remains the sole specification and retains **seven numbered phases**. Corrected Phase 4 has exactly **two sequential internal subphases, 4A and 4B**, under its existing correction authorization, ending in one visible human review. A hidden 4A checkpoint is never Phase 4 acceptance. See §12 for why ordinary New requires a minimal safe repository before cutover, the exact 12-path 4A boundary and 24-path 4B boundary.
 
-### Current phase authorization — D-0057/D-0059/D-0060/D-0061
+This architecture task stops after its packet. It performs no runtime/proof/server/Git action. PM coordinates sequential exclusive ownership under Arthur's existing implementation authority without requiring Plan clicks or copied messages. Publication remains separately authorized. The same-copy correction exception and its verified recovery conditions are recorded in §16; rejected bytes are preserved as evidence, then replaced from canonical foundations, not reused.
 
-| Phase | Authorization | Implementation |
-| --- | --- | --- |
-| 1 — Contract and read-only legacy migration | Verified/published/integrated | Exact 11-path result published in GIT-051 `804ff39dc73c88d4799570cce2ef18987745a0be` |
-| 2 — Shell/New/Open | Verified/published/integrated | Corrected exact 15-path result published in GIT-052 `d2096109900cc50a0a4dae2f603bd74b7b4a3427` |
-| 3 — Stage/compositing | Accepted/Verified under D-0061 | Exact 16-path result in c6b0; CPA propagation complete; unpublished/not integrated; GIT-054 pending |
-| 4 — Timeline/playback/onion | Unauthorized | Not started |
-| 5 — Existing manual tools/layout | Unauthorized | Not started |
-| 6 — History/persistence/recovery | Unauthorized | Not started |
-| 7 — Retirement/full acceptance | Unauthorized | Not started |
+| Phase | Result and lifecycle | Technical ceiling |
+| --- | --- | ---: |
+| 1 — V1 contract/read-only migration | Published GIT-051 `804ff39dc73c88d4799570cce2ef18987745a0be`; 11 actual paths | historical 18 |
+| 2 — Shell/New/Open | Published GIT-052 `d2096109900cc50a0a4dae2f603bd74b7b4a3427`; 15 actual paths | historical 16 |
+| 3 — Typed-layer mixed stage | Published GIT-054 `e11f6c453f13772ee9bd4b172a17bc68e1de65b9`; 16 actual paths | historical 16 |
+| 4 — Visible neutral workspace/timeline correction | Former result rejected; replacement not started; 4A then 4B, one final visible review | **12 + 24 planned; at most 37 with the conditional page path** |
+| 5 — Complete current tools, project Library/Assets and panels | After corrected Phase 4 publication; not started | 20 |
+| 6 — Complete canonical adoption/recovery and persistence proof | After Phase 5 publication; not started | 20 |
+| 7 — Retire duplicate ownership and full acceptance | After Phase 6 publication; not started | 18 |
 
 ## 1. Plain-language outcome
 
-Diamond Animator becomes one Animation Workspace. A user creates one neutral **Untitled Project**, opens one project collection, draws a background, adds and edits Stick figures on other layers, controls all of it on one timeline, plays it with one clock, uses onion skin, undoes and redoes actions in order, and saves or reopens the whole animation as one project.
+Diamond Animator has one Animation Workspace, one project/document, stage, neutral layer/frame model, timeline/playback/onion system, current Library/Assets data, selection/tools/panels, Undo/Redo, and Save/Save As/Open/recovery. It combines the existing Drawing and Stick capabilities.
 
-The visible direction is the current Stick workspace layout:
+**The same layer and the same owner frame/cell can contain drawn strokes/shapes, editable text, bitmap symbol instances and editable Stick figures/rigs together.** A user can place a drawn or symbol sword at a Stick figure's hand and draw a fireball alongside it without adding a different kind of layer. This means manual placement and ordinary frame editing; it adds no automatic rig attachment, physics, constraint, or motion-following engine.
 
-- one top bar with File, Undo, Redo, project title, and save state;
-- one timeline across the top of the stage;
-- one stage/canvas in the center;
-- right-panel tabs in this exact order: **Stick Figure Tools**, **Properties**, **Library**, **Assets**;
-- the existing functional Drawing tools along the bottom: Select, Lasso, Brush, Eraser, Fill, Text, Shape, and Knife;
-- AI Animator at the bottom right.
+New Project opens **Untitled Project**, one empty neutral `Layer 1`, and no Drawing/Stick choice. Layers have no kind, default kind, hidden type lane, or type badge. Neither `· Drawing` nor `· Stick` appears in layer names, selectors, tooltips or accessibility labels. Content items remain type-safe; rigs stay structured and drawings retain their current raster/text semantics.
 
-Drawing pixels/text/tweens remain Drawing data. Stick rigs/figures/joints/limbs/poses remain Stick data. The unification is a typed shared project and editor, not a conversion of Stick figures into bitmaps or Drawing frames into rigs.
+The visible layout preserves one top bar, timeline above the stage, right tabs in order **Stick Figure Tools, Properties, Library, Assets**, existing functional Drawing tools along the bottom including Shape, and AI Animator bottom right. “Share” means these systems use the common project capability layer; no cloud/social Share feature is added.
 
 ## 2. Current problem and verified evidence
 
@@ -92,146 +80,155 @@ Simply removing the two cards would hide this conflict. Simply serializing both 
 
 This is a seeded mixed-stage foundation. Ordinary New/Open still uses the published Phase 2 path and existing source stores. DrawingCanvas, common timeline mutation UI, tool integration, shared history, canonical mixed Save and legacy retirement are not completed here. The scene is manually authored neutral proof content, not AI-generated motion. See §15 for the accepted result and its limits.
 
-## 3. Canonical unified contract
+### 2.6 Rejection and fresh execution-path trace — 2026-09-11
 
-### 3.1 Identity, naming, stage, and limits
+The published V1 foundation models two kinds of layer. The rejected Phase 4 faithfully extended that restriction and cannot satisfy Arthur's corrected outcome. Its 18 technical paths and `output/spec-0006/phase-4/proof-manifest.json` are preserved as rejection evidence: SHA-256 `e9b7e5949198b5d24e21bddc901738ddafb4b63d978cc8f4002a0ccc0211d81b`, 104,287 bytes. A green typed-layer proof is not neutral-layer acceptance. This task traces code and retained evidence only; it starts no server and makes no fresh browser/visual claim.
 
-The permanent document is `diamond-animation-document/v1`; its storage record is `diamond-animation-project/v1`. New IDs are lowercase UUID v4. A migrated project gets a new canonical ID; its source identity stays in provenance and is never reused as writable canonical identity.
+| Published/rejected path | Actual restriction that must be removed from the eventual V2 path |
+| --- | --- |
+| `src/lib/animation/unifiedAnimationContract.ts` | `UnifiedAnimationLayerV1.contentKind` chooses the sole payload validator; Drawing source transform belongs to a layer; `drawingState`/`stickState` presence depends on layer kinds. |
+| `unifiedAnimationMigration.ts` | Each legacy Drawing or Stick layer becomes exclusively typed. Full V1 envelope validation is source-migration-only, not a native saved-project repository. |
+| `unifiedWorkspaceBootstrap.ts`, `AnimationWorkspace.tsx` | New constructs a Drawing candidate; mounted compatibility editor is chosen by source kind; mixed detection requires separate layers of both kinds. Native New bypasses full V1 validation and has a null Drawing transform. |
+| `unifiedCellResolver.ts`, `unifiedDrawingRenderAdapter.ts`, `unifiedStickRenderAdapter.ts`, `unifiedStageRenderer.ts` | One typed owner/command per layer; tween legality depends on layer kind; rejected `commands.find(layerId)` cannot retain multiple same-layer item commands. |
+| Rejected `unifiedTimelineReducer.ts`, `unifiedTimelineAdapter.ts` | Add/blank/copy/paste legality and emptiness use layer kind. The bridge projects Stick layers and inserts a Drawing placeholder; it cannot preserve a mixed cell. |
+| Rejected `UnifiedAnimationTimeline.tsx`, `unifiedOnionResolver.ts`, Stick timeline/workspace bridge | Type badges expose real restrictions. Editing is active-Stick-only; onion dispatches by layer kind; structural boundary resets the separate legacy history. |
+| `DrawingWorkspace.tsx`, `DrawingCanvas.tsx`, `stickProjectHistory.ts` | Drawing local/global history and Stick digest history remain separate authorities. Drawing brush/shapes are raster commits; text is editable metadata. |
+| `DrawingCanvas.tsx`, `StickFigureRightPanel.tsx`, `StickFigureCreatorWorkspace.tsx` | Drawing `LibrarySymbol`/`ImportedAsset` are session-local; placed symbols become pixels. Stick sample grids are placeholders; Creator Save is disabled. |
 
-New Project creates one in-memory document titled exactly **Untitled Project** with one blank Drawing layer named `Layer 1`, frame 1 selected, 12 FPS, onion off, and a `1920×1080` logical stage whose origin is top-left, x increases right, and y increases down. The logical stage is independent of viewport size and device-pixel ratio. The presentation may scale/letterbox it; authored numbers do not change on resize.
+### 2.7 Complete typed-layer assumption inventory in the superseded specification
 
-The initial bounded contract accepts 1–64 layers, 1–10,000 timeline cells per layer, 1–55 FPS, current Drawing V2 raster/audio/dimension/collection limits, and a maximum 128 MiB canonical stored project. A valid legacy project within its source contract must not become unreadable merely because the other source had a smaller bound. Any future reduction requires a new migration decision and cannot occur inside this spec.
+These references identify the specification at GIT-054 before this amendment. Historical §§12 Phase 1–3 and §15 remain dated evidence, not current implementation instructions.
 
-### 3.2 Typed authored data; no flattening
+| Former location | Assumption | Correction |
+| --- | --- | --- |
+| Header, phase table, §§11–14 and 16 | Timeline before common history; no neutral-data or safe-New persistence correction | Two bounded internal Phase 4 subphases establish V2 data/repository then shared root/history and visible neutral timeline; seven numbered phases remain. |
+| §§1, 7.1–7.3 | Background on Drawing layer, rigs on other Stick layers | Same neutral layer and owner cell accepts both, including sword/fireball. |
+| §§3.1–3.2 | New blank Drawing layer; `contentKind`; exclusive payload; layer transform; no cross-kind cells | Neutral layer; ordered typed items; per-item transform; complete mixed owner. |
+| §§3.3–3.4, 4.1–4.3, 8, 14 | Permanent V1 envelope and source-kind-derived state; migration preserves typed partition | Explicit V2 native/upgrade envelope, independent tool settings, lossless read adapters; V1 frozen as compatibility history. |
+| §5 | Typed owner/render list/onion per layer | Whole mixed owner resolves once, ordered item commands and whole-owner onion. |
+| §6 and Phase 5 | Hit-test and AI eligibility from active layer kind; library persistence expressly excluded | Item/subtarget selection; project catalog/bitmap instance persistence included; existing AI isolated by supported item projection only. |
+| §9 | Separate Drawing/Stick layers prove “mixed” | Retain historical fixture and add independent same-cell mixed fixtures. Old fixture alone cannot pass. |
+| REG-02/03/05 and Phase 1 negatives | Tool tests on exclusive layers; wrong-kind payloads rejected | Item-type safety and malformed union rejection; valid mixed cells and cross-layer mixed paste must pass. Historical V1 tests retain original meaning. |
+| Phase 3, §14 render ownership | One typed adapter command per layer | Ordered item commands with layer/owner/item identity; no per-layer truncation. |
+| Phase 4 path, acceptance and negatives | Typed reducer, wrong-kind paste/tween rejection, active typed onion | Neutral structural operations copy complete mixed snapshots; tween capability belongs only to eligible items. |
+| Phase 5 outcome/flow/negatives | Wrong-kind layer tools disabled; separate Creator target; no persisted library | Existing adapters target items, preserve neighbors, common catalog and transaction order; Creator's disabled Save stays disabled. |
+| Phase 6 and final gate | History after authoring; old repositories until late integration | Canonical transactions established before authoring; repository ready before ordinary cutover; no lossy fallback writes. |
 
-One document contains ordered typed layers. Each layer has stable `layerId`, `name`, `orderIndex`, visibility/lock fields, and exactly one `contentKind`:
+Removing visible suffixes alone fixes none of the schema, projection, render, history or persistence restrictions above. The rejected implementation requires **substantial replacement from published canonical bytes**, not a narrow cosmetic transformation or reuse of its dirty files.
 
-- `drawing/v1`: Drawing keyframe/blank/hold/tween cells whose owner payload preserves PNG asset references, tween-end asset, position-only motion-tween stage/origins/sprite reference, sound attachment, and every text-object field;
-- `stick-rig/v1`: Stick keyframe/blank/hold cells whose owner payload preserves figure identity/transforms and structure-graph joint/limb identity and coordinates, plus the accepted rig/pose data needed by the existing AI/manual adapters.
+## 3. Canonical neutral V2 contract
 
-Every timeline position has a stable `cellId` and `cellType`. A keyframe or blank keyframe owns one immutable authored payload identity. A hold names exactly one earlier owner cell on the same layer. A Drawing tween names its Drawing start/end ownership and retains the current persistent position-tween payload; it is not baked during migration. A Stick cell never stores a Drawing payload, and a Drawing cell never stores a Stick payload.
+### 3.1 Versions, identity, native New and validation
 
-Project assets are content-addressed. Existing Drawing raster and audio encoded bytes keep exact SHA-256 and byte length. Asset references are resolved before a candidate can mount. Stick data remains structured JSON and does not acquire a raster asset merely to render.
+The new document and project envelope use `kind: diamond-animation-document` / `diamond-animation-project` with `schemaVersion: 2`. Do not reinterpret or loosen V1, alter its fixtures, or rewrite its historical manifests. Provide independently callable strict document validation, complete candidate validation/digests, native factory, and read-only V1 upgrade. No fake storage envelope or caught validation failure counts as document validation.
 
-### 3.3 Document, reopen state, and auxiliary state
+Native New creates a new lowercase UUID-v4 project ID, title **Untitled Project**, a new neutral layer `Layer 1`, one empty blank-keyframe owner, index 0 selected, 12 FPS, onion off, and the fixed 1920×1080 top-left/right/down stage. It creates no rig, artwork, catalog entry, source-store record or demo text. Both existing tool settings are available independently of which items currently exist. Tool/view settings and source counters are preserved explicitly but never make a layer typed.
 
-The authored document contains only user-owned animation data. One versioned `reopenState` stores active layer/cell, selection when serializable, camera, active tool/tab, and onion preference. View-only transitions do not enter Undo/Redo unless they change authored data.
+Native provenance is explicitly `native`; migrated provenance records migration version 2, source kind/identity/revision/digest and prior V1 lineage if applicable. Native identity is not derived from a fictitious legacy source. Migration candidate UUIDs are deterministic from the versioned source binding and canonical source paths; repeated mapping of identical source bytes has the same digest. Native first Save retains the UUID allocated by New. First legacy/V1 adoption and Save As allocate a fresh persisted project identity and rebind project-bound auxiliary state once, without changing structured item payload IDs. Persisted V2 reopen retains its identity. Project/storage identity is outside ordinary authored Undo: after Save As, retained history snapshots are rebound to the copy identity; Undo then Save cannot restore or overwrite the old project's head.
 
-Existing accepted auxiliary AI state remains typed and project-bound:
+Retain 1–64 layers, 1–10,000 cells per layer, 1–55 FPS, Drawing raster/audio and hydrated-memory limits, 128 MiB stored project, 512 MiB collection and 64 canonical records. Strict canonical numbers/strings, duplicate/reference/type/asset validation and bounded allocation remain mandatory. No new small per-item cap may reject supported legacy data. Validate stored byte budget separately from an in-memory read candidate: metadata expansion must not make a valid supported legacy source unreadable. Oversize canonical Save fails before head publication with the source and editable root retained; it may not claim a successful adoption. Phase 4A measures wrapper overhead at source limits; Phase 4A must prove truthful boundary failures and unique-asset accounting.
 
-- Drawing AI memory stays in its existing semantic format and may be carried into the canonical record's auxiliary namespace only after project-ID rebinding checks pass;
-- the Stick one-time creation latch stays project-bound and retains V1/V2 compatibility semantics;
-- chat transcript/session-only UI stays session-only exactly as today.
+### 3.2 Layers, cells and ordered typed items
 
-SPEC-0006 adds no AI task, planner, provider, model choice, prompt, reference, motion-video path, token budget, paid request, search, or claim of improved AI output.
+A neutral layer has `layerId`, name, bottom-to-top `orderIndex`, visible/locked flags, preserved source identity/order metadata where migrated, and ordered cells. **No layer `contentKind`, default content type, per-kind child layers, or parallel per-kind timelines are permitted.**
 
-### 3.4 One editor root and action order
+Each cell has stable `cellId`, source cell/state metadata where migrated, index position, and `cellType` (`empty`, `keyframe`, `blank-keyframe`, `hold`, `tween`). Owners point to themselves and own exactly one immutable `content` snapshot `{items, soundAttachment}`. Empty cells have no owner/content. Holds point directly to an earlier owner on the same layer and have no independent payload. Blank owners contain zero active visual items; preserved sound metadata may exist. No chain, forward, missing, cyclic or cross-layer ownership is accepted. Independent owners cannot share mutable arrays, graph objects or asset buffers.
 
-At completion, `AnimationWorkspace` owns one `UnifiedWorkspaceRoot` containing:
+Strict V1 accepts a blank owner with a dormant nonempty payload that its renderer suppresses. Preserve this source data and its exact asset references in optional, source-bound `dormantSourceContent` compatibility metadata rather than discarding it. Native cells set it to null. It is immutable import evidence, covered by digest/storage/asset reachability, never rendered, hit-tested, tweened or used as an editing lane. Normal editing adds active items and never unexpectedly reveals dormant content. Include `V1-BLANK-DORMANT-01` with Drawing and Stick variants in the independent migration/storage fixtures; no additional source writes or altered V1 parser semantics.
 
-- one current `{document, reopenState, documentDigest}`;
-- one monotonically increasing workspace generation;
-- one pending-publication slot bound to workspace instance, project ID, base storage revision, document digest, and generation;
-- one undo stack and one redo stack of complete atomic document transactions;
-- one dirty/saved baseline digest and one visible failure state.
+`items` is the authoritative bottom-to-top array; each item has a stable item UUID and one strict discriminator/payload. It is not a second layer list. An item remains one contiguous paint unit; raster edits can create additional items when paint must appear above another item.
 
-Every Drawing gesture commit, text change, timeline edit, Stick joint/limb edit, Creator apply, existing accepted AI Apply, project rename, layer reorder, and cell mutation enters through the same command dispatcher. A transient pointer preview, scrub, playback tick, camera move, tab change, or AI Preview does not mutate history. A failed, cancelled, stale, or mismatched operation changes neither document nor history. One successful user action creates exactly one undo entry; Undo and Redo restore exact document digests in global action order regardless of content kind.
+| Item discriminator | Exact owned data and capability |
+| --- | --- |
+| `drawing-raster/v1` | Existing bitmap asset, tween-end asset and optional existing position-only tween data, preserving source dimensions/origins/sprite and exact asset bytes. Brush, eraser, fill, shape, knife and bitmap selections edit raster pixels; no vector reconstruction is added. |
+| `drawing-text/v1` | One complete current `DrawingTextObjectV2`, retaining original text ID/string/position/width/flip/rotation/font/size/color/style and all strict fields. Text stays separately editable. |
+| `stick-rig/v1` | Complete current `StickFigureFrameContent` (figures plus structure graph), with exact figure/joint/limb IDs, transforms, topology and coordinates. Multiple rig items can coexist. Existing internal IDs are namespaced by item identity, not regenerated or globally conflated. |
+| `symbol-instance/v1` | Project-local bitmap symbol definition ID and immutable definition digest, plus independent x/y/width/height/rotation/flip transform. It remains an instance after placement and Save/Open; changing its transform does not edit the definition or another instance. |
 
-Old Drawing and Stick coordinators may be used as temporary rendering/tool adapters during authorized phases, but after their responsibility moves they must receive canonical snapshots and emit typed commands. They may not maintain a second writable project/history/save truth. Phase 7 removes them from all normal ownership paths.
+Drawing source-space display transforms move from V1 layers onto each migrated raster/text item. Native items use identity stage coordinates. Invertible finite positive-scale transforms are validated; resize changes presentation only. Copy/paste across layers preserves source coordinates/transforms. Rig payload coordinates remain unchanged. Symbol instance placement uses the existing bitmap-placement transform semantics; no rig-binding field is added.
 
-## 4. Lossless legacy migration and collection rules
+For a migrated Drawing owner, emit its raster item first when raster/tween data exists, then editable text items in original array order; preserve its sound attachment once at owner scope. Do not duplicate rasterized legacy text or invent missing symbol associations. For a migrated Stick owner, retain the complete structured payload in one rig item; truly blank content maps to no visual items. Preserve owner/cell maps independently of visible emptiness.
 
-### 4.1 Supported sources
+Tween ownership is neutral. A tween span must contain at least one eligible raster item with complete supported position-tween data. That item's current sampling `(index-start+1)/(end-start+2)` and rounded origins are preserved exactly. All other same-owner items hold unchanged. Tween eligibility never types the layer or causes rig interpolation. Item/owner deletion and span changes validate every affected reference atomically.
 
-The single collection enumerates, validates, and labels:
+### 3.3 Project Library/Assets and auxiliary state
 
-1. strict Drawing V2 IndexedDB heads/version records/assets;
-2. supported legacy Drawing V1 localStorage records through the existing compatibility parser;
-3. Stick saved record V1;
-4. Stick saved record V2, including its project-bound AI latch;
-5. canonical unified V1 projects.
+The authored document owns project-local symbol definitions and imported-asset catalog entries. Bitmap symbol definitions preserve current ID/name/dimensions and reference immutable content-addressed image bytes; definition digest covers semantic metadata and asset hash. `signature` is a legacy UI dedupe hint, never an integrity proof. Current image asset entries preserve name/kind/dimensions/metadata and real image bytes; existing non-placeable generic file entries remain metadata-only placeholders with no invented file operation. Blob URLs and data URLs are transient handles, never persisted authority. Save persists real referenced raster/audio bytes and catalog metadata together.
 
-Invalid, corrupt, incomplete, digest-mismatched, unsupported-version, over-limit, or unavailable records remain visible as unavailable entries with a plain recovery-safe error. They do not silently disappear, partially open, or trigger writes.
+Every placed symbol references a definition in the same project. Missing/cross-project/mismatched definitions fail closed. Definition removal is rejected while any live document instance references it; deleting the final instance does not automatically delete its reusable definition. Undo/Redo snapshots retain definition/asset reachability. Definitions are immutable; no linked-definition editor, animation symbol engine, new reusable rig catalog or enabled Creator Save is added. Legacy saved pixels cannot recover lost definitions/instances; legacy imports have empty catalogs unless the source actually carries supported catalog data. Phase 5 captures current session-created definitions directly into the common root going forward.
 
-### 4.2 Open is read-only; Save performs non-destructive adoption
+Existing Drawing AI memory and Stick one-time creation latch remain separate typed project-bound auxiliary data. Preserve source semantics and rebinding checks. Session chat stays session-only. View/reopen state includes active layer/cell/index, existing tool/tab/camera/onion settings and a valid serializable item selection; missing targets clear selection safely. Authored digest includes document, catalogs and asset manifests; candidate binding also covers identity/title/provenance/auxiliary state. View transitions do not create authored history.
 
-Opening a legacy entry performs strict source validation, creates an in-memory canonical candidate, independently validates/digests that candidate, and only then atomically replaces the mounted workspace root. Open writes nothing to the source or canonical repository.
+### 3.4 One command, history and pending-operation authority
 
-The first successful Save of a legacy-opened project creates a new canonical project/version under a new canonical ID. It never overwrites, tombstones, renames, or deletes the Drawing/Stick source. Provenance records source kind, source project ID, source record/version digest, imported timestamp, and migration version. The collection then collapses a source and its exact imported canonical counterpart into one visible card while retaining a disclosure that the protected legacy source still exists. A source whose digest later changes appears separately until deliberately imported again.
+Phase 4B establishes `UnifiedWorkspaceRootV2`: one document/digest, one project/instance/generation binding, one ordered Undo stack and Redo stack, one saved-baseline/revision binding, and one failure state. Immutable asset references are retained without copying image bytes into every snapshot. Root commands validate base digest/generation/target ownership before committing exactly once. Native no-op, failed, cancelled or stale operations create no history and change no document/latch/catalog/head.
 
-Save updates only the active canonical identity at its captured storage revision. Save As always creates a new canonical ID and leaves the source and current canonical head unchanged until the copy's full write/readback/digest verification succeeds. Open and Save As never depend on a matching title.
+Every later Drawing gesture/text change, rig/joint operation, symbol placement, timeline action and existing accepted AI Apply uses that same dispatcher. Adapters may own transient preview/tool sessions only. No second writable legacy document, history stack, Save door, state overlay, or history reset at structural edits is allowed. Undo restores the preceding global authored digest and Redo the exact next digest, irrespective of item kind. Camera/scrub/play/tabs/selection/AI Preview are view state. Preserve accepted AI latch semantics: Undo does not reopen consumed one-time AI authority.
 
-### 4.3 Exact preservation obligations
+## 4. Lossless migration, persistence and failure contract
 
-For Drawing sources, proof must show exact source-to-canonical equality for every tool setting, FPS, layer order/name/identity mapping, cell kind/type/state ownership, blank flag, bitmap RGBA digest and encoded asset digest, tween-end bitmap, position-tween numeric field and sprite, sound metadata/audio digest, text string/position/width/flip/rotation/font/size/color/style, selection indices, counters, onion preference, timestamps/name where valid, and scoped AI memory. No bitmap may be recompressed as part of migration.
+Read supported Drawing V1/V2, Stick V1/V2 and strict unified V1 through their unchanged source parsers. Upgrade V1 into V2 in memory; support native/persisted V2 directly. Invalid sources remain unavailable collection entries with clear errors. Unsupported versions, corrupt references/digests/assets and inconsistent source spaces never partially mount. Listing/Open write zero bytes.
 
-For Stick sources, proof must show exact source-to-canonical equality for FPS, layer/frame order, cell kind/type/state ownership, figure IDs/names/transforms, all structure-graph joint IDs/coordinates, all limb IDs/endpoints, project/reopen selection, title/revision metadata, and V2 AI latch. Rigs/poses stay editable structured data; no rasterization or regenerated IDs are allowed inside their payload.
+Preserve every source field in this inventory: Drawing tool settings/FPS/layer and cell order/identity ownership, blank flags and dormant payloads, RGBA and encoded hashes, tween endpoints/numbers/sprite, sound metadata/audio, complete editable text, counters/selections/onion/name/timestamps and scoped AI memory; Stick figure/graph IDs and coordinates/transforms, owner spans, revisions/reopen state/title and latch. New item wrappers preserve source-to-canonical identity maps. Raster/audio bytes are not recompressed during migration. Layer order is explicitly normalized to bottom-to-top without reversing historical visible order. A changed legacy source digest remains a different adoption candidate.
 
-Legacy Drawing pixels have no durable viewport/DPR coordinate contract. Migration therefore preserves each source raster's exact pixel space and the exact motion-tween stage dimensions as typed source-space metadata, then stores one deterministic source-to-1920×1080 display transform outside the payload. Rendering may transform for display; authored source bytes/numbers are never rescaled or rewritten. If source dimensions cannot be derived consistently, migration fails closed with the source untouched instead of guessing.
+The native/legacy/V1/V2 parsers, migration and repository are separate authorities: parsing has no writes, mounting publishes only a fully validated current candidate, and Save is the only explicit write operation. First legacy/V1 adoption creates a new V2 ID, preserves source stores unchanged and records provenance. Save updates only the captured canonical ID/revision. Save As creates a new V2 ID and leaves the old head unchanged; it makes the new identity active only after complete write/readback/head verification. Title equality never defines identity. Collection dedupe collapses only exact source-digest/adoption provenance pairs while retaining source disclosure; changed sources remain separately available.
 
-### 4.4 Failure and recovery
+Reuse proven Drawing V2 PNG/WAV/canonicalization/IndexedDB transaction mechanics where safe, with a distinct unified V2 repository namespace. Do not alter Drawing/Stick source schemas or use a lossy V2-to-legacy projection for saves. One snapshot contains all mixed cells, definitions, instances, catalog metadata, assets, reopen state and auxiliary bindings. Asset preparation/hash/decode/quota/CAS/readback/ID-collision/stale-generation/open-race failures preserve the last complete root, history, old head and source bytes. Save completion for an older captured digest may store that snapshot but cannot mark newer edits saved. Undo during Save and concurrent tabs must be covered explicitly.
 
-Encode/decode/hash/quota/transaction/readback/stale-revision/ID-collision/migration failures keep the last mounted document, last saved canonical head, legacy source, undo/redo stacks, and collection stable. The UI states what failed and leaves retry/Save As available when safe. A newly written version is not published until all assets and record bytes read back and revalidate. Orphan cleanup is maintenance after a successful head decision and cannot invalidate the last good head.
+Recovery means last-good-head validation and safe retry/Save As/Open after a failed explicit operation. It does not add autosave, project-file export, cloud sync, account sharing or legacy deletion. Unpublished versions/orphans cannot replace a last good head. Asset reclamation must retain every live head, pending operation and retained history reference; destructive collection cleanup is outside this spec.
 
-No phase deletes legacy stores. Phase 7 retires them only as normal writable paths; read compatibility remains until a later separately approved deprecation proves recovery and owner consent.
+## 5. Shared rendering, timeline, playback and onion
 
-## 5. Unified render, timeline, and onion semantics
+Resolve the current neutral cell/owner once per visible layer. Emit every visible item in bottom-to-top layer order, then owner `items` order; dispatch by **item discriminator**. Render commands carry project generation/layerId/ownerCellId/itemId and the same source-to-stage transform used by selection. No one-command-per-layer lookup, type bucket regrouping or merged raster cache may erase/interleave neighboring rig/text/symbol data. Fixed 1920×1080 work/front canvases publish a complete current-generation frame atomically. Decode/adapter failure preserves the last complete frame. Edit/playback/onion/thumbnail/proof use the same resolver; export feature expansion is excluded.
 
-Layers composite bottom-to-top by `orderIndex`. At timeline index `i`, each visible layer resolves its typed owner at `i`; Drawing tween resolution remains position-only and Stick hold resolution remains pose-owner based. The renderer produces one ordered render list and draws Drawing raster/text, Stick limbs/joints/heads/figures, and any existing sound scheduling without mutating authored data.
+One playback clock advances the maximum layer length at document FPS and records every authored index through `0…last→0`; shorter layers are empty outside their defined cells. Scrub/play/resize never mutate authored data/history. Sound is scheduled once per entered owner boundary through the common clock; repeats/holds do not multiply cues, pause stops playback audio, and failed audio does not mutate the project.
 
-Edit view, playback, onion, preview thumbnail, reopen, and proof capture use the same canonical resolver and coordinate transforms. Selection handles may be a separate overlay, but the authored visual list is shared. A paused view must not drop non-active layers or text. A resize changes only presentation transform. One playback clock advances the maximum authored layer length at document FPS and completes `0 → … → last → 0` before a loop is claimed.
+Paused onion chooses the nearest distinct previous/next owner on the active neutral layer, stopping at explicit empty or blank boundaries. It skips repeated holds of the current owner and preserves existing Stick visible-content deduplication: skip independently owned snapshots visually equal to the current snapshot and avoid duplicate previous/next ghosts. Compare complete ordered mixed visual signatures through the same adapters, excluding cell/item ownership IDs and nonvisual metadata; identical rig-only poses retain inherited behavior. Render the **entire ordered mixed owner** to one previous-purple/next-green tinted overlay, including all eligible drawing/text/rig/symbol items; do not double-draw individual type layers. Ghosts are behind current content, unselectable, and hidden during playback. Tween samples/end boundaries preserve the current Drawing convention with independent fixture expectations; no new Stick interpolation.
 
-Onion is hidden during playback. When paused, it resolves the nearest distinct previous and next owner on the active layer only, honors blank/empty boundaries, tints previous purple and next green using the accepted Stick convention, and renders the active layer's own typed content without changing other layers. Drawing tween endpoints and Stick held owners remain distinguishable in proof; onion must not treat a held repeat as a new distinct pose.
+Timeline actions operate on complete neutral ownership, with one transaction for successful structural edits:
 
-## 6. Visible workspace and tool ownership
+| Action | Required semantics |
+| --- | --- |
+| Add/delete/rename/reorder layer | New neutral blank layer; no kind argument or label. Stable surviving IDs; cannot delete last layer. Rename/reorder preserve all item payloads. |
+| Insert independent keyframe | Materialize complete mixed snapshot with new owner/cell/item identities; preserve subtarget payload IDs under new namespaces; no mutable alias to another owner. |
+| Insert blank/empty or hold | Blank owns no visible items; empty breaks exposure; hold points to the resolved earlier whole owner. First edit in an empty/blank slot creates content in that same slot as one transaction. |
+| Edit at a hold | Edit the whole span's owner, but replace only the targeted item/subtarget. Other independent owners and other item bytes stay identical. UI/receipt identifies the owner. |
+| Copy/paste cell | Copy complete mixed owner, cues and dependency references. Paste on any neutral layer is valid, atomically creates independent item ownership and preserves order/transforms; no wrong-layer-kind rejection. Clipboard is project-scoped; Open clears it. |
+| Remove owner/cell | Rebind surviving exposure to a materialized independent owner if removal would dangle it, otherwise remove only the selected slot and shift its suffix. Preserve visible surviving snapshots; reject inconsistent tween rewrites. |
+| Resize span | Extend through empty positions or existing same-owner holds only; shrinking preserves out-of-span cells, never overwrites occupied independent owners. Recompute references atomically. |
+| Tween action | Preserve current position-only Drawing functionality for eligible raster items in a mixed owner; other items hold. Unsupported item/tween combination fails locally without altering neighbors. |
 
-The permanent layout uses one `AnimationWorkspace`, one top bar, one timeline, one stage, one right panel, one bottom toolbar, and one AI Animator shell.
+Mutations to locked layers and structural/authoring mutation while playing are disabled/rejected. Selection may change only view state. Timeline menus keep existing supported action semantics; no new multi-cell editor or interpolation feature is implied.
 
-- Right tabs are exactly **Stick Figure Tools**, **Properties**, **Library**, **Assets** in that order.
-- The right-panel primary content keeps the current approximately 45% upper region with AI Animator below it on desktop. On compact viewports it becomes an accessible overlay/drawer; tab order and AI placement remain logically the same.
-- The bottom toolbar uses the existing working Drawing tools, including Shape. It does not carry the inert Stick toolbar placeholders as if they were implemented.
-- Select is contextual: it can select the topmost eligible Drawing object/raster or Stick figure/joint/limb and Properties reflects the selected typed target.
-- Stick Figure Tools owns the existing Creator entry and existing manual Stick structure actions. Creator returns to the same root/project/history; applying a Creator result is one typed transaction.
-- Library and Assets keep only capabilities that exist at the start of the authorized phase. Presentation-only placeholders remain clearly non-interactive. SPEC-0006 does not promote session-only Drawing library/assets into persisted project features.
-- AI Animator remains bottom right. Existing accepted Drawing and Stick behavior may be reached only through its current typed adapter for the eligible active layer. Mixed/unsupported targets fail locally and visibly before any request. No new capability is added.
+## 6. Shared tools, selection, panels and library
 
-## 7. Canonical user flows
+One selection key binds workspace generation/project/layer/resolved owner/item and optional current text/figure/joint/limb subtarget. Hit-test reverse paint order using the render transforms, visibility and existing tool eligibility; hidden/locked items/layers cannot be edited. Select hits the topmost eligible item. Transparent raster pixels do not block lower items; existing text bounds and Stick figure/joint tests stay local to their adapter. The existing 18-unit Stick joint tolerance must be transformed consistently with stage/presentation, not multiplied by DPR. Ghosts and stale overlays cannot become targets.
 
-### 7.1 New mixed project
+Brush/Shape start a new raster item at the top of the active neutral owner when no raster item is explicitly targeted, or edit the selected raster item in place. Fill/Eraser/Knife and bitmap Select/Lasso operate only on their selected/hit raster item. They never flatten or erase a neighboring rig/text/symbol. Text creates/edits a text item; Stick tools add/edit structured items in the same cell. Choose the existing tool and target, not a layer type. Pointer previews do not change the document; pointer-up commits once. Layer/project/owner switch, play, escape, lost capture and stale async decode cancel the pending gesture before a mismatched commit.
 
-1. User chooses New Project from Home.
-2. The app immediately opens one Animation Workspace; no Drawing/Stick question appears.
-3. The title is **Untitled Project** and one blank Drawing layer is selected.
-4. The user draws a background with existing Drawing tools.
-5. The user adds a Stick layer through Stick Figure Tools/Creator and edits its existing joints/limbs/poses.
-6. The user adds/extends cells on either typed layer, scrubs, enables onion, and plays the common timeline.
-7. Drawing and Stick content composite together on the same stage.
-8. Undo/Redo traverses the exact mixed action order.
-9. Save creates one canonical project. Reload → Open Project shows one card; open restores the mixed project exactly.
+The seed-free Phase 4 creation flow uses the already working **Stick Figure Tools → Add Limb** drag gesture to build a connected figure/graph, then existing Select joint dragging to edit it. If no rig item is targeted, the first committed segment creates one rig item in the active owner as the same transaction; subsequent segments edit that item. Drawing Brush/Shape/Text then add neighboring items in that very cell. Do not enable the currently placeholder Add Joint/Remove Limb/Connect Limb controls, depend on disabled Creator Save, or auto-seed a demo rig to make the acceptance flow possible.
 
-### 7.2 Open and adopt a legacy Drawing project
+Library/Assets are one real project catalog. Symbol creation uses existing selection-to-bitmap capture, commits one immutable definition, and symbol drop commits an independently transformed instance. Legacy already-flattened symbols remain raster pixels without fabricated identity. Library/asset references survive copy, Undo/Redo and Save/Open. Static Stick sample cards are not catalog data; no examples enter ordinary projects. Existing placeholders remain clearly inactive. Creator → Back preserves the same project/view/history; Creator Save remains disabled and no new rig-library authoring is promised.
 
-1. User chooses Open Project and sees one collection, without a type tab.
-2. User opens a valid Drawing V2 or supported V1 entry.
-3. The app validates and mounts an in-memory canonical candidate without writing.
-4. Drawing pixels, text, sound, and persistent position tweens display and remain editable; Stick Figure Tools is also available for adding future typed Stick layers.
-5. First Save creates a new canonical project and preserves the source record unchanged.
-6. Reload/open resolves to the verified canonical counterpart; source provenance remains inspectable and deduplicated in the collection.
+Properties follows the selected item's actual supported fields; no new Stick colors/head/shape/rig capabilities. Keep the established tab/toolbar order and desktop/compact access. Each functional Drawing tool and current Stick selection/joint/structure action receives a capability-to-command test; a union type or painted placeholder is not evidence of a working feature.
 
-### 7.3 Open and adopt a legacy Stick project
+AI remains a protected compatibility boundary. Do not edit `src/lib/ai/**`, `src/lib/openai/**`, `app/api/**`, prompt/model/provider/motion-engine code. A workspace adapter may project only an explicitly supported item/owner target into an unchanged accepted AI/manual contract, bind the captured root, and publish the existing result through the common dispatcher without replacing neighboring items. Mixed/unsupported projections reject locally before requests. Preserve prior eligible Drawing/Stick flows, one-time latch and disabled-task exits with deterministic mocks. No generated sword/fireball, new planner, paid request, AI/video/tracking behavior or new AI claim.
 
-The same sequence applies, but all rig/figure/joint/limb/pose/frame/latch data remains structured and editable. Drawing tools can add a separate Drawing layer. First Save creates a new canonical record and preserves the Stick localStorage source unchanged.
+## 7. Required ordinary-app acceptance flows (Phase 4 correction and final Phase 7)
 
-### 7.4 Failure flow
-
-1. User opens or saves a corrupt, unsupported, stale, over-limit, quota-failing, or injected-failure candidate.
-2. The candidate never replaces the last good root/head and no source bytes change.
-3. The app shows a stable plain-language failure with a machine-readable proof code.
-4. User can dismiss, retry when safe, choose another project, or use Save As without losing current unsaved work.
+1. Home → New opens Untitled Project, one empty **Layer 1**, empty real catalog and no type question/badge. There is no automatically seeded rig, `DRAWING + STICK`, colored block, foreground/background word or proof project.
+2. In Layer 1/frame 1, draw a shape/stroke, add editable text, add a current Stick figure, and position a drawn sword/fireball beside it. All remain on the **same layer and owner cell**, with separately targetable data.
+3. Create a bitmap sword symbol using the existing selection/library flow, place two instances, move one to the hand, and verify the second instance/definition/rig stay unchanged. No automatic attachment is claimed.
+4. Change overlap order and select/edit each eligible item; Properties follows it. Erase part of a raster without harming the rig, text or symbol. Resize/DPR changes do not move authored content.
+5. Add an independent mixed keyframe, extend a hold, edit a joint on the hold, copy/paste the mixed cell to another neutral layer, resize its span, scrub, toggle onion, and observe a complete playback loop. Distinct owners remain independent and ghosts contain complete mixed content.
+6. Undo the interleaved Drawing → rig → symbol → timeline actions to the exact baseline and Redo to the exact final document, catalogs and auxiliary state allowed by latch semantics. No old stack is cleared at a structural action.
+7. Save, edit/Save, Save As, reload and Open both identities. Verify mixed item order/IDs/coordinates/pixels/text/definitions/instances/audio/tweens, title/reopen state and source-safe history baseline. Undo history itself need not survive browser reload.
+8. Open supported Drawing V1/V2 and Stick V1/V2, and a strict unified V1 fixture read-only; edit the opposite content type in the **same layer/cell**, first-save adopt, reload/open and compare source byte snapshots. No typed hidden layers appear.
+9. Inject invalid/stale/decode/encode/quota/transaction/readback/ID failure and verify last complete root/head/source/history retained, truthful failure, safe retry. No review fixture appears in ordinary New/Open or saved output unless explicitly authored by the test harness inside its isolated storage origin.
 
 ## 8. Data, AI, cost, security, and privacy impact
 
-- **Schema/migration:** material. Adds a unified V1 document/record, provenance, typed content union, shared history root, repository, and deterministic migration adapters.
+- **Schema/migration:** material. Adds a neutral V2 document/record and project-owned bitmap catalogs/instances, provenance, typed content union, shared history root, repository, and deterministic migration adapters.
 - **Persistence/backward compatibility:** material. Reads all supported existing formats. Does not delete or rewrite legacy stores. Canonical writes are transactional IndexedDB writes with content-addressed assets and revision/readback checks.
 - **Data loss:** highest risk in this spec. Every phase touching data must use frozen valid/corrupt/boundary fixtures, exact digest checks, injected failure/stale races, and non-destructive source snapshots.
 - **AI:** no new capability, model, prompt, reference, routing, motion plan, tracking, or provider. Existing behavior is a protected adapter boundary only.
@@ -243,7 +240,7 @@ The same sequence applies, but all rig/figure/joint/limb/pose/frame/latch data r
 
 ## 9. Representative mixed-project performance and memory contract
 
-`MIXED-REALISTIC-01` is the shared deterministic fixture used from Phase 3 onward:
+`MIXED-REALISTIC-01` is the preserved historical typed-layer performance fixture. It is necessary inherited coverage but insufficient for neutral-layer acceptance:
 
 - 1920×1080 stage, 12 FPS, 48 timeline positions;
 - bottom Drawing background layer with two distinct `4563×3302` RGBA sources (60,268,104 bytes each), one hold span, text, and one preserved position-tween payload;
@@ -266,12 +263,19 @@ The implementation must expose a proof-only accounting seam, not a production de
 
 Compact proof is responsive-browser evidence, not a claim of physical low-end-phone performance. Phase 7 must state that limitation. No horizontal page overflow, unreachable control, stage smaller than 260×146 CSS px, or panel obscuring the only way to close it is allowed at `390×844`.
 
+
+### 9.1 Neutral fixture and seed-isolation additions
+
+Freeze independent `NEUTRAL-CELL-01` and `NEUTRAL-TWEEN-01` fixtures plus a realistic neutral arrangement with the same large-raster/48-frame load. The neutral arrangement must put raster, editable text, structured rig and two symbol instances in **one owner cell on one neutral layer**, then test another neutral layer for compositing/copy. Preserve historical MIXED hashes and masks; never regenerate the old oracle from the new renderer. Manually placed sword/fireball acceptance uses current tools and is not AI motion quality.
+
+`MIXED-REALISTIC-01`, `DRAWING + STICK`, colored blocks, demo rig, foreground/background words and all review-server instrumentation are test-only. Test sources may remain under scripts/ignored output, but no ordinary runtime import, build dependency, public asset, query flag, hidden fixture route, starter project or auto-created library entry may contain them. Normal New/Open runs with empty storage must stay seed-free; normal Save and Save As may contain only user-authorized project content and its real dependencies. Test seeding uses a distinct disposable browser origin/profile and never writes the user's normal stores. Source token scans alone are insufficient: inspect module reachability, catalog/project/asset bytes and ordinary visible output. Later cleanup must prove the exact old review process stopped and port closed.
+
 ## 10. Protected regressions
 
 | ID | Protected result | Required proof throughout applicable phases |
 | --- | --- | --- |
 | REG-01 | Home, welcome, menu, Tutorials, Back/focus, and removed AI Credits card | Existing permanent tester plus focused ordinary-root smoke |
-| REG-02 | Drawing brush/eraser/fill/text/shape/knife/select/lasso, camera, selection, clear, and visual output | Existing actions on a Drawing layer; exact pixel/text fixture where deterministic |
+| REG-02 | Drawing brush/eraser/fill/text/shape/knife/select/lasso, camera, selection, clear, and visual output | Existing actions on raster/text items in a neutral mixed cell; exact pixel/text fixture where deterministic |
 | REG-03 | Drawing cell ownership, layers, persistent position tween, playback, onion, sound attachment, and text | Contract tests plus complete timeline traversal and Save/Open digests |
 | REG-04 | Accepted Drawing V1 compatibility and V2 transactional storage limits/failure safety | Existing SPEC-0002 validators and new migration cross-checks |
 | REG-05 | Stick independent keyframes/holds, manual joint/limb edit, line head, selection, playback/onion, Creator → Back | Existing Stick validators and ordinary UI flow |
@@ -279,7 +283,7 @@ Compact proof is responsive-browser evidence, not a claim of physical low-end-ph
 | REG-07 | Accepted SPEC-0005 Phase 1/2 v1/v2 proof/runtime bytes | Source-diff protection and existing validators; no normal route begins using the safety seam |
 | REG-08 | Existing Drawing AI feature gates, memory isolation, disabled-task exits, and server-only credential boundary | Existing deterministic route/memory validators; all real external calls blocked |
 | REG-09 | Save/Open failure atomicity, stale completion rejection, ID/digest binding, and dirty-state truth | Inject each named failure/race and compare document/history/head/source digests |
-| REG-10 | No review-only UI, proof port, query flag, or fixture picker in product | source scan and ordinary-root screenshots |
+| REG-10 | No review-only UI, proof port, query flag, or fixture picker in product | source/build-import scan, ordinary-root screenshots, fresh-store New/Open and saved-project content/asset provenance checks |
 | REG-11 | One active review copy under D-0054 | exact process/cwd/port identity, one loopback root, cleanup/ownership record |
 | REG-12 | No legacy deletion or rewrite | before/after raw store byte snapshots and IndexedDB record/asset digests |
 
@@ -289,12 +293,14 @@ Systems intentionally outside SPEC-0006: new AI quality, provider/model/video/tr
 
 - Each phase is one executor-sized vertical result and may touch no more than its stated tracked technical path ceiling. The ceiling counts added/modified/deleted runtime, fixture, test, and proof-source paths; ignored proof artifacts and later CPA control-plane paths do not count. Exceeding the ceiling requires a reviewed spec amendment before editing the extra path.
 - The executor records the exact base SHA, branch/worktree, index state, pre-existing bytes, exact final dirty allowlist, path hashes/sizes, commands, artifacts, review URL/port, network ledger, and proof-manifest SHA-256.
-- Every phase runs TypeScript, focused lint, changed-line/full-lint non-regression, phase contracts, inherited relevant validators, `git diff --check`, empty-index checks, source scans, and one ordinary app-copy human review at one loopback non-`3000` root.
-- Review fixtures are seeded through proof storage or test-only source-copy injection. No review-only UI, route, query parameter, global, or fixture selector enters product source.
+- Every phase runs TypeScript, focused lint, changed-line/full-lint non-regression, phase contracts, inherited relevant validators, `git diff --check`, empty-index checks, source scans, and ordinary app-copy regression smoke at one loopback non-`3000` root. Phase 4A is a technical checkpoint only; Phase 4B must deliver ordinary neutral New/Open and visible same-cell editing before Phase 4 human review.
+- Review fixtures are seeded only into isolated proof storage/source copies under ignored output, never ordinary source stores or product routes. No review-only UI, route, query parameter, global, or fixture selector enters product source.
 - Exactly one review app copy may exist. The executor stops after its packet but preserves that copy for Arthur. D-0054 governs acceptance/rejection cleanup and never permits concurrent executor/architect ownership.
 - No executor edits `AGENTS.md`, canonical `docs/`, or `project/project_structure.txt`; stages, commits, merges, rebases, pushes, publishes, deploys, or touches another worktree.
 
-## 12. The seven implementation phases
+## 12. Seven numbered phases; corrected Phase 4 has two internal subphases
+
+The Phase 1–3 mandates below are preserved historical scope descriptions. Their typed-layer assumptions and old phase-number handoffs are superseded for future work by D-0062 and corrected Phases 4–7; do not rerun or republish them.
 
 ### Phase 1 — Unified contract and lossless legacy migration
 
@@ -382,151 +388,140 @@ Systems intentionally outside SPEC-0006: new AI quality, provider/model/video/tr
 
 **Recommended effort.** GPT-6 Astra, Extra High reasoning.
 
-### Phase 4 — Unified timeline, layers, frame ownership, playback, and onion
+### Phase 4 — Visible neutral workspace, layers, timeline, playback/onion and safe ordinary New
 
-**Plain outcome.** The one timeline displays and controls Drawing and Stick layers together; scrub, layer selection, playback, and onion use one clock and ownership model.
+**Phase completion outcome.** Return the current app copy for one visible review with no layer-kind labels, one actual neutral layer/frame containing Drawing and editable Stick items, neutral cell clipboard/timeline/playback/onion and chronological history. Ordinary New creates an empty neutral document; user actions create the mixed content. Save must never discard mixed items. Test-only seed isolation is proven in both ordinary and isolated review flows. This is substantial replacement of the rejected foundation, not a suffix patch.
 
-**Problem solved.** Two timeline components currently duplicate structural behavior while resolving incompatible payloads and clocks.
+**Why two internal subphases are the minimum safe split.** There are two distinct proof boundaries: (4A) versioned data/read migration plus durable write/readback failure safety, and (4B) interactive state/history/render/tool/timeline cutover. The old proposal put persistence in Phase 6, but ordinary New currently has working Drawing Save/Save As. Moving New to a neutral mixed root without a safe full-document Save would either disable that existing action or discard neighbors through a legacy projection. Neither is allowed. Therefore minimal V2 repository/Save/Open moves into this correction; full collection adoption/recovery acceptance remains Phase 6. A single roughly 24-path phase cannot credibly cover both strict migration/storage faults and all the live interactive owners. The two bounded subphases share Phase 4 authority and produce **one final visible review**, not two purported product milestones. No ninth phase or helping spec exists.
 
-**Traced execution path.** Pointer/keyboard timeline action → unified timeline intent → canonical reducer validates typed layer/cell ownership → root publication → common resolver → shared stage render; playback clock advances canonical index without history; onion queries nearest distinct owners on active typed layer.
+**Automatic sequential coordination.** PM dispatches 4A after architecture publication and the same-copy recovery gate (§16). The 4A executor performs only its twelve paths, independently validates its checkpoint manifest, returns a technical checkpoint packet explicitly marked `Phase 4 visible acceptance: not ready`, and completely stops. PM verifies that checkpoint and transfers exclusive ownership of the **same retained worktree** to 4B under the already authorized Phase 4 correction. No Arthur invisible-app acceptance, separate feature authorization, intermediate CPA propagation, commit or publication is required between these internal subphases. 4B binds the exact 4A manifest/source hashes and works only its separate 24-path boundary. A material 4A defect returns to a stopped-owner 4A correction; concurrent ownership and quiet edits of frozen checkpoint bytes are forbidden. Final Phase 4 proof validates the complete combined set, including the conditional page path only if changed. Only after 4B's final visible packet and Arthur/PM acceptance does normal CPA propagation and separately authorized Phase 4 publication occur. These explicit internal-checkpoint rules apply only to this correction; normal numbered-phase publication separation remains.
 
-**Exact scope and likely path ceiling.** New unified timeline reducer/view/row and ownership/playback/onion modules; narrow reuse/removal from `DrawingTimelineRow`, `StickFigureTimelineRow`, and timing helpers; `AnimationWorkspace` wiring; fixtures/proof. **Ceiling: 18 tracked technical paths.** No authoring tool integration, canonical save, broad history, or legacy path deletion.
+#### Phase 4A — Neutral model, source compatibility and minimal repository foundation
 
-**Non-goals.** No new tween kind, Stick interpolation, audio editor, multi-cell selection redesign, timeline virtualization beyond what §9 requires, or AI change.
+**Path.** Native factory or unchanged source parser → neutral V2 map → strict document/candidate digest validation → in-memory result; explicit test Save → isolated V2 repository preflight/assets/version/readback/CAS head → verified reopen. Normal route/UI stays unchanged in this checkpoint. Repository tests use isolated test stores, never user/legacy stores.
 
-**Entry gate.** Phase 3 published; common ownership truth table and all Drawing-tween/Stick-hold boundary fixtures frozen; shared clock behavior approved; no unresolved semantic conversion.
+**Exact 12 additive tracked technical paths:**
 
-**Normal app-copy human review.** In seeded mixed project, switch typed layers, add/remove/copy/paste/resize only through already-supported structural actions, scrub every key boundary, toggle onion, and watch a full `0…47→0` loop. Drawing and Stick stay composited throughout.
+1. `src/lib/animation/unifiedAnimationContentV2.ts`
+2. `src/lib/animation/unifiedAnimationContractV2.ts`
+3. `src/lib/animation/unifiedAnimationMigrationV2.ts`
+4. `src/lib/animation/unifiedWorkspaceFactoryV2.ts`
+5. `src/lib/animation/unifiedProjectRepositoryV2.ts`
+6. `src/lib/animation/unifiedProjectStorageV2.ts`
+7. `scripts/fixtures/spec0006-unified/v2/phase4a-neutral-storage-cases.json`
+8. `scripts/spec0006-unified/phase4aNeutralFixtureFactory.ts`
+9. `scripts/spec0006-unified/phase4aNeutralOracle.ts`
+10. `scripts/spec0006-unified/validatePhase4aNeutralFoundation.ts`
+11. `scripts/spec0006-unified/recordPhase4aNeutralProof.ts`
+12. `scripts/spec0006-unified/validatePhase4aNeutralProof.ts`
 
-**Measurable acceptance.** One visible timeline; stable layer/cell IDs; all valid mutations deterministic; invalid cross-kind ownership rejected; complete frame traversal with zero skipped authored indices; onion exact previous/next owner/tint/blank behavior; §9 selection/playback targets pass.
+Ignored proof: `output/spec-0006/phase-4-neutral/4a/**`. Recorder/validator may orchestrate unchanged browser tooling and repository browser fault tests; no additional tracked harness file. No component, ordinary import, V1 source/fixture/test, existing source-store writer or rejected Phase 4 file may change. Independent oracle imports no new mapper/validator/factory/repository under test.
 
-**Negative tests.** Delete last layer, paste wrong payload kind, dangling/cyclic/forward hold, Drawing tween on Stick layer, resize into occupied span, action during playback, stale async publication, rapid play/pause/scrub, onion at ends/blank gaps/repeated holds, unequal layer lengths.
+**Acceptance.** Strict native New validates without synthetic legacy provenance; all four item variants coexist in one neutral owner; no hidden typed lanes, layer-kind/default-kind/source transform. Independent tool settings, scoped IDs, per-item transforms/catalog references and whole-cell holds validate. All four legacy sources and strict V1 upgrades preserve exact required fields/assets/source bytes and deterministic identity maps; native V2 save/readback/reopen and Save As preserve all data/IDs. Repository namespace is distinct from legacy stores; only explicit saves publish verified heads. No canonical Save writes a Drawing-only or Stick-only projection.
 
-**Protected regressions.** REG-02–REG-10 and REG-12; Drawing position tween and Stick independent-frame guarantees retain exact payloads.
+**Proof.** At least 60 named valid/boundary and 120 invalid/tamper cases, 1,000 deterministic repeated mappings, independent same-cell and realistic-size fixtures, source-limit metadata accounting and raw store snapshots. Exercise native/V1/legacy provenance, all item variants, duplicate/scoped identities, references, blank/empty/hold/tween boundaries, malformed unions/transforms, missing/cross-project definitions, hash/candidate tampering, mutable aliases. Inject every preparation/hash/encode/asset/version/transaction/readback/head/CAS failure, concurrent revision/ID collision, and crash between staging and head publication. Last good head/source stays exact; oversize Save fails truthfully while valid source remains readable. Run unchanged V1/legacy/storage/history/AI validators, TypeScript/lint/diff/index/protected hashes and zero egress. 4A technical green is a foundation checkpoint only; no new visible neutral editing is claimed or shown as final acceptance.
 
-**Technical proof.** Reducer property tests and independent ownership oracle; 10,000 fixed-seed valid/invalid mutations plus mirror/order variations; full-loop browser receipts; onion geometry/pixel evidence; performance/memory receipts; inherited timeline/playback/onion validators; manifest.
+#### Phase 4B — Visible neutral root, item adapters, timeline and ordinary New/Open
 
-**Stop boundary.** Timeline/layers/playback/onion only. Do not integrate all manual tools, unify Undo/Redo or Save, retire legacy normal paths, authorize Phase 5, propagate, or publish.
+**Path.** Home New or canonical Open → V2 factory/repository bootstrap → one canonical root/commands/history → neutral resolver and ordered renderer → fixed stage. Existing Drawing/Stick tool adapters target an item snapshot and emit one checked item command. Neutral timeline/clipboard/playback/sound/onion share that root. Existing legacy Open compatibility remains source-safe; Phase 6 completes canonical adoption of every source route. Ordinary native New and canonical V2 Open must use the real shared root, not a proof-only project.
 
-**Recommended effort.** GPT-6 Astra, Ultra reasoning; ownership and temporal regression risk.
+**Planned 24-path boundary, plus one conditionally authorized page path (maximum 25 for 4B):**
 
-### Phase 5 — Integrate existing manual tools, selection, panels, Creator, and layout
+1. `src/lib/animation/unifiedTimelineReducer.ts` — neutral root, commands, history and structural reducer
+2. `src/lib/animation/unifiedWorkspaceBootstrap.ts` — native/canonical V2 bootstrap, stale-safe opens
+3. `src/components/workspace/AnimationWorkspace.tsx` — one visible root and common File/history wiring
+4. `src/components/workspace/AnimationWorkspace.module.css`
+5. `src/components/workspace/UnifiedAnimationStage.tsx`
+6. `src/lib/animation/unifiedCellResolver.ts` — V2 whole-owner/item resolution, preserve V1 read behavior
+7. `src/lib/animation/unifiedStageRenderer.ts` — every item command, item transforms and atomic frame publication
+8. `src/lib/animation/unifiedTimelineAdapter.ts` — controlled item adapters, no whole-project legacy projection
+9. `src/lib/animation/unifiedTimelinePlayback.ts`
+10. `src/lib/animation/unifiedOnionResolver.ts`
+11. `src/components/workspace/UnifiedAnimationTimeline.tsx`
+12. `src/components/workspace/DrawingCanvas.tsx`
+13. `src/components/workspace/DrawingWorkspace.tsx`
+14. `src/components/workspace/stickfigure/StickFigureWorkspace.tsx`
+15. `src/components/workspace/stickfigure/StickFigureCanvas.tsx`
+16. `src/lib/animation/unifiedProjectSourceReader.ts`
+17. `src/lib/animation/unifiedProjectCollection.ts`
+18. `scripts/fixtures/spec0006-unified/v2/phase4b-neutral-ui-cases.json`
+19. `scripts/spec0006-unified/phase4bNeutralOwnershipOracle.ts`
+20. `scripts/spec0006-unified/validatePhase4bNeutralWorkspace.ts`
+21. `scripts/spec0006-unified/phase4bNeutralBrowserProof.ts`
+22. `scripts/spec0006-unified/recordPhase4bNeutralProof.ts`
+23. `scripts/spec0006-unified/validatePhase4bNeutralProof.ts`
+24. `scripts/runSpec0001BrowserProof.ts`
 
-**Plain outcome.** Existing Drawing tools and existing manual Stick tools edit their typed layers in the same project and layout, without pretending that new manual capabilities exist.
+**Conditional path 25: `app/page.tsx`.** Latest user steering authorizes this path only if tracing the ordinary New/Open cutover proves an actual on-disk interface change is necessary. It is not a required edit. The architecture task freshly confirmed the disk page already uses `OpenProjectBrowser onOpenProject={...}` and both files have no diff. PM attributes the four reported red markers to an unsaved stale VS Code buffer. Do not save, overwrite or “fix” that buffer; do not manufacture a source patch to match it. Preserve the existing disk file when its interface remains compatible. This raises the combined Phase 4 maximum to 37 paths only when this condition is met; otherwise the planned combined set is 36.
 
-**Problem solved.** Current tools/panels/selection/Creator are owned by separate canvases and the Stick bottom bar contains presentation-only placeholders.
+Ignored proof: `output/spec-0006/phase-4-neutral/4b/**` and final `output/spec-0006/phase-4-neutral/proof-manifest.json`. `StickFigureTimelineRow.tsx` is restored to its published implementation during authorized recovery and remains outside the final correction diff; the neutral timeline uses its unchanged presentational API or renders the needed neutral controls in its own component. Preserve the OpenProjectBrowser interface; source collection/bootstrap provide its existing opaque entry/open interface. App/page remains unchanged unless conditional path 25 is proven necessary. A proven need to change an extra path requires a consolidated narrow amendment before that edit, not silent ceiling expansion.
 
-**Traced execution path.** Active tool + pointer/keyboard/Creator action → target hit-test by typed layer → existing Drawing or Stick tool adapter → one canonical typed command → Phase 4 reducer/root publication → Phase 3 shared render → contextual Properties. Creator apply returns through the same command door.
+**History and adapter safety.** Only the neutral root owns authored state/history/revision. Existing coordinators in controlled adapter mode may retain tool previews, never independent authored/history/Save roots. Item projection is lossless for the selected item's existing algorithm only; it cannot replace the whole project or neighboring item bytes. Complete mixed structural edits and per-item gestures publish atomically through one dispatcher. No “active Stick layer” mode, compatibility Drawing placeholder or reset of prior history at structural boundaries. Native/canonical V2 Save/Save As uses the 4A repository and captures complete root data; existing legacy editor Save behavior is unchanged until source adoption moves in Phase 6.
 
-**Exact scope and likely path ceiling.** `AnimationWorkspace`, unified bottom toolbar/right panel/selection controller, narrow DrawingCanvas tool-session extraction, StickCanvas/RightPanel/Creator adapters, current AI panel shell placement, UI fixtures/proof. **Ceiling: 18 tracked technical paths.** Existing tool behavior may be moved, not expanded.
+**Focused New/Open proof.** Run the full TypeScript check and production build, and retain explicit receipts for app/page.tsx → OpenProjectBrowser prop compatibility, ordinary New, combined collection and canonical/legacy Open. Verify the on-disk component usage accepts onOpenProject and no obsolete split callbacks remain. A clean disk/type/build result must not be reported as fixing an unsaved editor buffer. No layer-kind labels, seeded demo artwork in normal routes, or AI/engine code changes are allowed.
 
-**Non-goals.** No Stick colors, new heads/shapes, extra joints/rig templates, Drawing tool redesign, persisted library/assets, new AI task, provider, motion video, or speculative Adobe-class controls. Those manual Stick expansions belong to future SPEC-0007.
+**4B controlled-hydration entry gate.** Trace and freeze the DrawingCanvas hydration/commit seam before coding: current handles expose capture/clear/mark-committed methods while DrawingWorkspace directly restores child canvas pixels. The new controlled mode must cancel pending sessions, validate captured generation/owner/item identity, hydrate only the targeted raster/text item and emit no command/history during hydration. Its legacy history/playback/Save ownership is suppressed; ordinary legacy mode stays unchanged. The two Drawing files are already in the 24-path boundary. Proof must cover Save As → Undo → Save and verify the old project head remains untouched.
 
-**Entry gate.** Phase 4 published; exact existing capability inventory and selection precedence approved; Creator apply/cancel transaction shape frozen; responsive panel/toolbar interaction design approved without changing the layout direction.
+**Exact visible Phase 4 acceptance.** On the ordinary review root with empty storage, New → Untitled Project → one empty neutral Layer 1, no starter rig/artwork/library/example. Using existing Drawing and Stick controls, create raster strokes/shape/text and an editable figure in that **same Layer 1 and same owner frame**. Place a drawn sword/fireball manually; no new motion/attachment capability. Edit pixels and joints independently. Copy/paste that complete mixed frame to another neutral layer; add/blank/hold/resize/remove, edit held owners, scrub, onion and full `0…47→0` playback all preserve neutral ownership and ordered content. No kind labels anywhere in visible or accessible layer UI. Undo/Redo interleaves Drawing, Stick and timeline actions exactly. Save/Save As/reload/Open the native mixed V2 project with matching data and no source write. Bitmap symbol-definition/instance persistence is contract/repository-tested in 4A; the complete symbol-creation/catalog UI is Phase 5, not falsely claimed here.
 
-**Normal app-copy human review.** Draw/edit text/shapes on Drawing layer; add/select/move current Stick figure/joints and use current limb/Creator flow on Stick layer; switch layers/Properties tabs; verify right-tab order, real bottom Drawing toolbar including Shape, AI bottom right, and compact keyboard/focus access.
+**Proof/negatives/regressions.** Independent 10,000 fixed-seed valid/invalid structural mutations plus 1,000 order/namespace variants; every expected accept/reject passes. Same-cell masks for raster below/above rig and editable text, mixed ghost composition, independent owners, cross-neutral-layer paste, tweened raster plus held rig/text. Tests cover wrong item discriminator, hidden typed lanes, namespace collision, stale gesture/base/project, locked/hidden targets, pointer cancel/lost capture, render/decode/adapter failure, empty/blank/tween/unequal lengths, occupied resize, last-layer deletion, rapid play/pause/scrub, Save during newer edits/Undo/Open, storage faults and dirty-state truth. Both viewports/DPRs, §9 stage/performance/memory limits, full history digests and source-store snapshots. Existing functional Drawing tools and Stick manual gestures must remain operational through controlled adapters; unsupported/disabled Creator and AI controls stay unchanged. New shared catalog UI and polish belong to Phase 5.
 
-**Measurable acceptance.** Every currently functional Drawing tool retains its accepted action; every currently functional Stick selection/joint/limb/Creator action retains its accepted action; placeholder controls stay inert/labeled; wrong-kind actions are disabled or rejected before mutation; one action emits one canonical transaction; exact visible layout/order at desktop and compact.
+Ordinary New/Open/store/build-import checks prove no MIXED fixture, DRAWING + STICK words, colored blocks, demo rig, foreground/background labels or instrumentation is automatically included. Dedicated seeded fixtures live only in isolated proof storage/source copies and never establish ordinary New success. Run all applicable REG-01–12/inherited suites, production build, type/lint/diff/index checks, network ledger and independent final manifest revalidation over both 4A and 4B. Keep exactly one visible review app copy, on the resolved existing review port when safe. Final packet states what is visually proven, symbol/legacy-adoption limits, exact combined dirty allowlist and manifest hash. Stop before Phase 5, CPA, Git publication or cleanup.
 
-**Negative tests.** Gesture crosses layer switch/playback/open, hidden/locked/wrong-kind target, selection behind another layer, pointer cancel/lost capture, Creator cancel/remount/resize, unsupported placeholder click, AI mixed target, keyboard escape/focus trap, compact panel obscures stage controls.
+### Phase 5 — Complete current tools, shared Library/Assets, selection and panels
 
-**Protected regressions.** REG-01–REG-10 and REG-12; especially Drawing transient sessions/history handoff, Stick projection after Creator resize, and existing AI early exits.
+**Outcome/path.** Complete the current Drawing/Stick capability matrix and shared layout over the accepted neutral Phase 4 root. Selection/property/catalog actions → item adapter → same command/history → shared stage/repository. The user creates a bitmap sword symbol, places two independent instances in the same mixed cell, edits one and saves/reopens both with reusable definitions intact.
 
-**Technical proof.** Action-by-action capability matrix; typed command receipts; pixel/geometry before/after; cancellation/stale race suite; Creator round trip at both viewports; accessibility checks for names/order/focus/keyboard; source scan for faux enabled controls and review UI; inherited validators; manifest.
+**Scope/ceiling: 20 tracked technical paths.** Existing unified workspace/canvas/toolbar/right-panel seams, bounded shared selection/catalog controllers under `src/lib/animation/`, current Creator navigation and UI, V2 library/capability fixtures and proof. Exact paths frozen at entry. Phase 4 runtime and repository may receive only bounded integration changes preserving accepted tests; no second history/save authority.
 
-**Stop boundary.** Existing manual integration only. Do not add SPEC-0007 capabilities, canonical persistence/history completion, legacy retirement, authorize Phase 6, propagate, or publish.
+**Entry.** Corrected Phase 4 accepted/published/integrated with both checkpoint/final manifests; exact action-by-action current capabilities, catalog serialization and selection/cancellation matrix frozen. No new Stick color/head/shape/rig feature or vector drawing engine. Creator Save remains disabled; Back preserves the same project/history/view. No advanced linked symbol editing, automatic sword binding or motion following.
 
-**Recommended effort.** GPT-6 Astra, Extra High reasoning.
+**Acceptance/proof.** Full §§1/6/7 layout, current tools and durable bitmap library/instance flows at desktop/compact. Independently verify each working Drawing tool and current Stick action, topmost eligible item/subtarget hit tests, namespace collision, transparent/locked/hidden content, asset placement/duplicate/delete/reference integrity, cancellation/stale cases and exact interleaved Undo/Redo. Deleting a referenced definition fails safely; placeholders remain inert and never become data. Save/Save As/reload/Open real catalogs and placed instances. AI eligible legacy behavior/latch/disabled exits pass with deterministic mocks and unchanged AI code. Both profiles, accessible tab/toolbar names/order/focus and zero test seeds/external requests. Validated manifest and all applicable regressions. Stop before broader recovery/source-adoption completion or new capabilities.
 
-### Phase 6 — Unified Undo/Redo, Save/Save As/Open, naming, persistence, failure recovery, and migration proof
+### Phase 6 — Complete canonical legacy adoption, recovery, naming and persistence proof
 
-**Plain outcome.** Mixed actions undo/redo in one order and the entire mixed project saves, copies, reloads, opens, and recovers through one canonical repository; legacy adoption is proven non-destructive.
+**Outcome/path.** Finish all supported source Open paths through read-only V2 migration and the common editor, safe first-save adoption, provenance dedupe and exhaustive persistence/recovery/performance acceptance. This completes and hardens the 4A/4B native mixed Save foundation rather than introducing a second repository/history.
 
-**Problem solved.** Drawing has two-scope history plus V2 IndexedDB; Stick has a digest history plus a localStorage envelope; their names/save menus/failures differ.
+**Scope/ceiling: 20 tracked technical paths.** Unified migration/repository/storage/bootstrap/collection/source-reader, File/title/error UI and bounded removal of source compatibility write authority, independent storage/migration/browser proof. Existing Drawing PNG/WAV/CAS mechanics may be reused without changing source formats. Exact list frozen before editing.
 
-**Traced execution path.** Typed action → one transaction candidate/digest → captured root binding → atomic history publication → dirty state; Save/Save As → canonical snapshot/assets/provenance → preflight/encode/hash → IndexedDB transaction → readback validation → revision-bound head swap → saved baseline. Open uses Phase 1 read-only mapping and atomically replaces the root only after validation.
+**Entry.** Phase 5 accepted/published/integrated; complete catalog/item schema and normal tools proven. Native V2 mixed Save remains protected. Freeze source provenance/dedupe rules, source-limit metadata accounting, concurrency/head retention and every storage fault boundary.
 
-**Exact scope and likely path ceiling.** Unified history/transaction/repository/storage codec, top-bar naming/File behavior, bootstrap/open final wiring, narrow removal of Drawing/Stick write authority, failure UI, migration/performance/browser proof. Existing Drawing V2 storage modules should be extended/reused rather than forked where contract-safe. **Ceiling: 20 tracked technical paths.** No source-store deletion, cloud sync, autosave, export, or new AI behavior.
+**Acceptance/proof.** Full §4 and §7 native, Drawing V1/V2, Stick V1/V2 and unified V1 Open/adoption/Save/Save As/reload cases. Every source field/asset digest preserved, original stores byte-identical, one canonical card per exact provenance pair, no title-based identity and no legacy-only normal writes. Faults at encode/hash/decode/quota/asset/version/abort/readback/CAS/ID/stale instance/revision/generation/Undo/Open/crash boundaries retain complete root/history/head/source and truthful dirty state. Full interleaved history, large raster/audio/catalog retention and §9 Save/Open latency/memory proof in both profiles. REG-01–12, inherited SPEC-0002/Stick/storage/history/AI tests, zero egress, independently validated manifest. Recovery is last-good-head/safe retry, not autosave. Stop before retirement or whole-spec completion claim.
 
-**Non-goals.** No legacy cleanup, authenticated ownership, collaboration, project-file import/export, automatic background save, AI memory redesign, provider request, or deployment.
+### Phase 7 — Retire duplicate ownership and complete full acceptance
 
-**Entry gate.** Phase 5 published; repository transaction/readback design reviewed; canonical limits/provenance/dedupe naming conflicts frozen; independent golden migrations include realistic and maximum-bound sources; storage fault injection available.
+**Outcome/path.** Every ordinary route and user action reaches the sole V2 root/dispatcher/resolver/timeline/tools/history/repository. Legacy parsers remain read-only leaves; retired coordinators cannot become alternate normal Save/edit paths.
 
-**Normal app-copy human review.** Perform interleaved Drawing → Stick → timeline → Creator actions; Undo to baseline and Redo to exact final digest; Save; edit and Save; Save As to another title; reload/open both; open legacy Drawing and Stick, verify source bytes, first-save adoption, reload/open; repeat safe failure cases and confirm unsaved work remains.
+**Scope/ceiling: 18 tracked paths including deletions.** Exact unused-owner import/mount/write removal list plus permanent tester/finalizer/full-proof sources. Do not delete shared algorithms, read parsers, source data, historical fixtures/manifests or protected AI contracts. No unrelated cleanup.
 
-**Measurable acceptance.** Exact one-entry action order; Undo/Redo digest round trips; title is Untitled Project until changed; Save As produces distinct ID/digest-correct copy; one collection entry per exact source/canonical provenance pair; every §4 field/digest preserved; all named failures leave source/head/root/history unchanged; §9 open/save/memory targets pass.
+**Entry.** Phase 6 accepted/published, preceding manifests preserved; import/route/write inventory proves removals safe. Freeze the complete ordinary capability matrix.
 
-**Negative tests.** Quota at every write step, PNG/audio encode/decode/hash failure, abort/readback mismatch, stale revision/generation/instance, concurrent Save/Save As/Open, ID collision, title collision/empty/Unicode, asset missing/orphan, history over bound, Undo during pending save, reload between asset and head transaction, mutated legacy source after listing, migration retry.
+**Acceptance/proof/human review.** Repeat all §7 flows in the ordinary root, including same-layer/same-cell drawn and symbol swords/fireballs, all existing tools/panels/catalogs, full mixed loop/onion/history and storage failures. All REG-01–12 and §9 performance/memory pass; zero critical/serious accessibility findings, keyboard/visible focus, 200% zoom and reduced-motion checks. Instrument zero legacy writes, second coordinator/history authority, seeded product/debug surface or external/provider requests. Independently revalidate every accepted historical/checkpoint/final manifest against its own bound commit/source set. Arthur's visible acceptance is mandatory; a green old typed-layer fixture is insufficient.
 
-**Protected regressions.** REG-01–REG-12. Existing source stores remain byte-for-byte protected; Drawing V2 last-good-head behavior remains at least as strong.
+**Stop.** Return Implementation Review Packet, empty index, one review copy preserved. CPA acceptance/propagation, separate publication and D-0054 cleanup follow. No future SPEC-0007/0008, deployment or Git action by executor.
 
-**Technical proof.** Independent migration oracle and raw before/after store snapshots; transactional repository fault matrix at every boundary; history property/state-machine tests; realistic-size browser save/reload/open at both viewports; exact asset and document digests; performance/memory/network receipts; inherited SPEC-0002 and Stick history/storage validators; validated manifest.
+## 13. Completion gate before future SPEC-0007/0008
 
-**Stop boundary.** One canonical history/persistence result. Do not delete legacy stores/components, claim the whole spec complete, authorize Phase 7, propagate, publish, or begin SPEC-0007.
+Account for all seven numbered phases: preserve published Phases 1–3, record the former Phase 4 rejection, and separately execute/accept/propagate/publish corrected Phases 4–7, including both internal Phase 4 checkpoint identities and one final visible acceptance. The final ordinary app must pass §§3–10: true same-layer/same-cell mixed items, one timeline/clock/onion, current tools/panels/catalogs, exact global Undo/Redo and complete Save/Save As/Open/recovery. All supported sources remain readable and unmodified; no claim of reconstructed legacy symbols or autosave. Record exact implementation/control-plane paths and every manifest against its proper base.
 
-**Recommended effort.** GPT-6 Astra, Ultra reasoning; highest data-loss/race risk.
+Arthur accepts the full ordinary result. Separate publication verifies exact final local main/origin/live remote equality and clean 0/0 synchronization. Authorized D-0054 cleanup preserves proof then closes the exact review server/port and removes the obsolete executor worktree/local branch. No material data-loss/ownership/safety/accessibility/performance/regression blocker remains. State physical-phone/native-GPU limitations honestly. Future manual expansion belongs to SPEC-0007 only after this gate; AI/video/tracking belongs to later SPEC-0008. Neither is created or implemented here.
 
-### Phase 7 — Retire separate normal paths and run full acceptance, regression, data-loss, performance, and accessibility proof
+## 14. Whole-spec ownership map and protected boundaries
 
-**Plain outcome.** Users can reach only the one Animation Workspace and one project collection in ordinary product flow; obsolete split ownership paths are unreachable/removed, and the whole SPEC-0006 outcome is independently proven.
-
-**Problem solved.** Transitional adapters and duplicate routes/components can otherwise become competing sources of truth or regress later.
-
-**Traced execution path.** Every ordinary Home New/Open route → one collection/bootstrap → one root/dispatcher/resolver/renderer/timeline/tools/history/repository → one workspace. Legacy parsers are read-only compatibility leaves. Source scan and runtime instrumentation prove no second writable coordinator/store path.
-
-**Exact scope and likely path ceiling.** Remove/unwire obsolete Drawing/Stick normal workspace ownership branches, consolidate tests/permanent browser plan, add final accessibility/performance/data-loss proof/finalizer, and make only the smallest runtime cleanups required to eliminate duplicate authority. **Ceiling: 18 tracked technical paths, including deletions.** No legacy data deletion and no unrelated cleanup.
-
-**Non-goals.** No SPEC-0007 or SPEC-0008 file/implementation, new manual capability, AI/provider/video/tracking, export/cloud/auth/billing, visual redesign, dependency, or deployment.
-
-**Entry gate.** Phase 6 accepted/published/synchronized; all six prior proof manifests and accepted hashes preserved; complete normal-path ownership inventory reviewed; removal list proves no externally used import or recovery parser is being deleted; one review-copy slot free.
-
-**Normal app-copy human review.** Arthur performs the full §7 New/mixed/legacy/failure flows on the ordinary root at desktop and compact sizes, watches one full mixed loop, checks all layout regions/tools/panels, and confirms source legacy projects remain available. Human acceptance is required; technical green alone cannot close the phase.
-
-**Measurable acceptance.** Exactly one normal workspace/project collection/title path; zero normal-route imports or mounts of retired coordinators and zero writes through legacy stores in an instrumented complete flow; all §§3–9 acceptance gates pass; all REG-01–REG-12 pass; exact performance/memory table passes; automated accessibility scan has zero critical/serious violations and manual keyboard flow reaches/closes every interactive region with visible focus; zero data-loss mismatches; zero external/provider requests.
-
-**Negative tests.** Direct stale component invocation, old view enum/string, legacy store write spy, alternate save function import, browser back/refresh, empty/corrupt/max collections, rapid mixed actions/open/save/play, all failure injections, reduced motion, zoom 200%, keyboard-only compact flow, review/debug token scans.
-
-**Protected regressions.** Full REG-01–REG-12 plus every accepted phase manifest/hash. Historical SPEC-0004/0005 rejected motion stays rejected/non-reusable and their superseded phases stay inactive.
-
-**Technical proof.** Final independent manifest binds every changed runtime/test/fixture/proof path and prior accepted phase manifest; permanent tester covers one workspace; full deterministic suites, TypeScript, focused/full lint non-regression, production build, complete browser matrix, storage byte snapshots, ownership instrumentation, source scans, performance/memory/accessibility receipts, process/port cleanup evidence, diff/scope/index/Git checks.
-
-**Stop boundary.** Return the Phase 7 Implementation Review Packet and stop with the one unpublished review app preserved. Do not mark Verified, propagate, stage, commit, merge, push, publish, clean the accepted worktree, create SPEC-0007, or deploy. Arthur/PM acceptance, CPA propagation, and later publication remain separate.
-
-**Recommended effort.** GPT-6 Astra, Ultra reasoning; final system/data/accessibility acceptance.
-
-## 13. Exact completion gate before SPEC-0007
-
-SPEC-0007 may not be created, approved, or executed until all of the following are true:
-
-1. All seven SPEC-0006 phases were separately authorized and executed in order.
-2. Arthur visibly accepted each phase result, including Phase 7's full ordinary-app mixed/legacy review.
-3. Each executor stopped; each accepted result received exclusive CPA propagation and a separate publication instruction.
-4. Canonical `main`, local `origin/main`, live remote `main`, and the final publication branch match the exact final SPEC-0006 commit at `0/0`; index/worktrees are clean as required.
-5. D-0054 cleanup is complete: required proof is preserved, final accepted review server/port is stopped/closed after publication, obsolete executor worktree/local branch is removed, and no rejected bytes were reused.
-6. The final canonical record marks SPEC-0006 Verified/published/integrated and records all seven proof-manifest hashes, exact final path set, migration/source preservation result, and limitations.
-7. New, Drawing legacy, Stick legacy, and saved mixed projects all open in one collection/workspace; Save/Save As/Open/Undo/Redo/playback/onion/layout/tool flows pass.
-8. Every valid frozen legacy field/asset digest matches its canonical mapping; every legacy source raw byte snapshot is unchanged; no unsupported record was partially migrated.
-9. `MIXED-REALISTIC-01` passes the exact desktop/compact performance and memory gates; the compact result is honestly labeled browser-profile evidence.
-10. Accessibility and REG-01–REG-12 pass with zero critical/serious violations, zero external/provider requests, zero review-only product surface, and no second writable coordinator/store path.
-11. No unresolved material data-loss, ownership, history, migration, security/privacy, cost, or performance blocker remains.
-
-Only then may Arthur and the PM design future SPEC-0007 for manual Stick capabilities such as colors and head/shape options. SPEC-0007 is not created or implemented here. SPEC-0008 remains a later independent motion-video → tracking → editable-frame design and is not created or implemented here.
-
-## 14. Likely whole-spec touch map
-
-| System | Intended change across the seven phases | Intentionally preserved |
+| System | Intended V2 change | Boundary |
 | --- | --- | --- |
-| `app/page.tsx`, `OpenProjectBrowser.tsx` | One New/Open/workspace path | Home/Tutorial/menu and inert unrelated cards |
-| New `src/lib/animation/**` | Contract, migration, resolver, reducer, history, repository | Typed Drawing and Stick payload semantics |
-| New/unified workspace components | One shell/stage/timeline/panels/toolbar | Accepted visual direction and existing real tools |
-| Drawing workspace/canvas/timeline/storage | Extract adapters, retire duplicate authority, reuse V2 asset safety | Pixels/text/tween/sound, tool behavior, V1/V2 read compatibility |
-| Stick workspace/canvas/timeline/storage/Creator | Extract adapters, retire duplicate authority | Rigs/poses/holds/manual editing/latch/Creator behavior |
-| AI panels/adapters | Place one shell and route only existing eligible typed context | No new AI capability, model, prompt, provider, cost, or video |
-| `scripts/spec0006-unified/**`, fixtures, permanent tester | Independent phase proof and final regression | Prior accepted proof artifacts/hashes |
-
-This map is not an executor allowlist. Each authorized phase must freeze its exact paths within the phase ceiling before mutation.
+| `src/lib/animation/**` | Neutral model/migration, commands/history/render/timeline/catalog/repository | V1 semantics remain readable; no typed layers in V2. |
+| AnimationWorkspace/New/Open | Real neutral native/canonical paths in Phase 4B; all legacy adoption by Phase 6 | No interim lossy Save or disabled inherited New Save. |
+| Drawing Canvas/workspace/tools/panels | Existing raster/text algorithms become controlled item adapters | No vector reconstruction, lost pixels/text/tween/audio or second final history. |
+| Stick Canvas/workspace/panels/Creator | Existing structured editing becomes controlled item adapters | No new heads/colors/rig tools, enabled Creator Save or motion engine. |
+| Library/Assets | Project-owned current bitmap definitions, instances/catalog metadata | No sample data, advanced symbol editor or fabricated legacy associations. |
+| Drawing/Stick source stores | Read-only migration after adoption cutover | Never delete/rewrite source records or historical schema. |
+| `src/lib/ai/**`, `src/lib/openai/**`, `app/api/**`, prompts/providers/motion | Protected bytes and existing behavior | No edits, paid/network requests or new AI/video/tracking work. |
+| Proof sources under scripts/ignored output | Independent neutral migration/storage/UI/manifest evidence | Never enter ordinary app/build/public assets/starter projects. |
 
 ## 15. Implementation and verification records
+
+**Historical snapshot notice (D-0062, 2026-09-11):** The records below retain their original accepted scope, proof identities and then-current publication/server statements. Phase 3 later published in GIT-054 `e11f6c453f13772ee9bd4b172a17bc68e1de65b9`. Old next-phase authorization/phase-number references are superseded by §§12/16 above/below; no historical server identity is current cleanup authority. No historical manifest is rewritten.
 
 ### Phase 1 — published and integrated
 
@@ -614,8 +609,18 @@ CPA changed exactly these 14 canonical records/tree paths; no accepted implement
 
 The review server at `http://127.0.0.1:56463/` remains preserved (listener PID 331, ignored `output/spec-0006/phase-3/review-app` cwd). Open Project → MIXED-REALISTIC-01 shows the accepted neutral review fixture. No product route, seed, review button, or debug control is added. The executor's optional CDP inspection was declined and skipped; no further approval-gated browser call was required for CPA evidence validation. Canonical main/local origin remain `916a4d913c6fdf8340b67bcc88dcea184d67cd32`, clean at 0/0; no live-remote refresh or Git publication occurred.
 
-## 16. Final state and handoff
+## 16. Current handoff, same-copy exception and one visible Phase 4 review
 
-SPEC-0006 remains Approved and active. Phases 1–2 remain Verified/published/integrated through GIT-052 `d2096109900cc50a0a4dae2f603bd74b7b4a3427`. Phase 3 is **accepted and Verified in the dedicated worktree; unpublished and not integrated**, under D-0061. **Phases 4–7 remain Unauthorized/Not started.** The accepted Phase 3 stage/compositing result and CPA records exist only in c6b0; ordinary navigation/source stores retain Phase 2 behavior, and timeline/tools/history/canonical Save remain later work.
+Fresh local Git reconciles stale Phase 3 publication-pending records: GIT-054 `e11f6c453f13772ee9bd4b172a17bc68e1de65b9` contains the published accepted Phase 3 result; local HEAD/main/origin match, index empty. Its D-0061/§15 proof remains historical and accepted. The former Phase 4 is rejected/unpublished/non-reusable and unchanged by this docs-only architecture task. Remote synchronization is not newly verified here.
 
-Next step: a separate explicitly authorized CPA publication turn may verify the unchanged accepted 16 technical paths plus the 14 reviewed control-plane/tree paths, create the phase publication branch from detached `916a4d913c6fdf8340b67bcc88dcea184d67cd32`, stage only that exact set, commit, fast-forward clean unchanged canonical `main`, push normally, and verify clean 0/0 synchronization. If canonical main advanced or any reviewed path differs, stop without pull, merge, rebase, force-push, history rewrite, or scope expansion. This CPA propagation turn stages, commits, integrates, and pushes nothing. Preserve the accepted review server/worktree/proof until publication, integration, and synchronization succeed; D-0054 cleanup follows only in an authorized cleanup step. No Phase 4 executor starts without separate authorization and durable Phase 3 integration.
+The stopped executor's worktree is `/Users/arthurcarlin/.codex/worktrees/6e90/stick-animation-app`, detached at e11f6c, with 18 pre-existing rejected technical paths and the immutable manifest hash in §2.6. PM explicitly assigned this architecture owner there and subsequently instructed correction/visible review in the **same app copy**. This narrow same-copy reuse supersedes D-0054's remove-before-fresh-executor step for this Phase 4 replacement only; it does not accept/reuse rejected bytes, permit two servers, bypass backup, authorize Git publication or allow concurrent owners.
+
+Before implementation, after this architecture owner completely stops, PM coordinates separately authorized records publication of only the reviewed docs. Preserve those docs with exact hashes and bind the actual correction publication SHA; do not stage the rejected technical paths. The correction executor's canonical starting basis must contain this published architecture and published Phases 1–3. No invented activation SHA, dirty-spec-only dispatch or new implementation permission request to Arthur is needed. If publication is not authorized, PM obtains that separate authority; implementation authorization does not imply Git permission.
+
+An authorized recovery/ownership step must resolve exact worktree/ref/process/cwd/port, hash and inventory all unique rejected tracked/untracked bytes and required ignored proof into a verified recovery backup, and preserve this architecture record/publication identity. Only after verifying that backup may the identified rejected technical paths be replaced with published canonical bytes (untracked rejected additions removed from the active implementation set). Keep the recovery material immutable and outside the correction source. Stop the exact old review server and verify its port closed before one replacement server starts; prefer its resolved port so Arthur returns to the same app address. No unrelated process/worktree/ref may change, and canonical main/active PM/recovery material stay protected. This architecture task performs none of those actions. Existing process IDs in old packets are historical, not fresh cleanup authority.
+
+Then PM dispatches **4A (12 additive paths)** in Plan mode for boot and source/storage tracing, leaves Plan mode under existing authority, and completes its technical checkpoint. Executor stops; PM verifies its exact manifest/hash/empty index/allowlist and transfers the retained worktree exclusively to **4B (24 paths)**. 4B inherits frozen 4A bytes and runs the visible ordinary New/same-cell/timeline/Save correction. Both are internal subphases of the same Phase 4 correction, with no intermediate Arthur review, CPA propagation, Git publication or competing app copy. Final combined ceiling is 37 distinct technical paths including the conditional page path. Any checkpoint defect follows a separately scoped correction with sequential ownership and renewed hashes.
+
+**Final Phase 4 human checklist:** ordinary New has neutral Layer 1 and no artwork/demo data; manually add Drawing and editable Stick content in the same frame; no layer-kind labels in UI/accessibility; edit each independently, copy/paste the whole cell to another neutral layer, create/edit holds/independent owners, scrub/onion/full playback loop; Undo/Redo exact mixed action order; Save/Save As/reload/Open native mixed V2 intact; source legacy projects still work; no seed/instrumentation in ordinary New/Open/build/stores. Complete shared symbol-creation/library/panel acceptance is Phase 5, and exhaustive all-source adoption/recovery is Phase 6; those are explicit remaining work, not Phase 4 claims.
+
+The architecture owner now returns a PM Review Packet and completely stops. No runtime/proof/server/Git change, implementation acceptance, publication or cleanup is claimed. After 4B visible acceptance, CPA and later separately authorized publication occur as usual; after clean integration/synchronization, D-0054's normal final cleanup applies. Future phases/specs are not started here.

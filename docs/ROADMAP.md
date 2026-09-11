@@ -1,7 +1,7 @@
 # Roadmap
 
 Status: canonical ordered direction; not a delivery schedule
-Last updated: 2026-09-10
+Last updated: 2026-09-11
 
 ## Roadmap Rules
 
@@ -11,11 +11,13 @@ Last updated: 2026-09-10
 - Paid AI calls, remote writes, deployment, and baseline commits require task-specific authorization.
 - The roadmap may change when Arthur resolves pending decisions or new evidence changes the risk order.
 
-## Current owner sequence — 2026-09-10 (D-0055/D-0056/D-0057/D-0060/D-0061)
+## Current owner sequence — 2026-09-11 (D-0062)
 
-[`SPEC-0006`](specs/0006-unified-animation-workspace.md) owns exactly seven phases: contract/migration; shell/New/Open; stage/compositing; timeline/playback/onion; existing tools/layout; history/persistence/recovery; retirement/full proof. Phases 1–2 are published through GIT-052 `d2096109900cc50a0a4dae2f603bd74b7b4a3427`. Phase 3 is **accepted and Verified in the dedicated worktree; unpublished and not integrated**, under D-0061. **Phases 4–7 remain Unauthorized/Not started.** Its neutral seeded mixed rendering adds no AI/motion behavior. The separate compatibility editing and storage owners remain until later authorized phases.
+SPEC-0006 Phases 1–3 are Verified/published/integrated through GIT-054 `e11f6c453f13772ee9bd4b172a17bc68e1de65b9`. Arthur rejected the former Phase 4 typed-layer result; it remains unpublished and non-reusable. D-0062 corrects the same spec to neutral layers with ordered typed items in the same cell. Seven numbered phases remain; corrected Phase 4 has internal 4A (12 paths, model/read migration/minimal repository) then 4B (24 paths, ordinary neutral New/Open, controlled item editing, shared history/render/timeline/playback/onion), ending in one visible Phase 4 review. Correction implementation is not started.
 
-Future SPEC-0007 follows only after SPEC-0006’s eleven-part completion gate; future SPEC-0008 remains later motion-video/tracking planning. Neither exists or is authorized. The immediate next step is separate GIT-054 CPA publication of the accepted Phase 3 technical result and reviewed records, followed by authorized D-0054 cleanup after clean synchronization. No new implementation task is authorized by this roadmap.
+The corrected order keeps seven numbered phases. Minimal neutral data/storage precedes Phase 4 visible ordinary New, common history and timeline; this avoids a temporary broken or lossy Save. Phase 5 completes current tools/catalogs/panels; Phase 6 complete source adoption/recovery; Phase 7 retirement/full proof. No invisible 4A checkpoint is the user review.
+
+Arthur already authorizes proceeding after safe architecture. PM coordinates separately authorized records publication and verified same-copy recovery, then sequential 4A → stopped-owner checkpoint → 4B in the retained `/6e90/` worktree under SPEC-0006 §12/16. No invisible checkpoint is product acceptance. No extra Plan-click or pasted-prompt approval is required. This docs-only task starts no executor/server and performs no Git publication or cleanup. Later numbered phases still require prior acceptance, CPA propagation and separate publication/integration. Future SPEC-0007/0008 remain absent and gated by SPEC-0006 completion.
 
 ## Phase 0 — Preserve and Stabilize
 

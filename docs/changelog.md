@@ -5,6 +5,15 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-11 — Correct SPEC-0006 after rejected typed-layer Phase 4 (D-0062)
+
+- SPEC-0006 Phases 1–3 are Verified/published/integrated through GIT-054 `e11f6c453f13772ee9bd4b172a17bc68e1de65b9`. Arthur rejected the former Phase 4 typed-layer result; it remains unpublished and non-reusable. D-0062 corrects the same spec to neutral layers with ordered typed items in the same cell. Seven numbered phases remain; corrected Phase 4 has internal 4A (12 paths, model/read migration/minimal repository) then 4B (24 paths, ordinary neutral New/Open, controlled item editing, shared history/render/timeline/playback/onion), ending in one visible Phase 4 review. Correction implementation is not started.
+- Inventory covers schema/migration/state coupling/transforms/render/clipboard/onion/tools/history/library/persistence assumptions; cosmetic suffix removal is explicitly insufficient.
+- Keep seven numbered phases and move minimum safe mixed storage before ordinary New cutover: internal 4A exact12 and 4B exact24 culminate in one ordinary visible Phase 4 review. PM accepted this dependency/structure; no hidden technical checkpoint counts as product acceptance.
+- Record same-app-copy correction exception with verified rejected-byte recovery, sequential ownership and one server; no rejected source reuse or cleanup performed here.
+- Reconcile Phase 3 published local Git evidence and preserve original accepted/rejected proof identities. No runtime, fixture, technical-test, original proof, AGENTS, generated tree, package/configuration, AI/provider/prompt/motion-engine, source-store, other-worktree, server or Git-ref/index bytes/actions changed in this architecture task. Historical proof remains bound to its original source/spec snapshots; the strict old dirty-path/current-spec validators are not claimed to pass after these docs edits.
+
+
 ### 2026-09-10 — Accept SPEC-0006 Phase 3 and complete CPA propagation (D-0061)
 
 - Arthur accepted the recovered neutral review app; PM accepted the technical result and transferred c6b0 exclusively after the executor completed. Phase 3 is Verified in the worktree, unpublished/not integrated; separate GIT-054 publication remains next.

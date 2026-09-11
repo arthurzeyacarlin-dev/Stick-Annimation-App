@@ -1,12 +1,50 @@
 # Session Handoff
 
 Status: canonical last-known stopping point
-Last updated: 2026-09-10
-Spec registry: completed SPEC-0001–0003 and completed SPEC-0004/0005 phases remain protected published history; unfinished motion phases remain superseded/inactive under D-0055. SPEC-0006 remains Approved and active. Phases 1–2 are published through GIT-052 `d2096109900cc50a0a4dae2f603bd74b7b4a3427`. Phase 3 is **accepted and Verified in the dedicated worktree; unpublished and not integrated**, under D-0061. **Phases 4–7 remain Unauthorized/Not started.**
-SPEC-0004 status: SPEC-0004 Phases 1, 2, and timing-only Phase 2.5 remain Verified, published, and integrated. Phase 2.6 remains rejected, unpublished, and superseded historical evidence. Under D-0055, unfinished Phases 3–8 are Superseded by future SPEC-0008, inactive, and must not be implemented.
-SPEC-0005 status: SPEC-0005 Phase 1 and Phase 2 v1/v2 remain accepted, Verified, published, and integrated; v2 is complete at GIT-048 `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`. Its rejected Phase 3 result remains unpublished/non-reusable, and D-0055 supersedes the unfinished sequence.
-Current result: Arthur visibly accepted the recovered Phase 3 app copy and the PM accepted the result/transferred ownership after executor stop. CPA propagation is complete in `/Users/arthurcarlin/.codex/worktrees/c6b0/stick-animation-app`, detached HEAD `916a4d913c6fdf8340b67bcc88dcea184d67cd32`, runtime parent `d2096109900cc50a0a4dae2f603bd74b7b4a3427`. Exact 16 technical paths remain byte-frozen; exact 14 canonical records/tree paths are added, for 30 dirty paths and an empty index. Canonical main/local origin remain clean at `916a4d913c6fdf8340b67bcc88dcea184d67cd32`, 0/0; no live-remote refresh, staging, commit, integration, push, or cleanup occurred. Separate GIT-054 publication is next.
-Current roadmap phase: Phase 0 — Preserve and Stabilize
+Last updated: 2026-09-11
+
+SPEC-0006 Phases 1–3 are Verified/published/integrated through GIT-054 `e11f6c453f13772ee9bd4b172a17bc68e1de65b9`. Arthur rejected the former Phase 4 typed-layer result; it remains unpublished and non-reusable. D-0062 corrects the same spec to neutral layers with ordered typed items in the same cell. Seven numbered phases remain; corrected Phase 4 has internal 4A (12 paths, model/read migration/minimal repository) then 4B (24 paths, ordinary neutral New/Open, controlled item editing, shared history/render/timeline/playback/onion), ending in one visible Phase 4 review. Correction implementation is not started.
+
+## Next action and exclusive ownership
+
+Arthur already authorizes proceeding after safe architecture. PM coordinates separately authorized records publication and verified same-copy recovery, then sequential 4A → stopped-owner checkpoint → 4B in the retained `/6e90/` worktree under SPEC-0006 §12/16. No invisible checkpoint is product acceptance. No extra Plan-click or pasted-prompt approval is required. This docs-only task starts no executor/server and performs no Git publication or cleanup. Later numbered phases still require prior acceptance, CPA propagation and separate publication/integration.
+
+Architecture owner in /6e90/ stops after its packet. No active executor may overlap it. Exact correction entry: SPEC-0006 §16 and D-0062. Publish only reviewed docs under separate authority; verify unique rejected-byte backup before restoring the identified technical set from published foundation; retain the same worktree/address under the narrow PM-approved exception, stop/verify the old exact server before one replacement, and never reuse rejected bytes. Bind actual published architecture SHA and spec hash; no guessed SHA or stage/commit in an executor.
+
+4A checkpoint: exactly 12 additive paths, neutral model/migration plus minimal transactional repository; no visible Phase 4 acceptance. Stop, PM hash/allowlist/index verification, sequential same-worktree transfer to 4B (24 paths). 4B returns one real ordinary-New/same-cell/timeline/history/Save review. No intermediate Arthur Plan clicks, invisible acceptance, CPA or publication. Final Phase 4 combined ceiling 37 including the conditional page path; Phase 5 tools/library, Phase 6 full adoption/recovery, Phase 7 retirement/full acceptance follow normal publication separation.
+
+## Conditional page boundary and reported editor markers
+
+Phase 4B has 24 planned paths plus conditionally authorized app/page.tsx only if real New/Open cutover needs an edit: 25 maximum, combined Phase 4 maximum37 (36 otherwise). SPEC-0006 §12 requires focused page/OpenProjectBrowser TypeScript/build and ordinary New/Open proof. Fresh disk inspection shows onOpenProject and no page/browser diff; PM reports an unsaved stale VS Code buffer caused the visible markers. Do not save/overwrite that user buffer or invent a code repair.
+
+## Current proof and limits
+
+Exact architecture-only changed-path allowlist for PM review and any later separately authorized records publication (14 Markdown files):
+
+- `docs/00_MASTER_PROJECT.md`
+- `docs/AI_SYSTEM.md`
+- `docs/CURRENT_STATE.md`
+- `docs/DECISIONS.md`
+- `docs/PROJECT_MANAGER_CONTEXT.md`
+- `docs/ROADMAP.md`
+- `docs/SESSION_HANDOFF.md`
+- `docs/TERMINOLOGY.md`
+- `docs/TODO.md`
+- `docs/architecture.md`
+- `docs/changelog.md`
+- `docs/specs/0006-unified-animation-workspace.md`
+- `docs/specs/README.md`
+- `docs/testing_workflow.md`
+
+All 18 pre-existing rejected technical dirty paths are outside this record allowlist. The index stays empty; no generated-tree update or source/proof change accompanies these documents.
+
+Rejected manifest `output/spec-0006/phase-4/proof-manifest.json`: 104,287 bytes, SHA-256 `e9b7e5949198b5d24e21bddc901738ddafb4b63d978cc8f4002a0ccc0211d81b`. It is unchanged rejection evidence, not neutral acceptance. Published Phase 3 manifest remains `207aea2a7d664e49d28dd6b8c4704e50da9fae8d5197d9164ccbac871db4fcc0` (22,897 bytes). New architecture was code-reviewed; no new real-app run or runtime success is claimed.
+
+No runtime, fixture, technical-test, original proof, AGENTS, generated tree, package/configuration, AI/provider/prompt/motion-engine, source-store, other-worktree, server or Git-ref/index bytes/actions changed in this architecture task. Historical proof remains bound to its original source/spec snapshots; the strict old dirty-path/current-spec validators are not claimed to pass after these docs edits.
+
+## Historical Phase 3 closeout snapshot — superseded dispatch instructions
+
+The following prior snapshot is preserved as historical accepted evidence. Phase 3 subsequently published in GIT-054; old server IDs, pending publication and next-phase instructions are not current authority. Use the next-action section above.
 
 ## SPEC-0006 Phase 3 accepted/Verified; CPA complete; publication pending
 
@@ -254,13 +292,13 @@ Prior SPEC-0003 publication record:
 - exact record-only closeout paths: `docs/CURRENT_STATE.md`, `docs/DECISIONS.md`, `docs/SESSION_HANDOFF.md`, `docs/TODO.md`, `docs/changelog.md`, `docs/specs/0003-tutorials-and-cleaner-home-screen.md`, `docs/specs/README.md`, and `docs/testing_workflow.md`
 - deployment, provider/external/paid work, and next-feature work: not performed
 
-## Stopping Point
+## Historical 2026-09-10 stopping point
 
 Current 2026-09-10 stopping point: Phase 3 is accepted/Verified in c6b0 and CPA propagation/closeout is complete. Exact 16 technical plus 14 records/tree paths are dirty, with an empty index at `916a4d913c6fdf8340b67bcc88dcea184d67cd32`; canonical main/local origin remain clean there, 0/0. GIT-054 publication/integration and subsequent authorized cleanup remain separate. Phases 4–7 remain Unauthorized/Not started; the accepted review server/worktree stays preserved.
 
 SPEC-0004 completed phases and SPEC-0005 completed phases remain published/integrated. Their rejected and superseded work remains historical and non-reusable. Future SPEC-0007/0008 remain absent and unauthorized.
 
-## Proven and Not Proven
+## Historical proof and limits
 
 Current SPEC-0006 Phase 3 evidence: The accepted technical manifest is `output/spec-0006/phase-3/proof-manifest.json`, exactly 22,897 bytes at SHA-256 `207aea2a7d664e49d28dd6b8c4704e50da9fae8d5197d9164ccbac871db4fcc0`: 16 source bindings, 20 receipts, and 60 artifacts. CPA reran the unchanged validator before propagation: PASS, 3,725 assertions and 18 negative manifest cases. All accepted technical and proof bytes remain unchanged. The accepted proof passed 9,145 contract assertions; desktop 1440×900 DPR 1 and compact 390×844 DPR 2 rendering; eight mixed and four type-isolated pixel comparisons per profile with zero differences; five measured full 0…47→0 playback loops per profile after warmup; joint drag, held-owner editing, independent-owner preservation and exact Undo/Redo; resize/DPR/zero-size/failure recovery; and the stage performance/memory bounds. Compact stage is 352×198 with no page overflow. Production compile/generate, TypeScript, focused lint, all 16 inherited validators, and the inherited 40-operation/13-screenshot New/Open/Drawing/Stick browser suite passed. Full lint remains the exact inherited 5-error/72-warning baseline, with zero new findings. Real API/external requests, source-store writes, and render-triggered document/history writes were zero. CPA independently verified protected source hashes and reviewed the unchanged live render/edit path. Human acceptance comes from Arthur’s app-copy review and the PM delegation, not an edited manifest field. The executor browser/build evidence was revalidated, not rerun during CPA; the optional declined CDP probe stayed skipped. Physical-phone performance and native/GPU memory remain unproven; the compact result is a desktop Chrome browser profile. Existing compact title clipping remains. No unified timeline/playback/onion owner (Phase 4), tools/panels integration (Phase 5), shared history/canonical Save/Open/recovery (Phase 6), or legacy retirement (Phase 7) is implemented or authorized by this acceptance. The accepted full-loop evidence exercises composition through the existing Stick clock; it does not complete Phase 4. No natural-motion or AI-output quality claim is made.
 
@@ -272,6 +310,6 @@ Historical Phase 1 CPA verification: exact base/HEAD/main/local-origin `3b784cc6
 
 The old SPEC-0004 wave/jump/bow/dodge samples remain rejected natural-action evidence. The later Phase 2.6 executor proved strict technical properties but not accepted visible quality; its bytes remain unpublished/rejected and are not current behavior. Broader natural-language matching, Terra/provider/API/paid work, deployment, complete seven-phase workspace unification, and SPEC-0004 Phases 3–8 also remain unperformed.
 
-## Systems Intentionally Left Unchanged
+## Historical CPA unchanged-system record
 
 CPA propagation changed only the 14 canonical records/tree paths above. Every accepted Phase 3 runtime, fixture, technical-test and original proof byte remains unchanged, as do `AGENTS.md`, the frozen contract/migration, all protected runtime/test bytes and 156 unchanged protection-inventory files, Drawing editor, existing Stick gesture/history/Save owners, legacy stores, ordinary New/Open/Home/Tutorials, AI models/prompts/generation/motion/video/tracking/provider/API/search/Supabase, dependencies/configuration/environment/database/public assets, auth/billing/export/deployment, canonical main, other worktrees, and recovery material. No technical correction, later-phase implementation, Git publication, or review-copy cleanup occurred.

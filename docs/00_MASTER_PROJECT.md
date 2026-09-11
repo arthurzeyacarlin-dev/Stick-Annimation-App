@@ -1,7 +1,7 @@
 # Diamond Animator Master Project Charter
 
 Status: canonical product intent
-Last updated: 2026-09-10
+Last updated: 2026-09-11
 
 ## Product Mission
 
@@ -33,7 +33,7 @@ The goal is not to hide a weak editor behind a chat box. The goal is one capable
 
 ## Current Strategic Position
 
-D-0056 resolves the intended architecture: one Animation Workspace owns one typed Drawing/Stick project, stage, timeline, history, persistence path, and AI surface. SPEC-0006 has Arthur’s seven-phase approval under D-0057. GIT-051 published Phase 1’s contract/read-only migration and GIT-052 `d2096109900cc50a0a4dae2f603bd74b7b4a3427` published Phase 2’s direct Untitled New, one combined inherited Projects collection, and one compatibility editor through AnimationWorkspace. D-0061 accepts the exact 16-path Phase 3 mixed stage/compositing result in c6b0 after visible review and executor stop. It is Verified with CPA propagation complete, but unpublished/not integrated; separate GIT-054 publication is next. The scene is manually seeded neutral proof content and adds no AI/motion capability. Phases 4–7 remain Unauthorized/Not started: unified timeline/playback/onion, tools/panels, history/persistence and retirement remain later work.
+SPEC-0006 Phases 1–3 are Verified/published/integrated through GIT-054 `e11f6c453f13772ee9bd4b172a17bc68e1de65b9`. Arthur rejected the former Phase 4 typed-layer result; it remains unpublished and non-reusable. D-0062 corrects the same spec to neutral layers with ordered typed items in the same cell. Seven numbered phases remain; corrected Phase 4 has internal 4A (12 paths, model/read migration/minimal repository) then 4B (24 paths, ordinary neutral New/Open, controlled item editing, shared history/render/timeline/playback/onion), ending in one visible Phase 4 review. Correction implementation is not started. The required outcome is one neutral layer/frame with Drawing, text, symbols and editable rigs together; one shared project capability layer and no cloud/social Share. Arthur already authorizes proceeding after safe architecture. PM coordinates separately authorized records publication and verified same-copy recovery, then sequential 4A → stopped-owner checkpoint → 4B in the retained `/6e90/` worktree under SPEC-0006 §12/16. No invisible checkpoint is product acceptance. No extra Plan-click or pasted-prompt approval is required. This docs-only task starts no executor/server and performs no Git publication or cleanup. Later numbered phases still require prior acceptance, CPA propagation and separate publication/integration.
 
 The current code is a prototype foundation, not a finished Version 1. Existing documents that called either workspace “complete” described a past visual milestone and are superseded by `CURRENT_STATE.md`.
 

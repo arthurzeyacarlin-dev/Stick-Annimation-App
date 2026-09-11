@@ -1,7 +1,7 @@
 # Project Manager Context
 
 Status: canonical owner and collaboration context
-Last updated: 2026-09-10
+Last updated: 2026-09-11
 
 ## Ownership, Sponsorship, and PM Collaboration
 
@@ -15,7 +15,7 @@ Arthur is a young, capable product collaborator. Explain recommendations in dire
 
 ## Latest Direction
 
-The latest product direction, updated through 2026-09-10, is:
+The latest product direction, updated through 2026-09-11, is:
 
 - Diamond Animator should primarily help beginners create professional-grade stick-figure animation through AI conversation.
 - AI should integrate with the real editor and manipulate the same advanced capabilities a human animator can use.
@@ -32,7 +32,7 @@ The latest product direction, updated through 2026-09-10, is:
 - SPEC-0005 Phase 1 and Phase 2 v1/v2 remain accepted, Verified, published, and integrated; v2 is complete at GIT-048 `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`. GIT-049 published the later Phase 3 authorization at `de54aed275c2f6da6e7c3f4a7f65091e8d5370c0`. A Phase 3 executor then ran, but Arthur rejected its visible result: it is unpublished, unaccepted, non-reusable, and not completed. D-0055 supersedes Phase 3 and unfinished Phases 4–8 by future SPEC-0008; they are inactive with no implementation authority.
 - The old eight-phase SPEC-0005 design remains historical reference, not future dispatch authority. Do not reuse rejected implementations, call their motion accepted, or automatically carry the unimplemented contract into a new spec.
 - Future Terra economics should prefer compact important-pose/timing plans, local in-betweens, safe $0 recipes first, at most one later bounded pre-Apply repair, measured private-dashboard cost, and monthly budgets/credits rather than unlimited use. Exact provider pricing/policy is a later same-day official-source gate.
-- D-0056 records Arthur’s one-workspace outcome and D-0057 approves SPEC-0006. Phases 1–2 are published through GIT-052 `d2096109900cc50a0a4dae2f603bd74b7b4a3427`. D-0061 accepts the recovered exact 16-path Phase 3 mixed stage/compositing result after Arthur’s visible review and executor stop. CPA propagation is complete in c6b0 at authorization `916a4d913c6fdf8340b67bcc88dcea184d67cd32`, but Phase 3 is unpublished/not integrated. Its neutral scene is manually seeded proof content with no AI/motion change. **Phases 4–7 remain Unauthorized/Not started.** Future SPEC-0007/0008 remain absent and unauthorized.
+- SPEC-0006 Phases 1–3 are Verified/published/integrated through GIT-054 `e11f6c453f13772ee9bd4b172a17bc68e1de65b9`. Arthur rejected the former Phase 4 typed-layer result; it remains unpublished and non-reusable. D-0062 corrects the same spec to neutral layers with ordered typed items in the same cell. Seven numbered phases remain; corrected Phase 4 has internal 4A (12 paths, model/read migration/minimal repository) then 4B (24 paths, ordinary neutral New/Open, controlled item editing, shared history/render/timeline/playback/onion), ending in one visible Phase 4 review. Correction implementation is not started.
 
 This direction supersedes older prose that framed AI only as a passive helper or described the workspaces as complete.
 
@@ -70,17 +70,17 @@ Arthur requires only one active review app copy for the current milestone. This 
 - Never remove canonical main or the active Project Manager worktree. Never delete a worktree still owned by an active executor/architect. Stop if identity, ownership, unique-byte preservation, or publication is uncertain.
 - The PM coordinates sequential handoff/cleanup under Arthur's authority; the authorized cleanup task performs removal. Spec Executors still cannot publish, edit the control plane, or mutate another worktree. This rule grants no implementation, Git publication, provider, or deployment authority.
 
-## Current SPEC-0006 result — Phase 3 accepted; publication pending
+## Current SPEC-0006 result — neutral Phase 4 architecture correction
 
-Phases 1–2 remain published/integrated through GIT-052 `d2096109900cc50a0a4dae2f603bd74b7b4a3427`. GIT-053 `916a4d913c6fdf8340b67bcc88dcea184d67cd32` is the records-only authorization parent/HEAD of c6b0. D-0061 records Arthur’s acceptance of the recovered normal review app and the PM’s accepted sequential transfer after the executor completed. CPA propagation is complete with all 16 technical files frozen and exactly 14 reviewed canonical records/tree paths added; index empty. Canonical main/local origin remain clean at `916a4d913c6fdf8340b67bcc88dcea184d67cd32`, 0/0, without a live-remote refresh in CPA.
+SPEC-0006 Phases 1–3 are Verified/published/integrated through GIT-054 `e11f6c453f13772ee9bd4b172a17bc68e1de65b9`. Arthur rejected the former Phase 4 typed-layer result; it remains unpublished and non-reusable. D-0062 corrects the same spec to neutral layers with ordered typed items in the same cell. Seven numbered phases remain; corrected Phase 4 has internal 4A (12 paths, model/read migration/minimal repository) then 4B (24 paths, ordinary neutral New/Open, controlled item editing, shared history/render/timeline/playback/onion), ending in one visible Phase 4 review. Correction implementation is not started.
 
-The accepted technical manifest is `output/spec-0006/phase-3/proof-manifest.json`, exactly 22,897 bytes at SHA-256 `207aea2a7d664e49d28dd6b8c4704e50da9fae8d5197d9164ccbac871db4fcc0`: 16 source bindings, 20 receipts, and 60 artifacts. CPA reran the unchanged validator before propagation: PASS, 3,725 assertions and 18 negative manifest cases. All accepted technical and proof bytes remain unchanged.
+Arthur already authorizes proceeding after safe architecture. PM coordinates separately authorized records publication and verified same-copy recovery, then sequential 4A → stopped-owner checkpoint → 4B in the retained `/6e90/` worktree under SPEC-0006 §12/16. No invisible checkpoint is product acceptance. No extra Plan-click or pasted-prompt approval is required. This docs-only task starts no executor/server and performs no Git publication or cleanup. Later numbered phases still require prior acceptance, CPA propagation and separate publication/integration.
 
-Every visible element in `MIXED-REALISTIC-01` is manually seeded review content, not AI output. Its four independently owned Stick keyframes at indices 0/12/24/36 have identical neutral geometry and 44 holds; only the existing Drawing position tween moves. No AI model, prompt, generation, pose/motion engine, video, tracking/reconstruction, provider, or API behavior changed.
+The visible review must start with ordinary empty New and create real Drawing + Stick content in the same layer/frame. Layer badges cannot be hidden over an unchanged typed schema. Minimal mixed persistence precedes cutover; current symbol/library integration completes in Phase 5. No seeded demo substitutes for this result.
 
-The review server/worktree remains preserved at `http://127.0.0.1:56463/`. Physical-phone performance and native/GPU memory remain unproven; the compact result is a desktop Chrome browser profile. Existing compact title clipping remains. No unified timeline/playback/onion owner (Phase 4), tools/panels integration (Phase 5), shared history/canonical Save/Open/recovery (Phase 6), or legacy retirement (Phase 7) is implemented or authorized by this acceptance. The accepted full-loop evidence exercises composition through the existing Stick clock; it does not complete Phase 4. No natural-motion or AI-output quality claim is made.
+The PM-approved same-copy exception retains /6e90/ through this correction only after verified rejected-byte backup and exclusive recovery. Stop/verify the old exact server before one replacement; never reuse rejected bytes. Final D-0054 cleanup follows successful publication/synchronization. See D-0062 and SPEC-0006 §16 for exact boundaries.
 
-Next step: a separate explicitly authorized CPA publication turn may verify the unchanged accepted 16 technical paths plus the 14 reviewed control-plane/tree paths, create the phase publication branch from detached `916a4d913c6fdf8340b67bcc88dcea184d67cd32`, stage only that exact set, commit, fast-forward clean unchanged canonical `main`, push normally, and verify clean 0/0 synchronization. If canonical main advanced or any reviewed path differs, stop without pull, merge, rebase, force-push, history rewrite, or scope expansion. This CPA propagation turn stages, commits, integrates, and pushes nothing. Preserve the accepted review server/worktree/proof until publication, integration, and synchronization succeed; D-0054 cleanup follows only in an authorized cleanup step. No Phase 4 executor starts without separate authorization and durable Phase 3 integration.
+No runtime, fixture, technical-test, original proof, AGENTS, generated tree, package/configuration, AI/provider/prompt/motion-engine, source-store, other-worktree, server or Git-ref/index bytes/actions changed in this architecture task. Historical proof remains bound to its original source/spec snapshots; the strict old dirty-path/current-spec validators are not claimed to pass after these docs edits.
 
 ## Why This Control Plane Exists
 
@@ -97,7 +97,7 @@ The remedy is repository-owned continuity:
 
 These are not blockers for preserving the repository, but they must be resolved before relevant implementation:
 
-1. D-0056 resolves Drawing's architectural role: it is typed authored content inside one Animation Workspace. Launch breadth beyond SPEC-0006 remains a later release decision.
+1. D-0056 resolves Drawing's architectural role: it is typed authored item content alongside Stick items in the same neutral layer/frame inside one Animation Workspace. Launch breadth beyond SPEC-0006 remains a later release decision.
 2. Is the official brand “Diamond Animator” or “Diamond Animator Pro”?
 3. What measurable gates define “professional-grade” for the first release?
 4. When may AI auto-apply changes, and when must it preview or request confirmation?
@@ -105,6 +105,6 @@ These are not blockers for preserving the repository, but they must be resolved 
 6. What manual stick-figure editing features are required for the first usable release?
 7. What user data may be sent to model/search providers, and how long is memory retained?
 8. What minimum shared stick state/executor and corrective manual controls should precede the first AI-led vertical slice, versus the broader manual editor that can follow?
-9. SPEC-0006’s seven-phase preservation/migration design is approved. Phases 1–2 are published/integrated; Phase 3 stage/compositing is accepted/Verified but unpublished/not integrated under D-0061. Resolve later entry gates only under separate authorization after prior-phase publication; Phases 4–7 remain unauthorized.
+9. SPEC-0006 has no remaining product choice for the corrected Phase 4 architecture. PM coordinates its two internal gates under existing authority; publication/recovery are objective entry gates, and only completed 4B receives visible Phase 4 review.
 
 Pending decisions and their status live in `DECISIONS.md`.

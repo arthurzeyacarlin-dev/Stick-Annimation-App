@@ -5,6 +5,14 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-12 — Accept corrected SPEC-0006 Phase 4 neutral workspace (D-0063)
+
+- Arthur accepted the final ordinary app copy after the pointer correction. Corrected Phase 4 is technically Verified pending GIT-056 publication/integration.
+- Bound the exact 26-path technical result from GIT-055 base `e956840001d18757af8f2de5361640ba70d44d68` to manifest SHA-256 `9d2d18871981db2e499c689723730ada4690dd5cb94ab620a038e45557f298de`, status PASS, empty index.
+- Recorded one neutral New/workspace root, same-cell Drawing + editable Stick items, shared timeline/history/playback/onion, complete V2 Save/Save As/Open, no type labels/demo leakage, and corrected inverse-SVG pointer gestures.
+- Technical checks passed Phase 4A/4B contract, ownership, browser, proof-manifest, focused lint, HTTP/console, diff, and index gates. No AI/provider/prompt/motion/video/tracking, later-phase capability, staging, commit, merge, push, deployment, or cleanup occurred in this CPA propagation pass.
+- GIT-056 publication/synchronization and D-0054 accepted-copy cleanup are next; Phases 5–7 remain not started.
+
 ### 2026-09-11 — Correct SPEC-0006 after rejected typed-layer Phase 4 (D-0062)
 
 - SPEC-0006 Phases 1–3 are Verified/published/integrated through GIT-054 `e11f6c453f13772ee9bd4b172a17bc68e1de65b9`. Arthur rejected the former Phase 4 typed-layer result; it remains unpublished and non-reusable. D-0062 corrects the same spec to neutral layers with ordered typed items in the same cell. Seven numbered phases remain; corrected Phase 4 has internal 4A (12 paths, model/read migration/minimal repository) then 4B (24 paths, ordinary neutral New/Open, controlled item editing, shared history/render/timeline/playback/onion), ending in one visible Phase 4 review. Correction implementation is not started.

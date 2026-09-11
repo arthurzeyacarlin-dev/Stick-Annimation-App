@@ -13,11 +13,11 @@ Last updated: 2026-09-11
 
 ## Current owner sequence — 2026-09-11 (D-0062)
 
-SPEC-0006 Phases 1–3 are Verified/published/integrated through GIT-054 `e11f6c453f13772ee9bd4b172a17bc68e1de65b9`. Arthur rejected the former Phase 4 typed-layer result; it remains unpublished and non-reusable. D-0062 corrects the same spec to neutral layers with ordered typed items in the same cell. Seven numbered phases remain; corrected Phase 4 has internal 4A (12 paths, model/read migration/minimal repository) then 4B (24 paths, ordinary neutral New/Open, controlled item editing, shared history/render/timeline/playback/onion), ending in one visible Phase 4 review. Correction implementation is not started.
+SPEC-0006 Phases 1–3 are Verified/published/integrated. GIT-055 published the neutral architecture. Corrected Phase 4 is human-accepted under D-0063 and technically Verified pending GIT-056 publication; its exact 26-path manifest SHA-256 is `9d2d18871981db2e499c689723730ada4690dd5cb94ab620a038e45557f298de`.
 
 The corrected order keeps seven numbered phases. Minimal neutral data/storage precedes Phase 4 visible ordinary New, common history and timeline; this avoids a temporary broken or lossy Save. Phase 5 completes current tools/catalogs/panels; Phase 6 complete source adoption/recovery; Phase 7 retirement/full proof. No invisible 4A checkpoint is the user review.
 
-Arthur already authorizes proceeding after safe architecture. PM coordinates separately authorized records publication and verified same-copy recovery, then sequential 4A → stopped-owner checkpoint → 4B in the retained `/6e90/` worktree under SPEC-0006 §12/16. No invisible checkpoint is product acceptance. No extra Plan-click or pasted-prompt approval is required. This docs-only task starts no executor/server and performs no Git publication or cleanup. Later numbered phases still require prior acceptance, CPA propagation and separate publication/integration. Future SPEC-0007/0008 remain absent and gated by SPEC-0006 completion.
+GIT-056 publication/integration and accepted-copy cleanup are the immediate next steps. After that, SPEC-0006 Phase 5 completes current tools/library/panels, Phase 6 completes all-source adoption/recovery, and Phase 7 retires duplicate ownership and runs full acceptance. Future SPEC-0007/0008 remain gated by SPEC-0006 completion.
 
 ## Phase 0 — Preserve and Stabilize
 

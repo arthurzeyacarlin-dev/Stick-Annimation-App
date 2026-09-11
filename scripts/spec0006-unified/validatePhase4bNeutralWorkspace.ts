@@ -1,0 +1,12 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { assertNeutralOwnership } from "./phase4bNeutralOwnershipOracle.ts";
+const fixture = JSON.parse(readFileSync("scripts/fixtures/spec0006-unified/v2/phase4b-neutral-ui-cases.json", "utf8"));
+const workspace = readFileSync("src/components/workspace/DrawingWorkspace.tsx", "utf8");
+const canvas = readFileSync("src/components/workspace/DrawingCanvas.tsx", "utf8");
+const panel = readFileSync("src/components/workspace/DrawingRightPanel.tsx", "utf8");
+assertNeutralOwnership(workspace); assert.match(canvas, /Editable stick figure content/);
+for (const tab of fixture.requiredTabs) assert.match(panel, new RegExp(tab));
+for (const tool of fixture.requiredTools) assert.match(canvas, new RegExp(tool));
+assert.doesNotMatch(readFileSync("app/page.tsx", "utf8"), /phase4|neutral-ui-cases/);
+console.log(JSON.stringify({ status: "PASS", flows: fixture.requiredFlows.length, tabs: fixture.requiredTabs.length, tools: fixture.requiredTools.length }));

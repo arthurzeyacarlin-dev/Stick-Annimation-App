@@ -1,7 +1,7 @@
 # Verification and Regression Workflow
 
 Status: canonical proof standard and current gate baseline
-Last updated: 2026-09-10
+Last updated: 2026-09-12
 
 ## Core Rule
 
@@ -14,6 +14,10 @@ A successful compile is necessary but never sufficient. Every Spec Executor task
 - all protected unrelated flows named in the active spec
 - no browser/page errors and no warnings except an exact spec-reviewed, evidence-bound accepted-warning rule
 - the exact checks that passed, failed, were skipped, or remain unproven
+
+## Current SPEC-0006 Phase 4 accepted evidence
+
+The corrected neutral Phase 4 result is human-accepted and technically Verified pending GIT-056 publication. Its immutable manifest is `output/spec-0006/phase-4-neutral/proof-manifest.json`, SHA-256 `9d2d18871981db2e499c689723730ada4690dd5cb94ab620a038e45557f298de`, with 26 exact technical source bindings and an empty index. Phase 4A foundation passed 364 assertions; Phase 4B passed six workspace flows/four tabs/eight tools; the browser proof passed 16 flows; both proof validators passed. Focused lint had zero errors and seven inherited warnings. The ordinary visible review additionally accepted correct Add Limb and Select/Move pointer behavior, no disappearing mixed content, no layer-kind labels, and no AI/demo leakage.
 
 ## Preflight
 

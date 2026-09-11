@@ -4,11 +4,11 @@ import { DrawingAiPanel } from "./ai/DrawingAiPanel";
 import type { DrawingAiActionPlan, DrawingAiProjectMemory, DrawingAiWorkspaceContext } from "@/src/lib/ai/drawingAiContract";
 import type { GeneratedFrameRenderResult } from "@/src/lib/ai/drawingFrameExecutor";
 
-export type DrawingRightPanelTab = "Properties" | "Assets" | "Library";
+export type DrawingRightPanelTab = "Stick Figure Tools" | "Properties" | "Assets" | "Library";
 
 export type BrushToolVariant = "Brush" | "Pixelate" | "Sketch" | "Pencil" | "Glow";
 
-const RIGHT_PANEL_TABS: DrawingRightPanelTab[] = ["Properties", "Assets", "Library"];
+const RIGHT_PANEL_TABS: DrawingRightPanelTab[] = ["Stick Figure Tools", "Properties", "Library", "Assets"];
 const BRUSH_TOOLS: BrushToolVariant[] = ["Brush", "Pixelate", "Sketch", "Pencil", "Glow"];
 
 type DrawingRightPanelProps = {

@@ -65,6 +65,10 @@ import {
   FRAME_GENERATION_DEBOUNCE_MS,
   MAX_FRAMES_PER_REQUEST,
 } from "@/src/lib/ai/frameGenerationSafety";
+import type { StickFigureFrameContent } from "./stickfigure/types";
+import type { UnifiedAnimationProjectV2, UnifiedAnimationDocumentV2, UnifiedCellV2 } from "@/src/lib/animation/unifiedAnimationContractV2";
+import type { UnifiedAnimationItemV2 } from "@/src/lib/animation/unifiedAnimationContentV2";
+import { saveUnifiedProjectAsV2, saveUnifiedProjectV2 } from "@/src/lib/animation/unifiedProjectRepositoryV2";
 
 type TimelineFrameSnapshot = {
   bitmap: ImageData | null;
@@ -298,6 +302,7 @@ type DrawingWorkspaceHistoryEntry = {
   nextTimelineFrameId: number;
   nextLayerNumber: number;
   owner: DrawingWorkspaceHistoryOwner;
+  stickByCell: Record<string, StickFigureFrameContent>;
 };
 
 type DrawingWorkspaceHistoryOwner =
@@ -398,6 +403,7 @@ type CopiedTimelineFrame = {
   snapshot: TimelineFrameSnapshot;
   soundAttachment: WorkspaceSoundAttachment | null;
   textObjects: DrawingTextObject[];
+  stickContent?: StickFigureFrameContent;
 };
 
 type CanvasAuthoringActionReason = "stroke" | "shape" | "placed-asset" | "clear-canvas" | "knife" | "selection";
@@ -2659,7 +2665,7 @@ const historyEntriesMatchDocument = (left: DrawingWorkspaceHistoryEntry, right: 
   left === right ||
   (left.nextTimelineFrameId === right.nextTimelineFrameId &&
     left.nextLayerNumber === right.nextLayerNumber &&
-    workspaceLayersEqual(left.layers, right.layers));
+    workspaceLayersEqual(left.layers, right.layers) && JSON.stringify(left.stickByCell) === JSON.stringify(right.stickByCell));
 
 const historyEntriesEqual = (left: DrawingWorkspaceHistoryEntry, right: DrawingWorkspaceHistoryEntry) =>
   left === right || historyEntriesMatchDocument(left, right);
@@ -3480,9 +3486,10 @@ type DrawingWorkspaceProps = {
   initialProject?: DrawingProjectOpenCandidate | null;
   initialTitle?: string;
   deferInitialMemorySync?: boolean;
+  unifiedProject?: UnifiedAnimationProjectV2 | null;
 };
 
-export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT_PROJECT_TITLE, deferInitialMemorySync = false }: DrawingWorkspaceProps) {
+export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT_PROJECT_TITLE, deferInitialMemorySync = false, unifiedProject = null }: DrawingWorkspaceProps) {
   const openedInitialProject = initialProject?.project ?? null;
   const initialWorkspaceState = openedInitialProject ? createDrawingWorkspaceInitialState(openedInitialProject) : createDefaultDrawingWorkspaceState(initialTitle);
   const [projectId, setProjectId] = useState<string | null>(initialWorkspaceState.projectId);
@@ -3504,8 +3511,11 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
   const [isTimelinePlaying, setIsTimelinePlaying] = useState(false);
   const [isOnionEnabled, setIsOnionEnabled] = useState(initialWorkspaceState.isOnionEnabled);
   const [saveState, setSaveState] = useState<"not-saved" | "unsaved" | "saving" | "saved" | "too-large" | "failed">(
-    initialProject ? "saved" : "not-saved",
+    initialProject || (unifiedProject && unifiedProject.revision > 0) ? "saved" : "not-saved",
   );
+  const [activeUnifiedProject, setActiveUnifiedProject] = useState<UnifiedAnimationProjectV2 | null>(unifiedProject);
+  const [stickByCell, setStickByCell] = useState<Record<string, StickFigureFrameContent>>(() => structuredClone(unifiedProject?.compatibility?.stickByCell ?? {}));
+  const stickByCellRef = useRef(stickByCell);
   const [canvasOverlayRect, setCanvasOverlayRect] = useState<CanvasOverlayRect | null>(null);
   const [saveNotification, setSaveNotification] = useState<{ projectName: string; isVisible: boolean } | null>(null);
   const [canUndoHistory, setCanUndoHistory] = useState(false);
@@ -3566,6 +3576,8 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
   const isApplyingHistoryRef = useRef(false);
   const localDrawingHistoryRef = useRef<Map<string, LocalDrawingHistoryStack>>(new Map());
   const copiedTimelineFrameRef = useRef<CopiedTimelineFrame | null>(null);
+  const unifiedIdsRef = useRef(new Map<string, string>());
+  useEffect(() => { stickByCellRef.current = stickByCell; }, [stickByCell]);
   const isApplyingGeneratedFramesRef = useRef(false);
   const lastGeneratedFrameApplyAtRef = useRef(0);
   const historyWorkspaceStampRef = useRef<{
@@ -3738,6 +3750,10 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
           continue;
         }
 
+        if (JSON.stringify(currentEntry.stickByCell) !== JSON.stringify(candidateEntry.stickByCell)) {
+          return historyIndex;
+        }
+
         if (
           candidateEntry.owner.kind === "global" &&
           !workspaceLayersStructureEqual(currentEntry.layers, candidateEntry.layers)
@@ -3797,6 +3813,7 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
       nextTimelineFrameId: nextTimelineFrameIdRef.current,
       nextLayerNumber: nextLayerNumberRef.current,
       owner,
+      stickByCell: structuredClone(stickByCellRef.current),
     }),
     [],
   );
@@ -3973,6 +3990,7 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
         nextTimelineFrameId: nextTimelineFrameIdRef.current,
         nextLayerNumber: nextLayerNumberRef.current,
         owner: { kind: "global" },
+        stickByCell: structuredClone(stickByCellRef.current),
       });
     });
 
@@ -3992,7 +4010,7 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
   }, [initialProject, openedInitialProject, initialTitle]);
 
   useEffect(() => {
-    if (!projectId || deferInitialMemorySync) {
+    if (activeUnifiedProject || !projectId || deferInitialMemorySync) {
       return;
     }
 
@@ -4015,10 +4033,10 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
     return () => {
       cancelled = true;
     };
-  }, [projectId, deferInitialMemorySync]);
+  }, [activeUnifiedProject, projectId, deferInitialMemorySync]);
 
   useEffect(() => {
-    if (!projectId) {
+    if (activeUnifiedProject || !projectId) {
       return;
     }
 
@@ -4051,7 +4069,7 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
     } else {
       void deleteDrawingProjectAiMemoryFromSupabase(projectId);
     }
-  }, [projectAiMemory, projectId, deferInitialMemorySync, openedInitialProject, initialMemoryFingerprint]);
+  }, [activeUnifiedProject, projectAiMemory, projectId, deferInitialMemorySync, openedInitialProject, initialMemoryFingerprint]);
 
   const activeLayer = useMemo(() => getLayerById(layers, activeLayerId) ?? layers[0] ?? null, [activeLayerId, layers]);
   const timelineFrames = activeLayer?.timelineFrames ?? EMPTY_TIMELINE_FRAMES;
@@ -4896,6 +4914,8 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
       setCurrentFrameIndex(nextCurrentFrameIndex);
       setSelectedTimelineIndex(nextSelectedTimelineIndex);
       setIsTimelinePlaying(false);
+      stickByCellRef.current = structuredClone(entry.stickByCell);
+      setStickByCell(stickByCellRef.current);
 
       renderWorkspaceCanvases(nextLayers, nextCurrentFrameIndex, {
         activeLayerId: nextActiveLayer.id,
@@ -5979,7 +5999,8 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
       return false;
     }
 
-    copiedTimelineFrameRef.current = copiedFrame;
+    const sourceFrame = targetLayer.timelineFrames[frameIndex];
+    copiedTimelineFrameRef.current = { ...copiedFrame, stickContent: structuredClone(stickByCellRef.current[`${layerId}:${sourceFrame.stateId}`] ?? { figures: [], structureGraph: { joints: [], limbs: [], activeJointId: null } }) };
     setHasCopiedTimelineFrame(true);
     return true;
   }, []);
@@ -6028,6 +6049,11 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
         soundAttachment: copiedFrame.soundAttachment ? { ...copiedFrame.soundAttachment } : null,
         textObjects: cloneWorkspaceTextObjects(copiedFrame.textObjects),
       };
+      const copiedStick = copiedFrame.stickContent;
+      if (copiedStick) {
+        const nextStick = { ...stickByCellRef.current, [`${layerId}:${nextFrame.stateId}`]: structuredClone(copiedStick) };
+        stickByCellRef.current = nextStick; setStickByCell(nextStick);
+      }
 
       nextFrames[clampedTargetIndex] = nextFrame;
       if (previousStateId !== null && previousStateId !== nextFrame.stateId) {
@@ -7060,6 +7086,82 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
     return snapshot;
   }, [activeTool, brushSize, eraserSize, fillColor, isOnionEnabled, shapeType, timelineFps]);
 
+  const buildUnifiedProjectSnapshot = useCallback((drawingData: DrawingProjectData): UnifiedAnimationProjectV2 | null => {
+    const base = activeUnifiedProject;
+    if (!base) return null;
+    const stableId = (key: string) => {
+      const existing = unifiedIdsRef.current.get(key);
+      if (existing) return existing;
+      const created = crypto.randomUUID(); unifiedIdsRef.current.set(key, created); return created;
+    };
+    const layers = drawingData.layers.map((layer, orderIndex) => {
+      const stateOwners = new Map<number, number>();
+      layer.timelineFrames.forEach((frame, index) => { if (frame.cellType !== "empty" && !stateOwners.has(frame.stateId)) stateOwners.set(frame.stateId, index); });
+      const layerId = base.document.layers[orderIndex]?.layerId ?? stableId(`layer:${layer.id}`);
+      const cells: UnifiedCellV2[] = layer.timelineFrames.map((frame, index) => {
+        const cellId = stableId(`cell:${layer.id}:${frame.id}`);
+        if (frame.cellType === "empty") return { cellId, cellType: "empty", ownerCellId: null, content: null };
+        const ownerIndex = stateOwners.get(frame.stateId) ?? index;
+        const ownerFrame = layer.timelineFrames[ownerIndex];
+        const ownerCellId = stableId(`cell:${layer.id}:${ownerFrame.id}`);
+        if (ownerIndex !== index) return { cellId, cellType: frame.cellType === "tween" ? "tween" : "hold", ownerCellId, content: null };
+        const items: UnifiedAnimationItemV2[] = [];
+        if (frame.bitmap) {
+          const sourceData = frame.bitmap.data instanceof Uint8ClampedArray
+            ? frame.bitmap.data
+            : Uint8ClampedArray.from(frame.bitmap.data);
+          let left = frame.bitmap.width, top = frame.bitmap.height, right = -1, bottom = -1;
+          for (let y = 0; y < frame.bitmap.height; y += 1) for (let x = 0; x < frame.bitmap.width; x += 1) {
+            if (sourceData[(y * frame.bitmap.width + x) * 4 + 3] > SAVE_PATH_ALPHA_THRESHOLD) {
+              left = Math.min(left, x); top = Math.min(top, y); right = Math.max(right, x); bottom = Math.max(bottom, y);
+            }
+          }
+          if (right >= left && bottom >= top) {
+            const bounds = { left, top, width: right - left + 1, height: bottom - top + 1 };
+            const croppedData = new Uint8ClampedArray(bounds.width * bounds.height * 4);
+            for (let row = 0; row < bounds.height; row += 1) {
+              const sourceOffset = ((bounds.top + row) * frame.bitmap.width + bounds.left) * 4;
+              const targetOffset = row * bounds.width * 4;
+              croppedData.set(sourceData.subarray(sourceOffset, sourceOffset + bounds.width * 4), targetOffset);
+            }
+            items.push({
+              itemId: stableId(`raster:${layer.id}:${frame.stateId}`),
+              kind: "drawing-raster/v1",
+              strokes: [],
+              shapes: [],
+              bitmap: {
+                width: bounds.width,
+                height: bounds.height,
+                data: croppedData,
+                x: bounds.left,
+                y: bounds.top,
+                stageWidth: frame.bitmap.width,
+                stageHeight: frame.bitmap.height,
+              },
+            });
+          }
+        }
+        for (const text of frame.textObjects ?? []) items.push({ itemId: stableId(`text:${layer.id}:${frame.stateId}:${text.id}`), kind: "drawing-text/v1", text: text.text, x: text.x, y: text.y, color: text.color, fontSize: text.fontSize, rotation: text.rotation ?? 0, width: text.width, flipX: Boolean(text.flipX), flipY: Boolean(text.flipY), fontFamily: text.fontFamily, bold: text.bold, italic: text.italic });
+        const stick = stickByCellRef.current[`${layer.id}:${frame.stateId}`];
+        if (stick && (stick.structureGraph.joints.length || stick.structureGraph.limbs.length || stick.figures.length)) items.push({ itemId: stableId(`stick:${layer.id}:${frame.stateId}`), kind: "stick-rig/v1", content: structuredClone(stick) });
+        return { cellId, cellType: frame.cellType === "blank-keyframe" && items.length === 0 ? "blank-keyframe" : frame.cellType === "tween" ? "tween" : "keyframe", ownerCellId, content: { items, soundAttachment: null } };
+      });
+      return { layerId, name: layer.name, orderIndex, visible: true, locked: false, cells };
+    });
+    const document: UnifiedAnimationDocumentV2 = { ...base.document, fps: drawingData.timelineFps, layers, toolState: { ...base.document.toolState, drawingTool: drawingData.activeTool }, reopenState: { activeLayerId: layers.find((_, index) => drawingData.layers[index]?.id === drawingData.activeLayerId)?.layerId ?? layers[0].layerId, currentFrameIndex: drawingData.currentFrameIndex, onionEnabled: drawingData.isOnionEnabled } };
+    // The V2 document is the sole owner of lossless raster bytes. Keep the
+    // Drawing compatibility projection structural-only so one bitmap is not
+    // stored twice (and counted twice against the project size ceiling).
+    const compatibilityDrawingData = structuredClone(drawingData);
+    compatibilityDrawingData.layers.forEach((layer) => {
+      layer.timelineFrames.forEach((frame) => {
+        frame.bitmap = null;
+        frame.tweenEndBitmap = null;
+      });
+    });
+    return { ...base, title: projectTitle, document, compatibility: { drawingData: compatibilityDrawingData, stickByCell: structuredClone(stickByCellRef.current) } };
+  }, [activeUnifiedProject, projectTitle]);
+
   const handleUndo = useCallback(() => {
     if (isTimelinePlayingRef.current || isApplyingHistoryRef.current || !canUndoHistory) {
       return;
@@ -7312,6 +7414,15 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
       const nextFrames = insertionResult.frames;
       const nextIndex = insertionResult.nextIndex;
       nextTimelineFrameIdRef.current = insertionResult.nextTimelineFrameId;
+      const insertedFrame = nextFrames[nextIndex];
+      const sourceFrameForStick = existingFrames[Math.max(0, Math.min(targetSlotIndex - 1, existingFrames.length - 1))];
+      if (!options?.blank && insertedFrame && sourceFrameForStick) {
+        const sourceStick = stickByCellRef.current[`${layerId}:${sourceFrameForStick.stateId}`];
+        if (sourceStick) {
+          const nextStick = { ...stickByCellRef.current, [`${layerId}:${insertedFrame.stateId}`]: structuredClone(sourceStick) };
+          stickByCellRef.current = nextStick; setStickByCell(nextStick);
+        }
+      }
 
       const nextLayers = replaceLayerFrames(layerId, nextFrames);
       rebaseHistoryAfterFrameInsertion(layerId, kind, targetSlotIndex, {
@@ -7868,8 +7979,18 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
   );
 
   const saveProject = useCallback(async () => {
-    await persistProject();
-  }, [persistProject]);
+    if (!activeUnifiedProject) { await persistProject(); return; }
+    if (isTimelinePlayingRef.current || saveInFlightRef.current) return;
+    saveInFlightRef.current = true; setSaveState("saving");
+    try {
+      commitCurrentFrameSnapshotWithoutHistory("unified:save");
+      const candidate = buildUnifiedProjectSnapshot(createPersistedProjectSnapshot());
+      if (!candidate) throw new Error("invalid_record");
+      const saved = await saveUnifiedProjectV2(candidate);
+      setActiveUnifiedProject(saved); setProjectId(saved.projectId); setProjectTitle(saved.title); setSaveState("saved"); showSaveNotification(saved.title);
+    } catch (error) { setSaveState(error instanceof Error && error.message === "project_too_large" ? "too-large" : "failed"); }
+    finally { saveInFlightRef.current = false; }
+  }, [activeUnifiedProject, buildUnifiedProjectSnapshot, commitCurrentFrameSnapshotWithoutHistory, createPersistedProjectSnapshot, persistProject, showSaveNotification]);
 
   const exportCurrentFrame = useCallback(() => {
     if (isTimelinePlayingRef.current) {
@@ -8193,12 +8314,23 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
       return;
     }
 
+    if (activeUnifiedProject) {
+      commitCurrentFrameSnapshotWithoutHistory("unified:save-as");
+      const candidate = buildUnifiedProjectSnapshot(createPersistedProjectSnapshot());
+      if (!candidate) return;
+      try {
+        setSaveState("saving");
+        const saved = await saveUnifiedProjectAsV2(candidate, trimmedProjectName);
+        setActiveUnifiedProject(saved); setProjectId(saved.projectId); setProjectTitle(saved.title); setSaveState("saved"); showSaveNotification(saved.title);
+      } catch { setSaveState("failed"); }
+      return;
+    }
     await persistProject({
       forceNew: true,
       nameOverride: trimmedProjectName,
       commitMode: "commitWithoutHistory",
     });
-  }, [persistProject, projectTitle]);
+  }, [activeUnifiedProject, buildUnifiedProjectSnapshot, commitCurrentFrameSnapshotWithoutHistory, createPersistedProjectSnapshot, persistProject, projectTitle, showSaveNotification]);
 
   const handleTextObjectsChange = useCallback((nextTextObjects: DrawingTextObject[]) => {
     return updateFrameTextObjects(currentFrameIndexRef.current, nextTextObjects, activeLayerIdRef.current);
@@ -8414,6 +8546,28 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
     () => resolveTimelineTextObjects(timelineFrames, currentFrameIndex),
     [currentFrameIndex, timelineFrames],
   );
+  const activeStickCellKey = useMemo(() => {
+    const frame = activeLayer?.timelineFrames[currentFrameIndex] ?? null;
+    return frame ? `${activeLayer!.id}:${frame.stateId}` : "";
+  }, [activeLayer, currentFrameIndex]);
+  const activeUnifiedStickContent = useMemo<StickFigureFrameContent>(() => structuredClone(stickByCell[activeStickCellKey] ?? { figures: [], structureGraph: { joints: [], limbs: [], activeJointId: null } }), [activeStickCellKey, stickByCell]);
+  const previousUnifiedStickContent = useMemo(() => {
+    if (!isOnionEnabled || isTimelinePlaying || currentFrameIndex < 1) return null;
+    const frame = activeLayer?.timelineFrames[currentFrameIndex - 1];
+    return frame ? stickByCell[`${activeLayer!.id}:${frame.stateId}`] ?? null : null;
+  }, [activeLayer, currentFrameIndex, isOnionEnabled, isTimelinePlaying, stickByCell]);
+  const nextUnifiedStickContent = useMemo(() => {
+    if (!isOnionEnabled || isTimelinePlaying) return null;
+    const frame = activeLayer?.timelineFrames[currentFrameIndex + 1];
+    return frame ? stickByCell[`${activeLayer!.id}:${frame.stateId}`] ?? null : null;
+  }, [activeLayer, currentFrameIndex, isOnionEnabled, isTimelinePlaying, stickByCell]);
+  const commitUnifiedStickContent = useCallback((content: StickFigureFrameContent) => {
+    if (!activeStickCellKey || isTimelinePlayingRef.current || isApplyingHistoryRef.current) return;
+    recordUndoSnapshot();
+    const next = { ...stickByCellRef.current, [activeStickCellKey]: structuredClone(content) };
+    stickByCellRef.current = next; setStickByCell(next); setSaveState("unsaved");
+    window.requestAnimationFrame(() => commitCurrentHistoryState({ assumeChanged: true }));
+  }, [activeStickCellKey, commitCurrentHistoryState, recordUndoSnapshot]);
   const canEditTextInCurrentFrame = useMemo(() => {
     if (isTimelinePlaying || activeTweenEditContext?.side === "end") {
       return false;
@@ -8640,6 +8794,10 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
           onFillColorChange={setFillColor}
           onShapeTypeChange={setShapeType}
           onTextObjectsChange={handleTextObjectsChange}
+          unifiedStickContent={activeUnifiedStickContent}
+          previousUnifiedStickContent={previousUnifiedStickContent}
+          nextUnifiedStickContent={nextUnifiedStickContent}
+          onUnifiedStickContentChange={commitUnifiedStickContent}
         />
         {tweenGuideOverlay && (
           <svg

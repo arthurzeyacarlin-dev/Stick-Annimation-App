@@ -1,9 +1,12 @@
-import { digestUnifiedAnimationDocumentV1, type UnifiedAnimationDocumentV1, type UnifiedAnimationMigrationCandidateV1 } from "./unifiedAnimationContract.ts";
+import type { UnifiedAnimationDocumentV1, UnifiedAnimationMigrationCandidateV1 } from "./unifiedAnimationContract.ts";
 import { readCollectionCandidate, type ProjectCollectionEntry } from "./unifiedProjectCollection.ts";
 import type { ProjectSourceReader } from "./unifiedProjectSourceReader.ts";
 import { hydrateV2Project, type DrawingProjectOpenCandidate, type StoredDrawingProject } from "../drawingProjectStorage.ts";
 import type { StickSavedProjectRecordV1 } from "../stickProjectStorage.ts";
 import { sanitizeDrawingAiProjectMemory } from "../ai/drawingAiContract.ts";
+import type { UnifiedAnimationProjectV2 } from "./unifiedAnimationContractV2.ts";
+import { createNativeUnifiedProjectV2 } from "./unifiedWorkspaceFactoryV2.ts";
+import { readUnifiedProjectV2 } from "./unifiedProjectStorageV2.ts";
 
 export type WorkspaceCandidate = {
   id: string;
@@ -11,28 +14,21 @@ export type WorkspaceCandidate = {
   digest: string;
   document: UnifiedAnimationDocumentV1;
   migration: UnifiedAnimationMigrationCandidateV1 | null;
-  editor: { kind: "drawing"; project: DrawingProjectOpenCandidate | null } | { kind: "stick"; project: StickSavedProjectRecordV1 };
+  editor: { kind: "drawing"; project: DrawingProjectOpenCandidate | null } | { kind: "stick"; project: StickSavedProjectRecordV1 } | { kind: "unified"; project: UnifiedAnimationProjectV2 };
 };
 export type MountedWorkspace = { generation: number; candidate: WorkspaceCandidate };
 export type BootstrapResult = { status: "opened"; root: MountedWorkspace } | { status: "stale" } | { status: "failed"; code: string };
 
 export const createUntitledWorkspace = async (): Promise<WorkspaceCandidate> => {
-  const id = crypto.randomUUID(), layerId = crypto.randomUUID(), cellId = crypto.randomUUID();
-  const document: UnifiedAnimationDocumentV1 = {
-    kind: "diamond-animation-document", schemaVersion: 1, projectId: id,
-    logicalStage: { width: 1920, height: 1080, origin: "top-left", xAxis: "right", yAxis: "down" },
-    fps: 12,
-    layers: [{ layerId, sourceLayerId: "layer-1", sourceOrderIndex: 0, name: "Layer 1", orderIndex: 0, visible: true, locked: false, contentKind: "drawing/v1", sourceDisplayTransform: null,
-      cells: [{ cellId, sourceCellId: "1", sourceStateId: 1, kind: "keyframe", cellType: "keyframe", ownerCellId: cellId,
-        payload: { bitmapAssetId: null, tweenEndAssetId: null, motionTween: null, soundAttachment: null, textObjects: [] } }] }],
-    drawingState: { activeTool: "Select", brushSize: 4, eraserSize: 12, fillColor: "#000000", shapeType: "Square", nextTimelineFrameId: 2, nextLayerNumber: 2 },
-    stickState: null,
-    reopenState: { activeLayerId: layerId, activeCellId: cellId, currentFrameIndex: 0, selectedTimelineIndex: 0, onionEnabled: false, activeTool: "Select", activePanel: null, camera: null },
-  };
-  return { id, title: "Untitled Project", document, digest: await digestUnifiedAnimationDocumentV1(document, []), migration: null, editor: { kind: "drawing", project: null } };
+  const project = createNativeUnifiedProjectV2();
+  return { id: project.projectId, title: project.title, document: project.document as unknown as UnifiedAnimationDocumentV1, digest: JSON.stringify(project.document), migration: null, editor: { kind: "unified", project } };
 };
 
 export const prepareCollectionWorkspace = async (reader: ProjectSourceReader, entry: ProjectCollectionEntry): Promise<WorkspaceCandidate> => {
+  if (entry.sourceKind === "unified-v2") {
+    const project = await readUnifiedProjectV2(entry.sourceId);
+    return { id: project.projectId, title: project.title, document: project.document as unknown as UnifiedAnimationDocumentV1, digest: JSON.stringify(project.document), migration: null, editor: { kind: "unified", project } };
+  }
   const { candidate, source } = await readCollectionCandidate(reader, entry);
   let editor: WorkspaceCandidate["editor"];
   if (source.sourceKind === "drawing-v2") {

@@ -19,6 +19,7 @@ import type { DrawingShapeType, DrawingToolName } from "./DrawingToolBar";
 import type { BrushToolVariant, DrawingRightPanelTab } from "./DrawingRightPanel";
 import type { DrawingAiActionPlan, DrawingAiProjectMemory, DrawingAiWorkspaceContext } from "@/src/lib/ai/drawingAiContract";
 import type { GeneratedFrameRenderResult } from "@/src/lib/ai/drawingFrameExecutor";
+import type { StickFigureFrameContent, StickFigurePoint } from "./stickfigure/types";
 
 type LassoPoint = {
   x: number;
@@ -457,6 +458,10 @@ type DrawingCanvasProps = {
   ) => Promise<boolean> | boolean;
   onExecuteActionPlan?: (actionPlan: NonNullable<DrawingAiActionPlan>) => Promise<boolean> | boolean;
   onAuthoringActionCommitted?: (reason: "stroke" | "shape" | "placed-asset" | "clear-canvas" | "knife" | "selection") => void;
+  unifiedStickContent?: StickFigureFrameContent;
+  previousUnifiedStickContent?: StickFigureFrameContent | null;
+  nextUnifiedStickContent?: StickFigureFrameContent | null;
+  onUnifiedStickContentChange?: (content: StickFigureFrameContent) => void;
 };
 
 export type DrawingCanvasSnapshot = {
@@ -1463,6 +1468,10 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   onApplyGeneratedFrame,
   onExecuteActionPlan,
   onAuthoringActionCommitted,
+  unifiedStickContent = { figures: [], structureGraph: { joints: [], limbs: [], activeJointId: null } },
+  previousUnifiedStickContent = null,
+  nextUnifiedStickContent = null,
+  onUnifiedStickContentChange,
 }: DrawingCanvasProps, ref) {
   void onToolSelect;
   const DEFAULT_CAMERA_ZOOM = 0.85;
@@ -1594,6 +1603,17 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   const [canvasMovementEnabled, setCanvasMovementEnabled] = useState(false);
   const [canvasBackgroundColor, setCanvasBackgroundColor] = useState("#f5f5f5");
   const [rightPanelTab, setRightPanelTab] = useState<DrawingRightPanelTab>("Properties");
+  const [unifiedStickMode, setUnifiedStickMode] = useState<"select" | "add-limb">("select");
+  const [unifiedSelectedJointId, setUnifiedSelectedJointId] = useState<string | null>(null);
+  const [unifiedStickDrag, setUnifiedStickDrag] = useState<{
+    pointerId: number;
+    startPoint: StickFigurePoint;
+    currentPoint: StickFigurePoint;
+    startJointId: string | null;
+    movingJointId: string | null;
+    jointOffset: StickFigurePoint;
+  } | null>(null);
+  const unifiedStickSvgRef = useRef<SVGSVGElement | null>(null);
   const [importedAssets, setImportedAssets] = useState<ImportedAsset[]>([]);
   const [librarySymbols, setLibrarySymbols] = useState<LibrarySymbol[]>([]);
   const [activePlacedImageAsset, setActivePlacedImageAsset] = useState<ActivePlacedImageAsset | null>(null);
@@ -10092,7 +10112,135 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     </div>
   );
 
-  const rightPanelContent =
+  const unifiedStickPoint = (event: React.PointerEvent<SVGSVGElement>): StickFigurePoint | null => {
+    const matrix = event.currentTarget.getScreenCTM();
+    if (!matrix) return null;
+    const point = event.currentTarget.createSVGPoint();
+    point.x = event.clientX;
+    point.y = event.clientY;
+    const stagePoint = point.matrixTransform(matrix.inverse());
+    return { x: stagePoint.x, y: stagePoint.y };
+  };
+  const nearestUnifiedStickJoint = (point: StickFigurePoint, joints = unifiedStickContent.structureGraph.joints, excludeJointId: string | null = null) => {
+    let nearest: (typeof joints)[number] | null = null;
+    let distance = 18;
+    for (const joint of joints) {
+      if (joint.id === excludeJointId) continue;
+      const candidateDistance = Math.hypot(joint.x - point.x, joint.y - point.y);
+      if (candidateDistance <= distance) { nearest = joint; distance = candidateDistance; }
+    }
+    return nearest;
+  };
+  const unifiedStickEndpointJoints = (() => {
+    const degree = new Map<string, number>();
+    unifiedStickContent.structureGraph.limbs.forEach((limb) => {
+      degree.set(limb.startJointId, (degree.get(limb.startJointId) ?? 0) + 1);
+      degree.set(limb.endJointId, (degree.get(limb.endJointId) ?? 0) + 1);
+    });
+    return unifiedStickContent.structureGraph.joints.filter((joint) => (degree.get(joint.id) ?? 0) <= 1);
+  })();
+  const beginUnifiedStickGesture = (event: React.PointerEvent<SVGSVGElement>) => {
+    if (isTimelinePlaying || !onUnifiedStickContentChange || !event.isPrimary || event.button !== 0) return;
+    event.stopPropagation();
+    const point = unifiedStickPoint(event);
+    if (!point) return;
+    const joint = nearestUnifiedStickJoint(point, unifiedStickMode === "add-limb" ? unifiedStickEndpointJoints : unifiedStickContent.structureGraph.joints);
+    if (unifiedStickMode === "select" && !joint) { setUnifiedSelectedJointId(null); return; }
+    event.currentTarget.setPointerCapture(event.pointerId);
+    const startPoint = joint ? { x: joint.x, y: joint.y } : point;
+    setUnifiedStickDrag({
+      pointerId: event.pointerId,
+      startPoint,
+      currentPoint: startPoint,
+      startJointId: unifiedStickMode === "add-limb" ? joint?.id ?? null : null,
+      movingJointId: unifiedStickMode === "select" ? joint?.id ?? null : null,
+      jointOffset: joint ? { x: joint.x - point.x, y: joint.y - point.y } : { x: 0, y: 0 },
+    });
+    setUnifiedSelectedJointId(joint?.id ?? null);
+    event.preventDefault();
+  };
+  const moveUnifiedStickGesture = (event: React.PointerEvent<SVGSVGElement>) => {
+    if (!unifiedStickDrag || event.pointerId !== unifiedStickDrag.pointerId) return;
+    event.stopPropagation();
+    const point = unifiedStickPoint(event);
+    if (!point) return;
+    setUnifiedStickDrag((current) => current && current.pointerId === event.pointerId ? {
+      ...current,
+      currentPoint: current.movingJointId
+        ? { x: point.x + current.jointOffset.x, y: point.y + current.jointOffset.y }
+        : point,
+    } : current);
+    event.preventDefault();
+  };
+  const finishUnifiedStickGesture = (event: React.PointerEvent<SVGSVGElement>) => {
+    const draft = unifiedStickDrag;
+    if (draft && event.pointerId === draft.pointerId) event.stopPropagation();
+    if (draft && event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+    setUnifiedStickDrag(null);
+    if (!draft || isTimelinePlaying || !onUnifiedStickContentChange) return;
+    const pointerPoint = unifiedStickPoint(event) ?? draft.currentPoint;
+    const end = draft.movingJointId
+      ? { x: pointerPoint.x + draft.jointOffset.x, y: pointerPoint.y + draft.jointOffset.y }
+      : pointerPoint;
+    const next = structuredClone(unifiedStickContent);
+    if (unifiedStickMode === "select" && draft.movingJointId) {
+      const joint = next.structureGraph.joints.find(value => value.id === draft.movingJointId);
+      if (!joint || Math.hypot(end.x - draft.startPoint.x, end.y - draft.startPoint.y) < 1) return;
+      joint.x = end.x; joint.y = end.y; next.structureGraph.activeJointId = joint.id;
+      onUnifiedStickContentChange(next); return;
+    }
+    if (unifiedStickMode !== "add-limb") return;
+    const existingEnd = nearestUnifiedStickJoint(end, unifiedStickContent.structureGraph.joints, draft.startJointId);
+    const endPoint = existingEnd ? { x: existingEnd.x, y: existingEnd.y } : end;
+    if (Math.hypot(endPoint.x - draft.startPoint.x, endPoint.y - draft.startPoint.y) < 18) return;
+    const startId = draft.startJointId ?? crypto.randomUUID();
+    const endId = existingEnd?.id ?? crypto.randomUUID();
+    if (!draft.startJointId) next.structureGraph.joints.push({ id: startId, ...draft.startPoint });
+    if (!existingEnd) next.structureGraph.joints.push({ id: endId, ...endPoint });
+    next.structureGraph.limbs.push({ id: crypto.randomUUID(), startJointId: startId, endJointId: endId });
+    next.structureGraph.activeJointId = endId;
+    setUnifiedSelectedJointId(endId);
+    onUnifiedStickContentChange(next);
+  };
+  const cancelUnifiedStickGesture = (event: React.PointerEvent<SVGSVGElement>) => {
+    if (!unifiedStickDrag || event.pointerId !== unifiedStickDrag.pointerId) return;
+    event.stopPropagation();
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+    setUnifiedStickDrag(null);
+  };
+  useEffect(() => {
+    if (!unifiedStickDrag) return;
+    const cancelOnEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      const svg = unifiedStickSvgRef.current;
+      if (svg?.hasPointerCapture(unifiedStickDrag.pointerId)) svg.releasePointerCapture(unifiedStickDrag.pointerId);
+      setUnifiedStickDrag(null);
+    };
+    window.addEventListener("keydown", cancelOnEscape);
+    return () => window.removeEventListener("keydown", cancelOnEscape);
+  }, [unifiedStickDrag]);
+  const renderedUnifiedStickContent = unifiedStickDrag?.movingJointId ? {
+    ...unifiedStickContent,
+    structureGraph: {
+      ...unifiedStickContent.structureGraph,
+      joints: unifiedStickContent.structureGraph.joints.map((joint) => joint.id === unifiedStickDrag.movingJointId ? { ...joint, ...unifiedStickDrag.currentPoint } : joint),
+    },
+  } : unifiedStickContent;
+  const unifiedStickPreviewEndJoint = unifiedStickDrag && !unifiedStickDrag.movingJointId
+    ? nearestUnifiedStickJoint(unifiedStickDrag.currentPoint, unifiedStickContent.structureGraph.joints, unifiedStickDrag.startJointId)
+    : null;
+  const unifiedStickPreviewEndPoint = unifiedStickPreviewEndJoint
+    ? { x: unifiedStickPreviewEndJoint.x, y: unifiedStickPreviewEndJoint.y }
+    : unifiedStickDrag?.currentPoint ?? null;
+  const stickToolsTabContent = (
+    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      <div><div style={{ color: "rgba(255,255,255,0.92)", fontSize: 14, fontWeight: 800 }}>STICK FIGURE TOOLS</div><div style={{ color: "rgba(255,255,255,0.62)", fontSize: 12 }}>Create and edit segments in this frame.</div></div>
+      <button type="button" onClick={() => setUnifiedStickMode("add-limb")} style={{ minHeight: 38, borderRadius: 8, border: unifiedStickMode === "add-limb" ? "1px solid rgba(110,170,255,.5)" : "1px solid rgba(255,255,255,.12)", background: unifiedStickMode === "add-limb" ? "rgba(110,170,255,.14)" : "rgba(255,255,255,.04)", color: "white", cursor: "pointer" }}>Add Limb</button>
+      <button type="button" onClick={() => setUnifiedStickMode("select")} style={{ minHeight: 38, borderRadius: 8, border: unifiedStickMode === "select" ? "1px solid rgba(110,170,255,.5)" : "1px solid rgba(255,255,255,.12)", background: unifiedStickMode === "select" ? "rgba(110,170,255,.14)" : "rgba(255,255,255,.04)", color: "white", cursor: "pointer" }}>Select / Move Joint</button>
+      <div style={{ color: "rgba(255,255,255,.58)" }}>{unifiedStickContent.structureGraph.joints.length} joints · {unifiedStickContent.structureGraph.limbs.length} segments</div>
+    </div>
+  );
+  const rightPanelContent = rightPanelTab === "Stick Figure Tools" ? stickToolsTabContent :
     rightPanelTab === "Properties" ? propertiesTabContent : rightPanelTab === "Assets" ? assetsTabContent : libraryTabContent;
 
   return (
@@ -10148,6 +10296,33 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 pointerEvents: "none",
               }}
             />
+            <svg
+              ref={unifiedStickSvgRef}
+              aria-label="Editable stick figure content"
+              viewBox="0 0 1920 1080"
+              style={{ position: "absolute", zIndex: 7, left: `${CAMERA_FRAME_INSET_PERCENT}%`, top: `${CAMERA_FRAME_INSET_PERCENT}%`, width: `${CAMERA_FRAME_SIZE_PERCENT}%`, height: `${CAMERA_FRAME_SIZE_PERCENT}%`, overflow: "visible", pointerEvents: rightPanelTab === "Stick Figure Tools" && !isTimelinePlaying ? "auto" : "none", touchAction: "none", cursor: unifiedStickMode === "add-limb" ? "crosshair" : "default" }}
+              onPointerDown={beginUnifiedStickGesture}
+              onPointerMove={moveUnifiedStickGesture}
+              onPointerUp={finishUnifiedStickGesture}
+              onPointerCancel={cancelUnifiedStickGesture}
+              onLostPointerCapture={cancelUnifiedStickGesture}
+            >
+              {[{ content: previousUnifiedStickContent, color: "#ef476f" }, { content: nextUnifiedStickContent, color: "#3a86ff" }].map(({ content, color }, onionIndex) => content?.structureGraph.limbs.map(limb => {
+                const start = content.structureGraph.joints.find(joint => joint.id === limb.startJointId);
+                const end = content.structureGraph.joints.find(joint => joint.id === limb.endJointId);
+                return start && end ? <line key={`onion-${onionIndex}-${limb.id}`} x1={start.x} y1={start.y} x2={end.x} y2={end.y} stroke={color} strokeOpacity="0.32" strokeWidth="14" strokeLinecap="round" /> : null;
+              }))}
+              {renderedUnifiedStickContent.structureGraph.limbs.map(limb => {
+                const start = renderedUnifiedStickContent.structureGraph.joints.find(joint => joint.id === limb.startJointId);
+                const end = renderedUnifiedStickContent.structureGraph.joints.find(joint => joint.id === limb.endJointId);
+                return start && end ? <line key={limb.id} x1={start.x} y1={start.y} x2={end.x} y2={end.y} stroke="#101218" strokeWidth="14" strokeLinecap="round" /> : null;
+              })}
+              {unifiedStickDrag && !unifiedStickDrag.movingJointId && unifiedStickPreviewEndPoint ? <>
+                <line x1={unifiedStickDrag.startPoint.x} y1={unifiedStickDrag.startPoint.y} x2={unifiedStickPreviewEndPoint.x} y2={unifiedStickPreviewEndPoint.y} stroke="#398bff" strokeOpacity="0.72" strokeWidth="10" strokeLinecap="round" />
+                <circle cx={unifiedStickPreviewEndPoint.x} cy={unifiedStickPreviewEndPoint.y} r="14" fill="#398bff" />
+              </> : null}
+              {renderedUnifiedStickContent.structureGraph.joints.map(joint => <circle key={joint.id} cx={joint.x} cy={joint.y} r={joint.id === unifiedSelectedJointId ? 22 : 14} fill={joint.id === unifiedSelectedJointId ? "#398bff" : "#101218"} />)}
+            </svg>
             <canvas
               ref={onionCanvasRef}
               data-workspace-canvas="onion"
@@ -10238,9 +10413,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
             style={{
               position: "absolute",
               inset: 0,
-              pointerEvents: activeTool === "Select" && canvasMovementEnabled && !activePlacedImageAsset ? "auto" : "none",
+              pointerEvents: activeTool === "Select" && canvasMovementEnabled && !activePlacedImageAsset && rightPanelTab !== "Stick Figure Tools" ? "auto" : "none",
               cursor:
-                activeTool === "Select" && canvasMovementEnabled && !activePlacedImageAsset
+                activeTool === "Select" && canvasMovementEnabled && !activePlacedImageAsset && rightPanelTab !== "Stick Figure Tools"
                   ? canvasMovementEnabled
                     ? isPanning
                       ? "grabbing"

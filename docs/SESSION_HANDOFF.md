@@ -1,25 +1,31 @@
 # Session Handoff
 
 Status: canonical last-known stopping point
-Last updated: 2026-09-11
+Last updated: 2026-09-12
 
-SPEC-0006 Phases 1–3 are Verified/published/integrated through GIT-054 `e11f6c453f13772ee9bd4b172a17bc68e1de65b9`. Arthur rejected the former Phase 4 typed-layer result; it remains unpublished and non-reusable. D-0062 corrects the same spec to neutral layers with ordered typed items in the same cell. Seven numbered phases remain; corrected Phase 4 has internal 4A (12 paths, model/read migration/minimal repository) then 4B (24 paths, ordinary neutral New/Open, controlled item editing, shared history/render/timeline/playback/onion), ending in one visible Phase 4 review. Correction implementation is not started.
+SPEC-0006 corrected Phase 4 is human-accepted under D-0063 and technically Verified pending GIT-056 publication/integration. Phases 1–3 remain Verified/published/integrated. The former typed-layer Phase 4 remains rejected, unpublished, and non-reusable. Phases 5–7 are not started.
 
 ## Next action and exclusive ownership
 
-Arthur already authorizes proceeding after safe architecture. PM coordinates separately authorized records publication and verified same-copy recovery, then sequential 4A → stopped-owner checkpoint → 4B in the retained `/6e90/` worktree under SPEC-0006 §12/16. No invisible checkpoint is product acceptance. No extra Plan-click or pasted-prompt approval is required. This docs-only task starts no executor/server and performs no Git publication or cleanup. Later numbered phases still require prior acceptance, CPA propagation and separate publication/integration.
+Publish the exact accepted package from `/Users/arthurcarlin/.codex/worktrees/1550/stick-animation-app`, detached at GIT-055 base `e956840001d18757af8f2de5361640ba70d44d68`. Before staging, verify canonical `main` and `origin/main` still equal that SHA and remain clean; verify the accepted implementation/control-plane bytes and empty index. Then create the Phase 4 publication commit, fast-forward canonical `main`, push `origin/main`, and prove clean `0/0`. If the base advanced or any byte differs, stop without merge/rebase/pull/force-push.
 
-Architecture owner in /6e90/ stops after its packet. No active executor may overlap it. Exact correction entry: SPEC-0006 §16 and D-0062. Publish only reviewed docs under separate authority; verify unique rejected-byte backup before restoring the identified technical set from published foundation; retain the same worktree/address under the narrow PM-approved exception, stop/verify the old exact server before one replacement, and never reuse rejected bytes. Bind actual published architecture SHA and spec hash; no guessed SHA or stage/commit in an executor.
-
-4A checkpoint: exactly 12 additive paths, neutral model/migration plus minimal transactional repository; no visible Phase 4 acceptance. Stop, PM hash/allowlist/index verification, sequential same-worktree transfer to 4B (24 paths). 4B returns one real ordinary-New/same-cell/timeline/history/Save review. No intermediate Arthur Plan clicks, invisible acceptance, CPA or publication. Final Phase 4 combined ceiling 37 including the conditional page path; Phase 5 tools/library, Phase 6 full adoption/recovery, Phase 7 retirement/full acceptance follow normal publication separation.
-
-## Conditional page boundary and reported editor markers
-
-Phase 4B has 24 planned paths plus conditionally authorized app/page.tsx only if real New/Open cutover needs an edit: 25 maximum, combined Phase 4 maximum37 (36 otherwise). SPEC-0006 §12 requires focused page/OpenProjectBrowser TypeScript/build and ordinary New/Open proof. Fresh disk inspection shows onOpenProject and no page/browser diff; PM reports an unsaved stale VS Code buffer caused the visible markers. Do not save/overwrite that user buffer or invent a code repair.
+After successful publication/synchronization, preserve required proof, stop the exact review server at port 56544, remove only the accepted `/1550/` worktree under D-0054, and verify no obsolete app copy remains. Do not start Phase 5 until that cleanup is complete.
 
 ## Current proof and limits
 
-Exact architecture-only changed-path allowlist for PM review and any later separately authorized records publication (14 Markdown files):
+Accepted technical evidence:
+
+- worktree: `/Users/arthurcarlin/.codex/worktrees/1550/stick-animation-app`
+- base/HEAD before publication: `e956840001d18757af8f2de5361640ba70d44d68`
+- manifest: `output/spec-0006/phase-4-neutral/proof-manifest.json`
+- manifest SHA-256: `9d2d18871981db2e499c689723730ada4690dd5cb94ab620a038e45557f298de`
+- exact technical paths: 26
+- index: empty
+- review URL: `http://127.0.0.1:56544/?pm_review=pointer_correction`
+
+Accepted proof passed Phase 4A foundation (364 assertions), Phase 4B workspace (six flows, four tabs, eight tools), 16 browser flows, both proof validators, focused lint with zero errors/seven inherited warnings, HTTP 200, zero browser console errors/warnings, diff checks, and empty-index checks. Arthur accepted the final ordinary visible result after the pointer correction.
+
+Expected CPA record/tree paths:
 
 - `docs/00_MASTER_PROJECT.md`
 - `docs/AI_SYSTEM.md`
@@ -35,12 +41,9 @@ Exact architecture-only changed-path allowlist for PM review and any later separ
 - `docs/specs/0006-unified-animation-workspace.md`
 - `docs/specs/README.md`
 - `docs/testing_workflow.md`
+- `project/project_structure.txt`
 
-All 18 pre-existing rejected technical dirty paths are outside this record allowlist. The index stays empty; no generated-tree update or source/proof change accompanies these documents.
-
-Rejected manifest `output/spec-0006/phase-4/proof-manifest.json`: 104,287 bytes, SHA-256 `e9b7e5949198b5d24e21bddc901738ddafb4b63d978cc8f4002a0ccc0211d81b`. It is unchanged rejection evidence, not neutral acceptance. Published Phase 3 manifest remains `207aea2a7d664e49d28dd6b8c4704e50da9fae8d5197d9164ccbac871db4fcc0` (22,897 bytes). New architecture was code-reviewed; no new real-app run or runtime success is claimed.
-
-No runtime, fixture, technical-test, original proof, AGENTS, generated tree, package/configuration, AI/provider/prompt/motion-engine, source-store, other-worktree, server or Git-ref/index bytes/actions changed in this architecture task. Historical proof remains bound to its original source/spec snapshots; the strict old dirty-path/current-spec validators are not claimed to pass after these docs edits.
+No accepted runtime, fixture, technical-test, or original proof byte may change during CPA propagation. `AGENTS.md`, packages/configuration, AI/provider/prompt/motion/video/tracking/API systems, legacy source stores, deployment, and other worktrees remain unchanged. Phase 5–7 work is not included.
 
 ## Historical Phase 3 closeout snapshot — superseded dispatch instructions
 

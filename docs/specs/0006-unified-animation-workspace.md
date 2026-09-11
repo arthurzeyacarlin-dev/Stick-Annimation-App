@@ -1,13 +1,13 @@
 # SPEC-0006 — Unified Animation Workspace
 
-Status: **Approved outcome; architecture corrected under D-0062; correction implementation not started.** Phases 1–3 are Verified/published/integrated. The former Phase 4 timeline implementation was **executed and rejected by Arthur**, unpublished and non-reusable. It is replaced by the Phase 4–7 sequence below.
+Status: **Approved and active; corrected Phase 4 accepted and technically Verified pending publication.** Phases 1–3 are Verified/published/integrated. The former typed-layer Phase 4 remains rejected, unpublished, and non-reusable. The neutral Phase 4 replacement is human-accepted under D-0063 and awaits GIT-056 publication; Phases 5–7 remain not started.
 Owner: Arthur
 Task role: SPEC-0006 architecture correction owner, explicitly delegated by PM in the stopped rejected `/6e90/` worktree
 Created: 2026-09-09
-Last updated: 2026-09-11
-Decision links: [D-0055–D-0062](../DECISIONS.md)
-TODO IDs: `PLAN-006`, `SPEC-006`, `UNIFY-001`–`UNIFY-007`, `GIT-050`–`GIT-055`
-Fresh local evidence: detached HEAD, local `main`, and local `origin/main` are `e11f6c453f13772ee9bd4b172a17bc68e1de65b9` (GIT-054, `Implement SPEC-0006 Phase 3 mixed stage`), parent `916a4d913c6fdf8340b67bcc88dcea184d67cd32`. Index empty. Remote synchronization was not refreshed in this architecture-only task.
+Last updated: 2026-09-12
+Decision links: [D-0055–D-0063](../DECISIONS.md)
+TODO IDs: `PLAN-006`, `SPEC-006`, `UNIFY-001`–`UNIFY-007`, `GIT-050`–`GIT-056`
+Fresh local evidence: accepted Phase 4 worktree `/Users/arthurcarlin/.codex/worktrees/1550/stick-animation-app` is detached at exact published architecture base `e956840001d18757af8f2de5361640ba70d44d68` (GIT-055). The accepted technical manifest is `output/spec-0006/phase-4-neutral/proof-manifest.json`, SHA-256 `9d2d18871981db2e499c689723730ada4690dd5cb94ab620a038e45557f298de`, with exactly 26 technical paths and an empty index. Canonical `main` and `origin/main` remain clean and synchronized at the same base before publication.
 
 **Authority and sequencing.** Arthur requires neutral layers and a visible corrected Phase 4 in the same app copy. This supersedes D-0056/D-0057's typed-layer design and the former Phase 4 timeline-only boundary, not the three published historical results. SPEC-0006 remains the sole specification and retains **seven numbered phases**. Corrected Phase 4 has exactly **two sequential internal subphases, 4A and 4B**, under its existing correction authorization, ending in one visible human review. A hidden 4A checkpoint is never Phase 4 acceptance. See §12 for why ordinary New requires a minimal safe repository before cutover, the exact 12-path 4A boundary and 24-path 4B boundary.
 
@@ -18,7 +18,7 @@ This architecture task stops after its packet. It performs no runtime/proof/serv
 | 1 — V1 contract/read-only migration | Published GIT-051 `804ff39dc73c88d4799570cce2ef18987745a0be`; 11 actual paths | historical 18 |
 | 2 — Shell/New/Open | Published GIT-052 `d2096109900cc50a0a4dae2f603bd74b7b4a3427`; 15 actual paths | historical 16 |
 | 3 — Typed-layer mixed stage | Published GIT-054 `e11f6c453f13772ee9bd4b172a17bc68e1de65b9`; 16 actual paths | historical 16 |
-| 4 — Visible neutral workspace/timeline correction | Former result rejected; replacement not started; 4A then 4B, one final visible review | **12 + 24 planned; at most 37 with the conditional page path** |
+| 4 — Visible neutral workspace/timeline correction | **Human-accepted and technically Verified pending GIT-056 publication**; 4A + 4B completed in one accepted review copy | **26 actual technical paths** |
 | 5 — Complete current tools, project Library/Assets and panels | After corrected Phase 4 publication; not started | 20 |
 | 6 — Complete canonical adoption/recovery and persistence proof | After Phase 5 publication; not started | 20 |
 | 7 — Retire duplicate ownership and full acceptance | After Phase 6 publication; not started | 18 |
@@ -624,3 +624,13 @@ Then PM dispatches **4A (12 additive paths)** in Plan mode for boot and source/s
 **Final Phase 4 human checklist:** ordinary New has neutral Layer 1 and no artwork/demo data; manually add Drawing and editable Stick content in the same frame; no layer-kind labels in UI/accessibility; edit each independently, copy/paste the whole cell to another neutral layer, create/edit holds/independent owners, scrub/onion/full playback loop; Undo/Redo exact mixed action order; Save/Save As/reload/Open native mixed V2 intact; source legacy projects still work; no seed/instrumentation in ordinary New/Open/build/stores. Complete shared symbol-creation/library/panel acceptance is Phase 5, and exhaustive all-source adoption/recovery is Phase 6; those are explicit remaining work, not Phase 4 claims.
 
 The architecture owner now returns a PM Review Packet and completely stops. No runtime/proof/server/Git change, implementation acceptance, publication or cleanup is claimed. After 4B visible acceptance, CPA and later separately authorized publication occur as usual; after clean integration/synchronization, D-0054's normal final cleanup applies. Future phases/specs are not started here.
+
+## 17. Corrected Phase 4 accepted result — D-0063 (2026-09-12)
+
+Arthur completed the ordinary app-copy review and explicitly accepted the corrected Phase 4 result. The stopped Spec Executor used the published GIT-055 base `e956840001d18757af8f2de5361640ba70d44d68` in `/Users/arthurcarlin/.codex/worktrees/1550/stick-animation-app`. Its final immutable technical manifest is `output/spec-0006/phase-4-neutral/proof-manifest.json`, SHA-256 `9d2d18871981db2e499c689723730ada4690dd5cb94ab620a038e45557f298de`, status PASS, exact 26-path dirty allowlist, and empty index.
+
+The accepted result provides one ordinary neutral Animation Workspace root for native New, neutral layers without Drawing/Stick kind labels, ordered Drawing and editable structured-rig items in the same layer/frame, shared neutral timeline/history/playback/onion ownership, lossless V2 project Save/Save As/Open, and deterministic collection/bootstrap adoption. Stick Add Limb and Select/Move Joint use inverse SVG screen transforms, retain pointer ownership against the pan overlay, show the live endpoint at the cursor, commit once on release, and cancel without partial edits.
+
+Technical verification passed Phase 4A foundation with 364 assertions, Phase 4B workspace with six flows/four tabs/eight tools, the 16-flow browser proof, the 12-binding Phase 4A proof validator, the 26-binding Phase 4B proof validator, focused lint with zero errors and seven inherited warnings, production HTTP 200, browser console zero errors/warnings, `git diff --check`, and empty-index proof. Arthur additionally accepted the visible review at `http://127.0.0.1:56544/?pm_review=pointer_correction` after verifying exact pointer tracking and preserved mixed content.
+
+This acceptance does not add or improve AI, motion generation, providers, prompts, video/tracking, cloud/social Share, export, advanced symbol/library creation, exhaustive legacy recovery, or duplicate-owner retirement. Phase 5 remains the next product phase only after GIT-056 publishes this exact accepted implementation and reviewed records, canonical `main` is clean/synchronized, and the accepted review copy is safely cleaned up under D-0054.

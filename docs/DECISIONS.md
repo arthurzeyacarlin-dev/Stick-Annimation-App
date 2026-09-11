@@ -614,6 +614,16 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Boundaries: no new SPEC-0007 manual or SPEC-0008 AI/video features, AI/provider/model/prompt/motion-engine/API code changes, external/paid calls, cloud/social sharing, export, dependency or deployment. No runtime, fixture, technical-test, original proof, AGENTS, generated tree, package/configuration, AI/provider/prompt/motion-engine, source-store, other-worktree, server or Git-ref/index bytes/actions changed in this architecture task. Historical proof remains bound to its original source/spec snapshots; the strict old dirty-path/current-spec validators are not claimed to pass after these docs edits.
 - Next: Arthur already authorizes proceeding after safe architecture. PM coordinates separately authorized records publication and verified same-copy recovery, then sequential 4A → stopped-owner checkpoint → 4B in the retained `/6e90/` worktree under SPEC-0006 §12/16. No invisible checkpoint is product acceptance. No extra Plan-click or pasted-prompt approval is required. This docs-only task starts no executor/server and performs no Git publication or cleanup. Later numbered phases still require prior acceptance, CPA propagation and separate publication/integration.
 
+### D-0063 — Accept corrected SPEC-0006 Phase 4 neutral workspace
+
+- Date: 2026-09-12
+- Authority: Arthur's explicit visible acceptance after reviewing the final pointer-corrected ordinary app copy; the Project Manager's technical acceptance and exclusive transfer after the Spec Executor stopped.
+- Decision: Accept the corrected Phase 4 implementation as technically Verified pending GIT-056 publication/integration. The accepted worktree is `/Users/arthurcarlin/.codex/worktrees/1550/stick-animation-app` at detached GIT-055 base `e956840001d18757af8f2de5361640ba70d44d68`; index empty. The immutable technical manifest is `output/spec-0006/phase-4-neutral/proof-manifest.json`, SHA-256 `9d2d18871981db2e499c689723730ada4690dd5cb94ab620a038e45557f298de`, status PASS, with exactly 26 technical paths.
+- Accepted outcome: ordinary New uses one empty neutral root; Drawing and editable structured-rig content coexist in one layer/frame; no Drawing/Stick kind labels or seeded demo scene enter the product; neutral timeline/history/playback/onion and complete V2 Save/Save As/Open are shared. Add Limb and Select/Move Joint track the actual pointer through inverse SVG mapping, keep gesture ownership against the pan overlay, and commit/cancel atomically.
+- Evidence: Phase 4A foundation PASS (364 assertions); Phase 4B workspace PASS (six flows, four tabs, eight tools); browser proof PASS (16 flows); 4A/4B manifest validators PASS (12 and 26 bindings); focused lint zero errors/seven inherited warnings; browser console zero errors/warnings; HTTP 200; diff/index checks PASS. Arthur accepted the visible review at port 56544.
+- Boundaries: no AI/provider/prompt/motion/video/tracking/API change, no cloud/social Share, no export change, no Phase 5 library/tool expansion, no Phase 6 exhaustive adoption/recovery, and no Phase 7 retirement. The former typed-layer Phase 4 remains rejected and non-reusable.
+- Next: GIT-056 must publish only the accepted 26 technical paths and reviewed control-plane/tree paths from exact GIT-055 base, fast-forward a still-clean canonical `main`, push normally, verify clean `0/0`, and then perform D-0054 accepted-copy cleanup. Phase 5 cannot begin first.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation
@@ -628,7 +638,7 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 
 ### P-0001 — Launch role of the Drawing Workspace
 
-- Status: resolved by D-0056 as corrected by D-0062. SPEC-0006 Phases 1–3 are Verified/published/integrated through GIT-054 `e11f6c453f13772ee9bd4b172a17bc68e1de65b9`. Arthur rejected the former Phase 4 typed-layer result; it remains unpublished and non-reusable. D-0062 corrects the same spec to neutral layers with ordered typed items in the same cell. Seven numbered phases remain; corrected Phase 4 has internal 4A (12 paths, model/read migration/minimal repository) then 4B (24 paths, ordinary neutral New/Open, controlled item editing, shared history/render/timeline/playback/onion), ending in one visible Phase 4 review. Correction implementation is not started.
+- Status: resolved by D-0056/D-0062 and implemented through the D-0063 human-accepted corrected Phase 4 result, technically Verified pending GIT-056 publication. Phases 5–7 complete the remaining tools/library, adoption/recovery, and retirement scope.
 - Resolution: Under D-0062, Drawing and Stick become typed content items in neutral layers and the same frame/cell inside one Animation Workspace rather than a separate New Project choice or separate saved-project pillar. Drawing-specific feature expansion still requires its own scope.
 
 ### P-0002 — Official product name
@@ -680,6 +690,6 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 
 ### P-0009 — Possible unified Animation Workspace
 
-- Status: resolved by D-0056 as corrected by D-0062. SPEC-0006 Phases 1–3 are Verified/published/integrated through GIT-054 `e11f6c453f13772ee9bd4b172a17bc68e1de65b9`. Arthur rejected the former Phase 4 typed-layer result; it remains unpublished and non-reusable. D-0062 corrects the same spec to neutral layers with ordered typed items in the same cell. Seven numbered phases remain; corrected Phase 4 has internal 4A (12 paths, model/read migration/minimal repository) then 4B (24 paths, ordinary neutral New/Open, controlled item editing, shared history/render/timeline/playback/onion), ending in one visible Phase 4 review. Correction implementation is not started.
+- Status: resolved by D-0056/D-0062 and implemented through the D-0063 human-accepted corrected Phase 4 result, technically Verified pending GIT-056 publication. Phases 5–7 complete the remaining unified-workspace scope.
 - Resolution: one project/timeline/stage/save/history/AI surface replaces the separate Drawing/Stick choice using ordered typed Drawing/Stick items in neutral same-cell layers (D-0062), lossless non-destructive legacy adoption, and one canonical writable root. See corrected SPEC-0006 for seven numbered phases, two internal Phase 4 gates and final visible proof.
-- Current boundary: published Phases 1–3 still use typed V1 compatibility ownership; the rejected Phase 4 adds no accepted neutral result. Corrected Phase 4A/4B and later Phases 5–7 own the intended transition.
+- Current boundary: corrected Phase 4A/4B supplies the accepted neutral V2 root pending publication. Phases 5–7 still own complete tools/library, all-source adoption/recovery, and duplicate-owner retirement.

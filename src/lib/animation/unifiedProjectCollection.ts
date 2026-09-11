@@ -8,7 +8,7 @@ export type ProjectCollectionEntry = {
   title: string;
   updatedAt: string | null;
   classification: "canonical" | "legacy" | "invalid";
-  sourceKind: UnifiedLegacyMigrationSourceV1["sourceKind"];
+  sourceKind: UnifiedLegacyMigrationSourceV1["sourceKind"] | "unified-v2";
   sourceId: string;
   sourceDigest: string | null;
   candidateDigest: string | null;
@@ -44,6 +44,10 @@ export const listProjectCollection = async (reader: ProjectSourceReader): Promis
   for (const source of await reader.list()) {
     let candidate: UnifiedAnimationMigrationCandidateV1 | null = null;
     let error = source.error ?? null;
+    if (!error && source.sourceKind === "unified-v2") {
+      entries.push({ id: source.locator, locator: source.locator, title: source.title, updatedAt: source.updatedAt, classification: "canonical", sourceKind: source.sourceKind, sourceId: source.sourceId, sourceDigest: source.sourceId, candidateDigest: source.sourceId, error: null, protectedSource: false });
+      continue;
+    }
     if (!error) {
       try {
         const result = await migrateLegacySourceReadOnly(await source.read());
@@ -76,6 +80,7 @@ export const listProjectCollection = async (reader: ProjectSourceReader): Promis
 };
 
 export const readCollectionCandidate = async (reader: ProjectSourceReader, entry: ProjectCollectionEntry) => {
+  if (entry.sourceKind === "unified-v2") throw new Error("native_v2_direct_read");
   if (entry.classification === "invalid" || !entry.candidateDigest) throw new Error(entry.error ?? "invalid_record");
   const sources = await reader.list();
   const source = sources.find((value) => value.locator === entry.locator && value.sourceId === entry.sourceId && value.sourceKind === entry.sourceKind);

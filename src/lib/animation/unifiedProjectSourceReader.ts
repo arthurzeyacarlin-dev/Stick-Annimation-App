@@ -3,10 +3,11 @@ import { readDrawingProjectV1Storage } from "../drawingProjectV1Compatibility.ts
 import { STICK_PROJECT_STORAGE_KEY, STICK_PROJECT_STORAGE_BYTE_LIMIT, STICK_PROJECT_STORAGE_RECORD_LIMIT } from "../stickProjectStorage.ts";
 import type { UnifiedLegacyMigrationSourceV1 } from "./unifiedAnimationMigration.ts";
 import type { DrawingProjectHeadV2, DrawingProjectVersionRecordV2 } from "../drawingProjectV2Contract.ts";
+import { listUnifiedProjectsV2 } from "./unifiedProjectStorageV2.ts";
 
 export type ProjectSource = {
   locator: string;
-  sourceKind: UnifiedLegacyMigrationSourceV1["sourceKind"];
+  sourceKind: UnifiedLegacyMigrationSourceV1["sourceKind"] | "unified-v2";
   sourceId: string;
   title: string;
   updatedAt: string | null;
@@ -45,6 +46,14 @@ const readDatabase = async <T>(read: (database: IDBDatabase) => Promise<T>, empt
 export const createBrowserProjectSourceReader = (): ProjectSourceReader => ({
   async list() {
     const sources: ProjectSource[] = [];
+    try {
+      for (const project of await listUnifiedProjectsV2()) sources.push({
+        locator: `unified-v2:${project.projectId}`, sourceKind: "unified-v2", sourceId: project.projectId,
+        title: project.title, updatedAt: project.updatedAt, read: async () => { throw new Error("native_v2_direct_read"); },
+      });
+    } catch {
+      sources.push({ locator: "unified-v2:root", sourceKind: "unified-v2", sourceId: "unavailable", title: "Animation projects unavailable", updatedAt: null, error: "storage_read_failed", read: async () => { throw new Error("storage_read_failed"); } });
+    }
     const legacy = await readDrawingProjectV1Storage({ getItem: (key) => window.localStorage.getItem(key) });
     if (legacy.status === "read-failed" || legacy.status === "corrupt-root") {
       sources.push(unavailable("drawing-v1:root", "drawing-v1", legacy.status === "read-failed" ? "storage_read_failed" : "invalid_record"));

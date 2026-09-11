@@ -1,0 +1,6 @@
+{
+  "fixtureId": "spec0006-phase4b-neutral-ui",
+  "requiredTabs": ["Stick Figure Tools", "Properties", "Library", "Assets"],
+  "requiredTools": ["Select", "Lasso", "Brush", "Eraser", "Fill", "Text", "Shape", "Knife"],
+  "requiredFlows": ["ordinary-new-empty", "drawing-and-stick-same-frame", "undo-redo", "play-pause", "add-layer", "save-reopen"]
+}

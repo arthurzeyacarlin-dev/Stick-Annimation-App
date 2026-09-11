@@ -1,21 +1,21 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-11 published and rejected source in /6e90/ at e11f6c453f13772ee9bd4b172a17bc68e1de65b9; docs-only, no fresh browser/remote check.
+Last traced: 2026-09-12 accepted corrected Phase 4 source and proof in `/1550/` at GIT-055 base `e956840001d18757af8f2de5361640ba70d44d68`.
 
-## Current implementation and required correction (D-0062)
+## Current implementation — corrected Phase 4 accepted (D-0063)
 
-SPEC-0006 Phases 1–3 are Verified/published/integrated through GIT-054 `e11f6c453f13772ee9bd4b172a17bc68e1de65b9`. Arthur rejected the former Phase 4 typed-layer result; it remains unpublished and non-reusable. D-0062 corrects the same spec to neutral layers with ordered typed items in the same cell. Seven numbered phases remain; corrected Phase 4 has internal 4A (12 paths, model/read migration/minimal repository) then 4B (24 paths, ordinary neutral New/Open, controlled item editing, shared history/render/timeline/playback/onion), ending in one visible Phase 4 review. Correction implementation is not started.
+SPEC-0006 Phases 1–3 are published/integrated. The corrected Phase 4 is human-accepted and technically Verified pending GIT-056 publication. Its accepted 26-path manifest SHA-256 is `9d2d18871981db2e499c689723730ada4690dd5cb94ab620a038e45557f298de`.
 
-Published V1 uses `layer.contentKind`, per-layer Drawing transforms and exclusive Drawing/Stick owner payloads. `unifiedAnimationMigration` creates typed layers; bootstrap chooses one compatibility editor. The published resolver/renderer composes separate typed layers through fixed 1920×1080 stage rendering. The rejected local timeline/reducer/bridge extends typed clipboard/onion targeting and only projects Stick edits; it does not implement neutral same-cell content or common chronological history. See SPEC-0006 §2.6/2.7 for the complete path/assumption inventory.
+Accepted V2 uses neutral layers whose owner cells contain ordered raster, text, symbol-instance, and structured-rig items. One neutral reducer owns authored state/history; ordinary New and canonical V2 Open bootstrap that root. Drawing and Stick edits commit through the same root, and shared timeline/playback/onion resolve complete mixed owners. The repository preserves full-document Save/Save As/Open. Published V1 remains a read-compatible historical source path.
 
-## Approved corrected target — not yet implemented
+## Accepted Phase 4 boundary and remaining work
 
-Neutral V2 layers contain cells owning ordered raster/text/structured-rig/bitmap-symbol items. IDs/selection and Drawing source transforms belong to items; holds/clipboard/onion resolve the complete mixed owner. One command/history root receives controlled item-adapter commits; one renderer emits every item in order. A minimal complete V2 repository precedes ordinary New cutover so Save cannot drop mixed content. Project-owned current bitmap definitions/instances and catalog metadata complete in Phase 5; all-source adoption/recovery in Phase 6; retirement/full proof in Phase 7.
+Neutral V2 layers contain cells owning ordered raster/text/structured-rig/bitmap-symbol items. IDs/selection and Drawing source transforms belong to items; holds/clipboard/onion resolve the complete mixed owner. One command/history root receives controlled item-adapter commits and one renderer emits every item in order. The minimal V2 repository protects complete-root Save/Save As/Open.
 
-Phase 4A (12 paths) establishes model/read migration/repository and fault proof. Phase 4B (24 paths) integrates ordinary neutral New/canonical Open, current Drawing/Stick item editing, render/history/timeline/playback/onion and safe native mixed Save/Save As. Both are internal checkpoints under one final visible Phase 4 review. Existing V1/legacy sources remain readable, unmodified; no whole-project V2-to-legacy write projection, hidden typed lanes, advanced symbol engine or AI change.
+Stick Add Limb and Select/Move Joint map through the inverse SVG screen transform, retain gesture ownership against the pan overlay, preview at the pointer, commit once on release, and cancel partial gestures safely. Complete project-owned catalog UI remains Phase 5; exhaustive all-source adoption/recovery remains Phase 6; duplicate-owner retirement/full acceptance remains Phase 7.
 
-Arthur already authorizes proceeding after safe architecture. PM coordinates separately authorized records publication and verified same-copy recovery, then sequential 4A → stopped-owner checkpoint → 4B in the retained `/6e90/` worktree under SPEC-0006 §12/16. No invisible checkpoint is product acceptance. No extra Plan-click or pasted-prompt approval is required. This docs-only task starts no executor/server and performs no Git publication or cleanup. Later numbered phases still require prior acceptance, CPA propagation and separate publication/integration.
+No AI, provider, prompt, motion, video/tracking, cloud/social Share, export, or new manual capability is part of Phase 4. GIT-056 publication/integration and D-0054 accepted-copy cleanup must complete before Phase 5.
 
 ## Published runtime path (historical V1 ownership; local rejected diff is not accepted)
 

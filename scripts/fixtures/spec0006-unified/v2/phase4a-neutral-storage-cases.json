@@ -1,0 +1,8 @@
+{
+  "fixtureId": "spec0006-phase4a-neutral-storage",
+  "validCaseCount": 60,
+  "invalidCaseCount": 120,
+  "deterministicUpgradeRuns": 1000,
+  "requiredItemKinds": ["drawing-raster/v1", "drawing-text/v1", "stick-rig/v1", "symbol-instance/v1"],
+  "storageCeilingBytes": 134217728
+}

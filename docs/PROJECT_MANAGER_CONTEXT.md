@@ -32,7 +32,7 @@ The latest product direction, updated through 2026-09-11, is:
 - SPEC-0005 Phase 1 and Phase 2 v1/v2 remain accepted, Verified, published, and integrated; v2 is complete at GIT-048 `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`. GIT-049 published the later Phase 3 authorization at `de54aed275c2f6da6e7c3f4a7f65091e8d5370c0`. A Phase 3 executor then ran, but Arthur rejected its visible result: it is unpublished, unaccepted, non-reusable, and not completed. D-0055 supersedes Phase 3 and unfinished Phases 4–8 by future SPEC-0008; they are inactive with no implementation authority.
 - The old eight-phase SPEC-0005 design remains historical reference, not future dispatch authority. Do not reuse rejected implementations, call their motion accepted, or automatically carry the unimplemented contract into a new spec.
 - Future Terra economics should prefer compact important-pose/timing plans, local in-betweens, safe $0 recipes first, at most one later bounded pre-Apply repair, measured private-dashboard cost, and monthly budgets/credits rather than unlimited use. Exact provider pricing/policy is a later same-day official-source gate.
-- SPEC-0006 corrected Phase 4 is human-accepted under D-0063 and technically Verified pending GIT-056 publication. The accepted 26-path manifest SHA-256 is `9d2d18871981db2e499c689723730ada4690dd5cb94ab620a038e45557f298de`; no AI/provider or later-phase feature is included.
+- SPEC-0006 corrected Phase 4 is human-accepted under D-0063 and Verified/published/integrated through GIT-056 `9c971fa4f7ea0e636ecc6957755552f678f344df`. The accepted 26-path manifest SHA-256 is `9d2d18871981db2e499c689723730ada4690dd5cb94ab620a038e45557f298de`; no AI/provider or later-phase feature is included.
 
 This direction supersedes older prose that framed AI only as a passive helper or described the workspaces as complete.
 
@@ -70,15 +70,15 @@ Arthur requires only one active review app copy for the current milestone. This 
 - Never remove canonical main or the active Project Manager worktree. Never delete a worktree still owned by an active executor/architect. Stop if identity, ownership, unique-byte preservation, or publication is uncertain.
 - The PM coordinates sequential handoff/cleanup under Arthur's authority; the authorized cleanup task performs removal. Spec Executors still cannot publish, edit the control plane, or mutate another worktree. This rule grants no implementation, Git publication, provider, or deployment authority.
 
-## Current SPEC-0006 result — corrected Phase 4 accepted pending publication
+## Current SPEC-0006 result — corrected Phase 4 published and integrated
 
-GIT-055 published D-0062's neutral architecture at `e956840001d18757af8f2de5361640ba70d44d68`. The same-copy 4A/4B execution is complete in `/1550/`. Arthur accepted the final visible pointer-corrected result; D-0063 records the exact 26-path PASS manifest at SHA-256 `9d2d18871981db2e499c689723730ada4690dd5cb94ab620a038e45557f298de`.
+GIT-055 published D-0062's neutral architecture at `e956840001d18757af8f2de5361640ba70d44d68`. Arthur accepted the final visible pointer-corrected 4A/4B result; D-0063 records the exact 26-path PASS manifest at SHA-256 `9d2d18871981db2e499c689723730ada4690dd5cb94ab620a038e45557f298de`. GIT-056 published the exact accepted implementation/control-plane package at `9c971fa4f7ea0e636ecc6957755552f678f344df`.
 
-The immediate task is GIT-056 publication: stage only the accepted 26 technical paths and reviewed control-plane/tree paths, commit from exact GIT-055 base, fast-forward a still-clean canonical `main`, push, verify clean `0/0`, then clean up the accepted review copy under D-0054. Phase 5 remains gated until that completes.
+GIT-056 publication, clean `0/0` synchronization, and D-0054 accepted-copy cleanup are complete. Phase 5 remains not started and requires separate authorization.
 
 The visible review must start with ordinary empty New and create real Drawing + Stick content in the same layer/frame. Layer badges cannot be hidden over an unchanged typed schema. Minimal mixed persistence precedes cutover; current symbol/library integration completes in Phase 5. No seeded demo substitutes for this result.
 
-The PM-approved same-copy correction is complete in `/1550/`; rejected `/6e90/` bytes were not reused. Keep the accepted `/1550/` review server/worktree only through successful GIT-056 publication/synchronization, then apply D-0054 cleanup. See D-0063 and SPEC-0006 §17.
+The PM-approved same-copy correction was completed without reusing rejected `/6e90/` bytes. The accepted `/1550/` review copy and fully merged local branch were removed after GIT-056 synchronization. See D-0063/D-0064 and SPEC-0006 §17.
 
 No runtime, fixture, technical-test, original proof, AGENTS, generated tree, package/configuration, AI/provider/prompt/motion-engine, source-store, other-worktree, server or Git-ref/index bytes/actions changed in this architecture task. Historical proof remains bound to its original source/spec snapshots; the strict old dirty-path/current-spec validators are not claimed to pass after these docs edits.
 
@@ -105,6 +105,6 @@ These are not blockers for preserving the repository, but they must be resolved 
 6. What manual stick-figure editing features are required for the first usable release?
 7. What user data may be sent to model/search providers, and how long is memory retained?
 8. What minimum shared stick state/executor and corrective manual controls should precede the first AI-led vertical slice, versus the broader manual editor that can follow?
-9. SPEC-0006 corrected Phase 4 completed its two internal gates and Arthur accepted the visible 4B result. GIT-056 publication/synchronization and D-0054 cleanup are the only remaining Phase 4 closeout steps before Phase 5.
+9. SPEC-0006 corrected Phase 4 completed its two internal gates, Arthur accepted the visible 4B result, and GIT-056 publication/synchronization plus D-0054 cleanup completed. Phase 5 is not started and requires separate authorization.
 
 Pending decisions and their status live in `DECISIONS.md`.

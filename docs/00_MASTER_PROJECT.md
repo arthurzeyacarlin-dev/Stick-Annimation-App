@@ -1,7 +1,7 @@
 # Diamond Animator Master Project Charter
 
 Status: canonical product intent
-Last updated: 2026-09-11
+Last updated: 2026-09-12
 
 ## Product Mission
 
@@ -33,7 +33,7 @@ The goal is not to hide a weak editor behind a chat box. The goal is one capable
 
 ## Current Strategic Position
 
-SPEC-0006 Phases 1–3 are Verified/published/integrated through GIT-054, and GIT-055 published D-0062's corrected neutral architecture at `e956840001d18757af8f2de5361640ba70d44d68`. Arthur accepted the corrected Phase 4 implementation under D-0063. Its exact 26-path technical manifest is PASS at SHA-256 `9d2d18871981db2e499c689723730ada4690dd5cb94ab620a038e45557f298de`; Phase 4 is technically Verified pending GIT-056 publication/integration. The accepted result establishes ordinary neutral New, same-cell Drawing and editable Stick content, shared timeline/history/playback/onion, safe V2 Save/Save As/Open, and exact pointer-mapped Stick gestures. It adds no AI or future manual-tool capability. Phases 5–7 remain not started and cannot begin before Phase 4 publication, synchronization, and accepted-copy cleanup.
+SPEC-0006 Phases 1–4 are Verified, published, and integrated. GIT-055 published D-0062's corrected neutral architecture at `e956840001d18757af8f2de5361640ba70d44d68`; GIT-056 published the D-0063 accepted Phase 4 package at `9c971fa4f7ea0e636ecc6957755552f678f344df`. The exact 26-path technical manifest remains PASS at SHA-256 `9d2d18871981db2e499c689723730ada4690dd5cb94ab620a038e45557f298de`. The result establishes ordinary neutral New, same-cell Drawing and editable Stick content, shared timeline/history/playback/onion, safe V2 Save/Save As/Open, and exact pointer-mapped Stick gestures. It adds no AI or future manual-tool capability. The accepted review copy was removed after clean `0/0` synchronization. Phases 5–7 remain not started.
 
 The current code is a prototype foundation, not a finished Version 1. Existing documents that called either workspace “complete” described a past visual milestone and are superseded by `CURRENT_STATE.md`.
 

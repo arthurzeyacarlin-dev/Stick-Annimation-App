@@ -5,6 +5,14 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-12 — Publish/integrate corrected SPEC-0006 Phase 4 (D-0064/GIT-056)
+
+- Published the exact D-0063 accepted package as commit `9c971fa4f7ea0e636ecc6957755552f678f344df`, parent `e956840001d18757af8f2de5361640ba70d44d68`: 26 accepted technical paths plus 14 reviewed control-plane/tree paths.
+- Fast-forwarded canonical `main`, pushed normally to the explicitly approved GitHub remote, and verified clean `main...origin/main` synchronization at `0/0`.
+- Revalidated the unchanged Phase 4 manifest SHA-256 `9d2d18871981db2e499c689723730ada4690dd5cb94ab620a038e45557f298de`, Phase 4A/4B validators, memory check, diff checks, focused `app/page.tsx` lint, and the saved current `OpenProjectBrowser` contract.
+- Kept `app/page.tsx` unchanged because the tracked file is correct; the previously pictured red diagnostics were an unsaved stale editor buffer, not committed source. No AI/provider/prompt/motion/video/tracking/API or later-phase capability changed.
+- Removed the accepted `/1550/` review worktree and its fully merged local branch after successful synchronization. Phase 5 remains not started and requires separate authorization.
+
 ### 2026-09-12 — Accept corrected SPEC-0006 Phase 4 neutral workspace (D-0063)
 
 - Arthur accepted the final ordinary app copy after the pointer correction. Corrected Phase 4 is technically Verified pending GIT-056 publication/integration.

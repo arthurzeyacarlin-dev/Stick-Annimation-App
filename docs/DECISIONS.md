@@ -624,6 +624,15 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Boundaries: no AI/provider/prompt/motion/video/tracking/API change, no cloud/social Share, no export change, no Phase 5 library/tool expansion, no Phase 6 exhaustive adoption/recovery, and no Phase 7 retirement. The former typed-layer Phase 4 remains rejected and non-reusable.
 - Next: GIT-056 must publish only the accepted 26 technical paths and reviewed control-plane/tree paths from exact GIT-055 base, fast-forward a still-clean canonical `main`, push normally, verify clean `0/0`, and then perform D-0054 accepted-copy cleanup. Phase 5 cannot begin first.
 
+### D-0064 — Complete GIT-056 publication and accepted-copy cleanup
+
+- Date: 2026-09-12
+- Authority: Arthur's explicit instruction to propagate, commit, integrate into the real Diamond Animator, push to the exact approved GitHub remote `git@github.com:arthurzeyacarlin-dev/Stick-Annimation-App.git`, and remove the accepted app copy.
+- Decision: Publish the exact D-0063 accepted package as GIT-056 commit `9c971fa4f7ea0e636ecc6957755552f678f344df`, parent GIT-055 `e956840001d18757af8f2de5361640ba70d44d68`. The commit contains exactly 40 paths: 26 accepted technical paths plus 14 reviewed control-plane/tree paths. Canonical `main` was fast-forwarded, pushed normally to `origin/main`, and verified clean and synchronized at `0/0`.
+- Page verification: `app/page.tsx` was not changed. The saved canonical file already uses the current `OpenProjectBrowser` `onOpenProject` contract and focused ESLint passes with zero findings. The previously pictured four red diagnostics came from a stale unsaved editor buffer; overwriting the correct tracked file was explicitly avoided.
+- Cleanup: the accepted `/Users/arthurcarlin/.codex/worktrees/1550/stick-animation-app` review worktree and fully merged local Phase 4 branch were removed after synchronization. No canonical-main or active Project Manager worktree was removed.
+- Boundaries: no AI/provider/prompt/motion/video/tracking/API behavior, Phase 5 capability, dependency, deployment, cloud/social Share, or unrelated runtime path changed. Phase 5 remains not started and requires separate authorization.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation
@@ -638,7 +647,7 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 
 ### P-0001 — Launch role of the Drawing Workspace
 
-- Status: resolved by D-0056/D-0062 and implemented through the D-0063 human-accepted corrected Phase 4 result, technically Verified pending GIT-056 publication. Phases 5–7 complete the remaining tools/library, adoption/recovery, and retirement scope.
+- Status: resolved by D-0056/D-0062 and implemented through the D-0063 human-accepted corrected Phase 4 result, Verified/published/integrated by D-0064/GIT-056. Phases 5–7 complete the remaining tools/library, adoption/recovery, and retirement scope.
 - Resolution: Under D-0062, Drawing and Stick become typed content items in neutral layers and the same frame/cell inside one Animation Workspace rather than a separate New Project choice or separate saved-project pillar. Drawing-specific feature expansion still requires its own scope.
 
 ### P-0002 — Official product name
@@ -690,6 +699,6 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 
 ### P-0009 — Possible unified Animation Workspace
 
-- Status: resolved by D-0056/D-0062 and implemented through the D-0063 human-accepted corrected Phase 4 result, technically Verified pending GIT-056 publication. Phases 5–7 complete the remaining unified-workspace scope.
+- Status: resolved by D-0056/D-0062 and implemented through the D-0063 human-accepted corrected Phase 4 result, Verified/published/integrated by D-0064/GIT-056. Phases 5–7 complete the remaining unified-workspace scope.
 - Resolution: one project/timeline/stage/save/history/AI surface replaces the separate Drawing/Stick choice using ordered typed Drawing/Stick items in neutral same-cell layers (D-0062), lossless non-destructive legacy adoption, and one canonical writable root. See corrected SPEC-0006 for seven numbered phases, two internal Phase 4 gates and final visible proof.
-- Current boundary: corrected Phase 4A/4B supplies the accepted neutral V2 root pending publication. Phases 5–7 still own complete tools/library, all-source adoption/recovery, and duplicate-owner retirement.
+- Current boundary: corrected Phase 4A/4B supplies the published neutral V2 root. Phases 5–7 still own complete tools/library, all-source adoption/recovery, and duplicate-owner retirement.

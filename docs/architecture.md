@@ -1,11 +1,11 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-12 accepted corrected Phase 4 source and proof in `/1550/` at GIT-055 base `e956840001d18757af8f2de5361640ba70d44d68`.
+Last traced: 2026-09-12 published corrected Phase 4 at GIT-056 `9c971fa4f7ea0e636ecc6957755552f678f344df`.
 
 ## Current implementation — corrected Phase 4 accepted (D-0063)
 
-SPEC-0006 Phases 1–3 are published/integrated. The corrected Phase 4 is human-accepted and technically Verified pending GIT-056 publication. Its accepted 26-path manifest SHA-256 is `9d2d18871981db2e499c689723730ada4690dd5cb94ab620a038e45557f298de`.
+SPEC-0006 Phases 1–4 are Verified/published/integrated. The corrected Phase 4 is human-accepted under D-0063 and published at GIT-056 `9c971fa4f7ea0e636ecc6957755552f678f344df`. Its accepted 26-path manifest SHA-256 is `9d2d18871981db2e499c689723730ada4690dd5cb94ab620a038e45557f298de`.
 
 Accepted V2 uses neutral layers whose owner cells contain ordered raster, text, symbol-instance, and structured-rig items. One neutral reducer owns authored state/history; ordinary New and canonical V2 Open bootstrap that root. Drawing and Stick edits commit through the same root, and shared timeline/playback/onion resolve complete mixed owners. The repository preserves full-document Save/Save As/Open. Published V1 remains a read-compatible historical source path.
 
@@ -15,7 +15,7 @@ Neutral V2 layers contain cells owning ordered raster/text/structured-rig/bitmap
 
 Stick Add Limb and Select/Move Joint map through the inverse SVG screen transform, retain gesture ownership against the pan overlay, preview at the pointer, commit once on release, and cancel partial gestures safely. Complete project-owned catalog UI remains Phase 5; exhaustive all-source adoption/recovery remains Phase 6; duplicate-owner retirement/full acceptance remains Phase 7.
 
-No AI, provider, prompt, motion, video/tracking, cloud/social Share, export, or new manual capability is part of Phase 4. GIT-056 publication/integration and D-0054 accepted-copy cleanup must complete before Phase 5.
+No AI, provider, prompt, motion, video/tracking, cloud/social Share, export, or new manual capability is part of Phase 4. GIT-056 publication/integration and D-0054 accepted-copy cleanup are complete. Phase 5 remains not started and requires separate authorization.
 
 ## Published runtime path (historical V1 ownership; local rejected diff is not accepted)
 

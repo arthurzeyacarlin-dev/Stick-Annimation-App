@@ -1,13 +1,13 @@
 # SPEC-0006 — Unified Animation Workspace
 
-Status: **Approved and active; corrected Phase 4 accepted and technically Verified pending publication.** Phases 1–3 are Verified/published/integrated. The former typed-layer Phase 4 remains rejected, unpublished, and non-reusable. The neutral Phase 4 replacement is human-accepted under D-0063 and awaits GIT-056 publication; Phases 5–7 remain not started.
+Status: **Approved and active; Phases 1–4 Verified, published, and integrated.** The former typed-layer Phase 4 remains rejected, unpublished, and non-reusable. The neutral Phase 4 replacement is human-accepted under D-0063 and published/integrated in GIT-056 `9c971fa4f7ea0e636ecc6957755552f678f344df`; Phases 5–7 remain not started.
 Owner: Arthur
 Task role: SPEC-0006 architecture correction owner, explicitly delegated by PM in the stopped rejected `/6e90/` worktree
 Created: 2026-09-09
 Last updated: 2026-09-12
 Decision links: [D-0055–D-0063](../DECISIONS.md)
 TODO IDs: `PLAN-006`, `SPEC-006`, `UNIFY-001`–`UNIFY-007`, `GIT-050`–`GIT-056`
-Fresh local evidence: accepted Phase 4 worktree `/Users/arthurcarlin/.codex/worktrees/1550/stick-animation-app` is detached at exact published architecture base `e956840001d18757af8f2de5361640ba70d44d68` (GIT-055). The accepted technical manifest is `output/spec-0006/phase-4-neutral/proof-manifest.json`, SHA-256 `9d2d18871981db2e499c689723730ada4690dd5cb94ab620a038e45557f298de`, with exactly 26 technical paths and an empty index. Canonical `main` and `origin/main` remain clean and synchronized at the same base before publication.
+Fresh local evidence: GIT-056 published the accepted exact 26 technical paths plus 14 reviewed control-plane/tree paths in `9c971fa4f7ea0e636ecc6957755552f678f344df`, parent GIT-055 `e956840001d18757af8f2de5361640ba70d44d68`. The accepted technical manifest is `output/spec-0006/phase-4-neutral/proof-manifest.json`, SHA-256 `9d2d18871981db2e499c689723730ada4690dd5cb94ab620a038e45557f298de`. Canonical `main` and `origin/main` were verified clean at `0/0`, then the accepted review worktree and merged local branch were removed.
 
 **Authority and sequencing.** Arthur requires neutral layers and a visible corrected Phase 4 in the same app copy. This supersedes D-0056/D-0057's typed-layer design and the former Phase 4 timeline-only boundary, not the three published historical results. SPEC-0006 remains the sole specification and retains **seven numbered phases**. Corrected Phase 4 has exactly **two sequential internal subphases, 4A and 4B**, under its existing correction authorization, ending in one visible human review. A hidden 4A checkpoint is never Phase 4 acceptance. See §12 for why ordinary New requires a minimal safe repository before cutover, the exact 12-path 4A boundary and 24-path 4B boundary.
 
@@ -18,8 +18,8 @@ This architecture task stops after its packet. It performs no runtime/proof/serv
 | 1 — V1 contract/read-only migration | Published GIT-051 `804ff39dc73c88d4799570cce2ef18987745a0be`; 11 actual paths | historical 18 |
 | 2 — Shell/New/Open | Published GIT-052 `d2096109900cc50a0a4dae2f603bd74b7b4a3427`; 15 actual paths | historical 16 |
 | 3 — Typed-layer mixed stage | Published GIT-054 `e11f6c453f13772ee9bd4b172a17bc68e1de65b9`; 16 actual paths | historical 16 |
-| 4 — Visible neutral workspace/timeline correction | **Human-accepted and technically Verified pending GIT-056 publication**; 4A + 4B completed in one accepted review copy | **26 actual technical paths** |
-| 5 — Complete current tools, project Library/Assets and panels | After corrected Phase 4 publication; not started | 20 |
+| 4 — Visible neutral workspace/timeline correction | **Verified/published/integrated in GIT-056**; 4A + 4B completed and human-accepted | **26 actual technical paths** |
+| 5 — Complete current tools, project Library/Assets and panels | Phase 4 published; not started; separate authorization required | 20 |
 | 6 — Complete canonical adoption/recovery and persistence proof | After Phase 5 publication; not started | 20 |
 | 7 — Retire duplicate ownership and full acceptance | After Phase 6 publication; not started | 18 |
 
@@ -633,4 +633,4 @@ The accepted result provides one ordinary neutral Animation Workspace root for n
 
 Technical verification passed Phase 4A foundation with 364 assertions, Phase 4B workspace with six flows/four tabs/eight tools, the 16-flow browser proof, the 12-binding Phase 4A proof validator, the 26-binding Phase 4B proof validator, focused lint with zero errors and seven inherited warnings, production HTTP 200, browser console zero errors/warnings, `git diff --check`, and empty-index proof. Arthur additionally accepted the visible review at `http://127.0.0.1:56544/?pm_review=pointer_correction` after verifying exact pointer tracking and preserved mixed content.
 
-This acceptance does not add or improve AI, motion generation, providers, prompts, video/tracking, cloud/social Share, export, advanced symbol/library creation, exhaustive legacy recovery, or duplicate-owner retirement. Phase 5 remains the next product phase only after GIT-056 publishes this exact accepted implementation and reviewed records, canonical `main` is clean/synchronized, and the accepted review copy is safely cleaned up under D-0054.
+This acceptance does not add or improve AI, motion generation, providers, prompts, video/tracking, cloud/social Share, export, advanced symbol/library creation, exhaustive legacy recovery, or duplicate-owner retirement. GIT-056 published this exact accepted implementation and reviewed records at `9c971fa4f7ea0e636ecc6957755552f678f344df`; canonical `main` synchronized cleanly at `0/0`, and the accepted review copy was removed under D-0054. Phase 5 remains the next product phase but is not started or authorized by this closeout.

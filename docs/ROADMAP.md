@@ -1,7 +1,7 @@
 # Roadmap
 
 Status: canonical ordered direction; not a delivery schedule
-Last updated: 2026-09-11
+Last updated: 2026-09-12
 
 ## Roadmap Rules
 
@@ -11,13 +11,13 @@ Last updated: 2026-09-11
 - Paid AI calls, remote writes, deployment, and baseline commits require task-specific authorization.
 - The roadmap may change when Arthur resolves pending decisions or new evidence changes the risk order.
 
-## Current owner sequence — 2026-09-11 (D-0062)
+## Current owner sequence — 2026-09-12 (D-0063/GIT-056)
 
-SPEC-0006 Phases 1–3 are Verified/published/integrated. GIT-055 published the neutral architecture. Corrected Phase 4 is human-accepted under D-0063 and technically Verified pending GIT-056 publication; its exact 26-path manifest SHA-256 is `9d2d18871981db2e499c689723730ada4690dd5cb94ab620a038e45557f298de`.
+SPEC-0006 Phases 1–4 are Verified/published/integrated. GIT-055 published the neutral architecture; GIT-056 published the D-0063 accepted Phase 4 package at `9c971fa4f7ea0e636ecc6957755552f678f344df`. Its exact 26-path technical manifest SHA-256 is `9d2d18871981db2e499c689723730ada4690dd5cb94ab620a038e45557f298de`.
 
 The corrected order keeps seven numbered phases. Minimal neutral data/storage precedes Phase 4 visible ordinary New, common history and timeline; this avoids a temporary broken or lossy Save. Phase 5 completes current tools/catalogs/panels; Phase 6 complete source adoption/recovery; Phase 7 retirement/full proof. No invisible 4A checkpoint is the user review.
 
-GIT-056 publication/integration and accepted-copy cleanup are the immediate next steps. After that, SPEC-0006 Phase 5 completes current tools/library/panels, Phase 6 completes all-source adoption/recovery, and Phase 7 retires duplicate ownership and runs full acceptance. Future SPEC-0007/0008 remain gated by SPEC-0006 completion.
+GIT-056 publication/integration and accepted-copy cleanup are complete. SPEC-0006 Phase 5 is the next numbered product phase only after separate authorization; Phase 6 completes all-source adoption/recovery, and Phase 7 retires duplicate ownership and runs full acceptance. Future SPEC-0007/0008 remain gated by SPEC-0006 completion.
 
 ## Phase 0 — Preserve and Stabilize
 

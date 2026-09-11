@@ -3,29 +3,28 @@
 Status: canonical last-known stopping point
 Last updated: 2026-09-12
 
-SPEC-0006 corrected Phase 4 is human-accepted under D-0063 and technically Verified pending GIT-056 publication/integration. Phases 1–3 remain Verified/published/integrated. The former typed-layer Phase 4 remains rejected, unpublished, and non-reusable. Phases 5–7 are not started.
+SPEC-0006 Phases 1–4 are Verified, published, and integrated. GIT-056 is exact commit `9c971fa4f7ea0e636ecc6957755552f678f344df`; canonical `main` and `origin/main` were verified clean at `0/0`. The former typed-layer Phase 4 remains rejected, unpublished, and non-reusable. Phases 5–7 are not started.
 
 ## Next action and exclusive ownership
 
-Publish the exact accepted package from `/Users/arthurcarlin/.codex/worktrees/1550/stick-animation-app`, detached at GIT-055 base `e956840001d18757af8f2de5361640ba70d44d68`. Before staging, verify canonical `main` and `origin/main` still equal that SHA and remain clean; verify the accepted implementation/control-plane bytes and empty index. Then create the Phase 4 publication commit, fast-forward canonical `main`, push `origin/main`, and prove clean `0/0`. If the base advanced or any byte differs, stop without merge/rebase/pull/force-push.
-
-After successful publication/synchronization, preserve required proof, stop the exact review server at port 56544, remove only the accepted `/1550/` worktree under D-0054, and verify no obsolete app copy remains. Do not start Phase 5 until that cleanup is complete.
+Do not repeat or republish Phase 4. Its accepted review copy and fully merged local branch were removed after publication and clean synchronization. Phase 5 is the next numbered product phase, but remains not started and requires separate authorization and a fresh dedicated Spec Executor from canonical GIT-056.
 
 ## Current proof and limits
 
 Accepted technical evidence:
 
-- worktree: `/Users/arthurcarlin/.codex/worktrees/1550/stick-animation-app`
-- base/HEAD before publication: `e956840001d18757af8f2de5361640ba70d44d68`
+- publication commit: `9c971fa4f7ea0e636ecc6957755552f678f344df`
+- publication parent: `e956840001d18757af8f2de5361640ba70d44d68`
 - manifest: `output/spec-0006/phase-4-neutral/proof-manifest.json`
 - manifest SHA-256: `9d2d18871981db2e499c689723730ada4690dd5cb94ab620a038e45557f298de`
 - exact technical paths: 26
-- index: empty
-- review URL: `http://127.0.0.1:56544/?pm_review=pointer_correction`
+- exact published paths including reviewed control-plane/tree records: 40
+- synchronization after push: clean `main...origin/main`, `0/0`
+- cleanup: accepted `/1550/` review worktree and merged local branch removed
 
 Accepted proof passed Phase 4A foundation (364 assertions), Phase 4B workspace (six flows, four tabs, eight tools), 16 browser flows, both proof validators, focused lint with zero errors/seven inherited warnings, HTTP 200, zero browser console errors/warnings, diff checks, and empty-index checks. Arthur accepted the final ordinary visible result after the pointer correction.
 
-Expected CPA record/tree paths:
+Published CPA record/tree paths:
 
 - `docs/00_MASTER_PROJECT.md`
 - `docs/AI_SYSTEM.md`

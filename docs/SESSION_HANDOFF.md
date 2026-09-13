@@ -1,20 +1,19 @@
 # Session Handoff
 
-Status: canonical last-known stopping point
+Status: current canonical stopping point
 Last updated: 2026-09-13
 
-SPEC-0006 Phases 1–5 are Verified, published, and integrated. D-0066/GIT-057 is exact commit `a759ae8afbb67e8fb723983851ae36947fd97f17`; publication branch, local `main`, local `origin/main`, and live GitHub `main` matched at clean `0/0`. The former typed-layer Phase 4 remains rejected, unpublished, and non-reusable. Phases 6–7 are unauthorized and not started.
+SPEC-0006 Phases 1–5 are Verified, published, integrated, recorded, and cleaned up. GIT-057 is exact implementation commit `a759ae8afbb67e8fb723983851ae36947fd97f17`; GIT-058 is exact record-only closeout commit `41983b0c88e1994675a4901d5814b3d972ad46b4`. Pre-GIT-059 verification found canonical `main`, local `origin/main`, and live GitHub `main` at GIT-058 with clean `0/0` divergence. D-0067 records the completed D-0054 cleanup, and this exact 11-path D-0067 records package is terminal GIT-059. Its SHA is intentionally not predeclared: the authoritative identity/publication status is the canonical commit containing D-0067 and current Git refs. Once that commit is published and synchronized, Phase 5 is fully closed with no follow-on records-only closeout. The former typed-layer Phase 4 remains rejected, unpublished, and non-reusable. Phases 6–7 are unauthorized and not started.
 
-## Next action and exclusive ownership
+## GIT-059 package/publication contract and post-publication stopping point
 
-The next task is separately authorized CPA publication of this GIT-057 record-only closeout (GIT-058). Preserve `/Users/arthurcarlin/.codex/worktrees/5a2c/stick-animation-app`, its ignored proof, branch `codex/spec0006-phase5-publication`, and `http://127.0.0.1:56555/` through that record publication and synchronization. Do not start Phase 6.
+Before these bytes are published, the immediate already-authorized repository action is exact GIT-059 publication of this package. Do not start Phase 6.
 
-Before GIT-058, verify unchanged record hashes/allowlist, exact `a759ae8…` ancestry, empty index, clean canonical `main`, local/live remote equality, and server identity. Stage only the reviewed record-only closeout paths, commit once on the existing publication branch, fast-forward a still-clean canonical `main`, push normally without force, and verify local main/origin/live GitHub at clean `0/0`. Stop on any advancement, byte mismatch, or unexpected path without pull, merge, rebase, force-push, history rewrite, or scope expansion.
+The authorized publisher must verify the exact GIT-058 base `41983b0c88e1994675a4901d5814b3d972ad46b4`, its GIT-057 parent `a759ae8afbb67e8fb723983851ae36947fd97f17`, the exact reviewed dirty-path allowlist, an empty index, a clean unchanged canonical `main`, and local/live remote equality. Stage only the reviewed records, commit once on the authorized publication branch, fast-forward a still-clean canonical `main`, push normally without force, and verify local main/origin/live GitHub at clean `0/0`. Stop on any advancement, byte mismatch, or unexpected path without pull, merge, rebase, force-push, history rewrite, or scope expansion.
 
-Exact GIT-058 record-only allowlist:
+Exact GIT-059 record-only allowlist:
 
 - `docs/00_MASTER_PROJECT.md`
-- `docs/AI_SYSTEM.md`
 - `docs/CURRENT_STATE.md`
 - `docs/DECISIONS.md`
 - `docs/PROJECT_MANAGER_CONTEXT.md`
@@ -25,31 +24,51 @@ Exact GIT-058 record-only allowlist:
 - `docs/changelog.md`
 - `docs/specs/0006-unified-animation-workspace.md`
 - `docs/specs/README.md`
-- `docs/testing_workflow.md`
 
-After GIT-058 publication/synchronization, apply D-0054: stop exact PID 7680/port 56555, verify the port closed and proof preserved, then remove only obsolete `/5a2c/` and the fully merged publication branch. Never remove canonical main or active PM `/2d14/`. Cleanup grants no Phase 6 authority.
+Publication condition: when the canonical commit containing D-0067 is present on local `main`, local `origin/main`, and live GitHub `main` at clean `0/0`, that commit is exact GIT-059. Read its SHA directly from Git; do not add it self-referentially to these bytes. That synchronization fully closes Phase 5. Do not create a GIT-060 records-only self-closeout. No later repository action is authorized by this package. The next possible product action is Phase 6, but it remains unauthorized and not started and requires Arthur's separate explicit authorization.
 
-## Current proof and limits
+## Pre-GIT-059 cleanup proof and limits
+
+Fresh 2026-09-13 pre-GIT-059 checks establish:
+
+- local `HEAD`, `main`, and local `origin/main`: `41983b0c88e1994675a4901d5814b3d972ad46b4`
+- live GitHub `main`: `41983b0c88e1994675a4901d5814b3d972ad46b4`
+- `main...origin/main`: `0/0`
+- GIT-058 parent: `a759ae8afbb67e8fb723983851ae36947fd97f17`
+- GIT-058 message/path count: `docs: record phase 5 publication closeout`; exactly 13 documentation paths
+- former review PID 7680: absent
+- former review port 56555: no listener
+- former worktree `/Users/arthurcarlin/.codex/worktrees/5a2c/stick-animation-app`: absent and unregistered
+- former local branch `codex/spec0006-phase5-publication`: absent
+- canonical main worktree `/Users/arthurcarlin/Projects/stick-animation-app`: present
+- active PM worktree `/Users/arthurcarlin/.codex/worktrees/2d14/stick-animation-app`: present and registered
+- preserved proof backup: `/Users/arthurcarlin/.codex/worktrees/2d14/stick-animation-app/output/recovery/GIT-057-phase-5-a759ae8/phase-5`
+- preserved backup inventory: 98 files, 17,456 KiB (`du -sh`: 17M)
+- technical manifest SHA-256: `6a1c65c967f8f1d87a27e3834677bea84381f0c2577125bebfead6ca77308b6d`
+- pre-publication CPA closeout SHA-256: `91129b7c1b6294acd2189e9820f0c0665b4c8f6981d97e04c6ee36d3431da01c`
+- post-publication CPA closeout SHA-256: `32357b0351bd3f0f23f0bd78146c5e15c7e026296013d494b7330409e4855991`
+
+The PM recorded an empty `rsync -ani --delete` dry run before source deletion. That pre-deletion comparison cannot be independently rerun now that the source worktree is intentionally absent; this closeout therefore treats the empty dry run as PM-recorded evidence and freshly verifies the preserved destination inventory and bound hashes instead. D-0067 records that proof boundary.
 
 Accepted Phase 5 technical evidence:
 
 - accepted implementation base: `740eb70d2c713bf6bf8bd08123a0ed5eef3bc34d`
 - GIT-057 commit: `a759ae8afbb67e8fb723983851ae36947fd97f17`
 - commit message/path count: `Implement SPEC-0006 Phase 5 tools and library`; exactly 31 paths
-- manifest: `output/spec-0006/phase-5/proof-manifest.json`
+- manifest's historical source path: `output/spec-0006/phase-5/proof-manifest.json`; preserved file: `/Users/arthurcarlin/.codex/worktrees/2d14/stick-animation-app/output/recovery/GIT-057-phase-5-a759ae8/phase-5/proof-manifest.json`
 - manifest SHA-256: `6a1c65c967f8f1d87a27e3834677bea84381f0c2577125bebfead6ca77308b6d`
 - manifest: 32,852 bytes; PASS; integrity VALID; technicalAcceptance PASS
 - bindings: 17 source and 77 evidence
-- publication branch/worktree: `codex/spec0006-phase5-publication`; clean before this record-only closeout; index remains empty
-- review server: listener PID 7680; cwd `/Users/arthurcarlin/.codex/worktrees/5a2c/stick-animation-app`; HTTP 200 at port 56555
-- canonical local main: clean `a759ae8afbb67e8fb723983851ae36947fd97f17`
-- local origin/main: `a759ae8afbb67e8fb723983851ae36947fd97f17`
-- live GitHub main: `a759ae8afbb67e8fb723983851ae36947fd97f17`
-- divergence: `main...origin/main` = `0/0`
+- publication branch/worktree: removed after GIT-058 synchronization under D-0054/D-0067
+- review server: stopped; former PID 7680 is absent and port 56555 has no listener
+- pre-GIT-059 canonical local main: `41983b0c88e1994675a4901d5814b3d972ad46b4`
+- pre-GIT-059 local origin/main: `41983b0c88e1994675a4901d5814b3d972ad46b4`
+- pre-GIT-059 live GitHub main: `41983b0c88e1994675a4901d5814b3d972ad46b4`
+- pre-GIT-059 divergence: `main...origin/main` = `0/0`
 
 Accepted proof passed 17 browser flows/profile at desktop 1440×900 DPR1 and compact 390×844 DPR2: 200 Stick gestures, 96 Select/Lasso transforms, symbol deselection boundaries, and 48 onion category-direction checks. Release, 1,400 ms settle/autosave, exact Undo/Redo, scrub, Save/reload/Open hashes/geometry, and unrelated raster/rig invariance passed. Phase 1 migration passed 3,516 assertions; Phase 4A 364; Phase 4B six flows; Phase 5 tools/catalog 231; TypeScript, focused lint with zero errors/ten inherited warnings, scoped build, diff/scope/index and strict manifest validation passed. Real API/external/AI requests were zero. The PM separately observed 12/12 first-try Add Limb and Move Joint, autosave stability, symbol convert/place/deselect, and Brush success.
 
-Accepted technical paths are the immutable manifest's 17 `sourceBindings`. Reviewed CPA record/tree paths are:
+Accepted technical paths are the immutable manifest's 17 `sourceBindings`. Reviewed Phase 5 CPA record/tree paths at GIT-057 were:
 
 - `docs/00_MASTER_PROJECT.md`
 - `docs/AI_SYSTEM.md`
@@ -66,7 +85,7 @@ Accepted technical paths are the immutable manifest's 17 `sourceBindings`. Revie
 - `docs/testing_workflow.md`
 - `project/project_structure.txt`
 
-The Phase 5 manifest and every accepted runtime, fixture, technical-test and evidence byte remain unchanged through acceptance, propagation, and publication. D-0065 records acceptance; D-0066 records GIT-057. `AGENTS.md`, `docs/TERMINOLOGY.md`, packages/configuration, AI/provider/prompt/motion/video/tracking/API systems, legacy source stores, deployment, and other worktrees remain unchanged. Compact is Chromium emulation, not physical-phone proof; existing compact title clipping, missing favicon 404 and Canvas readback warning remain. Phase 6 is not included or authorized.
+The Phase 5 manifest and every accepted runtime, fixture, technical-test and evidence byte remained unchanged through acceptance, propagation, publication, and backup verification. D-0065 records acceptance; D-0066 records GIT-057 publication; GIT-058 records the Phase 5 publication closeout; D-0067 records completed cleanup; and this exact package is terminal GIT-059. `AGENTS.md`, `docs/TERMINOLOGY.md`, packages/configuration, AI/provider/prompt/motion/video/tracking/API systems, legacy source stores, deployment, canonical-main Git refs/history, the active PM worktree, and other worktrees remain unchanged by this pre-publication records-only correction. Compact is Chromium emulation, not physical-phone proof; existing compact title clipping, missing favicon 404 and Canvas readback warning remain. Phase 6 is not included or authorized.
 
 ## Historical Phase 3 closeout snapshot — superseded dispatch instructions
 

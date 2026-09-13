@@ -11,13 +11,13 @@ Last updated: 2026-09-13
 - Paid AI calls, remote writes, deployment, and baseline commits require task-specific authorization.
 - The roadmap may change when Arthur resolves pending decisions or new evidence changes the risk order.
 
-## Current owner sequence — 2026-09-13 (D-0066/GIT-057)
+## Current owner sequence — 2026-09-13 (D-0067/terminal GIT-059 package)
 
-SPEC-0006 Phases 1–5 are Verified/published/integrated. GIT-057 is exact 31-path commit `a759ae8afbb67e8fb723983851ae36947fd97f17`; its exact 17-path technical manifest SHA-256 remains `6a1c65c967f8f1d87a27e3834677bea84381f0c2577125bebfead6ca77308b6d`.
+SPEC-0006 Phases 1–5 are Verified/published/integrated/recorded and their accepted review copies are cleaned up. GIT-057 is exact 31-path commit `a759ae8afbb67e8fb723983851ae36947fd97f17`; GIT-058 is exact 13-path record commit `41983b0c88e1994675a4901d5814b3d972ad46b4`; the exact 17-path technical manifest SHA-256 remains `6a1c65c967f8f1d87a27e3834677bea84381f0c2577125bebfead6ca77308b6d`.
 
 The corrected order keeps seven numbered phases. Minimal neutral data/storage precedes Phase 4 visible ordinary New, common history and timeline; this avoids a temporary broken or lossy Save. Phase 5 now completes current tools/catalogs/panels. Phase 6 completes source adoption/recovery; Phase 7 completes retirement/full proof.
 
-Publish the GIT-057 record-only closeout, then perform D-0054 cleanup of the exact preserved review server/worktree/branch. Phase 6 remains unauthorized and not started after cleanup; it requires separate authority. Phase 7 remains after Phase 6. Future SPEC-0007/0008 remain gated by SPEC-0006 completion.
+GIT-058 publication and D-0054 Phase 5 cleanup are complete; the proof backup is preserved under active PM `/2d14/`. This exact 11-path D-0067 records package is terminal GIT-059. Its SHA/status must be read directly from the canonical commit containing D-0067 and Git refs rather than predeclared; once it is published and synchronized, Phase 5 is fully closed with no follow-on records-only closeout. The next possible product action is Phase 6, but it remains unauthorized and not started and requires Arthur's separate explicit authority. Phase 7 remains after Phase 6. Future SPEC-0007/0008 remain gated by SPEC-0006 completion.
 
 ## Phase 0 — Preserve and Stabilize
 

@@ -1,9 +1,9 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-13 published/integrated SPEC-0006 Phase 5 at GIT-057 `a759ae8afbb67e8fb723983851ae36947fd97f17`.
+Last traced: 2026-09-13 published/integrated SPEC-0006 Phase 5 at GIT-057 `a759ae8afbb67e8fb723983851ae36947fd97f17`; GIT-058 records publication at `41983b0c88e1994675a4901d5814b3d972ad46b4`, and D-0067 records completed review-copy cleanup. This exact 11-path records package is terminal GIT-059; its SHA/status must be read from the canonical commit containing D-0067 and Git refs. No runtime architecture changed in GIT-058, D-0067, or GIT-059.
 
-## Current implementation — Phase 5 published and integrated (D-0065/D-0066)
+## Current implementation — Phase 5 published, recorded, and cleaned up (D-0065–D-0067)
 
 Phase 5 keeps the accepted neutral V2 root as the sole authored-state, command, history, render, and repository owner while completing the current Drawing/Stick adapters and the four shared tabs. Project catalogs now own reusable Drawing bitmap, structured Stick, and Mixed definitions; instances carry independent transforms and reference immutable digest-bound definitions. Structured Stick geometry is transformed as joints/segments with constant radii/thickness, while a Mixed definition stores its Drawing portion once as a hash-bound PNG.
 
@@ -13,7 +13,7 @@ Symbol selection remains owned only by ordinary Select interactions. Empty-canva
 
 Unified onion masks resolve raster, text, editable rig, Drawing symbol, Stick symbol, and Mixed symbol from one owner with purple previous/green next tint, copied-owner dedupe, holds, and blank barriers. Shared integer-center bitmap offsets preserve Brush pixels across active-layer commit, timeline scrub, Save/reopen, and onion composition. The compact unified timeline stacks controls over full-width lanes and reserves panel height so ordinary cell pointer clicks are not obscured.
 
-Phase 6 still owns exhaustive legacy-source adoption/recovery and persistence fault proof. Phase 7 still owns duplicate-owner retirement and whole-spec acceptance. No AI/provider/prompt/motion/video/tracking/API, dependency, export, cloud/social Share, Creator Save, new rig feature, or automatic attachment/following behavior changed.
+Phase 6 still owns exhaustive legacy-source adoption/recovery and persistence fault proof. Phase 7 still owns duplicate-owner retirement and whole-spec acceptance. Phase 5's record publication and D-0054 review-copy cleanup are complete; its proof is preserved outside the removed review worktree. No AI/provider/prompt/motion/video/tracking/API, dependency, export, cloud/social Share, Creator Save, new rig feature, or automatic attachment/following behavior changed.
 
 ## Historical current implementation — corrected Phase 4 accepted (D-0063)
 
@@ -157,7 +157,7 @@ Home New/Open → source reader / V2 factory / repository
   → current tools/panels/project catalog → full V2 Save/Save As/recovery
 ```
 
-No layer has a content kind. Drawing raster/text/symbol and structured Stick items coexist in the same layer/frame. Current ordinary runtime has not reached this target; D-0062 owns the correction. AI code/envelopes/providers/prompts/motion remain protected, with no new AI/manual future-spec capability.
+No layer has a content kind. Drawing raster/text/symbol and structured Stick items coexist in the same layer/frame. Current ordinary runtime has reached this neutral-root/current-tools target through accepted Phases 4–5; exhaustive source adoption/recovery and duplicate-owner retirement remain Phase 6–7 work. AI code/envelopes/providers/prompts/motion remain protected, with no new AI/manual future-spec capability.
 
 ## Protected Architectural Invariants
 

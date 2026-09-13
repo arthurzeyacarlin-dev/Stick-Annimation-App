@@ -5,6 +5,13 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-13 — Terminal GIT-059 package for GIT-058/D-0054 cleanup closeout (D-0067)
+
+- Independently verified GIT-058 as exact 13-path records commit `41983b0c88e1994675a4901d5814b3d972ad46b4`, parent GIT-057 `a759ae8afbb67e8fb723983851ae36947fd97f17`, message `docs: record phase 5 publication closeout`; local `HEAD`/`main`/`origin/main` and live GitHub `main` match at clean `0/0`.
+- Verified former review PID 7680 absent, TCP port 56555 closed, `/5a2c/` absent and unregistered, and local branch `codex/spec0006-phase5-publication` absent. Canonical main and active PM `/2d14/` remain present and registered.
+- Verified the preserved backup at `/Users/arthurcarlin/.codex/worktrees/2d14/stick-animation-app/output/recovery/GIT-057-phase-5-a759ae8/phase-5`: 98 files, 17,456 KiB (about 17 MB), with technical/prior-CPA/post-publication-CPA manifest SHA-256 values `6a1c65c967f8f1d87a27e3834677bea84381f0c2577125bebfead6ca77308b6d`, `91129b7c1b6294acd2189e9820f0c0665b4c8f6981d97e04c6ee36d3431da01c`, and `32357b0351bd3f0f23f0bd78146c5e15c7e026296013d494b7330409e4855991`. The PM recorded an empty checksum rsync dry-run before deletion; the removed source makes that one pre-deletion comparison non-repeatable now.
+- SPEC-0006 Phases 1–5 are Verified, published, integrated, recorded, and cleaned up. This exact 11-path D-0067 records package is terminal GIT-059; its exact SHA/publication status must be read from the canonical commit containing D-0067 and Git refs, and no GIT-060 records-only self-closeout follows. Once GIT-059 is synchronized, Phase 5 is fully closed. The next possible product action is Phase 6, but it remains unauthorized and not started; no runtime/test/fixture/proof/dependency/configuration/AI/provider/deployment bytes or systems changed.
+
 ### 2026-09-13 — Publish/integrate SPEC-0006 Phase 5 (D-0066/GIT-057)
 
 - Published the exact D-0065 accepted package as commit `a759ae8afbb67e8fb723983851ae36947fd97f17`, parent `740eb70d2c713bf6bf8bd08123a0ed5eef3bc34d`, message `Implement SPEC-0006 Phase 5 tools and library`: 17 accepted technical paths plus 14 reviewed control-plane/tree paths.

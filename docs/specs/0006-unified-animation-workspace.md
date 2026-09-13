@@ -1,13 +1,13 @@
 # SPEC-0006 — Unified Animation Workspace
 
-Status: **Approved and active; Phases 1–4 Verified/published/integrated; Phase 5 human-accepted and technically Verified pending publication.** The former typed-layer Phase 4 remains rejected, unpublished, and non-reusable. D-0065 accepts the exact 17-path Phase 5 result; Phases 6–7 remain not started.
+Status: **Approved and active; Phases 1–5 Verified, published, and integrated.** The former typed-layer Phase 4 remains rejected, unpublished, and non-reusable. D-0065 accepts the exact 17-path Phase 5 result; D-0066/GIT-057 publishes it at `a759ae8afbb67e8fb723983851ae36947fd97f17`. Phases 6–7 remain unauthorized and not started.
 Owner: Arthur
 Task role: Control Plane Architect after accepted Phase 5 Spec Executor stop and exclusive `/5a2c/` ownership transfer
 Created: 2026-09-09
 Last updated: 2026-09-13
-Decision links: [D-0055–D-0065](../DECISIONS.md)
-TODO IDs: `PLAN-006`, `SPEC-006`, `UNIFY-001`–`UNIFY-007`, `GIT-050`–`GIT-057`
-Fresh local evidence: Phase 5 is accepted in detached `/5a2c/` at base/HEAD `740eb70d2c713bf6bf8bd08123a0ed5eef3bc34d`, empty index. Its immutable 32,852-byte manifest is `output/spec-0006/phase-5/proof-manifest.json`, SHA-256 `6a1c65c967f8f1d87a27e3834677bea84381f0c2577125bebfead6ca77308b6d`, PASS/VALID with 17 source and 77 evidence bindings. Canonical local `main` is clean at `740eb70…`, local `origin/main` is GIT-056 `9c971fa4…`, and `main...origin/main` is `1/0`; publication is a separate GIT-057 task.
+Decision links: [D-0055–D-0066](../DECISIONS.md)
+TODO IDs: `PLAN-006`, `SPEC-006`, `UNIFY-001`–`UNIFY-007`, `GIT-050`–`GIT-058`
+Fresh local evidence: GIT-057 published Phase 5 as exact 31-path commit `a759ae8afbb67e8fb723983851ae36947fd97f17`, parent `740eb70d2c713bf6bf8bd08123a0ed5eef3bc34d`, message `Implement SPEC-0006 Phase 5 tools and library`. Its immutable 32,852-byte manifest is `output/spec-0006/phase-5/proof-manifest.json`, SHA-256 `6a1c65c967f8f1d87a27e3834677bea84381f0c2577125bebfead6ca77308b6d`, PASS/VALID with 17 source and 77 evidence bindings. Publication branch, canonical local `main`, local `origin/main`, and live GitHub `main` match at clean `0/0`.
 
 **Authority and sequencing.** Arthur requires neutral layers and a visible corrected Phase 4 in the same app copy. This supersedes D-0056/D-0057's typed-layer design and the former Phase 4 timeline-only boundary, not the three published historical results. SPEC-0006 remains the sole specification and retains **seven numbered phases**. Corrected Phase 4 has exactly **two sequential internal subphases, 4A and 4B**, under its existing correction authorization, ending in one visible human review. A hidden 4A checkpoint is never Phase 4 acceptance. See §12 for why ordinary New requires a minimal safe repository before cutover, the exact 12-path 4A boundary and 24-path 4B boundary.
 
@@ -19,8 +19,8 @@ This architecture task stops after its packet. It performs no runtime/proof/serv
 | 2 — Shell/New/Open | Published GIT-052 `d2096109900cc50a0a4dae2f603bd74b7b4a3427`; 15 actual paths | historical 16 |
 | 3 — Typed-layer mixed stage | Published GIT-054 `e11f6c453f13772ee9bd4b172a17bc68e1de65b9`; 16 actual paths | historical 16 |
 | 4 — Visible neutral workspace/timeline correction | **Verified/published/integrated in GIT-056**; 4A + 4B completed and human-accepted | **26 actual technical paths** |
-| 5 — Complete current tools, project Library/Assets and panels | **Human-accepted/technically Verified under D-0065; pending GIT-057 publication**; 17 actual technical paths | 20 |
-| 6 — Complete canonical adoption/recovery and persistence proof | After Phase 5 publication; not started | 20 |
+| 5 — Complete current tools, project Library/Assets and panels | **Verified/published/integrated under D-0065/D-0066/GIT-057**; 17 actual technical paths | 20 |
+| 6 — Complete canonical adoption/recovery and persistence proof | Phase 5 published; unauthorized and not started | 20 |
 | 7 — Retire duplicate ownership and full acceptance | After Phase 6 publication; not started | 18 |
 
 ## 1. Plain-language outcome
@@ -470,7 +470,7 @@ Ordinary New/Open/store/build-import checks prove no MIXED fixture, DRAWING + ST
 
 ### Phase 5 — Complete current tools, shared Library/Assets, selection and panels
 
-**Lifecycle:** Completed, Arthur-accepted, and technically Verified under D-0065. The immutable accepted manifest is `output/spec-0006/phase-5/proof-manifest.json`, SHA-256 `6a1c65c967f8f1d87a27e3834677bea84381f0c2577125bebfead6ca77308b6d`, with exactly 17 technical paths and 77 evidence bindings. Publication/integration is pending GIT-057; the accepted server/worktree remain preserved.
+**Lifecycle:** Completed, Arthur-accepted, technically Verified, published, and integrated under D-0065/D-0066/GIT-057. The immutable accepted manifest is `output/spec-0006/phase-5/proof-manifest.json`, SHA-256 `6a1c65c967f8f1d87a27e3834677bea84381f0c2577125bebfead6ca77308b6d`, with exactly 17 technical paths and 77 evidence bindings. The exact publication commit is `a759ae8afbb67e8fb723983851ae36947fd97f17`; the server/worktree remain preserved pending record publication and D-0054 cleanup.
 
 **Outcome/path.** Complete the current Drawing/Stick capability matrix and shared layout over the accepted neutral Phase 4 root. Selection/property/catalog actions → item adapter → same command/history → shared stage/repository. The user creates a bitmap sword symbol, places two independent instances in the same mixed cell, edits one and saves/reopens both with reusable definitions intact.
 
@@ -657,4 +657,4 @@ The PM separately observed 12/12 first-try Add Limb and 12/12 first-try Move Joi
 
 After the executor stopped, Arthur/PM acceptance transferred `/5a2c/` sequentially to the Control Plane Architect for propagation only. CPA revalidated the unchanged manifest before editing records, preserved every accepted source/evidence byte, updated canonical memory/tree, and left the index empty. The review server remains `http://127.0.0.1:56555/`, PID 7680, cwd `/5a2c/`.
 
-GIT-057 publication remains separate. At CPA propagation, canonical local `main` is clean at `740eb70d2c713bf6bf8bd08123a0ed5eef3bc34d`, local `origin/main` is `9c971fa4f7ea0e636ecc6957755552f678f344df`, and `main...origin/main` is `1/0`; `740eb70…` is the reviewed Phase 4 publication-closeout records commit. A publication task must preserve that ancestry, stage only the exact accepted 17 technical paths plus the reviewed Phase 5 canonical records/tree, commit once on a `codex/` publication branch, fast-forward a still-clean canonical `main`, push normally, and verify local main/origin/live GitHub at clean `0/0`. Stop on any advancement or mismatch without pull, merge, rebase, force-push, history rewrite, or scope expansion. D-0054 cleanup follows successful synchronization. Phase 6 remains not started and unauthorized until then.
+GIT-057 published the exact accepted 17 technical paths plus 14 reviewed control-plane/tree paths as commit `a759ae8afbb67e8fb723983851ae36947fd97f17`, parent `740eb70d2c713bf6bf8bd08123a0ed5eef3bc34d`, message `Implement SPEC-0006 Phase 5 tools and library`. It used publication branch `codex/spec0006-phase5-publication`, fast-forwarded clean canonical `main`, pushed normally without force to GitHub repository `arthurzeyacarlin-dev/Stick-Annimation-App` branch `main`, and ended with the publication branch, local `main`, local `origin/main`, and live GitHub `main` equal at clean `0/0`. All 108 technical/evidence/control-plane bindings revalidated with zero mismatches. Publish this record-only closeout separately, then apply D-0054 cleanup to the exact preserved server/worktree/branch. Phase 6 remains unauthorized and not started; cleanup grants no implementation authority.

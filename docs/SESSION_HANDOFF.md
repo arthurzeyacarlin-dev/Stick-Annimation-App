@@ -3,30 +3,49 @@
 Status: canonical last-known stopping point
 Last updated: 2026-09-13
 
-SPEC-0006 Phases 1–4 are Verified, published, and integrated. Phase 5 is human-accepted and technically Verified under D-0065, pending separate GIT-057 publication/integration. The former typed-layer Phase 4 remains rejected, unpublished, and non-reusable. Phases 6–7 are not started.
+SPEC-0006 Phases 1–5 are Verified, published, and integrated. D-0066/GIT-057 is exact commit `a759ae8afbb67e8fb723983851ae36947fd97f17`; publication branch, local `main`, local `origin/main`, and live GitHub `main` matched at clean `0/0`. The former typed-layer Phase 4 remains rejected, unpublished, and non-reusable. Phases 6–7 are unauthorized and not started.
 
 ## Next action and exclusive ownership
 
-The next task is a separately authorized Control Plane Architect publication of accepted Phase 5. Preserve `/Users/arthurcarlin/.codex/worktrees/5a2c/stick-animation-app`, its proof, and `http://127.0.0.1:56555/` until publication and synchronization succeed. Do not start Phase 6 first.
+The next task is separately authorized CPA publication of this GIT-057 record-only closeout (GIT-058). Preserve `/Users/arthurcarlin/.codex/worktrees/5a2c/stick-animation-app`, its ignored proof, branch `codex/spec0006-phase5-publication`, and `http://127.0.0.1:56555/` through that record publication and synchronization. Do not start Phase 6.
 
-Before publication, verify unchanged accepted technical/control-plane bytes, empty index, exact Git refs, and server identity. Create a `codex/` publication branch in `/5a2c/`; stage only the exact 17 accepted technical paths plus the exact reviewed CPA record/tree paths; commit once; fast-forward a still-clean canonical `main`; push normally; verify local main, local origin, and live GitHub clean at `0/0`. If canonical main, origin, remote, any accepted technical byte, or any reviewed control-plane byte advanced or changed, stop without pull, merge, rebase, force-push, history rewrite, or scope expansion.
+Before GIT-058, verify unchanged record hashes/allowlist, exact `a759ae8…` ancestry, empty index, clean canonical `main`, local/live remote equality, and server identity. Stage only the reviewed record-only closeout paths, commit once on the existing publication branch, fast-forward a still-clean canonical `main`, push normally without force, and verify local main/origin/live GitHub at clean `0/0`. Stop on any advancement, byte mismatch, or unexpected path without pull, merge, rebase, force-push, history rewrite, or scope expansion.
 
-After successful publication/synchronization, apply D-0054: stop the exact port 56555 server, verify the port closed, preserve proof, and remove only the obsolete `/5a2c/` worktree and now-unused publication branch. Never remove canonical main or the active Project Manager `/2d14/` worktree.
+Exact GIT-058 record-only allowlist:
+
+- `docs/00_MASTER_PROJECT.md`
+- `docs/AI_SYSTEM.md`
+- `docs/CURRENT_STATE.md`
+- `docs/DECISIONS.md`
+- `docs/PROJECT_MANAGER_CONTEXT.md`
+- `docs/ROADMAP.md`
+- `docs/SESSION_HANDOFF.md`
+- `docs/TODO.md`
+- `docs/architecture.md`
+- `docs/changelog.md`
+- `docs/specs/0006-unified-animation-workspace.md`
+- `docs/specs/README.md`
+- `docs/testing_workflow.md`
+
+After GIT-058 publication/synchronization, apply D-0054: stop exact PID 7680/port 56555, verify the port closed and proof preserved, then remove only obsolete `/5a2c/` and the fully merged publication branch. Never remove canonical main or active PM `/2d14/`. Cleanup grants no Phase 6 authority.
 
 ## Current proof and limits
 
 Accepted Phase 5 technical evidence:
 
-- base/HEAD: `740eb70d2c713bf6bf8bd08123a0ed5eef3bc34d`
+- accepted implementation base: `740eb70d2c713bf6bf8bd08123a0ed5eef3bc34d`
+- GIT-057 commit: `a759ae8afbb67e8fb723983851ae36947fd97f17`
+- commit message/path count: `Implement SPEC-0006 Phase 5 tools and library`; exactly 31 paths
 - manifest: `output/spec-0006/phase-5/proof-manifest.json`
 - manifest SHA-256: `6a1c65c967f8f1d87a27e3834677bea84381f0c2577125bebfead6ca77308b6d`
 - manifest: 32,852 bytes; PASS; integrity VALID; technicalAcceptance PASS
 - bindings: 17 source and 77 evidence
-- index: empty
+- publication branch/worktree: `codex/spec0006-phase5-publication`; clean before this record-only closeout; index remains empty
 - review server: listener PID 7680; cwd `/Users/arthurcarlin/.codex/worktrees/5a2c/stick-animation-app`; HTTP 200 at port 56555
-- canonical local main: clean `740eb70d2c713bf6bf8bd08123a0ed5eef3bc34d`
-- local origin/main: `9c971fa4f7ea0e636ecc6957755552f678f344df`
-- divergence: `main...origin/main` = `1/0`, where `740eb70…` is the reviewed Phase 4 publication-closeout records commit
+- canonical local main: clean `a759ae8afbb67e8fb723983851ae36947fd97f17`
+- local origin/main: `a759ae8afbb67e8fb723983851ae36947fd97f17`
+- live GitHub main: `a759ae8afbb67e8fb723983851ae36947fd97f17`
+- divergence: `main...origin/main` = `0/0`
 
 Accepted proof passed 17 browser flows/profile at desktop 1440×900 DPR1 and compact 390×844 DPR2: 200 Stick gestures, 96 Select/Lasso transforms, symbol deselection boundaries, and 48 onion category-direction checks. Release, 1,400 ms settle/autosave, exact Undo/Redo, scrub, Save/reload/Open hashes/geometry, and unrelated raster/rig invariance passed. Phase 1 migration passed 3,516 assertions; Phase 4A 364; Phase 4B six flows; Phase 5 tools/catalog 231; TypeScript, focused lint with zero errors/ten inherited warnings, scoped build, diff/scope/index and strict manifest validation passed. Real API/external/AI requests were zero. The PM separately observed 12/12 first-try Add Limb and Move Joint, autosave stability, symbol convert/place/deselect, and Brush success.
 
@@ -47,7 +66,7 @@ Accepted technical paths are the immutable manifest's 17 `sourceBindings`. Revie
 - `docs/testing_workflow.md`
 - `project/project_structure.txt`
 
-The Phase 5 manifest and every accepted runtime, fixture, technical-test and evidence byte remain unchanged through CPA propagation. Human acceptance is D-0065, not a rewrite of the executor manifest. `AGENTS.md`, `docs/TERMINOLOGY.md`, packages/configuration, AI/provider/prompt/motion/video/tracking/API systems, legacy source stores, deployment, and other worktrees remain unchanged. Compact is Chromium emulation, not physical-phone proof; existing compact title clipping, missing favicon 404 and Canvas readback warning remain. Phase 6 is not included or authorized.
+The Phase 5 manifest and every accepted runtime, fixture, technical-test and evidence byte remain unchanged through acceptance, propagation, and publication. D-0065 records acceptance; D-0066 records GIT-057. `AGENTS.md`, `docs/TERMINOLOGY.md`, packages/configuration, AI/provider/prompt/motion/video/tracking/API systems, legacy source stores, deployment, and other worktrees remain unchanged. Compact is Chromium emulation, not physical-phone proof; existing compact title clipping, missing favicon 404 and Canvas readback warning remain. Phase 6 is not included or authorized.
 
 ## Historical Phase 3 closeout snapshot — superseded dispatch instructions
 

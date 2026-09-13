@@ -11,13 +11,13 @@ Last updated: 2026-09-13
 - Paid AI calls, remote writes, deployment, and baseline commits require task-specific authorization.
 - The roadmap may change when Arthur resolves pending decisions or new evidence changes the risk order.
 
-## Current owner sequence — 2026-09-13 (D-0065)
+## Current owner sequence — 2026-09-13 (D-0066/GIT-057)
 
-SPEC-0006 Phases 1–4 are Verified/published/integrated. Phase 5 is human-accepted and technically Verified pending separate publication/integration. Its exact 17-path technical manifest SHA-256 is `6a1c65c967f8f1d87a27e3834677bea84381f0c2577125bebfead6ca77308b6d`.
+SPEC-0006 Phases 1–5 are Verified/published/integrated. GIT-057 is exact 31-path commit `a759ae8afbb67e8fb723983851ae36947fd97f17`; its exact 17-path technical manifest SHA-256 remains `6a1c65c967f8f1d87a27e3834677bea84381f0c2577125bebfead6ca77308b6d`.
 
 The corrected order keeps seven numbered phases. Minimal neutral data/storage precedes Phase 4 visible ordinary New, common history and timeline; this avoids a temporary broken or lossy Save. Phase 5 now completes current tools/catalogs/panels. Phase 6 completes source adoption/recovery; Phase 7 completes retirement/full proof.
 
-Phase 5 publication/integration is the next lifecycle action. Phase 6 cannot start until publication is complete; Phase 7 remains after Phase 6. Future SPEC-0007/0008 remain gated by SPEC-0006 completion.
+Publish the GIT-057 record-only closeout, then perform D-0054 cleanup of the exact preserved review server/worktree/branch. Phase 6 remains unauthorized and not started after cleanup; it requires separate authority. Phase 7 remains after Phase 6. Future SPEC-0007/0008 remain gated by SPEC-0006 completion.
 
 ## Phase 0 — Preserve and Stabilize
 

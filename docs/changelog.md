@@ -5,9 +5,16 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
-### 2026-09-13 — Accept SPEC-0006 Phase 5 tools/library correction (D-0065)
+### 2026-09-13 — Publish/integrate SPEC-0006 Phase 5 (D-0066/GIT-057)
 
-- Arthur accepted the final ordinary `/5a2c/` app copy. Phase 5 is technically Verified pending separate GIT-057 publication/integration.
+- Published the exact D-0065 accepted package as commit `a759ae8afbb67e8fb723983851ae36947fd97f17`, parent `740eb70d2c713bf6bf8bd08123a0ed5eef3bc34d`, message `Implement SPEC-0006 Phase 5 tools and library`: 17 accepted technical paths plus 14 reviewed control-plane/tree paths.
+- Created `codex/spec0006-phase5-publication`, verified the exact 31-path staged/commit set, fast-forwarded clean canonical `main`, and pushed normally without force to `arthurzeyacarlin-dev/Stick-Annimation-App` branch `main`.
+- Verified the publication branch, local `main`, local `origin/main`, and live GitHub `main` at the exact commit with clean `0/0`; both worktrees and indexes were clean. All 108 technical/evidence/control-plane bindings matched, including technical-manifest SHA-256 `6a1c65c967f8f1d87a27e3834677bea84381f0c2577125bebfead6ca77308b6d` and prior CPA closeout SHA-256 `91129b7c1b6294acd2189e9820f0c0665b4c8f6981d97e04c6ee36d3431da01c`.
+- Preserved review server PID 7680 at `127.0.0.1:56555` with exact `/5a2c/` cwd and HTTP 200. Publish this final record-only closeout before D-0054 cleanup. Phase 6 remains unauthorized and not started.
+
+### 2026-09-13 — Accept SPEC-0006 Phase 5 tools/library correction (historical pre-publication state; D-0065)
+
+- At this acceptance checkpoint, Arthur accepted the final ordinary `/5a2c/` app copy and Phase 5 was technically Verified pending the later GIT-057 publication now recorded above.
 - Preserved the exact 17-path accepted implementation and immutable 32,852-byte manifest at SHA-256 `6a1c65c967f8f1d87a27e3834677bea84381f0c2577125bebfead6ca77308b6d`, PASS/VALID with 17 source and 77 evidence bindings.
 - Recorded shared Stick Figure Tools/Properties/Library/Assets panels; project-owned Drawing/Stick/Mixed symbol definitions and instances; structured rig scaling; first-gesture-durable Add Limb/Move Joint; all six Select/Lasso category transforms; immediate symbol deselection boundaries; unified onion behavior; bitmap alignment; and compact timeline pointer access.
 - Final proof passed 34 browser flows across desktop/compact, 200 Stick gestures, 96 transforms, 48 onion checks, release/settle/history/scrub/save/reopen equality, and unrelated-content invariance. Phase 1/4A/4B/5, TypeScript, focused lint, scoped build, diff/scope/index and strict manifest validation passed; zero real API/external/AI requests.

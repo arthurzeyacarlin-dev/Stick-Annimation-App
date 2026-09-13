@@ -1,9 +1,9 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-13 accepted/Verified SPEC-0006 Phase 5 in the unpublished `/5a2c/` review worktree.
+Last traced: 2026-09-13 published/integrated SPEC-0006 Phase 5 at GIT-057 `a759ae8afbb67e8fb723983851ae36947fd97f17`.
 
-## Current implementation — Phase 5 accepted, pending publication (D-0065)
+## Current implementation — Phase 5 published and integrated (D-0065/D-0066)
 
 Phase 5 keeps the accepted neutral V2 root as the sole authored-state, command, history, render, and repository owner while completing the current Drawing/Stick adapters and the four shared tabs. Project catalogs now own reusable Drawing bitmap, structured Stick, and Mixed definitions; instances carry independent transforms and reference immutable digest-bound definitions. Structured Stick geometry is transformed as joints/segments with constant radii/thickness, while a Mixed definition stores its Drawing portion once as a hash-bound PNG.
 

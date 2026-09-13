@@ -1,7 +1,7 @@
 # Diamond Animator Master Project Charter
 
 Status: canonical product intent
-Last updated: 2026-09-12
+Last updated: 2026-09-13
 
 ## Product Mission
 
@@ -33,7 +33,7 @@ The goal is not to hide a weak editor behind a chat box. The goal is one capable
 
 ## Current Strategic Position
 
-SPEC-0006 Phases 1–4 are Verified, published, and integrated. GIT-055 published D-0062's corrected neutral architecture at `e956840001d18757af8f2de5361640ba70d44d68`; GIT-056 published the D-0063 accepted Phase 4 package at `9c971fa4f7ea0e636ecc6957755552f678f344df`. The exact 26-path technical manifest remains PASS at SHA-256 `9d2d18871981db2e499c689723730ada4690dd5cb94ab620a038e45557f298de`. The result establishes ordinary neutral New, same-cell Drawing and editable Stick content, shared timeline/history/playback/onion, safe V2 Save/Save As/Open, and exact pointer-mapped Stick gestures. It adds no AI or future manual-tool capability. The accepted review copy was removed after clean `0/0` synchronization. Phases 5–7 remain not started.
+SPEC-0006 Phases 1–4 are Verified, published, and integrated. Phase 5 is human-accepted and technically Verified under D-0065, pending its separate publication/integration. Its exact 17-path manifest is PASS/VALID at SHA-256 `6a1c65c967f8f1d87a27e3834677bea84381f0c2577125bebfead6ca77308b6d`. Phase 5 completes the current Drawing/Stick tool matrix, the four shared panels, project-owned Drawing/Stick/Mixed symbol catalogs, durable first-gesture Stick editing, cross-kind Select/Lasso transforms, unified onion behavior, bitmap alignment, and compact timeline pointer access without adding new AI or future manual-tool capability. Phase 6 remains not started and cannot begin until Phase 5 is durably published.
 
 The current code is a prototype foundation, not a finished Version 1. Existing documents that called either workspace “complete” described a past visual milestone and are superseded by `CURRENT_STATE.md`.
 

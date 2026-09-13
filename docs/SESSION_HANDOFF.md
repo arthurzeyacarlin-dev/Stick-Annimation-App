@@ -1,30 +1,36 @@
 # Session Handoff
 
 Status: canonical last-known stopping point
-Last updated: 2026-09-12
+Last updated: 2026-09-13
 
-SPEC-0006 Phases 1–4 are Verified, published, and integrated. GIT-056 is exact commit `9c971fa4f7ea0e636ecc6957755552f678f344df`; canonical `main` and `origin/main` were verified clean at `0/0`. The former typed-layer Phase 4 remains rejected, unpublished, and non-reusable. Phases 5–7 are not started.
+SPEC-0006 Phases 1–4 are Verified, published, and integrated. Phase 5 is human-accepted and technically Verified under D-0065, pending separate GIT-057 publication/integration. The former typed-layer Phase 4 remains rejected, unpublished, and non-reusable. Phases 6–7 are not started.
 
 ## Next action and exclusive ownership
 
-Do not repeat or republish Phase 4. Its accepted review copy and fully merged local branch were removed after publication and clean synchronization. Phase 5 is the next numbered product phase, but remains not started and requires separate authorization and a fresh dedicated Spec Executor from canonical GIT-056.
+The next task is a separately authorized Control Plane Architect publication of accepted Phase 5. Preserve `/Users/arthurcarlin/.codex/worktrees/5a2c/stick-animation-app`, its proof, and `http://127.0.0.1:56555/` until publication and synchronization succeed. Do not start Phase 6 first.
+
+Before publication, verify unchanged accepted technical/control-plane bytes, empty index, exact Git refs, and server identity. Create a `codex/` publication branch in `/5a2c/`; stage only the exact 17 accepted technical paths plus the exact reviewed CPA record/tree paths; commit once; fast-forward a still-clean canonical `main`; push normally; verify local main, local origin, and live GitHub clean at `0/0`. If canonical main, origin, remote, any accepted technical byte, or any reviewed control-plane byte advanced or changed, stop without pull, merge, rebase, force-push, history rewrite, or scope expansion.
+
+After successful publication/synchronization, apply D-0054: stop the exact port 56555 server, verify the port closed, preserve proof, and remove only the obsolete `/5a2c/` worktree and now-unused publication branch. Never remove canonical main or the active Project Manager `/2d14/` worktree.
 
 ## Current proof and limits
 
-Accepted technical evidence:
+Accepted Phase 5 technical evidence:
 
-- publication commit: `9c971fa4f7ea0e636ecc6957755552f678f344df`
-- publication parent: `e956840001d18757af8f2de5361640ba70d44d68`
-- manifest: `output/spec-0006/phase-4-neutral/proof-manifest.json`
-- manifest SHA-256: `9d2d18871981db2e499c689723730ada4690dd5cb94ab620a038e45557f298de`
-- exact technical paths: 26
-- exact published paths including reviewed control-plane/tree records: 40
-- synchronization after push: clean `main...origin/main`, `0/0`
-- cleanup: accepted `/1550/` review worktree and merged local branch removed
+- base/HEAD: `740eb70d2c713bf6bf8bd08123a0ed5eef3bc34d`
+- manifest: `output/spec-0006/phase-5/proof-manifest.json`
+- manifest SHA-256: `6a1c65c967f8f1d87a27e3834677bea84381f0c2577125bebfead6ca77308b6d`
+- manifest: 32,852 bytes; PASS; integrity VALID; technicalAcceptance PASS
+- bindings: 17 source and 77 evidence
+- index: empty
+- review server: listener PID 7680; cwd `/Users/arthurcarlin/.codex/worktrees/5a2c/stick-animation-app`; HTTP 200 at port 56555
+- canonical local main: clean `740eb70d2c713bf6bf8bd08123a0ed5eef3bc34d`
+- local origin/main: `9c971fa4f7ea0e636ecc6957755552f678f344df`
+- divergence: `main...origin/main` = `1/0`, where `740eb70…` is the reviewed Phase 4 publication-closeout records commit
 
-Accepted proof passed Phase 4A foundation (364 assertions), Phase 4B workspace (six flows, four tabs, eight tools), 16 browser flows, both proof validators, focused lint with zero errors/seven inherited warnings, HTTP 200, zero browser console errors/warnings, diff checks, and empty-index checks. Arthur accepted the final ordinary visible result after the pointer correction.
+Accepted proof passed 17 browser flows/profile at desktop 1440×900 DPR1 and compact 390×844 DPR2: 200 Stick gestures, 96 Select/Lasso transforms, symbol deselection boundaries, and 48 onion category-direction checks. Release, 1,400 ms settle/autosave, exact Undo/Redo, scrub, Save/reload/Open hashes/geometry, and unrelated raster/rig invariance passed. Phase 1 migration passed 3,516 assertions; Phase 4A 364; Phase 4B six flows; Phase 5 tools/catalog 231; TypeScript, focused lint with zero errors/ten inherited warnings, scoped build, diff/scope/index and strict manifest validation passed. Real API/external/AI requests were zero. The PM separately observed 12/12 first-try Add Limb and Move Joint, autosave stability, symbol convert/place/deselect, and Brush success.
 
-Published CPA record/tree paths:
+Accepted technical paths are the immutable manifest's 17 `sourceBindings`. Reviewed CPA record/tree paths are:
 
 - `docs/00_MASTER_PROJECT.md`
 - `docs/AI_SYSTEM.md`
@@ -33,7 +39,6 @@ Published CPA record/tree paths:
 - `docs/PROJECT_MANAGER_CONTEXT.md`
 - `docs/ROADMAP.md`
 - `docs/SESSION_HANDOFF.md`
-- `docs/TERMINOLOGY.md`
 - `docs/TODO.md`
 - `docs/architecture.md`
 - `docs/changelog.md`
@@ -42,7 +47,7 @@ Published CPA record/tree paths:
 - `docs/testing_workflow.md`
 - `project/project_structure.txt`
 
-No accepted runtime, fixture, technical-test, or original proof byte may change during CPA propagation. `AGENTS.md`, packages/configuration, AI/provider/prompt/motion/video/tracking/API systems, legacy source stores, deployment, and other worktrees remain unchanged. Phase 5–7 work is not included.
+The Phase 5 manifest and every accepted runtime, fixture, technical-test and evidence byte remain unchanged through CPA propagation. Human acceptance is D-0065, not a rewrite of the executor manifest. `AGENTS.md`, `docs/TERMINOLOGY.md`, packages/configuration, AI/provider/prompt/motion/video/tracking/API systems, legacy source stores, deployment, and other worktrees remain unchanged. Compact is Chromium emulation, not physical-phone proof; existing compact title clipping, missing favicon 404 and Canvas readback warning remain. Phase 6 is not included or authorized.
 
 ## Historical Phase 3 closeout snapshot — superseded dispatch instructions
 

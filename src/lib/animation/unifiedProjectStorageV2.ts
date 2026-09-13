@@ -1,4 +1,5 @@
 import { assertUnifiedAnimationProjectV2, type UnifiedAnimationProjectV2 } from "./unifiedAnimationContractV2";
+import { assertStructuredSymbolDigestsV2 } from "./unifiedProjectCatalogV2";
 
 const DB_NAME = "diamond-animation-unified-v2";
 const DB_VERSION = 1;
@@ -29,7 +30,11 @@ export async function listUnifiedProjectsV2(): Promise<UnifiedAnimationProjectV2
   try {
     const transaction = db.transaction(STORE, "readonly");
     const records = await request(transaction.objectStore(STORE).getAll());
-    return records.map(record => structuredClone(assertUnifiedAnimationProjectV2(record as UnifiedAnimationProjectV2)));
+    return await Promise.all(records.map(async record => {
+      const project = structuredClone(assertUnifiedAnimationProjectV2(record as UnifiedAnimationProjectV2));
+      await assertStructuredSymbolDigestsV2(project.document.catalogs.symbols);
+      return project;
+    }));
   } finally { db.close(); }
 }
 
@@ -39,12 +44,15 @@ export async function readUnifiedProjectV2(projectId: string): Promise<UnifiedAn
     const transaction = db.transaction(STORE, "readonly");
     const record = await request(transaction.objectStore(STORE).get(projectId));
     if (!record) throw new Error("source_changed");
-    return structuredClone(assertUnifiedAnimationProjectV2(record as UnifiedAnimationProjectV2));
+    const project = structuredClone(assertUnifiedAnimationProjectV2(record as UnifiedAnimationProjectV2));
+    await assertStructuredSymbolDigestsV2(project.document.catalogs.symbols);
+    return project;
   } finally { db.close(); }
 }
 
 export async function writeUnifiedProjectV2(project: UnifiedAnimationProjectV2, expectedRevision: number | null): Promise<UnifiedAnimationProjectV2> {
   const candidate = structuredClone(assertUnifiedAnimationProjectV2(project));
+  await assertStructuredSymbolDigestsV2(candidate.document.catalogs.symbols);
   const seen = new Set<ArrayBuffer>();
   let assetBytes = 0;
   const metadataBytes = new TextEncoder().encode(JSON.stringify(candidate, (_key, value) => {

@@ -1,4 +1,46 @@
-import type { UnifiedCellContentV2 } from "./unifiedAnimationContentV2";
+import type {
+  UnifiedCellContentV2,
+  UnifiedSymbolInstanceItemV2,
+  UnifiedSymbolSourceCategoryV2,
+} from "./unifiedAnimationContentV2";
+
+// Optional extension: absence means an existing raster-only definition. Never
+// infer a rig from a category label or thumbnail. New rig definitions carry v1.
+export type UnifiedStructuredSymbolPayloadV2 = {
+  version: 1;
+  joints: { id: string; x: number; y: number }[];
+  limbs: { id: string; startJointId: string; endJointId: string }[];
+  drawingPngDataUrl: string | null;
+};
+
+export type UnifiedBitmapSymbolDefinitionV2 = {
+  definitionId: string;
+  name: string;
+  sourceCategory: UnifiedSymbolSourceCategoryV2;
+  width: number;
+  height: number;
+  pngDataUrl: string;
+  assetSha256: string;
+  definitionDigest: string;
+  structuredPayload?: UnifiedStructuredSymbolPayloadV2;
+};
+
+export type UnifiedProjectAssetV2 = {
+  assetId: string;
+  name: string;
+  kind: "image" | "file";
+  mimeType: string;
+  byteLength: number;
+  width: number | null;
+  height: number | null;
+  dataUrl: string | null;
+  assetSha256: string;
+};
+
+export type UnifiedProjectCatalogsV2 = {
+  symbols: UnifiedBitmapSymbolDefinitionV2[];
+  assets: UnifiedProjectAssetV2[];
+};
 
 export type UnifiedCellV2 = {
   cellId: string;
@@ -23,7 +65,7 @@ export type UnifiedAnimationDocumentV2 = {
   logicalStage: { width: 1920; height: 1080; origin: "top-left"; xAxis: "right"; yAxis: "down" };
   fps: number;
   layers: UnifiedLayerV2[];
-  catalogs: { symbols: []; assets: [] };
+  catalogs: UnifiedProjectCatalogsV2;
   toolState: { drawingTool: string; stickTool: string };
   reopenState: { activeLayerId: string; currentFrameIndex: number; onionEnabled: boolean };
 };
@@ -37,11 +79,40 @@ export type UnifiedAnimationProjectV2 = {
   updatedAt: string;
   revision: number;
   document: UnifiedAnimationDocumentV2;
-  compatibility?: { drawingData: unknown; stickByCell: Record<string, import("../../components/workspace/stickfigure/types").StickFigureFrameContent> };
+  compatibility?: {
+    drawingData: unknown;
+    stickByCell: Record<string, import("../../components/workspace/stickfigure/types").StickFigureFrameContent>;
+    symbolInstancesByCell?: Record<string, UnifiedSymbolInstanceItemV2[]>;
+  };
 };
 
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+const sha256 = /^sha256:[0-9a-f]{64}$/;
 const finite = (value: number) => Number.isFinite(value) && !Object.is(value, -0);
+
+export function assertStructuredSymbolPayloadV2(definition: Pick<UnifiedBitmapSymbolDefinitionV2, "sourceCategory" | "structuredPayload">) {
+  if (!Object.prototype.hasOwnProperty.call(definition, "structuredPayload")) return;
+  const payload = definition.structuredPayload;
+  const exactKeys = (value: object, keys: string[]) => Object.keys(value).sort().join(",") === keys.sort().join(",");
+  if (!payload || payload.version !== 1 || !exactKeys(payload, ["version", "joints", "limbs", "drawingPngDataUrl"]) ||
+    !Array.isArray(payload.joints) || !payload.joints.length || payload.joints.length > 10000 ||
+    !Array.isArray(payload.limbs) || payload.limbs.length > 10000 ||
+    definition.sourceCategory === "Drawing Symbol" ||
+    (definition.sourceCategory === "Stick Figure Symbol" ? payload.drawingPngDataUrl !== null :
+      typeof payload.drawingPngDataUrl !== "string" || !payload.drawingPngDataUrl.startsWith("data:image/png;base64,"))) throw new Error("invalid_record");
+  const ids = new Set<string>();
+  for (const joint of payload.joints) {
+    if (!joint || !exactKeys(joint, ["id", "x", "y"]) || typeof joint.id !== "string" || !joint.id || ids.has(joint.id) ||
+      !finite(joint.x) || !finite(joint.y) || joint.x < 0 || joint.x > 1 || joint.y < 0 || joint.y > 1) throw new Error("invalid_record");
+    ids.add(joint.id);
+  }
+  const limbIds = new Set<string>();
+  for (const limb of payload.limbs) {
+    if (!limb || !exactKeys(limb, ["id", "startJointId", "endJointId"]) || typeof limb.id !== "string" || !limb.id || limbIds.has(limb.id) ||
+      !ids.has(limb.startJointId) || !ids.has(limb.endJointId) || limb.startJointId === limb.endJointId) throw new Error("invalid_record");
+    limbIds.add(limb.id);
+  }
+}
 
 export function assertUnifiedAnimationDocumentV2(document: UnifiedAnimationDocumentV2) {
   if (document.kind !== "diamond-animation-document" || document.schemaVersion !== 2 || !uuid.test(document.projectId)) throw new Error("invalid_record");
@@ -49,6 +120,56 @@ export function assertUnifiedAnimationDocumentV2(document: UnifiedAnimationDocum
   if (document.layers.length < 1 || document.layers.length > 64) throw new Error("invalid_record");
   const layerIds = new Set<string>();
   const itemIds = new Set<string>();
+  const symbolDefinitions = new Map<string, UnifiedBitmapSymbolDefinitionV2>();
+  const symbolNames = new Set<string>();
+  const symbolDigests = new Set<string>();
+  const assetIds = new Set<string>();
+  const assetNames = new Set<string>();
+  for (const definition of document.catalogs.symbols) {
+    assertStructuredSymbolPayloadV2(definition);
+    const normalizedName = definition.name.trim().toLocaleLowerCase();
+    if (
+      !uuid.test(definition.definitionId) ||
+      symbolDefinitions.has(definition.definitionId) ||
+      !normalizedName ||
+      symbolNames.has(normalizedName) ||
+      !Number.isInteger(definition.width) ||
+      definition.width < 1 ||
+      !Number.isInteger(definition.height) ||
+      definition.height < 1 ||
+      !definition.pngDataUrl.startsWith("data:image/png;base64,") ||
+      !sha256.test(definition.assetSha256) ||
+      !sha256.test(definition.definitionDigest) ||
+      !["Drawing Symbol", "Stick Figure Symbol", "Drawing and Stick Figure Symbol"].includes(definition.sourceCategory)
+    ) throw new Error("invalid_record");
+    symbolDefinitions.set(definition.definitionId, definition);
+    symbolNames.add(normalizedName);
+    symbolDigests.add(definition.definitionDigest);
+  }
+  for (const asset of document.catalogs.assets) {
+    const normalizedName = asset.name.trim().toLocaleLowerCase();
+    if (
+      !uuid.test(asset.assetId) ||
+      assetIds.has(asset.assetId) ||
+      !normalizedName ||
+      assetNames.has(normalizedName) ||
+      !asset.mimeType.trim() ||
+      !Number.isSafeInteger(asset.byteLength) ||
+      asset.byteLength < 0 ||
+      !sha256.test(asset.assetSha256) ||
+      !["image", "file"].includes(asset.kind) ||
+      (asset.kind === "image" && (
+        !asset.dataUrl?.startsWith("data:image/") ||
+        !Number.isInteger(asset.width) ||
+        asset.width! < 1 ||
+        !Number.isInteger(asset.height) ||
+        asset.height! < 1
+      )) ||
+      (asset.kind === "file" && (asset.dataUrl !== null || asset.width !== null || asset.height !== null))
+    ) throw new Error("invalid_record");
+    assetIds.add(asset.assetId);
+    assetNames.add(normalizedName);
+  }
   for (const [order, layer] of document.layers.entries()) {
     if (!uuid.test(layer.layerId) || layerIds.has(layer.layerId) || layer.orderIndex !== order || !layer.name.trim() || "contentKind" in layer) throw new Error("invalid_record");
     layerIds.add(layer.layerId);
@@ -71,11 +192,25 @@ export function assertUnifiedAnimationDocumentV2(document: UnifiedAnimationDocum
           } else if (item.kind === "stick-rig/v1") {
             const jointIds = new Set(item.content.structureGraph.joints.map(joint => joint.id));
             if (jointIds.size !== item.content.structureGraph.joints.length || item.content.structureGraph.limbs.some(limb => !jointIds.has(limb.startJointId) || !jointIds.has(limb.endJointId))) throw new Error("invalid_record");
-          } else if (item.kind !== "symbol-instance/v1") throw new Error("invalid_record");
+          } else if (item.kind === "symbol-instance/v1") {
+            const definition = symbolDefinitions.get(item.definitionId);
+            if (
+              !definition ||
+              definition.definitionDigest !== item.definitionDigest ||
+              !finite(item.x) ||
+              !finite(item.y) ||
+              !finite(item.width) ||
+              item.width <= 0 ||
+              !finite(item.height) ||
+              item.height <= 0 ||
+              !finite(item.rotation)
+            ) throw new Error("invalid_record");
+          } else throw new Error("invalid_record");
         }
       } else if (cell.content !== null || !cellIds.has(cell.ownerCellId!)) throw new Error("invalid_cell_owner");
     }
   }
+  if (symbolDigests.size !== document.catalogs.symbols.length) throw new Error("invalid_record");
   if (!layerIds.has(document.reopenState.activeLayerId)) throw new Error("invalid_record");
   return document;
 }

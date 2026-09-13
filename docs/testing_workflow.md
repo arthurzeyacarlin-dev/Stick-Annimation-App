@@ -1,7 +1,15 @@
 # Verification and Regression Workflow
 
 Status: canonical proof standard and current gate baseline
-Last updated: 2026-09-12
+Last updated: 2026-09-13
+
+## Current SPEC-0006 Phase 5 accepted evidence
+
+Phase 5 is human-accepted and technically Verified pending publication under D-0065. Its immutable manifest is `output/spec-0006/phase-5/proof-manifest.json`, SHA-256 `6a1c65c967f8f1d87a27e3834677bea84381f0c2577125bebfead6ca77308b6d`, with 17 accepted source bindings and 77 evidence bindings.
+
+The final real-browser proof ran 17 flows per profile at 1440×900 DPR1 and 390×844 DPR2: 50 Add Limb plus 50 Move Joint gestures per profile (200 total), all six Select/Lasso × Drawing/Stick/Mixed groups with eight transforms each (96 total), symbol deselection boundaries, and 48 onion category-direction checks. It compared pointer release against a 1,400 ms autosave settle, exact Undo/Redo, scrub, Save/reload/Open hashes and geometry, and unrelated raster/rig invariance. The PM separately observed 12/12 first-try Add Limb, 12/12 first-try Move Joint, autosave stability, symbol conversion/placement/deselection, and Brush success.
+
+Phase 1 migration passed 3,516 assertions; Phase 4A 364; Phase 4B six flows; Phase 5 tools/catalog 231. TypeScript, focused lint with zero errors/ten inherited warnings, scoped production build, diff, exact scope, and empty-index checks passed. Browser ledgers recorded zero real API/external/AI requests. Physical-phone behavior remains unproven; compact is Chromium emulation. Existing compact title clipping, missing favicon 404, and Canvas readback performance warning remain out of scope.
 
 ## Core Rule
 

@@ -1,7 +1,7 @@
 # Roadmap
 
 Status: canonical ordered direction; not a delivery schedule
-Last updated: 2026-09-12
+Last updated: 2026-09-13
 
 ## Roadmap Rules
 
@@ -11,13 +11,13 @@ Last updated: 2026-09-12
 - Paid AI calls, remote writes, deployment, and baseline commits require task-specific authorization.
 - The roadmap may change when Arthur resolves pending decisions or new evidence changes the risk order.
 
-## Current owner sequence — 2026-09-12 (D-0063/GIT-056)
+## Current owner sequence — 2026-09-13 (D-0065)
 
-SPEC-0006 Phases 1–4 are Verified/published/integrated. GIT-055 published the neutral architecture; GIT-056 published the D-0063 accepted Phase 4 package at `9c971fa4f7ea0e636ecc6957755552f678f344df`. Its exact 26-path technical manifest SHA-256 is `9d2d18871981db2e499c689723730ada4690dd5cb94ab620a038e45557f298de`.
+SPEC-0006 Phases 1–4 are Verified/published/integrated. Phase 5 is human-accepted and technically Verified pending separate publication/integration. Its exact 17-path technical manifest SHA-256 is `6a1c65c967f8f1d87a27e3834677bea84381f0c2577125bebfead6ca77308b6d`.
 
-The corrected order keeps seven numbered phases. Minimal neutral data/storage precedes Phase 4 visible ordinary New, common history and timeline; this avoids a temporary broken or lossy Save. Phase 5 completes current tools/catalogs/panels; Phase 6 complete source adoption/recovery; Phase 7 retirement/full proof. No invisible 4A checkpoint is the user review.
+The corrected order keeps seven numbered phases. Minimal neutral data/storage precedes Phase 4 visible ordinary New, common history and timeline; this avoids a temporary broken or lossy Save. Phase 5 now completes current tools/catalogs/panels. Phase 6 completes source adoption/recovery; Phase 7 completes retirement/full proof.
 
-GIT-056 publication/integration and accepted-copy cleanup are complete. SPEC-0006 Phase 5 is the next numbered product phase only after separate authorization; Phase 6 completes all-source adoption/recovery, and Phase 7 retires duplicate ownership and runs full acceptance. Future SPEC-0007/0008 remain gated by SPEC-0006 completion.
+Phase 5 publication/integration is the next lifecycle action. Phase 6 cannot start until publication is complete; Phase 7 remains after Phase 6. Future SPEC-0007/0008 remain gated by SPEC-0006 completion.
 
 ## Phase 0 — Preserve and Stabilize
 

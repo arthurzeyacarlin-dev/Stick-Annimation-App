@@ -1,9 +1,21 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-12 published corrected Phase 4 at GIT-056 `9c971fa4f7ea0e636ecc6957755552f678f344df`.
+Last traced: 2026-09-13 accepted/Verified SPEC-0006 Phase 5 in the unpublished `/5a2c/` review worktree.
 
-## Current implementation — corrected Phase 4 accepted (D-0063)
+## Current implementation — Phase 5 accepted, pending publication (D-0065)
+
+Phase 5 keeps the accepted neutral V2 root as the sole authored-state, command, history, render, and repository owner while completing the current Drawing/Stick adapters and the four shared tabs. Project catalogs now own reusable Drawing bitmap, structured Stick, and Mixed definitions; instances carry independent transforms and reference immutable digest-bound definitions. Structured Stick geometry is transformed as joints/segments with constant radii/thickness, while a Mixed definition stores its Drawing portion once as a hash-bound PNG.
+
+DrawingCanvas remains the interaction adapter. Select/Lasso project Drawing pixels and structured Stick content into one selection session, update its ref synchronously, then publish one unified selection mutation. Stick and placed-symbol pointer drafts are ref-backed; pointer-up consumes the final sample and seals ownership before capture release/commit, so lost-capture and pointer-autosave paths are idempotent. `DrawingWorkspace` synchronously commits Stick state through the existing global history owner. No timer/retry, double dispatch, new history root, magic coordinate offset, or test-only runtime hook was introduced.
+
+Symbol selection remains owned only by ordinary Select interactions. Empty-canvas pointer-down, Drawing tool activation (including same-tool reactivation), Stick tab/tool activation, playback, and editing-context changes clear its overlay and draft. A symbol's own click/resize/history flow keeps selection so existing Properties actions remain usable.
+
+Unified onion masks resolve raster, text, editable rig, Drawing symbol, Stick symbol, and Mixed symbol from one owner with purple previous/green next tint, copied-owner dedupe, holds, and blank barriers. Shared integer-center bitmap offsets preserve Brush pixels across active-layer commit, timeline scrub, Save/reopen, and onion composition. The compact unified timeline stacks controls over full-width lanes and reserves panel height so ordinary cell pointer clicks are not obscured.
+
+Phase 6 still owns exhaustive legacy-source adoption/recovery and persistence fault proof. Phase 7 still owns duplicate-owner retirement and whole-spec acceptance. No AI/provider/prompt/motion/video/tracking/API, dependency, export, cloud/social Share, Creator Save, new rig feature, or automatic attachment/following behavior changed.
+
+## Historical current implementation — corrected Phase 4 accepted (D-0063)
 
 SPEC-0006 Phases 1–4 are Verified/published/integrated. The corrected Phase 4 is human-accepted under D-0063 and published at GIT-056 `9c971fa4f7ea0e636ecc6957755552f678f344df`. Its accepted 26-path manifest SHA-256 is `9d2d18871981db2e499c689723730ada4690dd5cb94ab620a038e45557f298de`.
 
@@ -13,9 +25,9 @@ Accepted V2 uses neutral layers whose owner cells contain ordered raster, text, 
 
 Neutral V2 layers contain cells owning ordered raster/text/structured-rig/bitmap-symbol items. IDs/selection and Drawing source transforms belong to items; holds/clipboard/onion resolve the complete mixed owner. One command/history root receives controlled item-adapter commits and one renderer emits every item in order. The minimal V2 repository protects complete-root Save/Save As/Open.
 
-Stick Add Limb and Select/Move Joint map through the inverse SVG screen transform, retain gesture ownership against the pan overlay, preview at the pointer, commit once on release, and cancel partial gestures safely. Complete project-owned catalog UI remains Phase 5; exhaustive all-source adoption/recovery remains Phase 6; duplicate-owner retirement/full acceptance remains Phase 7.
+Stick Add Limb and Select/Move Joint map through the inverse SVG screen transform, retain gesture ownership against the pan overlay, preview at the pointer, commit once on release, and cancel partial gestures safely. Complete project-owned catalog UI subsequently landed in accepted Phase 5; exhaustive all-source adoption/recovery remains Phase 6; duplicate-owner retirement/full acceptance remains Phase 7.
 
-No AI, provider, prompt, motion, video/tracking, cloud/social Share, export, or new manual capability is part of Phase 4. GIT-056 publication/integration and D-0054 accepted-copy cleanup are complete. Phase 5 remains not started and requires separate authorization.
+No AI, provider, prompt, motion, video/tracking, cloud/social Share, export, or new manual capability is part of Phase 4. GIT-056 publication/integration and D-0054 accepted-copy cleanup are complete.
 
 ## Published runtime path (historical V1 ownership; local rejected diff is not accepted)
 

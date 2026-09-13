@@ -5,6 +5,14 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-13 — Accept SPEC-0006 Phase 5 tools/library correction (D-0065)
+
+- Arthur accepted the final ordinary `/5a2c/` app copy. Phase 5 is technically Verified pending separate GIT-057 publication/integration.
+- Preserved the exact 17-path accepted implementation and immutable 32,852-byte manifest at SHA-256 `6a1c65c967f8f1d87a27e3834677bea84381f0c2577125bebfead6ca77308b6d`, PASS/VALID with 17 source and 77 evidence bindings.
+- Recorded shared Stick Figure Tools/Properties/Library/Assets panels; project-owned Drawing/Stick/Mixed symbol definitions and instances; structured rig scaling; first-gesture-durable Add Limb/Move Joint; all six Select/Lasso category transforms; immediate symbol deselection boundaries; unified onion behavior; bitmap alignment; and compact timeline pointer access.
+- Final proof passed 34 browser flows across desktop/compact, 200 Stick gestures, 96 transforms, 48 onion checks, release/settle/history/scrub/save/reopen equality, and unrelated-content invariance. Phase 1/4A/4B/5, TypeScript, focused lint, scoped build, diff/scope/index and strict manifest validation passed; zero real API/external/AI requests.
+- CPA updated only canonical records/tree after exclusive transfer. It did not alter accepted technical/evidence bytes, stage, commit, publish, clean the review copy, or authorize Phase 6.
+
 ### 2026-09-12 — Publish/integrate corrected SPEC-0006 Phase 4 (D-0064/GIT-056)
 
 - Published the exact D-0063 accepted package as commit `9c971fa4f7ea0e636ecc6957755552f678f344df`, parent `e956840001d18757af8f2de5361640ba70d44d68`: 26 accepted technical paths plus 14 reviewed control-plane/tree paths.

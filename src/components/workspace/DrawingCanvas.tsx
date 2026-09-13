@@ -20,6 +20,26 @@ import type { BrushToolVariant, DrawingRightPanelTab } from "./DrawingRightPanel
 import type { DrawingAiActionPlan, DrawingAiProjectMemory, DrawingAiWorkspaceContext } from "@/src/lib/ai/drawingAiContract";
 import type { GeneratedFrameRenderResult } from "@/src/lib/ai/drawingFrameExecutor";
 import type { StickFigureFrameContent, StickFigurePoint } from "./stickfigure/types";
+import type {
+  UnifiedBitmapSymbolDefinitionV2,
+  UnifiedProjectAssetV2,
+  UnifiedStructuredSymbolPayloadV2,
+} from "@/src/lib/animation/unifiedAnimationContractV2";
+import type {
+  UnifiedSymbolInstanceItemV2,
+  UnifiedSymbolSourceCategoryV2,
+} from "@/src/lib/animation/unifiedAnimationContentV2";
+import {
+  classifyUnifiedSymbolSourceV2,
+  createProjectAssetV2,
+  resolveStructuredSymbolGeometryV2,
+} from "@/src/lib/animation/unifiedProjectCatalogV2";
+import {
+  authoredStagePoint,
+  bitmapCenterOffset,
+  fitAuthoredStage,
+  presentStagePoint,
+} from "@/src/lib/animation/unifiedStageGeometry";
 
 type LassoPoint = {
   x: number;
@@ -43,6 +63,25 @@ type RectBounds = {
 };
 
 type OnionTintKind = "previous" | "next";
+
+const drawStructuredSymbolGeometry = (
+  ctx: CanvasRenderingContext2D,
+  geometry: ReturnType<typeof resolveStructuredSymbolGeometryV2>,
+  strokeScale = 1,
+) => {
+  if (!geometry) return;
+  ctx.strokeStyle = "#101218";
+  ctx.fillStyle = "#101218";
+  ctx.lineWidth = 14 * strokeScale;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  for (const limb of geometry.limbs) {
+    ctx.beginPath(); ctx.moveTo(limb.start.x, limb.start.y); ctx.lineTo(limb.end.x, limb.end.y); ctx.stroke();
+  }
+  for (const joint of geometry.joints) {
+    ctx.beginPath(); ctx.arc(joint.x, joint.y, 14 * strokeScale, 0, Math.PI * 2); ctx.fill();
+  }
+};
 type ResizeHandle = "n" | "s" | "e" | "w" | "nw" | "ne" | "sw" | "se";
 type ResizeIntentLock = "horizontal" | "vertical" | "diagonal";
 type ResizeDirectionalResponse = {
@@ -162,13 +201,21 @@ type BitmapSelectionOwner = "select" | "lasso" | "knife";
 
 type BitmapSelectionSessionItem = ActiveBitmapTransformSelection & {
   id: string;
-  sourceCanvas: HTMLCanvasElement;
+  sourceCanvas: HTMLCanvasElement | null;
   allowRotation: boolean;
+};
+
+type StructuredStickSelection = {
+  sourceContent: StickFigureFrameContent;
+  jointIds: string[];
+  limbIds: string[];
+  originBounds: RectBounds;
 };
 
 type BitmapSelectionSession = {
   owner: BitmapSelectionOwner;
   items: BitmapSelectionSessionItem[];
+  structuredStick?: StructuredStickSelection | null;
 };
 
 type BitmapSelectionInteractionState =
@@ -267,6 +314,8 @@ type ActivePlacedImageAsset = {
   rotation: number;
   naturalWidth: number;
   naturalHeight: number;
+  symbolDefinitionId?: string;
+  symbolDefinitionDigest?: string;
 };
 
 type DrawableImageSource = HTMLImageElement | HTMLCanvasElement;
@@ -312,6 +361,16 @@ type PlacedImageInteractionState =
       snapTargetRotation: number | null;
     }
   | null;
+
+type UnifiedSymbolInteractionState = {
+  pointerId: number;
+  itemId: string;
+  startPointer: StickFigurePoint;
+  startX: number;
+  startY: number;
+  initial: UnifiedSymbolInstanceItemV2;
+  handle?: ResizeHandle;
+};
 
 type SelectionBoxDraft = {
   start: LassoPoint;
@@ -425,15 +484,41 @@ type PendingTextSelection =
 type LibrarySymbol = {
   id: string;
   name: string;
-  tag: "symbol";
+  tag: UnifiedSymbolSourceCategoryV2 | "symbol";
   previewUrl: string;
   width: number;
   height: number;
   signature: string;
+  definitionDigest?: string;
+};
+
+type UnifiedSymbolSourceRemoval = {
+  drawingChanged: boolean;
+  stickContent: StickFigureFrameContent | null;
+  textObjects: DrawingTextObject[] | null;
+};
+
+type PendingSymbolCreation = {
+  sourceCanvas: HTMLCanvasElement;
+  displaySize: { width: number; height: number };
+  sourceCategory: UnifiedSymbolSourceCategoryV2;
+  sourceRemoval: UnifiedSymbolSourceRemoval | null;
+  structuredPayload?: UnifiedStructuredSymbolPayloadV2;
+  prepareUnifiedCommit?: () => void;
+  restoreAfterFailedUnifiedCommit?: () => void;
+  resolve: (didCreate: boolean) => void;
+};
+
+type SymbolDialogState = {
+  suggestedName: string;
+  name: string;
+  error: string | null;
+  submitting: boolean;
 };
 
 type DrawingCanvasProps = {
   activeTool: DrawingToolName;
+  drawingToolActivationId?: number;
   onToolSelect?: (tool: DrawingToolName) => void;
   editingContextKey: string;
   isTimelinePlaying: boolean;
@@ -458,10 +543,26 @@ type DrawingCanvasProps = {
   ) => Promise<boolean> | boolean;
   onExecuteActionPlan?: (actionPlan: NonNullable<DrawingAiActionPlan>) => Promise<boolean> | boolean;
   onAuthoringActionCommitted?: (reason: "stroke" | "shape" | "placed-asset" | "clear-canvas" | "knife" | "selection") => void;
+  onUnifiedSelectionActionCommitted?: (action: {
+    drawingChanged: boolean;
+    stickContent: StickFigureFrameContent | null;
+  }) => boolean;
   unifiedStickContent?: StickFigureFrameContent;
-  previousUnifiedStickContent?: StickFigureFrameContent | null;
-  nextUnifiedStickContent?: StickFigureFrameContent | null;
   onUnifiedStickContentChange?: (content: StickFigureFrameContent) => void;
+  unifiedSymbolDefinitions?: UnifiedBitmapSymbolDefinitionV2[];
+  unifiedProjectAssets?: UnifiedProjectAssetV2[];
+  unifiedSymbolInstances?: UnifiedSymbolInstanceItemV2[];
+  onCreateUnifiedSymbolDefinition?: (draft: {
+    name: string;
+    sourceCategory: UnifiedSymbolSourceCategoryV2;
+    width: number;
+    height: number;
+    pngDataUrl: string;
+    structuredPayload?: UnifiedStructuredSymbolPayloadV2;
+  }, sourceRemoval: UnifiedSymbolSourceRemoval | null) => Promise<boolean>;
+  onUnifiedAssetsImported?: (assets: UnifiedProjectAssetV2[]) => boolean;
+  onRemoveUnifiedSymbolDefinition?: (definitionId: string) => boolean;
+  onUnifiedSymbolInstancesChange?: (instances: UnifiedSymbolInstanceItemV2[]) => boolean;
 };
 
 export type DrawingCanvasSnapshot = {
@@ -503,6 +604,17 @@ export type DrawingCanvasPlaybackSurfaceLayout = {
   };
 };
 
+type OnionOverlayContent = {
+  previousBitmap: ImageData | null;
+  nextBitmap: ImageData | null;
+  previousTextObjects: DrawingTextObject[];
+  nextTextObjects: DrawingTextObject[];
+  previousStickContent: StickFigureFrameContent | null;
+  nextStickContent: StickFigureFrameContent | null;
+  previousSymbolInstances: UnifiedSymbolInstanceItemV2[];
+  nextSymbolInstances: UnifiedSymbolInstanceItemV2[];
+};
+
 export type DrawingCanvasHandle = {
   captureAuthoringSnapshot: (options?: DrawingCanvasSnapshotOptions) => DrawingCanvasSnapshot | null;
   clearTransientEditingState: () => void;
@@ -510,12 +622,7 @@ export type DrawingCanvasHandle = {
   hasActiveBitmapSelectionSession: () => boolean;
   hasPendingAuthoringChanges: () => boolean;
   markAuthoringChangesCommitted: (committedBitmap?: ImageData | null, captureVersion?: number | null) => void;
-  setOnionOverlayContent: (content: {
-    previousBitmap: ImageData | null;
-    nextBitmap: ImageData | null;
-    previousTextObjects: DrawingTextObject[];
-    nextTextObjects: DrawingTextObject[];
-  }) => void;
+  setOnionOverlayContent: (content: OnionOverlayContent) => void;
   shouldDeferAuthoringSnapshotCapture: (minimumIdleMs?: number) => boolean;
 };
 
@@ -891,6 +998,88 @@ const getRectCenter = (rect: RectBounds) => ({
   x: rect.x + rect.width / 2,
   y: rect.y + rect.height / 2,
 });
+
+const rectContainsPoint = (rect: RectBounds, point: StickFigurePoint) =>
+  point.x >= rect.x &&
+  point.x <= rect.x + rect.width &&
+  point.y >= rect.y &&
+  point.y <= rect.y + rect.height;
+
+const pointInPolygon = (point: StickFigurePoint, polygon: StickFigurePoint[]) => {
+  let inside = false;
+  for (let current = 0, previous = polygon.length - 1; current < polygon.length; previous = current++) {
+    const currentPoint = polygon[current];
+    const previousPoint = polygon[previous];
+    const crosses =
+      (currentPoint.y > point.y) !== (previousPoint.y > point.y) &&
+      point.x <
+        ((previousPoint.x - currentPoint.x) * (point.y - currentPoint.y)) /
+          (previousPoint.y - currentPoint.y || Number.EPSILON) +
+          currentPoint.x;
+    if (crosses) inside = !inside;
+  }
+  return inside;
+};
+
+const segmentOrientation = (a: StickFigurePoint, b: StickFigurePoint, c: StickFigurePoint) =>
+  (b.y - a.y) * (c.x - b.x) - (b.x - a.x) * (c.y - b.y);
+
+const pointOnSegment = (a: StickFigurePoint, b: StickFigurePoint, point: StickFigurePoint) =>
+  point.x >= Math.min(a.x, b.x) - 0.001 &&
+  point.x <= Math.max(a.x, b.x) + 0.001 &&
+  point.y >= Math.min(a.y, b.y) - 0.001 &&
+  point.y <= Math.max(a.y, b.y) + 0.001;
+
+const segmentsIntersect = (
+  aStart: StickFigurePoint,
+  aEnd: StickFigurePoint,
+  bStart: StickFigurePoint,
+  bEnd: StickFigurePoint,
+) => {
+  const o1 = segmentOrientation(aStart, aEnd, bStart);
+  const o2 = segmentOrientation(aStart, aEnd, bEnd);
+  const o3 = segmentOrientation(bStart, bEnd, aStart);
+  const o4 = segmentOrientation(bStart, bEnd, aEnd);
+  if ((o1 > 0) !== (o2 > 0) && (o3 > 0) !== (o4 > 0)) return true;
+  if (Math.abs(o1) < 0.001 && pointOnSegment(aStart, aEnd, bStart)) return true;
+  if (Math.abs(o2) < 0.001 && pointOnSegment(aStart, aEnd, bEnd)) return true;
+  if (Math.abs(o3) < 0.001 && pointOnSegment(bStart, bEnd, aStart)) return true;
+  if (Math.abs(o4) < 0.001 && pointOnSegment(bStart, bEnd, aEnd)) return true;
+  return false;
+};
+
+const segmentIntersectsRect = (start: StickFigurePoint, end: StickFigurePoint, rect: RectBounds) => {
+  if (rectContainsPoint(rect, start) || rectContainsPoint(rect, end)) return true;
+  const topLeft = { x: rect.x, y: rect.y };
+  const topRight = { x: rect.x + rect.width, y: rect.y };
+  const bottomRight = { x: rect.x + rect.width, y: rect.y + rect.height };
+  const bottomLeft = { x: rect.x, y: rect.y + rect.height };
+  return (
+    segmentsIntersect(start, end, topLeft, topRight) ||
+    segmentsIntersect(start, end, topRight, bottomRight) ||
+    segmentsIntersect(start, end, bottomRight, bottomLeft) ||
+    segmentsIntersect(start, end, bottomLeft, topLeft)
+  );
+};
+
+const segmentIntersectsPolygon = (
+  start: StickFigurePoint,
+  end: StickFigurePoint,
+  polygon: StickFigurePoint[],
+) => {
+  if (pointInPolygon(start, polygon) || pointInPolygon(end, polygon)) return true;
+  return polygon.some((point, index) =>
+    segmentsIntersect(start, end, point, polygon[(index + 1) % polygon.length]),
+  );
+};
+
+const unionRectBounds = (first: RectBounds, second: RectBounds): RectBounds => {
+  const x = Math.min(first.x, second.x);
+  const y = Math.min(first.y, second.y);
+  const right = Math.max(first.x + first.width, second.x + second.width);
+  const bottom = Math.max(first.y + first.height, second.y + second.height);
+  return { x, y, width: right - x, height: bottom - y };
+};
 
 const rotatePointAround = (
   point: { x: number; y: number },
@@ -1447,6 +1636,7 @@ const findOpaqueImageDataBounds = (bitmap: ImageData | null) => {
 
 export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>(function DrawingCanvas({
   activeTool,
+  drawingToolActivationId = 0,
   onToolSelect,
   editingContextKey,
   isTimelinePlaying,
@@ -1468,12 +1658,17 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   onApplyGeneratedFrame,
   onExecuteActionPlan,
   onAuthoringActionCommitted,
+  onUnifiedSelectionActionCommitted,
   unifiedStickContent = { figures: [], structureGraph: { joints: [], limbs: [], activeJointId: null } },
-  previousUnifiedStickContent = null,
-  nextUnifiedStickContent = null,
   onUnifiedStickContentChange,
+  unifiedSymbolDefinitions,
+  unifiedProjectAssets,
+  unifiedSymbolInstances = [],
+  onCreateUnifiedSymbolDefinition,
+  onUnifiedAssetsImported,
+  onRemoveUnifiedSymbolDefinition,
+  onUnifiedSymbolInstancesChange,
 }: DrawingCanvasProps, ref) {
-  void onToolSelect;
   const DEFAULT_CAMERA_ZOOM = 0.85;
   const DEFAULT_CAMERA_PAN = { x: 0, y: 0 };
   const MIN_CAMERA_ZOOM = 0.5;
@@ -1494,16 +1689,15 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   const foregroundCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const lassoOverlayRef = useRef<HTMLCanvasElement | null>(null);
   const onionBitmapWorkCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const onionOverlayContentRef = useRef<{
-    previousBitmap: ImageData | null;
-    nextBitmap: ImageData | null;
-    previousTextObjects: DrawingTextObject[];
-    nextTextObjects: DrawingTextObject[];
-  }>({
+  const onionOverlayContentRef = useRef<OnionOverlayContent>({
     previousBitmap: null,
     nextBitmap: null,
     previousTextObjects: EMPTY_ONION_TEXT_OBJECTS,
     nextTextObjects: EMPTY_ONION_TEXT_OBJECTS,
+    previousStickContent: null,
+    nextStickContent: null,
+    previousSymbolInstances: [],
+    nextSymbolInstances: [],
   });
   const playbackCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const authoringMetricsRef = useRef<{
@@ -1542,6 +1736,8 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   const opaqueSelectionMaskCacheRef = useRef(new WeakMap<HTMLCanvasElement, HTMLCanvasElement>());
   const activeBoxSelectionRef = useRef<ActiveBoxSelection | null>(null);
   const nextSymbolNumberRef = useRef(1);
+  const pendingSymbolCreationRef = useRef<PendingSymbolCreation | null>(null);
+  const symbolNameInputRef = useRef<HTMLInputElement | null>(null);
   const isDrawingRef = useRef(false);
   const isShapeDrawingRef = useRef(false);
   const shapeDraftRef = useRef<{ startX: number; startY: number; endX: number; endY: number } | null>(null);
@@ -1549,6 +1745,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   const lassoInteractionRef = useRef<LassoInteractionState | null>(null);
   const selectionSourceCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const lassoPathRef = useRef<LassoPoint[]>([]);
+  const symbolCaptureLassoPathRef = useRef<LassoPoint[] | null>(null);
   const activeLassoSelectionRef = useRef<ActiveLassoSelection | null>(null);
   const textInteractionRef = useRef<TextInteractionState>(null);
   const selectedTextObjectIdRef = useRef<string | null>(null);
@@ -1603,19 +1800,44 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   const [canvasMovementEnabled, setCanvasMovementEnabled] = useState(false);
   const [canvasBackgroundColor, setCanvasBackgroundColor] = useState("#f5f5f5");
   const [rightPanelTab, setRightPanelTab] = useState<DrawingRightPanelTab>("Properties");
+  const [canvasInteractionOwner, setCanvasInteractionOwner] = useState<"drawing" | "stick">("drawing");
   const [unifiedStickMode, setUnifiedStickMode] = useState<"select" | "add-limb">("select");
   const [unifiedSelectedJointId, setUnifiedSelectedJointId] = useState<string | null>(null);
-  const [unifiedStickDrag, setUnifiedStickDrag] = useState<{
+  type UnifiedStickDrag = {
     pointerId: number;
     startPoint: StickFigurePoint;
     currentPoint: StickFigurePoint;
     startJointId: string | null;
     movingJointId: string | null;
     jointOffset: StickFigurePoint;
-  } | null>(null);
+    contextKey: string;
+    mode: "select" | "add-limb";
+    sourceContent: StickFigureFrameContent;
+  };
+  const [unifiedStickDrag, setUnifiedStickDrag] = useState<UnifiedStickDrag | null>(null);
+  const unifiedStickDragRef = useRef<UnifiedStickDrag | null>(null);
+  const publishUnifiedStickDrag = useCallback((draft: UnifiedStickDrag | null) => {
+    unifiedStickDragRef.current = draft;
+    setUnifiedStickDrag(draft);
+  }, []);
   const unifiedStickSvgRef = useRef<SVGSVGElement | null>(null);
+  const unifiedSymbolInteractionRef = useRef<UnifiedSymbolInteractionState | null>(null);
+  const [selectedUnifiedSymbolInstanceId, setSelectedUnifiedSymbolInstanceId] = useState<string | null>(null);
+  const [draftUnifiedSymbolInstance, setDraftUnifiedSymbolInstance] = useState<UnifiedSymbolInstanceItemV2 | null>(null);
+  const draftUnifiedSymbolInstanceRef = useRef<UnifiedSymbolInstanceItemV2 | null>(null);
+  const publishUnifiedSymbolDraft = useCallback((draft: UnifiedSymbolInstanceItemV2 | null) => {
+    draftUnifiedSymbolInstanceRef.current = draft;
+    setDraftUnifiedSymbolInstance(draft);
+  }, []);
+  const clearUnifiedSymbolSelection = useCallback(() => {
+    unifiedSymbolInteractionRef.current = null;
+    publishUnifiedSymbolDraft(null);
+    setSelectedUnifiedSymbolInstanceId(null);
+  }, [publishUnifiedSymbolDraft]);
   const [importedAssets, setImportedAssets] = useState<ImportedAsset[]>([]);
   const [librarySymbols, setLibrarySymbols] = useState<LibrarySymbol[]>([]);
+  const [symbolDialog, setSymbolDialog] = useState<SymbolDialogState | null>(null);
+  const [workspaceNotice, setWorkspaceNotice] = useState<string | null>(null);
   const [activePlacedImageAsset, setActivePlacedImageAsset] = useState<ActivePlacedImageAsset | null>(null);
   const [activeBitmapSelectionSession, setActiveBitmapSelectionSession] = useState<BitmapSelectionSession | null>(null);
   const [selectionBoxDraft, setSelectionBoxDraft] = useState<SelectionBoxDraft | null>(null);
@@ -1649,33 +1871,43 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   const brushToolsMenuRef = useRef<HTMLDivElement | null>(null);
   const [brushToolsMenuPosition, setBrushToolsMenuPosition] = useState<{ left: number; width: number; top: number } | null>(null);
   const [onionOverlayVersion, setOnionOverlayVersion] = useState(0);
+  const [authoringSurfaceVersion, setAuthoringSurfaceVersion] = useState(0);
 
   const invalidateAuthoringMetrics = useCallback(() => {
     authoringMetricsRef.current = null;
   }, []);
 
-  const setOnionOverlayContent = useCallback((content: {
-    previousBitmap: ImageData | null;
-    nextBitmap: ImageData | null;
-    previousTextObjects: DrawingTextObject[];
-    nextTextObjects: DrawingTextObject[];
-  }) => {
+  const getCanvasHostContentRect = useCallback((host: HTMLDivElement) => {
+    const borderRect = host.getBoundingClientRect();
+    const style = window.getComputedStyle(host);
+    const borderLeft = Number.parseFloat(style.borderLeftWidth) || 0;
+    const borderRight = Number.parseFloat(style.borderRightWidth) || 0;
+    const borderTop = Number.parseFloat(style.borderTopWidth) || 0;
+    const borderBottom = Number.parseFloat(style.borderBottomWidth) || 0;
+    return new DOMRect(
+      borderRect.left + borderLeft,
+      borderRect.top + borderTop,
+      Math.max(0, borderRect.width - borderLeft - borderRight),
+      Math.max(0, borderRect.height - borderTop - borderBottom),
+    );
+  }, []);
+
+  const setOnionOverlayContent = useCallback((content: OnionOverlayContent) => {
     const current = onionOverlayContentRef.current;
     if (
       current.previousBitmap === content.previousBitmap &&
       current.nextBitmap === content.nextBitmap &&
       current.previousTextObjects === content.previousTextObjects &&
-      current.nextTextObjects === content.nextTextObjects
+      current.nextTextObjects === content.nextTextObjects &&
+      current.previousStickContent === content.previousStickContent &&
+      current.nextStickContent === content.nextStickContent &&
+      current.previousSymbolInstances === content.previousSymbolInstances &&
+      current.nextSymbolInstances === content.nextSymbolInstances
     ) {
       return;
     }
 
-    onionOverlayContentRef.current = {
-      previousBitmap: content.previousBitmap,
-      nextBitmap: content.nextBitmap,
-      previousTextObjects: content.previousTextObjects,
-      nextTextObjects: content.nextTextObjects,
-    };
+    onionOverlayContentRef.current = content;
     setOnionOverlayVersion((version) => version + 1);
   }, []);
 
@@ -1690,13 +1922,14 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     if (!host || !canvas || !backgroundCanvas || !onionCanvas || !textCanvas || !foregroundCanvas || !overlayCanvas) return;
 
     const resizeAuthoringCanvases = () => {
-      const rect = host.getBoundingClientRect();
+      const rect = getCanvasHostContentRect(host);
       const dpr = window.devicePixelRatio || 1;
       const width = Math.max(1, Math.floor(rect.width * AUTHORING_WORLD_SCALE * dpr));
       const height = Math.max(1, Math.floor(rect.height * AUTHORING_WORLD_SCALE * dpr));
       invalidateAuthoringMetrics();
 
       const editableSizeChanged = canvas.width !== width || canvas.height !== height;
+      if (!editableSizeChanged && backgroundCanvas.width === width && backgroundCanvas.height === height) return;
       const preservedEditableCanvas = editableSizeChanged ? document.createElement("canvas") : null;
       if (preservedEditableCanvas) {
         preservedEditableCanvas.width = canvas.width;
@@ -1713,7 +1946,10 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
 
         if (targetCanvas.width !== width) targetCanvas.width = width;
         if (targetCanvas.height !== height) targetCanvas.height = height;
-        targetCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        // The same exact backing-store / authoring-world ratio is used by
+        // pointer mapping, paint, and dirty-patch capture (including rounding).
+        targetCtx.setTransform(width / (rect.width * AUTHORING_WORLD_SCALE), 0, 0,
+          height / (rect.height * AUTHORING_WORLD_SCALE), 0, 0);
         targetCtx.lineCap = "round";
         targetCtx.lineJoin = "round";
         targetCtx.strokeStyle = "#000000";
@@ -1726,18 +1962,26 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
           canvasCtx.setTransform(1, 0, 0, 1, 0, 0);
           canvasCtx.drawImage(
             preservedEditableCanvas,
-            Math.round((canvas.width - preservedEditableCanvas.width) / 2),
-            Math.round((canvas.height - preservedEditableCanvas.height) / 2),
+            bitmapCenterOffset(canvas.width, preservedEditableCanvas.width),
+            bitmapCenterOffset(canvas.height, preservedEditableCanvas.height),
           );
           canvasCtx.restore();
         }
       }
+      authoringDirtyRectRef.current = null;
+      authoringDirtyCaptureModeRef.current = "full";
+      setAuthoringSurfaceVersion(version => version + 1);
     };
 
     resizeAuthoringCanvases();
+    const observer = new ResizeObserver(resizeAuthoringCanvases);
+    observer.observe(host);
     window.addEventListener("resize", resizeAuthoringCanvases);
-    return () => window.removeEventListener("resize", resizeAuthoringCanvases);
-  }, [AUTHORING_WORLD_SCALE, invalidateAuthoringMetrics]);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", resizeAuthoringCanvases);
+    };
+  }, [AUTHORING_WORLD_SCALE, getCanvasHostContentRect, invalidateAuthoringMetrics]);
 
   useEffect(() => {
     const host = canvasHostRef.current;
@@ -1745,7 +1989,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     if (!host || !playbackCanvas) return;
 
     const resizePlaybackCanvas = () => {
-      const rect = host.getBoundingClientRect();
+      const rect = getCanvasHostContentRect(host);
       const dpr = window.devicePixelRatio || 1;
       const playbackScale = Math.min(1, Math.max(0.5, playbackRenderScale));
       const playbackDpr = Math.max(1, dpr * playbackScale);
@@ -1767,7 +2011,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     resizePlaybackCanvas();
     window.addEventListener("resize", resizePlaybackCanvas);
     return () => window.removeEventListener("resize", resizePlaybackCanvas);
-  }, [playbackRenderScale]);
+  }, [getCanvasHostContentRect, playbackRenderScale]);
 
   useEffect(() => {
     const handleLayoutChange = () => {
@@ -1834,12 +2078,19 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     const canvas = canvasRef.current;
     if (!host || !canvas) return null;
 
+    const hostRect = getCanvasHostContentRect(host);
     const cachedMetrics = authoringMetricsRef.current;
-    if (cachedMetrics && cachedMetrics.canvasWidth === canvas.width && cachedMetrics.canvasHeight === canvas.height) {
+    if (
+      cachedMetrics &&
+      cachedMetrics.canvasWidth === canvas.width &&
+      cachedMetrics.canvasHeight === canvas.height &&
+      cachedMetrics.hostRect.left === hostRect.left &&
+      cachedMetrics.hostRect.top === hostRect.top &&
+      cachedMetrics.hostRect.width === hostRect.width &&
+      cachedMetrics.hostRect.height === hostRect.height
+    ) {
       return cachedMetrics;
     }
-
-    const hostRect = host.getBoundingClientRect();
     const worldWidth = hostRect.width * AUTHORING_WORLD_SCALE;
     const worldHeight = hostRect.height * AUTHORING_WORLD_SCALE;
     const stageOffsetX = (worldWidth - hostRect.width) / 2;
@@ -1862,7 +2113,22 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       canvasHeight: canvas.height,
     };
     return authoringMetricsRef.current;
-  }, [AUTHORING_WORLD_SCALE]);
+  }, [AUTHORING_WORLD_SCALE, getCanvasHostContentRect]);
+
+  const getUnifiedStagePresentation = useCallback(() => {
+    const metrics = getAuthoringMetrics();
+    if (!metrics) return null;
+    const fitted = fitAuthoredStage(metrics.hostRect.width, metrics.hostRect.height);
+    if (!fitted) return null;
+    return {
+      metrics,
+      presentation: {
+        scale: fitted.scale,
+        offsetX: metrics.stageOffsetX + fitted.offsetX,
+        offsetY: metrics.stageOffsetY + fitted.offsetY,
+      },
+    };
+  }, [getAuthoringMetrics]);
 
   const getPlaybackSurfaceLayout = useCallback((): DrawingCanvasPlaybackSurfaceLayout | null => {
     const host = canvasHostRef.current;
@@ -1871,7 +2137,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       return null;
     }
 
-    const hostRect = host.getBoundingClientRect();
+    const hostRect = getCanvasHostContentRect(host);
     return {
       drawingCanvasWidth: canvas.width,
       drawingCanvasHeight: canvas.height,
@@ -1890,12 +2156,12 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
         height: hostRect.height,
       },
     };
-  }, [AUTHORING_WORLD_SCALE]);
+  }, [AUTHORING_WORLD_SCALE, getCanvasHostContentRect]);
 
   const clampPan = (pan: { x: number; y: number }, zoom: number) => {
     const host = canvasHostRef.current;
     if (!host) return pan;
-    const rect = host.getBoundingClientRect();
+    const rect = getCanvasHostContentRect(host);
     const zoomOverflowX = Math.max(0, (rect.width * zoom - rect.width) / 2);
     const zoomOverflowY = Math.max(0, (rect.height * zoom - rect.height) / 2);
     const panLimitX = zoomOverflowX + rect.width * PAN_BASE_LIMIT_FACTOR;
@@ -1924,8 +2190,42 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   }, [importedAssets]);
 
   useEffect(() => {
+    if (!unifiedProjectAssets) return;
+    const nextAssets = unifiedProjectAssets.map(asset => ({
+      id: asset.assetId,
+      name: asset.name,
+      kind: asset.kind,
+      sizeLabel: formatAssetSize(asset.byteLength),
+      meta: asset.kind === "image" && asset.width && asset.height
+        ? `image • ${asset.width}x${asset.height}`
+        : `file • ${formatAssetSize(asset.byteLength)}`,
+      previewUrl: asset.dataUrl,
+      width: asset.width,
+      height: asset.height,
+    } satisfies ImportedAsset));
+    importedAssetsRef.current = nextAssets;
+    setImportedAssets(nextAssets);
+  }, [unifiedProjectAssets]);
+
+  useEffect(() => {
     librarySymbolsRef.current = librarySymbols;
   }, [librarySymbols]);
+
+  useEffect(() => {
+    if (!unifiedSymbolDefinitions) return;
+    const nextSymbols = unifiedSymbolDefinitions.map(definition => ({
+      id: definition.definitionId,
+      name: definition.name,
+      tag: definition.sourceCategory,
+      previewUrl: definition.pngDataUrl,
+      width: definition.width,
+      height: definition.height,
+      signature: definition.assetSha256,
+      definitionDigest: definition.definitionDigest,
+    } satisfies LibrarySymbol));
+    librarySymbolsRef.current = nextSymbols;
+    setLibrarySymbols(nextSymbols);
+  }, [unifiedSymbolDefinitions]);
 
   useEffect(() => {
     activePlacedImageAssetRef.current = activePlacedImageAsset;
@@ -2008,7 +2308,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
         flipY: item.flipY,
       }));
       knifePiecesSourceRef.current = new Map(
-        session.items.map((item, index) => [nextKnifePieces[index].id, item.sourceCanvas]),
+        session.items.flatMap((item, index) =>
+          item.sourceCanvas ? [[nextKnifePieces[index].id, item.sourceCanvas] as const] : [],
+        ),
       );
       knifePiecesRef.current = nextKnifePieces;
       setActiveKnifePieces(nextKnifePieces);
@@ -2332,6 +2634,15 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   }, [rightPanelTab, brushToolsMenuOpen]);
 
   useLayoutEffect(() => {
+    const tabs = rightPanelTabsRef.current;
+    if (!tabs) return;
+    tabs.style.overflowX = "auto";
+    tabs.style.overscrollBehaviorX = "contain";
+    tabs.style.scrollbarWidth = "thin";
+    tabs.setAttribute("aria-label", "Workspace panels");
+  }, []);
+
+  useLayoutEffect(() => {
     if (!brushToolsMenuOpen || rightPanelTab !== "Properties" || activeTool !== "Brush") {
       setBrushToolsMenuPosition(null);
       return;
@@ -2443,6 +2754,15 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   }, [clearBrushPreviewOverlay]);
 
   const clearTransientEditingState = useCallback(() => {
+    const stickDraft = unifiedStickDragRef.current;
+    publishUnifiedStickDrag(null);
+    if (stickDraft && unifiedStickSvgRef.current?.hasPointerCapture(stickDraft.pointerId)) {
+      unifiedStickSvgRef.current.releasePointerCapture(stickDraft.pointerId);
+    }
+    // History restoration cancels drafts but preserves the selected symbol's
+    // own Properties workflow. Tool/context boundaries clear selection below.
+    unifiedSymbolInteractionRef.current = null;
+    publishUnifiedSymbolDraft(null);
     if (brushPreviewFrameRef.current !== null) {
       window.cancelAnimationFrame(brushPreviewFrameRef.current);
       brushPreviewFrameRef.current = null;
@@ -2480,7 +2800,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     clearKnifePieceSelectionState();
 
     dismissBoxSelectionRef.current();
-  }, [clearKnifePieceSelectionState, clearLassoDraft, resetBrushStrokePreviewState, setActiveLassoSelectionState]);
+  }, [clearKnifePieceSelectionState, clearLassoDraft, publishUnifiedStickDrag, publishUnifiedSymbolDraft, resetBrushStrokePreviewState, setActiveLassoSelectionState]);
 
   const noteAuthoringInteraction = useCallback(() => {
     lastAuthoringInteractionAtRef.current = performance.now();
@@ -2558,7 +2878,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   const hasPendingAuthoringChanges = useCallback(() => hasPendingAuthoringChangesRef.current, []);
 
   const shouldDeferAuthoringSnapshotCapture = useCallback((minimumIdleMs = AUTHORING_SNAPSHOT_SETTLE_MS) => {
-    if (isDrawingRef.current || isShapeDrawingRef.current) {
+    if (isDrawingRef.current || isShapeDrawingRef.current || unifiedStickDragRef.current || bitmapSelectionInteractionRef.current || unifiedSymbolInteractionRef.current) {
       return true;
     }
 
@@ -2636,6 +2956,209 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     rotation: number;
   }) => getRotatedRectBounds(getDisplayedBitmapTransformRect(selection), selection.rotation), [getDisplayedBitmapTransformRect]);
 
+  const stickPointToAuthoringDisplay = useCallback((point: StickFigurePoint) => {
+    const stage = getUnifiedStagePresentation();
+    return stage ? presentStagePoint(point, stage.presentation) : null;
+  }, [getUnifiedStagePresentation]);
+
+  const authoringDisplayToStickPoint = useCallback((point: StickFigurePoint) => {
+    const stage = getUnifiedStagePresentation();
+    return stage ? authoredStagePoint(point, stage.presentation) : null;
+  }, [getUnifiedStagePresentation]);
+
+  const resolveStructuredStickSelection = useCallback((
+    selectionBounds: RectBounds,
+    selectionPath?: LassoPoint[] | null,
+  ): StructuredStickSelection | null => {
+    const graph = unifiedStickContent.structureGraph;
+    if (graph.joints.length === 0 || graph.limbs.length === 0) return null;
+    const displayedJoints = new Map<string, StickFigurePoint>();
+    for (const joint of graph.joints) {
+      const displayed = stickPointToAuthoringDisplay(joint);
+      if (displayed) displayedJoints.set(joint.id, displayed);
+    }
+    const polygon = selectionPath?.length && selectionPath.length >= 3
+      ? selectionPath.map(point => ({ x: point.x, y: point.y }))
+      : null;
+    const hitsPoint = (point: StickFigurePoint) =>
+      polygon ? pointInPolygon(point, polygon) : rectContainsPoint(selectionBounds, point);
+
+    const selectedJointIds = new Set<string>();
+    for (const [jointId, point] of displayedJoints) {
+      if (hitsPoint(point)) selectedJointIds.add(jointId);
+    }
+    for (const limb of graph.limbs) {
+      const start = displayedJoints.get(limb.startJointId);
+      const end = displayedJoints.get(limb.endJointId);
+      if (!start || !end) continue;
+      const intersects = polygon
+        ? segmentIntersectsPolygon(start, end, polygon)
+        : segmentIntersectsRect(start, end, selectionBounds);
+      if (intersects) {
+        selectedJointIds.add(limb.startJointId);
+        selectedJointIds.add(limb.endJointId);
+      }
+    }
+    if (selectedJointIds.size === 0) return null;
+
+    // Ordinary Select/Lasso targets the complete connected rig component so
+    // transforms cannot leave dangling limb references behind.
+    let expanded = true;
+    while (expanded) {
+      expanded = false;
+      for (const limb of graph.limbs) {
+        if (!selectedJointIds.has(limb.startJointId) && !selectedJointIds.has(limb.endJointId)) continue;
+        if (!selectedJointIds.has(limb.startJointId)) {
+          selectedJointIds.add(limb.startJointId);
+          expanded = true;
+        }
+        if (!selectedJointIds.has(limb.endJointId)) {
+          selectedJointIds.add(limb.endJointId);
+          expanded = true;
+        }
+      }
+    }
+
+    const jointIds = graph.joints
+      .filter(joint => selectedJointIds.has(joint.id))
+      .map(joint => joint.id);
+    const limbIds = graph.limbs
+      .filter(limb => selectedJointIds.has(limb.startJointId) && selectedJointIds.has(limb.endJointId))
+      .map(limb => limb.id);
+    const selectedDisplayPoints = jointIds
+      .map(jointId => displayedJoints.get(jointId))
+      .filter((point): point is StickFigurePoint => Boolean(point));
+    if (selectedDisplayPoints.length === 0) return null;
+    const stage = getUnifiedStagePresentation();
+    const padding = Math.max(6, (14 * (stage?.presentation.scale ?? 0)) + 3);
+    const minX = Math.min(...selectedDisplayPoints.map(point => point.x)) - padding;
+    const minY = Math.min(...selectedDisplayPoints.map(point => point.y)) - padding;
+    const maxX = Math.max(...selectedDisplayPoints.map(point => point.x)) + padding;
+    const maxY = Math.max(...selectedDisplayPoints.map(point => point.y)) + padding;
+    return {
+      sourceContent: structuredClone(unifiedStickContent),
+      jointIds,
+      limbIds,
+      originBounds: {
+        x: minX,
+        y: minY,
+        width: Math.max(1, maxX - minX),
+        height: Math.max(1, maxY - minY),
+      },
+    };
+  }, [getUnifiedStagePresentation, stickPointToAuthoringDisplay, unifiedStickContent]);
+
+  const expandDrawingSelectionSource = useCallback((
+    sourceCanvas: HTMLCanvasElement,
+    sourceBounds: RectBounds,
+    targetBounds: RectBounds,
+  ) => {
+    const metrics = getAuthoringMetrics();
+    if (!metrics) return null;
+    if (
+      Math.abs(sourceBounds.x - targetBounds.x) < 0.001 &&
+      Math.abs(sourceBounds.y - targetBounds.y) < 0.001 &&
+      Math.abs(sourceBounds.width - targetBounds.width) < 0.001 &&
+      Math.abs(sourceBounds.height - targetBounds.height) < 0.001
+    ) {
+      return sourceCanvas;
+    }
+    const expanded = document.createElement("canvas");
+    expanded.width = Math.max(1, Math.ceil(targetBounds.width * metrics.scaleX));
+    expanded.height = Math.max(1, Math.ceil(targetBounds.height * metrics.scaleY));
+    const ctx = expanded.getContext("2d");
+    if (!ctx) return null;
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(
+      sourceCanvas,
+      (sourceBounds.x - targetBounds.x) * metrics.scaleX,
+      (sourceBounds.y - targetBounds.y) * metrics.scaleY,
+      sourceBounds.width * metrics.scaleX,
+      sourceBounds.height * metrics.scaleY,
+    );
+    return expanded;
+  }, [getAuthoringMetrics]);
+
+  const materializeStructuredStickSelection = useCallback((
+    session: BitmapSelectionSession,
+  ): StickFigureFrameContent | null => {
+    const structured = session.structuredStick;
+    const item = session.items[0];
+    if (!structured || !item) return null;
+    const sourceBounds = structured.originBounds;
+    const targetRect = getDisplayedBitmapTransformRect(item);
+    const targetCenter = getRectCenter(targetRect);
+    const sourceCenter = getRectCenter(sourceBounds);
+    const radians = (item.rotation * Math.PI) / 180;
+    const cos = Math.cos(radians);
+    const sin = Math.sin(radians);
+    const selectedJointIds = new Set(structured.jointIds);
+    const next = structuredClone(structured.sourceContent);
+    next.structureGraph.joints = next.structureGraph.joints.map(joint => {
+      if (!selectedJointIds.has(joint.id)) return joint;
+      const displayPoint = stickPointToAuthoringDisplay(joint);
+      if (!displayPoint) return joint;
+      const normalizedX = (displayPoint.x - sourceCenter.x) / Math.max(1, sourceBounds.width);
+      const normalizedY = (displayPoint.y - sourceCenter.y) / Math.max(1, sourceBounds.height);
+      const localX = normalizedX * targetRect.width * (item.flipX ? -1 : 1);
+      const localY = normalizedY * targetRect.height * (item.flipY ? -1 : 1);
+      const transformedDisplay = {
+        x: targetCenter.x + localX * cos - localY * sin,
+        y: targetCenter.y + localX * sin + localY * cos,
+      };
+      const transformed = authoringDisplayToStickPoint(transformedDisplay);
+      return transformed ? { ...joint, ...transformed } : joint;
+    });
+    return next;
+  }, [authoringDisplayToStickPoint, getDisplayedBitmapTransformRect, stickPointToAuthoringDisplay]);
+
+  const removeStructuredStickSelection = useCallback((
+    session: BitmapSelectionSession,
+    materialized = materializeStructuredStickSelection(session),
+  ): StickFigureFrameContent | null => {
+    const structured = session.structuredStick;
+    if (!structured || !materialized) return null;
+    const selectedJointIds = new Set(structured.jointIds);
+    const selectedLimbIds = new Set(structured.limbIds);
+    const next = structuredClone(materialized);
+    next.structureGraph.joints = next.structureGraph.joints.filter(
+      joint => !selectedJointIds.has(joint.id),
+    );
+    next.structureGraph.limbs = next.structureGraph.limbs.filter(
+      limb =>
+        !selectedLimbIds.has(limb.id) &&
+        !selectedJointIds.has(limb.startJointId) &&
+        !selectedJointIds.has(limb.endJointId),
+    );
+    if (next.structureGraph.activeJointId && selectedJointIds.has(next.structureGraph.activeJointId)) {
+      next.structureGraph.activeJointId = null;
+    }
+    return next;
+  }, [materializeStructuredStickSelection]);
+
+  const commitUnifiedSelectionMutation = useCallback((
+    session: BitmapSelectionSession,
+    nextStickContent: StickFigureFrameContent | null = materializeStructuredStickSelection(session),
+  ) => {
+    const drawingChanged = session.items.some(item => Boolean(item.sourceCanvas));
+    if (!drawingChanged && !nextStickContent) return false;
+    if (drawingChanged) markAuthoringDirty();
+    if (onUnifiedSelectionActionCommitted) {
+      return onUnifiedSelectionActionCommitted({ drawingChanged, stickContent: nextStickContent });
+    }
+    if (nextStickContent) onUnifiedStickContentChange?.(nextStickContent);
+    if (drawingChanged) onAuthoringActionCommitted?.("selection");
+    return true;
+  }, [markAuthoringDirty, materializeStructuredStickSelection, onAuthoringActionCommitted, onUnifiedSelectionActionCommitted, onUnifiedStickContentChange]);
+
+  const getBitmapSelectionSessionForOwner = useCallback((owner: BitmapSelectionOwner) => {
+    const session = bitmapSelectionSessionRef.current;
+    if (!session || session.owner !== owner || session.items.length === 0) {
+      return null;
+    }
+    return session;
+  }, []);
+
   useEffect(() => {
     const debugWindow = window as Window & {
       __codexBitmapSelectionDebug?: {
@@ -2659,22 +3182,22 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     const toClientRect = (rect: RectBounds): RectBounds => {
       const left =
         metrics.hostRect.left +
-        (rect.x / metrics.scaleX - metrics.worldCenterX) * cameraZoom +
+        (rect.x - metrics.worldCenterX) * cameraZoom +
         metrics.hostRect.width / 2 +
         cameraPan.x;
       const top =
         metrics.hostRect.top +
-        (rect.y / metrics.scaleY - metrics.worldCenterY) * cameraZoom +
+        (rect.y - metrics.worldCenterY) * cameraZoom +
         metrics.hostRect.height / 2 +
         cameraPan.y;
       const right =
         metrics.hostRect.left +
-        ((rect.x + rect.width) / metrics.scaleX - metrics.worldCenterX) * cameraZoom +
+        (rect.x + rect.width - metrics.worldCenterX) * cameraZoom +
         metrics.hostRect.width / 2 +
         cameraPan.x;
       const bottom =
         metrics.hostRect.top +
-        ((rect.y + rect.height) / metrics.scaleY - metrics.worldCenterY) * cameraZoom +
+        (rect.y + rect.height - metrics.worldCenterY) * cameraZoom +
         metrics.hostRect.height / 2 +
         cameraPan.y;
 
@@ -3504,20 +4027,24 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       return flipSelectedTextObjects(selection.objectIds, axis);
     }
 
+    const session = getBitmapSelectionSessionForOwner("select");
+    const item = session?.items[0];
+    if (!session || !item) return false;
+    const nextSession: BitmapSelectionSession = {
+      ...session,
+      items: [{
+        ...item,
+        ...resolveBitmapSelectionWithPreservedCenter(item, {
+          flipX: axis === "x" ? !item.flipX : item.flipX,
+          flipY: axis === "y" ? !item.flipY : item.flipY,
+        }),
+      }],
+    };
     restoreBitmapSelectionBackdropToCanvasRef.current();
-    updateActiveBoxSelectionState((current) =>
-      current?.kind === "bitmap"
-        ? {
-            kind: "bitmap",
-            ...resolveBitmapSelectionWithPreservedCenter(current, {
-              flipX: axis === "x" ? !current.flipX : current.flipX,
-              flipY: axis === "y" ? !current.flipY : current.flipY,
-            }),
-          }
-        : current,
-    );
+    flushBitmapSelectionSessionState(nextSession);
+    commitUnifiedSelectionMutation(nextSession);
     return true;
-  }, [flipSelectedTextObjects, resolveBitmapSelectionWithPreservedCenter, updateActiveBoxSelectionState]);
+  }, [commitUnifiedSelectionMutation, flipSelectedTextObjects, flushBitmapSelectionSessionState, getBitmapSelectionSessionForOwner, resolveBitmapSelectionWithPreservedCenter]);
 
   const flipLassoSelection = useCallback((axis: "x" | "y") => {
     const selection = activeLassoSelectionRef.current;
@@ -3529,20 +4056,38 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       return flipSelectedTextObjects(selection.objectIds, axis);
     }
 
+    const session = getBitmapSelectionSessionForOwner("lasso");
+    const item = session?.items[0];
+    if (!session || !item) return false;
+    const nextSession: BitmapSelectionSession = {
+      ...session,
+      items: [{
+        ...item,
+        ...resolveBitmapSelectionWithPreservedCenter(item, {
+          flipX: axis === "x" ? !item.flipX : item.flipX,
+          flipY: axis === "y" ? !item.flipY : item.flipY,
+        }),
+      }],
+    };
     restoreBitmapSelectionBackdropToCanvasRef.current();
-    updateActiveLassoSelectionState((current) =>
-      current?.kind === "bitmap"
-        ? {
-            kind: "bitmap",
-            ...resolveBitmapSelectionWithPreservedCenter(current, {
-              flipX: axis === "x" ? !current.flipX : current.flipX,
-              flipY: axis === "y" ? !current.flipY : current.flipY,
-            }),
-          }
-        : current,
-    );
+    flushBitmapSelectionSessionState(nextSession);
+    commitUnifiedSelectionMutation(nextSession);
     return true;
-  }, [flipSelectedTextObjects, resolveBitmapSelectionWithPreservedCenter, updateActiveLassoSelectionState]);
+  }, [commitUnifiedSelectionMutation, flipSelectedTextObjects, flushBitmapSelectionSessionState, getBitmapSelectionSessionForOwner, resolveBitmapSelectionWithPreservedCenter]);
+
+  const commitBitmapSelectionRotation = useCallback((owner: "select" | "lasso", rotation: number) => {
+    const session = getBitmapSelectionSessionForOwner(owner);
+    const item = session?.items[0];
+    if (!session || !item || Math.abs(item.rotation - rotation) < 0.001) return false;
+    const nextSession: BitmapSelectionSession = {
+      ...session,
+      items: [{ ...item, rotation }],
+    };
+    restoreBitmapSelectionBackdropToCanvasRef.current();
+    flushBitmapSelectionSessionState(nextSession);
+    commitUnifiedSelectionMutation(nextSession);
+    return true;
+  }, [commitUnifiedSelectionMutation, flushBitmapSelectionSessionState, getBitmapSelectionSessionForOwner]);
 
   const commitSelectedTextObjectRotation = useCallback((rotation: number) => {
     const selectedId = selectedTextObjectIdRef.current;
@@ -3658,14 +4203,14 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       id: string,
       previewUrl: string,
       point: { x: number; y: number },
-      preferredSize?: { width: number; height: number }
+      preferredSize?: { width: number; height: number },
+      symbolReference?: { definitionId: string; definitionDigest: string },
     ) => {
       const image = new Image();
       image.onload = () => {
         const drawWidth = preferredSize ? Math.max(24, preferredSize.width) : Math.max(24, Math.round((image.naturalWidth || 1) * Math.min(1, 220 / Math.max(image.naturalWidth || 1, image.naturalHeight || 1))));
         const drawHeight = preferredSize ? Math.max(24, preferredSize.height) : Math.max(24, Math.round((image.naturalHeight || 1) * Math.min(1, 220 / Math.max(image.naturalWidth || 1, image.naturalHeight || 1))));
-        activePlacedImageSourceRef.current = image;
-        setActivePlacedImageAsset({
+        const nextPlacedAsset: ActivePlacedImageAsset = {
           id,
           previewUrl,
           x: point.x - drawWidth / 2,
@@ -3677,12 +4222,21 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
           rotation: 0,
           naturalWidth: image.naturalWidth || drawWidth,
           naturalHeight: image.naturalHeight || drawHeight,
+          symbolDefinitionId: symbolReference?.definitionId,
+          symbolDefinitionDigest: symbolReference?.definitionDigest,
+        };
+        activePlacedImageSourceRef.current = image;
+        activePlacedImageAssetRef.current = nextPlacedAsset;
+        flushSync(() => {
+          setActivePlacedImageAsset(nextPlacedAsset);
+          setRightPanelTab("Properties");
+          onToolSelect?.("Select");
         });
-        setRightPanelTab("Properties");
       };
-      image.src = previewUrl;
+      const definition = unifiedSymbolDefinitions?.find(candidate => candidate.definitionId === symbolReference?.definitionId);
+      image.src = definition?.structuredPayload?.drawingPngDataUrl ?? previewUrl;
     },
-    []
+    [onToolSelect, unifiedSymbolDefinitions]
   );
 
   const handleAssetDragStart = (e: React.DragEvent<HTMLDivElement>, asset: ImportedAsset) => {
@@ -3737,7 +4291,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     beginPlacedImageFromPreview(symbol.id, symbol.previewUrl, point, {
       width: symbol.width,
       height: symbol.height,
-    });
+    }, symbol.definitionDigest ? { definitionId: symbol.id, definitionDigest: symbol.definitionDigest } : undefined);
   };
 
   const createCanvasSignature = useCallback((sourceCanvas: HTMLCanvasElement) => {
@@ -4949,14 +5503,6 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     }
   }, []);
 
-  const getBitmapSelectionSessionForOwner = useCallback((owner: BitmapSelectionOwner) => {
-    const session = bitmapSelectionSessionRef.current;
-    if (!session || session.owner !== owner || session.items.length === 0) {
-      return null;
-    }
-    return session;
-  }, []);
-
   const getBitmapSelectionSessionItem = useCallback((
     owner: BitmapSelectionOwner,
     itemId: string,
@@ -5017,9 +5563,13 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
 
     ctx.globalCompositeOperation = "source-over";
     for (const item of session.items) {
-      drawBitmapSelectionImageToAuthoringCanvas(ctx, item.sourceCanvas, item);
+      if (item.sourceCanvas) {
+        drawBitmapSelectionImageToAuthoringCanvas(ctx, item.sourceCanvas, item);
+      }
     }
-    markAuthoringDirty();
+    if (session.items.some(item => Boolean(item.sourceCanvas))) {
+      markAuthoringDirty();
+    }
     if (options?.commitHistory) {
       onAuthoringActionCommitted?.("selection");
     }
@@ -5046,21 +5596,28 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   const duplicateBitmapSelectionSession = useCallback((owner: BitmapSelectionOwner) => {
     const session = getBitmapSelectionSessionForOwner(owner);
     const ctx = canvasRef.current?.getContext("2d");
-    if (!session || !ctx) {
+    if (!session || (!ctx && session.items.some(item => Boolean(item.sourceCanvas)))) {
       return false;
     }
 
-    ctx.globalCompositeOperation = "source-over";
-    for (const item of session.items) {
-      drawBitmapSelectionImageToAuthoringCanvas(ctx, item.sourceCanvas, item);
+    if (ctx) {
+      ctx.globalCompositeOperation = "source-over";
+      for (const item of session.items) {
+        if (item.sourceCanvas) {
+          drawBitmapSelectionImageToAuthoringCanvas(ctx, item.sourceCanvas, item);
+        }
+      }
     }
-    markAuthoringDirty();
-    onAuthoringActionCommitted?.("selection");
-    captureBitmapSelectionBackdropFromCanvas();
+    if (session.items.some(item => Boolean(item.sourceCanvas))) {
+      markAuthoringDirty();
+      captureBitmapSelectionBackdropFromCanvas();
+    }
 
     const duplicatedItems = session.items.map((item) => {
-      const duplicatedSourceCanvas = cloneBitmapSelectionSourceCanvas(item.sourceCanvas);
-      if (!duplicatedSourceCanvas) {
+      const duplicatedSourceCanvas = item.sourceCanvas
+        ? cloneBitmapSelectionSourceCanvas(item.sourceCanvas)
+        : null;
+      if (item.sourceCanvas && !duplicatedSourceCanvas) {
         return null;
       }
       return {
@@ -5076,13 +5633,62 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       return false;
     }
 
-    flushBitmapSelectionSessionState({
+    if (owner === "knife") {
+      onAuthoringActionCommitted?.("selection");
+      flushBitmapSelectionSessionState({ owner, items: duplicatedItems });
+      scheduleBitmapSelectionBackdropRestore();
+      return true;
+    }
+
+    let duplicatedStructuredStick: StructuredStickSelection | null = null;
+    if (session.structuredStick) {
+      const currentStickContent = materializeStructuredStickSelection(session);
+      if (!currentStickContent) return false;
+      const sourceJointMap = new Map(
+        session.structuredStick.sourceContent.structureGraph.joints.map(joint => [joint.id, joint]),
+      );
+      const selectedJointIds = new Set(session.structuredStick.jointIds);
+      const selectedLimbIds = new Set(session.structuredStick.limbIds);
+      const jointIdMap = new Map<string, string>();
+      const clonedJoints = session.structuredStick.jointIds.flatMap(jointId => {
+        const sourceJoint = sourceJointMap.get(jointId);
+        if (!sourceJoint) return [];
+        const nextId = crypto.randomUUID();
+        jointIdMap.set(jointId, nextId);
+        return [{ ...sourceJoint, id: nextId }];
+      });
+      const clonedLimbs = session.structuredStick.sourceContent.structureGraph.limbs.flatMap(limb => {
+        if (!selectedLimbIds.has(limb.id) || !selectedJointIds.has(limb.startJointId) || !selectedJointIds.has(limb.endJointId)) return [];
+        const startJointId = jointIdMap.get(limb.startJointId);
+        const endJointId = jointIdMap.get(limb.endJointId);
+        if (!startJointId || !endJointId) return [];
+        return [{ ...limb, id: crypto.randomUUID(), startJointId, endJointId }];
+      });
+      const nextSourceContent = structuredClone(currentStickContent);
+      nextSourceContent.structureGraph.joints.push(...clonedJoints);
+      nextSourceContent.structureGraph.limbs.push(...clonedLimbs);
+      nextSourceContent.structureGraph.activeJointId = clonedJoints.at(-1)?.id ?? null;
+      duplicatedStructuredStick = {
+        sourceContent: nextSourceContent,
+        jointIds: clonedJoints.map(joint => joint.id),
+        limbIds: clonedLimbs.map(limb => limb.id),
+        originBounds: { ...session.structuredStick.originBounds },
+      };
+    }
+
+    const nextSession: BitmapSelectionSession = {
       owner,
       items: duplicatedItems,
-    });
+      structuredStick: duplicatedStructuredStick,
+    };
+    flushBitmapSelectionSessionState(nextSession);
+    const nextStickContent = duplicatedStructuredStick
+      ? materializeStructuredStickSelection(nextSession)
+      : null;
+    commitUnifiedSelectionMutation(nextSession, nextStickContent);
     scheduleBitmapSelectionBackdropRestore();
     return true;
-  }, [captureBitmapSelectionBackdropFromCanvas, cloneBitmapSelectionSourceCanvas, createBitmapSelectionSessionItemId, drawBitmapSelectionImageToAuthoringCanvas, flushBitmapSelectionSessionState, getBitmapSelectionSessionForOwner, markAuthoringDirty, onAuthoringActionCommitted, scheduleBitmapSelectionBackdropRestore]);
+  }, [captureBitmapSelectionBackdropFromCanvas, cloneBitmapSelectionSourceCanvas, commitUnifiedSelectionMutation, createBitmapSelectionSessionItemId, drawBitmapSelectionImageToAuthoringCanvas, flushBitmapSelectionSessionState, getBitmapSelectionSessionForOwner, markAuthoringDirty, materializeStructuredStickSelection, onAuthoringActionCommitted, scheduleBitmapSelectionBackdropRestore]);
 
   const deleteBitmapSelectionSession = useCallback((owner: BitmapSelectionOwner) => {
     const session = getBitmapSelectionSessionForOwner(owner);
@@ -5090,11 +5696,19 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       return false;
     }
 
-    markAuthoringDirty();
+    const nextStickContent = session.structuredStick
+      ? removeStructuredStickSelection(session)
+      : null;
+    if (session.structuredStick && !nextStickContent) return false;
     setBitmapSelectionSessionState(null);
-    onAuthoringActionCommitted?.("selection");
+    if (owner === "knife") {
+      markAuthoringDirty();
+      onAuthoringActionCommitted?.("selection");
+      return true;
+    }
+    commitUnifiedSelectionMutation(session, nextStickContent);
     return true;
-  }, [getBitmapSelectionSessionForOwner, markAuthoringDirty, onAuthoringActionCommitted, setBitmapSelectionSessionState]);
+  }, [commitUnifiedSelectionMutation, getBitmapSelectionSessionForOwner, markAuthoringDirty, onAuthoringActionCommitted, removeStructuredStickSelection, setBitmapSelectionSessionState]);
 
   const commitLassoSelectionToCanvas = useCallback(() => {
     const selection = activeLassoSelectionRef.current;
@@ -5222,7 +5836,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     }
 
     const ctx = canvasRef.current?.getContext("2d");
-    if (!ctx) {
+    if (!ctx || !activeItem.sourceCanvas) {
       return false;
     }
 
@@ -5244,7 +5858,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
 
   const duplicateKnifePieces = useCallback(() => {
     const { session, activeItem } = getActiveKnifeSelectionTarget();
-    if (!session || !activeItem || session.items.length <= 1) {
+    if (!session || !activeItem || !activeItem.sourceCanvas || session.items.length <= 1) {
       return duplicateBitmapSelectionSession("knife");
     }
 
@@ -5736,12 +6350,112 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     scheduleBitmapSelectionBackdropRestore();
   }, [captureBitmapSelectionBackdropFromCanvas, createBitmapSelectionSessionItemId, flushBitmapSelectionSessionState, getAuthoringMetrics, markAuthoringDirty, onAuthoringActionCommitted, scheduleBitmapSelectionBackdropRestore]);
 
+  const renderUnifiedStickCapture = useCallback((
+    bounds: RectBounds,
+    pixelWidth: number,
+    pixelHeight: number,
+    path?: LassoPoint[] | null,
+    target?: {
+      content: StickFigureFrameContent;
+      jointIds?: string[];
+      limbIds?: string[];
+    } | null,
+  ) => {
+    const stage = getUnifiedStagePresentation();
+    if (!stage || bounds.width <= 0 || bounds.height <= 0) return null;
+    const { presentation } = stage;
+    const captureCanvas = document.createElement("canvas");
+    captureCanvas.width = Math.max(1, pixelWidth);
+    captureCanvas.height = Math.max(1, pixelHeight);
+    const captureCtx = captureCanvas.getContext("2d", { willReadFrequently: true });
+    if (!captureCtx) return null;
+    const scaleX = captureCanvas.width / bounds.width;
+    const scaleY = captureCanvas.height / bounds.height;
+    if (path && path.length >= 3) {
+      captureCtx.beginPath();
+      captureCtx.moveTo((path[0].x - bounds.x) * scaleX, (path[0].y - bounds.y) * scaleY);
+      for (let index = 1; index < path.length; index += 1) {
+        captureCtx.lineTo((path[index].x - bounds.x) * scaleX, (path[index].y - bounds.y) * scaleY);
+      }
+      captureCtx.closePath();
+      captureCtx.clip();
+    }
+    const toCapturePoint = (joint: StickFigurePoint) => {
+      const displayed = presentStagePoint(joint, presentation);
+      return {
+        x: (displayed.x - bounds.x) * scaleX,
+        y: (displayed.y - bounds.y) * scaleY,
+      };
+    };
+    if (target === null) return null;
+    const content = target?.content ?? unifiedStickContent;
+    const jointIdSet = target?.jointIds ? new Set(target.jointIds) : null;
+    const limbIdSet = target?.limbIds ? new Set(target.limbIds) : null;
+    const jointMap = new Map(content.structureGraph.joints.map(joint => [joint.id, joint]));
+    captureCtx.strokeStyle = "#101218";
+    captureCtx.fillStyle = "#101218";
+    captureCtx.lineCap = "round";
+    captureCtx.lineJoin = "round";
+    captureCtx.lineWidth = Math.max(1, 14 * presentation.scale * scaleX);
+    for (const limb of content.structureGraph.limbs) {
+      if (limbIdSet && !limbIdSet.has(limb.id)) continue;
+      const start = jointMap.get(limb.startJointId);
+      const end = jointMap.get(limb.endJointId);
+      if (!start || !end) continue;
+      const startPoint = toCapturePoint(start);
+      const endPoint = toCapturePoint(end);
+      captureCtx.beginPath();
+      captureCtx.moveTo(startPoint.x, startPoint.y);
+      captureCtx.lineTo(endPoint.x, endPoint.y);
+      captureCtx.stroke();
+    }
+    const jointRadius = Math.max(1, 14 * presentation.scale * scaleX);
+    for (const joint of content.structureGraph.joints) {
+      if (jointIdSet && !jointIdSet.has(joint.id)) continue;
+      const point = toCapturePoint(joint);
+      captureCtx.beginPath();
+      captureCtx.arc(point.x, point.y, jointRadius, 0, Math.PI * 2);
+      captureCtx.fill();
+    }
+    const pixels = captureCtx.getImageData(0, 0, captureCanvas.width, captureCanvas.height).data;
+    const hasStickFigure = pixels.some((_, index) => index % 4 === 3 && pixels[index] > 0);
+    return hasStickFigure ? captureCanvas : null;
+  }, [getUnifiedStagePresentation, unifiedStickContent]);
+
+  const createStructuredStickOnlySelection = useCallback((
+    owner: "select" | "lasso",
+    bounds: RectBounds,
+    path?: LassoPoint[] | null,
+  ) => {
+    const structuredStick = resolveStructuredStickSelection(bounds, path);
+    if (!structuredStick) return false;
+    captureBitmapSelectionBackdropFromCanvas();
+    flushBitmapSelectionSessionState({
+      owner,
+      items: [{
+        id: createBitmapSelectionSessionItemId(),
+        sourceCanvas: null,
+        x: structuredStick.originBounds.x,
+        y: structuredStick.originBounds.y,
+        width: structuredStick.originBounds.width,
+        height: structuredStick.originBounds.height,
+        flipX: false,
+        flipY: false,
+        rotation: 0,
+        allowRotation: true,
+      }],
+      structuredStick,
+    });
+    return true;
+  }, [captureBitmapSelectionBackdropFromCanvas, createBitmapSelectionSessionItemId, flushBitmapSelectionSessionState, resolveStructuredStickSelection]);
+
   const createLassoSelection = useCallback((path: LassoPoint[]) => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
     const metrics = getAuthoringMetrics();
     if (!canvas || !ctx || !metrics || path.length < 3) return;
 
+    symbolCaptureLassoPathRef.current = path.map(point => ({ ...point }));
     const textObjectIds = findTextObjectIdsInLassoPath(path, displayedTextObjects);
 
     const minPixelX = Math.max(0, Math.floor(Math.min(...path.map((p) => p.pixelX))));
@@ -5818,6 +6532,12 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     }
 
     if (!hasAnySelection || trimMaxX < trimMinX || trimMaxY < trimMinY) {
+      createStructuredStickOnlySelection("lasso", {
+        x: minPixelX / metrics.scaleX,
+        y: minPixelY / metrics.scaleY,
+        width: boxWidth / metrics.scaleX,
+        height: boxHeight / metrics.scaleY,
+      }, path);
       return;
     }
 
@@ -5841,22 +6561,45 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     const selectionSourceCtx = selectionSourceCanvas.getContext("2d");
     if (!selectionSourceCtx) return;
     selectionSourceCtx.putImageData(trimmedSelectionPatch, 0, 0);
+    const drawingBounds = {
+      x: (minPixelX + trimMinX) / metrics.scaleX,
+      y: (minPixelY + trimMinY) / metrics.scaleY,
+      width: trimWidth / metrics.scaleX,
+      height: trimHeight / metrics.scaleY,
+    };
+    const selectionBounds = {
+      x: minPixelX / metrics.scaleX,
+      y: minPixelY / metrics.scaleY,
+      width: boxWidth / metrics.scaleX,
+      height: boxHeight / metrics.scaleY,
+    };
+    const structuredStick = resolveStructuredStickSelection(selectionBounds, path);
+    const effectiveBounds = structuredStick
+      ? unionRectBounds(drawingBounds, structuredStick.originBounds)
+      : drawingBounds;
+    const effectiveSourceCanvas = structuredStick
+      ? expandDrawingSelectionSource(selectionSourceCanvas, drawingBounds, effectiveBounds)
+      : selectionSourceCanvas;
+    if (!effectiveSourceCanvas) return;
     flushBitmapSelectionSessionState({
       owner: "lasso",
       items: [{
         id: createBitmapSelectionSessionItemId(),
-        sourceCanvas: selectionSourceCanvas,
-        x: (minPixelX + trimMinX) / metrics.scaleX,
-        y: (minPixelY + trimMinY) / metrics.scaleY,
-        width: trimWidth / metrics.scaleX,
-        height: trimHeight / metrics.scaleY,
+        sourceCanvas: effectiveSourceCanvas,
+        x: effectiveBounds.x,
+        y: effectiveBounds.y,
+        width: effectiveBounds.width,
+        height: effectiveBounds.height,
         flipX: false,
         flipY: false,
         rotation: 0,
         allowRotation: true,
       }],
+      structuredStick: structuredStick
+        ? { ...structuredStick, originBounds: effectiveBounds }
+        : null,
     });
-  }, [captureBitmapSelectionBackdropFromCanvas, clearLassoDraft, createBitmapSelectionSessionItemId, displayedTextObjects, findTextObjectIdsInLassoPath, flushBitmapSelectionSessionState, getAuthoringMetrics, markAuthoringDirty, setLassoTextSelection]);
+  }, [captureBitmapSelectionBackdropFromCanvas, clearLassoDraft, createBitmapSelectionSessionItemId, createStructuredStickOnlySelection, displayedTextObjects, expandDrawingSelectionSource, findTextObjectIdsInLassoPath, flushBitmapSelectionSessionState, getAuthoringMetrics, markAuthoringDirty, resolveStructuredStickSelection, setLassoTextSelection]);
 
   const normalizeRect = useCallback(
     (startX: number, startY: number, endX: number, endY: number) => ({
@@ -5874,6 +6617,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     const metrics = getAuthoringMetrics();
     if (!canvas || !ctx || !metrics) return false;
 
+    symbolCaptureLassoPathRef.current = null;
     const minPixelX = Math.max(0, Math.min(draft.start.pixelX, draft.end.pixelX));
     const maxPixelX = Math.min(canvas.width - 1, Math.max(draft.start.pixelX, draft.end.pixelX));
     const minPixelY = Math.max(0, Math.min(draft.start.pixelY, draft.end.pixelY));
@@ -5906,7 +6650,12 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
         setSelectTextSelection(textObjectIds);
         return true;
       }
-      return false;
+      return createStructuredStickOnlySelection("select", {
+        x: minPixelX / metrics.scaleX,
+        y: minPixelY / metrics.scaleY,
+        width: boxWidth / metrics.scaleX,
+        height: boxHeight / metrics.scaleY,
+      });
     }
 
     const sourceCanvas = document.createElement("canvas");
@@ -5924,80 +6673,253 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     ctx.putImageData(region, minPixelX, minPixelY);
     markAuthoringDirty();
     captureBitmapSelectionBackdropFromCanvas();
+    const drawingBounds = {
+      x: minPixelX / metrics.scaleX,
+      y: minPixelY / metrics.scaleY,
+      width: boxWidth / metrics.scaleX,
+      height: boxHeight / metrics.scaleY,
+    };
+    const structuredStick = resolveStructuredStickSelection(drawingBounds);
+    const effectiveBounds = structuredStick
+      ? unionRectBounds(drawingBounds, structuredStick.originBounds)
+      : drawingBounds;
+    const effectiveSourceCanvas = structuredStick
+      ? expandDrawingSelectionSource(sourceCanvas, drawingBounds, effectiveBounds)
+      : sourceCanvas;
+    if (!effectiveSourceCanvas) return false;
     flushBitmapSelectionSessionState({
       owner: "select",
       items: [{
         id: createBitmapSelectionSessionItemId(),
-        sourceCanvas,
-        x: minPixelX / metrics.scaleX,
-        y: minPixelY / metrics.scaleY,
-        width: boxWidth / metrics.scaleX,
-        height: boxHeight / metrics.scaleY,
+        sourceCanvas: effectiveSourceCanvas,
+        x: effectiveBounds.x,
+        y: effectiveBounds.y,
+        width: effectiveBounds.width,
+        height: effectiveBounds.height,
         flipX: false,
         flipY: false,
         rotation: 0,
         allowRotation: true,
       }],
+      structuredStick: structuredStick
+        ? { ...structuredStick, originBounds: effectiveBounds }
+        : null,
     });
 
     return true;
-  }, [captureBitmapSelectionBackdropFromCanvas, createBitmapSelectionSessionItemId, displayedTextObjects, findTextObjectIdsInRect, flushBitmapSelectionSessionState, getAuthoringMetrics, markAuthoringDirty, setSelectTextSelection]);
+  }, [captureBitmapSelectionBackdropFromCanvas, createBitmapSelectionSessionItemId, createStructuredStickOnlySelection, displayedTextObjects, expandDrawingSelectionSource, findTextObjectIdsInRect, flushBitmapSelectionSessionState, getAuthoringMetrics, markAuthoringDirty, resolveStructuredStickSelection, setSelectTextSelection]);
+
+  const combineDrawingAndStickCapture = useCallback((
+    sourceCanvas: HTMLCanvasElement,
+    bounds: RectBounds,
+    path?: LassoPoint[] | null,
+    structuredTarget?: {
+      content: StickFigureFrameContent;
+      jointIds: string[];
+      limbIds: string[];
+    } | null,
+  ) => {
+    const combinedCanvas = document.createElement("canvas");
+    combinedCanvas.width = sourceCanvas.width;
+    combinedCanvas.height = sourceCanvas.height;
+    const combinedCtx = combinedCanvas.getContext("2d", { willReadFrequently: true });
+    const sourceCtx = sourceCanvas.getContext("2d", { willReadFrequently: true });
+    if (!combinedCtx || !sourceCtx) return null;
+    const sourcePixels = sourceCtx.getImageData(0, 0, sourceCanvas.width, sourceCanvas.height).data;
+    const hasDrawing = sourcePixels.some((_, index) => index % 4 === 3 && sourcePixels[index] > 0);
+    combinedCtx.drawImage(sourceCanvas, 0, 0);
+    const stickCanvas = renderUnifiedStickCapture(
+      bounds,
+      sourceCanvas.width,
+      sourceCanvas.height,
+      path,
+      structuredTarget === undefined
+        ? undefined
+        : structuredTarget
+          ? { content: structuredTarget.content, jointIds: structuredTarget.jointIds, limbIds: structuredTarget.limbIds }
+          : null,
+    );
+    const hasStickFigure = Boolean(stickCanvas);
+    if (stickCanvas) combinedCtx.drawImage(stickCanvas, 0, 0);
+    if (!hasDrawing && !hasStickFigure) return null;
+    const stage = getUnifiedStagePresentation();
+    const structuredPayload: UnifiedStructuredSymbolPayloadV2 | undefined = hasStickFigure && structuredTarget && stage ? {
+      version: 1,
+      joints: structuredTarget.content.structureGraph.joints
+        .filter(joint => structuredTarget.jointIds.includes(joint.id))
+        .map(joint => {
+          const point = presentStagePoint(joint, stage.presentation);
+          return { id: joint.id, x: (point.x - bounds.x) / bounds.width, y: (point.y - bounds.y) / bounds.height };
+        }),
+      limbs: structuredTarget.content.structureGraph.limbs
+        .filter(limb => structuredTarget.limbIds.includes(limb.id))
+        .map(limb => ({ id: limb.id, startJointId: limb.startJointId, endJointId: limb.endJointId })),
+      drawingPngDataUrl: hasDrawing ? sourceCanvas.toDataURL("image/png") : null,
+    } : undefined;
+    return {
+      canvas: combinedCanvas,
+      sourceCategory: classifyUnifiedSymbolSourceV2(hasDrawing, hasStickFigure),
+      structuredPayload,
+    };
+  }, [getUnifiedStagePresentation, renderUnifiedStickCapture]);
 
   const createSymbolFromCanvasSource = useCallback(
-    (sourceCanvas: HTMLCanvasElement, displaySize: { width: number; height: number }) => {
-    const signature = createCanvasSignature(sourceCanvas);
-    if (librarySymbolsRef.current.some((symbol) => symbol.signature === signature)) {
-      window.alert("This exact symbol already exists.");
-      return false;
-    }
+    (
+      sourceCanvas: HTMLCanvasElement,
+      displaySize: { width: number; height: number },
+      sourceCategory: UnifiedSymbolSourceCategoryV2 = "Drawing Symbol",
+      sourceRemoval: UnifiedSymbolSourceRemoval | null = null,
+      lifecycle?: {
+        structuredPayload?: UnifiedStructuredSymbolPayloadV2;
+        prepareUnifiedCommit?: () => void;
+        restoreAfterFailedUnifiedCommit?: () => void;
+      },
+    ) => {
+      if (pendingSymbolCreationRef.current) return Promise.resolve(false);
+      const signature = createCanvasSignature(sourceCanvas);
+      if (!onCreateUnifiedSymbolDefinition && librarySymbolsRef.current.some((symbol) => symbol.signature === signature)) {
+        setWorkspaceNotice("This symbol already exists.");
+        return Promise.resolve(false);
+      }
 
-    let fallbackIndex = nextSymbolNumberRef.current;
-    while (librarySymbolsRef.current.some((symbol) => symbol.name.toLowerCase() === `symbol ${fallbackIndex}`.toLowerCase())) {
-      fallbackIndex += 1;
-    }
-    const fallbackName = `Symbol ${fallbackIndex}`;
-    const rawName = window.prompt("Name this symbol", fallbackName);
-    if (rawName === null) return false;
-    const trimmedName = rawName.trim();
-    const finalName = trimmedName || fallbackName;
-    const normalizedName = finalName.toLowerCase();
-
-    if (librarySymbolsRef.current.some((symbol) => symbol.name.toLowerCase() === normalizedName)) {
-      window.alert("This symbol already exists.");
-      return false;
-    }
-
-    nextSymbolNumberRef.current = fallbackIndex + 1;
-    const nextSymbol: LibrarySymbol = {
-      id: globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`,
-      name: finalName,
-      tag: "symbol",
-      previewUrl: sourceCanvas.toDataURL("image/png"),
-      width: Math.max(1, Math.round(displaySize.width)),
-      height: Math.max(1, Math.round(displaySize.height)),
-      signature,
-    };
-    const nextSymbols = [...librarySymbolsRef.current, nextSymbol];
-    librarySymbolsRef.current = nextSymbols;
-    setLibrarySymbols(nextSymbols);
-    return true;
+      let fallbackIndex = nextSymbolNumberRef.current;
+      while (librarySymbolsRef.current.some((symbol) => symbol.name.toLowerCase() === `symbol ${fallbackIndex}`.toLowerCase())) {
+        fallbackIndex += 1;
+      }
+      const suggestedName = `Symbol ${fallbackIndex}`;
+      setWorkspaceNotice(null);
+      return new Promise<boolean>((resolve) => {
+        pendingSymbolCreationRef.current = {
+          sourceCanvas,
+          displaySize,
+          sourceCategory,
+          sourceRemoval,
+          ...(lifecycle?.structuredPayload ? { structuredPayload: structuredClone(lifecycle.structuredPayload) } : {}),
+          prepareUnifiedCommit: lifecycle?.prepareUnifiedCommit,
+          restoreAfterFailedUnifiedCommit: lifecycle?.restoreAfterFailedUnifiedCommit,
+          resolve,
+        };
+        setSymbolDialog({ suggestedName, name: suggestedName, error: null, submitting: false });
+      });
     },
-    [createCanvasSignature]
+    [createCanvasSignature, onCreateUnifiedSymbolDefinition]
   );
 
-  const convertSelectedTextObjectsToSymbol = useCallback((objectIds: string[]) => {
+  const cancelSymbolCreationDialog = useCallback(() => {
+    const pending = pendingSymbolCreationRef.current;
+    if (!pending) return;
+    pendingSymbolCreationRef.current = null;
+    setSymbolDialog(null);
+    pending.resolve(false);
+  }, []);
+
+  const submitSymbolCreationDialog = useCallback(async () => {
+    const pending = pendingSymbolCreationRef.current;
+    if (!pending || !symbolDialog || symbolDialog.submitting) return;
+    const finalName = symbolDialog.name.trim() || symbolDialog.suggestedName;
+    const normalizedName = finalName.toLowerCase();
+    if (librarySymbolsRef.current.some(symbol => symbol.name.toLowerCase() === normalizedName)) {
+      setSymbolDialog(current => current ? { ...current, error: "This symbol already exists." } : current);
+      return;
+    }
+
+    setSymbolDialog(current => current ? { ...current, error: null, submitting: true } : current);
+    let didCreate = false;
+    try {
+      if (onCreateUnifiedSymbolDefinition) {
+        pending.prepareUnifiedCommit?.();
+        didCreate = await onCreateUnifiedSymbolDefinition({
+          name: finalName,
+          sourceCategory: pending.sourceCategory,
+          width: Math.max(1, Math.round(pending.displaySize.width)),
+          height: Math.max(1, Math.round(pending.displaySize.height)),
+          pngDataUrl: pending.sourceCanvas.toDataURL("image/png"),
+          ...(pending.structuredPayload ? { structuredPayload: pending.structuredPayload } : {}),
+        }, pending.sourceRemoval);
+        if (!didCreate) pending.restoreAfterFailedUnifiedCommit?.();
+      } else {
+        const signature = createCanvasSignature(pending.sourceCanvas);
+        if (!librarySymbolsRef.current.some(symbol => symbol.signature === signature)) {
+          const nextSymbol: LibrarySymbol = {
+            id: globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+            name: finalName,
+            tag: pending.sourceCategory,
+            previewUrl: pending.sourceCanvas.toDataURL("image/png"),
+            width: Math.max(1, Math.round(pending.displaySize.width)),
+            height: Math.max(1, Math.round(pending.displaySize.height)),
+            signature,
+          };
+          const nextSymbols = [...librarySymbolsRef.current, nextSymbol];
+          librarySymbolsRef.current = nextSymbols;
+          setLibrarySymbols(nextSymbols);
+          didCreate = true;
+        }
+      }
+    } catch {
+      pending.restoreAfterFailedUnifiedCommit?.();
+      didCreate = false;
+    }
+
+    if (!didCreate) {
+      setSymbolDialog(current => current ? {
+        ...current,
+        error: "This symbol already exists.",
+        submitting: false,
+      } : current);
+      return;
+    }
+
+    const match = /^Symbol (\d+)$/i.exec(finalName);
+    nextSymbolNumberRef.current = match
+      ? Math.max(nextSymbolNumberRef.current, Number(match[1]) + 1)
+      : nextSymbolNumberRef.current;
+    pendingSymbolCreationRef.current = null;
+    setSymbolDialog(null);
+    setWorkspaceNotice(`Created ${finalName} in Library.`);
+    pending.resolve(true);
+  }, [createCanvasSignature, onCreateUnifiedSymbolDefinition, symbolDialog]);
+
+  useEffect(() => {
+    if (!symbolDialog) return;
+    const frame = window.requestAnimationFrame(() => {
+      symbolNameInputRef.current?.focus();
+      symbolNameInputRef.current?.select();
+    });
+    const cancelOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") cancelSymbolCreationDialog();
+    };
+    window.addEventListener("keydown", cancelOnEscape);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("keydown", cancelOnEscape);
+    };
+  }, [cancelSymbolCreationDialog, symbolDialog]);
+
+  const convertSelectedTextObjectsToSymbol = useCallback(async (objectIds: string[]) => {
     const selectionSource = createTextSelectionCanvas(objectIds, displayedTextObjects);
     if (!selectionSource) {
       return false;
     }
 
-    return createSymbolFromCanvasSource(selectionSource.canvas, {
+    const combined = combineDrawingAndStickCapture(selectionSource.canvas, selectionSource.bounds, null, null);
+    if (!combined) return false;
+    const remainingTextObjects = displayedTextObjects.filter(textObject => !objectIds.includes(textObject.id));
+    const didCreate = await createSymbolFromCanvasSource(combined.canvas, {
       width: selectionSource.bounds.width,
       height: selectionSource.bounds.height,
-    });
-  }, [createSymbolFromCanvasSource, createTextSelectionCanvas, displayedTextObjects]);
+    }, combined.sourceCategory, onCreateUnifiedSymbolDefinition ? {
+      drawingChanged: false,
+      stickContent: null,
+      textObjects: remainingTextObjects,
+    } : null);
+    if (didCreate) {
+      if (!onCreateUnifiedSymbolDefinition) commitTextObjects(remainingTextObjects);
+      clearTextSelectionState();
+    }
+    return didCreate;
+  }, [clearTextSelectionState, combineDrawingAndStickCapture, commitTextObjects, createSymbolFromCanvasSource, createTextSelectionCanvas, displayedTextObjects, onCreateUnifiedSymbolDefinition]);
 
-  const convertBitmapSelectionSessionToSymbol = useCallback((owner: BitmapSelectionOwner) => {
+  const convertBitmapSelectionSessionToSymbol = useCallback(async (owner: BitmapSelectionOwner) => {
     const session = getBitmapSelectionSessionForOwner(owner);
     const metrics = getAuthoringMetrics();
     const canvas = canvasRef.current;
@@ -6031,7 +6953,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     }
 
     for (const item of session.items) {
-      drawBitmapSelectionImageToAuthoringCanvas(fullCtx, item.sourceCanvas, item);
+      if (item.sourceCanvas) {
+        drawBitmapSelectionImageToAuthoringCanvas(fullCtx, item.sourceCanvas, item);
+      }
     }
 
     const pixelLeft = Math.max(0, Math.floor(minX * metrics.scaleX));
@@ -6050,11 +6974,59 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     }
 
     croppedCtx.drawImage(fullCanvas, pixelLeft, pixelTop, pixelWidth, pixelHeight, 0, 0, pixelWidth, pixelHeight);
-    return createSymbolFromCanvasSource(croppedCanvas, {
+    const captureBounds = {
+      x: pixelLeft / metrics.scaleX,
+      y: pixelTop / metrics.scaleY,
       width: pixelWidth / metrics.scaleX,
       height: pixelHeight / metrics.scaleY,
-    });
-  }, [createSymbolFromCanvasSource, drawBitmapSelectionImageToAuthoringCanvas, getAuthoringMetrics, getBitmapSelectionSessionForOwner, getDisplayedBitmapTransformBounds]);
+    };
+    const materializedStickContent = materializeStructuredStickSelection(session);
+    const combined = combineDrawingAndStickCapture(
+      croppedCanvas,
+      captureBounds,
+      null,
+      session.structuredStick && materializedStickContent
+        ? {
+            content: materializedStickContent,
+            jointIds: session.structuredStick.jointIds,
+            limbIds: session.structuredStick.limbIds,
+          }
+        : null,
+    );
+    if (!combined) return false;
+    const sourceRemoval: UnifiedSymbolSourceRemoval | null = onCreateUnifiedSymbolDefinition ? {
+      drawingChanged: session.items.some(item => Boolean(item.sourceCanvas)),
+      stickContent: session.structuredStick
+        ? removeStructuredStickSelection(session, materializedStickContent)
+        : null,
+      textObjects: null,
+    } : null;
+    let preparedUnifiedCommit = false;
+    const didCreate = await createSymbolFromCanvasSource(combined.canvas, {
+      width: pixelWidth / metrics.scaleX,
+      height: pixelHeight / metrics.scaleY,
+    }, combined.sourceCategory, sourceRemoval, onCreateUnifiedSymbolDefinition ? {
+      structuredPayload: combined.structuredPayload,
+      prepareUnifiedCommit: () => {
+        preparedUnifiedCommit = true;
+        flushBitmapSelectionSessionState(null);
+      },
+      restoreAfterFailedUnifiedCommit: () => {
+        if (!preparedUnifiedCommit) return;
+        captureBitmapSelectionBackdropFromCanvas();
+        flushBitmapSelectionSessionState(session);
+        scheduleBitmapSelectionBackdropRestore();
+        preparedUnifiedCommit = false;
+      },
+    } : undefined);
+    if (didCreate && !onCreateUnifiedSymbolDefinition) {
+      setBitmapSelectionSessionState(null);
+      const drawingChanged = session.items.some(item => Boolean(item.sourceCanvas));
+      if (drawingChanged) markAuthoringDirty();
+      if (drawingChanged) onAuthoringActionCommitted?.("selection");
+    }
+    return didCreate;
+  }, [captureBitmapSelectionBackdropFromCanvas, combineDrawingAndStickCapture, createSymbolFromCanvasSource, drawBitmapSelectionImageToAuthoringCanvas, flushBitmapSelectionSessionState, getAuthoringMetrics, getBitmapSelectionSessionForOwner, getDisplayedBitmapTransformBounds, markAuthoringDirty, materializeStructuredStickSelection, onAuthoringActionCommitted, onCreateUnifiedSymbolDefinition, removeStructuredStickSelection, scheduleBitmapSelectionBackdropRestore, setBitmapSelectionSessionState]);
 
   const convertKnifeSelectionToSymbol = useCallback(() => {
     convertBitmapSelectionSessionToSymbol("knife");
@@ -6126,10 +7098,18 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       ctx.translate(centerX, centerY);
       ctx.rotate((placedAsset.rotation * Math.PI) / 180);
       ctx.scale(placedAsset.flipX ? -1 : 1, placedAsset.flipY ? -1 : 1);
-      ctx.drawImage(placedSource, -placedAsset.width / 2, -placedAsset.height / 2, placedAsset.width, placedAsset.height);
+      const definition = unifiedSymbolDefinitions?.find(candidate => candidate.definitionId === placedAsset.symbolDefinitionId);
+      if (!definition?.structuredPayload || definition.structuredPayload.drawingPngDataUrl) {
+        ctx.drawImage(placedSource, -placedAsset.width / 2, -placedAsset.height / 2, placedAsset.width, placedAsset.height);
+      }
+      if (definition?.structuredPayload) {
+        drawStructuredSymbolGeometry(ctx, resolveStructuredSymbolGeometryV2(definition, {
+          x: -placedAsset.width / 2, y: -placedAsset.height / 2, width: placedAsset.width, height: placedAsset.height,
+        }), getUnifiedStagePresentation()?.presentation.scale ?? 1);
+      }
       ctx.restore();
     },
-    [getDisplayedPlacedImageRect]
+    [getDisplayedPlacedImageRect, getUnifiedStagePresentation, unifiedSymbolDefinitions]
   );
 
   const captureAuthoringSnapshot = useCallback((options?: DrawingCanvasSnapshotOptions): DrawingCanvasSnapshot | null => {
@@ -6152,7 +7132,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     const placedSource = activePlacedImageSourceRef.current;
     const requiresCompositeSnapshot =
       activeBitmapSelectionNeedsComposite ||
-      Boolean(placedAsset && placedSource);
+      Boolean(placedAsset && placedSource && !placedAsset.symbolDefinitionId);
 
     let snapshotCtx: CanvasRenderingContext2D = sourceCtx;
     let snapshotPreviewSource: CanvasImageSource = canvas;
@@ -6198,11 +7178,13 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       if (activeBitmapSession?.items.length) {
         compositeSnapshotCtx.globalCompositeOperation = "source-over";
         for (const item of activeBitmapSession.items) {
-          drawBitmapSelectionImageToAuthoringCanvas(compositeSnapshotCtx, item.sourceCanvas, item);
+          if (item.sourceCanvas) {
+            drawBitmapSelectionImageToAuthoringCanvas(compositeSnapshotCtx, item.sourceCanvas, item);
+          }
         }
       }
 
-      if (placedAsset && placedSource) {
+      if (placedAsset && placedSource && !placedAsset.symbolDefinitionId) {
         compositeSnapshotCtx.globalCompositeOperation = "source-over";
         drawPlacedImageAsset(compositeSnapshotCtx, placedSource, placedAsset);
       }
@@ -6419,13 +7401,46 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     const ctx = canvasRef.current?.getContext("2d");
     if (!placedAsset || !placedSource || !ctx) return;
 
+    if (
+      placedAsset.symbolDefinitionId &&
+      placedAsset.symbolDefinitionDigest &&
+      onUnifiedSymbolInstancesChange
+    ) {
+      const stage = getUnifiedStagePresentation();
+      if (!stage) return;
+      const displayRect = getDisplayedPlacedImageRect(placedAsset);
+      const stageOrigin = authoredStagePoint(
+        { x: displayRect.x, y: displayRect.y },
+        stage.presentation,
+      );
+      const instance: UnifiedSymbolInstanceItemV2 = {
+        itemId: crypto.randomUUID(),
+        kind: "symbol-instance/v1",
+        definitionId: placedAsset.symbolDefinitionId,
+        definitionDigest: placedAsset.symbolDefinitionDigest,
+        x: stageOrigin.x,
+        y: stageOrigin.y,
+        width: placedAsset.width / stage.presentation.scale,
+        height: placedAsset.height / stage.presentation.scale,
+        rotation: placedAsset.rotation,
+        flipX: placedAsset.flipX,
+        flipY: placedAsset.flipY,
+      };
+      if (!onUnifiedSymbolInstancesChange([...unifiedSymbolInstances, instance])) return;
+      placedImageInteractionRef.current = null;
+      activePlacedImageSourceRef.current = null;
+      setActivePlacedImageAsset(null);
+      setSelectedUnifiedSymbolInstanceId(instance.itemId);
+      return;
+    }
+
     drawPlacedImageAsset(ctx, placedSource, placedAsset);
     markAuthoringDirty();
     placedImageInteractionRef.current = null;
     activePlacedImageSourceRef.current = null;
     setActivePlacedImageAsset(null);
     onAuthoringActionCommitted?.("placed-asset");
-  }, [drawPlacedImageAsset, markAuthoringDirty, onAuthoringActionCommitted]);
+  }, [drawPlacedImageAsset, getDisplayedPlacedImageRect, getUnifiedStagePresentation, markAuthoringDirty, onAuthoringActionCommitted, onUnifiedSymbolInstancesChange, unifiedSymbolInstances]);
 
   useEffect(() => {
     if (activeTool === "Lasso") return;
@@ -6458,8 +7473,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       return;
     }
 
+    clearUnifiedSymbolSelection();
     clearTransientEditingState();
-  }, [clearTransientEditingState, isTimelinePlaying]);
+  }, [clearTransientEditingState, clearUnifiedSymbolSelection, isTimelinePlaying]);
 
   useEffect(() => {
     if (previousEditingContextKeyRef.current === editingContextKey) {
@@ -6467,6 +7483,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     }
 
     previousEditingContextKeyRef.current = editingContextKey;
+    clearUnifiedSymbolSelection();
 
     if (isTimelinePlaying) {
       if (
@@ -6492,6 +7509,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     activeLassoSelection,
     activePlacedImageAsset,
     clearTransientEditingState,
+    clearUnifiedSymbolSelection,
     editingContextKey,
     isTimelinePlaying,
     selectionBoxDraft,
@@ -6550,136 +7568,90 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     [],
   );
 
-  const drawTintedOnionBitmap = useCallback(
-    (
-      overlayCtx: CanvasRenderingContext2D,
-      bitmap: ImageData | null,
-      tintKind: OnionTintKind,
-    ) => {
-      if (!bitmap) {
-        return;
-      }
-
-      const bitmapWidth = Number.isInteger(bitmap.width) ? bitmap.width : 0;
-      const bitmapHeight = Number.isInteger(bitmap.height) ? bitmap.height : 0;
-      const expectedDataLength = bitmapWidth * bitmapHeight * 4;
-      if (
-        bitmapWidth <= 0 ||
-        bitmapHeight <= 0 ||
-        !Number.isSafeInteger(expectedDataLength) ||
-        expectedDataLength <= 0 ||
-        bitmap.data.length < expectedDataLength
-      ) {
-        return;
-      }
-
-      drawTintedOnionMask(
-        overlayCtx,
-        bitmapWidth,
-        bitmapHeight,
-        ONION_TINT_STYLES[tintKind].fillStyle,
-        (workCtx) => {
-          workCtx.putImageData(bitmap, 0, 0);
-        },
-      );
-    },
-    [drawTintedOnionMask],
-  );
-
-  const drawTintedOnionTextObjects = useCallback(
-    (
-      overlayCtx: CanvasRenderingContext2D,
-      textObjects: DrawingTextObject[],
-      tintKind: OnionTintKind,
-      metrics: NonNullable<ReturnType<typeof getAuthoringMetrics>>,
-      canvasWidth: number,
-      canvasHeight: number,
-    ) => {
-      if (textObjects.length === 0) {
-        return;
-      }
-
-      drawTintedOnionMask(
-        overlayCtx,
-        canvasWidth,
-        canvasHeight,
-        ONION_TINT_STYLES[tintKind].fillStyle,
-        (workCtx) => {
-          workCtx.setTransform(metrics.scaleX, 0, 0, metrics.scaleY, 0, 0);
-          for (const textObject of textObjects) {
-            drawDrawingTextObject(workCtx, textObject, {
-              colorOverride: ONION_TEXT_MASK_COLOR,
-              opacity: 1,
-            });
-          }
-        },
-      );
-    },
-    [drawTintedOnionMask],
-  );
-
   useEffect(() => {
     const onionCanvas = onionCanvasRef.current;
     const baseCanvas = canvasRef.current;
     if (!onionCanvas || !baseCanvas) return;
-
     if (onionCanvas.width !== baseCanvas.width || onionCanvas.height !== baseCanvas.height) {
       onionCanvas.width = baseCanvas.width;
       onionCanvas.height = baseCanvas.height;
     }
-
     const onionCtx = onionCanvas.getContext("2d");
     if (!onionCtx) return;
-
     onionCtx.setTransform(1, 0, 0, 1, 0, 0);
     onionCtx.clearRect(0, 0, onionCanvas.width, onionCanvas.height);
-
-    if (isTimelinePlaying) {
-      return;
-    }
-
-    const {
-      previousBitmap: previousFrameBitmap,
-      nextBitmap: nextFrameBitmap,
-      previousTextObjects,
-      nextTextObjects,
-    } = onionOverlayContentRef.current;
-
-    drawTintedOnionBitmap(onionCtx, previousFrameBitmap, "previous");
-    drawTintedOnionBitmap(onionCtx, nextFrameBitmap, "next");
-
-    if (previousTextObjects.length === 0 && nextTextObjects.length === 0) {
-      return;
-    }
-
-    const metrics = getAuthoringMetrics();
-    if (!metrics) {
-      return;
-    }
-
-    drawTintedOnionTextObjects(
-      onionCtx,
-      previousTextObjects,
-      "previous",
-      metrics,
-      onionCanvas.width,
-      onionCanvas.height,
-    );
-    drawTintedOnionTextObjects(
-      onionCtx,
-      nextTextObjects,
-      "next",
-      metrics,
-      onionCanvas.width,
-      onionCanvas.height,
-    );
-  }, [
-    drawTintedOnionBitmap,
-    drawTintedOnionTextObjects,
-    getAuthoringMetrics,
-    isTimelinePlaying,
-    onionOverlayVersion,
-  ]);
+    if (isTimelinePlaying) return;
+    const stage = getUnifiedStagePresentation();
+    if (!stage) return;
+    const { metrics, presentation } = stage;
+    const content = onionOverlayContentRef.current;
+    let cancelled = false;
+    // Decode first, then compose each complete owner into ONE alpha mask. A stale
+    // decode must never repaint after scrubbing, disabling onion, or playback.
+    const images = new Map<string, HTMLImageElement>();
+    const definitions = unifiedSymbolDefinitions ?? [];
+    const instances = [...content.previousSymbolInstances, ...content.nextSymbolInstances];
+    const render = async () => {
+      await Promise.all([...new Set(instances.map(instance => instance.definitionId))].map(async id => {
+        const definition = definitions.find(candidate => candidate.definitionId === id);
+        if (!definition) return;
+        const image = new Image();
+        const rasterUrl = definition.structuredPayload ? definition.structuredPayload.drawingPngDataUrl : definition.pngDataUrl;
+        if (!rasterUrl) return;
+        image.src = rasterUrl;
+        try { await image.decode(); images.set(id, image); } catch { /* Invalid assets do not paint. */ }
+      }));
+      if (cancelled) return;
+      for (const direction of ["previous", "next"] as const) {
+        const bitmap = content[direction === "previous" ? "previousBitmap" : "nextBitmap"];
+        const textObjects = content[direction === "previous" ? "previousTextObjects" : "nextTextObjects"];
+        const stick = content[direction === "previous" ? "previousStickContent" : "nextStickContent"];
+        const symbols = content[direction === "previous" ? "previousSymbolInstances" : "nextSymbolInstances"];
+        drawTintedOnionMask(onionCtx, baseCanvas.width, baseCanvas.height, ONION_TINT_STYLES[direction].fillStyle, ctx => {
+          if (bitmap) {
+            ctx.putImageData(bitmap, bitmapCenterOffset(baseCanvas.width, bitmap.width), bitmapCenterOffset(baseCanvas.height, bitmap.height));
+          }
+          ctx.setTransform(metrics.scaleX, 0, 0, metrics.scaleY, 0, 0);
+          for (const text of textObjects) drawDrawingTextObject(ctx, text, { colorOverride: ONION_TEXT_MASK_COLOR, opacity: 1 });
+          ctx.translate(presentation.offsetX, presentation.offsetY);
+          ctx.scale(presentation.scale, presentation.scale);
+          ctx.fillStyle = ONION_TEXT_MASK_COLOR;
+          ctx.strokeStyle = ONION_TEXT_MASK_COLOR;
+          ctx.lineWidth = 14;
+          ctx.lineCap = "round";
+          ctx.lineJoin = "round";
+          const graph = stick?.structureGraph;
+          for (const limb of graph?.limbs ?? []) {
+            const start = graph!.joints.find(joint => joint.id === limb.startJointId);
+            const end = graph!.joints.find(joint => joint.id === limb.endJointId);
+            if (!start || !end) continue;
+            ctx.beginPath(); ctx.moveTo(start.x, start.y); ctx.lineTo(end.x, end.y); ctx.stroke();
+          }
+          for (const joint of graph?.joints ?? []) {
+            ctx.beginPath(); ctx.arc(joint.x, joint.y, 14, 0, Math.PI * 2); ctx.fill();
+          }
+          for (const instance of symbols) {
+            const definition = definitions.find(candidate => candidate.definitionId === instance.definitionId);
+            const image = images.get(instance.definitionId);
+            if (!definition || definition.definitionDigest !== instance.definitionDigest) continue;
+            ctx.save();
+            const cx = instance.x + instance.width / 2;
+            const cy = instance.y + instance.height / 2;
+            ctx.translate(cx, cy);
+            ctx.rotate(instance.rotation * Math.PI / 180);
+            ctx.scale(instance.flipX ? -1 : 1, instance.flipY ? -1 : 1);
+            if (image) ctx.drawImage(image, -instance.width / 2, -instance.height / 2, instance.width, instance.height);
+            drawStructuredSymbolGeometry(ctx, resolveStructuredSymbolGeometryV2(definition, {
+              x: -instance.width / 2, y: -instance.height / 2, width: instance.width, height: instance.height,
+            }));
+            ctx.restore();
+          }
+        });
+      }
+    };
+    void render();
+    return () => { cancelled = true; };
+  }, [authoringSurfaceVersion, drawTintedOnionMask, getUnifiedStagePresentation, isTimelinePlaying, onionOverlayVersion, unifiedSymbolDefinitions]);
 
   useEffect(() => {
     const textCanvas = textCanvasRef.current;
@@ -6710,7 +7682,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     for (const activeTextObject of displayedTextObjects) {
       drawDrawingTextObject(textCtx, activeTextObject);
     }
-  }, [displayedTextObjects, getAuthoringMetrics, isTimelinePlaying]);
+  }, [authoringSurfaceVersion, displayedTextObjects, getAuthoringMetrics, isTimelinePlaying]);
 
   useEffect(() => {
     const overlayCanvas = lassoOverlayRef.current;
@@ -6837,7 +7809,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     if (activeBitmapSelectionSession?.items.length) {
       overlayCtx.globalCompositeOperation = "source-over";
       for (const item of activeBitmapSelectionSession.items) {
-        drawBitmapSelectionImage(overlayCtx, item.sourceCanvas, item);
+        if (item.sourceCanvas) {
+          drawBitmapSelectionImage(overlayCtx, item.sourceCanvas, item);
+        }
       }
 
       if (activeBitmapSelectionSession.owner === "knife") {
@@ -7062,6 +8036,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   };
 
   const startCanvasStroke = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    clearUnifiedSymbolSelection();
     if (activePlacedImageAssetRef.current) {
       const point = getCanvasPoint(e);
       const placedAsset = activePlacedImageAssetRef.current;
@@ -8402,17 +9377,23 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       const interaction = bitmapSelectionInteractionRef.current;
       if (
         e.type === "pointerleave" &&
-        interaction.mode === "resizing" &&
-        isCornerResizeHandle(interaction.handle) &&
         e.currentTarget.hasPointerCapture(e.pointerId)
       ) {
         return;
       }
+      // Consume the final pointer sample before sealing this interaction. A
+      // commit can synchronously render; lost capture must then be a no-op.
+      if (e.type === "pointerup") moveCanvasStroke(e);
+      bitmapSelectionInteractionRef.current = null;
       if (interaction.didTransform) {
-        onAuthoringActionCommitted?.("selection");
+        const session = getBitmapSelectionSessionForOwner(interaction.owner);
+        if (session && interaction.owner !== "knife") {
+          commitUnifiedSelectionMutation(session);
+        } else {
+          onAuthoringActionCommitted?.("selection");
+        }
         scheduleBitmapSelectionBackdropRestore();
       }
-      bitmapSelectionInteractionRef.current = null;
       if (e.currentTarget.hasPointerCapture(e.pointerId)) {
         e.currentTarget.releasePointerCapture(e.pointerId);
       }
@@ -8587,6 +9568,127 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     }
   };
 
+  const cancelCanvasStroke = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    const releaseCapture = () => {
+      if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      }
+    };
+
+    if (placedImageInteractionRef.current && activePlacedImageAssetRef.current) {
+      const interaction = placedImageInteractionRef.current;
+      const placedAsset = activePlacedImageAssetRef.current;
+      setActivePlacedImageAsset(
+        interaction.mode === "moving"
+          ? { ...placedAsset, x: interaction.startX, y: interaction.startY }
+          : interaction.mode === "rotating"
+            ? { ...placedAsset, rotation: interaction.startRotation }
+            : {
+                ...placedAsset,
+                x: interaction.startX,
+                y: interaction.startY,
+                width: interaction.startWidth,
+                height: interaction.startHeight,
+                flipX: interaction.startFlipX,
+                flipY: interaction.startFlipY,
+              },
+      );
+      placedImageInteractionRef.current = null;
+      releaseCapture();
+      return;
+    }
+
+    if (bitmapSelectionInteractionRef.current) {
+      const interaction = bitmapSelectionInteractionRef.current;
+      updateBitmapSelectionSessionItem(interaction.owner, interaction.itemId, (item) =>
+        interaction.mode === "moving"
+          ? { ...item, x: interaction.startX, y: interaction.startY }
+          : interaction.mode === "rotating"
+            ? { ...item, rotation: interaction.startRotation }
+            : {
+                ...item,
+                x: interaction.startX,
+                y: interaction.startY,
+                width: interaction.startWidth,
+                height: interaction.startHeight,
+                flipX: interaction.startFlipX,
+                flipY: interaction.startFlipY,
+              },
+      );
+      bitmapSelectionInteractionRef.current = null;
+      restoreBitmapSelectionBackdropToCanvas();
+      releaseCapture();
+      return;
+    }
+
+    if (textInteractionRef.current) {
+      textInteractionRef.current = null;
+      setTextDraftObjects(null);
+      releaseCapture();
+      return;
+    }
+
+    if (selectionBoxDraft) {
+      setSelectionBoxDraft(null);
+      releaseCapture();
+      return;
+    }
+
+    if (lassoInteractionRef.current) {
+      clearLassoDraft();
+      releaseCapture();
+      return;
+    }
+
+    if (knifeInteractionRef.current) {
+      clearKnifeDraft();
+      releaseCapture();
+      return;
+    }
+
+    if (isShapeDrawingRef.current) {
+      cancelShapePreview();
+      const ctx = canvasRef.current?.getContext("2d");
+      if (ctx && shapeDraftBaseImageRef.current) {
+        ctx.putImageData(shapeDraftBaseImageRef.current, 0, 0);
+      }
+      isShapeDrawingRef.current = false;
+      shapeDraftRef.current = null;
+      shapeDraftBaseImageRef.current = null;
+      releaseCapture();
+      return;
+    }
+
+    if (isDrawingRef.current) {
+      cancelBrushPreview();
+      const ctx = canvasRef.current?.getContext("2d");
+      if (ctx) {
+        if (activeTool === "Brush" && brushUsesBufferedPreviewRef.current) {
+          drawBufferedBrushStroke(ctx, !brushDidMoveRef.current, "final-commit");
+          if (brushUsesOverlayPreviewRef.current) {
+            clearBrushPreviewOverlay();
+          }
+        }
+        ctx.closePath();
+        ctx.globalCompositeOperation = "source-over";
+        ctx.globalAlpha = 1;
+        markAuthoringPendingChanges();
+      }
+      isDrawingRef.current = false;
+      brushPreviousPointRef.current = null;
+      brushDidMoveRef.current = false;
+      resetBrushStrokePreviewState();
+      brushUsesBufferedPreviewRef.current = true;
+      if (ctx) {
+        onAuthoringActionCommitted?.("stroke");
+      }
+      releaseCapture();
+      return;
+    }
+
+    releaseCapture();
+  };
+
   const updateCameraZoom = (nextZoomRaw: number) => {
     const nextZoom = clamp(nextZoomRaw, MIN_CAMERA_ZOOM, MAX_CAMERA_ZOOM);
     setCameraZoom(nextZoom);
@@ -8700,6 +9802,13 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       image.src = url;
     });
 
+  const readFileAsDataUrl = (file: File) => new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => typeof reader.result === "string" ? resolve(reader.result) : reject(new Error("asset_read_failed"));
+    reader.onerror = () => reject(reader.error ?? new Error("asset_read_failed"));
+    reader.readAsDataURL(file);
+  });
+
   const handleAssetImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
     if (files.length === 0) return;
@@ -8721,7 +9830,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     }
 
     if (hasDuplicate) {
-      window.alert("This asset has already been imported.");
+      setWorkspaceNotice("This asset has already been imported.");
     }
 
     if (filesToImport.length === 0) {
@@ -8732,8 +9841,8 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     const nextAssets = await Promise.all(
       filesToImport.map(async (file, index) => {
         const isImage = file.type.startsWith("image/");
-        const previewUrl = isImage ? URL.createObjectURL(file) : null;
-        if (previewUrl) {
+        const previewUrl = isImage ? await readFileAsDataUrl(file) : null;
+        if (previewUrl && !onUnifiedAssetsImported) {
           assetPreviewUrlsRef.current.push(previewUrl);
         }
         const dimensions = previewUrl ? await loadImageDimensions(previewUrl) : { width: null, height: null };
@@ -8757,10 +9866,141 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       })
     );
 
-    setImportedAssets((prev) => [...prev, ...nextAssets]);
+    if (onUnifiedAssetsImported) {
+      const catalogAssets = await Promise.all(filesToImport.map(async (file, index) => {
+        const asset = nextAssets[index];
+        return createProjectAssetV2({
+          assetId: asset.id,
+          name: asset.name,
+          kind: asset.kind,
+          mimeType: file.type || "application/octet-stream",
+          byteLength: file.size,
+          width: asset.width,
+          height: asset.height,
+          dataUrl: asset.previewUrl,
+          sourceBytes: new Uint8Array(await file.arrayBuffer()),
+        });
+      }));
+      if (!onUnifiedAssetsImported(catalogAssets)) {
+        setWorkspaceNotice("An asset with this name has already been imported.");
+      }
+    } else {
+      setImportedAssets((prev) => [...prev, ...nextAssets]);
+    }
     filesToImport.forEach((file) => pendingAssetImportNamesRef.current.delete(file.name));
     e.target.value = "";
   };
+
+  const renderedUnifiedSymbolInstances = unifiedSymbolInstances.map(instance =>
+    draftUnifiedSymbolInstance?.itemId === instance.itemId ? draftUnifiedSymbolInstance : instance,
+  );
+  const selectedUnifiedSymbolInstance = renderedUnifiedSymbolInstances.find(
+    instance => instance.itemId === selectedUnifiedSymbolInstanceId,
+  ) ?? null;
+  const unifiedSymbolStagePoint = (event: React.PointerEvent<SVGElement>) => {
+    const svg = event.currentTarget.ownerSVGElement;
+    const matrix = svg?.getScreenCTM();
+    if (!svg || !matrix) return null;
+    const point = svg.createSVGPoint();
+    point.x = event.clientX;
+    point.y = event.clientY;
+    const stagePoint = point.matrixTransform(matrix.inverse());
+    return { x: stagePoint.x, y: stagePoint.y };
+  };
+  const beginUnifiedSymbolGesture = (event: React.PointerEvent<SVGElement>, instance: UnifiedSymbolInstanceItemV2, handle?: ResizeHandle) => {
+    if (activeTool !== "Select" || canvasInteractionOwner !== "drawing" || isTimelinePlaying || !onUnifiedSymbolInstancesChange || !event.isPrimary || event.button !== 0) return;
+    const point = unifiedSymbolStagePoint(event);
+    if (!point) return;
+    event.stopPropagation();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    unifiedSymbolInteractionRef.current = {
+      pointerId: event.pointerId,
+      itemId: instance.itemId,
+      startPointer: point,
+      startX: instance.x,
+      startY: instance.y,
+      initial: structuredClone(instance),
+      handle,
+    };
+    setSelectedUnifiedSymbolInstanceId(instance.itemId);
+    publishUnifiedSymbolDraft(structuredClone(instance));
+    setRightPanelTab("Properties");
+  };
+  const moveUnifiedSymbolGesture = (event: React.PointerEvent<SVGElement>) => {
+    const interaction = unifiedSymbolInteractionRef.current;
+    if (!interaction || interaction.pointerId !== event.pointerId) return;
+    const point = unifiedSymbolStagePoint(event);
+    if (!point) return;
+    event.stopPropagation();
+    if (interaction.handle) {
+      const initial = interaction.initial;
+      const angle = initial.rotation * Math.PI / 180;
+      const cos = Math.cos(angle), sin = Math.sin(angle);
+      const dx = point.x - interaction.startPointer.x, dy = point.y - interaction.startPointer.y;
+      const localX = (cos * dx + sin * dy) * (initial.flipX ? -1 : 1);
+      const localY = (-sin * dx + cos * dy) * (initial.flipY ? -1 : 1);
+      const h = interaction.handle;
+      const width = Math.max(4, initial.width + (h.includes("e") ? localX : h.includes("w") ? -localX : 0));
+      const height = Math.max(4, initial.height + (h.includes("s") ? localY : h.includes("n") ? -localY : 0));
+      const shiftX = (width - initial.width) / 2 * (h.includes("w") ? -1 : 1) * (initial.flipX ? -1 : 1);
+      const shiftY = (height - initial.height) / 2 * (h.includes("n") ? -1 : 1) * (initial.flipY ? -1 : 1);
+      publishUnifiedSymbolDraft({ ...initial, width, height,
+        x: initial.x + (cos * shiftX - sin * shiftY - (width - initial.width) / 2),
+        y: initial.y + (sin * shiftX + cos * shiftY - (height - initial.height) / 2),
+      });
+      return;
+    }
+    publishUnifiedSymbolDraft({
+      ...interaction.initial,
+      x: interaction.startX + (point.x - interaction.startPointer.x),
+      y: interaction.startY + (point.y - interaction.startPointer.y),
+    });
+  };
+  const finishUnifiedSymbolGesture = (event: React.PointerEvent<SVGElement>) => {
+    const interaction = unifiedSymbolInteractionRef.current;
+    if (!interaction || interaction.pointerId !== event.pointerId) return;
+    event.stopPropagation();
+    moveUnifiedSymbolGesture(event);
+    unifiedSymbolInteractionRef.current = null;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+    const draft = draftUnifiedSymbolInstanceRef.current;
+    publishUnifiedSymbolDraft(null);
+    if (!draft) return;
+    const current = unifiedSymbolInstances.find(instance => instance.itemId === draft.itemId);
+    if (!current || (current.x === draft.x && current.y === draft.y && current.width === draft.width && current.height === draft.height)) return;
+    onUnifiedSymbolInstancesChange?.(unifiedSymbolInstances.map(instance => instance.itemId === draft.itemId ? draft : instance));
+  };
+  const cancelUnifiedSymbolGesture = (event: React.PointerEvent<SVGElement>) => {
+    const interaction = unifiedSymbolInteractionRef.current;
+    if (!interaction || interaction.pointerId !== event.pointerId) return;
+    event.stopPropagation();
+    unifiedSymbolInteractionRef.current = null;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+    publishUnifiedSymbolDraft(null);
+  };
+  const updateSelectedUnifiedSymbol = (updates: Partial<Pick<UnifiedSymbolInstanceItemV2, "rotation" | "flipX" | "flipY">>) => {
+    if (!selectedUnifiedSymbolInstance || !onUnifiedSymbolInstancesChange) return;
+    onUnifiedSymbolInstancesChange(unifiedSymbolInstances.map(instance =>
+      instance.itemId === selectedUnifiedSymbolInstance.itemId ? { ...instance, ...updates } : instance,
+    ));
+  };
+  const duplicateSelectedUnifiedSymbol = () => {
+    if (!selectedUnifiedSymbolInstance || !onUnifiedSymbolInstancesChange) return;
+    const duplicate = { ...structuredClone(selectedUnifiedSymbolInstance), itemId: crypto.randomUUID(), x: selectedUnifiedSymbolInstance.x + 32, y: selectedUnifiedSymbolInstance.y + 32 };
+    if (onUnifiedSymbolInstancesChange([...unifiedSymbolInstances, duplicate])) setSelectedUnifiedSymbolInstanceId(duplicate.itemId);
+  };
+  const deleteSelectedUnifiedSymbol = () => {
+    if (!selectedUnifiedSymbolInstance || !onUnifiedSymbolInstancesChange) return;
+    if (onUnifiedSymbolInstancesChange(unifiedSymbolInstances.filter(instance => instance.itemId !== selectedUnifiedSymbolInstance.itemId))) {
+      setSelectedUnifiedSymbolInstanceId(null);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedUnifiedSymbolInstanceId && !unifiedSymbolInstances.some(instance => instance.itemId === selectedUnifiedSymbolInstanceId)) {
+      setSelectedUnifiedSymbolInstanceId(null);
+    }
+  }, [selectedUnifiedSymbolInstanceId, unifiedSymbolInstances]);
 
   const renderTextPropertiesEditor = useCallback(
     (
@@ -9113,6 +10353,20 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
           </label>
         </div>
 
+        {selectedUnifiedSymbolInstance && (
+          <div data-unified-symbol-properties style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <div style={{ color: "rgba(255,255,255,0.74)", fontSize: 11 }}>Symbol instance</div>
+            <div style={{ color: "rgba(255,255,255,0.62)", fontSize: 12 }}>
+              This instance has an independent transform and keeps its project Library definition linked by digest.
+            </div>
+            <RotationValueField value={selectedUnifiedSymbolInstance.rotation} onCommit={(rotation) => updateSelectedUnifiedSymbol({ rotation })} />
+            <button type="button" onClick={() => updateSelectedUnifiedSymbol({ flipX: !selectedUnifiedSymbolInstance.flipX })} style={{ minHeight: 34, borderRadius: 8, border: "1px solid rgba(255,255,255,.12)", background: "rgba(255,255,255,.04)", color: "white", cursor: "pointer" }}>Flip X</button>
+            <button type="button" onClick={() => updateSelectedUnifiedSymbol({ flipY: !selectedUnifiedSymbolInstance.flipY })} style={{ minHeight: 34, borderRadius: 8, border: "1px solid rgba(255,255,255,.12)", background: "rgba(255,255,255,.04)", color: "white", cursor: "pointer" }}>Flip Y</button>
+            <button type="button" onClick={duplicateSelectedUnifiedSymbol} style={{ minHeight: 34, borderRadius: 8, border: "1px solid rgba(255,255,255,.12)", background: "rgba(255,255,255,.04)", color: "white", cursor: "pointer" }}>Duplicate Instance</button>
+            <button type="button" onClick={deleteSelectedUnifiedSymbol} style={{ minHeight: 34, borderRadius: 8, border: "1px solid rgba(255,120,120,.26)", background: "rgba(255,80,80,.06)", color: "white", cursor: "pointer" }}>Delete Instance</button>
+          </div>
+        )}
+
         {activePlacedImageAsset && (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             <div style={{ color: "rgba(255,255,255,0.74)", fontSize: 11 }}>Placed asset</div>
@@ -9153,11 +10407,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
             {activeBoxSelection.kind === "bitmap" && (
               <RotationValueField
                 value={activeBoxSelection.rotation}
-                onCommit={(rotation) => {
-                  updateActiveBoxSelectionState((current) =>
-                    current?.kind === "bitmap" ? { ...current, rotation } : current,
-                  );
-                }}
+                onCommit={(rotation) => commitBitmapSelectionRotation("select", rotation)}
               />
             )}
             <button
@@ -9477,11 +10727,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
             {activeLassoSelection.kind === "bitmap" && (
               <RotationValueField
                 value={activeLassoSelection.rotation}
-                onCommit={(rotation) => {
-                  updateActiveLassoSelectionState((current) =>
-                    current?.kind === "bitmap" ? { ...current, rotation } : current,
-                  );
-                }}
+                onCommit={(rotation) => commitBitmapSelectionRotation("lasso", rotation)}
               />
             )}
             <button
@@ -10105,6 +11351,22 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 <div style={{ color: "rgba(255,255,255,0.84)", fontSize: 12, fontWeight: 600, lineHeight: 1.2 }}>{item.name}</div>
                 <div style={{ color: "rgba(255,255,255,0.56)", fontSize: 10 }}>{item.tag}</div>
               </div>
+              {onRemoveUnifiedSymbolDefinition && (
+                <button
+                  type="button"
+                  aria-label={`Delete ${item.name} definition`}
+                  onPointerDown={event => event.stopPropagation()}
+                  onClick={event => {
+                    event.stopPropagation();
+                    if (!onRemoveUnifiedSymbolDefinition(item.id)) {
+                      setWorkspaceNotice("Delete the symbol instances that use this definition first.");
+                    }
+                  }}
+                  style={{ marginLeft: "auto", border: "1px solid rgba(255,120,120,.22)", borderRadius: 7, background: "rgba(255,80,80,.05)", color: "rgba(255,255,255,.72)", cursor: "pointer", padding: "4px 7px" }}
+                >
+                  Delete
+                </button>
+              )}
             </div>
           ))}
         </div>
@@ -10142,55 +11404,61 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   const beginUnifiedStickGesture = (event: React.PointerEvent<SVGSVGElement>) => {
     if (isTimelinePlaying || !onUnifiedStickContentChange || !event.isPrimary || event.button !== 0) return;
     event.stopPropagation();
+    clearUnifiedSymbolSelection();
     const point = unifiedStickPoint(event);
     if (!point) return;
     const joint = nearestUnifiedStickJoint(point, unifiedStickMode === "add-limb" ? unifiedStickEndpointJoints : unifiedStickContent.structureGraph.joints);
     if (unifiedStickMode === "select" && !joint) { setUnifiedSelectedJointId(null); return; }
     event.currentTarget.setPointerCapture(event.pointerId);
     const startPoint = joint ? { x: joint.x, y: joint.y } : point;
-    setUnifiedStickDrag({
+    publishUnifiedStickDrag({
       pointerId: event.pointerId,
       startPoint,
       currentPoint: startPoint,
       startJointId: unifiedStickMode === "add-limb" ? joint?.id ?? null : null,
       movingJointId: unifiedStickMode === "select" ? joint?.id ?? null : null,
       jointOffset: joint ? { x: joint.x - point.x, y: joint.y - point.y } : { x: 0, y: 0 },
+      contextKey: editingContextKey,
+      mode: unifiedStickMode,
+      sourceContent: structuredClone(unifiedStickContent),
     });
     setUnifiedSelectedJointId(joint?.id ?? null);
     event.preventDefault();
   };
   const moveUnifiedStickGesture = (event: React.PointerEvent<SVGSVGElement>) => {
-    if (!unifiedStickDrag || event.pointerId !== unifiedStickDrag.pointerId) return;
+    const current = unifiedStickDragRef.current;
+    if (!current || event.pointerId !== current.pointerId) return;
     event.stopPropagation();
     const point = unifiedStickPoint(event);
     if (!point) return;
-    setUnifiedStickDrag((current) => current && current.pointerId === event.pointerId ? {
+    publishUnifiedStickDrag({
       ...current,
       currentPoint: current.movingJointId
         ? { x: point.x + current.jointOffset.x, y: point.y + current.jointOffset.y }
         : point,
-    } : current);
+    });
     event.preventDefault();
   };
   const finishUnifiedStickGesture = (event: React.PointerEvent<SVGSVGElement>) => {
-    const draft = unifiedStickDrag;
-    if (draft && event.pointerId === draft.pointerId) event.stopPropagation();
-    if (draft && event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
-    setUnifiedStickDrag(null);
-    if (!draft || isTimelinePlaying || !onUnifiedStickContentChange) return;
+    const draft = unifiedStickDragRef.current;
+    if (!draft || event.pointerId !== draft.pointerId) return;
+    event.stopPropagation();
+    publishUnifiedStickDrag(null);
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+    if (draft.contextKey !== editingContextKey || isTimelinePlaying || !onUnifiedStickContentChange) return;
     const pointerPoint = unifiedStickPoint(event) ?? draft.currentPoint;
     const end = draft.movingJointId
       ? { x: pointerPoint.x + draft.jointOffset.x, y: pointerPoint.y + draft.jointOffset.y }
       : pointerPoint;
-    const next = structuredClone(unifiedStickContent);
-    if (unifiedStickMode === "select" && draft.movingJointId) {
+    const next = structuredClone(draft.sourceContent);
+    if (draft.mode === "select" && draft.movingJointId) {
       const joint = next.structureGraph.joints.find(value => value.id === draft.movingJointId);
       if (!joint || Math.hypot(end.x - draft.startPoint.x, end.y - draft.startPoint.y) < 1) return;
       joint.x = end.x; joint.y = end.y; next.structureGraph.activeJointId = joint.id;
       onUnifiedStickContentChange(next); return;
     }
-    if (unifiedStickMode !== "add-limb") return;
-    const existingEnd = nearestUnifiedStickJoint(end, unifiedStickContent.structureGraph.joints, draft.startJointId);
+    if (draft.mode !== "add-limb") return;
+    const existingEnd = nearestUnifiedStickJoint(end, draft.sourceContent.structureGraph.joints, draft.startJointId);
     const endPoint = existingEnd ? { x: existingEnd.x, y: existingEnd.y } : end;
     if (Math.hypot(endPoint.x - draft.startPoint.x, endPoint.y - draft.startPoint.y) < 18) return;
     const startId = draft.startJointId ?? crypto.randomUUID();
@@ -10203,29 +11471,57 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     onUnifiedStickContentChange(next);
   };
   const cancelUnifiedStickGesture = (event: React.PointerEvent<SVGSVGElement>) => {
-    if (!unifiedStickDrag || event.pointerId !== unifiedStickDrag.pointerId) return;
+    const draft = unifiedStickDragRef.current;
+    if (!draft || event.pointerId !== draft.pointerId) return;
     event.stopPropagation();
+    publishUnifiedStickDrag(null);
     if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
-    setUnifiedStickDrag(null);
   };
   useEffect(() => {
     if (!unifiedStickDrag) return;
     const cancelOnEscape = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
+      const draft = unifiedStickDragRef.current;
+      publishUnifiedStickDrag(null);
       const svg = unifiedStickSvgRef.current;
-      if (svg?.hasPointerCapture(unifiedStickDrag.pointerId)) svg.releasePointerCapture(unifiedStickDrag.pointerId);
-      setUnifiedStickDrag(null);
+      if (draft && svg?.hasPointerCapture(draft.pointerId)) svg.releasePointerCapture(draft.pointerId);
     };
     window.addEventListener("keydown", cancelOnEscape);
     return () => window.removeEventListener("keydown", cancelOnEscape);
-  }, [unifiedStickDrag]);
+  }, [publishUnifiedStickDrag, unifiedStickDrag]);
+  useLayoutEffect(() => {
+    setCanvasInteractionOwner("drawing");
+    clearUnifiedSymbolSelection();
+    const current = unifiedStickDragRef.current;
+    publishUnifiedStickDrag(null);
+    const svg = unifiedStickSvgRef.current;
+    if (current && svg?.hasPointerCapture(current.pointerId)) svg.releasePointerCapture(current.pointerId);
+  }, [clearUnifiedSymbolSelection, drawingToolActivationId, publishUnifiedStickDrag]);
+  const activateUnifiedStickTool = (mode: "select" | "add-limb") => {
+    clearUnifiedSymbolSelection();
+    clearTransientEditingState();
+    setUnifiedStickMode(mode);
+    setCanvasInteractionOwner("stick");
+  };
+  const handleRightPanelTabChange = (tab: DrawingRightPanelTab) => {
+    setRightPanelTab(tab);
+    if (tab === "Stick Figure Tools") {
+      clearUnifiedSymbolSelection();
+      clearTransientEditingState();
+      setCanvasInteractionOwner("stick");
+    }
+  };
+  const selectionPreviewStickContent = activeBitmapSelectionSession?.structuredStick
+    ? materializeStructuredStickSelection(activeBitmapSelectionSession)
+    : null;
+  const baseRenderedUnifiedStickContent = selectionPreviewStickContent ?? unifiedStickContent;
   const renderedUnifiedStickContent = unifiedStickDrag?.movingJointId ? {
-    ...unifiedStickContent,
+    ...baseRenderedUnifiedStickContent,
     structureGraph: {
-      ...unifiedStickContent.structureGraph,
-      joints: unifiedStickContent.structureGraph.joints.map((joint) => joint.id === unifiedStickDrag.movingJointId ? { ...joint, ...unifiedStickDrag.currentPoint } : joint),
+      ...baseRenderedUnifiedStickContent.structureGraph,
+      joints: baseRenderedUnifiedStickContent.structureGraph.joints.map((joint) => joint.id === unifiedStickDrag.movingJointId ? { ...joint, ...unifiedStickDrag.currentPoint } : joint),
     },
-  } : unifiedStickContent;
+  } : baseRenderedUnifiedStickContent;
   const unifiedStickPreviewEndJoint = unifiedStickDrag && !unifiedStickDrag.movingJointId
     ? nearestUnifiedStickJoint(unifiedStickDrag.currentPoint, unifiedStickContent.structureGraph.joints, unifiedStickDrag.startJointId)
     : null;
@@ -10235,8 +11531,8 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   const stickToolsTabContent = (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
       <div><div style={{ color: "rgba(255,255,255,0.92)", fontSize: 14, fontWeight: 800 }}>STICK FIGURE TOOLS</div><div style={{ color: "rgba(255,255,255,0.62)", fontSize: 12 }}>Create and edit segments in this frame.</div></div>
-      <button type="button" onClick={() => setUnifiedStickMode("add-limb")} style={{ minHeight: 38, borderRadius: 8, border: unifiedStickMode === "add-limb" ? "1px solid rgba(110,170,255,.5)" : "1px solid rgba(255,255,255,.12)", background: unifiedStickMode === "add-limb" ? "rgba(110,170,255,.14)" : "rgba(255,255,255,.04)", color: "white", cursor: "pointer" }}>Add Limb</button>
-      <button type="button" onClick={() => setUnifiedStickMode("select")} style={{ minHeight: 38, borderRadius: 8, border: unifiedStickMode === "select" ? "1px solid rgba(110,170,255,.5)" : "1px solid rgba(255,255,255,.12)", background: unifiedStickMode === "select" ? "rgba(110,170,255,.14)" : "rgba(255,255,255,.04)", color: "white", cursor: "pointer" }}>Select / Move Joint</button>
+      <button type="button" onClick={() => activateUnifiedStickTool("add-limb")} style={{ minHeight: 38, borderRadius: 8, border: unifiedStickMode === "add-limb" && canvasInteractionOwner === "stick" ? "1px solid rgba(110,170,255,.5)" : "1px solid rgba(255,255,255,.12)", background: unifiedStickMode === "add-limb" && canvasInteractionOwner === "stick" ? "rgba(110,170,255,.14)" : "rgba(255,255,255,.04)", color: "white", cursor: "pointer" }}>Add Limb</button>
+      <button type="button" onClick={() => activateUnifiedStickTool("select")} style={{ minHeight: 38, borderRadius: 8, border: unifiedStickMode === "select" && canvasInteractionOwner === "stick" ? "1px solid rgba(110,170,255,.5)" : "1px solid rgba(255,255,255,.12)", background: unifiedStickMode === "select" && canvasInteractionOwner === "stick" ? "rgba(110,170,255,.14)" : "rgba(255,255,255,.04)", color: "white", cursor: "pointer" }}>Select / Move Joint</button>
       <div style={{ color: "rgba(255,255,255,.58)" }}>{unifiedStickContent.structureGraph.joints.length} joints · {unifiedStickContent.structureGraph.limbs.length} segments</div>
     </div>
   );
@@ -10244,6 +11540,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     rightPanelTab === "Properties" ? propertiesTabContent : rightPanelTab === "Assets" ? assetsTabContent : libraryTabContent;
 
   return (
+    <>
     <div style={{ flex: 1, display: "flex", minHeight: 0 }}>
       <div style={{ flex: 1, minWidth: 0, padding: 14 }}>
         <div
@@ -10297,21 +11594,68 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               }}
             />
             <svg
+              aria-label="Project symbol instances"
+              viewBox="0 0 1920 1080"
+              preserveAspectRatio="xMidYMid meet"
+              style={{ position: "absolute", zIndex: 6, left: `${CAMERA_FRAME_INSET_PERCENT}%`, top: `${CAMERA_FRAME_INSET_PERCENT}%`, width: `${CAMERA_FRAME_SIZE_PERCENT}%`, height: `${CAMERA_FRAME_SIZE_PERCENT}%`, overflow: "visible", pointerEvents: "none" }}
+            >
+              {renderedUnifiedSymbolInstances.map(instance => {
+                const definition = unifiedSymbolDefinitions?.find(candidate => candidate.definitionId === instance.definitionId);
+                if (!definition || definition.definitionDigest !== instance.definitionDigest) return null;
+                const centerX = instance.x + instance.width / 2;
+                const centerY = instance.y + instance.height / 2;
+                const transform = `translate(${centerX} ${centerY}) rotate(${instance.rotation}) scale(${instance.flipX ? -1 : 1} ${instance.flipY ? -1 : 1}) translate(${-centerX} ${-centerY})`;
+                const selected = instance.itemId === selectedUnifiedSymbolInstanceId && activeTool === "Select" && canvasInteractionOwner === "drawing";
+                const geometry = resolveStructuredSymbolGeometryV2(definition, instance);
+                const rasterUrl = definition.structuredPayload ? definition.structuredPayload.drawingPngDataUrl : definition.pngDataUrl;
+                return (
+                  <g key={instance.itemId} transform={transform} data-unified-symbol-instance={instance.itemId}>
+                    {rasterUrl ? <image
+                      data-symbol-raster
+                      href={rasterUrl} x={instance.x} y={instance.y}
+                      width={instance.width} height={instance.height}
+                      preserveAspectRatio="none" style={{ pointerEvents: "none" }}
+                    /> : null}
+                    {geometry?.limbs.map(limb => <line data-symbol-segment key={limb.id}
+                      x1={limb.start.x} y1={limb.start.y} x2={limb.end.x} y2={limb.end.y}
+                      stroke="#101218" strokeWidth="14" strokeLinecap="round" strokeLinejoin="round" />)}
+                    {geometry?.joints.map(joint => <circle data-symbol-joint key={joint.id}
+                      cx={joint.x} cy={joint.y} r="14" fill="#101218" />)}
+                    <rect data-symbol-hit-target x={instance.x} y={instance.y} width={instance.width} height={instance.height}
+                      fill="transparent" style={{ pointerEvents: activeTool === "Select" && canvasInteractionOwner === "drawing" && !isTimelinePlaying ? "all" : "none", cursor: "move" }}
+                      onPointerDown={event => beginUnifiedSymbolGesture(event, instance)}
+                      onPointerMove={moveUnifiedSymbolGesture} onPointerUp={finishUnifiedSymbolGesture}
+                      onPointerCancel={cancelUnifiedSymbolGesture} onLostPointerCapture={cancelUnifiedSymbolGesture} />
+                    {selected && !isTimelinePlaying ? <>
+                      <rect x={instance.x} y={instance.y} width={instance.width} height={instance.height}
+                        fill="none" stroke="#398bff" strokeWidth="2" vectorEffect="non-scaling-stroke" strokeDasharray="6 4" style={{ pointerEvents: "none" }} />
+                      {RESIZE_HANDLE_ORDER.map(handle => <circle key={handle} data-symbol-resize-handle={handle}
+                        cx={instance.x + (handle.includes("w") ? 0 : handle.includes("e") ? instance.width : instance.width / 2)}
+                        cy={instance.y + (handle.includes("n") ? 0 : handle.includes("s") ? instance.height : instance.height / 2)}
+                        r={6 / Math.max(0.01, (getUnifiedStagePresentation()?.presentation.scale ?? 1) * cameraZoom)}
+                        fill="white" stroke="#398bff" strokeWidth="2" vectorEffect="non-scaling-stroke"
+                        style={{ pointerEvents: activeTool === "Select" ? "all" : "none", cursor: handle + "-resize" }}
+                        onPointerDown={event => beginUnifiedSymbolGesture(event, instance, handle)}
+                        onPointerMove={moveUnifiedSymbolGesture} onPointerUp={finishUnifiedSymbolGesture}
+                        onPointerCancel={cancelUnifiedSymbolGesture} onLostPointerCapture={cancelUnifiedSymbolGesture} />)}
+                    </> : null}
+                  </g>
+                );
+              })}
+            </svg>
+            <svg
               ref={unifiedStickSvgRef}
               aria-label="Editable stick figure content"
               viewBox="0 0 1920 1080"
-              style={{ position: "absolute", zIndex: 7, left: `${CAMERA_FRAME_INSET_PERCENT}%`, top: `${CAMERA_FRAME_INSET_PERCENT}%`, width: `${CAMERA_FRAME_SIZE_PERCENT}%`, height: `${CAMERA_FRAME_SIZE_PERCENT}%`, overflow: "visible", pointerEvents: rightPanelTab === "Stick Figure Tools" && !isTimelinePlaying ? "auto" : "none", touchAction: "none", cursor: unifiedStickMode === "add-limb" ? "crosshair" : "default" }}
+              preserveAspectRatio="xMidYMid meet"
+              data-canvas-interaction-owner={canvasInteractionOwner}
+              style={{ position: "absolute", zIndex: 7, left: `${CAMERA_FRAME_INSET_PERCENT}%`, top: `${CAMERA_FRAME_INSET_PERCENT}%`, width: `${CAMERA_FRAME_SIZE_PERCENT}%`, height: `${CAMERA_FRAME_SIZE_PERCENT}%`, overflow: "visible", pointerEvents: canvasInteractionOwner === "stick" && rightPanelTab === "Stick Figure Tools" && !isTimelinePlaying ? "auto" : "none", touchAction: "none", cursor: unifiedStickMode === "add-limb" ? "crosshair" : "default" }}
               onPointerDown={beginUnifiedStickGesture}
               onPointerMove={moveUnifiedStickGesture}
               onPointerUp={finishUnifiedStickGesture}
               onPointerCancel={cancelUnifiedStickGesture}
               onLostPointerCapture={cancelUnifiedStickGesture}
             >
-              {[{ content: previousUnifiedStickContent, color: "#ef476f" }, { content: nextUnifiedStickContent, color: "#3a86ff" }].map(({ content, color }, onionIndex) => content?.structureGraph.limbs.map(limb => {
-                const start = content.structureGraph.joints.find(joint => joint.id === limb.startJointId);
-                const end = content.structureGraph.joints.find(joint => joint.id === limb.endJointId);
-                return start && end ? <line key={`onion-${onionIndex}-${limb.id}`} x1={start.x} y1={start.y} x2={end.x} y2={end.y} stroke={color} strokeOpacity="0.32" strokeWidth="14" strokeLinecap="round" /> : null;
-              }))}
               {renderedUnifiedStickContent.structureGraph.limbs.map(limb => {
                 const start = renderedUnifiedStickContent.structureGraph.joints.find(joint => joint.id === limb.startJointId);
                 const end = renderedUnifiedStickContent.structureGraph.joints.find(joint => joint.id === limb.endJointId);
@@ -10342,7 +11686,10 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 inset: 0,
                 width: "100%",
                 height: "100%",
-                touchAction: activeTool === "Select" ? "none" : "auto",
+                touchAction:
+                  activeTool === "Fill" || isTimelinePlaying
+                    ? "auto"
+                    : "none",
                 cursor:
                   activeTool === "Brush" ||
                   activeTool === "Eraser" ||
@@ -10360,7 +11707,8 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               onPointerMove={moveCanvasStroke}
               onPointerUp={endCanvasStroke}
               onPointerLeave={endCanvasStroke}
-              onPointerCancel={endCanvasStroke}
+              onPointerCancel={cancelCanvasStroke}
+              onLostPointerCapture={cancelCanvasStroke}
             />
             <canvas
               ref={textCanvasRef}
@@ -10413,9 +11761,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
             style={{
               position: "absolute",
               inset: 0,
-              pointerEvents: activeTool === "Select" && canvasMovementEnabled && !activePlacedImageAsset && rightPanelTab !== "Stick Figure Tools" ? "auto" : "none",
+              pointerEvents: activeTool === "Select" && canvasInteractionOwner === "drawing" && canvasMovementEnabled && !activePlacedImageAsset ? "auto" : "none",
               cursor:
-                activeTool === "Select" && canvasMovementEnabled && !activePlacedImageAsset && rightPanelTab !== "Stick Figure Tools"
+                activeTool === "Select" && canvasInteractionOwner === "drawing" && canvasMovementEnabled && !activePlacedImageAsset
                   ? canvasMovementEnabled
                     ? isPanning
                       ? "grabbing"
@@ -10436,7 +11784,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
         rightPanelRef={rightPanelRef}
         rightPanelTabsRef={rightPanelTabsRef}
         rightPanelTab={rightPanelTab}
-        onRightPanelTabChange={setRightPanelTab}
+        onRightPanelTabChange={handleRightPanelTabChange}
         rightPanelContent={rightPanelContent}
         showBrushToolsMenu={brushToolsMenuOpen && rightPanelTab === "Properties" && activeTool === "Brush"}
         brushToolsMenuRef={brushToolsMenuRef}
@@ -10453,6 +11801,103 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
         onExecuteActionPlan={onExecuteActionPlan}
       />
     </div>
+    {symbolDialog && (
+      <div
+        role="presentation"
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 1200,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 20,
+          background: "rgba(4, 7, 12, 0.72)",
+        }}
+      >
+        <form
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="symbol-name-dialog-title"
+          aria-describedby="symbol-name-dialog-help"
+          onSubmit={(event) => {
+            event.preventDefault();
+            void submitSymbolCreationDialog();
+          }}
+          style={{
+            width: "min(440px, 100%)",
+            display: "flex",
+            flexDirection: "column",
+            gap: 16,
+            padding: 24,
+            borderRadius: 16,
+            border: "1px solid rgba(255,255,255,0.16)",
+            background: "rgb(24, 28, 36)",
+            boxShadow: "0 24px 80px rgba(0,0,0,0.52)",
+            color: "white",
+          }}
+        >
+          <div>
+            <h2 id="symbol-name-dialog-title" style={{ margin: 0, fontSize: 20 }}>Name this symbol</h2>
+            <p id="symbol-name-dialog-help" style={{ margin: "7px 0 0", color: "rgba(255,255,255,0.64)", fontSize: 13 }}>
+              Give this reusable Library symbol a unique name.
+            </p>
+          </div>
+          <input
+            ref={symbolNameInputRef}
+            aria-label="Symbol name"
+            value={symbolDialog.name}
+            disabled={symbolDialog.submitting}
+            onChange={(event) => setSymbolDialog(current => current ? {
+              ...current,
+              name: event.target.value,
+              error: null,
+            } : current)}
+            style={{
+              width: "100%",
+              boxSizing: "border-box",
+              padding: "11px 12px",
+              borderRadius: 9,
+              border: symbolDialog.error ? "1px solid #ff7b86" : "1px solid rgba(110,170,255,0.55)",
+              background: "rgba(255,255,255,0.05)",
+              color: "white",
+              fontSize: 15,
+              outline: "none",
+            }}
+          />
+          {symbolDialog.error && (
+            <div role="alert" style={{ color: "#ff9aa3", fontSize: 13 }}>{symbolDialog.error}</div>
+          )}
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
+            <button
+              type="button"
+              disabled={symbolDialog.submitting}
+              onClick={cancelSymbolCreationDialog}
+              style={{ minWidth: 88, minHeight: 40, borderRadius: 9, border: "1px solid rgba(255,255,255,0.14)", background: "rgba(255,255,255,0.05)", color: "white", cursor: "pointer" }}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={symbolDialog.submitting}
+              style={{ minWidth: 88, minHeight: 40, borderRadius: 9, border: "1px solid rgba(110,170,255,0.62)", background: "rgba(57,139,255,0.24)", color: "white", cursor: "pointer", fontWeight: 700 }}
+            >
+              {symbolDialog.submitting ? "Creating…" : "Create"}
+            </button>
+          </div>
+        </form>
+      </div>
+    )}
+    {workspaceNotice && (
+      <div
+        role="status"
+        aria-live="polite"
+        style={{ position: "fixed", right: 18, bottom: 18, zIndex: 1150, maxWidth: 340, padding: "10px 13px", borderRadius: 9, border: "1px solid rgba(110,170,255,0.34)", background: "rgba(20,25,34,0.96)", color: "rgba(255,255,255,0.88)", fontSize: 13, boxShadow: "0 10px 32px rgba(0,0,0,0.35)" }}
+      >
+        {workspaceNotice}
+      </div>
+    )}
+    </>
   );
 });
 

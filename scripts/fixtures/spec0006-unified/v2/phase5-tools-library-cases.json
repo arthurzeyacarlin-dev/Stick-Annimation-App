@@ -1,0 +1,67 @@
+{
+  "requiredTabs": [
+    "Stick Figure Tools",
+    "Properties",
+    "Library",
+    "Assets"
+  ],
+  "requiredDrawingTools": [
+    "Select",
+    "Lasso",
+    "Brush",
+    "Eraser",
+    "Fill",
+    "Text",
+    "Shape",
+    "Knife"
+  ],
+  "symbolSourceCategories": [
+    "Drawing Symbol",
+    "Stick Figure Symbol",
+    "Drawing and Stick Figure Symbol"
+  ],
+  "catalogCases": [
+    "immutable-definition",
+    "duplicate-name-rejected",
+    "duplicate-bitmap-rejected",
+    "referenced-definition-delete-rejected",
+    "unreferenced-definition-delete-succeeds",
+    "image-asset-bytes-bound",
+    "generic-file-metadata-only",
+    "instance-definition-digest-bound"
+  ],
+  "browserFlows": [
+    "mixed-symbol-capture-removes-source-on-success",
+    "two-independent-symbol-instances",
+    "instance-only-transform",
+    "instance-undo-redo",
+    "referenced-definition-delete-rejected",
+    "save-reload-open-catalog",
+    "pointer-cancel-single-commit",
+    "exact-symbol-category-labels",
+    "png-svg-asset-import-placement-transform",
+    "desktop-layout",
+    "compact-layout",
+    "compact-tabs-scrollable",
+    "ordinary-select-structured-stick-actions",
+    "lasso-structured-stick-actions",
+    "mixed-drawing-stick-selection-moves-together",
+    "mixed-selection-one-command-history",
+    "structured-duplicate-independent-ids",
+    "structured-delete-preserves-unselected-rig",
+    "structured-flips-update-real-coordinates",
+    "structured-conversion-removes-source-on-success",
+    "ordinary-selection-has-no-transparent-stick-proxy",
+    "selection-cancel-noop-stale-zero-commit",
+    "app-symbol-dialog-default",
+    "app-symbol-dialog-blank-safe",
+    "app-symbol-dialog-cancel",
+    "app-symbol-dialog-duplicate-feedback",
+    "stick-tools-remains-joint-only",
+    "desktop-exact-profile",
+    "compact-exact-profile",
+    "desktop-save-reload-open",
+    "compact-save-reload-open",
+    "zero-egress"
+  ]
+}

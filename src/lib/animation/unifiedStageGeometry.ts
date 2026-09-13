@@ -1,5 +1,10 @@
 export const AUTHORED_STAGE = Object.freeze({ width: 1920, height: 1080 });
 export const STAGE_RGBA_BYTES = 1920 * 1080 * 4;
+// Align backing pixels to a stable integer center. Unlike round((a-b)/2),
+// these offsets compose and reverse exactly across odd/even resize sequences.
+// This is bitmap allocation math, not quantization of authored geometry.
+export const bitmapCenterOffset = (targetSize: number, sourceSize: number): number =>
+  Math.floor(targetSize / 2) - Math.floor(sourceSize / 2);
 export type StagePoint = { x: number; y: number };
 export type StagePresentation = { scale: number; offsetX: number; offsetY: number };
 

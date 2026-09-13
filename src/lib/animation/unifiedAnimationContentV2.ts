@@ -43,6 +43,11 @@ export type UnifiedStickRigItemV2 = {
   content: StickFigureFrameContent;
 };
 
+export type UnifiedSymbolSourceCategoryV2 =
+  | "Drawing Symbol"
+  | "Stick Figure Symbol"
+  | "Drawing and Stick Figure Symbol";
+
 export type UnifiedSymbolInstanceItemV2 = {
   itemId: string;
   kind: "symbol-instance/v1";

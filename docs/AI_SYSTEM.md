@@ -7,7 +7,7 @@ Last traced: published v2 safety evidence retained from 2026-09-08; canonical so
 
 SPEC-0004 Phases 1, 2, and timing-only Phase 2.5 remain Verified, published, and integrated. Phase 2.6 remains rejected, unpublished, and superseded historical evidence. Under D-0055, unfinished Phases 3–8 are Superseded by future SPEC-0008, inactive, and must not be implemented.
 
-Current lifecycle update (D-0063/GIT-056): corrected SPEC-0006 Phase 4 is human-accepted, Verified, published, and integrated at `9c971fa4f7ea0e636ecc6957755552f678f344df`. Its exact 26-path manifest SHA-256 is `9d2d18871981db2e499c689723730ada4690dd5cb94ab620a038e45557f298de`. No AI model/prompt/provider/generation/motion/video/tracking/API code change or paid/external request is included. Ordinary New contains no generated/demo scene; existing AI contracts, latches, and disabled exits remain protected. Future AI/video work remains SPEC-0008.
+Current lifecycle update (D-0065): corrected SPEC-0006 Phase 4 remains published/integrated at GIT-056. Phase 5 is now human-accepted and technically Verified pending separate publication; its exact 17-path manifest SHA-256 is `6a1c65c967f8f1d87a27e3834677bea84381f0c2577125bebfead6ca77308b6d`. Phase 5 changed no AI model, prompt, provider, generation, motion, video/tracking, API, task/latch, or paid/external behavior, and its proof made zero real API/external/AI requests. Existing AI contracts and disabled exits remain protected; future AI/video work remains SPEC-0008.
 
 ## What Exists Today
 

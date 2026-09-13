@@ -1,6 +1,7 @@
 import { memo, startTransition, useCallback, useDeferredValue, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { MutableRefObject } from "react";
 import { DrawingCanvas } from "./DrawingCanvas";
+import { bitmapCenterOffset } from "@/src/lib/animation/unifiedStageGeometry";
 import type {
   DrawingCanvasHandle,
   DrawingCanvasPlaybackSurfaceLayout,
@@ -66,9 +67,25 @@ import {
   MAX_FRAMES_PER_REQUEST,
 } from "@/src/lib/ai/frameGenerationSafety";
 import type { StickFigureFrameContent } from "./stickfigure/types";
-import type { UnifiedAnimationProjectV2, UnifiedAnimationDocumentV2, UnifiedCellV2 } from "@/src/lib/animation/unifiedAnimationContractV2";
-import type { UnifiedAnimationItemV2 } from "@/src/lib/animation/unifiedAnimationContentV2";
+import type {
+  UnifiedAnimationProjectV2,
+  UnifiedAnimationDocumentV2,
+  UnifiedCellV2,
+  UnifiedProjectAssetV2,
+  UnifiedProjectCatalogsV2,
+} from "@/src/lib/animation/unifiedAnimationContractV2";
+import type {
+  UnifiedAnimationItemV2,
+  UnifiedSymbolInstanceItemV2,
+  UnifiedSymbolSourceCategoryV2,
+} from "@/src/lib/animation/unifiedAnimationContentV2";
 import { saveUnifiedProjectAsV2, saveUnifiedProjectV2 } from "@/src/lib/animation/unifiedProjectRepositoryV2";
+import {
+  appendProjectAssetsV2,
+  appendSymbolDefinitionV2,
+  createBitmapSymbolDefinitionV2,
+  removeSymbolDefinitionV2,
+} from "@/src/lib/animation/unifiedProjectCatalogV2";
 
 type TimelineFrameSnapshot = {
   bitmap: ImageData | null;
@@ -141,6 +158,14 @@ type CanvasOverlayRect = {
 type OnionFramePreview = {
   bitmap: ImageData | null;
   textObjects: DrawingTextObject[];
+  stickContent?: StickFigureFrameContent | null;
+  symbolInstances?: UnifiedSymbolInstanceItemV2[];
+};
+
+type OnionStructuredOwners = {
+  layerId: string;
+  sticks: Record<string, StickFigureFrameContent>;
+  symbols: Record<string, UnifiedSymbolInstanceItemV2[]>;
 };
 
 type PlaybackSurfaceMetrics = {
@@ -303,6 +328,8 @@ type DrawingWorkspaceHistoryEntry = {
   nextLayerNumber: number;
   owner: DrawingWorkspaceHistoryOwner;
   stickByCell: Record<string, StickFigureFrameContent>;
+  unifiedCatalogs: UnifiedProjectCatalogsV2;
+  symbolInstancesByCell: Record<string, UnifiedSymbolInstanceItemV2[]>;
 };
 
 type DrawingWorkspaceHistoryOwner =
@@ -404,6 +431,7 @@ type CopiedTimelineFrame = {
   soundAttachment: WorkspaceSoundAttachment | null;
   textObjects: DrawingTextObject[];
   stickContent?: StickFigureFrameContent;
+  symbolInstances?: UnifiedSymbolInstanceItemV2[];
 };
 
 type CanvasAuthoringActionReason = "stroke" | "shape" | "placed-asset" | "clear-canvas" | "knife" | "selection";
@@ -1907,8 +1935,8 @@ const drawBitmapCanvasCentered = (
   targetWidth: number,
   targetHeight: number,
 ) => {
-  const drawLeft = Math.round((targetWidth - sourceCanvas.width) / 2);
-  const drawTop = Math.round((targetHeight - sourceCanvas.height) / 2);
+  const drawLeft = bitmapCenterOffset(targetWidth, sourceCanvas.width);
+  const drawTop = bitmapCenterOffset(targetHeight, sourceCanvas.height);
   ctx.drawImage(sourceCanvas, drawLeft, drawTop, sourceCanvas.width, sourceCanvas.height);
 };
 
@@ -2507,11 +2535,26 @@ const onionFramePreviewsEqual = (left: OnionFramePreview | null, right: OnionFra
     return false;
   }
 
-  return bitmapsEqual(left.bitmap, right.bitmap) && drawingTextObjectsEqual(left.textObjects, right.textObjects);
+  const visualStructure = (preview: OnionFramePreview) => {
+    const graph = preview.stickContent?.structureGraph;
+    const joints = graph?.joints ?? [];
+    return JSON.stringify({
+      joints: joints.map(joint => [joint.x, joint.y]),
+      limbs: graph?.limbs.map(limb => [
+        joints.findIndex(joint => joint.id === limb.startJointId),
+        joints.findIndex(joint => joint.id === limb.endJointId),
+      ]) ?? [],
+      symbols: (preview.symbolInstances ?? []).map(instance => ({ ...instance, itemId: undefined })),
+    });
+  };
+  const visualText = (objects: DrawingTextObject[]) => objects.map((object, index) => ({ ...object, id: String(index) }));
+  return bitmapsEqual(left.bitmap, right.bitmap) && drawingTextObjectsEqual(visualText(left.textObjects), visualText(right.textObjects)) &&
+    visualStructure(left) === visualStructure(right);
 };
 
 const onionFramePreviewHasContent = (preview: OnionFramePreview | null | undefined) =>
-  Boolean(preview && (preview.bitmap || preview.textObjects.length > 0));
+  Boolean(preview && (preview.bitmap || preview.textObjects.length > 0 ||
+    preview.stickContent?.structureGraph.joints.length || preview.symbolInstances?.length));
 
 const motionTweenOriginsEqual = (left: MotionTweenOrigin | null, right: MotionTweenOrigin | null) =>
   (!left && !right) || (Boolean(left) && Boolean(right) && left!.x === right!.x && left!.y === right!.y);
@@ -2665,7 +2708,10 @@ const historyEntriesMatchDocument = (left: DrawingWorkspaceHistoryEntry, right: 
   left === right ||
   (left.nextTimelineFrameId === right.nextTimelineFrameId &&
     left.nextLayerNumber === right.nextLayerNumber &&
-    workspaceLayersEqual(left.layers, right.layers) && JSON.stringify(left.stickByCell) === JSON.stringify(right.stickByCell));
+    workspaceLayersEqual(left.layers, right.layers) &&
+    JSON.stringify(left.stickByCell) === JSON.stringify(right.stickByCell) &&
+    JSON.stringify(left.unifiedCatalogs) === JSON.stringify(right.unifiedCatalogs) &&
+    JSON.stringify(left.symbolInstancesByCell) === JSON.stringify(right.symbolInstancesByCell));
 
 const historyEntriesEqual = (left: DrawingWorkspaceHistoryEntry, right: DrawingWorkspaceHistoryEntry) =>
   left === right || historyEntriesMatchDocument(left, right);
@@ -3240,21 +3286,28 @@ const resolveTimelineSnapshot = (
 const resolveOnionFramePreview = (
   frames: WorkspaceTimelineFrame[],
   frameIndex: number,
+  owners?: OnionStructuredOwners,
 ): OnionFramePreview | null => {
   const frame = frames[frameIndex];
-  if (!frame || frame.cellType === "empty" || frame.cellType === "blank-keyframe") {
+  if (!frame || frame.cellType === "empty") {
     return null;
   }
 
+  const ownerKey = owners ? `${owners.layerId}:${frame.stateId}` : "";
+  const stickContent = owners?.sticks[ownerKey] ?? null;
+  const symbolInstances = owners?.symbols[ownerKey] ?? [];
+
   const bitmap = resolveTimelineBitmap(frames, frameIndex);
   const textObjects = resolveTimelineTextObjects(frames, frameIndex);
-  if (!bitmap && textObjects.length === 0) {
+  if (!bitmap && textObjects.length === 0 && !stickContent?.structureGraph.joints.length && !symbolInstances.length) {
     return null;
   }
 
   return {
     bitmap,
     textObjects,
+    stickContent,
+    symbolInstances,
   };
 };
 
@@ -3263,6 +3316,7 @@ const resolveOnionNeighborPreview = (
   currentFrameIndex: number,
   direction: "previous" | "next",
   currentPreview?: OnionFramePreview | null,
+  owners?: OnionStructuredOwners,
 ): OnionFramePreview => {
   if (frames.length === 0) {
     return EMPTY_ONION_FRAME_PREVIEW;
@@ -3283,7 +3337,9 @@ const resolveOnionNeighborPreview = (
     candidateIndex += step
   ) {
     const candidateFrame = frames[candidateIndex] ?? null;
-    if (!candidateFrame || candidateFrame.cellType === "empty" || candidateFrame.cellType === "blank-keyframe") {
+    const preview = resolveOnionFramePreview(frames, candidateIndex, owners);
+    if (!candidateFrame || candidateFrame.cellType === "empty" ||
+      (candidateFrame.cellType === "blank-keyframe" && !onionFramePreviewHasContent(preview))) {
       break;
     }
 
@@ -3296,7 +3352,6 @@ const resolveOnionNeighborPreview = (
       continue;
     }
 
-    const preview = resolveOnionFramePreview(frames, candidateIndex);
     if (preview) {
       if (currentPreview && onionFramePreviewsEqual(preview, currentPreview)) {
         continue;
@@ -3499,6 +3554,7 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
   );
   const initialMemoryFingerprint = JSON.stringify(bindDrawingAiProjectMemoryToProject(openedInitialProject?.aiMemory ?? null, openedInitialProject?.id ?? null));
   const [activeTool, setActiveTool] = useState<DrawingToolName>(initialWorkspaceState.activeTool);
+  const [drawingToolActivationId, setDrawingToolActivationId] = useState(0);
   const [brushSize, setBrushSize] = useState(initialWorkspaceState.brushSize);
   const [eraserSize, setEraserSize] = useState(initialWorkspaceState.eraserSize);
   const [fillColor, setFillColor] = useState(initialWorkspaceState.fillColor);
@@ -3513,9 +3569,21 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
   const [saveState, setSaveState] = useState<"not-saved" | "unsaved" | "saving" | "saved" | "too-large" | "failed">(
     initialProject || (unifiedProject && unifiedProject.revision > 0) ? "saved" : "not-saved",
   );
+  const activateDrawingTool = useCallback((tool: DrawingToolName) => {
+    setActiveTool(tool);
+    setDrawingToolActivationId((current) => current + 1);
+  }, []);
   const [activeUnifiedProject, setActiveUnifiedProject] = useState<UnifiedAnimationProjectV2 | null>(unifiedProject);
   const [stickByCell, setStickByCell] = useState<Record<string, StickFigureFrameContent>>(() => structuredClone(unifiedProject?.compatibility?.stickByCell ?? {}));
   const stickByCellRef = useRef(stickByCell);
+  const [unifiedCatalogs, setUnifiedCatalogs] = useState<UnifiedProjectCatalogsV2>(() =>
+    structuredClone(unifiedProject?.document.catalogs ?? { symbols: [], assets: [] }),
+  );
+  const unifiedCatalogsRef = useRef(unifiedCatalogs);
+  const [symbolInstancesByCell, setSymbolInstancesByCell] = useState<Record<string, UnifiedSymbolInstanceItemV2[]>>(() =>
+    structuredClone(unifiedProject?.compatibility?.symbolInstancesByCell ?? {}),
+  );
+  const symbolInstancesByCellRef = useRef(symbolInstancesByCell);
   const [canvasOverlayRect, setCanvasOverlayRect] = useState<CanvasOverlayRect | null>(null);
   const [saveNotification, setSaveNotification] = useState<{ projectName: string; isVisible: boolean } | null>(null);
   const [canUndoHistory, setCanUndoHistory] = useState(false);
@@ -3534,6 +3602,7 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
     captureOptions?: DrawingCanvasSnapshotOptions;
     debugCaller?: string;
     forceCapture?: boolean;
+    deferHistory?: boolean;
   }) => TimelineFrameSnapshot | null) | null>(null);
   const layersRef = useRef<WorkspaceLayer[]>(layers);
   const timelineRowLayersSourceRef = useRef<WorkspaceLayer[]>(layers);
@@ -3578,6 +3647,8 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
   const copiedTimelineFrameRef = useRef<CopiedTimelineFrame | null>(null);
   const unifiedIdsRef = useRef(new Map<string, string>());
   useEffect(() => { stickByCellRef.current = stickByCell; }, [stickByCell]);
+  useEffect(() => { unifiedCatalogsRef.current = unifiedCatalogs; }, [unifiedCatalogs]);
+  useEffect(() => { symbolInstancesByCellRef.current = symbolInstancesByCell; }, [symbolInstancesByCell]);
   const isApplyingGeneratedFramesRef = useRef(false);
   const lastGeneratedFrameApplyAtRef = useRef(0);
   const historyWorkspaceStampRef = useRef<{
@@ -3755,6 +3826,13 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
         }
 
         if (
+          JSON.stringify(currentEntry.unifiedCatalogs) !== JSON.stringify(candidateEntry.unifiedCatalogs) ||
+          JSON.stringify(currentEntry.symbolInstancesByCell) !== JSON.stringify(candidateEntry.symbolInstancesByCell)
+        ) {
+          return historyIndex;
+        }
+
+        if (
           candidateEntry.owner.kind === "global" &&
           !workspaceLayersStructureEqual(currentEntry.layers, candidateEntry.layers)
         ) {
@@ -3814,6 +3892,8 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
       nextLayerNumber: nextLayerNumberRef.current,
       owner,
       stickByCell: structuredClone(stickByCellRef.current),
+      unifiedCatalogs: structuredClone(unifiedCatalogsRef.current),
+      symbolInstancesByCell: structuredClone(symbolInstancesByCellRef.current),
     }),
     [],
   );
@@ -3991,6 +4071,8 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
         nextLayerNumber: nextLayerNumberRef.current,
         owner: { kind: "global" },
         stickByCell: structuredClone(stickByCellRef.current),
+        unifiedCatalogs: structuredClone(unifiedCatalogsRef.current),
+        symbolInstancesByCell: structuredClone(symbolInstancesByCellRef.current),
       });
     });
 
@@ -4916,6 +4998,10 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
       setIsTimelinePlaying(false);
       stickByCellRef.current = structuredClone(entry.stickByCell);
       setStickByCell(stickByCellRef.current);
+      unifiedCatalogsRef.current = structuredClone(entry.unifiedCatalogs);
+      setUnifiedCatalogs(unifiedCatalogsRef.current);
+      symbolInstancesByCellRef.current = structuredClone(entry.symbolInstancesByCell);
+      setSymbolInstancesByCell(symbolInstancesByCellRef.current);
 
       renderWorkspaceCanvases(nextLayers, nextCurrentFrameIndex, {
         activeLayerId: nextActiveLayer.id,
@@ -6000,7 +6086,11 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
     }
 
     const sourceFrame = targetLayer.timelineFrames[frameIndex];
-    copiedTimelineFrameRef.current = { ...copiedFrame, stickContent: structuredClone(stickByCellRef.current[`${layerId}:${sourceFrame.stateId}`] ?? { figures: [], structureGraph: { joints: [], limbs: [], activeJointId: null } }) };
+    copiedTimelineFrameRef.current = {
+      ...copiedFrame,
+      stickContent: structuredClone(stickByCellRef.current[`${layerId}:${sourceFrame.stateId}`] ?? { figures: [], structureGraph: { joints: [], limbs: [], activeJointId: null } }),
+      symbolInstances: structuredClone(symbolInstancesByCellRef.current[`${layerId}:${sourceFrame.stateId}`] ?? []),
+    };
     setHasCopiedTimelineFrame(true);
     return true;
   }, []);
@@ -6053,6 +6143,17 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
       if (copiedStick) {
         const nextStick = { ...stickByCellRef.current, [`${layerId}:${nextFrame.stateId}`]: structuredClone(copiedStick) };
         stickByCellRef.current = nextStick; setStickByCell(nextStick);
+      }
+      if (copiedFrame.symbolInstances) {
+        const nextInstances = {
+          ...symbolInstancesByCellRef.current,
+          [`${layerId}:${nextFrame.stateId}`]: copiedFrame.symbolInstances.map(instance => ({
+            ...structuredClone(instance),
+            itemId: crypto.randomUUID(),
+          })),
+        };
+        symbolInstancesByCellRef.current = nextInstances;
+        setSymbolInstancesByCell(nextInstances);
       }
 
       nextFrames[clampedTargetIndex] = nextFrame;
@@ -6219,7 +6320,7 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
     frameIndex: number,
     snapshot: TimelineFrameSnapshot | null,
     layerId = activeLayerIdRef.current,
-    options?: { assumeBitmapChanged?: boolean },
+    options?: { assumeBitmapChanged?: boolean; deferHistory?: boolean },
   ) => {
     const frames = getLayerById(layersRef.current, layerId)?.timelineFrames ?? [];
     const stateStartIndex = resolveStateStartIndex(frames, frameIndex);
@@ -6232,6 +6333,7 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
     const didBitmapChange = options?.assumeBitmapChanged ? true : !snapshotBitmapMatches(currentStateFrame.bitmap, snapshot);
     const localDrawingContext = didBitmapChange ? resolveLocalDrawingHistoryContext(layerId, frameIndex) : null;
     const useLocalDrawingHistory = Boolean(
+      !options?.deferHistory &&
       localDrawingContext &&
         localDrawingContext.target === "bitmap" &&
         localDrawingContext.targetFrameId === currentStateFrame.id,
@@ -6247,7 +6349,7 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
       useLocalDrawingHistory && hasDirtyPatch
         ? captureBitmapPatch(currentStateFrame.bitmap, snapshot.dirtyPatchRect)
         : null;
-    if (didBitmapChange && !useLocalDrawingHistory) {
+    if (didBitmapChange && !useLocalDrawingHistory && !options?.deferHistory) {
       recordUndoSnapshot();
     }
     const canMutateCurrentBitmap =
@@ -6367,7 +6469,7 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
     if (layerId === activeLayerIdRef.current) {
       timelineFramesRef.current = nextFrames;
     }
-    if (didBitmapChange) {
+    if (didBitmapChange && !options?.deferHistory) {
       commitCurrentHistoryState({
         assumeChanged: true,
         owner:
@@ -6400,7 +6502,7 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
     frameIndex: number,
     snapshot: TimelineFrameSnapshot | null,
     layerId = activeLayerIdRef.current,
-    options?: { assumeBitmapChanged?: boolean },
+    options?: { assumeBitmapChanged?: boolean; deferHistory?: boolean },
   ) => {
     const frames = getLayerById(layersRef.current, layerId)?.timelineFrames ?? [];
     const tweenSpan = resolveTweenSpan(frames, frameIndex);
@@ -6417,6 +6519,7 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
     const didBitmapChange = options?.assumeBitmapChanged ? true : !snapshotBitmapMatches(ownerFrame?.tweenEndBitmap ?? null, snapshot);
     const localDrawingContext = didBitmapChange ? resolveLocalDrawingHistoryContext(layerId, frameIndex) : null;
     const useLocalDrawingHistory = Boolean(
+      !options?.deferHistory &&
       localDrawingContext &&
         ownerFrame &&
         localDrawingContext.target === "tweenEndBitmap" &&
@@ -6433,7 +6536,7 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
       useLocalDrawingHistory && hasDirtyPatch
         ? captureBitmapPatch(ownerFrame?.tweenEndBitmap ?? null, snapshot.dirtyPatchRect)
         : null;
-    if (didBitmapChange && !useLocalDrawingHistory) {
+    if (didBitmapChange && !useLocalDrawingHistory && !options?.deferHistory) {
       recordUndoSnapshot();
     }
     const canMutateCurrentBitmap =
@@ -6552,7 +6655,7 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
     if (layerId === activeLayerIdRef.current) {
       timelineFramesRef.current = nextFrames;
     }
-    if (didBitmapChange) {
+    if (didBitmapChange && !options?.deferHistory) {
       commitCurrentHistoryState({
         assumeChanged: true,
         owner:
@@ -6587,7 +6690,7 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
     (
       frameIndex = currentFrameIndexRef.current,
       layerId = activeLayerIdRef.current,
-      options?: { captureOptions?: DrawingCanvasSnapshotOptions; debugCaller?: string; forceCapture?: boolean },
+      options?: { captureOptions?: DrawingCanvasSnapshotOptions; debugCaller?: string; forceCapture?: boolean; deferHistory?: boolean },
     ) => {
       const frames = getLayerById(layersRef.current, layerId)?.timelineFrames ?? [];
       const forceCapture = options?.forceCapture === true;
@@ -6666,6 +6769,7 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
             });
             const persistedSnapshot = updateFrameSnapshot(frameIndex, snapshot, layerId, {
               assumeBitmapChanged,
+              deferHistory: options?.deferHistory,
             });
             if (layerId === activeLayerIdRef.current) {
               drawingCanvasRef.current?.markAuthoringChangesCommitted(
@@ -6685,6 +6789,7 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
           });
           const persistedSnapshot = updateTweenEndSnapshot(frameIndex, snapshot, layerId, {
             assumeBitmapChanged,
+            deferHistory: options?.deferHistory,
           });
           if (layerId === activeLayerIdRef.current) {
             drawingCanvasRef.current?.markAuthoringChangesCommitted(
@@ -6716,6 +6821,7 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
       const snapshot = captureCanvasSnapshot(captureOptions);
       const persistedSnapshot = updateFrameSnapshot(frameIndex, snapshot, layerId, {
         assumeBitmapChanged,
+        deferHistory: options?.deferHistory,
       });
       if (layerId === activeLayerIdRef.current) {
         drawingCanvasRef.current?.markAuthoringChangesCommitted(
@@ -7144,11 +7250,12 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
         for (const text of frame.textObjects ?? []) items.push({ itemId: stableId(`text:${layer.id}:${frame.stateId}:${text.id}`), kind: "drawing-text/v1", text: text.text, x: text.x, y: text.y, color: text.color, fontSize: text.fontSize, rotation: text.rotation ?? 0, width: text.width, flipX: Boolean(text.flipX), flipY: Boolean(text.flipY), fontFamily: text.fontFamily, bold: text.bold, italic: text.italic });
         const stick = stickByCellRef.current[`${layer.id}:${frame.stateId}`];
         if (stick && (stick.structureGraph.joints.length || stick.structureGraph.limbs.length || stick.figures.length)) items.push({ itemId: stableId(`stick:${layer.id}:${frame.stateId}`), kind: "stick-rig/v1", content: structuredClone(stick) });
+        items.push(...structuredClone(symbolInstancesByCellRef.current[`${layer.id}:${frame.stateId}`] ?? []));
         return { cellId, cellType: frame.cellType === "blank-keyframe" && items.length === 0 ? "blank-keyframe" : frame.cellType === "tween" ? "tween" : "keyframe", ownerCellId, content: { items, soundAttachment: null } };
       });
       return { layerId, name: layer.name, orderIndex, visible: true, locked: false, cells };
     });
-    const document: UnifiedAnimationDocumentV2 = { ...base.document, fps: drawingData.timelineFps, layers, toolState: { ...base.document.toolState, drawingTool: drawingData.activeTool }, reopenState: { activeLayerId: layers.find((_, index) => drawingData.layers[index]?.id === drawingData.activeLayerId)?.layerId ?? layers[0].layerId, currentFrameIndex: drawingData.currentFrameIndex, onionEnabled: drawingData.isOnionEnabled } };
+    const document: UnifiedAnimationDocumentV2 = { ...base.document, fps: drawingData.timelineFps, layers, catalogs: structuredClone(unifiedCatalogsRef.current), toolState: { ...base.document.toolState, drawingTool: drawingData.activeTool }, reopenState: { activeLayerId: layers.find((_, index) => drawingData.layers[index]?.id === drawingData.activeLayerId)?.layerId ?? layers[0].layerId, currentFrameIndex: drawingData.currentFrameIndex, onionEnabled: drawingData.isOnionEnabled } };
     // The V2 document is the sole owner of lossless raster bytes. Keep the
     // Drawing compatibility projection structural-only so one bitmap is not
     // stored twice (and counted twice against the project size ceiling).
@@ -7159,7 +7266,7 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
         frame.tweenEndBitmap = null;
       });
     });
-    return { ...base, title: projectTitle, document, compatibility: { drawingData: compatibilityDrawingData, stickByCell: structuredClone(stickByCellRef.current) } };
+    return { ...base, title: projectTitle, document, compatibility: { drawingData: compatibilityDrawingData, stickByCell: structuredClone(stickByCellRef.current), symbolInstancesByCell: structuredClone(symbolInstancesByCellRef.current) } };
   }, [activeUnifiedProject, projectTitle]);
 
   const handleUndo = useCallback(() => {
@@ -8514,9 +8621,10 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
     }
 
     const onionAnchorIndex = selectedTimelineIndex;
-    const currentPreview = resolveOnionFramePreview(timelineFrames, onionAnchorIndex);
-    const previousPreview = resolveOnionNeighborPreview(timelineFrames, onionAnchorIndex, "previous", currentPreview);
-    const nextPreview = resolveOnionNeighborPreview(timelineFrames, onionAnchorIndex, "next", currentPreview);
+    const owners = { layerId: activeLayerId, sticks: stickByCell, symbols: symbolInstancesByCell };
+    const currentPreview = resolveOnionFramePreview(timelineFrames, onionAnchorIndex, owners);
+    const previousPreview = resolveOnionNeighborPreview(timelineFrames, onionAnchorIndex, "previous", currentPreview, owners);
+    const nextPreview = resolveOnionNeighborPreview(timelineFrames, onionAnchorIndex, "next", currentPreview, owners);
     const shouldCollapseDuplicateNeighbors =
       onionFramePreviewHasContent(previousPreview) &&
       onionFramePreviewHasContent(nextPreview) &&
@@ -8526,7 +8634,7 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
       previous: previousPreview,
       next: shouldCollapseDuplicateNeighbors ? EMPTY_ONION_FRAME_PREVIEW : nextPreview,
     };
-  }, [isOnionEnabled, isTimelinePlaying, selectedTimelineIndex, timelineFrames]);
+  }, [activeLayerId, isOnionEnabled, isTimelinePlaying, selectedTimelineIndex, timelineFrames, stickByCell, symbolInstancesByCell]);
 
   const previousFrameBitmap = onionFramePreviews.previous.bitmap;
   const nextFrameBitmap = onionFramePreviews.next.bitmap;
@@ -8539,8 +8647,12 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
       nextBitmap: nextFrameBitmap,
       previousTextObjects: previousFrameTextObjects,
       nextTextObjects: nextFrameTextObjects,
+      previousStickContent: onionFramePreviews.previous.stickContent ?? null,
+      nextStickContent: onionFramePreviews.next.stickContent ?? null,
+      previousSymbolInstances: onionFramePreviews.previous.symbolInstances ?? [],
+      nextSymbolInstances: onionFramePreviews.next.symbolInstances ?? [],
     });
-  }, [nextFrameBitmap, nextFrameTextObjects, previousFrameBitmap, previousFrameTextObjects]);
+  }, [nextFrameBitmap, nextFrameTextObjects, previousFrameBitmap, previousFrameTextObjects, onionFramePreviews]);
 
   const activeFrameTextObjects = useMemo(
     () => resolveTimelineTextObjects(timelineFrames, currentFrameIndex),
@@ -8551,23 +8663,185 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
     return frame ? `${activeLayer!.id}:${frame.stateId}` : "";
   }, [activeLayer, currentFrameIndex]);
   const activeUnifiedStickContent = useMemo<StickFigureFrameContent>(() => structuredClone(stickByCell[activeStickCellKey] ?? { figures: [], structureGraph: { joints: [], limbs: [], activeJointId: null } }), [activeStickCellKey, stickByCell]);
-  const previousUnifiedStickContent = useMemo(() => {
-    if (!isOnionEnabled || isTimelinePlaying || currentFrameIndex < 1) return null;
-    const frame = activeLayer?.timelineFrames[currentFrameIndex - 1];
-    return frame ? stickByCell[`${activeLayer!.id}:${frame.stateId}`] ?? null : null;
-  }, [activeLayer, currentFrameIndex, isOnionEnabled, isTimelinePlaying, stickByCell]);
-  const nextUnifiedStickContent = useMemo(() => {
-    if (!isOnionEnabled || isTimelinePlaying) return null;
-    const frame = activeLayer?.timelineFrames[currentFrameIndex + 1];
-    return frame ? stickByCell[`${activeLayer!.id}:${frame.stateId}`] ?? null : null;
-  }, [activeLayer, currentFrameIndex, isOnionEnabled, isTimelinePlaying, stickByCell]);
   const commitUnifiedStickContent = useCallback((content: StickFigureFrameContent) => {
     if (!activeStickCellKey || isTimelinePlayingRef.current || isApplyingHistoryRef.current) return;
     recordUndoSnapshot();
     const next = { ...stickByCellRef.current, [activeStickCellKey]: structuredClone(content) };
     stickByCellRef.current = next; setStickByCell(next); setSaveState("unsaved");
-    window.requestAnimationFrame(() => commitCurrentHistoryState({ assumeChanged: true }));
+    commitCurrentHistoryState({ assumeChanged: true });
   }, [activeStickCellKey, commitCurrentHistoryState, recordUndoSnapshot]);
+  const commitUnifiedSelectionAction = useCallback((action: {
+    drawingChanged: boolean;
+    stickContent: StickFigureFrameContent | null;
+  }) => {
+    if (!activeStickCellKey || isTimelinePlayingRef.current || isApplyingHistoryRef.current) return false;
+    const currentFrame = timelineFramesRef.current[currentFrameIndexRef.current] ?? null;
+    if (!currentFrame || currentFrame.cellType === "empty") return false;
+    const currentStickContent = stickByCellRef.current[activeStickCellKey] ?? {
+      figures: [],
+      structureGraph: { joints: [], limbs: [], activeJointId: null },
+    };
+    const stickChanged = Boolean(
+      action.stickContent &&
+      JSON.stringify(action.stickContent) !== JSON.stringify(currentStickContent),
+    );
+    if (!action.drawingChanged && !stickChanged) return false;
+
+    recordUndoSnapshot();
+    if (action.drawingChanged) {
+      const persisted = saveCurrentFrameSnapshot(
+        currentFrameIndexRef.current,
+        activeLayerIdRef.current,
+        {
+          captureOptions: { includePreviewUrl: false, preferIncrementalBitmapCapture: false },
+          debugCaller: "unified-selection-action",
+          forceCapture: true,
+          deferHistory: true,
+        },
+      );
+      if (!persisted) return false;
+    }
+    if (stickChanged && action.stickContent) {
+      const nextStickByCell = {
+        ...stickByCellRef.current,
+        [activeStickCellKey]: structuredClone(action.stickContent),
+      };
+      stickByCellRef.current = nextStickByCell;
+      setStickByCell(nextStickByCell);
+    }
+    setSaveState("unsaved");
+    commitCurrentHistoryState({ assumeChanged: true });
+    return true;
+  }, [activeStickCellKey, commitCurrentHistoryState, recordUndoSnapshot, saveCurrentFrameSnapshot]);
+  const activeUnifiedSymbolInstances = useMemo(
+    () => structuredClone(symbolInstancesByCell[activeStickCellKey] ?? []),
+    [activeStickCellKey, symbolInstancesByCell],
+  );
+  const createUnifiedSymbolDefinition = useCallback(async (draft: {
+    name: string;
+    sourceCategory: UnifiedSymbolSourceCategoryV2;
+    width: number;
+    height: number;
+    pngDataUrl: string;
+    structuredPayload?: import("@/src/lib/animation/unifiedAnimationContractV2").UnifiedStructuredSymbolPayloadV2;
+  }, sourceRemoval: {
+    drawingChanged: boolean;
+    stickContent: StickFigureFrameContent | null;
+    textObjects: DrawingTextObject[] | null;
+  } | null) => {
+    if (!activeUnifiedProject || isTimelinePlayingRef.current || isApplyingHistoryRef.current) return false;
+    const activeFrame = timelineFramesRef.current[currentFrameIndexRef.current] ?? null;
+    if (!activeFrame || activeFrame.cellType === "empty") return false;
+    const requiresFrameMutation = Boolean(
+      sourceRemoval?.drawingChanged ||
+      sourceRemoval?.stickContent ||
+      sourceRemoval?.textObjects,
+    );
+    const activeStateIndex = requiresFrameMutation
+      ? resolveStateStartIndex(timelineFramesRef.current, currentFrameIndexRef.current)
+      : -1;
+    if (requiresFrameMutation && activeStateIndex < 0) return false;
+    if (sourceRemoval?.stickContent && !activeStickCellKey) return false;
+
+    const definition = await createBitmapSymbolDefinitionV2({
+      definitionId: crypto.randomUUID(),
+      ...draft,
+    });
+    let nextCatalogs: UnifiedProjectCatalogsV2;
+    try {
+      nextCatalogs = appendSymbolDefinitionV2(unifiedCatalogsRef.current, definition);
+    } catch {
+      return false;
+    }
+
+    // One parent-owned command: capture the pre-conversion workspace once,
+    // then apply source removal and catalog insertion before committing once.
+    recordUndoSnapshot();
+    if (sourceRemoval?.drawingChanged) {
+      const persisted = saveCurrentFrameSnapshot(
+        currentFrameIndexRef.current,
+        activeLayerIdRef.current,
+        {
+          captureOptions: { includePreviewUrl: false, preferIncrementalBitmapCapture: false },
+          debugCaller: "convert-selection-to-symbol",
+          forceCapture: true,
+          deferHistory: true,
+        },
+      );
+      if (!persisted) return false;
+    }
+    if (sourceRemoval?.textObjects) {
+      const currentFrames = getLayerById(layersRef.current, activeLayerIdRef.current)?.timelineFrames ?? [];
+      const currentStateIndex = resolveStateStartIndex(currentFrames, currentFrameIndexRef.current);
+      const currentStateFrame = currentFrames[currentStateIndex] ?? null;
+      if (!currentStateFrame) return false;
+      const nextFrames = currentFrames.slice();
+      nextFrames[currentStateIndex] = {
+        ...currentStateFrame,
+        textObjects: cloneWorkspaceTextObjects(sourceRemoval.textObjects),
+      };
+      replaceLayerFrames(activeLayerIdRef.current, nextFrames, {
+        preserveTimelineRowView: timelineFrameMatchesRowView(nextFrames[currentStateIndex], currentStateFrame),
+      });
+      timelineFramesRef.current = nextFrames;
+    }
+    if (sourceRemoval?.stickContent) {
+      const nextStickByCell = {
+        ...stickByCellRef.current,
+        [activeStickCellKey]: structuredClone(sourceRemoval.stickContent),
+      };
+      stickByCellRef.current = nextStickByCell;
+      setStickByCell(nextStickByCell);
+    }
+    unifiedCatalogsRef.current = nextCatalogs;
+    setUnifiedCatalogs(nextCatalogs);
+    setSaveState("unsaved");
+    commitCurrentHistoryState({ assumeChanged: true });
+    return true;
+  }, [activeStickCellKey, activeUnifiedProject, commitCurrentHistoryState, recordUndoSnapshot, replaceLayerFrames, saveCurrentFrameSnapshot]);
+  const importUnifiedAssets = useCallback((assets: UnifiedProjectAssetV2[]) => {
+    if (!activeUnifiedProject || assets.length === 0 || isTimelinePlayingRef.current || isApplyingHistoryRef.current) return false;
+    let nextCatalogs: UnifiedProjectCatalogsV2;
+    try {
+      nextCatalogs = appendProjectAssetsV2(unifiedCatalogsRef.current, assets);
+    } catch {
+      return false;
+    }
+    recordUndoSnapshot();
+    unifiedCatalogsRef.current = nextCatalogs;
+    setUnifiedCatalogs(nextCatalogs);
+    setSaveState("unsaved");
+    window.requestAnimationFrame(() => commitCurrentHistoryState({ assumeChanged: true }));
+    return true;
+  }, [activeUnifiedProject, commitCurrentHistoryState, recordUndoSnapshot]);
+  const removeUnifiedSymbolDefinition = useCallback((definitionId: string) => {
+    if (!activeUnifiedProject || isTimelinePlayingRef.current || isApplyingHistoryRef.current) return false;
+    const referencedDefinitionIds = new Set(
+      Object.values(symbolInstancesByCellRef.current).flat().map(instance => instance.definitionId),
+    );
+    let nextCatalogs: UnifiedProjectCatalogsV2;
+    try {
+      nextCatalogs = removeSymbolDefinitionV2(unifiedCatalogsRef.current, definitionId, referencedDefinitionIds);
+    } catch {
+      return false;
+    }
+    recordUndoSnapshot();
+    unifiedCatalogsRef.current = nextCatalogs;
+    setUnifiedCatalogs(nextCatalogs);
+    setSaveState("unsaved");
+    window.requestAnimationFrame(() => commitCurrentHistoryState({ assumeChanged: true }));
+    return true;
+  }, [activeUnifiedProject, commitCurrentHistoryState, recordUndoSnapshot]);
+  const commitUnifiedSymbolInstances = useCallback((instances: UnifiedSymbolInstanceItemV2[]) => {
+    if (!activeUnifiedProject || !activeStickCellKey || isTimelinePlayingRef.current || isApplyingHistoryRef.current) return false;
+    recordUndoSnapshot();
+    const next = { ...symbolInstancesByCellRef.current, [activeStickCellKey]: structuredClone(instances) };
+    symbolInstancesByCellRef.current = next;
+    setSymbolInstancesByCell(next);
+    setSaveState("unsaved");
+    window.requestAnimationFrame(() => commitCurrentHistoryState({ assumeChanged: true }));
+    return true;
+  }, [activeStickCellKey, activeUnifiedProject, commitCurrentHistoryState, recordUndoSnapshot]);
   const canEditTextInCurrentFrame = useMemo(() => {
     if (isTimelinePlaying || activeTweenEditContext?.side === "end") {
       return false;
@@ -8730,6 +9004,7 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
         </div>
       )}
       <MemoizedDrawingTimelineRow
+        responsiveLayout={Boolean(activeUnifiedProject)}
         fps={timelineFps}
         isPlaying={isTimelinePlaying}
         isOnionEnabled={isOnionEnabled}
@@ -8772,6 +9047,7 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
         )}
         <MemoizedDrawingCanvas
           activeTool={activeTool}
+          drawingToolActivationId={drawingToolActivationId}
           activeTextObjects={activeFrameTextObjects}
           brushSize={brushSize}
           canEditTextInCurrentFrame={canEditTextInCurrentFrame}
@@ -8780,7 +9056,8 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
           fillColor={fillColor}
           isTimelinePlaying={isTimelinePlaying}
           onAuthoringActionCommitted={commitCanvasAuthoringAction}
-          onToolSelect={setActiveTool}
+          onUnifiedSelectionActionCommitted={commitUnifiedSelectionAction}
+          onToolSelect={activateDrawingTool}
           playbackRenderScale={isTimelinePlaying ? playbackRenderScale : 1}
           workspaceContext={deferredWorkspaceAiContext}
           projectAiMemory={projectAiMemory}
@@ -8795,9 +9072,14 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
           onShapeTypeChange={setShapeType}
           onTextObjectsChange={handleTextObjectsChange}
           unifiedStickContent={activeUnifiedStickContent}
-          previousUnifiedStickContent={previousUnifiedStickContent}
-          nextUnifiedStickContent={nextUnifiedStickContent}
           onUnifiedStickContentChange={commitUnifiedStickContent}
+          unifiedSymbolDefinitions={activeUnifiedProject ? unifiedCatalogs.symbols : undefined}
+          unifiedProjectAssets={activeUnifiedProject ? unifiedCatalogs.assets : undefined}
+          unifiedSymbolInstances={activeUnifiedProject ? activeUnifiedSymbolInstances : undefined}
+          onCreateUnifiedSymbolDefinition={activeUnifiedProject ? createUnifiedSymbolDefinition : undefined}
+          onUnifiedAssetsImported={activeUnifiedProject ? importUnifiedAssets : undefined}
+          onRemoveUnifiedSymbolDefinition={activeUnifiedProject ? removeUnifiedSymbolDefinition : undefined}
+          onUnifiedSymbolInstancesChange={activeUnifiedProject ? commitUnifiedSymbolInstances : undefined}
         />
         {tweenGuideOverlay && (
           <svg
@@ -8870,7 +9152,7 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
           </svg>
         )}
       </div>
-      <DrawingToolBar activeTool={activeTool} onToolSelect={setActiveTool} />
+      <DrawingToolBar activeTool={activeTool} onToolSelect={activateDrawingTool} />
     </div>
   );
 }

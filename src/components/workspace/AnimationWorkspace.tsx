@@ -38,6 +38,20 @@ const hydrateDrawingCompatibility = (project: UnifiedAnimationProjectV2, source:
   return drawingData;
 };
 
+const hydrateUnifiedSymbolInstances = (project: UnifiedAnimationProjectV2, drawingData: DrawingProjectData) => {
+  const symbolInstancesByCell: NonNullable<UnifiedAnimationProjectV2["compatibility"]>["symbolInstancesByCell"] = {};
+  drawingData.layers.forEach((layer, layerIndex) => {
+    const unifiedLayer = project.document.layers[layerIndex];
+    layer.timelineFrames.forEach((frame, frameIndex) => {
+      const instances = unifiedLayer?.cells[frameIndex]?.content?.items.filter(item => item.kind === "symbol-instance/v1") ?? [];
+      if (instances.length > 0) {
+        symbolInstancesByCell[`${layer.id}:${frame.stateId}`] = structuredClone(instances);
+      }
+    });
+  });
+  return symbolInstancesByCell;
+};
+
 export function AnimationWorkspace({ root }: { root: MountedWorkspace }) {
   const editor = root.candidate.editor;
   if (editor.kind === "unified") {
@@ -50,7 +64,16 @@ export function AnimationWorkspace({ root }: { root: MountedWorkspace }) {
       project: { id: editor.project.projectId, name: editor.project.title, data: structuredClone(drawingData), previewDataUrl: null, created_at: editor.project.createdAt, updated_at: editor.project.updatedAt },
       head: null, record: null, legacyRecordDigest: null,
     } : null;
-    return <DrawingWorkspace initialProject={initialProject} initialTitle={editor.project.title} deferInitialMemorySync unifiedProject={editor.project} />;
+    const hydratedUnifiedProject = drawingData ? {
+      ...editor.project,
+      compatibility: {
+        ...editor.project.compatibility,
+        drawingData,
+        stickByCell: structuredClone(editor.project.compatibility?.stickByCell ?? {}),
+        symbolInstancesByCell: hydrateUnifiedSymbolInstances(editor.project, drawingData),
+      },
+    } : editor.project;
+    return <DrawingWorkspace initialProject={initialProject} initialTitle={editor.project.title} deferInitialMemorySync unifiedProject={hydratedUnifiedProject} />;
   }
   const document = root.candidate.document;
   const mixed = document.layers.some(layer => layer.contentKind === "drawing/v1") && document.layers.some(layer => layer.contentKind === "stick-rig/v1");

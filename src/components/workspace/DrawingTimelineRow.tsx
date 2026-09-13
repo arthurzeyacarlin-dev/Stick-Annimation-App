@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import type { DragEvent, MouseEvent } from "react";
+import type { CSSProperties, DragEvent, MouseEvent } from "react";
 import {
   DRAWING_AI_SOUND_OPTION_DRAG_TYPE,
   isDrawingAiSoundOption,
@@ -29,6 +29,7 @@ export type TimelineLayer = {
 };
 
 type DrawingTimelineRowProps = {
+  responsiveLayout?: boolean;
   fps: number;
   isPlaying: boolean;
   isOnionEnabled: boolean;
@@ -281,6 +282,7 @@ const resolveTweenActivationSpan = (frames: TimelineFrame[], frameIndex: number)
 };
 
 export function DrawingTimelineRow({
+  responsiveLayout = false,
   fps,
   isPlaying,
   isOnionEnabled,
@@ -421,7 +423,7 @@ export function DrawingTimelineRow({
 
     window.addEventListener("resize", updateWidth);
     return () => window.removeEventListener("resize", updateWidth);
-  }, []);
+  }, [isExpanded]);
 
   const timelineActions = useMemo(
     () => [
@@ -542,7 +544,9 @@ export function DrawingTimelineRow({
   const resizeEdgeHeight = layers.length > 1 ? TIMELINE_RESIZE_EDGE_HEIGHT : 0;
   const collapsedRightPanelHeight = TIMELINE_RULER_HEIGHT + collapsedRowsHeight + scrollbarHeight + resizeEdgeHeight;
   const rightPanelHeight = TIMELINE_RULER_HEIGHT + timelineRowsHeight + scrollbarHeight + resizeEdgeHeight;
-  const baselinePanelHeight = Math.max(TIMELINE_LEFT_RAIL_HEIGHT, collapsedRightPanelHeight);
+  // The unified workspace keeps expanded lanes in its reserved layout space;
+  // they must not steal pointer targets from the canvas or panel tabs below.
+  const baselinePanelHeight = Math.max(TIMELINE_LEFT_RAIL_HEIGHT, responsiveLayout ? rightPanelHeight : collapsedRightPanelHeight);
 
   useEffect(() => {
     const viewport = frameLaneViewportRef.current;
@@ -1304,7 +1308,9 @@ export function DrawingTimelineRow({
 
   return (
     <div
+      className={responsiveLayout ? "drawing-timeline" : undefined}
       style={{
+        "--timeline-panel-height": `${rightPanelHeight}px`,
         position: "relative",
         zIndex: 12,
         overflow: "visible",
@@ -1317,9 +1323,36 @@ export function DrawingTimelineRow({
         background: "transparent",
         borderBottom: "1px solid rgba(255,255,255,0.06)",
         flexShrink: 0,
-      }}
+      } as CSSProperties}
     >
       <style>{`
+        @media (max-width: 640px) {
+          .drawing-timeline {
+            grid-template-columns: minmax(0, 1fr) !important;
+            grid-template-rows: auto var(--timeline-panel-height);
+            height: auto !important;
+            min-height: 0 !important;
+            padding-left: 0 !important;
+          }
+
+          .drawing-timeline .drawing-timeline-controls {
+            grid-column: 1 !important;
+            min-width: 0;
+            overflow-x: auto;
+            padding-inline: 10px;
+          }
+
+          .drawing-timeline .drawing-timeline-controls > * {
+            flex-shrink: 0;
+          }
+
+          .drawing-timeline .drawing-timeline-frames {
+            grid-column: 1 !important;
+            margin-left: 0 !important;
+            height: var(--timeline-panel-height) !important;
+          }
+        }
+
         .timeline-frame-main-scroll {
           scrollbar-width: none;
         }
@@ -1376,6 +1409,7 @@ export function DrawingTimelineRow({
       `}</style>
 
       <div
+        className="drawing-timeline-controls"
         style={{
           gridColumn: 1,
           height: TIMELINE_LEFT_RAIL_HEIGHT,
@@ -1484,11 +1518,12 @@ export function DrawingTimelineRow({
       </div>
 
       <div
+        className="drawing-timeline-frames"
         style={{
           gridColumn: 2,
           flex: 1,
           minWidth: 0,
-          height: collapsedRightPanelHeight,
+          height: responsiveLayout ? rightPanelHeight : collapsedRightPanelHeight,
           marginLeft: 12,
           position: "relative",
           overflow: "visible",

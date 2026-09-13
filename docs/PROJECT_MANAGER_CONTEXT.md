@@ -1,7 +1,7 @@
 # Project Manager Context
 
 Status: canonical owner and collaboration context
-Last updated: 2026-09-11
+Last updated: 2026-09-13
 
 ## Ownership, Sponsorship, and PM Collaboration
 
@@ -33,6 +33,7 @@ The latest product direction, updated through 2026-09-11, is:
 - The old eight-phase SPEC-0005 design remains historical reference, not future dispatch authority. Do not reuse rejected implementations, call their motion accepted, or automatically carry the unimplemented contract into a new spec.
 - Future Terra economics should prefer compact important-pose/timing plans, local in-betweens, safe $0 recipes first, at most one later bounded pre-Apply repair, measured private-dashboard cost, and monthly budgets/credits rather than unlimited use. Exact provider pricing/policy is a later same-day official-source gate.
 - SPEC-0006 corrected Phase 4 is human-accepted under D-0063 and Verified/published/integrated through GIT-056 `9c971fa4f7ea0e636ecc6957755552f678f344df`. The accepted 26-path manifest SHA-256 is `9d2d18871981db2e499c689723730ada4690dd5cb94ab620a038e45557f298de`; no AI/provider or later-phase feature is included.
+- Arthur explicitly accepted SPEC-0006 Phase 5 as acceptable. D-0065 records the exact 17-path PASS/VALID technical result at manifest SHA-256 `6a1c65c967f8f1d87a27e3834677bea84381f0c2577125bebfead6ca77308b6d`, sequential Spec Executor → Control Plane Architect ownership, and the completed tools/catalog/selection/panel outcome. Publication/integration is still a separate later task; Phase 6 remains unauthorized until that publication is complete.
 
 This direction supersedes older prose that framed AI only as a passive helper or described the workspaces as complete.
 
@@ -70,11 +71,19 @@ Arthur requires only one active review app copy for the current milestone. This 
 - Never remove canonical main or the active Project Manager worktree. Never delete a worktree still owned by an active executor/architect. Stop if identity, ownership, unique-byte preservation, or publication is uncertain.
 - The PM coordinates sequential handoff/cleanup under Arthur's authority; the authorized cleanup task performs removal. Spec Executors still cannot publish, edit the control plane, or mutate another worktree. This rule grants no implementation, Git publication, provider, or deployment authority.
 
-## Current SPEC-0006 result — corrected Phase 4 published and integrated
+## Current SPEC-0006 result — Phase 5 accepted/Verified, pending publication
+
+Arthur accepted the Phase 5 app copy after its final gesture-durability correction. The accepted `/5a2c/` worktree remains detached at `740eb70d2c713bf6bf8bd08123a0ed5eef3bc34d`, with an empty index and exactly 17 accepted technical paths. The immutable manifest is `output/spec-0006/phase-5/proof-manifest.json`, SHA-256 `6a1c65c967f8f1d87a27e3834677bea84381f0c2577125bebfead6ca77308b6d`, with 17 source and 77 evidence bindings.
+
+The result completes the current Drawing/Stick tools and shared Stick Figure Tools, Properties, Library, and Assets panels. It adds project-owned Drawing, Stick, and Mixed symbol definitions/instances; structured Stick geometry remains crisp through symbol and selection scaling. Add Limb, Move Joint, and all six Select/Lasso content-category cases commit durably on the first gesture. Placed-symbol handles clear on empty-canvas and Drawing/Stick action boundaries. Existing onion, Brush alignment, compact timeline pointer navigation, dialogs, history, Save/reopen, and protected tools remain accepted.
+
+The review server stays at `http://127.0.0.1:56555/`, listener PID 7680, cwd `/Users/arthurcarlin/.codex/worktrees/5a2c/stick-animation-app`, until separate publication/synchronization and D-0054 cleanup. This CPA propagation does not stage, publish, clean, or begin Phase 6.
+
+## Historical SPEC-0006 result — corrected Phase 4 published and integrated
 
 GIT-055 published D-0062's neutral architecture at `e956840001d18757af8f2de5361640ba70d44d68`. Arthur accepted the final visible pointer-corrected 4A/4B result; D-0063 records the exact 26-path PASS manifest at SHA-256 `9d2d18871981db2e499c689723730ada4690dd5cb94ab620a038e45557f298de`. GIT-056 published the exact accepted implementation/control-plane package at `9c971fa4f7ea0e636ecc6957755552f678f344df`.
 
-GIT-056 publication, clean `0/0` synchronization, and D-0054 accepted-copy cleanup are complete. Phase 5 remains not started and requires separate authorization.
+GIT-056 publication, clean `0/0` synchronization, and D-0054 accepted-copy cleanup are complete. Phase 5 subsequently completed and is recorded above.
 
 The visible review must start with ordinary empty New and create real Drawing + Stick content in the same layer/frame. Layer badges cannot be hidden over an unchanged typed schema. Minimal mixed persistence precedes cutover; current symbol/library integration completes in Phase 5. No seeded demo substitutes for this result.
 
@@ -105,6 +114,6 @@ These are not blockers for preserving the repository, but they must be resolved 
 6. What manual stick-figure editing features are required for the first usable release?
 7. What user data may be sent to model/search providers, and how long is memory retained?
 8. What minimum shared stick state/executor and corrective manual controls should precede the first AI-led vertical slice, versus the broader manual editor that can follow?
-9. SPEC-0006 corrected Phase 4 completed its two internal gates, Arthur accepted the visible 4B result, and GIT-056 publication/synchronization plus D-0054 cleanup completed. Phase 5 is not started and requires separate authorization.
+9. SPEC-0006 Phase 5 is human-accepted and technically Verified under D-0065. GIT-057 publication/integration and D-0054 cleanup are next; Phase 6 cannot start before those complete.
 
 Pending decisions and their status live in `DECISIONS.md`.

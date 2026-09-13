@@ -7,7 +7,7 @@ Last traced: published v2 safety evidence retained from 2026-09-08; canonical so
 
 SPEC-0004 Phases 1, 2, and timing-only Phase 2.5 remain Verified, published, and integrated. Phase 2.6 remains rejected, unpublished, and superseded historical evidence. Under D-0055, unfinished Phases 3–8 are Superseded by future SPEC-0008, inactive, and must not be implemented.
 
-Current lifecycle update (D-0066/GIT-057): SPEC-0006 Phases 1–5 are Verified, published, and integrated. Phase 5 is exact commit `a759ae8afbb67e8fb723983851ae36947fd97f17`; its 17-path manifest SHA-256 remains `6a1c65c967f8f1d87a27e3834677bea84381f0c2577125bebfead6ca77308b6d`. Phase 5 changed no AI model, prompt, provider, generation, motion, video/tracking, API, task/latch, or paid/external behavior, and its proof made zero real API/external/AI requests. Existing AI contracts and disabled exits remain protected; future AI/video work remains SPEC-0008. Phase 6 is unauthorized and not started.
+Current lifecycle update (D-0068, 2026-09-14): SPEC-0006 Phases 1–5 are Verified, published, and integrated through GIT-059 `62feafc220c35eb1203dc4f19820e533a54002e1`; Phase 6 is Arthur-accepted and technically Verified pending GIT-060 publication. Its exact 18-path manifest SHA-256 is `5883ea735bd741b2f14e45d2fa84669ea3bb78ad5ed23693011e0280e4070902`. Phase 6 preserves Drawing AI memory and the Stick one-time creation latch as typed project-bound auxiliary state during legacy adoption, Save, Save As identity rebinding and reopen, but changes no AI model, prompt, provider, generation, motion, video/tracking, API, task semantics, or paid/external behavior. Its proof recorded zero real API/external/AI requests. Future AI/video work remains SPEC-0008; Phase 7 remains unauthorized.
 
 ## What Exists Today
 

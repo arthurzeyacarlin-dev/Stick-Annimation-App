@@ -1,7 +1,7 @@
 # Diamond Animator Master Project Charter
 
 Status: canonical product intent
-Last updated: 2026-09-13
+Last updated: 2026-09-14
 
 ## Product Mission
 
@@ -33,7 +33,7 @@ The goal is not to hide a weak editor behind a chat box. The goal is one capable
 
 ## Current Strategic Position
 
-SPEC-0006 Phases 1–5 are Verified, published, durably integrated, recorded, and cleaned up. GIT-057 published Phase 5 in exact 31-path commit `a759ae8afbb67e8fb723983851ae36947fd97f17`; GIT-058 published its exact 13-path record closeout as `41983b0c88e1994675a4901d5814b3d972ad46b4`, and pre-GIT-059 verification found local/live GitHub `main` synchronized at clean `0/0`. D-0067 records completion of the D-0054 accepted-copy cleanup and preservation of the 98-file proof backup. This exact 11-path D-0067 records package is terminal GIT-059; its commit SHA is intentionally not predeclared, and its exact identity/publication status must be read directly from the canonical commit containing D-0067 and current Git refs. Once GIT-059 is published and synchronized, Phase 5 is fully closed with no follow-on records-only closeout. The exact 17-path Phase 5 manifest remains PASS/VALID at SHA-256 `6a1c65c967f8f1d87a27e3834677bea84381f0c2577125bebfead6ca77308b6d`. Phase 5 completes the current Drawing/Stick tool matrix, the four shared panels, project-owned Drawing/Stick/Mixed symbol catalogs, durable first-gesture Stick editing, cross-kind Select/Lasso transforms, unified onion behavior, bitmap alignment, and compact timeline pointer access without adding new AI or future manual-tool capability. The next possible product action is Phase 6, but it remains unauthorized and not started and requires Arthur's separate explicit authorization.
+SPEC-0006 Phases 1–5 are Verified, published, durably integrated, recorded, and cleaned up through GIT-059 `62feafc220c35eb1203dc4f19820e533a54002e1`. Arthur accepted the exact Phase 6 app-copy result on 2026-09-14 after reviewing identical restarted review-copy bytes; D-0068 records the technically Verified 18-path result at immutable manifest SHA-256 `5883ea735bd741b2f14e45d2fa84669ea3bb78ad5ed23693011e0280e4070902`, with 18 source and 13 evidence bindings. Phase 6 completes all supported Drawing V1/V2, Stick V1/V2, unified V1 and native unified V2 Open paths through the common editor, safe first-save adoption, Save As identity rebinding, exact-provenance dedupe, content-addressed storage, last-good recovery and bounded large-project proof without rewriting source stores. CPA propagation is complete in the accepted worktree and GIT-060 publication/integration is the next repository action. Phase 7 remains unauthorized and not started; duplicate-owner retirement and whole-spec completion are not yet claimed.
 
 The current code is a prototype foundation, not a finished Version 1. Existing documents that called either workspace “complete” described a past visual milestone and are superseded by `CURRENT_STATE.md`.
 

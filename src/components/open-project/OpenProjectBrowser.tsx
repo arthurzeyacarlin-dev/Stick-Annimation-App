@@ -200,7 +200,15 @@ export function OpenProjectBrowser({ onBack, onOpenProject }: Props) {
                   </span>
                 </span>
                 <span style={{ fontSize: "11px", fontWeight: 600, color: "rgba(255,255,255,0.58)", whiteSpace: "nowrap" }}>
-                  {isBusy ? "Working…" : invalid ? "Unavailable" : "Saved on this browser"}
+                  {isBusy
+                    ? "Working…"
+                    : invalid
+                      ? "Unavailable"
+                      : entry.protectedSource
+                        ? "Saved here · original kept"
+                        : entry.classification === "legacy"
+                          ? "Original local project"
+                          : "Saved on this browser"}
                 </span>
               </button>
             );

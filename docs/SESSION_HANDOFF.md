@@ -1,11 +1,66 @@
 # Session Handoff
 
 Status: current canonical stopping point
-Last updated: 2026-09-13
+Last updated: 2026-09-14
 
-SPEC-0006 Phases 1–5 are Verified, published, integrated, recorded, and cleaned up. GIT-057 is exact implementation commit `a759ae8afbb67e8fb723983851ae36947fd97f17`; GIT-058 is exact record-only closeout commit `41983b0c88e1994675a4901d5814b3d972ad46b4`. Pre-GIT-059 verification found canonical `main`, local `origin/main`, and live GitHub `main` at GIT-058 with clean `0/0` divergence. D-0067 records the completed D-0054 cleanup, and this exact 11-path D-0067 records package is terminal GIT-059. Its SHA is intentionally not predeclared: the authoritative identity/publication status is the canonical commit containing D-0067 and current Git refs. Once that commit is published and synchronized, Phase 5 is fully closed with no follow-on records-only closeout. The former typed-layer Phase 4 remains rejected, unpublished, and non-reusable. Phases 6–7 are unauthorized and not started.
+SPEC-0006 Phases 1–5 are Verified, published, integrated, recorded, and cleaned up through exact GIT-059 `62feafc220c35eb1203dc4f19820e533a54002e1`. Arthur accepted the identical Phase 6 app-copy bytes on 2026-09-14 after the same review copy was restarted. D-0068 records the exact 18-path Phase 6 result as technically Verified in `/Users/arthurcarlin/.codex/worktrees/b70c/stick-animation-app`, pending GIT-060 publication/integration. The immutable 43,794-byte technical manifest is PASS/VALID at SHA-256 `5883ea735bd741b2f14e45d2fa84669ea3bb78ad5ed23693011e0280e4070902`, with 18 source and 13 evidence bindings. Phase 7 remains unauthorized and not started.
 
-## GIT-059 package/publication contract and post-publication stopping point
+## GIT-060 publication contract and current stopping point
+
+This Control Plane Architect propagation is complete and stops with an empty index before staging, commit, integration, push, publication or cleanup. A later publication turn may create `codex/spec0006-phase6-publication` from this unchanged detached GIT-059 base, stage only the reviewed 32-path package below, commit once, fast-forward a still-clean canonical `main`, push normally and verify local `main`, local `origin/main` and live GitHub `main` clean at `0/0`. Stop on any base/ref advancement, byte mismatch, unexpected path or dirty canonical worktree without pull, merge, rebase, force-push, amend, history rewrite or scope expansion.
+
+Exact accepted technical allowlist:
+
+- `src/lib/animation/unifiedAnimationContentV2.ts`
+- `src/lib/animation/unifiedAnimationContractV2.ts`
+- `src/lib/animation/unifiedAnimationMigrationV2.ts`
+- `src/lib/animation/unifiedProjectRepositoryV2.ts`
+- `src/lib/animation/unifiedProjectStorageV2.ts`
+- `src/lib/animation/unifiedProjectSourceReader.ts`
+- `src/lib/animation/unifiedProjectCollection.ts`
+- `src/lib/animation/unifiedWorkspaceBootstrap.ts`
+- `src/components/workspace/AnimationWorkspace.tsx`
+- `src/components/workspace/DrawingWorkspace.tsx`
+- `src/components/open-project/OpenProjectBrowser.tsx`
+- `scripts/fixtures/spec0006-unified/v2/phase6-adoption-recovery-cases.json`
+- `scripts/spec0006-unified/phase6FixtureFactory.ts`
+- `scripts/spec0006-unified/phase6PersistenceOracle.ts`
+- `scripts/spec0006-unified/validatePhase6Persistence.ts`
+- `scripts/spec0006-unified/phase6BrowserProof.ts`
+- `scripts/spec0006-unified/recordPhase6Proof.ts`
+- `scripts/spec0006-unified/validatePhase6Proof.ts`
+
+Exact reviewed Control Plane Architect record/tree allowlist:
+
+- `docs/00_MASTER_PROJECT.md`
+- `docs/AI_SYSTEM.md`
+- `docs/CURRENT_STATE.md`
+- `docs/DECISIONS.md`
+- `docs/PROJECT_MANAGER_CONTEXT.md`
+- `docs/ROADMAP.md`
+- `docs/SESSION_HANDOFF.md`
+- `docs/TODO.md`
+- `docs/architecture.md`
+- `docs/changelog.md`
+- `docs/specs/0006-unified-animation-workspace.md`
+- `docs/specs/README.md`
+- `docs/testing_workflow.md`
+- `project/project_structure.txt`
+
+Accepted proof identity and limits:
+
+- accepted base/HEAD: `62feafc220c35eb1203dc4f19820e533a54002e1`
+- manifest: `output/spec-0006/phase-6/proof-manifest.json`; 43,794 bytes; SHA-256 `5883ea735bd741b2f14e45d2fa84669ea3bb78ad5ed23693011e0280e4070902`; PASS/VALID
+- fresh CPA binding check: all 18 source and 13 evidence files match exact sizes/hashes; exact technical dirty set; empty index
+- executor proof: 22/22 recorded commands pass; 1,117 deterministic assertions; 1,000 cases; 48 history operations; six source kinds; 16 recovery faults
+- browser proof: ten legacy adoption flows plus native V2 Save/Save As/reopen in 19 operations, four screenshots, two profiles, 120 selection-settle samples/profile, zero source writes/external/real API/AI requests/page errors/console errors
+- large project: two distinct 60,268,104-byte rasters plus sound/catalog/auxiliary data; open/reopen below 775 ms; Save below 1.53 s; settled heap below 320 MiB; no long tasks
+- liveness boundary: the original strict validator passed before recorded PID `23344` expired. Arthur later accepted identical bytes after restart on the same port. Port 56666 currently has no listener; no current PID/cwd claim is made, and the immutable technical manifest is not rewritten.
+- limits: compact is responsive Chromium evidence, not physical-phone proof; native/GPU allocation remains unproven; existing compact title clipping remains.
+
+Preserve the accepted worktree and ignored proof until GIT-060 integration/synchronization. Later authorized D-0054 cleanup must resolve current process/port identity afresh, preserve required proof, remove only the obsolete accepted worktree and now-unused local publication branch, and never remove canonical main or active PM `/2d14/`. This task does not perform cleanup. Phase 7 remains unauthorized and requires GIT-060 completion plus a later explicit decision.
+
+## Historical GIT-059 package/publication contract and post-publication stopping point
 
 Before these bytes are published, the immediate already-authorized repository action is exact GIT-059 publication of this package. Do not start Phase 6.
 

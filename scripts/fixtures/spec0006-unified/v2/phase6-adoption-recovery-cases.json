@@ -1,0 +1,24 @@
+{
+  "fixtureId": "spec0006-phase6-adoption-recovery",
+  "sourceKinds": ["drawing-v1", "drawing-v2", "stick-v1", "stick-v2", "unified-v1", "unified-v2"],
+  "faults": ["encode", "hash", "decode", "quota", "asset", "version", "abort", "readback", "cas", "id", "stale-instance", "stale-revision", "stale-generation", "undo", "open-race", "crash-before-head"],
+  "deterministicCases": 1000,
+  "historyOperations": 48,
+  "dormantFixtures": ["V1-BLANK-DORMANT-01:drawing", "V1-BLANK-DORMANT-01:stick"],
+  "projectByteLimit": 134217728,
+  "collectionByteLimit": 536870912,
+  "projectLimit": 64,
+  "largeRasterProfile": {
+    "width": 4563,
+    "height": 3302,
+    "byteLength": 60268104,
+    "firstFill": 17,
+    "firstSha256": "bec5d1eeab02892c679f6eebf16eef7b06d773ec130225d10e524f350be72029",
+    "secondFill": 29,
+    "secondSha256": "8b240803f9735aad67c47d5184540e8ad47bcc44f7dd1a3b8935064a0f8b77ec"
+  },
+  "profiles": [
+    {"name": "desktop", "width": 1440, "height": 900, "deviceScaleFactor": 1},
+    {"name": "compact", "width": 390, "height": 844, "deviceScaleFactor": 2}
+  ]
+}

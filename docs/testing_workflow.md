@@ -1,9 +1,17 @@
 # Verification and Regression Workflow
 
 Status: canonical proof standard and current gate baseline
-Last updated: 2026-09-13
+Last updated: 2026-09-14
 
-## Current SPEC-0006 Phase 5 published evidence
+## Current SPEC-0006 Phase 6 accepted evidence
+
+Phase 6 is Arthur-accepted and technically Verified under D-0068 pending GIT-060 publication. The stopped executor produced exactly 18 technical paths from GIT-059 base/HEAD `62feafc220c35eb1203dc4f19820e533a54002e1` with an empty index. Immutable manifest `output/spec-0006/phase-6/proof-manifest.json` is 43,794 bytes at SHA-256 `5883ea735bd741b2f14e45d2fa84669ea3bb78ad5ed23693011e0280e4070902`, PASS/VALID with 18 source and 13 evidence bindings.
+
+The deterministic persistence suite passed 1,117 assertions, 1,000 repeated cases, 48 history operations, all six source kinds and 16 named fault families. The real-browser proof passed ten legacy adoption flows plus native V2 Save/Save As/reopen in 19 operations across 1440×900 DPR1 and 390×844 DPR2, with four screenshots, 120 selection-settle samples/profile, large-project open/save/reopen, and zero source writes, external requests, real API requests, page errors or console errors. Two distinct 60,268,104-byte raster assets, sound/catalog data and project-bound auxiliary state survived content-addressed persistence and reopen. Large-project open/reopen stayed below 775 ms, Save below 1.53 s, settled heap below 320 MiB, and no measured long task was recorded.
+
+The manifest's strict validator passed before its recorded review listener expired. Arthur later reviewed the identical bytes after the same app copy was restarted on port 56666 and explicitly accepted them. CPA does not regenerate the manifest or claim historical PID `23344` remains live: it independently revalidates all source/evidence sizes and hashes, exact GIT base/index/18-path dirty set, and records current listener identity only if one exists. An expired post-review PID is lifecycle state, not a technical binding mismatch.
+
+## Historical current SPEC-0006 Phase 5 published evidence
 
 Phase 5 is human-accepted, technically Verified, published, and integrated under D-0065/D-0066/GIT-057 at exact 31-path commit `a759ae8afbb67e8fb723983851ae36947fd97f17`. Its immutable manifest is `output/spec-0006/phase-5/proof-manifest.json`, SHA-256 `6a1c65c967f8f1d87a27e3834677bea84381f0c2577125bebfead6ca77308b6d`, with 17 accepted source bindings and 77 evidence bindings. Post-publication validation matched all 108 accepted technical/evidence/control-plane bindings and local/live GitHub refs at clean `0/0`.
 

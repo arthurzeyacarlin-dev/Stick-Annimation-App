@@ -258,6 +258,7 @@
 ./scripts/fixtures/spec0006-unified/v2/phase4a-neutral-storage-cases.json
 ./scripts/fixtures/spec0006-unified/v2/phase4b-neutral-ui-cases.json
 ./scripts/fixtures/spec0006-unified/v2/phase5-tools-library-cases.json
+./scripts/fixtures/spec0006-unified/v2/phase6-adoption-recovery-cases.json
 ./scripts/fixtures/stick-ai
 ./scripts/fixtures/stick-ai/v1
 ./scripts/fixtures/stick-ai/v1/canonical-hash-vectors.json
@@ -397,12 +398,16 @@
 ./scripts/spec0006-unified/phase5BrowserProof.ts
 ./scripts/spec0006-unified/phase5CatalogOracle.ts
 ./scripts/spec0006-unified/phase5CorrectionBrowser.mjs
+./scripts/spec0006-unified/phase6BrowserProof.ts
+./scripts/spec0006-unified/phase6FixtureFactory.ts
+./scripts/spec0006-unified/phase6PersistenceOracle.ts
 ./scripts/spec0006-unified/recordPhase1Proof.ts
 ./scripts/spec0006-unified/recordPhase2Proof.ts
 ./scripts/spec0006-unified/recordPhase3Proof.ts
 ./scripts/spec0006-unified/recordPhase4aNeutralProof.ts
 ./scripts/spec0006-unified/recordPhase4bNeutralProof.ts
 ./scripts/spec0006-unified/recordPhase5Proof.ts
+./scripts/spec0006-unified/recordPhase6Proof.ts
 ./scripts/spec0006-unified/validatePhase1Migration.ts
 ./scripts/spec0006-unified/validatePhase1Proof.ts
 ./scripts/spec0006-unified/validatePhase2Navigation.ts
@@ -414,6 +419,8 @@
 ./scripts/spec0006-unified/validatePhase4bNeutralWorkspace.ts
 ./scripts/spec0006-unified/validatePhase5Proof.ts
 ./scripts/spec0006-unified/validatePhase5ToolsLibrary.ts
+./scripts/spec0006-unified/validatePhase6Persistence.ts
+./scripts/spec0006-unified/validatePhase6Proof.ts
 ./scripts/sync_docs_to_github.sh
 ./scripts/traceExplosionLivePath.ts
 ./scripts/traceGenerateSoundsLivePath.mjs

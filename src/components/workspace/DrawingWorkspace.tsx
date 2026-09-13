@@ -513,6 +513,7 @@ const createImageDataSafely = (
   data: Uint8ClampedArray | Uint8Array | number[],
   width: number,
   height: number,
+  reuseClampedData = false,
 ): ImageData | null => {
   const expectedLength = getExpectedBitmapDataLength(width, height);
   if (expectedLength === null || data.length !== expectedLength) {
@@ -520,12 +521,14 @@ const createImageDataSafely = (
   }
 
   const nextData =
-    data instanceof Uint8ClampedArray
+    reuseClampedData && data instanceof Uint8ClampedArray
+      ? data
+      : data instanceof Uint8ClampedArray
       ? new Uint8ClampedArray(data)
       : Uint8ClampedArray.from(data);
 
   try {
-    return new ImageData(nextData, width, height);
+    return new ImageData(nextData as ImageDataArray, width, height);
   } catch {
     return null;
   }
@@ -920,44 +923,44 @@ const createTimelineFrame = (
 
 const createEmptyTimelineFrame = (id: number): WorkspaceTimelineFrame => createTimelineFrame(id, "frame", "empty", id);
 
-const serializeBitmap = (bitmap: ImageData | null): SerializedBitmap | null => {
+const serializeBitmap = (bitmap: ImageData | null, preserveDataReference = false): SerializedBitmap | null => {
   const usableBitmap = getUsableBitmap(bitmap);
   return usableBitmap
     ? {
         width: usableBitmap.width,
         height: usableBitmap.height,
-        data: new Uint8ClampedArray(usableBitmap.data),
+        data: preserveDataReference ? usableBitmap.data : new Uint8ClampedArray(usableBitmap.data),
       }
     : null;
 };
 
-const deserializeBitmap = (bitmap: SerializedBitmap | null | undefined) => {
+const deserializeBitmap = (bitmap: SerializedBitmap | null | undefined, reuseClampedData = false) => {
   if (!bitmap) {
     return null;
   }
 
-  return createImageDataSafely(bitmap.data, bitmap.width, bitmap.height);
+  return createImageDataSafely(bitmap.data, bitmap.width, bitmap.height, reuseClampedData);
 };
 
-const serializeMotionTweenData = (motionTween: MotionTweenData | null): StoredMotionTweenData | null =>
+const serializeMotionTweenData = (motionTween: MotionTweenData | null, preserveBitmapReferences = false): StoredMotionTweenData | null =>
   motionTween
     ? {
         mode: motionTween.mode,
         stageWidth: motionTween.stageWidth,
         stageHeight: motionTween.stageHeight,
-        spriteBitmap: serializeBitmap(motionTween.spriteBitmap),
+        spriteBitmap: serializeBitmap(motionTween.spriteBitmap, preserveBitmapReferences),
         startOrigin: cloneMotionTweenOrigin(motionTween.startOrigin),
         endOrigin: cloneMotionTweenOrigin(motionTween.endOrigin),
       }
     : null;
 
-const deserializeMotionTweenData = (motionTween: StoredMotionTweenData | null | undefined): MotionTweenData | null =>
+const deserializeMotionTweenData = (motionTween: StoredMotionTweenData | null | undefined, reuseClampedData = false): MotionTweenData | null =>
   motionTween
     ? {
         mode: motionTween.mode,
         stageWidth: motionTween.stageWidth,
         stageHeight: motionTween.stageHeight,
-        spriteBitmap: deserializeBitmap(motionTween.spriteBitmap),
+        spriteBitmap: deserializeBitmap(motionTween.spriteBitmap, reuseClampedData),
         startOrigin: cloneMotionTweenOrigin(motionTween.startOrigin),
         endOrigin: cloneMotionTweenOrigin(motionTween.endOrigin),
       }
@@ -980,27 +983,27 @@ const deserializeSoundAttachment = (
       }
     : null;
 
-const serializeTimelineFrame = (frame: WorkspaceTimelineFrame): StoredDrawingTimelineFrame => ({
+const serializeTimelineFrame = (frame: WorkspaceTimelineFrame, preserveBitmapReferences = false): StoredDrawingTimelineFrame => ({
   id: frame.id,
   kind: frame.kind,
   cellType: frame.cellType,
   stateId: frame.stateId,
   isBlank: frame.isBlank,
   hasTweenEndpoint: frame.hasTweenEndpoint,
-  bitmap: frame.cellType === "blank-keyframe" ? null : serializeBitmap(frame.bitmap),
+  bitmap: frame.cellType === "blank-keyframe" ? null : serializeBitmap(frame.bitmap, preserveBitmapReferences),
   previewUrl:
     frame.cellType === "blank-keyframe" ? null : (createStoredBitmapPreviewUrl(frame.bitmap) ?? frame.previewUrl ?? null),
-  tweenEndBitmap: frame.cellType === "blank-keyframe" ? null : serializeBitmap(frame.tweenEndBitmap),
+  tweenEndBitmap: frame.cellType === "blank-keyframe" ? null : serializeBitmap(frame.tweenEndBitmap, preserveBitmapReferences),
   tweenEndPreviewUrl:
     frame.cellType === "blank-keyframe"
       ? null
       : (createStoredBitmapPreviewUrl(frame.tweenEndBitmap) ?? frame.tweenEndPreviewUrl ?? null),
-  motionTween: serializeMotionTweenData(frame.motionTween),
+  motionTween: serializeMotionTweenData(frame.motionTween, preserveBitmapReferences),
   soundAttachment: serializeSoundAttachment(frame.soundAttachment),
   textObjects: frame.cellType === "blank-keyframe" ? [] : frame.textObjects.map(serializeTextObject),
 });
 
-const deserializeTimelineFrame = (frame: StoredDrawingTimelineFrame): WorkspaceTimelineFrame => {
+const deserializeTimelineFrame = (frame: StoredDrawingTimelineFrame, reuseClampedData = false): WorkspaceTimelineFrame => {
   const isBlankKeyframe = frame.isBlank === true || frame.cellType === "blank-keyframe";
 
   return {
@@ -1010,11 +1013,11 @@ const deserializeTimelineFrame = (frame: StoredDrawingTimelineFrame): WorkspaceT
     stateId: frame.stateId,
     isBlank: isBlankKeyframe,
     hasTweenEndpoint: Boolean(frame.hasTweenEndpoint),
-    bitmap: isBlankKeyframe ? null : deserializeBitmap(frame.bitmap),
+    bitmap: isBlankKeyframe ? null : deserializeBitmap(frame.bitmap, reuseClampedData),
     previewUrl: isBlankKeyframe ? null : (frame.previewUrl ?? null),
-    tweenEndBitmap: isBlankKeyframe ? null : deserializeBitmap(frame.tweenEndBitmap),
+    tweenEndBitmap: isBlankKeyframe ? null : deserializeBitmap(frame.tweenEndBitmap, reuseClampedData),
     tweenEndPreviewUrl: isBlankKeyframe ? null : (frame.tweenEndPreviewUrl ?? null),
-    motionTween: isBlankKeyframe ? null : deserializeMotionTweenData(frame.motionTween),
+    motionTween: isBlankKeyframe ? null : deserializeMotionTweenData(frame.motionTween, reuseClampedData),
     soundAttachment: isBlankKeyframe ? null : deserializeSoundAttachment(frame.soundAttachment),
     textObjects: isBlankKeyframe ? [] : (frame.textObjects ?? []).map(normalizeStoredDrawingTextObject),
   };
@@ -1071,6 +1074,7 @@ const createDefaultDrawingWorkspaceState = (
 
 const createDrawingWorkspaceInitialState = (
   project?: StoredDrawingProject | null,
+  reuseClampedData = false,
 ): DrawingWorkspaceInitialState => {
   if (!project) {
     return createDefaultDrawingWorkspaceState();
@@ -1081,7 +1085,7 @@ const createDrawingWorkspaceInitialState = (
       id: layer.id,
       name: layer.name,
       orderIndex: layer.orderIndex,
-      timelineFrames: (layer.timelineFrames ?? []).map(deserializeTimelineFrame),
+      timelineFrames: (layer.timelineFrames ?? []).map(frame => deserializeTimelineFrame(frame, reuseClampedData)),
     })),
   );
   const layers = loadedLayers.length > 0 ? loadedLayers : createDefaultWorkspaceLayers();
@@ -3546,7 +3550,7 @@ type DrawingWorkspaceProps = {
 
 export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT_PROJECT_TITLE, deferInitialMemorySync = false, unifiedProject = null }: DrawingWorkspaceProps) {
   const openedInitialProject = initialProject?.project ?? null;
-  const initialWorkspaceState = openedInitialProject ? createDrawingWorkspaceInitialState(openedInitialProject) : createDefaultDrawingWorkspaceState(initialTitle);
+  const initialWorkspaceState = openedInitialProject ? createDrawingWorkspaceInitialState(openedInitialProject, Boolean(unifiedProject)) : createDefaultDrawingWorkspaceState(initialTitle);
   const [projectId, setProjectId] = useState<string | null>(initialWorkspaceState.projectId);
   const [projectTitle, setProjectTitle] = useState(initialWorkspaceState.projectTitle);
   const [projectAiMemory, setProjectAiMemory] = useState<DrawingAiProjectMemory | null>(
@@ -3567,7 +3571,7 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
   const [isTimelinePlaying, setIsTimelinePlaying] = useState(false);
   const [isOnionEnabled, setIsOnionEnabled] = useState(initialWorkspaceState.isOnionEnabled);
   const [saveState, setSaveState] = useState<"not-saved" | "unsaved" | "saving" | "saved" | "too-large" | "failed">(
-    initialProject || (unifiedProject && unifiedProject.revision > 0) ? "saved" : "not-saved",
+    unifiedProject ? (unifiedProject.revision > 0 ? "saved" : "not-saved") : initialProject ? "saved" : "not-saved",
   );
   const activateDrawingTool = useCallback((tool: DrawingToolName) => {
     setActiveTool(tool);
@@ -4033,7 +4037,7 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
   }, [createHistoryEntryFromWorkspace, initializeHistoryTimeline]);
 
   useEffect(() => {
-    if (!openedInitialProject) {
+    if (!openedInitialProject || unifiedProject) {
       return;
     }
 
@@ -4079,7 +4083,7 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
     return () => {
       isCancelled = true;
     };
-  }, [openedInitialProject, initializeHistoryTimeline]);
+  }, [openedInitialProject, initializeHistoryTimeline, unifiedProject]);
 
   useEffect(() => {
     setProjectId(openedInitialProject?.id ?? null);
@@ -4088,8 +4092,8 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
     activeStorageRevisionRef.current = initialProject?.head?.activeStorageRevision ?? null;
     projectCreatedAtRef.current = initialProject?.head?.createdAt ?? openedInitialProject?.created_at ?? null;
     legacyRecordDigestRef.current = initialProject?.legacyRecordDigest ?? null;
-    setSaveState(initialProject ? "saved" : "not-saved");
-  }, [initialProject, openedInitialProject, initialTitle]);
+    setSaveState(unifiedProject ? (unifiedProject.revision > 0 ? "saved" : "not-saved") : initialProject ? "saved" : "not-saved");
+  }, [initialProject, openedInitialProject, initialTitle, unifiedProject]);
 
   useEffect(() => {
     if (activeUnifiedProject || !projectId || deferInitialMemorySync) {
@@ -7166,7 +7170,7 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
     ],
   );
 
-  const createPersistedProjectSnapshot = useCallback((): DrawingProjectData => {
+  const createPersistedProjectSnapshot = useCallback((options: { preserveBitmapReferences?: boolean } = {}): DrawingProjectData => {
     const snapshot = {
       version: 1,
       activeTool,
@@ -7183,7 +7187,7 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
         id: layer.id,
         name: layer.name,
         orderIndex: layer.orderIndex,
-        timelineFrames: layer.timelineFrames.map(serializeTimelineFrame),
+        timelineFrames: layer.timelineFrames.map(frame => serializeTimelineFrame(frame, options.preserveBitmapReferences)),
       })),
       nextTimelineFrameId: nextTimelineFrameIdRef.current,
       nextLayerNumber: nextLayerNumberRef.current,
@@ -7203,55 +7207,64 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
     const layers = drawingData.layers.map((layer, orderIndex) => {
       const stateOwners = new Map<number, number>();
       layer.timelineFrames.forEach((frame, index) => { if (frame.cellType !== "empty" && !stateOwners.has(frame.stateId)) stateOwners.set(frame.stateId, index); });
-      const layerId = base.document.layers[orderIndex]?.layerId ?? stableId(`layer:${layer.id}`);
+      const baseLayer = base.document.layers[orderIndex];
+      const layerId = baseLayer?.layerId ?? stableId(`layer:${layer.id}`);
       const cells: UnifiedCellV2[] = layer.timelineFrames.map((frame, index) => {
-        const cellId = stableId(`cell:${layer.id}:${frame.id}`);
+        const cellId = baseLayer?.cells[index]?.cellId ?? stableId(`cell:${layer.id}:${frame.id}`);
         if (frame.cellType === "empty") return { cellId, cellType: "empty", ownerCellId: null, content: null };
         const ownerIndex = stateOwners.get(frame.stateId) ?? index;
         const ownerFrame = layer.timelineFrames[ownerIndex];
-        const ownerCellId = stableId(`cell:${layer.id}:${ownerFrame.id}`);
+        const ownerCellId = baseLayer?.cells[ownerIndex]?.cellId ?? stableId(`cell:${layer.id}:${ownerFrame.id}`);
         if (ownerIndex !== index) return { cellId, cellType: frame.cellType === "tween" ? "tween" : "hold", ownerCellId, content: null };
         const items: UnifiedAnimationItemV2[] = [];
-        if (frame.bitmap) {
-          const sourceData = frame.bitmap.data instanceof Uint8ClampedArray
-            ? frame.bitmap.data
-            : Uint8ClampedArray.from(frame.bitmap.data);
-          let left = frame.bitmap.width, top = frame.bitmap.height, right = -1, bottom = -1;
-          for (let y = 0; y < frame.bitmap.height; y += 1) for (let x = 0; x < frame.bitmap.width; x += 1) {
-            if (sourceData[(y * frame.bitmap.width + x) * 4 + 3] > SAVE_PATH_ALPHA_THRESHOLD) {
+        const existingItems = baseLayer?.cells[ownerIndex]?.content?.items ?? [];
+        const cropBitmap = (sourceBitmap: typeof frame.bitmap) => {
+          if (!sourceBitmap) return null;
+          const sourceData = sourceBitmap.data instanceof Uint8ClampedArray
+            ? sourceBitmap.data
+            : Uint8ClampedArray.from(sourceBitmap.data);
+          let left = sourceBitmap.width, top = sourceBitmap.height, right = -1, bottom = -1;
+          for (let y = 0; y < sourceBitmap.height; y += 1) for (let x = 0; x < sourceBitmap.width; x += 1) {
+            if (sourceData[(y * sourceBitmap.width + x) * 4 + 3] > SAVE_PATH_ALPHA_THRESHOLD) {
               left = Math.min(left, x); top = Math.min(top, y); right = Math.max(right, x); bottom = Math.max(bottom, y);
             }
           }
-          if (right >= left && bottom >= top) {
-            const bounds = { left, top, width: right - left + 1, height: bottom - top + 1 };
-            const croppedData = new Uint8ClampedArray(bounds.width * bounds.height * 4);
-            for (let row = 0; row < bounds.height; row += 1) {
-              const sourceOffset = ((bounds.top + row) * frame.bitmap.width + bounds.left) * 4;
-              const targetOffset = row * bounds.width * 4;
-              croppedData.set(sourceData.subarray(sourceOffset, sourceOffset + bounds.width * 4), targetOffset);
-            }
-            items.push({
-              itemId: stableId(`raster:${layer.id}:${frame.stateId}`),
-              kind: "drawing-raster/v1",
-              strokes: [],
-              shapes: [],
-              bitmap: {
-                width: bounds.width,
-                height: bounds.height,
-                data: croppedData,
-                x: bounds.left,
-                y: bounds.top,
-                stageWidth: frame.bitmap.width,
-                stageHeight: frame.bitmap.height,
-              },
-            });
+          if (right < left || bottom < top) return null;
+          const bounds = { left, top, width: right - left + 1, height: bottom - top + 1 };
+          if (bounds.left === 0 && bounds.top === 0 && bounds.width === sourceBitmap.width && bounds.height === sourceBitmap.height) {
+            return { width: sourceBitmap.width, height: sourceBitmap.height, data: sourceData, x: 0, y: 0, stageWidth: sourceBitmap.width, stageHeight: sourceBitmap.height };
           }
+          const croppedData = new Uint8ClampedArray(bounds.width * bounds.height * 4);
+          for (let row = 0; row < bounds.height; row += 1) {
+            const sourceOffset = ((bounds.top + row) * sourceBitmap.width + bounds.left) * 4;
+            croppedData.set(sourceData.subarray(sourceOffset, sourceOffset + bounds.width * 4), row * bounds.width * 4);
+          }
+          return { width: bounds.width, height: bounds.height, data: croppedData, x: bounds.left, y: bounds.top, stageWidth: sourceBitmap.width, stageHeight: sourceBitmap.height };
+        };
+        const bitmap = cropBitmap(frame.bitmap);
+        const tweenEndBitmap = cropBitmap(frame.tweenEndBitmap);
+        const spriteBitmap = cropBitmap(frame.motionTween?.spriteBitmap ?? null);
+        const existingRaster = existingItems.find(item => item.kind === "drawing-raster/v1");
+        if (bitmap || tweenEndBitmap || frame.motionTween) {
+          items.push({
+            itemId: existingRaster?.itemId ?? stableId(`raster:${layer.id}:${frame.stateId}`),
+            kind: "drawing-raster/v1",
+            strokes: existingRaster?.kind === "drawing-raster/v1" ? structuredClone(existingRaster.strokes) : [],
+            shapes: existingRaster?.kind === "drawing-raster/v1" ? structuredClone(existingRaster.shapes) : [],
+            bitmap,
+            tweenEndBitmap,
+            motionTween: frame.motionTween ? { ...structuredClone(frame.motionTween), spriteBitmap } : null,
+            sourceTransform: existingRaster?.kind === "drawing-raster/v1" ? structuredClone(existingRaster.sourceTransform ?? null) : null,
+          });
         }
-        for (const text of frame.textObjects ?? []) items.push({ itemId: stableId(`text:${layer.id}:${frame.stateId}:${text.id}`), kind: "drawing-text/v1", text: text.text, x: text.x, y: text.y, color: text.color, fontSize: text.fontSize, rotation: text.rotation ?? 0, width: text.width, flipX: Boolean(text.flipX), flipY: Boolean(text.flipY), fontFamily: text.fontFamily, bold: text.bold, italic: text.italic });
+        for (const [textIndex, text] of (frame.textObjects ?? []).entries()) items.push({ itemId: existingItems.filter(item => item.kind === "drawing-text/v1")[textIndex]?.itemId ?? stableId(`text:${layer.id}:${frame.stateId}:${text.id}`), kind: "drawing-text/v1", text: text.text, x: text.x, y: text.y, color: text.color, fontSize: text.fontSize, rotation: text.rotation ?? 0, width: text.width, flipX: Boolean(text.flipX), flipY: Boolean(text.flipY), fontFamily: text.fontFamily, bold: text.bold, italic: text.italic });
         const stick = stickByCellRef.current[`${layer.id}:${frame.stateId}`];
-        if (stick && (stick.structureGraph.joints.length || stick.structureGraph.limbs.length || stick.figures.length)) items.push({ itemId: stableId(`stick:${layer.id}:${frame.stateId}`), kind: "stick-rig/v1", content: structuredClone(stick) });
+        if (stick && (stick.structureGraph.joints.length || stick.structureGraph.limbs.length || stick.figures.length)) items.push({ itemId: existingItems.find(item => item.kind === "stick-rig/v1")?.itemId ?? stableId(`stick:${layer.id}:${frame.stateId}`), kind: "stick-rig/v1", content: structuredClone(stick) });
         items.push(...structuredClone(symbolInstancesByCellRef.current[`${layer.id}:${frame.stateId}`] ?? []));
-        return { cellId, cellType: frame.cellType === "blank-keyframe" && items.length === 0 ? "blank-keyframe" : frame.cellType === "tween" ? "tween" : "keyframe", ownerCellId, content: { items, soundAttachment: null } };
+        const dormantSourceContent = frame.cellType === "blank-keyframe" && items.length === 0
+          ? structuredClone(baseLayer?.cells[ownerIndex]?.content?.dormantSourceContent ?? null)
+          : null;
+        return { cellId, cellType: frame.cellType === "blank-keyframe" && items.length === 0 ? "blank-keyframe" : frame.cellType === "tween" ? "tween" : "keyframe", ownerCellId, content: { items, soundAttachment: structuredClone(frame.soundAttachment ?? null), dormantSourceContent } };
       });
       return { layerId, name: layer.name, orderIndex, visible: true, locked: false, cells };
     });
@@ -7259,15 +7272,22 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
     // The V2 document is the sole owner of lossless raster bytes. Keep the
     // Drawing compatibility projection structural-only so one bitmap is not
     // stored twice (and counted twice against the project size ceiling).
-    const compatibilityDrawingData = structuredClone(drawingData);
-    compatibilityDrawingData.layers.forEach((layer) => {
-      layer.timelineFrames.forEach((frame) => {
-        frame.bitmap = null;
-        frame.tweenEndBitmap = null;
-      });
-    });
-    return { ...base, title: projectTitle, document, compatibility: { drawingData: compatibilityDrawingData, stickByCell: structuredClone(stickByCellRef.current), symbolInstancesByCell: structuredClone(symbolInstancesByCellRef.current) } };
-  }, [activeUnifiedProject, projectTitle]);
+    const compatibilityDrawingData: DrawingProjectData = {
+      ...drawingData,
+      layers: drawingData.layers.map(layer => ({
+        ...layer,
+        timelineFrames: layer.timelineFrames.map(frame => ({
+          ...frame,
+          bitmap: null,
+          tweenEndBitmap: null,
+          motionTween: frame.motionTween ? { ...frame.motionTween, spriteBitmap: null } : null,
+          soundAttachment: frame.soundAttachment ? { ...frame.soundAttachment, audioDataUrl: null } : null,
+          textObjects: structuredClone(frame.textObjects),
+        })),
+      })),
+    };
+    return { ...base, title: projectTitle, auxiliary: { drawingAiMemory: structuredClone(projectAiMemory), stickAiCreationLatch: structuredClone(base.auxiliary?.stickAiCreationLatch ?? null) }, document, compatibility: { ...base.compatibility, drawingData: compatibilityDrawingData, stickByCell: structuredClone(stickByCellRef.current), symbolInstancesByCell: structuredClone(symbolInstancesByCellRef.current) } };
+  }, [activeUnifiedProject, projectAiMemory, projectTitle]);
 
   const handleUndo = useCallback(() => {
     if (isTimelinePlayingRef.current || isApplyingHistoryRef.current || !canUndoHistory) {
@@ -8088,14 +8108,24 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
   const saveProject = useCallback(async () => {
     if (!activeUnifiedProject) { await persistProject(); return; }
     if (isTimelinePlayingRef.current || saveInFlightRef.current) return;
+    const capturedWorkspaceInstanceId = workspaceInstanceIdRef.current;
     saveInFlightRef.current = true; setSaveState("saving");
     try {
       commitCurrentFrameSnapshotWithoutHistory("unified:save");
-      const candidate = buildUnifiedProjectSnapshot(createPersistedProjectSnapshot());
+      const candidate = buildUnifiedProjectSnapshot(createPersistedProjectSnapshot({ preserveBitmapReferences: true }));
       if (!candidate) throw new Error("invalid_record");
+      const capturedGeneration = documentGenerationRef.current;
       const saved = await saveUnifiedProjectV2(candidate);
-      setActiveUnifiedProject(saved); setProjectId(saved.projectId); setProjectTitle(saved.title); setSaveState("saved"); showSaveNotification(saved.title);
-    } catch (error) { setSaveState(error instanceof Error && error.message === "project_too_large" ? "too-large" : "failed"); }
+      if (!workspaceMountedRef.current || workspaceInstanceIdRef.current !== capturedWorkspaceInstanceId) return;
+      setActiveUnifiedProject(saved); setProjectId(saved.projectId); setProjectTitle(saved.title);
+      setProjectAiMemory(bindDrawingAiProjectMemoryToProject(saved.auxiliary?.drawingAiMemory as DrawingAiProjectMemory | null, saved.projectId));
+      if (documentGenerationRef.current === capturedGeneration) { setSaveState("saved"); showSaveNotification(saved.title); }
+      else setSaveState("unsaved");
+    } catch (error) {
+      if (workspaceMountedRef.current && workspaceInstanceIdRef.current === capturedWorkspaceInstanceId) {
+        setSaveState(error instanceof Error && ["project_too_large", "collection_too_large", "project_limit_reached"].includes(error.message) ? "too-large" : "failed");
+      }
+    }
     finally { saveInFlightRef.current = false; }
   }, [activeUnifiedProject, buildUnifiedProjectSnapshot, commitCurrentFrameSnapshotWithoutHistory, createPersistedProjectSnapshot, persistProject, showSaveNotification]);
 
@@ -8407,7 +8437,7 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
   );
 
   const handleSaveAs = useCallback(async () => {
-    if (isTimelinePlayingRef.current) {
+    if (isTimelinePlayingRef.current || saveInFlightRef.current) {
       return;
     }
 
@@ -8422,14 +8452,25 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
     }
 
     if (activeUnifiedProject) {
+      const capturedWorkspaceInstanceId = workspaceInstanceIdRef.current;
       commitCurrentFrameSnapshotWithoutHistory("unified:save-as");
-      const candidate = buildUnifiedProjectSnapshot(createPersistedProjectSnapshot());
+      const candidate = buildUnifiedProjectSnapshot(createPersistedProjectSnapshot({ preserveBitmapReferences: true }));
       if (!candidate) return;
+      saveInFlightRef.current = true;
       try {
         setSaveState("saving");
+        const capturedGeneration = documentGenerationRef.current;
         const saved = await saveUnifiedProjectAsV2(candidate, trimmedProjectName);
-        setActiveUnifiedProject(saved); setProjectId(saved.projectId); setProjectTitle(saved.title); setSaveState("saved"); showSaveNotification(saved.title);
-      } catch { setSaveState("failed"); }
+        if (!workspaceMountedRef.current || workspaceInstanceIdRef.current !== capturedWorkspaceInstanceId) return;
+        setActiveUnifiedProject(saved); setProjectId(saved.projectId); setProjectTitle(saved.title);
+        setProjectAiMemory(bindDrawingAiProjectMemoryToProject(saved.auxiliary?.drawingAiMemory as DrawingAiProjectMemory | null, saved.projectId));
+        if (documentGenerationRef.current === capturedGeneration) { setSaveState("saved"); showSaveNotification(saved.title); }
+        else setSaveState("unsaved");
+      } catch (error) {
+        if (workspaceMountedRef.current && workspaceInstanceIdRef.current === capturedWorkspaceInstanceId) {
+          setSaveState(error instanceof Error && ["project_too_large", "collection_too_large", "project_limit_reached"].includes(error.message) ? "too-large" : "failed");
+        }
+      } finally { saveInFlightRef.current = false; }
       return;
     }
     await persistProject({
@@ -8962,12 +9003,41 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
         overflow: "hidden",
       }}
     >
+      {activeUnifiedProject && (
+        <style>{`
+          @media (max-width: 640px) {
+            [data-unified-workspace-area="true"] > div:has([data-workspace-stage-guide="camera"]) {
+              flex-direction: column;
+              overflow-y: auto;
+            }
+            [data-unified-workspace-area="true"] > div:has([data-workspace-stage-guide="camera"]) > div:first-child {
+              flex: 1 0 220px !important;
+              min-height: 220px;
+            }
+            [data-unified-workspace-area="true"] > div:has([data-workspace-stage-guide="camera"]) > div:last-child {
+              width: 100% !important;
+              max-width: 100% !important;
+              min-height: 200px;
+              flex: 0 0 200px !important;
+              border-left: 0 !important;
+              border-top: 1px solid rgba(255,255,255,0.10);
+            }
+            [data-unified-workspace-area="true"] + div {
+              width: 100% !important;
+              justify-content: flex-start !important;
+              overflow-x: auto;
+            }
+          }
+        `}</style>
+      )}
       <DrawingTopBar
         projectTitle={projectTitle}
         onSave={saveProject}
         onSaveAs={handleSaveAs}
         saveState={saveState}
-        isLegacyProject={initialProject?.kind === "legacy" && activeStorageRevisionRef.current === null}
+        isLegacyProject={activeUnifiedProject
+          ? activeUnifiedProject.provenance?.kind === "legacy-adoption" && activeUnifiedProject.provenance.adoptedAt === null
+          : initialProject?.kind === "legacy" && activeStorageRevisionRef.current === null}
         onUndo={handleUndo}
         onRedo={handleRedo}
         canUndo={!isTimelinePlaying && canUndoHistory}
@@ -9031,7 +9101,11 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
         onResizeTimelineSpan={resizeTimelineSpan}
         onSoundOptionDrop={attachSoundOptionToFrame}
       />
-      <div ref={workspaceAreaRef} style={{ flex: 1, minHeight: 0, position: "relative", display: "flex" }}>
+      <div
+        ref={workspaceAreaRef}
+        data-unified-workspace-area={activeUnifiedProject ? "true" : undefined}
+        style={{ flex: 1, minHeight: 0, position: "relative", display: "flex" }}
+      >
         {isTimelinePlaying && (
           <div
             aria-hidden="true"

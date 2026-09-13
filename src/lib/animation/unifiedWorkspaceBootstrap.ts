@@ -7,6 +7,8 @@ import { sanitizeDrawingAiProjectMemory } from "../ai/drawingAiContract.ts";
 import type { UnifiedAnimationProjectV2 } from "./unifiedAnimationContractV2.ts";
 import { createNativeUnifiedProjectV2 } from "./unifiedWorkspaceFactoryV2.ts";
 import { readUnifiedProjectV2 } from "./unifiedProjectStorageV2.ts";
+import { assertUnifiedAnimationProjectV2 } from "./unifiedAnimationContractV2.ts";
+import { upgradeUnifiedProjectV1ToV2 } from "./unifiedAnimationMigrationV2.ts";
 
 export type WorkspaceCandidate = {
   id: string;
@@ -27,22 +29,32 @@ export const createUntitledWorkspace = async (): Promise<WorkspaceCandidate> => 
 export const prepareCollectionWorkspace = async (reader: ProjectSourceReader, entry: ProjectCollectionEntry): Promise<WorkspaceCandidate> => {
   if (entry.sourceKind === "unified-v2") {
     const project = await readUnifiedProjectV2(entry.sourceId);
-    return { id: project.projectId, title: project.title, document: project.document as unknown as UnifiedAnimationDocumentV1, digest: JSON.stringify(project.document), migration: null, editor: { kind: "unified", project } };
+    return {
+      id: project.projectId,
+      title: project.title,
+      document: project.document as unknown as UnifiedAnimationDocumentV1,
+      // Canonical storage has already verified the head/version digest. Never
+      // expand typed raster arrays into JSON merely to create an unused mount token.
+      digest: entry.candidateDigest ?? `${project.projectId}:${project.revision}`,
+      migration: null,
+      editor: { kind: "unified", project },
+    };
   }
   const { candidate, source } = await readCollectionCandidate(reader, entry);
-  let editor: WorkspaceCandidate["editor"];
+  let drawingData = null;
   if (source.sourceKind === "drawing-v2") {
-    const project = await hydrateV2Project(source.head, source.record, sanitizeDrawingAiProjectMemory(source.aiMemory) ?? null);
-    editor = { kind: "drawing", project: { kind: "v2", project, head: source.head, record: source.record, legacyRecordDigest: null } };
+    drawingData = (await hydrateV2Project(source.head, source.record, sanitizeDrawingAiProjectMemory(source.aiMemory) ?? null)).data;
   } else if (source.sourceKind === "drawing-v1") {
-    editor = { kind: "drawing", project: { kind: "legacy", project: structuredClone(source.project) as StoredDrawingProject, head: null, record: null, legacyRecordDigest: candidate.project.provenance.sourceRecordDigest } };
-  } else {
-    editor = { kind: "stick", project: structuredClone(source.project) as StickSavedProjectRecordV1 };
+    drawingData = (structuredClone(source.project) as StoredDrawingProject).data;
   }
+  const project = assertUnifiedAnimationProjectV2(await upgradeUnifiedProjectV1ToV2(candidate, {
+    drawingData,
+    ...(source.sourceKind === "unified-v1" ? { sourceKindOverride: "unified-v1" as const } : {}),
+  }));
   // Hydration can yield to user/storage changes. Verify the source again before
   // the bootstrap's synchronous generation check publishes one complete result.
   await readCollectionCandidate(reader, entry);
-  return { id: candidate.project.projectId, title: candidate.project.title, digest: candidate.project.candidateDigest, document: candidate.project.document, migration: candidate, editor };
+  return { id: project.projectId, title: project.title, digest: candidate.project.candidateDigest, document: candidate.project.document, migration: candidate, editor: { kind: "unified", project } };
 };
 
 export class WorkspaceBootstrap {
@@ -61,7 +73,7 @@ export class WorkspaceBootstrap {
       return { status: "opened", root };
     } catch (error) {
       if (ticket !== this.ticket) return { status: "stale" };
-      const allowed = ["source_changed", "duplicate_identity", "invalid_record", "unsupported_version", "asset_missing", "asset_digest_mismatch", "storage_read_failed", "project_too_large", "source_digest_mismatch", "invalid_cell_owner", "source_space_inconsistent"];
+      const allowed = ["source_changed", "duplicate_identity", "invalid_record", "unsupported_version", "asset_missing", "asset_digest_mismatch", "storage_read_failed", "project_too_large", "source_digest_mismatch", "invalid_cell_owner", "source_space_inconsistent", "decode_failed", "version_mismatch", "readback_failed"];
       const code = error instanceof Error && allowed.includes(error.message) ? error.message : "invalid_record";
       return { status: "failed", code };
     }

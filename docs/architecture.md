@@ -1,9 +1,21 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-13 published/integrated SPEC-0006 Phase 5 at GIT-057 `a759ae8afbb67e8fb723983851ae36947fd97f17`; GIT-058 records publication at `41983b0c88e1994675a4901d5814b3d972ad46b4`, and D-0067 records completed review-copy cleanup. This exact 11-path records package is terminal GIT-059; its SHA/status must be read from the canonical commit containing D-0067 and Git refs. No runtime architecture changed in GIT-058, D-0067, or GIT-059.
+Last traced: 2026-09-14 against the exact Arthur-accepted SPEC-0006 Phase 6 result from GIT-059 base/HEAD `62feafc220c35eb1203dc4f19820e533a54002e1`; D-0068 records the 18-path implementation as technically Verified pending GIT-060 publication.
 
-## Current implementation — Phase 5 published, recorded, and cleaned up (D-0065–D-0067)
+## Current implementation — Phase 6 accepted, publication pending (D-0068)
+
+Every supported local source now enters one neutral V2 editor path. `createBrowserProjectSourceReader` lists native unified V2 heads without creating/upgrading storage and reads Drawing V1/V2, Stick V1/V2 and strict unified V1 through their existing read authorities. `listProjectCollection` validates candidates, orders them deterministically, rejects conflicting same-identity records, and collapses only an exact source-kind/source-ID/source-digest pair already represented by an adopted canonical head. The Projects screen discloses whether an original local source is retained.
+
+`prepareCollectionWorkspace` directly verifies native V2 heads or asynchronously upgrades a legacy/V1 candidate, including Drawing bitmap/tween/sound/text data, Stick rigs, dormant blank-owner payloads, source identity maps, provenance and project-bound AI auxiliary state. It rereads the source after hydration before `WorkspaceBootstrap` may publish the generation. `AnimationWorkspace` creates or hydrates one Drawing compatibility projection only as an adapter into the accepted neutral root; every supported source mounts `DrawingWorkspace` with the V2 project as authoritative persistence state.
+
+Explicit Save is the sole write door. Pending legacy adoption allocates a fresh canonical project ID once, stamps the exact source provenance, rebinds Drawing AI memory and the Stick latch, and leaves the original source store byte-identical. Save As creates a distinct copy identity bound to its parent digest/revision. `unifiedProjectStorageV2` replaces typed arrays and image/audio data URLs with content-addressed assets, stages immutable versions, verifies assets and a full hydrated readback, then compare-and-swap publishes the head. Reads try the active head first and fall back through retained earlier versions, preserving a last good project when the newest version is corrupt. Project/collection size, record count, duplicate identity, stale revision/generation/instance and all named fault boundaries fail before replacing the editable root or published head.
+
+DrawingWorkspace preserves large typed bitmap references through capture/serialization, stores only structural compatibility data beside the V2 document, retains raster/tween/audio/text/rig/symbol identity across Save/Open, and rejects stale Save completion from marking newer edits saved. Native and adopted V2 use the same repository; there is no V2-to-Drawing/Stick legacy write projection.
+
+Phase 6 changes no legacy source schema or writer, AI model/prompt/provider/API/task behavior, motion/video/tracking, export, dependency, configuration, cloud/social Share, auth/billing or deployment system. The current review listener has expired after Arthur's later accepted review of identical restarted bytes; the worktree and proof remain preserved for GIT-060 publication and later D-0054 cleanup. Phase 7 still owns duplicate-owner retirement and whole-spec acceptance.
+
+## Historical current implementation — Phase 5 published, recorded, and cleaned up (D-0065–D-0067)
 
 Phase 5 keeps the accepted neutral V2 root as the sole authored-state, command, history, render, and repository owner while completing the current Drawing/Stick adapters and the four shared tabs. Project catalogs now own reusable Drawing bitmap, structured Stick, and Mixed definitions; instances carry independent transforms and reference immutable digest-bound definitions. Structured Stick geometry is transformed as joints/segments with constant radii/thickness, while a Mixed definition stores its Drawing portion once as a hash-bound PNG.
 
@@ -13,7 +25,7 @@ Symbol selection remains owned only by ordinary Select interactions. Empty-canva
 
 Unified onion masks resolve raster, text, editable rig, Drawing symbol, Stick symbol, and Mixed symbol from one owner with purple previous/green next tint, copied-owner dedupe, holds, and blank barriers. Shared integer-center bitmap offsets preserve Brush pixels across active-layer commit, timeline scrub, Save/reopen, and onion composition. The compact unified timeline stacks controls over full-width lanes and reserves panel height so ordinary cell pointer clicks are not obscured.
 
-Phase 6 still owns exhaustive legacy-source adoption/recovery and persistence fault proof. Phase 7 still owns duplicate-owner retirement and whole-spec acceptance. Phase 5's record publication and D-0054 review-copy cleanup are complete; its proof is preserved outside the removed review worktree. No AI/provider/prompt/motion/video/tracking/API, dependency, export, cloud/social Share, Creator Save, new rig feature, or automatic attachment/following behavior changed.
+Accepted Phase 6 now completes exhaustive legacy-source adoption/recovery and persistence fault proof. Phase 7 still owns duplicate-owner retirement and whole-spec acceptance. Phase 5's record publication and D-0054 review-copy cleanup are complete; its proof is preserved outside the removed review worktree. No AI/provider/prompt/motion/video/tracking/API, dependency, export, cloud/social Share, Creator Save, new rig feature, or automatic attachment/following behavior changed.
 
 ## Historical current implementation — corrected Phase 4 accepted (D-0063)
 
@@ -25,7 +37,7 @@ Accepted V2 uses neutral layers whose owner cells contain ordered raster, text, 
 
 Neutral V2 layers contain cells owning ordered raster/text/structured-rig/bitmap-symbol items. IDs/selection and Drawing source transforms belong to items; holds/clipboard/onion resolve the complete mixed owner. One command/history root receives controlled item-adapter commits and one renderer emits every item in order. The minimal V2 repository protects complete-root Save/Save As/Open.
 
-Stick Add Limb and Select/Move Joint map through the inverse SVG screen transform, retain gesture ownership against the pan overlay, preview at the pointer, commit once on release, and cancel partial gestures safely. Complete project-owned catalog UI subsequently landed in accepted Phase 5; exhaustive all-source adoption/recovery remains Phase 6; duplicate-owner retirement/full acceptance remains Phase 7.
+Stick Add Limb and Select/Move Joint map through the inverse SVG screen transform, retain gesture ownership against the pan overlay, preview at the pointer, commit once on release, and cancel partial gestures safely. Complete project-owned catalog UI subsequently landed in accepted Phase 5; exhaustive all-source adoption/recovery landed in accepted Phase 6; duplicate-owner retirement/full acceptance remains Phase 7.
 
 No AI, provider, prompt, motion, video/tracking, cloud/social Share, export, or new manual capability is part of Phase 4. GIT-056 publication/integration and D-0054 accepted-copy cleanup are complete.
 
@@ -157,7 +169,7 @@ Home New/Open → source reader / V2 factory / repository
   → current tools/panels/project catalog → full V2 Save/Save As/recovery
 ```
 
-No layer has a content kind. Drawing raster/text/symbol and structured Stick items coexist in the same layer/frame. Current ordinary runtime has reached this neutral-root/current-tools target through accepted Phases 4–5; exhaustive source adoption/recovery and duplicate-owner retirement remain Phase 6–7 work. AI code/envelopes/providers/prompts/motion remain protected, with no new AI/manual future-spec capability.
+No layer has a content kind. Drawing raster/text/symbol and structured Stick items coexist in the same layer/frame. Current ordinary runtime has reached the neutral-root/current-tools/all-source-adoption target through accepted Phases 4–6; duplicate-owner retirement remains Phase 7 work. AI code/envelopes/providers/prompts/motion remain protected, with no new AI/manual future-spec capability.
 
 ## Protected Architectural Invariants
 

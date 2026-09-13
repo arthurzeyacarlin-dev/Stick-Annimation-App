@@ -1,7 +1,7 @@
 # Project Manager Context
 
 Status: canonical owner and collaboration context
-Last updated: 2026-09-13
+Last updated: 2026-09-14
 
 ## Ownership, Sponsorship, and PM Collaboration
 
@@ -33,7 +33,8 @@ The latest product direction, updated through 2026-09-11, is:
 - The old eight-phase SPEC-0005 design remains historical reference, not future dispatch authority. Do not reuse rejected implementations, call their motion accepted, or automatically carry the unimplemented contract into a new spec.
 - Future Terra economics should prefer compact important-pose/timing plans, local in-betweens, safe $0 recipes first, at most one later bounded pre-Apply repair, measured private-dashboard cost, and monthly budgets/credits rather than unlimited use. Exact provider pricing/policy is a later same-day official-source gate.
 - SPEC-0006 corrected Phase 4 is human-accepted under D-0063 and Verified/published/integrated through GIT-056 `9c971fa4f7ea0e636ecc6957755552f678f344df`. The accepted 26-path manifest SHA-256 is `9d2d18871981db2e499c689723730ada4690dd5cb94ab620a038e45557f298de`; no AI/provider or later-phase feature is included.
-- Arthur explicitly accepted SPEC-0006 Phase 5 as acceptable. D-0065 records the exact 17-path PASS/VALID technical result at manifest SHA-256 `6a1c65c967f8f1d87a27e3834677bea84381f0c2577125bebfead6ca77308b6d`; D-0066/GIT-057 records its exact 31-path publication at `a759ae8afbb67e8fb723983851ae36947fd97f17`; GIT-058 records it in exact 13-path commit `41983b0c88e1994675a4901d5814b3d972ad46b4`; and D-0067 records completed D-0054 cleanup with clean pre-GIT-059 local/live GitHub `0/0` synchronization. This exact 11-path D-0067 package is terminal GIT-059; its SHA/status must be read from the canonical commit containing D-0067 and Git refs. Phase 6 remains unauthorized and not started.
+- Arthur explicitly accepted SPEC-0006 Phase 5 as acceptable. D-0065 records its exact 17-path PASS/VALID technical result; D-0066/GIT-057 published it at `a759ae8afbb67e8fb723983851ae36947fd97f17`; GIT-058 recorded it; D-0067 recorded completed D-0054 cleanup; and GIT-059 is exact synchronized commit `62feafc220c35eb1203dc4f19820e533a54002e1`. Phase 6 was unauthorized at that historical closeout and was later separately authorized and accepted as recorded in the next item.
+- GIT-059 is exact synchronized canonical commit `62feafc220c35eb1203dc4f19820e533a54002e1`. Arthur subsequently authorized and accepted SPEC-0006 Phase 6 after reviewing the identical restarted app-copy bytes on 2026-09-14. D-0068 records the exact 18-path PASS/VALID result from GIT-059 with immutable manifest SHA-256 `5883ea735bd741b2f14e45d2fa84669ea3bb78ad5ed23693011e0280e4070902`. All 18 source and 13 evidence bindings freshly match; the historical manifest PID expired after review and is not rewritten. GIT-060 publication is next; Phase 7 remains unauthorized.
 
 This direction supersedes older prose that framed AI only as a passive helper or described the workspaces as complete.
 
@@ -71,7 +72,17 @@ Arthur requires only one active review app copy for the current milestone. This 
 - Never remove canonical main or the active Project Manager worktree. Never delete a worktree still owned by an active executor/architect. Stop if identity, ownership, unique-byte preservation, or publication is uncertain.
 - The PM coordinates sequential handoff/cleanup under Arthur's authority; the authorized cleanup task performs removal. Spec Executors still cannot publish, edit the control plane, or mutate another worktree. This rule grants no implementation, Git publication, provider, or deployment authority.
 
-## Current SPEC-0006 result — Phase 5 published, recorded, and cleaned up
+## Current SPEC-0006 result — Phase 6 accepted and technically Verified
+
+Arthur accepted the identical Phase 6 app-copy bytes after a restart on the same loopback port. The stopped Spec Executor transferred `/Users/arthurcarlin/.codex/worktrees/b70c/stick-animation-app` sequentially to the Control Plane Architect at detached GIT-059 base/HEAD `62feafc220c35eb1203dc4f19820e533a54002e1`, exact 18-path technical dirty set, and empty index. The immutable manifest is `output/spec-0006/phase-6/proof-manifest.json`, 43,794 bytes, SHA-256 `5883ea735bd741b2f14e45d2fa84669ea3bb78ad5ed23693011e0280e4070902`, PASS/VALID with 18 source and 13 evidence bindings.
+
+The accepted result opens Drawing V1/V2, Stick V1/V2, unified V1 and native unified V2 through the same neutral V2 editor. First legacy save allocates one canonical identity and preserves source provenance; Save As rebinds project-scoped auxiliary state; canonical collection cards dedupe only exact provenance pairs and disclose that original source data is retained. Explicit Save uses content-addressed assets, immutable versions, readback verification and compare-and-swap head publication; Open falls back to the latest valid retained version when the active version is corrupt.
+
+Technical proof passed 1,117 deterministic assertions, 1,000 repeated cases, 48 history operations, 16 named recovery faults, ten adoption flows, 19 browser operations and four screenshots across desktop/compact profiles. Two 60,268,104-byte raster assets, audio, catalogs and auxiliary state survived save/reopen. TypeScript, focused lint, unchanged full-lint changed-line baseline, scoped build, inherited Phase 1/4A/4B/5/Drawing/Stick/AI validators, diff/scope/index checks and the pre-expiry strict manifest validator passed; zero source-store writes and zero real API/external/AI requests were recorded.
+
+The manifest's recorded listener PID `23344` later expired. Arthur reviewed identical bytes after the same copy was restarted, and the current port now has no listener. D-0068 treats that as operational lifecycle evidence rather than a byte-integrity failure: CPA independently revalidated all 31 bound files and did not rewrite the immutable manifest. GIT-060 publication/integration is next; preserve `/b70c/` and its proof until synchronization and later D-0054 cleanup. Phase 7 is not authorized.
+
+## Historical SPEC-0006 result — Phase 5 published, recorded, and cleaned up
 
 Arthur accepted the Phase 5 app copy after its final gesture-durability correction. GIT-057 published the accepted `/5a2c/` package as exact commit `a759ae8afbb67e8fb723983851ae36947fd97f17`, parent `740eb70d2c713bf6bf8bd08123a0ed5eef3bc34d`, message `Implement SPEC-0006 Phase 5 tools and library`, with exactly 17 accepted technical paths plus 14 reviewed control-plane/tree paths. The immutable manifest remains `output/spec-0006/phase-5/proof-manifest.json`, SHA-256 `6a1c65c967f8f1d87a27e3834677bea84381f0c2577125bebfead6ca77308b6d`, with 17 source and 77 evidence bindings.
 
@@ -114,6 +125,6 @@ These are not blockers for preserving the repository, but they must be resolved 
 6. What manual stick-figure editing features are required for the first usable release?
 7. What user data may be sent to model/search providers, and how long is memory retained?
 8. What minimum shared stick state/executor and corrective manual controls should precede the first AI-led vertical slice, versus the broader manual editor that can follow?
-9. SPEC-0006 Phases 1–5 are Verified, published, integrated, recorded through GIT-058 `41983b0c88e1994675a4901d5814b3d972ad46b4`, and cleaned up under D-0067. This exact D-0067 package is terminal GIT-059; its SHA/status comes from the canonical commit containing D-0067 and Git refs, and no follow-on records closeout is required. Phase 6 remains unauthorized and requires Arthur's separate explicit authority.
+9. SPEC-0006 Phases 1–5 are complete through GIT-059 `62feafc220c35eb1203dc4f19820e533a54002e1`; Phase 6 is Arthur-accepted and technically Verified under D-0068 pending GIT-060 publication. Phase 7 remains unauthorized and requires a later explicit decision after Phase 6 publication/integration.
 
 Pending decisions and their status live in `DECISIONS.md`.

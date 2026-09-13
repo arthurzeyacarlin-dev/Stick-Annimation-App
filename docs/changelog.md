@@ -5,6 +5,15 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-14 — Accept SPEC-0006 Phase 6 adoption/recovery and complete CPA propagation (D-0068)
+
+- Recorded Arthur's acceptance of the identical Phase 6 app-copy bytes after the same review copy was restarted on port 56666. The stopped executor transferred `/b70c/` sequentially to the Control Plane Architect at exact GIT-059 base/HEAD `62feafc220c35eb1203dc4f19820e533a54002e1`, exact 18-path technical set and empty index.
+- Preserved immutable manifest `output/spec-0006/phase-6/proof-manifest.json`, 43,794 bytes, SHA-256 `5883ea735bd741b2f14e45d2fa84669ea3bb78ad5ed23693011e0280e4070902`, PASS/VALID with 18 source and 13 evidence bindings. CPA freshly verified every bound size/hash and did not rewrite the manifest.
+- Completed common-editor Open for Drawing V1/V2, Stick V1/V2, unified V1 and native unified V2; exact-provenance dedupe; source-safe first-save adoption; Save As identity/auxiliary rebinding; content-addressed asset/version/head storage; verified readback/CAS publication; and last-good recovery without legacy source writes or deletion.
+- Accepted proof passed 1,117 deterministic assertions, 1,000 cases, 48 history operations, 16 fault families, 22/22 recorded commands, ten adoption flows plus native Save/Save As/reopen in 19 browser operations, four screenshots, realistic two-raster/audio/catalog retention, performance/memory bounds and zero source writes/egress/API/AI changes/errors.
+- Recorded the historical listener lifecycle precisely: strict validation passed while PID `23344` was live; that PID later expired; Arthur's accepted later review used identical restarted bytes; port 56666 currently has no listener. This operational expiry does not change any bound accepted byte and is not misreported as a current live-server pass.
+- Updated only canonical Phase 6 records and the generated project tree. No accepted technical/evidence byte, `AGENTS.md`, package/configuration, legacy source schema/writer, AI/provider/prompt/API/motion/video/tracking, export, auth/cloud/billing, deployment, other worktree or Git index/ref/history changed. GIT-060 publication/integration and later D-0054 cleanup remain separate; Phase 7 is unauthorized.
+
 ### 2026-09-13 — Terminal GIT-059 package for GIT-058/D-0054 cleanup closeout (D-0067)
 
 - Independently verified GIT-058 as exact 13-path records commit `41983b0c88e1994675a4901d5814b3d972ad46b4`, parent GIT-057 `a759ae8afbb67e8fb723983851ae36947fd97f17`, message `docs: record phase 5 publication closeout`; local `HEAD`/`main`/`origin/main` and live GitHub `main` match at clean `0/0`.

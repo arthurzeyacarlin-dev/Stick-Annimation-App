@@ -1,8 +1,11 @@
 import type {
   UnifiedCellContentV2,
+  UnifiedRasterBitmapV2,
   UnifiedSymbolInstanceItemV2,
   UnifiedSymbolSourceCategoryV2,
 } from "./unifiedAnimationContentV2";
+import type { StickAiCreationLatchV1 } from "../stickfigure/stickProjectHistory";
+import { sanitizeDrawingAiProjectMemory } from "../ai/drawingAiContract.ts";
 
 // Optional extension: absence means an existing raster-only definition. Never
 // infer a rig from a category label or thumbnail. New rig definitions carry v1.
@@ -78,17 +81,51 @@ export type UnifiedAnimationProjectV2 = {
   createdAt: string;
   updatedAt: string;
   revision: number;
+  provenance?:
+    | { kind: "native" }
+    | {
+        kind: "legacy-adoption";
+        migrationVersion: 2;
+        sourceKind: "drawing-v1" | "drawing-v2" | "stick-v1" | "stick-v2" | "unified-v1";
+        sourceProjectId: string;
+        sourceRevision: number;
+        sourceRecordDigest: string;
+        sourceCandidateDigest: string;
+        adoptedAt: string | null;
+      }
+    | {
+        kind: "copy";
+        parentProjectId: string;
+        parentRevision: number;
+        parentProjectDigest: string;
+      };
+  auxiliary?: {
+    drawingAiMemory: unknown | null;
+    stickAiCreationLatch: StickAiCreationLatchV1 | null;
+  };
   document: UnifiedAnimationDocumentV2;
   compatibility?: {
     drawingData: unknown;
     stickByCell: Record<string, import("../../components/workspace/stickfigure/types").StickFigureFrameContent>;
     symbolInstancesByCell?: Record<string, UnifiedSymbolInstanceItemV2[]>;
+    sourceIdentityByCell?: Record<string, { sourceLayerId: string; sourceCellId: string; sourceStateId: number }>;
   };
 };
 
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 const sha256 = /^sha256:[0-9a-f]{64}$/;
+const bareSha256 = /^[0-9a-f]{64}$/;
 const finite = (value: number) => Number.isFinite(value) && !Object.is(value, -0);
+const canonicalText = (value: unknown, maximum: number, allowEmpty = true) =>
+  typeof value === "string" && value.normalize("NFC") === value && new TextEncoder().encode(value).byteLength <= maximum && (allowEmpty || value.trim().length > 0);
+const validTimestamp = (value: unknown) => typeof value === "string" && Number.isFinite(Date.parse(value)) && new Date(value).toISOString() === value;
+
+const assertRasterBitmap = (bitmap: UnifiedRasterBitmapV2 | null | undefined) => {
+  if (bitmap == null) return;
+  if (!Number.isInteger(bitmap.width) || bitmap.width < 1 || !Number.isInteger(bitmap.height) || bitmap.height < 1 ||
+    !(bitmap.data instanceof Uint8ClampedArray) || bitmap.data.byteLength !== bitmap.width * bitmap.height * 4 || bitmap.data.byteLength > 268_435_456) throw new Error("invalid_record");
+  for (const value of [bitmap.x ?? 0, bitmap.y ?? 0, bitmap.stageWidth ?? bitmap.width, bitmap.stageHeight ?? bitmap.height]) if (!finite(value)) throw new Error("invalid_record");
+};
 
 export function assertStructuredSymbolPayloadV2(definition: Pick<UnifiedBitmapSymbolDefinitionV2, "sourceCategory" | "structuredPayload">) {
   if (!Object.prototype.hasOwnProperty.call(definition, "structuredPayload")) return;
@@ -175,6 +212,7 @@ export function assertUnifiedAnimationDocumentV2(document: UnifiedAnimationDocum
     layerIds.add(layer.layerId);
     if (layer.cells.length < 1 || layer.cells.length > 10_000) throw new Error("invalid_record");
     const cellIds = new Set(layer.cells.map(cell => cell.cellId));
+    if (cellIds.size !== layer.cells.length) throw new Error("invalid_record");
     for (const [index, cell] of layer.cells.entries()) {
       if (!uuid.test(cell.cellId)) throw new Error("invalid_record");
       if (cell.cellType === "empty") { if (cell.ownerCellId !== null || cell.content !== null) throw new Error("invalid_cell_owner"); continue; }
@@ -182,10 +220,22 @@ export function assertUnifiedAnimationDocumentV2(document: UnifiedAnimationDocum
       if (ownerIndex < 0 || ownerIndex > index) throw new Error("invalid_cell_owner");
       if (cell.ownerCellId === cell.cellId) {
         if (!cell.content) throw new Error("invalid_cell_owner");
+        if (cell.cellType === "blank-keyframe" && cell.content.items.length !== 0) throw new Error("invalid_record");
         for (const item of cell.content.items) {
-          if (!uuid.test(item.itemId) || itemIds.has(`${layer.layerId}:${cell.cellId}:${item.itemId}`)) throw new Error("invalid_record");
-          itemIds.add(`${layer.layerId}:${cell.cellId}:${item.itemId}`);
+          if (!uuid.test(item.itemId) || itemIds.has(item.itemId)) throw new Error("invalid_record");
+          itemIds.add(item.itemId);
           if (item.kind === "drawing-raster/v1") {
+            assertRasterBitmap(item.bitmap);
+            assertRasterBitmap(item.tweenEndBitmap);
+            if (item.motionTween) {
+              if (item.motionTween.mode !== "position" || !Number.isInteger(item.motionTween.stageWidth) || item.motionTween.stageWidth < 1 ||
+                !Number.isInteger(item.motionTween.stageHeight) || item.motionTween.stageHeight < 1) throw new Error("invalid_record");
+              assertRasterBitmap(item.motionTween.spriteBitmap);
+              for (const origin of [item.motionTween.startOrigin, item.motionTween.endOrigin]) if (origin && (!finite(origin.x) || !finite(origin.y))) throw new Error("invalid_record");
+            }
+            if (item.sourceTransform && (item.sourceTransform.targetWidth !== 1920 || item.sourceTransform.targetHeight !== 1080 ||
+              !finite(item.sourceTransform.scale) || item.sourceTransform.scale <= 0 || !finite(item.sourceTransform.offsetX) || !finite(item.sourceTransform.offsetY) ||
+              !Number.isInteger(item.sourceTransform.sourceWidth) || item.sourceTransform.sourceWidth < 1 || !Number.isInteger(item.sourceTransform.sourceHeight) || item.sourceTransform.sourceHeight < 1)) throw new Error("invalid_record");
             for (const stroke of item.strokes) for (const point of stroke.points) if (!finite(point.x) || !finite(point.y)) throw new Error("invalid_record");
           } else if (item.kind === "drawing-text/v1") {
             if (!finite(item.x) || !finite(item.y) || !finite(item.fontSize)) throw new Error("invalid_record");
@@ -208,6 +258,12 @@ export function assertUnifiedAnimationDocumentV2(document: UnifiedAnimationDocum
           } else throw new Error("invalid_record");
         }
       } else if (cell.content !== null || !cellIds.has(cell.ownerCellId!)) throw new Error("invalid_cell_owner");
+      if (cell.content?.soundAttachment) {
+        const sound = cell.content.soundAttachment;
+        if (!canonicalText(sound.id, 4096, false) || !canonicalText(sound.title, 4096) || !canonicalText(sound.description, 16_384) ||
+          sound.sourceTask !== "generate-sounds" || !validTimestamp(sound.attachedAt) ||
+          (sound.audioDataUrl != null && (typeof sound.audioDataUrl !== "string" || !sound.audioDataUrl.startsWith("data:audio/")))) throw new Error("invalid_record");
+      }
     }
   }
   if (symbolDigests.size !== document.catalogs.symbols.length) throw new Error("invalid_record");
@@ -217,6 +273,22 @@ export function assertUnifiedAnimationDocumentV2(document: UnifiedAnimationDocum
 
 export function assertUnifiedAnimationProjectV2(project: UnifiedAnimationProjectV2) {
   if (project.kind !== "diamond-animation-project" || project.schemaVersion !== 2 || project.projectId !== project.document.projectId || !uuid.test(project.projectId)) throw new Error("invalid_record");
+  if (!canonicalText(project.title, 512, false) || !validTimestamp(project.createdAt) || !validTimestamp(project.updatedAt) || !Number.isSafeInteger(project.revision) || project.revision < 0) throw new Error("invalid_record");
+  if (project.provenance?.kind === "legacy-adoption") {
+    const provenance = project.provenance;
+    if (provenance.migrationVersion !== 2 || !["drawing-v1", "drawing-v2", "stick-v1", "stick-v2", "unified-v1"].includes(provenance.sourceKind) ||
+      !canonicalText(provenance.sourceProjectId, 512, false) || !Number.isSafeInteger(provenance.sourceRevision) || provenance.sourceRevision < 0 ||
+      !bareSha256.test(provenance.sourceRecordDigest) || !bareSha256.test(provenance.sourceCandidateDigest) ||
+      (provenance.adoptedAt !== null && !validTimestamp(provenance.adoptedAt))) throw new Error("invalid_record");
+  } else if (project.provenance?.kind === "copy") {
+    if (!uuid.test(project.provenance.parentProjectId) || !Number.isSafeInteger(project.provenance.parentRevision) || project.provenance.parentRevision < 0 ||
+      !bareSha256.test(project.provenance.parentProjectDigest)) throw new Error("invalid_record");
+  } else if (project.provenance && project.provenance.kind !== "native") throw new Error("invalid_record");
+  if (project.auxiliary?.stickAiCreationLatch && project.auxiliary.stickAiCreationLatch.projectId !== project.projectId) throw new Error("invalid_record");
+  if (project.auxiliary?.drawingAiMemory) {
+    const memory = sanitizeDrawingAiProjectMemory(project.auxiliary.drawingAiMemory);
+    if (!memory || memory.ownerProjectId !== project.projectId || JSON.stringify(memory) !== JSON.stringify(project.auxiliary.drawingAiMemory)) throw new Error("invalid_record");
+  }
   assertUnifiedAnimationDocumentV2(project.document);
   return project;
 }

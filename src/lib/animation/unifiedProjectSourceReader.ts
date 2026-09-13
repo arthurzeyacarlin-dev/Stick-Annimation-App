@@ -2,24 +2,29 @@ import { DRAWING_PROJECT_INDEXED_DB } from "../drawingProjectIndexedDb.ts";
 import { readDrawingProjectV1Storage } from "../drawingProjectV1Compatibility.ts";
 import { STICK_PROJECT_STORAGE_KEY, STICK_PROJECT_STORAGE_BYTE_LIMIT, STICK_PROJECT_STORAGE_RECORD_LIMIT } from "../stickProjectStorage.ts";
 import type { UnifiedLegacyMigrationSourceV1 } from "./unifiedAnimationMigration.ts";
+import { validateUnifiedAnimationCandidateV1, type UnifiedAnimationMigrationCandidateV1 } from "./unifiedAnimationContract.ts";
 import type { DrawingProjectHeadV2, DrawingProjectVersionRecordV2 } from "../drawingProjectV2Contract.ts";
-import { listUnifiedProjectsV2 } from "./unifiedProjectStorageV2.ts";
+import { listUnifiedProjectHeadsV2 } from "./unifiedProjectStorageV2.ts";
+
+export const UNIFIED_PROJECT_V1_STORAGE_KEY = "da_saved_unified_projects_v1";
+export type ProjectSourcePayload = UnifiedLegacyMigrationSourceV1 | { sourceKind: "unified-v1"; candidate: UnifiedAnimationMigrationCandidateV1 };
 
 export type ProjectSource = {
   locator: string;
-  sourceKind: UnifiedLegacyMigrationSourceV1["sourceKind"] | "unified-v2";
+  sourceKind: UnifiedLegacyMigrationSourceV1["sourceKind"] | "unified-v1" | "unified-v2";
   sourceId: string;
   title: string;
   updatedAt: string | null;
   error?: string;
-  read: () => Promise<UnifiedLegacyMigrationSourceV1>;
+  canonicalAdoptionKey?: string | null;
+  read: () => Promise<ProjectSourcePayload>;
 };
 export type ProjectSourceReader = { list: () => Promise<ProjectSource[]> };
 const object = (value: unknown): Record<string, unknown> => value !== null && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
 const label = (value: unknown, fallback: string) => typeof value === "string" && value.trim() ? value.slice(0, 512) : fallback;
 const date = (value: unknown) => typeof value === "string" && Number.isFinite(Date.parse(value)) ? value : null;
 const unavailable = (locator: string, sourceKind: ProjectSource["sourceKind"], error: string): ProjectSource => ({
-  locator, sourceKind, sourceId: locator, title: `${sourceKind.startsWith("drawing") ? "Drawing" : "Stick"} projects unavailable`, updatedAt: null, error,
+  locator, sourceKind, sourceId: locator, title: `${sourceKind.startsWith("drawing") ? "Drawing" : sourceKind.startsWith("stick") ? "Stick" : "Animation"} projects unavailable`, updatedAt: null, error,
   read: async () => { throw new Error(error); },
 });
 const request = <T>(value: IDBRequest<T>) => new Promise<T>((resolve, reject) => {
@@ -47,12 +52,48 @@ export const createBrowserProjectSourceReader = (): ProjectSourceReader => ({
   async list() {
     const sources: ProjectSource[] = [];
     try {
-      for (const project of await listUnifiedProjectsV2()) sources.push({
-        locator: `unified-v2:${project.projectId}`, sourceKind: "unified-v2", sourceId: project.projectId,
-        title: project.title, updatedAt: project.updatedAt, read: async () => { throw new Error("native_v2_direct_read"); },
+      for (const head of await listUnifiedProjectHeadsV2()) sources.push({
+        locator: `unified-v2:${head.projectId}`, sourceKind: "unified-v2", sourceId: head.projectId,
+        title: head.title, updatedAt: head.updatedAt,
+        canonicalAdoptionKey: head.provenance?.kind === "legacy-adoption" && head.provenance.adoptedAt
+          ? `${head.provenance.sourceKind}:${head.provenance.sourceProjectId}:${head.provenance.sourceRecordDigest}`
+          : null,
+        read: async () => { throw new Error("native_v2_direct_read"); },
       });
     } catch {
       sources.push({ locator: "unified-v2:root", sourceKind: "unified-v2", sourceId: "unavailable", title: "Animation projects unavailable", updatedAt: null, error: "storage_read_failed", read: async () => { throw new Error("storage_read_failed"); } });
+    }
+    try {
+      const raw = window.localStorage.getItem(UNIFIED_PROJECT_V1_STORAGE_KEY);
+      if (raw !== null) {
+        const envelope = object(JSON.parse(raw));
+        if (envelope.storageVersion !== 1 || Object.keys(envelope).sort().join() !== "projects,storageVersion" || !Array.isArray(envelope.projects) || envelope.projects.length > 64 || new TextEncoder().encode(raw).byteLength > 134_217_728) throw new Error("invalid_record");
+        for (const [index, entry] of envelope.projects.entries()) {
+          const value = object(entry);
+          const project = object(value.project);
+          const sourceId = label(project.projectId, `invalid-${index}`);
+          const decode = async () => {
+            if (Object.keys(value).sort().join() !== "project,resolvedAssets" || !Array.isArray(value.resolvedAssets)) throw new Error("invalid_record");
+            const resolvedAssets = value.resolvedAssets.map((assetValue) => {
+              const asset = object(assetValue);
+              if (Object.keys(asset).sort().join() !== "assetId,bytesBase64" || typeof asset.assetId !== "string" || typeof asset.bytesBase64 !== "string") throw new Error("invalid_record");
+              const binary = atob(asset.bytesBase64);
+              return { assetId: asset.assetId, bytes: Uint8Array.from(binary, character => character.charCodeAt(0)) };
+            });
+            return validateUnifiedAnimationCandidateV1({ project: value.project as UnifiedAnimationMigrationCandidateV1["project"], resolvedAssets });
+          };
+          sources.push({
+            locator: `unified-v1:${index}`,
+            sourceKind: "unified-v1",
+            sourceId,
+            title: label(project.title, "Unavailable Animation project"),
+            updatedAt: date(project.updatedAt),
+            read: async () => ({ sourceKind: "unified-v1", candidate: await decode() }),
+          });
+        }
+      }
+    } catch (error) {
+      sources.push(unavailable("unified-v1:root", "unified-v1", error instanceof SyntaxError || error instanceof Error && error.message === "invalid_record" ? "invalid_record" : "storage_read_failed"));
     }
     const legacy = await readDrawingProjectV1Storage({ getItem: (key) => window.localStorage.getItem(key) });
     if (legacy.status === "read-failed" || legacy.status === "corrupt-root") {

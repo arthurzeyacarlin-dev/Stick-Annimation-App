@@ -1,11 +1,13 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-14 from SPEC-0007 activation base `42640983a4d99aab6cdfacfa869bd9fcc956a01b`; current runtime remains published SPEC-0006, while D-0072 approves SPEC-0007 and authorizes Phase 1 without implementing it.
+Last traced: 2026-09-14 from SPEC-0007 Phase 1 clean base `5e65a3142937734896a3a6cbc3c4f6ff513280ae`; current runtime remains published SPEC-0006, while D-0072/D-0073 authorize Phase 1 and correct only its inherited-performance entry mechanics without implementing it.
 
 ## Approved SPEC-0007 extension — not implemented
 
 SPEC-0007 preserves the current one-workspace/V2 ownership path and requires one UI-independent `EditorCommandEnvelope` capability registry between manual interaction adapters and the `DrawingWorkspace` commit/history owner. Pointer/file/UI preparation remains transient; a validated command is the sole authored mutation door. Phase 1 is Authorized/Not started and must begin this routing only through ordinary manual Drawing controls; future AI may use the same capability later, but SPEC-0007 adds no AI caller, provider, prompt, model, API, video or tracking path.
+
+D-0073 records that the unchanged large Drawing project misses the inherited Save/Open/transient-memory ceilings before Phase 1 runtime edits. The corrected Phase 1 may first optimize only the reached existing path: `DrawingWorkspace` captures and serializes the compatibility snapshot and builds the canonical V2 project; `unifiedProjectRepositoryV2` applies revision/identity semantics; `unifiedProjectStorageV2` extracts and hashes typed assets, stages immutable versions, hydrates/verifies readback and publishes the CAS head; `unifiedWorkspaceBootstrap` reads/hydrates the selected V2 root; `AnimationWorkspace` projects its current Drawing compatibility view; and `unifiedAnimationContractV2` may change validation traversal mechanics without changing a rule. Any optimization must preserve exact hydrated/project digests, content-addressed assets, versions, head/CAS/last-good behavior, failure codes, source safety, schemas and limits. The unchanged 775 ms Open, 1,530 ms Save, 320 MiB settled-heap and 512 MiB transient/stress ceilings remain exit gates; faster persistence is not completion without the Drawing correctness matrix.
 
 The approved later-phase data change is additive and compatibility-safe: current `stick-rig/v1` items retain their source graph while an optional versioned rig extension owns default/segment appearance and structured joint attachments. Old rigs and structured symbol payload v1 remain readable and digest-stable; a new structured symbol payload version carries resolved style/attachments. Library remains project-created Drawing/Rig/Mixed Symbols; Assets remains external bounded still media. These later phases remain unauthorized.
 

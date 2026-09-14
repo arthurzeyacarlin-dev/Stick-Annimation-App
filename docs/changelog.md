@@ -5,6 +5,14 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-14 — Correct SPEC-0007 Phase 1 inherited-performance entry mechanics (D-0073)
+
+- Recorded the first stopped clean-base executor evidence at SHA-256 `fb019f3f019e5d754dfde0c6189010e935176216d2bbc051a04d74b436e56a80`: no tracked/index changes; five warmed desktop Open/Save misses; four compact Open and five compact Save misses; one inherited transient 512 MiB stress miss; successful repeated inherited persistence with settled heap below 320 MiB.
+- Removed only the mechanical mandatory-stop deadlock. A fresh Phase 1 executor may first diagnose and narrowly optimize inherited Drawing snapshot serialization and the exact V2 repository/storage/bootstrap helpers reached by the representative Save/Open flow.
+- Preserved every accepted exit gate: Open 775 ms, Save 1,530 ms, 320 MiB settled heap, 512 MiB transient/stress heap, raster allocation, pointer latency/long-task, full Drawing correctness/history/persistence and protected SPEC-0006 regressions.
+- Required repeated identical-fixture before/after proof, byte/digest equivalence, injected failure rollback, immutable-version/last-good/CAS/source integrity, and no schema/limit/data-loss/failure-semantic change. Performance-only success is explicitly insufficient.
+- Phase 1 remains Authorized/Not started; restart requires this records-only correction published/synchronized, `/4bb1/` evidence preservation and D-0054 cleanup, then one fresh Plan-mode executor. Phases 2–7 remain unauthorized. No runtime, fixture, technical-test, proof-artifact, dependency/configuration, AI/provider/API/video/tracking, Git or external-service behavior changed.
+
 ### 2026-09-14 — Approve SPEC-0007 and authorize Phase 1 (D-0072)
 
 - Arthur accepted the exact 50,372-byte Proposed SPEC-0007 preimage at SHA-256 `3ffc99184b692cbb8e84b383735fa14c6d740d31c090c601cf6a943e51721c56`; the seven-phase outcome, invariant, semantics, limits, proof, and protected-system boundaries remain unchanged.

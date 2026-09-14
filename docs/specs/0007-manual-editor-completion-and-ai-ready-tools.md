@@ -5,9 +5,9 @@ Owner: Arthur
 Task role: Approved phased implementation contract; no implementation performed by activation/publication
 Created: 2026-09-14
 Last updated: 2026-09-14
-Decision links: [D-0071–D-0072](../DECISIONS.md), [D-0054](../DECISIONS.md), [D-0069–D-0070](../DECISIONS.md)
+Decision links: [D-0071–D-0073](../DECISIONS.md), [D-0054](../DECISIONS.md), [D-0069–D-0070](../DECISIONS.md)
 TODO IDs: `PLAN-007`, `SPEC-007`, `MANUAL-001`–`MANUAL-007`
-Planning evidence base: local `HEAD`, `main`, and `origin/main` all `42640983a4d99aab6cdfacfa869bd9fcc956a01b`; index empty before planning edits
+Planning evidence base: original proposal used local `HEAD`, `main`, and `origin/main` `42640983a4d99aab6cdfacfa869bd9fcc956a01b`; D-0073 correction uses clean canonical base `5e65a3142937734896a3a6cbc3c4f6ff513280ae` and stopped entry manifest SHA-256 `fb019f3f019e5d754dfde0c6189010e935176216d2bbc051a04d74b436e56a80`; index empty before correction edits
 Last verified implementation: none; approval/activation changes no runtime behavior
 
 ## 1. Exact goal and invariant
@@ -175,7 +175,7 @@ Brush, Pencil, Sketch, Pixelate, Glow, Square/Triangle/Circle Shape, and every v
 
 ### Scope, files, and non-scope
 
-Allowed runtime families: `src/components/workspace/DrawingCanvas.tsx`, `DrawingToolBar.tsx`, `DrawingRightPanel.tsx`, `DrawingWorkspace.tsx`; new/extended UI-independent command modules under `src/lib/animation/editorCommands/**`; only necessary V2 content/validation changes under `src/lib/animation/**`. Allowed fixtures/tests/proof: `scripts/fixtures/spec0007-manual/phase-1/**`, `scripts/spec0007-manual/phase-1/**`, and ignored phase proof. Existing unrelated Drawing tools, rig behavior, catalogs, AI, storage schema/limits, Home/Tutorials, dependencies/configuration are protected.
+Allowed runtime families: `src/components/workspace/DrawingCanvas.tsx`, `DrawingToolBar.tsx`, `DrawingRightPanel.tsx`, `DrawingWorkspace.tsx`; new/extended UI-independent command modules under `src/lib/animation/editorCommands/**`; and only these existing V2 persistence-path modules reached by the same representative Drawing fixture: `src/components/workspace/AnimationWorkspace.tsx` for its current compatibility hydration/projection helpers, plus `src/lib/animation/unifiedProjectRepositoryV2.ts`, `unifiedProjectStorageV2.ts`, `unifiedWorkspaceBootstrap.ts`, and `unifiedAnimationContractV2.ts` for validation traversal mechanics only. `DrawingWorkspace.tsx` serialization/snapshot helpers are inside its existing authorization. No other component or `src/lib/animation/**` module is authorized by the inherited repair; needing one is a stop-and-return condition. Allowed fixtures/tests/proof: `scripts/fixtures/spec0007-manual/phase-1/**`, `scripts/spec0007-manual/phase-1/**`, and ignored phase proof. Existing unrelated Drawing tools, rig behavior, catalogs, AI, storage schema/limits, Home/Tutorials, dependencies/configuration are protected.
 
 ### Exact acceptance flow
 
@@ -189,11 +189,19 @@ Allowed runtime families: `src/components/workspace/DrawingCanvas.tsx`, `Drawing
 
 ### Failure, performance, and limits
 
-Pixelate cell size is an integer authoring-pixel function of canonical brush size, traverses every crossed cell, uses integer `fillRect`-equivalent coverage with smoothing disabled, and cannot rotate. Glow clamps every parameter to its visible UI range, caps blur/dirty-region expansion, reuses bounded scratch surfaces, and samples incrementally; no full-canvas clone or unbounded gradient/path replay per pointer sample. Phase entry records a clean-base benchmark; exit requires no regression over SPEC-0006 storage ceilings, no decoded/scratch allocation above the existing 256 MiB single-raster ceiling, settled JS heap below 320 MiB on the representative desktop project, zero `>50 ms` pointer-update long tasks in 20 warmed fixed strokes/profile, p95 preview latency ≤16.7 ms desktop and ≤33.4 ms compact, and Save/Open within the accepted Phase 6 1.53 s/0.775 s upper bounds for its unchanged representative project. If the clean base cannot meet a proposed latency ceiling, the executor stops at Plan-mode entry with measured evidence; it may not weaken the ceiling silently.
+Pixelate cell size is an integer authoring-pixel function of canonical brush size, traverses every crossed cell, uses integer `fillRect`-equivalent coverage with smoothing disabled, and cannot rotate. Glow clamps every parameter to its visible UI range, caps blur/dirty-region expansion, reuses bounded scratch surfaces, and samples incrementally; no full-canvas clone or unbounded gradient/path replay per pointer sample. Phase entry records a clean-base benchmark. A clean-base miss must be preserved as before-evidence and may not be hidden or normalized away, but it is not a mandatory stop when it is confined to inherited Drawing Save/Open/transient-memory mechanics inside the exact allowed Phase 1 families above. In that case Phase 1 may first diagnose and narrowly optimize those inherited mechanics, then implement/prove Drawing stabilization. Exit still requires no regression over SPEC-0006 storage ceilings, no decoded/scratch allocation above the existing 256 MiB single-raster ceiling, settled JS heap below 320 MiB on the representative desktop project, transient/stress JS heap at or below the inherited 512 MiB ceiling, zero `>50 ms` pointer-update long tasks in 20 warmed fixed strokes/profile, p95 preview latency ≤16.7 ms desktop and ≤33.4 ms compact, and Save/Open within the accepted Phase 6 1.53 s/0.775 s upper bounds for its unchanged representative project. None of these ceilings may be weakened, redefined, or bypassed.
+
+### Recorded Phase 1 entry miss and bounded correction authority
+
+The first stopped executor measured exact clean base `5e65a3142937734896a3a6cbc3c4f6ff513280ae` and wrote blocked entry evidence at `output/spec-0007/phase-1/entry/entry-manifest.json`, SHA-256 `fb019f3f019e5d754dfde0c6189010e935176216d2bbc051a04d74b436e56a80`. It made zero tracked runtime changes and kept the index empty. With two warmups then five measured runs per profile on the unchanged two-raster representative project, desktop Open was 809–881 ms and Save 1,538–1,587 ms, failing 5/5 against both ceilings; compact Open was 739–982 ms and Save 1,564–1,781 ms, failing 4/5 Opens and 5/5 Saves. Build/TypeScript and a repeated inherited persistence run passed. The first inherited stress run sampled 556,539,747 bytes on Open and 557,612,900 bytes on reopen, above 536,870,912 bytes; the successful inherited replay settled at 315,897,698 bytes desktop and 301,739,988 bytes compact, below 335,544,320 bytes. A separate repeat driver reported approximately 618.6 MB while the repeated large workspace remained open; because that lifecycle differs from the inherited unload/GC settled measurement, it is diagnostic and cannot replace either exit gate.
+
+Phase 1 may correct only the inherited work proven to cause these misses: redundant project traversal/cloning, typed-byte hashing/encoding/hydration, readback verification, collection accounting, workspace bootstrap, or Drawing snapshot serialization on the ordinary V2 Save/Open path. It must not change visible behavior, schema/version, project/collection/raster limits, asset identities, revision/CAS rules, immutable-version retention, last-good fallback, source-read/write boundaries, Save/Save As/Open truthfulness, or failure codes. Performance work is incomplete unless the Drawing correctness flows in this section also pass.
+
+The technical proof must compare before and after on the same immutable fixture bytes/digests, viewport profiles, browser/build mode, warmup count, measured-run count, operation boundaries, GC/settling method and machine class. It must bind every timing and heap sample, exact source/fixture hashes, and byte/digest equivalence for hydrated rasters, audio, text, rigs, symbols, auxiliary state, versions and heads. It must inject encode/hash/decode/readback/quota/stale-CAS/publish failures and prove the last good head/version/source bytes remain unchanged. A faster result with any content/digest mismatch, missing rollback, weakened validation/limit, altered failure integrity, or failed Drawing tool/history/Save/Open acceptance is a failure.
 
 ### Regression/entry/exit
 
-Entry: this planning package published/synchronized, no prior review copy, exact base recorded. Exit: all flows above plus unchanged Eraser/Fill/Text/Knife, Select/Lasso, rig, timeline/onion/playback/catalog/Save/Open and SPEC-0006 suites pass; Phase 1 manifest PASS/VALID; Arthur/PM review follows the shared lifecycle. Phase 1 does not rename/build rigs or change Assets/Library behavior.
+Entry/restart: after the D-0073 correction records are reviewed, separately published, and verified synchronized, copy the stopped `/4bb1/` entry evidence to `/Users/arthurcarlin/.codex/worktrees/2d14/stick-animation-app/output/recovery/SPEC-0007-phase-1-entry-5e65a31/`, verify its complete inventory and manifest SHA-256 `fb019f3f019e5d754dfde0c6189010e935176216d2bbc051a04d74b436e56a80`, complete `/4bb1/` D-0054 obsolete-copy cleanup, and start one fresh dedicated Plan-mode Phase 1 executor from the exact correction-publication SHA. It records the prior manifest/hash as before-evidence, confirms no other phase owner/review copy, retraces the ordinary path, freezes its exact tracked path allowlist inside the bounded families above, and performs the inherited performance diagnosis before broader Drawing edits. The stopped `/4bb1/` worktree is evidence only and may not be resumed or reused as implementation. Exit: all flows above plus unchanged Eraser/Fill/Text/Knife, Select/Lasso, rig, timeline/onion/playback/catalog/Save/Open and SPEC-0006 suites pass; all unchanged 775 ms Open, 1,530 ms Save, 320 MiB settled-heap, 512 MiB transient/stress and other Phase 1 ceilings pass; Phase 1 manifest PASS/VALID; Arthur/PM review follows the shared lifecycle. Phase 1 does not rename/build rigs or change Assets/Library behavior.
 
 ## 8. Phase 2 — Rig Terminology and Selection
 
@@ -368,7 +376,7 @@ Phase 7 exits only after its technical manifest is PASS/VALID, Arthur and the PM
 
 | Phase | TODO | Entry gate | Exit result | Status |
 | --- | --- | --- | --- | --- |
-| 1 — Drawing Tool Stabilization | `MANUAL-001` | D-0072 approval/activation published and synchronized; fresh clean worktree | Drawing visual/perf/history/save proof | Authorized; not started |
+| 1 — Drawing Tool Stabilization | `MANUAL-001` | D-0073 correction published/synchronized; `/4bb1/` evidence preserved and D-0054 cleanup complete; fresh clean worktree | Unchanged Drawing visual/perf/history/save proof, including inherited repair | Authorized; not started after valid entry stop |
 | 2 — Rig Terminology/Selection | `MANUAL-002` | Phase 1 accepted/published/cleaned | Exact subtarget/whole-rig selection and movement | Not started; unauthorized |
 | 3 — Rig Structure Editing | `MANUAL-003` | Phase 2 accepted/published/cleaned | Atomic topology editing/persistence | Not started; unauthorized |
 | 4 — Rig Appearance/Joint-Attached Shapes | `MANUAL-004` | Phase 3 accepted/published/cleaned | Styled rigs and structured attachments | Not started; unauthorized |
@@ -376,7 +384,7 @@ Phase 7 exits only after its technical manifest is PASS/VALID, Arthur and the PM
 | 6 — Assets Stabilization | `MANUAL-006` | Phase 5 accepted/published/cleaned | Bounded honest still-media lifecycle | Not started; unauthorized |
 | 7 — Final Bug Burn/AI-Readiness Proof | `MANUAL-007` | Phase 6 accepted/published/cleaned; no known prior-phase repro | Complete matrix and command registry proof | Not started; unauthorized |
 
-There are no unresolved owner-choice blockers in the approved contract. Phase 1's clean-base performance receipt is a measurement entry gate, not permission to weaken the owner outcome. Material changes to visible semantics, supported formats/limits, cascade behavior, symbol update linkage, or the shared-command invariant return to Arthur/Spec Architect. Bounded implementation mechanics may be resolved inside a phase when they preserve this contract and proof.
+There are no unresolved owner-choice blockers in the approved contract. Phase 1's clean-base performance receipt is mandatory before-evidence and bounded repair authority, not permission to weaken the owner outcome or any exit gate. Material changes to visible semantics, supported formats/limits, cascade behavior, symbol update linkage, or the shared-command invariant return to Arthur/Spec Architect. Bounded implementation mechanics may be resolved inside a phase when they preserve this contract and proof.
 
 ## 15. Planning verification record
 
@@ -386,11 +394,13 @@ There are no unresolved owner-choice blockers in the approved contract. Phase 1'
 | Current code execution path | PASS | one workspace/coordinator, canvas adapter, graph/catalog/storage/history/Creator paths traced |
 | Ordinary desktop live flow | PASS | Home → New → tabs/tools/Library/Assets → Creator inspected at loopback |
 | Compact planning observation | PASS with limitation | temporary 900×700 Creator inspection exposed overflow; not a product fix or physical-device claim |
+| First Phase 1 entry evidence | VALID STOP | exact clean base; zero tracked/index changes; 13 source/42 artifact bindings; 22 negative mutations; manifest SHA-256 `fb019f3f019e5d754dfde0c6189010e935176216d2bbc051a04d74b436e56a80` |
+| Entry correction | PASS | clean-base miss remains before-evidence; exact exit ceilings unchanged; inherited repair bounded to the reached Drawing/V2 persistence path and complete correctness proof |
 | Runtime/AI/provider changes | PASS (zero) | planning-only diff must contain documentation/tree files only |
-| Implementation readiness | PHASE 1 AUTHORIZED, NOT STARTED | executor start remains entry-gated on publication/synchronization and a fresh Plan-mode worktree |
+| Implementation readiness | PHASE 1 AUTHORIZED, NOT STARTED AFTER VALID ENTRY STOP | fresh executor remains gated on D-0073 publication/synchronization, `/4bb1/` evidence preservation/D-0054 cleanup, and a new Plan-mode worktree |
 
 ## 16. Final planning state and handoff
 
-Status is **Approved and active; Phase 1 Authorized; Not started** under D-0072. After this approval/activation package is published and synchronized, the next task is one fresh Plan-mode Phase 1 Spec Executor worktree from that exact canonical SHA. Phases 2–7 remain unauthorized and cannot start automatically.
+Status is **Approved and active; Phase 1 Authorized; Not started after a valid clean-base entry stop** under D-0072/D-0073. After this correction package is reviewed, separately published/synchronized and the `/4bb1/` evidence is preserved/cleaned up under D-0054, the next task is one fresh Plan-mode Phase 1 Spec Executor worktree from that exact correction-publication SHA. Phases 2–7 remain unauthorized and cannot start automatically.
 
 Recommended Phase 1 executor: **`gpt-6-astra` with `ultra` reasoning**. Phase 1 spans a 12k-line Canvas interaction surface, raster fidelity, gesture races, memory/performance, global history and lossless persistence; the high-risk cross-cutting evidence justifies Ultra. The executor must still patch narrowly and may not treat the model choice as expanded authority.

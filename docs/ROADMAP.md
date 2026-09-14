@@ -11,13 +11,13 @@ Last updated: 2026-09-14
 - Paid AI calls, remote writes, deployment, and baseline commits require task-specific authorization.
 - The roadmap may change when Arthur resolves pending decisions or new evidence changes the risk order.
 
-## Current owner sequence — 2026-09-14 (D-0072/SPEC-0007 Approved)
+## Current owner sequence — 2026-09-14 (D-0072/D-0073; SPEC-0007 Approved)
 
 All seven SPEC-0006 phases are Verified/published/integrated through GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`. The immutable 50,224-byte Phase 7 manifest is PASS/VALID at SHA-256 `c6202f6deab4d3bcc75af3ad6699fc2dc70fc58723eccaa8337b1a2aef74bc51`, with exactly 11 source and 16 evidence bindings.
 
 The corrected order kept seven numbered phases. Minimal neutral data/storage preceded Phase 4 visible ordinary New, common history and timeline; Phase 5 completed current tools/catalogs/panels; Phase 6 completed source adoption/recovery and persistence proof; Phase 7 retired ordinary duplicate ownership and passed the full ordinary acceptance gate. SPEC-0006 is complete.
 
-[`SPEC-0007`](specs/0007-manual-editor-completion-and-ai-ready-tools.md) is Approved and active under D-0072. Phase 1 is Authorized/Not started after activation publication; Phases 2–7 remain unauthorized. It establishes the manual-first/shared-command-capability invariant and this exact sequential order:
+[`SPEC-0007`](specs/0007-manual-editor-completion-and-ai-ready-tools.md) is Approved and active under D-0072/D-0073. Phase 1 is Authorized/Not started after a valid clean-base entry stop; a fresh executor may first perform the bounded inherited Drawing Save/Open/transient-memory repair while every original exit ceiling stays unchanged. Restart requires D-0073 publication/synchronization and `/4bb1/` evidence preservation/D-0054 cleanup. Phases 2–7 remain unauthorized. It establishes the manual-first/shared-command-capability invariant and this exact sequential order:
 
 1. Drawing Tool Stabilization.
 2. Rig Terminology and Selection.

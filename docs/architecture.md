@@ -1,7 +1,13 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-14 through exact published SPEC-0006 Phase 7 commit GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`; D-0069 records acceptance and D-0070 publication/cleanup.
+Last traced: 2026-09-14 from SPEC-0007 activation base `42640983a4d99aab6cdfacfa869bd9fcc956a01b`; current runtime remains published SPEC-0006, while D-0072 approves SPEC-0007 and authorizes Phase 1 without implementing it.
+
+## Approved SPEC-0007 extension — not implemented
+
+SPEC-0007 preserves the current one-workspace/V2 ownership path and requires one UI-independent `EditorCommandEnvelope` capability registry between manual interaction adapters and the `DrawingWorkspace` commit/history owner. Pointer/file/UI preparation remains transient; a validated command is the sole authored mutation door. Phase 1 is Authorized/Not started and must begin this routing only through ordinary manual Drawing controls; future AI may use the same capability later, but SPEC-0007 adds no AI caller, provider, prompt, model, API, video or tracking path.
+
+The approved later-phase data change is additive and compatibility-safe: current `stick-rig/v1` items retain their source graph while an optional versioned rig extension owns default/segment appearance and structured joint attachments. Old rigs and structured symbol payload v1 remain readable and digest-stable; a new structured symbol payload version carries resolved style/attachments. Library remains project-created Drawing/Rig/Mixed Symbols; Assets remains external bounded still media. These later phases remain unauthorized.
 
 ## Current implementation — Phase 7 published and SPEC-0006 complete (D-0069/D-0070)
 
@@ -104,7 +110,7 @@ The main product screens are local view states rather than URL routes. URL route
 
 `DrawingProjectData.version = 1` remains the live Drawing-algorithm adapter shape and contains tool settings, FPS, layers, timeline frames, text, tween data, optional sound attachments, current/selected positions, and counters. It is not the ordinary persistence authority. The unified V2 contract replaces live bitmap/audio bytes with content-addressed asset references and stores project heads plus immutable version records. Drawing AI memory remains auxiliary/project-scoped rather than authored animation content. `DrawingCanvas` still uses its inherited authoring allocation while publishing accepted mutations into the unified root.
 
-Live frame `ImageData` is encoded losslessly as PNG assets with RGBA/encoded digests and hydrated back to typed bytes on open; audio is likewise asset-backed. Project-card preview data is separate. Imported reusable assets and library symbols remain session-only collections outside `DrawingProjectData`; raster pixels/audio already committed into frames persist, but reusable entries do not become a saved library.
+Live frame `ImageData` is encoded losslessly as content-addressed bytes with typed-array/data-URL hydration on open; audio is likewise asset-backed. Project-card preview data is separate. Under published SPEC-0006, `UnifiedAnimationDocumentV2.catalogs` already persists project-created symbol definitions and imported asset entries, and symbol instances remain linked by definition ID/digest. `DrawingProjectData` is only a compatibility/algorithm projection and does not own those catalogs. SPEC-0007 approves stricter still-import validation and deliberate Rig Symbol lifecycle for later phases, which remain unauthorized, without changing this ownership.
 
 ## Timeline and History Model
 

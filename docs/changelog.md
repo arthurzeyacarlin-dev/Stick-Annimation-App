@@ -5,6 +5,21 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-14 — Approve SPEC-0007 and authorize Phase 1 (D-0072)
+
+- Arthur accepted the exact 50,372-byte Proposed SPEC-0007 preimage at SHA-256 `3ffc99184b692cbb8e84b383735fa14c6d740d31c090c601cf6a943e51721c56`; the seven-phase outcome, invariant, semantics, limits, proof, and protected-system boundaries remain unchanged.
+- Marked SPEC-0007 Approved/active and Phase 1 — Drawing Tool Stabilization Authorized/Not started, entry-gated on clean publication/synchronization of this activation package. Phases 2–7 remain unauthorized.
+- Authorized exact 14-path planning/activation publication to canonical `main` and GitHub. The synchronized publication commit becomes the only Phase 1 executor base; one fresh Plan-mode worktree is required.
+- Changed no runtime, fixture, technical test, proof artifact, dependency/configuration, AI/provider/model/prompt/API/video/tracking, legacy writer, deployment, external/paid-service, server, or implementation behavior.
+
+### 2026-09-14 — Propose SPEC-0007 manual editor completion (D-0071)
+
+- Added the decision-complete, review-ready seven-phase [`SPEC-0007`](specs/0007-manual-editor-completion-and-ai-ready-tools.md): Drawing Tool Stabilization; Rig Terminology/Selection; Rig Structure Editing; Rig Appearance/Joint-Attached Shapes; Rig Builder/Rig Symbols; Assets Stabilization; Final Manual Editor Bug Burn/AI-Readiness Proof.
+- Fixed the manual/future-AI invariant: every future-AI-eligible document mutation must first exist as an ordinary manual operation and both callers must share one deterministic validated command capability, canonical V2 commit/history owner and persistence path. This proposal adds no AI caller.
+- Recorded exact terminology, selection/gesture/cascade behavior, additive rig appearance/attachment data, deliberate linked Rig Symbol workflow, bounded static PNG/JPEG/WebP asset policy, per-phase browser/performance/history/persistence proof, correction lifecycle and D-0054 cleanup.
+- Fresh planning trace used local `HEAD`/`main`/`origin/main` `42640983a4d99aab6cdfacfa869bd9fcc956a01b`, inspected the ordinary desktop app and a temporary compact Creator viewport, and changed no runtime/fixture/test/proof/dependency/configuration/AI/provider/API/video/tracking/deployment/Git state.
+- At proposal time, all phases were not started and unauthorized; D-0072 above records the later owner acceptance, Phase 1 authorization, and publication authority.
+
 ### 2026-09-14 — Publish SPEC-0006 Phase 7 and complete final cleanup (D-0070/GIT-061)
 
 - Published the exact accepted 11 technical/proof paths plus 14 reviewed control-plane/tree paths as 25-path commit `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`, parent GIT-060 `cbe16411a0f83d3b86136f41d0a66d1874d009aa`, message `Implement SPEC-0006 Phase 7 authority retirement`.

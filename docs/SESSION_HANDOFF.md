@@ -3,15 +3,17 @@
 Status: current canonical stopping point
 Last updated: 2026-09-14
 
-All seven SPEC-0006 phases are Arthur-accepted, Verified, published, integrated, recorded, and cleaned up. GIT-061 is exact commit `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`, parent GIT-060 `cbe16411a0f83d3b86136f41d0a66d1874d009aa`, message `Implement SPEC-0006 Phase 7 authority retirement`, with exactly 25 reviewed paths. Canonical `main`, `origin/main`, and live GitHub `main` were freshly verified equal there with clean `0/0` synchronization.
+All seven SPEC-0006 phases are Arthur-accepted, Verified, published, integrated, recorded, and cleaned up. GIT-061 is exact commit `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`. The accepted SPEC-0007 proposal and activation use exact base `42640983a4d99aab6cdfacfa869bd9fcc956a01b`; local `HEAD`, `main`, local `origin/main`, and live GitHub `main` were verified there before publication, with an empty accepted index.
 
-## Current stopping point — ready to plan SPEC-0007
+## Current stopping point — SPEC-0007 Approved; Phase 1 Authorized/Not started
 
 D-0069 records Arthur's Phase 7 PASS and the immutable accepted proof. D-0070 records GIT-061 publication and D-0054 cleanup. The 50,224-byte Phase 7 manifest remains PASS/VALID at SHA-256 `c6202f6deab4d3bcc75af3ad6699fc2dc70fc58723eccaa8337b1a2aef74bc51`, with 11 source and 16 evidence bindings. The proof limitation remains honest: preserved Phase 3/5/6 manifests revalidated, while absent Phase 1/2/4A/4 manifest bytes are reported only by identity and commit; compact is responsive Chromium rather than a physical-phone/native-GPU result.
 
 Required ignored evidence is preserved at `/Users/arthurcarlin/.codex/worktrees/2d14/stick-animation-app/output/recovery/GIT-061-phase-7-185f587`: 15 files, 668 KiB, including the Phase 7 manifest and separately bound Phase 6 browser result. Review PID 34120 is stopped and port 56770 is closed. The obsolete `/cd3e/` review worktree and merged local publication branch are removed after this closeout commit synchronizes; canonical main and the active PM worktree remain.
 
-The next possible action is to design and approve a new SPEC-0007 with Arthur. Start by asking what manual Stick-tool expansion he wants, then define outcome, phases, regression boundaries, and review proof before implementation. Do not infer authorization to create or implement SPEC-0007, resume superseded SPEC-0004/0005 phases, begin SPEC-0008, call a provider, deploy, or make paid/external requests.
+D-0071 records Arthur's supplied decision-complete manual scope. D-0072 accepts the exact 50,372-byte Proposed [`SPEC-0007 — Manual Editor Completion and AI-Ready Tools`](specs/0007-manual-editor-completion-and-ai-ready-tools.md) preimage at SHA-256 `3ffc99184b692cbb8e84b383735fa14c6d740d31c090c601cf6a943e51721c56`, makes the spec **Approved and active**, and authorizes **Phase 1 — Drawing Tool Stabilization; Authorized; Not started**. Its exact seven-phase outcome and shared-command invariant are unchanged. Phases 2–7 remain unauthorized.
+
+The D-0072 publication commit containing the exact reviewed 14 planning/activation paths is the Phase 1 starting SHA; read its authoritative value from synchronized canonical Git rather than embedding a self-referential hash in that commit. The next task creates one fresh dedicated Plan-mode Phase 1 Spec Executor worktree from that SHA and freezes an exact path list inside SPEC-0007 §7. Recommended model/reasoning: `gpt-6-astra`, `ultra`. Do not implement Phase 1 in this publication task, reuse this detached planning worktree as its executor, start a server, resume superseded SPEC-0004/0005 work, begin SPEC-0008, call a provider, deploy, or make paid/external requests.
 
 ## Historical GIT-060 Phase 6 publication result
 
@@ -353,7 +355,7 @@ Prior SPEC-0003 publication record:
 
 Current 2026-09-10 stopping point: Phase 3 is accepted/Verified in c6b0 and CPA propagation/closeout is complete. Exact 16 technical plus 14 records/tree paths are dirty, with an empty index at `916a4d913c6fdf8340b67bcc88dcea184d67cd32`; canonical main/local origin remain clean there, 0/0. GIT-054 publication/integration and subsequent authorized cleanup remain separate. Phases 4–7 remain Unauthorized/Not started; the accepted review server/worktree stays preserved.
 
-SPEC-0004 completed phases and SPEC-0005 completed phases remain published/integrated. Their rejected and superseded work remains historical and non-reusable. Future SPEC-0007/0008 remain absent and unauthorized.
+SPEC-0004 completed phases and SPEC-0005 completed phases remain published/integrated. Their rejected and superseded work remains historical and non-reusable. SPEC-0007 is now Approved/active under D-0072; Phase 1 is Authorized/Not started and Phases 2–7 remain unauthorized. SPEC-0008 remains absent/future and unauthorized.
 
 ## Historical proof and limits
 

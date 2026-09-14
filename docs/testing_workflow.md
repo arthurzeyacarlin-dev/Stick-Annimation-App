@@ -3,6 +3,12 @@
 Status: canonical proof standard and current gate baseline
 Last updated: 2026-09-14
 
+## Approved SPEC-0007 proof profile — Phase 1 authorized, no implementation result yet
+
+[`SPEC-0007`](specs/0007-manual-editor-completion-and-ai-ready-tools.md) is Approved/active under D-0072. Phase 1 is Authorized/Not started after activation publication; Phases 2–7 remain unauthorized. Its seven phases each require a fresh exact-base Plan-mode executor worktree, deterministic command/contract tests, desktop `1440×900` DPR1 and compact `390×844` DPR2 real-browser flows, relevant 200% zoom/reduced-motion/accessibility checks, performance/memory/size receipts, Save/Open/Undo/Redo/failure proof, protected SPEC-0006 regressions, zero unexpected external/real API/provider requests, an independently mutation-tested technical manifest, exact scope/diff checks, and an empty index.
+
+Phase 7 additionally requires a machine-readable and human-readable matrix proving that every enabled manual project/document mutation resolves to one runtime-used validated command capability and no manual control bypasses the sanctioned coordinator commit/history path. The final zero-known-bugs gate is bounded to the named matrix; it is not a universal zero-defect claim. No Phase 1–7 result is currently claimed.
+
 ## Current SPEC-0006 Phase 7 published evidence
 
 Phase 7 is Arthur-accepted, technically Verified, published, and integrated under D-0069/D-0070 in exact GIT-061 commit `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`. The executor produced exactly 11 technical paths from GIT-060 base `cbe16411a0f83d3b86136f41d0a66d1874d009aa`; publication added 14 reviewed record/tree paths. Immutable manifest `output/spec-0006/phase-7/proof-manifest.json` is 50,224 bytes at SHA-256 `c6202f6deab4d3bcc75af3ad6699fc2dc70fc58723eccaa8337b1a2aef74bc51`, PASS/VALID with 11 source and 16 evidence bindings. Arthur accepted the ordinary app at port 56770; D-0069 records that later lifecycle fact without rewriting the executor snapshot.

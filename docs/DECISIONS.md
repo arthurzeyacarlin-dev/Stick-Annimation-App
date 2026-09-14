@@ -702,6 +702,28 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Cleanup: review PID 34120 is stopped and TCP port 56770 is closed. After this closeout synchronizes, the obsolete `/cd3e/` worktree and merged local publication branch are removed; canonical `main` and the active PM worktree remain. No remote ref or recovery evidence is deleted.
 - Consequence: all seven SPEC-0006 phases are accepted, Verified, published, integrated, recorded, and cleaned up. The next possible product action is a new SPEC-0007 planning task with Arthur. This decision does not approve a SPEC-0007 file, implementation phase, runtime change, provider/API request, deployment, or paid/external operation.
 
+### D-0071 — Propose SPEC-0007 manual editor completion before future AI expansion
+
+- Date: 2026-09-14
+- Authority: Arthur's explicit instruction to act as SPEC-0007 Spec Architect and his supplied seven-phase scope, terminology, invariant, boundaries, lifecycle and final gate.
+- Decision: Create [`SPEC-0007 — Manual Editor Completion and AI-Ready Tools`](specs/0007-manual-editor-completion-and-ai-ready-tools.md) as **Proposed; review-ready; no implementation phase authorized**. The exact order is Drawing Tool Stabilization; Rig Terminology/Selection; Rig Structure Editing; Rig Appearance/Joint-Attached Shapes; Rig Builder/Rig Symbols; Assets Stabilization; Final Manual Editor Bug Burn/AI-Readiness Proof.
+- Shared-capability invariant: every project/document mutation eligible for a future AI caller must first have an ordinary manual control and use the same UI-independent validated command capability, one canonical V2 coordinator/history/repository, deterministic explicit inputs, atomic failure, inspection, Undo/Redo/refinement and persistence as applicable. SPEC-0007 exposes manual callers only; future-AI eligibility is registry metadata, not an AI execution route.
+- Vocabulary: the product remains one Animation Workspace; user-facing Stick Figure Tools/Add Limb/Creator become Rig Tools/Add Segment/Rig Builder. Internal `stick-figure`, `stick-rig/v1`, `StickFigure*` and `limbs` compatibility names remain unless a narrow versioned extension is required. Library is project-created Drawing/Rig/Mixed Symbols; Assets is external supported still media in a separate tab. Creator Hub and animated symbol timelines remain future.
+- Limits and behavior: the proposed spec fixes rig selection/gesture/cascade semantics, additive versioned appearance/attachment data, linked-definition update/Make Unique behavior, supported PNG/JPEG/WebP and exact import bounds, phase performance gates, desktop/compact proof, and a machine/human command-capability matrix. Bounded engineering mechanics may be measured at phase entry but cannot weaken the owner outcome silently.
+- Lifecycle: every phase uses a fresh dedicated Plan-mode Spec Executor worktree from the exact integrated canonical-main SHA, then stopped executor → Arthur/PM decision → exclusive CPA propagation → separate explicit publication → verified synchronization/D-0054 cleanup. No phase overlap, rejected-byte reuse, or compilation-only readiness.
+- Boundaries: this planning decision changes no runtime, fixture, technical test, proof artifact, dependency/configuration, AI/provider/model/prompt/API/task behavior, motion/video/tracking/reconstruction, legacy writer, deployment, other worktree, Git index/history/ref, or external/paid service. It does not approve this proposal, authorize Phase 1, or create SPEC-0008.
+- Resolution: P-0006 is resolved for the SPEC-0007 manual editor scope. P-0008 remains pending for the future AI-first sequence and receives no implementation authority here.
+
+### D-0072 — Approve SPEC-0007, authorize Phase 1, and publish the activation
+
+- Date: 2026-09-14
+- Authority: Arthur accepted the reviewed SPEC-0007 planning package, explicitly authorized publication to canonical `main` and GitHub, and separately authorized SPEC-0007 Phase 1 implementation after publication.
+- Accepted design: [`SPEC-0007 — Manual Editor Completion and AI-Ready Tools`](specs/0007-manual-editor-completion-and-ai-ready-tools.md) is **Approved and active**. The accepted Proposed preimage is exactly 50,372 bytes at SHA-256 `3ffc99184b692cbb8e84b383735fa14c6d740d31c090c601cf6a943e51721c56` from base `42640983a4d99aab6cdfacfa869bd9fcc956a01b`. Activation changes lifecycle/status records only; it does not change the accepted seven-phase outcome, manual/shared-command invariant, technical limits, semantics, proof gates, or protected systems.
+- Phase authorization: Phase 1 — Drawing Tool Stabilization is **Authorized; Not started**, entry-gated on this activation package being published and cleanly synchronized. Its executor authority is exactly SPEC-0007 §7 and the shared §6 lifecycle/proof rules. Phases 2–7 remain **Unauthorized; Not started** and cannot begin automatically.
+- Phase 1 start: after publication, one fresh dedicated Spec Executor worktree starts in Plan mode from the exact activation publication SHA, refreshes the real execution path and measurements, freezes an exact path list inside §7's allowed families, performs no control-plane or Git mutation, returns its Implementation Review Packet, and stops. Recommended executor is `gpt-6-astra` with `ultra` reasoning.
+- Publication authority: this Control Plane Architect may stage only the exact reviewed 14-path planning/activation allowlist, commit once on a `codex/` publication branch, fast-forward a still-clean canonical `main`, push normally to `origin/main`, and verify local `main`, local `origin/main`, and live GitHub `main` at clean `0/0`. Any advancement, path/byte mismatch, dirty canonical worktree, or non-fast-forward is a stop condition; no pull, merge, rebase, amend, force-push, history rewrite, or scope expansion is allowed.
+- Boundaries: approval, activation, and publication add no runtime, fixture, technical test, proof artifact, dependency/configuration, AI/provider/model/prompt/API/task, motion/video/tracking/reconstruction, legacy writer, deployment, paid/external-service, server, review-copy, or Phase 1 implementation change. SPEC-0008 remains future and unauthorized.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation
@@ -748,9 +770,8 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 
 ### P-0006 — First usable manual stick feature set
 
-- Status: partially resolved for current-capability unification by accepted SPEC-0006 Phase 5; broader launch/manual-expansion decision remains pending.
-- Resolution: D-0065 accepts integration of every current Drawing tool and current Stick action with the shared tabs, project catalogs, structured selection, and existing history/persistence owner. It deliberately adds no new Stick color/head/shape/rig feature, enabled Creator Save, vector engine, automatic attachment/following, export capability, or future SPEC-0007 expansion.
-- Still needed before: defining the broader minimum creator, rig, pose, tween, recovery, export, accessibility, and advanced manual-control set for a usable release or future SPEC-0007.
+- Status: resolved by approved SPEC-0007 under D-0071/D-0072; Phase 1 is Authorized/Not started and later phases remain unauthorized.
+- Resolution: SPEC-0006 Phase 5 integrated the current tools. D-0071 defines and D-0072 approves the broader seven-phase manual editor outcome: drawing stabilization; complete rig selection/structure/appearance/joint attachments; deliberate Rig Builder → Rig Symbol lifecycle; bounded still Assets; and final command-registry/bug-burn proof. Export, animated symbols, Creator Hub, motion/video/tracking and AI expansion remain outside SPEC-0007.
 
 ### P-0007 — Data/search/privacy policy
 

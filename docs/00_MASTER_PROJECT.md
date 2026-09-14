@@ -33,7 +33,9 @@ The goal is not to hide a weak editor behind a chat box. The goal is one capable
 
 ## Current Strategic Position
 
-All seven SPEC-0006 phases are Verified, published, and durably integrated through exact GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`. D-0069 records Arthur's Phase 7 PASS and the technically Verified 11-path result at immutable manifest SHA-256 `c6202f6deab4d3bcc75af3ad6699fc2dc70fc58723eccaa8337b1a2aef74bc51`; D-0070 records publication and D-0054 cleanup. The ordinary workspace mounts only the unified V2 editor; one V2 dispatcher/history/repository owns authored state and Save/Save As/AI-triggered Save, while legacy parsers remain read-only import leaves. The Creator opens inside that root with keyboard/focus/inert containment and disabled Save. Full desktop/compact acceptance, accessibility, persistence, historical-proof, performance, and regression evidence passed within the recorded limitations. The next possible product action is planning SPEC-0007 with Arthur; no implementation is authorized.
+All seven SPEC-0006 phases are Verified, published, and durably integrated through exact GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`. D-0069 records Arthur's Phase 7 PASS and D-0070 records publication/D-0054 cleanup. The ordinary workspace mounts only the unified V2 editor; one V2 coordinator/history/repository owns authored state and Save/Save As/AI-triggered Save, while legacy parsers remain read-only import leaves.
+
+D-0072 makes [`SPEC-0007 — Manual Editor Completion and AI-Ready Tools`](specs/0007-manual-editor-completion-and-ai-ready-tools.md) **Approved and active** from Arthur's exact accepted proposal preimage. Phase 1 — Drawing Tool Stabilization is Authorized/Not started after activation publication; Phases 2–7 remain unauthorized. The unchanged seven-phase design completes manual rig editing/appearance/attachments, deliberate Rig Symbols, bounded still Assets, and the shared command registry. Every future-AI-eligible document mutation must use the same validated capability as its ordinary manual control. SPEC-0007 adds no AI/provider/model/prompt/API/video/tracking behavior.
 
 The current code is a prototype foundation, not a finished Version 1. Existing documents that called either workspace “complete” described a past visual milestone and are superseded by `CURRENT_STATE.md`.
 
@@ -52,7 +54,7 @@ Phase 0 is preservation and stabilization:
 - introduce spec-first work and repeatable regression proof
 - resolve launch scope and product-quality definitions
 - stabilize core document, persistence, security, and test foundations before broad feature expansion
-- review and, only through separately authorized phases, establish the lossless unified workspace before expanding manual Stick tools or motion-video AI
+- review and, only through separately authorized phases, complete the bounded SPEC-0007 manual editor/shared-command foundation before future SPEC-0008 AI/video work
 
 The ordered phase plan lives in `ROADMAP.md`.
 

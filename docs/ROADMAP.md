@@ -11,13 +11,23 @@ Last updated: 2026-09-14
 - Paid AI calls, remote writes, deployment, and baseline commits require task-specific authorization.
 - The roadmap may change when Arthur resolves pending decisions or new evidence changes the risk order.
 
-## Current owner sequence — 2026-09-14 (D-0070/SPEC-0006 complete)
+## Current owner sequence — 2026-09-14 (D-0072/SPEC-0007 Approved)
 
 All seven SPEC-0006 phases are Verified/published/integrated through GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`. The immutable 50,224-byte Phase 7 manifest is PASS/VALID at SHA-256 `c6202f6deab4d3bcc75af3ad6699fc2dc70fc58723eccaa8337b1a2aef74bc51`, with exactly 11 source and 16 evidence bindings.
 
 The corrected order kept seven numbered phases. Minimal neutral data/storage preceded Phase 4 visible ordinary New, common history and timeline; Phase 5 completed current tools/catalogs/panels; Phase 6 completed source adoption/recovery and persistence proof; Phase 7 retired ordinary duplicate ownership and passed the full ordinary acceptance gate. SPEC-0006 is complete.
 
-The next possible product action is planning SPEC-0007 with Arthur. Its manual Stick-tool outcome, phase boundaries, regression protections, and review proof must be specified before implementation. Future SPEC-0007/0008 remain gated and unauthorized until Arthur explicitly approves them.
+[`SPEC-0007`](specs/0007-manual-editor-completion-and-ai-ready-tools.md) is Approved and active under D-0072. Phase 1 is Authorized/Not started after activation publication; Phases 2–7 remain unauthorized. It establishes the manual-first/shared-command-capability invariant and this exact sequential order:
+
+1. Drawing Tool Stabilization.
+2. Rig Terminology and Selection.
+3. Rig Structure Editing.
+4. Rig Appearance and Joint-Attached Shapes.
+5. Rig Builder and Rig Symbols.
+6. Assets Stabilization.
+7. Final Manual Editor Bug Burn and AI-Readiness Proof.
+
+Each phase starts only after the prior phase is accepted, propagated, separately published/integrated, synchronized, and cleaned up. SPEC-0008 remains future and unauthorized; SPEC-0007 adds no AI/provider/model/prompt/video/tracking behavior.
 
 ## Phase 0 — Preserve and Stabilize
 
@@ -75,7 +85,7 @@ Goals:
 - play a multi-frame stick animation deterministically
 - define onion-skin and tween behavior for rigged figures
 
-Arthur's latest direction is AI-first, with advanced direct controls available for inspection and fine-tuning. The exact sequencing is still pending P-0008: Phase 2 and Phase 3 may interleave as a narrow AI-first vertical slice once the shared model, reversible executor, and minimum corrective controls exist. This roadmap does not silently require completing an Adobe-class manual editor before any AI stick workflow.
+Arthur's latest direction is AI-first at the product level, but D-0071/D-0072 require the approved SPEC-0007 manual editor foundation and runtime-used shared command-capability matrix before future SPEC-0008 expansion. This does not authorize an unbounded Adobe-class editor: the seven approved phases and explicit non-goals define the boundary. P-0008 remains pending for the later AI sequence.
 
 Current retained foundation: SPEC-0004 Phases 1, 2, and timing-only Phase 2.5 remain Verified, published, and integrated. Phase 2.6 remains rejected, unpublished, and superseded historical evidence. Under D-0055, unfinished Phases 3–8 are Superseded by future SPEC-0008, inactive, and must not be implemented. SPEC-0005 Phase 1 and Phase 2 v1/v2 remain accepted, Verified, published, and integrated; v2 is complete at GIT-048 `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`. GIT-049 published the later Phase 3 authorization at `de54aed275c2f6da6e7c3f4a7f65091e8d5370c0`. A Phase 3 executor then ran, but Arthur rejected its visible result: it is unpublished, unaccepted, non-reusable, and not completed. D-0055 supersedes Phase 3 and unfinished Phases 4–8 by future SPEC-0008; they are inactive with no implementation authority.
 

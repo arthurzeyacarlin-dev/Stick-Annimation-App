@@ -1,0 +1,43 @@
+{
+  "kind": "spec0006-phase7-acceptance-matrix",
+  "version": 1,
+  "ordinaryFlows": [
+    "fresh-new-neutral-empty",
+    "same-cell-raster-text-rig-symbols",
+    "symbol-definition-two-independent-instances",
+    "overlap-selection-erase-resize-dpr",
+    "mixed-keyframe-hold-copy-paste-onion-playback",
+    "interleaved-global-undo-redo",
+    "save-edit-save-as-reload-open",
+    "all-legacy-and-v1-read-only-adoption",
+    "storage-fault-atomicity-and-safe-retry"
+  ],
+  "regressions": [
+    "REG-01", "REG-02", "REG-03", "REG-04", "REG-05", "REG-06",
+    "REG-07", "REG-08", "REG-09", "REG-10", "REG-11", "REG-12"
+  ],
+  "profiles": [
+    { "name": "desktop", "width": 1440, "height": 900, "deviceScaleFactor": 1 },
+    { "name": "compact", "width": 390, "height": 844, "deviceScaleFactor": 2 }
+  ],
+  "accessibility": [
+    "zero-critical-serious-axe-findings",
+    "keyboard-creator-round-trip-visible-focus",
+    "two-hundred-percent-zoom",
+    "reduced-motion"
+  ],
+  "retirement": [
+    "one-v2-editor-candidate",
+    "one-ordinary-workspace-mount",
+    "one-history-owner",
+    "one-v2-repository-write-door",
+    "legacy-parsers-read-only",
+    "zero-source-store-writes",
+    "zero-review-surface",
+    "zero-external-provider-requests"
+  ],
+  "limitations": [
+    "compact-is-desktop-Chromium-emulation-not-a-physical-phone",
+    "native-and-GPU-memory-are-not-proven"
+  ]
+}

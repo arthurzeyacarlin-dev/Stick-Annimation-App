@@ -22,6 +22,7 @@ import type { DrawingShapeType, DrawingToolName } from "./DrawingToolBar";
 import { DrawingTimelineRow } from "./DrawingTimelineRow";
 import type { TimelineFrame, TimelineFrameCellType, TimelineFrameKind, TimelineLayer } from "./DrawingTimelineRow";
 import { DrawingTopBar } from "./DrawingTopBar";
+import { StickFigureCreatorWorkspace } from "./stickfigure/StickFigureCreatorWorkspace";
 import {
   advancePlaybackAccumulator,
   getAuthoredPlaybackFrameCount,
@@ -32,8 +33,6 @@ import {
 } from "./timelinePlayback";
 import { collapseTimelineRange } from "./timelineStructure";
 import {
-  saveStoredDrawingProject,
-  updateStoredDrawingProjectAiMemory,
   type DrawingProjectOpenCandidate,
   type DrawingProjectData,
   type SerializedBitmap,
@@ -43,23 +42,14 @@ import {
   type StoredDrawingTimelineFrame,
   type StoredMotionTweenData,
 } from "@/src/lib/drawingProjectStorage";
-import { DrawingProjectV2Error } from "@/src/lib/drawingProjectV2Contract";
 import type {
   DrawingAiActionPlan,
   DrawingAiProjectMemory,
   DrawingAiSoundOption,
   DrawingAiWorkspaceContext,
 } from "@/src/lib/ai/drawingAiContract";
-import {
-  bindDrawingAiProjectMemoryToProject,
-  chooseNewerDrawingAiProjectMemory,
-} from "@/src/lib/ai/drawingAiProjectMemory";
+import { bindDrawingAiProjectMemoryToProject } from "@/src/lib/ai/drawingAiProjectMemory";
 import type { GeneratedFrameRenderResult } from "@/src/lib/ai/drawingFrameExecutor";
-import {
-  deleteDrawingProjectAiMemoryFromSupabase,
-  loadDrawingProjectAiMemoryFromSupabase,
-  saveDrawingProjectAiMemoryToSupabase,
-} from "@/src/lib/ai/drawingProjectAiMemorySync";
 import { isVoiceLikeSoundOption, synthesizeSoundOptionToDataUrl } from "@/src/lib/ai/drawingSoundSynthesis";
 import { isSoundGenerationEnabled, SOUND_GENERATION_DISABLED_MESSAGE } from "@/src/lib/ai/drawingSoundAvailability";
 import {
@@ -1112,63 +1102,6 @@ const createDrawingWorkspaceInitialState = (
     nextLayerNumber: Math.max(project.data.nextLayerNumber ?? 0, getNextLayerNumber(layers)),
   };
 };
-
-const loadBitmapFromPreviewUrl = (previewUrl: string | null): Promise<ImageData | null> =>
-  new Promise((resolve) => {
-    if (!previewUrl) {
-      resolve(null);
-      return;
-    }
-
-    const image = new Image();
-    image.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = image.naturalWidth || image.width;
-      canvas.height = image.naturalHeight || image.height;
-      if (getExpectedBitmapDataLength(canvas.width, canvas.height) === null) {
-        resolve(null);
-        return;
-      }
-      const ctx = canvas.getContext("2d");
-      if (!ctx) {
-        resolve(null);
-        return;
-      }
-
-      ctx.drawImage(image, 0, 0);
-      resolve(getUsableBitmap(ctx.getImageData(0, 0, canvas.width, canvas.height)));
-    };
-    image.onerror = () => resolve(null);
-    image.src = previewUrl;
-  });
-
-const hydrateStoredTimelineFrame = async (frame: StoredDrawingTimelineFrame): Promise<WorkspaceTimelineFrame> => {
-  const deserializedFrame = deserializeTimelineFrame(frame);
-  const shouldHydratePreview = deserializedFrame.cellType !== "blank-keyframe";
-  const hydratedBitmap =
-    deserializedFrame.bitmap ?? (shouldHydratePreview ? (await loadBitmapFromPreviewUrl(frame.previewUrl ?? null)) : null);
-  const hydratedTweenEndBitmap =
-    deserializedFrame.tweenEndBitmap ??
-    (shouldHydratePreview ? (await loadBitmapFromPreviewUrl(frame.tweenEndPreviewUrl ?? null)) : null);
-
-  return {
-    ...deserializedFrame,
-    bitmap: hydratedBitmap,
-    tweenEndBitmap: hydratedTweenEndBitmap,
-  };
-};
-
-const hydrateStoredProjectLayers = async (project: StoredDrawingProject) =>
-  normalizeLayerOrder(
-    await Promise.all(
-      (project.data.layers ?? []).map(async (layer) => ({
-        id: layer.id,
-        name: layer.name,
-        orderIndex: layer.orderIndex,
-        timelineFrames: await Promise.all((layer.timelineFrames ?? []).map(hydrateStoredTimelineFrame)),
-      })),
-    ),
-  );
 
 const normalizeLayerOrder = (layers: WorkspaceLayer[]) => layers.map((layer, index) => ({ ...layer, orderIndex: index }));
 
@@ -3542,21 +3475,19 @@ const resizeTimelineSpanCells = (
 const PLAYBACK_INTERACTION_BLOCKER_Z_INDEX = 6;
 
 type DrawingWorkspaceProps = {
-  initialProject?: DrawingProjectOpenCandidate | null;
-  initialTitle?: string;
-  deferInitialMemorySync?: boolean;
-  unifiedProject?: UnifiedAnimationProjectV2 | null;
+  initialProject: DrawingProjectOpenCandidate;
+  initialTitle: string;
+  unifiedProject: UnifiedAnimationProjectV2;
 };
 
-export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT_PROJECT_TITLE, deferInitialMemorySync = false, unifiedProject = null }: DrawingWorkspaceProps) {
-  const openedInitialProject = initialProject?.project ?? null;
-  const initialWorkspaceState = openedInitialProject ? createDrawingWorkspaceInitialState(openedInitialProject, Boolean(unifiedProject)) : createDefaultDrawingWorkspaceState(initialTitle);
+export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject }: DrawingWorkspaceProps) {
+  const openedInitialProject = initialProject.project;
+  const initialWorkspaceState = createDrawingWorkspaceInitialState(openedInitialProject, true);
   const [projectId, setProjectId] = useState<string | null>(initialWorkspaceState.projectId);
   const [projectTitle, setProjectTitle] = useState(initialWorkspaceState.projectTitle);
   const [projectAiMemory, setProjectAiMemory] = useState<DrawingAiProjectMemory | null>(
-    bindDrawingAiProjectMemoryToProject(openedInitialProject?.aiMemory ?? null, initialWorkspaceState.projectId),
+    bindDrawingAiProjectMemoryToProject(openedInitialProject.aiMemory ?? null, initialWorkspaceState.projectId),
   );
-  const initialMemoryFingerprint = JSON.stringify(bindDrawingAiProjectMemoryToProject(openedInitialProject?.aiMemory ?? null, openedInitialProject?.id ?? null));
   const [activeTool, setActiveTool] = useState<DrawingToolName>(initialWorkspaceState.activeTool);
   const [drawingToolActivationId, setDrawingToolActivationId] = useState(0);
   const [brushSize, setBrushSize] = useState(initialWorkspaceState.brushSize);
@@ -3571,24 +3502,25 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
   const [isTimelinePlaying, setIsTimelinePlaying] = useState(false);
   const [isOnionEnabled, setIsOnionEnabled] = useState(initialWorkspaceState.isOnionEnabled);
   const [saveState, setSaveState] = useState<"not-saved" | "unsaved" | "saving" | "saved" | "too-large" | "failed">(
-    unifiedProject ? (unifiedProject.revision > 0 ? "saved" : "not-saved") : initialProject ? "saved" : "not-saved",
+    unifiedProject.revision > 0 ? "saved" : "not-saved",
   );
   const activateDrawingTool = useCallback((tool: DrawingToolName) => {
     setActiveTool(tool);
     setDrawingToolActivationId((current) => current + 1);
   }, []);
-  const [activeUnifiedProject, setActiveUnifiedProject] = useState<UnifiedAnimationProjectV2 | null>(unifiedProject);
-  const [stickByCell, setStickByCell] = useState<Record<string, StickFigureFrameContent>>(() => structuredClone(unifiedProject?.compatibility?.stickByCell ?? {}));
+  const [activeUnifiedProject, setActiveUnifiedProject] = useState<UnifiedAnimationProjectV2>(unifiedProject);
+  const [stickByCell, setStickByCell] = useState<Record<string, StickFigureFrameContent>>(() => structuredClone(unifiedProject.compatibility?.stickByCell ?? {}));
   const stickByCellRef = useRef(stickByCell);
   const [unifiedCatalogs, setUnifiedCatalogs] = useState<UnifiedProjectCatalogsV2>(() =>
-    structuredClone(unifiedProject?.document.catalogs ?? { symbols: [], assets: [] }),
+    structuredClone(unifiedProject.document.catalogs ?? { symbols: [], assets: [] }),
   );
   const unifiedCatalogsRef = useRef(unifiedCatalogs);
   const [symbolInstancesByCell, setSymbolInstancesByCell] = useState<Record<string, UnifiedSymbolInstanceItemV2[]>>(() =>
-    structuredClone(unifiedProject?.compatibility?.symbolInstancesByCell ?? {}),
+    structuredClone(unifiedProject.compatibility?.symbolInstancesByCell ?? {}),
   );
   const symbolInstancesByCellRef = useRef(symbolInstancesByCell);
   const [canvasOverlayRect, setCanvasOverlayRect] = useState<CanvasOverlayRect | null>(null);
+  const [isStickFigureCreatorOpen, setIsStickFigureCreatorOpen] = useState(false);
   const [saveNotification, setSaveNotification] = useState<{ projectName: string; isVisible: boolean } | null>(null);
   const [canUndoHistory, setCanUndoHistory] = useState(false);
   const [canRedoHistory, setCanRedoHistory] = useState(false);
@@ -3639,9 +3571,6 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
   const documentGenerationRef = useRef(0);
   const persistedStateEffectReadyRef = useRef(false);
   const suppressNextPersistedStateEffectRef = useRef(false);
-  const activeStorageRevisionRef = useRef(initialProject?.head?.activeStorageRevision ?? null);
-  const projectCreatedAtRef = useRef(initialProject?.head?.createdAt ?? openedInitialProject?.created_at ?? null);
-  const legacyRecordDigestRef = useRef(initialProject?.legacyRecordDigest ?? null);
   const saveInFlightRef = useRef(false);
   const workspaceMountedRef = useRef(true);
   const historyEntriesRef = useRef<DrawingWorkspaceHistoryEntry[]>([]);
@@ -4036,126 +3965,29 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
     initializeHistoryTimeline(createHistoryEntryFromWorkspace());
   }, [createHistoryEntryFromWorkspace, initializeHistoryTimeline]);
 
-  useEffect(() => {
-    if (!openedInitialProject || unifiedProject) {
-      return;
-    }
-
-    let isCancelled = false;
-
-    void hydrateStoredProjectLayers(openedInitialProject).then((hydratedLayers) => {
-      if (isCancelled || hydratedLayers.length === 0) {
-        return;
-      }
-
-      const maxTimelineIndex = Math.max(0, getGlobalTimelineFrameCount(hydratedLayers) - 1);
-      const resolvedActiveLayer = getLayerById(hydratedLayers, openedInitialProject.data.activeLayerId) ?? hydratedLayers[0];
-      const nextCurrentFrameIndex = Math.max(0, Math.min(openedInitialProject.data.currentFrameIndex ?? 0, maxTimelineIndex));
-      const nextSelectedTimelineIndex = Math.max(
-        0,
-        Math.min(openedInitialProject.data.selectedTimelineIndex ?? 0, maxTimelineIndex),
-      );
-
-      suppressNextPersistedStateEffectRef.current = true;
-      layersRef.current = hydratedLayers;
-      activeLayerIdRef.current = resolvedActiveLayer.id;
-      timelineFramesRef.current = resolvedActiveLayer.timelineFrames;
-      currentFrameIndexRef.current = nextCurrentFrameIndex;
-      selectedTimelineIndexRef.current = nextSelectedTimelineIndex;
-      setLayers(hydratedLayers);
-      setActiveLayerId(resolvedActiveLayer.id);
-      setCurrentFrameIndex(nextCurrentFrameIndex);
-      setSelectedTimelineIndex(nextSelectedTimelineIndex);
-      initializeHistoryTimeline({
-        layers: hydratedLayers,
-        activeLayerId: resolvedActiveLayer.id,
-        currentFrameIndex: nextCurrentFrameIndex,
-        selectedTimelineIndex: nextSelectedTimelineIndex,
-        nextTimelineFrameId: nextTimelineFrameIdRef.current,
-        nextLayerNumber: nextLayerNumberRef.current,
-        owner: { kind: "global" },
-        stickByCell: structuredClone(stickByCellRef.current),
-        unifiedCatalogs: structuredClone(unifiedCatalogsRef.current),
-        symbolInstancesByCell: structuredClone(symbolInstancesByCellRef.current),
-      });
+  useLayoutEffect(() => {
+    document.querySelectorAll<HTMLButtonElement>('button[data-timeline-cell="true"]').forEach((button) => {
+      const frame = Number(button.dataset.frameIndex ?? 0) + 1;
+      button.setAttribute("aria-label", `Timeline cell, frame ${frame}`);
     });
-
-    return () => {
-      isCancelled = true;
-    };
-  }, [openedInitialProject, initializeHistoryTimeline, unifiedProject]);
+    document.querySelector<HTMLInputElement>(".timeline-bottom-scrollbar-slider")?.setAttribute("aria-label", "Timeline horizontal scroll");
+    const aiMessages = workspaceAreaRef.current?.querySelector<HTMLElement>(".workspace-ai-messages-scroll");
+    aiMessages?.setAttribute("tabindex", "0");
+    aiMessages?.setAttribute("aria-label", "AI conversation");
+    const aiPanel = aiMessages?.parentElement;
+    aiPanel?.querySelector<HTMLButtonElement>('button[type="submit"]')?.setAttribute("aria-label", "Send AI message");
+    const emptyAiMessage = aiMessages?.querySelector<HTMLElement>(":scope > div");
+    if (emptyAiMessage?.textContent?.trim() === "Ask the assistant for help with your drawing.") {
+      emptyAiMessage.style.color = "rgba(255,255,255,0.68)";
+    }
+  });
 
   useEffect(() => {
-    setProjectId(openedInitialProject?.id ?? null);
-    setProjectTitle(openedInitialProject?.name ?? initialTitle);
-    setProjectAiMemory(bindDrawingAiProjectMemoryToProject(openedInitialProject?.aiMemory ?? null, openedInitialProject?.id ?? null));
-    activeStorageRevisionRef.current = initialProject?.head?.activeStorageRevision ?? null;
-    projectCreatedAtRef.current = initialProject?.head?.createdAt ?? openedInitialProject?.created_at ?? null;
-    legacyRecordDigestRef.current = initialProject?.legacyRecordDigest ?? null;
-    setSaveState(unifiedProject ? (unifiedProject.revision > 0 ? "saved" : "not-saved") : initialProject ? "saved" : "not-saved");
+    setProjectId(openedInitialProject.id);
+    setProjectTitle(openedInitialProject.name ?? initialTitle);
+    setProjectAiMemory(bindDrawingAiProjectMemoryToProject(openedInitialProject.aiMemory ?? null, openedInitialProject.id));
+    setSaveState(unifiedProject.revision > 0 ? "saved" : "not-saved");
   }, [initialProject, openedInitialProject, initialTitle, unifiedProject]);
-
-  useEffect(() => {
-    if (activeUnifiedProject || !projectId || deferInitialMemorySync) {
-      return;
-    }
-
-    let cancelled = false;
-
-    void loadDrawingProjectAiMemoryFromSupabase(projectId).then((remoteMemory) => {
-      if (cancelled || !remoteMemory) {
-        return;
-      }
-
-      setProjectAiMemory((currentMemory) => {
-        const preferredMemory = chooseNewerDrawingAiProjectMemory(currentMemory, remoteMemory, projectId);
-        if (preferredMemory === remoteMemory) {
-          void updateStoredDrawingProjectAiMemory(projectId, remoteMemory);
-        }
-        return preferredMemory;
-      });
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [activeUnifiedProject, projectId, deferInitialMemorySync]);
-
-  useEffect(() => {
-    if (activeUnifiedProject || !projectId) {
-      return;
-    }
-
-    // Opening is read-only. Resume the existing synchronization only after an
-    // explicit memory change or Save gives this session a different identity.
-    if (deferInitialMemorySync && projectId === openedInitialProject?.id && JSON.stringify(projectAiMemory) === initialMemoryFingerprint) return;
-
-    const scopedMemory = bindDrawingAiProjectMemoryToProject(projectAiMemory, projectId);
-    void updateStoredDrawingProjectAiMemory(projectId, scopedMemory);
-    if (scopedMemory) {
-      void saveDrawingProjectAiMemoryToSupabase(projectId, scopedMemory).then((saveResult) => {
-        if (saveResult !== "rejected-stale") {
-          return;
-        }
-
-        void loadDrawingProjectAiMemoryFromSupabase(projectId).then((remoteMemory) => {
-          if (!remoteMemory) {
-            return;
-          }
-
-          setProjectAiMemory((currentMemory) => {
-            const preferredMemory = chooseNewerDrawingAiProjectMemory(currentMemory, remoteMemory, projectId);
-            if (preferredMemory === remoteMemory) {
-              void updateStoredDrawingProjectAiMemory(projectId, remoteMemory);
-            }
-            return preferredMemory;
-          });
-        });
-      });
-    } else {
-      void deleteDrawingProjectAiMemoryFromSupabase(projectId);
-    }
-  }, [activeUnifiedProject, projectAiMemory, projectId, deferInitialMemorySync, openedInitialProject, initialMemoryFingerprint]);
 
   const activeLayer = useMemo(() => getLayerById(layers, activeLayerId) ?? layers[0] ?? null, [activeLayerId, layers]);
   const timelineFrames = activeLayer?.timelineFrames ?? EMPTY_TIMELINE_FRAMES;
@@ -7196,9 +7028,8 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
     return snapshot;
   }, [activeTool, brushSize, eraserSize, fillColor, isOnionEnabled, shapeType, timelineFps]);
 
-  const buildUnifiedProjectSnapshot = useCallback((drawingData: DrawingProjectData): UnifiedAnimationProjectV2 | null => {
+  const buildUnifiedProjectSnapshot = useCallback((drawingData: DrawingProjectData): UnifiedAnimationProjectV2 => {
     const base = activeUnifiedProject;
-    if (!base) return null;
     const stableId = (key: string) => {
       const existing = unifiedIdsRef.current.get(key);
       if (existing) return existing;
@@ -8032,82 +7863,8 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
   }, []);
   void createProjectPreview;
 
-  const persistProject = useCallback(
-    async (options?: {
-      forceNew?: boolean;
-      nameOverride?: string;
-      commitMode?: "snapshot" | "commitWithoutHistory";
-    }) => {
-      if (isTimelinePlayingRef.current || saveInFlightRef.current) {
-        return null;
-      }
-
-      const capturedWorkspaceInstanceId = workspaceInstanceIdRef.current;
-      saveInFlightRef.current = true;
-      setSaveState("saving");
-
-      try {
-        if (options?.commitMode === "commitWithoutHistory") {
-          commitCurrentFrameSnapshotWithoutHistory("file-menu-save-as-commit-current-frame");
-        } else {
-          saveCurrentFrameSnapshot(currentFrameIndexRef.current, activeLayerIdRef.current, {
-            captureOptions: { includePreviewUrl: false },
-            debugCaller: options?.forceNew ? "file-menu-save-as" : "file-menu-save",
-          });
-        }
-
-        const nextProjectData = createPersistedProjectSnapshot();
-        const capturedGeneration = documentGenerationRef.current;
-        const saved = await saveStoredDrawingProject({
-          id: options?.forceNew ? null : projectId,
-          name: options?.nameOverride ?? projectTitle,
-          previewDataUrl: null,
-          data: nextProjectData,
-          aiMemory: projectAiMemory,
-          expectedRevision: options?.forceNew ? null : activeStorageRevisionRef.current,
-          createdAt: options?.forceNew ? null : projectCreatedAtRef.current,
-          legacyRecordDigest: options?.forceNew ? null : legacyRecordDigestRef.current,
-        });
-        if (!workspaceMountedRef.current || workspaceInstanceIdRef.current !== capturedWorkspaceInstanceId) {
-          return saved;
-        }
-        activeStorageRevisionRef.current = saved.head.activeStorageRevision;
-        projectCreatedAtRef.current = saved.head.createdAt;
-        legacyRecordDigestRef.current = null;
-        setProjectId(saved.project.id);
-        setProjectTitle(saved.project.name);
-        setProjectAiMemory(saved.project.aiMemory ?? null);
-        if (documentGenerationRef.current === capturedGeneration) {
-          setSaveState("saved");
-          showSaveNotification(saved.project.name);
-        } else {
-          setSaveState("unsaved");
-        }
-        return saved;
-      } catch (error) {
-        if (workspaceMountedRef.current && workspaceInstanceIdRef.current === capturedWorkspaceInstanceId) {
-          const code = error instanceof DrawingProjectV2Error ? error.code : null;
-          setSaveState(code === "project_too_large" || code === "collection_too_large" || code === "project_limit_reached" ? "too-large" : "failed");
-        }
-        return null;
-      } finally {
-        saveInFlightRef.current = false;
-      }
-    },
-    [
-      commitCurrentFrameSnapshotWithoutHistory,
-      createPersistedProjectSnapshot,
-      projectAiMemory,
-      projectId,
-      projectTitle,
-      saveCurrentFrameSnapshot,
-      showSaveNotification,
-    ],
-  );
-
   const saveProject = useCallback(async () => {
-    if (!activeUnifiedProject) { await persistProject(); return; }
-    if (isTimelinePlayingRef.current || saveInFlightRef.current) return;
+    if (isTimelinePlayingRef.current || saveInFlightRef.current) return false;
     const capturedWorkspaceInstanceId = workspaceInstanceIdRef.current;
     saveInFlightRef.current = true; setSaveState("saving");
     try {
@@ -8116,18 +7873,20 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
       if (!candidate) throw new Error("invalid_record");
       const capturedGeneration = documentGenerationRef.current;
       const saved = await saveUnifiedProjectV2(candidate);
-      if (!workspaceMountedRef.current || workspaceInstanceIdRef.current !== capturedWorkspaceInstanceId) return;
+      if (!workspaceMountedRef.current || workspaceInstanceIdRef.current !== capturedWorkspaceInstanceId) return true;
       setActiveUnifiedProject(saved); setProjectId(saved.projectId); setProjectTitle(saved.title);
       setProjectAiMemory(bindDrawingAiProjectMemoryToProject(saved.auxiliary?.drawingAiMemory as DrawingAiProjectMemory | null, saved.projectId));
       if (documentGenerationRef.current === capturedGeneration) { setSaveState("saved"); showSaveNotification(saved.title); }
       else setSaveState("unsaved");
+      return true;
     } catch (error) {
       if (workspaceMountedRef.current && workspaceInstanceIdRef.current === capturedWorkspaceInstanceId) {
         setSaveState(error instanceof Error && ["project_too_large", "collection_too_large", "project_limit_reached"].includes(error.message) ? "too-large" : "failed");
       }
+      return false;
     }
     finally { saveInFlightRef.current = false; }
-  }, [activeUnifiedProject, buildUnifiedProjectSnapshot, commitCurrentFrameSnapshotWithoutHistory, createPersistedProjectSnapshot, persistProject, showSaveNotification]);
+  }, [buildUnifiedProjectSnapshot, commitCurrentFrameSnapshotWithoutHistory, createPersistedProjectSnapshot, showSaveNotification]);
 
   const exportCurrentFrame = useCallback(() => {
     if (isTimelinePlayingRef.current) {
@@ -8190,7 +7949,7 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
       }
 
       if (actionPlan.action === "save-project") {
-        return Boolean(await persistProject());
+        return saveProject();
       }
 
       if (actionPlan.action === "export-current-frame") {
@@ -8203,7 +7962,7 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
 
       return false;
     },
-    [attachSoundOptionToFrame, exportCurrentFrame, persistProject],
+    [attachSoundOptionToFrame, exportCurrentFrame, saveProject],
   );
 
   const applyGeneratedFrameToWorkspace = useCallback(
@@ -8451,34 +8210,42 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
       return;
     }
 
-    if (activeUnifiedProject) {
-      const capturedWorkspaceInstanceId = workspaceInstanceIdRef.current;
-      commitCurrentFrameSnapshotWithoutHistory("unified:save-as");
-      const candidate = buildUnifiedProjectSnapshot(createPersistedProjectSnapshot({ preserveBitmapReferences: true }));
-      if (!candidate) return;
-      saveInFlightRef.current = true;
-      try {
-        setSaveState("saving");
-        const capturedGeneration = documentGenerationRef.current;
-        const saved = await saveUnifiedProjectAsV2(candidate, trimmedProjectName);
-        if (!workspaceMountedRef.current || workspaceInstanceIdRef.current !== capturedWorkspaceInstanceId) return;
-        setActiveUnifiedProject(saved); setProjectId(saved.projectId); setProjectTitle(saved.title);
-        setProjectAiMemory(bindDrawingAiProjectMemoryToProject(saved.auxiliary?.drawingAiMemory as DrawingAiProjectMemory | null, saved.projectId));
-        if (documentGenerationRef.current === capturedGeneration) { setSaveState("saved"); showSaveNotification(saved.title); }
-        else setSaveState("unsaved");
-      } catch (error) {
-        if (workspaceMountedRef.current && workspaceInstanceIdRef.current === capturedWorkspaceInstanceId) {
-          setSaveState(error instanceof Error && ["project_too_large", "collection_too_large", "project_limit_reached"].includes(error.message) ? "too-large" : "failed");
-        }
-      } finally { saveInFlightRef.current = false; }
-      return;
-    }
-    await persistProject({
-      forceNew: true,
-      nameOverride: trimmedProjectName,
-      commitMode: "commitWithoutHistory",
+    const capturedWorkspaceInstanceId = workspaceInstanceIdRef.current;
+    commitCurrentFrameSnapshotWithoutHistory("unified:save-as");
+    const candidate = buildUnifiedProjectSnapshot(createPersistedProjectSnapshot({ preserveBitmapReferences: true }));
+    if (!candidate) return;
+    saveInFlightRef.current = true;
+    try {
+      setSaveState("saving");
+      const capturedGeneration = documentGenerationRef.current;
+      const saved = await saveUnifiedProjectAsV2(candidate, trimmedProjectName);
+      if (!workspaceMountedRef.current || workspaceInstanceIdRef.current !== capturedWorkspaceInstanceId) return;
+      setActiveUnifiedProject(saved); setProjectId(saved.projectId); setProjectTitle(saved.title);
+      setProjectAiMemory(bindDrawingAiProjectMemoryToProject(saved.auxiliary?.drawingAiMemory as DrawingAiProjectMemory | null, saved.projectId));
+      if (documentGenerationRef.current === capturedGeneration) { setSaveState("saved"); showSaveNotification(saved.title); }
+      else setSaveState("unsaved");
+    } catch (error) {
+      if (workspaceMountedRef.current && workspaceInstanceIdRef.current === capturedWorkspaceInstanceId) {
+        setSaveState(error instanceof Error && ["project_too_large", "collection_too_large", "project_limit_reached"].includes(error.message) ? "too-large" : "failed");
+      }
+    } finally { saveInFlightRef.current = false; }
+  }, [buildUnifiedProjectSnapshot, commitCurrentFrameSnapshotWithoutHistory, createPersistedProjectSnapshot, projectTitle, showSaveNotification]);
+
+  const openStickFigureCreator = useCallback(() => {
+    if (isTimelinePlayingRef.current) return;
+    commitCurrentFrameSnapshotWithoutHistory("creator:open");
+    setIsStickFigureCreatorOpen(true);
+    window.requestAnimationFrame(() => {
+      document.querySelector<HTMLButtonElement>('[role="dialog"][aria-label="Stick Figure Creator"] button')?.focus();
     });
-  }, [activeUnifiedProject, buildUnifiedProjectSnapshot, commitCurrentFrameSnapshotWithoutHistory, createPersistedProjectSnapshot, persistProject, projectTitle, showSaveNotification]);
+  }, [commitCurrentFrameSnapshotWithoutHistory]);
+
+  const closeStickFigureCreator = useCallback(() => {
+    setIsStickFigureCreatorOpen(false);
+    window.requestAnimationFrame(() => {
+      document.querySelector<HTMLButtonElement>('button[aria-label="Open Stick Figure Creator"]')?.focus();
+    });
+  }, []);
 
   const handleTextObjectsChange = useCallback((nextTextObjects: DrawingTextObject[]) => {
     return updateFrameTextObjects(currentFrameIndexRef.current, nextTextObjects, activeLayerIdRef.current);
@@ -8770,7 +8537,7 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
     stickContent: StickFigureFrameContent | null;
     textObjects: DrawingTextObject[] | null;
   } | null) => {
-    if (!activeUnifiedProject || isTimelinePlayingRef.current || isApplyingHistoryRef.current) return false;
+    if (isTimelinePlayingRef.current || isApplyingHistoryRef.current) return false;
     const activeFrame = timelineFramesRef.current[currentFrameIndexRef.current] ?? null;
     if (!activeFrame || activeFrame.cellType === "empty") return false;
     const requiresFrameMutation = Boolean(
@@ -8839,9 +8606,9 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
     setSaveState("unsaved");
     commitCurrentHistoryState({ assumeChanged: true });
     return true;
-  }, [activeStickCellKey, activeUnifiedProject, commitCurrentHistoryState, recordUndoSnapshot, replaceLayerFrames, saveCurrentFrameSnapshot]);
+  }, [activeStickCellKey, commitCurrentHistoryState, recordUndoSnapshot, replaceLayerFrames, saveCurrentFrameSnapshot]);
   const importUnifiedAssets = useCallback((assets: UnifiedProjectAssetV2[]) => {
-    if (!activeUnifiedProject || assets.length === 0 || isTimelinePlayingRef.current || isApplyingHistoryRef.current) return false;
+    if (assets.length === 0 || isTimelinePlayingRef.current || isApplyingHistoryRef.current) return false;
     let nextCatalogs: UnifiedProjectCatalogsV2;
     try {
       nextCatalogs = appendProjectAssetsV2(unifiedCatalogsRef.current, assets);
@@ -8854,9 +8621,9 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
     setSaveState("unsaved");
     window.requestAnimationFrame(() => commitCurrentHistoryState({ assumeChanged: true }));
     return true;
-  }, [activeUnifiedProject, commitCurrentHistoryState, recordUndoSnapshot]);
+  }, [commitCurrentHistoryState, recordUndoSnapshot]);
   const removeUnifiedSymbolDefinition = useCallback((definitionId: string) => {
-    if (!activeUnifiedProject || isTimelinePlayingRef.current || isApplyingHistoryRef.current) return false;
+    if (isTimelinePlayingRef.current || isApplyingHistoryRef.current) return false;
     const referencedDefinitionIds = new Set(
       Object.values(symbolInstancesByCellRef.current).flat().map(instance => instance.definitionId),
     );
@@ -8872,9 +8639,9 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
     setSaveState("unsaved");
     window.requestAnimationFrame(() => commitCurrentHistoryState({ assumeChanged: true }));
     return true;
-  }, [activeUnifiedProject, commitCurrentHistoryState, recordUndoSnapshot]);
+  }, [commitCurrentHistoryState, recordUndoSnapshot]);
   const commitUnifiedSymbolInstances = useCallback((instances: UnifiedSymbolInstanceItemV2[]) => {
-    if (!activeUnifiedProject || !activeStickCellKey || isTimelinePlayingRef.current || isApplyingHistoryRef.current) return false;
+    if (!activeStickCellKey || isTimelinePlayingRef.current || isApplyingHistoryRef.current) return false;
     recordUndoSnapshot();
     const next = { ...symbolInstancesByCellRef.current, [activeStickCellKey]: structuredClone(instances) };
     symbolInstancesByCellRef.current = next;
@@ -8882,7 +8649,7 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
     setSaveState("unsaved");
     window.requestAnimationFrame(() => commitCurrentHistoryState({ assumeChanged: true }));
     return true;
-  }, [activeStickCellKey, activeUnifiedProject, commitCurrentHistoryState, recordUndoSnapshot]);
+  }, [activeStickCellKey, commitCurrentHistoryState, recordUndoSnapshot]);
   const canEditTextInCurrentFrame = useMemo(() => {
     if (isTimelinePlaying || activeTweenEditContext?.side === "end") {
       return false;
@@ -8994,7 +8761,10 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
   }, [activeTweenGuide, canvasOverlayRect]);
 
   return (
+    <>
     <div
+      aria-hidden={isStickFigureCreatorOpen ? "true" : undefined}
+      inert={isStickFigureCreatorOpen ? true : undefined}
       style={{
         height: "100vh",
         background: "rgb(26, 27, 36)",
@@ -9003,8 +8773,7 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
         overflow: "hidden",
       }}
     >
-      {activeUnifiedProject && (
-        <style>{`
+      <style>{`
           @media (max-width: 640px) {
             [data-unified-workspace-area="true"] > div:has([data-workspace-stage-guide="camera"]) {
               flex-direction: column;
@@ -9029,15 +8798,12 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
             }
           }
         `}</style>
-      )}
       <DrawingTopBar
         projectTitle={projectTitle}
-        onSave={saveProject}
+        onSave={async () => { await saveProject(); }}
         onSaveAs={handleSaveAs}
         saveState={saveState}
-        isLegacyProject={activeUnifiedProject
-          ? activeUnifiedProject.provenance?.kind === "legacy-adoption" && activeUnifiedProject.provenance.adoptedAt === null
-          : initialProject?.kind === "legacy" && activeStorageRevisionRef.current === null}
+        isLegacyProject={activeUnifiedProject.provenance?.kind === "legacy-adoption" && activeUnifiedProject.provenance.adoptedAt === null}
         onUndo={handleUndo}
         onRedo={handleRedo}
         canUndo={!isTimelinePlaying && canUndoHistory}
@@ -9074,7 +8840,7 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
         </div>
       )}
       <MemoizedDrawingTimelineRow
-        responsiveLayout={Boolean(activeUnifiedProject)}
+        responsiveLayout
         fps={timelineFps}
         isPlaying={isTimelinePlaying}
         isOnionEnabled={isOnionEnabled}
@@ -9103,7 +8869,7 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
       />
       <div
         ref={workspaceAreaRef}
-        data-unified-workspace-area={activeUnifiedProject ? "true" : undefined}
+        data-unified-workspace-area="true"
         style={{ flex: 1, minHeight: 0, position: "relative", display: "flex" }}
       >
         {isTimelinePlaying && (
@@ -9131,6 +8897,7 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
           isTimelinePlaying={isTimelinePlaying}
           onAuthoringActionCommitted={commitCanvasAuthoringAction}
           onUnifiedSelectionActionCommitted={commitUnifiedSelectionAction}
+          onOpenStickFigureCreator={openStickFigureCreator}
           onToolSelect={activateDrawingTool}
           playbackRenderScale={isTimelinePlaying ? playbackRenderScale : 1}
           workspaceContext={deferredWorkspaceAiContext}
@@ -9147,13 +8914,13 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
           onTextObjectsChange={handleTextObjectsChange}
           unifiedStickContent={activeUnifiedStickContent}
           onUnifiedStickContentChange={commitUnifiedStickContent}
-          unifiedSymbolDefinitions={activeUnifiedProject ? unifiedCatalogs.symbols : undefined}
-          unifiedProjectAssets={activeUnifiedProject ? unifiedCatalogs.assets : undefined}
-          unifiedSymbolInstances={activeUnifiedProject ? activeUnifiedSymbolInstances : undefined}
-          onCreateUnifiedSymbolDefinition={activeUnifiedProject ? createUnifiedSymbolDefinition : undefined}
-          onUnifiedAssetsImported={activeUnifiedProject ? importUnifiedAssets : undefined}
-          onRemoveUnifiedSymbolDefinition={activeUnifiedProject ? removeUnifiedSymbolDefinition : undefined}
-          onUnifiedSymbolInstancesChange={activeUnifiedProject ? commitUnifiedSymbolInstances : undefined}
+          unifiedSymbolDefinitions={unifiedCatalogs.symbols}
+          unifiedProjectAssets={unifiedCatalogs.assets}
+          unifiedSymbolInstances={activeUnifiedSymbolInstances}
+          onCreateUnifiedSymbolDefinition={createUnifiedSymbolDefinition}
+          onUnifiedAssetsImported={importUnifiedAssets}
+          onRemoveUnifiedSymbolDefinition={removeUnifiedSymbolDefinition}
+          onUnifiedSymbolInstancesChange={commitUnifiedSymbolInstances}
         />
         {tweenGuideOverlay && (
           <svg
@@ -9228,5 +8995,11 @@ export function DrawingWorkspace({ initialProject = null, initialTitle = DEFAULT
       </div>
       <DrawingToolBar activeTool={activeTool} onToolSelect={activateDrawingTool} />
     </div>
+    {isStickFigureCreatorOpen && (
+      <div role="dialog" aria-label="Stick Figure Creator" aria-modal="true" style={{ position: "fixed", inset: 0, zIndex: 100 }}>
+        <StickFigureCreatorWorkspace onExit={closeStickFigureCreator} />
+      </div>
+    )}
+    </>
   );
 }

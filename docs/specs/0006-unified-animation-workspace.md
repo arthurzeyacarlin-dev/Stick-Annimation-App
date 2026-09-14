@@ -1,17 +1,17 @@
 # SPEC-0006 — Unified Animation Workspace
 
-Status: **Approved and active; Phases 1–5 Verified, published, integrated, recorded, and cleaned up; Phase 6 Arthur-accepted and technically Verified pending GIT-060 publication.** The former typed-layer Phase 4 remains rejected, unpublished, and non-reusable. GIT-059 is exact canonical commit `62feafc220c35eb1203dc4f19820e533a54002e1`. D-0068 accepts the exact 18-path Phase 6 result at manifest SHA-256 `5883ea735bd741b2f14e45d2fa84669ea3bb78ad5ed23693011e0280e4070902`. Phase 7 remains unauthorized and not started.
+Status: **Approved and active; Phases 1–6 Verified, published, and integrated; Phase 7 Arthur-accepted and technically Verified pending GIT-061 publication.** The former typed-layer Phase 4 remains rejected, unpublished, and non-reusable. GIT-060 is exact canonical commit `cbe16411a0f83d3b86136f41d0a66d1874d009aa`. D-0069 accepts the exact 11-path Phase 7 result at immutable 50,224-byte manifest SHA-256 `c6202f6deab4d3bcc75af3ad6699fc2dc70fc58723eccaa8337b1a2aef74bc51`. SPEC-0006 is technically complete in the accepted worktree; publication/integration remains separate.
 Owner: Arthur
-Task role: Control Plane Architect for accepted Phase 6 propagation; stop before GIT-060 publication
+Task role: Control Plane Architect for accepted Phase 7 propagation; stop before GIT-061 publication
 Created: 2026-09-09
 Last updated: 2026-09-14
-Decision links: [D-0055–D-0068](../DECISIONS.md)
-TODO IDs: `PLAN-006`, `SPEC-006`, `UNIFY-001`–`UNIFY-007`, `GIT-050`–`GIT-060`
-Fresh local evidence: GIT-059 is exact synchronized canonical commit `62feafc220c35eb1203dc4f19820e533a54002e1`, parent GIT-058 `41983b0c88e1994675a4901d5814b3d972ad46b4`, message `docs: record phase 5 cleanup closeout`. The stopped Phase 6 executor retained detached base/HEAD GIT-059, exact 18-path technical dirty set and empty index. Its immutable 43,794-byte manifest is PASS/VALID at SHA-256 `5883ea735bd741b2f14e45d2fa84669ea3bb78ad5ed23693011e0280e4070902`, with 18 source and 13 evidence bindings. Arthur accepted identical restarted app-copy bytes on 2026-09-14; the recorded pre-expiry listener later ended, while all accepted file bindings remain exact. GIT-060 publication is pending.
+Decision links: [D-0055–D-0069](../DECISIONS.md)
+TODO IDs: `PLAN-006`, `SPEC-006`, `UNIFY-001`–`UNIFY-007`, `GIT-050`–`GIT-061`
+Fresh local evidence: GIT-060 is exact synchronized canonical commit `cbe16411a0f83d3b86136f41d0a66d1874d009aa`, parent GIT-059 `62feafc220c35eb1203dc4f19820e533a54002e1`, message `Implement SPEC-0006 Phase 6 adoption and recovery`, exactly 32 paths. The stopped Phase 7 executor retained detached base/HEAD GIT-060, exact 11-path technical dirty set and empty index. Its immutable 50,224-byte manifest is PASS/VALID at SHA-256 `c6202f6deab4d3bcc75af3ad6699fc2dc70fc58723eccaa8337b1a2aef74bc51`, with 11 source and 16 evidence bindings. Arthur accepted the ordinary app at port 56770 on 2026-09-14; listener PID 34120 remains at the exact worktree cwd. GIT-061 publication is pending.
 
 **Authority and sequencing.** Arthur requires neutral layers and a visible corrected Phase 4 in the same app copy. This supersedes D-0056/D-0057's typed-layer design and the former Phase 4 timeline-only boundary, not the three published historical results. SPEC-0006 remains the sole specification and retains **seven numbered phases**. Corrected Phase 4 has exactly **two sequential internal subphases, 4A and 4B**, under its existing correction authorization, ending in one visible human review. A hidden 4A checkpoint is never Phase 4 acceptance. See §12 for why ordinary New requires a minimal safe repository before cutover, the exact 12-path 4A boundary and 24-path 4B boundary.
 
-This architecture task stops after its packet. It performs no runtime/proof/server/Git action. PM coordinates sequential exclusive ownership under Arthur's existing implementation authority without requiring Plan clicks or copied messages. Publication remains separately authorized. The same-copy correction exception and its verified recovery conditions are recorded in §16; rejected bytes are preserved as evidence, then replaced from canonical foundations, not reused.
+This Control Plane Architect task stops after its packet. It changes no accepted runtime/fixture/technical-test/evidence byte and performs no staging, commit, merge, push, deployment, server stop or cleanup. Publication remains separately authorized. The same-copy correction exception and its verified recovery conditions are recorded in §16; rejected bytes are preserved as evidence, then replaced from canonical foundations, not reused.
 
 | Phase | Result and lifecycle | Technical ceiling |
 | --- | --- | ---: |
@@ -20,8 +20,8 @@ This architecture task stops after its packet. It performs no runtime/proof/serv
 | 3 — Typed-layer mixed stage | Published GIT-054 `e11f6c453f13772ee9bd4b172a17bc68e1de65b9`; 16 actual paths | historical 16 |
 | 4 — Visible neutral workspace/timeline correction | **Verified/published/integrated in GIT-056**; 4A + 4B completed and human-accepted | **26 actual technical paths** |
 | 5 — Complete current tools, project Library/Assets and panels | **Verified/published/integrated under D-0065/D-0066/GIT-057**; 17 actual technical paths | 20 |
-| 6 — Complete canonical adoption/recovery and persistence proof | **Arthur-accepted and technically Verified under D-0068; GIT-060 publication pending**; 18 actual technical paths | 20 |
-| 7 — Retire duplicate ownership and full acceptance | After GIT-060 publication/integration; unauthorized and not started | 18 |
+| 6 — Complete canonical adoption/recovery and persistence proof | **Verified/published/integrated in GIT-060**; 18 actual technical paths | 20 |
+| 7 — Retire duplicate ownership and full acceptance | **Arthur-accepted and technically Verified under D-0069; GIT-061 publication pending**; 11 actual technical paths | 18 |
 
 ## 1. Plain-language outcome
 
@@ -490,7 +490,7 @@ Stick and symbol gestures use synchronous ref-backed drafts. Pointer-up consumes
 
 ### Phase 6 — Complete canonical legacy adoption, recovery, naming and persistence proof
 
-**Lifecycle:** Arthur-accepted and technically Verified under D-0068 on 2026-09-14; GIT-060 publication/integration remains pending. Exact accepted technical boundary: 18 paths from GIT-059 base/HEAD `62feafc220c35eb1203dc4f19820e533a54002e1`, immutable 43,794-byte manifest SHA-256 `5883ea735bd741b2f14e45d2fa84669ea3bb78ad5ed23693011e0280e4070902`, PASS/VALID with 18 source and 13 evidence bindings. See §19.
+**Lifecycle:** Arthur-accepted and technically Verified under D-0068 on 2026-09-14; published/integrated in exact GIT-060 commit `cbe16411a0f83d3b86136f41d0a66d1874d009aa`. Exact accepted technical boundary: 18 paths from GIT-059 base/HEAD `62feafc220c35eb1203dc4f19820e533a54002e1`, immutable 43,794-byte manifest SHA-256 `5883ea735bd741b2f14e45d2fa84669ea3bb78ad5ed23693011e0280e4070902`, PASS/VALID with 18 source and 13 evidence bindings. See §19.
 
 **Outcome/path.** Finish all supported source Open paths through read-only V2 migration and the common editor, safe first-save adoption, provenance dedupe and exhaustive persistence/recovery/performance acceptance. This completes and hardens the 4A/4B native mixed Save foundation rather than introducing a second repository/history.
 
@@ -502,11 +502,13 @@ Stick and symbol gestures use synchronous ref-backed drafts. Pointer-up consumes
 
 ### Phase 7 — Retire duplicate ownership and complete full acceptance
 
+**Lifecycle:** Arthur-accepted and technically Verified under D-0069 on 2026-09-14; GIT-061 publication/integration remains pending. Exact accepted technical boundary: 11 paths from GIT-060 base/HEAD `cbe16411a0f83d3b86136f41d0a66d1874d009aa`, immutable 50,224-byte manifest SHA-256 `c6202f6deab4d3bcc75af3ad6699fc2dc70fc58723eccaa8337b1a2aef74bc51`, PASS/VALID with 11 source and 16 evidence bindings. See §20.
+
 **Outcome/path.** Every ordinary route and user action reaches the sole V2 root/dispatcher/resolver/timeline/tools/history/repository. Legacy parsers remain read-only leaves; retired coordinators cannot become alternate normal Save/edit paths.
 
 **Scope/ceiling: 18 tracked paths including deletions.** Exact unused-owner import/mount/write removal list plus permanent tester/finalizer/full-proof sources. Do not delete shared algorithms, read parsers, source data, historical fixtures/manifests or protected AI contracts. No unrelated cleanup.
 
-**Entry.** Phase 6 accepted/published, preceding manifests preserved; import/route/write inventory proves removals safe. Freeze the complete ordinary capability matrix.
+**Entry.** Satisfied from published GIT-060. Preceding preserved manifests and recorded identities were inventoried; import/route/write inventory proved the bounded removals safe; the complete ordinary capability matrix was frozen.
 
 **Acceptance/proof/human review.** Repeat all §7 flows in the ordinary root, including same-layer/same-cell drawn and symbol swords/fireballs, all existing tools/panels/catalogs, full mixed loop/onion/history and storage failures. All REG-01–12 and §9 performance/memory pass; zero critical/serious accessibility findings, keyboard/visible focus, 200% zoom and reduced-motion checks. Instrument zero legacy writes, second coordinator/history authority, seeded product/debug surface or external/provider requests. Independently revalidate every accepted historical/checkpoint/final manifest against its own bound commit/source set. Arthur's visible acceptance is mandatory; a green old typed-layer fixture is insufficient.
 
@@ -676,3 +678,19 @@ The immutable manifest records listener PID 23344 and the successful strict vali
 Phase 6 adds no legacy source write/delete behavior, AI model/prompt/provider/API/task change, motion/video/tracking, Creator Save, new manual capability, automatic attachment/following, export, dependency/configuration, cloud/auth/billing or deployment. Compact remains browser-profile rather than physical-phone proof; native/GPU allocation remains unproven and existing compact title clipping remains.
 
 After executor stop and Arthur/PM acceptance, ownership transferred sequentially to the Control Plane Architect. CPA changed no accepted technical/evidence byte and added only canonical Phase 6 records plus the generated tree, leaving the index empty. A later GIT-060 publication turn may stage only the accepted 18 technical paths and reviewed control-plane/tree paths from unchanged GIT-059, commit once on a `codex/` branch, fast-forward a still-clean canonical `main`, push normally and verify clean local/remote `0/0`. Preserve `/b70c/` and proof until synchronization and later authorized D-0054 cleanup. Phase 7 is unauthorized and not started.
+
+GIT-060 subsequently published the exact accepted 18 technical paths plus 14 reviewed control-plane/tree paths as commit `cbe16411a0f83d3b86136f41d0a66d1874d009aa`, parent GIT-059 `62feafc220c35eb1203dc4f19820e533a54002e1`, message `Implement SPEC-0006 Phase 6 adoption and recovery`, exactly 32 paths. Fresh Phase 7 CPA checks found local `main`, local `origin/main`, live GitHub `main`, and detached Phase 7 base/HEAD equal at that SHA with clean `0/0` before propagation. This newer publication fact supersedes only the preceding paragraph's historical pending-publication status.
+
+## 20. Phase 7 accepted result — D-0069 (2026-09-14)
+
+Arthur reviewed the ordinary app at `http://127.0.0.1:56770/` and called the result a PASS. The stopped Spec Executor used detached base/HEAD GIT-060 `cbe16411a0f83d3b86136f41d0a66d1874d009aa` in `/Users/arthurcarlin/.codex/worktrees/cd3e/stick-animation-app`, kept an empty index and changed exactly the 11 technical paths bound by `output/spec-0006/phase-7/proof-manifest.json`. That immutable manifest is 50,224 bytes at SHA-256 `c6202f6deab4d3bcc75af3ad6699fc2dc70fc58723eccaa8337b1a2aef74bc51`, status PASS, integrity VALID, technicalAcceptance PASS, with 11 source and 16 evidence bindings. Its historical `humanAcceptance: pending Arthur` and finalization `controlPlaneUpdated: false` fields are retained as executor-snapshot facts; D-0069 records the later acceptance and propagation.
+
+The accepted result completes the ordinary ownership cutover. `WorkspaceCandidate.editor` has only the unified V2 variant; New and every supported Open path create or hydrate that root; `AnimationWorkspace` mounts exactly one `DrawingWorkspace`; and manual Save, Save As and AI-triggered Save call the canonical V2 repository. The Drawing-shaped projection and `DrawingCanvas` remain controlled algorithm/interaction adapters. The ordinary coordinator no longer contains a reachable legacy Drawing hydration/storage/cloud-sync write branch. The standalone Stick coordinator remains only as a protected historical/test anchor and is not imported or mounted by the ordinary workspace. Legacy source parsers remain read-only and source records are not deleted or rewritten.
+
+The Stick Creator is embedded inside the unified root with an accessible modal identity, inert background containment, keyboard-visible focus and trigger-focus return. Creator Save remains disabled. Browser proof passed at 1440×900 DPR1 and 390×844 DPR2 with 200% zoom, reduced motion, Creator keyboard round trip, zero Axe critical/serious findings, canonical V2 writes only, no second coordinator mount, and zero external/real API requests, console errors or page errors.
+
+The complete 24-command ledger passed. Phase 7 authority passed 30 assertions over nine ordinary flows and 12 regressions. TypeScript and scoped production build passed. Focused lint reported zero errors/eight inherited warnings; full lint retained the inherited five-error/72-warning baseline with zero changed-line findings. Phase 6 production stress remained PASS with 19 browser operations, two 60,268,104-byte rasters, desktop open/reopen/save at 735.8/758.3/1507.5 ms, settled desktop heap 312,397,923 bytes, compact settled heap 11,204,437 bytes, 240 selection-settle samples and zero long tasks.
+
+Historical-manifest revalidation is `PASS_WITH_RECORDED_GAPS`, not an invented full-history claim. Preserved Phase 3, Phase 5 and Phase 6 manifests revalidated against their source bindings. Phase 1, Phase 2, Phase 4A checkpoint and final Phase 4 manifest files were not preserved, so only their recorded identities and publication commits are reported. Compact is a desktop Chromium responsive profile rather than physical-phone proof; native/GPU memory remains unproven.
+
+After executor stop and Arthur/PM acceptance, ownership transferred sequentially to the Control Plane Architect. CPA changed no accepted technical/evidence byte and added only canonical Phase 7 records plus the generated tree, leaving the index empty. A later GIT-061 publication turn may stage only the accepted 11 technical paths and reviewed 14 control-plane/tree paths from unchanged GIT-060, commit once on a `codex/` branch, fast-forward a still-clean canonical `main`, push normally and verify clean local/remote `0/0`. Preserve `/cd3e/`, listener PID 34120 and proof until synchronization and later authorized D-0054 cleanup. No future SPEC-0007/0008, provider, deployment or other product authority is granted.

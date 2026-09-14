@@ -547,6 +547,7 @@ type DrawingCanvasProps = {
     drawingChanged: boolean;
     stickContent: StickFigureFrameContent | null;
   }) => boolean;
+  onOpenStickFigureCreator: () => void;
   unifiedStickContent?: StickFigureFrameContent;
   onUnifiedStickContentChange?: (content: StickFigureFrameContent) => void;
   unifiedSymbolDefinitions?: UnifiedBitmapSymbolDefinitionV2[];
@@ -1659,6 +1660,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   onExecuteActionPlan,
   onAuthoringActionCommitted,
   onUnifiedSelectionActionCommitted,
+  onOpenStickFigureCreator,
   unifiedStickContent = { figures: [], structureGraph: { joints: [], limbs: [], activeJointId: null } },
   onUnifiedStickContentChange,
   unifiedSymbolDefinitions,
@@ -11533,6 +11535,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       <div><div style={{ color: "rgba(255,255,255,0.92)", fontSize: 14, fontWeight: 800 }}>STICK FIGURE TOOLS</div><div style={{ color: "rgba(255,255,255,0.62)", fontSize: 12 }}>Create and edit segments in this frame.</div></div>
       <button type="button" onClick={() => activateUnifiedStickTool("add-limb")} style={{ minHeight: 38, borderRadius: 8, border: unifiedStickMode === "add-limb" && canvasInteractionOwner === "stick" ? "1px solid rgba(110,170,255,.5)" : "1px solid rgba(255,255,255,.12)", background: unifiedStickMode === "add-limb" && canvasInteractionOwner === "stick" ? "rgba(110,170,255,.14)" : "rgba(255,255,255,.04)", color: "white", cursor: "pointer" }}>Add Limb</button>
       <button type="button" onClick={() => activateUnifiedStickTool("select")} style={{ minHeight: 38, borderRadius: 8, border: unifiedStickMode === "select" && canvasInteractionOwner === "stick" ? "1px solid rgba(110,170,255,.5)" : "1px solid rgba(255,255,255,.12)", background: unifiedStickMode === "select" && canvasInteractionOwner === "stick" ? "rgba(110,170,255,.14)" : "rgba(255,255,255,.04)", color: "white", cursor: "pointer" }}>Select / Move Joint</button>
+      <button type="button" aria-label="Open Stick Figure Creator" onClick={onOpenStickFigureCreator} disabled={isTimelinePlaying} style={{ minHeight: 38, borderRadius: 8, border: "1px solid rgba(255,255,255,.12)", background: "rgba(255,255,255,.04)", color: "white", cursor: isTimelinePlaying ? "not-allowed" : "pointer", opacity: isTimelinePlaying ? 0.55 : 1 }}>Creator</button>
       <div style={{ color: "rgba(255,255,255,.58)" }}>{unifiedStickContent.structureGraph.joints.length} joints · {unifiedStickContent.structureGraph.limbs.length} segments</div>
     </div>
   );

@@ -11,13 +11,13 @@ Last updated: 2026-09-14
 - Paid AI calls, remote writes, deployment, and baseline commits require task-specific authorization.
 - The roadmap may change when Arthur resolves pending decisions or new evidence changes the risk order.
 
-## Current owner sequence — 2026-09-14 (D-0068/Phase 6 accepted)
+## Current owner sequence — 2026-09-14 (D-0069/Phase 7 accepted)
 
-SPEC-0006 Phases 1–5 are Verified/published/integrated/recorded and cleaned up through GIT-059 `62feafc220c35eb1203dc4f19820e533a54002e1`. Phase 6 is Arthur-accepted and technically Verified in the retained `/b70c/` worktree from that exact base. Its immutable 43,794-byte manifest is PASS/VALID at SHA-256 `5883ea735bd741b2f14e45d2fa84669ea3bb78ad5ed23693011e0280e4070902`, with exactly 18 source and 13 evidence bindings.
+SPEC-0006 Phases 1–6 are Verified/published/integrated through GIT-060 `cbe16411a0f83d3b86136f41d0a66d1874d009aa`. Phase 7 is Arthur-accepted and technically Verified in the retained `/cd3e/` worktree from that exact base. Its immutable 50,224-byte manifest is PASS/VALID at SHA-256 `c6202f6deab4d3bcc75af3ad6699fc2dc70fc58723eccaa8337b1a2aef74bc51`, with exactly 11 source and 16 evidence bindings.
 
-The corrected order keeps seven numbered phases. Minimal neutral data/storage precedes Phase 4 visible ordinary New, common history and timeline; Phase 5 completes current tools/catalogs/panels; accepted Phase 6 now completes source adoption/recovery and persistence proof. Phase 7 still owns duplicate-owner retirement and full ordinary acceptance.
+The corrected order keeps seven numbered phases. Minimal neutral data/storage precedes Phase 4 visible ordinary New, common history and timeline; Phase 5 completes current tools/catalogs/panels; Phase 6 completes source adoption/recovery and persistence proof; accepted Phase 7 retires ordinary duplicate ownership and passes the full ordinary acceptance gate. SPEC-0006 is technically complete in the accepted worktree, but publication/integration and later review-copy cleanup remain separate.
 
-GIT-060 publication/integration of the exact accepted 18 technical paths plus the reviewed Phase 6 control-plane/tree paths is next. Publication must start from unchanged GIT-059, use a `codex/` branch, stage only the reviewed allowlist, fast-forward a still-clean canonical `main`, push normally, and verify local/remote clean `0/0`; this propagation task performs none of those actions. Preserve the accepted worktree and proof until publication/synchronization and later authorized D-0054 cleanup succeed. Phase 7 and future SPEC-0007/0008 remain gated and unauthorized.
+GIT-061 publication/integration of the exact accepted 11 technical paths plus the reviewed Phase 7 control-plane/tree paths is next. Publication must start from unchanged GIT-060, use a `codex/` branch, stage only the reviewed allowlist, fast-forward a still-clean canonical `main`, push normally, and verify local/remote clean `0/0`; this propagation task performs none of those actions. Preserve the accepted worktree, listener and proof until publication/synchronization and later authorized D-0054 cleanup succeed. Future SPEC-0007/0008 remain gated and unauthorized.
 
 ## Phase 0 — Preserve and Stabilize
 

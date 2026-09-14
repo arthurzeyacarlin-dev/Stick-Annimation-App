@@ -5,6 +5,16 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-14 — Accept SPEC-0006 Phase 7 and complete CPA propagation (D-0069)
+
+- Recorded GIT-060 as exact synchronized 32-path commit `cbe16411a0f83d3b86136f41d0a66d1874d009aa`, parent GIT-059 `62feafc220c35eb1203dc4f19820e533a54002e1`, message `Implement SPEC-0006 Phase 6 adoption and recovery`; fresh pre-propagation checks matched detached `HEAD`, local `main`, local `origin/main` and live GitHub `main` at clean `0/0`.
+- Recorded Arthur's PASS after reviewing the ordinary Phase 7 app at `http://127.0.0.1:56770/`. The stopped executor transferred `/cd3e/` sequentially to the Control Plane Architect with exact 11-path technical set and empty index; listener PID 34120 remains at the exact worktree cwd.
+- Preserved immutable manifest `output/spec-0006/phase-7/proof-manifest.json`, 50,224 bytes, SHA-256 `c6202f6deab4d3bcc75af3ad6699fc2dc70fc58723eccaa8337b1a2aef74bc51`, PASS/VALID with 11 source and 16 evidence bindings. CPA freshly verified every bound size/hash and did not rewrite the manifest's historical pending-acceptance field or the finalization's historical control-plane field.
+- Completed ordinary duplicate-owner retirement: all workspace candidates are unified V2, one `DrawingWorkspace` owns ordinary authored state/history/render/timeline/persistence, and Save/Save As/AI Save share the canonical V2 repository. The old standalone Stick coordinator is not imported/mounted by the ordinary path; legacy parsers remain read-only.
+- Accepted Creator/accessibility behavior includes embedded modal ownership, inert background, visible keyboard focus and focus return, disabled Creator Save, 200% zoom, reduced motion, and zero Axe critical/serious findings. The 24-command ledger, 30 authority assertions, nine ordinary flows, 12 regressions, TypeScript/build, lint non-regression, desktop/compact browser proof and retained Phase 6 stress evidence passed with zero external/real API requests.
+- Recorded historical proof honestly: preserved Phase 3/5/6 manifests fully revalidated; Phase 1/2/4A/4 manifest files are unavailable, so only recorded identities/commits are claimed. Compact remains desktop Chromium emulation; physical-phone and native/GPU memory remain unproven.
+- Updated only canonical Phase 7 records and the generated project tree. No accepted technical/evidence byte, `AGENTS.md`, package/configuration, legacy source record, AI/provider/prompt/API/motion/video/tracking, export, cloud/auth/billing, deployment, server, other worktree or Git index/ref/history changed. GIT-061 publication/integration and later D-0054 cleanup remain separate.
+
 ### 2026-09-14 — Accept SPEC-0006 Phase 6 adoption/recovery and complete CPA propagation (D-0068)
 
 - Recorded Arthur's acceptance of the identical Phase 6 app-copy bytes after the same review copy was restarted on port 56666. The stopped executor transferred `/b70c/` sequentially to the Control Plane Architect at exact GIT-059 base/HEAD `62feafc220c35eb1203dc4f19820e533a54002e1`, exact 18-path technical set and empty index.

@@ -1,8 +1,7 @@
 import type { UnifiedAnimationDocumentV1, UnifiedAnimationMigrationCandidateV1 } from "./unifiedAnimationContract.ts";
 import { readCollectionCandidate, type ProjectCollectionEntry } from "./unifiedProjectCollection.ts";
 import type { ProjectSourceReader } from "./unifiedProjectSourceReader.ts";
-import { hydrateV2Project, type DrawingProjectOpenCandidate, type StoredDrawingProject } from "../drawingProjectStorage.ts";
-import type { StickSavedProjectRecordV1 } from "../stickProjectStorage.ts";
+import { hydrateV2Project, type StoredDrawingProject } from "../drawingProjectStorage.ts";
 import { sanitizeDrawingAiProjectMemory } from "../ai/drawingAiContract.ts";
 import type { UnifiedAnimationProjectV2 } from "./unifiedAnimationContractV2.ts";
 import { createNativeUnifiedProjectV2 } from "./unifiedWorkspaceFactoryV2.ts";
@@ -16,7 +15,7 @@ export type WorkspaceCandidate = {
   digest: string;
   document: UnifiedAnimationDocumentV1;
   migration: UnifiedAnimationMigrationCandidateV1 | null;
-  editor: { kind: "drawing"; project: DrawingProjectOpenCandidate | null } | { kind: "stick"; project: StickSavedProjectRecordV1 } | { kind: "unified"; project: UnifiedAnimationProjectV2 };
+  editor: { kind: "unified"; project: UnifiedAnimationProjectV2 };
 };
 export type MountedWorkspace = { generation: number; candidate: WorkspaceCandidate };
 export type BootstrapResult = { status: "opened"; root: MountedWorkspace } | { status: "stale" } | { status: "failed"; code: string };

@@ -1,12 +1,7 @@
 "use client";
 
 import { DrawingWorkspace } from "./DrawingWorkspace";
-import { StickFigureWorkspace } from "./stickfigure/StickFigureWorkspace";
-import { UnifiedAnimationStage } from "./UnifiedAnimationStage";
-import type { UnifiedAnimationDocumentV1 } from "@/src/lib/animation/unifiedAnimationContract";
-import type { StickFigureFrameContent } from "./stickfigure/types";
 import type { MountedWorkspace } from "@/src/lib/animation/unifiedWorkspaceBootstrap";
-import styles from "./AnimationWorkspace.module.css";
 import type { DrawingProjectData, DrawingProjectOpenCandidate, StoredDrawingTextObject } from "@/src/lib/drawingProjectStorage";
 import type { UnifiedAnimationProjectV2 } from "@/src/lib/animation/unifiedAnimationContractV2";
 import type { UnifiedRasterBitmapV2 } from "@/src/lib/animation/unifiedAnimationContentV2";
@@ -157,51 +152,22 @@ const hydrateUnifiedItemCompatibility = (project: UnifiedAnimationProjectV2, dra
 
 export function AnimationWorkspace({ root }: { root: MountedWorkspace }) {
   const editor = root.candidate.editor;
-  if (editor.kind === "unified") {
-    const compatibilityDrawingData = editor.project.compatibility?.drawingData as DrawingProjectData | undefined;
-    const compatibilitySource = compatibilityDrawingData ?? createDrawingCompatibilityProjection(editor.project);
-    const drawingData = hydrateDrawingCompatibility(editor.project, compatibilitySource);
-    const itemCompatibility = hydrateUnifiedItemCompatibility(editor.project, drawingData);
-    const initialProject: DrawingProjectOpenCandidate = {
-      kind: editor.project.provenance?.kind === "legacy-adoption" && editor.project.provenance.adoptedAt === null ? "legacy" : "v2",
-      project: { id: editor.project.projectId, name: editor.project.title, data: drawingData, previewDataUrl: null, aiMemory: sanitizeDrawingAiProjectMemory(editor.project.auxiliary?.drawingAiMemory) ?? null, created_at: editor.project.createdAt, updated_at: editor.project.updatedAt },
-      head: null, record: null, legacyRecordDigest: null,
-    };
-    const hydratedUnifiedProject = {
-      ...editor.project,
-      compatibility: {
-        ...editor.project.compatibility,
-        drawingData: compatibilitySource,
-        ...itemCompatibility,
-      },
-    };
-    return <DrawingWorkspace initialProject={initialProject} initialTitle={editor.project.title} deferInitialMemorySync unifiedProject={hydratedUnifiedProject} />;
-  }
-  const document = root.candidate.document;
-  const mixed = document.layers.some(layer => layer.contentKind === "drawing/v1") && document.layers.some(layer => layer.contentKind === "stick-rig/v1");
-  // A read snapshot at the render seam. Existing Stick gestures still publish
-  // through their compatibility owner; this moves no tool/history/save authority.
-  const renderStage = mixed && root.candidate.migration ? (index: number, sourceLayerId: string, content: StickFigureFrameContent) => {
-    const snapshot: UnifiedAnimationDocumentV1 = { ...document, layers: document.layers.map(layer => {
-      if (layer.contentKind !== "stick-rig/v1" || layer.sourceLayerId !== sourceLayerId) return layer;
-      const ownerId = layer.cells[index]?.ownerCellId;
-      return { ...layer, cells: layer.cells.map(cell => cell.cellId === ownerId ? { ...cell, payload: content } : cell) };
-    }) };
-    return <UnifiedAnimationStage document={snapshot} index={index} assets={root.candidate.migration!.project.assets} resolvedAssets={root.candidate.migration!.resolvedAssets} />;
-  } : undefined;
-  return (
-    <section className={`${styles.workspace} ${mixed ? styles.mixed : ""}`} aria-label="Animation workspace">
-      <div className={styles.editor} data-editor-kind={editor.kind} key={root.generation}>
-        {editor.kind === "drawing" ? (
-          <DrawingWorkspace
-            initialProject={editor.project}
-            initialTitle={root.candidate.title}
-            deferInitialMemorySync
-          />
-        ) : (
-          <StickFigureWorkspace initialProject={editor.project} onOpenStickFigureCreator={() => {}} renderStage={renderStage} />
-        )}
-      </div>
-    </section>
-  );
+  const compatibilityDrawingData = editor.project.compatibility?.drawingData as DrawingProjectData | undefined;
+  const compatibilitySource = compatibilityDrawingData ?? createDrawingCompatibilityProjection(editor.project);
+  const drawingData = hydrateDrawingCompatibility(editor.project, compatibilitySource);
+  const itemCompatibility = hydrateUnifiedItemCompatibility(editor.project, drawingData);
+  const initialProject: DrawingProjectOpenCandidate = {
+    kind: editor.project.provenance?.kind === "legacy-adoption" && editor.project.provenance.adoptedAt === null ? "legacy" : "v2",
+    project: { id: editor.project.projectId, name: editor.project.title, data: drawingData, previewDataUrl: null, aiMemory: sanitizeDrawingAiProjectMemory(editor.project.auxiliary?.drawingAiMemory) ?? null, created_at: editor.project.createdAt, updated_at: editor.project.updatedAt },
+    head: null, record: null, legacyRecordDigest: null,
+  };
+  const hydratedUnifiedProject = {
+    ...editor.project,
+    compatibility: {
+      ...editor.project.compatibility,
+      drawingData: compatibilitySource,
+      ...itemCompatibility,
+    },
+  };
+  return <DrawingWorkspace initialProject={initialProject} initialTitle={editor.project.title} unifiedProject={hydratedUnifiedProject} />;
 }

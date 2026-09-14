@@ -1,9 +1,9 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-14 against the exact Arthur-accepted SPEC-0006 Phase 7 result from GIT-060 base/HEAD `cbe16411a0f83d3b86136f41d0a66d1874d009aa`; D-0069 records the 11-path implementation as technically Verified pending GIT-061 publication.
+Last traced: 2026-09-14 through exact published SPEC-0006 Phase 7 commit GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`; D-0069 records acceptance and D-0070 publication/cleanup.
 
-## Current implementation — Phase 7 accepted, publication pending (D-0069)
+## Current implementation — Phase 7 published and SPEC-0006 complete (D-0069/D-0070)
 
 Every supported local source enters one neutral V2 editor path. `WorkspaceCandidate.editor` has only the `unified` variant; `createUntitledWorkspace` and `prepareCollectionWorkspace` always return a validated V2 project; and `AnimationWorkspace` mounts exactly one `DrawingWorkspace`. There is no ordinary route or discriminator that mounts `StickFigureWorkspace` as a second coordinator.
 
@@ -13,7 +13,7 @@ Legacy Drawing/Stick parsers and stores remain source-safe read-only leaves for 
 
 The Stick Creator opens inside the unified workspace root. Its dialog is labelled, modal, focus-contained and keyboard-navigable; background content is inert while it is open; closing returns focus to the trigger; reduced-motion and 200% zoom flows remain usable; Creator Save remains disabled. The historical standalone Stick coordinator remains in source only as a protected historical/test anchor and is not imported or mounted by the ordinary product path.
 
-Arthur accepted this exact app copy. The final technical proof passed desktop/compact ordinary flows, zero legacy writes or second coordinator mounts, zero Axe critical/serious findings, keyboard/focus/zoom/reduced-motion checks, all protected regressions and retained Phase 6 production stress limits. It made zero external or real API requests. Phase 7 changes no AI model/prompt/provider/API/task behavior, motion/video/tracking, export, dependency, configuration, cloud/social Share, auth/billing or deployment system. Listener PID 34120 and the accepted worktree/proof remain preserved for GIT-061 publication and later D-0054 cleanup.
+Arthur accepted this exact app copy and GIT-061 published it. The final technical proof passed desktop/compact ordinary flows, zero legacy writes or second coordinator mounts, zero Axe critical/serious findings, keyboard/focus/zoom/reduced-motion checks, all protected regressions and retained Phase 6 production stress limits. It made zero external or real API requests. Phase 7 changes no AI model/prompt/provider/API/task behavior, motion/video/tracking, export, dependency, configuration, cloud/social Share, auth/billing or deployment system. D-0070 records proof preservation and D-0054 cleanup.
 
 ## Historical current implementation — Phase 6 published and integrated (D-0068/GIT-060)
 
@@ -29,7 +29,7 @@ Symbol selection remains owned only by ordinary Select interactions. Empty-canva
 
 Unified onion masks resolve raster, text, editable rig, Drawing symbol, Stick symbol, and Mixed symbol from one owner with purple previous/green next tint, copied-owner dedupe, holds, and blank barriers. Shared integer-center bitmap offsets preserve Brush pixels across active-layer commit, timeline scrub, Save/reopen, and onion composition. The compact unified timeline stacks controls over full-width lanes and reserves panel height so ordinary cell pointer clicks are not obscured.
 
-Accepted Phase 6 now completes exhaustive legacy-source adoption/recovery and persistence fault proof. Phase 7 still owns duplicate-owner retirement and whole-spec acceptance. Phase 5's record publication and D-0054 review-copy cleanup are complete; its proof is preserved outside the removed review worktree. No AI/provider/prompt/motion/video/tracking/API, dependency, export, cloud/social Share, Creator Save, new rig feature, or automatic attachment/following behavior changed.
+Phase 6 completes exhaustive legacy-source adoption/recovery and persistence fault proof; published Phase 7 completes duplicate-owner retirement and whole-spec acceptance. Phase 5 and Phase 7 record publication and D-0054 review-copy cleanup are complete, with proof preserved outside removed review worktrees. No AI/provider/prompt/motion/video/tracking/API, dependency, export, cloud/social Share, Creator Save, new rig feature, or automatic attachment/following behavior changed.
 
 ## Historical current implementation — corrected Phase 4 accepted (D-0063)
 
@@ -41,7 +41,7 @@ Accepted V2 uses neutral layers whose owner cells contain ordered raster, text, 
 
 Neutral V2 layers contain cells owning ordered raster/text/structured-rig/bitmap-symbol items. IDs/selection and Drawing source transforms belong to items; holds/clipboard/onion resolve the complete mixed owner. One command/history root receives controlled item-adapter commits and one renderer emits every item in order. The minimal V2 repository protects complete-root Save/Save As/Open.
 
-Stick Add Limb and Select/Move Joint map through the inverse SVG screen transform, retain gesture ownership against the pan overlay, preview at the pointer, commit once on release, and cancel partial gestures safely. Complete project-owned catalog UI subsequently landed in accepted Phase 5; exhaustive all-source adoption/recovery landed in accepted Phase 6; duplicate-owner retirement/full acceptance remains Phase 7.
+Stick Add Limb and Select/Move Joint map through the inverse SVG screen transform, retain gesture ownership against the pan overlay, preview at the pointer, commit once on release, and cancel partial gestures safely. Complete project-owned catalog UI landed in Phase 5; exhaustive all-source adoption/recovery landed in Phase 6; duplicate-owner retirement/full acceptance landed in published Phase 7.
 
 No AI, provider, prompt, motion, video/tracking, cloud/social Share, export, or new manual capability is part of Phase 4. GIT-056 publication/integration and D-0054 accepted-copy cleanup are complete.
 
@@ -171,7 +171,7 @@ Home New/Open → source reader / V2 factory / repository
   → current tools/panels/project catalog → full V2 Save/Save As/recovery
 ```
 
-No layer has a content kind. Drawing raster/text/symbol and structured Stick items coexist in the same layer/frame. Current ordinary runtime has reached the neutral-root/current-tools/all-source-adoption/duplicate-owner-retirement target through accepted Phase 7; GIT-061 publication remains pending. AI code/envelopes/providers/prompts/motion remain protected, with no new AI/manual future-spec capability.
+No layer has a content kind. Drawing raster/text/symbol and structured Stick items coexist in the same layer/frame. Current ordinary runtime reached the neutral-root/current-tools/all-source-adoption/duplicate-owner-retirement target through published GIT-061 Phase 7. AI code/envelopes/providers/prompts/motion remain protected, with no new AI/manual future-spec capability.
 
 ## Protected Architectural Invariants
 

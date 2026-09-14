@@ -3,57 +3,15 @@
 Status: current canonical stopping point
 Last updated: 2026-09-14
 
-SPEC-0006 Phases 1–6 are Verified, published, and integrated through exact GIT-060 `cbe16411a0f83d3b86136f41d0a66d1874d009aa`. Arthur reviewed the ordinary Phase 7 app at `http://127.0.0.1:56770/` on 2026-09-14 and called it a PASS. D-0069 records the exact 11-path Phase 7 result as technically Verified in `/Users/arthurcarlin/.codex/worktrees/cd3e/stick-animation-app`, pending GIT-061 publication/integration. The immutable 50,224-byte technical manifest is PASS/VALID at SHA-256 `c6202f6deab4d3bcc75af3ad6699fc2dc70fc58723eccaa8337b1a2aef74bc51`, with 11 source and 16 evidence bindings.
+All seven SPEC-0006 phases are Arthur-accepted, Verified, published, integrated, recorded, and cleaned up. GIT-061 is exact commit `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`, parent GIT-060 `cbe16411a0f83d3b86136f41d0a66d1874d009aa`, message `Implement SPEC-0006 Phase 7 authority retirement`, with exactly 25 reviewed paths. Canonical `main`, `origin/main`, and live GitHub `main` were freshly verified equal there with clean `0/0` synchronization.
 
-## GIT-061 publication contract and current stopping point
+## Current stopping point — ready to plan SPEC-0007
 
-This Control Plane Architect propagation is complete and stops with an empty index before staging, commit, integration, push, publication, server stop or cleanup. A later publication turn may create `codex/spec0006-phase7-publication` from this unchanged detached GIT-060 base, stage only the reviewed 25-path package below, commit once, fast-forward a still-clean canonical `main`, push normally and verify local `main`, local `origin/main` and live GitHub `main` clean at `0/0`. Stop on any base/ref advancement, byte mismatch, unexpected path or dirty canonical worktree without pull, merge, rebase, force-push, amend, history rewrite or scope expansion.
+D-0069 records Arthur's Phase 7 PASS and the immutable accepted proof. D-0070 records GIT-061 publication and D-0054 cleanup. The 50,224-byte Phase 7 manifest remains PASS/VALID at SHA-256 `c6202f6deab4d3bcc75af3ad6699fc2dc70fc58723eccaa8337b1a2aef74bc51`, with 11 source and 16 evidence bindings. The proof limitation remains honest: preserved Phase 3/5/6 manifests revalidated, while absent Phase 1/2/4A/4 manifest bytes are reported only by identity and commit; compact is responsive Chromium rather than a physical-phone/native-GPU result.
 
-Exact accepted technical allowlist:
+Required ignored evidence is preserved at `/Users/arthurcarlin/.codex/worktrees/2d14/stick-animation-app/output/recovery/GIT-061-phase-7-185f587`: 15 files, 668 KiB, including the Phase 7 manifest and separately bound Phase 6 browser result. Review PID 34120 is stopped and port 56770 is closed. The obsolete `/cd3e/` review worktree and merged local publication branch are removed after this closeout commit synchronizes; canonical main and the active PM worktree remain.
 
-- `src/lib/animation/unifiedWorkspaceBootstrap.ts`
-- `src/components/workspace/AnimationWorkspace.tsx`
-- `src/components/workspace/DrawingWorkspace.tsx`
-- `src/components/workspace/DrawingCanvas.tsx`
-- `scripts/fixtures/spec0006-unified/v2/phase7-acceptance-cases.json`
-- `scripts/spec0006-unified/validatePhase7Authority.ts`
-- `scripts/spec0006-unified/phase7BrowserProof.ts`
-- `scripts/spec0006-unified/revalidateHistoricalProofs.ts`
-- `scripts/spec0006-unified/recordPhase7Proof.ts`
-- `scripts/spec0006-unified/validatePhase7Proof.ts`
-- `scripts/spec0006-unified/finalizePhase7Proof.ts`
-
-Exact reviewed Control Plane Architect record/tree allowlist:
-
-- `docs/00_MASTER_PROJECT.md`
-- `docs/AI_SYSTEM.md`
-- `docs/CURRENT_STATE.md`
-- `docs/DECISIONS.md`
-- `docs/PROJECT_MANAGER_CONTEXT.md`
-- `docs/ROADMAP.md`
-- `docs/SESSION_HANDOFF.md`
-- `docs/TODO.md`
-- `docs/architecture.md`
-- `docs/changelog.md`
-- `docs/specs/0006-unified-animation-workspace.md`
-- `docs/specs/README.md`
-- `docs/testing_workflow.md`
-- `project/project_structure.txt`
-
-Accepted proof identity and limits:
-
-- accepted base/HEAD: `cbe16411a0f83d3b86136f41d0a66d1874d009aa`
-- manifest: `output/spec-0006/phase-7/proof-manifest.json`; 50,224 bytes; SHA-256 `c6202f6deab4d3bcc75af3ad6699fc2dc70fc58723eccaa8337b1a2aef74bc51`; PASS/VALID
-- fresh CPA binding check: all 11 source and 16 evidence files match exact sizes/hashes; exact technical dirty set before propagation; empty index
-- executor proof: 24/24 recorded commands pass; Phase 7 authority 30 assertions; nine ordinary flows; 12 regressions; strict validator 95 assertions/12 mutation cases
-- browser proof: desktop and compact profiles, canonical V2 writes only, no second coordinator mount, zero Axe critical/serious findings, Creator keyboard focus round trip, 200% zoom, reduced motion, zero external/real API requests/page errors/console errors
-- retained Phase 6 stress proof: 19 operations; two distinct 60,268,104-byte rasters; desktop open/reopen/save 735.8/758.3/1507.5 ms; settled desktop heap 312,397,923 bytes; compact settled heap 11,204,437 bytes; 240 selection samples; zero long tasks
-- historical proof: preserved Phase 3/5/6 manifests fully revalidated; absent Phase 1/2/4A/4 manifest files are reported only by recorded identity and commit; status `PASS_WITH_RECORDED_GAPS`
-- snapshot boundary: immutable executor files retain `humanAcceptance: pending Arthur` and `controlPlaneUpdated: false`; D-0069 records the later acceptance/propagation rather than rewriting them
-- listener: PID `34120`, port `56770`, exact cwd `/Users/arthurcarlin/.codex/worktrees/cd3e/stick-animation-app`, preserved
-- limits: compact is responsive desktop Chromium evidence, not physical-phone proof; native/GPU allocation remains unproven.
-
-Preserve the accepted worktree, listener and ignored proof until GIT-061 integration/synchronization. Later authorized D-0054 cleanup must resolve current process/port identity afresh, preserve required proof, remove only the obsolete accepted worktree and now-unused local publication branch, and never remove canonical main or the active PM worktree. This task does not perform cleanup. Future SPEC-0007/0008 require separate authority.
+The next possible action is to design and approve a new SPEC-0007 with Arthur. Start by asking what manual Stick-tool expansion he wants, then define outcome, phases, regression boundaries, and review proof before implementation. Do not infer authorization to create or implement SPEC-0007, resume superseded SPEC-0004/0005 phases, begin SPEC-0008, call a provider, deploy, or make paid/external requests.
 
 ## Historical GIT-060 Phase 6 publication result
 

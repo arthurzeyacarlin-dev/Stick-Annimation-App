@@ -5,6 +5,14 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-14 — Publish SPEC-0006 Phase 7 and complete final cleanup (D-0070/GIT-061)
+
+- Published the exact accepted 11 technical/proof paths plus 14 reviewed control-plane/tree paths as 25-path commit `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`, parent GIT-060 `cbe16411a0f83d3b86136f41d0a66d1874d009aa`, message `Implement SPEC-0006 Phase 7 authority retirement`.
+- Created the commit on `codex/spec0006-phase7-publication`, fast-forwarded a clean canonical `main`, pushed normally without force, and freshly verified local `main`, `origin/main`, and live GitHub `main` equal at clean `0/0`.
+- Preserved 15 required ignored proof files (668 KiB) at `/Users/arthurcarlin/.codex/worktrees/2d14/stick-animation-app/output/recovery/GIT-061-phase-7-185f587`. Phase 7 manifest SHA-256 remains `c6202f6deab4d3bcc75af3ad6699fc2dc70fc58723eccaa8337b1a2aef74bc51`; the separately bound Phase 6 browser result remains `477cd3f4f8fba91981a3cc33bf92af553fbb9fde94a8b537430b0709aec025f7`.
+- Stopped exact review PID 34120 and verified port 56770 closed. D-0054 cleanup removes only the obsolete `/cd3e/` worktree and merged local publication branch after this closeout synchronizes; canonical `main`, the active PM worktree, remote refs, and recovery evidence remain.
+- SPEC-0006 is complete through all seven phases. The next possible product action is planning SPEC-0007 with Arthur; this record grants no SPEC-0007 implementation, provider/API, deployment, or paid/external authority.
+
 ### 2026-09-14 — Accept SPEC-0006 Phase 7 and complete CPA propagation (D-0069)
 
 - Recorded GIT-060 as exact synchronized 32-path commit `cbe16411a0f83d3b86136f41d0a66d1874d009aa`, parent GIT-059 `62feafc220c35eb1203dc4f19820e533a54002e1`, message `Implement SPEC-0006 Phase 6 adoption and recovery`; fresh pre-propagation checks matched detached `HEAD`, local `main`, local `origin/main` and live GitHub `main` at clean `0/0`.

@@ -693,6 +693,15 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Boundaries: no accepted technical, fixture, technical-test, manifest or evidence byte changes during CPA propagation. Phase 7 changes no AI model/prompt/provider/API/task behavior, motion/video/tracking, new manual capability, automatic attachment/following, export, dependency/configuration, cloud/auth/billing, deployment, legacy source deletion, other worktree or Git index/ref/history. No physical-device or native/GPU-memory claim is made.
 - Publication/cleanup: a later GIT-061 publication turn may stage only the exact accepted 11 technical paths plus the reviewed 14 Phase 7 control-plane/tree paths from unchanged GIT-060, commit once on a `codex/` branch, fast-forward a still-clean canonical `main`, push normally and verify clean local/remote `0/0`. This CPA propagation does not stage, commit, integrate, push, publish, stop the server or clean up. Preserve `/cd3e/`, PID 34120 and proof until synchronization, then perform D-0054 cleanup only under explicit sequential authority. GIT-061 grants no future SPEC-0007/0008 authority.
 
+### D-0070 — Close SPEC-0006 after GIT-061 publication and D-0054 cleanup
+
+- Date: 2026-09-14
+- Authority: Arthur's explicit Phase 7 PASS and later direct instruction to record the control plane, commit, integrate, push GitHub, and stop when it is time to create SPEC-0007.
+- Publication: GIT-061 is exact commit `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`, parent GIT-060 `cbe16411a0f83d3b86136f41d0a66d1874d009aa`, message `Implement SPEC-0006 Phase 7 authority retirement`, containing exactly the reviewed 11 technical/proof and 14 control-plane/tree paths. It was created on `codex/spec0006-phase7-publication`, fast-forwarded into clean canonical `main`, pushed normally, and freshly verified as local `main`, `origin/main`, and live GitHub `main` with `0/0` divergence.
+- Proof preservation: the required ignored evidence is preserved at `/Users/arthurcarlin/.codex/worktrees/2d14/stick-animation-app/output/recovery/GIT-061-phase-7-185f587`: 15 files, 668 KiB. Phase 7 manifest SHA-256 remains `c6202f6deab4d3bcc75af3ad6699fc2dc70fc58723eccaa8337b1a2aef74bc51`; the separately bound Phase 6 browser result is preserved at SHA-256 `477cd3f4f8fba91981a3cc33bf92af553fbb9fde94a8b537430b0709aec025f7`.
+- Cleanup: review PID 34120 is stopped and TCP port 56770 is closed. After this closeout synchronizes, the obsolete `/cd3e/` worktree and merged local publication branch are removed; canonical `main` and the active PM worktree remain. No remote ref or recovery evidence is deleted.
+- Consequence: all seven SPEC-0006 phases are accepted, Verified, published, integrated, recorded, and cleaned up. The next possible product action is a new SPEC-0007 planning task with Arthur. This decision does not approve a SPEC-0007 file, implementation phase, runtime change, provider/API request, deployment, or paid/external operation.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation
@@ -707,7 +716,7 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 
 ### P-0001 — Launch role of the Drawing Workspace
 
-- Status: resolved by D-0056/D-0062 and completed through the D-0069 human-accepted Phase 7 result. Phases 1–6 are published/integrated through GIT-060; Phase 7 is technically Verified pending GIT-061.
+- Status: resolved by D-0056/D-0062 and completed through D-0069/D-0070 and GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`.
 - Resolution: Under D-0062, Drawing and Stick become typed content items in neutral layers and the same frame/cell inside one Animation Workspace rather than a separate New Project choice or separate saved-project pillar. Drawing-specific feature expansion still requires its own scope.
 
 ### P-0002 — Official product name
@@ -759,6 +768,6 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 
 ### P-0009 — Possible unified Animation Workspace
 
-- Status: resolved by D-0056/D-0062 and completed through the D-0069 human-accepted Phase 7 result. Phases 1–6 are published/integrated through GIT-060; Phase 7 is technically Verified pending GIT-061.
+- Status: resolved by D-0056/D-0062 and completed through D-0069/D-0070 and GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`.
 - Resolution: one project/timeline/stage/save/history/AI surface replaces the separate Drawing/Stick choice using ordered typed Drawing/Stick items in neutral same-cell layers (D-0062), lossless non-destructive legacy adoption, and one canonical writable root. See corrected SPEC-0006 for seven numbered phases, two internal Phase 4 gates and final visible proof.
-- Current boundary: the accepted Phase 7 worktree completes current tools/library, all-source adoption/recovery and ordinary duplicate-owner retirement on the neutral V2 root. GIT-061 publication/integration remains; future capability expansion belongs to separately authorized SPEC-0007/0008.
+- Current boundary: published Phase 7 completes current tools/library, all-source adoption/recovery and ordinary duplicate-owner retirement on the neutral V2 root. Future capability expansion belongs to separately authorized SPEC-0007/0008.

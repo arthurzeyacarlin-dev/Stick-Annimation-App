@@ -1,11 +1,11 @@
 # Diamond Animator Master Project Charter
 
 Status: canonical product intent
-Last updated: 2026-09-14
+Last updated: 2026-09-15
 
 ## Product Mission
 
-Diamond Animator is intended to make professional-quality stick-figure animation accessible to people who may have little or no animation experience.
+Diamond Animator is intended to make professional-quality 2D character animation accessible to people who may have little or no animation experience. Stick-style characters remain a supported visual outcome, but ordinary authoring is drawing-based rather than an active structured-rig system.
 
 The primary experience is AI-first: a user should be able to describe what they envision in natural language, and the AI engine should operate the same underlying animation capabilities available to a human editor. The product must also expose direct, advanced controls so experienced animators can inspect, adjust, and fine-tune the result.
 
@@ -35,7 +35,9 @@ The goal is not to hide a weak editor behind a chat box. The goal is one capable
 
 All seven SPEC-0006 phases are Verified, published, and durably integrated through exact GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`. D-0069 records Arthur's Phase 7 PASS and D-0070 records publication/D-0054 cleanup. The ordinary workspace mounts only the unified V2 editor; one V2 coordinator/history/repository owns authored state and Save/Save As/AI-triggered Save, while legacy parsers remain read-only import leaves.
 
-D-0072 makes [`SPEC-0007 — Manual Editor Completion and AI-Ready Tools`](specs/0007-manual-editor-completion-and-ai-ready-tools.md) **Approved and active** from Arthur's exact accepted proposal preimage. D-0073 preserves Phase 1 — Drawing Tool Stabilization as Authorized/Not started after a valid clean-base entry stop and permits only a bounded inherited Drawing Save/Open/transient-memory repair before the unchanged Phase 1 outcome; no exit ceiling is lowered. Phases 2–7 remain unauthorized. The unchanged seven-phase design completes manual rig editing/appearance/attachments, deliberate Rig Symbols, bounded still Assets, and the shared command registry. Every future-AI-eligible document mutation must use the same validated capability as its ordinary manual control. SPEC-0007 adds no AI/provider/model/prompt/API/video/tracking behavior.
+D-0074 rewrites [`SPEC-0007 — Drawing-Only Manual Editor Completion and AI-Ready Tools`](specs/0007-manual-editor-completion-and-ai-ready-tools.md) as **Approved and active** and supersedes D-0071–D-0073 only where their seven-phase structured-rig/Creator direction or earlier Phase 1 result conflicts. The corrected five phases are Drawing Engine and No-Loss Stabilization; Draw Rig; Safe Legacy Rig Retirement and Migration; Assets Stabilization; and Final Manual Editor Bug Burn/Future-AI Command Registry. Only corrected Phase 1 is Authorized/Not started. The dirty `/3cd3/` Phase 1 result is rejected, unpublished, non-reusable evidence and must be backed up and cleaned under D-0054 before one fresh executor begins from the later publication SHA.
+
+The permanent direction is drawing-only: no non-destructive command may silently remove unrelated authored pixels/items; intentional removals use a closed registry of explicit destructive controls; same-paint raster overlaps use maximum coverage rather than cumulative darkening; and **Draw Rig** later creates ordinary segmented raster paint, never joints/bones/topology. By Phase 3, active structured-rig/Creator authoring is retired and historical rig content migrates non-destructively into ordinary drawing/drawing symbols through read-only compatibility adapters. Every future-AI-eligible mutation uses the same validated capability as its ordinary manual control. SPEC-0007 adds no AI/provider/model/prompt/API/video/tracking behavior.
 
 The current code is a prototype foundation, not a finished Version 1. Existing documents that called either workspace “complete” described a past visual milestone and are superseded by `CURRENT_STATE.md`.
 

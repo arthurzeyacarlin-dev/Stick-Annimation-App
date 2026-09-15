@@ -5,6 +5,15 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-15 — Rewrite SPEC-0007 as drawing-only and reject the first Phase 1 result (D-0074)
+
+- Replaced the superseded seven-phase structured-rig/Creator/Rig Symbol direction with the exact 51,063-byte rewritten spec preimage at SHA-256 `d4acdbedc0811fff8c0e80f86ed4db1d23fa411cf8ff989343d47e4f58525391` and five separately gated phases: Drawing Engine and No-Loss Stabilization; Draw Rig; Safe Legacy Rig Retirement and Migration; Assets Stabilization; and Final Manual Editor Bug Burn/Future-AI Command Registry. Only corrected Phase 1 remains Authorized/Not started; Phases 2–5 are unauthorized.
+- Made the end state drawing-only: Draw Rig is an explicit Properties toggle producing ordinary segmented raster paint, never joints/bones/IDs/topology; active rig/Creator authoring retires in Phase 3; supported historical rig items and rig-backed symbols migrate all-or-none into ordinary drawings/drawing-only symbols with read-only source/pre-migration recovery.
+- Added the permanent no-silent-deletion law, closed audited destructive-command registry, exact target/reference/confirmation distinctions, targeted paint/Fill/transform semantics, same-paint per-pixel maximum coverage across repeated/offset gestures, true smoothing 0–100, stable preview/final identity, bounded Pixelate, and luminance/contrast plus human acceptance for Glow.
+- Recorded `/Users/arthurcarlin/.codex/worktrees/3cd3/stick-animation-app` as Rejected/unpublished/unaccepted/non-reusable at exact base/HEAD `be41db9e06126ae4e15c162962c6b856cb97660e`, empty index, ten dirty tracked paths, and 39,787-byte manifest SHA-256 `26acbf3e708b85e2269f546c2094e90c4d234d7a59b3568d07b0452623908ea3`. Arthur's visible failures—straight-turn smoothing, alpha accumulation/dark dots, unstable live/Sketch preview, weak Glow, and disappearing-content risk—supersede its self-reported PASS.
+- Left the rejected bytes and listener PID 80115/port 56874 untouched. After separate publication/synchronization, D-0054 requires verified recovery backup and exact server/worktree/local-branch cleanup before a fresh Plan-mode Phase 1 executor starts from the new canonical SHA. No rejected byte is reusable.
+- Changed canonical specification/control-plane/tree records only. No runtime, fixture, technical test, proof artifact, dependency/configuration, AI/provider/model/prompt/API/video/tracking, deployment, other worktree, server, external service, Git index/ref/history, stage, commit, push, or publication action occurred.
+
 ### 2026-09-14 — Correct SPEC-0007 Phase 1 inherited-performance entry mechanics (D-0073)
 
 - Recorded the first stopped clean-base executor evidence at SHA-256 `fb019f3f019e5d754dfde0c6189010e935176216d2bbc051a04d74b436e56a80`: no tracked/index changes; five warmed desktop Open/Save misses; four compact Open and five compact Save misses; one inherited transient 512 MiB stress miss; successful repeated inherited persistence with settled heap below 320 MiB.

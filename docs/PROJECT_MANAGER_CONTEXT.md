@@ -1,7 +1,7 @@
 # Project Manager Context
 
 Status: canonical owner and collaboration context
-Last updated: 2026-09-14
+Last updated: 2026-09-15
 
 ## Ownership, Sponsorship, and PM Collaboration
 
@@ -15,9 +15,9 @@ Arthur is a young, capable product collaborator. Explain recommendations in dire
 
 ## Latest Direction
 
-The latest product direction, updated through 2026-09-14, is:
+The latest product direction, updated through 2026-09-15, is:
 
-- Diamond Animator should primarily help beginners create professional-grade stick-figure animation through AI conversation.
+- Diamond Animator should primarily help beginners create professional-grade 2D character animation, including stick-style animation, through AI conversation and an ordinary drawing-based editor.
 - AI should integrate with the real editor and manipulate the same advanced capabilities a human animator can use.
 - Manual controls comparable in seriousness to established animation tools must remain available for fine-tuning and professional use.
 - Long-term project continuity across Codex tasks is mandatory.
@@ -36,7 +36,10 @@ The latest product direction, updated through 2026-09-14, is:
 - Arthur explicitly accepted SPEC-0006 Phase 5 as acceptable. D-0065 records its exact 17-path PASS/VALID technical result; D-0066/GIT-057 published it at `a759ae8afbb67e8fb723983851ae36947fd97f17`; GIT-058 recorded it; D-0067 recorded completed D-0054 cleanup; and GIT-059 is exact synchronized commit `62feafc220c35eb1203dc4f19820e533a54002e1`. Phase 6 was unauthorized at that historical closeout and was later separately authorized and accepted as recorded in the next item.
 - GIT-060 published and integrated the exact accepted Phase 6 package as 32-path commit `cbe16411a0f83d3b86136f41d0a66d1874d009aa`, parent GIT-059 `62feafc220c35eb1203dc4f19820e533a54002e1`, message `Implement SPEC-0006 Phase 6 adoption and recovery`. Fresh CPA checks found local `main`, local `origin/main`, live GitHub `main`, and detached Phase 7 base/HEAD equal there at clean `0/0` before propagation.
 - Arthur explicitly accepted SPEC-0006 Phase 7 after reviewing the ordinary app at `http://127.0.0.1:56770/` on 2026-09-14. D-0069 records the exact 11-path PASS/VALID result from GIT-060 with immutable 50,224-byte manifest SHA-256 `c6202f6deab4d3bcc75af3ad6699fc2dc70fc58723eccaa8337b1a2aef74bc51`. GIT-061 published it with reviewed records as exact 25-path commit `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`; D-0070 records synchronization and D-0054 cleanup. Historical Phase 1/2/4A/4 manifest bytes absent from preserved storage remain reported by identity rather than falsely revalidated. At that historical closeout, future SPEC-0007/0008 remained unauthorized.
-- Arthur supplied and then accepted the exact SPEC-0007 outcome and seven phases on 2026-09-14. D-0072 makes [`SPEC-0007`](specs/0007-manual-editor-completion-and-ai-ready-tools.md) Approved/active and authorizes Phase 1 — Drawing Tool Stabilization. D-0073 records its first valid clean-base entry stop and permits a fresh executor to first narrowly repair inherited Drawing Save/Open/transient-memory mechanics without lowering any exit ceiling or bypassing Drawing correctness. Phase 1 remains Authorized/Not started; Phases 2–7 remain unauthorized. SPEC-0008, AI/provider/model/prompt/API, video/tracking and paid/external behavior remain future and unchanged.
+- D-0074 records Arthur's corrected 2026-09-15 SPEC-0007 direction and supersedes D-0071–D-0073 only where they conflict: the future ordinary editor is drawing-only, with no active structured rig/Creator after safe migration. The smallest reliable sequence is five phases: Drawing Engine and No-Loss Stabilization; Draw Rig; Safe Legacy Rig Retirement and Migration; Assets Stabilization; Final Manual Editor Bug Burn/Future-AI Command Registry. Only corrected Phase 1 is Authorized/Not started; Phases 2–5 remain unauthorized.
+- Phase 1 permanently enforces no silent deletion outside exact validated targets, retains all existing explicit destructive controls through a closed audited registry, uses per-pixel maximum coverage for same-paint overlaps, makes smoothing truly range from rough 0 to smooth 100 without Draw Rig-style turns, stabilizes preview/final identity, removes Sketch vibration/disappearance, and makes Glow visibly/measurably bright within bounded memory/latency.
+- The dirty `/3cd3/` Phase 1 result is Rejected, unpublished, unaccepted, and non-reusable despite a self-reported PASS manifest. Arthur found straight-turn smoothing, opacity accumulation/dark dots, unstable live/Sketch preview, weak Glow, and disappearing-content risk. It must be preserved as recovery evidence and removed under D-0054 before a fresh corrected executor starts; no byte may be resumed or copied.
+- Phase 2 later adds the explicit **Draw Rig** Properties toggle as ordinary segmented raster drawing only. Phase 3 then retires every active rig/Creator authoring path and non-destructively migrates old rig items and rig-backed symbols to ordinary raster drawings/drawing symbols while preserving read-only source/recovery compatibility. SPEC-0008, AI/provider/model/prompt/API, video/tracking, and paid/external behavior remain future and unchanged.
 
 This direction supersedes older prose that framed AI only as a passive helper or described the workspaces as complete.
 
@@ -128,9 +131,9 @@ These are not blockers for preserving the repository, but they must be resolved 
 3. What measurable gates define “professional-grade” for the first release?
 4. When may AI auto-apply changes, and when must it preview or request confirmation?
 5. What are the target cost, latency, token, retry, search, and credit budgets?
-6. What manual stick-figure editing features are required for the first usable release?
+6. Which drawing-only manual editor capabilities beyond corrected SPEC-0007 are required for the first usable release?
 7. What user data may be sent to model/search providers, and how long is memory retained?
-8. What minimum shared stick state/executor and corrective manual controls should precede the first AI-led vertical slice, versus the broader manual editor that can follow?
-9. All seven SPEC-0006 phases are published/integrated through GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04` and cleaned up under D-0070. SPEC-0007 is Approved/active under D-0072/D-0073; Phase 1 is Authorized/Not started after a valid entry stop and awaits correction publication plus D-0054 cleanup before a fresh restart. Phases 2–7 remain unauthorized. SPEC-0008 remains a future separate decision.
+8. What minimum shared drawing command/executor and corrective manual controls should precede the first AI-led vertical slice, versus the broader manual editor that can follow?
+9. All seven SPEC-0006 phases are published/integrated through GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04` and cleaned up under D-0070. Drawing-only SPEC-0007 is Approved/active under D-0074; corrected Phase 1 is Authorized/Not started and awaits this package's separate publication/synchronization plus D-0054 recovery preservation/cleanup of rejected `/3cd3/` before a fresh executor. Phases 2–5 remain unauthorized. SPEC-0008 remains a future separate decision.
 
 Pending decisions and their status live in `DECISIONS.md`.

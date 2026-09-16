@@ -1,3 +1,6 @@
+import { canonicalPaint, compositeRasterPaint, mergePaintPixel, rasterCommandDigest, RASTER_ALGORITHM_VERSION, RASTER_GESTURE_COMMAND, RasterGestureDraft, unionRect, type RasterGestureCommandV2, type RasterPreview, type RasterRect } from "@/src/lib/animation/editorCommands/rasterGesture";
+import { attachBitmapPaintCoverage, compositeRasterSelectionV1, cropPaintCoverage, copyBitmapPaintCoverage, forEachPaintCoverage, getBitmapPaintCoverage, createPaintCoverageWriter, getPaintCoverage, patchPaintCoverage, remapSketchOwners, resolveSketchKnifeOwner, transformPaintCoverage, type UnifiedRasterPaintCoverageV1 } from "@/src/lib/animation/unifiedRasterPaintCoverageV1";
+import { authorizeDestructiveCommand } from "@/src/lib/animation/editorCommands/destructiveRegistry";
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { DrawingRightPanel } from "./DrawingRightPanel";
@@ -517,6 +520,7 @@ type SymbolDialogState = {
 };
 
 type DrawingCanvasProps = {
+  authoringContextKey?: string;
   activeTool: DrawingToolName;
   drawingToolActivationId?: number;
   onToolSelect?: (tool: DrawingToolName) => void;
@@ -542,7 +546,7 @@ type DrawingCanvasProps = {
     source: { prompt: string; response: string },
   ) => Promise<boolean> | boolean;
   onExecuteActionPlan?: (actionPlan: NonNullable<DrawingAiActionPlan>) => Promise<boolean> | boolean;
-  onAuthoringActionCommitted?: (reason: "stroke" | "shape" | "placed-asset" | "clear-canvas" | "knife" | "selection") => void;
+  onAuthoringActionCommitted?: (reason: "stroke" | "fill" | "shape" | "placed-asset" | "clear-canvas" | "knife" | "selection", command?: RasterGestureCommandV2) => boolean | void;
   onUnifiedSelectionActionCommitted?: (action: {
     drawingChanged: boolean;
     stickContent: StickFigureFrameContent | null;
@@ -570,6 +574,7 @@ export type DrawingCanvasSnapshot = {
   bitmap: ImageData | null;
   previewUrl: string | null | undefined;
   captureVersion?: number;
+  identity?: { generation: number; contextKey: string };
   dirtyPatchBitmap?: ImageData | null;
   dirtyPatchRect?: {
     left: number;
@@ -617,12 +622,15 @@ type OnionOverlayContent = {
 };
 
 export type DrawingCanvasHandle = {
+  cancelPendingAuthoringGesture: (reason: string) => void;
+  getAuthoringSnapshotIdentity: () => { generation: number; contextKey: string };
   captureAuthoringSnapshot: (options?: DrawingCanvasSnapshotOptions) => DrawingCanvasSnapshot | null;
   clearTransientEditingState: () => void;
   getPlaybackSurfaceLayout: () => DrawingCanvasPlaybackSurfaceLayout | null;
   hasActiveBitmapSelectionSession: () => boolean;
   hasPendingAuthoringChanges: () => boolean;
   markAuthoringChangesCommitted: (committedBitmap?: ImageData | null, captureVersion?: number | null) => void;
+  takePresentedRasterCommit: (bitmap: ImageData | null) => boolean;
   setOnionOverlayContent: (content: OnionOverlayContent) => void;
   shouldDeferAuthoringSnapshotCapture: (minimumIdleMs?: number) => boolean;
 };
@@ -1637,6 +1645,7 @@ const findOpaqueImageDataBounds = (bitmap: ImageData | null) => {
 
 export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>(function DrawingCanvas({
   activeTool,
+  authoringContextKey = "",
   drawingToolActivationId = 0,
   onToolSelect,
   editingContextKey,
@@ -1744,6 +1753,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   const isShapeDrawingRef = useRef(false);
   const shapeDraftRef = useRef<{ startX: number; startY: number; endX: number; endY: number } | null>(null);
   const shapeDraftBaseImageRef = useRef<ImageData | null>(null);
+  const preparedRasterCommandRef = useRef<RasterGestureCommandV2 | null>(null);
   const lassoInteractionRef = useRef<LassoInteractionState | null>(null);
   const selectionSourceCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const lassoPathRef = useRef<LassoPoint[]>([]);
@@ -1757,35 +1767,28 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   const knifePiecesSourceRef = useRef<Map<number, HTMLCanvasElement>>(new Map());
   const knifePiecesRef = useRef<ActiveKnifePiece[]>([]);
   const knifePathRef = useRef<LassoPoint[]>([]);
-  const brushPreviousPointRef = useRef<CanvasPoint | null>(null);
-  const brushDidMoveRef = useRef(false);
-  const brushStrokePointsRef = useRef<CanvasPoint[]>([]);
-  const brushStrokeBaseCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const brushStrokeBaseRectRef = useRef<{ left: number; top: number; width: number; height: number } | null>(null);
-  const brushStrokeSmoothedPointsRef = useRef<CanvasPoint[]>([]);
-  const brushStrokeRenderPointsRef = useRef<CanvasPoint[]>([]);
-  const brushStrokeProcessedPointCountRef = useRef(0);
-  const brushStrokeGlowPathStepRef = useRef(1);
-  const brushStrokeStartupPreviewBudgetRef = useRef(0);
-  const brushUsesBufferedPreviewRef = useRef(true);
-  const brushUsesOverlayPreviewRef = useRef(false);
-  const brushPreviewOverlayDirtyRectRef = useRef<{
-    left: number;
-    top: number;
-    width: number;
-    height: number;
-  } | null>(null);
-  const brushStrokeColorRef = useRef("#000000");
-  const brushStrokeSizeRef = useRef(1);
-  const brushStrokeSmoothingRef = useRef(0);
-  const brushStrokeGradientBrightnessRef = useRef(60);
-  const brushStrokeGradientRadiusRef = useRef(40);
-  const brushStrokeVariantRef = useRef<BrushToolVariant>("Brush");
-  const brushPreviewFrameRef = useRef<number | null>(null);
   const shapePreviewFrameRef = useRef<number | null>(null);
   const isPanningRef = useRef(false);
   const hasPendingAuthoringChangesRef = useRef(false);
+  const commitPendingAuthoringChangesRef = useRef(onAuthoringActionCommitted);
+  commitPendingAuthoringChangesRef.current = onAuthoringActionCommitted;
   const authoringCommittedBitmapRef = useRef<ImageData | null>(null);
+  const preparedFillSnapshotRef = useRef<ImageData | null>(null);
+  const presentedRasterCommitRef = useRef<{ bitmap: ImageData | null; contextKey: string; generation: number; width: number; height: number } | null>(null);
+  const rasterDraftRef = useRef<{
+    engine: RasterGestureDraft; pointerId: number; contextKey: string; generation: number; erase: boolean; ownerId?: string;
+    baseCoverage: UnifiedRasterPaintCoverageV1 | null;
+    writer: ReturnType<typeof createPaintCoverageWriter>;
+    candidateWriter: ReturnType<typeof createPaintCoverageWriter>;
+    baseWriter: ReturnType<typeof createPaintCoverageWriter>;
+    tiles: Map<string, { left: number; top: number; base: ImageData; display: ImageData; basePixels: ReturnType<typeof getPaintCoverage>[]; presentedCoverage: Uint8Array; presentedLight: Uint8Array }>;
+    dirty: RasterRect | null;
+    presented: RasterPreview | null;
+  } | null>(null);
+  const currentRasterContextRef = useRef(authoringContextKey);
+  currentRasterContextRef.current = authoringContextKey;
+  const cancelRasterDraftRef = useRef<(reason: string) => void>(() => {});
+
   const authoringDirtyRectRef = useRef<CanvasDirtyRect | null>(null);
   const authoringDirtyCaptureModeRef = useRef<"region" | "full">("full");
   const authoringChangeVersionRef = useRef(0);
@@ -1932,11 +1935,43 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
 
       const editableSizeChanged = canvas.width !== width || canvas.height !== height;
       if (!editableSizeChanged && backgroundCanvas.width === width && backgroundCanvas.height === height) return;
+      if (editableSizeChanged) cancelRasterDraftRef.current?.("viewport-change");
       const preservedEditableCanvas = editableSizeChanged ? document.createElement("canvas") : null;
-      if (preservedEditableCanvas) {
-        preservedEditableCanvas.width = canvas.width;
-        preservedEditableCanvas.height = canvas.height;
-        preservedEditableCanvas.getContext("2d")?.drawImage(canvas, 0, 0);
+      let preservedCoverage = getBitmapPaintCoverage(canvas);
+      try {
+        if (editableSizeChanged && hasPendingAuthoringChangesRef.current) {
+          commitPendingAuthoringChangesRef.current?.("selection");
+          if (hasPendingAuthoringChangesRef.current) throw new Error("pending_snapshot_failed");
+        }
+        if (preservedEditableCanvas) {
+          preservedEditableCanvas.width = width;
+          preservedEditableCanvas.height = height;
+          const preservedCtx = preservedEditableCanvas.getContext("2d");
+          if (!preservedCtx || !canvas.getContext("2d")) throw new Error("resize_surface_unavailable");
+          const committed = authoringCommittedBitmapRef.current;
+          preservedCoverage = null;
+          if (committed) {
+            const left = bitmapCenterOffset(width, committed.width), top = bitmapCenterOffset(height, committed.height);
+            preservedCtx.putImageData(committed, left, top);
+            preservedCoverage = cropPaintCoverage(getBitmapPaintCoverage(committed), -left, -top, width, height);
+          }
+          // Floating selections own a cut-out presentation. Keep that area,
+          // while restoring newly exposed pixels from the full stored bitmap.
+          if (!committed || bitmapSelectionSessionRef.current?.items.length) {
+            const left = bitmapCenterOffset(width, canvas.width), top = bitmapCenterOffset(height, canvas.height);
+            const x = Math.max(0, left), y = Math.max(0, top);
+            const w = Math.min(width, left + canvas.width) - x, h = Math.min(height, top + canvas.height) - y;
+            if (w > 0 && h > 0) {
+              preservedCtx.clearRect(x, y, w, h);
+              preservedCtx.drawImage(canvas, left, top);
+              preservedCoverage = patchPaintCoverage(preservedCoverage,
+                cropPaintCoverage(getBitmapPaintCoverage(canvas), x - left, y - top, w, h), x, y, w, h, width, height);
+            }
+          }
+        }
+      } catch (error) {
+        window.alert(`The canvas could not be resized. Your drawing is preserved. ${error instanceof Error ? error.message : ""}`);
+        return;
       }
 
       for (const targetCanvas of [backgroundCanvas, onionCanvas, canvas, textCanvas, foregroundCanvas, overlayCanvas]) {
@@ -1962,16 +1997,13 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
         if (canvasCtx) {
           canvasCtx.save();
           canvasCtx.setTransform(1, 0, 0, 1, 0, 0);
-          canvasCtx.drawImage(
-            preservedEditableCanvas,
-            bitmapCenterOffset(canvas.width, preservedEditableCanvas.width),
-            bitmapCenterOffset(canvas.height, preservedEditableCanvas.height),
-          );
+          canvasCtx.drawImage(preservedEditableCanvas, 0, 0);
           canvasCtx.restore();
         }
+        attachBitmapPaintCoverage(canvas, preservedCoverage);
       }
       authoringDirtyRectRef.current = null;
-      authoringDirtyCaptureModeRef.current = "full";
+      authoringDirtyCaptureModeRef.current = "region";
       setAuthoringSurfaceVersion(version => version + 1);
     };
 
@@ -2691,36 +2723,6 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     setKnifePath(nextPath);
   }, []);
 
-  const clearBrushPreviewOverlay = useCallback(
-    (
-      dirtyRect?: {
-        left: number;
-        top: number;
-        width: number;
-        height: number;
-      } | null,
-    ) => {
-      const overlayCanvas = foregroundCanvasRef.current;
-      const overlayCtx = overlayCanvas?.getContext("2d");
-      if (!overlayCanvas || !overlayCtx) {
-        brushPreviewOverlayDirtyRectRef.current = null;
-        return;
-      }
-
-      const rect = dirtyRect ?? brushPreviewOverlayDirtyRectRef.current;
-      overlayCtx.save();
-      overlayCtx.setTransform(1, 0, 0, 1, 0, 0);
-      if (rect) {
-        overlayCtx.clearRect(rect.left, rect.top, rect.width, rect.height);
-      } else {
-        overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
-      }
-      overlayCtx.restore();
-      brushPreviewOverlayDirtyRectRef.current = null;
-    },
-    [],
-  );
-
   const clearLassoDraft = useCallback(() => {
     lassoInteractionRef.current = null;
     setLassoPathState([]);
@@ -2742,20 +2744,8 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     clearKnifeDraft();
   }, [clearKnifeDraft, setActiveKnifePieceIdState, setBitmapSelectionSessionState]);
 
-  const resetBrushStrokePreviewState = useCallback(() => {
-    clearBrushPreviewOverlay();
-    brushStrokePointsRef.current = [];
-    brushStrokeBaseCanvasRef.current = null;
-    brushStrokeBaseRectRef.current = null;
-    brushStrokeSmoothedPointsRef.current = [];
-    brushStrokeRenderPointsRef.current = [];
-    brushStrokeProcessedPointCountRef.current = 0;
-    brushStrokeGlowPathStepRef.current = 1;
-    brushStrokeStartupPreviewBudgetRef.current = 0;
-    brushUsesOverlayPreviewRef.current = false;
-  }, [clearBrushPreviewOverlay]);
-
   const clearTransientEditingState = useCallback(() => {
+    cancelRasterDraftRef.current("clear-transient");
     const stickDraft = unifiedStickDragRef.current;
     publishUnifiedStickDrag(null);
     if (stickDraft && unifiedStickSvgRef.current?.hasPointerCapture(stickDraft.pointerId)) {
@@ -2765,10 +2755,6 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     // own Properties workflow. Tool/context boundaries clear selection below.
     unifiedSymbolInteractionRef.current = null;
     publishUnifiedSymbolDraft(null);
-    if (brushPreviewFrameRef.current !== null) {
-      window.cancelAnimationFrame(brushPreviewFrameRef.current);
-      brushPreviewFrameRef.current = null;
-    }
     if (shapePreviewFrameRef.current !== null) {
       window.cancelAnimationFrame(shapePreviewFrameRef.current);
       shapePreviewFrameRef.current = null;
@@ -2777,10 +2763,6 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     isShapeDrawingRef.current = false;
     shapeDraftRef.current = null;
     shapeDraftBaseImageRef.current = null;
-    brushPreviousPointRef.current = null;
-    brushDidMoveRef.current = false;
-    resetBrushStrokePreviewState();
-    brushUsesBufferedPreviewRef.current = true;
 
     activePlacedImageSourceRef.current = null;
     placedImageInteractionRef.current = null;
@@ -2802,7 +2784,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     clearKnifePieceSelectionState();
 
     dismissBoxSelectionRef.current();
-  }, [clearKnifePieceSelectionState, clearLassoDraft, publishUnifiedStickDrag, publishUnifiedSymbolDraft, resetBrushStrokePreviewState, setActiveLassoSelectionState]);
+  }, [clearKnifePieceSelectionState, clearLassoDraft, publishUnifiedStickDrag, publishUnifiedSymbolDraft, setActiveLassoSelectionState]);
 
   const noteAuthoringInteraction = useCallback(() => {
     lastAuthoringInteractionAtRef.current = performance.now();
@@ -2861,11 +2843,6 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     [noteAuthoringInteraction],
   );
 
-  const markAuthoringPendingChanges = useCallback(() => {
-    noteAuthoringInteraction();
-    hasPendingAuthoringChangesRef.current = true;
-  }, [noteAuthoringInteraction]);
-
   const markAuthoringDirtyRegion = useCallback(
     (dirtyRect: CanvasDirtyRect | null, markPending = false) => {
       recordAuthoringDirtyRegion(dirtyRect, { markPending, requireFullSnapshot: false });
@@ -2884,7 +2861,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       return true;
     }
 
-    if (brushPreviewFrameRef.current !== null || shapePreviewFrameRef.current !== null) {
+    if (rasterDraftRef.current !== null || shapePreviewFrameRef.current !== null) {
       return true;
     }
 
@@ -2901,12 +2878,26 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       return;
     }
 
+    const canvas = canvasRef.current;
+    let preparedCoverage: UnifiedRasterPaintCoverageV1 | null = null;
+    if (committedBitmap !== undefined) {
+      if (canvas) {
+        const companion = getBitmapPaintCoverage(committedBitmap);
+        preparedCoverage = companion && (companion.width !== canvas.width || companion.height !== canvas.height)
+          ? cropPaintCoverage(companion, -bitmapCenterOffset(canvas.width, companion.width), -bitmapCenterOffset(canvas.height, companion.height), canvas.width, canvas.height)
+          : companion;
+      }
+      // A selection snapshot includes its floating pieces, while this canvas
+      // still contains only the backdrop. Keep its existing matching companion;
+      // compositing/restoring the selection owns both its pixels and coverage.
+      if (canvas && !bitmapSelectionSessionRef.current?.items.length) attachBitmapPaintCoverage(canvas, preparedCoverage);
+      authoringCommittedBitmapRef.current = committedBitmap ?? null;
+    }
     hasPendingAuthoringChangesRef.current = false;
     authoringDirtyRectRef.current = null;
     authoringDirtyCaptureModeRef.current = "region";
-    if (committedBitmap !== undefined) {
-      authoringCommittedBitmapRef.current = committedBitmap ?? null;
-    }
+    presentedRasterCommitRef.current = canvas && preparedRasterCommandRef.current && captureVersion != null && committedBitmap !== undefined
+      ? { bitmap: committedBitmap, contextKey: currentRasterContextRef.current, generation: captureVersion, width: canvas.width, height: canvas.height } : null;
   }, []);
 
   const getCanvasPoint = (e: React.PointerEvent<HTMLCanvasElement>) => {
@@ -3078,6 +3069,13 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       sourceBounds.width * metrics.scaleX,
       sourceBounds.height * metrics.scaleY,
     );
+    attachBitmapPaintCoverage(expanded, transformPaintCoverage(
+      getBitmapPaintCoverage(sourceCanvas), expanded.width, expanded.height,
+      (x, y) => ({
+        x: (x - (sourceBounds.x - targetBounds.x) * metrics.scaleX) * sourceCanvas.width / (sourceBounds.width * metrics.scaleX),
+        y: (y - (sourceBounds.y - targetBounds.y) * metrics.scaleY) * sourceCanvas.height / (sourceBounds.height * metrics.scaleY),
+      }),
+    ));
     return expanded;
   }, [getAuthoringMetrics]);
 
@@ -3792,6 +3790,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   }, [activeTextObjects, commitTextObjects]);
 
   const deleteSelectedTextObjects = useCallback((objectIds: string[]) => {
+    if (!authorizeDestructiveCommand({ commandId: "delete-selection", targetIds: objectIds, availableTargetIds: activeTextObjects.map(object => object.id) }).allowed) return false;
     const objectIdSet = new Set(objectIds);
     const nextObjects = activeTextObjects.filter((textObject) => !objectIdSet.has(textObject.id));
     if (nextObjects.length === activeTextObjects.length) {
@@ -4318,776 +4317,199 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     };
   };
 
-  const hexToRGBA = (hex: string, alpha: number) => {
-    const normalized = /^#[0-9a-fA-F]{6}$/.test(hex) ? hex : "#000000";
-    const r = Number.parseInt(normalized.slice(1, 3), 16);
-    const g = Number.parseInt(normalized.slice(3, 5), 16);
-    const b = Number.parseInt(normalized.slice(5, 7), 16);
-    const clampedAlpha = Math.max(0, Math.min(1, alpha));
-    return `rgba(${r},${g},${b},${clampedAlpha})`;
+  const cancelPendingAuthoringGesture = useCallback((_reason: string) => {
+    void _reason;
+    const draft = rasterDraftRef.current;
+    rasterDraftRef.current = null;
+    if (draft) {
+      draft.engine.cancel();
+      const ctx = canvasRef.current?.getContext("2d");
+      if (ctx) for (const tile of draft.tiles.values()) ctx.putImageData(tile.base, tile.left, tile.top);
+      if (canvasRef.current) attachBitmapPaintCoverage(canvasRef.current, draft.baseCoverage);
+      isDrawingRef.current = false;
+      const canvas = canvasRef.current;
+      if (canvas?.hasPointerCapture(draft.pointerId)) canvas.releasePointerCapture(draft.pointerId);
+    }
+    if (isShapeDrawingRef.current && shapeDraftBaseImageRef.current) {
+      canvasRef.current?.getContext("2d")?.putImageData(shapeDraftBaseImageRef.current, 0, 0);
+      isShapeDrawingRef.current = false; shapeDraftRef.current = null; shapeDraftBaseImageRef.current = null;
+    }
+  }, []);
+  cancelRasterDraftRef.current = cancelPendingAuthoringGesture;
+
+  const sketchDraftAddsPaint = (draft: NonNullable<typeof rasterDraftRef.current>) => {
+    const key = draft.engine.options.key;
+    return Array.from(draft.tiles.values()).some(tile => tile.presentedCoverage.some((coverage, point) => {
+      if (!coverage) return false;
+      const previous = tile.basePixels[point];
+      return !previous || previous.key.variant !== key.variant || previous.key.color !== key.color ||
+        previous.key.opacityByte !== key.opacityByte || Math.min(key.opacityByte, coverage) > previous.coverage;
+    }));
   };
 
-  const mergeBrushPreviewDirtyRects = useCallback(
-    (
-      left: { left: number; top: number; width: number; height: number } | null,
-      right: { left: number; top: number; width: number; height: number } | null,
-      canvasWidth: number,
-      canvasHeight: number,
-    ) => {
-      if (!left) return right;
-      if (!right) return left;
-
-      const mergedLeft = Math.max(0, Math.min(left.left, right.left));
-      const mergedTop = Math.max(0, Math.min(left.top, right.top));
-      const mergedRight = Math.min(
-        canvasWidth,
-        Math.max(left.left + left.width, right.left + right.width),
-      );
-      const mergedBottom = Math.min(
-        canvasHeight,
-        Math.max(left.top + left.height, right.top + right.height),
-      );
-
-      return {
-        left: mergedLeft,
-        top: mergedTop,
-        width: Math.max(1, mergedRight - mergedLeft),
-        height: Math.max(1, mergedBottom - mergedTop),
-      };
-    },
-    [],
-  );
-
-  const resolveBrushPreviewDirtyRect = useCallback(
-    (
-      points: CanvasPoint[],
-      canvasWidth: number,
-      canvasHeight: number,
-      drawSingleDot: boolean,
-      startIndex = 0,
-    ) => {
-      if (points.length === 0 || startIndex >= points.length) {
-        return null;
-      }
-
-      const strokeSize = brushStrokeSizeRef.current;
-      const variant = brushStrokeVariantRef.current;
-      const glowGradientBrightnessValue = brushStrokeGradientBrightnessRef.current;
-      const glowGradientRadiusValue = brushStrokeGradientRadiusRef.current;
-      const smoothingValue = brushStrokeSmoothingRef.current;
-      const metrics = getAuthoringMetrics();
-      const scaleX = metrics?.scaleX ?? 1;
-      const scaleY = metrics?.scaleY ?? 1;
-      const firstPixelX = points[startIndex].pixelX ?? Math.floor(points[startIndex].x * scaleX);
-      const firstPixelY = points[startIndex].pixelY ?? Math.floor(points[startIndex].y * scaleY);
-      let minPixelX = firstPixelX;
-      let maxPixelX = firstPixelX;
-      let minPixelY = firstPixelY;
-      let maxPixelY = firstPixelY;
-
-      for (let index = startIndex + 1; index < points.length; index += 1) {
-        const point = points[index];
-        const pixelX = point.pixelX ?? Math.floor(point.x * scaleX);
-        const pixelY = point.pixelY ?? Math.floor(point.y * scaleY);
-        minPixelX = Math.min(minPixelX, pixelX);
-        maxPixelX = Math.max(maxPixelX, pixelX);
-        minPixelY = Math.min(minPixelY, pixelY);
-        maxPixelY = Math.max(maxPixelY, pixelY);
-      }
-
-      let padding = Math.max(6, strokeSize * 1.4 + Math.max(2, (smoothingValue / 100) * strokeSize * 1.8));
-      if (variant === "Glow" && glowGradientBrightnessValue > 0) {
-        const gradientRadius = Math.max(0, Math.min(1, glowGradientRadiusValue / 100));
-        padding = Math.max(padding, strokeSize * (2.1 + gradientRadius * 8.5));
-      } else if (variant === "Sketch") {
-        padding = Math.max(padding, strokeSize * 2.6);
-      } else if (variant === "Pencil") {
-        padding = Math.max(padding, strokeSize * 1.9);
-      } else if (variant === "Pixelate") {
-        padding = Math.max(padding, strokeSize * 2.2);
-      } else if (variant === "Glow") {
-        padding = Math.max(padding, strokeSize * 2.1);
-      }
-
-      if (drawSingleDot) {
-        padding = Math.max(padding, strokeSize * 2.2);
-      }
-
-      const paddingX = Math.max(1, Math.ceil(padding * scaleX));
-      const paddingY = Math.max(1, Math.ceil(padding * scaleY));
-      const left = Math.max(0, Math.floor(minPixelX - paddingX));
-      const top = Math.max(0, Math.floor(minPixelY - paddingY));
-      const right = Math.min(canvasWidth, Math.ceil(maxPixelX + paddingX));
-      const bottom = Math.min(canvasHeight, Math.ceil(maxPixelY + paddingY));
-
-      return {
-        left,
-        top,
-        width: Math.max(1, right - left),
-        height: Math.max(1, bottom - top),
-      };
-    },
-    [getAuthoringMetrics],
-  );
-
-  const resolveSimpleStrokeDirtyRect = useCallback(
-    (
-      points: CanvasPoint[],
-      canvasWidth: number,
-      canvasHeight: number,
-      strokeSize: number,
-      drawSingleDot: boolean,
-    ) => {
-      if (points.length === 0) {
-        return null;
-      }
-
-      const metrics = getAuthoringMetrics();
-      const scaleX = metrics?.scaleX ?? 1;
-      const scaleY = metrics?.scaleY ?? 1;
-      const firstPixelX = points[0].pixelX ?? Math.floor(points[0].x * scaleX);
-      const firstPixelY = points[0].pixelY ?? Math.floor(points[0].y * scaleY);
-      let minPixelX = firstPixelX;
-      let maxPixelX = firstPixelX;
-      let minPixelY = firstPixelY;
-      let maxPixelY = firstPixelY;
-
-      for (let index = 1; index < points.length; index += 1) {
-        const point = points[index];
-        const pixelX = point.pixelX ?? Math.floor(point.x * scaleX);
-        const pixelY = point.pixelY ?? Math.floor(point.y * scaleY);
-        minPixelX = Math.min(minPixelX, pixelX);
-        maxPixelX = Math.max(maxPixelX, pixelX);
-        minPixelY = Math.min(minPixelY, pixelY);
-        maxPixelY = Math.max(maxPixelY, pixelY);
-      }
-
-      const basePadding = Math.max(6, strokeSize * (drawSingleDot ? 1.8 : 2.25));
-      const paddingX = Math.max(1, Math.ceil(basePadding * scaleX));
-      const paddingY = Math.max(1, Math.ceil(basePadding * scaleY));
-      const left = Math.max(0, Math.floor(minPixelX - paddingX));
-      const top = Math.max(0, Math.floor(minPixelY - paddingY));
-      const right = Math.min(canvasWidth, Math.ceil(maxPixelX + paddingX));
-      const bottom = Math.min(canvasHeight, Math.ceil(maxPixelY + paddingY));
-
-      return {
-        left,
-        top,
-        width: Math.max(1, right - left),
-        height: Math.max(1, bottom - top),
-      };
-    },
-    [getAuthoringMetrics],
-  );
-
-  const resolveBufferedBrushEffectiveSmoothing = useCallback(
-    (variant: BrushToolVariant, smoothingValue: number) => {
-      if (variant === "Pencil") {
-        return Math.min(100, Math.max(smoothingValue, 10));
-      }
-      if (variant === "Sketch") {
-        return Math.round(smoothingValue * 0.8);
-      }
-      if (variant === "Pixelate") {
-        return Math.round(smoothingValue * 0.35);
-      }
-      return smoothingValue;
-    },
-    [],
-  );
-
-  const smoothBufferedBrushPoint = useCallback((input: CanvasPoint[], index: number, radius: number, blend: number) => {
-    const point = input[index];
-    if (!point || index === 0 || index === input.length - 1) {
-      return point;
-    }
-
-    let sumX = 0;
-    let sumY = 0;
-    let count = 0;
-    for (let i = index - radius; i <= index + radius; i += 1) {
-      if (i < 0 || i >= input.length) continue;
-      sumX += input[i].x;
-      sumY += input[i].y;
-      count += 1;
-    }
-
-    const avgX = sumX / Math.max(1, count);
-    const avgY = sumY / Math.max(1, count);
-    return {
-      x: point.x * (1 - blend) + avgX * blend,
-      y: point.y * (1 - blend) + avgY * blend,
-    };
-  }, []);
-
-  const resolveBufferedBrushRenderState = useCallback(
-    (points: CanvasPoint[]) => {
-      const variant = brushStrokeVariantRef.current;
-      const smoothingValue = brushStrokeSmoothingRef.current;
-      const effectiveSmoothing = resolveBufferedBrushEffectiveSmoothing(variant, smoothingValue);
-      const previousPointCount = Math.min(brushStrokeProcessedPointCountRef.current, points.length);
-      const renderPoints = brushStrokeRenderPointsRef.current;
-
-      if (points.length === 0) {
-        renderPoints.length = 0;
-        brushStrokeSmoothedPointsRef.current.length = 0;
-        brushStrokeProcessedPointCountRef.current = 0;
-        return {
-          renderPoints,
-          effectiveSmoothing,
-          segmentStartIndex: 0,
-        };
-      }
-
-      const usesSmoothing = effectiveSmoothing > 0 && points.length > 2;
-      if (!usesSmoothing) {
-        const canReuseRenderPoints = renderPoints.length === previousPointCount;
-        const changedStart = canReuseRenderPoints ? Math.max(0, previousPointCount - 1) : 0;
-        renderPoints.length = points.length;
-        for (let index = changedStart; index < points.length; index += 1) {
-          renderPoints[index] = points[index];
+  const presentRasterDraft = (preview: RasterPreview | null) => {
+    const draft = rasterDraftRef.current, canvas = canvasRef.current, ctx = canvas?.getContext("2d");
+    if (!preview?.changed || !draft || !canvas || !ctx || draft.presented === preview) return;
+    const rect = preview.changed;
+    // The writer clones each accepted pixel. Reuse only this private temporary
+    // record, avoiding several short-lived arrays for every changed halo pixel.
+    const scratchPixel: ReturnType<typeof mergePaintPixel> = { key: draft.engine.options.key, base: [0, 0, 0, 0], coverage: 1, pigment: [0, 0, 0] };
+    draft.dirty = unionRect(draft.dirty, rect);
+    for (let top = Math.floor(rect.top / 32) * 32; top < rect.top + rect.height; top += 32) {
+      for (let left = Math.floor(rect.left / 32) * 32; left < rect.left + rect.width; left += 32) {
+        const key = `${left}:${top}`;
+        let tile = draft.tiles.get(key);
+        if (!tile) {
+          const committed = authoringCommittedBitmapRef.current;
+          const width = Math.min(32, canvas.width - left), height = Math.min(32, canvas.height - top);
+          const base = committed ? new ImageData(width, height) : ctx.getImageData(left, top, width, height);
+          // Use authored bytes as the transaction base. Canvas readback can
+          // quantize RGB at low alpha even when no edit has happened.
+          if (committed) {
+            const offsetX = bitmapCenterOffset(canvas.width, committed.width), offsetY = bitmapCenterOffset(canvas.height, committed.height);
+            const sx0 = Math.max(0, left - offsetX), sx1 = Math.min(committed.width, left + base.width - offsetX);
+            for (let y = 0; y < base.height; y++) {
+              const sy = top + y - offsetY;
+              if (sy >= 0 && sy < committed.height && sx1 > sx0) {
+                const start = (sy * committed.width + sx0) * 4;
+                base.data.set(committed.data.subarray(start, start + (sx1 - sx0) * 4), (y * base.width + sx0 + offsetX - left) * 4);
+              }
+            }
+          }
+          // Coverage slots always use the 32-pixel mask stride, including
+          // partial edge tiles. These private original pixels are read only.
+          const basePixels: ReturnType<typeof getPaintCoverage>[] = Array(1024).fill(null);
+          forEachPaintCoverage(draft.baseCoverage, (pixel, x, y) => { basePixels[(y - top) * 32 + x - left] = pixel; }, { x: left, y: top, width, height });
+          tile = { left, top, base, basePixels, display: new ImageData(new Uint8ClampedArray(base.data), base.width, base.height), presentedCoverage: new Uint8Array(1024), presentedLight: new Uint8Array(1024) };
+          draft.tiles.set(key, tile);
         }
-        brushStrokeSmoothedPointsRef.current.length = 0;
-        brushStrokeProcessedPointCountRef.current = points.length;
-        return {
-          renderPoints,
-          effectiveSmoothing,
-          segmentStartIndex: Math.max(1, previousPointCount > 0 ? changedStart : 1),
-        };
-      }
-
-      const radius = Math.max(1, Math.round((effectiveSmoothing / 100) * 4));
-      const blend = Math.min(0.9, (effectiveSmoothing / 100) * 0.85);
-      const smoothedPoints = brushStrokeSmoothedPointsRef.current;
-      const canReuseSmoothedPoints = smoothedPoints.length === previousPointCount;
-      const changedStartPassOne = canReuseSmoothedPoints ? Math.max(0, previousPointCount - radius) : 0;
-
-      smoothedPoints.length = points.length;
-      for (let index = changedStartPassOne; index < points.length; index += 1) {
-        smoothedPoints[index] = smoothBufferedBrushPoint(points, index, radius, blend);
-      }
-
-      const shouldUseSecondPass = effectiveSmoothing >= 65 && points.length > 3;
-      const canReuseRenderPoints = renderPoints.length === previousPointCount;
-      const changedStartRender = shouldUseSecondPass
-        ? canReuseRenderPoints
-          ? Math.max(0, changedStartPassOne - radius)
-          : 0
-        : canReuseRenderPoints
-          ? changedStartPassOne
-          : 0;
-
-      renderPoints.length = points.length;
-      if (shouldUseSecondPass) {
-        for (let index = changedStartRender; index < points.length; index += 1) {
-          renderPoints[index] = smoothBufferedBrushPoint(smoothedPoints, index, radius, blend);
-        }
-      } else {
-        for (let index = changedStartRender; index < points.length; index += 1) {
-          renderPoints[index] = smoothedPoints[index];
-        }
-      }
-
-      brushStrokeProcessedPointCountRef.current = points.length;
-      return {
-        renderPoints,
-        effectiveSmoothing,
-        segmentStartIndex: Math.max(1, previousPointCount > 0 ? changedStartRender : 1),
-      };
-    },
-    [resolveBufferedBrushEffectiveSmoothing, smoothBufferedBrushPoint],
-  );
-
-  const restoreBrushStrokeRegion = useCallback(
-    (
-      ctx: CanvasRenderingContext2D,
-      dirtyRect: { left: number; top: number; width: number; height: number } | null,
-    ) => {
-      const snapshotCanvas = brushStrokeBaseCanvasRef.current;
-      const snapshotRect = brushStrokeBaseRectRef.current;
-      if (!snapshotCanvas || !snapshotRect) {
-        return false;
-      }
-
-      ctx.save();
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      if (!dirtyRect) {
-        ctx.clearRect(snapshotRect.left, snapshotRect.top, snapshotRect.width, snapshotRect.height);
-        ctx.drawImage(
-          snapshotCanvas,
-          0,
-          0,
-          snapshotRect.width,
-          snapshotRect.height,
-          snapshotRect.left,
-          snapshotRect.top,
-          snapshotRect.width,
-          snapshotRect.height,
-        );
-      } else {
-        const left = Math.max(snapshotRect.left, dirtyRect.left);
-        const top = Math.max(snapshotRect.top, dirtyRect.top);
-        const right = Math.min(snapshotRect.left + snapshotRect.width, dirtyRect.left + dirtyRect.width);
-        const bottom = Math.min(snapshotRect.top + snapshotRect.height, dirtyRect.top + dirtyRect.height);
-        if (right <= left || bottom <= top) {
-          ctx.restore();
-          return true;
-        }
-        const width = right - left;
-        const height = bottom - top;
-        ctx.clearRect(left, top, width, height);
-        ctx.drawImage(
-          snapshotCanvas,
-          left - snapshotRect.left,
-          top - snapshotRect.top,
-          width,
-          height,
-          left,
-          top,
-          width,
-          height,
-        );
-      }
-      ctx.restore();
-      return true;
-    },
-    [],
-  );
-
-  const ensureBrushStrokeBaseRegion = useCallback(
-    (
-      sourceCanvas: HTMLCanvasElement,
-      dirtyRect: { left: number; top: number; width: number; height: number } | null,
-    ) => {
-      if (!dirtyRect) {
-        return false;
-      }
-
-      const existingRect = brushStrokeBaseRectRef.current;
-      const existingCanvas = brushStrokeBaseCanvasRef.current;
-      const nextRect = mergeBrushPreviewDirtyRects(existingRect, dirtyRect, sourceCanvas.width, sourceCanvas.height);
-      if (!nextRect) {
-        return false;
-      }
-
-      if (
-        existingCanvas &&
-        existingRect &&
-        existingRect.left === nextRect.left &&
-        existingRect.top === nextRect.top &&
-        existingRect.width === nextRect.width &&
-        existingRect.height === nextRect.height
-      ) {
-        return true;
-      }
-
-      const snapshotCanvas = document.createElement("canvas");
-      snapshotCanvas.width = nextRect.width;
-      snapshotCanvas.height = nextRect.height;
-      const snapshotCtx = snapshotCanvas.getContext("2d");
-      if (!snapshotCtx) {
-        return false;
-      }
-
-      snapshotCtx.setTransform(1, 0, 0, 1, 0, 0);
-      snapshotCtx.clearRect(0, 0, snapshotCanvas.width, snapshotCanvas.height);
-      snapshotCtx.drawImage(
-        sourceCanvas,
-        nextRect.left,
-        nextRect.top,
-        nextRect.width,
-        nextRect.height,
-        0,
-        0,
-        nextRect.width,
-        nextRect.height,
-      );
-
-      if (existingCanvas && existingRect) {
-        snapshotCtx.drawImage(
-          existingCanvas,
-          0,
-          0,
-          existingRect.width,
-          existingRect.height,
-          existingRect.left - nextRect.left,
-          existingRect.top - nextRect.top,
-          existingRect.width,
-          existingRect.height,
-        );
-      }
-
-      brushStrokeBaseCanvasRef.current = snapshotCanvas;
-      brushStrokeBaseRectRef.current = nextRect;
-      return true;
-    },
-    [mergeBrushPreviewDirtyRects],
-  );
-
-  const drawBufferedBrushStroke = useCallback(
-    (
-      ctx: CanvasRenderingContext2D,
-      drawSingleDot: boolean,
-      mode: "buffered-main-preview" | "overlay-preview" | "final-commit" = "buffered-main-preview",
-    ) => {
-      const points = brushStrokePointsRef.current;
-      if (points.length === 0) return;
-      const useOverlayPreview = mode === "overlay-preview";
-      const useBufferedMainPreview = mode === "buffered-main-preview";
-      const useFinalCommit = mode === "final-commit";
-      const replayEntireStroke = useOverlayPreview || useFinalCommit;
-      const strokeSize = brushStrokeSizeRef.current;
-      const variant = brushStrokeVariantRef.current;
-      const glowGradientBrightnessValue = brushStrokeGradientBrightnessRef.current;
-      const glowGradientRadiusValue = brushStrokeGradientRadiusRef.current;
-      const rgbaMatch = brushStrokeColorRef.current.match(/^rgba\((\d+),(\d+),(\d+),([0-9.]+)\)$/);
-      const colorR = rgbaMatch ? Number.parseInt(rgbaMatch[1], 10) : 0;
-      const colorG = rgbaMatch ? Number.parseInt(rgbaMatch[2], 10) : 0;
-      const colorB = rgbaMatch ? Number.parseInt(rgbaMatch[3], 10) : 0;
-      const colorAlpha = rgbaMatch ? Math.max(0, Math.min(1, Number.parseFloat(rgbaMatch[4]))) : 1;
-      const toRGBA = (r: number, g: number, b: number, alpha: number) =>
-        `rgba(${Math.round(r)},${Math.round(g)},${Math.round(b)},${Math.max(0, Math.min(1, alpha))})`;
-      const { renderPoints, effectiveSmoothing, segmentStartIndex } = resolveBufferedBrushRenderState(points);
-      const nextGlowPathStep =
-        variant === "Glow" && !drawSingleDot ? (renderPoints.length > 32 ? 3 : renderPoints.length > 14 ? 2 : 1) : 1;
-      const previewSegmentStartIndex =
-        replayEntireStroke
-          ? 1
-          : variant === "Glow" && !drawSingleDot && brushStrokeGlowPathStepRef.current !== nextGlowPathStep
-          ? 1
-          : segmentStartIndex;
-      brushStrokeGlowPathStepRef.current = nextGlowPathStep;
-      const drawStartIndex = replayEntireStroke
-        ? 0
-        : Math.max(0, Math.min(renderPoints.length - 1, previewSegmentStartIndex) - 1);
-      const dirtyRect = resolveBrushPreviewDirtyRect(
-        drawSingleDot ? points : renderPoints,
-        ctx.canvas.width,
-        ctx.canvas.height,
-        drawSingleDot,
-        drawSingleDot ? 0 : replayEntireStroke ? 0 : drawStartIndex,
-      );
-      if (useBufferedMainPreview) {
-        if (!ensureBrushStrokeBaseRegion(ctx.canvas, dirtyRect) || !restoreBrushStrokeRegion(ctx, dirtyRect)) {
-          return;
-        }
-      } else if (useOverlayPreview) {
-        const previewClearRect = mergeBrushPreviewDirtyRects(
-          brushPreviewOverlayDirtyRectRef.current,
-          dirtyRect,
-          ctx.canvas.width,
-          ctx.canvas.height,
-        );
-        clearBrushPreviewOverlay(previewClearRect);
-        brushPreviewOverlayDirtyRectRef.current = dirtyRect ? { ...dirtyRect } : null;
-      } else if (useFinalCommit && brushStrokeBaseCanvasRef.current) {
-        const restoreRect = brushStrokeBaseRectRef.current ?? dirtyRect;
-        if (!restoreBrushStrokeRegion(ctx, restoreRect)) {
-          return;
-        }
-      }
-      if (!useOverlayPreview) {
-        markAuthoringDirtyRegion(dirtyRect);
-      }
-      ctx.globalCompositeOperation = "source-over";
-      ctx.globalAlpha = 1;
-      ctx.strokeStyle = brushStrokeColorRef.current;
-      ctx.fillStyle = brushStrokeColorRef.current;
-      ctx.lineWidth = strokeSize;
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
-      const isGlowSolidMode = variant === "Glow" && glowGradientBrightnessValue <= 0;
-      const drawStrokePath = (pathPoints: CanvasPoint[]) => {
-        if (pathPoints.length < 2) return;
-        ctx.beginPath();
-        ctx.moveTo(pathPoints[0].x, pathPoints[0].y);
-        for (let i = 1; i < pathPoints.length; i += 1) {
-          ctx.lineTo(pathPoints[i].x, pathPoints[i].y);
-        }
-      };
-      const buildVariantPath = (pathPoints: CanvasPoint[], jitterAmount: number, phase: number) => {
-        if (pathPoints.length < 2 || jitterAmount <= 0) {
-          return pathPoints;
-        }
-
-        return pathPoints.map((point, index) => {
-          const prev = pathPoints[Math.max(0, index - 1)];
-          const next = pathPoints[Math.min(pathPoints.length - 1, index + 1)];
-          const dx = next.x - prev.x;
-          const dy = next.y - prev.y;
-          const length = Math.hypot(dx, dy) || 1;
-          const normalX = -dy / length;
-          const normalY = dx / length;
-          const seed = Math.sin((index + 1) * 12.9898 + phase * 78.233) * 43758.5453;
-          const noise = seed - Math.floor(seed);
-          const offset = (noise - 0.5) * 2 * jitterAmount;
-          return {
-            x: point.x + normalX * offset,
-            y: point.y + normalY * offset,
-            pixelX: point.pixelX,
-            pixelY: point.pixelY,
-          };
-        });
-      };
-      const drawVariantStroke = (
-        pathPoints: CanvasPoint[],
-        lineWidth: number,
-        alphaMultiplier: number,
-      ) => {
-        if (pathPoints.length < 2) {
-          return;
-        }
-        ctx.save();
-        ctx.strokeStyle = toRGBA(colorR, colorG, colorB, colorAlpha * alphaMultiplier);
-        ctx.lineWidth = lineWidth;
-        drawStrokePath(pathPoints);
-        ctx.stroke();
-        ctx.restore();
-      };
-
-      if (drawSingleDot) {
-        const dot = points[0];
-        if (variant === "Pixelate") {
-          const blockSize = Math.max(1, Math.round(strokeSize));
-          const snappedX = Math.round((dot.x - blockSize / 2) / blockSize) * blockSize;
-          const snappedY = Math.round((dot.y - blockSize / 2) / blockSize) * blockSize;
-          ctx.fillRect(snappedX, snappedY, blockSize, blockSize);
-          return;
-        }
-
-        if (variant === "Glow" && !isGlowSolidMode) {
-          const gradientBrightness = Math.max(0, Math.min(1, glowGradientBrightnessValue / 100));
-          const gradientRadius = Math.max(0, Math.min(1, glowGradientRadiusValue / 100));
-          const brightnessFactor = Math.pow(gradientBrightness, 3.5);
-          const haloStrength = 0.05 + gradientBrightness * 0.16 + brightnessFactor * 2.35;
-          const radiusFactor = Math.pow(gradientRadius, 2.8);
-          const haloSpread = 0.04 + gradientRadius * 0.12 + radiusFactor * 2.4;
-          const outerRadius = Math.max(1.3, strokeSize * (1.02 + haloSpread * 2.35));
-          const coreRadius = Math.max(0.58, strokeSize * 0.42);
-          const glowAlpha = Math.min(1, colorAlpha * (0.014 + haloStrength * 0.45));
-          const coreAlpha = Math.min(1, colorAlpha * 0.98);
-          const outerGradient = ctx.createRadialGradient(dot.x, dot.y, 0, dot.x, dot.y, outerRadius);
-          outerGradient.addColorStop(0, toRGBA(colorR, colorG, colorB, glowAlpha));
-          outerGradient.addColorStop(0.32 + Math.min(0.3, haloSpread * 0.08), toRGBA(colorR, colorG, colorB, glowAlpha * 0.92));
-          outerGradient.addColorStop(1, toRGBA(colorR, colorG, colorB, 0));
-
-          ctx.save();
-          ctx.globalCompositeOperation = "lighter";
-          ctx.fillStyle = outerGradient;
-          ctx.beginPath();
-          ctx.arc(dot.x, dot.y, outerRadius, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
-
-          ctx.save();
-          ctx.fillStyle = toRGBA(colorR, colorG, colorB, coreAlpha);
-          ctx.beginPath();
-          ctx.arc(dot.x, dot.y, coreRadius, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
-          return;
-        }
-
-        const dotRadius =
-          variant === "Pencil"
-            ? Math.max(strokeSize * 0.42, 0.6)
-            : variant === "Sketch"
-              ? Math.max(strokeSize * 0.5, 0.6)
-              : Math.max(strokeSize / 2, 0.5);
-        ctx.beginPath();
-        ctx.arc(dot.x, dot.y, dotRadius, 0, Math.PI * 2);
-        ctx.fill();
-        return;
-      }
-
-      if (points.length < 2) return;
-
-      if (variant === "Pixelate") {
-        const blockSize = Math.max(1, Math.round(strokeSize));
-        const paintedCells = new Set<string>();
-        const segmentStart = replayEntireStroke
-          ? 1
-          : Math.max(1, Math.min(previewSegmentStartIndex, renderPoints.length - 1));
-        const startPointIndex = Math.max(0, segmentStart - 1);
-        const stampPixel = (x: number, y: number) => {
-          const cellX = Math.floor(x / blockSize);
-          const cellY = Math.floor(y / blockSize);
-          const key = `${cellX}:${cellY}`;
-          if (paintedCells.has(key)) return;
-          paintedCells.add(key);
-          ctx.fillRect(cellX * blockSize, cellY * blockSize, blockSize, blockSize);
-        };
-
-        stampPixel(renderPoints[startPointIndex].x, renderPoints[startPointIndex].y);
-        for (let i = startPointIndex + 1; i < renderPoints.length; i += 1) {
-          const prev = renderPoints[i - 1];
-          const current = renderPoints[i];
-          const dx = current.x - prev.x;
-          const dy = current.y - prev.y;
-          const dist = Math.hypot(dx, dy);
-          const spacingBlend = effectiveSmoothing / 100;
-          const step = Math.max(1, blockSize * (0.72 + spacingBlend * 0.35));
-          const steps = Math.max(1, Math.ceil(dist / step));
-          for (let s = 1; s <= steps; s += 1) {
-            const t = s / steps;
-            stampPixel(prev.x + dx * t, prev.y + dy * t);
+        const maskKey = top / 32 * Math.ceil(canvas.width / 32) + left / 32;
+        const stableTile = preview.stable.tiles.get(maskKey), tailTile = preview.tail.tiles.get(maskKey);
+        for (let y = Math.max(top, rect.top); y < Math.min(top + tile.base.height, rect.top + rect.height); y++) {
+          for (let x = Math.max(left, rect.left); x < Math.min(left + tile.base.width, rect.left + rect.width); x++) {
+            const offset = ((y - top) * tile.base.width + x - left) * 4;
+            const point = (y - top) * 32 + x - left;
+            const coverage = Math.max(stableTile?.coverage[point] ?? 0, tailTile?.coverage[point] ?? 0), previous = tile.basePixels[point];
+            const light = Math.max(stableTile?.light[point] ?? 0, tailTile?.light[point] ?? 0);
+            // Original pixels/options are fixed for this draft. Reusing an
+            // identical incoming mask pair preserves both RGBA and provenance.
+            if (coverage === tile.presentedCoverage[point] && light === tile.presentedLight[point]) continue;
+            if (!coverage) {
+              tile.display.data.set(tile.base.data.subarray(offset, offset + 4), offset);
+              if (previous) draft.candidateWriter.set(x, y, previous); else draft.candidateWriter.clear(x, y);
+            } else if (draft.erase) {
+              tile.display.data.set(tile.base.data.subarray(offset, offset + 4), offset);
+              tile.display.data[offset + 3] = Math.round(tile.base.data[offset + 3] * (255 - coverage) / 255);
+              if (!tile.display.data[offset + 3]) tile.display.data.fill(0, offset, offset + 4);
+              draft.candidateWriter.clear(x, y);
+            } else {
+              const pixel = mergePaintPixel(previous, tile.base.data, draft.engine.options.key, coverage, light, scratchPixel, offset, draft.ownerId);
+              compositeRasterPaint(pixel, tile.display.data, offset);
+              draft.candidateWriter.set(x, y, pixel);
+            }
+            tile.presentedCoverage[point] = coverage; tile.presentedLight[point] = light;
           }
         }
+        ctx.putImageData(tile.display, left, top);
+      }
+    }
+    // Resolve ownership as it would be released now. Keep the complete candidate
+    // so a stroke that later adds ink also owns its earlier overlapping dabs.
+    draft.writer = draft.ownerId && !sketchDraftAddsPaint(draft) ? draft.baseWriter : draft.candidateWriter;
+    draft.presented = preview;
+  };
+
+  const beginRasterDraft = (e: React.PointerEvent<HTMLCanvasElement>, point: CanvasPoint) => {
+    const canvas = canvasRef.current, metrics = getAuthoringMetrics();
+    if (!canvas || !metrics || !e.isPrimary || e.button !== 0 || rasterDraftRef.current) return;
+    if (hasPendingAuthoringChangesRef.current) {
+      try { onAuthoringActionCommitted?.("selection"); } catch { /* Pending state blocks this new draft. */ }
+      if (hasPendingAuthoringChangesRef.current) {
+        window.alert("The previous edit could not be saved. Your drawing is preserved; retry before drawing another stroke.");
         return;
       }
-
-      if (variant === "Sketch") {
-        ctx.setLineDash([]);
-        ctx.lineCap = "round";
-        ctx.lineJoin = "round";
-        const segmentStart = replayEntireStroke
-          ? 1
-          : Math.max(1, Math.min(previewSegmentStartIndex, renderPoints.length - 1));
-        const pathPoints = renderPoints.slice(Math.max(0, segmentStart - 1));
-        drawVariantStroke(pathPoints, Math.max(1.1, strokeSize * 0.72), 0.9);
-        drawVariantStroke(
-          buildVariantPath(pathPoints, Math.max(0.16, strokeSize * 0.08), 0.75),
-          Math.max(0.6, strokeSize * 0.34),
-          0.34,
-        );
-        return;
-      }
-
-      if (variant === "Pencil") {
-        ctx.setLineDash([]);
-        ctx.lineCap = "round";
-        ctx.lineJoin = "round";
-        const segmentStart = replayEntireStroke
-          ? 1
-          : Math.max(1, Math.min(previewSegmentStartIndex, renderPoints.length - 1));
-        const pathPoints = renderPoints.slice(Math.max(0, segmentStart - 1));
-        drawVariantStroke(pathPoints, Math.max(0.78, strokeSize * 0.48), 0.94);
-        drawVariantStroke(
-          buildVariantPath(pathPoints, Math.max(0.08, strokeSize * 0.05), 1.35),
-          Math.max(0.42, strokeSize * 0.24),
-          0.42,
-        );
-        return;
-      }
-
-      if (variant === "Glow" && !isGlowSolidMode) {
-        const gradientBrightness = Math.max(0, Math.min(1, glowGradientBrightnessValue / 100));
-        const gradientRadius = Math.max(0, Math.min(1, glowGradientRadiusValue / 100));
-        const brightnessFactor = Math.pow(gradientBrightness, 3.5);
-        const haloStrength = 0.05 + gradientBrightness * 0.16 + brightnessFactor * 2.35;
-        const radiusFactor = Math.pow(gradientRadius, 2.8);
-        const haloSpread = 0.04 + gradientRadius * 0.12 + radiusFactor * 2.4;
-        const glowWidth = strokeSize * (0.95 + haloSpread * 2.7);
-        const coreWidth = Math.max(0.95, strokeSize * 0.94);
-        const glowAlpha = Math.min(1, colorAlpha * (0.012 + haloStrength * 0.37));
-        const coreAlpha = Math.min(1, colorAlpha * 0.99);
-        const glowBlur = strokeSize * (0.35 + haloSpread * 5.2);
-        const glowPathStep = nextGlowPathStep;
-        const segmentStart = replayEntireStroke
-          ? 1
-          : Math.max(1, Math.min(previewSegmentStartIndex, renderPoints.length - 1));
-        const lastStableGlowPoint =
-          glowPathStep === 1
-            ? renderPoints[Math.max(0, segmentStart - 1)]
-            : (() => {
-                let point = renderPoints[0];
-                for (let index = 0; index < segmentStart; index += 1) {
-                  if (index === 0 || index === renderPoints.length - 1 || index % glowPathStep === 0) {
-                    point = renderPoints[index];
-                  }
-                }
-                return point;
-              })();
-        const glowPoints =
-          glowPathStep === 1
-            ? renderPoints.slice(Math.max(0, segmentStart - 1))
-            : (() => {
-                const partialGlowPoints: CanvasPoint[] = [lastStableGlowPoint];
-                for (let index = segmentStart; index < renderPoints.length; index += 1) {
-                  if (index === renderPoints.length - 1 || index % glowPathStep === 0) {
-                    partialGlowPoints.push(renderPoints[index]);
-                  }
-                }
-                return partialGlowPoints;
-              })();
-        ctx.save();
-        ctx.globalCompositeOperation = "lighter";
-        ctx.filter = `blur(${glowBlur}px)`;
-        ctx.strokeStyle = toRGBA(colorR, colorG, colorB, glowAlpha);
-        ctx.lineWidth = glowWidth;
-        drawStrokePath(glowPoints);
-        ctx.stroke();
-        ctx.restore();
-
-        ctx.save();
-        ctx.strokeStyle = toRGBA(colorR, colorG, colorB, coreAlpha);
-        ctx.lineWidth = coreWidth;
-        drawStrokePath(renderPoints.slice(Math.max(0, segmentStart - 1)));
-        ctx.stroke();
-        ctx.restore();
-        return;
-      }
-
-      ctx.setLineDash([]);
-      ctx.lineWidth = strokeSize;
-      ctx.beginPath();
-      ctx.moveTo(renderPoints[drawStartIndex].x, renderPoints[drawStartIndex].y);
-      for (let i = drawStartIndex + 1; i < renderPoints.length; i += 1) {
-        ctx.lineTo(renderPoints[i].x, renderPoints[i].y);
-      }
-      ctx.stroke();
-    },
-    [
-      clearBrushPreviewOverlay,
-      ensureBrushStrokeBaseRegion,
-      markAuthoringDirtyRegion,
-      mergeBrushPreviewDirtyRects,
-      resolveBrushPreviewDirtyRect,
-      resolveBufferedBrushRenderState,
-      restoreBrushStrokeRegion,
-    ]
-  );
-
-  const flushBrushPreview = useCallback(() => {
-    const useOverlayPreview = brushUsesOverlayPreviewRef.current;
-    const ctx = useOverlayPreview
-      ? foregroundCanvasRef.current?.getContext("2d")
-      : canvasRef.current?.getContext("2d");
-    if (!ctx || brushStrokePointsRef.current.length === 0) {
-      return;
     }
-
-    if (!useOverlayPreview && !brushStrokeBaseCanvasRef.current) {
-      return;
+    authoringDirtyCaptureModeRef.current = "region";
+    authoringDirtyRectRef.current = null;
+    const erase = activeTool === "Eraser";
+    if (erase && !authorizeDestructiveCommand({ commandId: "eraser", targetIds: [currentRasterContextRef.current], availableTargetIds: [currentRasterContextRef.current] }).allowed) return;
+    const baseCoverage = getBitmapPaintCoverage(canvas);
+    const engine = new RasterGestureDraft({ key: canonicalPaint(erase ? "Brush" : brushToolVariant, erase ? "#000000" : brushColor, erase ? 0 : brushTransparency), size: erase ? eraserSize : brushSize, smoothing: erase ? 0 : brushSmoothing, brightness: glowGradientBrightness, radius: glowGradientRadius, seed: 173, width: canvas.width, height: canvas.height, scaleX: metrics.scaleX, scaleY: metrics.scaleY });
+    const writer = createPaintCoverageWriter(baseCoverage, canvas.width, canvas.height);
+    rasterDraftRef.current = { engine, pointerId: e.pointerId, contextKey: currentRasterContextRef.current, generation: authoringChangeVersionRef.current, erase, ownerId: !erase && brushToolVariant === "Sketch" ? crypto.randomUUID() : undefined, baseCoverage, writer, candidateWriter: writer, baseWriter: !erase && brushToolVariant === "Sketch" ? createPaintCoverageWriter(baseCoverage, canvas.width, canvas.height) : writer, tiles: new Map(), dirty: null, presented: null };
+    isDrawingRef.current = true;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    try { presentRasterDraft(engine.append(point)); } catch (error) {
+      cancelPendingAuthoringGesture("prepare-failed");
+      window.alert(`The stroke was canceled; your previous drawing is preserved. ${error instanceof Error ? error.message : ""}`);
     }
+  };
 
-    drawBufferedBrushStroke(ctx, false, useOverlayPreview ? "overlay-preview" : "buffered-main-preview");
-  }, [drawBufferedBrushStroke]);
-
-  const scheduleBrushPreview = useCallback(() => {
-    if (brushPreviewFrameRef.current !== null) {
-      return;
+  const moveRasterDraft = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    const draft = rasterDraftRef.current;
+    if (!draft || draft.pointerId !== e.pointerId) return;
+    const point = getCanvasPoint(e);
+    try {
+      if (point) presentRasterDraft(draft.engine.append(point));
+    } catch (error) {
+      cancelPendingAuthoringGesture("preview-failed");
+      window.alert(`The stroke was canceled; your previous drawing is preserved. ${error instanceof Error ? error.message : ""}`);
     }
+  };
 
-    brushPreviewFrameRef.current = window.requestAnimationFrame(() => {
-      brushPreviewFrameRef.current = null;
-      flushBrushPreview();
-    });
-  }, [flushBrushPreview]);
-
-  const cancelBrushPreview = useCallback(() => {
-    if (brushPreviewFrameRef.current === null) {
-      return;
+  const finishRasterDraft = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    const draft = rasterDraftRef.current;
+    if (!draft || draft.pointerId !== e.pointerId || e.type !== "pointerup") return;
+    if (draft.contextKey !== currentRasterContextRef.current || draft.generation !== authoringChangeVersionRef.current) { cancelPendingAuthoringGesture("stale-base"); return; }
+    moveRasterDraft(e);
+    if (rasterDraftRef.current !== draft) return;
+    const prepared = draft.engine.seal();
+    if (draft.ownerId && !sketchDraftAddsPaint(draft)) { cancelPendingAuthoringGesture("unchanged-sketch"); return; }
+    rasterDraftRef.current = null;
+    isDrawingRef.current = false;
+    const canvas = canvasRef.current;
+    try {
+      if (prepared && draft.dirty && canvas) {
+        attachBitmapPaintCoverage(canvas, draft.writer.finish());
+        markAuthoringDirtyRegion(draft.dirty, true);
+        const command: RasterGestureCommandV2 = {
+          commandId: RASTER_GESTURE_COMMAND,
+          algorithmVersion: RASTER_ALGORITHM_VERSION,
+          baseCoverage: draft.baseCoverage, preparedCoverage: getBitmapPaintCoverage(canvas), baseDigest: "", preparedDigest: "",
+          operationId: draft.ownerId ?? `${draft.contextKey}:${draft.generation}:${draft.pointerId}`,
+          contextKey: draft.contextKey, baseGeneration: draft.generation,
+          preparedGeneration: authoringChangeVersionRef.current,
+          erase: draft.erase, options: draft.engine.options, samples: draft.engine.points,
+          tiles: Array.from(draft.tiles.values(), tile => ({
+            left: tile.left, top: tile.top, width: tile.base.width, height: tile.base.height,
+            before: tile.base.data, after: tile.display.data,
+          })),
+        };
+        command.baseDigest = rasterCommandDigest(command.tiles, "before", command.baseCoverage);
+        command.preparedDigest = rasterCommandDigest(command.tiles, "after", command.preparedCoverage);
+        preparedRasterCommandRef.current = command;
+        if (onAuthoringActionCommitted?.("stroke", command) === false) throw new Error("raster_commit_rejected");
+      }
+    } catch (error) {
+      const ctx = canvas?.getContext("2d");
+      if (ctx) for (const tile of draft.tiles.values()) ctx.putImageData(tile.base, tile.left, tile.top);
+      if (canvas) attachBitmapPaintCoverage(canvas, draft.baseCoverage);
+      hasPendingAuthoringChangesRef.current = false;
+      authoringDirtyRectRef.current = null;
+      window.alert(`The stroke could not be committed. Your previous drawing is preserved. ${error instanceof Error ? error.message : ""}`);
     }
+    preparedRasterCommandRef.current = null;
+    if (canvas?.hasPointerCapture(e.pointerId)) canvas.releasePointerCapture(e.pointerId);
+  };
 
-    window.cancelAnimationFrame(brushPreviewFrameRef.current);
-    brushPreviewFrameRef.current = null;
-  }, []);
-
-  const flushBrushPreviewImmediately = useCallback(() => {
-    cancelBrushPreview();
-    flushBrushPreview();
-  }, [cancelBrushPreview, flushBrushPreview]);
+  useEffect(() => {
+    cancelPendingAuthoringGesture("context-change");
+  }, [activeTool, authoringContextKey, drawingToolActivationId, rightPanelTab, isTimelinePlaying, brushToolVariant, cancelPendingAuthoringGesture]);
+  useEffect(() => {
+    const cancel = (event: KeyboardEvent) => { if (event.key === "Escape") cancelPendingAuthoringGesture("escape"); };
+    window.addEventListener("keydown", cancel);
+    return () => window.removeEventListener("keydown", cancel);
+  }, [cancelPendingAuthoringGesture]);
 
   const smoothKnifePath = useCallback((path: LassoPoint[], smoothingValue: number) => {
     if (path.length < 3 || smoothingValue <= 0) return path;
@@ -5325,6 +4747,10 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     if (mode === "Cutout") {
       ctx.save();
       ctx.globalCompositeOperation = "destination-out";
+      if (!authorizeDestructiveCommand({ commandId: "shape-cutout", targetIds: [currentRasterContextRef.current], availableTargetIds: [currentRasterContextRef.current] }).allowed) {
+        ctx.restore();
+        return;
+      }
       ctx.fillStyle = "rgba(0,0,0,1)";
       ctx.fill();
       ctx.restore();
@@ -5383,10 +4809,10 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
 
   useEffect(
     () => () => {
-      cancelBrushPreview();
+      cancelPendingAuthoringGesture("unmount");
       cancelShapePreview();
     },
-    [cancelBrushPreview, cancelShapePreview],
+    [cancelPendingAuthoringGesture, cancelShapePreview],
   );
 
   const drawBitmapSelectionImage = useCallback((
@@ -5419,14 +4845,29 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     const displayRect = getDisplayedBitmapTransformRect(selection);
     const centerX = displayRect.x + displayRect.width / 2;
     const centerY = displayRect.y + displayRect.height / 2;
-    ctx.save();
-    ctx.setTransform(metrics.scaleX, 0, 0, metrics.scaleY, 0, 0);
-    ctx.imageSmoothingEnabled = false;
-    ctx.translate(centerX, centerY);
-    ctx.rotate((selection.rotation * Math.PI) / 180);
-    ctx.scale(selection.flipX ? -1 : 1, selection.flipY ? -1 : 1);
-    ctx.drawImage(selectionSource, -selection.width / 2, -selection.height / 2, selection.width, selection.height);
-    ctx.restore();
+    const sourceCtx = selectionSource.getContext("2d");
+    if (!sourceCtx || selection.width <= 0 || selection.height <= 0) return false;
+    const angle = selection.rotation * Math.PI / 180, cos = Math.cos(angle), sin = Math.sin(angle);
+    const halfWidth = (Math.abs(cos) * selection.width + Math.abs(sin) * selection.height) / 2;
+    const halfHeight = (Math.abs(sin) * selection.width + Math.abs(cos) * selection.height) / 2;
+    const left = Math.max(0, Math.floor((centerX - halfWidth) * metrics.scaleX));
+    const top = Math.max(0, Math.floor((centerY - halfHeight) * metrics.scaleY));
+    const right = Math.min(ctx.canvas.width, Math.ceil((centerX + halfWidth) * metrics.scaleX));
+    const bottom = Math.min(ctx.canvas.height, Math.ceil((centerY + halfHeight) * metrics.scaleY));
+    if (right <= left || bottom <= top) return true;
+    const destination = ctx.getImageData(left, top, right - left, bottom - top);
+    const prepared = compositeRasterSelectionV1(destination,
+      sourceCtx.getImageData(0, 0, selectionSource.width, selectionSource.height),
+      getBitmapPaintCoverage(ctx.canvas), getBitmapPaintCoverage(selectionSource),
+      ctx.canvas.width, ctx.canvas.height, left, top, (x, y) => {
+        const dx = x / metrics.scaleX - centerX, dy = y / metrics.scaleY - centerY;
+        return {
+          x: ((cos * dx + sin * dy) * (selection.flipX ? -1 : 1) / selection.width + .5) * selectionSource.width,
+          y: ((-sin * dx + cos * dy) * (selection.flipY ? -1 : 1) / selection.height + .5) * selectionSource.height,
+        };
+      });
+    ctx.putImageData(new ImageData(prepared.data, destination.width, destination.height), left, top);
+    attachBitmapPaintCoverage(ctx.canvas, prepared.paintCoverage);
     return true;
   }, [getAuthoringMetrics, getDisplayedBitmapTransformRect]);
 
@@ -5439,6 +4880,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       return null;
     }
     clonedCtx.drawImage(sourceCanvas, 0, 0);
+    copyBitmapPaintCoverage(sourceCanvas, clonedCanvas);
     return clonedCanvas;
   }, []);
 
@@ -5472,6 +4914,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(backdropCanvas, 0, 0, canvas.width, canvas.height);
     ctx.restore();
+    copyBitmapPaintCoverage(backdropCanvas, canvas);
     return true;
   }, []);
 
@@ -5622,6 +5065,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       if (item.sourceCanvas && !duplicatedSourceCanvas) {
         return null;
       }
+      if (duplicatedSourceCanvas) attachBitmapPaintCoverage(duplicatedSourceCanvas, remapSketchOwners(getBitmapPaintCoverage(duplicatedSourceCanvas), () => crypto.randomUUID()));
       return {
         ...item,
         id: createBitmapSelectionSessionItemId(),
@@ -5697,6 +5141,8 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     if (!session) {
       return false;
     }
+    const targets = session.items.map(item => item.id);
+    if (!authorizeDestructiveCommand({ commandId: owner === "knife" ? "knife" : "delete-selection", targetIds: targets, availableTargetIds: targets }).allowed) return false;
 
     const nextStickContent = session.structuredStick
       ? removeStructuredStickSelection(session)
@@ -5868,6 +5314,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     if (!duplicatedSourceCanvas) {
       return false;
     }
+    attachBitmapPaintCoverage(duplicatedSourceCanvas, remapSketchOwners(getBitmapPaintCoverage(duplicatedSourceCanvas), () => crypto.randomUUID()));
 
     const duplicatedItem: BitmapSelectionSessionItem = {
       ...activeItem,
@@ -5877,13 +5324,13 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       y: activeItem.y + 16,
     };
 
-    markAuthoringDirty();
-    onAuthoringActionCommitted?.("selection");
     setBitmapSelectionSessionState({
       owner: "knife",
       items: [...session.items, duplicatedItem],
     });
     setActiveKnifePieceIdState(duplicatedItem.id);
+    markAuthoringDirty();
+    onAuthoringActionCommitted?.("selection");
     return true;
   }, [cloneBitmapSelectionSourceCanvas, createBitmapSelectionSessionItemId, duplicateBitmapSelectionSession, getActiveKnifeSelectionTarget, markAuthoringDirty, onAuthoringActionCommitted, setActiveKnifePieceIdState, setBitmapSelectionSessionState]);
 
@@ -5930,13 +5377,14 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       deleteBitmapSelectionSession("knife");
       return;
     }
+    if (!authorizeDestructiveCommand({ commandId: "knife", targetIds: [activeItem.id], availableTargetIds: session.items.map(item => item.id) }).allowed) return;
 
-    markAuthoringDirty();
-    onAuthoringActionCommitted?.("selection");
     setBitmapSelectionSessionState({
       owner: "knife",
       items: session.items.filter((item) => item.id !== activeItem.id),
     });
+    markAuthoringDirty();
+    onAuthoringActionCommitted?.("selection");
   }, [deleteBitmapSelectionSession, getActiveKnifeSelectionTarget, markAuthoringDirty, onAuthoringActionCommitted, setBitmapSelectionSessionState]);
 
   const createKnifeCutSelection = useCallback((path: LassoPoint[]) => {
@@ -5944,6 +5392,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     const ctx = canvas?.getContext("2d");
     const metrics = getAuthoringMetrics();
     if (!canvas || !ctx || !metrics || path.length < 2) return;
+    if (!authorizeDestructiveCommand({ commandId: "knife", targetIds: [currentRasterContextRef.current], availableTargetIds: [currentRasterContextRef.current] }).allowed) return;
     const cssToPixelX = metrics.scaleX;
     const cssToPixelY = metrics.scaleY;
     const rawPath = path.map((p) => ({
@@ -6041,6 +5490,17 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     }
 
     if (!bestComponentSize) return;
+
+    // Connectivity locates the intersected candidate. Authored Sketch ownership
+    // then replaces that target with its exact ink, including disconnected dabs.
+    const baseCoverage = getBitmapPaintCoverage(canvas);
+    const sketchOwner = resolveSketchKnifeOwner(baseCoverage, touchedIndexes.filter(index => targetMask[index] !== 0));
+    if (sketchOwner) {
+      targetMask.fill(0);
+      forEachPaintCoverage(baseCoverage, (pixel, x, y) => {
+        if (pixel.owners?.includes(sketchOwner)) targetMask[y * width + x] = 1;
+      });
+    }
 
     const segments: Array<{ ax: number; ay: number; dx: number; dy: number; lengthSq: number }> = [];
     for (let i = 1; i < rawPath.length; i += 1) {
@@ -6187,10 +5647,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       }
 
       const srcIndex = i * 4;
-      clearedImage.data[srcIndex] = 0;
-      clearedImage.data[srcIndex + 1] = 0;
-      clearedImage.data[srcIndex + 2] = 0;
-      clearedImage.data[srcIndex + 3] = 0;
+      const owned = sketchOwner ? getPaintCoverage(baseCoverage, x, y) : null;
+      if (owned?.owners?.some(owner => owner !== sketchOwner)) continue;
+      clearedImage.data.set(owned ? owned.base : [0, 0, 0, 0], srcIndex);
     }
 
     if (sideOneMaxX < sideOneMinX || sideTwoMaxX < sideTwoMinX) return;
@@ -6227,56 +5686,48 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       }
     }
 
-    const smoothPieceEdges = (image: ImageData) => {
-      const { width: pieceWidth, height: pieceHeight, data } = image;
-      const original = new Uint8ClampedArray(data);
-      for (let y = 0; y < pieceHeight; y += 1) {
-        for (let x = 0; x < pieceWidth; x += 1) {
-          const idx = (y * pieceWidth + x) * 4;
-          const alpha = original[idx + 3];
-          if (alpha === 0) continue;
-
-          let hasTransparentNeighbor = false;
-          let alphaSum = 0;
-          let sampleCount = 0;
-
-          for (let ny = Math.max(0, y - 1); ny <= Math.min(pieceHeight - 1, y + 1); ny += 1) {
-            for (let nx = Math.max(0, x - 1); nx <= Math.min(pieceWidth - 1, x + 1); nx += 1) {
-              const nIdx = (ny * pieceWidth + nx) * 4;
-              const nAlpha = original[nIdx + 3];
-              alphaSum += nAlpha;
-              sampleCount += 1;
-              if (nAlpha === 0) hasTransparentNeighbor = true;
-            }
-          }
-
-          if (!hasTransparentNeighbor) continue;
-          const avgAlpha = Math.round(alphaSum / sampleCount);
-          data[idx + 3] = Math.max(96, Math.round(alpha * 0.7 + avgAlpha * 0.3));
-        }
-      }
-    };
-
-    smoothPieceEdges(sideOneImage);
-    smoothPieceEdges(sideTwoImage);
-
     const sideOneCanvas = document.createElement("canvas");
     sideOneCanvas.width = sideOneWidth;
     sideOneCanvas.height = sideOneHeight;
     const sideOneCtx = sideOneCanvas.getContext("2d");
     if (!sideOneCtx) return;
-    sideOneCtx.putImageData(sideOneImage, 0, 0);
 
     const sideTwoCanvas = document.createElement("canvas");
     sideTwoCanvas.width = sideTwoWidth;
     sideTwoCanvas.height = sideTwoHeight;
     const sideTwoCtx = sideTwoCanvas.getContext("2d");
     if (!sideTwoCtx) return;
+    const remaining = createPaintCoverageWriter(baseCoverage, width, height);
+    const sideOneCoverage = createPaintCoverageWriter(null, sideOneWidth, sideOneHeight);
+    const sideTwoCoverage = createPaintCoverageWriter(null, sideTwoWidth, sideTwoHeight);
+    const sideOneOwner = sketchOwner ? crypto.randomUUID() : null;
+    const sideTwoOwner = sketchOwner ? crypto.randomUUID() : null;
+    forEachPaintCoverage(baseCoverage, (pixel, x, y) => {
+      const index = y * width + x;
+      if (!targetMask[index]) return;
+      remaining.clear(x, y);
+      const otherOwners = sketchOwner ? pixel.owners?.filter(owner => owner !== sketchOwner) : undefined;
+      if (otherOwners?.length) remaining.set(x, y, { ...pixel, owners: otherOwners });
+      if (sideOneMask[index]) {
+        const selected = sideOneOwner ? { ...pixel, base: [0, 0, 0, 0] as [number, number, number, number], owners: [sideOneOwner] } : pixel;
+        sideOneCoverage.set(x - sideOneMinX, y - sideOneMinY, selected);
+        if (sideOneOwner) compositeRasterPaint(selected, sideOneImage.data, ((y - sideOneMinY) * sideOneWidth + x - sideOneMinX) * 4);
+      }
+      if (sideTwoMask[index]) {
+        const selected = sideTwoOwner ? { ...pixel, base: [0, 0, 0, 0] as [number, number, number, number], owners: [sideTwoOwner] } : pixel;
+        sideTwoCoverage.set(x - sideTwoMinX, y - sideTwoMinY, selected);
+        if (sideTwoOwner) compositeRasterPaint(selected, sideTwoImage.data, ((y - sideTwoMinY) * sideTwoWidth + x - sideTwoMinX) * 4);
+      }
+    });
+    sideOneCtx.putImageData(sideOneImage, 0, 0);
     sideTwoCtx.putImageData(sideTwoImage, 0, 0);
-
-    ctx.putImageData(clearedImage, 0, 0);
-    markAuthoringDirty();
-    captureBitmapSelectionBackdropFromCanvas();
+    attachBitmapPaintCoverage(sideOneCanvas, sideOneCoverage.finish());
+    attachBitmapPaintCoverage(sideTwoCanvas, sideTwoCoverage.finish());
+    const backdrop = cloneBitmapSelectionSourceCanvas(canvas);
+    const backdropCtx = backdrop?.getContext("2d");
+    if (!backdrop || !backdropCtx) return;
+    backdropCtx.putImageData(clearedImage, 0, 0);
+    attachBitmapPaintCoverage(backdrop, remaining.finish());
 
     let sideOneSumX = 0;
     let sideOneSumY = 0;
@@ -6344,13 +5795,17 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
         allowRotation: true,
       },
     ];
+    ctx.putImageData(clearedImage, 0, 0);
+    copyBitmapPaintCoverage(backdrop, canvas);
+    bitmapSelectionBackdropCanvasRef.current = backdrop;
+    markAuthoringDirty();
     flushBitmapSelectionSessionState({
       owner: "knife",
       items: nextKnifeItems,
     });
     onAuthoringActionCommitted?.("knife");
     scheduleBitmapSelectionBackdropRestore();
-  }, [captureBitmapSelectionBackdropFromCanvas, createBitmapSelectionSessionItemId, flushBitmapSelectionSessionState, getAuthoringMetrics, markAuthoringDirty, onAuthoringActionCommitted, scheduleBitmapSelectionBackdropRestore]);
+  }, [cloneBitmapSelectionSourceCanvas, createBitmapSelectionSessionItemId, flushBitmapSelectionSessionState, getAuthoringMetrics, markAuthoringDirty, onAuthoringActionCommitted, scheduleBitmapSelectionBackdropRestore]);
 
   const renderUnifiedStickCapture = useCallback((
     bounds: RectBounds,
@@ -6553,16 +6008,23 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       trimmedSelectionPatch.data.set(selectedPatch.data.subarray(srcStart, srcEnd), dstStart);
     }
 
-    ctx.putImageData(basePatch, minPixelX, minPixelY);
-    markAuthoringDirty();
-    captureBitmapSelectionBackdropFromCanvas();
-
     const selectionSourceCanvas = document.createElement("canvas");
     selectionSourceCanvas.width = trimWidth;
     selectionSourceCanvas.height = trimHeight;
     const selectionSourceCtx = selectionSourceCanvas.getContext("2d");
     if (!selectionSourceCtx) return;
     selectionSourceCtx.putImageData(trimmedSelectionPatch, 0, 0);
+    const baseCoverage = getBitmapPaintCoverage(canvas);
+    const remaining = createPaintCoverageWriter(baseCoverage, canvas.width, canvas.height);
+    const extracted = createPaintCoverageWriter(null, trimWidth, trimHeight);
+    forEachPaintCoverage(baseCoverage, (pixel, x, y) => {
+      const sx = x - minPixelX, sy = y - minPixelY;
+      if (sx >= 0 && sy >= 0 && sx < boxWidth && sy < boxHeight && selectedPatch.data[(sy * boxWidth + sx) * 4 + 3]) {
+        extracted.set(sx - trimMinX, sy - trimMinY, pixel);
+        remaining.clear(x, y);
+      }
+    });
+    attachBitmapPaintCoverage(selectionSourceCanvas, extracted.finish());
     const drawingBounds = {
       x: (minPixelX + trimMinX) / metrics.scaleX,
       y: (minPixelY + trimMinY) / metrics.scaleY,
@@ -6583,6 +6045,15 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       ? expandDrawingSelectionSource(selectionSourceCanvas, drawingBounds, effectiveBounds)
       : selectionSourceCanvas;
     if (!effectiveSourceCanvas) return;
+    const backdrop = cloneBitmapSelectionSourceCanvas(canvas);
+    const backdropCtx = backdrop?.getContext("2d");
+    if (!backdrop || !backdropCtx) return;
+    backdropCtx.putImageData(basePatch, minPixelX, minPixelY);
+    attachBitmapPaintCoverage(backdrop, remaining.finish());
+    ctx.putImageData(basePatch, minPixelX, minPixelY);
+    copyBitmapPaintCoverage(backdrop, canvas);
+    bitmapSelectionBackdropCanvasRef.current = backdrop;
+    markAuthoringDirty();
     flushBitmapSelectionSessionState({
       owner: "lasso",
       items: [{
@@ -6601,7 +6072,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
         ? { ...structuredStick, originBounds: effectiveBounds }
         : null,
     });
-  }, [captureBitmapSelectionBackdropFromCanvas, clearLassoDraft, createBitmapSelectionSessionItemId, createStructuredStickOnlySelection, displayedTextObjects, expandDrawingSelectionSource, findTextObjectIdsInLassoPath, flushBitmapSelectionSessionState, getAuthoringMetrics, markAuthoringDirty, resolveStructuredStickSelection, setLassoTextSelection]);
+  }, [cloneBitmapSelectionSourceCanvas, clearLassoDraft, createBitmapSelectionSessionItemId, createStructuredStickOnlySelection, displayedTextObjects, expandDrawingSelectionSource, findTextObjectIdsInLassoPath, flushBitmapSelectionSessionState, getAuthoringMetrics, markAuthoringDirty, resolveStructuredStickSelection, setLassoTextSelection]);
 
   const normalizeRect = useCallback(
     (startX: number, startY: number, endX: number, endY: number) => ({
@@ -6666,15 +6137,8 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     const sourceCtx = sourceCanvas.getContext("2d");
     if (!sourceCtx) return false;
     sourceCtx.putImageData(region, 0, 0);
-    for (let i = 0; i < region.data.length; i += 4) {
-      region.data[i] = 0;
-      region.data[i + 1] = 0;
-      region.data[i + 2] = 0;
-      region.data[i + 3] = 0;
-    }
-    ctx.putImageData(region, minPixelX, minPixelY);
-    markAuthoringDirty();
-    captureBitmapSelectionBackdropFromCanvas();
+    const baseCoverage = getBitmapPaintCoverage(canvas);
+    attachBitmapPaintCoverage(sourceCanvas, cropPaintCoverage(baseCoverage, minPixelX, minPixelY, boxWidth, boxHeight));
     const drawingBounds = {
       x: minPixelX / metrics.scaleX,
       y: minPixelY / metrics.scaleY,
@@ -6689,6 +6153,17 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       ? expandDrawingSelectionSource(sourceCanvas, drawingBounds, effectiveBounds)
       : sourceCanvas;
     if (!effectiveSourceCanvas) return false;
+    const remainingCoverage = patchPaintCoverage(baseCoverage, null, minPixelX, minPixelY, boxWidth, boxHeight, canvas.width, canvas.height);
+    const backdrop = cloneBitmapSelectionSourceCanvas(canvas);
+    const backdropCtx = backdrop?.getContext("2d");
+    if (!backdrop || !backdropCtx) return false;
+    region.data.fill(0);
+    backdropCtx.putImageData(region, minPixelX, minPixelY);
+    attachBitmapPaintCoverage(backdrop, remainingCoverage);
+    ctx.putImageData(region, minPixelX, minPixelY);
+    copyBitmapPaintCoverage(backdrop, canvas);
+    bitmapSelectionBackdropCanvasRef.current = backdrop;
+    markAuthoringDirty();
     flushBitmapSelectionSessionState({
       owner: "select",
       items: [{
@@ -6709,7 +6184,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     });
 
     return true;
-  }, [captureBitmapSelectionBackdropFromCanvas, createBitmapSelectionSessionItemId, createStructuredStickOnlySelection, displayedTextObjects, expandDrawingSelectionSource, findTextObjectIdsInRect, flushBitmapSelectionSessionState, getAuthoringMetrics, markAuthoringDirty, resolveStructuredStickSelection, setSelectTextSelection]);
+  }, [cloneBitmapSelectionSourceCanvas, createBitmapSelectionSessionItemId, createStructuredStickOnlySelection, displayedTextObjects, expandDrawingSelectionSource, findTextObjectIdsInRect, flushBitmapSelectionSessionState, getAuthoringMetrics, markAuthoringDirty, resolveStructuredStickSelection, setSelectTextSelection]);
 
   const combineDrawingAndStickCapture = useCallback((
     sourceCanvas: HTMLCanvasElement,
@@ -7004,19 +6479,21 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       textObjects: null,
     } : null;
     let preparedUnifiedCommit = false;
+    let rollbackBackdrop: HTMLCanvasElement | null = null;
     const didCreate = await createSymbolFromCanvasSource(combined.canvas, {
       width: pixelWidth / metrics.scaleX,
       height: pixelHeight / metrics.scaleY,
     }, combined.sourceCategory, sourceRemoval, onCreateUnifiedSymbolDefinition ? {
       structuredPayload: combined.structuredPayload,
       prepareUnifiedCommit: () => {
+        rollbackBackdrop = bitmapSelectionBackdropCanvasRef.current;
         preparedUnifiedCommit = true;
         flushBitmapSelectionSessionState(null);
       },
       restoreAfterFailedUnifiedCommit: () => {
         if (!preparedUnifiedCommit) return;
-        captureBitmapSelectionBackdropFromCanvas();
         flushBitmapSelectionSessionState(session);
+        bitmapSelectionBackdropCanvasRef.current = rollbackBackdrop;
         scheduleBitmapSelectionBackdropRestore();
         preparedUnifiedCommit = false;
       },
@@ -7028,7 +6505,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       if (drawingChanged) onAuthoringActionCommitted?.("selection");
     }
     return didCreate;
-  }, [captureBitmapSelectionBackdropFromCanvas, combineDrawingAndStickCapture, createSymbolFromCanvasSource, drawBitmapSelectionImageToAuthoringCanvas, flushBitmapSelectionSessionState, getAuthoringMetrics, getBitmapSelectionSessionForOwner, getDisplayedBitmapTransformBounds, markAuthoringDirty, materializeStructuredStickSelection, onAuthoringActionCommitted, onCreateUnifiedSymbolDefinition, removeStructuredStickSelection, scheduleBitmapSelectionBackdropRestore, setBitmapSelectionSessionState]);
+  }, [combineDrawingAndStickCapture, createSymbolFromCanvasSource, drawBitmapSelectionImageToAuthoringCanvas, flushBitmapSelectionSessionState, getAuthoringMetrics, getBitmapSelectionSessionForOwner, getDisplayedBitmapTransformBounds, markAuthoringDirty, materializeStructuredStickSelection, onAuthoringActionCommitted, onCreateUnifiedSymbolDefinition, removeStructuredStickSelection, scheduleBitmapSelectionBackdropRestore, setBitmapSelectionSessionState]);
 
   const convertKnifeSelectionToSymbol = useCallback(() => {
     convertBitmapSelectionSessionToSymbol("knife");
@@ -7115,6 +6592,11 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   );
 
   const captureAuthoringSnapshot = useCallback((options?: DrawingCanvasSnapshotOptions): DrawingCanvasSnapshot | null => {
+    if (rasterDraftRef.current) return null;
+    const identity = { generation: authoringChangeVersionRef.current, contextKey: currentRasterContextRef.current };
+    if (preparedFillSnapshotRef.current && options?.includePreviewUrl !== true) {
+      return { bitmap: preparedFillSnapshotRef.current, previewUrl: undefined, captureVersion: identity.generation, identity };
+    }
     const canvas = canvasRef.current;
     const sourceCtx = canvas?.getContext("2d");
     if (!canvas || !sourceCtx || canvas.width <= 0 || canvas.height <= 0) {
@@ -7176,6 +6658,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       compositeSnapshotCtx.clearRect(0, 0, snapshotCanvas.width, snapshotCanvas.height);
       compositeSnapshotCtx.setTransform(1, 0, 0, 1, 0, 0);
       compositeSnapshotCtx.drawImage(canvas, 0, 0);
+      copyBitmapPaintCoverage(canvas, snapshotCanvas);
 
       if (activeBitmapSession?.items.length) {
         compositeSnapshotCtx.globalCompositeOperation = "source-over";
@@ -7196,22 +6679,49 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       snapshotPreviewSource = snapshotCanvas;
     } else {
       const committedBitmap = authoringCommittedBitmapRef.current;
-      const dirtyRect =
-        authoringDirtyCaptureModeRef.current === "region" ? authoringDirtyRectRef.current : null;
+      const prepared = preparedRasterCommandRef.current;
+      const dirtyRect = authoringDirtyCaptureModeRef.current !== "region" ? null : prepared?.tiles.length
+        ? prepared.tiles.reduce((rect, tile) => {
+            const left = Math.min(rect.left, tile.left), top = Math.min(rect.top, tile.top);
+            return { left, top, width: Math.max(rect.left + rect.width, tile.left + tile.width) - left, height: Math.max(rect.top + rect.height, tile.top + tile.height) - top };
+          }, { left: prepared.tiles[0].left, top: prepared.tiles[0].top, width: prepared.tiles[0].width, height: prepared.tiles[0].height })
+        : authoringDirtyRectRef.current;
       const canUseDirtyPatch =
         options?.preferIncrementalBitmapCapture === true &&
         !includePreviewUrl &&
         dirtyRect &&
-        (!committedBitmap || (committedBitmap.width === canvas.width && committedBitmap.height === canvas.height));
+        (preparedRasterCommandRef.current || !committedBitmap || (committedBitmap.width === canvas.width && committedBitmap.height === canvas.height));
 
       if (canUseDirtyPatch) {
         const bitmapCaptureStart = performance.now();
-        const dirtyPatch = sourceCtx.getImageData(
+        const dirtyPatch = prepared ? new ImageData(dirtyRect.width, dirtyRect.height) : sourceCtx.getImageData(
           dirtyRect.left,
           dirtyRect.top,
           dirtyRect.width,
           dirtyRect.height,
         );
+        if (prepared) {
+          // The command owns exact RGBA. Keep gaps byte-exact from the authored
+          // base; avoid both GPU readback stalls and low-alpha RGB quantization.
+          if (committedBitmap) {
+            const offsetX = bitmapCenterOffset(canvas.width, committedBitmap.width);
+            const offsetY = bitmapCenterOffset(canvas.height, committedBitmap.height);
+            const left = Math.max(dirtyRect.left, offsetX), right = Math.min(dirtyRect.left + dirtyRect.width, offsetX + committedBitmap.width);
+            for (let y = Math.max(dirtyRect.top, offsetY); y < Math.min(dirtyRect.top + dirtyRect.height, offsetY + committedBitmap.height); y++) {
+              if (right <= left) continue;
+              const start = ((y - offsetY) * committedBitmap.width + left - offsetX) * 4;
+              dirtyPatch.data.set(committedBitmap.data.subarray(start, start + (right - left) * 4), ((y - dirtyRect.top) * dirtyRect.width + left - dirtyRect.left) * 4);
+            }
+          }
+        }
+        if (prepared) for (const tile of prepared.tiles) {
+          for (let y = Math.max(tile.top, dirtyRect.top); y < Math.min(tile.top + tile.height, dirtyRect.top + dirtyRect.height); y++) {
+            const left = Math.max(tile.left, dirtyRect.left), right = Math.min(tile.left + tile.width, dirtyRect.left + dirtyRect.width);
+            if (right <= left) continue;
+            const start = ((y - tile.top) * tile.width + left - tile.left) * 4;
+            dirtyPatch.data.set(tile.after.subarray(start, start + (right - left) * 4), ((y - dirtyRect.top) * dirtyRect.width + left - dirtyRect.left) * 4);
+          }
+        }
         bitmapCaptureDurationMs = performance.now() - bitmapCaptureStart;
 
         if (ENABLE_MOTION_TWEEN_DEBUG) {
@@ -7236,7 +6746,8 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
           bitmap: null,
           previewUrl: undefined,
           captureVersion,
-          dirtyPatchBitmap: dirtyPatch,
+          identity,
+          dirtyPatchBitmap: attachBitmapPaintCoverage(dirtyPatch, cropPaintCoverage(prepared ? prepared.preparedCoverage : getBitmapPaintCoverage(canvas), dirtyRect.left, dirtyRect.top, dirtyRect.width, dirtyRect.height)),
           dirtyPatchRect: { ...dirtyRect },
           bitmapWidth: canvas.width,
           bitmapHeight: canvas.height,
@@ -7367,9 +6878,10 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     }
 
     const result = {
-      bitmap: snapshotBitmap,
+      bitmap: snapshotBitmap ? copyBitmapPaintCoverage(snapshotCtx.canvas, snapshotBitmap) : null,
       previewUrl,
       captureVersion,
+      identity,
     };
     return result;
   }, [cameraPan, cameraZoom, drawBitmapSelectionImageToAuthoringCanvas, drawPlacedImageAsset, getAuthoringMetrics, getDisplayedBitmapTransformBounds]);
@@ -7378,16 +6890,27 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     ref,
     () => ({
       captureAuthoringSnapshot,
+      cancelPendingAuthoringGesture,
+      getAuthoringSnapshotIdentity: () => ({ generation: authoringChangeVersionRef.current, contextKey: currentRasterContextRef.current }),
       clearTransientEditingState,
       getPlaybackSurfaceLayout,
       hasActiveBitmapSelectionSession: () => Boolean(bitmapSelectionSessionRef.current?.items.length),
       hasPendingAuthoringChanges,
       markAuthoringChangesCommitted,
+      takePresentedRasterCommit: (bitmap) => {
+        const ticket = presentedRasterCommitRef.current;
+        presentedRasterCommitRef.current = null;
+        const canvas = canvasRef.current;
+        return Boolean(ticket && canvas && ticket.bitmap === bitmap && ticket.contextKey === currentRasterContextRef.current &&
+          ticket.generation === authoringChangeVersionRef.current && ticket.width === canvas.width && ticket.height === canvas.height &&
+          !hasPendingAuthoringChangesRef.current && !bitmapSelectionSessionRef.current?.items.length);
+      },
       setOnionOverlayContent,
       shouldDeferAuthoringSnapshotCapture,
     }),
     [
       captureAuthoringSnapshot,
+      cancelPendingAuthoringGesture,
       clearTransientEditingState,
       getPlaybackSurfaceLayout,
       hasPendingAuthoringChanges,
@@ -7553,6 +7076,20 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       try {
         drawMask(workCtx);
         workCtx.setTransform(1, 0, 0, 1, 0, 0);
+        // Onion uses occupied ink, independent of authored RGB or alpha. Keep
+        // the existing next-on-top order without blending two directional hues.
+        const mask = workCtx.getImageData(0, 0, width, height);
+        for (let offset = 0; offset < mask.data.length; offset += 4) {
+          if (!mask.data[offset + 3]) continue;
+          mask.data[offset] = mask.data[offset + 1] = mask.data[offset + 2] = 0;
+          mask.data[offset + 3] = 255;
+        }
+        workCtx.putImageData(mask, 0, 0);
+        overlayCtx.save();
+        overlayCtx.setTransform(1, 0, 0, 1, 0, 0);
+        overlayCtx.globalCompositeOperation = "destination-out";
+        overlayCtx.drawImage(workCanvas, 0, 0);
+        overlayCtx.restore();
         workCtx.globalCompositeOperation = "source-in";
         workCtx.fillStyle = fillStyle;
         workCtx.fillRect(0, 0, workCanvas.width, workCanvas.height);
@@ -7609,6 +7146,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
         const textObjects = content[direction === "previous" ? "previousTextObjects" : "nextTextObjects"];
         const stick = content[direction === "previous" ? "previousStickContent" : "nextStickContent"];
         const symbols = content[direction === "previous" ? "previousSymbolInstances" : "nextSymbolInstances"];
+        if (!bitmap && !textObjects.length && !symbols.length && !stick?.structureGraph.joints.length && !stick?.structureGraph.limbs.length) continue;
         drawTintedOnionMask(onionCtx, baseCanvas.width, baseCanvas.height, ONION_TINT_STYLES[direction].fillStyle, ctx => {
           if (bitmap) {
             ctx.putImageData(bitmap, bitmapCenterOffset(baseCanvas.width, bitmap.width), bitmapCenterOffset(baseCanvas.height, bitmap.height));
@@ -7932,6 +7470,10 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   const fillConnectedRegion = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    if (hasPendingAuthoringChangesRef.current) {
+      try { onAuthoringActionCommitted?.("selection"); } catch { /* The pending edit blocks a new fill. */ }
+      if (hasPendingAuthoringChangesRef.current) return;
+    }
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
@@ -7942,7 +7484,20 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     const y = point.pixelY;
     if (x < 0 || y < 0 || x >= canvas.width || y >= canvas.height) return;
 
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const rollbackImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const rollbackCoverage = getBitmapPaintCoverage(canvas);
+    const imageData = new ImageData(new Uint8ClampedArray(rollbackImage.data), canvas.width, canvas.height);
+    const committed = authoringCommittedBitmapRef.current;
+    if (committed) {
+      imageData.data.fill(0);
+      const offsetX = bitmapCenterOffset(canvas.width, committed.width), offsetY = bitmapCenterOffset(canvas.height, committed.height);
+      const left = Math.max(0, offsetX), right = Math.min(canvas.width, offsetX + committed.width);
+      for (let row = Math.max(0, offsetY); row < Math.min(canvas.height, offsetY + committed.height); row++) {
+        if (right <= left) continue;
+        const start = ((row - offsetY) * committed.width + left - offsetX) * 4;
+        imageData.data.set(committed.data.subarray(start, start + (right - left) * 4), (row * canvas.width + left) * 4);
+      }
+    }
     const { data, width, height } = imageData;
     const startIndex = (y * width + x) * 4;
     const targetR = data[startIndex];
@@ -7999,6 +7554,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     const totalPixels = width * height;
     const stack: number[] = [y * width + x];
     const queued = new Uint8Array(totalPixels);
+    const coverageWriter = createPaintCoverageWriter(getBitmapPaintCoverage(canvas), width, height);
     queued[y * width + x] = 1;
     while (stack.length) {
       const currentPixel = stack.pop();
@@ -8014,6 +7570,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       data[idx + 1] = fill.g;
       data[idx + 2] = fill.b;
       data[idx + 3] = fill.a;
+      coverageWriter.clear(currentX, currentY);
 
       const queueNeighbor = (nextX: number, nextY: number) => {
         if (nextX < 0 || nextY < 0 || nextX >= width || nextY >= height) {
@@ -8033,8 +7590,21 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       queueNeighbor(currentX, currentY - 1);
     }
 
+    const filledCoverage = coverageWriter.finish();
     ctx.putImageData(imageData, 0, 0);
+    attachBitmapPaintCoverage(canvas, filledCoverage);
     markAuthoringDirty();
+    preparedFillSnapshotRef.current = attachBitmapPaintCoverage(imageData, filledCoverage);
+    try {
+      if (onAuthoringActionCommitted?.("fill") === false) throw new Error("fill_commit_failed");
+    } catch {
+      ctx.putImageData(rollbackImage, 0, 0);
+      attachBitmapPaintCoverage(canvas, rollbackCoverage);
+      markAuthoringChangesCommitted();
+      window.alert("The fill could not be committed. Your drawing is preserved; retry the fill.");
+    } finally {
+      preparedFillSnapshotRef.current = null;
+    }
   };
 
   const startCanvasStroke = (e: React.PointerEvent<HTMLCanvasElement>) => {
@@ -8554,78 +8124,8 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     }
 
     if (activeTool !== "Brush" && activeTool !== "Eraser") return;
-
-    const ctx = canvasRef.current?.getContext("2d");
-    if (!ctx) return;
     const point = getCanvasPoint(e);
-    if (!point) return;
-    const brushVisibility = 1 - brushTransparency / 100;
-    const strokeColor = hexToRGBA(brushColor, brushVisibility);
-    ctx.globalCompositeOperation = activeTool === "Eraser" ? "destination-out" : "source-over";
-    ctx.globalAlpha = 1;
-    ctx.beginPath();
-    ctx.moveTo(point.x, point.y);
-    ctx.lineWidth = activeTool === "Eraser" ? eraserSize : brushSize;
-    ctx.strokeStyle = activeTool === "Brush" ? strokeColor : "#000000";
-
-    if (activeTool === "Brush") {
-      const useBufferedPreview = brushToolVariant !== "Brush" || brushSmoothing > 0;
-      const useOverlayPreview = false;
-      brushUsesBufferedPreviewRef.current = useBufferedPreview;
-      resetBrushStrokePreviewState();
-      brushUsesOverlayPreviewRef.current = useOverlayPreview;
-      brushStrokeColorRef.current = strokeColor;
-      brushStrokeSizeRef.current = brushSize;
-      brushStrokeSmoothingRef.current = brushSmoothing;
-      brushStrokeGradientBrightnessRef.current = glowGradientBrightness;
-      brushStrokeGradientRadiusRef.current = glowGradientRadius;
-      brushStrokeVariantRef.current = brushToolVariant;
-      brushPreviousPointRef.current = point;
-      brushDidMoveRef.current = false;
-
-      if (useBufferedPreview) {
-        brushStrokePointsRef.current = [point];
-        brushStrokeStartupPreviewBudgetRef.current = 2;
-        const previewCtx = useOverlayPreview ? foregroundCanvasRef.current?.getContext("2d") : ctx;
-        if (previewCtx) {
-          drawBufferedBrushStroke(
-            previewCtx,
-            true,
-            useOverlayPreview ? "overlay-preview" : "buffered-main-preview",
-          );
-        }
-        brushStrokeProcessedPointCountRef.current = 1;
-      } else {
-        ctx.beginPath();
-        ctx.arc(point.x, point.y, Math.max(0.5, brushSize / 2), 0, Math.PI * 2);
-        ctx.fillStyle = strokeColor;
-        ctx.fill();
-        ctx.beginPath();
-        ctx.moveTo(point.x, point.y);
-        markAuthoringDirtyRegion(
-          resolveSimpleStrokeDirtyRect([point], ctx.canvas.width, ctx.canvas.height, brushSize, true),
-          true,
-        );
-      }
-    }
-
-    if (activeTool === "Eraser") {
-      // Ensure single-click erase is reliable even with no pointer movement.
-      ctx.beginPath();
-      ctx.arc(point.x, point.y, eraserSize / 2, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.moveTo(point.x, point.y);
-      brushPreviousPointRef.current = point;
-      brushDidMoveRef.current = false;
-      markAuthoringDirtyRegion(
-        resolveSimpleStrokeDirtyRect([point], ctx.canvas.width, ctx.canvas.height, eraserSize, true),
-        true,
-      );
-    }
-
-    isDrawingRef.current = true;
-    e.currentTarget.setPointerCapture(e.pointerId);
+    if (point) beginRasterDraft(e, point);
   };
 
   const moveCanvasStroke = (e: React.PointerEvent<HTMLCanvasElement>) => {
@@ -9300,72 +8800,12 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       return;
     }
 
-    if (!isDrawingRef.current || (activeTool !== "Brush" && activeTool !== "Eraser")) return;
-
-    const ctx = canvasRef.current?.getContext("2d");
-    if (!ctx) return;
-
-    const point = getCanvasPoint(e);
-    if (!point) return;
-    if (activeTool === "Brush") {
-      const previousPoint = brushPreviousPointRef.current;
-      if (!previousPoint) {
-        brushPreviousPointRef.current = point;
-        if (brushUsesBufferedPreviewRef.current) {
-          brushStrokePointsRef.current = [point];
-        }
-        return;
-      }
-      if (Math.hypot(point.x - previousPoint.x, point.y - previousPoint.y) < 0.001) return;
-      if (brushUsesBufferedPreviewRef.current) {
-        brushStrokePointsRef.current.push(point);
-        if (brushStrokeStartupPreviewBudgetRef.current > 0) {
-          brushStrokeStartupPreviewBudgetRef.current -= 1;
-          flushBrushPreviewImmediately();
-        } else {
-          scheduleBrushPreview();
-        }
-      } else {
-        ctx.lineTo(point.x, point.y);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(point.x, point.y);
-        markAuthoringDirtyRegion(
-          resolveSimpleStrokeDirtyRect(
-            [previousPoint, point],
-            ctx.canvas.width,
-            ctx.canvas.height,
-            brushSize,
-            false,
-          ),
-          true,
-        );
-      }
-      brushPreviousPointRef.current = point;
-      brushDidMoveRef.current = true;
-      return;
-    }
-
-    const previousPoint = brushPreviousPointRef.current;
-    ctx.lineTo(point.x, point.y);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(point.x, point.y);
-    markAuthoringDirtyRegion(
-      resolveSimpleStrokeDirtyRect(
-        previousPoint ? [previousPoint, point] : [point],
-        ctx.canvas.width,
-        ctx.canvas.height,
-        eraserSize,
-        false,
-      ),
-      true,
-    );
-    brushPreviousPointRef.current = point;
-    brushDidMoveRef.current = true;
+    moveRasterDraft(e);
   };
 
   const endCanvasStroke = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (e.type === "pointerleave") return;
+    if (rasterDraftRef.current) { finishRasterDraft(e); return; }
     if (placedImageInteractionRef.current) {
       placedImageInteractionRef.current = null;
       commitPlacedImageAssetToCanvas();
@@ -9392,6 +8832,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
         if (session && interaction.owner !== "knife") {
           commitUnifiedSelectionMutation(session);
         } else {
+          // Moving a floating Knife piece changes the composed document even
+          // though the backdrop canvas itself has not been repainted.
+          markAuthoringDirty();
           onAuthoringActionCommitted?.("selection");
         }
         scheduleBitmapSelectionBackdropRestore();
@@ -9494,6 +8937,34 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
         draft.endY = point.y;
         ctx.putImageData(baseImage, 0, 0);
         commitShapeToCanvas(ctx, shapeType, shapeMode, draft.startX, draft.startY, draft.endX, draft.endY);
+        const coverage = getBitmapPaintCoverage(ctx.canvas);
+        if (coverage) {
+          const transform = ctx.getTransform();
+          const padding = getShapeOutlineWidth(shapeOutlineThickness) * 8 + 2;
+          const corners = [
+            new DOMPoint(Math.min(draft.startX, draft.endX) - padding, Math.min(draft.startY, draft.endY) - padding),
+            new DOMPoint(Math.max(draft.startX, draft.endX) + padding, Math.min(draft.startY, draft.endY) - padding),
+            new DOMPoint(Math.min(draft.startX, draft.endX) - padding, Math.max(draft.startY, draft.endY) + padding),
+            new DOMPoint(Math.max(draft.startX, draft.endX) + padding, Math.max(draft.startY, draft.endY) + padding),
+          ].map(corner => corner.matrixTransform(transform));
+          const left = Math.max(0, Math.floor(Math.min(...corners.map(p => p.x))));
+          const top = Math.max(0, Math.floor(Math.min(...corners.map(p => p.y))));
+          const right = Math.min(ctx.canvas.width, Math.ceil(Math.max(...corners.map(p => p.x))));
+          const bottom = Math.min(ctx.canvas.height, Math.ceil(Math.max(...corners.map(p => p.y))));
+          const writer = createPaintCoverageWriter(coverage, ctx.canvas.width, ctx.canvas.height);
+          if (right > left && bottom > top) {
+            const after = ctx.getImageData(left, top, right - left, bottom - top);
+            forEachPaintCoverage(coverage, (_pixel, x, y) => {
+              if (x < left || y < top || x >= right || y >= bottom) return;
+              const beforeIndex = (y * baseImage.width + x) * 4, afterIndex = ((y - top) * after.width + x - left) * 4;
+              for (let channel = 0; channel < 4; channel++) if (baseImage.data[beforeIndex + channel] !== after.data[afterIndex + channel]) {
+                writer.clear(x, y);
+                break;
+              }
+            });
+          }
+          attachBitmapPaintCoverage(ctx.canvas, writer.finish());
+        }
         markAuthoringDirty();
         didCommitShape = true;
       }
@@ -9510,67 +8981,11 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       return;
     }
 
-    if (!isDrawingRef.current) return;
-    isDrawingRef.current = false;
-    const ctx = canvasRef.current?.getContext("2d");
-    let didCommitStroke = false;
-    if (ctx) {
-      if (activeTool === "Brush" && brushPreviousPointRef.current) {
-        const point = getCanvasPoint(e);
-        if (brushUsesBufferedPreviewRef.current) {
-          cancelBrushPreview();
-        }
-        if (point) {
-          const previousPoint = brushPreviousPointRef.current;
-          if (Math.hypot(point.x - previousPoint.x, point.y - previousPoint.y) >= 0.001) {
-            if (brushUsesBufferedPreviewRef.current) {
-              brushStrokePointsRef.current.push(point);
-            } else {
-              ctx.lineTo(point.x, point.y);
-              ctx.stroke();
-              ctx.beginPath();
-              ctx.moveTo(point.x, point.y);
-              markAuthoringDirtyRegion(
-                resolveSimpleStrokeDirtyRect(
-                  [previousPoint, point],
-                  ctx.canvas.width,
-                  ctx.canvas.height,
-                  brushStrokeSizeRef.current,
-                  false,
-                ),
-                true,
-              );
-            }
-            brushPreviousPointRef.current = point;
-            brushDidMoveRef.current = true;
-          }
-        }
-        if (brushUsesBufferedPreviewRef.current) {
-          drawBufferedBrushStroke(ctx, !brushDidMoveRef.current, "final-commit");
-          if (brushUsesOverlayPreviewRef.current) {
-            clearBrushPreviewOverlay();
-          }
-        }
-      }
-      ctx.closePath();
-      ctx.globalCompositeOperation = "source-over";
-      ctx.globalAlpha = 1;
-      markAuthoringPendingChanges();
-      didCommitStroke = true;
-    }
-    brushPreviousPointRef.current = null;
-    brushDidMoveRef.current = false;
-    resetBrushStrokePreviewState();
-    brushUsesBufferedPreviewRef.current = true;
-    if (didCommitStroke) {
-      onAuthoringActionCommitted?.("stroke");
-    }
-    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
-      e.currentTarget.releasePointerCapture(e.pointerId);
-    }
+    finishRasterDraft(e);
   };
 
   const cancelCanvasStroke = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (rasterDraftRef.current) { cancelPendingAuthoringGesture("pointer-cancel"); return; }
     const releaseCapture = () => {
       if (e.currentTarget.hasPointerCapture(e.pointerId)) {
         e.currentTarget.releasePointerCapture(e.pointerId);
@@ -9661,32 +9076,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       return;
     }
 
-    if (isDrawingRef.current) {
-      cancelBrushPreview();
-      const ctx = canvasRef.current?.getContext("2d");
-      if (ctx) {
-        if (activeTool === "Brush" && brushUsesBufferedPreviewRef.current) {
-          drawBufferedBrushStroke(ctx, !brushDidMoveRef.current, "final-commit");
-          if (brushUsesOverlayPreviewRef.current) {
-            clearBrushPreviewOverlay();
-          }
-        }
-        ctx.closePath();
-        ctx.globalCompositeOperation = "source-over";
-        ctx.globalAlpha = 1;
-        markAuthoringPendingChanges();
-      }
-      isDrawingRef.current = false;
-      brushPreviousPointRef.current = null;
-      brushDidMoveRef.current = false;
-      resetBrushStrokePreviewState();
-      brushUsesBufferedPreviewRef.current = true;
-      if (ctx) {
-        onAuthoringActionCommitted?.("stroke");
-      }
-      releaseCapture();
-      return;
-    }
+    cancelPendingAuthoringGesture("pointer-cancel");
 
     releaseCapture();
   };
@@ -9732,8 +9122,11 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
     if (!window.confirm("Clear the current canvas? This will remove the visible artwork on this canvas.")) return;
-    clearBrushPreviewOverlay();
+    const owner = currentRasterContextRef.current;
+    if (!authorizeDestructiveCommand({ commandId: "clear-canvas", targetIds: [owner], availableTargetIds: [owner], confirmed: true }).allowed) return;
+    cancelPendingAuthoringGesture("clear-canvas");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    attachBitmapPaintCoverage(canvas, null);
     markAuthoringDirty();
     onAuthoringActionCommitted?.("clear-canvas");
   };
@@ -9993,6 +9386,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   };
   const deleteSelectedUnifiedSymbol = () => {
     if (!selectedUnifiedSymbolInstance || !onUnifiedSymbolInstancesChange) return;
+    if (!authorizeDestructiveCommand({ commandId: "delete-instance", targetIds: [selectedUnifiedSymbolInstance.itemId], availableTargetIds: unifiedSymbolInstances.map(instance => instance.itemId) }).allowed) return;
     if (onUnifiedSymbolInstancesChange(unifiedSymbolInstances.filter(instance => instance.itemId !== selectedUnifiedSymbolInstance.itemId))) {
       setSelectedUnifiedSymbolInstanceId(null);
     }
@@ -10639,6 +10033,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               <div>Color</div>
               <input
                 type="color"
+                aria-label="Brush color"
                 value={brushColor}
                 onChange={(e) => setBrushColor(e.target.value)}
                 style={{ width: 28, height: 28, padding: 0, border: "none", background: "transparent", cursor: "pointer" }}
@@ -11895,7 +11290,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       <div
         role="status"
         aria-live="polite"
-        style={{ position: "fixed", right: 18, bottom: 18, zIndex: 1150, maxWidth: 340, padding: "10px 13px", borderRadius: 9, border: "1px solid rgba(110,170,255,0.34)", background: "rgba(20,25,34,0.96)", color: "rgba(255,255,255,0.88)", fontSize: 13, boxShadow: "0 10px 32px rgba(0,0,0,0.35)" }}
+        style={{ position: "fixed", right: 18, bottom: 84, pointerEvents: "none", zIndex: 1150, maxWidth: 340, padding: "10px 13px", borderRadius: 9, border: "1px solid rgba(110,170,255,0.34)", background: "rgba(20,25,34,0.96)", color: "rgba(255,255,255,0.88)", fontSize: 13, boxShadow: "0 10px 32px rgba(0,0,0,0.35)" }}
       >
         {workspaceNotice}
       </div>

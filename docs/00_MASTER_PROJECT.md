@@ -1,7 +1,7 @@
 # Diamond Animator Master Project Charter
 
 Status: canonical product intent
-Last updated: 2026-09-15
+Last updated: 2026-09-16
 
 ## Product Mission
 
@@ -35,7 +35,7 @@ The goal is not to hide a weak editor behind a chat box. The goal is one capable
 
 All seven SPEC-0006 phases are Verified, published, and durably integrated through exact GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`. D-0069 records Arthur's Phase 7 PASS and D-0070 records publication/D-0054 cleanup. The ordinary workspace mounts only the unified V2 editor; one V2 coordinator/history/repository owns authored state and Save/Save As/AI-triggered Save, while legacy parsers remain read-only import leaves.
 
-D-0074 rewrites [`SPEC-0007 — Drawing-Only Manual Editor Completion and AI-Ready Tools`](specs/0007-manual-editor-completion-and-ai-ready-tools.md) as **Approved and active** and supersedes D-0071–D-0073 only where their seven-phase structured-rig/Creator direction or earlier Phase 1 result conflicts. The corrected five phases are Drawing Engine and No-Loss Stabilization; Draw Rig; Safe Legacy Rig Retirement and Migration; Assets Stabilization; and Final Manual Editor Bug Burn/Future-AI Command Registry. Only corrected Phase 1 is Authorized/Not started. The dirty `/3cd3/` Phase 1 result is rejected, unpublished, non-reusable evidence and must be backed up and cleaned under D-0054 before one fresh executor begins from the later publication SHA.
+D-0074 rewrites [`SPEC-0007 — Drawing-Only Manual Editor Completion and AI-Ready Tools`](specs/0007-manual-editor-completion-and-ai-ready-tools.md) as **Approved and active** and supersedes D-0071–D-0073 only where their seven-phase structured-rig/Creator direction or earlier Phase 1 result conflicts. The corrected five phases are Drawing Engine and No-Loss Stabilization; Draw Rig; Safe Legacy Rig Retirement and Migration; Assets Stabilization; and Final Manual Editor Bug Burn/Future-AI Command Registry. D-0075 records corrected Phase 1 as Arthur-accepted and technically Verified from exact base `1c5aee42fa87967ad058c00cc3d62b51589b77fa`; publication/integration and D-0054 cleanup remain pending. Phase 2–5 remain unauthorized.
 
 The permanent direction is drawing-only: no non-destructive command may silently remove unrelated authored pixels/items; intentional removals use a closed registry of explicit destructive controls; same-paint raster overlaps use maximum coverage rather than cumulative darkening; and **Draw Rig** later creates ordinary segmented raster paint, never joints/bones/topology. By Phase 3, active structured-rig/Creator authoring is retired and historical rig content migrates non-destructively into ordinary drawing/drawing symbols through read-only compatibility adapters. Every future-AI-eligible mutation uses the same validated capability as its ordinary manual control. SPEC-0007 adds no AI/provider/model/prompt/API/video/tracking behavior.
 

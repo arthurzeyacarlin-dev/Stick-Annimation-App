@@ -5,6 +5,14 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-16 — Accept and technically verify SPEC-0007 Phase 1 (D-0075)
+
+- Recorded Arthur's acceptance of the final ordinary app at `http://127.0.0.1:56875/` and the stopped exact 17-path implementation from base/HEAD `1c5aee42fa87967ad058c00cc3d62b51589b77fa`, empty index.
+- Bound immutable PASS/VALID technical-manifest SHA-256 `511c778e83741b7dde420863769f68132146934f072c6203289bcbf0ea05d689`, independent-validation SHA-256 `61514dcb59275292b8f2d9e3b345552b3c8de5128290dde6ff9627b30dba7186`, aggregate source digest `95bb92d5ea63c84f35e8fedcbe58050c3349858b82ed1accd15e7c7305949a89`, runtime digest `232ad74e1d374e96fa0fc3830d45ba08550ee190ba1765c0bbfcf9ad235b3728`, and production build `3Zc3DGwyx72yx09DfwUk_`.
+- Accepted stabilized Brush/Pencil/Sketch/Pixelate/Glow no-loss behavior, persistent maximum coverage, exact history/Save/Open, Sketch contributor ownership for ghost-free Knife movement, and canonical previous-purple/future-green onion display without authored mutation.
+- Recorded 126,771 oracle assertions, 508 browser cases/6,746 assertions in 18 groups, 26 inspected fresh screenshots, TypeScript/build/lint non-regression/scope/diff/index passes, and 99 rejected negative manifest mutations. Full lint remains five errors/131 warnings with zero changed/new Phase 1 findings.
+- Updated canonical records only after exclusive executor-to-CPA transfer. Accepted technical/proof bytes, Git index/history/refs/remotes, canonical `main`, review server/worktree, dependencies/configuration, AI/provider/API/video/tracking, deployment, Phase 2 and external services remain unchanged. GIT-062 publication/integration and later D-0054 cleanup require a separate explicit publication task.
+
 ### 2026-09-15 — Rewrite SPEC-0007 as drawing-only and reject the first Phase 1 result (D-0074)
 
 - Replaced the superseded seven-phase structured-rig/Creator/Rig Symbol direction with the exact 51,063-byte rewritten spec preimage at SHA-256 `d4acdbedc0811fff8c0e80f86ed4db1d23fa411cf8ff989343d47e4f58525391` and five separately gated phases: Drawing Engine and No-Loss Stabilization; Draw Rig; Safe Legacy Rig Retirement and Migration; Assets Stabilization; and Final Manual Editor Bug Burn/Future-AI Command Registry. Only corrected Phase 1 remains Authorized/Not started; Phases 2–5 are unauthorized.

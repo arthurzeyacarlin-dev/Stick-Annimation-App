@@ -1,4 +1,5 @@
 import type { StickFigureFrameContent } from "../../components/workspace/stickfigure/types";
+import type { UnifiedRasterPaintCoverageV1 } from "./unifiedRasterPaintCoverageV1";
 
 export type UnifiedPointV2 = { x: number; y: number };
 export type UnifiedStrokeV2 = { id: string; color: string; width: number; points: UnifiedPointV2[] };
@@ -12,6 +13,7 @@ export type UnifiedRasterBitmapV2 = {
   y?: number;
   stageWidth?: number;
   stageHeight?: number;
+  paintCoverage?: UnifiedRasterPaintCoverageV1;
 };
 
 export type UnifiedDrawingMotionTweenV2 = {

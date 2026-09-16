@@ -76,9 +76,23 @@ import {
   createBitmapSymbolDefinitionV2,
   removeSymbolDefinitionV2,
 } from "@/src/lib/animation/unifiedProjectCatalogV2";
+import { authorizeDestructiveCommand, isAuthoringSnapshotCurrent, type AuthoringSnapshotIdentity } from "@/src/lib/animation/editorCommands/destructiveRegistry";
+import { validateRasterGestureCommand, type RasterGestureCommandV2 } from "@/src/lib/animation/editorCommands/rasterGesture";
+import {
+  attachBitmapPaintCoverage,
+  copyBitmapPaintCoverage,
+  cropPaintCoverage,
+  getBitmapPaintCoverage,
+  patchPaintCoverage,
+  paintCoveragesEqual,
+  type UnifiedRasterPaintCoverageV1,
+} from "@/src/lib/animation/unifiedRasterPaintCoverageV1";
+
+type PaintSerializedBitmap = SerializedBitmap & { paintCoverage?: UnifiedRasterPaintCoverageV1 };
 
 type TimelineFrameSnapshot = {
   bitmap: ImageData | null;
+  identity?: AuthoringSnapshotIdentity;
   previewUrl: string | null | undefined;
   dirtyPatchBitmap?: ImageData | null;
   dirtyPatchRect?: {
@@ -379,6 +393,8 @@ type LocalDrawingPatchHistoryEntry = LocalDrawingHistoryEntryBase & {
   };
   beforePatchBitmap: ImageData;
   afterPatchBitmap: ImageData;
+  beforeBitmapNull: boolean;
+  afterBitmapNull: boolean;
 };
 
 type LocalDrawingSnapshotHistoryEntry = LocalDrawingHistoryEntryBase & {
@@ -424,7 +440,7 @@ type CopiedTimelineFrame = {
   symbolInstances?: UnifiedSymbolInstanceItemV2[];
 };
 
-type CanvasAuthoringActionReason = "stroke" | "shape" | "placed-asset" | "clear-canvas" | "knife" | "selection";
+type CanvasAuthoringActionReason = "stroke" | "fill" | "shape" | "placed-asset" | "clear-canvas" | "knife" | "selection";
 
 const MemoizedDrawingTimelineRow = memo(DrawingTimelineRow);
 const MemoizedDrawingCanvas = memo(DrawingCanvas);
@@ -466,8 +482,6 @@ const DEFAULT_INITIAL_LAYER_ID = "layer-1";
 const BACKGROUND_LAYER_NAME_PATTERN = /\b(background|backdrop|environment|sky|bg)\b/i;
 const STORED_FRAME_IMAGE_MAX_LENGTH = 72_000;
 const STORED_FRAME_IMAGE_MAX_DIMENSION = 1280;
-const LIVE_FRAME_PREVIEW_MAX_LENGTH = 32_000;
-const LIVE_FRAME_PREVIEW_MAX_DIMENSION = 512;
 const PROJECT_PREVIEW_WIDTH = 92;
 const PROJECT_PREVIEW_HEIGHT = 68;
 const PROJECT_PREVIEW_MAX_LENGTH = 18_000;
@@ -527,16 +541,18 @@ const createImageDataSafely = (
 const getUsableBitmap = (bitmap: ImageData | null) => (isBitmapDataShapeValid(bitmap) ? bitmap : null);
 
 const cloneBitmap = (bitmap: ImageData | null) => {
+  if (bitmap === null) return null;
   const usableBitmap = getUsableBitmap(bitmap);
   if (!usableBitmap) {
-    return null;
+    throw new Error("invalid_bitmap_clone_source");
   }
 
-  return createImageDataSafely(usableBitmap.data, usableBitmap.width, usableBitmap.height);
+  const cloned = createImageDataSafely(usableBitmap.data, usableBitmap.width, usableBitmap.height);
+  if (!cloned) throw new Error("bitmap_clone_failed");
+  return copyBitmapPaintCoverage(usableBitmap, cloned);
 };
 
 const bitmapCanvasCache = new WeakMap<ImageData, HTMLCanvasElement>();
-const bitmapLivePreviewUrlCache = new WeakMap<ImageData, string | null>();
 const bitmapStoredPreviewUrlCache = new WeakMap<ImageData, string | null>();
 
 const invalidateBitmapRenderCaches = (bitmap: ImageData | null) => {
@@ -545,7 +561,6 @@ const invalidateBitmapRenderCaches = (bitmap: ImageData | null) => {
   }
 
   bitmapCanvasCache.delete(bitmap);
-  bitmapLivePreviewUrlCache.delete(bitmap);
   bitmapStoredPreviewUrlCache.delete(bitmap);
 };
 
@@ -722,12 +737,16 @@ const applyBitmapPatch = (
   patch: ImageData,
   rect: { left: number; top: number; width: number; height: number },
 ) => {
+  // Prepare provenance before writing pixels so a limit/validation failure is atomic.
+  const nextCoverage = patchPaintCoverage(getBitmapPaintCoverage(target), getBitmapPaintCoverage(patch),
+    rect.left, rect.top, rect.width, rect.height, target.width, target.height);
   const rowWidth = rect.width * 4;
   for (let row = 0; row < rect.height; row += 1) {
     const sourceStart = row * rowWidth;
     const targetStart = ((rect.top + row) * target.width + rect.left) * 4;
     target.data.set(patch.data.subarray(sourceStart, sourceStart + rowWidth), targetStart);
   }
+  attachBitmapPaintCoverage(target, nextCoverage);
 };
 
 const captureBitmapPatch = (
@@ -750,7 +769,9 @@ const captureBitmapPatch = (
     }
   }
 
-  return new ImageData(patch, rect.width, rect.height);
+  return attachBitmapPaintCoverage(new ImageData(patch, rect.width, rect.height), cropPaintCoverage(
+    getBitmapPaintCoverage(usableSourceBitmap), rect.left, rect.top, rect.width, rect.height,
+  ));
 };
 
 const snapshotBitmapMatches = (
@@ -781,7 +802,10 @@ const snapshotBitmapMatches = (
       }
     }
 
-    return true;
+    return paintCoveragesEqual(
+      cropPaintCoverage(getBitmapPaintCoverage(currentBitmap), dirtyPatchRect.left, dirtyPatchRect.top, dirtyPatchRect.width, dirtyPatchRect.height),
+      getBitmapPaintCoverage(dirtyPatchBitmap),
+    );
   }
 
   return bitmapsEqual(currentBitmap, snapshot?.bitmap ?? null);
@@ -795,7 +819,10 @@ const materializeSnapshotBitmap = (
   if (hasSnapshotDirtyPatch(snapshot)) {
     const usableDirtyPatchBitmap = getUsableBitmap(snapshot.dirtyPatchBitmap);
     if (!usableDirtyPatchBitmap || getExpectedBitmapDataLength(snapshot.bitmapWidth, snapshot.bitmapHeight) === null) {
-      return null;
+      throw new Error("invalid_snapshot_patch");
+    }
+    if (currentBitmap && (!isBitmapDataShapeValid(currentBitmap) || currentBitmap.width !== snapshot.bitmapWidth || currentBitmap.height !== snapshot.bitmapHeight)) {
+      throw new Error("snapshot_base_dimensions_changed");
     }
 
     const patchCoversWholeBitmap =
@@ -823,7 +850,7 @@ const materializeSnapshotBitmap = (
         snapshot.bitmapHeight,
       );
       if (!blankBitmap) {
-        return null;
+        throw new Error("snapshot_allocation_failed");
       }
       targetBitmap = blankBitmap;
     }
@@ -833,6 +860,33 @@ const materializeSnapshotBitmap = (
   }
 
   return getUsableBitmap(snapshot?.bitmap ?? null);
+};
+
+/** A smaller view is never authority to crop the stored authoring extent. */
+const normalizeCapturedSnapshotExtent = (snapshot: DrawingCanvasSnapshot, current: ImageData | null): DrawingCanvasSnapshot => {
+  if (!current) return snapshot;
+  const dirty = hasSnapshotDirtyPatch(snapshot);
+  const viewWidth = dirty ? snapshot.bitmapWidth : snapshot.bitmap?.width;
+  const viewHeight = dirty ? snapshot.bitmapHeight : snapshot.bitmap?.height;
+  if (!viewWidth || !viewHeight) throw new Error("missing_snapshot_extent");
+  if (viewWidth === current.width && viewHeight === current.height) return snapshot;
+  const width = Math.max(viewWidth, current.width), height = Math.max(viewHeight, current.height);
+  if (getExpectedBitmapDataLength(width, height) === null) throw new Error("snapshot_extent_limit");
+  const patch = dirty ? snapshot.dirtyPatchBitmap : snapshot.bitmap!;
+  const rect = {
+    left: bitmapCenterOffset(width, viewWidth) + (dirty ? snapshot.dirtyPatchRect.left : 0),
+    top: bitmapCenterOffset(height, viewHeight) + (dirty ? snapshot.dirtyPatchRect.top : 0),
+    width: patch.width, height: patch.height,
+  };
+  if (width === current.width && height === current.height) return {
+    ...snapshot, bitmap: null, dirtyPatchBitmap: patch, dirtyPatchRect: rect, bitmapWidth: width, bitmapHeight: height,
+  };
+  const expanded = new ImageData(width, height);
+  const left = bitmapCenterOffset(width, current.width), top = bitmapCenterOffset(height, current.height);
+  for (let y = 0; y < current.height; y++) expanded.data.set(current.data.subarray(y * current.width * 4, (y + 1) * current.width * 4), ((top + y) * width + left) * 4);
+  attachBitmapPaintCoverage(expanded, cropPaintCoverage(getBitmapPaintCoverage(current), -left, -top, width, height));
+  applyBitmapPatch(expanded, patch, rect);
+  return { bitmap: expanded, previewUrl: snapshot.previewUrl, captureVersion: snapshot.captureVersion, identity: snapshot.identity };
 };
 
 const adoptSnapshot = (
@@ -913,13 +967,14 @@ const createTimelineFrame = (
 
 const createEmptyTimelineFrame = (id: number): WorkspaceTimelineFrame => createTimelineFrame(id, "frame", "empty", id);
 
-const serializeBitmap = (bitmap: ImageData | null, preserveDataReference = false): SerializedBitmap | null => {
+const serializeBitmap = (bitmap: ImageData | null, preserveDataReference = false): PaintSerializedBitmap | null => {
   const usableBitmap = getUsableBitmap(bitmap);
   return usableBitmap
     ? {
         width: usableBitmap.width,
         height: usableBitmap.height,
         data: preserveDataReference ? usableBitmap.data : new Uint8ClampedArray(usableBitmap.data),
+        ...(getBitmapPaintCoverage(usableBitmap) ? { paintCoverage: getBitmapPaintCoverage(usableBitmap)! } : {}),
       }
     : null;
 };
@@ -929,7 +984,8 @@ const deserializeBitmap = (bitmap: SerializedBitmap | null | undefined, reuseCla
     return null;
   }
 
-  return createImageDataSafely(bitmap.data, bitmap.width, bitmap.height, reuseClampedData);
+  const restored = createImageDataSafely(bitmap.data, bitmap.width, bitmap.height, reuseClampedData);
+  return restored ? attachBitmapPaintCoverage(restored, (bitmap as PaintSerializedBitmap).paintCoverage ?? getBitmapPaintCoverage(bitmap)) : null;
 };
 
 const serializeMotionTweenData = (motionTween: MotionTweenData | null, preserveBitmapReferences = false): StoredMotionTweenData | null =>
@@ -1116,6 +1172,7 @@ const materializeBitmapPatch = ({
   patchRect,
   bitmapWidth,
   bitmapHeight,
+  bitmapIsNull,
 }: {
   currentBitmap: ImageData | null;
   patchBitmap: ImageData;
@@ -1127,20 +1184,19 @@ const materializeBitmapPatch = ({
   };
   bitmapWidth: number;
   bitmapHeight: number;
+  bitmapIsNull: boolean;
 }) => {
-  const nextBitmap = materializeSnapshotBitmap(
-    {
-      bitmap: null,
-      previewUrl: null,
-      dirtyPatchBitmap: patchBitmap,
-      dirtyPatchRect: patchRect,
-      bitmapWidth,
-      bitmapHeight,
-    },
-    currentBitmap,
-  );
+  if (bitmapIsNull) return null;
+  const snapshot = { bitmap: null, previewUrl: null, dirtyPatchBitmap: patchBitmap,
+    dirtyPatchRect: patchRect, bitmapWidth, bitmapHeight };
+  const nextBitmap = materializeSnapshotBitmap(snapshot, currentBitmap);
 
-  return isBitmapEmpty(nextBitmap) ? null : nextBitmap;
+  // A restored full patch must not become the live mutable history payload.
+  const restored = nextBitmap === patchBitmap ? cloneBitmap(nextBitmap) : nextBitmap;
+  // Carry the small row/column counts through history restoration. Otherwise
+  // the next stroke rebuilds them by scanning the entire restored bitmap.
+  primeOpaqueBoundsCacheFromDirtyPatch(restored, currentBitmap, snapshot);
+  return restored;
 };
 
 const applyWorkspaceTimelineFrameMetadata = (
@@ -1200,7 +1256,9 @@ const createLocalDrawingHistoryEntry = ({
       bitmapHeight: snapshot.bitmapHeight,
       patchRect: { ...snapshot.dirtyPatchRect },
       beforePatchBitmap: beforePatchBitmapOverride ?? captureBitmapPatch(currentBitmap, snapshot.dirtyPatchRect),
-      afterPatchBitmap: snapshot.dirtyPatchBitmap,
+      afterPatchBitmap: cloneBitmap(snapshot.dirtyPatchBitmap)!,
+      beforeBitmapNull: currentBitmap === null,
+      afterBitmapNull: nextBitmap === null,
       beforeFrameMeta,
       afterFrameMeta,
     };
@@ -1212,8 +1270,8 @@ const createLocalDrawingHistoryEntry = ({
     viewFrameId: context.viewFrameId,
     targetFrameId: context.targetFrameId,
     target: context.target,
-    beforeBitmap: currentBitmap,
-    afterBitmap: nextBitmap,
+    beforeBitmap: cloneBitmap(currentBitmap),
+    afterBitmap: cloneBitmap(nextBitmap),
     beforeFrameMeta,
     afterFrameMeta,
   };
@@ -2026,26 +2084,6 @@ const createStoredBitmapPreviewUrl = (bitmap: ImageData | null) => {
   return previewUrl;
 };
 
-const createLiveBitmapPreviewUrl = (bitmap: ImageData | null) => {
-  if (!bitmap) {
-    return null;
-  }
-
-  if (bitmapLivePreviewUrlCache.has(bitmap)) {
-    return bitmapLivePreviewUrlCache.get(bitmap) ?? null;
-  }
-
-  const previewUrl =
-    createCompactBitmapDataUrl(bitmap, {
-      maxLength: LIVE_FRAME_PREVIEW_MAX_LENGTH,
-      mimeType: "image/webp",
-      qualities: [0.44, 0.3, 0.18],
-      maxDimension: LIVE_FRAME_PREVIEW_MAX_DIMENSION,
-    }) ?? null;
-  bitmapLivePreviewUrlCache.set(bitmap, previewUrl);
-  return previewUrl;
-};
-
 const cropBitmapToBounds = (bitmap: ImageData, bounds: BitmapBounds) => {
   const sourceCanvas = createBitmapCanvas(bitmap);
   if (!sourceCanvas) return null;
@@ -2069,7 +2107,8 @@ const cropBitmapToBounds = (bitmap: ImageData, bounds: BitmapBounds) => {
     bounds.height,
   );
 
-  return outputCtx.getImageData(0, 0, bounds.width, bounds.height);
+  return attachBitmapPaintCoverage(outputCtx.getImageData(0, 0, bounds.width, bounds.height),
+    cropPaintCoverage(getBitmapPaintCoverage(bitmap), bounds.left, bounds.top, bounds.width, bounds.height));
 };
 
 const lerp = (start: number, end: number, progress: number) => start + (end - start) * progress;
@@ -2451,12 +2490,13 @@ const bitmapsEqual = (left: ImageData | null, right: ImageData | null) => {
     }
   }
 
-  return true;
+  return paintCoveragesEqual(getBitmapPaintCoverage(left), getBitmapPaintCoverage(right));
 };
 
 const EMPTY_ONION_FRAME_PREVIEW: OnionFramePreview = {
   bitmap: null,
   textObjects: EMPTY_DRAWING_TEXT_OBJECTS,
+  symbolInstances: [],
 };
 
 const onionFramePreviewsEqual = (left: OnionFramePreview | null, right: OnionFramePreview | null) => {
@@ -3906,13 +3946,24 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
       return currentHistoryIndexRef.current;
     }
 
+    const retainCurrentNavigation = (historyIndex: number) => {
+      const entry = historyEntriesRef.current[historyIndex];
+      if (entry && (entry.activeLayerId !== activeLayerIdRef.current || entry.currentFrameIndex !== currentFrameIndexRef.current || entry.selectedTimelineIndex !== selectedTimelineIndexRef.current)) {
+        const nextEntries = historyEntriesRef.current.slice();
+        nextEntries[historyIndex] = { ...entry, activeLayerId: activeLayerIdRef.current,
+          currentFrameIndex: currentFrameIndexRef.current, selectedTimelineIndex: selectedTimelineIndexRef.current };
+        historyEntriesRef.current = nextEntries;
+      }
+      return historyIndex;
+    };
+
     if (isCurrentWorkspaceStampedInHistory()) {
-      return currentHistoryIndexRef.current;
+      return retainCurrentNavigation(currentHistoryIndexRef.current);
     }
 
     const nextHistoryIndex = commitHistoryEntry(createHistoryEntryFromWorkspace());
     updateHistoryWorkspaceStamp();
-    return nextHistoryIndex;
+    return retainCurrentNavigation(nextHistoryIndex);
   }, [commitHistoryEntry, createHistoryEntryFromWorkspace, isCurrentWorkspaceStampedInHistory, updateHistoryWorkspaceStamp]);
 
   const commitCurrentHistoryState = useCallback((options?: {
@@ -4283,57 +4334,44 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
   }, [invalidatePlaybackSurfaceMetrics]);
 
   const captureCanvasSnapshot = useCallback((options?: DrawingCanvasSnapshotOptions): DrawingCanvasSnapshot | null => {
-    const authoredSnapshot = drawingCanvasRef.current?.captureAuthoringSnapshot(options);
-    if (authoredSnapshot) {
-      if (ENABLE_MOTION_TWEEN_DEBUG) {
-        motionTweenDebug("captureCanvasSnapshot", {
-          source: "drawingCanvasRef",
-          includePreviewUrl: options?.includePreviewUrl !== false,
-          snapshot: summarizeBitmapForMotionTweenDebug(authoredSnapshot.bitmap),
-        });
+    const handle = drawingCanvasRef.current;
+    const expectedContext = `${activeLayerIdRef.current}:${currentFrameIndexRef.current}`;
+    const before = handle?.getAuthoringSnapshotIdentity();
+    const workspaceGeneration = documentGenerationRef.current;
+    try {
+      const snapshot = handle?.captureAuthoringSnapshot(options) ?? null;
+      const after = handle?.getAuthoringSnapshotIdentity();
+      if (!snapshot || (!hasSnapshotDirtyPatch(snapshot) && !isBitmapDataShapeValid(snapshot.bitmap)) ||
+          !isAuthoringSnapshotCurrent(before, snapshot.identity, after, expectedContext) ||
+          workspaceGeneration !== documentGenerationRef.current ||
+          expectedContext !== `${activeLayerIdRef.current}:${currentFrameIndexRef.current}`) {
+        setSaveState("failed");
+        return null;
       }
-      return authoredSnapshot;
+      return snapshot;
+    } catch {
+      // A failed readback is never a blank replacement or an alternate source.
+      setSaveState("failed");
+      return null;
     }
-
-    const canvas = getDrawingCanvas();
-    const compositeCtx = canvas?.getContext("2d");
-    if (!canvas || !compositeCtx) return null;
-
-    const includePreviewUrl = options?.includePreviewUrl !== false;
-    const fallbackBitmap = compositeCtx.getImageData(0, 0, canvas.width, canvas.height);
-    const fallbackSnapshot = {
-      bitmap: fallbackBitmap,
-      previewUrl: includePreviewUrl ? createLiveBitmapPreviewUrl(fallbackBitmap) : undefined,
-    };
-    if (ENABLE_MOTION_TWEEN_DEBUG) {
-      motionTweenWarn("captureCanvasSnapshot:fallback", {
-        source: "editableCanvas",
-        includePreviewUrl,
-        snapshot: summarizeBitmapForMotionTweenDebug(fallbackSnapshot.bitmap),
-      });
-    }
-    return fallbackSnapshot;
-  }, [getDrawingCanvas]);
+  }, []);
 
   const renderBitmapsToTargetCanvas = useCallback((canvas: HTMLCanvasElement | null, bitmaps: ReadonlyArray<ImageData | null>) => {
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
+
+    const sources = bitmaps.filter((bitmap): bitmap is ImageData => bitmap !== null).map(bitmap => {
+      const source = createBitmapCanvas(bitmap);
+      if (!source) throw new Error("bitmap_presentation_failed");
+      return source;
+    });
 
     ctx.save();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.imageSmoothingEnabled = false;
 
-    for (const bitmap of bitmaps) {
-      if (!bitmap) {
-        continue;
-      }
-
-      const sourceCanvas = createBitmapCanvas(bitmap);
-      if (!sourceCanvas) {
-        continue;
-      }
-
+    for (const sourceCanvas of sources) {
       drawBitmapCanvasCentered(ctx, sourceCanvas, canvas.width, canvas.height);
     }
 
@@ -4360,6 +4398,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
 
   const renderBitmapToPlaybackCanvas = useCallback(
     (_bitmap: ImageData | null) => {
+      void _bitmap;
       const canvas = getPlaybackCanvas();
       const ctx = canvas?.getContext("2d");
       if (!canvas || !ctx) return;
@@ -4603,7 +4642,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
       const activeBitmap = resolveTimelineBitmap(activeLayerForRender.timelineFrames, frameIndex, { tweenEditContext });
       renderBitmapsToTargetCanvas(getBackgroundCanvas(), []);
       renderBitmapsToTargetCanvas(getForegroundCanvas(), []);
-      restoreBitmapToCanvas(activeBitmap);
+      const alreadyPresented = debugCaller === "useEffect:paused-render-sync" && drawingCanvasRef.current?.takePresentedRasterCommit(activeBitmap);
+      if (!alreadyPresented) restoreBitmapToCanvas(activeBitmap);
     },
     [
       getBackgroundCanvas,
@@ -4800,7 +4840,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
         nextLayers[0] ??
         null;
       if (!nextActiveLayer) {
-        return;
+        return false;
       }
 
       const maxTimelineIndex = Math.max(0, getGlobalTimelineFrameCount(nextLayers) - 1);
@@ -4810,6 +4850,22 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
         : entry.selectedTimelineIndex;
       const nextCurrentFrameIndex = Math.max(0, Math.min(preferredCurrentFrameIndex, maxTimelineIndex));
       const nextSelectedTimelineIndex = Math.max(0, Math.min(preferredSelectedTimelineIndex, maxTimelineIndex));
+
+      const nextStickByCell = structuredClone(entry.stickByCell);
+      const nextCatalogs = structuredClone(entry.unifiedCatalogs);
+      const nextInstances = structuredClone(entry.symbolInstancesByCell);
+      const nextFrameId = Math.max(entry.nextTimelineFrameId, getMaxTimelineFrameId(nextLayers) + 1);
+      const nextLayerNumber = Math.max(entry.nextLayerNumber, getNextLayerNumber(nextLayers));
+      const previous = {
+        layers: layersRef.current, frames: timelineFramesRef.current, activeLayer: activeLayerIdRef.current,
+        frame: currentFrameIndexRef.current, selected: selectedTimelineIndexRef.current,
+        frameId: nextTimelineFrameIdRef.current, layerNumber: nextLayerNumberRef.current,
+        stick: stickByCellRef.current, catalogs: unifiedCatalogsRef.current, instances: symbolInstancesByCellRef.current,
+        localHistory: new Map(localDrawingHistoryRef.current), stamp: historyWorkspaceStampRef.current,
+        rowSource: timelineRowLayersSourceRef.current,
+      };
+
+      try {
 
       resizeCommitSessionRef.current = null;
       frozenTweenPlaybackCacheRef.current = new Map();
@@ -4824,19 +4880,19 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
       timelineFramesRef.current = nextActiveLayer.timelineFrames;
       currentFrameIndexRef.current = nextCurrentFrameIndex;
       selectedTimelineIndexRef.current = nextSelectedTimelineIndex;
-      nextTimelineFrameIdRef.current = Math.max(entry.nextTimelineFrameId, getMaxTimelineFrameId(nextLayers) + 1);
-      nextLayerNumberRef.current = Math.max(entry.nextLayerNumber, getNextLayerNumber(nextLayers));
+      nextTimelineFrameIdRef.current = nextFrameId;
+      nextLayerNumberRef.current = nextLayerNumber;
 
       setLayers(nextLayers);
       setActiveLayerId(nextActiveLayer.id);
       setCurrentFrameIndex(nextCurrentFrameIndex);
       setSelectedTimelineIndex(nextSelectedTimelineIndex);
       setIsTimelinePlaying(false);
-      stickByCellRef.current = structuredClone(entry.stickByCell);
+      stickByCellRef.current = nextStickByCell;
       setStickByCell(stickByCellRef.current);
-      unifiedCatalogsRef.current = structuredClone(entry.unifiedCatalogs);
+      unifiedCatalogsRef.current = nextCatalogs;
       setUnifiedCatalogs(unifiedCatalogsRef.current);
-      symbolInstancesByCellRef.current = structuredClone(entry.symbolInstancesByCell);
+      symbolInstancesByCellRef.current = nextInstances;
       setSymbolInstancesByCell(symbolInstancesByCellRef.current);
 
       renderWorkspaceCanvases(nextLayers, nextCurrentFrameIndex, {
@@ -4845,10 +4901,23 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
       });
       updateHistoryWorkspaceStamp();
       syncHistoryAvailability();
-
-      window.requestAnimationFrame(() => {
-        suppressNextWorkspaceAutosaveRef.current = false;
-      });
+      return true;
+      } catch (error) {
+        layersRef.current = previous.layers; timelineFramesRef.current = previous.frames;
+        activeLayerIdRef.current = previous.activeLayer; currentFrameIndexRef.current = previous.frame;
+        selectedTimelineIndexRef.current = previous.selected;
+        nextTimelineFrameIdRef.current = previous.frameId; nextLayerNumberRef.current = previous.layerNumber;
+        stickByCellRef.current = previous.stick; unifiedCatalogsRef.current = previous.catalogs;
+        symbolInstancesByCellRef.current = previous.instances; localDrawingHistoryRef.current = previous.localHistory;
+        historyWorkspaceStampRef.current = previous.stamp; timelineRowLayersSourceRef.current = previous.rowSource;
+        setLayers(previous.layers); setActiveLayerId(previous.activeLayer); setCurrentFrameIndex(previous.frame);
+        setSelectedTimelineIndex(previous.selected); setStickByCell(previous.stick);
+        setUnifiedCatalogs(previous.catalogs); setSymbolInstancesByCell(previous.instances);
+        try { renderWorkspaceCanvases(previous.layers, previous.frame, { activeLayerId: previous.activeLayer, debugCaller: "history:rollback" }); } catch { /* The retained document can be rendered on retry. */ }
+        throw error;
+      } finally {
+        window.requestAnimationFrame(() => { suppressNextWorkspaceAutosaveRef.current = false; });
+      }
     },
     [clearLocalDrawingHistory, renderWorkspaceCanvases, stopTimelinePlaybackAudio, syncHistoryAvailability, updateHistoryWorkspaceStamp],
   );
@@ -4885,22 +4954,6 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
     });
     return nextLayers;
   }, []);
-
-  const setLocalDrawingHistoryBaselines = useCallback((contextKeys: string[]) => {
-    const nextKeys = Array.from(new Set(contextKeys.filter((contextKey) => contextKey.length > 0)));
-    if (nextKeys.length === 0) {
-      return;
-    }
-
-    for (const contextKey of nextKeys) {
-      localDrawingHistoryRef.current.set(contextKey, {
-        entries: [],
-        position: -1,
-        blocksGlobalTraversal: true,
-      });
-    }
-    syncHistoryAvailability();
-  }, [syncHistoryAvailability]);
 
   const pushLocalDrawingHistoryEntry = useCallback((
     entry: LocalDrawingHistoryEntry,
@@ -4945,51 +4998,31 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
       return false;
     }
 
-    const historyLayerIndex = currentHistoryEntry.layers.findIndex((layer) => layer.id === context.layerId);
-    if (historyLayerIndex < 0) {
-      return false;
-    }
-    const historyLayer = currentHistoryEntry.layers[historyLayerIndex] ?? null;
-    if (!historyLayer) {
-      return false;
-    }
+    const historyFrame = currentHistoryEntry.layers.find(layer => layer.id === context.layerId)
+      ?.timelineFrames.find(frame => frame.id === context.targetFrameId);
+    if (!historyFrame) return false;
 
-    const historyFrameIndex = findTimelineFrameIndexById(historyLayer.timelineFrames, context.targetFrameId);
-    if (historyFrameIndex < 0) {
-      return false;
+    // Several global entries may retain the same untouched frame. Detach every
+    // reference before a local patch mutates the live bitmap in place.
+    let detached: ImageData | null = null;
+    const nextEntries = historyEntriesRef.current.map(entry => {
+      let changed = false;
+      const nextLayers = entry.layers.map(layer => {
+        if (!layer.timelineFrames.some(frame => frame.bitmap === currentBitmap || frame.tweenEndBitmap === currentBitmap)) return layer;
+        detached ??= cloneBitmap(currentBitmap);
+        changed = true;
+        return { ...layer, timelineFrames: layer.timelineFrames.map(frame => {
+          if (frame.bitmap !== currentBitmap && frame.tweenEndBitmap !== currentBitmap) return frame;
+          return { ...frame, bitmap: frame.bitmap === currentBitmap ? detached : frame.bitmap,
+            tweenEndBitmap: frame.tweenEndBitmap === currentBitmap ? detached : frame.tweenEndBitmap };
+        }) };
+      });
+      return changed ? { ...entry, layers: nextLayers } : entry;
+    });
+    if (detached) {
+      historyEntriesRef.current = nextEntries;
+      historyWorkspaceStampRef.current = null;
     }
-
-    const historyFrame = historyLayer.timelineFrames[historyFrameIndex] ?? null;
-    if (!historyFrame) {
-      return false;
-    }
-
-    const historyBitmap = resolveWorkspaceTimelineFrameTargetBitmap(historyFrame, context.target);
-    if (historyBitmap !== currentBitmap) {
-      return true;
-    }
-
-    const nextHistoryLayers = currentHistoryEntry.layers.slice();
-    const nextHistoryFrames = historyLayer.timelineFrames.slice();
-    nextHistoryFrames[historyFrameIndex] = {
-      ...historyFrame,
-      bitmap: context.target === "bitmap" ? cloneBitmap(historyFrame.bitmap) : historyFrame.bitmap,
-      tweenEndBitmap:
-        context.target === "tweenEndBitmap" ? cloneBitmap(historyFrame.tweenEndBitmap) : historyFrame.tweenEndBitmap,
-    };
-    nextHistoryLayers[historyLayerIndex] = {
-      ...historyLayer,
-      timelineFrames: nextHistoryFrames,
-    };
-    historyEntriesRef.current = historyEntriesRef.current.map((entry, historyIndex) =>
-      historyIndex === currentHistoryIndex
-        ? {
-            ...entry,
-            layers: nextHistoryLayers,
-          }
-        : entry,
-    );
-    historyWorkspaceStampRef.current = null;
     return true;
   }, []);
 
@@ -5044,6 +5077,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
               patchRect: entry.patchRect,
               bitmapWidth: entry.bitmapWidth,
               bitmapHeight: entry.bitmapHeight,
+              bitmapIsNull: direction === "undo" ? entry.beforeBitmapNull : entry.afterBitmapNull,
             })
           : entry.kind === "metadata"
             ? resolveWorkspaceTimelineFrameTargetBitmap(currentFrame, entry.target)
@@ -5088,22 +5122,31 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
         return false;
       }
 
-      const didApply = applyLocalDrawingHistoryEntry(entry, direction);
-      if (!didApply) {
-        localDrawingHistoryRef.current.delete(context.key);
+      const previous = {
+        layers: layersRef.current, frames: timelineFramesRef.current,
+        frame: currentFrameIndexRef.current, selected: selectedTimelineIndexRef.current,
+        rowSource: timelineRowLayersSourceRef.current, stamp: historyWorkspaceStampRef.current,
+      };
+      try {
+        if (!applyLocalDrawingHistoryEntry(entry, direction)) throw new Error("local_history_target_unavailable");
+        localDrawingHistoryRef.current.set(context.key, {
+          ...stack,
+          position: direction === "undo" ? stack.position - 1 : stack.position + 1,
+        });
+        updateHistoryWorkspaceStamp("local-drawing");
         syncHistoryAvailability();
-        return false;
+        return true;
+      } catch (error) {
+        layersRef.current = previous.layers; timelineFramesRef.current = previous.frames;
+        currentFrameIndexRef.current = previous.frame; selectedTimelineIndexRef.current = previous.selected;
+        timelineRowLayersSourceRef.current = previous.rowSource; historyWorkspaceStampRef.current = previous.stamp;
+        localDrawingHistoryRef.current.set(context.key, stack);
+        setLayers(previous.layers); setCurrentFrameIndex(previous.frame); setSelectedTimelineIndex(previous.selected);
+        try { renderWorkspaceCanvases(previous.layers, previous.frame, { activeLayerId: activeLayerIdRef.current, debugCaller: "local-history:rollback" }); } catch { /* Retain the document for retry. */ }
+        throw error;
       }
-
-      localDrawingHistoryRef.current.set(context.key, {
-        ...stack,
-        position: direction === "undo" ? stack.position - 1 : stack.position + 1,
-      });
-      updateHistoryWorkspaceStamp("local-drawing");
-      syncHistoryAvailability();
-      return true;
     },
-    [applyLocalDrawingHistoryEntry, resolveLocalDrawingHistoryContext, syncHistoryAvailability, updateHistoryWorkspaceStamp],
+    [applyLocalDrawingHistoryEntry, renderWorkspaceCanvases, resolveLocalDrawingHistoryContext, syncHistoryAvailability, updateHistoryWorkspaceStamp],
   );
 
   const ensureTimelineLength = useCallback((frames: WorkspaceTimelineFrame[], targetIndex: number) => {
@@ -5515,133 +5558,6 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
     [],
   );
 
-  const rebaseHistoryAfterFrameRemoval = useCallback(
-    (
-      layerId: string,
-      targetIndex: number,
-      options?: {
-        nextActiveLayerId?: string;
-        nextCurrentFrameIndex?: number;
-        nextSelectedTimelineIndex?: number;
-        nextTimelineFrameId?: number;
-      },
-    ) => {
-      if (historyEntriesRef.current.length === 0 || currentHistoryIndexRef.current < 0) {
-        return;
-      }
-
-      trimGlobalHistoryEntriesToLimit();
-      clearLocalDrawingHistory();
-
-      historyEntriesRef.current = historyEntriesRef.current.map((entry, historyIndex) => {
-        const targetLayer = getLayerById(entry.layers, layerId) ?? null;
-        if (!targetLayer) {
-          return entry;
-        }
-
-        const removalResult = applyTimelineFrameRemoval(targetLayer.timelineFrames, targetIndex, {
-          nextTimelineFrameId: entry.nextTimelineFrameId,
-        });
-        if (!removalResult) {
-          return entry;
-        }
-
-        const rebasedLayers = entry.layers.map((layer) =>
-          layer.id === layerId
-            ? {
-                ...layer,
-                timelineFrames: removalResult.frames,
-              }
-            : layer,
-        );
-        const rebaseTimelineIndex = (index: number) => {
-          const nextIndex =
-            index >= removalResult.removeStartIndex && index <= removalResult.removeEndIndex
-              ? removalResult.removeStartIndex
-              : index > removalResult.removeEndIndex
-                ? index - removalResult.removedFrameCount
-                : index;
-          return Math.max(0, Math.min(nextIndex, removalResult.frames.length - 1));
-        };
-        const isCurrentEntry = historyIndex === currentHistoryIndexRef.current;
-
-        return {
-          ...entry,
-          layers: rebasedLayers,
-          activeLayerId: isCurrentEntry ? (options?.nextActiveLayerId ?? entry.activeLayerId) : entry.activeLayerId,
-          currentFrameIndex: isCurrentEntry
-            ? (options?.nextCurrentFrameIndex ?? rebaseTimelineIndex(entry.currentFrameIndex))
-            : rebaseTimelineIndex(entry.currentFrameIndex),
-          selectedTimelineIndex: isCurrentEntry
-            ? (options?.nextSelectedTimelineIndex ?? rebaseTimelineIndex(entry.selectedTimelineIndex))
-            : rebaseTimelineIndex(entry.selectedTimelineIndex),
-          nextTimelineFrameId: isCurrentEntry
-            ? (options?.nextTimelineFrameId ?? removalResult.nextTimelineFrameId)
-            : removalResult.nextTimelineFrameId,
-        };
-      });
-
-      syncHistoryAvailability();
-    },
-    [applyTimelineFrameRemoval, clearLocalDrawingHistory, syncHistoryAvailability, trimGlobalHistoryEntriesToLimit],
-  );
-
-  const rebaseHistoryAfterLayerDeletion = useCallback(
-    (
-      deletedLayerId: string,
-      deletedLayerIndex: number,
-      options?: {
-        nextActiveLayerId?: string;
-        nextCurrentFrameIndex?: number;
-        nextSelectedTimelineIndex?: number;
-      },
-    ) => {
-      if (historyEntriesRef.current.length === 0 || currentHistoryIndexRef.current < 0) {
-        return;
-      }
-
-      trimGlobalHistoryEntriesToLimit();
-      clearLocalDrawingHistory();
-
-      historyEntriesRef.current = historyEntriesRef.current.map((entry, historyIndex) => {
-        const targetLayer = getLayerById(entry.layers, deletedLayerId) ?? null;
-        if (!targetLayer) {
-          return entry;
-        }
-
-        const filteredLayers = normalizeLayerOrder(entry.layers.filter((layer) => layer.id !== deletedLayerId));
-        const fallbackActiveLayer = filteredLayers[Math.min(deletedLayerIndex, filteredLayers.length - 1)] ?? filteredLayers[0] ?? null;
-        if (!fallbackActiveLayer) {
-          return entry;
-        }
-
-        const isCurrentEntry = historyIndex === currentHistoryIndexRef.current;
-        const nextActiveLayerIdForEntry =
-          isCurrentEntry
-            ? (options?.nextActiveLayerId ?? fallbackActiveLayer.id)
-            : entry.activeLayerId === deletedLayerId
-              ? fallbackActiveLayer.id
-              : entry.activeLayerId;
-
-        return {
-          ...entry,
-          layers: filteredLayers,
-          activeLayerId: nextActiveLayerIdForEntry,
-          currentFrameIndex: isCurrentEntry
-            ? (options?.nextCurrentFrameIndex ?? entry.currentFrameIndex)
-            : entry.currentFrameIndex,
-          selectedTimelineIndex: isCurrentEntry
-            ? (options?.nextSelectedTimelineIndex ?? entry.selectedTimelineIndex)
-            : entry.selectedTimelineIndex,
-          nextLayerNumber: Math.max(entry.nextLayerNumber, getNextLayerNumber(filteredLayers)),
-        };
-      });
-
-      syncHistoryAvailability();
-    },
-    [clearLocalDrawingHistory, syncHistoryAvailability, trimGlobalHistoryEntriesToLimit],
-  );
-
   const rebaseHistoryAfterLayerAddition = useCallback(
     (
       addedLayer: WorkspaceLayer,
@@ -5839,6 +5755,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
           debugCaller: "attachSoundOptionToFrame",
           forceCapture: drawingCanvasRef.current?.hasPendingAuthoringChanges() ?? true,
         });
+        if (drawingCanvasRef.current?.hasPendingAuthoringChanges()) return false;
       }
 
       const latestLayer = getLayerById(layersRef.current, layerId) ?? null;
@@ -5885,6 +5802,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
           debugCaller: "removeSoundAttachmentFromFrame",
           forceCapture: drawingCanvasRef.current?.hasPendingAuthoringChanges() ?? true,
         });
+        if (drawingCanvasRef.current?.hasPendingAuthoringChanges()) return false;
       }
 
       const targetLayer = getLayerById(layersRef.current, layerId) ?? null;
@@ -5893,6 +5811,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
         return false;
       }
 
+      if (!authorizeDestructiveCommand({ commandId: "remove-attached-sound", targetIds: [targetFrame.soundAttachment.id],
+        availableTargetIds: [targetFrame.soundAttachment.id] }).allowed) return false;
       const nextFrames = targetLayer.timelineFrames.slice();
       nextFrames[frameIndex] = {
         ...targetFrame,
@@ -5911,6 +5831,13 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
   );
 
   const copyTimelineFrame = useCallback((layerId: string, frameIndex: number) => {
+    if (layerId === activeLayerIdRef.current && !isTimelinePlayingRef.current) {
+      saveCurrentFrameSnapshotRef.current?.(currentFrameIndexRef.current, layerId, {
+        debugCaller: "copyTimelineFrame:commit-active-layer",
+        forceCapture: drawingCanvasRef.current?.hasPendingAuthoringChanges() ?? true,
+      });
+      if (drawingCanvasRef.current?.hasPendingAuthoringChanges()) return false;
+    }
     const targetLayer = getLayerById(layersRef.current, layerId) ?? null;
     if (!targetLayer) {
       return false;
@@ -5950,13 +5877,17 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
         });
       }
 
+      if (drawingCanvasRef.current?.hasPendingAuthoringChanges()) return false;
+
       const latestLayer = getLayerById(layersRef.current, layerId) ?? null;
       if (!latestLayer) {
         return false;
       }
 
       const clampedTargetIndex = Math.max(0, targetIndex);
-      const nextFrames = ensureTimelineLength(latestLayer.timelineFrames, clampedTargetIndex);
+      const nextFrames = latestLayer.timelineFrames.slice();
+      let preparedNextFrameId = nextTimelineFrameIdRef.current;
+      while (nextFrames.length <= clampedTargetIndex) nextFrames.push(createEmptyTimelineFrame(preparedNextFrameId++));
       const targetFrame = nextFrames[clampedTargetIndex] ?? null;
       if (!targetFrame) {
         return false;
@@ -5976,21 +5907,18 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
         textObjects: cloneWorkspaceTextObjects(copiedFrame.textObjects),
       };
       const copiedStick = copiedFrame.stickContent;
-      if (copiedStick) {
-        const nextStick = { ...stickByCellRef.current, [`${layerId}:${nextFrame.stateId}`]: structuredClone(copiedStick) };
-        stickByCellRef.current = nextStick; setStickByCell(nextStick);
-      }
-      if (copiedFrame.symbolInstances) {
-        const nextInstances = {
+      const nextStick = copiedStick
+        ? { ...stickByCellRef.current, [`${layerId}:${nextFrame.stateId}`]: structuredClone(copiedStick) }
+        : stickByCellRef.current;
+      const nextInstances = copiedFrame.symbolInstances
+        ? {
           ...symbolInstancesByCellRef.current,
           [`${layerId}:${nextFrame.stateId}`]: copiedFrame.symbolInstances.map(instance => ({
             ...structuredClone(instance),
             itemId: crypto.randomUUID(),
           })),
-        };
-        symbolInstancesByCellRef.current = nextInstances;
-        setSymbolInstancesByCell(nextInstances);
-      }
+        }
+        : symbolInstancesByCellRef.current;
 
       nextFrames[clampedTargetIndex] = nextFrame;
       if (previousStateId !== null && previousStateId !== nextFrame.stateId) {
@@ -5998,10 +5926,19 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
         cleanupTweenEndpointForState(nextFrames, previousStateId);
       }
 
-      const pasteContextKeys = nextFrames
-        .filter((frame) => frame.stateId === nextFrame.stateId && frame.cellType !== "empty")
-        .map((frame) => `${layerId}:${frame.id}:bitmap`);
-
+      const preparedAfterEntry: DrawingWorkspaceHistoryEntry = {
+        ...createHistoryEntryFromWorkspace(),
+        layers: layersRef.current.map(layer => layer.id === layerId ? { ...layer, timelineFrames: nextFrames } : layer),
+        activeLayerId: layerId, currentFrameIndex: clampedTargetIndex, selectedTimelineIndex: clampedTargetIndex,
+        nextTimelineFrameId: preparedNextFrameId,
+        stickByCell: structuredClone(nextStick), symbolInstancesByCell: structuredClone(nextInstances),
+      };
+      recordUndoSnapshot();
+      nextTimelineFrameIdRef.current = preparedNextFrameId;
+      stickByCellRef.current = nextStick;
+      setStickByCell(nextStick);
+      symbolInstancesByCellRef.current = nextInstances;
+      setSymbolInstancesByCell(nextInstances);
       const nextLayers = replaceLayerFrames(layerId, nextFrames);
       activeLayerIdRef.current = layerId;
       timelineFramesRef.current = nextFrames;
@@ -6010,13 +5947,9 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
       setActiveLayerId(layerId);
       setCurrentFrameIndex(clampedTargetIndex);
       setSelectedTimelineIndex(clampedTargetIndex);
-      setLocalDrawingHistoryBaselines(
-        pasteContextKeys.length > 0 ? pasteContextKeys : [`${layerId}:${targetFrame.id}:bitmap`],
-      );
-      if (currentHistoryIndexRef.current >= 0 && historyEntriesRef.current.length > currentHistoryIndexRef.current + 1) {
-        historyEntriesRef.current = historyEntriesRef.current.slice(0, currentHistoryIndexRef.current + 1);
-      }
-      updateHistoryWorkspaceStamp("local-drawing");
+      commitHistoryEntry(preparedAfterEntry, { skipCurrentEqualityCheck: true, skipFutureEqualityCheck: true });
+      clearLocalDrawingHistory();
+      updateHistoryWorkspaceStamp();
       syncHistoryAvailability();
 
       window.requestAnimationFrame(() => {
@@ -6030,10 +5963,12 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
       return true;
     },
     [
-      ensureTimelineLength,
+      clearLocalDrawingHistory,
+      commitHistoryEntry,
+      createHistoryEntryFromWorkspace,
+      recordUndoSnapshot,
       renderWorkspaceCanvases,
       replaceLayerFrames,
-      setLocalDrawingHistoryBaselines,
       syncHistoryAvailability,
       updateHistoryWorkspaceStamp,
     ],
@@ -6049,6 +5984,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
         debugCaller: "updateFrameTextObjects:commit-active-layer",
         forceCapture: drawingCanvasRef.current?.hasPendingAuthoringChanges() ?? false,
       });
+      if (drawingCanvasRef.current?.hasPendingAuthoringChanges()) return false;
     }
 
     const frames = getLayerById(layersRef.current, layerId)?.timelineFrames ?? [];
@@ -6166,7 +6102,10 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
 
     const nextFrames = frames.slice();
     const currentStateFrame = nextFrames[stateStartIndex];
-    const didBitmapChange = options?.assumeBitmapChanged ? true : !snapshotBitmapMatches(currentStateFrame.bitmap, snapshot);
+    const didBitmapChange = !snapshotBitmapMatches(currentStateFrame.bitmap, snapshot);
+    if (!didBitmapChange && snapshot?.previewUrl === undefined) {
+      return { bitmap: currentStateFrame.bitmap, previewUrl: currentStateFrame.previewUrl };
+    }
     const localDrawingContext = didBitmapChange ? resolveLocalDrawingHistoryContext(layerId, frameIndex) : null;
     const useLocalDrawingHistory = Boolean(
       !options?.deferHistory &&
@@ -6352,7 +6291,10 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
 
     const nextFrames = frames.slice();
     const ownerFrame = nextFrames[tweenSpan.ownerIndex];
-    const didBitmapChange = options?.assumeBitmapChanged ? true : !snapshotBitmapMatches(ownerFrame?.tweenEndBitmap ?? null, snapshot);
+    const didBitmapChange = !snapshotBitmapMatches(ownerFrame?.tweenEndBitmap ?? null, snapshot);
+    if (!didBitmapChange && snapshot?.previewUrl === undefined) {
+      return { bitmap: ownerFrame?.tweenEndBitmap ?? null, previewUrl: ownerFrame?.tweenEndPreviewUrl ?? null };
+    }
     const localDrawingContext = didBitmapChange ? resolveLocalDrawingHistoryContext(layerId, frameIndex) : null;
     const useLocalDrawingHistory = Boolean(
       !options?.deferHistory &&
@@ -6522,12 +6464,59 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
     resolveLocalDrawingHistoryContext,
   ]);
 
+  const persistSnapshotAtomically = useCallback((
+    snapshot: TimelineFrameSnapshot & { captureVersion?: number },
+    currentBitmap: ImageData | null,
+    persist: () => TimelineFrameSnapshot,
+  ): TimelineFrameSnapshot | null => {
+    const previous = {
+      layers: layersRef.current, frames: timelineFramesRef.current,
+      history: historyEntriesRef.current, historyIndex: currentHistoryIndexRef.current,
+      localHistory: new Map(localDrawingHistoryRef.current), stamp: historyWorkspaceStampRef.current,
+      rowSource: timelineRowLayersSourceRef.current,
+      coverage: getBitmapPaintCoverage(currentBitmap),
+    };
+    // Incremental commits may update a detached bitmap in place. Preserve only
+    // those pixels before any history or document mutation can occur.
+    let rollbackPatch: ImageData | null = null;
+    try {
+      if (currentBitmap && hasSnapshotDirtyPatch(snapshot)) rollbackPatch = captureBitmapPatch(currentBitmap, snapshot.dirtyPatchRect);
+      const persisted = persist();
+      drawingCanvasRef.current?.markAuthoringChangesCommitted(persisted.bitmap, snapshot.captureVersion ?? null);
+      return persisted;
+    } catch {
+      if (currentBitmap && rollbackPatch && hasSnapshotDirtyPatch(snapshot)) {
+        const { left, top } = snapshot.dirtyPatchRect;
+        for (let y = 0; y < rollbackPatch.height; y++) {
+          currentBitmap.data.set(rollbackPatch.data.subarray(y * rollbackPatch.width * 4, (y + 1) * rollbackPatch.width * 4), ((top + y) * currentBitmap.width + left) * 4);
+        }
+        attachBitmapPaintCoverage(currentBitmap, previous.coverage);
+        invalidateBitmapRenderCaches(currentBitmap);
+        bitmapOpaqueBoundsCache.delete(currentBitmap);
+      }
+      layersRef.current = previous.layers;
+      timelineFramesRef.current = previous.frames;
+      historyEntriesRef.current = previous.history;
+      currentHistoryIndexRef.current = previous.historyIndex;
+      localDrawingHistoryRef.current = previous.localHistory;
+      historyWorkspaceStampRef.current = previous.stamp;
+      timelineRowLayersSourceRef.current = previous.rowSource;
+      startTransition(() => setLayers(previous.layers));
+      syncHistoryAvailability();
+      setSaveState("failed");
+      return null;
+    }
+  }, [syncHistoryAvailability]);
+
   const saveCurrentFrameSnapshot = useCallback(
     (
       frameIndex = currentFrameIndexRef.current,
       layerId = activeLayerIdRef.current,
       options?: { captureOptions?: DrawingCanvasSnapshotOptions; debugCaller?: string; forceCapture?: boolean; deferHistory?: boolean },
     ) => {
+      // A context change cancels a draft before any readback can publish it.
+      drawingCanvasRef.current?.cancelPendingAuthoringGesture(options?.debugCaller ?? "snapshot");
+      if (layerId !== activeLayerIdRef.current || frameIndex !== currentFrameIndexRef.current) return null;
       const frames = getLayerById(layersRef.current, layerId)?.timelineFrames ?? [];
       const forceCapture = options?.forceCapture === true;
       const hasPendingAuthoringChanges =
@@ -6545,12 +6534,22 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
         return null;
       }
 
+      const captureForExtent = (current: ImageData | null) => {
+        try {
+          const captured = captureCanvasSnapshot(captureOptions);
+          return captured ? normalizeCapturedSnapshotExtent(captured, current) : null;
+        } catch {
+          setSaveState("failed");
+          return null;
+        }
+      };
+
       const assumeBitmapChanged = layerId === activeLayerIdRef.current && hasPendingAuthoringChanges;
 
       const currentFrame = frames[frameIndex];
       if (currentFrame?.cellType === "tween") {
         const tweenEditContext = resolveTweenEditContext(frames, frameIndex, layerId);
-        const snapshot = captureCanvasSnapshot(captureOptions);
+        const snapshot = captureForExtent(resolveTimelineSnapshot(frames, frameIndex, { tweenEditContext }).bitmap);
         motionTweenDebug("saveCurrentFrameSnapshot:tween-attempt", {
           layerId,
           frameIndex,
@@ -6603,17 +6602,10 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
               editSide,
               stateStartIndex,
             });
-            const persistedSnapshot = updateFrameSnapshot(frameIndex, snapshot, layerId, {
+            return persistSnapshotAtomically(snapshot, resolvedSnapshot.bitmap, () => updateFrameSnapshot(frameIndex, snapshot, layerId, {
               assumeBitmapChanged,
               deferHistory: options?.deferHistory,
-            });
-            if (layerId === activeLayerIdRef.current) {
-              drawingCanvasRef.current?.markAuthoringChangesCommitted(
-                persistedSnapshot.bitmap,
-                snapshot.captureVersion ?? null,
-              );
-            }
-            return persistedSnapshot;
+            }));
           }
 
           motionTweenDebug("saveCurrentFrameSnapshot:tween-route", {
@@ -6623,17 +6615,10 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
             editSide,
             stateStartIndex,
           });
-          const persistedSnapshot = updateTweenEndSnapshot(frameIndex, snapshot, layerId, {
+          return persistSnapshotAtomically(snapshot, resolvedSnapshot.bitmap, () => updateTweenEndSnapshot(frameIndex, snapshot, layerId, {
             assumeBitmapChanged,
             deferHistory: options?.deferHistory,
-          });
-          if (layerId === activeLayerIdRef.current) {
-            drawingCanvasRef.current?.markAuthoringChangesCommitted(
-              persistedSnapshot.bitmap,
-              snapshot.captureVersion ?? null,
-            );
-          }
-          return persistedSnapshot;
+          }));
         }
 
         motionTweenDebug("saveCurrentFrameSnapshot:tween-no-change", {
@@ -6654,42 +6639,50 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
         return null;
       }
 
-      const snapshot = captureCanvasSnapshot(captureOptions);
-      const persistedSnapshot = updateFrameSnapshot(frameIndex, snapshot, layerId, {
+      const snapshot = captureForExtent(resolveTimelineSnapshot(frames, frameIndex).bitmap);
+      if (!snapshot) return null;
+      return persistSnapshotAtomically(snapshot, resolveTimelineSnapshot(frames, frameIndex).bitmap, () => updateFrameSnapshot(frameIndex, snapshot, layerId, {
         assumeBitmapChanged,
         deferHistory: options?.deferHistory,
-      });
-      if (layerId === activeLayerIdRef.current) {
-        drawingCanvasRef.current?.markAuthoringChangesCommitted(
-          persistedSnapshot.bitmap,
-          snapshot?.captureVersion ?? null,
-        );
-      }
-      return persistedSnapshot;
+      }));
     },
-    [captureCanvasSnapshot, updateFrameSnapshot, updateTweenEndSnapshot],
+    [captureCanvasSnapshot, persistSnapshotAtomically, updateFrameSnapshot, updateTweenEndSnapshot],
   );
   saveCurrentFrameSnapshotRef.current = saveCurrentFrameSnapshot;
 
-  const commitCanvasAuthoringAction = useCallback((reason: CanvasAuthoringActionReason) => {
+  const commitCanvasAuthoringAction = useCallback((reason: CanvasAuthoringActionReason, command?: RasterGestureCommandV2) => {
     if (isTimelinePlayingRef.current || isApplyingHistoryRef.current) {
-      return;
+      return false;
     }
 
     const currentFrame = timelineFramesRef.current[currentFrameIndexRef.current] ?? null;
     if (!currentFrame || currentFrame.cellType === "empty") {
-      return;
+      return false;
     }
 
     if (!drawingCanvasRef.current?.hasPendingAuthoringChanges()) {
-      return;
+      return false;
     }
 
-    saveCurrentFrameSnapshot(currentFrameIndexRef.current, activeLayerIdRef.current, {
-      captureOptions: { includePreviewUrl: false, preferIncrementalBitmapCapture: true },
-      debugCaller: `canvas-action:${reason}`,
-      forceCapture: true,
-    });
+    if (reason === "stroke") {
+      const identity = drawingCanvasRef.current.getAuthoringSnapshotIdentity();
+      const before = resolveTimelineSnapshot(timelineFramesRef.current, currentFrameIndexRef.current);
+      if (!command || !validateRasterGestureCommand(command, { ...identity, bitmap: before.bitmap })) {
+        setSaveState("failed");
+        return false;
+      }
+    }
+
+    try {
+      return Boolean(saveCurrentFrameSnapshot(currentFrameIndexRef.current, activeLayerIdRef.current, {
+        captureOptions: { includePreviewUrl: false, preferIncrementalBitmapCapture: true },
+        debugCaller: `canvas-action:${reason}`,
+        forceCapture: true,
+      }));
+    } catch {
+      setSaveState("failed");
+      return false;
+    }
   }, [saveCurrentFrameSnapshot]);
 
   const activateLayer = useCallback(
@@ -6704,6 +6697,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
           debugCaller: "activateLayer",
           forceCapture: drawingCanvasRef.current?.hasPendingAuthoringChanges() ?? true,
         });
+        if (drawingCanvasRef.current?.hasPendingAuthoringChanges()) return;
       }
 
       activeLayerIdRef.current = nextActiveLayer.id;
@@ -6756,6 +6750,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
           debugCaller: "switchToFrame",
           forceCapture: drawingCanvasRef.current?.hasPendingAuthoringChanges() ?? true,
         });
+        if (drawingCanvasRef.current?.hasPendingAuthoringChanges()) return;
       }
 
       currentFrameIndexRef.current = clampedIndex;
@@ -6834,6 +6829,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
       debugCaller: "handlePlayTimeline",
       forceCapture: drawingCanvasRef.current?.hasPendingAuthoringChanges() ?? true,
     });
+    if (drawingCanvasRef.current?.hasPendingAuthoringChanges()) return;
     drawingCanvasRef.current?.clearTransientEditingState();
     playbackReturnStateRef.current = {
       currentFrameIndex: currentIndex,
@@ -6924,21 +6920,30 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
   const commitCurrentFrameSnapshotWithoutHistory = useCallback(
     (debugCaller: string) => {
       if (isTimelinePlayingRef.current) {
-        return;
+        return false;
       }
 
       if (!drawingCanvasRef.current?.hasPendingAuthoringChanges()) {
-        return;
+        drawingCanvasRef.current?.cancelPendingAuthoringGesture(debugCaller);
+        return true;
       }
 
       const previousHistoryApplyState = isApplyingHistoryRef.current;
       isApplyingHistoryRef.current = true;
       try {
-        saveCurrentFrameSnapshot(currentFrameIndexRef.current, activeLayerIdRef.current, {
+        const saved = saveCurrentFrameSnapshot(currentFrameIndexRef.current, activeLayerIdRef.current, {
           captureOptions: { includePreviewUrl: false },
           debugCaller,
           forceCapture: true,
         });
+        if (!saved && drawingCanvasRef.current?.hasPendingAuthoringChanges()) {
+          setSaveState("failed");
+          return false;
+        }
+        return true;
+      } catch {
+        setSaveState("failed");
+        return false;
       } finally {
         isApplyingHistoryRef.current = previousHistoryApplyState;
       }
@@ -6948,7 +6953,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
 
   const syncCurrentWorkspaceForHistoryTraversal = useCallback(
     (direction: "undo" | "redo") => {
-      commitCurrentFrameSnapshotWithoutHistory(`history:${direction}-commit-current-frame`);
+      if (!commitCurrentFrameSnapshotWithoutHistory(`history:${direction}-commit-current-frame`)) return false;
       const localAvailability = getCurrentLocalDrawingHistoryAvailability();
       const hasLocalHistoryForDirection = direction === "undo" ? localAvailability.canUndo : localAvailability.canRedo;
       if (hasLocalHistoryForDirection) {
@@ -7063,14 +7068,16 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
           if (right < left || bottom < top) return null;
           const bounds = { left, top, width: right - left + 1, height: bottom - top + 1 };
           if (bounds.left === 0 && bounds.top === 0 && bounds.width === sourceBitmap.width && bounds.height === sourceBitmap.height) {
-            return { width: sourceBitmap.width, height: sourceBitmap.height, data: sourceData, x: 0, y: 0, stageWidth: sourceBitmap.width, stageHeight: sourceBitmap.height };
+            return { width: sourceBitmap.width, height: sourceBitmap.height, data: sourceData, x: 0, y: 0, stageWidth: sourceBitmap.width, stageHeight: sourceBitmap.height,
+              ...((sourceBitmap as PaintSerializedBitmap).paintCoverage ? { paintCoverage: (sourceBitmap as PaintSerializedBitmap).paintCoverage } : {}) };
           }
           const croppedData = new Uint8ClampedArray(bounds.width * bounds.height * 4);
           for (let row = 0; row < bounds.height; row += 1) {
             const sourceOffset = ((bounds.top + row) * sourceBitmap.width + bounds.left) * 4;
             croppedData.set(sourceData.subarray(sourceOffset, sourceOffset + bounds.width * 4), row * bounds.width * 4);
           }
-          return { width: bounds.width, height: bounds.height, data: croppedData, x: bounds.left, y: bounds.top, stageWidth: sourceBitmap.width, stageHeight: sourceBitmap.height };
+          return { width: bounds.width, height: bounds.height, data: croppedData, x: bounds.left, y: bounds.top, stageWidth: sourceBitmap.width, stageHeight: sourceBitmap.height,
+            ...((sourceBitmap as PaintSerializedBitmap).paintCoverage ? { paintCoverage: (sourceBitmap as PaintSerializedBitmap).paintCoverage } : {}) };
         };
         const bitmap = cropBitmap(frame.bitmap);
         const tweenEndBitmap = cropBitmap(frame.tweenEndBitmap);
@@ -7127,7 +7134,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
 
     isApplyingHistoryRef.current = true;
     try {
-      commitCurrentFrameSnapshotWithoutHistory("history:undo-commit-current-frame");
+      if (!commitCurrentFrameSnapshotWithoutHistory("history:undo-commit-current-frame")) return;
       const usedLocalHistory = applyLocalDrawingHistoryTraversal("undo");
       if (usedLocalHistory) {
         return;
@@ -7141,9 +7148,14 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
         return;
       }
 
-      currentHistoryIndexRef.current = previousHistoryIndex;
+      if (restoreWorkspaceHistoryEntry(previousEntry, "undo")) {
+        currentHistoryIndexRef.current = previousHistoryIndex;
+        updateHistoryWorkspaceStamp();
+        syncHistoryAvailability();
+      }
+    } catch {
+      setSaveState("failed");
       syncHistoryAvailability();
-      restoreWorkspaceHistoryEntry(previousEntry, "undo");
     } finally {
       window.requestAnimationFrame(() => {
         isApplyingHistoryRef.current = false;
@@ -7157,6 +7169,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
     restoreWorkspaceHistoryEntry,
     syncCurrentWorkspaceForHistoryTraversal,
     syncHistoryAvailability,
+    updateHistoryWorkspaceStamp,
   ]);
 
   const handleRedo = useCallback(() => {
@@ -7166,7 +7179,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
 
     isApplyingHistoryRef.current = true;
     try {
-      commitCurrentFrameSnapshotWithoutHistory("history:redo-commit-current-frame");
+      if (!commitCurrentFrameSnapshotWithoutHistory("history:redo-commit-current-frame")) return;
       const usedLocalHistory = applyLocalDrawingHistoryTraversal("redo");
       if (usedLocalHistory) {
         return;
@@ -7180,9 +7193,14 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
         return;
       }
 
-      currentHistoryIndexRef.current = nextHistoryIndex;
+      if (restoreWorkspaceHistoryEntry(nextEntry, "redo")) {
+        currentHistoryIndexRef.current = nextHistoryIndex;
+        updateHistoryWorkspaceStamp();
+        syncHistoryAvailability();
+      }
+    } catch {
+      setSaveState("failed");
       syncHistoryAvailability();
-      restoreWorkspaceHistoryEntry(nextEntry, "redo");
     } finally {
       window.requestAnimationFrame(() => {
         isApplyingHistoryRef.current = false;
@@ -7196,6 +7214,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
     restoreWorkspaceHistoryEntry,
     syncCurrentWorkspaceForHistoryTraversal,
     syncHistoryAvailability,
+    updateHistoryWorkspaceStamp,
   ]);
 
   const addLayer = useCallback(() => {
@@ -7204,6 +7223,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
         debugCaller: "addLayer",
         forceCapture: drawingCanvasRef.current?.hasPendingAuthoringChanges() ?? true,
       });
+      if (drawingCanvasRef.current?.hasPendingAuthoringChanges()) return;
     }
 
     const targetFrameIndex = Math.max(0, currentFrameIndexRef.current);
@@ -7298,6 +7318,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
         debugCaller: "deleteActiveLayer",
         forceCapture: drawingCanvasRef.current?.hasPendingAuthoringChanges() ?? true,
       });
+      if (drawingCanvasRef.current?.hasPendingAuthoringChanges()) return;
     }
 
     const latestLayers = layersRef.current;
@@ -7312,17 +7333,15 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
       return;
     }
 
+    if (!authorizeDestructiveCommand({ commandId: "delete-layer", targetIds: [deletedLayerId],
+      availableTargetIds: latestLayers.map(layer => layer.id), confirmed: true, remainingCount: nextLayers.length }).allowed) return;
+    recordUndoSnapshot();
     layersRef.current = nextLayers;
     activeLayerIdRef.current = nextActiveLayer.id;
     timelineFramesRef.current = nextActiveLayer.timelineFrames;
     setLayers(nextLayers);
     setActiveLayerId(nextActiveLayer.id);
-    rebaseHistoryAfterLayerDeletion(deletedLayerId, latestActiveIndex, {
-      nextActiveLayerId: nextActiveLayer.id,
-      nextCurrentFrameIndex: currentFrameIndexRef.current,
-      nextSelectedTimelineIndex: selectedTimelineIndexRef.current,
-    });
-    updateHistoryWorkspaceStamp();
+    commitCurrentHistoryState({ assumeChanged: true });
 
       window.requestAnimationFrame(() => {
         renderWorkspaceCanvases(nextLayers, currentFrameIndexRef.current, {
@@ -7332,10 +7351,10 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
         });
       });
   }, [
-    rebaseHistoryAfterLayerDeletion,
+    commitCurrentHistoryState,
+    recordUndoSnapshot,
     renderWorkspaceCanvases,
     saveCurrentFrameSnapshot,
-    updateHistoryWorkspaceStamp,
   ]);
 
   const addTimelineFrame = useCallback(
@@ -7353,6 +7372,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
           forceCapture: drawingCanvasRef.current?.hasPendingAuthoringChanges() ?? true,
         });
       }
+
+      if (drawingCanvasRef.current?.hasPendingAuthoringChanges()) return;
 
       const existingFrames = getLayerById(layersRef.current, layerId)?.timelineFrames ?? [];
       if (!existingFrames.length) return;
@@ -7432,6 +7453,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
         });
       }
 
+      if (drawingCanvasRef.current?.hasPendingAuthoringChanges()) return;
+
       const existingFrames = getLayerById(layersRef.current, layerId)?.timelineFrames ?? [];
       if (!existingFrames.length) return;
 
@@ -7450,8 +7473,6 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
         removeEndIndex,
         nextTimelineFrameId,
       } = removalResult;
-      nextTimelineFrameIdRef.current = nextTimelineFrameId;
-
       const currentIndex = currentFrameIndexRef.current;
       const nextIndex =
         currentIndex >= removeStartIndex && currentIndex <= removeEndIndex
@@ -7461,6 +7482,10 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
             : currentIndex;
       const clampedNextIndex = Math.max(0, Math.min(nextIndex, collapsedFrames.length - 1));
 
+      if (!authorizeDestructiveCommand({ commandId: "remove-frame", targetIds: [String(existingFrames[clampedTarget].id)],
+        availableTargetIds: existingFrames.map(frame => String(frame.id)), remainingCount: collapsedFrames.length }).allowed) return;
+      recordUndoSnapshot();
+      nextTimelineFrameIdRef.current = nextTimelineFrameId;
       const nextLayers = replaceLayerFrames(layerId, collapsedFrames);
       activeLayerIdRef.current = layerId;
       setActiveLayerId(layerId);
@@ -7469,13 +7494,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
       setCurrentFrameIndex(clampedNextIndex);
       selectedTimelineIndexRef.current = Math.min(removeStartIndex, collapsedFrames.length - 1);
       setSelectedTimelineIndex(Math.min(removeStartIndex, collapsedFrames.length - 1));
-      rebaseHistoryAfterFrameRemoval(layerId, clampedTarget, {
-        nextActiveLayerId: layerId,
-        nextCurrentFrameIndex: clampedNextIndex,
-        nextSelectedTimelineIndex: Math.min(removeStartIndex, collapsedFrames.length - 1),
-        nextTimelineFrameId,
-      });
-      updateHistoryWorkspaceStamp();
+      commitCurrentHistoryState({ assumeChanged: true });
 
       window.requestAnimationFrame(() => {
         renderWorkspaceCanvases(nextLayers, clampedNextIndex, {
@@ -7486,11 +7505,11 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
     },
     [
       applyTimelineFrameRemoval,
-      rebaseHistoryAfterFrameRemoval,
+      commitCurrentHistoryState,
+      recordUndoSnapshot,
       renderWorkspaceCanvases,
       replaceLayerFrames,
       saveCurrentFrameSnapshot,
-      updateHistoryWorkspaceStamp,
     ],
   );
 
@@ -7528,6 +7547,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
             forceCapture: drawingCanvasRef.current?.hasPendingAuthoringChanges() ?? true,
           });
         }
+        if (drawingCanvasRef.current?.hasPendingAuthoringChanges()) { resizeCommitSessionRef.current = null; return; }
       } else {
         motionTweenDebug("resizeTimelineSpan:resize-session-skip-save", {
           sessionKey: resizeSessionKey,
@@ -7868,7 +7888,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
     const capturedWorkspaceInstanceId = workspaceInstanceIdRef.current;
     saveInFlightRef.current = true; setSaveState("saving");
     try {
-      commitCurrentFrameSnapshotWithoutHistory("unified:save");
+      if (!commitCurrentFrameSnapshotWithoutHistory("unified:save")) throw new Error("snapshot_capture_failed");
       const candidate = buildUnifiedProjectSnapshot(createPersistedProjectSnapshot({ preserveBitmapReferences: true }));
       if (!candidate) throw new Error("invalid_record");
       const capturedGeneration = documentGenerationRef.current;
@@ -8211,7 +8231,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
     }
 
     const capturedWorkspaceInstanceId = workspaceInstanceIdRef.current;
-    commitCurrentFrameSnapshotWithoutHistory("unified:save-as");
+    if (!commitCurrentFrameSnapshotWithoutHistory("unified:save-as")) return;
     const candidate = buildUnifiedProjectSnapshot(createPersistedProjectSnapshot({ preserveBitmapReferences: true }));
     if (!candidate) return;
     saveInFlightRef.current = true;
@@ -8233,7 +8253,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
 
   const openStickFigureCreator = useCallback(() => {
     if (isTimelinePlayingRef.current) return;
-    commitCurrentFrameSnapshotWithoutHistory("creator:open");
+    if (!commitCurrentFrameSnapshotWithoutHistory("creator:open")) return;
     setIsStickFigureCreatorOpen(true);
     window.requestAnimationFrame(() => {
       document.querySelector<HTMLButtonElement>('[role="dialog"][aria-label="Stick Figure Creator"] button')?.focus();
@@ -8336,87 +8356,75 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
 
     let autosaveIdleHandle: number | null = null;
     let autosaveTimeoutHandle: ReturnType<typeof setTimeout> | null = null;
-    let pointerIsDown = false;
+    let pending: {
+      layerId: string; frameIndex: number; frameId: number; workspaceId: string;
+      identity: ReturnType<DrawingCanvasHandle["getAuthoringSnapshotIdentity"]>;
+    } | null = null;
 
     const clearQueuedAutosave = () => {
-      if (autosaveIdleHandle !== null && "cancelIdleCallback" in window) {
-        window.cancelIdleCallback(autosaveIdleHandle);
-        autosaveIdleHandle = null;
-      }
-
-      if (autosaveTimeoutHandle !== null) {
-        clearTimeout(autosaveTimeoutHandle);
-        autosaveTimeoutHandle = null;
-      }
+      if (autosaveIdleHandle !== null && "cancelIdleCallback" in window) window.cancelIdleCallback(autosaveIdleHandle);
+      if (autosaveTimeoutHandle !== null) clearTimeout(autosaveTimeoutHandle);
+      autosaveIdleHandle = null;
+      autosaveTimeoutHandle = null;
     };
-
     const runQueuedAutosave = () => {
       autosaveIdleHandle = null;
       autosaveTimeoutHandle = null;
-
-      if (pointerIsDown) {
-        queueAutosave();
+      const ticket = pending;
+      const handle = drawingCanvasRef.current;
+      const current = handle?.getAuthoringSnapshotIdentity();
+      if (!ticket || !handle || ticket.workspaceId !== workspaceInstanceIdRef.current ||
+          ticket.layerId !== activeLayerIdRef.current || ticket.frameIndex !== currentFrameIndexRef.current ||
+          timelineFramesRef.current[ticket.frameIndex]?.id !== ticket.frameId ||
+          !isAuthoringSnapshotCurrent(ticket.identity, current, current, `${ticket.layerId}:${ticket.frameIndex}`)) {
+        pending = null;
         return;
       }
-
-      if (isApplyingHistoryRef.current || suppressNextWorkspaceAutosaveRef.current) {
+      if (isApplyingHistoryRef.current || suppressNextWorkspaceAutosaveRef.current || isTimelinePlayingRef.current) {
         suppressNextWorkspaceAutosaveRef.current = false;
+        pending = null;
         return;
       }
-
-      const currentFrame = timelineFramesRef.current[currentFrameIndexRef.current];
-      if (!currentFrame || currentFrame.cellType === "empty") {
-        return;
-      }
-
-      if (!drawingCanvasRef.current?.hasPendingAuthoringChanges()) {
-        return;
-      }
-
-      if (drawingCanvasRef.current?.shouldDeferAuthoringSnapshotCapture()) {
-        queueAutosave();
-        return;
-      }
-
-      saveCurrentFrameSnapshot(currentFrameIndexRef.current, activeLayerIdRef.current, {
+      if (!handle.hasPendingAuthoringChanges()) { pending = null; return; }
+      if (handle.shouldDeferAuthoringSnapshotCapture()) { queueAutosave(); return; }
+      pending = null;
+      saveCurrentFrameSnapshot(ticket.frameIndex, ticket.layerId, {
         captureOptions: { includePreviewUrl: false, preferIncrementalBitmapCapture: true },
         debugCaller: "workspace:pointerup-autosave",
       });
     };
-
     const queueAutosave = () => {
       clearQueuedAutosave();
-
       if ("requestIdleCallback" in window) {
-        autosaveIdleHandle = window.requestIdleCallback(runQueuedAutosave, {
-          timeout: POINTERUP_AUTOSAVE_IDLE_TIMEOUT_MS,
-        });
-        return;
+        autosaveIdleHandle = window.requestIdleCallback(runQueuedAutosave, { timeout: POINTERUP_AUTOSAVE_IDLE_TIMEOUT_MS });
+      } else {
+        autosaveTimeoutHandle = setTimeout(runQueuedAutosave, POINTERUP_AUTOSAVE_IDLE_TIMEOUT_MS);
       }
-
-      autosaveTimeoutHandle = setTimeout(runQueuedAutosave, POINTERUP_AUTOSAVE_IDLE_TIMEOUT_MS);
     };
-
-    const handlePointerDown = () => {
-      pointerIsDown = true;
-      clearQueuedAutosave();
-    };
-
+    const handlePointerDown = () => { pending = null; clearQueuedAutosave(); };
     const handlePointerUp = () => {
-      pointerIsDown = false;
+      const frameIndex = currentFrameIndexRef.current;
+      const frame = timelineFramesRef.current[frameIndex];
+      const identity = drawingCanvasRef.current?.getAuthoringSnapshotIdentity();
+      if (!identity || !frame || frame.cellType === "empty") return;
+      pending = { layerId: activeLayerIdRef.current, frameIndex, frameId: frame.id,
+        workspaceId: workspaceInstanceIdRef.current, identity };
       queueAutosave();
     };
-
+    const handlePointerCancel = () => {
+      pending = null;
+      clearQueuedAutosave();
+      drawingCanvasRef.current?.cancelPendingAuthoringGesture("pointercancel");
+    };
     root.addEventListener("pointerdown", handlePointerDown);
     root.addEventListener("pointerup", handlePointerUp);
-    root.addEventListener("pointercancel", handlePointerUp);
-
+    root.addEventListener("pointercancel", handlePointerCancel);
     return () => {
-      pointerIsDown = false;
+      pending = null;
       clearQueuedAutosave();
       root.removeEventListener("pointerdown", handlePointerDown);
       root.removeEventListener("pointerup", handlePointerUp);
-      root.removeEventListener("pointercancel", handlePointerUp);
+      root.removeEventListener("pointercancel", handlePointerCancel);
     };
   }, [isTimelinePlaying, saveCurrentFrameSnapshot]);
 
@@ -8457,8 +8465,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
       nextTextObjects: nextFrameTextObjects,
       previousStickContent: onionFramePreviews.previous.stickContent ?? null,
       nextStickContent: onionFramePreviews.next.stickContent ?? null,
-      previousSymbolInstances: onionFramePreviews.previous.symbolInstances ?? [],
-      nextSymbolInstances: onionFramePreviews.next.symbolInstances ?? [],
+      previousSymbolInstances: onionFramePreviews.previous.symbolInstances ?? EMPTY_ONION_FRAME_PREVIEW.symbolInstances!,
+      nextSymbolInstances: onionFramePreviews.next.symbolInstances ?? EMPTY_ONION_FRAME_PREVIEW.symbolInstances!,
     });
   }, [nextFrameBitmap, nextFrameTextObjects, previousFrameBitmap, previousFrameTextObjects, onionFramePreviews]);
 
@@ -8471,6 +8479,33 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
     return frame ? `${activeLayer!.id}:${frame.stateId}` : "";
   }, [activeLayer, currentFrameIndex]);
   const activeUnifiedStickContent = useMemo<StickFigureFrameContent>(() => structuredClone(stickByCell[activeStickCellKey] ?? { figures: [], structureGraph: { joints: [], limbs: [], activeJointId: null } }), [activeStickCellKey, stickByCell]);
+  const runCompoundAuthoringAction = useCallback((mutate: () => boolean) => {
+    const previous = {
+      layers: layersRef.current, frames: timelineFramesRef.current,
+      stick: stickByCellRef.current, catalogs: unifiedCatalogsRef.current, instances: symbolInstancesByCellRef.current,
+      history: historyEntriesRef.current, index: currentHistoryIndexRef.current,
+      localHistory: new Map(localDrawingHistoryRef.current), stamp: historyWorkspaceStampRef.current,
+      rowSource: timelineRowLayersSourceRef.current,
+    };
+    try {
+      if (!mutate()) throw new Error("compound_authoring_action_rejected");
+      return true;
+    } catch {
+      layersRef.current = previous.layers; timelineFramesRef.current = previous.frames;
+      stickByCellRef.current = previous.stick; unifiedCatalogsRef.current = previous.catalogs;
+      symbolInstancesByCellRef.current = previous.instances; historyEntriesRef.current = previous.history;
+      currentHistoryIndexRef.current = previous.index; localDrawingHistoryRef.current = previous.localHistory;
+      historyWorkspaceStampRef.current = previous.stamp; timelineRowLayersSourceRef.current = previous.rowSource;
+      setLayers(previous.layers); setStickByCell(previous.stick); setUnifiedCatalogs(previous.catalogs);
+      setSymbolInstancesByCell(previous.instances);
+      try {
+        drawingCanvasRef.current?.clearTransientEditingState();
+        renderWorkspaceCanvases(previous.layers, currentFrameIndexRef.current, { activeLayerId: activeLayerIdRef.current, debugCaller: "compound-action:rollback" });
+      } catch { /* Retain the complete document and report the failed presentation. */ }
+      syncHistoryAvailability(); setSaveState("failed");
+      return false;
+    }
+  }, [renderWorkspaceCanvases, syncHistoryAvailability]);
   const commitUnifiedStickContent = useCallback((content: StickFigureFrameContent) => {
     if (!activeStickCellKey || isTimelinePlayingRef.current || isApplyingHistoryRef.current) return;
     recordUndoSnapshot();
@@ -8495,6 +8530,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
     );
     if (!action.drawingChanged && !stickChanged) return false;
 
+    return runCompoundAuthoringAction(() => {
     recordUndoSnapshot();
     if (action.drawingChanged) {
       const persisted = saveCurrentFrameSnapshot(
@@ -8520,7 +8556,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
     setSaveState("unsaved");
     commitCurrentHistoryState({ assumeChanged: true });
     return true;
-  }, [activeStickCellKey, commitCurrentHistoryState, recordUndoSnapshot, saveCurrentFrameSnapshot]);
+    });
+  }, [activeStickCellKey, commitCurrentHistoryState, recordUndoSnapshot, runCompoundAuthoringAction, saveCurrentFrameSnapshot]);
   const activeUnifiedSymbolInstances = useMemo(
     () => structuredClone(symbolInstancesByCell[activeStickCellKey] ?? []),
     [activeStickCellKey, symbolInstancesByCell],
@@ -8564,6 +8601,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
 
     // One parent-owned command: capture the pre-conversion workspace once,
     // then apply source removal and catalog insertion before committing once.
+    return runCompoundAuthoringAction(() => {
     recordUndoSnapshot();
     if (sourceRemoval?.drawingChanged) {
       const persisted = saveCurrentFrameSnapshot(
@@ -8606,7 +8644,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
     setSaveState("unsaved");
     commitCurrentHistoryState({ assumeChanged: true });
     return true;
-  }, [activeStickCellKey, commitCurrentHistoryState, recordUndoSnapshot, replaceLayerFrames, saveCurrentFrameSnapshot]);
+    });
+  }, [activeStickCellKey, commitCurrentHistoryState, recordUndoSnapshot, replaceLayerFrames, runCompoundAuthoringAction, saveCurrentFrameSnapshot]);
   const importUnifiedAssets = useCallback((assets: UnifiedProjectAssetV2[]) => {
     if (assets.length === 0 || isTimelinePlayingRef.current || isApplyingHistoryRef.current) return false;
     let nextCatalogs: UnifiedProjectCatalogsV2;
@@ -8627,6 +8666,9 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
     const referencedDefinitionIds = new Set(
       Object.values(symbolInstancesByCellRef.current).flat().map(instance => instance.definitionId),
     );
+    if (!authorizeDestructiveCommand({ commandId: "delete-definition", targetIds: [definitionId],
+      availableTargetIds: unifiedCatalogsRef.current.symbols.map(symbol => symbol.definitionId),
+      referenced: referencedDefinitionIds.has(definitionId) }).allowed) return false;
     let nextCatalogs: UnifiedProjectCatalogsV2;
     try {
       nextCatalogs = removeSymbolDefinitionV2(unifiedCatalogsRef.current, definitionId, referencedDefinitionIds);
@@ -8637,7 +8679,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
     unifiedCatalogsRef.current = nextCatalogs;
     setUnifiedCatalogs(nextCatalogs);
     setSaveState("unsaved");
-    window.requestAnimationFrame(() => commitCurrentHistoryState({ assumeChanged: true }));
+    commitCurrentHistoryState({ assumeChanged: true });
     return true;
   }, [commitCurrentHistoryState, recordUndoSnapshot]);
   const commitUnifiedSymbolInstances = useCallback((instances: UnifiedSymbolInstanceItemV2[]) => {
@@ -8647,7 +8689,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
     symbolInstancesByCellRef.current = next;
     setSymbolInstancesByCell(next);
     setSaveState("unsaved");
-    window.requestAnimationFrame(() => commitCurrentHistoryState({ assumeChanged: true }));
+    commitCurrentHistoryState({ assumeChanged: true });
     return true;
   }, [activeStickCellKey, commitCurrentHistoryState, recordUndoSnapshot]);
   const canEditTextInCurrentFrame = useMemo(() => {
@@ -8774,6 +8816,11 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
       }}
     >
       <style>{`
+          [data-unified-workspace-area="true"] + div button:focus-visible,
+          [data-unified-workspace-area="true"] [aria-label="Workspace panels"] button:focus-visible {
+            outline: 2px solid #b5d5ff !important;
+            outline-offset: 2px;
+          }
           @media (max-width: 640px) {
             [data-unified-workspace-area="true"] > div:has([data-workspace-stage-guide="camera"]) {
               flex-direction: column;
@@ -8892,6 +8939,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
           brushSize={brushSize}
           canEditTextInCurrentFrame={canEditTextInCurrentFrame}
           editingContextKey={drawingEditingContextKey}
+          authoringContextKey={`${activeLayerId}:${currentFrameIndex}`}
           eraserSize={eraserSize}
           fillColor={fillColor}
           isTimelinePlaying={isTimelinePlaying}

@@ -1,11 +1,21 @@
 # Session Handoff
 
 Status: current canonical stopping point
-Last updated: 2026-09-15
+Last updated: 2026-09-16
 
-All seven SPEC-0006 phases are Arthur-accepted, Verified, published, integrated, recorded, and cleaned up. GIT-061 is exact commit `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`. This records-only D-0074 rewrite started from clean detached canonical-main SHA `be41db9e06126ae4e15c162962c6b856cb97660e` with an empty index. No local/remote synchronization claim beyond the published anchors is made in this task.
+All seven SPEC-0006 phases are Arthur-accepted, Verified, published, integrated, recorded, and cleaned up. GIT-061 is exact commit `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`. D-0075 records SPEC-0007 Phase 1 as Arthur-accepted and technically Verified in its preserved unpublished review worktree. No new commit/push or local/remote synchronization claim is made by this propagation task.
 
-## Current stopping point — drawing-only SPEC-0007 corrected; rejected Phase 1 cleanup and publication still pending
+## Current stopping point — SPEC-0007 Phase 1 accepted/Verified; GIT-062 publication pending
+
+Arthur accepted the ordinary app at `http://127.0.0.1:56875/`. The executor is stopped and exclusive control-plane ownership transferred sequentially to the CPA in `/Users/arthurcarlin/.codex/worktrees/f5c0/stick-animation-app`. Base/HEAD remains exact canonical-main SHA `1c5aee42fa87967ad058c00cc3d62b51589b77fa`, detached; index is empty; the accepted cumulative dirty allowlist contains exactly 17 runtime/fixture/technical-test paths.
+
+Immutable technical manifest `output/spec-0007/phase-1/proof-manifest.json` is PASS/VALID at SHA-256 `511c778e83741b7dde420863769f68132146934f072c6203289bcbf0ea05d689`. Independent validation is PASS at SHA-256 `61514dcb59275292b8f2d9e3b345552b3c8de5128290dde6ff9627b30dba7186`, rejecting 99 deliberate mutations. Aggregate source digest is `95bb92d5ea63c84f35e8fedcbe58050c3349858b82ed1accd15e7c7305949a89`; runtime digest remains `232ad74e1d374e96fa0fc3830d45ba08550ee190ba1765c0bbfcf9ad235b3728`; build ID is `3Zc3DGwyx72yx09DfwUk_`.
+
+Accepted evidence passed 126,771 oracle assertions, 18 browser groups, 508 cases, 6,746 assertions and 26 fresh inspected screenshots. The final correction records Sketch contributor ownership so Knife moves disconnected texture dabs with both selected halves without source ghosts, preserves independent nearby paint and remaps copied IDs. Onion reduces preview sources to occupancy and applies canonical previous-purple/future-green display tint with future-on-top overlap while leaving authored pixels unchanged. TypeScript/build/focused and changed-line lint/scope/diff/index passed; full lint retains five errors/131 warnings with zero changed/new Phase 1 findings.
+
+Preserve review PID 45075, port 56875, exact `/f5c0/` worktree and all proof until GIT-062 publication/integration and clean synchronization succeed. The later explicit publication task may stage only the accepted 17 technical paths plus reviewed control-plane/tree paths, commit once on a `codex/` branch, fast-forward still-clean canonical `main`, push normally and verify local/live `0/0`. It must not pull, merge, rebase, amend, force-push, rewrite history or widen scope. After synchronization, preserve required proof, stop the exact server, prove the port closed and remove only the obsolete review worktree/now-unused local branch under D-0054. Phase 2 remains unauthorized until cleanup and Arthur's separate authorization.
+
+## Historical stopping point — drawing-only SPEC-0007 corrected; rejected Phase 1 cleanup and publication pending
 
 D-0069 records Arthur's Phase 7 PASS and the immutable accepted proof. D-0070 records GIT-061 publication and D-0054 cleanup. The 50,224-byte Phase 7 manifest remains PASS/VALID at SHA-256 `c6202f6deab4d3bcc75af3ad6699fc2dc70fc58723eccaa8337b1a2aef74bc51`, with 11 source and 16 evidence bindings. The proof limitation remains honest: preserved Phase 3/5/6 manifests revalidated, while absent Phase 1/2/4A/4 manifest bytes are reported only by identity and commit; compact is responsive Chromium rather than a physical-phone/native-GPU result.
 
@@ -361,7 +371,7 @@ Prior SPEC-0003 publication record:
 
 Current 2026-09-10 stopping point: Phase 3 is accepted/Verified in c6b0 and CPA propagation/closeout is complete. Exact 16 technical plus 14 records/tree paths are dirty, with an empty index at `916a4d913c6fdf8340b67bcc88dcea184d67cd32`; canonical main/local origin remain clean there, 0/0. GIT-054 publication/integration and subsequent authorized cleanup remain separate. Phases 4–7 remain Unauthorized/Not started; the accepted review server/worktree stays preserved.
 
-SPEC-0004 completed phases and SPEC-0005 completed phases remain published/integrated. Their rejected and superseded work remains historical and non-reusable. Drawing-only SPEC-0007 is now Approved/active under D-0074; corrected Phase 1 is Authorized/Not started, its `/3cd3/` result is rejected/unpublished/non-reusable, and Phases 2–5 remain unauthorized. SPEC-0008 remains absent/future and unauthorized.
+SPEC-0004 completed phases and SPEC-0005 completed phases remain published/integrated. Their rejected and superseded work remains historical and non-reusable. Drawing-only SPEC-0007 is Approved/active under D-0074; D-0075 accepts/technically verifies corrected Phase 1 pending GIT-062 publication, its `/3cd3/` predecessor remains rejected/unpublished/non-reusable, and Phases 2–5 remain unauthorized. SPEC-0008 remains absent/future and unauthorized.
 
 ## Historical proof and limits
 

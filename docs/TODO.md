@@ -1,7 +1,7 @@
 # TODO
 
 Status: canonical actionable queue
-Last updated: 2026-09-14
+Last updated: 2026-09-16
 
 ## Queue Rules
 
@@ -72,7 +72,8 @@ Last updated: 2026-09-14
 - [x] **GIT-061 — Publish and integrate accepted SPEC-0006 Phase 7.** Complete at exact 25-path commit `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`, parent GIT-060 `cbe16411a0f83d3b86136f41d0a66d1874d009aa`, message `Implement SPEC-0006 Phase 7 authority retirement`. Canonical `main`, `origin/main`, and live GitHub `main` matched cleanly at `0/0`; D-0054 proof preservation/server/worktree/branch cleanup completed under D-0070.
 - [x] **PLAN-007 — Scope corrected drawing-only SPEC-0007 with Arthur.** D-0074 and [`SPEC-0007`](specs/0007-manual-editor-completion-and-ai-ready-tools.md) replace the superseded seven-phase structured-rig direction with the decision-complete five-phase drawing-only outcome, no-loss/destructive-command law, same-paint coverage law, Draw Rig, safe legacy migration, Assets, and final shared-command registry.
 - [x] **SPEC-007 — Review and approve corrected SPEC-0007.** D-0074 makes the rewritten drawing-only spec Approved/active and authorizes only corrected Phase 1 after this control plane is separately published/synchronized and the rejected review copy is cleaned up under D-0054. D-0072's earlier 50,372-byte preimage remains historical, not current authority.
-- [ ] **MANUAL-001 — Phase 1: Drawing Engine and No-Loss Stabilization.** Authorized; Not started. The prior `/3cd3/` result is Rejected/unpublished/non-reusable despite its 39,787-byte self-reported PASS manifest SHA-256 `26acbf3e708b85e2269f546c2094e90c4d234d7a59b3568d07b0452623908ea3`: Arthur observed straight-turn smoothing, alpha accumulation/dark dots, unstable preview/Sketch vibration, weak Glow, and disappearing-content risk. Restart requires D-0074 publication/synchronization, verified recovery preservation and D-0054 cleanup of `/3cd3/`, then one fresh Plan-mode worktree from that exact canonical SHA.
+- [x] **MANUAL-001 — Phase 1: Drawing Engine and No-Loss Stabilization.** Arthur-accepted and technically Verified under D-0075; publication/integration and D-0054 cleanup remain pending. Exact accepted base/HEAD: `1c5aee42fa87967ad058c00cc3d62b51589b77fa`; exact 17 technical paths; immutable PASS/VALID manifest SHA-256 `511c778e83741b7dde420863769f68132146934f072c6203289bcbf0ea05d689`; independent validation SHA-256 `61514dcb59275292b8f2d9e3b345552b3c8de5128290dde6ff9627b30dba7186`. This checked item means implementation/acceptance is complete, not that publication/cleanup has already occurred.
+- [ ] **GIT-062 — Publish/integrate accepted SPEC-0007 Phase 1 and complete D-0054 cleanup.** Awaiting the later explicit publication instruction required after the CPA packet. Stage only the reviewed 17 technical paths plus reviewed control-plane/tree paths; commit once, fast-forward clean canonical `main`, push normally, verify local/live `0/0`, preserve proof, stop PID 45075/port 56875, then remove only the obsolete `/f5c0/` worktree and now-unused local branch.
 - [ ] **MANUAL-002 — Phase 2: Draw Rig.** Not started; unauthorized; requires accepted/published/synchronized/cleaned Phase 1 and separate authorization.
 - [ ] **MANUAL-003 — Phase 3: Safe Legacy Rig Retirement and Migration.** Not started; unauthorized; requires Phase 2 publication/cleanup and separate authorization.
 - [ ] **MANUAL-004 — Phase 4: Assets Stabilization.** Not started; unauthorized; requires Phase 3 publication/cleanup and separate authorization.

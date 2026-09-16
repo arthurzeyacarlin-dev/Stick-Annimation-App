@@ -6,6 +6,7 @@ import type {
 } from "./unifiedAnimationContentV2";
 import type { StickAiCreationLatchV1 } from "../stickfigure/stickProjectHistory";
 import { sanitizeDrawingAiProjectMemory } from "../ai/drawingAiContract.ts";
+import { assertRasterPaintCoverageV1, forEachPaintCoverage } from "./unifiedRasterPaintCoverageV1.ts";
 
 // Optional extension: absence means an existing raster-only definition. Never
 // infer a rig from a category label or thumbnail. New rig definitions carry v1.
@@ -125,6 +126,16 @@ const assertRasterBitmap = (bitmap: UnifiedRasterBitmapV2 | null | undefined) =>
   if (!Number.isInteger(bitmap.width) || bitmap.width < 1 || !Number.isInteger(bitmap.height) || bitmap.height < 1 ||
     !(bitmap.data instanceof Uint8ClampedArray) || bitmap.data.byteLength !== bitmap.width * bitmap.height * 4 || bitmap.data.byteLength > 268_435_456) throw new Error("invalid_record");
   for (const value of [bitmap.x ?? 0, bitmap.y ?? 0, bitmap.stageWidth ?? bitmap.width, bitmap.stageHeight ?? bitmap.height]) if (!finite(value)) throw new Error("invalid_record");
+  if (Object.prototype.hasOwnProperty.call(bitmap, "paintCoverage")) {
+    const coverage = assertRasterPaintCoverageV1(bitmap.paintCoverage!, bitmap.stageWidth ?? bitmap.width, bitmap.stageHeight ?? bitmap.height);
+    const originX = bitmap.x ?? 0, originY = bitmap.y ?? 0;
+    if (!Number.isSafeInteger(originX) || !Number.isSafeInteger(originY)) throw new Error("invalid_record");
+    forEachPaintCoverage(coverage, (pixel, x, y) => {
+      const localX = x - originX, localY = y - originY;
+      if (localX < 0 || localY < 0 || localX >= bitmap.width || localY >= bitmap.height ||
+        bitmap.data[(localY * bitmap.width + localX) * 4 + 3] < pixel.coverage) throw new Error("invalid_record");
+    });
+  }
 };
 
 export function assertStructuredSymbolPayloadV2(definition: Pick<UnifiedBitmapSymbolDefinitionV2, "sourceCategory" | "structuredPayload">) {

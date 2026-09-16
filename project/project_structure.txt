@@ -261,6 +261,9 @@
 ./scripts/fixtures/spec0006-unified/v2/phase5-tools-library-cases.json
 ./scripts/fixtures/spec0006-unified/v2/phase6-adoption-recovery-cases.json
 ./scripts/fixtures/spec0006-unified/v2/phase7-acceptance-cases.json
+./scripts/fixtures/spec0007-manual
+./scripts/fixtures/spec0007-manual/phase-1
+./scripts/fixtures/spec0007-manual/phase-1/contract.json
 ./scripts/fixtures/stick-ai
 ./scripts/fixtures/stick-ai/v1
 ./scripts/fixtures/stick-ai/v1/canonical-hash-vectors.json
@@ -429,6 +432,16 @@
 ./scripts/spec0006-unified/validatePhase6Proof.ts
 ./scripts/spec0006-unified/validatePhase7Authority.ts
 ./scripts/spec0006-unified/validatePhase7Proof.ts
+./scripts/spec0007-manual
+./scripts/spec0007-manual/phase-1
+./scripts/spec0007-manual/phase-1/browserProof.ts
+./scripts/spec0007-manual/phase-1/coveragePersistenceOracle.ts
+./scripts/spec0007-manual/phase-1/noLossOracle.ts
+./scripts/spec0007-manual/phase-1/proofContract.ts
+./scripts/spec0007-manual/phase-1/rasterOracle.ts
+./scripts/spec0007-manual/phase-1/recordProof.ts
+./scripts/spec0007-manual/phase-1/regressions.ts
+./scripts/spec0007-manual/phase-1/validateProof.ts
 ./scripts/sync_docs_to_github.sh
 ./scripts/traceExplosionLivePath.ts
 ./scripts/traceGenerateSoundsLivePath.mjs
@@ -545,6 +558,9 @@
 ./src/lib/ai/stickFigureMotionEngine.ts
 ./src/lib/ai/strictStickJson.ts
 ./src/lib/animation
+./src/lib/animation/editorCommands
+./src/lib/animation/editorCommands/destructiveRegistry.ts
+./src/lib/animation/editorCommands/rasterGesture.ts
 ./src/lib/animation/unifiedAnimationContentV2.ts
 ./src/lib/animation/unifiedAnimationContract.ts
 ./src/lib/animation/unifiedAnimationContractV2.ts
@@ -557,6 +573,7 @@
 ./src/lib/animation/unifiedProjectRepositoryV2.ts
 ./src/lib/animation/unifiedProjectSourceReader.ts
 ./src/lib/animation/unifiedProjectStorageV2.ts
+./src/lib/animation/unifiedRasterPaintCoverageV1.ts
 ./src/lib/animation/unifiedStageGeometry.ts
 ./src/lib/animation/unifiedStageRenderer.ts
 ./src/lib/animation/unifiedStickRenderAdapter.ts

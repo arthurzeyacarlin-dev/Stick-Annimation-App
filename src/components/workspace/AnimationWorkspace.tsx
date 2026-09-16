@@ -6,6 +6,7 @@ import type { DrawingProjectData, DrawingProjectOpenCandidate, StoredDrawingText
 import type { UnifiedAnimationProjectV2 } from "@/src/lib/animation/unifiedAnimationContractV2";
 import type { UnifiedRasterBitmapV2 } from "@/src/lib/animation/unifiedAnimationContentV2";
 import { sanitizeDrawingAiProjectMemory } from "@/src/lib/ai/drawingAiContract";
+import type { UnifiedRasterPaintCoverageV1 } from "@/src/lib/animation/unifiedRasterPaintCoverageV1";
 
 const drawingFontFamily = (value: string): StoredDrawingTextObject["fontFamily"] =>
   value === "Verdana" || value === "Georgia" || value === "Times New Roman" || value === "Courier New" ? value : "Arial";
@@ -25,12 +26,12 @@ const hydrateDrawingCompatibility = (project: UnifiedAnimationProjectV2, source:
       })),
     })),
   };
-  const placeBitmap = (bitmap: UnifiedRasterBitmapV2 | null | undefined) => {
+  const placeBitmap = (bitmap: UnifiedRasterBitmapV2 | null | undefined): ({ width: number; height: number; data: Uint8ClampedArray; paintCoverage?: UnifiedRasterPaintCoverageV1 }) | null => {
     if (!bitmap) return null;
     const width = bitmap.stageWidth ?? bitmap.width;
     const height = bitmap.stageHeight ?? bitmap.height;
     if ((bitmap.x ?? 0) === 0 && (bitmap.y ?? 0) === 0 && bitmap.width === width && bitmap.height === height) {
-      return { width, height, data: bitmap.data };
+      return { width, height, data: bitmap.data, ...(bitmap.paintCoverage ? { paintCoverage: bitmap.paintCoverage } : {}) };
     }
     const data = new Uint8ClampedArray(width * height * 4);
     const x = bitmap.x ?? 0;
@@ -40,7 +41,7 @@ const hydrateDrawingCompatibility = (project: UnifiedAnimationProjectV2, source:
       const targetOffset = ((y + row) * width + x) * 4;
       data.set(bitmap.data.subarray(sourceOffset, sourceOffset + bitmap.width * 4), targetOffset);
     }
-    return { width, height, data };
+    return { width, height, data, ...(bitmap.paintCoverage ? { paintCoverage: bitmap.paintCoverage } : {}) };
   };
   drawingData.layers.forEach((layer, layerIndex) => {
     const unifiedLayer = project.document.layers[layerIndex];

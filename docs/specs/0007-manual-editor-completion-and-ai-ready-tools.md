@@ -1,14 +1,14 @@
 # SPEC-0007 — Drawing-Only Manual Editor Completion and AI-Ready Tools
 
-Status: **Approved and active; corrected Phase 1 Authorized; Not started; prior Phase 1 result Rejected**
+Status: **Approved and active; corrected Phase 1 accepted and technically Verified; publication/integration pending; Phase 2 Unauthorized**
 Owner: Arthur
 Task role: Corrected phased implementation contract; this Spec Architect task changes no product runtime
 Created: 2026-09-14
-Last updated: 2026-09-15
-Decision links: [D-0071–D-0074](../DECISIONS.md), [D-0054](../DECISIONS.md), [D-0069–D-0070](../DECISIONS.md)
+Last updated: 2026-09-16
+Decision links: [D-0071–D-0075](../DECISIONS.md), [D-0054](../DECISIONS.md), [D-0069–D-0070](../DECISIONS.md)
 TODO IDs: `PLAN-007`, `SPEC-007`, `MANUAL-001`–`MANUAL-005`
 Corrected planning base: clean detached canonical-main SHA `be41db9e06126ae4e15c162962c6b856cb97660e`; index empty before edits
-Current runtime: exact published SPEC-0006 Phase 7; this corrected specification is not implemented
+Current runtime: exact published SPEC-0006 Phase 7 on canonical `main`; the accepted Phase 1 implementation is present only in the preserved unpublished review worktree until separate publication
 
 ## 1. Exact outcome and permanent laws
 
@@ -200,7 +200,7 @@ Each manifest binds base/HEAD, spec hash, dirty allowlist, source/fixture/test h
 
 ### 7.1 Authorized outcome
 
-Phase 1 permanently stabilizes Brush, Pencil, Sketch, Pixelate, and Glow plus their shared raster commit path. Corrected Phase 1 is the only implementation phase authorized next.
+Phase 1 permanently stabilizes Brush, Pencil, Sketch, Pixelate, and Glow plus their shared raster commit path. D-0075 records Arthur's acceptance and technical verification of the exact stopped 17-path implementation. Publication/integration and D-0054 cleanup remain pending; Phase 2 is not authorized.
 
 The visible outcome is:
 
@@ -436,7 +436,7 @@ Only after Phase 5 technical PASS/VALID, Arthur/PM ordinary-app acceptance, CPA 
 
 | Phase | TODO | Entry gate | Exit result | Status |
 | --- | --- | --- | --- | --- |
-| 1 — Drawing Engine and No-Loss Stabilization | `MANUAL-001` | D-0074/spec package published and synchronized; rejected `/3cd3/` proof backed up and D-0054 cleanup complete; fresh Plan-mode worktree | Stable ordinary drawing, max coverage, real smoothing/Glow, preview identity, no disappearance, history/persistence/performance proof | **Authorized; not started** |
+| 1 — Drawing Engine and No-Loss Stabilization | `MANUAL-001` | D-0074/spec package published and synchronized; rejected `/3cd3/` proof backed up and D-0054 cleanup complete; fresh Plan-mode worktree | Stable ordinary drawing, max coverage, real smoothing/Glow, preview identity, no disappearance, history/persistence/performance proof | **Accepted and technically Verified; publication/integration pending** |
 | 2 — Draw Rig | `MANUAL-002` | Phase 1 accepted/published/synchronized/cleaned; separate authorization | Toggleable raster-only segmented drawing with deterministic thresholds and shared command | Unauthorized; not started |
 | 3 — Safe Legacy Rig Retirement and Migration | `MANUAL-003` | Phase 2 accepted/published/synchronized/cleaned; separate authorization | No active rig/Creator system; old projects/symbols migrate visibly and recoverably | Unauthorized; not started |
 | 4 — Assets Stabilization | `MANUAL-004` | Phase 3 accepted/published/synchronized/cleaned; separate authorization | Bounded truthful still-media lifecycle | Unauthorized; not started |
@@ -455,6 +455,6 @@ Durable owner decisions are complete for the corrected Phase 1 outcome and five-
 | Runtime/fixture/test/Git changes in this task | ZERO | control-plane/tree only; no review app created or run |
 | Owner blockers | NONE for corrected Phase 1 | publication/synchronization and D-0054 cleanup are lifecycle entry gates, not unresolved product choices |
 
-After this corrected control-plane package is reviewed and separately published/synchronized, the PM must coordinate D-0054 recovery preservation and cleanup of the rejected `/3cd3/` copy. Only then may Arthur/PM dispatch one fresh Plan-mode corrected Phase 1 Spec Executor from the exact new canonical-main SHA. Do not resume `/3cd3/`, copy its source changes, or treat its proof as accepted.
+The fresh corrected executor started from exact D-0074 publication SHA `1c5aee42fa87967ad058c00cc3d62b51589b77fa`, completed the exact 17-path implementation, and stopped. Arthur accepted its ordinary app on 2026-09-16. Technical manifest `output/spec-0007/phase-1/proof-manifest.json` is PASS/VALID at SHA-256 `511c778e83741b7dde420863769f68132146934f072c6203289bcbf0ea05d689`; independent validation is PASS at SHA-256 `61514dcb59275292b8f2d9e3b345552b3c8de5128290dde6ff9627b30dba7186`, including 99 rejected negative mutations. The accepted review worktree/server must remain preserved through separate publication/integration and then be cleaned under D-0054. Phase 2 remains unauthorized until that lifecycle is complete and Arthur separately authorizes it.
 
 Recommended Phase 1 executor: **`gpt-6-astra` with `ultra` reasoning** because the phase crosses a very large Canvas interaction path, exact raster compositing/provenance, terminal races, history, storage, and data-loss prevention. Model choice does not expand authority.

@@ -11,13 +11,13 @@ Last updated: 2026-09-16
 - Paid AI calls, remote writes, deployment, and baseline commits require task-specific authorization.
 - The roadmap may change when Arthur resolves pending decisions or new evidence changes the risk order.
 
-## Current owner sequence — 2026-09-16 (D-0075; SPEC-0007 Phase 1 accepted before publication)
+## Current owner sequence — 2026-09-16 (D-0076; SPEC-0007 Phase 1 published and closed)
 
 All seven SPEC-0006 phases are Verified/published/integrated through GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`. The immutable 50,224-byte Phase 7 manifest is PASS/VALID at SHA-256 `c6202f6deab4d3bcc75af3ad6699fc2dc70fc58723eccaa8337b1a2aef74bc51`, with exactly 11 source and 16 evidence bindings.
 
 The corrected order kept seven numbered phases. Minimal neutral data/storage preceded Phase 4 visible ordinary New, common history and timeline; Phase 5 completed current tools/catalogs/panels; Phase 6 completed source adoption/recovery and persistence proof; Phase 7 retired ordinary duplicate ownership and passed the full ordinary acceptance gate. SPEC-0006 is complete.
 
-[`SPEC-0007`](specs/0007-manual-editor-completion-and-ai-ready-tools.md) is Approved and active under D-0074. D-0074 supersedes the earlier seven-phase structured-rig/Creator direction. D-0075 records corrected Phase 1 as Arthur-accepted and technically Verified; publication/integration and D-0054 cleanup remain pending. Phases 2–5 remain unauthorized. The corrected sequential order is:
+[`SPEC-0007`](specs/0007-manual-editor-completion-and-ai-ready-tools.md) is Approved and active under D-0074. D-0075 accepted corrected Phase 1; D-0076 records GIT-062 publication and D-0054 cleanup. Phase 1 is fully closed. Phase 2 is ready for separate authorization but remains unauthorized/not started; Phases 3–5 remain unauthorized. The corrected sequential order is:
 
 1. Drawing Engine and No-Loss Stabilization.
 2. Draw Rig, as ordinary segmented raster drawing only.

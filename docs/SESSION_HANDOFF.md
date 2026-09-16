@@ -3,9 +3,9 @@
 Status: current canonical stopping point
 Last updated: 2026-09-16
 
-All seven SPEC-0006 phases are Arthur-accepted, Verified, published, integrated, recorded, and cleaned up. GIT-061 is exact commit `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`. D-0075 records SPEC-0007 Phase 1 as Arthur-accepted and technically Verified in its preserved unpublished review worktree. No new commit/push or local/remote synchronization claim is made by this propagation task.
+All seven SPEC-0006 phases are closed through GIT-061. SPEC-0007 Phase 1 is accepted, Verified, published, integrated, recorded and cleaned up through D-0075/D-0076/GIT-062 exact product commit `f051aba7b927902e7aa5fc5f80c4b1d45fe6cca7`.
 
-## Current stopping point — SPEC-0007 Phase 1 accepted/Verified; GIT-062 publication pending
+## Current stopping point — SPEC-0007 Phase 1 closed; ready for separate Phase 2 authorization
 
 Arthur accepted the ordinary app at `http://127.0.0.1:56875/`. The executor is stopped and exclusive control-plane ownership transferred sequentially to the CPA in `/Users/arthurcarlin/.codex/worktrees/f5c0/stick-animation-app`. Base/HEAD remains exact canonical-main SHA `1c5aee42fa87967ad058c00cc3d62b51589b77fa`, detached; index is empty; the accepted cumulative dirty allowlist contains exactly 17 runtime/fixture/technical-test paths.
 
@@ -13,7 +13,7 @@ Immutable technical manifest `output/spec-0007/phase-1/proof-manifest.json` is P
 
 Accepted evidence passed 126,771 oracle assertions, 18 browser groups, 508 cases, 6,746 assertions and 26 fresh inspected screenshots. The final correction records Sketch contributor ownership so Knife moves disconnected texture dabs with both selected halves without source ghosts, preserves independent nearby paint and remaps copied IDs. Onion reduces preview sources to occupancy and applies canonical previous-purple/future-green display tint with future-on-top overlap while leaving authored pixels unchanged. TypeScript/build/focused and changed-line lint/scope/diff/index passed; full lint retains five errors/131 warnings with zero changed/new Phase 1 findings.
 
-Preserve review PID 45075, port 56875, exact `/f5c0/` worktree and all proof until GIT-062 publication/integration and clean synchronization succeed. The later explicit publication task may stage only the accepted 17 technical paths plus reviewed control-plane/tree paths, commit once on a `codex/` branch, fast-forward still-clean canonical `main`, push normally and verify local/live `0/0`. It must not pull, merge, rebase, amend, force-push, rewrite history or widen scope. After synchronization, preserve required proof, stop the exact server, prove the port closed and remove only the obsolete review worktree/now-unused local branch under D-0054. Phase 2 remains unauthorized until cleanup and Arthur's separate authorization.
+GIT-062 published the exact accepted 17 technical plus 13 record/tree paths as `f051aba7b927902e7aa5fc5f80c4b1d45fe6cca7`. Canonical local/live `main` matched at clean `0/0`. Complete proof is preserved under the active PM recovery store with 702 files, 711 MiB and aggregate SHA-256 `1e4be791a8b4c8ccfbd4db130e38f6e83d141af600398d8715a5b26b9152015f`. PID 45075 is stopped, port 56875 closed, `/f5c0/` removed/unregistered and the merged publication branch deleted. Phase 2 is ready for Arthur's separate authorization but remains unauthorized/not started. Do not create its executor/app copy until that instruction.
 
 ## Historical stopping point — drawing-only SPEC-0007 corrected; rejected Phase 1 cleanup and publication pending
 
@@ -371,7 +371,7 @@ Prior SPEC-0003 publication record:
 
 Current 2026-09-10 stopping point: Phase 3 is accepted/Verified in c6b0 and CPA propagation/closeout is complete. Exact 16 technical plus 14 records/tree paths are dirty, with an empty index at `916a4d913c6fdf8340b67bcc88dcea184d67cd32`; canonical main/local origin remain clean there, 0/0. GIT-054 publication/integration and subsequent authorized cleanup remain separate. Phases 4–7 remain Unauthorized/Not started; the accepted review server/worktree stays preserved.
 
-SPEC-0004 completed phases and SPEC-0005 completed phases remain published/integrated. Their rejected and superseded work remains historical and non-reusable. Drawing-only SPEC-0007 is Approved/active under D-0074; D-0075 accepts/technically verifies corrected Phase 1 pending GIT-062 publication, its `/3cd3/` predecessor remains rejected/unpublished/non-reusable, and Phases 2–5 remain unauthorized. SPEC-0008 remains absent/future and unauthorized.
+SPEC-0004 completed phases and SPEC-0005 completed phases remain published/integrated. Their rejected and superseded work remains historical and non-reusable. Drawing-only SPEC-0007 is Approved/active under D-0074; Phase 1 is closed through D-0075/D-0076/GIT-062, its `/3cd3/` predecessor remains rejected/unpublished/non-reusable, and Phases 2–5 remain unauthorized. SPEC-0008 remains absent/future and unauthorized.
 
 ## Historical proof and limits
 

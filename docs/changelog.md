@@ -5,6 +5,13 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-16 — Publish/close SPEC-0007 Phase 1 (D-0076/GIT-062)
+
+- Published exact 30-path commit `f051aba7b927902e7aa5fc5f80c4b1d45fe6cca7`, parent `1c5aee42fa87967ad058c00cc3d62b51589b77fa`, message `Implement SPEC-0007 Phase 1 drawing stabilization`: 17 accepted technical paths plus 13 reviewed records/tree paths.
+- Fast-forwarded clean canonical `main`, pushed normally, and verified local `main`, local `origin/main` and live GitHub `main` equal at clean `0/0`.
+- Preserved 702 files/711 MiB of proof at `/Users/arthurcarlin/.codex/worktrees/2d14/stick-animation-app/output/recovery/GIT-062-phase-1-f051aba/phase-1`; relative aggregate SHA-256 `1e4be791a8b4c8ccfbd4db130e38f6e83d141af600398d8715a5b26b9152015f`; empty checksum rsync dry run.
+- Stopped PID 45075, verified port 56875 closed, removed/unregistered `/f5c/`, and deleted the merged local publication branch. Phase 2 is ready for separate authorization but remains unauthorized/not started.
+
 ### 2026-09-16 — Accept and technically verify SPEC-0007 Phase 1 (D-0075)
 
 - Recorded Arthur's acceptance of the final ordinary app at `http://127.0.0.1:56875/` and the stopped exact 17-path implementation from base/HEAD `1c5aee42fa87967ad058c00cc3d62b51589b77fa`, empty index.

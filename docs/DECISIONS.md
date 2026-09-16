@@ -760,6 +760,15 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Boundaries: the accepted implementation does not add Draw Rig, retire/migrate legacy structured rigs, stabilize Assets, implement the final command registry, add AI/provider/model/prompt/API/video/tracking behavior, change dependencies/configuration/deployment, or authorize Phase 2. Compact remains desktop Chromium emulation; physical-device/native-GPU proof and extreme projects beyond the executed fixtures remain unproven. Legacy raster without contributor metadata cannot reconstruct detached historical gesture membership.
 - Publication/cleanup: preserve `/Users/arthurcarlin/.codex/worktrees/f5c0/stick-animation-app`, listener PID 45075 and port 56875, and all proof until publication/integration and clean synchronization succeed. A later explicit publication task may stage only the exact accepted 17 technical paths plus the reviewed control-plane/tree paths, commit once on a `codex/` branch, fast-forward a still-clean canonical `main`, push normally, and verify local/live `0/0`; no pull, merge, rebase, amend, force-push, history rewrite or scope expansion is allowed. After synchronization, preserve required proof, stop the exact server, prove the port closed, and remove only the obsolete review worktree and now-unused local branch under D-0054. This propagation does not stage, commit, push, publish or clean up.
 
+### D-0076 — Record GIT-062 publication and close SPEC-0007 Phase 1
+
+- Date: 2026-09-16
+- Authority: Arthur's explicit post-CPA instruction to publish, commit, push GitHub, propagate the control plane, and stop when ready for Phase 2.
+- Publication: GIT-062 is exact 30-path commit `f051aba7b927902e7aa5fc5f80c4b1d45fe6cca7`, parent `1c5aee42fa87967ad058c00cc3d62b51589b77fa`, message `Implement SPEC-0007 Phase 1 drawing stabilization`. It contains exactly the accepted 17 technical paths plus 13 reviewed control-plane/tree paths. A clean canonical `main` fast-forwarded to it, pushed normally, and local `main`, local `origin/main`, and live GitHub `main` were freshly verified equal at clean `0/0`.
+- Proof preservation: the complete accepted Phase 1 output is preserved under `/Users/arthurcarlin/.codex/worktrees/2d14/stick-animation-app/output/recovery/GIT-062-phase-1-f051aba/phase-1`: 702 files, 711 MiB, relative-path aggregate SHA-256 `1e4be791a8b4c8ccfbd4db130e38f6e83d141af600398d8715a5b26b9152015f`. Source/destination counts and digests match, and checksum rsync dry-run output was empty. Technical manifest remains `511c778e83741b7dde420863769f68132146934f072c6203289bcbf0ea05d689`; validation remains `61514dcb59275292b8f2d9e3b345552b3c8de5128290dde6ff9627b30dba7186`; pre-publication CPA packet remains `02c6dea541189cb89800e5e58634dd9ab29de5b6b10269e25a3a256e20fcb9df`.
+- Cleanup: exact review PID 45075 was stopped and TCP port 56875 verified closed. The accepted `/Users/arthurcarlin/.codex/worktrees/f5c0/stick-animation-app` review worktree was removed/unregistered only after proof verification and synchronization. The fully merged local branch `codex/spec0007-phase1-publication` was deleted. Canonical main, the active PM worktree, remote refs and recovery material remain.
+- Consequence: SPEC-0007 Phase 1 is accepted, Verified, published, integrated, recorded, and cleaned up. Phase 2 — Draw Rig is ready for Arthur's separate authorization but remains Unauthorized; not started. This closeout adds no Phase 2 implementation, AI/provider/model/prompt/API/video/tracking behavior, dependency/configuration, deployment, external/paid operation, or new app copy/server.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation
@@ -806,7 +815,7 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 
 ### P-0006 — First usable manual drawing-based feature set
 
-- Status: resolved by corrected drawing-only SPEC-0007 under D-0074; D-0075 accepts/technically verifies corrected Phase 1 pending publication, while later phases remain unauthorized.
+- Status: resolved by corrected drawing-only SPEC-0007 under D-0074; D-0075/D-0076/GIT-062 close Phase 1, while later phases remain unauthorized.
 - Resolution: SPEC-0006 Phase 5 integrated the current tools. D-0074 replaces the former seven-phase structured-rig outcome with five phases: Drawing Engine/No-Loss; Draw Rig as ordinary raster paint; Safe Legacy Rig Retirement/Migration; bounded still Assets; and final command-registry/bug-burn proof. Active rig/Creator authoring ends after safe migration rather than expanding. Export, animated symbol timelines, motion/video/tracking, and AI expansion remain outside SPEC-0007.
 
 ### P-0007 — Data/search/privacy policy

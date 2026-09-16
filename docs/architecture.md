@@ -1,11 +1,11 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-16 from accepted detached base/HEAD `1c5aee42fa87967ad058c00cc3d62b51589b77fa`; D-0075 accepts/technically verifies SPEC-0007 Phase 1 in the preserved review worktree, while canonical `main` remains published SPEC-0006 Phase 7 until separate publication.
+Last traced: 2026-09-16 after GIT-062 publication at canonical `main` SHA `f051aba7b927902e7aa5fc5f80c4b1d45fe6cca7`; SPEC-0007 Phase 1 is published/integrated and D-0054 cleanup is complete.
 
-## Accepted SPEC-0007 Phase 1 extension — publication pending
+## Published SPEC-0007 Phase 1 extension
 
-SPEC-0007 preserves the current one-workspace/V2 ownership path and requires one UI-independent `EditorCommandEnvelope` capability registry between manual interaction adapters and the `DrawingWorkspace` commit/history owner. Pointer/file/UI preparation remains transient; a validated command is the sole authored mutation door. Corrected Phase 1 is Arthur-accepted and technically Verified in the unpublished review worktree; future AI may use the same capabilities later, but SPEC-0007 adds no AI caller, provider, prompt, model, API, video or tracking path.
+SPEC-0007 preserves the current one-workspace/V2 ownership path and requires one UI-independent `EditorCommandEnvelope` capability registry between manual interaction adapters and the `DrawingWorkspace` commit/history owner. Corrected Phase 1 is Arthur-accepted, Verified, published and integrated in GIT-062; future AI may use the same capabilities later, but SPEC-0007 adds no AI caller, provider, prompt, model, API, video or tracking path.
 
 D-0075's accepted Phase 1 routes Brush/Pencil/Sketch/Pixelate/Glow through one deterministic transient-draft → prepared raster/coverage delta → validated command → global-history transaction path. Preview and final use the same prepared geometry/mask; cancel/context change preserves the immutable committed base. Same-paint overlaps persist a bounded versioned coverage companion and use per-pixel maximum coverage instead of additive alpha. Sketch contributor ownership lets Knife move detached texture dabs without leaving ghosts; onion display derives canonical purple/green tints from occupancy without rewriting authored pixels. A non-destructive command retains everything outside its validated target; intentional removals are limited to the closed destructive registry. Existing V2 version/readback/CAS/recovery/source-safety limits and performance ceilings remain protected.
 

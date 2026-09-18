@@ -5,6 +5,13 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-18 — Accept and technically verify SPEC-0007 Phase 4 Assets Stabilization (D-0081)
+
+- Recorded Arthur's acceptance of the Phase 4 review app at `http://127.0.0.1:56950/`: exact 11-path result from unchanged GIT-064 base `f16d36b454728b3e216ec738013366f0230ddbdb`, empty index.
+- Accepted bounded static PNG/JPEG/WebP chooser/drop import, atomic validation/duplicate rejection, truthful previews, move/eight-handle resize/aspect lock/unlock/rotation, reference-safe catalog Delete, Undo/Redo, Save/Open, stale-project isolation and temporary URL revocation.
+- Bound the 5,851-byte PASS manifest SHA-256 `36ad00d6bdbe9ebc2ab3640f2ab5a9987ab46780f910b5d470a9142f32f19c4c` and source digest `509dbde25762fdb358d0625d9bf151c95b00e5d260bc984ae3a4b9d432439421`: 28 static, 30 browser, 19,844 inherited raster and Phase 1–3 regression assertions/checks passed with zero external requests.
+- Updated canonical records only after sequential ownership transfer. GIT-065 publication/integration, proof preservation and D-0054 cleanup remain pending; Phase 5 remains unauthorized. No accepted technical/proof byte changed during propagation.
+
 ### 2026-09-18 — Publish and close SPEC-0007 Phase 3 rig retirement (D-0080/GIT-064)
 
 - Published exact 28-path commit `b8d3b37faeaaa1a3d8bfb27359e04acd08f7acab`, parent `be89f1421b0588c0a2289b8e174e06f201e8ac5d`, message `Implement SPEC-0007 Phase 3 rig retirement`: 15 accepted technical paths plus 13 reviewed control-plane/tree paths.

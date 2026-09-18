@@ -131,12 +131,25 @@ export const appendProjectAssetsV2 = (
   assets: UnifiedProjectAssetV2[],
 ) => {
   const names = new Set(catalogs.assets.map(asset => asset.name.trim().toLocaleLowerCase()));
+  const digests = new Set(catalogs.assets.map(asset => asset.assetSha256));
   for (const asset of assets) {
     const normalizedName = asset.name.trim().toLocaleLowerCase();
     if (names.has(normalizedName)) throw new Error("duplicate_asset_name");
+    if (digests.has(asset.assetSha256)) throw new Error("duplicate_asset_content");
     names.add(normalizedName);
+    digests.add(asset.assetSha256);
   }
   return { ...catalogs, assets: [...catalogs.assets, ...assets] };
+};
+
+export const removeProjectAssetV2 = (
+  catalogs: UnifiedProjectCatalogsV2,
+  assetId: string,
+  referencedAssetIds: ReadonlySet<string>,
+) => {
+  if (referencedAssetIds.has(assetId)) throw new Error("asset_referenced");
+  if (!catalogs.assets.some(asset => asset.assetId === assetId)) throw new Error("asset_missing");
+  return { ...catalogs, assets: catalogs.assets.filter(asset => asset.assetId !== assetId) };
 };
 
 export const removeSymbolDefinitionV2 = (

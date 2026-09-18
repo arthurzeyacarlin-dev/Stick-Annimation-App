@@ -73,6 +73,7 @@ import {
   appendProjectAssetsV2,
   appendSymbolDefinitionV2,
   createBitmapSymbolDefinitionV2,
+  removeProjectAssetV2,
   removeSymbolDefinitionV2,
 } from "@/src/lib/animation/unifiedProjectCatalogV2";
 import { authorizeDestructiveCommand, isAuthoringSnapshotCurrent, type AuthoringSnapshotIdentity } from "@/src/lib/animation/editorCommands/destructiveRegistry";
@@ -8641,6 +8642,23 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
     window.requestAnimationFrame(() => commitCurrentHistoryState({ assumeChanged: true }));
     return true;
   }, [commitCurrentHistoryState, recordUndoSnapshot]);
+  const removeUnifiedAsset = useCallback((assetId: string, referenced: boolean) => {
+    if (isTimelinePlayingRef.current || isApplyingHistoryRef.current) return false;
+    const availableTargetIds = unifiedCatalogsRef.current.assets.map(asset => asset.assetId);
+    if (!authorizeDestructiveCommand({ commandId: "delete-asset", targetIds: [assetId], availableTargetIds, referenced }).allowed) return false;
+    let nextCatalogs: UnifiedProjectCatalogsV2;
+    try {
+      nextCatalogs = removeProjectAssetV2(unifiedCatalogsRef.current, assetId, referenced ? new Set([assetId]) : new Set());
+    } catch {
+      return false;
+    }
+    recordUndoSnapshot();
+    unifiedCatalogsRef.current = nextCatalogs;
+    setUnifiedCatalogs(nextCatalogs);
+    setSaveState("unsaved");
+    commitCurrentHistoryState({ assumeChanged: true });
+    return true;
+  }, [commitCurrentHistoryState, recordUndoSnapshot]);
   const removeUnifiedSymbolDefinition = useCallback((definitionId: string) => {
     if (isTimelinePlayingRef.current || isApplyingHistoryRef.current) return false;
     const referencedDefinitionIds = new Set(
@@ -8917,6 +8935,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
           brushSize={brushSize}
           canEditTextInCurrentFrame={canEditTextInCurrentFrame}
           editingContextKey={drawingEditingContextKey}
+          assetCatalogContextKey={projectId ?? openedInitialProject.id}
           authoringContextKey={`${activeLayerId}:${currentFrameIndex}`}
           eraserSize={eraserSize}
           fillColor={fillColor}
@@ -8941,6 +8960,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
           unifiedSymbolInstances={activeUnifiedSymbolInstances}
           onCreateUnifiedSymbolDefinition={createUnifiedSymbolDefinition}
           onUnifiedAssetsImported={importUnifiedAssets}
+          onRemoveUnifiedAsset={removeUnifiedAsset}
           onRemoveUnifiedSymbolDefinition={removeUnifiedSymbolDefinition}
           onUnifiedSymbolInstancesChange={commitUnifiedSymbolInstances}
         />

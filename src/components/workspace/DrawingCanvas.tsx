@@ -1,6 +1,7 @@
 import { canonicalPaint, compositeRasterPaint, mergePaintPixel, rasterCommandDigest, RASTER_ALGORITHM_VERSION, RASTER_GESTURE_COMMAND, RasterGestureDraft, unionRect, type RasterGestureCommandV2, type RasterPreview, type RasterRect } from "@/src/lib/animation/editorCommands/rasterGesture";
 import { attachBitmapPaintCoverage, compositeRasterSelectionV1, cropPaintCoverage, copyBitmapPaintCoverage, forEachPaintCoverage, getBitmapPaintCoverage, createPaintCoverageWriter, getPaintCoverage, patchPaintCoverage, remapSketchOwners, resolveSketchKnifeOwner, transformPaintCoverage, type UnifiedRasterPaintCoverageV1 } from "@/src/lib/animation/unifiedRasterPaintCoverageV1";
 import { authorizeDestructiveCommand } from "@/src/lib/animation/editorCommands/destructiveRegistry";
+import { assetImportErrorMessage, prepareStaticAssetBatchV2 } from "@/src/lib/animation/editorCommands/staticAssetImport";
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { DrawingRightPanel } from "./DrawingRightPanel";
@@ -34,7 +35,6 @@ import type {
 } from "@/src/lib/animation/unifiedAnimationContentV2";
 import {
   classifyUnifiedSymbolSourceV2,
-  createProjectAssetV2,
   resolveStructuredSymbolGeometryV2,
 } from "@/src/lib/animation/unifiedProjectCatalogV2";
 import {
@@ -298,12 +298,16 @@ type ImportedAsset = {
   id: string;
   name: string;
   kind: "image" | "file";
+  mimeType: string;
   sizeLabel: string;
   meta: string;
   previewUrl: string | null;
   width: number | null;
   height: number | null;
 };
+
+const assetFormatLabel = (mimeType: string) =>
+  mimeType === "image/png" ? "PNG" : mimeType === "image/jpeg" ? "JPEG" : mimeType === "image/webp" ? "WebP" : "Unsupported";
 
 type ActivePlacedImageAsset = {
   id: string;
@@ -525,6 +529,7 @@ type DrawingCanvasProps = {
   drawingToolActivationId?: number;
   onToolSelect?: (tool: DrawingToolName) => void;
   editingContextKey: string;
+  assetCatalogContextKey: string;
   isTimelinePlaying: boolean;
   playbackRenderScale?: number;
   brushSize: number;
@@ -565,6 +570,7 @@ type DrawingCanvasProps = {
     structuredPayload?: UnifiedStructuredSymbolPayloadV2;
   }, sourceRemoval: UnifiedSymbolSourceRemoval | null) => Promise<boolean>;
   onUnifiedAssetsImported?: (assets: UnifiedProjectAssetV2[]) => boolean;
+  onRemoveUnifiedAsset?: (assetId: string, referenced: boolean) => boolean;
   onRemoveUnifiedSymbolDefinition?: (definitionId: string) => boolean;
   onUnifiedSymbolInstancesChange?: (instances: UnifiedSymbolInstanceItemV2[]) => boolean;
 };
@@ -1447,6 +1453,44 @@ const resolveBitmapResizeRectFromInteraction = (
   });
 };
 
+const resolveAspectLockedPlacedResizeRect = (
+  interaction: Extract<PlacedImageInteractionState, { mode: "resizing" }>,
+  deltaX: number,
+  deltaY: number,
+  minimumSize: number,
+): ResolvedResizeRect => {
+  const start = getBitmapResizeInteractionStartRect(interaction);
+  const minimumScale = Math.max(minimumSize / start.width, minimumSize / start.height);
+  let width = start.width;
+  let height = start.height;
+  let x = start.x;
+  let y = start.y;
+  if (isCornerResizeHandle(interaction.handle)) {
+    const horizontalScale = interaction.handle.includes("e")
+      ? (start.width + deltaX) / start.width
+      : (start.width - deltaX) / start.width;
+    const verticalScale = interaction.handle.includes("s")
+      ? (start.height + deltaY) / start.height
+      : (start.height - deltaY) / start.height;
+    const scale = Math.max(minimumScale, (horizontalScale + verticalScale) / 2);
+    width = start.width * scale;
+    height = start.height * scale;
+    if (interaction.handle.includes("w")) x = start.x + start.width - width;
+    if (interaction.handle.includes("n")) y = start.y + start.height - height;
+  } else if (interaction.handle === "e" || interaction.handle === "w") {
+    width = Math.max(minimumSize, interaction.handle === "e" ? start.width + deltaX : start.width - deltaX);
+    height = Math.max(minimumSize, width * (start.height / start.width));
+    if (interaction.handle === "w") x = start.x + start.width - width;
+    y = start.y + (start.height - height) / 2;
+  } else {
+    height = Math.max(minimumSize, interaction.handle === "s" ? start.height + deltaY : start.height - deltaY);
+    width = Math.max(minimumSize, height * (start.width / start.height));
+    x = start.x + (start.width - width) / 2;
+    if (interaction.handle === "n") y = start.y + start.height - height;
+  }
+  return { x, y, width, height, flipX: interaction.startFlipX, flipY: interaction.startFlipY };
+};
+
 const isBitmapResizePinnedToMinimumSize = (
   interaction: BitmapResizeInteractionState,
   handle: ResizeHandle,
@@ -1648,6 +1692,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   drawingToolActivationId = 0,
   onToolSelect,
   editingContextKey,
+  assetCatalogContextKey,
   isTimelinePlaying,
   playbackRenderScale = 1,
   brushSize,
@@ -1675,6 +1720,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   unifiedSymbolInstances = [],
   onCreateUnifiedSymbolDefinition,
   onUnifiedAssetsImported,
+  onRemoveUnifiedAsset,
   onRemoveUnifiedSymbolDefinition,
   onUnifiedSymbolInstancesChange,
 }: DrawingCanvasProps, ref) {
@@ -1723,11 +1769,19 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     canvasHeight: number;
   } | null>(null);
   const assetInputRef = useRef<HTMLInputElement | null>(null);
-  const assetPreviewUrlsRef = useRef<string[]>([]);
+  const assetImportBusyRef = useRef(false);
+  const currentAssetCatalogContextRef = useRef(assetCatalogContextKey);
+  const assetImporterMountedRef = useRef(false);
+  currentAssetCatalogContextRef.current = assetCatalogContextKey;
+  useEffect(() => {
+    assetImporterMountedRef.current = true;
+    return () => {
+      assetImporterMountedRef.current = false;
+    };
+  }, []);
   const symbolPreviewUrlsRef = useRef<string[]>([]);
   const importedAssetsRef = useRef<ImportedAsset[]>([]);
   const librarySymbolsRef = useRef<LibrarySymbol[]>([]);
-  const pendingAssetImportNamesRef = useRef<Set<string>>(new Set());
   const activePlacedImageAssetRef = useRef<ActivePlacedImageAsset | null>(null);
   const activePlacedImageSourceRef = useRef<DrawableImageSource | null>(null);
   const placedImageInteractionRef = useRef<PlacedImageInteractionState>(null);
@@ -1842,6 +1896,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   const [symbolDialog, setSymbolDialog] = useState<SymbolDialogState | null>(null);
   const [workspaceNotice, setWorkspaceNotice] = useState<string | null>(null);
   const [activePlacedImageAsset, setActivePlacedImageAsset] = useState<ActivePlacedImageAsset | null>(null);
+  const [placedAssetAspectLocked, setPlacedAssetAspectLocked] = useState(true);
+  const [assetImportBusy, setAssetImportBusy] = useState(false);
+  const [assetDropActive, setAssetDropActive] = useState(false);
   const [activeBitmapSelectionSession, setActiveBitmapSelectionSession] = useState<BitmapSelectionSession | null>(null);
   const [selectionBoxDraft, setSelectionBoxDraft] = useState<SelectionBoxDraft | null>(null);
   const [activeBoxSelection, setActiveBoxSelection] = useState<ActiveBoxSelection | null>(null);
@@ -2211,8 +2268,6 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
 
   useEffect(() => {
     return () => {
-      assetPreviewUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
-      assetPreviewUrlsRef.current = [];
       symbolPreviewUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
       symbolPreviewUrlsRef.current = [];
     };
@@ -2228,10 +2283,11 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       id: asset.assetId,
       name: asset.name,
       kind: asset.kind,
+      mimeType: asset.mimeType,
       sizeLabel: formatAssetSize(asset.byteLength),
       meta: asset.kind === "image" && asset.width && asset.height
-        ? `image • ${asset.width}x${asset.height}`
-        : `file • ${formatAssetSize(asset.byteLength)}`,
+        ? `${assetFormatLabel(asset.mimeType)} • ${asset.width}×${asset.height}`
+        : `Unsupported legacy file • ${formatAssetSize(asset.byteLength)}`,
       previewUrl: asset.dataUrl,
       width: asset.width,
       height: asset.height,
@@ -4229,6 +4285,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
         activePlacedImageAssetRef.current = nextPlacedAsset;
         flushSync(() => {
           setActivePlacedImageAsset(nextPlacedAsset);
+          setPlacedAssetAspectLocked(true);
           setRightPanelTab("Properties");
           onToolSelect?.("Select");
         });
@@ -8160,37 +8217,42 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
 
       const rawDeltaX = point.x - interaction.startPointerX;
       const rawDeltaY = point.y - interaction.startPointerY;
-      const nextResizeResponse = resolveResizeIntentLock(
-        interaction.handle,
-        rawDeltaX,
-        rawDeltaY,
-        LASSO_RESIZE_HANDLE_SIZE,
-        interaction.intentLock,
-      );
-      const nextDisplayRect = resolveBitmapResizeRectFromInteraction(
-        interaction,
-        interaction.handle,
-        nextResizeResponse.deltaX,
-        nextResizeResponse.deltaY,
-        24,
-        24,
-      );
-      const nextHandle = remapResizeHandleForFlipParity(
-        interaction.handle,
-        interaction.startFlipX,
-        interaction.startFlipY,
-        nextDisplayRect.flipX,
-        nextDisplayRect.flipY,
-      );
-      if (shouldRebaseBitmapResizeInteraction(
-        interaction,
-        nextDisplayRect,
-        nextHandle,
-        nextResizeResponse.intentLock,
-      )) {
-        rebaseBitmapResizeInteraction(interaction, point, nextDisplayRect, nextResizeResponse.intentLock, nextHandle);
+      let nextDisplayRect: ResolvedResizeRect;
+      if (placedAssetAspectLocked) {
+        nextDisplayRect = resolveAspectLockedPlacedResizeRect(interaction, rawDeltaX, rawDeltaY, 24);
       } else {
-        interaction.intentLock = nextResizeResponse.intentLock;
+        const nextResizeResponse = resolveResizeIntentLock(
+          interaction.handle,
+          rawDeltaX,
+          rawDeltaY,
+          LASSO_RESIZE_HANDLE_SIZE,
+          interaction.intentLock,
+        );
+        nextDisplayRect = resolveBitmapResizeRectFromInteraction(
+          interaction,
+          interaction.handle,
+          nextResizeResponse.deltaX,
+          nextResizeResponse.deltaY,
+          24,
+          24,
+        );
+        const nextHandle = remapResizeHandleForFlipParity(
+          interaction.handle,
+          interaction.startFlipX,
+          interaction.startFlipY,
+          nextDisplayRect.flipX,
+          nextDisplayRect.flipY,
+        );
+        if (shouldRebaseBitmapResizeInteraction(
+          interaction,
+          nextDisplayRect,
+          nextHandle,
+          nextResizeResponse.intentLock,
+        )) {
+          rebaseBitmapResizeInteraction(interaction, point, nextDisplayRect, nextResizeResponse.intentLock, nextHandle);
+        } else {
+          interaction.intentLock = nextResizeResponse.intentLock;
+        }
       }
       interaction.lastPointerX = point.x;
       interaction.lastPointerY = point.y;
@@ -9188,101 +9250,68 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     return `${(size / (1024 * 1024)).toFixed(1)} MB`;
   };
 
-  const loadImageDimensions = (url: string) =>
-    new Promise<{ width: number | null; height: number | null }>((resolve) => {
-      const image = new Image();
-      image.onload = () => resolve({ width: image.naturalWidth || null, height: image.naturalHeight || null });
-      image.onerror = () => resolve({ width: null, height: null });
-      image.src = url;
-    });
-
-  const readFileAsDataUrl = (file: File) => new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => typeof reader.result === "string" ? resolve(reader.result) : reject(new Error("asset_read_failed"));
-    reader.onerror = () => reject(reader.error ?? new Error("asset_read_failed"));
-    reader.readAsDataURL(file);
-  });
-
-  const handleAssetImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files ?? []);
+  const importAssetFiles = async (files: File[]) => {
     if (files.length === 0) return;
-
-    const filesToImport: File[] = [];
-    let hasDuplicate = false;
-
-    for (const file of files) {
-      const isDuplicate =
-        importedAssetsRef.current.some((asset) => asset.name === file.name) || pendingAssetImportNamesRef.current.has(file.name);
-
-      if (isDuplicate) {
-        hasDuplicate = true;
-        continue;
-      }
-
-      pendingAssetImportNamesRef.current.add(file.name);
-      filesToImport.push(file);
-    }
-
-    if (hasDuplicate) {
-      setWorkspaceNotice("This asset has already been imported.");
-    }
-
-    if (filesToImport.length === 0) {
-      e.target.value = "";
+    if (assetImportBusyRef.current) {
+      setWorkspaceNotice("An asset import is already in progress.");
       return;
     }
-
-    const nextAssets = await Promise.all(
-      filesToImport.map(async (file, index) => {
-        const isImage = file.type.startsWith("image/");
-        const previewUrl = isImage ? await readFileAsDataUrl(file) : null;
-        if (previewUrl && !onUnifiedAssetsImported) {
-          assetPreviewUrlsRef.current.push(previewUrl);
-        }
-        const dimensions = previewUrl ? await loadImageDimensions(previewUrl) : { width: null, height: null };
-        const sizeLabel = formatAssetSize(file.size);
-        const meta = isImage
-          ? dimensions.width && dimensions.height
-            ? `image • ${dimensions.width}x${dimensions.height}`
-            : "image • unknown size"
-          : `file • ${sizeLabel}`;
-
-        return {
-          id: globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}-${index}`,
-          name: file.name,
-          kind: isImage ? "image" : "file",
-          sizeLabel,
-          meta,
-          previewUrl,
-          width: dimensions.width,
-          height: dimensions.height,
-        } satisfies ImportedAsset;
-      })
-    );
-
-    if (onUnifiedAssetsImported) {
-      const catalogAssets = await Promise.all(filesToImport.map(async (file, index) => {
-        const asset = nextAssets[index];
-        return createProjectAssetV2({
-          assetId: asset.id,
+    assetImportBusyRef.current = true;
+    const importContextKey = currentAssetCatalogContextRef.current;
+    setAssetImportBusy(true);
+    setWorkspaceNotice(null);
+    try {
+      const catalogAssets = await prepareStaticAssetBatchV2(files, unifiedProjectAssets ?? []);
+      if (!assetImporterMountedRef.current || currentAssetCatalogContextRef.current !== importContextKey) {
+        throw new Error("asset_context_changed");
+      }
+      if (onUnifiedAssetsImported) {
+        if (!onUnifiedAssetsImported(catalogAssets)) throw new Error("asset_catalog_changed");
+      } else {
+        const nextAssets = catalogAssets.map(asset => ({
+          id: asset.assetId,
           name: asset.name,
           kind: asset.kind,
-          mimeType: file.type || "application/octet-stream",
-          byteLength: file.size,
+          mimeType: asset.mimeType,
+          sizeLabel: formatAssetSize(asset.byteLength),
+          meta: `${assetFormatLabel(asset.mimeType)} • ${asset.width}×${asset.height}`,
+          previewUrl: asset.dataUrl,
           width: asset.width,
           height: asset.height,
-          dataUrl: asset.previewUrl,
-          sourceBytes: new Uint8Array(await file.arrayBuffer()),
-        });
-      }));
-      if (!onUnifiedAssetsImported(catalogAssets)) {
-        setWorkspaceNotice("An asset with this name has already been imported.");
+        } satisfies ImportedAsset));
+        setImportedAssets(previous => [...previous, ...nextAssets]);
       }
-    } else {
-      setImportedAssets((prev) => [...prev, ...nextAssets]);
+      setWorkspaceNotice(`Imported ${catalogAssets.length} ${catalogAssets.length === 1 ? "asset" : "assets"}.`);
+    } catch (error) {
+      setWorkspaceNotice(error instanceof Error && error.message === "asset_context_changed"
+        ? "The project changed during import. Nothing was imported; try again."
+        : error instanceof Error && error.message === "asset_catalog_changed"
+        ? "Assets changed during import. Nothing was imported; try again."
+        : assetImportErrorMessage(error));
+    } finally {
+      assetImportBusyRef.current = false;
+      setAssetImportBusy(false);
+      setAssetDropActive(false);
     }
-    filesToImport.forEach((file) => pendingAssetImportNamesRef.current.delete(file.name));
-    e.target.value = "";
+  };
+
+  const handleAssetImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const input = e.currentTarget;
+    await importAssetFiles(Array.from(input.files ?? []));
+    input.value = "";
+  };
+
+  const handleAssetFilesDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    if (!Array.from(event.dataTransfer.types).includes("Files")) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "copy";
+    setAssetDropActive(true);
+  };
+
+  const handleAssetFilesDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    if (!Array.from(event.dataTransfer.types).includes("Files")) return;
+    event.preventDefault();
+    void importAssetFiles(Array.from(event.dataTransfer.files));
   };
 
   const renderedUnifiedSymbolInstances = unifiedSymbolInstances.map(instance =>
@@ -9769,6 +9798,14 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               Drag inside the asset to move it, use the edge and corner handles to resize it, and drag the round
               handle at the lower-right to rotate it.
             </div>
+            <label style={{ display: "flex", alignItems: "center", gap: 8, color: "rgba(255,255,255,0.78)", fontSize: 12 }}>
+              <input
+                type="checkbox"
+                checked={placedAssetAspectLocked}
+                onChange={event => setPlacedAssetAspectLocked(event.currentTarget.checked)}
+              />
+              Lock image proportions
+            </label>
             <RotationValueField
               value={activePlacedImageAsset.rotation}
               onCommit={(rotation) => {
@@ -9792,6 +9829,29 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               }}
             >
               Commit Placement
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                placedImageInteractionRef.current = null;
+                activePlacedImageSourceRef.current = null;
+                activePlacedImageAssetRef.current = null;
+                setActivePlacedImageAsset(null);
+              }}
+              style={{
+                width: "100%",
+                minHeight: 34,
+                padding: "6px 10px",
+                borderRadius: 8,
+                border: "1px solid rgba(255,120,120,0.20)",
+                background: "rgba(255,80,80,0.05)",
+                color: "rgba(255,235,235,0.86)",
+                fontSize: 12,
+                cursor: "pointer",
+                textAlign: "left",
+              }}
+            >
+              Cancel Placement
             </button>
           </div>
         )}
@@ -10613,15 +10673,41 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     );
 
   const assetsTabContent = (
-    <div style={{ display: "flex", flexDirection: "column", gap: 10, minHeight: 0, height: "100%" }}>
+    <div
+      data-assets-drop-zone
+      onDragOver={handleAssetFilesDragOver}
+      onDragLeave={event => {
+        if (!(event.relatedTarget instanceof Node) || !event.currentTarget.contains(event.relatedTarget)) setAssetDropActive(false);
+      }}
+      onDrop={handleAssetFilesDrop}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 10,
+        minHeight: 0,
+        height: "100%",
+        borderRadius: 10,
+        outline: assetDropActive ? "2px solid rgba(110,170,255,0.65)" : "2px solid transparent",
+        outlineOffset: 4,
+      }}
+    >
       <div style={{ color: "rgba(255,255,255,0.88)", fontSize: 13, fontWeight: 700 }}>Assets</div>
       <div style={{ color: "rgba(255,255,255,0.72)", fontSize: 12 }}>
-        Import external files and keep visual references available for this project.
+        Drop or import static PNG, JPEG, and WebP images. Up to 32 images per batch and 16 MB per image.
       </div>
-      <input ref={assetInputRef} type="file" multiple onChange={handleAssetImport} style={{ display: "none" }} />
+      <input
+        ref={assetInputRef}
+        aria-label="Choose asset images"
+        type="file"
+        accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp"
+        multiple
+        onChange={handleAssetImport}
+        style={{ display: "none" }}
+      />
       <button
         type="button"
         onClick={() => assetInputRef.current?.click()}
+        disabled={assetImportBusy}
         style={{
           width: "fit-content",
           padding: "7px 10px",
@@ -10631,10 +10717,11 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
           color: "rgba(225,238,255,0.92)",
           fontSize: 12,
           fontWeight: 600,
-          cursor: "pointer",
+          cursor: assetImportBusy ? "wait" : "pointer",
+          opacity: assetImportBusy ? 0.72 : 1,
         }}
       >
-        Import Asset
+        {assetImportBusy ? "Checking Images…" : "Import Images"}
       </button>
       {importedAssets.length === 0 ? (
         <div
@@ -10653,6 +10740,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
           {importedAssets.map((asset) => (
             <div
               key={asset.id}
+              data-asset-card={asset.id}
               draggable={asset.kind === "image" && !!asset.previewUrl}
               onDragStart={(e) => handleAssetDragStart(e, asset)}
               style={{
@@ -10706,7 +10794,31 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                   FILE
                 </div>
               )}
-              <div style={{ color: "rgba(255,255,255,0.84)", fontSize: 11, fontWeight: 600, lineHeight: 1.25 }}>{asset.name}</div>
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
+                <div style={{ color: "rgba(255,255,255,0.84)", fontSize: 11, fontWeight: 600, lineHeight: 1.25, minWidth: 0, overflowWrap: "anywhere" }}>{asset.name}</div>
+                {onRemoveUnifiedAsset && (
+                  <button
+                    type="button"
+                    aria-label={`Delete ${asset.name} asset`}
+                    onPointerDown={event => event.stopPropagation()}
+                    onDragStart={event => event.preventDefault()}
+                    onClick={event => {
+                      event.stopPropagation();
+                      const referenced = activePlacedImageAsset?.id === asset.id;
+                      if (!onRemoveUnifiedAsset(asset.id, referenced)) {
+                        setWorkspaceNotice(referenced
+                          ? "Finish or cancel the placed image before deleting its asset."
+                          : "This asset could not be deleted. Nothing was changed.");
+                        return;
+                      }
+                      setWorkspaceNotice(`Deleted ${asset.name} from Assets.`);
+                    }}
+                    style={{ marginLeft: "auto", flexShrink: 0, border: "1px solid rgba(255,120,120,.22)", borderRadius: 7, background: "rgba(255,80,80,.05)", color: "rgba(255,255,255,.72)", cursor: "pointer", padding: "3px 6px", fontSize: 10 }}
+                  >
+                    Delete
+                  </button>
+                )}
+              </div>
               <div style={{ color: "rgba(255,255,255,0.56)", fontSize: 10 }}>{asset.meta}</div>
               {asset.kind === "image" && (
                 <div style={{ color: "rgba(255,255,255,0.44)", fontSize: 10 }}>{asset.sizeLabel}</div>

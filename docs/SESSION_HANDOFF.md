@@ -3,7 +3,17 @@
 Status: current canonical stopping point
 Last updated: 2026-09-18
 
-All seven SPEC-0006 phases are closed through GIT-061. SPEC-0007 Phases 1–3 are closed through GIT-062/GIT-063/GIT-064 `b8d3b37faeaaa1a3d8bfb27359e04acd08f7acab`. Phase 4 is ready for Arthur's separate authorization but remains unauthorized/not started; Phase 5 remains unauthorized.
+All seven SPEC-0006 phases are closed through GIT-061. SPEC-0007 Phases 1–3 are closed through GIT-062/GIT-063/GIT-064 `b8d3b37faeaaa1a3d8bfb27359e04acd08f7acab`. D-0081 accepts and technically verifies Phase 4 with control-plane propagation complete; GIT-065 publication/integration, proof preservation and D-0054 cleanup remain pending. Phase 5 remains unauthorized.
+
+## Current stopping point — SPEC-0007 Phase 4 accepted/Verified; publication pending
+
+Arthur accepted the Phase 4 app at `http://127.0.0.1:56950/` after testing image import and onion skin. D-0081 binds its exact 11-path result from unchanged GIT-064 base/HEAD `f16d36b454728b3e216ec738013366f0230ddbdb`, empty index. The immutable 5,851-byte PASS manifest SHA-256 is `36ad00d6bdbe9ebc2ab3640f2ab5a9987ab46780f910b5d470a9142f32f19c4c`; source digest is `509dbde25762fdb358d0625d9bf151c95b00e5d260bc984ae3a4b9d432439421`.
+
+The accepted app validates static PNG/JPEG/WebP by extension, MIME, bytes, structure, non-animation, dimensions and digest before one atomic batch commit. It rejects unsupported/spoofed/corrupt/animated/duplicate/oversized inputs, performs no external fetch, shows truthful previews, supports move/eight-handle resize/aspect lock/unlock/rotate/commit/cancel, deletes only unreferenced catalog entries through registered destructive history, preserves Undo/Redo and Save/Open, prevents stale import across project changes and revokes temporary decode URLs.
+
+Proof passed 28 static and 30 real-browser assertions, 20 lifecycle cycles, desktop/compact performance ceilings, heap/resource checks, TypeScript/focused lint, Phase 1 drawing/no-loss/coverage, Phase 2 Draw Rig and Phase 3 migration regressions. Production compilation reaches only the untouched inherited AI-cost route type baseline. External requests and browser errors were zero.
+
+Exact next step: a later explicit GIT-065 publication task may stage only the accepted 11 technical paths plus the reviewed control-plane/tree paths, commit once on a `codex/` publication branch, fast-forward an unchanged clean canonical `main`, push normally, verify local/live `0/0`, preserve the complete Phase 4 proof, then perform exact D-0054 server/worktree/branch cleanup. Do not begin Phase 5 until that closeout succeeds and Arthur separately authorizes it.
 
 ## Current stopping point — SPEC-0007 Phase 3 published, synchronized, preserved and cleaned up
 

@@ -9,6 +9,7 @@ export const DESTRUCTIVE_COMMAND_REGISTRY = {
   "clear-canvas": { control: "Clear Canvas", target: "current raster owner", confirmation: true, referenceRule: "current owner only" },
   "delete-instance": { control: "Delete Instance", target: "selected symbol instance", confirmation: false, referenceRule: "retain definition and other instances" },
   "delete-definition": { control: "Delete definition", target: "unreferenced symbol definition", confirmation: false, referenceRule: "reject any live reference" },
+  "delete-asset": { control: "Delete asset", target: "unreferenced asset catalog entry", confirmation: false, referenceRule: "reject any live placement reference" },
   "remove-attached-sound": { control: "Remove Attached Sound", target: "selected frame sound attachment", confirmation: false, referenceRule: "retain unrelated asset bytes" },
 } as const;
 
@@ -37,8 +38,8 @@ export function authorizeDestructiveCommand(request: DestructiveCommandRequest):
       (!Number.isSafeInteger(request.remainingCount) || request.remainingCount! < 1)) {
     return { allowed: false, code: "minimum_content_required" };
   }
-  if (request.commandId === "delete-definition" && request.referenced !== false) {
-    return { allowed: false, code: "definition_referenced" };
+  if ((request.commandId === "delete-definition" || request.commandId === "delete-asset") && request.referenced !== false) {
+    return { allowed: false, code: request.commandId === "delete-definition" ? "definition_referenced" : "asset_referenced" };
   }
   return { allowed: true, code: "authorized" };
 }

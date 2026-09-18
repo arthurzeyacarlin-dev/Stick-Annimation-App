@@ -220,11 +220,18 @@ export function assertUnifiedAnimationDocumentV2(document: UnifiedAnimationDocum
       !sha256.test(asset.assetSha256) ||
       !["image", "file"].includes(asset.kind) ||
       (asset.kind === "image" && (
-        !asset.dataUrl?.startsWith("data:image/") ||
+        !["image/png", "image/jpeg", "image/webp"].includes(asset.mimeType) ||
+        !asset.dataUrl?.startsWith(`data:${asset.mimeType};base64,`) ||
+        asset.byteLength < 1 ||
+        asset.byteLength > 16_777_216 ||
         !Number.isInteger(asset.width) ||
         asset.width! < 1 ||
+        asset.width! > 8_192 ||
         !Number.isInteger(asset.height) ||
-        asset.height! < 1
+        asset.height! < 1 ||
+        asset.height! > 8_192 ||
+        asset.width! * asset.height! > 33_554_432 ||
+        asset.width! * asset.height! * 4 > 134_217_728
       )) ||
       (asset.kind === "file" && (asset.dataUrl !== null || asset.width !== null || asset.height !== null))
     ) throw new Error("invalid_record");

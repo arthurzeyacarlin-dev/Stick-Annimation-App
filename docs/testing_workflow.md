@@ -3,6 +3,14 @@
 Status: canonical proof standard and current gate baseline
 Last updated: 2026-09-18
 
+## Accepted SPEC-0007 Phase 4 Assets proof
+
+D-0081 accepts and technically verifies the exact 11-path Phase 4 result from unchanged GIT-064 base `f16d36b454728b3e216ec738013366f0230ddbdb`; publication/integration and cleanup remain pending. Immutable 5,851-byte manifest `output/spec-0007/phase-4/proof-manifest.json` is PASS at SHA-256 `36ad00d6bdbe9ebc2ab3640f2ab5a9987ab46780f910b5d470a9142f32f19c4c`, source digest `509dbde25762fdb358d0625d9bf151c95b00e5d260bc984ae3a4b9d432439421`.
+
+Static proof passed 28 assertions for file structure/type/non-animation/limits, duplicate catalog rules, registered reference-safe deletion, stale-project isolation and protected Phase 1–3 source bytes. Real-browser proof passed 30 chooser/drop, atomic invalid/duplicate rejection, truthful preview, placement/aspect-lock/unlock/rotation, referenced/unreferenced Delete, Undo/Redo, Save/reload/Open, compact/keyboard, performance and resource assertions. Representative desktop/compact imports measured 49.24/32.43 ms; 20 cycles measured p95 57.65 ms, heap stayed below 320 MiB and all 20 temporary URLs were revoked. External requests and browser/page errors were zero.
+
+Source TypeScript and focused lint passed with zero errors/18 inherited warnings. Phase 1 raster/no-loss/coverage, Phase 2 corridor and Phase 3 static/browser migration regressions passed. Production compilation reached only the untouched inherited `app/dev/ai-costs/lifetime/page.tsx` PageProps baseline failure. Physical-device/native-GPU behavior remains unproven; compact is desktop Chrome emulation.
+
 ## Published SPEC-0007 Phase 3 rig-retirement proof
 
 D-0079 accepts and technically verifies the exact 15-path Phase 3 result from unchanged GIT-063 base `be89f1421b0588c0a2289b8e174e06f201e8ac5d`; D-0080/GIT-064 publishes/integrates it at exact commit `b8d3b37faeaaa1a3d8bfb27359e04acd08f7acab` and records proof preservation/D-0054 cleanup. Immutable 6,066-byte manifest `output/spec-0007/phase-3/proof-manifest.json` is PASS at SHA-256 `5d4db763d436cae149405dfc50d757be8ec628f41a728ab336001153d6e61c20`, source digest `dbb28ca4acdfac7f69192831e7eb0a06122bfd79ba31b5e48bf92d9321e03cb4`.
@@ -21,7 +29,7 @@ Production Webpack compilation reaches only the untouched inherited route-typing
 
 ## Published drawing-only SPEC-0007 Phase 1 proof
 
-[`SPEC-0007`](specs/0007-manual-editor-completion-and-ai-ready-tools.md) is Approved/active under D-0074. Phases 1–3 are closed through GIT-062/GIT-063/GIT-064; Phases 4–5 remain unauthorized. The Phase 1 immutable technical manifest is PASS/VALID at SHA-256 `511c778e83741b7dde420863769f68132146934f072c6203289bcbf0ea05d689`; independent validation is PASS at SHA-256 `61514dcb59275292b8f2d9e3b345552b3c8de5128290dde6ff9627b30dba7186` and rejects 99 deliberate mutations.
+[`SPEC-0007`](specs/0007-manual-editor-completion-and-ai-ready-tools.md) is Approved/active under D-0074. Phases 1–3 are closed through GIT-062/GIT-063/GIT-064; D-0081 accepts and technically verifies Phase 4 pending publication/cleanup; Phase 5 remains unauthorized. The Phase 1 immutable technical manifest is PASS/VALID at SHA-256 `511c778e83741b7dde420863769f68132146934f072c6203289bcbf0ea05d689`; independent validation is PASS at SHA-256 `61514dcb59275292b8f2d9e3b345552b3c8de5128290dde6ff9627b30dba7186` and rejects 99 deliberate mutations.
 
 Phase 1 proof must enforce the no-silent-deletion law for every non-destructive action outside its validated paint/Fill/transform target and exact confinement for every registered destructive action. It must prove same-paint per-pixel maximum coverage within and across repeated/offset gestures, including exact 10% coverage 26 at crossings/joins/textures; true monotonic rough-0-to-smooth-100 ordinary smoothing without straight-turn artifacts; stationary Sketch preview stability; preview/release pixel and coverage identity; bounded Pixelate; and Glow brightness by luminance/contrast plus Arthur's visible acceptance. Hashes or painted-pixel counts alone are insufficient.
 

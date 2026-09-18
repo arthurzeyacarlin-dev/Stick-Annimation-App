@@ -1,0 +1,28 @@
+{
+  "phase": "SPEC-0007 Phase 4",
+  "supportedMimeTypes": ["image/png", "image/jpeg", "image/webp"],
+  "maximumBatchFiles": 32,
+  "maximumEncodedBytes": 16777216,
+  "maximumDimension": 8192,
+  "maximumDecodedPixels": 33554432,
+  "maximumDecodedRgbaBytes": 134217728,
+  "requiredFlows": [
+    "atomic import",
+    "truthful preview",
+    "catalog delete",
+    "placement",
+    "history",
+    "persistence",
+    "resource revocation"
+  ],
+  "protectedSystems": [
+    "Drawing",
+    "Draw Rig",
+    "timeline",
+    "onion skin",
+    "playback",
+    "symbols",
+    "legacy migration",
+    "AI"
+  ]
+}

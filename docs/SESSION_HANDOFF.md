@@ -3,9 +3,9 @@
 Status: current canonical stopping point
 Last updated: 2026-09-18
 
-All seven SPEC-0006 phases are closed through GIT-061. SPEC-0007 Phases 1–3 are closed through GIT-062/GIT-063/GIT-064 `b8d3b37faeaaa1a3d8bfb27359e04acd08f7acab`. D-0081 accepts and technically verifies Phase 4 with control-plane propagation complete; GIT-065 publication/integration, proof preservation and D-0054 cleanup remain pending. Phase 5 remains unauthorized.
+All seven SPEC-0006 phases are closed through GIT-061. SPEC-0007 Phases 1–4 are closed through GIT-062/GIT-063/GIT-064/GIT-065 `0dc707ff249560f4f19b8359c6a44a383e8caf92`. Phase 5 is ready for Arthur's separate authorization but remains unauthorized/not started.
 
-## Current stopping point — SPEC-0007 Phase 4 accepted/Verified; publication pending
+## Current stopping point — SPEC-0007 Phase 4 published, synchronized, preserved and cleaned up
 
 Arthur accepted the Phase 4 app at `http://127.0.0.1:56950/` after testing image import and onion skin. D-0081 binds its exact 11-path result from unchanged GIT-064 base/HEAD `f16d36b454728b3e216ec738013366f0230ddbdb`, empty index. The immutable 5,851-byte PASS manifest SHA-256 is `36ad00d6bdbe9ebc2ab3640f2ab5a9987ab46780f910b5d470a9142f32f19c4c`; source digest is `509dbde25762fdb358d0625d9bf151c95b00e5d260bc984ae3a4b9d432439421`.
 
@@ -13,7 +13,11 @@ The accepted app validates static PNG/JPEG/WebP by extension, MIME, bytes, struc
 
 Proof passed 28 static and 30 real-browser assertions, 20 lifecycle cycles, desktop/compact performance ceilings, heap/resource checks, TypeScript/focused lint, Phase 1 drawing/no-loss/coverage, Phase 2 Draw Rig and Phase 3 migration regressions. Production compilation reaches only the untouched inherited AI-cost route type baseline. External requests and browser errors were zero.
 
-Exact next step: a later explicit GIT-065 publication task may stage only the accepted 11 technical paths plus the reviewed control-plane/tree paths, commit once on a `codex/` publication branch, fast-forward an unchanged clean canonical `main`, push normally, verify local/live `0/0`, preserve the complete Phase 4 proof, then perform exact D-0054 server/worktree/branch cleanup. Do not begin Phase 5 until that closeout succeeds and Arthur separately authorizes it.
+D-0082 records exact 24-path GIT-065 commit `0dc707ff249560f4f19b8359c6a44a383e8caf92`, parent `f16d36b454728b3e216ec738013366f0230ddbdb`, message `Implement SPEC-0007 Phase 4 assets stabilization`: 11 accepted technical paths plus 13 reviewed records/tree paths. Canonical `main`, local `origin/main` and live GitHub `main` matched at clean `0/0`.
+
+The complete proof is preserved at `/Users/arthurcarlin/.codex/worktrees/2d14/stick-animation-app/output/recovery/GIT-065-phase-4-0dc707f/phase-4`: six files, 64 KiB, aggregate inventory SHA-256 `6e0239c7ec6ded8253b83833ea14d5e79b6570249fd5dce2b20ee25595013e47`, source/destination inventories equal and checksum rsync dry run empty. PIDs 36261/36270 are stopped, port 56950 is closed, the obsolete Phase 4 worktree is removed/unregistered and merged branch `codex/spec0007-phase4-assets` is deleted.
+
+Exact next step: Arthur may separately authorize one fresh Plan-mode SPEC-0007 Phase 5 executor from the final clean canonical-main SHA after this record-only closeout synchronizes. Phase 5 must first deterministically reproduce and permanently fix the reported random drawing-deletion defect, inspect the complete ordinary editor matrix and publish the runtime-used future-AI command registry without contaminating accepted Drawing, Draw Rig, timeline, onion, playback, symbols, Assets, migration or persistence behavior.
 
 ## Current stopping point — SPEC-0007 Phase 3 published, synchronized, preserved and cleaned up
 

@@ -5,6 +5,13 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-18 — Publish and close SPEC-0007 Phase 4 Assets Stabilization (D-0082/GIT-065)
+
+- Published exact 24-path commit `0dc707ff249560f4f19b8359c6a44a383e8caf92`, parent `f16d36b454728b3e216ec738013366f0230ddbdb`, message `Implement SPEC-0007 Phase 4 assets stabilization`: 11 accepted technical paths plus 13 reviewed control-plane/tree paths.
+- Fast-forwarded clean canonical `main`, pushed normally, and verified canonical `main`, local `origin/main` and live GitHub `main` equal at clean `0/0`.
+- Preserved the complete six-file/64 KiB proof at aggregate inventory SHA-256 `6e0239c7ec6ded8253b83833ea14d5e79b6570249fd5dce2b20ee25595013e47`; technical manifest remains `36ad00d6bdbe9ebc2ab3640f2ab5a9987ab46780f910b5d470a9142f32f19c4c`.
+- Stopped PIDs 36261/36270, verified port 56950 closed, removed/unregistered the obsolete Phase 4 review worktree, and deleted its merged publication branch. Phase 5 is ready for separate authorization but remains unauthorized/not started.
+
 ### 2026-09-18 — Accept and technically verify SPEC-0007 Phase 4 Assets Stabilization (D-0081)
 
 - Recorded Arthur's acceptance of the Phase 4 review app at `http://127.0.0.1:56950/`: exact 11-path result from unchanged GIT-064 base `f16d36b454728b3e216ec738013366f0230ddbdb`, empty index.

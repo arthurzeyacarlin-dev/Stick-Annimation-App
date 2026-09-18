@@ -821,6 +821,15 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Boundaries: accepted Drawing/Draw Rig/rig retirement, toolbar/timeline/layers/frames/onion/playback, symbols, AI/provider/model/prompt/API/motion/video/tracking, Home/Tutorials, dependencies/configuration, auth/billing/export/deployment and external network behavior remain unchanged. Static inputs intentionally exclude GIF/SVG/AVIF/HEIC/PDF/PSD, animated PNG/WebP, generic/spoofed/corrupt files, audio and video. Physical-device/native-GPU behavior remains unproven.
 - Publication/cleanup: preserve the accepted Phase 4 worktree, port 56950 and proof until publication succeeds. A later explicit GIT-065 task may stage only the exact accepted 11 technical paths plus reviewed control-plane/tree paths, commit on a `codex/` publication branch, fast-forward unchanged clean canonical `main`, push normally and verify clean local/live `0/0`. No pull, merge, rebase, amend, force-push, history rewrite or scope expansion. After proof preservation and synchronization, stop the exact review server, verify the port closed, and remove only the obsolete Phase 4 worktree and merged local branch under D-0054.
 
+### D-0082 — Record GIT-065 publication and close SPEC-0007 Phase 4
+
+- Date: 2026-09-18
+- Authority: Arthur's explicit post-CPA instruction to publish Phase 4, integrate it 100% into the real app and legitimately stop when Phase 5 is ready.
+- Publication: GIT-065 is exact 24-path commit `0dc707ff249560f4f19b8359c6a44a383e8caf92`, parent `f16d36b454728b3e216ec738013366f0230ddbdb`, message `Implement SPEC-0007 Phase 4 assets stabilization`. It contains exactly the accepted 11 technical paths plus 13 reviewed control-plane/tree paths. Clean canonical `main` fast-forwarded to it, pushed normally, and canonical `main`, local `origin/main` and live GitHub `main` were verified equal at clean `0/0`.
+- Proof preservation: the complete accepted Phase 4 output is preserved at `/Users/arthurcarlin/.codex/worktrees/2d14/stick-animation-app/output/recovery/GIT-065-phase-4-0dc707f/phase-4`: six files, 64 KiB, aggregate inventory SHA-256 `6e0239c7ec6ded8253b83833ea14d5e79b6570249fd5dce2b20ee25595013e47`, with matching source/destination inventories and empty `rsync -ani --delete`. Technical manifest remains SHA-256 `36ad00d6bdbe9ebc2ab3640f2ab5a9987ab46780f910b5d470a9142f32f19c4c`.
+- Cleanup: exact review PIDs 36261/36270 were stopped and port 56950 verified closed. The obsolete Phase 4 review worktree was removed/unregistered and merged local branch `codex/spec0007-phase4-assets` deleted. Canonical main, the active PM worktree, remote refs and recovery material remain.
+- Consequence: SPEC-0007 Phase 4 is accepted, Verified, published, integrated, recorded and cleaned up. Phase 5 — Final Manual Editor Bug Burn and Future-AI Command Registry — has its entry dependency satisfied and is ready for Arthur's separate authorization, but remains Unauthorized; not started. No Phase 5 runtime/proof, AI/provider/model/prompt/API/video/tracking behavior, dependency/configuration, deployment, external/paid operation or new review app is included.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation
@@ -867,7 +876,7 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 
 ### P-0006 — First usable manual drawing-based feature set
 
-- Status: resolved by corrected drawing-only SPEC-0007 under D-0074; GIT-062 closes Phase 1, GIT-063 closes Phase 2, and D-0079/D-0080/GIT-064 close Phase 3. D-0081 accepts and technically verifies Phase 4 pending publication/cleanup; Phase 5 remains unauthorized.
+- Status: resolved by corrected drawing-only SPEC-0007 under D-0074; GIT-062 closes Phase 1, GIT-063 closes Phase 2, D-0079/D-0080/GIT-064 close Phase 3, and D-0081/D-0082/GIT-065 close Phase 4. Phase 5 is ready for separate authorization but remains unauthorized.
 - Resolution: SPEC-0006 Phase 5 integrated the current tools. D-0074 replaces the former seven-phase structured-rig outcome with five phases: Drawing Engine/No-Loss; Draw Rig as ordinary raster paint; Safe Legacy Rig Retirement/Migration; bounded still Assets; and final command-registry/bug-burn proof. Active rig/Creator authoring ends after safe migration rather than expanding. Export, animated symbol timelines, motion/video/tracking, and AI expansion remain outside SPEC-0007.
 
 ### P-0007 — Data/search/privacy policy

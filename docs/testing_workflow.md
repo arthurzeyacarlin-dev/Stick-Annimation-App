@@ -1,11 +1,19 @@
 # Verification and Regression Workflow
 
 Status: canonical proof standard and current gate baseline
-Last updated: 2026-09-16
+Last updated: 2026-09-18
+
+## Accepted SPEC-0007 Phase 2 Draw Rig proof
+
+D-0077 accepts and technically verifies the exact ten-path Phase 2 result from unchanged GIT-062 base `88721481a345d6dda3f17b5620111a9cda2ab799`; GIT-063 publication/integration and D-0054 cleanup remain pending. Immutable manifest `output/spec-0007/phase-2/proof-manifest.json` is PASS at SHA-256 `21db2d920831240be7eeb18fb2ca37126197d762f7ff9a432a3912a0da5809bd`, source digest `f8d80225c16449afb0a20c6eff88197ec2d2bdf27349e3240211725ee459e8dc`.
+
+The causal append-only corridor proof passed 801 assertions, including stronger wobble, biased start, fast/slow one-corner elbows, the accepted short-arc one-elbow correction, retained intentional nook, cadence-equivalent polygonal circle, O(n) 100,000-point work and bounded live state. Real-browser proof passed 195 assertions, ten evidence captures, all five freehand variants at four opacity levels, Draw Rig Off equivalence, immutable settled history, preview/release identity, Undo/Redo, Save/Open/Export, frame/layer/onion/playback transitions and 32 draw/undo cycles. Independent manifest validation passed 37 assertions. `DrawingCanvas.tsx` and `rasterGesture.ts` retain their accepted Phase 2 integration hashes through the final strength correction; only `drawRigCorridor.ts` runtime behavior changed from the backed-up preceding review version.
+
+Production Webpack compilation reaches only the untouched inherited route-typing failure in `app/dev/ai-costs/lifetime/page.tsx`; repository lint retains only the exact five-error untouched baseline while focused Phase 2 lint and TypeScript pass. Compact remains desktop Chromium emulation; physical-device/stylus/native-GPU behavior is unproven. Phase 3 remains unauthorized.
 
 ## Published drawing-only SPEC-0007 Phase 1 proof
 
-[`SPEC-0007`](specs/0007-manual-editor-completion-and-ai-ready-tools.md) is Approved/active under D-0074. Corrected Phase 1 is Arthur-accepted, Verified, published/integrated/recorded/cleaned up under D-0075/D-0076/GIT-062. Phases 2–5 remain unauthorized. Its immutable technical manifest is PASS/VALID at SHA-256 `511c778e83741b7dde420863769f68132146934f072c6203289bcbf0ea05d689`; independent validation is PASS at SHA-256 `61514dcb59275292b8f2d9e3b345552b3c8de5128290dde6ff9627b30dba7186` and rejects 99 deliberate mutations.
+[`SPEC-0007`](specs/0007-manual-editor-completion-and-ai-ready-tools.md) is Approved/active under D-0074. Corrected Phase 1 is Arthur-accepted, Verified, published/integrated/recorded/cleaned up under D-0075/D-0076/GIT-062. Phase 2 is Arthur-accepted and technically Verified under D-0077, with GIT-063 publication/integration and D-0054 cleanup still pending; Phases 3–5 remain unauthorized. The Phase 1 immutable technical manifest is PASS/VALID at SHA-256 `511c778e83741b7dde420863769f68132146934f072c6203289bcbf0ea05d689`; independent validation is PASS at SHA-256 `61514dcb59275292b8f2d9e3b345552b3c8de5128290dde6ff9627b30dba7186` and rejects 99 deliberate mutations.
 
 Phase 1 proof must enforce the no-silent-deletion law for every non-destructive action outside its validated paint/Fill/transform target and exact confinement for every registered destructive action. It must prove same-paint per-pixel maximum coverage within and across repeated/offset gestures, including exact 10% coverage 26 at crossings/joins/textures; true monotonic rough-0-to-smooth-100 ordinary smoothing without straight-turn artifacts; stationary Sketch preview stability; preview/release pixel and coverage identity; bounded Pixelate; and Glow brightness by luminance/contrast plus Arthur's visible acceptance. Hashes or painted-pixel counts alone are insufficient.
 
@@ -13,7 +21,7 @@ The accepted proof passed 126,771 oracle assertions and 18 production-browser gr
 
 Performance/persistence proof binds identical representative fixture bytes/digests, browser/build mode, profiles, warmups, measured-run count, operation boundaries and GC/settling methodology. It separately reports transient/stress and settled heap and retains raw samples. Exit still requires Open ≤775 ms, Save ≤1,530 ms, settled JS heap <320 MiB and transient/stress heap ≤512 MiB. Byte/digest equivalence covers rasters, paint-coverage companions, audio, text, rigs, symbols, auxiliary state, immutable versions and heads. Encode/hash/decode/readback/quota/stale-CAS/publish faults preserve the last-good head/version and source bytes. Performance cannot substitute for drawing quality, one-commit history, Undo/Redo, Save/Open, no-loss, or protected regressions.
 
-Phase 5 additionally requires a machine-readable and human-readable matrix proving that every enabled manual project/document mutation resolves to one runtime-used validated command capability, every destructive command is explicitly classified with exact target/reference/confirmation semantics, and no manual control bypasses the sanctioned coordinator commit/history path. Phase 1 is published; no Phase 2–5 result is claimed. The `/3cd3/` predecessor remains rejected/unpublished/non-reusable and must not be counted.
+Phase 5 additionally requires a machine-readable and human-readable matrix proving that every enabled manual project/document mutation resolves to one runtime-used validated command capability, every destructive command is explicitly classified with exact target/reference/confirmation semantics, and no manual control bypasses the sanctioned coordinator commit/history path. Phase 1 is published; Phase 2 is accepted/technically Verified pending GIT-063; no Phase 3–5 result is claimed. The `/3cd3/` predecessor remains rejected/unpublished/non-reusable and must not be counted.
 
 ## Current SPEC-0006 Phase 7 published evidence
 

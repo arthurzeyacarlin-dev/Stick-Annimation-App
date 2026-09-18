@@ -1,5 +1,6 @@
 import { assertRasterPaintCoverageV1, cropPaintCoverage, getBitmapPaintCoverage, mergeSketchOwners, paintCoveragesEqual, type UnifiedRasterPaintCoverageV1, type RasterPaintKeyV1, type RasterPaintPixelV1 } from '../unifiedRasterPaintCoverageV1.ts';
 import { bitmapCenterOffset } from '../unifiedStageGeometry.ts';
+import { DrawRigCorridor } from './drawRigCorridor.ts';
 
 /** Deterministic authoring geometry and maximum masks. No browser or clock state. */
 export type RasterPoint = { x: number; y: number };
@@ -7,6 +8,7 @@ export type RasterRect = { left: number; top: number; width: number; height: num
 export type RasterGestureOptions = {
   key: RasterPaintKeyV1; size: number; smoothing: number; brightness: number;
   radius: number; seed: number; width: number; height: number; scaleX: number; scaleY: number;
+  drawRig?: true;
 };
 export const RASTER_GESTURE_COMMAND = 'drawing.raster-gesture.commit/v2';
 export const RASTER_ALGORITHM_VERSION = 'continuous-maxmask/v3';
@@ -51,6 +53,7 @@ export function rasterCommandDigest(tiles: RasterGestureCommandV2['tiles'], side
 }
 function validOptions(options: RasterGestureOptions) {
   return options && [options.size, options.smoothing, options.brightness, options.radius, options.width, options.height, options.scaleX, options.scaleY, options.seed].every(Number.isFinite) &&
+    (options.drawRig === undefined || options.drawRig === true) &&
     ['Brush', 'Pencil', 'Sketch', 'Pixelate', 'Glow'].includes(options.key?.variant) && /^#[0-9a-f]{6}$/.test(options.key?.color) &&
     Number.isSafeInteger(options.key.opacityByte) && options.key.opacityByte >= 0 && options.key.opacityByte <= 255 &&
     options.size > 0 && options.size <= 2048 && options.smoothing >= 0 && options.smoothing <= 100 && options.brightness >= 0 && options.brightness <= 100 && options.radius >= 0 && options.radius <= 100 &&
@@ -486,17 +489,54 @@ export class RasterGestureDraft {
   private resampleRemainder = 0;
   private spacing: number;
   private smoothingRadius: number;
+  private drawRig: DrawRigCorridor | null;
+  private rigCenterline: RasterPoint[] = [];
   constructor(options: RasterGestureOptions) {
     if (!validOptions(options)) throw new Error('invalid_gesture_options');
     this.options = { ...options, key: { ...options.key } };
     this.spacing = clamp(Math.max(.75, options.size / 8), .75, 6);
     this.smoothingRadius = options.smoothing === 0 ? 0 : Math.ceil((.4 + options.smoothing / 100 * 3.6) * 2.5);
+    this.drawRig = options.drawRig ? new DrawRigCorridor() : null;
     this.stable = new MaximumMask(options.width, options.height);
   }
   append(point: RasterPoint): RasterPreview | null {
     if (this.terminal) return this.lastPreview;
     if (!Number.isFinite(point.x) || !Number.isFinite(point.y)) throw new Error('invalid_sample');
     const next = { x: round(point.x), y: round(point.y) };
+    if (this.drawRig) {
+      const update = this.drawRig.append(next);
+      if (!update.accepted || !update.tail) return this.lastPreview;
+      this.points.push(next);
+      const changedStable = new MaximumMask(this.options.width, this.options.height);
+      if (update.started) {
+        this.rigCenterline.push(update.tail);
+      } else if (update.lockedSegment) {
+        stamp(changedStable, [update.lockedSegment.from, update.lockedSegment.to], this.options);
+        const tail = this.rigCenterline[this.rigCenterline.length - 1];
+        if (!tail || distance(tail, update.lockedSegment.to) > 1e-7) this.rigCenterline.push(update.lockedSegment.to);
+        if (distance(update.lockedSegment.to, update.tail) > 1e-7) this.rigCenterline.push(update.tail);
+      } else if (this.rigCenterline.length === 1) {
+        this.rigCenterline.push(update.tail);
+      } else {
+        this.rigCenterline[this.rigCenterline.length - 1] = update.tail;
+      }
+      for (const [key, tile] of changedStable.tiles) {
+        const retained = this.stable.tiles.get(key);
+        if (!retained) this.stable.tiles.set(key, tile);
+        else for (let i = 0; i < TILE * TILE; i++) {
+          retained.coverage[i] = Math.max(retained.coverage[i], tile.coverage[i]);
+          retained.light[i] = Math.max(retained.light[i], tile.light[i]);
+        }
+      }
+      this.stable.bounds = unionRect(this.stable.bounds, changedStable.bounds);
+      const tail = new MaximumMask(this.options.width, this.options.height);
+      if (this.rigCenterline.length === 1) stamp(tail, [this.rigCenterline[0]], this.options);
+      else stamp(tail, this.rigCenterline.slice(-2), this.options);
+      const changed = unionRect(unionRect(changedStable.bounds, tail.bounds), this.oldTail);
+      this.oldTail = tail.bounds;
+      this.lastPreview = { stable: this.stable, tail, changed, centerline: this.rigCenterline };
+      return this.lastPreview;
+    }
     const previous = this.points[this.points.length - 1];
     if (previous && distance(previous, next) < .25) return this.lastPreview;
     const changedRawStart = this.regularRawCount;
@@ -550,8 +590,8 @@ export class RasterGestureDraft {
     this.lastPreview = { stable: this.stable, tail, changed, centerline };
     return this.lastPreview;
   }
-  seal(): RasterPreview | null { if (this.terminal) return null; this.terminal = true; return this.lastPreview; }
-  cancel() { this.terminal = true; this.lastPreview = null; this.stable.tiles.clear(); }
+  seal(): RasterPreview | null { if (this.terminal) return null; this.terminal = true; this.drawRig?.seal(); return this.lastPreview; }
+  cancel() { this.terminal = true; this.drawRig?.cancel(); this.lastPreview = null; this.stable.tiles.clear(); }
 }
 const pigmentSources = new Map<string, readonly number[]>();
 export function mergePaintPixel(previous: RasterPaintPixelV1 | null, base: ArrayLike<number>, key: RasterPaintKeyV1, incomingCoverage: number, light: number, destination?: RasterPaintPixelV1, baseOffset = 0, ownerId?: string): RasterPaintPixelV1 {

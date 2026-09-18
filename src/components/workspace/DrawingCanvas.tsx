@@ -1850,6 +1850,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   const [fillTolerance, setFillTolerance] = useState(20);
   const [brushTransparency, setBrushTransparency] = useState(0);
   const [brushSmoothing, setBrushSmoothing] = useState(0);
+  const [drawRigEnabled, setDrawRigEnabled] = useState(false);
   const [glowGradientBrightness, setGlowGradientBrightness] = useState(60);
   const [glowGradientRadius, setGlowGradientRadius] = useState(40);
   const [shapeMode, setShapeMode] = useState<"Draw" | "Cutout">("Draw");
@@ -4434,7 +4435,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     const erase = activeTool === "Eraser";
     if (erase && !authorizeDestructiveCommand({ commandId: "eraser", targetIds: [currentRasterContextRef.current], availableTargetIds: [currentRasterContextRef.current] }).allowed) return;
     const baseCoverage = getBitmapPaintCoverage(canvas);
-    const engine = new RasterGestureDraft({ key: canonicalPaint(erase ? "Brush" : brushToolVariant, erase ? "#000000" : brushColor, erase ? 0 : brushTransparency), size: erase ? eraserSize : brushSize, smoothing: erase ? 0 : brushSmoothing, brightness: glowGradientBrightness, radius: glowGradientRadius, seed: 173, width: canvas.width, height: canvas.height, scaleX: metrics.scaleX, scaleY: metrics.scaleY });
+    const engine = new RasterGestureDraft({ key: canonicalPaint(erase ? "Brush" : brushToolVariant, erase ? "#000000" : brushColor, erase ? 0 : brushTransparency), size: erase ? eraserSize : brushSize, smoothing: erase ? 0 : brushSmoothing, brightness: glowGradientBrightness, radius: glowGradientRadius, seed: 173, width: canvas.width, height: canvas.height, scaleX: metrics.scaleX, scaleY: metrics.scaleY, ...(!erase && drawRigEnabled ? { drawRig: true as const } : {}) });
     const writer = createPaintCoverageWriter(baseCoverage, canvas.width, canvas.height);
     rasterDraftRef.current = { engine, pointerId: e.pointerId, contextKey: currentRasterContextRef.current, generation: authoringChangeVersionRef.current, erase, ownerId: !erase && brushToolVariant === "Sketch" ? crypto.randomUUID() : undefined, baseCoverage, writer, candidateWriter: writer, baseWriter: !erase && brushToolVariant === "Sketch" ? createPaintCoverageWriter(baseCoverage, canvas.width, canvas.height) : writer, tiles: new Map(), dirty: null, presented: null };
     isDrawingRef.current = true;
@@ -4504,7 +4505,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
 
   useEffect(() => {
     cancelPendingAuthoringGesture("context-change");
-  }, [activeTool, authoringContextKey, drawingToolActivationId, rightPanelTab, isTimelinePlaying, brushToolVariant, cancelPendingAuthoringGesture]);
+  }, [activeTool, authoringContextKey, drawingToolActivationId, rightPanelTab, isTimelinePlaying, brushToolVariant, drawRigEnabled, cancelPendingAuthoringGesture]);
   useEffect(() => {
     const cancel = (event: KeyboardEvent) => { if (event.key === "Escape") cancelPendingAuthoringGesture("escape"); };
     window.addEventListener("keydown", cancel);
@@ -10027,6 +10028,33 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
             style={{ width: "100%" }}
           />
         </label>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, color: "rgba(255,255,255,0.76)", fontSize: 12 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <span>Draw Rig</span>
+            <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 10 }}>Straighten each live run as you draw.</span>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-label="Draw Rig"
+            aria-checked={drawRigEnabled}
+            onClick={() => setDrawRigEnabled((enabled) => !enabled)}
+            style={{
+              minWidth: 46,
+              minHeight: 26,
+              padding: "4px 9px",
+              borderRadius: 999,
+              border: "1px solid rgba(255,255,255,0.18)",
+              background: drawRigEnabled ? "rgba(95,170,255,0.34)" : "rgba(255,255,255,0.06)",
+              color: "rgba(255,255,255,0.9)",
+              fontSize: 11,
+              fontWeight: 700,
+              cursor: "pointer",
+            }}
+          >
+            {drawRigEnabled ? "On" : "Off"}
+          </button>
+        </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 4, color: "rgba(255,255,255,0.76)", fontSize: 12 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>

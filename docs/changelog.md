@@ -5,6 +5,14 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-18 — Accept and technically verify SPEC-0007 Phase 2 Draw Rig (D-0077)
+
+- Recorded Arthur's acceptance of the final stronger-stick review copy at `http://127.0.0.1:56877/`: exact ten-path result from unchanged GIT-062 base/HEAD `88721481a345d6dda3f17b5620111a9cda2ab799`, empty index.
+- Accepted raster-only `causal-fixed-corridor/v3` Draw Rig with tolerance `11`, minimum sample distance `0.75`, direction-settle distance `12`, immutable settled history, live unsealed tail, zero timer/replay/post-release refit, smoothing-independent geometry and unchanged Draw Rig Off behavior.
+- Bound immutable PASS manifest SHA-256 `21db2d920831240be7eeb18fb2ca37126197d762f7ff9a432a3912a0da5809bd` and source digest `f8d80225c16449afb0a20c6eff88197ec2d2bdf27349e3240211725ee459e8dc`: 801 oracle assertions, 195 real-browser assertions, ten evidence captures, 20 style/transparency cases, 37 validator assertions, protected Phase 1 regressions and 32 draw/undo cycles.
+- Preserved the immediately preceding review version at archive SHA-256 `368cbe9e076706bca623d2a35f6e6c980c0102c57faccb58fb6e86f1e586ad30`; retained the earlier V1 backup separately. No accepted technical/proof byte was changed during CPA propagation.
+- Updated canonical records only after sequential ownership transfer. GIT-063 publication/integration, proof preservation and D-0054 cleanup remain pending; Phase 3 remains unauthorized. No stage, commit, push, deployment, AI/provider/API/video/tracking or external/paid action occurred.
+
 ### 2026-09-16 — Publish/close SPEC-0007 Phase 1 (D-0076/GIT-062)
 
 - Published exact 30-path commit `f051aba7b927902e7aa5fc5f80c4b1d45fe6cca7`, parent `1c5aee42fa87967ad058c00cc3d62b51589b77fa`, message `Implement SPEC-0007 Phase 1 drawing stabilization`: 17 accepted technical paths plus 13 reviewed records/tree paths.

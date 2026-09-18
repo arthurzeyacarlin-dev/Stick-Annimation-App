@@ -863,6 +863,14 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Lifecycle: the target is one phase/day plus one correction/publication buffer day, but a phase/day is incomplete until Spec Executor result, Arthur/PM acceptance, CPA propagation, separate publication/integration, clean synchronization and D-0054 cleanup all finish. Schedule never weakens proof. Phase 1 is ready only for Arthur's later separate approval/authorization after this proposal is reviewed and published. Phases 2–6 remain unauthorized behind their predecessor and named entry gates.
 - Boundaries: this record changes only the new spec and canonical planning/control-plane/tree files. It performs no runtime, fixture, technical-test or proof implementation; no provider/API/paid/live request, upload, credential/dependency/configuration, server/worktree, deployment, stage, commit, push or publication; and no new PM V4 task or handoff message. Existing accepted SPEC-0006/0007 behavior and rejected historical evidence remain unchanged.
 
+### D-0086 — Publish the SPEC-0008 planning package without authorizing implementation
+
+- Date: 2026-09-18
+- Authority: Arthur explicitly confirmed that the SPEC-0008 planning/history package should be propagated, recorded, committed and pushed to GitHub while keeping real app behavior unchanged.
+- Publication: GIT-067 is exact 15-path planning-only commit `ba5ecd694df78414240ce83a9140c5196334ebdc`, parent `f923c35aa13cfd476e712f4ead89419263fc0893`, message `Propose SPEC-0008 conversational AI animator`. Clean canonical `main` was fast-forwarded and pushed normally; canonical `main`, local `origin/main` and live GitHub `main` matched that commit before this records-only reconciliation.
+- Lifecycle: SPEC-0008 remains **Proposed; published; awaiting Arthur's explicit approval**. All six phases remain Unauthorized/Not started. The exact next owner action is separate approval of SPEC-0008 and separate authorization of Phase 1; only then may one fresh Plan-mode Spec Executor app copy start from the final synchronized records-publication SHA.
+- Boundaries: publication changed only the reviewed spec, planning/control-plane records and generated project tree. It changed no runtime, fixture, technical test, proof artifact, dependency/configuration, provider/API/model behavior, paid/external request, upload, deployment or Phase 1 implementation.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

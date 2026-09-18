@@ -5,6 +5,13 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-18 — Publish the SPEC-0008 planning package (D-0086/GIT-067)
+
+- Published the exact reviewed 15-path planning-only package in commit `ba5ecd694df78414240ce83a9140c5196334ebdc`, parent `f923c35aa13cfd476e712f4ead89419263fc0893`, message `Propose SPEC-0008 conversational AI animator`.
+- Fast-forwarded clean canonical `main`, pushed normally, and verified canonical `main`, local `origin/main` and live GitHub `main` equal at the planning publication commit before this records-only reconciliation.
+- Kept SPEC-0008 Proposed and all six phases Unauthorized/Not started. Arthur's separate proposal approval and Phase 1 authorization remain the next gate.
+- Changed no runtime, fixture, test, proof, package, dependency, provider/API/model behavior, paid/external request, upload or deployment. This records-only reconciliation intentionally does not predict its own commit hash; the next task must refresh exact HEAD.
+
 ### 2026-09-18 — Propose SPEC-0008 conversational reference-video-to-editable-drawing V1 (D-0085)
 
 - Created the decision-complete six-phase SPEC-0008 contract: fixed Terra brain/intent/jobs; provider-neutral reference video; deterministic frame slicing; isolated ordinary drawing reconstruction; registered-command conversational edits; and beta/export closeout.

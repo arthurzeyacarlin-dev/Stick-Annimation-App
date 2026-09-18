@@ -11,7 +11,7 @@ Last updated: 2026-09-18
 - Paid AI calls, remote writes, deployment, and baseline commits require task-specific authorization.
 - The roadmap may change when Arthur resolves pending decisions or new evidence changes the risk order.
 
-## Current owner sequence — 2026-09-18 (D-0085; SPEC-0008 proposed)
+## Current owner sequence — 2026-09-18 (D-0085/D-0086; SPEC-0008 proposal published)
 
 All seven SPEC-0006 phases are Verified/published/integrated through GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`. The immutable 50,224-byte Phase 7 manifest is PASS/VALID at SHA-256 `c6202f6deab4d3bcc75af3ad6699fc2dc70fc58723eccaa8337b1a2aef74bc51`, with exactly 11 source and 16 evidence bindings.
 
@@ -27,7 +27,7 @@ The corrected order kept seven numbered phases. Minimal neutral data/storage pre
 
 Each phase started only after the prior phase was accepted, propagated, separately published/integrated, synchronized, cleaned up, and separately authorized. The no-silent-deletion, explicit destructive-command registry, same-paint maximum-coverage, shared-capability, and read-only legacy-source laws remain permanent. SPEC-0007 added no AI/provider/model/prompt/video/tracking behavior.
 
-D-0085 creates [`SPEC-0008`](specs/0008-conversational-ai-animator.md) as Proposed/review-ready with no implementation authority. Its exact next sequence is:
+D-0085 creates [`SPEC-0008`](specs/0008-conversational-ai-animator.md) as Proposed/review-ready with no implementation authority, and D-0086/GIT-067 publishes the exact planning-only package at `ba5ecd694df78414240ce83a9140c5196334ebdc`. Its exact next sequence is:
 
 1. Terra brain, conversational intent routing and persistent streamed jobs.
 2. Provider-neutral reference video with upload fallback and a separate provider/access/cost/privacy gate.
@@ -36,7 +36,7 @@ D-0085 creates [`SPEC-0008`](specs/0008-conversational-ai-animator.md) as Propos
 5. Conversational edits through the same manual command registry.
 6. Beta/security/performance closeout and downloadable YouTube-ready video export.
 
-The delivery target is one phase/day plus one correction/publication buffer day. It does not bypass the per-phase Spec Executor → Arthur/PM acceptance → CPA → separate publication/integration → cleanup lifecycle. Phase 1 is the next possible separately authorized product action after proposal review/publication; Phases 2–6 remain gated and unauthorized.
+The delivery target is one phase/day plus one correction/publication buffer day. It does not bypass the per-phase Spec Executor → Arthur/PM acceptance → CPA → separate publication/integration → cleanup lifecycle. Phase 1 is the next possible product action only after Arthur separately approves SPEC-0008 and authorizes Phase 1; Phases 2–6 remain gated and unauthorized.
 
 ## Phase 0 — Preserve and Stabilize
 

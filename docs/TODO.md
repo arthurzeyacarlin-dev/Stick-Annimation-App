@@ -84,7 +84,7 @@ Last updated: 2026-09-18
 - [x] **MANUAL-006 — Retired identifier.** Superseded by D-0074's five-phase plan; no phase or implementation authority remains.
 - [x] **MANUAL-007 — Retired identifier.** Superseded by D-0074's five-phase plan; no phase or implementation authority remains.
 - [x] **PLAN-008 — Design SPEC-0008 replacement AI Animator.** D-0085 and [`SPEC-0008`](specs/0008-conversational-ai-animator.md) define the decision-complete six-phase reference-video-to-editable-drawing V1 and explicit provider/security/cost/privacy gates. This docs-only completion authorizes no implementation or paid/provider activity.
-- [ ] **SPEC-008 — Review/approve Proposed SPEC-0008 and separately authorize Phase 1.** The proposal is review-ready. Publication of the proposal and Arthur's explicit Phase 1 authorization are separate required actions.
+- [ ] **SPEC-008 — Approve published Proposed SPEC-0008 and separately authorize Phase 1.** D-0086/GIT-067 publishes the exact planning-only proposal at `ba5ecd694df78414240ce83a9140c5196334ebdc`. Arthur's explicit proposal approval and Phase 1 authorization remain separate required actions.
 - [ ] **AIANIM-001 — Phase 1: Terra brain, intent routing and persistent streamed jobs.** Unauthorized/not started; ready only after SPEC-008 approval and separate phase authorization.
 - [ ] **AIANIM-002 — Phase 2: Provider-neutral reference video.** Unauthorized/not started; blocked on Phase 1 close and an approved provider/access/cost/privacy record.
 - [ ] **AIANIM-003 — Phase 3: Deterministic cucumber slicer.** Unauthorized/not started; blocked on Phase 2 close.

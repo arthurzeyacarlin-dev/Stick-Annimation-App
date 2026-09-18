@@ -1,13 +1,14 @@
 # SPEC-0008 — Conversational AI Animator and Editable Video Reconstruction
 
-Status: **Proposed; decision-complete for later review; all six implementation phases Unauthorized/Not started**
+Status: **Proposed; published for owner review; all six implementation phases Unauthorized/Not started**
 Owner: Arthur
 Task role: planning/control-plane architecture only; this task changes no runtime or technical proof
 Created: 2026-09-18
 Last updated: 2026-09-18
-Decision link: [D-0085](../DECISIONS.md)
+Decision links: [D-0085 and D-0086](../DECISIONS.md)
 TODO IDs: `PLAN-008`, `SPEC-008`, `AIANIM-001`–`AIANIM-006`
 Planning base: clean detached canonical-main SHA `f923c35aa13cfd476e712f4ead89419263fc0893`; index empty before edits
+Planning publication: GIT-067 commit `ba5ecd694df78414240ce83a9140c5196334ebdc`; 15 planning/control-plane/tree paths; no runtime change
 Current runtime: SPEC-0007 is fully closed through GIT-066; the ordinary workspace has one V2 coordinator and a 40-command manual capability registry, while its legacy task-picker AI path is not this specification's end state
 
 ## 1. Exact product outcome
@@ -444,8 +445,8 @@ This proposal authorizes no phase. Arthur's later explicit approval must name Ph
 | Required boot/base/index | PASS | dedicated `/563e/` worktree; clean detached `f923c35aa13cfd476e712f4ead89419263fc0893`; empty index before edits |
 | Live execution path | CODE VERIFIED | one V2 coordinator/manual registry; legacy task picker/session chat; Responses API with three current model profiles; current-frame-only PNG export |
 | Six-phase design | PASS | exactly six sequential implementation phases plus one non-phase correction/publication buffer day |
-| Runtime/provider/paid/Git changes in this task | ZERO | planning/control-plane/tree records only; no app, test, provider, API, dependency, server, staging, commit, push, or deployment action |
-| Phase 1 product blockers | NONE after later explicit approval/publication | Terra model/effort and non-mutating Phase 1 outcome are fixed; real paid smoke remains separately authorized evidence, not an implementation prerequisite |
+| Runtime/provider/paid/Git changes in the D-0085 planning task | ZERO | planning/control-plane/tree records only; no app, test, provider, API, dependency, server, staging, commit, push, or deployment action |
+| Phase 1 product blockers | NONE after explicit owner approval/authorization | Terra model/effort and non-mutating Phase 1 outcome are fixed; real paid smoke remains separately authorized evidence, not an implementation prerequisite |
 | Later named gates | OPEN by design | current video provider/access/cost/privacy; decoder/encoder choice; public-beta security/retention/spend policy |
 
-Exact next step after this planning package is reviewed and separately published: Arthur may approve SPEC-0008 and separately authorize Phase 1. Only then may one fresh Phase 1 Spec Executor start in Plan mode from the exact synchronized publication SHA. This planning task must stop without Phase 1 implementation, technical proof, a review app, provider/API calls, paid usage, Git publication, deployment, or a Project Manager V4 handoff.
+The planning package was reviewed and published under D-0086/GIT-067. Exact next step: Arthur may approve SPEC-0008 and separately authorize Phase 1. After that approval/authorization record is published, one fresh Phase 1 Spec Executor may start in Plan mode from the exact synchronized SHA. Until then there is no Phase 1 implementation, technical proof, review app, provider/API call, paid usage or deployment.

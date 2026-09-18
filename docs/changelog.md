@@ -5,6 +5,13 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-18 — Publish and close SPEC-0007 Phase 3 rig retirement (D-0080/GIT-064)
+
+- Published exact 28-path commit `b8d3b37faeaaa1a3d8bfb27359e04acd08f7acab`, parent `be89f1421b0588c0a2289b8e174e06f201e8ac5d`, message `Implement SPEC-0007 Phase 3 rig retirement`: 15 accepted technical paths plus 13 reviewed control-plane/tree paths.
+- Fast-forwarded clean canonical `main`, pushed normally, and verified canonical `main`, local `origin/main`, and live GitHub `main` equal at clean `0/0`.
+- Preserved the complete five-file/92 KiB proof at aggregate SHA-256 `168ebd8ad3aad1e18227edcafc3c1148fd25a8c3ab6d4185c46b8b00e1552a42`; technical manifest remains `5d4db763d436cae149405dfc50d757be8ec628f41a728ab336001153d6e61c20`.
+- Stopped PIDs 32633/32655, verified port 56940 closed, removed/unregistered the obsolete Phase 3 implementation worktree, and deleted its merged publication branch. Phase 4 is ready for separate authorization but remains unauthorized/not started.
+
 ### 2026-09-18 — Accept and technically verify SPEC-0007 Phase 3 rig retirement (D-0079)
 
 - Recorded Arthur's acceptance of the Phase 3 review app at `http://127.0.0.1:56940/`: exact 15-path result from unchanged GIT-063 base `be89f1421b0588c0a2289b8e174e06f201e8ac5d`, empty index.

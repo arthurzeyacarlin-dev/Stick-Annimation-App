@@ -3,7 +3,7 @@
 Status: current canonical stopping point
 Last updated: 2026-09-18
 
-All seven SPEC-0006 phases are closed through GIT-061. Drawing-only SPEC-0007 is fully Verified, published, integrated, recorded and cleaned up through D-0083/D-0084/GIT-066 `c193b8ba89fa55ead02d84ea10bb81f71b960f8a`. D-0085 creates SPEC-0008 and D-0086/GIT-067 publishes its exact planning-only package at `ba5ecd694df78414240ce83a9140c5196334ebdc`. D-0087 approves the full specification and authorizes Phase 1 only.
+All seven SPEC-0006 phases are closed through GIT-061. Drawing-only SPEC-0007 is fully Verified, published, integrated, recorded and cleaned up through D-0083/D-0084/GIT-066 `c193b8ba89fa55ead02d84ea10bb81f71b960f8a`. D-0085 creates SPEC-0008 and D-0086/GIT-067 publishes its exact planning-only package at `ba5ecd694df78414240ce83a9140c5196334ebdc`. D-0087 approves the full specification and authorizes Phase 1 only; GIT-068 publishes that exact authorization in commit `1d80141f2465db6f0e389fb43dc1cdfb8dafbdf8`.
 
 ## Current stopping point — SPEC-0008 approved; Phase 1 authorized for one fresh executor
 
@@ -11,7 +11,7 @@ All seven SPEC-0006 phases are closed through GIT-061. Drawing-only SPEC-0007 is
 
 The proposal was created from clean detached canonical-main basis `f923c35aa13cfd476e712f4ead89419263fc0893` after tracing the ordinary V2 workspace/registry path and the current separate AI route. It preserves Arthur's exact Terra/Responses/reasoning decision and dated Sora 2 shutdown input without selecting or hardwiring a reference-video provider; current access, pricing, provider terms and compatibility must be rechecked at the named live-use gates.
 
-GIT-067 published the exact 15-path planning-only package from parent `f923c35aa13cfd476e712f4ead89419263fc0893` with no runtime change. D-0087 records Arthur's later explicit approval and Phase 1-only autopilot authorization. Exact next step after this record is committed, pushed and synchronized: create one fresh Plan-mode Phase 1 Spec Executor app copy from the final canonical-main SHA, monitor it until permission is required or its review app/Implementation Review Packet is ready, and then stop for Arthur's visible review. Do not begin Phase 2, select/call a video provider, spend credits, deploy, publish implementation or broaden Phase 1.
+GIT-067 published the exact 15-path planning-only package from parent `f923c35aa13cfd476e712f4ead89419263fc0893` with no runtime change. D-0087 records Arthur's later explicit approval and Phase 1-only autopilot authorization; GIT-068 publishes it at `1d80141f2465db6f0e389fb43dc1cdfb8dafbdf8`, with canonical/local-origin/live GitHub `main` verified equal at clean `0/0`. Exact next step: create one fresh Plan-mode Phase 1 Spec Executor app copy from the final synchronized records SHA, monitor it until permission is required or its review app/Implementation Review Packet is ready, and then stop for Arthur's visible review. Do not begin Phase 2, select/call a video provider, spend credits, deploy, publish implementation or broaden Phase 1.
 
 ## Historical stopping point — SPEC-0007 complete; ready for separate SPEC-0008 creation authorization
 

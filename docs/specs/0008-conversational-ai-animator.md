@@ -9,6 +9,7 @@ Decision links: [D-0085, D-0086 and D-0087](../DECISIONS.md)
 TODO IDs: `PLAN-008`, `SPEC-008`, `AIANIM-001`–`AIANIM-006`
 Planning base: clean detached canonical-main SHA `f923c35aa13cfd476e712f4ead89419263fc0893`; index empty before edits
 Planning publication: GIT-067 commit `ba5ecd694df78414240ce83a9140c5196334ebdc`; 15 planning/control-plane/tree paths; no runtime change
+Authorization publication: GIT-068 commit `1d80141f2465db6f0e389fb43dc1cdfb8dafbdf8`; 10 control-plane paths; no runtime change
 Current runtime: SPEC-0007 is fully closed through GIT-066; the ordinary workspace has one V2 coordinator and a 40-command manual capability registry, while its legacy task-picker AI path is not this specification's end state
 
 ## 1. Exact product outcome

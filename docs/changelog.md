@@ -6,6 +6,7 @@
 - Marked SPEC-0008 Approved/active and `AIANIM-001` Authorized/Not started; kept Phases 2–6 Unauthorized/Not started behind their predecessor and provider/security/cost/privacy gates.
 - Authorized one fresh Plan-mode Spec Executor app copy after this record is published and synchronized. Phase 1 uses deterministic provider proof and zero live/paid calls by default, changes no animation document in this phase, and stops for its Implementation Review Packet and Arthur's visible review.
 - Archived thirteen obsolete SPEC-0006/0007 Codex tasks identified from Arthur's screenshot while preserving Project Manager Overarching V4 and SPEC-0008 AI Animator Architect.
+- Published the exact ten-path authorization record as GIT-068 commit `1d80141f2465db6f0e389fb43dc1cdfb8dafbdf8`, parent `a7fac36311e34425d8ff08c0a66bc758a938268f`, message `Authorize SPEC-0008 Phase 1 Terra brain`; canonical main/local origin/live GitHub matched cleanly at `0/0`.
 
 This authorization changed only canonical planning/control-plane records. It changed no runtime, fixture, technical test, proof artifact, dependency, model/provider behavior, paid/external request, upload, deployment or implementation Git publication.
 

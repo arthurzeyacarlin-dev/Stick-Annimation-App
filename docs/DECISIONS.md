@@ -880,6 +880,7 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Cost/time boundary: technical proof uses a deterministic Responses API double and zero live/provider/search/video requests by default. A real paid Terra smoke still requires separate exact request-count, spend, privacy and current-access approval. Arthur requested a bounded roughly one-hour execution window; schedule pressure does not weaken proof or expand scope.
 - Later gates: Phases 2–6 remain Unauthorized/Not started. No video provider/model selection, reference-video call, slicer, reconstruction, registered-command edit execution, export, public beta, deployment, implementation publication or paid/external operation is authorized by this decision.
 - Task cleanup: before authorization, the Project Manager archived the thirteen obsolete SPEC-0006/0007 tasks identified from Arthur's screenshot and preserved the active Project Manager V4 and SPEC-0008 Architect tasks. Archiving changed task visibility only; it did not delete repository bytes or accepted proof.
+- Publication: GIT-068 is exact ten-path commit `1d80141f2465db6f0e389fb43dc1cdfb8dafbdf8`, parent `a7fac36311e34425d8ff08c0a66bc758a938268f`, message `Authorize SPEC-0008 Phase 1 Terra brain`. Clean canonical `main` was fast-forwarded and pushed normally; canonical `main`, local `origin/main` and live GitHub `main` matched that commit at clean `0/0` before this records-only reconciliation.
 
 ## Provisional Legacy Classifications
 

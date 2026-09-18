@@ -1,0 +1,22 @@
+{
+  "kind": "spec0007-phase5-contract",
+  "version": 1,
+  "baseSha": "5f2637faf56ab1f2df1408080c7cc1cacf4d6fab",
+  "reviewUrl": "http://127.0.0.1:56960/",
+  "laws": {
+    "noSilentDeletion": "A non-delete action never removes prior authored pixels or items.",
+    "closedDestruction": "Every destructive action is present in both the destructive registry and the manual capability registry.",
+    "singleCoordinator": "Enabled manual mutations authorize one registered command before entering the existing DrawingWorkspace coordinator.",
+    "zeroAiExpansion": "This phase adds no AI caller, provider, model, prompt, API, external request, active rig authoring, or network behavior."
+  },
+  "browserProfiles": [
+    { "id": "desktop", "width": 1440, "height": 900, "deviceScaleFactor": 1 },
+    { "id": "compact", "width": 390, "height": 844, "deviceScaleFactor": 2 }
+  ],
+  "freehandVariants": ["Brush", "Pencil", "Sketch", "Pixelate", "Glow"],
+  "historyOperations": 160,
+  "playbackLoops": 5,
+  "longTaskCeilingMs": 200,
+  "heapCeilingBytes": 335544320,
+  "humanAcceptance": "pending Arthur"
+}

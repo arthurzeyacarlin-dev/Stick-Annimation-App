@@ -3,9 +3,19 @@
 Status: current canonical stopping point
 Last updated: 2026-09-18
 
-All seven SPEC-0006 phases are closed through GIT-061. SPEC-0007 Phases 1–4 are closed through GIT-062/GIT-063/GIT-064/GIT-065 `0dc707ff249560f4f19b8359c6a44a383e8caf92`. Phase 5 is ready for Arthur's separate authorization but remains unauthorized/not started.
+All seven SPEC-0006 phases are closed through GIT-061. SPEC-0007 Phases 1–4 are closed through GIT-062/GIT-063/GIT-064/GIT-065. D-0083 accepts and technically verifies the exact Phase 5 result from unchanged GIT-065 base `5f2637faf56ab1f2df1408080c7cc1cacf4d6fab`; GIT-066 publication/integration, proof preservation and D-0054 cleanup remain pending. SPEC-0008 remains unauthorized.
 
-## Current stopping point — SPEC-0007 Phase 4 published, synchronized, preserved and cleaned up
+## Current stopping point — SPEC-0007 Phase 5 accepted, propagated and frozen before publication
+
+Arthur accepted the final app at `http://127.0.0.1:56960/`. The executor is fully stopped; the only remaining process is the review server. D-0083 binds exactly eight technical paths from unchanged GIT-065 base/HEAD `5f2637faf56ab1f2df1408080c7cc1cacf4d6fab`, empty index. Immutable 11,385-byte manifest `output/spec-0007/phase-5/proof-manifest.json` is PASS at SHA-256 `f2b2d5939488eba9caf757b0149b60476936996d5fcd6876f59d46c7a406174c`, source digest `381ef09ad28a389c25ab4e3e547e96339648b09757cafe13a4ff4e012d560766`; independent validator is VALID with 37 assertions and eight rejected mutations.
+
+The accepted correction restores the exact last-good bitmap and clears transient editing state whenever coordinator publication fails after a visible canvas mutation, closing the reproduced stale-canvas/autosave silent-loss route. Tween playback caching now admits only actual tween owners. A 40-command runtime-used manual registry covers all enabled manual mutations and all 11 destructive commands without adding an AI caller or a second mutation owner.
+
+Proof passed 155 static assertions, 51 browser assertions, one injected publication failure, 160 authored operations, 162/162 Undo/Redo, five warmed playback loops, 191 ms maximum long task, 139,535,920-byte settled heap, zero serious Axe findings, zero overflow, zero external requests and zero browser errors. Relevant Phase 1–4 and SPEC-0006 regression suites passed. TypeScript/focused lint/production Webpack compile passed before the unchanged inherited generated route-type baseline.
+
+Exact next step: after this Control Plane Architect packet, Arthur must separately authorize GIT-066 publication. The publisher verifies the exact accepted eight-path allowlist plus reviewed record/tree paths, empty index, unchanged clean canonical `main` and local/live remote equality; commits on a `codex/` publication branch; fast-forwards canonical `main`; pushes normally; proves clean `0/0`; preserves the complete ignored proof; then stops PID 46510/port 56960 and removes only the obsolete Phase 5 worktree and merged local branch under D-0054. No pull, merge, rebase, amend, force-push, history rewrite, runtime correction, SPEC-0008 creation or external/paid operation is authorized by this propagation packet.
+
+## Historical stopping point — SPEC-0007 Phase 4 published, synchronized, preserved and cleaned up
 
 Arthur accepted the Phase 4 app at `http://127.0.0.1:56950/` after testing image import and onion skin. D-0081 binds its exact 11-path result from unchanged GIT-064 base/HEAD `f16d36b454728b3e216ec738013366f0230ddbdb`, empty index. The immutable 5,851-byte PASS manifest SHA-256 is `36ad00d6bdbe9ebc2ab3640f2ab5a9987ab46780f910b5d470a9142f32f19c4c`; source digest is `509dbde25762fdb358d0625d9bf151c95b00e5d260bc984ae3a4b9d432439421`.
 

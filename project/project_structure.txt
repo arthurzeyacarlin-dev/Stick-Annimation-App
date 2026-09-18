@@ -270,6 +270,8 @@
 ./scripts/fixtures/spec0007-manual/phase-3/contract.json
 ./scripts/fixtures/spec0007-manual/phase-4
 ./scripts/fixtures/spec0007-manual/phase-4/contract.json
+./scripts/fixtures/spec0007-manual/phase-5
+./scripts/fixtures/spec0007-manual/phase-5/contract.json
 ./scripts/fixtures/stick-ai
 ./scripts/fixtures/stick-ai/v1
 ./scripts/fixtures/stick-ai/v1/canonical-hash-vectors.json
@@ -465,6 +467,11 @@
 ./scripts/spec0007-manual/phase-4/recordProof.ts
 ./scripts/spec0007-manual/phase-4/staticOracle.ts
 ./scripts/spec0007-manual/phase-4/validateProof.ts
+./scripts/spec0007-manual/phase-5
+./scripts/spec0007-manual/phase-5/browserProof.ts
+./scripts/spec0007-manual/phase-5/recordProof.ts
+./scripts/spec0007-manual/phase-5/staticOracle.ts
+./scripts/spec0007-manual/phase-5/validateProof.ts
 ./scripts/sync_docs_to_github.sh
 ./scripts/traceExplosionLivePath.ts
 ./scripts/traceGenerateSoundsLivePath.mjs
@@ -584,6 +591,7 @@
 ./src/lib/animation/editorCommands
 ./src/lib/animation/editorCommands/destructiveRegistry.ts
 ./src/lib/animation/editorCommands/drawRigCorridor.ts
+./src/lib/animation/editorCommands/manualCapabilityRegistry.ts
 ./src/lib/animation/editorCommands/rasterGesture.ts
 ./src/lib/animation/editorCommands/staticAssetImport.ts
 ./src/lib/animation/legacyRigRetirementV3.ts

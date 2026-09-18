@@ -5,6 +5,15 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-18 — Accept and technically verify SPEC-0007 Phase 5 (D-0083)
+
+- Accepted the exact eight-path Phase 5 result from unchanged GIT-065 base `5f2637faf56ab1f2df1408080c7cc1cacf4d6fab` after Arthur's visible PASS at port 56960.
+- Permanently restored the exact last-good bitmap and cleared transient editing whenever coordinator publication fails after a visible canvas mutation, closing the reproduced stale-canvas/autosave silent-loss route.
+- Restricted frozen tween playback descriptors to actual tween owners and added the runtime-used 40-command manual capability registry covering all 11 explicit destructive commands.
+- Bound immutable 11,385-byte PASS/VALID manifest SHA-256 `f2b2d5939488eba9caf757b0149b60476936996d5fcd6876f59d46c7a406174c`, source digest `381ef09ad28a389c25ab4e3e547e96339648b09757cafe13a4ff4e012d560766`, 155 static assertions, 51 browser assertions, 160 authored operations, 162/162 Undo/Redo, five playback loops, performance/accessibility/isolation and Phase 1–4/SPEC-0006 regressions.
+- Updated canonical records only after sequential ownership transfer; accepted technical bytes remain unchanged during propagation.
+- Left GIT-066 publication/integration, proof preservation and D-0054 cleanup pending a later explicit instruction. No AI/provider/model/prompt/API/motion/video/tracking, dependency/configuration, deployment or external/paid operation was added.
+
 ### 2026-09-18 — Publish and close SPEC-0007 Phase 4 Assets Stabilization (D-0082/GIT-065)
 
 - Published exact 24-path commit `0dc707ff249560f4f19b8359c6a44a383e8caf92`, parent `f16d36b454728b3e216ec738013366f0230ddbdb`, message `Implement SPEC-0007 Phase 4 assets stabilization`: 11 accepted technical paths plus 13 reviewed control-plane/tree paths.

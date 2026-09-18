@@ -1,6 +1,7 @@
 import { canonicalPaint, compositeRasterPaint, mergePaintPixel, rasterCommandDigest, RASTER_ALGORITHM_VERSION, RASTER_GESTURE_COMMAND, RasterGestureDraft, unionRect, type RasterGestureCommandV2, type RasterPreview, type RasterRect } from "@/src/lib/animation/editorCommands/rasterGesture";
 import { attachBitmapPaintCoverage, compositeRasterSelectionV1, cropPaintCoverage, copyBitmapPaintCoverage, forEachPaintCoverage, getBitmapPaintCoverage, createPaintCoverageWriter, getPaintCoverage, patchPaintCoverage, remapSketchOwners, resolveSketchKnifeOwner, transformPaintCoverage, type UnifiedRasterPaintCoverageV1 } from "@/src/lib/animation/unifiedRasterPaintCoverageV1";
 import { authorizeDestructiveCommand } from "@/src/lib/animation/editorCommands/destructiveRegistry";
+import { requireManualEditorCommand } from "@/src/lib/animation/editorCommands/manualCapabilityRegistry";
 import { assetImportErrorMessage, prepareStaticAssetBatchV2 } from "@/src/lib/animation/editorCommands/staticAssetImport";
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
@@ -551,7 +552,7 @@ type DrawingCanvasProps = {
     source: { prompt: string; response: string },
   ) => Promise<boolean> | boolean;
   onExecuteActionPlan?: (actionPlan: NonNullable<DrawingAiActionPlan>) => Promise<boolean> | boolean;
-  onAuthoringActionCommitted?: (reason: "stroke" | "fill" | "shape" | "placed-asset" | "clear-canvas" | "knife" | "selection", command?: RasterGestureCommandV2) => boolean | void;
+  onAuthoringActionCommitted?: (reason: "stroke" | "fill" | "shape" | "shape-cutout" | "placed-asset" | "clear-canvas" | "knife" | "selection", command?: RasterGestureCommandV2) => boolean | void;
   onUnifiedSelectionActionCommitted?: (action: {
     drawingChanged: boolean;
     stickContent: StickFigureFrameContent | null;
@@ -3845,6 +3846,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   }, [activeTextObjects, commitTextObjects]);
 
   const deleteSelectedTextObjects = useCallback((objectIds: string[]) => {
+    requireManualEditorCommand("delete-selection", "DrawingWorkspace.commitCanvasAuthoringAction");
     if (!authorizeDestructiveCommand({ commandId: "delete-selection", targetIds: objectIds, availableTargetIds: activeTextObjects.map(object => object.id) }).allowed) return false;
     const objectIdSet = new Set(objectIds);
     const nextObjects = activeTextObjects.filter((textObject) => !objectIdSet.has(textObject.id));
@@ -4488,6 +4490,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     authoringDirtyCaptureModeRef.current = "region";
     authoringDirtyRectRef.current = null;
     const erase = activeTool === "Eraser";
+    if (erase) requireManualEditorCommand("eraser", "DrawingWorkspace.commitCanvasAuthoringAction");
     if (erase && !authorizeDestructiveCommand({ commandId: "eraser", targetIds: [currentRasterContextRef.current], availableTargetIds: [currentRasterContextRef.current] }).allowed) return;
     const baseCoverage = getBitmapPaintCoverage(canvas);
     const engine = new RasterGestureDraft({ key: canonicalPaint(erase ? "Brush" : brushToolVariant, erase ? "#000000" : brushColor, erase ? 0 : brushTransparency), size: erase ? eraserSize : brushSize, smoothing: erase ? 0 : brushSmoothing, brightness: glowGradientBrightness, radius: glowGradientRadius, seed: 173, width: canvas.width, height: canvas.height, scaleX: metrics.scaleX, scaleY: metrics.scaleY, ...(!erase && drawRigEnabled ? { drawRig: true as const } : {}) });
@@ -4803,6 +4806,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     if (mode === "Cutout") {
       ctx.save();
       ctx.globalCompositeOperation = "destination-out";
+      requireManualEditorCommand("shape-cutout", "DrawingWorkspace.commitCanvasAuthoringAction");
       if (!authorizeDestructiveCommand({ commandId: "shape-cutout", targetIds: [currentRasterContextRef.current], availableTargetIds: [currentRasterContextRef.current] }).allowed) {
         ctx.restore();
         return;
@@ -5198,6 +5202,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       return false;
     }
     const targets = session.items.map(item => item.id);
+    requireManualEditorCommand(owner === "knife" ? "knife" : "delete-selection", "DrawingWorkspace.commitCanvasAuthoringAction");
     if (!authorizeDestructiveCommand({ commandId: owner === "knife" ? "knife" : "delete-selection", targetIds: targets, availableTargetIds: targets }).allowed) return false;
 
     const nextStickContent = session.structuredStick
@@ -5433,6 +5438,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       deleteBitmapSelectionSession("knife");
       return;
     }
+    requireManualEditorCommand("knife", "DrawingWorkspace.commitCanvasAuthoringAction");
     if (!authorizeDestructiveCommand({ commandId: "knife", targetIds: [activeItem.id], availableTargetIds: session.items.map(item => item.id) }).allowed) return;
 
     setBitmapSelectionSessionState({
@@ -5448,6 +5454,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     const ctx = canvas?.getContext("2d");
     const metrics = getAuthoringMetrics();
     if (!canvas || !ctx || !metrics || path.length < 2) return;
+    requireManualEditorCommand("knife", "DrawingWorkspace.commitCanvasAuthoringAction");
     if (!authorizeDestructiveCommand({ commandId: "knife", targetIds: [currentRasterContextRef.current], availableTargetIds: [currentRasterContextRef.current] }).allowed) return;
     const cssToPixelX = metrics.scaleX;
     const cssToPixelY = metrics.scaleY;
@@ -9034,7 +9041,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       shapeDraftRef.current = null;
       shapeDraftBaseImageRef.current = null;
       if (didCommitShape) {
-        onAuthoringActionCommitted?.("shape");
+        onAuthoringActionCommitted?.(shapeMode === "Cutout" ? "shape-cutout" : "shape");
       }
       if (e.currentTarget.hasPointerCapture(e.pointerId)) {
         e.currentTarget.releasePointerCapture(e.pointerId);
@@ -9143,6 +9150,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   };
 
   const updateCameraZoom = (nextZoomRaw: number) => {
+    requireManualEditorCommand("drawing.canvas.zoom/v1", "DrawingCanvas.updateCameraZoom");
     const nextZoom = clamp(nextZoomRaw, MIN_CAMERA_ZOOM, MAX_CAMERA_ZOOM);
     setCameraZoom(nextZoom);
     setCameraPan((prev) => clampPan(prev, nextZoom));
@@ -9184,6 +9192,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     if (!canvas || !ctx) return;
     if (!window.confirm("Clear the current canvas? This will remove the visible artwork on this canvas.")) return;
     const owner = currentRasterContextRef.current;
+    requireManualEditorCommand("clear-canvas", "DrawingWorkspace.commitCanvasAuthoringAction");
     if (!authorizeDestructiveCommand({ commandId: "clear-canvas", targetIds: [owner], availableTargetIds: [owner], confirmed: true }).allowed) return;
     cancelPendingAuthoringGesture("clear-canvas");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -9193,6 +9202,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   };
 
   const startSelectPan = (e: React.PointerEvent<HTMLDivElement>) => {
+    requireManualEditorCommand("drawing.canvas.pan/v1", "DrawingCanvas.startSelectPan");
     if (activeTool !== "Select" || !canvasMovementEnabled) return;
     isPanningRef.current = true;
     setIsPanning(true);
@@ -9414,6 +9424,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   };
   const deleteSelectedUnifiedSymbol = () => {
     if (!selectedUnifiedSymbolInstance || !onUnifiedSymbolInstancesChange) return;
+    requireManualEditorCommand("delete-instance", "DrawingWorkspace.commitUnifiedSymbolInstances");
     if (!authorizeDestructiveCommand({ commandId: "delete-instance", targetIds: [selectedUnifiedSymbolInstance.itemId], availableTargetIds: unifiedSymbolInstances.map(instance => instance.itemId) }).allowed) return;
     if (onUnifiedSymbolInstancesChange(unifiedSymbolInstances.filter(instance => instance.itemId !== selectedUnifiedSymbolInstance.itemId))) {
       setSelectedUnifiedSymbolInstanceId(null);

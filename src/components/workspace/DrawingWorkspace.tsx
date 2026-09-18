@@ -77,6 +77,10 @@ import {
   removeSymbolDefinitionV2,
 } from "@/src/lib/animation/unifiedProjectCatalogV2";
 import { authorizeDestructiveCommand, isAuthoringSnapshotCurrent, type AuthoringSnapshotIdentity } from "@/src/lib/animation/editorCommands/destructiveRegistry";
+import {
+  requireManualEditorCommand,
+  type ManualEditorCommandId,
+} from "@/src/lib/animation/editorCommands/manualCapabilityRegistry";
 import { validateRasterGestureCommand, type RasterGestureCommandV2 } from "@/src/lib/animation/editorCommands/rasterGesture";
 import {
   attachBitmapPaintCoverage,
@@ -440,7 +444,18 @@ type CopiedTimelineFrame = {
   symbolInstances?: UnifiedSymbolInstanceItemV2[];
 };
 
-type CanvasAuthoringActionReason = "stroke" | "fill" | "shape" | "placed-asset" | "clear-canvas" | "knife" | "selection";
+type CanvasAuthoringActionReason = "stroke" | "fill" | "shape" | "shape-cutout" | "placed-asset" | "clear-canvas" | "knife" | "selection";
+
+const CANVAS_MANUAL_COMMANDS: Record<CanvasAuthoringActionReason, ManualEditorCommandId> = {
+  stroke: "drawing.raster-gesture.commit/v2",
+  fill: "drawing.fill-region.commit/v1",
+  shape: "drawing.shape.commit/v1",
+  "shape-cutout": "shape-cutout",
+  "placed-asset": "drawing.placed-asset.commit/v1",
+  "clear-canvas": "clear-canvas",
+  knife: "knife",
+  selection: "drawing.selection.commit/v1",
+};
 
 const MemoizedDrawingTimelineRow = memo(DrawingTimelineRow);
 const MemoizedDrawingCanvas = memo(DrawingCanvas);
@@ -2920,6 +2935,12 @@ const buildFrozenTweenPlaybackCache = (layers: WorkspaceLayer[]): FrozenTweenPla
       if (!isFrameStateStart(frame)) {
         return;
       }
+      const followingFrame = layer.timelineFrames[frameIndex + 1] ?? null;
+      const ownsTweenSpan = frame.cellType === "tween" ||
+        Boolean(followingFrame?.cellType === "tween" && followingFrame.stateId === frame.stateId);
+      if (!ownsTweenSpan) {
+        return;
+      }
 
       const descriptorResult = buildFrozenTweenPlaybackDescriptor(layer.id, layer.timelineFrames, frameIndex);
       if (descriptorResult.status !== "success") {
@@ -3545,6 +3566,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
     unifiedProject.revision > 0 ? "saved" : "not-saved",
   );
   const activateDrawingTool = useCallback((tool: DrawingToolName) => {
+    requireManualEditorCommand("drawing.tool.activate/v1", "DrawingWorkspace.activateDrawingTool");
     setActiveTool(tool);
     setDrawingToolActivationId((current) => current + 1);
   }, []);
@@ -5698,6 +5720,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
 
   const selectTimelinePosition = useCallback(
     (nextIndex: number) => {
+      requireManualEditorCommand("timeline.position.select/v1", "DrawingWorkspace.selectTimelinePosition");
       const clampedIndex = Math.max(0, nextIndex);
       selectedTimelineIndexRef.current = clampedIndex;
       setSelectedTimelineIndex(clampedIndex);
@@ -5707,6 +5730,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
 
   const attachSoundOptionToFrame = useCallback(
     async (layerId: string, frameIndex: number, soundOption: DrawingAiSoundOption) => {
+      requireManualEditorCommand("timeline.sound.attach/v1", "DrawingWorkspace.attachSoundOptionToFrame");
       if (!isSoundGenerationEnabled()) {
         console.warn(SOUND_GENERATION_DISABLED_MESSAGE, {
           soundOptionId: soundOption.id,
@@ -5792,6 +5816,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
 
   const removeSoundAttachmentFromFrame = useCallback(
     (layerId: string, frameIndex: number) => {
+      requireManualEditorCommand("remove-attached-sound", "DrawingWorkspace.removeSoundAttachmentFromFrame");
       if (frameIndex < 0) {
         return false;
       }
@@ -5830,6 +5855,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
   );
 
   const copyTimelineFrame = useCallback((layerId: string, frameIndex: number) => {
+    requireManualEditorCommand("timeline.frame.copy/v1", "DrawingWorkspace.copyTimelineFrame");
     if (layerId === activeLayerIdRef.current && !isTimelinePlayingRef.current) {
       saveCurrentFrameSnapshotRef.current?.(currentFrameIndexRef.current, layerId, {
         debugCaller: "copyTimelineFrame:commit-active-layer",
@@ -5859,6 +5885,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
 
   const pasteTimelineFrame = useCallback(
     (layerId: string, targetIndex: number) => {
+      requireManualEditorCommand("timeline.frame.paste/v1", "DrawingWorkspace.pasteTimelineFrame");
       const copiedFrame = copiedTimelineFrameRef.current;
       if (!copiedFrame) {
         return false;
@@ -6501,11 +6528,18 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
       historyWorkspaceStampRef.current = previous.stamp;
       timelineRowLayersSourceRef.current = previous.rowSource;
       startTransition(() => setLayers(previous.layers));
+      // A full-canvas mutation happens before this coordinator is called. If
+      // persistence/history publication fails, restoring refs alone leaves the
+      // destructive transient pixels live, and the queued pointer-up autosave
+      // can publish them on retry. Cancel all transient owners and repaint the
+      // exact last-good bitmap before clearing the pending authoring marker.
+      drawingCanvasRef.current?.clearTransientEditingState();
+      restoreBitmapToCanvas(currentBitmap);
       syncHistoryAvailability();
       setSaveState("failed");
       return null;
     }
-  }, [syncHistoryAvailability]);
+  }, [restoreBitmapToCanvas, syncHistoryAvailability]);
 
   const saveCurrentFrameSnapshot = useCallback(
     (
@@ -6650,6 +6684,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
   saveCurrentFrameSnapshotRef.current = saveCurrentFrameSnapshot;
 
   const commitCanvasAuthoringAction = useCallback((reason: CanvasAuthoringActionReason, command?: RasterGestureCommandV2) => {
+    const manualCommandId = reason === "stroke" && command?.erase ? "eraser" : CANVAS_MANUAL_COMMANDS[reason];
+    requireManualEditorCommand(manualCommandId, "DrawingWorkspace.commitCanvasAuthoringAction");
     if (isTimelinePlayingRef.current || isApplyingHistoryRef.current) {
       return false;
     }
@@ -6686,6 +6722,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
 
   const activateLayer = useCallback(
     (layerId: string) => {
+      requireManualEditorCommand("timeline.layer.activate/v1", "DrawingWorkspace.activateLayer");
       const nextActiveLayer = getLayerById(layersRef.current, layerId);
       if (!nextActiveLayer || nextActiveLayer.id === activeLayerIdRef.current) {
         return;
@@ -6716,6 +6753,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
 
   const switchToFrame = useCallback(
     (nextIndex: number) => {
+      requireManualEditorCommand("timeline.frame.activate/v1", "DrawingWorkspace.switchToFrame");
       const layers = layersRef.current;
       const frameCount = getGlobalTimelineFrameCount(layers);
       if (!frameCount) return;
@@ -6823,6 +6861,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
   );
 
   const handlePlayTimeline = useCallback(() => {
+    requireManualEditorCommand("playback.start/v1", "DrawingWorkspace.handlePlayTimeline");
     const currentIndex = currentFrameIndexRef.current;
     saveCurrentFrameSnapshot(currentIndex, activeLayerIdRef.current, {
       debugCaller: "handlePlayTimeline",
@@ -6901,6 +6940,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
   }, [ensureTimelinePlaybackAudioContext, invalidatePlaybackSurfaceMetrics, playAttachedSoundsForFrameIndices, renderBitmapToPlaybackCanvas, renderWorkspaceCanvases, saveCurrentFrameSnapshot, stopTimelinePlaybackAudio]);
 
   const handlePauseTimeline = useCallback(() => {
+    requireManualEditorCommand("playback.pause/v1", "DrawingWorkspace.handlePauseTimeline");
     frozenTweenPlaybackCacheRef.current = new Map();
     playbackRestorePendingRef.current = true;
     playbackUiSyncAtRef.current = 0;
@@ -6909,10 +6949,12 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
   }, [stopTimelinePlaybackAudio]);
 
   const handleTimelineFpsChange = useCallback((nextFps: number) => {
+    requireManualEditorCommand("timeline.fps.set/v1", "DrawingWorkspace.handleTimelineFpsChange");
     setTimelineFps(Math.max(1, Math.min(55, nextFps)));
   }, []);
 
   const handleToggleOnion = useCallback(() => {
+    requireManualEditorCommand("timeline.onion.toggle/v1", "DrawingWorkspace.handleToggleOnion");
     setIsOnionEnabled((current) => !current);
   }, []);
 
@@ -7125,6 +7167,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
   }, [activeUnifiedProject, projectAiMemory, projectTitle]);
 
   const handleUndo = useCallback(() => {
+    requireManualEditorCommand("history.undo/v1", "DrawingWorkspace.handleUndo");
     if (isTimelinePlayingRef.current || isApplyingHistoryRef.current || !canUndoHistory) {
       return;
     }
@@ -7170,6 +7213,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
   ]);
 
   const handleRedo = useCallback(() => {
+    requireManualEditorCommand("history.redo/v1", "DrawingWorkspace.handleRedo");
     if (isTimelinePlayingRef.current || isApplyingHistoryRef.current || !canRedoHistory) {
       return;
     }
@@ -7215,6 +7259,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
   ]);
 
   const addLayer = useCallback(() => {
+    requireManualEditorCommand("timeline.layer.add/v1", "DrawingWorkspace.addLayer");
     if (!isTimelinePlayingRef.current) {
       saveCurrentFrameSnapshot(currentFrameIndexRef.current, activeLayerIdRef.current, {
         debugCaller: "addLayer",
@@ -7294,6 +7339,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
   ]);
 
   const deleteActiveLayer = useCallback(() => {
+    requireManualEditorCommand("delete-layer", "DrawingWorkspace.deleteActiveLayer");
     const currentLayers = layersRef.current;
     if (currentLayers.length <= 1) {
       return;
@@ -7356,6 +7402,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
 
   const addTimelineFrame = useCallback(
     (layerId: string, kind: TimelineFrameKind, targetIndex: number, options?: { blank?: boolean }) => {
+      requireManualEditorCommand("timeline.frame.insert/v1", "DrawingWorkspace.addTimelineFrame");
       const currentIndex = currentFrameIndexRef.current;
       let liveSnapshot: TimelineFrameSnapshot | null = null;
       if (layerId !== activeLayerIdRef.current) {
@@ -7438,6 +7485,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
 
   const removeTimelineFrame = useCallback(
     (layerId: string, targetIndex: number) => {
+      requireManualEditorCommand("remove-frame", "DrawingWorkspace.removeTimelineFrame");
       if (layerId !== activeLayerIdRef.current) {
         saveCurrentFrameSnapshot(currentFrameIndexRef.current, activeLayerIdRef.current, {
           debugCaller: "removeTimelineFrame:commit-active-layer",
@@ -7512,6 +7560,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
 
   const resizeTimelineSpan = useCallback(
     (layerId: string, stateId: number, spanType: "frame" | "tween", nextEndIndex: number) => {
+      requireManualEditorCommand("timeline.span.resize/v1", "DrawingWorkspace.resizeTimelineSpan");
       const currentIndex = currentFrameIndexRef.current;
       const resizeSessionKey = `${layerId}:${stateId}:${spanType}`;
       if (resizeCommitSessionRef.current?.key !== resizeSessionKey) {
@@ -7881,6 +7930,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
   void createProjectPreview;
 
   const saveProject = useCallback(async () => {
+    requireManualEditorCommand("project.save/v2", "DrawingWorkspace.saveProject");
     if (isTimelinePlayingRef.current || saveInFlightRef.current) return false;
     const capturedWorkspaceInstanceId = workspaceInstanceIdRef.current;
     saveInFlightRef.current = true; setSaveState("saving");
@@ -8213,6 +8263,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
   );
 
   const handleSaveAs = useCallback(async () => {
+    requireManualEditorCommand("project.save-as/v2", "DrawingWorkspace.handleSaveAs");
     if (isTimelinePlayingRef.current || saveInFlightRef.current) {
       return;
     }
@@ -8249,6 +8300,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
   }, [buildUnifiedProjectSnapshot, commitCurrentFrameSnapshotWithoutHistory, createPersistedProjectSnapshot, projectTitle, showSaveNotification]);
 
   const handleTextObjectsChange = useCallback((nextTextObjects: DrawingTextObject[]) => {
+    requireManualEditorCommand("drawing.text.commit/v1", "DrawingWorkspace.handleTextObjectsChange");
     return updateFrameTextObjects(currentFrameIndexRef.current, nextTextObjects, activeLayerIdRef.current);
   }, [updateFrameTextObjects]);
 
@@ -8555,6 +8607,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
     stickContent: StickFigureFrameContent | null;
     textObjects: DrawingTextObject[] | null;
   } | null) => {
+    requireManualEditorCommand("symbol.definition.create/v1", "DrawingWorkspace.createUnifiedSymbolDefinition");
     if (isTimelinePlayingRef.current || isApplyingHistoryRef.current) return false;
     const activeFrame = timelineFramesRef.current[currentFrameIndexRef.current] ?? null;
     if (!activeFrame || activeFrame.cellType === "empty") return false;
@@ -8628,6 +8681,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
     });
   }, [activeStickCellKey, commitCurrentHistoryState, recordUndoSnapshot, replaceLayerFrames, runCompoundAuthoringAction, saveCurrentFrameSnapshot]);
   const importUnifiedAssets = useCallback((assets: UnifiedProjectAssetV2[]) => {
+    requireManualEditorCommand("asset.catalog.import/v1", "DrawingWorkspace.importUnifiedAssets");
     if (assets.length === 0 || isTimelinePlayingRef.current || isApplyingHistoryRef.current) return false;
     let nextCatalogs: UnifiedProjectCatalogsV2;
     try {
@@ -8643,6 +8697,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
     return true;
   }, [commitCurrentHistoryState, recordUndoSnapshot]);
   const removeUnifiedAsset = useCallback((assetId: string, referenced: boolean) => {
+    requireManualEditorCommand("delete-asset", "DrawingWorkspace.removeUnifiedAsset");
     if (isTimelinePlayingRef.current || isApplyingHistoryRef.current) return false;
     const availableTargetIds = unifiedCatalogsRef.current.assets.map(asset => asset.assetId);
     if (!authorizeDestructiveCommand({ commandId: "delete-asset", targetIds: [assetId], availableTargetIds, referenced }).allowed) return false;
@@ -8660,6 +8715,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
     return true;
   }, [commitCurrentHistoryState, recordUndoSnapshot]);
   const removeUnifiedSymbolDefinition = useCallback((definitionId: string) => {
+    requireManualEditorCommand("delete-definition", "DrawingWorkspace.removeUnifiedSymbolDefinition");
     if (isTimelinePlayingRef.current || isApplyingHistoryRef.current) return false;
     const referencedDefinitionIds = new Set(
       Object.values(symbolInstancesByCellRef.current).flat().map(instance => instance.definitionId),
@@ -8681,6 +8737,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
     return true;
   }, [commitCurrentHistoryState, recordUndoSnapshot]);
   const commitUnifiedSymbolInstances = useCallback((instances: UnifiedSymbolInstanceItemV2[]) => {
+    requireManualEditorCommand("symbol.instances.commit/v1", "DrawingWorkspace.commitUnifiedSymbolInstances");
     if (!activeStickCellKey || isTimelinePlayingRef.current || isApplyingHistoryRef.current) return false;
     recordUndoSnapshot();
     const next = { ...symbolInstancesByCellRef.current, [activeStickCellKey]: structuredClone(instances) };

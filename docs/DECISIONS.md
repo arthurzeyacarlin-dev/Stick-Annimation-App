@@ -781,6 +781,15 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Boundaries: no active structured-rig retirement/migration, Assets change, Phase 5 command registry, AI/provider/model/prompt/API/video/tracking behavior, dependency/configuration, deployment, external/paid operation, or Phase 3 authorization is included. `DrawingCanvas.tsx` and `rasterGesture.ts` retain their protected final Phase 2 integration hashes through the strength-only correction.
 - Publication/cleanup: preserve the accepted `/Users/arthurcarlin/.codex/worktrees/spec7-phase2-stronger-v3/stick-animation-app`, review server/port 56877 and proof until separate publication succeeds. GIT-063 may stage only the exact accepted ten technical paths plus the reviewed control-plane/tree paths, commit once on a `codex/` publication branch, fast-forward unchanged clean canonical `main`, push normally, and verify local/live `0/0`. No pull, merge, rebase, amend, force-push, history rewrite or scope expansion. After proof preservation and synchronization, stop the exact server, verify both superseded Phase 2 review ports closed, and remove only obsolete Phase 2 review worktrees/now-unused local branch under D-0054. This CPA turn stages, commits, pushes and cleans up nothing.
 
+### D-0078 — Record GIT-063 publication and close SPEC-0007 Phase 2
+
+- Date: 2026-09-18
+- Authority: Arthur's explicit post-CPA instruction to put Phase 2 into Diamond Animator, commit, push GitHub, record the control plane and report when Phase 3 is ready.
+- Publication: GIT-063 is exact 23-path commit `fb10e6239fd4b1edf319b3137a883e1219645ef3`, parent `88721481a345d6dda3f17b5620111a9cda2ab799`, message `Implement SPEC-0007 Phase 2 Draw Rig`. It contains exactly the accepted ten technical paths plus 13 reviewed control-plane/tree paths. Clean canonical `main` fast-forwarded to it, pushed normally, and canonical `main`, local `origin/main`, and live GitHub `main` were verified equal at clean `0/0`.
+- Proof preservation: the complete accepted Phase 2 output is preserved at `/Users/arthurcarlin/.codex/worktrees/2d14/stick-animation-app/output/recovery/GIT-063-phase-2-fb10e62/phase-2`: 37 files, 956 KiB, aggregate SHA-256 `3f21db115795431a6564a1dc5833cccad5bd92c27cf240ae3f7e4e95ea982dc2`, with matching source/destination aggregates and empty `rsync -ani --delete`. Technical manifest remains SHA-256 `21db2d920831240be7eeb18fb2ca37126197d762f7ff9a432a3912a0da5809bd`; pre-publication CPA closeout remains SHA-256 `37549714b4d571d1d7bd42f7a628337662dd989c9efb357d14063b2a4d86d870`.
+- Cleanup: exact accepted review PID 26063 was stopped; ports 56876 and 56877 were verified closed. `/Users/arthurcarlin/.codex/worktrees/a7a0/stick-animation-app` and `/Users/arthurcarlin/.codex/worktrees/spec7-phase2-stronger-v3/stick-animation-app` were removed/unregistered only after publication, synchronization and backup verification. The fully merged local branch `codex/spec0007-phase2-publication` was deleted. Canonical main, the active PM worktree, remote refs and recovery material remain.
+- Consequence: SPEC-0007 Phase 2 is accepted, Verified, published, integrated, recorded and cleaned up. Phase 3 — Safe Legacy Rig Retirement and Migration — has its entry dependency satisfied and is ready for Arthur's separate authorization, but remains Unauthorized; not started. No Phase 3 runtime/proof, Assets, AI/provider/model/prompt/API/video/tracking behavior, dependency/configuration, deployment, external/paid operation or new app copy is included.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation
@@ -827,7 +836,7 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 
 ### P-0006 — First usable manual drawing-based feature set
 
-- Status: resolved by corrected drawing-only SPEC-0007 under D-0074; D-0075/D-0076/GIT-062 close Phase 1, and D-0077 accepts/technically verifies Phase 2 pending GIT-063 publication/integration and D-0054 cleanup. Phases 3–5 remain unauthorized.
+- Status: resolved by corrected drawing-only SPEC-0007 under D-0074; D-0075/D-0076/GIT-062 close Phase 1 and D-0077/D-0078/GIT-063 close Phase 2. Phase 3 is ready for separate authorization but remains unauthorized/not started; Phases 4–5 remain unauthorized.
 - Resolution: SPEC-0006 Phase 5 integrated the current tools. D-0074 replaces the former seven-phase structured-rig outcome with five phases: Drawing Engine/No-Loss; Draw Rig as ordinary raster paint; Safe Legacy Rig Retirement/Migration; bounded still Assets; and final command-registry/bug-burn proof. Active rig/Creator authoring ends after safe migration rather than expanding. Export, animated symbol timelines, motion/video/tracking, and AI expansion remain outside SPEC-0007.
 
 ### P-0007 — Data/search/privacy policy

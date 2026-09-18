@@ -5,6 +5,13 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-18 — Publish and close SPEC-0007 Phase 2 Draw Rig (D-0078/GIT-063)
+
+- Published exact 23-path commit `fb10e6239fd4b1edf319b3137a883e1219645ef3`, parent `88721481a345d6dda3f17b5620111a9cda2ab799`, message `Implement SPEC-0007 Phase 2 Draw Rig`: ten accepted technical paths plus 13 reviewed control-plane/tree paths.
+- Fast-forwarded clean canonical `main`, pushed normally, and verified canonical `main`, local `origin/main`, and live GitHub `main` equal at clean `0/0`.
+- Preserved the complete 37-file/956 KiB proof at aggregate SHA-256 `3f21db115795431a6564a1dc5833cccad5bd92c27cf240ae3f7e4e95ea982dc2`; technical manifest remains `21db2d920831240be7eeb18fb2ca37126197d762f7ff9a432a3912a0da5809bd`.
+- Stopped PID 26063, verified ports 56876/56877 closed, removed/unregistered both obsolete Phase 2 review worktrees, and deleted the merged local publication branch. Phase 3 is ready for separate authorization but remains unauthorized/not started.
+
 ### 2026-09-18 — Accept and technically verify SPEC-0007 Phase 2 Draw Rig (D-0077)
 
 - Recorded Arthur's acceptance of the final stronger-stick review copy at `http://127.0.0.1:56877/`: exact ten-path result from unchanged GIT-062 base/HEAD `88721481a345d6dda3f17b5620111a9cda2ab799`, empty index.

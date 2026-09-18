@@ -1,14 +1,14 @@
 # SPEC-0007 — Drawing-Only Manual Editor Completion and AI-Ready Tools
 
-Status: **Approved and active; Phase 1 closed; Phase 2 accepted and technically Verified under D-0077, pending GIT-063 publication/integration; Phases 3–5 Unauthorized**
+Status: **Approved and active; Phases 1–2 closed; Phase 3 ready for separate authorization but Unauthorized/not started; Phases 4–5 Unauthorized**
 Owner: Arthur
 Task role: Corrected phased implementation contract; this Spec Architect task changes no product runtime
 Created: 2026-09-14
 Last updated: 2026-09-18
-Decision links: [D-0071–D-0077](../DECISIONS.md), [D-0054](../DECISIONS.md), [D-0069–D-0070](../DECISIONS.md)
+Decision links: [D-0071–D-0078](../DECISIONS.md), [D-0054](../DECISIONS.md), [D-0069–D-0070](../DECISIONS.md)
 TODO IDs: `PLAN-007`, `SPEC-007`, `MANUAL-001`–`MANUAL-005`
 Corrected planning base: clean detached canonical-main SHA `be41db9e06126ae4e15c162962c6b856cb97660e`; index empty before edits
-Current runtime: canonical `main` remains published SPEC-0007 Phase 1 at GIT-062 `88721481a345d6dda3f17b5620111a9cda2ab799`; D-0077 accepts the unpublished Phase 2 review result pending GIT-063
+Current runtime: canonical `main` includes published/closed Phase 2 at GIT-063 `fb10e6239fd4b1edf319b3137a883e1219645ef3`; D-0078 records synchronization, proof preservation and D-0054 cleanup
 
 ## 1. Exact outcome and permanent laws
 
@@ -184,7 +184,7 @@ The corrected sequence has **five phases**, the smallest reliable separation bec
 
 Each phase is a separate lifecycle:
 
-1. Arthur authorizes exactly one phase. D-0074 historically authorized corrected Phase 1 only after its control-plane package was published/synchronized and rejected-copy cleanup completed. D-0077 now accepts and technically verifies the separately authorized Phase 2 result pending GIT-063 publication/integration and D-0054 cleanup. Phase 3 does not inherit authorization; Phases 3–5 remain unauthorized.
+1. Arthur authorizes exactly one phase. D-0074 historically authorized corrected Phase 1; D-0077 separately accepts and technically verifies Phase 2, and D-0078/GIT-063 closes its publication/integration/cleanup. Phase 3 does not inherit authorization; it is ready for a separate decision but remains unauthorized/not started. Phases 4–5 remain unauthorized.
 2. A fresh dedicated Spec Executor worktree starts in Plan mode from the exact integrated canonical-main SHA. It records HEAD/main/origin, empty index, exclusive ownership, prior D-0054 cleanup, and an exact phase path allowlist before editing.
 3. The executor changes only phase-authorized runtime/fixture/technical-test families plus ignored `output/spec-0007/phase-N/**`, creates and independently mutation-validates a technical manifest, returns an Implementation Review Packet, and completely stops. It changes no canonical docs or Git state.
 4. Arthur and the Project Manager accept or reject. Rejected bytes are never reused. Unique dirty/proof bytes are inventoried, hashed, backed up, and verified before the exact server/worktree/local branch is removed under D-0054.
@@ -200,7 +200,7 @@ Each manifest binds base/HEAD, spec hash, dirty allowlist, source/fixture/test h
 
 ### 7.1 Authorized outcome
 
-Phase 1 permanently stabilizes Brush, Pencil, Sketch, Pixelate, and Glow plus their shared raster commit path. D-0075 records acceptance/technical verification; D-0076 records GIT-062 publication and D-0054 cleanup. Arthur separately authorized, reviewed and accepted Phase 2; D-0077 records its technical verification. GIT-063 publication/integration remains pending and Phase 3 remains unauthorized.
+Phase 1 permanently stabilizes Brush, Pencil, Sketch, Pixelate, and Glow plus their shared raster commit path. D-0075/D-0076/GIT-062 close Phase 1. Arthur separately authorized, reviewed and accepted Phase 2; D-0077 records its technical verification and D-0078/GIT-063 records publication/integration/proof preservation/D-0054 cleanup. Phase 3 is ready for separate authorization but remains unauthorized/not started.
 
 The visible outcome is:
 
@@ -311,7 +311,7 @@ Exit: the Phase 1 manifest is PASS/VALID against fresh bytes, all user flows and
 
 ## 8. Phase 2 — Draw Rig
 
-Status: **Accepted and technically Verified under D-0077; pending GIT-063 publication/integration and D-0054 cleanup**
+Status: **Verified, published, integrated, recorded and cleaned up under D-0077/D-0078/GIT-063**
 
 ### 8.1 Visible contract
 
@@ -437,7 +437,7 @@ Only after Phase 5 technical PASS/VALID, Arthur/PM ordinary-app acceptance, CPA 
 | Phase | TODO | Entry gate | Exit result | Status |
 | --- | --- | --- | --- | --- |
 | 1 — Drawing Engine and No-Loss Stabilization | `MANUAL-001` | D-0074/spec package published and synchronized; rejected `/3cd3/` proof backed up and D-0054 cleanup complete; fresh Plan-mode worktree | Stable ordinary drawing, max coverage, real smoothing/Glow, preview identity, no disappearance, history/persistence/performance proof | **Verified/published/integrated/recorded/cleaned up** |
-| 2 — Draw Rig | `MANUAL-002` | Phase 1 accepted/published/synchronized/cleaned; separate authorization | Toggleable raster-only segmented drawing with deterministic thresholds and shared command | **Accepted and technically Verified under D-0077; pending GIT-063 publication/integration/cleanup** |
+| 2 — Draw Rig | `MANUAL-002` | Phase 1 accepted/published/synchronized/cleaned; separate authorization | Toggleable raster-only segmented drawing with deterministic thresholds and shared command | **Verified/published/integrated/recorded/cleaned up under D-0077/D-0078/GIT-063** |
 | 3 — Safe Legacy Rig Retirement and Migration | `MANUAL-003` | Phase 2 accepted/published/synchronized/cleaned; separate authorization | No active rig/Creator system; old projects/symbols migrate visibly and recoverably | Unauthorized; not started |
 | 4 — Assets Stabilization | `MANUAL-004` | Phase 3 accepted/published/synchronized/cleaned; separate authorization | Bounded truthful still-media lifecycle | Unauthorized; not started |
 | 5 — Final Bug Burn/Future-AI Registry | `MANUAL-005` | Phase 4 accepted/published/synchronized/cleaned; no known prior-phase repro; separate authorization | Complete manual matrix and runtime-used command registry | Unauthorized; not started |
@@ -457,6 +457,6 @@ Durable owner decisions are complete for the corrected Phase 1 outcome and five-
 
 The fresh corrected Phase 1 executor started from exact D-0074 publication SHA `1c5aee42fa87967ad058c00cc3d62b51589b77fa`, completed the exact 17-path implementation, and stopped. Arthur accepted its ordinary app on 2026-09-16. Technical manifest `output/spec-0007/phase-1/proof-manifest.json` is PASS/VALID at SHA-256 `511c778e83741b7dde420863769f68132146934f072c6203289bcbf0ea05d689`; independent validation is PASS at SHA-256 `61514dcb59275292b8f2d9e3b345552b3c8de5128290dde6ff9627b30dba7186`, including 99 rejected negative mutations. GIT-062 published the exact accepted package and D-0076 records synchronization/proof preservation/D-0054 cleanup.
 
-D-0077 accepts the stopped exact ten-path Phase 2 result from unchanged GIT-062 base/HEAD `88721481a345d6dda3f17b5620111a9cda2ab799`, empty index. Draw Rig uses `causal-fixed-corridor/v3` with tolerance `11`, minimum sample distance `0.75`, and direction-settle distance `12`, preserving immutable committed history and an unsealed live tail with no timer, replay, post-release refit or smoothing dependency. The immutable PASS manifest SHA-256 is `21db2d920831240be7eeb18fb2ca37126197d762f7ff9a432a3912a0da5809bd`; source digest is `f8d80225c16449afb0a20c6eff88197ec2d2bdf27349e3240211725ee459e8dc`. Proof passed 801 geometry assertions, 195 browser assertions, a 20-case style/transparency matrix, 37 independent manifest checks, exact protected Phase 1 hashes, Save/Open/Export, timeline/onion/playback/history, and 32 draw/undo cycles. Arthur accepted the stronger-stick result on 2026-09-18. GIT-063 publication/integration/proof preservation and D-0054 cleanup remain pending; Phase 3 is unauthorized.
+D-0077 accepts the stopped exact ten-path Phase 2 result from unchanged GIT-062 base/HEAD `88721481a345d6dda3f17b5620111a9cda2ab799`, empty index. Draw Rig uses `causal-fixed-corridor/v3` with tolerance `11`, minimum sample distance `0.75`, and direction-settle distance `12`, preserving immutable committed history and an unsealed live tail with no timer, replay, post-release refit or smoothing dependency. The immutable PASS manifest SHA-256 is `21db2d920831240be7eeb18fb2ca37126197d762f7ff9a432a3912a0da5809bd`; source digest is `f8d80225c16449afb0a20c6eff88197ec2d2bdf27349e3240211725ee459e8dc`. Proof passed 801 geometry assertions, 195 browser assertions, a 20-case style/transparency matrix, 37 independent manifest checks, exact protected Phase 1 hashes, Save/Open/Export, timeline/onion/playback/history, and 32 draw/undo cycles. Arthur accepted the stronger-stick result on 2026-09-18.
 
-Exact next step: complete separately authorized GIT-063 publication/integration and D-0054 accepted-copy cleanup without changing the accepted ten technical paths. No Phase 3 executor may start until that closeout is durably synchronized and Arthur separately authorizes Phase 3.
+D-0078/GIT-063 publishes the exact accepted ten technical paths plus 13 reviewed records/tree paths at `fb10e6239fd4b1edf319b3137a883e1219645ef3`, verifies clean local/live synchronization, preserves all 37 proof files at aggregate SHA-256 `3f21db115795431a6564a1dc5833cccad5bd92c27cf240ae3f7e4e95ea982dc2`, and completes D-0054 Phase 2 review-copy cleanup. Exact next step: Arthur may separately authorize one fresh Plan-mode Phase 3 executor from the then-current clean canonical-main SHA. Phase 3 has not started.

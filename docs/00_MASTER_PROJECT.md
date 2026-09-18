@@ -1,7 +1,7 @@
 # Diamond Animator Master Project Charter
 
 Status: canonical product intent
-Last updated: 2026-09-16
+Last updated: 2026-09-18
 
 ## Product Mission
 
@@ -35,7 +35,7 @@ The goal is not to hide a weak editor behind a chat box. The goal is one capable
 
 All seven SPEC-0006 phases are Verified, published, and durably integrated through exact GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`. D-0069 records Arthur's Phase 7 PASS and D-0070 records publication/D-0054 cleanup. The ordinary workspace mounts only the unified V2 editor; one V2 coordinator/history/repository owns authored state and Save/Save As/AI-triggered Save, while legacy parsers remain read-only import leaves.
 
-D-0074 rewrites [`SPEC-0007 — Drawing-Only Manual Editor Completion and AI-Ready Tools`](specs/0007-manual-editor-completion-and-ai-ready-tools.md) as **Approved and active**. D-0075 accepted corrected Phase 1; D-0076 records GIT-062 publication, clean synchronization and D-0054 cleanup. D-0077 accepts and technically verifies the exact ten-path Phase 2 Draw Rig result from GIT-062 base `88721481a345d6dda3f17b5620111a9cda2ab799`; publication/integration remains pending. Phase 1 is closed, Phase 2 is accepted/technically Verified pending GIT-063, and Phases 3–5 remain unauthorized.
+D-0074 rewrites [`SPEC-0007 — Drawing-Only Manual Editor Completion and AI-Ready Tools`](specs/0007-manual-editor-completion-and-ai-ready-tools.md) as **Approved and active**. D-0075/D-0076/GIT-062 close corrected Phase 1. D-0077 accepts and technically verifies Phase 2 Draw Rig; D-0078 records exact GIT-063 publication `fb10e6239fd4b1edf319b3137a883e1219645ef3`, clean synchronization, proof preservation and D-0054 cleanup. Phases 1–2 are closed. Phase 3 is ready for separate authorization but remains unauthorized/not started; Phases 4–5 remain unauthorized.
 
 The permanent direction is drawing-only: no non-destructive command may silently remove unrelated authored pixels/items; intentional removals use a closed registry of explicit destructive controls; same-paint raster overlaps use maximum coverage rather than cumulative darkening; and accepted Phase 2 **Draw Rig** creates ordinary segmented raster paint, never joints/bones/topology. By Phase 3, active structured-rig/Creator authoring is retired and historical rig content migrates non-destructively into ordinary drawing/drawing symbols through read-only compatibility adapters. Every future-AI-eligible mutation uses the same validated capability as its ordinary manual control. SPEC-0007 adds no AI/provider/model/prompt/API/video/tracking behavior.
 

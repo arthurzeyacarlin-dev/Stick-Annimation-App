@@ -1,7 +1,7 @@
 # Roadmap
 
 Status: canonical ordered direction; not a delivery schedule
-Last updated: 2026-09-16
+Last updated: 2026-09-18
 
 ## Roadmap Rules
 
@@ -17,7 +17,7 @@ All seven SPEC-0006 phases are Verified/published/integrated through GIT-061 `18
 
 The corrected order kept seven numbered phases. Minimal neutral data/storage preceded Phase 4 visible ordinary New, common history and timeline; Phase 5 completed current tools/catalogs/panels; Phase 6 completed source adoption/recovery and persistence proof; Phase 7 retired ordinary duplicate ownership and passed the full ordinary acceptance gate. SPEC-0006 is complete.
 
-[`SPEC-0007`](specs/0007-manual-editor-completion-and-ai-ready-tools.md) is Approved and active under D-0074. Phase 1 is closed through D-0075/D-0076/GIT-062. D-0077 accepts and technically verifies Phase 2 Draw Rig; GIT-063 publication/integration and D-0054 cleanup remain pending. Phases 3–5 remain unauthorized. The corrected sequential order is:
+[`SPEC-0007`](specs/0007-manual-editor-completion-and-ai-ready-tools.md) is Approved and active under D-0074. Phase 1 is closed through D-0075/D-0076/GIT-062. Phase 2 is closed through D-0077/D-0078/GIT-063. Phase 3 is the next possible phase and is ready for separate authorization but remains unauthorized/not started; Phases 4–5 remain unauthorized. The corrected sequential order is:
 
 1. Drawing Engine and No-Loss Stabilization.
 2. Draw Rig, as ordinary segmented raster drawing only.

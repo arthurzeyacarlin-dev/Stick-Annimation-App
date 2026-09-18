@@ -3,15 +3,15 @@
 Status: current canonical stopping point
 Last updated: 2026-09-18
 
-All seven SPEC-0006 phases are closed through GIT-061. Drawing-only SPEC-0007 is fully Verified, published, integrated, recorded and cleaned up through D-0083/D-0084/GIT-066 `c193b8ba89fa55ead02d84ea10bb81f71b960f8a`. D-0085 creates SPEC-0008 as Proposed, decision-complete and review-ready; D-0086/GIT-067 publishes its exact planning-only package at `ba5ecd694df78414240ce83a9140c5196334ebdc`. No implementation phase is authorized.
+All seven SPEC-0006 phases are closed through GIT-061. Drawing-only SPEC-0007 is fully Verified, published, integrated, recorded and cleaned up through D-0083/D-0084/GIT-066 `c193b8ba89fa55ead02d84ea10bb81f71b960f8a`. D-0085 creates SPEC-0008 and D-0086/GIT-067 publishes its exact planning-only package at `ba5ecd694df78414240ce83a9140c5196334ebdc`. D-0087 approves the full specification and authorizes Phase 1 only.
 
-## Current stopping point — SPEC-0008 proposal published; Phase 1 awaits separate approval/authorization
+## Current stopping point — SPEC-0008 approved; Phase 1 authorized for one fresh executor
 
 [`SPEC-0008 — Conversational AI Animator and Editable Video Reconstruction`](specs/0008-conversational-ai-animator.md) defines exactly six stop-gated phases: Terra brain/intent/jobs; provider-neutral reference video; deterministic cucumber slicer; editable reconstruction into ordinary drawing content; registered-command conversational edits; and beta/export closeout. It binds fixed `gpt-5.6-terra` Responses use, the four reasoning levels with Medium default, no task/model picker or fallback, persistent streamed jobs, truthful status, provider/security/cost/privacy gates, isolated Preview/Cancel/atomic Apply, two non-hardcoded build stories, one edit story and validated downloadable video export.
 
 The proposal was created from clean detached canonical-main basis `f923c35aa13cfd476e712f4ead89419263fc0893` after tracing the ordinary V2 workspace/registry path and the current separate AI route. It preserves Arthur's exact Terra/Responses/reasoning decision and dated Sora 2 shutdown input without selecting or hardwiring a reference-video provider; current access, pricing, provider terms and compatibility must be rechecked at the named live-use gates.
 
-GIT-067 published the exact 15-path planning-only package from parent `f923c35aa13cfd476e712f4ead89419263fc0893` with no runtime change. Exact next step: Arthur may explicitly approve SPEC-0008 and separately authorize only Phase 1. After that authorization is recorded and published, one fresh Plan-mode Spec Executor app copy may start from the final synchronized SHA. Do not begin Phase 2, select/call a video provider, spend credits, mutate runtime/tests/proof, deploy or start Phase 1 before that separate authority.
+GIT-067 published the exact 15-path planning-only package from parent `f923c35aa13cfd476e712f4ead89419263fc0893` with no runtime change. D-0087 records Arthur's later explicit approval and Phase 1-only autopilot authorization. Exact next step after this record is committed, pushed and synchronized: create one fresh Plan-mode Phase 1 Spec Executor app copy from the final canonical-main SHA, monitor it until permission is required or its review app/Implementation Review Packet is ready, and then stop for Arthur's visible review. Do not begin Phase 2, select/call a video provider, spend credits, deploy, publish implementation or broaden Phase 1.
 
 ## Historical stopping point — SPEC-0007 complete; ready for separate SPEC-0008 creation authorization
 

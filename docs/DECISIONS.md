@@ -871,6 +871,16 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Lifecycle: SPEC-0008 remains **Proposed; published; awaiting Arthur's explicit approval**. All six phases remain Unauthorized/Not started. The exact next owner action is separate approval of SPEC-0008 and separate authorization of Phase 1; only then may one fresh Plan-mode Spec Executor app copy start from the final synchronized records-publication SHA.
 - Boundaries: publication changed only the reviewed spec, planning/control-plane records and generated project tree. It changed no runtime, fixture, technical test, proof artifact, dependency/configuration, provider/API/model behavior, paid/external request, upload, deployment or Phase 1 implementation.
 
+### D-0087 — Approve SPEC-0008 and authorize Phase 1 only
+
+- Date: 2026-09-18
+- Authority: Arthur explicitly instructed the Project Manager to start autopilot after archiving obsolete tasks, use one fresh app copy, and begin the first programming phase. This is the separate owner approval of the published SPEC-0008 proposal and the separate authorization required for Phase 1.
+- Decision: [`SPEC-0008`](specs/0008-conversational-ai-animator.md) is **Approved/active** exactly as published under D-0086/GIT-067. **Phase 1 — Terra brain, automatic intent routing, and chat/job foundation** alone is **Authorized/Not started**. One fresh Plan-mode Spec Executor may begin only after this authorization record is committed, published, and synchronized.
+- Execution boundary: the executor implements and technically proves only SPEC-0008 §9 from the exact published authorization base, freezes the smallest exact runtime/fixture/test/proof allowlist after fresh tracing, returns its Implementation Review Packet, and stops without canonical-doc or Git mutation. It uses `gpt-5.6-sol` for the Codex programming task as Arthur requested; the product contract itself remains fixed to `gpt-5.6-terra` through the Responses API.
+- Cost/time boundary: technical proof uses a deterministic Responses API double and zero live/provider/search/video requests by default. A real paid Terra smoke still requires separate exact request-count, spend, privacy and current-access approval. Arthur requested a bounded roughly one-hour execution window; schedule pressure does not weaken proof or expand scope.
+- Later gates: Phases 2–6 remain Unauthorized/Not started. No video provider/model selection, reference-video call, slicer, reconstruction, registered-command edit execution, export, public beta, deployment, implementation publication or paid/external operation is authorized by this decision.
+- Task cleanup: before authorization, the Project Manager archived the thirteen obsolete SPEC-0006/0007 tasks identified from Arthur's screenshot and preserved the active Project Manager V4 and SPEC-0008 Architect tasks. Archiving changed task visibility only; it did not delete repository bytes or accepted proof.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

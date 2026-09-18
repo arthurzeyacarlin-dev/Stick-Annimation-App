@@ -1,11 +1,11 @@
 # SPEC-0008 — Conversational AI Animator and Editable Video Reconstruction
 
-Status: **Proposed; published for owner review; all six implementation phases Unauthorized/Not started**
+Status: **Approved/active; Phase 1 Authorized/Not started; Phases 2–6 Unauthorized/Not started**
 Owner: Arthur
 Task role: planning/control-plane architecture only; this task changes no runtime or technical proof
 Created: 2026-09-18
 Last updated: 2026-09-18
-Decision links: [D-0085 and D-0086](../DECISIONS.md)
+Decision links: [D-0085, D-0086 and D-0087](../DECISIONS.md)
 TODO IDs: `PLAN-008`, `SPEC-008`, `AIANIM-001`–`AIANIM-006`
 Planning base: clean detached canonical-main SHA `f923c35aa13cfd476e712f4ead89419263fc0893`; index empty before edits
 Planning publication: GIT-067 commit `ba5ecd694df78414240ce83a9140c5196334ebdc`; 15 planning/control-plane/tree paths; no runtime change
@@ -238,7 +238,7 @@ A phase is not complete until its implementation is accepted, its control-plane 
 
 ## 9. Phase 1 — Terra brain, automatic intent routing, and chat/job foundation
 
-Status: **Unauthorized; Not started**
+Status: **Authorized; Not started under D-0087**
 
 ### 9.1 Outcome
 
@@ -429,14 +429,14 @@ Existing strict historical validators may legitimately reject a newer spec/contr
 
 | Phase | TODO | Entry gate | Exit result | Status |
 | --- | --- | --- | --- | --- |
-| 1 — Terra brain, routing, chat/jobs | `AIANIM-001` | SPEC-0008 approved/published; separate Phase 1 authorization; fresh Plan-mode worktree | one-chat Terra-only non-mutating brain, routing, persistence, streaming, accessibility | **Unauthorized; Not started** |
+| 1 — Terra brain, routing, chat/jobs | `AIANIM-001` | SPEC-0008 approved/published under D-0087; fresh Plan-mode worktree | one-chat Terra-only non-mutating brain, routing, persistence, streaming, accessibility | **Authorized; Not started** |
 | 2 — Provider-neutral reference video | `AIANIM-002` | Phase 1 fully closed; separate authorization; provider/access/cost/privacy gate before live use | replaceable provider contract, verified video, upload fallback, zero canvas mutation | **Unauthorized; Not started** |
 | 3 — Deterministic Cucumber Slicer | `AIANIM-003` | Phase 2 fully closed; separate authorization; pinned decoder/input contract | exact ordered isolated frame bundle, zero editor mutation | **Unauthorized; Not started** |
 | 4 — Editable reconstruction | `AIANIM-004` | Phase 3 fully closed; separate authorization; frame bundle/project preflight | validated drawing-only candidate, honest layers, Preview/Cancel/atomic Apply | **Unauthorized; Not started** |
 | 5 — Conversational editing | `AIANIM-005` | Phase 4 fully closed; separate authorization; AI-eligible registry audit | current-project edits through shared manual commands with atomic history | **Unauthorized; Not started** |
 | 6 — Beta closeout/export | `AIANIM-006` | Phase 5 fully closed; separate authorization; security/cost/privacy/export-format gates | bounded end-to-end beta workflow and inspected YouTube-ingestible download | **Unauthorized; Not started** |
 
-This proposal authorizes no phase. Arthur's later explicit approval must name Phase 1 before an executor may start. Later phases always require their own separate authorization after the preceding phase is accepted, recorded, published/integrated, synchronized, proof-preserved, and cleaned up.
+D-0087 approves this specification and authorizes Phase 1 only. Later phases always require their own separate authorization after the preceding phase is accepted, recorded, published/integrated, synchronized, proof-preserved, and cleaned up.
 
 ## 18. Planning verification, blockers, and handoff
 
@@ -446,7 +446,7 @@ This proposal authorizes no phase. Arthur's later explicit approval must name Ph
 | Live execution path | CODE VERIFIED | one V2 coordinator/manual registry; legacy task picker/session chat; Responses API with three current model profiles; current-frame-only PNG export |
 | Six-phase design | PASS | exactly six sequential implementation phases plus one non-phase correction/publication buffer day |
 | Runtime/provider/paid/Git changes in the D-0085 planning task | ZERO | planning/control-plane/tree records only; no app, test, provider, API, dependency, server, staging, commit, push, or deployment action |
-| Phase 1 product blockers | NONE after explicit owner approval/authorization | Terra model/effort and non-mutating Phase 1 outcome are fixed; real paid smoke remains separately authorized evidence, not an implementation prerequisite |
+| Phase 1 product blockers | NONE; D-0087 owner approval/authorization recorded | Terra model/effort and non-mutating Phase 1 outcome are fixed; real paid smoke remains separately authorized evidence, not an implementation prerequisite |
 | Later named gates | OPEN by design | current video provider/access/cost/privacy; decoder/encoder choice; public-beta security/retention/spend policy |
 
-The planning package was reviewed and published under D-0086/GIT-067. Exact next step: Arthur may approve SPEC-0008 and separately authorize Phase 1. After that approval/authorization record is published, one fresh Phase 1 Spec Executor may start in Plan mode from the exact synchronized SHA. Until then there is no Phase 1 implementation, technical proof, review app, provider/API call, paid usage or deployment.
+The planning package was reviewed and published under D-0086/GIT-067, and Arthur approved it with Phase 1-only authorization under D-0087. After that authorization record is published, one fresh Phase 1 Spec Executor may start in Plan mode from the exact synchronized SHA. Phase 1 still has no accepted implementation, technical proof or review app; no provider/API call, paid usage or deployment is authorized.

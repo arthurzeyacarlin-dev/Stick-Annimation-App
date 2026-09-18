@@ -1,5 +1,14 @@
 # Changelog
 
+### 2026-09-18 — Approve SPEC-0008 and authorize Phase 1 only (D-0087)
+
+- Recorded Arthur's explicit approval of the published six-phase SPEC-0008 contract and separate authorization of Phase 1 — Terra brain, semantic intent routing, and persistent streamed chat/jobs.
+- Marked SPEC-0008 Approved/active and `AIANIM-001` Authorized/Not started; kept Phases 2–6 Unauthorized/Not started behind their predecessor and provider/security/cost/privacy gates.
+- Authorized one fresh Plan-mode Spec Executor app copy after this record is published and synchronized. Phase 1 uses deterministic provider proof and zero live/paid calls by default, changes no animation document in this phase, and stops for its Implementation Review Packet and Arthur's visible review.
+- Archived thirteen obsolete SPEC-0006/0007 Codex tasks identified from Arthur's screenshot while preserving Project Manager Overarching V4 and SPEC-0008 AI Animator Architect.
+
+This authorization changed only canonical planning/control-plane records. It changed no runtime, fixture, technical test, proof artifact, dependency, model/provider behavior, paid/external request, upload, deployment or implementation Git publication.
+
 Status: canonical append-only project change history
 Format: newest entries first; describe observed behavior and repository operations precisely
 

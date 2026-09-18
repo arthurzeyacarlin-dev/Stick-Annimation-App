@@ -8,6 +8,7 @@ import { createNativeUnifiedProjectV2 } from "./unifiedWorkspaceFactoryV2.ts";
 import { readUnifiedProjectV2 } from "./unifiedProjectStorageV2.ts";
 import { assertUnifiedAnimationProjectV2 } from "./unifiedAnimationContractV2.ts";
 import { upgradeUnifiedProjectV1ToV2 } from "./unifiedAnimationMigrationV2.ts";
+import { retireLegacyRigsV3 } from "./legacyRigRetirementV3.ts";
 
 export type WorkspaceCandidate = {
   id: string;
@@ -27,7 +28,11 @@ export const createUntitledWorkspace = async (): Promise<WorkspaceCandidate> => 
 
 export const prepareCollectionWorkspace = async (reader: ProjectSourceReader, entry: ProjectCollectionEntry): Promise<WorkspaceCandidate> => {
   if (entry.sourceKind === "unified-v2") {
-    const project = await readUnifiedProjectV2(entry.sourceId);
+    const source = await readUnifiedProjectV2(entry.sourceId);
+    const project = await retireLegacyRigsV3(source, {
+      sourceKind: "unified-v2",
+      sourceDigest: entry.candidateDigest ?? `${source.projectId}:${source.revision}`,
+    });
     return {
       id: project.projectId,
       title: project.title,
@@ -46,10 +51,14 @@ export const prepareCollectionWorkspace = async (reader: ProjectSourceReader, en
   } else if (source.sourceKind === "drawing-v1") {
     drawingData = (structuredClone(source.project) as StoredDrawingProject).data;
   }
-  const project = assertUnifiedAnimationProjectV2(await upgradeUnifiedProjectV1ToV2(candidate, {
+  const upgraded = assertUnifiedAnimationProjectV2(await upgradeUnifiedProjectV1ToV2(candidate, {
     drawingData,
     ...(source.sourceKind === "unified-v1" ? { sourceKindOverride: "unified-v1" as const } : {}),
   }));
+  const project = await retireLegacyRigsV3(upgraded, {
+    sourceKind: source.sourceKind,
+    sourceDigest: candidate.project.candidateDigest,
+  });
   // Hydration can yield to user/storage changes. Verify the source again before
   // the bootstrap's synchronous generation check publishes one complete result.
   await readCollectionCandidate(reader, entry);
@@ -72,7 +81,7 @@ export class WorkspaceBootstrap {
       return { status: "opened", root };
     } catch (error) {
       if (ticket !== this.ticket) return { status: "stale" };
-      const allowed = ["source_changed", "duplicate_identity", "invalid_record", "unsupported_version", "asset_missing", "asset_digest_mismatch", "storage_read_failed", "project_too_large", "source_digest_mismatch", "invalid_cell_owner", "source_space_inconsistent", "decode_failed", "version_mismatch", "readback_failed"];
+      const allowed = ["source_changed", "duplicate_identity", "invalid_record", "unsupported_version", "asset_missing", "asset_digest_mismatch", "storage_read_failed", "project_too_large", "source_digest_mismatch", "invalid_cell_owner", "source_space_inconsistent", "decode_failed", "version_mismatch", "readback_failed", "rig_migration_renderer_unavailable", "rig_migration_digest_failed", "rig_migration_incomplete"];
       const code = error instanceof Error && allowed.includes(error.message) ? error.message : "invalid_record";
       return { status: "failed", code };
     }

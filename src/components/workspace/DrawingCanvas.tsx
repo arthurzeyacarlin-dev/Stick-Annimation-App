@@ -551,7 +551,6 @@ type DrawingCanvasProps = {
     drawingChanged: boolean;
     stickContent: StickFigureFrameContent | null;
   }) => boolean;
-  onOpenStickFigureCreator: () => void;
   unifiedStickContent?: StickFigureFrameContent;
   onUnifiedStickContentChange?: (content: StickFigureFrameContent) => void;
   unifiedSymbolDefinitions?: UnifiedBitmapSymbolDefinitionV2[];
@@ -1669,7 +1668,6 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   onExecuteActionPlan,
   onAuthoringActionCommitted,
   onUnifiedSelectionActionCommitted,
-  onOpenStickFigureCreator,
   unifiedStickContent = { figures: [], structureGraph: { joints: [], limbs: [], activeJointId: null } },
   onUnifiedStickContentChange,
   unifiedSymbolDefinitions,
@@ -10930,11 +10928,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   };
   const handleRightPanelTabChange = (tab: DrawingRightPanelTab) => {
     setRightPanelTab(tab);
-    if (tab === "Stick Figure Tools") {
-      clearUnifiedSymbolSelection();
-      clearTransientEditingState();
-      setCanvasInteractionOwner("stick");
-    }
+    setCanvasInteractionOwner("drawing");
   };
   const selectionPreviewStickContent = activeBitmapSelectionSession?.structuredStick
     ? materializeStructuredStickSelection(activeBitmapSelectionSession)
@@ -10953,17 +10947,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   const unifiedStickPreviewEndPoint = unifiedStickPreviewEndJoint
     ? { x: unifiedStickPreviewEndJoint.x, y: unifiedStickPreviewEndJoint.y }
     : unifiedStickDrag?.currentPoint ?? null;
-  const stickToolsTabContent = (
-    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-      <div><div style={{ color: "rgba(255,255,255,0.92)", fontSize: 14, fontWeight: 800 }}>STICK FIGURE TOOLS</div><div style={{ color: "rgba(255,255,255,0.62)", fontSize: 12 }}>Create and edit segments in this frame.</div></div>
-      <button type="button" onClick={() => activateUnifiedStickTool("add-limb")} style={{ minHeight: 38, borderRadius: 8, border: unifiedStickMode === "add-limb" && canvasInteractionOwner === "stick" ? "1px solid rgba(110,170,255,.5)" : "1px solid rgba(255,255,255,.12)", background: unifiedStickMode === "add-limb" && canvasInteractionOwner === "stick" ? "rgba(110,170,255,.14)" : "rgba(255,255,255,.04)", color: "white", cursor: "pointer" }}>Add Limb</button>
-      <button type="button" onClick={() => activateUnifiedStickTool("select")} style={{ minHeight: 38, borderRadius: 8, border: unifiedStickMode === "select" && canvasInteractionOwner === "stick" ? "1px solid rgba(110,170,255,.5)" : "1px solid rgba(255,255,255,.12)", background: unifiedStickMode === "select" && canvasInteractionOwner === "stick" ? "rgba(110,170,255,.14)" : "rgba(255,255,255,.04)", color: "white", cursor: "pointer" }}>Select / Move Joint</button>
-      <button type="button" aria-label="Open Stick Figure Creator" onClick={onOpenStickFigureCreator} disabled={isTimelinePlaying} style={{ minHeight: 38, borderRadius: 8, border: "1px solid rgba(255,255,255,.12)", background: "rgba(255,255,255,.04)", color: "white", cursor: isTimelinePlaying ? "not-allowed" : "pointer", opacity: isTimelinePlaying ? 0.55 : 1 }}>Creator</button>
-      <div style={{ color: "rgba(255,255,255,.58)" }}>{unifiedStickContent.structureGraph.joints.length} joints · {unifiedStickContent.structureGraph.limbs.length} segments</div>
-    </div>
-  );
-  const rightPanelContent = rightPanelTab === "Stick Figure Tools" ? stickToolsTabContent :
-    rightPanelTab === "Properties" ? propertiesTabContent : rightPanelTab === "Assets" ? assetsTabContent : libraryTabContent;
+  const rightPanelContent = rightPanelTab === "Properties" ? propertiesTabContent : rightPanelTab === "Assets" ? assetsTabContent : libraryTabContent;
 
   return (
     <>
@@ -11068,30 +11052,6 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                   </g>
                 );
               })}
-            </svg>
-            <svg
-              ref={unifiedStickSvgRef}
-              aria-label="Editable stick figure content"
-              viewBox="0 0 1920 1080"
-              preserveAspectRatio="xMidYMid meet"
-              data-canvas-interaction-owner={canvasInteractionOwner}
-              style={{ position: "absolute", zIndex: 7, left: `${CAMERA_FRAME_INSET_PERCENT}%`, top: `${CAMERA_FRAME_INSET_PERCENT}%`, width: `${CAMERA_FRAME_SIZE_PERCENT}%`, height: `${CAMERA_FRAME_SIZE_PERCENT}%`, overflow: "visible", pointerEvents: canvasInteractionOwner === "stick" && rightPanelTab === "Stick Figure Tools" && !isTimelinePlaying ? "auto" : "none", touchAction: "none", cursor: unifiedStickMode === "add-limb" ? "crosshair" : "default" }}
-              onPointerDown={beginUnifiedStickGesture}
-              onPointerMove={moveUnifiedStickGesture}
-              onPointerUp={finishUnifiedStickGesture}
-              onPointerCancel={cancelUnifiedStickGesture}
-              onLostPointerCapture={cancelUnifiedStickGesture}
-            >
-              {renderedUnifiedStickContent.structureGraph.limbs.map(limb => {
-                const start = renderedUnifiedStickContent.structureGraph.joints.find(joint => joint.id === limb.startJointId);
-                const end = renderedUnifiedStickContent.structureGraph.joints.find(joint => joint.id === limb.endJointId);
-                return start && end ? <line key={limb.id} x1={start.x} y1={start.y} x2={end.x} y2={end.y} stroke="#101218" strokeWidth="14" strokeLinecap="round" /> : null;
-              })}
-              {unifiedStickDrag && !unifiedStickDrag.movingJointId && unifiedStickPreviewEndPoint ? <>
-                <line x1={unifiedStickDrag.startPoint.x} y1={unifiedStickDrag.startPoint.y} x2={unifiedStickPreviewEndPoint.x} y2={unifiedStickPreviewEndPoint.y} stroke="#398bff" strokeOpacity="0.72" strokeWidth="10" strokeLinecap="round" />
-                <circle cx={unifiedStickPreviewEndPoint.x} cy={unifiedStickPreviewEndPoint.y} r="14" fill="#398bff" />
-              </> : null}
-              {renderedUnifiedStickContent.structureGraph.joints.map(joint => <circle key={joint.id} cx={joint.x} cy={joint.y} r={joint.id === unifiedSelectedJointId ? 22 : 14} fill={joint.id === unifiedSelectedJointId ? "#398bff" : "#101218"} />)}
             </svg>
             <canvas
               ref={onionCanvasRef}

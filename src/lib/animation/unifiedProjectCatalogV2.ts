@@ -56,7 +56,7 @@ export async function createBitmapSymbolDefinitionV2(input: {
   pngDataUrl: string;
   structuredPayload?: UnifiedStructuredSymbolPayloadV2;
 }): Promise<UnifiedBitmapSymbolDefinitionV2> {
-  if (input.sourceCategory !== "Drawing Symbol" && !input.structuredPayload) throw new Error("structured_symbol_required");
+  if ((input.sourceCategory === "Stick Figure Symbol" || input.sourceCategory === "Drawing and Stick Figure Symbol") && !input.structuredPayload) throw new Error("structured_symbol_required");
   assertStructuredSymbolPayloadV2(input);
   const stableInput = structuredClone(input);
   return { ...stableInput, ...await symbolDefinitionHashes(stableInput) };

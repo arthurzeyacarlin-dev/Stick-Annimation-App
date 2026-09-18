@@ -103,6 +103,19 @@ export type UnifiedAnimationProjectV2 = {
   auxiliary?: {
     drawingAiMemory: unknown | null;
     stickAiCreationLatch: StickAiCreationLatchV1 | null;
+    rigRetirementReceipt?: {
+      version: 3;
+      rendererVersion: "legacy-rig-raster/v1";
+      sourceKind: "drawing-v1" | "drawing-v2" | "stick-v1" | "stick-v2" | "unified-v1" | "unified-v2";
+      sourceProjectId: string;
+      sourceRevision: number;
+      sourceDigest: string;
+      convertedOwnerCellIds: string[];
+      convertedItemIds: string[];
+      convertedDefinitionIds: string[];
+      outputContentDigest: string;
+      recovery: { kind: "immutable-version" | "legacy-source"; projectId: string; revision: number; digest: string };
+    };
   };
   document: UnifiedAnimationDocumentV2;
   compatibility?: {
@@ -188,7 +201,7 @@ export function assertUnifiedAnimationDocumentV2(document: UnifiedAnimationDocum
       !definition.pngDataUrl.startsWith("data:image/png;base64,") ||
       !sha256.test(definition.assetSha256) ||
       !sha256.test(definition.definitionDigest) ||
-      !["Drawing Symbol", "Stick Figure Symbol", "Drawing and Stick Figure Symbol"].includes(definition.sourceCategory)
+      !["Drawing Symbol", "Mixed Symbol", "Stick Figure Symbol", "Drawing and Stick Figure Symbol"].includes(definition.sourceCategory)
     ) throw new Error("invalid_record");
     symbolDefinitions.set(definition.definitionId, definition);
     symbolNames.add(normalizedName);
@@ -300,6 +313,24 @@ export function assertUnifiedAnimationProjectV2(project: UnifiedAnimationProject
     const memory = sanitizeDrawingAiProjectMemory(project.auxiliary.drawingAiMemory);
     if (!memory || memory.ownerProjectId !== project.projectId || JSON.stringify(memory) !== JSON.stringify(project.auxiliary.drawingAiMemory)) throw new Error("invalid_record");
   }
+  const receipt = project.auxiliary?.rigRetirementReceipt;
+  if (receipt && (
+    receipt.version !== 3 || receipt.rendererVersion !== "legacy-rig-raster/v1" ||
+    !["drawing-v1", "drawing-v2", "stick-v1", "stick-v2", "unified-v1", "unified-v2"].includes(receipt.sourceKind) ||
+    !canonicalText(receipt.sourceProjectId, 512, false) || !Number.isSafeInteger(receipt.sourceRevision) || receipt.sourceRevision < 0 ||
+    !canonicalText(receipt.sourceDigest, 512, false) || !bareSha256.test(receipt.outputContentDigest) ||
+    !Array.isArray(receipt.convertedOwnerCellIds) || !Array.isArray(receipt.convertedItemIds) || !Array.isArray(receipt.convertedDefinitionIds) ||
+    receipt.recovery.projectId !== receipt.sourceProjectId || receipt.recovery.revision !== receipt.sourceRevision || receipt.recovery.digest !== receipt.sourceDigest ||
+    !["immutable-version", "legacy-source"].includes(receipt.recovery.kind)
+  )) throw new Error("invalid_record");
   assertUnifiedAnimationDocumentV2(project.document);
+  return project;
+}
+
+export function assertDrawingOnlyUnifiedProjectV2(project: UnifiedAnimationProjectV2) {
+  assertUnifiedAnimationProjectV2(project);
+  if (project.document.layers.some(layer => layer.cells.some(cell => cell.content?.items.some(item => item.kind === "stick-rig/v1"))) ||
+    project.document.catalogs.symbols.some(definition => Boolean(definition.structuredPayload)) ||
+    Object.keys(project.compatibility?.stickByCell ?? {}).length > 0) throw new Error("rig_migration_incomplete");
   return project;
 }

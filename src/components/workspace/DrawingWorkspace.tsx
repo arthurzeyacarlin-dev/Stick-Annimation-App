@@ -22,7 +22,6 @@ import type { DrawingShapeType, DrawingToolName } from "./DrawingToolBar";
 import { DrawingTimelineRow } from "./DrawingTimelineRow";
 import type { TimelineFrame, TimelineFrameCellType, TimelineFrameKind, TimelineLayer } from "./DrawingTimelineRow";
 import { DrawingTopBar } from "./DrawingTopBar";
-import { StickFigureCreatorWorkspace } from "./stickfigure/StickFigureCreatorWorkspace";
 import {
   advancePlaybackAccumulator,
   getAuthoredPlaybackFrameCount,
@@ -3560,7 +3559,6 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
   );
   const symbolInstancesByCellRef = useRef(symbolInstancesByCell);
   const [canvasOverlayRect, setCanvasOverlayRect] = useState<CanvasOverlayRect | null>(null);
-  const [isStickFigureCreatorOpen, setIsStickFigureCreatorOpen] = useState(false);
   const [saveNotification, setSaveNotification] = useState<{ projectName: string; isVisible: boolean } | null>(null);
   const [canUndoHistory, setCanUndoHistory] = useState(false);
   const [canRedoHistory, setCanRedoHistory] = useState(false);
@@ -7096,8 +7094,6 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
           });
         }
         for (const [textIndex, text] of (frame.textObjects ?? []).entries()) items.push({ itemId: existingItems.filter(item => item.kind === "drawing-text/v1")[textIndex]?.itemId ?? stableId(`text:${layer.id}:${frame.stateId}:${text.id}`), kind: "drawing-text/v1", text: text.text, x: text.x, y: text.y, color: text.color, fontSize: text.fontSize, rotation: text.rotation ?? 0, width: text.width, flipX: Boolean(text.flipX), flipY: Boolean(text.flipY), fontFamily: text.fontFamily, bold: text.bold, italic: text.italic });
-        const stick = stickByCellRef.current[`${layer.id}:${frame.stateId}`];
-        if (stick && (stick.structureGraph.joints.length || stick.structureGraph.limbs.length || stick.figures.length)) items.push({ itemId: existingItems.find(item => item.kind === "stick-rig/v1")?.itemId ?? stableId(`stick:${layer.id}:${frame.stateId}`), kind: "stick-rig/v1", content: structuredClone(stick) });
         items.push(...structuredClone(symbolInstancesByCellRef.current[`${layer.id}:${frame.stateId}`] ?? []));
         const dormantSourceContent = frame.cellType === "blank-keyframe" && items.length === 0
           ? structuredClone(baseLayer?.cells[ownerIndex]?.content?.dormantSourceContent ?? null)
@@ -7124,7 +7120,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
         })),
       })),
     };
-    return { ...base, title: projectTitle, auxiliary: { drawingAiMemory: structuredClone(projectAiMemory), stickAiCreationLatch: structuredClone(base.auxiliary?.stickAiCreationLatch ?? null) }, document, compatibility: { ...base.compatibility, drawingData: compatibilityDrawingData, stickByCell: structuredClone(stickByCellRef.current), symbolInstancesByCell: structuredClone(symbolInstancesByCellRef.current) } };
+    return { ...base, title: projectTitle, auxiliary: { ...base.auxiliary, drawingAiMemory: structuredClone(projectAiMemory), stickAiCreationLatch: structuredClone(base.auxiliary?.stickAiCreationLatch ?? null) }, document, compatibility: { ...base.compatibility, drawingData: compatibilityDrawingData, stickByCell: {}, symbolInstancesByCell: structuredClone(symbolInstancesByCellRef.current) } };
   }, [activeUnifiedProject, projectAiMemory, projectTitle]);
 
   const handleUndo = useCallback(() => {
@@ -8251,22 +8247,6 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
     } finally { saveInFlightRef.current = false; }
   }, [buildUnifiedProjectSnapshot, commitCurrentFrameSnapshotWithoutHistory, createPersistedProjectSnapshot, projectTitle, showSaveNotification]);
 
-  const openStickFigureCreator = useCallback(() => {
-    if (isTimelinePlayingRef.current) return;
-    if (!commitCurrentFrameSnapshotWithoutHistory("creator:open")) return;
-    setIsStickFigureCreatorOpen(true);
-    window.requestAnimationFrame(() => {
-      document.querySelector<HTMLButtonElement>('[role="dialog"][aria-label="Stick Figure Creator"] button')?.focus();
-    });
-  }, [commitCurrentFrameSnapshotWithoutHistory]);
-
-  const closeStickFigureCreator = useCallback(() => {
-    setIsStickFigureCreatorOpen(false);
-    window.requestAnimationFrame(() => {
-      document.querySelector<HTMLButtonElement>('button[aria-label="Open Stick Figure Creator"]')?.focus();
-    });
-  }, []);
-
   const handleTextObjectsChange = useCallback((nextTextObjects: DrawingTextObject[]) => {
     return updateFrameTextObjects(currentFrameIndexRef.current, nextTextObjects, activeLayerIdRef.current);
   }, [updateFrameTextObjects]);
@@ -8805,8 +8785,6 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
   return (
     <>
     <div
-      aria-hidden={isStickFigureCreatorOpen ? "true" : undefined}
-      inert={isStickFigureCreatorOpen ? true : undefined}
       style={{
         height: "100vh",
         background: "rgb(26, 27, 36)",
@@ -8944,8 +8922,6 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
           fillColor={fillColor}
           isTimelinePlaying={isTimelinePlaying}
           onAuthoringActionCommitted={commitCanvasAuthoringAction}
-          onUnifiedSelectionActionCommitted={commitUnifiedSelectionAction}
-          onOpenStickFigureCreator={openStickFigureCreator}
           onToolSelect={activateDrawingTool}
           playbackRenderScale={isTimelinePlaying ? playbackRenderScale : 1}
           workspaceContext={deferredWorkspaceAiContext}
@@ -8960,8 +8936,6 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
           onFillColorChange={setFillColor}
           onShapeTypeChange={setShapeType}
           onTextObjectsChange={handleTextObjectsChange}
-          unifiedStickContent={activeUnifiedStickContent}
-          onUnifiedStickContentChange={commitUnifiedStickContent}
           unifiedSymbolDefinitions={unifiedCatalogs.symbols}
           unifiedProjectAssets={unifiedCatalogs.assets}
           unifiedSymbolInstances={activeUnifiedSymbolInstances}
@@ -9043,11 +9017,6 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
       </div>
       <DrawingToolBar activeTool={activeTool} onToolSelect={activateDrawingTool} />
     </div>
-    {isStickFigureCreatorOpen && (
-      <div role="dialog" aria-label="Stick Figure Creator" aria-modal="true" style={{ position: "fixed", inset: 0, zIndex: 100 }}>
-        <StickFigureCreatorWorkspace onExit={closeStickFigureCreator} />
-      </div>
-    )}
     </>
   );
 }

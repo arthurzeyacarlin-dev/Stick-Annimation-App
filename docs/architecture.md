@@ -1,17 +1,19 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-18 after D-0078/GIT-063 published and integrated SPEC-0007 Phase 2 at `fb10e6239fd4b1edf319b3137a883e1219645ef3`.
+Last traced: 2026-09-18 after D-0079 accepted and technically verified SPEC-0007 Phase 3 from GIT-063 base `be89f1421b0588c0a2289b8e174e06f201e8ac5d`; GIT-064 publication remains pending.
 
-## Published SPEC-0007 Phase 1–2 extension
+## Accepted SPEC-0007 Phase 1–3 extension
 
 SPEC-0007 preserves the current one-workspace/V2 ownership path and requires one UI-independent `EditorCommandEnvelope` capability registry between manual interaction adapters and the `DrawingWorkspace` commit/history owner. Phase 1 is published/integrated in GIT-062. D-0077 accepts Phase 2's raster-only Draw Rig adapter: `DrawingCanvas` selects `pathMode: "draw-rig"`, `RasterGestureDraft` delegates only centerline segmentation to `DrawRigCorridor`, and the existing Phase 1 paint/coverage/history/persistence path commits the resulting ordinary raster patch. No joint, bone, topology, hidden selection model, AI caller, provider, prompt, model, API, video or tracking path is added.
 
 D-0075's accepted Phase 1 routes Brush/Pencil/Sketch/Pixelate/Glow through one deterministic transient-draft → prepared raster/coverage delta → validated command → global-history transaction path. Preview and final use the same prepared geometry/mask; cancel/context change preserves the immutable committed base. Same-paint overlaps persist a bounded versioned coverage companion and use per-pixel maximum coverage instead of additive alpha. Sketch contributor ownership lets Knife move detached texture dabs without leaving ghosts; onion display derives canonical purple/green tints from occupancy without rewriting authored pixels. A non-destructive command retains everything outside its validated target; intentional removals are limited to the closed destructive registry. Existing V2 version/readback/CAS/recovery/source-safety limits and performance ceilings remain protected.
 
-Published Phase 2 adds one explicit Properties toggle labelled **Draw Rig**. Its deterministic segment accumulator outputs only ordinary raster paint plus the same coverage companion; it creates no joint, limb, bone, ID, topology, constraint, attachment, hidden rig object, or separate selection model. Phase 3 then removes every active structured-rig/Creator authoring surface and new-content command. Historical `stick-rig/v1` items and rig-backed/mixed symbol definitions are fully validated and deterministically rasterized into ordinary drawing items or drawing-only symbols before an all-or-none migrated V2 candidate may mount. Source stores and the exact pre-migration version remain read-only/recoverable; compatibility rig parsers/renderers are unreachable outside that boundary. Library remains project-created Drawing/Mixed drawing symbols; Assets remains external bounded still media. Phase 3 is ready for separate authorization but remains unauthorized/not started; Phases 4–5 remain unauthorized.
+Published Phase 2 adds one explicit Properties toggle labelled **Draw Rig**. Its deterministic segment accumulator outputs only ordinary raster paint plus the same coverage companion; it creates no joint, limb, bone, ID, topology, constraint, attachment, hidden rig object, or separate selection model. Accepted Phase 3 removes every active structured-rig/Creator authoring surface and new-content command. `legacyRigRetirementV3.ts` fully validates and deterministically rasterizes historical `stick-rig/v1` items and rig-backed/mixed symbol definitions into ordinary drawing items or drawing-only symbols before an all-or-none migrated V2 candidate may mount. `unifiedWorkspaceBootstrap.ts` routes native V2 and all upgraded legacy source kinds through that boundary. Source stores and the exact pre-migration version remain read-only/recoverable; compatibility rig parsers/renderers are unreachable outside that boundary. Library remains project-created Drawing/Mixed drawing symbols; Assets remains external bounded still media. GIT-064 publication remains pending; Phases 4–5 remain unauthorized.
 
-## Current implementation — Phase 7 published and SPEC-0006 complete (D-0069/D-0070)
+Native V2 first Save now materializes the exact old direct project version/assets as the immutable predecessor before publishing the migrated head. A versioned migration receipt binds source kind/project/revision/digest, renderer version, converted item/definition IDs, output digest and recovery identity. Projects with no rig content return unchanged. Failure before complete validation never mounts a partial candidate or changes the current head/source.
+
+## Historical implementation foundation — Phase 7 published and SPEC-0006 complete (D-0069/D-0070)
 
 Every supported local source enters one neutral V2 editor path. `WorkspaceCandidate.editor` has only the `unified` variant; `createUntitledWorkspace` and `prepareCollectionWorkspace` always return a validated V2 project; and `AnimationWorkspace` mounts exactly one `DrawingWorkspace`. There is no ordinary route or discriminator that mounts `StickFigureWorkspace` as a second coordinator.
 
@@ -19,7 +21,7 @@ Every supported local source enters one neutral V2 editor path. `WorkspaceCandid
 
 Legacy Drawing/Stick parsers and stores remain source-safe read-only leaves for adoption; they are not deleted and receive no V2 projection. The Phase 6 repository still provides content-addressed assets, immutable versions, verified hydration/readback, compare-and-swap head publication, exact-provenance adoption, Save As identity rebinding and last-good recovery. Phase 7 changes the reachable ownership graph, not those storage guarantees.
 
-The Stick Creator opens inside the unified workspace root. Its dialog is labelled, modal, focus-contained and keyboard-navigable; background content is inert while it is open; closing returns focus to the trigger; reduced-motion and 200% zoom flows remain usable; Creator Save remains disabled. The historical standalone Stick coordinator remains in source only as a protected historical/test anchor and is not imported or mounted by the ordinary product path.
+At the SPEC-0006 Phase 7 milestone, the Stick Creator opened inside the unified workspace root with modal/focus containment and disabled Save. Accepted SPEC-0007 Phase 3 supersedes that active surface: Creator is no longer imported or mounted by the ordinary product path. The historical standalone Stick coordinator remains only as a protected historical/read-compatibility anchor.
 
 Arthur accepted this exact app copy and GIT-061 published it. The final technical proof passed desktop/compact ordinary flows, zero legacy writes or second coordinator mounts, zero Axe critical/serious findings, keyboard/focus/zoom/reduced-motion checks, all protected regressions and retained Phase 6 production stress limits. It made zero external or real API requests. Phase 7 changes no AI model/prompt/provider/API/task behavior, motion/video/tracking, export, dependency, configuration, cloud/social Share, auth/billing or deployment system. D-0070 records proof preservation and D-0054 cleanup.
 
@@ -70,7 +72,7 @@ app/page.tsx
               ├─ DrawingCanvas / DrawingTimelineRow / shared panels
               ├─ one unified dispatcher/history/render/timeline owner
               ├─ canonical V2 Save / Save As / Open / recovery
-              ├─ embedded Stick Creator modal
+              ├─ Phase 3 drawing-only legacy-rig migration boundary
               └─ existing Drawing AI UI; save action uses the V2 save door
 ```
 
@@ -82,11 +84,11 @@ The main product screens are local view states rather than URL routes. URL route
 | --- | --- | --- |
 | App shell/home/New/Open routing | `app/page.tsx`, `src/components/chrome/AIcreditspage.tsx`, `app/ScrollbarActivity.tsx` | Header/menu, welcome, home cards, direct Untitled Project creation, local screen switching, and Home focus return |
 | Tutorials showcase | `src/components/tutorials/TutorialsScreen.tsx`, `TutorialsScreen.module.css`, `src/lib/tutorials/tutorialCatalog.ts` | Full-screen local static showcase with one featured and three secondary `COMING LATER` cards; no media, workspace action, API, analytics, or persistence |
-| Unified read/collection/bootstrap | `src/lib/animation/unifiedProjectSourceReader.ts`, `unifiedProjectCollection.ts`, `unifiedWorkspaceBootstrap.ts`, Phase 1 contract/migration | Read-only source access, deterministic combined ordering/availability, typed mapping, and stale-safe mounted-root publication |
+| Unified read/collection/bootstrap | `src/lib/animation/unifiedProjectSourceReader.ts`, `unifiedProjectCollection.ts`, `unifiedWorkspaceBootstrap.ts`, `legacyRigRetirementV3.ts`, Phase 1 contract/migration | Read-only source access, deterministic combined ordering/availability, typed mapping, fail-closed rig retirement, and stale-safe drawing-only mounted-root publication |
 | Project browser | `src/components/open-project/OpenProjectBrowser.tsx` | Preserves the established Projects presentation; lists all supported local sources together, disables invalid entries, and requests one bootstrap/open without source writes |
 | Unified workspace wrapper | `src/components/workspace/AnimationWorkspace.tsx` | Converts V2 content to narrow algorithm adapters and mounts exactly one `DrawingWorkspace`; no alternate ordinary Stick coordinator |
-| Unified workspace coordinator | `src/components/workspace/DrawingWorkspace.tsx` | Sole ordinary V2 authored-state/dispatcher/history/timeline/render/repository owner; canonical Save/Save As/AI-save and embedded Creator orchestration |
-| Drawing/Stick canvas adapter | `src/components/workspace/DrawingCanvas.tsx`, `drawingText.ts` | Imperative raster/text/rig/symbol tools and transient interaction projected into the unified root; no independent persisted project owner |
+| Unified workspace coordinator | `src/components/workspace/DrawingWorkspace.tsx` | Sole ordinary V2 authored-state/dispatcher/history/timeline/render/repository owner; canonical Save/Save As/AI-save; no active Creator or structured-rig save authority |
+| Drawing canvas adapter | `src/components/workspace/DrawingCanvas.tsx`, `drawingText.ts` | Imperative raster/text/drawing-symbol tools and transient interaction projected into the unified root; no independent persisted project owner or active structured-rig editor |
 | Drawing timeline | `DrawingTimelineRow.tsx`, `timelineStructure.ts`, `timelinePlayback.ts` | Timeline cells, mutations, playback timing helpers |
 | Drawing UI panels | `DrawingTopBar.tsx`, `DrawingToolBar.tsx`, `DrawingRightPanel.tsx` | Menus, tools, properties/assets/library presentation |
 | Workspace AI UI | `ai/DrawingAiPanel.tsx`, `ai/WorkspaceAiPanelShell.tsx` | Task/reasoning controls, chat state, request/response handling, workspace action dispatch |
@@ -98,7 +100,7 @@ The main product screens are local view states rather than URL routes. URL route
 | Drawing AI project memory | `drawingAiProjectMemory.ts`, `drawingProjectAiMemorySync.ts`, memory API route | Per-animation-project semantic memory and optional Supabase sync |
 | Historical Stick coordinator/source readers | `src/components/workspace/stickfigure/StickFigureWorkspace.tsx` and legacy Stick contracts/storage | Protected historical/test anchor and read-only adoption source; not imported or mounted by the ordinary workspace |
 | Stick animation plan/executor | `src/lib/ai/stickFigureAiContract.ts`, `stickFigureCommandExecutor.ts`, `stickFigureMotionEngine.ts`, `stickFigureAiWorkspaceAdapter.ts` | Published SPEC-0004 Phases 1/2/2.5 and SPEC-0005 accepted safety results; rejected/superseded motion work remains unavailable |
-| Stick creator | `StickFigureCreatorWorkspace.tsx`, `types.ts`, `DrawingWorkspace.tsx` | Current embedded modal inside the unified root with focus/inert containment and disconnected Save; D-0074 Phase 3 intends complete active-workspace removal after safe legacy migration |
+| Historical rig/Creator compatibility | `StickFigureCreatorWorkspace.tsx`, legacy Stick contracts/types, `legacyRigRetirementV3.ts` | Creator and structured-rig authoring are unreachable from the ordinary product. Historical parsers/types remain only for validated read/migration and recovery compatibility. |
 | Dev cost visibility | `src/lib/ai/devAiCostDashboard.ts`, `app/dev/ai-costs/**` | Local model-call cost logs and dashboards |
 
 ## Drawing Project Data Flow

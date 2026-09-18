@@ -136,19 +136,16 @@ const createDrawingCompatibilityProjection = (project: UnifiedAnimationProjectV2
 };
 
 const hydrateUnifiedItemCompatibility = (project: UnifiedAnimationProjectV2, drawingData: DrawingProjectData) => {
-  const stickByCell: NonNullable<UnifiedAnimationProjectV2["compatibility"]>["stickByCell"] = structuredClone(project.compatibility?.stickByCell ?? {});
   const symbolInstancesByCell: NonNullable<UnifiedAnimationProjectV2["compatibility"]>["symbolInstancesByCell"] = structuredClone(project.compatibility?.symbolInstancesByCell ?? {});
   drawingData.layers.forEach((layer, layerIndex) => {
     const unifiedLayer = project.document.layers[layerIndex];
     layer.timelineFrames.forEach((frame, frameIndex) => {
       const items = unifiedLayer?.cells[frameIndex]?.content?.items ?? [];
-      const stick = items.find(item => item.kind === "stick-rig/v1");
-      if (stick?.kind === "stick-rig/v1") stickByCell[`${layer.id}:${frame.stateId}`] = structuredClone(stick.content);
       const instances = items.filter(item => item.kind === "symbol-instance/v1");
       if (instances.length > 0) symbolInstancesByCell[`${layer.id}:${frame.stateId}`] = structuredClone(instances);
     });
   });
-  return { stickByCell, symbolInstancesByCell };
+  return { stickByCell: {}, symbolInstancesByCell };
 };
 
 export function AnimationWorkspace({ root }: { root: MountedWorkspace }) {

@@ -3,9 +3,19 @@
 Status: current canonical stopping point
 Last updated: 2026-09-18
 
-All seven SPEC-0006 phases are closed through GIT-061. SPEC-0007 Phase 1 is closed through D-0075/D-0076/GIT-062 and Phase 2 through D-0077/D-0078/GIT-063 `fb10e6239fd4b1edf319b3137a883e1219645ef3`. Phase 3 is ready for separate authorization but remains unauthorized/not started; Phases 4–5 remain unauthorized.
+All seven SPEC-0006 phases are closed through GIT-061. SPEC-0007 Phases 1–2 are closed through GIT-062/GIT-063. Phase 3 is Arthur-accepted and technically Verified under D-0079 from exact GIT-063 base `be89f1421b0588c0a2289b8e174e06f201e8ac5d`; GIT-064 publication/integration, proof preservation and D-0054 cleanup remain pending. Phases 4–5 remain unauthorized.
 
-## Current stopping point — SPEC-0007 Phase 2 published, synchronized, preserved and cleaned up
+## Current stopping point — SPEC-0007 Phase 3 accepted and technically Verified; GIT-064 pending
+
+Arthur accepted the Phase 3 app copy at `http://127.0.0.1:56940/`. D-0079 binds the exact 15-path result from unchanged GIT-063 base `be89f1421b0588c0a2289b8e174e06f201e8ac5d`, empty index. The 6,066-byte manifest is PASS at SHA-256 `5d4db763d436cae149405dfc50d757be8ec628f41a728ab336001153d6e61c20`; source digest is `dbb28ca4acdfac7f69192831e7eb0a06122bfd79ba31b5e48bf92d9321e03cb4`.
+
+The accepted app removes active Stick Figure/Rig Tools and Creator authoring, blocks new rig saves/hydration, and routes native/upgraded old projects through deterministic fail-closed migration before mount. Old rig owners become ordinary raster drawing items; rig-backed symbols become Drawing or drawing-only Mixed Symbols. Native V2 first Save keeps the exact pre-migration predecessor; source stores stay read-only; a versioned receipt binds source, renderer, conversions, output and recovery identity; no-rig projects remain unchanged.
+
+Proof passed production build, full no-emit TypeScript, 23 static boundary assertions, 21 real-browser assertions with 3,457 migrated pixels, 19,844 Phase 1 raster assertions, no-loss, Phase 2 corridor/style regression, and 1,117 six-source persistence assertions. Independent manifest validation passed 11 assertions. Accepted Draw Rig/drawing/timeline/tool behavior remains protected; Assets, AI/provider/model/prompt/API/motion/video/tracking, dependencies and deployment are unchanged.
+
+Exact next step: publish GIT-064 from branch `codex/spec7-phase3-retirement` by staging only the exact accepted 15 technical paths plus reviewed record/tree paths, fast-forward still-clean canonical `main`, push normally, verify local/live `0/0`, preserve proof, then stop port 56940 and complete exact D-0054 worktree/branch cleanup. After a record-only closeout is synchronized, Phase 4 is ready for Arthur's separate authorization but remains unauthorized until then.
+
+## Historical stopping point — SPEC-0007 Phase 2 published, synchronized, preserved and cleaned up
 
 Arthur accepted the final stronger-stick app at `http://127.0.0.1:56877/`. D-0077 binds its exact ten-path result from GIT-062 base `88721481a345d6dda3f17b5620111a9cda2ab799`. D-0078 records exact 23-path GIT-063 commit `fb10e6239fd4b1edf319b3137a883e1219645ef3`, parent `88721481a345d6dda3f17b5620111a9cda2ab799`, message `Implement SPEC-0007 Phase 2 Draw Rig`: the ten accepted technical paths plus 13 reviewed records/tree paths.
 

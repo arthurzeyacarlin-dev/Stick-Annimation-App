@@ -5,6 +5,13 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-18 — Accept and technically verify SPEC-0007 Phase 3 rig retirement (D-0079)
+
+- Recorded Arthur's acceptance of the Phase 3 review app at `http://127.0.0.1:56940/`: exact 15-path result from unchanged GIT-063 base `be89f1421b0588c0a2289b8e174e06f201e8ac5d`, empty index.
+- Retired active Stick Figure/Rig Tools and Creator authoring, routed native/upgraded old projects through deterministic fail-closed migration, converted old rigs and rig-backed/mixed symbols to ordinary drawing content, and preserved read-only source plus exact native-V2 predecessor recovery.
+- Bound the 6,066-byte PASS manifest SHA-256 `5d4db763d436cae149405dfc50d757be8ec628f41a728ab336001153d6e61c20` and source digest `dbb28ca4acdfac7f69192831e7eb0a06122bfd79ba31b5e48bf92d9321e03cb4`; production build, TypeScript, 23 static assertions, 21 browser assertions, Phase 1/2 regressions and 1,117 six-source persistence assertions passed.
+- Updated canonical records only after sequential ownership transfer. GIT-064 publication/integration, proof preservation and D-0054 cleanup remain pending; Phase 4 remains unauthorized. No accepted technical/proof byte changed during propagation.
+
 ### 2026-09-18 — Publish and close SPEC-0007 Phase 2 Draw Rig (D-0078/GIT-063)
 
 - Published exact 23-path commit `fb10e6239fd4b1edf319b3137a883e1219645ef3`, parent `88721481a345d6dda3f17b5620111a9cda2ab799`, message `Implement SPEC-0007 Phase 2 Draw Rig`: ten accepted technical paths plus 13 reviewed control-plane/tree paths.

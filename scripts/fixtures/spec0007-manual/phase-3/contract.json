@@ -1,0 +1,8 @@
+{
+  "phase": "SPEC-0007 Phase 3",
+  "rendererVersion": "legacy-rig-raster/v1",
+  "canonicalAuthoringSize": { "width": 4563, "height": 3302 },
+  "requiredOrdinaryTabs": ["Properties", "Library", "Assets"],
+  "retiredLabels": ["Stick Figure Tools", "Rig Tools", "Add Limb", "Select / Move Joint", "Stick Figure Creator", "Rig Builder"],
+  "protectedSystems": ["Drawing", "Draw Rig", "timeline", "onion", "history", "symbols", "Assets", "AI"]
+}

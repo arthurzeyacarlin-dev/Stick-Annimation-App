@@ -82,6 +82,7 @@ export type UnifiedStickRigItemV2 = {
 
 export type UnifiedSymbolSourceCategoryV2 =
   | "Drawing Symbol"
+  | "Mixed Symbol"
   | "Stick Figure Symbol"
   | "Drawing and Stick Figure Symbol";
 

@@ -376,6 +376,12 @@ const browserAdapter: UnifiedProjectStorageAdapterV2 = {
     // Old direct-project records can be large. Encode them before opening the
     // read/write transaction so asynchronous hashing cannot make it inactive.
     const legacyAccounting = await legacyStorageAccounting();
+    const legacyRecoveryProject = await withExistingDatabase(async db => db.objectStoreNames.contains(STORES.projects)
+      ? (await request(db.transaction(STORES.projects, "readonly").objectStore(STORES.projects).get(input.head.projectId))) ?? null
+      : null, null) as UnifiedAnimationProjectV2 | null;
+    const legacyRecovery = legacyRecoveryProject
+      ? await encodeProject(assertUnifiedAnimationProjectV2(legacyRecoveryProject))
+      : null;
     return withDatabase(async db => {
       const transaction = db.transaction([STORES.projects, STORES.heads, STORES.versions, STORES.assets, STORES.assetMetadata], "readwrite");
       const completionPromise = completion(transaction);
@@ -414,6 +420,25 @@ const browserAdapter: UnifiedProjectStorageAdapterV2 = {
           if (!existing) {
             assets.put(asset);
             assetMetadata.put({ assetId: asset.assetId, sha256: asset.sha256, byteLength: asset.byteLength, encoding: asset.encoding } satisfies UnifiedEncodedAssetMetadataV2);
+          }
+        }
+        // A direct V2 record predates immutable version storage. Preserve its
+        // exact bytes as the recovery predecessor before the migrated head can
+        // replace that direct record. Publication deletes only the old direct
+        // container; this immutable version and its assets remain addressable.
+        if (legacyProject && legacyRecovery) {
+          const recoveryKey: [string, number, string] = [legacyRecovery.version.projectId, legacyRecovery.version.revision, legacyRecovery.version.projectDigest];
+          if (!allVersions.some(version => version.projectId === recoveryKey[0] && version.revision === recoveryKey[1] && version.projectDigest === recoveryKey[2])) {
+            versions.add(legacyRecovery.version);
+          }
+          for (const asset of legacyRecovery.assets) {
+            const existing = existingAssets.get(asset.assetId);
+            if (existing && (existing.sha256 !== asset.sha256 || existing.byteLength !== asset.byteLength || existing.encoding !== asset.encoding)) fail("asset_digest_mismatch");
+            if (!existing) {
+              assets.put(asset);
+              assetMetadata.put({ assetId: asset.assetId, sha256: asset.sha256, byteLength: asset.byteLength, encoding: asset.encoding } satisfies UnifiedEncodedAssetMetadataV2);
+              existingAssets.set(asset.assetId, asset);
+            }
           }
         }
         if (!existingVersion) versions.add(input.version);

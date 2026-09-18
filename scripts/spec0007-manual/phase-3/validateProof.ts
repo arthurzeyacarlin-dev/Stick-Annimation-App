@@ -1,0 +1,28 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+
+const path = "output/spec-0007/phase-3/proof-manifest.json";
+const manifest = JSON.parse(readFileSync(path, "utf8"));
+let assertions = 0;
+const equal = (actual: unknown, expected: unknown, label: string) => { assertions += 1; assert.deepEqual(actual, expected, label); };
+const check = (value: unknown, label: string) => { assertions += 1; assert.ok(value, label); };
+const digest = (bytes: Uint8Array | string) => createHash("sha256").update(bytes).digest("hex");
+const bind = (file: string) => { const bytes = readFileSync(file); return { path: file, bytes: bytes.length, sha256: digest(bytes) }; };
+equal(manifest.kind, "spec0007-phase3-proof-manifest", "manifest kind");
+equal(manifest.version, 1, "manifest version");
+equal(manifest.status, "PASS", "manifest status");
+equal(manifest.baseSha, "be89f1421b0588c0a2289b8e174e06f201e8ac5d", "base SHA");
+equal(execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(), manifest.baseSha, "live base SHA");
+equal(execFileSync("git", ["diff", "--cached", "--name-only"], { encoding: "utf8" }).trim(), "", "empty index");
+equal(manifest.sources.map((source: { path: string }) => bind(source.path)), manifest.sources, "live source bindings");
+check(manifest.checks.length >= 10 && manifest.checks.every((check: { status: string }) => check.status === "PASS"), "all checks pass");
+equal(new Set(manifest.artifacts.map((artifact: { path: string }) => artifact.path)).size, manifest.artifacts.length, "unique artifacts");
+const response = await fetch(manifest.review.url);
+equal(response.status, 200, "review server responds");
+check((await response.text()).length > 1000, "review server serves app");
+mkdirSync("output/spec-0007/phase-3", { recursive: true });
+const result = { status: "PASS", assertions, manifest: bind(path), manifestSha256: digest(readFileSync(path)) };
+writeFileSync("output/spec-0007/phase-3/validation.json", JSON.stringify(result, null, 2) + "\n");
+console.log(JSON.stringify(result));

@@ -1,12 +1,18 @@
 # Current State
 
 Status: canonical rolling snapshot
-Last verified: 2026-09-18 during GIT-068 publication of D-0087 SPEC-0008 approval and Phase 1 authorization.
-Current lifecycle: all seven SPEC-0006 phases and all five drawing-only SPEC-0007 phases remain closed. SPEC-0008 is Approved/active under D-0087. Phase 1 alone is Authorized/Not started and is ready for one fresh Plan-mode Spec Executor from the final synchronized authorization-record SHA; Phases 2–6 remain unauthorized behind their predecessor and named gates. Rejected predecessor results remain unpublished and non-reusable historical evidence.
+Last verified: 2026-09-19 during D-0088 rejection cleanup and Phase 1 correction authorization.
+Current lifecycle: all seven SPEC-0006 phases and all five drawing-only SPEC-0007 phases remain closed. SPEC-0008 is Approved/active. The first Phase 1 result is Rejected, unpublished, non-reusable and cleaned up. Phase 1 correction alone is Authorized/Not started under D-0088 and awaits one fresh Plan-mode Spec Executor from the final synchronized correction-record SHA; Phases 2–6 remain unauthorized behind their predecessor and named gates.
 Git publication anchors: SPEC-0005 Phase 2 v2/GIT-048 `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`; GIT-049 `de54aed275c2f6da6e7c3f4a7f65091e8d5370c0`; GIT-050 `3b784cc6a68ff6f10fa390d96b81376b46e54b44`; GIT-051 `804ff39dc73c88d4799570cce2ef18987745a0be`; GIT-052 `d2096109900cc50a0a4dae2f603bd74b7b4a3427`; GIT-053 `916a4d913c6fdf8340b67bcc88dcea184d67cd32`; GIT-054 `e11f6c453f13772ee9bd4b172a17bc68e1de65b9`; GIT-055 `e956840001d18757af8f2de5361640ba70d44d68`; GIT-056 `9c971fa4f7ea0e636ecc6957755552f678f344df`; GIT-057 `a759ae8afbb67e8fb723983851ae36947fd97f17`; GIT-058 `41983b0c88e1994675a4901d5814b3d972ad46b4`; GIT-059 `62feafc220c35eb1203dc4f19820e533a54002e1`; GIT-060 `cbe16411a0f83d3b86136f41d0a66d1874d009aa`; GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`; GIT-062 `f051aba7b927902e7aa5fc5f80c4b1d45fe6cca7`; GIT-063 `fb10e6239fd4b1edf319b3137a883e1219645ef3`; GIT-064 `b8d3b37faeaaa1a3d8bfb27359e04acd08f7acab`; GIT-065 `0dc707ff249560f4f19b8359c6a44a383e8caf92`; GIT-066 `c193b8ba89fa55ead02d84ea10bb81f71b960f8a`; GIT-067 `ba5ecd694df78414240ce83a9140c5196334ebdc`; GIT-068 `1d80141f2465db6f0e389fb43dc1cdfb8dafbdf8`.
 Frozen starting audit: `baselines/2026-08-09-repository-audit.md`
 
-## Current transition — SPEC-0008 approved; Phase 1 authorized, 2026-09-18
+## Current transition — SPEC-0008 Phase 1 first result rejected; fresh correction authorized, 2026-09-19
+
+Arthur's visible review disproved the first executor's technical self-report: `hello` produced a generic animation-failure message and no gradient Thinking state. That result is rejected and cannot be reused. Its 13 dirty paths and ignored proof are preserved as 20 files at `output/recovery/SPEC-0008-phase1-rejected-2026-09-19-b027`, aggregate inventory SHA-256 `e872b12265b40fdc9e57ec8cd9c19658baeef5d01a8a221e687bbc7b894d3cb2`; the exact server is stopped, port 57080 is closed, and `/b027/` is removed/unregistered.
+
+D-0088 authorizes one fresh Phase 1 correction executor. Normal greetings and arbitrary in-bounds conversation must receive useful real Terra responses from bounded conversation context, never hard-coded messages or keyword recipes. The panel must show truthful gradient Thinking while the request is active. Phase 1 remains non-mutating, and Brush, timeline, canvas, manual tools, history, repository and persistence are protected. Arthur separately authorizes at most six short text-only live Terra requests, no more than $0.50 total, with search/tools off, no project images/assets/full bytes, no automatic retry and server-only credentials. No Phase 2–6 work or implementation publication is authorized.
+
+## Historical transition — SPEC-0008 approved; Phase 1 originally authorized, 2026-09-18
 
 D-0085 creates [`SPEC-0008 — Conversational AI Animator and Editable Video Reconstruction`](specs/0008-conversational-ai-animator.md) from a freshly traced clean runtime/control-plane basis. The exact six phases are: Terra brain/intent/jobs; provider-neutral reference video; deterministic cucumber slicer; editable drawing reconstruction; registered-command conversational edits; and beta/export closeout.
 

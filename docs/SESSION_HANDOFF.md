@@ -1,17 +1,19 @@
 # Session Handoff
 
 Status: current canonical stopping point
-Last updated: 2026-09-18
+Last updated: 2026-09-19
 
-All seven SPEC-0006 phases are closed through GIT-061. Drawing-only SPEC-0007 is fully Verified, published, integrated, recorded and cleaned up through D-0083/D-0084/GIT-066 `c193b8ba89fa55ead02d84ea10bb81f71b960f8a`. D-0085 creates SPEC-0008 and D-0086/GIT-067 publishes its exact planning-only package at `ba5ecd694df78414240ce83a9140c5196334ebdc`. D-0087 approves the full specification and authorizes Phase 1 only; GIT-068 publishes that exact authorization in commit `1d80141f2465db6f0e389fb43dc1cdfb8dafbdf8`.
+All seven SPEC-0006 phases are closed through GIT-061. Drawing-only SPEC-0007 is fully Verified, published, integrated, recorded and cleaned up through D-0083/D-0084/GIT-066 `c193b8ba89fa55ead02d84ea10bb81f71b960f8a`. D-0085 creates SPEC-0008, D-0086/GIT-067 publishes its plan, and D-0087/GIT-068 approves it with Phase 1 only. D-0088 rejects and cleans the first Phase 1 result, authorizes one fresh correction, and grants the exact six-request/$0.50 live Terra smoke ceiling.
 
-## Current stopping point — SPEC-0008 approved; Phase 1 authorized for one fresh executor
+## Current stopping point — publish D-0088, then start one fresh Phase 1 correction executor
 
 [`SPEC-0008 — Conversational AI Animator and Editable Video Reconstruction`](specs/0008-conversational-ai-animator.md) defines exactly six stop-gated phases: Terra brain/intent/jobs; provider-neutral reference video; deterministic cucumber slicer; editable reconstruction into ordinary drawing content; registered-command conversational edits; and beta/export closeout. It binds fixed `gpt-5.6-terra` Responses use, the four reasoning levels with Medium default, no task/model picker or fallback, persistent streamed jobs, truthful status, provider/security/cost/privacy gates, isolated Preview/Cancel/atomic Apply, two non-hardcoded build stories, one edit story and validated downloadable video export.
 
 The proposal was created from clean detached canonical-main basis `f923c35aa13cfd476e712f4ead89419263fc0893` after tracing the ordinary V2 workspace/registry path and the current separate AI route. It preserves Arthur's exact Terra/Responses/reasoning decision and dated Sora 2 shutdown input without selecting or hardwiring a reference-video provider; current access, pricing, provider terms and compatibility must be rechecked at the named live-use gates.
 
-GIT-067 published the exact 15-path planning-only package from parent `f923c35aa13cfd476e712f4ead89419263fc0893` with no runtime change. D-0087 records Arthur's later explicit approval and Phase 1-only autopilot authorization; GIT-068 publishes it at `1d80141f2465db6f0e389fb43dc1cdfb8dafbdf8`, with canonical/local-origin/live GitHub `main` verified equal at clean `0/0`. Exact next step: create one fresh Plan-mode Phase 1 Spec Executor app copy from the final synchronized records SHA, monitor it until permission is required or its review app/Implementation Review Packet is ready, and then stop for Arthur's visible review. Do not begin Phase 2, select/call a video provider, spend credits, deploy, publish implementation or broaden Phase 1.
+The first executor's app failed visible review: `hello` produced a generic animation-failure sentence and no gradient Thinking state. The result is Rejected/unpublished/non-reusable. Its 13 dirty paths and proof are preserved as 20 files under `output/recovery/SPEC-0008-phase1-rejected-2026-09-19-b027`, inventory SHA-256 `e872b12265b40fdc9e57ec8cd9c19658baeef5d01a8a221e687bbc7b894d3cb2`; PID 63165/listener 63166 are gone, port 57080 is closed, and `/b027/` is removed/unregistered.
+
+Exact next step after D-0088/GIT-069 publication and clean synchronization: create one fresh Plan-mode Phase 1 correction Spec Executor from the final canonical-main SHA. It must implement real `gpt-5.6-terra` conversation from bounded context with no hard-coded reply/keyword recipe, a truthful gradient Thinking state, non-mutating create/edit readiness, persistent accessible jobs, and zero regressions to Brush, canvas, timeline, manual tools, history or persistence. It may use at most six short text-only live Terra requests and $0.50 total; no raster/assets/full project data, search/tools, automatic retry, video/later-phase work, deployment or implementation publication. Monitor until a real permission blocker or a verified review copy plus Implementation Review Packet is ready.
 
 ## Historical stopping point — SPEC-0007 complete; ready for separate SPEC-0008 creation authorization
 

@@ -1,11 +1,11 @@
 # SPEC-0008 — Conversational AI Animator and Editable Video Reconstruction
 
-Status: **Approved/active; Phase 1 Authorized/Not started; Phases 2–6 Unauthorized/Not started**
+Status: **Approved/active; Phase 1 correction Authorized/Not started under D-0088; first result Rejected/cleaned; Phases 2–6 Unauthorized/Not started**
 Owner: Arthur
 Task role: planning/control-plane architecture only; this task changes no runtime or technical proof
 Created: 2026-09-18
-Last updated: 2026-09-18
-Decision links: [D-0085, D-0086 and D-0087](../DECISIONS.md)
+Last updated: 2026-09-19
+Decision links: [D-0085, D-0086, D-0087 and D-0088](../DECISIONS.md)
 TODO IDs: `PLAN-008`, `SPEC-008`, `AIANIM-001`–`AIANIM-006`
 Planning base: clean detached canonical-main SHA `f923c35aa13cfd476e712f4ead89419263fc0893`; index empty before edits
 Planning publication: GIT-067 commit `ba5ecd694df78414240ce83a9140c5196334ebdc`; 15 planning/control-plane/tree paths; no runtime change
@@ -239,7 +239,7 @@ A phase is not complete until its implementation is accepted, its control-plane 
 
 ## 9. Phase 1 — Terra brain, automatic intent routing, and chat/job foundation
 
-Status: **Authorized; Not started under D-0087**
+Status: **Correction Authorized; Not started under D-0088. The first executor result is Rejected, unpublished, non-reusable and cleaned up.**
 
 ### 9.1 Outcome
 
@@ -268,7 +268,9 @@ The model request projects only the user turn, bounded recent conversation, curr
 - Every captured production-shaped request uses `gpt-5.6-terra`; mutation tests for every old model constant, model override, escalation, missing model, and recovery branch fail closed rather than call another model.
 - The task picker is absent from DOM, keyboard order, accessibility tree, storage writes, and request payloads. The one chat retains the intended existing visual placement/language.
 - A bounded semantic eval corpus covers conversation/brainstorm, explicit create, existing-animation edit, material ambiguity, destructive ambiguity, unrelated help, hostile prompt injection, typos, long-but-in-bounds scenes, and the two later acceptance-story themes. There are no action/theme phrase branches in runtime source.
+- A greeting such as `hello`, follow-up questions, and arbitrary normal in-bounds conversation receive a useful natural Terra reply. Replies are generated from bounded conversation context, not a hard-coded greeting, keyword table, canned-message switch, or acceptance-prompt branch. A generic animation-failure sentence is never substituted for a valid conversation result.
 - Brainstorming and planning remain conversation; explicit build/animate becomes create; revision becomes edit; material ambiguity asks one focused question. Route results are stable across whitespace/case/paraphrase variants without keyword fallthrough.
+- While Terra is active, the panel visibly shows the existing gradient **Thinking** treatment; reduced-motion keeps the text but removes the sweep. The status stops or advances truthfully on success, cancellation, or failure.
 - All Phase 1 flows preserve exact authored, catalog, coverage, history, repository-head, and saved-version digests. Create/edit-intent jobs explicitly report that no animation was created.
 - Status stream replay/out-of-order/duplicate/stale/cross-project events, abort, reload interruption, server failure, malformed structured output, rate failure, and unmount are deterministic and leave no active ghost job.
 - Transcript/terminal jobs survive panel remount, Save/Open, and app reload as scoped by the project; one project's history never appears in another.
@@ -437,7 +439,7 @@ Existing strict historical validators may legitimately reject a newer spec/contr
 | 5 — Conversational editing | `AIANIM-005` | Phase 4 fully closed; separate authorization; AI-eligible registry audit | current-project edits through shared manual commands with atomic history | **Unauthorized; Not started** |
 | 6 — Beta closeout/export | `AIANIM-006` | Phase 5 fully closed; separate authorization; security/cost/privacy/export-format gates | bounded end-to-end beta workflow and inspected YouTube-ingestible download | **Unauthorized; Not started** |
 
-D-0087 approves this specification and authorizes Phase 1 only. Later phases always require their own separate authorization after the preceding phase is accepted, recorded, published/integrated, synchronized, proof-preserved, and cleaned up.
+D-0087 approves this specification and originally authorizes Phase 1 only; D-0088 rejects/cleans the first result and authorizes one fresh Phase 1 correction only. Later phases always require their own separate authorization after the preceding phase is accepted, recorded, published/integrated, synchronized, proof-preserved, and cleaned up.
 
 ## 18. Planning verification, blockers, and handoff
 
@@ -447,7 +449,7 @@ D-0087 approves this specification and authorizes Phase 1 only. Later phases alw
 | Live execution path | CODE VERIFIED | one V2 coordinator/manual registry; legacy task picker/session chat; Responses API with three current model profiles; current-frame-only PNG export |
 | Six-phase design | PASS | exactly six sequential implementation phases plus one non-phase correction/publication buffer day |
 | Runtime/provider/paid/Git changes in the D-0085 planning task | ZERO | planning/control-plane/tree records only; no app, test, provider, API, dependency, server, staging, commit, push, or deployment action |
-| Phase 1 product blockers | NONE; D-0087 owner approval/authorization recorded | Terra model/effort and non-mutating Phase 1 outcome are fixed; real paid smoke remains separately authorized evidence, not an implementation prerequisite |
+| Phase 1 product blockers | NONE; D-0088 correction and bounded live-smoke authority recorded | Terra model/effort, natural conversation, gradient Thinking and non-mutating Phase 1 outcome are fixed; live smoke is capped at six short text calls/$0.50 and cannot replace deterministic proof |
 | Later named gates | OPEN by design | current video provider/access/cost/privacy; decoder/encoder choice; public-beta security/retention/spend policy |
 
-The planning package was reviewed and published under D-0086/GIT-067, and Arthur approved it with Phase 1-only authorization under D-0087. After that authorization record is published, one fresh Phase 1 Spec Executor may start in Plan mode from the exact synchronized SHA. Phase 1 still has no accepted implementation, technical proof or review app; no provider/API call, paid usage or deployment is authorized.
+The planning package was reviewed and published under D-0086/GIT-067, and Arthur approved it with Phase 1-only authorization under D-0087. The first Phase 1 executor result was rejected after `hello` produced a generic animation failure and no gradient Thinking state. D-0088 preserves and cleans that result, authorizes one fresh correction executor, and permits at most six short text-only live Terra requests with a hard aggregate ceiling of $0.50. No raster, asset, full-project content, search, hosted tool, automatic retry, video provider, later phase, deployment, or implementation publication is authorized. Phase 1 still has no accepted implementation.

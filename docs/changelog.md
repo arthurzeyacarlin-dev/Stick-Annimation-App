@@ -1,5 +1,14 @@
 # Changelog
 
+### 2026-09-19 — Reject and clean the first SPEC-0008 Phase 1 result; authorize one fresh correction (D-0088)
+
+- Recorded Arthur's visible FAIL: `hello` produced a generic animation-failure response and no gradient Thinking state, so the 13-path self-reported result is rejected, unpublished and non-reusable.
+- Preserved 20 rejected-result/proof files under `output/recovery/SPEC-0008-phase1-rejected-2026-09-19-b027`, aggregate inventory SHA-256 `e872b12265b40fdc9e57ec8cd9c19658baeef5d01a8a221e687bbc7b894d3cb2`; stopped PID 63165, closed port 57080, and removed/unregistered `/b027/`.
+- Authorized one fresh Phase 1 correction executor requiring real Terra conversation from bounded context, no hard-coded messages or keyword recipes, truthful gradient Thinking, non-mutating create/edit readiness, and protection of every unrelated workspace tool/state owner.
+- Recorded the separate live-smoke permission: at most six short text-only Terra requests and $0.50 total, with server-only credentials, no images/assets/full project bytes, search/tools, automatic retry, video/later-phase work or deployment.
+
+This record changes no runtime, fixture, technical test, accepted proof, dependency, provider implementation, deployment or implementation publication.
+
 ### 2026-09-18 — Approve SPEC-0008 and authorize Phase 1 only (D-0087)
 
 - Recorded Arthur's explicit approval of the published six-phase SPEC-0008 contract and separate authorization of Phase 1 — Terra brain, semantic intent routing, and persistent streamed chat/jobs.

@@ -6,6 +6,7 @@
 - Preserved 20 rejected-result/proof files under `output/recovery/SPEC-0008-phase1-rejected-2026-09-19-b027`, aggregate inventory SHA-256 `e872b12265b40fdc9e57ec8cd9c19658baeef5d01a8a221e687bbc7b894d3cb2`; stopped PID 63165, closed port 57080, and removed/unregistered `/b027/`.
 - Authorized one fresh Phase 1 correction executor requiring real Terra conversation from bounded context, no hard-coded messages or keyword recipes, truthful gradient Thinking, non-mutating create/edit readiness, and protection of every unrelated workspace tool/state owner.
 - Recorded the separate live-smoke permission: at most six short text-only Terra requests and $0.50 total, with server-only credentials, no images/assets/full project bytes, search/tools, automatic retry, video/later-phase work or deployment.
+- Published the exact 11-path authorization record as GIT-069 commit `e682bd5357624c934789eefbc64dbba43116b246`, parent `dfa945595965f8d4d74e503965169fcef033f523`; canonical main/local origin/live GitHub matched cleanly at `0/0`.
 
 This record changes no runtime, fixture, technical test, accepted proof, dependency, provider implementation, deployment or implementation publication.
 

@@ -1,14 +1,14 @@
 # SPEC-0007 — Drawing-Only Manual Editor Completion and AI-Ready Tools
 
-Status: **Approved and active; Phases 1–4 closed through GIT-065; Phase 5 accepted and technically Verified under D-0083 pending GIT-066 publication/cleanup**
+Status: **Verified, published, integrated, recorded and cleaned up through D-0083/D-0084/GIT-066**
 Owner: Arthur
 Task role: Corrected phased implementation contract; this Spec Architect task changes no product runtime
 Created: 2026-09-14
 Last updated: 2026-09-18
-Decision links: [D-0071–D-0083](../DECISIONS.md), [D-0054](../DECISIONS.md), [D-0069–D-0070](../DECISIONS.md)
+Decision links: [D-0071–D-0084](../DECISIONS.md), [D-0054](../DECISIONS.md), [D-0069–D-0070](../DECISIONS.md)
 TODO IDs: `PLAN-007`, `SPEC-007`, `MANUAL-001`–`MANUAL-005`
 Corrected planning base: clean detached canonical-main SHA `be41db9e06126ae4e15c162962c6b856cb97660e`; index empty before edits
-Current runtime: canonical `main` includes published/closed Phase 4 at GIT-065 `0dc707ff249560f4f19b8359c6a44a383e8caf92`; D-0083 accepts and technically verifies the exact Phase 5 result in its preserved review worktree pending GIT-066 publication/integration and D-0054 cleanup
+Current runtime: canonical `main` includes all five phases through GIT-066 `c193b8ba89fa55ead02d84ea10bb81f71b960f8a`; D-0084 records clean synchronization, proof preservation and D-0054 cleanup
 
 ## 1. Exact outcome and permanent laws
 
@@ -184,7 +184,7 @@ The corrected sequence has **five phases**, the smallest reliable separation bec
 
 Each phase is a separate lifecycle:
 
-1. Arthur authorizes exactly one phase. D-0074 historically authorized corrected Phase 1; D-0077 accepts Phase 2 and D-0078/GIT-063 closes it. Arthur separately authorized and accepted Phase 3; D-0079 records its technical verification and D-0080/GIT-064 closes its publication/integration/cleanup. D-0081/D-0082/GIT-065 close Phase 4. D-0083 accepts and technically verifies Phase 5 pending GIT-066 publication/integration and cleanup.
+1. Arthur authorizes exactly one phase. D-0074 historically authorized corrected Phase 1; D-0077/D-0078/GIT-063 close Phase 2; D-0079/D-0080/GIT-064 close Phase 3; D-0081/D-0082/GIT-065 close Phase 4; and D-0083/D-0084/GIT-066 close Phase 5.
 2. A fresh dedicated Spec Executor worktree starts in Plan mode from the exact integrated canonical-main SHA. It records HEAD/main/origin, empty index, exclusive ownership, prior D-0054 cleanup, and an exact phase path allowlist before editing.
 3. The executor changes only phase-authorized runtime/fixture/technical-test families plus ignored `output/spec-0007/phase-N/**`, creates and independently mutation-validates a technical manifest, returns an Implementation Review Packet, and completely stops. It changes no canonical docs or Git state.
 4. Arthur and the Project Manager accept or reject. Rejected bytes are never reused. Unique dirty/proof bytes are inventoried, hashed, backed up, and verified before the exact server/worktree/local branch is removed under D-0054.
@@ -410,7 +410,7 @@ No URL fetch, video-to-animation, cloud assets, new dependency, project-file imp
 
 ## 11. Phase 5 — Final Manual Editor Bug Burn and Future-AI Command Registry
 
-Status: **Arthur-accepted and technically Verified under D-0083; GIT-066 publication/integration, proof preservation and D-0054 cleanup pending**
+Status: **Verified, published, integrated, recorded and cleaned up under D-0083/D-0084/GIT-066**
 
 Phase 5 repeats the complete ordinary editor matrix and publishes the exact runtime-used shared command registry. Exit means zero known reproducible bug in the defined matrix, no serious unresolved editor issue, no silent data loss, and no protected regression. It is a bounded release gate, not a claim that all software is bug-free.
 
@@ -430,7 +430,7 @@ The machine-readable registry and human table cover every enabled manual mutatio
 
 Five warmed full-playback loops/profile have zero missed document writes, zero render-triggered history writes, zero >200 ms long tasks, and no monotonic settled-heap growth. The strictest Phase 1–4 and SPEC-0006 ceilings remain; a new measurement cannot silently weaken them.
 
-Only after Phase 5 technical PASS/VALID, Arthur/PM ordinary-app acceptance, CPA propagation, separate publication, clean local/live synchronization, proof preservation, and D-0054 cleanup may SPEC-0007 become Verified. SPEC-0008 remains separate and unauthorized.
+Phase 5 technical PASS/VALID, Arthur/PM ordinary-app acceptance, CPA propagation, separate publication, clean local/live synchronization, proof preservation, and D-0054 cleanup are all complete under D-0083/D-0084/GIT-066; SPEC-0007 is Verified. SPEC-0008 remains separate, uncreated and unauthorized pending Arthur's next instruction.
 
 ## 12. Phase summary and authorization
 
@@ -440,7 +440,7 @@ Only after Phase 5 technical PASS/VALID, Arthur/PM ordinary-app acceptance, CPA 
 | 2 — Draw Rig | `MANUAL-002` | Phase 1 accepted/published/synchronized/cleaned; separate authorization | Toggleable raster-only segmented drawing with deterministic thresholds and shared command | **Verified/published/integrated/recorded/cleaned up under D-0077/D-0078/GIT-063** |
 | 3 — Safe Legacy Rig Retirement and Migration | `MANUAL-003` | Phase 2 accepted/published/synchronized/cleaned; separate authorization | No active rig/Creator system; old projects/symbols migrate visibly and recoverably | **Verified/published/integrated/recorded/cleaned up under D-0079/D-0080/GIT-064** |
 | 4 — Assets Stabilization | `MANUAL-004` | Phase 3 accepted/published/synchronized/cleaned; separate authorization | Bounded truthful still-media lifecycle | **Verified/published/integrated/recorded/cleaned up under D-0081/D-0082/GIT-065** |
-| 5 — Final Bug Burn/Future-AI Registry | `MANUAL-005` | Phase 4 accepted/published/synchronized/cleaned; no known prior-phase repro; separate authorization | Complete manual matrix and runtime-used command registry | **Accepted/technically Verified under D-0083; GIT-066 publication/cleanup pending** |
+| 5 — Final Bug Burn/Future-AI Registry | `MANUAL-005` | Phase 4 accepted/published/synchronized/cleaned; no known prior-phase repro; separate authorization | Complete manual matrix and runtime-used command registry | **Verified/published/integrated/recorded/cleaned up under D-0083/D-0084/GIT-066** |
 
 Durable owner decisions are complete for the corrected Phase 1 outcome and five-phase direction. Material changes to the no-silent-deletion law, same-paint maximum coverage, Draw Rig visible semantics/thresholds, active rig retirement, legacy recovery, supported asset formats/limits, or shared-command law return to Arthur/Spec Architect. Bounded engineering mechanics may be resolved inside the authorized phase only when they preserve these outcomes, limits, and proof.
 
@@ -469,4 +469,6 @@ D-0081 accepts the exact 11-path Phase 4 result from unchanged GIT-064 base/HEAD
 
 D-0082/GIT-065 publishes the exact accepted 11 technical paths plus 13 reviewed records/tree paths at `0dc707ff249560f4f19b8359c6a44a383e8caf92`, verifies clean local/live synchronization, preserves all six proof files at aggregate inventory SHA-256 `6e0239c7ec6ded8253b83833ea14d5e79b6570249fd5dce2b20ee25595013e47`, and completes D-0054 Phase 4 review-copy cleanup.
 
-D-0083 accepts the stopped exact eight-path Phase 5 result from unchanged GIT-065 base/HEAD `5f2637faf56ab1f2df1408080c7cc1cacf4d6fab`, empty index. Immutable 11,385-byte PASS manifest SHA-256 is `f2b2d5939488eba9caf757b0149b60476936996d5fcd6876f59d46c7a406174c`; source digest is `381ef09ad28a389c25ab4e3e547e96339648b09757cafe13a4ff4e012d560766`; independent validation passed 37 assertions and rejected eight mutations. The accepted correction restores the exact last-good bitmap and clears transient state after a failed coordinator publication, prevents non-tween owners from entering the frozen tween cache, and publishes one runtime-used registry of 40 enabled commands including all 11 destructive commands. Proof passed 155 static and 51 browser assertions, one injected failure, 160 authored operations, 162/162 Undo/Redo, five playback loops, performance/accessibility/isolation and Phase 1–4/SPEC-0006 regressions. Arthur accepted the app at port 56960. GIT-066 publication/integration, proof preservation and D-0054 cleanup remain pending; SPEC-0008 remains unauthorized.
+D-0083 accepts the stopped exact eight-path Phase 5 result from unchanged GIT-065 base/HEAD `5f2637faf56ab1f2df1408080c7cc1cacf4d6fab`, empty index. Immutable 11,385-byte PASS manifest SHA-256 is `f2b2d5939488eba9caf757b0149b60476936996d5fcd6876f59d46c7a406174c`; source digest is `381ef09ad28a389c25ab4e3e547e96339648b09757cafe13a4ff4e012d560766`; independent validation passed 37 assertions and rejected eight mutations. The accepted correction restores the exact last-good bitmap and clears transient state after a failed coordinator publication, prevents non-tween owners from entering the frozen tween cache, and publishes one runtime-used registry of 40 enabled commands including all 11 destructive commands. Proof passed 155 static and 51 browser assertions, one injected failure, 160 authored operations, 162/162 Undo/Redo, five playback loops, performance/accessibility/isolation and Phase 1–4/SPEC-0006 regressions. Arthur accepted the app at port 56960.
+
+D-0084/GIT-066 publishes the exact accepted eight technical paths plus 13 reviewed control-plane/tree paths at `c193b8ba89fa55ead02d84ea10bb81f71b960f8a`, verifies clean local/live synchronization, preserves all six proof files at aggregate inventory SHA-256 `9ca574bfc4cca30466101b4fff997d6eed66276a358dd8ed63fe659fdfbb6c98`, stops port 56960 and completes D-0054 Phase 5 review-copy cleanup. SPEC-0007 is complete. Future SPEC-0008 is ready for separate authorization/creation but remains uncreated and unauthorized.

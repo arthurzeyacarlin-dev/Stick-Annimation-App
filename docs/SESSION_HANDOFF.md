@@ -3,9 +3,9 @@
 Status: current canonical stopping point
 Last updated: 2026-09-18
 
-All seven SPEC-0006 phases are closed through GIT-061. SPEC-0007 Phases 1–4 are closed through GIT-062/GIT-063/GIT-064/GIT-065. D-0083 accepts and technically verifies the exact Phase 5 result from unchanged GIT-065 base `5f2637faf56ab1f2df1408080c7cc1cacf4d6fab`; GIT-066 publication/integration, proof preservation and D-0054 cleanup remain pending. SPEC-0008 remains unauthorized.
+All seven SPEC-0006 phases are closed through GIT-061. Drawing-only SPEC-0007 is fully Verified, published, integrated, recorded and cleaned up through D-0083/D-0084/GIT-066 `c193b8ba89fa55ead02d84ea10bb81f71b960f8a`. Future SPEC-0008 is ready for Arthur's separate authorization and creation but remains uncreated and unauthorized.
 
-## Current stopping point — SPEC-0007 Phase 5 accepted, propagated and frozen before publication
+## Current stopping point — SPEC-0007 complete; ready for separate SPEC-0008 creation authorization
 
 Arthur accepted the final app at `http://127.0.0.1:56960/`. The executor is fully stopped; the only remaining process is the review server. D-0083 binds exactly eight technical paths from unchanged GIT-065 base/HEAD `5f2637faf56ab1f2df1408080c7cc1cacf4d6fab`, empty index. Immutable 11,385-byte manifest `output/spec-0007/phase-5/proof-manifest.json` is PASS at SHA-256 `f2b2d5939488eba9caf757b0149b60476936996d5fcd6876f59d46c7a406174c`, source digest `381ef09ad28a389c25ab4e3e547e96339648b09757cafe13a4ff4e012d560766`; independent validator is VALID with 37 assertions and eight rejected mutations.
 
@@ -13,7 +13,11 @@ The accepted correction restores the exact last-good bitmap and clears transient
 
 Proof passed 155 static assertions, 51 browser assertions, one injected publication failure, 160 authored operations, 162/162 Undo/Redo, five warmed playback loops, 191 ms maximum long task, 139,535,920-byte settled heap, zero serious Axe findings, zero overflow, zero external requests and zero browser errors. Relevant Phase 1–4 and SPEC-0006 regression suites passed. TypeScript/focused lint/production Webpack compile passed before the unchanged inherited generated route-type baseline.
 
-Exact next step: after this Control Plane Architect packet, Arthur must separately authorize GIT-066 publication. The publisher verifies the exact accepted eight-path allowlist plus reviewed record/tree paths, empty index, unchanged clean canonical `main` and local/live remote equality; commits on a `codex/` publication branch; fast-forwards canonical `main`; pushes normally; proves clean `0/0`; preserves the complete ignored proof; then stops PID 46510/port 56960 and removes only the obsolete Phase 5 worktree and merged local branch under D-0054. No pull, merge, rebase, amend, force-push, history rewrite, runtime correction, SPEC-0008 creation or external/paid operation is authorized by this propagation packet.
+D-0084 records exact 21-path GIT-066 commit `c193b8ba89fa55ead02d84ea10bb81f71b960f8a`, parent `5f2637faf56ab1f2df1408080c7cc1cacf4d6fab`, message `Implement SPEC-0007 Phase 5 manual editor closeout`: eight accepted technical paths plus 13 reviewed control-plane/tree paths. Canonical `main`, local `origin/main` and live GitHub `main` matched cleanly at `0/0` after a normal non-force push.
+
+The complete six-file/96 KiB proof is preserved at `/Users/arthurcarlin/.codex/worktrees/2d14/stick-animation-app/output/recovery/GIT-066-phase-5-c193b8b/phase-5`, aggregate inventory SHA-256 `9ca574bfc4cca30466101b4fff997d6eed66276a358dd8ed63fe659fdfbb6c98`, with matching source/destination inventories and empty checksum rsync dry run. PID 46510 is stopped, port 56960 is closed, `/a1b1/` is removed/unregistered and merged branch `codex/spec0007-phase5-publication` is deleted.
+
+Exact next step: Arthur may separately authorize creation of SPEC-0008 and later separately authorize a new Project Manager handoff message. Neither action is performed or authorized by this closeout. Do not recreate SPEC-0007 work, start AI/provider/model/prompt/API/video/tracking work, spend credits, create a handoff, deploy, or perform external/paid operations without Arthur's next explicit instruction.
 
 ## Historical stopping point — SPEC-0007 Phase 4 published, synchronized, preserved and cleaned up
 
@@ -29,7 +33,7 @@ The complete proof is preserved at `/Users/arthurcarlin/.codex/worktrees/2d14/st
 
 Exact next step: Arthur may separately authorize one fresh Plan-mode SPEC-0007 Phase 5 executor from the final clean canonical-main SHA after this record-only closeout synchronizes. Phase 5 must first deterministically reproduce and permanently fix the reported random drawing-deletion defect, inspect the complete ordinary editor matrix and publish the runtime-used future-AI command registry without contaminating accepted Drawing, Draw Rig, timeline, onion, playback, symbols, Assets, migration or persistence behavior.
 
-## Current stopping point — SPEC-0007 Phase 3 published, synchronized, preserved and cleaned up
+## Historical stopping point — SPEC-0007 Phase 3 published, synchronized, preserved and cleaned up
 
 Arthur accepted the Phase 3 app copy at `http://127.0.0.1:56940/`. D-0079 binds the exact 15-path result from unchanged GIT-063 base `be89f1421b0588c0a2289b8e174e06f201e8ac5d`, empty index. The 6,066-byte manifest is PASS at SHA-256 `5d4db763d436cae149405dfc50d757be8ec628f41a728ab336001153d6e61c20`; source digest is `dbb28ca4acdfac7f69192831e7eb0a06122bfd79ba31b5e48bf92d9321e03cb4`.
 

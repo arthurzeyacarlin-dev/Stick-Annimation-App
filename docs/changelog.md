@@ -5,6 +5,14 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-18 — Publish and close SPEC-0007 Phase 5 (D-0084/GIT-066)
+
+- Published exact 21-path commit `c193b8ba89fa55ead02d84ea10bb81f71b960f8a`, parent `5f2637faf56ab1f2df1408080c7cc1cacf4d6fab`, message `Implement SPEC-0007 Phase 5 manual editor closeout`: eight accepted technical paths plus 13 reviewed control-plane/tree paths.
+- Fast-forwarded clean canonical `main`, pushed normally, and verified canonical `main`, local `origin/main` and live GitHub `main` equal at clean `0/0`.
+- Preserved the complete six-file/96 KiB proof at aggregate inventory SHA-256 `9ca574bfc4cca30466101b4fff997d6eed66276a358dd8ed63fe659fdfbb6c98`; technical manifest remains `f2b2d5939488eba9caf757b0149b60476936996d5fcd6876f59d46c7a406174c`.
+- Stopped PID 46510, verified port 56960 closed, removed/unregistered the obsolete `/a1b1/` Phase 5 review worktree, and deleted its merged publication branch.
+- Closed all five SPEC-0007 phases. Future SPEC-0008 is ready for separate authorization/creation but remains uncreated and unauthorized; no handoff message was created.
+
 ### 2026-09-18 — Accept and technically verify SPEC-0007 Phase 5 (D-0083)
 
 - Accepted the exact eight-path Phase 5 result from unchanged GIT-065 base `5f2637faf56ab1f2df1408080c7cc1cacf4d6fab` after Arthur's visible PASS at port 56960.

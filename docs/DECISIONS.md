@@ -842,6 +842,15 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Boundaries and honest limitations: accepted brush/coverage and Draw Rig algorithms, migration/source writers, Assets importer/catalog contracts, AI/provider/model/prompt/API/motion/video/tracking, Home/Tutorials, dependencies/configuration, auth/billing/export/deployment and external services remain unchanged. The old Phase 1 no-loss oracle still hard-codes ten rather than eleven destructive commands; the old Phase 2 browser harness still waits for retired rig SVG; and the old Phase 4 rerun harness retains a nondeterministic render/GC heuristic. Those inherited harness limits are recorded, not converted into product regressions or weakened.
 - Publication/cleanup: preserve the accepted Phase 5 worktree, PID 46510/port 56960 and complete ignored proof until publication succeeds. A later explicit GIT-066 task may stage only the exact accepted eight technical paths plus reviewed control-plane/tree paths, commit on a `codex/` publication branch, fast-forward unchanged clean canonical `main`, push normally and verify clean local/live `0/0`. No pull, merge, rebase, amend, force-push, history rewrite or scope expansion. After proof preservation and synchronization, stop the exact review server, verify the port closed, and remove only the obsolete Phase 5 worktree and merged local branch under D-0054. Only then is SPEC-0007 fully closed and ready for separately authorized SPEC-0008 creation.
 
+### D-0084 — Record GIT-066 publication and close SPEC-0007
+
+- Date: 2026-09-18
+- Authority: Arthur's explicit post-CPA instruction to publish Phase 5 and start autopilot until the accepted result was integrated into the real Diamond Animator.
+- Publication: GIT-066 is exact 21-path commit `c193b8ba89fa55ead02d84ea10bb81f71b960f8a`, parent `5f2637faf56ab1f2df1408080c7cc1cacf4d6fab`, message `Implement SPEC-0007 Phase 5 manual editor closeout`. It contains exactly the accepted eight technical paths plus 13 reviewed control-plane/tree paths. Clean canonical `main` fast-forwarded to it, pushed normally, and canonical `main`, local `origin/main` and live GitHub `main` were verified equal at clean `0/0`.
+- Proof preservation: the complete accepted Phase 5 output is preserved at `/Users/arthurcarlin/.codex/worktrees/2d14/stick-animation-app/output/recovery/GIT-066-phase-5-c193b8b/phase-5`: six files, 96 KiB, aggregate inventory SHA-256 `9ca574bfc4cca30466101b4fff997d6eed66276a358dd8ed63fe659fdfbb6c98`, with matching source/destination inventories and empty `rsync -ani --delete`. Technical manifest remains SHA-256 `f2b2d5939488eba9caf757b0149b60476936996d5fcd6876f59d46c7a406174c`.
+- Cleanup: exact review PID 46510 was stopped and port 56960 verified closed. The obsolete `/Users/arthurcarlin/.codex/worktrees/a1b1/stick-animation-app` Phase 5 review worktree was removed/unregistered and merged local branch `codex/spec0007-phase5-publication` deleted. Canonical main, the active PM worktree, remote refs and recovery material remain.
+- Consequence: all five SPEC-0007 phases are accepted, Verified, published, integrated, recorded and cleaned up. Future SPEC-0008 is ready for Arthur's separate authorization and creation but remains uncreated and unauthorized. No handoff message, AI/provider/model/prompt/API/video/tracking work, external/paid operation or deployment is included.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation
@@ -888,7 +897,7 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 
 ### P-0006 — First usable manual drawing-based feature set
 
-- Status: resolved by corrected drawing-only SPEC-0007 under D-0074; GIT-062 closes Phase 1, GIT-063 closes Phase 2, D-0079/D-0080/GIT-064 close Phase 3, D-0081/D-0082/GIT-065 close Phase 4, and D-0083 accepts/technically verifies Phase 5 pending GIT-066 publication/cleanup.
+- Status: resolved and fully closed by corrected drawing-only SPEC-0007 under D-0074; GIT-062 closes Phase 1, GIT-063 closes Phase 2, D-0079/D-0080/GIT-064 close Phase 3, D-0081/D-0082/GIT-065 close Phase 4, and D-0083/D-0084/GIT-066 close Phase 5.
 - Resolution: SPEC-0006 Phase 5 integrated the current tools. D-0074 replaces the former seven-phase structured-rig outcome with five phases: Drawing Engine/No-Loss; Draw Rig as ordinary raster paint; Safe Legacy Rig Retirement/Migration; bounded still Assets; and final command-registry/bug-burn proof. Active rig/Creator authoring ends after safe migration rather than expanding. Export, animated symbol timelines, motion/video/tracking, and AI expansion remain outside SPEC-0007.
 
 ### P-0007 — Data/search/privacy policy

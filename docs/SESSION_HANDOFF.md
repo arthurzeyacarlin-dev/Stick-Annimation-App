@@ -3,9 +3,17 @@
 Status: current canonical stopping point
 Last updated: 2026-09-18
 
-All seven SPEC-0006 phases are closed through GIT-061. Drawing-only SPEC-0007 is fully Verified, published, integrated, recorded and cleaned up through D-0083/D-0084/GIT-066 `c193b8ba89fa55ead02d84ea10bb81f71b960f8a`. Future SPEC-0008 is ready for Arthur's separate authorization and creation but remains uncreated and unauthorized.
+All seven SPEC-0006 phases are closed through GIT-061. Drawing-only SPEC-0007 is fully Verified, published, integrated, recorded and cleaned up through D-0083/D-0084/GIT-066 `c193b8ba89fa55ead02d84ea10bb81f71b960f8a`. D-0085 now creates SPEC-0008 as Proposed, decision-complete and review-ready; no implementation phase is authorized.
 
-## Current stopping point — SPEC-0007 complete; ready for separate SPEC-0008 creation authorization
+## Current stopping point — SPEC-0008 proposed; Phase 1 awaits separate review/publication/authorization
+
+[`SPEC-0008 — Conversational AI Animator and Editable Video Reconstruction`](specs/0008-conversational-ai-animator.md) defines exactly six stop-gated phases: Terra brain/intent/jobs; provider-neutral reference video; deterministic cucumber slicer; editable reconstruction into ordinary drawing content; registered-command conversational edits; and beta/export closeout. It binds fixed `gpt-5.6-terra` Responses use, the four reasoning levels with Medium default, no task/model picker or fallback, persistent streamed jobs, truthful status, provider/security/cost/privacy gates, isolated Preview/Cancel/atomic Apply, two non-hardcoded build stories, one edit story and validated downloadable video export.
+
+The proposal was created from clean detached canonical-main basis `f923c35aa13cfd476e712f4ead89419263fc0893` after tracing the ordinary V2 workspace/registry path and the current separate AI route. It preserves Arthur's exact Terra/Responses/reasoning decision and dated Sora 2 shutdown input without selecting or hardwiring a reference-video provider; current access, pricing, provider terms and compatibility must be rechecked at the named live-use gates.
+
+Exact next step: separately review and publish/synchronize this Proposed docs-only package. Arthur may then explicitly approve SPEC-0008 and authorize only Phase 1 in a fresh Plan-mode Spec Executor worktree from the then-current clean canonical-main SHA. Do not begin Phase 2, select/call a video provider, spend credits, mutate runtime/tests/proof, deploy, stage/commit/push, or create a new PM V4 task/handoff without separate authority.
+
+## Historical stopping point — SPEC-0007 complete; ready for separate SPEC-0008 creation authorization
 
 Arthur accepted the final app at `http://127.0.0.1:56960/`. The executor is fully stopped; the only remaining process is the review server. D-0083 binds exactly eight technical paths from unchanged GIT-065 base/HEAD `5f2637faf56ab1f2df1408080c7cc1cacf4d6fab`, empty index. Immutable 11,385-byte manifest `output/spec-0007/phase-5/proof-manifest.json` is PASS at SHA-256 `f2b2d5939488eba9caf757b0149b60476936996d5fcd6876f59d46c7a406174c`, source digest `381ef09ad28a389c25ab4e3e547e96339648b09757cafe13a4ff4e012d560766`; independent validator is VALID with 37 assertions and eight rejected mutations.
 

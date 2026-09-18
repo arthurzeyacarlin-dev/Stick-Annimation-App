@@ -1,7 +1,13 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-18 after D-0084/GIT-066 published, integrated, preserved and cleaned up SPEC-0007 Phase 5 at `c193b8ba89fa55ead02d84ea10bb81f71b960f8a`.
+Last traced: 2026-09-18 for D-0085 Proposed SPEC-0008 from clean canonical-main basis `f923c35aa13cfd476e712f4ead89419263fc0893`; no runtime change.
+
+## Proposed SPEC-0008 target architecture — not implemented
+
+D-0085 proposes one replaceable, one-way workflow: workspace conversation → fixed Terra intent/plan service → persistent streamed job ledger → provider-neutral reference-video boundary or validated upload → deterministic frame slicer → editable reconstruction planner → registered-command Preview/Apply executor → existing `DrawingWorkspace` V2 coordinator/history/repository → canonical Save/Open → deterministic video exporter.
+
+The provider, decoder/slicer and reconstruction planner never own authored state. Intermediate video/frame/reconstruction artifacts are isolated, content-addressed and project-generation bound. The only authored commit door is an atomic registered-command batch entering the existing V2 owner after explicit Apply; Cancel/failure/stale leaves the original byte-equivalent. No structured rig/topology or second mutation engine returns. This is Proposed architecture only; Phases 1–6 are all unauthorized/not started.
 
 ## Published SPEC-0007 Phase 1–5 extension
 
@@ -135,6 +141,8 @@ One unified global history is authoritative for authored project state. Inside `
 
 These are code-verified path differences. Their visual severity in realistic projects remains untested.
 
+Proposed SPEC-0008 Phase 6 owns a new canonical-project animation export boundary and independent container/codec/playback validation for the then-approved YouTube-ingestible format; it is not present today. Direct YouTube account upload remains outside V1.
+
 ## AI Generate Frames Flow
 
 1. `DrawingAiPanel` collects task controls, user text, workspace context, project memory, and available actions.
@@ -146,6 +154,8 @@ These are code-verified path differences. Their visual severity in realistic pro
 7. `DrawingWorkspace` applies the returned frame payload to the real timeline.
 
 This is a hybrid deterministic/model-planned procedural renderer, not image generation and not a custom-trained LLM. AI panel messages and follow-ups live only in React session state. The workspace action-plan executor currently implements only `save-project`, `export-current-frame`, and `attach-sound-option-to-frame`; every other contract action returns `false`.
+
+Proposed SPEC-0008 Phase 1 replaces the task/model routing surface with fixed Terra intent/planning and a durable streamed job ledger but deliberately performs no project/video mutation. Later phases replace direct AI project writes with the isolated registered-command boundary described above.
 
 ## Historical standalone Stick Figure data flow
 

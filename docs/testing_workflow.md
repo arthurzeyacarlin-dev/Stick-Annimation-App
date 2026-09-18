@@ -3,6 +3,14 @@
 Status: canonical proof standard and current gate baseline
 Last updated: 2026-09-18
 
+## Proposed SPEC-0008 proof contract — no implementation evidence yet
+
+D-0085's [`SPEC-0008`](specs/0008-conversational-ai-animator.md) is Proposed/review-ready with all six phases unauthorized/not started. Each future phase requires an immutable phase manifest binding exact source/fixture/test/evidence hashes; browser-visible behavior; job/event/network/provider/paid ledgers; project/history/repository/artifact digests; failure/cancel/stale/concurrency injection; scoped type/lint/build; performance/accessibility/security/cost gates owned by that phase; protected manual/persistence regressions; independent negative manifest mutations; and explicit proven/not-proven/human-acceptance fields.
+
+Phase 1 must prove fixed Terra/no-fallback intent and persistent streaming while project bytes/history remain unchanged. Phase 2 must prove normalized reference-video lifecycle, upload validation and representative-frame/metadata verification without mutation. Phase 3 must use **Animating** only for deterministic reference-video cutting/slicing and reproduce byte-identical ordered timing/shot-bound bundles. Phase 4 must use **Working** for editable-content reconstruction and prove non-hardcoded ordinary reconstruction cases plus atomic failure at every command boundary. Phase 5 must use **Working** for registered edit-command preparation and prove real conversational edit classes through registered commands. Phase 6 must run the black-vs-red and alien/UFO stories plus the follow-up edit end to end, validate the separately approved downloadable YouTube-ingestible format/encoder, close auth/ownership/rate/privacy/retention/spend gates and prove no partial data. Status stages must be skipped when their subsystem is not invoked, and determinate progress must come only from real measurements. Mock/provider-free proof and any separately authorized live event must be reported separately.
+
+No SPEC-0008 proof exists merely because this contract is written. Existing accepted SPEC-0006/0007 proof remains the regression floor.
+
 ## Accepted SPEC-0007 Phase 5 final manual-editor proof
 
 D-0083 accepts and technically verifies the exact eight-path Phase 5 result from unchanged GIT-065 base/HEAD `5f2637faf56ab1f2df1408080c7cc1cacf4d6fab`, empty index. D-0084/GIT-066 publishes/integrates it at exact commit `c193b8ba89fa55ead02d84ea10bb81f71b960f8a` and records proof preservation/D-0054 cleanup. Immutable 11,385-byte manifest `output/spec-0007/phase-5/proof-manifest.json` is PASS at SHA-256 `f2b2d5939488eba9caf757b0149b60476936996d5fcd6876f59d46c7a406174c`, source digest `381ef09ad28a389c25ab4e3e547e96339648b09757cafe13a4ff4e012d560766`. The independent validator passed 37 assertions and rejected eight mutations across base, allowlist, source/artifact/regression bindings, status and check families.

@@ -119,6 +119,7 @@
 ./docs/specs/0005-professional-shared-stick-motion-engine.md
 ./docs/specs/0006-unified-animation-workspace.md
 ./docs/specs/0007-manual-editor-completion-and-ai-ready-tools.md
+./docs/specs/0008-conversational-ai-animator.md
 ./docs/specs/README.md
 ./docs/specs/TEMPLATE.md
 ./docs/testing_workflow.md

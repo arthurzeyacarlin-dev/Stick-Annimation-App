@@ -1,13 +1,19 @@
 # AI System Snapshot
 
 Status: canonical current AI architecture and gap map
-Last traced: published v2 safety evidence retained from 2026-09-08; canonical source seam rechecked read-only on 2026-09-09 at `de54aed275c2f6da6e7c3f4a7f65091e8d5370c0`. No runtime change. SPEC-0005 Phase 1 and Phase 2 v1/v2 remain accepted, Verified, published, and integrated; v2 is complete at GIT-048 `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`. GIT-049 published the later Phase 3 authorization at `de54aed275c2f6da6e7c3f4a7f65091e8d5370c0`. A Phase 3 executor then ran, but Arthur rejected its visible result: it is unpublished, unaccepted, non-reusable, and not completed. D-0055 supersedes Phase 3 and unfinished Phases 4–8 by future SPEC-0008; they are inactive with no implementation authority.
+Last traced: 2026-09-18 from clean canonical-main basis `f923c35aa13cfd476e712f4ead89419263fc0893` for D-0085 Proposed SPEC-0008. No runtime change. SPEC-0005 Phase 1 and Phase 2 v1/v2 remain accepted, Verified, published, and integrated; v2 is complete at GIT-048 `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`. Its rejected/unfinished successors remain historical and non-reusable. D-0085 supersedes their future-planning placeholder with an explicit six-phase proposal but authorizes no implementation.
+
+## Proposed SPEC-0008 transition (D-0085)
+
+[`SPEC-0008`](specs/0008-conversational-ai-animator.md) proposes fixed `gpt-5.6-terra` Responses use for conversational intent/planning; Low/Medium/High/Extra High → `low`/`medium`/`high`/`xhigh`; Medium default on new/open; no task/model picker or model fallback; and persistent streamed job state. Phase 1 is non-mutating. Later gated phases add provider-neutral reference video or validated upload, deterministic frame slicing, honest ordinary drawing reconstruction, registered-command edits and beta/export closeout.
+
+All authored changes remain isolated until Preview and explicit atomic Apply through the manual registry/V2 owner. Sora 2/OpenAI Videos is not selected: Arthur's dated planning input records it as deprecated with shutdown scheduled for 2026-09-24, and Phase 2 requires a fresh current-provider/access/cost/privacy decision before live use. No provider, live/paid request or runtime behavior is added by the proposal.
 
 ## Planning-only transition (D-0055)
 
 SPEC-0004 Phases 1, 2, and timing-only Phase 2.5 remain Verified, published, and integrated. Phase 2.6 remains rejected, unpublished, and superseded historical evidence. Under D-0055, unfinished Phases 3–8 are Superseded by future SPEC-0008, inactive, and must not be implemented.
 
-Current lifecycle update (D-0069/D-0070, 2026-09-14): all seven SPEC-0006 phases are Verified, published, and integrated through GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`. Its exact 11-path Phase 7 manifest SHA-256 is `c6202f6deab4d3bcc75af3ad6699fc2dc70fc58723eccaa8337b1a2aef74bc51`. Phase 7 routes AI-triggered Save through the same canonical V2 save callback as manual Save, preserves Drawing AI memory and the Stick one-time creation latch as project-bound auxiliary state, and changes no AI model, prompt, provider, generation, motion, video/tracking, API, task semantics, or paid/external behavior. Its browser proof recorded zero real API/external requests. Future AI/video work remains SPEC-0008.
+Current lifecycle update: all seven SPEC-0006 phases are Verified, published, and integrated through GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`, and all five SPEC-0007 phases are closed through GIT-066. Their accepted runtime routes AI-triggered Save through the same canonical V2 callback as manual Save but add none of the Proposed SPEC-0008 brain/video/reconstruction/edit/export behavior. D-0085 now defines that future work; all six implementation phases remain unauthorized/not started.
 
 ## What Exists Today
 
@@ -40,6 +46,8 @@ Files named “training” contain hand-authored prompt/reference examples used 
 | Economy | `gpt-5.2` | Lower-cost work |
 
 On the structured-model branch, Generate Frames chooses among profiles based on analyzed complexity and can use recovery/escalation paths. There is no approved product budget that defines when escalation is acceptable.
+
+This table remains current runtime truth only. Proposed SPEC-0008 Phase 1 would replace that routing for the workspace conversation with exact `gpt-5.6-terra`, no alternate/fallback model and the four approved reasoning efforts. It is not implemented or authorized yet.
 
 ## Contract Taxonomy
 

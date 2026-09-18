@@ -11,7 +11,7 @@ Last updated: 2026-09-18
 - Paid AI calls, remote writes, deployment, and baseline commits require task-specific authorization.
 - The roadmap may change when Arthur resolves pending decisions or new evidence changes the risk order.
 
-## Current owner sequence — 2026-09-18 (D-0084/GIT-066; SPEC-0007 complete)
+## Current owner sequence — 2026-09-18 (D-0085; SPEC-0008 proposed)
 
 All seven SPEC-0006 phases are Verified/published/integrated through GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`. The immutable 50,224-byte Phase 7 manifest is PASS/VALID at SHA-256 `c6202f6deab4d3bcc75af3ad6699fc2dc70fc58723eccaa8337b1a2aef74bc51`, with exactly 11 source and 16 evidence bindings.
 
@@ -25,7 +25,18 @@ The corrected order kept seven numbered phases. Minimal neutral data/storage pre
 4. Assets Stabilization.
 5. Final Manual Editor Bug Burn and Future-AI Command Registry.
 
-Each phase started only after the prior phase was accepted, propagated, separately published/integrated, synchronized, cleaned up, and separately authorized. The no-silent-deletion, explicit destructive-command registry, same-paint maximum-coverage, shared-capability, and read-only legacy-source laws remain permanent. Future SPEC-0008 may now be separately authorized and created, but remains uncreated and unauthorized; SPEC-0007 added no AI/provider/model/prompt/video/tracking behavior.
+Each phase started only after the prior phase was accepted, propagated, separately published/integrated, synchronized, cleaned up, and separately authorized. The no-silent-deletion, explicit destructive-command registry, same-paint maximum-coverage, shared-capability, and read-only legacy-source laws remain permanent. SPEC-0007 added no AI/provider/model/prompt/video/tracking behavior.
+
+D-0085 creates [`SPEC-0008`](specs/0008-conversational-ai-animator.md) as Proposed/review-ready with no implementation authority. Its exact next sequence is:
+
+1. Terra brain, conversational intent routing and persistent streamed jobs.
+2. Provider-neutral reference video with upload fallback and a separate provider/access/cost/privacy gate.
+3. Deterministic cucumber slicing into an isolated ordered timing/shot-bound frame bundle.
+4. Honest editable reconstruction into ordinary drawing-only content through registered commands and atomic Preview/Apply.
+5. Conversational edits through the same manual command registry.
+6. Beta/security/performance closeout and downloadable YouTube-ready video export.
+
+The delivery target is one phase/day plus one correction/publication buffer day. It does not bypass the per-phase Spec Executor → Arthur/PM acceptance → CPA → separate publication/integration → cleanup lifecycle. Phase 1 is the next possible separately authorized product action after proposal review/publication; Phases 2–6 remain gated and unauthorized.
 
 ## Phase 0 — Preserve and Stabilize
 
@@ -81,7 +92,7 @@ Goals:
 - keep drawing/drawing-symbol output editable through ordinary selection, transform, Eraser, Knife, timeline, onion, playback, and persistence
 - complete bounded supported still Assets and one runtime-used manual/future-AI command registry
 
-Arthur's latest direction is AI-first at the product level, but D-0074 requires the approved drawing-only SPEC-0007 manual foundation and runtime-used shared command-capability matrix before future SPEC-0008 expansion. This does not authorize an unbounded Adobe-class editor: the five approved phase contracts and explicit non-goals define the boundary. P-0008 remains pending for the later AI sequence.
+Arthur's latest direction is AI-first at the product level. D-0074's drawing-only SPEC-0007 manual foundation and runtime-used command matrix are complete, and D-0085 now resolves P-0008 for the bounded Proposed SPEC-0008 V1 sequence. This does not authorize an unbounded Adobe-class editor or any implementation phase.
 
 Current retained foundation: SPEC-0004 Phases 1, 2, and timing-only Phase 2.5 remain Verified, published, and integrated. Phase 2.6 remains rejected, unpublished, and superseded historical evidence. Under D-0055, unfinished Phases 3–8 are Superseded by future SPEC-0008, inactive, and must not be implemented. SPEC-0005 Phase 1 and Phase 2 v1/v2 remain accepted, Verified, published, and integrated; v2 is complete at GIT-048 `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`. GIT-049 published the later Phase 3 authorization at `de54aed275c2f6da6e7c3f4a7f65091e8d5370c0`. A Phase 3 executor then ran, but Arthur rejected its visible result: it is unpublished, unaccepted, non-reusable, and not completed. D-0055 supersedes Phase 3 and unfinished Phases 4–8 by future SPEC-0008; they are inactive with no implementation authority.
 

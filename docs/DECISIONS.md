@@ -851,6 +851,18 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Cleanup: exact review PID 46510 was stopped and port 56960 verified closed. The obsolete `/Users/arthurcarlin/.codex/worktrees/a1b1/stick-animation-app` Phase 5 review worktree was removed/unregistered and merged local branch `codex/spec0007-phase5-publication` deleted. Canonical main, the active PM worktree, remote refs and recovery material remain.
 - Consequence: all five SPEC-0007 phases are accepted, Verified, published, integrated, recorded and cleaned up. Future SPEC-0008 is ready for Arthur's separate authorization and creation but remains uncreated and unauthorized. No handoff message, AI/provider/model/prompt/API/video/tracking work, external/paid operation or deployment is included.
 
+### D-0085 — Propose the six-phase conversational reference-video-to-editable-drawing V1
+
+- Date: 2026-09-18
+- Authority: Arthur's explicit instruction to act as SPEC-0008 Spec Architect, create the decision-complete six-phase plan, update only planning/control-plane records, and stop before implementation, provider use, paid work, deployment, Git publication or a new PM handoff.
+- Decision: Create [`SPEC-0008 — Conversational AI Animator and Editable Video Reconstruction`](specs/0008-conversational-ai-animator.md) as **Proposed; decision-complete and review-ready; no implementation phase authorized**. The exact order is: (1) Terra brain/intent routing/persistent streamed jobs; (2) provider-neutral reference video; (3) deterministic cucumber slicer; (4) editable drawing reconstruction; (5) conversational edits through the manual command registry; (6) beta closeout and downloadable YouTube-ready export.
+- Brain/UI contract: production conversation uses exactly `gpt-5.6-terra` through the Responses API, with no model selector, alternate model, automatic fallback or silent paid retry. The only visible reasoning levels are Low/Medium/High/Extra High mapped to `low`/`medium`/`high`/`xhigh`; Medium is the default on every new/open workspace. The task picker retires; conversation infers plan/build/edit and asks exactly one focused question only for material ambiguity.
+- Transaction contract: video, frames, reconstruction and edit proposals remain isolated until Preview and explicit Apply. Every authored mutation compiles to the runtime-used manual command registry, binds project generation/base digest, and commits as one atomic V2 history transaction. Cancel/failure/stale leaves the original byte-equivalent. If a human cannot perform an operation through a registered command, AI cannot secretly perform it. Destruction requires explicit current-message intent plus a registered manual destructive command.
+- Provider and deprecation contract: reference-video generation is a replaceable adapter behind an explicit provider/access/cost/privacy gate; no provider is selected now. Arthur's dated planning input records the OpenAI Sora 2/Videos API as deprecated with shutdown scheduled for 2026-09-24, so it cannot be hardwired and the gate must recheck current official state before live use. Validated local MP4/WebM upload is the fallback. Provider state normalizes queued/in-progress/completed/failed/cancelled with explicit retry/cancel and no canvas mutation.
+- Product/proof contract: V1 is bounded to 4–12 seconds, one to three shots, 6–12 distinct authored frames per second with at most 144 reference samples, at most 1280×720 reference dimensions, at most six reconstructed layers per shot and existing storage/memory limits; final export may reach 1920×1080 through the separately gated encoder path. Status language is Thinking/Planning/Making video/Animating/Working/Finalizing/Done/Failed/Cancelled. **Animating** means only deterministic cutting/slicing of the reference video into frames. **Working** means building/reconstructing those frames into ordinary editable content in Phase 4 and preparing registered conversational edit commands in Phase 5. Unused stages are skipped and determinate progress uses only real measurements—never timers or fake percentages. Two non-hardcoded build stories (black-vs-red action and alien/UFO) plus one registered-command edit story prove the real flow. Phase 6 owns security/ownership/rate-limit/privacy/log-retention/spend and same-day YouTube-ingest/encoder gates; direct YouTube-account upload is later work.
+- Lifecycle: the target is one phase/day plus one correction/publication buffer day, but a phase/day is incomplete until Spec Executor result, Arthur/PM acceptance, CPA propagation, separate publication/integration, clean synchronization and D-0054 cleanup all finish. Schedule never weakens proof. Phase 1 is ready only for Arthur's later separate approval/authorization after this proposal is reviewed and published. Phases 2–6 remain unauthorized behind their predecessor and named entry gates.
+- Boundaries: this record changes only the new spec and canonical planning/control-plane/tree files. It performs no runtime, fixture, technical-test or proof implementation; no provider/API/paid/live request, upload, credential/dependency/configuration, server/worktree, deployment, stage, commit, push or publication; and no new PM V4 task or handoff message. Existing accepted SPEC-0006/0007 behavior and rejected historical evidence remain unchanged.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation
@@ -882,10 +894,11 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 
 ### P-0004 — AI transaction semantics
 
-- Status: pending product/architecture spec
+- Status: resolved for the Proposed SPEC-0008 V1 slice by D-0085; broader post-V1 policy pending
 - Question: which commands preview, auto-apply, request confirmation, or require reversible transactions?
 - Needed before: enabling broad Other/actions or stick-workspace AI control.
 - Narrow SPEC-0001 resolution: D-0009 accepts Preview → explicit Apply and one atomic reversible transaction for the single approved Stick action only; the product-wide question remains pending.
+- SPEC-0008 resolution: every reconstruction/edit remains isolated through Preview/Cancel and requires explicit atomic Apply; no authored auto-apply exists in V1.
 
 ### P-0005 — Cost and latency policy
 
@@ -894,6 +907,7 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Needed before: production AI defaults and paid regression gates.
 - SPEC-0004 status: D-0033 retired the former SPEC-0001 Phase 7 Policy Gate; D-0034 sets the intended Terra/no-auto-switch and later release direction without accepting mutable provider facts or paid behavior. Cost, latency, token, retry, credits, and paid-proof values are Phase 6/8 gates and must be freshly approved rather than inferred.
 - D-0038 future direction: prefer compact key-pose/timing plans, local in-betweens, free complete-match recipes first, at most one later bounded pre-Apply repair, measured actual/estimated cost, and monthly budget/credit limits. These are planning constraints, not accepted prices, caps, or paid-request authority.
+- D-0085 adds bounded Phase 1 token/request/concurrency/latency guards but authorizes no paid call. Same-day Terra access/rate/pricing review and Arthur-approved request/spend ceilings are mandatory before any live paid smoke; video-provider and public-beta per-user/monthly/credit caps remain mandatory owner decisions at the Phase 2/6 entry gates.
 
 ### P-0006 — First usable manual drawing-based feature set
 
@@ -906,13 +920,13 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Question: what workspace/project data can be sent to model/search providers, retained remotely, and logged locally?
 - Needed before: public deployment.
 - Narrow completed-SPEC-0001 resolution: D-0009's session-only transcript, minimized provider projection, search/tools-off, and zero application-persistent Stick AI logs remain historical rules for the completed bounded slice. D-0033 retired OD-13's former Phase 7 gate; D-0034 requires a fresh Phase 6/8 retention, data-minimization, logging, and privacy decision before Terra or production work.
+- D-0085 specifies Phase 1 data minimization/log redaction and requires approved provider retention/data-use plus application retention/deletion before real-user enablement. Exact Phase 2 video-provider terms and the full Phase 6 public-beta record remain open named gates.
 
 ### P-0008 — AI-first drawing-based vertical-slice sequencing
 
-- Status: pending Arthur/product architecture
-- Question: what minimum shared drawing command model, reversible executor, persistence, and human corrective controls must exist after SPEC-0007 before the first AI-led drawing-based animation slice, and which broader manual-editor controls can follow it?
-- Needed before: committing the future SPEC-0008 AI-first vertical-slice order.
-- Narrow SPEC-0001 resolution: D-0009 accepts the seven-phase sequence, shared manual/AI mutation authority, bounded human safety floor, and separate browser-harness prerequisite for this slice; broader release sequencing remains pending.
+- Status: resolved for the bounded V1 sequence by D-0085; proposal approval and every implementation phase remain separate
+- Resolution: the exact order is Terra brain/jobs, provider-neutral reference video, deterministic slicing, editable reconstruction, registered-command edits, and beta/export closeout. SPEC-0007's manual registry and one V2 owner are the required mutation floor.
+- Boundary: this sequencing decision creates no implementation authority and does not define an unbounded post-V1 editor/cinematic system.
 
 ### P-0009 — Possible unified Animation Workspace
 

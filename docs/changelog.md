@@ -5,6 +5,14 @@ Format: newest entries first; describe observed behavior and repository operatio
 
 ## Unreleased
 
+### 2026-09-18 — Propose SPEC-0008 conversational reference-video-to-editable-drawing V1 (D-0085)
+
+- Created the decision-complete six-phase SPEC-0008 contract: fixed Terra brain/intent/jobs; provider-neutral reference video; deterministic frame slicing; isolated ordinary drawing reconstruction; registered-command conversational edits; and beta/export closeout.
+- Fixed the four reasoning levels and Medium default, removed task/model selection and fallback from the intended Phase 1 result, defined persistent streamed jobs and truthful statuses, and required one focused ambiguity question with no Phase 1 project/video mutation.
+- Bound every later project change to the SPEC-0007 manual registry and explicit Preview/Cancel/atomic Apply; added provider/access/cost/privacy/public-beta gates, upload fallback, non-hardcoded build/edit evaluations and a same-day-gated downloadable YouTube-ingestible video acceptance.
+- Recorded the OpenAI Videos/Sora 2 deprecation and 2026-09-24 shutdown as a reason not to hardwire that provider. No provider was selected or called.
+- Updated only the proposed spec and canonical planning/control-plane/tree records. No runtime, fixture, technical-test/proof implementation, provider/paid/live request, deployment, Git publication, PM V4 task or outbound handoff message occurred. All six phases remain unauthorized/not started.
+
 ### 2026-09-18 — Publish and close SPEC-0007 Phase 5 (D-0084/GIT-066)
 
 - Published exact 21-path commit `c193b8ba89fa55ead02d84ea10bb81f71b960f8a`, parent `5f2637faf56ab1f2df1408080c7cc1cacf4d6fab`, message `Implement SPEC-0007 Phase 5 manual editor closeout`: eight accepted technical paths plus 13 reviewed control-plane/tree paths.

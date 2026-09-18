@@ -1,19 +1,19 @@
 # Terminology
 
 Status: canonical vocabulary
-Last updated: 2026-09-15
+Last updated: 2026-09-18
 
 ## Product and Workspaces
 
 | Canonical term | Meaning | Notes |
 | --- | --- | --- |
 | Diamond Animator | Current canonical product name | “Diamond Animator Pro” appears in older copy; final brand is pending. |
-| Animation Workspace | The one ordinary editor for drawing, symbol, asset and timeline content | Established by SPEC-0006. Current structured-rig compatibility remains runtime truth until D-0074 Phase 3; do not reintroduce separate Drawing/Stick workspace ownership. |
+| Animation Workspace | The one ordinary editor for drawing, symbol, asset and timeline content | Established by SPEC-0006. SPEC-0007 Phase 3 retired active structured-rig authoring; do not reintroduce separate Drawing/Stick workspace ownership. |
 | Drawing tools | Raster/text authoring controls inside the Animation Workspace | Stable AI compatibility contract ID remains `drawing`; this is not a separate workspace. |
-| Draw Rig | D-0074's exact visible label for the future Properties toggle that turns an active freehand tool into ordinary straight-ish segmented raster drawing | It creates no rig object, joint, limb, bone, ID, topology, constraint, or attachment. Off is ordinary freehand. Smoothing zero never enables it silently. Phase 2 is unauthorized. |
-| Stick Figure Tools / Rig Tools | Current runtime label / superseded planned label for active structured-rig editing | Both active authoring surfaces are removed in D-0074 Phase 3 after safe migration. Neither is the future product name. |
-| Add Limb / Add Segment | Current runtime control / superseded planned label for creating structured graph edges | Historical compatibility vocabulary only after Phase 3; Draw Rig is unrelated raster painting. |
-| Stick Figure Creator / Rig Builder | Current runtime workspace / superseded planned name for structured-rig creation | Entire active workspace is retired in Phase 3. A read-only compatibility renderer may remain only behind legacy migration. |
+| Draw Rig | Exact visible label for the Properties toggle that turns an active freehand tool into ordinary straight-ish segmented raster drawing | Published by SPEC-0007 Phase 2. It creates no rig object, joint, limb, bone, ID, topology, constraint, or attachment. Proposed SPEC-0008 cannot reinterpret it as a tracked skeleton. |
+| Stick Figure Tools / Rig Tools | Historical labels for retired active structured-rig editing | Both active authoring surfaces were removed by SPEC-0007 Phase 3. Neither is a current product surface. |
+| Add Limb / Add Segment | Historical controls/labels for creating structured graph edges | Read-only compatibility vocabulary only; Draw Rig is unrelated raster painting. |
+| Stick Figure Creator / Rig Builder | Historical labels for retired structured-rig creation | Active workspace is retired. A read-only compatibility renderer may remain only behind legacy migration. |
 | Legacy standalone Stick Figure Workspace | Historical/source-test coordinator not mounted by the ordinary product | Never resurrect it as a second owner. |
 | Stick Nodes | A third-party competitor/product name | Do not use it as Diamond Animator's generic category or copy its protected identity. |
 
@@ -35,19 +35,26 @@ Last updated: 2026-09-15
 | Prompt/reference example | Hand-authored example selected and inserted into model context |
 | Training example | Avoid for current assets unless explicitly qualified as a filename or future dataset candidate |
 | Custom Diamond Animator model | Future fine-tuned/trained model with a real data, evaluation, deployment, and safety pipeline; does not exist today |
+| Terra brain | Proposed SPEC-0008's sole conversational intent/planning model: exact `gpt-5.6-terra` through the Responses API | Not implemented yet; it is not a video generator and has no fallback model. |
+| Reasoning level | Proposed visible Low/Medium/High/Extra High control mapped to `low`/`medium`/`high`/`xhigh` | Medium defaults on every new/open workspace; `none` and `max` are outside the product control. |
+| AI job | Persistent server-owned record and ordered event stream for one conversational/build/edit request | Retry creates a new linked job; completed, failed and cancelled are terminal. |
+| Reference video | Temporary generated or user-uploaded video used only for visual/timing reconstruction | It is an isolated artifact, not canonical project content or final export. |
+| Cucumber slicer | Proposed deterministic media decoder/sampler that creates an ordered timing/shot-bound frame bundle | Product metaphor only; it is not a model or mutation owner. |
+| Editable reconstruction | Honest ordinary drawing-content approximation derived from a validated frame bundle | Not recovered source art, semantic truth, exact vectorization or a structured rig. |
+| YouTube-ready video | Proposed inspected downloadable video in the format selected by the Phase 6 same-day YouTube-ingest/encoder gate | Does not mean direct YouTube OAuth/account upload. |
 
 ## Animation and Timeline
 
 | Term | Meaning |
 | --- | --- |
 | Neutral layer | A named visible/locked container of cells, with no content kind |
-| Content item | A typed raster/text/symbol-instance/asset-instance object inside one neutral owner cell; multiple kinds coexist | Current published V2 additionally supports structured-rig items until D-0074 Phase 3 migration. |
-| Symbol instance | A separately transformed reference to a project-owned definition | Current SPEC-0006 instances persist. D-0074 migrates rig-backed definitions to drawing-only definitions rather than extending rig symbols. |
+| Content item | A typed raster/text/symbol-instance/asset-instance object inside one neutral owner cell; multiple kinds coexist | Historical structured-rig input is migrated before ordinary mount and is not new authored content. |
+| Symbol instance | A separately transformed reference to a project-owned definition | Current instances point to Drawing or drawing-only Mixed definitions. |
 | Drawing Symbol | Reusable project-created Drawing definition in Library | Not an external Asset. |
-| Rig Symbol / Stick Figure Symbol | Current/historical structured-rig-backed reusable definition | No active rig-symbol lifecycle exists after D-0074 Phase 3. Supported definitions migrate to Drawing Symbols or drawing-only Mixed Symbols. |
+| Rig Symbol / Stick Figure Symbol | Historical structured-rig-backed reusable definition | No active rig-symbol lifecycle exists. Supported definitions migrate to Drawing Symbols or drawing-only Mixed Symbols. |
 | Mixed Symbol | Reusable project-created definition containing more than one supported ordinary drawing/text/still content kind | Current structured-rig payload is historical compatibility input and must be rasterized during Phase 3 migration. |
-| Library | Project-local reusable Drawing and drawing-only Mixed Symbol definitions | Separate from external Assets. Current rig-backed entries remain runtime truth only until migration. |
-| Assets | Project-local catalog of imported supported external still media | SPEC-0007 approves static PNG/JPEG/WebP only in Phase 4; that phase remains unauthorized and no video-to-animation behavior is included. |
+| Library | Project-local reusable Drawing and drawing-only Mixed Symbol definitions | Separate from external Assets. Historical rig-backed entries migrate before ordinary mount. |
+| Assets | Project-local catalog of imported supported external still media | SPEC-0007 Phase 4 is published. Proposed SPEC-0008 reference video/frame bundles remain isolated artifacts until reconstruction Apply creates only supported ordinary project content. |
 | Timeline position | An indexed time slot in one layer's timeline |
 | Timeline cell | The metadata at a timeline position, classified as empty, keyframe, blank keyframe, hold, or tween |
 | Authored frame | Content/state owned for animation at a timeline position; not every displayed timeline position owns one independently |
@@ -59,8 +66,8 @@ Last updated: 2026-09-15
 | Owner keyframe | The keyframe that stores authoritative span/tween data |
 | Motion tween | Current drawing V1 whole-bitmap position interpolation; legacy V1 intent is provisionally promoted pending current verification/owner confirmation |
 | Tween endpoint | Explicit start or end state used to produce motion |
-| Pose | Historical rig/joint state for a stick figure at a point in time | Published/current compatibility data may contain it; D-0074 adds no new active pose schema. |
-| Structured rig | Historical/current compatibility item containing connected joints/limbs and related rig state | Published SPEC-0006 runtime still supports it. D-0074 Phase 3 migrates it to ordinary raster drawing and retains only read-only compatibility adapters. |
+| Pose | Historical rig/joint state for a stick figure at a point in time | Read-only compatibility input may contain it; there is no new active pose schema. |
+| Structured rig | Historical compatibility item containing connected joints/limbs and related rig state | SPEC-0007 Phase 3 migrates it to ordinary raster drawing and retains only read-only compatibility adapters. |
 | Draw Rig segment | One straight-ish portion of an ordinary raster stroke emitted by the Draw Rig accumulator | It is not an item, object, bone, graph edge, or selectable topology. |
 | Raster-paint coverage companion | Bounded internal provenance used to apply same-paint per-pixel maximum coverage across gestures and Save/Open | Not a vector stroke, rig, hidden editable item, or user-facing object. |
 | Destructive command | A runtime-registered explicit user action whose purpose is removal and whose exact target/reference/confirmation behavior is audited | Current set is enumerated in SPEC-0007 §1.1. Painting/Fill/transform are targeted mutations, not delete commands. |

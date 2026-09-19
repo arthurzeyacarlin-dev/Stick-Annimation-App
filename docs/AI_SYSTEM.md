@@ -1,25 +1,25 @@
 # AI System Snapshot
 
 Status: canonical current AI architecture and gap map
-Last traced: 2026-09-19 for D-0089 acceptance and technical verification of the corrected SPEC-0008 Phase 1 result. GIT-070 publication/integration and cleanup remain pending.
+Last traced: 2026-09-19 for D-0090 GIT-070 publication, synchronization, proof preservation and cleanup. SPEC-0008 Phase 1 is fully closed.
 
-## Active SPEC-0008 transition (D-0085–D-0089)
+## Active SPEC-0008 transition (D-0085–D-0090)
 
 [`SPEC-0008`](specs/0008-conversational-ai-animator.md) proposes fixed `gpt-5.6-terra` Responses use for conversational intent/planning; Low/Medium/High/Extra High → `low`/`medium`/`high`/`xhigh`; Medium default on new/open; no task/model picker or model fallback; and persistent streamed job state. Phase 1 is non-mutating. Later gated phases add provider-neutral reference video or validated upload, deterministic frame slicing, honest ordinary drawing reconstruction, registered-command edits and beta/export closeout.
 
 All authored changes remain isolated until Preview and explicit atomic Apply through the manual registry/V2 owner. Sora 2/OpenAI Videos is not selected: Arthur's dated planning input records it as deprecated with shutdown scheduled for 2026-09-24, and Phase 2 requires a fresh current-provider/access/cost/privacy decision before live use. D-0089 accepts the corrected Phase 1 implementation: six authorized short text-only Terra requests cost $0.010854 total under the $0.50 ceiling, with search/tools off, no project images/assets/full bytes and no automatic retry. It grants no video-provider or real-user authority.
 
-### Accepted Phase 1 correction pending GIT-070 publication
+### Published SPEC-0008 Phase 1 runtime
 
 The stopped accepted worktree replaces the ordinary panel's task picker with one chat and one `/api/ai-animator` production request door. `generateAiAnimatorReply.ts` calls only `gpt-5.6-terra` through Responses with strict structured intent, bounded recent conversation/workspace metadata, exact reasoning effort, tools/search off and `store: false`. `AiAnimatorJobService` owns one active workspace job/two active environment jobs, 90-second deadline, monotonic status events, explicit cancel and fail-closed model identity. `aiAnimatorStorage.ts` keeps bounded project-scoped transcript/terminal-job state outside authored project/history/version bytes. The accepted panel truthfully holds Thinking for at least two seconds, supports reduced motion, and reveals unboxed assistant text. No Phase 1 request creates or edits animation content.
 
-Arthur's later narrow presentation authority also accepts a 280–520 px resizable right sidebar with 420 px default/snap, fixed centered canvas geometry, toolbar alignment and an expanded timeline overlay. These mechanics preserve project/history/repository/canvas digests and add no AI capability. Immutable technical manifest SHA-256 is `80a5463775f498116389e49cb94d3282023355c6f7dd1bae9cc026a727916313`; browser proof passed 254 assertions with zero external requests/errors; production build passed. These bytes are accepted but are not current canonical-main runtime until GIT-070 is published.
+Arthur's later narrow presentation authority also accepts a 280–520 px resizable right sidebar with 420 px default/snap, fixed centered canvas geometry, toolbar alignment and an expanded timeline overlay. These mechanics preserve project/history/repository/canvas digests and add no AI capability. Immutable technical manifest SHA-256 is `80a5463775f498116389e49cb94d3282023355c6f7dd1bae9cc026a727916313`; browser proof passed 254 assertions with zero external requests/errors; production build passed. GIT-070 publishes these bytes as exact commit `76708645c96b3b0ea95c524f162bb6152d539fcf`; D-0090 records synchronization, proof preservation and cleanup.
 
 ## Planning-only transition (D-0055)
 
 SPEC-0004 Phases 1, 2, and timing-only Phase 2.5 remain Verified, published, and integrated. Phase 2.6 remains rejected, unpublished, and superseded historical evidence. Under D-0055, unfinished Phases 3–8 are Superseded by future SPEC-0008, inactive, and must not be implemented.
 
-Current lifecycle update: all seven SPEC-0006 phases are Verified, published, and integrated through GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`, and all five SPEC-0007 phases are closed through GIT-066. Their accepted runtime routes AI-triggered Save through the same canonical V2 callback as manual Save. SPEC-0008 Phase 1 correction is accepted/technically Verified under D-0089 with publication/cleanup pending; Phases 2–6 remain unauthorized.
+Current lifecycle update: all seven SPEC-0006 phases are Verified, published, and integrated through GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`, all five SPEC-0007 phases are closed through GIT-066, and SPEC-0008 Phase 1 is fully closed through D-0089/D-0090/GIT-070. Phase 2 is ready for separate authorization but remains Unauthorized/Not started; Phases 3–6 remain unauthorized.
 
 ## What Exists Today
 
@@ -53,7 +53,7 @@ Files named “training” contain hand-authored prompt/reference examples used 
 
 On the structured-model branch, Generate Frames chooses among profiles based on analyzed complexity and can use recovery/escalation paths. There is no approved product budget that defines when escalation is acceptable.
 
-This table remains canonical-main runtime truth only until GIT-070 publication. D-0089's accepted correction replaces ordinary workspace conversation routing with exact `gpt-5.6-terra`, no alternate/fallback model and the four approved reasoning efforts; it is not yet integrated into canonical `main` at this propagation checkpoint.
+This table now describes only the preserved legacy `/api/ai` profile route, not the ordinary AI Animator conversation door. Published GIT-070 routes ordinary workspace conversation through exact `gpt-5.6-terra`, no alternate/fallback model and the four approved reasoning efforts. The legacy route remains only for historical/protected compatibility paths.
 
 ## Contract Taxonomy
 

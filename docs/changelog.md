@@ -1,5 +1,13 @@
 # Changelog
 
+### 2026-09-19 — Publish/close SPEC-0008 Phase 1 (D-0090/GIT-070)
+
+- Published exact 33-path GIT-070 commit `76708645c96b3b0ea95c524f162bb6152d539fcf`, parent `3da58e096dd748c7c3bd23fbb9271d53e33597ca`, message `Implement SPEC-0008 Phase 1 conversational Terra`: 19 accepted technical paths plus 14 reviewed control-plane/tree paths.
+- Fast-forwarded clean canonical `main`, pushed normally, and verified canonical main/local origin/live GitHub equal at clean `0/0` before this terminal records commit.
+- Preserved 36 proof files/1,258,202 bytes at aggregate inventory SHA-256 `d91b641e88030ada0a173c01c005bc336c8a765fdb7da64badc759f249e4c133`; source/destination inventories matched and checksum rsync dry run was empty.
+- Stopped PIDs 85980/85995, closed port 57120, removed/unregistered obsolete `/22ac/`, and deleted merged local branch `codex/spec0008-phase1-publication` while preserving canonical main, the active PM worktree, remote refs and recovery material.
+- Phase 1 is fully closed. Phase 2 is ready for separate authorization but remains Unauthorized/Not started; its live-provider gate remains separate.
+
 ### 2026-09-19 — Accept and technically verify corrected SPEC-0008 Phase 1 (D-0089)
 
 - Recorded Arthur's visible acceptance of the final `http://127.0.0.1:57120/` review copy and his separate instruction to record, integrate, commit and push it.

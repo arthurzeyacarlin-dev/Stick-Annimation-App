@@ -1,17 +1,18 @@
 # SPEC-0008 — Conversational AI Animator and Editable Video Reconstruction
 
-Status: **Approved/active; Phase 1 correction Accepted/technically Verified under D-0089; GIT-070 publication/cleanup pending; Phases 2–6 Unauthorized/Not started**
+Status: **Approved/active; Phase 1 Verified/published/integrated/recorded/cleaned up through D-0089/D-0090/GIT-070; Phase 2 ready for separate authorization but Unauthorized/Not started; Phases 3–6 Unauthorized/Not started**
 Owner: Arthur
 Task role: planning/control-plane architecture only; this task changes no runtime or technical proof
 Created: 2026-09-18
 Last updated: 2026-09-19
-Decision links: [D-0085, D-0086, D-0087, D-0088 and D-0089](../DECISIONS.md)
+Decision links: [D-0085, D-0086, D-0087, D-0088, D-0089 and D-0090](../DECISIONS.md)
 TODO IDs: `PLAN-008`, `SPEC-008`, `AIANIM-001`–`AIANIM-006`
 Planning base: clean detached canonical-main SHA `f923c35aa13cfd476e712f4ead89419263fc0893`; index empty before edits
 Planning publication: GIT-067 commit `ba5ecd694df78414240ce83a9140c5196334ebdc`; 15 planning/control-plane/tree paths; no runtime change
 Authorization publication: GIT-068 commit `1d80141f2465db6f0e389fb43dc1cdfb8dafbdf8`; 10 control-plane paths; no runtime change
 Correction authorization publication: GIT-069 commit `e682bd5357624c934789eefbc64dbba43116b246`; 11 control-plane paths; no runtime change
-Current accepted result: Phase 1 correction is accepted/technically Verified in the stopped review worktree from exact GIT-069 closeout base `3da58e096dd748c7c3bd23fbb9271d53e33597ca`; publication, synchronization, proof preservation and D-0054 cleanup remain pending
+Accepted result basis: Phase 1 correction was accepted/technically Verified from exact GIT-069 closeout base `3da58e096dd748c7c3bd23fbb9271d53e33597ca`; D-0090 records its completed publication, synchronization, proof preservation and D-0054 cleanup
+Implementation publication: GIT-070 commit `76708645c96b3b0ea95c524f162bb6152d539fcf`; exact 19 accepted technical paths plus 14 reviewed control-plane/tree paths; canonical/local-origin/live GitHub synchronized; proof preserved and review copy cleaned under D-0090
 
 ## 1. Exact product outcome
 
@@ -240,7 +241,7 @@ A phase is not complete until its implementation is accepted, its control-plane 
 
 ## 9. Phase 1 — Terra brain, automatic intent routing, and chat/job foundation
 
-Status: **Correction Accepted and technically Verified under D-0089; GIT-070 publication/integration, proof preservation and D-0054 cleanup pending. The first executor result remains Rejected, unpublished, non-reusable and cleaned up.**
+Status: **Verified, published, integrated, recorded and cleaned up through D-0089/D-0090/GIT-070. The first executor result remains Rejected, unpublished, non-reusable and cleaned up.**
 
 ### 9.1 Outcome
 
@@ -433,8 +434,8 @@ Existing strict historical validators may legitimately reject a newer spec/contr
 
 | Phase | TODO | Entry gate | Exit result | Status |
 | --- | --- | --- | --- | --- |
-| 1 — Terra brain, routing, chat/jobs | `AIANIM-001` | SPEC-0008 approved/published under D-0087; fresh Plan-mode worktree | one-chat Terra-only non-mutating brain, routing, persistence, streaming, accessibility | **Accepted/technically Verified; publication/cleanup pending** |
-| 2 — Provider-neutral reference video | `AIANIM-002` | Phase 1 fully closed; separate authorization; provider/access/cost/privacy gate before live use | replaceable provider contract, verified video, upload fallback, zero canvas mutation | **Unauthorized; Not started** |
+| 1 — Terra brain, routing, chat/jobs | `AIANIM-001` | SPEC-0008 approved/published under D-0087; fresh Plan-mode worktree | one-chat Terra-only non-mutating brain, routing, persistence, streaming, accessibility | **Verified/published/integrated/recorded/cleaned up** |
+| 2 — Provider-neutral reference video | `AIANIM-002` | Phase 1 fully closed; separate authorization; provider/access/cost/privacy gate before live use | replaceable provider contract, verified video, upload fallback, zero canvas mutation | **Ready for separate authorization; Unauthorized/Not started** |
 | 3 — Deterministic Cucumber Slicer | `AIANIM-003` | Phase 2 fully closed; separate authorization; pinned decoder/input contract | exact ordered isolated frame bundle, zero editor mutation | **Unauthorized; Not started** |
 | 4 — Editable reconstruction | `AIANIM-004` | Phase 3 fully closed; separate authorization; frame bundle/project preflight | validated drawing-only candidate, honest layers, Preview/Cancel/atomic Apply | **Unauthorized; Not started** |
 | 5 — Conversational editing | `AIANIM-005` | Phase 4 fully closed; separate authorization; AI-eligible registry audit | current-project edits through shared manual commands with atomic history | **Unauthorized; Not started** |
@@ -450,7 +451,7 @@ D-0087 approves this specification and originally authorizes Phase 1 only; D-008
 | Live execution path | CODE VERIFIED | one V2 coordinator/manual registry; legacy task picker/session chat; Responses API with three current model profiles; current-frame-only PNG export |
 | Six-phase design | PASS | exactly six sequential implementation phases plus one non-phase correction/publication buffer day |
 | Runtime/provider/paid/Git changes in the D-0085 planning task | ZERO | planning/control-plane/tree records only; no app, test, provider, API, dependency, server, staging, commit, push, or deployment action |
-| Phase 1 product blockers | NONE in the accepted result | Terra model/effort, natural conversation, gradient Thinking and non-mutating Phase 1 outcome are proven; the six-call smoke cost $0.010854 and deterministic proof remains authoritative |
+| Phase 1 product blockers | NONE; phase durably closed | Terra model/effort, natural conversation, gradient Thinking and non-mutating Phase 1 outcome are proven; GIT-070 is synchronized and D-0090 records proof preservation/cleanup |
 | Later named gates | OPEN by design | current video provider/access/cost/privacy; decoder/encoder choice; public-beta security/retention/spend policy |
 
-The planning package was reviewed and published under D-0086/GIT-067, and Arthur approved it with Phase 1-only authorization under D-0087. The first Phase 1 executor result was rejected after `hello` produced a generic animation failure and no gradient Thinking state; D-0088 preserves and cleans that result. D-0089 accepts the fresh correction from exact base `3da58e096dd748c7c3bd23fbb9271d53e33597ca`: immutable 26,698-byte manifest SHA-256 `80a5463775f498116389e49cb94d3282023355c6f7dd1bae9cc026a727916313`, PASS/VALID, 19 exact technical paths, 254 browser assertions, production build PASS, zero browser/external-request errors, preserved project/history/repository/canvas digests, and six authorized live Terra calls costing $0.010854 total. Arthur's later narrow layout instructions explicitly add the accepted right-sidebar resize and timeline-overlay presentation corrections; those changes preserve authored content and do not add Phase 2 behavior. GIT-070 publication/integration, proof preservation and D-0054 cleanup remain pending. Phases 2–6 stay unauthorized.
+The planning package was reviewed and published under D-0086/GIT-067, and Arthur approved it with Phase 1-only authorization under D-0087. The first Phase 1 executor result was rejected after `hello` produced a generic animation failure and no gradient Thinking state; D-0088 preserves and cleans that result. D-0089 accepts the fresh correction from exact base `3da58e096dd748c7c3bd23fbb9271d53e33597ca`: immutable 26,698-byte manifest SHA-256 `80a5463775f498116389e49cb94d3282023355c6f7dd1bae9cc026a727916313`, PASS/VALID, 19 exact technical paths, 254 browser assertions, production build PASS, zero browser/external-request errors, preserved project/history/repository/canvas digests, and six authorized live Terra calls costing $0.010854 total. Arthur's later narrow layout instructions explicitly add the accepted right-sidebar resize and timeline-overlay presentation corrections; those changes preserve authored content and do not add Phase 2 behavior. D-0090 records exact GIT-070 publication/integration, complete proof preservation and D-0054 cleanup. Phase 2 is ready for Arthur's separate authorization but remains Unauthorized/Not started; live provider use additionally requires its same-day provider/access/cost/privacy packet.

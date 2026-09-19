@@ -1,13 +1,13 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-19 for D-0089 accepted SPEC-0008 Phase 1 correction from exact base `3da58e096dd748c7c3bd23fbb9271d53e33597ca`; GIT-070 publication pending.
+Last traced: 2026-09-19 for D-0090 publication/closeout of SPEC-0008 Phase 1 at exact GIT-070 `76708645c96b3b0ea95c524f162bb6152d539fcf`.
 
-## Accepted SPEC-0008 Phase 1 architecture — publication pending
+## Published SPEC-0008 Phase 1 architecture
 
 D-0089 accepts one ordinary AI Animator chat whose sole production request door is `/api/ai-animator`. The route normalizes the bounded request and delegates to `AiAnimatorJobService`, which owns exact `gpt-5.6-terra` provider identity, one active job per workspace, two active jobs per environment, monotonic Thinking/Planning/terminal events, explicit cancellation and a 90-second deadline. `generateAiAnimatorReply.ts` uses Responses strict structured output with the exact visible reasoning effort, no tools/search/store, and only the user turn, bounded recent conversation and minimized workspace metadata. `aiAnimatorStorage.ts` persists a bounded project-scoped transcript/terminal-job ledger outside authored animation/history/version bytes. Create/edit intent remains a non-mutating readiness result in Phase 1.
 
-The accepted visual shell keeps unboxed assistant replies, fast reveal, reduced-motion text and full-label sequential Thinking sweeps. The same accepted package includes Arthur-authorized presentation mechanics: an overlay right sidebar limited to 280–520 px with 420 px default/snap, unchanged centered canvas stage geometry, a toolbar ending at the panel edge, and expanded timeline lanes layered above the canvas/sidebar while ordinary timeline mutations retain their existing owner. These bytes are accepted/technically Verified but are not canonical-main runtime until GIT-070 publication.
+The accepted visual shell keeps unboxed assistant replies, fast reveal, reduced-motion text and full-label sequential Thinking sweeps. The same accepted package includes Arthur-authorized presentation mechanics: an overlay right sidebar limited to 280–520 px with 420 px default/snap, unchanged centered canvas stage geometry, a toolbar ending at the panel edge, and expanded timeline lanes layered above the canvas/sidebar while ordinary timeline mutations retain their existing owner. GIT-070 publishes this exact architecture; D-0090 records synchronization, proof preservation and cleanup.
 
 ## Proposed SPEC-0008 Phase 2–6 target architecture — not implemented
 

@@ -11,7 +11,7 @@ Last updated: 2026-09-19
 - Paid AI calls, remote writes, deployment, and baseline commits require task-specific authorization.
 - The roadmap may change when Arthur resolves pending decisions or new evidence changes the risk order.
 
-## Current owner sequence — 2026-09-19 (D-0085–D-0090; Phase 1 closed, Phase 2 ready for separate authorization)
+## Current owner sequence — 2026-09-19 (D-0085–D-0091; Phase 1 closed, corrected Phase 2 awaiting review/publication before separate authorization)
 
 All seven SPEC-0006 phases are Verified/published/integrated through GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`. The immutable 50,224-byte Phase 7 manifest is PASS/VALID at SHA-256 `c6202f6deab4d3bcc75af3ad6699fc2dc70fc58723eccaa8337b1a2aef74bc51`, with exactly 11 source and 16 evidence bindings.
 
@@ -30,13 +30,13 @@ Each phase started only after the prior phase was accepted, propagated, separate
 D-0085 creates [`SPEC-0008`](specs/0008-conversational-ai-animator.md), D-0086/GIT-067 publishes the exact planning-only package at `ba5ecd694df78414240ce83a9140c5196334ebdc`, and D-0087 approves it with Phase 1 alone Authorized/Not started. Its exact sequence is:
 
 1. Terra brain, conversational intent routing and persistent streamed jobs.
-2. Provider-neutral reference video with upload fallback and a separate provider/access/cost/privacy gate.
+2. Bounded Terra internet research plus provider-neutral reference video, with cited inspiration brief, validated local-video fallback, and separate live-search/live-video-provider access/privacy/cost gates.
 3. Deterministic cucumber slicing into an isolated ordered timing/shot-bound frame bundle.
 4. Honest editable reconstruction into ordinary drawing-only content through registered commands and atomic Preview/Apply.
 5. Conversational edits through the same manual command registry.
 6. Beta/security/performance closeout and downloadable YouTube-ready video export.
 
-The delivery target is one phase/day plus one correction/publication buffer day. It does not bypass the per-phase Spec Executor → Arthur/PM acceptance → CPA → separate publication/integration → cleanup lifecycle. Arthur rejected the first Phase 1 result after its basic greeting flow failed; D-0088 preserves/cleans it. D-0089 accepts the fresh exact 19-path correction, and D-0090 records GIT-070 publication/integration, proof preservation and D-0054 cleanup. Phase 1 is fully closed. Phase 2 is ready for a separate authorization decision, but live provider use keeps its same-day provider/access/cost/privacy gate. Phases 2–6 are still unauthorized.
+The delivery target is one phase/day plus one correction/publication buffer day. It does not bypass the per-phase Spec Executor → Arthur/PM acceptance → CPA → separate publication/integration → cleanup lifecycle. Arthur rejected the first Phase 1 result after its basic greeting flow failed; D-0088 preserves/cleans it. D-0089 accepts the fresh exact 19-path correction, and D-0090 records GIT-070 publication/integration, proof preservation and D-0054 cleanup. Phase 1 is fully closed. D-0091 keeps exactly six phases and places bounded hosted internet research inside Phase 2 without reopening Phase 1. The correction package requires review and separate publication before any Phase 2 authorization; live search and live video-provider use each keep a dated access/privacy/cost gate. Phases 2–6 are still unauthorized.
 
 ## Phase 0 — Preserve and Stabilize
 

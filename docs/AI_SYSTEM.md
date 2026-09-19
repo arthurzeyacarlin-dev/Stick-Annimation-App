@@ -1,13 +1,15 @@
 # AI System Snapshot
 
 Status: canonical current AI architecture and gap map
-Last traced: 2026-09-19 for D-0090 GIT-070 publication, synchronization, proof preservation and cleanup. SPEC-0008 Phase 1 is fully closed.
+Last traced: 2026-09-19 for D-0091's bounded Phase 2 internet-research contract correction from exact base `888aae769e67e08adb1862c81f21bec171fd0592`. SPEC-0008 Phase 1 is fully closed; Phase 2 remains unimplemented and unauthorized.
 
-## Active SPEC-0008 transition (D-0085–D-0090)
+## Active SPEC-0008 transition (D-0085–D-0091)
 
-[`SPEC-0008`](specs/0008-conversational-ai-animator.md) proposes fixed `gpt-5.6-terra` Responses use for conversational intent/planning; Low/Medium/High/Extra High → `low`/`medium`/`high`/`xhigh`; Medium default on new/open; no task/model picker or model fallback; and persistent streamed job state. Phase 1 is non-mutating. Later gated phases add provider-neutral reference video or validated upload, deterministic frame slicing, honest ordinary drawing reconstruction, registered-command edits and beta/export closeout.
+[`SPEC-0008`](specs/0008-conversational-ai-animator.md) binds fixed `gpt-5.6-terra` Responses use for conversational intent/planning; Low/Medium/High/Extra High → `low`/`medium`/`high`/`xhigh`; Medium default on new/open; no task/model picker or model fallback; and persistent streamed job state. Phase 1 is closed and non-mutating. D-0091 integrates bounded hosted internet research into existing Phase 2 before its provider-neutral reference video/upload work; later gated phases retain deterministic frame slicing, honest ordinary drawing reconstruction, registered-command edits and beta/export closeout. The spec still has exactly six phases.
 
-All authored changes remain isolated until Preview and explicit atomic Apply through the manual registry/V2 owner. Sora 2/OpenAI Videos is not selected: Arthur's dated planning input records it as deprecated with shutdown scheduled for 2026-09-24, and Phase 2 requires a fresh current-provider/access/cost/privacy decision before live use. D-0089 accepts the corrected Phase 1 implementation: six authorized short text-only Terra requests cost $0.010854 total under the $0.50 ceiling, with search/tools off, no project images/assets/full bytes and no automatic retry. It grants no video-provider or real-user authority.
+All authored changes remain isolated until Preview and explicit atomic Apply through the manual registry/V2 owner. Sora 2/OpenAI Videos is not selected: Arthur's dated planning input records it as deprecated with shutdown scheduled for 2026-09-24, and Phase 2 requires a fresh current-provider/access/cost/privacy decision before live use. D-0089 accepts the corrected Phase 1 implementation: six authorized short text-only Terra requests cost $0.010854 total under the $0.50 ceiling, with search/tools off, no project images/assets/full bytes and no automatic retry. D-0091 does not alter those bytes. It specifies only a future Phase 2 `web_search` extension with a cited `inspiration-brief/v1`, truthful **Searching the internet** lifecycle, no legacy DuckDuckGo/custom scraper, inaccessible-social-link local-upload fallback, and hard request/tool/source/token/time/spend limits. It grants no search/video-provider or real-user authority.
+
+Current official OpenAI documentation retrieved 2026-09-19 identifies `gpt-5.6-terra` Responses web search as supported, `web_search` as the current new-integration tool, visible clickable citations as required for web-derived UI output, `max_tool_calls` as the built-in-tool ceiling, and `max_output_tokens` as including both visible output and reasoning tokens. Phase 2 deterministic proof therefore targets that hosted tool only. Any live search requires a separate dated account-access/privacy/pricing/rate-limit packet and exact request/spend authority; any live video-provider call retains a distinct gate.
 
 ### Published SPEC-0008 Phase 1 runtime
 
@@ -19,7 +21,7 @@ Arthur's later narrow presentation authority also accepts a 280–520 px resizab
 
 SPEC-0004 Phases 1, 2, and timing-only Phase 2.5 remain Verified, published, and integrated. Phase 2.6 remains rejected, unpublished, and superseded historical evidence. Under D-0055, unfinished Phases 3–8 are Superseded by future SPEC-0008, inactive, and must not be implemented.
 
-Current lifecycle update: all seven SPEC-0006 phases are Verified, published, and integrated through GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`, all five SPEC-0007 phases are closed through GIT-066, and SPEC-0008 Phase 1 is fully closed through D-0089/D-0090/GIT-070. Phase 2 is ready for separate authorization but remains Unauthorized/Not started; Phases 3–6 remain unauthorized.
+Current lifecycle update: all seven SPEC-0006 phases are Verified, published, and integrated through GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`, all five SPEC-0007 phases are closed through GIT-066, and SPEC-0008 Phase 1 is fully closed through D-0089/D-0090/GIT-070. D-0091's Phase 2 contract correction awaits Arthur/PM acceptance and separate publication. Phase 2 remains Unauthorized/Not started; Phases 3–6 remain unauthorized.
 
 ## What Exists Today
 

@@ -1,5 +1,13 @@
 # Changelog
 
+### 2026-09-19 — Correct SPEC-0008 Phase 2 to include bounded internet research (D-0091)
+
+- Recorded Arthur's Option B direction: keep exactly six phases and the one-week target, leave Phase 1 closed, and integrate internet research into existing Phase 2 before provider-neutral reference-video preparation.
+- Added fixed-`gpt-5.6-terra` Responses `web_search`, semantic search/no-search triggers, truthful **Searching the internet** lifecycle, visible clickable citations, cited `inspiration-brief/v1`, prompt-injection/source-tamper defenses, high-level inspiration/non-imitation rules, and inaccessible YouTube/TikTok/social-link fallback to validated local MP4/WebM with rights acknowledgment.
+- Added deterministic Responses/search doubles and exact Phase 2 proof for no-search conversation, explicit/automatic named-reference search, citation/accessibility/status animation, cap/cost/privacy failure, stale/cancel/reconnect/cross-project isolation, representative video verification and zero editor mutation.
+- Fixed hard limits at one text-search-only request/attempt, the visible reasoning effort without silent downgrade, two tool calls, eight candidate source records accepted/processed by the application and six retained/cited, 512 query characters, 16,000 input/4,000 output tokens including reasoning, low search context, default return budget, 45-second call/60-second stage deadlines, no automatic retry, and separately authorized fail-closed live ceilings of $0.15/attempt, $0.60/project-day and $5/private-dev-month. Extra provider-returned source records are ignored after stable canonicalization; the app does not claim to cap the hosted provider's internal sources.
+- This planning/control-plane correction changes no runtime, fixture, technical test, proof artifact, dependency, credential, provider implementation, deployment or Git history. It makes no live provider/API call and spends no credits. Phase 2 remains Unauthorized/Not started pending Arthur/PM acceptance, separate publication/synchronization and later separate executor authorization.
+
 ### 2026-09-19 — Publish/close SPEC-0008 Phase 1 (D-0090/GIT-070)
 
 - Published exact 33-path GIT-070 commit `76708645c96b3b0ea95c524f162bb6152d539fcf`, parent `3da58e096dd748c7c3bd23fbb9271d53e33597ca`, message `Implement SPEC-0008 Phase 1 conversational Terra`: 19 accepted technical paths plus 14 reviewed control-plane/tree paths.

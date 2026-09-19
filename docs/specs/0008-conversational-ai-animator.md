@@ -1,11 +1,11 @@
 # SPEC-0008 — Conversational AI Animator and Editable Video Reconstruction
 
-Status: **Approved/active; Phase 1 Verified/published/integrated/recorded/cleaned up through D-0089/D-0090/GIT-070; D-0091 Phase 2 correction review-ready but unpublished; Phase 2 Unauthorized/Not started; Phases 3–6 Unauthorized/Not started**
+Status: **Approved/active; Phase 1 Verified/published/integrated/recorded/cleaned up through D-0089/D-0090/GIT-070; D-0091 Phase 2 research correction published in GIT-072; D-0092 automatic-commit correction review-ready but unpublished; Phase 2 Unauthorized/Not started; Phases 3–6 Unauthorized/Not started**
 Owner: Arthur
 Task role: planning/control-plane architecture only; this task changes no runtime or technical proof
 Created: 2026-09-18
 Last updated: 2026-09-19
-Decision links: [D-0085, D-0086, D-0087, D-0088, D-0089, D-0090 and D-0091](../DECISIONS.md)
+Decision links: [D-0085, D-0086, D-0087, D-0088, D-0089, D-0090, D-0091 and D-0092](../DECISIONS.md)
 TODO IDs: `PLAN-008`, `SPEC-008`, `AIANIM-001`–`AIANIM-006`
 Planning base: clean detached canonical-main SHA `f923c35aa13cfd476e712f4ead89419263fc0893`; index empty before edits
 Planning publication: GIT-067 commit `ba5ecd694df78414240ce83a9140c5196334ebdc`; 15 planning/control-plane/tree paths; no runtime change
@@ -13,7 +13,8 @@ Authorization publication: GIT-068 commit `1d80141f2465db6f0e389fb43dc1cdfb8dafb
 Correction authorization publication: GIT-069 commit `e682bd5357624c934789eefbc64dbba43116b246`; 11 control-plane paths; no runtime change
 Accepted result basis: Phase 1 correction was accepted/technically Verified from exact GIT-069 closeout base `3da58e096dd748c7c3bd23fbb9271d53e33597ca`; D-0090 records its completed publication, synchronization, proof preservation and D-0054 cleanup
 Implementation publication: GIT-070 commit `76708645c96b3b0ea95c524f162bb6152d539fcf`; exact 19 accepted technical paths plus 14 reviewed control-plane/tree paths; canonical/local-origin/live GitHub synchronized; proof preserved and review copy cleaned under D-0090
-Phase 2 research correction basis: clean detached canonical-main SHA `888aae769e67e08adb1862c81f21bec171fd0592`; D-0091 planning/control-plane correction only; publication pending; no runtime/provider/paid/Git action
+Phase 2 research correction publication: GIT-072 commit `9b4b116d24b076b1c05d91a02fd7318ae5a44148`, parent GIT-071 `888aae769e67e08adb1862c81f21bec171fd0592`, message `Specify SPEC-0008 Phase 2 web research`; exactly 13 documentation paths; canonical/local-origin/live GitHub synchronized at publication
+D-0092 transaction correction basis: clean detached GIT-072 SHA `9b4b116d24b076b1c05d91a02fd7318ae5a44148`; planning/control-plane correction only; publication pending; no runtime/provider/paid action
 
 ## 1. Exact product outcome
 
@@ -22,7 +23,7 @@ Diamond Animator will have one bottom-right **AI Animator** chat inside the Anim
 - inspect and play the animation in the existing timeline;
 - edit the same content with ordinary manual tools;
 - ask the AI to revise the current animation;
-- Preview, Cancel, or atomically Apply AI-authored changes;
+- see the successfully created or edited animation immediately after one safe atomic commit;
 - Undo and Redo applied AI work through the same global history as manual work;
 - Save, Save As, reopen, and continue editing; and
 - download a YouTube-ingestible video export. Direct upload to a YouTube account is not required for V1.
@@ -38,7 +39,8 @@ prompt
   → deterministic ordered frame bundle
   → drawing-only editable reconstruction candidate
   → full validation
-  → Preview / Cancel or one atomic Apply
+  → automatic one-transaction commit after complete validation
+  → resulting animation/current project shown
   → manual or conversational edits through the same capabilities
   → Save/Open/playback/export
 ```
@@ -61,9 +63,13 @@ AI-authored raster paint uses the same accepted coverage companion, maximum same
 
 If a human cannot perform an operation through the registered ordinary editor, AI cannot perform it. AI planning may compose capabilities, but execution must use the same UI-independent schemas, validators, sanctioned handlers, V2 coordinator, global history, persistence projection, and no-loss rules as manual controls. No fake mouse automation and no second mutation engine are allowed.
 
-### 2.4 Isolated staging and atomic Apply
+### 2.4 Isolated staging and automatic atomic commit
 
-All generated or edited work is prepared in an isolated candidate bound to the exact project ID, project generation, base authored digest, and relevant target IDs. Preview renders that candidate without making it the authored project. Cancel discards it with zero history. Apply revalidates the current base and publishes either the complete candidate as one global history transaction or nothing. Failure, cancellation, timeout, stale completion, quota rejection, decode error, provider mismatch, validation error, reload interruption, or project change leaves authored project bytes and history byte-equivalent to the last good state.
+An unambiguous current message that explicitly asks Diamond Animator to create an animation or edit the current animation authorizes that one bounded mutation job. It does not require a second Preview, Apply, confirmation, or post-generation Cancel step. The system prepares a non-user-facing isolated candidate bound to the exact project ID, project generation, base authored digest, and relevant target IDs; completes every required schema, reference, no-loss, coverage, render, playback, storage, command, and policy validation; then revalidates the live base and automatically publishes either the complete candidate as one global history transaction or nothing. On success, the UI shows the resulting animation/current project and Undo/Redo becomes the ordinary correction and recovery mechanism.
+
+Planning, brainstorming, discussion, questions, and requests for advice remain non-mutating. Genuine material ambiguity asks exactly one focused question before starting a mutating job. Destructive behavior still requires explicit current-message destructive intent, an exact resolvable target, and a registered manual destructive command with its existing confirmation semantics; general create/edit wording never authorizes an inferred deletion.
+
+The active-job Cancel control remains available while generation or editing work is running. A cancellation accepted before the final compare-and-swap commit prevents publication and leaves authored state unchanged. After the atomic commit succeeds, the completed job cannot be relabelled Cancelled or rolled back by the job control; Undo/Redo handles corrections. Failure, accepted active-work cancellation, timeout, stale completion, quota rejection, decode error, provider mismatch, validation error, reload interruption, or project change leaves authored project bytes and history byte-equivalent to the last good state.
 
 ## 3. Bounded V1 promise and explicit limits
 
@@ -76,7 +82,7 @@ The V1 quality target is short-form 16:9 animation:
 - important props: up to 4;
 - reconstructed layers: at most 6 per shot unless an executor proves a lower safe project-specific ceiling;
 - provider/reference dimensions: at most 1280×720 before deterministic slicing;
-- total frame count, encoded assets, and projected V2 project size must pass the existing 128 MiB/project, 512 MiB/collection, 256 MiB/single-raster, and current browser-memory limits before any Apply.
+- total frame count, encoded assets, and projected V2 project size must pass the existing 128 MiB/project, 512 MiB/collection, 256 MiB/single-raster, and current browser-memory limits before any automatic commit.
 
 Phase 2 internet research is separately bounded to one search-enabled Responses request per attempt, at most two built-in tool calls, at most eight distinct candidate source records accepted and processed by the application, at most six retained/cited sources, a 512-character normalized query, 16,000 total input tokens, 4,000 maximum output tokens including reasoning, `search_context_size: "low"`, the default returned-token budget (never `unlimited`), a 45-second search-call deadline, and a 60-second research-stage wall-clock deadline. A live research attempt must also pass the exact spend gates in §10.4. These limits do not authorize a live call.
 
@@ -108,7 +114,7 @@ Current facts that SPEC-0008 must change or preserve:
 - Published Phase 1 now fixes ordinary AI Animator calls to `gpt-5.6-terra` and sends `tools: []`; Phase 2 must extend that same job/provider boundary rather than restore the old model router.
 - The panel simulates minimum-duration status sequences such as Analyzing, Thinking, Planning animation, Drawing, and Generating frames with timers. The existing gradient status and typewriter/reveal visual language is reusable, but timed labels are not proof of durable job progress.
 - Panel transcript and follow-up state are React-session state. Control preferences use one browser-local record. Project AI memory is a separate auxiliary mechanism.
-- `DrawingWorkspace` supplies one existing generated-frame apply callback and an action executor that supports only Save Project, current-frame PNG export, and sound attachment. Current PNG export is not a complete animation/video export.
+- `DrawingWorkspace` supplies one legacy generated-frame commit callback and an action executor that supports only Save Project, current-frame PNG export, and sound attachment. Current PNG export is not a complete animation/video export.
 - Published SPEC-0007 provides the accepted V2 coordinator/repository, no-loss raster path, Assets lifecycle, drawing-only historical migration, and a runtime-used manual capability registry. It provides no general AI caller into that registry.
 - `/api/ai` and `/api/drawing-project-ai-memory` still have the authentication, ownership, rate-limit, retention, and logging gaps recorded in `AI_SYSTEM.md`. Public beta remains blocked until Phase 6 closes them.
 - The protected legacy `/api/ai` route contains app-owned DuckDuckGo HTML and instant-answer fetching. That scraper is not the Phase 2 search design and must not be imported, copied, or made reachable from the ordinary AI Animator path.
@@ -184,7 +190,7 @@ cancellation/failure code
 created/updated/completed timestamps
 ```
 
-The transcript, event log and terminal job summary persist in a project-scoped job store outside authored animation content/history/version bytes. New/Open rebinds the ledger by exact project or unsaved-workspace identity without creating a project version. Browser disconnect never cancels a persistent job; the client reconnects with the last event sequence and hydrates the latest snapshot. A server interruption becomes an honest recoverable **Failed** record unless the downstream provider exposes a verified resumable ID; the UI must not pretend it is still running. One workspace has at most one active mutating job. A new mutating request must wait, explicitly cancel the active job, or be rejected; it cannot overlap Apply.
+The transcript, event log and terminal job summary persist in a project-scoped job store outside authored animation content/history/version bytes. New/Open rebinds the ledger by exact project or unsaved-workspace identity without creating a project version. Browser disconnect never cancels a persistent job; the client reconnects with the last event sequence and hydrates the latest snapshot. A server interruption becomes an honest recoverable **Failed** record unless the downstream provider exposes a verified resumable ID; the UI must not pretend it is still running. One workspace has at most one active mutating job. A new mutating request must wait, explicitly cancel the active job, or be rejected; it cannot overlap the final atomic commit.
 
 Status events stream with monotonic sequence IDs. Replayed, missing, duplicated, out-of-order, cross-project, or stale-generation events are ignored or fail the job without mutating content. Cancellation aborts reachable work and records **Cancelled**. Terminal states are immutable.
 
@@ -198,8 +204,8 @@ The finished system uses exactly these user-visible statuses:
 | Making video | submitting/polling/downloading a reference-video job | 2 |
 | Animating | deterministically cutting/slicing the verified reference video into the ordered frame bundle | 3 |
 | Working | building/reconstructing those frames into ordinary editable Diamond Animator layers/content in Phase 4, or preparing registered conversational edit commands in Phase 5 | 4 |
-| Finalizing | validating the isolated reconstruction/edit candidate and preparing Preview readiness; later, validating export readiness | 4 |
-| Done | the requested job reached its defined terminal result | 1 |
+| Finalizing | validating the isolated reconstruction/edit candidate and preparing its automatic atomic commit; later, validating export readiness | 4 |
+| Done | the requested job reached its defined terminal result; a mutating job is Done only after the atomic commit succeeded and the current project shows the result | 1 |
 | Failed | work stopped with a truthful actionable failure and no partial authored mutation | 1 |
 | Cancelled | user/system cancellation completed with no partial authored mutation | 1 |
 
@@ -220,9 +226,9 @@ Every intermediate artifact is versioned, schema-validated, content-addressed, s
 3. **Reference video** — provider/upload provenance, request/capability snapshot, source digest, duration, dimensions, codec/container metadata, moderation/ownership state, provider job identity, and terminal status.
 4. **Frame bundle** — ordered frame manifest with source video digest, decoder/version, shot ID, zero-based frame index, presentation timestamp, duration, dimensions, image digest, and boundary flags.
 5. **Editable candidate** — isolated V2 candidate, exact registered command batch/receipts, layer/owner map, confidence/flattening disclosures, authored/catalog/coverage digest, storage preflight, and base binding.
-6. **Apply receipt** — base/result digests, project generation, command IDs, target IDs, one history entry, persisted artifact bindings, and Preview identity.
+6. **Commit receipt** — authorization-turn ID, base/result digests, project generation, command IDs, target IDs, one history entry, persisted artifact bindings, and validated-candidate identity.
 
-An artifact from another job/project/generation is never adopted by coincidence, filename, index, or timestamp. Each transition revalidates all upstream digests. Temporary video/frame assets remain outside the authored project until Phase 4 Apply. Cancel/failure cleanup revokes URLs, aborts work where supported, deletes disposable unreferenced artifacts, and retains only the bounded diagnostic/job record allowed by the privacy policy.
+An artifact from another job/project/generation is never adopted by coincidence, filename, index, or timestamp. Each transition revalidates all upstream digests. Temporary video/frame assets remain outside the authored project until the Phase 4 automatic atomic commit. Active-work cancellation/failure cleanup revokes URLs, aborts work where supported, deletes disposable unreferenced artifacts, and retains only the bounded diagnostic/job record allowed by the privacy policy.
 
 ## 8. Phase lifecycle, schedule target, and completion definition
 
@@ -259,7 +265,7 @@ Status: **Verified, published, integrated, recorded and cleaned up through D-008
 
 Replace the ordinary Animation Workspace's task-picker behavior with the one-chat foundation in §§5–6. Lock the new AI Animator server brain to Terra/Responses API, migrate the reasoning control, add validated semantic intent routing, persistent project-bound transcript/job records, streamed truthful status, cancellation, reconnect/interruption handling, and accessible presentation.
 
-Phase 1 creates no reference video, frame bundle, editor command batch, Preview candidate, project/document mutation, history entry, asset/catalog entry, save version, export, or external search request. `create-animation` and `edit-animation` may produce a bounded non-mutating plan/readiness result only; the visible response must say no animation change occurred because later phases are not present.
+Phase 1 creates no reference video, frame bundle, editor command batch, mutation candidate, project/document mutation, history entry, asset/catalog entry, save version, export, or external search request. `create-animation` and `edit-animation` may produce a bounded non-mutating plan/readiness result only; the visible response must say no animation change occurred because later phases are not present.
 
 ### 9.2 Required execution path
 
@@ -299,7 +305,7 @@ Status: **Unauthorized; Not started**
 
 ### 10.1 Entry decision gate
 
-Phase 1 must remain fully closed. D-0091's correction must first be accepted, separately published, and cleanly synchronized; Arthur must then separately authorize one fresh Plan-mode Phase 2 Spec Executor. Offline deterministic doubles are the mandatory implementation and proof path.
+Phase 1 must remain fully closed. D-0091's correction is accepted, separately published, and cleanly synchronized in GIT-072 `9b4b116d24b076b1c05d91a02fd7318ae5a44148`. D-0092's automatic-commit correction must be accepted, separately published, and cleanly synchronized; Arthur must then separately authorize one fresh Plan-mode Phase 2 Spec Executor. Offline deterministic doubles are the mandatory implementation and proof path.
 
 Before any live OpenAI web-search test, Arthur must separately approve a dated access/privacy/cost packet based on current official OpenAI sources and actual account access. It must confirm exact `gpt-5.6-terra`/Responses/`web_search` availability, current model and tool prices/rate limits, the data projection, provider retention/data-use terms, exact request/tool-call count, and a monetary ceiling no looser than §10.4. Before any live video-provider use, Arthur must separately approve a dated provider packet naming the provider/model/endpoint, availability, region/account restrictions, duration/resolution/container limits, moderation, data use/training, retention/deletion, ownership/licensing, watermark, cancellation/refund behavior, latency, per-attempt cost, per-job/project/day/month spend ceilings, and retry count.
 
@@ -410,7 +416,7 @@ Proof covers constant/variable frame rate, repeated source frames, irregular tim
 
 Status: **Unauthorized; Not started**
 
-This is the hardest phase. It converts a validated frame bundle into ordinary drawing-only Diamond Animator content without a second editor or hidden video layer. Its active build label is **Working**; reconstruction may not be labelled Animating. **Finalizing** begins only when the isolated reconstruction candidate is undergoing full validation and Preview-readiness checks.
+This is the hardest phase. It converts a validated frame bundle into ordinary drawing-only Diamond Animator content without a second editor or hidden video layer. Its active build label is **Working**; reconstruction may not be labelled Animating. **Finalizing** begins only when the isolated reconstruction candidate is undergoing full validation and automatic-commit readiness checks.
 
 ### 12.1 Reconstruction outcome
 
@@ -420,31 +426,31 @@ This is the hardest phase. It converts a validated frame bundle into ordinary dr
 - Every frame/cell/item is inspectable by the existing timeline and editable by the ordinary manual tools. No embedded reference-video playback, opaque generated-animation blob, active legacy rig, or AI-only object type is allowed.
 - If semantic separation is unreliable, the candidate uses an honest `Reference Composite` raster layer or fewer coarse layers and tells the user what is flattened. It must not hallucinate precise editability.
 
-Terra may inspect representative source/reconstructed frames and metadata to assess story/action/subject continuity, but pixel masks, temporal tracks, frame order, and command results must pass deterministic validation. Model confidence alone cannot authorize Apply.
+Terra may inspect representative source/reconstructed frames and metadata to assess story/action/subject continuity, but pixel masks, temporal tracks, frame order, and command results must pass deterministic validation. Model confidence alone cannot authorize the atomic commit.
 
-### 12.2 Shared capability and atomic transaction
+### 12.2 Shared capability and automatic atomic transaction
 
 The reconstructor composes only registered `futureAiEligible` manual capabilities against an isolated V2 candidate reducer. It never dispatches DOM/pointer events or writes canvas/history/repository state directly. If reconstruction needs a capability not manually available and registered, Phase 4 stops. That capability requires a separately reviewed manual-first scope and proof before a later authorized reconstruction attempt may use it; the Phase 4 executor cannot silently broaden its own authority.
 
-The command batch creates no more than the V1-bounded layers/frames/assets, carries exact base/project/generation/target/digest bindings, and preflights V2/project/collection/raster/browser-memory limits. The candidate receives full schema/reference/no-loss/coverage/renderer/playback/storage validation. Preview displays the exact candidate and its flattening/layer disclosures. Cancel changes nothing. Apply revalidates the live base and publishes one complete V2 root plus one global history entry. Undo restores the exact pre-Apply project; Redo restores the exact candidate.
+The command batch creates no more than the V1-bounded layers/frames/assets, carries exact base/project/generation/target/digest bindings, and preflights V2/project/collection/raster/browser-memory limits. The candidate receives full schema/reference/no-loss/coverage/renderer/playback/storage validation entirely inside the running job. After an explicit unambiguous create-animation message, the job revalidates the live base and automatically publishes one complete V2 root plus one global history entry, then shows the resulting animation/current project. There is no user-facing Preview, Apply, or post-generation Cancel gate. Undo restores the exact pre-commit project; Redo restores the exact committed candidate.
 
 Error, cancel, stale model/provider/slicer completion, stale base, manual edit during generation, quota, decode, mask, tracking, command, render, persistence, or readback failure leaves project bytes/history/head exactly unchanged and no partial authored data.
 
 ### 12.3 Exit proof
 
-Proof includes static background plus one moving subject; two crossing subjects; occlusion; curved alien/UFO detail; straight segmented prop geometry; shuriken-like small moving props; camera-still and bounded pan; unreliable separation fallback; copied/held frames; layer/frame/onion/playback; manual Brush/Eraser/Knife/Select/Lasso edit after Preview/Apply; exact Undo/Redo; Save/Open/Save As; cancellation and every injected failure. Pixel/reference/command/coverage/catalog/project digests bind Preview, Apply, Undo, Redo, and reopen. No SPEC-0007 drawing/manual regression, source writer, or external request outside the separately approved Terra/video gates is allowed.
+Proof includes static background plus one moving subject; two crossing subjects; occlusion; curved alien/UFO detail; straight segmented prop geometry; shuriken-like small moving props; camera-still and bounded pan; unreliable separation fallback; copied/held frames; layer/frame/onion/playback; manual Brush/Eraser/Knife/Select/Lasso edit after the successful automatic commit; exact Undo/Redo; Save/Open/Save As; active-work cancellation before commit and every injected failure. Pixel/reference/command/coverage/catalog/project digests bind the isolated candidate, atomic commit, Undo, Redo, and reopen. It also proves no Preview/Apply/post-generation Cancel gate exists, the result becomes the visible current project immediately after success, cancellation accepted before commit leaves no mutation, and cancellation racing after a successful commit cannot relabel or partially roll back that success. No SPEC-0007 drawing/manual regression, source writer, or external request outside the separately approved Terra/video gates is allowed.
 
 ## 13. Phase 5 — Conversational editing through the manual registry
 
 Status: **Unauthorized; Not started**
 
-Follow-up requests operate on the current canonical project, including manual changes made after the original generation. Terra produces a bounded edit plan using only registered manual capabilities. The job uses **Working** while it prepares and evaluates registered edit commands, then **Finalizing** while validating the isolated candidate for Preview. It skips Making video and Animating unless the request truly invokes those earlier subsystems. Supported V1 edit classes are recolor, reposition/transform, retime within the existing bounded timeline, add supported ordinary content, remove an explicitly requested exact target, and adjust an already supported property or scene element.
+Follow-up requests operate on the current canonical project, including manual changes made after the original generation. Terra produces a bounded edit plan using only registered manual capabilities. The job uses **Working** while it prepares and evaluates registered edit commands, then **Finalizing** while validating the isolated candidate for automatic commit. It skips Making video and Animating unless the request truly invokes those earlier subsystems. Supported V1 edit classes are recolor, reposition/transform, retime within the existing bounded timeline, add supported ordinary content, remove an explicitly requested exact target, and adjust an already supported property or scene element.
 
 If the human editor cannot perform an operation, AI cannot perform it. A request outside the registry returns the limitation or one focused alternative question; it cannot invent a hidden command. Destruction requires explicit removal intent and a registered destructive command. Ambiguous `remove it`/`delete that` requests ask one focused target question and perform no mutation.
 
-Every edit binds the exact project generation/base digest and target IDs. The isolated edit candidate uses the same Preview/Cancel/Apply contract as Phase 4. A manual edit made while planning invalidates the candidate; the AI must re-read/replan rather than overwrite it. One Apply creates one global history entry, and exact Undo/Redo/Save/Open/project-generation binding are mandatory. Conversation history or old artifact references never override the current project.
+Every edit binds the exact project generation/base digest and target IDs. An explicit unambiguous edit-animation message authorizes the same internal-candidate/automatic-atomic-commit contract as Phase 4. A manual edit made while planning invalidates the candidate; the AI must re-read/replan rather than overwrite it. One successful request creates one global history entry, immediately shows the updated current project, and keeps exact Undo/Redo/Save/Open/project-generation binding. Planning-only discussion does not mutate; a materially ambiguous or destructive request follows §2.4 before work begins. Conversation history or old artifact references never override the current project.
 
-Proof covers each edit class on AI-created and manually modified content, multiple turns, pronoun/target ambiguity, explicit and implicit destructive language, stale target IDs, project switch, concurrent manual edit, Cancel, failure, Undo/Redo, Save/reopen, and cross-project memory isolation. Runtime-source mutation tests prove no direct document/catalog/history setters, fake pointer path, unregistered handler, non-Terra model, or theme/action recipe branch.
+Proof covers each edit class on AI-created and manually modified content, multiple turns, pronoun/target ambiguity, explicit and implicit destructive language, stale target IDs, project switch, concurrent manual edit, active-work cancellation before commit, cancellation/commit race ordering, failure, Undo/Redo, Save/reopen, and cross-project memory isolation. Runtime-source mutation tests prove no direct document/catalog/history setters, fake pointer path, unregistered handler, non-Terra model, or theme/action recipe branch.
 
 ## 14. Phase 6 — Beta-quality closeout and downloadable video export
 
@@ -455,7 +461,7 @@ Phase 6 completes the bounded V1 rather than adding a seventh feature phase.
 ### 14.1 Product closeout
 
 - All exact statuses in §6 are driven by real subsystem events with retry/cancel/recovery and truthful interruption behavior.
-- New → prompt → plan → reference video → slice → editable reconstruction → Preview/Apply → playback → manual edit → AI follow-up → Undo/Redo → Save/Open passes without partial authored data.
+- New → explicit create request → plan → reference video → slice → editable reconstruction → automatic atomic commit → resulting animation/playback → manual edit → explicit AI edit request → automatic atomic commit → Undo/Redo → Save/Open passes without partial authored data or a second approval gate.
 - Playback, onion, timeline, Properties, Library, Assets, drawing tools, manual command registry, history, migration, and V2 persistence retain their accepted behavior.
 - Export renders the canonical complete animation—not the current-frame PNG path—at 16:9 up to 1920×1080, preserves exact project timing, and downloads a video container/codec confirmed by a same-day YouTube ingest/support check. If authored FPS differs from export FPS, frames are duplicated or deterministically interpolated with an exact timing map; duration may not drift by more than one export frame.
 - The export includes all visible layers/items/text/backgrounds/props/effects in canonical order and never exports preview/onion/selection/UI overlays. No audio is invented. When supported attached audio exists, inclusion requires exact sync and licensing proof; otherwise the file is explicitly silent.
@@ -487,7 +493,7 @@ Two non-hardcoded acceptance stories plus one follow-up edit must pass in ordina
 2. **Bounded alien/UFO scene:** one alien, one UFO, a readable space/night environment, and at least one important prop/effect over a short bounded timeline.
 3. **Follow-up edit:** a natural-language recolor, reposition, or retime request applied to one of those current projects after one manual edit.
 
-The story text, nouns, colors, and actions appear only in evaluation fixtures. Static/import tests fail if they appear in runtime routing, provider selection, reconstruction selection, or command-dispatch source. The accepted result must show ordinary frames/layers/items, manual editability, Preview/Cancel/Apply, full-loop playback, Undo/Redo, Save/Open fidelity, and a playable inspected downloadable video. The two projects must not share baked story-specific bytes except generic product assets.
+The story text, nouns, colors, and actions appear only in evaluation fixtures. Static/import tests fail if they appear in runtime routing, provider selection, reconstruction selection, or command-dispatch source. The accepted result must show ordinary frames/layers/items, manual editability, automatic one-transaction commit from the explicit create/edit message, no second approval gate, active-work cancellation without mutation, full-loop playback, Undo/Redo, Save/Open fidelity, and a playable inspected downloadable video. The two projects must not share baked story-specific bytes except generic product assets.
 
 First-try universal cinematic fidelity is not the gate. The bounded stories may use one explicit user Retry as a new cost-preflighted job; there is no automatic retry. Out-of-bound prompts must narrow or fail honestly. Quality review covers subject/action readability, continuity, timing, layer honesty, background/prop presence, lack of unexplained content, and visible editability—not only hashes or model self-scoring.
 
@@ -498,8 +504,8 @@ First-try universal cinematic fidelity is not the gate. The bounded stories may 
 | 1 | one-chat panel/contract, Terra gateway, intent envelope, external project-scoped job/transcript ledger, event stream, cancellation/reconnect and Phase 1 proof | no reference video, frame bundle, editor command, project/history/version write, export, search, deployment or public-beta claim | any alternate/fallback model path; client-visible credential; cap bypass; job-order/persistence ambiguity; task picker still reachable; any authored/project digest change; any unauthorized live/paid call |
 | 2 | bounded hosted `web_search`, cited `inspiration-brief/v1`, shot-plan continuation, provider-neutral adapter/coordinator, validated upload fallback, isolated video artifact/review, representative-frame/metadata verification and Phase 2 proof | no arbitrary URL fetch/scraping/login/bypass/social-video download, imitation, slicing, reconstruction, canvas/timeline/history mutation, export or video-provider assumption beyond an approved packet | alternate model/legacy search tool or scraper; missing search/video access-cost-privacy authorization for live use; uncited/tampered/injected result; false search status; cap/retention unknown; automatic retry/switch; inaccessible evidence treated as watched; corrupt/mismatched reference; late cancelled/stale/cross-project completion advancing state; any project mutation |
 | 3 | pinned deterministic decode/sample/bundle pipeline, timing/shot manifest, isolated bundle review and Phase 3 proof | no semantic reconstruction, object tracking claim, editor command, canvas mutation or export | nondeterministic bytes/order; missing/reordered frame; shifted/lost shot boundary; unbounded decoded memory; absent digest/metadata; limit overflow; any project mutation |
-| 4 | reconstruction analysis, honest separation/flattening disclosure, registered-command candidate reducer, Preview/Cancel/atomic Apply and Phase 4 proof | no hidden rig/topology, AI-only item/command, embedded reference-video project, follow-up conversation system or final export | direct document write; unregistered/unavailable-manually command; false editability; identity/action/shot loss; stale Apply; Preview/Apply mismatch; non-atomic failure; storage/readback failure; partial history/data |
-| 5 | current-project target resolution, registered edit-plan compilation, focused ambiguity handling, Preview/Cancel/Apply and Phase 5 proof | no hidden editor capability, target guessing, implicit provider regeneration, arbitrary code or export | operation unavailable manually; ambiguous target guessed; implicit deletion; unregistered destructive path; stale generation/target accepted; unrelated content changed; partial history or save/reopen mismatch |
+| 4 | reconstruction analysis, honest separation/flattening disclosure, registered-command internal candidate, automatic atomic commit from an explicit create request, and Phase 4 proof | no hidden rig/topology, AI-only item/command, embedded reference-video project, follow-up conversation system, user-facing Preview/Apply gate or final export | direct document write; unregistered/unavailable-manually command; false editability; identity/action/shot loss; stale commit; candidate/result mismatch; non-atomic failure; storage/readback failure; partial history/data |
+| 5 | current-project target resolution, registered edit-plan compilation, focused ambiguity handling, automatic atomic commit from an explicit edit request, and Phase 5 proof | no hidden editor capability, target guessing, implicit provider regeneration, user-facing Preview/Apply gate, arbitrary code or export | operation unavailable manually; ambiguous target guessed; implicit deletion; unregistered destructive path; stale generation/target accepted; unrelated content changed; partial history or save/reopen mismatch |
 | 6 | truthful recovery/failure UX, full regression/evaluation, security/ownership/rate/privacy/retention/spend enforcement, canonical animation export and Phase 6 proof | no direct YouTube OAuth/account upload, long-form/unbounded cinema, collaboration, custom-model training or new mutation engine | any public-beta gate open; cross-user access; rate/spend/secret/log-retention bypass; partial project data; canonical playback/export mismatch; invalid/unproven download format; hidden provider call; unbounded performance; protected regression |
 
 Each executor owns only the exact runtime/fixture/technical-test/proof subset frozen after fresh tracing. It cannot edit canonical docs, Git state or another phase/worktree. A stop condition ends implementation without scope expansion; resolution requires the owning gate or a separately authorized correction task.
@@ -524,9 +530,9 @@ Existing strict historical validators may legitimately reject a newer spec/contr
 | Phase | TODO | Entry gate | Exit result | Status |
 | --- | --- | --- | --- | --- |
 | 1 — Terra brain, routing, chat/jobs | `AIANIM-001` | SPEC-0008 approved/published under D-0087; fresh Plan-mode worktree | one-chat Terra-only non-mutating brain, routing, persistence, streaming, accessibility | **Verified/published/integrated/recorded/cleaned up** |
-| 2 — Internet research and provider-neutral reference video | `AIANIM-002` | Phase 1 fully closed; D-0091 correction accepted/published/synchronized; separate authorization; dated search and video-provider access/cost/privacy gates before respective live use | cited bounded inspiration brief, replaceable provider contract, verified video, upload fallback, zero editor mutation | **Correction review-ready; Unauthorized/Not started** |
+| 2 — Internet research and provider-neutral reference video | `AIANIM-002` | Phase 1 fully closed; D-0091 published/synchronized in GIT-072; D-0092 accepted/published/synchronized; separate authorization; dated search and video-provider access/cost/privacy gates before respective live use | cited bounded inspiration brief, replaceable provider contract, verified video, upload fallback, zero editor mutation | **D-0092 correction review-ready; Unauthorized/Not started** |
 | 3 — Deterministic Cucumber Slicer | `AIANIM-003` | Phase 2 fully closed; separate authorization; pinned decoder/input contract | exact ordered isolated frame bundle, zero editor mutation | **Unauthorized; Not started** |
-| 4 — Editable reconstruction | `AIANIM-004` | Phase 3 fully closed; separate authorization; frame bundle/project preflight | validated drawing-only candidate, honest layers, Preview/Cancel/atomic Apply | **Unauthorized; Not started** |
+| 4 — Editable reconstruction | `AIANIM-004` | Phase 3 fully closed; separate authorization; frame bundle/project preflight | validated drawing-only candidate, honest layers, automatic one-transaction commit, visible result and Undo/Redo | **Unauthorized; Not started** |
 | 5 — Conversational editing | `AIANIM-005` | Phase 4 fully closed; separate authorization; AI-eligible registry audit | current-project edits through shared manual commands with atomic history | **Unauthorized; Not started** |
 | 6 — Beta closeout/export | `AIANIM-006` | Phase 5 fully closed; separate authorization; security/cost/privacy/export-format gates | bounded end-to-end beta workflow and inspected YouTube-ingestible download | **Unauthorized; Not started** |
 
@@ -541,8 +547,9 @@ D-0087 approves this specification and originally authorizes Phase 1 only; D-008
 | Six-phase design | PASS | exactly six sequential implementation phases plus one non-phase correction/publication buffer day |
 | Runtime/provider/paid/Git changes in the D-0085 planning task | ZERO | planning/control-plane/tree records only; no app, test, provider, API, dependency, server, staging, commit, push, or deployment action |
 | Phase 1 product blockers | NONE; phase durably closed | Terra model/effort, natural conversation, gradient Thinking and non-mutating Phase 1 outcome are proven; GIT-070 is synchronized and D-0090 records proof preservation/cleanup |
-| D-0091 correction boot/base/index | PASS | clean detached canonical-main SHA `888aae769e67e08adb1862c81f21bec171fd0592`; empty index before correction; Phase 1 runtime re-traced before writing |
-| Runtime/provider/paid/Git changes in the D-0091 correction | ZERO | spec/control-plane records only; no runtime, fixture, technical test, proof artifact, dependency, credential, provider/API call, credit spend, server, deployment, stage, commit, push or publication |
+| D-0091 correction publication | PASS | exact GIT-072 commit `9b4b116d24b076b1c05d91a02fd7318ae5a44148`, parent GIT-071 `888aae769e67e08adb1862c81f21bec171fd0592`; 13 documentation paths; synchronized publication |
+| D-0092 correction boot/base/index | PASS | clean detached GIT-072 SHA `9b4b116d24b076b1c05d91a02fd7318ae5a44148`; empty index before correction; no runtime/test/provider work |
+| Runtime/provider/paid/Git changes in the D-0092 correction | ZERO | spec/control-plane records only; no runtime, fixture, technical test, proof artifact, dependency, credential, provider/API call, credit spend, server, deployment, stage, commit, push or publication |
 | Later named gates | OPEN by design | separate live-search authorization/access/privacy/cost packet; current video provider/access/cost/privacy; decoder/encoder choice; public-beta security/retention/spend policy |
 
-The planning package was reviewed and published under D-0086/GIT-067, and Arthur approved it with Phase 1-only authorization under D-0087. The first Phase 1 executor result was rejected after `hello` produced a generic animation failure and no gradient Thinking state; D-0088 preserves and cleans that result. D-0089 accepts the fresh correction from exact base `3da58e096dd748c7c3bd23fbb9271d53e33597ca`: immutable 26,698-byte manifest SHA-256 `80a5463775f498116389e49cb94d3282023355c6f7dd1bae9cc026a727916313`, PASS/VALID, 19 exact technical paths, 254 browser assertions, production build PASS, zero browser/external-request errors, preserved project/history/repository/canvas digests, and six authorized live Terra calls costing $0.010854 total. Arthur's later narrow layout instructions explicitly add the accepted right-sidebar resize and timeline-overlay presentation corrections; those changes preserve authored content and do not add Phase 2 behavior. D-0090 records exact GIT-070 publication/integration, complete proof preservation and D-0054 cleanup. D-0091 integrates bounded hosted internet research into Phase 2 without adding a phase or authorizing implementation. The correction is review-ready but unpublished; Phase 2 remains Unauthorized/Not started until acceptance, separate publication/synchronization, and later separate executor authorization. Live search and live video-provider use each retain their own dated access/privacy/cost gates.
+The planning package was reviewed and published under D-0086/GIT-067, and Arthur approved it with Phase 1-only authorization under D-0087. The first Phase 1 executor result was rejected after `hello` produced a generic animation failure and no gradient Thinking state; D-0088 preserves and cleans that result. D-0089 accepts the fresh correction from exact base `3da58e096dd748c7c3bd23fbb9271d53e33597ca`: immutable 26,698-byte manifest SHA-256 `80a5463775f498116389e49cb94d3282023355c6f7dd1bae9cc026a727916313`, PASS/VALID, 19 exact technical paths, 254 browser assertions, production build PASS, zero browser/external-request errors, preserved project/history/repository/canvas digests, and six authorized live Terra calls costing $0.010854 total. Arthur's later narrow layout instructions explicitly add the accepted right-sidebar resize and timeline-overlay presentation corrections; those changes preserve authored content and do not add Phase 2 behavior. D-0090 records exact GIT-070 publication/integration, complete proof preservation and D-0054 cleanup. D-0091 integrates bounded hosted internet research into Phase 2 without adding a phase or authorizing implementation and is published/synchronized in exact GIT-072 `9b4b116d24b076b1c05d91a02fd7318ae5a44148`. D-0092 replaces SPEC-0008's second user approval gate with explicit-message authorization plus an internally validated automatic atomic commit, while preserving active-job cancellation, ambiguity questions, destructive-intent rules, failure safety and Undo/Redo. This D-0092 correction is review-ready but unpublished; Phase 2 remains Unauthorized/Not started until its separate publication/synchronization and later separate executor authorization. Live search and live video-provider use each retain their own dated access/privacy/cost gates.

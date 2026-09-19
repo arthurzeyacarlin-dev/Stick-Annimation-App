@@ -11,7 +11,7 @@ Last updated: 2026-09-19
 - Paid AI calls, remote writes, deployment, and baseline commits require task-specific authorization.
 - The roadmap may change when Arthur resolves pending decisions or new evidence changes the risk order.
 
-## Current owner sequence — 2026-09-19 (D-0085–D-0091; Phase 1 closed, corrected Phase 2 awaiting review/publication before separate authorization)
+## Current owner sequence — 2026-09-19 (D-0085–D-0092; Phase 1 closed, D-0091 published, D-0092 awaiting publication before separate Phase 2 authorization)
 
 All seven SPEC-0006 phases are Verified/published/integrated through GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`. The immutable 50,224-byte Phase 7 manifest is PASS/VALID at SHA-256 `c6202f6deab4d3bcc75af3ad6699fc2dc70fc58723eccaa8337b1a2aef74bc51`, with exactly 11 source and 16 evidence bindings.
 
@@ -32,11 +32,11 @@ D-0085 creates [`SPEC-0008`](specs/0008-conversational-ai-animator.md), D-0086/G
 1. Terra brain, conversational intent routing and persistent streamed jobs.
 2. Bounded Terra internet research plus provider-neutral reference video, with cited inspiration brief, validated local-video fallback, and separate live-search/live-video-provider access/privacy/cost gates.
 3. Deterministic cucumber slicing into an isolated ordered timing/shot-bound frame bundle.
-4. Honest editable reconstruction into ordinary drawing-only content through registered commands and atomic Preview/Apply.
+4. Honest editable reconstruction into ordinary drawing-only content through registered commands and automatic one-transaction commit after an explicit create request.
 5. Conversational edits through the same manual command registry.
 6. Beta/security/performance closeout and downloadable YouTube-ready video export.
 
-The delivery target is one phase/day plus one correction/publication buffer day. It does not bypass the per-phase Spec Executor → Arthur/PM acceptance → CPA → separate publication/integration → cleanup lifecycle. Arthur rejected the first Phase 1 result after its basic greeting flow failed; D-0088 preserves/cleans it. D-0089 accepts the fresh exact 19-path correction, and D-0090 records GIT-070 publication/integration, proof preservation and D-0054 cleanup. Phase 1 is fully closed. D-0091 keeps exactly six phases and places bounded hosted internet research inside Phase 2 without reopening Phase 1. The correction package requires review and separate publication before any Phase 2 authorization; live search and live video-provider use each keep a dated access/privacy/cost gate. Phases 2–6 are still unauthorized.
+The delivery target is one phase/day plus one correction/publication buffer day. It does not bypass the per-phase Spec Executor → Arthur/PM acceptance → CPA → separate publication/integration → cleanup lifecycle. Arthur rejected the first Phase 1 result after its basic greeting flow failed; D-0088 preserves/cleans it. D-0089 accepts the fresh exact 19-path correction, and D-0090 records GIT-070 publication/integration, proof preservation and D-0054 cleanup. Phase 1 is fully closed. D-0091 keeps exactly six phases and places bounded hosted internet research inside Phase 2 without reopening Phase 1; GIT-072 `9b4b116d24b076b1c05d91a02fd7318ae5a44148` publishes that correction. D-0092 makes a clear explicit create/edit message authorize the later bounded mutation job: the app validates an isolated candidate internally, commits the complete result atomically without a second Preview/Apply gate, shows the current project, and relies on Undo/Redo for correction. Active work remains cancellable before commit; plan-only, ambiguity, destructive-intent and no-mutation failure rules remain protected. D-0092 requires review and separate publication before any Phase 2 authorization; live search and live video-provider use each keep a dated access/privacy/cost gate. Phases 2–6 are still unauthorized.
 
 ## Phase 0 — Preserve and Stabilize
 
@@ -103,7 +103,7 @@ Status: planned
 Goals:
 
 - publish the AI command-to-executor support matrix
-- define preview, apply, undo, rollback, partial failure, and destructive confirmation semantics
+- enforce explicit-message authorization, internal candidate validation, automatic atomic commit, Undo/Redo, rollback, partial-failure, active-cancel and destructive-intent semantics
 - let AI create and revise real figures, poses, timing, scenes, and continuity through the shared project model
 - measure character/scene continuity and temporal quality across multi-turn requests
 - introduce explicit cost, latency, model-routing, retry, and credit budgets

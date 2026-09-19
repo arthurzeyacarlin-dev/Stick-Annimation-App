@@ -1,7 +1,7 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-19 for D-0091's planning-only SPEC-0008 Phase 2 internet-research correction from exact base `888aae769e67e08adb1862c81f21bec171fd0592`; Phase 1 remains closed at exact GIT-070 `76708645c96b3b0ea95c524f162bb6152d539fcf`.
+Last traced: 2026-09-19 for D-0092's documentation-only SPEC-0008 automatic-commit correction from exact published GIT-072 base `9b4b116d24b076b1c05d91a02fd7318ae5a44148`; Phase 1 remains closed at exact GIT-070 `76708645c96b3b0ea95c524f162bb6152d539fcf`.
 
 ## Published SPEC-0008 Phase 1 architecture
 
@@ -11,11 +11,11 @@ The accepted visual shell keeps unboxed assistant replies, fast reveal, reduced-
 
 ## Proposed SPEC-0008 Phase 2–6 target architecture — not implemented
 
-D-0085/D-0091 define one replaceable, one-way workflow: workspace conversation → optional bounded fixed-Terra hosted `web_search` → cited `inspiration-brief/v1` → Terra intent/shot plan → persistent streamed job ledger → provider-neutral reference-video boundary or validated upload → deterministic frame slicer → editable reconstruction planner → registered-command Preview/Apply executor → existing `DrawingWorkspace` V2 coordinator/history/repository → canonical Save/Open → deterministic video exporter.
+D-0085/D-0091/D-0092 define one replaceable, one-way workflow: workspace conversation → optional bounded fixed-Terra hosted `web_search` → cited `inspiration-brief/v1` → Terra intent/shot plan → persistent streamed job ledger → provider-neutral reference-video boundary or validated upload → deterministic frame slicer → editable reconstruction planner → internally validated registered-command candidate → automatic atomic commit after an explicit create/edit request → existing `DrawingWorkspace` V2 coordinator/history/repository → resulting current project → canonical Save/Open → deterministic video exporter.
 
 Phase 2 search uses only the Responses hosted `web_search` tool with exact model `gpt-5.6-terra`; it does not add arbitrary URL fetch, legacy `web_search_preview`, the existing `/api/ai` DuckDuckGo fetch/parser, custom crawling/scraping, social-video download or model/provider fallback. Web results remain untrusted input. Search output is a schema-validated project/job/generation-bound brief with visible clickable citations and observed-versus-inferred high-level inspiration only. Inaccessible YouTube/TikTok/social motion evidence falls back truthfully to validated local MP4/WebM plus ownership/right-to-use acknowledgment.
 
-The search tool, provider, decoder/slicer and reconstruction planner never own authored state. Intermediate brief/video/frame/reconstruction artifacts are isolated, content-addressed and project-generation bound. The only authored commit door is an atomic registered-command batch entering the existing V2 owner after explicit Apply; Cancel/failure/stale leaves the original byte-equivalent. No structured rig/topology or second mutation engine returns. This later architecture remains unimplemented; D-0091's control-plane correction awaits acceptance/publication and Phases 2–6 are unauthorized/not started.
+The search tool, provider, decoder/slicer and reconstruction planner never own authored state. Intermediate brief/video/frame/reconstruction artifacts are isolated, content-addressed and project-generation bound. The only authored commit door is an atomic registered-command batch entering the existing V2 owner after the current message unambiguously requests creation or editing and the internal candidate passes every validation. There is no user-facing Preview/Apply/post-generation Cancel gate. The active job can still be cancelled before the final compare-and-swap; cancellation/failure/stale/validation error leaves the original byte-equivalent. Success creates one global history entry, shows the resulting current project and uses Undo/Redo for correction. No structured rig/topology or second mutation engine returns. This later architecture remains unimplemented; D-0091's research correction is published in GIT-072, D-0092's transaction correction awaits separate publication, and Phases 2–6 are unauthorized/not started.
 
 ## Published SPEC-0007 Phase 1–5 extension
 

@@ -100,6 +100,8 @@ export type DrawingAiWorkspaceSoundSummary = {
 
 export type DrawingAiWorkspaceContext = {
   projectId: string | null;
+  workspaceIdentity: string;
+  projectGeneration: number;
   projectTitle: string;
   activeLayerId: string;
   activeLayerName: string;

@@ -1,5 +1,13 @@
 # Changelog
 
+### 2026-09-19 — Accept and technically verify corrected SPEC-0008 Phase 1 (D-0089)
+
+- Recorded Arthur's visible acceptance of the final `http://127.0.0.1:57120/` review copy and his separate instruction to record, integrate, commit and push it.
+- Accepted the exact 19-path correction from unchanged base `3da58e096dd748c7c3bd23fbb9271d53e33597ca`; immutable 26,698-byte manifest SHA-256 `80a5463775f498116389e49cb94d3282023355c6f7dd1bae9cc026a727916313` is PASS/VALID and rejected 40 mutations.
+- Recorded the fixed Terra-only one-chat/jobs path, natural bounded conversation, non-mutating create/edit readiness, accepted Thinking/reply presentation, and Arthur-authorized right-sidebar/timeline layout corrections.
+- Recorded 254 passing browser assertions, production build PASS, zero browser/external-request errors, preserved project/history/repository/canvas digests, and six authorized live Terra calls costing $0.010854 total.
+- GIT-070 publication/integration, proof preservation and D-0054 cleanup remain pending. Phases 2–6 remain unauthorized.
+
 ### 2026-09-19 — Reject and clean the first SPEC-0008 Phase 1 result; authorize one fresh correction (D-0088)
 
 - Recorded Arthur's visible FAIL: `hello` produced a generic animation-failure response and no gradient Thinking state, so the 13-path self-reported result is rejected, unpublished and non-reusable.

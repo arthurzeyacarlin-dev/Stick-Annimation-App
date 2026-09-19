@@ -3546,11 +3546,13 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
   const initialWorkspaceState = createDrawingWorkspaceInitialState(openedInitialProject, true);
   const [projectId, setProjectId] = useState<string | null>(initialWorkspaceState.projectId);
   const [projectTitle, setProjectTitle] = useState(initialWorkspaceState.projectTitle);
+  const [projectGeneration, setProjectGeneration] = useState(0);
   const [projectAiMemory, setProjectAiMemory] = useState<DrawingAiProjectMemory | null>(
     bindDrawingAiProjectMemoryToProject(openedInitialProject.aiMemory ?? null, initialWorkspaceState.projectId),
   );
   const [activeTool, setActiveTool] = useState<DrawingToolName>(initialWorkspaceState.activeTool);
   const [drawingToolActivationId, setDrawingToolActivationId] = useState(0);
+  const [rightPanelWidth, setRightPanelWidth] = useState(420);
   const [brushSize, setBrushSize] = useState(initialWorkspaceState.brushSize);
   const [eraserSize, setEraserSize] = useState(initialWorkspaceState.eraserSize);
   const [fillColor, setFillColor] = useState(initialWorkspaceState.fillColor);
@@ -4057,6 +4059,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
   useEffect(() => {
     setProjectId(openedInitialProject.id);
     setProjectTitle(openedInitialProject.name ?? initialTitle);
+    setProjectGeneration(0);
     setProjectAiMemory(bindDrawingAiProjectMemoryToProject(openedInitialProject.aiMemory ?? null, openedInitialProject.id));
     setSaveState(unifiedProject.revision > 0 ? "saved" : "not-saved");
   }, [initialProject, openedInitialProject, initialTitle, unifiedProject]);
@@ -4183,6 +4186,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
       return;
     }
     documentGenerationRef.current += 1;
+    setProjectGeneration(documentGenerationRef.current);
     setSaveState((current) => current === "saving" ? current : "unsaved");
   }, [
     activeLayerId,
@@ -8324,6 +8328,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
 
     return {
       projectId,
+      workspaceIdentity: projectId ?? openedInitialProject.id,
+      projectGeneration,
       projectTitle,
       activeLayerId: activeLayerForContext?.id ?? activeLayerId,
       activeLayerName: activeLayerForContext?.name ?? "Layer",
@@ -8374,7 +8380,9 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
     currentFrameIndex,
     getDrawingCanvas,
     layers.length,
+    openedInitialProject.id,
     projectId,
+    projectGeneration,
     projectTitle,
     selectedTimelineIndex,
     timelineFps,
@@ -8970,7 +8978,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
       <div
         ref={workspaceAreaRef}
         data-unified-workspace-area="true"
-        style={{ flex: 1, minHeight: 0, position: "relative", display: "flex" }}
+        style={{ flex: 1, minHeight: 0, position: "relative", zIndex: 10, display: "flex" }}
       >
         {isTimelinePlaying && (
           <div
@@ -9012,6 +9020,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
           onFillColorChange={setFillColor}
           onShapeTypeChange={setShapeType}
           onTextObjectsChange={handleTextObjectsChange}
+          onRightPanelWidthChange={setRightPanelWidth}
           unifiedSymbolDefinitions={unifiedCatalogs.symbols}
           unifiedProjectAssets={unifiedCatalogs.assets}
           unifiedSymbolInstances={activeUnifiedSymbolInstances}
@@ -9092,7 +9101,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
           </svg>
         )}
       </div>
-      <DrawingToolBar activeTool={activeTool} onToolSelect={activateDrawingTool} />
+      <DrawingToolBar activeTool={activeTool} onToolSelect={activateDrawingTool} rightPanelWidth={rightPanelWidth} />
     </div>
     </>
   );

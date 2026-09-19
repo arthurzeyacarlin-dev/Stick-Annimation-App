@@ -7,6 +7,8 @@
 ./app/ScrollbarActivity.tsx
 ./app/api
 ./app/api/ai
+./app/api/ai-animator
+./app/api/ai-animator/route.ts
 ./app/api/ai/route.ts
 ./app/api/drawing-project-ai-memory
 ./app/api/drawing-project-ai-memory/route.ts
@@ -273,6 +275,9 @@
 ./scripts/fixtures/spec0007-manual/phase-4/contract.json
 ./scripts/fixtures/spec0007-manual/phase-5
 ./scripts/fixtures/spec0007-manual/phase-5/contract.json
+./scripts/fixtures/spec0008-ai-animator
+./scripts/fixtures/spec0008-ai-animator/v1
+./scripts/fixtures/spec0008-ai-animator/v1/semantic-cases.json
 ./scripts/fixtures/stick-ai
 ./scripts/fixtures/stick-ai/v1
 ./scripts/fixtures/stick-ai/v1/canonical-hash-vectors.json
@@ -473,6 +478,12 @@
 ./scripts/spec0007-manual/phase-5/recordProof.ts
 ./scripts/spec0007-manual/phase-5/staticOracle.ts
 ./scripts/spec0007-manual/phase-5/validateProof.ts
+./scripts/spec0008-ai-animator
+./scripts/spec0008-ai-animator/phase1BrowserProof.ts
+./scripts/spec0008-ai-animator/phase1LiveTerraSmoke.ts
+./scripts/spec0008-ai-animator/recordPhase1Proof.ts
+./scripts/spec0008-ai-animator/validatePhase1Contract.ts
+./scripts/spec0008-ai-animator/validatePhase1Proof.ts
 ./scripts/sync_docs_to_github.sh
 ./scripts/traceExplosionLivePath.ts
 ./scripts/traceGenerateSoundsLivePath.mjs
@@ -557,6 +568,9 @@
 ./src/lib/ai/DrawingWorkspaceTask_GenerateSoundStore.ts
 ./src/lib/ai/DrawingWorkspaceTask_Other.ts
 ./src/lib/ai/DrawingWorkspaceTask_OtherStore.ts
+./src/lib/ai/aiAnimatorContract.ts
+./src/lib/ai/aiAnimatorJobService.ts
+./src/lib/ai/aiAnimatorStorage.ts
 ./src/lib/ai/devAiCostDashboard.ts
 ./src/lib/ai/drawingAiContract.ts
 ./src/lib/ai/drawingAiControlPreferences.ts
@@ -627,6 +641,7 @@
 ./src/lib/drawingProjectV2Repository.ts
 ./src/lib/openai
 ./src/lib/openai/client.ts
+./src/lib/openai/generateAiAnimatorReply.ts
 ./src/lib/openai/generateAiText.ts
 ./src/lib/stickProjectStorage.ts
 ./src/lib/stickfigure

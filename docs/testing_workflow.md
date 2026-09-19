@@ -1,15 +1,23 @@
 # Verification and Regression Workflow
 
 Status: canonical proof standard and current gate baseline
-Last updated: 2026-09-18
+Last updated: 2026-09-19
 
-## Proposed SPEC-0008 proof contract — no implementation evidence yet
+## Accepted SPEC-0008 Phase 1 correction proof — publication pending
 
-D-0085's [`SPEC-0008`](specs/0008-conversational-ai-animator.md) is Proposed/review-ready with all six phases unauthorized/not started. Each future phase requires an immutable phase manifest binding exact source/fixture/test/evidence hashes; browser-visible behavior; job/event/network/provider/paid ledgers; project/history/repository/artifact digests; failure/cancel/stale/concurrency injection; scoped type/lint/build; performance/accessibility/security/cost gates owned by that phase; protected manual/persistence regressions; independent negative manifest mutations; and explicit proven/not-proven/human-acceptance fields.
+D-0089 accepts and technically verifies the exact 19-path Phase 1 correction from unchanged base/HEAD `3da58e096dd748c7c3bd23fbb9271d53e33597ca`, empty index. Immutable 26,698-byte manifest `output/spec-0008/phase-1/proof-manifest.json` is PASS/VALID at SHA-256 `80a5463775f498116389e49cb94d3282023355c6f7dd1bae9cc026a727916313`, aggregate source SHA-256 `59b985054243e83b177be241fe55c05634a6b5f278ea981e2d69203c3c6d330a`; independent validation rejected 40 mutations.
+
+Source TypeScript, focused lint, Phase 1 contract, protected Drawing V1/V2 storage/memory/browser-engine and timeline playback checks, diff checks and production build `pEecesY-BkoQ2ZdbBifLL` passed. Browser proof passed 254 assertions across desktop, compact and reduced-motion profiles, including 18 deterministic captured requests, exact model/effort/task-picker absence, natural conversation/create/edit/clarify routing, cancel/fail/reconnect/project isolation, accepted Thinking/reply presentation, sidebar resize, timeline overlay and manual-tool regressions. It recorded zero external requests and zero errors while preserving project/history/repository/canvas digests. Six authorized live text-only Terra requests cost $0.010854 total under the $0.50 ceiling, with exact `gpt-5.6-terra`, no search/tools and no raster/assets/full-project payloads.
+
+The executor manifest honestly retains `humanAcceptance: pending Arthur`, `controlPlaneUpdated: false` and `gitPublication: false`; D-0089 records the later acceptance. CPA reran the unchanged strict validator before propagation (PASS/VALID, 40 mutation rejections). After the 14 reviewed control-plane/tree paths were added, that exact-dirty-set validator correctly rejected the expanded set; a separate offline recheck passed all 19 source bindings, 22 artifact bindings and the base-commit spec binding. Compact is Chromium emulation rather than physical-device/native-GPU proof. Active provider jobs do not resume across a full server process restart and become honest recoverable failures. GIT-070 publication, proof preservation and D-0054 cleanup remain pending.
+
+## SPEC-0008 later-phase proof contract
+
+Each later phase requires an immutable phase manifest binding exact source/fixture/test/evidence hashes; browser-visible behavior; job/event/network/provider/paid ledgers; project/history/repository/artifact digests; failure/cancel/stale/concurrency injection; scoped type/lint/build; performance/accessibility/security/cost gates owned by that phase; protected manual/persistence regressions; independent negative manifest mutations; and explicit proven/not-proven/human-acceptance fields.
 
 Phase 1 must prove fixed Terra/no-fallback intent and persistent streaming while project bytes/history remain unchanged. Phase 2 must prove normalized reference-video lifecycle, upload validation and representative-frame/metadata verification without mutation. Phase 3 must use **Animating** only for deterministic reference-video cutting/slicing and reproduce byte-identical ordered timing/shot-bound bundles. Phase 4 must use **Working** for editable-content reconstruction and prove non-hardcoded ordinary reconstruction cases plus atomic failure at every command boundary. Phase 5 must use **Working** for registered edit-command preparation and prove real conversational edit classes through registered commands. Phase 6 must run the black-vs-red and alien/UFO stories plus the follow-up edit end to end, validate the separately approved downloadable YouTube-ingestible format/encoder, close auth/ownership/rate/privacy/retention/spend gates and prove no partial data. Status stages must be skipped when their subsystem is not invoked, and determinate progress must come only from real measurements. Mock/provider-free proof and any separately authorized live event must be reported separately.
 
-No SPEC-0008 proof exists merely because this contract is written. Existing accepted SPEC-0006/0007 proof remains the regression floor.
+No later-phase SPEC-0008 proof exists merely because this contract is written. Existing accepted Phase 1 and SPEC-0006/0007 proof remain the regression floor.
 
 ## Accepted SPEC-0007 Phase 5 final manual-editor proof
 

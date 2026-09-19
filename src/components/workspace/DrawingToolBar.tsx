@@ -5,25 +5,29 @@ export type DrawingShapeType = "Square" | "Triangle" | "Circle";
 type DrawingToolBarProps = {
   activeTool: DrawingToolName;
   onToolSelect: (tool: DrawingToolName) => void;
+  rightPanelWidth: number;
 };
 
 export function DrawingToolBar({
   activeTool,
   onToolSelect,
+  rightPanelWidth,
 }: DrawingToolBarProps) {
   return (
     <div
+      data-workspace-tool-bar="true"
       style={{
         height: 56,
-        width: "calc(100% - min(420px, 46vw) + 1px)",
+        width: `calc(100% - ${rightPanelWidth}px)`,
+        boxSizing: "border-box",
         borderTop: "1px solid rgba(255,255,255,0.08)",
         borderRight: "1px solid rgba(255,255,255,0.10)",
         background: "rgba(18,22,28,0.88)",
-        display: "flex",
+        display: "grid",
+        gridTemplateColumns: "repeat(8, minmax(42px, 1fr))",
         alignItems: "center",
-        justifyContent: "space-evenly",
-        padding: "0 18px",
-        gap: 10,
+        padding: 0,
+        gap: 0,
         flexShrink: 0,
       }}
     >
@@ -31,8 +35,9 @@ export function DrawingToolBar({
         const isSelected = activeTool === t;
 
         return (
-          <div key={t} style={{ position: "relative" }}>
+          <div key={t} style={{ position: "relative", display: "flex", justifyContent: "center", minWidth: 42 }}>
             <button
+              data-workspace-tool={t.toLowerCase()}
               type="button"
               title={t}
               onClick={() => onToolSelect(t)}

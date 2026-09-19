@@ -1,4 +1,4 @@
-import type { ReactNode, RefObject } from "react";
+import type { KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent, ReactNode, RefObject } from "react";
 
 import { DrawingAiPanel } from "./ai/DrawingAiPanel";
 import type { DrawingAiActionPlan, DrawingAiProjectMemory, DrawingAiWorkspaceContext } from "@/src/lib/ai/drawingAiContract";
@@ -22,6 +22,16 @@ type DrawingRightPanelProps = {
   brushToolsMenuPosition: { left: number; width: number; top: number } | null;
   brushToolVariant: BrushToolVariant;
   onBrushToolSelect: (tool: BrushToolVariant) => void;
+  panelWidth: number;
+  panelMinWidth: number;
+  panelMaxWidth: number;
+  panelDefaultWidth: number;
+  panelResizing: boolean;
+  onPanelResizePointerDown: (event: ReactPointerEvent<HTMLDivElement>) => void;
+  onPanelResizePointerMove: (event: ReactPointerEvent<HTMLDivElement>) => void;
+  onPanelResizePointerEnd: (event: ReactPointerEvent<HTMLDivElement>) => void;
+  onPanelResizeKeyDown: (event: ReactKeyboardEvent<HTMLDivElement>) => void;
+  onPanelResizeReset: () => void;
   workspaceContext?: DrawingAiWorkspaceContext | null;
   projectAiMemory?: DrawingAiProjectMemory | null;
   onProjectAiMemoryChange?: (memory: DrawingAiProjectMemory | null) => void;
@@ -43,6 +53,16 @@ export function DrawingRightPanel({
   brushToolsMenuPosition,
   brushToolVariant,
   onBrushToolSelect,
+  panelWidth,
+  panelMinWidth,
+  panelMaxWidth,
+  panelDefaultWidth,
+  panelResizing,
+  onPanelResizePointerDown,
+  onPanelResizePointerMove,
+  onPanelResizePointerEnd,
+  onPanelResizeKeyDown,
+  onPanelResizeReset,
   workspaceContext = null,
   projectAiMemory = null,
   onProjectAiMemoryChange,
@@ -52,18 +72,55 @@ export function DrawingRightPanel({
   return (
     <div
       ref={rightPanelRef}
+      className="drawing-right-panel"
+      data-workspace-right-panel="true"
       style={{
-        width: 420,
-        maxWidth: "46vw",
-        borderLeft: "1px solid rgba(255,255,255,0.10)",
+        width: panelWidth,
+        flex: `0 0 ${panelWidth}px`,
+        maxWidth: "none",
+        borderLeft: 0,
         background: "rgba(18,22,28,0.92)",
         display: "flex",
         flexDirection: "column",
         minHeight: 0,
-        position: "relative",
+        position: "absolute",
+        inset: "0 0 0 auto",
+        zIndex: 20,
       }}
     >
       <style>{`
+        .drawing-right-panel-resizer::after {
+          content: "";
+          position: absolute;
+          inset: 0 auto 0 4px;
+          width: 1px;
+          background: rgba(255,255,255,0.18);
+          transition: background-color 120ms ease, box-shadow 120ms ease;
+        }
+
+        .drawing-right-panel-resizer:hover::after,
+        .drawing-right-panel-resizer:focus-visible::after,
+        .drawing-right-panel-resizer[data-resizing="true"]::after {
+          background: rgba(110,170,255,0.88);
+          box-shadow: 0 0 8px rgba(70,140,255,0.34);
+        }
+
+        .drawing-right-panel-resizer:focus-visible {
+          outline: 2px solid rgba(110,170,255,0.72);
+          outline-offset: -2px;
+        }
+
+        @media (max-width: 640px) {
+          .drawing-right-panel {
+            position: relative !important;
+            inset: auto !important;
+          }
+
+          .drawing-right-panel-resizer {
+            display: none !important;
+          }
+        }
+
         .workspace-properties-scroll {
           scrollbar-width: thin;
           scrollbar-color: rgba(255,255,255,0.18) rgba(18,22,28,0.92);
@@ -87,6 +144,37 @@ export function DrawingRightPanel({
           background: rgba(255,255,255,0.24);
         }
       `}</style>
+
+      <div
+        role="separator"
+        aria-label="Resize workspace sidebar"
+        aria-orientation="vertical"
+        aria-valuemin={panelMinWidth}
+        aria-valuemax={panelMaxWidth}
+        aria-valuenow={panelWidth}
+        aria-valuetext={`${panelWidth} pixels; default ${panelDefaultWidth} pixels`}
+        tabIndex={0}
+        className="drawing-right-panel-resizer"
+        data-workspace-right-panel-resizer="true"
+        data-resizing={panelResizing ? "true" : "false"}
+        title="Drag to resize. Arrow keys resize; Enter or double-click resets."
+        onPointerDown={onPanelResizePointerDown}
+        onPointerMove={onPanelResizePointerMove}
+        onPointerUp={onPanelResizePointerEnd}
+        onPointerCancel={onPanelResizePointerEnd}
+        onLostPointerCapture={onPanelResizePointerEnd}
+        onKeyDown={onPanelResizeKeyDown}
+        onDoubleClick={onPanelResizeReset}
+        style={{
+          position: "absolute",
+          inset: "0 auto 0 -5px",
+          width: 10,
+          zIndex: 50,
+          cursor: "col-resize",
+          touchAction: "none",
+          userSelect: "none",
+        }}
+      />
 
       <div
         ref={rightPanelTabsRef}
@@ -128,6 +216,7 @@ export function DrawingRightPanel({
 
       <div
         className="workspace-properties-scroll"
+        data-workspace-right-panel-content={rightPanelTab.toLowerCase()}
         style={{
           flex: "0 0 45%",
           maxHeight: "100%",

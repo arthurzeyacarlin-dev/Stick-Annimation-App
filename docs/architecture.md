@@ -1,13 +1,19 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-18 for D-0085 Proposed SPEC-0008 from clean canonical-main basis `f923c35aa13cfd476e712f4ead89419263fc0893`; no runtime change.
+Last traced: 2026-09-19 for D-0089 accepted SPEC-0008 Phase 1 correction from exact base `3da58e096dd748c7c3bd23fbb9271d53e33597ca`; GIT-070 publication pending.
 
-## Proposed SPEC-0008 target architecture — not implemented
+## Accepted SPEC-0008 Phase 1 architecture — publication pending
+
+D-0089 accepts one ordinary AI Animator chat whose sole production request door is `/api/ai-animator`. The route normalizes the bounded request and delegates to `AiAnimatorJobService`, which owns exact `gpt-5.6-terra` provider identity, one active job per workspace, two active jobs per environment, monotonic Thinking/Planning/terminal events, explicit cancellation and a 90-second deadline. `generateAiAnimatorReply.ts` uses Responses strict structured output with the exact visible reasoning effort, no tools/search/store, and only the user turn, bounded recent conversation and minimized workspace metadata. `aiAnimatorStorage.ts` persists a bounded project-scoped transcript/terminal-job ledger outside authored animation/history/version bytes. Create/edit intent remains a non-mutating readiness result in Phase 1.
+
+The accepted visual shell keeps unboxed assistant replies, fast reveal, reduced-motion text and full-label sequential Thinking sweeps. The same accepted package includes Arthur-authorized presentation mechanics: an overlay right sidebar limited to 280–520 px with 420 px default/snap, unchanged centered canvas stage geometry, a toolbar ending at the panel edge, and expanded timeline lanes layered above the canvas/sidebar while ordinary timeline mutations retain their existing owner. These bytes are accepted/technically Verified but are not canonical-main runtime until GIT-070 publication.
+
+## Proposed SPEC-0008 Phase 2–6 target architecture — not implemented
 
 D-0085 proposes one replaceable, one-way workflow: workspace conversation → fixed Terra intent/plan service → persistent streamed job ledger → provider-neutral reference-video boundary or validated upload → deterministic frame slicer → editable reconstruction planner → registered-command Preview/Apply executor → existing `DrawingWorkspace` V2 coordinator/history/repository → canonical Save/Open → deterministic video exporter.
 
-The provider, decoder/slicer and reconstruction planner never own authored state. Intermediate video/frame/reconstruction artifacts are isolated, content-addressed and project-generation bound. The only authored commit door is an atomic registered-command batch entering the existing V2 owner after explicit Apply; Cancel/failure/stale leaves the original byte-equivalent. No structured rig/topology or second mutation engine returns. This is Proposed architecture only; Phases 1–6 are all unauthorized/not started.
+The provider, decoder/slicer and reconstruction planner never own authored state. Intermediate video/frame/reconstruction artifacts are isolated, content-addressed and project-generation bound. The only authored commit door is an atomic registered-command batch entering the existing V2 owner after explicit Apply; Cancel/failure/stale leaves the original byte-equivalent. No structured rig/topology or second mutation engine returns. This later architecture remains unimplemented; Phases 2–6 are unauthorized/not started.
 
 ## Published SPEC-0007 Phase 1–5 extension
 

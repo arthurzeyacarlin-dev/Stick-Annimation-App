@@ -544,6 +544,7 @@ type DrawingCanvasProps = {
   onFillColorChange: (color: string) => void;
   onShapeTypeChange: (shapeType: DrawingShapeType) => void;
   onTextObjectsChange?: (nextTextObjects: DrawingTextObject[]) => boolean;
+  onRightPanelWidthChange?: (width: number) => void;
   workspaceContext?: DrawingAiWorkspaceContext | null;
   projectAiMemory?: DrawingAiProjectMemory | null;
   onProjectAiMemoryChange?: (memory: DrawingAiProjectMemory | null) => void;
@@ -663,6 +664,13 @@ const ONION_TINT_STYLES: Record<OnionTintKind, { fillStyle: string }> = {
   },
 };
 const ONION_TEXT_MASK_COLOR = "#000000";
+const RIGHT_PANEL_MIN_WIDTH = 280;
+const RIGHT_PANEL_DEFAULT_WIDTH = 420;
+const RIGHT_PANEL_MAX_WIDTH = 520;
+const RIGHT_PANEL_MIN_WORKSPACE_WIDTH = 360;
+const RIGHT_PANEL_SNAP_THRESHOLD = 16;
+const RIGHT_PANEL_COMPACT_BREAKPOINT = 640;
+const RIGHT_PANEL_KEYBOARD_STEP = 12;
 
 const SHAPE_TYPES: DrawingShapeType[] = ["Square", "Triangle", "Circle"];
 const ENABLE_MOTION_TWEEN_DEBUG =
@@ -1707,6 +1715,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   onFillColorChange,
   onShapeTypeChange,
   onTextObjectsChange,
+  onRightPanelWidthChange,
   workspaceContext = null,
   projectAiMemory = null,
   onProjectAiMemoryChange,
@@ -1927,17 +1936,144 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   const [knifePath, setKnifePath] = useState<LassoPoint[]>([]);
   const [activeKnifePieces, setActiveKnifePieces] = useState<ActiveKnifePiece[]>([]);
   const [activeKnifePieceId, setActiveKnifePieceId] = useState<string | null>(null);
+  const workspaceSplitRef = useRef<HTMLDivElement | null>(null);
   const rightPanelRef = useRef<HTMLDivElement | null>(null);
   const rightPanelTabsRef = useRef<HTMLDivElement | null>(null);
+  const rightPanelResizeRef = useRef<{ pointerId: number; startX: number; startWidth: number } | null>(null);
+  const [rightPanelWidth, setRightPanelWidth] = useState(RIGHT_PANEL_DEFAULT_WIDTH);
+  const [rightPanelBounds, setRightPanelBounds] = useState({
+    min: RIGHT_PANEL_MIN_WIDTH,
+    max: RIGHT_PANEL_MAX_WIDTH,
+    defaultWidth: RIGHT_PANEL_DEFAULT_WIDTH,
+  });
+  const [rightPanelResizing, setRightPanelResizing] = useState(false);
   const brushToolsButtonRef = useRef<HTMLButtonElement | null>(null);
   const brushToolsMenuRef = useRef<HTMLDivElement | null>(null);
   const [brushToolsMenuPosition, setBrushToolsMenuPosition] = useState<{ left: number; width: number; top: number } | null>(null);
   const [onionOverlayVersion, setOnionOverlayVersion] = useState(0);
   const [authoringSurfaceVersion, setAuthoringSurfaceVersion] = useState(0);
 
+  useEffect(() => {
+    onRightPanelWidthChange?.(rightPanelWidth);
+  }, [onRightPanelWidthChange, rightPanelWidth]);
+
   const invalidateAuthoringMetrics = useCallback(() => {
     authoringMetricsRef.current = null;
   }, []);
+
+  const measureRightPanelBounds = useCallback(() => {
+    const splitWidth = workspaceSplitRef.current?.getBoundingClientRect().width ?? window.innerWidth;
+    const max = Math.max(
+      RIGHT_PANEL_MIN_WIDTH,
+      Math.min(RIGHT_PANEL_MAX_WIDTH, Math.floor(splitWidth - RIGHT_PANEL_MIN_WORKSPACE_WIDTH)),
+    );
+    return {
+      min: RIGHT_PANEL_MIN_WIDTH,
+      max,
+      defaultWidth: Math.min(RIGHT_PANEL_DEFAULT_WIDTH, max),
+    };
+  }, []);
+
+  const publishRightPanelBounds = useCallback((bounds: ReturnType<typeof measureRightPanelBounds>) => {
+    setRightPanelBounds((current) =>
+      current.min === bounds.min && current.max === bounds.max && current.defaultWidth === bounds.defaultWidth
+        ? current
+        : bounds,
+    );
+  }, []);
+
+  const resolveRightPanelWidth = useCallback((requestedWidth: number, snapToDefault = true) => {
+    const bounds = measureRightPanelBounds();
+    publishRightPanelBounds(bounds);
+    const clamped = Math.min(bounds.max, Math.max(bounds.min, Math.round(requestedWidth)));
+    return snapToDefault && Math.abs(clamped - bounds.defaultWidth) <= RIGHT_PANEL_SNAP_THRESHOLD
+      ? bounds.defaultWidth
+      : clamped;
+  }, [measureRightPanelBounds, publishRightPanelBounds]);
+
+  useLayoutEffect(() => {
+    const split = workspaceSplitRef.current;
+    if (!split) return;
+    const updateBounds = () => {
+      if (window.innerWidth <= RIGHT_PANEL_COMPACT_BREAKPOINT) return;
+      const bounds = measureRightPanelBounds();
+      publishRightPanelBounds(bounds);
+      setRightPanelWidth((current) => Math.min(bounds.max, Math.max(bounds.min, current)));
+    };
+    updateBounds();
+    const observer = new ResizeObserver(updateBounds);
+    observer.observe(split);
+    window.addEventListener("resize", updateBounds);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", updateBounds);
+    };
+  }, [measureRightPanelBounds, publishRightPanelBounds]);
+
+  useEffect(() => {
+    if (!rightPanelResizing) return;
+    const previousCursor = document.body.style.cursor;
+    const previousUserSelect = document.body.style.userSelect;
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+    return () => {
+      document.body.style.cursor = previousCursor;
+      document.body.style.userSelect = previousUserSelect;
+    };
+  }, [rightPanelResizing]);
+
+  const startRightPanelResize = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
+    if (!event.isPrimary || event.button !== 0 || window.innerWidth <= RIGHT_PANEL_COMPACT_BREAKPOINT) return;
+    event.preventDefault();
+    event.stopPropagation();
+    rightPanelResizeRef.current = { pointerId: event.pointerId, startX: event.clientX, startWidth: rightPanelWidth };
+    setRightPanelResizing(true);
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }, [rightPanelWidth]);
+
+  const moveRightPanelResize = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
+    const resize = rightPanelResizeRef.current;
+    if (!resize || resize.pointerId !== event.pointerId) return;
+    event.preventDefault();
+    event.stopPropagation();
+    setRightPanelWidth(resolveRightPanelWidth(resize.startWidth - (event.clientX - resize.startX)));
+  }, [resolveRightPanelWidth]);
+
+  const endRightPanelResize = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
+    const resize = rightPanelResizeRef.current;
+    if (!resize || resize.pointerId !== event.pointerId) return;
+    event.preventDefault();
+    event.stopPropagation();
+    rightPanelResizeRef.current = null;
+    setRightPanelResizing(false);
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+  }, []);
+
+  const resetRightPanelWidth = useCallback(() => {
+    const bounds = measureRightPanelBounds();
+    publishRightPanelBounds(bounds);
+    setRightPanelWidth(bounds.defaultWidth);
+  }, [measureRightPanelBounds, publishRightPanelBounds]);
+
+  const handleRightPanelResizeKeyDown = useCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
+    const step = event.shiftKey ? RIGHT_PANEL_KEYBOARD_STEP * 4 : RIGHT_PANEL_KEYBOARD_STEP;
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      setRightPanelWidth((current) => resolveRightPanelWidth(current + step, false));
+    } else if (event.key === "ArrowRight") {
+      event.preventDefault();
+      setRightPanelWidth((current) => resolveRightPanelWidth(current - step, false));
+    } else if (event.key === "Home") {
+      event.preventDefault();
+      setRightPanelWidth(measureRightPanelBounds().min);
+    } else if (event.key === "End") {
+      event.preventDefault();
+      setRightPanelWidth(measureRightPanelBounds().max);
+    } else if (event.key === "Enter" || event.key === "0") {
+      event.preventDefault();
+      resetRightPanelWidth();
+    }
+  }, [measureRightPanelBounds, resetRightPanelWidth, resolveRightPanelWidth]);
 
   const getCanvasHostContentRect = useCallback((host: HTMLDivElement) => {
     const borderRect = host.getBoundingClientRect();
@@ -2100,8 +2236,13 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     };
 
     resizePlaybackCanvas();
+    const observer = new ResizeObserver(resizePlaybackCanvas);
+    observer.observe(host);
     window.addEventListener("resize", resizePlaybackCanvas);
-    return () => window.removeEventListener("resize", resizePlaybackCanvas);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", resizePlaybackCanvas);
+    };
   }, [getCanvasHostContentRect, playbackRenderScale]);
 
   useEffect(() => {
@@ -11074,10 +11215,34 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
 
   return (
     <>
-    <div style={{ flex: 1, display: "flex", minHeight: 0 }}>
-      <div style={{ flex: 1, minWidth: 0, padding: 14 }}>
+    <style>{`
+      @media (max-width: 640px) {
+        .drawing-canvas-area {
+          width: 100% !important;
+          transform: none !important;
+        }
+      }
+    `}</style>
+    <div
+      ref={workspaceSplitRef}
+      data-workspace-canvas-panel-split="true"
+      style={{ flex: 1, display: "flex", minHeight: 0, position: "relative" }}
+    >
+      <div
+        className="drawing-canvas-area"
+        data-workspace-canvas-area="true"
+        style={{
+          width: `calc(100% - ${rightPanelBounds.defaultWidth}px)`,
+          flex: `0 0 calc(100% - ${rightPanelBounds.defaultWidth}px)`,
+          transform: `translateX(${(rightPanelBounds.defaultWidth - rightPanelWidth) / 2}px)`,
+          boxSizing: "border-box",
+          minWidth: 0,
+          padding: 14,
+        }}
+      >
         <div
           ref={canvasHostRef}
+          data-workspace-canvas-host="true"
           onDragOver={handleCanvasDragOver}
           onDrop={handleCanvasDrop}
           style={{
@@ -11299,6 +11464,16 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
         brushToolsMenuRef={brushToolsMenuRef}
         brushToolsMenuPosition={brushToolsMenuPosition}
         brushToolVariant={brushToolVariant}
+        panelWidth={rightPanelWidth}
+        panelMinWidth={rightPanelBounds.min}
+        panelMaxWidth={rightPanelBounds.max}
+        panelDefaultWidth={rightPanelBounds.defaultWidth}
+        panelResizing={rightPanelResizing}
+        onPanelResizePointerDown={startRightPanelResize}
+        onPanelResizePointerMove={moveRightPanelResize}
+        onPanelResizePointerEnd={endRightPanelResize}
+        onPanelResizeKeyDown={handleRightPanelResizeKeyDown}
+        onPanelResizeReset={resetRightPanelWidth}
         onBrushToolSelect={(option) => {
           setBrushToolVariant(option);
           setBrushToolsMenuOpen(false);

@@ -20,6 +20,7 @@ export function WorkspaceAiPanelShell({
 }: WorkspaceAiPanelShellProps) {
   return (
     <div
+      className="workspace-ai-panel-shell"
       style={{
         flex: "0 0 55%",
         minHeight: 0,
@@ -53,6 +54,27 @@ export function WorkspaceAiPanelShell({
           background: rgba(255,255,255,0.24);
           border: 2px solid transparent;
           background-clip: padding-box;
+        }
+
+        @media (max-width: 600px) {
+          .workspace-ai-panel-shell {
+            position: fixed;
+            left: 8px;
+            right: 8px;
+            bottom: 66px;
+            height: min(46vh, 370px);
+            min-height: 280px;
+            z-index: 35;
+            border: 1px solid rgba(110,170,255,0.24);
+            border-radius: 14px;
+            overflow: hidden;
+            background: rgba(15,19,25,0.985);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.52);
+          }
+
+          .workspace-ai-tagline {
+            display: none;
+          }
         }
       `}</style>
 
@@ -155,6 +177,7 @@ export function WorkspaceAiPanelShell({
         </div>
 
         <div
+          className="workspace-ai-tagline"
           style={{
             fontSize: 12,
             color: "rgba(255,255,255,0.50)",

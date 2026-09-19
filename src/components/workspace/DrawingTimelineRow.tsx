@@ -542,11 +542,12 @@ export function DrawingTimelineRow({
   const scrollbarHeight = TIMELINE_BOTTOM_SCROLLBAR_HEIGHT;
   const collapsedRowsHeight = TIMELINE_MIN_PANEL_ROWS_HEIGHT;
   const resizeEdgeHeight = layers.length > 1 ? TIMELINE_RESIZE_EDGE_HEIGHT : 0;
-  const collapsedRightPanelHeight = TIMELINE_RULER_HEIGHT + collapsedRowsHeight + scrollbarHeight + resizeEdgeHeight;
+  const collapsedRightPanelHeight = TIMELINE_RULER_HEIGHT + collapsedRowsHeight + scrollbarHeight;
   const rightPanelHeight = TIMELINE_RULER_HEIGHT + timelineRowsHeight + scrollbarHeight + resizeEdgeHeight;
-  // The unified workspace keeps expanded lanes in its reserved layout space;
-  // they must not steal pointer targets from the canvas or panel tabs below.
-  const baselinePanelHeight = Math.max(TIMELINE_LEFT_RAIL_HEIGHT, responsiveLayout ? rightPanelHeight : collapsedRightPanelHeight);
+  // Desktop reserves only the collapsed strip. Expanded lanes remain an
+  // interactive overlay over the unchanged workspace below. Compact layout
+  // still reserves the full panel height through its media-query grid row.
+  const baselinePanelHeight = Math.max(TIMELINE_LEFT_RAIL_HEIGHT, collapsedRightPanelHeight);
 
   useEffect(() => {
     const viewport = frameLaneViewportRef.current;
@@ -720,18 +721,21 @@ export function DrawingTimelineRow({
     panelHeight,
     attachInteractionRefs,
     isOverlay,
+    panelResizeEdgeHeight,
   }: {
     rowsHeight: number;
     renderedLayers: TimelineLayer[];
     panelHeight: number;
     attachInteractionRefs: boolean;
     isOverlay: boolean;
+    panelResizeEdgeHeight: number;
   }) => {
     const rowLanesHeight = renderedLayers.length * TIMELINE_LAYER_ROW_HEIGHT;
     const showVerticalOverflow = rowsHeight > TIMELINE_MIN_PANEL_ROWS_HEIGHT && rowLanesHeight > rowsHeight + 1;
 
     return (
       <div
+        data-timeline-panel={isOverlay ? "overlay" : "baseline"}
         style={{
           position: isOverlay ? "absolute" : "relative",
           left: 0,
@@ -740,7 +744,7 @@ export function DrawingTimelineRow({
           height: panelHeight,
           overflow: "hidden",
           display: "grid",
-          gridTemplateRows: `${TIMELINE_RULER_HEIGHT}px ${rowsHeight}px ${TIMELINE_BOTTOM_SCROLLBAR_HEIGHT}px ${resizeEdgeHeight}px`,
+          gridTemplateRows: `${TIMELINE_RULER_HEIGHT}px ${rowsHeight}px ${TIMELINE_BOTTOM_SCROLLBAR_HEIGHT}px ${panelResizeEdgeHeight}px`,
           background: "rgb(26, 27, 36)",
           zIndex: isOverlay ? 20 : 1,
           border: isOverlay ? "1px solid rgba(255,255,255,0.1)" : "none",
@@ -904,6 +908,7 @@ export function DrawingTimelineRow({
                 return (
                   <div
                     key={`${isOverlay ? "overlay" : "baseline"}-${layer.id}`}
+                    data-timeline-layer-active={isActiveLayer ? "true" : "false"}
                     style={{
                       width: rulerWidth,
                       minWidth: rulerWidth,
@@ -914,6 +919,7 @@ export function DrawingTimelineRow({
                     }}
                   >
                     <div
+                      data-timeline-layer-row={layer.id}
                       style={{
                         position: "relative",
                         width: rulerWidth,
@@ -1267,8 +1273,9 @@ export function DrawingTimelineRow({
           )}
         </div>
 
-        {resizeEdgeHeight > 0 && (
+        {panelResizeEdgeHeight > 0 && (
           <div
+            data-timeline-panel-resizer="true"
             style={{
               width: "100%",
               height: resizeEdgeHeight,
@@ -1523,7 +1530,7 @@ export function DrawingTimelineRow({
           gridColumn: 2,
           flex: 1,
           minWidth: 0,
-          height: responsiveLayout ? rightPanelHeight : collapsedRightPanelHeight,
+          height: collapsedRightPanelHeight,
           marginLeft: 12,
           position: "relative",
           overflow: "visible",
@@ -1534,16 +1541,18 @@ export function DrawingTimelineRow({
           rowsHeight: collapsedRowsHeight,
           renderedLayers: activeLayer ? [activeLayer] : layers.slice(0, 1),
           panelHeight: collapsedRightPanelHeight,
-          attachInteractionRefs: !isExpanded,
+          attachInteractionRefs: layers.length <= 1,
           isOverlay: false,
+          panelResizeEdgeHeight: 0,
         })}
-        {isExpanded &&
+        {layers.length > 1 &&
           renderTimelineRightPanel({
             rowsHeight: timelineRowsHeight,
-            renderedLayers: layers,
+            renderedLayers: isExpanded ? layers : activeLayer ? [activeLayer] : layers.slice(0, 1),
             panelHeight: rightPanelHeight,
             attachInteractionRefs: true,
             isOverlay: true,
+            panelResizeEdgeHeight: resizeEdgeHeight,
           })}
 
         {contextMenu && (

@@ -1,11 +1,13 @@
 # AI System Snapshot
 
 Status: canonical current AI architecture and gap map
-Last traced: 2026-09-19 for D-0092's documentation-only automatic-commit correction from exact published GIT-072 base `9b4b116d24b076b1c05d91a02fd7318ae5a44148`. SPEC-0008 Phase 1 is fully closed; Phase 2 remains unimplemented and unauthorized.
+Last traced: 2026-09-20 for the D-0093/D-0094 documentation-only reconciliation from exact current-main base `42bfe1a2607a85a87d486e21d6e573b4e4084d5a`. SPEC-0008 Phase 1 is fully closed; Phases 2–6 are paused, Unauthorized, Not started and not rejected. SPEC-0009 is Proposed with no phase authorized.
 
-## Active SPEC-0008 transition (D-0085–D-0092)
+## Paused SPEC-0008 transition (D-0085–D-0093)
 
 [`SPEC-0008`](specs/0008-conversational-ai-animator.md) binds fixed `gpt-5.6-terra` Responses use for conversational intent/planning; Low/Medium/High/Extra High → `low`/`medium`/`high`/`xhigh`; Medium default on new/open; no task/model picker or model fallback; and persistent streamed job state. Phase 1 is closed and non-mutating. D-0091 integrates bounded hosted internet research into existing Phase 2 before its provider-neutral reference video/upload work; later gated phases retain deterministic frame slicing, honest ordinary drawing reconstruction, registered-command edits and beta/export closeout. The spec still has exactly six phases.
+
+D-0093 pauses every unimplemented phase before dispatch. D-0091's published web-research contract and D-0092's current-main automatic-commit contract remain historical planning material only; they authorize no executor, live/paid provider call, asset purchase or replacement architecture. Resumption requires Arthur's explicit direction, fresh evidence and post-Phase-1 architecture/spec reconciliation before any separate phase authorization.
 
 All authored changes remain isolated while an active job builds and validates its candidate. Under D-0092, an unambiguous explicit create/edit message is the authorization for one bounded mutation job: after complete validation and live-base recheck, the registry/V2 owner automatically commits the whole result as one global-history transaction and shows the current project. There is no second Preview/Apply/post-generation Cancel gate; active work remains cancellable before commit, failed/stale/invalid work remains non-mutating, and Undo/Redo corrects successful work. Planning stays non-mutating, material ambiguity asks one focused question, and destructive actions still need explicit exact intent through the registered destructive-command rules. Sora 2/OpenAI Videos is not selected: Arthur's dated planning input records it as deprecated with shutdown scheduled for 2026-09-24, and Phase 2 requires a fresh current-provider/access/cost/privacy decision before live use. D-0089 accepts the corrected Phase 1 implementation: six authorized short text-only Terra requests cost $0.010854 total under the $0.50 ceiling, with search/tools off, no project images/assets/full bytes and no automatic retry. D-0091 does not alter those bytes. It specifies only a future Phase 2 `web_search` extension with a cited `inspiration-brief/v1`, truthful **Searching the internet** lifecycle, no legacy DuckDuckGo/custom scraper, inaccessible-social-link local-upload fallback, and hard request/tool/source/token/time/spend limits. It grants no search/video-provider or real-user authority.
 
@@ -21,7 +23,11 @@ Arthur's later narrow presentation authority also accepts a 280–520 px resizab
 
 SPEC-0004 Phases 1, 2, and timing-only Phase 2.5 remain Verified, published, and integrated. Phase 2.6 remains rejected, unpublished, and superseded historical evidence. Under D-0055, unfinished Phases 3–8 are Superseded by future SPEC-0008, inactive, and must not be implemented.
 
-Current lifecycle update: all seven SPEC-0006 phases are Verified, published, and integrated through GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`, all five SPEC-0007 phases are closed through GIT-066, and SPEC-0008 Phase 1 is fully closed through D-0089/D-0090/GIT-070. D-0091's Phase 2 research contract is published/synchronized in GIT-072 `9b4b116d24b076b1c05d91a02fd7318ae5a44148`; D-0092's automatic-commit correction awaits separate publication. Phase 2 remains Unauthorized/Not started; Phases 3–6 remain unauthorized.
+Current lifecycle update: all seven SPEC-0006 phases are Verified, published and integrated through GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`; all five SPEC-0007 phases are closed through GIT-066; and SPEC-0008 Phase 1 is fully closed through D-0089/D-0090/GIT-070. D-0091's research contract is preserved in GIT-072 `9b4b116d24b076b1c05d91a02fd7318ae5a44148`, and D-0092's transaction contract is preserved in GIT-073/current-main `42bfe1a2607a85a87d486e21d6e573b4e4084d5a`. D-0093 pauses Phases 2–6 as Unauthorized/Not started/not rejected. D-0094's standalone [`SPEC-0009`](specs/0009-animation-export.md) is Proposed with exactly three unauthorized phases and no AI-system change.
+
+## Proposed SPEC-0009 export boundary — not implemented
+
+SPEC-0009 is an independent local manual export proposal. It reads one immutable validated saved revision through the existing collection/repository path, uses one canonical read-only evaluator for selected-animation playback and eventual export, and creates no authored project version/history/repository mutation. It makes no Terra/OpenAI/video-provider/social-network request, spends no AI credits, and does not modify this AI architecture. Its three phases remain Proposed and Unauthorized.
 
 ## What Exists Today
 

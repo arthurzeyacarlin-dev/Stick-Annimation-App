@@ -1,11 +1,11 @@
 # SPEC-0008 — Conversational AI Animator and Editable Video Reconstruction
 
-Status: **Approved/active; Phase 1 Verified/published/integrated/recorded/cleaned up through D-0089/D-0090/GIT-070; D-0091 Phase 2 research correction published in GIT-072; D-0092 automatic-commit correction review-ready but unpublished; Phase 2 Unauthorized/Not started; Phases 3–6 Unauthorized/Not started**
+Status: **Approved historical contract, paused after Phase 1 under D-0093; Phase 1 Verified/published/integrated/recorded/cleaned up through D-0089/D-0090/GIT-070; Phases 2–6 Paused/Unauthorized/Not started/not rejected**
 Owner: Arthur
 Task role: planning/control-plane architecture only; this task changes no runtime or technical proof
 Created: 2026-09-18
-Last updated: 2026-09-19
-Decision links: [D-0085, D-0086, D-0087, D-0088, D-0089, D-0090, D-0091 and D-0092](../DECISIONS.md)
+Last updated: 2026-09-20
+Decision links: [D-0085 through D-0093](../DECISIONS.md)
 TODO IDs: `PLAN-008`, `SPEC-008`, `AIANIM-001`–`AIANIM-006`
 Planning base: clean detached canonical-main SHA `f923c35aa13cfd476e712f4ead89419263fc0893`; index empty before edits
 Planning publication: GIT-067 commit `ba5ecd694df78414240ce83a9140c5196334ebdc`; 15 planning/control-plane/tree paths; no runtime change
@@ -232,6 +232,8 @@ An artifact from another job/project/generation is never adopted by coincidence,
 
 ## 8. Phase lifecycle, schedule target, and completion definition
 
+D-0093 pauses every unimplemented phase before dispatch. The schedule, contracts, D-0091 research refinement and D-0092 automatic-commit refinement below remain historical planning material only. They provide no current execution authority. Resumption requires Arthur's explicit direction, fresh evidence, architecture/spec reconciliation and a later separate phase authorization.
+
 SPEC-0008 has **exactly six implementation phases**. The planning target is one phase per day plus one correction/publication buffer day:
 
 | Target day | Work |
@@ -301,11 +303,11 @@ Candidate allowed families are the AI panel/shell, AI Animator-specific contract
 
 ## 10. Phase 2 — Internet research and provider-neutral reference-video preparation
 
-Status: **Unauthorized; Not started**
+Status: **Paused under D-0093; Unauthorized; Not started; not rejected**
 
 ### 10.1 Entry decision gate
 
-Phase 1 must remain fully closed. D-0091's correction is accepted, separately published, and cleanly synchronized in GIT-072 `9b4b116d24b076b1c05d91a02fd7318ae5a44148`. D-0092's automatic-commit correction must be accepted, separately published, and cleanly synchronized; Arthur must then separately authorize one fresh Plan-mode Phase 2 Spec Executor. Offline deterministic doubles are the mandatory implementation and proof path.
+Phase 1 must remain fully closed. D-0091's research contract is preserved in GIT-072 `9b4b116d24b076b1c05d91a02fd7318ae5a44148`, and D-0092's automatic-commit planning contract is preserved in current-main commit `42bfe1a2607a85a87d486e21d6e573b4e4084d5a`. D-0093 suspends dispatch of both later-phase refinements. Before any Phase 2 executor may exist, Arthur must explicitly resume AI Animator work, the Project Manager/Spec Architect must refresh evidence and reconcile the post-Phase-1 architecture and proof, and Arthur must separately authorize one fresh Plan-mode Phase 2 Spec Executor from the resulting synchronized canonical-main SHA. Offline deterministic doubles remain the mandatory implementation and proof path if Phase 2 is ever resumed.
 
 Before any live OpenAI web-search test, Arthur must separately approve a dated access/privacy/cost packet based on current official OpenAI sources and actual account access. It must confirm exact `gpt-5.6-terra`/Responses/`web_search` availability, current model and tool prices/rate limits, the data projection, provider retention/data-use terms, exact request/tool-call count, and a monetary ceiling no looser than §10.4. Before any live video-provider use, Arthur must separately approve a dated provider packet naming the provider/model/endpoint, availability, region/account restrictions, duration/resolution/container limits, moderation, data use/training, retention/deletion, ownership/licensing, watermark, cancellation/refund behavior, latency, per-attempt cost, per-job/project/day/month spend ceilings, and retry count.
 
@@ -402,7 +404,7 @@ The Phase 2 manifest binds the offline request/event/citation/cost/network ledge
 
 ## 11. Phase 3 — Deterministic Cucumber Slicer
 
-Status: **Unauthorized; Not started**
+Status: **Paused under D-0093; Unauthorized; Not started; not rejected**
 
 Phase 3 converts one verified reference video into an isolated `frame-bundle/v1`; it makes no editor mutation. Its visible active-work label is **Animating**, used only while deterministic cutting/slicing is executing. Planning, reconstruction, and edit-command preparation may not use that label.
 
@@ -414,7 +416,7 @@ Proof covers constant/variable frame rate, repeated source frames, irregular tim
 
 ## 12. Phase 4 — Editable drawing-only reconstruction
 
-Status: **Unauthorized; Not started**
+Status: **Paused under D-0093; Unauthorized; Not started; not rejected**
 
 This is the hardest phase. It converts a validated frame bundle into ordinary drawing-only Diamond Animator content without a second editor or hidden video layer. Its active build label is **Working**; reconstruction may not be labelled Animating. **Finalizing** begins only when the isolated reconstruction candidate is undergoing full validation and automatic-commit readiness checks.
 
@@ -442,7 +444,7 @@ Proof includes static background plus one moving subject; two crossing subjects;
 
 ## 13. Phase 5 — Conversational editing through the manual registry
 
-Status: **Unauthorized; Not started**
+Status: **Paused under D-0093; Unauthorized; Not started; not rejected**
 
 Follow-up requests operate on the current canonical project, including manual changes made after the original generation. Terra produces a bounded edit plan using only registered manual capabilities. The job uses **Working** while it prepares and evaluates registered edit commands, then **Finalizing** while validating the isolated candidate for automatic commit. It skips Making video and Animating unless the request truly invokes those earlier subsystems. Supported V1 edit classes are recolor, reposition/transform, retime within the existing bounded timeline, add supported ordinary content, remove an explicitly requested exact target, and adjust an already supported property or scene element.
 
@@ -454,7 +456,7 @@ Proof covers each edit class on AI-created and manually modified content, multip
 
 ## 14. Phase 6 — Beta-quality closeout and downloadable video export
 
-Status: **Unauthorized; Not started**
+Status: **Paused under D-0093; Unauthorized; Not started; not rejected**
 
 Phase 6 completes the bounded V1 rather than adding a seventh feature phase.
 
@@ -530,13 +532,13 @@ Existing strict historical validators may legitimately reject a newer spec/contr
 | Phase | TODO | Entry gate | Exit result | Status |
 | --- | --- | --- | --- | --- |
 | 1 — Terra brain, routing, chat/jobs | `AIANIM-001` | SPEC-0008 approved/published under D-0087; fresh Plan-mode worktree | one-chat Terra-only non-mutating brain, routing, persistence, streaming, accessibility | **Verified/published/integrated/recorded/cleaned up** |
-| 2 — Internet research and provider-neutral reference video | `AIANIM-002` | Phase 1 fully closed; D-0091 published/synchronized in GIT-072; D-0092 accepted/published/synchronized; separate authorization; dated search and video-provider access/cost/privacy gates before respective live use | cited bounded inspiration brief, replaceable provider contract, verified video, upload fallback, zero editor mutation | **D-0092 correction review-ready; Unauthorized/Not started** |
-| 3 — Deterministic Cucumber Slicer | `AIANIM-003` | Phase 2 fully closed; separate authorization; pinned decoder/input contract | exact ordered isolated frame bundle, zero editor mutation | **Unauthorized; Not started** |
-| 4 — Editable reconstruction | `AIANIM-004` | Phase 3 fully closed; separate authorization; frame bundle/project preflight | validated drawing-only candidate, honest layers, automatic one-transaction commit, visible result and Undo/Redo | **Unauthorized; Not started** |
-| 5 — Conversational editing | `AIANIM-005` | Phase 4 fully closed; separate authorization; AI-eligible registry audit | current-project edits through shared manual commands with atomic history | **Unauthorized; Not started** |
-| 6 — Beta closeout/export | `AIANIM-006` | Phase 5 fully closed; separate authorization; security/cost/privacy/export-format gates | bounded end-to-end beta workflow and inspected YouTube-ingestible download | **Unauthorized; Not started** |
+| 2 — Internet research and provider-neutral reference video | `AIANIM-002` | Explicit D-0093 resumption; fresh architecture/spec reconciliation; separate authorization; dated search and video-provider access/cost/privacy gates before respective live use | cited bounded inspiration brief, replaceable provider contract, verified video, upload fallback, zero editor mutation | **Paused; Unauthorized; Not started; not rejected** |
+| 3 — Deterministic Cucumber Slicer | `AIANIM-003` | Explicit resumption/reconciliation plus Phase 2 close; separate authorization; pinned decoder/input contract | exact ordered isolated frame bundle, zero editor mutation | **Paused; Unauthorized; Not started; not rejected** |
+| 4 — Editable reconstruction | `AIANIM-004` | Explicit resumption/reconciliation plus Phase 3 close; separate authorization; frame bundle/project preflight | validated drawing-only candidate, honest layers, automatic one-transaction commit, visible result and Undo/Redo | **Paused; Unauthorized; Not started; not rejected** |
+| 5 — Conversational editing | `AIANIM-005` | Explicit resumption/reconciliation plus Phase 4 close; separate authorization; AI-eligible registry audit | current-project edits through shared manual commands with atomic history | **Paused; Unauthorized; Not started; not rejected** |
+| 6 — Beta closeout/export | `AIANIM-006` | Explicit resumption/reconciliation plus Phase 5 close; separate authorization; security/cost/privacy/export-format gates | bounded end-to-end beta workflow and inspected YouTube-ingestible download | **Paused; Unauthorized; Not started; not rejected** |
 
-D-0087 approves this specification and originally authorizes Phase 1 only; D-0088 rejects/cleans the first result and authorizes one fresh Phase 1 correction only; D-0089 records Arthur's acceptance and technical verification of the corrected result. Later phases always require their own separate authorization after the preceding phase is accepted, recorded, published/integrated, synchronized, proof-preserved, and cleaned up.
+D-0087 approves this specification and originally authorizes Phase 1 only; D-0088 rejects/cleans the first result and authorizes one fresh Phase 1 correction only; D-0089 records Arthur's acceptance and technical verification of the corrected result. D-0091 and D-0092 remain preserved later-phase planning decisions, but D-0093 pauses Phases 2–6 before implementation. Later phases require explicit resumption and architecture/spec reconciliation before their ordinary separate-authorization sequence can apply.
 
 ## 18. Planning verification, blockers, and handoff
 
@@ -552,4 +554,4 @@ D-0087 approves this specification and originally authorizes Phase 1 only; D-008
 | Runtime/provider/paid/Git changes in the D-0092 correction | ZERO | spec/control-plane records only; no runtime, fixture, technical test, proof artifact, dependency, credential, provider/API call, credit spend, server, deployment, stage, commit, push or publication |
 | Later named gates | OPEN by design | separate live-search authorization/access/privacy/cost packet; current video provider/access/cost/privacy; decoder/encoder choice; public-beta security/retention/spend policy |
 
-The planning package was reviewed and published under D-0086/GIT-067, and Arthur approved it with Phase 1-only authorization under D-0087. The first Phase 1 executor result was rejected after `hello` produced a generic animation failure and no gradient Thinking state; D-0088 preserves and cleans that result. D-0089 accepts the fresh correction from exact base `3da58e096dd748c7c3bd23fbb9271d53e33597ca`: immutable 26,698-byte manifest SHA-256 `80a5463775f498116389e49cb94d3282023355c6f7dd1bae9cc026a727916313`, PASS/VALID, 19 exact technical paths, 254 browser assertions, production build PASS, zero browser/external-request errors, preserved project/history/repository/canvas digests, and six authorized live Terra calls costing $0.010854 total. Arthur's later narrow layout instructions explicitly add the accepted right-sidebar resize and timeline-overlay presentation corrections; those changes preserve authored content and do not add Phase 2 behavior. D-0090 records exact GIT-070 publication/integration, complete proof preservation and D-0054 cleanup. D-0091 integrates bounded hosted internet research into Phase 2 without adding a phase or authorizing implementation and is published/synchronized in exact GIT-072 `9b4b116d24b076b1c05d91a02fd7318ae5a44148`. D-0092 replaces SPEC-0008's second user approval gate with explicit-message authorization plus an internally validated automatic atomic commit, while preserving active-job cancellation, ambiguity questions, destructive-intent rules, failure safety and Undo/Redo. This D-0092 correction is review-ready but unpublished; Phase 2 remains Unauthorized/Not started until its separate publication/synchronization and later separate executor authorization. Live search and live video-provider use each retain their own dated access/privacy/cost gates.
+The planning package was reviewed and published under D-0086/GIT-067, and Arthur approved it with Phase 1-only authorization under D-0087. The first Phase 1 executor result was rejected after `hello` produced a generic animation failure and no gradient Thinking state; D-0088 preserves and cleans that result. D-0089 accepts the fresh correction from exact base `3da58e096dd748c7c3bd23fbb9271d53e33597ca`: immutable 26,698-byte manifest SHA-256 `80a5463775f498116389e49cb94d3282023355c6f7dd1bae9cc026a727916313`, PASS/VALID, 19 exact technical paths, 254 browser assertions, production build PASS, zero browser/external-request errors, preserved project/history/repository/canvas digests, and six authorized live Terra calls costing $0.010854 total. Arthur's later narrow layout instructions explicitly add the accepted right-sidebar resize and timeline-overlay presentation corrections; those changes preserve authored content and do not add Phase 2 behavior. D-0090 records exact GIT-070 publication/integration, complete proof preservation and D-0054 cleanup. D-0091's bounded hosted-internet research contract remains published/synchronized in GIT-072, and D-0092's automatic-commit contract remains preserved in current-main commit `42bfe1a2607a85a87d486e21d6e573b4e4084d5a`. D-0093 now pauses Phases 2–6 before implementation: they are Unauthorized, Not started and not rejected. Neither later planning decision is dispatch authority. Live search, video-provider use, asset purchase and every later executor remain prohibited until explicit resumption, fresh reconciliation and separate authorization.

@@ -1,5 +1,14 @@
 # Changelog
 
+### 2026-09-20 — Reconcile the SPEC-0008 pause and Proposed SPEC-0009 onto current main (D-0093/D-0094)
+
+- Preserved current-main D-0091/GIT-072 web-research planning and D-0092/GIT-073 automatic-commit planning as historical material, including exact commits `9b4b116d24b076b1c05d91a02fd7318ae5a44148` and `42bfe1a2607a85a87d486e21d6e573b4e4084d5a`; neither has dispatch authority while the pause is active.
+- Added D-0093 to pause SPEC-0008 after its completed Phase 1. Phases 2–6 are Paused, Unauthorized, Not started and not rejected; resumption requires Arthur's explicit direction, fresh evidence and architecture/spec reconciliation before separate phase authorization.
+- Added D-0094 and [`SPEC-0009 — Animation Export`](specs/0009-animation-export.md) as a Proposed three-phase local-export plan: Choose and Watch; Create and Save Video; Social Destinations and Final Testing. No phase or programming is authorized.
+- Preserved the accepted SPEC-0009 content byte-for-byte except the unavoidable append-only decision-reference substitutions D-0091 → D-0093 and D-0092 → D-0094. The accepted source SHA-256 was `a69f4bce4b0501b68415e28ab4685db7b39db799e9c30afecce7307e3ec9dc7b`; the reconciled 47,740-byte/604-line spec SHA-256 is `3a4028deffe45c21223ac21732111c0cb1d614a6c84c3471477eb50a5a2dd0dc`.
+- Re-traced the unchanged runtime: Home Export has no action, workspace File offers only Save/Save As, and the legacy current-frame PNG path composites raster onto white while omitting timeline animation, text and audio.
+- This reconciliation changes only canonical planning/control-plane/tree files. It changes no runtime, fixture, technical test, proof artifact, dependency, provider/account/credential, server, deployment or app behavior; makes no provider/API call; spends no credits; and stops before staging, commit, merge, push or publication.
+
 ### 2026-09-19 — Correct SPEC-0008 to auto-commit explicit create/edit requests (D-0092) and record D-0091 publication
 
 - Recorded GIT-072 as exact 13-document commit `9b4b116d24b076b1c05d91a02fd7318ae5a44148`, parent GIT-071 `888aae769e67e08adb1862c81f21bec171fd0592`, message `Specify SPEC-0008 Phase 2 web research`; canonical/local-origin/live GitHub synchronized at publication.

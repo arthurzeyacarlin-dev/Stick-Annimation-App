@@ -1,7 +1,7 @@
 # Verification and Regression Workflow
 
 Status: canonical proof standard and current gate baseline
-Last updated: 2026-09-19
+Last updated: 2026-09-20
 
 ## Published SPEC-0008 Phase 1 correction proof
 
@@ -13,6 +13,8 @@ The executor manifest honestly retains `humanAcceptance: pending Arthur`, `contr
 
 ## SPEC-0008 later-phase proof contract
 
+Status: historical planning contract only. D-0093 pauses Phases 2–6 as Unauthorized/Not started/not rejected. No later-phase proof run, executor or live/paid provider check is authorized until explicit resumption, fresh evidence and architecture/spec reconciliation.
+
 Each later phase requires an immutable phase manifest binding exact source/fixture/test/evidence hashes; browser-visible behavior; job/event/network/provider/paid ledgers; project/history/repository/artifact digests; failure/cancel/stale/concurrency injection; scoped type/lint/build; performance/accessibility/security/cost gates owned by that phase; protected manual/persistence regressions; independent negative manifest mutations; and explicit proven/not-proven/human-acceptance fields.
 
 Phase 1 must prove fixed Terra/no-fallback intent and persistent streaming while project bytes/history remain unchanged. Corrected Phase 2 must prove semantic search/no-search routing, current hosted `web_search` configuration, truthful **Searching the internet** transitions, visible clickable citation/source bindings, schema/digest-bound `inspiration-brief/v1`, untrusted-content/prompt-injection resistance, social-link/local-upload boundaries, exact request/tool/source/token/time/spend ceilings, cross-project/stale/cancel/reconnect isolation, and zero editor mutation. It must also prove normalized reference-video lifecycle, upload validation/rights acknowledgment and representative-frame/metadata verification without mutation. Deterministic Responses/search doubles and at least two incompatible fake video adapters are mandatory; any separately authorized live search/video-provider evidence is supplemental and reported separately. Phase 3 must use **Animating** only for deterministic reference-video cutting/slicing and reproduce byte-identical ordered timing/shot-bound bundles. Phase 4 must use **Working** for editable-content reconstruction and prove non-hardcoded ordinary reconstruction cases plus one internally validated automatic atomic commit from an explicit create request. Phase 5 must use **Working** for registered edit-command preparation and prove real conversational edit classes through registered commands plus automatic atomic commit from an explicit edit request. Phase 6 must run the black-vs-red and alien/UFO stories plus the follow-up edit end to end without a second approval gate, validate the separately approved downloadable YouTube-ingestible format/encoder, close auth/ownership/rate/privacy/retention/spend gates and prove no partial data. Status stages must be skipped when their subsystem is not invoked, and determinate progress must come only from real measurements.
@@ -21,7 +23,15 @@ D-0092 adds mandatory transaction proof for Phases 4–6: plan-only and discussi
 
 D-0091 adds no runtime proof result and is published as the contract-only GIT-072 package. Phase 2 must explicitly test an explicit search, one permitted automatic unfamiliar named-reference search, a greeting/simple conversation with zero tool calls, minimal-query projection that rejects private/sensitive fields, inaccessible YouTube/TikTok/social evidence with truthful local-upload fallback, safe user-initiated citation links, citation/tamper/injection negatives, cap/unknown-price failures, raw-response discard and eight-brief local eviction/deletion, full-label short/long status sweeps plus reduced motion, and exact unchanged canvas/timeline/catalog/history/repository/version digests for every success/failure/cancel/stale flow. The existing legacy `/api/ai` DuckDuckGo fetch/parser must stay unreachable from the Phase 2 path. D-0092 is also documentation-only and adds no current product proof.
 
-No later-phase SPEC-0008 proof exists merely because this contract is written. Existing accepted Phase 1 and SPEC-0006/0007 proof remain the regression floor.
+No later-phase SPEC-0008 proof exists merely because this contract is written. D-0091/D-0092 remain historical planning decisions without dispatch authority while D-0093 is active. Existing accepted Phase 1 and SPEC-0006/0007 proof remain the regression floor.
+
+## Proposed SPEC-0009 proof contract — no implementation proof exists
+
+D-0094 and [`SPEC-0009`](specs/0009-animation-export.md) define exactly three separately gated phases. The proposal remains Proposed; no phase is Approved or authorized and no runtime/test/fixture/dependency/provider proof has been created.
+
+Phase 1 must prove that Home Export and workspace File → Export converge on the same saved-animation chooser, immutable validated saved-revision selection and real selected-animation player. It must prove correct content/timing/audio evaluation, source-kind handling, Change flow, accessibility, bounded 64-card/player performance, zero project/history/repository writes, zero external requests and unchanged AI credits. Phase 2 must additionally prove one local supported-browser H.264/AAC MP4 encode, 720p/1080p, inherited saved FPS/duration, project-owned background truth, deterministic audio sync, truthful progress/cancel/failure, Finder location/partial-file semantics, post-write media inspection, no silent omissions and zero project mutation. Phase 3 must refresh mutable platform facts from official first-party sources and prove every versioned destination preset through the same local encode/write/inspect path, complete-animation contain/no-crop framing, stale-catalog handling, brand-asset provenance or neutral fallback, long/performance/accessibility gates and zero network/AI/credit behavior.
+
+Each phase requires a phase-owned immutable manifest with exact base/allowlist/source/test/fixture/evidence hashes, mutation-tested validation, real-app browser proof and the ordinary Spec Executor → acceptance → CPA → later publication lifecycle. Mocked cards, synthetic progress or a current-frame PNG do not satisfy these gates. Direct social login/upload/posting, Terra/OpenAI/video-provider calls, runtime platform lookups and deployment remain outside V1.
 
 ## Accepted SPEC-0007 Phase 5 final manual-editor proof
 

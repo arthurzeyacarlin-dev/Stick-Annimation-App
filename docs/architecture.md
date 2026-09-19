@@ -1,7 +1,30 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-19 for D-0092's documentation-only SPEC-0008 automatic-commit correction from exact published GIT-072 base `9b4b116d24b076b1c05d91a02fd7318ae5a44148`; Phase 1 remains closed at exact GIT-070 `76708645c96b3b0ea95c524f162bb6152d539fcf`.
+Last traced: 2026-09-20 for D-0093/D-0094 reconciliation from exact current-main base `42bfe1a2607a85a87d486e21d6e573b4e4084d5a`; runtime remains D-0090/GIT-070 `76708645c96b3b0ea95c524f162bb6152d539fcf`.
+
+## Proposed SPEC-0009 Animation Export architecture — not implemented or authorized
+
+Fresh tracing confirms two missing ordinary entry seams and one inadequate legacy helper. Home's visible Export button in `app/page.tsx` has no handler. Workspace `DrawingTopBar` receives only Save/Save As callbacks. `DrawingWorkspace.exportCurrentFrame()` is an AI-action current-frame PNG download that composites raster bitmaps onto white and omits the timeline, text and audio. `createProjectPreview()` is not a canonical fidelity renderer.
+
+D-0094 proposes one local read-only pipeline:
+
+```text
+Home Export or workspace File → Export
+  → existing saved-project collection/source reader
+  → validated immutable saved snapshot + digest-bound selection
+  → shared canonical scene evaluator
+      ├─ saved-animation thumbnail/player
+      └─ frame-by-frame bounded export compositor
+  → deterministic saved-audio mix
+  → local licensed H.264/AAC MP4 encoder
+  → macOS Finder-selected file writer
+  → post-write media inspection
+```
+
+The selected source remains owned by the accepted V2 repository. Listing, watching, encoding and writing create no project version/history/repository mutation and never include unsaved workspace edits implicitly. FPS and duration come from the saved document; project-owned background is part of render truth; there is no export-only white control. Phase 3 adds a versioned locally bundled destination catalog that changes output canvas shape through disclosed contain/padding only—never silent crop—and performs no direct social login/upload.
+
+This architecture is **Proposed only**. The precise shared-evaluator extraction, persisted background ownership, locally licensed encoder and Finder partial-file behavior are named phase entry gates. No runtime/dependency/test/provider/account/deployment change exists, no AI credit is used, and D-0093 keeps SPEC-0008 Phases 2–6 paused.
 
 ## Published SPEC-0008 Phase 1 architecture
 
@@ -9,13 +32,13 @@ D-0089 accepts one ordinary AI Animator chat whose sole production request door 
 
 The accepted visual shell keeps unboxed assistant replies, fast reveal, reduced-motion text and full-label sequential Thinking sweeps. The same accepted package includes Arthur-authorized presentation mechanics: an overlay right sidebar limited to 280–520 px with 420 px default/snap, unchanged centered canvas stage geometry, a toolbar ending at the panel edge, and expanded timeline lanes layered above the canvas/sidebar while ordinary timeline mutations retain their existing owner. GIT-070 publishes this exact architecture; D-0090 records synchronization, proof preservation and cleanup.
 
-## Proposed SPEC-0008 Phase 2–6 target architecture — not implemented
+## Paused SPEC-0008 Phase 2–6 target architecture — not implemented
 
 D-0085/D-0091/D-0092 define one replaceable, one-way workflow: workspace conversation → optional bounded fixed-Terra hosted `web_search` → cited `inspiration-brief/v1` → Terra intent/shot plan → persistent streamed job ledger → provider-neutral reference-video boundary or validated upload → deterministic frame slicer → editable reconstruction planner → internally validated registered-command candidate → automatic atomic commit after an explicit create/edit request → existing `DrawingWorkspace` V2 coordinator/history/repository → resulting current project → canonical Save/Open → deterministic video exporter.
 
 Phase 2 search uses only the Responses hosted `web_search` tool with exact model `gpt-5.6-terra`; it does not add arbitrary URL fetch, legacy `web_search_preview`, the existing `/api/ai` DuckDuckGo fetch/parser, custom crawling/scraping, social-video download or model/provider fallback. Web results remain untrusted input. Search output is a schema-validated project/job/generation-bound brief with visible clickable citations and observed-versus-inferred high-level inspiration only. Inaccessible YouTube/TikTok/social motion evidence falls back truthfully to validated local MP4/WebM plus ownership/right-to-use acknowledgment.
 
-The search tool, provider, decoder/slicer and reconstruction planner never own authored state. Intermediate brief/video/frame/reconstruction artifacts are isolated, content-addressed and project-generation bound. The only authored commit door is an atomic registered-command batch entering the existing V2 owner after the current message unambiguously requests creation or editing and the internal candidate passes every validation. There is no user-facing Preview/Apply/post-generation Cancel gate. The active job can still be cancelled before the final compare-and-swap; cancellation/failure/stale/validation error leaves the original byte-equivalent. Success creates one global history entry, shows the resulting current project and uses Undo/Redo for correction. No structured rig/topology or second mutation engine returns. This later architecture remains unimplemented; D-0091's research correction is published in GIT-072, D-0092's transaction correction awaits separate publication, and Phases 2–6 are unauthorized/not started.
+The search tool, provider, decoder/slicer and reconstruction planner never own authored state. Intermediate brief/video/frame/reconstruction artifacts are isolated, content-addressed and project-generation bound. The only authored commit door is an atomic registered-command batch entering the existing V2 owner after the current message unambiguously requests creation or editing and the internal candidate passes every validation. There is no user-facing Preview/Apply/post-generation Cancel gate. The active job can still be cancelled before the final compare-and-swap; cancellation/failure/stale/validation error leaves the original byte-equivalent. Success creates one global history entry, shows the resulting current project and uses Undo/Redo for correction. No structured rig/topology or second mutation engine returns. This later architecture remains unimplemented. D-0091/GIT-072 and D-0092/GIT-073 preserve the research and transaction planning, while D-0093 suspends dispatch. Phases 2–6 are Paused/Unauthorized/Not started/not rejected and require explicit resumption plus fresh architecture/spec reconciliation.
 
 ## Published SPEC-0007 Phase 1–5 extension
 

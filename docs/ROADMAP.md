@@ -1,7 +1,7 @@
 # Roadmap
 
 Status: canonical ordered direction; not a delivery schedule
-Last updated: 2026-09-19
+Last updated: 2026-09-20
 
 ## Roadmap Rules
 
@@ -11,7 +11,7 @@ Last updated: 2026-09-19
 - Paid AI calls, remote writes, deployment, and baseline commits require task-specific authorization.
 - The roadmap may change when Arthur resolves pending decisions or new evidence changes the risk order.
 
-## Current owner sequence — 2026-09-19 (D-0085–D-0092; Phase 1 closed, D-0091 published, D-0092 awaiting publication before separate Phase 2 authorization)
+## Current owner sequence — 2026-09-20 (D-0093 pause; D-0094 Proposed SPEC-0009)
 
 All seven SPEC-0006 phases are Verified/published/integrated through GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`. The immutable 50,224-byte Phase 7 manifest is PASS/VALID at SHA-256 `c6202f6deab4d3bcc75af3ad6699fc2dc70fc58723eccaa8337b1a2aef74bc51`, with exactly 11 source and 16 evidence bindings.
 
@@ -27,7 +27,7 @@ The corrected order kept seven numbered phases. Minimal neutral data/storage pre
 
 Each phase started only after the prior phase was accepted, propagated, separately published/integrated, synchronized, cleaned up, and separately authorized. The no-silent-deletion, explicit destructive-command registry, same-paint maximum-coverage, shared-capability, and read-only legacy-source laws remain permanent. SPEC-0007 added no AI/provider/model/prompt/video/tracking behavior.
 
-D-0085 creates [`SPEC-0008`](specs/0008-conversational-ai-animator.md), D-0086/GIT-067 publishes the exact planning-only package at `ba5ecd694df78414240ce83a9140c5196334ebdc`, and D-0087 approves it with Phase 1 alone Authorized/Not started. Its exact sequence is:
+D-0085 creates [`SPEC-0008`](specs/0008-conversational-ai-animator.md), D-0086/GIT-067 publishes the exact planning-only package at `ba5ecd694df78414240ce83a9140c5196334ebdc`, and D-0087 approves it with Phase 1 alone Authorized/Not started. Its preserved historical sequence is:
 
 1. Terra brain, conversational intent routing and persistent streamed jobs.
 2. Bounded Terra internet research plus provider-neutral reference video, with cited inspiration brief, validated local-video fallback, and separate live-search/live-video-provider access/privacy/cost gates.
@@ -36,7 +36,15 @@ D-0085 creates [`SPEC-0008`](specs/0008-conversational-ai-animator.md), D-0086/G
 5. Conversational edits through the same manual command registry.
 6. Beta/security/performance closeout and downloadable YouTube-ready video export.
 
-The delivery target is one phase/day plus one correction/publication buffer day. It does not bypass the per-phase Spec Executor → Arthur/PM acceptance → CPA → separate publication/integration → cleanup lifecycle. Arthur rejected the first Phase 1 result after its basic greeting flow failed; D-0088 preserves/cleans it. D-0089 accepts the fresh exact 19-path correction, and D-0090 records GIT-070 publication/integration, proof preservation and D-0054 cleanup. Phase 1 is fully closed. D-0091 keeps exactly six phases and places bounded hosted internet research inside Phase 2 without reopening Phase 1; GIT-072 `9b4b116d24b076b1c05d91a02fd7318ae5a44148` publishes that correction. D-0092 makes a clear explicit create/edit message authorize the later bounded mutation job: the app validates an isolated candidate internally, commits the complete result atomically without a second Preview/Apply gate, shows the current project, and relies on Undo/Redo for correction. Active work remains cancellable before commit; plan-only, ambiguity, destructive-intent and no-mutation failure rules remain protected. D-0092 requires review and separate publication before any Phase 2 authorization; live search and live video-provider use each keep a dated access/privacy/cost gate. Phases 2–6 are still unauthorized.
+The former delivery target was one phase/day plus one correction/publication buffer day. It never bypassed the per-phase Spec Executor → Arthur/PM acceptance → CPA → separate publication/integration → cleanup lifecycle. Arthur rejected the first Phase 1 result after its basic greeting flow failed; D-0088 preserves/cleans it. D-0089 accepts the fresh exact 19-path correction, and D-0090 records GIT-070 publication/integration, proof preservation and D-0054 cleanup. Phase 1 is fully closed. D-0091/GIT-072 `9b4b116d24b076b1c05d91a02fd7318ae5a44148` preserves the bounded hosted-research plan; D-0092/GIT-073 commit `42bfe1a2607a85a87d486e21d6e573b4e4084d5a` preserves the automatic-commit plan. D-0093 pauses Phases 2–6 before implementation. Their exact state is **Paused; Unauthorized; Not started; not rejected**. The later planning decisions retain historical value but no dispatch authority. Explicit resumption, fresh evidence and architecture/spec reconciliation are required before a later phase could be separately authorized.
+
+D-0094 adds independent [`SPEC-0009 — Animation Export`](specs/0009-animation-export.md) as **Proposed**, with exactly three separately gated phases:
+
+1. Choose and Watch from Home Export and workspace File → Export using saved-animation cards and the actual selected-animation player.
+2. Create and Save Video from one immutable saved revision, preserving content/timing/audio and writing a validated local MP4 through the macOS Finder flow.
+3. Social Destinations and Final Testing through a versioned data-driven destination catalog; no direct login, upload or posting.
+
+No SPEC-0009 phase is Approved or authorized. Whole-spec approval and a separate Phase 1 authorization remain required. The proposal adds no Terra/OpenAI/video-provider/social-network request, AI credit use, deployment or runtime behavior.
 
 ## Phase 0 — Preserve and Stabilize
 
@@ -111,7 +119,7 @@ Goals:
 
 The AI path must manipulate the same state and history as manual tools.
 
-D-0055 closes the former SPEC-0004-after-SPEC-0005 dependency. The unfinished phases are superseded, not queued to resume. No provider, pricing, privacy, motion-video service, or release policy is selected or authorized here.
+D-0055 closes the former SPEC-0004-after-SPEC-0005 dependency. The unfinished phases are superseded, not queued to resume. SPEC-0008 Phase 1 is complete, while D-0093 pauses its Phases 2–6 before implementation. No provider, pricing, privacy, motion-video service, asset purchase or release policy is selected or authorized here.
 
 ## Phase 4 — Professional Product Completion
 
@@ -127,6 +135,8 @@ Candidate goals:
 - performance profiling and accessibility/responsive requirements
 
 Drawing's architectural role is resolved by D-0056: it becomes typed content inside one Animation Workspace. The exact launch scope still depends on SPEC-0006 completion and the remaining first-release definition.
+
+Proposed SPEC-0009 now owns the bounded local animation-export direction for review. It remains a proposal and does not authorize implementation or direct social integration.
 
 ## Phase 5 — Custom Model R&D
 

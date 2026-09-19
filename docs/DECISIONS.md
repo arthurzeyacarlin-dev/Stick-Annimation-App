@@ -936,6 +936,30 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Phase/proof consequence: Phases 4–6, cross-phase artifacts, acceptance stories, ownership tables, roadmap, architecture and proof language use an internal candidate plus automatic atomic commit. Phase 4 proves explicit-create auto-commit; Phase 5 proves explicit-edit auto-commit; Phase 6 proves the complete flow without a second approval gate. Negative proof covers plan-only no-op, ambiguity question, destructive-intent enforcement, active cancellation before commit, cancellation/commit race ordering, stale/failed validation no-op, one history entry, visible result, exact Undo/Redo and absence of Preview/Apply/post-generation Cancel controls.
 - Lifecycle/publication: D-0091 remains published in GIT-072. Phase 2 remains Unauthorized/Not started. This D-0092 correction changes documentation/control-plane records only and is review-ready but uncommitted/unpublished; a later explicit publication instruction is required before Arthur may separately authorize one fresh Phase 2 Spec Executor. No live provider/API call, spend, implementation, deployment or Phase 2 start is included.
 
+### D-0093 — Pause SPEC-0008 after completed Phase 1
+
+- Date: 2026-09-20
+- Status: Accepted planning/control-plane decision; no runtime or provider change
+- Authority: Arthur explicitly accepted the prior pause decision and authorized its reconciliation onto current canonical main while requiring the task to stop before staging, commit, merge, push or publication.
+- Stable-ID reconciliation: the accepted read-only planning package used D-0091 for this pause, but current canonical main already durably uses D-0091 for the Phase 2 web-research contract and D-0092 for the automatic-commit contract. Decision IDs are append-only, so this record preserves those current-main decisions as historical planning material and assigns the accepted pause the next free ID. Current main commit `42bfe1a2607a85a87d486e21d6e573b4e4084d5a` is the publication anchor for D-0092/GIT-073; its parent is GIT-072 `9b4b116d24b076b1c05d91a02fd7318ae5a44148`. Neither decision grants execution authority while this pause is active.
+- Decision: Preserve SPEC-0008 Phase 1 exactly as accepted, Verified, published, integrated, recorded and cleaned up under D-0089/D-0090/GIT-070. Pause Phases 2–6 before implementation. Because those phases never produced an implementation for review, their accurate status is **Paused; Unauthorized; Not started; not rejected**.
+- Architecture effect: the published provider-neutral reference-video → slicing → reconstruction sequence, including D-0091 research and D-0092 transaction mechanics, remains historical approved design intent but loses current dispatch readiness and is under reconsideration. Research into reusable editable motion/Blender-authored assets is unproven and does not supersede the spec, select a provider, authorize asset purchasing, or authorize implementation.
+- Resumption gate: no later SPEC-0008 executor, live/paid provider use, asset purchase, or replacement architecture may begin until Arthur explicitly resumes AI Animator work. The Project Manager/Spec Architect must then refresh evidence and reconcile the post-Phase-1 architecture and acceptance proof before any phase receives separate authorization.
+- Current priority consequence: select work outside the AI Animator through its own spec and authorization lifecycle. This pause changes no app/runtime/fixture/test/proof bytes, accepted Phase 1 evidence, provider account, deployment, Git history or remote state.
+
+### D-0094 — Propose standalone local Animation Export as SPEC-0009
+
+- Date: 2026-09-20
+- Status: Proposed planning/control-plane decision; not Approved; no implementation phase authorized
+- Authority: Arthur accepted the prior SPEC-0009 planning result and authorized its reconciliation onto current canonical main while preserving D-0091/D-0092 as history and leaving SPEC-0008 paused under D-0093.
+- Stable-ID reconciliation: the accepted read-only proposal used D-0092, but current canonical main already durably assigns that ID to the automatic-commit planning contract. This decision therefore preserves the accepted proposal under the next free append-only ID. The copied SPEC-0009 bytes differ from accepted SHA-256 `a69f4bce4b0501b68415e28ab4685db7b39db799e9c30afecce7307e3ec9dc7b` only where decision references necessarily change from D-0091/D-0092 to D-0093/D-0094.
+- Decision: Create [`SPEC-0009 — Animation Export`](specs/0009-animation-export.md) with exactly three separately gated phases: (1) Choose and Watch from Home Export and workspace File → Export using saved-animation cards and the actual selected-animation player; (2) Create and Save Video with faithful saved-content/audio/timing export, inherited non-editable FPS, 720p/1080p, truthful progress/cancel/failure and a macOS Finder location flow; and (3) data-driven social destination presets plus final whole-feature proof.
+- Product boundary: V1 saves a validated local MP4 to the Mac. Destination entries prepare shape/resolution/container/file guidance and default to complete-animation contain framing; they never silently crop. V1 does not log in to, upload to, post to, or integrate directly with a social service. A future direct-integration spec is mandatory.
+- Ownership boundary: export reads one immutable validated saved snapshot through the accepted project collection/V2 repository path and creates no project version/history/repository mutation. Unsaved workspace edits are never included implicitly. One canonical read-only evaluator must serve selected-animation playback and eventual export fidelity. Project-owned background is part of the saved animation; no export-only white-background control exists.
+- AI/cost/privacy boundary: export makes no Terra/OpenAI/video-provider/social-network request, spends no AI credits, and does not alter AI Animator jobs, prompts, models, credit accounting, providers, accounts or deployment. SPEC-0008 Phases 2–6 remain paused/unauthorized/not started under D-0093; SPEC-0009 neither revives nor implements its Phase 6.
+- Lifecycle: the proposal is decision-complete and review-ready but remains **Proposed**. Arthur must separately approve the whole spec and separately authorize Phase 1 from an exact synchronized canonical-main SHA. Phases 2 and 3 require full predecessor acceptance/publication/integration/synchronization/proof-preservation/cleanup and separate authorization. This reconciliation itself authorizes no programming.
+- Task boundary: this Control Plane Architect task changes only canonical planning/control-plane/tree files. It changes no app/runtime/fixture/technical-test/proof/dependency/provider/account/deployment behavior and performs no stage, commit, merge, push or publication.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation
@@ -967,11 +991,11 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 
 ### P-0004 — AI transaction semantics
 
-- Status: resolved for the Approved SPEC-0008 V1 slice by D-0092; broader post-V1 policy pending
+- Status: D-0092 remains the recorded planning resolution for the paused SPEC-0008 V1 slice; no current dispatch authority; broader post-V1 policy pending
 - Question: which commands preview, auto-apply, request confirmation, or require reversible transactions?
 - Needed before: enabling broad Other/actions or stick-workspace AI control.
 - Narrow SPEC-0001 resolution: D-0009 accepts Preview → explicit Apply and one atomic reversible transaction for the single approved Stick action only; the product-wide question remains pending.
-- SPEC-0008 resolution: a clear current create-animation or edit-animation message authorizes one bounded mutating job. The candidate remains isolated until complete internal validation and is then automatically committed as one atomic global-history transaction, with no second Preview/Apply/post-generation Cancel gate. Active running work remains cancellable before commit; failure/stale/validation errors do not mutate; successful changes use Undo/Redo for correction. Plan-only discussion stays non-mutating, material ambiguity asks one question, and destructive actions still require explicit exact intent through the registered destructive-command rules.
+- SPEC-0008 historical planning resolution: D-0092 specifies that a clear current create-animation or edit-animation message authorizes one bounded mutating job, with internal validation, one atomic global-history commit, pre-commit cancellation and Undo/Redo correction. D-0093 pauses every unimplemented phase, so this recorded contract is non-dispatchable until explicit resumption and reconciliation.
 
 ### P-0005 — Cost and latency policy
 
@@ -997,9 +1021,9 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 
 ### P-0008 — AI-first drawing-based vertical-slice sequencing
 
-- Status: resolved for the bounded V1 sequence by D-0085; proposal approval and every implementation phase remain separate
-- Resolution: the exact order is Terra brain/jobs, provider-neutral reference video, deterministic slicing, editable reconstruction, registered-command edits, and beta/export closeout. SPEC-0007's manual registry and one V2 owner are the required mutation floor.
-- Boundary: this sequencing decision creates no implementation authority and does not define an unbounded post-V1 editor/cinematic system.
+- Status: Phase 1 resolved/completed; post-Phase-1 sequence paused and reopened for architecture reconciliation by D-0093
+- Resolution: the published six-phase order and D-0091/D-0092 refinements remain historical design intent: Terra brain/jobs, bounded internet research and provider-neutral reference video, deterministic slicing, editable reconstruction, registered-command edits, and beta/export closeout. D-0093 prevents dispatch of Phases 2–6 while the reference-video path and the unproven reusable-motion alternative are reconsidered.
+- Boundary: neither the historical sequence nor the research alternative creates implementation, provider, paid-call, asset-purchase or programming authority. Explicit resumption and a reconciled spec are required.
 
 ### P-0009 — Possible unified Animation Workspace
 

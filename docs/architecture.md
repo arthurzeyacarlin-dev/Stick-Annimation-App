@@ -1,9 +1,9 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-20 through D-0096 accepted/technically Verified SPEC-0009 Phase 1 on unpublished base `37cdb7203286c2ea333a3766ba2e81bc06830200`; its publication/integration closeout remains pending.
+Last traced: 2026-09-20 through GIT-076 published/integrated SPEC-0009 Phase 1 at `548063b9247708106c7c8c8a11978563d07d6597` and D-0097 authorized Phase 2.
 
-## SPEC-0009 Animation Export architecture — Phase 1 accepted; Phases 2–3 intended
+## SPEC-0009 Animation Export architecture — Phase 1 closed; Phase 2 authorized; Phase 3 intended
 
 Before Phase 1, Home's visible Export button had no handler, workspace `DrawingTopBar` received only Save/Save As callbacks, and `DrawingWorkspace.exportCurrentFrame()` was an inadequate AI-action current-frame PNG helper. D-0096 accepts the Phase 1 replacement seams: Home **Export** and workspace **File → Export** converge on one `AnimationExportFlow`; saved-project discovery revalidates identity before cloning one immutable V2 snapshot; explicit card selection plus **Use this animation** opens Play/Pause, saved-FPS, scrubber and **Change animation** playback; workspace entry excludes unsaved edits.
 

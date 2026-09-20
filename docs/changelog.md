@@ -1,5 +1,13 @@
 # Changelog
 
+### 2026-09-20 — Close SPEC-0009 Phase 1 and authorize Phase 2 (D-0097/GIT-076/GIT-077)
+
+- Recorded GIT-076 as exact 26-path commit `548063b9247708106c7c8c8a11978563d07d6597`, parent GIT-075 `37cdb7203286c2ea333a3766ba2e81bc06830200`: the 12 accepted Phase 1 technical paths plus 14 reviewed control-plane/tree paths. Canonical `main`, local `origin/main` and live GitHub `main` matched cleanly at `0/0`.
+- Preserved seven proof files/159,644 bytes under `output/recovery/GIT-076-spec0009-phase1-548063b/` at aggregate SHA-256 `7137a1de4ad8a0be73c17b45699592a98ed876b4858e18df6a36cf8d4b509fbb`; the immutable manifest remains SHA-256 `40af1b220958a5d99094a07c763194b4cb6e2338ee6e14f0b2674a671564c2fb` and all 12 source hashes match the published commit. `.env.local` was intentionally excluded from backup and publication.
+- Recorded D-0054 cleanup: port 57200 is closed, the obsolete accepted review worktree is absent/unregistered and its unused publication branch is deleted.
+- Recorded Arthur's explicit Phase 2 authorization: project-owned background persistence with white default; local supported-Mac/browser creation; MP4 with H.264 video and AAC audio; Mediabunny assembly; no AI/provider call, online video service or per-export charge. Phase 2 is Authorized/Not started; Phase 3 remains Unauthorized/Not started.
+- GIT-077 publishes only this terminal closeout/activation record and regenerated project tree. No runtime, fixture, technical test, dependency, credential, provider/account or deployment byte changes.
+
 ### 2026-09-20 — Accept and propagate SPEC-0009 Phase 1 Choose and Watch (D-0096)
 
 - Recorded Arthur's approval, separate Phase 1 authorization and visible acceptance of the corrected app copy. The accepted result remains on unchanged base/HEAD `37cdb7203286c2ea333a3766ba2e81bc06830200` with an empty index and exactly 12 technical implementation/proof paths.

@@ -11,7 +11,7 @@ Last updated: 2026-09-20
 - Paid AI calls, remote writes, deployment, and baseline commits require task-specific authorization.
 - The roadmap may change when Arthur resolves pending decisions or new evidence changes the risk order.
 
-## Current owner sequence — 2026-09-20 (D-0093 pause; D-0096 accepted SPEC-0009 Phase 1)
+## Current owner sequence — 2026-09-20 (D-0093 pause; SPEC-0009 Phase 1 closed; D-0097 authorizes Phase 2)
 
 All seven SPEC-0006 phases are Verified/published/integrated through GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`. The immutable 50,224-byte Phase 7 manifest is PASS/VALID at SHA-256 `c6202f6deab4d3bcc75af3ad6699fc2dc70fc58723eccaa8337b1a2aef74bc51`, with exactly 11 source and 16 evidence bindings.
 
@@ -44,7 +44,7 @@ D-0094 adds independent [`SPEC-0009 — Animation Export`](specs/0009-animation-
 2. Create and Save Video from one immutable saved revision, preserving content/timing/audio and writing a validated local MP4 through the macOS Finder flow.
 3. Social Destinations and Final Testing through a versioned data-driven destination catalog; no direct login, upload or posting.
 
-GIT-074 publishes the planning package in exact commit `30f6f85e5c483c9df15946e7a451bf2a31374f2e`. D-0096 records Arthur's later whole-spec approval, separate Phase 1 authorization and acceptance of the corrected Choose and Watch app copy. The exact 12-path Phase 1 result on base `37cdb7203286c2ea333a3766ba2e81bc06830200` is technically Verified by immutable manifest SHA-256 `40af1b220958a5d99094a07c763194b4cb6e2338ee6e14f0b2674a671564c2fb`; propagation is complete and publication/integration/synchronization/proof-preservation/D-0054 cleanup are next. Phases 2–3 remain Unauthorized/Not started.
+GIT-074 publishes the planning package in exact commit `30f6f85e5c483c9df15946e7a451bf2a31374f2e`. D-0096 records Arthur's later whole-spec approval, separate Phase 1 authorization and acceptance of the corrected Choose and Watch app copy. GIT-076 publishes/integrates Phase 1 at `548063b9247708106c7c8c8a11978563d07d6597`; proof preservation, server shutdown and D-0054 cleanup are complete. D-0097 separately authorizes Phase 2 with project-owned background persistence/default-white behavior, local MP4/H.264/AAC export and Mediabunny assembly. Phase 2 is Authorized/Not started; Phase 3 remains Unauthorized/Not started.
 
 ## Phase 0 — Preserve and Stabilize
 
@@ -136,7 +136,7 @@ Candidate goals:
 
 Drawing's architectural role is resolved by D-0056: it becomes typed content inside one Animation Workspace. The exact launch scope still depends on SPEC-0006 completion and the remaining first-release definition.
 
-Approved SPEC-0009 owns the bounded local animation-export direction. Phase 1 is accepted and technically Verified but awaits publication/integration closeout. Phases 2–3 and direct social integration remain unauthorized.
+Approved SPEC-0009 owns the bounded local animation-export direction. Phase 1 is fully closed. Phase 2 is separately Authorized/Not started under D-0097. Phase 3 and direct social integration remain unauthorized.
 
 ## Phase 5 — Custom Model R&D
 

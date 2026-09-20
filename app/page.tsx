@@ -4,6 +4,7 @@ import { AppChrome as MainScreenHeader } from "@/src/components/chrome/AIcredits
 import { OpenProjectBrowser } from "@/src/components/open-project/OpenProjectBrowser";
 import { TutorialsScreen } from "@/src/components/tutorials/TutorialsScreen";
 import { AnimationWorkspace } from "@/src/components/workspace/AnimationWorkspace";
+import { AnimationExportFlow } from "@/src/components/export/AnimationExportFlow";
 import { createUntitledWorkspace, prepareCollectionWorkspace, WorkspaceBootstrap, type MountedWorkspace } from "@/src/lib/animation/unifiedWorkspaceBootstrap";
 import { createBrowserProjectSourceReader } from "@/src/lib/animation/unifiedProjectSourceReader";
 import type { ProjectCollectionEntry } from "@/src/lib/animation/unifiedProjectCollection";
@@ -13,8 +14,9 @@ type HomeCardId = "new" | "open" | "myProject" | "tutorials" | "assistant" | "ex
 
 export default function Page() {
   const [view, setView] = useState<
-    "home" | "tutorials" | "openProject" | "animationWorkspace"
+    "home" | "tutorials" | "openProject" | "animationWorkspace" | "animationExport"
   >("home");
+  const [exportOrigin, setExportOrigin] = useState<"home" | "workspace">("home");
   const [welcomeOpen, setWelcomeOpen] = useState(false);
   const [welcomeStep, setWelcomeStep] = useState<0 | 1>(0);
   const [guidedChoices, setGuidedChoices] = useState<string[]>([]);
@@ -989,6 +991,7 @@ export default function Page() {
                 >
                   <button
                     type="button"
+                    onClick={() => { setExportOrigin("home"); setView("animationExport"); }}
                     onMouseEnter={() => setHoveredCard("export")}
                     onMouseLeave={() => setHoveredCard(null)}
                     style={cardStyle(hoveredCard === "export")}
@@ -1210,8 +1213,13 @@ export default function Page() {
   />
 )}
 {bootstrapMessage && view === "home" ? <div role="status" style={{ position: "fixed", bottom: 12, left: 12, color: "white", background: "#182334", padding: 12, borderRadius: 8 }}>{bootstrapMessage}</div> : null}
-{workspace && view === "animationWorkspace" && (
-  <AnimationWorkspace root={workspace} />
+{workspace && (view === "animationWorkspace" || (view === "animationExport" && exportOrigin === "workspace")) && (
+  <div style={{ display: view === "animationWorkspace" ? "contents" : "none" }}>
+    <AnimationWorkspace root={workspace} onExport={() => { setExportOrigin("workspace"); setView("animationExport"); }} />
+  </div>
+)}
+{view === "animationExport" && (
+  <AnimationExportFlow origin={exportOrigin} onBack={() => setView(exportOrigin === "workspace" && workspace ? "animationWorkspace" : "home")} />
 )}
 {view === "openProject" && (
   <OpenProjectBrowser onOpenProject={openProject} onBack={() => {

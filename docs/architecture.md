@@ -1,13 +1,13 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-20 through published D-0093/D-0094 planning-only GIT-074 `30f6f85e5c483c9df15946e7a451bf2a31374f2e`; runtime remains D-0090/GIT-070 `76708645c96b3b0ea95c524f162bb6152d539fcf`.
+Last traced: 2026-09-20 through D-0096 accepted/technically Verified SPEC-0009 Phase 1 on unpublished base `37cdb7203286c2ea333a3766ba2e81bc06830200`; its publication/integration closeout remains pending.
 
-## Proposed SPEC-0009 Animation Export architecture — not implemented or authorized
+## SPEC-0009 Animation Export architecture — Phase 1 accepted; Phases 2–3 intended
 
-Fresh tracing confirms two missing ordinary entry seams and one inadequate legacy helper. Home's visible Export button in `app/page.tsx` has no handler. Workspace `DrawingTopBar` receives only Save/Save As callbacks. `DrawingWorkspace.exportCurrentFrame()` is an AI-action current-frame PNG download that composites raster bitmaps onto white and omits the timeline, text and audio. `createProjectPreview()` is not a canonical fidelity renderer.
+Before Phase 1, Home's visible Export button had no handler, workspace `DrawingTopBar` received only Save/Save As callbacks, and `DrawingWorkspace.exportCurrentFrame()` was an inadequate AI-action current-frame PNG helper. D-0096 accepts the Phase 1 replacement seams: Home **Export** and workspace **File → Export** converge on one `AnimationExportFlow`; saved-project discovery revalidates identity before cloning one immutable V2 snapshot; explicit card selection plus **Use this animation** opens Play/Pause, saved-FPS, scrubber and **Change animation** playback; workspace entry excludes unsaved edits.
 
-D-0094 proposes one local read-only pipeline:
+D-0094 defines one local read-only pipeline. The first four steps through selected-animation playback are accepted Phase 1 runtime; compositor/encoder/Finder/destination work remains Phase 2–3 intent:
 
 ```text
 Home Export or workspace File → Export
@@ -24,7 +24,7 @@ Home Export or workspace File → Export
 
 The selected source remains owned by the accepted V2 repository. Listing, watching, encoding and writing create no project version/history/repository mutation and never include unsaved workspace edits implicitly. FPS and duration come from the saved document; project-owned background is part of render truth; there is no export-only white control. Phase 3 adds a versioned locally bundled destination catalog that changes output canvas shape through disclosed contain/padding only—never silent crop—and performs no direct social login/upload.
 
-This architecture is **Proposed only** and its planning record is published in GIT-074. The precise shared-evaluator extraction, persisted background ownership, locally licensed encoder and Finder partial-file behavior are named phase entry gates. No runtime/dependency/test/provider/account/deployment change exists, no AI credit is used, and D-0093 keeps SPEC-0008 Phases 2–6 paused.
+The accepted player currently supplies a white display matte before saved content; that is not Phase 2 export-background truth. Persisted background ownership, complete-content/audio export fidelity, locally licensed encoder and Finder partial-file behavior remain Phase 2 entry gates. No video encoding, Finder writing, destination catalog, direct social action, dependency, provider or deployment work is accepted. The narrow accepted Terra change only gives conversation a purpose-specific missing-key error; it does not change the Terra model, reasoning, prompts/instructions, jobs, gradient, transcript, mutation behavior or credit design. D-0093 still keeps SPEC-0008 Phases 2–6 paused.
 
 ## Published SPEC-0008 Phase 1 architecture
 

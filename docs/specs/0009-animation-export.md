@@ -1,13 +1,15 @@
 # SPEC-0009 — Animation Export
 
-Status: **Proposed; not Approved; no implementation phase is authorized**
+Status: **Approved; Phase 1 accepted and technically Verified; control-plane propagation complete; publication/integration pending; Phases 2–3 Unauthorized**
 Owner: Arthur
-Task role: specification/control-plane architecture only; this task changes no app/runtime/fixture/test/proof/provider/deployment behavior
+Task role: phased implementation; the current Control Plane Architect task records the accepted Phase 1 result without changing its technical bytes
 Created: 2026-09-20
 Last updated: 2026-09-20
-Decision link: [D-0094](../DECISIONS.md)
+Decision links: [D-0094](../DECISIONS.md), [D-0096](../DECISIONS.md)
 TODO IDs: `PLAN-009`, `SPEC-009`, `EXPORT-001`–`EXPORT-003`
 Planning base: detached SHA `888aae769e67e08adb1862c81f21bec171fd0592`, contained by `codex/spec0008-phase1-correction-authorization`; index empty before edits
+Accepted Phase 1 base/HEAD: `37cdb7203286c2ea333a3766ba2e81bc06830200`; empty index; exact 12-path implementation/proof allowlist
+Accepted Phase 1 manifest: `output/spec-0009/phase-1/proof-manifest.json`, 8,688 bytes, SHA-256 `40af1b220958a5d99094a07c763194b4cb6e2338ee6e14f0b2674a671564c2fb`
 Visual reference: `/Users/arthurcarlin/Projects/stick-animation-app/diamond-export-flow.html`, used only for product-flow and visual-language guidance, never as runtime or technical authority
 
 ## 1. Exact product outcome
@@ -27,11 +29,11 @@ The outcome is exactly three separately authorized implementation phases:
 
 | Phase | Outcome | Authorization state |
 | --- | --- | --- |
-| 1 — Choose and Watch | Both entry points open the saved-animation chooser and a real selected-animation player. | Proposed; Unauthorized; Not started |
+| 1 — Choose and Watch | Both entry points open the saved-animation chooser and a real selected-animation player. | Accepted; technically Verified; CPA propagation complete; publication/integration pending |
 | 2 — Create and Save Video | The selected immutable saved revision becomes a validated local 720p/1080p video through a truthful Finder flow. | Proposed; Unauthorized; Not started |
 | 3 — Social Destinations and Final Testing | A versioned destination catalog prepares correctly shaped local files and closes whole-feature proof. | Proposed; Unauthorized; Not started |
 
-No row authorizes the next row. Approval of this proposal would still require Arthur to authorize Phase 1 separately. Phase 2 requires Phase 1 to be accepted, published, integrated, recorded, synchronized, and cleaned up. Phase 3 requires the same closeout for Phase 2.
+No row authorizes the next row. Arthur separately approved the whole spec and authorized Phase 1 before its executor began. Phase 2 still requires Phase 1 to be published, integrated, synchronized, proof-preserved, cleaned up, and separately authorized. Phase 3 requires the same closeout for Phase 2.
 
 ## 2. Relationship to SPEC-0008 and permanent boundaries
 
@@ -106,6 +108,24 @@ Only existing export-labelled operation
 - V2 repository reads validate and hydrate the selected current/last-good version. Save, Save As, Open, read-only migration, and adoption already have accepted ownership boundaries.
 - Current playback composes more content than `exportCurrentFrame()`: visible layer order, raster/drawing sources, text rendering, stage/background presentation, and sound attachments. Even playback is not automatically export truth until one shared deterministic compositor contract is proved.
 - One project can have up to 64 layers and 10,000 cells per layer under the current V2 contract. Export must stream bounded work; it may not retain an unbounded array of uncompressed frames.
+
+### 3.5 Accepted Phase 1 implementation and review correction
+
+D-0096 records Arthur's acceptance of the corrected app copy. The accepted implementation:
+
+- connects Home **Export** and workspace **File → Export** to one `AnimationExportFlow`;
+- lists through the accepted project collection reader, revalidates entry identity before hydration, clones one saved V2 snapshot, derives authored frame count/duration from saved FPS, and rejects changed/unavailable sources;
+- requires an explicit ready card plus **Use this animation**, then renders the saved snapshot with Play/Pause, frame scrubber and **Change animation**;
+- keeps the mounted workspace alive while Export is open and truthfully states that unsaved workspace changes are excluded;
+- resolves saved owner/hold/tween raster placement through the workspace's centered 4.6× authoring-world transform and saved-FPS accumulator;
+- replaces unsupported Save As `window.prompt` with an accessible in-app dialog; and
+- gives Terra conversation its own missing-key error without changing its model, reasoning, job, transcript, gradient or mutation boundaries.
+
+The final two bullets are explicitly owner-authorized regression repairs discovered during visible Phase 1 review. They are included in the accepted 12-path boundary even though the original entry-gate prose excluded AI files and treated Save As only as protected behavior. They do not authorize any broader Save/persistence or SPEC-0008 work.
+
+The immutable manifest is PASS and freshly VALID with 16 validation assertions. Bound proof includes 25 oracle assertions, 23 real-app correction assertions, TypeScript, focused lint and a production build. Deterministic browser proof used one no-cost Terra double and zero external/provider calls. After local server-only credential setup, a separate one-message real Terra smoke returned `Hello — connection confirmed.` with zero console errors; no credential value is recorded.
+
+Phase 1 does not claim video encoding, Finder writing, social/destination choices, final export-fidelity background ownership or Phase 2 completion. The player currently supplies a white display matte before saved content; Phase 2's project-owned background and no-export-only-white contract remains an entry gate and may not silently treat that display matte as final exported background truth.
 
 ## 4. Product and ownership invariants
 
@@ -414,9 +434,9 @@ Every phase re-runs the existing focused and permanent proof relevant to its sur
 
 ## 15. Implementation phases and stop gates
 
-### Phase 1 — Choose and Watch
+### Phase 1 — Choose and Watch — accepted/technically Verified; publication pending
 
-Authorized outcome, if separately approved later:
+Accepted outcome:
 
 - wire Home **Export** and workspace **File → Export** to one export route/state machine;
 - list existing saved animations through the accepted collection/source reader with valid/unavailable states;
@@ -426,7 +446,7 @@ Authorized outcome, if separately approved later:
 - show the real selected-animation player with play, pause, scrub, audio, exact timing, and **Change animation**;
 - show non-functional downstream configuration as unavailable only if needed for coherent navigation; do not fake video creation.
 
-Phase 1 implementation entry gates:
+Historical Phase 1 implementation entry gates:
 
 1. Arthur explicitly approves SPEC-0009 and separately authorizes Phase 1 from an exact synchronized canonical-main SHA.
 2. The executor traces all project source kinds and freezes the exact read-only discovery/hydration path.
@@ -443,7 +463,7 @@ Phase 1 acceptance flow:
 
 Phase 1 technical proof must bind source/test/fixture hashes; exact collection entries and digests; no repository writes/history changes; player frame/timestamp/audio receipts; thumbnail non-authority; source-kind outcomes; accessibility snapshots; screenshots/video of both entries and Change flow; 64-card and player performance; zero external requests; unchanged AI credits; existing regression results; and an independently mutation-tested manifest.
 
-Phase 1 excludes encoding, Finder writing, progress claims, social presets beyond a disabled/absent placeholder, logos, and every later-phase capability. Completion stops after accepted/published/integrated/recorded/synchronized/cleaned Phase 1; it does not authorize Phase 2.
+Phase 1 excludes encoding, Finder writing, progress claims, social presets beyond a disabled/absent placeholder, logos, and every later-phase capability. Its implementation is accepted and propagated but is not durably complete until the later publication/integration/synchronization/proof-preservation/cleanup turn succeeds. It does not authorize Phase 2.
 
 ### Phase 2 — Create and Save Video
 
@@ -601,4 +621,4 @@ These are bounded engineering/freshness gates, not permission to alter the accep
 
 SPEC-0009 is not complete when the UI appears, when a sample downloads, or when tests compile. Completion requires all three phases to pass their exact user flows, technical proof and real-app review; every accepted result to complete sequential executor/architect/publication/integration/synchronization/proof-preservation/cleanup; and the final product to prove faithful local export across long animations, all supported content/audio, both quality tiers, every destination family, cancellation/failures, performance, accessibility, Save/Open, timeline/drawing, AI Animator/Terra, and credits.
 
-As of this proposal, none of that implementation proof exists. SPEC-0009 is **Proposed**, no Phase 1 executor is authorized, and no app/runtime/test/fixture/provider/deployment/Git publication change has been made.
+As of D-0096, SPEC-0009 is Approved and Phase 1's accepted exact 12-path implementation/proof result is technically Verified with Control Plane Architect propagation complete. It is not yet published, integrated, synchronized, proof-preserved or cleaned up. Phases 2 and 3 remain Unauthorized/Not started, and no video encoder, Finder writer, destination catalog, direct social integration or deployment has been implemented.

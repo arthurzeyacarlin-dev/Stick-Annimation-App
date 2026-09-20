@@ -4,6 +4,7 @@ type DrawingTopBarProps = {
   projectTitle?: string;
   onSave?: () => void | Promise<void>;
   onSaveAs?: () => void | Promise<void>;
+  onExport?: () => void;
   saveState?: "not-saved" | "unsaved" | "saving" | "saved" | "too-large" | "failed";
   isLegacyProject?: boolean;
   onUndo?: () => void;
@@ -54,6 +55,7 @@ export function DrawingTopBar({
   projectTitle = "Unnamed drawing project",
   onSave,
   onSaveAs,
+  onExport,
   saveState = "not-saved",
   isLegacyProject = false,
   onUndo,
@@ -64,7 +66,7 @@ export function DrawingTopBar({
   const [isFileMenuOpen, setIsFileMenuOpen] = useState(false);
   const [hoveredHistoryAction, setHoveredHistoryAction] = useState<"undo" | "redo" | null>(null);
   const fileMenuRef = useRef<HTMLDivElement | null>(null);
-  const hasFileMenu = typeof onSave === "function" || typeof onSaveAs === "function";
+  const hasFileMenu = typeof onSave === "function" || typeof onSaveAs === "function" || typeof onExport === "function";
   const hasHistoryControls = typeof onUndo === "function" || typeof onRedo === "function";
 
   useEffect(() => {
@@ -186,6 +188,26 @@ export function DrawingTopBar({
               >
                 Save As
               </button>
+              {onExport ? (
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => runFileAction(onExport)}
+                  style={{
+                    width: "100%",
+                    padding: "7px 10px",
+                    border: "none",
+                    borderRadius: 6,
+                    background: "transparent",
+                    color: "rgba(255,255,255,0.88)",
+                    fontSize: 12,
+                    textAlign: "left",
+                    cursor: "pointer",
+                  }}
+                >
+                  Export…
+                </button>
+              ) : null}
             </div>
           )}
         </div>

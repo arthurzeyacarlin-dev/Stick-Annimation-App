@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { DrawingWorkspace } from "./DrawingWorkspace";
 import type { MountedWorkspace } from "@/src/lib/animation/unifiedWorkspaceBootstrap";
 import type { DrawingProjectData, DrawingProjectOpenCandidate, StoredDrawingTextObject } from "@/src/lib/drawingProjectStorage";
@@ -148,24 +149,29 @@ const hydrateUnifiedItemCompatibility = (project: UnifiedAnimationProjectV2, dra
   return { stickByCell: {}, symbolInstancesByCell };
 };
 
-export function AnimationWorkspace({ root }: { root: MountedWorkspace }) {
+export function AnimationWorkspace({ root, onExport }: { root: MountedWorkspace; onExport?: () => void }) {
   const editor = root.candidate.editor;
-  const compatibilityDrawingData = editor.project.compatibility?.drawingData as DrawingProjectData | undefined;
-  const compatibilitySource = compatibilityDrawingData ?? createDrawingCompatibilityProjection(editor.project);
-  const drawingData = hydrateDrawingCompatibility(editor.project, compatibilitySource);
-  const itemCompatibility = hydrateUnifiedItemCompatibility(editor.project, drawingData);
-  const initialProject: DrawingProjectOpenCandidate = {
-    kind: editor.project.provenance?.kind === "legacy-adoption" && editor.project.provenance.adoptedAt === null ? "legacy" : "v2",
-    project: { id: editor.project.projectId, name: editor.project.title, data: drawingData, previewDataUrl: null, aiMemory: sanitizeDrawingAiProjectMemory(editor.project.auxiliary?.drawingAiMemory) ?? null, created_at: editor.project.createdAt, updated_at: editor.project.updatedAt },
-    head: null, record: null, legacyRecordDigest: null,
-  };
-  const hydratedUnifiedProject = {
-    ...editor.project,
-    compatibility: {
-      ...editor.project.compatibility,
-      drawingData: compatibilitySource,
-      ...itemCompatibility,
-    },
-  };
-  return <DrawingWorkspace initialProject={initialProject} initialTitle={editor.project.title} unifiedProject={hydratedUnifiedProject} />;
+  const { initialProject, hydratedUnifiedProject } = useMemo(() => {
+    const compatibilityDrawingData = editor.project.compatibility?.drawingData as DrawingProjectData | undefined;
+    const compatibilitySource = compatibilityDrawingData ?? createDrawingCompatibilityProjection(editor.project);
+    const drawingData = hydrateDrawingCompatibility(editor.project, compatibilitySource);
+    const itemCompatibility = hydrateUnifiedItemCompatibility(editor.project, drawingData);
+    const nextInitialProject: DrawingProjectOpenCandidate = {
+      kind: editor.project.provenance?.kind === "legacy-adoption" && editor.project.provenance.adoptedAt === null ? "legacy" : "v2",
+      project: { id: editor.project.projectId, name: editor.project.title, data: drawingData, previewDataUrl: null, aiMemory: sanitizeDrawingAiProjectMemory(editor.project.auxiliary?.drawingAiMemory) ?? null, created_at: editor.project.createdAt, updated_at: editor.project.updatedAt },
+      head: null, record: null, legacyRecordDigest: null,
+    };
+    return {
+      initialProject: nextInitialProject,
+      hydratedUnifiedProject: {
+        ...editor.project,
+        compatibility: {
+          ...editor.project.compatibility,
+          drawingData: compatibilitySource,
+          ...itemCompatibility,
+        },
+      },
+    };
+  }, [editor.project]);
+  return <DrawingWorkspace initialProject={initialProject} initialTitle={editor.project.title} unifiedProject={hydratedUnifiedProject} onExport={onExport} />;
 }

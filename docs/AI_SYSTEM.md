@@ -1,7 +1,7 @@
 # AI System Snapshot
 
 Status: canonical current AI architecture and gap map
-Last traced: 2026-09-20 through the published D-0093/D-0094 documentation-only reconciliation at GIT-074 `30f6f85e5c483c9df15946e7a451bf2a31374f2e`. SPEC-0008 Phase 1 is fully closed; Phases 2–6 are paused, Unauthorized, Not started and not rejected. SPEC-0009 is Proposed with no phase authorized.
+Last traced: 2026-09-20 through D-0096 accepted/technically Verified SPEC-0009 Phase 1 on unpublished base `37cdb7203286c2ea333a3766ba2e81bc06830200`. SPEC-0008 Phase 1 is fully closed; Phases 2–6 are paused, Unauthorized, Not started and not rejected. SPEC-0009 Phase 1 propagation is complete and publication/integration pending; Phases 2–3 are Unauthorized/Not started.
 
 ## Paused SPEC-0008 transition (D-0085–D-0093)
 
@@ -23,11 +23,11 @@ Arthur's later narrow presentation authority also accepts a 280–520 px resizab
 
 SPEC-0004 Phases 1, 2, and timing-only Phase 2.5 remain Verified, published, and integrated. Phase 2.6 remains rejected, unpublished, and superseded historical evidence. Under D-0055, unfinished Phases 3–8 are Superseded by future SPEC-0008, inactive, and must not be implemented.
 
-Current lifecycle update: all seven SPEC-0006 phases are Verified, published and integrated through GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`; all five SPEC-0007 phases are closed through GIT-066; and SPEC-0008 Phase 1 is fully closed through D-0089/D-0090/GIT-070. D-0091's research contract is preserved in GIT-072 `9b4b116d24b076b1c05d91a02fd7318ae5a44148`, and D-0092's transaction contract is preserved in GIT-073 `42bfe1a2607a85a87d486e21d6e573b4e4084d5a`. D-0093 pauses Phases 2–6 as Unauthorized/Not started/not rejected. D-0094's standalone [`SPEC-0009`](specs/0009-animation-export.md) is Proposed with exactly three unauthorized phases and no AI-system change; GIT-074 publishes the planning-only reconciliation at `30f6f85e5c483c9df15946e7a451bf2a31374f2e`.
+Current lifecycle update: all seven SPEC-0006 phases are Verified, published and integrated through GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`; all five SPEC-0007 phases are closed through GIT-066; and SPEC-0008 Phase 1 is fully closed through D-0089/D-0090/GIT-070. D-0091's research contract is preserved in GIT-072 `9b4b116d24b076b1c05d91a02fd7318ae5a44148`, and D-0092's transaction contract is preserved in GIT-073 `42bfe1a2607a85a87d486e21d6e573b4e4084d5a`. D-0093 pauses Phases 2–6 as Unauthorized/Not started/not rejected. D-0094's standalone [`SPEC-0009`](specs/0009-animation-export.md) is Approved; D-0096 accepts and technically verifies Phase 1 while its publication/integration remains pending and Phases 2–3 remain Unauthorized/Not started.
 
-## Proposed SPEC-0009 export boundary — not implemented
+## SPEC-0009 Phase 1 AI boundary — accepted narrow regression repair
 
-SPEC-0009 is an independent local manual export proposal. It reads one immutable validated saved revision through the existing collection/repository path, uses one canonical read-only evaluator for selected-animation playback and eventual export, and creates no authored project version/history/repository mutation. It makes no Terra/OpenAI/video-provider/social-network request, spends no AI credits, and does not modify this AI architecture. Its three phases remain Proposed and Unauthorized.
+SPEC-0009 remains an independent local manual export feature. Accepted Phase 1 reads one immutable validated saved revision and creates no authored project version/history/repository mutation. Arthur's visible review explicitly added one narrow AI regression repair: Terra conversation requests its own missing-key message so a greeting cannot leak Generate Frames wording. The fixed `gpt-5.6-terra` model, reasoning mapping/default, prompt/instructions, tools/search/store policy, job/status UI, Thinking gradient, transcript storage, no-animation-mutation rule and credit design are unchanged. The deterministic Phase 1 proof made zero external/paid requests; one separate live greeting later confirmed the installed local server key path. No video-provider/social-network behavior or Phase 2 authority is added.
 
 ## What Exists Today
 

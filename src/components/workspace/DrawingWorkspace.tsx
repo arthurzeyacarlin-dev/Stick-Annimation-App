@@ -3539,9 +3539,16 @@ type DrawingWorkspaceProps = {
   initialProject: DrawingProjectOpenCandidate;
   initialTitle: string;
   unifiedProject: UnifiedAnimationProjectV2;
+  onExport?: () => void;
 };
 
-export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject }: DrawingWorkspaceProps) {
+type SaveAsDialogState = {
+  name: string;
+  error: string | null;
+  submitting: boolean;
+};
+
+export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject, onExport }: DrawingWorkspaceProps) {
   const openedInitialProject = initialProject.project;
   const initialWorkspaceState = createDrawingWorkspaceInitialState(openedInitialProject, true);
   const [projectId, setProjectId] = useState<string | null>(initialWorkspaceState.projectId);
@@ -3585,6 +3592,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
   const symbolInstancesByCellRef = useRef(symbolInstancesByCell);
   const [canvasOverlayRect, setCanvasOverlayRect] = useState<CanvasOverlayRect | null>(null);
   const [saveNotification, setSaveNotification] = useState<{ projectName: string; isVisible: boolean } | null>(null);
+  const [saveAsDialog, setSaveAsDialog] = useState<SaveAsDialogState | null>(null);
   const [canUndoHistory, setCanUndoHistory] = useState(false);
   const [canRedoHistory, setCanRedoHistory] = useState(false);
   const [hasCopiedTimelineFrame, setHasCopiedTimelineFrame] = useState(false);
@@ -8266,26 +8274,44 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
     ],
   );
 
-  const handleSaveAs = useCallback(async () => {
+  const handleSaveAs = useCallback(() => {
     requireManualEditorCommand("project.save-as/v2", "DrawingWorkspace.handleSaveAs");
     if (isTimelinePlayingRef.current || saveInFlightRef.current) {
       return;
     }
+    setSaveAsDialog({ name: projectTitle, error: null, submitting: false });
+  }, [projectTitle]);
 
-    const promptedProjectName = window.prompt("Save project as", projectTitle);
-    if (promptedProjectName === null) {
+  const cancelSaveAsDialog = useCallback(() => {
+    if (saveAsDialog?.submitting) {
       return;
     }
+    setSaveAsDialog(null);
+  }, [saveAsDialog?.submitting]);
 
-    const trimmedProjectName = promptedProjectName.trim();
+  const submitSaveAsDialog = useCallback(async () => {
+    if (!saveAsDialog || saveAsDialog.submitting || saveInFlightRef.current || isTimelinePlayingRef.current) return;
+    const trimmedProjectName = saveAsDialog.name.trim().normalize("NFC");
     if (!trimmedProjectName) {
+      setSaveAsDialog(current => current ? { ...current, error: "Enter a project name." } : current);
+      return;
+    }
+    if (new TextEncoder().encode(trimmedProjectName).byteLength > 512) {
+      setSaveAsDialog(current => current ? { ...current, error: "Use a shorter project name." } : current);
       return;
     }
 
     const capturedWorkspaceInstanceId = workspaceInstanceIdRef.current;
-    if (!commitCurrentFrameSnapshotWithoutHistory("unified:save-as")) return;
+    setSaveAsDialog(current => current ? { ...current, error: null, submitting: true } : current);
+    if (!commitCurrentFrameSnapshotWithoutHistory("unified:save-as")) {
+      setSaveAsDialog(current => current ? { ...current, error: "Finish the current edit, then try again.", submitting: false } : current);
+      return;
+    }
     const candidate = buildUnifiedProjectSnapshot(createPersistedProjectSnapshot({ preserveBitmapReferences: true }));
-    if (!candidate) return;
+    if (!candidate) {
+      setSaveAsDialog(current => current ? { ...current, error: "This project could not be prepared for saving.", submitting: false } : current);
+      return;
+    }
     saveInFlightRef.current = true;
     try {
       setSaveState("saving");
@@ -8296,12 +8322,19 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
       setProjectAiMemory(bindDrawingAiProjectMemoryToProject(saved.auxiliary?.drawingAiMemory as DrawingAiProjectMemory | null, saved.projectId));
       if (documentGenerationRef.current === capturedGeneration) { setSaveState("saved"); showSaveNotification(saved.title); }
       else setSaveState("unsaved");
+      setSaveAsDialog(null);
     } catch (error) {
       if (workspaceMountedRef.current && workspaceInstanceIdRef.current === capturedWorkspaceInstanceId) {
-        setSaveState(error instanceof Error && ["project_too_large", "collection_too_large", "project_limit_reached"].includes(error.message) ? "too-large" : "failed");
+        const tooLarge = error instanceof Error && ["project_too_large", "collection_too_large", "project_limit_reached"].includes(error.message);
+        setSaveState(tooLarge ? "too-large" : "failed");
+        setSaveAsDialog(current => current ? {
+          ...current,
+          error: tooLarge ? "This project is too large to save on this browser." : "The project could not be saved. Nothing was replaced.",
+          submitting: false,
+        } : current);
       }
     } finally { saveInFlightRef.current = false; }
-  }, [buildUnifiedProjectSnapshot, commitCurrentFrameSnapshotWithoutHistory, createPersistedProjectSnapshot, projectTitle, showSaveNotification]);
+  }, [buildUnifiedProjectSnapshot, commitCurrentFrameSnapshotWithoutHistory, createPersistedProjectSnapshot, saveAsDialog, showSaveNotification]);
 
   const handleTextObjectsChange = useCallback((nextTextObjects: DrawingTextObject[]) => {
     requireManualEditorCommand("drawing.text.commit/v1", "DrawingWorkspace.handleTextObjectsChange");
@@ -8910,6 +8943,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
         projectTitle={projectTitle}
         onSave={async () => { await saveProject(); }}
         onSaveAs={handleSaveAs}
+        onExport={onExport}
         saveState={saveState}
         isLegacyProject={activeUnifiedProject.provenance?.kind === "legacy-adoption" && activeUnifiedProject.provenance.adoptedAt === null}
         onUndo={handleUndo}
@@ -9103,6 +9137,96 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject 
       </div>
       <DrawingToolBar activeTool={activeTool} onToolSelect={activateDrawingTool} rightPanelWidth={rightPanelWidth} />
     </div>
+    {saveAsDialog && (
+      <div
+        role="presentation"
+        onPointerDown={(event) => { if (event.target === event.currentTarget) cancelSaveAsDialog(); }}
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 1300,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 20,
+          background: "rgba(4, 7, 12, 0.72)",
+        }}
+      >
+        <form
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="save-as-dialog-title"
+          aria-describedby={saveAsDialog.error ? "save-as-dialog-help save-as-dialog-error" : "save-as-dialog-help"}
+          onSubmit={(event) => { event.preventDefault(); void submitSaveAsDialog(); }}
+          onKeyDown={(event) => {
+            if (event.key === "Escape") {
+              event.preventDefault();
+              cancelSaveAsDialog();
+            }
+          }}
+          style={{
+            width: "min(440px, 100%)",
+            display: "flex",
+            flexDirection: "column",
+            gap: 16,
+            padding: 24,
+            borderRadius: 16,
+            border: "1px solid rgba(255,255,255,0.16)",
+            background: "rgb(24, 28, 36)",
+            boxShadow: "0 24px 80px rgba(0,0,0,0.52)",
+            color: "white",
+          }}
+        >
+          <div>
+            <h2 id="save-as-dialog-title" style={{ margin: 0, fontSize: 20 }}>Save project as</h2>
+            <p id="save-as-dialog-help" style={{ margin: "7px 0 0", color: "rgba(255,255,255,0.64)", fontSize: 13 }}>
+              Save a new copy on this browser. The current project stays unchanged until saving succeeds.
+            </p>
+          </div>
+          <label htmlFor="save-as-project-name" style={{ display: "flex", flexDirection: "column", gap: 7, color: "rgba(255,255,255,0.82)", fontSize: 13 }}>
+            Project name
+            <input
+              id="save-as-project-name"
+              data-save-as-project-name="true"
+              autoFocus
+              value={saveAsDialog.name}
+              disabled={saveAsDialog.submitting}
+              onFocus={(event) => event.currentTarget.select()}
+              onChange={(event) => setSaveAsDialog(current => current ? { ...current, name: event.target.value, error: null } : current)}
+              style={{
+                width: "100%",
+                boxSizing: "border-box",
+                padding: "11px 12px",
+                borderRadius: 9,
+                border: saveAsDialog.error ? "1px solid #ff7b86" : "1px solid rgba(110,170,255,0.55)",
+                background: "rgba(255,255,255,0.05)",
+                color: "white",
+                fontSize: 15,
+                outline: "none",
+              }}
+            />
+          </label>
+          {saveAsDialog.error ? <div id="save-as-dialog-error" role="alert" style={{ color: "#ff9aa3", fontSize: 13 }}>{saveAsDialog.error}</div> : null}
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
+            <button
+              type="button"
+              disabled={saveAsDialog.submitting}
+              onClick={cancelSaveAsDialog}
+              style={{ minWidth: 88, minHeight: 40, borderRadius: 9, border: "1px solid rgba(255,255,255,0.14)", background: "rgba(255,255,255,0.05)", color: "white", cursor: saveAsDialog.submitting ? "default" : "pointer" }}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={saveAsDialog.submitting}
+              style={{ minWidth: 88, minHeight: 40, borderRadius: 9, border: "1px solid rgba(110,170,255,0.62)", background: "rgba(57,139,255,0.24)", color: "white", cursor: saveAsDialog.submitting ? "default" : "pointer", fontWeight: 700 }}
+            >
+              {saveAsDialog.submitting ? "Saving…" : "Save copy"}
+            </button>
+          </div>
+        </form>
+      </div>
+    )}
     </>
   );
 }

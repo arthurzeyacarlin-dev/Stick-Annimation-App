@@ -1,5 +1,13 @@
 # Changelog
 
+### 2026-09-20 — Accept and propagate SPEC-0009 Phase 1 Choose and Watch (D-0096)
+
+- Recorded Arthur's approval, separate Phase 1 authorization and visible acceptance of the corrected app copy. The accepted result remains on unchanged base/HEAD `37cdb7203286c2ea333a3766ba2e81bc06830200` with an empty index and exactly 12 technical implementation/proof paths.
+- Bound the immutable 8,688-byte PASS manifest at SHA-256 `40af1b220958a5d99094a07c763194b4cb6e2338ee6e14f0b2674a671564c2fb` and aggregate accepted-source digest `982cd78ad9342bc59e44de45a6f7972c276e3d9255cc29a5ec772a0b4047e745`; fresh pre-propagation validation returned VALID with 16 assertions.
+- Accepted one saved-animation chooser/player from Home **Export** and workspace **File → Export**, plus the visible-review corrections for an in-app Save As dialog, saved-raster owner/hold/tween playback and Terra's conversation-specific missing-key error. No Terra model/reasoning/instructions/gradient/job/transcript/mutation behavior changed.
+- Recorded proof PASS for 25 oracle assertions, 23 real-app correction assertions, TypeScript, focused lint and production build. Deterministic browser proof made zero external/paid requests; one separately observed live Terra greeting later returned `Hello — connection confirmed.` without recording the ignored local credential.
+- Propagation changes only canonical control-plane/tree bytes and leaves every accepted technical/proof byte unchanged. No staging, commit, integration, push, proof preservation, server shutdown or D-0054 cleanup occurs in this task. Phase 1 publication is the next separately authorized lifecycle step; Phases 2–3 remain Unauthorized/Not started.
+
 ### 2026-09-20 — Publish and close the SPEC-0008 pause / SPEC-0009 proposal record (D-0095/GIT-074/GIT-075)
 
 - Published the exact 15-path D-0093/D-0094 planning package as GIT-074 commit `30f6f85e5c483c9df15946e7a451bf2a31374f2e`, parent `42bfe1a2607a85a87d486e21d6e573b4e4084d5a`, and verified canonical/local-origin/live-GitHub `main` clean and synchronized at `0/0`.

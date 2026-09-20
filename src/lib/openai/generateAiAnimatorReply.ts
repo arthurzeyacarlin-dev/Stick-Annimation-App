@@ -34,7 +34,7 @@ export const generateAiAnimatorReply = async (
   options: { signal?: AbortSignal } = {},
 ): Promise<AiAnimatorProviderResult> => {
   const startedAt = performance.now();
-  const client = getOpenAiClient();
+  const client = getOpenAiClient("terra-conversation");
   const response = await client.responses.create(
     {
       model: AI_ANIMATOR_MODEL,

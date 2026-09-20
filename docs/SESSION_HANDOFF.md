@@ -3,9 +3,9 @@
 Status: current canonical stopping point
 Last updated: 2026-09-20
 
-All seven SPEC-0006 phases are closed through GIT-061. Drawing-only SPEC-0007 is fully closed through D-0083/D-0084/GIT-066. SPEC-0008 Phase 1 is fully Verified, published, integrated, recorded and cleaned up through D-0089/D-0090/GIT-070 `76708645c96b3b0ea95c524f162bb6152d539fcf`. D-0091/GIT-072 `9b4b116d24b076b1c05d91a02fd7318ae5a44148` and D-0092/GIT-073/current-main `42bfe1a2607a85a87d486e21d6e573b4e4084d5a` remain preserved planning history. D-0093 pauses SPEC-0008 Phases 2–6 as Unauthorized/Not started/not rejected. D-0094 adds Proposed SPEC-0009 Animation Export with exactly three unauthorized phases.
+All seven SPEC-0006 phases are closed through GIT-061. Drawing-only SPEC-0007 is fully closed through D-0083/D-0084/GIT-066. SPEC-0008 Phase 1 is fully Verified, published, integrated, recorded and cleaned up through D-0089/D-0090/GIT-070 `76708645c96b3b0ea95c524f162bb6152d539fcf`. D-0091/GIT-072 `9b4b116d24b076b1c05d91a02fd7318ae5a44148` and D-0092/GIT-073 `42bfe1a2607a85a87d486e21d6e573b4e4084d5a` remain preserved planning history. D-0093 pauses SPEC-0008 Phases 2–6 as Unauthorized/Not started/not rejected. D-0094 adds Proposed SPEC-0009 Animation Export with exactly three unauthorized phases, published as planning-only GIT-074 `30f6f85e5c483c9df15946e7a451bf2a31374f2e`.
 
-## Current stopping point — reconcile SPEC-0008 pause and Proposed SPEC-0009; publication is the only next action
+## Current stopping point — planning publication complete; SPEC-0009 approval is the next owner decision
 
 D-0093 preserves the accepted Phase 1 bytes/evidence and suspends every unimplemented SPEC-0008 phase. The detailed D-0091 hosted-search and D-0092 automatic-commit contracts remain historical planning material only; they do not authorize an executor, provider use, asset purchase or replacement architecture. Resumption requires Arthur's explicit direction, a fresh evidence refresh and post-Phase-1 architecture/spec reconciliation before any separate phase authorization.
 
@@ -13,9 +13,9 @@ D-0094 preserves [`SPEC-0009 — Animation Export`](specs/0009-animation-export.
 
 Fresh tracing against exact base `42bfe1a…` confirms Home Export has no action, workspace File exposes only Save/Save As, and the only current export helper is a white-background raster-only current-frame PNG that omits timeline animation, text and audio. The accepted read-only SPEC-0009 source had SHA-256 `a69f4bce4b0501b68415e28ab4685db7b39db799e9c30afecce7307e3ec9dc7b`; reconciliation changes only its unavoidable decision references from D-0091/D-0092 to D-0093/D-0094 because those IDs were already occupied on current main.
 
-This reconciliation is documentation/control-plane/tree only. It changes no app/runtime, fixture, technical test, proof artifact, dependency, credential, provider/account, AI credit, server or deployment behavior. It runs in the isolated managed worktree `/Users/arthurcarlin/.codex/worktrees/spec0009-reconciliation/stick-animation-app` from clean detached base/HEAD `42bfe1a2607a85a87d486e21d6e573b4e4084d5a`; canonical `main`, local `origin/main` and live remote `main` were refreshed and equal at that base before edits.
+The GIT-074 reconciliation is documentation/control-plane/tree only. It changed no app/runtime, fixture, technical test, proof artifact, dependency, credential, provider/account, AI credit, server or deployment behavior. It was committed from exact parent `42bfe1a2607a85a87d486e21d6e573b4e4084d5a`, fast-forwarded into canonical `main`, pushed normally, and verified equal across canonical `main`, local `origin/main` and live GitHub `main` at `30f6f85e5c483c9df15946e7a451bf2a31374f2e` with `0/0` synchronization.
 
-Exact next step: Arthur and the Project Manager review this reconciliation packet. A later explicit publication instruction may then authorize staging only the reviewed control-plane/tree allowlist, committing as GIT-074, fast-forwarding unchanged clean canonical `main`, pushing normally and verifying clean local/origin/live synchronization. Do not implement SPEC-0008 Phases 2–6, approve or implement SPEC-0009, call a provider, buy assets, spend credits, deploy, or alter runtime/test/fixture/dependency bytes.
+Exact next step: Arthur decides whether to approve SPEC-0009 as a whole and, separately, whether to authorize Phase 1 in a fresh Spec Executor app copy from the synchronized canonical-main SHA. Until both permissions are explicit, do not implement SPEC-0008 Phases 2–6 or any SPEC-0009 phase, call a provider, buy assets, spend credits, deploy, or alter runtime/test/fixture/dependency bytes.
 
 ## Historical stopping point — SPEC-0007 complete; ready for separate SPEC-0008 creation authorization
 

@@ -1,7 +1,7 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-20 for D-0093/D-0094 reconciliation from exact current-main base `42bfe1a2607a85a87d486e21d6e573b4e4084d5a`; runtime remains D-0090/GIT-070 `76708645c96b3b0ea95c524f162bb6152d539fcf`.
+Last traced: 2026-09-20 through published D-0093/D-0094 planning-only GIT-074 `30f6f85e5c483c9df15946e7a451bf2a31374f2e`; runtime remains D-0090/GIT-070 `76708645c96b3b0ea95c524f162bb6152d539fcf`.
 
 ## Proposed SPEC-0009 Animation Export architecture — not implemented or authorized
 
@@ -24,7 +24,7 @@ Home Export or workspace File → Export
 
 The selected source remains owned by the accepted V2 repository. Listing, watching, encoding and writing create no project version/history/repository mutation and never include unsaved workspace edits implicitly. FPS and duration come from the saved document; project-owned background is part of render truth; there is no export-only white control. Phase 3 adds a versioned locally bundled destination catalog that changes output canvas shape through disclosed contain/padding only—never silent crop—and performs no direct social login/upload.
 
-This architecture is **Proposed only**. The precise shared-evaluator extraction, persisted background ownership, locally licensed encoder and Finder partial-file behavior are named phase entry gates. No runtime/dependency/test/provider/account/deployment change exists, no AI credit is used, and D-0093 keeps SPEC-0008 Phases 2–6 paused.
+This architecture is **Proposed only** and its planning record is published in GIT-074. The precise shared-evaluator extraction, persisted background ownership, locally licensed encoder and Finder partial-file behavior are named phase entry gates. No runtime/dependency/test/provider/account/deployment change exists, no AI credit is used, and D-0093 keeps SPEC-0008 Phases 2–6 paused.
 
 ## Published SPEC-0008 Phase 1 architecture
 

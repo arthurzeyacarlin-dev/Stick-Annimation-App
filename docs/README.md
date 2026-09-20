@@ -2,8 +2,8 @@
 
 Status: canonical repository memory
 Established: 2026-08-09
-Last reconciled with live code: 2026-08-09
-Snapshot basis: pull request `#1` merged into `main` as `093bbac82fd3b4d97984448b6c6dbd716153354d`; functional anchor `c7de444536f3e0dd578a2063f70b0914e6af60b1`; pre-merge tip `dab9acbc7d5902aedc3df1bd0b3dfdef40079576`; tag `baseline-2026-08-09-control-plane`; local `main` synchronized with `origin/main`
+Last reconciled with live code and current planning records: 2026-09-20
+Snapshot basis: pull request `#1` merged into `main` as `093bbac82fd3b4d97984448b6c6dbd716153354d`; functional anchor `c7de444536f3e0dd578a2063f70b0914e6af60b1`; tag `baseline-2026-08-09-control-plane`; latest planning publication GIT-074 `30f6f85e5c483c9df15946e7a451bf2a31374f2e`; local `main` synchronized with `origin/main`
 
 ## Purpose
 

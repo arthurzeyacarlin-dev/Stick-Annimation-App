@@ -1,5 +1,11 @@
 # Changelog
 
+### 2026-09-20 — Publish and close the SPEC-0008 pause / SPEC-0009 proposal record (D-0095/GIT-074/GIT-075)
+
+- Published the exact 15-path D-0093/D-0094 planning package as GIT-074 commit `30f6f85e5c483c9df15946e7a451bf2a31374f2e`, parent `42bfe1a2607a85a87d486e21d6e573b4e4084d5a`, and verified canonical/local-origin/live-GitHub `main` clean and synchronized at `0/0`.
+- Preserved reconciled SPEC-0009 byte identity at SHA-256 `3a4028deffe45c21223ac21732111c0cb1d614a6c84c3471477eb50a5a2dd0dc`. It remains Proposed; no phase is Approved or authorized.
+- Added the GIT-075 records-only follow-up to replace stale “awaiting publication” language. No app/runtime/test/fixture/proof/dependency/provider/account/deployment behavior changed and no programming began.
+
 ### 2026-09-20 — Reconcile the SPEC-0008 pause and Proposed SPEC-0009 onto current main (D-0093/D-0094)
 
 - Preserved current-main D-0091/GIT-072 web-research planning and D-0092/GIT-073 automatic-commit planning as historical material, including exact commits `9b4b116d24b076b1c05d91a02fd7318ae5a44148` and `42bfe1a2607a85a87d486e21d6e573b4e4084d5a`; neither has dispatch authority while the pause is active.

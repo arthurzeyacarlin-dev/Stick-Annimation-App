@@ -960,6 +960,16 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Lifecycle: the proposal is decision-complete and review-ready but remains **Proposed**. Arthur must separately approve the whole spec and separately authorize Phase 1 from an exact synchronized canonical-main SHA. Phases 2 and 3 require full predecessor acceptance/publication/integration/synchronization/proof-preservation/cleanup and separate authorization. This reconciliation itself authorizes no programming.
 - Task boundary: this Control Plane Architect task changes only canonical planning/control-plane/tree files. It changes no app/runtime/fixture/technical-test/proof/dependency/provider/account/deployment behavior and performs no stage, commit, merge, push or publication.
 
+### D-0095 — Record publication of the SPEC-0008 pause and Proposed SPEC-0009
+
+- Date: 2026-09-20
+- Status: Accepted terminal publication record; no product approval or implementation authority
+- Authority: Arthur explicitly authorized reconciliation and publication after accepting the SPEC-0009 planning result, while separately withholding programming permission.
+- Publication: GIT-074 is exact commit `30f6f85e5c483c9df15946e7a451bf2a31374f2e`, parent `42bfe1a2607a85a87d486e21d6e573b4e4084d5a`, containing exactly the 15 reviewed planning/control-plane/tree paths. Canonical `main`, local `origin/main` and live GitHub `main` were verified clean and synchronized at `0/0` after the normal push.
+- Integrity: the reconciled 47,740-byte/604-line SPEC-0009 file remains SHA-256 `3a4028deffe45c21223ac21732111c0cb1d614a6c84c3471477eb50a5a2dd0dc`. GIT-074 changes no app/runtime/test/fixture/proof/dependency/provider/account/deployment byte and spends no AI or provider credit.
+- Lifecycle: D-0093 remains active; SPEC-0008 Phases 2–6 remain Paused/Unauthorized/Not started/not rejected. SPEC-0009 remains Proposed, not Approved, with no phase authorized. Whole-spec approval and a separate Phase 1 authorization from synchronized canonical main remain mandatory before a fresh Spec Executor app copy may begin.
+- Closeout: GIT-075 is the records-only follow-up that corrects stale prepublication language. It does not change the product plan, the spec hash, or any runtime state.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

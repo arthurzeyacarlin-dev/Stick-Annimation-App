@@ -44,7 +44,7 @@ D-0094 adds independent [`SPEC-0009 — Animation Export`](specs/0009-animation-
 2. Create and Save Video from one immutable saved revision, preserving content/timing/audio and writing a validated local MP4 through the macOS Finder flow.
 3. Social Destinations and Final Testing through a versioned data-driven destination catalog; no direct login, upload or posting.
 
-No SPEC-0009 phase is Approved or authorized. Whole-spec approval and a separate Phase 1 authorization remain required. The proposal adds no Terra/OpenAI/video-provider/social-network request, AI credit use, deployment or runtime behavior.
+GIT-074 publishes this planning-only proposal in exact commit `30f6f85e5c483c9df15946e7a451bf2a31374f2e`. No SPEC-0009 phase is Approved or authorized. Whole-spec approval and a separate Phase 1 authorization remain required. The proposal adds no Terra/OpenAI/video-provider/social-network request, AI credit use, deployment or runtime behavior.
 
 ## Phase 0 — Preserve and Stabilize
 

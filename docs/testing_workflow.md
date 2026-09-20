@@ -5,7 +5,7 @@ Last updated: 2026-09-21
 
 ## Proposed SPEC-0010 Project Safety and Recovery proof contract
 
-Status: planning only. D-0102/SPEC-0010 defines three separately gated phases; no executor, implementation or proof result is authorized yet.
+Status: GIT-080 publishes the plan and D-0103 authorizes Phase 1 only. No implementation or proof result exists yet; Phases 2–3 remain Unauthorized/Not started.
 
 Phase 1 must prove that **Save and Exit** uses the existing official V2 Save transaction exactly once, returns Home only after the successful write covers the current workspace generation, stays editable on every failure/stale completion, and does not begin recovery storage. Phase 2 must prove that only committed meaningful edits create one separate latest verified local emergency draft; debounce, readback, bounds, quota/corruption, stale sequence, cross-session conflict and exact-generation clearing all fail safely without changing official projects. Phase 3 must prove understandable startup **Recover Work** / **Discard Draft**, isolated recovery with zero official writes before explicit Save, detached-copy handling for stale/missing sources, corrupt/oversized behavior, and the honest limit that only a completed verified local draft is recoverable.
 

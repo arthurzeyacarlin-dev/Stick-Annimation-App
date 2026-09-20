@@ -1,7 +1,7 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-21 through D-0102/SPEC-0010 planning against clean canonical main `092a96c6a17db1bbb307d21128bed84377eba3e7`.
+Last traced: 2026-09-21 through GIT-080 SPEC-0010 planning publication and D-0103 Phase 1 authorization; runtime remains unchanged.
 
 ## Proposed SPEC-0010 Project Safety and Recovery architecture — not implemented
 
@@ -28,7 +28,7 @@ Phase 3: startup recovery check
   -> later explicit Save/Save As/Save and Exit remains the sole official publication door
 ```
 
-The recovery draft is an emergency local backup, not ordinary Save, project history, cloud sync or a project-list entry. Only a fully committed and read-back local draft may be promised; browser termination cannot guarantee unfinished asynchronous work. All three phases remain Proposed/Unauthorized/Not started. The exact contracts, bounds and gates are in [`SPEC-0010`](specs/0010-project-safety-and-recovery.md). SPEC-0008 Phases 2–6 remain paused under D-0093.
+The recovery draft is an emergency local backup, not ordinary Save, project history, cloud sync or a project-list entry. Only a fully committed and read-back local draft may be promised; browser termination cannot guarantee unfinished asynchronous work. D-0103 authorizes Phase 1 only; Phases 2–3 remain Unauthorized/Not started. The exact contracts, bounds and gates are in [`SPEC-0010`](specs/0010-project-safety-and-recovery.md). SPEC-0008 Phases 2–6 remain paused under D-0093.
 
 ## SPEC-0009 Animation Export architecture — all three phases closed
 

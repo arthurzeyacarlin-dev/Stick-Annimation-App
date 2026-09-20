@@ -1051,6 +1051,15 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Boundary: no My Projects redesign, AI Dashboard/Assistant/Finalizer, AI Animator resumption, cloud sync, account, network, analytics, dependency, provider, paid call, deployment, official project schema/store change, or background network activity. D-0093 continues to pause SPEC-0008 Phases 2–6.
 - Lifecycle: SPEC-0010 is Proposed and planning-complete from clean canonical planning base `092a96c6a17db1bbb307d21128bed84377eba3e7`. This package changes planning/control-plane/tree records only. It creates no executor/app copy/server/recovery database, changes no runtime/test/fixture/dependency/credential/Git ref, and authorizes no phase. Arthur/PM approval plus separate explicit Phase 1 authorization remain required.
 
+### D-0103 — Approve SPEC-0010 and authorize Phase 1 Save and Exit
+
+- Date: 2026-09-21
+- Status: Accepted by Arthur; whole-spec approval and Phase 1-only authorization
+- Authority: after reviewing the completed three-phase plan, Arthur explicitly authorized recording/publication and instructed the Project Manager to start a fresh Phase 1 executor/app copy without another approval gate.
+- Planning publication: GIT-080 is exact 13-path commit `cb80f2baf92f812c97ce758067f6ea28b3c6c187`, parent `092a96c6a17db1bbb307d21128bed84377eba3e7`, message `Define SPEC-0010 project safety and recovery`. Canonical `main` and `origin/main` were synchronized by normal fast-forward/push; no runtime byte changed.
+- Authorization: SPEC-0010 is Approved. Phase 1 **File → Save and Exit** is Authorized/Not started and may begin in one fresh dedicated Plan-mode Spec Executor from the clean synchronized activation-record SHA. It may touch only its bounded runtime/test/proof allowlist, reuse the canonical Save transaction, navigate Home only after a current-generation success, and stop with an Implementation Review Packet for Arthur.
+- Boundaries: Phase 1 must not begin Phase 2 recovery storage, Phase 3 startup recovery, AI/Terra work, export changes, provider/network/paid activity, deployment, dependency changes, control-plane mutation, Git staging/commit/push, or another phase. Phases 2–3 remain Unauthorized/Not started.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

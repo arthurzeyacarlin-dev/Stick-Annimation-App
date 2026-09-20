@@ -52,7 +52,7 @@ D-0102 adds Proposed [`SPEC-0010 — Project Safety and Recovery`](specs/0010-pr
 2. One separate local latest emergency recovery draft with bounded, verified replacement.
 3. Startup Recover Work / Discard Draft and complete fault/regression proof.
 
-The recovery draft is not ordinary Save and cannot silently overwrite an official project. SPEC-0010 is planning-complete only. Whole-spec approval and separate Phase 1 authorization are still required; Phases 2–3 remain gated behind complete predecessor closeout.
+The recovery draft is not ordinary Save and cannot silently overwrite an official project. GIT-080 publishes the planning package and D-0103 approves SPEC-0010 with Phase 1 Authorized/Not started. Phases 2–3 remain gated behind complete predecessor closeout and separate authorization.
 
 ## Phase 0 — Preserve and Stabilize
 

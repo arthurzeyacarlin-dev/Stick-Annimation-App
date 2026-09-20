@@ -1,5 +1,12 @@
 # Changelog
 
+### 2026-09-21 — Publish SPEC-0010 planning and authorize Phase 1 (D-0103/GIT-080)
+
+- published the exact 13-path SPEC-0010 planning package in `cb80f2baf92f812c97ce758067f6ea28b3c6c187` (`Define SPEC-0010 project safety and recovery`) by normal fast-forward to canonical `main` and push to `origin/main`
+- recorded Arthur's approval of the complete three-phase safety plan and authorization of exactly one fresh Phase 1 **File → Save and Exit** Spec Executor after this activation record is published
+- kept Phase 2 recovery storage, Phase 3 startup recovery, SPEC-0008 later AI phases, external/provider/paid activity, dependencies and deployment unauthorized
+- changed control-plane records only; no runtime, test, fixture, database, credential or application behavior changed
+
 ### 2026-09-21 — Propose SPEC-0010 Project Safety and Recovery (D-0102)
 
 - traced the current File → Save/Save As path, official unified V2 repository transaction, Home navigation ownership and lack of durable recovery/startup recovery behavior against clean canonical base `092a96c6a17db1bbb307d21128bed84377eba3e7`

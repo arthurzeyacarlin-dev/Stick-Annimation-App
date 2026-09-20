@@ -5,7 +5,7 @@ Last updated: 2026-09-21
 
 All seven SPEC-0006 phases are closed through GIT-061. Drawing-only SPEC-0007 is fully closed through GIT-066. SPEC-0008 Phase 1 is fully closed through GIT-070; D-0093 keeps Phases 2–6 paused as Unauthorized/Not started/not rejected. All three SPEC-0009 phases are fully closed through D-0101/GIT-079.
 
-## Current stopping point — Proposed SPEC-0010 Project Safety and Recovery planning complete
+## Current stopping point — SPEC-0010 approved; Phase 1 authorized, not started
 
 Arthur selected local project safety as the next beta-readiness feature and asked a dedicated Spec Architect to define three phases before implementation. D-0102 and [`SPEC-0010`](specs/0010-project-safety-and-recovery.md) now define exactly: (1) **File → Save and Exit** through the current official V2 Save path; (2) one separate local latest emergency recovery draft; and (3) startup **Unsaved work found** with **Recover Work** / **Discard Draft** plus final fault/regression proof.
 
@@ -13,9 +13,9 @@ Fresh code tracing at clean canonical planning base `092a96c6a17db1bbb307d21128b
 
 The proposal keeps official Save explicit. A recovery draft is one separate same-origin emergency backup, never an official project/list entry and never a silent overwrite. It uses meaningful committed edits, bounded debounce/latest-sequence writes, validation/readback, prior-valid preservation, session/workspace conflict protection, a 128 MiB candidate ceiling, truthful quota/corruption states and exact-generation clearing. Startup recovery mounts an isolated candidate and writes no official bytes until an explicit Save. Async close/crash handling promises only the last completed verified draft.
 
-This is planning only. No runtime/test/fixture/dependency/database/server/credential/Git ref changed; no app copy or executor started; no stage/commit/push/publication occurred; no AI/provider/network/paid/deployment action occurred. D-0093 still pauses SPEC-0008 Phases 2–6.
+GIT-080 publishes the exact 13-path planning package at `cb80f2baf92f812c97ce758067f6ea28b3c6c187`. D-0103 records Arthur's whole-spec approval and Phase 1-only authorization. No runtime/test/fixture/dependency/database/server/credential/AI/provider/network/paid/deployment behavior changed in that planning publication. D-0093 still pauses SPEC-0008 Phases 2–6.
 
-Exact next safe step: Arthur and the Project Manager review/approve SPEC-0010 and separately authorize one fresh Phase 1 Spec Executor from the then-current clean synchronized canonical `main`. That executor may implement only **Save and Exit**; Phase 2 recovery storage and Phase 3 startup recovery must not begin early.
+Exact next safe step: publish this D-0103 activation record, then start one fresh Plan-mode Phase 1 Spec Executor from that clean synchronized canonical-main SHA. It may implement only **Save and Exit**, return its proof manifest and PM Review Packet, and stop for Arthur's review. Phase 2 recovery storage and Phase 3 startup recovery must not begin early.
 
 ## Historical stopping point — SPEC-0009 Phase 3 published, synchronized, preserved and cleaned up
 

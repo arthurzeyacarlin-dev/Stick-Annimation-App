@@ -1,11 +1,11 @@
 # SPEC-0010 — Project Safety and Recovery
 
-Status: **Proposed; planning complete; no implementation phase authorized**
+Status: **Approved; Phase 1 Authorized/Not started; Phases 2–3 Unauthorized/Not started**
 Owner: Arthur
 Task role: three separately gated implementation phases after later explicit phase authorization
 Created: 2026-09-21
 Last updated: 2026-09-21
-Decision links: [D-0102](../DECISIONS.md)
+Decision links: [D-0102](../DECISIONS.md), [D-0103](../DECISIONS.md)
 TODO IDs: `PLAN-010`, `SPEC-010`, `SAFETY-001`–`SAFETY-003`, `PERSIST-001`
 Planning base: canonical `main` commit `092a96c6a17db1bbb307d21128bed84377eba3e7`; clean index and worktree before planning edits
 Last verified runtime basis: code trace at planning base; no runtime implementation exists
@@ -23,7 +23,7 @@ This is exactly three separately gated phases:
 
 | Phase | User outcome | Current state |
 | --- | --- | --- |
-| 1 — Save and Exit | **File → Save and Exit** uses the existing canonical Save path and returns Home only after successful Save. | Proposed; Unauthorized; Not started |
+| 1 — Save and Exit | **File → Save and Exit** uses the existing canonical Save path and returns Home only after successful Save. | Approved; Authorized; Not started |
 | 2 — Emergency Recovery Draft | Meaningful committed edits create one bounded, separate, local latest-draft backup without changing the official project. | Proposed; Unauthorized; Not started |
 | 3 — Recover Work and Final Safety Proof | Startup offers **Recover Work** or **Discard Draft**, opens only validated recovery data, and closes full save/recovery regressions. | Proposed; Unauthorized; Not started |
 
@@ -376,7 +376,7 @@ Before each phase:
 8. publication/integration/push and cleanup require a later explicit instruction; and
 9. the next phase cannot begin until the prior phase is durably closed and separately authorized.
 
-This Proposed spec and D-0102 create no Spec Executor, app copy, runtime byte, Git commit, push, server, recovery database, or phase authorization.
+GIT-080 published this planning package in `cb80f2baf92f812c97ce758067f6ea28b3c6c187`. D-0103 approves the spec and authorizes exactly one fresh Phase 1 Spec Executor after the activation record is published to clean synchronized canonical `main`. Phase 2 recovery storage and Phase 3 startup recovery remain Unauthorized/Not started.
 
 ## 12. Implementation and verification record
 
@@ -384,4 +384,4 @@ Not started. No runtime, fixture, technical-test, proof, dependency, configurati
 
 ## 13. Final planning handoff
 
-SPEC-0010 is decision-complete for owner review with exactly three phases. The next safe action is Arthur/PM approval of the spec and a separate explicit authorization for one fresh Phase 1 Spec Executor. Phase 1 may implement only **File → Save and Exit**. It must not begin the recovery store or startup prompt early.
+SPEC-0010 is Approved with exactly three phases. Phase 1 is Authorized/Not started and may implement only **File → Save and Exit** in one fresh dedicated Spec Executor after the activation record is published. It must not begin the recovery store or startup prompt early. Phases 2–3 remain Unauthorized/Not started.

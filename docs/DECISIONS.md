@@ -1008,6 +1008,15 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Honest limits: automated file proof uses the real browser encoder with an OPFS FileSystemFileHandle seam; the native Finder dialog/user-chosen path remains human-review evidence rather than a bound automated artifact. Final decoded receipts are one-frame raster/no-audio fixtures at both tiers. AAC, mixed text/symbol/effect rendering and long-duration paths are implemented/contract-tested but are not claimed as visually human-accepted by those final receipts. Compact physical-device/native-GPU behavior remains unproven.
 - Lifecycle: this propagation changes only the canonical 14 control-plane/tree paths and keeps all accepted runtime, fixture and technical-test bytes immutable. A later explicitly authorized publication task must reverify the unchanged 29-path combined scope, stage only those paths, commit/integrate/push, verify clean synchronization, preserve proof, stop the exact review server and complete D-0054 cleanup. Until then the server/worktree/proof remain preserved. Phase 3 remains Unauthorized/Not started; this decision adds no destination preset, direct upload, deployment or SPEC-0008 authority.
 
+### D-0099 — Close SPEC-0009 Phase 2 publication and cleanup
+
+- Date: 2026-09-20
+- Status: Accepted; published; integrated; synchronized; proof-preserved; cleaned up
+- Decision: record exact 29-path GIT-078 commit `682fd9732b9cc30e545b3b709ced62ffd94edc39`, parent `b45921262b57902ddbaea9519a03f7aa7289621c`, and close SPEC-0009 Phase 2 after canonical `main`, `origin/main` and live GitHub `main` matched at clean `0/0`.
+- Preservation: 12 required proof files/335,553 bytes are preserved at `/Users/arthurcarlin/Projects/stick-animation-app/output/recovery/GIT-078-spec0009-phase2-682fd97/`, aggregate SHA-256 `d2a13e835cbc19fce32620197a801bea942ffdd15beaf8d2d900f2e6a13e64bb`. `.env.local` and all secrets are excluded.
+- Cleanup: PID 59172 is stopped, port 57470 is closed, `/Users/arthurcarlin/.codex/worktrees/spec0009-phase2-rebuild/stick-animation-app` is removed/unregistered and local branch `codex/spec0009-phase2-publication` is deleted. Canonical main, remote refs, recovery evidence and the Project Manager worktree remain.
+- Consequence: Phase 2 is fully closed. Phase 3 remains Unauthorized/Not started and requires Arthur's separate authorization.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

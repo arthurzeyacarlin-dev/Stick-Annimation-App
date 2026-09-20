@@ -1,5 +1,14 @@
 # Changelog
 
+### 2026-09-20 — SPEC-0009 Phase 2 publication terminal record and cleanup
+
+- recorded exact 29-path GIT-078 commit `682fd9732b9cc30e545b3b709ced62ffd94edc39`, parent `b45921262b57902ddbaea9519a03f7aa7289621c`, and clean `0/0` canonical-main/origin/live-GitHub synchronization
+- preserved 12 required proof files/335,553 bytes at `/Users/arthurcarlin/Projects/stick-animation-app/output/recovery/GIT-078-spec0009-phase2-682fd97/`, aggregate SHA-256 `d2a13e835cbc19fce32620197a801bea942ffdd15beaf8d2d900f2e6a13e64bb`, excluding `.env.local` and secrets
+- stopped PID 59172, closed port 57470, removed only the obsolete accepted review worktree, and deleted only merged local branch `codex/spec0009-phase2-publication`
+- closed GIT-078 and SPEC-0009 Phase 2; Phase 3 remains Unauthorized/Not started pending Arthur's separate authorization
+
+This terminal record changes canonical documentation only. No runtime, fixture, technical test, proof, package, dependency, credential, provider, deployment or later-phase behavior changed.
+
 ### 2026-09-20 — Accept and technically verify corrected SPEC-0009 Phase 2 (D-0098)
 
 - Recorded Arthur's visible acceptance of the corrected review app at `http://127.0.0.1:57470/` and sequential Control Plane Architect ownership of the detached worktree at unchanged base/HEAD `b45921262b57902ddbaea9519a03f7aa7289621c`, empty index.

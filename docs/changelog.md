@@ -1,5 +1,13 @@
 # Changelog
 
+### 2026-09-21 — Propose SPEC-0010 Project Safety and Recovery (D-0102)
+
+- traced the current File → Save/Save As path, official unified V2 repository transaction, Home navigation ownership and lack of durable recovery/startup recovery behavior against clean canonical base `092a96c6a17db1bbb307d21128bed84377eba3e7`
+- created a decision-complete three-phase proposal: **Save and Exit**; one separate local latest emergency recovery draft; and startup **Recover Work / Discard Draft** plus final safety/regression proof
+- defined recovery as an emergency local backup rather than ordinary Save: it never becomes an official project, never silently overwrites saved work, and can promise only the last completed verified local draft
+- preserved D-0093's pause on SPEC-0008 Phases 2–6 and excluded My Projects, AI dashboards/assistants/finalizer, cloud/accounts, external providers, deployment and background network activity
+- recorded planning/control-plane/tree changes only. No phase executor/app copy, runtime/test/fixture/dependency/database/credential/server/Git publication or implementation authorization was created
+
 ### 2026-09-21 — SPEC-0009 Phase 3 publication terminal record and cleanup (D-0101/GIT-079)
 
 - recorded exact 24-path GIT-079 commit `555d60b48ec97e066b1110d40638927d68c8d34b`, parent `53d825490c08bce620784f0213b4574792732f22`, and clean `0/0` canonical-main/origin/live-GitHub synchronization

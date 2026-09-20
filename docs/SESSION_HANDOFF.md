@@ -5,7 +5,19 @@ Last updated: 2026-09-21
 
 All seven SPEC-0006 phases are closed through GIT-061. Drawing-only SPEC-0007 is fully closed through GIT-066. SPEC-0008 Phase 1 is fully closed through GIT-070; D-0093 keeps Phases 2–6 paused as Unauthorized/Not started/not rejected. All three SPEC-0009 phases are fully closed through D-0101/GIT-079.
 
-## Current stopping point — SPEC-0009 Phase 3 published, synchronized, preserved and cleaned up
+## Current stopping point — Proposed SPEC-0010 Project Safety and Recovery planning complete
+
+Arthur selected local project safety as the next beta-readiness feature and asked a dedicated Spec Architect to define three phases before implementation. D-0102 and [`SPEC-0010`](specs/0010-project-safety-and-recovery.md) now define exactly: (1) **File → Save and Exit** through the current official V2 Save path; (2) one separate local latest emergency recovery draft; and (3) startup **Unsaved work found** with **Recover Work** / **Discard Draft** plus final fault/regression proof.
+
+Fresh code tracing at clean canonical planning base `092a96c6a17db1bbb307d21128bed84377eba3e7` confirms that File currently has Save, Save As and Export only; `app/page.tsx` alone owns Home navigation; `AnimationWorkspace`/`DrawingWorkspace` have no exit callback; official Save already uses the snapshot → V2 repository encode/stage/readback/CAS path; and the existing `workspace:pointerup-autosave` is only an in-memory canvas-to-workspace capture, not durable crash recovery. There is no recovery database, startup choice or unload recovery path today.
+
+The proposal keeps official Save explicit. A recovery draft is one separate same-origin emergency backup, never an official project/list entry and never a silent overwrite. It uses meaningful committed edits, bounded debounce/latest-sequence writes, validation/readback, prior-valid preservation, session/workspace conflict protection, a 128 MiB candidate ceiling, truthful quota/corruption states and exact-generation clearing. Startup recovery mounts an isolated candidate and writes no official bytes until an explicit Save. Async close/crash handling promises only the last completed verified draft.
+
+This is planning only. No runtime/test/fixture/dependency/database/server/credential/Git ref changed; no app copy or executor started; no stage/commit/push/publication occurred; no AI/provider/network/paid/deployment action occurred. D-0093 still pauses SPEC-0008 Phases 2–6.
+
+Exact next safe step: Arthur and the Project Manager review/approve SPEC-0010 and separately authorize one fresh Phase 1 Spec Executor from the then-current clean synchronized canonical `main`. That executor may implement only **Save and Exit**; Phase 2 recovery storage and Phase 3 startup recovery must not begin early.
+
+## Historical stopping point — SPEC-0009 Phase 3 published, synchronized, preserved and cleaned up
 
 Arthur reviewed `http://127.0.0.1:57500/`, accepted the completed Phase 3 result after the ignored server-only Terra environment was restored, confirmed that the destination choices should remain useful local file-shape preparation controls with **Original** as the unchanged download, and authorized control-plane recording plus commit/integration/push. The Phase 3 Spec Executor is fully stopped/interrupted. Sequential exclusive Control Plane Architect ownership began from unchanged detached base/HEAD `53d825490c08bce620784f0213b4574792732f22` with empty index.
 

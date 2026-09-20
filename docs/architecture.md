@@ -1,7 +1,34 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-21 through D-0101/GIT-079 publication, integration, proof preservation and cleanup of SPEC-0009 Phase 3.
+Last traced: 2026-09-21 through D-0102/SPEC-0010 planning against clean canonical main `092a96c6a17db1bbb307d21128bed84377eba3e7`.
+
+## Proposed SPEC-0010 Project Safety and Recovery architecture — not implemented
+
+D-0102 proposes one local safety layer around the existing unified V2 owner without changing that owner's official Save semantics. The current File menu has Save, Save As and Export but no Save and Exit. `DrawingWorkspace.saveProject()` already captures the current committed frame, builds and validates one V2 snapshot, and publishes through the canonical repository's staged/readback/compare-and-swap path. `app/page.tsx` alone currently owns the return to Home. The existing `workspace:pointerup-autosave` label means only in-memory committed-canvas capture; it is not durable recovery. No separate recovery database, unload flush, startup prompt or recovery mount path exists today.
+
+The proposed three-phase architecture is:
+
+```text
+Phase 1: File -> Save and Exit
+  -> existing canonical official Save transaction
+  -> verify success covers the current workspace generation
+  -> Home only on that verified success; otherwise stay in the workspace
+
+Phase 2: committed meaningful edit
+  -> bounded debounce / monotonic sequence
+  -> encode and validate an isolated V2 candidate
+  -> separate recovery-only IndexedDB stage/readback/CAS
+  -> one latest verified local emergency draft, never an official project
+
+Phase 3: startup recovery check
+  -> Unsaved work found (project name + time)
+  -> Recover Work -> isolated validated working candidate, zero official writes
+  -> Discard Draft -> confirmed deletion of only the recovery draft
+  -> later explicit Save/Save As/Save and Exit remains the sole official publication door
+```
+
+The recovery draft is an emergency local backup, not ordinary Save, project history, cloud sync or a project-list entry. Only a fully committed and read-back local draft may be promised; browser termination cannot guarantee unfinished asynchronous work. All three phases remain Proposed/Unauthorized/Not started. The exact contracts, bounds and gates are in [`SPEC-0010`](specs/0010-project-safety-and-recovery.md). SPEC-0008 Phases 2–6 remain paused under D-0093.
 
 ## SPEC-0009 Animation Export architecture — all three phases closed
 

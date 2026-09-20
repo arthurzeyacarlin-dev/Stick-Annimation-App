@@ -46,6 +46,14 @@ D-0094 adds independent [`SPEC-0009 — Animation Export`](specs/0009-animation-
 
 GIT-074 publishes the planning package in exact commit `30f6f85e5c483c9df15946e7a451bf2a31374f2e`. D-0096/GIT-076 close Phase 1. D-0097 authorized Phase 2; D-0098 accepted its corrected exact 15-path result; and D-0099/GIT-078 `682fd9732b9cc30e545b3b709ced62ffd94edc39` close publication/integration, proof preservation and D-0054 cleanup. Phase 2 provides project-owned default-white background, a uniform centered renderer, local 720p/1080p H.264 MP4 with AAC when audio exists, Finder save, progress/cancel/failure, partial-file cleanup and post-write validation through Mediabunny `1.58.1`/MPL-2.0. D-0100 accepts and technically verifies Phase 3's local 14-choice destination catalog, Original unchanged-shape download, complete-animation contain/no-crop geometry, Custom / Other dimensions and final long/performance proof. D-0101/GIT-079 `555d60b48ec97e066b1110d40638927d68c8d34b` close publication/integration, proof preservation and D-0054 cleanup. SPEC-0009 is fully closed.
 
+D-0102 adds Proposed [`SPEC-0010 — Project Safety and Recovery`](specs/0010-project-safety-and-recovery.md) as the next ordered beta-safety work:
+
+1. File → Save and Exit through the existing official Save transaction.
+2. One separate local latest emergency recovery draft with bounded, verified replacement.
+3. Startup Recover Work / Discard Draft and complete fault/regression proof.
+
+The recovery draft is not ordinary Save and cannot silently overwrite an official project. SPEC-0010 is planning-complete only. Whole-spec approval and separate Phase 1 authorization are still required; Phases 2–3 remain gated behind complete predecessor closeout.
+
 ## Phase 0 — Preserve and Stabilize
 
 Status: active

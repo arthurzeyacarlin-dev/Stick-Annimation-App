@@ -123,6 +123,7 @@
 ./docs/specs/0007-manual-editor-completion-and-ai-ready-tools.md
 ./docs/specs/0008-conversational-ai-animator.md
 ./docs/specs/0009-animation-export.md
+./docs/specs/0010-project-safety-and-recovery.md
 ./docs/specs/README.md
 ./docs/specs/TEMPLATE.md
 ./docs/testing_workflow.md

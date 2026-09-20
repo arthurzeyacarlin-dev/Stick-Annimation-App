@@ -3,6 +3,14 @@
 Status: canonical proof standard and current gate baseline
 Last updated: 2026-09-21
 
+## Proposed SPEC-0010 Project Safety and Recovery proof contract
+
+Status: planning only. D-0102/SPEC-0010 defines three separately gated phases; no executor, implementation or proof result is authorized yet.
+
+Phase 1 must prove that **Save and Exit** uses the existing official V2 Save transaction exactly once, returns Home only after the successful write covers the current workspace generation, stays editable on every failure/stale completion, and does not begin recovery storage. Phase 2 must prove that only committed meaningful edits create one separate latest verified local emergency draft; debounce, readback, bounds, quota/corruption, stale sequence, cross-session conflict and exact-generation clearing all fail safely without changing official projects. Phase 3 must prove understandable startup **Recover Work** / **Discard Draft**, isolated recovery with zero official writes before explicit Save, detached-copy handling for stale/missing sources, corrupt/oversized behavior, and the honest limit that only a completed verified local draft is recoverable.
+
+Every affected phase needs an immutable ignored proof manifest binding its exact authorized base and dirty allowlist, source/artifact hashes, before/after official and recovery-store digests, deterministic fault/concurrency injection, zero external/network/provider/credit activity, real-browser desktop/compact/reduced-motion and accessibility results, scoped type/lint/build/diff checks, protected Save/Save As/Open/Export/editor/timeline/onion/playback/Terra regressions, and negative manifest mutations. Executor proof must retain `humanAcceptance: pending Arthur`, `controlPlaneUpdated: false`, and `gitPublication: false`. The full proof matrix, performance ceilings and phase stop gates live in [`SPEC-0010`](specs/0010-project-safety-and-recovery.md).
+
 ## Published SPEC-0008 Phase 1 correction proof
 
 D-0089 accepts and technically verifies the exact 19-path Phase 1 correction from unchanged base/HEAD `3da58e096dd748c7c3bd23fbb9271d53e33597ca`, empty index. Immutable 26,698-byte manifest `output/spec-0008/phase-1/proof-manifest.json` is PASS/VALID at SHA-256 `80a5463775f498116389e49cb94d3282023355c6f7dd1bae9cc026a727916313`, aggregate source SHA-256 `59b985054243e83b177be241fe55c05634a6b5f278ea981e2d69203c3c6d330a`; independent validation rejected 40 mutations.

@@ -1,8 +1,8 @@
 # Current State
 
 Status: canonical rolling snapshot
-Last verified: 2026-09-21 after D-0101/GIT-079 published, integrated, synchronized, proof-preserved and cleaned up SPEC-0009 Phase 3.
-Current lifecycle: all seven SPEC-0006 phases, all five drawing-only SPEC-0007 phases, SPEC-0008 Phase 1 and all three SPEC-0009 phases are closed. D-0093 keeps SPEC-0008 Phases 2–6 **Paused; Unauthorized; Not started; not rejected**. No video provider, reusable-motion replacement architecture, asset purchase, direct social integration or deployment is selected or authorized.
+Last verified: 2026-09-21 after D-0102/SPEC-0010 planning against clean canonical base `092a96c6a17db1bbb307d21128bed84377eba3e7`; no runtime state changed.
+Current lifecycle: all seven SPEC-0006 phases, all five drawing-only SPEC-0007 phases, SPEC-0008 Phase 1 and all three SPEC-0009 phases are closed. D-0093 keeps SPEC-0008 Phases 2–6 **Paused; Unauthorized; Not started; not rejected**. D-0102/SPEC-0010 is Proposed/planning-complete with all three phases Unauthorized/Not started. No video provider, reusable-motion replacement architecture, asset purchase, direct social integration or deployment is selected or authorized.
 Git publication anchors: SPEC-0005 Phase 2 v2/GIT-048 `05faa59195c6d5f2d8a11ebcc9ab77fe1b6fdf14`; GIT-049 `de54aed275c2f6da6e7c3f4a7f65091e8d5370c0`; GIT-050 `3b784cc6a68ff6f10fa390d96b81376b46e54b44`; GIT-051 `804ff39dc73c88d4799570cce2ef18987745a0be`; GIT-052 `d2096109900cc50a0a4dae2f603bd74b7b4a3427`; GIT-053 `916a4d913c6fdf8340b67bcc88dcea184d67cd32`; GIT-054 `e11f6c453f13772ee9bd4b172a17bc68e1de65b9`; GIT-055 `e956840001d18757af8f2de5361640ba70d44d68`; GIT-056 `9c971fa4f7ea0e636ecc6957755552f678f344df`; GIT-057 `a759ae8afbb67e8fb723983851ae36947fd97f17`; GIT-058 `41983b0c88e1994675a4901d5814b3d972ad46b4`; GIT-059 `62feafc220c35eb1203dc4f19820e533a54002e1`; GIT-060 `cbe16411a0f83d3b86136f41d0a66d1874d009aa`; GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`; GIT-062 `f051aba7b927902e7aa5fc5f80c4b1d45fe6cca7`; GIT-063 `fb10e6239fd4b1edf319b3137a883e1219645ef3`; GIT-064 `b8d3b37faeaaa1a3d8bfb27359e04acd08f7acab`; GIT-065 `0dc707ff249560f4f19b8359c6a44a383e8caf92`; GIT-066 `c193b8ba89fa55ead02d84ea10bb81f71b960f8a`; GIT-067 `ba5ecd694df78414240ce83a9140c5196334ebdc`; GIT-068 `1d80141f2465db6f0e389fb43dc1cdfb8dafbdf8`.
 Correction authorization anchor: GIT-069 `e682bd5357624c934789eefbc64dbba43116b246`.
 Phase 1 implementation anchor: GIT-070 `76708645c96b3b0ea95c524f162bb6152d539fcf`.
@@ -14,7 +14,13 @@ Published SPEC-0009 Phase 1 evidence: exact 12-path implementation/proof allowli
 Published SPEC-0009 Phase 3 evidence: exact 10-path implementation/proof allowlist from base/HEAD `53d825490c08bce620784f0213b4574792732f22`; manifest SHA-256 `0d9b48f584f89d54604284c03713037402e2d68decde5c3b0d0a844cd8065277`; source digest `abb0ba8538454eea3af8cb2761b4225a1c3ed294de21f1097ea9c6b58b21e987`; GIT-079 `555d60b48ec97e066b1110d40638927d68c8d34b`; 19-file/5,202,329-byte preserved-proof aggregate SHA-256 `6cba2ea9c3730e7cd874e3db1b16cf0fc0a7e9123942c77b0708a69cce970985`.
 Frozen starting audit: `baselines/2026-08-09-repository-audit.md`
 
-## Current transition — SPEC-0009 Phase 3 published, synchronized, preserved and cleaned up, 2026-09-21
+## Proposed SPEC-0010 Project Safety and Recovery — planning complete, no phase authorized
+
+D-0102 and [`SPEC-0010`](specs/0010-project-safety-and-recovery.md) define exactly three separately gated phases: **Save and Exit**; one separate local latest emergency recovery draft; and startup **Recover Work / Discard Draft** plus final fault/regression proof. The recovery draft is not ordinary Save, never enters the official project list/repository, never silently overwrites saved work, and may promise only the last completed verified local draft.
+
+Fresh code trace proves the current app has Save, Save As and Export but no Save and Exit; only `app/page.tsx` can return Home; official Save already uses the transactional V2 snapshot/repository/readback/CAS path; `workspace:pointerup-autosave` only captures pending canvas pixels into in-memory workspace state; and no durable recovery store or startup recovery choice exists. The planning package changes no runtime, tests, fixtures, dependency, database, AI/Terra, export, provider, credentials, deployment, server or Git state. SPEC-0010 remains Proposed and every phase remains Unauthorized/Not started.
+
+## Historical transition — SPEC-0009 Phase 3 published, synchronized, preserved and cleaned up, 2026-09-21
 
 Arthur separately authorized Phase 3 after Phase 2 closed, reviewed the final app at `http://127.0.0.1:57500/`, accepted the result after restoration of the ignored server-only Terra environment, and authorized control-plane recording plus commit/integration/push. The stopped executor transferred exclusive ownership of the detached worktree at unchanged base/HEAD `53d825490c08bce620784f0213b4574792732f22` with empty index and exactly 10 technical dirty paths.
 

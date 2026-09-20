@@ -1040,6 +1040,17 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Cleanup: exact review PID 79009 was stopped and port 57500 verified closed. The obsolete `/Users/arthurcarlin/.codex/worktrees/8c9e/stick-animation-app` worktree was removed/unregistered and merged local branch `codex/spec0009-phase3-publication` deleted. Canonical main, the active Project Manager worktree, remote refs and recovery material remain.
 - Consequence: SPEC-0009 and all three phases are fully closed. Destination choices remain local file-preparation controls only; no direct social login/upload/posting, deployment, provider/paid action or SPEC-0008 resumption is included. The terminal records-only commit containing D-0101 changes no runtime, fixture, technical-test, proof, package, dependency or credential byte; its SHA is read from Git after publication rather than embedded recursively.
 
+### D-0102 — Propose SPEC-0010 Project Safety and Recovery as three separately gated phases
+
+- Date: 2026-09-21
+- Status: Proposed planning/control-plane decision; no implementation phase authorized
+- Authority: Arthur selected Project Safety and Recovery as the next feature, approved creation of a dedicated SPEC-0010 architect, and asked for a decision-complete three-phase plan before Phase 1 execution begins.
+- Decision: create [`SPEC-0010 — Project Safety and Recovery`](specs/0010-project-safety-and-recovery.md) with exactly three separately gated phases: (1) **File → Save and Exit** through the existing canonical official Save path, reaching Home only after a current-generation success; (2) one separate, bounded, local latest-workspace emergency draft that never becomes or silently replaces an official project; and (3) startup **Unsaved work found** with **Recover Work** / **Discard Draft**, isolated validated recovery, and final safety/regression proof.
+- Product meaning: the recovery draft is an emergency local backup, not ordinary Save. Official Save, Save As and Save and Exit remain explicit V2 repository operations. Recovery-only actions write no official project head/version/history and create no project-list entry. A recovered candidate changes official state only after the user explicitly saves.
+- Safety contract: meaningful committed edits schedule bounded debounce/latest-sequence writes into a separate recovery database; transient gestures/navigation do not. The preceding valid draft survives failed replacement. One logical draft, session/workspace CAS, 128 MiB candidate ceiling, validation/readback, quota/corruption handling and exact-generation clearing are mandatory. Async unload completion is best-effort only; the product may promise only the last completed verified draft.
+- Boundary: no My Projects redesign, AI Dashboard/Assistant/Finalizer, AI Animator resumption, cloud sync, account, network, analytics, dependency, provider, paid call, deployment, official project schema/store change, or background network activity. D-0093 continues to pause SPEC-0008 Phases 2–6.
+- Lifecycle: SPEC-0010 is Proposed and planning-complete from clean canonical planning base `092a96c6a17db1bbb307d21128bed84377eba3e7`. This package changes planning/control-plane/tree records only. It creates no executor/app copy/server/recovery database, changes no runtime/test/fixture/dependency/credential/Git ref, and authorizes no phase. Arthur/PM approval plus separate explicit Phase 1 authorization remain required.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

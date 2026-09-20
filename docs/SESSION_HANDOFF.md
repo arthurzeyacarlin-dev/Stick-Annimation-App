@@ -3,9 +3,9 @@
 Status: current canonical stopping point
 Last updated: 2026-09-21
 
-All seven SPEC-0006 phases are closed through GIT-061. Drawing-only SPEC-0007 is fully closed through GIT-066. SPEC-0008 Phase 1 is fully closed through GIT-070; D-0093 keeps Phases 2–6 paused as Unauthorized/Not started/not rejected. SPEC-0009 Phases 1–2 are fully closed through GIT-076/GIT-078. D-0100 accepts and technically verifies Phase 3; publication/integration, proof preservation and D-0054 cleanup remain pending.
+All seven SPEC-0006 phases are closed through GIT-061. Drawing-only SPEC-0007 is fully closed through GIT-066. SPEC-0008 Phase 1 is fully closed through GIT-070; D-0093 keeps Phases 2–6 paused as Unauthorized/Not started/not rejected. All three SPEC-0009 phases are fully closed through D-0101/GIT-079.
 
-## Current stopping point — SPEC-0009 Phase 3 accepted and technically Verified; publication pending
+## Current stopping point — SPEC-0009 Phase 3 published, synchronized, preserved and cleaned up
 
 Arthur reviewed `http://127.0.0.1:57500/`, accepted the completed Phase 3 result after the ignored server-only Terra environment was restored, confirmed that the destination choices should remain useful local file-shape preparation controls with **Original** as the unchanged download, and authorized control-plane recording plus commit/integration/push. The Phase 3 Spec Executor is fully stopped/interrupted. Sequential exclusive Control Plane Architect ownership began from unchanged detached base/HEAD `53d825490c08bce620784f0213b4574792732f22` with empty index.
 
@@ -21,7 +21,11 @@ Honest limits: automated saving used the real Chrome encoder with an OPFS FileSy
 
 The reviewed 14 control-plane/tree paths are `docs/00_MASTER_PROJECT.md`; `docs/AI_SYSTEM.md`; `docs/CURRENT_STATE.md`; `docs/DECISIONS.md`; `docs/PROJECT_MANAGER_CONTEXT.md`; `docs/ROADMAP.md`; `docs/SESSION_HANDOFF.md`; `docs/TODO.md`; `docs/architecture.md`; `docs/changelog.md`; `docs/specs/0009-animation-export.md`; `docs/specs/README.md`; `docs/testing_workflow.md`; and `project/project_structure.txt`. Combined publication-ready scope is exactly 24 paths: those 14 plus the 10 accepted technical paths. `AGENTS.md`, `.env.local`, accepted proof bytes, every other runtime/test/configuration/provider/deployment path and every other worktree remain unchanged.
 
-Exact next safe step under Arthur's already-granted publication authority: revalidate the 24-path combined scope, stage only those paths, commit on a `codex/` publication branch, fast-forward unchanged clean canonical `main`, push normally and verify clean local/origin/live equality. Then preserve the required ignored Phase 3 proof without `.env.local`, stop PID 79009/port 57500, remove only the obsolete accepted `/8c9e/` review worktree and merged local branch, and publish one terminal records-only closeout. Do not alter Terra, direct-social/upload behavior, deployment, later SPEC-0008 work, the active Project Manager worktree or unrelated recovery evidence.
+GIT-079 is exact 24-path commit `555d60b48ec97e066b1110d40638927d68c8d34b`, parent `53d825490c08bce620784f0213b4574792732f22`, message `Complete SPEC-0009 Phase 3 export destinations`: 10 accepted technical paths plus 14 reviewed control-plane/tree paths. Canonical `main`, local `origin/main` and live GitHub `main` matched at clean `0/0` before this terminal records-only closeout.
+
+The complete proof is preserved at `/Users/arthurcarlin/Projects/stick-animation-app/output/recovery/GIT-079-spec0009-phase3-555d60b/`: 19 files, 5,202,329 bytes, aggregate framed inventory SHA-256 `6cba2ea9c3730e7cd874e3db1b16cf0fc0a7e9123942c77b0708a69cce970985`; `.env.local` and secrets are excluded. PID 79009 is stopped, port 57500 is closed, `/Users/arthurcarlin/.codex/worktrees/8c9e/stick-animation-app` is absent/unregistered and local branch `codex/spec0009-phase3-publication` is deleted. The active Project Manager worktree and unrelated recovery evidence remain untouched.
+
+Exact next safe step: Arthur may choose the next feature. SPEC-0008 Phases 2–6 remain paused under D-0093 and must not resume automatically. Direct social login/upload/posting, deployment, paid/provider work and any new implementation remain unauthorized until Arthur explicitly directs them.
 
 ## Historical stopping point — SPEC-0009 Phase 2 published, synchronized, preserved and cleaned up
 

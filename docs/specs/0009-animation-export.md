@@ -1,11 +1,11 @@
 # SPEC-0009 — Animation Export
 
-Status: **Approved; Phases 1–2 fully closed; Phase 3 accepted/technically Verified with publication pending**
+Status: **Verified, published, integrated, synchronized, proof-preserved and cleaned up; all three phases closed**
 Owner: Arthur
-Task role: phased implementation; Phases 1–2 are closed and Phase 3 has completed executor/acceptance/control-plane propagation with publication pending
+Task role: closed phased implementation; Phases 1–3 completed executor, acceptance, control-plane, publication, synchronization, proof-preservation and cleanup
 Created: 2026-09-20
 Last updated: 2026-09-21
-Decision links: [D-0094](../DECISIONS.md), [D-0096](../DECISIONS.md), [D-0097](../DECISIONS.md), [D-0098](../DECISIONS.md), [D-0099](../DECISIONS.md), [D-0100](../DECISIONS.md)
+Decision links: [D-0094](../DECISIONS.md), [D-0096](../DECISIONS.md), [D-0097](../DECISIONS.md), [D-0098](../DECISIONS.md), [D-0099](../DECISIONS.md), [D-0100](../DECISIONS.md), [D-0101](../DECISIONS.md)
 TODO IDs: `PLAN-009`, `SPEC-009`, `EXPORT-001`–`EXPORT-003`
 Planning base: detached SHA `888aae769e67e08adb1862c81f21bec171fd0592`, contained by `codex/spec0008-phase1-correction-authorization`; index empty before edits
 Accepted Phase 1 base/HEAD: `37cdb7203286c2ea333a3766ba2e81bc06830200`; empty index; exact 12-path implementation/proof allowlist
@@ -15,6 +15,7 @@ Accepted Phase 2 base/HEAD: `b45921262b57902ddbaea9519a03f7aa7289621c`; empty in
 Accepted Phase 2 manifest: `output/spec-0009/phase-2/proof-manifest.json`, 11,229 bytes, SHA-256 `4f141b18e4601ef1faca2cd4f2d325bd11cc3f06303dac09f2ac1f07d838c341`; source digest `354eaf6f0d924168a2e36b0e4ec5ed240e41e89a1b3dd577b9f85af9b9fdf733`
 Accepted Phase 3 base/HEAD: `53d825490c08bce620784f0213b4574792732f22`; empty index; exact 10-path implementation/proof allowlist
 Accepted Phase 3 manifest: `output/spec-0009/phase-3/proof-manifest.json`, 34,983 bytes, SHA-256 `0d9b48f584f89d54604284c03713037402e2d68decde5c3b0d0a844cd8065277`; source digest `abb0ba8538454eea3af8cb2761b4225a1c3ed294de21f1097ea9c6b58b21e987`
+Published Phase 3 commit: GIT-079 `555d60b48ec97e066b1110d40638927d68c8d34b`; proof backup aggregate SHA-256 `6cba2ea9c3730e7cd874e3db1b16cf0fc0a7e9123942c77b0708a69cce970985`
 Visual reference: `/Users/arthurcarlin/Projects/stick-animation-app/diamond-export-flow.html`, used only for product-flow and visual-language guidance, never as runtime or technical authority
 
 ## 1. Exact product outcome
@@ -36,9 +37,9 @@ The outcome is exactly three separately authorized implementation phases:
 | --- | --- | --- |
 | 1 — Choose and Watch | Both entry points open the saved-animation chooser and a real selected-animation player. | Verified/published/integrated/preserved/cleaned up |
 | 2 — Create and Save Video | The selected immutable saved revision becomes a validated local 720p/1080p video through a truthful Finder flow. | Verified/published/integrated/preserved/cleaned up |
-| 3 — Social Destinations and Final Testing | A versioned destination catalog prepares correctly shaped local files and closes whole-feature proof. | Accepted/technically Verified; publication pending |
+| 3 — Social Destinations and Final Testing | A versioned destination catalog prepares correctly shaped local files and closes whole-feature proof. | Verified/published/integrated/preserved/cleaned up |
 
-No row authorized the next row. Arthur separately approved the whole spec and Phase 1, separately authorized Phase 2 under D-0097 after Phase 1 closed, and later explicitly authorized Phase 3 after Phase 2 closed. D-0098 records Phase 2 acceptance/technical verification; D-0099/GIT-078 record its publication/integration/synchronization/proof-preservation/cleanup. D-0100 records Arthur's visible Phase 3 acceptance and the exact stopped executor result; publication/integration remain pending.
+No row authorized the next row. Arthur separately approved the whole spec and Phase 1, separately authorized Phase 2 under D-0097 after Phase 1 closed, and later explicitly authorized Phase 3 after Phase 2 closed. D-0098 records Phase 2 acceptance/technical verification; D-0099/GIT-078 record its publication/integration/synchronization/proof-preservation/cleanup. D-0100 records Arthur's visible Phase 3 acceptance and exact stopped executor result; D-0101/GIT-079 record publication/integration/synchronization/proof-preservation/cleanup.
 
 ## 2. Relationship to SPEC-0008 and permanent boundaries
 
@@ -534,7 +535,7 @@ Phase 2 proof contract (accepted evidence and honest limits are recorded in Sect
 
 Phase 2 excludes social catalog behavior other than Original, direct uploads, crop/fill, and Custom dimensions. Completion stops; it does not authorize Phase 3.
 
-### Phase 3 — Social Destinations and Final Testing — accepted/technically Verified; publication pending
+### Phase 3 — Social Destinations and Final Testing — Verified/published/integrated/preserved/cleaned up
 
 Accepted outcome under D-0100:
 
@@ -563,7 +564,7 @@ Phase 3 acceptance flow:
 
 Phase 3 proof must bind official-source provenance/access dates, catalog/brand-asset hashes and licenses/fallback decisions, all preset geometry receipts, decoded-media inspections, no-crop pixel-bound checks, long/performance receipts, accessibility results, zero network/AI/credit evidence, protected regressions, and independently mutation-tested final manifest.
 
-The Phase 3 implementation and technical proof are accepted. V1 becomes lifecycle-complete only after the accepted result is published, integrated, recorded, synchronized, proof-preserved and cleaned up. This still does not authorize direct social integration or deployment.
+The Phase 3 implementation and technical proof are accepted and fully closed through D-0101/GIT-079. This does not authorize direct social integration or deployment.
 
 ## 16. Test matrix and proof manifest standard
 
@@ -612,7 +613,7 @@ Proven now:
 - Pinned Mediabunny `1.58.1`/MPL-2.0 creates local selected 720p/1080p H.264 MP4 with AAC when audio exists.
 - Finder selection, real progress, cancellation, distinct failures, zero-byte cleanup and post-write validation are implemented.
 - Export makes zero network/AI/provider calls and changes no credits or project/history/repository state.
-- No Phase 3 destination catalog, direct social integration, upload/posting or deployment exists.
+- The Phase 3 local destination catalog and preparation flow exist; direct social integration, upload/posting and deployment do not.
 
 Decision-complete product choices in this proposal:
 
@@ -644,4 +645,4 @@ These are bounded engineering/freshness gates, not permission to alter the accep
 
 SPEC-0009 is not complete when the UI appears, when a sample downloads, or when tests compile. Completion requires all three phases to pass their exact user flows, technical proof and real-app review; every accepted result to complete sequential executor/architect/publication/integration/synchronization/proof-preservation/cleanup; and the final product to prove faithful local export across long animations, all supported content/audio, both quality tiers, every destination family, cancellation/failures, performance, accessibility, Save/Open, timeline/drawing, AI Animator/Terra, and credits.
 
-As of D-0100, SPEC-0009 is Approved. Phase 1's exact 12-path result is fully closed through GIT-076 `548063b9247708106c7c8c8a11978563d07d6597`. Phase 2's corrected exact 15-path result is fully closed through GIT-078 `682fd9732b9cc30e545b3b709ced62ffd94edc39`. Phase 3's exact 10-path result is accepted and technically Verified from base/HEAD `53d825490c08bce620784f0213b4574792732f22`, with publication/integration, proof preservation and D-0054 cleanup pending. The destination catalog and local preparation flow are implemented; direct social integration and deployment remain absent and unauthorized.
+As of D-0101, SPEC-0009 is complete. Phase 1's exact 12-path result is fully closed through GIT-076 `548063b9247708106c7c8c8a11978563d07d6597`. Phase 2's corrected exact 15-path result is fully closed through GIT-078 `682fd9732b9cc30e545b3b709ced62ffd94edc39`. Phase 3's exact 10-path result is fully closed through GIT-079 `555d60b48ec97e066b1110d40638927d68c8d34b`, with proof preserved and D-0054 cleanup complete. The destination catalog and local preparation flow are implemented; direct social integration and deployment remain absent and unauthorized.

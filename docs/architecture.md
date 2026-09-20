@@ -1,9 +1,9 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-21 through D-0100 acceptance/technical verification and control-plane propagation of SPEC-0009 Phase 3; publication pending.
+Last traced: 2026-09-21 through D-0101/GIT-079 publication, integration, proof preservation and cleanup of SPEC-0009 Phase 3.
 
-## SPEC-0009 Animation Export architecture — Phases 1–2 closed; Phase 3 accepted with publication pending
+## SPEC-0009 Animation Export architecture — all three phases closed
 
 Before Phase 1, Home's visible Export button had no handler, workspace `DrawingTopBar` received only Save/Save As callbacks, and `DrawingWorkspace.exportCurrentFrame()` was an inadequate AI-action current-frame PNG helper. D-0096 accepts the Phase 1 replacement seams: Home **Export** and workspace **File → Export** converge on one `AnimationExportFlow`; saved-project discovery revalidates identity before cloning one immutable V2 snapshot; explicit card selection plus **Use this animation** opens Play/Pause, saved-FPS, scrubber and **Change animation** playback; workspace entry excludes unsaved edits.
 
@@ -30,7 +30,7 @@ The selected source remains owned by the accepted V2 repository. Listing, watchi
 
 Phase 3's catalog contains Original plus 12 named destination labels and Custom / Other. It uses neutral text fallbacks rather than unverified logos, carries dated `2026-09-20` first-party guidance metadata, performs no runtime lookup, and labels every value as local guidance rather than a posting guarantee. Destination selection computes exact canvas/content/padding geometry through centered complete-animation contain framing; padding uses the saved project background and silent crop/fill is absent. These controls prepare a local file only: no account, OAuth, login, upload, post, scheduler or provider is present.
 
-Export makes zero network, AI, Terra, video-provider or paid calls and changes no credits. Terra source and its fixed model/reasoning/instructions/jobs/gradient/transcript/mutation behavior are unchanged; the no-cost regression double and one separate Low live smoke pass through the ignored local environment. Automated file proof uses the real browser encoder plus a local FileSystemFileHandle seam; native Finder remains human-review evidence. Phase 3 adds real five-minute 720p and sixty-second 1080p authored-audio performance proof plus six decoded geometry families. D-0093 still keeps SPEC-0008 Phases 2–6 paused. D-0100 propagation is complete; GIT-079 publication/integration remains pending.
+Export makes zero network, AI, Terra, video-provider or paid calls and changes no credits. Terra source and its fixed model/reasoning/instructions/jobs/gradient/transcript/mutation behavior are unchanged; the no-cost regression double and one separate Low live smoke pass through the ignored local environment. Automated file proof uses the real browser encoder plus a local FileSystemFileHandle seam; native Finder remains human-review evidence. Phase 3 adds real five-minute 720p and sixty-second 1080p authored-audio performance proof plus six decoded geometry families. D-0093 still keeps SPEC-0008 Phases 2–6 paused. D-0101/GIT-079 close Phase 3 publication/integration, proof preservation and cleanup.
 
 ## Published SPEC-0008 Phase 1 architecture
 

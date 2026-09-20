@@ -256,6 +256,7 @@ export async function upgradeUnifiedProjectV1ToV2(
       schemaVersion: 2,
       projectId: candidate.project.projectId,
       logicalStage: candidate.project.document.logicalStage,
+      background: { kind: "solid-color/v1", color: "#ffffff" },
       fps: candidate.project.document.fps,
       layers,
       catalogs: { symbols: [], assets: [] },

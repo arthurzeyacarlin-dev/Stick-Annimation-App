@@ -10,6 +10,7 @@ export function createNativeUnifiedProjectV2(now = new Date().toISOString()): Un
     document: {
       kind: "diamond-animation-document", schemaVersion: 2, projectId,
       logicalStage: { width: 1920, height: 1080, origin: "top-left", xAxis: "right", yAxis: "down" }, fps: 12,
+      background: { kind: "solid-color/v1", color: "#ffffff" },
       layers: [{ layerId, name: "Layer 1", orderIndex: 0, visible: true, locked: false, cells: [{ cellId, cellType: "blank-keyframe", ownerCellId: cellId, content: { items: [], soundAttachment: null } }] }],
       catalogs: { symbols: [], assets: [] }, toolState: { drawingTool: "Select", stickTool: "idle" },
       reopenState: { activeLayerId: layerId, currentFrameIndex: 0, onionEnabled: false },

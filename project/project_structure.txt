@@ -488,8 +488,11 @@
 ./scripts/spec0009-export
 ./scripts/spec0009-export/correctionBrowserProof.ts
 ./scripts/spec0009-export/phase1Oracle.ts
+./scripts/spec0009-export/phase2Oracle.ts
 ./scripts/spec0009-export/recordPhase1Proof.ts
+./scripts/spec0009-export/recordPhase2Proof.ts
 ./scripts/spec0009-export/validatePhase1Proof.ts
+./scripts/spec0009-export/validatePhase2Proof.ts
 ./scripts/sync_docs_to_github.sh
 ./scripts/traceExplosionLivePath.ts
 ./scripts/traceGenerateSoundsLivePath.mjs
@@ -648,7 +651,11 @@
 ./src/lib/drawingProjectV2Contract.ts
 ./src/lib/drawingProjectV2Repository.ts
 ./src/lib/export
+./src/lib/export/exportAudio.ts
+./src/lib/export/exportContracts.ts
 ./src/lib/export/exportPhase1.ts
+./src/lib/export/exportRenderer.ts
+./src/lib/export/exportVideo.ts
 ./src/lib/openai
 ./src/lib/openai/client.ts
 ./src/lib/openai/generateAiAnimatorReply.ts

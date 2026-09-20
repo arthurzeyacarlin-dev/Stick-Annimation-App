@@ -3563,6 +3563,9 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
   const [brushSize, setBrushSize] = useState(initialWorkspaceState.brushSize);
   const [eraserSize, setEraserSize] = useState(initialWorkspaceState.eraserSize);
   const [fillColor, setFillColor] = useState(initialWorkspaceState.fillColor);
+  const [canvasBackgroundColor, setCanvasBackgroundColor] = useState(
+    unifiedProject.document.background?.color ?? "#ffffff",
+  );
   const [timelineFps, setTimelineFps] = useState(initialWorkspaceState.timelineFps);
   const [shapeType, setShapeType] = useState<DrawingShapeType>(initialWorkspaceState.shapeType);
   const [layers, setLayers] = useState<WorkspaceLayer[]>(initialWorkspaceState.layers);
@@ -4069,6 +4072,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     setProjectTitle(openedInitialProject.name ?? initialTitle);
     setProjectGeneration(0);
     setProjectAiMemory(bindDrawingAiProjectMemoryToProject(openedInitialProject.aiMemory ?? null, openedInitialProject.id));
+    setCanvasBackgroundColor(unifiedProject.document.background?.color ?? "#ffffff");
     setSaveState(unifiedProject.revision > 0 ? "saved" : "not-saved");
   }, [initialProject, openedInitialProject, initialTitle, unifiedProject]);
 
@@ -7157,7 +7161,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       });
       return { layerId, name: layer.name, orderIndex, visible: true, locked: false, cells };
     });
-    const document: UnifiedAnimationDocumentV2 = { ...base.document, fps: drawingData.timelineFps, layers, catalogs: structuredClone(unifiedCatalogsRef.current), toolState: { ...base.document.toolState, drawingTool: drawingData.activeTool }, reopenState: { activeLayerId: layers.find((_, index) => drawingData.layers[index]?.id === drawingData.activeLayerId)?.layerId ?? layers[0].layerId, currentFrameIndex: drawingData.currentFrameIndex, onionEnabled: drawingData.isOnionEnabled } };
+    const document: UnifiedAnimationDocumentV2 = { ...base.document, fps: drawingData.timelineFps, background: { kind: "solid-color/v1", color: canvasBackgroundColor }, layers, catalogs: structuredClone(unifiedCatalogsRef.current), toolState: { ...base.document.toolState, drawingTool: drawingData.activeTool }, reopenState: { activeLayerId: layers.find((_, index) => drawingData.layers[index]?.id === drawingData.activeLayerId)?.layerId ?? layers[0].layerId, currentFrameIndex: drawingData.currentFrameIndex, onionEnabled: drawingData.isOnionEnabled } };
     // The V2 document is the sole owner of lossless raster bytes. Keep the
     // Drawing compatibility projection structural-only so one bitmap is not
     // stored twice (and counted twice against the project size ceiling).
@@ -7176,7 +7180,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       })),
     };
     return { ...base, title: projectTitle, auxiliary: { ...base.auxiliary, drawingAiMemory: structuredClone(projectAiMemory), stickAiCreationLatch: structuredClone(base.auxiliary?.stickAiCreationLatch ?? null) }, document, compatibility: { ...base.compatibility, drawingData: compatibilityDrawingData, stickByCell: {}, symbolInstancesByCell: structuredClone(symbolInstancesByCellRef.current) } };
-  }, [activeUnifiedProject, projectAiMemory, projectTitle]);
+  }, [activeUnifiedProject, canvasBackgroundColor, projectAiMemory, projectTitle]);
 
   const handleUndo = useCallback(() => {
     requireManualEditorCommand("history.undo/v1", "DrawingWorkspace.handleUndo");
@@ -9049,10 +9053,15 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
           onExecuteActionPlan={executeAiActionPlan}
           ref={drawingCanvasRef}
           shapeType={shapeType}
+          backgroundColor={canvasBackgroundColor}
           onBrushSizeChange={setBrushSize}
           onEraserSizeChange={setEraserSize}
           onFillColorChange={setFillColor}
           onShapeTypeChange={setShapeType}
+          onBackgroundColorChange={(color) => {
+            setCanvasBackgroundColor(color);
+            setSaveState("unsaved");
+          }}
           onTextObjectsChange={handleTextObjectsChange}
           onRightPanelWidthChange={setRightPanelWidth}
           unifiedSymbolDefinitions={unifiedCatalogs.symbols}

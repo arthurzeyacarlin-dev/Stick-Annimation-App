@@ -1,21 +1,31 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { drawScaledDrawingTextObject, type DrawingTextObject } from "../workspace/drawingText";
 import { advancePlaybackAccumulator, getClampedPlaybackFrameDurationMs } from "../workspace/timelinePlayback";
-import type { UnifiedBitmapSymbolDefinitionV2, UnifiedAnimationProjectV2 } from "@/src/lib/animation/unifiedAnimationContractV2";
-import type { UnifiedRasterBitmapV2 } from "@/src/lib/animation/unifiedAnimationContentV2";
 import { listProjectCollection, type ProjectCollectionEntry } from "@/src/lib/animation/unifiedProjectCollection";
 import { createBrowserProjectSourceReader } from "@/src/lib/animation/unifiedProjectSourceReader";
 import {
   formatExportDuration,
   loadExportProjectSnapshot,
-  resolveExportAuthoringTransform,
-  resolveExportOwnerCell,
-  resolveExportRasterPlacement,
-  type ExportRasterPlacement,
   type ExportProjectSnapshot,
 } from "@/src/lib/export/exportPhase1";
+import { renderCanonicalExportFrame, resolveProjectBackground } from "@/src/lib/export/exportRenderer";
+import {
+  createExportRequest,
+  createExportSelection,
+  outputDimensionsFor,
+  sanitizeExportFilename,
+  snapshotHasAudio,
+  type ExportQualityTier,
+  type ExportRequestV1,
+} from "@/src/lib/export/exportContracts";
+import {
+  chooseExportFile,
+  exportSnapshotToMp4,
+  preflightLocalMp4,
+  type ExportInspection,
+  type ExportProgress,
+} from "@/src/lib/export/exportVideo";
 
 type Props = { origin: "home" | "workspace"; onBack: () => void };
 type SnapshotState = { status: "loading" } | { status: "ready"; snapshot: ExportProjectSnapshot } | { status: "failed"; message: string };
@@ -33,151 +43,6 @@ const formatUpdatedAt = (updatedAt: string | null) => {
   return Number.isNaN(value.getTime()) ? "Saved on this browser" : `Edited ${value.toLocaleString()}`;
 };
 
-const imageCache = new Map<string, Promise<HTMLImageElement>>();
-const loadImage = (definition: UnifiedBitmapSymbolDefinitionV2) => {
-  const cached = imageCache.get(definition.definitionDigest);
-  if (cached) return cached;
-  const pending = new Promise<HTMLImageElement>((resolve, reject) => {
-    const image = new Image();
-    image.onload = () => resolve(image);
-    image.onerror = () => reject(new Error("symbol_image_failed"));
-    image.src = definition.pngDataUrl;
-  });
-  imageCache.set(definition.definitionDigest, pending);
-  return pending;
-};
-
-const createBitmapCanvas = (bitmap: UnifiedRasterBitmapV2) => {
-  const canvas = document.createElement("canvas");
-  canvas.width = bitmap.width;
-  canvas.height = bitmap.height;
-  const context = canvas.getContext("2d");
-  if (!context) throw new Error("canvas_unavailable");
-  context.putImageData(new ImageData(new Uint8ClampedArray(bitmap.data), bitmap.width, bitmap.height), 0, 0);
-  return canvas;
-};
-
-const drawBitmap = (
-  context: CanvasRenderingContext2D,
-  placement: ExportRasterPlacement,
-  outputWidth: number,
-  outputHeight: number,
-) => {
-  const source = createBitmapCanvas(placement.bitmap);
-  const transform = resolveExportAuthoringTransform(
-    outputWidth,
-    outputHeight,
-    placement.referenceWidth,
-    placement.referenceHeight,
-  );
-  context.drawImage(
-    source,
-    transform.offsetX + placement.x * transform.scaleX,
-    transform.offsetY + placement.y * transform.scaleY,
-    placement.bitmap.width * transform.scaleX,
-    placement.bitmap.height * transform.scaleY,
-  );
-};
-
-const asDrawingTextObject = (item: Extract<NonNullable<ReturnType<typeof resolveExportOwnerCell>>["content"], object>["items"][number]): DrawingTextObject | null => {
-  if (item.kind !== "drawing-text/v1") return null;
-  const supported = ["Arial", "Verdana", "Georgia", "Times New Roman", "Courier New"] as const;
-  return {
-    id: item.itemId,
-    text: item.text,
-    x: item.x,
-    y: item.y,
-    width: item.width,
-    flipX: item.flipX,
-    flipY: item.flipY,
-    rotation: item.rotation,
-    fontFamily: supported.includes(item.fontFamily as typeof supported[number]) ? item.fontFamily as typeof supported[number] : "Arial",
-    fontSize: item.fontSize,
-    color: item.color,
-    bold: item.bold,
-    italic: item.italic,
-  };
-};
-
-const renderExportFrame = async (
-  canvas: HTMLCanvasElement,
-  project: UnifiedAnimationProjectV2,
-  frameIndex: number,
-) => {
-  const context = canvas.getContext("2d");
-  if (!context) throw new Error("canvas_unavailable");
-  const stage = project.document.logicalStage;
-  const scaleX = canvas.width / stage.width;
-  const scaleY = canvas.height / stage.height;
-  context.save();
-  context.setTransform(1, 0, 0, 1, 0, 0);
-  context.fillStyle = "#ffffff";
-  context.fillRect(0, 0, canvas.width, canvas.height);
-  context.imageSmoothingEnabled = false;
-
-  const definitions = new Map(project.document.catalogs.symbols.map(definition => [definition.definitionId, definition]));
-  const layers = [...project.document.layers].filter(layer => layer.visible).sort((left, right) => right.orderIndex - left.orderIndex);
-  for (const layer of layers) {
-    const frame = layer.cells[frameIndex] ?? null;
-    const owner = resolveExportOwnerCell(layer, frameIndex);
-    if (!frame || !owner?.content) continue;
-    const rasterItem = owner.content.items.find(item => item.kind === "drawing-raster/v1");
-    const rasterPlacement = rasterItem?.kind === "drawing-raster/v1"
-      ? resolveExportRasterPlacement(layer, frameIndex, rasterItem)
-      : null;
-    const rasterReference = rasterPlacement ?? (rasterItem?.kind === "drawing-raster/v1" && rasterItem.motionTween
-      ? {
-          referenceWidth: rasterItem.motionTween.stageWidth,
-          referenceHeight: rasterItem.motionTween.stageHeight,
-        }
-      : rasterItem?.kind === "drawing-raster/v1" && rasterItem.bitmap
-        ? {
-            referenceWidth: rasterItem.bitmap.stageWidth ?? rasterItem.bitmap.width,
-            referenceHeight: rasterItem.bitmap.stageHeight ?? rasterItem.bitmap.height,
-          }
-        : null);
-    for (const item of owner.content.items) {
-      if (item.kind === "drawing-raster/v1") {
-        const placement = item === rasterItem ? rasterPlacement : resolveExportRasterPlacement(layer, frameIndex, item);
-        if (placement) {
-          context.imageSmoothingEnabled = false;
-          drawBitmap(context, placement, canvas.width, canvas.height);
-        }
-        continue;
-      }
-      if (item.kind === "drawing-text/v1") {
-        const textObject = asDrawingTextObject(item);
-        if (textObject) {
-          const transform = rasterReference
-            ? resolveExportAuthoringTransform(canvas.width, canvas.height, rasterReference.referenceWidth, rasterReference.referenceHeight)
-            : { offsetX: 0, offsetY: 0, scaleX, scaleY };
-          drawScaledDrawingTextObject(context, textObject, transform);
-        }
-        continue;
-      }
-      if (item.kind === "symbol-instance/v1") {
-        const definition = definitions.get(item.definitionId);
-        if (!definition || definition.definitionDigest !== item.definitionDigest) throw new Error("symbol_definition_missing");
-        const image = await loadImage(definition);
-        const width = item.width * scaleX;
-        const height = item.height * scaleY;
-        const x = (item.flipX ? item.x - item.width : item.x) * scaleX;
-        const y = (item.flipY ? item.y - item.height : item.y) * scaleY;
-        context.save();
-        context.imageSmoothingEnabled = true;
-        context.translate(x + width / 2, y + height / 2);
-        context.rotate((item.rotation * Math.PI) / 180);
-        context.scale(item.flipX ? -1 : 1, item.flipY ? -1 : 1);
-        context.drawImage(image, -width / 2, -height / 2, width, height);
-        context.restore();
-        continue;
-      }
-      throw new Error("unsupported_item");
-    }
-  }
-  context.restore();
-};
-
 function ExportThumbnail({ snapshot }: { snapshot: ExportProjectSnapshot }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [failed, setFailed] = useState(false);
@@ -185,7 +50,7 @@ function ExportThumbnail({ snapshot }: { snapshot: ExportProjectSnapshot }) {
     const canvas = canvasRef.current;
     if (!canvas || snapshot.frameCount === 0) return;
     let active = true;
-    void renderExportFrame(canvas, snapshot.project, 0).catch(() => { if (active) setFailed(true); });
+    void renderCanonicalExportFrame(canvas, snapshot.project, 0).catch(() => { if (active) setFailed(true); });
     return () => { active = false; };
   }, [snapshot]);
   if (snapshot.frameCount === 0 || failed) return <div style={{ color: "rgba(255,255,255,0.46)", fontSize: 12 }}>No thumbnail</div>;
@@ -197,8 +62,18 @@ function AnimationPlayer({ snapshot, onChange }: { snapshot: ExportProjectSnapsh
   const [frameIndex, setFrameIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [renderError, setRenderError] = useState(false);
+  const [filename, setFilename] = useState(snapshot.project.title);
+  const [quality, setQuality] = useState<ExportQualityTier>("720p");
+  const [request, setRequest] = useState<ExportRequestV1 | null>(null);
+  const [exportState, setExportState] = useState<"idle" | "preflighting" | "awaiting-location" | "exporting" | "cancelling" | "cancelled" | "failed" | "succeeded">("idle");
+  const [exportError, setExportError] = useState<string | null>(null);
+  const [progress, setProgress] = useState<ExportProgress | null>(null);
+  const [inspection, setInspection] = useState<ExportInspection | null>(null);
   const activeAudioRef = useRef<HTMLAudioElement[]>([]);
   const frameIndexRef = useRef(0);
+  const abortRef = useRef<AbortController | null>(null);
+  const selectionRef = useRef(createExportSelection(snapshot));
+  const dimensions = outputDimensionsFor(snapshot, quality);
 
   const stopAudio = useCallback(() => {
     for (const audio of activeAudioRef.current) { audio.pause(); audio.currentTime = 0; }
@@ -222,11 +97,11 @@ function AnimationPlayer({ snapshot, onChange }: { snapshot: ExportProjectSnapsh
     const canvas = canvasRef.current;
     if (!canvas) return;
     let active = true;
-    void renderExportFrame(canvas, snapshot.project, frameIndex)
+    void renderCanonicalExportFrame(canvas, snapshot.project, frameIndex)
       .then(() => { if (active) setRenderError(false); })
       .catch(() => { if (active) setRenderError(true); });
     return () => { active = false; };
-  }, [frameIndex, snapshot]);
+  }, [dimensions.height, dimensions.width, frameIndex, snapshot]);
 
   useEffect(() => {
     if (!playing) return;
@@ -258,19 +133,139 @@ function AnimationPlayer({ snapshot, onChange }: { snapshot: ExportProjectSnapsh
     return () => window.cancelAnimationFrame(request);
   }, [playSoundsAtFrame, playing, snapshot]);
 
-  useEffect(() => () => stopAudio(), [stopAudio]);
-  const changeAnimation = () => { setPlaying(false); stopAudio(); onChange(); };
+  useEffect(() => () => {
+    abortRef.current?.abort();
+    stopAudio();
+  }, [stopAudio]);
+  const changeAnimation = () => { abortRef.current?.abort(); setPlaying(false); stopAudio(); onChange(); };
   const currentSeconds = frameIndex / snapshot.project.document.fps;
+  const hasAudio = snapshotHasAudio(snapshot);
+  const running = exportState === "preflighting" || exportState === "exporting" || exportState === "cancelling";
+
+  const resetPreparedExport = () => {
+    if (exportState === "awaiting-location" || exportState === "failed" || exportState === "cancelled" || exportState === "succeeded") {
+      setRequest(null);
+      setProgress(null);
+      setInspection(null);
+      setExportError(null);
+      setExportState("idle");
+    }
+  };
+
+  const plainExportError = (error: unknown) => {
+    const code = error instanceof Error ? error.message.split(":")[0] : "export_failed";
+    const messages: Record<string, string> = {
+      source_changed: "The saved animation changed. Choose the animation again before exporting.",
+      export_finder_unavailable: "Finder saving is not available in this browser window.",
+      export_finder_cancelled: "Finder was cancelled. No video was created.",
+      export_permission_denied: "Finder did not allow this file to be saved.",
+      export_video_encoder_unavailable: "This Mac browser cannot encode the required H.264 video.",
+      export_audio_encoder_unavailable: "This Mac browser cannot encode the required AAC audio.",
+      export_audio_missing: "One saved sound is missing. Repair or remove it before exporting.",
+      export_audio_decode_failed: "One saved sound could not be decoded. Repair or remove it before exporting.",
+      export_symbol_definition_missing: "One saved Library symbol is unavailable or changed.",
+      export_cleanup_failed: "The export failed, and the incomplete file could not be cleared. Delete that file before trying again.",
+      export_validation_empty: "The video file was empty and was not accepted as successful.",
+      export_validation_container: "The saved file was not a valid MP4.",
+      export_validation_video_track: "The saved MP4 did not contain exactly one video track.",
+      export_validation_video_codec: "The saved file was not H.264 video.",
+      export_validation_audio_track: "The saved file did not contain the required AAC audio.",
+      export_validation_frame_count: "The saved video did not contain every animation frame.",
+      export_validation_dimensions: "The saved video dimensions did not match the chosen quality.",
+      export_validation_duration: "The saved video duration did not match the animation.",
+      export_validation_fps: "The saved video frame rate did not match the animation.",
+    };
+    return messages[code] ?? "The MP4 could not be completed. The animation itself was not changed.";
+  };
+
+  const prepareExport = async () => {
+    if (running) return;
+    setExportState("preflighting");
+    setExportError(null);
+    setInspection(null);
+    setProgress({ stage: "preflighting", completed: 0, total: 3 });
+    try {
+      const current = await loadExportProjectSnapshot(createBrowserProjectSourceReader(), snapshot.entry);
+      if (current.projectDigest !== snapshot.projectDigest) throw new Error("source_changed");
+      setProgress({ stage: "preflighting", completed: 1, total: 3 });
+      const nextRequest = createExportRequest(snapshot, selectionRef.current, quality, filename, hasAudio);
+      await preflightLocalMp4(nextRequest);
+      setProgress({ stage: "preflighting", completed: 3, total: 3 });
+      setRequest(nextRequest);
+      setExportState("awaiting-location");
+    } catch (error) {
+      setExportError(plainExportError(error));
+      setExportState("failed");
+    }
+  };
+
+  const chooseLocationAndExport = async () => {
+    if (!request || running) return;
+    setExportError(null);
+    let handle: FileSystemFileHandle;
+    try {
+      handle = await chooseExportFile(request);
+    } catch (error) {
+      const code = error instanceof Error ? error.message : "";
+      if (code === "export_finder_cancelled") {
+        setExportState("cancelled");
+        setExportError("Finder was cancelled. No video was created.");
+      } else {
+        setExportState("failed");
+        setExportError(plainExportError(error));
+      }
+      return;
+    }
+    const abort = new AbortController();
+    abortRef.current = abort;
+    setExportState("exporting");
+    setPlaying(false);
+    stopAudio();
+    try {
+      const current = await loadExportProjectSnapshot(createBrowserProjectSourceReader(), snapshot.entry);
+      if (current.projectDigest !== request.projectDigest) throw new Error("source_changed");
+      const result = await exportSnapshotToMp4({
+        snapshot: current,
+        request,
+        handle,
+        signal: abort.signal,
+        onProgress: setProgress,
+      });
+      setInspection(result);
+      setExportState("succeeded");
+      setProgress({ stage: "succeeded", completed: 1, total: 1, bytesWritten: result.byteLength });
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") {
+        setExportState("cancelled");
+        setExportError("Export was cancelled. Any created file was truncated to zero bytes where Finder allowed it.");
+      } else {
+        setExportState("failed");
+        setExportError(plainExportError(error));
+      }
+    } finally {
+      abortRef.current = null;
+    }
+  };
+
+  const cancelExport = () => {
+    if (!abortRef.current || exportState !== "exporting") return;
+    setExportState("cancelling");
+    setProgress(current => current ? { ...current, stage: "cancelling" } : { stage: "cancelling", completed: 0, total: 1 });
+    abortRef.current.abort();
+  };
+
+  const showDeterminate = progress && ["preflighting", "rendering", "encoding", "validating", "succeeded"].includes(progress.stage) && progress.total > 0;
+  const percent = showDeterminate ? Math.min(100, Math.round((progress.completed / progress.total) * 100)) : null;
 
   return (
     <main aria-label="Watch saved animation" style={{ minHeight: "100vh", background: "#0d121b", color: "white", padding: 24, overflowY: "auto" }}>
       <div style={{ width: "min(1180px, 100%)", margin: "0 auto", display: "flex", flexDirection: "column", gap: 18 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
-          <div><div style={{ fontSize: 13, color: "#80b8ff", fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase" }}>Export · Phase 1</div><h1 style={{ margin: "6px 0 0", fontSize: 26 }}>{snapshot.project.title}</h1></div>
+          <div><div style={{ fontSize: 13, color: "#80b8ff", fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase" }}>Export video</div><h1 style={{ margin: "6px 0 0", fontSize: 26 }}>{snapshot.project.title}</h1></div>
           <button type="button" onClick={changeAnimation} style={secondaryButtonStyle}>Change animation</button>
         </div>
         <div style={{ border: "1px solid rgba(255,255,255,.12)", borderRadius: 16, background: "#171d28", padding: 16 }}>
-          <canvas ref={canvasRef} width={960} height={540} aria-label="Selected saved animation" style={{ width: "100%", aspectRatio: "16 / 9", display: "block", background: "white", borderRadius: 10 }} />
+          <canvas ref={canvasRef} width={dimensions.width} height={dimensions.height} aria-label="Selected saved animation" style={{ width: "100%", aspectRatio: `${dimensions.width} / ${dimensions.height}`, display: "block", background: resolveProjectBackground(snapshot.project), borderRadius: 10 }} />
           {renderError ? <div role="alert" style={{ color: "#ffb3b3", marginTop: 10 }}>This frame could not be displayed safely.</div> : null}
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 14, flexWrap: "wrap" }}>
             <button type="button" onClick={() => { if (playing) { setPlaying(false); stopAudio(); } else { if (frameIndex >= snapshot.frameCount - 1) { frameIndexRef.current = 0; setFrameIndex(0); } else { frameIndexRef.current = frameIndex; } setPlaying(true); } }} style={primaryButtonStyle}>{playing ? "Pause" : "Play"}</button>
@@ -278,9 +273,32 @@ function AnimationPlayer({ snapshot, onChange }: { snapshot: ExportProjectSnapsh
             <div style={{ minWidth: 155, textAlign: "right", color: "rgba(255,255,255,.68)", fontVariantNumeric: "tabular-nums" }}>{currentSeconds.toFixed(1)}s / {formatExportDuration(snapshot.durationSeconds)} · Frame {frameIndex + 1}/{snapshot.frameCount}</div>
           </div>
         </div>
-        <div style={{ border: "1px solid rgba(255,255,255,.08)", borderRadius: 14, padding: 16, background: "rgba(255,255,255,.035)" }}>
-          <div style={{ fontWeight: 750 }}>This is the exact saved animation.</div>
-          <div style={{ marginTop: 6, color: "rgba(255,255,255,.62)", fontSize: 13 }}>Video file creation, Finder saving, and social-media choices arrive in the next phases.</div>
+        <div style={{ border: "1px solid rgba(255,255,255,.08)", borderRadius: 14, padding: 18, background: "rgba(255,255,255,.035)", display: "grid", gap: 15 }}>
+          <div style={{ fontWeight: 750 }}>Create a local MP4</div>
+          <label style={{ display: "grid", gap: 6 }}>File name
+            <input aria-label="Video file name" value={filename} disabled={running} onChange={event => { setFilename(event.target.value); resetPreparedExport(); }} style={{ minHeight: 42, borderRadius: 9, border: "1px solid rgba(255,255,255,.16)", background: "#10151e", color: "white", padding: "8px 11px" }} />
+          </label>
+          <fieldset disabled={running} style={{ border: 0, padding: 0, margin: 0, display: "flex", gap: 12, flexWrap: "wrap" }}>
+            <legend style={{ marginBottom: 7 }}>Video quality</legend>
+            {(["720p", "1080p"] as const).map(tier => <label key={tier} style={{ display: "flex", gap: 7, alignItems: "center" }}><input type="radio" name="quality" checked={quality === tier} onChange={() => { setQuality(tier); resetPreparedExport(); }} />{tier}</label>)}
+          </fieldset>
+          <div style={{ color: "rgba(255,255,255,.66)", fontSize: 13, lineHeight: 1.55 }}>
+            {dimensions.width}×{dimensions.height} · {snapshot.project.document.fps} FPS · {formatExportDuration(snapshot.durationSeconds)} · H.264 MP4{hasAudio ? " with AAC audio" : " without audio"}<br />
+            Background: <span style={{ display: "inline-block", width: 12, height: 12, verticalAlign: "-1px", borderRadius: 2, background: resolveProjectBackground(snapshot.project), border: "1px solid rgba(255,255,255,.35)" }} /> {resolveProjectBackground(snapshot.project)}. Everything stays on this Mac; exporting uses no AI credits.
+          </div>
+          {progress ? <div role="status" aria-live="polite" style={{ display: "grid", gap: 7 }}>
+            <div>{progress.stage === "awaiting-location" ? "Ready for Finder" : progress.stage.charAt(0).toUpperCase() + progress.stage.slice(1)}{percent !== null ? ` · ${percent}%` : progress.bytesWritten ? ` · ${Math.round(progress.bytesWritten / 1024)} KB written` : ""}</div>
+            {percent !== null ? <progress aria-label="Export progress" max={100} value={percent} style={{ width: "100%" }} /> : null}
+          </div> : null}
+          {exportError ? <div role="alert" style={{ color: exportState === "cancelled" ? "#f3d89c" : "#ffb3b3" }}>{exportError}</div> : null}
+          {inspection ? <div role="status" style={{ color: "#9fe3b2", lineHeight: 1.5 }}>Saved and validated <strong>{inspection.filename}</strong> · {inspection.width}×{inspection.height} · {inspection.frameCount} frames · {inspection.durationSeconds.toFixed(2)}s · {(inspection.byteLength / 1024).toFixed(0)} KB</div> : null}
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            {exportState !== "awaiting-location" ? <button type="button" disabled={running} onClick={() => void prepareExport()} style={{ ...primaryButtonStyle, opacity: running ? .5 : 1 }}>{exportState === "preflighting" ? "Checking this Mac…" : exportState === "succeeded" ? "Export another video" : "Export video"}</button> : null}
+            {exportState === "awaiting-location" && request ? <button type="button" onClick={() => void chooseLocationAndExport()} style={primaryButtonStyle}>Choose save location…</button> : null}
+            {exportState === "exporting" ? <button type="button" onClick={cancelExport} style={secondaryButtonStyle}>Cancel export</button> : null}
+            {exportState === "cancelling" ? <button type="button" disabled style={{ ...secondaryButtonStyle, opacity: .55 }}>Cancelling…</button> : null}
+          </div>
+          <div style={{ color: "rgba(255,255,255,.48)", fontSize: 12 }}>Suggested Finder name: {sanitizeExportFilename(filename, snapshot.project.title)}</div>
         </div>
       </div>
     </main>
@@ -348,7 +366,7 @@ export function AnimationExportFlow({ origin, onBack }: Props) {
       <div style={{ width: "min(1180px, 100%)", margin: "0 auto", display: "flex", flexDirection: "column", gap: 24 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
           <button type="button" onClick={onBack} style={secondaryButtonStyle}>← Back</button>
-          <div style={{ textAlign: "center" }}><div style={{ color: "#80b8ff", fontSize: 12, fontWeight: 800, letterSpacing: ".1em", textTransform: "uppercase" }}>Export · Phase 1</div><h1 style={{ margin: "5px 0 0", fontSize: 28 }}>Choose and watch</h1></div>
+          <div style={{ textAlign: "center" }}><div style={{ color: "#80b8ff", fontSize: 12, fontWeight: 800, letterSpacing: ".1em", textTransform: "uppercase" }}>Export · Phase 2</div><h1 style={{ margin: "5px 0 0", fontSize: 28 }}>Choose and watch</h1></div>
           <div style={{ width: 72 }} />
         </div>
         <div style={{ color: "rgba(255,255,255,.68)", textAlign: "center" }}>Select a saved animation, then choose <strong>Use this animation</strong> to watch the exact saved frames.</div>

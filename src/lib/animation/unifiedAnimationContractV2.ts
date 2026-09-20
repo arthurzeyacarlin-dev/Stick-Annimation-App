@@ -67,6 +67,7 @@ export type UnifiedAnimationDocumentV2 = {
   schemaVersion: 2;
   projectId: string;
   logicalStage: { width: 1920; height: 1080; origin: "top-left"; xAxis: "right"; yAxis: "down" };
+  background?: { kind: "solid-color/v1"; color: string };
   fps: number;
   layers: UnifiedLayerV2[];
   catalogs: UnifiedProjectCatalogsV2;
@@ -178,6 +179,10 @@ export function assertStructuredSymbolPayloadV2(definition: Pick<UnifiedBitmapSy
 export function assertUnifiedAnimationDocumentV2(document: UnifiedAnimationDocumentV2) {
   if (document.kind !== "diamond-animation-document" || document.schemaVersion !== 2 || !uuid.test(document.projectId)) throw new Error("invalid_record");
   if (!Number.isInteger(document.fps) || document.fps < 1 || document.fps > 55) throw new Error("invalid_record");
+  if (document.background !== undefined && (
+    document.background.kind !== "solid-color/v1" ||
+    !/^#[0-9a-f]{6}$/i.test(document.background.color)
+  )) throw new Error("invalid_record");
   if (document.layers.length < 1 || document.layers.length > 64) throw new Error("invalid_record");
   const layerIds = new Set<string>();
   const itemIds = new Set<string>();

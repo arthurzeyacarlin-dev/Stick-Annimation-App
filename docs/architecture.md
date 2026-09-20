@@ -1,13 +1,13 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-20 through GIT-076 published/integrated SPEC-0009 Phase 1 at `548063b9247708106c7c8c8a11978563d07d6597` and D-0097 authorized Phase 2.
+Last traced: 2026-09-20 through D-0098 accepted and technically verified SPEC-0009 Phase 2 from base `b45921262b57902ddbaea9519a03f7aa7289621c`; publication/integration remains pending.
 
-## SPEC-0009 Animation Export architecture — Phase 1 closed; Phase 2 authorized; Phase 3 intended
+## SPEC-0009 Animation Export architecture — Phase 1 closed; Phase 2 accepted/unpublished; Phase 3 intended
 
 Before Phase 1, Home's visible Export button had no handler, workspace `DrawingTopBar` received only Save/Save As callbacks, and `DrawingWorkspace.exportCurrentFrame()` was an inadequate AI-action current-frame PNG helper. D-0096 accepts the Phase 1 replacement seams: Home **Export** and workspace **File → Export** converge on one `AnimationExportFlow`; saved-project discovery revalidates identity before cloning one immutable V2 snapshot; explicit card selection plus **Use this animation** opens Play/Pause, saved-FPS, scrubber and **Change animation** playback; workspace entry excludes unsaved edits.
 
-D-0094 defines one local read-only pipeline. The first four steps through selected-animation playback are accepted Phase 1 runtime; compositor/encoder/Finder/destination work remains Phase 2–3 intent:
+D-0094 defines one local read-only pipeline. Phase 1 owns entry/selection/playback; accepted Phase 2 now implements the shared compositor, audio, encoder, Finder write and inspection steps. Destination work remains Phase 3 intent:
 
 ```text
 Home Export or workspace File → Export
@@ -22,9 +22,9 @@ Home Export or workspace File → Export
   → post-write media inspection
 ```
 
-The selected source remains owned by the accepted V2 repository. Listing, watching, encoding and writing create no project version/history/repository mutation and never include unsaved workspace edits implicitly. FPS and duration come from the saved document; project-owned background is part of render truth; there is no export-only white control. Phase 3 adds a versioned locally bundled destination catalog that changes output canvas shape through disclosed contain/padding only—never silent crop—and performs no direct social login/upload.
+The selected source remains owned by the accepted V2 repository. Listing, watching, encoding and writing create no project version/history/repository mutation and never include unsaved workspace edits implicitly. FPS and duration come from the saved document. Accepted Phase 2 persists project-owned solid background with absent/new state defaulting to white and routes preview plus output through one uniform centered contain renderer, so asymmetric content keeps its shape without crop or stretch. Local encoding uses pinned Mediabunny `1.58.1` under MPL-2.0 to create selected 720p/1080p H.264 MP4 and AAC when authored audio exists. Finder save, real progress, cancellation, distinct failure, zero-byte partial cleanup and post-write validation share one bounded job path.
 
-The accepted player currently supplies a white display matte before saved content; that is not Phase 2 export-background truth. Persisted background ownership, complete-content/audio export fidelity, locally licensed encoder and Finder partial-file behavior remain Phase 2 entry gates. No video encoding, Finder writing, destination catalog, direct social action, dependency, provider or deployment work is accepted. The narrow accepted Terra change only gives conversation a purpose-specific missing-key error; it does not change the Terra model, reasoning, prompts/instructions, jobs, gradient, transcript, mutation behavior or credit design. D-0093 still keeps SPEC-0008 Phases 2–6 paused.
+Phase 2 export makes zero network, AI, Terra, video-provider or paid calls and changes no credits. Terra source and its fixed model/reasoning/instructions/jobs/gradient/transcript/mutation behavior are unchanged; exactly one separate Low live smoke passed through the ignored local environment. Automated file proof uses the real browser encoder plus a local FileSystemFileHandle seam; the native Finder dialog remains human-review evidence. The final decoded receipts are one-frame raster/no-audio fixtures at 720p and 1080p; AAC, mixed-content and long-duration paths are implemented/contract-tested but are not claimed as visually human-accepted by those final receipts. Phase 3 adds a versioned locally bundled destination catalog with disclosed contain/padding, never silent crop, and no direct social login/upload. D-0093 still keeps SPEC-0008 Phases 2–6 paused.
 
 ## Published SPEC-0008 Phase 1 architecture
 

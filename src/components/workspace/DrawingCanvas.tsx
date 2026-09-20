@@ -537,12 +537,14 @@ type DrawingCanvasProps = {
   eraserSize: number;
   fillColor: string;
   shapeType: DrawingShapeType;
+  backgroundColor: string;
   activeTextObjects: DrawingTextObject[];
   canEditTextInCurrentFrame: boolean;
   onBrushSizeChange: (size: number) => void;
   onEraserSizeChange: (size: number) => void;
   onFillColorChange: (color: string) => void;
   onShapeTypeChange: (shapeType: DrawingShapeType) => void;
+  onBackgroundColorChange: (color: string) => void;
   onTextObjectsChange?: (nextTextObjects: DrawingTextObject[]) => boolean;
   onRightPanelWidthChange?: (width: number) => void;
   workspaceContext?: DrawingAiWorkspaceContext | null;
@@ -1708,12 +1710,14 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   eraserSize,
   fillColor,
   shapeType,
+  backgroundColor,
   activeTextObjects,
   canEditTextInCurrentFrame,
   onBrushSizeChange,
   onEraserSizeChange,
   onFillColorChange,
   onShapeTypeChange,
+  onBackgroundColorChange,
   onTextObjectsChange,
   onRightPanelWidthChange,
   workspaceContext = null,
@@ -1865,7 +1869,6 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   const [isPanning, setIsPanning] = useState(false);
   const [zoomInputValue, setZoomInputValue] = useState(`${Math.round(DEFAULT_CAMERA_ZOOM * 100)}%`);
   const [canvasMovementEnabled, setCanvasMovementEnabled] = useState(false);
-  const [canvasBackgroundColor, setCanvasBackgroundColor] = useState("#f5f5f5");
   const [rightPanelTab, setRightPanelTab] = useState<DrawingRightPanelTab>("Properties");
   const [canvasInteractionOwner, setCanvasInteractionOwner] = useState<"drawing" | "stick">("drawing");
   const [unifiedStickMode, setUnifiedStickMode] = useState<"select" | "add-limb">("select");
@@ -9922,8 +9925,8 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
             Background Color
             <input
               type="color"
-              value={canvasBackgroundColor}
-              onChange={(e) => setCanvasBackgroundColor(e.target.value)}
+              value={backgroundColor}
+              onChange={(e) => onBackgroundColorChange(e.target.value)}
               style={{ width: 48, height: 32, padding: 0, border: "none", background: "transparent", cursor: "pointer" }}
             />
           </label>
@@ -11275,7 +11278,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 top: `${CAMERA_FRAME_INSET_PERCENT}%`,
                 width: `${CAMERA_FRAME_SIZE_PERCENT}%`,
                 height: `${CAMERA_FRAME_SIZE_PERCENT}%`,
-                background: canvasBackgroundColor,
+                background: backgroundColor,
                 boxShadow: "0 0 0 1px rgba(0,0,0,0.28), 0 16px 34px rgba(0,0,0,0.34)",
                 pointerEvents: "none",
               }}

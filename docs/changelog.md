@@ -1,5 +1,14 @@
 # Changelog
 
+### 2026-09-20 — Accept and technically verify corrected SPEC-0009 Phase 2 (D-0098)
+
+- Recorded Arthur's visible acceptance of the corrected review app at `http://127.0.0.1:57470/` and sequential Control Plane Architect ownership of the detached worktree at unchanged base/HEAD `b45921262b57902ddbaea9519a03f7aa7289621c`, empty index.
+- Accepted exactly 15 technical paths: project-owned default-white background; one uniform centered shape-preserving renderer; sharp 720p/1080p local H.264 MP4; AAC when authored audio exists; Finder location flow; real progress/cancel/failure; zero-byte partial cleanup; and post-write validation through pinned Mediabunny `1.58.1`/MPL-2.0.
+- Bound the immutable 11,229-byte PASS/VALID manifest SHA-256 `4f141b18e4601ef1faca2cd4f2d325bd11cc3f06303dac09f2ac1f07d838c341` and source digest `354eaf6f0d924168a2e36b0e4ec5ed240e41e89a1b3dd577b9f85af9b9fdf733`. Fresh pre-propagation validation passed 20 assertions and rejected 13 mutations; the oracle passed 38 assertions; TypeScript and both diff checks passed.
+- Recorded real local write/read inspection at 1280×720 and 1920×1080 and shape preservation within raster tolerance. Export makes zero external/AI/provider calls and changes no credits or authored/repository state. Terra source is unchanged; exactly one separate Low live smoke passed through the ignored local environment without recording the credential.
+- Honest limit: the bound final decoded receipt is a one-frame no-audio raster fixture. AAC/mixed content/long-duration paths are implemented and contract-tested, while native Finder interaction remains human-review evidence rather than a bound automated artifact.
+- Propagation changes only canonical records/tree bytes. Publication/integration, proof preservation, server shutdown and D-0054 cleanup remain pending; Phase 3 remains Unauthorized/Not started.
+
 ### 2026-09-20 — Close SPEC-0009 Phase 1 and authorize Phase 2 (D-0097/GIT-076/GIT-077)
 
 - Recorded GIT-076 as exact 26-path commit `548063b9247708106c7c8c8a11978563d07d6597`, parent GIT-075 `37cdb7203286c2ea333a3766ba2e81bc06830200`: the 12 accepted Phase 1 technical paths plus 14 reviewed control-plane/tree paths. Canonical `main`, local `origin/main` and live GitHub `main` matched cleanly at `0/0`.

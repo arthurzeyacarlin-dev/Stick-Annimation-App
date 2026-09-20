@@ -1,16 +1,18 @@
 # SPEC-0009 — Animation Export
 
-Status: **Approved; Phase 1 Verified/published/integrated/preserved/cleaned up; Phase 2 Authorized/Not started; Phase 3 Unauthorized**
+Status: **Approved; Phase 1 fully closed; Phase 2 Accepted/technically Verified/control-plane propagated, publication pending; Phase 3 Unauthorized**
 Owner: Arthur
-Task role: phased implementation; the current Control Plane Architect task records the accepted Phase 1 result without changing its technical bytes
+Task role: phased implementation; the current Control Plane Architect task records the accepted Phase 2 result without changing its technical bytes
 Created: 2026-09-20
 Last updated: 2026-09-20
-Decision links: [D-0094](../DECISIONS.md), [D-0096](../DECISIONS.md), [D-0097](../DECISIONS.md)
+Decision links: [D-0094](../DECISIONS.md), [D-0096](../DECISIONS.md), [D-0097](../DECISIONS.md), [D-0098](../DECISIONS.md)
 TODO IDs: `PLAN-009`, `SPEC-009`, `EXPORT-001`–`EXPORT-003`
 Planning base: detached SHA `888aae769e67e08adb1862c81f21bec171fd0592`, contained by `codex/spec0008-phase1-correction-authorization`; index empty before edits
 Accepted Phase 1 base/HEAD: `37cdb7203286c2ea333a3766ba2e81bc06830200`; empty index; exact 12-path implementation/proof allowlist
 Accepted Phase 1 manifest: `output/spec-0009/phase-1/proof-manifest.json`, 8,688 bytes, SHA-256 `40af1b220958a5d99094a07c763194b4cb6e2338ee6e14f0b2674a671564c2fb`
 Published Phase 1 commit: GIT-076 `548063b9247708106c7c8c8a11978563d07d6597`
+Accepted Phase 2 base/HEAD: `b45921262b57902ddbaea9519a03f7aa7289621c`; empty index; exact 15-path implementation/proof allowlist
+Accepted Phase 2 manifest: `output/spec-0009/phase-2/proof-manifest.json`, 11,229 bytes, SHA-256 `4f141b18e4601ef1faca2cd4f2d325bd11cc3f06303dac09f2ac1f07d838c341`; source digest `354eaf6f0d924168a2e36b0e4ec5ed240e41e89a1b3dd577b9f85af9b9fdf733`
 Visual reference: `/Users/arthurcarlin/Projects/stick-animation-app/diamond-export-flow.html`, used only for product-flow and visual-language guidance, never as runtime or technical authority
 
 ## 1. Exact product outcome
@@ -31,10 +33,10 @@ The outcome is exactly three separately authorized implementation phases:
 | Phase | Outcome | Authorization state |
 | --- | --- | --- |
 | 1 — Choose and Watch | Both entry points open the saved-animation chooser and a real selected-animation player. | Verified/published/integrated/preserved/cleaned up |
-| 2 — Create and Save Video | The selected immutable saved revision becomes a validated local 720p/1080p video through a truthful Finder flow. | Authorized; Not started |
+| 2 — Create and Save Video | The selected immutable saved revision becomes a validated local 720p/1080p video through a truthful Finder flow. | Accepted; technically Verified; control-plane propagated; publication pending |
 | 3 — Social Destinations and Final Testing | A versioned destination catalog prepares correctly shaped local files and closes whole-feature proof. | Proposed; Unauthorized; Not started |
 
-No row authorizes the next row. Arthur separately approved the whole spec and Phase 1, then separately authorized Phase 2 under D-0097 after Phase 1 publication/integration/synchronization/proof-preservation/cleanup completed. Phase 3 still requires full Phase 2 closeout and separate authorization.
+No row authorizes the next row. Arthur separately approved the whole spec and Phase 1, then separately authorized Phase 2 under D-0097 after Phase 1 publication/integration/synchronization/proof-preservation/cleanup completed. D-0098 records Phase 2 acceptance and technical verification. Phase 3 still requires full Phase 2 publication/integration/synchronization/proof-preservation/cleanup and separate authorization.
 
 ## 2. Relationship to SPEC-0008 and permanent boundaries
 
@@ -127,6 +129,14 @@ The final two bullets are explicitly owner-authorized regression repairs discove
 The immutable manifest is PASS and freshly VALID with 16 validation assertions. Bound proof includes 25 oracle assertions, 23 real-app correction assertions, TypeScript, focused lint and a production build. Deterministic browser proof used one no-cost Terra double and zero external/provider calls. After local server-only credential setup, a separate one-message real Terra smoke returned `Hello — connection confirmed.` with zero console errors; no credential value is recorded.
 
 Phase 1 does not claim video encoding, Finder writing, social/destination choices, final export-fidelity background ownership or Phase 2 completion. The player currently supplies a white display matte before saved content; Phase 2's project-owned background and no-export-only-white contract remains an entry gate and may not silently treat that display matte as final exported background truth.
+
+### 3.6 Accepted Phase 2 implementation and review correction
+
+D-0098 records Arthur's acceptance of the corrected exact 15-path result from unchanged base/HEAD `b45921262b57902ddbaea9519a03f7aa7289621c`. It persists project-owned solid background with absent/new state defaulting to white; routes preview/output through one uniform centered contain renderer; exports sharp selected 720p/1080p H.264 MP4 locally; includes AAC when authored audio exists; and provides Finder location, real progress, responsive cancellation, distinct failure, zero-byte partial cleanup and post-write validation through pinned Mediabunny `1.58.1`/MPL-2.0.
+
+The visible correction replaced squeezed output geometry with shape-preserving centered scaling and restored the ignored local server environment without changing any Terra source. Export itself makes zero external/AI/provider calls and changes no credits or authored/repository state. Exactly one separate Low-reasoning live Terra smoke passed. The immutable manifest is PASS/VALID at SHA-256 `4f141b18e4601ef1faca2cd4f2d325bd11cc3f06303dac09f2ac1f07d838c341`, source digest `354eaf6f0d924168a2e36b0e4ec5ed240e41e89a1b3dd577b9f85af9b9fdf733`; pre-propagation validation passed 20 assertions/13 rejected mutations, the oracle passed 38 assertions, and TypeScript/diff checks passed.
+
+Real write/read/inspection passed at 1280×720 and 1920×1080. Honest limits: automated writing used the real browser encoder with an OPFS FileSystemFileHandle seam; native Finder remains human-review evidence. Final decoded receipts are one-frame raster/no-audio fixtures; AAC/mixed content/long duration are implemented/contract-tested but not claimed as visually human-accepted by those receipts. Publication/integration/proof preservation/D-0054 cleanup remain pending, and Phase 3 remains unauthorized.
 
 ## 4. Product and ownership invariants
 
@@ -466,9 +476,9 @@ Phase 1 technical proof must bind source/test/fixture hashes; exact collection e
 
 Phase 1 excludes encoding, Finder writing, progress claims, social presets beyond a disabled/absent placeholder, logos, and every later-phase capability. GIT-076 durably completes its publication/integration/synchronization/proof-preservation/cleanup. D-0097 separately authorizes Phase 2; Phase 1 alone did not.
 
-### Phase 2 — Create and Save Video
+### Phase 2 — Create and Save Video — Accepted/technically Verified/control-plane propagated; publication pending
 
-Authorized outcome under D-0097:
+Accepted outcome under D-0097/D-0098:
 
 - implement the versioned selection/request/job contracts;
 - persist a project-owned background that defaults to white and round-trips through Save/Open;
@@ -479,7 +489,7 @@ Authorized outcome under D-0097:
 - show real progress, responsive cancellation, distinct truthful failures, and post-write validation;
 - keep all work local with zero AI credits/network/provider calls.
 
-Phase 2 implementation entry gates:
+Historical Phase 2 implementation entry gates:
 
 1. **Satisfied by D-0097/GIT-077:** Phase 1 is fully closed and Arthur separately authorized Phase 2. The fresh executor starts from the resulting synchronized GIT-077 SHA.
 2. D-0097 approves the project-owned background outcome: absent/new background state defaults to white, persists through Save/Open, and is the export source of truth. The executor must prove that contract and must not infer background from CSS/current screen pixels or inject an export-only matte.
@@ -496,7 +506,7 @@ Phase 2 acceptance flow:
 5. Trigger source-change, corrupt asset, audio decode, encoder, insufficient-space/permission, interrupted-worker, and validation failures; prove no project/history/version/credit/network mutation.
 6. Run the long/performance, save/open, timeline/drawing, AI Animator/Terra, and credits regressions.
 
-Phase 2 proof must include:
+Phase 2 proof contract (accepted evidence and honest limits are recorded in Sections 3.6 and 16):
 
 - canonical pre-encode frame manifest for all fixture frames and per-content-kind ownership;
 - decoded output metadata for every produced file;
@@ -584,14 +594,13 @@ The manifest must reject at least wrong project/revision/digest, omitted source/
 
 Proven now:
 
-- Home Export is visibly present and inert.
-- Workspace File has Save and Save As only.
-- The existing current-frame export is a raster-only white-background PNG helper, not animation video export.
-- Saved-project collection and V2 repository validation already exist, but storage heads have no authoritative thumbnail/duration.
-- Saved V2 documents carry FPS, stage/layer/cell/content/catalog/sound data needed to define a faithful read-only source.
-- Current playback, thumbnail helper, and PNG export do not yet share one proved deterministic export compositor.
-- Current authored stage is 1920×1080, while the contract permits long timelines that require bounded streaming.
-- No current destination catalog, encoder, Finder write/validation, progress, or cancellation system exists.
+- Home Export and workspace File → Export share the accepted chooser/watch/create/save flow.
+- One immutable saved V2 revision supplies FPS, duration, content, project-owned background and audio inputs.
+- One uniform centered shape-preserving renderer serves Watch/output framing; the legacy current-frame PNG helper remains separate.
+- Pinned Mediabunny `1.58.1`/MPL-2.0 creates local selected 720p/1080p H.264 MP4 with AAC when audio exists.
+- Finder selection, real progress, cancellation, distinct failures, zero-byte cleanup and post-write validation are implemented.
+- Export makes zero network/AI/provider calls and changes no credits or project/history/repository state.
+- No Phase 3 destination catalog, direct social integration, upload/posting or deployment exists.
 
 Decision-complete product choices in this proposal:
 
@@ -610,10 +619,10 @@ Implementation-entry decisions intentionally deferred, with owners and stop cond
 | Decision | Owner/gate | Required result |
 | --- | --- | --- |
 | Exact shared evaluator extraction and allowed code paths | Phase 1 executor plan + Arthur scope review | One read-only truth without a second document/persistence owner |
-| Project-owned background persistence/reopen semantics | Phase 2 entry review; owner decision if absent | Exact saved background truth or phase stops for spec amendment |
-| Local H.264/AAC encoder/dependency | Phase 2 entry review | Supported, licensed, version-pinned, local-only implementation or phase stops |
-| macOS browser/file-picker support details | Phase 2 entry review | Proven Finder location flow and partial-file semantics or phase stops |
-| Codec-aware visual/audio comparison thresholds | Phase 2 test-plan review | Numerically bounded thresholds that still detect each required omission/misalignment |
+| Project-owned background persistence/reopen semantics | Resolved in accepted Phase 2 | Exact saved background truth, absent/new default white |
+| Local H.264/AAC encoder/dependency | Resolved in accepted Phase 2 | Mediabunny `1.58.1`, MPL-2.0, local-only implementation |
+| macOS browser/file-picker support details | Resolved with recorded proof limit | Finder flow accepted; native dialog remains human-review evidence |
+| Codec-aware visual/audio comparison thresholds | Resolved for accepted Phase 2 contract | Shape/fidelity thresholds bind decoded video; AAC/mixed/long paths remain contract-tested limits |
 | Current third-party platform limits/guidance | Phase 3 official-source freshness gate | Versioned values with provenance, dates, and truthful stale handling |
 | Logo rights and asset choice | Phase 3 legal/brand gate | Permitted local asset or neutral fallback, never an unverified mark |
 
@@ -623,4 +632,4 @@ These are bounded engineering/freshness gates, not permission to alter the accep
 
 SPEC-0009 is not complete when the UI appears, when a sample downloads, or when tests compile. Completion requires all three phases to pass their exact user flows, technical proof and real-app review; every accepted result to complete sequential executor/architect/publication/integration/synchronization/proof-preservation/cleanup; and the final product to prove faithful local export across long animations, all supported content/audio, both quality tiers, every destination family, cancellation/failures, performance, accessibility, Save/Open, timeline/drawing, AI Animator/Terra, and credits.
 
-As of D-0097/GIT-077, SPEC-0009 is Approved. Phase 1's exact 12-path implementation/proof result is Verified, published, integrated, synchronized, proof-preserved and cleaned up through GIT-076 `548063b9247708106c7c8c8a11978563d07d6597`. Phase 2 is Authorized/Not started with project-owned background persistence/default white, local MP4/H.264/AAC and Mediabunny assembly as the approved direction; its executor must still prove every Phase 2 gate. Phase 3 remains Unauthorized/Not started. No Phase 2 encoder/Finder runtime, destination catalog, direct social integration or deployment has yet been implemented.
+As of D-0098, SPEC-0009 is Approved. Phase 1's exact 12-path result is fully closed through GIT-076 `548063b9247708106c7c8c8a11978563d07d6597`. Phase 2's corrected exact 15-path result is Accepted/technically Verified with control-plane propagation complete and publication/integration/proof preservation/D-0054 cleanup pending. Phase 3 remains Unauthorized/Not started. No destination catalog, direct social integration or deployment has been implemented.

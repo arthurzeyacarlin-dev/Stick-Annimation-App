@@ -1,7 +1,7 @@
 # AI System Snapshot
 
 Status: canonical current AI architecture and gap map
-Last traced: 2026-09-20 through GIT-076 closed SPEC-0009 Phase 1 and D-0097 authorized Phase 2. SPEC-0008 Phase 1 is fully closed; Phases 2–6 are paused, Unauthorized, Not started and not rejected. SPEC-0009 Phase 1 is published/integrated/preserved/cleaned up; Phase 2 is Authorized/Not started; Phase 3 is Unauthorized/Not started.
+Last traced: 2026-09-20 through D-0098 acceptance/technical verification of SPEC-0009 Phase 2. SPEC-0008 Phase 1 is fully closed; Phases 2–6 are paused, Unauthorized, Not started and not rejected. SPEC-0009 Phase 1 is fully closed; Phase 2 is Accepted/technically Verified/control-plane propagated with publication/integration pending; Phase 3 is Unauthorized/Not started.
 
 ## Paused SPEC-0008 transition (D-0085–D-0093)
 
@@ -23,11 +23,13 @@ Arthur's later narrow presentation authority also accepts a 280–520 px resizab
 
 SPEC-0004 Phases 1, 2, and timing-only Phase 2.5 remain Verified, published, and integrated. Phase 2.6 remains rejected, unpublished, and superseded historical evidence. Under D-0055, unfinished Phases 3–8 are Superseded by future SPEC-0008, inactive, and must not be implemented.
 
-Current lifecycle update: all seven SPEC-0006 phases are Verified, published and integrated through GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`; all five SPEC-0007 phases are closed through GIT-066; and SPEC-0008 Phase 1 is fully closed through D-0089/D-0090/GIT-070. D-0091's research contract is preserved in GIT-072 `9b4b116d24b076b1c05d91a02fd7318ae5a44148`, and D-0092's transaction contract is preserved in GIT-073 `42bfe1a2607a85a87d486e21d6e573b4e4084d5a`. D-0093 pauses Phases 2–6 as Unauthorized/Not started/not rejected. D-0094's standalone [`SPEC-0009`](specs/0009-animation-export.md) is Approved; D-0096 accepts Phase 1, GIT-076 closes it at `548063b9247708106c7c8c8a11978563d07d6597`, and D-0097 authorizes local-only Phase 2. Phase 3 remains Unauthorized/Not started.
+Current lifecycle update: all seven SPEC-0006 phases are Verified, published and integrated through GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`; all five SPEC-0007 phases are closed through GIT-066; and SPEC-0008 Phase 1 is fully closed through D-0089/D-0090/GIT-070. D-0091's research contract is preserved in GIT-072 `9b4b116d24b076b1c05d91a02fd7318ae5a44148`, and D-0092's transaction contract is preserved in GIT-073 `42bfe1a2607a85a87d486e21d6e573b4e4084d5a`. D-0093 pauses Phases 2–6 as Unauthorized/Not started/not rejected. D-0094's standalone [`SPEC-0009`](specs/0009-animation-export.md) is Approved; D-0096/GIT-076 close Phase 1, D-0097 authorizes Phase 2, and D-0098 accepts/technically verifies its corrected exact 15-path local result. Publication/integration/proof preservation/D-0054 cleanup remain pending. Phase 3 remains Unauthorized/Not started.
 
-## SPEC-0009 Phase 1 AI boundary — accepted narrow regression repair
+## SPEC-0009 Phase 1–2 AI boundary — accepted narrow Phase 1 repair; Phase 2 export isolation
 
-SPEC-0009 remains an independent local manual export feature. Published Phase 1 reads one immutable validated saved revision and creates no authored project version/history/repository mutation. Arthur's visible review explicitly added one narrow AI regression repair: Terra conversation requests its own missing-key message so a greeting cannot leak Generate Frames wording. The fixed `gpt-5.6-terra` model, reasoning mapping/default, prompt/instructions, tools/search/store policy, job/status UI, Thinking gradient, transcript storage, no-animation-mutation rule and credit design are unchanged. The deterministic Phase 1 proof made zero external/paid requests; one separate live greeting later confirmed the installed local server key path. D-0097's Phase 2 authority remains local-only and adds no AI/video-provider/social-network authority or credit spend.
+SPEC-0009 remains an independent local manual export feature. Published Phase 1 reads one immutable validated saved revision and creates no authored project version/history/repository mutation. Arthur's visible Phase 1 review explicitly added one narrow AI regression repair: Terra conversation requests its own missing-key message so a greeting cannot leak Generate Frames wording. The fixed `gpt-5.6-terra` model, reasoning mapping/default, prompt/instructions, tools/search/store policy, job/status UI, Thinking gradient, transcript storage, no-animation-mutation rule and credit design are unchanged.
+
+Accepted Phase 2 export makes zero OpenAI, Terra, provider, search, social, analytics or other network calls; consumes zero AI credits; and leaves all Terra source bytes unchanged. Deterministic regression used a no-cost double. Exactly one separate short Low-reasoning live Terra smoke passed after restoring the ignored local `.env.local`; the credential was not read into proof, hashed, recorded or made publishable. The export implementation adds no video provider or per-export charge.
 
 ## What Exists Today
 

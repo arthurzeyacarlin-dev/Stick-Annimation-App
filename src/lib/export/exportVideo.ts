@@ -48,13 +48,18 @@ export type ExportInspection = {
 
 const abortError = () => new DOMException("Export cancelled", "AbortError");
 const assertNotAborted = (signal: AbortSignal) => { if (signal.aborted) throw abortError(); };
+const yieldToBrowser = () => new Promise<void>(resolve => {
+  const channel = new MessageChannel();
+  channel.port1.onmessage = () => { channel.port1.close(); channel.port2.close(); resolve(); };
+  channel.port2.postMessage(null);
+});
 
 export async function preflightLocalMp4(request: ExportRequestV1) {
   if (!window.isSecureContext || typeof window.showSaveFilePicker !== "function") throw new Error("export_finder_unavailable");
   if (!(await canEncodeVideo("avc", {
     width: request.outputCanvas.width,
     height: request.outputCanvas.height,
-    bitrate: request.qualityTier === "1080p" ? 12_000_000 : 7_000_000,
+    bitrate: request.outputCanvas.width * request.outputCanvas.height > 1280 * 720 ? 12_000_000 : 7_000_000,
   }))) throw new Error("export_video_encoder_unavailable");
   if (request.audioCodec === "aac" && !(await canEncodeAudio("aac", { numberOfChannels: 2, sampleRate: 48_000, bitrate: 192_000 }))) {
     throw new Error("export_audio_encoder_unavailable");
@@ -126,10 +131,11 @@ export async function exportSnapshotToMp4(options: {
   let writable: FileSystemWritableFileStream | null = null;
   let pipe: Promise<void> | null = null;
   let output: Output<Mp4OutputFormat, StreamTarget> | null = null;
+  let outputCancellation: Promise<void> | null = null;
   let finalized = false;
   let bytesWritten = 0;
   const cancelActiveOutput = () => {
-    if (output && output.state === "started") void output.cancel().catch(() => undefined);
+    if (output && output.state === "started" && !outputCancellation) outputCancellation = output.cancel().catch(() => undefined);
   };
   signal.addEventListener("abort", cancelActiveOutput, { once: true });
   try {
@@ -141,7 +147,7 @@ export async function exportSnapshotToMp4(options: {
         controller.enqueue(chunk);
       },
     });
-    pipe = trackedStream.readable.pipeTo(writable as unknown as WritableStream<StreamTargetChunk>);
+    pipe = trackedStream.readable.pipeTo(writable as unknown as WritableStream<StreamTargetChunk>, { signal });
     const target = new StreamTarget(trackedStream.writable, { chunked: true, chunkSize: 4 * 1024 * 1024 });
     output = new Output({ format: new Mp4OutputFormat({ fastStart: false }), target });
     const canvas = document.createElement("canvas");
@@ -157,6 +163,7 @@ export async function exportSnapshotToMp4(options: {
     output.addVideoTrack(videoSource, { maximumPacketCount: request.totalFrames });
     onProgress({ stage: "preflighting", completed: 1, total: request.audioCodec === "aac" ? 2 : 1 });
     const audioMix = await renderDeterministicAudioMix(snapshot.project, request.totalFrames, signal);
+    await yieldToBrowser();
     let audioSource: AudioBufferSource | null = null;
     if (audioMix) {
       audioSource = new AudioBufferSource({ codec: "aac", quality: QUALITY_HIGH });
@@ -171,13 +178,16 @@ export async function exportSnapshotToMp4(options: {
       onProgress({ stage: "rendering", completed: frameIndex + 1, total: request.totalFrames, bytesWritten });
       await videoSource.add(frameIndex * frameDuration, frameDuration);
       onProgress({ stage: "encoding", completed: frameIndex + 1, total: request.totalFrames, bytesWritten });
+      if ((frameIndex + 1) % 4 === 0) await yieldToBrowser();
     }
     if (audioSource && audioMix) await audioSource.add(audioMix);
     assertNotAborted(signal);
+    await yieldToBrowser();
     await output.finalize();
     finalized = true;
     await pipe;
     assertNotAborted(signal);
+    await yieldToBrowser();
     onProgress({ stage: "validating", completed: 0, total: 4, bytesWritten });
     const file = await handle.getFile();
     onProgress({ stage: "validating", completed: 1, total: 4, bytesWritten: file.size });
@@ -185,7 +195,10 @@ export async function exportSnapshotToMp4(options: {
     onProgress({ stage: "validating", completed: 4, total: 4, bytesWritten: file.size });
     return inspection;
   } catch (error) {
-    if (output && !finalized && output.state !== "canceled") await output.cancel().catch(() => undefined);
+    if (output && !finalized && output.state !== "canceled") {
+      cancelActiveOutput();
+      await outputCancellation;
+    }
     if (writable) {
       await pipe?.catch(() => undefined);
       try {

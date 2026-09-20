@@ -489,10 +489,15 @@
 ./scripts/spec0009-export/correctionBrowserProof.ts
 ./scripts/spec0009-export/phase1Oracle.ts
 ./scripts/spec0009-export/phase2Oracle.ts
+./scripts/spec0009-export/phase3BrowserProof.ts
+./scripts/spec0009-export/phase3Oracle.ts
+./scripts/spec0009-export/phase3PerformanceProof.ts
 ./scripts/spec0009-export/recordPhase1Proof.ts
 ./scripts/spec0009-export/recordPhase2Proof.ts
+./scripts/spec0009-export/recordPhase3Proof.ts
 ./scripts/spec0009-export/validatePhase1Proof.ts
 ./scripts/spec0009-export/validatePhase2Proof.ts
+./scripts/spec0009-export/validatePhase3Proof.ts
 ./scripts/sync_docs_to_github.sh
 ./scripts/traceExplosionLivePath.ts
 ./scripts/traceGenerateSoundsLivePath.mjs
@@ -653,6 +658,7 @@
 ./src/lib/export
 ./src/lib/export/exportAudio.ts
 ./src/lib/export/exportContracts.ts
+./src/lib/export/exportDestinationCatalog.ts
 ./src/lib/export/exportPhase1.ts
 ./src/lib/export/exportRenderer.ts
 ./src/lib/export/exportVideo.ts

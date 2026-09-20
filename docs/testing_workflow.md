@@ -1,7 +1,7 @@
 # Verification and Regression Workflow
 
 Status: canonical proof standard and current gate baseline
-Last updated: 2026-09-20
+Last updated: 2026-09-21
 
 ## Published SPEC-0008 Phase 1 correction proof
 
@@ -39,9 +39,15 @@ Real local browser write/read/inspection passed at 1280×720 and 1920×1080, 12 
 
 Export made zero external/network/AI/provider calls, consumed no credits and changed no project/history/repository state. Terra sources are unchanged; deterministic regression used a no-cost double, and exactly one separate short Low live smoke passed after ignored local environment restoration without recording the secret. Honest limits: automated file proof used the real browser encoder with an OPFS FileSystemFileHandle seam, so the native Finder dialog is human-review evidence; the final decoded receipt is one-frame raster/no-audio, while AAC/mixed content/long duration are implemented and contract-tested rather than visually human-accepted by that receipt. GIT-078 `682fd9732b9cc30e545b3b709ced62ffd94edc39` publishes/integrates the exact 29-path result; the 12-file/335,553-byte proof bundle is preserved at aggregate SHA-256 `d2a13e835cbc19fce32620197a801bea942ffdd15beaf8d2d900f2e6a13e64bb`; D-0054 cleanup is complete.
 
-## SPEC-0009 Phase 3 proof contract — unauthorized
+## Accepted SPEC-0009 Phase 3 proof — publication pending
 
-Phase 3 remains unauthorized. If separately authorized, it must refresh mutable platform facts from official first-party sources and prove every versioned destination preset through the same local encode/write/inspect path, complete-animation contain/no-crop framing, stale-catalog handling, brand-asset provenance or neutral fallback, long/performance/accessibility gates and zero network/AI/credit behavior. Mocked cards, synthetic progress or a current-frame PNG do not satisfy these gates. Direct social login/upload/posting, Terra/OpenAI/video-provider calls, runtime platform lookups and deployment remain outside V1.
+D-0100 accepts and technically verifies the exact 10-path Phase 3 result from unchanged base/HEAD `53d825490c08bce620784f0213b4574792732f22`, empty index. Immutable 34,983-byte manifest `output/spec-0009/phase-3/proof-manifest.json` is PASS/VALID at SHA-256 `0d9b48f584f89d54604284c03713037402e2d68decde5c3b0d0a844cd8065277`, source digest `abb0ba8538454eea3af8cb2761b4225a1c3ed294de21f1097ea9c6b58b21e987`. Fresh CPA validation passed 61 assertions and rejected 53 mutations across identity/base/allowlist/source/spec/dependency/artifact/check/catalog/provenance/geometry/project/revision/frame/audio/output/performance/progress/cancel/isolation/upload/deployment/Finder disclosures.
+
+The Phase 3 oracle passed 354 catalog, geometry, request, dependency and isolation assertions. Real Chrome passed 318 assertions covering all 14 destination cards at both quality tiers, valid and invalid Custom / Other dimensions, neutral brand fallbacks, dated guidance, Finder cancellation/permission failure, unchanged project/credit storage and protected Home/Save/Open/drawing/layer/Undo/Redo/onion/playback/Terra-double behavior. Twenty-six preset/tier geometry receipts and six written/decoded H.264 MP4 families prove Original, 16:9, 9:16, 1:1, 4:5 and explicit custom output with centered complete-animation contain framing, disclosed background padding and no crop.
+
+Long proof exported a 7,200-frame five-minute 720p/24 FPS eight-layer audio fixture in 34.15 seconds at 207,409,943-byte peak heap and 213 ms maximum long task, and a 1,440-frame sixty-second 1080p/24 FPS audio fixture in 9.36 seconds with first frame in 240.02 ms. Cancellation acknowledged in 30.97 ms, terminated in 54.64 ms and left zero bytes. Production build, TypeScript and focused exact-path lint passed; full lint remains the inherited five-error/81-warning baseline in untouched files.
+
+Export recorded zero external/network/AI/provider/paid calls, credit changes, project/history/repository changes, uploads or deployments. No Terra source changed. One separate Low live smoke returned `Terra connected.` after ignored server-only environment restoration; no credential enters proof or publication. Honest limits: native Finder/final user path is human-review evidence because automated writing uses the real Chrome encoder through an OPFS FileSystemFileHandle seam; current Chrome on this Mac is proven, not every browser/device or actual social-platform ingestion; the dated `2026-09-20` catalog is guidance rather than a posting guarantee. Direct login/upload/posting and deployment remain outside V1. Publication/integration/proof preservation/D-0054 cleanup remain GIT-079.
 
 ## Accepted SPEC-0007 Phase 5 final manual-editor proof
 

@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { advancePlaybackAccumulator, getClampedPlaybackFrameDurationMs } from "../workspace/timelinePlayback";
 import { listProjectCollection, type ProjectCollectionEntry } from "@/src/lib/animation/unifiedProjectCollection";
 import { createBrowserProjectSourceReader } from "@/src/lib/animation/unifiedProjectSourceReader";
 import {
+  exportCollectionEntryIdentityMatches,
   formatExportDuration,
   loadExportProjectSnapshot,
   type ExportProjectSnapshot,
@@ -13,12 +14,21 @@ import { renderCanonicalExportFrame, resolveProjectBackground } from "@/src/lib/
 import {
   createExportRequest,
   createExportSelection,
-  outputDimensionsFor,
   sanitizeExportFilename,
   snapshotHasAudio,
+  type ExportOutputTier,
   type ExportQualityTier,
   type ExportRequestV1,
 } from "@/src/lib/export/exportContracts";
+import {
+  EXPORT_DESTINATION_CATALOG,
+  EXPORT_DESTINATION_CATALOG_VERSION,
+  resolveExportDestinationGeometry,
+  validateCustomDimensions,
+  type ExportCanvasShape,
+  type ExportDestinationChoice,
+  type ExportDestinationPresetId,
+} from "@/src/lib/export/exportDestinationCatalog";
 import {
   chooseExportFile,
   exportSnapshotToMp4,
@@ -64,6 +74,10 @@ function AnimationPlayer({ snapshot, onChange }: { snapshot: ExportProjectSnapsh
   const [renderError, setRenderError] = useState(false);
   const [filename, setFilename] = useState(snapshot.project.title);
   const [quality, setQuality] = useState<ExportQualityTier>("720p");
+  const [destinationId, setDestinationId] = useState<ExportDestinationPresetId>("original");
+  const [customShape, setCustomShape] = useState<ExportCanvasShape>("original");
+  const [customWidth, setCustomWidth] = useState("1080");
+  const [customHeight, setCustomHeight] = useState("1080");
   const [request, setRequest] = useState<ExportRequestV1 | null>(null);
   const [exportState, setExportState] = useState<"idle" | "preflighting" | "awaiting-location" | "exporting" | "cancelling" | "cancelled" | "failed" | "succeeded">("idle");
   const [exportError, setExportError] = useState<string | null>(null);
@@ -73,7 +87,21 @@ function AnimationPlayer({ snapshot, onChange }: { snapshot: ExportProjectSnapsh
   const frameIndexRef = useRef(0);
   const abortRef = useRef<AbortController | null>(null);
   const selectionRef = useRef(createExportSelection(snapshot));
-  const dimensions = outputDimensionsFor(snapshot, quality);
+  const selectedPreset = EXPORT_DESTINATION_CATALOG.find(candidate => candidate.id === destinationId) ?? EXPORT_DESTINATION_CATALOG[0];
+  const usingCustomDimensions = destinationId === "custom-other" && customShape === "custom";
+  const customDimensionError = usingCustomDimensions ? validateCustomDimensions(Number(customWidth), Number(customHeight)) : null;
+  const destinationChoice: ExportDestinationChoice = useMemo(() => ({
+    presetId: destinationId,
+    customShape,
+    customWidth: Number(customWidth),
+    customHeight: Number(customHeight),
+  }), [customHeight, customShape, customWidth, destinationId]);
+  const geometry = useMemo(() => resolveExportDestinationGeometry(
+    snapshot,
+    customDimensionError ? { ...destinationChoice, customWidth: 1080, customHeight: 1080 } : destinationChoice,
+    quality,
+  ), [customDimensionError, destinationChoice, quality, snapshot]);
+  const dimensions = geometry.outputCanvas;
 
   const stopAudio = useCallback(() => {
     for (const audio of activeAudioRef.current) { audio.pause(); audio.currentTime = 0; }
@@ -142,6 +170,12 @@ function AnimationPlayer({ snapshot, onChange }: { snapshot: ExportProjectSnapsh
   const hasAudio = snapshotHasAudio(snapshot);
   const running = exportState === "preflighting" || exportState === "exporting" || exportState === "cancelling";
 
+  const assertSnapshotIsCurrent = async () => {
+    const collection = await listProjectCollection(createBrowserProjectSourceReader());
+    const currentEntry = collection.find(entry => entry.id === snapshot.entry.id);
+    if (!currentEntry || !exportCollectionEntryIdentityMatches(currentEntry, snapshot.entry)) throw new Error("source_changed");
+  };
+
   const resetPreparedExport = () => {
     if (exportState === "awaiting-location" || exportState === "failed" || exportState === "cancelled" || exportState === "succeeded") {
       setRequest(null);
@@ -174,21 +208,27 @@ function AnimationPlayer({ snapshot, onChange }: { snapshot: ExportProjectSnapsh
       export_validation_dimensions: "The saved video dimensions did not match the chosen quality.",
       export_validation_duration: "The saved video duration did not match the animation.",
       export_validation_fps: "The saved video frame rate did not match the animation.",
+      export_custom_dimensions_invalid: "Custom width and height must be even whole numbers from 256 through 1920.",
     };
     return messages[code] ?? "The MP4 could not be completed. The animation itself was not changed.";
   };
 
   const prepareExport = async () => {
     if (running) return;
+    if (customDimensionError) {
+      setExportError(customDimensionError);
+      setExportState("failed");
+      return;
+    }
     setExportState("preflighting");
     setExportError(null);
     setInspection(null);
     setProgress({ stage: "preflighting", completed: 0, total: 3 });
     try {
-      const current = await loadExportProjectSnapshot(createBrowserProjectSourceReader(), snapshot.entry);
-      if (current.projectDigest !== snapshot.projectDigest) throw new Error("source_changed");
+      await assertSnapshotIsCurrent();
       setProgress({ stage: "preflighting", completed: 1, total: 3 });
-      const nextRequest = createExportRequest(snapshot, selectionRef.current, quality, filename, hasAudio);
+      const outputTier: ExportOutputTier = usingCustomDimensions ? "custom" : quality;
+      const nextRequest = createExportRequest(snapshot, selectionRef.current, outputTier, filename, hasAudio, destinationChoice);
       await preflightLocalMp4(nextRequest);
       setProgress({ stage: "preflighting", completed: 3, total: 3 });
       setRequest(nextRequest);
@@ -222,10 +262,9 @@ function AnimationPlayer({ snapshot, onChange }: { snapshot: ExportProjectSnapsh
     setPlaying(false);
     stopAudio();
     try {
-      const current = await loadExportProjectSnapshot(createBrowserProjectSourceReader(), snapshot.entry);
-      if (current.projectDigest !== request.projectDigest) throw new Error("source_changed");
+      await assertSnapshotIsCurrent();
       const result = await exportSnapshotToMp4({
-        snapshot: current,
+        snapshot,
         request,
         handle,
         signal: abort.signal,
@@ -265,7 +304,10 @@ function AnimationPlayer({ snapshot, onChange }: { snapshot: ExportProjectSnapsh
           <button type="button" onClick={changeAnimation} style={secondaryButtonStyle}>Change animation</button>
         </div>
         <div style={{ border: "1px solid rgba(255,255,255,.12)", borderRadius: 16, background: "#171d28", padding: 16 }}>
-          <canvas ref={canvasRef} width={dimensions.width} height={dimensions.height} aria-label="Selected saved animation" style={{ width: "100%", aspectRatio: `${dimensions.width} / ${dimensions.height}`, display: "block", background: resolveProjectBackground(snapshot.project), borderRadius: 10 }} />
+          <div style={{ position: "relative", margin: "0 auto", maxHeight: "62vh", width: "fit-content", maxWidth: "100%" }}>
+            <canvas ref={canvasRef} width={dimensions.width} height={dimensions.height} aria-label="Selected saved animation" style={{ maxWidth: "100%", maxHeight: "62vh", width: "auto", height: "auto", aspectRatio: `${dimensions.width} / ${dimensions.height}`, display: "block", background: resolveProjectBackground(snapshot.project), borderRadius: 10 }} />
+            <div data-export-content-rect-overlay="true" aria-hidden="true" style={{ position: "absolute", pointerEvents: "none", left: `${(geometry.contentRect.x / dimensions.width) * 100}%`, top: `${(geometry.contentRect.y / dimensions.height) * 100}%`, width: `${(geometry.contentRect.width / dimensions.width) * 100}%`, height: `${(geometry.contentRect.height / dimensions.height) * 100}%`, border: "2px solid rgba(115,205,255,.92)", boxShadow: "0 0 0 1px rgba(0,0,0,.55) inset", borderRadius: 4 }} />
+          </div>
           {renderError ? <div role="alert" style={{ color: "#ffb3b3", marginTop: 10 }}>This frame could not be displayed safely.</div> : null}
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 14, flexWrap: "wrap" }}>
             <button type="button" onClick={() => { if (playing) { setPlaying(false); stopAudio(); } else { if (frameIndex >= snapshot.frameCount - 1) { frameIndexRef.current = 0; setFrameIndex(0); } else { frameIndexRef.current = frameIndex; } setPlaying(true); } }} style={primaryButtonStyle}>{playing ? "Pause" : "Play"}</button>
@@ -278,14 +320,49 @@ function AnimationPlayer({ snapshot, onChange }: { snapshot: ExportProjectSnapsh
           <label style={{ display: "grid", gap: 6 }}>File name
             <input aria-label="Video file name" value={filename} disabled={running} onChange={event => { setFilename(event.target.value); resetPreparedExport(); }} style={{ minHeight: 42, borderRadius: 9, border: "1px solid rgba(255,255,255,.16)", background: "#10151e", color: "white", padding: "8px 11px" }} />
           </label>
-          <fieldset disabled={running} style={{ border: 0, padding: 0, margin: 0, display: "flex", gap: 12, flexWrap: "wrap" }}>
+          <fieldset disabled={running} style={{ border: 0, padding: 0, margin: 0, display: "grid", gap: 10 }}>
+            <legend style={{ marginBottom: 7, fontWeight: 700 }}>Destination</legend>
+            <div role="group" aria-label="Video destinations" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 9 }}>
+              {EXPORT_DESTINATION_CATALOG.map(preset => {
+                const active = preset.id === destinationId;
+                return <button key={preset.id} type="button" aria-pressed={active} onClick={() => { setDestinationId(preset.id); resetPreparedExport(); }} style={{ minHeight: 72, padding: 10, display: "grid", gridTemplateColumns: "34px 1fr", alignItems: "center", gap: 9, textAlign: "left", borderRadius: 10, border: active ? "2px solid #64a9ff" : "1px solid rgba(255,255,255,.14)", background: active ? "rgba(54,124,205,.2)" : "#10151e", color: "white", cursor: "pointer" }}>
+                  <span aria-hidden="true" style={{ width: 32, height: 32, display: "grid", placeItems: "center", borderRadius: 9, background: "rgba(118,176,255,.15)", color: "#a8d1ff", fontSize: 11, fontWeight: 850 }}>{preset.brandAsset.label}</span>
+                  <span><span style={{ display: "block", fontWeight: 760 }}>{preset.displayName}</span><span style={{ display: "block", marginTop: 3, color: "rgba(255,255,255,.52)", fontSize: 11 }}>{preset.shape === "custom-choice" ? "Choose shape" : preset.shape === "original" ? "Saved shape" : preset.shape}</span></span>
+                </button>;
+              })}
+            </div>
+          </fieldset>
+          {destinationId === "custom-other" ? <div style={{ display: "grid", gap: 10 }}>
+            <label style={{ display: "grid", gap: 6 }}>Custom canvas shape
+              <select aria-label="Custom canvas shape" disabled={running} value={customShape} onChange={event => { setCustomShape(event.target.value as ExportCanvasShape); resetPreparedExport(); }} style={{ minHeight: 42, borderRadius: 9, border: "1px solid rgba(255,255,255,.16)", background: "#10151e", color: "white", padding: "8px 11px" }}>
+                <option value="original">Original saved shape</option><option value="16:9">16:9</option><option value="9:16">9:16</option><option value="1:1">1:1 square</option><option value="4:5">4:5 portrait</option><option value="custom">Custom dimensions</option>
+              </select>
+            </label>
+            {usingCustomDimensions ? <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10 }}>
+              <label style={{ display: "grid", gap: 6 }}>Width
+                <input aria-label="Custom video width" aria-invalid={Boolean(customDimensionError)} aria-describedby="custom-dimension-error" type="number" min={256} max={1920} step={2} value={customWidth} onChange={event => { setCustomWidth(event.target.value); resetPreparedExport(); }} style={{ minHeight: 42, borderRadius: 9, border: "1px solid rgba(255,255,255,.16)", background: "#10151e", color: "white", padding: "8px 11px" }} />
+              </label>
+              <label style={{ display: "grid", gap: 6 }}>Height
+                <input aria-label="Custom video height" aria-invalid={Boolean(customDimensionError)} aria-describedby="custom-dimension-error" type="number" min={256} max={1920} step={2} value={customHeight} onChange={event => { setCustomHeight(event.target.value); resetPreparedExport(); }} style={{ minHeight: 42, borderRadius: 9, border: "1px solid rgba(255,255,255,.16)", background: "#10151e", color: "white", padding: "8px 11px" }} />
+              </label>
+            </div> : null}
+            {usingCustomDimensions ? <div id="custom-dimension-error" role={customDimensionError ? "alert" : undefined} style={{ color: customDimensionError ? "#ffb3b3" : "rgba(255,255,255,.55)", fontSize: 12 }}>{customDimensionError ?? "Even whole numbers from 256 through 1920 pixels."}</div> : null}
+          </div> : null}
+          {!usingCustomDimensions ? <fieldset disabled={running} style={{ border: 0, padding: 0, margin: 0, display: "flex", gap: 12, flexWrap: "wrap" }}>
             <legend style={{ marginBottom: 7 }}>Video quality</legend>
             {(["720p", "1080p"] as const).map(tier => <label key={tier} style={{ display: "flex", gap: 7, alignItems: "center" }}><input type="radio" name="quality" checked={quality === tier} onChange={() => { setQuality(tier); resetPreparedExport(); }} />{tier}</label>)}
-          </fieldset>
+          </fieldset> : null}
+          <div aria-label="Destination framing details" style={{ padding: 13, borderRadius: 10, border: "1px solid rgba(100,169,255,.22)", background: "rgba(62,128,207,.08)", color: "rgba(255,255,255,.78)", fontSize: 13, lineHeight: 1.55 }}>
+            <strong style={{ color: "white" }}>{selectedPreset.displayName} · Fit complete animation</strong><br />
+            {selectedPreset.shapeExplanation}<br />
+            Canvas {dimensions.width}×{dimensions.height}; content {geometry.contentRect.width}×{geometry.contentRect.height} at ({geometry.contentRect.x}, {geometry.contentRect.y}). {geometry.paddingDescription}<br />
+            {selectedPreset.guidance} Catalog {EXPORT_DESTINATION_CATALOG_VERSION}; local guidance only, not a posting guarantee.
+          </div>
           <div style={{ color: "rgba(255,255,255,.66)", fontSize: 13, lineHeight: 1.55 }}>
             {dimensions.width}×{dimensions.height} · {snapshot.project.document.fps} FPS · {formatExportDuration(snapshot.durationSeconds)} · H.264 MP4{hasAudio ? " with AAC audio" : " without audio"}<br />
             Background: <span style={{ display: "inline-block", width: 12, height: 12, verticalAlign: "-1px", borderRadius: 2, background: resolveProjectBackground(snapshot.project), border: "1px solid rgba(255,255,255,.35)" }} /> {resolveProjectBackground(snapshot.project)}. Everything stays on this Mac; exporting uses no AI credits.
           </div>
+          {snapshot.durationSeconds >= 60 ? <div role="note" style={{ color: "#f3d89c", background: "rgba(255,190,65,.08)", border: "1px solid rgba(255,190,65,.2)", borderRadius: 10, padding: 11, fontSize: 12, lineHeight: 1.5 }}>Long exports can use significant local CPU, memory, and storage. Keep this tab open until validation finishes.</div> : null}
           {progress ? <div role="status" aria-live="polite" style={{ display: "grid", gap: 7 }}>
             <div>{progress.stage === "awaiting-location" ? "Ready for Finder" : progress.stage.charAt(0).toUpperCase() + progress.stage.slice(1)}{percent !== null ? ` · ${percent}%` : progress.bytesWritten ? ` · ${Math.round(progress.bytesWritten / 1024)} KB written` : ""}</div>
             {percent !== null ? <progress aria-label="Export progress" max={100} value={percent} style={{ width: "100%" }} /> : null}
@@ -293,7 +370,7 @@ function AnimationPlayer({ snapshot, onChange }: { snapshot: ExportProjectSnapsh
           {exportError ? <div role="alert" style={{ color: exportState === "cancelled" ? "#f3d89c" : "#ffb3b3" }}>{exportError}</div> : null}
           {inspection ? <div role="status" style={{ color: "#9fe3b2", lineHeight: 1.5 }}>Saved and validated <strong>{inspection.filename}</strong> · {inspection.width}×{inspection.height} · {inspection.frameCount} frames · {inspection.durationSeconds.toFixed(2)}s · {(inspection.byteLength / 1024).toFixed(0)} KB</div> : null}
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-            {exportState !== "awaiting-location" ? <button type="button" disabled={running} onClick={() => void prepareExport()} style={{ ...primaryButtonStyle, opacity: running ? .5 : 1 }}>{exportState === "preflighting" ? "Checking this Mac…" : exportState === "succeeded" ? "Export another video" : "Export video"}</button> : null}
+            {exportState !== "awaiting-location" ? <button type="button" disabled={running || Boolean(customDimensionError)} onClick={() => void prepareExport()} style={{ ...primaryButtonStyle, opacity: running || customDimensionError ? .5 : 1 }}>{exportState === "preflighting" ? "Checking this Mac…" : exportState === "succeeded" ? "Export another video" : "Export video"}</button> : null}
             {exportState === "awaiting-location" && request ? <button type="button" onClick={() => void chooseLocationAndExport()} style={primaryButtonStyle}>Choose save location…</button> : null}
             {exportState === "exporting" ? <button type="button" onClick={cancelExport} style={secondaryButtonStyle}>Cancel export</button> : null}
             {exportState === "cancelling" ? <button type="button" disabled style={{ ...secondaryButtonStyle, opacity: .55 }}>Cancelling…</button> : null}
@@ -366,7 +443,7 @@ export function AnimationExportFlow({ origin, onBack }: Props) {
       <div style={{ width: "min(1180px, 100%)", margin: "0 auto", display: "flex", flexDirection: "column", gap: 24 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
           <button type="button" onClick={onBack} style={secondaryButtonStyle}>← Back</button>
-          <div style={{ textAlign: "center" }}><div style={{ color: "#80b8ff", fontSize: 12, fontWeight: 800, letterSpacing: ".1em", textTransform: "uppercase" }}>Export · Phase 2</div><h1 style={{ margin: "5px 0 0", fontSize: 28 }}>Choose and watch</h1></div>
+          <div style={{ textAlign: "center" }}><div style={{ color: "#80b8ff", fontSize: 12, fontWeight: 800, letterSpacing: ".1em", textTransform: "uppercase" }}>Export · Phase 3</div><h1 style={{ margin: "5px 0 0", fontSize: 28 }}>Choose and watch</h1></div>
           <div style={{ width: 72 }} />
         </div>
         <div style={{ color: "rgba(255,255,255,.68)", textAlign: "center" }}>Select a saved animation, then choose <strong>Use this animation</strong> to watch the exact saved frames.</div>

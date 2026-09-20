@@ -1,5 +1,14 @@
 # Changelog
 
+### 2026-09-21 — Accept and technically verify SPEC-0009 Phase 3 (D-0100)
+
+- recorded Arthur's visible acceptance of the corrected Phase 3 review app at `http://127.0.0.1:57500/` and sequential Control Plane Architect ownership of the stopped detached worktree at unchanged base/HEAD `53d825490c08bce620784f0213b4574792732f22`, empty index
+- accepted exactly 10 technical paths implementing a versioned 14-choice local destination catalog, Original unchanged-shape download, complete-animation centered contain framing with disclosed padding/no crop, validated Custom / Other dimensions, dated guidance, neutral text fallbacks and no direct upload/posting
+- bound the immutable 34,983-byte PASS/VALID manifest SHA-256 `0d9b48f584f89d54604284c03713037402e2d68decde5c3b0d0a844cd8065277` and source digest `abb0ba8538454eea3af8cb2761b4225a1c3ed294de21f1097ea9c6b58b21e987`; fresh validation passed 61 assertions and rejected 53 mutations
+- recorded 354 Phase 3 oracle assertions, 318 real-Chrome assertions, 26 geometry/tier receipts, six written/decoded H.264 MP4 families, five-minute 720p and sixty-second 1080p audio/performance runs, responsive zero-byte cancellation cleanup, TypeScript/build/focused-lint PASS and inherited untouched full-lint baseline only
+- preserved zero external/network/AI/provider/paid calls, zero credit/project/history/repository changes and unchanged Terra source; one separate Low live Terra smoke passed after ignored server-only environment restoration without recording the credential
+- propagation changes only canonical control-plane/tree bytes. GIT-079 publication/integration, proof preservation, server shutdown and D-0054 cleanup remain pending; direct social integration and deployment remain absent
+
 ### 2026-09-20 — SPEC-0009 Phase 2 publication terminal record and cleanup
 
 - recorded exact 29-path GIT-078 commit `682fd9732b9cc30e545b3b709ced62ffd94edc39`, parent `b45921262b57902ddbaea9519a03f7aa7289621c`, and clean `0/0` canonical-main/origin/live-GitHub synchronization

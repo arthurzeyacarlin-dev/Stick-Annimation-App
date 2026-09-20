@@ -1,7 +1,7 @@
 # Diamond Animator Master Project Charter
 
 Status: canonical product intent
-Last updated: 2026-09-20
+Last updated: 2026-09-21
 
 ## Product Mission
 
@@ -39,7 +39,7 @@ D-0074's [`SPEC-0007 — Drawing-Only Manual Editor Completion and AI-Ready Tool
 
 D-0085 creates [`SPEC-0008 — Conversational AI Animator and Editable Video Reconstruction`](specs/0008-conversational-ai-animator.md), and D-0086/GIT-067 publishes its planning package. D-0087/GIT-068 approves it with Phase 1 only; D-0088 preserves/cleans the rejected first result and authorizes one correction; D-0089 accepts the corrected exact 19-path Terra-only one-chat/job foundation plus Arthur's narrow sidebar/timeline presentation corrections. D-0090 records exact GIT-070 `76708645c96b3b0ea95c524f162bb6152d539fcf` publication/integration, proof preservation and D-0054 cleanup. Phase 1 is fully closed. Current-main D-0091/GIT-072 preserves the later bounded web-research plan and D-0092/GIT-073 commit `42bfe1a2607a85a87d486e21d6e573b4e4084d5a` preserves the automatic-commit plan. D-0093 now pauses SPEC-0008 after Phase 1: Phases 2–6 remain **Paused; Unauthorized; Not started; not rejected**. Those later planning decisions remain historical material without dispatch authority. The reference-video architecture is under reconsideration; reusable editable motion/Blender assets remain unproven research rather than an approved replacement. No later AI Animator executor, live/paid provider use, asset purchase or replacement architecture may begin without Arthur's explicit resumption and fresh architecture/spec reconciliation.
 
-D-0094 creates [`SPEC-0009 — Animation Export`](specs/0009-animation-export.md) as a separate three-phase local product plan: Choose and Watch; Create and Save Video; Social Destinations and Final Testing. GIT-074 publishes that planning package in `30f6f85e5c483c9df15946e7a451bf2a31374f2e`. D-0096/GIT-076 close Phase 1. D-0097 authorizes Phase 2, D-0098 records Arthur's acceptance, and D-0099 closes exact 29-path GIT-078 `682fd9732b9cc30e545b3b709ced62ffd94edc39` publication/integration, proof preservation and D-0054 cleanup. Phase 2 persists a project-owned default-white background, uses one shape-preserving centered renderer, and creates local 720p/1080p H.264 MP4 with AAC when audio exists through pinned Mediabunny `1.58.1`/MPL-2.0, Finder save, truthful progress/cancel/failure, zero-byte cleanup and post-write validation. Export makes zero AI/provider calls; Terra code is unchanged. Phase 2 is fully closed. Phase 3 remains Unauthorized/Not started.
+D-0094 creates [`SPEC-0009 — Animation Export`](specs/0009-animation-export.md) as a separate three-phase local product plan: Choose and Watch; Create and Save Video; Social Destinations and Final Testing. GIT-074 publishes that planning package in `30f6f85e5c483c9df15946e7a451bf2a31374f2e`. D-0096/GIT-076 close Phase 1. D-0097 authorizes Phase 2, D-0098 records Arthur's acceptance, and D-0099 closes exact 29-path GIT-078 `682fd9732b9cc30e545b3b709ced62ffd94edc39` publication/integration, proof preservation and D-0054 cleanup. Phase 2 persists a project-owned default-white background, uses one shape-preserving centered renderer, and creates local 720p/1080p H.264 MP4 with AAC when audio exists through pinned Mediabunny `1.58.1`/MPL-2.0, Finder save, truthful progress/cancel/failure, zero-byte cleanup and post-write validation. D-0100 accepts and technically verifies Phase 3's local 14-choice destination catalog, Original unchanged-shape download, complete-animation contain framing, validated Custom / Other dimensions and final long/performance proof. Export makes zero AI/provider/social-service calls; Terra code is unchanged. Phase 3 publication/integration remains GIT-079.
 
 The permanent direction is drawing-only: no non-destructive command may silently remove unrelated authored pixels/items; intentional removals use a closed registry of explicit destructive controls; same-paint raster overlaps use maximum coverage rather than cumulative darkening; and accepted Phase 2 **Draw Rig** creates ordinary segmented raster paint, never joints/bones/topology. Accepted Phase 3 retires active structured-rig/Creator authoring and migrates historical rig content non-destructively into ordinary drawing/drawing symbols through read-only compatibility adapters. Every future-AI-eligible mutation uses the same validated capability as its ordinary manual control. SPEC-0007 adds no AI/provider/model/prompt/API/video/tracking behavior.
 
@@ -61,7 +61,7 @@ Phase 0 is preservation and stabilization:
 - resolve launch scope and product-quality definitions
 - stabilize core document, persistence, security, and test foundations before broad feature expansion
 - preserve completed SPEC-0008 Phase 1 while D-0093 pauses Phases 2–6; do no later AI Animator/provider implementation until Arthur explicitly resumes it and the architecture/spec is reconciled
-- preserve fully closed SPEC-0009 Phases 1–2; keep Phase 3 separately gated until Arthur explicitly authorizes it
+- preserve fully closed SPEC-0009 Phases 1–2 and D-0100's accepted/technically Verified Phase 3 while GIT-079 publication/integration/proof-preservation/cleanup completes
 
 The ordered phase plan lives in `ROADMAP.md`.
 

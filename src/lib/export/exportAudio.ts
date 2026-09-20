@@ -4,6 +4,12 @@ export const EXPORT_AUDIO_SAMPLE_RATE = 48_000;
 
 type ScheduledAttachment = { frameIndex: number; id: string; dataUrl: string };
 
+const yieldToBrowser = () => new Promise<void>(resolve => {
+  const channel = new MessageChannel();
+  channel.port1.onmessage = () => { channel.port1.close(); channel.port2.close(); resolve(); };
+  channel.port2.postMessage(null);
+});
+
 const decodeDataUrlBytes = (dataUrl: string) => {
   const match = /^data:(audio\/[a-z0-9.+-]+);base64,([a-z0-9+/=]+)$/i.exec(dataUrl);
   if (!match) throw new Error("export_audio_data_invalid");
@@ -27,18 +33,35 @@ export const collectExportAudioAttachments = (project: UnifiedAnimationProjectV2
   return attachments.sort((left, right) => left.frameIndex - right.frameIndex || left.id.localeCompare(right.id));
 };
 
+const collectExportAudioAttachmentsYielding = async (project: UnifiedAnimationProjectV2, signal?: AbortSignal) => {
+  const attachments: ScheduledAttachment[] = [];
+  let visited = 0;
+  for (const layer of project.document.layers) {
+    if (!layer.visible) continue;
+    for (const [frameIndex, cell] of layer.cells.entries()) {
+      if (signal?.aborted) throw new DOMException("Export cancelled", "AbortError");
+      const attachment = cell.content?.soundAttachment;
+      if (attachment) {
+        if (!attachment.audioDataUrl) throw new Error(`export_audio_missing:${attachment.id}`);
+        attachments.push({ frameIndex, id: attachment.id, dataUrl: attachment.audioDataUrl });
+      }
+      visited += 1;
+      if (visited % 512 === 0) await yieldToBrowser();
+    }
+  }
+  return attachments.sort((left, right) => left.frameIndex - right.frameIndex || left.id.localeCompare(right.id));
+};
+
 export async function renderDeterministicAudioMix(
   project: UnifiedAnimationProjectV2,
   totalFrames: number,
   signal?: AbortSignal,
 ): Promise<AudioBuffer | null> {
-  const attachments = collectExportAudioAttachments(project);
+  const attachments = await collectExportAudioAttachmentsYielding(project, signal);
   if (attachments.length === 0) return null;
-  const durationSeconds = totalFrames / project.document.fps;
-  const outputFrames = Math.max(1, Math.ceil(durationSeconds * EXPORT_AUDIO_SAMPLE_RATE));
-  const offline = new OfflineAudioContext(2, outputFrames, EXPORT_AUDIO_SAMPLE_RATE);
   const decoder = new AudioContext({ sampleRate: EXPORT_AUDIO_SAMPLE_RATE });
   try {
+    const decoded: Array<{ attachment: ScheduledAttachment; buffer: AudioBuffer }> = [];
     for (const attachment of attachments) {
       if (signal?.aborted) throw new DOMException("Export cancelled", "AbortError");
       let buffer: AudioBuffer;
@@ -47,6 +70,13 @@ export async function renderDeterministicAudioMix(
       } catch {
         throw new Error(`export_audio_decode_failed:${attachment.id}`);
       }
+      decoded.push({ attachment, buffer });
+    }
+    const videoDurationSeconds = totalFrames / project.document.fps;
+    const audibleDurationSeconds = Math.min(videoDurationSeconds, Math.max(...decoded.map(({ attachment, buffer }) => attachment.frameIndex / project.document.fps + buffer.duration)));
+    const outputFrames = Math.max(1, Math.ceil(audibleDurationSeconds * EXPORT_AUDIO_SAMPLE_RATE));
+    const offline = new OfflineAudioContext(2, outputFrames, EXPORT_AUDIO_SAMPLE_RATE);
+    for (const { attachment, buffer } of decoded) {
       const source = offline.createBufferSource();
       source.buffer = buffer;
       source.connect(offline.destination);

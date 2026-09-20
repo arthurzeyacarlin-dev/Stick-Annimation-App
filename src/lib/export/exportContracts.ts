@@ -1,8 +1,15 @@
 import type { ExportProjectSnapshot } from "./exportPhase1";
+import {
+  EXPORT_DESTINATION_CATALOG_VERSION,
+  resolveExportDestinationGeometry,
+  type ExportDestinationChoice,
+  type ExportDestinationPresetId,
+} from "./exportDestinationCatalog.ts";
 
 export const EXPORT_RENDERER_VERSION = "diamond-export-renderer/v1" as const;
 
 export type ExportQualityTier = "720p" | "1080p";
+export type ExportOutputTier = ExportQualityTier | "custom";
 
 export const resolveUniformContainTransform = (
   outputWidth: number,
@@ -68,8 +75,14 @@ export type ExportRequestV1 = {
   projectId: string;
   projectDigest: string;
   sanitizedBaseFilename: string;
-  qualityTier: ExportQualityTier;
+  qualityTier: ExportOutputTier;
+  destinationPresetId: ExportDestinationPresetId;
+  catalogVersion: typeof EXPORT_DESTINATION_CATALOG_VERSION;
+  framingMode: "contain-complete-animation";
+  sourceStage: { width: number; height: number };
   outputCanvas: { width: number; height: number };
+  contentRect: { x: number; y: number; width: number; height: number };
+  paddingDescription: string;
   fps: number;
   totalFrames: number;
   durationMs: number;
@@ -120,10 +133,15 @@ export const createExportSelection = (snapshot: ExportProjectSnapshot): ExportSe
 export const createExportRequest = (
   snapshot: ExportProjectSnapshot,
   selection: ExportSelectionV1,
-  qualityTier: ExportQualityTier,
+  qualityTier: ExportOutputTier,
   filename: string,
   hasAudio: boolean,
-): ExportRequestV1 => ({
+  destination: ExportDestinationChoice = { presetId: "original" },
+): ExportRequestV1 => {
+  const geometry = resolveExportDestinationGeometry(snapshot, destination, qualityTier === "custom" ? "1080p" : qualityTier);
+  if (qualityTier === "custom" && geometry.shape !== "custom") throw new Error("export_custom_dimensions_missing");
+  if (qualityTier !== "custom" && geometry.shape === "custom") throw new Error("export_custom_quality_required");
+  return ({
   schemaVersion: "export-request/v1",
   requestId: crypto.randomUUID(),
   selectionId: selection.selectionId,
@@ -131,7 +149,13 @@ export const createExportRequest = (
   projectDigest: selection.projectDigest,
   sanitizedBaseFilename: sanitizeExportFilename(filename, selection.title),
   qualityTier,
-  outputCanvas: outputDimensionsFor(snapshot, qualityTier),
+  destinationPresetId: geometry.preset.id,
+  catalogVersion: EXPORT_DESTINATION_CATALOG_VERSION,
+  framingMode: "contain-complete-animation",
+  sourceStage: { ...snapshot.project.document.logicalStage },
+  outputCanvas: geometry.outputCanvas,
+  contentRect: geometry.contentRect,
+  paddingDescription: geometry.paddingDescription,
   fps: selection.fps,
   totalFrames: selection.authoredFrameCount,
   durationMs: selection.durationMs,
@@ -140,7 +164,8 @@ export const createExportRequest = (
   audioCodec: hasAudio ? "aac" : "none",
   rendererVersion: EXPORT_RENDERER_VERSION,
   encoderVersion: "mediabunny/1.58.1",
-});
+  });
+};
 
 export const snapshotHasAudio = (snapshot: ExportProjectSnapshot) =>
   snapshot.project.document.layers.some(layer => layer.cells.some(cell => Boolean(cell.content?.soundAttachment?.audioDataUrl)));

@@ -1,11 +1,29 @@
 # Session Handoff
 
 Status: current canonical stopping point
-Last updated: 2026-09-20
+Last updated: 2026-09-21
 
-All seven SPEC-0006 phases are closed through GIT-061. Drawing-only SPEC-0007 is fully closed through GIT-066. SPEC-0008 Phase 1 is fully closed through GIT-070; D-0093 keeps Phases 2–6 paused as Unauthorized/Not started/not rejected. SPEC-0009 Phases 1–2 are fully closed through GIT-076/GIT-078. Phase 3 remains Unauthorized/Not started.
+All seven SPEC-0006 phases are closed through GIT-061. Drawing-only SPEC-0007 is fully closed through GIT-066. SPEC-0008 Phase 1 is fully closed through GIT-070; D-0093 keeps Phases 2–6 paused as Unauthorized/Not started/not rejected. SPEC-0009 Phases 1–2 are fully closed through GIT-076/GIT-078. D-0100 accepts and technically verifies Phase 3; publication/integration, proof preservation and D-0054 cleanup remain pending.
 
-## Current stopping point — SPEC-0009 Phase 2 published, synchronized, preserved and cleaned up
+## Current stopping point — SPEC-0009 Phase 3 accepted and technically Verified; publication pending
+
+Arthur reviewed `http://127.0.0.1:57500/`, accepted the completed Phase 3 result after the ignored server-only Terra environment was restored, confirmed that the destination choices should remain useful local file-shape preparation controls with **Original** as the unchanged download, and authorized control-plane recording plus commit/integration/push. The Phase 3 Spec Executor is fully stopped/interrupted. Sequential exclusive Control Plane Architect ownership began from unchanged detached base/HEAD `53d825490c08bce620784f0213b4574792732f22` with empty index.
+
+The accepted exact 10 technical paths are `scripts/spec0009-export/phase3BrowserProof.ts`; `scripts/spec0009-export/phase3Oracle.ts`; `scripts/spec0009-export/phase3PerformanceProof.ts`; `scripts/spec0009-export/recordPhase3Proof.ts`; `scripts/spec0009-export/validatePhase3Proof.ts`; `src/components/export/AnimationExportFlow.tsx`; `src/lib/export/exportAudio.ts`; `src/lib/export/exportContracts.ts`; `src/lib/export/exportDestinationCatalog.ts`; and `src/lib/export/exportVideo.ts`. The Control Plane Architect changed none of those bytes.
+
+The immutable 34,983-byte manifest `output/spec-0009/phase-3/proof-manifest.json` has SHA-256 `0d9b48f584f89d54604284c03713037402e2d68decde5c3b0d0a844cd8065277`; accepted-source digest `abb0ba8538454eea3af8cb2761b4225a1c3ed294de21f1097ea9c6b58b21e987`. Fresh strict pre-propagation validation returned VALID with 61 assertions and 53 rejected material mutations. Bound checks passed 354 Phase 3 oracle assertions, 318 real-Chrome assertions, 26 geometry/tier receipts, six written/decoded H.264 MP4 families, TypeScript, production build and exact-path lint. Repository-wide lint retains only the inherited five-error/81-warning untouched baseline.
+
+Accepted behavior: a versioned local catalog provides Original plus YouTube, YouTube Shorts, TikTok, Instagram, Facebook, Discord, Snapchat, X, Reddit and Custom / Other preparation choices. Original retains the saved shape; presets prepare 16:9, 9:16 or 4:5; Custom / Other adds 1:1 and even 256–1920 custom dimensions. Every output uses centered complete-animation contain framing, disclosed project-background padding and no crop. Neutral text fallbacks and dated guidance replace unverified brand assets. Nothing signs in, uploads or posts.
+
+Long/performance proof exported a five-minute 720p/24 FPS/7,200-frame eight-layer audio fixture in 34.15 seconds at 207,409,943-byte peak heap and 213 ms maximum long task, plus a sixty-second 1080p/24 FPS/1,440-frame audio fixture in 9.36 seconds. Cancellation acknowledged in 30.97 ms, terminated in 54.64 ms and left zero bytes. Export made zero external/network/AI/provider/paid calls, zero credit/project/history/repository changes, zero uploads and zero deployments. Terra source is untouched; the no-cost double passed and one separate Low live smoke returned `Terra connected.` after ignored environment restoration.
+
+Honest limits: automated saving used the real Chrome encoder with an OPFS FileSystemFileHandle seam; native Finder/final user path remains human-review evidence. Current Chrome on this Mac is proven, not every browser/device or actual platform ingestion. The dated `2026-09-20` catalog is guidance, not a posting guarantee. Direct upload/posting, provider calls and deployment remain absent.
+
+The reviewed 14 control-plane/tree paths are `docs/00_MASTER_PROJECT.md`; `docs/AI_SYSTEM.md`; `docs/CURRENT_STATE.md`; `docs/DECISIONS.md`; `docs/PROJECT_MANAGER_CONTEXT.md`; `docs/ROADMAP.md`; `docs/SESSION_HANDOFF.md`; `docs/TODO.md`; `docs/architecture.md`; `docs/changelog.md`; `docs/specs/0009-animation-export.md`; `docs/specs/README.md`; `docs/testing_workflow.md`; and `project/project_structure.txt`. Combined publication-ready scope is exactly 24 paths: those 14 plus the 10 accepted technical paths. `AGENTS.md`, `.env.local`, accepted proof bytes, every other runtime/test/configuration/provider/deployment path and every other worktree remain unchanged.
+
+Exact next safe step under Arthur's already-granted publication authority: revalidate the 24-path combined scope, stage only those paths, commit on a `codex/` publication branch, fast-forward unchanged clean canonical `main`, push normally and verify clean local/origin/live equality. Then preserve the required ignored Phase 3 proof without `.env.local`, stop PID 79009/port 57500, remove only the obsolete accepted `/8c9e/` review worktree and merged local branch, and publish one terminal records-only closeout. Do not alter Terra, direct-social/upload behavior, deployment, later SPEC-0008 work, the active Project Manager worktree or unrelated recovery evidence.
+
+## Historical stopping point — SPEC-0009 Phase 2 published, synchronized, preserved and cleaned up
 
 Arthur reviewed `http://127.0.0.1:57470/` after the shape-preserving export and Terra-environment corrections, called the result acceptable, and authorized recording, publication/integration and cleanup. Exact 29-path GIT-078 commit `682fd9732b9cc30e545b3b709ced62ffd94edc39`, parent `b45921262b57902ddbaea9519a03f7aa7289621c`, is published and synchronized on canonical `main`, `origin/main` and live GitHub `main` at clean `0/0`.
 

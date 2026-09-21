@@ -1,11 +1,11 @@
 # SPEC-0010 — Project Safety and Recovery
 
-Status: **Approved; Phases 1–2 fully closed; Phase 3 accepted and technically Verified; publication pending**
+Status: **Verified/published/integrated/synchronized/proof-preserved/cleaned up; all three phases closed**
 Owner: Arthur
 Task role: three separately gated implementation phases after later explicit phase authorization
 Created: 2026-09-21
 Last updated: 2026-09-21
-Decision links: [D-0102](../DECISIONS.md), [D-0103](../DECISIONS.md), [D-0104](../DECISIONS.md), [D-0105](../DECISIONS.md), [D-0106](../DECISIONS.md), [D-0107](../DECISIONS.md), [D-0108](../DECISIONS.md)
+Decision links: [D-0102](../DECISIONS.md), [D-0103](../DECISIONS.md), [D-0104](../DECISIONS.md), [D-0105](../DECISIONS.md), [D-0106](../DECISIONS.md), [D-0107](../DECISIONS.md), [D-0108](../DECISIONS.md), [D-0109](../DECISIONS.md)
 TODO IDs: `PLAN-010`, `SPEC-010`, `SAFETY-001`–`SAFETY-003`, `PERSIST-001`
 Planning base: canonical `main` commit `092a96c6a17db1bbb307d21128bed84377eba3e7`; clean index and worktree before planning edits
 Last verified runtime basis: accepted Phase 3 result from exact base/HEAD `337433b37716fdd71ecc2a9d0239e239519ef655`; rebound immutable manifest SHA-256 `5dc275dc6d30da693ab14e861d7f12728038da0f6b3b1f30a66252880fdd23f5`
@@ -25,7 +25,7 @@ This is exactly three separately gated phases:
 | --- | --- | --- |
 | 1 — Save and Exit | **File → Save and Exit** uses the existing canonical Save path and returns Home only after successful Save. | Verified; published; integrated; synchronized; proof-preserved; cleaned up |
 | 2 — Emergency Recovery Draft | Meaningful committed edits create one bounded, separate, local latest-draft backup without changing the official project. | Verified; published; integrated; synchronized; proof-preserved; cleaned up |
-| 3 — Recover Work and Final Safety Proof | Startup offers **Recover Work** or **Discard Draft**, opens only validated recovery data, and closes full save/recovery regressions. | Accepted and technically Verified; publication pending |
+| 3 — Recover Work and Final Safety Proof | Startup offers **Recover Work** or **Discard Draft**, opens only validated recovery data, and closes full save/recovery regressions. | Verified; published; integrated; synchronized; proof-preserved; cleaned up |
 
 No phase authorizes the next. A phase requires its own fresh Spec Executor task after its predecessor is accepted, recorded, published, integrated, synchronized, proof-preserved, cleaned up, and Arthur separately authorizes the next phase.
 
@@ -402,8 +402,8 @@ Arthur accepted Phase 3's exact twelve-path result from unchanged base/HEAD `337
 
 Startup now checks the separate recovery owner before Home/New/Open, shows **Unsaved work found** with project/time, revalidates at click time and atomically claims the exact generation. Only one tab can recover. A matching official source preserves its binding; missing, changed, newer, corrupt or unreadable official sources open as a new revision-zero **Recovered copy** so later Save cannot overwrite the source. Invalid recovery disables Recover but retains confirmed Discard, and verified deletion failure truthfully permits Home continuation without claiming removal. Recover performs zero official writes; exact Save, Save As, Save and Exit or confirmed Discard remains the cleanup door.
 
-Bound proof passed 45 source-oracle assertions, 27 contract assertions and 55 real-Chromium assertions across nine scenarios, plus inherited Phase 1 browser and Phase 1/2 contract/oracle regressions, focused lint/build, exact scope, keyboard/compact/reduced-motion, startup/fault/concurrency and zero external/provider/AI/paid requests. Arthur then performed a real computer restart. The review-only ignored `.env.local` was restored byte-identically and one Low live `gpt-5.6-terra` greeting returned naturally using 388 tokens and estimated `$0.001196`; tracked Terra/Thinking source remained unchanged. D-0108 records acceptance and authorized publication closeout.
+Bound proof passed 45 source-oracle assertions, 27 contract assertions and 55 real-Chromium assertions across nine scenarios, plus inherited Phase 1 browser and Phase 1/2 contract/oracle regressions, focused lint/build, exact scope, keyboard/compact/reduced-motion, startup/fault/concurrency and zero external/provider/AI/paid requests. Arthur then performed a real computer restart. The review-only ignored `.env.local` was restored byte-identically and one Low live `gpt-5.6-terra` greeting returned naturally using 388 tokens and estimated `$0.001196`; tracked Terra/Thinking source remained unchanged. D-0108 records acceptance. D-0109/GIT-083 `da348337d9329044937b2d27cb76498b743e778f` close the exact 25-path publication/integration, synchronization, thirteen-file/794,137-byte proof preservation at relative checksum-inventory SHA-256 `b1c42860225724bf29a4cc02aea45ad6315f73da66052d652a8c5b2a1ccd8ab5`, server shutdown and D-0054 cleanup.
 
 ## 13. Final planning handoff
 
-SPEC-0010 Phases 1–2 are fully closed. Phase 3 is accepted and technically Verified under D-0108. Its authorized publication/integration, proof preservation and D-0054 cleanup are the only remaining SPEC-0010 work; no later implementation phase exists.
+SPEC-0010 and all three phases are fully closed through D-0109/GIT-083. No later implementation phase exists. Arthur may select the next feature/spec; SPEC-0008 Phases 2–6 remain paused under D-0093 and must not resume automatically.

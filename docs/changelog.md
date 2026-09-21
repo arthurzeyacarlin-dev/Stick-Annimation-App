@@ -1,5 +1,12 @@
 # Changelog
 
+### 2026-09-21 — Close SPEC-0010 Phase 3 publication and cleanup (D-0109/GIT-083)
+
+- Published the exact accepted 12 technical paths plus 13 reviewed control-plane/tree paths in GIT-083 `da348337d9329044937b2d27cb76498b743e778f` (`Complete SPEC-0010 Phase 3 recovery startup`), normal fast-forwarded clean canonical `main`, pushed normally, and verified canonical `main`, `origin/main` and live GitHub `main` equal.
+- Preserved 13 proof files/794,137 bytes at `output/recovery/GIT-083-spec0010-phase3-da34833/`; source/destination contents match with relative checksum-inventory SHA-256 `b1c42860225724bf29a4cc02aea45ad6315f73da66052d652a8c5b2a1ccd8ab5`. `.env.local` and secrets are excluded.
+- Stopped PID 4973 and verified port 57630 closed. D-0054 cleanup removes the obsolete Phase 3 review worktree and merged local publication branch after this terminal record is published.
+- SPEC-0010 and all three phases are fully closed. No AI Animator phase is resumed and no new feature implementation is authorized by this closeout.
+
 ### 2026-09-21 — Accept and technically verify SPEC-0010 Phase 3 recovery startup (D-0108)
 
 - Recorded Arthur's acceptance of the exact twelve-path Phase 3 result from unchanged base/HEAD `337433b37716fdd71ecc2a9d0239e239519ef655`, empty index, after automated proof and a real computer-restart review.

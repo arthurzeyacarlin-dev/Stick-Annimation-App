@@ -1114,6 +1114,15 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Honest limits: only the last completed, verified local transaction can recover. Final in-flight milliseconds, killed pre-commit work, manually cleared/evicted site data, private/profile/device/disk loss and damage outside the origin remain unrecoverable. Full-build developer-page debt remains out of Phase 3 scope.
 - Lifecycle: propagation changes only canonical control-plane/tree paths and none of the accepted twelve technical bytes. Arthur's explicit publication authority permits the later stage/commit/fast-forward/push/proof-preservation/server-shutdown/worktree-and-branch cleanup step without another approval request. Until that succeeds, the accepted review worktree remains preserved.
 
+### D-0109 — Record GIT-083 publication and close SPEC-0010 Phase 3
+
+- Date: 2026-09-21
+- Status: Accepted; Verified; published; integrated; synchronized; proof-preserved; cleaned up
+- Publication: GIT-083 is exact 25-path commit `da348337d9329044937b2d27cb76498b743e778f`, parent `337433b37716fdd71ecc2a9d0239e239519ef655`, message `Complete SPEC-0010 Phase 3 recovery startup`: the exact twelve accepted technical paths plus thirteen reviewed control-plane/tree paths. Clean canonical `main` fast-forwarded normally; canonical `main`, `origin/main` and live GitHub `main` matched at GIT-083 after the normal push.
+- Preservation: thirteen proof files/794,137 bytes are preserved at `/Users/arthurcarlin/Projects/stick-animation-app/output/recovery/GIT-083-spec0010-phase3-da34833/`; source and destination are byte-identical and share relative checksum-inventory SHA-256 `b1c42860225724bf29a4cc02aea45ad6315f73da66052d652a8c5b2a1ccd8ab5`. `.env.local` and all secrets are excluded.
+- Cleanup: PID 4973 is stopped and port 57630 is closed. After this terminal record is published, the obsolete `/Users/arthurcarlin/.codex/worktrees/84a2/stick-animation-app` review worktree is removed/unregistered and merged local branch `codex/spec0010-phase3-publication` is deleted. Canonical main, remote refs, recovery evidence and the active Project Manager worktree remain.
+- Consequence: SPEC-0010 and all three phases are fully closed. The next task is Arthur's choice of a new non-AI feature/spec. SPEC-0008 Phases 2–6 remain paused under D-0093; this closeout authorizes no AI/provider/asset/deployment work.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

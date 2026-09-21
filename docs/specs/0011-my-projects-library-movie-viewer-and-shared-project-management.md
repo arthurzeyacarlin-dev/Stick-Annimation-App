@@ -1,11 +1,11 @@
 # SPEC-0011 — My Projects Library, Movie Viewer, and Shared Project Management
 
-Status: **Approved/active; Phase 1 Verified/published/integrated/synchronized/proof-preserved/cleaned up; Phase 2 accepted/technically Verified with control-plane propagation complete and publication pending; Phase 3 Unauthorized/Not started**
+Status: **Approved/active; Phases 1–2 Verified/published/integrated/synchronized/proof-preserved; Phase 2 review server stopped with only final obsolete worktree/local-branch cleanup pending; Phase 3 Unauthorized/Not started**
 Owner: Arthur
 Task role: three separately gated implementation phases after later explicit phase authorization
 Created: 2026-09-21
 Last updated: 2026-09-21
-Decision links: [D-0110](../DECISIONS.md), [D-0111](../DECISIONS.md), [D-0112](../DECISIONS.md), [D-0113](../DECISIONS.md), [D-0114](../DECISIONS.md), [D-0115](../DECISIONS.md)
+Decision links: [D-0110](../DECISIONS.md), [D-0111](../DECISIONS.md), [D-0112](../DECISIONS.md), [D-0113](../DECISIONS.md), [D-0114](../DECISIONS.md), [D-0115](../DECISIONS.md), [D-0116](../DECISIONS.md)
 TODO IDs: `PLAN-011`, `SPEC-011`, `LIBRARY-001`, `GIT-084`, `GIT-085`, `VIEWER-001`, `GIT-086`, `PROJECTS-001`
 Planning base: canonical `main` commit `788e69826438f56ee648452706ce1f68c07592bc`; detached planning worktree, clean index and worktree before planning edits
 Evidence date: 2026-09-21
@@ -25,10 +25,10 @@ This is exactly three separately gated phases:
 | Phase | User outcome | Current state |
 | --- | --- | --- |
 | 1 — Project Library / My Projects | The inert Home **My Project** action becomes **My Projects**, opens the professional shared library shell, and selects a real saved project into a centered playback-only modal backed by the accepted saved-project evaluator/player. **Open Project** continues to open the editor. | **Verified/published/integrated/synchronized/proof-preserved/cleaned up** |
-| 2 — Movie Viewer | The modal plays the exact saved animation with one authoritative clock, synchronized audio, seek/fullscreen/keyboard/accessible controls, contain geometry, and truthful close behavior. | **Accepted/technically Verified; control-plane propagated; publication pending** |
+| 2 — Movie Viewer | The modal plays the exact saved animation with one authoritative clock, synchronized audio, seek/fullscreen/keyboard/accessible controls, contain geometry, and truthful close behavior. | **Verified/published/integrated/synchronized/proof-preserved; review server stopped; final obsolete worktree/local-branch cleanup pending** |
 | 3 — Shared Management and Polish | Both My Projects and Open Project gain the same Rename/Duplicate/Delete/Search/Sort owner, cross-surface refresh, overflow/context/keyboard routes, safety/concurrency handling, and final responsive/accessibility polish. | Unauthorized; Not started |
 
-No phase authorizes the next. D-0112 records Arthur's acceptance and technical verification of Phase 1; D-0113/GIT-084 close its publication, preservation and cleanup lifecycle. D-0114/GIT-085 authorized the stopped Phase 2 executor, and D-0115 records Arthur's acceptance plus technical verification of its exact result. Phase 2 publication/integration, proof preservation and D-0054 cleanup remain separate; Phase 3 remains Unauthorized/Not started and requires separate explicit authorization after complete Phase 2 closeout.
+No phase authorizes the next. D-0112 records Arthur's acceptance and technical verification of Phase 1; D-0113/GIT-084 close its publication, preservation and cleanup lifecycle. D-0114/GIT-085 authorized the stopped Phase 2 executor, D-0115 records Arthur's acceptance plus technical verification, and D-0116/GIT-086 close publication/integration, synchronization, proof preservation and review-server shutdown. Final exact removal of the obsolete worktree/local branch remains for the Project Manager after this terminal task stops. Phase 3 is entry-ready only after that cleanup and Arthur's separate explicit authorization; it remains Unauthorized/Not started.
 
 ## 2. Verified pre-Phase-1 behavior and execution path
 
@@ -290,7 +290,7 @@ The accepted implementation delivers the plural Home action, real local library,
 
 The Control Plane Architect changed no accepted technical byte, immutable manifest byte, or manifest-bound source/evidence/receipt artifact. D-0113/GIT-084 publish exact 29-path commit `9a3c5733da8080e09ec93129285ec97a7aebc039`, preserve the 22-file proof at relative inventory SHA-256 `e2fc1d2fa98bcae461a59e9750a4eb104436bbbec5c7fb2e56a5fac4d9ba5d47`, stop port 57680 and complete D-0054 worktree/branch cleanup. Phase 1 is fully closed. At that closeout Phases 2–3 remained Unauthorized/Not started; D-0114/GIT-085 now separately authorize Phase 2 only.
 
-## 7. Phase 2 — Movie Viewer (Accepted/technically Verified; publication pending)
+## 7. Phase 2 — Movie Viewer (Verified/published/integrated/synchronized/proof-preserved; review server stopped)
 
 ### 7.0 Activation record — D-0114/GIT-085
 
@@ -437,7 +437,15 @@ The inherited SPEC-0009 frame-3 failure was traced to stale independent-axis pro
 
 The correction also makes the focused production build include both Home and `/api/ai-animator`, and makes the existing client handle content type/JSON failure safely for POST/GET/DELETE. This corrects the focused-build HTML 404/parser failure only. Terra prompts, fixed `gpt-5.6-terra` model, reasoning mapping/default, job/tool/provider implementation, transcript behavior, mutation boundary and Thinking gradient are unchanged. Deterministic browser proof made zero provider/paid calls. One separately authorized live `hi` used `gpt-5.6-terra` at Medium, returned JSON `202` then terminal JSON `200`, displayed `Hi! What would you like to make or explore?`, changed no animation, used 409 tokens, took 3,831 ms and had estimated cost `$0.001238`.
 
-The full repository build still compiles before stopping at the inherited untouched `app/dev/ai-costs/lifetime/page.tsx` `PageProps/searchParams` type failure; the focused Home plus Terra route production build passes. Physical devices, non-Chromium browsers, native OS audio/permission UI, native Finder/new encoded output and a fully hydrated 64-project full-resolution collection remain unproven. The ignored `.env.local` was not included in proof or publication, its contents were not recorded, and byte identity is not claimed. Phase 3 is not implemented or authorized. Phase 2 is accepted/technically Verified with control-plane propagation complete, but remains unstaged, uncommitted, unpublished and unintegrated pending GIT-086.
+The full repository build still compiles before stopping at the inherited untouched `app/dev/ai-costs/lifetime/page.tsx` `PageProps/searchParams` type failure; the focused Home plus Terra route production build passes. Physical devices, non-Chromium browsers, native OS audio/permission UI, native Finder/new encoded output and a fully hydrated 64-project full-resolution collection remain unproven. The ignored `.env.local` was not included in proof or publication, its contents were not recorded, and byte identity is not claimed. Phase 3 is not implemented or authorized. D-0116/GIT-086 publish and integrate Phase 2 exactly as accepted.
+
+### 7.12 Phase 2 publication and preservation record — D-0116/GIT-086
+
+GIT-086 is exact 29-path commit `faf2965cb51d47ebcd2b68c9378db8a39486915d`, parent `e6f6b1d7887bbbfaed7a9b00b8b472c5b28fe834`, message `Complete SPEC-0011 Phase 2 movie viewer`: the exact 15 accepted technical paths plus 14 reviewed control-plane/tree paths. Canonical `main`, local `origin/main` and live GitHub `main` synchronized cleanly after the normal push.
+
+The accepted proof is preserved at `/Users/arthurcarlin/Projects/stick-animation-app/output/recovery/GIT-086-spec0011-phase2-faf2965/phase-2`: 33 files and 1,370,820 bytes. Its sibling `checksum-inventory.txt` has SHA-256 `ee4861967a418098e0eae73be71a7108a0bf0f00ea704988a48c7bf4dbef03ac`; source and destination checksum inventories compare empty. The immutable technical manifest remains SHA-256 `ddf3b9acbbe5395d92bdeea0c09da9b8dbcfef3bae38c3e1593ee1220a79823d`. `.env.local`, credentials and secrets are excluded.
+
+Review listener PID 23010 is stopped and ports 57760/57730 are closed. Final D-0054 removal of the obsolete review worktree and now-unused local publication branch remains for the Project Manager only after this terminal-record agent stops; canonical main, remote refs and recovery evidence remain protected. No runtime, fixture, technical-test, proof, dependency, credential, AI/provider behavior, export encoding/output, project/recovery storage, deployment or Phase 3 byte changed after GIT-086.
 
 ## 8. Phase 3 — Shared Management and Polish
 
@@ -656,7 +664,7 @@ For each phase:
 7. Only a later explicit publication instruction permits exact staging, commit, clean fast-forward integration to canonical `main`, normal push, clean `0/0` synchronization, proof preservation, server stop, and D-0054 worktree/branch cleanup.
 8. The next phase requires separate authorization after all prior closeout steps complete.
 
-The Phase 1 lifecycle is fully closed under D-0113/GIT-084. D-0114/GIT-085 authorized the stopped Phase 2 executor; D-0115 accepts and technically verifies its exact result. GIT-086 publication/integration, proof preservation and D-0054 cleanup remain pending a separate explicit publication instruction. No Phase 3 implementation or deployment is authorized.
+The Phase 1 lifecycle is fully closed under D-0113/GIT-084. D-0114/GIT-085 authorized the stopped Phase 2 executor; D-0115 accepts and technically verifies its exact result; D-0116/GIT-086 close publication/integration, synchronization, proof preservation and review-server shutdown. Final obsolete worktree/local-branch removal remains for the Project Manager after this task. Phase 3 remains Unauthorized/Not started and requires Arthur's separate authorization after cleanup. No Phase 3 implementation or deployment is authorized.
 
 ## 14. Decision-completeness record
 
@@ -675,4 +683,4 @@ Resolved by D-0110 and this spec:
 - Search/sort, overflow/context/keyboard, concurrency, local-only/security, performance, proof, and lifecycle gates are fixed.
 - The observed SPEC-0009 replay mismatch was stale independent-axis proof math; uniform contain passes the unchanged tolerance without a product geometry or Export-output change.
 
-Phase 1 is Verified, published, integrated, synchronized, proof-preserved and cleaned up. Phase 2 is accepted/technically Verified with control-plane propagation complete and publication pending. Phase 3 remains Unauthorized/Not started and still requires its own explicit authorization after complete Phase 2 closeout.
+Phase 1 is Verified, published, integrated, synchronized, proof-preserved and cleaned up. Phase 2 is accepted, Verified, published, integrated, synchronized, proof-preserved and review-server-stopped under D-0116/GIT-086; only final obsolete worktree/local-branch cleanup remains for the Project Manager after this task stops. Phase 3 remains Unauthorized/Not started and requires its own explicit Arthur authorization after that cleanup.

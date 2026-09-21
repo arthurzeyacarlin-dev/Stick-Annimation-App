@@ -3,9 +3,9 @@
 Status: current canonical stopping point
 Last updated: 2026-09-22
 
-All seven SPEC-0006 phases are closed through GIT-061. Drawing-only SPEC-0007 is fully closed through GIT-066. SPEC-0008 Phase 1 is fully closed through GIT-070; D-0093 keeps Phases 2–6 paused as Unauthorized/Not started/not rejected. All three SPEC-0009 phases are fully closed through D-0101/GIT-079, all three SPEC-0010 phases are fully closed through D-0109/GIT-083, and SPEC-0011 Phases 1–2 are fully closed through GIT-084/GIT-086. D-0118 accepts and technically verifies Phase 3; its publication/integration, proof preservation, review-server shutdown and D-0054 cleanup remain pending GIT-088.
+All seven SPEC-0006 phases are closed through GIT-061. Drawing-only SPEC-0007 is fully closed through GIT-066. SPEC-0008 Phase 1 is fully closed through GIT-070; D-0093 keeps Phases 2–6 paused as Unauthorized/Not started/not rejected. All three SPEC-0009 phases are fully closed through D-0101/GIT-079, all three SPEC-0010 phases are fully closed through D-0109/GIT-083, and all three SPEC-0011 phases are fully closed through D-0119/GIT-088 `d0ec1b23d7e1d9ff13a0779c2758e33e858691f0`.
 
-## Current stopping point — SPEC-0011 Phase 3 accepted/Verified; exact GIT-088 publication pending
+## Current stopping point — SPEC-0011 fully closed; ready for Arthur's next separately authorized non-AI spec
 
 D-0118 records Arthur's PASS and sequential Control Plane Architect takeover after the Spec Executor stopped. Detached base/HEAD, local `main` and local `origin/main` are `b57ff995df9bb351dacb9a6a79b8cbd23203e988`; the index is empty. The accepted result has exactly 14 technical dirty paths and no accepted technical/proof byte changed during control-plane propagation.
 
@@ -17,9 +17,9 @@ Accepted behavior is one authoritative shell and one `ProjectManagementCommandOw
 
 The reviewed control-plane/tree paths are `docs/00_MASTER_PROJECT.md`; `docs/AI_SYSTEM.md`; `docs/CURRENT_STATE.md`; `docs/DECISIONS.md`; `docs/PROJECT_MANAGER_CONTEXT.md`; `docs/ROADMAP.md`; `docs/SESSION_HANDOFF.md`; `docs/TODO.md`; `docs/architecture.md`; `docs/changelog.md`; `docs/specs/0011-my-projects-library-movie-viewer-and-shared-project-management.md`; `docs/specs/README.md`; `docs/testing_workflow.md`; and `project/project_structure.txt`. Combined publication scope is exactly 28 paths: those 14 plus the 14 accepted technical paths.
 
-The review server is intentionally still running as PID 32270 from the exact accepted worktree and listening only on `127.0.0.1:57840`. The accepted worktree and proof must stay preserved until publication, synchronization and proof backup succeed. Do not stop/remove them in a propagation-only task.
+GIT-088 is exact 28-path commit `d0ec1b23d7e1d9ff13a0779c2758e33e858691f0`, parent `b57ff995df9bb351dacb9a6a79b8cbd23203e988`, message `Complete SPEC-0011 Phase 3 shared project management`. Canonical `main`, local `origin/main`, and live GitHub `main` synchronized cleanly. Nineteen proof files/604,195 bytes are preserved at `output/recovery/GIT-088-spec0011-phase3-d0ec1b2/phase-3`; sibling inventory SHA-256 is `196e1e7a5dd7af4b82eeff9630d535dd4ba3ae45b56f2bb3eec63bbb46fa4dac`, and source/destination checksum comparison was empty. PID 32270 is stopped and port 57840 is closed. The obsolete `/d436/` review worktree and `codex/spec0011-phase3-publication` branch are removed. The obsolete dirty `/ac96/` activation worktree was separately preserved under `output/recovery/obsolete-spec0011-phase3-activation-ac96-2f2a3c4/` before its worktree and local branch were removed.
 
-Exact next safe step: in the separately authorized GIT-088 publication turn, reverify the unchanged base, empty index, exact 28-path scope, manifest/source bindings and server identity; stage only the 14 accepted technical plus 14 reviewed control-plane/tree paths; commit on the phase publication branch; cleanly fast-forward an unchanged clean canonical `main`; push normally; verify canonical `main`, `origin/main` and live GitHub `main` at clean `0/0`; preserve proof; then stop PID 32270/port 57840 and complete exact D-0054 worktree/branch cleanup. If canonical main advanced or any byte/path differs, stop without pull, merge, rebase, force-push, history rewrite or scope expansion. Do not resume SPEC-0008, deploy or make a provider call.
+Exact next safe step: Arthur may choose and separately authorize the next non-AI feature/spec. Do not resume SPEC-0008 Phases 2–6 automatically; D-0093 keeps them paused pending explicit Arthur resumption, fresh evidence, and architecture/spec reconciliation. Do not deploy or make a provider/paid call without separate authority.
 
 ## Historical stopping point — SPEC-0010 fully closed; ready to choose the next non-AI spec
 

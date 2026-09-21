@@ -1,6 +1,6 @@
 # SPEC-0011 — My Projects Library, Movie Viewer, and Shared Project Management
 
-Status: **Approved/implementation complete; Phases 1–2 fully closed; Phase 3 accepted/technically Verified, pending GIT-088 publication/integration and cleanup**
+Status: **Completed; all three phases Verified/published/integrated/synchronized/proof-preserved/cleaned up through D-0119/GIT-088**
 Owner: Arthur
 Task role: three separately gated implementation phases after later explicit phase authorization
 Created: 2026-09-21
@@ -26,9 +26,9 @@ This is exactly three separately gated phases:
 | --- | --- | --- |
 | 1 — Project Library / My Projects | The inert Home **My Project** action becomes **My Projects**, opens the professional shared library shell, and selects a real saved project into a centered playback-only modal backed by the accepted saved-project evaluator/player. **Open Project** continues to open the editor. | **Verified/published/integrated/synchronized/proof-preserved/cleaned up** |
 | 2 — Movie Viewer | The modal plays the exact saved animation with one authoritative clock, synchronized audio, seek/fullscreen/keyboard/accessible controls, contain geometry, and truthful close behavior. | **Verified/published/integrated/synchronized/proof-preserved/cleaned up** |
-| 3 — Shared Management and Polish | Both My Projects and Open Project gain the same Rename/Duplicate/Delete/Search/Sort owner, cross-surface refresh, overflow/context/keyboard routes, safety/concurrency handling, and final responsive/accessibility polish. | **Accepted/technically Verified; pending GIT-088 publication/integration, proof preservation, server shutdown and D-0054 cleanup** |
+| 3 — Shared Management and Polish | Both My Projects and Open Project gain the same Rename/Duplicate/Delete/Search/Sort owner, cross-surface refresh, overflow/context/keyboard routes, safety/concurrency handling, and final responsive/accessibility polish. | **Verified/published/integrated/synchronized/proof-preserved/cleaned up through D-0119/GIT-088** |
 
-No phase authorizes the next. D-0112/D-0113/GIT-084 close Phase 1, and D-0114–D-0116/GIT-085/GIT-086 close Phase 2. D-0117/GIT-087 authorize Phase 3; D-0118 records Arthur's acceptance and technical verification of its exact result. All three product phases are accepted/Verified. The only remaining SPEC-0011 lifecycle work is separate GIT-088 publication/integration, proof preservation, review-server shutdown and D-0054 cleanup; there is no Phase 4.
+No phase authorized the next. D-0112/D-0113/GIT-084 close Phase 1, D-0114–D-0116/GIT-085/GIT-086 close Phase 2, and D-0117–D-0119/GIT-087/GIT-088 close Phase 3. All three product phases are fully closed; there is no Phase 4.
 
 ## 2. Verified pre-Phase-1 behavior and execution path
 
@@ -569,7 +569,7 @@ The accepted implementation uses one `ProjectManagementCommandOwner` on My Proje
 
 The oracle passed 31 assertions. Real Chromium passed 47 assertions across nine flows and four screenshots, including visible overflow, right-click, `Shift+F10`/Context Menu, arrow/Home/End/Escape, dialogs/focus, compact/reduced-motion/forced-colors/200%-zoom-equivalent and zero serious/critical Axe findings. The 64-project compact shell measured 215.432 ms; search p95 18.1 ms, sort p95 17.3 ms and menu p95 17.9 ms. TypeScript, focused lint, focused production build, Phase 1 oracle, Phase 2 player oracle and Phase 2 audio oracle pass. The full repository build still compiles and then stops only at the inherited untouched `app/dev/ai-costs/lifetime/page.tsx` `PageProps/searchParams` failure. Proof records zero external/provider/AI/paid requests. Physical devices and non-Chromium browsers remain unproven.
 
-The review server remains intentionally preserved as PID 32270 on `127.0.0.1:57840`. GIT-088 publication/integration, proof preservation, server stop and D-0054 worktree/branch cleanup are pending a separate Control Plane Architect publication turn. No accepted runtime, fixture, technical-test or proof byte may change during that turn.
+D-0119/GIT-088 publish and integrate the accepted result in exact 28-path commit `d0ec1b23d7e1d9ff13a0779c2758e33e858691f0`, parent `b57ff995df9bb351dacb9a6a79b8cbd23203e988`, message `Complete SPEC-0011 Phase 3 shared project management`. Canonical `main`, `origin/main`, and live GitHub `main` synchronized cleanly. Nineteen proof files/604,195 bytes are preserved under `output/recovery/GIT-088-spec0011-phase3-d0ec1b2/phase-3`; checksum-inventory SHA-256 is `196e1e7a5dd7af4b82eeff9630d535dd4ba3ae45b56f2bb3eec63bbb46fa4dac`. PID 32270 is stopped, port 57840 is closed, and D-0054 cleanup removed the obsolete review worktree/local publication branch without changing accepted runtime, fixture, technical-test, or proof bytes.
 
 ## 9. Failure, concurrency, and local-security policy
 
@@ -680,7 +680,7 @@ For each phase:
 7. Only a later explicit publication instruction permits exact staging, commit, clean fast-forward integration to canonical `main`, normal push, clean `0/0` synchronization, proof preservation, server stop, and D-0054 worktree/branch cleanup.
 8. The next phase requires separate authorization after all prior closeout steps complete.
 
-The Phase 1 lifecycle is fully closed under D-0113/GIT-084. D-0114/GIT-085 authorized the stopped Phase 2 executor; D-0115 accepts and technically verifies its exact result; D-0116/GIT-086 close its lifecycle. D-0117/GIT-087 authorized Phase 3, and D-0118 accepts and technically verifies its exact 14-path result. GIT-088 publication/integration, proof preservation, review-server shutdown and D-0054 cleanup remain pending. There is no Phase 4, and no provider call, deployment or another spec/phase is authorized by this acceptance record.
+The Phase 1 lifecycle is fully closed under D-0113/GIT-084. D-0114/GIT-085 authorized the stopped Phase 2 executor; D-0115 accepts and technically verifies its exact result; D-0116/GIT-086 close its lifecycle. D-0117/GIT-087 authorized Phase 3, D-0118 accepts and technically verifies its exact 14-path result, and D-0119/GIT-088 close publication/integration, proof preservation, review-server shutdown, and D-0054 cleanup. There is no Phase 4, and no provider call, deployment, or another spec/phase is authorized by this closeout.
 
 ## 14. Decision-completeness record
 
@@ -699,4 +699,4 @@ Resolved by D-0110 and this spec:
 - Search/sort, overflow/context/keyboard, concurrency, local-only/security, performance, proof, and lifecycle gates are fixed.
 - The observed SPEC-0009 replay mismatch was stale independent-axis proof math; uniform contain passes the unchanged tolerance without a product geometry or Export-output change.
 
-Phase 1 is Verified, published, integrated, synchronized, proof-preserved and cleaned up. Phase 2 is accepted, Verified, published, integrated, synchronized, proof-preserved and cleaned up under D-0116/GIT-086. Phase 3 is accepted and technically Verified under D-0118; GIT-088 publication/integration, proof preservation, server shutdown and D-0054 cleanup remain pending.
+Phase 1 is Verified, published, integrated, synchronized, proof-preserved, and cleaned up. Phase 2 is Verified, published, integrated, synchronized, proof-preserved, and cleaned up under D-0116/GIT-086. Phase 3 is Verified, published, integrated, synchronized, proof-preserved, and cleaned up under D-0118/D-0119/GIT-088. SPEC-0011 is closed.

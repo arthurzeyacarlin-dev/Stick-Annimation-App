@@ -1,9 +1,9 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-21 through D-0107/GIT-082 publication/closeout of corrected SPEC-0010 Phase 2.
+Last traced: 2026-09-21 through D-0108 acceptance and technical verification of SPEC-0010 Phase 3.
 
-## SPEC-0010 Project Safety and Recovery architecture — Phases 1–2 closed; Phase 3 not implemented
+## SPEC-0010 Project Safety and Recovery architecture — Phase 3 accepted; publication pending
 
 D-0104 accepts Phase 1's narrow wiring around the existing unified V2 owner and D-0105/GIT-081 close it. D-0106 accepts Phase 2's separate recovery owner and D-0107/GIT-082 close it: meaningful committed edits schedule a content-addressed V2 candidate into recovery-only IndexedDB, with verified stage/readback/publication, monotonic generation/CAS, previous-valid preservation, one logical latest draft and exact covered-draft clearing. Official V2 heads/versions remain the sole official project owner. Corrected one-click **Save and Exit** coordinates one official Save with the exact pending recovery generation and navigates Home only after safe cleanup; failure/newer edits stay editable.
 
@@ -28,7 +28,7 @@ Phase 3: startup recovery check
   -> later explicit Save/Save As/Save and Exit remains the sole official publication door
 ```
 
-Phase 1 is fully closed through D-0105/GIT-081. Phase 2's accepted recovery draft is implemented as an emergency local backup, not ordinary Save, project history, cloud sync or a project-list entry. The existing `workspace:pointerup-autosave` still means in-memory canvas capture; only the new committed-meaningful-edit scheduler publishes verified recovery generations. Phase 3's startup prompt/recovery mount/discard choice remains absent and Unauthorized/Not started; SPEC-0008 Phases 2–6 remain paused under D-0093.
+Phase 1 is fully closed through D-0105/GIT-081. Phase 2's accepted recovery draft is implemented as an emergency local backup, not ordinary Save, project history, cloud sync or a project-list entry. The existing `workspace:pointerup-autosave` still means in-memory canvas capture; only the committed-meaningful-edit scheduler publishes verified recovery generations. D-0108 accepts Phase 3: startup gates Home/New/Open until the recovery head is inspected; recovery revalidates and atomically claims the exact generation; one tab wins; matching-source recovery preserves identity; stale/missing/changed source recovery is rebound as a revision-zero **Recovered copy**; confirmed discard deletes only the recovery draft. Recover writes no official project bytes until explicit Save. SPEC-0008 Phases 2–6 remain paused under D-0093.
 
 ## SPEC-0009 Animation Export architecture — all three phases closed
 

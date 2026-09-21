@@ -1,5 +1,13 @@
 # Changelog
 
+### 2026-09-21 — Accept and technically verify SPEC-0010 Phase 3 recovery startup (D-0108)
+
+- Recorded Arthur's acceptance of the exact twelve-path Phase 3 result from unchanged base/HEAD `337433b37716fdd71ecc2a9d0239e239519ef655`, empty index, after automated proof and a real computer-restart review.
+- Added startup **Unsaved work found**, exact-generation single-winner **Recover Work**, source-version/digest reconciliation, safe revision-zero **Recovered copy** behavior, confirmed **Discard Draft**, truthful invalid/deletion-failure handling, and exact Save cleanup without any recovery-only official write.
+- Revalidated the rebound 9,898-byte PASS/VALID manifest at SHA-256 `5dc275dc6d30da693ab14e861d7f12728038da0f6b3b1f30a66252880fdd23f5`, source digest `48ec146163f03d21015771597b1d31fd043f6aac35cf2c4f9c5abca37a548d60`: 21 validator assertions/14 mutation rejections, 45 oracle, 27 contract and 55 real-Chromium assertions across nine scenarios, with inherited Phase 1/2 regressions and zero deterministic external/provider/AI/paid requests.
+- Restored the ignored review-only `.env.local` byte-identically after the computer restart; one separate Low live Terra greeting used 388 tokens and estimated `$0.001196`. No secret, tracked Terra/Thinking, export, dependency, official-storage schema or unrelated runtime byte changed.
+- Arthur authorized control-plane recording, commit/integration/push, proof preservation, D-0054 cleanup and SPEC-0010 closure. Publication remains the next step; no new feature implementation is started.
+
 ### 2026-09-21 — Close SPEC-0010 Phase 2 publication and cleanup (D-0107/GIT-082)
 
 - recorded exact 24-path GIT-082 commit `7e7063eaab3c486278355559c490611e3ca590ea`, parent GIT-081 `44cdafc534d7ef096cd2e283532a956c4eaa91f6`, and canonical-main/origin/live-GitHub synchronization after the normal push

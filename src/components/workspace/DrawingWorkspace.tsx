@@ -76,6 +76,7 @@ import {
   inspectProjectRecoveryDraftV1,
   writeProjectRecoveryDraftV1,
 } from "@/src/lib/animation/projectRecoveryStorageV1";
+import type { RecoveredWorkspaceClaimV1 } from "@/src/lib/animation/unifiedWorkspaceBootstrap";
 import {
   appendProjectAssetsV2,
   appendSymbolDefinitionV2,
@@ -3546,6 +3547,7 @@ type DrawingWorkspaceProps = {
   initialProject: DrawingProjectOpenCandidate;
   initialTitle: string;
   unifiedProject: UnifiedAnimationProjectV2;
+  recoveryClaim?: RecoveredWorkspaceClaimV1;
   onExport?: () => void;
   onExit?: () => void;
 };
@@ -3560,7 +3562,7 @@ type ProjectRecoveryState = "checking" | "idle" | "pending" | "writing" | "curre
 
 const PROJECT_RECOVERY_DEBOUNCE_MS = 750;
 
-export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject, onExport, onExit }: DrawingWorkspaceProps) {
+export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject, recoveryClaim, onExport, onExit }: DrawingWorkspaceProps) {
   const openedInitialProject = initialProject.project;
   const initialWorkspaceState = createDrawingWorkspaceInitialState(openedInitialProject, true);
   const [projectId, setProjectId] = useState<string | null>(initialWorkspaceState.projectId);
@@ -3589,7 +3591,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
   const [saveState, setSaveState] = useState<"not-saved" | "unsaved" | "saving" | "saved" | "too-large" | "failed">(
     unifiedProject.revision > 0 ? "saved" : "not-saved",
   );
-  const [projectRecoveryState, setProjectRecoveryState] = useState<ProjectRecoveryState>("checking");
+  const [projectRecoveryState, setProjectRecoveryState] = useState<ProjectRecoveryState>(recoveryClaim ? "current" : "checking");
   const activateDrawingTool = useCallback((tool: DrawingToolName) => {
     requireManualEditorCommand("drawing.tool.activate/v1", "DrawingWorkspace.activateDrawingTool");
     setActiveTool(tool);
@@ -3654,19 +3656,19 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
   const suppressNextWorkspaceAutosaveRef = useRef(false);
   const saveNotificationHideTimeoutRef = useRef<number | null>(null);
   const saveNotificationRemoveTimeoutRef = useRef<number | null>(null);
-  const workspaceInstanceIdRef = useRef(globalThis.crypto?.randomUUID?.() ?? `drawing-workspace-${Date.now()}`);
+  const workspaceInstanceIdRef = useRef(recoveryClaim?.workspaceInstanceId ?? globalThis.crypto?.randomUUID?.() ?? `drawing-workspace-${Date.now()}`);
   const documentGenerationRef = useRef(0);
   const persistedStateEffectReadyRef = useRef(false);
   const suppressNextPersistedStateEffectRef = useRef(false);
   const saveInFlightRef = useRef(false);
   const saveAndExitInFlightRef = useRef(false);
   const workspaceMountedRef = useRef(true);
-  const recoverySessionIdRef = useRef<string | null>(null);
-  const recoveryEnabledRef = useRef(false);
-  const recoveryInitializedRef = useRef(false);
+  const recoverySessionIdRef = useRef<string | null>(recoveryClaim?.ownerSessionId ?? null);
+  const recoveryEnabledRef = useRef(Boolean(recoveryClaim));
+  const recoveryInitializedRef = useRef(Boolean(recoveryClaim));
   const recoveryMeaningfulEffectReadyRef = useRef(false);
-  const recoveryDraftSequenceRef = useRef(0);
-  const recoveryWorkspaceGenerationRef = useRef(0);
+  const recoveryDraftSequenceRef = useRef(recoveryClaim?.draftSequence ?? 0);
+  const recoveryWorkspaceGenerationRef = useRef(recoveryClaim?.workspaceGeneration ?? 0);
   const recoveryLatestMeaningfulEditAtRef = useRef("");
   const recoveryFirstPendingAtRef = useRef<number | null>(null);
   const recoveryTimerRef = useRef<number | null>(null);
@@ -3710,7 +3712,12 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
   useEffect(() => {
     workspaceMountedRef.current = true;
     if (workspaceInstanceIdRef.current.endsWith("-unmounted")) {
-      workspaceInstanceIdRef.current = globalThis.crypto?.randomUUID?.() ?? `drawing-workspace-${Date.now()}`;
+      workspaceInstanceIdRef.current = recoveryClaim?.workspaceInstanceId ?? globalThis.crypto?.randomUUID?.() ?? `drawing-workspace-${Date.now()}`;
+    }
+    if (recoveryClaim) {
+      recoverySessionIdRef.current = recoveryClaim.ownerSessionId;
+      recoveryEnabledRef.current = true;
+      recoveryInitializedRef.current = true;
     }
     return () => {
       workspaceMountedRef.current = false;
@@ -3719,7 +3726,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       recoveryTimerRef.current = null;
       workspaceInstanceIdRef.current = `${workspaceInstanceIdRef.current}-unmounted`;
     };
-  }, []);
+  }, [recoveryClaim]);
 
   const isCurrentWorkspaceStampedInHistory = useCallback(() => {
     const stamp = historyWorkspaceStampRef.current;
@@ -7283,6 +7290,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
   runRecoveryDraftWriteRef.current = runRecoveryDraftWrite;
 
   useEffect(() => {
+    if (recoveryClaim) return;
     let cancelled = false;
     recoverySessionIdRef.current = getOrCreateProjectRecoverySessionIdV1();
     void inspectProjectRecoveryDraftV1().then(result => {
@@ -7297,7 +7305,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       setProjectRecoveryState(result.kind === "valid" ? "blocked" : "unavailable");
     });
     return () => { cancelled = true; };
-  }, [queueRecoveryDraftWrite]);
+  }, [queueRecoveryDraftWrite, recoveryClaim]);
 
   useEffect(() => {
     if (!recoveryMeaningfulEffectReadyRef.current) {
@@ -7310,12 +7318,13 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
   const clearCoveredRecoveryDraft = useCallback(async (
     candidate: UnifiedAnimationProjectV2,
     workspaceGeneration: number,
+    writtenCandidateDigest?: string,
   ) => {
     try {
       if (recoveryWriteInFlightRef.current) await recoveryWriteInFlightRef.current;
       const ownerSessionId = recoverySessionIdRef.current;
       if (!ownerSessionId) return true;
-      const candidateDigest = await digestUnifiedProjectV2(candidate);
+      const candidateDigest = writtenCandidateDigest ?? await digestUnifiedProjectV2(candidate);
       const result = await clearProjectRecoveryDraftV1({
         ownerSessionId,
         workspaceInstanceId: workspaceInstanceIdRef.current,
@@ -7359,7 +7368,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     recoveryDraftSequenceRef.current = draftSequence;
     setProjectRecoveryState("writing");
     try {
-      await writeProjectRecoveryDraftV1({
+      const written = await writeProjectRecoveryDraftV1({
         candidate,
         sourceProject,
         ownerSessionId: recoverySessionIdRef.current,
@@ -7373,7 +7382,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         armRecoveryDraftWrite(0);
         return false;
       }
-      return await clearCoveredRecoveryDraft(candidate, workspaceGeneration);
+      return await clearCoveredRecoveryDraft(candidate, workspaceGeneration, written.envelope.candidateDigest);
     } catch {
       setProjectRecoveryState("failed");
       return false;
@@ -8152,7 +8161,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     saveInFlightRef.current = true; setSaveState("saving");
     try {
       if (!commitCurrentFrameSnapshotWithoutHistory("unified:save")) throw new Error("snapshot_capture_failed");
-      const candidate = buildUnifiedProjectSnapshot(createPersistedProjectSnapshot({ preserveBitmapReferences: true }));
+      const candidate = buildUnifiedProjectSnapshot(createPersistedProjectSnapshot());
       if (!candidate) throw new Error("invalid_record");
       const recoverySourceProject = activeUnifiedProject;
       const capturedGeneration = documentGenerationRef.current;
@@ -8539,7 +8548,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       setSaveAsDialog(current => current ? { ...current, error: "Finish the current edit, then try again.", submitting: false } : current);
       return;
     }
-    const candidate = buildUnifiedProjectSnapshot(createPersistedProjectSnapshot({ preserveBitmapReferences: true }));
+    const candidate = buildUnifiedProjectSnapshot(createPersistedProjectSnapshot());
     if (!candidate) {
       setSaveAsDialog(current => current ? { ...current, error: "This project could not be prepared for saving.", submitting: false } : current);
       return;

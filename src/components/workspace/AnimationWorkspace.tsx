@@ -173,5 +173,5 @@ export function AnimationWorkspace({ root, onExport, onExit }: { root: MountedWo
       },
     };
   }, [editor.project]);
-  return <DrawingWorkspace initialProject={initialProject} initialTitle={editor.project.title} unifiedProject={hydratedUnifiedProject} onExport={onExport} onExit={onExit} />;
+  return <DrawingWorkspace initialProject={initialProject} initialTitle={editor.project.title} unifiedProject={hydratedUnifiedProject} recoveryClaim={root.candidate.recoveryClaim} onExport={onExport} onExit={onExit} />;
 }

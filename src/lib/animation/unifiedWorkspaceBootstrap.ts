@@ -3,12 +3,22 @@ import { readCollectionCandidate, type ProjectCollectionEntry } from "./unifiedP
 import type { ProjectSourceReader } from "./unifiedProjectSourceReader.ts";
 import { hydrateV2Project, type StoredDrawingProject } from "../drawingProjectStorage.ts";
 import { sanitizeDrawingAiProjectMemory } from "../ai/drawingAiContract.ts";
+import { bindDrawingAiProjectMemoryToProject } from "../ai/drawingAiProjectMemory.ts";
 import type { UnifiedAnimationProjectV2 } from "./unifiedAnimationContractV2.ts";
 import { createNativeUnifiedProjectV2 } from "./unifiedWorkspaceFactoryV2.ts";
-import { readUnifiedProjectV2 } from "./unifiedProjectStorageV2.ts";
+import { digestUnifiedProjectV2, readUnifiedProjectV2 } from "./unifiedProjectStorageV2.ts";
 import { assertUnifiedAnimationProjectV2 } from "./unifiedAnimationContractV2.ts";
 import { upgradeUnifiedProjectV1ToV2 } from "./unifiedAnimationMigrationV2.ts";
 import { retireLegacyRigsV3 } from "./legacyRigRetirementV3.ts";
+import type { ProjectRecoveryEnvelopeV1 } from "./projectRecoveryContractV1.ts";
+
+export type RecoveredWorkspaceClaimV1 = {
+  ownerSessionId: string;
+  workspaceInstanceId: string;
+  draftSequence: number;
+  workspaceGeneration: number;
+  candidateDigest: string;
+};
 
 export type WorkspaceCandidate = {
   id: string;
@@ -17,6 +27,7 @@ export type WorkspaceCandidate = {
   document: UnifiedAnimationDocumentV1;
   migration: UnifiedAnimationMigrationCandidateV1 | null;
   editor: { kind: "unified"; project: UnifiedAnimationProjectV2 };
+  recoveryClaim?: RecoveredWorkspaceClaimV1;
 };
 export type MountedWorkspace = { generation: number; candidate: WorkspaceCandidate };
 export type BootstrapResult = { status: "opened"; root: MountedWorkspace } | { status: "stale" } | { status: "failed"; code: string };
@@ -24,6 +35,79 @@ export type BootstrapResult = { status: "opened"; root: MountedWorkspace } | { s
 export const createUntitledWorkspace = async (): Promise<WorkspaceCandidate> => {
   const project = createNativeUnifiedProjectV2();
   return { id: project.projectId, title: project.title, document: project.document as unknown as UnifiedAnimationDocumentV1, digest: JSON.stringify(project.document), migration: null, editor: { kind: "unified", project } };
+};
+
+const recoveredCopyTitle = (title: string) => {
+  const normalized = title.trim().normalize("NFC");
+  const candidate = normalized && normalized !== "Untitled Project"
+    ? `${normalized} — Recovered copy`
+    : "Recovered copy";
+  return new TextEncoder().encode(candidate).byteLength <= 512 ? candidate : "Recovered copy";
+};
+
+const rebindRecoveredCopy = (
+  project: UnifiedAnimationProjectV2,
+  envelope: ProjectRecoveryEnvelopeV1,
+  createId: () => string,
+): UnifiedAnimationProjectV2 => {
+  const recovered = structuredClone(project);
+  const projectId = createId();
+  recovered.projectId = projectId;
+  recovered.document.projectId = projectId;
+  recovered.title = recoveredCopyTitle(envelope.sourceTitle || recovered.title);
+  recovered.revision = 0;
+  recovered.provenance = {
+    kind: "copy",
+    parentProjectId: envelope.sourceProjectId,
+    parentRevision: envelope.sourceRevision,
+    parentProjectDigest: envelope.sourceProjectDigest,
+  };
+  if (recovered.auxiliary?.stickAiCreationLatch) recovered.auxiliary.stickAiCreationLatch.projectId = projectId;
+  if (recovered.auxiliary?.drawingAiMemory) {
+    const memory = sanitizeDrawingAiProjectMemory(recovered.auxiliary.drawingAiMemory);
+    if (!memory) throw new Error("invalid_record");
+    recovered.auxiliary.drawingAiMemory = bindDrawingAiProjectMemoryToProject(memory, projectId);
+  }
+  return assertUnifiedAnimationProjectV2(recovered);
+};
+
+export const prepareRecoveryWorkspace = async (
+  project: UnifiedAnimationProjectV2,
+  envelope: ProjectRecoveryEnvelopeV1,
+  options: {
+    readOfficialProject?: (projectId: string) => Promise<UnifiedAnimationProjectV2>;
+    createId?: () => string;
+  } = {},
+): Promise<{ candidate: WorkspaceCandidate; detached: boolean }> => {
+  const recovered = assertUnifiedAnimationProjectV2(structuredClone(project));
+  const candidateDigest = await digestUnifiedProjectV2(recovered);
+  if (
+    recovered.projectId !== envelope.sourceProjectId ||
+    recovered.revision !== envelope.sourceRevision ||
+    candidateDigest !== envelope.candidateDigest
+  ) throw new Error("recovery_invalid_binding");
+
+  let sourceMatches = false;
+  try {
+    const source = await (options.readOfficialProject ?? readUnifiedProjectV2)(envelope.sourceProjectId);
+    sourceMatches = source.revision === envelope.sourceRevision &&
+      await digestUnifiedProjectV2(source) === envelope.sourceProjectDigest;
+  } catch {
+    sourceMatches = false;
+  }
+
+  const mountedProject = sourceMatches ? recovered : rebindRecoveredCopy(recovered, envelope, options.createId ?? (() => crypto.randomUUID()));
+  return {
+    detached: !sourceMatches,
+    candidate: {
+      id: mountedProject.projectId,
+      title: mountedProject.title,
+      document: mountedProject.document as unknown as UnifiedAnimationDocumentV1,
+      digest: await digestUnifiedProjectV2(mountedProject),
+      migration: null,
+      editor: { kind: "unified", project: mountedProject },
+    },
+  };
 };
 
 export const prepareCollectionWorkspace = async (reader: ProjectSourceReader, entry: ProjectCollectionEntry): Promise<WorkspaceCandidate> => {

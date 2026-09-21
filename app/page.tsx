@@ -5,12 +5,42 @@ import { OpenProjectBrowser } from "@/src/components/open-project/OpenProjectBro
 import { TutorialsScreen } from "@/src/components/tutorials/TutorialsScreen";
 import { AnimationWorkspace } from "@/src/components/workspace/AnimationWorkspace";
 import { AnimationExportFlow } from "@/src/components/export/AnimationExportFlow";
-import { createUntitledWorkspace, prepareCollectionWorkspace, WorkspaceBootstrap, type MountedWorkspace } from "@/src/lib/animation/unifiedWorkspaceBootstrap";
+import { ProjectRecoveryPrompt } from "@/src/components/recovery/ProjectRecoveryPrompt";
+import { createUntitledWorkspace, prepareCollectionWorkspace, prepareRecoveryWorkspace, WorkspaceBootstrap, type MountedWorkspace } from "@/src/lib/animation/unifiedWorkspaceBootstrap";
 import { createBrowserProjectSourceReader } from "@/src/lib/animation/unifiedProjectSourceReader";
 import type { ProjectCollectionEntry } from "@/src/lib/animation/unifiedProjectCollection";
+import type { ProjectRecoveryEnvelopeV1 } from "@/src/lib/animation/projectRecoveryContractV1";
+import {
+  claimProjectRecoveryDraftV1,
+  discardProjectRecoveryDraftV1,
+  getOrCreateProjectRecoverySessionIdV1,
+  inspectProjectRecoveryDraftV1,
+  writeProjectRecoveryDraftV1,
+} from "@/src/lib/animation/projectRecoveryStorageV1";
 import { useEffect, useRef, useState } from "react";
 
 type HomeCardId = "new" | "open" | "myProject" | "tutorials" | "assistant" | "export" | "aiProject";
+
+type StartupRecoveryState =
+  | { kind: "checking" }
+  | { kind: "home" }
+  | { kind: "valid"; envelope: ProjectRecoveryEnvelopeV1; message?: string }
+  | { kind: "invalid"; error: string; envelope?: ProjectRecoveryEnvelopeV1; message?: string; allowContinueHome?: boolean };
+
+const recoveryProblemMessage = (error: string) => {
+  if (error === "recovery_storage_blocked") return "The local recovery store is busy in another tab. Close the other tab, then try again.";
+  if (error === "recovery_candidate_missing") return "Part of the safety backup is missing, so it cannot be opened safely.";
+  if (error === "recovery_asset_missing" || error === "recovery_asset_mismatch") return "An asset in the safety backup is missing or damaged.";
+  if (error === "project_too_large" || error === "recovery_invalid_record") return "The safety backup is invalid, unsupported, or too large to open safely.";
+  return "The safety backup could not be opened safely. Your officially saved projects are unchanged.";
+};
+
+const sameRecoveryGeneration = (left: ProjectRecoveryEnvelopeV1, right: ProjectRecoveryEnvelopeV1) =>
+  left.ownerSessionId === right.ownerSessionId &&
+  left.workspaceInstanceId === right.workspaceInstanceId &&
+  left.draftSequence === right.draftSequence &&
+  left.workspaceGeneration === right.workspaceGeneration &&
+  left.candidateDigest === right.candidateDigest;
 
 export default function Page() {
   const [view, setView] = useState<
@@ -23,6 +53,8 @@ export default function Page() {
   const [bootstrap] = useState(() => new WorkspaceBootstrap());
   const [workspace, setWorkspace] = useState<MountedWorkspace | null>(null);
   const [bootstrapMessage, setBootstrapMessage] = useState<string | null>(null);
+  const [startupRecovery, setStartupRecovery] = useState<StartupRecoveryState>({ kind: "checking" });
+  const [recoveryBusyAction, setRecoveryBusyAction] = useState<"recover" | "discard" | null>(null);
   const homeFocusRef = useRef<"new" | "open">("new");
   const newProjectButtonRef = useRef<HTMLButtonElement | null>(null);
   const openProjectButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -92,6 +124,23 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
+    let cancelled = false;
+    void inspectProjectRecoveryDraftV1().then(result => {
+      if (cancelled) return;
+      if (result.kind === "none") setStartupRecovery({ kind: "home" });
+      else if (result.kind === "valid") setStartupRecovery({ kind: "valid", envelope: result.envelope });
+      else setStartupRecovery({
+        kind: "invalid",
+        error: result.error,
+        envelope: result.envelope,
+        message: recoveryProblemMessage(result.error),
+      });
+    });
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    if (startupRecovery.kind !== "home") return;
     // First-time welcome (client-only)
     let cancelled = false;
     const timeoutId = window.setTimeout(() => {
@@ -111,7 +160,7 @@ export default function Page() {
       cancelled = true;
       window.clearTimeout(timeoutId);
     };
-  }, []);
+  }, [startupRecovery.kind]);
   useEffect(() => {
     // Prevent stale hover/focus state when switching screens
     if (view === "home") return;
@@ -194,6 +243,149 @@ export default function Page() {
     }
     setWelcomeOpen(false);
   };
+
+  const recoverStartupDraft = async () => {
+    if (startupRecovery.kind !== "valid" || recoveryBusyAction) return;
+    const expectedEnvelope = startupRecovery.envelope;
+    setRecoveryBusyAction("recover");
+    try {
+      const fresh = await inspectProjectRecoveryDraftV1();
+      if (fresh.kind === "none") {
+        setStartupRecovery({ kind: "home" });
+        return;
+      }
+      if (fresh.kind === "invalid") {
+        setStartupRecovery({
+          kind: "invalid",
+          error: fresh.error,
+          envelope: fresh.envelope,
+          message: recoveryProblemMessage(fresh.error),
+        });
+        return;
+      }
+      if (!sameRecoveryGeneration(expectedEnvelope, fresh.envelope)) {
+        setStartupRecovery({
+          kind: "valid",
+          envelope: fresh.envelope,
+          message: "The safety backup changed in another tab. Review the updated project details, then choose again.",
+        });
+        return;
+      }
+
+      const prepared = await prepareRecoveryWorkspace(fresh.project, fresh.envelope);
+      const ownerSessionId = getOrCreateProjectRecoverySessionIdV1();
+      const workspaceInstanceId = globalThis.crypto?.randomUUID?.() ?? `recovered-workspace-${Date.now()}`;
+      const claimed = await claimProjectRecoveryDraftV1({
+        expectedOwnerSessionId: fresh.envelope.ownerSessionId,
+        expectedWorkspaceInstanceId: fresh.envelope.workspaceInstanceId,
+        draftSequence: fresh.envelope.draftSequence,
+        candidateDigest: fresh.envelope.candidateDigest,
+        ownerSessionId,
+        workspaceInstanceId,
+      });
+      if (typeof claimed === "string") {
+        const latest = await inspectProjectRecoveryDraftV1();
+        if (latest.kind === "valid") {
+          setStartupRecovery({ kind: "valid", envelope: latest.envelope, message: "The safety backup changed in another tab. Choose again." });
+        } else if (latest.kind === "none") {
+          setStartupRecovery({ kind: "home" });
+        } else {
+          setStartupRecovery({ kind: "invalid", error: latest.error, envelope: latest.envelope, message: recoveryProblemMessage(latest.error) });
+        }
+        return;
+      }
+
+      let recoveryEnvelope = claimed.envelope;
+      if (prepared.detached) {
+        const detachedProject = prepared.candidate.editor.project;
+        const rewritten = await writeProjectRecoveryDraftV1({
+          candidate: detachedProject,
+          sourceProject: detachedProject,
+          ownerSessionId,
+          workspaceInstanceId,
+          draftSequence: claimed.envelope.draftSequence + 1,
+          workspaceGeneration: claimed.envelope.workspaceGeneration,
+          lastMeaningfulEditAt: claimed.envelope.lastMeaningfulEditAt,
+        });
+        recoveryEnvelope = rewritten.envelope;
+        prepared.candidate.digest = rewritten.envelope.candidateDigest;
+      }
+      prepared.candidate.recoveryClaim = {
+        ownerSessionId,
+        workspaceInstanceId,
+        draftSequence: recoveryEnvelope.draftSequence,
+        workspaceGeneration: recoveryEnvelope.workspaceGeneration,
+        candidateDigest: recoveryEnvelope.candidateDigest,
+      };
+      const result = await bootstrap.open(async () => prepared.candidate);
+      if (result.status !== "opened") throw new Error(result.status === "failed" ? result.code : "recovery_changed");
+      setWorkspace(result.root);
+      setStartupRecovery({ kind: "home" });
+      setView("animationWorkspace");
+    } catch (error) {
+      const code = error instanceof Error ? error.message : "recovery_storage_failed";
+      setStartupRecovery({
+        kind: "valid",
+        envelope: expectedEnvelope,
+        message: code === "recovery_conflict" || code === "recovery_stale_sequence"
+          ? "The safety backup changed in another tab. Try again after closing the other copy."
+          : recoveryProblemMessage(code),
+      });
+    } finally {
+      setRecoveryBusyAction(null);
+    }
+  };
+
+  const discardStartupDraft = async () => {
+    if ((startupRecovery.kind !== "valid" && startupRecovery.kind !== "invalid") || recoveryBusyAction) return;
+    const currentState = startupRecovery;
+    setRecoveryBusyAction("discard");
+    try {
+      const validEnvelope = currentState.envelope;
+      const result = await discardProjectRecoveryDraftV1(validEnvelope ? {
+        kind: "valid",
+        ownerSessionId: validEnvelope.ownerSessionId,
+        workspaceInstanceId: validEnvelope.workspaceInstanceId,
+        draftSequence: validEnvelope.draftSequence,
+        candidateDigest: validEnvelope.candidateDigest,
+      } : { kind: "invalid" });
+      if (result === "discarded" || result === "none") {
+        setStartupRecovery({ kind: "home" });
+        return;
+      }
+      const latest = await inspectProjectRecoveryDraftV1();
+      if (latest.kind === "valid") setStartupRecovery({ kind: "valid", envelope: latest.envelope, message: "The safety backup changed before it could be discarded. Review it, then choose again." });
+      else if (latest.kind === "none") setStartupRecovery({ kind: "home" });
+      else setStartupRecovery({ kind: "invalid", error: latest.error, envelope: latest.envelope, message: recoveryProblemMessage(latest.error) });
+    } catch (error) {
+      const code = error instanceof Error ? error.message : "recovery_storage_failed";
+      setStartupRecovery({
+        kind: "invalid",
+        error: code,
+        envelope: currentState.envelope,
+        message: "The safety backup could not be deleted because local storage is unavailable. You can continue without deleting it.",
+        allowContinueHome: true,
+      });
+    } finally {
+      setRecoveryBusyAction(null);
+    }
+  };
+
+  if (startupRecovery.kind !== "home") {
+    return (
+      <ProjectRecoveryPrompt
+        mode={startupRecovery.kind}
+        projectName={startupRecovery.kind === "checking" ? undefined : startupRecovery.envelope?.sourceTitle}
+        lastMeaningfulEditAt={startupRecovery.kind === "checking" ? undefined : startupRecovery.envelope?.lastMeaningfulEditAt}
+        busyAction={recoveryBusyAction}
+        message={startupRecovery.kind === "checking" ? null : startupRecovery.message ?? null}
+        allowContinueHome={startupRecovery.kind === "invalid" && startupRecovery.allowContinueHome === true}
+        onRecover={() => { void recoverStartupDraft(); }}
+        onDiscard={() => { void discardStartupDraft(); }}
+        onContinueHome={() => setStartupRecovery({ kind: "home" })}
+      />
+    );
+  }
 
   return (
 <div

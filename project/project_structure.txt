@@ -508,10 +508,16 @@
 ./scripts/spec0010-project-safety/phase2Contract.ts
 ./scripts/spec0010-project-safety/phase2GateProof.ts
 ./scripts/spec0010-project-safety/phase2Oracle.ts
+./scripts/spec0010-project-safety/phase3BrowserProof.ts
+./scripts/spec0010-project-safety/phase3Contract.ts
+./scripts/spec0010-project-safety/phase3GateProof.ts
+./scripts/spec0010-project-safety/phase3Oracle.ts
 ./scripts/spec0010-project-safety/recordPhase1Proof.ts
 ./scripts/spec0010-project-safety/recordPhase2Proof.ts
+./scripts/spec0010-project-safety/recordPhase3Proof.ts
 ./scripts/spec0010-project-safety/validatePhase1Proof.ts
 ./scripts/spec0010-project-safety/validatePhase2Proof.ts
+./scripts/spec0010-project-safety/validatePhase3Proof.ts
 ./scripts/sync_docs_to_github.sh
 ./scripts/traceExplosionLivePath.ts
 ./scripts/traceGenerateSoundsLivePath.mjs
@@ -558,6 +564,8 @@
 ./src/components/export/AnimationExportFlow.tsx
 ./src/components/open-project
 ./src/components/open-project/OpenProjectBrowser.tsx
+./src/components/recovery
+./src/components/recovery/ProjectRecoveryPrompt.tsx
 ./src/components/tutorials
 ./src/components/tutorials/TutorialsScreen.module.css
 ./src/components/tutorials/TutorialsScreen.tsx

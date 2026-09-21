@@ -57,10 +57,29 @@ export type ProjectRecoveryClearInputV1 = {
   candidateDigest: string;
 };
 
+export type ProjectRecoveryClaimInputV1 = {
+  expectedOwnerSessionId: string;
+  expectedWorkspaceInstanceId: string;
+  draftSequence: number;
+  candidateDigest: string;
+  ownerSessionId: string;
+  workspaceInstanceId: string;
+};
+
+export type ProjectRecoveryDiscardExpectationV1 =
+  | {
+      kind: "valid";
+      ownerSessionId: string;
+      workspaceInstanceId: string;
+      draftSequence: number;
+      candidateDigest: string;
+    }
+  | { kind: "invalid" };
+
 export type ProjectRecoveryInspectionV1 =
   | { kind: "none" }
   | { kind: "valid"; envelope: ProjectRecoveryEnvelopeV1; project: UnifiedAnimationProjectV2 }
-  | { kind: "invalid"; error: string };
+  | { kind: "invalid"; error: string; envelope?: ProjectRecoveryEnvelopeV1 };
 
 export type ProjectRecoveryStorageAdapterV1 = {
   readHead: () => Promise<ProjectRecoveryEnvelopeV1 | null>;
@@ -84,6 +103,8 @@ export type ProjectRecoveryStorageAdapterV1 = {
     candidateDigest: string;
   }) => Promise<void>;
   clear: (input: ProjectRecoveryClearInputV1) => Promise<"cleared" | "none" | "not-matched" | "newer-draft">;
+  claim?: (input: ProjectRecoveryClaimInputV1) => Promise<"claimed" | "none" | "changed">;
+  discard?: (expectation: ProjectRecoveryDiscardExpectationV1) => Promise<"discarded" | "none" | "changed">;
 };
 
 export type ProjectRecoveryFaultHooksV1 = Partial<Record<"beforeStage" | "afterStage" | "readback" | "beforePublish" | "afterPublish", () => void>>;
@@ -134,11 +155,15 @@ export const createProjectRecoveryStorageV1 = (adapter: ProjectRecoveryStorageAd
   },
 
   async inspect(): Promise<ProjectRecoveryInspectionV1> {
+    let envelope: ProjectRecoveryEnvelopeV1 | undefined;
     try {
+      const head = await adapter.readHead();
+      if (!head) return { kind: "none" };
+      envelope = assertProjectRecoveryEnvelopeV1(head);
       const current = await this.readCurrent();
       return current ? { kind: "valid", ...current } : { kind: "none" };
     } catch (error) {
-      return { kind: "invalid", error: recoveryError(error) };
+      return { kind: "invalid", error: recoveryError(error), ...(envelope ? { envelope } : {}) };
     }
   },
 
@@ -232,6 +257,29 @@ export const createProjectRecoveryStorageV1 = (adapter: ProjectRecoveryStorageAd
   async clear(input: ProjectRecoveryClearInputV1) {
     const result = await adapter.clear(input);
     if (result === "cleared" && await adapter.readHead()) throw new Error("recovery_clear_failed");
+    return result;
+  },
+
+  async claim(input: ProjectRecoveryClaimInputV1) {
+    if (!adapter.claim) throw new Error("recovery_claim_unavailable");
+    const result = await adapter.claim(input);
+    if (result !== "claimed") return result;
+    const current = await this.readCurrent();
+    if (
+      !current ||
+      current.envelope.draftSequence !== input.draftSequence ||
+      current.envelope.candidateDigest !== input.candidateDigest ||
+      current.envelope.ownerSessionId !== input.ownerSessionId ||
+      current.envelope.workspaceInstanceId !== input.workspaceInstanceId
+    ) throw new Error("recovery_claim_failed");
+    return current;
+  },
+
+  async discard(expectation: ProjectRecoveryDiscardExpectationV1) {
+    if (!adapter.discard) throw new Error("recovery_discard_unavailable");
+    const result = await adapter.discard(expectation);
+    if (result !== "discarded") return result;
+    if (await adapter.readHead()) throw new Error("recovery_discard_failed");
     return result;
   },
 });
@@ -459,6 +507,89 @@ const browserAdapter: ProjectRecoveryStorageAdapterV1 = {
     await done;
     return "cleared" as const;
   }, "none" as const),
+  claim: input => withExistingDatabase(async db => {
+    if (![STORES.heads, STORES.owners, STORES.candidates].every(name => db.objectStoreNames.contains(name))) {
+      return "none" as const;
+    }
+    const transaction = db.transaction([STORES.heads, STORES.owners, STORES.candidates], "readwrite");
+    const done = completion(transaction);
+    const heads = transaction.objectStore(STORES.heads);
+    const owners = transaction.objectStore(STORES.owners);
+    const candidates = transaction.objectStore(STORES.candidates);
+    try {
+      const head = await request(heads.get(PROJECT_RECOVERY_DRAFT_ID_V1)) as ProjectRecoveryEnvelopeV1 | undefined;
+      if (!head) { await done; return "none" as const; }
+      const envelope = assertProjectRecoveryEnvelopeV1(head);
+      if (
+        envelope.status !== "current" ||
+        envelope.ownerSessionId !== input.expectedOwnerSessionId ||
+        envelope.workspaceInstanceId !== input.expectedWorkspaceInstanceId ||
+        envelope.draftSequence !== input.draftSequence ||
+        envelope.candidateDigest !== input.candidateDigest
+      ) {
+        transaction.abort();
+        await done.catch(() => undefined);
+        return "changed" as const;
+      }
+      const key: [string, number, string] = [PROJECT_RECOVERY_DRAFT_ID_V1, input.draftSequence, input.candidateDigest];
+      const candidate = await request(candidates.get(key)) as ProjectRecoveryCandidateV1 | undefined;
+      if (!candidate) throw new Error("recovery_candidate_missing");
+      const claimedEnvelope = assertProjectRecoveryEnvelopeV1({
+        ...envelope,
+        ownerSessionId: input.ownerSessionId,
+        workspaceInstanceId: input.workspaceInstanceId,
+      });
+      candidates.put({ ...candidate, envelope: claimedEnvelope });
+      heads.put(claimedEnvelope);
+      owners.put({
+        draftId: PROJECT_RECOVERY_DRAFT_ID_V1,
+        ownerSessionId: input.ownerSessionId,
+        workspaceInstanceId: input.workspaceInstanceId,
+        latestStagedSequence: input.draftSequence,
+        updatedAt: new Date().toISOString(),
+      } satisfies ProjectRecoveryOwnerV1);
+    } catch (error) {
+      transaction.abort();
+      await done.catch(() => undefined);
+      throw error;
+    }
+    await done;
+    return "claimed" as const;
+  }, "none" as const),
+  discard: expectation => withExistingDatabase(async db => {
+    const storeNames = Object.values(STORES).filter(name => db.objectStoreNames.contains(name));
+    if (!storeNames.includes(STORES.heads)) return "none" as const;
+    const transaction = db.transaction(storeNames, "readwrite");
+    const done = completion(transaction);
+    const heads = transaction.objectStore(STORES.heads);
+    try {
+      const rawHead = await request(heads.get(PROJECT_RECOVERY_DRAFT_ID_V1));
+      if (!rawHead) { await done; return "none" as const; }
+      let validHead: ProjectRecoveryEnvelopeV1 | null = null;
+      try { validHead = assertProjectRecoveryEnvelopeV1(rawHead); } catch { validHead = null; }
+      const matches = expectation.kind === "invalid"
+        ? validHead === null
+        : Boolean(
+            validHead &&
+            validHead.ownerSessionId === expectation.ownerSessionId &&
+            validHead.workspaceInstanceId === expectation.workspaceInstanceId &&
+            validHead.draftSequence === expectation.draftSequence &&
+            validHead.candidateDigest === expectation.candidateDigest
+          );
+      if (!matches) {
+        transaction.abort();
+        await done.catch(() => undefined);
+        return "changed" as const;
+      }
+      for (const storeName of storeNames) transaction.objectStore(storeName).clear();
+    } catch (error) {
+      transaction.abort();
+      await done.catch(() => undefined);
+      throw error;
+    }
+    await done;
+    return "discarded" as const;
+  }, "none" as const),
 };
 
 const browserStorage = () => createProjectRecoveryStorageV1(browserAdapter);
@@ -475,5 +606,7 @@ export const inspectProjectRecoveryDraftV1 = () => browserStorage().inspect();
 export const writeProjectRecoveryDraftV1 = (input: ProjectRecoveryWriteInputV1, hooks: ProjectRecoveryFaultHooksV1 = {}) =>
   browserStorage().write(input, hooks);
 export const clearProjectRecoveryDraftV1 = (input: ProjectRecoveryClearInputV1) => browserStorage().clear(input);
+export const claimProjectRecoveryDraftV1 = (input: ProjectRecoveryClaimInputV1) => browserStorage().claim(input);
+export const discardProjectRecoveryDraftV1 = (expectation: ProjectRecoveryDiscardExpectationV1) => browserStorage().discard(expectation);
 
 export { DB_NAME as PROJECT_RECOVERY_DATABASE_V1, STORES as PROJECT_RECOVERY_STORES_V1 };

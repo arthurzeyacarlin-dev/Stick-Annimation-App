@@ -1,12 +1,12 @@
 # SPEC-0011 — My Projects Library, Movie Viewer, and Shared Project Management
 
-Status: **Approved/active; Phase 1 Verified/published/integrated/synchronized/proof-preserved/cleaned up; Phase 2 Authorized/Not started; Phase 3 Unauthorized/Not started**
+Status: **Approved/active; Phase 1 Verified/published/integrated/synchronized/proof-preserved/cleaned up; Phase 2 accepted/technically Verified with control-plane propagation complete and publication pending; Phase 3 Unauthorized/Not started**
 Owner: Arthur
 Task role: three separately gated implementation phases after later explicit phase authorization
 Created: 2026-09-21
 Last updated: 2026-09-21
-Decision links: [D-0110](../DECISIONS.md), [D-0111](../DECISIONS.md), [D-0112](../DECISIONS.md), [D-0113](../DECISIONS.md), [D-0114](../DECISIONS.md)
-TODO IDs: `PLAN-011`, `SPEC-011`, `LIBRARY-001`, `GIT-084`, `GIT-085`, `VIEWER-001`, `PROJECTS-001`
+Decision links: [D-0110](../DECISIONS.md), [D-0111](../DECISIONS.md), [D-0112](../DECISIONS.md), [D-0113](../DECISIONS.md), [D-0114](../DECISIONS.md), [D-0115](../DECISIONS.md)
+TODO IDs: `PLAN-011`, `SPEC-011`, `LIBRARY-001`, `GIT-084`, `GIT-085`, `VIEWER-001`, `GIT-086`, `PROJECTS-001`
 Planning base: canonical `main` commit `788e69826438f56ee648452706ce1f68c07592bc`; detached planning worktree, clean index and worktree before planning edits
 Evidence date: 2026-09-21
 
@@ -25,10 +25,10 @@ This is exactly three separately gated phases:
 | Phase | User outcome | Current state |
 | --- | --- | --- |
 | 1 — Project Library / My Projects | The inert Home **My Project** action becomes **My Projects**, opens the professional shared library shell, and selects a real saved project into a centered playback-only modal backed by the accepted saved-project evaluator/player. **Open Project** continues to open the editor. | **Verified/published/integrated/synchronized/proof-preserved/cleaned up** |
-| 2 — Movie Viewer | The modal plays the exact saved animation with one authoritative clock, synchronized audio, seek/fullscreen/keyboard/accessible controls, contain geometry, and truthful close behavior. | **Authorized; Not started after GIT-085 synchronization** |
+| 2 — Movie Viewer | The modal plays the exact saved animation with one authoritative clock, synchronized audio, seek/fullscreen/keyboard/accessible controls, contain geometry, and truthful close behavior. | **Accepted/technically Verified; control-plane propagated; publication pending** |
 | 3 — Shared Management and Polish | Both My Projects and Open Project gain the same Rename/Duplicate/Delete/Search/Sort owner, cross-surface refresh, overflow/context/keyboard routes, safety/concurrency handling, and final responsive/accessibility polish. | Unauthorized; Not started |
 
-No phase authorizes the next. D-0112 records Arthur's acceptance and technical verification of Phase 1; D-0113/GIT-084 close its publication, preservation and cleanup lifecycle. D-0114/GIT-085 separately authorize exactly one fresh Phase 2 Spec Executor after activation synchronization. Phase 3 remains Unauthorized/Not started and requires separate explicit authorization after complete Phase 2 closeout.
+No phase authorizes the next. D-0112 records Arthur's acceptance and technical verification of Phase 1; D-0113/GIT-084 close its publication, preservation and cleanup lifecycle. D-0114/GIT-085 authorized the stopped Phase 2 executor, and D-0115 records Arthur's acceptance plus technical verification of its exact result. Phase 2 publication/integration, proof preservation and D-0054 cleanup remain separate; Phase 3 remains Unauthorized/Not started and requires separate explicit authorization after complete Phase 2 closeout.
 
 ## 2. Verified pre-Phase-1 behavior and execution path
 
@@ -95,7 +95,7 @@ Save As
 
 The repository currently exposes Save, Save As, and Open. It does not expose rename or delete. IndexedDB uses `projects`, `heads`, `versions`, `assets`, and `assetMetadata`; native versions are immutable and assets are content-addressed. Project bounds remain 64 projects, 128 MiB per project, and 512 MiB for the collection.
 
-### 2.5 Playback-proof observation that Phase 2 must reconcile
+### 2.5 Historical playback-proof observation, reconciled in Phase 2
 
 A bounded replay check of `scripts/spec0009-export/correctionBrowserProof.ts` was run against the clean planning base in one disposable environment. The initial execution and one immediate same-environment confirmation reached the chooser/player assertions and failed at the same inherited geometry assertion:
 
@@ -104,7 +104,7 @@ export frame 3 x matches workspace stage mapping:
 0.749406441925578 vs 0.8215350990452878
 ```
 
-This planning task did not diagnose or change the failure. It is **not proven to be a current product regression**; it may be an inherited proof/environment mismatch. Phase 2 entry must reproduce and reconcile it before changing playback geometry. Phase 2 proof may fix the product or the test only after tracing which side is stale, and must not weaken or delete the accepted shape-preserving tolerance to obtain green evidence.
+The planning task did not diagnose or change the failure. D-0115 records the completed Phase 2 trace: the inherited proof mapped X and Y independently, while the accepted renderer uniformly contains the saved stage and adds horizontal matte. Corrected expected X `0.7501221828399292` matches rendered X `0.749406441925578` within the unchanged `0.025` tolerance. Product geometry and Export output were not changed, and the tolerance was not weakened.
 
 ## 3. Permanent invariants
 
@@ -290,7 +290,7 @@ The accepted implementation delivers the plural Home action, real local library,
 
 The Control Plane Architect changed no accepted technical byte, immutable manifest byte, or manifest-bound source/evidence/receipt artifact. D-0113/GIT-084 publish exact 29-path commit `9a3c5733da8080e09ec93129285ec97a7aebc039`, preserve the 22-file proof at relative inventory SHA-256 `e2fc1d2fa98bcae461a59e9750a4eb104436bbbec5c7fb2e56a5fac4d9ba5d47`, stop port 57680 and complete D-0054 worktree/branch cleanup. Phase 1 is fully closed. At that closeout Phases 2–3 remained Unauthorized/Not started; D-0114/GIT-085 now separately authorize Phase 2 only.
 
-## 7. Phase 2 — Movie Viewer (Authorized/Not started)
+## 7. Phase 2 — Movie Viewer (Accepted/technically Verified; publication pending)
 
 ### 7.0 Activation record — D-0114/GIT-085
 
@@ -410,6 +410,34 @@ No project/recovery/storage/schema, encoder, destination, package, or dependency
 ### 7.10 Phase 2 stop gate
 
 The Spec Executor returns its immutable manifest and packet, then stops. No Phase 3 work or control-plane/Git/publication action is authorized in that task.
+
+### 7.11 Accepted Phase 2 implementation record — D-0115
+
+Arthur accepted the corrected ordinary app and transferred the stopped executor result to the Control Plane Architect. The accepted detached base/HEAD, local `main`, and local `origin/main` are all `e6f6b1d7887bbbfaed7a9b00b8b472c5b28fe834`; the index is empty. The immutable 29,132-byte manifest `output/spec-0011/phase-2/proof-manifest.json` has SHA-256 `ddf3b9acbbe5395d92bdeea0c09da9b8dbcfef3bae38c3e1593ee1220a79823d`. Fresh unchanged-tree validation passed 22 assertions, rejected 16 material mutation classes, and re-bound the exact 15 technical paths:
+
+- `scripts/spec0011-project-library/phase2AudioOracle.ts`;
+- `scripts/spec0011-project-library/phase2BrowserProof.ts`;
+- `scripts/spec0011-project-library/phase2BuildGate.ts`;
+- `scripts/spec0011-project-library/phase2Oracle.ts`;
+- `scripts/spec0011-project-library/recordPhase2Proof.ts`;
+- `scripts/spec0011-project-library/validatePhase2Proof.ts`;
+- `src/components/project-library/ProjectLibrary.tsx`;
+- `src/components/project-player/CanonicalProjectPlayer.tsx`;
+- `src/components/project-player/ProjectMovieViewer.tsx`;
+- `src/components/project-player/projectPlayer.module.css`;
+- `src/components/workspace/ai/DrawingAiPanel.tsx`;
+- `src/lib/export/exportAudio.ts`;
+- `src/lib/project-player/projectPlayerAudio.ts`;
+- `src/lib/project-player/projectPlayerClock.ts`; and
+- `src/lib/project-player/projectPlayerGeometry.ts`.
+
+The player now derives frame, label, seek and audio scheduling from one monotonic media time, using `AudioContext.currentTime` while scheduled audio is active and `performance.now()` otherwise. It implements correct pause/resume/seek offsets, overlap, duration trimming, hidden-page reconciliation, completion, visible Replay-to-frame-1 behavior, source invalidation and teardown. Real Chromium passed 146 assertions across 15 flows and seven screenshots covering desktop, fullscreen, compact reduced motion, narrow, 200%-zoom-equivalent and forced-high-contrast profiles. Focus order/trap/return, keyboard controls, actual-state fullscreen/Escape, control reveal/hide, truthful audio/fullscreen failures and zero serious/critical Axe findings passed. The accepted layout places the control strip below the animation with no black overlay gradient, preserving authored bottom-edge pixels.
+
+The inherited SPEC-0009 frame-3 failure was traced to stale independent-axis proof math. The accepted renderer's uniform contain result matches within the unchanged `0.025` tolerance; product geometry and Export output were not changed and the tolerance was not weakened. Official and recovery storage digests stayed byte-identical. Performance passed at viewer-open p95 `111.473791 ms`, Play acknowledgement p95 `40.647 ms`, released-seek canvas update p95 `30.32725 ms`, maximum long task `104 ms`, and five-cycle settled heap delta `134,943` bytes; nine created audio contexts closed and all recorded source nodes stopped/disconnected.
+
+The correction also makes the focused production build include both Home and `/api/ai-animator`, and makes the existing client handle content type/JSON failure safely for POST/GET/DELETE. This corrects the focused-build HTML 404/parser failure only. Terra prompts, fixed `gpt-5.6-terra` model, reasoning mapping/default, job/tool/provider implementation, transcript behavior, mutation boundary and Thinking gradient are unchanged. Deterministic browser proof made zero provider/paid calls. One separately authorized live `hi` used `gpt-5.6-terra` at Medium, returned JSON `202` then terminal JSON `200`, displayed `Hi! What would you like to make or explore?`, changed no animation, used 409 tokens, took 3,831 ms and had estimated cost `$0.001238`.
+
+The full repository build still compiles before stopping at the inherited untouched `app/dev/ai-costs/lifetime/page.tsx` `PageProps/searchParams` type failure; the focused Home plus Terra route production build passes. Physical devices, non-Chromium browsers, native OS audio/permission UI, native Finder/new encoded output and a fully hydrated 64-project full-resolution collection remain unproven. The ignored `.env.local` was not included in proof or publication, its contents were not recorded, and byte identity is not claimed. Phase 3 is not implemented or authorized. Phase 2 is accepted/technically Verified with control-plane propagation complete, but remains unstaged, uncommitted, unpublished and unintegrated pending GIT-086.
 
 ## 8. Phase 3 — Shared Management and Polish
 
@@ -628,7 +656,7 @@ For each phase:
 7. Only a later explicit publication instruction permits exact staging, commit, clean fast-forward integration to canonical `main`, normal push, clean `0/0` synchronization, proof preservation, server stop, and D-0054 worktree/branch cleanup.
 8. The next phase requires separate authorization after all prior closeout steps complete.
 
-The Phase 1 lifecycle is fully closed under D-0113/GIT-084. D-0114/GIT-085 authorize exactly one fresh Phase 2 executor after activation synchronization. No Phase 3 implementation, external/paid operation, provider call, deployment, or Phase 2 publication is authorized by that activation.
+The Phase 1 lifecycle is fully closed under D-0113/GIT-084. D-0114/GIT-085 authorized the stopped Phase 2 executor; D-0115 accepts and technically verifies its exact result. GIT-086 publication/integration, proof preservation and D-0054 cleanup remain pending a separate explicit publication instruction. No Phase 3 implementation or deployment is authorized.
 
 ## 14. Decision-completeness record
 
@@ -645,6 +673,6 @@ Resolved by D-0110 and this spec:
 - Rename is same-identity next revision; Duplicate is new-identity copy; Delete is exact native-project/history removal with recovery/open-session/reference safety.
 - Protected legacy sources are not renamed/deleted in place; valid legacy entries may be duplicated into native V2.
 - Search/sort, overflow/context/keyboard, concurrency, local-only/security, performance, proof, and lifecycle gates are fixed.
-- The observed SPEC-0009 replay mismatch is an unresolved Phase 2 entry/proof gate, not a claimed product regression.
+- The observed SPEC-0009 replay mismatch was stale independent-axis proof math; uniform contain passes the unchanged tolerance without a product geometry or Export-output change.
 
-Phase 1 is Verified, published, integrated, synchronized, proof-preserved and cleaned up. Phase 2 is Authorized/Not started after GIT-085 synchronization. Phase 3 still requires its own explicit authorization after complete Phase 2 closeout.
+Phase 1 is Verified, published, integrated, synchronized, proof-preserved and cleaned up. Phase 2 is accepted/technically Verified with control-plane propagation complete and publication pending. Phase 3 remains Unauthorized/Not started and still requires its own explicit authorization after complete Phase 2 closeout.

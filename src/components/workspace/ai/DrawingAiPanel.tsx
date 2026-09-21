@@ -45,6 +45,18 @@ const MINIMUM_THINKING_PRESENTATION_MS = 2_000;
 const PENDING_PROMPT_DIGEST = "0".repeat(64);
 const EMPTY_USAGE = { inputTokens: null, outputTokens: null, totalTokens: null, estimatedCostUsd: null };
 
+const readAiAnimatorResponse = async (response: Response): Promise<unknown> => {
+  const contentType = response.headers.get("content-type")?.toLowerCase() ?? "";
+  if (!contentType.includes("application/json")) {
+    throw new Error(`Terra service returned an unexpected ${response.status} response. No animation changed. Try again when the service is available.`);
+  }
+  try {
+    return await response.json() as unknown;
+  } catch {
+    throw new Error("Terra service returned an unreadable response. No animation changed. Try again when the service is available.");
+  }
+};
+
 const newMessage = (role: "user" | "assistant", content: string, jobId?: string): AiAnimatorConversationMessage => ({
   id: crypto.randomUUID(), jobId, role, content, createdAt: new Date().toISOString(),
 });
@@ -252,7 +264,7 @@ export function DrawingAiPanel({
     const poll = async () => {
       try {
         const response = await fetch(`/api/ai-animator?jobId=${encodeURIComponent(activeJob.jobId)}&projectId=${encodeURIComponent(projectId)}`, { cache: "no-store" });
-        const snapshot = normalizeAiAnimatorJobSnapshot(await response.json());
+        const snapshot = normalizeAiAnimatorJobSnapshot(await readAiAnimatorResponse(response));
         if (!response.ok || !snapshot) {
           throw new Error(response.status === 404
             ? "The server was interrupted before Terra finished. No animation changed. Send the message again to retry."
@@ -309,7 +321,7 @@ export function DrawingAiPanel({
     };
     try {
       const response = await fetch("/api/ai-animator", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(requestBody) });
-      const body = await response.json() as unknown;
+      const body = await readAiAnimatorResponse(response);
       const snapshot = normalizeAiAnimatorJobSnapshot(body);
       if (!response.ok || !snapshot) {
         const errorMessage = typeof body === "object" && body !== null && "error" in body && typeof body.error === "string"
@@ -331,7 +343,7 @@ export function DrawingAiPanel({
     if (!activeJob) return;
     try {
       const response = await fetch("/api/ai-animator", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ jobId: activeJob.jobId, projectId }) });
-      const snapshot = normalizeAiAnimatorJobSnapshot(await response.json());
+      const snapshot = normalizeAiAnimatorJobSnapshot(await readAiAnimatorResponse(response));
       if (!response.ok || !snapshot) throw new Error("Cancellation could not be confirmed.");
       applySnapshot(snapshot, true);
     } catch (error) {

@@ -1,19 +1,23 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-21 through D-0114/GIT-085 control-plane-only authorization of SPEC-0011 Phase 2; no runtime architecture changed.
+Last traced: 2026-09-21 through D-0115 acceptance and technical verification of SPEC-0011 Phase 2; propagation complete, publication pending under GIT-086.
 
-## SPEC-0011 project-library and playback architecture — Phase 1 published; Phase 2 authorized/not started
+## SPEC-0011 project-library and playback architecture — Phase 1 closed; Phase 2 accepted/technically Verified, publication pending
 
 D-0112 accepts Phase 1's new My Projects route. `app/page.tsx` replaces the inert singular action with **My Projects**, while **Open Project** continues through `prepareCollectionWorkspace(...)` into the sole `DrawingWorkspace`. `ProjectLibrary` reads `listProjectCollection(createBrowserProjectSourceReader())`, preserves native and all five supported legacy classifications, keeps invalid/protected entries visible, binds exact source locators/digests, and refreshes authoritative local storage. The Phase 1 My Projects surface is watch-only; it creates no official or recovery write.
 
 The accepted SPEC-0009 `loadExportProjectSnapshot(...)` evaluator, frame/timing resolvers and `renderCanonicalExportFrame(...)` compositor feed a new shared `CanonicalProjectPlayer` consumed by Export preview and `ProjectMovieViewer`. Posters use the same evaluator/compositor on the earliest visible canonical frame through a visible/near-visible queue capped at four. Selection revalidates the exact entry before opening. The centered dialog owns Phase 1 play/pause, time, seek, close/backdrop/Escape, focus restoration and scroll preservation; it stops at completion, while Export retains its accepted looping preview. Export encoding, destinations, Finder and validation remain in Export.
 
-Phase 2 is Authorized/Not started under D-0114/GIT-085. It owns one monotonic media clock, exact synchronized audio, fullscreen, completed keyboard/accessibility behavior, resource cleanup and the inherited frame-3 geometry-proof reconciliation. The accepted Phase 1 result deliberately does not claim those outcomes, and this activation implements none of them.
+Accepted Phase 2 adds one `projectPlayerClock` monotonic media-time owner, sampled by RAF, with frame selection `min(frameCount - 1, floor(mediaTime * savedFps))`. Active scheduled audio anchors to `AudioContext.currentTime`; silent playback anchors to `performance.now()`. `projectPlayerAudio` reuses the saved Export attachment interpretation, bounds unique-asset decoding, schedules offsets/overlaps/trims, and tears down obsolete nodes/contexts on pause, seek, source invalidation and close. `ProjectMovieViewer`/`CanonicalProjectPlayer` own completion/Replay, actual-state fullscreen, Escape order, keyboard/focus/accessibility and control reveal/hide. The control strip participates in layout below the stage; it is not a black gradient over authored pixels.
+
+The inherited SPEC-0009 frame-3 mismatch was stale proof math: its independent X/Y mapping ignored the horizontal matte produced when uniformly containing the saved `4554×3293` authoring reference inside `1280×720`. The corrected proof computes expected X `0.7501221828399292` versus rendered `0.749406441925578`, inside the unchanged `0.025` tolerance. Product geometry, canonical renderer and Export output are unchanged.
+
+The accepted focused-build correction includes both `app/page.tsx` and `app/api/ai-animator/route.ts`, and `DrawingAiPanel` now fails safely when POST/GET/DELETE responses are not JSON. The route, provider service, fixed Terra model, prompts, reasoning, jobs/tools, transcript/mutation behavior and Thinking gradient remain unchanged. This is a reachability/error-boundary correction, not new AI capability.
 
 Phase 3 adds one `ProjectManagementCommandOwner` above the existing V2 repository/storage transaction boundary. Rename is a same-ID metadata-only next revision. Duplicate is the existing new-ID/copy-provenance path and may hydrate a valid read-only legacy source without mutating it. Delete revalidates one exact native head, blocks active-editor/recovery conflicts, deletes only that project/head/versions, and removes only assets proven unreferenced by every remaining official version. `BroadcastChannel` is invalidation only; storage re-read plus lock/CAS remains authoritative. Search/sort is a local presentation transform, not persisted project data.
 
-Phase 3 remains planned and Unauthorized. No Rename/Duplicate/Delete/Search/Sort implementation exists yet. A bounded check of the inherited SPEC-0009 geometry proof reported the same frame-3 X mapping `0.749406441925578` versus `0.8215350990452878`; this remains an unresolved Phase 2 entry/proof gate, not a confirmed Phase 1 regression. D-0113/GIT-084 fully close Phase 1; D-0114/GIT-085 authorize exactly one fresh Phase 2 executor after clean activation synchronization.
+Phase 3 remains planned and Unauthorized. No Rename/Duplicate/Delete/Search/Sort implementation exists yet. D-0113/GIT-084 fully close Phase 1; D-0115 accepts and technically verifies Phase 2 at immutable manifest SHA-256 `ddf3b9acbbe5395d92bdeea0c09da9b8dbcfef3bae38c3e1593ee1220a79823d`. GIT-086 publication/integration, proof preservation and D-0054 cleanup remain pending a separate instruction.
 
 ## SPEC-0010 Project Safety and Recovery architecture — all three phases closed
 

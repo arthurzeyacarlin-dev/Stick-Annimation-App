@@ -2,7 +2,7 @@ import type { UnifiedAnimationProjectV2 } from "@/src/lib/animation/unifiedAnima
 
 export const EXPORT_AUDIO_SAMPLE_RATE = 48_000;
 
-type ScheduledAttachment = { frameIndex: number; id: string; dataUrl: string };
+export type ScheduledAttachment = { frameIndex: number; id: string; dataUrl: string };
 
 const yieldToBrowser = () => new Promise<void>(resolve => {
   const channel = new MessageChannel();
@@ -10,7 +10,7 @@ const yieldToBrowser = () => new Promise<void>(resolve => {
   channel.port2.postMessage(null);
 });
 
-const decodeDataUrlBytes = (dataUrl: string) => {
+export const decodeExportAudioDataUrlBytes = (dataUrl: string) => {
   const match = /^data:(audio\/[a-z0-9.+-]+);base64,([a-z0-9+/=]+)$/i.exec(dataUrl);
   if (!match) throw new Error("export_audio_data_invalid");
   const binary = atob(match[2]);
@@ -66,7 +66,7 @@ export async function renderDeterministicAudioMix(
       if (signal?.aborted) throw new DOMException("Export cancelled", "AbortError");
       let buffer: AudioBuffer;
       try {
-        buffer = await decoder.decodeAudioData(decodeDataUrlBytes(attachment.dataUrl));
+        buffer = await decoder.decodeAudioData(decodeExportAudioDataUrlBytes(attachment.dataUrl));
       } catch {
         throw new Error(`export_audio_decode_failed:${attachment.id}`);
       }

@@ -1,5 +1,15 @@
 # Changelog
 
+### 2026-09-21 — Accept and technically verify SPEC-0011 Phase 2 Movie Viewer (D-0115)
+
+- Recorded Arthur's acceptance and sequential Control Plane Architect ownership of the stopped exact 15-path result from detached base/HEAD `e6f6b1d7887bbbfaed7a9b00b8b472c5b28fe834`, with local `main`/`origin/main` equal and an empty index.
+- Bound the immutable 29,132-byte manifest at `output/spec-0011/phase-2/proof-manifest.json`, SHA-256 `ddf3b9acbbe5395d92bdeea0c09da9b8dbcfef3bae38c3e1593ee1220a79823d`; fresh validation passed 22 assertions and rejected 16 material mutation classes.
+- Accepted one monotonic playback clock, synchronized saved audio with seek/pause/resume/overlap/trim and bounded cleanup, completion plus visible Replay-to-frame-1, actual-state fullscreen/Escape, keyboard/focus/accessibility, responsive contain geometry and a control strip below the animation with no black overlay gradient. Real Chromium passed 146 assertions across 15 flows and seven screenshots; official/recovery digests remained identical.
+- Reconciled the inherited SPEC-0009 frame-3 mismatch as stale independent-axis proof math. Uniform contain passes the unchanged `0.025` tolerance; product geometry, Export output and tolerance were not changed.
+- Recorded the narrow focused-build Terra correction: include the real `/api/ai-animator` route and handle content type/JSON failure safely for POST/GET/DELETE. Prompts, model, reasoning, jobs, tools, provider behavior, transcript/mutation boundary and Thinking gradient remain unchanged. Deterministic proof made zero provider/paid calls; one separately authorized live Medium `gpt-5.6-terra` `hi` used 409 tokens, returned JSON `202/200`, changed no animation and cost an estimated `$0.001238`.
+- Recorded honest limits: the full build still stops only at the inherited untouched dev AI-cost `PageProps/searchParams` type failure; physical devices, non-Chromium, native audio permission/output, native Finder/new encoded output and the fully hydrated 64-project case remain unproven. `.env.local` stays ignored/excluded and byte identity is not claimed.
+- Propagated canonical records only. GIT-086 publication/integration, proof preservation and D-0054 cleanup remain pending a separate explicit instruction; port 57760/PID 23010, the accepted worktree and proof stay preserved. Phase 3 remains Unauthorized/Not started. No staging, commit, merge, push, deployment or runtime/proof edit occurred.
+
 ### 2026-09-21 — Authorize SPEC-0011 Phase 2 Movie Viewer (D-0114/GIT-085)
 
 - Recorded Arthur's explicit authorization to publish the Phase 2 activation now and, only after clean synchronization, start exactly one fresh dedicated Plan-mode Phase 2 Spec Executor from the exact GIT-085 SHA.

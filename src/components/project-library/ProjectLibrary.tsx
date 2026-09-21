@@ -120,6 +120,44 @@ export function ProjectLibrary({ onBack }: Props) {
     if (entryId) restoreCardFocus(entryId);
   }, [restoreCardFocus, viewer?.entryId]);
 
+  useEffect(() => {
+    if (!viewer) return;
+    const entry = entries.find(candidate => candidate.id === viewer.entryId);
+    if (!entry) return;
+    let active = true;
+    let checking = false;
+    const revalidateOpenSource = async () => {
+      if (checking || document.hidden) return;
+      checking = true;
+      try {
+        const current = await controller.watch(entry);
+        if (!active || current.snapshot.projectDigest === viewer.project.snapshot.projectDigest) return;
+        const failure = projectFailureMessage("source_changed");
+        setViewer(null);
+        setNotice(failure.message);
+        restoreCardFocus(viewer.entryId);
+      } catch (error) {
+        if (!active) return;
+        const failure = projectFailureMessage(error);
+        setViewer(null);
+        setNotice(failure.message);
+        restoreCardFocus(viewer.entryId);
+      } finally {
+        checking = false;
+      }
+    };
+    const handlePotentialSourceChange = () => { void revalidateOpenSource(); };
+    window.addEventListener("focus", handlePotentialSourceChange);
+    window.addEventListener("storage", handlePotentialSourceChange);
+    document.addEventListener("visibilitychange", handlePotentialSourceChange);
+    return () => {
+      active = false;
+      window.removeEventListener("focus", handlePotentialSourceChange);
+      window.removeEventListener("storage", handlePotentialSourceChange);
+      document.removeEventListener("visibilitychange", handlePotentialSourceChange);
+    };
+  }, [controller, entries, restoreCardFocus, viewer]);
+
   const watchProject = async (entry: ProjectCollectionEntry) => {
     const state = snapshots[entry.id];
     if (state?.status !== "ready" || busyEntryId) return;
@@ -140,6 +178,7 @@ export function ProjectLibrary({ onBack }: Props) {
   };
 
   return (
+    <>
     <main ref={libraryRef} className={styles.library} data-project-library="my-projects" aria-labelledby="my-projects-heading">
       <div className={styles.shell}>
         <header className={styles.header}>
@@ -246,7 +285,8 @@ export function ProjectLibrary({ onBack }: Props) {
           )}
         </section>
       </div>
-      {viewer ? <ProjectMovieViewer project={viewer.project} onClose={closeViewer} /> : null}
     </main>
+    {viewer ? <ProjectMovieViewer project={viewer.project} onClose={closeViewer} /> : null}
+    </>
   );
 }

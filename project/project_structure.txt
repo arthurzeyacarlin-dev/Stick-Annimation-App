@@ -523,8 +523,14 @@
 ./scripts/spec0011-project-library/phase1BrowserProof.ts
 ./scripts/spec0011-project-library/phase1Fixtures.ts
 ./scripts/spec0011-project-library/phase1Oracle.ts
+./scripts/spec0011-project-library/phase2AudioOracle.ts
+./scripts/spec0011-project-library/phase2BrowserProof.ts
+./scripts/spec0011-project-library/phase2BuildGate.ts
+./scripts/spec0011-project-library/phase2Oracle.ts
 ./scripts/spec0011-project-library/recordPhase1Proof.ts
+./scripts/spec0011-project-library/recordPhase2Proof.ts
 ./scripts/spec0011-project-library/validatePhase1Proof.ts
+./scripts/spec0011-project-library/validatePhase2Proof.ts
 ./scripts/sync_docs_to_github.sh
 ./scripts/traceExplosionLivePath.ts
 ./scripts/traceGenerateSoundsLivePath.mjs
@@ -708,6 +714,10 @@
 ./src/lib/project-library
 ./src/lib/project-library/projectLibraryController.ts
 ./src/lib/project-library/projectLibraryModel.ts
+./src/lib/project-player
+./src/lib/project-player/projectPlayerAudio.ts
+./src/lib/project-player/projectPlayerClock.ts
+./src/lib/project-player/projectPlayerGeometry.ts
 ./src/lib/stickProjectStorage.ts
 ./src/lib/stickfigure
 ./src/lib/stickfigure/stickProjectContract.ts

@@ -1,14 +1,14 @@
 # SPEC-0010 — Project Safety and Recovery
 
-Status: **Approved; Phase 1 accepted and technically Verified, publication authorized/pending; Phases 2–3 Unauthorized/Not started**
+Status: **Approved; Phase 1 fully closed; Phase 2 accepted and technically Verified, publication authorized/pending; Phase 3 Unauthorized/Not started**
 Owner: Arthur
 Task role: three separately gated implementation phases after later explicit phase authorization
 Created: 2026-09-21
 Last updated: 2026-09-21
-Decision links: [D-0102](../DECISIONS.md), [D-0103](../DECISIONS.md), [D-0104](../DECISIONS.md)
+Decision links: [D-0102](../DECISIONS.md), [D-0103](../DECISIONS.md), [D-0104](../DECISIONS.md), [D-0105](../DECISIONS.md), [D-0106](../DECISIONS.md)
 TODO IDs: `PLAN-010`, `SPEC-010`, `SAFETY-001`–`SAFETY-003`, `PERSIST-001`
 Planning base: canonical `main` commit `092a96c6a17db1bbb307d21128bed84377eba3e7`; clean index and worktree before planning edits
-Last verified runtime basis: accepted Phase 1 result from exact base/HEAD `db0be15decae427e3ca0d696d945a650f363a4aa`; immutable manifest SHA-256 `b400293271c1ae0cf78007de5024eb616516a6219d3a9965e03a16d8f7890f19`
+Last verified runtime basis: accepted corrected Phase 2 result from exact base/HEAD `44cdafc534d7ef096cd2e283532a956c4eaa91f6`; immutable manifest SHA-256 `444cf4695574a6d7653a628e4a3a2035db3305054d2a76905e73cd3fa0ccc2e2`
 
 ## 1. Plain-language outcome
 
@@ -23,8 +23,8 @@ This is exactly three separately gated phases:
 
 | Phase | User outcome | Current state |
 | --- | --- | --- |
-| 1 — Save and Exit | **File → Save and Exit** uses the existing canonical Save path and returns Home only after successful Save. | Accepted; technically Verified; publication authorized/pending |
-| 2 — Emergency Recovery Draft | Meaningful committed edits create one bounded, separate, local latest-draft backup without changing the official project. | Proposed; Unauthorized; Not started |
+| 1 — Save and Exit | **File → Save and Exit** uses the existing canonical Save path and returns Home only after successful Save. | Verified; published; integrated; synchronized; proof-preserved; cleaned up |
+| 2 — Emergency Recovery Draft | Meaningful committed edits create one bounded, separate, local latest-draft backup without changing the official project. | Accepted; technically Verified; publication authorized/pending |
 | 3 — Recover Work and Final Safety Proof | Startup offers **Recover Work** or **Discard Draft**, opens only validated recovery data, and closes full save/recovery regressions. | Proposed; Unauthorized; Not started |
 
 No phase authorizes the next. A phase requires its own fresh Spec Executor task after its predecessor is accepted, recorded, published, integrated, synchronized, proof-preserved, cleaned up, and Arthur separately authorizes the next phase.
@@ -380,6 +380,8 @@ GIT-080 published this planning package in `cb80f2baf92f812c97ce758067f6ea28b3c6
 
 D-0104 records Arthur's acceptance of the completed Phase 1 review copy and authorization for control-plane propagation plus later publication/integration/cleanup. The executor is stopped and the Control Plane Architect owns the exact accepted worktree sequentially. Phase 2 remains Unauthorized/Not started.
 
+D-0105 records GIT-081 `44cdafc534d7ef096cd2e283532a956c4eaa91f6` Phase 1 publication/integration, proof preservation and D-0054 cleanup, plus Arthur's later explicit Phase 2 authorization. D-0106 records Arthur's acceptance of corrected Phase 2 and authorization for propagation/publication/integration/cleanup. Phase 3 remains Unauthorized/Not started.
+
 ## 12. Implementation and verification record
 
 Arthur accepted the exact ten-path Phase 1 result from unchanged base/HEAD `db0be15decae427e3ca0d696d945a650f363a4aa`, empty index. The 8,302-byte PASS/VALID manifest `output/spec-0010/phase-1/proof-manifest.json` has SHA-256 `b400293271c1ae0cf78007de5024eb616516a6219d3a9965e03a16d8f7890f19` and accepted-source digest `5ff9239626dd05e456e038b821171f093bbc6120e3810d1dff651a7793ba0900`. Fresh pre-propagation validation passed 16 assertions and rejected ten mutations across identity, base, scope, source/artifact binding, checks, storage, network, cost and lifecycle.
@@ -388,8 +390,14 @@ The accepted implementation adds **Save and Exit** as the final File item, reuse
 
 Bound proof passed 18 oracle assertions, 17 contract assertions and 29 real-Chrome assertions across six flows, plus TypeScript, focused lint, an unchanged repository-wide lint baseline, focused production build, diff/scope/index checks, desktop/compact/reduced-motion keyboard behavior, and protected Save/Save As/Export/drawing/layer/onion/playback/Terra-panel regressions. Deterministic implementation proof made zero external/provider/AI/paid calls and zero credit changes. The ignored `.env.local` review setup was separately restored byte-identically without exposing or tracking its secret; exactly one authorized live Terra greeting used `gpt-5.6-terra`, returned a natural reply, consumed 407 tokens and an estimated $0.001214, while Thinking presentation and tracked AI source remained unchanged.
 
-Control-plane propagation changes none of the accepted ten technical bytes. Publication/integration, proof preservation, review-server shutdown and D-0054 cleanup remain pending the already-granted later publication step. Phases 2–3 remain Unauthorized/Not started.
+Phase 1 is fully closed through D-0105/GIT-081. Arthur accepted Phase 2's corrected exact eleven-path result from unchanged base/HEAD `44cdafc534d7ef096cd2e283532a956c4eaa91f6`, empty index. The 8,685-byte PASS/VALID manifest `output/spec-0010/phase-2/proof-manifest.json` has SHA-256 `444cf4695574a6d7653a628e4a3a2035db3305054d2a76905e73cd3fa0ccc2e2` and source digest `b11323e481074e18683bd838f48df0f664ca83365874716af9e39aeba898318d`; fresh validation passed 19 assertions and rejected thirteen mutation classes.
+
+The accepted recovery system owns a separate IndexedDB database, captures only committed meaningful edits after bounded debounce, verifies content-addressed candidate bytes before publication, retains the previous valid generation on failure, rejects foreign/newer writers and never changes official heads/versions or project/export listings. Save and Save As clear only an exact covered draft. Corrected one-click Save and Exit performs exactly one official Save, coordinates/publishes the exact pending recovery generation when necessary, clears it and returns Home automatically; actual failure or a newer edit remains editable.
+
+Bound proof passed 27 Phase 2 Chrome assertions across eight scenarios, 27 oracle assertions, 18 Phase 2 contract assertions, 17 inherited Phase 1 contract assertions and 29 inherited Phase 1 Chrome assertions, plus TypeScript, focused lint, production build, diff/scope/index and protected workspace regressions. Deterministic proof recorded zero external/provider/AI/paid calls or credit changes. The ignored `.env.local` review correction is excluded from Git; exactly one separately authorized live Terra POST returned naturally with zero console errors and no tracked Terra/Thinking change.
+
+Control-plane propagation changes none of the accepted eleven technical bytes. Phase 2 publication/integration, proof preservation, review-server shutdown and D-0054 cleanup remain pending the already-granted publication step. Phase 3 remains Unauthorized/Not started.
 
 ## 13. Final planning handoff
 
-SPEC-0010 Phase 1 is accepted and technically Verified with publication authorized/pending. The next safe action is the already-authorized, sequential Control Plane Architect publication step: stage only the reviewed technical/control-plane paths, commit, fast-forward clean canonical `main`, push, verify clean `0/0`, preserve proof, stop port 57610, and remove only the obsolete review worktree/unused local branch under D-0054. Do not begin Phase 2. Phases 2–3 remain Unauthorized/Not started.
+SPEC-0010 Phase 1 is fully closed. Phase 2 is accepted and technically Verified with publication authorized/pending. The next safe action is the already-authorized publication step: stage only the reviewed technical/control-plane paths, commit, fast-forward clean canonical `main`, push, verify clean `0/0`, preserve proof, stop port 57620, and remove only the obsolete review worktree/unused local branch under D-0054. Do not begin Phase 3; it remains Unauthorized/Not started until Phase 2 is fully closed and Arthur separately authorizes it.

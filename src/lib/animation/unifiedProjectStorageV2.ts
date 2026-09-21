@@ -77,7 +77,7 @@ const sha256Hex = async (bytes: Uint8Array) => {
   return [...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2, "0")).join("");
 };
 
-const encodeProject = async (project: UnifiedAnimationProjectV2, hooks: UnifiedStorageFaultHooksV2 = {}) => {
+export const prepareUnifiedProjectStorageV2 = async (project: UnifiedAnimationProjectV2, hooks: UnifiedStorageFaultHooksV2 = {}) => {
   hooks.encode?.();
   const assets = new Map<string, UnifiedEncodedAssetV2>();
   const seen = new Set<object>();
@@ -145,7 +145,7 @@ const encodeProject = async (project: UnifiedAnimationProjectV2, hooks: UnifiedS
   };
 };
 
-const hydrateVersion = async (
+export const hydrateUnifiedProjectStorageV2 = async (
   version: UnifiedProjectVersionV2,
   assets: readonly UnifiedEncodedAssetV2[],
   hooks: UnifiedStorageFaultHooksV2 = {},
@@ -189,14 +189,14 @@ const hydrateVersion = async (
   };
   const project = assertUnifiedAnimationProjectV2(await visit(version.encodedProject) as UnifiedAnimationProjectV2);
   await assertStructuredSymbolDigestsV2(project.document.catalogs.symbols);
-  const prepared = await encodeProject(project);
+  const prepared = await prepareUnifiedProjectStorageV2(project);
   if (prepared.version.projectDigest !== version.projectDigest || prepared.version.metadataByteLength !== version.metadataByteLength ||
     prepared.version.storedByteLength !== version.storedByteLength || JSON.stringify(prepared.version.assetIds) !== JSON.stringify(version.assetIds)) fail("version_mismatch");
   return project;
 };
 
 const syntheticLegacyHead = async (project: UnifiedAnimationProjectV2): Promise<UnifiedProjectHeadV2> => {
-  const prepared = await encodeProject(project);
+  const prepared = await prepareUnifiedProjectStorageV2(project);
   return {
     projectId: project.projectId,
     title: project.title,
@@ -235,7 +235,7 @@ export const createUnifiedProjectStorageV2 = (adapter: UnifiedProjectStorageAdap
     for (const version of ordered) {
       try {
         const assets = await adapter.readAssets(version.assetIds);
-        return await hydrateVersion(version, assets, hooks);
+        return await hydrateUnifiedProjectStorageV2(version, assets, hooks);
       } catch (error) {
         lastError = error;
       }
@@ -246,7 +246,7 @@ export const createUnifiedProjectStorageV2 = (adapter: UnifiedProjectStorageAdap
   async write(project: UnifiedAnimationProjectV2, expectedRevision: number | null, hooks: UnifiedStorageFaultHooksV2 = {}) {
     const candidate = assertUnifiedAnimationProjectV2(project);
     await assertStructuredSymbolDigestsV2(candidate.document.catalogs.symbols);
-    const prepared = await encodeProject(candidate, hooks);
+    const prepared = await prepareUnifiedProjectStorageV2(candidate, hooks);
     const head: UnifiedProjectHeadV2 = {
       projectId: candidate.projectId,
       title: candidate.title,
@@ -261,14 +261,14 @@ export const createUnifiedProjectStorageV2 = (adapter: UnifiedProjectStorageAdap
     const staged = await adapter.readVersion(candidate.projectId, candidate.revision, prepared.version.projectDigest);
     if (!staged) fail("readback_failed");
     const verifiedStaged = staged as UnifiedProjectVersionV2;
-    const stagedProject = await hydrateVersion(verifiedStaged, await adapter.readAssets(verifiedStaged.assetIds), hooks);
+    const stagedProject = await hydrateUnifiedProjectStorageV2(verifiedStaged, await adapter.readAssets(verifiedStaged.assetIds), hooks);
     hooks.readback?.();
-    const stagedDigest = (await encodeProject(stagedProject)).version.projectDigest;
+    const stagedDigest = (await prepareUnifiedProjectStorageV2(stagedProject)).version.projectDigest;
     if (stagedDigest !== prepared.version.projectDigest) fail("readback_failed");
     hooks.beforePublish?.();
     await adapter.publish(head, expectedRevision);
     const readback = await this.read(candidate.projectId);
-    const readbackDigest = (await encodeProject(readback)).version.projectDigest;
+    const readbackDigest = (await prepareUnifiedProjectStorageV2(readback)).version.projectDigest;
     if (readback.revision !== candidate.revision || readbackDigest !== prepared.version.projectDigest) fail("readback_failed");
     return readback;
   },
@@ -334,7 +334,7 @@ const legacyStorageAccounting = () => withExistingDatabase(async db => {
     .map(project => `${project.projectId}:${project.revision}:${project.updatedAt}`)
     .sort();
   let storedByteLength = 0;
-  for (const project of projects) storedByteLength += (await encodeProject(assertUnifiedAnimationProjectV2(project))).version.storedByteLength;
+  for (const project of projects) storedByteLength += (await prepareUnifiedProjectStorageV2(assertUnifiedAnimationProjectV2(project))).version.storedByteLength;
   return { projectIds, revisionStamps, storedByteLength };
 }, { projectIds: [], revisionStamps: [], storedByteLength: 0 } satisfies LegacyStorageAccountingV2);
 
@@ -380,7 +380,7 @@ const browserAdapter: UnifiedProjectStorageAdapterV2 = {
       ? (await request(db.transaction(STORES.projects, "readonly").objectStore(STORES.projects).get(input.head.projectId))) ?? null
       : null, null) as UnifiedAnimationProjectV2 | null;
     const legacyRecovery = legacyRecoveryProject
-      ? await encodeProject(assertUnifiedAnimationProjectV2(legacyRecoveryProject))
+      ? await prepareUnifiedProjectStorageV2(assertUnifiedAnimationProjectV2(legacyRecoveryProject))
       : null;
     return withDatabase(async db => {
       const transaction = db.transaction([STORES.projects, STORES.heads, STORES.versions, STORES.assets, STORES.assetMetadata], "readwrite");
@@ -476,7 +476,7 @@ const browserAdapter: UnifiedProjectStorageAdapterV2 = {
 const browserStorage = () => createUnifiedProjectStorageV2(browserAdapter);
 
 export const digestUnifiedProjectV2 = async (project: UnifiedAnimationProjectV2) =>
-  (await encodeProject(assertUnifiedAnimationProjectV2(project))).version.projectDigest;
+  (await prepareUnifiedProjectStorageV2(assertUnifiedAnimationProjectV2(project))).version.projectDigest;
 export const listUnifiedProjectHeadsV2 = () => browserStorage().listHeads();
 export const listUnifiedProjectsV2 = async () => Promise.all((await listUnifiedProjectHeadsV2()).map(head => readUnifiedProjectV2(head.projectId)));
 export const readUnifiedProjectV2 = (projectId: string) => browserStorage().read(projectId);

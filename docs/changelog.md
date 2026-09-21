@@ -1,5 +1,16 @@
 # Changelog
 
+### 2026-09-21 — Accept and technically verify corrected SPEC-0010 Phase 2 Emergency Recovery Draft (D-0105/D-0106)
+
+- recorded GIT-081 `44cdafc534d7ef096cd2e283532a956c4eaa91f6` Phase 1 publication/integration, fifteen-file/451,235-byte proof preservation at checksum-inventory SHA-256 `ead373f36b683047df9e011f74708e8bb694b4317ca204c2e9b9a3e6039f20c4`, closed port 57610 and completed D-0054 cleanup; recorded Arthur's later explicit Phase 2 authorization
+- recorded Arthur's acceptance and publication authority for the corrected exact eleven-path Phase 2 result from unchanged base/HEAD `44cdafc534d7ef096cd2e283532a956c4eaa91f6`, empty index
+- bound the immutable 8,685-byte PASS/VALID manifest SHA-256 `444cf4695574a6d7653a628e4a3a2035db3305054d2a76905e73cd3fa0ccc2e2` and source digest `b11323e481074e18683bd838f48df0f664ca83365874716af9e39aeba898318d`; fresh validation passed 19 assertions and rejected thirteen mutation classes
+- accepted one separate content-addressed local recovery draft for meaningful committed edits, bounded debounce/latest-generation publication, prior-valid preservation, foreign-writer rejection, exact covered-draft clearing and zero official project/list/export mutation
+- accepted the one-click correction: Save and Exit performs one official Save, safely coordinates/clears the exact pending recovery generation and returns Home automatically; actual failure or a newer edit remains editable
+- recorded PASS for 27 Phase 2 Chrome, 27 oracle, 18 Phase 2 contract, 17 inherited Phase 1 contract and 29 inherited Phase 1 Chrome assertions plus type/lint/build/diff/scope/index and protected regressions; deterministic proof recorded zero external/provider/AI/paid calls or credit changes
+- recorded the ignored review-environment correction separately: one live Terra POST returned naturally with zero console errors, while `.env.local` stayed untracked/unpublished and tracked Terra/Thinking source remained unchanged
+- propagation changes only canonical records and leaves all eleven accepted technical bytes unchanged. Phase 2 publication/integration, proof preservation, port-57620 shutdown and D-0054 cleanup remain the next already-authorized step; Phase 3 remains Unauthorized/Not started
+
 ### 2026-09-21 — Accept and technically verify SPEC-0010 Phase 1 Save and Exit (D-0104)
 
 - recorded Arthur's acceptance and explicit authority for control-plane propagation plus later commit/integration/push/cleanup of the exact ten-path Phase 1 result from unchanged base/HEAD `db0be15decae427e3ca0d696d945a650f363a4aa`, empty index

@@ -504,8 +504,14 @@
 ./scripts/spec0010-project-safety/phase1Contract.ts
 ./scripts/spec0010-project-safety/phase1GateProof.ts
 ./scripts/spec0010-project-safety/phase1Oracle.ts
+./scripts/spec0010-project-safety/phase2BrowserProof.ts
+./scripts/spec0010-project-safety/phase2Contract.ts
+./scripts/spec0010-project-safety/phase2GateProof.ts
+./scripts/spec0010-project-safety/phase2Oracle.ts
 ./scripts/spec0010-project-safety/recordPhase1Proof.ts
+./scripts/spec0010-project-safety/recordPhase2Proof.ts
 ./scripts/spec0010-project-safety/validatePhase1Proof.ts
+./scripts/spec0010-project-safety/validatePhase2Proof.ts
 ./scripts/sync_docs_to_github.sh
 ./scripts/traceExplosionLivePath.ts
 ./scripts/traceGenerateSoundsLivePath.mjs
@@ -634,6 +640,8 @@
 ./src/lib/animation/editorCommands/rasterGesture.ts
 ./src/lib/animation/editorCommands/staticAssetImport.ts
 ./src/lib/animation/legacyRigRetirementV3.ts
+./src/lib/animation/projectRecoveryContractV1.ts
+./src/lib/animation/projectRecoveryStorageV1.ts
 ./src/lib/animation/unifiedAnimationContentV2.ts
 ./src/lib/animation/unifiedAnimationContract.ts
 ./src/lib/animation/unifiedAnimationContractV2.ts

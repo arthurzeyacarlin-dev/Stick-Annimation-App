@@ -7,6 +7,7 @@ type DrawingTopBarProps = {
   onExport?: () => void;
   onSaveAndExit?: () => void | Promise<void>;
   saveState?: "not-saved" | "unsaved" | "saving" | "saved" | "too-large" | "failed";
+  recoveryState?: "checking" | "idle" | "pending" | "writing" | "current" | "blocked" | "unavailable" | "failed";
   isLegacyProject?: boolean;
   onUndo?: () => void;
   onRedo?: () => void;
@@ -59,6 +60,7 @@ export function DrawingTopBar({
   onExport,
   onSaveAndExit,
   saveState = "not-saved",
+  recoveryState = "checking",
   isLegacyProject = false,
   onUndo,
   onRedo,
@@ -99,6 +101,16 @@ export function DrawingTopBar({
     "too-large": "Too large to save",
     failed: "Save failed",
   }[saveState];
+  const recoveryStateLabel = {
+    checking: "Checking safety backup…",
+    idle: "Safety backup ready",
+    pending: "Safety backup pending",
+    writing: "Updating safety backup…",
+    current: "Safety backup current",
+    blocked: "Unsaved draft found — use Save",
+    unavailable: "Safety backup unavailable — use Save",
+    failed: "Safety backup failed — use Save",
+  }[recoveryState];
 
   return (
     <div
@@ -315,8 +327,16 @@ export function DrawingTopBar({
         >
           {saveStateLabel}
         </div>
-        <div style={{ fontSize: 10, color: "rgba(255,255,255,0.48)" }}>
-          {isLegacyProject ? "Older local project — Save to upgrade on this browser" : "Local only — not synced to another device"}
+        <div
+          data-project-recovery-state={recoveryState}
+          style={{
+            fontSize: 10,
+            color: recoveryState === "blocked" || recoveryState === "unavailable" || recoveryState === "failed"
+              ? "#ffb0b0"
+              : "rgba(255,255,255,0.48)",
+          }}
+        >
+          {recoveryStateLabel} · {isLegacyProject ? "Older local project — Save to upgrade on this browser" : "Local only — not synced to another device"}
         </div>
       </div>
     </div>

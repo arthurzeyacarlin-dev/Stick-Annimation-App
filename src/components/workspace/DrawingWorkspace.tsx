@@ -69,6 +69,13 @@ import type {
   UnifiedSymbolSourceCategoryV2,
 } from "@/src/lib/animation/unifiedAnimationContentV2";
 import { saveUnifiedProjectAsV2, saveUnifiedProjectV2 } from "@/src/lib/animation/unifiedProjectRepositoryV2";
+import { digestUnifiedProjectV2 } from "@/src/lib/animation/unifiedProjectStorageV2";
+import {
+  clearProjectRecoveryDraftV1,
+  getOrCreateProjectRecoverySessionIdV1,
+  inspectProjectRecoveryDraftV1,
+  writeProjectRecoveryDraftV1,
+} from "@/src/lib/animation/projectRecoveryStorageV1";
 import {
   appendProjectAssetsV2,
   appendSymbolDefinitionV2,
@@ -3549,6 +3556,10 @@ type SaveAsDialogState = {
   submitting: boolean;
 };
 
+type ProjectRecoveryState = "checking" | "idle" | "pending" | "writing" | "current" | "blocked" | "unavailable" | "failed";
+
+const PROJECT_RECOVERY_DEBOUNCE_MS = 750;
+
 export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject, onExport, onExit }: DrawingWorkspaceProps) {
   const openedInitialProject = initialProject.project;
   const initialWorkspaceState = createDrawingWorkspaceInitialState(openedInitialProject, true);
@@ -3578,6 +3589,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
   const [saveState, setSaveState] = useState<"not-saved" | "unsaved" | "saving" | "saved" | "too-large" | "failed">(
     unifiedProject.revision > 0 ? "saved" : "not-saved",
   );
+  const [projectRecoveryState, setProjectRecoveryState] = useState<ProjectRecoveryState>("checking");
   const activateDrawingTool = useCallback((tool: DrawingToolName) => {
     requireManualEditorCommand("drawing.tool.activate/v1", "DrawingWorkspace.activateDrawingTool");
     setActiveTool(tool);
@@ -3649,6 +3661,17 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
   const saveInFlightRef = useRef(false);
   const saveAndExitInFlightRef = useRef(false);
   const workspaceMountedRef = useRef(true);
+  const recoverySessionIdRef = useRef<string | null>(null);
+  const recoveryEnabledRef = useRef(false);
+  const recoveryInitializedRef = useRef(false);
+  const recoveryMeaningfulEffectReadyRef = useRef(false);
+  const recoveryDraftSequenceRef = useRef(0);
+  const recoveryWorkspaceGenerationRef = useRef(0);
+  const recoveryLatestMeaningfulEditAtRef = useRef("");
+  const recoveryFirstPendingAtRef = useRef<number | null>(null);
+  const recoveryTimerRef = useRef<number | null>(null);
+  const recoveryWriteInFlightRef = useRef<Promise<void> | null>(null);
+  const runRecoveryDraftWriteRef = useRef<() => void>(() => undefined);
   const historyEntriesRef = useRef<DrawingWorkspaceHistoryEntry[]>([]);
   const currentHistoryIndexRef = useRef(-1);
   const isApplyingHistoryRef = useRef(false);
@@ -3691,6 +3714,9 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     }
     return () => {
       workspaceMountedRef.current = false;
+      recoveryEnabledRef.current = false;
+      if (recoveryTimerRef.current !== null) window.clearTimeout(recoveryTimerRef.current);
+      recoveryTimerRef.current = null;
       workspaceInstanceIdRef.current = `${workspaceInstanceIdRef.current}-unmounted`;
     };
   }, []);
@@ -7184,6 +7210,176 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     return { ...base, title: projectTitle, auxiliary: { ...base.auxiliary, drawingAiMemory: structuredClone(projectAiMemory), stickAiCreationLatch: structuredClone(base.auxiliary?.stickAiCreationLatch ?? null) }, document, compatibility: { ...base.compatibility, drawingData: compatibilityDrawingData, stickByCell: {}, symbolInstancesByCell: structuredClone(symbolInstancesByCellRef.current) } };
   }, [activeUnifiedProject, canvasBackgroundColor, projectAiMemory, projectTitle]);
 
+  const armRecoveryDraftWrite = useCallback((delayMs: number) => {
+    if (recoveryTimerRef.current !== null) window.clearTimeout(recoveryTimerRef.current);
+    recoveryTimerRef.current = window.setTimeout(() => {
+      recoveryTimerRef.current = null;
+      runRecoveryDraftWriteRef.current();
+    }, Math.max(0, delayMs));
+  }, []);
+
+  const queueRecoveryDraftWrite = useCallback(() => {
+    if (!recoveryInitializedRef.current) return;
+    if (!recoveryEnabledRef.current) return;
+    recoveryDraftSequenceRef.current += 1;
+    recoveryWorkspaceGenerationRef.current += 1;
+    recoveryLatestMeaningfulEditAtRef.current = new Date().toISOString();
+    recoveryFirstPendingAtRef.current ??= performance.now();
+    setProjectRecoveryState("pending");
+    const remainingMaximumWait = Math.max(0, 3_000 - (performance.now() - recoveryFirstPendingAtRef.current));
+    armRecoveryDraftWrite(Math.min(PROJECT_RECOVERY_DEBOUNCE_MS, remainingMaximumWait));
+  }, [armRecoveryDraftWrite]);
+
+  const runRecoveryDraftWrite = useCallback(() => {
+    if (!recoveryEnabledRef.current || !recoverySessionIdRef.current) return;
+    if (
+      saveInFlightRef.current || isTimelinePlayingRef.current ||
+      drawingCanvasRef.current?.hasPendingAuthoringChanges() || recoveryWriteInFlightRef.current
+    ) {
+      armRecoveryDraftWrite(200);
+      return;
+    }
+
+    const draftSequence = recoveryDraftSequenceRef.current;
+    const workspaceGeneration = recoveryWorkspaceGenerationRef.current;
+    const ownerSessionId = recoverySessionIdRef.current;
+    const workspaceInstanceId = workspaceInstanceIdRef.current;
+    const sourceProject = activeUnifiedProject;
+    let candidate: UnifiedAnimationProjectV2;
+    try {
+      candidate = buildUnifiedProjectSnapshot(createPersistedProjectSnapshot({ preserveBitmapReferences: true }));
+    } catch {
+      setProjectRecoveryState("failed");
+      return;
+    }
+
+    setProjectRecoveryState("writing");
+    const write = writeProjectRecoveryDraftV1({
+      candidate,
+      sourceProject,
+      ownerSessionId,
+      workspaceInstanceId,
+      draftSequence,
+      workspaceGeneration,
+      lastMeaningfulEditAt: recoveryLatestMeaningfulEditAtRef.current,
+    }).then(() => {
+      if (!workspaceMountedRef.current || workspaceInstanceIdRef.current !== workspaceInstanceId) return;
+      recoveryFirstPendingAtRef.current = null;
+      setProjectRecoveryState(recoveryDraftSequenceRef.current === draftSequence ? "current" : "pending");
+    }).catch((error: unknown) => {
+      if (!workspaceMountedRef.current || workspaceInstanceIdRef.current !== workspaceInstanceId) return;
+      if (error instanceof Error && ["recovery_conflict", "recovery_stale_sequence"].includes(error.message)) {
+        recoveryEnabledRef.current = false;
+        setProjectRecoveryState("blocked");
+      } else {
+        setProjectRecoveryState("failed");
+      }
+    }).finally(() => {
+      recoveryWriteInFlightRef.current = null;
+      if (recoveryEnabledRef.current && recoveryDraftSequenceRef.current > draftSequence) armRecoveryDraftWrite(PROJECT_RECOVERY_DEBOUNCE_MS);
+    });
+    recoveryWriteInFlightRef.current = write;
+  }, [activeUnifiedProject, armRecoveryDraftWrite, buildUnifiedProjectSnapshot, createPersistedProjectSnapshot]);
+  runRecoveryDraftWriteRef.current = runRecoveryDraftWrite;
+
+  useEffect(() => {
+    let cancelled = false;
+    recoverySessionIdRef.current = getOrCreateProjectRecoverySessionIdV1();
+    void inspectProjectRecoveryDraftV1().then(result => {
+      if (cancelled || !workspaceMountedRef.current) return;
+      recoveryInitializedRef.current = true;
+      if (result.kind === "none") {
+        recoveryEnabledRef.current = true;
+        setProjectRecoveryState("idle");
+        return;
+      }
+      recoveryEnabledRef.current = false;
+      setProjectRecoveryState(result.kind === "valid" ? "blocked" : "unavailable");
+    });
+    return () => { cancelled = true; };
+  }, [queueRecoveryDraftWrite]);
+
+  useEffect(() => {
+    if (!recoveryMeaningfulEffectReadyRef.current) {
+      recoveryMeaningfulEffectReadyRef.current = true;
+      return;
+    }
+    queueRecoveryDraftWrite();
+  }, [canvasBackgroundColor, layers, queueRecoveryDraftWrite, stickByCell, symbolInstancesByCell, timelineFps, unifiedCatalogs]);
+
+  const clearCoveredRecoveryDraft = useCallback(async (
+    candidate: UnifiedAnimationProjectV2,
+    workspaceGeneration: number,
+  ) => {
+    try {
+      if (recoveryWriteInFlightRef.current) await recoveryWriteInFlightRef.current;
+      const ownerSessionId = recoverySessionIdRef.current;
+      if (!ownerSessionId) return true;
+      const candidateDigest = await digestUnifiedProjectV2(candidate);
+      const result = await clearProjectRecoveryDraftV1({
+        ownerSessionId,
+        workspaceInstanceId: workspaceInstanceIdRef.current,
+        workspaceGeneration,
+        candidateDigest,
+      });
+      if (result === "cleared") {
+        recoveryFirstPendingAtRef.current = null;
+        setProjectRecoveryState("idle");
+        return true;
+      }
+      if (result === "newer-draft") {
+        setProjectRecoveryState("pending");
+        return false;
+      }
+      if (result === "not-matched" && recoveryEnabledRef.current) {
+        setProjectRecoveryState("pending");
+        return false;
+      }
+      return true;
+    } catch {
+      setProjectRecoveryState("failed");
+      return false;
+    }
+  }, []);
+
+  const publishAndClearCoveredRecoveryDraft = useCallback(async (
+    candidate: UnifiedAnimationProjectV2,
+    sourceProject: UnifiedAnimationProjectV2,
+    workspaceGeneration: number,
+    capturedDocumentGeneration: number,
+  ) => {
+    if (!recoveryEnabledRef.current || !recoverySessionIdRef.current) return false;
+    if (documentGenerationRef.current !== capturedDocumentGeneration) return false;
+    if (recoveryTimerRef.current !== null) window.clearTimeout(recoveryTimerRef.current);
+    recoveryTimerRef.current = null;
+    if (recoveryWriteInFlightRef.current) await recoveryWriteInFlightRef.current;
+    if (documentGenerationRef.current !== capturedDocumentGeneration) return false;
+
+    const draftSequence = recoveryDraftSequenceRef.current + 1;
+    recoveryDraftSequenceRef.current = draftSequence;
+    setProjectRecoveryState("writing");
+    try {
+      await writeProjectRecoveryDraftV1({
+        candidate,
+        sourceProject,
+        ownerSessionId: recoverySessionIdRef.current,
+        workspaceInstanceId: workspaceInstanceIdRef.current,
+        draftSequence,
+        workspaceGeneration,
+        lastMeaningfulEditAt: recoveryLatestMeaningfulEditAtRef.current,
+      });
+      if (documentGenerationRef.current !== capturedDocumentGeneration) {
+        setProjectRecoveryState("pending");
+        armRecoveryDraftWrite(0);
+        return false;
+      }
+      return await clearCoveredRecoveryDraft(candidate, workspaceGeneration);
+    } catch {
+      setProjectRecoveryState("failed");
+      return false;
+    }
+  }, [armRecoveryDraftWrite, clearCoveredRecoveryDraft]);
+
   const handleUndo = useCallback(() => {
     requireManualEditorCommand("history.undo/v1", "DrawingWorkspace.handleUndo");
     if (isTimelinePlayingRef.current || isApplyingHistoryRef.current || !canUndoHistory) {
@@ -7950,7 +8146,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
   const saveProject = useCallback(async () => {
     requireManualEditorCommand("project.save/v2", "DrawingWorkspace.saveProject");
     if (isTimelinePlayingRef.current || saveInFlightRef.current) {
-      return { officialWriteSucceeded: false, coversCurrentGeneration: false };
+      return { officialWriteSucceeded: false, coversCurrentGeneration: false, recoveryDraftCleared: false };
     }
     const capturedWorkspaceInstanceId = workspaceInstanceIdRef.current;
     saveInFlightRef.current = true; setSaveState("saving");
@@ -7958,31 +8154,45 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       if (!commitCurrentFrameSnapshotWithoutHistory("unified:save")) throw new Error("snapshot_capture_failed");
       const candidate = buildUnifiedProjectSnapshot(createPersistedProjectSnapshot({ preserveBitmapReferences: true }));
       if (!candidate) throw new Error("invalid_record");
+      const recoverySourceProject = activeUnifiedProject;
       const capturedGeneration = documentGenerationRef.current;
+      const capturedRecoveryGeneration = recoveryWorkspaceGenerationRef.current;
       const saved = await saveUnifiedProjectV2(candidate);
       if (!workspaceMountedRef.current || workspaceInstanceIdRef.current !== capturedWorkspaceInstanceId) {
-        return { officialWriteSucceeded: true, coversCurrentGeneration: false };
+        return { officialWriteSucceeded: true, coversCurrentGeneration: false, recoveryDraftCleared: false };
       }
       setActiveUnifiedProject(saved); setProjectId(saved.projectId); setProjectTitle(saved.title);
       setProjectAiMemory(bindDrawingAiProjectMemoryToProject(saved.auxiliary?.drawingAiMemory as DrawingAiProjectMemory | null, saved.projectId));
-      const coversCurrentGeneration = documentGenerationRef.current === capturedGeneration;
+      let coversCurrentGeneration = documentGenerationRef.current === capturedGeneration;
+      let recoveryDraftCleared = coversCurrentGeneration
+        ? await clearCoveredRecoveryDraft(candidate, capturedRecoveryGeneration)
+        : false;
+      if (coversCurrentGeneration && !recoveryDraftCleared) {
+        recoveryDraftCleared = await publishAndClearCoveredRecoveryDraft(
+          candidate,
+          recoverySourceProject,
+          capturedRecoveryGeneration,
+          capturedGeneration,
+        );
+        coversCurrentGeneration = documentGenerationRef.current === capturedGeneration;
+      }
       if (coversCurrentGeneration) { setSaveState("saved"); showSaveNotification(saved.title); }
       else setSaveState("unsaved");
-      return { officialWriteSucceeded: true, coversCurrentGeneration };
+      return { officialWriteSucceeded: true, coversCurrentGeneration, recoveryDraftCleared };
     } catch (error) {
       if (workspaceMountedRef.current && workspaceInstanceIdRef.current === capturedWorkspaceInstanceId) {
         setSaveState(error instanceof Error && ["project_too_large", "collection_too_large", "project_limit_reached"].includes(error.message) ? "too-large" : "failed");
       }
-      return { officialWriteSucceeded: false, coversCurrentGeneration: false };
+      return { officialWriteSucceeded: false, coversCurrentGeneration: false, recoveryDraftCleared: false };
     }
     finally { saveInFlightRef.current = false; }
-  }, [buildUnifiedProjectSnapshot, commitCurrentFrameSnapshotWithoutHistory, createPersistedProjectSnapshot, showSaveNotification]);
+  }, [activeUnifiedProject, buildUnifiedProjectSnapshot, clearCoveredRecoveryDraft, commitCurrentFrameSnapshotWithoutHistory, createPersistedProjectSnapshot, publishAndClearCoveredRecoveryDraft, showSaveNotification]);
 
   const saveAndExit = useCallback(async () => {
     if (!onExit || saveAndExitInFlightRef.current) return;
     saveAndExitInFlightRef.current = true;
     const result = await saveProject();
-    if (result.officialWriteSucceeded && result.coversCurrentGeneration) {
+    if (result.officialWriteSucceeded && result.coversCurrentGeneration && result.recoveryDraftCleared) {
       onExit();
       return;
     }
@@ -8338,12 +8548,15 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     try {
       setSaveState("saving");
       const capturedGeneration = documentGenerationRef.current;
+      const capturedRecoveryGeneration = recoveryWorkspaceGenerationRef.current;
       const saved = await saveUnifiedProjectAsV2(candidate, trimmedProjectName);
       if (!workspaceMountedRef.current || workspaceInstanceIdRef.current !== capturedWorkspaceInstanceId) return;
       setActiveUnifiedProject(saved); setProjectId(saved.projectId); setProjectTitle(saved.title);
       setProjectAiMemory(bindDrawingAiProjectMemoryToProject(saved.auxiliary?.drawingAiMemory as DrawingAiProjectMemory | null, saved.projectId));
-      if (documentGenerationRef.current === capturedGeneration) { setSaveState("saved"); showSaveNotification(saved.title); }
-      else setSaveState("unsaved");
+      if (documentGenerationRef.current === capturedGeneration) {
+        await clearCoveredRecoveryDraft(candidate, capturedRecoveryGeneration);
+        setSaveState("saved"); showSaveNotification(saved.title);
+      } else setSaveState("unsaved");
       setSaveAsDialog(null);
     } catch (error) {
       if (workspaceMountedRef.current && workspaceInstanceIdRef.current === capturedWorkspaceInstanceId) {
@@ -8356,7 +8569,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         } : current);
       }
     } finally { saveInFlightRef.current = false; }
-  }, [buildUnifiedProjectSnapshot, commitCurrentFrameSnapshotWithoutHistory, createPersistedProjectSnapshot, saveAsDialog, showSaveNotification]);
+  }, [buildUnifiedProjectSnapshot, clearCoveredRecoveryDraft, commitCurrentFrameSnapshotWithoutHistory, createPersistedProjectSnapshot, saveAsDialog, showSaveNotification]);
 
   const handleTextObjectsChange = useCallback((nextTextObjects: DrawingTextObject[]) => {
     requireManualEditorCommand("drawing.text.commit/v1", "DrawingWorkspace.handleTextObjectsChange");
@@ -8968,6 +9181,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         onExport={onExport}
         onSaveAndExit={onExit ? saveAndExit : undefined}
         saveState={saveState}
+        recoveryState={projectRecoveryState}
         isLegacyProject={activeUnifiedProject.provenance?.kind === "legacy-adoption" && activeUnifiedProject.provenance.adoptedAt === null}
         onUndo={handleUndo}
         onRedo={handleRedo}

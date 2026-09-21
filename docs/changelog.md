@@ -1,5 +1,11 @@
 # Changelog
 
+### 2026-09-21 — Approve SPEC-0011 and authorize Phase 1 Project Library / My Projects (D-0111)
+
+- Approved the published three-phase SPEC-0011 plan and authorized exactly one fresh Phase 1 Spec Executor after activation-record publication.
+- Preserved Phases 2–3 as Unauthorized/Not started and preserved AI/Terra, editor, Save/recovery, export encoding/destinations/Finder, external/paid services, deployment, and implementation publication unchanged.
+- Changed control-plane lifecycle records only; no runtime, fixture, technical-test, dependency, credential, provider, or app behavior changed.
+
 ### 2026-09-21 — Propose SPEC-0011 My Projects Library, Movie Viewer, and Shared Project Management (D-0110)
 
 - Created the decision-complete three-phase local proposal: real My Projects library/shared player; exact playback-only Movie Viewer with synchronized audio/fullscreen/accessibility; and shared Rename/Duplicate/Delete/Search/Sort across My Projects and Open Project.

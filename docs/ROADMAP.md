@@ -54,13 +54,13 @@ D-0102 adds Proposed [`SPEC-0010 — Project Safety and Recovery`](specs/0010-pr
 
 The recovery draft is not ordinary Save and cannot silently overwrite an official project. GIT-080 publishes the planning package. D-0105/GIT-081 close Phase 1. D-0106/D-0107/GIT-082 `7e7063eaab3c486278355559c490611e3ca590ea` close Phase 2. D-0108/D-0109/GIT-083 `da348337d9329044937b2d27cb76498b743e778f` close Phase 3's startup recovery, isolated recovery ownership, detached-copy protection, confirmed discard and final fault/regression proof. SPEC-0010 is fully closed.
 
-D-0110 adds Proposed [`SPEC-0011 — My Projects Library, Movie Viewer, and Shared Project Management`](specs/0011-my-projects-library-movie-viewer-and-shared-project-management.md) as the next ordered non-AI product work:
+D-0110 adds [`SPEC-0011 — My Projects Library, Movie Viewer, and Shared Project Management`](specs/0011-my-projects-library-movie-viewer-and-shared-project-management.md) as the next ordered non-AI product work; D-0111 approves it and authorizes exactly Phase 1 after activation publication:
 
 1. **Project Library / My Projects** — turn the inert Home action into a real local saved-project library, introduce the shared professional shell, and factor the accepted saved-project evaluator/player into one owner used by Movie Viewer and Export preview.
 2. **Movie Viewer** — finish exact playback-only saved frames/layers/FPS/timing/background/audio, centered contain geometry, seek/fullscreen/keyboard/accessibility, resource cleanup, and the inherited SPEC-0009 geometry-proof reconciliation.
 3. **Shared Management and Polish** — use one repository/command owner for Rename/Duplicate/Delete/Search/Sort in both My Projects and Open Project, with cross-tab/recovery/reference safety and final responsive/accessibility proof.
 
-My Projects watches and Open Project edits. All three phases are Unauthorized/Not started. Proposal approval, activation-record publication, and separate Phase 1 authorization are required before implementation; later phases require full predecessor closeout and separate authorization. No AI/provider/paid work, export encoding change, deployment, or Git publication is authorized by this roadmap entry.
+My Projects watches and Open Project edits. Phase 1 is Authorized/Not started after activation-record publication; Phases 2–3 remain Unauthorized/Not started and require full predecessor closeout plus separate authorization. No AI/provider/paid work, export encoding change, deployment, or implementation publication is authorized by this roadmap entry.
 
 ## Phase 0 — Preserve and Stabilize
 

@@ -3,15 +3,15 @@
 Status: current canonical stopping point
 Last updated: 2026-09-21
 
-All seven SPEC-0006 phases are closed through GIT-061. Drawing-only SPEC-0007 is fully closed through GIT-066. SPEC-0008 Phase 1 is fully closed through GIT-070; D-0093 keeps Phases 2–6 paused as Unauthorized/Not started/not rejected. All three SPEC-0009 phases are fully closed through D-0101/GIT-079, and all three SPEC-0010 phases are fully closed through D-0109/GIT-083. D-0110/SPEC-0011 is proposed with no implementation phase authorized.
+All seven SPEC-0006 phases are closed through GIT-061. Drawing-only SPEC-0007 is fully closed through GIT-066. SPEC-0008 Phase 1 is fully closed through GIT-070; D-0093 keeps Phases 2–6 paused as Unauthorized/Not started/not rejected. All three SPEC-0009 phases are fully closed through D-0101/GIT-079, and all three SPEC-0010 phases are fully closed through D-0109/GIT-083. D-0110/D-0111 make SPEC-0011 Approved/active with Phase 1 Authorized/Not started; Phases 2–3 remain Unauthorized/Not started.
 
-## Current stopping point — SPEC-0011 proposed; implementation not authorized
+## Current stopping point — SPEC-0011 Phase 1 authorized after activation publication
 
-D-0110 and [`SPEC-0011 — My Projects Library, Movie Viewer, and Shared Project Management`](specs/0011-my-projects-library-movie-viewer-and-shared-project-management.md) are the planning-complete next proposal from exact clean canonical-main planning base `788e69826438f56ee648452706ce1f68c07592bc`. The three separately gated phases are: Project Library / My Projects; Movie Viewer; and Shared Management and Polish. My Projects watches; Open Project edits. All phases are **Unauthorized/Not started**.
+D-0110 and [`SPEC-0011 — My Projects Library, Movie Viewer, and Shared Project Management`](specs/0011-my-projects-library-movie-viewer-and-shared-project-management.md) provide the planning-complete three-phase contract. D-0111 records Arthur's explicit approval and authorization of exactly Phase 1 — Project Library / My Projects. Phase 1 is **Authorized/Not started** after this activation record is durably published; Phases 2–3 remain **Unauthorized/Not started**. My Projects watches; Open Project edits.
 
 Fresh trace confirms the Home My Project control is inert, Open Project already uses the real unified collection and sole editor bootstrap, Export already owns the real saved-project evaluator/compositor/player, V2 repository mutation lacks rename/delete, and recovery remains separate. A bounded SPEC-0009 browser-proof check (initial run plus one immediate same-environment confirmation) reported the same inherited frame-3 X-mapping mismatch `0.749406441925578 vs 0.8215350990452878`; Phase 2 must reproduce/reconcile it without weakening accepted geometry tolerance. It is not claimed here as a product regression.
 
-Exact next safe step: review this proposal. If Arthur accepts it, a separate control-plane task may record/publish approval and may authorize exactly Phase 1. Do not start any implementation from this planning task. Do not resume SPEC-0008 Phases 2–6, call providers, spend credits, edit runtime/tests/fixtures, stage, commit, merge, push, deploy, or create a phase executor until the required approval/publication/authorization exists.
+Exact next safe step: publish and synchronize this activation-only control-plane record, then start exactly one fresh dedicated SPEC-0011 Phase 1 Spec Executor from that canonical-main SHA. The executor implements only Phase 1 and stops with a review app, immutable proof manifest, easy human checklist, and full Implementation Review Packet. Do not start Phases 2–3, resume SPEC-0008 Phases 2–6, call providers, spend credits, deploy, or publish implementation bytes.
 
 ## Current stopping point — SPEC-0010 fully closed; ready to choose the next non-AI spec
 

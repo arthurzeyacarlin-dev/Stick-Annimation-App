@@ -1,11 +1,11 @@
 # SPEC-0011 — My Projects Library, Movie Viewer, and Shared Project Management
 
-Status: **Proposed; planning complete; all three phases Unauthorized/Not started**
+Status: **Approved/active; Phase 1 Authorized/Not started; Phases 2–3 Unauthorized/Not started**
 Owner: Arthur
 Task role: three separately gated implementation phases after later explicit phase authorization
 Created: 2026-09-21
 Last updated: 2026-09-21
-Decision links: [D-0110](../DECISIONS.md)
+Decision links: [D-0110](../DECISIONS.md), [D-0111](../DECISIONS.md)
 TODO IDs: `PLAN-011`, `SPEC-011`, `LIBRARY-001`, `VIEWER-001`, `PROJECTS-001`
 Planning base: canonical `main` commit `788e69826438f56ee648452706ce1f68c07592bc`; detached planning worktree, clean index and worktree before planning edits
 Evidence date: 2026-09-21
@@ -24,11 +24,11 @@ This is exactly three separately gated phases:
 
 | Phase | User outcome | Current state |
 | --- | --- | --- |
-| 1 — Project Library / My Projects | The inert Home **My Project** action becomes **My Projects**, opens the professional shared library shell, and selects a real saved project into a centered playback-only modal backed by the accepted saved-project evaluator/player. **Open Project** continues to open the editor. | Unauthorized; Not started |
+| 1 — Project Library / My Projects | The inert Home **My Project** action becomes **My Projects**, opens the professional shared library shell, and selects a real saved project into a centered playback-only modal backed by the accepted saved-project evaluator/player. **Open Project** continues to open the editor. | **Authorized; Not started** |
 | 2 — Movie Viewer | The modal plays the exact saved animation with one authoritative clock, synchronized audio, seek/fullscreen/keyboard/accessible controls, contain geometry, and truthful close behavior. | Unauthorized; Not started |
 | 3 — Shared Management and Polish | Both My Projects and Open Project gain the same Rename/Duplicate/Delete/Search/Sort owner, cross-surface refresh, overflow/context/keyboard routes, safety/concurrency handling, and final responsive/accessibility polish. | Unauthorized; Not started |
 
-No phase authorizes the next. A fresh Spec Executor may implement exactly one phase only after Arthur separately approves this proposal, the activation record is published, and that phase is explicitly authorized. Later phases additionally require the predecessor to be accepted, recorded, published, integrated, synchronized, proof-preserved, and cleaned up.
+No phase authorizes the next. D-0111 records Arthur's approval and explicit authorization of exactly Phase 1 after this activation record is published. Later phases additionally require the predecessor to be accepted, recorded, published, integrated, synchronized, proof-preserved, and cleaned up.
 
 ## 2. Verified current behavior and execution path
 

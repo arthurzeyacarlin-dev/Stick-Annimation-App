@@ -1137,6 +1137,15 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Boundaries: SPEC-0008 Phases 2–6 remain paused under D-0093. No AI Dashboard/Assistant/Finalizer, notification, drawing/timeline, Save/recovery policy, export encoding/destination, cloud/account, provider/paid, deployment, dependency, or Git publication change is authorized.
 - Lifecycle: the proposal is decision-complete but not approved for implementation. Arthur's separate proposal approval, durable activation-record publication, and separate Phase 1 authorization are required. Each later phase requires full predecessor acceptance/control-plane/publication/synchronization/proof-preservation/cleanup plus separate authorization.
 
+### D-0111 — Approve SPEC-0011 and authorize Phase 1 Project Library / My Projects
+
+- Date: 2026-09-21
+- Status: Accepted directly by Arthur; SPEC-0011 Approved/active; Phase 1 Authorized/Not started; Phases 2–3 Unauthorized/Not started
+- Authority: Arthur explicitly instructed the Project Manager to create one brand-new app copy and start one SPEC-0011 Phase 1 Spec Executor, implement everything in Phase 1, monitor it through completion, and stop only for a genuine owner-blocking emergency or a review-ready app with a simple checklist.
+- Phase authorization: after this activation record is committed, pushed, and synchronized, exactly one fresh dedicated Plan-mode Spec Executor may start from that canonical-main SHA and implement only SPEC-0011 Phase 1. The executor must trace the real collection/evaluator/player path, remain inside the Phase 1 runtime/fixture/test/proof boundary, create and independently validate its immutable technical proof manifest, keep the review server running, return the full Implementation Review Packet, and stop.
+- Protected boundaries: no Phase 2 synchronized-audio/fullscreen completion, no Phase 3 Rename/Duplicate/Delete/Search/Sort or Open Project restyling, no AI/Terra/Thinking/Assistant/Finalizer/Dashboard/notification work, no drawing/timeline/onion-skin/editor/Save/recovery/export-encoding/destination/Finder behavior change, no dependency/schema change, no external/provider/paid call, no deployment, and no real AI test. Export may change only through behavior-equivalent shared-player factoring required by Phase 1.
+- Git boundary: the Spec Executor may not edit canonical control-plane files, stage, commit, merge, push, publish, deploy, clean another worktree, or begin another phase. Arthur/PM acceptance, exclusive CPA propagation, later separate publication, synchronization, proof preservation, and D-0054 cleanup remain sequential future gates.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

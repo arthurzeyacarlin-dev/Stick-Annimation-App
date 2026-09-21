@@ -1092,6 +1092,15 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Exact accepted technical paths: `scripts/spec0010-project-safety/phase2BrowserProof.ts`; `phase2Contract.ts`; `phase2GateProof.ts`; `phase2Oracle.ts`; `recordPhase2Proof.ts`; `validatePhase2Proof.ts`; `src/components/workspace/DrawingTopBar.tsx`; `src/components/workspace/DrawingWorkspace.tsx`; `src/lib/animation/projectRecoveryContractV1.ts`; `src/lib/animation/projectRecoveryStorageV1.ts`; `src/lib/animation/unifiedProjectStorageV2.ts`.
 - Boundary: propagation must not change the accepted eleven technical bytes. `.env.local` remains ignored and excluded from publication. Phase 3 startup recovery remains Unauthorized/Not started until Phase 2 is published/integrated/synchronized/proof-preserved/cleaned up and Arthur separately authorizes it.
 
+### D-0107 — Record GIT-082 publication and close SPEC-0010 Phase 2
+
+- Date: 2026-09-21
+- Status: Accepted; published; integrated; synchronized; proof-preserved; cleaned up
+- Publication: GIT-082 is exact 24-path commit `7e7063eaab3c486278355559c490611e3ca590ea`, parent GIT-081 `44cdafc534d7ef096cd2e283532a956c4eaa91f6`, message `Implement SPEC-0010 Phase 2 recovery draft`: the exact eleven accepted technical paths plus thirteen reviewed control-plane/tree paths. Canonical `main`, local `origin/main` and live GitHub `main` matched after the normal push.
+- Preservation: twelve proof files/127,498 bytes are preserved at `/Users/arthurcarlin/Projects/stick-animation-app/output/recovery/GIT-082-spec0010-phase2-7e7063e/`; source and destination directories were byte-identical and share relative checksum-inventory SHA-256 `b5717d6e803df1b2d96741128fd5428b6e6bbd95debc8494841afb375ef84ee7`. `.env.local` and secrets are excluded.
+- Cleanup: PID 99243 was stopped, port 57620 is closed, the obsolete `/c4b5/` accepted review worktree is removed/unregistered, and merged local branch `codex/spec0010-phase2-publication` is deleted. Canonical main, remote refs, recovery evidence and the active Project Manager worktree remain.
+- Consequence: Phase 2 is fully closed. Phase 3 **Recover Work / Discard Draft and final safety proof** has its predecessor gate satisfied and is ready for Arthur's separate authorization, but remains Unauthorized/Not started. This terminal records-only follow-up changes no runtime, fixture, technical-test, proof, dependency, credential, AI, export or recovery behavior.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

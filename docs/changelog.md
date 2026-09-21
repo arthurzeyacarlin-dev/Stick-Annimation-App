@@ -1,5 +1,14 @@
 # Changelog
 
+### 2026-09-21 — Close SPEC-0010 Phase 2 publication and cleanup (D-0107/GIT-082)
+
+- recorded exact 24-path GIT-082 commit `7e7063eaab3c486278355559c490611e3ca590ea`, parent GIT-081 `44cdafc534d7ef096cd2e283532a956c4eaa91f6`, and canonical-main/origin/live-GitHub synchronization after the normal push
+- preserved twelve Phase 2 proof files/127,498 bytes at `output/recovery/GIT-082-spec0010-phase2-7e7063e/`; source and destination were byte-identical at relative checksum-inventory SHA-256 `b5717d6e803df1b2d96741128fd5428b6e6bbd95debc8494841afb375ef84ee7`, excluding `.env.local` and secrets
+- stopped PID 99243, closed port 57620, removed/unregistered only the obsolete `/c4b5/` review worktree, and deleted only merged local branch `codex/spec0010-phase2-publication`
+- closed Phase 2. Phase 3 **Recover Work / Discard Draft and final safety proof** is entry-ready but remains Unauthorized/Not started pending Arthur's separate authorization
+
+This terminal record changes canonical documentation only. No runtime, fixture, technical test, proof, dependency, credential, AI, export or recovery behavior changed.
+
 ### 2026-09-21 — Accept and technically verify corrected SPEC-0010 Phase 2 Emergency Recovery Draft (D-0105/D-0106)
 
 - recorded GIT-081 `44cdafc534d7ef096cd2e283532a956c4eaa91f6` Phase 1 publication/integration, fifteen-file/451,235-byte proof preservation at checksum-inventory SHA-256 `ead373f36b683047df9e011f74708e8bb694b4317ca204c2e9b9a3e6039f20c4`, closed port 57610 and completed D-0054 cleanup; recorded Arthur's later explicit Phase 2 authorization

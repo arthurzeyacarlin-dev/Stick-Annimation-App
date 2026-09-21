@@ -1,11 +1,11 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-21 through D-0106 acceptance and technical verification of corrected SPEC-0010 Phase 2; publication pending.
+Last traced: 2026-09-21 through D-0107/GIT-082 publication/closeout of corrected SPEC-0010 Phase 2.
 
-## SPEC-0010 Project Safety and Recovery architecture — Phase 1 closed; Phase 2 accepted; Phase 3 not implemented
+## SPEC-0010 Project Safety and Recovery architecture — Phases 1–2 closed; Phase 3 not implemented
 
-D-0104 accepts Phase 1's narrow wiring around the existing unified V2 owner without changing the repository's official Save semantics; D-0105/GIT-081 close its publication. D-0106 accepts Phase 2's separate recovery owner: meaningful committed edits schedule a content-addressed V2 candidate into recovery-only IndexedDB, with verified stage/readback/publication, monotonic generation/CAS, previous-valid preservation, one logical latest draft and exact covered-draft clearing. Official V2 heads/versions remain the sole official project owner. Corrected one-click **Save and Exit** coordinates one official Save with the exact pending recovery generation and navigates Home only after safe cleanup; failure/newer edits stay editable.
+D-0104 accepts Phase 1's narrow wiring around the existing unified V2 owner and D-0105/GIT-081 close it. D-0106 accepts Phase 2's separate recovery owner and D-0107/GIT-082 close it: meaningful committed edits schedule a content-addressed V2 candidate into recovery-only IndexedDB, with verified stage/readback/publication, monotonic generation/CAS, previous-valid preservation, one logical latest draft and exact covered-draft clearing. Official V2 heads/versions remain the sole official project owner. Corrected one-click **Save and Exit** coordinates one official Save with the exact pending recovery generation and navigates Home only after safe cleanup; failure/newer edits stay editable.
 
 The three-phase architecture is:
 

@@ -1,11 +1,11 @@
 # SPEC-0010 — Project Safety and Recovery
 
-Status: **Approved; Phase 1 fully closed; Phase 2 accepted and technically Verified, publication authorized/pending; Phase 3 Unauthorized/Not started**
+Status: **Approved; Phases 1–2 fully closed; Phase 3 entry-ready but Unauthorized/Not started**
 Owner: Arthur
 Task role: three separately gated implementation phases after later explicit phase authorization
 Created: 2026-09-21
 Last updated: 2026-09-21
-Decision links: [D-0102](../DECISIONS.md), [D-0103](../DECISIONS.md), [D-0104](../DECISIONS.md), [D-0105](../DECISIONS.md), [D-0106](../DECISIONS.md)
+Decision links: [D-0102](../DECISIONS.md), [D-0103](../DECISIONS.md), [D-0104](../DECISIONS.md), [D-0105](../DECISIONS.md), [D-0106](../DECISIONS.md), [D-0107](../DECISIONS.md)
 TODO IDs: `PLAN-010`, `SPEC-010`, `SAFETY-001`–`SAFETY-003`, `PERSIST-001`
 Planning base: canonical `main` commit `092a96c6a17db1bbb307d21128bed84377eba3e7`; clean index and worktree before planning edits
 Last verified runtime basis: accepted corrected Phase 2 result from exact base/HEAD `44cdafc534d7ef096cd2e283532a956c4eaa91f6`; immutable manifest SHA-256 `444cf4695574a6d7653a628e4a3a2035db3305054d2a76905e73cd3fa0ccc2e2`
@@ -24,8 +24,8 @@ This is exactly three separately gated phases:
 | Phase | User outcome | Current state |
 | --- | --- | --- |
 | 1 — Save and Exit | **File → Save and Exit** uses the existing canonical Save path and returns Home only after successful Save. | Verified; published; integrated; synchronized; proof-preserved; cleaned up |
-| 2 — Emergency Recovery Draft | Meaningful committed edits create one bounded, separate, local latest-draft backup without changing the official project. | Accepted; technically Verified; publication authorized/pending |
-| 3 — Recover Work and Final Safety Proof | Startup offers **Recover Work** or **Discard Draft**, opens only validated recovery data, and closes full save/recovery regressions. | Proposed; Unauthorized; Not started |
+| 2 — Emergency Recovery Draft | Meaningful committed edits create one bounded, separate, local latest-draft backup without changing the official project. | Verified; published; integrated; synchronized; proof-preserved; cleaned up |
+| 3 — Recover Work and Final Safety Proof | Startup offers **Recover Work** or **Discard Draft**, opens only validated recovery data, and closes full save/recovery regressions. | Entry-ready; Unauthorized; Not started |
 
 No phase authorizes the next. A phase requires its own fresh Spec Executor task after its predecessor is accepted, recorded, published, integrated, synchronized, proof-preserved, cleaned up, and Arthur separately authorizes the next phase.
 
@@ -396,8 +396,8 @@ The accepted recovery system owns a separate IndexedDB database, captures only c
 
 Bound proof passed 27 Phase 2 Chrome assertions across eight scenarios, 27 oracle assertions, 18 Phase 2 contract assertions, 17 inherited Phase 1 contract assertions and 29 inherited Phase 1 Chrome assertions, plus TypeScript, focused lint, production build, diff/scope/index and protected workspace regressions. Deterministic proof recorded zero external/provider/AI/paid calls or credit changes. The ignored `.env.local` review correction is excluded from Git; exactly one separately authorized live Terra POST returned naturally with zero console errors and no tracked Terra/Thinking change.
 
-Control-plane propagation changes none of the accepted eleven technical bytes. Phase 2 publication/integration, proof preservation, review-server shutdown and D-0054 cleanup remain pending the already-granted publication step. Phase 3 remains Unauthorized/Not started.
+Control-plane propagation changed none of the accepted eleven technical bytes. D-0107/GIT-082 `7e7063eaab3c486278355559c490611e3ca590ea` close exact 24-path publication/integration, synchronization, twelve-file proof preservation at relative checksum-inventory SHA-256 `b5717d6e803df1b2d96741128fd5428b6e6bbd95debc8494841afb375ef84ee7`, review-server shutdown and D-0054 cleanup. Phase 3 remains Unauthorized/Not started.
 
 ## 13. Final planning handoff
 
-SPEC-0010 Phase 1 is fully closed. Phase 2 is accepted and technically Verified with publication authorized/pending. The next safe action is the already-authorized publication step: stage only the reviewed technical/control-plane paths, commit, fast-forward clean canonical `main`, push, verify clean `0/0`, preserve proof, stop port 57620, and remove only the obsolete review worktree/unused local branch under D-0054. Do not begin Phase 3; it remains Unauthorized/Not started until Phase 2 is fully closed and Arthur separately authorizes it.
+SPEC-0010 Phases 1–2 are fully closed. Phase 3's predecessor gate is satisfied and it is ready for Arthur's separate authorization, but it remains Unauthorized/Not started. Do not begin Phase 3 automatically.

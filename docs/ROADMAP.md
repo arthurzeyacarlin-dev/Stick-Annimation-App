@@ -52,7 +52,7 @@ D-0102 adds Proposed [`SPEC-0010 — Project Safety and Recovery`](specs/0010-pr
 2. One separate local latest emergency recovery draft with bounded, verified replacement.
 3. Startup Recover Work / Discard Draft and complete fault/regression proof.
 
-The recovery draft is not ordinary Save and cannot silently overwrite an official project. GIT-080 publishes the planning package. D-0104 accepts Phase 1 and D-0105/GIT-081 close it at `44cdafc534d7ef096cd2e283532a956c4eaa91f6`. D-0106 accepts and technically verifies Phase 2's exact eleven-path result with publication authorized/pending. Phase 3 remains gated behind complete Phase 2 closeout and separate authorization.
+The recovery draft is not ordinary Save and cannot silently overwrite an official project. GIT-080 publishes the planning package. D-0105/GIT-081 close Phase 1. D-0106 accepts Phase 2 and D-0107/GIT-082 `7e7063eaab3c486278355559c490611e3ca590ea` close publication/integration, proof preservation and D-0054 cleanup. Phase 3's predecessor gate is satisfied, but implementation remains Unauthorized/Not started pending Arthur's separate authorization.
 
 ## Phase 0 — Preserve and Stabilize
 

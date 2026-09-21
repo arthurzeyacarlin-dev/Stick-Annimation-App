@@ -1,9 +1,9 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-21 through D-0112 acceptance and technical verification of SPEC-0011 Phase 1 from base `0169c09cc8dbede616fdf099b31925669ec35f6e`; publication/integration pending.
+Last traced: 2026-09-21 through D-0113/GIT-084 publication, integration, proof preservation and cleanup of SPEC-0011 Phase 1.
 
-## SPEC-0011 project-library and playback architecture — Phase 1 accepted; later phases planned
+## SPEC-0011 project-library and playback architecture — Phase 1 published; later phases planned
 
 D-0112 accepts Phase 1's new My Projects route. `app/page.tsx` replaces the inert singular action with **My Projects**, while **Open Project** continues through `prepareCollectionWorkspace(...)` into the sole `DrawingWorkspace`. `ProjectLibrary` reads `listProjectCollection(createBrowserProjectSourceReader())`, preserves native and all five supported legacy classifications, keeps invalid/protected entries visible, binds exact source locators/digests, and refreshes authoritative local storage. The Phase 1 My Projects surface is watch-only; it creates no official or recovery write.
 
@@ -13,7 +13,7 @@ Phase 2 remains planned and Unauthorized. It owns one monotonic media clock, exa
 
 Phase 3 adds one `ProjectManagementCommandOwner` above the existing V2 repository/storage transaction boundary. Rename is a same-ID metadata-only next revision. Duplicate is the existing new-ID/copy-provenance path and may hydrate a valid read-only legacy source without mutating it. Delete revalidates one exact native head, blocks active-editor/recovery conflicts, deletes only that project/head/versions, and removes only assets proven unreferenced by every remaining official version. `BroadcastChannel` is invalidation only; storage re-read plus lock/CAS remains authoritative. Search/sort is a local presentation transform, not persisted project data.
 
-Phase 3 also remains planned and Unauthorized. No Rename/Duplicate/Delete/Search/Sort implementation exists yet. A bounded check of the inherited SPEC-0009 geometry proof reported the same frame-3 X mapping `0.749406441925578` versus `0.8215350990452878`; this remains an unresolved Phase 2 entry/proof gate, not a confirmed Phase 1 regression. Phase 1 publication/integration is pending.
+Phase 3 also remains planned and Unauthorized. No Rename/Duplicate/Delete/Search/Sort implementation exists yet. A bounded check of the inherited SPEC-0009 geometry proof reported the same frame-3 X mapping `0.749406441925578` versus `0.8215350990452878`; this remains an unresolved Phase 2 entry/proof gate, not a confirmed Phase 1 regression. D-0113/GIT-084 fully close Phase 1; Phase 2 remains Unauthorized/Not started pending Arthur's separate authorization.
 
 ## SPEC-0010 Project Safety and Recovery architecture — all three phases closed
 

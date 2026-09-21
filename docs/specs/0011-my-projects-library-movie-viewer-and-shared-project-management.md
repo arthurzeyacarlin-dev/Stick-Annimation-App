@@ -1,11 +1,11 @@
 # SPEC-0011 — My Projects Library, Movie Viewer, and Shared Project Management
 
-Status: **Approved/active; Phase 1 Accepted/technically Verified after control-plane propagation; publication/integration pending; Phases 2–3 Unauthorized/Not started**
+Status: **Approved/active; Phase 1 Verified/published/integrated/synchronized/proof-preserved/cleaned up; Phases 2–3 Unauthorized/Not started**
 Owner: Arthur
 Task role: three separately gated implementation phases after later explicit phase authorization
 Created: 2026-09-21
 Last updated: 2026-09-21
-Decision links: [D-0110](../DECISIONS.md), [D-0111](../DECISIONS.md), [D-0112](../DECISIONS.md)
+Decision links: [D-0110](../DECISIONS.md), [D-0111](../DECISIONS.md), [D-0112](../DECISIONS.md), [D-0113](../DECISIONS.md)
 TODO IDs: `PLAN-011`, `SPEC-011`, `LIBRARY-001`, `GIT-084`, `VIEWER-001`, `PROJECTS-001`
 Planning base: canonical `main` commit `788e69826438f56ee648452706ce1f68c07592bc`; detached planning worktree, clean index and worktree before planning edits
 Evidence date: 2026-09-21
@@ -24,11 +24,11 @@ This is exactly three separately gated phases:
 
 | Phase | User outcome | Current state |
 | --- | --- | --- |
-| 1 — Project Library / My Projects | The inert Home **My Project** action becomes **My Projects**, opens the professional shared library shell, and selects a real saved project into a centered playback-only modal backed by the accepted saved-project evaluator/player. **Open Project** continues to open the editor. | **Accepted/technically Verified; control-plane propagated; publication/integration pending** |
+| 1 — Project Library / My Projects | The inert Home **My Project** action becomes **My Projects**, opens the professional shared library shell, and selects a real saved project into a centered playback-only modal backed by the accepted saved-project evaluator/player. **Open Project** continues to open the editor. | **Verified/published/integrated/synchronized/proof-preserved/cleaned up** |
 | 2 — Movie Viewer | The modal plays the exact saved animation with one authoritative clock, synchronized audio, seek/fullscreen/keyboard/accessible controls, contain geometry, and truthful close behavior. | Unauthorized; Not started |
 | 3 — Shared Management and Polish | Both My Projects and Open Project gain the same Rename/Duplicate/Delete/Search/Sort owner, cross-surface refresh, overflow/context/keyboard routes, safety/concurrency handling, and final responsive/accessibility polish. | Unauthorized; Not started |
 
-No phase authorizes the next. D-0112 records Arthur's acceptance and technical verification of Phase 1. Its publication/integration, proof preservation and cleanup remain pending. Later phases additionally require the predecessor to be accepted, recorded, published, integrated, synchronized, proof-preserved, and cleaned up.
+No phase authorizes the next. D-0112 records Arthur's acceptance and technical verification of Phase 1; D-0113/GIT-084 close its publication, preservation and cleanup lifecycle. Phase 2's predecessor gate is satisfied, but Phase 2 and Phase 3 remain Unauthorized/Not started and require separate explicit authorization.
 
 ## 2. Verified pre-Phase-1 behavior and execution path
 
@@ -288,7 +288,7 @@ Measured first usable list/viewer frame were 101.824875/126.470333 ms; seek ackn
 
 The accepted implementation delivers the plural Home action, real local library, truthful states, deterministic earliest-visible-frame posters, selection revalidation, centered playback-only modal, shared player owner, focus/scroll restoration and unchanged editor/Export ownership. Phase 1 does not claim fullscreen, synchronized audio or comprehensive Phase 2 accessibility/resource completion; those remain Phase 2. It also does not implement Phase 3 management. Physical-device/non-Chromium behavior and a fully hydrated 64-project collection remain unproven. The inherited SPEC-0009 frame-3 mismatch remains the Phase 2 gate recorded in §2.5.
 
-The Control Plane Architect changed no accepted technical byte, immutable manifest byte, or manifest-bound source/evidence/receipt artifact. Strict pre-propagation validation refreshed only its ignored mutable `validation.json` receipt. Publication/integration, proof preservation, review-server shutdown and D-0054 cleanup are explicitly authorized but pending the separate publication turn. Phase 2 and Phase 3 remain Unauthorized/Not started.
+The Control Plane Architect changed no accepted technical byte, immutable manifest byte, or manifest-bound source/evidence/receipt artifact. D-0113/GIT-084 publish exact 29-path commit `9a3c5733da8080e09ec93129285ec97a7aebc039`, preserve the 22-file proof at relative inventory SHA-256 `e2fc1d2fa98bcae461a59e9750a4eb104436bbbec5c7fb2e56a5fac4d9ba5d47`, stop port 57680 and complete D-0054 worktree/branch cleanup. Phase 1 is fully closed. Phase 2 and Phase 3 remain Unauthorized/Not started.
 
 ## 7. Phase 2 — Movie Viewer
 
@@ -622,7 +622,7 @@ For each phase:
 7. Only a later explicit publication instruction permits exact staging, commit, clean fast-forward integration to canonical `main`, normal push, clean `0/0` synchronization, proof preservation, server stop, and D-0054 worktree/branch cleanup.
 8. The next phase requires separate authorization after all prior closeout steps complete.
 
-The accepted Phase 1 result and D-0112 authorize only its already-separated propagation and publication lifecycle. They authorize no Phase 2/3 implementation, external/paid operation, provider call or deployment.
+The Phase 1 lifecycle is fully closed under D-0113/GIT-084. No Phase 2/3 implementation, external/paid operation, provider call or deployment is authorized by that closeout.
 
 ## 14. Decision-completeness record
 
@@ -641,4 +641,4 @@ Resolved by D-0110 and this spec:
 - Search/sort, overflow/context/keyboard, concurrency, local-only/security, performance, proof, and lifecycle gates are fixed.
 - The observed SPEC-0009 replay mismatch is an unresolved Phase 2 entry/proof gate, not a claimed product regression.
 
-Phase 1 is accepted and technically Verified with publication/integration pending. Phase 2 and Phase 3 still require their own explicit authorization after complete predecessor closeout.
+Phase 1 is Verified, published, integrated, synchronized, proof-preserved and cleaned up. Phase 2's predecessor gate is satisfied; Phase 2 and Phase 3 still require their own explicit authorization.

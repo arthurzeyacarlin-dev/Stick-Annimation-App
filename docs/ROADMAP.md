@@ -11,7 +11,7 @@ Last updated: 2026-09-21
 - Paid AI calls, remote writes, deployment, and baseline commits require task-specific authorization.
 - The roadmap may change when Arthur resolves pending decisions or new evidence changes the risk order.
 
-## Current owner sequence — 2026-09-21 (SPEC-0011 Phase 1 accepted; publication pending)
+## Current owner sequence — 2026-09-21 (SPEC-0011 Phase 1 fully closed through GIT-084)
 
 All seven SPEC-0006 phases are Verified/published/integrated through GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`. The immutable 50,224-byte Phase 7 manifest is PASS/VALID at SHA-256 `c6202f6deab4d3bcc75af3ad6699fc2dc70fc58723eccaa8337b1a2aef74bc51`, with exactly 11 source and 16 evidence bindings.
 
@@ -60,7 +60,7 @@ D-0110 adds [`SPEC-0011 — My Projects Library, Movie Viewer, and Shared Projec
 2. **Movie Viewer** — finish exact playback-only saved frames/layers/FPS/timing/background/audio, centered contain geometry, seek/fullscreen/keyboard/accessibility, resource cleanup, and the inherited SPEC-0009 geometry-proof reconciliation.
 3. **Shared Management and Polish** — use one repository/command owner for Rename/Duplicate/Delete/Search/Sort in both My Projects and Open Project, with cross-tab/recovery/reference safety and final responsive/accessibility proof.
 
-My Projects watches and Open Project edits. D-0112 accepts and technically verifies Phase 1 after Arthur's visible PASS: the real local library, deterministic posters, revalidated playback-only modal, and shared player owner are complete in the review worktree. Fullscreen and synchronized audio remain Phase 2 by design. Phase 1 publication/integration, proof preservation and D-0054 cleanup are pending the already-authorized separate publication turn; Phases 2–3 remain Unauthorized/Not started and require full predecessor closeout plus separate authorization. No AI/provider/paid work, export encoding change or deployment is authorized by this roadmap entry.
+My Projects watches and Open Project edits. D-0112 accepts Phase 1; D-0113/GIT-084 publish, integrate, synchronize, preserve proof and complete D-0054 cleanup in exact commit `9a3c5733da8080e09ec93129285ec97a7aebc039`. Phase 1 is fully closed. Fullscreen and synchronized audio remain Phase 2 by design. Phase 2 now has its predecessor gate satisfied but remains Unauthorized/Not started pending Arthur's separate authorization; Phase 3 also remains Unauthorized/Not started. No AI/provider/paid work, export encoding change or deployment is authorized by this roadmap entry.
 
 ## Phase 0 — Preserve and Stabilize
 

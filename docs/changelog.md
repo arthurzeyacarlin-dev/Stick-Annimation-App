@@ -1,5 +1,13 @@
 # Changelog
 
+### 2026-09-21 — Close SPEC-0011 Phase 1 publication and cleanup (D-0113/GIT-084)
+
+- Published the exact 15 accepted technical plus 14 reviewed control-plane/tree paths in commit `9a3c5733da8080e09ec93129285ec97a7aebc039`, parent `0169c09cc8dbede616fdf099b31925669ec35f6e`, message `Complete SPEC-0011 Phase 1 project library`.
+- Fast-forwarded clean canonical `main`, pushed normally, and verified canonical `main`, `origin/main` and live GitHub `main` equal at clean `0/0`.
+- Preserved 22 proof files/905,940 bytes at `output/recovery/GIT-084-spec0011-phase1-9a3c573/phase-1`; relative inventory SHA-256 is `e2fc1d2fa98bcae461a59e9750a4eb104436bbbec5c7fb2e56a5fac4d9ba5d47`. `.env.local` and secrets are excluded.
+- Stopped review process parent PID 13851/listener PID 13866, verified port 57680 closed, removed/unregistered only the obsolete `/3301/` review worktree, and deleted only merged local branch `codex/spec0011-phase1-publication`.
+- Phase 1 is fully closed. Phase 2 is predecessor-ready but remains Unauthorized/Not started pending Arthur's separate authorization; Phase 3 remains Unauthorized/Not started. No technical, AI/provider, paid, deployment or later-phase byte changed in this records-only closeout.
+
 ### 2026-09-21 — Accept and technically verify SPEC-0011 Phase 1 Project Library / My Projects (D-0112)
 
 - Recorded Arthur's visible PASS for the real **My Projects** library, deterministic posters, selection-revalidated playback-only modal, focus/scroll restoration, and preserved **Open Project** editor route. Fullscreen and synchronized audio remain Phase 2 by design.

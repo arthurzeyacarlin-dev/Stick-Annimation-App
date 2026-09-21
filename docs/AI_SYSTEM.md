@@ -1,7 +1,7 @@
 # AI System Snapshot
 
 Status: canonical current AI architecture and gap map
-Last traced: 2026-09-21 through D-0112 acceptance and technical verification of SPEC-0011 Phase 1. Publication/integration remains pending. SPEC-0008 Phase 1 is fully closed; Phases 2–6 are paused, Unauthorized, Not started and not rejected. All three SPEC-0009 phases are fully closed.
+Last traced: 2026-09-21 through D-0113/GIT-084 publication, integration, proof preservation and cleanup of SPEC-0011 Phase 1. SPEC-0008 Phase 1 is fully closed; Phases 2–6 are paused, Unauthorized, Not started and not rejected. All three SPEC-0009 phases are fully closed.
 
 ## Paused SPEC-0008 transition (D-0085–D-0093)
 
@@ -33,9 +33,9 @@ Accepted Phase 2 export makes zero OpenAI, Terra, provider, search, social, anal
 
 Published Phase 3 adds only local destination labels, dated guidance, validated output geometry and final export proof. It makes zero runtime platform lookup, external request, OpenAI/Terra/provider/paid call, credit change, upload or deployment. Terra source remains byte-unchanged; the no-cost double passed, and one separate Low live smoke returned `Terra connected.` after the ignored server-only environment was restored. Original preserves the saved shape; the other destination buttons prepare local shapes only and never communicate with a social service. D-0101/GIT-079 record final synchronization, proof preservation and cleanup.
 
-## SPEC-0011 Phase 1 AI boundary — accepted; publication pending
+## SPEC-0011 Phase 1 AI boundary — published and closed
 
-D-0112 accepts the local Project Library / My Projects result. The exact 15-path implementation factors the existing deterministic saved-project evaluator/compositor/player into shared library and Export consumers, but changes no OpenAI/Terra source, model, reasoning, prompt, job, transcript, credit, provider, or deployment behavior. Bound browser proof recorded zero AI/provider/external requests, zero credit changes, and zero official/recovery writes. Arthur separately confirmed during review that Terra remains connected; this Phase 1 task made no new live provider call and does not claim one. Phases 2–3 remain Unauthorized/Not started.
+D-0112 accepts the local Project Library / My Projects result; D-0113/GIT-084 publish and close it. The exact 15-path implementation factors the existing deterministic saved-project evaluator/compositor/player into shared library and Export consumers, but changes no OpenAI/Terra source, model, reasoning, prompt, job, transcript, credit, provider, or deployment behavior. Bound browser proof recorded zero AI/provider/external requests, zero credit changes, and zero official/recovery writes. Arthur separately confirmed during review that Terra remains connected; this phase made no new live provider call and does not claim one. Phases 2–3 remain Unauthorized/Not started.
 
 ## What Exists Today
 

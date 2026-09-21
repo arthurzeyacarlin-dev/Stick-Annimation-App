@@ -1159,6 +1159,17 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Honest limits: Phase 1 does not implement fullscreen, synchronized audio or the complete Phase 2 accessibility/resource contract; it does not implement Phase 3 Rename/Duplicate/Delete/Search/Sort. Physical-device and non-Chromium behavior, plus a full 64-project all-snapshots-hydrated run, remain unproven. The inherited SPEC-0009 `0.749406441925578` versus `0.8215350990452878` frame-3 mismatch remains a Phase 2 reproduce/reconcile gate, not a Phase 1 regression.
 - Lifecycle: the reviewed control-plane/tree paths are `docs/00_MASTER_PROJECT.md`; `docs/AI_SYSTEM.md`; `docs/CURRENT_STATE.md`; `docs/DECISIONS.md`; `docs/PROJECT_MANAGER_CONTEXT.md`; `docs/ROADMAP.md`; `docs/SESSION_HANDOFF.md`; `docs/TODO.md`; `docs/architecture.md`; `docs/changelog.md`; `docs/specs/0011-my-projects-library-movie-viewer-and-shared-project-management.md`; `docs/specs/README.md`; `docs/testing_workflow.md`; and `project/project_structure.txt`. The later publication turn is limited to those 14 plus the exact 15 technical paths, preserves the proof, stops PID 13866/port 57680 only after successful synchronization, and performs D-0054 cleanup. Phases 2–3 remain Unauthorized/Not started.
 
+### D-0113 — Close SPEC-0011 Phase 1 publication, preservation, and D-0054 cleanup
+
+- Date: 2026-09-21
+- Status: Accepted; Verified; published; integrated; synchronized; proof-preserved; cleaned up
+- Publication: GIT-084 is exact 29-path commit `9a3c5733da8080e09ec93129285ec97a7aebc039`, parent `0169c09cc8dbede616fdf099b31925669ec35f6e`, message `Complete SPEC-0011 Phase 1 project library`: the exact 15 accepted technical paths plus 14 reviewed control-plane/tree paths.
+- Synchronization: clean canonical `main` fast-forwarded normally, the push was non-force, and canonical `main`, `origin/main` and live GitHub `main` were verified equal at GIT-084 with `0/0` divergence before this records-only closeout.
+- Preservation: 22 proof files/905,940 bytes are preserved at `output/recovery/GIT-084-spec0011-phase1-9a3c573/phase-1`; source and destination files are byte-identical and the relative checksum inventory SHA-256 is `e2fc1d2fa98bcae461a59e9750a4eb104436bbbec5c7fb2e56a5fac4d9ba5d47`. The immutable manifest remains SHA-256 `69a169bdd7d7ee96b82d61699b56e1d28f55f4dfeaa0c8614127e4153c0539b6`. `.env.local` and secrets are excluded.
+- Cleanup: review process parent PID 13851 and listener PID 13866 are stopped, port 57680 is closed, the obsolete `/Users/arthurcarlin/.codex/worktrees/3301/stick-animation-app` worktree is absent/unregistered, and merged local branch `codex/spec0011-phase1-publication` is deleted. Canonical main, remote refs, recovery evidence, the active Project Manager worktree and unrelated `/7d98/` remain.
+- Boundaries: this records-only closeout changes no accepted runtime, fixture, technical-test or proof byte; no AI/provider/paid call, dependency/schema change, deployment, Phase 2/3 code or SPEC-0008 resumption occurred. Its own terminal-record commit SHA must be read directly from Git.
+- Consequence: SPEC-0011 Phase 1 is fully closed. Phase 2's predecessor gate is satisfied and it is ready for Arthur's separate authorization, but remains Unauthorized/Not started. Phase 3 also remains Unauthorized/Not started.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

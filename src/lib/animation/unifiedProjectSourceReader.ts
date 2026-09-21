@@ -17,6 +17,8 @@ export type ProjectSource = {
   updatedAt: string | null;
   error?: string;
   canonicalAdoptionKey?: string | null;
+  canonicalRevision?: number | null;
+  canonicalDigest?: string | null;
   read: () => Promise<ProjectSourcePayload>;
 };
 export type ProjectSourceReader = { list: () => Promise<ProjectSource[]> };
@@ -55,6 +57,8 @@ export const createBrowserProjectSourceReader = (): ProjectSourceReader => ({
       for (const head of await listUnifiedProjectHeadsV2()) sources.push({
         locator: `unified-v2:${head.projectId}`, sourceKind: "unified-v2", sourceId: head.projectId,
         title: head.title, updatedAt: head.updatedAt,
+        canonicalRevision: head.activeRevision,
+        canonicalDigest: head.projectDigest,
         canonicalAdoptionKey: head.provenance?.kind === "legacy-adoption" && head.provenance.adoptedAt
           ? `${head.provenance.sourceKind}:${head.provenance.sourceProjectId}:${head.provenance.sourceRecordDigest}`
           : null,

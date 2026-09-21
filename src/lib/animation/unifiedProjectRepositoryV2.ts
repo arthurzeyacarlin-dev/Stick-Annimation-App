@@ -1,6 +1,7 @@
 import type { UnifiedAnimationProjectV2 } from "./unifiedAnimationContractV2";
 import {
   digestUnifiedProjectV2,
+  deleteUnifiedProjectV2,
   readUnifiedProjectV2,
   writeUnifiedProjectV2,
 } from "./unifiedProjectStorageV2.ts";
@@ -10,12 +11,20 @@ import { bindDrawingAiProjectMemoryToProject } from "../ai/drawingAiProjectMemor
 type UnifiedRepositoryStorageV2 = {
   read: (projectId: string) => Promise<UnifiedAnimationProjectV2>;
   write: (project: UnifiedAnimationProjectV2, expectedRevision: number | null) => Promise<UnifiedAnimationProjectV2>;
+  deleteProject?: (projectId: string, expectedRevision: number, expectedDigest: string) => Promise<{ projectId: string; deletedAssetIds: string[] }>;
 };
 
 export type UnifiedProjectRepositoryOptionsV2 = {
   now?: () => string;
   createId?: () => string;
   storage?: UnifiedRepositoryStorageV2;
+};
+
+export const UNIFIED_PROJECT_EDITOR_IDENTITY_EVENT_V2 = "diamond-animation-project-editor-identity-v2";
+
+const announceEditorProjectIdentity = (project: UnifiedAnimationProjectV2) => {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent(UNIFIED_PROJECT_EDITOR_IDENTITY_EVENT_V2, { detail: { projectId: project.projectId } }));
 };
 
 const sanitizeTitle = (title: string) => title.trim() || "Untitled Project";
@@ -36,7 +45,7 @@ const rebindProject = (project: UnifiedAnimationProjectV2, projectId: string): U
 export const createUnifiedProjectRepositoryV2 = (options: UnifiedProjectRepositoryOptionsV2 = {}) => {
   const now = options.now ?? (() => new Date().toISOString());
   const createId = options.createId ?? (() => crypto.randomUUID());
-  const storage = options.storage ?? { read: readUnifiedProjectV2, write: writeUnifiedProjectV2 };
+  const storage = options.storage ?? { read: readUnifiedProjectV2, write: writeUnifiedProjectV2, deleteProject: deleteUnifiedProjectV2 };
 
   return {
     async save(project: UnifiedAnimationProjectV2) {
@@ -76,12 +85,35 @@ export const createUnifiedProjectRepositoryV2 = (options: UnifiedProjectReposito
       return storage.write(candidate, null);
     },
 
+    async rename(projectId: string, expectedRevision: number, expectedDigest: string, title: string) {
+      const current = await storage.read(projectId);
+      if (current.revision !== expectedRevision || await digestUnifiedProjectV2(current) !== expectedDigest) throw new Error("stale_revision");
+      const candidate = structuredClone(current);
+      candidate.title = title;
+      candidate.updatedAt = now();
+      candidate.revision = current.revision + 1;
+      return storage.write(candidate, expectedRevision);
+    },
+
+    async deleteProject(projectId: string, expectedRevision: number, expectedDigest: string) {
+      if (!storage.deleteProject) throw new Error("storage_write_failed");
+      return storage.deleteProject(projectId, expectedRevision, expectedDigest);
+    },
+
     open: storage.read,
   };
 };
 
 const browserRepository = () => createUnifiedProjectRepositoryV2();
 
-export const saveUnifiedProjectV2 = (project: UnifiedAnimationProjectV2) => browserRepository().save(project);
-export const saveUnifiedProjectAsV2 = (project: UnifiedAnimationProjectV2, title: string) => browserRepository().saveAs(project, title);
+export const saveUnifiedProjectV2 = async (project: UnifiedAnimationProjectV2) => {
+  const saved = await browserRepository().save(project);
+  announceEditorProjectIdentity(saved);
+  return saved;
+};
+export const saveUnifiedProjectAsV2 = async (project: UnifiedAnimationProjectV2, title: string) => {
+  const saved = await browserRepository().saveAs(project, title);
+  announceEditorProjectIdentity(saved);
+  return saved;
+};
 export const openUnifiedProjectV2 = readUnifiedProjectV2;

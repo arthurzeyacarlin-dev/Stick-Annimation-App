@@ -1,5 +1,14 @@
 # Changelog
 
+### 2026-09-22 — Accept and technically verify SPEC-0011 Phase 3 Shared Management and Polish (D-0118)
+
+- Recorded Arthur's PASS and sequential Control Plane Architect ownership of the stopped exact 14-path result from detached base/HEAD/main/origin-main `b57ff995df9bb351dacb9a6a79b8cbd23203e988`, with an empty index.
+- Bound immutable 46,868-byte `output/spec-0011/phase-3/proof-manifest.json` at SHA-256 `92ae122c227a36fd8a637b1922b1bca139224be4caf0e42d3a147f2a43147aaa`, source digest `05ee661120e7751658b9ea2e5269c7cc1cbc666645568af1db7b1ff1f08074d1`; fresh validation passed 18 assertions and rejected 12 material mutation classes.
+- Accepted one shared My Projects/Open Project command owner, local search/four sorts, native metadata-only rename, native-or-valid-legacy Save As duplication, exact native deletion with viewer/editor/recovery/shared-asset safety, Web Locks/heartbeat leases/CAS and authoritative invalidation rereads.
+- Recorded 31 oracle assertions and 47 real-Chromium assertions across nine flows/four screenshots, keyboard/context/dialog/focus/accessibility proof, 64-project and p95 performance results, TypeScript/focused lint/focused build and Phase 1/2 regressions. Deterministic external/provider/AI/paid requests were zero; the inherited untouched full-build dev AI-cost typing failure remains.
+- Preserved Movie Viewer/player/audio/fullscreen/geometry, editor/timeline/onion/manual commands, Save/Save As/Save and Exit, recovery policy, legacy sources, Export, dependencies/schema, credentials/environment, AI/Terra/Thinking, deployment and paused SPEC-0008 unchanged. Physical devices and non-Chromium remain unproven.
+- Propagated canonical records only. GIT-088 publication/integration, proof preservation, review PID 32270/port 57840 shutdown and D-0054 cleanup remain pending a separate publication turn. Nothing was staged, committed, merged, pushed or deployed.
+
 ### 2026-09-21 — Authorize SPEC-0011 Phase 3 Shared Management and Polish (D-0117/GIT-087)
 
 - Recorded Arthur's explicit authorization to publish the Phase 3 activation and, only after clean synchronization, start exactly one fresh dedicated Plan-mode Phase 3 Spec Executor from the exact GIT-087 SHA.

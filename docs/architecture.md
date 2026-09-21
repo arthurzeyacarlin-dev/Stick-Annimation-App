@@ -1,9 +1,9 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-21 through D-0117/GIT-087 control-plane-only authorization of SPEC-0011 Phase 3; no runtime architecture changed.
+Last traced: 2026-09-22 through D-0118 acceptance and technical verification of SPEC-0011 Phase 3; publication/integration pending.
 
-## SPEC-0011 project-library and playback architecture — Phases 1–2 closed; Phase 3 authorized/not started
+## SPEC-0011 project-library and playback architecture — all three phases accepted/Verified; Phase 3 publication pending
 
 D-0112 accepts Phase 1's new My Projects route. `app/page.tsx` replaces the inert singular action with **My Projects**, while **Open Project** continues through `prepareCollectionWorkspace(...)` into the sole `DrawingWorkspace`. `ProjectLibrary` reads `listProjectCollection(createBrowserProjectSourceReader())`, preserves native and all five supported legacy classifications, keeps invalid/protected entries visible, binds exact source locators/digests, and refreshes authoritative local storage. The Phase 1 My Projects surface is watch-only; it creates no official or recovery write.
 
@@ -15,9 +15,9 @@ The inherited SPEC-0009 frame-3 mismatch was stale proof math: its independent X
 
 The accepted focused-build correction includes both `app/page.tsx` and `app/api/ai-animator/route.ts`, and `DrawingAiPanel` now fails safely when POST/GET/DELETE responses are not JSON. The route, provider service, fixed Terra model, prompts, reasoning, jobs/tools, transcript/mutation behavior and Thinking gradient remain unchanged. This is a reachability/error-boundary correction, not new AI capability.
 
-Phase 3 adds one `ProjectManagementCommandOwner` above the existing V2 repository/storage transaction boundary. Rename is a same-ID metadata-only next revision. Duplicate is the existing new-ID/copy-provenance path and may hydrate a valid read-only legacy source without mutating it. Delete revalidates one exact native head, blocks active-editor/recovery conflicts, deletes only that project/head/versions, and removes only assets proven unreferenced by every remaining official version. `BroadcastChannel` is invalidation only; storage re-read plus lock/CAS remains authoritative. Search/sort is a local presentation transform, not persisted project data.
+Accepted Phase 3 adds one `ProjectManagementCommandOwner` above the existing V2 repository/storage transaction boundary. Rename is a same-ID metadata-only next revision. Duplicate is the existing new-ID/copy-provenance Save As path and may hydrate a valid read-only legacy source without mutating it. Delete revalidates one exact native head/revision/digest, blocks active viewer/editor/recovery conflicts, deletes only that project/head/versions, and removes only assets proven unreferenced by every remaining official version. Web Locks plus localStorage heartbeat leases serialize ownership and the editor lease follows Save/Save As identity. `BroadcastChannel` and storage events are invalidation only; authoritative storage re-read plus lock/CAS decides state. Search/sort is a local presentation transform, not persisted project data.
 
-Phase 3 is Authorized/Not started under D-0117/GIT-087. No Rename/Duplicate/Delete/Search/Sort implementation exists yet, and this activation changes no runtime architecture. The fresh executor must preserve the repository/storage/recovery/legacy/player/editor/Export ownership boundaries above while adding the single command owner and required local presentation/concurrency behavior. D-0113/GIT-084 fully close Phase 1; D-0115 accepts and technically verifies Phase 2 at immutable manifest SHA-256 `ddf3b9acbbe5395d92bdeea0c09da9b8dbcfef3bae38c3e1593ee1220a79823d`; D-0116/GIT-086 `faf2965cb51d47ebcd2b68c9378db8a39486915d` publish/integrate/synchronize that result, preserve proof, stop the review server and complete D-0054 cleanup.
+D-0118 accepts and technically verifies Phase 3's exact 14-path implementation from base/HEAD `b57ff995df9bb351dacb9a6a79b8cbd23203e988`. Immutable manifest SHA-256 is `92ae122c227a36fd8a637b1922b1bca139224be4caf0e42d3a147f2a43147aaa`, source digest `05ee661120e7751658b9ea2e5269c7cc1cbc666645568af1db7b1ff1f08074d1`. Both library surfaces use the same authoritative shell and command owner with visible/context/keyboard routes and Watch-versus-Edit distinction. Player, editor, recovery policy, Save/Save As semantics, Export and AI/Terra architecture remain unchanged. GIT-088 publication/integration and cleanup remain pending.
 
 ## SPEC-0010 Project Safety and Recovery architecture — all three phases closed
 

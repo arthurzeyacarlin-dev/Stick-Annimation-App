@@ -527,10 +527,14 @@
 ./scripts/spec0011-project-library/phase2BrowserProof.ts
 ./scripts/spec0011-project-library/phase2BuildGate.ts
 ./scripts/spec0011-project-library/phase2Oracle.ts
+./scripts/spec0011-project-library/phase3BrowserProof.ts
+./scripts/spec0011-project-library/phase3Oracle.ts
 ./scripts/spec0011-project-library/recordPhase1Proof.ts
 ./scripts/spec0011-project-library/recordPhase2Proof.ts
+./scripts/spec0011-project-library/recordPhase3Proof.ts
 ./scripts/spec0011-project-library/validatePhase1Proof.ts
 ./scripts/spec0011-project-library/validatePhase2Proof.ts
+./scripts/spec0011-project-library/validatePhase3Proof.ts
 ./scripts/sync_docs_to_github.sh
 ./scripts/traceExplosionLivePath.ts
 ./scripts/traceGenerateSoundsLivePath.mjs
@@ -680,6 +684,7 @@
 ./src/lib/animation/unifiedDrawingRenderAdapter.ts
 ./src/lib/animation/unifiedProjectCatalogV2.ts
 ./src/lib/animation/unifiedProjectCollection.ts
+./src/lib/animation/unifiedProjectManagementV2.ts
 ./src/lib/animation/unifiedProjectRepositoryV2.ts
 ./src/lib/animation/unifiedProjectSourceReader.ts
 ./src/lib/animation/unifiedProjectStorageV2.ts

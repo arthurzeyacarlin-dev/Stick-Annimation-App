@@ -12,6 +12,7 @@ export type ProjectCollectionEntry = {
   sourceId: string;
   sourceDigest: string | null;
   candidateDigest: string | null;
+  sourceRevision?: number | null;
   error: string | null;
   protectedSource: boolean;
   provenanceKey: string | null;
@@ -52,7 +53,8 @@ export const listProjectCollection = async (reader: ProjectSourceReader): Promis
     let candidate: UnifiedAnimationMigrationCandidateV1 | null = null;
     let error = source.error ?? null;
     if (!error && source.sourceKind === "unified-v2") {
-      entries.push({ id: source.locator, locator: source.locator, title: source.title, updatedAt: source.updatedAt, classification: "canonical", sourceKind: source.sourceKind, sourceId: source.sourceId, sourceDigest: source.sourceId, candidateDigest: source.sourceId, error: null, protectedSource: false, provenanceKey: source.canonicalAdoptionKey ?? null });
+      const digest = source.canonicalDigest ?? source.sourceId;
+      entries.push({ id: source.locator, locator: source.locator, title: source.title, updatedAt: source.updatedAt, classification: "canonical", sourceKind: source.sourceKind, sourceId: source.sourceId, sourceDigest: digest, candidateDigest: digest, sourceRevision: source.canonicalRevision ?? null, error: null, protectedSource: false, provenanceKey: source.canonicalAdoptionKey ?? null });
       continue;
     }
     if (!error) {
@@ -71,6 +73,7 @@ export const listProjectCollection = async (reader: ProjectSourceReader): Promis
       title: candidate?.project.title ?? source.title, updatedAt: candidate?.project.updatedAt ?? source.updatedAt,
       classification: candidate ? "legacy" : "invalid", sourceKind: source.sourceKind, sourceId: source.sourceId,
       sourceDigest: candidate ? (source.sourceKind === "unified-v1" ? candidate.project.candidateDigest : candidate.project.provenance.sourceRecordDigest) : null, candidateDigest: candidate?.project.candidateDigest ?? null,
+      sourceRevision: null,
       error, protectedSource: false,
       provenanceKey: candidate ? `${source.sourceKind}:${source.sourceId}:${source.sourceKind === "unified-v1" ? candidate.project.candidateDigest : candidate.project.provenance.sourceRecordDigest}` : null,
     });

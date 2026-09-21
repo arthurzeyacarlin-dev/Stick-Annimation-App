@@ -1,7 +1,7 @@
 # Roadmap
 
 Status: canonical ordered direction; not a delivery schedule
-Last updated: 2026-09-21
+Last updated: 2026-09-22
 
 ## Roadmap Rules
 
@@ -11,7 +11,7 @@ Last updated: 2026-09-21
 - Paid AI calls, remote writes, deployment, and baseline commits require task-specific authorization.
 - The roadmap may change when Arthur resolves pending decisions or new evidence changes the risk order.
 
-## Current owner sequence — 2026-09-21 (SPEC-0011 Phase 3 authorized through D-0117/GIT-087)
+## Current owner sequence — 2026-09-22 (SPEC-0011 Phase 3 accepted/Verified; publication pending under D-0118)
 
 All seven SPEC-0006 phases are Verified/published/integrated through GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`. The immutable 50,224-byte Phase 7 manifest is PASS/VALID at SHA-256 `c6202f6deab4d3bcc75af3ad6699fc2dc70fc58723eccaa8337b1a2aef74bc51`, with exactly 11 source and 16 evidence bindings.
 
@@ -60,7 +60,7 @@ D-0110 adds [`SPEC-0011 — My Projects Library, Movie Viewer, and Shared Projec
 2. **Movie Viewer** — finish exact playback-only saved frames/layers/FPS/timing/background/audio, centered contain geometry, seek/fullscreen/keyboard/accessibility, resource cleanup, and the inherited SPEC-0009 geometry-proof reconciliation.
 3. **Shared Management and Polish** — use one repository/command owner for Rename/Duplicate/Delete/Search/Sort in both My Projects and Open Project, with cross-tab/recovery/reference safety and final responsive/accessibility proof.
 
-My Projects watches and Open Project edits. D-0112 accepts Phase 1; D-0113/GIT-084 publish, integrate, synchronize, preserve proof and complete D-0054 cleanup in exact commit `9a3c5733da8080e09ec93129285ec97a7aebc039`. Phase 1 is fully closed. D-0115 accepts and technically verifies Phase 2's exact 15-path result from base/HEAD `e6f6b1d7887bbbfaed7a9b00b8b472c5b28fe834`; immutable manifest SHA-256 is `ddf3b9acbbe5395d92bdeea0c09da9b8dbcfef3bae38c3e1593ee1220a79823d`. One-clock playback, synchronized audio, completion/Replay, fullscreen, keyboard/focus/accessibility, contain geometry and cleanup pass; the inherited frame-3 mismatch was stale proof math and no product geometry/tolerance changed. D-0116/GIT-086 `faf2965cb51d47ebcd2b68c9378db8a39486915d` publish/integrate the exact 29-path result, synchronize canonical/local/live refs, preserve 33 proof files/1,370,820 bytes, stop the review server, and complete D-0054 removal of the obsolete `/35aa/` review worktree and merged local publication branch. D-0117/GIT-087 separately authorize exactly one fresh Phase 3 executor after clean activation synchronization. Phase 3 is Authorized/Not started and is limited to the shared local Rename/Duplicate/Delete/Search/Sort command owner, cross-tab/recovery/reference safety and final responsive/accessibility proof. No new AI capability, player/Export change, dependency/schema migration, provider/paid action or deployment is authorized by this roadmap entry.
+My Projects watches and Open Project edits. D-0112/D-0113/GIT-084 fully close Phase 1, and D-0115/D-0116/GIT-086 fully close Phase 2. D-0117/GIT-087 authorize Phase 3 from exact synchronized base `b57ff995df9bb351dacb9a6a79b8cbd23203e988`; D-0118 accepts and technically verifies its exact 14-path result at immutable manifest SHA-256 `92ae122c227a36fd8a637b1922b1bca139224be4caf0e42d3a147f2a43147aaa`, source digest `05ee661120e7751658b9ea2e5269c7cc1cbc666645568af1db7b1ff1f08074d1`. The one shared local command owner, safe rename/duplicate/delete, search/four sorts, leases/CAS/invalidation, keyboard/context/dialog/focus routes and responsive/accessibility proof pass. All three product phases are accepted/Verified. The next and only SPEC-0011 step is GIT-088 publication/integration, proof preservation, review-server shutdown and D-0054 cleanup; no Phase 4 exists. No new AI capability, player/Export change, dependency/schema migration, provider/paid action or deployment is authorized.
 
 ## Phase 0 — Preserve and Stabilize
 

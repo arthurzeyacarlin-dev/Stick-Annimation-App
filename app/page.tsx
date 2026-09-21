@@ -9,6 +9,8 @@ import { ProjectRecoveryPrompt } from "@/src/components/recovery/ProjectRecovery
 import { ProjectLibrary } from "@/src/components/project-library/ProjectLibrary";
 import { createUntitledWorkspace, prepareCollectionWorkspace, prepareRecoveryWorkspace, WorkspaceBootstrap, type MountedWorkspace } from "@/src/lib/animation/unifiedWorkspaceBootstrap";
 import { createBrowserProjectSourceReader } from "@/src/lib/animation/unifiedProjectSourceReader";
+import { acquireProjectOpenLeaseV2 } from "@/src/lib/animation/unifiedProjectManagementV2";
+import { UNIFIED_PROJECT_EDITOR_IDENTITY_EVENT_V2 } from "@/src/lib/animation/unifiedProjectRepositoryV2";
 import type { ProjectCollectionEntry } from "@/src/lib/animation/unifiedProjectCollection";
 import type { ProjectRecoveryEnvelopeV1 } from "@/src/lib/animation/projectRecoveryContractV1";
 import {
@@ -228,6 +230,24 @@ export default function Page() {
     }
   }, [view]);
   useEffect(() => () => bootstrap.cancel(), [bootstrap, view]);
+  useEffect(() => {
+    const initialProjectId = workspace?.candidate.editor.project.projectId;
+    if (!initialProjectId) return;
+    let projectId = initialProjectId;
+    let release = acquireProjectOpenLeaseV2(projectId, "editor");
+    const identityChanged = (event: Event) => {
+      const nextProjectId = (event as CustomEvent<{ projectId?: unknown }>).detail?.projectId;
+      if (typeof nextProjectId !== "string" || nextProjectId === projectId) return;
+      release();
+      projectId = nextProjectId;
+      release = acquireProjectOpenLeaseV2(projectId, "editor");
+    };
+    window.addEventListener(UNIFIED_PROJECT_EDITOR_IDENTITY_EVENT_V2, identityChanged);
+    return () => {
+      window.removeEventListener(UNIFIED_PROJECT_EDITOR_IDENTITY_EVENT_V2, identityChanged);
+      release();
+    };
+  }, [workspace]);
   const openProject = async (entry: ProjectCollectionEntry) => {
     const result = await bootstrap.open(() => prepareCollectionWorkspace(createBrowserProjectSourceReader(), entry));
     if (result.status === "opened") { setWorkspace(result.root); setView("animationWorkspace"); }

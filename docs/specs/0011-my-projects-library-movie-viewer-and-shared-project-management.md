@@ -1,14 +1,14 @@
 # SPEC-0011 — My Projects Library, Movie Viewer, and Shared Project Management
 
-Status: **Approved/active; Phases 1–2 Verified/published/integrated/synchronized/proof-preserved/cleaned up; Phase 3 Authorized/Not started after GIT-087 synchronization**
+Status: **Approved/implementation complete; Phases 1–2 fully closed; Phase 3 accepted/technically Verified, pending GIT-088 publication/integration and cleanup**
 Owner: Arthur
 Task role: three separately gated implementation phases after later explicit phase authorization
 Created: 2026-09-21
-Last updated: 2026-09-21
-Decision links: [D-0110](../DECISIONS.md), [D-0111](../DECISIONS.md), [D-0112](../DECISIONS.md), [D-0113](../DECISIONS.md), [D-0114](../DECISIONS.md), [D-0115](../DECISIONS.md), [D-0116](../DECISIONS.md), [D-0117](../DECISIONS.md)
-TODO IDs: `PLAN-011`, `SPEC-011`, `LIBRARY-001`, `GIT-084`, `GIT-085`, `VIEWER-001`, `GIT-086`, `GIT-087`, `PROJECTS-001`
+Last updated: 2026-09-22
+Decision links: [D-0110](../DECISIONS.md), [D-0111](../DECISIONS.md), [D-0112](../DECISIONS.md), [D-0113](../DECISIONS.md), [D-0114](../DECISIONS.md), [D-0115](../DECISIONS.md), [D-0116](../DECISIONS.md), [D-0117](../DECISIONS.md), [D-0118](../DECISIONS.md)
+TODO IDs: `PLAN-011`, `SPEC-011`, `LIBRARY-001`, `GIT-084`, `GIT-085`, `VIEWER-001`, `GIT-086`, `GIT-087`, `PROJECTS-001`, `GIT-088`
 Planning base: canonical `main` commit `788e69826438f56ee648452706ce1f68c07592bc`; detached planning worktree, clean index and worktree before planning edits
-Evidence date: 2026-09-21
+Evidence date: 2026-09-22
 
 ## 1. Plain-language outcome
 
@@ -26,9 +26,9 @@ This is exactly three separately gated phases:
 | --- | --- | --- |
 | 1 — Project Library / My Projects | The inert Home **My Project** action becomes **My Projects**, opens the professional shared library shell, and selects a real saved project into a centered playback-only modal backed by the accepted saved-project evaluator/player. **Open Project** continues to open the editor. | **Verified/published/integrated/synchronized/proof-preserved/cleaned up** |
 | 2 — Movie Viewer | The modal plays the exact saved animation with one authoritative clock, synchronized audio, seek/fullscreen/keyboard/accessible controls, contain geometry, and truthful close behavior. | **Verified/published/integrated/synchronized/proof-preserved/cleaned up** |
-| 3 — Shared Management and Polish | Both My Projects and Open Project gain the same Rename/Duplicate/Delete/Search/Sort owner, cross-surface refresh, overflow/context/keyboard routes, safety/concurrency handling, and final responsive/accessibility polish. | **Authorized; Not started after GIT-087 synchronization** |
+| 3 — Shared Management and Polish | Both My Projects and Open Project gain the same Rename/Duplicate/Delete/Search/Sort owner, cross-surface refresh, overflow/context/keyboard routes, safety/concurrency handling, and final responsive/accessibility polish. | **Accepted/technically Verified; pending GIT-088 publication/integration, proof preservation, server shutdown and D-0054 cleanup** |
 
-No phase authorizes the next. D-0112 records Arthur's acceptance and technical verification of Phase 1; D-0113/GIT-084 close its publication, preservation and cleanup lifecycle. D-0114/GIT-085 authorized the stopped Phase 2 executor, D-0115 records Arthur's acceptance plus technical verification, and D-0116/GIT-086 close publication/integration, synchronization, proof preservation, review-server shutdown and D-0054 cleanup. D-0117/GIT-087 separately authorize exactly one fresh Phase 3 Spec Executor after activation synchronization. Phase 3 is Authorized/Not started.
+No phase authorizes the next. D-0112/D-0113/GIT-084 close Phase 1, and D-0114–D-0116/GIT-085/GIT-086 close Phase 2. D-0117/GIT-087 authorize Phase 3; D-0118 records Arthur's acceptance and technical verification of its exact result. All three product phases are accepted/Verified. The only remaining SPEC-0011 lifecycle work is separate GIT-088 publication/integration, proof preservation, review-server shutdown and D-0054 cleanup; there is no Phase 4.
 
 ## 2. Verified pre-Phase-1 behavior and execution path
 
@@ -561,6 +561,16 @@ No package/dependency, schema migration, editor/timeline, Save/recovery-policy, 
 
 The Spec Executor returns its immutable manifest and packet, then stops. Final acceptance, control-plane propagation, publication, synchronization, proof preservation, and D-0054 cleanup remain separate sequential tasks.
 
+### 8.11 Accepted Phase 3 result — D-0118
+
+Arthur accepted the final ordinary app result and authorized sequential Control Plane Architect propagation. The stopped executor result is exactly 14 technical paths from detached base/HEAD, local `main`, and local `origin/main` `b57ff995df9bb351dacb9a6a79b8cbd23203e988`, with an empty index. Immutable 46,868-byte `output/spec-0011/phase-3/proof-manifest.json` is PASS at SHA-256 `92ae122c227a36fd8a637b1922b1bca139224be4caf0e42d3a147f2a43147aaa`, source digest `05ee661120e7751658b9ea2e5269c7cc1cbc666645568af1db7b1ff1f08074d1`; fresh strict validation returned VALID with 18 assertions and 12 rejected mutation classes.
+
+The accepted implementation uses one `ProjectManagementCommandOwner` on My Projects and Open Project. Search is NFC-normalized/case-insensitive and all four sorts are local. Rename is native-only and publishes one metadata-only next revision with CAS. Duplicate hydrates valid native or legacy input through the existing Save As path while leaving legacy source bytes unchanged. Delete is native-only, binds exact head/revision/digest, blocks active viewer/editor/recovery conflicts, removes only the target project/history, and removes only assets proven unreferenced while preserving shared assets. Web Locks plus localStorage heartbeat leases serialize active ownership; the editor lease follows Save/Save As identity. BroadcastChannel/storage events are advisory invalidation only and every consumer rereads authoritative storage.
+
+The oracle passed 31 assertions. Real Chromium passed 47 assertions across nine flows and four screenshots, including visible overflow, right-click, `Shift+F10`/Context Menu, arrow/Home/End/Escape, dialogs/focus, compact/reduced-motion/forced-colors/200%-zoom-equivalent and zero serious/critical Axe findings. The 64-project compact shell measured 215.432 ms; search p95 18.1 ms, sort p95 17.3 ms and menu p95 17.9 ms. TypeScript, focused lint, focused production build, Phase 1 oracle, Phase 2 player oracle and Phase 2 audio oracle pass. The full repository build still compiles and then stops only at the inherited untouched `app/dev/ai-costs/lifetime/page.tsx` `PageProps/searchParams` failure. Proof records zero external/provider/AI/paid requests. Physical devices and non-Chromium browsers remain unproven.
+
+The review server remains intentionally preserved as PID 32270 on `127.0.0.1:57840`. GIT-088 publication/integration, proof preservation, server stop and D-0054 worktree/branch cleanup are pending a separate Control Plane Architect publication turn. No accepted runtime, fixture, technical-test or proof byte may change during that turn.
+
 ## 9. Failure, concurrency, and local-security policy
 
 ### 9.1 Failure matrix
@@ -670,7 +680,7 @@ For each phase:
 7. Only a later explicit publication instruction permits exact staging, commit, clean fast-forward integration to canonical `main`, normal push, clean `0/0` synchronization, proof preservation, server stop, and D-0054 worktree/branch cleanup.
 8. The next phase requires separate authorization after all prior closeout steps complete.
 
-The Phase 1 lifecycle is fully closed under D-0113/GIT-084. D-0114/GIT-085 authorized the stopped Phase 2 executor; D-0115 accepts and technically verifies its exact result; D-0116/GIT-086 close publication/integration, synchronization, proof preservation, review-server shutdown and D-0054 cleanup. D-0117/GIT-087 authorize exactly one fresh Phase 3 executor after activation synchronization. This activation does not authorize Phase 3 publication, deployment, a provider call or another spec/phase.
+The Phase 1 lifecycle is fully closed under D-0113/GIT-084. D-0114/GIT-085 authorized the stopped Phase 2 executor; D-0115 accepts and technically verifies its exact result; D-0116/GIT-086 close its lifecycle. D-0117/GIT-087 authorized Phase 3, and D-0118 accepts and technically verifies its exact 14-path result. GIT-088 publication/integration, proof preservation, review-server shutdown and D-0054 cleanup remain pending. There is no Phase 4, and no provider call, deployment or another spec/phase is authorized by this acceptance record.
 
 ## 14. Decision-completeness record
 
@@ -689,4 +699,4 @@ Resolved by D-0110 and this spec:
 - Search/sort, overflow/context/keyboard, concurrency, local-only/security, performance, proof, and lifecycle gates are fixed.
 - The observed SPEC-0009 replay mismatch was stale independent-axis proof math; uniform contain passes the unchanged tolerance without a product geometry or Export-output change.
 
-Phase 1 is Verified, published, integrated, synchronized, proof-preserved and cleaned up. Phase 2 is accepted, Verified, published, integrated, synchronized, proof-preserved and cleaned up under D-0116/GIT-086. Phase 3 is Authorized/Not started after D-0117/GIT-087 activation synchronization.
+Phase 1 is Verified, published, integrated, synchronized, proof-preserved and cleaned up. Phase 2 is accepted, Verified, published, integrated, synchronized, proof-preserved and cleaned up under D-0116/GIT-086. Phase 3 is accepted and technically Verified under D-0118; GIT-088 publication/integration, proof preservation, server shutdown and D-0054 cleanup remain pending.

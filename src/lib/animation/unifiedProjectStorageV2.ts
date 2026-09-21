@@ -63,6 +63,11 @@ export type UnifiedProjectStorageAdapterV2 = {
     expectedRevision: number | null;
   }) => Promise<void>;
   publish: (head: UnifiedProjectHeadV2, expectedRevision: number | null) => Promise<void>;
+  deleteProject?: (input: {
+    projectId: string;
+    expectedRevision: number;
+    expectedDigest: string;
+  }) => Promise<{ deletedAssetIds: string[]; remainingVersions: UnifiedProjectVersionV2[] }>;
 };
 
 const utf8 = (value: string) => new TextEncoder().encode(value);
@@ -272,6 +277,23 @@ export const createUnifiedProjectStorageV2 = (adapter: UnifiedProjectStorageAdap
     if (readback.revision !== candidate.revision || readbackDigest !== prepared.version.projectDigest) fail("readback_failed");
     return readback;
   },
+
+  async deleteProject(projectId: string, expectedRevision: number, expectedDigest: string) {
+    const remove = adapter.deleteProject?.bind(adapter);
+    if (!remove) throw new Error("storage_write_failed");
+    const result = await remove({ projectId, expectedRevision, expectedDigest });
+    const [head, legacy, versions] = await Promise.all([
+      adapter.readHead(projectId),
+      adapter.readLegacyProject(projectId),
+      adapter.readVersions(projectId, Number.MAX_SAFE_INTEGER),
+    ]);
+    if (head || legacy || versions.length > 0) fail("delete_verification_failed");
+    for (const version of result.remainingVersions) {
+      const assets = await adapter.readAssets(version.assetIds);
+      await hydrateUnifiedProjectStorageV2(version, assets);
+    }
+    return { projectId, deletedAssetIds: result.deletedAssetIds };
+  },
 });
 
 const request = <T>(value: IDBRequest<T>) => new Promise<T>((resolve, reject) => {
@@ -471,6 +493,68 @@ const browserAdapter: UnifiedProjectStorageAdapterV2 = {
     }
     await completionPromise;
   }),
+  deleteProject: async input => {
+    const legacySnapshot = await withExistingDatabase(async db => db.objectStoreNames.contains(STORES.projects)
+      ? (await request(db.transaction(STORES.projects, "readonly").objectStore(STORES.projects).get(input.projectId))) ?? null
+      : null, null) as UnifiedAnimationProjectV2 | null;
+    const legacyPrepared = legacySnapshot
+      ? await prepareUnifiedProjectStorageV2(assertUnifiedAnimationProjectV2(legacySnapshot))
+      : null;
+    return withDatabase(async db => {
+      const transaction = db.transaction([STORES.projects, STORES.heads, STORES.versions, STORES.assets, STORES.assetMetadata], "readwrite");
+      const completionPromise = completion(transaction);
+      const projects = transaction.objectStore(STORES.projects);
+      const heads = transaction.objectStore(STORES.heads);
+      const versions = transaction.objectStore(STORES.versions);
+      const assets = transaction.objectStore(STORES.assets);
+      const assetMetadata = transaction.objectStore(STORES.assetMetadata);
+      try {
+        const [head, legacy, allVersions, assetKeys, metadataKeys] = await Promise.all([
+          request(heads.get(input.projectId)) as Promise<UnifiedProjectHeadV2 | undefined>,
+          request(projects.get(input.projectId)) as Promise<UnifiedAnimationProjectV2 | undefined>,
+          request(versions.getAll()) as Promise<UnifiedProjectVersionV2[]>,
+          request(assets.getAllKeys()),
+          request(assetMetadata.getAllKeys()),
+        ]);
+        const currentRevision = head?.activeRevision ?? legacy?.revision ?? null;
+        const currentDigest = head?.projectDigest ?? legacyPrepared?.version.projectDigest ?? null;
+        if (currentRevision === null || currentDigest === null) fail("source_changed");
+        if (currentRevision !== input.expectedRevision || currentDigest !== input.expectedDigest) fail("stale_revision");
+        if (legacy && (!legacySnapshot || JSON.stringify(legacy) !== JSON.stringify(legacySnapshot))) fail("stale_revision");
+        if (head && legacy && (legacyPrepared?.version.projectDigest !== head.projectDigest || legacy.revision !== head.activeRevision)) {
+          fail("delete_verification_failed");
+        }
+
+        const targetVersions = allVersions.filter(version => version.projectId === input.projectId);
+        const remainingVersions = allVersions.filter(version => version.projectId !== input.projectId);
+        const assetKeySet = new Set(assetKeys.filter((key): key is string => typeof key === "string"));
+        const metadataKeySet = new Set(metadataKeys.filter((key): key is string => typeof key === "string"));
+        for (const version of remainingVersions) {
+          for (const assetId of version.assetIds) {
+            if (!assetKeySet.has(assetId) || !metadataKeySet.has(assetId)) fail("asset_missing");
+          }
+        }
+        const referenced = new Set(remainingVersions.flatMap(version => version.assetIds));
+        const deletedAssetIds = [...new Set([...assetKeySet, ...metadataKeySet])]
+          .filter(assetId => !referenced.has(assetId))
+          .sort();
+
+        heads.delete(input.projectId);
+        if (legacy) projects.delete(input.projectId);
+        for (const version of targetVersions) versions.delete([version.projectId, version.revision, version.projectDigest]);
+        for (const assetId of deletedAssetIds) {
+          assets.delete(assetId);
+          assetMetadata.delete(assetId);
+        }
+        await completionPromise;
+        return { deletedAssetIds, remainingVersions };
+      } catch (error) {
+        transaction.abort();
+        await completionPromise.catch(() => undefined);
+        throw error;
+      }
+    });
+  },
 };
 
 const browserStorage = () => createUnifiedProjectStorageV2(browserAdapter);
@@ -481,5 +565,7 @@ export const listUnifiedProjectHeadsV2 = () => browserStorage().listHeads();
 export const listUnifiedProjectsV2 = async () => Promise.all((await listUnifiedProjectHeadsV2()).map(head => readUnifiedProjectV2(head.projectId)));
 export const readUnifiedProjectV2 = (projectId: string) => browserStorage().read(projectId);
 export const writeUnifiedProjectV2 = (project: UnifiedAnimationProjectV2, expectedRevision: number | null) => browserStorage().write(project, expectedRevision);
+export const deleteUnifiedProjectV2 = (projectId: string, expectedRevision: number, expectedDigest: string) =>
+  browserStorage().deleteProject(projectId, expectedRevision, expectedDigest);
 
 export { DB_NAME as UNIFIED_PROJECT_DATABASE_V2, STORES as UNIFIED_PROJECT_STORES_V2 };

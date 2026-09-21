@@ -101,7 +101,13 @@
 .secondaryButton:focus-visible,
 .inlineButton:focus-visible,
 .primaryButton:focus-visible,
-.cardButton:focus-visible {
+.cardButton:focus-visible,
+.overflowButton:focus-visible,
+.contextMenu button:focus-visible,
+.toolbar input:focus-visible,
+.toolbar select:focus-visible,
+.managementDialog input:focus-visible,
+.deleteButton:focus-visible {
   outline: 2px solid var(--library-cyan);
   outline-offset: 3px;
 }
@@ -115,6 +121,36 @@
   font-size: 13px;
   line-height: 1.5;
   padding: 12px 14px;
+}
+
+.toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 320px);
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.searchLabel,
+.sortLabel,
+.dialogField {
+  display: grid;
+  gap: 7px;
+  color: #cbd5e1;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.toolbar input,
+.toolbar select,
+.managementDialog input {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--library-border);
+  border-radius: 10px;
+  background: #0d1728;
+  color: var(--library-text);
+  padding: 9px 12px;
+  font: inherit;
 }
 
 .notice {
@@ -138,12 +174,36 @@
 }
 
 .card {
+  position: relative;
   min-width: 0;
   overflow: hidden;
   border: 1px solid var(--library-border);
   border-radius: 16px;
   background: var(--library-surface);
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.24);
+}
+
+.overflowButton {
+  position: absolute;
+  z-index: 3;
+  top: 10px;
+  right: 10px;
+  min-width: 44px;
+  min-height: 44px;
+  border: 1px solid rgba(148, 163, 184, 0.46);
+  border-radius: 10px;
+  background: rgba(7, 16, 29, 0.9);
+  color: #f8fafc;
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.32);
+}
+
+.overflowButton:hover {
+  border-color: var(--library-cyan);
+  background: #10233a;
 }
 
 .cardButton {
@@ -326,6 +386,119 @@
   text-align: center;
 }
 
+.contextMenu {
+  position: fixed;
+  z-index: 80;
+  width: min(220px, calc(100vw - 24px));
+  transform: translateX(-100%);
+  display: grid;
+  gap: 4px;
+  padding: 7px;
+  border: 1px solid var(--library-border);
+  border-radius: 12px;
+  background: #111827;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.48);
+  color: var(--library-text);
+}
+
+.contextMenu button {
+  min-height: 40px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  padding: 9px 11px;
+  text-align: left;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.contextMenu button:hover:not(:disabled),
+.contextMenu button:focus-visible {
+  background: #172b45;
+}
+
+.contextMenu button:disabled {
+  color: #6f7f95;
+  cursor: not-allowed;
+}
+
+.contextMenu .destructiveMenuItem:not(:disabled) {
+  color: #fca5a5;
+}
+
+.contextMenu p {
+  margin: 4px 7px 6px;
+  color: var(--library-muted);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.dialogBackdrop {
+  position: fixed;
+  z-index: 90;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(2, 6, 15, 0.78);
+}
+
+.managementDialog {
+  width: min(520px, 100%);
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  border: 1px solid var(--library-border);
+  border-radius: 16px;
+  background: #111827;
+  color: var(--library-text);
+  padding: clamp(20px, 4vw, 30px);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.58);
+}
+
+.managementDialog h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.managementDialog p {
+  color: #cbd5e1;
+  line-height: 1.6;
+}
+
+.dialogField {
+  margin-top: 18px;
+}
+
+.dialogActions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.deleteButton {
+  min-height: 42px;
+  border: 1px solid #fca5a5;
+  border-radius: 10px;
+  background: #991b1b;
+  color: #ffffff;
+  padding: 10px 16px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.dialogError {
+  margin-top: 14px;
+  border: 1px solid rgba(248, 113, 113, 0.5);
+  border-radius: 10px;
+  background: rgba(127, 29, 29, 0.32);
+  color: #fecaca;
+  padding: 10px 12px;
+  line-height: 1.45;
+}
+
 @keyframes library-shimmer {
   from { background-position: 100% 0; }
   to { background-position: -100% 0; }
@@ -364,6 +537,10 @@
     flex-direction: column;
   }
 
+  .toolbar {
+    grid-template-columns: 1fr;
+  }
+
   .inlineButton {
     align-self: flex-start;
   }
@@ -380,7 +557,10 @@
 
   .cardButton,
   .posterFrame,
-  .projectTitle {
+  .projectTitle,
+  .overflowButton,
+  .contextMenu,
+  .dialogBackdrop {
     transition: none !important;
   }
 }

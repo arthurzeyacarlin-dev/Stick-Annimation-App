@@ -12,6 +12,41 @@ export type ProjectLibrarySnapshot = {
   posterFrameIndex: number;
 };
 
+export type ProjectLibrarySort = "updated-desc" | "updated-asc" | "name-asc" | "name-desc";
+
+const normalizedTitle = (title: string) => {
+  try { return title.normalize("NFC"); } catch { return title; }
+};
+
+const stableIdentity = (entry: ProjectCollectionEntry) => `${entry.sourceKind}:${entry.sourceId}:${entry.locator}`;
+
+export const filterAndSortProjectEntries = (
+  entries: readonly ProjectCollectionEntry[],
+  query: string,
+  sort: ProjectLibrarySort,
+) => {
+  const collator = new Intl.Collator(undefined, { sensitivity: "base", numeric: true, usage: "sort" });
+  const needle = normalizedTitle(query).trim().toLocaleLowerCase();
+  return entries
+    .filter(entry => !needle || normalizedTitle(entry.title).toLocaleLowerCase().includes(needle))
+    .map(entry => ({ ...entry }))
+    .sort((left, right) => {
+      let result = 0;
+      if (sort === "updated-desc" || sort === "updated-asc") {
+        const leftTime = left.updatedAt ? Date.parse(left.updatedAt) : Number.NaN;
+        const rightTime = right.updatedAt ? Date.parse(right.updatedAt) : Number.NaN;
+        const leftValid = Number.isFinite(leftTime);
+        const rightValid = Number.isFinite(rightTime);
+        if (leftValid !== rightValid) result = leftValid ? -1 : 1;
+        else if (leftValid && rightValid) result = sort === "updated-desc" ? rightTime - leftTime : leftTime - rightTime;
+      } else {
+        result = collator.compare(normalizedTitle(left.title), normalizedTitle(right.title));
+        if (sort === "name-desc") result *= -1;
+      }
+      return result || stableIdentity(left).localeCompare(stableIdentity(right));
+    });
+};
+
 const bitmapHasVisiblePixel = (bitmap: UnifiedRasterBitmapV2) => {
   for (let alphaIndex = 3; alphaIndex < bitmap.data.length; alphaIndex += 4) {
     if (bitmap.data[alphaIndex] !== 0) return true;

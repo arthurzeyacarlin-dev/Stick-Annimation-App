@@ -1,7 +1,7 @@
 # AI System Snapshot
 
 Status: canonical current AI architecture and gap map
-Last traced: 2026-09-21 through D-0117/GIT-087 control-plane-only authorization of SPEC-0011 Phase 3. SPEC-0008 Phase 1 is fully closed; Phases 2–6 are paused, Unauthorized, Not started and not rejected. All three SPEC-0009 phases are fully closed.
+Last traced: 2026-09-22 through D-0118 acceptance and technical verification of SPEC-0011 Phase 3. SPEC-0008 Phase 1 is fully closed; Phases 2–6 are paused, Unauthorized, Not started and not rejected. All three SPEC-0009 phases are fully closed.
 
 ## Paused SPEC-0008 transition (D-0085–D-0093)
 
@@ -33,13 +33,13 @@ Accepted Phase 2 export makes zero OpenAI, Terra, provider, search, social, anal
 
 Published Phase 3 adds only local destination labels, dated guidance, validated output geometry and final export proof. It makes zero runtime platform lookup, external request, OpenAI/Terra/provider/paid call, credit change, upload or deployment. Terra source remains byte-unchanged; the no-cost double passed, and one separate Low live smoke returned `Terra connected.` after the ignored server-only environment was restored. Original preserves the saved shape; the other destination buttons prepare local shapes only and never communicate with a social service. D-0101/GIT-079 record final synchronization, proof preservation and cleanup.
 
-## SPEC-0011 Phase 1–3 AI boundary — Phases 1–2 closed; Phase 3 authorized locally
+## SPEC-0011 Phase 1–3 AI boundary — all three product phases accepted; Phase 3 publication pending
 
 D-0112 accepts the local Project Library / My Projects result; D-0113/GIT-084 publish and close it. The exact Phase 1 implementation factors the deterministic saved-project evaluator/compositor/player into shared library and Export consumers without AI/Terra behavior change.
 
 D-0115 accepts Phase 2. Its viewer implementation remains local and deterministic. The only AI-adjacent correction fixes the proof-discovered focused-production reachability/error boundary: the focused build now contains the real `/api/ai-animator` route, and `DrawingAiPanel` checks content type and handles non-JSON/invalid JSON safely for POST, polling GET and DELETE. Terra prompts, exact `gpt-5.6-terra` model, reasoning mapping/default, request normalization, job/service/provider implementation, tools/search/store policy, transcript, animation mutation boundary, credits and Thinking gradient are unchanged. A deterministic route 404 is structured JSON; deterministic natural and HTML-failure flows prove the client never exposes parser text or response markup. Those tests invoke no provider and cost zero.
 
-One separately authorized live `hi` used `gpt-5.6-terra` with Medium reasoning, returned JSON `202` followed by terminal JSON `200`, displayed `Hi! What would you like to make or explore?`, changed no animation, took 3,831 ms, used 367 input/42 output/409 total tokens and had estimated cost `$0.001238`. It must not be repeated for this phase. The ignored `.env.local` is excluded from proof/publication, its contents were not recorded and byte identity is not claimed. D-0116/GIT-086 publish and integrate the accepted correction without changing any further AI/provider byte; deterministic proof remains at zero provider calls. D-0117/GIT-087 authorize only local Phase 3 project management and require every AI/Terra byte and behavior to remain unchanged. No live/provider/paid call is authorized.
+One separately authorized live `hi` used `gpt-5.6-terra` with Medium reasoning, returned JSON `202` followed by terminal JSON `200`, displayed `Hi! What would you like to make or explore?`, changed no animation, took 3,831 ms, used 367 input/42 output/409 total tokens and had estimated cost `$0.001238`. It must not be repeated for this phase. The ignored `.env.local` is excluded from proof/publication, its contents were not recorded and byte identity is not claimed. D-0116/GIT-086 publish and integrate the accepted correction without changing any further AI/provider byte. D-0118 accepts Phase 3's local management result: its deterministic proof recorded zero external/provider/AI/paid requests and no AI/Terra source or behavior changed. No further live/provider/paid call is authorized for Phase 3 publication.
 
 ## What Exists Today
 

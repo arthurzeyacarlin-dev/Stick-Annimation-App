@@ -5,7 +5,7 @@ Last updated: 2026-09-21
 
 ## Accepted SPEC-0011 Phase 1 proof and later-phase contract
 
-Status: D-0112 accepts and technically verifies Phase 1 after Arthur's visible PASS. D-0113/GIT-084 publish, integrate, synchronize, preserve proof and complete D-0054 cleanup. Phase 1 is fully closed; Phases 2–3 are Unauthorized/Not started.
+Status: D-0112 accepts and technically verifies Phase 1 after Arthur's visible PASS. D-0113/GIT-084 publish, integrate, synchronize, preserve proof and complete D-0054 cleanup. Phase 1 is fully closed. D-0114/GIT-085 authorize exactly one fresh Phase 2 executor after activation synchronization; Phase 2 is Authorized/Not started and Phase 3 is Unauthorized/Not started.
 
 The accepted Phase 1 result starts from exact base/HEAD `0169c09cc8dbede616fdf099b31925669ec35f6e`, empty index, and an exact 15-path technical allowlist. Immutable 28,886-byte manifest `output/spec-0011/phase-1/proof-manifest.json` has SHA-256 `69a169bdd7d7ee96b82d61699b56e1d28f55f4dfeaa0c8614127e4153c0539b6`; the 47,161-byte browser result has SHA-256 `89cc86c8f93638cfbbb11519f345d11a9726de888d62156e88fc4a5a70ae7a81`. Fresh strict pre-propagation validation passed 14 assertions and rejected ten mutation classes across base, path set, source/artifact bindings, project/recovery digests, request ledger, performance, acceptance and lifecycle flags.
 

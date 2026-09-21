@@ -1,19 +1,19 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-21 through D-0113/GIT-084 publication, integration, proof preservation and cleanup of SPEC-0011 Phase 1.
+Last traced: 2026-09-21 through D-0114/GIT-085 control-plane-only authorization of SPEC-0011 Phase 2; no runtime architecture changed.
 
-## SPEC-0011 project-library and playback architecture — Phase 1 published; later phases planned
+## SPEC-0011 project-library and playback architecture — Phase 1 published; Phase 2 authorized/not started
 
 D-0112 accepts Phase 1's new My Projects route. `app/page.tsx` replaces the inert singular action with **My Projects**, while **Open Project** continues through `prepareCollectionWorkspace(...)` into the sole `DrawingWorkspace`. `ProjectLibrary` reads `listProjectCollection(createBrowserProjectSourceReader())`, preserves native and all five supported legacy classifications, keeps invalid/protected entries visible, binds exact source locators/digests, and refreshes authoritative local storage. The Phase 1 My Projects surface is watch-only; it creates no official or recovery write.
 
 The accepted SPEC-0009 `loadExportProjectSnapshot(...)` evaluator, frame/timing resolvers and `renderCanonicalExportFrame(...)` compositor feed a new shared `CanonicalProjectPlayer` consumed by Export preview and `ProjectMovieViewer`. Posters use the same evaluator/compositor on the earliest visible canonical frame through a visible/near-visible queue capped at four. Selection revalidates the exact entry before opening. The centered dialog owns Phase 1 play/pause, time, seek, close/backdrop/Escape, focus restoration and scroll preservation; it stops at completion, while Export retains its accepted looping preview. Export encoding, destinations, Finder and validation remain in Export.
 
-Phase 2 remains planned and Unauthorized. It owns one monotonic media clock, exact synchronized audio, fullscreen, completed keyboard/accessibility behavior, resource cleanup and the inherited frame-3 geometry-proof reconciliation. The accepted Phase 1 result deliberately does not claim those outcomes.
+Phase 2 is Authorized/Not started under D-0114/GIT-085. It owns one monotonic media clock, exact synchronized audio, fullscreen, completed keyboard/accessibility behavior, resource cleanup and the inherited frame-3 geometry-proof reconciliation. The accepted Phase 1 result deliberately does not claim those outcomes, and this activation implements none of them.
 
 Phase 3 adds one `ProjectManagementCommandOwner` above the existing V2 repository/storage transaction boundary. Rename is a same-ID metadata-only next revision. Duplicate is the existing new-ID/copy-provenance path and may hydrate a valid read-only legacy source without mutating it. Delete revalidates one exact native head, blocks active-editor/recovery conflicts, deletes only that project/head/versions, and removes only assets proven unreferenced by every remaining official version. `BroadcastChannel` is invalidation only; storage re-read plus lock/CAS remains authoritative. Search/sort is a local presentation transform, not persisted project data.
 
-Phase 3 also remains planned and Unauthorized. No Rename/Duplicate/Delete/Search/Sort implementation exists yet. A bounded check of the inherited SPEC-0009 geometry proof reported the same frame-3 X mapping `0.749406441925578` versus `0.8215350990452878`; this remains an unresolved Phase 2 entry/proof gate, not a confirmed Phase 1 regression. D-0113/GIT-084 fully close Phase 1; Phase 2 remains Unauthorized/Not started pending Arthur's separate authorization.
+Phase 3 remains planned and Unauthorized. No Rename/Duplicate/Delete/Search/Sort implementation exists yet. A bounded check of the inherited SPEC-0009 geometry proof reported the same frame-3 X mapping `0.749406441925578` versus `0.8215350990452878`; this remains an unresolved Phase 2 entry/proof gate, not a confirmed Phase 1 regression. D-0113/GIT-084 fully close Phase 1; D-0114/GIT-085 authorize exactly one fresh Phase 2 executor after clean activation synchronization.
 
 ## SPEC-0010 Project Safety and Recovery architecture — all three phases closed
 

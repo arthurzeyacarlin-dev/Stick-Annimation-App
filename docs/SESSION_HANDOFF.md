@@ -3,9 +3,9 @@
 Status: current canonical stopping point
 Last updated: 2026-09-21
 
-All seven SPEC-0006 phases are closed through GIT-061. Drawing-only SPEC-0007 is fully closed through GIT-066. SPEC-0008 Phase 1 is fully closed through GIT-070; D-0093 keeps Phases 2–6 paused as Unauthorized/Not started/not rejected. All three SPEC-0009 phases are fully closed through D-0101/GIT-079, all three SPEC-0010 phases are fully closed through D-0109/GIT-083, and SPEC-0011 Phase 1 is fully closed through D-0113/GIT-084. SPEC-0011 Phases 2–3 remain Unauthorized/Not started.
+All seven SPEC-0006 phases are closed through GIT-061. Drawing-only SPEC-0007 is fully closed through GIT-066. SPEC-0008 Phase 1 is fully closed through GIT-070; D-0093 keeps Phases 2–6 paused as Unauthorized/Not started/not rejected. All three SPEC-0009 phases are fully closed through D-0101/GIT-079, all three SPEC-0010 phases are fully closed through D-0109/GIT-083, and SPEC-0011 Phase 1 is fully closed through D-0113/GIT-084. D-0114/GIT-085 make SPEC-0011 Phase 2 Authorized/Not started after activation synchronization; Phase 3 remains Unauthorized/Not started.
 
-## Current stopping point — SPEC-0011 Phase 1 published, preserved, and cleaned up
+## Current stopping point — SPEC-0011 Phase 2 Movie Viewer authorized after activation synchronization
 
 D-0112 records Arthur's PASS for the ordinary review app. Home **My Projects** now opens a real browser-local saved-project library covering native plus all five supported legacy kinds, truthful unavailable/invalid/source-changed states, deterministic earliest-visible-frame posters, a maximum-four visible/near-visible evaluation queue, selection revalidation, and a centered playback-only modal. Close, exact-backdrop activation, Escape, focus restoration and library scroll state are preserved. **Open Project** remains the sole editor route; My Projects never mounts `DrawingWorkspace`. One `CanonicalProjectPlayer` now serves My Projects and Export preview without changing Export encoding, destinations, Finder or output behavior.
 
@@ -17,7 +17,9 @@ Accepted performance: first usable list 101.824875 ms; viewer first frame 126.47
 
 GIT-084 is exact 29-path commit `9a3c5733da8080e09ec93129285ec97a7aebc039`, parent `0169c09cc8dbede616fdf099b31925669ec35f6e`: 15 accepted technical plus 14 reviewed control-plane/tree paths. Canonical `main`, `origin/main` and live GitHub `main` synchronized cleanly at `0/0`. The immutable manifest and all 35 bound source/evidence/receipt artifacts remained byte-matched. The complete 22-file/905,940-byte proof is preserved at `output/recovery/GIT-084-spec0011-phase1-9a3c573/phase-1` with relative inventory SHA-256 `e2fc1d2fa98bcae461a59e9750a4eb104436bbbec5c7fb2e56a5fac4d9ba5d47`; `.env.local` and secrets are excluded. PID 13851/listener 13866 are stopped, port 57680 is closed, the obsolete `/3301/` review worktree is absent/unregistered and merged local publication branch `codex/spec0011-phase1-publication` is deleted.
 
-Exact next safe step: Arthur may separately authorize one fresh SPEC-0011 Phase 2 Spec Executor from the final synchronized canonical-main closeout SHA. Phase 2 remains Unauthorized/Not started until that instruction; Phase 3, paused SPEC-0008 work, provider/paid activity and deployment also remain unauthorized.
+Arthur has now explicitly supplied the separate Phase 2 authorization. GIT-085 is the control-plane-only activation commit whose parent is clean synchronized `119a1eac0febeb2028d1895efbf4ad67a6ad28cb`; read the exact GIT-085 SHA from Git after publication. No Phase 2 runtime, fixture, technical-test, proof, dependency, credential, provider, export, recovery or AI byte is part of the activation.
+
+Exact next safe step: after canonical `main`, `origin/main`, and live GitHub `main` are proven equal to GIT-085 at clean `0/0`, start exactly one fresh dedicated SPEC-0011 Phase 2 Spec Executor from that exact SHA in Plan mode. Recommended execution setting: `gpt-6-astra`, `xhigh`. The executor must follow SPEC-0011 §7, first trace the real shared evaluator/player/audio/geometry path and reconcile the inherited frame-3 mapping proof without weakening tolerance, then implement only the Movie Viewer outcome, build/validate the immutable proof manifest, return the full Implementation Review Packet, and stop. Do not begin Phase 3, resume SPEC-0008, call providers, spend credits, deploy, publish implementation, or alter control-plane files in that executor.
 
 ## Current stopping point — SPEC-0010 fully closed; ready to choose the next non-AI spec
 

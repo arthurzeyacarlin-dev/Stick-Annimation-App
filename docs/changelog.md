@@ -1,5 +1,12 @@
 # Changelog
 
+### 2026-09-21 — Authorize SPEC-0011 Phase 2 Movie Viewer (D-0114/GIT-085)
+
+- Recorded Arthur's explicit authorization to publish the Phase 2 activation now and, only after clean synchronization, start exactly one fresh dedicated Plan-mode Phase 2 Spec Executor from the exact GIT-085 SHA.
+- Bound the executor to SPEC-0011 §7: first reconcile the inherited SPEC-0009 frame-3 mapping proof without weakening accepted geometry tolerance, then complete one-clock saved playback, synchronized audio, fullscreen, keyboard/accessibility/control visibility, truthful failure, resource cleanup, and the immutable Phase 2 proof contract.
+- Preserved Phase 3 as Unauthorized/Not started and preserved runtime, fixture, technical-test, proof, dependency/package, credential, AI/Terra, project/recovery/storage/schema, Export encoding/destinations/Finder/output, provider/paid, deployment, and paused SPEC-0008 bytes unchanged.
+- Published only the reviewed canonical activation records from clean synchronized parent `119a1eac0febeb2028d1895efbf4ad67a6ad28cb`; the exact activation SHA is read from Git after commit/push rather than embedded recursively.
+
 ### 2026-09-21 — Close SPEC-0011 Phase 1 publication and cleanup (D-0113/GIT-084)
 
 - Published the exact 15 accepted technical plus 14 reviewed control-plane/tree paths in commit `9a3c5733da8080e09ec93129285ec97a7aebc039`, parent `0169c09cc8dbede616fdf099b31925669ec35f6e`, message `Complete SPEC-0011 Phase 1 project library`.

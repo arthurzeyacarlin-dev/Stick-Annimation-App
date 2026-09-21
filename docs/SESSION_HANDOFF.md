@@ -3,9 +3,9 @@
 Status: current canonical stopping point
 Last updated: 2026-09-21
 
-All seven SPEC-0006 phases are closed through GIT-061. Drawing-only SPEC-0007 is fully closed through GIT-066. SPEC-0008 Phase 1 is fully closed through GIT-070; D-0093 keeps Phases 2–6 paused as Unauthorized/Not started/not rejected. All three SPEC-0009 phases are fully closed through D-0101/GIT-079, all three SPEC-0010 phases are fully closed through D-0109/GIT-083, and SPEC-0011 Phase 1 is fully closed through D-0113/GIT-084. D-0115/D-0116/GIT-086 make SPEC-0011 Phase 2 accepted, Verified, published, integrated, synchronized, proof-preserved and review-server-stopped. Phase 3 remains Unauthorized/Not started.
+All seven SPEC-0006 phases are closed through GIT-061. Drawing-only SPEC-0007 is fully closed through GIT-066. SPEC-0008 Phase 1 is fully closed through GIT-070; D-0093 keeps Phases 2–6 paused as Unauthorized/Not started/not rejected. All three SPEC-0009 phases are fully closed through D-0101/GIT-079, all three SPEC-0010 phases are fully closed through D-0109/GIT-083, and SPEC-0011 Phase 1 is fully closed through D-0113/GIT-084. D-0115/D-0116/GIT-086 make SPEC-0011 Phase 2 accepted, Verified, published, integrated, synchronized, proof-preserved and review-server-stopped. D-0117/GIT-087 authorize Phase 3 after activation synchronization; Phase 3 is Authorized/Not started.
 
-## Current stopping point — SPEC-0011 Phase 2 fully closed; Phase 3 awaits separate authorization
+## Current stopping point — SPEC-0011 Phase 3 activation published; fresh executor may begin
 
 GIT-086 is exact 29-path commit `faf2965cb51d47ebcd2b68c9378db8a39486915d`, parent `e6f6b1d7887bbbfaed7a9b00b8b472c5b28fe834`, message `Complete SPEC-0011 Phase 2 movie viewer`: the exact 15 accepted technical paths plus 14 reviewed control-plane/tree paths. Canonical `main`, local `origin/main` and live GitHub `main` synchronized at clean `0/0`. The immutable 29,132-byte technical manifest remains SHA-256 `ddf3b9acbbe5395d92bdeea0c09da9b8dbcfef3bae38c3e1593ee1220a79823d`; fresh validation passed 22 assertions and rejected 16 material mutation classes.
 
@@ -17,7 +17,9 @@ Proof is preserved at `/Users/arthurcarlin/Projects/stick-animation-app/output/r
 
 D-0054 cleanup is complete: the obsolete `/Users/arthurcarlin/.codex/worktrees/35aa/stick-animation-app` review worktree is absent/unregistered and merged local branch `codex/spec0011-phase2-publication` is deleted. Canonical main, remote refs, recovery evidence, the active Project Manager worktree and unrelated worktrees remain.
 
-Exact next safe step: Arthur may separately authorize one fresh Plan-mode Phase 3 Spec Executor from the current clean synchronized canonical-main SHA. Phase 3 is entry-ready but still Unauthorized/Not started; do not implement or authorize it here, resume SPEC-0008, deploy or make another provider call.
+D-0117/GIT-087 are a control-plane-only activation from clean synchronized parent `2f2a3c4866c46d1362d7184f389ca02f856883b6`. After the activation commit is present on canonical `main`, `origin/main` and live GitHub `main` at clean `0/0`, its exact Git SHA is the sole authorized Phase 3 executor base. No runtime, fixture, technical-test, proof, package/dependency, credential/environment, AI/Terra, player, editor/timeline, Save/recovery, Export, provider/paid, deployment or paused SPEC-0008 byte changes in the activation.
+
+Exact next safe step: start exactly one fresh dedicated Plan-mode Spec Executor from the synchronized GIT-087 SHA. It may implement only SPEC-0011 §8 Shared Management and Polish, must trace the current repository/storage/recovery/legacy/asset/open-session paths before coding, create and independently validate the immutable Phase 3 manifest, return the full Implementation Review Packet, and stop. Do not implement Phase 3 in this Control Plane Architect task, resume SPEC-0008, deploy or make a provider call.
 
 ## Current stopping point — SPEC-0010 fully closed; ready to choose the next non-AI spec
 

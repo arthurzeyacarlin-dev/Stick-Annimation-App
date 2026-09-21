@@ -1,9 +1,9 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-21 through D-0116/GIT-086 publication, integration, synchronization, proof preservation and review-server shutdown for SPEC-0011 Phase 2.
+Last traced: 2026-09-21 through D-0117/GIT-087 control-plane-only authorization of SPEC-0011 Phase 3; no runtime architecture changed.
 
-## SPEC-0011 project-library and playback architecture — Phases 1–2 closed
+## SPEC-0011 project-library and playback architecture — Phases 1–2 closed; Phase 3 authorized/not started
 
 D-0112 accepts Phase 1's new My Projects route. `app/page.tsx` replaces the inert singular action with **My Projects**, while **Open Project** continues through `prepareCollectionWorkspace(...)` into the sole `DrawingWorkspace`. `ProjectLibrary` reads `listProjectCollection(createBrowserProjectSourceReader())`, preserves native and all five supported legacy classifications, keeps invalid/protected entries visible, binds exact source locators/digests, and refreshes authoritative local storage. The Phase 1 My Projects surface is watch-only; it creates no official or recovery write.
 
@@ -17,7 +17,7 @@ The accepted focused-build correction includes both `app/page.tsx` and `app/api/
 
 Phase 3 adds one `ProjectManagementCommandOwner` above the existing V2 repository/storage transaction boundary. Rename is a same-ID metadata-only next revision. Duplicate is the existing new-ID/copy-provenance path and may hydrate a valid read-only legacy source without mutating it. Delete revalidates one exact native head, blocks active-editor/recovery conflicts, deletes only that project/head/versions, and removes only assets proven unreferenced by every remaining official version. `BroadcastChannel` is invalidation only; storage re-read plus lock/CAS remains authoritative. Search/sort is a local presentation transform, not persisted project data.
 
-Phase 3 remains planned and Unauthorized. No Rename/Duplicate/Delete/Search/Sort implementation exists yet. D-0113/GIT-084 fully close Phase 1; D-0115 accepts and technically verifies Phase 2 at immutable manifest SHA-256 `ddf3b9acbbe5395d92bdeea0c09da9b8dbcfef3bae38c3e1593ee1220a79823d`; D-0116/GIT-086 `faf2965cb51d47ebcd2b68c9378db8a39486915d` publish/integrate/synchronize that result, preserve proof, stop the review server and complete D-0054 cleanup. Phase 3 remains Unauthorized/Not started pending separate Arthur authorization.
+Phase 3 is Authorized/Not started under D-0117/GIT-087. No Rename/Duplicate/Delete/Search/Sort implementation exists yet, and this activation changes no runtime architecture. The fresh executor must preserve the repository/storage/recovery/legacy/player/editor/Export ownership boundaries above while adding the single command owner and required local presentation/concurrency behavior. D-0113/GIT-084 fully close Phase 1; D-0115 accepts and technically verifies Phase 2 at immutable manifest SHA-256 `ddf3b9acbbe5395d92bdeea0c09da9b8dbcfef3bae38c3e1593ee1220a79823d`; D-0116/GIT-086 `faf2965cb51d47ebcd2b68c9378db8a39486915d` publish/integrate/synchronize that result, preserve proof, stop the review server and complete D-0054 cleanup.
 
 ## SPEC-0010 Project Safety and Recovery architecture — all three phases closed
 

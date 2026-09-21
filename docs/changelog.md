@@ -1,5 +1,12 @@
 # Changelog
 
+### 2026-09-21 — Authorize SPEC-0011 Phase 3 Shared Management and Polish (D-0117/GIT-087)
+
+- Recorded Arthur's explicit authorization to publish the Phase 3 activation and, only after clean synchronization, start exactly one fresh dedicated Plan-mode Phase 3 Spec Executor from the exact GIT-087 SHA.
+- Bound the executor to SPEC-0011 §8: one shared My Projects/Open Project command owner for local Search/Sort and revalidated Rename/Duplicate/Delete, with native/legacy copy rules, exact-head deletion, recovery/open-session/shared-asset safety, deterministic cross-tab races, overflow/context/keyboard routes, Watch-versus-Edit clarity, responsive/accessibility proof, and an immutable Phase 3 manifest.
+- Preserved Movie Viewer/player/audio/fullscreen/geometry, editor/timeline/onion/manual commands, Save/Save As/Save and Exit, recovery policy and bytes, legacy source stores, Export encoder/destinations/Finder/output, dependencies/schema, credentials/environment, AI/Terra/Thinking, provider/paid activity, deployment and paused SPEC-0008 unchanged.
+- Published only the reviewed canonical activation records from clean synchronized parent `2f2a3c4866c46d1362d7184f389ca02f856883b6`; the exact activation SHA is read from Git after commit/push rather than embedded recursively.
+
 ### 2026-09-21 — Close SPEC-0011 Phase 2 publication and review-server lifecycle (D-0116/GIT-086)
 
 - Published the exact 15 accepted technical plus 14 reviewed control-plane/tree paths in commit `faf2965cb51d47ebcd2b68c9378db8a39486915d`, parent `e6f6b1d7887bbbfaed7a9b00b8b472c5b28fe834`, message `Complete SPEC-0011 Phase 2 movie viewer`.

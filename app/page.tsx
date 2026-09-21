@@ -6,6 +6,7 @@ import { TutorialsScreen } from "@/src/components/tutorials/TutorialsScreen";
 import { AnimationWorkspace } from "@/src/components/workspace/AnimationWorkspace";
 import { AnimationExportFlow } from "@/src/components/export/AnimationExportFlow";
 import { ProjectRecoveryPrompt } from "@/src/components/recovery/ProjectRecoveryPrompt";
+import { ProjectLibrary } from "@/src/components/project-library/ProjectLibrary";
 import { createUntitledWorkspace, prepareCollectionWorkspace, prepareRecoveryWorkspace, WorkspaceBootstrap, type MountedWorkspace } from "@/src/lib/animation/unifiedWorkspaceBootstrap";
 import { createBrowserProjectSourceReader } from "@/src/lib/animation/unifiedProjectSourceReader";
 import type { ProjectCollectionEntry } from "@/src/lib/animation/unifiedProjectCollection";
@@ -44,7 +45,7 @@ const sameRecoveryGeneration = (left: ProjectRecoveryEnvelopeV1, right: ProjectR
 
 export default function Page() {
   const [view, setView] = useState<
-    "home" | "tutorials" | "openProject" | "animationWorkspace" | "animationExport"
+    "home" | "tutorials" | "openProject" | "myProjects" | "animationWorkspace" | "animationExport"
   >("home");
   const [exportOrigin, setExportOrigin] = useState<"home" | "workspace">("home");
   const [welcomeOpen, setWelcomeOpen] = useState(false);
@@ -55,9 +56,10 @@ export default function Page() {
   const [bootstrapMessage, setBootstrapMessage] = useState<string | null>(null);
   const [startupRecovery, setStartupRecovery] = useState<StartupRecoveryState>({ kind: "checking" });
   const [recoveryBusyAction, setRecoveryBusyAction] = useState<"recover" | "discard" | null>(null);
-  const homeFocusRef = useRef<"new" | "open">("new");
+  const homeFocusRef = useRef<"new" | "open" | "myProjects">("new");
   const newProjectButtonRef = useRef<HTMLButtonElement | null>(null);
   const openProjectButtonRef = useRef<HTMLButtonElement | null>(null);
+  const myProjectsButtonRef = useRef<HTMLButtonElement | null>(null);
   const restoreHomeFocus = useRef(false);
   const [hoveredCard, setHoveredCard] = useState<HomeCardId | null>(null);
   const homeMainRef = useRef<HTMLElement | null>(null);
@@ -216,7 +218,12 @@ export default function Page() {
 
   useEffect(() => {
     if (view === "home" && restoreHomeFocus.current) {
-      (homeFocusRef.current === "new" ? newProjectButtonRef.current : openProjectButtonRef.current)?.focus();
+      const target = homeFocusRef.current === "new"
+        ? newProjectButtonRef.current
+        : homeFocusRef.current === "open"
+          ? openProjectButtonRef.current
+          : myProjectsButtonRef.current;
+      target?.focus();
       restoreHomeFocus.current = false;
     }
   }, [view]);
@@ -871,7 +878,16 @@ export default function Page() {
 
               <div style={cardOuterStyle}>
                 <button
+                  ref={myProjectsButtonRef}
                   type="button"
+                  onClick={(event) => {
+                    event.currentTarget.blur();
+                    setHoveredCard(null);
+                    homeFocusRef.current = "myProjects";
+                    setBootstrapMessage(null);
+                    bootstrap.cancel();
+                    setView("myProjects");
+                  }}
                   onMouseEnter={() => setHoveredCard("myProject")}
                   onMouseLeave={() => setHoveredCard(null)}
                   style={cardStyle(hoveredCard === "myProject")}
@@ -927,7 +943,7 @@ export default function Page() {
                     </div>
                     <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                       <div style={{ fontWeight: 600, letterSpacing: "0.01em", fontSize: "18px", lineHeight: 1.1 }}>
-                        My Project
+                        My Projects
                       </div>
                       <div
                         style={{
@@ -1427,6 +1443,13 @@ export default function Page() {
   <OpenProjectBrowser onOpenProject={openProject} onBack={() => {
     bootstrap.cancel();
     restoreHomeFocus.current = true;
+    setView("home");
+  }} />
+)}
+{view === "myProjects" && (
+  <ProjectLibrary onBack={() => {
+    restoreHomeFocus.current = true;
+    homeFocusRef.current = "myProjects";
     setView("home");
   }} />
 )}

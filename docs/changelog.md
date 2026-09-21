@@ -1,5 +1,12 @@
 # Changelog
 
+### 2026-09-21 — Accept and technically verify SPEC-0011 Phase 1 Project Library / My Projects (D-0112)
+
+- Recorded Arthur's visible PASS for the real **My Projects** library, deterministic posters, selection-revalidated playback-only modal, focus/scroll restoration, and preserved **Open Project** editor route. Fullscreen and synchronized audio remain Phase 2 by design.
+- Bound the exact 15-path implementation from base `0169c09cc8dbede616fdf099b31925669ec35f6e` to immutable 28,886-byte manifest SHA-256 `69a169bdd7d7ee96b82d61699b56e1d28f55f4dfeaa0c8614127e4153c0539b6` and 47,161-byte browser result SHA-256 `89cc86c8f93638cfbbb11519f345d11a9726de888d62156e88fc4a5a70ae7a81`.
+- Recorded 35 oracle and 60 real-Chromium assertions, TypeScript/focused-lint/build success, accepted performance/resource results, unchanged official/recovery storage, and zero external/provider/AI/paid requests. Full lint retains the inherited 5-error/81-warning untouched baseline.
+- Propagated the accepted state without changing implementation/test bytes, the immutable manifest, or any of its 35 bound source/evidence/receipt artifacts. Strict pre-propagation validation refreshed only the ignored mutable validation receipt. Publication/integration, proof preservation, review-server shutdown and D-0054 cleanup are already authorized but remain pending the separate publication turn; Phases 2–3 remain Unauthorized/Not started.
+
 ### 2026-09-21 — Approve SPEC-0011 and authorize Phase 1 Project Library / My Projects (D-0111)
 
 - Approved the published three-phase SPEC-0011 plan and authorized exactly one fresh Phase 1 Spec Executor after activation-record publication.

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { advancePlaybackAccumulator, getClampedPlaybackFrameDurationMs } from "../workspace/timelinePlayback";
+import { CanonicalProjectPlayer, type CanonicalProjectPlayerHandle } from "../project-player/CanonicalProjectPlayer";
 import { listProjectCollection, type ProjectCollectionEntry } from "@/src/lib/animation/unifiedProjectCollection";
 import { createBrowserProjectSourceReader } from "@/src/lib/animation/unifiedProjectSourceReader";
 import {
@@ -67,11 +67,8 @@ function ExportThumbnail({ snapshot }: { snapshot: ExportProjectSnapshot }) {
   return <canvas ref={canvasRef} width={240} height={135} aria-label={`${snapshot.project.title} thumbnail`} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />;
 }
 
-function AnimationPlayer({ snapshot, onChange }: { snapshot: ExportProjectSnapshot; onChange: () => void }) {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [frameIndex, setFrameIndex] = useState(0);
-  const [playing, setPlaying] = useState(false);
-  const [renderError, setRenderError] = useState(false);
+function ExportAnimationPlayer({ snapshot, onChange }: { snapshot: ExportProjectSnapshot; onChange: () => void }) {
+  const playerRef = useRef<CanonicalProjectPlayerHandle | null>(null);
   const [filename, setFilename] = useState(snapshot.project.title);
   const [quality, setQuality] = useState<ExportQualityTier>("720p");
   const [destinationId, setDestinationId] = useState<ExportDestinationPresetId>("original");
@@ -83,8 +80,6 @@ function AnimationPlayer({ snapshot, onChange }: { snapshot: ExportProjectSnapsh
   const [exportError, setExportError] = useState<string | null>(null);
   const [progress, setProgress] = useState<ExportProgress | null>(null);
   const [inspection, setInspection] = useState<ExportInspection | null>(null);
-  const activeAudioRef = useRef<HTMLAudioElement[]>([]);
-  const frameIndexRef = useRef(0);
   const abortRef = useRef<AbortController | null>(null);
   const selectionRef = useRef(createExportSelection(snapshot));
   const selectedPreset = EXPORT_DESTINATION_CATALOG.find(candidate => candidate.id === destinationId) ?? EXPORT_DESTINATION_CATALOG[0];
@@ -103,70 +98,11 @@ function AnimationPlayer({ snapshot, onChange }: { snapshot: ExportProjectSnapsh
   ), [customDimensionError, destinationChoice, quality, snapshot]);
   const dimensions = geometry.outputCanvas;
 
-  const stopAudio = useCallback(() => {
-    for (const audio of activeAudioRef.current) { audio.pause(); audio.currentTime = 0; }
-    activeAudioRef.current = [];
-  }, []);
-
-  const playSoundsAtFrame = useCallback((index: number) => {
-    for (const layer of snapshot.project.document.layers) {
-      const sound = layer.cells[index]?.content?.soundAttachment;
-      if (!sound?.audioDataUrl) continue;
-      const audio = new Audio(sound.audioDataUrl);
-      const remove = () => { activeAudioRef.current = activeAudioRef.current.filter(candidate => candidate !== audio); };
-      audio.addEventListener("ended", remove, { once: true });
-      audio.addEventListener("error", remove, { once: true });
-      activeAudioRef.current.push(audio);
-      void audio.play().catch(remove);
-    }
-  }, [snapshot]);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    let active = true;
-    void renderCanonicalExportFrame(canvas, snapshot.project, frameIndex)
-      .then(() => { if (active) setRenderError(false); })
-      .catch(() => { if (active) setRenderError(true); });
-    return () => { active = false; };
-  }, [dimensions.height, dimensions.width, frameIndex, snapshot]);
-
-  useEffect(() => {
-    if (!playing) return;
-    let request = 0;
-    let lastStepTime = 0;
-    let accumulatorMs = 0;
-    const frameDurationMs = getClampedPlaybackFrameDurationMs(snapshot.project.document.fps);
-    playSoundsAtFrame(frameIndexRef.current);
-    const tick = (timestamp: number) => {
-      if (lastStepTime === 0) {
-        lastStepTime = timestamp;
-        request = window.requestAnimationFrame(tick);
-        return;
-      }
-      const advanced = advancePlaybackAccumulator(accumulatorMs, timestamp - lastStepTime, frameDurationMs);
-      accumulatorMs = advanced.accumulatorMs;
-      lastStepTime = timestamp;
-      if (advanced.steps > 0) {
-        setFrameIndex(current => {
-          const next = current >= snapshot.frameCount - 1 ? 0 : current + 1;
-          frameIndexRef.current = next;
-          playSoundsAtFrame(next);
-          return next;
-        });
-      }
-      request = window.requestAnimationFrame(tick);
-    };
-    request = window.requestAnimationFrame(tick);
-    return () => window.cancelAnimationFrame(request);
-  }, [playSoundsAtFrame, playing, snapshot]);
-
   useEffect(() => () => {
     abortRef.current?.abort();
-    stopAudio();
-  }, [stopAudio]);
-  const changeAnimation = () => { abortRef.current?.abort(); setPlaying(false); stopAudio(); onChange(); };
-  const currentSeconds = frameIndex / snapshot.project.document.fps;
+    playerRef.current?.pause();
+  }, []);
+  const changeAnimation = () => { abortRef.current?.abort(); playerRef.current?.pause(); onChange(); };
   const hasAudio = snapshotHasAudio(snapshot);
   const running = exportState === "preflighting" || exportState === "exporting" || exportState === "cancelling";
 
@@ -259,8 +195,7 @@ function AnimationPlayer({ snapshot, onChange }: { snapshot: ExportProjectSnapsh
     const abort = new AbortController();
     abortRef.current = abort;
     setExportState("exporting");
-    setPlaying(false);
-    stopAudio();
+    playerRef.current?.pause();
     try {
       await assertSnapshotIsCurrent();
       const result = await exportSnapshotToMp4({
@@ -304,16 +239,14 @@ function AnimationPlayer({ snapshot, onChange }: { snapshot: ExportProjectSnapsh
           <button type="button" onClick={changeAnimation} style={secondaryButtonStyle}>Change animation</button>
         </div>
         <div style={{ border: "1px solid rgba(255,255,255,.12)", borderRadius: 16, background: "#171d28", padding: 16 }}>
-          <div style={{ position: "relative", margin: "0 auto", maxHeight: "62vh", width: "fit-content", maxWidth: "100%" }}>
-            <canvas ref={canvasRef} width={dimensions.width} height={dimensions.height} aria-label="Selected saved animation" style={{ maxWidth: "100%", maxHeight: "62vh", width: "auto", height: "auto", aspectRatio: `${dimensions.width} / ${dimensions.height}`, display: "block", background: resolveProjectBackground(snapshot.project), borderRadius: 10 }} />
-            <div data-export-content-rect-overlay="true" aria-hidden="true" style={{ position: "absolute", pointerEvents: "none", left: `${(geometry.contentRect.x / dimensions.width) * 100}%`, top: `${(geometry.contentRect.y / dimensions.height) * 100}%`, width: `${(geometry.contentRect.width / dimensions.width) * 100}%`, height: `${(geometry.contentRect.height / dimensions.height) * 100}%`, border: "2px solid rgba(115,205,255,.92)", boxShadow: "0 0 0 1px rgba(0,0,0,.55) inset", borderRadius: 4 }} />
-          </div>
-          {renderError ? <div role="alert" style={{ color: "#ffb3b3", marginTop: 10 }}>This frame could not be displayed safely.</div> : null}
-          <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 14, flexWrap: "wrap" }}>
-            <button type="button" onClick={() => { if (playing) { setPlaying(false); stopAudio(); } else { if (frameIndex >= snapshot.frameCount - 1) { frameIndexRef.current = 0; setFrameIndex(0); } else { frameIndexRef.current = frameIndex; } setPlaying(true); } }} style={primaryButtonStyle}>{playing ? "Pause" : "Play"}</button>
-            <input aria-label="Animation position" type="range" min={0} max={Math.max(0, snapshot.frameCount - 1)} value={frameIndex} onChange={event => { const next = Number(event.target.value); setPlaying(false); stopAudio(); frameIndexRef.current = next; setFrameIndex(next); }} style={{ flex: "1 1 340px" }} />
-            <div style={{ minWidth: 155, textAlign: "right", color: "rgba(255,255,255,.68)", fontVariantNumeric: "tabular-nums" }}>{currentSeconds.toFixed(1)}s / {formatExportDuration(snapshot.durationSeconds)} · Frame {frameIndex + 1}/{snapshot.frameCount}</div>
-          </div>
+          <CanonicalProjectPlayer
+            ref={playerRef}
+            snapshot={snapshot}
+            mode="export"
+            outputWidth={dimensions.width}
+            outputHeight={dimensions.height}
+            contentRect={geometry.contentRect}
+          />
         </div>
         <div style={{ border: "1px solid rgba(255,255,255,.08)", borderRadius: 14, padding: 18, background: "rgba(255,255,255,.035)", display: "grid", gap: 15 }}>
           <div style={{ fontWeight: 750 }}>Create a local MP4</div>
@@ -424,7 +357,7 @@ export function AnimationExportFlow({ origin, onBack }: Props) {
   }, []);
 
   useEffect(loadCollection, [loadCollection]);
-  if (watching) return <AnimationPlayer snapshot={watching} onChange={() => { setWatching(null); setSelectedId(null); setMessage(null); loadCollection(); }} />;
+  if (watching) return <ExportAnimationPlayer snapshot={watching} onChange={() => { setWatching(null); setSelectedId(null); setMessage(null); loadCollection(); }} />;
   const selectedState = selectedId ? snapshots[selectedId] : null;
 
   const openSelectedAnimation = async () => {

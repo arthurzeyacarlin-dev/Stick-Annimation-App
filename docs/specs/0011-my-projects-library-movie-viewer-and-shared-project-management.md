@@ -1,12 +1,12 @@
 # SPEC-0011 — My Projects Library, Movie Viewer, and Shared Project Management
 
-Status: **Approved/active; Phase 1 Authorized/Not started; Phases 2–3 Unauthorized/Not started**
+Status: **Approved/active; Phase 1 Accepted/technically Verified after control-plane propagation; publication/integration pending; Phases 2–3 Unauthorized/Not started**
 Owner: Arthur
 Task role: three separately gated implementation phases after later explicit phase authorization
 Created: 2026-09-21
 Last updated: 2026-09-21
-Decision links: [D-0110](../DECISIONS.md), [D-0111](../DECISIONS.md)
-TODO IDs: `PLAN-011`, `SPEC-011`, `LIBRARY-001`, `VIEWER-001`, `PROJECTS-001`
+Decision links: [D-0110](../DECISIONS.md), [D-0111](../DECISIONS.md), [D-0112](../DECISIONS.md)
+TODO IDs: `PLAN-011`, `SPEC-011`, `LIBRARY-001`, `GIT-084`, `VIEWER-001`, `PROJECTS-001`
 Planning base: canonical `main` commit `788e69826438f56ee648452706ce1f68c07592bc`; detached planning worktree, clean index and worktree before planning edits
 Evidence date: 2026-09-21
 
@@ -24,13 +24,13 @@ This is exactly three separately gated phases:
 
 | Phase | User outcome | Current state |
 | --- | --- | --- |
-| 1 — Project Library / My Projects | The inert Home **My Project** action becomes **My Projects**, opens the professional shared library shell, and selects a real saved project into a centered playback-only modal backed by the accepted saved-project evaluator/player. **Open Project** continues to open the editor. | **Authorized; Not started** |
+| 1 — Project Library / My Projects | The inert Home **My Project** action becomes **My Projects**, opens the professional shared library shell, and selects a real saved project into a centered playback-only modal backed by the accepted saved-project evaluator/player. **Open Project** continues to open the editor. | **Accepted/technically Verified; control-plane propagated; publication/integration pending** |
 | 2 — Movie Viewer | The modal plays the exact saved animation with one authoritative clock, synchronized audio, seek/fullscreen/keyboard/accessible controls, contain geometry, and truthful close behavior. | Unauthorized; Not started |
 | 3 — Shared Management and Polish | Both My Projects and Open Project gain the same Rename/Duplicate/Delete/Search/Sort owner, cross-surface refresh, overflow/context/keyboard routes, safety/concurrency handling, and final responsive/accessibility polish. | Unauthorized; Not started |
 
-No phase authorizes the next. D-0111 records Arthur's approval and explicit authorization of exactly Phase 1 after this activation record is published. Later phases additionally require the predecessor to be accepted, recorded, published, integrated, synchronized, proof-preserved, and cleaned up.
+No phase authorizes the next. D-0112 records Arthur's acceptance and technical verification of Phase 1. Its publication/integration, proof preservation and cleanup remain pending. Later phases additionally require the predecessor to be accepted, recorded, published, integrated, synchronized, proof-preserved, and cleaned up.
 
-## 2. Verified current behavior and execution path
+## 2. Verified pre-Phase-1 behavior and execution path
 
 ### 2.1 Visible behavior
 
@@ -261,6 +261,34 @@ No dependency or schema change is expected. A path outside these families, a sto
 ### 6.6 Phase 1 stop gate
 
 The Spec Executor returns an immutable technical proof manifest and Spec Executor Implementation Review Packet, then stops. No Phase 2/3 work, control-plane edit, staging, commit, integration, push, publication, deployment, or cleanup is authorized in that task.
+
+### 6.7 Accepted Phase 1 implementation record — D-0112
+
+Arthur reviewed the ordinary app and marked Phase 1 PASS. The accepted result starts from exact activation base/HEAD `0169c09cc8dbede616fdf099b31925669ec35f6e`, empty index, and exactly these 15 technical paths:
+
+- `app/page.tsx`;
+- `scripts/spec0011-project-library/phase1BrowserProof.ts`;
+- `scripts/spec0011-project-library/phase1Fixtures.ts`;
+- `scripts/spec0011-project-library/phase1Oracle.ts`;
+- `scripts/spec0011-project-library/recordPhase1Proof.ts`;
+- `scripts/spec0011-project-library/validatePhase1Proof.ts`;
+- `src/components/export/AnimationExportFlow.tsx`;
+- `src/components/project-library/ProjectLibrary.tsx`;
+- `src/components/project-library/ProjectPoster.tsx`;
+- `src/components/project-library/projectLibrary.module.css`;
+- `src/components/project-player/CanonicalProjectPlayer.tsx`;
+- `src/components/project-player/ProjectMovieViewer.tsx`;
+- `src/components/project-player/projectPlayer.module.css`;
+- `src/lib/project-library/projectLibraryController.ts`;
+- `src/lib/project-library/projectLibraryModel.ts`.
+
+The immutable 28,886-byte manifest `output/spec-0011/phase-1/proof-manifest.json` has SHA-256 `69a169bdd7d7ee96b82d61699b56e1d28f55f4dfeaa0c8614127e4153c0539b6`; the 47,161-byte browser result has SHA-256 `89cc86c8f93638cfbbb11519f345d11a9726de888d62156e88fc4a5a70ae7a81`. Strict pre-propagation validation passed 14 assertions and rejected ten mutation classes. The oracle passed 35 assertions, including native plus all five supported legacy kinds and maximum snapshot concurrency four. Real Chromium passed 60 assertions across eight operations/eight screenshots at desktop, compact reduced-motion, narrow and 200%-zoom-equivalent profiles. TypeScript, focused lint and production build passed; full lint retains the inherited 5-error/81-warning untouched baseline.
+
+Measured first usable list/viewer frame were 101.824875/126.470333 ms; seek acknowledgement/canvas update were 2.672959/123.727459 ms; play acknowledgement was 23.852834 ms; five-cycle settled heap delta was 8,215,763 bytes; maximum long task was 78 ms. Official and recovery storage hashes remained identical before/after desktop library/viewer, Export shared-player and changed-source retry flows. Network/provider/AI/paid requests, credit changes and official/recovery writes were zero.
+
+The accepted implementation delivers the plural Home action, real local library, truthful states, deterministic earliest-visible-frame posters, selection revalidation, centered playback-only modal, shared player owner, focus/scroll restoration and unchanged editor/Export ownership. Phase 1 does not claim fullscreen, synchronized audio or comprehensive Phase 2 accessibility/resource completion; those remain Phase 2. It also does not implement Phase 3 management. Physical-device/non-Chromium behavior and a fully hydrated 64-project collection remain unproven. The inherited SPEC-0009 frame-3 mismatch remains the Phase 2 gate recorded in §2.5.
+
+The Control Plane Architect changed no accepted technical byte, immutable manifest byte, or manifest-bound source/evidence/receipt artifact. Strict pre-propagation validation refreshed only its ignored mutable `validation.json` receipt. Publication/integration, proof preservation, review-server shutdown and D-0054 cleanup are explicitly authorized but pending the separate publication turn. Phase 2 and Phase 3 remain Unauthorized/Not started.
 
 ## 7. Phase 2 — Movie Viewer
 
@@ -594,7 +622,7 @@ For each phase:
 7. Only a later explicit publication instruction permits exact staging, commit, clean fast-forward integration to canonical `main`, normal push, clean `0/0` synchronization, proof preservation, server stop, and D-0054 worktree/branch cleanup.
 8. The next phase requires separate authorization after all prior closeout steps complete.
 
-This proposal itself authorizes no implementation, external/paid operation, stage, commit, merge, push, deployment, or task handoff.
+The accepted Phase 1 result and D-0112 authorize only its already-separated propagation and publication lifecycle. They authorize no Phase 2/3 implementation, external/paid operation, provider call or deployment.
 
 ## 14. Decision-completeness record
 
@@ -613,4 +641,4 @@ Resolved by D-0110 and this spec:
 - Search/sort, overflow/context/keyboard, concurrency, local-only/security, performance, proof, and lifecycle gates are fixed.
 - The observed SPEC-0009 replay mismatch is an unresolved Phase 2 entry/proof gate, not a claimed product regression.
 
-No owner decision remains before proposal approval. Approval still does not authorize implementation; Phase 1 requires a separate explicit authorization after the approved activation record is published.
+Phase 1 is accepted and technically Verified with publication/integration pending. Phase 2 and Phase 3 still require their own explicit authorization after complete predecessor closeout.

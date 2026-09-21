@@ -519,6 +519,12 @@
 ./scripts/spec0010-project-safety/validatePhase1Proof.ts
 ./scripts/spec0010-project-safety/validatePhase2Proof.ts
 ./scripts/spec0010-project-safety/validatePhase3Proof.ts
+./scripts/spec0011-project-library
+./scripts/spec0011-project-library/phase1BrowserProof.ts
+./scripts/spec0011-project-library/phase1Fixtures.ts
+./scripts/spec0011-project-library/phase1Oracle.ts
+./scripts/spec0011-project-library/recordPhase1Proof.ts
+./scripts/spec0011-project-library/validatePhase1Proof.ts
 ./scripts/sync_docs_to_github.sh
 ./scripts/traceExplosionLivePath.ts
 ./scripts/traceGenerateSoundsLivePath.mjs
@@ -565,6 +571,14 @@
 ./src/components/export/AnimationExportFlow.tsx
 ./src/components/open-project
 ./src/components/open-project/OpenProjectBrowser.tsx
+./src/components/project-library
+./src/components/project-library/ProjectLibrary.tsx
+./src/components/project-library/ProjectPoster.tsx
+./src/components/project-library/projectLibrary.module.css
+./src/components/project-player
+./src/components/project-player/CanonicalProjectPlayer.tsx
+./src/components/project-player/ProjectMovieViewer.tsx
+./src/components/project-player/projectPlayer.module.css
 ./src/components/recovery
 ./src/components/recovery/ProjectRecoveryPrompt.tsx
 ./src/components/tutorials
@@ -691,6 +705,9 @@
 ./src/lib/openai/client.ts
 ./src/lib/openai/generateAiAnimatorReply.ts
 ./src/lib/openai/generateAiText.ts
+./src/lib/project-library
+./src/lib/project-library/projectLibraryController.ts
+./src/lib/project-library/projectLibraryModel.ts
 ./src/lib/stickProjectStorage.ts
 ./src/lib/stickfigure
 ./src/lib/stickfigure/stickProjectContract.ts

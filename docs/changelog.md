@@ -1,5 +1,12 @@
 # Changelog
 
+### 2026-09-21 — Propose SPEC-0011 My Projects Library, Movie Viewer, and Shared Project Management (D-0110)
+
+- Created the decision-complete three-phase local proposal: real My Projects library/shared player; exact playback-only Movie Viewer with synchronized audio/fullscreen/accessibility; and shared Rename/Duplicate/Delete/Search/Sort across My Projects and Open Project.
+- Recorded the traced owners and boundaries: real unified collection/repository, accepted saved-project evaluator/compositor/player, sole editor, separate recovery owner, and unchanged Export encoder/destination owner. My Projects watches; Open Project edits.
+- Recorded one inherited SPEC-0009 frame-3 geometry-proof mismatch as a Phase 2 reproduce/reconcile gate, not a confirmed product regression, and prohibited tolerance weakening.
+- Kept all three phases Unauthorized/Not started. No runtime/test/fixture/dependency, AI/Terra, recovery/editor/export-encoding, provider/paid, Git publication, or deployment behavior changed.
+
 ### 2026-09-21 — Close SPEC-0010 Phase 3 publication and cleanup (D-0109/GIT-083)
 
 - Published the exact accepted 12 technical paths plus 13 reviewed control-plane/tree paths in GIT-083 `da348337d9329044937b2d27cb76498b743e778f` (`Complete SPEC-0010 Phase 3 recovery startup`), normal fast-forwarded clean canonical `main`, pushed normally, and verified canonical `main`, `origin/main` and live GitHub `main` equal.

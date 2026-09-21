@@ -124,6 +124,7 @@
 ./docs/specs/0008-conversational-ai-animator.md
 ./docs/specs/0009-animation-export.md
 ./docs/specs/0010-project-safety-and-recovery.md
+./docs/specs/0011-my-projects-library-movie-viewer-and-shared-project-management.md
 ./docs/specs/README.md
 ./docs/specs/TEMPLATE.md
 ./docs/testing_workflow.md

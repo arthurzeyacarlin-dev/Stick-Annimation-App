@@ -43,6 +43,8 @@ D-0094 creates [`SPEC-0009 — Animation Export`](specs/0009-animation-export.md
 
 D-0102 defines [`SPEC-0010 — Project Safety and Recovery`](specs/0010-project-safety-and-recovery.md) as the next beta-readiness foundation: Save and Exit; one separate local latest emergency recovery draft; and startup Recover Work / Discard Draft with final fault/regression proof. GIT-080 publishes the plan. D-0105/GIT-081 `44cdafc534d7ef096cd2e283532a956c4eaa91f6` close Phase 1. D-0106/D-0107/GIT-082 `7e7063eaab3c486278355559c490611e3ca590ea` close Phase 2. D-0108/D-0109/GIT-083 `da348337d9329044937b2d27cb76498b743e778f` close Phase 3 with startup gating, exact-generation single-winner recovery, detached-copy protection, confirmed discard, final regression proof, proof preservation and cleanup. All three SPEC-0010 phases are fully closed.
 
+D-0110 now proposes [`SPEC-0011 — My Projects Library, Movie Viewer, and Shared Project Management`](specs/0011-my-projects-library-movie-viewer-and-shared-project-management.md) as the next non-AI product sequence. Its three separately gated phases are: a real local My Projects library and shared player host; an exact playback-only Movie Viewer with synchronized audio/fullscreen/accessibility; and one shared Rename/Duplicate/Delete/Search/Sort owner across My Projects and Open Project. The proposal reuses the existing V2 collection/repository, accepted saved-project evaluator/compositor/player, sole editor, recovery owner, and Export owner. It authorizes no implementation, external/paid activity, Git publication, or resumption of paused SPEC-0008 work.
+
 The permanent direction is drawing-only: no non-destructive command may silently remove unrelated authored pixels/items; intentional removals use a closed registry of explicit destructive controls; same-paint raster overlaps use maximum coverage rather than cumulative darkening; and accepted Phase 2 **Draw Rig** creates ordinary segmented raster paint, never joints/bones/topology. Accepted Phase 3 retires active structured-rig/Creator authoring and migrates historical rig content non-destructively into ordinary drawing/drawing symbols through read-only compatibility adapters. Every future-AI-eligible mutation uses the same validated capability as its ordinary manual control. SPEC-0007 adds no AI/provider/model/prompt/API/video/tracking behavior.
 
 The current code is a prototype foundation, not a finished Version 1. Existing documents that called either workspace “complete” described a past visual milestone and are superseded by `CURRENT_STATE.md`.
@@ -65,6 +67,7 @@ Phase 0 is preservation and stabilization:
 - preserve completed SPEC-0008 Phase 1 while D-0093 pauses Phases 2–6; do no later AI Animator/provider implementation until Arthur explicitly resumes it and the architecture/spec is reconciled
 - preserve fully closed SPEC-0009 Phases 1–3 through D-0101/GIT-079
 - preserve fully closed SPEC-0010 Phases 1–3 through D-0109/GIT-083
+- preserve D-0110/SPEC-0011 as a planning-complete proposal whose three phases remain Unauthorized/Not started until separate approval, activation publication, and phase authorization
 
 The ordered phase plan lives in `ROADMAP.md`.
 

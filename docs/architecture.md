@@ -1,7 +1,17 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-21 through D-0109/GIT-083 publication/closeout of SPEC-0010 Phase 3.
+Last traced: 2026-09-21 through D-0110/SPEC-0011 planning against canonical `main` `788e69826438f56ee648452706ce1f68c07592bc`; no runtime implementation.
+
+## Proposed SPEC-0011 project-library and playback architecture — not implemented
+
+D-0110/SPEC-0011 preserve the existing ownership graph and add no duplicate persistence or playback truth. `ProjectLibrary` is one shared shell with two modes: My Projects dispatches Watch into a centered playback-only modal; Open Project dispatches Edit through `prepareCollectionWorkspace(...)` into the sole DrawingWorkspace. Both read `listProjectCollection(createBrowserProjectSourceReader())`, bind exact source locators/digests, keep invalid/protected entries visible, and refresh from authoritative local storage.
+
+The accepted SPEC-0009 `loadExportProjectSnapshot(...)` evaluator, frame/timing resolvers, `renderCanonicalExportFrame(...)` compositor, and current Export player are factored into one `CanonicalProjectPlayer` owner consumed by Export preview and Movie Viewer. Posters use the same evaluator/compositor on the earliest visible canonical frame. The Phase 2 player has one monotonic media clock; frame/time/seek/audio all derive from saved FPS and attachment frame indices. Canvas CSS uses uniform contain geometry and saved logical-stage aspect ratio. The viewer is modal, playback-only, explicit-fullscreen, keyboard/focus/reduced-motion aware, and stops without implicit looping. Export encoding, destinations, Finder, and validation do not move into the viewer.
+
+Phase 3 adds one `ProjectManagementCommandOwner` above the existing V2 repository/storage transaction boundary. Rename is a same-ID metadata-only next revision. Duplicate is the existing new-ID/copy-provenance path and may hydrate a valid read-only legacy source without mutating it. Delete revalidates one exact native head, blocks active-editor/recovery conflicts, deletes only that project/head/versions, and removes only assets proven unreferenced by every remaining official version. `BroadcastChannel` is invalidation only; storage re-read plus lock/CAS remains authoritative. Search/sort is a local presentation transform, not persisted project data.
+
+The Home My Project control remains inert today. A bounded check of the inherited SPEC-0009 geometry proof (initial run plus one immediate same-environment confirmation) reported the same frame-3 X mapping `0.749406441925578` versus `0.8215350990452878`; this is an unresolved Phase 2 entry/proof gate, not a confirmed runtime regression. All SPEC-0011 phases remain Unauthorized/Not started.
 
 ## SPEC-0010 Project Safety and Recovery architecture — all three phases closed
 
@@ -276,7 +286,7 @@ Until superseded by an approved spec:
 
 ## Navigation and Coordinate Boundaries
 
-`DrawingWorkspace` accepts an initial project but no exit callback, so the current mounted drawing flow has no in-app Back/Exit path. Home Tutorials now opens a local full-screen showcase and returns with focus restored; the Home header is not mounted inside Tutorials. Home AI Credits was removed. My Project, AI Assistant, Export, and AI Project Finalizer remain inert. These are local shell choices, not URL-routing commitments; refresh from Tutorials returns Home.
+`DrawingWorkspace` now receives the accepted SPEC-0010 Save-and-Exit/Home path. Home Tutorials opens a local full-screen showcase and returns with focus restored; the Home header is not mounted inside Tutorials. Home AI Credits was removed. My Project, AI Assistant, and AI Project Finalizer remain inert; Export opens the accepted SPEC-0009 flow. These are local shell choices, not URL-routing commitments; refresh from Tutorials returns Home.
 
 `DrawingCanvas` computes an authoring-world scale of 4.6 from camera limits. Six authoring canvases allocate `hostWidth × 4.6 × DPR` by `hostHeight × 4.6 × DPR`, or 21.16 times host pixel area per canvas at DPR 1 and 84.64 times at DPR 2, before the separate playback surface and history snapshots. A stable document/stage coordinate contract is therefore a prerequisite for treating viewport, memory, AI placement, persistence, and export independently.
 

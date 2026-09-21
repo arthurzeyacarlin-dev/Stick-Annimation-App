@@ -3,6 +3,14 @@
 Status: canonical proof standard and current gate baseline
 Last updated: 2026-09-21
 
+## Proposed SPEC-0011 proof contract
+
+Status: D-0110/SPEC-0011 are planning complete; all three phases remain Unauthorized/Not started. No proof run or implementation is authorized by this section.
+
+Every separately authorized phase must bind an immutable ignored manifest to the exact base and dirty allowlist; source/evidence hashes; before/after official repository, recovery, history/workspace and Export digests; deterministic valid/invalid/corrupt/legacy/audio/shared-asset fixtures; fault/two-tab concurrency; zero network/provider/AI/credit activity; desktop/compact/narrow/200%-zoom/reduced-motion/keyboard/accessibility/fullscreen results; performance/resource ceilings; focused type/lint/build/diff/index checks; protected Save/Open/recovery/editor/player/Export/Terra regressions; and negative manifest mutations. Executor flags remain `humanAcceptance: pending Arthur`, `controlPlaneUpdated: false`, and `gitPublication: false`.
+
+Phase 1 proves the real shared project library, truthful metadata/posters/failures, shared accepted evaluator/player factoring, Watch-versus-Edit routing, modal close/focus behavior, and unchanged Export preview. Phase 2 proves one exact clock, saved frame/layer/background/audio fidelity, contain geometry, seek/fullscreen/keyboard/accessibility/resource cleanup, bounded drift, and root-cause reconciliation of the inherited SPEC-0009 frame-3 X-mapping mismatch without weakening accepted tolerance. Phase 3 proves shared Search/Sort/Rename/Duplicate/Delete, native-versus-protected-legacy rules, recovery/open-session/reference safety, deterministic cross-tab outcomes, and unchanged editor/recovery/export behavior. The complete fixture matrix, ceilings, acceptance flows, and stop gates live in [`SPEC-0011`](specs/0011-my-projects-library-movie-viewer-and-shared-project-management.md).
+
 ## Accepted SPEC-0010 Phase 1–3 proof
 
 Status: D-0105/GIT-081 close Phase 1. D-0106/D-0107/GIT-082 close corrected Phase 2. D-0108/D-0109/GIT-083 close Phase 3 publication/integration, proof preservation and cleanup. All three phases are fully closed.

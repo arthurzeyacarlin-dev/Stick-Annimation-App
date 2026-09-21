@@ -3,9 +3,11 @@
 Status: canonical proof standard and current gate baseline
 Last updated: 2026-09-21
 
-## Proposed SPEC-0010 Project Safety and Recovery proof contract
+## Accepted SPEC-0010 Phase 1 proof and later-phase contract
 
-Status: GIT-080 publishes the plan and D-0103 authorizes Phase 1 only. No implementation or proof result exists yet; Phases 2–3 remain Unauthorized/Not started.
+Status: D-0104 accepts and technically verifies Phase 1; publication is authorized/pending. Phases 2–3 remain Unauthorized/Not started.
+
+Phase 1's immutable 8,302-byte manifest `output/spec-0010/phase-1/proof-manifest.json` is PASS/VALID at SHA-256 `b400293271c1ae0cf78007de5024eb616516a6219d3a9965e03a16d8f7890f19`, source digest `5ff9239626dd05e456e038b821171f093bbc6120e3810d1dff651a7793ba0900`. Fresh strict pre-propagation validation passed 16 assertions and rejected ten mutations. Bound proof passed 18 oracle, 17 contract and 29 real-Chrome assertions across six flows, TypeScript, focused lint, unchanged full-lint baseline, focused production build, diff/scope/index, desktop/compact/reduced-motion keyboard behavior and protected Save/Save As/Export/drawing/layer/onion/playback/Terra-panel regressions. Deterministic proof recorded zero external/provider/AI/paid calls and zero credit changes. A separately authorized live Terra greeting after ignored environment restoration used 407 tokens and estimated $0.001214; no secret or tracked Terra/Thinking source changed.
 
 Phase 1 must prove that **Save and Exit** uses the existing official V2 Save transaction exactly once, returns Home only after the successful write covers the current workspace generation, stays editable on every failure/stale completion, and does not begin recovery storage. Phase 2 must prove that only committed meaningful edits create one separate latest verified local emergency draft; debounce, readback, bounds, quota/corruption, stale sequence, cross-session conflict and exact-generation clearing all fail safely without changing official projects. Phase 3 must prove understandable startup **Recover Work** / **Discard Draft**, isolated recovery with zero official writes before explicit Save, detached-copy handling for stale/missing sources, corrupt/oversized behavior, and the honest limit that only a completed verified local draft is recoverable.
 

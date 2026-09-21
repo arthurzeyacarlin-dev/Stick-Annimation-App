@@ -1060,6 +1060,17 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Authorization: SPEC-0010 is Approved. Phase 1 **File → Save and Exit** is Authorized/Not started and may begin in one fresh dedicated Plan-mode Spec Executor from the clean synchronized activation-record SHA. It may touch only its bounded runtime/test/proof allowlist, reuse the canonical Save transaction, navigate Home only after a current-generation success, and stop with an Implementation Review Packet for Arthur.
 - Boundaries: Phase 1 must not begin Phase 2 recovery storage, Phase 3 startup recovery, AI/Terra work, export changes, provider/network/paid activity, deployment, dependency changes, control-plane mutation, Git staging/commit/push, or another phase. Phases 2–3 remain Unauthorized/Not started.
 
+### D-0104 — Accept and technically verify SPEC-0010 Phase 1 Save and Exit
+
+- Date: 2026-09-21
+- Status: Accepted by Arthur; technically Verified; control-plane propagation and later publication/integration/cleanup explicitly authorized
+- Authority: Arthur reviewed the corrected Phase 1 app copy, called it acceptable, and explicitly authorized recording the control plane, committing, integrating into the real app, pushing to GitHub, and final cleanup.
+- Accepted result: exact ten tracked technical paths from unchanged base/HEAD `db0be15decae427e3ca0d696d945a650f363a4aa`, empty index. The 8,302-byte immutable PASS/VALID manifest `output/spec-0010/phase-1/proof-manifest.json` has SHA-256 `b400293271c1ae0cf78007de5024eb616516a6219d3a9965e03a16d8f7890f19` and source digest `5ff9239626dd05e456e038b821171f093bbc6120e3810d1dff651a7793ba0900`. Fresh strict pre-propagation validation passed 16 assertions and rejected ten material mutations.
+- Behavior: **Save and Exit** is the final File action, reuses one canonical official V2 Save, returns Home only when the write succeeds and covers the current generation, stays editable on failure/stale success, and suppresses duplicate write/navigation. No recovery store/startup prompt exists yet.
+- Proof: 18 oracle, 17 contract and 29 real-Chrome assertions across six flows passed with TypeScript, focused lint, unchanged full-lint baseline, focused production build, diff/scope/index, keyboard/compact/reduced-motion and protected workspace regressions. Deterministic proof recorded zero external/provider/AI/paid calls and zero credit changes.
+- Terra correction: the review worktree's ignored `.env.local` was restored byte-identically from canonical private configuration without reading, exposing, tracking or publishing the secret. Exactly one authorized live `gpt-5.6-terra` greeting returned `Hi! What would you like to make?`, used 407 tokens and an estimated $0.001214. Tracked Terra/Thinking source bytes remained unchanged.
+- Boundary: propagation must not change the accepted ten technical bytes. `.env.local` remains ignored and excluded from proof/publication. Phase 2 recovery storage and Phase 3 startup recovery remain Unauthorized/Not started. Publication/integration, proof preservation, port-57610 shutdown and D-0054 cleanup occur only in the later sequential publication step already authorized by Arthur.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

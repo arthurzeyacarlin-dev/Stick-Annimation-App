@@ -5,6 +5,7 @@ type DrawingTopBarProps = {
   onSave?: () => void | Promise<void>;
   onSaveAs?: () => void | Promise<void>;
   onExport?: () => void;
+  onSaveAndExit?: () => void | Promise<void>;
   saveState?: "not-saved" | "unsaved" | "saving" | "saved" | "too-large" | "failed";
   isLegacyProject?: boolean;
   onUndo?: () => void;
@@ -56,6 +57,7 @@ export function DrawingTopBar({
   onSave,
   onSaveAs,
   onExport,
+  onSaveAndExit,
   saveState = "not-saved",
   isLegacyProject = false,
   onUndo,
@@ -66,7 +68,7 @@ export function DrawingTopBar({
   const [isFileMenuOpen, setIsFileMenuOpen] = useState(false);
   const [hoveredHistoryAction, setHoveredHistoryAction] = useState<"undo" | "redo" | null>(null);
   const fileMenuRef = useRef<HTMLDivElement | null>(null);
-  const hasFileMenu = typeof onSave === "function" || typeof onSaveAs === "function" || typeof onExport === "function";
+  const hasFileMenu = typeof onSave === "function" || typeof onSaveAs === "function" || typeof onExport === "function" || typeof onSaveAndExit === "function";
   const hasHistoryControls = typeof onUndo === "function" || typeof onRedo === "function";
 
   useEffect(() => {
@@ -206,6 +208,30 @@ export function DrawingTopBar({
                   }}
                 >
                   Export…
+                </button>
+              ) : null}
+              {onSaveAndExit ? (
+                <button
+                  type="button"
+                  role="menuitem"
+                  disabled={isSaving}
+                  onClick={() => runFileAction(onSaveAndExit)}
+                  style={{
+                    width: "100%",
+                    marginTop: 2,
+                    padding: "7px 10px",
+                    border: "none",
+                    borderTop: "1px solid rgba(255,255,255,0.08)",
+                    borderRadius: 6,
+                    background: "transparent",
+                    color: "rgba(255,255,255,0.88)",
+                    fontSize: 12,
+                    textAlign: "left",
+                    cursor: isSaving ? "default" : "pointer",
+                    opacity: isSaving ? 0.5 : 1,
+                  }}
+                >
+                  Save and Exit
                 </button>
               ) : null}
             </div>

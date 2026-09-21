@@ -149,7 +149,7 @@ const hydrateUnifiedItemCompatibility = (project: UnifiedAnimationProjectV2, dra
   return { stickByCell: {}, symbolInstancesByCell };
 };
 
-export function AnimationWorkspace({ root, onExport }: { root: MountedWorkspace; onExport?: () => void }) {
+export function AnimationWorkspace({ root, onExport, onExit }: { root: MountedWorkspace; onExport?: () => void; onExit?: () => void }) {
   const editor = root.candidate.editor;
   const { initialProject, hydratedUnifiedProject } = useMemo(() => {
     const compatibilityDrawingData = editor.project.compatibility?.drawingData as DrawingProjectData | undefined;
@@ -173,5 +173,5 @@ export function AnimationWorkspace({ root, onExport }: { root: MountedWorkspace;
       },
     };
   }, [editor.project]);
-  return <DrawingWorkspace initialProject={initialProject} initialTitle={editor.project.title} unifiedProject={hydratedUnifiedProject} onExport={onExport} />;
+  return <DrawingWorkspace initialProject={initialProject} initialTitle={editor.project.title} unifiedProject={hydratedUnifiedProject} onExport={onExport} onExit={onExit} />;
 }

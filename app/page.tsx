@@ -1215,7 +1215,17 @@ export default function Page() {
 {bootstrapMessage && view === "home" ? <div role="status" style={{ position: "fixed", bottom: 12, left: 12, color: "white", background: "#182334", padding: 12, borderRadius: 8 }}>{bootstrapMessage}</div> : null}
 {workspace && (view === "animationWorkspace" || (view === "animationExport" && exportOrigin === "workspace")) && (
   <div style={{ display: view === "animationWorkspace" ? "contents" : "none" }}>
-    <AnimationWorkspace root={workspace} onExport={() => { setExportOrigin("workspace"); setView("animationExport"); }} />
+    <AnimationWorkspace
+      root={workspace}
+      onExport={() => { setExportOrigin("workspace"); setView("animationExport"); }}
+      onExit={() => {
+        restoreHomeFocus.current = true;
+        homeFocusRef.current = "new";
+        setWorkspace(null);
+        setExportOrigin("home");
+        setView("home");
+      }}
+    />
   </div>
 )}
 {view === "animationExport" && (

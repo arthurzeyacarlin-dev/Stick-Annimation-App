@@ -1,5 +1,14 @@
 # Changelog
 
+### 2026-09-21 — Accept and technically verify SPEC-0010 Phase 1 Save and Exit (D-0104)
+
+- recorded Arthur's acceptance and explicit authority for control-plane propagation plus later commit/integration/push/cleanup of the exact ten-path Phase 1 result from unchanged base/HEAD `db0be15decae427e3ca0d696d945a650f363a4aa`, empty index
+- bound the immutable 8,302-byte PASS/VALID manifest SHA-256 `b400293271c1ae0cf78007de5024eb616516a6219d3a9965e03a16d8f7890f19` and source digest `5ff9239626dd05e456e038b821171f093bbc6120e3810d1dff651a7793ba0900`; fresh validation passed 16 assertions and rejected ten mutations
+- accepted the final File **Save and Exit** action using one canonical official Save, current-generation coverage before Home, failure/stale-edit retention and duplicate suppression; no Phase 2 recovery storage or Phase 3 startup recovery was added
+- recorded PASS for 18 oracle, 17 contract and 29 Chrome assertions across six flows plus type/lint/build/diff/scope/index and protected workspace regressions; deterministic proof recorded zero external/provider/AI/paid calls or credit changes
+- recorded the narrow ignored-environment correction separately: `.env.local` remained ignored/unpublished, tracked Terra/Thinking source stayed unchanged, and one authorized 407-token `gpt-5.6-terra` greeting returned naturally at estimated cost $0.001214
+- propagation changes only canonical records and leaves the accepted ten technical bytes unchanged. Publication/integration, proof preservation, port-57610 shutdown and D-0054 cleanup remain the next already-authorized sequential step; Phases 2–3 remain Unauthorized/Not started
+
 ### 2026-09-21 — Publish SPEC-0010 planning and authorize Phase 1 (D-0103/GIT-080)
 
 - published the exact 13-path SPEC-0010 planning package in `cb80f2baf92f812c97ce758067f6ea28b3c6c187` (`Define SPEC-0010 project safety and recovery`) by normal fast-forward to canonical `main` and push to `origin/main`

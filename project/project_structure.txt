@@ -499,6 +499,13 @@
 ./scripts/spec0009-export/validatePhase1Proof.ts
 ./scripts/spec0009-export/validatePhase2Proof.ts
 ./scripts/spec0009-export/validatePhase3Proof.ts
+./scripts/spec0010-project-safety
+./scripts/spec0010-project-safety/phase1BrowserProof.ts
+./scripts/spec0010-project-safety/phase1Contract.ts
+./scripts/spec0010-project-safety/phase1GateProof.ts
+./scripts/spec0010-project-safety/phase1Oracle.ts
+./scripts/spec0010-project-safety/recordPhase1Proof.ts
+./scripts/spec0010-project-safety/validatePhase1Proof.ts
 ./scripts/sync_docs_to_github.sh
 ./scripts/traceExplosionLivePath.ts
 ./scripts/traceGenerateSoundsLivePath.mjs

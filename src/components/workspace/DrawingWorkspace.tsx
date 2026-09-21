@@ -3540,6 +3540,7 @@ type DrawingWorkspaceProps = {
   initialTitle: string;
   unifiedProject: UnifiedAnimationProjectV2;
   onExport?: () => void;
+  onExit?: () => void;
 };
 
 type SaveAsDialogState = {
@@ -3548,7 +3549,7 @@ type SaveAsDialogState = {
   submitting: boolean;
 };
 
-export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject, onExport }: DrawingWorkspaceProps) {
+export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject, onExport, onExit }: DrawingWorkspaceProps) {
   const openedInitialProject = initialProject.project;
   const initialWorkspaceState = createDrawingWorkspaceInitialState(openedInitialProject, true);
   const [projectId, setProjectId] = useState<string | null>(initialWorkspaceState.projectId);
@@ -3646,6 +3647,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
   const persistedStateEffectReadyRef = useRef(false);
   const suppressNextPersistedStateEffectRef = useRef(false);
   const saveInFlightRef = useRef(false);
+  const saveAndExitInFlightRef = useRef(false);
   const workspaceMountedRef = useRef(true);
   const historyEntriesRef = useRef<DrawingWorkspaceHistoryEntry[]>([]);
   const currentHistoryIndexRef = useRef(-1);
@@ -7947,7 +7949,9 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
 
   const saveProject = useCallback(async () => {
     requireManualEditorCommand("project.save/v2", "DrawingWorkspace.saveProject");
-    if (isTimelinePlayingRef.current || saveInFlightRef.current) return false;
+    if (isTimelinePlayingRef.current || saveInFlightRef.current) {
+      return { officialWriteSucceeded: false, coversCurrentGeneration: false };
+    }
     const capturedWorkspaceInstanceId = workspaceInstanceIdRef.current;
     saveInFlightRef.current = true; setSaveState("saving");
     try {
@@ -7956,20 +7960,34 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       if (!candidate) throw new Error("invalid_record");
       const capturedGeneration = documentGenerationRef.current;
       const saved = await saveUnifiedProjectV2(candidate);
-      if (!workspaceMountedRef.current || workspaceInstanceIdRef.current !== capturedWorkspaceInstanceId) return true;
+      if (!workspaceMountedRef.current || workspaceInstanceIdRef.current !== capturedWorkspaceInstanceId) {
+        return { officialWriteSucceeded: true, coversCurrentGeneration: false };
+      }
       setActiveUnifiedProject(saved); setProjectId(saved.projectId); setProjectTitle(saved.title);
       setProjectAiMemory(bindDrawingAiProjectMemoryToProject(saved.auxiliary?.drawingAiMemory as DrawingAiProjectMemory | null, saved.projectId));
-      if (documentGenerationRef.current === capturedGeneration) { setSaveState("saved"); showSaveNotification(saved.title); }
+      const coversCurrentGeneration = documentGenerationRef.current === capturedGeneration;
+      if (coversCurrentGeneration) { setSaveState("saved"); showSaveNotification(saved.title); }
       else setSaveState("unsaved");
-      return true;
+      return { officialWriteSucceeded: true, coversCurrentGeneration };
     } catch (error) {
       if (workspaceMountedRef.current && workspaceInstanceIdRef.current === capturedWorkspaceInstanceId) {
         setSaveState(error instanceof Error && ["project_too_large", "collection_too_large", "project_limit_reached"].includes(error.message) ? "too-large" : "failed");
       }
-      return false;
+      return { officialWriteSucceeded: false, coversCurrentGeneration: false };
     }
     finally { saveInFlightRef.current = false; }
   }, [buildUnifiedProjectSnapshot, commitCurrentFrameSnapshotWithoutHistory, createPersistedProjectSnapshot, showSaveNotification]);
+
+  const saveAndExit = useCallback(async () => {
+    if (!onExit || saveAndExitInFlightRef.current) return;
+    saveAndExitInFlightRef.current = true;
+    const result = await saveProject();
+    if (result.officialWriteSucceeded && result.coversCurrentGeneration) {
+      onExit();
+      return;
+    }
+    saveAndExitInFlightRef.current = false;
+  }, [onExit, saveProject]);
 
   const exportCurrentFrame = useCallback(() => {
     if (isTimelinePlayingRef.current) {
@@ -8032,7 +8050,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       }
 
       if (actionPlan.action === "save-project") {
-        return saveProject();
+        return (await saveProject()).officialWriteSucceeded;
       }
 
       if (actionPlan.action === "export-current-frame") {
@@ -8948,6 +8966,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         onSave={async () => { await saveProject(); }}
         onSaveAs={handleSaveAs}
         onExport={onExport}
+        onSaveAndExit={onExit ? saveAndExit : undefined}
         saveState={saveState}
         isLegacyProject={activeUnifiedProject.provenance?.kind === "legacy-adoption" && activeUnifiedProject.provenance.adoptedAt === null}
         onUndo={handleUndo}

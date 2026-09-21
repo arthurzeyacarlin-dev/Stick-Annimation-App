@@ -1,13 +1,13 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-21 through GIT-080 SPEC-0010 planning publication and D-0103 Phase 1 authorization; runtime remains unchanged.
+Last traced: 2026-09-21 through D-0104 acceptance and technical verification of SPEC-0010 Phase 1; publication pending.
 
-## Proposed SPEC-0010 Project Safety and Recovery architecture — not implemented
+## SPEC-0010 Project Safety and Recovery architecture — Phase 1 accepted, later phases not implemented
 
-D-0102 proposes one local safety layer around the existing unified V2 owner without changing that owner's official Save semantics. The current File menu has Save, Save As and Export but no Save and Exit. `DrawingWorkspace.saveProject()` already captures the current committed frame, builds and validates one V2 snapshot, and publishes through the canonical repository's staged/readback/compare-and-swap path. `app/page.tsx` alone currently owns the return to Home. The existing `workspace:pointerup-autosave` label means only in-memory committed-canvas capture; it is not durable recovery. No separate recovery database, unload flush, startup prompt or recovery mount path exists today.
+D-0104 accepts Phase 1's narrow wiring around the existing unified V2 owner without changing the repository's official Save semantics. `DrawingWorkspace.saveProject()` still captures the current committed frame, builds/validates one V2 snapshot and publishes through the canonical repository. It now returns explicit official-write/current-generation coverage; **Save and Exit** invokes `app/page.tsx`'s Home owner only when both are true. Failure, stale success and duplicate activation stay in the workspace safely.
 
-The proposed three-phase architecture is:
+The three-phase architecture is:
 
 ```text
 Phase 1: File -> Save and Exit
@@ -28,7 +28,7 @@ Phase 3: startup recovery check
   -> later explicit Save/Save As/Save and Exit remains the sole official publication door
 ```
 
-The recovery draft is an emergency local backup, not ordinary Save, project history, cloud sync or a project-list entry. Only a fully committed and read-back local draft may be promised; browser termination cannot guarantee unfinished asynchronous work. D-0103 authorizes Phase 1 only; Phases 2–3 remain Unauthorized/Not started. The exact contracts, bounds and gates are in [`SPEC-0010`](specs/0010-project-safety-and-recovery.md). SPEC-0008 Phases 2–6 remain paused under D-0093.
+Phase 1 is accepted/technically Verified with publication pending. The recovery draft remains an unimplemented later-phase emergency backup, not ordinary Save, project history, cloud sync or a project-list entry. The existing `workspace:pointerup-autosave` still means only in-memory canvas capture. No separate recovery database, unload flush, startup prompt or recovery mount path exists. Phases 2–3 remain Unauthorized/Not started; SPEC-0008 Phases 2–6 remain paused under D-0093.
 
 ## SPEC-0009 Animation Export architecture — all three phases closed
 

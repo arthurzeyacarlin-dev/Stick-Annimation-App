@@ -1,5 +1,13 @@
 # Changelog
 
+### 2026-09-22 — Accept and propagate combined SPEC-0012 Phase 2 (D-0124)
+
+- Recorded Arthur/PM acceptance of the exact 34-path sessions plus fixed-Terra/local-catalog guidance result from detached base/HEAD `652431396e78370f3dfb7549294e66d154c3b7d4`, empty index; the original planned Phase 3 scope is satisfied inside Phase 2.
+- Recorded Arthur's final decision to remove cumulative local daily/monthly reservations, budget file/lock gating and old aggregate-stop messages. Retained the `$0.15` per-request estimate, 24k/4k tokens, 90-second deadline, zero retry/resend, two active jobs/one per session, exact identity/dedupe, cancel/deadline winner, 500 job identities, 50 chats, usage reporting, local-only route, no tools, `store:false`, server-only credential and zero project mutation.
+- Bound final manifest SHA-256 `b6251390f20e8bb7dfe26208241b163c3f306e197ae37ace5340b6a8f572350c`, source digest `304ef20707128abef122355ccf5e0692ed7663be45e75cb3640d519f500e88d7`, 34 source/116 evidence bindings and 34 mutation rejections. Original and prior correction seals remain intact.
+- Recorded 120 successful provider/SDK-double requests across exhausted/malformed/locked/absent legacy fixtures, twelve consecutive production-browser Sends, all prior session/presentation/fault/restart/protected/Animator suites, thirteen protected technical oracles, TypeScript/focused lint/focused build and final page smoke. Automated real/paid provider calls and cost were zero.
+- Propagated only fifteen canonical record/tree paths; changed no accepted runtime, fixture, technical-test or proof bytes. GIT-091 publication/integration, proof preservation, exact review-server shutdown and D-0054 cleanup remain pending separate authority. Nothing was staged, committed, pushed or deployed.
+
 ### 2026-09-22 — Close SPEC-0012 Phase 1 publication and cleanup (D-0123/GIT-090)
 
 - Published the exact eleven accepted technical plus fifteen reviewed control-plane/tree paths as GIT-090 `e725f562307e0c7530b32b416218018af87b65fd`, parent GIT-089 `f2bda33842a3f5a4b560a7d3aab170a6ca4c2fd0`, message `Complete SPEC-0012 Phase 1 assistant shell`.

@@ -1,11 +1,11 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-22 through D-0123/GIT-090 SPEC-0012 Phase 1 publication/closeout; GIT-089 is the planning base and Phase 1 is fully closed.
+Last traced: 2026-09-22 through D-0124 acceptance and control-plane propagation of combined SPEC-0012 Phase 2; publication remains pending.
 
-## SPEC-0012 guidance-Assistant architecture — Phase 1 shell accepted
+## SPEC-0012 guidance-Assistant architecture — combined Phase 2 accepted
 
-D-0120 separates the Home guidance Assistant from every animation-capable AI path. Accepted Phase 1 now wires Home **AI Assistant** to dedicated `/assistant`, whose local responsive shell is owned by `app/assistant/page.tsx` and `src/components/assistant/`. Future `/api/diamond-assistant`, Assistant-only contract/job service, versioned local Diamond Animator knowledge and Assistant-only IndexedDB sessions remain unimplemented Phase 2+ architecture. The shell accepts no project ID, workspace summary, animation bytes, manual command, repository/recovery/Export/project-management handle, or AI Animator ledger.
+D-0120 separates the Home guidance Assistant from every animation-capable AI path. Phase 1 provides dedicated `/assistant`. D-0124 accepts combined Phase 2: `DiamondAssistantScreen` and Assistant components own Assistant-only IndexedDB sessions; `/api/diamond-assistant` owns a local-only strict request boundary; `DiamondAssistantJobService` owns identity, dedupe, concurrency, deadline, cancellation and the private final hold; the provider retrieves bounded checked-in knowledge and calls fixed `gpt-5.6-terra` with no tools and `store:false`. No project ID, workspace summary, animation bytes, manual command, repository/recovery/Export/project-management handle or AI Animator ledger enters the path.
 
 ```text
 Home AI Assistant card
@@ -23,7 +23,7 @@ Home AI Assistant card
 
 Exactly 50 persisted sessions are allowed with no silent eviction; blank chats are ephemeral; manual rename overrides any automatic title; delete is confirmed and Assistant-local. Guidance may explain app navigation but never controls it. The server event stream alone owns truthful Thinking, real Searching the internet, and output-composition Finalizing answer states. Phase 5 adds a separate, later-approved transcription route: in-memory microphone capture → waveform → Cancel or Stop → editable transcript → explicit Send; raw audio is never persisted.
 
-Phase 1 implements only the navigation/presentation shell of this six-phase architecture. It preserves the accepted AI Animator `DrawingAiPanel`/`/api/ai-animator`/job/storage path and the complete unified V2 project-mutation path as protected regressions. No Assistant provider/search/transcription call, credential, dependency, deployment, persistence or project mutation exists yet.
+Combined Phase 2 implements local sessions and the original planned Phase 3 fixed-Terra/local-catalog guidance scope. Cumulative daily/monthly reservation/ledger/lock code is intentionally absent under D-0124; the `$0.15` per-request estimate and all token/output/deadline/concurrency/dedupe/cancel/job-memory/session/usage/local-only/no-tools protections remain. Hosted search, transcription, deployment and project mutation remain absent. The accepted AI Animator and unified V2 mutation paths remain protected and separate.
 
 ## SPEC-0011 project-library and playback architecture — all three phases fully closed
 

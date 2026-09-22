@@ -3,7 +3,7 @@ import { DiamondAssistantScreen } from "@/src/components/assistant/DiamondAssist
 
 export const metadata: Metadata = {
   title: "Assistant | Diamond Animator",
-  description: "The Diamond Animator guidance Assistant preview.",
+  description: "Ask questions and get guidance about Diamond Animator.",
 };
 
 export default function AssistantPage() {

@@ -1,10 +1,10 @@
 # SPEC-0012 — Diamond Animator Guidance Assistant
 
-Status: **Active; Phase 1 Verified/published/integrated/synchronized/proof-preserved/cleaned up; Phases 2–6 unauthorized/not started**
+Status: **Active; Phase 1 fully closed; combined Phase 2 sessions/fixed-Terra guidance accepted and technically Verified with control-plane propagation complete, publication pending; original Phase 3 scope absorbed into Phase 2; Phases 4–6 unauthorized/not started**
 
 Owner: Arthur
 
-Planning decision: D-0120; planning publication GIT-089 `f2bda33842a3f5a4b560a7d3aab170a6ca4c2fd0`; Phase 1 authorization/acceptance D-0121/D-0122; Phase 1 closeout D-0123/GIT-090 `e725f562307e0c7530b32b416218018af87b65fd`
+Planning decision: D-0120; planning publication GIT-089 `f2bda33842a3f5a4b560a7d3aab170a6ca4c2fd0`; Phase 1 authorization/acceptance D-0121/D-0122; Phase 1 closeout D-0123/GIT-090 `e725f562307e0c7530b32b416218018af87b65fd`; combined Phase 2 acceptance, original-Phase-3 scope absorption, final correction and cost-policy decision D-0124
 
 Target review date: Tuesday, September 29, 2026
 
@@ -291,9 +291,9 @@ Raw audio is never written to IndexedDB, localStorage, project storage, recovery
 
 ### 10.2 Cost receipts and limits
 
-Every terminal paid-capable attempt records requested/returned model, reasoning effort, search/transcription tool count, input/output/total tokens where available, provider response ID, latency, estimated cost from a dated price table, and outcome. Unknown model identity, usage, price, or remaining budget fails closed for live proof/beta use.
+Every terminal paid-capable attempt records requested/returned model, reasoning effort, search/transcription tool count, input/output/total tokens where available, provider response ID, latency, estimated cost from a dated price table, and outcome. Unknown model identity, usage, or price fails closed.
 
-Development live gates are supplemental and separately authorized. Unless Arthur approves a different same-day ceiling, one authorized guidance/search attempt may not exceed estimated `$0.15`, one UTC-day Assistant development ledger may not exceed `$0.60`, and one UTC-month private-development ledger may not exceed `$5.00`. Transcription gets a separate request and spend ceiling at Phase 5 entry. Phase 6 must define per-user/public-beta credits and monthly limits before any public exposure; absence of that decision blocks public deployment, not deterministic local implementation.
+D-0124 removes the local guidance Assistant's cumulative daily/monthly reservation mechanism, ledger file, lock and aggregate stop messages. Arthur chooses when to stop local/private review use. The dated `$0.15` maximum estimate for each guidance request remains mandatory, as do the 24,000-input/4,000-output-token ceilings, 90-second deadline, zero automatic retry/resend, two-active-job ceiling, one active job per session, exact identity/deduplication, cancellation/deadline single-winner behavior, 500-job server-memory ceiling, usage/cost receipts, local-only route, `tools: []`, and `store: false`. Historical ignored budget files are inert and are not migration inputs. Search/transcription retain their own future request/tool/privacy gates, and Phase 6 must still define authentication, ownership, rate/abuse controls, per-user credits and public-beta cost policy before public exposure.
 
 ### 10.3 Failures and recovery
 
@@ -342,61 +342,64 @@ The immutable technical manifest is `output/spec-0012/phase-1-correction/proof-m
 
 The workspace AI Animator model/prompt/route/job/storage/Thinking implementation is not an accepted Phase 1 source path. Its source remains fixed to `gpt-5.6-terra`; the ignored review environment was restored without reading or tracking its contents. Two separately authorized small live Animator greetings were observed across executor and PM evidence, both natural and with no animation mutation; no additional live call is authorized or needed for publication.
 
-D-0123/GIT-090 `e725f562307e0c7530b32b416218018af87b65fd` publish the exact eleven accepted technical plus fifteen reviewed control-plane/tree paths. Canonical `main`, `origin/main`, and live GitHub `main` synchronized cleanly at `0/0`. Ninety proof files/30,483,497 bytes are preserved under `output/recovery/GIT-090-spec0012-phase1-e725f56/phase-1`; checksum-inventory SHA-256 is `181ffc69965be95e5172c446b1d70862e8d23474a581b991d023727e7a340aad` and source/destination checksums match. PID 74761 is stopped, port 57950 is closed, and D-0054 cleanup removed the accepted `/9aa0/` review worktree/merged branch. The obsolete rejected `/e81a/` duplicate was first preserved as eleven exact dirty files/136,920 bytes plus a binary patch, then its worktree/local branch were removed. Phase 1 is fully closed. Phase 2 remains Unauthorized/Not started until Arthur separately authorizes it.
+D-0123/GIT-090 `e725f562307e0c7530b32b416218018af87b65fd` publish the exact eleven accepted technical plus fifteen reviewed control-plane/tree paths. Canonical `main`, `origin/main`, and live GitHub `main` synchronized cleanly at `0/0`. Ninety proof files/30,483,497 bytes are preserved under `output/recovery/GIT-090-spec0012-phase1-e725f56/phase-1`; checksum-inventory SHA-256 is `181ffc69965be95e5172c446b1d70862e8d23474a581b991d023727e7a340aad` and source/destination checksums match. PID 74761 is stopped, port 57950 is closed, and D-0054 cleanup removed the accepted `/9aa0/` review worktree/merged branch. The obsolete rejected `/e81a/` duplicate was first preserved as eleven exact dirty files/136,920 bytes plus a binary patch, then its worktree/local branch were removed. Phase 1 is fully closed. At that historical closeout Phase 2 was Unauthorized/Not started; D-0124 now records its later authorization, acceptance and propagation.
 
-## 12. Phase 2 — Bounded 50-session local persistence
+## 12. Phase 2 — Bounded local sessions and fixed-Terra guidance
 
 ### 12.1 Entry gate
 
-Phase 1 must be accepted, propagated by a Control Plane Architect, separately published/integrated/synchronized, proof-preserved, and cleaned up. Phase 2 then requires separate authorization.
+Phase 1 was fully closed through D-0123/GIT-090. Arthur then separately authorized Phase 2 and, through the PM delegation bound by the immutable proof, explicitly moved the first functional fixed-Terra/local-catalog guidance outcome forward from planned Phase 3 into this same Phase 2. D-0124 records acceptance of that combined scope and its final cumulative-budget correction.
 
 ### 12.2 Scope
 
 - Implement `diamond-assistant-session/v1` and Assistant-only IndexedDB storage.
-- Implement ephemeral blank chat, first-send persistence, deterministic provider double, same-call title result, typewriter reveal, selection, authoritative manual rename, confirmed delete, 50-session blocking, 200-message/size ceilings, long-chat scroll/down-arrow, restart/reload recovery, and cross-tab stale-write safety.
-- No real Terra/search/transcription call. The deterministic double simulates the one terminal answer/title envelope and activity events.
+- Implement ephemeral blank chat, first-send persistence, same-call title result, typewriter reveal, selection, authoritative manual rename, confirmed delete, 50-session blocking, 200-message/size ceilings, long-chat scroll/down-arrow, restart/reload recovery, and cross-tab stale-write safety.
+- Implement the dedicated strict Assistant route/contracts/job service/provider, fixed `gpt-5.6-terra`, four reasoning levels with Medium default, checked-in `diamond-animator-knowledge/v1`, bounded recent context/output, truthful Thinking/Finalizing, cancellation/reconnect/error handling, usage/cost receipts, and structural/runtime zero animation/project mutation.
+- Keep hosted search and microphone disabled. Deterministic provider/SDK transport doubles are the mandatory proof path; no automated live/paid call is part of acceptance.
 
-Phase 2 non-goals: real provider guidance, local knowledge authoring beyond fixtures, hosted search, microphone capture/transcription, animation/project context, cloud sync, and public deployment.
+Phase 2 non-goals: hosted search/citations, microphone capture/transcription, animation/project context or mutation, UI control, cloud sync, model fallback, automatic retry/resend, public deployment, and resumed SPEC-0008 work.
 
 ### 12.3 Visible Arthur acceptance flow
 
-Create first chat and send → reply types in and title appears → create/select multiple chats → rename one while an automatic-title completion is pending and prove manual title wins → delete with confirmation → reload/restart and recover exact sessions → create 50 and prove New Chat blocks without deleting any → scroll away in a long chat and use Jump to latest.
+Create the first chat and send → fixed-Terra local guidance passes through Thinking, private Finalizing hold and typewriter reply while the same-call title appears → create/select multiple chats → rename one while completion is pending and prove manual title wins → delete with confirmation → reload/restart and recover exact sessions → create 50 and prove New Chat blocks without deleting any → scroll away in a long chat and use Jump to latest. Ask supported internal-product questions at all four reasoning levels; cancel and exercise missing-key/provider/restart/storage failures; verify no automatic resend, search, project access or mutation.
 
 ### 12.4 Exit proof
 
-Deterministic oracle and browser proof cover atomic first-send publication, blank non-persistence, title race, exact selection, rename/delete targets, no duplicate action, 49→50→blocked ceiling, quota/write/read/corruption/CAS faults, two-tab races, 200-message/1 MiB/32 MiB bounds, exact reload/restart equality, typewriter/reduced motion, down-arrow behavior, and zero official/recovery/Animator/project storage changes.
+Deterministic oracle and browser proof cover atomic first-send publication, blank non-persistence, title race, exact selection, rename/delete targets, no duplicate action, 49→50→blocked ceiling, quota/write/read/corruption/CAS faults, two-tab races, 200-message/1 MiB/32 MiB bounds, exact reload/restart equality, typewriter/reduced motion/down-arrow behavior, strict route/provider/model/schema/context/token/output/deadline/concurrency/identity/cancel behavior, local catalog truth, usage/cost receipts, and zero official/recovery/Animator/project mutation. Final correction proof must also show repeated deterministic calls remain unblocked across exhausted, malformed, locked and absent legacy budget fixtures while the per-request and all other retained safeguards still reject mutations.
 
-Recommended executor: `gpt-6-astra`, Ultra reasoning because silent-loss and concurrency safety are phase-critical.
+### 12.5 Accepted combined Phase 2 result — D-0124
 
-## 13. Phase 3 — Fixed-Terra Diamond Animator guidance
+Arthur and the Project Manager accepted the stopped combined implementation from detached base/HEAD `652431396e78370f3dfb7549294e66d154c3b7d4`, empty index and exactly 34 technical dirty paths. The latest explicit correction removes the cumulative local daily/monthly reservation stop, budget file/lock path and old reached/could-not-verify messages. Arthur chooses when to stop local review use. The `$0.15` per-request maximum estimate, dated usage/cost receipt, 24,000/4,000 token ceilings, 90-second timeout/deadline, zero retry/resend, two active jobs/one per session, exact identity/dedupe, cancel/deadline terminal winner, 500-job memory ceiling, 50-session ceiling, local-only route, `tools: []`, `store: false`, fixed Terra and four reasoning levels remain enforced.
+
+The final immutable manifest is `output/spec-0012/phase-2-final-correction/proof-manifest.json`, SHA-256 `b6251390f20e8bb7dfe26208241b163c3f306e197ae37ace5340b6a8f572350c`, source digest `304ef20707128abef122355ccf5e0692ed7663be45e75cb3640d519f500e88d7`. It binds 34 sources and 116 evidence files and rejects 34 material mutation cases. The original Phase 2 seal `63a87f3e832a200a52c18115fa9ed7533eaf1fb4b5cfc01438e2c1f8c1b3c8ec` with 67 evidence bindings and the correction seal `68953d8900f793676cdb5eaa611a449112664b4f1af504690cac9a682cd5e6f5` with 101 evidence bindings remain intact.
+
+Proof passed 112 general assertions, 23 timing/correction assertions, 38 final cost-policy assertions, 90 production-session browser assertions plus six accessibility profiles, 60 presentation/timing assertions, 33 repeated-send browser assertions, 21 protected-browser assertions, ten restart assertions, 20 fault assertions, eleven Animator-smoke assertions and thirteen protected technical oracles. It completed 120 provider-adapter/installed-SDK transport-double requests across exhausted, malformed, locked and absent legacy fixtures and twelve consecutive ordinary UI Sends in one production chat, without a cumulative-budget failure. TypeScript, focused lint, focused production build, exact scope/diff and final restored-page smoke pass. Automated real/paid provider calls and cost are zero.
+
+The inherited full build still stops at the byte-unchanged `app/dev/ai-costs/lifetime/page.tsx` PageProps/searchParams error. Repository-wide lint retains five errors and 81 warnings only in byte-identical base files. Live provider availability/answer quality, physical devices, non-Chromium, and the historical Animator transient-reveal observation remain unproven. Accepted runtime/test/proof bytes are frozen for publication; canonical propagation changes records/tree only.
+
+## 13. Phase 3 — Fixed-Terra guidance scope absorbed into accepted Phase 2
 
 ### 13.1 Entry gate
 
-Phase 2 must be fully closed. Arthur must separately authorize one Phase 3 executor. Deterministic provider doubles remain the default. Any live call requires a separate same-day model/access/privacy/pricing/request/spend approval; implementation authority alone does not authorize it.
+D-0124 records Arthur/PM authority to move this planned capability forward into the accepted combined Phase 2. No separate Phase 3 executor remains to run. Publication/integration, proof preservation, exact review-server shutdown and D-0054 cleanup are still separate future work.
 
 ### 13.2 Scope
 
-- Add Assistant-specific request/response/job contracts, `/api/diamond-assistant`, `DiamondAssistantJobService`, fixed-Terra provider adapter, strict answer/title schema, versioned local knowledge catalog/retrieval, four reasoning levels, bounded context/output, truthful Thinking/Finalizing events, cancel/poll/reconnect/interruption/error behavior, terminal cost receipts, and accepted typewriter reply.
-- Search tools remain off. Microphone remains non-recording.
-- Hard structural and runtime proof of zero animation mutation and zero import path into any animation/project owner.
-
-Phase 3 non-goals: hosted search, external citations, microphone recording/transcription, UI control, project-aware answers, animation mutation, model fallback, public deployment, and resumed SPEC-0008 work.
+All listed fixed-Terra contracts, route/job/provider/catalog, reasoning/context/output/activity/cancel/reconnect/cost and mutation-isolation outcomes are implemented and technically verified within §12. Search tools remain off and the microphone remains non-recording.
 
 ### 13.3 Visible Arthur acceptance flow
 
-Ask how to start a project, use onion skin, recover unsaved work, export an animation, and what AI Animator can currently do; verify catalog-grounded useful guidance. Ask the Assistant to create/delete/save/export a project and verify it explains the steps or limitation without performing an action. Change all four reasoning levels, cancel an active request, simulate offline/missing-key/provider/restart failures, and confirm the session remains usable.
+The applicable flow is now part of accepted Phase 2's visible and deterministic evidence. No separate Phase 3 acceptance is required.
 
 ### 13.4 Exit proof
 
-Strict contract/schema negatives; fixed-model and reasoning mapping; request/context/token/output/deadline/concurrency caps; local catalog version and stale/planned-truth checks; title in the same call; cancel-before-terminal; terminal/cancel/404/reconnect races; no retry; input/title persistence; cost receipt; exact before/after digests for unified V2 repository/storage, recovery, Animator ledger, timeline/history/canvas, Export, My Projects and project finalizer; import-graph denial of mutation owners; deterministic proof uses zero provider calls. Any separately approved live smoke is supplemental and never replaces doubles.
-
-Recommended executor: `gpt-6-astra`, Ultra reasoning because provider, privacy, job recovery, and mutation isolation are high-risk boundaries.
+The applicable exit proof is bound by the final Phase 2 manifest and its preserved predecessor seals. The immutable executor flags remain historical; D-0124 is the later acceptance/control-plane record. A future live smoke would require separate explicit authority and would remain supplemental.
 
 ## 14. Phase 4 — Optional hosted web search and truthful activity
 
 ### 14.1 Entry gate
 
-Phase 3 must be fully closed. Before any live search, refresh official Responses web-search capability, event, citation, price, data-use/retention, rate-limit, and account-access evidence and obtain Arthur's exact live request/spend authorization. If official events cannot prove actual search start/end and final composition, stop rather than fake labels.
+Combined Phase 2/absorbed Phase 3 must first be separately published/integrated/synchronized, proof-preserved and cleaned up. Before any live search, refresh official Responses web-search capability, event, citation, price, data-use/retention, rate-limit, and account-access evidence and obtain Arthur's exact live request/spend authorization. If official events cannot prove actual search start/end and final composition, stop rather than fake labels.
 
 ### 14.2 Scope
 
@@ -446,7 +449,7 @@ Recommended executor: `gpt-6-astra`, Ultra reasoning.
 
 ### 16.1 Entry gate
 
-Phases 1–5 must each be accepted, propagated, separately published/integrated/synchronized, proof-preserved, and cleaned up. Arthur must define whether the target is local/private beta or public beta. Public exposure additionally requires accepted authentication, ownership, rate limiting, abuse controls, provider retention/privacy terms, per-user credits, monthly budget, incident logging/redaction, and deployment approval.
+Phase 1, combined Phase 2/absorbed Phase 3, Phase 4 and Phase 5 must each be accepted, propagated, separately published/integrated/synchronized, proof-preserved, and cleaned up. Arthur must define whether the target is local/private beta or public beta. Public exposure additionally requires accepted authentication, ownership, rate limiting, abuse controls, provider retention/privacy terms, per-user credits, monthly budget, incident logging/redaction, and deployment approval.
 
 ### 16.2 Scope
 
@@ -512,8 +515,7 @@ The preferred no-major-rejection sequence is:
 | Target date | Phase target | Gate |
 | --- | --- | --- |
 | Sep 23 | Phase 1 shell | no paid call |
-| Sep 24 | Phase 2 sessions | deterministic double only |
-| Sep 25 | Phase 3 Terra guidance | live smoke only if separately authorized |
+| Sep 24–25 | Combined Phase 2 sessions + fixed-Terra guidance; original Phase 3 absorbed | deterministic doubles; live use separately controlled |
 | Sep 26 | Phase 4 search | live search only if separately authorized |
 | Sep 27 | Phase 5 dictation | transcription gate required |
 | Sep 28 | Phase 6 hardening | approved beta class only |

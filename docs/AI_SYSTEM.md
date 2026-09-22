@@ -1,9 +1,9 @@
 # AI System Snapshot
 
 Status: canonical current AI architecture and gap map
-Last traced: 2026-09-22 through D-0123/GIT-090 SPEC-0012 Phase 1 closeout. Planning is GIT-089 and Phase 1 is fully closed. SPEC-0008 Phase 1 is fully closed and Phases 2–6 remain paused. SPEC-0012 Phases 2–6 and all live/paid Assistant/search/transcription calls remain unauthorized.
+Last traced: 2026-09-22 through D-0124 acceptance/control-plane propagation of combined SPEC-0012 Phase 2. Phase 1 is fully closed; Phase 2 publication is pending; original Phase 3 scope is absorbed. SPEC-0008 Phases 2–6 remain paused. SPEC-0012 hosted search/transcription/public beta/deployment remain unauthorized.
 
-## SPEC-0012 guidance Assistant — Phase 1 accepted shell; intelligence remains future scope
+## SPEC-0012 guidance Assistant — combined local sessions and fixed-Terra guidance accepted
 
 [`SPEC-0012`](specs/0012-diamond-animator-guidance-assistant.md) defines a separate Home guidance experience, not an extension of the animation-mutating AI plan. Its production brain is fixed `gpt-5.6-terra`; Low/Medium/High/Extra High map to `low`/`medium`/`high`/`xhigh`, with Medium default. Internal product questions retrieve from checked-in `diamond-animator-knowledge/v1`; optional Responses hosted `web_search` is exposed only for genuine external/current facts after a later official access/privacy/pricing gate. Deterministic provider/search/transcription doubles are the default proof path.
 
@@ -11,7 +11,7 @@ Assistant ownership is dedicated: `/assistant`, `/api/diamond-assistant`, Assist
 
 The plan permits at most 50 persisted sessions with no silent eviction; blank chats are not persisted; the same Terra call returns the answer and automatic title; manual rename wins permanently; delete is confirmed. Truthful activity is server-event driven: Thinking, Searching the internet only during a real hosted search, and Finalizing answer only while composing after reasoning/tools. Each bright and dark full-label sweep is exactly one second, followed by the accepted 1.5-second pause; reduced motion is static. Phase 5 microphone work is dictation only, with explicit Stop, editable text, explicit Send and no raw-audio retention.
 
-GIT-089 published D-0120. D-0121/D-0122 authorize and accept only the local Phase 1 shell: Home navigation, responsive branding/greeting/composer, preview controls and accessible bounded sidebar resizing. It adds no `/api/diamond-assistant`, persisted session, guidance call, search, transcription or project/animation access. Later Terra/search/transcription/public-beta gates remain separate. The protected workspace AI Animator stays fixed `gpt-5.6-terra`; its source/model/prompt/route/job/storage/Thinking path is outside the accepted Phase 1 source allowlist.
+GIT-089 published D-0120; D-0121–D-0123/GIT-090 fully close Phase 1. D-0124 accepts combined Phase 2 with Assistant-only persisted sessions, `/api/diamond-assistant`, strict job/provider contracts, fixed Terra, local knowledge, four reasoning levels, truthful Thinking/private Finalizing/typewriter/cancel/recovery and zero project mutation. Arthur removed cumulative daily/monthly reservation/ledger/lock gating and chooses when to stop local use; the `$0.15` request estimate, 24k/4k tokens, 90s deadline, zero retry/resend, two jobs/one per session, 500 identities, 50 chats, usage reporting, local-only access, no tools and `store:false` remain. Search, transcription, public beta and deployment remain separate. The protected workspace AI Animator path is unchanged.
 
 ## Paused SPEC-0008 transition (D-0085–D-0093)
 

@@ -2,7 +2,7 @@
 
 Status: canonical repository memory
 Established: 2026-08-09
-Last reconciled with live code and current records: 2026-09-22 through D-0123/GIT-090 SPEC-0012 Phase 1 publication, synchronization, preservation and cleanup
+Last reconciled with live code and current records: 2026-09-22 through D-0124 acceptance and Control Plane Architect propagation of combined SPEC-0012 Phase 2; publication remains pending
 Snapshot basis: pull request `#1` merged into `main` as `093bbac82fd3b4d97984448b6c6dbd716153354d`; functional anchor `c7de444536f3e0dd578a2063f70b0914e6af60b1`; tag `baseline-2026-08-09-control-plane`; published/synchronized SPEC-0012 planning base GIT-089 `f2bda33842a3f5a4b560a7d3aab170a6ca4c2fd0`; latest product publication GIT-090 `e725f562307e0c7530b32b416218018af87b65fd`; the records-only terminal closeout successor's exact SHA must be read directly from Git
 
 ## Purpose

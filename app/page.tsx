@@ -21,6 +21,7 @@ import {
   writeProjectRecoveryDraftV1,
 } from "@/src/lib/animation/projectRecoveryStorageV1";
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 
 type HomeCardId = "new" | "open" | "myProject" | "tutorials" | "assistant" | "export" | "aiProject";
 
@@ -46,6 +47,7 @@ const sameRecoveryGeneration = (left: ProjectRecoveryEnvelopeV1, right: ProjectR
   left.candidateDigest === right.candidateDigest;
 
 export default function Page() {
+  const router = useRouter();
   const [view, setView] = useState<
     "home" | "tutorials" | "openProject" | "myProjects" | "animationWorkspace" | "animationExport"
   >("home");
@@ -67,6 +69,7 @@ export default function Page() {
   const homeMainRef = useRef<HTMLElement | null>(null);
   const homeScrollHideTimeoutRef = useRef<number | null>(null);
   const tutorialsButtonRef = useRef<HTMLButtonElement | null>(null);
+  const assistantButtonRef = useRef<HTMLButtonElement | null>(null);
   const restoreTutorialsFocusRef = useRef(false);
   const CARD_W = "656px";
   const CARD_MAX_W = "calc(100vw - 64px)";
@@ -145,6 +148,8 @@ export default function Page() {
 
   useEffect(() => {
     if (startupRecovery.kind !== "home") return;
+    // Returning from Assistant continues the current visit without reopening setup.
+    if (window.location.hash === "#ai-assistant") return;
     // First-time welcome (client-only)
     let cancelled = false;
     const timeoutId = window.setTimeout(() => {
@@ -171,6 +176,24 @@ export default function Page() {
     const timeoutId = window.setTimeout(() => setHoveredCard(null), 0);
     return () => window.clearTimeout(timeoutId);
   }, [view]);
+
+  useEffect(() => {
+    if (view !== "home" || startupRecovery.kind !== "home" || welcomeOpen) return;
+    const restoreAssistantFocus = () => {
+      if (window.location.hash !== "#ai-assistant") return;
+      const button = assistantButtonRef.current;
+      if (!button) return;
+      button.scrollIntoView({ behavior: "auto", block: "nearest" });
+      button.focus({ preventScroll: true });
+      window.history.replaceState(window.history.state, "", window.location.pathname + window.location.search);
+    };
+    const timeoutId = window.setTimeout(restoreAssistantFocus, 0);
+    window.addEventListener("hashchange", restoreAssistantFocus);
+    return () => {
+      window.clearTimeout(timeoutId);
+      window.removeEventListener("hashchange", restoreAssistantFocus);
+    };
+  }, [view, startupRecovery.kind, welcomeOpen]);
 
   useEffect(() => {
     if (view !== "home") return;
@@ -1085,7 +1108,12 @@ export default function Page() {
                   </button>
 
                   <button
+                    id="ai-assistant"
+                    ref={assistantButtonRef}
                     type="button"
+                    onClick={() => router.push("/assistant")}
+                    onFocus={() => setHoveredCard("assistant")}
+                    onBlur={() => setHoveredCard(null)}
                     onMouseEnter={() => setHoveredCard("assistant")}
                     onMouseLeave={() => setHoveredCard(null)}
                     style={cardStyle(hoveredCard === "assistant")}

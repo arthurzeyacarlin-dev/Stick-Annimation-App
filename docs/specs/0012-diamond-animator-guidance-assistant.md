@@ -1,10 +1,10 @@
 # SPEC-0012 — Diamond Animator Guidance Assistant
 
-Status: **Proposed; owner outcome and six-phase direction accepted; implementation not authorized**
+Status: **Active; Phase 1 accepted and technically verified; publication/integration authorized; Phases 2–6 unauthorized/not started**
 
 Owner: Arthur
 
-Planning decision: D-0120
+Planning decision: D-0120; planning publication GIT-089 `f2bda33842a3f5a4b560a7d3aab170a6ca4c2fd0`; Phase 1 authorization/acceptance D-0121/D-0122
 
 Target review date: Tuesday, September 29, 2026
 
@@ -331,6 +331,16 @@ Home → AI Assistant → dedicated blue Assistant page → verify greeting/side
 Real Chromium at desktop, compact, 200%-zoom equivalent, reduced motion, and forced colors; keyboard traversal and focus restoration; no horizontal page overflow; Axe no serious/critical findings; request ledger proves zero Assistant/provider/search/transcription calls; exact protected Home/Tutorials/New/Open/My Projects/Export routes; zero project/recovery/storage mutation.
 
 Recommended executor: `gpt-6-astra`, Extra High reasoning.
+
+### 11.5 Accepted Phase 1 result — D-0121/D-0122
+
+Arthur separately authorized Phase 1 from synchronized planning commit GIT-089 `f2bda33842a3f5a4b560a7d3aab170a6ca4c2fd0`, reviewed the corrected app at `http://127.0.0.1:57950/assistant`, and accepted the final visible result. The stopped executor transferred an empty index and exactly eleven technical dirty paths to the Control Plane Architect.
+
+The accepted shell wires Home to dedicated `/assistant` and Back to Home with focus restoration; uses the official white Diamond Animator mark with the accepted translucent hero treatment; keeps the exact two-line greeting at desktop sidebar minimum/default/maximum and compact widths; retains a fully visible compact composer; and provides a desktop-only bounded sidebar separator with 200/256/440-pixel minimum/default/maximum, pointer capture, Arrow/Home/End keyboard control, no collapse, and no persistence. New Chat, microphone, and real Assistant answers remain preview-only Phase 1 controls. No Assistant API, session persistence, search, transcription, project mutation, or animation mutation was added.
+
+The immutable technical manifest is `output/spec-0012/phase-1-correction/proof-manifest.json`, SHA-256 `3d25091e617b24544439419a99426b373cc560df64e01d4c735518d1f11104dd`, source digest `3f3948195cec0f10c68889e1990782e0872cec2cb52c644ff532ea9058608e04`. Independent validation reached the immutable receipt write after all validation and mutation-rejection checks passed; the existing validation receipt remains SHA-256 `86d82bea5f5984d402fde564294312b7785fc2d1c00c874d76c00a7b7276ff29`. Evidence binds 351 shell assertions across seven profiles and 13 screenshots, zero serious/critical Axe findings, no overflow, zero Assistant/provider/search/transcription calls, unchanged Assistant storage digests, 254 AI Animator regression assertions/18 mocked requests, TypeScript/focused lint/focused build, and the inherited untouched 5-error/81-warning full-lint baseline. The full build still stops only at the inherited untouched `app/dev/ai-costs/lifetime/page.tsx` typing failure.
+
+The workspace AI Animator model/prompt/route/job/storage/Thinking implementation is not an accepted Phase 1 source path. Its source remains fixed to `gpt-5.6-terra`; the ignored review environment was restored without reading or tracking its contents. Two separately authorized small live Animator greetings were observed across executor and PM evidence, both natural and with no animation mutation; no additional live call is authorized or needed for publication.
 
 ## 12. Phase 2 — Bounded 50-session local persistence
 

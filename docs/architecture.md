@@ -1,11 +1,11 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-22 through D-0120/SPEC-0012 planning; runtime remains GIT-088.
+Last traced: 2026-09-22 through D-0121/D-0122/SPEC-0012 Phase 1 acceptance; GIT-089 is the planning base and GIT-090 publication is authorized.
 
-## Proposed SPEC-0012 guidance-Assistant architecture — not implemented
+## SPEC-0012 guidance-Assistant architecture — Phase 1 shell accepted
 
-D-0120 separates the Home guidance Assistant from every animation-capable AI path. Fresh tracing and real-Chromium observation confirm the Home **AI Assistant** button is currently inert. The target route is dedicated `/assistant`, backed by `/api/diamond-assistant`, an Assistant-only contract/job service, versioned local Diamond Animator knowledge, and Assistant-only IndexedDB sessions. It accepts no project ID, workspace summary, animation bytes, manual command, repository/recovery/Export/project-management handle, or AI Animator ledger.
+D-0120 separates the Home guidance Assistant from every animation-capable AI path. Accepted Phase 1 now wires Home **AI Assistant** to dedicated `/assistant`, whose local responsive shell is owned by `app/assistant/page.tsx` and `src/components/assistant/`. Future `/api/diamond-assistant`, Assistant-only contract/job service, versioned local Diamond Animator knowledge and Assistant-only IndexedDB sessions remain unimplemented Phase 2+ architecture. The shell accepts no project ID, workspace summary, animation bytes, manual command, repository/recovery/Export/project-management handle, or AI Animator ledger.
 
 ```text
 Home AI Assistant card
@@ -23,7 +23,7 @@ Home AI Assistant card
 
 Exactly 50 persisted sessions are allowed with no silent eviction; blank chats are ephemeral; manual rename overrides any automatic title; delete is confirmed and Assistant-local. Guidance may explain app navigation but never controls it. The server event stream alone owns truthful Thinking, real Searching the internet, and output-composition Finalizing answer states. Phase 5 adds a separate, later-approved transcription route: in-memory microphone capture → waveform → Cancel or Stop → editable transcript → explicit Send; raw audio is never persisted.
 
-This six-phase architecture is planning-only. It preserves the accepted AI Animator `DrawingAiPanel`/`/api/ai-animator`/job/storage path and the complete unified V2 project-mutation path as protected regressions. No SPEC-0012 implementation, provider/search/transcription call, credential, dependency, deployment or project mutation exists yet.
+Phase 1 implements only the navigation/presentation shell of this six-phase architecture. It preserves the accepted AI Animator `DrawingAiPanel`/`/api/ai-animator`/job/storage path and the complete unified V2 project-mutation path as protected regressions. No Assistant provider/search/transcription call, credential, dependency, deployment, persistence or project mutation exists yet.
 
 ## SPEC-0011 project-library and playback architecture — all three phases fully closed
 
@@ -314,7 +314,7 @@ Until superseded by an approved spec:
 
 ## Navigation and Coordinate Boundaries
 
-`DrawingWorkspace` now receives the accepted SPEC-0010 Save-and-Exit/Home path. Home Tutorials opens a local full-screen showcase and returns with focus restored; the Home header is not mounted inside Tutorials. Home AI Credits was removed. AI Assistant and AI Project Finalizer are currently inert; proposed SPEC-0012 would give only AI Assistant a dedicated `/assistant` route without changing the current runtime in this planning package. Export opens the accepted SPEC-0009 flow. These are local shell choices until implemented; refresh from Tutorials returns Home.
+`DrawingWorkspace` now receives the accepted SPEC-0010 Save-and-Exit/Home path. Home Tutorials opens a local full-screen showcase and returns with focus restored; the Home header is not mounted inside Tutorials. Home AI Credits was removed. Accepted SPEC-0012 Phase 1 gives only AI Assistant a dedicated `/assistant` local shell and focus-restoring Back; AI Project Finalizer remains inert. Export opens the accepted SPEC-0009 flow. Refresh from Tutorials returns Home.
 
 `DrawingCanvas` computes an authoring-world scale of 4.6 from camera limits. Six authoring canvases allocate `hostWidth × 4.6 × DPR` by `hostHeight × 4.6 × DPR`, or 21.16 times host pixel area per canvas at DPR 1 and 84.64 times at DPR 2, before the separate playback surface and history snapshots. A stable document/stage coordinate contract is therefore a prerequisite for treating viewport, memory, AI placement, persistence, and export independently.
 

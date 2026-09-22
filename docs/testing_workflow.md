@@ -3,13 +3,13 @@
 Status: canonical proof standard and current gate baseline
 Last updated: 2026-09-22
 
-## Proposed SPEC-0012 six-phase proof contract
+## SPEC-0012 six-phase proof contract — Phase 1 accepted
 
-Status: D-0120 planning only. No implementation phase, live/paid call, executor or publication is authorized.
+Status: GIT-089 published D-0120 planning. D-0121/D-0122 accept and technically verify Phase 1; GIT-090 publication/preservation/cleanup is authorized. Phases 2–6 and all live/paid Assistant/search/transcription calls remain unauthorized.
 
 Every phase must produce an ignored immutable `output/spec-0012/phase-N/proof-manifest.json` plus an independent validator binding exact activation SHA, empty index, exact dirty-path allowlist, spec hash, source/fixture/test/evidence hashes, request/cost ledger, storage/project before-after digests, limits, accessibility/performance results, protected regressions and stopped-executor lifecycle flags. Deterministic provider/search/transcription doubles are mandatory defaults; authorized live smokes are supplemental only.
 
-- Phase 1: real Home → `/assistant` → Back focus flow at desktop/compact/200%-zoom/reduced-motion/forced-colors; keyboard/Axe/overflow; zero API/storage/project mutation; protected Home routes.
+- Phase 1: PASS/accepted. Immutable corrected manifest SHA-256 `3d25091e617b24544439419a99426b373cc560df64e01d4c735518d1f11104dd`, source digest `3f3948195cec0f10c68889e1990782e0872cec2cb52c644ff532ea9058608e04`, validation receipt SHA-256 `86d82bea5f5984d402fde564294312b7785fc2d1c00c874d76c00a7b7276ff29`; real Home → `/assistant` → Back focus flow, desktop/compact/narrow/200%-zoom/reduced-motion/forced-colors, accessible bounded sidebar separator, keyboard/Axe/overflow, exact two-line heading, zero Assistant API/storage/project mutation and protected Home/AI Animator routes.
 - Phase 2: blank-chat non-persistence; first-send atomic session creation; 49→50→blocked no-eviction ceiling; same-call title through a deterministic double; manual-title race authority; selection/rename/confirmed delete; 200-message/1 MiB/32 MiB bounds; long-chat down-arrow; reload/restart/corruption/quota/CAS/two-tab safety; zero live provider calls.
 - Phase 3: strict dedicated request/response/job schemas; fixed Terra/reasoning identity; local knowledge catalog version/truth checks; context/output/deadline/concurrency/cost bounds; Thinking/Finalizing/cancel/reconnect/restart/missing-key/offline/provider failures; same-call title; import-graph and before/after digest proof of zero animation/project/Animator/recovery/Export mutation.
 - Phase 4: deterministic search eligibility and local-catalog precedence; actual hosted-tool event mapping; exact one-second full-label bright/dark sweeps plus 1.5-second pause independent of label length; reduced motion; source/citation binding; injection/malicious URL/social-video truth; request/tool/source/token/time/spend limits; no scraping/download or mutation.

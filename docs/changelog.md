@@ -1,5 +1,13 @@
 # Changelog
 
+### 2026-09-22 — Accept and propagate SPEC-0012 Phase 1 Assistant shell (D-0121/D-0122)
+
+- Recorded GIT-089 planning publication `f2bda33842a3f5a4b560a7d3aab170a6ca4c2fd0`, Arthur's separate Phase 1 authorization, final visible PASS, and exclusive Control Plane Architect takeover of the stopped exact eleven-path result.
+- Accepted Home → dedicated `/assistant` → Back-with-focus navigation; official white Diamond Animator marks; exact two-line greeting; responsive fully visible composer; Medium-default reasoning UI; preview-only New Chat/microphone/Send; and bounded accessible desktop sidebar resizing with compact fixed top strip.
+- Bound immutable manifest SHA-256 `3d25091e617b24544439419a99426b373cc560df64e01d4c735518d1f11104dd`, source digest `3f3948195cec0f10c68889e1990782e0872cec2cb52c644ff532ea9058608e04`, and validation receipt SHA-256 `86d82bea5f5984d402fde564294312b7785fc2d1c00c874d76c00a7b7276ff29`.
+- Recorded 351 shell assertions across seven profiles/13 screenshots, zero serious/critical Axe findings or overflow, zero Assistant API/provider/search/transcription calls, unchanged Assistant storage, 254 AI Animator regression assertions/18 mocked requests, passing TypeScript/focused lint/focused build, inherited unchanged full-lint baseline, and inherited untouched dev AI-cost full-build failure.
+- Preserved AI Animator Terra/model/prompt/route/job/storage/Thinking, editor/project/recovery/My Projects/Export, dependencies, credentials and deployment unchanged. GIT-090 publication/integration, proof preservation, review-server shutdown and D-0054 cleanup are authorized but not claimed by this pre-publication record; Phase 2 remains Unauthorized/Not started.
+
 ### 2026-09-22 — Propose SPEC-0012 Diamond Animator Guidance Assistant (D-0120)
 
 - Added the decision-complete six-phase guidance-Assistant specification from clean synchronized planning parent `f334639f33b7b130a2f9409dcdf146dc2fffb165`, the records-only direct successor to GIT-088 product commit `d0ec1b23d7e1d9ff13a0779c2758e33e858691f0`: responsive shell; bounded 50-session local persistence; fixed-Terra catalog guidance; optional hosted search with truthful activity/sources; separately gated microphone dictation; and beta hardening.

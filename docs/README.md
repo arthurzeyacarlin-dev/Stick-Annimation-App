@@ -2,8 +2,8 @@
 
 Status: canonical repository memory
 Established: 2026-08-09
-Last reconciled with live code and current planning records: 2026-09-22 through D-0120/SPEC-0012 planning
-Snapshot basis: pull request `#1` merged into `main` as `093bbac82fd3b4d97984448b6c6dbd716153354d`; functional anchor `c7de444536f3e0dd578a2063f70b0914e6af60b1`; tag `baseline-2026-08-09-control-plane`; latest product publication GIT-088 `d0ec1b23d7e1d9ff13a0779c2758e33e858691f0`; terminal SPEC-0011 closeout successor and clean SPEC-0012 planning parent `f334639f33b7b130a2f9409dcdf146dc2fffb165`; local `main`, `origin/main` and live GitHub `main` were synchronized at that successor before the uncommitted D-0120 planning package
+Last reconciled with live code and current records: 2026-09-22 through D-0121/D-0122 and accepted SPEC-0012 Phase 1 pre-publication propagation
+Snapshot basis: pull request `#1` merged into `main` as `093bbac82fd3b4d97984448b6c6dbd716153354d`; functional anchor `c7de444536f3e0dd578a2063f70b0914e6af60b1`; tag `baseline-2026-08-09-control-plane`; latest completed product publication GIT-088 `d0ec1b23d7e1d9ff13a0779c2758e33e858691f0`; terminal SPEC-0011 closeout successor `f334639f33b7b130a2f9409dcdf146dc2fffb165`; published/synchronized SPEC-0012 planning base GIT-089 `f2bda33842a3f5a4b560a7d3aab170a6ca4c2fd0`; accepted Phase 1 publication is authorized as pending GIT-090
 
 ## Purpose
 

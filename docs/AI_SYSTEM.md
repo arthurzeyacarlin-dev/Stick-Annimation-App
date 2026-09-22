@@ -1,9 +1,9 @@
 # AI System Snapshot
 
 Status: canonical current AI architecture and gap map
-Last traced: 2026-09-22 through D-0120/SPEC-0012 planning. Runtime remains GIT-088; SPEC-0008 Phase 1 is fully closed and Phases 2–6 remain paused. SPEC-0012 has no implementation or live/paid-call authority.
+Last traced: 2026-09-22 through D-0121/D-0122/SPEC-0012 Phase 1 acceptance. Planning is GIT-089; Phase 1 publication is authorized as GIT-090. SPEC-0008 Phase 1 is fully closed and Phases 2–6 remain paused. SPEC-0012 Phases 2–6 and all live/paid Assistant/search/transcription calls remain unauthorized.
 
-## Proposed SPEC-0012 guidance Assistant — planning only
+## SPEC-0012 guidance Assistant — Phase 1 accepted shell; intelligence remains future scope
 
 [`SPEC-0012`](specs/0012-diamond-animator-guidance-assistant.md) defines a separate Home guidance experience, not an extension of the animation-mutating AI plan. Its production brain is fixed `gpt-5.6-terra`; Low/Medium/High/Extra High map to `low`/`medium`/`high`/`xhigh`, with Medium default. Internal product questions retrieve from checked-in `diamond-animator-knowledge/v1`; optional Responses hosted `web_search` is exposed only for genuine external/current facts after a later official access/privacy/pricing gate. Deterministic provider/search/transcription doubles are the default proof path.
 
@@ -11,7 +11,7 @@ Assistant ownership is dedicated: `/assistant`, `/api/diamond-assistant`, Assist
 
 The plan permits at most 50 persisted sessions with no silent eviction; blank chats are not persisted; the same Terra call returns the answer and automatic title; manual rename wins permanently; delete is confirmed. Truthful activity is server-event driven: Thinking, Searching the internet only during a real hosted search, and Finalizing answer only while composing after reasoning/tools. Each bright and dark full-label sweep is exactly one second, followed by the accepted 1.5-second pause; reduced motion is static. Phase 5 microphone work is dictation only, with explicit Stop, editable text, explicit Send and no raw-audio retention.
 
-D-0120 authorizes none of this implementation. It made no live OpenAI/search/transcription call, spent no credits and changed no credential/provider/runtime byte. Phase 1 is a no-paid-call shell and still requires reviewed planning publication plus separate Arthur authorization. Later Terra/search/transcription/public-beta gates remain separate.
+GIT-089 published D-0120. D-0121/D-0122 authorize and accept only the local Phase 1 shell: Home navigation, responsive branding/greeting/composer, preview controls and accessible bounded sidebar resizing. It adds no `/api/diamond-assistant`, persisted session, guidance call, search, transcription or project/animation access. Later Terra/search/transcription/public-beta gates remain separate. The protected workspace AI Animator stays fixed `gpt-5.6-terra`; its source/model/prompt/route/job/storage/Thinking path is outside the accepted Phase 1 source allowlist.
 
 ## Paused SPEC-0008 transition (D-0085–D-0093)
 

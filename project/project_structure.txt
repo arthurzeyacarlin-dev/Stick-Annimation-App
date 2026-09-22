@@ -12,6 +12,8 @@
 ./app/api/ai/route.ts
 ./app/api/drawing-project-ai-memory
 ./app/api/drawing-project-ai-memory/route.ts
+./app/assistant
+./app/assistant/page.tsx
 ./app/credits
 ./app/credits/page.tsx
 ./app/dev
@@ -536,6 +538,14 @@
 ./scripts/spec0011-project-library/validatePhase1Proof.ts
 ./scripts/spec0011-project-library/validatePhase2Proof.ts
 ./scripts/spec0011-project-library/validatePhase3Proof.ts
+./scripts/spec0012-assistant
+./scripts/spec0012-assistant/phase1AnimatorRegression.ts
+./scripts/spec0012-assistant/phase1BrowserProof.ts
+./scripts/spec0012-assistant/phase1BuildProof.ts
+./scripts/spec0012-assistant/phase1Environment.ts
+./scripts/spec0012-assistant/phase1Oracle.ts
+./scripts/spec0012-assistant/recordPhase1Proof.ts
+./scripts/spec0012-assistant/validatePhase1Proof.ts
 ./scripts/sync_docs_to_github.sh
 ./scripts/traceExplosionLivePath.ts
 ./scripts/traceGenerateSoundsLivePath.mjs
@@ -576,6 +586,9 @@
 ./scripts/validateTimelinePlaybackSmoothing.ts
 ./src
 ./src/components
+./src/components/assistant
+./src/components/assistant/DiamondAssistantScreen.tsx
+./src/components/assistant/diamondAssistant.module.css
 ./src/components/chrome
 ./src/components/chrome/AIcreditspage.tsx
 ./src/components/export

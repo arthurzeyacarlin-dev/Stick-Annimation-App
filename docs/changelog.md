@@ -1,8 +1,17 @@
 # Changelog
 
+### 2026-09-22 — Propose SPEC-0012 Diamond Animator Guidance Assistant (D-0120)
+
+- Added the decision-complete six-phase guidance-Assistant specification from clean synchronized planning parent `f334639f33b7b130a2f9409dcdf146dc2fffb165`, the records-only direct successor to GIT-088 product commit `d0ec1b23d7e1d9ff13a0779c2758e33e858691f0`: responsive shell; bounded 50-session local persistence; fixed-Terra catalog guidance; optional hosted search with truthful activity/sources; separately gated microphone dictation; and beta hardening.
+- Freshly traced and real-browser verified that the Home AI Assistant card is currently inert, while the accepted workspace AI Animator remains a separate fixed-Terra/project-scoped job/storage path with zero Phase 1 animation mutation.
+- Locked dedicated `/assistant` and `/api/diamond-assistant` ownership, no animation/project context or mutation commands/imports, no Animator route/job/storage reuse, no silent session eviction, same-call title, manual-title authority, exact activity timing, inaccessible-video honesty, explicit-send dictation and no raw-audio retention.
+- Defined per-phase visible acceptance, deterministic proof manifests/doubles, live-call gates, cost/security/privacy/failure/recovery limits, protected regressions, recommended executor model/reasoning and the full sequential executor/acceptance/architect/publication lifecycle.
+- Set Tuesday, September 29, 2026 as an honest 85–90% local/private-beta target if no major phase rejection occurs. No runtime, fixture, technical-test, dependency, credential/environment, provider, proof, server, worktree, Git or deployment state changed; no live/paid call occurred; Phase 1 and Git publication remain separately unauthorized.
+
 ### 2026-09-22 — Close SPEC-0011 Phase 3 publication, preservation, and cleanup (D-0119/GIT-088)
 
 - Published the exact 14 accepted technical plus 14 reviewed control-plane/tree paths in commit `d0ec1b23d7e1d9ff13a0779c2758e33e858691f0`, parent `b57ff995df9bb351dacb9a6a79b8cbd23203e988`, message `Complete SPEC-0011 Phase 3 shared project management`.
+- Published the terminal records-only closeout as direct successor `f334639f33b7b130a2f9409dcdf146dc2fffb165`; canonical checkout, local `main`, local `origin/main`, and live GitHub `main` synchronized there. This successor changed no runtime byte and later became the clean SPEC-0012 planning parent.
 - Fast-forwarded clean canonical `main`, pushed normally, and verified canonical `main`, `origin/main`, and live GitHub `main` synchronized at clean `0/0`.
 - Preserved 19 proof files/604,195 bytes at `output/recovery/GIT-088-spec0011-phase3-d0ec1b2/phase-3`; checksum-inventory SHA-256 is `196e1e7a5dd7af4b82eeff9630d535dd4ba3ae45b56f2bb3eec63bbb46fa4dac`, the source/destination checksum comparison was empty, and the immutable manifest remains SHA-256 `92ae122c227a36fd8a637b1922b1bca139224be4caf0e42d3a147f2a43147aaa`.
 - Stopped PID 32270, verified port 57840 closed, removed only the obsolete `/d436/` review worktree and merged `codex/spec0011-phase3-publication` branch, and safely preserved the obsolete dirty `/ac96/` activation worktree under `output/recovery/obsolete-spec0011-phase3-activation-ac96-2f2a3c4/` before removing that worktree/local branch.

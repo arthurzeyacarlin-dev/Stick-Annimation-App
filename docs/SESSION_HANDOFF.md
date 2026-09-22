@@ -3,9 +3,32 @@
 Status: current canonical stopping point
 Last updated: 2026-09-22
 
-All seven SPEC-0006 phases are closed through GIT-061. Drawing-only SPEC-0007 is fully closed through GIT-066. SPEC-0008 Phase 1 is fully closed through GIT-070; D-0093 keeps Phases 2–6 paused as Unauthorized/Not started/not rejected. All three SPEC-0009 phases are fully closed through D-0101/GIT-079, all three SPEC-0010 phases are fully closed through D-0109/GIT-083, and all three SPEC-0011 phases are fully closed through D-0119/GIT-088 `d0ec1b23d7e1d9ff13a0779c2758e33e858691f0`.
+All seven SPEC-0006 phases are closed through GIT-061. Drawing-only SPEC-0007 is fully closed through GIT-066. SPEC-0008 Phase 1 is fully closed through GIT-070; D-0093 keeps Phases 2–6 paused as Unauthorized/Not started/not rejected. All three SPEC-0009 phases are fully closed through D-0101/GIT-079, all three SPEC-0010 phases are fully closed through D-0109/GIT-083, and all three SPEC-0011 phases are fully closed through D-0119/GIT-088 product commit `d0ec1b23d7e1d9ff13a0779c2758e33e858691f0` plus its records-only terminal closeout successor `f334639f33b7b130a2f9409dcdf146dc2fffb165`.
 
-## Current stopping point — SPEC-0011 fully closed; ready for Arthur's next separately authorized non-AI spec
+## Current stopping point — SPEC-0012 planning package ready for review/publication; Phase 1 not authorized
+
+D-0120 and [`SPEC-0012 — Diamond Animator Guidance Assistant`](specs/0012-diamond-animator-guidance-assistant.md) record Arthur's accepted six-phase outcome from clean synchronized canonical planning parent `f334639f33b7b130a2f9409dcdf146dc2fffb165`, the records-only direct successor to GIT-088 product commit `d0ec1b23d7e1d9ff13a0779c2758e33e858691f0`. The current Home AI Assistant card is freshly code- and browser-verified inert. The accepted workspace AI Animator remains separate and unchanged: `DrawingAiPanel` → `/api/ai-animator` → `AiAnimatorJobService` → fixed `gpt-5.6-terra`, with its project-scoped ledger, typewriter/Thinking presentation and Phase 1 zero-mutation boundary.
+
+The proposed sequence is exactly:
+
+1. Assistant navigation and responsive shell, no paid call.
+2. Bounded 50-session local persistence, selection, same-call automatic title/typewriter, manual rename, confirmed delete, long-chat down-arrow and recovery with no silent loss.
+3. Fixed-Terra guidance grounded in versioned local Diamond Animator knowledge, four reasoning levels/Medium default, bounded conversation, truthful Thinking/Finalizing/cancel/reconnect/error handling and hard zero animation mutation.
+4. Optional hosted Responses web search only for genuine external/current facts, accessible sources, truthful Searching/Finalizing events and exact full-label one-second bright/dark sweeps plus accepted pause.
+5. Separately approved microphone dictation with waveform, permission, Cancel/Stop, editable transcription, explicit Send and no raw-audio retention.
+6. Beta hardening across storage/context/output/search/transcription/cost/security/privacy/accessibility/restart/long-chat and exact AI Animator/project regressions.
+
+Dedicated ownership is mandatory: `/assistant`, `/api/diamond-assistant`, Assistant contracts/job service/IndexedDB/catalog and separate future transcription boundary. The Assistant receives no project identity/bytes/workspace context, contains no mutation commands, and imports no animation repository/storage/recovery/Export/project-management/manual-registry or AI Animator job/storage owner. It may explain navigation but never controls the interface.
+
+The complete planning target is Tuesday, September 29, 2026 with an honest 85–90% local/private-beta goal only if reviews have no major rejection. Deterministic doubles are default. This architecture task made no runtime, fixture, technical-test, dependency, environment, provider, credential, proof, server, worktree, Git or deployment change; made no live AI/search/transcription call; and spent no credits.
+
+Exact planning-package dirty allowlist is 15 paths: `docs/00_MASTER_PROJECT.md`; `docs/AI_SYSTEM.md`; `docs/CURRENT_STATE.md`; `docs/DECISIONS.md`; `docs/PROJECT_MANAGER_CONTEXT.md`; `docs/README.md`; `docs/ROADMAP.md`; `docs/SESSION_HANDOFF.md`; `docs/TODO.md`; `docs/architecture.md`; `docs/changelog.md`; `docs/specs/0012-diamond-animator-guidance-assistant.md`; `docs/specs/README.md`; `docs/testing_workflow.md`; and regenerated `project/project_structure.txt`. The index remains empty. Every other tracked and untracked path is outside scope and unchanged by this task.
+
+Exact next safe step: review this planning package. If accepted, separately authorize a Control Plane Architect publication task to publish/synchronize only the reviewed control-plane/tree allowlist as GIT-089. Only after that synchronization may Arthur separately authorize one fresh Plan-mode Phase 1 Spec Executor from the exact canonical-main SHA. Do not create that executor here. Phases 2–6, all live/paid calls, transcription-provider selection, public beta and deployment remain unauthorized.
+
+Recommended Phase 1 executor: `gpt-6-astra`, Extra High reasoning. Recommended Phases 2–6: `gpt-6-astra`, Ultra reasoning.
+
+## Historical stopping point — SPEC-0011 fully closed; ready for Arthur's next separately authorized non-AI spec
 
 D-0118 records Arthur's PASS and sequential Control Plane Architect takeover after the Spec Executor stopped. Detached base/HEAD, local `main` and local `origin/main` are `b57ff995df9bb351dacb9a6a79b8cbd23203e988`; the index is empty. The accepted result has exactly 14 technical dirty paths and no accepted technical/proof byte changed during control-plane propagation.
 

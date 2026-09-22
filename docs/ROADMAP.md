@@ -11,7 +11,7 @@ Last updated: 2026-09-22
 - Paid AI calls, remote writes, deployment, and baseline commits require task-specific authorization.
 - The roadmap may change when Arthur resolves pending decisions or new evidence changes the risk order.
 
-## Current owner sequence — 2026-09-22 (SPEC-0011 fully closed through D-0119/GIT-088)
+## Current owner sequence — 2026-09-22 (SPEC-0012 proposed under D-0120; no implementation authorized)
 
 All seven SPEC-0006 phases are Verified/published/integrated through GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`. The immutable 50,224-byte Phase 7 manifest is PASS/VALID at SHA-256 `c6202f6deab4d3bcc75af3ad6699fc2dc70fc58723eccaa8337b1a2aef74bc51`, with exactly 11 source and 16 evidence bindings.
 
@@ -61,6 +61,17 @@ D-0110 adds [`SPEC-0011 — My Projects Library, Movie Viewer, and Shared Projec
 3. **Shared Management and Polish** — use one repository/command owner for Rename/Duplicate/Delete/Search/Sort in both My Projects and Open Project, with cross-tab/recovery/reference safety and final responsive/accessibility proof.
 
 My Projects watches and Open Project edits. D-0112/D-0113/GIT-084 fully close Phase 1, D-0115/D-0116/GIT-086 fully close Phase 2, and D-0118/D-0119/GIT-088 fully close Phase 3 in exact 28-path commit `d0ec1b23d7e1d9ff13a0779c2758e33e858691f0`. The one shared local command owner, safe rename/duplicate/delete, search/four sorts, leases/CAS/invalidation, keyboard/context/dialog/focus routes, and responsive/accessibility proof pass. Proof is preserved and D-0054 cleanup is complete. SPEC-0011 has no Phase 4; all three phases are Verified, published, integrated, synchronized, proof-preserved, and cleaned up. No new AI capability, player/Export change, dependency/schema migration, provider/paid action, or deployment is authorized.
+
+D-0120 adds proposed [`SPEC-0012 — Diamond Animator Guidance Assistant`](specs/0012-diamond-animator-guidance-assistant.md) as the next separately gated product sequence:
+
+1. **Assistant navigation and responsive shell** — dedicated blue `/assistant` experience and Back to Home, with no storage/provider call.
+2. **Bounded local sessions** — exactly 50 maximum without eviction, blank-chat non-persistence, same-call title/typewriter, selection/manual rename/confirmed delete, long-chat down-arrow and restart/concurrency safety.
+3. **Fixed-Terra guidance** — versioned local Diamond Animator knowledge, four reasoning levels/Medium default, bounded context/output/jobs/cost receipts, truthful Thinking/Finalizing and hard zero animation mutation.
+4. **Optional hosted search** — only genuine current external facts, accessible sources, truthful Searching/Finalizing events, exact length-independent one-second bright/dark sweeps and no pretend media viewing.
+5. **Microphone dictation** — separately approved transcription boundary with waveform, permission, Cancel/Stop, editable text, explicit Send and no raw-audio retention.
+6. **Beta hardening** — storage/context/output/search/transcription/cost/security/privacy/accessibility/restart/long-chat proof and exact AI Animator/project regressions.
+
+The target is Tuesday, September 29, 2026 and 85–90% local/private-beta readiness only if no major phase rejection occurs. Every phase retains the full Spec Executor → Arthur/PM → Control Plane Architect → separate publication/integration → cleanup lifecycle. This plan grants no phase authorization, provider/search/transcription call, public-beta exposure, deployment or Git publication. The accepted AI Animator remains separate; paused SPEC-0008 Phases 2–6 do not resume.
 
 ## Phase 0 — Preserve and Stabilize
 
@@ -136,6 +147,8 @@ Goals:
 The AI path must manipulate the same state and history as manual tools.
 
 D-0055 closes the former SPEC-0004-after-SPEC-0005 dependency. The unfinished phases are superseded, not queued to resume. SPEC-0008 Phase 1 is complete, while D-0093 pauses its Phases 2–6 before implementation. No provider, pricing, privacy, motion-video service, asset purchase or release policy is selected or authorized here.
+
+SPEC-0012 is a narrower guidance track beside this mutation-capable phase: it answers Diamond Animator questions but can never create/edit/delete/save/export or otherwise touch project content. Its six phases remain separately unauthorized and do not resume SPEC-0008.
 
 ## Phase 4 — Professional Product Completion
 

@@ -3,6 +3,21 @@
 Status: canonical proof standard and current gate baseline
 Last updated: 2026-09-22
 
+## Proposed SPEC-0012 six-phase proof contract
+
+Status: D-0120 planning only. No implementation phase, live/paid call, executor or publication is authorized.
+
+Every phase must produce an ignored immutable `output/spec-0012/phase-N/proof-manifest.json` plus an independent validator binding exact activation SHA, empty index, exact dirty-path allowlist, spec hash, source/fixture/test/evidence hashes, request/cost ledger, storage/project before-after digests, limits, accessibility/performance results, protected regressions and stopped-executor lifecycle flags. Deterministic provider/search/transcription doubles are mandatory defaults; authorized live smokes are supplemental only.
+
+- Phase 1: real Home → `/assistant` → Back focus flow at desktop/compact/200%-zoom/reduced-motion/forced-colors; keyboard/Axe/overflow; zero API/storage/project mutation; protected Home routes.
+- Phase 2: blank-chat non-persistence; first-send atomic session creation; 49→50→blocked no-eviction ceiling; same-call title through a deterministic double; manual-title race authority; selection/rename/confirmed delete; 200-message/1 MiB/32 MiB bounds; long-chat down-arrow; reload/restart/corruption/quota/CAS/two-tab safety; zero live provider calls.
+- Phase 3: strict dedicated request/response/job schemas; fixed Terra/reasoning identity; local knowledge catalog version/truth checks; context/output/deadline/concurrency/cost bounds; Thinking/Finalizing/cancel/reconnect/restart/missing-key/offline/provider failures; same-call title; import-graph and before/after digest proof of zero animation/project/Animator/recovery/Export mutation.
+- Phase 4: deterministic search eligibility and local-catalog precedence; actual hosted-tool event mapping; exact one-second full-label bright/dark sweeps plus 1.5-second pause independent of label length; reduced motion; source/citation binding; injection/malicious URL/social-video truth; request/tool/source/token/time/spend limits; no scraping/download or mutation.
+- Phase 5: user-gesture permission; waveform from actual samples; Cancel/Stop/edit-before-Send; 120-second/20 MiB bounds; transcription failures/races; resource cleanup; scans proving no raw-audio persistence/log/proof; zero automatic guidance send; deterministic double by default.
+- Phase 6: full desktop/compact/narrow/zoom/reduced-motion/forced-colors/keyboard/screen-reader, 50-session, long-chat, offline/restart, two-tab, security/privacy/cost/performance/resource proof plus exact Home, AI Animator, V2 editor/timeline/canvas/tools, Save/recovery, My Projects/project management, Export and inert Finalizer regressions.
+
+The exact visible Arthur flow and per-phase stop/lifecycle gates live in SPEC-0012. A green technical manifest never replaces Arthur's visible acceptance. Public-beta claims remain blocked until the spec's authentication/ownership/rate/abuse/privacy/credits/deployment gates are approved and proven.
+
 ## SPEC-0011 Phase 1–3 proof — all three phases fully closed
 
 Status: D-0112/D-0113/GIT-084 fully close Phase 1. D-0115/D-0116/GIT-086 fully close Phase 2. D-0117/GIT-087 authorize Phase 3; D-0118 records Arthur's PASS and technical verification; D-0119/GIT-088 publish, integrate, synchronize, preserve proof, stop the server, and complete D-0054 cleanup.

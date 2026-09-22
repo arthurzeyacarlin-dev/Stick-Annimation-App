@@ -1,7 +1,7 @@
 # TODO
 
 Status: canonical actionable queue
-Last updated: 2026-09-21
+Last updated: 2026-09-22
 
 ## Queue Rules
 
@@ -10,6 +10,17 @@ Last updated: 2026-09-21
 - “Done” requires the named proof, not only code completion.
 - New discoveries enter the queue; they do not silently expand the active spec.
 - Remote writes, paid AI calls, Git history changes, and deployment require explicit task authorization.
+
+## Current proposed sequence — SPEC-0012 Diamond Animator Guidance Assistant
+
+- [x] **PLAN-012 — Create the decision-complete SPEC-0012 planning/control-plane package.** D-0120 records Arthur's accepted six-phase direction, fresh Home/AI Animator/runtime tracing, the dedicated no-mutation Assistant architecture, per-phase acceptance/proof/lifecycle gates, and the Sep 29 85–90% local/private-beta target. No runtime implementation, provider call, executor, or Git publication is included.
+- [ ] **GIT-089 — Review, publish, and synchronize the SPEC-0012 planning package.** Proof: exact reviewed control-plane/tree allowlist, clean unchanged planning parent `f334639f33b7b130a2f9409dcdf146dc2fffb165` (the records-only direct successor to GIT-088 product commit `d0ec1b23d7e1d9ff13a0779c2758e33e858691f0`), empty index before staging, one normal `codex/` publication commit, clean local `main`/`origin/main`/live GitHub equality, and no runtime/provider/deployment byte. This task is not authorized by PLAN-012.
+- [ ] **ASSIST-001 — SPEC-0012 Phase 1 Assistant navigation and responsive shell.** Requires GIT-089 synchronization plus Arthur's separate phase authorization. Proof: dedicated `/assistant`, Back-to-Home focus restoration, blue responsive shell/greeting/sidebar/composer/microphone placeholder/Send/reasoning UI, zero storage/provider/project mutation.
+- [ ] **ASSIST-002 — SPEC-0012 Phase 2 bounded local sessions.** Requires Phase 1 closure and separate authorization. Proof: blank non-persistence; 50-session no-eviction ceiling; first-send transaction; same-call title; manual-title authority; selection/rename/confirmed delete; long-chat down-arrow; restart/corruption/quota/two-tab proof; zero live provider calls.
+- [ ] **ASSIST-003 — SPEC-0012 Phase 3 fixed-Terra guidance and local knowledge.** Requires Phase 2 closure and separate authorization. Proof: dedicated contracts/route/job service/catalog, exact Terra/reasoning mapping, bounded context/output, truthful Thinking/Finalizing/cancel/reconnect/error behavior, cost receipts, deterministic doubles, and hard zero animation/project mutation. Any live smoke is separately approved.
+- [ ] **ASSIST-004 — SPEC-0012 Phase 4 optional hosted search and sources.** Requires Phase 3 closure, separate authorization, and a same-day official search/access/privacy/pricing gate before live use. Proof: local-catalog precedence, genuine-current-fact eligibility, hosted tool/source bounds, truthful Searching/Finalizing events, exact 1s+1s sweeps and accepted pause, accessible citations, inaccessible-video honesty, no scraping/download or project mutation.
+- [ ] **ASSIST-005 — SPEC-0012 Phase 5 microphone dictation.** Requires Phase 4 closure, separate authorization, and a separate transcription provider/model/privacy/cost decision. Proof: permission/waveform/Cancel/Stop/edit-before-Send, 120-second/20 MiB bounds, no live voice or automatic Send, no raw-audio retention, complete resource cleanup, deterministic double by default.
+- [ ] **ASSIST-006 — SPEC-0012 Phase 6 beta hardening.** Requires Phases 1–5 closure and separate authorization. Proof: storage/context/output/search/transcription/cost/security/privacy limits; complete accessibility/reduced-motion/desktop/compact/restart/long-chat proof; exact AI Animator/editor/project/recovery/Export/finalizer regressions; beta claim limited to the approved local/private or public class.
 
 ## P0 — Preserve the Existing Application
 
@@ -208,7 +219,7 @@ Last updated: 2026-09-21
 
 - production animation/video export formats
 - Generate Sounds and voice workflows
-- general AI Assistant and AI Project Finalizer product surfaces
+- AI Project Finalizer product surface; general AI Assistant is now planned separately by SPEC-0012
 - billing/credits enforcement
 - cloud sync/collaboration
 - custom model/fine-tuning R&D

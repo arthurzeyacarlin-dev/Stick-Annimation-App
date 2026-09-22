@@ -5,7 +5,7 @@ Last updated: 2026-09-22
 
 ## SPEC-0012 six-phase proof contract — Phase 1 accepted
 
-Status: GIT-089 published D-0120 planning. D-0121/D-0122 accept and technically verify Phase 1; GIT-090 publication/preservation/cleanup is authorized. Phases 2–6 and all live/paid Assistant/search/transcription calls remain unauthorized.
+Status: GIT-089 published D-0120 planning. D-0121/D-0122 accept and technically verify Phase 1; D-0123/GIT-090 `e725f562307e0c7530b32b416218018af87b65fd` close publication/integration, proof preservation, server shutdown and cleanup. Phases 2–6 and all live/paid Assistant/search/transcription calls remain unauthorized.
 
 Every phase must produce an ignored immutable `output/spec-0012/phase-N/proof-manifest.json` plus an independent validator binding exact activation SHA, empty index, exact dirty-path allowlist, spec hash, source/fixture/test/evidence hashes, request/cost ledger, storage/project before-after digests, limits, accessibility/performance results, protected regressions and stopped-executor lifecycle flags. Deterministic provider/search/transcription doubles are mandatory defaults; authorized live smokes are supplemental only.
 

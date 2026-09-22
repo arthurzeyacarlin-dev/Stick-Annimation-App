@@ -70,7 +70,7 @@ Phase 0 is preservation and stabilization:
 - preserve fully closed SPEC-0009 Phases 1–3 through D-0101/GIT-079
 - preserve fully closed SPEC-0010 Phases 1–3 through D-0109/GIT-083
 - preserve fully closed SPEC-0011 Phases 1–3 through D-0119/GIT-088 `d0ec1b23d7e1d9ff13a0779c2758e33e858691f0`
-- preserve SPEC-0012 planning as GIT-089 and its accepted Phase 1 under D-0121/D-0122; complete only authorized GIT-090 publication/preservation/cleanup, and do not start Phase 2 or make an Assistant provider/search/transcription call without separate authorization
+- preserve SPEC-0012 planning as GIT-089 and its fully closed Phase 1 under D-0121–D-0123/GIT-090 `e725f562…`; do not start Phase 2 or make an Assistant provider/search/transcription call without separate authorization
 
 The ordered phase plan lives in `ROADMAP.md`.
 

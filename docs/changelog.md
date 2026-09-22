@@ -1,5 +1,14 @@
 # Changelog
 
+### 2026-09-22 — Close SPEC-0012 Phase 1 publication and cleanup (D-0123/GIT-090)
+
+- Published the exact eleven accepted technical plus fifteen reviewed control-plane/tree paths as GIT-090 `e725f562307e0c7530b32b416218018af87b65fd`, parent GIT-089 `f2bda33842a3f5a4b560a7d3aab170a6ca4c2fd0`, message `Complete SPEC-0012 Phase 1 assistant shell`.
+- Fast-forwarded clean canonical `main`, pushed normally, and verified canonical `main`, `origin/main`, and live GitHub `main` equal at clean `0/0`.
+- Preserved 90 proof files/30,483,497 bytes under `output/recovery/GIT-090-spec0012-phase1-e725f56/phase-1`; source/destination checksums match, inventory SHA-256 is `181ffc69965be95e5172c446b1d70862e8d23474a581b991d023727e7a340aad`, manifest SHA-256 remains `3d25091e617b24544439419a99426b373cc560df64e01d4c735518d1f11104dd` and validation receipt remains `86d82bea5f5984d402fde564294312b7785fc2d1c00c874d76c00a7b7276ff29`.
+- Stopped exact PID 74761, verified port 57950 closed, and removed only accepted `/9aa0/` plus its merged local branch. Preserved the obsolete rejected `/e81a/` duplicate's eleven exact dirty files/136,920 bytes and binary patch under `output/recovery/obsolete-spec0012-phase1-executor-e81a-f2bda33/`, then removed only that worktree/local branch.
+- Changed no runtime, fixture, technical-test, proof, dependency, environment/credential, AI Animator Terra/model/prompt/route/job/storage/Thinking, editor/project/recovery/My Projects/Export, deployment, or paused SPEC-0008 byte in this terminal records-only closeout. Made no additional provider/AI/paid call.
+- Phase 1 is fully closed. Phase 2 is entry-ready but remains Unauthorized/Not started pending separate Arthur authorization.
+
 ### 2026-09-22 — Accept and propagate SPEC-0012 Phase 1 Assistant shell (D-0121/D-0122)
 
 - Recorded GIT-089 planning publication `f2bda33842a3f5a4b560a7d3aab170a6ca4c2fd0`, Arthur's separate Phase 1 authorization, final visible PASS, and exclusive Control Plane Architect takeover of the stopped exact eleven-path result.

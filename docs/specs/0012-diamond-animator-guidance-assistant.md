@@ -1,10 +1,10 @@
 # SPEC-0012 — Diamond Animator Guidance Assistant
 
-Status: **Active; Phase 1 accepted and technically verified; publication/integration authorized; Phases 2–6 unauthorized/not started**
+Status: **Active; Phase 1 Verified/published/integrated/synchronized/proof-preserved/cleaned up; Phases 2–6 unauthorized/not started**
 
 Owner: Arthur
 
-Planning decision: D-0120; planning publication GIT-089 `f2bda33842a3f5a4b560a7d3aab170a6ca4c2fd0`; Phase 1 authorization/acceptance D-0121/D-0122
+Planning decision: D-0120; planning publication GIT-089 `f2bda33842a3f5a4b560a7d3aab170a6ca4c2fd0`; Phase 1 authorization/acceptance D-0121/D-0122; Phase 1 closeout D-0123/GIT-090 `e725f562307e0c7530b32b416218018af87b65fd`
 
 Target review date: Tuesday, September 29, 2026
 
@@ -341,6 +341,8 @@ The accepted shell wires Home to dedicated `/assistant` and Back to Home with fo
 The immutable technical manifest is `output/spec-0012/phase-1-correction/proof-manifest.json`, SHA-256 `3d25091e617b24544439419a99426b373cc560df64e01d4c735518d1f11104dd`, source digest `3f3948195cec0f10c68889e1990782e0872cec2cb52c644ff532ea9058608e04`. Independent validation reached the immutable receipt write after all validation and mutation-rejection checks passed; the existing validation receipt remains SHA-256 `86d82bea5f5984d402fde564294312b7785fc2d1c00c874d76c00a7b7276ff29`. Evidence binds 351 shell assertions across seven profiles and 13 screenshots, zero serious/critical Axe findings, no overflow, zero Assistant/provider/search/transcription calls, unchanged Assistant storage digests, 254 AI Animator regression assertions/18 mocked requests, TypeScript/focused lint/focused build, and the inherited untouched 5-error/81-warning full-lint baseline. The full build still stops only at the inherited untouched `app/dev/ai-costs/lifetime/page.tsx` typing failure.
 
 The workspace AI Animator model/prompt/route/job/storage/Thinking implementation is not an accepted Phase 1 source path. Its source remains fixed to `gpt-5.6-terra`; the ignored review environment was restored without reading or tracking its contents. Two separately authorized small live Animator greetings were observed across executor and PM evidence, both natural and with no animation mutation; no additional live call is authorized or needed for publication.
+
+D-0123/GIT-090 `e725f562307e0c7530b32b416218018af87b65fd` publish the exact eleven accepted technical plus fifteen reviewed control-plane/tree paths. Canonical `main`, `origin/main`, and live GitHub `main` synchronized cleanly at `0/0`. Ninety proof files/30,483,497 bytes are preserved under `output/recovery/GIT-090-spec0012-phase1-e725f56/phase-1`; checksum-inventory SHA-256 is `181ffc69965be95e5172c446b1d70862e8d23474a581b991d023727e7a340aad` and source/destination checksums match. PID 74761 is stopped, port 57950 is closed, and D-0054 cleanup removed the accepted `/9aa0/` review worktree/merged branch. The obsolete rejected `/e81a/` duplicate was first preserved as eleven exact dirty files/136,920 bytes plus a binary patch, then its worktree/local branch were removed. Phase 1 is fully closed. Phase 2 remains Unauthorized/Not started until Arthur separately authorizes it.
 
 ## 12. Phase 2 — Bounded 50-session local persistence
 

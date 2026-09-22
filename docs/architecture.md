@@ -1,7 +1,7 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-22 through D-0121/D-0122/SPEC-0012 Phase 1 acceptance; GIT-089 is the planning base and GIT-090 publication is authorized.
+Last traced: 2026-09-22 through D-0123/GIT-090 SPEC-0012 Phase 1 publication/closeout; GIT-089 is the planning base and Phase 1 is fully closed.
 
 ## SPEC-0012 guidance-Assistant architecture — Phase 1 shell accepted
 

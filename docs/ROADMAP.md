@@ -11,7 +11,7 @@ Last updated: 2026-09-22
 - Paid AI calls, remote writes, deployment, and baseline commits require task-specific authorization.
 - The roadmap may change when Arthur resolves pending decisions or new evidence changes the risk order.
 
-## Current owner sequence — 2026-09-22 (SPEC-0012 Phase 1 accepted under D-0121/D-0122; GIT-090 publication authorized)
+## Current owner sequence — 2026-09-22 (SPEC-0012 Phase 1 fully closed through D-0123/GIT-090; Phase 2 separately gated)
 
 All seven SPEC-0006 phases are Verified/published/integrated through GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`. The immutable 50,224-byte Phase 7 manifest is PASS/VALID at SHA-256 `c6202f6deab4d3bcc75af3ad6699fc2dc70fc58723eccaa8337b1a2aef74bc51`, with exactly 11 source and 16 evidence bindings.
 
@@ -71,7 +71,7 @@ D-0120 adds proposed [`SPEC-0012 — Diamond Animator Guidance Assistant`](specs
 5. **Microphone dictation** — separately approved transcription boundary with waveform, permission, Cancel/Stop, editable text, explicit Send and no raw-audio retention.
 6. **Beta hardening** — storage/context/output/search/transcription/cost/security/privacy/accessibility/restart/long-chat proof and exact AI Animator/project regressions.
 
-The target is Tuesday, September 29, 2026 and 85–90% local/private-beta readiness only if no major phase rejection occurs. Every phase retains the full Spec Executor → Arthur/PM → Control Plane Architect → separate publication/integration → cleanup lifecycle. GIT-089 `f2bda33842a3f5a4b560a7d3aab170a6ca4c2fd0` published the plan; D-0121/D-0122 accept Phase 1's exact responsive shell result and authorize GIT-090 publication/integration, proof preservation and cleanup. Phase 2 remains Unauthorized/Not started pending those steps plus separate Arthur authorization. No Assistant provider/search/transcription call, public-beta exposure or deployment is authorized. The accepted AI Animator remains separate; paused SPEC-0008 Phases 2–6 do not resume.
+The target is Tuesday, September 29, 2026 and 85–90% local/private-beta readiness only if no major phase rejection occurs. Every phase retains the full Spec Executor → Arthur/PM → Control Plane Architect → separate publication/integration → cleanup lifecycle. GIT-089 `f2bda33842a3f5a4b560a7d3aab170a6ca4c2fd0` published the plan; D-0121/D-0122 accept Phase 1's exact responsive shell; D-0123/GIT-090 `e725f562307e0c7530b32b416218018af87b65fd` close publication/integration, proof preservation and cleanup. Phase 2 is entry-ready but remains Unauthorized/Not started pending separate Arthur authorization. No Assistant provider/search/transcription call, public-beta exposure or deployment is authorized. The accepted AI Animator remains separate; paused SPEC-0008 Phases 2–6 do not resume.
 
 ## Phase 0 — Preserve and Stabilize
 

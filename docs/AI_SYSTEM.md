@@ -1,7 +1,7 @@
 # AI System Snapshot
 
 Status: canonical current AI architecture and gap map
-Last traced: 2026-09-22 through D-0121/D-0122/SPEC-0012 Phase 1 acceptance. Planning is GIT-089; Phase 1 publication is authorized as GIT-090. SPEC-0008 Phase 1 is fully closed and Phases 2–6 remain paused. SPEC-0012 Phases 2–6 and all live/paid Assistant/search/transcription calls remain unauthorized.
+Last traced: 2026-09-22 through D-0123/GIT-090 SPEC-0012 Phase 1 closeout. Planning is GIT-089 and Phase 1 is fully closed. SPEC-0008 Phase 1 is fully closed and Phases 2–6 remain paused. SPEC-0012 Phases 2–6 and all live/paid Assistant/search/transcription calls remain unauthorized.
 
 ## SPEC-0012 guidance Assistant — Phase 1 accepted shell; intelligence remains future scope
 

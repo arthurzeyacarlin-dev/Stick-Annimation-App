@@ -2,8 +2,8 @@
 
 Status: canonical repository memory
 Established: 2026-08-09
-Last reconciled with live code and current records: 2026-09-23 through D-0127 acceptance and technical verification of the SPEC-0012 Phase 4 terminal-lifecycle/source-presentation correction; GIT-093 publication is authorized and pending
-Snapshot basis: pull request `#1` merged into `main` as `093bbac82fd3b4d97984448b6c6dbd716153354d`; functional anchor `c7de444536f3e0dd578a2063f70b0914e6af60b1`; tag `baseline-2026-08-09-control-plane`; published/synchronized SPEC-0012 planning base GIT-089 `f2bda33842a3f5a4b560a7d3aab170a6ca4c2fd0`; Phase 1 publication GIT-090 `e725f562307e0c7530b32b416218018af87b65fd`; combined Phase 2 publication GIT-091 `fa2ef6c526d04de9c77b356b53b4768890c46e1f`; Phase 4 publication GIT-092 `23816164592743a59d4cc3b83ffd0ac39844d654`; accepted correction base `21c5b3d70bf3ae5444a310913dbccec9a63895d9`
+Last reconciled with live code and current records: 2026-09-23 through D-0128/GIT-093 publication, canonical activation, proof preservation, and cleanup of the SPEC-0012 Phase 4 terminal-lifecycle/source-presentation correction; Phase 5 is entry-ready but unauthorized/not started
+Snapshot basis: pull request `#1` merged into `main` as `093bbac82fd3b4d97984448b6c6dbd716153354d`; functional anchor `c7de444536f3e0dd578a2063f70b0914e6af60b1`; tag `baseline-2026-08-09-control-plane`; published/synchronized SPEC-0012 planning base GIT-089 `f2bda33842a3f5a4b560a7d3aab170a6ca4c2fd0`; Phase 1 publication GIT-090 `e725f562307e0c7530b32b416218018af87b65fd`; combined Phase 2 publication GIT-091 `fa2ef6c526d04de9c77b356b53b4768890c46e1f`; Phase 4 publication GIT-092 `23816164592743a59d4cc3b83ffd0ac39844d654`; Phase 4 terminal-correction product publication GIT-093 `99128d70f4320dcfc757d81c7bc146baf3467f86`
 
 ## Purpose
 

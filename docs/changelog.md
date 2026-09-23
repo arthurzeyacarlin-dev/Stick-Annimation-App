@@ -1,5 +1,12 @@
 # Changelog
 
+### 2026-09-23 — Publish, activate, preserve, and clean up SPEC-0012 Phase 4 terminal correction (D-0128/GIT-093)
+
+- Published the exact 14 accepted technical plus 15 reviewed record/tree paths as product commit `99128d70f4320dcfc757d81c7bc146baf3467f86`, parent `21c5b3d70bf3ae5444a310913dbccec9a63895d9`, message `Finalize SPEC-0012 Phase 4 assistant responses`; canonical `main`, `origin/main`, and live GitHub `main` synchronized at clean `0/0` before this terminal records-only successor.
+- Preserved nine proof files/551,351 bytes under `output/recovery/GIT-093-spec0012-phase4-terminal-99128d7/` at framed aggregate SHA-256 `b0b34be5cad8d1af0639c2a6f166fa8b33d478ad978251e21645a2c283f3cef2`.
+- Restarted canonical Diamond Animator from integrated `main` on port 3000; Home and `/assistant` returned HTTP 200. No extra live Terra/search request was made during publication.
+- Stopped the exact port-58050 review server, removed the obsolete review worktree, and deleted merged local branch `codex/spec0012-phase4-terminal-correction`. Phase 5 is entry-ready but remains Unauthorized/Not started.
+
 ### 2026-09-23 — Accept and propagate SPEC-0012 Phase 4 terminal/source correction (D-0127)
 
 - Recorded Arthur's PASS and publication authority for the exact 14-path correction from terminal GIT-092 base `21c5b3d70bf3ae5444a310913dbccec9a63895d9`, empty index. Immutable manifest SHA-256 is `a078d42e1b1ac131787c1f8b48aeb333c2263b119b3e2b2b9172a8b213908137`; source digest is `6593a497cc93dd57fbde384071bdb6f84d8e555b4d7e8c0dec8bcd05f73712ce`.

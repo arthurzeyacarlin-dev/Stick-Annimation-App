@@ -1,7 +1,7 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-23 through D-0127 acceptance and technical verification of the SPEC-0012 Phase 4 terminal/source correction; GIT-093 publication is authorized and pending.
+Last traced: 2026-09-23 through D-0128/GIT-093 publication, canonical activation, proof preservation and cleanup of the SPEC-0012 Phase 4 terminal/source correction.
 
 ## SPEC-0012 guidance-Assistant architecture — Phase 4 fully closed
 
@@ -30,6 +30,8 @@ D-0125 accepts Phase 4's search path. `assistantSearchPolicy` runs after local k
 The accepted corrupt-row storage correction treats unreadable raw rows as occupied for count/byte capacity, preserves their canonical bytes, prevents unsafe overwrite and still lets a healthy independent chat proceed. It does not migrate or delete the corrupt row. Phase 4 changes no project, animation, AI Animator, recovery, Export or project-management owner. Transcription and deployment remain absent. The accepted AI Animator and unified V2 mutation paths remain protected and separate.
 
 D-0127 keeps this architecture but corrects ownership and terminal sequencing. Provider events may move a job only between Thinking and one active Search; duplicate lifecycle events are ignored and excessive/overlapping transitions fail into a reserved terminal slot. After Terra returns, the job validates the complete answer/search/usage result, then alone enters Finalizing for about three seconds before Done. The whole job/search deadlines are 55/30 seconds. Provider source candidates are all canonicalized and validated, then bounded to eight processed/six displayed records; excess candidates no longer fail the user's answer. Presentation normalization removes source syntax and raw URLs from answer prose while retaining verified accessible links in the separate Sources panel. No storage/project/Animator/mutation owner changes.
+
+D-0128/GIT-093 publishes that exact architecture in product commit `99128d70f4320dcfc757d81c7bc146baf3467f86`, activates the canonical port-3000 runtime, preserves the accepted proof and removes the obsolete review runtime/worktree/branch. Phase 5 may add only its separately authorized transcription boundary; it is not started by this closeout.
 
 ## SPEC-0011 project-library and playback architecture — all three phases fully closed
 

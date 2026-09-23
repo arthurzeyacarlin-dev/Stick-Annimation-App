@@ -1337,6 +1337,14 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Retained boundaries: this correction removes no per-request token/cost, query/action, source-retention, concurrency, identity, cancellation, storage, privacy or mutation safety boundary. It adds no dictation, project/workspace access, animation mutation, provider/model fallback, arbitrary fetch/scrape/download, deployment or SPEC-0008 resumption. The AI Animator and every non-Assistant product surface remain unchanged.
 - Publication boundary: GIT-093 may stage only the accepted 14 technical paths plus reviewed canonical record/tree paths. After normal fast-forward/push, exact proof preservation, canonical-server restart, review-server shutdown and D-0054 cleanup, Phase 5 remains entry-ready but **Unauthorized; Not started** until Arthur separately authorizes it.
 
+### D-0128 — Publish, activate, preserve and clean up the SPEC-0012 Phase 4 terminal correction
+
+- Date: 2026-09-23
+- Authority/status: Arthur explicitly accepted the correction and authorized control-plane propagation, commit, canonical-main integration and GitHub push. GIT-093 is complete.
+- Publication: exact 29-path commit `99128d70f4320dcfc757d81c7bc146baf3467f86`, parent `21c5b3d70bf3ae5444a310913dbccec9a63895d9`, message `Finalize SPEC-0012 Phase 4 assistant responses`, contains exactly 14 accepted technical paths plus 15 reviewed record/tree paths. Canonical `main` fast-forwarded normally; local `main`, local `origin/main`, and live GitHub `main` matched at clean `0/0` before this terminal records-only successor.
+- Proof/activation: nine files/551,351 bytes are preserved under `output/recovery/GIT-093-spec0012-phase4-terminal-99128d7/` at framed aggregate SHA-256 `b0b34be5cad8d1af0639c2a6f166fa8b33d478ad978251e21645a2c283f3cef2`. Canonical Diamond Animator restarted from integrated `main` on port 3000; Home and `/assistant` returned HTTP 200. No additional live Terra/search request was made during publication.
+- Cleanup/boundary: the exact review server on port 58050 stopped, the obsolete Phase 4 correction worktree was removed/unregistered, and merged local branch `codex/spec0012-phase4-terminal-correction` was deleted. Canonical main, active PM worktree, remote history, preserved proof, every non-Assistant product system and paused SPEC-0008 remain unchanged. Phase 5 is entry-ready but **Unauthorized; Not started** until Arthur separately authorizes it and resolves its transcription provider/model/privacy/cost gate.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

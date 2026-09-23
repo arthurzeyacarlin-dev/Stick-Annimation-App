@@ -1,7 +1,7 @@
 # AI System Snapshot
 
 Status: canonical current AI architecture and gap map
-Last traced: 2026-09-23 through D-0129 acceptance/verification of the final SPEC-0012 Phase 4 citation-recovery/reply-reveal correction; GIT-094 publication pending. Phase 5 remains unauthorized/not started. SPEC-0008 Phases 2–6 remain paused. SPEC-0012 transcription/public beta/deployment remain unauthorized.
+Last traced: 2026-09-23 through D-0130/GIT-094 publication, integration and activation of the final SPEC-0012 Phase 4 citation-recovery/reply-reveal correction. Phase 5 is entry-ready but remains unauthorized/not started. SPEC-0008 Phases 2–6 remain paused. SPEC-0012 transcription/public beta/deployment remain unauthorized.
 
 ## SPEC-0012 guidance Assistant — hosted search correction published and active
 

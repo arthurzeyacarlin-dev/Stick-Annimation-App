@@ -1,6 +1,6 @@
 # SPEC-0012 — Diamond Animator Guidance Assistant
 
-Status: **Active; Phases 1–4 accepted/published/integrated through GIT-093; D-0129 final Phase 4 correction accepted and GIT-094 publication authorized/pending; Phase 5 unauthorized/not started; Phase 6 unauthorized/not started**
+Status: **Active; Phases 1–4 fully accepted/published/integrated through D-0130/GIT-094; Phase 5 entry-ready but unauthorized/not started; Phase 6 unauthorized/not started**
 
 Owner: Arthur
 
@@ -446,7 +446,7 @@ The exact 14-path immutable correction manifest is `output/spec-0012/phase-4-fin
 
 Arthur accepted the exact final 14-file Phase 4 correction from clean base `741ee803f9e0bd72f7c64174a77e52a6ac3a7b17`. Missing native inline annotations now recover only from provider-consulted canonical URL metadata, with neutral host labels and all forged/private/missing-metadata rejection retained. A storage-first pending-to-done transition now marks only that new assistant turn for the existing fast typewriter/blue-gradient reveal; saved/reloaded answers never replay.
 
-The sealed manifest SHA-256 is `f611cfa77811685f9ddc208df3d314f1710a8bfb9ceac3fcedf058818780ba9e`, receipt SHA-256 is `171c22eb1f7c00cf38cb9b71f12f08bf66a3fc838fbad48ae9b98e226ba6fc2b`, and source digest is `aa6c1d7954a97d9cb9fab1502d2ba7639f10246c98be03bbfc968ecb9605da54`. Proof covers 25 completions, 208 reveal assertions, 100% reveal rate, zero duplicates/reload replays, six protected browser suites, accepted V1 regression proof and zero real/paid deterministic calls. GIT-094 publication is authorized and pending. Phase 5 remains Unauthorized/Not started.
+The sealed manifest SHA-256 is `f611cfa77811685f9ddc208df3d314f1710a8bfb9ceac3fcedf058818780ba9e`, receipt SHA-256 is `171c22eb1f7c00cf38cb9b71f12f08bf66a3fc838fbad48ae9b98e226ba6fc2b`, and source digest is `aa6c1d7954a97d9cb9fab1502d2ba7639f10246c98be03bbfc968ecb9605da54`. Proof covers 25 completions, 208 reveal assertions, 100% reveal rate, zero duplicates/reload replays, six protected browser suites, accepted V1 regression proof and zero real/paid deterministic calls. D-0130/GIT-094 `7053851babec9247c6733e016145fd0d0b8a6e46` publishes/integrates the exact result and activates canonical main. Phase 5 remains Unauthorized/Not started.
 
 ## 15. Phase 5 — Built-in microphone dictation
 

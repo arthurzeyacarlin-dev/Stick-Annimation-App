@@ -1,5 +1,11 @@
 # Changelog
 
+### 2026-09-23 — Publish, integrate and activate final SPEC-0012 Phase 4 correction (D-0130/GIT-094)
+
+- Published the exact 14 accepted technical plus 15 reviewed record/tree paths as product commit `7053851babec9247c6733e016145fd0d0b8a6e46`, parent `741ee803f9e0bd72f7c64174a77e52a6ac3a7b17`; canonical/origin/GitHub main synchronized normally.
+- Started canonical Diamond Animator on port 3000 and verified two consecutive live local-guidance answers in one chat, enabled reasoning controls, zero browser errors, and no disconnect/citation-verification/blocked-draft banner. Port 58060 is closed.
+- The completed executor checkout had already been removed during task archival; the exact accepted bytes were recovered from the accepted change record/V1 archive and reverified at source digest `aa6c1d7954a97d9cb9fab1502d2ba7639f10246c98be03bbfc968ecb9605da54`. GIT-094 is the durable exact-source anchor. Phase 5 remains Unauthorized/Not started.
+
 ### 2026-09-23 — Accept and propagate final SPEC-0012 Phase 4 citation/reveal correction (D-0129; GIT-094 pending)
 
 - Accepted the exact 14-file result from base `741ee803f9e0bd72f7c64174a77e52a6ac3a7b17`: provider-consulted citation recovery plus reliable existing typewriter/blue-gradient reveal for every newly completed answer, with no saved-answer replay.

@@ -3,7 +3,7 @@
 Status: canonical proof standard and current gate baseline
 Last updated: 2026-09-23
 
-## SPEC-0012 proof contract — D-0129 final Phase 4 correction accepted; GIT-094 pending
+## SPEC-0012 proof contract — final Phase 4 correction closed through D-0130/GIT-094
 
 Status: GIT-089 published D-0120 planning; D-0121–D-0123/GIT-090 fully close Phase 1. D-0124/GIT-091 close combined Phase 2/absorbed Phase 3. D-0125/D-0126/GIT-092 close Phase 4 hosted search plus corrupt-row correction. D-0127 accepts the final 14-path terminal/source correction; D-0128/GIT-093 publishes its exact 29-path product package as `99128d70f4320dcfc757d81c7bc146baf3467f86`, activates canonical port 3000, preserves proof and completes cleanup. Phase 5 is entry-ready but remains Unauthorized/Not started; transcription, public exposure and deployment remain unauthorized.
 

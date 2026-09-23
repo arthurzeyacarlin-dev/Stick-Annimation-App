@@ -1353,6 +1353,14 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Accepted outcome: a search answer with no native inline annotations may recover citations only from canonical provider-consulted URL metadata and presents neutral host labels; invalid/forged/private/missing metadata still fails closed. Every newly completed local or searched answer uses the already accepted fast typewriter and blue-gradient reveal even when storage notification precedes the initiating render; saved/reloaded replies do not replay.
 - Proof/boundary: 25 completions, 208 reveal assertions, 100% reveal rate, zero duplicate answers, zero historical replay, six protected browser suites, accepted V1 oracle/browser/regression proof, TypeScript/focused lint/focused build/diff PASS and zero real/paid deterministic calls. Provider/model/search policy/reasoning/job lifecycle/storage schema/request limits/dictation and every non-Assistant product system are unchanged beyond the accepted citation recovery and reveal race fix. Phase 5 remains Unauthorized/Not started.
 
+### D-0130 — Publish, integrate and activate the final SPEC-0012 Phase 4 correction
+
+- Date: 2026-09-23
+- Status: Fully closed; Verified/published/integrated/synchronized/runtime-activated.
+- Publication: exact 29-path GIT-094 product commit `7053851babec9247c6733e016145fd0d0b8a6e46`, parent `741ee803f9e0bd72f7c64174a77e52a6ac3a7b17`, message `Finalize SPEC-0012 Phase 4 citation and reply reveal`; 14 accepted technical plus 15 reviewed control-plane/tree paths. Canonical `main`, `origin/main`, and GitHub `main` synchronized normally with no merge/rebase/force.
+- Activation/proof: canonical Diamond Animator started from integrated `main` on port 3000. One chat accepted two consecutive live local-guidance messages; both completed, the reasoning control remained enabled, and there were zero browser errors, disconnect banners, citation-verification warnings, or blocked drafts. Port 58060 closed.
+- Preservation caveat/boundary: task archival removed the completed executor checkout before CPA publication. The exact accepted 14 source bytes were recovered from the accepted change record and preserved V1 archive, and their aggregate digest reverified exactly as `aa6c1d7954a97d9cb9fab1502d2ba7639f10246c98be03bbfc968ecb9605da54` before commit. GIT-094 is the durable exact-source anchor; the V1 archive remains preserved. No Phase 5, dictation, deployment, provider/model/reasoning/lifecycle/storage or non-Assistant product change is included.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

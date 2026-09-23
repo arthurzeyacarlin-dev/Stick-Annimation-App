@@ -1,7 +1,7 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-23 through D-0129 acceptance/verification of the final SPEC-0012 Phase 4 citation-recovery/reply-reveal correction; GIT-094 publication pending.
+Last traced: 2026-09-23 through D-0130/GIT-094 publication, integration and activation of the final SPEC-0012 Phase 4 citation-recovery/reply-reveal correction.
 
 ## SPEC-0012 guidance-Assistant architecture — Phase 4 fully closed
 

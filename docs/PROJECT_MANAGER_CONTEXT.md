@@ -22,6 +22,7 @@ The latest product direction, updated through 2026-09-23, is:
 - Manual controls comparable in seriousness to established animation tools must remain available for fine-tuning and professional use.
 - Long-term project continuity across Codex tasks is mandatory.
 - Efficiency and cost matter alongside output quality.
+- Arthur accepted D-0127's final SPEC-0012 Phase 4 correction and explicitly authorized its control-plane record, commit, canonical-main integration and GitHub push. The correction must remove the temporary provider-source-overflow failure without removing per-request safety limits, keep Finalizing near three seconds with a 55-second hard answer deadline, preserve clean ordinary prose plus separate clickable Sources, and change no non-Assistant product surface. Phase 5 remains separately unauthorized until publication closes.
 - Development progress may be shared publicly, so every update must distinguish Proposed, Implemented, and Verified work and must not overstate unfinished capability.
 - A custom Diamond Animator model may be explored later, but it is not required for the immediate product foundation.
 - SPEC-0004 Phase 2 is Verified, published, and integrated in exact 20-path commit `e3ec6a33438c2f3d2e075b6477f18b8eb1b58e24`. Its eight-path hidden local pose/smooth-motion engine bakes every generated frame into ordinary independently editable Stick data and adds no provider, language matcher, or Drawing/workspace change.

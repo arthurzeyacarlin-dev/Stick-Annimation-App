@@ -11,7 +11,7 @@ Last updated: 2026-09-23
 - Paid AI calls, remote writes, deployment, and baseline commits require task-specific authorization.
 - The roadmap may change when Arthur resolves pending decisions or new evidence changes the risk order.
 
-## Current owner sequence — 2026-09-23 (SPEC-0012 Phase 4 fully closed through D-0126/GIT-092; Phase 5 entry-ready but unauthorized)
+## Current owner sequence — 2026-09-23 (SPEC-0012 Phase 4 correction accepted through D-0127; GIT-093 pending; Phase 5 unauthorized)
 
 All seven SPEC-0006 phases are Verified/published/integrated through GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`. The immutable 50,224-byte Phase 7 manifest is PASS/VALID at SHA-256 `c6202f6deab4d3bcc75af3ad6699fc2dc70fc58723eccaa8337b1a2aef74bc51`, with exactly 11 source and 16 evidence bindings.
 
@@ -71,7 +71,7 @@ D-0120 adds proposed [`SPEC-0012 — Diamond Animator Guidance Assistant`](specs
 5. **Microphone dictation** — separately approved transcription boundary with waveform, permission, Cancel/Stop, editable text, explicit Send and no raw-audio retention.
 6. **Beta hardening** — storage/context/output/search/transcription/cost/security/privacy/accessibility/restart/long-chat proof and exact AI Animator/project regressions.
 
-The target is Tuesday, September 29, 2026 and 85–90% local/private-beta readiness only if no major phase rejection occurs. GIT-089 published the plan; D-0121–D-0123/GIT-090 fully close Phase 1. D-0124/GIT-091 close combined Phase 2/absorbed Phase 3. D-0125 accepts and technically verifies Phase 4's hosted-search/citation/activity result plus corrupt-row recovery correction; D-0126/GIT-092 `23816164592743a59d4cc3b83ffd0ac39844d654` close publication, integration, proof preservation, runtime activation and cleanup. Phase 5 dictation is entry-ready but remains Unauthorized/Not started; Phase 6 beta hardening, public exposure and deployment remain unauthorized. The accepted AI Animator remains separate; paused SPEC-0008 Phases 2–6 do not resume.
+The target is Tuesday, September 29, 2026 and 85–90% local/private-beta readiness only if no major phase rejection occurs. GIT-089 published the plan; D-0121–D-0123/GIT-090 fully close Phase 1. D-0124/GIT-091 close combined Phase 2/absorbed Phase 3. D-0125/D-0126/GIT-092 close Phase 4's hosted-search/citation/activity result plus corrupt-row recovery. D-0127 accepts the final terminal/source correction and authorizes GIT-093 publication. Phase 5 dictation remains Unauthorized/Not started until GIT-093 closes and Arthur separately authorizes it; Phase 6 beta hardening, public exposure and deployment remain unauthorized. The accepted AI Animator remains separate; paused SPEC-0008 Phases 2–6 do not resume.
 
 ## Phase 0 — Preserve and Stabilize
 

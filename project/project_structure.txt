@@ -578,12 +578,14 @@
 ./scripts/spec0012-assistant/recordPhase2FinalCorrectionProof.ts
 ./scripts/spec0012-assistant/recordPhase2Proof.ts
 ./scripts/spec0012-assistant/recordPhase4Proof.ts
+./scripts/spec0012-assistant/recordPhase4TerminalCorrectionProof.ts
 ./scripts/spec0012-assistant/runPhase2FinalCorrectionProof.ts
 ./scripts/spec0012-assistant/validatePhase1Proof.ts
 ./scripts/spec0012-assistant/validatePhase2CorrectionProof.ts
 ./scripts/spec0012-assistant/validatePhase2FinalCorrectionProof.ts
 ./scripts/spec0012-assistant/validatePhase2Proof.ts
 ./scripts/spec0012-assistant/validatePhase4Proof.ts
+./scripts/spec0012-assistant/validatePhase4TerminalCorrectionProof.ts
 ./scripts/sync_docs_to_github.sh
 ./scripts/traceExplosionLivePath.ts
 ./scripts/traceGenerateSoundsLivePath.mjs

@@ -1,5 +1,12 @@
 # Changelog
 
+### 2026-09-23 — Accept and propagate SPEC-0012 Phase 4 terminal/source correction (D-0127)
+
+- Recorded Arthur's PASS and publication authority for the exact 14-path correction from terminal GIT-092 base `21c5b3d70bf3ae5444a310913dbccec9a63895d9`, empty index. Immutable manifest SHA-256 is `a078d42e1b1ac131787c1f8b48aeb333c2263b119b3e2b2b9172a8b213908137`; source digest is `6593a497cc93dd57fbde384071bdb6f84d8e555b4d7e8c0dec8bcd05f73712ce`.
+- Accepted job-owned approximately three-second Finalizing after complete result validation, 55/30-second whole-job/search bounds, terminal-slot reservation, provider lifecycle dedupe, validated-and-bounded sources without the temporary `search source limit was exceeded` failure, topic-specific search activity and clean prose with separate accessible Sources links.
+- Recorded 57 deterministic, 23 finalization, 23 browser and four protected-regression groups plus TypeScript/focused lint/diff PASS. Two authorized fixed-Terra live requests used zero retries; local/search replies completed in 8.611/18.850 seconds, Finalizing lasted 2.949 seconds, and the project sentinel/reload citations/reasoning remained correct.
+- Propagated reviewed records only and changed no accepted technical byte. GIT-093 publication/integration, proof preservation, runtime restart and D-0054 cleanup are authorized but not yet claimed in this entry. Phase 5 remains Unauthorized/Not started.
+
 ### 2026-09-23 — Publish, activate, preserve, and clean up SPEC-0012 Phase 4 (D-0126/GIT-092)
 
 - Published the exact 27 accepted technical plus 15 reviewed record/tree paths as commit `23816164592743a59d4cc3b83ffd0ac39844d654`, parent `fa2ef6c526d04de9c77b356b53b4768890c46e1f`, message `Complete SPEC-0012 Phase 4 hosted search`; canonical `main`, `origin/main`, and live GitHub `main` synchronized at clean `0/0`.

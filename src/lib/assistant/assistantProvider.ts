@@ -75,12 +75,59 @@ function answerStringMap(raw: string) {
   throw new AssistantError("output", "Terra returned an unreadable answer. Your message is saved.");
 }
 
+type TextEdit = { start: number; end: number; replacement: string };
+
+/**
+ * The provider owns facts; the app owns presentation. Remove source syntax and
+ * lightweight Markdown that occasionally leaks through a structured response,
+ * while retaining a monotonic boundary map for the verified citations.
+ */
+export function normalizeAssistantPresentation(text: string, citations: Citation[] = []): { text: string; citations: Citation[] } {
+  const edits: TextEdit[] = [];
+  const addMatches = (pattern: RegExp, replacement: string | ((match: string) => string)) => {
+    for (const match of text.matchAll(pattern)) {
+      const start = match.index!; const end = start + match[0].length;
+      if (edits.some(edit => start < edit.end && end > edit.start)) continue;
+      edits.push({ start, end, replacement: typeof replacement === "function" ? replacement(match[0]) : replacement });
+    }
+  };
+  // Sources are rendered in the dedicated Sources panel. Remove both ordinary
+  // Markdown links and the common parenthesized-source form from answer prose.
+  addMatches(/\(?\[[^\]\n]{1,200}\]\(https:\/\/[^\s)]+\)\)?/g, "");
+  addMatches(/\(?https:\/\/[^\s)]+\)?/g, "");
+  addMatches(/(?:\*\*|__|`)/g, "");
+  addMatches(/^[ \t]{0,3}#{1,6}[ \t]+/gm, "");
+  addMatches(/^[ \t]*[-*][ \t]+/gm, () => "• ");
+  edits.sort((a, b) => a.start - b.start || b.end - a.end);
+
+  const boundaries = new Array<number>(text.length + 1).fill(0); let cursor = 0; let output = "";
+  for (const edit of edits) {
+    if (edit.start < cursor) continue;
+    while (cursor < edit.start) { boundaries[cursor] = output.length; output += text[cursor]; cursor++; boundaries[cursor] = output.length; }
+    const before = output.length; for (let index = edit.start; index < edit.end; index++) boundaries[index] = before;
+    output += edit.replacement; cursor = edit.end; boundaries[cursor] = output.length;
+  }
+  while (cursor < text.length) { boundaries[cursor] = output.length; output += text[cursor]; cursor++; boundaries[cursor] = output.length; }
+  const cleaned = output.replace(/[ \t]+(?=\n)/g, "").replace(/\n{3,}/g, "\n\n").replace(/ {2,}/g, " ").trim();
+  insist(cleaned.length >= 1, "output", "Terra returned an unreadable answer. Your message is saved.");
+
+  // trim/whitespace normalization can shift a boundary by a few characters.
+  // Citation links are rendered in the Sources panel; keep each verified source
+  // attached to the nearest surviving answer character for persisted integrity.
+  const mapped = citations.map(citation => {
+    const approximate = boundaries[Math.min(text.length, citation.endIndex)] ?? cleaned.length;
+    const endIndex = Math.max(1, Math.min(cleaned.length, approximate));
+    return { ...citation, startIndex: endIndex - 1, endIndex };
+  }).sort((a, b) => a.startIndex - b.startIndex || a.index - b.index);
+  return { text: cleaned, citations: mapped };
+}
+
 function actionRecord(call: OpenAI.Responses.ResponseFunctionWebSearch): { action: SearchAction; urls: string[] } {
   const action = call.action;
   if (action.type === "search") {
     const queries = (action.queries?.length ? action.queries : [action.query]).filter(Boolean);
     insist(queries.length >= 1 && queries.length <= ASSISTANT_SEARCH_LIMITS.processedSources && queries.reduce((total, query) => total + Array.from(query).length, 0) <= ASSISTANT_SEARCH_LIMITS.queryChars, "output", "The web search exceeded its query limit. Your message is saved.");
-    return { action: { type: "search", queries }, urls: (action.sources ?? []).slice(0, ASSISTANT_SEARCH_LIMITS.processedSources).map(source => canonicalPublicUrl(source.url)) };
+    return { action: { type: "search", queries }, urls: (action.sources ?? []).map(source => canonicalPublicUrl(source.url)) };
   }
   if (action.type === "open_page") {
     insist(action.url, "output", "The web search opened an unverified page. Your message is saved.");
@@ -94,7 +141,7 @@ function searchResult(final: OpenAI.Responses.Response, raw: string, annotations
   const calls = final.output.filter((item): item is OpenAI.Responses.ResponseFunctionWebSearch => item.type === "web_search_call");
   insist(calls.length >= 1 && calls.length <= ASSISTANT_SEARCH_LIMITS.toolCalls && calls.every(call => call.status === "completed"), "output", "Current public information could not be verified. Your message is saved.");
   const actionRecords = calls.map(actionRecord); const actualUrls = new Set(actionRecords.flatMap(record => record.urls));
-  insist(actualUrls.size >= 1 && actualUrls.size <= ASSISTANT_SEARCH_LIMITS.processedSources, "output", "The search source limit was exceeded. Your message is saved.");
+  insist(actualUrls.size >= 1, "output", "Current public information could not be verified. Your message is saved.");
   const mapping = answerStringMap(raw); let parsed: unknown; try { parsed = JSON.parse(raw); } catch { throw new AssistantError("output", "Terra returned an unreadable answer. Your message is saved."); }
   validateAnswer(parsed); const parsedAnswer = parsed as Answer; insist(parsedAnswer.answer === mapping.answer, "output", "Search annotations did not match the answer. Your message is saved.");
   const sourceIndex = new Map<string, number>(); const sourceTitles = new Map<string, string>(); const citations: Citation[] = [];
@@ -103,13 +150,21 @@ function searchResult(final: OpenAI.Responses.Response, raw: string, annotations
     const startIndex = mapping.boundaries.get(annotation.start_index); const endIndex = mapping.boundaries.get(annotation.end_index);
     insist(startIndex !== undefined && endIndex !== undefined && annotation.start_index >= mapping.start && annotation.end_index <= mapping.end && endIndex > startIndex, "output", "Search citations did not align with the answer. Your message is saved.");
     const title = normalizeTitle(annotation.title); insist(title.length >= 1 && Array.from(title).length <= 200, "output", "A search source title was invalid. Your message is saved.");
-    if (!sourceIndex.has(url)) { insist(sourceIndex.size < ASSISTANT_SEARCH_LIMITS.displayedSources, "output", "The displayed source limit was exceeded. Your message is saved."); sourceIndex.set(url, sourceIndex.size + 1); sourceTitles.set(url, title); }
+    if (!sourceIndex.has(url)) {
+      // Extra provider candidates are not a user error. Keep the first bounded
+      // set of verified sources and ignore additional display-only citations.
+      if (sourceIndex.size >= ASSISTANT_SEARCH_LIMITS.displayedSources) continue;
+      sourceIndex.set(url, sourceIndex.size + 1); sourceTitles.set(url, title);
+    }
     citations.push({ index: sourceIndex.get(url)!, title: sourceTitles.get(url)!, url, startIndex, endIndex });
   }
   insist(citations.length >= 1, "output", "Current public information was returned without verifiable citations. Your message is saved.");
   insist(!/\b(?:i|we)\s+(?:watched|viewed|listened to|downloaded|inspected)\b/i.test(parsedAnswer.answer), "output", "An unsupported media-viewing claim was rejected. Your message is saved.");
   const sources = [...sourceIndex.entries()].sort((a, b) => a[1] - b[1]).map(([url]) => ({ title: sourceTitles.get(url)!, url }));
-  return { answer: { answer: parsedAnswer.answer, title: parsedAnswer.title, citations }, search: { topic: decision.topic, toolCalls: calls.length, processedSourceCount: actualUrls.size, actions: actionRecords.map(record => record.action), sources } };
+  const processedUrls = new Set(sources.map(source => source.url));
+  for (const url of actualUrls) { if (processedUrls.size >= ASSISTANT_SEARCH_LIMITS.processedSources) break; processedUrls.add(url); }
+  const presentation = normalizeAssistantPresentation(parsedAnswer.answer, citations);
+  return { answer: { answer: presentation.text, title: parsedAnswer.title, citations: presentation.citations }, search: { topic: decision.topic, toolCalls: calls.length, processedSourceCount: processedUrls.size, actions: actionRecords.map(record => record.action), sources } };
 }
 
 function emit(options: AssistantProviderOptions, activity: AssistantProviderActivity) { options.onActivity?.(activity); }
@@ -123,15 +178,27 @@ export function createAssistantProvider(factory: AssistantClientFactory = client
     const maximumCostUsd = (prepared.estimatedTokens * ASSISTANT_PRICE.inputPerMillion + ASSISTANT_LIMITS.outputTokens * ASSISTANT_PRICE.outputPerMillion) / 1000000 + maximumToolCost;
     insist(maximumCostUsd <= ASSISTANT_PRICE.requestUsd, "input", "This answer exceeds the per-request cost limit. Shorten your question or start a new chat.");
     const started = performance.now(); const client = factory(apiKey); const searchAbort = new AbortController();
-    const signal = AbortSignal.any([options.signal, searchAbort.signal]); let searchTimer: ReturnType<typeof setTimeout> | null = null; let searching = false; let finalizing = false; let final: OpenAI.Responses.Response | null = null;
+    const signal = AbortSignal.any([options.signal, searchAbort.signal]); let searchTimer: ReturnType<typeof setTimeout> | null = null; let activeSearchId: string | null = null; let final: OpenAI.Responses.Response | null = null;
+    const completedSearchIds = new Set<string>();
+    const startSearch = (id: string) => {
+      if (completedSearchIds.has(id) || activeSearchId === id) return;
+      insist(activeSearchId === null, "output", "Terra returned an overlapping search lifecycle. Your message is saved.");
+      activeSearchId = id; emit(options, { type: "search-start", topic: prepared.decision.mode === "required" ? prepared.decision.topic : "current public information" });
+      searchTimer = setTimeout(() => searchAbort.abort("search-timeout"), searchDeadlineMs);
+    };
+    const endSearch = (id: string) => {
+      if (completedSearchIds.has(id)) return;
+      completedSearchIds.add(id);
+      if (activeSearchId !== id) return;
+      activeSearchId = null; if (searchTimer) clearTimeout(searchTimer); searchTimer = null; emit(options, { type: "search-end" });
+    };
+    const endActiveSearch = () => { if (activeSearchId) endSearch(activeSearchId); };
     try {
       const stream = await client.create(prepared.body, { signal });
       for await (const event of stream) {
-        if (((event.type === "response.output_item.added" && event.item.type === "web_search_call") || event.type === "response.web_search_call.in_progress" || event.type === "response.web_search_call.searching") && prepared.decision.mode === "required" && !searching) {
-          searching = true; emit(options, { type: "search-start", topic: prepared.decision.topic }); searchTimer = setTimeout(() => searchAbort.abort("search-timeout"), searchDeadlineMs);
-        }
-        if (event.type === "response.web_search_call.completed" && searching) { searching = false; if (searchTimer) clearTimeout(searchTimer); searchTimer = null; emit(options, { type: "search-end" }); }
-        if (event.type === "response.output_text.delta" && !finalizing) { finalizing = true; if (searching) { searching = false; if (searchTimer) clearTimeout(searchTimer); searchTimer = null; emit(options, { type: "search-end" }); } emit(options, { type: "finalizing" }); }
+        if (prepared.decision.mode === "required" && event.type === "response.output_item.added" && event.item.type === "web_search_call") startSearch(event.item.id);
+        else if (prepared.decision.mode === "required" && (event.type === "response.web_search_call.in_progress" || event.type === "response.web_search_call.searching")) startSearch(event.item_id);
+        else if (event.type === "response.web_search_call.completed") endSearch(event.item_id);
         if (event.type === "response.completed") final = event.response;
         if (event.type === "response.failed" || event.type === "response.incomplete" || event.type === "error") throw new AssistantError("output", "Terra could not finish a complete answer. Your message is saved.");
       }
@@ -140,7 +207,7 @@ export function createAssistantProvider(factory: AssistantClientFactory = client
       throw error;
     } finally { if (searchTimer) clearTimeout(searchTimer); }
     insist(final && final.status === "completed" && final.model === ASSISTANT_MODEL && final.usage, "output", "Terra returned an incomplete or unexpected response. Your message is saved.");
-    if (searching) emit(options, { type: "search-end" }); if (!finalizing) emit(options, { type: "finalizing" });
+    endActiveSearch();
     insist(final.output.every(item => item.type === "message" || item.type === "reasoning" || item.type === "web_search_call"), "output", "An unexpected tool response was rejected. Your message is saved.");
     const textParts = final.output.filter(item => item.type === "message").flatMap(item => item.content).filter((part): part is OpenAI.Responses.ResponseOutputText => part.type === "output_text");
     const raw = textParts.map(part => part.text).join(""); let reply: Answer; let search: SearchReceipt | undefined;
@@ -152,6 +219,8 @@ export function createAssistantProvider(factory: AssistantClientFactory = client
       insist(final.output.every(item => item.type !== "web_search_call") && textParts.every(part => (part.annotations ?? []).length === 0), "output", "An unexpected search response was rejected. Your message is saved.");
       try { reply = JSON.parse(raw); } catch { throw new AssistantError("output", "Terra returned an unreadable answer. Your message is saved."); }
       validateAnswer(reply); insist(!("citations" in reply));
+      const presentation = normalizeAssistantPresentation(reply.answer);
+      reply = { answer: presentation.text, title: reply.title };
     }
     const toolCalls = search?.toolCalls ?? 0;
     const usage = { inputTokens: final.usage.input_tokens, outputTokens: final.usage.output_tokens, totalTokens: final.usage.total_tokens, estimatedCostUsd: (final.usage.input_tokens * 2 + final.usage.output_tokens * 12) / 1000000 + toolCalls * ASSISTANT_SEARCH_PRICE.webSearchCallUsd, priceDate: toolCalls ? ASSISTANT_SEARCH_PRICE.date : ASSISTANT_PRICE.date, responseId: final.id, latencyMs: Math.round(performance.now() - started), model: ASSISTANT_MODEL, reasoning: request.reasoningLevel, toolCalls } as const;

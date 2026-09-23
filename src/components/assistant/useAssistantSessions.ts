@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AssistantError, isId, requestFor, stableJson, validateSnapshot, type JobSnapshot, type Reasoning, type Session } from "../../lib/assistant/assistantContracts";
+import { ASSISTANT_LIMITS, AssistantError, isId, requestFor, stableJson, validateSnapshot, type JobSnapshot, type Reasoning, type Session } from "../../lib/assistant/assistantContracts";
 import { beginTurn, deleteSession, finishTurn, listSessions, recordAccepted, renameSession, setSessionReasoning, subscribeSessions } from "../../lib/assistant/assistantStorage";
 
 const readableError = (error: unknown) => error instanceof AssistantError ? error.message : "The Assistant could not connect. Your saved chats and unsent draft are kept. Try again when the connection returns.";
@@ -95,7 +95,7 @@ export function useAssistantSessions() {
               if (latestTurn.acceptedAt !== null) { await finishTurn(session.id, turn.jobId, { interrupted: "This answer was interrupted or the server restarted. Nothing was resent. Send again when ready." }); await refresh(); break; }
               // A prepared turn can be visible to other tabs before its one POST arrives.
               // After its deadline, install a cancellation tombstone before locally settling it.
-              if (Date.now() - turn.at > 105000) {
+              if (Date.now() - turn.at > ASSISTANT_LIMITS.deadlineMs + 3000) {
                 const cancellation = await fetch("/api/diamond-assistant", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify(requestFor(session, turn)), signal: AbortSignal.timeout(10000) });
                 if (!cancellation.ok) throw new Error("unaccepted-cancel");
                 if (await accept(session, await cancellation.json())) break;

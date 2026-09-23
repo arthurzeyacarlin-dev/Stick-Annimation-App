@@ -30,11 +30,11 @@ function topicFor(message: string) {
     [/\bsnapchat\b/i, "Snapchat"], [/\bdiscord\b/i, "Discord"], [/\blinkedin\b/i, "LinkedIn"], [/\b(?:twitter|\bx\b)\b/i, "X"],
   ].filter(([pattern]) => (pattern as RegExp).test(message)).map(([, name]) => name as string);
   if (platforms[0] === "YouTube Shorts") { const youtube = platforms.indexOf("YouTube", 1); if (youtube >= 0) platforms.splice(youtube, 1); }
-  if (platforms.length === 1) return `current ${platforms[0]} requirements`;
-  if (platforms.length > 1) return `current ${platforms.slice(0, -1).join(", ")}, and ${platforms.at(-1)} information`;
-  if (/\b(?:chrome|firefox|safari|edge|browser)\b/i.test(message)) return "current browser requirements";
+  if (platforms.length === 1) return `${platforms[0]} for information`;
+  if (platforms.length > 1) return `${platforms.slice(0, -1).join(", ")} and ${platforms.at(-1)} for information`;
+  if (/\b(?:chrome|firefox|safari|edge|browser)\b/i.test(message)) return "current browser information";
   if (/\b(?:openai|responses api)\b/i.test(message)) return "current public API information";
-  return "current public information";
+  return "public websites for current information";
 }
 
 export function decideAssistantSearch(request: Pick<AssistantRequest, "message">): SearchDecision {

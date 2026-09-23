@@ -1,7 +1,7 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-23 through D-0126/GIT-092 publication, integration, runtime activation and cleanup of SPEC-0012 Phase 4.
+Last traced: 2026-09-23 through D-0127 acceptance and technical verification of the SPEC-0012 Phase 4 terminal/source correction; GIT-093 publication is authorized and pending.
 
 ## SPEC-0012 guidance-Assistant architecture — Phase 4 fully closed
 
@@ -28,6 +28,8 @@ Combined Phase 2 implements local sessions and the original planned Phase 3 fixe
 D-0125 accepts Phase 4's search path. `assistantSearchPolicy` runs after local knowledge retrieval and returns either local-only or one sanitized required-search topic. `assistantProvider` exposes only Responses `web_search` for the latter, maps real provider events to Searching/Finalizing, validates completed tool calls/actions, canonical public HTTPS URLs, displayed source titles and citation text ranges, and publishes answer/search/usage atomically through the existing Assistant job/session owners. The search ceiling is two hosted calls, eight processed/six displayed sources, 512 query characters and 45 seconds inside the 90-second job; cost is `$0.01` per hosted call within the existing `$0.15` request ceiling. There is still no arbitrary fetch, custom scraper, media watch/download, image search, social authentication, automatic retry or fallback model.
 
 The accepted corrupt-row storage correction treats unreadable raw rows as occupied for count/byte capacity, preserves their canonical bytes, prevents unsafe overwrite and still lets a healthy independent chat proceed. It does not migrate or delete the corrupt row. Phase 4 changes no project, animation, AI Animator, recovery, Export or project-management owner. Transcription and deployment remain absent. The accepted AI Animator and unified V2 mutation paths remain protected and separate.
+
+D-0127 keeps this architecture but corrects ownership and terminal sequencing. Provider events may move a job only between Thinking and one active Search; duplicate lifecycle events are ignored and excessive/overlapping transitions fail into a reserved terminal slot. After Terra returns, the job validates the complete answer/search/usage result, then alone enters Finalizing for about three seconds before Done. The whole job/search deadlines are 55/30 seconds. Provider source candidates are all canonicalized and validated, then bounded to eight processed/six displayed records; excess candidates no longer fail the user's answer. Presentation normalization removes source syntax and raw URLs from answer prose while retaining verified accessible links in the separate Sources panel. No storage/project/Animator/mutation owner changes.
 
 ## SPEC-0011 project-library and playback architecture — all three phases fully closed
 

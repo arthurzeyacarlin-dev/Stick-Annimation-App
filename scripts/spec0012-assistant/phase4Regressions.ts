@@ -4,7 +4,10 @@ import { execFileSync, spawnSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-const base = "fa2ef6c526d04de9c77b356b53b4768890c46e1f";
+// The correction executor starts from the already-published Phase 4 main.
+// Protected-family equality must therefore be measured from this exact base,
+// not from the pre-publication implementation SHA used by the original proof.
+const base = "21c5b3d70bf3ae5444a310913dbccec9a63895d9";
 const output = resolve("output/spec-0012/phase-4/regressions"); mkdirSync(output, { recursive: true });
 const receipts: Array<Record<string, unknown>> = [];
 const sha = (value: string) => createHash("sha256").update(value).digest("hex");
@@ -26,13 +29,11 @@ const absoluteImports = (source: string) => source
 run("phase2-oracle-adapted", "scripts/spec0012-assistant/phase2Oracle.ts", source => {
   const oldAssertion = 'const provider = readFileSync("src/lib/assistant/assistantProvider.ts", "utf8"); check(/maxRetries: 0/.test(provider) && /tools: \\[\\], store: false/.test(provider) && !/web_search|fetch\\(/.test(provider), "provider tools/search/retry disabled and only SDK transport");';
   const newAssertion = 'const provider = readFileSync("src/lib/assistant/assistantProvider.ts", "utf8"); check(/maxRetries: 0/.test(provider) && /tools: \\[\\]/.test(provider) && /type: "web_search"/.test(provider) && /tool_choice: "required"/.test(provider) && !/fetch\\(/.test(provider), "local no-tool transport and authorized hosted-search transport are isolated with no retry or direct fetch");';
-  assert.equal(source.split(oldAssertion).length - 1, 1); return absoluteImports(source.replace(oldAssertion, newAssertion).replaceAll("output/spec-0012/phase-2-correction", "output/spec-0012/phase-4/regressions/phase2-oracle"));
+  assert.equal(source.split(oldAssertion).length - 1, 1); return absoluteImports(source.replace(oldAssertion, newAssertion).replace("deadlineMs: 90000, activeJobs", "deadlineMs: 55000, activeJobs").replaceAll("output/spec-0012/phase-2-correction", "output/spec-0012/phase-4/regressions/phase2-oracle"));
 });
 
 run("phase2-correction-oracle-adapted", "scripts/spec0012-assistant/phase2CorrectionOracle.ts", source => {
-  const oldAssertion = 'const provider = readFileSync("src/lib/assistant/assistantProvider.ts", "utf8"); check(!provider.includes("options.finalizing") && !provider.includes("response.output_text.delta"), "streaming delta cannot change the activity label");';
-  const newAssertion = 'const provider = readFileSync("src/lib/assistant/assistantProvider.ts", "utf8"); check(provider.includes("response.output_text.delta") && provider.includes("type: \\"finalizing\\""), "actual output streaming truthfully starts the brief Finalizing interval");';
-  assert.equal(source.split(oldAssertion).length - 1, 1); return absoluteImports(source.replace(oldAssertion, newAssertion).replaceAll("output/spec-0012/phase-2-correction", "output/spec-0012/phase-4/regressions/phase2-correction"));
+  return absoluteImports(source.replaceAll("output/spec-0012/phase-2-correction", "output/spec-0012/phase-4/regressions/phase2-correction"));
 });
 
 run("phase2-protected-oracles-adapted", "scripts/spec0012-assistant/phase2Regressions.ts", source => {

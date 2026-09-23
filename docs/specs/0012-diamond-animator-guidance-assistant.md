@@ -434,6 +434,14 @@ The accepted live record used fixed `gpt-5.6-terra` with Medium reasoning for on
 
 Accepted runtime/test/proof bytes are frozen. D-0126/GIT-092 publish/integrate the exact 42-path result, preserve proof, stop PID 31449/port 58040, and complete D-0054 cleanup. A canonical-server restart cleared the stale pre-search process-global provider; the identical current-information prompt then returned two official cited sources. No Phase 5 or deployment is authorized.
 
+### 14.6 Accepted terminal-lifecycle/source-presentation correction — D-0127
+
+Arthur accepted one correction from terminal GIT-092 base `21c5b3d70bf3ae5444a310913dbccec9a63895d9`. It is not a new phase and does not expand Phase 4 scope. The job service now owns Finalizing only after a complete validated provider result and holds it for about three seconds; it reserves one terminal event slot, fails safely on excessive/overlapping lifecycle transitions, uses a 55-second whole-job deadline and a 30-second hosted-search deadline, and prevents repeated provider tool events from producing repeated visible search cycles. Search still runs only when the deterministic policy requires current external facts.
+
+All provider-returned source candidates are canonicalized and validated. The application then retains at most eight processed and six displayed sources, so excess provider candidates no longer cause the temporary user-visible `search source limit was exceeded` failure. Query/action/tool/source-retention/token/cost/privacy protections remain. Answer presentation removes leaked Markdown links, raw URLs and formatting syntax while keeping verified sources as accessible clickable entries in the dedicated Sources panel. Search activity names the actual selected topic, such as YouTube Shorts, rather than a generic phrase.
+
+The exact 14-path immutable correction manifest is `output/spec-0012/phase-4-final-correction/proof-manifest.json`, SHA-256 `a078d42e1b1ac131787c1f8b48aeb333c2263b119b3e2b2b9172a8b213908137`, source digest `6593a497cc93dd57fbde384071bdb6f84d8e555b4d7e8c0dec8bcd05f73712ce`, with 14 source and five evidence bindings. It passes 57 deterministic, 23 finalization, 23 browser and four protected-regression groups plus TypeScript, focused lint and diff checks. Two authorized live fixed-Terra requests used zero retries: local guidance completed in 8.611 seconds; one current YouTube search completed in 18.850 seconds with eight processed/two displayed official sources and 2.949 seconds of Finalizing. Reasoning change, reload persistence and unchanged project sentinel passed. The search is below the 55-second hard limit but honestly above the preferred typical 10–15 seconds. Phase 5, dictation, deployment and every project/animation owner remain unchanged and unauthorized.
+
 ## 15. Phase 5 — Built-in microphone dictation
 
 ### 15.1 Entry gate

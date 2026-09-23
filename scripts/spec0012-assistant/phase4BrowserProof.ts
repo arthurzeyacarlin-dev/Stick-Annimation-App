@@ -18,14 +18,14 @@ let providerCalls = 0;
 const jobs = new DiamondAssistantJobService(async (request, options) => {
   providerCalls++; captured.push(request); await pause(650);
   if (decideAssistantSearch(request).mode === "required") {
-    options.onActivity?.({ type: "search-start", topic: "current YouTube Shorts requirements" }); await pause(850);
-    options.onActivity?.({ type: "search-end" }); await pause(650); options.onActivity?.({ type: "finalizing" }); await pause(450);
+    options.onActivity?.({ type: "search-start", topic: "YouTube Shorts for information" }); await pause(850);
+    options.onActivity?.({ type: "search-end" }); await pause(650);
     return searchProviderResult(request);
   }
-  options.onActivity?.({ type: "finalizing" }); await pause(350);
+  await pause(350);
   const answer = request.message.startsWith("Hi") ? "I’m Diamond Animator’s guidance Assistant. I can explain the app without seeing or changing your projects." : "Use Home → Export, or File → Export… in the workspace. Save first because Export uses the saved animation and excludes unsaved edits.";
   return fixtureResult(request, answer, request.message.startsWith("Hi") ? "Meet the Assistant" : "Export an animation");
-}, 90000, 0);
+}, 90000, 250);
 
 async function configure(context: BrowserContext) {
   await context.route("**/*", async route => {
@@ -52,14 +52,14 @@ try {
   await page.goto(`${origin}/assistant`); await page.getByRole("button", { name: "New Chat", exact: true }).waitFor(); await page.evaluate(() => localStorage.setItem("phase4-protected-project-sentinel", "unchanged"));
 
   await send(page, "Hi, who are you?"); const localThinking = page.locator('[role="status"]').filter({ hasText: "Thinking" }); await localThinking.waitFor();
-  check(!(await page.locator("body").innerText()).includes("Searching the web"), "greeting never shows search activity"); await page.getByRole("article", { name: "Assistant reply", exact: true }).filter({ hasText: /guidance Assistant/ }).waitFor();
+  check(!(await page.locator("body").innerText()).includes("Searching "), "greeting never shows search activity"); await page.getByRole("article", { name: "Assistant reply", exact: true }).filter({ hasText: /guidance Assistant/ }).waitFor();
   equal(captured.at(-1)?.message, "Hi, who are you?", "exact greeting is sent through fixed local Terra path");
   await send(page, "Where do I export my animation?"); await page.getByRole("article", { name: "Assistant reply", exact: true }).filter({ hasText: /Home → Export/ }).waitFor();
-  check(!(await page.locator("body").innerText()).includes("Searching the web"), "internal export guidance never shows search activity");
+  check(!(await page.locator("body").innerText()).includes("Searching "), "internal export guidance never shows search activity");
 
   await page.getByRole("button", { name: "New Chat", exact: true }).click(); await send(page, youtubePrompt);
-  const searching = page.locator('[role="status"]').filter({ hasText: "Searching the web for current YouTube Shorts requirements…" }); await searching.waitFor();
-  equal(await searching.locator("span").innerText(), "Searching the web for current YouTube Shorts requirements…", "actual tool interval shows the sanitized topic text");
+  const searching = page.locator('[role="status"]').filter({ hasText: "Searching YouTube Shorts for information…" }); await searching.waitFor();
+  equal(await searching.locator("span").innerText(), "Searching YouTube Shorts for information…", "actual tool interval says what is being searched in plain language");
   const searchStyle = await searching.locator("span").evaluate(element => ["::before", "::after"].map(pseudo => ({ duration: getComputedStyle(element, pseudo).animationDuration, mask: getComputedStyle(element, pseudo).maskSize, gradient: getComputedStyle(element, pseudo).backgroundImage })));
   check(searchStyle.every(layer => layer.duration === "3.75s, 3.75s" && layer.mask === "57% 100%" && layer.gradient.includes("linear-gradient")), "search label reuses the normalized paired blue gradient");
   check(!(await searching.innerText()).includes("support.google.com"), "search activity never invents a site name"); await snap(page, "searching");
@@ -68,7 +68,7 @@ try {
   equal(await page.locator('[aria-label="Sources"] a').count(), 1, "one verified source is displayed once despite repeated annotations");
   const source = page.locator('[aria-label="Sources"] a').first(); equal(await source.getAttribute("href"), "https://support.google.com/youtube/answer/15424877", "source link keeps the canonical HTTPS URL");
   check((await source.getAttribute("target")) === "_blank" && (await source.getAttribute("rel"))?.includes("noopener"), "source link opens safely and is keyboard reachable");
-  await source.focus(); check((await page.evaluate(() => document.activeElement?.textContent?.trim()))?.startsWith("[1] Understand three-minute YouTube Shorts"), "keyboard focus reaches the visible text citation");
+  await source.focus(); check((await page.evaluate(() => document.activeElement?.textContent?.trim()))?.startsWith("[1] Understand three-minute YouTube Shorts"), "keyboard focus reaches the verified source link");
   check((await page.getByRole("article", { name: "Assistant reply", exact: true }).innerText()).includes("Diamond Animator"), "search answer combines verified public facts with local export guidance"); await snap(page, "cited-answer");
   const savedBeforeReload = await readSessions(page); const searchSession = savedBeforeReload.find(session => session.messages.some(message => message.text === youtubePrompt))!;
   check(!!searchSession.messages.at(-1)?.citations?.length && searchSession.turns.at(-1)?.search?.toolCalls === 1, "citations, actions and source receipt persist in Assistant-only IndexedDB");
@@ -80,8 +80,8 @@ try {
 
   await page.setViewportSize({ width: 390, height: 844 }); await page.reload();
   equal(await page.evaluate(() => ({ width: document.documentElement.scrollWidth, viewport: innerWidth })), { width: 390, viewport: 390 }, "compact cited conversation has no horizontal overflow");
-  const compactCitation = page.getByRole("link", { name: /Source 1:/ }).last(); await compactCitation.waitFor();
-  check(await compactCitation.isVisible(), "compact citation remains visible and keyboard reachable"); await snap(page, "compact-citations");
+  const compactCitation = page.locator('[aria-label="Sources"] a').first(); await compactCitation.waitFor();
+  check(await compactCitation.isVisible(), "compact source link remains visible and keyboard reachable"); await snap(page, "compact-citations");
 
   await page.emulateMedia({ reducedMotion: "reduce" }); await page.getByRole("button", { name: "New Chat", exact: true }).click(); await send(page, youtubePrompt); await searching.waitFor();
   equal(await searching.locator("span").evaluate(element => getComputedStyle(element, "::before").display), "none", "reduced motion keeps search status static without sweep");

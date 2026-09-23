@@ -1,8 +1,8 @@
 /** Assistant-only data. No workspace identifiers, commands, or project payloads. */
 export const ASSISTANT_MODEL = "gpt-5.6-terra";
 export const CATALOG_VERSION = "diamond-animator-knowledge/v1:2026-09-22";
-export const ASSISTANT_LIMITS = Object.freeze({ sessions: 50, messages: 200, userChars: 12000, answerChars: 16000, sessionBytes: 1024 * 1024, databaseBytes: 32 * 1024 * 1024, contextMessages: 32, contextChars: 48000, inputTokens: 24000, outputTokens: 4000, deadlineMs: 90000, activeJobs: 2, replyReserveBytes: 68000 });
-export const ASSISTANT_SEARCH_LIMITS = Object.freeze({ deadlineMs: 45000, toolCalls: 2, processedSources: 8, displayedSources: 6, queryChars: 512 });
+export const ASSISTANT_LIMITS = Object.freeze({ sessions: 50, messages: 200, userChars: 12000, answerChars: 16000, sessionBytes: 1024 * 1024, databaseBytes: 32 * 1024 * 1024, contextMessages: 32, contextChars: 48000, inputTokens: 24000, outputTokens: 4000, deadlineMs: 55000, activeJobs: 2, replyReserveBytes: 68000 });
+export const ASSISTANT_SEARCH_LIMITS = Object.freeze({ deadlineMs: 30000, toolCalls: 2, processedSources: 8, displayedSources: 6, queryChars: 512 });
 export const REASONING = { low: "Low", medium: "Medium", high: "High", xhigh: "Extra High" } as const;
 export type Reasoning = keyof typeof REASONING;
 export type Citation = { index: number; title: string; url: string; startIndex: number; endIndex: number };

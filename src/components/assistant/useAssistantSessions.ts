@@ -33,8 +33,7 @@ export function useAssistantSessions() {
     const generation = ++refreshGeneration.current;
     try {
       const result = await listSessions(); if (!mounted.current || generation !== refreshGeneration.current) return;
-      setSessions(current => result.issues.length ? [...new Map([...current, ...result.sessions].map(s => [s.id, s])).values()] : result.sessions); setStorageBlocked(!!result.issues.length); setReady(true);
-      if (result.issues.length) { progressEligible.current.clear(); setProgressJobId(null); setNotice(result.issues[0]); }
+      setSessions(result.sessions); setStorageBlocked(false); setReady(true);
       return result;
     } catch (error) { if (mounted.current && generation === refreshGeneration.current) { progressEligible.current.clear(); setProgressJobId(null); setNotice(readableError(error)); setStorageBlocked(true); setReady(true); } }
   }, []);

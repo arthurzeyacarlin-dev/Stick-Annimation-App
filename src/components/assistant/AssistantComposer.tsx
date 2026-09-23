@@ -19,7 +19,7 @@ export function AssistantComposer({ chats }: { chats: ReturnType<typeof useAssis
         </div>
       </div>
     </form>
-    <p id="assistant-preview-note" className={styles.previewNote}>{full ? "You have 50 saved chats. Delete a chat before creating another." : "Guidance for Diamond Animator. Chats stay on this device. Microphone coming soon."}</p>
+    <p id="assistant-preview-note" className={styles.previewNote}>{full ? "You have 50 saved chats. Delete a chat before creating another." : "Diamond Animator guidance stays local; current public questions use cited web search. Microphone coming soon."}</p>
     <div className={styles.notice} role="status">{chats.notice}{(chats.storageBlocked || chats.pausedJobs.length > 0) && <button className={styles.reconnect} type="button" onClick={chats.retryConnection}>Reconnect / retry saving</button>}</div>
   </div>;
 }

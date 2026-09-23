@@ -1,5 +1,14 @@
 # Changelog
 
+### 2026-09-23 — Accept and propagate SPEC-0012 Phase 4 hosted search (D-0125)
+
+- Recorded the already completed GIT-091 combined Phase 2 closeout at exact 49-path commit `fa2ef6c526d04de9c77b356b53b4768890c46e1f`, synchronized canonical/origin/live `main`, preserved 1,778-file/79,483,466-byte proof backup with inventory SHA-256 `ac86b7f5ca1c4ef44de036f0f20d94851801a58a43c6f04a95035ee43bf1c97b`, closed port 57970 and removed obsolete review worktree.
+- Recorded Arthur/PM acceptance and sequential CPA takeover of the exact 27-path Phase 4 result from GIT-091 base/HEAD, empty index. Accepted deterministic local-first search eligibility, exact hosted `web_search` for eligible current/external questions, real Searching/Finalizing event mapping, validated accessible citations, bounded tools/sources/query/time/cost, inaccessible-video honesty and zero project mutation.
+- Bound immutable Phase 4 manifest SHA-256 `08ff725e2d9bc658e198462e171623b1290d7b7de0b82bb3da93d085e4cfd095`, validation receipt `3107a15f9193719fe3ef1b8461f1003187ae75157f2786956baca4096a528060`, source digest `073bc363b1ba26e6be035df69136f7288687df028ed92ec9701ab649c17517fd`, 27 sources/104 evidence, and preserved the prior seal `f29b22db…18a`/`ec8f0f37…96b`/`7dd51abe…1d1`.
+- Recorded the accepted corrupt-row correction: canonical corrupt bytes preserved exactly, conservative raw-row/raw-byte capacity enforcement, unsafe overwrite rejection, healthy new-chat usability and zero correction live/provider/search/paid calls. The nine search/provider/presentation sources remain exact against the prior seal.
+- Recorded the final authorized live search as fixed Terra/Medium, one request/no retry, one hosted call, eight processed/three displayed sources, citations/reload/project sentinel PASS and `$0.050754`. Provider cost for two earlier authorized failed searches is unknown. Physical devices/non-Chromium remain unproven; full build retains only the inherited byte-identical dev AI-cost typing failure.
+- Propagated canonical records only; changed no accepted runtime, fixture, technical-test, proof, manifest or evidence byte. GIT-092 publication/integration, proof preservation, PID 31449/port 58040 shutdown and D-0054 cleanup remain pending separate authority. Phase 5 is entry-ready only after GIT-092 and remains Unauthorized/Not started. Nothing was staged, committed, pushed, published or deployed; no live AI/search call occurred.
+
 ### 2026-09-22 — Accept and propagate combined SPEC-0012 Phase 2 (D-0124)
 
 - Recorded Arthur/PM acceptance of the exact 34-path sessions plus fixed-Terra/local-catalog guidance result from detached base/HEAD `652431396e78370f3dfb7549294e66d154c3b7d4`, empty index; the original planned Phase 3 scope is satisfied inside Phase 2.

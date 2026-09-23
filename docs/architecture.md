@@ -1,9 +1,9 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-22 through D-0124 acceptance and control-plane propagation of combined SPEC-0012 Phase 2; publication remains pending.
+Last traced: 2026-09-23 through D-0125 acceptance and control-plane propagation of SPEC-0012 Phase 4; publication remains pending.
 
-## SPEC-0012 guidance-Assistant architecture — combined Phase 2 accepted
+## SPEC-0012 guidance-Assistant architecture — Phase 4 accepted and technically Verified
 
 D-0120 separates the Home guidance Assistant from every animation-capable AI path. Phase 1 provides dedicated `/assistant`. D-0124 accepts combined Phase 2: `DiamondAssistantScreen` and Assistant components own Assistant-only IndexedDB sessions; `/api/diamond-assistant` owns a local-only strict request boundary; `DiamondAssistantJobService` owns identity, dedupe, concurrency, deadline, cancellation and the private final hold; the provider retrieves bounded checked-in knowledge and calls fixed `gpt-5.6-terra` with no tools and `store:false`. No project ID, workspace summary, animation bytes, manual command, repository/recovery/Export/project-management handle or AI Animator ledger enters the path.
 
@@ -23,7 +23,11 @@ Home AI Assistant card
 
 Exactly 50 persisted sessions are allowed with no silent eviction; blank chats are ephemeral; manual rename overrides any automatic title; delete is confirmed and Assistant-local. Guidance may explain app navigation but never controls it. The server event stream alone owns truthful Thinking, real Searching the internet, and output-composition Finalizing answer states. Phase 5 adds a separate, later-approved transcription route: in-memory microphone capture → waveform → Cancel or Stop → editable transcript → explicit Send; raw audio is never persisted.
 
-Combined Phase 2 implements local sessions and the original planned Phase 3 fixed-Terra/local-catalog guidance scope. Cumulative daily/monthly reservation/ledger/lock code is intentionally absent under D-0124; the `$0.15` per-request estimate and all token/output/deadline/concurrency/dedupe/cancel/job-memory/session/usage/local-only/no-tools protections remain. Hosted search, transcription, deployment and project mutation remain absent. The accepted AI Animator and unified V2 mutation paths remain protected and separate.
+Combined Phase 2 implements local sessions and the original planned Phase 3 fixed-Terra/local-catalog guidance scope. Cumulative daily/monthly reservation/ledger/lock code is intentionally absent under D-0124; the `$0.15` per-request estimate and all token/output/deadline/concurrency/dedupe/cancel/job-memory/session/usage/local-only protections remain. GIT-091 `fa2ef6c526d04de9c77b356b53b4768890c46e1f` publishes/integrates that result, preserves its proof and completes its review-copy cleanup.
+
+D-0125 accepts Phase 4's search path. `assistantSearchPolicy` runs after local knowledge retrieval and returns either local-only or one sanitized required-search topic. `assistantProvider` exposes only Responses `web_search` for the latter, maps real provider events to Searching/Finalizing, validates completed tool calls/actions, canonical public HTTPS URLs, displayed source titles and citation text ranges, and publishes answer/search/usage atomically through the existing Assistant job/session owners. The search ceiling is two hosted calls, eight processed/six displayed sources, 512 query characters and 45 seconds inside the 90-second job; cost is `$0.01` per hosted call within the existing `$0.15` request ceiling. There is still no arbitrary fetch, custom scraper, media watch/download, image search, social authentication, automatic retry or fallback model.
+
+The accepted corrupt-row storage correction treats unreadable raw rows as occupied for count/byte capacity, preserves their canonical bytes, prevents unsafe overwrite and still lets a healthy independent chat proceed. It does not migrate or delete the corrupt row. Phase 4 changes no project, animation, AI Animator, recovery, Export or project-management owner. Transcription and deployment remain absent. The accepted AI Animator and unified V2 mutation paths remain protected and separate.
 
 ## SPEC-0011 project-library and playback architecture — all three phases fully closed
 

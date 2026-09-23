@@ -142,6 +142,13 @@
 .assistantMessage { padding: 0 5px; }
 .messageRole { display: block; color: #94abc8; font-size: 11px; margin-bottom: 6px; font-weight: 600; }
 .messageText { white-space: pre-wrap; }
+.citation { display: inline-block; margin-left: 3px; color: #86bdff; font-size: .78em; font-weight: 750; text-decoration: underline; text-underline-offset: 2px; white-space: nowrap; }
+.citation:hover { color: #c7e3ff; }
+.sources { margin-top: 16px; padding-top: 12px; border-top: 1px solid #243b57; color: var(--assistant-muted); font-size: 12px; }
+.sources > span { display: block; margin-bottom: 7px; color: #b9d0eb; font-weight: 700; }
+.sources ol { display: grid; gap: 5px; margin: 0; padding: 0; list-style: none; }
+.sources a { color: #86bdff; text-decoration: underline; text-underline-offset: 2px; }
+.sources a:hover { color: #d5eaff; }
 .leadingText { background: linear-gradient(90deg, #eaf3ff 0%, #9ccaff 55%, #408eff 82%, rgba(64,142,255,.12) 100%); background-clip: text; color: transparent; }
 /* Copy the accepted workspace status mechanics locally; Animator remains an independent owner. */
 .activity { align-self: flex-start; width: max-content; padding: 8px 4px; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; font-size: 12px; }
@@ -224,7 +231,7 @@
   .composer:focus-within { border-color: Highlight; }
   .screen button, .screen select { border: 1px solid ButtonText; }
   .screen button:disabled, .screen button:disabled * { color: GrayText !important; border-color: GrayText; }
-  .back, .back * { color: LinkText !important; }
+  .back, .back *, .citation, .sources a { color: LinkText !important; }
   .sidebarResizer:hover::before, .sidebarResizer:focus-visible::before, .sidebarResizer[data-resizing="true"]::before { background: Highlight; box-shadow: none; }
   .chatCard, .chatDialog, .userMessage, .jumpLatest { background: Canvas; border-color: CanvasText; }
   .chatCard[data-selected="true"] { outline: 2px solid Highlight; outline-offset: -2px; }

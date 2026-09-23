@@ -2,17 +2,22 @@
 export const ASSISTANT_MODEL = "gpt-5.6-terra";
 export const CATALOG_VERSION = "diamond-animator-knowledge/v1:2026-09-22";
 export const ASSISTANT_LIMITS = Object.freeze({ sessions: 50, messages: 200, userChars: 12000, answerChars: 16000, sessionBytes: 1024 * 1024, databaseBytes: 32 * 1024 * 1024, contextMessages: 32, contextChars: 48000, inputTokens: 24000, outputTokens: 4000, deadlineMs: 90000, activeJobs: 2, replyReserveBytes: 68000 });
+export const ASSISTANT_SEARCH_LIMITS = Object.freeze({ deadlineMs: 45000, toolCalls: 2, processedSources: 8, displayedSources: 6, queryChars: 512 });
 export const REASONING = { low: "Low", medium: "Medium", high: "High", xhigh: "Extra High" } as const;
 export type Reasoning = keyof typeof REASONING;
-export type Message = { id: string; turnId: string; role: "user" | "assistant"; text: string; at: number };
-export type Usage = { inputTokens: number; outputTokens: number; totalTokens: number; estimatedCostUsd: number; priceDate: "2026-09-22"; responseId: string; latencyMs: number; model: typeof ASSISTANT_MODEL; reasoning: Reasoning; toolCalls: 0 };
-export type Turn = { id: string; jobId: string; status: "pending" | "done" | "failed" | "cancelled" | "interrupted"; reasoning: Reasoning; at: number; acceptedAt: number | null; endedAt: number | null; contextIds: string[]; error: string | null; usage: Usage | null };
+export type Citation = { index: number; title: string; url: string; startIndex: number; endIndex: number };
+export type SearchAction = { type: "search"; queries: string[] } | { type: "open_page"; url: string } | { type: "find_in_page"; url: string; pattern: string };
+export type SearchSource = { title: string; url: string };
+export type SearchReceipt = { topic: string; toolCalls: number; processedSourceCount: number; actions: SearchAction[]; sources: SearchSource[] };
+export type Message = { id: string; turnId: string; role: "user" | "assistant"; text: string; at: number; citations?: Citation[] };
+export type Usage = { inputTokens: number; outputTokens: number; totalTokens: number; estimatedCostUsd: number; priceDate: "2026-09-22" | "2026-09-23"; responseId: string; latencyMs: number; model: typeof ASSISTANT_MODEL; reasoning: Reasoning; toolCalls: number };
+export type Turn = { id: string; jobId: string; status: "pending" | "done" | "failed" | "cancelled" | "interrupted"; reasoning: Reasoning; at: number; acceptedAt: number | null; endedAt: number | null; contextIds: string[]; error: string | null; usage: Usage | null; search?: SearchReceipt };
 export type Session = { schema: "diamond-assistant-session/v1"; id: string; title: string; titleSource: "automatic" | "manual"; manualTitleRevision: number; createdAt: number; updatedAt: number; reasoning: Reasoning; revision: number; digest: string; messages: Message[]; turns: Turn[] };
 export type AssistantRequest = { schema: "diamond-assistant-request/v1"; jobId: string; sessionId: string; turnId: string; message: string; reasoningLevel: Reasoning; recentConversation: Message[]; catalogVersion: typeof CATALOG_VERSION; clientSessionRevision: number };
-export type Answer = { answer: string; title: string };
-export type ProviderResult = { reply: Answer; usage: Usage };
-export type JobStatus = "thinking" | "finalizing" | "done" | "failed" | "cancelled";
-export type JobEvent = { sequence: number; at: number; status: JobStatus };
+export type Answer = { answer: string; title: string; citations?: Citation[] };
+export type ProviderResult = { reply: Answer; usage: Usage; search?: SearchReceipt };
+export type JobStatus = "thinking" | "searching" | "finalizing" | "done" | "failed" | "cancelled";
+export type JobEvent = { sequence: number; at: number; status: JobStatus; topic?: string };
 export type JobSnapshot = { schema: "diamond-assistant-job/v1"; jobId: string; sessionId: string; turnId: string; reasoning: Reasoning; catalogVersion: typeof CATALOG_VERSION; status: JobStatus; events: JobEvent[]; result: ProviderResult | null; error: string | null };
 
 export class AssistantError extends Error {
@@ -30,6 +35,7 @@ export const normalizeText = (text: string) => text.replace(/\r\n?/g, "\n").repl
 export function normalizeTitle(value: string) { return normalizeText(value).replace(/\s+/g, " "); }
 const validText = (v: unknown, max: number): v is string => typeof v === "string" && v.isWellFormed() && v.length > 0 && v.length <= max && normalizeText(v) === v;
 const validTitle = (v: unknown): v is string => typeof v === "string" && v.isWellFormed() && Array.from(v).length >= 1 && Array.from(v).length <= 80 && normalizeTitle(v) === v;
+const validSourceTitle = (v: unknown): v is string => typeof v === "string" && v.isWellFormed() && Array.from(v).length >= 1 && Array.from(v).length <= 200 && normalizeTitle(v) === v;
 export function stableJson(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(stableJson).join(",")}]`;
   if (value && typeof value === "object") return `{${Object.keys(value).sort().map(key => `${JSON.stringify(key)}:${stableJson((value as Record<string, unknown>)[key])}`).join(",")}}`;
@@ -45,19 +51,60 @@ export async function sealSession(session: Session): Promise<Session> {
   return { ...body, digest: await digest(body) };
 }
 export function validateMessage(value: unknown): asserts value is Message {
-  insist(exactKeys(value, ["id", "turnId", "role", "text", "at"]));
+  insist(exactKeys(value, ["id", "turnId", "role", "text", "at"]) || exactKeys(value, ["id", "turnId", "role", "text", "at", "citations"]));
   insist(isId(value.id) && isId(value.turnId) && integer(value.at, 1));
   insist((value.role === "user" || value.role === "assistant") && validText(value.text, value.role === "user" ? ASSISTANT_LIMITS.userChars : ASSISTANT_LIMITS.answerChars));
+  if ("citations" in value) { insist(value.role === "assistant"); validateCitations(value.citations, value.text); }
 }
 export function validateUsage(value: unknown): asserts value is Usage {
   insist(exactKeys(value, ["inputTokens", "outputTokens", "totalTokens", "estimatedCostUsd", "priceDate", "responseId", "latencyMs", "model", "reasoning", "toolCalls"]));
   insist(integer(value.inputTokens, 0, ASSISTANT_LIMITS.inputTokens) && integer(value.outputTokens, 0, ASSISTANT_LIMITS.outputTokens) && value.totalTokens === value.inputTokens + value.outputTokens);
-  insist(typeof value.estimatedCostUsd === "number" && value.estimatedCostUsd === (value.inputTokens * 2 + value.outputTokens * 12) / 1000000 && value.estimatedCostUsd <= .15);
-  insist(value.priceDate === "2026-09-22" && isId(value.responseId) && integer(value.latencyMs, 0, 120000) && value.model === ASSISTANT_MODEL && isReasoning(value.reasoning) && value.toolCalls === 0);
+  insist(integer(value.toolCalls, 0, ASSISTANT_SEARCH_LIMITS.toolCalls));
+  const expectedCost = (value.inputTokens * 2 + value.outputTokens * 12) / 1000000 + (value.priceDate === "2026-09-23" ? value.toolCalls * .01 : 0);
+  insist(typeof value.estimatedCostUsd === "number" && Math.abs(value.estimatedCostUsd - expectedCost) < 1e-12 && value.estimatedCostUsd <= .15);
+  insist((value.priceDate === "2026-09-22" ? value.toolCalls === 0 : value.priceDate === "2026-09-23") && isId(value.responseId) && integer(value.latencyMs, 0, 120000) && value.model === ASSISTANT_MODEL && isReasoning(value.reasoning));
 }
 export function validateAnswer(value: unknown): asserts value is Answer {
-  insist(exactKeys(value, ["answer", "title"]), "output", "Terra returned an invalid answer. Your message is saved.");
+  insist(exactKeys(value, ["answer", "title"]) || exactKeys(value, ["answer", "title", "citations"]), "output", "Terra returned an invalid answer. Your message is saved.");
   insist(validText(value.answer, ASSISTANT_LIMITS.answerChars) && validTitle(value.title), "output", "Terra returned an invalid answer. Your message is saved.");
+  if ("citations" in value) validateCitations(value.citations, value.answer);
+}
+function validHttpsUrl(value: unknown): value is string {
+  if (typeof value !== "string" || value.length > 2048) return false;
+  try { const url = new URL(value); return url.protocol === "https:" && !url.username && !url.password && !url.port; } catch { return false; }
+}
+export function validateCitations(value: unknown, text: string): asserts value is Citation[] {
+  insist(Array.isArray(value) && value.length >= 1 && value.length <= 32, "output", "Search citations could not be verified. Your message is saved.");
+  const sourceIndexes = new Map<string, number>(); let priorStart = 0;
+  for (let i = 0; i < value.length; i++) {
+    const citation = value[i]; insist(exactKeys(citation, ["index", "title", "url", "startIndex", "endIndex"]));
+    insist(integer(citation.index, 1, ASSISTANT_SEARCH_LIMITS.displayedSources) && validSourceTitle(citation.title) && validHttpsUrl(citation.url));
+    insist(integer(citation.startIndex, 0, text.length - 1) && integer(citation.endIndex, citation.startIndex + 1, text.length) && citation.startIndex >= priorStart);
+    const priorIndex = sourceIndexes.get(citation.url); insist(priorIndex === undefined || priorIndex === citation.index);
+    sourceIndexes.set(citation.url, citation.index); insist(sourceIndexes.size <= ASSISTANT_SEARCH_LIMITS.displayedSources); priorStart = citation.startIndex;
+  }
+}
+export function validateSearchReceipt(value: unknown): asserts value is SearchReceipt {
+  insist(exactKeys(value, ["topic", "toolCalls", "processedSourceCount", "actions", "sources"]));
+  insist(validText(value.topic, 120) && integer(value.toolCalls, 1, ASSISTANT_SEARCH_LIMITS.toolCalls) && integer(value.processedSourceCount, 1, ASSISTANT_SEARCH_LIMITS.processedSources));
+  insist(Array.isArray(value.actions) && value.actions.length === value.toolCalls && Array.isArray(value.sources) && value.sources.length >= 1 && value.sources.length <= ASSISTANT_SEARCH_LIMITS.displayedSources);
+  for (const action of value.actions) {
+    insist(action && typeof action === "object");
+    if (action.type === "search") {
+      insist(exactKeys(action, ["type", "queries"]) && Array.isArray(action.queries) && action.queries.length >= 1 && action.queries.length <= ASSISTANT_SEARCH_LIMITS.processedSources);
+      let queryChars = 0; for (const query of action.queries) { insist(validText(query, ASSISTANT_SEARCH_LIMITS.queryChars)); queryChars += Array.from(query).length; } insist(queryChars <= ASSISTANT_SEARCH_LIMITS.queryChars);
+    }
+    else if (action.type === "open_page") insist(exactKeys(action, ["type", "url"]) && validHttpsUrl(action.url));
+    else if (action.type === "find_in_page") insist(exactKeys(action, ["type", "url", "pattern"]) && validHttpsUrl(action.url) && validText(action.pattern, 256));
+    else insist(false);
+  }
+  const urls = new Set<string>(); for (const source of value.sources) { insist(exactKeys(source, ["title", "url"]) && validSourceTitle(source.title) && validHttpsUrl(source.url) && !urls.has(source.url)); urls.add(source.url); }
+}
+export function validateProviderResult(value: unknown): asserts value is ProviderResult {
+  insist(exactKeys(value, ["reply", "usage"]) || exactKeys(value, ["reply", "usage", "search"]));
+  validateAnswer(value.reply); validateUsage(value.usage);
+  if ("search" in value) { validateSearchReceipt(value.search); insist(value.usage.toolCalls === value.search.toolCalls && "citations" in value.reply); }
+  else insist(value.usage.toolCalls === 0 && !("citations" in value.reply));
 }
 export async function validateSession(value: unknown): Promise<Session> {
   insist(exactKeys(value, ["schema", "id", "title", "titleSource", "manualTitleRevision", "createdAt", "updatedAt", "reasoning", "revision", "digest", "messages", "turns"]));
@@ -71,7 +118,7 @@ export async function validateSession(value: unknown): Promise<Session> {
   const ids = new Set<string>(); const jobIds = new Set<string>();
   let cursor = 0; let pending = 0; let previousAt = session.createdAt;
   for (const turn of session.turns) {
-    insist(exactKeys(turn, ["id", "jobId", "status", "reasoning", "at", "acceptedAt", "endedAt", "contextIds", "error", "usage"]));
+    insist(exactKeys(turn, ["id", "jobId", "status", "reasoning", "at", "acceptedAt", "endedAt", "contextIds", "error", "usage"]) || exactKeys(turn, ["id", "jobId", "status", "reasoning", "at", "acceptedAt", "endedAt", "contextIds", "error", "usage", "search"]));
     insist(isId(turn.id) && isId(turn.jobId) && !ids.has(turn.id) && !jobIds.has(turn.jobId) && isReasoning(turn.reasoning));
     ids.add(turn.id); jobIds.add(turn.jobId);
     insist(integer(turn.at, previousAt, session.updatedAt)); previousAt = turn.at;
@@ -88,6 +135,8 @@ export async function validateSession(value: unknown): Promise<Session> {
       const assistant = session.messages[cursor++]; validateMessage(assistant);
       insist(assistant.role === "assistant" && assistant.turnId === turn.id && assistant.at === turn.endedAt && turn.error === null);
       validateUsage(turn.usage); insist(turn.usage.reasoning === turn.reasoning);
+      if ("search" in turn) { validateSearchReceipt(turn.search); insist(turn.usage.toolCalls === turn.search.toolCalls && !!assistant.citations); }
+      else insist(turn.usage.toolCalls === 0 && !assistant.citations);
     } else if (turn.status !== "pending") { insist(validText(turn.error, 240) && turn.usage === null); }
   }
   insist(cursor === session.messages.length && pending <= 1 && new Set(session.messages.map(m => m.id)).size === session.messages.length);
@@ -125,16 +174,20 @@ export function validateRequest(value: unknown): AssistantRequest {
 export function validateSnapshot(value: unknown, request: Pick<AssistantRequest, "jobId" | "sessionId" | "turnId" | "reasoningLevel">): JobSnapshot {
   insist(exactKeys(value, ["schema", "jobId", "sessionId", "turnId", "reasoning", "catalogVersion", "status", "events", "result", "error"]));
   insist(value.schema === "diamond-assistant-job/v1" && value.jobId === request.jobId && value.sessionId === request.sessionId && value.turnId === request.turnId && value.reasoning === request.reasoningLevel && value.catalogVersion === CATALOG_VERSION);
-  insist(Array.isArray(value.events) && value.events.length >= 1 && value.events.length <= 3);
+  insist(Array.isArray(value.events) && value.events.length >= 1 && value.events.length <= 8);
   const snapshot = value as unknown as JobSnapshot;
   for (let i = 0; i < snapshot.events.length; i++) {
-    const e = snapshot.events[i]; insist(exactKeys(e, ["sequence", "at", "status"]) && e.sequence === i + 1 && integer(e.at, i ? snapshot.events[i - 1].at : 1));
-    insist(i === 0 ? e.status === "thinking" : ["finalizing", "done", "failed", "cancelled"].includes(e.status));
-    if (i) insist(snapshot.events[i - 1].status === "thinking" ? ["finalizing", "failed", "cancelled"].includes(e.status) : snapshot.events[i - 1].status === "finalizing" && ["done", "failed", "cancelled"].includes(e.status));
+    const e = snapshot.events[i]; insist((exactKeys(e, ["sequence", "at", "status"]) || exactKeys(e, ["sequence", "at", "status", "topic"])) && e.sequence === i + 1 && integer(e.at, i ? snapshot.events[i - 1].at : 1));
+    insist(e.status === "searching" ? exactKeys(e, ["sequence", "at", "status", "topic"]) && validText(e.topic, 120) : exactKeys(e, ["sequence", "at", "status"]));
+    insist(i === 0 ? e.status === "thinking" : ["thinking", "searching", "finalizing", "done", "failed", "cancelled"].includes(e.status));
+    if (i) {
+      const prior = snapshot.events[i - 1].status;
+      insist(prior === "thinking" ? ["searching", "finalizing", "failed", "cancelled"].includes(e.status) : prior === "searching" ? ["thinking", "failed", "cancelled"].includes(e.status) : prior === "finalizing" && ["done", "failed", "cancelled"].includes(e.status));
+    }
     if (e.status === "done") insist(snapshot.events[i - 1]?.status === "finalizing");
   }
   insist(snapshot.status === snapshot.events.at(-1)?.status);
-  if (snapshot.status === "done") { insist(exactKeys(snapshot.result, ["reply", "usage"])); validateAnswer(snapshot.result.reply); validateUsage(snapshot.result.usage); insist(snapshot.result.usage.reasoning === request.reasoningLevel && snapshot.error === null); }
+  if (snapshot.status === "done") { validateProviderResult(snapshot.result); insist(snapshot.result.usage.reasoning === request.reasoningLevel && snapshot.error === null); }
   else { insist(snapshot.result === null); insist(snapshot.status === "failed" || snapshot.status === "cancelled" ? validText(snapshot.error, 240) : snapshot.error === null); }
   return snapshot;
 }

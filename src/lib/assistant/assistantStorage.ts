@@ -31,7 +31,7 @@ async function inspectRows(rows: RawRow[]): Promise<SessionList> {
   const sessions: Session[] = []; const issues: string[] = [];
   for (const row of rows) {
     try { const session = await validateSession(row.value); insist(row.key === session.id); sessions.push(session); }
-    catch { issues.push("A saved chat could not be verified. Its original data is preserved. Changes are blocked to protect your chats."); }
+    catch { issues.push("A saved chat could not be verified. Its original data is preserved. You can keep using other chats."); }
   }
   const reserved = sessions.reduce((sum, s) => sum + byteSize(s) + (s.turns.at(-1)?.status === "pending" ? ASSISTANT_LIMITS.replyReserveBytes : 0), 0);
   if (rows.length > ASSISTANT_LIMITS.sessions || reserved > ASSISTANT_LIMITS.databaseBytes) issues.push("Saved chats exceed the supported storage limit. Data is preserved; changes are blocked.");
@@ -97,16 +97,19 @@ async function mutate(targetId: string, update: (current: Session | undefined, a
     db = await openDatabase();
     const connection = db;
     const result = await coordinated(connection, async owner => {
-      const rows = await readRows(connection); const { sessions, issues } = await inspectRows(rows);
-      insist(!issues.length, "corrupt", issues[0]);
+      const rows = await readRows(connection); const { sessions } = await inspectRows(rows);
       const current = sessions.find(s => s.id === targetId);
+      const currentRow = current ? rows.find(row => row.key === current.id) : undefined;
+      insist(current || !rows.some(row => row.key === targetId), "corrupt", "That chat identifier belongs to an unreadable saved record. Its original data is preserved; start another chat.");
       const draft = await update(current ? structuredClone(current) : undefined, sessions);
       if (draft && current && stableJson(draft) === stableJson(current)) return current;
       const next = draft ? await sealSession({ ...draft, revision: (current?.revision ?? 0) + 1, updatedAt: Math.max(Date.now(), current?.updatedAt ?? 0), digest: "" }) : null;
       if (next) await validateSession(next);
       const others = sessions.filter(s => s.id !== targetId);
-      insist(others.length + (next ? 1 : 0) <= ASSISTANT_LIMITS.sessions, "capacity", "You have 50 saved chats. Delete a chat before creating another.");
-      const total = [...others, ...(next ? [next] : [])].reduce((sum, s) => sum + byteSize(s) + (s.turns.at(-1)?.status === "pending" ? ASSISTANT_LIMITS.replyReserveBytes : 0), 0);
+      const nextSessions = [...others, ...(next ? [next] : [])];
+      insist(rows.length - (currentRow ? 1 : 0) + (next ? 1 : 0) <= ASSISTANT_LIMITS.sessions, "capacity", "You have 50 saved chats. Delete a chat before creating another.");
+      const rawBytes = rows.reduce((sum, row) => sum + byteSize(row.value), 0) - (currentRow ? byteSize(currentRow.value) : 0) + (next ? byteSize(next) : 0);
+      const total = rawBytes + nextSessions.reduce((sum, session) => sum + (session.turns.at(-1)?.status === "pending" ? ASSISTANT_LIMITS.replyReserveBytes : 0), 0);
       insist(total <= ASSISTANT_LIMITS.databaseBytes, "capacity", "Local chats have reached the 32 MiB limit. Delete a chat to make space. Nothing was removed.");
       await commit(connection, rows, next, targetId, owner); return next;
     });
@@ -146,8 +149,10 @@ export async function finishTurn(sessionId: string, jobId: string, terminal: Job
     else {
       validateSnapshot(terminal, requestFor(current, turn)); insist(["done", "failed", "cancelled"].includes(terminal.status));
       if (terminal.status === "done") {
-        current.messages.push({ id: `${turn.id}_answer`, turnId: turn.id, role: "assistant", text: terminal.result!.reply.answer, at: now });
+        const citations = terminal.result!.reply.citations;
+        current.messages.push({ id: `${turn.id}_answer`, turnId: turn.id, role: "assistant", text: terminal.result!.reply.answer, at: now, ...(citations ? { citations } : {}) });
         turn.status = "done"; turn.usage = terminal.result!.usage;
+        if (terminal.result!.search) turn.search = terminal.result!.search;
         if (current.titleSource === "automatic" && current.title === "Untitled chat") current.title = terminal.result!.reply.title;
       } else { turn.status = terminal.status as "failed" | "cancelled"; turn.error = terminal.error; }
     }

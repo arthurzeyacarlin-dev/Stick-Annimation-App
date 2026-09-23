@@ -23,10 +23,11 @@ export function AssistantConversation({ chats, mark }: { chats: ReturnType<typeo
         <h1 className={styles.srOnly}>{session.title}</h1>
         {session.messages.map(message => <article key={message.id} className={message.role === "user" ? styles.userMessage : styles.assistantMessage} aria-label={message.role === "user" ? "Your message" : "Assistant reply"} data-message-id={message.id}>
           <span className={styles.messageRole}>{message.role === "user" ? "You" : "Diamond Animator"}</span>
-          <div className={styles.messageText}><AssistantText text={message.text} animate={message.role === "assistant" && chats.reveal[session.id] === message.turnId} /></div>
+          <div className={styles.messageText}><AssistantText text={message.text} citations={message.citations} animate={message.role === "assistant" && chats.reveal[session.id] === message.turnId} /></div>
+          {!!message.citations?.length && <div className={styles.sources} aria-label="Sources"><span>Sources</span><ol>{[...new Map(message.citations.map(citation => [citation.url, citation])).values()].sort((a, b) => a.index - b.index).map(citation => <li key={citation.url}><a href={citation.url} target="_blank" rel="noreferrer noopener">[{citation.index}] {citation.title}<span className={styles.srOnly}> (opens in a new tab)</span></a></li>)}</ol></div>}
         </article>)}
         {chats.showLongWaitProgress && <p className={styles.longWaitProgress} data-assistant-progress={turn!.jobId} role="status"><AssistantText key={turn!.jobId} text="I’m putting together a clear, simple explanation…" animate /></p>}
-        {turn?.status === "pending" && !paused && !chats.storageBlocked && (live?.status === "thinking" || live?.status === "finalizing") && <AssistantActivity label={live.status === "thinking" ? "Thinking" : "Finalizing answer"} />}
+        {turn?.status === "pending" && !paused && !chats.storageBlocked && (live?.status === "thinking" || live?.status === "searching" || live?.status === "finalizing") && <AssistantActivity label={live.status === "thinking" ? "Thinking" : live.status === "searching" ? `Searching the web for ${live.events.at(-1)?.topic}…` : "Finalizing answer"} />}
         {turn?.status === "pending" && !live && !paused && <p className={styles.turnNote} role="status">Connecting…</p>}
         {turn && turn.status !== "pending" && turn.status !== "done" && <p className={styles.turnNote} role="status">{turn.error}</p>}
         {session.messages.length > 32 && <p className={styles.contextNote}>Replies use a bounded recent part of this chat.</p>}

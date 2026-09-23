@@ -11,7 +11,8 @@ export type SearchSource = { title: string; url: string };
 export type SearchReceipt = { topic: string; toolCalls: number; processedSourceCount: number; actions: SearchAction[]; sources: SearchSource[] };
 export type Message = { id: string; turnId: string; role: "user" | "assistant"; text: string; at: number; citations?: Citation[] };
 export type Usage = { inputTokens: number; outputTokens: number; totalTokens: number; estimatedCostUsd: number; priceDate: "2026-09-22" | "2026-09-23"; responseId: string; latencyMs: number; model: typeof ASSISTANT_MODEL; reasoning: Reasoning; toolCalls: number };
-export type Turn = { id: string; jobId: string; status: "pending" | "done" | "failed" | "cancelled" | "interrupted"; reasoning: Reasoning; at: number; acceptedAt: number | null; endedAt: number | null; contextIds: string[]; error: string | null; usage: Usage | null; search?: SearchReceipt };
+export type PriorAttempt = { jobId: string; status: "failed" | "cancelled" | "interrupted"; endedAt: number; error: string };
+export type Turn = { id: string; jobId: string; status: "pending" | "done" | "failed" | "cancelled" | "interrupted"; reasoning: Reasoning; at: number; acceptedAt: number | null; endedAt: number | null; contextIds: string[]; error: string | null; usage: Usage | null; search?: SearchReceipt; priorAttempts?: PriorAttempt[] };
 export type Session = { schema: "diamond-assistant-session/v1"; id: string; title: string; titleSource: "automatic" | "manual"; manualTitleRevision: number; createdAt: number; updatedAt: number; reasoning: Reasoning; revision: number; digest: string; messages: Message[]; turns: Turn[] };
 export type AssistantRequest = { schema: "diamond-assistant-request/v1"; jobId: string; sessionId: string; turnId: string; message: string; reasoningLevel: Reasoning; recentConversation: Message[]; catalogVersion: typeof CATALOG_VERSION; clientSessionRevision: number };
 export type Answer = { answer: string; title: string; citations?: Citation[] };
@@ -118,9 +119,18 @@ export async function validateSession(value: unknown): Promise<Session> {
   const ids = new Set<string>(); const jobIds = new Set<string>();
   let cursor = 0; let pending = 0; let previousAt = session.createdAt;
   for (const turn of session.turns) {
-    insist(exactKeys(turn, ["id", "jobId", "status", "reasoning", "at", "acceptedAt", "endedAt", "contextIds", "error", "usage"]) || exactKeys(turn, ["id", "jobId", "status", "reasoning", "at", "acceptedAt", "endedAt", "contextIds", "error", "usage", "search"]));
+    const basicKeys = ["id", "jobId", "status", "reasoning", "at", "acceptedAt", "endedAt", "contextIds", "error", "usage"];
+    insist(exactKeys(turn, basicKeys) || exactKeys(turn, [...basicKeys, "search"]) || exactKeys(turn, [...basicKeys, "priorAttempts"]) || exactKeys(turn, [...basicKeys, "search", "priorAttempts"]));
     insist(isId(turn.id) && isId(turn.jobId) && !ids.has(turn.id) && !jobIds.has(turn.jobId) && isReasoning(turn.reasoning));
     ids.add(turn.id); jobIds.add(turn.jobId);
+    if (turn.priorAttempts) {
+      insist(Array.isArray(turn.priorAttempts) && turn.priorAttempts.length >= 1 && turn.priorAttempts.length <= 10);
+      for (const attempt of turn.priorAttempts) {
+        insist(exactKeys(attempt, ["jobId", "status", "endedAt", "error"]) && isId(attempt.jobId) && !jobIds.has(attempt.jobId));
+        insist(["failed", "cancelled", "interrupted"].includes(attempt.status) && integer(attempt.endedAt, session.createdAt, turn.at) && validText(attempt.error, 240));
+        jobIds.add(attempt.jobId);
+      }
+    }
     insist(integer(turn.at, previousAt, session.updatedAt)); previousAt = turn.at;
     insist(turn.acceptedAt === null || integer(turn.acceptedAt, turn.at, session.updatedAt));
     insist(["pending", "done", "failed", "cancelled", "interrupted"].includes(turn.status));

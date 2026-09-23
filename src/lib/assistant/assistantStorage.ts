@@ -132,6 +132,21 @@ export async function beginTurn(sessionId: string, text: string, reasoning: Reas
     session.reasoning = reasoning; return session;
   }))!;
 }
+/** An explicit retry reuses the saved user turn and its context, with a new job identity. */
+export async function retryTurn(expected: Pick<Session, "id" | "revision" | "digest">): Promise<Session> {
+  return (await mutate(expected.id, current => {
+    insist(current && current.revision === expected.revision && current.digest === expected.digest, "conflict", "This chat changed in another tab. Review it before retrying.");
+    const turn = current.turns.at(-1);
+    insist(turn && ["failed", "cancelled", "interrupted"].includes(turn.status) && turn.error && turn.endedAt, "active", "This answer cannot be retried yet.");
+    insist((turn.priorAttempts?.length ?? 0) < 10, "capacity", "This message has reached its retry limit. Start a new chat to continue.");
+    turn.priorAttempts = [...(turn.priorAttempts ?? []), { jobId: turn.jobId, status: turn.status as "failed" | "cancelled" | "interrupted", endedAt: turn.endedAt, error: turn.error }];
+    turn.jobId = crypto.randomUUID(); turn.status = "pending"; turn.acceptedAt = null; turn.endedAt = null; turn.error = null; turn.usage = null;
+    // Keep the original user turn and context. Only the latest attempt time changes.
+    turn.at = Math.max(Date.now(), current.updatedAt);
+    current.messages.find(message => message.turnId === turn.id && message.role === "user")!.at = turn.at;
+    return current;
+  }))!;
+}
 export async function recordAccepted(sessionId: string, jobId: string) {
   return mutate(sessionId, current => {
     insist(current); const turn = current.turns.find(t => t.jobId === jobId); insist(turn);

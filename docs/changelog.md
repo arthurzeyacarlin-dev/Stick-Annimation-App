@@ -1,5 +1,13 @@
 # Changelog
 
+### 2026-09-24 — Accept and propagate SPEC-0012 Phase 6 local/private-beta hardening (D-0133; GIT-096 pending)
+
+- Arthur called the dedicated review copy a pass and authorized recording, commit, GitHub push, safe canonical-main integration and SPEC-0012 closeout.
+- Accepted exactly seven Assistant runtime and thirteen Phase 6 proof paths from GIT-095 base `6de47a9dc1d780b63ed355fa5148f87cc5f0b1f2`. Offline questions are saved once without a provider request or fake answer; retry is explicit, reuses the original turn with a fresh job identity and produces at most one answer after reconnection.
+- Immutable manifest SHA-256 `a0e3eea7e973eb183ff274cfd9ff868d3e4b7712e60e431c9db1c67057702229` binds 20 sources/80 evidence files and rejects twelve mutation classes. Offline/retry/reload, stress/restart, security, accessibility, performance, protected-product and AI Animator proof passes with zero automated real/paid calls.
+- Confirmed the accepted Assistant has no cumulative temporary search/review budget. D-0127 already removed the temporary source-overflow failure. Permanent per-request safety, source, timeout, token, storage, transcription, concurrency and explicit-retry bounds remain unchanged.
+- This CPA propagation changes records/tree only; accepted runtime/proof stays immutable. GIT-096 publication, synchronization, proof preservation, port-58160 shutdown, D-0054 cleanup and terminal records-only closure remain pending.
+
 ### 2026-09-24 — Accept and propagate SPEC-0012 Phase 5 dictation (D-0131; GIT-095 pending)
 
 - Arthur reported a successful Diamond Animator physical-microphone dictated message, called the review copy a pass and authorized control-plane recording and later Git publication. This CPA stage records acceptance; canonical main is not yet changed.

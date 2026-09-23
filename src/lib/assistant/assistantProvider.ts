@@ -229,6 +229,11 @@ export function createAssistantProvider(factory: AssistantClientFactory = client
       }
     } catch (error) {
       if (searchAbort.signal.aborted && !options.signal.aborted) throw new AssistantError("search", "Current public information could not be verified before the search deadline. Your message is saved.");
+      if (!options.signal.aborted && error instanceof Error && (error instanceof TypeError || /^(?:APIConnectionError|APIConnectionTimeoutError)$/.test(error.name))) {
+        throw new AssistantError("network", prepared.decision.mode === "required"
+          ? "Could not reach web search. Check your internet connection. Your question is saved; no current answer was published. Reconnect, then choose Retry."
+          : "Terra could not connect. Your question is saved; no answer was published. Reconnect, then choose Retry.");
+      }
       throw error;
     } finally { if (searchTimer) clearTimeout(searchTimer); }
     insist(final && final.status === "completed" && final.model === ASSISTANT_MODEL && final.usage, "output", "Terra returned an incomplete or unexpected response. Your message is saved.");

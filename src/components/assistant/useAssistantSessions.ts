@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ASSISTANT_LIMITS, AssistantError, isId, requestFor, stableJson, validateSnapshot, type JobSnapshot, type Reasoning, type Session } from "../../lib/assistant/assistantContracts";
-import { beginTurn, deleteSession, finishTurn, listSessions, recordAccepted, renameSession, setSessionReasoning, subscribeSessions } from "../../lib/assistant/assistantStorage";
+import { beginTurn, deleteSession, finishTurn, listSessions, recordAccepted, renameSession, retryTurn, setSessionReasoning, subscribeSessions } from "../../lib/assistant/assistantStorage";
 
 const readableError = (error: unknown) => error instanceof AssistantError ? error.message : "The Assistant could not connect. Your saved chats and unsent draft are kept. Try again when the connection returns.";
 export const ASSISTANT_LONG_WAIT_MS = 8000;
@@ -138,6 +138,10 @@ export function useAssistantSessions() {
       progressEligible.current.add(turn.jobId);
       setDrafts(current => { const remaining = current[draftKey] === draft ? "" : current[draftKey]; return { ...current, [draftKey]: "", [id]: remaining }; });
       setSessions(current => [created!, ...current.filter(s => s.id !== id)]); select(id);
+      if (!navigator.onLine) {
+        await finishTurn(id, turn.jobId, { interrupted: "Internet connection unavailable. Your question is saved; no answer was requested. Reconnect, then choose Retry." });
+        return;
+      }
       const response = await fetch("/api/diamond-assistant", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(requestFor(created, turn)), signal: AbortSignal.timeout(15000) });
       if (!response.ok && response.status >= 500) throw new Error("uncertain-submission");
       if (!response.ok) {
@@ -147,6 +151,26 @@ export function useAssistantSessions() {
     } catch (error) { setNotice(readableError(error)); }
     finally {
       if (created) posting.current.delete(created.turns.at(-1)!.jobId);
+      await refresh(); sendGuard.current = false; if (mounted.current) setBusy(false);
+    }
+  };
+  const retry = async () => {
+    if (sendGuard.current || storageBlocked || !ready || !selected || selected.turns.at(-1)?.status === "pending") return;
+    if (!navigator.onLine) { setNotice("Internet connection unavailable. Reconnect, then choose Retry. Nothing was sent."); return; }
+    sendGuard.current = true; setBusy(true); setNotice("");
+    let prepared: Session | null = null;
+    try {
+      prepared = await retryTurn(selected);
+      refreshGeneration.current++;
+      const turn = prepared.turns.at(-1)!; posting.current.add(turn.jobId); progressEligible.current.add(turn.jobId);
+      setSessions(current => [prepared!, ...current.filter(session => session.id !== prepared!.id)]);
+      const response = await fetch("/api/diamond-assistant", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(requestFor(prepared, turn)), signal: AbortSignal.timeout(15000) });
+      if (!response.ok && response.status >= 500) throw new Error("uncertain-submission");
+      if (!response.ok) await finishTurn(prepared.id, turn.jobId, { interrupted: "This answer could not start. Your question is saved. Nothing was retried automatically." });
+      else await accept(prepared, await response.json());
+    } catch (error) { setNotice(readableError(error)); }
+    finally {
+      if (prepared) posting.current.delete(prepared.turns.at(-1)!.jobId);
       await refresh(); sendGuard.current = false; if (mounted.current) setBusy(false);
     }
   };
@@ -165,7 +189,7 @@ export function useAssistantSessions() {
     showLongWaitProgress: !!thinkingJobId && progressJobId === thinkingJobId,
     reasoning: selected?.reasoning ?? blankReasoning, live, reveal, pausedJobs,
     setDraft: (value: string) => setDrafts(current => ({ ...current, [draftKey]: value })),
-    select, send, cancel,
+    select, send, retry, cancel,
     newChat: () => { if (sessions.length >= 50 || busy || storageBlocked) return; select(null); setBlankReasoning("medium"); setDrafts(current => ({ ...current, blank: "" })); },
     reasoningChange: async (reasoning: Reasoning) => { if (!selected) setBlankReasoning(reasoning); else try { await setSessionReasoning(selected.id, reasoning); await refresh(); } catch (error) { setNotice(readableError(error)); } },
     rename: async (session: Session, name: string) => { try { await renameSession(session.id, name, session); await refresh(); } catch (error) { await refresh(); throw error; } },

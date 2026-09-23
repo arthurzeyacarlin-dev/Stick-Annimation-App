@@ -80,7 +80,7 @@ export class DiamondAssistantJobService {
       this.transition(job, "done", result);
     } catch (error) {
       if (!this.active(job)) return;
-      const safe = error instanceof AssistantError && ["configuration", "output", "input", "privacy", "search"].includes(error.code) ? error.message : "Terra could not complete this answer. Your message is saved. You can try again explicitly.";
+      const safe = error instanceof AssistantError && ["configuration", "output", "input", "privacy", "search", "network"].includes(error.code) ? error.message : "Terra could not complete this answer. Your message is saved. You can try again explicitly.";
       this.fail(job, safe);
     }
   }

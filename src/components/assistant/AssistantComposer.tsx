@@ -53,7 +53,7 @@ export function AssistantComposer({ chats }: { chats: ReturnType<typeof useAssis
         </div>
       </div>
     </form>
-    <p id="assistant-preview-note" className={styles.previewNote}>{full ? "You have 50 saved chats. Delete a chat before creating another." : "Diamond Animator guidance stays local; current public questions use cited web search. Dictation adds editable text; Stop sends audio to OpenAI for transcription. Audio is not saved."}</p>
+    <p id="assistant-preview-note" className={styles.previewNote}>{full ? "You have 50 saved chats. Delete a chat before creating another." : "Chats are saved on this device. Answers need Terra and an internet connection; current public questions may use cited web search. The Assistant cannot edit projects or watch videos. Stop sends dictation audio to OpenAI for transcription; audio is not saved. Retry a failed answer only when you choose to."}</p>
     <div className={styles.dictationNotice} role="status" aria-live="polite">{dictation.message}</div>
     <div className={styles.notice} role="status">{chats.notice}{(chats.storageBlocked || chats.pausedJobs.length > 0) && <button className={styles.reconnect} type="button" onClick={chats.retryConnection}>Reconnect / retry saving</button>}</div>
   </div>;

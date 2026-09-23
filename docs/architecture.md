@@ -1,9 +1,9 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-24 through D-0131 accepted Phase 5 dictation in the dedicated review worktree; publication/integration remains pending.
+Last traced: 2026-09-24 through GIT-095 published Phase 5 dictation and D-0133 accepted Phase 6 local/private-beta offline/recovery hardening; GIT-096 closeout remains pending.
 
-## SPEC-0012 guidance-Assistant architecture — Phase 4 fully closed; Phase 5 accepted in review worktree
+## SPEC-0012 guidance-Assistant architecture — Phase 5 published; Phase 6 accepted in review worktree
 
 D-0129 keeps the existing provider/search/job/storage architecture. It adds only provider-consulted metadata recovery when native annotations are wholly absent and a client pending-to-done reveal marker that remounts the existing text reveal for the newly completed turn; persisted history never reanimates.
 
@@ -23,7 +23,7 @@ Home AI Assistant card
   -> Assistant session transaction and typewriter reveal
 ```
 
-Exactly 50 persisted sessions are allowed with no silent eviction; blank chats are ephemeral; manual rename overrides any automatic title; delete is confirmed and Assistant-local. Guidance may explain app navigation but never controls it. The server event stream alone owns truthful Thinking, real Searching the internet, and output-composition Finalizing answer states. D-0131's accepted Phase 5 review implementation adds a separate transcription route: in-memory microphone capture → sampled waveform → Cancel or Stop → editable transcript → explicit Send; raw audio is not deliberately persisted.
+Exactly 50 persisted sessions are allowed with no silent eviction; blank chats are ephemeral; manual rename overrides any automatic title; delete is confirmed and Assistant-local. Guidance may explain app navigation but never controls it. The server event stream alone owns truthful Thinking, real Searching the internet, and output-composition Finalizing answer states. GIT-095 adds the separate transcription route: in-memory microphone capture → sampled waveform → Cancel or Stop → editable transcript → explicit Send; raw audio is not deliberately persisted. D-0133 adds one Assistant-local retry owner: offline/failure closes the current job, and only an explicit user Retry moves the original turn to a fresh job identity while preserving bounded failed-attempt receipts.
 
 Combined Phase 2 implements local sessions and the original planned Phase 3 fixed-Terra/local-catalog guidance scope. Cumulative daily/monthly reservation/ledger/lock code is intentionally absent under D-0124; the `$0.15` per-request estimate and all token/output/deadline/concurrency/dedupe/cancel/job-memory/session/usage/local-only protections remain. GIT-091 `fa2ef6c526d04de9c77b356b53b4768890c46e1f` publishes/integrates that result, preserves its proof and completes its review-copy cleanup.
 
@@ -35,7 +35,7 @@ D-0127 keeps this architecture but corrects ownership and terminal sequencing. P
 
 D-0128/GIT-093 publishes that exact architecture in product commit `99128d70f4320dcfc757d81c7bc146baf3467f86`, activates the canonical port-3000 runtime, preserves the accepted proof and removes the obsolete review runtime/worktree/branch. Phase 5 may add only its separately authorized transcription boundary; it is not started by this closeout.
 
-### D-0131 Phase 5 transcription boundary — accepted, publication pending
+### D-0131/GIT-095 Phase 5 transcription boundary — published
 
 `AssistantComposer` owns only the visible controls and latest draft insertion. `AssistantDictationCapture` owns each recording identity, local media tracks, `AudioContext`, analyser, worklet, waveform/clock, bounded in-memory PCM, cancellation and the single Stop request. The same-origin `dictation-worklet.js` caps sample and byte production in its audio thread; `assistantDictationContract.ts` validates canonical WAV and transcript bounds. `DiamondAssistantScreen` remounts the composer on New Chat or session change so a late result cannot enter a different draft.
 
@@ -47,7 +47,11 @@ explicit microphone click → browser permission → MediaStream/AudioWorklet/re
       → bounded verified text → current editable draft → ordinary explicit Send
 ```
 
-The separate Node route shares no guidance job, AI Animator job/ledger, project identifier, workspace summary, manual command or V2 repository owner. Server origin/identity/format/size/duration checks precede provider access; timeout/cancel uses request abort and bounded tombstones. `gpt-transcribe` is fixed in the one request, mismatched returned echoes fail, and absent echoes stay `null`. The provider JSON does not guarantee independent returned-model attestation. Browser buffers are cleared where mutable and resource handles released on terminal paths; immutable request blobs and provider-side memory cannot be proven physically erased. D-0131's sealed 16-source/355-evidence technical manifest verifies this boundary, with Arthur's physical-microphone report recorded separately. Canonical `main` still contains Phase 4 code until separate GIT-095 publication/integration; port 58070 retains the accepted review copy.
+The separate Node route shares no guidance job, AI Animator job/ledger, project identifier, workspace summary, manual command or V2 repository owner. Server origin/identity/format/size/duration checks precede provider access; timeout/cancel uses request abort and bounded tombstones. `gpt-transcribe` is fixed in the one request, mismatched returned echoes fail, and absent echoes stay `null`. The provider JSON does not guarantee independent returned-model attestation. Browser buffers are cleared where mutable and resource handles released on terminal paths; immutable request blobs and provider-side memory cannot be proven physically erased. D-0131's sealed 16-source/355-evidence technical manifest verifies this boundary, with Arthur's physical-microphone report recorded separately. GIT-095 `6de47a9dc1d780b63ed355fa5148f87cc5f0b1f2` publishes/integrates it.
+
+### D-0133 Phase 6 offline/retry boundary — accepted, publication pending
+
+`useAssistantSessions` owns offline preflight and explicit retry orchestration. `assistantStorage.retryTurn` atomically reuses only the latest failed/cancelled/interrupted turn after revision/digest revalidation, records the prior failed job identity, assigns a new UUID and retains the original user message/context. `DiamondAssistantJobService` and `assistantProvider` convert provider connection failures into truthful terminal copy. `AssistantConversation` exposes Retry only on terminal non-done turns. There is no background retry, resend timer, second user message, offline fallback answer, project mutation or second provider door. D-0133's sealed 20-source/80-evidence manifest verifies this path; GIT-096 publication remains pending.
 
 ## SPEC-0011 project-library and playback architecture — all three phases fully closed
 

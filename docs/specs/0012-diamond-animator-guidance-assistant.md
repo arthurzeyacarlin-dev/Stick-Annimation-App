@@ -1,10 +1,10 @@
 # SPEC-0012 — Diamond Animator Guidance Assistant
 
-Status: **Active; Phases 1–4 accepted/published/integrated through D-0130/GIT-094; Phase 5 accepted and technically Verified under D-0131 in its dedicated review worktree, publication/integration pending; Phase 6 unauthorized/not started**
+Status: **Closing; Phases 1–5 published/integrated through GIT-095 `6de47a9dc1d780b63ed355fa5148f87cc5f0b1f2`; Phase 6 accepted and technically Verified under D-0133, publication/integration pending**
 
 Owner: Arthur
 
-Planning decision: D-0120; planning publication GIT-089 `f2bda33842a3f5a4b560a7d3aab170a6ca4c2fd0`; Phase 1 authorization/acceptance D-0121/D-0122; Phase 1 closeout D-0123/GIT-090 `e725f562307e0c7530b32b416218018af87b65fd`; combined Phase 2 acceptance/original-Phase-3 absorption D-0124 and closeout GIT-091 `fa2ef6c526d04de9c77b356b53b4768890c46e1f`; Phase 4 acceptance/technical verification/control-plane propagation D-0125; Phase 4 closeout D-0126/GIT-092 `23816164592743a59d4cc3b83ffd0ac39844d654`
+Planning decision: D-0120; planning publication GIT-089 `f2bda33842a3f5a4b560a7d3aab170a6ca4c2fd0`; Phase 1 authorization/acceptance D-0121/D-0122; Phase 1 closeout D-0123/GIT-090 `e725f562307e0c7530b32b416218018af87b65fd`; combined Phase 2 acceptance/original-Phase-3 absorption D-0124 and closeout GIT-091 `fa2ef6c526d04de9c77b356b53b4768890c46e1f`; Phase 4 closed through D-0130/GIT-094 `7053851babec9247c6733e016145fd0d0b8a6e46`; Phase 5 published as GIT-095 `6de47a9dc1d780b63ed355fa5148f87cc5f0b1f2`; Phase 6 acceptance/technical verification D-0133
 
 Target review date: Tuesday, September 29, 2026
 
@@ -422,6 +422,18 @@ Search trigger/no-trigger matrix; local-catalog precedence; exact provider event
 
 Recommended executor: `gpt-6-astra`, Ultra reasoning.
 
+### 16.5 D-0133 accepted local/private-beta hardening and proof (2026-09-24)
+
+Arthur reviewed the dedicated Phase 6 app copy, called it a pass, and explicitly authorized control-plane propagation and later Git publication/integration. The accepted implementation starts from exact synchronized GIT-095 base/HEAD `6de47a9dc1d780b63ed355fa5148f87cc5f0b1f2`, uses the local/private-beta target, keeps an empty index, and contains exactly 20 technical paths: seven Assistant runtime files plus thirteen Phase 6 technical-proof files. No canonical record, package, dependency, credential, project/animation owner, AI Animator, Export, editor, recovery, or finalizer runtime byte changed during execution.
+
+Offline submission now records one user question without calling Terra, ends in one clear terminal connection state, never invents an offline answer, and never retries automatically. The visible **Retry answer** control is the only recovery door. An explicit retry reuses the original user turn and bounded context, assigns a fresh job identity, preserves a bounded failed-attempt receipt, and can publish exactly one answer to that original turn after reconnection. Network-provider failures receive the same truthful terminal treatment. Help copy now distinguishes on-device chat storage from internet-required answers.
+
+The accepted implementation does not remove or weaken permanent safety limits. The earlier temporary user-visible source-overflow failure was already removed by D-0127: excess valid provider candidates are bounded rather than rejecting the answer. Fresh audit found no cumulative daily/monthly/review/search budget in the accepted Assistant. The retained two-call/eight-processed/six-displayed source bounds, 30-second search/55-second job deadlines, per-request `$0.15` ceiling, token/context/output bounds, 50-session/200-message/local-byte ceilings, transcription bounds, concurrency, identity, cancellation, storage and explicit ten-attempt retry cap are permanent fail-safe contracts, not temporary beta stops.
+
+The immutable manifest is `output/spec-0012/phase-6/proof-manifest.json`, SHA-256 `a0e3eea7e973eb183ff274cfd9ff868d3e4b7712e60e431c9db1c67057702229`; it binds the exact base, 20 dirty paths and 80 evidence files and rejects twelve material mutation classes. Real-browser proof covers offline search submission, reconnection, explicit retry, one-question/one-answer reload persistence, connection loss during search, local-guidance recovery, 90 inherited stress assertions, 10 restart/interruption assertions, 21 protected-product assertions, 11 AI Animator assertions, 14 inherited oracles, five layouts with zero serious/critical Axe findings, 50 sessions/6,000 messages, corruption/quota/two-tab handling, and zero automated real/provider/paid calls. TypeScript, focused lint/build/diff and proof validation pass. The unchanged whole-repository build still reaches the inherited dev AI-cost `PageProps/searchParams` failure, and full lint retains five errors/81 warnings in untouched files. Physical devices, non-Chromium browsers, public-beta controls, deployment and production readiness remain unproven and out of scope.
+
+GIT-096 is the separately authorized publication/integration/proof-preservation/D-0054 cleanup task. Until it succeeds, the accepted review server/worktree/proof remain preserved and SPEC-0012 is Closing rather than fully closed. SPEC-0008 remains paused after Phase 1 under D-0093.
+
 ### 14.5 Accepted Phase 4 result — D-0125
 
 Arthur and the Project Manager accepted the stopped Phase 4 implementation from branch `codex/spec0012-phase-4-fresh-search`, exact GIT-091 base/HEAD `fa2ef6c526d04de9c77b356b53b4768890c46e1f`, empty index and exactly 27 technical dirty paths. The accepted correction preserves a corrupt canonical IndexedDB row byte-for-byte, counts unreadable rows and bytes conservatively for capacity, rejects unsafe overwrite, and still permits an independent healthy chat. Its only runtime correction paths are `assistantStorage.ts` and `useAssistantSessions.ts`; phase-owned proof refreshes `phase4BrowserRegressions.ts`, `phase4FaultProof.ts`, `recordPhase4Proof.ts`, `validatePhase4Proof.ts` and adds `phase4CorruptRowProof.ts`. The nine search/provider/presentation sources remain hash-identical to the prior seal.
@@ -452,7 +464,7 @@ The sealed manifest SHA-256 is `f611cfa77811685f9ddc208df3d314f1710a8bfb9ceac3fc
 
 ### 15.1 Entry gate
 
-Phase 4 is fully closed through D-0130/GIT-094. Arthur separately authorized Phase 5 implementation, then reported a successful physical-microphone dictated message and accepted the result under D-0131. The accepted entry decision is OpenAI's `gpt-transcribe` at the official audio-transcription endpoint, with mono 16-bit PCM WAV at a browser-requested 16 kHz, the bounds and dated cost estimate in §15.5, and deterministic zero-paid automated proof. The existing ignored server-only credential serves the private review copy; this spec itself did not authorize automated live/paid requests or public exposure. Phase 5 publication, integration, proof preservation and cleanup remain pending.
+Phase 4 is fully closed through D-0130/GIT-094. Arthur separately authorized Phase 5 implementation, then reported a successful physical-microphone dictated message and accepted the result under D-0131. The accepted entry decision is OpenAI's `gpt-transcribe` at the official audio-transcription endpoint, with mono 16-bit PCM WAV at a browser-requested 16 kHz, the bounds and dated cost estimate in §15.5, and deterministic zero-paid automated proof. GIT-095 `6de47a9dc1d780b63ed355fa5148f87cc5f0b1f2` publishes/integrates Phase 5 before Phase 6 begins.
 
 ### 15.2 Scope
 

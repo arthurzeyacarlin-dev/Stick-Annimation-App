@@ -10,9 +10,9 @@ Last updated: 2026-09-24
 - A feature is not complete because code exists; its spec acceptance and regression gates must pass.
 - Paid AI calls, remote writes, deployment, and baseline commits require task-specific authorization.
 - The roadmap may change when Arthur resolves pending decisions or new evidence changes the risk order.
-- D-0129/D-0130/GIT-094 fully close the final Phase 4 citation/reveal correction. D-0131 accepts and technically verifies Phase 5 in its dedicated review worktree; separate publication/integration and cleanup are pending. Phase 6 requires its own entry decision and authorization.
+- D-0129/D-0130/GIT-094 fully close the final Phase 4 citation/reveal correction. D-0131/GIT-095 `6de47a9d…` close Phase 5 dictation. D-0133 accepts and technically verifies Phase 6 local/private-beta offline/recovery hardening; GIT-096 publication, proof preservation, cleanup and terminal SPEC-0012 closure remain pending.
 
-## Current owner sequence — 2026-09-24 (SPEC-0012 Phase 5 accepted under D-0131; publication pending)
+## Current owner sequence — 2026-09-24 (SPEC-0012 Phase 6 accepted under D-0133; GIT-096 closeout pending)
 
 All seven SPEC-0006 phases are Verified/published/integrated through GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`. The immutable 50,224-byte Phase 7 manifest is PASS/VALID at SHA-256 `c6202f6deab4d3bcc75af3ad6699fc2dc70fc58723eccaa8337b1a2aef74bc51`, with exactly 11 source and 16 evidence bindings.
 
@@ -72,7 +72,7 @@ D-0120 adds proposed [`SPEC-0012 — Diamond Animator Guidance Assistant`](specs
 5. **Microphone dictation** — separately approved transcription boundary with waveform, permission, Cancel/Stop, editable text, explicit Send and no raw-audio retention.
 6. **Beta hardening** — storage/context/output/search/transcription/cost/security/privacy/accessibility/restart/long-chat proof and exact AI Animator/project regressions.
 
-The target is Tuesday, September 29, 2026 and 85–90% local/private-beta readiness only if no major phase rejection occurs. GIT-089 published the plan; D-0121–D-0123/GIT-090 fully close Phase 1. D-0124/GIT-091 close combined Phase 2/absorbed Phase 3. D-0125–D-0130/GIT-092–GIT-094 close Phase 4 and its corrections. D-0131 accepts the technically verified Phase 5 dictation result from the dedicated worktree; publication/integration, proof preservation and review-copy cleanup remain pending. Phase 6 beta hardening, public exposure and deployment remain unauthorized. The accepted AI Animator remains separate; paused SPEC-0008 Phases 2–6 do not resume.
+The target is Tuesday, September 29, 2026 and 85–90% local/private-beta readiness only if no major phase rejection occurs. GIT-089 published the plan; D-0121–D-0123/GIT-090 fully close Phase 1. D-0124/GIT-091 close combined Phase 2/absorbed Phase 3. D-0125–D-0130/GIT-092–GIT-094 close Phase 4 and its corrections. D-0131/GIT-095 close Phase 5 dictation. D-0133 accepts the technically verified Phase 6 local/private-beta result; GIT-096 publication, proof preservation, review-copy cleanup and terminal records closure remain pending. Public exposure and deployment remain unauthorized. The accepted AI Animator remains separate; paused SPEC-0008 Phases 2–6 do not resume.
 
 ## Phase 0 — Preserve and Stabilize
 
@@ -149,7 +149,7 @@ The AI path must manipulate the same state and history as manual tools.
 
 D-0055 closes the former SPEC-0004-after-SPEC-0005 dependency. The unfinished phases are superseded, not queued to resume. SPEC-0008 Phase 1 is complete, while D-0093 pauses its Phases 2–6 before implementation. No provider, pricing, privacy, motion-video service, asset purchase or release policy is selected or authorized here.
 
-SPEC-0012 is a narrower guidance track beside this mutation-capable phase: it answers Diamond Animator questions but can never create/edit/delete/save/export or otherwise touch project content. Its Phases 1–4 are fully closed through GIT-092; Phases 5–6 remain separately unauthorized. It does not resume SPEC-0008.
+SPEC-0012 is a narrower guidance track beside this mutation-capable phase: it answers Diamond Animator questions but can never create/edit/delete/save/export or otherwise touch project content. Phases 1–5 are published/integrated through GIT-095; D-0133 accepts Phase 6 pending GIT-096 terminal closeout. It does not resume SPEC-0008.
 
 ## Phase 4 — Professional Product Completion
 

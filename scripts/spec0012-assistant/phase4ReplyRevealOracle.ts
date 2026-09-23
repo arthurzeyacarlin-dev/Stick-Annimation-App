@@ -1,0 +1,30 @@
+import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
+
+const base = "741ee803f9e0bd72f7c64174a77e52a6ac3a7b17";
+const output = resolve("output/spec-0012/phase-4-reply-reveal/oracle"); mkdirSync(output, { recursive: true });
+const assertions: string[] = [];
+const check = (value: unknown, label: string) => { assert.ok(value, label); assertions.push(label); };
+const equal = (actual: unknown, expected: unknown, label: string) => { assert.deepEqual(actual, expected, label); assertions.push(label); };
+const sha = (bytes: string | Buffer) => createHash("sha256").update(bytes).digest("hex");
+const git = (...args: string[]) => execFileSync("git", args, { encoding: "utf8" }).trim();
+const sessions = readFileSync("src/components/assistant/useAssistantSessions.ts", "utf8");
+const conversation = readFileSync("src/components/assistant/AssistantConversation.tsx", "utf8");
+
+equal(git("rev-parse", "HEAD"), base, "executor remains on the exact authorized base");
+equal(git("diff", "--cached", "--name-only"), "", "index remains empty");
+check(/observedPendingJobs = useRef\(new Set<string>\(\)\)/.test(sessions), "client presentation remembers jobs actually observed pending");
+check(/turn\.status === "pending"\) observedPendingJobs\.current\.add/.test(sessions), "only an observed pending job becomes reveal-eligible");
+check(/observedPendingJobs\.current\.delete\(turn\.jobId\) && turn\.status === "done"/.test(sessions), "only the pending-to-done transition creates a new-reply marker");
+check(/setReveal\(current => \(\{ \.\.\.current, \.\.\.completed \}\)\)/.test(sessions), "late storage completion merges the exact session and turn reveal marker");
+check(/key=\{`\$\{message\.id\}:\$\{animate \? "new" : "saved"\}`\}/.test(conversation), "late new-reply marker remounts only the message reveal component");
+check(/message\.role === "assistant" && chats\.reveal\[session\.id\] === message\.turnId/.test(conversation), "user messages and unrelated assistant messages never animate");
+equal(git("diff", "--name-only", base, "--", "src/components/assistant/AssistantText.tsx", "src/components/assistant/diamondAssistant.module.css"), "", "existing reveal timing and blue-gradient presentation bytes remain unchanged");
+equal(git("diff", "--name-only", base, "--", "src/lib/assistant/assistantJobService.ts", "src/lib/assistant/assistantContracts.ts", "src/lib/assistant/assistantStorage.ts", "src/lib/assistant/assistantSearchPolicy.ts", "src/lib/assistant/assistantKnowledge.ts"), "", "job lifecycle, contracts, storage schema, search policy, and prompts remain unchanged");
+equal(sha(readFileSync("src/lib/assistant/assistantProvider.ts")), "4e07076ad13404577aea9e53145558be3d88d388ad6ae9b515c88dcb8edc0e58", "accepted Version 1 provider bytes remain identical");
+equal(git("diff", "--name-only", base, "--", "AGENTS.md", "docs", "project/project_structure.txt", "package.json", "package-lock.json", "app", "src/components/workspace", "src/lib/animation", "src/lib/export", "src/lib/project-library", "src/lib/project-player"), "", "control plane and every protected non-Assistant product family remain unchanged");
+writeFileSync(resolve(output, "result.json"), `${JSON.stringify({ status: "PASS", base, assertions, providerSha256: sha(readFileSync("src/lib/assistant/assistantProvider.ts")), realProviderCalls: 0, paidCalls: 0 }, null, 2)}\n`);
+console.log(JSON.stringify({ status: "PASS", assertions: assertions.length }));

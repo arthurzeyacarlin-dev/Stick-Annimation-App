@@ -23,10 +23,11 @@ export function searchProviderResult(request: AssistantRequest): ProviderResult 
   };
 }
 
-export function responseFixture(options: { sourceUrl?: string; title?: string; answer?: string; annotations?: boolean; webCalls?: number; actionSourceUrls?: string[] } = {}) {
+export function responseFixture(options: { sourceUrl?: string; title?: string; answer?: string; annotations?: boolean; annotationRange?: "answer" | "outside"; webCalls?: number; actionSourceUrls?: string[] } = {}) {
   const answer = options.answer ?? youtubeAnswer; const title = options.title ?? youtubeTitle; const sourceUrl = options.sourceUrl ?? youtubeSource; const raw = JSON.stringify({ answer, title });
   const answerStart = raw.indexOf(answer); const firstEnd = answer.indexOf(". Use") >= 0 ? answer.indexOf(". Use") + 1 : answer.length;
-  const annotations = options.annotations === false ? [] : [{ type: "url_citation" as const, start_index: answerStart, end_index: answerStart + firstEnd, title: youtubeSourceTitle, url: sourceUrl }];
+  const annotationStart = options.annotationRange === "outside" ? 0 : answerStart;
+  const annotations = options.annotations === false ? [] : [{ type: "url_citation" as const, start_index: annotationStart, end_index: annotationStart + firstEnd, title: youtubeSourceTitle, url: sourceUrl }];
   const calls = Array.from({ length: options.webCalls ?? 1 }, (_, index) => ({ id: `search_call_${index}`, type: "web_search_call" as const, status: "completed" as const, action: { type: "search" as const, query: "current YouTube Shorts requirements", queries: ["current YouTube Shorts requirements"], sources: (options.actionSourceUrls ?? [youtubeSource]).map(url => ({ type: "url" as const, url })) } }));
   const response = {
     id: "response_fixture_phase4", object: "response", created_at: 1, status: "completed", model: ASSISTANT_MODEL,

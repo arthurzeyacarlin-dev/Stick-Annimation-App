@@ -7,7 +7,7 @@ import { resolve } from "node:path";
 // The correction executor starts from the already-published Phase 4 main.
 // Protected-family equality must therefore be measured from this exact base,
 // not from the pre-publication implementation SHA used by the original proof.
-const base = "21c5b3d70bf3ae5444a310913dbccec9a63895d9";
+const base = "741ee803f9e0bd72f7c64174a77e52a6ac3a7b17";
 const output = resolve("output/spec-0012/phase-4/regressions"); mkdirSync(output, { recursive: true });
 const receipts: Array<Record<string, unknown>> = [];
 const sha = (value: string) => createHash("sha256").update(value).digest("hex");

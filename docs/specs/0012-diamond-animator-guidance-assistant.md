@@ -1,6 +1,6 @@
 # SPEC-0012 — Diamond Animator Guidance Assistant
 
-Status: **Active; Phases 1–4 fully closed through D-0126/GIT-092; Phase 5 entry-ready but unauthorized/not started; Phase 6 unauthorized/not started**
+Status: **Active; Phases 1–4 accepted/published/integrated through GIT-093; D-0129 final Phase 4 correction accepted and GIT-094 publication authorized/pending; Phase 5 unauthorized/not started; Phase 6 unauthorized/not started**
 
 Owner: Arthur
 
@@ -441,6 +441,12 @@ Arthur accepted one correction from terminal GIT-092 base `21c5b3d70bf3ae5444a31
 All provider-returned source candidates are canonicalized and validated. The application then retains at most eight processed and six displayed sources, so excess provider candidates no longer cause the temporary user-visible `search source limit was exceeded` failure. Query/action/tool/source-retention/token/cost/privacy protections remain. Answer presentation removes leaked Markdown links, raw URLs and formatting syntax while keeping verified sources as accessible clickable entries in the dedicated Sources panel. Search activity names the actual selected topic, such as YouTube Shorts, rather than a generic phrase.
 
 The exact 14-path immutable correction manifest is `output/spec-0012/phase-4-final-correction/proof-manifest.json`, SHA-256 `a078d42e1b1ac131787c1f8b48aeb333c2263b119b3e2b2b9172a8b213908137`, source digest `6593a497cc93dd57fbde384071bdb6f84d8e555b4d7e8c0dec8bcd05f73712ce`, with 14 source and five evidence bindings. It passes 57 deterministic, 23 finalization, 23 browser and four protected-regression groups plus TypeScript, focused lint and diff checks. Two authorized live fixed-Terra requests used zero retries: local guidance completed in 8.611 seconds; one current YouTube search completed in 18.850 seconds with eight processed/two displayed official sources and 2.949 seconds of Finalizing. Reasoning change, reload persistence and unchanged project sentinel passed. The search is below the 55-second hard limit but honestly above the preferred typical 10–15 seconds. D-0128/GIT-093 publishes the exact 14 technical plus 15 reviewed record/tree paths as product commit `99128d70f4320dcfc757d81c7bc146baf3467f86`, preserves nine proof files/551,351 bytes at aggregate SHA-256 `b0b34be5cad8d1af0639c2a6f166fa8b33d478ad978251e21645a2c283f3cef2`, activates canonical port 3000 and completes review-copy cleanup. Phase 5, dictation, deployment and every project/animation owner remain unchanged and unauthorized.
+
+### 14.7 Final citation-recovery/reply-reveal correction — D-0129
+
+Arthur accepted the exact final 14-file Phase 4 correction from clean base `741ee803f9e0bd72f7c64174a77e52a6ac3a7b17`. Missing native inline annotations now recover only from provider-consulted canonical URL metadata, with neutral host labels and all forged/private/missing-metadata rejection retained. A storage-first pending-to-done transition now marks only that new assistant turn for the existing fast typewriter/blue-gradient reveal; saved/reloaded answers never replay.
+
+The sealed manifest SHA-256 is `f611cfa77811685f9ddc208df3d314f1710a8bfb9ceac3fcedf058818780ba9e`, receipt SHA-256 is `171c22eb1f7c00cf38cb9b71f12f08bf66a3fc838fbad48ae9b98e226ba6fc2b`, and source digest is `aa6c1d7954a97d9cb9fab1502d2ba7639f10246c98be03bbfc968ecb9605da54`. Proof covers 25 completions, 208 reveal assertions, 100% reveal rate, zero duplicates/reload replays, six protected browser suites, accepted V1 regression proof and zero real/paid deterministic calls. GIT-094 publication is authorized and pending. Phase 5 remains Unauthorized/Not started.
 
 ## 15. Phase 5 — Built-in microphone dictation
 

@@ -1,12 +1,14 @@
 import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
+import type OpenAI from "openai";
 import { chromium, type BrowserContext, type Page } from "playwright-core";
 import { DiamondAssistantJobService } from "../../src/lib/assistant/assistantJobService.ts";
-import { type AssistantRequest, type Session } from "../../src/lib/assistant/assistantContracts.ts";
+import { ASSISTANT_LIMITS, type AssistantRequest, type Session } from "../../src/lib/assistant/assistantContracts.ts";
+import { createAssistantProvider } from "../../src/lib/assistant/assistantProvider.ts";
 import { decideAssistantSearch } from "../../src/lib/assistant/assistantSearchPolicy.ts";
 import { fixtureResult } from "./phase2Fixtures.ts";
-import { searchProviderResult, youtubePrompt } from "./phase4Fixtures.ts";
+import { responseFixture, youtubePrompt } from "./phase4Fixtures.ts";
 
 const origin = process.env.SPEC0012_PHASE4_ORIGIN ?? "http://127.0.0.1:58040";
 const output = resolve("output/spec-0012/phase-4/browser"); mkdirSync(output, { recursive: true });
@@ -14,18 +16,28 @@ const assertions: string[] = []; const errors: string[] = []; const forbidden: s
 const check = (value: unknown, label: string) => { assert.ok(value, label); assertions.push(label); };
 const equal = (actual: unknown, expected: unknown, label: string) => { assert.deepEqual(actual, expected, label); assertions.push(label); };
 const pause = (ms: number) => new Promise(resolvePause => setTimeout(resolvePause, ms));
-let providerCalls = 0;
+let providerCalls = 0; let searchTransportCalls = 0;
+const missingAnnotations = responseFixture({ annotations: false });
+const metadataRecoveryProvider = createAssistantProvider(() => ({ create: async () => {
+  searchTransportCalls++;
+  return { async *[Symbol.asyncIterator]() {
+    yield { type: "response.output_item.added", item: missingAnnotations.response.output[0], output_index: 0, sequence_number: 0 } as OpenAI.Responses.ResponseStreamEvent;
+    await pause(850);
+    yield { type: "response.web_search_call.completed", item_id: "search_call_0", output_index: 0, sequence_number: 1 } as OpenAI.Responses.ResponseStreamEvent;
+    await pause(650);
+    yield { type: "response.completed", response: missingAnnotations.response, sequence_number: 2 } as OpenAI.Responses.ResponseStreamEvent;
+  } };
+} }));
 const jobs = new DiamondAssistantJobService(async (request, options) => {
   providerCalls++; captured.push(request); await pause(650);
   if (decideAssistantSearch(request).mode === "required") {
-    options.onActivity?.({ type: "search-start", topic: "YouTube Shorts for information" }); await pause(850);
-    options.onActivity?.({ type: "search-end" }); await pause(650);
-    return searchProviderResult(request);
+    return metadataRecoveryProvider(request, options);
   }
   await pause(350);
   const answer = request.message.startsWith("Hi") ? "I’m Diamond Animator’s guidance Assistant. I can explain the app without seeing or changing your projects." : "Use Home → Export, or File → Export… in the workspace. Save first because Export uses the saved animation and excludes unsaved edits.";
   return fixtureResult(request, answer, request.message.startsWith("Hi") ? "Meet the Assistant" : "Export an animation");
-}, 90000, 250);
+}, ASSISTANT_LIMITS.deadlineMs, 250);
+const originalKey = process.env.OPENAI_API_KEY; process.env.OPENAI_API_KEY = "phase4-citation-recovery-fixture-key";
 
 async function configure(context: BrowserContext) {
   await context.route("**/*", async route => {
@@ -65,11 +77,12 @@ try {
   check(!(await searching.innerText()).includes("support.google.com"), "search activity never invents a site name"); await snap(page, "searching");
   const finalizing = page.locator('[role="status"]').filter({ hasText: "Finalizing answer" }); await finalizing.waitFor();
   await page.getByRole("article", { name: "Assistant reply", exact: true }).waitFor(); await page.waitForTimeout(800);
-  equal(await page.locator('[aria-label="Sources"] a').count(), 1, "one verified source is displayed once despite repeated annotations");
+  equal(await page.locator('[aria-label="Sources"] a').count(), 1, "one provider-consulted source is displayed once without native annotations");
   const source = page.locator('[aria-label="Sources"] a').first(); equal(await source.getAttribute("href"), "https://support.google.com/youtube/answer/15424877", "source link keeps the canonical HTTPS URL");
   check((await source.getAttribute("target")) === "_blank" && (await source.getAttribute("rel"))?.includes("noopener"), "source link opens safely and is keyboard reachable");
-  await source.focus(); check((await page.evaluate(() => document.activeElement?.textContent?.trim()))?.startsWith("[1] Understand three-minute YouTube Shorts"), "keyboard focus reaches the verified source link");
+  await source.focus(); check((await page.evaluate(() => document.activeElement?.textContent?.trim()))?.startsWith("[1] support.google.com"), "keyboard focus reaches the neutral label for the provider-consulted source");
   check((await page.getByRole("article", { name: "Assistant reply", exact: true }).innerText()).includes("Diamond Animator"), "search answer combines verified public facts with local export guidance"); await snap(page, "cited-answer");
+  check(!(await page.locator("body").innerText()).includes("without verifiable citations"), "missing native annotations recover to a clean cited answer instead of the former terminal failure");
   const savedBeforeReload = await readSessions(page); const searchSession = savedBeforeReload.find(session => session.messages.some(message => message.text === youtubePrompt))!;
   check(!!searchSession.messages.at(-1)?.citations?.length && searchSession.turns.at(-1)?.search?.toolCalls === 1, "citations, actions and source receipt persist in Assistant-only IndexedDB");
   await page.reload(); await page.getByRole("article", { name: "Assistant reply", exact: true }).waitFor(); equal(await page.locator('[aria-label="Sources"] a').count(), 1, "citation survives reload without replaying reveal");
@@ -89,7 +102,8 @@ try {
   equal(await page.evaluate(() => localStorage.getItem("phase4-protected-project-sentinel")), "unchanged", "protected local project sentinel remains byte-identical");
   equal(errors, [], "browser proof records no page errors"); equal(forbidden, [], "browser proof records no external or unrelated API request");
   check(captured.filter(request => request.message === youtubePrompt).length === 3, "each explicit YouTube send creates exactly one deterministic provider attempt");
+  equal(searchTransportCalls, 3, "three explicit search sends create exactly three Responses requests with no automatic retry or duplicate answer");
   await context.close();
-  writeFileSync(resolve(output, "result.json"), JSON.stringify({ status: "PASS", assertions, errors, forbidden, screenshots, providerCalls, capturedMessages: captured.map(request => request.message), realProviderCalls: 0, paidCalls: 0 }, null, 2));
+  writeFileSync(resolve(output, "result.json"), JSON.stringify({ status: "PASS", assertions, errors, forbidden, screenshots, providerCalls, searchTransportCalls, citationRecovery: "web_search_call.action.sources", capturedMessages: captured.map(request => request.message), realProviderCalls: 0, paidCalls: 0 }, null, 2));
   console.log(JSON.stringify({ status: "PASS", assertions: assertions.length }));
-} finally { await browser.close(); }
+} finally { if (originalKey === undefined) delete process.env.OPENAI_API_KEY; else process.env.OPENAI_API_KEY = originalKey; await browser.close(); }

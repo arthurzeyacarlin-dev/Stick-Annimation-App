@@ -1,5 +1,11 @@
 # Changelog
 
+### 2026-09-23 — Accept and propagate final SPEC-0012 Phase 4 citation/reveal correction (D-0129; GIT-094 pending)
+
+- Accepted the exact 14-file result from base `741ee803f9e0bd72f7c64174a77e52a6ac3a7b17`: provider-consulted citation recovery plus reliable existing typewriter/blue-gradient reveal for every newly completed answer, with no saved-answer replay.
+- Sealed manifest SHA-256 `f611cfa77811685f9ddc208df3d314f1710a8bfb9ceac3fcedf058818780ba9e`, receipt `171c22eb1f7c00cf38cb9b71f12f08bf66a3fc838fbad48ae9b98e226ba6fc2b`, source digest `aa6c1d7954a97d9cb9fab1502d2ba7639f10246c98be03bbfc968ecb9605da54`; 25 completions/208 reveal assertions/100% reveal, zero duplicates/replays and six protected browser suites pass.
+- GIT-094 publication/integration is explicitly authorized and pending. Phase 5 remains Unauthorized/Not started.
+
 ### 2026-09-23 — Publish, activate, preserve, and clean up SPEC-0012 Phase 4 terminal correction (D-0128/GIT-093)
 
 - Published the exact 14 accepted technical plus 15 reviewed record/tree paths as product commit `99128d70f4320dcfc757d81c7bc146baf3467f86`, parent `21c5b3d70bf3ae5444a310913dbccec9a63895d9`, message `Finalize SPEC-0012 Phase 4 assistant responses`; canonical `main`, `origin/main`, and live GitHub `main` synchronized at clean `0/0` before this terminal records-only successor.

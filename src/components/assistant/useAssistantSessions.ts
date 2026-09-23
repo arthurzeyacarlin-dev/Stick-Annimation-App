@@ -16,6 +16,7 @@ export function useAssistantSessions() {
   const [pausedJobs, setPausedJobs] = useState<string[]>([]);
   const [progressJobId, setProgressJobId] = useState<string | null>(null);
   const progressEligible = useRef(new Set<string>()); const progressShown = useRef(new Set<string>());
+  const observedPendingJobs = useRef(new Set<string>());
   const sendGuard = useRef(false); const posting = useRef(new Set<string>()); const polling = useRef(new Set<string>());
   const mounted = useRef(true); const latest = useRef<Record<string, JobSnapshot>>({}); const halted = useRef(new Set<string>());
   const refreshGeneration = useRef(0);
@@ -44,6 +45,17 @@ export function useAssistantSessions() {
     void refresh(); const unsubscribe = subscribeSessions(() => { void refresh(); });
     return () => { mounted.current = false; unsubscribe(); };
   }, [refresh]);
+  useEffect(() => {
+    const currentJobs = new Set<string>(); const completed: Record<string, string> = {};
+    for (const session of sessions) {
+      const turn = session.turns.at(-1); if (!turn) continue;
+      currentJobs.add(turn.jobId);
+      if (turn.status === "pending") observedPendingJobs.current.add(turn.jobId);
+      else if (observedPendingJobs.current.delete(turn.jobId) && turn.status === "done") completed[session.id] = turn.id;
+    }
+    for (const jobId of observedPendingJobs.current) if (!currentJobs.has(jobId)) observedPendingJobs.current.delete(jobId);
+    if (Object.keys(completed).length) setReveal(current => ({ ...current, ...completed }));
+  }, [sessions]);
   const select = useCallback((id: string | null) => {
     setSelectedId(id); setReveal({}); setProgressJobId(null); setNotice(""); window.history.replaceState(null, "", `${window.location.pathname}${id ? `#chat=${id}` : ""}`);
   }, []);

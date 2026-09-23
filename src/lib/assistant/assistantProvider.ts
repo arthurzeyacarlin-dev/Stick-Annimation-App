@@ -122,19 +122,28 @@ export function normalizeAssistantPresentation(text: string, citations: Citation
   return { text: cleaned, citations: mapped };
 }
 
-function actionRecord(call: OpenAI.Responses.ResponseFunctionWebSearch): { action: SearchAction; urls: string[] } {
+type SearchActionRecord = { action: SearchAction; urls: string[]; consultedUrls: string[] };
+
+function actionRecord(call: OpenAI.Responses.ResponseFunctionWebSearch): SearchActionRecord {
   const action = call.action;
   if (action.type === "search") {
     const queries = (action.queries?.length ? action.queries : [action.query]).filter(Boolean);
     insist(queries.length >= 1 && queries.length <= ASSISTANT_SEARCH_LIMITS.processedSources && queries.reduce((total, query) => total + Array.from(query).length, 0) <= ASSISTANT_SEARCH_LIMITS.queryChars, "output", "The web search exceeded its query limit. Your message is saved.");
-    return { action: { type: "search", queries }, urls: (action.sources ?? []).map(source => canonicalPublicUrl(source.url)) };
+    const consultedUrls = (action.sources ?? []).map(source => canonicalPublicUrl(source.url));
+    return { action: { type: "search", queries }, urls: consultedUrls, consultedUrls };
   }
   if (action.type === "open_page") {
     insist(action.url, "output", "The web search opened an unverified page. Your message is saved.");
-    const url = canonicalPublicUrl(action.url); return { action: { type: "open_page", url }, urls: [url] };
+    const url = canonicalPublicUrl(action.url); return { action: { type: "open_page", url }, urls: [url], consultedUrls: [] };
   }
   const url = canonicalPublicUrl(action.url); insist(action.pattern.length <= 256, "output", "The web search exceeded its find limit. Your message is saved.");
-  return { action: { type: "find_in_page", url, pattern: action.pattern }, urls: [url] };
+  return { action: { type: "find_in_page", url, pattern: action.pattern }, urls: [url], consultedUrls: [] };
+}
+
+function consultedSourceTitle(url: string) {
+  const title = new URL(url).hostname.replace(/^www\./, "");
+  insist(title.length >= 1 && Array.from(title).length <= 200, "output", "A search source title was invalid. Your message is saved.");
+  return title;
 }
 
 function searchResult(final: OpenAI.Responses.Response, raw: string, annotations: OpenAI.Responses.ResponseOutputText.URLCitation[], decision: Extract<SearchDecision, { mode: "required" }>): { answer: Answer; search: SearchReceipt } {
@@ -145,18 +154,34 @@ function searchResult(final: OpenAI.Responses.Response, raw: string, annotations
   const mapping = answerStringMap(raw); let parsed: unknown; try { parsed = JSON.parse(raw); } catch { throw new AssistantError("output", "Terra returned an unreadable answer. Your message is saved."); }
   validateAnswer(parsed); const parsedAnswer = parsed as Answer; insist(parsedAnswer.answer === mapping.answer, "output", "Search annotations did not match the answer. Your message is saved.");
   const sourceIndex = new Map<string, number>(); const sourceTitles = new Map<string, string>(); const citations: Citation[] = [];
-  for (const annotation of annotations.sort((a, b) => a.start_index - b.start_index || a.end_index - b.end_index)) {
-    const url = canonicalPublicUrl(annotation.url); insist(actualUrls.has(url), "output", "A forged search citation was rejected. Your message is saved.");
-    const startIndex = mapping.boundaries.get(annotation.start_index); const endIndex = mapping.boundaries.get(annotation.end_index);
-    insist(startIndex !== undefined && endIndex !== undefined && annotation.start_index >= mapping.start && annotation.end_index <= mapping.end && endIndex > startIndex, "output", "Search citations did not align with the answer. Your message is saved.");
-    const title = normalizeTitle(annotation.title); insist(title.length >= 1 && Array.from(title).length <= 200, "output", "A search source title was invalid. Your message is saved.");
-    if (!sourceIndex.has(url)) {
-      // Extra provider candidates are not a user error. Keep the first bounded
-      // set of verified sources and ignore additional display-only citations.
-      if (sourceIndex.size >= ASSISTANT_SEARCH_LIMITS.displayedSources) continue;
-      sourceIndex.set(url, sourceIndex.size + 1); sourceTitles.set(url, title);
+  if (annotations.length) {
+    for (const annotation of annotations.sort((a, b) => a.start_index - b.start_index || a.end_index - b.end_index)) {
+      const url = canonicalPublicUrl(annotation.url); insist(actualUrls.has(url), "output", "A forged search citation was rejected. Your message is saved.");
+      const startIndex = mapping.boundaries.get(annotation.start_index); const endIndex = mapping.boundaries.get(annotation.end_index);
+      insist(startIndex !== undefined && endIndex !== undefined && annotation.start_index >= mapping.start && annotation.end_index <= mapping.end && endIndex > startIndex, "output", "Search citations did not align with the answer. Your message is saved.");
+      const title = normalizeTitle(annotation.title); insist(title.length >= 1 && Array.from(title).length <= 200, "output", "A search source title was invalid. Your message is saved.");
+      if (!sourceIndex.has(url)) {
+        // Extra provider candidates are not a user error. Keep the first bounded
+        // set of verified sources and ignore additional display-only citations.
+        if (sourceIndex.size >= ASSISTANT_SEARCH_LIMITS.displayedSources) continue;
+        sourceIndex.set(url, sourceIndex.size + 1); sourceTitles.set(url, title);
+      }
+      citations.push({ index: sourceIndex.get(url)!, title: sourceTitles.get(url)!, url, startIndex, endIndex });
     }
-    citations.push({ index: sourceIndex.get(url)!, title: sourceTitles.get(url)!, url, startIndex, endIndex });
+  } else {
+    // OpenAI documents action.sources as the complete URL set consulted while
+    // forming the answer. If native inline annotations are entirely absent,
+    // recover only from that provider-owned metadata. Neutral host labels avoid
+    // inventing page titles, and the whole-answer range makes the weaker
+    // answer-level association explicit. Any present annotation still takes the
+    // strict range/title/provenance path above and cannot use this recovery.
+    const consultedUrls = [...new Set(actionRecords.flatMap(record => record.consultedUrls))];
+    insist(consultedUrls.length >= 1, "output", "Current public information was returned without verifiable citations. Your message is saved.");
+    for (const url of consultedUrls.slice(0, ASSISTANT_SEARCH_LIMITS.displayedSources)) {
+      const title = consultedSourceTitle(url); const index = sourceIndex.size + 1;
+      sourceIndex.set(url, index); sourceTitles.set(url, title);
+      citations.push({ index, title, url, startIndex: 0, endIndex: parsedAnswer.answer.length });
+    }
   }
   insist(citations.length >= 1, "output", "Current public information was returned without verifiable citations. Your message is saved.");
   insist(!/\b(?:i|we)\s+(?:watched|viewed|listened to|downloaded|inspected)\b/i.test(parsedAnswer.answer), "output", "An unsupported media-viewing claim was rejected. Your message is saved.");

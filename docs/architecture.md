@@ -1,9 +1,11 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-23 through D-0128/GIT-093 publication, canonical activation, proof preservation and cleanup of the SPEC-0012 Phase 4 terminal/source correction.
+Last traced: 2026-09-23 through D-0129 acceptance/verification of the final SPEC-0012 Phase 4 citation-recovery/reply-reveal correction; GIT-094 publication pending.
 
 ## SPEC-0012 guidance-Assistant architecture — Phase 4 fully closed
+
+D-0129 keeps the existing provider/search/job/storage architecture. It adds only provider-consulted metadata recovery when native annotations are wholly absent and a client pending-to-done reveal marker that remounts the existing text reveal for the newly completed turn; persisted history never reanimates.
 
 D-0120 separates the Home guidance Assistant from every animation-capable AI path. Phase 1 provides dedicated `/assistant`. D-0124 accepts combined Phase 2: `DiamondAssistantScreen` and Assistant components own Assistant-only IndexedDB sessions; `/api/diamond-assistant` owns a local-only strict request boundary; `DiamondAssistantJobService` owns identity, dedupe, concurrency, deadline, cancellation and the private final hold; the provider retrieves bounded checked-in knowledge and calls fixed `gpt-5.6-terra` with no tools and `store:false`. No project ID, workspace summary, animation bytes, manual command, repository/recovery/Export/project-management handle or AI Animator ledger enters the path.
 

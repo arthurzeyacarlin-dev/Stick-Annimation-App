@@ -1345,6 +1345,14 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Proof/activation: nine files/551,351 bytes are preserved under `output/recovery/GIT-093-spec0012-phase4-terminal-99128d7/` at framed aggregate SHA-256 `b0b34be5cad8d1af0639c2a6f166fa8b33d478ad978251e21645a2c283f3cef2`. Canonical Diamond Animator restarted from integrated `main` on port 3000; Home and `/assistant` returned HTTP 200. No additional live Terra/search request was made during publication.
 - Cleanup/boundary: the exact review server on port 58050 stopped, the obsolete Phase 4 correction worktree was removed/unregistered, and merged local branch `codex/spec0012-phase4-terminal-correction` was deleted. Canonical main, active PM worktree, remote history, preserved proof, every non-Assistant product system and paused SPEC-0008 remain unchanged. Phase 5 is entry-ready but **Unauthorized; Not started** until Arthur separately authorizes it and resolves its transcription provider/model/privacy/cost gate.
 
+### D-0129 — Accept and authorize publication of the final SPEC-0012 Phase 4 citation/reveal correction
+
+- Date: 2026-09-23
+- Status: Accepted by Arthur; technical verification and control-plane propagation complete; GIT-094 publication explicitly authorized and pending.
+- Identity/evidence: exact clean base `741ee803f9e0bd72f7c64174a77e52a6ac3a7b17`, empty index, exact 14-path allowlist, sealed manifest SHA-256 `f611cfa77811685f9ddc208df3d314f1710a8bfb9ceac3fcedf058818780ba9e`, independent receipt SHA-256 `171c22eb1f7c00cf38cb9b71f12f08bf66a3fc838fbad48ae9b98e226ba6fc2b`, and source digest `aa6c1d7954a97d9cb9fab1502d2ba7639f10246c98be03bbfc968ecb9605da54`.
+- Accepted outcome: a search answer with no native inline annotations may recover citations only from canonical provider-consulted URL metadata and presents neutral host labels; invalid/forged/private/missing metadata still fails closed. Every newly completed local or searched answer uses the already accepted fast typewriter and blue-gradient reveal even when storage notification precedes the initiating render; saved/reloaded replies do not replay.
+- Proof/boundary: 25 completions, 208 reveal assertions, 100% reveal rate, zero duplicate answers, zero historical replay, six protected browser suites, accepted V1 oracle/browser/regression proof, TypeScript/focused lint/focused build/diff PASS and zero real/paid deterministic calls. Provider/model/search policy/reasoning/job lifecycle/storage schema/request limits/dictation and every non-Assistant product system are unchanged beyond the accepted citation recovery and reveal race fix. Phase 5 remains Unauthorized/Not started.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

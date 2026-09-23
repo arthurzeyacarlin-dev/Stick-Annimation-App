@@ -79,6 +79,15 @@ try {
   equal(activities, [{ type: "search-start", topic: "YouTube Shorts for information" }, { type: "search-end" }], "duplicate raw lifecycle notifications produce one truthful visible search interval");
   equal(searchCaptured.length, 1, "one eligible attempt creates exactly one Responses request");
 
+  const recoveryCaptured: AssistantResponseRequest[] = []; const missingAnnotations = responseFixture({ annotations: false });
+  const recoveryProvider = createAssistantProvider(streamFactory(missingAnnotations.response, true, recoveryCaptured));
+  const recovered = await recoveryProvider(searchRequest(), { signal: new AbortController().signal });
+  validateProviderResult(recovered); equal(recovered.reply.answer, youtubeAnswer, "missing native annotations keep the clean verified answer");
+  equal(recovered.reply.citations, [{ index: 1, title: "support.google.com", url: youtubeSource, startIndex: youtubeAnswer.length - 1, endIndex: youtubeAnswer.length }], "provider-consulted metadata recovers one neutral whole-answer citation without inventing a page title");
+  equal(recovered.search?.sources, [{ title: "support.google.com", url: youtubeSource }], "recovery displays only the canonical provider-consulted source URL");
+  equal(recoveryCaptured.length, 1, "missing-annotation recovery uses the original Responses request without retry or duplicate answer");
+  check(recovered.usage.estimatedCostUsd <= .15 && recovered.usage.toolCalls === 1, "missing-annotation recovery remains inside the existing request cost and tool ceilings");
+
   const localRaw = JSON.stringify({ answer: "I’m Diamond Animator’s guidance Assistant. I can explain the app without seeing or changing your projects.", title: "Meet the Assistant" });
   const localResponse = { ...fixture.response, output: [{ id: "message_local", type: "message", role: "assistant", status: "completed", content: [{ type: "output_text", text: localRaw, annotations: [] }] }], usage: { ...fixture.response.usage, input_tokens: 200, output_tokens: 100, total_tokens: 300 } } as unknown as OpenAI.Responses.Response;
   const localCaptured: AssistantResponseRequest[] = []; const localProvider = createAssistantProvider(streamFactory(localResponse, false, localCaptured));
@@ -87,9 +96,11 @@ try {
   check(!Object.hasOwn(localCaptured[0], "max_tool_calls"), "transport receives no local max_tool_calls property");
 
   for (const [label, malformed] of [
-    ["missing citations", responseFixture({ annotations: false })],
     ["forged citation", responseFixture({ sourceUrl: "https://example.com/forged" })],
     ["private citation", responseFixture({ sourceUrl: "https://localhost/private" })],
+    ["misaligned citation", responseFixture({ annotationRange: "outside" })],
+    ["missing source metadata", responseFixture({ annotations: false, actionSourceUrls: [] })],
+    ["private source metadata", responseFixture({ annotations: false, actionSourceUrls: ["https://localhost/private"] })],
     ["unsupported media claim", responseFixture({ answer: "I watched the YouTube video and confirmed the current requirement." })],
     ["too many tool calls", responseFixture({ webCalls: ASSISTANT_SEARCH_LIMITS.toolCalls + 1 })],
   ] as const) {
@@ -104,6 +115,10 @@ try {
   const outsideResult = await outsideProvider(searchRequest(), { signal: new AbortController().signal });
   equal(outsideResult.search?.processedSourceCount, 8, "unused provider candidates do not block an answer and the persisted receipt remains bounded");
   equal(outsideResult.reply.citations?.[0].url, tenActionSources[8], "a citation is verified against all returned candidates before the bounded receipt is selected");
+  const boundedRecoveryFixture = responseFixture({ annotations: false, actionSourceUrls: tenActionSources });
+  const boundedRecoveryProvider = createAssistantProvider(streamFactory(boundedRecoveryFixture.response, true, [])); const boundedRecovery = await boundedRecoveryProvider(searchRequest(), { signal: new AbortController().signal });
+  equal(boundedRecovery.search?.processedSourceCount, 8, "metadata recovery preserves the eight-source processing ceiling");
+  equal(boundedRecovery.search?.sources.length, 6, "metadata recovery preserves the six-source display ceiling");
 
   let failedCalls = 0;
   const failedProvider = createAssistantProvider(() => ({ create: async () => { failedCalls++; return { async *[Symbol.asyncIterator]() { yield { type: "response.failed", response: { status: "failed" }, sequence_number: 1 } as OpenAI.Responses.ResponseStreamEvent; } }; } }));

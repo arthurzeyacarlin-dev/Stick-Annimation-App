@@ -21,11 +21,14 @@ export function AssistantConversation({ chats, mark }: { chats: ReturnType<typeo
         <h1 aria-label="How can I help you with Diamond Animator today?"><span>How can I help you with</span><span>Diamond Animator today?</span></h1>
       </div> : <div ref={content} className={styles.messageList}>
         <h1 className={styles.srOnly}>{session.title}</h1>
-        {session.messages.map(message => <article key={message.id} className={message.role === "user" ? styles.userMessage : styles.assistantMessage} aria-label={message.role === "user" ? "Your message" : "Assistant reply"} data-message-id={message.id}>
-          <span className={styles.messageRole}>{message.role === "user" ? "You" : "Diamond Animator"}</span>
-          <div className={styles.messageText}><AssistantText text={message.text} animate={message.role === "assistant" && chats.reveal[session.id] === message.turnId} /></div>
-          {!!message.citations?.length && <div className={styles.sources} aria-label="Sources"><span>Sources</span><ol>{[...new Map(message.citations.map(citation => [citation.url, citation])).values()].sort((a, b) => a.index - b.index).map(citation => <li key={citation.url}><a href={citation.url} target="_blank" rel="noreferrer noopener">[{citation.index}] {citation.title}<span className={styles.srOnly}> (opens in a new tab)</span></a></li>)}</ol></div>}
-        </article>)}
+        {session.messages.map(message => {
+          const animate = message.role === "assistant" && chats.reveal[session.id] === message.turnId;
+          return <article key={message.id} className={message.role === "user" ? styles.userMessage : styles.assistantMessage} aria-label={message.role === "user" ? "Your message" : "Assistant reply"} data-message-id={message.id}>
+            <span className={styles.messageRole}>{message.role === "user" ? "You" : "Diamond Animator"}</span>
+            <div className={styles.messageText}><AssistantText key={`${message.id}:${animate ? "new" : "saved"}`} text={message.text} animate={animate} /></div>
+            {!!message.citations?.length && <div className={styles.sources} aria-label="Sources"><span>Sources</span><ol>{[...new Map(message.citations.map(citation => [citation.url, citation])).values()].sort((a, b) => a.index - b.index).map(citation => <li key={citation.url}><a href={citation.url} target="_blank" rel="noreferrer noopener">[{citation.index}] {citation.title}<span className={styles.srOnly}> (opens in a new tab)</span></a></li>)}</ol></div>}
+          </article>;
+        })}
         {chats.showLongWaitProgress && <p className={styles.longWaitProgress} data-assistant-progress={turn!.jobId} role="status"><AssistantText key={turn!.jobId} text="I’m putting together a clear, simple explanation…" animate /></p>}
         {turn?.status === "pending" && !paused && !chats.storageBlocked && (live?.status === "thinking" || live?.status === "searching" || live?.status === "finalizing") && <AssistantActivity label={live.status === "thinking" ? "Thinking" : live.status === "searching" ? `Searching ${live.events.at(-1)?.topic}…` : "Finalizing answer"} />}
         {turn?.status === "pending" && !live && !paused && <p className={styles.turnNote} role="status">Connecting…</p>}

@@ -10,6 +10,7 @@ Last updated: 2026-09-23
 - A feature is not complete because code exists; its spec acceptance and regression gates must pass.
 - Paid AI calls, remote writes, deployment, and baseline commits require task-specific authorization.
 - The roadmap may change when Arthur resolves pending decisions or new evidence changes the risk order.
+- D-0129's final Phase 4 citation/reveal correction must publish as GIT-094 before any separately authorized Phase 5 work; it does not itself authorize dictation or Phase 5.
 
 ## Current owner sequence — 2026-09-23 (SPEC-0012 Phase 4 fully closed through D-0128/GIT-093; Phase 5 entry-ready but unauthorized)
 

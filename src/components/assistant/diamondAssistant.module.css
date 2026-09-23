@@ -106,7 +106,7 @@
 .reasoning select:hover { border-color: var(--assistant-focus); background: #132a49; }
 .sendTools { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .microphone, .send { width: 40px; height: 40px; display: grid; place-items: center; padding: 9px; border-radius: 50%; }
-.microphone { border: 1px solid #3e6083; background: transparent; color: #95aecb; cursor: not-allowed; }
+.microphone { border: 1px solid #3e6083; background: transparent; color: #b9d9ff; cursor: pointer; }
 .send { border: 1px solid #72adfa; color: #04162f; background: #62a6ff; cursor: pointer; }
 .send:hover:enabled { border-color: #8fc1ff; background: #8fc1ff; box-shadow: 0 0 18px rgba(64, 142, 255, .32); }
 .send:disabled { background: #2c527c; border-color: #4b719d; color: #c3d8ef; cursor: not-allowed; }
@@ -238,3 +238,20 @@
   .leadingText { background: none; color: CanvasText; }
   .activityLabel::before, .activityLabel::after { display: none; }
 }
+
+/* Assistant-only dictation: bars are sampled input, with no decorative animation. */
+.microphone:hover:enabled { background: #234265; border-color: #8fc1ff; }
+.microphone:disabled { opacity: .45; cursor: not-allowed; }
+.dictationPanel { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; padding: 12px 0 8px; border-top: 1px solid #365376; margin-top: 8px; }
+.dictationState { display: flex; align-items: center; gap: 7px; color: #dbeaff; font-size: 12px; font-variant-numeric: tabular-nums; }
+.recordingDot { width: 7px; height: 7px; background: #72b5ff; border-radius: 50%; flex-shrink: 0; }
+.waveform { flex: 1; min-width: 80px; height: 32px; display: flex; align-items: center; justify-content: center; gap: 3px; overflow: hidden; }
+.waveform span { width: 3px; flex: 1; max-width: 4px; background: #83bdff; border-radius: 2px; }
+.dictationControls { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.dictationControls button { min-height: 36px; border: 1px solid #5e83ad; color: #e5f1ff; border-radius: 9px; padding: 6px 12px; background: #1b3453; font-size: 12px; cursor: pointer; }
+.dictationControls .dictationStop { background: #73b2ff; color: #071c37; border-color: #a5cdff; }
+.dictationControls button:hover { filter: brightness(1.15); }
+.dictationNotice { text-align: center; font-size: 12px; color: #d0e5ff; margin-top: 8px; line-height: 1.5; }
+.dictationNotice:empty { display: none; }
+@media (max-width: 460px) { .waveform { order: 3; flex-basis: 100%; height: 26px; } .dictationPanel { gap: 8px; } }
+@media (forced-colors: active) { .waveform span, .recordingDot { background: Highlight; } .dictationControls button { border: 1px solid ButtonText; background: ButtonFace; color: ButtonText; } }

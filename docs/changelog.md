@@ -1,5 +1,13 @@
 # Changelog
 
+### 2026-09-24 — Accept and propagate SPEC-0012 Phase 5 dictation (D-0131; GIT-095 pending)
+
+- Arthur reported a successful Diamond Animator physical-microphone dictated message, called the review copy a pass and authorized control-plane recording and later Git publication. This CPA stage records acceptance; canonical main is not yet changed.
+- Accepted exactly 16 technical paths from base `3676cfabba28554c4e5106a7cfb8822ac7c8c456` implement user-gesture microphone permission, sampled waveform/elapsed time, Cancel/Stop, separate bounded `gpt-transcribe` transcription, editable text and explicit Send. Audio is not deliberately retained; the guidance/search/animation owners remain unchanged.
+- Immutable Phase 5 manifest SHA-256 `3e37e42b2a402bbb50a9f6bc33fd6cc537f527791aee85664d0e23bd24a666ed`, source digest `e56ec8b7ff7eee3c0998d8f65b1ac95f9fa8f74160366d857f4e5bc6235e51d0`, 16 source/355 evidence bindings, 32 mutation negatives, 33 oracle/71 Chrome/four route assertions and five protected regression groups pass with zero automated real/paid calls. The user-reported physical microphone use is separate evidence; live provider cost/latency/accuracy were not measured by the executor.
+- Updated the canonical spec, state, TODO, decision, architecture, AI, roadmap, testing, handoff and index records plus generated project tree. The accepted 16 technical files and immutable proof remain unchanged. Separate GIT-095 staging, commit, main integration, push, synchronization, proof preservation and D-0054 cleanup remain pending; Phase 6 is unauthorized.
+- D-0132 records Arthur's cost-conscious PM model preference: Sol with proportionate reasoning for routine work, Astra Extra High when genuinely warranted by consequential cost/research/recommendation work, and Ultra only exceptionally. This remains flexible where an explicit phase or safety requirement needs stronger reasoning.
+
 ### 2026-09-23 — Publish, integrate and activate final SPEC-0012 Phase 4 correction (D-0130/GIT-094)
 
 - Published the exact 14 accepted technical plus 15 reviewed record/tree paths as product commit `7053851babec9247c6733e016145fd0d0b8a6e46`, parent `741ee803f9e0bd72f7c64174a77e52a6ac3a7b17`; canonical/origin/GitHub main synchronized normally.

@@ -2,7 +2,7 @@
 
 Status: canonical repository memory
 Established: 2026-08-09
-Last reconciled with live code and current records: 2026-09-23 through D-0130/GIT-094 publication, canonical integration, remote synchronization and runtime activation of the final SPEC-0012 Phase 4 citation-recovery/reply-reveal correction; Phase 5 is entry-ready but unauthorized/not started
+Last reconciled with live code and current records: 2026-09-24 through D-0131 acceptance and control-plane propagation of SPEC-0012 Phase 5 dictation in the dedicated review worktree. Publication, canonical-main integration, remote synchronization and cleanup remain pending; Phase 6 is unauthorized.
 Snapshot basis: pull request `#1` merged into `main` as `093bbac82fd3b4d97984448b6c6dbd716153354d`; functional anchor `c7de444536f3e0dd578a2063f70b0914e6af60b1`; tag `baseline-2026-08-09-control-plane`; SPEC-0012 planning GIT-089 `f2bda33842a3f5a4b560a7d3aab170a6ca4c2fd0`; Phase 1 GIT-090 `e725f562307e0c7530b32b416218018af87b65fd`; combined Phase 2 GIT-091 `fa2ef6c526d04de9c77b356b53b4768890c46e1f`; Phase 4 GIT-092 `23816164592743a59d4cc3b83ffd0ac39844d654`; terminal correction GIT-093 `99128d70f4320dcfc757d81c7bc146baf3467f86`; final citation/reveal correction GIT-094 `7053851babec9247c6733e016145fd0d0b8a6e46`
 
 ## Purpose

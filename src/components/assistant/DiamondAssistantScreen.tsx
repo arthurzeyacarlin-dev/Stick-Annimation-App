@@ -34,6 +34,7 @@ function DiamondMark() {
 
 export function DiamondAssistantScreen() {
   const chats = useAssistantSessions();
+  const [composerGeneration, setComposerGeneration] = useState(0);
   const backRef = useRef<HTMLAnchorElement>(null);
   const screenRef = useRef<HTMLDivElement>(null);
   const sidebarResizeRef = useRef<{ pointerId: number; startX: number; startWidth: number } | null>(null);
@@ -137,7 +138,7 @@ export function DiamondAssistantScreen() {
       data-sidebar-resizing={sidebarResizing ? "true" : "false"}
       style={{ "--assistant-sidebar-width": `${sidebarWidth}px` } as CSSProperties}
     >
-      <AssistantSessionSidebar chats={chats} mark={<DiamondMark />} />
+      <AssistantSessionSidebar chats={{ ...chats, newChat: () => { setComposerGeneration(value => value + 1); chats.newChat(); } }} mark={<DiamondMark />} />
       <div
         className={styles.sidebarResizer}
         role="separator"
@@ -167,7 +168,7 @@ export function DiamondAssistantScreen() {
           <span className={styles.headerTitle}>Assistant</span>
         </header>
         <AssistantConversation key={chats.selectedId ?? "blank"} chats={chats} mark={<DiamondMark />} />
-        <AssistantComposer chats={chats} />
+        <AssistantComposer key={`${chats.selectedId ?? "blank"}:${composerGeneration}`} chats={chats} />
       </main>
     </div>
   );

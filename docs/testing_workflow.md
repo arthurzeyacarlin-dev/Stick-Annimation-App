@@ -3,9 +3,9 @@
 Status: canonical proof standard and current gate baseline
 Last updated: 2026-09-23
 
-## SPEC-0012 proof contract — Phase 4 accepted; publication pending
+## SPEC-0012 proof contract — Phase 4 fully closed through D-0126/GIT-092
 
-Status: GIT-089 published D-0120 planning; D-0121–D-0123/GIT-090 fully close Phase 1. D-0124 accepts combined Phase 2 sessions/fixed-Terra guidance and absorbs original Phase 3 scope; GIT-091 `fa2ef6c526d04de9c77b356b53b4768890c46e1f` publishes/integrates it, preserves proof and completes cleanup. D-0125 accepts and technically verifies Phase 4 hosted search plus the corrupt-row correction. GIT-092 publication/integration remains pending. Phase 5 is entry-ready only after GIT-092 and remains Unauthorized/Not started; transcription, public exposure and deployment remain unauthorized.
+Status: GIT-089 published D-0120 planning; D-0121–D-0123/GIT-090 fully close Phase 1. D-0124/GIT-091 close combined Phase 2/absorbed Phase 3. D-0125 accepts and technically verifies Phase 4 hosted search plus the corrupt-row correction. D-0126/GIT-092 `23816164592743a59d4cc3b83ffd0ac39844d654` publish/integrate the exact 42-path result, preserve proof, activate canonical runtime and complete cleanup. Phase 5 is entry-ready but remains Unauthorized/Not started; transcription, public exposure and deployment remain unauthorized.
 
 Every phase must produce an ignored immutable `output/spec-0012/phase-N/proof-manifest.json` plus an independent validator binding exact activation SHA, empty index, exact dirty-path allowlist, spec hash, source/fixture/test/evidence hashes, request/cost ledger, storage/project before-after digests, limits, accessibility/performance results, protected regressions and stopped-executor lifecycle flags. Deterministic provider/search/transcription doubles are mandatory defaults; authorized live smokes are supplemental only.
 

@@ -1,10 +1,10 @@
 # SPEC-0012 — Diamond Animator Guidance Assistant
 
-Status: **Active; Phase 1 and combined Phase 2/absorbed Phase 3 fully closed; Phase 4 hosted search accepted and technically Verified with control-plane propagation complete, publication pending; Phases 5–6 unauthorized/not started**
+Status: **Active; Phases 1–4 fully closed through D-0126/GIT-092; Phase 5 entry-ready but unauthorized/not started; Phase 6 unauthorized/not started**
 
 Owner: Arthur
 
-Planning decision: D-0120; planning publication GIT-089 `f2bda33842a3f5a4b560a7d3aab170a6ca4c2fd0`; Phase 1 authorization/acceptance D-0121/D-0122; Phase 1 closeout D-0123/GIT-090 `e725f562307e0c7530b32b416218018af87b65fd`; combined Phase 2 acceptance/original-Phase-3 absorption D-0124 and closeout GIT-091 `fa2ef6c526d04de9c77b356b53b4768890c46e1f`; Phase 4 acceptance/technical verification/control-plane propagation D-0125; Phase 4 publication pending GIT-092
+Planning decision: D-0120; planning publication GIT-089 `f2bda33842a3f5a4b560a7d3aab170a6ca4c2fd0`; Phase 1 authorization/acceptance D-0121/D-0122; Phase 1 closeout D-0123/GIT-090 `e725f562307e0c7530b32b416218018af87b65fd`; combined Phase 2 acceptance/original-Phase-3 absorption D-0124 and closeout GIT-091 `fa2ef6c526d04de9c77b356b53b4768890c46e1f`; Phase 4 acceptance/technical verification/control-plane propagation D-0125; Phase 4 closeout D-0126/GIT-092 `23816164592743a59d4cc3b83ffd0ac39844d654`
 
 Target review date: Tuesday, September 29, 2026
 
@@ -432,13 +432,13 @@ Proof passes 47 deterministic oracle, 23 Phase 4 browser, 27 corrupt-row browser
 
 The accepted live record used fixed `gpt-5.6-terra` with Medium reasoning for one final authorized UI search, one request/no retry, one hosted tool call, eight processed and three displayed sources, truthful Searching/Finalizing, validated citations, reload persistence and unchanged project sentinel. Its application receipt is `$0.050754` under the `$0.15` request ceiling. Two earlier authorized search requests reached the hosted tool but failed before application receipts, so their provider cost is unknown. The final corrupt-row correction made zero live/provider/search/paid calls. Physical devices and non-Chromium browsers remain unproven.
 
-Accepted runtime/test/proof bytes are frozen. GIT-092 publication/integration, proof preservation, exact PID 31449/port 58040 shutdown and D-0054 cleanup remain a later separately authorized task. No Phase 5, deployment or further provider/search call is authorized by D-0125.
+Accepted runtime/test/proof bytes are frozen. D-0126/GIT-092 publish/integrate the exact 42-path result, preserve proof, stop PID 31449/port 58040, and complete D-0054 cleanup. A canonical-server restart cleared the stale pre-search process-global provider; the identical current-information prompt then returned two official cited sources. No Phase 5 or deployment is authorized.
 
 ## 15. Phase 5 — Built-in microphone dictation
 
 ### 15.1 Entry gate
 
-Phase 4 must be fully closed through GIT-092 publication/integration, proof preservation, review-server shutdown and D-0054 cleanup. Phase 5 is entry-ready only after that closeout and remains **Unauthorized; Not started**. A separate activation must select the transcription provider/model or approved local engine from fresh official evidence and approve audio format, request/time/token/spend, retention/data-use, and live-smoke ceilings. No live recording upload is authorized by this planning spec or D-0125.
+Phase 4 is fully closed through D-0126/GIT-092 publication/integration, proof preservation, review-server shutdown, runtime activation and D-0054 cleanup. Phase 5 is entry-ready but remains **Unauthorized; Not started**. A separate activation must select the transcription provider/model or approved local engine from fresh official evidence and approve audio format, request/time/token/spend, retention/data-use, and live-smoke ceilings. No live recording upload is authorized by this planning spec, D-0125 or D-0126.
 
 ### 15.2 Scope
 

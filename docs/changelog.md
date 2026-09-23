@@ -1,5 +1,14 @@
 # Changelog
 
+### 2026-09-23 — Publish, activate, preserve, and clean up SPEC-0012 Phase 4 (D-0126/GIT-092)
+
+- Published the exact 27 accepted technical plus 15 reviewed record/tree paths as commit `23816164592743a59d4cc3b83ffd0ac39844d654`, parent `fa2ef6c526d04de9c77b356b53b4768890c46e1f`, message `Complete SPEC-0012 Phase 4 hosted search`; canonical `main`, `origin/main`, and live GitHub `main` synchronized at clean `0/0`.
+- Preserved 823 proof files/33,608,214 bytes at `output/recovery/GIT-092-spec0012-phase4-2381616/phase-4`; source/destination checksums match and checksum-inventory SHA-256 is `cd2ef1927802f9aac3d9b6e8b4bd8d6c87309458e5526378529e91f73ddc7d42`.
+- Stopped exact PID 31449, verified port 58040 closed, and removed only the obsolete Phase 4 review worktree and merged local branch.
+- Reproduced one activation-only integration fault: the canonical dev server survived the fast-forward, so its process-global Assistant job-service singleton retained the old local-only provider while the UI hot-reloaded. Restarted only that server; the identical YouTube Shorts question then used hosted search and returned two official YouTube Help citations. No source/proof byte changed. The verification made one additional user-directed live request; its exact application receipt was not extracted into this record.
+- At Arthur's request, stopped and restarted the same canonical dev server once more to cancel a request that had remained on Finalizing for about five minutes. The old job returned `404`, `/assistant` returned HTTP 200 from the fresh process, and no code or proof byte changed.
+- Phase 4 is fully closed. Phase 5 is entry-ready but remains Unauthorized/Not started; AI Animator, editor/projects/recovery/My Projects/Export, deployment, and paused SPEC-0008 remain unchanged.
+
 ### 2026-09-23 — Accept and propagate SPEC-0012 Phase 4 hosted search (D-0125)
 
 - Recorded the already completed GIT-091 combined Phase 2 closeout at exact 49-path commit `fa2ef6c526d04de9c77b356b53b4768890c46e1f`, synchronized canonical/origin/live `main`, preserved 1,778-file/79,483,466-byte proof backup with inventory SHA-256 `ac86b7f5ca1c4ef44de036f0f20d94851801a58a43c6f04a95035ee43bf1c97b`, closed port 57970 and removed obsolete review worktree.

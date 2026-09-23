@@ -11,7 +11,7 @@ Last updated: 2026-09-23
 - Paid AI calls, remote writes, deployment, and baseline commits require task-specific authorization.
 - The roadmap may change when Arthur resolves pending decisions or new evidence changes the risk order.
 
-## Current owner sequence — 2026-09-23 (SPEC-0012 Phase 4 accepted/propagated through D-0125; publication pending)
+## Current owner sequence — 2026-09-23 (SPEC-0012 Phase 4 fully closed through D-0126/GIT-092; Phase 5 entry-ready but unauthorized)
 
 All seven SPEC-0006 phases are Verified/published/integrated through GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`. The immutable 50,224-byte Phase 7 manifest is PASS/VALID at SHA-256 `c6202f6deab4d3bcc75af3ad6699fc2dc70fc58723eccaa8337b1a2aef74bc51`, with exactly 11 source and 16 evidence bindings.
 
@@ -71,7 +71,7 @@ D-0120 adds proposed [`SPEC-0012 — Diamond Animator Guidance Assistant`](specs
 5. **Microphone dictation** — separately approved transcription boundary with waveform, permission, Cancel/Stop, editable text, explicit Send and no raw-audio retention.
 6. **Beta hardening** — storage/context/output/search/transcription/cost/security/privacy/accessibility/restart/long-chat proof and exact AI Animator/project regressions.
 
-The target is Tuesday, September 29, 2026 and 85–90% local/private-beta readiness only if no major phase rejection occurs. GIT-089 published the plan; D-0121–D-0123/GIT-090 fully close Phase 1. D-0124 accepts combined Phase 2 sessions plus fixed-Terra/local-catalog guidance and absorbs the original Phase 3 slot; GIT-091 `fa2ef6c526d04de9c77b356b53b4768890c46e1f` publishes/integrates that result, preserves proof and completes cleanup. D-0125 accepts and technically verifies Phase 4's exact hosted-search/citation/activity result plus corrupt-row recovery correction. GIT-092 publication/integration/proof preservation/review-server shutdown/D-0054 cleanup remain future work. Phase 5 dictation becomes entry-ready only after GIT-092 but remains Unauthorized/Not started; Phase 6 beta hardening, public exposure and deployment remain unauthorized. The accepted AI Animator remains separate; paused SPEC-0008 Phases 2–6 do not resume.
+The target is Tuesday, September 29, 2026 and 85–90% local/private-beta readiness only if no major phase rejection occurs. GIT-089 published the plan; D-0121–D-0123/GIT-090 fully close Phase 1. D-0124/GIT-091 close combined Phase 2/absorbed Phase 3. D-0125 accepts and technically verifies Phase 4's hosted-search/citation/activity result plus corrupt-row recovery correction; D-0126/GIT-092 `23816164592743a59d4cc3b83ffd0ac39844d654` close publication, integration, proof preservation, runtime activation and cleanup. Phase 5 dictation is entry-ready but remains Unauthorized/Not started; Phase 6 beta hardening, public exposure and deployment remain unauthorized. The accepted AI Animator remains separate; paused SPEC-0008 Phases 2–6 do not resume.
 
 ## Phase 0 — Preserve and Stabilize
 
@@ -148,7 +148,7 @@ The AI path must manipulate the same state and history as manual tools.
 
 D-0055 closes the former SPEC-0004-after-SPEC-0005 dependency. The unfinished phases are superseded, not queued to resume. SPEC-0008 Phase 1 is complete, while D-0093 pauses its Phases 2–6 before implementation. No provider, pricing, privacy, motion-video service, asset purchase or release policy is selected or authorized here.
 
-SPEC-0012 is a narrower guidance track beside this mutation-capable phase: it answers Diamond Animator questions but can never create/edit/delete/save/export or otherwise touch project content. Its Phase 1 and combined Phase 2/absorbed Phase 3 are fully closed; Phase 4 is accepted/technically Verified with publication pending; Phases 5–6 remain separately unauthorized. It does not resume SPEC-0008.
+SPEC-0012 is a narrower guidance track beside this mutation-capable phase: it answers Diamond Animator questions but can never create/edit/delete/save/export or otherwise touch project content. Its Phases 1–4 are fully closed through GIT-092; Phases 5–6 remain separately unauthorized. It does not resume SPEC-0008.
 
 ## Phase 4 — Professional Product Completion
 

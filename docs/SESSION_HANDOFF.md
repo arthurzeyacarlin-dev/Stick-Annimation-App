@@ -1,18 +1,18 @@
 # Session Handoff
 
-## Current handoff — 2026-09-24 SPEC-0013 fully closed; ready to plan SPEC-0014
+## Current handoff — 2026-09-24 SPEC-0014 planned; publication and PM V5 owner gate next
 
-- D-0135/D-0136/GIT-097 fully close the one-phase SPEC-0013 result. Exact product/control-plane commit is `893daa82f555381d775af8fb73b14a551bd5fb45`, parent `8ddc534691a154d2f3ab25cceb61d91690446abb`, with seven accepted technical plus fourteen reviewed control-plane/tree paths.
-- Canonical `main`, local `origin/main` and live GitHub `main` synchronized at clean `0/0` before this terminal records-only successor.
-- Immutable manifest SHA-256 remains `bf8e51c68fe67015a97a6428c39a73bffc2c7a92b08e2f326554a1cf35e2db63`. Thirteen proof files/262,442 bytes are preserved under `output/recovery/GIT-097-spec0013-phase1-893daa8/phase-1` with matching aggregate SHA-256 `cbe9142a42612f73f8e9cdec11452859085f98f4026dd7f21a3df48acc117d4b`.
-- Home removes only the inert Finalizer card/hover identity; Export is the sole Tools/final Home card. Existing scrollbar CSS/60px bottom space remain. One Assistant catalog fact/date changed; live Terra connectivity passed and no credential entered Git.
-- Review port 58080 is closed. D-0054 removed only the obsolete SPEC-0013 review worktree and merged local publication branch; canonical main, the active PM worktree, remote history and proof remain.
-- Exact next step: Arthur defines SPEC-0014 in a fresh planning task. No SPEC-0014 implementation, app copy, provider/paid operation, deployment or Git mutation is authorized.
+- D-0137 and [`SPEC-0014`](specs/0014-in-app-notification-center.md) are a docs-only four-phase specification from clean canonical `main` `acc3204d6c5aa08f1d0d714dcd5a64e8746dcb8d`.
+- Fresh live Chromium and code tracing prove: Home/credits have only the local **Notifications will appear here when connected** preview; Assistant, New/Open workspace and Export have no real center; Assistant/Terra terminal source writes depend on mounted polling UI; Export abort ownership is screen-local.
+- Phase 1 plans the shared UI/store/event/read/target foundation. Phase 2 plans Assistant and Terra success/failure/timeout after navigation. Phase 3 plans validated Export success/failure after navigation. Phase 4 plans one deduplicated app-wide offline incident plus persistence/concurrency/navigation/accessibility/regression closure and inactive future contracts.
+- Exact required copy includes **Your animation is done exporting.** and **There is no internet, so no AI will be able to be called.** Future AI-animation, 10%-usage Buy/Refill and real-updater events remain inactive.
+- All four phases are **Unauthorized; Not started**. Phase 1 is additionally blocked until Arthur creates **Project Manager Version 5**, the current PM transitions to **AI Animator/Dad support**, this planning package is separately published/synchronized, and Arthur separately authorizes Phase 1.
+- Exact next task: review this planning package and, only if separately authorized, publish its exact control-plane/tree paths. No runtime, provider/paid action, app copy, phase executor, staging, commit, merge, push or deployment is authorized here.
 
 Status: current canonical stopping point
 Last updated: 2026-09-24
 
-All seven SPEC-0006 phases are closed through GIT-061. Drawing-only SPEC-0007 is fully closed through GIT-066. SPEC-0008 Phase 1 is fully closed through GIT-070; D-0093 keeps Phases 2–6 paused as Unauthorized/Not started/not rejected. All three SPEC-0009 phases are fully closed through D-0101/GIT-079, all three SPEC-0010 phases are fully closed through D-0109/GIT-083, and all three SPEC-0011 phases are fully closed through D-0119/GIT-088 product commit `d0ec1b23d7e1d9ff13a0779c2758e33e858691f0` plus its records-only terminal closeout successor `f334639f33b7b130a2f9409dcdf146dc2fffb165`.
+All seven SPEC-0006 phases are closed through GIT-061. Drawing-only SPEC-0007 is fully closed through GIT-066. SPEC-0008 Phase 1 is fully closed through GIT-070; D-0093 keeps Phases 2–6 paused as Unauthorized/Not started/not rejected. All three SPEC-0009 phases are fully closed through GIT-079, all three SPEC-0010 phases through GIT-083, all three SPEC-0011 phases through GIT-088, all six SPEC-0012 phases through GIT-096, and SPEC-0013 through GIT-097.
 
 ## Prior stopping point — SPEC-0012 fully closed through D-0134/GIT-096
 

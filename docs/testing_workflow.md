@@ -3,6 +3,12 @@
 Status: canonical proof standard and current gate baseline
 Last updated: 2026-09-24
 
+## SPEC-0014 planned four-phase proof contract — D-0137; no implementation proof yet
+
+Each separately authorized phase must bind exact activation SHA, empty index, exact dirty allowlist, source/fixture/test/evidence hashes, deterministic event/source/target/digest fixtures, notification and producer-store before/after digests, network/provider counts, accessibility/performance results, protected regressions and stopped-executor lifecycle flags in an immutable manifest with an independent mutation-rejecting validator.
+
+Phase 1 must prove the real shared bell/center/store with no production fixture or producer. Phase 2 must prove Assistant/Terra success/failure/deadline/cancel across navigation, exact source-before-notification ordering, target identity, reload/server-restart/two-tab dedupe and zero animation mutation/automatic resend. Phase 3 must prove validated Export success/failure after in-app navigation, result/source clicks, explicit cancel/Finder cancel silence, actual encoded/decoded fixture output, same-runtime continuation and honest reload/tab-close interruption. Phase 4 must prove one app-wide offline incident with exact copy and no spam, provider-failure/non-offline distinction, capacity/corruption/quota/recovery/concurrency/navigation/accessibility matrices, inactive future producers and whole-product regressions. Deterministic doubles are default; any live/paid call needs separate authority.
+
 ## SPEC-0013 Phase 1 accepted proof
 
 D-0135 accepts the stopped exact seven-path result from base `8ddc534691a154d2f3ab25cceb61d91690446abb`, empty index. Immutable `output/spec-0013/phase-1/proof-manifest.json` SHA-256 is `bf8e51c68fe67015a97a6428c39a73bffc2c7a92b08e2f326554a1cf35e2db63`. Fresh independent validation returned `VALID`, bound seven source and ten evidence files, and rejected wrong base/path/source/evidence/provider/CSS/scroll/acceptance/publication mutations.

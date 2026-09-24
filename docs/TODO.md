@@ -11,10 +11,20 @@ Last updated: 2026-09-24
 - New discoveries enter the queue; they do not silently expand the active spec.
 - Remote writes, paid AI calls, Git history changes, and deployment require explicit task authorization.
 
+## Current sequence — SPEC-0014 Durable In-App Notification Center
+
+- [x] **PLAN-014 — Create the decision-complete SPEC-0014 planning/control-plane package.** D-0137 records fresh live/code tracing, exact event/schema/identity/read/origin/click/persistence/offline/failure contracts, four separately gated phases, protected regressions and proof requirements. No runtime, fixture, technical test, provider call or Git publication is included.
+- [ ] **GIT-098 — Review, publish and synchronize the SPEC-0014 planning package.** Not authorized by D-0137. Publication must contain only the reviewed control-plane/tree paths and establish the exact Phase 1 planning SHA.
+- [ ] **PM-005 — Complete the mandatory owner gate.** Arthur creates Project Manager Version 5; the current PM explicitly transitions to AI Animator/Dad support; PM V5 boots from the published canonical package. This is required before Phase 1 and is not completed by the spec task.
+- [ ] **NOTIFY-001 — Phase 1: notification foundation/UI and durable event contract.** Unauthorized/Not started; blocked by GIT-098, PM-005 and separate Arthur authorization.
+- [ ] **NOTIFY-002 — Phase 2: AI Assistant and Terra completion/failure across navigation.** Unauthorized/Not started; requires fully closed Phase 1 and separate authorization.
+- [ ] **NOTIFY-003 — Phase 3: Export completion/failure across navigation.** Unauthorized/Not started; requires fully closed Phase 2 and separate authorization.
+- [ ] **NOTIFY-004 — Phase 4: offline/reliability/concurrency/dedupe/persistence/navigation/accessibility/regression closure and dormant future contracts.** Unauthorized/Not started; requires fully closed Phase 3 and separate authorization.
+
 ## Completed sequence — SPEC-0013 Version 1 Home cleanup
 
 - [x] **HOME-013 — Accept and technically verify SPEC-0013 Phase 1.** D-0135 binds Arthur's PASS, exact base `8ddc534691a154d2f3ab25cceb61d91690446abb`, exact seven technical paths, manifest SHA-256 `bf8e51c68fe67015a97a6428c39a73bffc2c7a92b08e2f326554a1cf35e2db63`, Finalizer absence, intrinsic shorter Home scroll, Export-last behavior, unchanged scrollbar CSS and narrow Assistant catalog correction.
-- [x] **GIT-097 — Publish, integrate, synchronize, preserve and clean up accepted SPEC-0013 Phase 1.** Exact 21-path product commit `893daa82f555381d775af8fb73b14a551bd5fb45` contains seven accepted technical plus fourteen reviewed control-plane/tree paths. Canonical/origin/live GitHub `main` synchronized at clean `0/0` before terminal closeout. Thirteen proof files/262,442 bytes are preserved with aggregate SHA-256 `cbe9142a42612f73f8e9cdec11452859085f98f4026dd7f21a3df48acc117d4b`; port 58080 is closed and D-0054 cleanup removed only the obsolete review worktree/merged local branch. D-0136 closes the spec. SPEC-0014 is ready for planning but undefined/unauthorized.
+- [x] **GIT-097 — Publish, integrate, synchronize, preserve and clean up accepted SPEC-0013 Phase 1.** Exact 21-path product commit `893daa82f555381d775af8fb73b14a551bd5fb45` contains seven accepted technical plus fourteen reviewed control-plane/tree paths. Canonical/origin/live GitHub `main` synchronized at clean `0/0` before terminal closeout. Thirteen proof files/262,442 bytes are preserved with aggregate SHA-256 `cbe9142a42612f73f8e9cdec11452859085f98f4026dd7f21a3df48acc117d4b`; port 58080 is closed and D-0054 cleanup removed only the obsolete review worktree/merged local branch. D-0136 closes the spec. At that closeout SPEC-0014 was undefined; D-0137 and the current queue above later define its planning-only state.
 
 ## Completed sequence — SPEC-0012 Diamond Animator Guidance Assistant
 

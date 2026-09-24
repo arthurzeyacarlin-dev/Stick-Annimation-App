@@ -1,8 +1,10 @@
 # Project Manager Context
 
-## Current override — SPEC-0013 closed; ready for SPEC-0014 planning
+## Current override — SPEC-0014 notification plan created; PM V5 gate blocks Phase 1
 
-D-0135/D-0136/GIT-097 close the exact seven-path SPEC-0013 result from base `8ddc534691a154d2f3ab25cceb61d91690446abb` in exact 21-path product/control-plane commit `893daa82f555381d775af8fb73b14a551bd5fb45`. Proof is preserved, port 58080 is closed and the obsolete review worktree/branch are removed. The only product outcome is removal of the inert Finalizer Home card, with Export last and the existing Home scrollbar unchanged; one corresponding Assistant catalog fact/version changed. Arthur may now define SPEC-0014 in a fresh planning task; no implementation authority exists.
+D-0137 and [`SPEC-0014`](specs/0014-in-app-notification-center.md) define the approved four-phase notification-center plan from clean canonical `main` `acc3204d6c5aa08f1d0d714dcd5a64e8746dcb8d`. The existing Home bell is a local preview; Assistant/Terra completion polling and Export execution are screen-owned. The plan introduces a local durable event/read store, exact origin/target identity, app-lifetime observers/coordinator, Assistant/Terra and Export completion/failure after navigation, one deduplicated app-wide offline incident, and dormant future AI-animation/10%-usage/real-updater contracts.
+
+All implementation phases are **Unauthorized; Not started**. Before Phase 1, Arthur must create **Project Manager Version 5**, the current Project Manager must transition to **AI Animator/Dad support**, the planning package must be separately published, and Arthur must separately authorize Phase 1 from that exact planning SHA. This task does not perform the role transition, implement runtime behavior or authorize provider/paid/Git/deployment work.
 
 Status: canonical owner and collaboration context
 Last updated: 2026-09-24
@@ -155,6 +157,6 @@ These are not blockers for preserving the repository, but they must be resolved 
 7. What user data may be sent to model/search providers, and how long is memory retained?
 8. D-0085/D-0091/D-0092 preserve the historical six-phase AI-led sequence and later refinements. D-0093 pauses every phase after the completed Phase 1; no later implementation authority exists.
 9. All seven SPEC-0006 phases are published/integrated through GIT-061 and cleaned up under D-0070. Drawing-only SPEC-0007 is fully closed through GIT-066. SPEC-0008 Phase 1 is fully closed through GIT-070/D-0090; Phases 2–6 remain paused under D-0093. All three SPEC-0009 phases are fully closed through D-0101/GIT-079.
-10. SPEC-0012 is fully closed through D-0134/GIT-096 after all six phases. SPEC-0013 Phase 1 is accepted under D-0135 and exact GIT-097 publication/cleanup is the current work. Public-beta authentication/rate/abuse controls, retention terms and per-user cost policy remain future explicit decisions rather than Phase 6 claims. SPEC-0014 may be planned only after this closeout and a new owner goal.
+10. SPEC-0012 is fully closed through D-0134/GIT-096 and SPEC-0013 through D-0136/GIT-097. D-0137 now defines approved planning-only SPEC-0014, but all four phases remain Unauthorized/Not started and Phase 1 is blocked by the Project Manager Version 5/current-PM transition gate plus separate publication and authorization. Public-beta authentication/rate/abuse controls, retention terms and per-user cost policy remain future explicit decisions.
 
 Pending decisions and their status live in `DECISIONS.md`.

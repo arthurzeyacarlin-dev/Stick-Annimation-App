@@ -1419,6 +1419,17 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Cleanup: port 58080 remained closed. After proof preservation and synchronization, D-0054 removed only `/Users/arthurcarlin/.codex/worktrees/spec0013-phase1/stick-animation-app` and merged local branch `codex/spec0013-phase1-publication`. Canonical main, the active Project Manager worktree, remote history and recovery material remain.
 - Boundary/consequence: no post-acceptance runtime, fixture, technical-test or proof byte changed. No credential was committed. SPEC-0013 is fully closed with no Phase 2. SPEC-0014 is ready for a fresh owner-defined planning task but remains undefined and unauthorized.
 
+### D-0137 — Approve the four-phase SPEC-0014 notification-center specification without authorizing implementation
+
+- Date: 2026-09-24
+- Authority/status: Arthur explicitly authorizes a four-phase specification-only control-plane task. [`SPEC-0014 — Durable In-App Notification Center and Background Completion`](specs/0014-in-app-notification-center.md) is approved as the intended staged contract; all four implementation phases remain **Unauthorized; Not started**.
+- Evidence: the docs-only trace began clean at canonical `main` `acc3204d6c5aa08f1d0d714dcd5a64e8746dcb8d`. Live Chromium and code prove the Home bell is a component-local preview; Assistant/Terra terminalization and Export execution are screen-owned; no durable center/read owner or app-wide offline incident exists.
+- Decision: Phase 1 defines the real center UI/store/event contract. Phase 2 owns exact Assistant/Terra completion and failure after in-app navigation. Phase 3 owns exact validated Export completion/failure after in-app navigation. Phase 4 closes offline incident dedupe, concurrency, persistence, reload/interruption truth, navigation, accessibility, regressions and inactive future contracts.
+- Active truth: export success uses exact body **“Your animation is done exporting.”** and links the truthful exact project/export result; Assistant and Terra events resolve the exact conversation or project/workspace; AI and Export failure/timeout are included; one real browser-declared offline incident uses exact body **“There is no internet, so no AI will be able to be called.”** without per-call spam.
+- Dormant truth: AI Animator finished animating, low AI usage at 10% with Buy/Refill, and update available are contract-only/inactive until their later authoritative systems exist. Current Terra chat, dashboard placeholders and hard-coded version checks may not emit them.
+- Owner gate: before Phase 1, Arthur must create **Project Manager Version 5** and the current Project Manager must explicitly transition to **AI Animator/Dad support**. The planning package must also be separately published/synchronized and Arthur must separately authorize Phase 1 from that exact SHA.
+- Boundary: this decision changes canonical planning records only. It authorizes no runtime/fixture/test/proof mutation, Spec Executor, provider/paid action, billing/dashboard/AI Animator/updater/OS push/email work, staging, commit, merge, push, publication or deployment.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

@@ -1,9 +1,11 @@
 # AI System Snapshot
 
 Status: canonical current AI architecture and gap map
-Last traced: 2026-09-24 through D-0135/D-0136/GIT-097 publication and closure of SPEC-0013. SPEC-0008 Phases 2–6 remain paused; public beta and deployment remain unauthorized.
+Last traced: 2026-09-24 through D-0137's docs-only SPEC-0014 notification planning trace. SPEC-0008 Phases 2–6 remain paused; all SPEC-0014 implementation phases, public beta and deployment remain unauthorized.
 
 SPEC-0013/D-0135/D-0136/GIT-097 changes no Assistant request, provider, search, reasoning, dictation, reveal, persistence, retry or offline behavior. It updates only the local knowledge catalog's Finalizer availability fact and catalog date because the inert Home card is removed. Existing saved chats validate, live Workspace Terra and AI Assistant replies passed, no credential entered publication, and the spec is fully closed.
+
+SPEC-0014/D-0137 plans completion/failure observation without changing AI policy. Today the Assistant and workspace Terra server jobs can continue in-process after a successful submission, but terminal session/ledger publication is mounted-screen polling work. Planned Phase 2 gives root observers that exact polling/terminalization responsibility, writes the existing authoritative session/ledger first, then derives one deterministic notification for the exact session/turn/job or project/generation/job. It never submits, retries, changes model/reasoning/search/dictation/prompts, consumes credits by itself or mutates animation. Current Terra chat must not emit the dormant future **AI Animator finished animating** event; SPEC-0008 stays paused.
 
 ## SPEC-0012 guidance Assistant — all six phases published and closed
 

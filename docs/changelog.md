@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-09-24 — Create SPEC-0014 durable notification-center plan (D-0137)
+
+- Added the decision-complete four-phase SPEC-0014 plan from clean canonical `main` `acc3204d6c5aa08f1d0d714dcd5a64e8746dcb8d` after fresh live Chromium and source tracing of the bell preview, Assistant, New/Open Terra workspace and Export.
+- Defined exact active event copy, schema, deterministic identity/dedupe, unread/read and origin-visible rules, exact click targets, local persistence/capacity/concurrency, AI/export failure and timeout, same-runtime navigation continuity, reload/tab-close limits, accessibility and proof.
+- Reserved AI Animator animation completion, low usage at 10% with Buy/Refill and real-updater availability as inactive future contracts only.
+- Recorded the mandatory pre-Phase-1 gate: Arthur creates Project Manager Version 5 and the current PM transitions to AI Animator/Dad support.
+- Changed control-plane/tree files only. No runtime, fixture, technical test, provider/paid call, phase authorization, staging, commit, merge, push, publication or deployment occurred.
+
 ## 2026-09-24 — Publish and close SPEC-0013 Phase 1 (D-0136/GIT-097)
 
 - Published exact 21-path product/control-plane commit `893daa82f555381d775af8fb73b14a551bd5fb45`, parent `8ddc534691a154d2f3ab25cceb61d91690446abb`: seven accepted technical plus fourteen reviewed control-plane/tree paths.

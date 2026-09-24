@@ -1,9 +1,15 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-24 through D-0135/D-0136/GIT-097 publication and closure of SPEC-0013.
+Last traced: 2026-09-24 through D-0137's docs-only SPEC-0014 planning trace from clean canonical `main` `acc3204d6c5aa08f1d0d714dcd5a64e8746dcb8d`.
 
 SPEC-0013/D-0135/D-0136/GIT-097 removes the inert AI Project Finalizer subtree and its `HomeCardId` hover member from `app/page.tsx`. Export remains the last Home card. `main.home-main-scroll`, its 60px bottom padding and all `app/globals.css` scrollbar bytes remain unchanged, so browser intrinsic layout owns the shorter range. The Assistant catalog correction is factual only and does not add a Finalizer route or new runtime owner. The spec is fully closed.
+
+## SPEC-0014 intended notification architecture — planned, not implemented
+
+Current reality is screen-owned: `AppChrome` contains only a local preview; `useAssistantSessions` and `DrawingAiPanel` poll and commit terminal AI state only while mounted; `ExportAnimationPlayer` owns and aborts its export controller on unmount. `app/layout.tsx` has no job/notification owner.
+
+D-0137's target is one root app-lifetime notification coordinator plus local IndexedDB store, deterministic source-attempt identity, trusted logical navigation adapter and producer observers. Producer state remains authoritative: Assistant IndexedDB, project-scoped Terra ledger, validated Export result/failure receipt and browser connectivity incident are committed first; notifications observe second. Phase 2 moves Assistant/Terra terminal observation above screens, Phase 3 moves same-runtime export lifecycle above Export UI, and Phase 4 closes offline/reload/concurrency/dedupe/accessibility. Same-runtime navigation is supported; browser/app termination is never misrepresented as continued export execution. No runtime byte implements this plan yet.
 
 ## SPEC-0012 guidance-Assistant architecture — all six phases published and closed
 

@@ -12,11 +12,13 @@ Last updated: 2026-09-24
 - The roadmap may change when Arthur resolves pending decisions or new evidence changes the risk order.
 - D-0129/D-0130/GIT-094 fully close the final Phase 4 citation/reveal correction. D-0131/GIT-095 close Phase 5 dictation. D-0133/D-0134/GIT-096 `20612c3…` close Phase 6 and complete SPEC-0012 with proof preservation, activation and cleanup.
 
-## Current owner sequence — 2026-09-24 (SPEC-0013 closed; ready to plan SPEC-0014)
+## Current owner sequence — 2026-09-24 (SPEC-0014 planned; PM V5 gate before Phase 1)
 
 1. Preserve D-0135/D-0136/GIT-097 `893daa82f555381d775af8fb73b14a551bd5fb45` as the closed SPEC-0013 result.
-2. Arthur defines the exact SPEC-0014 goal; a fresh planning task traces current behavior and writes a decision-complete spec.
-3. No SPEC-0014 implementation, app copy, provider/paid operation, deployment or Git mutation begins without separate explicit authority.
+2. Review and separately publish D-0137/[`SPEC-0014`](specs/0014-in-app-notification-center.md), the docs-only four-phase notification plan from canonical `acc3204d…cb8d`.
+3. Before Phase 1, Arthur creates Project Manager Version 5 and the current PM transitions to AI Animator/Dad support.
+4. Only after that owner gate and a separate Arthur authorization may one fresh Plan-mode Phase 1 Spec Executor begin from the exact published planning SHA.
+5. No later phase, provider/paid operation, deployment or Git mutation begins automatically.
 
 All seven SPEC-0006 phases are Verified/published/integrated through GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`. The immutable 50,224-byte Phase 7 manifest is PASS/VALID at SHA-256 `c6202f6deab4d3bcc75af3ad6699fc2dc70fc58723eccaa8337b1a2aef74bc51`, with exactly 11 source and 16 evidence bindings.
 
@@ -76,7 +78,7 @@ D-0120 adds proposed [`SPEC-0012 — Diamond Animator Guidance Assistant`](specs
 5. **Microphone dictation** — separately approved transcription boundary with waveform, permission, Cancel/Stop, editable text, explicit Send and no raw-audio retention.
 6. **Beta hardening** — storage/context/output/search/transcription/cost/security/privacy/accessibility/restart/long-chat proof and exact AI Animator/project regressions.
 
-The target sequence completed all six SPEC-0012 phases through D-0134/GIT-096 `20612c3…`. The resulting claim is local/private-beta hardening only, not public or production readiness. Public exposure and deployment remain unauthorized. The accepted AI Animator remains separate; paused SPEC-0008 Phases 2–6 do not resume. SPEC-0013's one phase is accepted under D-0135 and awaiting GIT-097 closeout; SPEC-0014 planning follows only after that closeout and a new owner goal.
+The target sequence completed all six SPEC-0012 phases through D-0134/GIT-096 `20612c3…`. The resulting claim is local/private-beta hardening only, not public or production readiness. Public exposure and deployment remain unauthorized. The accepted AI Animator remains separate; paused SPEC-0008 Phases 2–6 do not resume. SPEC-0013 is fully closed through D-0136/GIT-097. D-0137 now defines SPEC-0014's four planned phases: foundation/UI; AI reply completion/failure across navigation; Export completion/failure across navigation; and offline/reliability/dormant-contract closeout. All are unauthorized/not started.
 
 ## Phase 0 — Preserve and Stabilize
 

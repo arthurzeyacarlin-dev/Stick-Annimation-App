@@ -133,6 +133,7 @@
 ./docs/specs/0011-my-projects-library-movie-viewer-and-shared-project-management.md
 ./docs/specs/0012-diamond-animator-guidance-assistant.md
 ./docs/specs/0013-version-1-home-finalizer-removal.md
+./docs/specs/0014-in-app-notification-center.md
 ./docs/specs/README.md
 ./docs/specs/TEMPLATE.md
 ./docs/testing_workflow.md

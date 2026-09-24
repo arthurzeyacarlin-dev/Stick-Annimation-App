@@ -1,9 +1,9 @@
 # AI System Snapshot
 
 Status: canonical current AI architecture and gap map
-Last traced: 2026-09-24 through D-0134/GIT-096 publication and closure of SPEC-0012 Phase 6 local/private-beta hardening. SPEC-0008 Phases 2–6 remain paused; public beta and deployment remain unauthorized.
+Last traced: 2026-09-24 through D-0135/D-0136/GIT-097 publication and closure of SPEC-0013. SPEC-0008 Phases 2–6 remain paused; public beta and deployment remain unauthorized.
 
-SPEC-0013/D-0135 changes no Assistant request, provider, search, reasoning, dictation, reveal, persistence, retry or offline behavior. It updates only the local knowledge catalog's Finalizer availability fact and catalog date because the inert Home card is removed. Existing saved chats validate, live Workspace Terra and AI Assistant replies passed, and no credential enters publication.
+SPEC-0013/D-0135/D-0136/GIT-097 changes no Assistant request, provider, search, reasoning, dictation, reveal, persistence, retry or offline behavior. It updates only the local knowledge catalog's Finalizer availability fact and catalog date because the inert Home card is removed. Existing saved chats validate, live Workspace Terra and AI Assistant replies passed, no credential entered publication, and the spec is fully closed.
 
 ## SPEC-0012 guidance Assistant — all six phases published and closed
 

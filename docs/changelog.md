@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-09-24 — Publish and close SPEC-0013 Phase 1 (D-0136/GIT-097)
+
+- Published exact 21-path product/control-plane commit `893daa82f555381d775af8fb73b14a551bd5fb45`, parent `8ddc534691a154d2f3ab25cceb61d91690446abb`: seven accepted technical plus fourteen reviewed control-plane/tree paths.
+- Fast-forwarded clean canonical `main` and pushed normally; canonical/local-origin/live-GitHub `main` synchronized at clean `0/0` before the terminal records-only closeout.
+- Preserved 13 proof files/262,442 bytes under `output/recovery/GIT-097-spec0013-phase1-893daa8/phase-1`; source/destination inventories match at aggregate SHA-256 `cbe9142a42612f73f8e9cdec11452859085f98f4026dd7f21a3df48acc117d4b`.
+- Verified port 58080 closed, then removed only the obsolete SPEC-0013 review worktree and merged local publication branch. Canonical main, the active PM worktree, remote history and proof remain.
+- SPEC-0013 is fully closed with no Phase 2. SPEC-0014 is ready for owner-defined planning but remains undefined and unauthorized.
+
 ## 2026-09-24 — Accept SPEC-0013 Phase 1 Home Finalizer removal (D-0135)
 
 - Arthur visibly accepted the corrected app copy and explicitly authorized control-plane propagation, commit, canonical-main integration and GitHub push.
@@ -7,7 +15,7 @@
 - Preserved the existing Home scroller, 60px bottom breathing room and all scrollbar CSS; the shorter range comes from removing obsolete content.
 - Corrected only the guidance Assistant's stale Finalizer availability fact and catalog identity; session, provider, search, dictation, retry, animation and project behavior remain unchanged.
 - Bound the exact seven-path result and immutable manifest SHA-256 `bf8e51c68fe67015a97a6428c39a73bffc2c7a92b08e2f326554a1cf35e2db63`; three-viewport browser proof, oracle, saved-chat validation, focused checks and live Terra/Assistant connectivity passed.
-- Review server port 58080 is closed. Exact GIT-097 publication, proof preservation and D-0054 cleanup are authorized and in progress; deployment and SPEC-0014 remain unauthorized.
+- Review server port 58080 is closed. This accepted-state checkpoint's exact publication authority was completed by D-0136/GIT-097 above; deployment and SPEC-0014 remain unauthorized.
 
 ### 2026-09-24 — Publish, activate and close SPEC-0012 Phase 6 (D-0134/GIT-096)
 

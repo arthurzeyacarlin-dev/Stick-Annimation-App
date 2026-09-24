@@ -1410,6 +1410,15 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Unchanged systems: no Finalizer feature, Export implementation, workspace/project/recovery, AI Animator, Assistant request/provider/search/dictation/retry/persistence, dependency, environment, deployment or paused SPEC-0008 behavior changed.
 - Next boundary: exact GIT-097 publication, synchronization, proof preservation and D-0054 cleanup. SPEC-0014 remains undefined and unauthorized until that closeout completes.
 
+### D-0136 — Publish, preserve and close SPEC-0013 Phase 1
+
+- Date: 2026-09-24
+- Publication: GIT-097 is exact 21-path product/control-plane commit `893daa82f555381d775af8fb73b14a551bd5fb45`, parent `8ddc534691a154d2f3ab25cceb61d91690446abb`, message `Complete SPEC-0013 Phase 1 Home cleanup`: seven accepted technical plus fourteen reviewed control-plane/tree paths.
+- Synchronization: clean canonical `main` fast-forwarded normally and pushed; canonical/local-origin/live-GitHub `main` matched GIT-097 at clean `0/0` before this terminal records-only successor.
+- Proof: thirteen files/262,442 bytes are preserved at `output/recovery/GIT-097-spec0013-phase1-893daa8/phase-1`. Source/destination inventories match at aggregate SHA-256 `cbe9142a42612f73f8e9cdec11452859085f98f4026dd7f21a3df48acc117d4b`. The immutable technical manifest remains SHA-256 `bf8e51c68fe67015a97a6428c39a73bffc2c7a92b08e2f326554a1cf35e2db63`; Control Plane Architect closeout manifest SHA-256 is `9346eb3eb1f1b7997e8339d5db2df0d6a1cd737e9e8be429b351fc8aaa938e6c`.
+- Cleanup: port 58080 remained closed. After proof preservation and synchronization, D-0054 removed only `/Users/arthurcarlin/.codex/worktrees/spec0013-phase1/stick-animation-app` and merged local branch `codex/spec0013-phase1-publication`. Canonical main, the active Project Manager worktree, remote history and recovery material remain.
+- Boundary/consequence: no post-acceptance runtime, fixture, technical-test or proof byte changed. No credential was committed. SPEC-0013 is fully closed with no Phase 2. SPEC-0014 is ready for a fresh owner-defined planning task but remains undefined and unauthorized.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

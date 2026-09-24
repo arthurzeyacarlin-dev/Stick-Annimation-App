@@ -1,15 +1,15 @@
 # SPEC-0013 — Version 1 Home Finalizer Removal and Shorter Home Scroll
 
-Status: **Phase 1 Verified and accepted; publication explicitly authorized and in progress**
+Status: **Completed; Phase 1 Verified/published/integrated/synchronized/proof-preserved/cleaned up**
 Owner: Arthur
-Implementer: completed Phase 1 Spec Executor; current owner is the Control Plane Architect for authorized publication
+Implementer: completed Phase 1 Spec Executor and Control Plane Architect closeout
 Created: 2026-09-24
 Last updated: 2026-09-24
-Decision links: D-0135
+Decision links: D-0135; D-0136
 TODO IDs: HOME-013; GIT-097
 Baseline branch/commit: clean canonical `main`/`origin/main` at `8ddc534691a154d2f3ab25cceb61d91690446abb`
-Last verified branch/commit: accepted seven-path result in `codex/spec0013-phase1-publication` before publication; immutable proof manifest SHA-256 `bf8e51c68fe67015a97a6428c39a73bffc2c7a92b08e2f326554a1cf35e2db63`
-Authorization boundary: Arthur accepted the exact review copy and explicitly authorized control-plane propagation, commit, canonical-main integration and GitHub push on 2026-09-24. This authority covers only the accepted seven technical paths plus reviewed SPEC-0013 records; it does not authorize deployment, provider changes, any SPEC-0008 resumption, or SPEC-0014 implementation.
+Last verified branch/commit: GIT-097 product commit `893daa82f555381d775af8fb73b14a551bd5fb45` integrated and synchronized on canonical/GitHub `main`; immutable proof manifest SHA-256 `bf8e51c68fe67015a97a6428c39a73bffc2c7a92b08e2f326554a1cf35e2db63`
+Authorization boundary: Arthur's SPEC-0013 publication authority was consumed exactly by GIT-097 and D-0136 cleanup. It grants no deployment, provider change, SPEC-0008 resumption, SPEC-0014 implementation or further product mutation.
 
 ## 1. Exact goal
 
@@ -404,6 +404,10 @@ The immutable proof manifest is `output/spec-0013/phase-1/proof-manifest.json`, 
 
 The review server on port `58080` was stopped before Control Plane Architect takeover and the port was verified closed. Browser tooling was closed. The ignored `.env.local` symlink used only to prove live Terra connectivity is excluded from publication.
 
+GIT-097 is exact 21-path product/control-plane commit `893daa82f555381d775af8fb73b14a551bd5fb45`, parent `8ddc534691a154d2f3ab25cceb61d91690446abb`, message `Complete SPEC-0013 Phase 1 Home cleanup`: seven accepted technical plus fourteen reviewed control-plane/tree paths. Canonical `main`, local `origin/main` and live GitHub `main` synchronized at clean `0/0` before the terminal records-only closeout.
+
+Thirteen proof files/262,442 bytes are preserved under `output/recovery/GIT-097-spec0013-phase1-893daa8/phase-1`. Source/destination inventories match at aggregate SHA-256 `cbe9142a42612f73f8e9cdec11452859085f98f4026dd7f21a3df48acc117d4b`; the Control Plane Architect closeout manifest SHA-256 is `9346eb3eb1f1b7997e8339d5db2df0d6a1cd737e9e8be429b351fc8aaa938e6c`. D-0054 removed only the obsolete SPEC-0013 review worktree and merged local publication branch after proof preservation and synchronization.
+
 ## 15. Verification record
 
 | Gate/flow | Pass/fail/skipped/unproven | Evidence |
@@ -419,11 +423,12 @@ The review server on port `58080` was stopped before Control Plane Architect tak
 | Production build | Inherited failure only | Product compilation completed; generated PageProps/SearchParams typing still fails in untouched dev AI-cost pages, matching the inherited baseline |
 | Live Terra connectivity | Pass, supplemental | Workspace Terra and AI Assistant each returned a short live reply after ignored local credential linkage; no secret or credential byte enters Git |
 | Arthur visible acceptance | Pass | Arthur explicitly called the corrected review copy a PASS on 2026-09-24 |
-| Publication | Authorized/in progress | Arthur explicitly authorized propagation, commit, canonical-main integration and GitHub push; final commit/synchronization is recorded in the terminal closeout successor |
+| Publication | Pass | GIT-097 `893daa82f555381d775af8fb73b14a551bd5fb45`; exact 21 paths; normal fast-forward/push; canonical/origin/live GitHub synchronized before terminal closeout |
+| Proof preservation and cleanup | Pass | 13 files/262,442 bytes; aggregate `cbe9142…17d4b`; port 58080 closed; obsolete review worktree/merged local branch removed |
 
 ## 16. Final state and handoff
 
-Current state: **Phase 1 Verified and visibly accepted; exact publication explicitly authorized and in progress.**
+Current state: **SPEC-0013 is fully closed: Verified, published, integrated, synchronized, proof-preserved and cleaned up.**
 
 Proven now:
 
@@ -441,4 +446,4 @@ Not claimed:
 - physical-device/non-Chromium coverage remains unproven; and
 - the inherited untouched dev AI-cost generated-type build failure remains.
 
-Exact next step: publish only the accepted seven technical paths plus reviewed SPEC-0013 control-plane paths, fast-forward clean canonical `main`, push normally, preserve proof, complete D-0054 cleanup, record exact synchronization, and then begin SPEC-0014 with a fresh planning task only after Arthur defines its goal.
+Exact next step: Arthur may define SPEC-0014 for a fresh planning task. No SPEC-0014 goal, implementation, app copy, provider operation, deployment or Git change is authorized yet.

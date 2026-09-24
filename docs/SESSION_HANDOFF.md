@@ -1,13 +1,13 @@
 # Session Handoff
 
-## Current handoff — 2026-09-24 SPEC-0013 Phase 1 accepted; publication authorized
+## Current handoff — 2026-09-24 SPEC-0013 fully closed; ready to plan SPEC-0014
 
-- Arthur visibly accepted the corrected SPEC-0013 review copy and explicitly authorized control-plane propagation, commit, canonical-main integration and GitHub push.
-- Accepted base is clean synchronized `8ddc534691a154d2f3ab25cceb61d91690446abb`; the stopped executor result has an empty index and exactly seven technical paths.
-- Immutable manifest: `output/spec-0013/phase-1/proof-manifest.json`, SHA-256 `bf8e51c68fe67015a97a6428c39a73bffc2c7a92b08e2f326554a1cf35e2db63`; fresh validator result is `VALID`.
-- Home removes only the inert Finalizer card/hover identity; Export is the sole Tools/final Home card. Existing scrollbar CSS and 60px bottom space are unchanged. One Assistant Finalizer fact/catalog identity is corrected; session, provider and animation behavior are unchanged.
-- Live Workspace Terra and AI Assistant replies passed after ignored local credential linkage. No credential or `.env.local` byte may be published.
-- Review port 58080 is closed. Next action is exact GIT-097 publication/integration, proof preservation and D-0054 cleanup. SPEC-0014 remains undefined and unauthorized until that closeout succeeds.
+- D-0135/D-0136/GIT-097 fully close the one-phase SPEC-0013 result. Exact product/control-plane commit is `893daa82f555381d775af8fb73b14a551bd5fb45`, parent `8ddc534691a154d2f3ab25cceb61d91690446abb`, with seven accepted technical plus fourteen reviewed control-plane/tree paths.
+- Canonical `main`, local `origin/main` and live GitHub `main` synchronized at clean `0/0` before this terminal records-only successor.
+- Immutable manifest SHA-256 remains `bf8e51c68fe67015a97a6428c39a73bffc2c7a92b08e2f326554a1cf35e2db63`. Thirteen proof files/262,442 bytes are preserved under `output/recovery/GIT-097-spec0013-phase1-893daa8/phase-1` with matching aggregate SHA-256 `cbe9142a42612f73f8e9cdec11452859085f98f4026dd7f21a3df48acc117d4b`.
+- Home removes only the inert Finalizer card/hover identity; Export is the sole Tools/final Home card. Existing scrollbar CSS/60px bottom space remain. One Assistant catalog fact/date changed; live Terra connectivity passed and no credential entered Git.
+- Review port 58080 is closed. D-0054 removed only the obsolete SPEC-0013 review worktree and merged local publication branch; canonical main, the active PM worktree, remote history and proof remain.
+- Exact next step: Arthur defines SPEC-0014 in a fresh planning task. No SPEC-0014 implementation, app copy, provider/paid operation, deployment or Git mutation is authorized.
 
 Status: current canonical stopping point
 Last updated: 2026-09-24

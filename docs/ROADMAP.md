@@ -12,11 +12,11 @@ Last updated: 2026-09-24
 - The roadmap may change when Arthur resolves pending decisions or new evidence changes the risk order.
 - D-0129/D-0130/GIT-094 fully close the final Phase 4 citation/reveal correction. D-0131/GIT-095 close Phase 5 dictation. D-0133/D-0134/GIT-096 `20612c3…` close Phase 6 and complete SPEC-0012 with proof preservation, activation and cleanup.
 
-## Current owner sequence — 2026-09-24 (SPEC-0013 accepted; publication closeout in progress)
+## Current owner sequence — 2026-09-24 (SPEC-0013 closed; ready to plan SPEC-0014)
 
-1. Publish only the accepted seven SPEC-0013 technical paths plus reviewed control-plane/tree records from exact base `8ddc534…`.
-2. Fast-forward clean canonical `main`, push normally, verify canonical/local-origin/live-GitHub `0/0` synchronization, preserve proof and complete D-0054 cleanup.
-3. Only then begin SPEC-0014 planning after Arthur defines its goal. No SPEC-0014 implementation authority exists.
+1. Preserve D-0135/D-0136/GIT-097 `893daa82f555381d775af8fb73b14a551bd5fb45` as the closed SPEC-0013 result.
+2. Arthur defines the exact SPEC-0014 goal; a fresh planning task traces current behavior and writes a decision-complete spec.
+3. No SPEC-0014 implementation, app copy, provider/paid operation, deployment or Git mutation begins without separate explicit authority.
 
 All seven SPEC-0006 phases are Verified/published/integrated through GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`. The immutable 50,224-byte Phase 7 manifest is PASS/VALID at SHA-256 `c6202f6deab4d3bcc75af3ad6699fc2dc70fc58723eccaa8337b1a2aef74bc51`, with exactly 11 source and 16 evidence bindings.
 

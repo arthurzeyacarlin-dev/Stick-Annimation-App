@@ -47,7 +47,7 @@ D-0110 defines [`SPEC-0011 — My Projects Library, Movie Viewer, and Shared Pro
 
 D-0120 creates [`SPEC-0012 — Diamond Animator Guidance Assistant`](specs/0012-diamond-animator-guidance-assistant.md); D-0121–D-0134/GIT-089–GIT-096 complete all six phases. Exact GIT-096 commit `20612c364686b5b855e85f0b12c28a61e84b1061` closes Phase 6 local/private-beta offline/recovery hardening with proof preservation, activation and D-0054 cleanup. SPEC-0012 has no Phase 7. Public beta and deployment remain separately gated.
 
-D-0135 accepts the one-phase [`SPEC-0013 — Version 1 Home Finalizer Removal and Shorter Home Scroll`](specs/0013-version-1-home-finalizer-removal.md) from clean base `8ddc534…`. The inert Finalizer Home card is removed, Export becomes the sole Tools/final Home card, intrinsic scroll depth shortens without scrollbar CSS changes, and the directly stale Assistant catalog fact is corrected. Publication/integration is explicitly authorized as GIT-097 and remains the current closeout task; SPEC-0014 is not yet defined.
+D-0135/D-0136/GIT-097 close the one-phase [`SPEC-0013 — Version 1 Home Finalizer Removal and Shorter Home Scroll`](specs/0013-version-1-home-finalizer-removal.md) in exact commit `893daa82f555381d775af8fb73b14a551bd5fb45` with proof preservation and D-0054 cleanup. The inert Finalizer Home card is removed, Export becomes the sole Tools/final Home card, intrinsic scroll depth shortens without scrollbar CSS changes, and the directly stale Assistant catalog fact is corrected. The repository is ready for SPEC-0014 planning; SPEC-0014 is not yet defined.
 
 The permanent direction is drawing-only: no non-destructive command may silently remove unrelated authored pixels/items; intentional removals use a closed registry of explicit destructive controls; same-paint raster overlaps use maximum coverage rather than cumulative darkening; and accepted Phase 2 **Draw Rig** creates ordinary segmented raster paint, never joints/bones/topology. Accepted Phase 3 retires active structured-rig/Creator authoring and migrates historical rig content non-destructively into ordinary drawing/drawing symbols through read-only compatibility adapters. Every future-AI-eligible mutation uses the same validated capability as its ordinary manual control. SPEC-0007 adds no AI/provider/model/prompt/API/video/tracking behavior.
 
@@ -73,7 +73,7 @@ Phase 0 is preservation and stabilization:
 - preserve fully closed SPEC-0010 Phases 1–3 through D-0109/GIT-083
 - preserve fully closed SPEC-0011 Phases 1–3 through D-0119/GIT-088 `d0ec1b23d7e1d9ff13a0779c2758e33e858691f0`
 - preserve fully closed SPEC-0012 Phases 1–6 through D-0134/GIT-096 `20612c364686b5b855e85f0b12c28a61e84b1061`; do not deploy or expose a public beta without separate authority
-- publish and close the accepted one-phase SPEC-0013 result under D-0135/GIT-097 before any SPEC-0014 planning or implementation
+- preserve the closed one-phase SPEC-0013 result under D-0135/D-0136/GIT-097; begin SPEC-0014 only through a fresh owner-defined plan and separate authority
 
 The ordered phase plan lives in `ROADMAP.md`.
 

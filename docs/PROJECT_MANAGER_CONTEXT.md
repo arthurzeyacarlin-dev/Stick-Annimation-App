@@ -1,8 +1,8 @@
 # Project Manager Context
 
-## Current override — SPEC-0013 Phase 1 accepted
+## Current override — SPEC-0013 closed; ready for SPEC-0014 planning
 
-Arthur accepted the exact seven-path SPEC-0013 result from clean base `8ddc534691a154d2f3ab25cceb61d91690446abb` and explicitly authorized propagation, commit, canonical-main integration and GitHub push. D-0135 binds manifest SHA-256 `bf8e51c68fe67015a97a6428c39a73bffc2c7a92b08e2f326554a1cf35e2db63`. The only product outcome is removal of the inert Finalizer Home card, with Export last and the existing Home scrollbar unchanged; one corresponding Assistant catalog fact/version changed. GIT-097 publication, proof preservation and D-0054 cleanup are the only current work. SPEC-0014 is undefined and unauthorized.
+D-0135/D-0136/GIT-097 close the exact seven-path SPEC-0013 result from base `8ddc534691a154d2f3ab25cceb61d91690446abb` in exact 21-path product/control-plane commit `893daa82f555381d775af8fb73b14a551bd5fb45`. Proof is preserved, port 58080 is closed and the obsolete review worktree/branch are removed. The only product outcome is removal of the inert Finalizer Home card, with Export last and the existing Home scrollbar unchanged; one corresponding Assistant catalog fact/version changed. Arthur may now define SPEC-0014 in a fresh planning task; no implementation authority exists.
 
 Status: canonical owner and collaboration context
 Last updated: 2026-09-24

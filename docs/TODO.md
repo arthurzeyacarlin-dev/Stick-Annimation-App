@@ -11,10 +11,10 @@ Last updated: 2026-09-24
 - New discoveries enter the queue; they do not silently expand the active spec.
 - Remote writes, paid AI calls, Git history changes, and deployment require explicit task authorization.
 
-## Current sequence — SPEC-0013 Version 1 Home cleanup
+## Completed sequence — SPEC-0013 Version 1 Home cleanup
 
 - [x] **HOME-013 — Accept and technically verify SPEC-0013 Phase 1.** D-0135 binds Arthur's PASS, exact base `8ddc534691a154d2f3ab25cceb61d91690446abb`, exact seven technical paths, manifest SHA-256 `bf8e51c68fe67015a97a6428c39a73bffc2c7a92b08e2f326554a1cf35e2db63`, Finalizer absence, intrinsic shorter Home scroll, Export-last behavior, unchanged scrollbar CSS and narrow Assistant catalog correction.
-- [ ] **GIT-097 — Publish, integrate, synchronize, preserve and clean up accepted SPEC-0013 Phase 1.** Arthur explicitly authorized the exact publication. It must stage only the seven accepted technical paths plus reviewed SPEC-0013 control-plane/tree paths, fast-forward clean canonical `main`, push normally, verify clean `0/0`, preserve proof, and complete D-0054 cleanup before SPEC-0014 planning.
+- [x] **GIT-097 — Publish, integrate, synchronize, preserve and clean up accepted SPEC-0013 Phase 1.** Exact 21-path product commit `893daa82f555381d775af8fb73b14a551bd5fb45` contains seven accepted technical plus fourteen reviewed control-plane/tree paths. Canonical/origin/live GitHub `main` synchronized at clean `0/0` before terminal closeout. Thirteen proof files/262,442 bytes are preserved with aggregate SHA-256 `cbe9142a42612f73f8e9cdec11452859085f98f4026dd7f21a3df48acc117d4b`; port 58080 is closed and D-0054 cleanup removed only the obsolete review worktree/merged local branch. D-0136 closes the spec. SPEC-0014 is ready for planning but undefined/unauthorized.
 
 ## Completed sequence — SPEC-0012 Diamond Animator Guidance Assistant
 

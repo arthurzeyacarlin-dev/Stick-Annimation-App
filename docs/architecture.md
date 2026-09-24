@@ -1,9 +1,9 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-24 through D-0134/GIT-096 publication and closure of Phase 6 local/private-beta offline/recovery hardening.
+Last traced: 2026-09-24 through D-0135/D-0136/GIT-097 publication and closure of SPEC-0013.
 
-SPEC-0013/D-0135 removes the inert AI Project Finalizer subtree and its `HomeCardId` hover member from `app/page.tsx`. Export remains the last Home card. `main.home-main-scroll`, its 60px bottom padding and all `app/globals.css` scrollbar bytes remain unchanged, so browser intrinsic layout owns the shorter range. The Assistant catalog correction is factual only and does not add a Finalizer route or new runtime owner.
+SPEC-0013/D-0135/D-0136/GIT-097 removes the inert AI Project Finalizer subtree and its `HomeCardId` hover member from `app/page.tsx`. Export remains the last Home card. `main.home-main-scroll`, its 60px bottom padding and all `app/globals.css` scrollbar bytes remain unchanged, so browser intrinsic layout owns the shorter range. The Assistant catalog correction is factual only and does not add a Finalizer route or new runtime owner. The spec is fully closed.
 
 ## SPEC-0012 guidance-Assistant architecture — all six phases published and closed
 

@@ -1,10 +1,10 @@
 # SPEC-0012 — Diamond Animator Guidance Assistant
 
-Status: **Closing; Phases 1–5 published/integrated through GIT-095 `6de47a9dc1d780b63ed355fa5148f87cc5f0b1f2`; Phase 6 accepted and technically Verified under D-0133, publication/integration pending**
+Status: **Completed; all six phases Verified/published/integrated/synchronized/proof-preserved/cleaned up through D-0134/GIT-096 `20612c364686b5b855e85f0b12c28a61e84b1061`**
 
 Owner: Arthur
 
-Planning decision: D-0120; planning publication GIT-089 `f2bda33842a3f5a4b560a7d3aab170a6ca4c2fd0`; Phase 1 authorization/acceptance D-0121/D-0122; Phase 1 closeout D-0123/GIT-090 `e725f562307e0c7530b32b416218018af87b65fd`; combined Phase 2 acceptance/original-Phase-3 absorption D-0124 and closeout GIT-091 `fa2ef6c526d04de9c77b356b53b4768890c46e1f`; Phase 4 closed through D-0130/GIT-094 `7053851babec9247c6733e016145fd0d0b8a6e46`; Phase 5 published as GIT-095 `6de47a9dc1d780b63ed355fa5148f87cc5f0b1f2`; Phase 6 acceptance/technical verification D-0133
+Planning decision: D-0120; planning publication GIT-089 `f2bda33842a3f5a4b560a7d3aab170a6ca4c2fd0`; Phase 1 authorization/acceptance D-0121/D-0122; Phase 1 closeout D-0123/GIT-090 `e725f562307e0c7530b32b416218018af87b65fd`; combined Phase 2 acceptance/original-Phase-3 absorption D-0124 and closeout GIT-091 `fa2ef6c526d04de9c77b356b53b4768890c46e1f`; Phase 4 closed through D-0130/GIT-094 `7053851babec9247c6733e016145fd0d0b8a6e46`; Phase 5 published as GIT-095 `6de47a9dc1d780b63ed355fa5148f87cc5f0b1f2`; Phase 6 acceptance D-0133 and closeout D-0134/GIT-096 `20612c364686b5b855e85f0b12c28a61e84b1061`
 
 Target review date: Tuesday, September 29, 2026
 
@@ -432,7 +432,11 @@ The accepted implementation does not remove or weaken permanent safety limits. T
 
 The immutable manifest is `output/spec-0012/phase-6/proof-manifest.json`, SHA-256 `a0e3eea7e973eb183ff274cfd9ff868d3e4b7712e60e431c9db1c67057702229`; it binds the exact base, 20 dirty paths and 80 evidence files and rejects twelve material mutation classes. Real-browser proof covers offline search submission, reconnection, explicit retry, one-question/one-answer reload persistence, connection loss during search, local-guidance recovery, 90 inherited stress assertions, 10 restart/interruption assertions, 21 protected-product assertions, 11 AI Animator assertions, 14 inherited oracles, five layouts with zero serious/critical Axe findings, 50 sessions/6,000 messages, corruption/quota/two-tab handling, and zero automated real/provider/paid calls. TypeScript, focused lint/build/diff and proof validation pass. The unchanged whole-repository build still reaches the inherited dev AI-cost `PageProps/searchParams` failure, and full lint retains five errors/81 warnings in untouched files. Physical devices, non-Chromium browsers, public-beta controls, deployment and production readiness remain unproven and out of scope.
 
-GIT-096 is the separately authorized publication/integration/proof-preservation/D-0054 cleanup task. Until it succeeds, the accepted review server/worktree/proof remain preserved and SPEC-0012 is Closing rather than fully closed. SPEC-0008 remains paused after Phase 1 under D-0093.
+### 16.6 D-0134/GIT-096 publication and terminal closure
+
+GIT-096 is exact 34-path product commit `20612c364686b5b855e85f0b12c28a61e84b1061`, parent GIT-095 `6de47a9dc1d780b63ed355fa5148f87cc5f0b1f2`, message `Complete SPEC-0012 Phase 6 beta hardening`: 20 accepted technical plus 14 reviewed record/tree paths. Canonical `main`, local `origin/main`, and live GitHub `main` synchronized normally at clean `0/0`. The canonical app restarted from integrated main on port 3000; Home and `/assistant` returned HTTP 200 without a new provider call.
+
+The complete 82-file/4,888-KiB proof bundle is preserved at `output/recovery/GIT-096-spec0012-phase6-20612c3/phase-6`; checksum-mode comparison is empty and the preserved manifest remains SHA-256 `a0e3eea7e973eb183ff274cfd9ff868d3e4b7712e60e431c9db1c67057702229`. Review PID 88555/process group 88554 stopped and port 58160 closed. D-0054 removes only the obsolete `/1d01/` review worktree and merged local publication branch after this terminal record synchronizes. SPEC-0012 is fully closed with no Phase 7. Public beta/deployment remain unauthorized, and SPEC-0008 stays paused after Phase 1 under D-0093.
 
 ### 14.5 Accepted Phase 4 result — D-0125
 

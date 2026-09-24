@@ -1,5 +1,13 @@
 # Changelog
 
+### 2026-09-24 — Publish, activate and close SPEC-0012 Phase 6 (D-0134/GIT-096)
+
+- Published exact 34-path commit `20612c364686b5b855e85f0b12c28a61e84b1061`, parent GIT-095 `6de47a9dc1d780b63ed355fa5148f87cc5f0b1f2`: 20 accepted technical plus 14 reviewed record/tree paths. Canonical/origin/live GitHub `main` synchronized normally at clean `0/0`.
+- Restarted canonical Diamond Animator from integrated main on port 3000; Home and `/assistant` returned HTTP 200 with no additional provider call.
+- Preserved 82 proof files/4,888 KiB under `output/recovery/GIT-096-spec0012-phase6-20612c3/phase-6`; checksum comparison is empty and manifest SHA-256 remains `a0e3eea7e973eb183ff274cfd9ff868d3e4b7712e60e431c9db1c67057702229`.
+- Stopped review PID 88555/process group 88554 and verified port 58160 closed. D-0054 removes only the obsolete `/1d01/` review worktree and merged local branch after this records-only successor synchronizes.
+- SPEC-0012 is fully closed with no Phase 7. Public beta/deployment remain unauthorized and SPEC-0008 remains paused under D-0093. The next new feature begins with SPEC-0013.
+
 ### 2026-09-24 — Accept and propagate SPEC-0012 Phase 6 local/private-beta hardening (D-0133; GIT-096 pending)
 
 - Arthur called the dedicated review copy a pass and authorized recording, commit, GitHub push, safe canonical-main integration and SPEC-0012 closeout.

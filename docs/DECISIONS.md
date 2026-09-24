@@ -1390,6 +1390,15 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Boundary: target is local/private beta only. No public-beta authentication/ownership/rate-abuse/budget/deployment policy is claimed. Physical devices and non-Chromium are unproven. No AI Animator, project, Home, My/Open Projects, Tutorials, Export, editor/timeline/canvas/tools, recovery, persistence, finalizer, paused SPEC-0008, dependency, credential or deployment byte changed.
 - Next boundary: GIT-096 must publish only the exact accepted implementation plus reviewed records/tree, preserve proof, synchronize cleanly, stop the exact review server and complete D-0054 cleanup. A terminal records-only successor must then record the actual product commit and mark SPEC-0012 fully closed without changing runtime.
 
+### D-0134 — Publish, activate, preserve and close SPEC-0012 Phase 6
+
+- Date: 2026-09-24
+- Authority/status: Arthur explicitly accepted Phase 6 and authorized control-plane recording, commit, GitHub push, safe canonical-main integration and full SPEC-0012 closure. GIT-096 and its terminal records closeout are complete.
+- Publication: exact 34-path product commit `20612c364686b5b855e85f0b12c28a61e84b1061`, parent GIT-095 `6de47a9dc1d780b63ed355fa5148f87cc5f0b1f2`, message `Complete SPEC-0012 Phase 6 beta hardening`: 20 accepted technical plus 14 reviewed control-plane/tree paths. Canonical `main`, local `origin/main` and live GitHub `main` matched at clean `0/0` after a normal fast-forward and push.
+- Activation/proof: canonical Diamond Animator restarted from integrated main on port 3000; Home and `/assistant` returned HTTP 200 without another provider call. The 82-file/4,888-KiB proof bundle is preserved at `output/recovery/GIT-096-spec0012-phase6-20612c3/phase-6`; checksum-mode comparison is empty and its manifest remains SHA-256 `a0e3eea7e973eb183ff274cfd9ff868d3e4b7712e60e431c9db1c67057702229`.
+- Cleanup: Phase 6 review PID 88555/process group 88554 stopped and port 58160 closed. After this terminal record synchronizes, D-0054 removes only `/Users/arthurcarlin/.codex/worktrees/1d01/stick-animation-app` and merged local branch `codex/spec0012-phase6-closeout`; canonical main, the active Project Manager worktree, remote history and recovery evidence remain.
+- Boundary/consequence: no post-acceptance runtime/proof byte changed. No temporary cumulative search/review limit existed to remove; permanent safety bounds remain. Public beta, deployment, production-readiness, physical-device/all-browser claims and paused SPEC-0008 work are excluded. SPEC-0012 is fully closed with no Phase 7. The next new feature requires a separately planned and authorized SPEC-0013.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

@@ -1,9 +1,9 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-24 through GIT-095 published Phase 5 dictation and D-0133 accepted Phase 6 local/private-beta offline/recovery hardening; GIT-096 closeout remains pending.
+Last traced: 2026-09-24 through D-0134/GIT-096 publication and closure of Phase 6 local/private-beta offline/recovery hardening.
 
-## SPEC-0012 guidance-Assistant architecture — Phase 5 published; Phase 6 accepted in review worktree
+## SPEC-0012 guidance-Assistant architecture — all six phases published and closed
 
 D-0129 keeps the existing provider/search/job/storage architecture. It adds only provider-consulted metadata recovery when native annotations are wholly absent and a client pending-to-done reveal marker that remounts the existing text reveal for the newly completed turn; persisted history never reanimates.
 
@@ -49,9 +49,9 @@ explicit microphone click → browser permission → MediaStream/AudioWorklet/re
 
 The separate Node route shares no guidance job, AI Animator job/ledger, project identifier, workspace summary, manual command or V2 repository owner. Server origin/identity/format/size/duration checks precede provider access; timeout/cancel uses request abort and bounded tombstones. `gpt-transcribe` is fixed in the one request, mismatched returned echoes fail, and absent echoes stay `null`. The provider JSON does not guarantee independent returned-model attestation. Browser buffers are cleared where mutable and resource handles released on terminal paths; immutable request blobs and provider-side memory cannot be proven physically erased. D-0131's sealed 16-source/355-evidence technical manifest verifies this boundary, with Arthur's physical-microphone report recorded separately. GIT-095 `6de47a9dc1d780b63ed355fa5148f87cc5f0b1f2` publishes/integrates it.
 
-### D-0133 Phase 6 offline/retry boundary — accepted, publication pending
+### D-0133/D-0134/GIT-096 Phase 6 offline/retry boundary — published and closed
 
-`useAssistantSessions` owns offline preflight and explicit retry orchestration. `assistantStorage.retryTurn` atomically reuses only the latest failed/cancelled/interrupted turn after revision/digest revalidation, records the prior failed job identity, assigns a new UUID and retains the original user message/context. `DiamondAssistantJobService` and `assistantProvider` convert provider connection failures into truthful terminal copy. `AssistantConversation` exposes Retry only on terminal non-done turns. There is no background retry, resend timer, second user message, offline fallback answer, project mutation or second provider door. D-0133's sealed 20-source/80-evidence manifest verifies this path; GIT-096 publication remains pending.
+`useAssistantSessions` owns offline preflight and explicit retry orchestration. `assistantStorage.retryTurn` atomically reuses only the latest failed/cancelled/interrupted turn after revision/digest revalidation, records the prior failed job identity, assigns a new UUID and retains the original user message/context. `DiamondAssistantJobService` and `assistantProvider` convert provider connection failures into truthful terminal copy. `AssistantConversation` exposes Retry only on terminal non-done turns. There is no background retry, resend timer, second user message, offline fallback answer, project mutation or second provider door. D-0133's sealed 20-source/80-evidence manifest verifies this path; D-0134/GIT-096 `20612c3…` publishes it and closes SPEC-0012.
 
 ## SPEC-0011 project-library and playback architecture — all three phases fully closed
 

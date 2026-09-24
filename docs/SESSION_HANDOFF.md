@@ -1,11 +1,20 @@
 # Session Handoff
 
+## Current handoff — 2026-09-24 SPEC-0013 Phase 1 accepted; publication authorized
+
+- Arthur visibly accepted the corrected SPEC-0013 review copy and explicitly authorized control-plane propagation, commit, canonical-main integration and GitHub push.
+- Accepted base is clean synchronized `8ddc534691a154d2f3ab25cceb61d91690446abb`; the stopped executor result has an empty index and exactly seven technical paths.
+- Immutable manifest: `output/spec-0013/phase-1/proof-manifest.json`, SHA-256 `bf8e51c68fe67015a97a6428c39a73bffc2c7a92b08e2f326554a1cf35e2db63`; fresh validator result is `VALID`.
+- Home removes only the inert Finalizer card/hover identity; Export is the sole Tools/final Home card. Existing scrollbar CSS and 60px bottom space are unchanged. One Assistant Finalizer fact/catalog identity is corrected; session, provider and animation behavior are unchanged.
+- Live Workspace Terra and AI Assistant replies passed after ignored local credential linkage. No credential or `.env.local` byte may be published.
+- Review port 58080 is closed. Next action is exact GIT-097 publication/integration, proof preservation and D-0054 cleanup. SPEC-0014 remains undefined and unauthorized until that closeout succeeds.
+
 Status: current canonical stopping point
 Last updated: 2026-09-24
 
 All seven SPEC-0006 phases are closed through GIT-061. Drawing-only SPEC-0007 is fully closed through GIT-066. SPEC-0008 Phase 1 is fully closed through GIT-070; D-0093 keeps Phases 2–6 paused as Unauthorized/Not started/not rejected. All three SPEC-0009 phases are fully closed through D-0101/GIT-079, all three SPEC-0010 phases are fully closed through D-0109/GIT-083, and all three SPEC-0011 phases are fully closed through D-0119/GIT-088 product commit `d0ec1b23d7e1d9ff13a0779c2758e33e858691f0` plus its records-only terminal closeout successor `f334639f33b7b130a2f9409dcdf146dc2fffb165`.
 
-## Current stopping point — SPEC-0012 fully closed through D-0134/GIT-096; ready to plan SPEC-0013
+## Prior stopping point — SPEC-0012 fully closed through D-0134/GIT-096
 
 GIT-095 `6de47a9dc1d780b63ed355fa5148f87cc5f0b1f2` closed Phase 5. D-0133 accepted Phase 6, and D-0134/GIT-096 publishes exact 34-path commit `20612c364686b5b855e85f0b12c28a61e84b1061`, parent GIT-095: 20 accepted technical plus 14 reviewed record/tree paths. Canonical `main`, local `origin/main` and live GitHub `main` synchronized normally at clean `0/0` before this terminal records-only successor.
 
@@ -15,7 +24,7 @@ The immutable Phase 6 manifest remains SHA-256 `a0e3eea7e973eb183ff274cfd9ff868d
 
 Canonical Diamond Animator restarted from integrated main on port 3000; Home and `/assistant` returned HTTP 200. Review PID 88555/process group 88554 stopped and port 58160 closed. D-0054 cleanup removed only the obsolete `/1d01/` worktree and merged publication branch after synchronization. No cumulative temporary search/review budget exists; D-0127 already removed source-overflow rejection, while permanent fail-safe limits stay unchanged.
 
-Exact next safe step: Arthur may create and plan SPEC-0013. Do not reopen SPEC-0012 automatically. Keep SPEC-0008 Phase 1 complete and Phases 2–6 paused under D-0093 until Arthur explicitly resumes them after Oliver's asset work and a fresh architecture/spec reconciliation. Public deployment, public-beta gates, provider-policy changes and paid/external operations require separate authority.
+This prior stopping point is superseded by the current SPEC-0013 handoff at the top of this file. Do not reopen SPEC-0012 automatically. Keep SPEC-0008 Phase 1 complete and Phases 2–6 paused under D-0093 until Arthur explicitly resumes them after Oliver's asset work and a fresh architecture/spec reconciliation. Public deployment, public-beta gates, provider-policy changes and paid/external operations require separate authority.
 
 ## Historical stopping point — D-0130/GIT-094 fully closed Phase 4 before D-0131
 

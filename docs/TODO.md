@@ -11,7 +11,12 @@ Last updated: 2026-09-24
 - New discoveries enter the queue; they do not silently expand the active spec.
 - Remote writes, paid AI calls, Git history changes, and deployment require explicit task authorization.
 
-## Current proposed sequence — SPEC-0012 Diamond Animator Guidance Assistant
+## Current sequence — SPEC-0013 Version 1 Home cleanup
+
+- [x] **HOME-013 — Accept and technically verify SPEC-0013 Phase 1.** D-0135 binds Arthur's PASS, exact base `8ddc534691a154d2f3ab25cceb61d91690446abb`, exact seven technical paths, manifest SHA-256 `bf8e51c68fe67015a97a6428c39a73bffc2c7a92b08e2f326554a1cf35e2db63`, Finalizer absence, intrinsic shorter Home scroll, Export-last behavior, unchanged scrollbar CSS and narrow Assistant catalog correction.
+- [ ] **GIT-097 — Publish, integrate, synchronize, preserve and clean up accepted SPEC-0013 Phase 1.** Arthur explicitly authorized the exact publication. It must stage only the seven accepted technical paths plus reviewed SPEC-0013 control-plane/tree paths, fast-forward clean canonical `main`, push normally, verify clean `0/0`, preserve proof, and complete D-0054 cleanup before SPEC-0014 planning.
+
+## Completed sequence — SPEC-0012 Diamond Animator Guidance Assistant
 
 - [x] **PLAN-012 — Create the decision-complete SPEC-0012 planning/control-plane package.** D-0120 records Arthur's accepted six-phase direction, fresh Home/AI Animator/runtime tracing, the dedicated no-mutation Assistant architecture, per-phase acceptance/proof/lifecycle gates, and the Sep 29 85–90% local/private-beta target. No runtime implementation, provider call, executor, or Git publication is included.
 - [x] **GIT-089 — Review, publish, and synchronize the SPEC-0012 planning package.** Exact planning commit `f2bda33842a3f5a4b560a7d3aab170a6ca4c2fd0`, parent `f334639f33b7b130a2f9409dcdf146dc2fffb165`, was published and synchronized before Phase 1 authorization; it changed planning/control-plane/tree bytes only.

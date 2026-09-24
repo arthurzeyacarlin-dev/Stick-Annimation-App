@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-09-24 — Accept SPEC-0013 Phase 1 Home Finalizer removal (D-0135)
+
+- Arthur visibly accepted the corrected app copy and explicitly authorized control-plane propagation, commit, canonical-main integration and GitHub push.
+- Removed only the inert AI Project Finalizer Home card and its hover identity; Export is now the sole Tools and final Home card.
+- Preserved the existing Home scroller, 60px bottom breathing room and all scrollbar CSS; the shorter range comes from removing obsolete content.
+- Corrected only the guidance Assistant's stale Finalizer availability fact and catalog identity; session, provider, search, dictation, retry, animation and project behavior remain unchanged.
+- Bound the exact seven-path result and immutable manifest SHA-256 `bf8e51c68fe67015a97a6428c39a73bffc2c7a92b08e2f326554a1cf35e2db63`; three-viewport browser proof, oracle, saved-chat validation, focused checks and live Terra/Assistant connectivity passed.
+- Review server port 58080 is closed. Exact GIT-097 publication, proof preservation and D-0054 cleanup are authorized and in progress; deployment and SPEC-0014 remain unauthorized.
+
 ### 2026-09-24 — Publish, activate and close SPEC-0012 Phase 6 (D-0134/GIT-096)
 
 - Published exact 34-path commit `20612c364686b5b855e85f0b12c28a61e84b1061`, parent GIT-095 `6de47a9dc1d780b63ed355fa5148f87cc5f0b1f2`: 20 accepted technical plus 14 reviewed record/tree paths. Canonical/origin/live GitHub `main` synchronized normally at clean `0/0`.

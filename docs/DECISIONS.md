@@ -1399,6 +1399,17 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Cleanup: Phase 6 review PID 88555/process group 88554 stopped and port 58160 closed. After synchronization, D-0054 removed only `/Users/arthurcarlin/.codex/worktrees/1d01/stick-animation-app` and merged local branch `codex/spec0012-phase6-closeout`; canonical main, the active Project Manager worktree, remote history and recovery evidence remain.
 - Boundary/consequence: no post-acceptance runtime/proof byte changed. No temporary cumulative search/review limit existed to remove; permanent safety bounds remain. Public beta, deployment, production-readiness, physical-device/all-browser claims and paused SPEC-0008 work are excluded. SPEC-0012 is fully closed with no Phase 7. The next new feature requires a separately planned and authorized SPEC-0013.
 
+### D-0135 — Accept SPEC-0013 Phase 1 and authorize exact publication
+
+- Date: 2026-09-24
+- Authority/status: Arthur accepts the corrected SPEC-0013 review copy and authorizes canonical control-plane propagation, staging/commit of only the accepted implementation plus reviewed records, fast-forward integration into clean canonical `main`, normal GitHub push, proof preservation and D-0054 cleanup.
+- Identity: exact clean base `8ddc534691a154d2f3ab25cceb61d91690446abb`, empty index, exactly seven technical paths, immutable `output/spec-0013/phase-1/proof-manifest.json` SHA-256 `bf8e51c68fe67015a97a6428c39a73bffc2c7a92b08e2f326554a1cf35e2db63` and fresh strict `VALID` recheck.
+- Accepted outcome: remove the inert AI Project Finalizer Home card and its hover identity; leave Export as the sole Tools/final Home card; retain the existing Home scroll owner, all scrollbar CSS and 60px bottom space; correct only the now-stale Assistant Finalizer fact/catalog identity.
+- Proof: 12 oracle and 28 real-browser checks pass across desktop, medium and compact profiles; Finalizer is absent from visible/semantic order, Export remains functional, scroll geometry and fade behavior pass, saved Assistant schema validates, focused TypeScript/lint pass and automated provider calls are zero. The untouched dev AI-cost generated-type build failure remains inherited.
+- Connectivity/secret boundary: Arthur's review followed live Workspace Terra and AI Assistant replies using ignored local credential linkage. No credential or `.env.local` byte enters Git. Port 58080 is stopped/closed.
+- Unchanged systems: no Finalizer feature, Export implementation, workspace/project/recovery, AI Animator, Assistant request/provider/search/dictation/retry/persistence, dependency, environment, deployment or paused SPEC-0008 behavior changed.
+- Next boundary: exact GIT-097 publication, synchronization, proof preservation and D-0054 cleanup. SPEC-0014 remains undefined and unauthorized until that closeout completes.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

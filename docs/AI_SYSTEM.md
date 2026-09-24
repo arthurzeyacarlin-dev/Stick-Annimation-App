@@ -3,6 +3,8 @@
 Status: canonical current AI architecture and gap map
 Last traced: 2026-09-24 through D-0134/GIT-096 publication and closure of SPEC-0012 Phase 6 local/private-beta hardening. SPEC-0008 Phases 2–6 remain paused; public beta and deployment remain unauthorized.
 
+SPEC-0013/D-0135 changes no Assistant request, provider, search, reasoning, dictation, reveal, persistence, retry or offline behavior. It updates only the local knowledge catalog's Finalizer availability fact and catalog date because the inert Home card is removed. Existing saved chats validate, live Workspace Terra and AI Assistant replies passed, and no credential enters publication.
+
 ## SPEC-0012 guidance Assistant — all six phases published and closed
 
 [`SPEC-0012`](specs/0012-diamond-animator-guidance-assistant.md) defines a separate Home guidance experience, not an extension of the animation-mutating AI plan. Its production brain is fixed `gpt-5.6-terra`; Low/Medium/High/Extra High map to `low`/`medium`/`high`/`xhigh`, with Medium default. Internal product questions retrieve from checked-in `diamond-animator-knowledge/v1`; accepted Phase 4 exposes Responses hosted `web_search` only for genuine external/current facts after its completed dated capability/access/privacy/pricing gate. Deterministic provider/search/transcription doubles remain the default proof path.

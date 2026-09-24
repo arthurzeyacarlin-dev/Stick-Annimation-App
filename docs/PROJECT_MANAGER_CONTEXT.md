@@ -1,5 +1,9 @@
 # Project Manager Context
 
+## Current override — SPEC-0013 Phase 1 accepted
+
+Arthur accepted the exact seven-path SPEC-0013 result from clean base `8ddc534691a154d2f3ab25cceb61d91690446abb` and explicitly authorized propagation, commit, canonical-main integration and GitHub push. D-0135 binds manifest SHA-256 `bf8e51c68fe67015a97a6428c39a73bffc2c7a92b08e2f326554a1cf35e2db63`. The only product outcome is removal of the inert Finalizer Home card, with Export last and the existing Home scrollbar unchanged; one corresponding Assistant catalog fact/version changed. GIT-097 publication, proof preservation and D-0054 cleanup are the only current work. SPEC-0014 is undefined and unauthorized.
+
 Status: canonical owner and collaboration context
 Last updated: 2026-09-24
 
@@ -151,6 +155,6 @@ These are not blockers for preserving the repository, but they must be resolved 
 7. What user data may be sent to model/search providers, and how long is memory retained?
 8. D-0085/D-0091/D-0092 preserve the historical six-phase AI-led sequence and later refinements. D-0093 pauses every phase after the completed Phase 1; no later implementation authority exists.
 9. All seven SPEC-0006 phases are published/integrated through GIT-061 and cleaned up under D-0070. Drawing-only SPEC-0007 is fully closed through GIT-066. SPEC-0008 Phase 1 is fully closed through GIT-070/D-0090; Phases 2–6 remain paused under D-0093. All three SPEC-0009 phases are fully closed through D-0101/GIT-079.
-10. SPEC-0012 is fully closed through D-0134/GIT-096 after all six phases. Public-beta authentication/rate/abuse controls, retention terms and per-user cost policy remain future explicit decisions rather than Phase 6 claims. The next new feature may be planned as SPEC-0013.
+10. SPEC-0012 is fully closed through D-0134/GIT-096 after all six phases. SPEC-0013 Phase 1 is accepted under D-0135 and exact GIT-097 publication/cleanup is the current work. Public-beta authentication/rate/abuse controls, retention terms and per-user cost policy remain future explicit decisions rather than Phase 6 claims. SPEC-0014 may be planned only after this closeout and a new owner goal.
 
 Pending decisions and their status live in `DECISIONS.md`.

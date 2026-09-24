@@ -132,6 +132,7 @@
 ./docs/specs/0010-project-safety-and-recovery.md
 ./docs/specs/0011-my-projects-library-movie-viewer-and-shared-project-management.md
 ./docs/specs/0012-diamond-animator-guidance-assistant.md
+./docs/specs/0013-version-1-home-finalizer-removal.md
 ./docs/specs/README.md
 ./docs/specs/TEMPLATE.md
 ./docs/testing_workflow.md
@@ -620,6 +621,11 @@
 ./scripts/spec0012-assistant/validatePhase4Proof.ts
 ./scripts/spec0012-assistant/validatePhase4ReplyRevealProof.ts
 ./scripts/spec0012-assistant/validatePhase4TerminalCorrectionProof.ts
+./scripts/spec0013-home
+./scripts/spec0013-home/phase1BrowserProof.ts
+./scripts/spec0013-home/phase1Oracle.ts
+./scripts/spec0013-home/recordPhase1Proof.ts
+./scripts/spec0013-home/validatePhase1Proof.ts
 ./scripts/sync_docs_to_github.sh
 ./scripts/traceExplosionLivePath.ts
 ./scripts/traceGenerateSoundsLivePath.mjs

@@ -3,6 +3,8 @@
 Status: canonical architecture map, current vs intended distinguished
 Last traced: 2026-09-24 through D-0134/GIT-096 publication and closure of Phase 6 local/private-beta offline/recovery hardening.
 
+SPEC-0013/D-0135 removes the inert AI Project Finalizer subtree and its `HomeCardId` hover member from `app/page.tsx`. Export remains the last Home card. `main.home-main-scroll`, its 60px bottom padding and all `app/globals.css` scrollbar bytes remain unchanged, so browser intrinsic layout owns the shorter range. The Assistant catalog correction is factual only and does not add a Finalizer route or new runtime owner.
+
 ## SPEC-0012 guidance-Assistant architecture — all six phases published and closed
 
 D-0129 keeps the existing provider/search/job/storage architecture. It adds only provider-consulted metadata recovery when native annotations are wholly absent and a client pending-to-done reveal marker that remounts the existing text reveal for the newly completed turn; persisted history never reanimates.
@@ -342,7 +344,7 @@ Until superseded by an approved spec:
 
 ## Navigation and Coordinate Boundaries
 
-`DrawingWorkspace` now receives the accepted SPEC-0010 Save-and-Exit/Home path. Home Tutorials opens a local full-screen showcase and returns with focus restored; the Home header is not mounted inside Tutorials. Home AI Credits was removed. Accepted SPEC-0012 Phase 1 gives only AI Assistant a dedicated `/assistant` local shell and focus-restoring Back; AI Project Finalizer remains inert. Export opens the accepted SPEC-0009 flow. Refresh from Tutorials returns Home.
+`DrawingWorkspace` now receives the accepted SPEC-0010 Save-and-Exit/Home path. Home Tutorials opens a local full-screen showcase and returns with focus restored; the Home header is not mounted inside Tutorials. Home AI Credits was removed. Accepted SPEC-0012 Phase 1 gives only AI Assistant a dedicated `/assistant` local shell and focus-restoring Back. SPEC-0013 removes the inert AI Project Finalizer Home surface; no Finalizer runtime exists. Export opens the accepted SPEC-0009 flow. Refresh from Tutorials returns Home.
 
 `DrawingCanvas` computes an authoring-world scale of 4.6 from camera limits. Six authoring canvases allocate `hostWidth × 4.6 × DPR` by `hostHeight × 4.6 × DPR`, or 21.16 times host pixel area per canvas at DPR 1 and 84.64 times at DPR 2, before the separate playback surface and history snapshots. A stable document/stage coordinate contract is therefore a prerequisite for treating viewport, memory, AI placement, persistence, and export independently.
 

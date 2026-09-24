@@ -3,6 +3,12 @@
 Status: canonical proof standard and current gate baseline
 Last updated: 2026-09-24
 
+## SPEC-0013 Phase 1 accepted proof
+
+D-0135 accepts the stopped exact seven-path result from base `8ddc534691a154d2f3ab25cceb61d91690446abb`, empty index. Immutable `output/spec-0013/phase-1/proof-manifest.json` SHA-256 is `bf8e51c68fe67015a97a6428c39a73bffc2c7a92b08e2f326554a1cf35e2db63`. Fresh independent validation returned `VALID`, bound seven source and ten evidence files, and rejected wrong base/path/source/evidence/provider/CSS/scroll/acceptance/publication mutations.
+
+The oracle passed 12 checks. Real Chrome passed 28 checks at `1440×900`, `1024×768` and `390×844`: Finalizer absent from visible/semantic order, Export sole Tools/final card and functional, main remains the scroll owner, bottom gap stays approximately 60px, scrollbar activity/fade behavior remains, no horizontal overflow, Assistant navigation works and automated provider calls are zero. `app/globals.css` is byte-identical and saved Assistant schema validation passes. TypeScript/focused lint pass. Product compilation completes before the inherited untouched dev AI-cost PageProps/SearchParams generated-type failure. Live Terra connectivity is supplemental human-review evidence only; ignored local credentials are excluded.
+
 ## SPEC-0012 proof contract — all six phases closed through D-0134/GIT-096
 
 Status: GIT-089 published D-0120 planning; D-0121–D-0123/GIT-090 close Phase 1. D-0124/GIT-091 close combined Phase 2/absorbed Phase 3. D-0125–D-0130/GIT-092–GIT-094 close Phase 4 and its corrections. D-0131/GIT-095 close Phase 5 dictation. D-0133/D-0134/GIT-096 `20612c3…` close Phase 6 and the complete spec with proof preservation and D-0054 cleanup. Public exposure and deployment remain unauthorized.

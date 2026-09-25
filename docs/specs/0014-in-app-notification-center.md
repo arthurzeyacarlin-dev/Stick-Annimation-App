@@ -1,6 +1,6 @@
 # SPEC-0014 — Durable In-App Notification Center and Background Completion
 
-Status: **Phase 1 accepted and technically Verified; control-plane propagation/publication pending. Phases 2–4 Unauthorized/Not started.**
+Status: **Phase 1 Verified, published, integrated, synchronized, proof-preserved and cleaned up; Phases 2–4 Unauthorized/Not started.**
 Owner: Arthur
 Planning role: Specification Architect
 Created: 2026-09-24
@@ -12,7 +12,7 @@ Authorization boundary: D-0137 authorized planning only. Arthur subsequently aut
 
 ## D-0138 accepted Phase 1 correction — authoritative two-bell outcome
 
-Arthur rejected the earlier unpublished review copy, then accepted the fresh correction from canonical `main` `a5ca805b220357b5e8128bb6b76ea408e30fa790`. The stopped Spec Executor transferred the dedicated `codex/spec0014-phase1-notification-correction` worktree exclusively to Control Plane Architect after Arthur/PM acceptance. Its empty-index, exact 19-path technical result is bound by immutable manifest SHA-256 `b1c082c2508b3039fdeacdd65f99ded4a9d49ed7cec99eb9aaff8352be143669`. This paragraph records accepted technical verification; publication is a distinct later Git check, not implied by acceptance.
+Arthur rejected the earlier unpublished review copy, then accepted the fresh correction from canonical `main` `a5ca805b220357b5e8128bb6b76ea408e30fa790`. The stopped Spec Executor transferred the dedicated `codex/spec0014-phase1-notification-correction` worktree exclusively to Control Plane Architect after Arthur/PM acceptance. Its empty-index, exact 19-path technical result is bound by immutable manifest SHA-256 `b1c082c2508b3039fdeacdd65f99ded4a9d49ed7cec99eb9aaff8352be143669`. D-0139/GIT-099 subsequently published the accepted 19 technical plus 14 reviewed record/tree paths as exact 33-path commit `06365eacffe493ea3550de71b3baff0f57bf03b2`; canonical/local-origin/live-GitHub `main` matched cleanly at `0/0`. Proof preservation and D-0054 cleanup are complete.
 
 - Exactly two product bell locations exist: **Home/main interface** (the overall inbox) and **AI Assistant** (only `assistant.reply.completed` and `assistant.reply.failed`). Credits/AI Dashboard, New/Open workspace, Export, Tutorials, Open Project, My Projects and every other surface have no bell. The root provider has no global visible trigger.
 - Both views share one durable record and per-record read state. Home includes all supported event kinds. Assistant filters its rows, unread count, blue dot, one-shot green ring, announcements and **Mark all as read** to Assistant events only; it cannot clear other unread events. The dot has no visible number; accessible text supplies the exact count.
@@ -22,7 +22,7 @@ Arthur rejected the earlier unpublished review copy, then accepted the fresh cor
 
 Technical proof passed 35 contract, 29 storage and 41 UI assertions; exact Home `1`/Assistant `1`/other surfaces `0` trigger inventory; two-tab/reload/restart/read/capacity/corruption checks; accessibility and protected Assistant/dictation/Terra/export/editor regressions; TypeScript, focused lint and focused Webpack build. Manifest validation rejected 18 mutations, with zero automated provider/external calls. Full lint remains the inherited five errors/81 warnings. The full production Webpack build fails on the identical untouched `app/dev/ai-costs/lifetime/page.tsx` `PageProps` error on base and result; default Turbopack build also failed in this offline environment. Production-build readiness is **not proven**. Native 200% browser zoom, OS-window focus, physical microphone/devices and non-Chromium are unproven. These limits must stay visible in any Phase 2 handoff.
 
-This correction supersedes the older all-surface bell placement and numeric-badge language in §§7 and 14 below. No later phase starts automatically; Phase 2 requires Phase 1's full publication/integration/synchronization/proof preservation/cleanup plus a fresh separate Arthur authorization.
+This correction supersedes older all-surface bell placement and numeric-badge language. Phase 2's Phase 1 closeout prerequisite is now satisfied, but it remains Unauthorized/Not started until Arthur separately authorizes a fresh Plan-mode executor.
 
 ## 1. Exact product outcome
 
@@ -50,7 +50,7 @@ SPEC-0014 has exactly four separately authorized implementation phases:
 
 | Phase | Outcome | Authorization state |
 | --- | --- | --- |
-| 1 — Notification center foundation and durable event contract | Shared local store, two scoped bells, unread/read semantics, target resolution contract and proof-only fixtures; no product producer is connected. | Accepted and technically Verified under D-0138; GIT-099 publication pending |
+| 1 — Notification center foundation and durable event contract | Shared local store, two scoped bells, unread/read semantics, target resolution contract and proof-only fixtures; no product producer is connected. | Verified, published, integrated, synchronized, proof-preserved and cleaned under D-0138/D-0139/GIT-099 |
 | 2 — AI reply completion/failure across navigation | App-lifetime observers terminalize and notify for the exact Assistant conversation and exact New/Open Terra project/workspace after in-app navigation. | Unauthorized; Not started |
 | 3 — Export completion/failure across navigation | One app-lifetime export coordinator continues a user-started export after in-app navigation and publishes only validated success or truthful failure. | Unauthorized; Not started |
 | 4 — Reliability, offline, dormant future contracts and whole-feature proof | Offline incident warning, dedupe, persistence, reload/interruption truth, cross-tab concurrency, accessibility, regression closure and inactive future schemas. | Unauthorized; Not started |

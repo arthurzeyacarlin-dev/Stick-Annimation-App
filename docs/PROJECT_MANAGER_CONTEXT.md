@@ -1,8 +1,8 @@
 # Project Manager Context
 
-## Current override — corrected SPEC-0014 Phase 1 accepted; publication next
+## Current override — SPEC-0014 Phase 1 fully closed; Phase 2 entry-ready but unauthorized
 
-Arthur established PM V5, authorized Phase 1, rejected the first unpublished review result and accepted the fresh two-bell correction under D-0138. The stopped executor's exact 19-path result from `a5ca805b220357b5e8128bb6b76ea408e30fa790` is technically Verified at immutable manifest SHA-256 `b1c082c2508b3039fdeacdd65f99ded4a9d49ed7cec99eb9aaff8352be143669`; the index was empty at transfer. Home is the all-event inbox; Assistant contains only Assistant-reply events; all other surfaces have no bell. Both views share one durable read state, with view-scoped dot/ring/announcements/Mark-all. No real producer or handler is connected in Phase 1. Control-plane propagation and GIT-099 exact publication/proof/cleanup follow Arthur's explicit acceptance and Git request. Phase 2 remains Unauthorized/Not started until Phase 1 is durably synchronized and Arthur separately authorizes it. Full production build is not proven because the untouched dev AI-cost route fails identically on base/result; no new AI/search limits or disconnected state were added.
+Arthur established PM V5, authorized Phase 1, rejected the first unpublished review result and accepted the fresh two-bell correction under D-0138. D-0139/GIT-099 publish/integrate/synchronize its exact 19-path technical result in 33-path commit `06365eacffe493ea3550de71b3baff0f57bf03b2`, preserve proof and complete D-0054 cleanup. Immutable manifest SHA-256 is `b1c082c2508b3039fdeacdd65f99ded4a9d49ed7cec99eb9aaff8352be143669`. Home is the all-event inbox; Assistant contains only Assistant-reply events; all other surfaces have no bell. Both views share one durable read state, with view-scoped dot/ring/announcements/Mark-all. No real producer or handler is connected in Phase 1. Phase 2 is entry-ready but Unauthorized/Not started until Arthur separately authorizes it. Full production build is not proven because the untouched dev AI-cost route fails identically on base/result; no new AI/search limits or disconnected state were added.
 
 ## Historical override — SPEC-0014 notification plan created; PM V5 gate before Phase 1
 
@@ -11,7 +11,7 @@ D-0137 and [`SPEC-0014`](specs/0014-in-app-notification-center.md) define the ap
 All implementation phases are **Unauthorized; Not started**. Before Phase 1, Arthur must create **Project Manager Version 5**, the current Project Manager must transition to **AI Animator/Dad support**, the planning package must be separately published, and Arthur must separately authorize Phase 1 from that exact planning SHA. This task does not perform the role transition, implement runtime behavior or authorize provider/paid/Git/deployment work.
 
 Status: canonical owner and collaboration context
-Last updated: 2026-09-24
+Last updated: 2026-09-25
 
 ## Ownership, Sponsorship, and PM Collaboration
 

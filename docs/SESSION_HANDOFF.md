@@ -1,6 +1,13 @@
 # Session Handoff
 
-## Current handoff — 2026-09-25 corrected SPEC-0014 Phase 1 accepted; exact publication next
+## Current handoff — 2026-09-25 SPEC-0014 Phase 1 fully published; Phase 2 entry-ready
+
+- D-0139/GIT-099 published the Arthur-accepted two-bell foundation as exact 33-path commit `06365eacffe493ea3550de71b3baff0f57bf03b2`, parent `a5ca805b220357b5e8128bb6b76ea408e30fa790`. Canonical `main`, local `origin/main` and live GitHub `main` matched cleanly at `0/0` after normal fast-forward/push. This records Git integration, not a cloud database change or deployment.
+- Immutable technical manifest SHA-256 is `b1c082c2508b3039fdeacdd65f99ded4a9d49ed7cec99eb9aaff8352be143669`. The full 116-file/10,754,616-byte proof tree is preserved in the active PM worktree at `output/recovery/GIT-099-spec0014-phase1-06365ea/phase1`, matching inventory SHA-256 `4f237679d33070d715939c433ca95e0bd6d07168f318aca5fda704ffc3f30598`. The exact review server was stopped, port 58420 closed, and the obsolete `/9e07/` worktree/local merged branch removed under D-0054.
+- Phase 1 is only the local notification contract/store/UI foundation: one Home all-event bell, one Assistant reply-only bell, shared read state, and zero bells elsewhere. No production AI/Terra/export/offline producer, target handler or polling loop is connected. Full production build remains blocked by the untouched dev AI-cost `PageProps` baseline failure; native zoom/focus, live provider/microphone, physical devices and non-Chromium are unproven. AI/search/dictation policies and non-notification app behavior were not changed.
+- Exact next step: Arthur may separately authorize one fresh Plan-mode SPEC-0014 Phase 2 Spec Executor from current synchronized canonical `main`. Phase 2 must make Assistant and Terra completion/failure after in-app navigation truthfully notify and land on the exact chat/project, while preserving fixed Terra, dictation, search, retry, project, export and editor behavior. Phase 3 Export and Phase 4 offline/reliability remain separately gated. Do not start Phase 2 from the obsolete review copy or infer authorization from this readiness statement.
+
+## Historical handoff — 2026-09-25 accepted Phase 1 before GIT-099 publication
 
 - Arthur accepted the fresh two-bell Phase 1 correction and explicitly requested Control Plane Architect propagation followed by normal commit, clean canonical-main integration and GitHub push. D-0138 records this acceptance, not a premature publication claim.
 - The stopped executor's exclusive worktree is `/Users/arthurcarlin/.codex/worktrees/9e07/stick-animation-app`, branch `codex/spec0014-phase1-notification-correction`, exact base/HEAD `a5ca805b220357b5e8128bb6b76ea408e30fa790`, empty index and 19 accepted technical dirty paths before record propagation. Manifest SHA-256 `b1c082c2508b3039fdeacdd65f99ded4a9d49ed7cec99eb9aaff8352be143669` independently validates with 19 source/111 evidence bindings and 18 rejected mutations. The earlier rejected review bytes are separate recovery evidence, not implementation input.
@@ -19,7 +26,7 @@
 - Exact next task: review this planning package and, only if separately authorized, publish its exact control-plane/tree paths. No runtime, provider/paid action, app copy, phase executor, staging, commit, merge, push or deployment is authorized here.
 
 Status: current canonical stopping point
-Last updated: 2026-09-24
+Last updated: 2026-09-25
 
 All seven SPEC-0006 phases are closed through GIT-061. Drawing-only SPEC-0007 is fully closed through GIT-066. SPEC-0008 Phase 1 is fully closed through GIT-070; D-0093 keeps Phases 2–6 paused as Unauthorized/Not started/not rejected. All three SPEC-0009 phases are fully closed through GIT-079, all three SPEC-0010 phases through GIT-083, all three SPEC-0011 phases through GIT-088, all six SPEC-0012 phases through GIT-096, and SPEC-0013 through GIT-097.
 

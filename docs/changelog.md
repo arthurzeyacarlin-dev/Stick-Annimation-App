@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-25 — Publish and close SPEC-0014 Phase 1 (D-0139/GIT-099)
+
+- Published exact 33-path commit `06365eacffe493ea3550de71b3baff0f57bf03b2`, parent `a5ca805b220357b5e8128bb6b76ea408e30fa790`: 19 accepted technical and 14 reviewed control-plane/tree paths. Clean canonical `main` fast-forwarded and pushed normally; canonical/local-origin/live GitHub `main` matched at `0/0`.
+- Preserved all 116 Phase 1 proof files/10,754,616 bytes in the active PM worktree at `output/recovery/GIT-099-spec0014-phase1-06365ea/phase1`; source/destination checksum inventory SHA-256 matches `4f237679d33070d715939c433ca95e0bd6d07168f318aca5fda704ffc3f30598`. The immutable technical manifest remains `b1c082c2508b3039fdeacdd65f99ded4a9d49ed7cec99eb9aaff8352be143669`.
+- Stopped the exact obsolete review server and verified port 58420 closed; removed the `/9e07/` worktree and its merged local branch only after synchronization. No cloud database, provider, AI/search limit, export/project behavior, deployment or later phase was changed. Phase 2 is entry-ready but not authorized.
+
 ## 2026-09-25 — Accept and propagate corrected SPEC-0014 Phase 1 (D-0138; GIT-099 pending)
 
 - Arthur passed the new two-bell review copy and authorized project-record propagation followed by exact normal Git publication. The stopped Spec Executor transferred exclusive ownership of `codex/spec0014-phase1-notification-correction` from base `a5ca805b220357b5e8128bb6b76ea408e30fa790` with 19 accepted technical paths and an empty index.

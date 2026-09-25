@@ -12,13 +12,13 @@ Last updated: 2026-09-25
 - The roadmap may change when Arthur resolves pending decisions or new evidence changes the risk order.
 - D-0129/D-0130/GIT-094 fully close the final Phase 4 citation/reveal correction. D-0131/GIT-095 close Phase 5 dictation. D-0133/D-0134/GIT-096 `20612c3…` close Phase 6 and complete SPEC-0012 with proof preservation, activation and cleanup.
 
-## Current owner sequence — 2026-09-25 (SPEC-0014 Phase 2 fully closed; Phase 3 awaits authorization)
+## Current owner sequence — 2026-09-25 (SPEC-0014 Phase 3 Export rejected; Phase 4 next candidate)
 
 1. Preserve D-0135/D-0136/GIT-097 `893daa82f555381d775af8fb73b14a551bd5fb45` as the closed SPEC-0013 result.
 2. Preserve the published D-0137/[`SPEC-0014`](specs/0014-in-app-notification-center.md) planning base `a5ca805b220357b5e8128bb6b76ea408e30fa790` and D-0138's Arthur-accepted, technically Verified 19-path two-bell Phase 1 correction.
 3. Preserve D-0139/GIT-099's exact 33-path commit `06365eacffe493ea3550de71b3baff0f57bf03b2`, clean synchronization, proof backup and D-0054 cleanup. Full production build remains an inherited unrelated failure, not a passing claim.
 4. D-0140 accepts and technically verifies the corrected Phase 2 same-copy result: app-lifetime Assistant/Terra observation, unread-only two-bell presentation, chat/project labels and exact target navigation with arrival-confirmed read state. GIT-100 published its 21 accepted technical plus 15 reviewed record/tree paths as `318566d6d20acec672c3d8c6a0e5620ad70c7d66`, synchronized canonical/live main, preserved proof and completed D-0054 review-copy cleanup. Immutable manifest SHA-256 remains `77bc08b62c472d9ed0f75a2cd6b7d9b4b84d3f9b2e75d89645738567904ae8e7`.
-5. Arthur may separately authorize a fresh Plan-mode Phase 3 Export Spec Executor from the final synchronized canonical `main`; Phase 4 offline/reliability stays separately gated. No Phase 3 task starts automatically.
+5. D-0141 records Arthur's rejection of the separate Phase 3 Export notification review copy despite technical PASS; do not merge or reuse it. Preserve the two shipped bells and Assistant/Terra notices. D-0054 rejected-copy recovery/cleanup is complete. Arthur separately authorized Phase 4's offline Home-bell outcome; publish/synchronize this docs-only decision before a fresh exact-base Plan-mode executor, without an Export notification/background coordinator.
 6. No provider/paid operation, deployment, later-phase implementation or unrelated Git mutation begins automatically.
 
 All seven SPEC-0006 phases are Verified/published/integrated through GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`. The immutable 50,224-byte Phase 7 manifest is PASS/VALID at SHA-256 `c6202f6deab4d3bcc75af3ad6699fc2dc70fc58723eccaa8337b1a2aef74bc51`, with exactly 11 source and 16 evidence bindings.
@@ -79,7 +79,7 @@ D-0120 adds proposed [`SPEC-0012 — Diamond Animator Guidance Assistant`](specs
 5. **Microphone dictation** — separately approved transcription boundary with waveform, permission, Cancel/Stop, editable text, explicit Send and no raw-audio retention.
 6. **Beta hardening** — storage/context/output/search/transcription/cost/security/privacy/accessibility/restart/long-chat proof and exact AI Animator/project regressions.
 
-The target sequence completed all six SPEC-0012 phases through D-0134/GIT-096 `20612c3…`. The resulting claim is local/private-beta hardening only, not public or production readiness. Public exposure and deployment remain unauthorized. The accepted AI Animator remains separate; paused SPEC-0008 Phases 2–6 do not resume. SPEC-0013 is fully closed through D-0136/GIT-097. D-0137 defined SPEC-0014's four planned phases: foundation/UI; AI reply completion/failure across navigation; Export completion/failure across navigation; and offline/reliability/dormant-contract closeout. Phases 1–2 are fully closed; Phases 3–4 are unauthorized/not started.
+The target sequence completed all six SPEC-0012 phases through D-0134/GIT-096 `20612c3…`. The resulting claim is local/private-beta hardening only, not public or production readiness. Public exposure and deployment remain unauthorized. The accepted AI Animator remains separate; paused SPEC-0008 Phases 2–6 do not resume. SPEC-0013 is fully closed through D-0136/GIT-097. D-0137 originally planned SPEC-0014 in four phases; Phases 1–2 are fully closed, D-0141 rejects/abandons Phase 3 Export notifications without publication, and Arthur separately authorized Phase 4's offline Home-bell outcome. Phase 4 remains unimplemented pending D-0141 publication and a fresh exact-base Plan-mode executor.
 
 ## Phase 0 — Preserve and Stabilize
 

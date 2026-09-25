@@ -3,6 +3,12 @@
 Status: canonical proof standard and current gate baseline
 Last updated: 2026-09-25
 
+## Current SPEC-0014 proof override — D-0141 Phase 3 rejection and Phase 4 boundary
+
+The separate Phase 3 Export review copy may have a technical PASS, but Arthur rejected its product outcome. Its `output/spec0014/phase3/manifest.json` SHA-256 `6e93cd7b73f8dca43c19fae2aebc7170889475f515e63909342ab7116817f868` is historical rejected-copy evidence, **not** a publication or acceptance gate. Do not use its runtime, fixtures, tests or proof as Phase 4 implementation input. D-0054 has preserved all 37 rejected technical/proof files in a checksum-verified PM recovery backup and removed only the stopped rejected copy. The earlier four-phase proof contract below is historical where it requires Export notifications.
+
+If separately authorized after D-0141 publication/cleanup, Phase 4 must prove one truthful app-wide browser-declared offline incident and no spam, correct offline/online transitions, unchanged Assistant/Terra source-first unread-only exact-target notifications, multi-tab/storage/navigation/accessibility reliability, dormant future low-usage/updater/AI-animation producers, and protected product regressions. Specifically prove unchanged screen-owned Export operation and **zero Export completion/failure notification**; do not test for or implement background Export continuation. No provider/paid or deployment action is implied.
+
 ## SPEC-0014 Phase 2 accepted and published proof — D-0140/GIT-100
 
 The corrected same-copy result starts at exact canonical base/HEAD `acd4031cade0e4e960223190a8c1645d007d61af`, branch `codex/spec0014-phase2-ai-completion-review`, empty index and exactly 21 accepted technical paths. Immutable `output/spec0014/phase2/manifest.json` SHA-256 `77bc08b62c472d9ed0f75a2cd6b7d9b4b84d3f9b2e75d89645738567904ae8e7` binds 21 source and 105 evidence files. Its strict pre-propagation validator passed and rejected 12 mutations; after documentation propagation, independently recheck frozen source/evidence hashes without rewriting the executor manifest or treating the historical exact-dirty-state validator as a post-propagation gate.

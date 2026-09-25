@@ -2,7 +2,7 @@
 
 Status: canonical repository memory
 Established: 2026-08-09
-Last reconciled with live code and current records: 2026-09-25 through GIT-100's Phase 2 publication, proof preservation and review-copy cleanup. SPEC-0014 Phases 1–2 are published/integrated; Phases 3–4 remain unauthorized.
+Last reconciled with live code and current records: 2026-09-25 through GIT-100's Phase 2 publication, D-0141's docs-only owner rejection of Phase 3 Export notifications, and verified rejected-copy cleanup. SPEC-0014 Phases 1–2 are published/integrated; Phase 3 is rejected/unpublished; Phase 4 remains unimplemented. Verify Git refs for D-0141 publication status.
 Snapshot basis: pull request `#1` merged into `main` as `093bbac82fd3b4d97984448b6c6dbd716153354d`; functional anchor `c7de444536f3e0dd578a2063f70b0914e6af60b1`; tag `baseline-2026-08-09-control-plane`; SPEC-0014 Phase 1 GIT-099 `06365eacffe493ea3550de71b3baff0f57bf03b2`; Phase 2 GIT-100 product commit `318566d6d20acec672c3d8c6a0e5620ad70c7d66`.
 
 ## Purpose

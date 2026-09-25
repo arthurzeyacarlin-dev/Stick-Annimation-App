@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-09-25 — Record SPEC-0014 Phase 3 Export rejection (D-0141; publication pending)
+
+- Arthur rejected the separate technically passing Export-notification review copy as low-value for normal short exports. Its 15-path implementation and ignored manifest SHA-256 `6e93cd7b73f8dca43c19fae2aebc7170889475f515e63909342ab7116817f868` are unaccepted, unpublished and non-reusable; no rejected runtime enters canonical `main`.
+- Kept the published two bells and Assistant/Terra unread-only exact-target alerts. Removed only Export notifications/background execution from the active notification plan; ordinary Export remains screen-owned. Phase 4 is the next candidate for truthful offline incident and accepted-notification reliability after this decision is published, D-0054 rejected-copy recovery/cleanup finishes and Arthur separately authorizes it. Future low-usage and real updater notices remain dormant.
+- Changed canonical control-plane documents only. No runtime/fixture/technical-test/proof byte, AI/provider/search/dictation/limit, stage/commit/merge/push, paid call or deployment changed. The earlier GIT-100 entry is historical publication state before this decision.
+- Completed D-0054 rejected-copy cleanup after verifying the stopped executor and exact worktree identity: preserved 15 dirty technical plus 22 ignored proof files under the active PM recovery directory at 37-file inventory SHA-256 `20c2b36371a3fca949a11cf9b0375a0e68e4562c9a37518516ad6ff62679c8bf`; stopped PID 31062/31063, verified port 58460 closed and removed only the detached `/bd83/` worktree. Arthur separately authorized docs-only D-0141 publication and the later Phase 4 offline Home-bell product outcome, each under its own gate; neither rejected code nor Phase 4 implementation was published in this record.
+
 ## 2026-09-25 — Publish and close SPEC-0014 Phase 2 (GIT-100)
 
 - Published exact 36-path commit `318566d6d20acec672c3d8c6a0e5620ad70c7d66`, parent `acd4031cade0e4e960223190a8c1645d007d61af`: 21 accepted technical plus 15 reviewed control-plane/tree paths. Clean canonical `main` fast-forwarded and pushed normally; canonical/local-origin/live GitHub main matched at clean `0/0` after the product push.

@@ -1,6 +1,6 @@
 # SPEC-0014 — Durable In-App Notification Center and Background Completion
 
-Status: **Phase 1 fully closed; Phase 2 accepted and technically Verified in its separate worktree, control-plane propagation complete, publication pending; Phases 3–4 Unauthorized/Not started.**
+Status: **Phases 1–2 fully published, integrated, synchronized, proof-preserved and cleaned up; Phases 3–4 Unauthorized/Not started.**
 Owner: Arthur
 Planning role: Specification Architect
 Created: 2026-09-24
@@ -8,7 +8,11 @@ Last updated: 2026-09-25
 Decision link: D-0137; D-0138; D-0140
 TODO IDs: PLAN-014; PM-005; NOTIFY-001; NOTIFY-002; NOTIFY-003; NOTIFY-004; GIT-098; GIT-100
 Planning baseline: clean detached checkout of canonical `main` at `acc3204d6c5aa08f1d0d714dcd5a64e8746dcb8d`
-Authorization boundary: D-0137 authorized planning only. Phase 1 is fully closed under D-0138/D-0139. Arthur separately authorized Phase 2, accepted the corrected same-copy result under D-0140, and requested control-plane recording followed by exact Git publication. This control-plane checkpoint does not itself stage, commit, merge, push or deploy. Phases 3–4, provider/paid activity and deployment remain unauthorized.
+Authorization boundary: D-0137 authorized planning only. Phase 1 is fully closed under D-0138/D-0139. Arthur separately authorized Phase 2 and accepted its correction under D-0140; GIT-100 published and closed it. Phases 3–4, provider/paid activity and deployment remain unauthorized.
+
+## GIT-100 Phase 2 publication closeout — current lifecycle
+
+Exact 36-path commit `318566d6d20acec672c3d8c6a0e5620ad70c7d66`, parent `acd4031cade0e4e960223190a8c1645d007d61af`, contains 21 accepted technical and 15 reviewed record/tree paths. Clean canonical `main` fast-forwarded, pushed normally and matched local `origin/main` and live GitHub `main` at clean `0/0` after the product push. Sealed technical manifest SHA-256 `77bc08b62c472d9ed0f75a2cd6b7d9b4b84d3f9b2e75d89645738567904ae8e7` remains unchanged. All 109 ignored proof files/10,200,026 bytes are preserved in the active PM worktree at `output/recovery/GIT-100-spec0014-phase2-318566d/phase2`, with equal source/destination inventory SHA-256 `dd0983441dbfb0b4d23b99fb470624140544a588977cdb445677d09eb58b65fa`. Port 58440 is closed; only the obsolete `/974d/` review worktree/local branch were removed. The D-0140 accepted-but-unpublished wording below is a historical checkpoint superseded by this closeout. Phase 3 Export is entry-ready but requires separate Arthur authorization from synchronized canonical main.
 
 ## D-0140 accepted Phase 2 correction — authoritative current behavior
 
@@ -22,7 +26,7 @@ Arthur accepted the corrected Phase 2 review copy at `http://127.0.0.1:58440/` a
 
 The exact 21 accepted technical paths are `app/page.tsx`; `src/components/assistant/AssistantConversation.tsx`; `src/components/assistant/DiamondAssistantScreen.tsx`; `src/components/assistant/useAssistantSessions.ts`; `src/components/notifications/NotificationCenterProvider.tsx`; `src/components/notifications/NotificationTrigger.tsx`; `src/components/workspace/DrawingWorkspace.tsx`; `src/components/workspace/ai/DrawingAiPanel.tsx`; `src/components/workspace/ai/WorkspaceAiPanelShell.tsx`; `src/lib/ai/aiAnimatorStorage.ts`; `src/lib/notifications/notificationNavigation.ts`; `src/lib/notifications/assistantCompletionObserver.ts`; `src/lib/notifications/terraCompletionObserver.ts`; `scripts/fixtures/spec0014-notifications/phase-2/contract.json`; and the seven `scripts/spec0014-notifications/` files `phase2BrowserProof.ts`, `phase2Oracle.ts`, `phase2ProtectedRegressions.ts`, `phase2BuildProof.ts`, `phase2ReviewSetup.ts`, `recordPhase2Proof.ts`, `validatePhase2Proof.ts`. No accepted technical byte is edited during control-plane propagation.
 
-Phase 2 is **accepted and technically Verified in the separate review worktree, not yet published/integrated**. The immutable executor manifest's pre-acceptance and no-publication flags remain historical evidence and are not rewritten. D-0140 records Arthur's subsequent acceptance; GIT-100 publication requires the separate bounded operation after this Control Plane Architect packet. Phase 3 remains Unauthorized/Not started until Phase 2 is durably integrated/synchronized/proof-preserved/cleaned up and Arthur separately authorizes it.
+At D-0140's acceptance checkpoint, Phase 2 was technically Verified in a separate review worktree but not yet published. Its immutable executor manifest's pre-acceptance and no-publication flags remain historical evidence and were not rewritten. GIT-100 subsequently published/integrated, proof-preserved and cleaned up those exact bytes as recorded above. Phase 3 remains Unauthorized/Not started until Arthur separately authorizes it.
 
 ## D-0138 accepted Phase 1 correction — authoritative two-bell outcome
 
@@ -65,7 +69,7 @@ SPEC-0014 has exactly four separately authorized implementation phases:
 | Phase | Outcome | Authorization state |
 | --- | --- | --- |
 | 1 — Notification center foundation and durable event contract | Shared local store, two scoped bells, unread/read semantics, target resolution contract and proof-only fixtures; no product producer is connected. | Verified, published, integrated, synchronized, proof-preserved and cleaned under D-0138/D-0139/GIT-099 |
-| 2 — AI reply completion/failure across navigation | App-lifetime observers terminalize and notify for the exact Assistant conversation and exact New/Open Terra project/workspace after in-app navigation. | Accepted and technically Verified in separate review worktree; control-plane propagation complete; publication pending under D-0140 |
+| 2 — AI reply completion/failure across navigation | App-lifetime observers terminalize and notify for the exact Assistant conversation and exact New/Open Terra project/workspace after in-app navigation. | Verified, published, integrated, synchronized, proof-preserved and cleaned under D-0140/GIT-100 |
 | 3 — Export completion/failure across navigation | One app-lifetime export coordinator continues a user-started export after in-app navigation and publishes only validated success or truthful failure. | Unauthorized; Not started |
 | 4 — Reliability, offline, dormant future contracts and whole-feature proof | Offline incident warning, dedupe, persistence, reload/interruption truth, cross-tab concurrency, accessibility, regression closure and inactive future schemas. | Unauthorized; Not started |
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-25 — Publish and close SPEC-0014 Phase 2 (GIT-100)
+
+- Published exact 36-path commit `318566d6d20acec672c3d8c6a0e5620ad70c7d66`, parent `acd4031cade0e4e960223190a8c1645d007d61af`: 21 accepted technical plus 15 reviewed control-plane/tree paths. Clean canonical `main` fast-forwarded and pushed normally; canonical/local-origin/live GitHub main matched at clean `0/0` after the product push.
+- Preserved all 109 ignored proof files/10,200,026 bytes at `output/recovery/GIT-100-spec0014-phase2-318566d/phase2` in the active PM worktree, with equal source/destination inventory SHA-256 `dd0983441dbfb0b4d23b99fb470624140544a588977cdb445677d09eb58b65fa`. Technical manifest SHA-256 remains `77bc08b62c472d9ed0f75a2cd6b7d9b4b84d3f9b2e75d89645738567904ae8e7`.
+- Stopped the exact review server, verified port 58440 closed, and removed only the clean obsolete `/974d/` worktree and merged local review branch. Existing canonical main server on port 3000 returned `/assistant` HTTP 200 without a provider call. Phase 3 Export is entry-ready but Unauthorized/Not started pending Arthur's separate authorization; Phase 4, deployment and unrelated runtime remain untouched.
+
 ## 2026-09-25 — Accept and record corrected SPEC-0014 Phase 2 (D-0140; GIT-100 pending)
 
 - Arthur passed the same separate Phase 2 review copy. The stopped correction executor transferred the unchanged-base `codex/spec0014-phase2-ai-completion-review` worktree with exactly 21 accepted technical dirty paths and an empty index. Immutable manifest SHA-256 `77bc08b62c472d9ed0f75a2cd6b7d9b4b84d3f9b2e75d89645738567904ae8e7` revalidated strictly before records changed.

@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-09-25 — Publish D-0141 Phase 3 rejection record (GIT-101)
+
+- Published only 13 reviewed `docs/` paths in exact commit `dd744f652c3211d5ee87a3d49b22ffff72c3188b` from parent `c8fbc954c130acdcc9df429d7581c38b497bc33a`; clean canonical `main` fast-forwarded, pushed normally and matched local `origin/main` and live GitHub `main` at `0/0`.
+- No rejected Phase 3 runtime, fixture, test or proof entered main. D-0054 recovery preservation/cleanup is complete. Arthur's separately authorized Phase 4 outcome now awaits a fresh exact-base Plan-mode executor in a new review copy; this record-only closeout implements no offline behavior.
+
 ## 2026-09-25 — Record SPEC-0014 Phase 3 Export rejection (D-0141; publication pending)
 
 - Arthur rejected the separate technically passing Export-notification review copy as low-value for normal short exports. Its 15-path implementation and ignored manifest SHA-256 `6e93cd7b73f8dca43c19fae2aebc7170889475f515e63909342ab7116817f868` are unaccepted, unpublished and non-reusable; no rejected runtime enters canonical `main`.

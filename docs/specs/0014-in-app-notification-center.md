@@ -1,6 +1,6 @@
 # SPEC-0014 — Durable In-App Notification Center and Background Completion
 
-Status: **Phases 1–2 fully published, integrated, synchronized, proof-preserved and cleaned up; Phase 3 Export rejected/abandoned and unpublished; Phase 4 owner-authorized, not started, gated on D-0141 publication and a fresh exact-base Plan-mode executor.**
+Status: **Phases 1–2 fully published, integrated, synchronized, proof-preserved and cleaned up; Phase 3 Export rejected/abandoned and unpublished; D-0141 record published under GIT-101; Phase 4 owner-authorized, not started, awaiting a fresh exact-base Plan-mode executor.**
 Owner: Arthur
 Planning role: Specification Architect
 Created: 2026-09-24
@@ -11,6 +11,8 @@ Planning baseline: clean detached checkout of canonical `main` at `acc3204d6c5aa
 Authorization boundary: D-0137 authorized planning only. Phase 1 is fully closed under D-0138/D-0139. Arthur separately authorized Phase 2 and accepted its correction under D-0140; GIT-100 published and closed it. Arthur authorized and visibly rejected the separate Phase 3 Export review copy; no Phase 3 implementation is accepted or publishable. Arthur subsequently authorized Phase 4's offline-Home-bell product outcome, but its executor cannot start before D-0141 publication from clean main. Provider/paid activity, future low-usage/updater producers and deployment remain unauthorized.
 
 ## D-0141 current override — reject Phase 3 Export notifications; retain the two-bell plan
+
+GIT-101 published this rejection/cleanup record as 13 `docs/`-only paths in `dd744f652c3211d5ee87a3d49b22ffff72c3188b`; clean local/origin/live canonical main matched after push. No rejected Phase 3 code or proof was included. The publication entry gate for Phase 4 is satisfied, but the fresh exact-base Plan-mode Spec Executor has not yet begun.
 
 Arthur rejected the technically passing but low-value Phase 3 Export notification result after reviewing the separate app copy. A normal short export should not require the user to race away from its screen to receive a notification. **Only the proposed Export notification/background-export phase is removed from the active plan.** Neither its runtime nor its fixture/test/proof bytes enter canonical `main`; its review-copy manifest SHA-256 `6e93cd7b73f8dca43c19fae2aebc7170889475f515e63909342ab7116817f868` is rejected historical evidence, not acceptance. D-0054 cleanup is complete: 37 rejected technical/proof files were preserved and checksum-verified under the active PM worktree's `output/recovery/D-0141-rejected-spec0014-phase3-c8fbc95/`, port 58460 is closed, and only the stopped `/bd83/` review worktree was removed. No rejected byte is reusable implementation.
 

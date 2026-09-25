@@ -1,6 +1,11 @@
 # Session Handoff
 
-## Current handoff — 2026-09-25 D-0141 cleanup complete; docs-only publication authorized
+## Current handoff — 2026-09-25 D-0141 published; Phase 4 ready for exact-base Plan-mode executor
+
+- GIT-101 published only 13 reviewed D-0141 `docs/` paths in `dd744f652c3211d5ee87a3d49b22ffff72c3188b` from `c8fbc954c130acdcc9df429d7581c38b497bc33a`. Clean canonical `main` fast-forwarded and pushed normally; local HEAD, `origin/main` and live GitHub `main` matched at `dd744f6`, clean `0/0`. No rejected Phase 3 code/proof entered main.
+- D-0054 rejected-copy preservation and cleanup are complete. Arthur authorized Phase 4's truthful browser-declared offline incident through the existing Home bell while keeping the Assistant bell reply-only and the accepted Assistant/Terra flows unchanged. The next action is a new dedicated Phase 4 Spec Executor task/worktree in Plan mode from the exact final synchronized canonical-main SHA; no implementation, provider/paid call or deployment has yet occurred. The following heading is the historical prepublication handoff.
+
+## Historical handoff — 2026-09-25 D-0141 cleanup complete; docs-only publication was authorized
 
 - Arthur rejected Phase 3 Export alerts. Its 15 dirty technical files plus 22 ignored proof files were preserved and checksum-verified at `/Users/arthurcarlin/.codex/worktrees/d658/stick-animation-app/output/recovery/D-0141-rejected-spec0014-phase3-c8fbc95/`, 37-file inventory SHA-256 `20c2b36371a3fca949a11cf9b0375a0e68e4562c9a37518516ad6ff62679c8bf`, manifest SHA-256 `6e93cd7b73f8dca43c19fae2aebc7170889475f515e63909342ab7116817f868`. PID 31062/31063 stopped, port 58460 closed, and only the detached rejected `/bd83/` worktree was removed. No rejected code enters main.
 - Arthur separately approved publishing only D-0141 control-plane records to GitHub/main. Local canonical `main` and live remote both matched `c8fbc954c130acdcc9df429d7581c38b497bc33a` at the prepublication check. The index is empty and only reviewed `docs/` files are dirty. Recheck before committing; stage no runtime, fixture, test or proof bytes, publish normally, and verify clean local/origin/live-main synchronization. Stop if main advances or scope changes.

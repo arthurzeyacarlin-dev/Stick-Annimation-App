@@ -1,7 +1,7 @@
 # TODO
 
 Status: canonical actionable queue
-Last updated: 2026-09-24
+Last updated: 2026-09-25
 
 ## Queue Rules
 
@@ -14,10 +14,11 @@ Last updated: 2026-09-24
 ## Current sequence — SPEC-0014 Durable In-App Notification Center
 
 - [x] **PLAN-014 — Create the decision-complete SPEC-0014 planning/control-plane package.** D-0137 records fresh live/code tracing, exact event/schema/identity/read/origin/click/persistence/offline/failure contracts, four separately gated phases, protected regressions and proof requirements. No runtime, fixture, technical test, provider call or Git publication is included.
-- [ ] **GIT-098 — Review, publish and synchronize the SPEC-0014 planning package.** Not authorized by D-0137. Publication must contain only the reviewed control-plane/tree paths and establish the exact Phase 1 planning SHA.
-- [ ] **PM-005 — Complete the mandatory owner gate.** Arthur creates Project Manager Version 5; the current PM explicitly transitions to AI Animator/Dad support; PM V5 boots from the published canonical package. This is required before Phase 1 and is not completed by the spec task.
-- [ ] **NOTIFY-001 — Phase 1: notification foundation/UI and durable event contract.** Unauthorized/Not started; blocked by GIT-098, PM-005 and separate Arthur authorization.
-- [ ] **NOTIFY-002 — Phase 2: AI Assistant and Terra completion/failure across navigation.** Unauthorized/Not started; requires fully closed Phase 1 and separate authorization.
+- [x] **GIT-098 — Review, publish and synchronize the SPEC-0014 planning package.** Exact canonical-main planning commit `a5ca805b220357b5e8128bb6b76ea408e30fa790` (`Plan SPEC-0014 notification center`) is the accepted Phase 1 executor base.
+- [x] **PM-005 — Complete the mandatory owner gate.** Arthur established Project Manager Version 5, transferred ordinary SPEC-0014 management to it, and separately authorized Phase 1 from the published planning base. Earlier planning-only text is historical.
+- [x] **NOTIFY-001 — Accept and technically verify corrected Phase 1 foundation/UI and durable event contract.** D-0138 binds Arthur's pass, the fresh exact 19-path correction from `a5ca805b220357b5e8128bb6b76ea408e30fa790`, stopped executor, empty index and immutable manifest SHA-256 `b1c082c2508b3039fdeacdd65f99ded4a9d49ed7cec99eb9aaff8352be143669`. Home alone shows the all-event bell; Assistant alone shows its chat-only bell; all other screens show none. Foundation-only proof passed 35 contract/29 storage/41 UI assertions, protected regressions and zero provider/external calls. Full production build is blocked by the identical untouched dev AI-cost route failure and is not claimed as passing.
+- [ ] **GIT-099 — Publish, integrate, synchronize, preserve proof and clean up accepted SPEC-0014 Phase 1.** Arthur explicitly requested this after D-0138 acceptance. Stage only the 19 accepted implementation/proof files and reviewed control-plane/tree paths after final checks; commit normally, fast-forward clean canonical `main`, push, verify clean `0/0`, preserve ignored proof and perform exact D-0054 accepted-copy cleanup. Stop on advancement or a mismatched path.
+- [ ] **NOTIFY-002 — Phase 2: AI Assistant and Terra completion/failure across navigation.** Unauthorized/Not started; requires fully closed/published Phase 1 and separate Arthur authorization. It must wire the real source-completion observers without changing fixed Terra, dictation, search, retry or project behavior.
 - [ ] **NOTIFY-003 — Phase 3: Export completion/failure across navigation.** Unauthorized/Not started; requires fully closed Phase 2 and separate authorization.
 - [ ] **NOTIFY-004 — Phase 4: offline/reliability/concurrency/dedupe/persistence/navigation/accessibility/regression closure and dormant future contracts.** Unauthorized/Not started; requires fully closed Phase 3 and separate authorization.
 

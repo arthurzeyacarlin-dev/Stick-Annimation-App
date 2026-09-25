@@ -1,0 +1,43 @@
+{
+  "schema": "spec0014-notification-phase1-fixture/v1",
+  "activeEventTypes": [
+    "export.completed",
+    "export.failed",
+    "assistant.reply.completed",
+    "assistant.reply.failed",
+    "workspace.terra.reply.completed",
+    "workspace.terra.reply.failed",
+    "system.internet.offline"
+  ],
+  "dormantEventTypes": [
+    "workspace.ai-animation.completed",
+    "ai.usage.low",
+    "app.update.available"
+  ],
+  "views": {
+    "home": "all-active",
+    "assistant": ["assistant.reply.completed", "assistant.reply.failed"]
+  },
+  "copy": {
+    "export.completed": ["Export complete", "Your animation is done exporting."],
+    "export.failed": ["Export failed", "Your animation couldn't finish exporting."],
+    "assistant.reply.completed": ["AI Assistant replied", "AI Assistant finished replying."],
+    "assistant.reply.failed": ["AI Assistant reply failed", "AI Assistant couldn't finish replying."],
+    "workspace.terra.reply.completed": ["Terra replied", "Terra finished replying in “{projectTitle}”."],
+    "workspace.terra.reply.failed": ["Terra reply failed", "Terra couldn't finish replying in “{projectTitle}”."],
+    "system.internet.offline": ["You're offline", "There is no internet, so no AI will be able to be called."]
+  },
+  "requiredNegativeCases": [
+    "assistant-cancel",
+    "terra-cancel",
+    "export-cancel",
+    "export-preflight-failure",
+    "unknown-event",
+    "dormant-publication",
+    "unknown-field",
+    "arbitrary-copy",
+    "unsafe-filename",
+    "target-resealed-tamper",
+    "conflicting-terminal-winner"
+  ]
+}

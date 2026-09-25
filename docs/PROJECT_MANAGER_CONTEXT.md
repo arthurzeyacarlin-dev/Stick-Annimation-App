@@ -1,6 +1,10 @@
 # Project Manager Context
 
-## Current override — SPEC-0014 notification plan created; PM V5 gate blocks Phase 1
+## Current override — corrected SPEC-0014 Phase 1 accepted; publication next
+
+Arthur established PM V5, authorized Phase 1, rejected the first unpublished review result and accepted the fresh two-bell correction under D-0138. The stopped executor's exact 19-path result from `a5ca805b220357b5e8128bb6b76ea408e30fa790` is technically Verified at immutable manifest SHA-256 `b1c082c2508b3039fdeacdd65f99ded4a9d49ed7cec99eb9aaff8352be143669`; the index was empty at transfer. Home is the all-event inbox; Assistant contains only Assistant-reply events; all other surfaces have no bell. Both views share one durable read state, with view-scoped dot/ring/announcements/Mark-all. No real producer or handler is connected in Phase 1. Control-plane propagation and GIT-099 exact publication/proof/cleanup follow Arthur's explicit acceptance and Git request. Phase 2 remains Unauthorized/Not started until Phase 1 is durably synchronized and Arthur separately authorizes it. Full production build is not proven because the untouched dev AI-cost route fails identically on base/result; no new AI/search limits or disconnected state were added.
+
+## Historical override — SPEC-0014 notification plan created; PM V5 gate before Phase 1
 
 D-0137 and [`SPEC-0014`](specs/0014-in-app-notification-center.md) define the approved four-phase notification-center plan from clean canonical `main` `acc3204d6c5aa08f1d0d714dcd5a64e8746dcb8d`. The existing Home bell is a local preview; Assistant/Terra completion polling and Export execution are screen-owned. The plan introduces a local durable event/read store, exact origin/target identity, app-lifetime observers/coordinator, Assistant/Terra and Export completion/failure after navigation, one deduplicated app-wide offline incident, and dormant future AI-animation/10%-usage/real-updater contracts.
 

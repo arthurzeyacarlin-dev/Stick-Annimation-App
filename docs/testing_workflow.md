@@ -1,9 +1,15 @@
 # Verification and Regression Workflow
 
 Status: canonical proof standard and current gate baseline
-Last updated: 2026-09-24
+Last updated: 2026-09-25
 
-## SPEC-0014 planned four-phase proof contract — D-0137; no implementation proof yet
+## SPEC-0014 Phase 1 accepted proof — D-0138; later phases pending
+
+The fresh correction starts at exact `a5ca805b220357b5e8128bb6b76ea408e30fa790`, branch `codex/spec0014-phase1-notification-correction`, empty index, exactly 19 technical paths. Immutable `output/spec0014/phase1/manifest.json` SHA-256 is `b1c082c2508b3039fdeacdd65f99ded4a9d49ed7cec99eb9aaff8352be143669`, binding 19 source/111 evidence files; the pre-propagation validator returned VALID with 18 rejected mutations. Contract/storage/UI proof passed 35/29/41 assertions, exact Home `1`/Assistant `1`/all other surfaces `0` bells, scope-filtered unread/dot/ring/announcement/Mark-all, shared read state, two-tab/reload/restart, capacity/corruption/lease/CAS, keyboard/compact/reduced-motion/forced-colors and zero serious/critical Axe findings. Sixteen protected static/oracle and four browser receipts preserve Home/Assistant/search/retry/synthetic dictation/Terra/export/editor behavior; Terra retains 254 historical assertions. Automated external/provider calls were zero.
+
+TypeScript, focused lint, focused Webpack build and diff pass. Full lint remains exactly the inherited five errors/81 warnings with zero implementation-path errors. The full Webpack production build is **BLOCKED_BY_VERIFIED_BASELINE**: current and exact base fail identically on untouched `app/dev/ai-costs/lifetime/page.tsx` `PageProps`; default Turbopack failed in the offline environment. Do not claim production readiness. Native browser 200% zoom, OS-window focus, physical microphone/devices, non-Chromium and live AI are unproven. This phase connects no production source/target/polling loop; no actual AI/export/offline completion alert has been end-to-end proven. The strict original validator is bound to the pre-propagation spec and 19-path dirty state; after control-plane edits, independently verify its sealed manifest/source/evidence hashes without rewriting technical proof.
+
+## Historical SPEC-0014 four-phase proof contract — D-0137 planning checkpoint
 
 Each separately authorized phase must bind exact activation SHA, empty index, exact dirty allowlist, source/fixture/test/evidence hashes, deterministic event/source/target/digest fixtures, notification and producer-store before/after digests, network/provider counts, accessibility/performance results, protected regressions and stopped-executor lifecycle flags in an immutable manifest with an independent mutation-rejecting validator.
 

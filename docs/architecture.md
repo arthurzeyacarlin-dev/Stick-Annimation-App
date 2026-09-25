@@ -1,15 +1,15 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-24 through D-0137's docs-only SPEC-0014 planning trace from clean canonical `main` `acc3204d6c5aa08f1d0d714dcd5a64e8746dcb8d`.
+Last traced: 2026-09-25 through D-0138's accepted SPEC-0014 Phase 1 correction from `a5ca805b220357b5e8128bb6b76ea408e30fa790`.
 
 SPEC-0013/D-0135/D-0136/GIT-097 removes the inert AI Project Finalizer subtree and its `HomeCardId` hover member from `app/page.tsx`. Export remains the last Home card. `main.home-main-scroll`, its 60px bottom padding and all `app/globals.css` scrollbar bytes remain unchanged, so browser intrinsic layout owns the shorter range. The Assistant catalog correction is factual only and does not add a Finalizer route or new runtime owner. The spec is fully closed.
 
-## SPEC-0014 intended notification architecture — planned, not implemented
+## SPEC-0014 notification architecture — Phase 1 accepted foundation, later producers pending
 
-Current reality is screen-owned: `AppChrome` contains only a local preview; `useAssistantSessions` and `DrawingAiPanel` poll and commit terminal AI state only while mounted; `ExportAnimationPlayer` owns and aborts its export controller on unmount. `app/layout.tsx` has no job/notification owner.
+The accepted Phase 1 correction mounts `NotificationCenterProvider` from `app/layout.tsx`, with strict notification contracts, independently bound terminal receipt validation, a local IndexedDB store, exact origin/target registration seams and a typed navigation adapter. The provider renders no global bell or producer. Home's `AppChrome` mounts one all-event `NotificationTrigger`; `/assistant` mounts one Assistant-completion/failure-only trigger. Credits, workspace, Export, Tutorials, Open Project and My Projects mount none. Both views share durable per-record read state, while Assistant's rows/count/blue dot/green ring/announcements/Mark-all are filtered to its event kinds. No production screen registers a source or destination yet, so the ordinary app receives no actual completion alert in this phase.
 
-D-0137's target is one root app-lifetime notification coordinator plus local IndexedDB store, deterministic source-attempt identity, trusted logical navigation adapter and producer observers. Producer state remains authoritative: Assistant IndexedDB, project-scoped Terra ledger, validated Export result/failure receipt and browser connectivity incident are committed first; notifications observe second. Phase 2 moves Assistant/Terra terminal observation above screens, Phase 3 moves same-runtime export lifecycle above Export UI, and Phase 4 closes offline/reload/concurrency/dedupe/accessibility. Same-runtime navigation is supported; browser/app termination is never misrepresented as continued export execution. No runtime byte implements this plan yet.
+The remaining work is screen-owned: `useAssistantSessions` and `DrawingAiPanel` still poll and commit terminal AI state only while mounted; `ExportAnimationPlayer` still owns and aborts its export controller on unmount. Producer state remains authoritative: Assistant IndexedDB, project-scoped Terra ledger, validated Export result/failure receipt and browser connectivity incident commit first; notifications observe second. Phase 2 moves Assistant/Terra terminal observation above screens, Phase 3 moves same-runtime export lifecycle above Export UI, and Phase 4 closes offline/reload/concurrency/dedupe/accessibility. Same-runtime navigation is the intended later behavior; browser/app termination must never be misrepresented as continued export execution. These producer/coordinator changes are not implemented by Phase 1.
 
 ## SPEC-0012 guidance-Assistant architecture — all six phases published and closed
 

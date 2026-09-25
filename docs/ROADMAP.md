@@ -1,7 +1,7 @@
 # Roadmap
 
 Status: canonical ordered direction; not a delivery schedule
-Last updated: 2026-09-24
+Last updated: 2026-09-25
 
 ## Roadmap Rules
 
@@ -12,13 +12,13 @@ Last updated: 2026-09-24
 - The roadmap may change when Arthur resolves pending decisions or new evidence changes the risk order.
 - D-0129/D-0130/GIT-094 fully close the final Phase 4 citation/reveal correction. D-0131/GIT-095 close Phase 5 dictation. D-0133/D-0134/GIT-096 `20612c3…` close Phase 6 and complete SPEC-0012 with proof preservation, activation and cleanup.
 
-## Current owner sequence — 2026-09-24 (SPEC-0014 planned; PM V5 gate before Phase 1)
+## Current owner sequence — 2026-09-25 (SPEC-0014 Phase 1 accepted; GIT-099 closeout next)
 
 1. Preserve D-0135/D-0136/GIT-097 `893daa82f555381d775af8fb73b14a551bd5fb45` as the closed SPEC-0013 result.
-2. Review and separately publish D-0137/[`SPEC-0014`](specs/0014-in-app-notification-center.md), the docs-only four-phase notification plan from canonical `acc3204d…cb8d`.
-3. Before Phase 1, Arthur creates Project Manager Version 5 and the current PM transitions to AI Animator/Dad support.
-4. Only after that owner gate and a separate Arthur authorization may one fresh Plan-mode Phase 1 Spec Executor begin from the exact published planning SHA.
-5. No later phase, provider/paid operation, deployment or Git mutation begins automatically.
+2. Preserve the published D-0137/[`SPEC-0014`](specs/0014-in-app-notification-center.md) planning base `a5ca805b220357b5e8128bb6b76ea408e30fa790` and D-0138's Arthur-accepted, technically Verified 19-path two-bell Phase 1 correction.
+3. Complete GIT-099: reviewed record propagation, exact accepted-path commit, clean canonical-main fast-forward/normal GitHub push, proof preservation and D-0054 cleanup. Full production build remains an inherited unrelated failure, not a passing claim.
+4. Only after clean Phase 1 synchronization/cleanup and a separate Arthur authorization may a fresh Plan-mode Phase 2 Spec Executor wire actual Assistant/Terra completion across navigation. Phase 3 Export and Phase 4 offline/reliability stay separately gated.
+5. No provider/paid operation, deployment, later-phase implementation or unrelated Git mutation begins automatically.
 
 All seven SPEC-0006 phases are Verified/published/integrated through GIT-061 `185f58752c4f8dd4f5bfea0befe48998e5cd0f04`. The immutable 50,224-byte Phase 7 manifest is PASS/VALID at SHA-256 `c6202f6deab4d3bcc75af3ad6699fc2dc70fc58723eccaa8337b1a2aef74bc51`, with exactly 11 source and 16 evidence bindings.
 

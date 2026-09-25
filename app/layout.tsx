@@ -2,6 +2,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ScrollbarActivity } from "./ScrollbarActivity";
+import { NotificationCenterProvider } from "@/src/components/notifications/NotificationCenterProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,8 +29,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ScrollbarActivity />
-        {children}
+        <NotificationCenterProvider>
+          <ScrollbarActivity />
+          {children}
+        </NotificationCenterProvider>
       </body>
     </html>
   );

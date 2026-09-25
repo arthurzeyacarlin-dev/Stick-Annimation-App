@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { NotificationTrigger } from "@/src/components/notifications/NotificationTrigger";
 
 type AppChromeProps = {
   theme?: "default" | "home";
@@ -15,9 +16,6 @@ export function AppChrome({ theme = "default" }: AppChromeProps) {
   const [menuView, setMenuView] = useState<"root" | "about" | "terms" | "settings">("root");
   const [homeHover, setHomeHover] = useState(false);
   const [creditsHover, setCreditsHover] = useState(false);
-  const [notificationHover, setNotificationHover] = useState(false);
-  // Local preview only. Replace this state when real notification data exists.
-  const [notificationPreviewOpen, setNotificationPreviewOpen] = useState(false);
   const isHomeTheme = theme === "home";
   const isHomeActive = isHomeTheme;
   const isCreditsActive = !isHomeTheme;
@@ -74,7 +72,6 @@ export function AppChrome({ theme = "default" }: AppChromeProps) {
         setMenuOpen(false);
         setAboutOpen(false);
         setTermsOpen(false);
-        setNotificationPreviewOpen(false);
         setMenuView("root");
       }
     };
@@ -92,24 +89,6 @@ export function AppChrome({ theme = "default" }: AppChromeProps) {
 
   return (
     <>
-      <style>
-        {`
-          @keyframes homeHeaderBellRing {
-            0% { transform: rotate(0deg); }
-            16% { transform: rotate(-14deg); }
-            32% { transform: rotate(12deg); }
-            48% { transform: rotate(-9deg); }
-            64% { transform: rotate(7deg); }
-            82% { transform: rotate(-3deg); }
-            100% { transform: rotate(0deg); }
-          }
-
-          .home-header-bell-ringing {
-            animation: homeHeaderBellRing 680ms ease;
-            transform-origin: 50% 15%;
-          }
-        `}
-      </style>
       <header
         className="topBar"
         style={{
@@ -169,144 +148,11 @@ export function AppChrome({ theme = "default" }: AppChromeProps) {
               flexShrink: 0,
             }}
           >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: notificationPreviewOpen ? "8px" : 0,
-                  transform: "translateY(7px)",
-                  transition: "gap 180ms ease",
-                }}
-              >
-                <button
-                  type="button"
-                  aria-label={notificationPreviewOpen ? "Hide notification preview" : "Show notification preview"}
-                  aria-expanded={notificationPreviewOpen}
-                  onClick={() => setNotificationPreviewOpen((value) => !value)}
-                  onMouseEnter={() => setNotificationHover(true)}
-                  onMouseLeave={() => setNotificationHover(false)}
-                  style={{
-                    width: "32px",
-                    height: "32px",
-                    margin: "0 5px",
-                    borderRadius: "12px",
-                    border: toolbarControlBorder,
-                    background: toolbarControlBackground,
-                    boxShadow: toolbarControlShadow,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    padding: 0,
-                    color:
-                      notificationHover || notificationPreviewOpen
-                        ? toolbarControlEmphasisTextColor
-                        : toolbarControlTextColor,
-                    fontSize: "15.5px",
-                    fontWeight: 750,
-                    letterSpacing: "0.01em",
-                    cursor: "pointer",
-                    appearance: "none",
-                    position: "relative",
-                    boxSizing: "border-box",
-                    textShadow:
-                      notificationHover || notificationPreviewOpen ? toolbarControlEmphasisTextShadow : "none",
-                    transition: "color 160ms ease, text-shadow 180ms ease",
-                  }}
-                >
-                  <svg
-                    className={notificationPreviewOpen ? "home-header-bell-ringing" : undefined}
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    aria-hidden="true"
-                    style={{ width: "24px", height: "24px" }}
-                  >
-                    <path
-                      d="M18 9.6c0-3.05-1.72-5.1-4.3-5.72a1.75 1.75 0 0 0-3.4 0C7.72 4.5 6 6.55 6 9.6v2.88c0 .66-.22 1.28-.63 1.79l-.74.92c-.35.44-.04 1.09.52 1.09h13.7c.56 0 .87-.65.52-1.09l-.74-.92a2.86 2.86 0 0 1-.63-1.79V9.6Z"
-                      stroke="currentColor"
-                      strokeWidth="1.8"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M9.7 18.25c.46.8 1.26 1.28 2.3 1.28s1.84-.48 2.3-1.28"
-                      stroke="currentColor"
-                      strokeWidth="1.8"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                  <span
-                    aria-hidden="true"
-                    style={{
-                      position: "absolute",
-                      top: "-2px",
-                      right: "-2px",
-                      width: "7px",
-                      height: "7px",
-                      borderRadius: "999px",
-                      background: "rgba(102, 196, 255, 0.96)",
-                      boxShadow: "0 0 10px rgba(102,196,255,0.45)",
-                      opacity: notificationPreviewOpen ? 1 : 0,
-                      transform: notificationPreviewOpen ? "scale(1)" : "scale(0.6)",
-                      transition: "opacity 160ms ease, transform 160ms ease",
-                    }}
-                  />
-                </button>
-
-                <div
-                  aria-live="polite"
-                  style={{
-                    width: notificationPreviewOpen ? "236px" : 0,
-                    opacity: notificationPreviewOpen ? 1 : 0,
-                    transform: notificationPreviewOpen ? "translateX(0)" : "translateX(14px)",
-                    overflow: "hidden",
-                    transition: "width 220ms ease, opacity 160ms ease, transform 220ms ease",
-                    pointerEvents: notificationPreviewOpen ? "auto" : "none",
-                  }}
-                >
-                  <div
-                    style={{
-                      width: "220px",
-                      minHeight: "42px",
-                      borderRadius: "13px",
-                      border: "1px solid rgba(101, 132, 170, 0.32)",
-                      background:
-                        "linear-gradient(180deg, rgba(14,28,46,0.98) 0%, rgba(10,21,36,0.98) 100%)",
-                      boxShadow: "0 12px 24px rgba(1,7,18,0.28)",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "9px",
-                      padding: "8px 10px",
-                      boxSizing: "border-box",
-                    }}
-                  >
-                    <span
-                      style={{
-                        borderRadius: "999px",
-                        border: "1px solid rgba(102,196,255,0.32)",
-                        color: "rgba(163,213,245,0.88)",
-                        fontSize: "10px",
-                        fontWeight: 800,
-                        letterSpacing: "0.08em",
-                        textTransform: "uppercase",
-                        padding: "3px 6px",
-                        flexShrink: 0,
-                      }}
-                    >
-                      Preview
-                    </span>
-                    <span
-                      style={{
-                        color: "rgba(216,228,242,0.84)",
-                        fontSize: "12px",
-                        lineHeight: 1.2,
-                        whiteSpace: "normal",
-                      }}
-                    >
-                      Notifications will appear here when connected.
-                    </span>
-                  </div>
+              {isHomeTheme && (
+                <div style={{ position: "relative", top: "7px" }}>
+                  <NotificationTrigger view="home" />
                 </div>
-              </div>
+              )}
 
               <a
                 href="/credits"

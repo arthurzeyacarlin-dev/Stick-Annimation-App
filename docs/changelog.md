@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-09-25 — Accept and propagate corrected SPEC-0014 Phase 1 (D-0138; GIT-099 pending)
+
+- Arthur passed the new two-bell review copy and authorized project-record propagation followed by exact normal Git publication. The stopped Spec Executor transferred exclusive ownership of `codex/spec0014-phase1-notification-correction` from base `a5ca805b220357b5e8128bb6b76ea408e30fa790` with 19 accepted technical paths and an empty index.
+- The root local notification store/provider now supports a Home all-event bell and an Assistant reply-only bell, shared durable read state, view-scoped blue dot/green ring/announcements/Mark-all, and zero bells on other screens. Phase 1 connects no production source, target handler, polling loop or injected fixture.
+- Immutable manifest SHA-256 `b1c082c2508b3039fdeacdd65f99ded4a9d49ed7cec99eb9aaff8352be143669` binds 19 source/111 evidence files. Contract/storage/UI 35/29/41 assertions, protected regressions, TypeScript, focused lint/build and zero automated provider/external calls pass. Full lint retains the inherited five errors/81 warnings; the full Webpack production build retains the identical untouched dev AI-cost `PageProps` failure on base/result. Native zoom/OS focus, live provider/microphone and physical/non-Chromium devices remain unproven.
+- This control-plane stage changes records and the generated tree only after acceptance; accepted runtime/fixture/technical-test/proof bytes remain frozen. GIT-099 publication, synchronization, proof preservation and D-0054 cleanup are a distinct operation. Phase 2 remains Unauthorized/Not started.
+
 ## 2026-09-24 — Create SPEC-0014 durable notification-center plan (D-0137)
 
 - Added the decision-complete four-phase SPEC-0014 plan from clean canonical `main` `acc3204d6c5aa08f1d0d714dcd5a64e8746dcb8d` after fresh live Chromium and source tracing of the bell preview, Assistant, New/Open Terra workspace and Export.

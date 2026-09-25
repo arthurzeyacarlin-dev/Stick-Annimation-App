@@ -1,14 +1,28 @@
 # SPEC-0014 — Durable In-App Notification Center and Background Completion
 
-Status: **Approved specification; all four implementation phases Unauthorized/Not started; Phase 1 blocked by the PM V5 owner gate**
+Status: **Phase 1 accepted and technically Verified; control-plane propagation/publication pending. Phases 2–4 Unauthorized/Not started.**
 Owner: Arthur
 Planning role: Specification Architect
 Created: 2026-09-24
-Last updated: 2026-09-24
-Decision link: D-0137
+Last updated: 2026-09-25
+Decision link: D-0137; D-0138
 TODO IDs: PLAN-014; PM-005; NOTIFY-001; NOTIFY-002; NOTIFY-003; NOTIFY-004; GIT-098
 Planning baseline: clean detached checkout of canonical `main` at `acc3204d6c5aa08f1d0d714dcd5a64e8746dcb8d`
-Authorization boundary: Arthur authorizes this four-phase specification and its control-plane record only. No implementation phase, runtime/fixture/test/proof mutation, provider or paid operation, deployment, staging, commit, merge, push or publication is authorized by this document.
+Authorization boundary: D-0137 authorized planning only. Arthur subsequently authorized Phase 1 and accepted the corrected implementation under D-0138, with control-plane propagation and exact Git publication separately requested. Phases 2–4, provider/paid activity and deployment remain unauthorized.
+
+## D-0138 accepted Phase 1 correction — authoritative two-bell outcome
+
+Arthur rejected the earlier unpublished review copy, then accepted the fresh correction from canonical `main` `a5ca805b220357b5e8128bb6b76ea408e30fa790`. The stopped Spec Executor transferred the dedicated `codex/spec0014-phase1-notification-correction` worktree exclusively to Control Plane Architect after Arthur/PM acceptance. Its empty-index, exact 19-path technical result is bound by immutable manifest SHA-256 `b1c082c2508b3039fdeacdd65f99ded4a9d49ed7cec99eb9aaff8352be143669`. This paragraph records accepted technical verification; publication is a distinct later Git check, not implied by acceptance.
+
+- Exactly two product bell locations exist: **Home/main interface** (the overall inbox) and **AI Assistant** (only `assistant.reply.completed` and `assistant.reply.failed`). Credits/AI Dashboard, New/Open workspace, Export, Tutorials, Open Project, My Projects and every other surface have no bell. The root provider has no global visible trigger.
+- Both views share one durable record and per-record read state. Home includes all supported event kinds. Assistant filters its rows, unread count, blue dot, one-shot green ring, announcements and **Mark all as read** to Assistant events only; it cannot clear other unread events. The dot has no visible number; accessible text supplies the exact count.
+- A newly committed eligible unread event rings briefly in green only while its owning bell is mounted. Historical load, opening, navigation, duplicate delivery and cross-tab rereads do not replay the ring. Leaving Home or Assistant closes its local panel. There is no sound, popup or OS notification.
+- Phase 1 is foundation-only: no production event producer, origin registration, destination handler, polling loop or injected review fixture is connected. The ordinary app starts with no notification rows. Phase 2 owns actual Assistant/Terra completion/failure across navigation; Phase 3 owns Export; Phase 4 owns offline/reliability. AI-animation, low-usage, updater and unmodeled game notifications remain inactive.
+- No AI/search/transcription limit, provider policy, configured/disconnected state, dictation, chat, Terra, export, editor, project or recovery behavior was changed. Existing real failures may not be hidden as success. The proof hashes provide local integrity, not authentication against a malicious writer that can reseal both objects.
+
+Technical proof passed 35 contract, 29 storage and 41 UI assertions; exact Home `1`/Assistant `1`/other surfaces `0` trigger inventory; two-tab/reload/restart/read/capacity/corruption checks; accessibility and protected Assistant/dictation/Terra/export/editor regressions; TypeScript, focused lint and focused Webpack build. Manifest validation rejected 18 mutations, with zero automated provider/external calls. Full lint remains the inherited five errors/81 warnings. The full production Webpack build fails on the identical untouched `app/dev/ai-costs/lifetime/page.tsx` `PageProps` error on base and result; default Turbopack build also failed in this offline environment. Production-build readiness is **not proven**. Native 200% browser zoom, OS-window focus, physical microphone/devices and non-Chromium are unproven. These limits must stay visible in any Phase 2 handoff.
+
+This correction supersedes the older all-surface bell placement and numeric-badge language in §§7 and 14 below. No later phase starts automatically; Phase 2 requires Phase 1's full publication/integration/synchronization/proof preservation/cleanup plus a fresh separate Arthur authorization.
 
 ## 1. Exact product outcome
 
@@ -36,7 +50,7 @@ SPEC-0014 has exactly four separately authorized implementation phases:
 
 | Phase | Outcome | Authorization state |
 | --- | --- | --- |
-| 1 — Notification center foundation and durable event contract | Shared local store, real center UI, unread/read semantics, target resolution contract and proof-only fixtures; no product producer is connected. | Unauthorized; Not started; blocked by §14.1 owner gate |
+| 1 — Notification center foundation and durable event contract | Shared local store, two scoped bells, unread/read semantics, target resolution contract and proof-only fixtures; no product producer is connected. | Accepted and technically Verified under D-0138; GIT-099 publication pending |
 | 2 — AI reply completion/failure across navigation | App-lifetime observers terminalize and notify for the exact Assistant conversation and exact New/Open Terra project/workspace after in-app navigation. | Unauthorized; Not started |
 | 3 — Export completion/failure across navigation | One app-lifetime export coordinator continues a user-started export after in-app navigation and publishes only validated success or truthful failure. | Unauthorized; Not started |
 | 4 — Reliability, offline, dormant future contracts and whole-feature proof | Offline incident warning, dedupe, persistence, reload/interruption truth, cross-tab concurrency, accessibility, regression closure and inactive future schemas. | Unauthorized; Not started |
@@ -365,22 +379,19 @@ Hidden tabs, another chat, another project, Home, Tutorials, My Projects, Open P
 
 ### 7.1 Shared foundation
 
-One client-side `NotificationCenterProvider`/coordinator is mounted from the root layout and survives Next route changes. Page-local screens consume a shared store/action API. The existing Home/credits bell becomes the shared trigger rather than retaining local preview state.
-
-The same trigger must be reachable from the existing top control/header area of Home/credits, Assistant, Animation Workspace and Export. Page-managed Tutorials/Open Project/My Projects use their existing top/back/title region or one page-owned safe-area host. This adds no new global navigation model and may not move, rename or redesign unrelated controls.
+One client-side `NotificationCenterProvider`/coordinator is mounted from the root layout and survives Next route changes. It renders no global bell. Home and Assistant alone mount their page-local triggers, with the view scopes defined in the D-0138 correction above. No other surface receives a trigger.
 
 ### 7.2 Trigger and panel
 
 - Accessible name: **Notifications** when closed; **Close notifications** when open.
 - `aria-expanded` and `aria-controls` identify the panel.
 - Zero unread: no dot/count.
-- One through 99 unread: visible numeric badge and assistive label, for example **Notifications, 3 unread**.
-- More than 99: visible `99+`, with the exact full count in accessible text.
+- Any unread count: one blue dot without a visible numeral, with the exact view-scoped count in accessible text, for example **Notifications, 3 unread**.
 - The bell animation runs once for a newly committed unread event and respects reduced motion. Opening the panel does not manufacture the dot or replay the animation.
 - Desktop uses an anchored, bounded popover that does not expand the header width. Compact uses a bounded sheet/dialog that cannot create horizontal page overflow.
 - The panel heading is **Notifications**. Empty copy is **No notifications yet.**
 - Rows sort by `occurredAt` descending, then `notificationId` ascending. Each shows title, body, localized relative time with an exact machine-readable timestamp, unread state and one full-row activation target.
-- **Mark all as read** is present only when at least one readable row is unread.
+- **Mark all as read** is present only when at least one readable row in the current view is unread, and marks only that view's eligible records.
 - Escape, outside activation and the close control close the panel and restore focus to the trigger. Tab order is contained only when compact presentation is modal.
 - New unread events receive one `aria-live="polite"` announcement of title and body. Historical load, cross-tab reread and duplicate delivery do not repeat the announcement.
 
@@ -590,7 +601,7 @@ Scope:
 Acceptance flow:
 
 1. Open Home with an empty store: the existing preview is gone, the shared bell has no badge and the panel says **No notifications yet.**
-2. Visit Assistant, New workspace, Open Project workspace and Export: the shared Notifications trigger is reachable without breaking existing controls/layout.
+2. Visit Assistant, Credits/AI Dashboard, New/Open workspace, Export, Tutorials, Open Project and My Projects: exactly one Assistant-only trigger exists on Assistant, exactly one all-events trigger exists on Home, and every other surface has zero triggers without breaking existing controls/layout.
 3. In an isolated proof profile, insert valid unread/read records through the real store API; verify ordering, badge, full copy, Mark all, keyboard/focus, compact presentation and exact target dispatch.
 4. Attempt duplicate, conflicting, corrupt, over-capacity and dormant events; verify fail-closed behavior and unchanged source fixtures.
 
@@ -718,7 +729,7 @@ Each phase produces an immutable manifest and independent validator that bind:
 
 The Spec Executor validates the manifest, reports its SHA and exact dirty allowlist, returns the Implementation Review Packet and stops. After acceptance, only the Control Plane Architect may propagate records in the same transferred worktree. Publication remains a later explicit task.
 
-## 17. Planning result, blockers and next handoff
+## 17. Historical D-0137 planning result, blockers and handoff — superseded by D-0138 above
 
 ### 17.1 Proven now
 

@@ -88,6 +88,7 @@
 .back:hover { color: #fff; text-shadow: 0 0 16px rgba(64, 142, 255, .5); }
 .back > span { font-size: 20px; }
 .headerTitle { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #bdd0e7; }
+.headerActions { display: flex; align-items: center; gap: 12px; }
 /* Keep absolutely positioned accessibility text inside this scroll/clipping boundary. */
 .conversation { position: relative; min-height: 0; flex: 1; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; padding: 26px 30px; display: flex; scrollbar-width: thin; scrollbar-color: transparent transparent; }
 .greeting { width: min(100%, 1000px); margin: auto; text-align: center; padding: 16px 0 48px; }

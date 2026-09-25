@@ -8,6 +8,7 @@ import { AssistantSessionSidebar } from "./AssistantSessionSidebar";
 import { AssistantConversation } from "./AssistantConversation";
 import { AssistantComposer } from "./AssistantComposer";
 import { useAssistantSessions } from "./useAssistantSessions";
+import { NotificationTrigger } from "@/src/components/notifications/NotificationTrigger";
 
 const SIDEBAR_MIN_WIDTH = 200;
 const SIDEBAR_DEFAULT_WIDTH = 256;
@@ -165,7 +166,10 @@ export function DiamondAssistantScreen() {
           <Link ref={backRef} href="/#ai-assistant" prefetch={false} className={styles.back}>
             <span aria-hidden="true">←</span> Back to Home
           </Link>
-          <span className={styles.headerTitle}>Assistant</span>
+          <span className={styles.headerActions}>
+            <span className={styles.headerTitle}>Assistant</span>
+            <NotificationTrigger view="assistant" />
+          </span>
         </header>
         <AssistantConversation key={chats.selectedId ?? "blank"} chats={chats} mark={<DiamondMark />} />
         <AssistantComposer key={`${chats.selectedId ?? "blank"}:${composerGeneration}`} chats={chats} />

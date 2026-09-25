@@ -292,6 +292,9 @@
 ./scripts/fixtures/spec0008-ai-animator
 ./scripts/fixtures/spec0008-ai-animator/v1
 ./scripts/fixtures/spec0008-ai-animator/v1/semantic-cases.json
+./scripts/fixtures/spec0014-notifications
+./scripts/fixtures/spec0014-notifications/phase-1
+./scripts/fixtures/spec0014-notifications/phase-1/contract.json
 ./scripts/fixtures/stick-ai
 ./scripts/fixtures/stick-ai/v1
 ./scripts/fixtures/stick-ai/v1/canonical-hash-vectors.json
@@ -627,6 +630,15 @@
 ./scripts/spec0013-home/phase1Oracle.ts
 ./scripts/spec0013-home/recordPhase1Proof.ts
 ./scripts/spec0013-home/validatePhase1Proof.ts
+./scripts/spec0014-notifications
+./scripts/spec0014-notifications/phase1BrowserProof.ts
+./scripts/spec0014-notifications/phase1BuildProof.ts
+./scripts/spec0014-notifications/phase1Oracle.ts
+./scripts/spec0014-notifications/phase1ProtectedRegressions.ts
+./scripts/spec0014-notifications/phase1ReviewSetup.ts
+./scripts/spec0014-notifications/phase1StorageProof.ts
+./scripts/spec0014-notifications/recordPhase1Proof.ts
+./scripts/spec0014-notifications/validatePhase1Proof.ts
 ./scripts/sync_docs_to_github.sh
 ./scripts/traceExplosionLivePath.ts
 ./scripts/traceGenerateSoundsLivePath.mjs
@@ -679,6 +691,10 @@
 ./src/components/chrome/AIcreditspage.tsx
 ./src/components/export
 ./src/components/export/AnimationExportFlow.tsx
+./src/components/notifications
+./src/components/notifications/NotificationCenterProvider.tsx
+./src/components/notifications/NotificationTrigger.tsx
+./src/components/notifications/notificationCenter.module.css
 ./src/components/open-project
 ./src/components/open-project/OpenProjectBrowser.tsx
 ./src/components/project-library
@@ -822,6 +838,10 @@
 ./src/lib/export/exportPhase1.ts
 ./src/lib/export/exportRenderer.ts
 ./src/lib/export/exportVideo.ts
+./src/lib/notifications
+./src/lib/notifications/notificationContracts.ts
+./src/lib/notifications/notificationNavigation.ts
+./src/lib/notifications/notificationStorage.ts
 ./src/lib/openai
 ./src/lib/openai/client.ts
 ./src/lib/openai/generateAiAnimatorReply.ts

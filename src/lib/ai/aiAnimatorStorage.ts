@@ -4,7 +4,8 @@ import {
   type AiAnimatorJobSnapshot,
 } from "./aiAnimatorContract.ts";
 
-const AI_ANIMATOR_LEDGER_PREFIX = "diamond_ai_animator_ledger_v1:";
+export const AI_ANIMATOR_LEDGER_PREFIX = "diamond_ai_animator_ledger_v1:";
+export const AI_ANIMATOR_LEDGER_CHANGED_EVENT = "diamond-ai-animator-ledger-changed-v1";
 const MAX_MESSAGES = 80;
 const MAX_JOBS = 40;
 
@@ -16,7 +17,7 @@ export type AiAnimatorLedger = {
   updatedAt: string;
 };
 
-const keyForProject = (projectId: string) => `${AI_ANIMATOR_LEDGER_PREFIX}${encodeURIComponent(projectId)}`;
+export const keyForAiAnimatorProject = (projectId: string) => `${AI_ANIMATOR_LEDGER_PREFIX}${encodeURIComponent(projectId)}`;
 
 export const createEmptyAiAnimatorLedger = (projectId: string): AiAnimatorLedger => ({
   version: 1,
@@ -31,7 +32,7 @@ export const readAiAnimatorLedger = (projectId: string, storage: Storage | null 
     return createEmptyAiAnimatorLedger(projectId);
   }
   try {
-    const parsed = JSON.parse(storage.getItem(keyForProject(projectId)) ?? "null") as AiAnimatorLedger | null;
+    const parsed = JSON.parse(storage.getItem(keyForAiAnimatorProject(projectId)) ?? "null") as AiAnimatorLedger | null;
     if (parsed?.version !== 1 || parsed.projectId !== projectId || !Array.isArray(parsed.messages) || !Array.isArray(parsed.jobs)) {
       return createEmptyAiAnimatorLedger(projectId);
     }
@@ -61,8 +62,29 @@ export const writeAiAnimatorLedger = (
     jobs: ledger.jobs.slice(-MAX_JOBS),
     updatedAt: new Date().toISOString(),
   };
-  storage.setItem(keyForProject(ledger.projectId), JSON.stringify(bounded));
+  storage.setItem(keyForAiAnimatorProject(ledger.projectId), JSON.stringify(bounded));
+  if (typeof window !== "undefined" && storage === window.localStorage) {
+    window.dispatchEvent(new CustomEvent(AI_ANIMATOR_LEDGER_CHANGED_EVENT, { detail: { projectId: ledger.projectId } }));
+  }
 };
+
+export function subscribeAiAnimatorLedger(projectId: string, onChange: (ledger: AiAnimatorLedger) => void) {
+  if (typeof window === "undefined") return () => undefined;
+  const refresh = () => onChange(readAiAnimatorLedger(projectId));
+  const changed = (event: Event) => {
+    const changedProjectId = (event as CustomEvent<{ projectId?: unknown }>).detail?.projectId;
+    if (changedProjectId === projectId) refresh();
+  };
+  const stored = (event: StorageEvent) => {
+    if (event.storageArea === window.localStorage && event.key === keyForAiAnimatorProject(projectId)) refresh();
+  };
+  window.addEventListener(AI_ANIMATOR_LEDGER_CHANGED_EVENT, changed);
+  window.addEventListener("storage", stored);
+  return () => {
+    window.removeEventListener(AI_ANIMATOR_LEDGER_CHANGED_EVENT, changed);
+    window.removeEventListener("storage", stored);
+  };
+}
 
 export const upsertAiAnimatorJob = (ledger: AiAnimatorLedger, job: AiAnimatorJobSnapshot): AiAnimatorLedger => {
   const existing = ledger.jobs.find((entry) => entry.jobId === job.jobId);

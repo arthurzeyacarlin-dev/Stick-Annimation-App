@@ -295,6 +295,8 @@
 ./scripts/fixtures/spec0014-notifications
 ./scripts/fixtures/spec0014-notifications/phase-1
 ./scripts/fixtures/spec0014-notifications/phase-1/contract.json
+./scripts/fixtures/spec0014-notifications/phase-2
+./scripts/fixtures/spec0014-notifications/phase-2/contract.json
 ./scripts/fixtures/stick-ai
 ./scripts/fixtures/stick-ai/v1
 ./scripts/fixtures/stick-ai/v1/canonical-hash-vectors.json
@@ -637,8 +639,15 @@
 ./scripts/spec0014-notifications/phase1ProtectedRegressions.ts
 ./scripts/spec0014-notifications/phase1ReviewSetup.ts
 ./scripts/spec0014-notifications/phase1StorageProof.ts
+./scripts/spec0014-notifications/phase2BrowserProof.ts
+./scripts/spec0014-notifications/phase2BuildProof.ts
+./scripts/spec0014-notifications/phase2Oracle.ts
+./scripts/spec0014-notifications/phase2ProtectedRegressions.ts
+./scripts/spec0014-notifications/phase2ReviewSetup.ts
 ./scripts/spec0014-notifications/recordPhase1Proof.ts
+./scripts/spec0014-notifications/recordPhase2Proof.ts
 ./scripts/spec0014-notifications/validatePhase1Proof.ts
+./scripts/spec0014-notifications/validatePhase2Proof.ts
 ./scripts/sync_docs_to_github.sh
 ./scripts/traceExplosionLivePath.ts
 ./scripts/traceGenerateSoundsLivePath.mjs
@@ -839,9 +848,11 @@
 ./src/lib/export/exportRenderer.ts
 ./src/lib/export/exportVideo.ts
 ./src/lib/notifications
+./src/lib/notifications/assistantCompletionObserver.ts
 ./src/lib/notifications/notificationContracts.ts
 ./src/lib/notifications/notificationNavigation.ts
 ./src/lib/notifications/notificationStorage.ts
+./src/lib/notifications/terraCompletionObserver.ts
 ./src/lib/openai
 ./src/lib/openai/client.ts
 ./src/lib/openai/generateAiAnimatorReply.ts

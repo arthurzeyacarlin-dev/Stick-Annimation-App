@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { listSessions } from "@/src/lib/assistant/assistantStorage";
 import { notificationBelongsToViewV1, type DiamondNotificationV1 } from "@/src/lib/notifications/notificationContracts";
 import { dispatchNotificationTargetV1 } from "@/src/lib/notifications/notificationNavigation";
 import { subscribeNotificationCommitsV1 } from "@/src/lib/notifications/notificationStorage";
@@ -17,20 +18,43 @@ const BellIcon = () => (
 const displayTime = (notification: DiamondNotificationV1) => new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(notification.occurredAt);
 
 export function NotificationTrigger({ view }: { view: "home" | "assistant" }) {
-  const { snapshot, markRead, markAll, retryRecovery } = useNotificationCenterV1();
+  const { snapshot, markAll, retryRecovery } = useNotificationCenterV1();
   const panelId = useId();
   const [open, setOpen] = useState(false);
   const [ringing, setRinging] = useState(false);
   const [announcement, setAnnouncement] = useState<{ key: string; text: string } | null>(null);
   const [localStatus, setLocalStatus] = useState("");
   const [compact, setCompact] = useState(false);
+  const [assistantTitles, setAssistantTitles] = useState<Record<string, string>>({});
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const ringTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const announceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const rows = useMemo(() => snapshot.rows.filter(row => notificationBelongsToViewV1(row, view)), [snapshot.rows, view]);
-  const unreadCount = rows.filter(row => row.readAt === null).length;
+  const rows = useMemo(() => snapshot.rows.filter(row => row.readAt === null && notificationBelongsToViewV1(row, view)), [snapshot.rows, view]);
+  const unreadCount = rows.length;
+  const assistantSessionKey = useMemo(() => JSON.stringify(rows.flatMap(row => row.origin.kind === "assistant" ? [row.origin.sessionId] : [])), [rows]);
+
+  useEffect(() => {
+    if (!open || assistantSessionKey === "[]") return;
+    let current = true;
+    void listSessions().then(({ sessions }) => {
+      if (current) setAssistantTitles(Object.fromEntries(sessions.map(session => [session.id, session.title])));
+    }).catch(() => { if (current) setAssistantTitles({}); });
+    return () => { current = false; };
+  }, [open, assistantSessionKey]);
+
+  const displayCopy = (notification: DiamondNotificationV1) => {
+    if (notification.origin.kind === "assistant") {
+      const chat = assistantTitles[notification.origin.sessionId] ?? "Untitled chat";
+      return { title: `${notification.title} in “${chat}”`, body: `Assistant chat: ${chat}.` };
+    }
+    if (notification.origin.kind === "workspace-terra") {
+      const project = notification.origin.projectTitle;
+      return { title: `${notification.title} in “${project}”`, body: `Project: ${project}.` };
+    }
+    return { title: notification.title, body: notification.body };
+  };
 
   useEffect(() => {
     const media = window.matchMedia("(max-width: 680px)");
@@ -46,7 +70,15 @@ export function NotificationTrigger({ view }: { view: "home" | "assistant" }) {
     if (announceTimerRef.current) clearTimeout(announceTimerRef.current);
     setRinging(false);
     requestAnimationFrame(() => setRinging(true));
-    setAnnouncement({ key: notification.notificationId, text: `${notification.title}. ${notification.body}` });
+    if (notification.origin.kind === "assistant") {
+      const sessionId = notification.origin.sessionId;
+      void listSessions().then(({ sessions }) => {
+        const chat = sessions.find(session => session.id === sessionId)?.title ?? "Untitled chat";
+        setAnnouncement({ key: notification.notificationId, text: `${notification.title} in “${chat}”.` });
+      }).catch(() => setAnnouncement({ key: notification.notificationId, text: notification.title }));
+    } else if (notification.origin.kind === "workspace-terra") {
+      setAnnouncement({ key: notification.notificationId, text: `${notification.title} in “${notification.origin.projectTitle}”.` });
+    } else setAnnouncement({ key: notification.notificationId, text: `${notification.title}. ${notification.body}` });
     ringTimerRef.current = setTimeout(() => setRinging(false), 760);
     announceTimerRef.current = setTimeout(() => setAnnouncement(null), 4_000);
   }), [view]);
@@ -89,13 +121,12 @@ export function NotificationTrigger({ view }: { view: "home" | "assistant" }) {
   const activate = async (notification: DiamondNotificationV1) => {
     setLocalStatus("");
     try {
-      await markRead(notification.notificationId);
       const result = await dispatchNotificationTargetV1(notification.target);
       if (result === "handled") close(false);
       else if (result === "blocked-unsaved") setLocalStatus("Finish or discard the unsaved work before opening this notification.");
-      else setLocalStatus("This notification destination is not connected yet.");
+      else setLocalStatus("This notification's original item is no longer available.");
     } catch {
-      setLocalStatus("The notification could not be updated. Retry notification recovery and try again.");
+      setLocalStatus("The original item could not be opened. Please try again.");
     }
   };
 
@@ -158,21 +189,22 @@ export function NotificationTrigger({ view }: { view: "home" | "assistant" }) {
             )}
 
             {localStatus && <p className={styles.localStatus} role="status">{localStatus}</p>}
-            {rows.length === 0 && <p className={styles.empty}>No notifications yet.</p>}
+            {rows.length === 0 && <p className={styles.empty}>No unread notifications.</p>}
             {rows.length > 0 && (
               <ul className={styles.list}>
-                {rows.map(notification => (
-                  <li key={notification.notificationId}>
+                {rows.map(notification => {
+                  const copy = displayCopy(notification);
+                  return <li key={notification.notificationId}>
                     <button type="button" className={styles.row} data-unread={notification.readAt === null ? "true" : "false"} onClick={() => void activate(notification)}>
                       <span className={styles.rowTop}>
-                        <strong>{notification.title}</strong>
+                        <strong>{copy.title}</strong>
                         {notification.readAt === null && <span className={styles.unreadText}>Unread</span>}
                       </span>
-                      <span className={styles.body}>{notification.body}</span>
+                      <span className={styles.body}>{copy.body}</span>
                       <time dateTime={new Date(notification.occurredAt).toISOString()}>{displayTime(notification)}</time>
                     </button>
-                  </li>
-                ))}
+                  </li>;
+                })}
               </ul>
             )}
 

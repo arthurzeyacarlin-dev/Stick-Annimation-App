@@ -28,7 +28,9 @@ type SurfaceRegistration<T> = {
 
 const origins = new Map<string, SurfaceRegistration<NotificationOriginV1>>();
 const targets = new Map<string, SurfaceRegistration<NotificationTargetV1>>();
-const destinations = new Map<string, { target: NotificationTargetV1; handler: (target: NotificationTargetV1) => "handled" | "blocked-unsaved" | Promise<"handled" | "blocked-unsaved"> }>();
+const destinations = new Map<string, { target: NotificationTargetV1; handler: (target: NotificationTargetV1) => NotificationNavigationResultV1 | Promise<NotificationNavigationResultV1> }>();
+let pendingIntent: NotificationTargetV1 | null = null;
+const intentListeners = new Set<(target: NotificationTargetV1) => void>();
 
 const handleId = () => crypto.randomUUID();
 
@@ -118,7 +120,7 @@ export const createNotificationNavigationIntentV1 = (target: NotificationTargetV
 
 export function registerNotificationNavigationHandlerV1(input: {
   target: NotificationTargetV1;
-  handler: (target: NotificationTargetV1) => "handled" | "blocked-unsaved" | Promise<"handled" | "blocked-unsaved">;
+  handler: (target: NotificationTargetV1) => NotificationNavigationResultV1 | Promise<NotificationNavigationResultV1>;
 }): NotificationDestinationRegistrationHandleV1 {
   const id = handleId();
   const target = requireNotificationTargetV1(input.target);
@@ -128,6 +130,23 @@ export function registerNotificationNavigationHandlerV1(input: {
     [DESTINATION_HANDLE]: id,
     unregister: () => { destinations.delete(id); },
   });
+}
+
+export function publishNotificationNavigationIntentV1(target: NotificationTargetV1) {
+  pendingIntent = requireNotificationTargetV1(target);
+  for (const listener of intentListeners) listener(structuredClone(pendingIntent));
+}
+
+export const peekNotificationNavigationIntentV1 = () => pendingIntent ? structuredClone(pendingIntent) : null;
+
+export function clearNotificationNavigationIntentV1(target: NotificationTargetV1) {
+  if (pendingIntent && notificationIdentityEqualsV1(pendingIntent, target)) pendingIntent = null;
+}
+
+export function subscribeNotificationNavigationIntentV1(listener: (target: NotificationTargetV1) => void) {
+  intentListeners.add(listener);
+  if (pendingIntent) listener(structuredClone(pendingIntent));
+  return () => { intentListeners.delete(listener); };
 }
 
 // Phase 1 intentionally registers no production destination handler. The exact-target

@@ -15,7 +15,7 @@ export function AssistantConversation({ chats, mark }: { chats: ReturnType<typeo
     if (content.current) observer.observe(content.current); return () => observer.disconnect();
   }, [session?.id]);
   return <div className={styles.conversationRegion}>
-    <section ref={pane} className={styles.conversation} aria-label="Conversation" tabIndex={0} onScroll={() => { if (!pane.current) return; const el = pane.current; const isAway = el.scrollHeight - el.scrollTop - el.clientHeight > 80; follow.current = !isAway; setAway(isAway); }}>
+    <section ref={pane} className={styles.conversation} aria-label="Conversation" tabIndex={0} data-assistant-conversation-region onScroll={() => { if (!pane.current) return; const el = pane.current; const isAway = el.scrollHeight - el.scrollTop - el.clientHeight > 80; follow.current = !isAway; setAway(isAway); }}>
       {!session ? <div className={styles.greeting}>
         <div className={styles.heroMark}>{mark}</div>
         <h1 aria-label="How can I help you with Diamond Animator today?"><span>How can I help you with</span><span>Diamond Animator today?</span></h1>
@@ -23,7 +23,8 @@ export function AssistantConversation({ chats, mark }: { chats: ReturnType<typeo
         <h1 className={styles.srOnly}>{session.title}</h1>
         {session.messages.map(message => {
           const animate = message.role === "assistant" && chats.reveal[session.id] === message.turnId;
-          return <article key={message.id} className={message.role === "user" ? styles.userMessage : styles.assistantMessage} aria-label={message.role === "user" ? "Your message" : "Assistant reply"} data-message-id={message.id}>
+          const messageTurn = session.turns.find(candidate => candidate.id === message.turnId);
+          return <article key={message.id} className={message.role === "user" ? styles.userMessage : styles.assistantMessage} aria-label={message.role === "user" ? "Your message" : "Assistant reply"} data-message-id={message.id} data-assistant-terminal-turn={message.role === "assistant" ? message.turnId : undefined} data-assistant-terminal-job={message.role === "assistant" ? messageTurn?.jobId : undefined} tabIndex={message.role === "assistant" ? -1 : undefined}>
             <span className={styles.messageRole}>{message.role === "user" ? "You" : "Diamond Animator"}</span>
             <div className={styles.messageText}><AssistantText key={`${message.id}:${animate ? "new" : "saved"}`} text={message.text} animate={animate} /></div>
             {!!message.citations?.length && <div className={styles.sources} aria-label="Sources"><span>Sources</span><ol>{[...new Map(message.citations.map(citation => [citation.url, citation])).values()].sort((a, b) => a.index - b.index).map(citation => <li key={citation.url}><a href={citation.url} target="_blank" rel="noreferrer noopener">[{citation.index}] {citation.title}<span className={styles.srOnly}> (opens in a new tab)</span></a></li>)}</ol></div>}
@@ -32,7 +33,7 @@ export function AssistantConversation({ chats, mark }: { chats: ReturnType<typeo
         {chats.showLongWaitProgress && <p className={styles.longWaitProgress} data-assistant-progress={turn!.jobId} role="status"><AssistantText key={turn!.jobId} text="I’m putting together a clear, simple explanation…" animate /></p>}
         {turn?.status === "pending" && !paused && !chats.storageBlocked && (live?.status === "thinking" || live?.status === "searching" || live?.status === "finalizing") && <AssistantActivity label={live.status === "thinking" ? "Thinking" : live.status === "searching" ? `Searching ${live.events.at(-1)?.topic}…` : "Finalizing answer"} />}
         {turn?.status === "pending" && !live && !paused && <p className={styles.turnNote} role="status">Connecting…</p>}
-        {turn && turn.status !== "pending" && turn.status !== "done" && <div className={styles.turnNote} role="status"><span>{turn.error}</span><button className={styles.reconnect} type="button" disabled={chats.busy || chats.storageBlocked || (turn.priorAttempts?.length ?? 0) >= 10} onClick={() => void chats.retry()}>Retry answer</button></div>}
+        {turn && turn.status !== "pending" && turn.status !== "done" && <div className={styles.turnNote} role="status" data-assistant-terminal-turn={turn.id} data-assistant-terminal-job={turn.jobId} tabIndex={-1}><span>{turn.error}</span><button className={styles.reconnect} type="button" disabled={chats.busy || chats.storageBlocked || (turn.priorAttempts?.length ?? 0) >= 10} onClick={() => void chats.retry()}>Retry answer</button></div>}
         {session.messages.length > 32 && <p className={styles.contextNote}>Replies use a bounded recent part of this chat.</p>}
       </div>}
     </section>

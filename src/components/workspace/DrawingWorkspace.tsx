@@ -69,6 +69,7 @@ import type {
   UnifiedSymbolSourceCategoryV2,
 } from "@/src/lib/animation/unifiedAnimationContentV2";
 import { saveUnifiedProjectAsV2, saveUnifiedProjectV2 } from "@/src/lib/animation/unifiedProjectRepositoryV2";
+import { rebindPendingTerraProjectV1 } from "@/src/lib/notifications/terraCompletionObserver";
 import { digestUnifiedProjectV2 } from "@/src/lib/animation/unifiedProjectStorageV2";
 import {
   clearProjectRecoveryDraftV1,
@@ -8155,7 +8156,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
   const saveProject = useCallback(async () => {
     requireManualEditorCommand("project.save/v2", "DrawingWorkspace.saveProject");
     if (isTimelinePlayingRef.current || saveInFlightRef.current) {
-      return { officialWriteSucceeded: false, coversCurrentGeneration: false, recoveryDraftCleared: false };
+      return { officialWriteSucceeded: false, coversCurrentGeneration: false, recoveryDraftCleared: false, notificationRebindSucceeded: false };
     }
     const capturedWorkspaceInstanceId = workspaceInstanceIdRef.current;
     saveInFlightRef.current = true; setSaveState("saving");
@@ -8167,8 +8168,14 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       const capturedGeneration = documentGenerationRef.current;
       const capturedRecoveryGeneration = recoveryWorkspaceGenerationRef.current;
       const saved = await saveUnifiedProjectV2(candidate);
+      let notificationRebindSucceeded = true;
+      try {
+        await rebindPendingTerraProjectV1(projectId ?? openedInitialProject.id, saved.projectId, saved.title);
+      } catch {
+        notificationRebindSucceeded = false;
+      }
       if (!workspaceMountedRef.current || workspaceInstanceIdRef.current !== capturedWorkspaceInstanceId) {
-        return { officialWriteSucceeded: true, coversCurrentGeneration: false, recoveryDraftCleared: false };
+        return { officialWriteSucceeded: true, coversCurrentGeneration: false, recoveryDraftCleared: false, notificationRebindSucceeded };
       }
       setActiveUnifiedProject(saved); setProjectId(saved.projectId); setProjectTitle(saved.title);
       setProjectAiMemory(bindDrawingAiProjectMemoryToProject(saved.auxiliary?.drawingAiMemory as DrawingAiProjectMemory | null, saved.projectId));
@@ -8187,21 +8194,21 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       }
       if (coversCurrentGeneration) { setSaveState("saved"); showSaveNotification(saved.title); }
       else setSaveState("unsaved");
-      return { officialWriteSucceeded: true, coversCurrentGeneration, recoveryDraftCleared };
+      return { officialWriteSucceeded: true, coversCurrentGeneration, recoveryDraftCleared, notificationRebindSucceeded };
     } catch (error) {
       if (workspaceMountedRef.current && workspaceInstanceIdRef.current === capturedWorkspaceInstanceId) {
         setSaveState(error instanceof Error && ["project_too_large", "collection_too_large", "project_limit_reached"].includes(error.message) ? "too-large" : "failed");
       }
-      return { officialWriteSucceeded: false, coversCurrentGeneration: false, recoveryDraftCleared: false };
+      return { officialWriteSucceeded: false, coversCurrentGeneration: false, recoveryDraftCleared: false, notificationRebindSucceeded: false };
     }
     finally { saveInFlightRef.current = false; }
-  }, [activeUnifiedProject, buildUnifiedProjectSnapshot, clearCoveredRecoveryDraft, commitCurrentFrameSnapshotWithoutHistory, createPersistedProjectSnapshot, publishAndClearCoveredRecoveryDraft, showSaveNotification]);
+  }, [activeUnifiedProject, buildUnifiedProjectSnapshot, clearCoveredRecoveryDraft, commitCurrentFrameSnapshotWithoutHistory, createPersistedProjectSnapshot, openedInitialProject.id, projectId, publishAndClearCoveredRecoveryDraft, showSaveNotification]);
 
   const saveAndExit = useCallback(async () => {
     if (!onExit || saveAndExitInFlightRef.current) return;
     saveAndExitInFlightRef.current = true;
     const result = await saveProject();
-    if (result.officialWriteSucceeded && result.coversCurrentGeneration && result.recoveryDraftCleared) {
+    if (result.officialWriteSucceeded && result.coversCurrentGeneration && result.recoveryDraftCleared && result.notificationRebindSucceeded) {
       onExit();
       return;
     }

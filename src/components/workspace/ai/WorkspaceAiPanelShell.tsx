@@ -5,6 +5,7 @@ type WorkspaceAiPanelShellProps = {
   composer: ReactNode;
   bodyClassName?: string;
   bodyRef?: Ref<HTMLDivElement>;
+  shellRef?: Ref<HTMLDivElement>;
 };
 
 type WorkspaceAiComposerShellProps = {
@@ -17,10 +18,13 @@ export function WorkspaceAiPanelShell({
   composer,
   bodyClassName = "workspace-ai-messages-scroll",
   bodyRef,
+  shellRef,
 }: WorkspaceAiPanelShellProps) {
   return (
     <div
+      ref={shellRef}
       className="workspace-ai-panel-shell"
+      data-terra-panel-surface
       style={{
         flex: "0 0 55%",
         minHeight: 0,

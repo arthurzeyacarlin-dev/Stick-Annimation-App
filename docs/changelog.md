@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-09-25 — Accept and record corrected SPEC-0014 Phase 2 (D-0140; GIT-100 pending)
+
+- Arthur passed the same separate Phase 2 review copy. The stopped correction executor transferred the unchanged-base `codex/spec0014-phase2-ai-completion-review` worktree with exactly 21 accepted technical dirty paths and an empty index. Immutable manifest SHA-256 `77bc08b62c472d9ed0f75a2cd6b7d9b4b84d3f9b2e75d89645738567904ae8e7` revalidated strictly before records changed.
+- Root Assistant and Terra observers now terminalize already-started jobs after in-app navigation, save the exact source result first and publish one deduplicated unread alert when the exact origin was not watched. The two existing bells show unread-only rows, name the Assistant chat or Terra project, and open the exact source; confirmed arrival marks read, while unavailable targets remain unread. No visible read-history feed or new next-day purge exists.
+- The corrected proof passed 42 oracle/42 browser assertions, 16 protected static/four browser receipts, TypeScript/focused lint/build/diff and zero automated provider/external/paid calls. Full production build retains the identical untouched dev AI-cost route error. Native OS focus, physical microphone/devices and non-Chromium remain unproven.
+- Control-plane propagation changes canonical records and generated tree only; it does not change the accepted runtime/fixture/test/proof bytes, stage, commit, merge, push, deploy or authorize Phase 3. GIT-100 publication, proof preservation and D-0054 cleanup remain separate.
+
 ## 2026-09-25 — Publish and close SPEC-0014 Phase 1 (D-0139/GIT-099)
 
 - Published exact 33-path commit `06365eacffe493ea3550de71b3baff0f57bf03b2`, parent `a5ca805b220357b5e8128bb6b76ea408e30fa790`: 19 accepted technical and 14 reviewed control-plane/tree paths. Clean canonical `main` fast-forwarded and pushed normally; canonical/local-origin/live GitHub `main` matched at `0/0`.

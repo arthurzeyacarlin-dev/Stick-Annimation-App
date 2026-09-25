@@ -12,6 +12,10 @@ import { createBrowserProjectSourceReader } from "@/src/lib/animation/unifiedPro
 import { acquireProjectOpenLeaseV2 } from "@/src/lib/animation/unifiedProjectManagementV2";
 import { UNIFIED_PROJECT_EDITOR_IDENTITY_EVENT_V2 } from "@/src/lib/animation/unifiedProjectRepositoryV2";
 import type { ProjectCollectionEntry } from "@/src/lib/animation/unifiedProjectCollection";
+import { listProjectCollection } from "@/src/lib/animation/unifiedProjectCollection";
+import { useNotificationCenterV1 } from "@/src/components/notifications/NotificationCenterProvider";
+import { publishNotificationNavigationIntentV1, registerNotificationNavigationHandlerV1 } from "@/src/lib/notifications/notificationNavigation";
+import type { NotificationTargetV1 } from "@/src/lib/notifications/notificationContracts";
 import type { ProjectRecoveryEnvelopeV1 } from "@/src/lib/animation/projectRecoveryContractV1";
 import {
   claimProjectRecoveryDraftV1,
@@ -20,7 +24,7 @@ import {
   inspectProjectRecoveryDraftV1,
   writeProjectRecoveryDraftV1,
 } from "@/src/lib/animation/projectRecoveryStorageV1";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 type HomeCardId = "new" | "open" | "myProject" | "tutorials" | "assistant" | "export";
@@ -48,6 +52,8 @@ const sameRecoveryGeneration = (left: ProjectRecoveryEnvelopeV1, right: ProjectR
 
 export default function Page() {
   const router = useRouter();
+  const { snapshot: notificationSnapshot } = useNotificationCenterV1();
+  const terraTargetKey = useMemo(() => JSON.stringify(notificationSnapshot.rows.filter(row => row.target.kind === "workspace-terra-turn").map(row => row.target)), [notificationSnapshot.rows]);
   const [view, setView] = useState<
     "home" | "tutorials" | "openProject" | "myProjects" | "animationWorkspace" | "animationExport"
   >("home");
@@ -271,11 +277,36 @@ export default function Page() {
       release();
     };
   }, [workspace]);
-  const openProject = async (entry: ProjectCollectionEntry) => {
+  const openProject = useCallback(async (entry: ProjectCollectionEntry) => {
     const result = await bootstrap.open(() => prepareCollectionWorkspace(createBrowserProjectSourceReader(), entry));
     if (result.status === "opened") { setWorkspace(result.root); setView("animationWorkspace"); }
     return result;
-  };
+  }, [bootstrap]);
+
+  useEffect(() => {
+    const targets = JSON.parse(terraTargetKey) as NotificationTargetV1[];
+    const handles = targets
+      .map(target => registerNotificationNavigationHandlerV1({
+        target,
+        handler: async target => {
+          if (target.kind !== "workspace-terra-turn" || !target.projectId) return "unavailable";
+          const mountedProjectId = workspace?.candidate.editor.project.projectId ?? null;
+          if (mountedProjectId === target.projectId && view === "animationWorkspace") {
+            publishNotificationNavigationIntentV1(target);
+            return "handled";
+          }
+          if (workspace && (view === "animationWorkspace" || view === "animationExport")) return "blocked-unsaved";
+          const matches = (await listProjectCollection(createBrowserProjectSourceReader()))
+            .filter(entry => entry.classification === "canonical" && entry.sourceId === target.projectId);
+          if (matches.length !== 1) return "unavailable";
+          const result = await openProject(matches[0]);
+          if (result.status !== "opened" || result.root.candidate.editor.project.projectId !== target.projectId) return "unavailable";
+          publishNotificationNavigationIntentV1(target);
+          return "handled";
+        },
+      }));
+    return () => { for (const handle of handles) handle.unregister(); };
+  }, [openProject, terraTargetKey, view, workspace]);
 
   const toggleGuidedChoice = (key: string) => {
     setGuidedChoices((prev) => (prev.includes(key) ? prev.filter((x) => x !== key) : [...prev, key]));

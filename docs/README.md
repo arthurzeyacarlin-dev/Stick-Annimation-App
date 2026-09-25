@@ -2,8 +2,8 @@
 
 Status: canonical repository memory
 Established: 2026-08-09
-Last reconciled with live code and current records: 2026-09-24 through D-0137's docs-only SPEC-0014 notification-center plan from clean canonical `main` `acc3204d6c5aa08f1d0d714dcd5a64e8746dcb8d`. All four implementation phases remain unauthorized; Phase 1 is additionally blocked by the PM V5 owner gate.
-Snapshot basis: pull request `#1` merged into `main` as `093bbac82fd3b4d97984448b6c6dbd716153354d`; functional anchor `c7de444536f3e0dd578a2063f70b0914e6af60b1`; tag `baseline-2026-08-09-control-plane`; closed SPEC-0012 product anchor GIT-096 `20612c364686b5b855e85f0b12c28a61e84b1061`; closed SPEC-0013 product anchor GIT-097 `893daa82f555381d775af8fb73b14a551bd5fb45`; current SPEC-0014 planning baseline `acc3204d6c5aa08f1d0d714dcd5a64e8746dcb8d`
+Last reconciled with live code and current records: 2026-09-25 through D-0140's accepted SPEC-0014 Phase 2 correction in its separate unpublished review worktree. Phase 1 is fully published; Phase 2 is technically Verified and control-plane-recorded but not yet integrated; Phases 3–4 remain unauthorized.
+Snapshot basis: pull request `#1` merged into `main` as `093bbac82fd3b4d97984448b6c6dbd716153354d`; functional anchor `c7de444536f3e0dd578a2063f70b0914e6af60b1`; tag `baseline-2026-08-09-control-plane`; closed SPEC-0014 Phase 1 product anchor GIT-099 `06365eacffe493ea3550de71b3baff0f57bf03b2`; accepted Phase 2 unpublished base/HEAD `acd4031cade0e4e960223190a8c1645d007d61af`
 
 ## Purpose
 

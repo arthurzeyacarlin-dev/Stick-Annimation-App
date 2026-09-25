@@ -12,8 +12,7 @@ import {
 } from "@/src/lib/ai/aiAnimatorContract";
 import {
   readAiAnimatorLedger,
-  upsertAiAnimatorJob,
-  writeAiAnimatorLedger,
+  subscribeAiAnimatorLedger,
   type AiAnimatorLedger,
 } from "@/src/lib/ai/aiAnimatorStorage";
 import type {
@@ -23,6 +22,22 @@ import type {
   DrawingAiWorkspaceContext,
 } from "@/src/lib/ai/drawingAiContract";
 import type { GeneratedFrameRenderResult } from "@/src/lib/ai/drawingFrameExecutor";
+import {
+  acceptTerraJobSnapshotV1,
+  getPendingTerraDescriptorV1,
+  registerPendingTerraJobV1,
+  setTerraJobPostingV1,
+  type TerraPendingDescriptorV1,
+} from "@/src/lib/notifications/terraCompletionObserver";
+import {
+  clearNotificationNavigationIntentV1,
+  confirmNotificationTargetArrivalV1,
+  peekNotificationNavigationIntentV1,
+  registerNotificationOriginSurfaceV1,
+  registerNotificationTargetSurfaceV1,
+  subscribeNotificationNavigationIntentV1,
+} from "@/src/lib/notifications/notificationNavigation";
+import type { NotificationTargetV1 } from "@/src/lib/notifications/notificationContracts";
 import { WorkspaceAiComposerShell, WorkspaceAiPanelShell } from "./WorkspaceAiPanelShell";
 
 type DrawingAiPanelProps = {
@@ -40,10 +55,14 @@ const REASONING_OPTIONS: Array<{ value: DrawingAiReasoningLevel; label: string; 
   { value: "high", label: "High", color: "#ffa24e" },
   { value: "extra-high", label: "Extra High", color: "#ff6969" },
 ];
-const POLL_INTERVAL_MS = 300;
 const MINIMUM_THINKING_PRESENTATION_MS = 2_000;
 const PENDING_PROMPT_DIGEST = "0".repeat(64);
 const EMPTY_USAGE = { inputTokens: null, outputTokens: null, totalTokens: null, estimatedCostUsd: null };
+const notificationProjectTitle = (value: string) => {
+  const normalized = value.normalize("NFC").replace(/[\u0000-\u001f\u007f]/g, " ").replace(/\s+/g, " ").trim() || "Untitled project";
+  const scalars = Array.from(normalized);
+  return scalars.length <= 120 ? normalized : `${scalars.slice(0, 119).join("")}…`;
+};
 
 const readAiAnimatorResponse = async (response: Response): Promise<unknown> => {
   const contentType = response.headers.get("content-type")?.toLowerCase() ?? "";
@@ -136,98 +155,81 @@ export function DrawingAiPanel({
   const [inputValue, setInputValue] = useState("");
   const [isReasoningMenuOpen, setIsReasoningMenuOpen] = useState(false);
   const [requestError, setRequestError] = useState<string | null>(null);
+  const shellRef = useRef<HTMLDivElement | null>(null);
   const bodyRef = useRef<HTMLDivElement | null>(null);
   const composerRef = useRef<HTMLTextAreaElement | null>(null);
   const observedWorkspaceRef = useRef({ projectId, projectGeneration });
   const pendingRevealMessageIdsRef = useRef(new Set<string>());
-  const mountedRef = useRef(true);
+  const knownMessageIdsRef = useRef(new Set(ledger.messages.map(message => message.id)));
   const submittedThinkingStartedAtRef = useRef(new Map<string, number>());
-  const pendingTerminalPresentationRef = useRef(new Map<string, { snapshot: AiAnimatorJobSnapshot; timer: ReturnType<typeof setTimeout> }>());
+  const presentationTimersRef = useRef(new Map<string, ReturnType<typeof setTimeout>>());
+  const [navigationTarget, setNavigationTarget] = useState<Extract<NotificationTargetV1, { kind: "workspace-terra-turn" }> | null>(() => {
+    const intent = typeof window === "undefined" ? null : peekNotificationNavigationIntentV1();
+    return intent?.kind === "workspace-terra-turn" ? intent : null;
+  });
   const activeJob = useMemo(
     () => [...ledger.jobs].reverse().find((job) => !isAiAnimatorTerminalStatus(job.status)) ?? null,
     [ledger.jobs],
   );
 
-  const clearPendingPresentation = useCallback((jobId?: string) => {
-    if (jobId) {
-      const pending = pendingTerminalPresentationRef.current.get(jobId);
-      if (pending) clearTimeout(pending.timer);
-      pendingTerminalPresentationRef.current.delete(jobId);
-      submittedThinkingStartedAtRef.current.delete(jobId);
-      return;
-    }
-    for (const pending of pendingTerminalPresentationRef.current.values()) clearTimeout(pending.timer);
-    pendingTerminalPresentationRef.current.clear();
+  useEffect(() => {
+    for (const timer of presentationTimersRef.current.values()) clearTimeout(timer);
+    presentationTimersRef.current.clear();
     submittedThinkingStartedAtRef.current.clear();
-  }, []);
-
-  useEffect(() => {
-    mountedRef.current = true;
-    return () => { mountedRef.current = false; clearPendingPresentation(); };
-  }, [clearPendingPresentation]);
-
-  useEffect(() => {
-    clearPendingPresentation();
     pendingRevealMessageIdsRef.current.clear();
-    setReasoningLevel("medium"); setInputValue(""); setRequestError(null); setLedger(readAiAnimatorLedger(projectId));
-  }, [clearPendingPresentation, projectId]);
-
-  useEffect(() => { if (ledger.projectId === projectId) writeAiAnimatorLedger(ledger); }, [ledger, projectId]);
-  useEffect(() => { if (bodyRef.current) bodyRef.current.scrollTop = bodyRef.current.scrollHeight; }, [activeJob?.status, ledger.messages.length]);
-
-  const commitSnapshot = useCallback((incoming: AiAnimatorJobSnapshot) => {
-    const snapshot = incoming;
-    if (!mountedRef.current || snapshot.projectId !== projectId) return;
-    setLedger((current) => {
-      const previous = current.jobs.find((job) => job.jobId === snapshot.jobId) ?? null;
-      if (previous && snapshot.lastSequence < previous.lastSequence) return current;
-      let next = upsertAiAnimatorJob(current, snapshot);
-      if ((!previous || !isAiAnimatorTerminalStatus(previous.status)) && isAiAnimatorTerminalStatus(snapshot.status)) {
-        const alreadyRecorded = next.messages.some((message) => message.jobId === snapshot.jobId && message.role === "assistant");
-        if (!alreadyRecorded) {
-          const finalEvent = snapshot.events.at(-1);
-          const content = snapshot.status === "done"
-            ? finalEvent?.reply?.reply ?? "Terra completed the request without a readable reply. No animation changed."
-            : snapshot.status === "cancelled"
-              ? "Cancelled. No animation changed."
-              : finalEvent?.errorMessage ?? "Terra could not finish this request. No animation changed. Try again when the service is available.";
-          const assistantMessage = newMessage("assistant", content, snapshot.jobId);
-          pendingRevealMessageIdsRef.current.add(assistantMessage.id);
-          next = { ...next, messages: [...next.messages, assistantMessage] };
+    const initial = readAiAnimatorLedger(projectId);
+    knownMessageIdsRef.current = new Set(initial.messages.map(message => message.id));
+    setReasoningLevel("medium"); setInputValue(""); setRequestError(null); setLedger(initial);
+    return subscribeAiAnimatorLedger(projectId, next => {
+      const submittedOnThisMount = new Set(submittedThinkingStartedAtRef.current.keys());
+      for (const job of next.jobs) {
+        if (job.status === "cancelled") {
+          submittedThinkingStartedAtRef.current.delete(job.jobId);
+          const timer = presentationTimersRef.current.get(job.jobId);
+          if (timer) clearTimeout(timer);
+          presentationTimersRef.current.delete(job.jobId);
         }
       }
-      return next;
+      const delayed = [...next.jobs].reverse().find(job => isAiAnimatorTerminalStatus(job.status) && job.status !== "cancelled" && submittedThinkingStartedAtRef.current.has(job.jobId));
+      if (delayed) {
+        const startedAt = submittedThinkingStartedAtRef.current.get(delayed.jobId)!;
+        const remaining = MINIMUM_THINKING_PRESENTATION_MS - (Date.now() - startedAt);
+        if (remaining > 0) {
+          const priorTimer = presentationTimersRef.current.get(delayed.jobId);
+          if (priorTimer) clearTimeout(priorTimer);
+          const timer = setTimeout(() => {
+            presentationTimersRef.current.delete(delayed.jobId);
+            submittedThinkingStartedAtRef.current.delete(delayed.jobId);
+            const terminal = readAiAnimatorLedger(projectId);
+            for (const message of terminal.messages) {
+              if (message.role === "assistant" && !knownMessageIdsRef.current.has(message.id)) pendingRevealMessageIdsRef.current.add(message.id);
+              knownMessageIdsRef.current.add(message.id);
+            }
+            setLedger(terminal);
+          }, remaining);
+          presentationTimersRef.current.set(delayed.jobId, timer);
+          return;
+        }
+        submittedThinkingStartedAtRef.current.delete(delayed.jobId);
+      }
+      for (const message of next.messages) {
+        if (message.role === "assistant" && submittedOnThisMount.has(message.jobId ?? "") && !knownMessageIdsRef.current.has(message.id)) pendingRevealMessageIdsRef.current.add(message.id);
+        knownMessageIdsRef.current.add(message.id);
+      }
+      setLedger(next);
     });
   }, [projectId]);
 
-  const applySnapshot = useCallback((incoming: AiAnimatorJobSnapshot, bypassMinimum = false) => {
-    if (!mountedRef.current || incoming.projectId !== projectId) return;
-    if (!isAiAnimatorTerminalStatus(incoming.status)) {
-      commitSnapshot(incoming);
-      return;
-    }
-    const startedAt = submittedThinkingStartedAtRef.current.get(incoming.jobId);
-    if (bypassMinimum || incoming.status === "cancelled" || startedAt === undefined) {
-      clearPendingPresentation(incoming.jobId);
-      commitSnapshot(incoming);
-      return;
-    }
-    const remainingMs = MINIMUM_THINKING_PRESENTATION_MS - (Date.now() - startedAt);
-    if (remainingMs <= 0) {
-      clearPendingPresentation(incoming.jobId);
-      commitSnapshot(incoming);
-      return;
-    }
-    const existing = pendingTerminalPresentationRef.current.get(incoming.jobId);
-    if (existing && existing.snapshot.lastSequence > incoming.lastSequence) return;
-    if (existing) clearTimeout(existing.timer);
-    const timer = setTimeout(() => {
-      pendingTerminalPresentationRef.current.delete(incoming.jobId);
-      submittedThinkingStartedAtRef.current.delete(incoming.jobId);
-      commitSnapshot(incoming);
-    }, remainingMs);
-    pendingTerminalPresentationRef.current.set(incoming.jobId, { snapshot: incoming, timer });
-  }, [clearPendingPresentation, commitSnapshot, projectId]);
+  useEffect(() => () => {
+    for (const timer of presentationTimersRef.current.values()) clearTimeout(timer);
+    presentationTimersRef.current.clear();
+  }, []);
+
+  useEffect(() => subscribeNotificationNavigationIntentV1(target => {
+    if (target.kind === "workspace-terra-turn") setNavigationTarget(target);
+  }), []);
+
+  useEffect(() => { if (bodyRef.current) bodyRef.current.scrollTop = bodyRef.current.scrollHeight; }, [activeJob?.status, ledger.messages.length]);
 
   useEffect(() => {
     const observed = observedWorkspaceRef.current;
@@ -239,7 +241,9 @@ export function DrawingAiPanel({
     observedWorkspaceRef.current = { projectId, projectGeneration };
     if (!activeJob || activeJob.projectGeneration !== observed.projectGeneration) return;
     const failedAt = new Date().toISOString();
-    applySnapshot({
+    const descriptor = getPendingTerraDescriptorV1(activeJob.jobId);
+    if (!descriptor) return;
+    void acceptTerraJobSnapshotV1(descriptor, {
       ...activeJob,
       status: "failed",
       intent: null,
@@ -254,43 +258,62 @@ export function DrawingAiPanel({
         errorCode: "stale_generation",
         errorMessage: "The workspace changed before Terra finished. No animation changed. Send the message again for the current project state.",
       }],
-    });
-  }, [activeJob, applySnapshot, projectGeneration, projectId]);
+    }).catch(error => setRequestError(error instanceof Error ? error.message : "Terra could not save the terminal result."));
+  }, [activeJob, projectGeneration, projectId]);
 
   useEffect(() => {
-    if (!activeJob) return;
-    let disposed = false;
-    let timer: ReturnType<typeof setTimeout> | null = null;
-    const poll = async () => {
+    const surface = shellRef.current;
+    const region = bodyRef.current;
+    const latestJob = ledger.jobs.at(-1);
+    if (!surface || !region || !workspaceContext || !latestJob) return;
+    const origin = {
+      kind: "workspace-terra",
+      workspaceIdentity: workspaceContext.workspaceIdentity,
+      projectId: workspaceContext.projectId,
+      projectGeneration: latestJob.projectGeneration,
+      jobId: latestJob.jobId,
+      projectTitle: notificationProjectTitle(workspaceContext.projectTitle),
+    } as const;
+    const originHandle = registerNotificationOriginSurfaceV1({ origin, surfaceElement: surface, terminalRegionElement: region });
+    return () => originHandle.unregister();
+  }, [ledger.jobs, workspaceContext]);
+
+  useEffect(() => {
+    const surface = shellRef.current;
+    const body = bodyRef.current;
+    const target = navigationTarget;
+    if (!surface || !body || !target || target.projectId !== workspaceContext?.projectId || target.workspaceIdentity !== workspaceContext.workspaceIdentity) return;
+    const job = ledger.jobs.find(candidate => candidate.jobId === target.jobId && candidate.projectGeneration === target.projectGeneration);
+    if (!job || !isAiAnimatorTerminalStatus(job.status)) return;
+    const message = ledger.messages.find(candidate => candidate.jobId === target.jobId && candidate.role === "assistant");
+    const region = message ? body.querySelector<HTMLElement>(`[data-ai-assistant-message="${message.id}"]`) ?? body : body;
+    const handle = registerNotificationTargetSurfaceV1({ target, surfaceElement: surface, targetRegionElement: region });
+    let cancelled = false;
+    let retryTimer: ReturnType<typeof setTimeout> | null = null;
+    const arrive = async (attempt: number) => {
+      if (cancelled) return;
+      region.scrollIntoView({ block: "nearest" });
+      region.tabIndex = -1;
+      region.focus({ preventScroll: true });
       try {
-        const response = await fetch(`/api/ai-animator?jobId=${encodeURIComponent(activeJob.jobId)}&projectId=${encodeURIComponent(projectId)}`, { cache: "no-store" });
-        const snapshot = normalizeAiAnimatorJobSnapshot(await readAiAnimatorResponse(response));
-        if (!response.ok || !snapshot) {
-          throw new Error(response.status === 404
-            ? "The server was interrupted before Terra finished. No animation changed. Send the message again to retry."
-            : "AI Animator returned an invalid job update. No animation changed.");
+        const result = await confirmNotificationTargetArrivalV1(handle);
+        if (cancelled) return;
+        if (result.matched) {
+          clearNotificationNavigationIntentV1(target);
+          setNavigationTarget(null);
+          return;
         }
-        if (!disposed) {
-          applySnapshot(snapshot);
-          if (!isAiAnimatorTerminalStatus(snapshot.status)) timer = setTimeout(poll, POLL_INTERVAL_MS);
-        }
-      } catch (error) {
-        if (!disposed) {
-          const now = new Date().toISOString();
-          applySnapshot({
-            ...activeJob, status: "failed", intent: null, lastSequence: activeJob.lastSequence + 1, updatedAt: now, completedAt: now,
-            telemetry: { ...activeJob.telemetry, outcome: "failed", latencyMs: Date.now() - Date.parse(activeJob.createdAt) },
-            events: [...activeJob.events, {
-              sequence: activeJob.lastSequence + 1, status: "failed", createdAt: now, errorCode: "reconnect_failed",
-              errorMessage: error instanceof Error ? error.message : "AI Animator could not reconnect. No animation changed.",
-            }],
-          });
-        }
-      }
+      } catch { /* The unread item remains available if storage cannot confirm arrival. */ }
+      if (attempt < 12) retryTimer = setTimeout(() => { void arrive(attempt + 1); }, 80);
     };
-    timer = setTimeout(poll, POLL_INTERVAL_MS);
-    return () => { disposed = true; if (timer) clearTimeout(timer); };
-  }, [activeJob, applySnapshot, projectId]);
+    const frame = requestAnimationFrame(() => { void arrive(0); });
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(frame);
+      if (retryTimer) clearTimeout(retryTimer);
+      handle.unregister();
+    };
+  }, [ledger.jobs, ledger.messages, navigationTarget, workspaceContext?.projectId, workspaceContext?.workspaceIdentity]);
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -308,7 +331,18 @@ export function DrawingAiPanel({
     };
     const priorMessages = ledger.messages;
     submittedThinkingStartedAtRef.current.set(jobId, Date.now());
-    setLedger((current) => upsertAiAnimatorJob({ ...current, messages: [...current.messages, newMessage("user", message, jobId)] }, localJob));
+    const userMessage = newMessage("user", message, jobId);
+    const descriptor: TerraPendingDescriptorV1 = {
+      schema: "terra-pending-descriptor/v1",
+      workspaceIdentity: workspaceContext.workspaceIdentity,
+      projectId,
+      projectGeneration: workspaceContext.projectGeneration,
+      projectTitle: notificationProjectTitle(workspaceContext.projectTitle),
+      jobId,
+      turnId,
+      createdAt: Date.parse(now),
+      acceptedAt: null,
+    };
     setInputValue(""); setRequestError(null); setIsReasoningMenuOpen(false);
     const requestBody: AiAnimatorRequest = {
       jobId, turnId, message, reasoningLevel,
@@ -319,7 +353,9 @@ export function DrawingAiPanel({
         timelineFps: workspaceContext.timelineFps, activeTool: workspaceContext.activeTool,
       },
     };
+    setTerraJobPostingV1(jobId, true);
     try {
+      await registerPendingTerraJobV1(descriptor, userMessage, localJob);
       const response = await fetch("/api/ai-animator", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(requestBody) });
       const body = await readAiAnimatorResponse(response);
       const snapshot = normalizeAiAnimatorJobSnapshot(body);
@@ -328,26 +364,34 @@ export function DrawingAiPanel({
           ? body.error : "Terra could not start. No animation changed.";
         throw new Error(errorMessage);
       }
-      applySnapshot(snapshot);
+      await acceptTerraJobSnapshotV1(descriptor, snapshot);
     } catch (error) {
       const messageText = error instanceof Error ? error.message : "Terra could not start. No animation changed.";
       const failedAt = new Date().toISOString();
-      applySnapshot({ ...localJob, status: "failed", lastSequence: 2, updatedAt: failedAt, completedAt: failedAt,
+      if (getPendingTerraDescriptorV1(jobId)) await acceptTerraJobSnapshotV1(descriptor, { ...localJob, status: "failed", lastSequence: 2, updatedAt: failedAt, completedAt: failedAt,
         telemetry: { ...localJob.telemetry, outcome: "failed", latencyMs: Date.now() - Date.parse(localJob.createdAt) },
         events: [...localJob.events, { sequence: 2, status: "failed", createdAt: failedAt, errorCode: "submit_failed", errorMessage: messageText }],
-      });
+      }).catch(() => setRequestError(messageText));
+      else setRequestError(messageText);
+    } finally {
+      setTerraJobPostingV1(jobId, false);
     }
   };
 
   const cancelActiveJob = async () => {
     if (!activeJob) return;
+    const descriptor = getPendingTerraDescriptorV1(activeJob.jobId);
+    if (!descriptor) return;
+    setTerraJobPostingV1(activeJob.jobId, true);
     try {
       const response = await fetch("/api/ai-animator", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ jobId: activeJob.jobId, projectId }) });
       const snapshot = normalizeAiAnimatorJobSnapshot(await readAiAnimatorResponse(response));
       if (!response.ok || !snapshot) throw new Error("Cancellation could not be confirmed.");
-      applySnapshot(snapshot, true);
+      await acceptTerraJobSnapshotV1(descriptor, snapshot);
     } catch (error) {
       setRequestError(`${error instanceof Error ? error.message : "Cancellation failed."} The request status will keep updating.`);
+    } finally {
+      setTerraJobPostingV1(activeJob.jobId, false);
     }
   };
 
@@ -380,6 +424,7 @@ export function DrawingAiPanel({
         @media (prefers-reduced-motion: reduce) { .ai-animator-thinking::before, .ai-animator-thinking::after { animation: none; display: none; } .ai-animator-message { animation: none; } .ai-animator-assistant-visual { display: none; } .ai-animator-reduced-copy { display: inline; } }
       `}</style>
       <WorkspaceAiPanelShell
+        shellRef={shellRef}
         bodyRef={bodyRef}
         body={<>
           {ledger.messages.length === 0 && !activeJob && <div style={{ margin: "auto", maxWidth: 270, textAlign: "center", color: "rgba(255,255,255,.62)", fontSize: 12, lineHeight: 1.55 }}>Chat with Terra about your animation. Creation and editing arrive in later phases.</div>}

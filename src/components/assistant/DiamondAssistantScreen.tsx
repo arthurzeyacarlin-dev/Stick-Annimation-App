@@ -9,6 +9,12 @@ import { AssistantConversation } from "./AssistantConversation";
 import { AssistantComposer } from "./AssistantComposer";
 import { useAssistantSessions } from "./useAssistantSessions";
 import { NotificationTrigger } from "@/src/components/notifications/NotificationTrigger";
+import {
+  clearNotificationNavigationIntentV1,
+  confirmNotificationTargetArrivalV1,
+  registerNotificationOriginSurfaceV1,
+  registerNotificationTargetSurfaceV1,
+} from "@/src/lib/notifications/notificationNavigation";
 
 const SIDEBAR_MIN_WIDTH = 200;
 const SIDEBAR_DEFAULT_WIDTH = 256;
@@ -42,7 +48,64 @@ export function DiamondAssistantScreen() {
   const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_DEFAULT_WIDTH);
   const [sidebarMaxWidth, setSidebarMaxWidth] = useState(SIDEBAR_MAX_WIDTH);
   const [sidebarResizing, setSidebarResizing] = useState(false);
+  const [navigationVersion, setNavigationVersion] = useState(0);
   useEffect(() => { backRef.current?.focus({ preventScroll: true }); }, []);
+  useEffect(() => {
+    const changed = () => setNavigationVersion(version => version + 1);
+    window.addEventListener("hashchange", changed);
+    return () => window.removeEventListener("hashchange", changed);
+  }, []);
+
+  useEffect(() => {
+    const surface = screenRef.current;
+    const session = chats.selected;
+    const latestTurn = session?.turns.at(-1);
+    if (!surface || !session || !latestTurn) return;
+    const regions = Array.from(surface.querySelectorAll<HTMLElement>("[data-assistant-terminal-turn]"));
+    const originRegion = regions
+      .find(element => element.dataset.assistantTerminalTurn === latestTurn.id && element.dataset.assistantTerminalJob === latestTurn.jobId)
+      ?? surface.querySelector<HTMLElement>("[data-assistant-conversation-region]");
+    if (!originRegion) return;
+    const origin = { kind: "assistant", sessionId: session.id, turnId: latestTurn.id, jobId: latestTurn.jobId } as const;
+    const originHandle = registerNotificationOriginSurfaceV1({ origin, surfaceElement: surface, terminalRegionElement: originRegion });
+    const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+    const requestedTurnId = hash.get("turn");
+    const requestedJobId = hash.get("job");
+    const requestedTurn = session.turns.find(turn => turn.id === requestedTurnId && (turn.jobId === requestedJobId || turn.priorAttempts?.some(attempt => attempt.jobId === requestedJobId)));
+    const targetRegion = requestedTurn
+      ? regions.find(element => element.dataset.assistantTerminalTurn === requestedTurn.id) ?? null
+      : null;
+    const target = requestedTurn && requestedJobId ? { kind: "assistant-turn", sessionId: session.id, turnId: requestedTurn.id, jobId: requestedJobId } as const : null;
+    const targetHandle = target && targetRegion ? registerNotificationTargetSurfaceV1({ target, surfaceElement: surface, targetRegionElement: targetRegion }) : null;
+    let cancelled = false;
+    let retryTimer: ReturnType<typeof setTimeout> | null = null;
+    let frame: number | null = null;
+    if (target && targetHandle && targetRegion && hash.get("chat") === session.id) {
+      const arrive = async (attempt: number) => {
+        if (cancelled) return;
+        const focusTarget = targetRegion.querySelector<HTMLElement>("button") ?? targetRegion;
+        targetRegion.scrollIntoView({ block: "nearest" });
+        focusTarget.focus({ preventScroll: true });
+        try {
+          const result = await confirmNotificationTargetArrivalV1(targetHandle);
+          if (cancelled) return;
+          if (result.matched) {
+            clearNotificationNavigationIntentV1(target);
+            return;
+          }
+        } catch { /* Keep an unread item when arrival cannot be confirmed. */ }
+        if (attempt < 12) retryTimer = setTimeout(() => { void arrive(attempt + 1); }, 80);
+      };
+      frame = requestAnimationFrame(() => { void arrive(0); });
+    }
+    return () => {
+      cancelled = true;
+      if (frame !== null) cancelAnimationFrame(frame);
+      if (retryTimer) clearTimeout(retryTimer);
+      originHandle.unregister();
+      targetHandle?.unregister();
+    };
+  }, [chats.selected, navigationVersion]);
 
   const measureSidebarMaxWidth = () => {
     const screenWidth = screenRef.current?.getBoundingClientRect().width ?? window.innerWidth;

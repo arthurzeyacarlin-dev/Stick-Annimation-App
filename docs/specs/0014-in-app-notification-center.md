@@ -1,14 +1,28 @@
 # SPEC-0014 — Durable In-App Notification Center and Background Completion
 
-Status: **Phase 1 Verified, published, integrated, synchronized, proof-preserved and cleaned up; Phases 2–4 Unauthorized/Not started.**
+Status: **Phase 1 fully closed; Phase 2 accepted and technically Verified in its separate worktree, control-plane propagation complete, publication pending; Phases 3–4 Unauthorized/Not started.**
 Owner: Arthur
 Planning role: Specification Architect
 Created: 2026-09-24
 Last updated: 2026-09-25
-Decision link: D-0137; D-0138
-TODO IDs: PLAN-014; PM-005; NOTIFY-001; NOTIFY-002; NOTIFY-003; NOTIFY-004; GIT-098
+Decision link: D-0137; D-0138; D-0140
+TODO IDs: PLAN-014; PM-005; NOTIFY-001; NOTIFY-002; NOTIFY-003; NOTIFY-004; GIT-098; GIT-100
 Planning baseline: clean detached checkout of canonical `main` at `acc3204d6c5aa08f1d0d714dcd5a64e8746dcb8d`
-Authorization boundary: D-0137 authorized planning only. Arthur subsequently authorized Phase 1 and accepted the corrected implementation under D-0138, with control-plane propagation and exact Git publication separately requested. Phases 2–4, provider/paid activity and deployment remain unauthorized.
+Authorization boundary: D-0137 authorized planning only. Phase 1 is fully closed under D-0138/D-0139. Arthur separately authorized Phase 2, accepted the corrected same-copy result under D-0140, and requested control-plane recording followed by exact Git publication. This control-plane checkpoint does not itself stage, commit, merge, push or deploy. Phases 3–4, provider/paid activity and deployment remain unauthorized.
+
+## D-0140 accepted Phase 2 correction — authoritative current behavior
+
+Arthur accepted the corrected Phase 2 review copy at `http://127.0.0.1:58440/` after explicitly rejecting visible history and inert same-route chat navigation. The stopped correction Spec Executor transferred exclusive ownership of `/Users/arthurcarlin/.codex/worktrees/974d/stick-animation-app`, branch `codex/spec0014-phase2-ai-completion-review`, from unchanged canonical base/HEAD `acd4031cade0e4e960223190a8c1645d007d61af`, with an empty index and exactly 21 implementation/fixture/test/proof paths. Its immutable `output/spec0014/phase2/manifest.json` SHA-256 is `77bc08b62c472d9ed0f75a2cd6b7d9b4b84d3f9b2e75d89645738567904ae8e7`; strict pre-propagation validation passed and rejected 12 mutations. This section supersedes conflicting Phase 2-visible history and mark-before-navigation instructions below; the older wording remains historical planning context.
+
+- The app-lifetime Assistant and Terra observers poll already-started jobs without resubmission. They commit and reread the exact Assistant turn or project-scoped Terra ledger terminal before publishing one deterministic completed/failed notification. Explicit cancellation produces no notification. Same-runtime navigation does not cancel observation; server restart/reload and two-tab behavior remain bounded by the accepted source contracts.
+- Exactly the existing two bells remain: Home/main interface shows all eligible unread notifications; `/assistant` shows only unread Assistant reply notifications. The same Assistant event can appear in both inboxes while unread, with one shared record/read state rather than duplicate notifications. Only a mounted owning bell rings on a newly committed unread event. Watching the exact terminal origin stores the dedupe record already read and creates no visible row or ring. Opening the panel does not replay or mark anything read.
+- Bell panels show **only unread items**, not a chronological read-history feed. Mark-all removes eligible rows from that view without deleting the underlying dedupe records. No new next-day/24-hour purge exists. Clicking a row dispatches its exact target; only confirmed arrival at that exact Assistant turn or Terra project reply marks it read and removes it. Unavailable or blocked targets remain unread with safe feedback, never silently disappear or open a similarly named source.
+- Assistant rows identify the saved chat title at presentation time (or `Untitled chat` if unavailable); Terra rows identify the captured project title. The stored closed-catalog event copy, IDs, schema and payload digest are unchanged. Home-to-Assistant and Assistant-chat-to-other-Assistant-chat navigation both focus the exact turn; Terra reopens only the exact supported saved project/workspace generation.
+- This correction adds no bell, AI thinking/reply/search/dictation/provider/limit change, automatic retry, animation mutation, Export Phase 3 producer, offline Phase 4 warning, future low-usage/updater/AI-animation producer or deployment. The proof records 42 oracle and 42 real-browser assertions, 16 protected static and four protected browser receipts, TypeScript/focused lint/build PASS, zero automated provider/external/paid calls and a byte-identical protected runtime outside the allowlist. Full production build still fails identically on the untouched dev AI-cost `PageProps` route; physical microphone/devices, native OS focus and non-Chromium remain unproven.
+
+The exact 21 accepted technical paths are `app/page.tsx`; `src/components/assistant/AssistantConversation.tsx`; `src/components/assistant/DiamondAssistantScreen.tsx`; `src/components/assistant/useAssistantSessions.ts`; `src/components/notifications/NotificationCenterProvider.tsx`; `src/components/notifications/NotificationTrigger.tsx`; `src/components/workspace/DrawingWorkspace.tsx`; `src/components/workspace/ai/DrawingAiPanel.tsx`; `src/components/workspace/ai/WorkspaceAiPanelShell.tsx`; `src/lib/ai/aiAnimatorStorage.ts`; `src/lib/notifications/notificationNavigation.ts`; `src/lib/notifications/assistantCompletionObserver.ts`; `src/lib/notifications/terraCompletionObserver.ts`; `scripts/fixtures/spec0014-notifications/phase-2/contract.json`; and the seven `scripts/spec0014-notifications/` files `phase2BrowserProof.ts`, `phase2Oracle.ts`, `phase2ProtectedRegressions.ts`, `phase2BuildProof.ts`, `phase2ReviewSetup.ts`, `recordPhase2Proof.ts`, `validatePhase2Proof.ts`. No accepted technical byte is edited during control-plane propagation.
+
+Phase 2 is **accepted and technically Verified in the separate review worktree, not yet published/integrated**. The immutable executor manifest's pre-acceptance and no-publication flags remain historical evidence and are not rewritten. D-0140 records Arthur's subsequent acceptance; GIT-100 publication requires the separate bounded operation after this Control Plane Architect packet. Phase 3 remains Unauthorized/Not started until Phase 2 is durably integrated/synchronized/proof-preserved/cleaned up and Arthur separately authorizes it.
 
 ## D-0138 accepted Phase 1 correction — authoritative two-bell outcome
 
@@ -22,7 +36,7 @@ Arthur rejected the earlier unpublished review copy, then accepted the fresh cor
 
 Technical proof passed 35 contract, 29 storage and 41 UI assertions; exact Home `1`/Assistant `1`/other surfaces `0` trigger inventory; two-tab/reload/restart/read/capacity/corruption checks; accessibility and protected Assistant/dictation/Terra/export/editor regressions; TypeScript, focused lint and focused Webpack build. Manifest validation rejected 18 mutations, with zero automated provider/external calls. Full lint remains the inherited five errors/81 warnings. The full production Webpack build fails on the identical untouched `app/dev/ai-costs/lifetime/page.tsx` `PageProps` error on base and result; default Turbopack build also failed in this offline environment. Production-build readiness is **not proven**. Native 200% browser zoom, OS-window focus, physical microphone/devices and non-Chromium are unproven. These limits must stay visible in any Phase 2 handoff.
 
-This correction supersedes older all-surface bell placement and numeric-badge language. Phase 2's Phase 1 closeout prerequisite is now satisfied, but it remains Unauthorized/Not started until Arthur separately authorizes a fresh Plan-mode executor.
+This Phase 1 correction superseded older all-surface bell placement and numeric-badge language. At that historical checkpoint, Phase 2's Phase 1 closeout prerequisite was satisfied but separate authorization was still required; D-0140 above records the later authorization, implementation and acceptance.
 
 ## 1. Exact product outcome
 
@@ -38,7 +52,7 @@ The first active event set is exactly:
 6. a Terra reply failed or timed out after the user left that exact project/workspace; and
 7. one app-wide offline warning per real browser-declared offline incident, with exact copy **“There is no internet, so no AI will be able to be called.”**
 
-Each supported terminal outcome creates one history record. It is unread only when the exact origin is no longer visibly focused under §6; if the user remains on the exact origin, the same event is stored already read. This preserves a complete local history without showing a false “you missed this” badge.
+Each supported terminal outcome creates one durable dedupe record. It is unread only when the exact origin is no longer visibly focused under §6; if the user remains on the exact origin, the same event is stored already read. The bell panels display unread items only, never a visible read-history feed.
 
 The following future event contracts are reserved but remain inactive:
 
@@ -51,7 +65,7 @@ SPEC-0014 has exactly four separately authorized implementation phases:
 | Phase | Outcome | Authorization state |
 | --- | --- | --- |
 | 1 — Notification center foundation and durable event contract | Shared local store, two scoped bells, unread/read semantics, target resolution contract and proof-only fixtures; no product producer is connected. | Verified, published, integrated, synchronized, proof-preserved and cleaned under D-0138/D-0139/GIT-099 |
-| 2 — AI reply completion/failure across navigation | App-lifetime observers terminalize and notify for the exact Assistant conversation and exact New/Open Terra project/workspace after in-app navigation. | Unauthorized; Not started |
+| 2 — AI reply completion/failure across navigation | App-lifetime observers terminalize and notify for the exact Assistant conversation and exact New/Open Terra project/workspace after in-app navigation. | Accepted and technically Verified in separate review worktree; control-plane propagation complete; publication pending under D-0140 |
 | 3 — Export completion/failure across navigation | One app-lifetime export coordinator continues a user-started export after in-app navigation and publishes only validated success or truthful failure. | Unauthorized; Not started |
 | 4 — Reliability, offline, dormant future contracts and whole-feature proof | Offline incident warning, dedupe, persistence, reload/interruption truth, cross-tab concurrency, accessibility, regression closure and inactive future schemas. | Unauthorized; Not started |
 
@@ -152,6 +166,8 @@ The three future event kinds in §4.2 have no registered producer, no enabled ac
 | `workspace.terra.reply.completed` | `Terra replied` | `Terra finished replying in “{projectTitle}”.` | terminal snapshot and assistant ledger message committed for exact project/workspace | open exact saved project/workspace and focus exact Terra reply |
 | `workspace.terra.reply.failed` | `Terra reply failed` | `Terra couldn't finish replying in “{projectTitle}”.` | terminal failed/deadline snapshot and message committed for exact project/workspace | open exact project/workspace and focus exact failed request |
 | `system.internet.offline` | `You're offline` | `There is no internet, so no AI will be able to be called.` | one browser-declared offline incident | keep user in place and focus the app-wide warning/details |
+
+Phase 2 retains the stored closed-catalog title/body and digest above. Its unread-row presentation additionally identifies the current saved Assistant chat title or captured Terra project title without changing the persisted notification schema or canonical copy. A missing Assistant title uses `Untitled chat` rather than a guessed project or another session.
 
 `projectTitle` is the sanitized title captured at the terminal source write. Renaming later does not rewrite historical copy. Target resolution may show the current project title separately.
 
@@ -362,18 +378,18 @@ Hidden tabs, another chat, another project, Home, Tutorials, My Projects, Open P
 
 ### 6.2 Initial read state
 
-- If `originVisible` is true, persist the notification as already read with `readAt = createdAt`. It remains in history but does not increment the badge.
+- If `originVisible` is true, persist the notification as already read with `readAt = createdAt`. It remains only as a durable dedupe record and does not appear in either bell panel or increment the badge.
 - Otherwise persist it unread with `readAt = null` and update the badge once.
 - Offline has no originating content surface, so a new offline incident is unread even though its banner is visible.
 
 ### 6.3 User actions
 
 - Opening or closing the center does not mark anything read.
-- Activating one notification first commits that record read, then resolves its target. Navigation is not falsely described as part of the IndexedDB transaction; a navigation failure leaves the row read and shows the safe unavailable-target message.
+- Activating one notification dispatches its exact target. Only successful, identity-validated arrival commits it read; a blocked or unavailable target remains unread and shows safe feedback. Navigation is not falsely described as part of the IndexedDB transaction.
 - Successfully arriving at an exact target through another app path marks matching notifications read after identity validation.
-- **Mark all as read** marks the current validated readable rows in one transaction. It does not delete them and does not dismiss an active offline banner.
-- There is no Phase 1 delete/dismiss/history-clear feature.
-- If a target has been deleted, renamed beyond resolution, corrupted or otherwise unavailable, activation marks the item read, keeps the user on a safe surface and announces **“This notification's original item is no longer available.”** It never opens a similarly named source.
+- **Mark all as read** marks the current validated readable rows in one transaction. They disappear from the unread-only panel but are not deleted, and the action does not dismiss an active offline banner.
+- There is no automatic next-day purge or delete/dismiss/history-clear feature.
+- If a target has been deleted, renamed beyond resolution, corrupted or otherwise unavailable, activation leaves the item unread, keeps the user on a safe surface and announces **“This notification's original item is no longer available.”** It never opens a similarly named source.
 
 ## 7. Center UI and app-wide warning
 
@@ -389,8 +405,8 @@ One client-side `NotificationCenterProvider`/coordinator is mounted from the roo
 - Any unread count: one blue dot without a visible numeral, with the exact view-scoped count in accessible text, for example **Notifications, 3 unread**.
 - The bell animation runs once for a newly committed unread event and respects reduced motion. Opening the panel does not manufacture the dot or replay the animation.
 - Desktop uses an anchored, bounded popover that does not expand the header width. Compact uses a bounded sheet/dialog that cannot create horizontal page overflow.
-- The panel heading is **Notifications**. Empty copy is **No notifications yet.**
-- Rows sort by `occurredAt` descending, then `notificationId` ascending. Each shows title, body, localized relative time with an exact machine-readable timestamp, unread state and one full-row activation target.
+- The panel heading is **Notifications**. Empty unread-state copy is **No unread notifications.**
+- Unread rows sort by `occurredAt` descending, then `notificationId` ascending. Each shows contextual title/body, localized relative time with an exact machine-readable timestamp, unread state and one full-row activation target. Already-read dedupe records never appear in the panel.
 - **Mark all as read** is present only when at least one readable row in the current view is unread, and marks only that view's eligible records.
 - Escape, outside activation and the close control close the panel and restore focus to the trigger. Tab order is contained only when compact presentation is modal.
 - New unread events receive one `aria-live="polite"` announcement of title and body. Historical load, cross-tab reread and duplicate delivery do not repeat the announcement.
@@ -614,7 +630,7 @@ Exit proof:
 - zero producer connections, zero provider calls and zero project/session/export mutation; and
 - immutable manifest for the exact Phase 1 allowlist/evidence.
 
-Stop after the Implementation Review Packet. Phase 2 remains unauthorized.
+At the historical Phase 1 checkpoint, the executor stopped after its Implementation Review Packet and Phase 2 remained unauthorized. D-0140 above records Phase 2's later separate authorization and accepted result.
 
 ### 14.3 Phase 2 — AI Assistant and Terra reply completion/failure across navigation
 
@@ -634,7 +650,7 @@ Acceptance flow:
 2. Repeat with validated failure and deadline; land on exact failed turn and explicit Retry control. Explicit Cancel creates no event.
 3. Start Terra in a New workspace, use successful Save and Exit before terminal, allow completion, activate one unread notification and reopen the exact saved project with exact reply focused.
 4. Repeat from an opened project, including failure/deadline and navigation to another project; never open the wrong project. Explicit Cancel creates no event.
-5. Stay focused on each exact origin through terminal; the history row exists already read and badge does not increment.
+5. Stay focused on each exact origin through terminal; a dedupe record is stored already read, no visible row/ring appears and the badge does not increment.
 6. Exercise two tabs and reload reattachment without duplicate answer, ledger message, terminal result, provider request or notification.
 
 Exit proof includes deterministic success/failure/deadline/cancel/navigation/reload/server-restart/two-tab matrices, exact source-before-notification receipts, zero automatic resend, exact project/session identity, no animation/project mutation, protected SPEC-0008/SPEC-0012 behavior and immutable manifest.

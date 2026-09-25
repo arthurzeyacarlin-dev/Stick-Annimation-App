@@ -1,0 +1,27 @@
+{
+  "schema": "spec0014-phase2-fixture/v1",
+  "assistant": [
+    "away-success",
+    "exact-origin-read",
+    "other-chat-unread",
+    "away-failure",
+    "cancel-silent",
+    "reload-reattach",
+    "two-tab-dedupe"
+  ],
+  "terra": [
+    "new-save-exit-success",
+    "opened-project-failure",
+    "exact-origin-read",
+    "cancel-silent",
+    "reload-reattach",
+    "two-tab-dedupe"
+  ],
+  "boundaries": {
+    "realProviderCalls": 0,
+    "automaticResubmits": 0,
+    "animationMutations": 0,
+    "exportPhase3": "untouched",
+    "offlinePhase4": "untouched"
+  }
+}

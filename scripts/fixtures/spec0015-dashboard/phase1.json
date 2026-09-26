@@ -1,0 +1,42 @@
+{
+  "schema": "spec0015-dashboard-phase1/v2",
+  "frozenNow": "2026-09-21T00:30:00Z",
+  "sharedTestCap": 10000,
+  "receipts": [
+    { "source": "project", "at": "2026-09-20T18:50:00Z", "tokens": 1000 },
+    { "source": "project", "at": "2026-09-20T19:15:00Z", "tokens": 1000 },
+    { "source": "project", "at": "2026-09-20T19:30:00Z", "tokens": 1000 },
+    { "source": "project", "at": "2026-09-20T19:45:00Z", "tokens": 1000 },
+    { "source": "assistant", "at": "2026-09-20T20:00:00Z", "tokens": 1000 },
+    { "source": "assistant", "at": "2026-09-20T20:15:00Z", "tokens": 500 },
+    { "source": "assistant", "at": "2026-09-20T20:30:00Z", "tokens": 500 },
+    { "source": "assistant", "at": "2026-09-20T20:45:00Z", "tokens": 500 },
+    { "source": "assistant", "at": "2026-09-20T21:00:00Z", "tokens": 500 },
+    { "source": "assistant", "at": "2026-09-20T21:15:00Z", "tokens": 500 },
+    { "source": "assistant", "at": "2026-09-20T21:30:00Z", "tokens": 500 },
+    { "source": "assistant", "at": "2026-09-20T22:00:00Z", "tokens": 500 },
+    { "source": "assistant", "at": "2026-09-20T22:30:00Z", "tokens": 500 },
+    { "source": "assistant", "at": "2026-09-20T23:00:00Z", "tokens": 500 },
+    { "source": "assistant", "at": "2026-09-20T23:45:00Z", "tokens": 500 },
+    { "source": "project", "at": "2026-09-21T00:05:00Z", "tokens": 80 },
+    { "source": "assistant", "at": "2026-09-21T00:10:00Z", "tokens": 20 }
+  ],
+  "quarterExpectations": [
+    { "start": "2026-09-20T18:45:00Z", "combined": 1000, "project": 1000, "assistant": 0 },
+    { "start": "2026-09-20T19:15:00Z", "combined": 2000, "project": 2000, "assistant": 0 },
+    { "start": "2026-09-20T19:30:00Z", "combined": 3000, "project": 3000, "assistant": 0 },
+    { "start": "2026-09-20T19:45:00Z", "combined": 4000, "project": 4000, "assistant": 0 },
+    { "start": "2026-09-20T20:00:00Z", "combined": 5000, "project": 4000, "assistant": 1000 },
+    { "start": "2026-09-20T20:15:00Z", "combined": 5500, "project": 4000, "assistant": 1500 },
+    { "start": "2026-09-20T20:30:00Z", "combined": 6000, "project": 4000, "assistant": 2000 },
+    { "start": "2026-09-20T20:45:00Z", "combined": 6500, "project": 4000, "assistant": 2500 },
+    { "start": "2026-09-20T21:00:00Z", "combined": 7000, "project": 4000, "assistant": 3000 },
+    { "start": "2026-09-20T21:15:00Z", "combined": 7500, "project": 4000, "assistant": 3500 },
+    { "start": "2026-09-20T21:30:00Z", "combined": 8000, "project": 4000, "assistant": 4000 },
+    { "start": "2026-09-20T22:00:00Z", "combined": 8500, "project": 4000, "assistant": 4500 },
+    { "start": "2026-09-20T22:30:00Z", "combined": 9000, "project": 4000, "assistant": 5000 },
+    { "start": "2026-09-20T23:00:00Z", "combined": 9500, "project": 4000, "assistant": 5500 },
+    { "start": "2026-09-20T23:45:00Z", "combined": 10000, "project": 4000, "assistant": 6000 },
+    { "start": "2026-09-21T00:00:00Z", "combined": 100, "project": 80, "assistant": 20 }
+  ]
+}

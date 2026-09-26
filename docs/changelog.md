@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-27 — Accept and record SPEC-0015 Phase 1 Dashboard technical result (D-0146; publication pending)
+
+- Arthur visibly passed the final `/credits` review copy and PM V5 accepted its exact 14-path technical result from canonical planning base `1c45a016da73e86356ed65720209181468bad37d`. Manifest SHA-256 is `72cff67d0b2df88e30f2ec910dbd8d4b3816fbc9c65f36c59780b164ce5964e4`; 115 oracle, 74 Chrome and 48 protected ordinary-AI assertions, one local MP4, 28 byte-identical protected owners and focused build passed. Full build retains the identical inherited dev AI-cost route failure.
+- Reconciled the final owner-accepted presentation against the original D-0145 plan: ordinary retained receipts only, no public Demo or extra Dashboard-only controls, chronological active cumulative bars from the left/floor, and compact blue hover/focus/tap detail. **Since last bar** now shows the signed difference of adjacent plotted interval spends, omitting first/post-reset comparison. The isolated 17-receipt fixture proves color/reset without a public synthetic mode.
+- Recorded Arthur's later Phase 4 requirement that the approved real plan allowance scales the cumulative depletion bars, with larger allowances rising more slowly for equal settled spend and time-correct plan changes/refills. No price, quota, credit conversion or financial implementation was approved. Control Plane Architect propagation changes canonical records/tree only; accepted technical bytes, AI/dictation/notification/editor/Export systems, Git publication and deployment remain unchanged.
+
 ## 2026-09-26 — Accept and publish SPEC-0015 Phase 1 TEST PREVIEW plan (D-0145; docs only)
 
 - Reconciled the previous interval-token proposal with Arthur/PM V5's accepted 10,000 recorded-token UTC-week display-only preview, default retained receipts, labeled synthetic Demo, five cumulative views, source-specific whole-bar geometry/color on one shared denominator, pinned Combined status, 90% line, 100% roof and Monday reset. Preview exhaustion explicitly leaves AI working.

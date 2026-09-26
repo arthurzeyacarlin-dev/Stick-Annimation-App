@@ -2,12 +2,12 @@
 
 Status: canonical repository memory
 Established: 2026-08-09
-Last reconciled with live code and current records: 2026-09-26 through D-0143/GIT-102 publication, proof preservation and D-0054 cleanup of SPEC-0014 Phase 4. Phases 1–2 and 4 are published/integrated; Phase 3 Export is rejected/unpublished. SPEC-0014 has no Phase 5.
+Last reconciled with live code and current records: 2026-09-27 through D-0146 acceptance and Control Plane Architect propagation of SPEC-0015 Phase 1. The accepted Dashboard result is technically Verified but unpublished. SPEC-0014 Phases 1–2 and 4 remain published/integrated; Phase 3 Export is rejected/unpublished, with no Phase 5.
 Snapshot basis: pull request `#1` merged into `main` as `093bbac82fd3b4d97984448b6c6dbd716153354d`; functional anchor `c7de444536f3e0dd578a2063f70b0914e6af60b1`; tag `baseline-2026-08-09-control-plane`; SPEC-0014 Phase 1 GIT-099 `06365eacffe493ea3550de71b3baff0f57bf03b2`; Phase 2 GIT-100 `318566d6d20acec672c3d8c6a0e5620ad70c7d66`; Phase 4 GIT-102 product commit `283c297d1df01371dc599a52719d35dc78e1d2f4` plus this records-only closeout.
 
-## Current planning addition
+## Current implementation checkpoint
 
-D-0144 records the historical research authority; D-0145 records Arthur/PM V5 acceptance of revised [`SPEC-0015 — Functional AI Dashboard, Usage, Accounts and Billing`](specs/0015-functional-ai-dashboard.md) Phase 1 and authorization to publish this 11-path planning package from canonical `c682e430e204a7d750654da3f96e36ab4f57e196`. Phase 1 is Authorized / Not started, effective after clean publication/synchronization; Phases 2–6 remain Unauthorized / Not started. Its 10,000 recorded-token UTC-week TEST PREVIEW is dashboard display only, with retained browser receipts by default and a labeled synthetic Demo. The last published runtime remains unchanged; `SESSION_HANDOFF.md` names the separate executor entry. No real financial terms, AI request limit or SPEC-0008 resumption are implied.
+D-0144/D-0145 are the historical research and original planning decisions. D-0146 records Arthur's visible PASS and PM V5 acceptance of the final [`SPEC-0015 — Functional AI Dashboard, Usage, Accounts and Billing`](specs/0015-functional-ai-dashboard.md) Phase 1 review copy. Its 10,000 recorded-token UTC-week TEST PREVIEW reads retained browser receipts; synthetic activity is confined to isolated proof. The owner-accepted chart plots active intervals from the left with a compact blue hover/focus/tap detail and a signed adjacent-interval spend comparison. Exact 14-path technical proof is sealed at SHA-256 `72cff67d0b2df88e30f2ec910dbd8d4b3816fbc9c65f36c59780b164ce5964e4`. Phase 1 is accepted/technically Verified but **not committed or published**; Phases 2–6 remain Unauthorized / Not started. `SESSION_HANDOFF.md` names the later separate publication gate. No real financial terms, AI request limit or SPEC-0008 resumption are implied.
 
 ## Purpose
 

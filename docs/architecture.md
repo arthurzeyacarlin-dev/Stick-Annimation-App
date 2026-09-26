@@ -1,9 +1,13 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-26 through D-0142's accepted SPEC-0014 Phase 4 notification-only result from `57f3a8560dc61f79db87c13dbff7285684b74793`, published and integrated under D-0143/GIT-102 `283c297d1df01371dc599a52719d35dc78e1d2f4`.
+Last traced: 2026-09-27 through D-0146's accepted SPEC-0015 Phase 1 Dashboard review copy. That result is technically Verified but unpublished; published canonical main still includes D-0143/GIT-102 SPEC-0014 Phase 4.
 
 SPEC-0013/D-0135/D-0136/GIT-097 removes the inert AI Project Finalizer subtree and its `HomeCardId` hover member from `app/page.tsx`. Export remains the last Home card. `main.home-main-scroll`, its 60px bottom padding and all `app/globals.css` scrollbar bytes remain unchanged, so browser intrinsic layout owns the shorter range. The Assistant catalog correction is factual only and does not add a Finalizer route or new runtime owner. The spec is fully closed.
+
+## SPEC-0015 Phase 1 Dashboard architecture — accepted technical result, unpublished
+
+In the accepted `/ea06/` review worktree, `app/credits/page.tsx` mounts `AiDashboardScreen`. `dashboardSources.ts` reads existing Project AI localStorage job ledgers and Assistant IndexedDB sessions without taking over either source store or sending an AI request. It validates/excludes invalid and unknown receipt fields and subscribes to local change signals; `AiDashboardScreen` cancels stale reads, keeps partial coverage explicit and pins the Combined current UTC-week TEST PREVIEW above filtered charts. `dashboardAggregation.ts` creates active selected-source intervals inside each UTC selector window, computes per-week cumulative selected/Combined tokens against the same display-only 10,000 denominator and resets at Monday 00:00 UTC. `AiUsageChart` places those bars chronologically from the left on a 220px floor-anchored plot; the compact blue hover/focus/tap tooltip and accessible bar name show interval spend and the signed difference from the immediately previous plotted same-week interval spend, omitting first/reset comparisons. The ordinary screen has no synthetic Demo, persistent bucket table, Dashboard-only Home/Download control, real account allowance or AI admission hook. Synthetic receipts live only in isolated proof. The accepted result does not change either AI producer, dictation, notifications or Export. Canonical main still serves the earlier static Dashboard until separate publication.
 
 ## SPEC-0014 notification architecture — Phase 4 published under GIT-102
 
@@ -235,6 +239,7 @@ The main product screens are local view states rather than URL routes. URL route
 | System | Primary files | Current responsibility |
 | --- | --- | --- |
 | App shell/home/New/Open routing | `app/page.tsx`, `src/components/chrome/AIcreditspage.tsx`, `app/ScrollbarActivity.tsx` | Header/menu, welcome, home cards, direct Untitled Project creation, local screen switching, and Home focus return |
+| Accepted unpublished AI Dashboard review copy | `app/credits/page.tsx`, `src/components/ai-dashboard/*`, `src/lib/ai-dashboard/*` | Read-only retained conversation usage, display-only shared UTC-week test preview, source/interval filters, compact bar detail and unconfigured real-plan presentation; no provider/account/financial owner |
 | Tutorials showcase | `src/components/tutorials/TutorialsScreen.tsx`, `TutorialsScreen.module.css`, `src/lib/tutorials/tutorialCatalog.ts` | Full-screen local static showcase with one featured and three secondary `COMING LATER` cards; no media, workspace action, API, analytics, or persistence |
 | Unified read/collection/bootstrap | `src/lib/animation/unifiedProjectSourceReader.ts`, `unifiedProjectCollection.ts`, `unifiedWorkspaceBootstrap.ts`, `legacyRigRetirementV3.ts`, Phase 1 contract/migration | Read-only source access, deterministic combined ordering/availability, typed mapping, fail-closed rig retirement, and stale-safe drawing-only mounted-root publication |
 | Project browser | `src/components/open-project/OpenProjectBrowser.tsx` | Preserves the established Projects presentation; lists all supported local sources together, disables invalid entries, and requests one bootstrap/open without source writes |

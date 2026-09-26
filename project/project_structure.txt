@@ -300,6 +300,8 @@
 ./scripts/fixtures/spec0014-notifications/phase-2/contract.json
 ./scripts/fixtures/spec0014-notifications/phase-4
 ./scripts/fixtures/spec0014-notifications/phase-4/contract.json
+./scripts/fixtures/spec0015-dashboard
+./scripts/fixtures/spec0015-dashboard/phase1.json
 ./scripts/fixtures/stick-ai
 ./scripts/fixtures/stick-ai/v1
 ./scripts/fixtures/stick-ai/v1/canonical-hash-vectors.json
@@ -658,6 +660,13 @@
 ./scripts/spec0014-notifications/validatePhase1Proof.ts
 ./scripts/spec0014-notifications/validatePhase2Proof.ts
 ./scripts/spec0014-notifications/validatePhase4Proof.ts
+./scripts/spec0015-dashboard
+./scripts/spec0015-dashboard/phase1BrowserProof.ts
+./scripts/spec0015-dashboard/phase1BuildProof.ts
+./scripts/spec0015-dashboard/phase1Oracle.ts
+./scripts/spec0015-dashboard/phase1ProtectedRegressions.ts
+./scripts/spec0015-dashboard/recordPhase1Proof.ts
+./scripts/spec0015-dashboard/validatePhase1Proof.ts
 ./scripts/sync_docs_to_github.sh
 ./scripts/traceExplosionLivePath.ts
 ./scripts/traceGenerateSoundsLivePath.mjs
@@ -698,6 +707,10 @@
 ./scripts/validateTimelinePlaybackSmoothing.ts
 ./src
 ./src/components
+./src/components/ai-dashboard
+./src/components/ai-dashboard/AiDashboard.module.css
+./src/components/ai-dashboard/AiDashboardScreen.tsx
+./src/components/ai-dashboard/AiUsageChart.tsx
 ./src/components/assistant
 ./src/components/assistant/AssistantComposer.tsx
 ./src/components/assistant/AssistantConversation.tsx
@@ -758,6 +771,10 @@
 ./src/components/workspace/timelineStructure.ts
 ./src/lib
 ./src/lib/ai
+./src/lib/ai-dashboard
+./src/lib/ai-dashboard/dashboardAggregation.ts
+./src/lib/ai-dashboard/dashboardContract.ts
+./src/lib/ai-dashboard/dashboardSources.ts
 ./src/lib/ai/DREAM_100_LIST_FORMATTED.xlsx
 ./src/lib/ai/DREAM_100_LIST_UPDATED.xlsx
 ./src/lib/ai/DrawingWorkspaceTask_GenerateFrames.ts

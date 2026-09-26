@@ -1,7 +1,13 @@
 # Verification and Regression Workflow
 
 Status: canonical proof standard and current gate baseline
-Last updated: 2026-09-26
+Last updated: 2026-09-27
+
+## Current SPEC-0015 Phase 1 accepted technical proof — D-0146; unpublished
+
+Arthur visibly passed the final Dashboard review app at `http://127.0.0.1:58525/credits`; PM V5 accepted the stopped Spec Executor's exact 14-path result from detached canonical base/HEAD `1c45a016da73e86356ed65720209181468bad37d` and transferred exclusive worktree ownership to the Control Plane Architect. The index was empty. Immutable ignored `output/spec0015/phase1/proof-manifest.json` SHA-256 is `72cff67d0b2df88e30f2ec910dbd8d4b3816fbc9c65f36c59780b164ce5964e4`. Strict pre-propagation validation passed and rejected ten negative mutations. After docs/tree propagation, independently compare all 14 bound technical paths and every bound evidence hash/size with the unchanged manifest; the strict validator's original exact-14-dirty-path check is not a post-propagation gate. Do not reseal or rewrite technical proof.
+
+The independent oracle passed 115 checks. Real Chrome passed 74 assertions with zero page/console/external errors: ordinary retained receipts with no public Demo/Home/Download extras; five UTC capacities with left-justified active floor bars, one shared 10,000-token test denominator, source attribution, partial/invalid/deleted coverage and Monday reset; compact colored-bar hover/focus/tap tooltip, white outline, click/non-pin and pointer-leave behavior; signed adjacent-interval spend `+1,454`/`0`/`-500` and no first/post-reset comparison; mobile/320px/tablet/200%-zoom placement and 101-ledger performance corpus. Protected proof passed 48 ordinary AI assertions, one local MP4 and byte identity for 28 protected owner files. TypeScript, focused lint/build and diff passed. Full lint has identical five inherited errors and zero changed-path errors. Full Webpack build remains `BLOCKED_BY_VERIFIED_BASELINE` at untouched `app/dev/ai-costs/lifetime/page.tsx`; production readiness is unproven. Automated external/real-provider/paid calls are zero. Physical devices and non-Chromium remain unproven. This is technical acceptance, not Git publication or deployment.
 
 ## Current SPEC-0014 Phase 4 accepted proof — D-0142/D-0143; GIT-102 published
 

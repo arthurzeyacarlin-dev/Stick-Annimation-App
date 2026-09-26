@@ -1,0 +1,79 @@
+.main { min-height: calc(100vh - 100px); padding: 28px 20px 72px; background: linear-gradient(180deg,#09111f,#070d17); color: #f2f6ff; }
+.content { width: min(1100px,100%); margin: 0 auto; display: grid; gap: 20px; }
+.hero,.previewCard,.chartCard,.summaryCard,.realPlan { border: 1px solid #344760; border-radius: 20px; background: linear-gradient(180deg,#132239,#101b2c); box-shadow: 0 16px 32px #02091455; }
+.hero { padding: 27px 29px; }
+.heroTop,.cardHeading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
+.eyebrow { margin: 0 0 8px; color: #96b3d6; font-size: 11px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+.hero h2 { margin: 0; font-size: clamp(30px,5vw,43px); line-height: 1.1; }
+.lead { color: #c7d6eb; line-height: 1.5; margin: 9px 0 0; }
+.testNotice { margin-top: 22px; padding: 14px 17px; border: 1px solid #4575b4; border-radius: 12px; background: #122d50; display: grid; gap: 5px; line-height: 1.45; }
+.testNotice strong { color: #e0efff; }
+.testNotice span { color: #b7cce6; font-size: 13px; }
+.previewCard,.chartCard,.realPlan { padding: 23px 27px; }
+.cardHeading h3,.realPlan h3 { margin: 0; font-size: clamp(20px,3vw,26px); }
+.period { color: #b9cee9; font-size: 13px; padding-top: 6px; }
+.progressGrid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; margin-top: 19px; }
+.progressGrid > div { display: grid; align-content: start; gap: 4px; border: 1px solid #37516e; background: #10243d; border-radius: 12px; padding: 15px; }
+.progressGrid strong { font-size: clamp(22px,3vw,32px); line-height: 1.1; overflow-wrap: anywhere; }
+.progressGrid span { color: #b6c9e2; font-size: 12px; line-height: 1.4; }
+.warning,.exhausted,.partial { margin: 14px 0 0; padding: 12px 14px; border-radius: 10px; line-height: 1.45; }
+.warning { border: 1px solid #fbbf24; background: #553d16; color: #fff0c6; }
+.exhausted { border: 1px solid #fa6666; background: #561e2a; color: #fff0f0; }
+.partial { border: 1px solid #a58868; background: #493b2b; color: #ffecd3; display: grid; gap: 5px; }
+.partial ul { margin: 5px 0 0; padding-left: 19px; }
+.scope,.chartNote { color: #aabdd6; font-size: 12px; line-height: 1.5; margin: 16px 0 0; }
+.refresh,.segmented button { color: #e6f1ff; border: 1px solid #456080; background: #1b2c43; border-radius: 9px; padding: 9px 12px; font: inherit; cursor: pointer; }
+.refresh:hover,.segmented button:hover { background: #2b4669; }
+.refresh:disabled { opacity: .65; cursor: default; }
+.controls { display: flex; flex-wrap: wrap; gap: 14px 26px; margin: 20px 0 12px; }
+.controls fieldset { min-width: 0; border: 0; padding: 0; margin: 0; }
+.controls legend { color: #aac5e6; margin-bottom: 8px; font-size: 12px; font-weight: 750; }
+.segmented { display: flex; flex-wrap: wrap; gap: 7px; }
+.segmented button { white-space: nowrap; font-size: 13px; }
+.segmented button[aria-pressed="true"] { border-color: #73b6ff; background: #1f568b; box-shadow: inset 0 0 0 1px #6fbcff55; }
+.empty { margin: 17px 0 0; color: #c7d8ed; }
+.chartArea { margin-top: 24px; }
+.thresholdLegend { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 7px 18px; margin-bottom: 8px; color: #c7d7e9; font-size: 11px; line-height: 1.35; }
+.thresholdLegend span { display: inline-flex; align-items: center; gap: 6px; }
+.thresholdLegend i { width: 14px; height: 0; display: inline-block; flex: 0 0 auto; }
+.roofKey { border-top: 2px solid #f34848; }
+.warningKey { border-top: 1px dashed #c5cbd3; }
+.plotWrap { position: relative; height: 220px; border: 1px solid #53708f; border-bottom: 2px solid #92aac6; border-radius: 8px 8px 0 0; background: linear-gradient(180deg,#122035,#0d1929); overflow: hidden; }
+.plot { position: absolute; inset: 0; display: grid; gap: 7px; align-items: end; padding: 0 8px; }
+.barSlot { height: 100%; min-width: 0; position: relative; }
+.barButton { display: flex; align-items: flex-end; width: 100%; height: 100%; padding: 0; border: 0; background: transparent; cursor: default; position: relative; z-index: 3; }
+.barButton:focus-visible { outline: none; }
+.bar { width: 100%; display: block; border-radius: 3px 3px 0 0; flex: 0 0 auto; cursor: pointer; transition: height 140ms ease, background-color 140ms ease; }
+.bar[data-active="true"],.barButton:focus-visible .bar { outline: 2px solid #fff; outline-offset: -2px; }
+.barTooltip { position: absolute; z-index: 6; box-sizing: border-box; width: 218px; max-width: calc(100% - 12px); display: grid; gap: 4px; padding: 9px 10px; border: 1px solid #8fc4ff; border-radius: 9px; background: #174d86; box-shadow: 0 9px 24px #0009; color: #f7fbff; font-size: 11px; line-height: 1.3; pointer-events: none; }
+.barTooltip strong { font-size: 11px; line-height: 1.3; }
+.barTooltip small { color: #d4e7ff; font-size: 10px; }
+.resetAfter::after { content: ""; position: absolute; right: -4px; top: 0; height: 100%; border-right: 1px dashed #d2e3f1; opacity: .78; pointer-events: none; z-index: 4; }
+.roof,.warningLine { position: absolute; left: 0; right: 0; pointer-events: none; z-index: 2; display: flex; justify-content: flex-end; }
+.roof { top: 0; border-top: 2px solid #f34848; }
+.warningLine { bottom: 90%; border-top: 1px dashed #c5cbd3; }
+.chartRange { color: #b9cce5; font-size: 11px; text-align: center; line-height: 1.4; margin: 10px 0 0; overflow-wrap: anywhere; }
+.summaryGrid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
+.summaryCard { padding: 20px; display: grid; align-content: start; gap: 6px; min-width: 0; }
+.summaryCard strong { font-size: clamp(23px,3vw,31px); line-height: 1.15; overflow-wrap: anywhere; }
+.summaryCard span,.summaryCard small { color: #b5c9e2; line-height: 1.45; }
+.realPlan h3 { margin-bottom: 17px; }
+.realPlanGrid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; }
+.realPlanGrid > div { display: grid; gap: 8px; padding: 14px; border: 1px solid #36506e; border-radius: 10px; background: #102138; }
+.realPlanGrid span { color: #a9c0dd; font-size: 12px; }
+.realPlanGrid strong { font-size: 16px; }
+.realPlan p:not(.eyebrow) { color: #b8cce5; font-size: 13px; line-height: 1.5; }
+.disabledActions { display: flex; flex-wrap: wrap; gap: 9px; }
+.disabledActions button { border: 1px solid #53677f; color: #aebed1; background: #223144; padding: 10px 13px; border-radius: 8px; }
+@media (max-width: 640px) {
+  .main { padding: 15px 12px 52px; }
+  .content { gap: 14px; }
+  .hero,.previewCard,.chartCard,.realPlan { padding: 18px 14px; border-radius: 15px; }
+  .progressGrid,.realPlanGrid,.summaryGrid { grid-template-columns: 1fr; }
+  .controls { gap: 14px; }
+  .segmented button { padding: 8px 10px; }
+  .plot { padding: 0 3px; }
+  .thresholdLegend { justify-content: flex-start; font-size: 10px; }
+}
+@media (prefers-reduced-motion: reduce) { .bar { transition: none; } }
+@media (forced-colors: active) { .bar { forced-color-adjust: none; outline: 1px solid CanvasText; } .warningLine { border-top-color: CanvasText; } .roof { border-top-color: Highlight; } }

@@ -1,11 +1,11 @@
 # Roadmap
 
-## Accepted Phase 1 sequence — SPEC-0015 functional AI Dashboard
+## Accepted technical Phase 1 — SPEC-0015 functional AI Dashboard; publication pending
 
-D-0144/[SPEC-0015 — Functional AI Dashboard, Usage, Accounts and Billing](specs/0015-functional-ai-dashboard.md) established six separately gated phases. D-0145 accepts and authorizes Phase 1 after this planning publication: read-only retained conversation receipts plus a display-only 10,000 recorded-token UTC-week TEST PREVIEW, off-by-default labeled Demo, five cumulative chart views, source-specific whole bars on one shared denominator, and lower cards. It is **Authorized / Not started**; the executor must start from the resulting synchronized canonical planning SHA. Then come separately gated (2) durable observational metering, including search/dictation; (3) identity/ownership; (4) real entitlements/funded depletion; (5) sandbox payment lifecycle; (6) reconciliation/launch readiness. Phases 2–6 remain **Unauthorized / Not started**. Financial/security choices are later gates, not permission to invent terms or start accounts. SPEC-0008 stays paused under PM V4; no AI enforcement, live activation or deployment follows automatically.
+D-0144/[SPEC-0015 — Functional AI Dashboard, Usage, Accounts and Billing](specs/0015-functional-ai-dashboard.md) established six separately gated phases, and D-0145 authorized Phase 1. D-0146 records Arthur's visible PASS and PM V5's technical acceptance of the final 14-path Dashboard result from canonical base `1c45a016da73e86356ed65720209181468bad37d`: read-only retained conversation receipts, a display-only 10,000 recorded-token UTC-week TEST PREVIEW, five cumulative active-interval views, source-specific whole bars on one shared denominator, compact hover/focus/tap detail and lower cards. The public Demo and extra Dashboard controls are absent; isolated synthetic proof remains. Phase 1 is **accepted/technically Verified but unpublished**; Git integration is a later separately authorized task. Then come separately gated (2) durable observational metering, including search/dictation; (3) identity/ownership; (4) real entitlements/funded depletion, including Arthur's requirement that actual plan allowance scales bar rise with time-correct plan changes/refills; (5) sandbox payment lifecycle; (6) reconciliation/launch readiness. Phases 2–6 remain **Unauthorized / Not started**. Financial/security choices are later gates, not permission to invent terms or start accounts. SPEC-0008 stays paused under PM V4; no AI enforcement, live activation or deployment follows automatically.
 
 Status: canonical ordered direction; not a delivery schedule
-Last updated: 2026-09-26
+Last updated: 2026-09-27
 
 ## Roadmap Rules
 

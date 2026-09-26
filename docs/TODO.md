@@ -1,5 +1,17 @@
 # TODO
 
+## Accepted Phase 1 sequence — SPEC-0015 functional AI Dashboard
+
+- [x] **PLAN-015 — Create and accept SPEC-0015 Phase 1 planning records.** D-0144 records research authority; D-0145 records Arthur/PM acceptance and docs-only publication authority. [SPEC-0015 — Functional AI Dashboard, Usage, Accounts and Billing](specs/0015-functional-ai-dashboard.md) defines the exact Phase 1 preview, final funded-depletion math, six-phase path and later gates. Planning acceptance is not product implementation.
+- [ ] **DASH-015-1 — Weekly TEST PREVIEW dashboard.** Authorized / Not started, effective after clean planning publication and exact-base executor refresh. Exact 14-path maximum and §8–9 proof; default retained Project AI/Assistant receipts, off-by-default synthetic Demo, 10,000 recorded-token Monday-start UTC-week display line, selected-source cumulative whole-bar height/color on one shared denominator, pinned Combined progress and lower cards. No AI request limit, real balance/plan/refill or source-store mutation.
+- [ ] **DASH-015-2 — Durable observational metering.** Unauthorized / Not started. Requires Phase 1 integration and G-METER/G-PRIV; capture content-free prospective chat/search/dictation metadata, unknown costs and failure health without new blocking caps.
+- [ ] **DASH-015-3 — Identity and ownership.** Unauthorized / Not started. Requires G-AUTH and exact route/migration boundary; account isolation and no privileged/legacy provider bypass.
+- [ ] **DASH-015-4 — Entitlements and depletion dashboard.** Unauthorized / Not started. Requires Arthur's G-ECON/G-CAPS decision, D-0124 hosted/private reconciliation, transactional reservation/settlement/credit-lot proof and exact boundary; no arbitrary quota/price.
+- [ ] **DASH-015-5 — Payment lifecycle in sandbox.** Unauthorized / Not started. Requires G-PAY and separately authorized service/test-account use; checkout, verified webhooks, renewals, plan changes, top-ups, refunds/disputes and durable dedupe.
+- [ ] **DASH-015-6 — Reconciliation and launch readiness.** Unauthorized / Not started. Requires full security/privacy/economics/recovery/build/operations proof; does not authorize live billing, provider spend or deployment.
+
+Only Phase 1 has Arthur's bounded implementation authorization, effective after this separately authorized planning publication/synchronization. This queue authorizes no Phase 2–6 implementation, provider/paid operation, deployment or control-plane publication of a later technical result. SPEC-0008 remains paused and SPEC-0014's final accepted phase remains closed.
+
 Status: canonical actionable queue
 Last updated: 2026-09-26
 

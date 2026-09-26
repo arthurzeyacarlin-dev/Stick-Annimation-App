@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-09-26 — Accept and publish SPEC-0015 Phase 1 TEST PREVIEW plan (D-0145; docs only)
+
+- Reconciled the previous interval-token proposal with Arthur/PM V5's accepted 10,000 recorded-token UTC-week display-only preview, default retained receipts, labeled synthetic Demo, five cumulative views, source-specific whole-bar geometry/color on one shared denominator, pinned Combined status, 90% line, 100% roof and Monday reset. Preview exhaustion explicitly leaves AI working.
+- Set exact Phase 1 entry, 14-path Dashboard implementation ceiling, eight-receipt frozen Demo, lower-card recreation requirement, no-cost technical proof and protected regressions. Phase 1 is Authorized / Not started after this planning publication; Phases 2–6 and all real account/allowance/payment/enforcement decisions remain unauthorized.
+- Only the SPEC-0015 planning/control-plane/tree package changes. No runtime, provider call, account, checkout, deployment, SPEC-0008 or executor worktree changed. The prior D-0144 entry below is the historical proposal state it supersedes.
+
+## 2026-09-26 — Propose functional AI Dashboard as SPEC-0015 (D-0144; planning only)
+
+- Created [SPEC-0015 — Functional AI Dashboard, Usage, Accounts and Billing](specs/0015-functional-ai-dashboard.md) from clean canonical `c682e430e204a7d750654da3f96e36ab4f57e196` after current records, live Dashboard navigation and direct AI/receipt/auth/payment tracing. Recorded placeholder balance/plan/date, incomplete retained conversation receipts, absent financial foundations and the Terra transport-retry documentation discrepancy.
+- Specified a useful read-only first chart with explicit coverage and unknown allowance, then separately gated durable metering, identity, entitlements/depletion, sandbox payment lifecycle and launch proof. Defined exact Phase 1 files/flows/tests, UTC granularity/width semantics, final cumulative-depletion denominator/reset/top-up math and protected AI/notification/project boundaries.
+- Preserved Arthur's illustrative plans/top-ups/pricing/margin as unapproved, explained weekly renewal versus unused-credit rollover and named the later commercial/security/privacy decisions. All six phases remain Unauthorized / Not started. No runtime, provider/paid call, account, checkout, deployment, existing spec or Git publication was changed.
+
 ## 2026-09-26 — Publish and close SPEC-0014 Phase 4 (D-0143/GIT-102)
 
 - Published exact 28-path commit `283c297d1df01371dc599a52719d35dc78e1d2f4` from `57f3a8560dc61f79db87c13dbff7285684b74793`: 14 accepted notification technical paths and 14 reviewed record/tree paths. Clean canonical `main` fast-forwarded and pushed normally; local/origin/live GitHub `main` matched clean `0/0`.

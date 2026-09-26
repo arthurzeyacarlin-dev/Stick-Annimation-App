@@ -1,5 +1,9 @@
 # Roadmap
 
+## Accepted Phase 1 sequence — SPEC-0015 functional AI Dashboard
+
+D-0144/[SPEC-0015 — Functional AI Dashboard, Usage, Accounts and Billing](specs/0015-functional-ai-dashboard.md) established six separately gated phases. D-0145 accepts and authorizes Phase 1 after this planning publication: read-only retained conversation receipts plus a display-only 10,000 recorded-token UTC-week TEST PREVIEW, off-by-default labeled Demo, five cumulative chart views, source-specific whole bars on one shared denominator, and lower cards. It is **Authorized / Not started**; the executor must start from the resulting synchronized canonical planning SHA. Then come separately gated (2) durable observational metering, including search/dictation; (3) identity/ownership; (4) real entitlements/funded depletion; (5) sandbox payment lifecycle; (6) reconciliation/launch readiness. Phases 2–6 remain **Unauthorized / Not started**. Financial/security choices are later gates, not permission to invent terms or start accounts. SPEC-0008 stays paused under PM V4; no AI enforcement, live activation or deployment follows automatically.
+
 Status: canonical ordered direction; not a delivery schedule
 Last updated: 2026-09-26
 

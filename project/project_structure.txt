@@ -297,6 +297,8 @@
 ./scripts/fixtures/spec0014-notifications/phase-1/contract.json
 ./scripts/fixtures/spec0014-notifications/phase-2
 ./scripts/fixtures/spec0014-notifications/phase-2/contract.json
+./scripts/fixtures/spec0014-notifications/phase-4
+./scripts/fixtures/spec0014-notifications/phase-4/contract.json
 ./scripts/fixtures/stick-ai
 ./scripts/fixtures/stick-ai/v1
 ./scripts/fixtures/stick-ai/v1/canonical-hash-vectors.json
@@ -644,10 +646,17 @@
 ./scripts/spec0014-notifications/phase2Oracle.ts
 ./scripts/spec0014-notifications/phase2ProtectedRegressions.ts
 ./scripts/spec0014-notifications/phase2ReviewSetup.ts
+./scripts/spec0014-notifications/phase4BrowserProof.ts
+./scripts/spec0014-notifications/phase4BuildProof.ts
+./scripts/spec0014-notifications/phase4Oracle.ts
+./scripts/spec0014-notifications/phase4ProtectedRegressions.ts
+./scripts/spec0014-notifications/phase4ReviewSetup.ts
 ./scripts/spec0014-notifications/recordPhase1Proof.ts
 ./scripts/spec0014-notifications/recordPhase2Proof.ts
+./scripts/spec0014-notifications/recordPhase4Proof.ts
 ./scripts/spec0014-notifications/validatePhase1Proof.ts
 ./scripts/spec0014-notifications/validatePhase2Proof.ts
+./scripts/spec0014-notifications/validatePhase4Proof.ts
 ./scripts/sync_docs_to_github.sh
 ./scripts/traceExplosionLivePath.ts
 ./scripts/traceGenerateSoundsLivePath.mjs
@@ -852,6 +861,7 @@
 ./src/lib/notifications/notificationContracts.ts
 ./src/lib/notifications/notificationNavigation.ts
 ./src/lib/notifications/notificationStorage.ts
+./src/lib/notifications/offlineIncidentObserver.ts
 ./src/lib/notifications/terraCompletionObserver.ts
 ./src/lib/openai
 ./src/lib/openai/client.ts

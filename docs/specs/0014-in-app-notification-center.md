@@ -1,16 +1,27 @@
 # SPEC-0014 — Durable In-App Notification Center and Background Completion
 
-Status: **Phases 1–2 fully published, integrated, synchronized, proof-preserved and cleaned up; Phase 3 Export rejected/abandoned and unpublished; D-0141 record published under GIT-101; Phase 4 owner-authorized, not started, awaiting a fresh exact-base Plan-mode executor.**
+Status: **Phases 1–2 fully published/integrated/proof-preserved/cleaned; Phase 3 Export rejected/abandoned and unpublished; Phase 4 corrected offline/restored two-bell implementation accepted and technically Verified under D-0142, pending GIT-102 publication, proof preservation and cleanup. No Phase 5 exists.**
 Owner: Arthur
 Planning role: Specification Architect
 Created: 2026-09-24
-Last updated: 2026-09-25
-Decision link: D-0137; D-0138; D-0140; D-0141
-TODO IDs: PLAN-014; PM-005; NOTIFY-001; NOTIFY-002; NOTIFY-003; NOTIFY-004; GIT-098; GIT-100; GIT-101
+Last updated: 2026-09-26
+Decision link: D-0137; D-0138; D-0140; D-0141; D-0142
+TODO IDs: PLAN-014; PM-005; NOTIFY-001; NOTIFY-002; NOTIFY-003; NOTIFY-004; GIT-098; GIT-100; GIT-101; GIT-102
 Planning baseline: clean detached checkout of canonical `main` at `acc3204d6c5aa08f1d0d714dcd5a64e8746dcb8d`
-Authorization boundary: D-0137 authorized planning only. Phase 1 is fully closed under D-0138/D-0139. Arthur separately authorized Phase 2 and accepted its correction under D-0140; GIT-100 published and closed it. Arthur authorized and visibly rejected the separate Phase 3 Export review copy; no Phase 3 implementation is accepted or publishable. Arthur subsequently authorized Phase 4's offline-Home-bell product outcome, but its executor cannot start before D-0141 publication from clean main. Provider/paid activity, future low-usage/updater producers and deployment remain unauthorized.
+Authorization boundary: D-0137 authorized planning only. Phase 1 is fully closed under D-0138/D-0139 and Phase 2 under D-0140/GIT-100. Arthur rejected Phase 3 Export; no rejected byte is publishable. GIT-101 published that decision, after which Arthur authorized and accepted the corrected Phase 4 result under D-0142. Its 14 technical paths are accepted but not yet committed or published. Provider/paid activity, future low-usage/updater/AI-animation producers and deployment remain unauthorized.
 
-## D-0141 current override — reject Phase 3 Export notifications; retain the two-bell plan
+## D-0142 current override — accepted Phase 4 browser offline and restoration notices
+
+Arthur passed the corrected dedicated Phase 4 app copy. This override supersedes older Phase 4 instructions below that required a page-wide warning, Home-only offline delivery, Assistant reply-only filtering for connectivity, silence on reconnection, or Export notifications. The accepted result uses **exactly the two existing bells**, on Home and AI Assistant; no other screen gains a bell or top warning.
+
+- A real browser-declared offline incident makes both bells red, publishes one shared unread `system.internet.offline` row, and keeps current offline explanation visible after the row is read. Repeated offline events, tabs, focus and reload do not spam.
+- A genuine offline-to-online transition clears the red state, retires that incident's old offline unread row, and publishes one shared unread `system.internet.restored` row. Title: **Internet restored**. Body: **Your connection was restored at this time. You can try online and AI features while the browser remains online.** The past-tense/time-bound copy does not promise provider health.
+- The restored row remains unread across routes, tabs and reloads until explicitly activated in either bell or covered by the user's explicit Mark-all action. If another outage arrives first, the unread historical restoration remains available beside a new current red offline warning; no timer or automatic state change silently consumes it. One shared durable record/read state updates both views.
+- Initial online load, duplicate online events and online provider/HTTP failure do not fabricate a restoration or offline incident. No automatic AI retry, network probe, new search/credit limit, tool disablement, Export notification/background coordinator, updater/usage/AI-animation producer, OS notification or deployment is added. Assistant otherwise keeps its accepted reply-only behavior.
+
+The stopped executor transferred exclusive review worktree `/Users/arthurcarlin/.codex/worktrees/9ee9/stick-animation-app` to Control Plane Architect after Arthur/PM acceptance. Exact base/HEAD is `57f3a8560dc61f79db87c13dbff7285684b74793`, index empty and 14 accepted technical paths. Immutable `output/spec0014/phase4/manifest.json` SHA-256 `1646e497ad2e96b2263201dbced8c69bd6aae21487de481b255a912f7019a0eb` binds those 14 source and 32 evidence files; strict validation PASS with 14 rejected mutations. 93 oracle, 98 headed-Chrome and 42 inherited Assistant/Terra browser assertions pass. Fifteen protected runtime files remain byte-identical; ordinary Export produces a non-empty validated MP4 and zero Export notices; automated real-provider/paid/external calls are zero. TypeScript, focused lint/Webpack and diff pass. The full Webpack build retains the identical untouched dev AI-cost `PageProps` baseline failure; full lint retains five inherited errors/81 warnings. Physical devices, native OS zoom/focus and non-Chromium remain unproven. GIT-102 publication and D-0054 cleanup are pending; the manifest is not rewritten after documentation propagation.
+
+## D-0141 historical override — reject Phase 3 Export notifications; retain the two-bell plan
 
 GIT-101 published this rejection/cleanup record as 13 `docs/`-only paths in `dd744f652c3211d5ee87a3d49b22ffff72c3188b`; clean local/origin/live canonical main matched after push. No rejected Phase 3 code or proof was included. The publication entry gate for Phase 4 is satisfied, but the fresh exact-base Plan-mode Spec Executor has not yet begun.
 
@@ -54,15 +65,16 @@ This Phase 1 correction superseded older all-surface bell placement and numeric-
 
 ## 1. Exact product outcome
 
-Diamond Animator's accepted two-bell notification center reports supported Assistant/Terra work after the user leaves its exact origin and leads back to the exact conversation or project/workspace. Phase 4 may add one truthful app-wide offline incident. Export is excluded from this notification plan under D-0141 and remains screen-owned.
+Diamond Animator's accepted two-bell notification center reports supported Assistant/Terra work after the user leaves its exact origin and leads back to the exact conversation or project/workspace. D-0142 adds one truthful browser-declared offline incident and one restoration notice shared by those same two bells. Export is excluded from this notification plan under D-0141 and remains screen-owned.
 
-The first four events below are active from accepted Phase 2; the fifth is owner-authorized but not yet implemented in Phase 4:
+The first four events below are active from accepted Phase 2; the fifth and sixth are accepted Phase 4 events:
 
 1. an AI Assistant reply completed after the user left that exact conversation;
 2. an AI Assistant reply failed or timed out after the user left that exact conversation;
 3. a Terra reply in a New/Open Animation Workspace completed after the user left that exact project/workspace;
 4. a Terra reply failed or timed out after the user left that exact project/workspace; and
-5. one future app-wide offline warning per real browser-declared offline incident, with exact copy **“There is no internet, so no AI will be able to be called.”**
+5. one app-wide offline warning per real browser-declared offline incident through both existing bells; and
+6. one durable, explicitly acknowledged restoration notice after that genuine incident returns online.
 
 Each supported terminal outcome creates one durable dedupe record. It is unread only when the exact origin is no longer visibly focused under §6; if the user remains on the exact origin, the same event is stored already read. The bell panels display unread items only, never a visible read-history feed.
 
@@ -79,9 +91,9 @@ SPEC-0014 has exactly four separately authorized implementation phases:
 | 1 — Notification center foundation and durable event contract | Shared local store, two scoped bells, unread/read semantics, target resolution contract and proof-only fixtures; no product producer is connected. | Verified, published, integrated, synchronized, proof-preserved and cleaned under D-0138/D-0139/GIT-099 |
 | 2 — AI reply completion/failure across navigation | App-lifetime observers terminalize and notify for the exact Assistant conversation and exact New/Open Terra project/workspace after in-app navigation. | Verified, published, integrated, synchronized, proof-preserved and cleaned under D-0140/GIT-100 |
 | 3 — Export completion/failure across navigation | Historical proposed result; Arthur rejected the separate review copy as low-value. No Export notification or background coordinator enters the product. | Rejected/abandoned; unpublished; no implementation authority |
-| 4 — Reliability, offline, dormant future contracts and whole-feature proof | Offline incident warning, dedupe, persistence, cross-tab concurrency, accessibility, regression closure for accepted AI notifications, and inactive future schemas; Export remains unchanged. | Owner-authorized; Not started; D-0141 publication and exact-base fresh Plan-mode executor required |
+| 4 — Reliability, offline, dormant future contracts and whole-feature proof | Shared offline/restored notices in the two existing bells, dedupe, persistence, cross-tab concurrency, accessibility, regression closure and inactive future schemas; Export unchanged. | Arthur-accepted and technically Verified under D-0142; GIT-102 publication/proof preservation/cleanup pending |
 
-No phase starts automatically. Phase 4 now follows published Phase 2 and the D-0141 rejection record, not accepted Phase 3. Arthur's separate Phase 4 authorization and D-0054 rejected-copy cleanup are complete; the D-0141 record must be published/synchronized and a fresh Plan-mode Spec Executor must start from that exact main SHA before implementation.
+No phase starts automatically. Phase 4 followed published Phase 2 and D-0141's rejection record, not accepted Phase 3. D-0142 accepts its corrected technical result; publication, synchronization, proof preservation and cleanup remain pending. SPEC-0014 has exactly four phases and no Phase 5.
 
 ## 2. Freshly verified current behavior and execution path
 

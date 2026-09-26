@@ -1,0 +1,53 @@
+{
+  "schema": "spec0014-phase4-fixture/v1",
+  "eventType": "system.internet.offline",
+  "copy": {
+    "title": "You're offline",
+    "body": "There is no internet, so AI calls are unavailable. Reconnect to use AI."
+  },
+  "restoredEventType": "system.internet.restored",
+  "restoredCopy": {
+    "title": "Internet restored",
+    "body": "Your connection was restored at this time. You can try online and AI features while the browser remains online."
+  },
+  "browserSources": ["browser-initial-offline", "browser-offline-event"],
+  "onlineSources": ["browser-initial-online", "browser-online-event"],
+  "incidentScenarios": [
+    "first-offline-creates-one",
+    "repeat-offline-dedupes",
+    "two-tab-dedupes",
+    "reload-reuses-active",
+    "read-does-not-dismiss-warning",
+    "online-event-retires-offline-and-creates-one-restored",
+    "restored-persists-until-acknowledged",
+    "initial-online-is-silent",
+    "duplicate-online-is-silent",
+    "stale-online-reconciliation-is-silent",
+    "offline-preserves-unread-restored",
+    "later-cycle-creates-one-new-restored"
+  ],
+  "reliabilityScenarios": [
+    "web-lock",
+    "fallback-lease",
+    "compare-and-swap",
+    "broadcast-loss-reread",
+    "corrupt-row-preservation",
+    "quota-recovery",
+    "deleted-target-unavailable"
+  ],
+  "boundaries": {
+    "homeBellReceivesOffline": true,
+    "assistantBellReceivesConnectivity": true,
+    "onlineRestorationNotification": true,
+    "automaticAiRetry": false,
+    "providerFailureMeansOffline": false,
+    "exportNotificationProducer": false,
+    "backgroundExport": false,
+    "aiAnimationProducer": false,
+    "lowUsageProducer": false,
+    "updaterProducer": false,
+    "realProviderCalls": 0,
+    "paidCalls": 0,
+    "deployments": 0
+  }
+}

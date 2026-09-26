@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-26 — Accept and record corrected SPEC-0014 Phase 4 (D-0142; GIT-102 pending)
+
+- Arthur passed the same dedicated review copy after correction. The stopped executor transferred exact base/HEAD `57f3a8560dc61f79db87c13dbff7285684b74793`, 14 accepted technical paths and an empty index to Control Plane Architect. Immutable manifest SHA-256 `1646e497ad2e96b2263201dbced8c69bd6aae21487de481b255a912f7019a0eb` binds 14 source/32 evidence files and rejects 14 negative mutations.
+- Both existing bells now share one red offline incident and one durable restoration notice after genuine browser-declared reconnection. Explicit acknowledgement in either view clears the restored item from both; a later outage does not silently consume an unread historical restoration. No page-wide banner, extra bell, Export notification/background execution, AI/provider/search/dictation/tool/limit change, automatic retry or future producer was added.
+- Proof: 93 oracle, 98 headed-Chrome and 42 protected Assistant/Terra browser assertions; 15 protected runtime files byte-identical; TypeScript/focused lint/Webpack/diff PASS and zero external/real-provider/paid calls. Full production build retains the identical inherited dev AI-cost route issue. Control-plane propagation changes only reviewed records/tree, not accepted technical bytes; staging, commit, merge, push, deployment, proof preservation and D-0054 cleanup have not yet occurred.
+
 ## 2026-09-25 — Publish D-0141 Phase 3 rejection record (GIT-101)
 
 - Published only 13 reviewed `docs/` paths in exact commit `dd744f652c3211d5ee87a3d49b22ffff72c3188b` from parent `c8fbc954c130acdcc9df429d7581c38b497bc33a`; clean canonical `main` fast-forwarded, pushed normally and matched local `origin/main` and live GitHub `main` at `0/0`.

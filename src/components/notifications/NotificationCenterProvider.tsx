@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { useRouter } from "next/navigation";
 import { listSessions } from "@/src/lib/assistant/assistantStorage";
 import { startAssistantCompletionObserverV1 } from "@/src/lib/notifications/assistantCompletionObserver";
+import { reconcileBrowserConnectivityV1, startBrowserConnectivityObserverV1 } from "@/src/lib/notifications/offlineIncidentObserver";
 import { registerNotificationNavigationHandlerV1 } from "@/src/lib/notifications/notificationNavigation";
 import type { NotificationTargetV1 } from "@/src/lib/notifications/notificationContracts";
 import { startTerraCompletionObserverV1 } from "@/src/lib/notifications/terraCompletionObserver";
@@ -18,21 +19,24 @@ import {
 
 type NotificationCenterContextValue = {
   snapshot: ValidatedNotificationSnapshotV1;
+  browserOffline: boolean;
   markRead(notificationId: string): Promise<number>;
   markAll(view: "home" | "assistant"): Promise<number>;
   retryRecovery(): Promise<void>;
 };
 
-const initialSnapshot: ValidatedNotificationSnapshotV1 = { rows: [], envelopes: [], revision: 0, fault: null };
+const initialSnapshot: ValidatedNotificationSnapshotV1 = { rows: [], envelopes: [], connectivityIncident: null, revision: 0, fault: null };
 const NotificationCenterContext = createContext<NotificationCenterContextValue | null>(null);
 
 export function NotificationCenterProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [snapshot, setSnapshot] = useState(initialSnapshot);
+  const [browserOffline, setBrowserOffline] = useState(false);
   const assistantTargetKey = useMemo(() => JSON.stringify(snapshot.rows.filter(row => row.target.kind === "assistant-turn").map(row => row.target)), [snapshot.rows]);
 
   useEffect(() => subscribeNotificationsV1(setSnapshot), []);
   useEffect(() => { void getValidatedNotificationSnapshotV1(); }, []);
+  useEffect(() => startBrowserConnectivityObserverV1(state => setBrowserOffline(state.offline)), []);
   useEffect(() => {
     const stopAssistant = startAssistantCompletionObserverV1();
     const stopTerra = startTerraCompletionObserverV1();
@@ -61,8 +65,11 @@ export function NotificationCenterProvider({ children }: { children: ReactNode }
 
   const markRead = useCallback((notificationId: string) => markNotificationReadV1(notificationId), []);
   const markAll = useCallback((view: "home" | "assistant") => markAllNotificationsReadV1(view), []);
-  const retryRecovery = useCallback(async () => { await retryNotificationRecoveryV1(); }, []);
-  const value = useMemo(() => ({ snapshot, markRead, markAll, retryRecovery }), [snapshot, markRead, markAll, retryRecovery]);
+  const retryRecovery = useCallback(async () => {
+    await retryNotificationRecoveryV1();
+    await reconcileBrowserConnectivityV1();
+  }, []);
+  const value = useMemo(() => ({ snapshot, browserOffline, markRead, markAll, retryRecovery }), [snapshot, browserOffline, markRead, markAll, retryRecovery]);
 
   return <NotificationCenterContext.Provider value={value}>{children}</NotificationCenterContext.Provider>;
 }

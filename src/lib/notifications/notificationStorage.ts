@@ -19,7 +19,16 @@ export const DIAMOND_NOTIFICATION_MAX_DURABLE_BYTES_V1 = 2 * 1024 * 1024;
 
 type StoredNotificationRowV1 = { recordKey: string; envelope: unknown };
 type MetadataRowV1 = { key: "state"; revision: number };
+type ConnectivityMetadataRowV1 = { key: "connectivity"; incident: BrowserConnectivityIncidentV1 };
 type LeaseRowV1 = { key: "writer"; owner: string; expiresAt: number };
+
+export type BrowserConnectivityIncidentV1 = Readonly<{
+  schema: "browser-connectivity-incident/v1";
+  offlineIncidentId: string;
+  offlineSince: number;
+  source: "browser-offline-event" | "browser-initial-offline";
+  onlineBefore: boolean;
+}>;
 
 export type NotificationStorageFaultV1 = {
   code: "unavailable" | "blocked" | "version" | "quota" | "corrupt-rows" | "integrity" | "cas" | "lease" | "write";
@@ -29,6 +38,7 @@ export type NotificationStorageFaultV1 = {
 export type ValidatedNotificationSnapshotV1 = {
   rows: DiamondNotificationV1[];
   envelopes: DiamondNotificationEnvelopeV1[];
+  connectivityIncident: BrowserConnectivityIncidentV1 | null;
   revision: number;
   fault: NotificationStorageFaultV1 | null;
 };
@@ -38,7 +48,13 @@ export type NotificationPublicationResultV1 = {
   notification: DiamondNotificationV1;
 };
 
-const emptySnapshot = (): ValidatedNotificationSnapshotV1 => ({ rows: [], envelopes: [], revision: 0, fault: null });
+export type BrowserConnectivityObservationResultV1 = {
+  status: "committed" | "duplicate" | "restored" | "cleared" | "already-online" | "stale-observation";
+  incident: BrowserConnectivityIncidentV1 | null;
+  notification: DiamondNotificationV1 | null;
+};
+
+const emptySnapshot = (): ValidatedNotificationSnapshotV1 => ({ rows: [], envelopes: [], connectivityIncident: null, revision: 0, fault: null });
 let snapshot = emptySnapshot();
 let databasePromise: Promise<IDBDatabase> | null = null;
 let broadcast: BroadcastChannel | null = null;
@@ -104,10 +120,27 @@ const readRawState = async () => {
   const database = await openDatabase();
   const transaction = database.transaction([DIAMOND_NOTIFICATION_STORES_V1.notifications, DIAMOND_NOTIFICATION_STORES_V1.metadata], "readonly");
   const rows = await requestResult(transaction.objectStore(DIAMOND_NOTIFICATION_STORES_V1.notifications).getAll()) as StoredNotificationRowV1[];
-  const metadata = await requestResult(transaction.objectStore(DIAMOND_NOTIFICATION_STORES_V1.metadata).get("state")) as MetadataRowV1 | undefined;
+  const metadataStore = transaction.objectStore(DIAMOND_NOTIFICATION_STORES_V1.metadata);
+  const metadata = await requestResult(metadataStore.get("state")) as MetadataRowV1 | undefined;
+  const connectivity = await requestResult(metadataStore.get("connectivity")) as unknown;
   await transactionDone(transaction);
   if (metadata !== undefined && (!metadata || typeof metadata !== "object" || Object.keys(metadata).sort().join("|") !== "key|revision" || metadata.key !== "state" || !Number.isSafeInteger(metadata.revision) || metadata.revision < 0)) throw new Error("corrupt-notification-metadata");
-  return { rows, revision: metadata?.revision ?? 0 };
+  return { rows, connectivity, revision: metadata?.revision ?? 0 };
+};
+
+const validIdentity = (value: unknown): value is string => typeof value === "string" && value === value.normalize("NFC") && new TextEncoder().encode(value).byteLength >= 1 && new TextEncoder().encode(value).byteLength <= 256 && !/[\u0000-\u001f\u007f]/.test(value);
+const validTimestamp = (value: unknown): value is number => typeof value === "number" && Number.isSafeInteger(value) && value > 0 && value <= 8_640_000_000_000_000;
+
+const validateConnectivityMetadata = (value: unknown): { incident: BrowserConnectivityIncidentV1 | null; corrupt: boolean } => {
+  if (value === undefined) return { incident: null, corrupt: false };
+  if (!value || typeof value !== "object" || Array.isArray(value)) return { incident: null, corrupt: true };
+  const row = value as Record<string, unknown>;
+  if (Object.keys(row).sort().join("|") !== "incident|key" || row.key !== "connectivity" || !row.incident || typeof row.incident !== "object" || Array.isArray(row.incident)) return { incident: null, corrupt: true };
+  const incident = row.incident as Record<string, unknown>;
+  const truthfulSource = incident.source === "browser-offline-event" && incident.onlineBefore === true || incident.source === "browser-initial-offline" && incident.onlineBefore === false;
+  if (Object.keys(incident).sort().join("|") !== "offlineIncidentId|offlineSince|onlineBefore|schema|source" || incident.schema !== "browser-connectivity-incident/v1" || !validIdentity(incident.offlineIncidentId) || !validTimestamp(incident.offlineSince) || !truthfulSource) return { incident: null, corrupt: true };
+  const source = incident.source === "browser-offline-event" ? "browser-offline-event" : "browser-initial-offline";
+  return { incident: Object.freeze({ schema: "browser-connectivity-incident/v1", offlineIncidentId: incident.offlineIncidentId, offlineSince: incident.offlineSince, source, onlineBefore: source === "browser-offline-event" }), corrupt: false };
 };
 
 const validateRawState = async (state: Awaited<ReturnType<typeof readRawState>>) => {
@@ -122,7 +155,8 @@ const validateRawState = async (state: Awaited<ReturnType<typeof readRawState>>)
     } catch { corruptCount += 1; }
   }
   envelopes.sort((left, right) => right.notification.createdAt - left.notification.createdAt || left.notification.notificationId.localeCompare(right.notification.notificationId));
-  return { envelopes, corruptCount };
+  const connectivity = validateConnectivityMetadata(state.connectivity);
+  return { envelopes, connectivityIncident: connectivity.incident, connectivityCorrupt: connectivity.corrupt, corruptCount: corruptCount + (connectivity.corrupt ? 1 : 0) };
 };
 
 const emitSnapshot = (next: ValidatedNotificationSnapshotV1) => {
@@ -149,12 +183,12 @@ export async function refreshNotificationsV1(): Promise<ValidatedNotificationSna
     const raw = await readRawState();
     const validated = await validateRawState(raw);
     const fault = validated.corruptCount ? { code: "corrupt-rows", message: `${validated.corruptCount} notification record${validated.corruptCount === 1 ? "" : "s"} failed validation. The raw bytes were preserved.` } as const : null;
-    const next = { rows: validated.envelopes.map(row => row.notification), envelopes: validated.envelopes, revision: raw.revision, fault };
+    const next = { rows: validated.envelopes.map(row => row.notification), envelopes: validated.envelopes, connectivityIncident: validated.connectivityIncident, revision: raw.revision, fault };
     emitSnapshot(next);
     return next;
   } catch (error) {
     const fault = String(error).includes("corrupt-notification-metadata") ? { code: "corrupt-rows", message: "Notification metadata failed validation. Its raw bytes were preserved." } as const : classifyError(error);
-    const next = { rows: [], envelopes: [], revision: snapshot.revision, fault };
+    const next = { rows: [], envelopes: [], connectivityIncident: snapshot.connectivityIncident, revision: snapshot.revision, fault };
     emitSnapshot(next);
     return next;
   }
@@ -232,14 +266,18 @@ type Mutation = {
   rows: StoredNotificationRowV1[];
   result: unknown;
   changed: boolean;
+  connectivity?: ConnectivityMetadataRowV1 | null;
   committedNotification?: DiamondNotificationV1;
-  finalize?: () => Omit<Mutation, "finalize">;
+  commitGuard?: () => boolean;
+  invalidResult?: unknown;
+  finalize?: () => Omit<Mutation, "finalize" | "commitGuard" | "invalidResult">;
 };
 
-const commitMutation = async <T>(mutator: (rows: StoredNotificationRowV1[], envelopes: DiamondNotificationEnvelopeV1[]) => Promise<Mutation>): Promise<T> => withSerializedWriter(async leaseOwner => {
+const commitMutation = async <T>(mutator: (rows: StoredNotificationRowV1[], envelopes: DiamondNotificationEnvelopeV1[], connectivityIncident: BrowserConnectivityIncidentV1 | null) => Promise<Mutation>): Promise<T> => withSerializedWriter(async leaseOwner => {
   const observed = await readRawState();
   const validated = await validateRawState(observed);
-  const mutation = await mutator(structuredClone(observed.rows), validated.envelopes);
+  if (validated.connectivityCorrupt) throw new Error("corrupt-connectivity-metadata");
+  const mutation = await mutator(structuredClone(observed.rows), validated.envelopes, validated.connectivityIncident);
   if (!mutation.changed) return mutation.result as T;
   if (beforeCommitProofHook) {
     const hook = beforeCommitProofHook;
@@ -253,14 +291,19 @@ const commitMutation = async <T>(mutator: (rows: StoredNotificationRowV1[], enve
   const metadataStore = transaction.objectStore(DIAMOND_NOTIFICATION_STORES_V1.metadata);
   const liveRows = await requestResult(notificationStore.getAll()) as StoredNotificationRowV1[];
   const liveMetadata = await requestResult(metadataStore.get("state")) as MetadataRowV1 | undefined;
+  const liveConnectivity = await requestResult(metadataStore.get("connectivity")) as unknown;
   const liveRevision = liveMetadata === undefined ? 0 : liveMetadata && typeof liveMetadata === "object" && Object.keys(liveMetadata).sort().join("|") === "key|revision" && liveMetadata.key === "state" && Number.isSafeInteger(liveMetadata.revision) && liveMetadata.revision >= 0 ? liveMetadata.revision : -1;
-  if (liveRevision !== observed.revision || stableJson(liveRows) !== stableJson(observed.rows)) {
+  if (liveRevision !== observed.revision || stableJson(liveRows) !== stableJson(observed.rows) || stableJson(liveConnectivity ?? null) !== stableJson(observed.connectivity ?? null)) {
     transaction.abort();
     throw new Error("compare-and-swap-failed");
   }
   if (leaseOwner) {
     const lease = await requestResult(transaction.objectStore(DIAMOND_NOTIFICATION_STORES_V1.leases).get("writer")) as LeaseRowV1 | undefined;
     if (!lease || lease.owner !== leaseOwner || lease.expiresAt <= Date.now()) { transaction.abort(); throw new Error("fallback-lease-final-verification-failed"); }
+  }
+  if (mutation.commitGuard && !mutation.commitGuard()) {
+    transaction.abort();
+    return mutation.invalidResult as T;
   }
   const finalMutation = mutation.finalize ? mutation.finalize() : mutation;
   if (!finalMutation.changed) {
@@ -269,6 +312,8 @@ const commitMutation = async <T>(mutator: (rows: StoredNotificationRowV1[], enve
   }
   notificationStore.clear();
   for (const row of finalMutation.rows) notificationStore.put(row);
+  if (finalMutation.connectivity === null) metadataStore.delete("connectivity");
+  else if (finalMutation.connectivity !== undefined) metadataStore.put(finalMutation.connectivity);
   metadataStore.put({ key: "state", revision: observed.revision + 1 } satisfies MetadataRowV1);
   await transactionDone(transaction);
   broadcast?.postMessage({ revision: observed.revision + 1 });
@@ -276,7 +321,7 @@ const commitMutation = async <T>(mutator: (rows: StoredNotificationRowV1[], enve
   if (finalMutation.committedNotification) for (const listener of commitListeners) listener(finalMutation.committedNotification);
   return finalMutation.result as T;
 }).catch(error => {
-  const fault = String(error).includes("corrupt-notification") ? { code: "corrupt-rows", message: "A notification record failed validation. Its bytes were preserved." } as const : classifyError(error);
+  const fault = String(error).includes("corrupt-notification") || String(error).includes("corrupt-connectivity") ? { code: "corrupt-rows", message: "A notification record failed validation. Its bytes were preserved." } as const : classifyError(error);
   emitSnapshot({ ...snapshot, fault });
   throw error;
 });
@@ -299,6 +344,19 @@ const fitRowsWithinLimits = async (rows: StoredNotificationRowV1[], protectedKey
   }
   if (over()) throw new DOMException("Unread notifications cannot be evicted.", "QuotaExceededError");
   return working;
+};
+
+const retireUnreadRows = async (rows: StoredNotificationRowV1[], envelopes: DiamondNotificationEnvelopeV1[], matches: (notification: DiamondNotificationV1) => boolean, readAt: number) => {
+  const changed = new Map<string, DiamondNotificationEnvelopeV1>();
+  for (const envelope of envelopes) {
+    if (envelope.notification.readAt === null && matches(envelope.notification)) {
+      changed.set(envelope.notification.notificationId, await resealNotificationReadStateV1(envelope, Math.max(readAt, envelope.notification.createdAt)));
+    }
+  }
+  return {
+    count: changed.size,
+    rows: changed.size ? rows.map(row => changed.has(row.recordKey) ? { recordKey: row.recordKey, envelope: changed.get(row.recordKey)! } : row) : rows,
+  };
 };
 
 export async function publishValidatedNotificationTerminalV1(receipt: NotificationTerminalReceiptV1): Promise<NotificationPublicationResultV1> {
@@ -329,6 +387,110 @@ export async function publishValidatedNotificationTerminalV1(receipt: Notificati
       changed: true,
       result: { status: "committed", notification: readEnvelope.notification } satisfies NotificationPublicationResultV1,
       finalize: chooseAtCommit,
+    };
+  });
+}
+
+export async function observeBrowserOfflineV1(source: "browser-offline-event" | "browser-initial-offline" = "browser-offline-event"): Promise<BrowserConnectivityObservationResultV1> {
+  return commitMutation<BrowserConnectivityObservationResultV1>(async (rows, envelopes, activeIncident) => {
+    const staleResult = { status: "stale-observation", incident: activeIncident, notification: null } satisfies BrowserConnectivityObservationResultV1;
+    const stillOffline = () => typeof navigator === "undefined" || navigator.onLine === false;
+    if (!stillOffline()) return { rows, changed: false, result: staleResult };
+    const now = Date.now();
+    const incident = activeIncident ?? Object.freeze({
+      schema: "browser-connectivity-incident/v1" as const,
+      offlineIncidentId: `offline-${crypto.randomUUID()}`,
+      offlineSince: now,
+      source,
+      onlineBefore: source === "browser-offline-event",
+    });
+    const receipt: NotificationTerminalReceiptV1 = incident.source === "browser-offline-event" ? {
+      schema: "offline-notification-terminal/v1",
+      offlineIncidentId: incident.offlineIncidentId,
+      offlineSince: incident.offlineSince,
+      detectedAt: incident.offlineSince,
+      source: "browser-offline-event",
+      onlineBefore: true,
+      onlineAfter: false,
+    } : {
+      schema: "offline-notification-terminal/v1",
+      offlineIncidentId: incident.offlineIncidentId,
+      offlineSince: incident.offlineSince,
+      detectedAt: incident.offlineSince,
+      source: "browser-initial-offline",
+      onlineBefore: false,
+      onlineAfter: false,
+    };
+    const envelope = await createNotificationEnvelopeFromTerminalV1(receipt, null);
+    const existing = envelopes.find(candidate => candidate.notification.notificationId === envelope.notification.notificationId);
+    if (existing) {
+      if (stableJson(existing.binding) !== stableJson(envelope.binding)) throw new Error("conflicting-terminal-outcome");
+      if (activeIncident) return { rows, changed: false, result: { status: "duplicate", incident, notification: existing.notification } satisfies BrowserConnectivityObservationResultV1, commitGuard: stillOffline, invalidResult: staleResult };
+      return {
+        rows,
+        connectivity: { key: "connectivity", incident },
+        changed: true,
+        result: { status: "committed", incident, notification: existing.notification } satisfies BrowserConnectivityObservationResultV1,
+        commitGuard: stillOffline,
+        invalidResult: staleResult,
+      };
+    }
+    const incomingKey = envelope.notification.notificationId;
+    if (rows.some(row => row.recordKey === incomingKey)) throw new Error("conflicting-terminal-corrupt-key-collision");
+    const fittedRows = await fitRowsWithinLimits([...rows, { recordKey: incomingKey, envelope }], new Set([incomingKey]));
+    return {
+      rows: fittedRows,
+      connectivity: { key: "connectivity", incident },
+      changed: true,
+      result: { status: "committed", incident, notification: envelope.notification } satisfies BrowserConnectivityObservationResultV1,
+      committedNotification: envelope.notification,
+      commitGuard: stillOffline,
+      invalidResult: staleResult,
+    };
+  });
+}
+
+export async function observeBrowserOnlineV1(source: "browser-online-event" | "browser-initial-online" = "browser-online-event"): Promise<BrowserConnectivityObservationResultV1> {
+  return commitMutation<BrowserConnectivityObservationResultV1>(async (rows, envelopes, activeIncident) => {
+    const staleResult = { status: "stale-observation", incident: activeIncident, notification: null } satisfies BrowserConnectivityObservationResultV1;
+    const stillOnline = () => typeof navigator === "undefined" || navigator.onLine !== false;
+    if (!stillOnline()) return { rows, changed: false, result: staleResult };
+    if (!activeIncident) return { rows, changed: false, result: { status: "already-online", incident: null, notification: null } satisfies BrowserConnectivityObservationResultV1 };
+    const now = Date.now();
+    const retiredOffline = await retireUnreadRows(rows, envelopes, notification => notification.eventType === "system.internet.offline" && notification.origin.kind === "connectivity" && notification.origin.offlineIncidentId === activeIncident.offlineIncidentId, now);
+    if (source === "browser-initial-online") {
+      return {
+        rows: retiredOffline.rows,
+        connectivity: null,
+        changed: true,
+        result: { status: "cleared", incident: null, notification: null } satisfies BrowserConnectivityObservationResultV1,
+        commitGuard: stillOnline,
+        invalidResult: staleResult,
+      };
+    }
+    const receipt: NotificationTerminalReceiptV1 = {
+      schema: "online-notification-terminal/v1",
+      offlineIncidentId: activeIncident.offlineIncidentId,
+      offlineSince: activeIncident.offlineSince,
+      restoredAt: now,
+      source: "browser-online-event",
+      onlineBefore: false,
+      onlineAfter: true,
+    };
+    const envelope = await createNotificationEnvelopeFromTerminalV1(receipt, null);
+    const existing = envelopes.find(candidate => candidate.notification.notificationId === envelope.notification.notificationId);
+    if (existing) throw new Error("conflicting-terminal-outcome");
+    const incomingKey = envelope.notification.notificationId;
+    if (retiredOffline.rows.some(row => row.recordKey === incomingKey)) throw new Error("conflicting-terminal-corrupt-key-collision");
+    const fittedRows = await fitRowsWithinLimits([...retiredOffline.rows, { recordKey: incomingKey, envelope }], new Set([incomingKey]));
+    return {
+      rows: fittedRows,
+      connectivity: null,
+      changed: true,
+      result: { status: "restored", incident: null, notification: envelope.notification } satisfies BrowserConnectivityObservationResultV1,
+      committedNotification: envelope.notification,
+      commitGuard: stillOnline,
+      invalidResult: staleResult,
     };
   });
 }

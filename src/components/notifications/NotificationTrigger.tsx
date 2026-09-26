@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { listSessions } from "@/src/lib/assistant/assistantStorage";
-import { notificationBelongsToViewV1, type DiamondNotificationV1 } from "@/src/lib/notifications/notificationContracts";
+import { notificationBelongsToViewV1, notificationCopyForV1, type DiamondNotificationV1 } from "@/src/lib/notifications/notificationContracts";
 import { dispatchNotificationTargetV1 } from "@/src/lib/notifications/notificationNavigation";
 import { subscribeNotificationCommitsV1 } from "@/src/lib/notifications/notificationStorage";
 import { useNotificationCenterV1 } from "./NotificationCenterProvider";
@@ -16,9 +16,10 @@ const BellIcon = () => (
 );
 
 const displayTime = (notification: DiamondNotificationV1) => new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(notification.occurredAt);
+const offlineCopy = notificationCopyForV1("system.internet.offline", { kind: "connectivity", offlineIncidentId: "current-browser-state", offlineSince: 1 });
 
 export function NotificationTrigger({ view }: { view: "home" | "assistant" }) {
-  const { snapshot, markAll, retryRecovery } = useNotificationCenterV1();
+  const { snapshot, browserOffline, markRead, markAll, retryRecovery } = useNotificationCenterV1();
   const panelId = useId();
   const [open, setOpen] = useState(false);
   const [ringing, setRinging] = useState(false);
@@ -33,6 +34,7 @@ export function NotificationTrigger({ view }: { view: "home" | "assistant" }) {
   const announceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const rows = useMemo(() => snapshot.rows.filter(row => row.readAt === null && notificationBelongsToViewV1(row, view)), [snapshot.rows, view]);
   const unreadCount = rows.length;
+  const hasUnreadOffline = rows.some(row => row.eventType === "system.internet.offline");
   const assistantSessionKey = useMemo(() => JSON.stringify(rows.flatMap(row => row.origin.kind === "assistant" ? [row.origin.sessionId] : [])), [rows]);
 
   useEffect(() => {
@@ -121,6 +123,11 @@ export function NotificationTrigger({ view }: { view: "home" | "assistant" }) {
   const activate = async (notification: DiamondNotificationV1) => {
     setLocalStatus("");
     try {
+      if (notification.target.kind === "connectivity-warning" || notification.target.kind === "connectivity-restored") {
+        await markRead(notification.notificationId);
+        close();
+        return;
+      }
       const result = await dispatchNotificationTargetV1(notification.target);
       if (result === "handled") close(false);
       else if (result === "blocked-unsaved") setLocalStatus("Finish or discard the unsaved work before opening this notification.");
@@ -147,13 +154,14 @@ export function NotificationTrigger({ view }: { view: "home" | "assistant" }) {
       <button
         ref={triggerRef}
         type="button"
-        className={`${styles.trigger} ${ringing ? styles.ringing : ""}`}
-        aria-label={`Notifications, ${unreadCount} unread, ${open ? "expanded" : "collapsed"}`}
+        className={`${styles.trigger} ${ringing ? styles.ringing : ""} ${browserOffline ? styles.offline : ""}`}
+        aria-label={`Notifications, ${unreadCount} unread, ${open ? "expanded" : "collapsed"}${browserOffline ? ", offline" : ""}`}
         aria-expanded={open}
         aria-controls={panelId}
         aria-haspopup={compact ? "dialog" : undefined}
         onClick={() => setOpen(value => !value)}
         data-notification-trigger={view}
+        data-notification-offline={browserOffline ? "true" : "false"}
       >
         <BellIcon />
         {unreadCount > 0 && <span className={styles.dot} aria-hidden="true" />}
@@ -189,7 +197,13 @@ export function NotificationTrigger({ view }: { view: "home" | "assistant" }) {
             )}
 
             {localStatus && <p className={styles.localStatus} role="status">{localStatus}</p>}
-            {rows.length === 0 && <p className={styles.empty}>No unread notifications.</p>}
+            {browserOffline && !hasUnreadOffline && (
+              <div className={styles.offlinePanelStatus} role="status" data-notification-offline-status>
+                <strong>{offlineCopy.title}</strong>
+                <span>{offlineCopy.body}</span>
+              </div>
+            )}
+            {rows.length === 0 && !browserOffline && <p className={styles.empty}>No unread notifications.</p>}
             {rows.length > 0 && (
               <ul className={styles.list}>
                 {rows.map(notification => {

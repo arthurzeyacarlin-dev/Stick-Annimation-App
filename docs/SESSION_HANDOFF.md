@@ -1,6 +1,13 @@
 # Session Handoff
 
-## Current handoff — 2026-09-25 D-0141 published; Phase 4 ready for exact-base Plan-mode executor
+## Current handoff — 2026-09-26 D-0142 accepted; GIT-102 publication pending
+
+- Arthur passed the corrected SPEC-0014 Phase 4 review copy and explicitly authorized control-plane propagation, commit, GitHub push and canonical-main integration. The stopped executor transferred exclusive `/Users/arthurcarlin/.codex/worktrees/9ee9/stick-animation-app` ownership to Control Plane Architect. Branch `codex/spec0014-phase4-offline-restoration` remains at exact canonical base/HEAD `57f3a8560dc61f79db87c13dbff7285684b74793`; index is empty; exactly 14 accepted technical paths are dirty before the reviewed record/tree set. Immutable manifest SHA-256 `1646e497ad2e96b2263201dbced8c69bd6aae21487de481b255a912f7019a0eb` binds 14 source/32 evidence files, validates PASS and rejects 14 mutations. Never rewrite the executor manifest to hide later documentation edits.
+- Accepted outcome: only Home and Assistant bells show one shared red offline incident and one shared restored notice after genuine browser-declared reconnection. A restored unread notice persists through reload/later outages until explicit acknowledgement; current outage remains visibly red and historical restoration copy stays time-bound. No top banner, extra bell, AI/provider/search/dictation/tool/limit change, retry, Export notification/background execution, future producer or deployment. 93 oracle, 98 headed-Chrome and 42 protected Assistant/Terra browser checks pass, with 15 protected runtime files byte-identical and zero external/real-provider/paid calls. Full production Webpack remains blocked by the identical untouched dev AI-cost route issue; physical devices/native OS focus/zoom/non-Chromium remain unproven.
+- After this Control Plane Architect packet, GIT-102 publication may proceed only if the accepted implementation hashes, exact reviewed record/tree paths, empty index, clean unchanged canonical `main` and remote base all still match. Stage only approved paths, commit on the Phase 4 branch, fast-forward clean canonical `main`, push normally and verify clean `0/0`. Do not pull/rebase/force or widen scope. Then preserve ignored proof, stop the exact review server/verify port closure and remove only the obsolete accepted review worktree/local branch under D-0054. Do not remove canonical main, active PM worktree or recovery evidence.
+- SPEC-0014 has exactly four phases. Phase 3 Export is rejected and Phase 4 is the last accepted technical phase; there is no SPEC-0014 Phase 5. After publication/cleanup, next product work needs a separately owner-defined spec or authorization. The following heading is historical.
+
+## Historical handoff — 2026-09-25 D-0141 published; Phase 4 ready for exact-base Plan-mode executor
 
 - GIT-101 published only 13 reviewed D-0141 `docs/` paths in `dd744f652c3211d5ee87a3d49b22ffff72c3188b` from `c8fbc954c130acdcc9df429d7581c38b497bc33a`. Clean canonical `main` fast-forwarded and pushed normally; local HEAD, `origin/main` and live GitHub `main` matched at `dd744f6`, clean `0/0`. No rejected Phase 3 code/proof entered main.
 - D-0054 rejected-copy preservation and cleanup are complete. Arthur authorized Phase 4's truthful browser-declared offline incident through the existing Home bell while keeping the Assistant bell reply-only and the accepted Assistant/Terra flows unchanged. The next action is a new dedicated Phase 4 Spec Executor task/worktree in Plan mode from the exact final synchronized canonical-main SHA; no implementation, provider/paid call or deployment has yet occurred. The following heading is the historical prepublication handoff.
@@ -59,7 +66,7 @@
 - Exact next task: review this planning package and, only if separately authorized, publish its exact control-plane/tree paths. No runtime, provider/paid action, app copy, phase executor, staging, commit, merge, push or deployment is authorized here.
 
 Status: current canonical stopping point
-Last updated: 2026-09-25
+Last updated: 2026-09-26
 
 All seven SPEC-0006 phases are closed through GIT-061. Drawing-only SPEC-0007 is fully closed through GIT-066. SPEC-0008 Phase 1 is fully closed through GIT-070; D-0093 keeps Phases 2–6 paused as Unauthorized/Not started/not rejected. All three SPEC-0009 phases are fully closed through GIT-079, all three SPEC-0010 phases through GIT-083, all three SPEC-0011 phases through GIT-088, all six SPEC-0012 phases through GIT-096, and SPEC-0013 through GIT-097.
 

@@ -6,6 +6,8 @@
 .dot { position: absolute; top: 4px; right: 4px; width: 8px; height: 8px; border: 2px solid #0c1422; border-radius: 999px; background: #62a6ff; box-shadow: 0 0 9px rgba(98, 166, 255, .66); }
 .ringing { border-color: #59d98e; box-shadow: 0 0 0 2px rgba(89, 217, 142, .18), 0 0 16px rgba(89, 217, 142, .28); color: #b9ffd4; }
 .ringing svg { animation: notificationBellRing 720ms ease; }
+.offline, .offline.ringing { border-color: #ff5f6d; background: rgba(103, 20, 32, .35); color: #ffd7dc; box-shadow: 0 0 0 2px rgba(255, 78, 93, .2), 0 0 18px rgba(255, 78, 93, .42); }
+.offline .dot { background: #ff4e5d; box-shadow: 0 0 10px rgba(255, 78, 93, .78); }
 @keyframes notificationBellRing { 0%, 100% { transform: rotate(0); } 16% { transform: rotate(-14deg); } 32% { transform: rotate(12deg); } 48% { transform: rotate(-9deg); } 64% { transform: rotate(7deg); } 82% { transform: rotate(-3deg); } }
 .panel { position: absolute; z-index: 60; top: calc(100% + 10px); right: 0; display: flex; flex-direction: column; width: min(390px, calc(100vw - 32px)); max-height: min(560px, calc(100vh - 96px)); overflow: hidden; border: 1px solid rgba(111, 139, 176, .48); border-radius: 16px; background: linear-gradient(180deg, #0e1a2a 0%, #091321 100%); color: #edf5ff; box-shadow: 0 24px 65px rgba(0, 0, 0, .52); text-align: left; }
 .panelHeader { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 18px 18px 14px; border-bottom: 1px solid rgba(111, 139, 176, .25); }
@@ -26,6 +28,9 @@
 .fault { margin: 12px; padding: 12px; border: 1px solid #a66c76; border-radius: 10px; background: #351b24; color: #ffe8ed; }
 .fault p { margin: 0 0 10px; font-size: 12px; line-height: 1.45; }
 .localStatus { margin: 10px 12px 0; padding: 10px; border: 1px solid #6f89aa; border-radius: 8px; background: #14243a; color: #dbeaff; font-size: 12px; line-height: 1.4; }
+.offlinePanelStatus { display: flex; flex-direction: column; gap: 4px; margin: 12px; padding: 12px; border: 1px solid rgba(255, 95, 109, .7); border-radius: 10px; background: rgba(103, 20, 32, .32); color: #ffe1e5; line-height: 1.4; }
+.offlinePanelStatus strong { font-size: 13px; }
+.offlinePanelStatus span { font-size: 12px; }
 .srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
 @media (max-width: 680px) {
@@ -38,10 +43,13 @@
 }
 
 @media (forced-colors: active) {
-  .panel, .row, .fault, .localStatus { background: Canvas; color: CanvasText; forced-color-adjust: auto; }
+  .panel, .row, .fault, .localStatus, .offlinePanelStatus { background: Canvas; color: CanvasText; forced-color-adjust: auto; }
   .trigger, .panel, .row, .close, .markAll, .fault button { border: 1px solid ButtonText; }
   .dot { background: Highlight; border-color: Canvas; }
   .ringing { outline: 2px solid Highlight; }
   .row[data-unread="true"] { border-left: 4px solid Highlight; }
   .unreadText { color: LinkText; }
+  .offline { border: 2px solid Mark; color: MarkText; }
+  .offline .dot { background: Mark; }
+  .offlinePanelStatus { border: 2px solid Mark; }
 }

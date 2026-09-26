@@ -8,7 +8,7 @@ export const DIAMOND_NOTIFICATION_SCHEMA_V1 = "diamond-notification/v1" as const
 export const DIAMOND_NOTIFICATION_ENVELOPE_SCHEMA_V1 = "diamond-notification-envelope/v1" as const;
 export const DIAMOND_NOTIFICATION_BINDING_SCHEMA_V1 = "diamond-notification-terminal-binding/v1" as const;
 export const DIAMOND_NOTIFICATION_MAX_BYTES_V1 = 8 * 1024;
-export const ACTIVE_NOTIFICATION_EVENT_TYPES_V1 = ["export.completed", "export.failed", "assistant.reply.completed", "assistant.reply.failed", "workspace.terra.reply.completed", "workspace.terra.reply.failed", "system.internet.offline"] as const;
+export const ACTIVE_NOTIFICATION_EVENT_TYPES_V1 = ["export.completed", "export.failed", "assistant.reply.completed", "assistant.reply.failed", "workspace.terra.reply.completed", "workspace.terra.reply.failed", "system.internet.offline", "system.internet.restored"] as const;
 export const DORMANT_NOTIFICATION_EVENT_TYPES_V1 = ["workspace.ai-animation.completed", "ai.usage.low", "app.update.available"] as const;
 export type ActiveNotificationEventTypeV1 = (typeof ACTIVE_NOTIFICATION_EVENT_TYPES_V1)[number];
 export type DormantNotificationEventTypeV1 = (typeof DORMANT_NOTIFICATION_EVENT_TYPES_V1)[number];
@@ -20,6 +20,7 @@ export type NotificationOriginV1 =
   | { kind: "workspace-terra"; workspaceIdentity: string; projectId: string | null; projectGeneration: number; jobId: string; projectTitle: string }
   | { kind: "export"; exportJobId: string; projectId: string; projectRevision: number; projectDigest: string; projectTitle: string; filename: string; receiptId: string }
   | { kind: "connectivity"; offlineIncidentId: string; offlineSince: number }
+  | { kind: "connectivity-restored"; offlineIncidentId: string; offlineSince: number; restoredAt: number }
   | { kind: "workspace-ai-animation"; projectId: string; projectGeneration: number; jobId: string; transactionId: string; projectTitle: string }
   | { kind: "ai-usage"; usageScopeId: string; allowancePeriodId: string; remainingPercent: 10; thresholdEpisodeId: string }
   | { kind: "app-update"; updaterChannel: string; availableVersion: string };
@@ -29,6 +30,7 @@ export type NotificationTargetV1 =
   | { kind: "workspace-terra-turn"; workspaceIdentity: string; projectId: string | null; projectGeneration: number; jobId: string; openAiPanel: true }
   | { kind: "export-result"; exportJobId: string; projectId: string; projectRevision: number; projectDigest: string; receiptId: string }
   | { kind: "connectivity-warning"; offlineIncidentId: string }
+  | { kind: "connectivity-restored"; offlineIncidentId: string }
   | { kind: "workspace-ai-animation-result"; projectId: string; projectGeneration: number; jobId: string; transactionId: string }
   | { kind: "ai-usage-refill"; usageScopeId: string; allowancePeriodId: string; actionLabel: "Buy AI credits" | "Refill AI usage" }
   | { kind: "app-update"; updaterChannel: string; availableVersion: string };
@@ -78,8 +80,11 @@ export type TerraNotificationTerminalReceiptV1 = { schema: "terra-notification-t
 export type ExportTerminalResultV1 = { kind: "result"; inspection: ExportInspection; validationDigest: string };
 export type ExportTerminalFailureV1 = { kind: "failure"; failedAfterStage: "rendering" | "encoding" | "writing" | "validating"; code: string };
 export type ExportNotificationTerminalReceiptV1 = { schema: "export-notification-terminal/v1"; selection: ExportSelectionV1; request: ExportRequestV1; exportJobId: string; projectRevision: number; receiptId: string; terminalSequence: number; outcome: "completed" | "failed" | "cancelled"; occurredAt: number; terminal: ExportTerminalResultV1 | ExportTerminalFailureV1 | null };
-export type OfflineNotificationTerminalReceiptV1 = { schema: "offline-notification-terminal/v1"; offlineIncidentId: string; offlineSince: number; detectedAt: number; source: "browser-offline-event"; onlineBefore: true; onlineAfter: false };
-export type NotificationTerminalReceiptV1 = AssistantNotificationTerminalReceiptV1 | TerraNotificationTerminalReceiptV1 | ExportNotificationTerminalReceiptV1 | OfflineNotificationTerminalReceiptV1;
+export type OfflineNotificationTerminalReceiptV1 =
+  | { schema: "offline-notification-terminal/v1"; offlineIncidentId: string; offlineSince: number; detectedAt: number; source: "browser-offline-event"; onlineBefore: true; onlineAfter: false }
+  | { schema: "offline-notification-terminal/v1"; offlineIncidentId: string; offlineSince: number; detectedAt: number; source: "browser-initial-offline"; onlineBefore: false; onlineAfter: false };
+export type OnlineNotificationTerminalReceiptV1 = { schema: "online-notification-terminal/v1"; offlineIncidentId: string; offlineSince: number; restoredAt: number; source: "browser-online-event"; onlineBefore: false; onlineAfter: true };
+export type NotificationTerminalReceiptV1 = AssistantNotificationTerminalReceiptV1 | TerraNotificationTerminalReceiptV1 | ExportNotificationTerminalReceiptV1 | OfflineNotificationTerminalReceiptV1 | OnlineNotificationTerminalReceiptV1;
 
 export class NotificationContractError extends Error {
   readonly code: string;
@@ -116,7 +121,8 @@ export const notificationCopyForV1 = (eventType: NotificationEventTypeV1, origin
     case "assistant.reply.failed": return { title: "AI Assistant reply failed", body: "AI Assistant couldn't finish replying." };
     case "workspace.terra.reply.completed": return { title: "Terra replied", body: bodyForProject("Terra finished replying in “", origin.kind === "workspace-terra" ? origin.projectTitle : "") };
     case "workspace.terra.reply.failed": return { title: "Terra reply failed", body: bodyForProject("Terra couldn't finish replying in “", origin.kind === "workspace-terra" ? origin.projectTitle : "") };
-    case "system.internet.offline": return { title: "You're offline", body: "There is no internet, so no AI will be able to be called." };
+    case "system.internet.offline": return { title: "You're offline", body: "There is no internet, so AI calls are unavailable. Reconnect to use AI." };
+    case "system.internet.restored": return { title: "Internet restored", body: "Your connection was restored at this time. You can try online and AI features while the browser remains online." };
     case "workspace.ai-animation.completed": return { title: "Animation ready", body: bodyForProject("AI Animator finished animating “", origin.kind === "workspace-ai-animation" ? origin.projectTitle : "") };
     case "ai.usage.low": return { title: "AI usage is low", body: "You have 10% of your AI usage remaining." };
     case "app.update.available": return { title: "Update available", body: "A new Diamond Animator update is available." };
@@ -130,6 +136,7 @@ function validateOrigin(value: unknown): asserts value is NotificationOriginV1 {
     case "workspace-terra": if (!exactKeys(value, ["kind", "workspaceIdentity", "projectId", "projectGeneration", "jobId", "projectTitle"]) || !normalizedIdentity(value.workspaceIdentity) || !(value.projectId === null || normalizedIdentity(value.projectId)) || !integer(value.projectGeneration) || !normalizedIdentity(value.jobId) || typeof value.projectTitle !== "string" || value.projectTitle !== sanitizeProjectTitle(value.projectTitle)) fail("origin", "Terra origin is invalid."); return;
     case "export": if (!exactKeys(value, ["kind", "exportJobId", "projectId", "projectRevision", "projectDigest", "projectTitle", "filename", "receiptId"]) || !normalizedIdentity(value.exportJobId) || !normalizedIdentity(value.projectId) || !integer(value.projectRevision, 1) || !hexDigest(value.projectDigest) || typeof value.projectTitle !== "string" || value.projectTitle !== sanitizeProjectTitle(value.projectTitle) || !normalizedFilename(value.filename) || !normalizedIdentity(value.receiptId)) fail("origin", "Export origin is invalid."); return;
     case "connectivity": if (!exactKeys(value, ["kind", "offlineIncidentId", "offlineSince"]) || !normalizedIdentity(value.offlineIncidentId) || !timestamp(value.offlineSince)) fail("origin", "Connectivity origin is invalid."); return;
+    case "connectivity-restored": if (!exactKeys(value, ["kind", "offlineIncidentId", "offlineSince", "restoredAt"]) || !normalizedIdentity(value.offlineIncidentId) || !timestamp(value.offlineSince) || !timestamp(value.restoredAt) || Number(value.restoredAt) < Number(value.offlineSince)) fail("origin", "Restored connectivity origin is invalid."); return;
     case "workspace-ai-animation": if (!exactKeys(value, ["kind", "projectId", "projectGeneration", "jobId", "transactionId", "projectTitle"]) || !normalizedIdentity(value.projectId) || !integer(value.projectGeneration) || !normalizedIdentity(value.jobId) || !normalizedIdentity(value.transactionId) || typeof value.projectTitle !== "string" || value.projectTitle !== sanitizeProjectTitle(value.projectTitle)) fail("origin", "Future Animator origin is invalid."); return;
     case "ai-usage": if (!exactKeys(value, ["kind", "usageScopeId", "allowancePeriodId", "remainingPercent", "thresholdEpisodeId"]) || !normalizedIdentity(value.usageScopeId) || !normalizedIdentity(value.allowancePeriodId) || value.remainingPercent !== 10 || !normalizedIdentity(value.thresholdEpisodeId)) fail("origin", "Future usage origin is invalid."); return;
     case "app-update": if (!exactKeys(value, ["kind", "updaterChannel", "availableVersion"]) || !normalizedIdentity(value.updaterChannel) || !normalizedIdentity(value.availableVersion)) fail("origin", "Future updater origin is invalid."); return;
@@ -144,6 +151,7 @@ function validateTarget(value: unknown): asserts value is NotificationTargetV1 {
     case "workspace-terra-turn": if (!exactKeys(value, ["kind", "workspaceIdentity", "projectId", "projectGeneration", "jobId", "openAiPanel"]) || !normalizedIdentity(value.workspaceIdentity) || !(value.projectId === null || normalizedIdentity(value.projectId)) || !integer(value.projectGeneration) || !normalizedIdentity(value.jobId) || value.openAiPanel !== true) fail("target", "Terra target is invalid."); return;
     case "export-result": if (!exactKeys(value, ["kind", "exportJobId", "projectId", "projectRevision", "projectDigest", "receiptId"]) || !normalizedIdentity(value.exportJobId) || !normalizedIdentity(value.projectId) || !integer(value.projectRevision, 1) || !hexDigest(value.projectDigest) || !normalizedIdentity(value.receiptId)) fail("target", "Export target is invalid."); return;
     case "connectivity-warning": if (!exactKeys(value, ["kind", "offlineIncidentId"]) || !normalizedIdentity(value.offlineIncidentId)) fail("target", "Connectivity target is invalid."); return;
+    case "connectivity-restored": if (!exactKeys(value, ["kind", "offlineIncidentId"]) || !normalizedIdentity(value.offlineIncidentId)) fail("target", "Restored connectivity target is invalid."); return;
     case "workspace-ai-animation-result": if (!exactKeys(value, ["kind", "projectId", "projectGeneration", "jobId", "transactionId"]) || !normalizedIdentity(value.projectId) || !integer(value.projectGeneration) || !normalizedIdentity(value.jobId) || !normalizedIdentity(value.transactionId)) fail("target", "Future Animator target is invalid."); return;
     case "ai-usage-refill": if (!exactKeys(value, ["kind", "usageScopeId", "allowancePeriodId", "actionLabel"]) || !normalizedIdentity(value.usageScopeId) || !normalizedIdentity(value.allowancePeriodId) || (value.actionLabel !== "Buy AI credits" && value.actionLabel !== "Refill AI usage")) fail("target", "Future usage target is invalid."); return;
     case "app-update": if (!exactKeys(value, ["kind", "updaterChannel", "availableVersion"]) || !normalizedIdentity(value.updaterChannel) || !normalizedIdentity(value.availableVersion)) fail("target", "Future updater target is invalid."); return;
@@ -168,6 +176,7 @@ const identitiesMatchEvent = (eventType: NotificationEventTypeV1, outcome: Notif
   if (eventType === "workspace.terra.reply.completed" || eventType === "workspace.terra.reply.failed") return origin.kind === "workspace-terra" && target.kind === "workspace-terra-turn" && origin.workspaceIdentity === target.workspaceIdentity && origin.projectId === target.projectId && origin.projectGeneration === target.projectGeneration && origin.jobId === target.jobId && target.openAiPanel === true && outcome === (eventType.endsWith("completed") ? "completed" : "failed");
   if (eventType === "export.completed" || eventType === "export.failed") return origin.kind === "export" && target.kind === "export-result" && origin.exportJobId === target.exportJobId && origin.projectId === target.projectId && origin.projectRevision === target.projectRevision && origin.projectDigest === target.projectDigest && origin.receiptId === target.receiptId && outcome === (eventType.endsWith("completed") ? "completed" : "failed");
   if (eventType === "system.internet.offline") return origin.kind === "connectivity" && target.kind === "connectivity-warning" && origin.offlineIncidentId === target.offlineIncidentId && outcome === "warning";
+  if (eventType === "system.internet.restored") return origin.kind === "connectivity-restored" && target.kind === "connectivity-restored" && origin.offlineIncidentId === target.offlineIncidentId && outcome === "completed";
   if (eventType === "workspace.ai-animation.completed") return origin.kind === "workspace-ai-animation" && target.kind === "workspace-ai-animation-result" && origin.projectId === target.projectId && origin.projectGeneration === target.projectGeneration && origin.jobId === target.jobId && origin.transactionId === target.transactionId && outcome === "completed";
   if (eventType === "ai.usage.low") return origin.kind === "ai-usage" && target.kind === "ai-usage-refill" && origin.usageScopeId === target.usageScopeId && origin.allowancePeriodId === target.allowancePeriodId && outcome === "warning";
   return eventType === "app.update.available" && origin.kind === "app-update" && target.kind === "app-update" && origin.updaterChannel === target.updaterChannel && origin.availableVersion === target.availableVersion && outcome === "warning";
@@ -179,6 +188,7 @@ const sourceIdentityFor = (origin: NotificationOriginV1) => {
     case "workspace-terra": return { kind: "workspace-terra" as const, sourceId: `${origin.workspaceIdentity}/${origin.projectId ?? "null"}/${origin.projectGeneration}`, attemptId: origin.jobId };
     case "export": return { kind: "export" as const, sourceId: `${origin.projectId}/${origin.projectRevision}/${origin.projectDigest}`, attemptId: origin.exportJobId };
     case "connectivity": return { kind: "connectivity" as const, sourceId: "browser-profile", attemptId: origin.offlineIncidentId };
+    case "connectivity-restored": return { kind: "connectivity" as const, sourceId: "browser-profile", attemptId: `restored-${origin.offlineIncidentId}` };
     case "workspace-ai-animation": return { kind: "workspace-ai-animation" as const, sourceId: `${origin.projectId}/${origin.projectGeneration}/${origin.transactionId}`, attemptId: origin.jobId };
     case "ai-usage": return { kind: "ai-usage" as const, sourceId: `${origin.usageScopeId}/${origin.allowancePeriodId}`, attemptId: origin.thresholdEpisodeId };
     case "app-update": return { kind: "updater" as const, sourceId: origin.updaterChannel, attemptId: origin.availableVersion };
@@ -260,10 +270,17 @@ export async function createNotificationEnvelopeFromTerminalV1(receipt: Notifica
     return sealEnvelope({ eventType: receipt.outcome === "completed" ? "export.completed" : "export.failed", outcome: receipt.outcome, occurredAt: receipt.occurredAt, terminalSequence: receipt.terminalSequence, terminalDigest: await digest(receipt), origin, target, readAt });
   }
   if (receipt.schema === "offline-notification-terminal/v1") {
-    if (!exactKeys(receipt, ["schema", "offlineIncidentId", "offlineSince", "detectedAt", "source", "onlineBefore", "onlineAfter"]) || !normalizedIdentity(receipt.offlineIncidentId) || !timestamp(receipt.offlineSince) || !timestamp(receipt.detectedAt) || receipt.offlineSince > receipt.detectedAt || receipt.source !== "browser-offline-event" || receipt.onlineBefore !== true || receipt.onlineAfter !== false) fail("receipt", "Offline terminal receipt is invalid.");
+    const truthfulSource = receipt.source === "browser-offline-event" && receipt.onlineBefore === true || receipt.source === "browser-initial-offline" && receipt.onlineBefore === false;
+    if (!exactKeys(receipt, ["schema", "offlineIncidentId", "offlineSince", "detectedAt", "source", "onlineBefore", "onlineAfter"]) || !normalizedIdentity(receipt.offlineIncidentId) || !timestamp(receipt.offlineSince) || !timestamp(receipt.detectedAt) || receipt.offlineSince > receipt.detectedAt || !truthfulSource || receipt.onlineAfter !== false) fail("receipt", "Offline terminal receipt is invalid.");
     const origin = { kind: "connectivity", offlineIncidentId: receipt.offlineIncidentId, offlineSince: receipt.offlineSince } as const;
     const target = { kind: "connectivity-warning", offlineIncidentId: receipt.offlineIncidentId } as const;
     return sealEnvelope({ eventType: "system.internet.offline", outcome: "warning", occurredAt: receipt.detectedAt, terminalSequence: 1, terminalDigest: await digest(receipt), origin, target, readAt });
+  }
+  if (receipt.schema === "online-notification-terminal/v1") {
+    if (!exactKeys(receipt, ["schema", "offlineIncidentId", "offlineSince", "restoredAt", "source", "onlineBefore", "onlineAfter"]) || !normalizedIdentity(receipt.offlineIncidentId) || !timestamp(receipt.offlineSince) || !timestamp(receipt.restoredAt) || receipt.restoredAt < receipt.offlineSince || receipt.source !== "browser-online-event" || receipt.onlineBefore !== false || receipt.onlineAfter !== true) fail("receipt", "Online terminal receipt is invalid.");
+    const origin = { kind: "connectivity-restored", offlineIncidentId: receipt.offlineIncidentId, offlineSince: receipt.offlineSince, restoredAt: receipt.restoredAt } as const;
+    const target = { kind: "connectivity-restored", offlineIncidentId: receipt.offlineIncidentId } as const;
+    return sealEnvelope({ eventType: "system.internet.restored", outcome: "completed", occurredAt: receipt.restoredAt, terminalSequence: 2, terminalDigest: await digest(receipt), origin, target, readAt });
   }
   fail("event-type", "Unknown, game, or dormant notification publication is rejected.");
 }
@@ -306,7 +323,7 @@ export async function validateNotificationEnvelopeV1(value: unknown): Promise<Di
   return value as DiamondNotificationEnvelopeV1;
 }
 
-export const notificationBelongsToViewV1 = (notification: DiamondNotificationV1, view: "home" | "assistant") => view === "home" || notification.eventType === "assistant.reply.completed" || notification.eventType === "assistant.reply.failed";
+export const notificationBelongsToViewV1 = (notification: DiamondNotificationV1, view: "home" | "assistant") => view === "home" || notification.eventType === "assistant.reply.completed" || notification.eventType === "assistant.reply.failed" || notification.eventType === "system.internet.offline" || notification.eventType === "system.internet.restored";
 
 // SHA-256 seals provide local integrity, not authentication. Code able to rewrite
 // both objects can recompute and reseal both hashes.

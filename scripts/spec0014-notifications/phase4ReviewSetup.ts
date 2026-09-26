@@ -1,0 +1,22 @@
+import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
+
+const outputRoot = resolve("output/spec0014/phase4/review");
+mkdirSync(outputRoot, { recursive: true });
+let adapted = readFileSync("scripts/spec0014-notifications/phase1ReviewSetup.ts", "utf8");
+adapted = adapted.replace('resolve("output/spec0014/phase1/review")', 'resolve("output/spec0014/phase4/review")');
+adapted = adapted.replace("const reviewPort = 58420;", "const reviewPort = 58480;");
+adapted = adapted.replace("const fixturePort = 58421;", "const fixturePort = 58481;");
+adapted = adapted.replaceAll("/private/tmp/spec0014-phase1-fixture-host", "/private/tmp/spec0014-phase4-fixture-host");
+adapted = adapted.replaceAll("a5ca805b220357b5e8128bb6b76ea408e30fa790", "57f3a8560dc61f79db87c13dbff7285684b74793");
+adapted = adapted.replaceAll("spec0014-phase1-review-setup/v1", "spec0014-phase4-review-setup/v1");
+adapted = adapted.replaceAll("SPEC-0014 Phase 1 ordinary review server", "SPEC-0014 Phase 4 ordinary review server");
+const runner = resolve(outputRoot, "runner-adapted.ts");
+writeFileSync(runner, adapted);
+const run = spawnSync(process.execPath, ["--experimental-strip-types", runner], { cwd: process.cwd(), encoding: "utf8", maxBuffer: 64 * 1024 * 1024, timeout: 180_000 });
+writeFileSync(resolve(outputRoot, "runner.log"), `${run.stdout ?? ""}\n${run.stderr ?? ""}`);
+rmSync(runner);
+assert.equal(run.status, 0, (run.stderr ?? run.stdout ?? "").slice(-20_000));
+process.stdout.write(run.stdout ?? "");

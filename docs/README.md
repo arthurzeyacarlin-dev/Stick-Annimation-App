@@ -2,8 +2,8 @@
 
 Status: canonical repository memory
 Established: 2026-08-09
-Last reconciled with live code and current records: 2026-09-26 through Arthur's acceptance and control-plane recording of SPEC-0014 Phase 4. Phases 1–2 are published/integrated; Phase 3 Export is rejected/unpublished; Phase 4's corrected offline/restored two-bell result is accepted and technically verified, pending separate Git publication.
-Snapshot basis: pull request `#1` merged into `main` as `093bbac82fd3b4d97984448b6c6dbd716153354d`; functional anchor `c7de444536f3e0dd578a2063f70b0914e6af60b1`; tag `baseline-2026-08-09-control-plane`; SPEC-0014 Phase 1 GIT-099 `06365eacffe493ea3550de71b3baff0f57bf03b2`; Phase 2 GIT-100 `318566d6d20acec672c3d8c6a0e5620ad70c7d66`; Phase 4 accepted implementation base `57f3a8560dc61f79db87c13dbff7285684b74793`, pending GIT-102.
+Last reconciled with live code and current records: 2026-09-26 through D-0143/GIT-102 publication, proof preservation and D-0054 cleanup of SPEC-0014 Phase 4. Phases 1–2 and 4 are published/integrated; Phase 3 Export is rejected/unpublished. SPEC-0014 has no Phase 5.
+Snapshot basis: pull request `#1` merged into `main` as `093bbac82fd3b4d97984448b6c6dbd716153354d`; functional anchor `c7de444536f3e0dd578a2063f70b0914e6af60b1`; tag `baseline-2026-08-09-control-plane`; SPEC-0014 Phase 1 GIT-099 `06365eacffe493ea3550de71b3baff0f57bf03b2`; Phase 2 GIT-100 `318566d6d20acec672c3d8c6a0e5620ad70c7d66`; Phase 4 GIT-102 product commit `283c297d1df01371dc599a52719d35dc78e1d2f4` plus this records-only closeout.
 
 ## Purpose
 

@@ -3,7 +3,9 @@
 Status: canonical proof standard and current gate baseline
 Last updated: 2026-09-26
 
-## Current SPEC-0014 Phase 4 accepted proof — D-0142; GIT-102 pending
+## Current SPEC-0014 Phase 4 accepted proof — D-0142/D-0143; GIT-102 published
+
+GIT-102 published the accepted result in exact commit `283c297d1df01371dc599a52719d35dc78e1d2f4`, synchronized canonical/local-origin/live GitHub `main`, preserved the ignored proof at `output/recovery/GIT-102-spec0014-phase4-283c297/phase4` in the PM worktree with a no-difference comparison, and completed exact review-server/worktree/branch cleanup. The next paragraph is the historical prepublication technical-acceptance proof packet.
 
 Arthur accepted the corrected exact 14-path Phase 4 notification-only result from `57f3a8560dc61f79db87c13dbff7285684b74793`. Immutable `output/spec0014/phase4/manifest.json` SHA-256 is `1646e497ad2e96b2263201dbced8c69bd6aae21487de481b255a912f7019a0eb`, binding 14 implementation and 32 evidence files. Strict pre-propagation validation PASS rejected 14 negative mutations; independently recheck frozen source/evidence hashes after documentation edits rather than rerunning a validator bound to the original exact dirty set. Deterministic oracle passed 93 assertions; headed Chrome passed 98, including shared red offline bells, one restored notice on genuine reconnection, persistence through route/reload/later outage until explicit acknowledgement, current offline truth, two-tab dedupe, compact/zoom-equivalent/reduced-motion/forced-colors/keyboard/Axe and ordinary screen-owned Export with zero Export alerts. Protected Phase 2 Assistant/Terra proof passed 42 browser and 42 oracle assertions; 15 protected runtime files remain byte-identical. TypeScript, focused lint/Webpack and diff PASS; automated external/real-provider/paid calls zero. Full Webpack build remains blocked by the identical untouched dev AI-cost `PageProps` baseline and full lint retains inherited five errors/81 warnings. Physical devices, native OS focus/zoom and non-Chromium are unproven. This is technical acceptance, not Git publication or deployment. The next heading is historical planning/rejection context.
 

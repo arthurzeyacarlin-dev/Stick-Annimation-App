@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-26 — Publish and close SPEC-0014 Phase 4 (D-0143/GIT-102)
+
+- Published exact 28-path commit `283c297d1df01371dc599a52719d35dc78e1d2f4` from `57f3a8560dc61f79db87c13dbff7285684b74793`: 14 accepted notification technical paths and 14 reviewed record/tree paths. Clean canonical `main` fast-forwarded and pushed normally; local/origin/live GitHub `main` matched clean `0/0`.
+- Preserved immutable manifest SHA-256 `1646e497ad2e96b2263201dbced8c69bd6aae21487de481b255a912f7019a0eb` and ignored proof at `output/recovery/GIT-102-spec0014-phase4-283c297/phase4` in the active PM worktree; source/destination dry-run comparison found no difference. Stopped exact server PID 67776/67777, verified port 58480 closed and removed only the clean obsolete `/9ee9/` review worktree/merged local branch under D-0054.
+- Only the existing Home and Assistant bells gain the shared offline/restored notice behavior. Rejected Phase 3 Export bytes, AI/provider/search/dictation/tool/usage behavior, future producers and deployment remain unchanged. SPEC-0014 has four phases and no Phase 5; the following D-0142 entry is its historical prepublication acceptance record.
+
 ## 2026-09-26 — Accept and record corrected SPEC-0014 Phase 4 (D-0142; GIT-102 pending)
 
 - Arthur passed the same dedicated review copy after correction. The stopped executor transferred exact base/HEAD `57f3a8560dc61f79db87c13dbff7285684b74793`, 14 accepted technical paths and an empty index to Control Plane Architect. Immutable manifest SHA-256 `1646e497ad2e96b2263201dbced8c69bd6aae21487de481b255a912f7019a0eb` binds 14 source/32 evidence files and rejects 14 negative mutations.

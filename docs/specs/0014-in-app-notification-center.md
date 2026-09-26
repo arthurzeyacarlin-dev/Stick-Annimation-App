@@ -1,16 +1,20 @@
 # SPEC-0014 — Durable In-App Notification Center and Background Completion
 
-Status: **Phases 1–2 fully published/integrated/proof-preserved/cleaned; Phase 3 Export rejected/abandoned and unpublished; Phase 4 corrected offline/restored two-bell implementation accepted and technically Verified under D-0142, pending GIT-102 publication, proof preservation and cleanup. No Phase 5 exists.**
+Status: **Phases 1–2 and 4 fully published/integrated/proof-preserved/cleaned; Phase 3 Export rejected/abandoned and unpublished. No Phase 5 exists.**
 Owner: Arthur
 Planning role: Specification Architect
 Created: 2026-09-24
 Last updated: 2026-09-26
-Decision link: D-0137; D-0138; D-0140; D-0141; D-0142
+Decision link: D-0137; D-0138; D-0140; D-0141; D-0142; D-0143
 TODO IDs: PLAN-014; PM-005; NOTIFY-001; NOTIFY-002; NOTIFY-003; NOTIFY-004; GIT-098; GIT-100; GIT-101; GIT-102
 Planning baseline: clean detached checkout of canonical `main` at `acc3204d6c5aa08f1d0d714dcd5a64e8746dcb8d`
-Authorization boundary: D-0137 authorized planning only. Phase 1 is fully closed under D-0138/D-0139 and Phase 2 under D-0140/GIT-100. Arthur rejected Phase 3 Export; no rejected byte is publishable. GIT-101 published that decision, after which Arthur authorized and accepted the corrected Phase 4 result under D-0142. Its 14 technical paths are accepted but not yet committed or published. Provider/paid activity, future low-usage/updater/AI-animation producers and deployment remain unauthorized.
+Authorization boundary: D-0137 authorized planning only. Phase 1 is fully closed under D-0138/D-0139 and Phase 2 under D-0140/GIT-100. Arthur rejected Phase 3 Export; no rejected byte is publishable. GIT-101 published that decision, after which Arthur authorized and accepted the corrected Phase 4 result under D-0142. D-0143/GIT-102 published its accepted technical and record bytes, synchronized main, preserved proof and cleaned its review copy. Provider/paid activity, future low-usage/updater/AI-animation producers and deployment remain unauthorized.
 
-## D-0142 current override — accepted Phase 4 browser offline and restoration notices
+## D-0143/GIT-102 closeout — final phase published
+
+Arthur separately authorized publication after accepting Phase 4. Exact 28-path commit `283c297d1df01371dc599a52719d35dc78e1d2f4` from parent `57f3a8560dc61f79db87c13dbff7285684b74793` contains 14 accepted technical and 14 reviewed record/tree paths. Clean canonical `main` fast-forwarded and pushed normally; local/origin/live GitHub main matched clean `0/0`. Immutable manifest SHA-256 `1646e497ad2e96b2263201dbced8c69bd6aae21487de481b255a912f7019a0eb` and ignored proof were preserved in the PM worktree at `output/recovery/GIT-102-spec0014-phase4-283c297/phase4` with no-difference copy verification. Exact review server stopped, port 58480 closed, and only obsolete clean `/9ee9/` worktree/merged local branch were removed. The D-0142 acceptance section below is the historical prepublication packet. No Phase 5 exists.
+
+## D-0142 historical acceptance override — Phase 4 browser offline and restoration notices
 
 Arthur passed the corrected dedicated Phase 4 app copy. This override supersedes older Phase 4 instructions below that required a page-wide warning, Home-only offline delivery, Assistant reply-only filtering for connectivity, silence on reconnection, or Export notifications. The accepted result uses **exactly the two existing bells**, on Home and AI Assistant; no other screen gains a bell or top warning.
 
@@ -91,9 +95,9 @@ SPEC-0014 has exactly four separately authorized implementation phases:
 | 1 — Notification center foundation and durable event contract | Shared local store, two scoped bells, unread/read semantics, target resolution contract and proof-only fixtures; no product producer is connected. | Verified, published, integrated, synchronized, proof-preserved and cleaned under D-0138/D-0139/GIT-099 |
 | 2 — AI reply completion/failure across navigation | App-lifetime observers terminalize and notify for the exact Assistant conversation and exact New/Open Terra project/workspace after in-app navigation. | Verified, published, integrated, synchronized, proof-preserved and cleaned under D-0140/GIT-100 |
 | 3 — Export completion/failure across navigation | Historical proposed result; Arthur rejected the separate review copy as low-value. No Export notification or background coordinator enters the product. | Rejected/abandoned; unpublished; no implementation authority |
-| 4 — Reliability, offline, dormant future contracts and whole-feature proof | Shared offline/restored notices in the two existing bells, dedupe, persistence, cross-tab concurrency, accessibility, regression closure and inactive future schemas; Export unchanged. | Arthur-accepted and technically Verified under D-0142; GIT-102 publication/proof preservation/cleanup pending |
+| 4 — Reliability, offline, dormant future contracts and whole-feature proof | Shared offline/restored notices in the two existing bells, dedupe, persistence, cross-tab concurrency, accessibility, regression closure and inactive future schemas; Export unchanged. | Arthur-accepted under D-0142; Verified/published/integrated/synchronized/proof-preserved/cleaned under D-0143/GIT-102 |
 
-No phase starts automatically. Phase 4 followed published Phase 2 and D-0141's rejection record, not accepted Phase 3. D-0142 accepts its corrected technical result; publication, synchronization, proof preservation and cleanup remain pending. SPEC-0014 has exactly four phases and no Phase 5.
+No phase starts automatically. Phase 4 followed published Phase 2 and D-0141's rejection record, not accepted Phase 3. D-0142 accepted its corrected technical result; D-0143/GIT-102 completed publication, synchronization, proof preservation and cleanup. SPEC-0014 has exactly four phases and no Phase 5.
 
 ## 2. Freshly verified current behavior and execution path
 

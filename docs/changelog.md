@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-09-27 — Preserve rejected SPEC-0015 Phase 3 evidence; authorize Option B plan publication (D-0151)
+
+- PM hash-verified a 31-file recovery backup of the rejected, unpublished Phase 3 copy at `output/recovery/D-0150-rejected-spec0015-phase3-cfcdaf0/` in the PM worktree; aggregate SHA-256 `7d9bd58b6e879c952ae4fdbe6df14c5250a18dc0f47396792bd4e5a25b98449a`, technical-manifest SHA-256 `c3d173b37195bf472b17ed624278e0fc5ca81459eabdce755a27f18742a95115`. The exact port-58560 server stopped and the detached review worktree was archived. No rejected runtime was published.
+- Arthur separately authorized docs-only publication of the revised Option B plan from unchanged GIT-105 `cfcdaf0` after exact scope, index, canonical and live-remote checks. The publication operation reports its own commit and synchronization result; this record does not presume that result. No Phase 3 implementation, account/provider/payment service operation, SPEC-0008 resumption or deployment is authorized.
+
+## 2026-09-27 — Revise SPEC-0015 for one app-wide account (D-0149/D-0150; planning only)
+
+- Verified GIT-105 `cfcdaf05dfa2faad02a9c291d4a2252ddbee8dfd` as the 14-path records-only Phase 2 closeout on clean canonical/local-origin/live GitHub main. Corrected the dated “GIT-105 pending” handoff without changing the accepted Phase 1/2 runtime or proof.
+- Recorded Arthur's product rejection of the unpublished Dashboard-only Alex/Sam Phase 3 review copy and its D-0054 recovery/cleanup prerequisite. Replaced the post-Phase-2 plan with Phases 3–8: app-wide account/session and guest continuity, account-owned data/jobs with explicit import, account-scoped usage/Dashboard, funded entitlements, sandbox payments and launch proof. Signed-in browser-local bars cannot masquerade as account usage; signed-out private-local AI remains usable.
+- No runtime, rejected-copy byte, account/service setup, payment, provider operation, SPEC-0008, PM worktree, Git index/history/ref or deployment was changed. This is an unpublished planning package for PM review; Phase 3 remains blocked by G-AUTH/G-PRIV, D-0054 cleanup, publication and separate authorization.
+
 ## 2026-09-27 — Publish and clean up SPEC-0015 Phase 2 (D-0148/GIT-104)
 
 - Exact 37-path commit `5f0fbb673e54d530889113115fba5f9c3c94b55f` (22 accepted technical plus 15 reviewed records/tree) fast-forwarded canonical `main` and pushed normally. Canonical/local-origin/live GitHub `main` matched clean `0/0`. This records-only closeout corrects the preceding historical prepublication entry; it does not change runtime bytes.

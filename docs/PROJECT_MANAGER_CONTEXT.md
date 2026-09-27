@@ -1,6 +1,12 @@
 # Project Manager Context
 
-## Current override — D-0148/GIT-104 closes SPEC-0015 Phase 2; Phase 3 awaits Arthur
+## Current override — D-0150 one app-wide account; rejected Phase 3 unpublished
+
+Arthur chose Option B after rejecting the isolated Alex/Sam/Sign Out Phase 3 review app: its server ownership changes did not make the Phase 1 browser-local bars account-specific. The rejected technical copy is unaccepted, unpublished and non-reusable; D-0151 records completed hash-verified D-0054 recovery and exact port-58560/worktree cleanup, plus Arthur's separate docs-only publication authority. PM V5 reviews the revised [SPEC-0015](specs/0015-functional-ai-dashboard.md) staged plan; PM V4 retains paused SPEC-0008. Phases 1–2 remain accepted/published and their runtime untouched. The proposed Phases 3–8 are app-wide auth/session, account data and import, account usage/Dashboard, real entitlements, sandbox billing and launch proof. Phase 3 is **not implementation-ready** until G-AUTH/G-PRIV, an exact selected-stack scope and Arthur's separate exact-base implementation authorization.
+
+Signed-out private-local AI remains usable. Signed-in Dashboard must never present old browser receipts or the 90-day local-instance journal as the account's usage; it truthfully shows account usage unavailable until Phase 5. Account controls belong in global navigation, not inside the Dashboard. D-0151 authorizes only this revised plan's docs-only publication, not a provider/model/search/dictation/tool/notification/Export change, Grok integration, account/service setup, financial term or deployment. D-0149 confirms GIT-105 `cfcdaf05dfa2faad02a9c291d4a2252ddbee8dfd` on clean canonical/local-origin/live GitHub main; the D-0148 heading below remains historical.
+
+## Historical pre-D-0150 override — D-0148/GIT-104 closes SPEC-0015 Phase 2
 
 Arthur's accepted Phase 2 metering is published in exact 37-path GIT-104 commit `5f0fbb673e54d530889113115fba5f9c3c94b55f` (22 technical plus 15 reviewed control-plane/tree paths), parent GIT-103 `02a80577f562e9524d2e177c222d19f99f517278`. Canonical `main`, local `origin/main` and live GitHub `main` matched clean `0/0`. All 32 ignored proof files/8,274,111 bytes are preserved in the PM recovery directory with inventory SHA-256 `dde41452a8d391870ba9fbfd15cf5f3fed7d98dca92f15b34ce5745a40ca1801`; the technical manifest remains SHA-256 `4659c66ae6c88c09b962e77abb0b7a70510faa0008677975f4e639026c0a9e72`. Port 58540 closed; D-0054 removed only the obsolete `/ca0f/` review worktree and merged local publication branch. The PM worktree's unrelated SPEC-0014 doc edit was preserved.
 

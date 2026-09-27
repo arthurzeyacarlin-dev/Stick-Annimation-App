@@ -2,11 +2,12 @@ import { NextResponse } from "next/server";
 import { normalizeAiAnimatorRequest } from "@/src/lib/ai/aiAnimatorContract";
 import { AiAnimatorJobService } from "@/src/lib/ai/aiAnimatorJobService";
 import { generateAiAnimatorReply } from "@/src/lib/openai/generateAiAnimatorReply";
+import { recordUsageEvent } from "@/src/lib/usage-journal/usageJournalRuntime";
 
 export const runtime = "nodejs";
 
 const globalJobs = globalThis as typeof globalThis & { diamondAiAnimatorJobs?: AiAnimatorJobService };
-const jobs = globalJobs.diamondAiAnimatorJobs ?? new AiAnimatorJobService(generateAiAnimatorReply);
+const jobs = globalJobs.diamondAiAnimatorJobs ?? new AiAnimatorJobService(generateAiAnimatorReply, recordUsageEvent);
 globalJobs.diamondAiAnimatorJobs = jobs;
 
 const safeError = (error: unknown) => {

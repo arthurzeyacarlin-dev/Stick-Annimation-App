@@ -1,0 +1,11 @@
+{
+  "schema": "spec0015-dashboard-phase2-test-fixture/v1",
+  "productRetentionDays": 90,
+  "retentionTestDays": 2,
+  "queueLimit": 64,
+  "batchSize": 8,
+  "maxFileBytes": 1048576,
+  "writeRetryLimit": 1,
+  "writeRetryDelayMs": 0,
+  "frozenNow": "2026-09-27T02:00:00.000Z"
+}

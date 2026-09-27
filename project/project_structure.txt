@@ -16,6 +16,8 @@
 ./app/api/diamond-assistant/route.ts
 ./app/api/drawing-project-ai-memory
 ./app/api/drawing-project-ai-memory/route.ts
+./app/api/usage-journal
+./app/api/usage-journal/route.ts
 ./app/assistant
 ./app/assistant/page.tsx
 ./app/credits
@@ -302,6 +304,7 @@
 ./scripts/fixtures/spec0014-notifications/phase-4/contract.json
 ./scripts/fixtures/spec0015-dashboard
 ./scripts/fixtures/spec0015-dashboard/phase1.json
+./scripts/fixtures/spec0015-dashboard/phase2.json
 ./scripts/fixtures/stick-ai
 ./scripts/fixtures/stick-ai/v1
 ./scripts/fixtures/stick-ai/v1/canonical-hash-vectors.json
@@ -665,8 +668,15 @@
 ./scripts/spec0015-dashboard/phase1BuildProof.ts
 ./scripts/spec0015-dashboard/phase1Oracle.ts
 ./scripts/spec0015-dashboard/phase1ProtectedRegressions.ts
+./scripts/spec0015-dashboard/phase2BrowserProof.ts
+./scripts/spec0015-dashboard/phase2BuildProof.ts
+./scripts/spec0015-dashboard/phase2Oracle.ts
+./scripts/spec0015-dashboard/phase2ProtectedRegressions.ts
+./scripts/spec0015-dashboard/phase2RuntimeProof.ts
 ./scripts/spec0015-dashboard/recordPhase1Proof.ts
+./scripts/spec0015-dashboard/recordPhase2Proof.ts
 ./scripts/spec0015-dashboard/validatePhase1Proof.ts
+./scripts/spec0015-dashboard/validatePhase2Proof.ts
 ./scripts/sync_docs_to_github.sh
 ./scripts/traceExplosionLivePath.ts
 ./scripts/traceGenerateSoundsLivePath.mjs
@@ -899,6 +909,12 @@
 ./src/lib/stickfigure/stickTimeline.ts
 ./src/lib/tutorials
 ./src/lib/tutorials/tutorialCatalog.ts
+./src/lib/usage-journal
+./src/lib/usage-journal/usageJournalContract.ts
+./src/lib/usage-journal/usageJournalEvents.ts
+./src/lib/usage-journal/usageJournalProjection.ts
+./src/lib/usage-journal/usageJournalRuntime.ts
+./src/lib/usage-journal/usageJournalStore.ts
 ./supabase
 ./supabase/migrations
 ./supabase/migrations/create_plans_training_table.sql

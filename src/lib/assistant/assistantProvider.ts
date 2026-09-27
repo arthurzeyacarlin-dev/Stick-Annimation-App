@@ -6,9 +6,15 @@ import {
 import { ASSISTANT_INSTRUCTIONS, ASSISTANT_SEARCH_INSTRUCTIONS, retrieveKnowledge } from "./assistantKnowledge.ts";
 import { decideAssistantSearch, type SearchDecision } from "./assistantSearchPolicy.ts";
 import type { AssistantProvider, AssistantProviderActivity, AssistantProviderOptions } from "./assistantJobService.ts";
+import {
+  assistantDispatchedEvent, assistantProviderObservedEvent, noUsageEventRecorder, type UsageEventRecorder,
+} from "../usage-journal/usageJournalEvents.ts";
+import { recordUsageEvent } from "../usage-journal/usageJournalRuntime.ts";
 
 export const ASSISTANT_PRICE = Object.freeze({ date: "2026-09-22", inputPerMillion: 2, outputPerMillion: 12, requestUsd: .15 });
 export const ASSISTANT_SEARCH_PRICE = Object.freeze({ date: "2026-09-23", webSearchCallUsd: .01 });
+const CONVERSATION_PRICING_VERSION = "assistant-conversation-2026-09-22-v1";
+const SEARCH_PRICING_VERSION = "assistant-search-2026-09-23-v1";
 type ResponseStream = AsyncIterable<OpenAI.Responses.ResponseStreamEvent>;
 export type AssistantResponseRequest = OpenAI.Responses.ResponseCreateParamsStreaming & { max_tool_calls?: number };
 export type AssistantResponsesClient = { create: (body: AssistantResponseRequest, options: { signal: AbortSignal }) => Promise<ResponseStream> };
@@ -194,8 +200,11 @@ function searchResult(final: OpenAI.Responses.Response, raw: string, annotations
 
 function emit(options: AssistantProviderOptions, activity: AssistantProviderActivity) { options.onActivity?.(activity); }
 
-export function createAssistantProvider(factory: AssistantClientFactory = clientFactory, searchDeadlineMs: number = ASSISTANT_SEARCH_LIMITS.deadlineMs): AssistantProvider {
+export function createAssistantProvider(factory: AssistantClientFactory = clientFactory,
+  searchDeadlineMs: number = ASSISTANT_SEARCH_LIMITS.deadlineMs,
+  recorder: UsageEventRecorder = noUsageEventRecorder): AssistantProvider {
   return async (request, options): Promise<ProviderResult> => {
+    const meter = (event: Parameters<UsageEventRecorder>[0]) => { try { recorder(event); } catch { /* Best-effort observation only. */ } };
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) throw new AssistantError("configuration", "Terra is not configured on this review server. Your message is saved.");
     const prepared = buildAssistantResponseRequest(request); if (options.signal.aborted) throw new AssistantError("cancelled", "Cancelled");
@@ -219,12 +228,26 @@ export function createAssistantProvider(factory: AssistantClientFactory = client
     };
     const endActiveSearch = () => { if (activeSearchId) endSearch(activeSearchId); };
     try {
+      const operationKind = prepared.decision.mode === "required" ? "hosted_search" : "conversation";
+      meter(assistantDispatchedEvent(request, Date.now(), operationKind, ASSISTANT_MODEL));
       const stream = await client.create(prepared.body, { signal });
       for await (const event of stream) {
         if (prepared.decision.mode === "required" && event.type === "response.output_item.added" && event.item.type === "web_search_call") startSearch(event.item.id);
         else if (prepared.decision.mode === "required" && (event.type === "response.web_search_call.in_progress" || event.type === "response.web_search_call.searching")) startSearch(event.item_id);
         else if (event.type === "response.web_search_call.completed") endSearch(event.item_id);
-        if (event.type === "response.completed") final = event.response;
+        if (event.type === "response.completed") {
+          final = event.response;
+          const toolCalls = final.output.filter((item) => item.type === "web_search_call").length;
+          const inputTokens = final.usage?.input_tokens ?? null; const outputTokens = final.usage?.output_tokens ?? null;
+          const totalTokens = final.usage?.total_tokens ?? null;
+          const estimatedCostUsd = inputTokens === null || outputTokens === null ? null :
+            (inputTokens * ASSISTANT_PRICE.inputPerMillion + outputTokens * ASSISTANT_PRICE.outputPerMillion) / 1_000_000 +
+              toolCalls * ASSISTANT_SEARCH_PRICE.webSearchCallUsd;
+          meter(assistantProviderObservedEvent(request, {
+            operationKind, returnedModel: final.model ?? null, responseId: final.id ?? null, inputTokens, outputTokens, totalTokens,
+            toolCalls, estimatedCostUsd, pricingVersion: operationKind === "hosted_search" ? SEARCH_PRICING_VERSION : CONVERSATION_PRICING_VERSION,
+          }));
+        }
         if (event.type === "response.failed" || event.type === "response.incomplete" || event.type === "error") throw new AssistantError("output", "Terra could not finish a complete answer. Your message is saved.");
       }
     } catch (error) {
@@ -258,4 +281,4 @@ export function createAssistantProvider(factory: AssistantClientFactory = client
   };
 }
 
-export const generateAssistantReply = createAssistantProvider();
+export const generateAssistantReply = createAssistantProvider(clientFactory, ASSISTANT_SEARCH_LIMITS.deadlineMs, recordUsageEvent);

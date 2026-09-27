@@ -1,7 +1,9 @@
 # AI System Snapshot
 
 Status: canonical current AI architecture and gap map
-Last traced: 2026-09-25 through D-0140/GIT-100's published SPEC-0014 Phase 2 correction. SPEC-0008 Phases 2–6 remain paused; SPEC-0014 Phases 3–4, public beta and deployment remain unauthorized.
+Last traced: 2026-09-27 through D-0147's accepted SPEC-0015 Phase 2 local usage journal. SPEC-0008 Phases 2–6 remain paused; SPEC-0014 Phase 3 Export remains rejected and Phase 4 is published; public beta and deployment remain unauthorized.
+
+SPEC-0015 Phase 1's read-only Dashboard is published in GIT-103 `02a80577f562e9524d2e177c222d19f99f517278`. D-0147 accepts Phase 2's isolated local content-free usage journal, but it is not yet published. Existing Project AI, Guidance Assistant/hosted search and dictation paths now observe accepted/dispatched/provider-observed/terminal facts with opaque IDs, provider/model and nullable token/tool/audio/cost evidence. A 90-day rolling local store and loopback aggregate read survive local restart and do not make a customer account, bill or AI cap. Telemetry failures are isolated from replies; provider request payload/model/reasoning/search/tool/citation/dictation/retry semantics are unchanged. The accepted Dashboard chart remains byte-identical and does not yet consume the journal. Synthetic xAI-shaped proof demonstrates provider-neutral fields; no Grok or real animation job is connected. Legacy `/api/ai` and privileged route coverage is a Phase 3 gate, and SDK retry attempt cardinality is not billable evidence. Full build retains the untouched dev AI-cost route failure.
 
 SPEC-0013/D-0135/D-0136/GIT-097 changes no Assistant request, provider, search, reasoning, dictation, reveal, persistence, retry or offline behavior. It updates only the local knowledge catalog's Finalizer availability fact and catalog date because the inert Home card is removed. Existing saved chats validate, live Workspace Terra and AI Assistant replies passed, no credential entered publication, and the spec is fully closed.
 

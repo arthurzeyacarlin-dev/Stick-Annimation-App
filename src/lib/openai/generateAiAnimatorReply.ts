@@ -7,11 +7,16 @@ import {
   normalizeAiAnimatorStructuredReply,
   type AiAnimatorProviderResult,
   type AiAnimatorRequest,
-} from "@/src/lib/ai/aiAnimatorContract";
-import { getOpenAiClient } from "./client";
+} from "../ai/aiAnimatorContract.ts";
+import { getOpenAiClient } from "./client.ts";
+import {
+  noUsageEventRecorder, projectDispatchedEvent, projectProviderObservedEvent, type UsageEventRecorder,
+} from "../usage-journal/usageJournalEvents.ts";
+import { recordUsageEvent } from "../usage-journal/usageJournalRuntime.ts";
 
 const INPUT_PRICE_PER_MILLION = 2;
 const OUTPUT_PRICE_PER_MILLION = 12;
+const PRICING_VERSION = "project-conversation-estimator-v1";
 
 const instructions = `You are Terra, the conversational brain inside Diamond Animator.
 Return only the required structured object. Understand the user's meaning semantically; never use or imply a keyword-routing recipe.
@@ -29,12 +34,14 @@ const estimateCostUsd = (inputTokens: number | null, outputTokens: number | null
   return (inputTokens * INPUT_PRICE_PER_MILLION + outputTokens * OUTPUT_PRICE_PER_MILLION) / 1_000_000;
 };
 
-export const generateAiAnimatorReply = async (
-  request: AiAnimatorRequest,
-  options: { signal?: AbortSignal } = {},
-): Promise<AiAnimatorProviderResult> => {
+export const createAiAnimatorReplyGenerator = (
+  clientFactory: typeof getOpenAiClient = getOpenAiClient,
+  recorder: UsageEventRecorder = noUsageEventRecorder,
+) => async (request: AiAnimatorRequest, options: { signal?: AbortSignal } = {}): Promise<AiAnimatorProviderResult> => {
+  const meter = (event: Parameters<UsageEventRecorder>[0]) => { try { recorder(event); } catch { /* Best-effort observation only. */ } };
   const startedAt = performance.now();
-  const client = getOpenAiClient("terra-conversation");
+  const client = clientFactory("terra-conversation");
+  meter(projectDispatchedEvent(request, Date.now(), AI_ANIMATOR_MODEL));
   const response = await client.responses.create(
     {
       model: AI_ANIMATOR_MODEL,
@@ -61,6 +68,16 @@ export const generateAiAnimatorReply = async (
     options.signal ? { signal: options.signal } : undefined,
   );
 
+  const inputTokens = response.usage?.input_tokens ?? null;
+  const outputTokens = response.usage?.output_tokens ?? null;
+  const observedUsage = {
+    inputTokens, outputTokens, totalTokens: response.usage?.total_tokens ?? null,
+    estimatedCostUsd: estimateCostUsd(inputTokens, outputTokens),
+  };
+  meter(projectProviderObservedEvent(request, {
+    requestedModel: AI_ANIMATOR_MODEL, returnedModel: response.model ?? null, responseId: response.id ?? null,
+    usage: observedUsage, pricingVersion: PRICING_VERSION,
+  }));
   if (response.model !== AI_ANIMATOR_MODEL) {
     throw new Error("AI Animator received a response from an unexpected model.");
   }
@@ -76,20 +93,15 @@ export const generateAiAnimatorReply = async (
     throw new Error("Terra returned an invalid intent response.");
   }
 
-  const inputTokens = response.usage?.input_tokens ?? null;
-  const outputTokens = response.usage?.output_tokens ?? null;
   return {
     reply,
     requestedModel: AI_ANIMATOR_MODEL,
     providerModel: response.model,
     responseId: response.id ?? null,
-    usage: {
-      inputTokens,
-      outputTokens,
-      totalTokens: response.usage?.total_tokens ?? null,
-      estimatedCostUsd: estimateCostUsd(inputTokens, outputTokens),
-    },
+    usage: observedUsage,
     latencyMs: Math.max(0, Math.round(performance.now() - startedAt)),
     promptDigest: createHash("sha256").update(request.message).digest("hex"),
   };
 };
+
+export const generateAiAnimatorReply = createAiAnimatorReplyGenerator(getOpenAiClient, recordUsageEvent);

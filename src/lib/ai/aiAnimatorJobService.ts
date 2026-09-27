@@ -8,6 +8,9 @@ import {
   type AiAnimatorProviderResult,
   type AiAnimatorRequest,
 } from "./aiAnimatorContract.ts";
+import {
+  noUsageEventRecorder, projectAcceptedEvent, projectTerminalEvent, type UsageEventRecorder,
+} from "../usage-journal/usageJournalEvents.ts";
 
 type Provider = (request: AiAnimatorRequest, options: { signal: AbortSignal }) => Promise<AiAnimatorProviderResult>;
 type InternalJob = AiAnimatorJobSnapshot & { abortController: AbortController };
@@ -15,6 +18,9 @@ type InternalJob = AiAnimatorJobSnapshot & { abortController: AbortController };
 const SERVER_DEADLINE_MS = 90_000;
 const emptyUsage = { inputTokens: null, outputTokens: null, totalTokens: null, estimatedCostUsd: null };
 const promptDigest = (message: string) => createHash("sha256").update(message).digest("hex");
+const usageIdentity = (job: InternalJob) => ({
+  jobId: job.jobId, turnId: job.turnId, reasoningLevel: job.reasoningLevel, workspace: { projectId: job.projectId },
+});
 
 const publicSnapshot = (job: InternalJob): AiAnimatorJobSnapshot => {
   const { abortController: _abortController, ...snapshot } = job;
@@ -25,10 +31,14 @@ const publicSnapshot = (job: InternalJob): AiAnimatorJobSnapshot => {
 export class AiAnimatorJobService {
   private readonly jobs = new Map<string, InternalJob>();
   private readonly provider: Provider;
+  private readonly recordUsage: UsageEventRecorder;
 
-  constructor(provider: Provider) {
+  constructor(provider: Provider, recordUsage: UsageEventRecorder = noUsageEventRecorder) {
     this.provider = provider;
+    this.recordUsage = recordUsage;
   }
+
+  private meter(event: Parameters<UsageEventRecorder>[0]) { try { this.recordUsage(event); } catch { /* Best-effort observation only. */ } }
 
   submit(request: AiAnimatorRequest) {
     const existing = this.jobs.get(request.jobId);
@@ -73,6 +83,7 @@ export class AiAnimatorJobService {
       abortController: new AbortController(),
     };
     this.jobs.set(job.jobId, job);
+    this.meter(projectAcceptedEvent(request, Date.parse(now)));
     void this.run(job, request);
     return publicSnapshot(job);
   }
@@ -94,6 +105,7 @@ export class AiAnimatorJobService {
     this.append(job, { status: "cancelled" });
     job.completedAt = job.updatedAt;
     job.telemetry = { ...job.telemetry, outcome: "cancelled", latencyMs: Date.now() - Date.parse(job.createdAt) };
+    this.meter(projectTerminalEvent(usageIdentity(job), "cancelled", Date.parse(job.completedAt)));
     return publicSnapshot(job);
   }
 
@@ -148,6 +160,7 @@ export class AiAnimatorJobService {
         promptDigest: result.promptDigest,
         usage: result.usage,
       };
+      this.meter(projectTerminalEvent(request, "succeeded", Date.parse(job.completedAt)));
     } catch (error) {
       if (isAiAnimatorTerminalStatus(job.status)) {
         return;
@@ -166,6 +179,7 @@ export class AiAnimatorJobService {
         outcome: "failed",
         latencyMs: Date.now() - Date.parse(job.createdAt),
       };
+      this.meter(projectTerminalEvent(request, wasAborted ? "timeout" : "failed", Date.parse(job.completedAt)));
     } finally {
       clearTimeout(timeout);
     }

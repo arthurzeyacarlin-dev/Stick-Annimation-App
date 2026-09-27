@@ -2,10 +2,11 @@ import { NextResponse } from "next/server";
 import { AssistantError, isId } from "@/src/lib/assistant/assistantContracts";
 import { DiamondAssistantJobService } from "@/src/lib/assistant/assistantJobService";
 import { generateAssistantReply } from "@/src/lib/assistant/assistantProvider";
+import { recordUsageEvent } from "@/src/lib/usage-journal/usageJournalRuntime";
 
 export const runtime = "nodejs";
 const owner = globalThis as typeof globalThis & { diamondGuidanceAssistantV1?: DiamondAssistantJobService };
-const jobs = owner.diamondGuidanceAssistantV1 ??= new DiamondAssistantJobService(generateAssistantReply);
+const jobs = owner.diamondGuidanceAssistantV1 ??= new DiamondAssistantJobService(generateAssistantReply, undefined, undefined, recordUsageEvent);
 const respond = (value: unknown, status = 200) => NextResponse.json(value, { status, headers: { "Cache-Control": "no-store" } });
 const localRequest = (request: Request) => {
   const host = request.headers.get("host") ?? ""; const origin = request.headers.get("origin");

@@ -1,4 +1,7 @@
 import { ASSISTANT_LIMITS, CATALOG_VERSION, AssistantError, insist, stableJson, validateProviderResult, validateRequest, validateSnapshot, type AssistantRequest, type JobSnapshot, type ProviderResult } from "./assistantContracts.ts";
+import {
+  assistantAcceptedEvent, assistantTerminalEvent, noUsageEventRecorder, type UsageEventRecorder,
+} from "../usage-journal/usageJournalEvents.ts";
 
 export const ASSISTANT_FINALIZING_MS = 3000;
 const ASSISTANT_JOB_EVENT_LIMIT = 8;
@@ -11,7 +14,12 @@ export class DiamondAssistantJobService {
   private provider: AssistantProvider;
   private deadline: number;
   private finalizingMs: number;
-  constructor(provider: AssistantProvider, deadline: number = ASSISTANT_LIMITS.deadlineMs, finalizingMs: number = ASSISTANT_FINALIZING_MS) { this.provider = provider; this.deadline = deadline; this.finalizingMs = finalizingMs; }
+  private recordUsage: UsageEventRecorder;
+  constructor(provider: AssistantProvider, deadline: number = ASSISTANT_LIMITS.deadlineMs, finalizingMs: number = ASSISTANT_FINALIZING_MS,
+    recordUsage: UsageEventRecorder = noUsageEventRecorder) {
+    this.provider = provider; this.deadline = deadline; this.finalizingMs = finalizingMs; this.recordUsage = recordUsage;
+  }
+  private meter(event: Parameters<UsageEventRecorder>[0]) { try { this.recordUsage(event); } catch { /* Best-effort observation only. */ } }
   private active(job: Job) { return job.snapshot.status === "thinking" || job.snapshot.status === "searching" || job.snapshot.status === "finalizing"; }
   submit(input: unknown): JobSnapshot {
     const request = validateRequest(input); const fingerprint = stableJson(request); const existing = this.jobs.get(request.jobId);
@@ -26,11 +34,12 @@ export class DiamondAssistantJobService {
     if (this.jobs.size >= 500) throw new AssistantError("capacity", "This review server has reached its request limit. Restart it before starting more answers.");
     const snapshot: JobSnapshot = { schema: "diamond-assistant-job/v1", jobId: request.jobId, sessionId: request.sessionId, turnId: request.turnId, reasoning: request.reasoningLevel, catalogVersion: CATALOG_VERSION, status: "thinking", events: [{ sequence: 1, at: Date.now(), status: "thinking" }], result: null, error: null };
     const job: Job = { request, fingerprint, snapshot, controller: new AbortController(), timer: null }; this.jobs.set(request.jobId, job);
-    job.timer = setTimeout(() => this.fail(job, "This answer timed out. Your message is saved. Send again when you are ready."), this.deadline);
+    this.meter(assistantAcceptedEvent(request, snapshot.events[0].at));
+    job.timer = setTimeout(() => this.fail(job, "This answer timed out. Your message is saved. Send again when you are ready.", "timeout"), this.deadline);
     void this.run(job); return structuredClone(job.snapshot);
   }
   private finishTimer(job: Job) { if (job.timer) { clearTimeout(job.timer); job.timer = null; } }
-  private fail(job: Job, error: string) {
+  private fail(job: Job, error: string, outcome: "failed" | "timeout" = "failed") {
     if (!this.active(job)) return;
     const safe = error.slice(0, 240);
     const event = { sequence: job.snapshot.events.length + 1, at: Date.now(), status: "failed" as const };
@@ -42,6 +51,7 @@ export class DiamondAssistantJobService {
       job.snapshot = { ...candidate, events: [...job.snapshot.events.slice(0, ASSISTANT_JOB_EVENT_LIMIT - 1), { sequence: ASSISTANT_JOB_EVENT_LIMIT, at: Date.now(), status: "failed" }] };
     }
     this.finishTimer(job); job.controller.abort();
+    this.meter(assistantTerminalEvent(job.request, outcome, event.at));
   }
   private transition(job: Job, status: JobSnapshot["status"], result: ProviderResult | null = null, error: string | null = null, topic?: string) {
     if (!this.active(job) || job.snapshot.status === status) return;
@@ -52,7 +62,11 @@ export class DiamondAssistantJobService {
     const event = status === "searching" ? { sequence: job.snapshot.events.length + 1, at: Date.now(), status, topic } : { sequence: job.snapshot.events.length + 1, at: Date.now(), status };
     const candidate: JobSnapshot = { ...job.snapshot, status, result, error, events: [...job.snapshot.events, event] };
     validateSnapshot(candidate, job.request); job.snapshot = candidate;
-    if (!this.active(job)) this.finishTimer(job);
+    if (!this.active(job)) {
+      this.finishTimer(job);
+      if (status === "done") this.meter(assistantTerminalEvent(job.request, "succeeded", event.at));
+      else if (status === "cancelled") this.meter(assistantTerminalEvent(job.request, "cancelled", event.at));
+    }
   }
   private async run(job: Job) {
     try {
@@ -101,6 +115,7 @@ export class DiamondAssistantJobService {
     const now = Date.now();
     const snapshot: JobSnapshot = { schema: "diamond-assistant-job/v1", jobId: request.jobId, sessionId: request.sessionId, turnId: request.turnId, reasoning: request.reasoningLevel, catalogVersion: CATALOG_VERSION, status: "cancelled", events: [{ sequence: 1, at: now, status: "thinking" }, { sequence: 2, at: now, status: "cancelled" }], result: null, error: "Answer cancelled before submission. Your message is saved." };
     this.jobs.set(request.jobId, { request, fingerprint: stableJson(request), snapshot, controller: new AbortController(), timer: null });
+    this.meter(assistantAcceptedEvent(request, now)); this.meter(assistantTerminalEvent(request, "cancelled", now));
     return structuredClone(snapshot);
   }
 }

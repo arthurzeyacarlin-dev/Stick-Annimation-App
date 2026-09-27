@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-27 — Accept and record SPEC-0015 Phase 2 local usage metering (D-0147; publication pending)
+
+- Arthur passed the Phase 2 review copy and PM V5 accepted its stopped exact 22-path result from integrated GIT-103 base `02a80577f562e9524d2e177c222d19f99f517278`, empty index and immutable manifest SHA-256 `4659c66ae6c88c09b962e77abb0b7a70510faa0008677975f4e639026c0a9e72`. This record also reconciles GIT-103's already-published Phase 1 state.
+- Added a prospective local content-free 90-day journal for current Project AI, Guidance Assistant/hosted search and dictation, with provider/model/usage quality, private aggregate read and failure-isolated writes. Phase 1's Dashboard presentation remains byte-identical; Grok/animation jobs, legacy routes, financial ledger/accounts and AI caps remain outside this phase.
+- Proof passed 54 journal, 40 runtime, 34 browser, 48 protected ordinary-AI and 278 local MP4 assertions, with 27 protected owner files byte-identical and zero automated real-provider/paid calls. Full Webpack build retains the unchanged inherited dev AI-cost failure. CPA propagation changes only canonical records/tree and stops before staging, commit, push or review-copy cleanup; GIT-104 is separate.
+
 ## 2026-09-27 — Accept and record SPEC-0015 Phase 1 Dashboard technical result (D-0146; publication pending)
 
 - Arthur visibly passed the final `/credits` review copy and PM V5 accepted its exact 14-path technical result from canonical planning base `1c45a016da73e86356ed65720209181468bad37d`. Manifest SHA-256 is `72cff67d0b2df88e30f2ec910dbd8d4b3816fbc9c65f36c59780b164ce5964e4`; 115 oracle, 74 Chrome and 48 protected ordinary-AI assertions, one local MP4, 28 byte-identical protected owners and focused build passed. Full build retains the identical inherited dev AI-cost route failure.

@@ -1,6 +1,12 @@
 # Project Manager Context
 
-## Current override — D-0147 accepts SPEC-0015 Phase 2 metering; publication pending
+## Current override — D-0148/GIT-104 closes SPEC-0015 Phase 2; Phase 3 awaits Arthur
+
+Arthur's accepted Phase 2 metering is published in exact 37-path GIT-104 commit `5f0fbb673e54d530889113115fba5f9c3c94b55f` (22 technical plus 15 reviewed control-plane/tree paths), parent GIT-103 `02a80577f562e9524d2e177c222d19f99f517278`. Canonical `main`, local `origin/main` and live GitHub `main` matched clean `0/0`. All 32 ignored proof files/8,274,111 bytes are preserved in the PM recovery directory with inventory SHA-256 `dde41452a8d391870ba9fbfd15cf5f3fed7d98dca92f15b34ce5745a40ca1801`; the technical manifest remains SHA-256 `4659c66ae6c88c09b962e77abb0b7a70510faa0008677975f4e639026c0a9e72`. Port 58540 closed; D-0054 removed only the obsolete `/ca0f/` review worktree and merged local publication branch. The PM worktree's unrelated SPEC-0014 doc edit was preserved.
+
+Phase 2 remains a prospective, local, content-free, 90-day observation of current Project AI, Guidance Assistant/search and dictation. Phase 1's chart is byte-identical and still reads browser receipts, not the server journal; no real plan, balance, bill or AI limit exists. Grok/xAI and actual animation jobs are not connected, and legacy `/api/ai` plus privileged-route inventory remains the Phase 3 gate. PM V4 keeps paused SPEC-0008. **Phase 3 is ready for Arthur's separate authorization, but Unauthorized / Not started**; no executor, account, billing, provider switch, live/paid call or deployment begins from this closeout. The D-0147 acceptance checkpoint below is historical as to publication and worktree presence.
+
+## Historical override — D-0147 accepts SPEC-0015 Phase 2 metering; publication later completed
 
 Arthur visibly passed the Phase 2 review app at `http://127.0.0.1:58540/credits` and explicitly authorized canonical control-plane propagation followed by a separate Git publication/integration operation. PM V5 accepted the exact 22-path technical result from canonical base/HEAD `02a80577f562e9524d2e177c222d19f99f517278`. The stopped Spec Executor transferred exclusive `/Users/arthurcarlin/.codex/worktrees/ca0f/stick-animation-app` ownership to the Control Plane Architect with an empty index and immutable ignored manifest SHA-256 `4659c66ae6c88c09b962e77abb0b7a70510faa0008677975f4e639026c0a9e72`. Phase 1 is integrated in GIT-103 `02a8057`; the historical prepublication Phase 1 heading below is superseded as to Git status.
 

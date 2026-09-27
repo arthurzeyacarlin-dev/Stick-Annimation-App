@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-27 — Publish and clean up SPEC-0015 Phase 2 (D-0148/GIT-104)
+
+- Exact 37-path commit `5f0fbb673e54d530889113115fba5f9c3c94b55f` (22 accepted technical plus 15 reviewed records/tree) fast-forwarded canonical `main` and pushed normally. Canonical/local-origin/live GitHub `main` matched clean `0/0`. This records-only closeout corrects the preceding historical prepublication entry; it does not change runtime bytes.
+- Preserved 32 ignored proof files/8,274,111 bytes at `output/recovery/GIT-104-spec0015-phase2-5f0fbb6/phase2`, full inventory SHA-256 `dde41452a8d391870ba9fbfd15cf5f3fed7d98dca92f15b34ce5745a40ca1801`, immutable technical manifest SHA-256 `4659c66ae6c88c09b962e77abb0b7a70510faa0008677975f4e639026c0a9e72`. The exact review server stopped, port 58540 closed and only the obsolete review worktree/merged local branch were removed. Four review-instance NDJSON files were not migrated; no user account or billed balance was deleted.
+- Phase 3 is ready for Arthur's separate authorization but remains Unauthorized / Not started. Grok/animation jobs, legacy route coverage, accounts, billing, AI limits, paid calls and deployment remain outside this closeout. GIT-105 separately publishes only the reviewed record/tree correction.
+
 ## 2026-09-27 — Accept and record SPEC-0015 Phase 2 local usage metering (D-0147; publication pending)
 
 - Arthur passed the Phase 2 review copy and PM V5 accepted its stopped exact 22-path result from integrated GIT-103 base `02a80577f562e9524d2e177c222d19f99f517278`, empty index and immutable manifest SHA-256 `4659c66ae6c88c09b962e77abb0b7a70510faa0008677975f4e639026c0a9e72`. This record also reconciles GIT-103's already-published Phase 1 state.

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-27 — Activate isolated local-account SPEC-0015 Phase 3 for later execution (D-0152; docs only)
+
+- Recorded Arthur's Phase 3-only implementation authorization, conditional on separate publication of this exact activation amendment from `e46b0fbb6c2a699a71e11fe12336b8f20e0725d4`. Selected pinned Better Auth/file-backed SQLite review accounts and a two-hour executor stop; deferred email verification/recovery and public hosting. No implementation starts from this docs edit alone.
+- Specified guided **Sign in / Log in / Continue privately** entry, signed-in bottom-left Menu avatar and blue one-button **Log out → entry** popover; removed the planned direct logout-to-guest flow and rejected fake selector/weekly-plan UI. Phase 4 account work and Phase 5 account usage remain separate.
+- Froze local privacy, ignored DB/secret hash-preservation and restore-before-D-0054, exact runtime/dependency/config/auth-route/server-door/fixture/test path and command ceilings, security/guest/protected proof. Accepted Phase 1–2, AI/provider/editor/Export/notifications, SPEC-0008, remote services and Git history remain unchanged. The drafting handoff records an empty index before separate publication.
+
 ## 2026-09-27 — Preserve rejected SPEC-0015 Phase 3 evidence; authorize Option B plan publication (D-0151)
 
 - PM hash-verified a 31-file recovery backup of the rejected, unpublished Phase 3 copy at `output/recovery/D-0150-rejected-spec0015-phase3-cfcdaf0/` in the PM worktree; aggregate SHA-256 `7d9bd58b6e879c952ae4fdbe6df14c5250a18dc0f47396792bd4e5a25b98449a`, technical-manifest SHA-256 `c3d173b37195bf472b17ed624278e0fc5ca81459eabdce755a27f18742a95115`. The exact port-58560 server stopped and the detached review worktree was archived. No rejected runtime was published.

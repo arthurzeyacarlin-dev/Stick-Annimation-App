@@ -1,9 +1,13 @@
 # Architecture and System Map
 
 Status: canonical architecture map, current vs intended distinguished
-Last traced: 2026-09-27 at GIT-105 `cfcdaf05dfa2faad02a9c291d4a2252ddbee8dfd` for D-0150 planning; the local app was unavailable for a fresh browser run. SPEC-0015 Phase 1 is integrated in GIT-103 `02a80577f562e9524d2e177c222d19f99f517278`; Phase 2 is integrated in GIT-104 `5f0fbb673e54d530889113115fba5f9c3c94b55f`.
+Last traced: 2026-09-27 at published Option B `e46b0fbb6c2a699a71e11fe12336b8f20e0725d4` for D-0152 planning; the local app was unavailable for a fresh browser run. SPEC-0015 Phase 1 is integrated in GIT-103 `02a80577f562e9524d2e177c222d19f99f517278`; Phase 2 is integrated in GIT-104 `5f0fbb673e54d530889113115fba5f9c3c94b55f`.
 
-## SPEC-0015 Option B architecture correction — planned, not implemented
+## SPEC-0015 Phase 3 selected local architecture — D-0152; planned, not implemented
+
+For one isolated loopback review copy, D-0152 selects Better Auth `1.7.6` with `better-sqlite3` `13.0.3`, file-backed minimal account/session records and seven-day server-verified sessions. The root entry makes **Sign in / Log in / Continue privately** distinct; the signed-in right-side Menu avatar exposes one-click **Log out → entry**. Local guest choice is server-owned, not a browser header, and account mode gates Home, Assistant, Credits and the root notification provider before guest stores/readers mount. Every existing API and `/dev/ai-costs` door applies the same account-versus-explicit-private policy on the server; a page layout cannot guard its nested Route Handler. Signed-in AI, project/chat data and usage remain unavailable until Phases 4–5. The review DB and secret stay ignored/restricted and must be hash-preserved/restore-tested before D-0054 retirement. Email is an unverified login identifier; recovery, email verification, cross-device/public hosting and account-owned data/usage are not implemented by Phase 3. The precise file/command/proof ceiling is SPEC-0015 §14.2. This record describes intended architecture; it does not itself establish publication or runtime behavior.
+
+## Historical SPEC-0015 Option B architecture correction — planned, not implemented
 
 Fresh source trace at GIT-105 `cfcdaf05dfa2faad02a9c291d4a2252ddbee8dfd`: `app/layout.tsx` mounts notification/scroll providers but no session owner; `AIcreditspage.tsx` renders inert Sign in/Log in/Sign out labels. `app/credits/page.tsx` mounts the accepted Dashboard, whose `dashboardSources.ts` reads every localStorage Project AI ledger and Assistant IndexedDB session on this browser without account provenance. The Phase 2 `/api/usage-journal` returns a `local_instance` aggregate from a content-free 90-day local journal without account identity. Animator/Assistant routes currently use job/project or local request checks, not verified account ownership; legacy `/api/ai` and service-role project-memory are privileged inventory. Arthur product-rejected the unpublished Dashboard-only Phase 3 because its Alex/Sam selector did not change the chart's local source.
 

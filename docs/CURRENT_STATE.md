@@ -1,6 +1,12 @@
 # Current State
 
-## Planning correction — 2026-09-27 D-0150; published product unchanged
+## D-0152 Phase 3 activation record — 2026-09-27; product unchanged by this record
+
+**Intended, not implemented:** Arthur has selected pinned Better Auth/file-backed SQLite for one isolated local-account Phase 3 review and authorized only that phase after separate publication of this exact docs amendment from `e46b0fbb6c2a699a71e11fe12336b8f20e0725d4`. Real persisted local users and server sessions, guided **Sign in / Log in / Continue privately**, a signed-in Menu avatar with one-click **Log out → entry**, and no automatic guest Home are the accepted outcome. Minimal display name, unverified login email, password hash and session records stay in the review copy; recovery/verification/public hosting remain later gates. The ignored DB/secret require restricted, hash-verified preservation and restore proof before D-0054 cleanup. Phase 4 account work and Phase 5 account usage are not included. The exact path/command/security proof ceiling is in SPEC-0015 §14.2. This docs-only amendment itself creates no account runtime or database; publication is verified separately, and Phases 4–8 remain Unauthorized / Not started.
+
+**Fresh source check:** canonical Home/credits/Assistant still mount guest readers and notifications without an auth boundary, and their current Account labels are inert. The port-3000 canonical app was unavailable for a fresh real-app observation; no Phase 3 live behavior is claimed. Published Phase 1–2 runtime and proofs remain unchanged.
+
+## Historical planning correction — 2026-09-27 D-0150; published product unchanged
 
 **Code verified:** global Account labels in `AIcreditspage.tsx` are inert; `app/layout.tsx` has no account session owner. `/credits` renders `AiDashboardScreen`, whose `dashboardSources.ts` scans all browser-local Terra ledgers and Assistant IndexedDB sessions without an account key. `/api/usage-journal` returns `scope: local_instance` behind a loopback check; its 90-day journal has no account field. Existing Project AI and Assistant routes validate local/job identities but not a verified app account, while legacy `/api/ai` and project-memory remain privileged inventory. The canonical local port-3000 app was unavailable for a fresh browser run; no new live behavior is claimed.
 

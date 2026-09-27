@@ -1,5 +1,11 @@
 # Session Handoff
 
+## D-0153 corrected Phase 3 handoff — 2026-09-27
+
+- Arthur rejected the unpublished `/eb02/` account placeholder copy. Preserve its exact dirty/proof/account DB/secret bytes in a restricted verified recovery set, stop its exact review server and retire it under D-0054 before creating the replacement.
+- The replacement has only Sign in / Log in at entry, three inert test-preview choices during new signup only, and the **existing full Diamond Animator** after either successful path. No Continue privately or signed-in placeholder. Browser-local app content/usage remain shared on this browser, not account-owned or billable; explicitly disclose that limitation. Do not edit the protected Home/AI/Dashboard/notification/editor/Export implementations. Phases 4–5 still own actual account data/usage.
+- This docs-only D-0153 amendment starts at clean `main`/`origin/main` `711ae40f58eb007dff37aa87ebaf364f41f6325b`. After reviewed docs-only publication and verified synchronization, the new Plan-mode Spec Executor starts from that exact new canonical SHA in a fresh dedicated worktree. Coding target ≤2h, bounded necessary extension about 3–3.5h. It stops after technical proof without staging/committing/pushing. The following D-0152 handoff is historical where conflicting.
+
 ## D-0152 publication and executor handoff — 2026-09-27
 
 - The dedicated clean docs worktree `/Users/arthurcarlin/.codex/worktrees/spec0015-app-account-plan/stick-animation-app` begins at exact published canonical/local-origin `main` `e46b0fbb6c2a699a71e11fe12336b8f20e0725d4`. D-0152 and SPEC-0015 §14.2 record Arthur's **Phase 3-only** implementation authorization and local Better Auth/SQLite, privacy, UX, exact path/command/proof ceiling. At the drafting review checkpoint, the index was empty and only reviewed docs were dirty; the architect stopped before staging, commit, push or publication. The separate publication operation verifies its own Git state.

@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-09-27 — Correct SPEC-0015 Phase 3 signed-in review contract (D-0153; docs only)
+
+- Arthur rejected the unpublished account placeholder copy: only Continue privately reached the existing app. The replacement entry has only Sign in / Log in; new-account signup selects an inert local test preview; both successful paths mount the existing full Home, Assistant, Dashboard, notifications, projects, tools and Export without recreating their behavior.
+- Phase 3 still has real local credentials/sessions but does **not** own browser-local projects, chats, notifications or usage; they may be shared across local logins and cannot be called private account data or a bill. Phases 4–5 remain unauthorized prerequisites to that claim. D-0152's conflicting three-choice/placeholder/hard-stop terms are historical. Target ≤2h coding with a necessary bounded extension toward ~3–3.5h. No runtime, account DB, provider, payment, deployment or Git publication changed by this docs amendment.
+
 ## 2026-09-27 — Activate isolated local-account SPEC-0015 Phase 3 for later execution (D-0152; docs only)
 
 - Recorded Arthur's Phase 3-only implementation authorization, conditional on separate publication of this exact activation amendment from `e46b0fbb6c2a699a71e11fe12336b8f20e0725d4`. Selected pinned Better Auth/file-backed SQLite review accounts and a two-hour executor stop; deferred email verification/recovery and public hosting. No implementation starts from this docs edit alone.

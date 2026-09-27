@@ -1,5 +1,9 @@
 # Current State
 
+## D-0153 Phase 3 correction — 2026-09-27; product unchanged by this record
+
+**Intended, not implemented in canonical main:** Arthur rejected the unpublished Phase 3 review copy because signed-in users saw placeholders and only Continue privately reached the actual app. The corrected Phase 3 entry offers Sign in and Log in only; signup adds one inert local test preview; both successful paths mount the existing full app. Browser-local projects/chats/notifications/Dashboard usage remain browser-local and may appear across logins on a shared browser; account-owned content and usage are still later phases. The rejected copy is recovery evidence, not accepted code. This docs-only correction changes no runtime or account database. See SPEC-0015 §14.2 and D-0153. D-0152 below is historical where conflicting.
+
 ## D-0152 Phase 3 activation record — 2026-09-27; product unchanged by this record
 
 **Intended, not implemented:** Arthur has selected pinned Better Auth/file-backed SQLite for one isolated local-account Phase 3 review and authorized only that phase after separate publication of this exact docs amendment from `e46b0fbb6c2a699a71e11fe12336b8f20e0725d4`. Real persisted local users and server sessions, guided **Sign in / Log in / Continue privately**, a signed-in Menu avatar with one-click **Log out → entry**, and no automatic guest Home are the accepted outcome. Minimal display name, unverified login email, password hash and session records stay in the review copy; recovery/verification/public hosting remain later gates. The ignored DB/secret require restricted, hash-verified preservation and restore proof before D-0054 cleanup. Phase 4 account work and Phase 5 account usage are not included. The exact path/command/security proof ceiling is in SPEC-0015 §14.2. This docs-only amendment itself creates no account runtime or database; publication is verified separately, and Phases 4–8 remain Unauthorized / Not started.

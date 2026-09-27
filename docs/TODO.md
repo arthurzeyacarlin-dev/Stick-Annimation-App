@@ -1,5 +1,9 @@
 # TODO
 
+## D-0153 corrected Phase 3 priority
+
+- [ ] **DASH-015-3-CORRECTION — Replace rejected signed-in placeholder.** Preserve/retire the `/eb02/` review copy under D-0054, publish the corrected §14.2 plan from clean `711ae40f58eb007dff37aa87ebaf364f41f6325b`, then start one fresh exact-main Plan-mode executor. Entry is Sign in / Log in only; signup-only Starter/Creator/Studio local test previews are inert; both successful paths show the existing full app. Browser-local content/usage stay shared and are not account-owned; account data/usage remain Phases 4–5. Target ≤2h implementation, extend only if genuinely necessary toward ~3–3.5h. No public launch or payment/AI behavior change. D-0152 task text below is historical where conflicting.
+
 ## Revised SPEC-0015 Option B sequence — Phase 3 activation record, Phases 4–8 planning only
 
 - [x] **PLAN-015 — Create and accept SPEC-0015 Phase 1 planning records.** D-0144 records research authority; D-0145 records Arthur/PM acceptance and docs-only publication authority. [SPEC-0015 — Functional AI Dashboard, Usage, Accounts and Billing](specs/0015-functional-ai-dashboard.md) defines the exact Phase 1 preview, final funded-depletion math, six-phase path and later gates. Planning acceptance is not product implementation.

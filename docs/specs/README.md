@@ -3,6 +3,10 @@
 Status: canonical spec registry
 Last updated: 2026-09-27
 
+## Phase 3 correction — SPEC-0015 D-0153
+
+Arthur rejected the unpublished Phase 3 signed-in placeholder and approved one narrow replacement. Current [§14.2](0015-functional-ai-dashboard.md) requires exactly Sign in / Log in, three inert local test preview choices during new-account creation only, and the **existing** Home/Assistant/Dashboard/notifications/projects/tools/Export after either successful path. Browser-local content and usage are not yet owned by accounts and must not be represented as private per-account data; Phases 4–5 remain unauthorized. The D-0152 entry/placeholder text below is historical where it conflicts. D-0054 cleanup and separate docs-only publication precede a fresh exact-main Plan-mode executor; target two hours, extend only if genuinely needed toward about three to three-and-a-half hours.
+
 ## Phase 3 activation record — SPEC-0015 D-0152
 
 Arthur has authorized one fresh **Phase 3-only** implementation after this exact docs amendment is separately published from clean Option B base `e46b0fbb6c2a699a71e11fe12336b8f20e0725d4`. [SPEC-0015 §14.2](0015-functional-ai-dashboard.md) pins real local Better Auth/SQLite accounts, an explicit three-choice entry, the signed-in Menu avatar and one-click Log out to entry, guest/account isolation, privacy/backup/restore rules, path/command ceiling and a two-hour executor stop. This activation is **owner-authorized / Not started**; the publication check is separate, and a fresh dedicated Plan-mode executor must use the resulting published canonical SHA. Phases 4–8 remain Unauthorized / Not started. Accepted Phase 1–2 behavior, rejected-copy non-reuse and paused SPEC-0008 are unchanged.

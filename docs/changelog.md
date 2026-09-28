@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-09-28 — Amend SPEC-0015 Phase 4 into bounded 4A–4E milestones (D-0156; docs only)
+
+- Recorded Arthur's **Amend then new executor** choice from exact clean canonical base `07040d4710be6601fc846d381d07a981decee8dc`; only 4A becomes owner-authorized after separate review/publication and remains Not started.
+- Made 4A decision-complete for account-saved projects/immutable versions/private asset chunks, owner-guarded Project AI, fresh Supabase namespace/security/transactions/resumable upload, exact path ceiling, James/Jack/fault/protected-flow proof and a two-hour target/hard three-and-a-half-hour stop.
+- Recorded live proof that existing Unified V2/local project metadata has no durable Better Auth owner and Arthur's hard no-transfer/import rule. 4A review must use a fresh zero-legacy browser origin. G-LEGACY-LOCAL-PRESERVATION blocks implementation publication/activation on an origin containing unowned local projects; this amendment claims neither full-main rollout nor full Phase 4 completion.
+- Preserved the accepted Better Auth Sign in/Log in/Log out and full app, browser-local non-account-owned chats/jobs/notifications/usage/preferences, local Export and local project bytes. Deferred hosted Better Auth identity/recovery to 4B, account chats/jobs/notifications/recovery/preferences to 4C, the required private MP4 account archive to 4D and closure to 4E; G-ARCHIVE-MODE defers only automatic enqueue versus opt-in.
+- Made no runtime, auth database/secret, Supabase object/data, review data, provider, deployment, Git index, commit or remote change. The amendment requires a separate publication before a fresh 4A executor.
+
 ## 2026-09-28 — Publish/activate SPEC-0015 Phase 3 locally and preserve/retire review copy (D-0155; records-only closeout)
 
 - Exact 43-path accepted product/control-plane commit `b3607ae7ed1e88294bf61bb514d6acc39fe62ba0` was pushed and synchronized across canonical `main`, `origin/main` and live remote at clean `0/0`. Pinned dependencies and a new restricted ignored main account store passed prepare/migrate/schema checks with zero initial users/sessions; no review account was imported.

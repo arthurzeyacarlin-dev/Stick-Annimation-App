@@ -6,7 +6,6 @@
 ./app
 ./app/ScrollbarActivity.tsx
 ./app/api
-./app/api/account
 ./app/api/ai
 ./app/api/ai-animator
 ./app/api/ai-animator/route.ts
@@ -307,8 +306,6 @@
 ./scripts/fixtures/spec0014-notifications/phase-2/contract.json
 ./scripts/fixtures/spec0014-notifications/phase-4
 ./scripts/fixtures/spec0014-notifications/phase-4/contract.json
-./scripts/fixtures/spec0015-account
-./scripts/fixtures/spec0015-account/phase3
 ./scripts/fixtures/spec0015-dashboard
 ./scripts/fixtures/spec0015-dashboard/phase1.json
 ./scripts/fixtures/spec0015-dashboard/phase2.json

@@ -1,8 +1,12 @@
 # Roadmap
 
+## SPEC-0015 Phase 4A planning gate — D-0156
+
+Arthur selected **Amend then new executor** and prohibits cross-account/unowned-local project transfer/import. Phase 4 is sequenced as 4A account-saved projects, 4B hosted Better Auth identity/recovery, 4C account chats/jobs/notifications/recovery/preferences, 4D required private MP4 account archive and 4E closure. After separate amendment publication, a fresh 4A executor reviews only a fresh zero-legacy origin and proves James/Jack isolation plus protected flows. G-LEGACY-LOCAL-PRESERVATION blocks implementation publication/activation on legacy-bearing origins. G-ARCHIVE-MODE later selects automatic enqueue versus opt-in without making 4D's archive optional. 4B–4E and Phases 5–8 remain unauthorized; full Phase 4 is not done or promised by 4A, regardless of today's deadline.
+
 ## SPEC-0015 Phase 3 published local checkpoint — D-0155
 
-Phase 3's accepted 28 technical paths at corrected manifest SHA-256 `fd6a82ee6716469f5da0257dfbea12491c8f56252dfd74a11b0b36640e6f5648` were published with 15 reviewed control-plane/tree paths in exact commit `b3607ae7ed1e88294bf61bb514d6acc39fe62ba0`. Canonical/local-origin/live-remote main matched clean `0/0`; pinned dependencies, fresh separate main-local account store and safe port-3000 cutover passed. Review accounts were not imported, and D-0054 preserved/retired the review copy. Phase 3 is Verified/published/integrated locally. Phases 4–8 remain Unauthorized / Not started; Phase 4 requires Arthur's separate instruction. The D-0152 activation text below is historical where it conflicts with D-0153/D-0155.
+Phase 3's accepted 28 technical paths at corrected manifest SHA-256 `fd6a82ee6716469f5da0257dfbea12491c8f56252dfd74a11b0b36640e6f5648` were published with 15 reviewed control-plane/tree paths in exact commit `b3607ae7ed1e88294bf61bb514d6acc39fe62ba0`. Canonical/local-origin/live-remote main matched clean `0/0`; pinned dependencies, fresh separate main-local account store and safe port-3000 cutover passed. Review accounts were not imported, and D-0054 preserved/retired the review copy. Phase 3 is Verified/published/integrated locally. D-0156 later supplies the separate narrow Phase 4A authority described above. The D-0152 activation text below is historical where it conflicts with D-0153/D-0155.
 
 ## SPEC-0015 Phase 3 activation record — D-0152
 

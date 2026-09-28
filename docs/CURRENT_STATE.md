@@ -1,6 +1,14 @@
 # Current State
 
-## D-0154 accepted Phase 3 review result — 2026-09-28; unpublished
+## D-0155 Phase 3 published, locally activated and cleaned up — 2026-09-28
+
+**Publication verified:** exact 43-path commit `b3607ae7ed1e88294bf61bb514d6acc39fe62ba0` contains 28 accepted technical and 15 reviewed control-plane/tree paths. Canonical `main`, local `origin/main` and live remote matched clean `0/0`. The accepted corrected manifest is SHA-256 `fd6a82ee6716469f5da0257dfbea12491c8f56252dfd74a11b0b36640e6f5648`; the earlier manifest is preserved at `3b60c3a7b028e49c98db2578502587e65478ff2fcc65562028f87da2dfa803d9`.
+
+**Local activation verified:** pinned dependencies were installed and a distinct ignored canonical-main account store was prepared, migrated, prepared again and schema-checked. It initially had zero users/sessions; the directory/files had final 0700/0600 permissions. The old port-3000 process was stopped before the fast-forward. Restarted canonical `127.0.0.1:3000` served Home and auth with HTTP 200; unauthenticated usage returned 401 and wrong-Host usage 403. The 27-check local-origin oracle passed. Review-account records and secret were not imported. This proves local activation, not public/multi-user deployment or account ownership of browser-local content.
+
+**D-0054 cleanup verified:** the exact review PID was stopped, port 58580 closed, the accepted review worktree archived, and the merged local publication branch deleted. Restricted ignored recovery at `/Users/arthurcarlin/Projects/stick-animation-app/.local/recovery/spec0015-phase3-review-20260928` retains the review account store and proof; byte-for-byte directory comparison and SQLite integrity passed with two review users/zero sessions. No secret contents are in Git or this record. The broad canonical-main TypeScript diagnostic scan found 1,028 errors only in inherited ignored `output/**` recovery files and zero tracked-source errors; accepted review TypeScript passed. Phase 4–8 remain unauthorized; no account-owned project/chat/job/notification store, account usage/billing, public deployment or SPEC-0008 resumption is established. The D-0154 section below is a historical prepublication checkpoint.
+
+## D-0154 accepted Phase 3 review result — 2026-09-28; historical prepublication checkpoint
 
 **Live verified in the isolated review app:** Arthur passed the corrected Sign in and Log in flow at `http://127.0.0.1:58580`; both enter the existing full Diamond Animator. Signup alone asks for one inert, labeled local test preview; the existing Menu avatar logs out to the two-choice entry. Home, Dashboard TEST PREVIEW, Assistant, projects, notifications, editor/tools and Export remain available through their existing browser-local owners. PM subsequently ran two live AI checks after restarting the review server with the existing main-app OpenAI key in process environment only: Assistant and Project AI both replied. The accepted browser-local projects/chats/notifications/usage and guided-setup preferences may be shared across accounts on the same browser; account-owned data and per-account usage are not implemented.
 

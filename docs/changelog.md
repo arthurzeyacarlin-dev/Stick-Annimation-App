@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-28 — Publish/activate SPEC-0015 Phase 3 locally and preserve/retire review copy (D-0155; records-only closeout)
+
+- Exact 43-path accepted product/control-plane commit `b3607ae7ed1e88294bf61bb514d6acc39fe62ba0` was pushed and synchronized across canonical `main`, `origin/main` and live remote at clean `0/0`. Pinned dependencies and a new restricted ignored main account store passed prepare/migrate/schema checks with zero initial users/sessions; no review account was imported.
+- Canonical port-3000 Home/auth returned 200, unauthenticated usage 401, wrong-Host usage 403, and 27 origin checks passed. The broad main TypeScript check has 1,028 inherited ignored `output/**` diagnostics and zero tracked-source diagnostics; accepted review TypeScript passed.
+- D-0054 preserved the two-user/zero-session review account store and both manifest versions in restricted ignored recovery at `/Users/arthurcarlin/Projects/stick-animation-app/.local/recovery/spec0015-phase3-review-20260928`, with byte-for-byte directory comparison and SQLite integrity passing; it then closed port 58580, archived the review worktree and deleted only the merged local publication branch. No secret contents were recorded. Phase 4–8 authorization, public deployment, account-owned content/usage and billing remain absent. This docs-only successor changes no runtime or proof byte.
+
 ## 2026-09-28 — Accept corrected SPEC-0015 Phase 3 review result (D-0154; control-plane only)
 
 - Arthur passed the Sign in / Log in review copy; PM accepted 28 frozen technical paths from `c53ed494d55f8314ed9d07783fbb1765615c01e6` at ignored manifest SHA-256 `fd6a82ee6716469f5da0257dfbea12491c8f56252dfd74a11b0b36640e6f5648`. The pre-correction manifest remains preserved at SHA-256 `3b60c3a7b028e49c98db2578502587e65478ff2fcc65562028f87da2dfa803d9`.

@@ -1,7 +1,9 @@
 # AI System Snapshot
 
 Status: canonical current AI architecture and gap map
-Last traced: 2026-09-28 in the accepted, unpublished SPEC-0015 Phase 3 review copy. SPEC-0008 Phases 2–6 remain paused; SPEC-0014 Phase 3 Export remains rejected and Phase 4 is published; public beta and deployment remain unauthorized.
+Last traced: 2026-09-28 in the accepted SPEC-0015 Phase 3 review copy; its exact `b3607ae7ed1e88294bf61bb514d6acc39fe62ba0` product commit is now published/integrated and locally active on port 3000. SPEC-0008 Phases 2–6 remain paused; SPEC-0014 Phase 3 Export remains rejected and Phase 4 is published; public beta and deployment remain unauthorized.
+
+**D-0155 local publication update:** The D-0154 review AI boundary below is now published on canonical main with a separate fresh local account store; port-3000 Home/auth and guarded-route checks passed. The later two review-provider calls remain separate from sealed proof. Browser-local chats/projects/usage are still not account-owned or billable. The D-0154 paragraph's unpublished/cutover-pending wording is historical.
 
 **D-0154 accepted review AI boundary:** Real signed-in local users reach the existing full Project AI and Guidance Assistant paths. The accepted Phase 3 changes their route admission to require a verified local session and trusted loopback origin, while preserving the current AI model, prompt, search, dictation, retry, reply and tools implementation. The sealed executor proof recorded zero paid provider calls. Later, PM ran one Assistant and one Project AI request with the existing OpenAI key supplied only to the review-server process; both replied. Those live calls are separate from the sealed proof and do not prove account ownership or a canonical port-3000 cutover. Existing project/chat data and Dashboard receipts remain shared browser-local data, not per-account history. The Phase 2 journal remains a local-instance observation, not a bill. The accepted technical result is unpublished; after publication the separate main store/provisioning and live activation gate must pass. No Grok/animation job, real allowance, payment or SPEC-0008 resumption is added.
 

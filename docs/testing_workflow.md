@@ -3,7 +3,11 @@
 Status: canonical proof standard and current gate baseline
 Last updated: 2026-09-28
 
-## SPEC-0015 Phase 3 accepted technical proof — D-0154; unpublished
+## SPEC-0015 Phase 3 published/local verification — D-0155
+
+The accepted D-0154 proof below was published in exact 43-path commit `b3607ae7ed1e88294bf61bb514d6acc39fe62ba0`, with clean canonical/local-origin/live-remote `main` synchronization. The main-local fresh auth store passed pinned-dependency prepare → migrate → prepare → schema-check, zero initial users/sessions and 0700/0600 permissions. Canonical port-3000 Home/auth returned HTTP 200, unauthenticated usage 401, wrong-Host usage 403, and 27 local-origin checks passed; no review account was imported. The accepted review TypeScript check passed. A broad main TypeScript scan reported 1,028 diagnostics only in inherited ignored `output/**` recovery files, zero tracked-source diagnostics, so it is not a broad-check pass. D-0054 preserved review proof/account bytes in restricted ignored recovery and then closed 58580/retired the review copy. The D-0154 paragraph below is historical prepublication proof.
+
+## SPEC-0015 Phase 3 accepted technical proof — D-0154; historical prepublication checkpoint
 
 Arthur passed the corrected Sign in / Log in review UI. PM accepted the stopped executor's exact 28-path result at detached base/HEAD `c53ed494d55f8314ed9d07783fbb1765615c01e6`, empty index. Corrected ignored manifest SHA-256 `fd6a82ee6716469f5da0257dfbea12491c8f56252dfd74a11b0b36640e6f5648` contains 28 implementation, 14 artifact and seven protected-sentinel bindings; preserved pre-correction manifest SHA-256 is `3b60c3a7b028e49c98db2578502587e65478ff2fcc65562028f87da2dfa803d9`. The strict validator passed before CPA docs propagation. The Phase 3 oracle passed 69 checks; the local-origin oracle passed 27 checks for configured 3000/58580, rejected Host/Origin and disallowed port. TypeScript, focused lint with zero errors and 12 inherited warnings, production build and `git diff --check` passed. The accepted real-browser flow covers A/B signup/login/logout, persistence/restart, two-tab revocation, entry/Home/Dashboard/Assistant/editor/tools/Export and compact layout. The isolated main-style prepare/migrate/schema rehearsal passed with zero users/sessions and final 0700/0600 permissions. After docs/tree propagation, recheck every implementation/artifact hash and protected sentinel independently; the strict validator's exact technical-only dirty set is a pre-propagation condition.
 

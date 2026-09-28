@@ -1,8 +1,8 @@
 # Roadmap
 
-## SPEC-0015 Phase 3 accepted review checkpoint — D-0154
+## SPEC-0015 Phase 3 published local checkpoint — D-0155
 
-Phase 3 is accepted and technically Verified in the isolated local review copy, with 28 frozen technical paths at corrected manifest SHA-256 `fd6a82ee6716469f5da0257dfbea12491c8f56252dfd74a11b0b36640e6f5648`. It remains unpublished and inactive on canonical `main`. Separate publication and the safe port-3000 fresh-store cutover come next; review accounts are not imported. Phases 4–8 remain Unauthorized / Not started. The D-0152 activation text below is historical where it conflicts with D-0153/D-0154.
+Phase 3's accepted 28 technical paths at corrected manifest SHA-256 `fd6a82ee6716469f5da0257dfbea12491c8f56252dfd74a11b0b36640e6f5648` were published with 15 reviewed control-plane/tree paths in exact commit `b3607ae7ed1e88294bf61bb514d6acc39fe62ba0`. Canonical/local-origin/live-remote main matched clean `0/0`; pinned dependencies, fresh separate main-local account store and safe port-3000 cutover passed. Review accounts were not imported, and D-0054 preserved/retired the review copy. Phase 3 is Verified/published/integrated locally. Phases 4–8 remain Unauthorized / Not started; Phase 4 requires Arthur's separate instruction. The D-0152 activation text below is historical where it conflicts with D-0153/D-0155.
 
 ## SPEC-0015 Phase 3 activation record — D-0152
 

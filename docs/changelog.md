@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-28 — Accept corrected SPEC-0015 Phase 3 review result (D-0154; control-plane only)
+
+- Arthur passed the Sign in / Log in review copy; PM accepted 28 frozen technical paths from `c53ed494d55f8314ed9d07783fbb1765615c01e6` at ignored manifest SHA-256 `fd6a82ee6716469f5da0257dfbea12491c8f56252dfd74a11b0b36640e6f5648`. The pre-correction manifest remains preserved at SHA-256 `3b60c3a7b028e49c98db2578502587e65478ff2fcc65562028f87da2dfa803d9`.
+- The accepted local-origin correction supports only configured loopback ports 3000/58580; a 27-check oracle, strict manifest validation, TypeScript, focused lint, production build and diff check passed. The review server restarted and served Home/auth; two later PM live Assistant/Project AI calls replied with the existing key in process environment only, separate from the executor's zero-paid-call proof.
+- Browser-local projects/chats/notifications/usage remain shared across logins, not account-owned. The accepted result is unpublished. Canonical main needs a safe stop of its current port-3000 server, a separate fresh ignored store/secret with pinned dependency migration and 0700/0600 verification, then restart/live checks. No review-account import, Phase 4–8 implementation, account billing, deployment or Git publication occurred in this CPA record.
+
 ## 2026-09-27 — Correct SPEC-0015 Phase 3 signed-in review contract (D-0153; docs only)
 
 - Arthur rejected the unpublished account placeholder copy: only Continue privately reached the existing app. The replacement entry has only Sign in / Log in; new-account signup selects an inert local test preview; both successful paths mount the existing full Home, Assistant, Dashboard, notifications, projects, tools and Export without recreating their behavior.

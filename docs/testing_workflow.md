@@ -1,9 +1,15 @@
 # Verification and Regression Workflow
 
 Status: canonical proof standard and current gate baseline
-Last updated: 2026-09-27
+Last updated: 2026-09-28
 
-## SPEC-0015 Phase 3 activation proof — D-0152; not yet executed
+## SPEC-0015 Phase 3 accepted technical proof — D-0154; unpublished
+
+Arthur passed the corrected Sign in / Log in review UI. PM accepted the stopped executor's exact 28-path result at detached base/HEAD `c53ed494d55f8314ed9d07783fbb1765615c01e6`, empty index. Corrected ignored manifest SHA-256 `fd6a82ee6716469f5da0257dfbea12491c8f56252dfd74a11b0b36640e6f5648` contains 28 implementation, 14 artifact and seven protected-sentinel bindings; preserved pre-correction manifest SHA-256 is `3b60c3a7b028e49c98db2578502587e65478ff2fcc65562028f87da2dfa803d9`. The strict validator passed before CPA docs propagation. The Phase 3 oracle passed 69 checks; the local-origin oracle passed 27 checks for configured 3000/58580, rejected Host/Origin and disallowed port. TypeScript, focused lint with zero errors and 12 inherited warnings, production build and `git diff --check` passed. The accepted real-browser flow covers A/B signup/login/logout, persistence/restart, two-tab revocation, entry/Home/Dashboard/Assistant/editor/tools/Export and compact layout. The isolated main-style prepare/migrate/schema rehearsal passed with zero users/sessions and final 0700/0600 permissions. After docs/tree propagation, recheck every implementation/artifact hash and protected sentinel independently; the strict validator's exact technical-only dirty set is a pre-propagation condition.
+
+The reviewed server restarted on corrected source at `127.0.0.1:58580`; Home and auth HTTP returned 200. Its ignored ordinary store has two user-created accounts and zero current sessions. The executor's zero paid-provider-call proof is historical; PM later made two live Assistant/Project AI calls with the existing key in process environment only, and both replied. Canonical main at port 3000 is **not yet** runtime-verified with Phase 3: its separate ignored store must be safely provisioned and its existing server stopped before integration, then restarted and checked. Do not import the review accounts. Browser-local content/usage can be shared across logins; Phase 4/5 ownership is unproven. Physical devices, public hosting, email verification/recovery and financial behavior remain unproven.
+
+## Historical SPEC-0015 Phase 3 activation proof — D-0152; superseded
 
 The new exact proof contract is [SPEC-0015 §14.2](specs/0015-functional-ai-dashboard.md): real file-backed Better Auth A/B signup/login and restart persistence; explicit private choice; avatar/popover placement and one-click server revocation to entry; seven-day expiry, tabs/back/stale-response/cache isolation; every listed route method, forged session/guest-choice/account/origin/Host/CSRF rejection; signed-in guest-reader/notification non-mount; protected private Project AI, Assistant/search/dictation, projects, bells, editor and Export; no public reset/verification claim; no personal data or secrets in proof; zero real provider/paid calls; exact source/evidence manifest, focused code gates and the inherited full-build failure reported honestly. Before D-0054 retirement, independently hash-inventory, restricted-backup and restore-test the ignored account DB/sidecars and secret. This is planning only: no Phase 3 browser, account, restore or runtime result is yet proven. The executor stops at two hours if proof is incomplete.
 

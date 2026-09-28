@@ -3,12 +3,15 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { NotificationTrigger } from "@/src/components/notifications/NotificationTrigger";
+import { useAccountSession } from "@/src/components/account/AccountSessionProvider";
+import { ACCOUNT_PREVIEW_PLANS } from "@/src/lib/account/accountConfig";
 
 type AppChromeProps = {
   theme?: "default" | "home";
 };
 
 export function AppChrome({ theme = "default" }: AppChromeProps) {
+  const account = useAccountSession();
   const [menuHover, setMenuHover] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
@@ -16,6 +19,9 @@ export function AppChrome({ theme = "default" }: AppChromeProps) {
   const [menuView, setMenuView] = useState<"root" | "about" | "terms" | "settings">("root");
   const [homeHover, setHomeHover] = useState(false);
   const [creditsHover, setCreditsHover] = useState(false);
+  const [logoutBusy, setLogoutBusy] = useState(false);
+  const [logoutError, setLogoutError] = useState<string | null>(null);
+  const [accountPopoverOpen, setAccountPopoverOpen] = useState(false);
   const isHomeTheme = theme === "home";
   const isHomeActive = isHomeTheme;
   const isCreditsActive = !isHomeTheme;
@@ -48,7 +54,6 @@ export function AppChrome({ theme = "default" }: AppChromeProps) {
     "linear-gradient(180deg, rgba(11,19,32,0.94) 0%, rgba(9,16,28,0.96) 100%)";
   const panelItemSupportBackground =
     "linear-gradient(180deg, rgba(15,25,41,0.96) 0%, rgba(11,19,33,0.96) 100%)";
-  const panelItemAccountBackground = "rgba(8, 14, 24, 0.74)";
   const panelTextColor = "rgba(232, 238, 247, 0.90)";
   const panelTextMutedColor = "rgba(174, 188, 207, 0.76)";
   const modalOverlayBackground = "rgba(2,6,16,0.64)";
@@ -73,6 +78,7 @@ export function AppChrome({ theme = "default" }: AppChromeProps) {
         setAboutOpen(false);
         setTermsOpen(false);
         setMenuView("root");
+        setAccountPopoverOpen(false);
       }
     };
 
@@ -85,6 +91,30 @@ export function AppChrome({ theme = "default" }: AppChromeProps) {
     setAboutOpen(false);
     setTermsOpen(false);
     setMenuView("root");
+    setAccountPopoverOpen(false);
+  };
+
+  const previewPlanLabel = account
+    ? ACCOUNT_PREVIEW_PLANS.find((plan) => plan.id === account.previewPlan)?.label ?? "Starter Preview"
+    : null;
+  const accountInitial = (account?.name || account?.email || "A").trim().slice(0, 1).toUpperCase();
+
+  const logOut = async () => {
+    if (logoutBusy) return;
+    setLogoutBusy(true);
+    setLogoutError(null);
+    try {
+      const response = await fetch("/api/auth/sign-out", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: "{}",
+      });
+      if (!response.ok) throw new Error("logout_failed");
+      window.location.assign("/");
+    } catch {
+      setLogoutError("Log out could not be completed. Try again.");
+      setLogoutBusy(false);
+    }
   };
 
   return (
@@ -692,38 +722,67 @@ export function AppChrome({ theme = "default" }: AppChromeProps) {
           </div>
         </div>
 
-        <div style={{ height: "18px" }} />
-
-        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-          <div
-            style={{
-              fontSize: "12px",
-              letterSpacing: "0.12em",
-              textTransform: "uppercase",
-              color: sectionLabelColor,
-            }}
-          >
-            Account
-          </div>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            {["Sign in", "Log in", "Sign out"].map((label) => (
+        {account && (
+          <div style={{ marginTop: "auto", position: "relative", alignSelf: "flex-start" }}>
+            {accountPopoverOpen && (
               <div
-                key={label}
+                role="dialog"
+                aria-label="Account actions"
                 style={{
-                  padding: "10px 10px",
-                  borderRadius: "10px",
-                  border: panelItemBorder,
-                  background: panelItemAccountBackground,
-                  color: panelTextMutedColor,
-                  fontSize: "13px",
+                  position: "absolute",
+                  left: "52px",
+                  bottom: 0,
+                  width: "208px",
+                  padding: "11px",
+                  borderRadius: "12px",
+                  border: "1px solid rgba(104,181,255,0.72)",
+                  background: "linear-gradient(180deg,rgba(18,85,170,0.98),rgba(10,55,121,0.98))",
+                  boxShadow: "0 14px 36px rgba(0,0,0,0.38)",
+                  color: "white",
+                  fontSize: "11px",
+                  lineHeight: 1.4,
                 }}
               >
-                {label}
+                <div style={{ fontWeight: 800, fontSize: "12px", overflowWrap: "anywhere" }}>{account.name || account.email}</div>
+                <div style={{ opacity: 0.78, overflowWrap: "anywhere" }}>{account.email}</div>
+                <div style={{ marginTop: "5px", opacity: 0.84 }}>{previewPlanLabel} · Local test preview</div>
+                <div style={{ marginTop: "4px", opacity: 0.72 }}>No paid plan or real allowance. Browser work remains shared.</div>
+                <button
+                  type="button"
+                  onClick={logOut}
+                  disabled={logoutBusy}
+                  style={{ width: "100%", marginTop: "9px", padding: "8px 10px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.5)", background: "rgba(3,29,67,0.72)", color: "white", fontSize: "12px", fontWeight: 800, cursor: logoutBusy ? "wait" : "pointer" }}
+                >
+                  {logoutBusy ? "Logging out…" : "Log out"}
+                </button>
+                {logoutError && <div role="alert" style={{ color: "#ffd0cc", fontSize: "11px", marginTop: "6px" }}>{logoutError}</div>}
               </div>
-            ))}
+            )}
+            <button
+              type="button"
+              aria-label={`Account for ${account.name || account.email}`}
+              aria-expanded={accountPopoverOpen}
+              onClick={() => { setAccountPopoverOpen((open) => !open); setLogoutError(null); }}
+              title={account.email}
+              style={{
+                width: "42px",
+                height: "42px",
+                borderRadius: "50%",
+                display: "grid",
+                placeItems: "center",
+                border: "1px solid rgba(94,165,255,0.72)",
+                background: "linear-gradient(180deg,rgba(25,92,172,0.98),rgba(12,53,108,0.98))",
+                boxShadow: "0 8px 18px rgba(0,0,0,0.28)",
+                color: "white",
+                fontSize: "15px",
+                fontWeight: 850,
+                cursor: "pointer",
+              }}
+            >
+              {accountInitial}
+            </button>
           </div>
-        </div>
+        )}
       </aside>
 
       {aboutOpen && (

@@ -39,6 +39,7 @@ import {
   type DrawingAiWorkspaceType,
   type DrawingAiWorkspaceContext,
 } from "@/src/lib/ai/drawingAiContract";
+import { requireAccountRequest } from "@/src/lib/account/access";
 import {
   appendDevAiCostLogEntry,
   getCurrentDevAiRequestUsageSummary,
@@ -2046,10 +2047,14 @@ const buildVoicePlaceholderSoundOption = (
 };
 
 export async function GET(req: Request) {
+  const access = await requireAccountRequest(req);
+  if ("response" in access) return access.response;
   return handleStickFigureAiAvailabilityGet(req);
 }
 
 export async function POST(req: Request) {
+  const access = await requireAccountRequest(req);
+  if ("response" in access) return access.response;
   const stickFigureAiResponse = await dispatchStickFigureAiPost(req);
   if (stickFigureAiResponse !== null) return stickFigureAiResponse;
 

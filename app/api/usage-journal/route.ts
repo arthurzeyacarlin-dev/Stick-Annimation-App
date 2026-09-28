@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { readUsageSummary } from "@/src/lib/usage-journal/usageJournalRuntime";
+import { requireAccountRequest } from "@/src/lib/account/access";
 
 export const runtime = "nodejs";
 const localRequest = (request: Request) => {
@@ -10,6 +11,8 @@ const localRequest = (request: Request) => {
 };
 
 export async function GET(request: Request) {
+  const access = await requireAccountRequest(request);
+  if ("response" in access) return access.response;
   if (!localRequest(request)) return NextResponse.json({ error: "Usage records are limited to this local app." }, { status: 403 });
   try {
     return NextResponse.json(await readUsageSummary(), { headers: { "Cache-Control": "no-store" } });

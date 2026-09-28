@@ -1,5 +1,6 @@
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
+import { requireAccountRequest } from "@/src/lib/account/access";
 
 import {
   DEV_AI_COST_DASHBOARD_ROUTE,
@@ -17,6 +18,8 @@ const getSafeReturnTo = (value: FormDataEntryValue | null) => {
 };
 
 export async function POST(request: Request) {
+  const access = await requireAccountRequest(request);
+  if ("response" in access) return access.response;
   const requestHost = request.headers.get("x-forwarded-host") ?? request.headers.get("host");
   if (!isDevAiCostDashboardEnabledForRequestHost(requestHost)) {
     return new NextResponse("Not found", { status: 404 });

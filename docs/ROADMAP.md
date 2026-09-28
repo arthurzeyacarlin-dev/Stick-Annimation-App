@@ -1,5 +1,9 @@
 # Roadmap
 
+## SPEC-0015 Phase 3 accepted review checkpoint — D-0154
+
+Phase 3 is accepted and technically Verified in the isolated local review copy, with 28 frozen technical paths at corrected manifest SHA-256 `fd6a82ee6716469f5da0257dfbea12491c8f56252dfd74a11b0b36640e6f5648`. It remains unpublished and inactive on canonical `main`. Separate publication and the safe port-3000 fresh-store cutover come next; review accounts are not imported. Phases 4–8 remain Unauthorized / Not started. The D-0152 activation text below is historical where it conflicts with D-0153/D-0154.
+
 ## SPEC-0015 Phase 3 activation record — D-0152
 
 Arthur has authorized only revised Phase 3 implementation after this docs-only activation amendment is reviewed and separately published from clean canonical `e46b0fbb6c2a699a71e11fe12336b8f20e0725d4`. The selected isolated local-account stack and **Sign in / Log in / Continue privately → signed-in avatar → Log out to entry** flow are in [SPEC-0015 §14.2](specs/0015-functional-ai-dashboard.md). Email recovery/verification and public hosting remain later gates; account projects/chats/jobs stay in Phase 4 and account usage in Phase 5. Phase 3 is owner-authorized / Not started, Phases 4–8 Unauthorized / Not started; accepted Phases 1–2 and paused SPEC-0008 are unchanged. This record by itself neither implements the app nor proves Git publication.
@@ -9,7 +13,7 @@ Arthur has authorized only revised Phase 3 implementation after this docs-only a
 D-0146/GIT-103 and D-0147/D-0148/GIT-104 preserve the accepted/published first two [SPEC-0015](specs/0015-functional-ai-dashboard.md) phases: guest browser-local TEST PREVIEW and the separate 90-day local observational journal. D-0149 verifies GIT-105 records-only closeout at `cfcdaf05dfa2faad02a9c291d4a2252ddbee8dfd`. Arthur product-rejected the isolated Dashboard-only Alex/Sam Phase 3 copy; its bytes remain unpublished and non-reusable. D-0150's Option B splits the remainder into (3) one app-wide auth/session and truthful guest boundary, (4) account-owned projects/chats/jobs plus explicit optional import, (5) prospective account usage and Dashboard integration, (6) real entitlements/funded depletion with Arthur's plan-scaling math, (7) sandbox payment lifecycle, (8) reconciliation/launch proof. D-0151 records completed hash-verified rejected-copy D-0054 cleanup and separate docs-only publication authority. Revised Phases 3–8 are **Unauthorized / Not started**; Phase 3 is **not implementation-ready** until G-AUTH/G-PRIV, exact selected-stack allowlist and separate Arthur implementation authorization. Guest private-local AI remains usable. No current account balance, cloud sync, payment, AI enforcement, xAI/Grok integration, SPEC-0008 resumption or deployment follows from this plan.
 
 Status: canonical ordered direction; not a delivery schedule
-Last updated: 2026-09-27
+Last updated: 2026-09-28
 
 ## Roadmap Rules
 

@@ -3,6 +3,7 @@ import { scopeDrawingAiProjectMemoryToProject } from "@/src/lib/ai/drawingAiProj
 import { shouldRejectStaleDrawingProjectAiMemorySave } from "@/src/lib/ai/drawingProjectAiMemoryRouteUtils";
 import { getSupabaseAdminClient, isSupabaseAdminConfigured } from "@/src/lib/dbAdmin";
 import { NextRequest, NextResponse } from "next/server";
+import { requireAccountRequest } from "@/src/lib/account/access";
 
 /**
  * Supabase table: public.drawing_project_ai_memory
@@ -22,6 +23,8 @@ const scopeIncomingProjectAiMemory = (memory: unknown, projectId: string) =>
   scopeDrawingAiProjectMemoryToProject(sanitizeDrawingAiProjectMemory(memory), projectId);
 
 export async function GET(request: NextRequest) {
+  const access = await requireAccountRequest(request);
+  if ("response" in access) return access.response;
   const projectId = readProjectId(request);
   if (!projectId) {
     return NextResponse.json({ memory: null, synced: false }, { status: 400 });
@@ -60,6 +63,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const access = await requireAccountRequest(request);
+  if ("response" in access) return access.response;
   const body = (await request.json().catch(() => null)) as { projectId?: unknown; memory?: unknown } | null;
   const projectId = typeof body?.projectId === "string" ? body.projectId.trim() : "";
   const memory = scopeIncomingProjectAiMemory(body?.memory ?? null, projectId);
@@ -114,6 +119,8 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  const access = await requireAccountRequest(request);
+  if ("response" in access) return access.response;
   const projectId = readProjectId(request);
   if (!projectId) {
     return NextResponse.json({ deleted: false, synced: false }, { status: 400 });

@@ -3,6 +3,7 @@ import { normalizeAiAnimatorRequest } from "@/src/lib/ai/aiAnimatorContract";
 import { AiAnimatorJobService } from "@/src/lib/ai/aiAnimatorJobService";
 import { generateAiAnimatorReply } from "@/src/lib/openai/generateAiAnimatorReply";
 import { recordUsageEvent } from "@/src/lib/usage-journal/usageJournalRuntime";
+import { requireAccountRequest } from "@/src/lib/account/access";
 
 export const runtime = "nodejs";
 
@@ -19,6 +20,8 @@ const safeError = (error: unknown) => {
 };
 
 export async function POST(request: Request) {
+  const access = await requireAccountRequest(request);
+  if ("response" in access) return access.response;
   let body: unknown;
   try {
     body = await request.json();
@@ -37,6 +40,8 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: Request) {
+  const access = await requireAccountRequest(request);
+  if ("response" in access) return access.response;
   const url = new URL(request.url);
   const jobId = url.searchParams.get("jobId")?.trim() ?? "";
   const projectId = url.searchParams.get("projectId")?.trim() ?? "";
@@ -50,6 +55,8 @@ export async function GET(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  const access = await requireAccountRequest(request);
+  if ("response" in access) return access.response;
   let body: { jobId?: unknown; projectId?: unknown } | null = null;
   try {
     body = await request.json();

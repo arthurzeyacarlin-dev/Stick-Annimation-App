@@ -2,8 +2,12 @@
 
 Status: canonical repository memory
 Established: 2026-08-09
-Last reconciled with live code and current records: 2026-09-27 through D-0152's docs-only Phase 3 activation amendment from published Option B base `e46b0fbb6c2a699a71e11fe12336b8f20e0725d4`. Last accepted SPEC-0015 runtime is Phase 2 under D-0148/GIT-104; Phase 1 is integrated in GIT-103 `02a80577f562e9524d2e177c222d19f99f517278`, Phase 2 in GIT-104 `5f0fbb673e54d530889113115fba5f9c3c94b55f`. SPEC-0014 Phases 1–2 and 4 remain published/integrated; Phase 3 Export is rejected/unpublished, with no Phase 5.
+Last reconciled with live code and current records: 2026-09-28 through D-0154's accepted, technically Verified SPEC-0015 Phase 3 review result. Phase 3 is still unpublished and absent from canonical `main`; Phases 1–2 remain integrated in GIT-103 `02a80577f562e9524d2e177c222d19f99f517278` and GIT-104 `5f0fbb673e54d530889113115fba5f9c3c94b55f`. SPEC-0014 Phases 1–2 and 4 remain published/integrated; Phase 3 Export is rejected/unpublished, with no Phase 5.
 Snapshot basis: pull request `#1` merged into `main` as `093bbac82fd3b4d97984448b6c6dbd716153354d`; functional anchor `c7de444536f3e0dd578a2063f70b0914e6af60b1`; tag `baseline-2026-08-09-control-plane`; SPEC-0014 Phase 1 GIT-099 `06365eacffe493ea3550de71b3baff0f57bf03b2`; Phase 2 GIT-100 `318566d6d20acec672c3d8c6a0e5620ad70c7d66`; Phase 4 GIT-102 product commit `283c297d1df01371dc599a52719d35dc78e1d2f4` plus this records-only closeout.
+
+## D-0154 accepted technical result — SPEC-0015 Phase 3
+
+Arthur passed the corrected Sign in / Log in review copy and PM accepted its exact 28-path technical result from detached base `c53ed494d55f8314ed9d07783fbb1765615c01e6`. The current ignored manifest is SHA-256 `fd6a82ee6716469f5da0257dfbea12491c8f56252dfd74a11b0b36640e6f5648`; the original pre-correction manifest is preserved at SHA-256 `3b60c3a7b028e49c98db2578502587e65478ff2fcc65562028f87da2dfa803d9`. In the review app, real local sessions reach the existing full app, while projects/chats/notifications/Dashboard receipts remain shared browser-local data. The local-origin correction supports configured loopback ports 3000 and 58580. Canonical main needs its own fresh ignored account store/secret and safe port-3000 server cutover before activation; no review account is imported. This control-plane result is **accepted/technically Verified, unpublished**. Phases 4–8 remain unauthorized; publication and canonical runtime verification are separate.
 
 ## D-0153 correction — SPEC-0015 Phase 3
 

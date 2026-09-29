@@ -1,6 +1,12 @@
 # Current State
 
-## D-0156 planning-only state — Phase 4A fresh-origin review scoped; legacy-origin rollout gated
+## D-0157 planning draft — `/84bf/` user-failed; Phase 3 unchanged
+
+**Owner-reported:** Arthur's real “good dog” project failed Save/Save and Exit in the isolated `/84bf/` Phase 4A review. The screenshot shows a Save As dialog with hard-coded “on this browser” help and generic “The project could not be saved. Nothing was replaced.” The review is unaccepted/unpublished despite synthetic proof; preserve its bytes, account data, evidence and remote objects. **Code verified:** the review copy routes Save/Save As through the account adapter, but broad catches collapse snapshot/API/upload/commit/readback failures into generic UI states. Log out waits for tracked writes; unsaved edits are not thereby saved. The actual failing stage and any Supabase cause remain unknown. Recorded remote save times were 3.459–11.789 seconds; they do not prove acceptable responsiveness on Arthur's project.
+
+**Intended, not implemented:** D-0157 drafts exactly Phase 4 private editable account projects on the current installation and Phase 4.5 hosted identity/cross-device plus remaining account work/archive. The old five-checkpoint plan is published at `0176c4e4a186b84be25bbda04c7c5e05ccdfd7af` but its prior dispatch shape is superseded. No new runtime, remote, account or Git publication state changes here. Accepted Phase 3 stays in canonical main; account usage stays Phase 5. Real user-flow correction, no-transfer/legacy preservation, namespace and hosted-data gates remain open.
+
+## Historical D-0156 planning-only state — Phase 4A fresh-origin review scoped; legacy-origin rollout gated
 
 - Exact planning base: clean detached canonical SHA `07040d4710be6601fc846d381d07a981decee8dc`.
 - Runtime remains D-0155 Phase 3: published/integrated product commit `b3607ae7ed1e88294bf61bb514d6acc39fe62ba0`, accepted Better Auth local SQLite identity/session, Sign in/Log in/Log out and the existing full app. No runtime byte changed here.

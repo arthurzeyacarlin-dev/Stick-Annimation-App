@@ -1,6 +1,10 @@
 # Roadmap
 
-## SPEC-0015 Phase 4A planning gate — D-0156
+## SPEC-0015 Phase 4 and Phase 4.5 — D-0157 draft
+
+Arthur replaced the five 4A–4E user review checkpoints with two clear outcomes. **Phase 4:** private, reliable editable account projects on the current installation, including the real “good dog” save failure, multiple projects, exact Save/Save As/Save and Exit/reopen, meaningful-action durability, responsive UI and one active account view. **Phase 4.5:** hosted Better Auth identity/cross-device access, account chats/jobs/notifications/recovery/preferences, required private MP4 archive and final full-account proof. Phase 5 remains prospective account usage/Dashboard. The `/84bf/` review is user-failed and unpublished; this docs-only plan needs PM review, separate publication and fresh implementation authority. D-0156's published five-checkpoint plan is historical; its privacy, no-transfer and legacy-origin gates remain. No delivery date or “everything saved” claim is made.
+
+## Historical SPEC-0015 Phase 4A planning gate — D-0156
 
 Arthur selected **Amend then new executor** and prohibits cross-account/unowned-local project transfer/import. Phase 4 is sequenced as 4A account-saved projects, 4B hosted Better Auth identity/recovery, 4C account chats/jobs/notifications/recovery/preferences, 4D required private MP4 account archive and 4E closure. After separate amendment publication, a fresh 4A executor reviews only a fresh zero-legacy origin and proves James/Jack isolation plus protected flows. G-LEGACY-LOCAL-PRESERVATION blocks implementation publication/activation on legacy-bearing origins. G-ARCHIVE-MODE later selects automatic enqueue versus opt-in without making 4D's archive optional. 4B–4E and Phases 5–8 remain unauthorized; full Phase 4 is not done or promised by 4A, regardless of today's deadline.
 
@@ -17,7 +21,7 @@ Arthur has authorized only revised Phase 3 implementation after this docs-only a
 D-0146/GIT-103 and D-0147/D-0148/GIT-104 preserve the accepted/published first two [SPEC-0015](specs/0015-functional-ai-dashboard.md) phases: guest browser-local TEST PREVIEW and the separate 90-day local observational journal. D-0149 verifies GIT-105 records-only closeout at `cfcdaf05dfa2faad02a9c291d4a2252ddbee8dfd`. Arthur product-rejected the isolated Dashboard-only Alex/Sam Phase 3 copy; its bytes remain unpublished and non-reusable. D-0150's Option B splits the remainder into (3) one app-wide auth/session and truthful guest boundary, (4) account-owned projects/chats/jobs plus explicit optional import, (5) prospective account usage and Dashboard integration, (6) real entitlements/funded depletion with Arthur's plan-scaling math, (7) sandbox payment lifecycle, (8) reconciliation/launch proof. D-0151 records completed hash-verified rejected-copy D-0054 cleanup and separate docs-only publication authority. Revised Phases 3–8 are **Unauthorized / Not started**; Phase 3 is **not implementation-ready** until G-AUTH/G-PRIV, exact selected-stack allowlist and separate Arthur implementation authorization. Guest private-local AI remains usable. No current account balance, cloud sync, payment, AI enforcement, xAI/Grok integration, SPEC-0008 resumption or deployment follows from this plan.
 
 Status: canonical ordered direction; not a delivery schedule
-Last updated: 2026-09-28
+Last updated: 2026-09-29
 
 ## Roadmap Rules
 

@@ -1,6 +1,13 @@
 # Changelog
 
-## 2026-09-28 — Amend SPEC-0015 Phase 4 into bounded 4A–4E milestones (D-0156; docs only)
+## 2026-09-29 — Draft SPEC-0015 Phase 4/4.5 after user-failed save review (D-0157; docs only)
+
+- Arthur replaced the published D-0156 five named 4A–4E review checkpoints with exactly Phase 4 private account-owned editable projects on the current installation and Phase 4.5 hosted identity/cross-device, remaining account data and required private MP4 archive. Phase 5 keeps account usage.
+- Recorded `/84bf/` as USER-FAILED on real “good dog” Save/Save and Exit; synthetic checks did not prove the owner flow. The failing layer is unknown. Preserve user data, proof and remote objects; no rejected byte is accepted or published.
+- Required meaningful-action durable saves, truthful readback, pending-write Log out, account isolation, real owner-flow acceptance, timing/protected regressions and one Chrome test session closed after evidence capture. Kept the no-transfer/legacy-origin and later hosted/archival gates.
+- Changed planning records only. No app, Supabase, account data, server, stage/index, commit, push, deployment or publication was changed by this draft.
+
+## Historical 2026-09-28 — Amend SPEC-0015 Phase 4 into bounded 4A–4E milestones (D-0156; docs only)
 
 - Recorded Arthur's **Amend then new executor** choice from exact clean canonical base `07040d4710be6601fc846d381d07a981decee8dc`; only 4A becomes owner-authorized after separate review/publication and remains Not started.
 - Made 4A decision-complete for account-saved projects/immutable versions/private asset chunks, owner-guarded Project AI, fresh Supabase namespace/security/transactions/resumable upload, exact path ceiling, James/Jack/fault/protected-flow proof and a two-hour target/hard three-and-a-half-hour stop.

@@ -1,7 +1,7 @@
 # Diamond Animator Master Project Charter
 
 Status: canonical product intent
-Last updated: 2026-09-28
+Last updated: 2026-09-29
 
 ## Product Mission
 
@@ -33,7 +33,9 @@ The goal is not to hide a weak editor behind a chat box. The goal is one capable
 
 ## Current Strategic Position
 
-D-0156 records Arthur's **Amend then new executor** and hard no-cross-account-transfer/import choices from exact clean planning base `07040d4710be6601fc846d381d07a981decee8dc`. SPEC-0015 Phase 4 is split into 4A account-saved projects, 4B hosted Better Auth identity/recovery, 4C account chats/jobs/notifications/recovery/preferences, 4D required private MP4 account archive and 4E closure. Live storage types prove no durable account owner for existing local projects. 4A review therefore uses a fresh zero-legacy origin and only newly account-owned James/Jack projects after separate amendment publication. G-LEGACY-LOCAL-PRESERVATION blocks implementation publication/activation on any origin with unowned local projects until a no-transfer, genuinely accessible preservation path is separately decided/proved. No full-main/no-regression claim is made. 4B–4E and Phases 5–8 remain unauthorized.
+D-0157 now supersedes the five named 4A–4E review checkpoints with exactly Phase 4 and Phase 4.5. The D-0156 plan was published at `0176c4e4a186b84be25bbda04c7c5e05ccdfd7af`, but the isolated `/84bf/` project-saving review failed Arthur's real “good dog” Save/Save and Exit flow; it is unaccepted and unpublished. Phase 4 must first deliver private, reliable editable account projects on the current installation; Phase 4.5 later owns hosted identity/cross-device access, remaining account data and required private MP4 archive. Phase 5 still owns account usage. The reported save root cause is unknown, user data must be preserved, and this planning draft authorizes no implementation or publication.
+
+Historical D-0156 records Arthur's **Amend then new executor** and hard no-cross-account-transfer/import choices from exact clean planning base `07040d4710be6601fc846d381d07a981decee8dc`. SPEC-0015 Phase 4 is split into 4A account-saved projects, 4B hosted Better Auth identity/recovery, 4C account chats/jobs/notifications/recovery/preferences, 4D required private MP4 account archive and 4E closure. Live storage types prove no durable account owner for existing local projects. 4A review therefore uses a fresh zero-legacy origin and only newly account-owned James/Jack projects after separate amendment publication. G-LEGACY-LOCAL-PRESERVATION blocks implementation publication/activation on any origin with unowned local projects until a no-transfer, genuinely accessible preservation path is separately decided/proved. No full-main/no-regression claim is made. 4B–4E and Phases 5–8 remain unauthorized.
 
 D-0154 accepted and technically verified the corrected SPEC-0015 Phase 3 local review result from exact base `c53ed494d55f8314ed9d07783fbb1765615c01e6`, with 28 frozen technical paths and proof-manifest SHA-256 `fd6a82ee6716469f5da0257dfbea12491c8f56252dfd74a11b0b36640e6f5648`. D-0155 records its exact 43-path publication/integration at `b3607ae7ed1e88294bf61bb514d6acc39fe62ba0`, clean `main`/`origin/main`/live-remote synchronization, fresh restricted main-local account store and successful port-3000 activation. Real local Sign in and Log in reach the existing full app; three signup-only test previews are inert. Browser-local projects, chats, notifications and Dashboard receipts can remain visible across logins on one browser and are not account-owned. Review accounts were not imported; their unique store is preserved separately under D-0054.
 

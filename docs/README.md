@@ -2,10 +2,14 @@
 
 Status: canonical repository memory
 Established: 2026-08-09
-Last reconciled with current records and source: 2026-09-29 through D-0157's docs-only two-part Phase 4/4.5 draft from clean canonical `0176c4e4a186b84be25bbda04c7c5e05ccdfd7af`. Phases 1–3 remain accepted/published/integrated locally; the `/84bf/` project-saving review is USER-FAILED and unpublished. Phase 5 account usage and later phases remain separate. This draft is not app implementation or Git publication.
+Last reconciled with current records and source: 2026-09-29 through D-0158's docs-only Phase 4 save-proof amendment from clean published two-part plan `b3a6d35b19386bf47971e490601d548b7548b118`. Phases 1–3 remain accepted/published/integrated locally; both `/84bf/` and the newer port-58582 Phase 4 review are rejected/unpublished. Phase 4.5 and Phase 5 boundaries remain separate. This amendment is not app implementation or Git publication.
 Snapshot basis: pull request `#1` merged into `main` as `093bbac82fd3b4d97984448b6c6dbd716153354d`; functional anchor `c7de444536f3e0dd578a2063f70b0914e6af60b1`; tag `baseline-2026-08-09-control-plane`; SPEC-0014 Phase 1 GIT-099 `06365eacffe493ea3550de71b3baff0f57bf03b2`; Phase 2 GIT-100 `318566d6d20acec672c3d8c6a0e5620ad70c7d66`; Phase 4 GIT-102 product commit `283c297d1df01371dc599a52719d35dc78e1d2f4` plus this records-only closeout.
 
-## D-0157 two-part Phase 4 planning draft — user-failed review preserved
+## D-0158 narrow Phase 4 save-proof amendment — PM review next
+
+D-0157's exactly two-part Phase 4/4.5 plan is published at `b3a6d35`. [SPEC-0015 §14.3.1](specs/0015-functional-ai-dashboard.md) now records a confirmed canonical encoder false-cycle defect for valid shared frame coverage and the rejected port-58582 `encode_failed prepare` evidence; it does not claim this conclusively caused Arthur's exact project failure. Phase 4 requires a fresh isolated executor, noncolliding namespace/command gate, encoder repair, efficient truthful account saves/checkpoints/logout and the real owner-visible flow with latency/regression proof. Both rejected copies and user drafts remain preserved. This is docs-only and grants no implementation or publication authority; Phase 4.5 hosted work and Phase 5 usage remain unchanged.
+
+## Historical D-0157 two-part Phase 4 planning draft — published at `b3a6d35`
 
 Arthur replaced the five 4A–4E user review checkpoints with exactly Phase 4 (reliable, private account project saving on the current installation) and Phase 4.5 (hosted identity/cross-device access, remaining account work and required private MP4 archive). The former planning package was published at `0176c4e4a186b84be25bbda04c7c5e05ccdfd7af`, but the isolated `/84bf/` review is **USER-FAILED** on a real “good dog” Save/Save and Exit; its code, data and proof remain preserved and unpublished. [SPEC-0015 §14.3](specs/0015-functional-ai-dashboard.md) records the new outcomes, no-transfer/privacy gates and real-flow proof. This docs-only draft neither diagnoses a Supabase cause nor authorizes implementation, publication or a date. Accepted Phase 3 runtime is unchanged; Dashboard account usage remains Phase 5.
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-29 — Narrow Phase 4 save contract after confirmed encoder defect (D-0158; docs only)
+
+- Recorded a valid shared-paint-coverage V2 project failing the canonical encoder at `encode_failed`; cloned equal coverage passes. The newer rejected port-58582 review logged that stage, but Arthur's exact “good dog” cause is not yet conclusively established. Preserved both rejected copies, drafts, account data and remote objects.
+- Tightened only Phase 4: ancestor-path cycle detection, digest-stable roundtrip, owner-guarded immutable CAS saves, at-most-5-MiB standard Storage parts, compact verified receipt, finite metadata-only response-loss recovery, trailing-idle remote checkpoints and dirty-aware cross-tab logout. Required stage latency/p50/p95 and Arthur-visible multi-frame plus protected regression proof; TUS is no default.
+- Set a fresh `diamond_p4u_*` candidate namespace and exact source/test/proof ceiling, with read-only collision and literal migration/command freeze before any service write. D-0157's Phase 4/4.5/5 boundaries remain unchanged. This amendment changes no runtime, service, account data, index, Git history or deployment.
+
 ## 2026-09-29 — Draft SPEC-0015 Phase 4/4.5 after user-failed save review (D-0157; docs only)
 
 - Arthur replaced the published D-0156 five named 4A–4E review checkpoints with exactly Phase 4 private account-owned editable projects on the current installation and Phase 4.5 hosted identity/cross-device, remaining account data and required private MP4 archive. Phase 5 keeps account usage.

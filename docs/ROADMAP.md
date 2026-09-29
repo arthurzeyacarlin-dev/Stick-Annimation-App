@@ -1,8 +1,8 @@
 # Roadmap
 
-## SPEC-0015 Phase 4 and Phase 4.5 — D-0157 draft
+## SPEC-0015 Phase 4 and Phase 4.5 — D-0157 published; D-0158 Phase 4 save-proof draft
 
-Arthur replaced the five 4A–4E user review checkpoints with two clear outcomes. **Phase 4:** private, reliable editable account projects on the current installation, including the real “good dog” save failure, multiple projects, exact Save/Save As/Save and Exit/reopen, meaningful-action durability, responsive UI and one active account view. **Phase 4.5:** hosted Better Auth identity/cross-device access, account chats/jobs/notifications/recovery/preferences, required private MP4 archive and final full-account proof. Phase 5 remains prospective account usage/Dashboard. The `/84bf/` review is user-failed and unpublished; this docs-only plan needs PM review, separate publication and fresh implementation authority. D-0156's published five-checkpoint plan is historical; its privacy, no-transfer and legacy-origin gates remain. No delivery date or “everything saved” claim is made.
+Arthur replaced the five 4A–4E user review checkpoints with two clear outcomes, published in `b3a6d35`. **Phase 4:** private, reliable editable account projects on the current installation, including the real “good dog” save failure, multiple projects, exact Save/Save As/Save and Exit/reopen, meaningful-action durability, responsive UI and one active account view. **Phase 4.5:** hosted Better Auth identity/cross-device access, account chats/jobs/notifications/recovery/preferences, required private MP4 archive and final full-account proof. Phase 5 remains prospective account usage/Dashboard. Both `/84bf/` and the newer port-58582 review are rejected/unpublished; D-0158 narrows Phase 4 encoder/save/checkpoint/logout and proof only. It needs PM review, separate publication and fresh implementation authority, including a collision-free store gate before Supabase writes. D-0156's privacy, no-transfer and legacy-origin gates remain. No delivery date or “everything saved” claim is made.
 
 ## Historical SPEC-0015 Phase 4A planning gate — D-0156
 

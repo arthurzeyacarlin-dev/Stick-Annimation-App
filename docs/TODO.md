@@ -1,11 +1,11 @@
 # TODO
 
-## D-0160 Phase 4 published — Phase 4.5 awaits separate authorization
+## D-0162 Version 1 Phase 4.5 local-device correction — implementation awaits separate authorization
 
-- [ ] **PLAN-015-4.5-REV — Review and separately publish D-0161's narrow Phase 4.5 contract.** The draft starts from clean canonical `866a322c392b6b7f0e8396d93f4a075f4518af0d`; it keeps one Phase 4.5 outcome, recommends explicit MP4 opt-in and names hosted, mail, migration, data and temporary Dashboard gates. Publication alone does not dispatch an executor or authorize service writes.
+- [ ] **PLAN-015-4.5-V1 — Review and separately publish D-0162's tiny Version 1 boundary correction.** From clean canonical `dd048829924103f3d068320471b5699128beaa83`, keep one Phase 4.5 outcome on this installation; defer hosted login/sync/recovery, mail/migration/HTTPS and the new MP4 account archive. Existing local Finder Export stays unchanged. Publication alone does not dispatch an executor or authorize service writes.
 - [x] **DASH-015-4 — Private editable account projects on the current installation.** Arthur visibly passed the isolated multi-project Save/Save As/Save and Exit/reopen/edit and A/B switching flow. The accepted 28-path source/technical-test implementation is frozen at base `bb0f41f`. The one older project on the original main origin is explicitly disposable test work; no import or deletion is authorized. Technical manifest's mutable SQLite sidecar hashes drifted, and remote p95/full induced-fault/protected real-app matrices remain unproven; report these honestly, not as PASS.
 - [x] **PUB-015-4 — Publish and locally activate only the accepted Phase 4 result.** Exact 37-path `c10cd39` fast-forwarded and pushed to canonical main, with clean local/remote SHA match and port-3000 Next.js Ready. Main auth data and accepted review proof/accounts were backed up separately; none was imported or deleted. Canonical authenticated browser-flow verification remains unproven, as do the named final-proof gaps. No public deployment or Phase 4.5 start.
-- [ ] **DASH-015-4.5 — Hosted identity and remaining private account work.** One later phase after reviewed publication, separate implementation authority and G-45-HOST/MAIL/MIGRATION/DATA/DASH plus G-ARCHIVE-MODE decisions. Cross-device sync, account chats/jobs/notifications/recovery/preferences and private MP4 archive are not delivered by Phase 4. Dashboard account usage remains Phase 5.
+- [ ] **DASH-015-4.5 — Remaining private account work on this installation.** One phase after reviewed publication and separate implementation authority, with exact local source/write/proof ceiling frozen in Plan mode. Account chats/jobs/notifications/recovery/preferences are not delivered by Phase 4. Cross-device login/sync/recovery and the new MP4 account archive wait for Version 2 or later; Dashboard account usage remains Phase 5.
 
 ## Historical D-0158 Phase 4 save-proof planning — superseded by D-0159 acceptance
 

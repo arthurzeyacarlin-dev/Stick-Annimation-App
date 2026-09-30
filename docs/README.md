@@ -2,7 +2,7 @@
 
 Status: canonical repository memory
 Established: 2026-08-09
-Last reconciled with current records and source: 2026-09-30 through D-0160's published Phase 4 account-project result `c10cd39c2acea99c11ba87428e5182242a44cec9`. Phases 1–4 are integrated locally; the earlier `/84bf/` and port-58582 Phase 4 reviews remain rejected/unpublished. Phase 4.5 and Phase 5 remain separate and unauthorized.
+Last reconciled with current records and source: 2026-09-30 through D-0160's published Phase 4 account-project result `c10cd39c2acea99c11ba87428e5182242a44cec9`. Phases 1–4 are integrated locally; the earlier `/84bf/` and port-58582 Phase 4 reviews remain rejected/unpublished. D-0162 narrows Phase 4.5 to private account work on this installation and defers cross-device access and the new account-linked MP4 archive to Version 2 or later. Phase 4.5 and Phase 5 remain separate and unauthorized; older hosted Phase 4.5 passages below are historical.
 Snapshot basis: pull request `#1` merged into `main` as `093bbac82fd3b4d97984448b6c6dbd716153354d`; functional anchor `c7de444536f3e0dd578a2063f70b0914e6af60b1`; tag `baseline-2026-08-09-control-plane`; SPEC-0014 Phase 1 GIT-099 `06365eacffe493ea3550de71b3baff0f57bf03b2`; Phase 2 GIT-100 `318566d6d20acec672c3d8c6a0e5620ad70c7d66`; Phase 4 GIT-102 product commit `283c297d1df01371dc599a52719d35dc78e1d2f4` plus this records-only closeout.
 
 ## D-0160 published Phase 4 — canonical local app running

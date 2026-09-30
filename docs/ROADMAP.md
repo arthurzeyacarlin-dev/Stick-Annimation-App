@@ -1,6 +1,10 @@
 # Roadmap
 
-## SPEC-0015 Phase 4 and Phase 4.5 — D-0157 published; D-0158 Phase 4 save-proof draft
+## SPEC-0015 Phase 4.5 — D-0162 Version 1 local-device correction
+
+Phase 4 is published. Phase 4.5 retains one account at a time on the current installation and adds private account chats/jobs/notifications/recovery/preferences. Existing local Finder MP4 Export is unchanged. The new account-linked MP4 archive, cross-device login/sync/recovery, hosted Better Auth, mail and credential migration move to Version 2 or later. Phase 5 alone owns account usage and Dashboard math. A fresh Plan-mode executor may freeze the exact local-data path/write/proof ceiling from published main; no further Version 1 product choice remains.
+
+## Historical SPEC-0015 two-part Phase 4/4.5 plan — D-0157/D-0158
 
 Arthur replaced the five 4A–4E user review checkpoints with two clear outcomes, published in `b3a6d35`. **Phase 4:** private, reliable editable account projects on the current installation, including the real “good dog” save failure, multiple projects, exact Save/Save As/Save and Exit/reopen, meaningful-action durability, responsive UI and one active account view. **Phase 4.5:** hosted Better Auth identity/cross-device access, account chats/jobs/notifications/recovery/preferences, required private MP4 archive and final full-account proof. Phase 5 remains prospective account usage/Dashboard. Both `/84bf/` and the newer port-58582 review are rejected/unpublished; D-0158 narrows Phase 4 encoder/save/checkpoint/logout and proof only. It needs PM review, separate publication and fresh implementation authority, including a collision-free store gate before Supabase writes. D-0156's privacy, no-transfer and legacy-origin gates remain. No delivery date or “everything saved” claim is made.
 

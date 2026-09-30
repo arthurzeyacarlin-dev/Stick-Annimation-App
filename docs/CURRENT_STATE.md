@@ -1,5 +1,7 @@
 # Current State
 
+**D-0162 intended only:** Phase 4.5 is now specified for account-private chats/jobs/notifications/recovery/preferences on this installation. Cross-device access and the new account-linked MP4 archive are deferred to Version 2 or later; existing Finder Export stays unchanged. This docs-only correction changes no current runtime or Phase 4 proof result. Older hosted Phase 4.5 text below records its historical planning state.
+
 ## D-0160 Phase 4 published and locally running; remaining proof limits explicit
 
 **Git verified:** accepted 37-path Phase 4 implementation/control-plane commit `c10cd39c2acea99c11ba87428e5182242a44cec9` was fast-forwarded into clean canonical `main` and pushed normally. Local `main`, local `origin/main` and a fresh live GitHub read all matched that SHA. Canonical main's existing local Better Auth store still passes SQLite integrity check with one user, and its secret matches the pre-switch restricted backup; review accounts were not imported. Next.js reported Ready after the old port-3000 process was stopped and a new integrated server began listening on `127.0.0.1:3000`.

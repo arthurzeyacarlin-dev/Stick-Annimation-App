@@ -1,5 +1,11 @@
 # Session Handoff
 
+## D-0162 Version 1 Phase 4.5 correction — PM review next
+
+This docs-only candidate starts from clean canonical/local-origin `main` `dd048829924103f3d068320471b5699128beaa83` in the dedicated `codex/spec0015-phase45-plan` worktree. Arthur's Version 1 decision allows multiple accounts on one installation, one signed in at a time; the same account/work is unavailable on another device. SPEC-0015 §14.3.2 keeps account-private chats/jobs/notifications/recovery/preferences on this installation while deferring hosted Better Auth, mail, credential migration and second-device proof to Version 2 or later. Phase 4 and Phase 5 boundaries stay intact.
+
+Arthur's follow-up moves the new account-linked private MP4 archive to Version 2 or later and keeps existing local Finder Export unchanged. Account projects/chats stay until explicit deletion; bounded local job/notification/recovery/preference storage, restricted files, backup/restore and neutral signed-in Dashboard are the Phase 4.5 defaults. Next: PM review, separately authorized docs publication, then a fresh Version 1 Phase 4.5 Spec Executor in Plan mode from that published main SHA. Its first plan freezes exact owned paths, local-write commands and proof before implementation. No further product decision or extra named phase checkpoint is required. No runtime, account data, Supabase service, server, PM worktree, stage, commit, push or deployment was changed here.
+
 ## D-0161 Spec Architect draft — Phase 4.5 hosted continuity for PM review
 
 This docs-only candidate starts from exact clean canonical/local-origin/live `main` `866a322c392b6b7f0e8396d93f4a075f4518af0d` in the dedicated `codex/spec0015-phase45-plan` planning branch. Published Phase 4 source and its proof limits remain unchanged. SPEC-0015 §14.3.2 now narrows the single Phase 4.5 outcome: hosted Better Auth with owner-bound projects/chats/jobs/notifications/recovery/preferences; meaningful-action background saves and pending-write-aware Log out; no job replay; explicit opt-in private MP4 archive after validated Finder Export; and neutral signed-in Dashboard usage until Phase 5. No browser-local data is silently imported or reassigned.

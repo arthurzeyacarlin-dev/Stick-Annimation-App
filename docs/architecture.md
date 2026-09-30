@@ -1,5 +1,9 @@
 # Architecture and System Map
 
+## D-0162 intended Version 1 account boundary
+
+Phase 4.5 retains the current installation's server-verified Better Auth/SQLite accounts, with one signed in at a time, and makes the remaining account work private on that installation. Cross-device login/sync/recovery, hosted identity, mail, credential migration and the new account-linked MP4 archive are deferred to Version 2 or later; existing Finder Export stays unchanged. The older hosted Phase 4.5 descriptions below record superseded planning, not current Version 1 authority. Phase 4 runtime and Phase 5 account-usage ownership remain unchanged.
+
 Status: canonical architecture map, current vs intended distinguished
 Last traced: 2026-09-28 in the accepted SPEC-0015 Phase 3 review worktree; exact Phase 3 product commit `b3607ae7ed1e88294bf61bb514d6acc39fe62ba0` is published/integrated and locally activated on canonical port 3000. Phases 1–2 remain integrated in GIT-103/GIT-104.
 

@@ -1,5 +1,9 @@
 # Project Manager Context
 
+## Current D-0162 Phase 4.5 Version 1 decision
+
+Arthur wants the remaining account-private chats/jobs/notifications/recovery/preferences on this installation, with one of multiple local accounts signed in at a time. The new account-linked MP4 archive and cross-device access wait for Version 2 or later; existing local Finder Export is unchanged. Phase 5 still owns account usage. The earlier hosted Phase 4.5 plans below are history. This narrow docs correction awaits reviewed publication before a fresh Phase 4.5 implementation copy.
+
 ## D-0158 narrow Phase 4 save-proof amendment — PM review next
 
 D-0157's Phase 4/4.5 plan was published at clean canonical `b3a6d35b19386bf47971e490601d548b7548b118`. Arthur now asks only to tighten Phase 4 saving. A read-only valid shared-paint-coverage V2 reproduction proves a false `encode_failed` caused by global `seen` across concurrent sibling traversal; the newer rejected port-58582 review logged `encode_failed prepare` after multi-frame drawing. This is the strongest explanation, not conclusive attribution for Arthur's exact “good dog” failure. PM-reported `/84bf/` upload/latency evidence and source-verified full-bundle response/active-edit timer require measured correction. The new §14.3.1 contract pins the canonical encoder repair, 5-MiB standard parts, compact receipt, bounded metadata-only reconciliation, trailing-idle checkpoint, dirty-aware logout, exact file ceiling and real owner-flow/latency/regression proof. Both rejected copies, unsaved drafts and remote objects stay preserved; no runtime/service/Git publication happens here. Phase 4.5/5, no-transfer and legacy-origin gates stay fixed. The amendment needs PM review and separate publication before a newly authorized executor; G-PHASE4-FRESH-STORE must freeze collision-free namespace and exact migration/commands before remote write.

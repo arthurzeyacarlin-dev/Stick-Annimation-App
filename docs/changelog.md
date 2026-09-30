@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-09-30 — D-0162 Version 1 Phase 4.5 boundary correction (docs only)
+
+- Kept the one Phase 4.5 outcome for account-private chats/jobs/notifications/recovery/preferences on this installation, with the existing local Better Auth owner and one signed-in account at a time. Deferred cross-device identity/sync/recovery and the new account-linked MP4 archive to Version 2 or later; existing local Finder Export and Phase 5 Dashboard ownership stay unchanged.
+- Fixed local retention/privacy/backup defaults and removed hosted/mail/migration/archive entry gates. No runtime, account data, service, paid-provider, deployment or Git publication changed.
+
 ## 2026-09-30 — D-0161 Phase 4.5 hosted-continuity planning draft (docs only)
 
 - Narrowed the one Phase 4.5 contract around hosted owner-bound chats/jobs/notifications/recovery/preferences, background saves, honest logout and cross-device proof; recommended explicit opt-in private MP4 archive after validated Finder Export and neutral signed-in Dashboard usage until Phase 5.

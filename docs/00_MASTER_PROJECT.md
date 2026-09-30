@@ -1,7 +1,9 @@
 # Diamond Animator Master Project Charter
 
 Status: canonical product intent
-Last updated: 2026-09-29
+Last updated: 2026-09-30
+
+D-0162 limits Version 1 accounts to one installation: multiple separate accounts may exist there, one signed in at a time. Phase 4.5 owns local account-private chats/jobs/notifications/recovery/preferences. Cross-device access and the new account-linked MP4 archive move to Version 2 or later; existing Finder Export and Phase 5 Dashboard ownership stay unchanged. Earlier hosted Phase 4.5 passages below are historical.
 
 ## Product Mission
 

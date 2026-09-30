@@ -1,6 +1,12 @@
 # Current State
 
-## D-0159 Phase 4 accepted review — main integration authorized, not yet published
+## D-0160 Phase 4 published and locally running; remaining proof limits explicit
+
+**Git verified:** accepted 37-path Phase 4 implementation/control-plane commit `c10cd39c2acea99c11ba87428e5182242a44cec9` was fast-forwarded into clean canonical `main` and pushed normally. Local `main`, local `origin/main` and a fresh live GitHub read all matched that SHA. Canonical main's existing local Better Auth store still passes SQLite integrity check with one user, and its secret matches the pre-switch restricted backup; review accounts were not imported. Next.js reported Ready after the old port-3000 process was stopped and a new integrated server began listening on `127.0.0.1:3000`.
+
+**Proof limits:** startup and Git synchronization are verified; a new authenticated browser-flow pass on canonical main is not proven here. Arthur's accepted isolated multi-project/A-B review, unchanged 28 source hashes and a fresh passing production build are the functional evidence. The original ignored technical manifest's mutable SQLite sidecar hashes drifted; remote p95, complete induced faults and full protected real-app regression matrix remain unproven. Phase 4.5 cross-device/remaining account work and Phase 5 account Dashboard usage are not delivered by this publication.
+
+## Historical D-0159 Phase 4 accepted review — publication checkpoint
 
 **Owner-visible pass:** Arthur accepted the isolated Phase 4 account-project review after testing multiple editable projects, Save/Save As/Save and Exit, reopening/editing, and switching between two accounts. He observed Assistant content still shared; that is Phase 4.5 scope, not a Phase 4 project-isolation failure. The accepted app code is frozen. The original main app lists one older browser-local project; Arthur identifies it as disposable test work and explicitly does not need it carried forward. No old project or review account is imported or deleted.
 

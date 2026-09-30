@@ -2,10 +2,14 @@
 
 Status: canonical repository memory
 Established: 2026-08-09
-Last reconciled with current records and source: 2026-09-30 through D-0159's accepted isolated Phase 4 review from clean published base `bb0f41fb8dab5f8e7187392c823a9ec5f0386290`. Phases 1–3 remain integrated locally; the earlier `/84bf/` and port-58582 Phase 4 reviews remain rejected/unpublished. The accepted Phase 4 copy is frozen and publication is separately authorized but not yet recorded as complete. Phase 4.5 and Phase 5 remain separate.
+Last reconciled with current records and source: 2026-09-30 through D-0160's published Phase 4 account-project result `c10cd39c2acea99c11ba87428e5182242a44cec9`. Phases 1–4 are integrated locally; the earlier `/84bf/` and port-58582 Phase 4 reviews remain rejected/unpublished. Phase 4.5 and Phase 5 remain separate and unauthorized.
 Snapshot basis: pull request `#1` merged into `main` as `093bbac82fd3b4d97984448b6c6dbd716153354d`; functional anchor `c7de444536f3e0dd578a2063f70b0914e6af60b1`; tag `baseline-2026-08-09-control-plane`; SPEC-0014 Phase 1 GIT-099 `06365eacffe493ea3550de71b3baff0f57bf03b2`; Phase 2 GIT-100 `318566d6d20acec672c3d8c6a0e5620ad70c7d66`; Phase 4 GIT-102 product commit `283c297d1df01371dc599a52719d35dc78e1d2f4` plus this records-only closeout.
 
-## D-0159 accepted isolated Phase 4 — publication authorized
+## D-0160 published Phase 4 — canonical local app running
+
+The accepted 28-path Phase 4 product/technical result and nine reviewed record/tree paths were published as exact commit `c10cd39c2acea99c11ba87428e5182242a44cec9`. Clean local main and live GitHub main matched; the existing main account store remained intact and the integrated local app reported Ready on port 3000. The isolated review is Arthur-passed, but a fresh authenticated browser walkthrough on canonical main is not claimed. Mutable SQLite sidecar proof hashes and incomplete remote-latency/fault/protected-regression evidence remain disclosed. Phase 4.5 hosted continuity, Phase 5 account usage and billing are not included.
+
+## Historical D-0159 accepted isolated Phase 4 — publication checkpoint
 
 Arthur visibly passed private editable account projects and switching between two accounts in the isolated review copy. The one older original-main project is disposable test work by Arthur's explicit statement; its continued visibility is not required, but no transfer or deletion is authorized. The accepted 28 source/technical-test paths remain unchanged and match the ignored manifest; fresh production build and focused checks pass. Strict manifest revalidation is not green because mutable review-account SQLite sidecars drifted; remote p95, full induced faults and full protected real-app regressions remain unproven. Canonical main has not yet received this result. No Phase 4.5 hosted account continuity, Phase 5 usage, billing or public launch is implied.
 

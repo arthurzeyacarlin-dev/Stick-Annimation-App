@@ -1,9 +1,9 @@
 # TODO
 
-## D-0159 accepted Phase 4 — publication and local activation next
+## D-0160 Phase 4 published — Phase 4.5 awaits separate authorization
 
 - [x] **DASH-015-4 — Private editable account projects on the current installation.** Arthur visibly passed the isolated multi-project Save/Save As/Save and Exit/reopen/edit and A/B switching flow. The accepted 28-path source/technical-test implementation is frozen at base `bb0f41f`. The one older project on the original main origin is explicitly disposable test work; no import or deletion is authorized. Technical manifest's mutable SQLite sidecar hashes drifted, and remote p95/full induced-fault/protected real-app matrices remain unproven; report these honestly, not as PASS.
-- [ ] **PUB-015-4 — Publish and locally activate only the accepted Phase 4 result.** Stage only the frozen 28 technical and reviewed canonical control-plane/tree paths after exact clean-main/remote/empty-index checks; normal commit, fast-forward and push, then verify main synchronization and local runtime without importing review accounts or deleting the old test project. Preserve ignored review proof/account data before any D-0054 retirement. No public deployment or Phase 4.5 start.
+- [x] **PUB-015-4 — Publish and locally activate only the accepted Phase 4 result.** Exact 37-path `c10cd39` fast-forwarded and pushed to canonical main, with clean local/remote SHA match and port-3000 Next.js Ready. Main auth data and accepted review proof/accounts were backed up separately; none was imported or deleted. Canonical authenticated browser-flow verification remains unproven, as do the named final-proof gaps. No public deployment or Phase 4.5 start.
 - [ ] **DASH-015-4.5 — Hosted identity and remaining private account work.** Separately authorized later phase; cross-device sync, account chats/jobs/notifications/recovery/preferences and private MP4 archive are not delivered by Phase 4. Dashboard account usage remains Phase 5.
 
 ## Historical D-0158 Phase 4 save-proof planning — superseded by D-0159 acceptance
@@ -45,7 +45,7 @@ The former DASH-015-4B, 4C, 4D and 4E planning IDs are superseded by the single 
 - [ ] **DASH-015-7 — Payment lifecycle in sandbox.** Unauthorized / Not started. Requires Phase 6, G-PAY and separately authorized service/test-account use; verified checkout/webhooks/renewals/plan changes/top-ups/refunds/disputes and durable dedupe.
 - [ ] **DASH-015-8 — Reconciliation and launch readiness.** Unauthorized / Not started. Requires Phase 7 and full account/data/usage/security/privacy/economics/recovery/build/operations proof; no automatic live billing, provider spend or deployment.
 
-Phases 1–3 are integrated. The Alex/Sam and placeholder Phase 3 copies remain rejected/unpublished. D-0157/D-0158 Phase 4 planning is published in `bb0f41f`; both earlier Phase 4 review copies remain rejected. D-0159 accepts a separate fresh isolated Phase 4 review and authorizes publication. Arthur waived continued visibility only for the original main origin's one disposable test project. General valuable-project preservation remains open; Phase 4.5 and Phases 5–8 are unauthorized. No paid provider operation, public deployment or account credential migration is authorized. SPEC-0008 remains paused and SPEC-0014's accepted bells/Export boundaries remain.
+Phases 1–4 are integrated locally; D-0160 published the frozen Phase 4 result in `c10cd39` and restarted canonical port 3000. The Alex/Sam and placeholder Phase 3 copies plus both earlier failed Phase 4 copies remain rejected/unpublished. Arthur waived continued visibility only for the original main origin's one disposable test project. General valuable-project preservation remains open; Phase 4.5 and Phases 5–8 are unauthorized. No paid provider operation, public deployment or account credential migration is authorized. SPEC-0008 remains paused and SPEC-0014's accepted bells/Export boundaries remain.
 
 Status: canonical actionable queue
 Last updated: 2026-09-29

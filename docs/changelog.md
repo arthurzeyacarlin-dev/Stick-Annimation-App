@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-30 — Publish accepted SPEC-0015 Phase 4 (D-0160)
+
+- Committed the frozen 28-path Phase 4 implementation/technical tests with nine reviewed control-plane/tree paths as `c10cd39c2acea99c11ba87428e5182242a44cec9`, fast-forwarded clean canonical main, pushed normally and verified a live GitHub/local SHA match.
+- Backed up main and accepted-review local auth stores/secrets separately in restricted ignored PM recovery; SQLite integrity and account counts passed. No review account or browser-local project was imported or deleted.
+- Restarted canonical local app on port 3000; Next.js reported Ready. A fresh authenticated browser walkthrough on canonical main and remote p95/full-fault/full protected-regression proof remain unproven. Phase 4.5, Phase 5, billing and public deployment are unchanged.
+
 ## 2026-09-30 — Arthur accepts isolated SPEC-0015 Phase 4 (D-0159; publication pending)
 
 - Arthur passed the private account-project review with multiple editable projects, Save/Save As/Save and Exit, reopen/edit and A/B account switching. The accepted 28 source/technical-test paths remain byte-frozen; fresh production build and focused deterministic checks pass.

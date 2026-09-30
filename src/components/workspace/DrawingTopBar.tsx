@@ -6,7 +6,8 @@ type DrawingTopBarProps = {
   onSaveAs?: () => void | Promise<void>;
   onExport?: () => void;
   onSaveAndExit?: () => void | Promise<void>;
-  saveState?: "not-saved" | "unsaved" | "saving" | "saved" | "too-large" | "failed";
+  saveState?: "not-saved" | "unsaved" | "saving" | "saved" | "quiet-saved" | "too-large" | "failed";
+  accountSaved?: boolean;
   recoveryState?: "checking" | "idle" | "pending" | "writing" | "current" | "blocked" | "unavailable" | "failed";
   isLegacyProject?: boolean;
   onUndo?: () => void;
@@ -60,6 +61,7 @@ export function DrawingTopBar({
   onExport,
   onSaveAndExit,
   saveState = "not-saved",
+  accountSaved = false,
   recoveryState = "checking",
   isLegacyProject = false,
   onUndo,
@@ -97,7 +99,8 @@ export function DrawingTopBar({
     "not-saved": "Not saved",
     unsaved: "Unsaved changes",
     saving: "Saving…",
-    saved: "Saved on this browser",
+    saved: accountSaved ? "Saved to your account" : "Saved on this browser",
+    "quiet-saved": "",
     "too-large": "Too large to save",
     failed: "Save failed",
   }[saveState];

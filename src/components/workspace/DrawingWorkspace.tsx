@@ -68,7 +68,9 @@ import type {
   UnifiedSymbolInstanceItemV2,
   UnifiedSymbolSourceCategoryV2,
 } from "@/src/lib/animation/unifiedAnimationContentV2";
-import { saveUnifiedProjectAsV2, saveUnifiedProjectV2 } from "@/src/lib/animation/unifiedProjectRepositoryV2";
+import { createAccountProjectRepositoryV2 } from "@/src/lib/account/projectClient";
+import { registerAccountDirtyEditor, withAccountProjectWrite } from "@/src/lib/account/projectPending";
+import { useAccountSession } from "@/src/components/account/AccountSessionProvider";
 import { rebindPendingTerraProjectV1 } from "@/src/lib/notifications/terraCompletionObserver";
 import { digestUnifiedProjectV2 } from "@/src/lib/animation/unifiedProjectStorageV2";
 import {
@@ -3564,6 +3566,8 @@ type ProjectRecoveryState = "checking" | "idle" | "pending" | "writing" | "curre
 const PROJECT_RECOVERY_DEBOUNCE_MS = 750;
 
 export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject, recoveryClaim, onExport, onExit }: DrawingWorkspaceProps) {
+  const account = useAccountSession();
+  const ownerId = account?.id;
   const openedInitialProject = initialProject.project;
   const initialWorkspaceState = createDrawingWorkspaceInitialState(openedInitialProject, true);
   const [projectId, setProjectId] = useState<string | null>(initialWorkspaceState.projectId);
@@ -3589,7 +3593,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
   const [selectedTimelineIndex, setSelectedTimelineIndex] = useState(initialWorkspaceState.selectedTimelineIndex);
   const [isTimelinePlaying, setIsTimelinePlaying] = useState(false);
   const [isOnionEnabled, setIsOnionEnabled] = useState(initialWorkspaceState.isOnionEnabled);
-  const [saveState, setSaveState] = useState<"not-saved" | "unsaved" | "saving" | "saved" | "too-large" | "failed">(
+  const [saveState, setSaveState] = useState<"not-saved" | "unsaved" | "saving" | "saved" | "quiet-saved" | "too-large" | "failed">(
     unifiedProject.revision > 0 ? "saved" : "not-saved",
   );
   const [projectRecoveryState, setProjectRecoveryState] = useState<ProjectRecoveryState>(recoveryClaim ? "current" : "checking");
@@ -3599,6 +3603,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     setDrawingToolActivationId((current) => current + 1);
   }, []);
   const [activeUnifiedProject, setActiveUnifiedProject] = useState<UnifiedAnimationProjectV2>(unifiedProject);
+  const activeUnifiedProjectRef = useRef(unifiedProject);
   const [stickByCell, setStickByCell] = useState<Record<string, StickFigureFrameContent>>(() => structuredClone(unifiedProject.compatibility?.stickByCell ?? {}));
   const stickByCellRef = useRef(stickByCell);
   const [unifiedCatalogs, setUnifiedCatalogs] = useState<UnifiedProjectCatalogsV2>(() =>
@@ -3662,6 +3667,13 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
   const persistedStateEffectReadyRef = useRef(false);
   const suppressNextPersistedStateEffectRef = useRef(false);
   const saveInFlightRef = useRef(false);
+  const backgroundSavePromiseRef = useRef<Promise<void> | null>(null);
+  const backgroundSaveTimerRef = useRef<number | null>(null);
+  const runBackgroundSaveRef = useRef<() => void>(() => undefined);
+  const accountDirtyRef = useRef(false);
+  const lastConfirmedGenerationRef = useRef(0);
+  const lastAccountEditAtRef = useRef(0);
+  const accountDirtyHandleRef = useRef<ReturnType<typeof registerAccountDirtyEditor> | null>(null);
   const saveAndExitInFlightRef = useRef(false);
   const workspaceMountedRef = useRef(true);
   const recoverySessionIdRef = useRef<string | null>(recoveryClaim?.ownerSessionId ?? null);
@@ -3725,6 +3737,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       recoveryEnabledRef.current = false;
       if (recoveryTimerRef.current !== null) window.clearTimeout(recoveryTimerRef.current);
       recoveryTimerRef.current = null;
+      if (backgroundSaveTimerRef.current !== null) window.clearTimeout(backgroundSaveTimerRef.current);
+      backgroundSaveTimerRef.current = null;
       workspaceInstanceIdRef.current = `${workspaceInstanceIdRef.current}-unmounted`;
     };
   }, [recoveryClaim]);
@@ -4235,6 +4249,10 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     }
     documentGenerationRef.current += 1;
     setProjectGeneration(documentGenerationRef.current);
+    if (ownerId) {
+      accountDirtyRef.current = true;
+      accountDirtyHandleRef.current?.setDirty(true);
+    }
     setSaveState((current) => current === "saving" ? current : "unsaved");
   }, [
     activeLayerId,
@@ -4248,6 +4266,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     selectedTimelineIndex,
     shapeType,
     timelineFps,
+    ownerId,
   ]);
 
   useEffect(() => {
@@ -7127,7 +7146,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
   }, [activeTool, brushSize, eraserSize, fillColor, isOnionEnabled, shapeType, timelineFps]);
 
   const buildUnifiedProjectSnapshot = useCallback((drawingData: DrawingProjectData): UnifiedAnimationProjectV2 => {
-    const base = activeUnifiedProject;
+    const base = activeUnifiedProjectRef.current;
     const stableId = (key: string) => {
       const existing = unifiedIdsRef.current.get(key);
       if (existing) return existing;
@@ -7216,7 +7235,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       })),
     };
     return { ...base, title: projectTitle, auxiliary: { ...base.auxiliary, drawingAiMemory: structuredClone(projectAiMemory), stickAiCreationLatch: structuredClone(base.auxiliary?.stickAiCreationLatch ?? null) }, document, compatibility: { ...base.compatibility, drawingData: compatibilityDrawingData, stickByCell: {}, symbolInstancesByCell: structuredClone(symbolInstancesByCellRef.current) } };
-  }, [activeUnifiedProject, canvasBackgroundColor, projectAiMemory, projectTitle]);
+  }, [canvasBackgroundColor, projectAiMemory, projectTitle]);
 
   const armRecoveryDraftWrite = useCallback((delayMs: number) => {
     if (recoveryTimerRef.current !== null) window.clearTimeout(recoveryTimerRef.current);
@@ -7233,10 +7252,20 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     recoveryWorkspaceGenerationRef.current += 1;
     recoveryLatestMeaningfulEditAtRef.current = new Date().toISOString();
     recoveryFirstPendingAtRef.current ??= performance.now();
+    if (ownerId) {
+      accountDirtyRef.current = true;
+      lastAccountEditAtRef.current = Date.now();
+      accountDirtyHandleRef.current?.setDirty(true);
+      if (backgroundSaveTimerRef.current !== null) window.clearTimeout(backgroundSaveTimerRef.current);
+      backgroundSaveTimerRef.current = window.setTimeout(() => {
+        backgroundSaveTimerRef.current = null;
+        runBackgroundSaveRef.current();
+      }, 10_000);
+    }
     setProjectRecoveryState("pending");
     const remainingMaximumWait = Math.max(0, 3_000 - (performance.now() - recoveryFirstPendingAtRef.current));
     armRecoveryDraftWrite(Math.min(PROJECT_RECOVERY_DEBOUNCE_MS, remainingMaximumWait));
-  }, [armRecoveryDraftWrite]);
+  }, [armRecoveryDraftWrite, ownerId]);
 
   const runRecoveryDraftWrite = useCallback(() => {
     if (!recoveryEnabledRef.current || !recoverySessionIdRef.current) return;
@@ -7270,7 +7299,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       draftSequence,
       workspaceGeneration,
       lastMeaningfulEditAt: recoveryLatestMeaningfulEditAtRef.current,
-    }).then(() => {
+    }, {}, ownerId).then(() => {
       if (!workspaceMountedRef.current || workspaceInstanceIdRef.current !== workspaceInstanceId) return;
       recoveryFirstPendingAtRef.current = null;
       setProjectRecoveryState(recoveryDraftSequenceRef.current === draftSequence ? "current" : "pending");
@@ -7287,14 +7316,14 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       if (recoveryEnabledRef.current && recoveryDraftSequenceRef.current > draftSequence) armRecoveryDraftWrite(PROJECT_RECOVERY_DEBOUNCE_MS);
     });
     recoveryWriteInFlightRef.current = write;
-  }, [activeUnifiedProject, armRecoveryDraftWrite, buildUnifiedProjectSnapshot, createPersistedProjectSnapshot]);
+  }, [activeUnifiedProject, armRecoveryDraftWrite, buildUnifiedProjectSnapshot, createPersistedProjectSnapshot, ownerId]);
   runRecoveryDraftWriteRef.current = runRecoveryDraftWrite;
 
   useEffect(() => {
     if (recoveryClaim) return;
     let cancelled = false;
-    recoverySessionIdRef.current = getOrCreateProjectRecoverySessionIdV1();
-    void inspectProjectRecoveryDraftV1().then(result => {
+    recoverySessionIdRef.current = getOrCreateProjectRecoverySessionIdV1(ownerId);
+    void inspectProjectRecoveryDraftV1(ownerId).then(result => {
       if (cancelled || !workspaceMountedRef.current) return;
       recoveryInitializedRef.current = true;
       if (result.kind === "none") {
@@ -7306,7 +7335,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       setProjectRecoveryState(result.kind === "valid" ? "blocked" : "unavailable");
     });
     return () => { cancelled = true; };
-  }, [queueRecoveryDraftWrite, recoveryClaim]);
+  }, [ownerId, queueRecoveryDraftWrite, recoveryClaim]);
 
   useEffect(() => {
     if (!recoveryMeaningfulEffectReadyRef.current) {
@@ -7331,7 +7360,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         workspaceInstanceId: workspaceInstanceIdRef.current,
         workspaceGeneration,
         candidateDigest,
-      });
+      }, ownerId);
       if (result === "cleared") {
         recoveryFirstPendingAtRef.current = null;
         setProjectRecoveryState("idle");
@@ -7350,7 +7379,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       setProjectRecoveryState("failed");
       return false;
     }
-  }, []);
+  }, [ownerId]);
 
   const publishAndClearCoveredRecoveryDraft = useCallback(async (
     candidate: UnifiedAnimationProjectV2,
@@ -7377,7 +7406,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         draftSequence,
         workspaceGeneration,
         lastMeaningfulEditAt: recoveryLatestMeaningfulEditAtRef.current,
-      });
+      }, {}, ownerId);
       if (documentGenerationRef.current !== capturedDocumentGeneration) {
         setProjectRecoveryState("pending");
         armRecoveryDraftWrite(0);
@@ -7388,7 +7417,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       setProjectRecoveryState("failed");
       return false;
     }
-  }, [armRecoveryDraftWrite, clearCoveredRecoveryDraft]);
+  }, [armRecoveryDraftWrite, clearCoveredRecoveryDraft, ownerId]);
 
   const handleUndo = useCallback(() => {
     requireManualEditorCommand("history.undo/v1", "DrawingWorkspace.handleUndo");
@@ -8155,7 +8184,18 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
 
   const saveProject = useCallback(async () => {
     requireManualEditorCommand("project.save/v2", "DrawingWorkspace.saveProject");
-    if (isTimelinePlayingRef.current || saveInFlightRef.current) {
+    if (isTimelinePlayingRef.current) {
+      return { officialWriteSucceeded: false, coversCurrentGeneration: false, recoveryDraftCleared: false, notificationRebindSucceeded: false };
+    }
+    if (backgroundSavePromiseRef.current) await backgroundSavePromiseRef.current;
+    if (ownerId && !accountDirtyRef.current && activeUnifiedProjectRef.current.revision > 0 &&
+      documentGenerationRef.current === lastConfirmedGenerationRef.current) {
+      const confirmed = activeUnifiedProjectRef.current;
+      setSaveState("saved");
+      showSaveNotification(confirmed.title);
+      return { officialWriteSucceeded: true, coversCurrentGeneration: true, recoveryDraftCleared: true, notificationRebindSucceeded: true };
+    }
+    if (saveInFlightRef.current) {
       return { officialWriteSucceeded: false, coversCurrentGeneration: false, recoveryDraftCleared: false, notificationRebindSucceeded: false };
     }
     const capturedWorkspaceInstanceId = workspaceInstanceIdRef.current;
@@ -8164,10 +8204,11 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       if (!commitCurrentFrameSnapshotWithoutHistory("unified:save")) throw new Error("snapshot_capture_failed");
       const candidate = buildUnifiedProjectSnapshot(createPersistedProjectSnapshot());
       if (!candidate) throw new Error("invalid_record");
-      const recoverySourceProject = activeUnifiedProject;
+      const recoverySourceProject = activeUnifiedProjectRef.current;
       const capturedGeneration = documentGenerationRef.current;
       const capturedRecoveryGeneration = recoveryWorkspaceGenerationRef.current;
-      const saved = await saveUnifiedProjectV2(candidate);
+      if (!ownerId) throw new Error("account_session_required");
+      const saved = await withAccountProjectWrite(ownerId, () => createAccountProjectRepositoryV2(ownerId).save(candidate));
       let notificationRebindSucceeded = true;
       try {
         await rebindPendingTerraProjectV1(projectId ?? openedInitialProject.id, saved.projectId, saved.title);
@@ -8177,6 +8218,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       if (!workspaceMountedRef.current || workspaceInstanceIdRef.current !== capturedWorkspaceInstanceId) {
         return { officialWriteSucceeded: true, coversCurrentGeneration: false, recoveryDraftCleared: false, notificationRebindSucceeded };
       }
+      activeUnifiedProjectRef.current = saved;
       setActiveUnifiedProject(saved); setProjectId(saved.projectId); setProjectTitle(saved.title);
       setProjectAiMemory(bindDrawingAiProjectMemoryToProject(saved.auxiliary?.drawingAiMemory as DrawingAiProjectMemory | null, saved.projectId));
       let coversCurrentGeneration = documentGenerationRef.current === capturedGeneration;
@@ -8192,7 +8234,12 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         );
         coversCurrentGeneration = documentGenerationRef.current === capturedGeneration;
       }
-      if (coversCurrentGeneration) { setSaveState("saved"); showSaveNotification(saved.title); }
+      if (coversCurrentGeneration && recoveryDraftCleared) {
+        lastConfirmedGenerationRef.current = capturedGeneration;
+        accountDirtyRef.current = false;
+        accountDirtyHandleRef.current?.setDirty(false);
+        setSaveState("saved"); showSaveNotification(saved.title);
+      }
       else setSaveState("unsaved");
       return { officialWriteSucceeded: true, coversCurrentGeneration, recoveryDraftCleared, notificationRebindSucceeded };
     } catch (error) {
@@ -8202,7 +8249,74 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       return { officialWriteSucceeded: false, coversCurrentGeneration: false, recoveryDraftCleared: false, notificationRebindSucceeded: false };
     }
     finally { saveInFlightRef.current = false; }
-  }, [activeUnifiedProject, buildUnifiedProjectSnapshot, clearCoveredRecoveryDraft, commitCurrentFrameSnapshotWithoutHistory, createPersistedProjectSnapshot, openedInitialProject.id, projectId, publishAndClearCoveredRecoveryDraft, showSaveNotification]);
+  }, [buildUnifiedProjectSnapshot, clearCoveredRecoveryDraft, commitCurrentFrameSnapshotWithoutHistory, createPersistedProjectSnapshot, openedInitialProject.id, ownerId, projectId, publishAndClearCoveredRecoveryDraft, showSaveNotification]);
+
+  const armBackgroundSave = useCallback((delayMs: number) => {
+    if (backgroundSaveTimerRef.current !== null) window.clearTimeout(backgroundSaveTimerRef.current);
+    backgroundSaveTimerRef.current = window.setTimeout(() => {
+      backgroundSaveTimerRef.current = null;
+      runBackgroundSaveRef.current();
+    }, Math.max(0, delayMs));
+  }, []);
+
+  const runBackgroundSave = useCallback(() => {
+    if (!ownerId || !accountDirtyRef.current || !workspaceMountedRef.current) return;
+    const remainingQuiet = 10_000 - (Date.now() - lastAccountEditAtRef.current);
+    if (remainingQuiet > 0) { armBackgroundSave(remainingQuiet); return; }
+    if (saveInFlightRef.current || isTimelinePlayingRef.current ||
+      drawingCanvasRef.current?.hasPendingAuthoringChanges() || recoveryWriteInFlightRef.current) {
+      armBackgroundSave(500);
+      return;
+    }
+    const workspaceInstanceId = workspaceInstanceIdRef.current;
+    const capturedGeneration = documentGenerationRef.current;
+    const capturedRecoveryGeneration = recoveryWorkspaceGenerationRef.current;
+    let candidate: UnifiedAnimationProjectV2;
+    try {
+      candidate = buildUnifiedProjectSnapshot(createPersistedProjectSnapshot({ preserveBitmapReferences: true }));
+    } catch { return; }
+    saveInFlightRef.current = true;
+    const operation = withAccountProjectWrite(ownerId, () => createAccountProjectRepositoryV2(ownerId).save(candidate))
+      .then(async saved => {
+        if (!workspaceMountedRef.current || workspaceInstanceIdRef.current !== workspaceInstanceId) return;
+        activeUnifiedProjectRef.current = saved;
+        setActiveUnifiedProject(saved);
+        setProjectId(saved.projectId);
+        setProjectTitle(saved.title);
+        if (documentGenerationRef.current === capturedGeneration) {
+          const cleared = await clearCoveredRecoveryDraft(candidate, capturedRecoveryGeneration);
+          if (cleared && documentGenerationRef.current === capturedGeneration) {
+            lastConfirmedGenerationRef.current = capturedGeneration;
+            accountDirtyRef.current = false;
+            accountDirtyHandleRef.current?.setDirty(false);
+            setSaveState("quiet-saved");
+          }
+        }
+      })
+      .catch(() => { /* Keep the local recovery draft and retry only after a later edit or explicit Save. */ })
+      .finally(() => {
+        saveInFlightRef.current = false;
+        backgroundSavePromiseRef.current = null;
+        if (accountDirtyRef.current && lastAccountEditAtRef.current > 0 &&
+          Date.now() - lastAccountEditAtRef.current < 10_000) armBackgroundSave(10_000);
+      });
+    backgroundSavePromiseRef.current = operation;
+  }, [armBackgroundSave, buildUnifiedProjectSnapshot, clearCoveredRecoveryDraft, createPersistedProjectSnapshot, ownerId]);
+  runBackgroundSaveRef.current = runBackgroundSave;
+
+  useEffect(() => {
+    if (!ownerId) return;
+    const handle = registerAccountDirtyEditor(ownerId, async () => {
+      const result = await saveProject();
+      return result.officialWriteSucceeded && result.coversCurrentGeneration;
+    });
+    accountDirtyHandleRef.current = handle;
+    handle.setDirty(accountDirtyRef.current);
+    return () => {
+      if (accountDirtyHandleRef.current === handle) accountDirtyHandleRef.current = null;
+      handle.dispose();
+    };
+  }, [ownerId, saveProject]);
 
   const saveAndExit = useCallback(async () => {
     if (!onExit || saveAndExitInFlightRef.current) return;
@@ -8524,7 +8638,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
 
   const handleSaveAs = useCallback(() => {
     requireManualEditorCommand("project.save-as/v2", "DrawingWorkspace.handleSaveAs");
-    if (isTimelinePlayingRef.current || saveInFlightRef.current) {
+    if (isTimelinePlayingRef.current || saveInFlightRef.current && !backgroundSavePromiseRef.current) {
       return;
     }
     setSaveAsDialog({ name: projectTitle, error: null, submitting: false });
@@ -8538,7 +8652,9 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
   }, [saveAsDialog?.submitting]);
 
   const submitSaveAsDialog = useCallback(async () => {
-    if (!saveAsDialog || saveAsDialog.submitting || saveInFlightRef.current || isTimelinePlayingRef.current) return;
+    if (!saveAsDialog || saveAsDialog.submitting || isTimelinePlayingRef.current) return;
+    if (backgroundSavePromiseRef.current) await backgroundSavePromiseRef.current;
+    if (saveInFlightRef.current) return;
     const trimmedProjectName = saveAsDialog.name.trim().normalize("NFC");
     if (!trimmedProjectName) {
       setSaveAsDialog(current => current ? { ...current, error: "Enter a project name." } : current);
@@ -8565,13 +8681,20 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       setSaveState("saving");
       const capturedGeneration = documentGenerationRef.current;
       const capturedRecoveryGeneration = recoveryWorkspaceGenerationRef.current;
-      const saved = await saveUnifiedProjectAsV2(candidate, trimmedProjectName);
+      if (!ownerId) throw new Error("account_session_required");
+      const saved = await withAccountProjectWrite(ownerId, () => createAccountProjectRepositoryV2(ownerId).saveAs(candidate, trimmedProjectName));
       if (!workspaceMountedRef.current || workspaceInstanceIdRef.current !== capturedWorkspaceInstanceId) return;
+      activeUnifiedProjectRef.current = saved;
       setActiveUnifiedProject(saved); setProjectId(saved.projectId); setProjectTitle(saved.title);
       setProjectAiMemory(bindDrawingAiProjectMemoryToProject(saved.auxiliary?.drawingAiMemory as DrawingAiProjectMemory | null, saved.projectId));
       if (documentGenerationRef.current === capturedGeneration) {
-        await clearCoveredRecoveryDraft(candidate, capturedRecoveryGeneration);
-        setSaveState("saved"); showSaveNotification(saved.title);
+        const cleared = await clearCoveredRecoveryDraft(candidate, capturedRecoveryGeneration);
+        if (cleared && documentGenerationRef.current === capturedGeneration) {
+          lastConfirmedGenerationRef.current = capturedGeneration;
+          accountDirtyRef.current = false;
+          accountDirtyHandleRef.current?.setDirty(false);
+          setSaveState("saved"); showSaveNotification(saved.title);
+        } else setSaveState("unsaved");
       } else setSaveState("unsaved");
       setSaveAsDialog(null);
     } catch (error) {
@@ -8580,12 +8703,12 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         setSaveState(tooLarge ? "too-large" : "failed");
         setSaveAsDialog(current => current ? {
           ...current,
-          error: tooLarge ? "This project is too large to save on this browser." : "The project could not be saved. Nothing was replaced.",
+          error: tooLarge ? "This project is too large to save to your account." : "The project could not be saved to your account. Nothing was replaced.",
           submitting: false,
         } : current);
       }
     } finally { saveInFlightRef.current = false; }
-  }, [buildUnifiedProjectSnapshot, clearCoveredRecoveryDraft, commitCurrentFrameSnapshotWithoutHistory, createPersistedProjectSnapshot, saveAsDialog, showSaveNotification]);
+  }, [buildUnifiedProjectSnapshot, clearCoveredRecoveryDraft, commitCurrentFrameSnapshotWithoutHistory, createPersistedProjectSnapshot, ownerId, saveAsDialog, showSaveNotification]);
 
   const handleTextObjectsChange = useCallback((nextTextObjects: DrawingTextObject[]) => {
     requireManualEditorCommand("drawing.text.commit/v1", "DrawingWorkspace.handleTextObjectsChange");
@@ -9197,6 +9320,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         onExport={onExport}
         onSaveAndExit={onExit ? saveAndExit : undefined}
         saveState={saveState}
+        accountSaved={Boolean(ownerId)}
         recoveryState={projectRecoveryState}
         isLegacyProject={activeUnifiedProject.provenance?.kind === "legacy-adoption" && activeUnifiedProject.provenance.adoptedAt === null}
         onUndo={handleUndo}
@@ -9438,7 +9562,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
           <div>
             <h2 id="save-as-dialog-title" style={{ margin: 0, fontSize: 20 }}>Save project as</h2>
             <p id="save-as-dialog-help" style={{ margin: "7px 0 0", color: "rgba(255,255,255,0.64)", fontSize: 13 }}>
-              Save a new copy on this browser. The current project stays unchanged until saving succeeds.
+              Save a new copy to your account. The current project stays unchanged until saving succeeds.
             </p>
           </div>
           <label htmlFor="save-as-project-name" style={{ display: "flex", flexDirection: "column", gap: 7, color: "rgba(255,255,255,0.82)", fontSize: 13 }}>

@@ -8,7 +8,9 @@ import {
   createProjectManagementCommandOwnerV2,
   subscribeProjectManagementInvalidationV2,
 } from "@/src/lib/animation/unifiedProjectManagementV2";
-import { createBrowserProjectLibraryController } from "@/src/lib/project-library/projectLibraryController";
+import { createProjectLibraryController } from "@/src/lib/project-library/projectLibraryController";
+import { createAccountProjectRepositoryV2, createAccountProjectSourceReader } from "@/src/lib/account/projectClient";
+import { inspectProjectRecoveryDraftV1 } from "@/src/lib/animation/projectRecoveryStorageV1";
 import {
   filterAndSortProjectEntries,
   formatProjectDuration,
@@ -27,6 +29,7 @@ type Props = {
   onBack: () => void;
   surface?: "watch" | "edit";
   onOpenProject?: (entry: ProjectCollectionEntry) => Promise<BootstrapResult>;
+  ownerId?: string;
 };
 type SnapshotState =
   | { status: "loading" }
@@ -50,9 +53,17 @@ const sortLabels: Array<{ value: ProjectLibrarySort; label: string }> = [
   { value: "name-desc", label: "Name — Z to A" },
 ];
 
-export function ProjectLibrary({ onBack, surface = "watch", onOpenProject }: Props) {
-  const controller = useMemo(() => createBrowserProjectLibraryController(), []);
-  const commandOwner = useMemo(() => createProjectManagementCommandOwnerV2(), []);
+export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, ownerId }: Props) {
+  const createReader = useCallback(() => {
+    if (!ownerId) throw new Error("account_session_required");
+    return createAccountProjectSourceReader(ownerId);
+  }, [ownerId]);
+  const controller = useMemo(() => createProjectLibraryController(createReader), [createReader]);
+  const commandOwner = useMemo(() => createProjectManagementCommandOwnerV2({
+    createReader,
+    repository: ownerId ? createAccountProjectRepositoryV2(ownerId) : undefined,
+    inspectRecovery: () => inspectProjectRecoveryDraftV1(ownerId),
+  }), [createReader, ownerId]);
   const [entries, setEntries] = useState<ProjectCollectionEntry[]>([]);
   const [snapshots, setSnapshots] = useState<Record<string, SnapshotState>>({});
   const [loading, setLoading] = useState(true);
@@ -76,7 +87,7 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject }: Pro
   const pendingFocusIdRef = useRef<string | null>(null);
 
   const heading = surface === "watch" ? "My Projects" : "Open Project";
-  const help = surface === "watch" ? "Watch saved animations stored in this browser" : "Choose a saved project to edit";
+  const help = surface === "watch" ? (ownerId ? "Watch animations saved to your account" : "Watch saved animations stored in this browser") : "Choose a saved project to edit";
   const actionLabel = surface === "watch" ? "Watch" : "Edit";
   const visibleEntries = useMemo(() => filterAndSortProjectEntries(entries, query, sort), [entries, query, sort]);
 
@@ -227,7 +238,7 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject }: Pro
     const state = snapshots[entry.id];
     if (state?.status !== "ready" || busyEntryId) return;
     setBusyEntryId(entry.id);
-    setNotice(surface === "watch" ? "Checking the exact saved animation…" : "Checking the complete local project before opening…");
+    setNotice(surface === "watch" ? "Checking the exact saved animation…" : "Checking the complete saved project before opening…");
     try {
       if (surface === "watch") {
         const current = await controller.watch(entry);
@@ -307,7 +318,7 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject }: Pro
     setDialogError(null);
     const focusId = result.kind === "delete" ? nextLogicalId : result.project ? `unified-v2:${result.project.projectId}` : entry.id;
     pendingFocusIdRef.current = focusId;
-    await loadCollection(result.kind === "rename" ? "Project renamed." : result.kind === "duplicate" ? "Project duplicated as an independent native copy." : "Project deleted from this browser.");
+    await loadCollection(result.kind === "rename" ? "Project renamed." : result.kind === "duplicate" ? "Project duplicated as an independent native copy." : "Project deleted from your account.");
   };
 
   const menuEntry = menu ? entries.find(entry => entry.id === menu.entryId) ?? null : null;
@@ -355,7 +366,7 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject }: Pro
           </header>
 
           <div className={styles.localNote} role="note">
-            Local only. Projects and posters stay in this browser; {surface === "watch" ? "watching" : "browsing"} does not change saved work or recovery drafts.
+            Projects are saved to your account on this installation. {surface === "watch" ? "Watching" : "Browsing"} does not change saved work or recovery drafts.
           </div>
 
           <div className={styles.toolbar} aria-label="Project search and sort">
@@ -367,11 +378,11 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject }: Pro
 
           <section aria-label="Saved projects" className={styles.results} aria-busy={loading}>
             {loading && entries.length === 0 ? (
-              <div className={styles.loadingGrid} aria-label="Loading local projects">{[0, 1, 2].map(index => <div key={index} className={styles.skeletonCard} />)}<div className={styles.loadingText}>Loading saved projects…</div></div>
+              <div className={styles.loadingGrid} aria-label="Loading account projects">{[0, 1, 2].map(index => <div key={index} className={styles.skeletonCard} />)}<div className={styles.loadingText}>Loading saved projects…</div></div>
             ) : collectionUnavailable ? (
-              <div className={styles.statePanel}><h2>Projects unavailable</h2><p>Local project storage could not be read. Nothing was changed.</p><button type="button" onClick={() => void loadCollection()} className={styles.primaryButton}>Try again</button></div>
+              <div className={styles.statePanel}><h2>Projects unavailable</h2><p>Your account projects could not be read. Nothing was changed.</p><button type="button" onClick={() => void loadCollection()} className={styles.primaryButton}>Try again</button></div>
             ) : entries.length === 0 ? (
-              <div className={styles.statePanel}><h2>No saved projects</h2><p>No saved projects are available locally in this browser.</p><button type="button" onClick={onBack} className={styles.primaryButton}>Back to Home</button></div>
+              <div className={styles.statePanel}><h2>No saved projects</h2><p>No projects have been saved to this account yet.</p><button type="button" onClick={onBack} className={styles.primaryButton}>Back to Home</button></div>
             ) : visibleEntries.length === 0 ? (
               <div className={styles.statePanel}><h2>No matching projects</h2><p>Try a different project name or clear Search.</p><button type="button" onClick={() => setQuery("")} className={styles.primaryButton}>Clear Search</button></div>
             ) : (
@@ -405,7 +416,7 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject }: Pro
                           <span className={styles.titleRow}><span className={styles.projectTitle}>{entry.title}</span><span className={ready ? styles.watchPill : styles.statusPill}>{busy ? "Working…" : ready ? actionLabel : unavailable ? "Unavailable" : "Loading"}</span></span>
                           <span className={styles.updatedAt}>{updatedAt.iso ? <time dateTime={updatedAt.iso} aria-label={`Last updated ${updatedAt.iso}`}>{updatedAt.visible}</time> : updatedAt.visible}</span>
                           <span className={styles.metadata}>{ready && stage && fps !== null && duration !== null ? <><span aria-label={`Duration ${duration.toFixed(3)} seconds`}>{formatProjectDuration(duration)}</span><span>{fps} FPS</span><span>{stage.width}×{stage.height}</span></> : unavailable ? <span className={styles.failureText}>{state.message}</span> : <span>Checking duration, FPS, and stage…</span>}</span>
-                          <span className={styles.classification}>{projectClassificationLabel(entry)}</span><span className={styles.identity}>ID {shortenProjectIdentity(entry)}</span>
+                          <span className={styles.classification}>{entry.classification === "canonical" ? "Native project · saved to your account" : projectClassificationLabel(entry)}</span><span className={styles.identity}>ID {shortenProjectIdentity(entry)}</span>
                         </span>
                       </button>
                       <button ref={node => { if (node) overflowRefs.current.set(entry.id, node); else overflowRefs.current.delete(entry.id); }} type="button" className={styles.overflowButton}
@@ -434,7 +445,7 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject }: Pro
           <div className={styles.managementDialog} role="dialog" aria-modal="true" aria-labelledby="management-dialog-title" aria-describedby="management-dialog-description" onKeyDown={handleDialogKeys}>
             <h2 id="management-dialog-title">{dialog.kind === "rename" ? "Rename project" : dialog.kind === "duplicate" ? "Duplicate project" : "Delete project?"}</h2>
             {dialog.kind === "delete" ? (
-              <><p id="management-dialog-description">Delete <strong>{dialog.entry.title}</strong>, last updated {formatProjectUpdatedAt(dialog.entry.updatedAt).visible}, ID {shortenProjectIdentity(dialog.entry)}? This removes the saved project and its local history and cannot be undone.</p>
+              <><p id="management-dialog-description">Delete <strong>{dialog.entry.title}</strong>, last updated {formatProjectUpdatedAt(dialog.entry.updatedAt).visible}, ID {shortenProjectIdentity(dialog.entry)}? This removes the account project and its saved history and cannot be undone.</p>
                 {dialogError ? <div className={styles.dialogError} role="alert">{dialogError}</div> : null}
                 <div className={styles.dialogActions}><button ref={node => { dialogInitialRef.current = node; }} type="button" className={styles.secondaryButton} onClick={() => closeDialog()} disabled={busyEntryId !== null}>Cancel</button><button type="button" className={styles.deleteButton} onClick={() => void runDialogCommand()} disabled={busyEntryId !== null}>{busyEntryId ? "Deleting…" : "Delete project"}</button></div></>
             ) : (

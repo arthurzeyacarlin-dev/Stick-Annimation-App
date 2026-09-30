@@ -56,7 +56,7 @@ export function AccountEntry() {
         <div style={{ color: "#76b7ff", fontSize: "12px", fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase" }}>Local account review</div>
         <h1 id="account-entry-title" style={{ margin: "8px 0 6px", fontSize: "30px" }}>Diamond Animator</h1>
         <p style={{ margin: 0, color: "rgba(222,232,246,0.78)", lineHeight: 1.55 }}>
-          Account credentials are saved only in this local app copy. Projects, chats, notifications, and Dashboard usage remain browser-local and may be visible to anyone who uses this browser.
+          Account credentials are saved only in this local app copy. New editable projects are privately saved to your account; chats, notifications, and Dashboard usage remain browser-local and may be visible to anyone who uses this browser. Existing browser-local projects are not imported automatically.
         </p>
 
         {mode === null ? (

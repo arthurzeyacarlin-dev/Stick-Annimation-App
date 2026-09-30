@@ -112,7 +112,7 @@ export const prepareRecoveryWorkspace = async (
 
 export const prepareCollectionWorkspace = async (reader: ProjectSourceReader, entry: ProjectCollectionEntry): Promise<WorkspaceCandidate> => {
   if (entry.sourceKind === "unified-v2") {
-    const source = await readUnifiedProjectV2(entry.sourceId);
+    const source = await (reader.readNativeProject ?? readUnifiedProjectV2)(entry.sourceId);
     const project = await retireLegacyRigsV3(source, {
       sourceKind: "unified-v2",
       sourceDigest: entry.candidateDigest ?? `${source.projectId}:${source.revision}`,

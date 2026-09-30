@@ -5,6 +5,7 @@ import type { UnifiedLegacyMigrationSourceV1 } from "./unifiedAnimationMigration
 import { validateUnifiedAnimationCandidateV1, type UnifiedAnimationMigrationCandidateV1 } from "./unifiedAnimationContract.ts";
 import type { DrawingProjectHeadV2, DrawingProjectVersionRecordV2 } from "../drawingProjectV2Contract.ts";
 import { listUnifiedProjectHeadsV2 } from "./unifiedProjectStorageV2.ts";
+import type { UnifiedAnimationProjectV2 } from "./unifiedAnimationContractV2.ts";
 
 export const UNIFIED_PROJECT_V1_STORAGE_KEY = "da_saved_unified_projects_v1";
 export type ProjectSourcePayload = UnifiedLegacyMigrationSourceV1 | { sourceKind: "unified-v1"; candidate: UnifiedAnimationMigrationCandidateV1 };
@@ -21,7 +22,10 @@ export type ProjectSource = {
   canonicalDigest?: string | null;
   read: () => Promise<ProjectSourcePayload>;
 };
-export type ProjectSourceReader = { list: () => Promise<ProjectSource[]> };
+export type ProjectSourceReader = {
+  list: () => Promise<ProjectSource[]>;
+  readNativeProject?: (projectId: string) => Promise<UnifiedAnimationProjectV2>;
+};
 const object = (value: unknown): Record<string, unknown> => value !== null && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
 const label = (value: unknown, fallback: string) => typeof value === "string" && value.trim() ? value.slice(0, 512) : fallback;
 const date = (value: unknown) => typeof value === "string" && Number.isFinite(Date.parse(value)) ? value : null;

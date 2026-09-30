@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { NotificationTrigger } from "@/src/components/notifications/NotificationTrigger";
 import { useAccountSession } from "@/src/components/account/AccountSessionProvider";
 import { ACCOUNT_PREVIEW_PLANS } from "@/src/lib/account/accountConfig";
+import { runAccountProjectLogout } from "@/src/lib/account/projectPending";
 
 type AppChromeProps = {
   theme?: "default" | "home";
@@ -104,15 +105,25 @@ export function AppChrome({ theme = "default" }: AppChromeProps) {
     setLogoutBusy(true);
     setLogoutError(null);
     try {
-      const response = await fetch("/api/auth/sign-out", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: "{}",
+      if (!account) throw new Error("account_session_required");
+      await runAccountProjectLogout(account.id, async () => {
+        const response = await fetch("/api/auth/sign-out", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: "{}",
+        });
+        if (!response.ok) throw new Error("logout_failed");
       });
-      if (!response.ok) throw new Error("logout_failed");
       window.location.assign("/");
-    } catch {
-      setLogoutError("Log out could not be completed. Try again.");
+    } catch (error) {
+      const code = error instanceof Error ? error.message : "";
+      setLogoutError(code === "account_project_other_tab_dirty"
+        ? "Another tab has unsaved project changes. Save or close that editor before logging out."
+        : code === "account_project_unsaved_changes" || code === "account_project_pending_failed"
+          ? "A project save has not been confirmed. Stay signed in and retry Save before logging out."
+          : code === "account_project_logout_check_failed"
+            ? "Open project tabs could not be checked safely. Stay signed in and try again."
+            : "Log out could not be completed. Try again.");
       setLogoutBusy(false);
     }
   };

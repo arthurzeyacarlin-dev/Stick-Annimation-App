@@ -6,6 +6,11 @@
 ./app
 ./app/ScrollbarActivity.tsx
 ./app/api
+./app/api/account
+./app/api/account/projects
+./app/api/account/projects/[projectId]
+./app/api/account/projects/[projectId]/route.ts
+./app/api/account/projects/route.ts
 ./app/api/ai
 ./app/api/ai-animator
 ./app/api/ai-animator/route.ts
@@ -675,6 +680,13 @@
 ./scripts/spec0015-account/phase3/phase3-oracle.mjs
 ./scripts/spec0015-account/phase3/prepare-local-store.mjs
 ./scripts/spec0015-account/phase3/validate-proof-manifest.mjs
+./scripts/spec0015-account/phase4
+./scripts/spec0015-account/phase4/browser-proof.mjs
+./scripts/spec0015-account/phase4/encoder-oracle.mjs
+./scripts/spec0015-account/phase4/latency-proof.mjs
+./scripts/spec0015-account/phase4/save-contract.mjs
+./scripts/spec0015-account/phase4/security-fault.mjs
+./scripts/spec0015-account/phase4/validate-proof.mjs
 ./scripts/spec0015-dashboard
 ./scripts/spec0015-dashboard/phase1BrowserProof.ts
 ./scripts/spec0015-dashboard/phase1BuildProof.ts
@@ -800,6 +812,10 @@
 ./src/lib/account/access.ts
 ./src/lib/account/accountConfig.ts
 ./src/lib/account/auth.ts
+./src/lib/account/projectBundle.ts
+./src/lib/account/projectClient.ts
+./src/lib/account/projectPending.ts
+./src/lib/account/projectServer.ts
 ./src/lib/ai
 ./src/lib/ai-dashboard
 ./src/lib/ai-dashboard/dashboardAggregation.ts
@@ -937,5 +953,6 @@
 ./src/lib/usage-journal/usageJournalStore.ts
 ./supabase
 ./supabase/migrations
+./supabase/migrations/20260929124642_spec0015_phase4_account_projects.sql
 ./supabase/migrations/create_plans_training_table.sql
 ./tsconfig.json

@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CanonicalProjectPlayer, type CanonicalProjectPlayerHandle } from "../project-player/CanonicalProjectPlayer";
 import { listProjectCollection, type ProjectCollectionEntry } from "@/src/lib/animation/unifiedProjectCollection";
-import { createBrowserProjectSourceReader } from "@/src/lib/animation/unifiedProjectSourceReader";
+import { createAccountProjectSourceReader } from "@/src/lib/account/projectClient";
+import { useAccountSession } from "@/src/components/account/AccountSessionProvider";
 import {
   exportCollectionEntryIdentityMatches,
   formatExportDuration,
@@ -67,7 +68,7 @@ function ExportThumbnail({ snapshot }: { snapshot: ExportProjectSnapshot }) {
   return <canvas ref={canvasRef} width={240} height={135} aria-label={`${snapshot.project.title} thumbnail`} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />;
 }
 
-function ExportAnimationPlayer({ snapshot, onChange }: { snapshot: ExportProjectSnapshot; onChange: () => void }) {
+function ExportAnimationPlayer({ snapshot, onChange, ownerId }: { snapshot: ExportProjectSnapshot; onChange: () => void; ownerId: string }) {
   const playerRef = useRef<CanonicalProjectPlayerHandle | null>(null);
   const [filename, setFilename] = useState(snapshot.project.title);
   const [quality, setQuality] = useState<ExportQualityTier>("720p");
@@ -107,7 +108,7 @@ function ExportAnimationPlayer({ snapshot, onChange }: { snapshot: ExportProject
   const running = exportState === "preflighting" || exportState === "exporting" || exportState === "cancelling";
 
   const assertSnapshotIsCurrent = async () => {
-    const collection = await listProjectCollection(createBrowserProjectSourceReader());
+    const collection = await listProjectCollection(createAccountProjectSourceReader(ownerId));
     const currentEntry = collection.find(entry => entry.id === snapshot.entry.id);
     if (!currentEntry || !exportCollectionEntryIdentityMatches(currentEntry, snapshot.entry)) throw new Error("source_changed");
   };
@@ -319,6 +320,12 @@ const primaryButtonStyle = { padding: "10px 16px", borderRadius: 10, border: "1p
 const secondaryButtonStyle = { padding: "10px 14px", borderRadius: 10, border: "1px solid rgba(255,255,255,.16)", background: "rgba(255,255,255,.06)", color: "white", cursor: "pointer" } as const;
 
 export function AnimationExportFlow({ origin, onBack }: Props) {
+  const account = useAccountSession();
+  const ownerId = account?.id;
+  const createReader = useCallback(() => {
+    if (!ownerId) throw new Error("account_session_required");
+    return createAccountProjectSourceReader(ownerId);
+  }, [ownerId]);
   const [entries, setEntries] = useState<ProjectCollectionEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [collectionError, setCollectionError] = useState(false);
@@ -333,7 +340,7 @@ export function AnimationExportFlow({ origin, onBack }: Props) {
     const generation = collectionGenerationRef.current + 1;
     collectionGenerationRef.current = generation;
     setLoading(true); setCollectionError(false); setMessage(null);
-    void listProjectCollection(createBrowserProjectSourceReader()).then(collection => {
+    void listProjectCollection(createReader()).then(collection => {
       if (collectionGenerationRef.current !== generation) return;
       setEntries(collection); setLoading(false);
       const available = collection.filter(candidate => candidate.classification !== "invalid");
@@ -343,7 +350,7 @@ export function AnimationExportFlow({ origin, onBack }: Props) {
         while (nextIndex < available.length) {
           const entry = available[nextIndex++];
           try {
-            const snapshot = await loadExportProjectSnapshot(createBrowserProjectSourceReader(), entry);
+            const snapshot = await loadExportProjectSnapshot(createReader(), entry);
             if (collectionGenerationRef.current !== generation) return;
             setSnapshots(current => ({ ...current, [entry.id]: { status: "ready", snapshot } }));
           } catch (error) {
@@ -354,17 +361,17 @@ export function AnimationExportFlow({ origin, onBack }: Props) {
       };
       void Promise.all(Array.from({ length: Math.min(4, available.length) }, worker));
     }).catch(() => { if (collectionGenerationRef.current === generation) { setLoading(false); setCollectionError(true); } });
-  }, []);
+  }, [createReader]);
 
   useEffect(loadCollection, [loadCollection]);
-  if (watching) return <ExportAnimationPlayer snapshot={watching} onChange={() => { setWatching(null); setSelectedId(null); setMessage(null); loadCollection(); }} />;
+  if (watching && ownerId) return <ExportAnimationPlayer snapshot={watching} ownerId={ownerId} onChange={() => { setWatching(null); setSelectedId(null); setMessage(null); loadCollection(); }} />;
   const selectedState = selectedId ? snapshots[selectedId] : null;
 
   const openSelectedAnimation = async () => {
     if (!selectedId || selectedState?.status !== "ready" || selectedState.snapshot.frameCount === 0 || busy) return;
     setBusy(true); setMessage("Checking the exact saved animation…");
     try {
-      const current = await loadExportProjectSnapshot(createBrowserProjectSourceReader(), selectedState.snapshot.entry);
+      const current = await loadExportProjectSnapshot(createReader(), selectedState.snapshot.entry);
       if (current.projectDigest !== selectedState.snapshot.projectDigest) throw new Error("source_changed");
       setWatching(current); setMessage(null);
     } catch (error) { setMessage(errorMessage(error)); }

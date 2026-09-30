@@ -40,6 +40,7 @@ import {
   type DrawingAiWorkspaceContext,
 } from "@/src/lib/ai/drawingAiContract";
 import { requireAccountRequest } from "@/src/lib/account/access";
+import { accountProjectBelongsToOwner } from "@/src/lib/account/projectServer";
 import {
   appendDevAiCostLogEntry,
   getCurrentDevAiRequestUsageSummary,
@@ -2238,6 +2239,9 @@ export async function POST(req: Request) {
     followUpInteractionKind = getFollowUpInteractionKindFromRequestBody(requestBody, warnings);
     workspaceContext = getWorkspaceContextFromRequestBody(requestBody, warnings);
     const scopedProjectId = normalizeProjectScopeId(workspaceContext?.projectId ?? null);
+    if (!scopedProjectId || !await accountProjectBelongsToOwner(access.session.user.id, scopedProjectId)) {
+      return respondJson({ error: "Project is not available to this account." }, { status: 403 });
+    }
     recentSoundOptions = getRecentSoundOptionsFromRequestBody(requestBody, warnings);
     projectAiMemory = getProjectAiMemoryFromRequestBody(requestBody, warnings, scopedProjectId);
     generateFramesState =

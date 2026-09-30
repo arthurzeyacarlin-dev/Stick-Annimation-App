@@ -293,8 +293,11 @@ const completion = (transaction: IDBTransaction) => new Promise<void>((resolve, 
   transaction.onabort = transaction.onerror = () => reject(transaction.error ?? new Error("recovery_storage_failed"));
 });
 
-const database = () => new Promise<IDBDatabase>((resolve, reject) => {
-  const open = indexedDB.open(DB_NAME, DB_VERSION);
+const scopedDatabaseName = (ownerId?: string) => ownerId ? `${DB_NAME}:account:${encodeURIComponent(ownerId)}` : DB_NAME;
+const scopedSessionKey = (ownerId?: string) => ownerId ? `${SESSION_KEY}:account:${encodeURIComponent(ownerId)}` : SESSION_KEY;
+
+const database = (name: string) => new Promise<IDBDatabase>((resolve, reject) => {
+  const open = indexedDB.open(name, DB_VERSION);
   open.onupgradeneeded = () => {
     const db = open.result;
     if (!db.objectStoreNames.contains(STORES.heads)) db.createObjectStore(STORES.heads, { keyPath: "draftId" });
@@ -307,35 +310,39 @@ const database = () => new Promise<IDBDatabase>((resolve, reject) => {
   open.onerror = () => reject(open.error ?? new Error("recovery_storage_failed"));
   open.onblocked = () => reject(new Error("recovery_storage_blocked"));
 });
-const existingDatabase = () => new Promise<IDBDatabase | null>((resolve, reject) => {
-  const open = indexedDB.open(DB_NAME);
+const existingDatabase = (name: string) => new Promise<IDBDatabase | null>((resolve, reject) => {
+  const open = indexedDB.open(name);
   let absent = false;
   open.onupgradeneeded = () => { absent = true; open.transaction?.abort(); };
   open.onsuccess = () => resolve(open.result);
   open.onerror = () => absent ? resolve(null) : reject(open.error ?? new Error("recovery_storage_failed"));
   open.onblocked = () => reject(new Error("recovery_storage_blocked"));
 });
-const withDatabase = async <T>(operation: (db: IDBDatabase) => Promise<T>) => {
-  const db = await database();
+const withDatabase = async <T>(name: string, operation: (db: IDBDatabase) => Promise<T>) => {
+  const db = await database(name);
   try { return await operation(db); } finally { db.close(); }
 };
-const withExistingDatabase = async <T>(operation: (db: IDBDatabase) => Promise<T>, empty: T) => {
-  const db = await existingDatabase();
+const withExistingDatabase = async <T>(name: string, operation: (db: IDBDatabase) => Promise<T>, empty: T) => {
+  const db = await existingDatabase(name);
   if (!db) return empty;
   try { return await operation(db); } finally { db.close(); }
 };
 
-const browserAdapter: ProjectRecoveryStorageAdapterV1 = {
-  readHead: () => withExistingDatabase(async db => {
+const browserAdapter = (ownerId?: string): ProjectRecoveryStorageAdapterV1 => {
+  const name = scopedDatabaseName(ownerId);
+  const withScopedDatabase = <T>(operation: (db: IDBDatabase) => Promise<T>) => withDatabase(name, operation);
+  const withScopedExistingDatabase = <T>(operation: (db: IDBDatabase) => Promise<T>, empty: T) => withExistingDatabase(name, operation, empty);
+  return {
+  readHead: () => withScopedExistingDatabase(async db => {
     if (!db.objectStoreNames.contains(STORES.heads)) return null;
     return (await request(db.transaction(STORES.heads, "readonly").objectStore(STORES.heads).get(PROJECT_RECOVERY_DRAFT_ID_V1))) ?? null;
   }, null),
-  readCandidate: (draftSequence, candidateDigest) => withExistingDatabase(async db => {
+  readCandidate: (draftSequence, candidateDigest) => withScopedExistingDatabase(async db => {
     if (!db.objectStoreNames.contains(STORES.candidates)) return null;
     return (await request(db.transaction(STORES.candidates, "readonly").objectStore(STORES.candidates)
       .get([PROJECT_RECOVERY_DRAFT_ID_V1, draftSequence, candidateDigest]))) ?? null;
   }, null),
-  readAssets: assetIds => withExistingDatabase(async db => {
+  readAssets: assetIds => withScopedExistingDatabase(async db => {
     if (!db.objectStoreNames.contains(STORES.assets)) throw new Error("recovery_asset_missing");
     const store = db.transaction(STORES.assets, "readonly").objectStore(STORES.assets);
     return Promise.all(assetIds.map(async assetId => {
@@ -344,7 +351,7 @@ const browserAdapter: ProjectRecoveryStorageAdapterV1 = {
       return asset as UnifiedEncodedAssetV2;
     }));
   }, []),
-  stage: input => withDatabase(async db => {
+  stage: input => withScopedDatabase(async db => {
     const transaction = db.transaction(Object.values(STORES), "readwrite");
     const done = completion(transaction);
     const heads = transaction.objectStore(STORES.heads);
@@ -400,7 +407,7 @@ const browserAdapter: ProjectRecoveryStorageAdapterV1 = {
     }
     await done;
   }),
-  publish: input => withDatabase(async db => {
+  publish: input => withScopedDatabase(async db => {
     const transaction = db.transaction(Object.values(STORES), "readwrite");
     const done = completion(transaction);
     const heads = transaction.objectStore(STORES.heads);
@@ -445,7 +452,7 @@ const browserAdapter: ProjectRecoveryStorageAdapterV1 = {
     }
     await done;
   }),
-  abandon: input => withExistingDatabase(async db => {
+  abandon: input => withScopedExistingDatabase(async db => {
     if (!Object.values(STORES).every(name => db.objectStoreNames.contains(name))) return;
     const transaction = db.transaction(Object.values(STORES), "readwrite");
     const done = completion(transaction);
@@ -476,7 +483,7 @@ const browserAdapter: ProjectRecoveryStorageAdapterV1 = {
     }
     await done;
   }, undefined),
-  clear: input => withExistingDatabase(async db => {
+  clear: input => withScopedExistingDatabase(async db => {
     if (!Object.values(STORES).every(name => db.objectStoreNames.contains(name))) return "none" as const;
     const transaction = db.transaction(Object.values(STORES), "readwrite");
     const done = completion(transaction);
@@ -507,7 +514,7 @@ const browserAdapter: ProjectRecoveryStorageAdapterV1 = {
     await done;
     return "cleared" as const;
   }, "none" as const),
-  claim: input => withExistingDatabase(async db => {
+  claim: input => withScopedExistingDatabase(async db => {
     if (![STORES.heads, STORES.owners, STORES.candidates].every(name => db.objectStoreNames.contains(name))) {
       return "none" as const;
     }
@@ -556,7 +563,7 @@ const browserAdapter: ProjectRecoveryStorageAdapterV1 = {
     await done;
     return "claimed" as const;
   }, "none" as const),
-  discard: expectation => withExistingDatabase(async db => {
+  discard: expectation => withScopedExistingDatabase(async db => {
     const storeNames = Object.values(STORES).filter(name => db.objectStoreNames.contains(name));
     if (!storeNames.includes(STORES.heads)) return "none" as const;
     const transaction = db.transaction(storeNames, "readwrite");
@@ -590,23 +597,25 @@ const browserAdapter: ProjectRecoveryStorageAdapterV1 = {
     await done;
     return "discarded" as const;
   }, "none" as const),
+  };
 };
 
-const browserStorage = () => createProjectRecoveryStorageV1(browserAdapter);
+const browserStorage = (ownerId?: string) => createProjectRecoveryStorageV1(browserAdapter(ownerId));
 
-export const getOrCreateProjectRecoverySessionIdV1 = () => {
-  const existing = sessionStorage.getItem(SESSION_KEY);
+export const getOrCreateProjectRecoverySessionIdV1 = (ownerId?: string) => {
+  const key = scopedSessionKey(ownerId);
+  const existing = sessionStorage.getItem(key);
   if (existing) return existing;
   const created = globalThis.crypto?.randomUUID?.() ?? `recovery-session-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-  sessionStorage.setItem(SESSION_KEY, created);
+  sessionStorage.setItem(key, created);
   return created;
 };
 
-export const inspectProjectRecoveryDraftV1 = () => browserStorage().inspect();
-export const writeProjectRecoveryDraftV1 = (input: ProjectRecoveryWriteInputV1, hooks: ProjectRecoveryFaultHooksV1 = {}) =>
-  browserStorage().write(input, hooks);
-export const clearProjectRecoveryDraftV1 = (input: ProjectRecoveryClearInputV1) => browserStorage().clear(input);
-export const claimProjectRecoveryDraftV1 = (input: ProjectRecoveryClaimInputV1) => browserStorage().claim(input);
-export const discardProjectRecoveryDraftV1 = (expectation: ProjectRecoveryDiscardExpectationV1) => browserStorage().discard(expectation);
+export const inspectProjectRecoveryDraftV1 = (ownerId?: string) => browserStorage(ownerId).inspect();
+export const writeProjectRecoveryDraftV1 = (input: ProjectRecoveryWriteInputV1, hooks: ProjectRecoveryFaultHooksV1 = {}, ownerId?: string) =>
+  browserStorage(ownerId).write(input, hooks);
+export const clearProjectRecoveryDraftV1 = (input: ProjectRecoveryClearInputV1, ownerId?: string) => browserStorage(ownerId).clear(input);
+export const claimProjectRecoveryDraftV1 = (input: ProjectRecoveryClaimInputV1, ownerId?: string) => browserStorage(ownerId).claim(input);
+export const discardProjectRecoveryDraftV1 = (expectation: ProjectRecoveryDiscardExpectationV1, ownerId?: string) => browserStorage(ownerId).discard(expectation);
 
 export { DB_NAME as PROJECT_RECOVERY_DATABASE_V1, STORES as PROJECT_RECOVERY_STORES_V1 };

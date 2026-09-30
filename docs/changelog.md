@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-09-30 — Arthur accepts isolated SPEC-0015 Phase 4 (D-0159; publication pending)
+
+- Arthur passed the private account-project review with multiple editable projects, Save/Save As/Save and Exit, reopen/edit and A/B account switching. The accepted 28 source/technical-test paths remain byte-frozen; fresh production build and focused deterministic checks pass.
+- Arthur identified the only older original-main project as disposable test work and explicitly waived its continued visibility after the account-project switch. No project, account credential or review data is migrated, assigned or deleted by this decision.
+- Recorded the mutable SQLite sidecar proof-hash drift and the remaining remote-latency/fault/protected-regression evidence limits without calling them a green final manifest. Control-plane changes only in this record; canonical integration and push are separate publication actions.
+
 ## 2026-09-29 — Narrow Phase 4 save contract after confirmed encoder defect (D-0158; docs only)
 
 - Recorded a valid shared-paint-coverage V2 project failing the canonical encoder at `encode_failed`; cloned equal coverage passes. The newer rejected port-58582 review logged that stage, but Arthur's exact “good dog” cause is not yet conclusively established. Preserved both rejected copies, drafts, account data and remote objects.

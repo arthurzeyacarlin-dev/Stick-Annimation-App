@@ -4,6 +4,7 @@ import { AiAnimatorJobService } from "@/src/lib/ai/aiAnimatorJobService";
 import { generateAiAnimatorReply } from "@/src/lib/openai/generateAiAnimatorReply";
 import { recordUsageEvent } from "@/src/lib/usage-journal/usageJournalRuntime";
 import { requireAccountRequest } from "@/src/lib/account/access";
+import { accountProjectBelongsToOwner } from "@/src/lib/account/projectServer";
 
 export const runtime = "nodejs";
 
@@ -33,6 +34,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "AI Animator request is invalid or too large." }, { status: 400 });
   }
   try {
+    if (!await accountProjectBelongsToOwner(access.session.user.id, normalized.workspace.projectId)) {
+      return NextResponse.json({ error: "Project is not available to this account." }, { status: 403 });
+    }
     return NextResponse.json(jobs.submit(normalized), { status: 202 });
   } catch (error) {
     return safeError(error);
@@ -47,6 +51,9 @@ export async function GET(request: Request) {
   const projectId = url.searchParams.get("projectId")?.trim() ?? "";
   if (!jobId || !projectId) {
     return NextResponse.json({ error: "Job and project identity are required." }, { status: 400 });
+  }
+  if (!await accountProjectBelongsToOwner(access.session.user.id, projectId)) {
+    return NextResponse.json({ error: "Project is not available to this account." }, { status: 403 });
   }
   const snapshot = jobs.get(jobId, projectId);
   return snapshot
@@ -67,6 +74,9 @@ export async function DELETE(request: Request) {
   const projectId = typeof body?.projectId === "string" ? body.projectId.trim() : "";
   if (!jobId || !projectId) {
     return NextResponse.json({ error: "Job and project identity are required." }, { status: 400 });
+  }
+  if (!await accountProjectBelongsToOwner(access.session.user.id, projectId)) {
+    return NextResponse.json({ error: "Project is not available to this account." }, { status: 403 });
   }
   const snapshot = jobs.cancel(jobId, projectId);
   return snapshot

@@ -85,8 +85,8 @@ const sha256Hex = async (bytes: Uint8Array) => {
 export const prepareUnifiedProjectStorageV2 = async (project: UnifiedAnimationProjectV2, hooks: UnifiedStorageFaultHooksV2 = {}) => {
   hooks.encode?.();
   const assets = new Map<string, UnifiedEncodedAssetV2>();
-  const seen = new Set<object>();
-  const visit = async (value: unknown): Promise<unknown> => {
+  type Ancestor = { value: object; parent: Ancestor | null };
+  const visit = async (value: unknown, parent: Ancestor | null): Promise<unknown> => {
     if (typeof value === "string" && /^data:(?:image|audio)\//.test(value)) {
       const bytes = utf8(value);
       hooks.hash?.();
@@ -113,23 +113,24 @@ export const prepareUnifiedProjectStorageV2 = async (project: UnifiedAnimationPr
     if (value === null || typeof value === "string" || typeof value === "number" || typeof value === "boolean") return value;
     if (value === undefined || typeof value !== "object") fail("encode_failed");
     const objectValue = value as object;
-    if (seen.has(objectValue)) fail("encode_failed");
-    seen.add(objectValue);
+    for (let ancestor = parent; ancestor; ancestor = ancestor.parent) {
+      if (ancestor.value === objectValue) fail("encode_failed");
+    }
+    const ancestors = { value: objectValue, parent };
     let encoded: unknown;
     if (Array.isArray(value)) {
-      encoded = await Promise.all(value.map(visit));
+      encoded = await Promise.all(value.map(entry => visit(entry, ancestors)));
     } else {
       const result: Record<string, unknown> = {};
       for (const [key, entry] of Object.entries(value as Record<string, unknown>)) {
         if (entry === undefined) continue;
-        result[key] = await visit(entry);
+        result[key] = await visit(entry, ancestors);
       }
       encoded = result;
     }
-    seen.delete(objectValue);
     return encoded;
   };
-  const encodedProject = await visit(project);
+  const encodedProject = await visit(project, null);
   const encodedJson = JSON.stringify(encodedProject);
   hooks.hash?.();
   const projectDigest = await sha256Hex(utf8(encodedJson));

@@ -2,10 +2,14 @@
 
 Status: canonical repository memory
 Established: 2026-08-09
-Last reconciled with current records and source: 2026-09-29 through D-0158's docs-only Phase 4 save-proof amendment from clean published two-part plan `b3a6d35b19386bf47971e490601d548b7548b118`. Phases 1–3 remain accepted/published/integrated locally; both `/84bf/` and the newer port-58582 Phase 4 review are rejected/unpublished. Phase 4.5 and Phase 5 boundaries remain separate. This amendment is not app implementation or Git publication.
+Last reconciled with current records and source: 2026-09-30 through D-0159's accepted isolated Phase 4 review from clean published base `bb0f41fb8dab5f8e7187392c823a9ec5f0386290`. Phases 1–3 remain integrated locally; the earlier `/84bf/` and port-58582 Phase 4 reviews remain rejected/unpublished. The accepted Phase 4 copy is frozen and publication is separately authorized but not yet recorded as complete. Phase 4.5 and Phase 5 remain separate.
 Snapshot basis: pull request `#1` merged into `main` as `093bbac82fd3b4d97984448b6c6dbd716153354d`; functional anchor `c7de444536f3e0dd578a2063f70b0914e6af60b1`; tag `baseline-2026-08-09-control-plane`; SPEC-0014 Phase 1 GIT-099 `06365eacffe493ea3550de71b3baff0f57bf03b2`; Phase 2 GIT-100 `318566d6d20acec672c3d8c6a0e5620ad70c7d66`; Phase 4 GIT-102 product commit `283c297d1df01371dc599a52719d35dc78e1d2f4` plus this records-only closeout.
 
-## D-0158 narrow Phase 4 save-proof amendment — PM review next
+## D-0159 accepted isolated Phase 4 — publication authorized
+
+Arthur visibly passed private editable account projects and switching between two accounts in the isolated review copy. The one older original-main project is disposable test work by Arthur's explicit statement; its continued visibility is not required, but no transfer or deletion is authorized. The accepted 28 source/technical-test paths remain unchanged and match the ignored manifest; fresh production build and focused checks pass. Strict manifest revalidation is not green because mutable review-account SQLite sidecars drifted; remote p95, full induced faults and full protected real-app regressions remain unproven. Canonical main has not yet received this result. No Phase 4.5 hosted account continuity, Phase 5 usage, billing or public launch is implied.
+
+## Historical D-0158 narrow Phase 4 save-proof amendment — published planning
 
 D-0157's exactly two-part Phase 4/4.5 plan is published at `b3a6d35`. [SPEC-0015 §14.3.1](specs/0015-functional-ai-dashboard.md) now records a confirmed canonical encoder false-cycle defect for valid shared frame coverage and the rejected port-58582 `encode_failed prepare` evidence; it does not claim this conclusively caused Arthur's exact project failure. Phase 4 requires a fresh isolated executor, noncolliding namespace/command gate, encoder repair, efficient truthful account saves/checkpoints/logout and the real owner-visible flow with latency/regression proof. Both rejected copies and user drafts remain preserved. This is docs-only and grants no implementation or publication authority; Phase 4.5 hosted work and Phase 5 usage remain unchanged.
 

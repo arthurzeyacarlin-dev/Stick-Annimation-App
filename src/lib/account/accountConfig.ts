@@ -1,7 +1,7 @@
 const accountPort = process.env.PORT?.trim() || "3000";
 
-if (accountPort !== "3000" && accountPort !== "58580") {
-  throw new Error("Local account access is configured only for ports 3000 and 58580.");
+if (accountPort !== "3000" && accountPort !== "58580" && accountPort !== "58584") {
+  throw new Error("Local account access is configured only for ports 3000, 58580, and 58584.");
 }
 
 export const ACCOUNT_LOCAL_HOST = `127.0.0.1:${accountPort}`;

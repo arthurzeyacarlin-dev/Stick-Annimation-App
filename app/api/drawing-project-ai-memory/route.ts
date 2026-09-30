@@ -4,6 +4,7 @@ import { shouldRejectStaleDrawingProjectAiMemorySave } from "@/src/lib/ai/drawin
 import { getSupabaseAdminClient, isSupabaseAdminConfigured } from "@/src/lib/dbAdmin";
 import { NextRequest, NextResponse } from "next/server";
 import { requireAccountRequest } from "@/src/lib/account/access";
+import { accountProjectBelongsToOwner } from "@/src/lib/account/projectServer";
 
 /**
  * Supabase table: public.drawing_project_ai_memory
@@ -28,6 +29,9 @@ export async function GET(request: NextRequest) {
   const projectId = readProjectId(request);
   if (!projectId) {
     return NextResponse.json({ memory: null, synced: false }, { status: 400 });
+  }
+  if (!await accountProjectBelongsToOwner(access.session.user.id, projectId)) {
+    return NextResponse.json({ memory: null, synced: false }, { status: 403 });
   }
 
   if (!isSupabaseAdminConfigured()) {
@@ -71,6 +75,9 @@ export async function POST(request: NextRequest) {
 
   if (!projectId || !memory) {
     return NextResponse.json({ saved: false, synced: false }, { status: 400 });
+  }
+  if (!await accountProjectBelongsToOwner(access.session.user.id, projectId)) {
+    return NextResponse.json({ saved: false, synced: false }, { status: 403 });
   }
 
   if (!isSupabaseAdminConfigured()) {
@@ -124,6 +131,9 @@ export async function DELETE(request: NextRequest) {
   const projectId = readProjectId(request);
   if (!projectId) {
     return NextResponse.json({ deleted: false, synced: false }, { status: 400 });
+  }
+  if (!await accountProjectBelongsToOwner(access.session.user.id, projectId)) {
+    return NextResponse.json({ deleted: false, synced: false }, { status: 403 });
   }
 
   if (!isSupabaseAdminConfigured()) {

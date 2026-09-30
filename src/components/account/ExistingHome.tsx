@@ -1,14 +1,16 @@
 "use client";
 
 import { AppChrome as MainScreenHeader } from "@/src/components/chrome/AIcreditspage";
-import { OpenProjectBrowser } from "@/src/components/open-project/OpenProjectBrowser";
 import { TutorialsScreen } from "@/src/components/tutorials/TutorialsScreen";
 import { AnimationWorkspace } from "@/src/components/workspace/AnimationWorkspace";
 import { AnimationExportFlow } from "@/src/components/export/AnimationExportFlow";
 import { ProjectRecoveryPrompt } from "@/src/components/recovery/ProjectRecoveryPrompt";
 import { ProjectLibrary } from "@/src/components/project-library/ProjectLibrary";
 import { createUntitledWorkspace, prepareCollectionWorkspace, prepareRecoveryWorkspace, WorkspaceBootstrap, type MountedWorkspace } from "@/src/lib/animation/unifiedWorkspaceBootstrap";
-import { createBrowserProjectSourceReader } from "@/src/lib/animation/unifiedProjectSourceReader";
+import { createAccountProjectRepositoryV2, createAccountProjectSourceReader, readAccountProjectV2 } from "@/src/lib/account/projectClient";
+import { withAccountProjectWrite } from "@/src/lib/account/projectPending";
+import { digestUnifiedProjectV2 } from "@/src/lib/animation/unifiedProjectStorageV2";
+import { useAccountSession } from "@/src/components/account/AccountSessionProvider";
 import { acquireProjectOpenLeaseV2 } from "@/src/lib/animation/unifiedProjectManagementV2";
 import { UNIFIED_PROJECT_EDITOR_IDENTITY_EVENT_V2 } from "@/src/lib/animation/unifiedProjectRepositoryV2";
 import type { ProjectCollectionEntry } from "@/src/lib/animation/unifiedProjectCollection";
@@ -51,6 +53,12 @@ const sameRecoveryGeneration = (left: ProjectRecoveryEnvelopeV1, right: ProjectR
   left.candidateDigest === right.candidateDigest;
 
 export default function Page() {
+  const account = useAccountSession();
+  const ownerId = account?.id;
+  const createReader = useCallback(() => {
+    if (!ownerId) throw new Error("account_session_required");
+    return createAccountProjectSourceReader(ownerId);
+  }, [ownerId]);
   const router = useRouter();
   const { snapshot: notificationSnapshot } = useNotificationCenterV1();
   const terraTargetKey = useMemo(() => JSON.stringify(notificationSnapshot.rows.filter(row => row.target.kind === "workspace-terra-turn").map(row => row.target)), [notificationSnapshot.rows]);
@@ -138,7 +146,7 @@ export default function Page() {
 
   useEffect(() => {
     let cancelled = false;
-    void inspectProjectRecoveryDraftV1().then(result => {
+    void inspectProjectRecoveryDraftV1(ownerId).then(result => {
       if (cancelled) return;
       if (result.kind === "none") setStartupRecovery({ kind: "home" });
       else if (result.kind === "valid") setStartupRecovery({ kind: "valid", envelope: result.envelope });
@@ -150,7 +158,7 @@ export default function Page() {
       });
     });
     return () => { cancelled = true; };
-  }, []);
+  }, [ownerId]);
 
   useEffect(() => {
     if (startupRecovery.kind !== "home") return;
@@ -278,10 +286,10 @@ export default function Page() {
     };
   }, [workspace]);
   const openProject = useCallback(async (entry: ProjectCollectionEntry) => {
-    const result = await bootstrap.open(() => prepareCollectionWorkspace(createBrowserProjectSourceReader(), entry));
+    const result = await bootstrap.open(() => prepareCollectionWorkspace(createReader(), entry));
     if (result.status === "opened") { setWorkspace(result.root); setView("animationWorkspace"); }
     return result;
-  }, [bootstrap]);
+  }, [bootstrap, createReader]);
 
   useEffect(() => {
     const targets = JSON.parse(terraTargetKey) as NotificationTargetV1[];
@@ -296,7 +304,7 @@ export default function Page() {
             return "handled";
           }
           if (workspace && (view === "animationWorkspace" || view === "animationExport")) return "blocked-unsaved";
-          const matches = (await listProjectCollection(createBrowserProjectSourceReader()))
+          const matches = (await listProjectCollection(createReader()))
             .filter(entry => entry.classification === "canonical" && entry.sourceId === target.projectId);
           if (matches.length !== 1) return "unavailable";
           const result = await openProject(matches[0]);
@@ -306,7 +314,7 @@ export default function Page() {
         },
       }));
     return () => { for (const handle of handles) handle.unregister(); };
-  }, [openProject, terraTargetKey, view, workspace]);
+  }, [createReader, openProject, terraTargetKey, view, workspace]);
 
   const toggleGuidedChoice = (key: string) => {
     setGuidedChoices((prev) => (prev.includes(key) ? prev.filter((x) => x !== key) : [...prev, key]));
@@ -330,7 +338,7 @@ export default function Page() {
     const expectedEnvelope = startupRecovery.envelope;
     setRecoveryBusyAction("recover");
     try {
-      const fresh = await inspectProjectRecoveryDraftV1();
+      const fresh = await inspectProjectRecoveryDraftV1(ownerId);
       if (fresh.kind === "none") {
         setStartupRecovery({ kind: "home" });
         return;
@@ -353,8 +361,12 @@ export default function Page() {
         return;
       }
 
-      const prepared = await prepareRecoveryWorkspace(fresh.project, fresh.envelope);
-      const ownerSessionId = getOrCreateProjectRecoverySessionIdV1();
+      const prepared = await prepareRecoveryWorkspace(fresh.project, fresh.envelope, {
+        readOfficialProject: projectId => ownerId
+          ? readAccountProjectV2(ownerId, projectId)
+          : Promise.reject(new Error("account_session_required")),
+      });
+      const ownerSessionId = getOrCreateProjectRecoverySessionIdV1(ownerId);
       const workspaceInstanceId = globalThis.crypto?.randomUUID?.() ?? `recovered-workspace-${Date.now()}`;
       const claimed = await claimProjectRecoveryDraftV1({
         expectedOwnerSessionId: fresh.envelope.ownerSessionId,
@@ -363,9 +375,9 @@ export default function Page() {
         candidateDigest: fresh.envelope.candidateDigest,
         ownerSessionId,
         workspaceInstanceId,
-      });
+      }, ownerId);
       if (typeof claimed === "string") {
-        const latest = await inspectProjectRecoveryDraftV1();
+        const latest = await inspectProjectRecoveryDraftV1(ownerId);
         if (latest.kind === "valid") {
           setStartupRecovery({ kind: "valid", envelope: latest.envelope, message: "The safety backup changed in another tab. Choose again." });
         } else if (latest.kind === "none") {
@@ -387,7 +399,7 @@ export default function Page() {
           draftSequence: claimed.envelope.draftSequence + 1,
           workspaceGeneration: claimed.envelope.workspaceGeneration,
           lastMeaningfulEditAt: claimed.envelope.lastMeaningfulEditAt,
-        });
+        }, {}, ownerId);
         recoveryEnvelope = rewritten.envelope;
         prepared.candidate.digest = rewritten.envelope.candidateDigest;
       }
@@ -429,12 +441,12 @@ export default function Page() {
         workspaceInstanceId: validEnvelope.workspaceInstanceId,
         draftSequence: validEnvelope.draftSequence,
         candidateDigest: validEnvelope.candidateDigest,
-      } : { kind: "invalid" });
+      } : { kind: "invalid" }, ownerId);
       if (result === "discarded" || result === "none") {
         setStartupRecovery({ kind: "home" });
         return;
       }
-      const latest = await inspectProjectRecoveryDraftV1();
+      const latest = await inspectProjectRecoveryDraftV1(ownerId);
       if (latest.kind === "valid") setStartupRecovery({ kind: "valid", envelope: latest.envelope, message: "The safety backup changed before it could be discarded. Review it, then choose again." });
       else if (latest.kind === "none") setStartupRecovery({ kind: "home" });
       else setStartupRecovery({ kind: "invalid", error: latest.error, envelope: latest.envelope, message: recoveryProblemMessage(latest.error) });
@@ -818,7 +830,16 @@ export default function Page() {
                     setHoveredCard(null);
                     homeFocusRef.current = "new";
                     setBootstrapMessage("Creating project…");
-                    void bootstrap.open(createUntitledWorkspace).then((result) => {
+                    void bootstrap.open(async () => {
+                      if (!ownerId) throw new Error("account_session_required");
+                      const candidate = await createUntitledWorkspace();
+                      const saved = await withAccountProjectWrite(ownerId, () => createAccountProjectRepositoryV2(ownerId).save(candidate.editor.project));
+                      candidate.editor.project = saved;
+                      candidate.id = saved.projectId;
+                      candidate.title = saved.title;
+                      candidate.digest = await digestUnifiedProjectV2(saved);
+                      return candidate;
+                    }).then((result) => {
                       if (result.status === "opened") { setWorkspace(result.root); setView("animationWorkspace"); setBootstrapMessage(null); }
                       else if (result.status === "failed") setBootstrapMessage(`Could not create project (${result.code}).`);
                     });
@@ -1384,14 +1405,14 @@ export default function Page() {
   <AnimationExportFlow origin={exportOrigin} onBack={() => setView(exportOrigin === "workspace" && workspace ? "animationWorkspace" : "home")} />
 )}
 {view === "openProject" && (
-  <OpenProjectBrowser onOpenProject={openProject} onBack={() => {
+  <ProjectLibrary surface="edit" ownerId={ownerId} onOpenProject={openProject} onBack={() => {
     bootstrap.cancel();
     restoreHomeFocus.current = true;
     setView("home");
   }} />
 )}
 {view === "myProjects" && (
-  <ProjectLibrary onBack={() => {
+  <ProjectLibrary ownerId={ownerId} onBack={() => {
     restoreHomeFocus.current = true;
     homeFocusRef.current = "myProjects";
     setView("home");

@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-09-30 — D-0161 Phase 4.5 hosted-continuity planning draft (docs only)
+
+- Narrowed the one Phase 4.5 contract around hosted owner-bound chats/jobs/notifications/recovery/preferences, background saves, honest logout and cross-device proof; recommended explicit opt-in private MP4 archive after validated Finder Export and neutral signed-in Dashboard usage until Phase 5.
+- Named hosted operator/HTTPS, mail, ID-preserving migration authority, data retention/cost and Dashboard entry gates. Synthetic migration does not authorize moving real credentials. Published Phase 4 code, its unproven remote p95/fault/protected checks, Phase 5, user data and services are unchanged; this draft stops before Git publication.
+
 ## 2026-09-30 — Publish accepted SPEC-0015 Phase 4 (D-0160)
 
 - Committed the frozen 28-path Phase 4 implementation/technical tests with nine reviewed control-plane/tree paths as `c10cd39c2acea99c11ba87428e5182242a44cec9`, fast-forwarded clean canonical main, pushed normally and verified a live GitHub/local SHA match.

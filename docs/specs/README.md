@@ -3,6 +3,10 @@
 Status: canonical spec registry
 Last updated: 2026-09-30
 
+## D-0161 Phase 4.5 narrow planning draft — PM review next
+
+Published Phase 4 remains at `c10cd39` with its stated proof limits. [SPEC-0015 §14.3.2](0015-functional-ai-dashboard.md) now records one hosted Phase 4.5 outcome, recommended opt-in MP4 archive, meaningful-action saving and named hosted/mail/migration/data/Dashboard gates. Real credential migration, service writes and implementation need separate authority after those gates and an exact path/command ceiling. Phase 5 usage remains separate; this docs-only draft is not publication.
+
 ## D-0160 Phase 4 published and locally running
 
 SPEC-0015 Phase 4's frozen 28 technical paths and nine reviewed control-plane/tree paths were published in `c10cd39c2acea99c11ba87428e5182242a44cec9`; local/GitHub main matched and the canonical port-3000 app reported Ready. Arthur's isolated account-project review passed. Main-account data was preserved, while review accounts and the waived disposable old local project were not imported. A fresh authenticated canonical browser walkthrough, remote p95, complete induced faults and complete protected real-app regression proof are not claimed. Phase 4.5/5 remain separate.

@@ -1,5 +1,9 @@
 # Architecture and System Map
 
+## D-0164 Phase 4.5 architecture integrated locally
+
+The D-0163 account-data path below is published in canonical main commit `47bfe1ab376606a2b05de9d15fff958046521425`; its code and accepted proof remained unchanged through publication. The existing main server returned Home `200` and unauthenticated account-data GET `401`, proving the route active and rejecting that unsigned request. Authenticated main-browser UI was blocked by browser URL policy and is not newly claimed; the accepted review copy supplies the A/B flow. Phase 5 remains the next separate usage/Dashboard phase, without changing the Phase 4 project path or local Finder Export.
+
 ## D-0163 accepted isolated Phase 4.5 data path
 
 In the accepted review copy, `AccountSessionProvider` selects the verified Better Auth owner, and `accountDataClient` routes Assistant sessions, Terra job ledgers/pending state, notifications, recovery and preferences through `/api/account/data`. The route calls `requireAccountRequest`, then the server derives `session.user.id` and stores namespace/key/revision/payload rows in restricted local `account-data.sqlite` with per-namespace and per-owner capacity checks, compare-and-swap writes and readback. Client writes use tracked promises plus cross-tab leases before Log out. Owner changes invalidate old account state. Existing Phase 4 project storage remains its separate account project path. This architecture is accepted in the port-58645 review copy and pending publication to canonical main; Phase 5 usage and Finder Export have no new owner here.

@@ -1665,6 +1665,14 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Review correction: the existing AI/account-storage settings were restored server-side in the review process. PM subsequently verified Project AI and Assistant replies and synthetic Dictate transcription. The manifest's `paidProviderCalls: 0` is limited to the original sealed synthetic proof, before those later calls. Microphone permission was not tested.
 - Publication boundary: the Control Plane Architect first updates canonical records and stops with an empty index. A subsequent publication operation rechecks exact bytes/base/paths and then may commit, fast-forward clean canonical main and push normally. Preserve the review server/account data/proof until successful publication and D-0054 cleanup. Phase 5 is the next phase only after Phase 4.5 and its records are integrated; no account usage, cross-device sync, new MP4 archive, billing or deployment is accepted by this decision.
 
+### D-0164 — Integrate accepted SPEC-0015 Phase 4.5 into canonical main
+
+- Date: 2026-10-02
+- Status: publication complete; Phase 5 is the next phase for separate authorization.
+- Publication: exact 36-path commit `47bfe1ab376606a2b05de9d15fff958046521425` directly follows `52b906919eb07367c23125847c0e07b47a6ebd4e`, combining 22 frozen accepted technical and 14 reviewed record/tree paths. Clean canonical `main`, local `origin/main` and live GitHub `main` matched at `0/0` after a normal fast-forward and push. Immutable ignored proof manifest remains SHA-256 `3b662a47272a6c47c2d8feea919cde8a0d5c6327a6c1ba4626a6cba1f231eb74`.
+- Local runtime evidence: the existing port-3000 main server returned Home `200` and unauthenticated account-data GET `401`, showing that the published route is active and rejects that unsigned request. Browser URL policy blocked an authenticated main UI walkthrough; no workaround or authenticated-main pass is claimed. Arthur's accepted isolated review is the user-flow evidence. The review server/data/proof stay preserved until D-0054 cleanup.
+- Boundary: Phase 5 account usage/Dashboard is next but requires its own authorization and G-USAGE/G-PRIV selection. This publication does not deliver account usage, cross-device access, a new MP4 archive, billing or deployment, and does not erase earlier Phase 4 proof limits.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

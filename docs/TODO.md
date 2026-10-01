@@ -1,9 +1,15 @@
 # TODO
 
+## D-0164 Phase 4.5 integrated; Phase 5 next
+
+- [x] **PUB-015-4.5 — Publish accepted Phase 4.5 and its records.** Exact 36-path commit `47bfe1ab376606a2b05de9d15fff958046521425` contains 22 accepted technical plus 14 reviewed record/tree paths. Clean canonical/local-origin/live GitHub `main` matched at `0/0`; the sealed proof hash stayed `3b662a47272a6c47c2d8feea919cde8a0d5c6327a6c1ba4626a6cba1f231eb74`. Main Home returned `200`, unauthenticated account-data GET `401`; authenticated main UI was not browser-proven.
+- [ ] **CLEAN-015-4.5 — Preserve proof/account data and retire the accepted review copy under D-0054.** PM coordinates exact server/worktree/branch identity and recoverable evidence before cleanup. The review port 58645 and account databases remain intact at this closeout.
+- [ ] **DASH-015-5 — Account-scoped usage and Dashboard.** Next phase is entry-ready from integrated main after its named G-USAGE/G-PRIV choices and separate authorization. No Phase 5 implementation is authorized by this closeout.
+
 ## D-0163 accepted Phase 4.5 — publication next
 
 - [x] **DASH-015-4.5 — Accept local account-private chats/jobs/notifications/recovery/preferences.** Arthur passed the isolated review copy. The stopped executor delivered exactly 22 technical paths at base `52b906919eb07367c23125847c0e07b47a6ebd4e`, with an empty index and final validated ignored manifest SHA-256 `3b662a47272a6c47c2d8feea919cde8a0d5c6327a6c1ba4626a6cba1f231eb74`. This is technical acceptance in the review copy; Git publication remains pending.
-- [ ] **PUB-015-4.5 — Publish the accepted Phase 4.5 result and records to canonical main.** Recheck the frozen technical/proof hashes, reviewed record/tree paths, empty index and unchanged clean canonical/local-origin/live `main` at the accepted base. Commit only those paths on a phase branch, fast-forward clean `main`, push normally and verify clean `0/0`. Preserve proof and account data, then perform exact D-0054 review-copy cleanup after synchronization. Stop on a changed base/path without pull, merge, rebase or force-push.
+- [x] **PUB-015-4.5 — Publish the accepted Phase 4.5 result and records to canonical main.** Completed in `47bfe1ab376606a2b05de9d15fff958046521425`; D-0164 above records clean synchronization. D-0054 review-copy cleanup remains separately tracked.
 - [ ] **DASH-015-5 — Account-scoped usage and Dashboard.** This is the next phase after Phase 4.5 and its control-plane record are durably integrated. It needs its own exact-base Spec Executor and proof; no usage implementation starts in this closeout.
 
 ## D-0162 Version 1 Phase 4.5 local-device correction — implementation awaits separate authorization

@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-10-02 — D-0164 publishes SPEC-0015 Phase 4.5
+
+- Published the frozen 22 technical and 14 reviewed record/tree paths as `47bfe1ab376606a2b05de9d15fff958046521425`, fast-forwarded clean canonical main, pushed normally and verified canonical/local-origin/live GitHub equality at `0/0`. Sealed review proof hash remains `3b662a47272a6c47c2d8feea919cde8a0d5c6327a6c1ba4626a6cba1f231eb74`.
+- Existing port-3000 Home returned `200`, and an unauthenticated account-data GET returned `401`; authenticated main UI remained unverified because browser URL policy blocked the page. Phase 5 account usage is next for separate authorization. This records-only closeout leaves implementation/proof, servers, account stores and D-0054 review-copy cleanup unchanged.
+
 ## 2026-10-02 — D-0163 accepts isolated SPEC-0015 Phase 4.5 (publication pending)
 
 - Arthur passed account-private chats, AI job records, notifications, recovery and preferences in the isolated local review copy. The stopped executor's 22 technical paths and seven stable proof artifacts match sealed manifest SHA-256 `3b662a47272a6c47c2d8feea919cde8a0d5c6327a6c1ba4626a6cba1f231eb74` from base `52b906919eb07367c23125847c0e07b47a6ebd4e`.

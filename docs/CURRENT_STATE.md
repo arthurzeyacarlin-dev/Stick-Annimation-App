@@ -1,5 +1,11 @@
 # Current State
 
+## D-0164 Phase 4.5 published and integrated locally
+
+**Git/check verified:** exact commit `47bfe1ab376606a2b05de9d15fff958046521425`, parent `52b906919eb07367c23125847c0e07b47a6ebd4e`, contains the 22 accepted technical and 14 reviewed record/tree paths. Canonical `main`, local `origin/main` and fresh live GitHub `main` matched with clean `0/0`. The sealed ignored review manifest remains SHA-256 `3b662a47272a6c47c2d8feea919cde8a0d5c6327a6c1ba4626a6cba1f231eb74`; accepted implementation bytes were not changed during publication.
+
+**Main runtime boundary:** the existing port-3000 server remained running. Independent read-only HTTP checks returned `200` for Home and `401` for an unauthenticated `/api/account/data` GET, which proves the new route is active and rejects that unsigned request. A browser URL policy blocked the canonical main UI check, so authenticated main account switching and data persistence are not newly live-proven there; Arthur's accepted isolated review remains the functional evidence. The review server and account data remain preserved. Phase 5 account usage is next for separate authorization, not implemented. Cross-device access, the new MP4 account archive, billing and deployment remain outside this result.
+
 ## D-0163 accepted isolated Phase 4.5; canonical publication pending
 
 **Live/owner verified in the review copy:** Arthur passed the local account-continuity app at `http://127.0.0.1:58645/`. The isolated A/B flow showed separate Assistant chats, AI job ledgers, notifications, recovery and preferences, with account-owned state restored after reload and local-server restart; the real two-frame Phase 4 project saved, exited and reopened. The review server's existing account-storage connection was restored server-side. PM's later Project AI/Assistant replies and synthetic Dictate transcription verify those live paths after restoration; they occurred after the sealed synthetic proof and included paid AI calls.

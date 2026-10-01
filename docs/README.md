@@ -1,12 +1,16 @@
 # Diamond Animator Control Plane
 
+## D-0164 Phase 4.5 published; Phase 5 is next
+
+The accepted 22 technical and 14 reviewed record/tree paths were published in exact commit `47bfe1ab376606a2b05de9d15fff958046521425`, parent `52b906919eb07367c23125847c0e07b47a6ebd4e`. Clean canonical `main`, local `origin/main` and a fresh live GitHub read matched at `0/0`. The existing port-3000 main server returned Home `200` and an unauthenticated account-data read `401`, proving the route is active; an authenticated main-browser walkthrough was not available for this closeout. The accepted review proof remains SHA-256 `3b662a47272a6c47c2d8feea919cde8a0d5c6327a6c1ba4626a6cba1f231eb74`. Phase 5 account usage is the next phase to authorize from integrated main; no Phase 5 implementation has begun. The D-0163 prepublication entry below is historical as to Git state.
+
 ## D-0163 accepted Phase 4.5 — publication pending
 
 Arthur passed the local account-continuity review copy. The stopped executor's exact 22 technical paths from canonical base `52b906919eb07367c23125847c0e07b47a6ebd4e` are accepted with immutable proof-manifest SHA-256 `3b662a47272a6c47c2d8feea919cde8a0d5c6327a6c1ba4626a6cba1f231eb74`. The review app at port 58645 showed account-private Assistant chats, AI job records, notifications, recovery and preferences across account switches and server restarts. The existing account-storage connection was restored in that review server's process settings; the later PM AI and synthetic Dictate smoke checks are separate from the original proof's zero paid-provider-call claim. Phase 4.5 remains uncommitted and absent from canonical `main` until the separately authorized publication operation. Phase 5 account usage can start only after Phase 4.5 and these records are integrated. The dated D-0162 planning text below is historical where it calls Phase 4.5 unauthorized.
 
 Status: canonical repository memory
 Established: 2026-08-09
-Last reconciled with current records and source: 2026-10-02 through D-0163's accepted isolated Phase 4.5 result. Phases 1–4 are integrated locally; Phase 4.5 is accepted in the review copy and pending publication. The earlier `/84bf/` and port-58582 Phase 4 reviews remain rejected/unpublished. D-0162 defers cross-device access and the new account-linked MP4 archive to Version 2 or later; older hosted Phase 4.5 passages below are historical.
+Last reconciled with current records and source: 2026-10-02 through D-0164's published Phase 4.5 result. Phases 1–4.5 are integrated locally. The earlier `/84bf/` and port-58582 Phase 4 reviews remain rejected/unpublished. D-0162 defers cross-device access and the new account-linked MP4 archive to Version 2 or later; older hosted Phase 4.5 passages below are historical.
 Snapshot basis: pull request `#1` merged into `main` as `093bbac82fd3b4d97984448b6c6dbd716153354d`; functional anchor `c7de444536f3e0dd578a2063f70b0914e6af60b1`; tag `baseline-2026-08-09-control-plane`; SPEC-0014 Phase 1 GIT-099 `06365eacffe493ea3550de71b3baff0f57bf03b2`; Phase 2 GIT-100 `318566d6d20acec672c3d8c6a0e5620ad70c7d66`; Phase 4 GIT-102 product commit `283c297d1df01371dc599a52719d35dc78e1d2f4` plus this records-only closeout.
 
 ## D-0160 published Phase 4 — canonical local app running

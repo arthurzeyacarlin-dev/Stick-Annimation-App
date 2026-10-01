@@ -1,5 +1,9 @@
 # Roadmap
 
+## SPEC-0015 Phase 4.5 integrated — D-0164
+
+The accepted local account-continuity result is published on canonical main in `47bfe1ab376606a2b05de9d15fff958046521425`. Phase 5 account-scoped usage and Dashboard identity are next for separate authorization from integrated main, after G-USAGE/G-PRIV. Cross-device access and the new private MP4 account archive remain Version 2 or later; existing Finder Export is unchanged. The D-0162 entry below is historical planning state.
+
 ## SPEC-0015 Phase 4.5 accepted — D-0163
 
 Arthur passed the isolated Phase 4.5 local account-continuity copy. Its accepted 22-path implementation and control-plane record are awaiting bounded GitHub/main publication. After that integration, Phase 5 account usage and Dashboard identity are next. Version 2 or later still owns cross-device access and the new private MP4 account archive.

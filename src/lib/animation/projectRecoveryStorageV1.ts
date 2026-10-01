@@ -11,6 +11,7 @@ import {
   projectRecoveryEnvelopeMatchesOwnerV1,
   type ProjectRecoveryEnvelopeV1,
 } from "./projectRecoveryContractV1.ts";
+import { deleteAccountData, readAccountData, writeAccountData } from "../account/accountDataClient.ts";
 
 const DB_NAME = "diamond-animation-project-recovery-v1";
 const DB_VERSION = 1;
@@ -600,7 +601,165 @@ const browserAdapter = (ownerId?: string): ProjectRecoveryStorageAdapterV1 => {
   };
 };
 
-const browserStorage = (ownerId?: string) => createProjectRecoveryStorageV1(browserAdapter(ownerId));
+type AccountRecoveryWireHeaderV1 = {
+  schema: "account-project-recovery/v1";
+  owner: ProjectRecoveryOwnerV1;
+  candidate: ProjectRecoveryCandidateV1;
+  assets: Array<Omit<UnifiedEncodedAssetV2, "bytes">>;
+};
+
+type AccountRecoveryWireV1 = {
+  owner: ProjectRecoveryOwnerV1;
+  candidate: ProjectRecoveryCandidateV1;
+  assets: UnifiedEncodedAssetV2[];
+};
+
+const encodeAccountRecoveryWireV1 = (wire: AccountRecoveryWireV1) => {
+  const header: AccountRecoveryWireHeaderV1 = {
+    schema: "account-project-recovery/v1",
+    owner: wire.owner,
+    candidate: wire.candidate,
+    assets: wire.assets.map(asset => ({ assetId: asset.assetId, sha256: asset.sha256, byteLength: asset.byteLength, encoding: asset.encoding })),
+  };
+  const headerBytes = new TextEncoder().encode(JSON.stringify(header));
+  const total = 4 + headerBytes.byteLength + wire.assets.reduce((sum, asset) => sum + asset.bytes.byteLength, 0);
+  const encoded = new Uint8Array(total);
+  new DataView(encoded.buffer).setUint32(0, headerBytes.byteLength, false);
+  encoded.set(headerBytes, 4);
+  let offset = 4 + headerBytes.byteLength;
+  for (const asset of wire.assets) {
+    encoded.set(asset.bytes, offset);
+    offset += asset.bytes.byteLength;
+  }
+  return encoded;
+};
+
+const decodeAccountRecoveryWireV1 = (encoded: Uint8Array): AccountRecoveryWireV1 => {
+  if (encoded.byteLength < 4) throw new Error("recovery_invalid_record");
+  const headerLength = new DataView(encoded.buffer, encoded.byteOffset, encoded.byteLength).getUint32(0, false);
+  if (headerLength < 1 || headerLength > encoded.byteLength - 4) throw new Error("recovery_invalid_record");
+  const header = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(encoded.subarray(4, 4 + headerLength))) as AccountRecoveryWireHeaderV1;
+  if (header?.schema !== "account-project-recovery/v1" || !header.owner || !header.candidate || !Array.isArray(header.assets)) throw new Error("recovery_invalid_record");
+  let offset = 4 + headerLength;
+  const assets = header.assets.map(metadata => {
+    if (!metadata || !Number.isSafeInteger(metadata.byteLength) || metadata.byteLength < 0 || offset + metadata.byteLength > encoded.byteLength) throw new Error("recovery_invalid_record");
+    const bytes = encoded.slice(offset, offset + metadata.byteLength);
+    offset += metadata.byteLength;
+    return { ...metadata, bytes } satisfies UnifiedEncodedAssetV2;
+  });
+  if (offset !== encoded.byteLength) throw new Error("recovery_invalid_record");
+  assertCandidateBinding(header.candidate, assets);
+  return { owner: header.owner, candidate: header.candidate, assets };
+};
+
+const accountAdapter = (): ProjectRecoveryStorageAdapterV1 => {
+  let loaded = false;
+  let revision = 0;
+  let current: AccountRecoveryWireV1 | null = null;
+  let staged: AccountRecoveryWireV1 | null = null;
+  const load = async () => {
+    if (loaded) return;
+    const record = await readAccountData("recovery", "latest");
+    revision = record?.revision ?? 0;
+    current = record ? decodeAccountRecoveryWireV1(record.payload) : null;
+    loaded = true;
+  };
+  const publishWire = async (wire: AccountRecoveryWireV1) => {
+    try {
+      const result = await writeAccountData("recovery", "latest", encodeAccountRecoveryWireV1(wire), revision);
+      revision = result.revision;
+      current = wire;
+    } catch (error) {
+      if (error instanceof Error && error.message === "account_data_conflict") throw new Error("recovery_conflict");
+      throw error;
+    }
+  };
+  return {
+    readHead: async () => { await load(); return structuredClone((staged ?? current)?.candidate.envelope ?? null); },
+    readCandidate: async (draftSequence, candidateDigest) => {
+      await load();
+      const source = staged ?? current;
+      return source?.candidate.draftSequence === draftSequence && source.candidate.candidateDigest === candidateDigest
+        ? structuredClone(source.candidate)
+        : null;
+    },
+    readAssets: async assetIds => {
+      await load();
+      const source = staged ?? current;
+      if (!source) throw new Error("recovery_asset_missing");
+      const byId = new Map(source.assets.map(asset => [asset.assetId, asset]));
+      return assetIds.map(assetId => {
+        const asset = byId.get(assetId);
+        if (!asset) throw new Error("recovery_asset_missing");
+        return { ...asset, bytes: asset.bytes.slice() };
+      });
+    },
+    stage: async input => {
+      await load();
+      if (current) {
+        const envelope = assertProjectRecoveryEnvelopeV1(current.candidate.envelope);
+        if (!projectRecoveryEnvelopeMatchesOwnerV1(envelope, input.owner.ownerSessionId, input.owner.workspaceInstanceId)) throw new Error("recovery_conflict");
+        if (input.owner.latestStagedSequence <= current.owner.latestStagedSequence) throw new Error("recovery_stale_sequence");
+      }
+      assertCandidateBinding(input.candidate, input.assets);
+      staged = { owner: structuredClone(input.owner), candidate: structuredClone(input.candidate), assets: input.assets.map(asset => ({ ...asset, bytes: asset.bytes.slice() })) };
+    },
+    publish: async input => {
+      await load();
+      if (!staged || staged.owner.ownerSessionId !== input.ownerSessionId || staged.owner.workspaceInstanceId !== input.workspaceInstanceId || staged.owner.latestStagedSequence !== input.draftSequence || staged.candidate.candidateDigest !== input.candidateDigest) {
+        throw new Error("recovery_conflict");
+      }
+      const envelope = assertProjectRecoveryEnvelopeV1({ ...staged.candidate.envelope, status: "current" });
+      const wire = { ...staged, candidate: { ...staged.candidate, envelope } };
+      await publishWire(wire);
+      staged = null;
+    },
+    abandon: async () => { staged = null; },
+    clear: async input => {
+      await load();
+      if (!current) return "none";
+      const envelope = assertProjectRecoveryEnvelopeV1(current.candidate.envelope);
+      if (!projectRecoveryEnvelopeMatchesOwnerV1(envelope, input.ownerSessionId, input.workspaceInstanceId)) return "not-matched";
+      if (current.owner.latestStagedSequence !== envelope.draftSequence) return "newer-draft";
+      if (envelope.workspaceGeneration !== input.workspaceGeneration || envelope.candidateDigest !== input.candidateDigest) return "not-matched";
+      try { await deleteAccountData("recovery", "latest", revision); }
+      catch (error) { if (error instanceof Error && error.message === "account_data_conflict") return "newer-draft"; throw error; }
+      revision = 0; current = null; staged = null;
+      return "cleared";
+    },
+    claim: async input => {
+      await load();
+      if (!current) return "none";
+      const envelope = assertProjectRecoveryEnvelopeV1(current.candidate.envelope);
+      if (envelope.status !== "current" || envelope.ownerSessionId !== input.expectedOwnerSessionId || envelope.workspaceInstanceId !== input.expectedWorkspaceInstanceId || envelope.draftSequence !== input.draftSequence || envelope.candidateDigest !== input.candidateDigest) return "changed";
+      const claimedEnvelope = assertProjectRecoveryEnvelopeV1({ ...envelope, ownerSessionId: input.ownerSessionId, workspaceInstanceId: input.workspaceInstanceId });
+      const wire: AccountRecoveryWireV1 = {
+        owner: { ...current.owner, ownerSessionId: input.ownerSessionId, workspaceInstanceId: input.workspaceInstanceId, updatedAt: new Date().toISOString() },
+        candidate: { ...current.candidate, envelope: claimedEnvelope },
+        assets: current.assets,
+      };
+      try { await publishWire(wire); }
+      catch (error) { if (error instanceof Error && error.message === "recovery_conflict") return "changed"; throw error; }
+      return "claimed";
+    },
+    discard: async expectation => {
+      await load();
+      if (!current) return "none";
+      let validEnvelope: ProjectRecoveryEnvelopeV1 | null = null;
+      try { validEnvelope = assertProjectRecoveryEnvelopeV1(current.candidate.envelope); } catch { validEnvelope = null; }
+      const matches = expectation.kind === "invalid"
+        ? validEnvelope === null
+        : Boolean(validEnvelope && validEnvelope.ownerSessionId === expectation.ownerSessionId && validEnvelope.workspaceInstanceId === expectation.workspaceInstanceId && validEnvelope.draftSequence === expectation.draftSequence && validEnvelope.candidateDigest === expectation.candidateDigest);
+      if (!matches) return "changed";
+      try { await deleteAccountData("recovery", "latest", revision); }
+      catch (error) { if (error instanceof Error && error.message === "account_data_conflict") return "changed"; throw error; }
+      revision = 0; current = null; staged = null;
+      return "discarded";
+    },
+  };
+};
+
+const recoveryStorage = (ownerId?: string) => createProjectRecoveryStorageV1(ownerId ? accountAdapter() : browserAdapter());
 
 export const getOrCreateProjectRecoverySessionIdV1 = (ownerId?: string) => {
   const key = scopedSessionKey(ownerId);
@@ -611,11 +770,11 @@ export const getOrCreateProjectRecoverySessionIdV1 = (ownerId?: string) => {
   return created;
 };
 
-export const inspectProjectRecoveryDraftV1 = (ownerId?: string) => browserStorage(ownerId).inspect();
+export const inspectProjectRecoveryDraftV1 = (ownerId?: string) => recoveryStorage(ownerId).inspect();
 export const writeProjectRecoveryDraftV1 = (input: ProjectRecoveryWriteInputV1, hooks: ProjectRecoveryFaultHooksV1 = {}, ownerId?: string) =>
-  browserStorage(ownerId).write(input, hooks);
-export const clearProjectRecoveryDraftV1 = (input: ProjectRecoveryClearInputV1, ownerId?: string) => browserStorage(ownerId).clear(input);
-export const claimProjectRecoveryDraftV1 = (input: ProjectRecoveryClaimInputV1, ownerId?: string) => browserStorage(ownerId).claim(input);
-export const discardProjectRecoveryDraftV1 = (expectation: ProjectRecoveryDiscardExpectationV1, ownerId?: string) => browserStorage(ownerId).discard(expectation);
+  recoveryStorage(ownerId).write(input, hooks);
+export const clearProjectRecoveryDraftV1 = (input: ProjectRecoveryClearInputV1, ownerId?: string) => recoveryStorage(ownerId).clear(input);
+export const claimProjectRecoveryDraftV1 = (input: ProjectRecoveryClaimInputV1, ownerId?: string) => recoveryStorage(ownerId).claim(input);
+export const discardProjectRecoveryDraftV1 = (expectation: ProjectRecoveryDiscardExpectationV1, ownerId?: string) => recoveryStorage(ownerId).discard(expectation);
 
 export { DB_NAME as PROJECT_RECOVERY_DATABASE_V1, STORES as PROJECT_RECOVERY_STORES_V1 };

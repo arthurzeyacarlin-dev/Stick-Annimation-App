@@ -7,6 +7,8 @@
 ./app/ScrollbarActivity.tsx
 ./app/api
 ./app/api/account
+./app/api/account/data
+./app/api/account/data/route.ts
 ./app/api/account/projects
 ./app/api/account/projects/[projectId]
 ./app/api/account/projects/[projectId]/route.ts
@@ -687,6 +689,12 @@
 ./scripts/spec0015-account/phase4/save-contract.mjs
 ./scripts/spec0015-account/phase4/security-fault.mjs
 ./scripts/spec0015-account/phase4/validate-proof.mjs
+./scripts/spec0015-account/phase45
+./scripts/spec0015-account/phase45/account-isolation-oracle.mjs
+./scripts/spec0015-account/phase45/backup-restore-proof.mjs
+./scripts/spec0015-account/phase45/proof-manifest.mjs
+./scripts/spec0015-account/phase45/record-browser-evidence.mjs
+./scripts/spec0015-account/phase45/verify-remote-cleanup.mjs
 ./scripts/spec0015-dashboard
 ./scripts/spec0015-dashboard/phase1BrowserProof.ts
 ./scripts/spec0015-dashboard/phase1BuildProof.ts
@@ -811,6 +819,8 @@
 ./src/lib/account
 ./src/lib/account/access.ts
 ./src/lib/account/accountConfig.ts
+./src/lib/account/accountDataClient.ts
+./src/lib/account/accountDataServer.ts
 ./src/lib/account/auth.ts
 ./src/lib/account/projectBundle.ts
 ./src/lib/account/projectClient.ts

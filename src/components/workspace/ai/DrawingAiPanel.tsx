@@ -11,8 +11,9 @@ import {
   type AiAnimatorRequest,
 } from "@/src/lib/ai/aiAnimatorContract";
 import {
-  readAiAnimatorLedger,
-  subscribeAiAnimatorLedger,
+  createEmptyAiAnimatorLedger,
+  readAccountAiAnimatorLedger,
+  subscribeAccountAiAnimatorLedger,
   type AiAnimatorLedger,
 } from "@/src/lib/ai/aiAnimatorStorage";
 import type {
@@ -150,7 +151,7 @@ export function DrawingAiPanel({
   void _projectAiMemory; void _onProjectAiMemoryChange; void _onApplyGeneratedFrame; void _onExecuteActionPlan;
   const projectId = workspaceContext?.workspaceIdentity?.trim() || workspaceContext?.projectId?.trim() || "unsaved-workspace";
   const projectGeneration = workspaceContext?.projectGeneration ?? 0;
-  const [ledger, setLedger] = useState<AiAnimatorLedger>(() => readAiAnimatorLedger(projectId));
+  const [ledger, setLedger] = useState<AiAnimatorLedger>(() => createEmptyAiAnimatorLedger(projectId));
   const [reasoningLevel, setReasoningLevel] = useState<DrawingAiReasoningLevel>("medium");
   const [inputValue, setInputValue] = useState("");
   const [isReasoningMenuOpen, setIsReasoningMenuOpen] = useState(false);
@@ -173,14 +174,20 @@ export function DrawingAiPanel({
   );
 
   useEffect(() => {
+    let cancelled = false;
     for (const timer of presentationTimersRef.current.values()) clearTimeout(timer);
     presentationTimersRef.current.clear();
     submittedThinkingStartedAtRef.current.clear();
     pendingRevealMessageIdsRef.current.clear();
-    const initial = readAiAnimatorLedger(projectId);
-    knownMessageIdsRef.current = new Set(initial.messages.map(message => message.id));
+    const initial = createEmptyAiAnimatorLedger(projectId);
+    knownMessageIdsRef.current = new Set();
     setReasoningLevel("medium"); setInputValue(""); setRequestError(null); setLedger(initial);
-    return subscribeAiAnimatorLedger(projectId, next => {
+    void readAccountAiAnimatorLedger(projectId).then(result => {
+      if (cancelled) return;
+      knownMessageIdsRef.current = new Set(result.ledger.messages.map(message => message.id));
+      setLedger(result.ledger);
+    }).catch(() => { if (!cancelled) setRequestError("Saved Terra history is temporarily unavailable."); });
+    const unsubscribe = subscribeAccountAiAnimatorLedger(projectId, next => {
       const submittedOnThisMount = new Set(submittedThinkingStartedAtRef.current.keys());
       for (const job of next.jobs) {
         if (job.status === "cancelled") {
@@ -200,12 +207,14 @@ export function DrawingAiPanel({
           const timer = setTimeout(() => {
             presentationTimersRef.current.delete(delayed.jobId);
             submittedThinkingStartedAtRef.current.delete(delayed.jobId);
-            const terminal = readAiAnimatorLedger(projectId);
-            for (const message of terminal.messages) {
-              if (message.role === "assistant" && !knownMessageIdsRef.current.has(message.id)) pendingRevealMessageIdsRef.current.add(message.id);
-              knownMessageIdsRef.current.add(message.id);
-            }
-            setLedger(terminal);
+            void readAccountAiAnimatorLedger(projectId).then(({ ledger: terminal }) => {
+              if (cancelled) return;
+              for (const message of terminal.messages) {
+                if (message.role === "assistant" && !knownMessageIdsRef.current.has(message.id)) pendingRevealMessageIdsRef.current.add(message.id);
+                knownMessageIdsRef.current.add(message.id);
+              }
+              setLedger(terminal);
+            });
           }, remaining);
           presentationTimersRef.current.set(delayed.jobId, timer);
           return;
@@ -218,6 +227,7 @@ export function DrawingAiPanel({
       }
       setLedger(next);
     });
+    return () => { cancelled = true; unsubscribe(); };
   }, [projectId]);
 
   useEffect(() => () => {

@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     if (!await accountProjectBelongsToOwner(access.session.user.id, normalized.workspace.projectId)) {
       return NextResponse.json({ error: "Project is not available to this account." }, { status: 403 });
     }
-    return NextResponse.json(jobs.submit(normalized), { status: 202 });
+    return NextResponse.json(jobs.submit(normalized, access.session.user.id), { status: 202 });
   } catch (error) {
     return safeError(error);
   }
@@ -55,7 +55,7 @@ export async function GET(request: Request) {
   if (!await accountProjectBelongsToOwner(access.session.user.id, projectId)) {
     return NextResponse.json({ error: "Project is not available to this account." }, { status: 403 });
   }
-  const snapshot = jobs.get(jobId, projectId);
+  const snapshot = jobs.get(jobId, projectId, access.session.user.id);
   return snapshot
     ? NextResponse.json(snapshot)
     : NextResponse.json({ error: "This AI Animator job is no longer available. No animation changed." }, { status: 404 });
@@ -78,7 +78,7 @@ export async function DELETE(request: Request) {
   if (!await accountProjectBelongsToOwner(access.session.user.id, projectId)) {
     return NextResponse.json({ error: "Project is not available to this account." }, { status: 403 });
   }
-  const snapshot = jobs.cancel(jobId, projectId);
+  const snapshot = jobs.cancel(jobId, projectId, access.session.user.id);
   return snapshot
     ? NextResponse.json(snapshot)
     : NextResponse.json({ error: "This AI Animator job is no longer available." }, { status: 404 });

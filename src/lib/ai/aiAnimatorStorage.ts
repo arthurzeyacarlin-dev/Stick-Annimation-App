@@ -3,6 +3,7 @@ import {
   type AiAnimatorConversationMessage,
   type AiAnimatorJobSnapshot,
 } from "./aiAnimatorContract.ts";
+import { getConfiguredAccountDataOwner, readAccountJson, subscribeAccountDataChanges, writeAccountJson } from "../account/accountDataClient.ts";
 
 export const AI_ANIMATOR_LEDGER_PREFIX = "diamond_ai_animator_ledger_v1:";
 export const AI_ANIMATOR_LEDGER_CHANGED_EVENT = "diamond-ai-animator-ledger-changed-v1";
@@ -27,26 +28,66 @@ export const createEmptyAiAnimatorLedger = (projectId: string): AiAnimatorLedger
   updatedAt: new Date(0).toISOString(),
 });
 
+const boundedLedger = (projectId: string, value: unknown): AiAnimatorLedger => {
+  const parsed = value as AiAnimatorLedger | null;
+  if (parsed?.version !== 1 || parsed.projectId !== projectId || !Array.isArray(parsed.messages) || !Array.isArray(parsed.jobs)) {
+    return createEmptyAiAnimatorLedger(projectId);
+  }
+  return {
+    version: 1,
+    projectId,
+    messages: parsed.messages.slice(-MAX_MESSAGES),
+    jobs: parsed.jobs.slice(-MAX_JOBS),
+    updatedAt: typeof parsed.updatedAt === "string" ? parsed.updatedAt : new Date(0).toISOString(),
+  };
+};
+
 export const readAiAnimatorLedger = (projectId: string, storage: Storage | null = typeof window === "undefined" ? null : window.localStorage) => {
   if (!storage || !projectId.trim()) {
     return createEmptyAiAnimatorLedger(projectId);
   }
   try {
-    const parsed = JSON.parse(storage.getItem(keyForAiAnimatorProject(projectId)) ?? "null") as AiAnimatorLedger | null;
-    if (parsed?.version !== 1 || parsed.projectId !== projectId || !Array.isArray(parsed.messages) || !Array.isArray(parsed.jobs)) {
-      return createEmptyAiAnimatorLedger(projectId);
-    }
-    return {
-      version: 1 as const,
-      projectId,
-      messages: parsed.messages.slice(-MAX_MESSAGES),
-      jobs: parsed.jobs.slice(-MAX_JOBS),
-      updatedAt: typeof parsed.updatedAt === "string" ? parsed.updatedAt : new Date(0).toISOString(),
-    };
+    return boundedLedger(projectId, JSON.parse(storage.getItem(keyForAiAnimatorProject(projectId)) ?? "null"));
   } catch {
     return createEmptyAiAnimatorLedger(projectId);
   }
 };
+
+const accountLedgerKey = (projectId: string) => encodeURIComponent(projectId);
+
+export async function readAccountAiAnimatorLedger(projectId: string) {
+  if (!getConfiguredAccountDataOwner()) return { ledger: readAiAnimatorLedger(projectId), revision: 0 };
+  const record = await readAccountJson<AiAnimatorLedger>("terra-ledger", accountLedgerKey(projectId));
+  return { ledger: boundedLedger(projectId, record?.value ?? null), revision: record?.revision ?? 0 };
+}
+
+export async function writeAccountAiAnimatorLedger(ledger: AiAnimatorLedger, expectedRevision: number) {
+  if (!getConfiguredAccountDataOwner()) {
+    writeAiAnimatorLedger(ledger);
+    return expectedRevision;
+  }
+  const bounded: AiAnimatorLedger = {
+    version: 1,
+    projectId: ledger.projectId,
+    messages: ledger.messages.slice(-MAX_MESSAGES),
+    jobs: ledger.jobs.slice(-MAX_JOBS),
+    updatedAt: new Date().toISOString(),
+  };
+  const result = await writeAccountJson("terra-ledger", accountLedgerKey(ledger.projectId), bounded, expectedRevision);
+  return result.revision;
+}
+
+export function subscribeAccountAiAnimatorLedger(projectId: string, onChange: (ledger: AiAnimatorLedger) => void) {
+  if (!getConfiguredAccountDataOwner()) return subscribeAiAnimatorLedger(projectId, onChange);
+  let cancelled = false;
+  const refresh = () => {
+    void readAccountAiAnimatorLedger(projectId).then(result => { if (!cancelled) onChange(result.ledger); }).catch(() => undefined);
+  };
+  refresh();
+  const unsubscribe = subscribeAccountDataChanges("terra-ledger", accountLedgerKey(projectId), refresh);
+  const interval = window.setInterval(refresh, 3000);
+  return () => { cancelled = true; unsubscribe(); window.clearInterval(interval); };
+}
 
 export const writeAiAnimatorLedger = (
   ledger: AiAnimatorLedger,

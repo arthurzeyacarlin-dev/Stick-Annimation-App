@@ -1,5 +1,13 @@
 # Current State
 
+## D-0163 accepted isolated Phase 4.5; canonical publication pending
+
+**Live/owner verified in the review copy:** Arthur passed the local account-continuity app at `http://127.0.0.1:58645/`. The isolated A/B flow showed separate Assistant chats, AI job ledgers, notifications, recovery and preferences, with account-owned state restored after reload and local-server restart; the real two-frame Phase 4 project saved, exited and reopened. The review server's existing account-storage connection was restored server-side. PM's later Project AI/Assistant replies and synthetic Dictate transcription verify those live paths after restoration; they occurred after the sealed synthetic proof and included paid AI calls.
+
+**Code/check verified:** the new `/api/account/data` route derives owner identity from the verified Better Auth session and stores bounded revision-checked records in a restricted local SQLite database. The client tracks same-tab writes and cross-tab leases for Log out, and the touched Assistant, Terra, notification, recovery and preference adapters select the signed-in owner. The stopped executor's detached base/HEAD is `52b906919eb07367c23125847c0e07b47a6ebd4e`; its index is empty and exactly 22 technical paths are dirty. Ignored manifest SHA-256 `3b662a47272a6c47c2d8feea919cde8a0d5c6327a6c1ba4626a6cba1f231eb74` passes `node scripts/spec0015-account/phase45/proof-manifest.mjs --final` before control-plane edits, binding 22 source and seven stable proof artifacts. Its zero paid-provider-call field applies only to that original proof.
+
+**Boundary:** this accepted result has not yet been committed or integrated into canonical `main`; the port-3000 main app still reflects Phases 1–4 until publication. Existing Finder Export, Dashboard usage math, AI brain/provider policy and Phase 4 project persistence were not intentionally changed. The new account-linked MP4 archive and cross-device access remain Version 2 or later. Full canonical-main browser proof and any Phase 4.5 activation there remain unproven until publication/cutover; physical microphone use was not tested. Phase 5 is next after durable Phase 4.5 integration.
+
 **D-0162 intended only:** Phase 4.5 is now specified for account-private chats/jobs/notifications/recovery/preferences on this installation. Cross-device access and the new account-linked MP4 archive are deferred to Version 2 or later; existing Finder Export stays unchanged. This docs-only correction changes no current runtime or Phase 4 proof result. Older hosted Phase 4.5 text below records its historical planning state.
 
 ## D-0160 Phase 4 published and locally running; remaining proof limits explicit

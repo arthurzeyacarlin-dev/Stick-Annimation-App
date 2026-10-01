@@ -28,6 +28,7 @@ import {
 } from "@/src/lib/animation/projectRecoveryStorageV1";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { readAccountJson, writeAccountJson } from "@/src/lib/account/accountDataClient";
 
 type HomeCardId = "new" | "open" | "myProject" | "tutorials" | "assistant" | "export";
 
@@ -36,6 +37,13 @@ type StartupRecoveryState =
   | { kind: "home" }
   | { kind: "valid"; envelope: ProjectRecoveryEnvelopeV1; message?: string }
   | { kind: "invalid"; error: string; envelope?: ProjectRecoveryEnvelopeV1; message?: string; allowContinueHome?: boolean };
+
+type HomePreferencesV1 = {
+  schema: "account-home-preferences/v1";
+  welcomeSeen: boolean;
+  neverShowWelcome: boolean;
+  guidedChoices: string[];
+};
 
 const recoveryProblemMessage = (error: string) => {
   if (error === "recovery_storage_blocked") return "The local recovery store is busy in another tab. Close the other tab, then try again.";
@@ -69,6 +77,10 @@ export default function Page() {
   const [welcomeOpen, setWelcomeOpen] = useState(false);
   const [welcomeStep, setWelcomeStep] = useState<0 | 1>(0);
   const [guidedChoices, setGuidedChoices] = useState<string[]>([]);
+  const homePreferencesRef = useRef<{ revision: number; value: HomePreferencesV1 }>({
+    revision: 0,
+    value: { schema: "account-home-preferences/v1", welcomeSeen: false, neverShowWelcome: false, guidedChoices: [] },
+  });
   const [bootstrap] = useState(() => new WorkspaceBootstrap());
   const [workspace, setWorkspace] = useState<MountedWorkspace | null>(null);
   const [bootstrapMessage, setBootstrapMessage] = useState<string | null>(null);
@@ -167,16 +179,18 @@ export default function Page() {
     // First-time welcome (client-only)
     let cancelled = false;
     const timeoutId = window.setTimeout(() => {
-      try {
-        const never = localStorage.getItem("da_welcome_never_show") === "1";
-        const seen = localStorage.getItem("da_welcome_seen") === "1";
-        if (!cancelled && !never && !seen) {
+      void readAccountJson<HomePreferencesV1>("preferences", "home").then(record => {
+        if (cancelled) return;
+        const value = record?.value;
+        const valid = value?.schema === "account-home-preferences/v1" && typeof value.welcomeSeen === "boolean" && typeof value.neverShowWelcome === "boolean" && Array.isArray(value.guidedChoices) && value.guidedChoices.every(choice => typeof choice === "string");
+        const preferences = valid ? value : homePreferencesRef.current.value;
+        homePreferencesRef.current = { revision: record?.revision ?? 0, value: preferences };
+        setGuidedChoices(preferences.guidedChoices);
+        if (!preferences.neverShowWelcome && !preferences.welcomeSeen) {
           setWelcomeStep(0);
           setWelcomeOpen(true);
         }
-      } catch {
-        // ignore
-      }
+      }).catch(() => undefined);
     }, 0);
 
     return () => {
@@ -321,15 +335,17 @@ export default function Page() {
   };
 
   const closeWelcome = (opts?: { neverShow?: boolean; markSeen?: boolean }) => {
-    try {
-      if (opts?.neverShow) localStorage.setItem("da_welcome_never_show", "1");
-      if (opts?.markSeen) localStorage.setItem("da_welcome_seen", "1");
-      if (opts?.markSeen && guidedChoices.length) {
-        localStorage.setItem("da_guided_choices", JSON.stringify(guidedChoices));
-      }
-    } catch {
-      // ignore
-    }
+    const current = homePreferencesRef.current;
+    const next: HomePreferencesV1 = {
+      schema: "account-home-preferences/v1",
+      welcomeSeen: current.value.welcomeSeen || Boolean(opts?.markSeen),
+      neverShowWelcome: current.value.neverShowWelcome || Boolean(opts?.neverShow),
+      guidedChoices: opts?.markSeen && guidedChoices.length ? [...guidedChoices] : current.value.guidedChoices,
+    };
+    homePreferencesRef.current = { ...current, value: next };
+    void writeAccountJson("preferences", "home", next, current.revision).then(result => {
+      if (homePreferencesRef.current.value === next) homePreferencesRef.current = { revision: result.revision, value: next };
+    }).catch(() => undefined);
     setWelcomeOpen(false);
   };
 

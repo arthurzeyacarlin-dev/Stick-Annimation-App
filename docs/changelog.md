@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-10-02 — D-0163 accepts isolated SPEC-0015 Phase 4.5 (publication pending)
+
+- Arthur passed account-private chats, AI job records, notifications, recovery and preferences in the isolated local review copy. The stopped executor's 22 technical paths and seven stable proof artifacts match sealed manifest SHA-256 `3b662a47272a6c47c2d8feea919cde8a0d5c6327a6c1ba4626a6cba1f231eb74` from base `52b906919eb07367c23125847c0e07b47a6ebd4e`.
+- The existing review server's account-storage connection was restored server-side; later Project AI/Assistant replies and synthetic Dictate transcription succeeded. Those later paid AI calls are separate from the manifest's zero-call synthetic proof. Control-plane propagation changes only canonical records/tree and stops before staging; publication, main activation and D-0054 cleanup follow separately.
+
 ## 2026-09-30 — D-0162 Version 1 Phase 4.5 boundary correction (docs only)
 
 - Kept the one Phase 4.5 outcome for account-private chats/jobs/notifications/recovery/preferences on this installation, with the existing local Better Auth owner and one signed-in account at a time. Deferred cross-device identity/sync/recovery and the new account-linked MP4 archive to Version 2 or later; existing local Finder Export and Phase 5 Dashboard ownership stay unchanged.

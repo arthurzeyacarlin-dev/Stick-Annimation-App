@@ -1,5 +1,9 @@
 # Project Manager Context
 
+## D-0163 accepted Phase 4.5 review; publication next
+
+Arthur calls the local Phase 4.5 review copy a PASS and explicitly authorizes control-plane propagation followed by commit, GitHub push and integration into the main Diamond Animator. The stopped executor transferred exclusive `/Users/arthurcarlin/.codex/worktrees/ec67/stick-animation-app` ownership to the Control Plane Architect. Detached HEAD, canonical `main` and local `origin/main` were `52b906919eb07367c23125847c0e07b47a6ebd4e` at takeover; the index was empty and exactly 22 technical paths were dirty. The ignored proof manifest is SHA-256 `3b662a47272a6c47c2d8feea919cde8a0d5c6327a6c1ba4626a6cba1f231eb74` and passed its final validator before documentation edits. Review server port 58645 and its account databases must remain intact until publication and D-0054 cleanup. The server-side account-storage connection was restored for review after the original proof; PM then observed Project AI and Assistant replies and synthetic Dictate transcription. The manifest's `paidProviderCalls: 0` describes its earlier synthetic proof, not all review activity. After clean publication, Phase 5 account usage is the next phase; no Phase 5 implementation is included here.
+
 ## Current D-0162 Phase 4.5 Version 1 decision
 
 Arthur wants the remaining account-private chats/jobs/notifications/recovery/preferences on this installation, with one of multiple local accounts signed in at a time. The new account-linked MP4 archive and cross-device access wait for Version 2 or later; existing local Finder Export is unchanged. Phase 5 still owns account usage. The earlier hosted Phase 4.5 plans below are history. This narrow docs correction awaits reviewed publication before a fresh Phase 4.5 implementation copy.

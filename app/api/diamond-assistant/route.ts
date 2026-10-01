@@ -25,7 +25,7 @@ export async function POST(request: Request) {
   const access = await requireAccountRequest(request);
   if ("response" in access) return access.response;
   if (!localRequest(request)) return respond({ error: "Assistant access is limited to this local review app." }, 403);
-  try { return respond(jobs.submit(await boundedJson(request)), 202); }
+  try { return respond(jobs.submit(await boundedJson(request), access.session.user.id), 202); }
   catch (error) { return respond({ error: error instanceof AssistantError ? error.message : "The Assistant request could not be read." }, error instanceof AssistantError && error.code === "conflict" ? 409 : error instanceof AssistantError && error.code === "capacity" ? 429 : 400); }
 }
 export async function GET(request: Request) {
@@ -34,7 +34,7 @@ export async function GET(request: Request) {
   if (!localRequest(request)) return respond({ error: "Local access required." }, 403);
   const url = new URL(request.url); const jobId = url.searchParams.get("jobId"); const sessionId = url.searchParams.get("sessionId");
   if (!isId(jobId) || !isId(sessionId)) return respond({ error: "Exact chat and job identities are required." }, 400);
-  const snapshot = jobs.get(jobId, sessionId);
+  const snapshot = jobs.get(jobId, sessionId, access.session.user.id);
   return snapshot ? respond(snapshot) : respond({ error: "This answer was interrupted or the review server restarted. Nothing was resent." }, 404);
 }
 export async function DELETE(request: Request) {
@@ -42,6 +42,6 @@ export async function DELETE(request: Request) {
   if ("response" in access) return access.response;
   if (!localRequest(request)) return respond({ error: "Local access required." }, 403);
   try {
-    return respond(jobs.cancelRequest(await boundedJson(request)));
+    return respond(jobs.cancelRequest(await boundedJson(request), access.session.user.id));
   } catch { return respond({ error: "Cancellation request could not be read." }, 400); }
 }

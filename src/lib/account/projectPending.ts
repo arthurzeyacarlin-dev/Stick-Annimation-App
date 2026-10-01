@@ -1,5 +1,7 @@
 "use client";
 
+import { runAccountDataLogout } from "./accountDataClient";
+
 const LEASE_PREFIX = "diamond-p4u-owner-write:";
 const LEASE_MS = 15_000;
 const pending = new Set<{ ownerId: string; promise: Promise<unknown> }>();
@@ -104,12 +106,12 @@ export const runAccountProjectLogout = async (ownerId: string, signOut: () => Pr
       if (!lock) return;
       acquired = true;
       if (activeLeases(ownerId) > 0) throw new Error("account_project_other_tab_dirty");
-      await signOut();
+      await runAccountDataLogout(ownerId, signOut);
     });
     if (!acquired) throw new Error("account_project_other_tab_dirty");
   } else {
     if (activeLeases(ownerId) > 0) throw new Error("account_project_other_tab_dirty");
-    await signOut();
+    await runAccountDataLogout(ownerId, signOut);
   }
   failedOwners.delete(ownerId);
 };

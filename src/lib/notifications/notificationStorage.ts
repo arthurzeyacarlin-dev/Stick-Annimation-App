@@ -11,6 +11,7 @@ import {
   type NotificationTerminalReceiptV1,
 } from "./notificationContracts.ts";
 import { hasVisibleExactNotificationOriginV1 } from "./notificationNavigation.ts";
+import { getConfiguredAccountDataOwner, readAccountJson, subscribeAccountDataOwner, writeAccountJson } from "../account/accountDataClient.ts";
 
 export const DIAMOND_NOTIFICATION_DATABASE_V1 = "diamond-notifications-v1";
 export const DIAMOND_NOTIFICATION_STORES_V1 = Object.freeze({ notifications: "notifications", metadata: "metadata", leases: "leases" });
@@ -21,6 +22,12 @@ type StoredNotificationRowV1 = { recordKey: string; envelope: unknown };
 type MetadataRowV1 = { key: "state"; revision: number };
 type ConnectivityMetadataRowV1 = { key: "connectivity"; incident: BrowserConnectivityIncidentV1 };
 type LeaseRowV1 = { key: "writer"; owner: string; expiresAt: number };
+type AccountNotificationPayloadV1 = {
+  schema: "account-notifications/v1";
+  rows: StoredNotificationRowV1[];
+  connectivity: unknown;
+  stateRevision: number;
+};
 
 export type BrowserConnectivityIncidentV1 = Readonly<{
   schema: "browser-connectivity-incident/v1";
@@ -117,6 +124,15 @@ const openDatabase = () => {
 };
 
 const readRawState = async () => {
+  if (getConfiguredAccountDataOwner()) {
+    const record = await readAccountJson<AccountNotificationPayloadV1>("notifications", "all");
+    if (!record) return { rows: [] as StoredNotificationRowV1[], connectivity: undefined, revision: 0, accountRecordRevision: 0 };
+    const value = record.value;
+    if (value?.schema !== "account-notifications/v1" || !Array.isArray(value.rows) || !Number.isSafeInteger(value.stateRevision) || value.stateRevision < 0) {
+      throw new Error("corrupt-notification-metadata");
+    }
+    return { rows: value.rows, connectivity: value.connectivity ?? undefined, revision: value.stateRevision, accountRecordRevision: record.revision };
+  }
   const database = await openDatabase();
   const transaction = database.transaction([DIAMOND_NOTIFICATION_STORES_V1.notifications, DIAMOND_NOTIFICATION_STORES_V1.metadata], "readonly");
   const rows = await requestResult(transaction.objectStore(DIAMOND_NOTIFICATION_STORES_V1.notifications).getAll()) as StoredNotificationRowV1[];
@@ -125,7 +141,7 @@ const readRawState = async () => {
   const connectivity = await requestResult(metadataStore.get("connectivity")) as unknown;
   await transactionDone(transaction);
   if (metadata !== undefined && (!metadata || typeof metadata !== "object" || Object.keys(metadata).sort().join("|") !== "key|revision" || metadata.key !== "state" || !Number.isSafeInteger(metadata.revision) || metadata.revision < 0)) throw new Error("corrupt-notification-metadata");
-  return { rows, connectivity, revision: metadata?.revision ?? 0 };
+  return { rows, connectivity, revision: metadata?.revision ?? 0, accountRecordRevision: undefined as number | undefined };
 };
 
 const validIdentity = (value: unknown): value is string => typeof value === "string" && value === value.normalize("NFC") && new TextEncoder().encode(value).byteLength >= 1 && new TextEncoder().encode(value).byteLength <= 256 && !/[\u0000-\u001f\u007f]/.test(value);
@@ -283,6 +299,30 @@ const commitMutation = async <T>(mutator: (rows: StoredNotificationRowV1[], enve
     const hook = beforeCommitProofHook;
     beforeCommitProofHook = null;
     await hook();
+  }
+  if (getConfiguredAccountDataOwner()) {
+    const live = await readRawState();
+    if (live.accountRecordRevision !== observed.accountRecordRevision || live.revision !== observed.revision || stableJson(live.rows) !== stableJson(observed.rows) || stableJson(live.connectivity ?? null) !== stableJson(observed.connectivity ?? null)) {
+      throw new Error("compare-and-swap-failed");
+    }
+    if (mutation.commitGuard && !mutation.commitGuard()) return mutation.invalidResult as T;
+    const finalMutation = mutation.finalize ? mutation.finalize() : mutation;
+    if (!finalMutation.changed) return finalMutation.result as T;
+    const connectivity = finalMutation.connectivity === null
+      ? null
+      : finalMutation.connectivity !== undefined
+        ? finalMutation.connectivity
+        : observed.connectivity ?? null;
+    await writeAccountJson<AccountNotificationPayloadV1>("notifications", "all", {
+      schema: "account-notifications/v1",
+      rows: finalMutation.rows,
+      connectivity,
+      stateRevision: observed.revision + 1,
+    }, observed.accountRecordRevision ?? 0);
+    broadcast?.postMessage({ revision: observed.revision + 1 });
+    await refreshNotificationsV1();
+    if (finalMutation.committedNotification) for (const listener of commitListeners) listener(finalMutation.committedNotification);
+    return finalMutation.result as T;
   }
   const database = await openDatabase();
   const storeNames = [DIAMOND_NOTIFICATION_STORES_V1.notifications, DIAMOND_NOTIFICATION_STORES_V1.metadata, DIAMOND_NOTIFICATION_STORES_V1.leases];
@@ -541,3 +581,9 @@ export function __closeNotificationStorageForProofV1() {
   snapshot = emptySnapshot();
   beforeCommitProofHook = null;
 }
+
+subscribeAccountDataOwner(() => {
+  snapshot = emptySnapshot();
+  emitSnapshot(snapshot);
+  if (listeners.size) void refreshNotificationsV1();
+});

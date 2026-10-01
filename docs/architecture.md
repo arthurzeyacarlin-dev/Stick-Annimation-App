@@ -1,5 +1,9 @@
 # Architecture and System Map
 
+## D-0163 accepted isolated Phase 4.5 data path
+
+In the accepted review copy, `AccountSessionProvider` selects the verified Better Auth owner, and `accountDataClient` routes Assistant sessions, Terra job ledgers/pending state, notifications, recovery and preferences through `/api/account/data`. The route calls `requireAccountRequest`, then the server derives `session.user.id` and stores namespace/key/revision/payload rows in restricted local `account-data.sqlite` with per-namespace and per-owner capacity checks, compare-and-swap writes and readback. Client writes use tracked promises plus cross-tab leases before Log out. Owner changes invalidate old account state. Existing Phase 4 project storage remains its separate account project path. This architecture is accepted in the port-58645 review copy and pending publication to canonical main; Phase 5 usage and Finder Export have no new owner here.
+
 ## D-0162 intended Version 1 account boundary
 
 Phase 4.5 retains the current installation's server-verified Better Auth/SQLite accounts, with one signed in at a time, and makes the remaining account work private on that installation. Cross-device login/sync/recovery, hosted identity, mail, credential migration and the new account-linked MP4 archive are deferred to Version 2 or later; existing Finder Export stays unchanged. The older hosted Phase 4.5 descriptions below record superseded planning, not current Version 1 authority. Phase 4 runtime and Phase 5 account-usage ownership remain unchanged.

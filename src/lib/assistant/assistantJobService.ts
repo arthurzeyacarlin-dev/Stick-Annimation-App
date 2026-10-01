@@ -8,7 +8,7 @@ const ASSISTANT_JOB_EVENT_LIMIT = 8;
 export type AssistantProviderActivity = { type: "search-start"; topic: string } | { type: "search-end" };
 export type AssistantProviderOptions = { signal: AbortSignal; onActivity?: (activity: AssistantProviderActivity) => void };
 export type AssistantProvider = (request: AssistantRequest, options: AssistantProviderOptions) => Promise<ProviderResult>;
-type Job = { request: AssistantRequest; fingerprint: string; snapshot: JobSnapshot; controller: AbortController; timer: ReturnType<typeof setTimeout> | null };
+type Job = { ownerId: string; request: AssistantRequest; fingerprint: string; snapshot: JobSnapshot; controller: AbortController; timer: ReturnType<typeof setTimeout> | null };
 export class DiamondAssistantJobService {
   private jobs = new Map<string, Job>();
   private provider: AssistantProvider;
@@ -21,19 +21,20 @@ export class DiamondAssistantJobService {
   }
   private meter(event: Parameters<UsageEventRecorder>[0]) { try { this.recordUsage(event); } catch { /* Best-effort observation only. */ } }
   private active(job: Job) { return job.snapshot.status === "thinking" || job.snapshot.status === "searching" || job.snapshot.status === "finalizing"; }
-  submit(input: unknown): JobSnapshot {
+  submit(input: unknown, ownerId = "legacy-local-owner"): JobSnapshot {
     const request = validateRequest(input); const fingerprint = stableJson(request); const existing = this.jobs.get(request.jobId);
     if (existing) {
+      if (existing.ownerId !== ownerId) throw new AssistantError("conflict", "This request is not available to this account.");
       if (existing.fingerprint !== fingerprint) throw new AssistantError("conflict", "This request identity already belongs to a different message.");
       return structuredClone(existing.snapshot);
     }
-    const active = [...this.jobs.values()].filter(job => this.active(job));
+    const active = [...this.jobs.values()].filter(job => job.ownerId === ownerId && this.active(job));
     if (active.some(job => job.request.sessionId === request.sessionId)) throw new AssistantError("conflict", "This chat already has an active answer.");
     if (active.length >= ASSISTANT_LIMITS.activeJobs) throw new AssistantError("capacity", "Two Assistant answers are already running. Wait or cancel one, then try again.");
     // Bounded server memory. Do not evict identities and accidentally permit duplicate paid submissions.
     if (this.jobs.size >= 500) throw new AssistantError("capacity", "This review server has reached its request limit. Restart it before starting more answers.");
     const snapshot: JobSnapshot = { schema: "diamond-assistant-job/v1", jobId: request.jobId, sessionId: request.sessionId, turnId: request.turnId, reasoning: request.reasoningLevel, catalogVersion: CATALOG_VERSION, status: "thinking", events: [{ sequence: 1, at: Date.now(), status: "thinking" }], result: null, error: null };
-    const job: Job = { request, fingerprint, snapshot, controller: new AbortController(), timer: null }; this.jobs.set(request.jobId, job);
+    const job: Job = { ownerId, request, fingerprint, snapshot, controller: new AbortController(), timer: null }; this.jobs.set(request.jobId, job);
     this.meter(assistantAcceptedEvent(request, snapshot.events[0].at));
     job.timer = setTimeout(() => this.fail(job, "This answer timed out. Your message is saved. Send again when you are ready.", "timeout"), this.deadline);
     void this.run(job); return structuredClone(job.snapshot);
@@ -98,23 +99,24 @@ export class DiamondAssistantJobService {
       this.fail(job, safe);
     }
   }
-  get(jobId: string, sessionId: string) { const job = this.jobs.get(jobId); return job?.request.sessionId === sessionId ? structuredClone(job.snapshot) : null; }
-  cancel(jobId: string, sessionId: string) {
-    const job = this.jobs.get(jobId); if (!job || job.request.sessionId !== sessionId) return null;
+  get(jobId: string, sessionId: string, ownerId = "legacy-local-owner") { const job = this.jobs.get(jobId); return job?.ownerId === ownerId && job.request.sessionId === sessionId ? structuredClone(job.snapshot) : null; }
+  cancel(jobId: string, sessionId: string, ownerId = "legacy-local-owner") {
+    const job = this.jobs.get(jobId); if (!job || job.ownerId !== ownerId || job.request.sessionId !== sessionId) return null;
     if (this.active(job)) { this.transition(job, "cancelled", null, "Answer cancelled. Your message is saved."); job.controller.abort(); }
     return structuredClone(job.snapshot);
   }
-  cancelRequest(input: unknown) {
+  cancelRequest(input: unknown, ownerId = "legacy-local-owner") {
     const request = validateRequest(input); const existing = this.jobs.get(request.jobId);
     if (existing) {
+      if (existing.ownerId !== ownerId) throw new AssistantError("conflict", "This answer is not available to this account.");
       if (existing.request.sessionId !== request.sessionId || existing.request.turnId !== request.turnId || existing.request.reasoningLevel !== request.reasoningLevel) throw new AssistantError("conflict", "Cancellation identity does not match this answer.");
-      return this.cancel(request.jobId, request.sessionId)!;
+      return this.cancel(request.jobId, request.sessionId, ownerId)!;
     }
     if (this.jobs.size >= 500) throw new AssistantError("capacity", "The server cannot record this cancellation. Wait for the answer deadline.");
     // A cancellation tombstone wins even if an in-flight POST has not reached this server yet.
     const now = Date.now();
     const snapshot: JobSnapshot = { schema: "diamond-assistant-job/v1", jobId: request.jobId, sessionId: request.sessionId, turnId: request.turnId, reasoning: request.reasoningLevel, catalogVersion: CATALOG_VERSION, status: "cancelled", events: [{ sequence: 1, at: now, status: "thinking" }, { sequence: 2, at: now, status: "cancelled" }], result: null, error: "Answer cancelled before submission. Your message is saved." };
-    this.jobs.set(request.jobId, { request, fingerprint: stableJson(request), snapshot, controller: new AbortController(), timer: null });
+    this.jobs.set(request.jobId, { ownerId, request, fingerprint: stableJson(request), snapshot, controller: new AbortController(), timer: null });
     this.meter(assistantAcceptedEvent(request, now)); this.meter(assistantTerminalEvent(request, "cancelled", now));
     return structuredClone(snapshot);
   }

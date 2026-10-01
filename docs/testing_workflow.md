@@ -1,7 +1,11 @@
 # Verification and Regression Workflow
 
 Status: canonical proof standard and current gate baseline
-Last updated: 2026-09-29
+Last updated: 2026-10-02
+
+## SPEC-0015 Phase 4.5 accepted isolated proof — D-0163
+
+Arthur passed the review copy at port 58645. The stopped executor's exact 22 technical paths and seven stable proof artifacts match immutable ignored manifest SHA-256 `3b662a47272a6c47c2d8feea919cde8a0d5c6327a6c1ba4626a6cba1f231eb74`; its strict `--final` validator passed before CPA documentation edits, when the dirty set was exactly those 22 paths and the index empty. A/B browser evidence covers account-private Assistant chat/job/notification/recovery/preference state, server restart, logout drain and a real two-frame Save and Exit/reopen. Separate SQLite backups reopened with integrity and count checks; exact synthetic remote project cleanup was verified. Protected Dashboard sentinel bytes match the base. PM's later Project AI/Assistant replies and synthetic Dictate check occurred after restoring the server-side connection; the original proof's zero paid-provider-call field does not describe those later calls. Physical microphone use, canonical-main activation and the older Phase 4 remote p95/full-fault/full protected-regression gaps remain unproven. After CPA edits, recheck every sealed source/artifact/sentinel hash independently because the original validator intentionally requires the pre-propagation 22-path dirty set.
 
 ## SPEC-0015 D-0157 two-part proof draft — no replacement run yet
 

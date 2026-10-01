@@ -1,4 +1,5 @@
 import { ASSISTANT_LIMITS, AssistantError, byteSize, insist, isReasoning, normalizeText, normalizeTitle, recentContext, sealSession, stableJson, validateSession, validateSnapshot, requestFor, type JobSnapshot, type Reasoning, type Session } from "./assistantContracts.ts";
+import { getConfiguredAccountDataOwner, readAccountJson, subscribeAccountDataChanges, writeAccountJson } from "../account/accountDataClient.ts";
 
 export const ASSISTANT_DB = "diamond-assistant-session-v1";
 const STORE = "sessions";
@@ -8,6 +9,7 @@ const LEASE_MS = 5000;
 type RawRow = { key: IDBValidKey; value: unknown };
 export type SessionList = { sessions: Session[]; issues: string[] };
 type Lease = { owner: string; expires: number };
+type AccountSessionPayload = { schema: "account-assistant-sessions/v1"; sessions: unknown[] };
 const storageError = (error: unknown) => error instanceof AssistantError ? error : new AssistantError("storage", error instanceof DOMException && error.name === "QuotaExceededError" ? "Local storage is full. Your previous chats are safe. Free space, then try again." : "Local chat storage is unavailable. Your last readable chats and draft are kept here. Try again when storage is available.");
 function openDatabase(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
@@ -76,6 +78,13 @@ function notify() {
   try { if (typeof BroadcastChannel !== "undefined") { const channel = new BroadcastChannel(CHANNEL); try { channel.postMessage("reread"); } finally { channel.close(); } } } catch { /* Invalidation is only a hint. Never report an already committed write as failed. */ }
 }
 export function subscribeSessions(onChange: () => void) {
+  if (getConfiguredAccountDataOwner()) {
+    const unsubscribe = subscribeAccountDataChanges("assistant-sessions", "all", onChange);
+    const visible = () => { if (document.visibilityState === "visible") onChange(); };
+    document.addEventListener("visibilitychange", visible);
+    const interval = window.setInterval(visible, 3000);
+    return () => { unsubscribe(); document.removeEventListener("visibilitychange", visible); clearInterval(interval); };
+  }
   let channel: BroadcastChannel | null = null;
   try { if (typeof BroadcastChannel !== "undefined") channel = new BroadcastChannel(CHANNEL); } catch { /* Focus/visibility/periodic rereads remain authoritative when channels are blocked. */ }
   if (channel) channel.onmessage = () => onChange();
@@ -86,12 +95,58 @@ export function subscribeSessions(onChange: () => void) {
   return () => { channel?.close(); window.removeEventListener("focus", onChange); document.removeEventListener("visibilitychange", visible); clearInterval(interval); };
 }
 export async function listSessions(): Promise<SessionList> {
+  if (getConfiguredAccountDataOwner()) {
+    try {
+      const record = await readAccountJson<AccountSessionPayload>("assistant-sessions", "all");
+      if (!record) return { sessions: [], issues: [] };
+      insist(record.value?.schema === "account-assistant-sessions/v1" && Array.isArray(record.value.sessions), "storage", "Saved account chats could not be read. Their bytes were preserved.");
+      const rows = record.value.sessions.map((value, index) => ({
+        key: value && typeof value === "object" && "id" in value ? (value as { id: unknown }).id as IDBValidKey : `invalid-${index}`,
+        value,
+      }));
+      return await inspectRows(rows);
+    } catch (error) { throw storageError(error); }
+  }
   let db: IDBDatabase | undefined;
   try { db = await openDatabase(); return await inspectRows(await readRows(db)); }
   catch (error) { throw storageError(error); }
   finally { db?.close(); }
 }
 async function mutate(targetId: string, update: (current: Session | undefined, all: Session[]) => Session | null | Promise<Session | null>): Promise<Session | null> {
+  if (getConfiguredAccountDataOwner()) {
+    const run = async () => {
+      const record = await readAccountJson<AccountSessionPayload>("assistant-sessions", "all");
+      if (record) insist(record.value?.schema === "account-assistant-sessions/v1" && Array.isArray(record.value.sessions), "storage", "Saved account chats could not be read. Their bytes were preserved.");
+      const rawSessions = record?.value.sessions ?? [];
+      const rows = rawSessions.map((value, index) => ({
+        key: value && typeof value === "object" && "id" in value ? (value as { id: unknown }).id as IDBValidKey : `invalid-${index}`,
+        value,
+      }));
+      const inspected = await inspectRows(rows);
+      insist(inspected.issues.length === 0, "storage", "A saved account chat could not be verified. Its original data was preserved.");
+      const current = inspected.sessions.find(session => session.id === targetId);
+      insist(current || !rows.some(row => row.key === targetId), "corrupt", "That chat identifier belongs to an unreadable saved record. Its original data is preserved; start another chat.");
+      const draft = await update(current ? structuredClone(current) : undefined, inspected.sessions);
+      if (draft && current && stableJson(draft) === stableJson(current)) return current;
+      const next = draft ? await sealSession({ ...draft, revision: (current?.revision ?? 0) + 1, updatedAt: Math.max(Date.now(), current?.updatedAt ?? 0), digest: "" }) : null;
+      if (next) await validateSession(next);
+      const nextSessions = [...inspected.sessions.filter(session => session.id !== targetId), ...(next ? [next] : [])];
+      insist(nextSessions.length <= ASSISTANT_LIMITS.sessions, "capacity", "You have 50 saved chats. Delete a chat before creating another.");
+      const total = nextSessions.reduce((sum, session) => sum + byteSize(session) + (session.turns.at(-1)?.status === "pending" ? ASSISTANT_LIMITS.replyReserveBytes : 0), 0);
+      insist(total <= ASSISTANT_LIMITS.databaseBytes, "capacity", "Account chats have reached the 32 MiB limit. Delete a chat to make space. Nothing was removed.");
+      try {
+        await writeAccountJson<AccountSessionPayload>("assistant-sessions", "all", { schema: "account-assistant-sessions/v1", sessions: nextSessions }, record?.revision ?? 0);
+      } catch (error) {
+        if (error instanceof Error && error.message === "account_data_conflict") throw new AssistantError("conflict", "This chat changed in another tab. Review the latest conversation and try again.");
+        throw error;
+      }
+      return next;
+    };
+    try {
+      if (typeof navigator !== "undefined" && navigator.locks) return await navigator.locks.request("diamond-account-assistant-sessions-v1", { mode: "exclusive" }, run);
+      return await run();
+    } catch (error) { throw storageError(error); }
+  }
   let db: IDBDatabase | undefined;
   try {
     db = await openDatabase();

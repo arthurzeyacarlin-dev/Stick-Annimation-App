@@ -6,10 +6,11 @@ import {
   type AiAnimatorJobSnapshot,
 } from "../ai/aiAnimatorContract.ts";
 import {
-  readAiAnimatorLedger,
+  readAccountAiAnimatorLedger,
   upsertAiAnimatorJob,
-  writeAiAnimatorLedger,
+  writeAccountAiAnimatorLedger,
 } from "../ai/aiAnimatorStorage.ts";
+import { getConfiguredAccountDataOwner, readAccountJson, subscribeAccountDataChanges, writeAccountJson } from "../account/accountDataClient.ts";
 import type { TerraLedgerTerminalV1 } from "./notificationContracts.ts";
 import { publishValidatedNotificationTerminalV1 } from "./notificationStorage.ts";
 
@@ -59,27 +60,37 @@ const validDescriptor = (value: unknown): value is TerraPendingDescriptorV1 => {
     typeof row.projectTitle === "string" && sanitizeProjectTitle(row.projectTitle) === row.projectTitle;
 };
 
-const readPending = (): TerraPendingDescriptorV1[] => {
-  if (typeof window === "undefined") return [];
+const readPending = async (): Promise<{ rows: TerraPendingDescriptorV1[]; revision: number }> => {
+  if (typeof window === "undefined") return { rows: [], revision: 0 };
+  if (getConfiguredAccountDataOwner()) {
+    const record = await readAccountJson<{ schema: "account-terra-pending/v1"; rows: unknown[] }>("terra-pending", "all");
+    if (!record) return { rows: [], revision: 0 };
+    if (record.value?.schema !== "account-terra-pending/v1" || !Array.isArray(record.value.rows)) throw new Error("terra-pending-storage-invalid");
+    return { rows: record.value.rows.filter(validDescriptor).slice(-MAX_PENDING), revision: record.revision };
+  }
   try {
     const parsed = JSON.parse(window.localStorage.getItem(TERRA_PENDING_STORAGE_KEY_V1) ?? "[]") as unknown;
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter(validDescriptor).slice(-MAX_PENDING);
-  } catch { return []; }
+    if (!Array.isArray(parsed)) return { rows: [], revision: 0 };
+    return { rows: parsed.filter(validDescriptor).slice(-MAX_PENDING), revision: 0 };
+  } catch { return { rows: [], revision: 0 }; }
 };
 
 const notifyPending = () => {
   if (typeof window !== "undefined") window.dispatchEvent(new Event(TERRA_PENDING_CHANGED_EVENT_V1));
 };
 
-const writePending = (rows: TerraPendingDescriptorV1[]) => {
+const writePending = async (rows: TerraPendingDescriptorV1[], expectedRevision: number) => {
   if (typeof window === "undefined") throw new Error("terra-pending-storage-unavailable");
-  window.localStorage.setItem(TERRA_PENDING_STORAGE_KEY_V1, JSON.stringify(rows.slice(-MAX_PENDING)));
+  if (getConfiguredAccountDataOwner()) {
+    await writeAccountJson("terra-pending", "all", { schema: "account-terra-pending/v1", rows: rows.slice(-MAX_PENDING) }, expectedRevision);
+  } else {
+    window.localStorage.setItem(TERRA_PENDING_STORAGE_KEY_V1, JSON.stringify(rows.slice(-MAX_PENDING)));
+  }
   notifyPending();
 };
 
-const emit = (faults = snapshot.faults) => {
-  snapshot = Object.freeze({ pending: Object.freeze(readPending()), faults: Object.freeze({ ...faults }) });
+const emit = (pending: readonly TerraPendingDescriptorV1[] = snapshot.pending, faults = snapshot.faults) => {
+  snapshot = Object.freeze({ pending: Object.freeze([...pending]), faults: Object.freeze({ ...faults }) });
   for (const listener of listeners) listener(snapshot);
 };
 
@@ -121,29 +132,33 @@ export function setTerraJobPostingV1(jobId: string, value: boolean) {
 
 export async function registerPendingTerraJobV1(descriptor: TerraPendingDescriptorV1, userMessage: AiAnimatorConversationMessage, localJob: AiAnimatorJobSnapshot) {
   if (!validDescriptor(descriptor) || normalizeAiAnimatorJobSnapshot(localJob) === null || localJob.jobId !== descriptor.jobId || localJob.turnId !== descriptor.turnId || localJob.projectId !== descriptor.projectId || localJob.projectGeneration !== descriptor.projectGeneration || userMessage.role !== "user" || userMessage.jobId !== descriptor.jobId) throw new Error("invalid-terra-pending-source");
-  await withTerraLock(async () => {
-    const ledger = readAiAnimatorLedger(descriptor.projectId);
+  const rows = await withTerraLock(async () => {
+    const { ledger, revision } = await readAccountAiAnimatorLedger(descriptor.projectId);
     const existing = ledger.jobs.find(job => job.jobId === descriptor.jobId);
     if (existing && stableJson(existing) !== stableJson(localJob)) throw new Error("terra-pending-conflict");
     const messages = ledger.messages.some(message => message.id === userMessage.id) ? ledger.messages : [...ledger.messages, userMessage];
-    writeAiAnimatorLedger(upsertAiAnimatorJob({ ...ledger, messages }, localJob));
-    const rows = readPending();
-    const prior = rows.find(row => row.jobId === descriptor.jobId);
+    await writeAccountAiAnimatorLedger(upsertAiAnimatorJob({ ...ledger, messages }, localJob), revision);
+    const pending = await readPending();
+    const prior = pending.rows.find(row => row.jobId === descriptor.jobId);
     if (prior && stableJson(prior) !== stableJson(descriptor)) throw new Error("terra-descriptor-conflict");
-    writePending([...rows.filter(row => row.jobId !== descriptor.jobId), descriptor]);
+    const nextRows = [...pending.rows.filter(row => row.jobId !== descriptor.jobId), descriptor];
+    await writePending(nextRows, pending.revision);
+    return nextRows;
   });
-  emit();
+  emit(rows);
   scheduleScan(0);
 }
 
 export async function markTerraJobAcceptedV1(jobId: string) {
-  await withTerraLock(async () => {
-    const rows = readPending();
-    const descriptor = rows.find(row => row.jobId === jobId);
-    if (!descriptor || descriptor.acceptedAt !== null) return;
-    writePending(rows.map(row => row.jobId === jobId ? { ...row, acceptedAt: Date.now() } : row));
+  const rows = await withTerraLock(async () => {
+    const pending = await readPending();
+    const descriptor = pending.rows.find(row => row.jobId === jobId);
+    if (!descriptor || descriptor.acceptedAt !== null) return pending.rows;
+    const nextRows = pending.rows.map(row => row.jobId === jobId ? { ...row, acceptedAt: Date.now() } : row);
+    await writePending(nextRows, pending.revision);
+    return nextRows;
   });
-  emit();
+  emit(rows);
 }
 
 const terminalMessage = (snapshot: AiAnimatorJobSnapshot) => {
@@ -181,9 +196,10 @@ export async function acceptTerraJobSnapshotV1(descriptor: TerraPendingDescripto
   const incoming = normalizeAiAnimatorJobSnapshot(value);
   if (!incoming || incoming.jobId !== descriptor.jobId || incoming.turnId !== descriptor.turnId || incoming.projectId !== descriptor.projectId || incoming.projectGeneration !== descriptor.projectGeneration) throw new Error("invalid-terra-job-update");
   const terminalSource = await withTerraLock(async (): Promise<{ snapshot: AiAnimatorJobSnapshot; ledgerTerminal: TerraLedgerTerminalV1 } | null> => {
-    const ledger = readAiAnimatorLedger(descriptor.projectId);
+    const { ledger, revision } = await readAccountAiAnimatorLedger(descriptor.projectId);
     const previous = ledger.jobs.find(job => job.jobId === descriptor.jobId);
-    const liveDescriptor = readPending().find(row => row.jobId === descriptor.jobId);
+    const pending = await readPending();
+    const liveDescriptor = pending.rows.find(row => row.jobId === descriptor.jobId);
     const replacesProvisionalStart = liveDescriptor?.acceptedAt === null && previous?.status === "thinking" && previous.lastSequence === 1;
     if (!replacesProvisionalStart) verifySequence(previous, incoming);
     let next = upsertAiAnimatorJob(ledger, incoming);
@@ -192,26 +208,25 @@ export async function acceptTerraJobSnapshotV1(descriptor: TerraPendingDescripto
       if (!next.messages.some(message => message.jobId === incoming.jobId && message.role === "assistant")) {
         next = { ...next, messages: [...next.messages, { id: messageId, jobId: incoming.jobId, role: "assistant", content: terminalMessage(incoming), createdAt: incoming.completedAt! }] };
       }
-      writeAiAnimatorLedger(next);
-      const reread = readAiAnimatorLedger(descriptor.projectId);
+      await writeAccountAiAnimatorLedger(next, revision);
+      const reread = (await readAccountAiAnimatorLedger(descriptor.projectId)).ledger;
       const terminal = reread.jobs.find(job => job.jobId === descriptor.jobId);
       const savedMessage = reread.messages.find(message => message.jobId === descriptor.jobId && message.role === "assistant");
       if (!terminal || !isAiAnimatorTerminalStatus(terminal.status) || !savedMessage || stableJson(terminal) !== stableJson(incoming)) throw new Error("terra-terminal-reread-failed");
       const occurredAt = Date.parse(terminal.completedAt ?? "");
       if (!Number.isSafeInteger(occurredAt) || occurredAt <= 0) throw new Error("terra-terminal-time-invalid");
       const source = { snapshot: terminal, ledgerTerminal: await buildLedgerTerminal(descriptor, terminal, savedMessage.id) };
-      writePending(readPending().filter(row => row.jobId !== descriptor.jobId));
+      await writePending(pending.rows.filter(row => row.jobId !== descriptor.jobId), pending.revision);
       return source;
     } else {
-      writeAiAnimatorLedger(next);
+      await writeAccountAiAnimatorLedger(next, revision);
       if (descriptor.acceptedAt === null) {
-        const rows = readPending();
-        writePending(rows.map(row => row.jobId === descriptor.jobId ? { ...row, acceptedAt: Date.now() } : row));
+        await writePending(pending.rows.map(row => row.jobId === descriptor.jobId ? { ...row, acceptedAt: Date.now() } : row), pending.revision);
       }
       return null;
     }
   });
-  emit();
+  emit((await readPending()).rows);
   if (terminalSource && terminalSource.snapshot.status !== "cancelled") {
     const outcome = terminalSource.snapshot.status;
     if (outcome !== "done" && outcome !== "failed") throw new Error("terra-terminal-outcome-invalid");
@@ -248,9 +263,9 @@ const failureSnapshot = (descriptor: TerraPendingDescriptorV1, previous: AiAnima
 const poll = async (descriptor: TerraPendingDescriptorV1, controller: AbortController) => {
   try {
     while (!controller.signal.aborted && rootOwners > 0) {
-      const current = readPending().find(row => row.jobId === descriptor.jobId);
+      const current = (await readPending()).rows.find(row => row.jobId === descriptor.jobId);
       if (!current) break;
-      const ledger = readAiAnimatorLedger(current.projectId);
+      const ledger = (await readAccountAiAnimatorLedger(current.projectId)).ledger;
       const previous = ledger.jobs.find(job => job.jobId === current.jobId);
       if (!previous || isAiAnimatorTerminalStatus(previous.status)) break;
       const response = await fetch(`/api/ai-animator?jobId=${encodeURIComponent(current.jobId)}&projectId=${encodeURIComponent(current.projectId)}`, {
@@ -275,11 +290,11 @@ const poll = async (descriptor: TerraPendingDescriptorV1, controller: AbortContr
     }
   } catch (error) {
     if (!controller.signal.aborted) {
-      const current = readPending().find(row => row.jobId === descriptor.jobId);
-      const previous = current ? readAiAnimatorLedger(current.projectId).jobs.find(job => job.jobId === current.jobId) : null;
+      const current = (await readPending()).rows.find(row => row.jobId === descriptor.jobId);
+      const previous = current ? (await readAccountAiAnimatorLedger(current.projectId)).ledger.jobs.find(job => job.jobId === current.jobId) : null;
       if (current && previous && !isAiAnimatorTerminalStatus(previous.status)) {
         await acceptTerraJobSnapshotV1(current, failureSnapshot(current, previous, "reconnect_failed", error instanceof Error ? error.message : "AI Animator could not reconnect. No animation changed.")).catch(failure => {
-          emit({ ...snapshot.faults, [descriptor.jobId]: failure instanceof Error ? failure.message : "Terra terminalization failed." });
+          emit(snapshot.pending, { ...snapshot.faults, [descriptor.jobId]: failure instanceof Error ? failure.message : "Terra terminalization failed." });
         });
       }
     }
@@ -293,8 +308,8 @@ async function scan() {
   if (scanInFlight || rootOwners === 0) return;
   scanInFlight = true;
   try {
-    const rows = readPending();
-    emit();
+    const rows = (await readPending()).rows;
+    emit(rows);
     for (const descriptor of rows) {
       if (posting.has(descriptor.jobId) || polling.has(descriptor.jobId)) continue;
       const controller = new AbortController();
@@ -318,11 +333,13 @@ export function startTerraCompletionObserverV1() {
     window.addEventListener("storage", changed);
     window.addEventListener("focus", changed);
     document.addEventListener("visibilitychange", visible);
+    const unsubscribeAccount = subscribeAccountDataChanges("terra-pending", "all", changed);
     (startTerraCompletionObserverV1 as unknown as { cleanup?: () => void }).cleanup = () => {
       window.removeEventListener(TERRA_PENDING_CHANGED_EVENT_V1, changed);
       window.removeEventListener("storage", changed);
       window.removeEventListener("focus", changed);
       document.removeEventListener("visibilitychange", visible);
+      unsubscribeAccount();
     };
     scheduleScan(0);
   }
@@ -338,18 +355,20 @@ export function startTerraCompletionObserverV1() {
 }
 
 export function getPendingTerraDescriptorV1(jobId: string) {
-  return readPending().find(row => row.jobId === jobId) ?? null;
+  return snapshot.pending.find(row => row.jobId === jobId) ?? null;
 }
 
 export async function rebindPendingTerraProjectV1(workspaceIdentity: string, projectId: string, projectTitle: string) {
-  await withTerraLock(async () => {
-    const rows = readPending();
-    const matches = rows.filter(row => row.workspaceIdentity === workspaceIdentity);
-    if (!matches.length || matches.every(row => row.projectId === projectId && row.projectTitle === sanitizeProjectTitle(projectTitle))) return;
+  const rows = await withTerraLock(async () => {
+    const pending = await readPending();
+    const matches = pending.rows.filter(row => row.workspaceIdentity === workspaceIdentity);
+    if (!matches.length || matches.every(row => row.projectId === projectId && row.projectTitle === sanitizeProjectTitle(projectTitle))) return pending.rows;
     // Current accepted server jobs are keyed by projectId. Rebinding is safe only
     // before acceptance; accepted jobs keep their exact original project identity.
     if (matches.some(row => row.acceptedAt !== null && row.projectId !== projectId)) throw new Error("terra-accepted-project-rebind-blocked");
-    writePending(rows.map(row => row.workspaceIdentity !== workspaceIdentity ? row : { ...row, projectId, projectTitle: sanitizeProjectTitle(projectTitle) }));
+    const nextRows = pending.rows.map(row => row.workspaceIdentity !== workspaceIdentity ? row : { ...row, projectId, projectTitle: sanitizeProjectTitle(projectTitle) });
+    await writePending(nextRows, pending.revision);
+    return nextRows;
   });
-  emit();
+  emit(rows);
 }

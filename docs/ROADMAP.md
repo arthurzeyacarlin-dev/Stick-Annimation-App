@@ -1,5 +1,9 @@
 # Roadmap
 
+## SPEC-0015 Phase 4.5 accepted — D-0163
+
+Arthur passed the isolated Phase 4.5 local account-continuity copy. Its accepted 22-path implementation and control-plane record are awaiting bounded GitHub/main publication. After that integration, Phase 5 account usage and Dashboard identity are next. Version 2 or later still owns cross-device access and the new private MP4 account archive.
+
 ## SPEC-0015 Phase 4.5 — D-0162 Version 1 local-device correction
 
 Phase 4 is published. Phase 4.5 retains one account at a time on the current installation and adds private account chats/jobs/notifications/recovery/preferences. Existing local Finder MP4 Export is unchanged. The new account-linked MP4 archive, cross-device login/sync/recovery, hosted Better Auth, mail and credential migration move to Version 2 or later. Phase 5 alone owns account usage and Dashboard math. A fresh Plan-mode executor may freeze the exact local-data path/write/proof ceiling from published main; no further Version 1 product choice remains.

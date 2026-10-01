@@ -13,7 +13,7 @@ import {
 } from "../usage-journal/usageJournalEvents.ts";
 
 type Provider = (request: AiAnimatorRequest, options: { signal: AbortSignal }) => Promise<AiAnimatorProviderResult>;
-type InternalJob = AiAnimatorJobSnapshot & { abortController: AbortController };
+type InternalJob = AiAnimatorJobSnapshot & { ownerId: string; abortController: AbortController };
 
 const SERVER_DEADLINE_MS = 90_000;
 const emptyUsage = { inputTokens: null, outputTokens: null, totalTokens: null, estimatedCostUsd: null };
@@ -23,8 +23,9 @@ const usageIdentity = (job: InternalJob) => ({
 });
 
 const publicSnapshot = (job: InternalJob): AiAnimatorJobSnapshot => {
-  const { abortController: _abortController, ...snapshot } = job;
+  const { abortController: _abortController, ownerId: _ownerId, ...snapshot } = job;
   void _abortController;
+  void _ownerId;
   return structuredClone(snapshot);
 };
 
@@ -40,18 +41,19 @@ export class AiAnimatorJobService {
 
   private meter(event: Parameters<UsageEventRecorder>[0]) { try { this.recordUsage(event); } catch { /* Best-effort observation only. */ } }
 
-  submit(request: AiAnimatorRequest) {
+  submit(request: AiAnimatorRequest, ownerId = "legacy-local-owner") {
     const existing = this.jobs.get(request.jobId);
     if (existing) {
+      if (existing.ownerId !== ownerId) throw Object.assign(new Error("This AI Animator job is not available to this account."), { status: 403 });
       return publicSnapshot(existing);
     }
     const workspaceActiveJob = [...this.jobs.values()].find(
-      (job) => job.projectId === request.workspace.projectId && !isAiAnimatorTerminalStatus(job.status),
+      (job) => job.ownerId === ownerId && job.projectId === request.workspace.projectId && !isAiAnimatorTerminalStatus(job.status),
     );
     if (workspaceActiveJob) {
       throw Object.assign(new Error("This workspace already has an active AI Animator request."), { status: 409 });
     }
-    const environmentActiveCount = [...this.jobs.values()].filter((job) => !isAiAnimatorTerminalStatus(job.status)).length;
+    const environmentActiveCount = [...this.jobs.values()].filter((job) => job.ownerId === ownerId && !isAiAnimatorTerminalStatus(job.status)).length;
     if (environmentActiveCount >= 2) {
       throw Object.assign(new Error("AI Animator is busy. Try again after an active request finishes."), { status: 429 });
     }
@@ -60,6 +62,7 @@ export class AiAnimatorJobService {
     const event: AiAnimatorJobEvent = { sequence: 1, status: "thinking", createdAt: now };
     const job: InternalJob = {
       version: 1,
+      ownerId,
       jobId: request.jobId,
       turnId: request.turnId,
       projectId: request.workspace.projectId,
@@ -88,14 +91,14 @@ export class AiAnimatorJobService {
     return publicSnapshot(job);
   }
 
-  get(jobId: string, projectId: string) {
+  get(jobId: string, projectId: string, ownerId = "legacy-local-owner") {
     const job = this.jobs.get(jobId);
-    return job && job.projectId === projectId ? publicSnapshot(job) : null;
+    return job && job.ownerId === ownerId && job.projectId === projectId ? publicSnapshot(job) : null;
   }
 
-  cancel(jobId: string, projectId: string) {
+  cancel(jobId: string, projectId: string, ownerId = "legacy-local-owner") {
     const job = this.jobs.get(jobId);
-    if (!job || job.projectId !== projectId) {
+    if (!job || job.ownerId !== ownerId || job.projectId !== projectId) {
       return null;
     }
     if (isAiAnimatorTerminalStatus(job.status)) {

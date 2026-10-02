@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-10-02 — D-0168 accepts SPEC-0016 Phase 1 and authorizes publication
+
+- Arthur passed the final compact dark-navy Home/header and all visual corrections. Normal buttons/header use #071120, page #030914, hover #0066FF instantly; recent project is one full genuine-poster target, empty state is pencil-only, desktop fits without a scrollbar and header has a divider.
+- Froze exact eight technical paths from published planning `413f71b` at final manifest `faa93f21d6c87b7be2685ba06c9f0326cf549e9bfc5070b32676071bb03cf32d`. Root executor stopped; Arthur/PM accepted; root CPA owns records exclusively and has explicit later commit/main/push authorization. No accepted app/test byte changed during propagation.
+- Preserved all project/account/save/logout/AI/editor/export/Dashboard/notification owners. Recorded inherited full type/build and unexecuted accessibility/performance/fault/provider proof limits honestly. SPEC-0016 Phase 2 is next only after synchronized publication; no later phase or deployment started.
+
 ## 2026-10-02 — D-0167 proposes SPEC-0016 and pauses SPEC-0015 after Phase 5 (docs only)
 
 - Added a five-phase professional workspace compression/polish proposal from clean canonical baseline `988531e`: Home/header; Projects/Export/media; Help/Assistant/Tutorials; editor shell; then account/Dashboard/recovery integration. The target is under seven days at one or two accepted phases per day without relaxing proof or publication gates.

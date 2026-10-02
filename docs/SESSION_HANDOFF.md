@@ -1,5 +1,13 @@
 # Session Handoff
 
+## D-0168 — Accepted Phase 1 ownership and publication checkpoint
+
+Arthur passed the final SPEC-0016 Phase 1 copy and explicitly authorized control-plane propagation and GitHub/main publication. Root executor is stopped; root CPA takes exclusive ownership of `/Users/arthurcarlin/.codex/worktrees/spec0016-home-fresh/stick-animation-app`, detached base `413f71ba4cd3e6b12e05040aacfb8038b67bcd28`, initially empty index. Accepted technical manifest `output/spec-0016/phase-1/proof-manifest.json` hashes to `faa93f21d6c87b7be2685ba06c9f0326cf549e9bfc5070b32676071bb03cf32d`. The eight technical paths are two Home/chrome TSX, two CSS modules and four `scripts/spec0016-ui/phase1/*.mjs` proof scripts. CPA must preserve these exact bytes.
+
+Publication may stage only those eight paths and reviewed canonical records/generated tree. Refuse if canonical main or live origin differs from the exact base; no pull, merge conflict, rebase or force-push. After clean synchronization preserve ignored proof/account configuration locally under canonical `.local/recovery/spec0016-phase1-accepted-20261002`, stop exact review server/port 58584 and archive only this disposable worktree. Never import review accounts into main. Next task is separately authorized SPEC-0016 Phase 2 from the final published closeout SHA: one Projects library, row Edit/Watch/eligible Export and polished library/viewer/export. Do not implement it in this task.
+
+This is the prepublication checkpoint; the next closeout entry will record actual commit, activation, recovery and cleanup. D-0167 below is historical.
+
 ## D-0167 SPEC-0016 planning proposal — exact next starting point
 
 Arthur directed a docs-only professional workspace compression/polish plan from clean synchronized canonical `main` / `origin/main` `988531e3a3e1f65558d32952256877c366a04c9d`. [SPEC-0016](specs/0016-professional-workspace-compression-and-polish.md) is now **Proposed** with five phases and an under-seven-day target. Phase 1 is narrowly Home/header only: compact final Home presentation, quiet Dashboard/bell/menu/account chrome, and direct one-click links to the unchanged Edit library, Watch library, Assistant, Tutorials and Export. Phases 2–5 respectively own Projects/Export/media, Help/Assistant/Tutorials, the editor shell, and account/Dashboard/recovery integration. Every capability is protected. Tutorials remain placeholders; workspace Help is still inert; SPEC-0008 remains paused. SPEC-0015 Phases 6–8 are paused, not cancelled, and resume after SPEC-0016 closeout.

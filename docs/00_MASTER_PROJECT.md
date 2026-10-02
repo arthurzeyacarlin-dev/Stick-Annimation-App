@@ -1,5 +1,9 @@
 # Diamond Animator Master Project Charter
 
+## D-0168 — Accepted Phase 1 product direction
+
+Arthur accepted SPEC-0016 Phase 1 Home/header: dark-navy #030914 page, normal #071120 buttons/header, instant #0066FF interaction, large white diamond, direct New/Open/My Projects/Help/Tutorials/Export controls, visit-only recent saved-project preview and compact desktop fit. All drawing, project/account saving, AI, notifications, Dashboard and Export engines retain their current owners. Phase 2 is the next separately authorized surface; later phases and paused SPEC-0015/0008 are not authorized here. The D-0167 proposal paragraphs below are historical where they call the plan unpublished or Phase 1 unstarted.
+
 Status: canonical product intent
 Last updated: 2026-10-02
 

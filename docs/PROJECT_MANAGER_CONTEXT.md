@@ -1,5 +1,11 @@
 # Project Manager Context
 
+## D-0168 — Arthur passed Phase 1 and authorized publication
+
+The final accepted copy is `/Users/arthurcarlin/.codex/worktrees/spec0016-home-fresh/stick-animation-app`, base `413f71ba4cd3e6b12e05040aacfb8038b67bcd28`, empty index and exact eight-path technical allowlist. Manifest SHA-256 is `faa93f21d6c87b7be2685ba06c9f0326cf549e9bfc5070b32676071bb03cf32d`. Executor work is completely stopped; root has exclusive CPA ownership. Arthur's latest instruction explicitly authorizes propagation, commit, clean fast-forward into canonical main, push, synchronization and D-0054 retirement. No accepted runtime byte may be changed by CPA. Main user data and provider settings are not imported from the review copy.
+
+Stop after publication at SPEC-0016 Phase 2 readiness, not after starting Phase 2. Keep its exact entry-identity/eligible-action mechanics bounded to its own execution-path refresh. The prior D-0167 prepublication/unauthorized statements are historical, not the latest task authority.
+
 ## D-0167 SPEC-0016 proposal — PM review is the next operation
 
 Arthur wants the current interface compressed and professionally finished before SPEC-0015 continues. The proposed [SPEC-0016](specs/0016-professional-workspace-compression-and-polish.md) uses five surface-owned phases with an under-seven-day target and no repeated generic polish pass. Phase 1 is one plausible day: compact Home plus quiet global chrome only, with direct one-click links into the existing Edit library, Watch library, Assistant, Tutorials and Export. Phase 2 owns the unified Projects library/contextual Export/media surfaces; Phase 3 Help/Assistant/Tutorials/workspace Help; Phase 4 the editor shell; Phase 5 account entry/Dashboard/recovery/shared-dialog integration. Every current capability remains protected, including signup's explicit local preview-plan choice. Tutorials remain placeholders, workspace Help remains inert until Phase 3, and visual polish does not resume SPEC-0008 AI editing. SPEC-0015 Phases 6–8 are paused, not cancelled, and resume after SPEC-0016 closeout.

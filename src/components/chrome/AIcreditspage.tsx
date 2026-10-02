@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import chromeStyles from "./appChrome.module.css";
 import { NotificationTrigger } from "@/src/components/notifications/NotificationTrigger";
 import { useAccountSession } from "@/src/components/account/AccountSessionProvider";
 import { ACCOUNT_PREVIEW_PLANS } from "@/src/lib/account/accountConfig";
@@ -13,6 +14,8 @@ type AppChromeProps = {
 
 export function AppChrome({ theme = "default" }: AppChromeProps) {
   const account = useAccountSession();
+  const homeMenuRef = useRef<HTMLButtonElement>(null);
+  const homeAccountRef = useRef<HTMLButtonElement>(null);
   const [menuHover, setMenuHover] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
@@ -75,6 +78,8 @@ export function AppChrome({ theme = "default" }: AppChromeProps) {
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
+        if (isHomeTheme && menuOpen) homeMenuRef.current?.focus({ preventScroll: true });
+        else if (isHomeTheme && accountPopoverOpen) homeAccountRef.current?.focus({ preventScroll: true });
         setMenuOpen(false);
         setAboutOpen(false);
         setTermsOpen(false);
@@ -85,9 +90,10 @@ export function AppChrome({ theme = "default" }: AppChromeProps) {
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, []);
+  }, [isHomeTheme, menuOpen, accountPopoverOpen]);
 
   const closeMenuLayers = () => {
+    if (isHomeTheme) homeMenuRef.current?.focus({ preventScroll: true });
     setMenuOpen(false);
     setAboutOpen(false);
     setTermsOpen(false);
@@ -130,6 +136,45 @@ export function AppChrome({ theme = "default" }: AppChromeProps) {
 
   return (
     <>
+      {isHomeTheme && (
+        <header className={chromeStyles.homeBar}>
+          <div className={chromeStyles.homeBrand}>
+            <svg className={chromeStyles.brandDiamond} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M3 9 7 4h10l4 5-9 11L3 9Z" stroke="currentColor" strokeWidth="1.65" strokeLinejoin="round" />
+              <path d="M3 9h18M7 4l5 16L17 4" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+            </svg>
+            <span className={chromeStyles.homeBrandText}><strong>Diamond Animator</strong><small>Create. Animate. Dominate.</small></span>
+          </div>
+          <div className={chromeStyles.homeActions}>
+            <div className={chromeStyles.homeBell}><NotificationTrigger view="home" /></div>
+            <Link href="/credits" className={chromeStyles.homeDashboard} aria-label="Open AI dashboard">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="3" y="12" width="4" height="8" rx="1" fill="currentColor" /><rect x="10" y="8" width="4" height="12" rx="1" fill="currentColor" /><rect x="17" y="4" width="4" height="16" rx="1" fill="currentColor" />
+              </svg>
+              AI Dashboard
+            </Link>
+            <button ref={homeMenuRef} type="button" className={chromeStyles.homeMenu} aria-label="Menu" aria-expanded={menuOpen} aria-controls="home-menu-panel" onClick={() => { setMenuOpen(open => !open); setAccountPopoverOpen(false); }}>
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 6h14M5 12h14M5 18h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+            </button>
+            {account && (
+              <div className={chromeStyles.accountShell}>
+                <button ref={homeAccountRef} type="button" className={chromeStyles.homeAvatar} aria-label={`Account for ${account.name || account.email}`} aria-expanded={accountPopoverOpen} title={account.email}
+                  onClick={() => { setAccountPopoverOpen(open => !open); setLogoutError(null); setMenuOpen(false); }}>{accountInitial}</button>
+                {accountPopoverOpen && (
+                  <div role="dialog" aria-label="Account actions" className={chromeStyles.accountPopover}>
+                    <strong>{account.name || account.email}</strong><span>{account.email}</span>
+                    <p>{previewPlanLabel} · Local test preview</p>
+                    <small>No paid plan or real allowance.</small>
+                    <button type="button" onClick={logOut} disabled={logoutBusy}>{logoutBusy ? "Logging out…" : "Log out"}</button>
+                    {logoutError && <div role="alert" className={chromeStyles.accountError}>{logoutError}</div>}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </header>
+      )}
+      {!isHomeTheme && (
       <header
         className="topBar"
         style={{
@@ -351,6 +396,7 @@ export function AppChrome({ theme = "default" }: AppChromeProps) {
           </button>
         </div>
       </header>
+      )}
 
       <div
         aria-hidden={!menuOpen}
@@ -367,6 +413,8 @@ export function AppChrome({ theme = "default" }: AppChromeProps) {
       />
 
       <aside
+        id={isHomeTheme ? "home-menu-panel" : undefined}
+        inert={isHomeTheme && !menuOpen ? true : undefined}
         aria-label="Menu panel"
         onClick={(event) => event.stopPropagation()}
         style={{
@@ -733,7 +781,7 @@ export function AppChrome({ theme = "default" }: AppChromeProps) {
           </div>
         </div>
 
-        {account && (
+        {account && !isHomeTheme && (
           <div style={{ marginTop: "auto", position: "relative", alignSelf: "flex-start" }}>
             {accountPopoverOpen && (
               <div

@@ -1,17 +1,27 @@
 # SPEC-0016 — Professional Workspace Compression and Polish
 
-Status: **Proposed; planning authorized by Arthur; no implementation phase is authorized or started**
+Status: **Approved; Phase 1 Arthur-accepted with final corrections; publication explicitly authorized; Phases 2–5 not started**
 Owner: Arthur
 Planning role: docs-only Spec Architect; Project Manager reviews before any implementation authorization
 Created: 2026-10-02
 Last updated: 2026-10-02
-Decision links: D-0167; D-0166; D-0093; D-0134; D-0136; D-0143
+Decision links: D-0168; D-0167; D-0166; D-0093; D-0134; D-0136; D-0143
 TODO IDs: PLAN-016; POLISH-016-1 through POLISH-016-5; PUB-016-PLAN; RESUME-015-6
 Planning baseline: clean synchronized canonical `main` / `origin/main` at `988531e3a3e1f65558d32952256877c366a04c9d`
 Runtime baseline inside that record: accepted SPEC-0015 Phase 5 product commit `1b4acd7db0b57188e95cb8474816c4e453172abd`
 Delivery target: **five phases planned to finish in under seven calendar days from Phase 1 start, aiming for one or two accepted implementation phases per day; this is not a 30-day program. The target never relaxes proof, human review, sequential ownership or publication gates.**
 
 ## 1. Exact goal
+
+### Current accepted Phase 1 checkpoint — D-0168
+
+The planning package was published at `413f71ba4cd3e6b12e05040aacfb8038b67bcd28`; Arthur then authorized Phase 1 and separately accepted its final review. The exact eight technical paths are bound by ignored manifest SHA-256 `faa93f21d6c87b7be2685ba06c9f0326cf549e9bfc5070b32676071bb03cf32d`. The executor stopped; root has exclusive CPA ownership and Arthur's later explicit propagation/commit/main/push authorization. No runtime byte is changed by propagation.
+
+Final Home uses New/Open/My Projects/Help/Tutorials/Export direct actions, instant #0066FF hover, #030914 page and brighter #071120 header/normal buttons, inert white diamond, genuine visit-only recent saved-project preview, pencil-only empty state, no desktop scrollbar and separated non-shrinking header. The latest visual instructions supersede the proposal's unboxed/default token details only for this accepted surface. Exact code scope remains §11.2–11.3.
+
+Navigation/save checks, 209 protected runtime/config byte comparisons, recorded local account/project/navigation flows, responsive desktop fit and compile/generate preview pass. Full regular type/build has inherited dev AI-cost PageProps errors; Axe/200% zoom/quantified performance/full fault matrix/new paid AI/microphone proof are not claimed. Arthur's explicit acceptance does not convert these limits into formal proof. §§2/15/16 retain historical planning authorization language, superseded only by this checkpoint.
+
+Phase 2 remains §10's bounded Projects/library/viewer/export presentation phase. Start only from clean published Phase 1 closeout under separate implementation authorization; resolve G-016-PROJECT-ACTIONS in the exact entry trace, without changing project/save/player/encoder engines.
 
 Make Diamond Animator feel dramatically simpler, denser and professionally finished without removing, weakening or pretending to complete any existing capability.
 

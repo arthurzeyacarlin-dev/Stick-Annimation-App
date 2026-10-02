@@ -1690,7 +1690,17 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Main/cleanup evidence: local Home `200` and unsigned `/api/account/usage` `401` prove route activation and unauthenticated denial, not signed-in main account isolation. Browser policy blocked a new authenticated main walkthrough, so Arthur's accepted isolated A/B and visual review remains the functional evidence. Review port 58666 is closed and its worktree archived; restricted proof/account-data recovery is `/Users/arthurcarlin/Projects/stick-animation-app/.local/recovery/phase5-accepted-20261002`. No test account was imported into main.
 - Boundary: G-USAGE closes only for prospective Version 1 local account usage. The display-only 10,000-token roof neither blocks AI nor refills. Phase 6 real funded allowance/admission requires separate Arthur authorization and G-ECON/G-CAPS plus financial-retention decisions; Phase 7 payment, cross-device sync, public launch and deployment are not authorized or implemented.
 
-### D-0167 — Pause SPEC-0015 after Phase 5 and propose SPEC-0016 workspace compression
+### D-0168 — Accept final SPEC-0016 Phase 1 and authorize sequential publication
+
+- Date: 2026-10-02
+- Status: Arthur accepted final Home/header and explicitly authorized propagation, commit, main integration and GitHub push; publication success is recorded separately.
+- Planning package `413f71b` is published. Final accepted base is `413f71ba4cd3e6b12e05040aacfb8038b67bcd28`; exact eight technical paths bind to manifest `faa93f21d6c87b7be2685ba06c9f0326cf549e9bfc5070b32676071bb03cf32d`. Root executor stopped; root CPA takes exclusive ownership sequentially. Runtime/proof source is frozen; records only until the distinct publication operation.
+- Final visual choices: normal #071120 header/buttons against #030914 page; instant #0066FF interactions; large unboxed white diamond; New/Open/My Projects/Help/Tutorials/Export direct actions; full recent saved-poster target; pencil-only empty state; desktop fit and header divider. Visit UI memory resets on full reload/logout without deleting saved work.
+- Protected systems: Phase 4/4.5/5 persistence/account/usage, providers/prompts/AI thinking/search/dictation, drawing/history/playback/export, notifications and data owners unchanged. No review accounts imported into main.
+- Proof is bounded: executed navigation/save/209-byte checks and recorded real synthetic flows/desktop visuals are accepted; inherited type/build errors and unexecuted Axe/zoom/performance/fault/provider checks remain disclosed, not silently waived or called proven.
+- Next: publish/synchronize this exact accepted result, preserve required proof and account recovery, retire only its obsolete review server/worktree under D-0054, then stop at SPEC-0016 Phase 2 readiness. No Phase 2 implementation or paused SPEC-0015/0008 work starts here.
+
+### Historical D-0167 — Pause SPEC-0015 after Phase 5 and propose SPEC-0016 workspace compression
 
 - Date: 2026-10-02
 - Status: Arthur accepted this planning direction; SPEC-0016 is Proposed, docs-only, unaccepted for implementation and unpublished.

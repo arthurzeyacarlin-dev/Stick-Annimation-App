@@ -1,5 +1,11 @@
 # Diamond Animator Control Plane
 
+## D-0168 — SPEC-0016 Phase 1 accepted; publication authorized
+
+Arthur passed the final Home/header review copy, including its instant #0066FF interactions, full recent-project target, no-scroll desktop fit, brighter #071120 header and pencil-only empty state. The exact eight technical paths from published planning base `413f71ba4cd3e6b12e05040aacfb8038b67bcd28` are frozen by manifest SHA-256 `faa93f21d6c87b7be2685ba06c9f0326cf549e9bfc5070b32676071bb03cf32d`. Root's executor stopped; Arthur/PM accepted; root now owns the same worktree exclusively as Control Plane Architect. Arthur separately and explicitly authorized records propagation, commit, canonical-main integration and GitHub push. This record is the acceptance checkpoint, not proof that publication has already succeeded.
+
+SPEC-0016 Phase 2 is next after this accepted result and its records are durably integrated and synchronized. It unifies Projects with explicit Edit/Watch/eligible Export and polishes library/viewer/export presentation without changing engines. No Phase 2 implementation has started. SPEC-0015 Phases 6–8 and SPEC-0008 remain paused. Historical D-0167 proposal status below is superseded by planning publication `413f71b` and Arthur's later explicit phase/correction authorization.
+
 ## D-0167 proposes SPEC-0016 before remaining SPEC-0015 work
 
 Arthur has directed a docs-only [SPEC-0016 UI compression and polish plan](specs/0016-professional-workspace-compression-and-polish.md) from clean synchronized canonical baseline `988531e3a3e1f65558d32952256877c366a04c9d`. The proposed five-phase sequence targets completion in under seven calendar days at one or two accepted phases per day without relaxing proof, review, sequential ownership or publication gates. Phase 1 is narrowly limited to compact Home and quiet global chrome, with direct one-click routes to the unchanged Edit library, Watch library, Assistant, Tutorials and Export. Later phases own Projects/Export, Help, the editor shell, then account/Dashboard/recovery integration. SPEC-0015 Phases 6–8 are **paused, not cancelled**, until SPEC-0016 closes; SPEC-0008 remains paused. This planning package is unaccepted/unpublished and authorizes no implementation.

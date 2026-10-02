@@ -1,5 +1,13 @@
 # Current State
 
+## D-0168 — Accepted SPEC-0016 Phase 1 runtime and proof
+
+Arthur passed the final Home/header review from base `413f71b`. Eight technical paths are frozen at manifest SHA-256 `faa93f21d6c87b7be2685ba06c9f0326cf549e9bfc5070b32676071bb03cf32d`; root executor stopped before CPA takeover. Home now has direct New Project, Open Project, My Projects, Help, Tutorials and Export; inert white-diamond branding; quiet account/menu/bell/Dashboard; normal #071120 header/buttons against #030914 page; instant #0066FF hover; and one genuine saved-project preview entered during this visit. Full reload/logout resets only visit UI memory, never saved work.
+
+Fresh visual checks at 1440×756 confirm header height 86px, main clientHeight=scrollHeight=670, correct brighter header and pencil-only empty state. Earlier finalization checks cover empty/recent Home at 1440×900, 1280×720 and 1024×768. Recorded real-app synthetic flows cover signup/login/logout, New Project, Save As/Save and Exit/reopen, saved poster, Watch, Assistant, Tutorials, Dashboard, bells/menu and Export choosers. One clean logout sample was 721ms, not a general latency guarantee. Navigation/save-contract checks and 209 protected runtime/config byte comparisons pass. No project/save/auth/AI/usage/editor/library/viewer/export engine changed.
+
+Limits: full regular type/build gate retains two unrelated dev AI-cost PageProps errors; production compile/generate preview succeeds. Axe, 200% zoom, quantified performance comparison, full outage/fault matrix and new live paid AI/microphone calls are not proven. Raw CDP hover was declined and not bypassed. No universal zero-regression claim. Publication is authorized in this checkpoint; the later closeout records its actual result. Phase 2 remains unstarted.
+
 ## D-0167 planning-only SPEC-0016 proposal; runtime remains D-0166
 
 **Code/check verified, 2026-10-02:** canonical `main` and `origin/main` started clean at `988531e3a3e1f65558d32952256877c366a04c9d`. The current root still authenticates into `ExistingHome`; Home still has six tall cards; Open Project and My Projects still mount the same `ProjectLibrary` in edit/watch modes; editor File → Export and the separate Home Export chooser still use `AnimationExportFlow`; `/assistant`, placeholder Tutorials, `/credits`, two notification bells and the account/menu paths remain current. Workspace Help is still visibly inert. New-account signup still requires one explicitly non-financial local preview-plan choice. No runtime or test byte changed in this planning task.

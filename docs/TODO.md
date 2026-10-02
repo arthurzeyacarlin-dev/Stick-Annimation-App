@@ -1,5 +1,16 @@
 # TODO
 
+## Current queue — SPEC-0016 Phase 1 accepted (D-0168)
+
+- [x] **PUB-016-PLAN** — Planning package published as `413f71ba4cd3e6b12e05040aacfb8038b67bcd28`.
+- [x] **POLISH-016-1** — Arthur accepted the final Home/header runtime and all authorized visual corrections; sealed eight-path evidence is `faa93f21d6c87b7be2685ba06c9f0326cf549e9bfc5070b32676071bb03cf32d`.
+- [ ] **PUB-016-1** — Explicitly authorized: propagate frozen result, commit, fast-forward clean canonical main, push, verify 0/0, preserve proof/review account recovery and retire only the obsolete review copy. Completion is recorded at publication closeout.
+- [ ] **POLISH-016-2** — Next phase: unified Projects with Edit/Watch/eligible Export; library/viewer/export presentation. Not started. Start from the published Phase 1 closeout SHA only under separate implementation authorization; resolve G-016-PROJECT-ACTIONS during bounded Plan-mode trace.
+- [ ] **POLISH-016-3 through POLISH-016-5** — Later surface phases remain gated.
+- [ ] **RESUME-015-6** — SPEC-0015 resumes only after SPEC-0016 completion and existing economic/cap/retention decisions. SPEC-0008 remains paused.
+
+The D-0167 unchecked planning tasks below are historical checkpoints and do not override this current queue.
+
 ## D-0167 SPEC-0016 proposal; remaining SPEC-0015 work paused
 
 - [x] **PLAN-016 — Draft decision-complete SPEC-0016.** Code-trace the current Home/chrome/projects/Help/Assistant/Tutorials/editor/Export/account/Dashboard/notification paths from clean `988531e`; define five bounded phases, final user flows, protected regressions and an exact one-day Phase 1 contract. This is docs-only and does not prove the final visuals.

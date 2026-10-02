@@ -1,5 +1,11 @@
 # Roadmap
 
+## Current next phase — SPEC-0016 Phase 2 (D-0168)
+
+Phase 1 Home/header is Arthur-accepted with final corrections, protected engines unchanged and explicit publication authority. Planning baseline `413f71b` is published. After the Phase 1 result and record closeout are cleanly integrated/synchronized, Phase 2 consolidates Projects into one library with explicit Edit/Watch/eligible Export actions and genuine posters, and polishes library/Movie Viewer/Export presentation. Only remove the transitional Home Export/Watch entry after equivalent contextual actions pass; do not restyle accepted Home. Exact project identity, revalidation and eligibility/failure mechanics are frozen during Phase 2's entry trace. No Phase 2 implementation is authorized by publication alone.
+
+The five-phase sequence remains under-week intent, not a guaranteed schedule. Earlier D-0167 proposal/publication status is historical. SPEC-0015 Phases 6–8 remain paused until SPEC-0016 closes; SPEC-0008 remains paused.
+
 ## Proposed next sequence — SPEC-0016 before SPEC-0015 Phase 6 (D-0167)
 
 From published canonical baseline `988531e`, pause—not cancel—SPEC-0015 Phases 6–8 and complete proposed SPEC-0016 in five independently reviewed/published phases. The delivery target is under seven calendar days from Phase 1 start, aiming for one or two accepted phases per day; proof, owner review, sequential worktree ownership and separate publication remain mandatory.

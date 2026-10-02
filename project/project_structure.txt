@@ -150,6 +150,7 @@
 ./docs/specs/0013-version-1-home-finalizer-removal.md
 ./docs/specs/0014-in-app-notification-center.md
 ./docs/specs/0015-functional-ai-dashboard.md
+./docs/specs/0016-professional-workspace-compression-and-polish.md
 ./docs/specs/README.md
 ./docs/specs/TEMPLATE.md
 ./docs/testing_workflow.md
@@ -715,6 +716,12 @@
 ./scripts/spec0015-dashboard/recordPhase2Proof.ts
 ./scripts/spec0015-dashboard/validatePhase1Proof.ts
 ./scripts/spec0015-dashboard/validatePhase2Proof.ts
+./scripts/spec0016-ui
+./scripts/spec0016-ui/phase1
+./scripts/spec0016-ui/phase1/browser-proof.mjs
+./scripts/spec0016-ui/phase1/navigation-oracle.mjs
+./scripts/spec0016-ui/phase1/proof-manifest.mjs
+./scripts/spec0016-ui/phase1/protected-regressions.mjs
 ./scripts/sync_docs_to_github.sh
 ./scripts/traceExplosionLivePath.ts
 ./scripts/traceGenerateSoundsLivePath.mjs
@@ -773,8 +780,11 @@
 ./src/components/assistant/useAssistantSessions.ts
 ./src/components/chrome
 ./src/components/chrome/AIcreditspage.tsx
+./src/components/chrome/appChrome.module.css
 ./src/components/export
 ./src/components/export/AnimationExportFlow.tsx
+./src/components/home
+./src/components/home/HomeWorkspace.module.css
 ./src/components/notifications
 ./src/components/notifications/NotificationCenterProvider.tsx
 ./src/components/notifications/NotificationTrigger.tsx

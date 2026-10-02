@@ -1,5 +1,13 @@
 # Verification and Regression Workflow
 
+## SPEC-0016 Phase 1 accepted proof — D-0168
+
+Accepted base is `413f71ba4cd3e6b12e05040aacfb8038b67bcd28`; final eight-path source/artifact manifest SHA-256 is `faa93f21d6c87b7be2685ba06c9f0326cf549e9bfc5070b32676071bb03cf32d`. Its strict executor validator passed before CPA records changed. After propagation use independent complete manifest file-hash validation: the executor's exact dirty-path gate intentionally rejects added CPA docs and is not a post-propagation green claim.
+
+Navigation, Phase 4 save-contract, 209 protected byte comparisons, focused lint, whitespace, local guarded routes and production compile/generate preview passed. Synthetic live browser proof includes account entry/logout, project create/save/reopen/watch, recent lifecycle, Assistant/Tutorials/Dashboard/bells/menu and Export chooser. Final desktop Home measurements prove no scroll and no header overlap. Header-color and pencil-only corrections each proved only their exact literal/path change against the previous seal.
+
+Disclosed limits remain: unrelated dev-page full type/regular-build errors; no Axe, 200% zoom, quantified performance baseline, full fault/outage matrix or fresh paid AI/microphone calls. No CDP hover bypass after Arthur declined it. CPA changes no technical bytes; acceptance does not transform these omissions into proof.
+
 Status: canonical proof standard and current gate baseline
 Last updated: 2026-10-02
 

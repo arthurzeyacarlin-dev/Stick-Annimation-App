@@ -1691,6 +1691,15 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Boundary: G-USAGE closes only for prospective Version 1 local account usage. The display-only 10,000-token roof neither blocks AI nor refills. Phase 6 real funded allowance/admission requires separate Arthur authorization and G-ECON/G-CAPS plus financial-retention decisions; Phase 7 payment, cross-device sync, public launch and deployment are not authorized or implemented.
 
 ### D-0168 — Accept final SPEC-0016 Phase 1 and authorize sequential publication
+### D-0169 — Publish accepted SPEC-0016 Phase 1 and close its handoff
+
+- Date: 2026-10-02
+- Status: exact 21-path product commit `2cea6de9103c21d21a4aec8d933740d64c66239b` is published/integrated; fresh live GitHub and clean canonical/origin main matched 0/0. Parent is `413f71ba4cd3e6b12e05040aacfb8038b67bcd28`.
+- Main routes are live: Home 200, unsigned usage 401; Chrome reaches normal main account entry. No fresh signed-in main review is claimed. Frozen accepted runtime and original manifest remain unchanged.
+- Required proof and 25 ignored review/config/account files are independently hash-verified in restricted canonical `.local/recovery/spec0016-phase1-accepted-20261002`; SQLite quick checks pass. No account import. Exact review server stopped/58584 closed; managed worktree retirement follows this final synchronized records-only closeout.
+- Phase 2 is the next separately authorized implementation from final clean main: one Projects library with explicit Edit/Watch/eligible Export, genuine posters and polished library/viewer/export. Protected engines, accepted Home and paused specs remain untouched. No provider/payment/public deployment/later implementation occurred.
+
+### Historical D-0168 — Accept final SPEC-0016 Phase 1 and authorize sequential publication
 
 - Date: 2026-10-02
 - Status: Arthur accepted final Home/header and explicitly authorized propagation, commit, main integration and GitHub push; publication success is recorded separately.

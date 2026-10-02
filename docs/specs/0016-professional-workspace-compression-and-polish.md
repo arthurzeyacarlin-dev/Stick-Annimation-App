@@ -1,17 +1,25 @@
 # SPEC-0016 — Professional Workspace Compression and Polish
 
-Status: **Approved; Phase 1 Arthur-accepted with final corrections; publication explicitly authorized; Phases 2–5 not started**
+Status: **Approved; Phase 1 Arthur-accepted/published/integrated; Phase 2 next for separate implementation authorization; Phases 2–5 not started**
 Owner: Arthur
 Planning role: docs-only Spec Architect; Project Manager reviews before any implementation authorization
 Created: 2026-10-02
 Last updated: 2026-10-02
-Decision links: D-0168; D-0167; D-0166; D-0093; D-0134; D-0136; D-0143
+Decision links: D-0169; D-0168; D-0167; D-0166; D-0093; D-0134; D-0136; D-0143
 TODO IDs: PLAN-016; POLISH-016-1 through POLISH-016-5; PUB-016-PLAN; RESUME-015-6
 Planning baseline: clean synchronized canonical `main` / `origin/main` at `988531e3a3e1f65558d32952256877c366a04c9d`
 Runtime baseline inside that record: accepted SPEC-0015 Phase 5 product commit `1b4acd7db0b57188e95cb8474816c4e453172abd`
 Delivery target: **five phases planned to finish in under seven calendar days from Phase 1 start, aiming for one or two accepted implementation phases per day; this is not a 30-day program. The target never relaxes proof, human review, sequential ownership or publication gates.**
 
 ## 1. Exact goal
+
+### Published Phase 1 closeout — D-0169
+
+Phase 1 is published and integrated on canonical/GitHub main in exact 21-path commit `2cea6de9103c21d21a4aec8d933740d64c66239b`, parent `413f71ba4cd3e6b12e05040aacfb8038b67bcd28`. Canonical main, origin/main and a fresh live GitHub read matched clean `0/0`. Main Home returned `200`; unsigned usage returned `401`; Chrome reached the unchanged main account entry. A new signed-in main walkthrough is not claimed; Arthur's accepted isolated Home/functional review and frozen-byte comparison remain the evidence.
+
+Original technical seal `faa93f21d6c87b7be2685ba06c9f0326cf549e9bfc5070b32676071bb03cf32d` and 25 ignored review/config/account files are hash-verified in restricted canonical `.local/recovery/spec0016-phase1-accepted-20261002`; copied SQLite quick checks pass. No review account is imported into main. Exact review server stopped and port 58584 closed. The disposable review worktree is eligible for managed archival after this records-only closeout synchronizes. No accepted app byte, user project, account owner, AI/provider/save behavior or later phase changed.
+
+Next starting point: the clean canonical main SHA containing this closeout, for separately authorized SPEC-0016 Phase 2 only. Combine Projects into one library with explicit Edit/Watch/eligible Export and polish library/viewer/export presentation; preserve repository/player/encoder/save/account engines and the accepted Home/header. Freeze G-016-PROJECT-ACTIONS during the bounded Phase 2 entry trace. SPEC-0015 Phases 6–8 and SPEC-0008 remain paused. D-0168's publication-pending status below is historical.
 
 ### Current accepted Phase 1 checkpoint — D-0168
 

@@ -1,5 +1,12 @@
 # TODO
 
+## D-0169 — Phase 1 closed; Phase 2 next
+
+- [x] **PUB-016-1** — Exact 21-path product commit `2cea6de9103c21d21a4aec8d933740d64c66239b` is published/integrated with fresh live local/origin/main equality at clean 0/0. Main Home 200 / unsigned usage 401; main Chrome account entry reached. Accepted isolated review remains the signed-in evidence.
+- [x] **PRESERVE-016-1** — Sealed proof and 25 ignored files hash-verified in restricted canonical `.local/recovery/spec0016-phase1-accepted-20261002`; SQLite quick checks pass. Exact review server stopped/58584 closed. Managed obsolete-worktree archival follows synchronized records, never main/PM cleanup.
+- [ ] **POLISH-016-2** — Next separately authorized implementation from clean main containing this closeout: one Projects library, Edit/Watch/eligible Export, library/viewer/export presentation. Exact identity/revalidation mechanics are bounded entry work, not a new product-plan rewrite. Protect accepted Home and all data/player/encoder/save/AI owners.
+- Later SPEC-0016 phases remain unstarted. SPEC-0015 Phases 6–8 and SPEC-0008 remain paused. D-0168 unchecked publication line below is historical.
+
 ## Current queue — SPEC-0016 Phase 1 accepted (D-0168)
 
 - [x] **PUB-016-PLAN** — Planning package published as `413f71ba4cd3e6b12e05040aacfb8038b67bcd28`.

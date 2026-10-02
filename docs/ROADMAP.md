@@ -1,5 +1,13 @@
 # Roadmap
 
+## D-0169 — Phase 1 published; Phase 2 is next
+
+Phase 1 is published and integrated on canonical/GitHub main in exact 21-path commit `2cea6de9103c21d21a4aec8d933740d64c66239b`, parent `413f71ba4cd3e6b12e05040aacfb8038b67bcd28`. Canonical main, origin/main and a fresh live GitHub read matched clean `0/0`. Main Home returned `200`; unsigned usage returned `401`; Chrome reached the unchanged main account entry. A new signed-in main walkthrough is not claimed; Arthur's accepted isolated Home/functional review and frozen-byte comparison remain the evidence.
+
+Original technical seal `faa93f21d6c87b7be2685ba06c9f0326cf549e9bfc5070b32676071bb03cf32d` and 25 ignored review/config/account files are hash-verified in restricted canonical `.local/recovery/spec0016-phase1-accepted-20261002`; copied SQLite quick checks pass. No review account is imported into main. Exact review server stopped and port 58584 closed. The disposable review worktree is eligible for managed archival after this records-only closeout synchronizes. No accepted app byte, user project, account owner, AI/provider/save behavior or later phase changed.
+
+Next starting point: the clean canonical main SHA containing this closeout, for separately authorized SPEC-0016 Phase 2 only. Combine Projects into one library with explicit Edit/Watch/eligible Export and polish library/viewer/export presentation; preserve repository/player/encoder/save/account engines and the accepted Home/header. Freeze G-016-PROJECT-ACTIONS during the bounded Phase 2 entry trace. SPEC-0015 Phases 6–8 and SPEC-0008 remain paused. D-0168's publication-pending status below is historical.
+
 ## Current next phase — SPEC-0016 Phase 2 (D-0168)
 
 Phase 1 Home/header is Arthur-accepted with final corrections, protected engines unchanged and explicit publication authority. Planning baseline `413f71b` is published. After the Phase 1 result and record closeout are cleanly integrated/synchronized, Phase 2 consolidates Projects into one library with explicit Edit/Watch/eligible Export actions and genuine posters, and polishes library/Movie Viewer/Export presentation. Only remove the transitional Home Export/Watch entry after equivalent contextual actions pass; do not restyle accepted Home. Exact project identity, revalidation and eligibility/failure mechanics are frozen during Phase 2's entry trace. No Phase 2 implementation is authorized by publication alone.

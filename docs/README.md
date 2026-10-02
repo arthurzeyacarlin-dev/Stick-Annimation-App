@@ -1,5 +1,13 @@
 # Diamond Animator Control Plane
 
+## D-0169 — Phase 1 published; Phase 2 is next
+
+Phase 1 is published and integrated on canonical/GitHub main in exact 21-path commit `2cea6de9103c21d21a4aec8d933740d64c66239b`, parent `413f71ba4cd3e6b12e05040aacfb8038b67bcd28`. Canonical main, origin/main and a fresh live GitHub read matched clean `0/0`. Main Home returned `200`; unsigned usage returned `401`; Chrome reached the unchanged main account entry. A new signed-in main walkthrough is not claimed; Arthur's accepted isolated Home/functional review and frozen-byte comparison remain the evidence.
+
+Original technical seal `faa93f21d6c87b7be2685ba06c9f0326cf549e9bfc5070b32676071bb03cf32d` and 25 ignored review/config/account files are hash-verified in restricted canonical `.local/recovery/spec0016-phase1-accepted-20261002`; copied SQLite quick checks pass. No review account is imported into main. Exact review server stopped and port 58584 closed. The disposable review worktree is eligible for managed archival after this records-only closeout synchronizes. No accepted app byte, user project, account owner, AI/provider/save behavior or later phase changed.
+
+Next starting point: the clean canonical main SHA containing this closeout, for separately authorized SPEC-0016 Phase 2 only. Combine Projects into one library with explicit Edit/Watch/eligible Export and polish library/viewer/export presentation; preserve repository/player/encoder/save/account engines and the accepted Home/header. Freeze G-016-PROJECT-ACTIONS during the bounded Phase 2 entry trace. SPEC-0015 Phases 6–8 and SPEC-0008 remain paused. D-0168's publication-pending status below is historical.
+
 ## D-0168 — SPEC-0016 Phase 1 accepted; publication authorized
 
 Arthur passed the final Home/header review copy, including its instant #0066FF interactions, full recent-project target, no-scroll desktop fit, brighter #071120 header and pencil-only empty state. The exact eight technical paths from published planning base `413f71ba4cd3e6b12e05040aacfb8038b67bcd28` are frozen by manifest SHA-256 `faa93f21d6c87b7be2685ba06c9f0326cf549e9bfc5070b32676071bb03cf32d`. Root's executor stopped; Arthur/PM accepted; root now owns the same worktree exclusively as Control Plane Architect. Arthur separately and explicitly authorized records propagation, commit, canonical-main integration and GitHub push. This record is the acceptance checkpoint, not proof that publication has already succeeded.

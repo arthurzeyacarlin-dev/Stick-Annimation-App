@@ -1,6 +1,12 @@
 # Current State
 
-## D-0165 Phase 5 accepted in isolated review; canonical publication pending
+## D-0166 Phase 5 published on main and activated locally
+
+**Git/live-route verified, 2026-10-02:** Arthur's accepted 15 technical paths and 15 control-plane/tree paths were committed as `1b4acd7db0b57188e95cb8474816c4e453172abd`, parent `ee93d10121b82fcb256174caa5d7d0ab08886ade`; clean canonical `main`, local `origin/main` and a fresh live GitHub read matched at `0/0`. The existing main app returned Home `200` and an unauthenticated `/api/account/usage` read `401`, proving the route is active and rejects that unsigned request. Browser URL policy blocked a signed-in main walkthrough; isolated A/B save/chat/usage/logout/restart and Arthur's visual PASS remain the functional evidence, not a new main-browser pass.
+
+**Preservation/boundary:** port 58666 is closed and the accepted review worktree is archived. Restricted proof and review-account data are backed up at `/Users/arthurcarlin/Projects/stick-animation-app/.local/recovery/phase5-accepted-20261002`; the original and visual proof hashes match `3e7281d099e514e9e8ea21663bec190c2bd22a42d3e6da0c975e839cd49c3cd3` and `5dff36e63acbc153349ccee8657fc70f15c6a558f681ce209951fdc97747b24b`. No account was imported. The red 10,000-token roof remains display-only; no paid allowance, AI admission stop, refill, billing, cross-device sync or public deployment is implemented. Phase 6 is the next possible separately authorized phase after G-ECON/G-CAPS and financial-retention choices, not started.
+
+## Historical D-0165 Phase 5 accepted in isolated review; canonical publication pending at that checkpoint
 
 **Live/owner verified:** Arthur accepted the same port-58666 review copy after a 15-minute Phase 5 review and a later visual check. Account A/B project save/reopen, Assistant reply/chat continuity, account-specific Dashboard usage after logout/login and restart, and the corrected blue/cyan low-usage bars plus blue-toned partial warning were observed in the isolated app. The earlier rejected Phase 5 copy's `invalid_record` New Project failure came from a missing review-server account-storage connection; the fresh copy restored the existing ignored server-only connection before Phase 5 edits. No project-save implementation was changed to fix that configuration problem.
 

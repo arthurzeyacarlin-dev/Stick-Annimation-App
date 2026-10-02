@@ -3,7 +3,11 @@
 Status: canonical proof standard and current gate baseline
 Last updated: 2026-10-02
 
-## SPEC-0015 Phase 5 accepted isolated proof — D-0165
+## SPEC-0015 Phase 5 publication/local-route closeout — D-0166
+
+Exact accepted 15 technical plus 15 record/tree paths were published in `1b4acd7db0b57188e95cb8474816c4e453172abd`, parent `ee93d10121b82fcb256174caa5d7d0ab08886ade`; canonical/local-origin/live GitHub main matched cleanly at `0/0`. Main Home returned `200` and unsigned `/api/account/usage` returned `401`. This proves route availability and one unauthenticated denial, **not** signed-in account isolation on main: browser policy blocked the authenticated main UI retest. Arthur's accepted isolated A/B/visual review below remains the functional evidence. Port 58666 is closed and its worktree archived; restricted proof/account-data recovery is at `/Users/arthurcarlin/Projects/stick-animation-app/.local/recovery/phase5-accepted-20261002`, where original and visual proof hashes match. No new provider/paid call or Phase 6 test was run for this records-only closeout.
+
+## Historical SPEC-0015 Phase 5 accepted isolated proof — D-0165
 
 Arthur passed the same port-58666 account copy and its later visual-only correction. The original ignored 13-path implementation manifest SHA-256 is `3e7281d099e514e9e8ea21663bec190c2bd22a42d3e6da0c975e839cd49c3cd3`; a separate `visual-correction-proof.json` binds final `AiUsageChart.tsx` and Dashboard CSS hashes. Its protected chart hash is intentionally superseded, while all 13 implementation and seven other protected hashes still match; the original validator's exact-13-dirty-path gate is historical rather than a post-correction pass. The index is empty, exact accepted technical dirty set has 15 paths, and canonical main remains unchanged at `ee93d101` during control-plane propagation.
 

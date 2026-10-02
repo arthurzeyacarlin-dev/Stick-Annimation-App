@@ -1682,6 +1682,14 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Exact review boundary: 13 usage implementation/test paths are frozen by ignored manifest SHA-256 `3e7281d099e514e9e8ea21663bec190c2bd22a42d3e6da0c975e839cd49c3cd3` from base `ee93d10121b82fcb256174caa5d7d0ab08886ade`; two later Dashboard presentation paths are bound by `output/spec0015/phase5/visual-correction-proof.json`. Index remains empty. Keep review port 58666, account data and proof until publication plus D-0054 cleanup.
 - Non-claims: no real plan balance, refill, enforcement, billing, cross-device account sync, provider-retry completeness or public deployment. Phase 6 requires separate authorization after Phase 5 publication and its own G-ECON/G-CAPS decisions.
 
+### D-0166 — Record published local SPEC-0015 Phase 5 and preserve the next-phase gate
+
+- Date: 2026-10-02
+- Status: Phase 5 published/integrated/synchronized and locally active; its accepted review copy retired with restricted recovery. Phase 6 remains unauthorized and not started.
+- Publication: exact 30-path commit `1b4acd7db0b57188e95cb8474816c4e453172abd` directly follows `ee93d10121b82fcb256174caa5d7d0ab08886ade`. Canonical `main`, local `origin/main` and a fresh live GitHub read matched cleanly at `0/0` after normal fast-forward and push. The accepted 13-path proof and two-path visual correction remain bound by SHA-256 `3e7281d099e514e9e8ea21663bec190c2bd22a42d3e6da0c975e839cd49c3cd3` and `5dff36e63acbc153349ccee8657fc70f15c6a558f681ce209951fdc97747b24b`.
+- Main/cleanup evidence: local Home `200` and unsigned `/api/account/usage` `401` prove route activation and unauthenticated denial, not signed-in main account isolation. Browser policy blocked a new authenticated main walkthrough, so Arthur's accepted isolated A/B and visual review remains the functional evidence. Review port 58666 is closed and its worktree archived; restricted proof/account-data recovery is `/Users/arthurcarlin/Projects/stick-animation-app/.local/recovery/phase5-accepted-20261002`. No test account was imported into main.
+- Boundary: G-USAGE closes only for prospective Version 1 local account usage. The display-only 10,000-token roof neither blocks AI nor refills. Phase 6 real funded allowance/admission requires separate Arthur authorization and G-ECON/G-CAPS plus financial-retention decisions; Phase 7 payment, cross-device sync, public launch and deployment are not authorized or implemented.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

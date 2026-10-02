@@ -1,6 +1,10 @@
 # Roadmap
 
-## SPEC-0015 Phase 5 accepted in isolated review — D-0165
+## SPEC-0015 Phase 5 integrated; Phase 6 next only after decisions — D-0166
+
+The accepted local account-usage Dashboard and visual correction are published on canonical/GitHub main in `1b4acd7db0b57188e95cb8474816c4e453172abd`, synchronized cleanly at `0/0` and active on the local main server. The isolated review copy is retired with restricted proof/account-data backup. Phase 6 real funded entitlements, actual-plan allowance/refill and call enforcement are a **next possible** outcome, not started or authorized; Arthur must first decide G-ECON/G-CAPS and financial-retention policy. The current 10,000-token line is only a display preview. Cross-device account sync and the new MP4 archive remain Version 2 or later.
+
+## Historical SPEC-0015 Phase 5 accepted in isolated review — D-0165
 
 Arthur passed prospective local account-scoped AI usage and the Dashboard's blue-to-red bars/blue partial warning in the same port-58666 copy. Its 13 usage paths plus two visual-only paths are frozen with separate ignored proof bindings; canonical main still contains Phases 1–4.5 until a later bounded publication. Phase 6 real entitlements, actual-plan allowance/refill and enforcement are the next possible product step only after clean Phase 5 integration and separate G-ECON/G-CAPS authorization. The 10,000-token roof is still a test display, not an AI cap or bill. Cross-device account sync and the new MP4 archive remain Version 2 or later.
 

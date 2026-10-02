@@ -1,6 +1,12 @@
 # Changelog
 
-## 2026-10-02 — D-0165 accepts isolated SPEC-0015 Phase 5 (publication pending)
+## 2026-10-02 — D-0166 publishes SPEC-0015 Phase 5 and retires its review copy
+
+- Published exactly 15 accepted technical plus 15 reviewed control-plane/tree paths as `1b4acd7db0b57188e95cb8474816c4e453172abd`, parent `ee93d10121b82fcb256174caa5d7d0ab08886ade`; clean canonical/local-origin/live GitHub main matched at `0/0` after normal fast-forward and push.
+- Main Home returned `200` and unsigned account usage `401`. Browser policy blocked a fresh signed-in main UI pass; Arthur's isolated A/B and blue-to-red visual PASS remains the functional evidence. The review server/worktree are retired; restricted proof/account-data backup is `/Users/arthurcarlin/Projects/stick-animation-app/.local/recovery/phase5-accepted-20261002`.
+- This closeout changes records only. Phase 6 requires separate G-ECON/G-CAPS and financial-retention choices and authorization; no real cap/refill, payment, cross-device sync or deployment was added.
+
+## Historical 2026-10-02 — D-0165 accepts isolated SPEC-0015 Phase 5 (publication pending at that checkpoint)
 
 - Arthur passed the prospective, local verified-account usage Dashboard and the later same-copy visual correction. Known bars display blue → green → yellow → orange → red even when other usage is partial; the partial warning is blue-toned. The red roof remains a display-only test line, not an AI cap/refill.
 - Frozen 13-path usage result at original ignored manifest SHA-256 `3e7281d099e514e9e8ea21663bec190c2bd22a42d3e6da0c975e839cd49c3cd3` plus two separate visual-proof hashes from base `ee93d101`. Deterministic usage/color/project checks, build/type/lint and real A/B save/chat/usage review passed with stated microphone/notification/outage/provider-retry limits.

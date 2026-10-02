@@ -1,7 +1,11 @@
 # AI System Snapshot
 
 Status: canonical current AI architecture and gap map
-Last traced: 2026-10-02 in the accepted isolated SPEC-0015 Phase 5 review; canonical main is still at published Phases 1–4.5. SPEC-0008 Phases 2–6 remain paused; SPEC-0014 Phase 3 Export remains rejected and Phase 4 is published; public beta and deployment remain unauthorized.
+Last traced: 2026-10-02 in the accepted isolated SPEC-0015 Phase 5 review; its exact bytes are now published in canonical main `1b4acd7db0b57188e95cb8474816c4e453172abd`. Main Home returned `200` and unsigned account usage `401`; signed-in main-browser flow remains unproven. SPEC-0008 Phases 2–6 remain paused; SPEC-0014 Phase 3 Export remains rejected and Phase 4 is published; public beta and deployment remain unauthorized.
+
+**D-0166 publication closeout:** Phase 5's owner-scoped prospective usage path is now in clean synchronized main, without changing the AI model, prompts, thinking, search, citations, dictation mechanics, retry policy or reply content. Arthur's A/B and visual PASS was in the retired isolated review copy, not a new authenticated main retest. Phase 6 funded admission is not implemented or authorized; G-ECON/G-CAPS and financial retention remain open. The 10,000-token red roof still never stops an AI call.
+
+The D-0165 paragraph below records the earlier prepublication checkpoint; D-0166 supersedes only its publication status.
 
 **D-0165 accepted Phase 5 review AI boundary, publication pending:** Verified account owner context now accompanies the existing Project AI, Assistant and transcription admission paths into the Phase 2 usage observer and detached jobs. A separate local account-usage store supplies the signed-in Dashboard; telemetry write failure is fail-open for AI replies and recorded as a partial-coverage gap. Model, prompts, thinking, search, provider retry policy, citations, dictation mechanics and reply content remain unchanged. The original 10,000-token test line is display-only: even a pure-red bar does not block calls or trigger a real refill. Dormant legacy `/api/ai` and provider-internal retries are not fully metered. This result is accepted only in the isolated copy until publication; no paid plan, billing or public deployment is added.
 

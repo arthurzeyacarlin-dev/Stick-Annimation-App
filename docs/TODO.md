@@ -1,23 +1,29 @@
 # TODO
 
-## D-0165 Phase 5 accepted in review; publication next
+## D-0166 Phase 5 published, activated locally, and review copy retired
+
+- [x] **PUB-015-5 — Publish accepted Phase 5 and reviewed records.** Exact 30-path commit `1b4acd7db0b57188e95cb8474816c4e453172abd`, parent `ee93d10121b82fcb256174caa5d7d0ab08886ade`, was fast-forwarded into clean canonical main and pushed normally; local `main`, `origin/main` and fresh live GitHub main matched at `0/0`.
+- [x] **CLEAN-015-5 — Preserve accepted review evidence and retire that copy.** Restricted proof/account-data backup is `/Users/arthurcarlin/Projects/stick-animation-app/.local/recovery/phase5-accepted-20261002`; original and visual proof hashes match, port 58666 is closed, and the accepted review worktree is archived. The main app returned Home `200` and unauthenticated account usage `401`; authenticated main UI was blocked by browser policy and is not claimed.
+- [ ] **DASH-015-6 — Funded entitlements and real-plan depletion.** Next possible phase, **not started and not authorized**. Arthur must approve G-ECON/G-CAPS and financial-retention policy, then separately authorize an exact bounded implementation. No real refill, call block, payment or Phase 6 code exists.
+
+## Historical D-0165 Phase 5 accepted in review; publication next at that checkpoint
 
 - [x] **DASH-015-5 — Account-scoped prospective usage and Dashboard.** Arthur passed the isolated account review and blue-to-red visual correction. The frozen result is 13 manifest-bound usage runtime/test paths plus two visual-only Dashboard paths from base `ee93d101`, with empty index. Original manifest SHA-256 is `3e7281d099e514e9e8ea21663bec190c2bd22a42d3e6da0c975e839cd49c3cd3`; the separate visual proof binds the final chart/CSS. This is accepted technical state, **not** Git publication or a real AI cap.
-- [ ] **PUB-015-5 — Publish accepted Phase 5 and reviewed records.** Recheck exact frozen paths/hashes, empty index and unchanged clean canonical/live main before staging only the approved implementation plus records/tree. Commit, fast-forward and push only in the later separately authorized publication operation; stop on mismatch.
-- [ ] **CLEAN-015-5 — Preserve proof/account data and retire accepted review copy under D-0054.** Only after clean publication/synchronization; leave port 58666 and account data intact now.
+- [x] **PUB-015-5 — Historical D-0165 publication task.** Completed under D-0166 in exact commit `1b4acd7db0b57188e95cb8474816c4e453172abd`; the prepublication instruction at this checkpoint is superseded.
+- [x] **CLEAN-015-5 — Historical D-0165 review-copy retirement task.** Completed under D-0166 after verified publication; restricted recovery is preserved and port 58666 is closed.
 - [ ] **DASH-015-6 — Funded entitlements and real-plan depletion.** Next possible phase only after Phase 5 integrates and Arthur separately authorizes G-ECON/G-CAPS; no real refill, call block, payment or Phase 6 implementation exists yet.
 
 ## D-0164 Phase 4.5 integrated; Phase 5 next
 
 - [x] **PUB-015-4.5 — Publish accepted Phase 4.5 and its records.** Exact 36-path commit `47bfe1ab376606a2b05de9d15fff958046521425` contains 22 accepted technical plus 14 reviewed record/tree paths. Clean canonical/local-origin/live GitHub `main` matched at `0/0`; the sealed proof hash stayed `3b662a47272a6c47c2d8feea919cde8a0d5c6327a6c1ba4626a6cba1f231eb74`. Main Home returned `200`, unauthenticated account-data GET `401`; authenticated main UI was not browser-proven.
 - [ ] **CLEAN-015-4.5 — Preserve proof/account data and retire the accepted review copy under D-0054.** PM coordinates exact server/worktree/branch identity and recoverable evidence before cleanup. The review port 58645 and account databases remain intact at this closeout.
-- [x] **DASH-015-5 — Historical D-0164 next-phase entry.** Later Arthur acceptance is recorded in D-0165 above; canonical publication remains open under `PUB-015-5`.
+- [x] **DASH-015-5 — Historical D-0164 next-phase entry.** Later Arthur acceptance is recorded in D-0165 and completed publication in D-0166 above.
 
 ## D-0163 accepted Phase 4.5 — publication next
 
 - [x] **DASH-015-4.5 — Accept local account-private chats/jobs/notifications/recovery/preferences.** Arthur passed the isolated review copy. The stopped executor delivered exactly 22 technical paths at base `52b906919eb07367c23125847c0e07b47a6ebd4e`, with an empty index and final validated ignored manifest SHA-256 `3b662a47272a6c47c2d8feea919cde8a0d5c6327a6c1ba4626a6cba1f231eb74`. This is technical acceptance in the review copy; Git publication remains pending.
 - [x] **PUB-015-4.5 — Publish the accepted Phase 4.5 result and records to canonical main.** Completed in `47bfe1ab376606a2b05de9d15fff958046521425`; D-0164 above records clean synchronization. D-0054 review-copy cleanup remains separately tracked.
-- [x] **DASH-015-5 — Historical D-0163 next-phase entry.** Later Arthur acceptance is recorded in D-0165 above; canonical publication remains open under `PUB-015-5`.
+- [x] **DASH-015-5 — Historical D-0163 next-phase entry.** Later Arthur acceptance is recorded in D-0165 and completed publication in D-0166 above.
 
 ## D-0162 Version 1 Phase 4.5 local-device correction — implementation awaits separate authorization
 
@@ -60,7 +66,7 @@ The former DASH-015-4B, 4C, 4D and 4E planning IDs are superseded by the single 
 - [x] **PLAN-015-REV — Record Option B/reject old Phase 3 and prepare revised SPEC-0015 for PM review.** D-0150 records Arthur's app-wide account choice, rejected-copy non-reuse and revised Phase 3–8 plan. D-0151 separately authorizes docs-only publication. This check records the accepted planning package, not Phase 3 implementation.
 - [x] **CLEAN-015-3 — Preserve and retire rejected Phase 3 review copy under D-0054.** D-0151 records PM's verified 31-file recovery backup (24 changed technical plus seven proof files), aggregate SHA-256 `7d9bd58b6e879c952ae4fdbe6df14c5250a18dc0f47396792bd4e5a25b98449a`, matched checksum dry runs, exact port-58560 shutdown/closure and archival of only the rejected detached `/spec0015-phase3-identity/` worktree. No local feature branch existed; no rejected runtime byte may seed the new executor.
 - [x] **DASH-015-3 — One app-wide local account/session.** D-0153 superseded D-0152's guest/placeholder flow. Arthur accepted the corrected, technically Verified 28-path local result under D-0154: real Better Auth/SQLite signup/login, inert signup-only preview, existing full Home/Assistant/Dashboard/projects/tools/Export after authentication, and one-click Log out to entry. Review data survives restart. Browser-local content and usage are still shared across local logins and are not account-owned or billable; Phase 4/5 remain necessary. Checked means accepted review technical state only; Phase 3 remains unpublished pending PUB-015-3, fresh main store provisioning and live cutover proof. Email recovery/verification, public signup and account privacy claims remain unavailable.
-- [x] **DASH-015-5 — Historical planning entry now accepted in D-0165.** Prospective verified-account usage is local and separate from the Phase 2 instance journal. Publication remains open under `PUB-015-5`; no financial or real-plan claim follows.
+- [x] **DASH-015-5 — Historical planning entry accepted in D-0165 and published in D-0166.** Prospective verified-account usage is local and separate from the Phase 2 instance journal; no financial or real-plan claim follows.
 - [ ] **DASH-015-6 — Entitlements and funded depletion.** Unauthorized / Not started. Requires Phase 5 and G-ECON/G-CAPS; transactional reservation/settlement/credit-lot proof and exact boundary; no arbitrary quota/price. D-0146's real approved allowance scales cumulative bars, with larger allowances rising more slowly for equal settled spend and time-correct historical denominators.
 - [ ] **DASH-015-7 — Payment lifecycle in sandbox.** Unauthorized / Not started. Requires Phase 6, G-PAY and separately authorized service/test-account use; verified checkout/webhooks/renewals/plan changes/top-ups/refunds/disputes and durable dedupe.
 - [ ] **DASH-015-8 — Reconciliation and launch readiness.** Unauthorized / Not started. Requires Phase 7 and full account/data/usage/security/privacy/economics/recovery/build/operations proof; no automatic live billing, provider spend or deployment.

@@ -1,6 +1,10 @@
 # Diamond Animator Control Plane
 
-## D-0165 Phase 5 accepted in review; publication pending
+## D-0166 Phase 5 published, locally active, and review copy retired
+
+Arthur's accepted SPEC-0015 Phase 5 result and visual correction are published in exact 30-path commit `1b4acd7db0b57188e95cb8474816c4e453172abd`, parent `ee93d10121b82fcb256174caa5d7d0ab08886ade`. Clean canonical `main`, local `origin/main`, and a fresh live GitHub read matched at `0/0`. The main app returned Home `200` and an unauthenticated `/api/account/usage` read `401`; a signed-in main-browser walkthrough was blocked by browser policy and is **not** claimed. Arthur's earlier accepted isolated A/B and visual review remains the functional evidence. The port-58666 review server is stopped, its accepted worktree retired, and restricted proof/account-data recovery is preserved at `/Users/arthurcarlin/Projects/stick-animation-app/.local/recovery/phase5-accepted-20261002`. Phase 6 is the next possible separately authorized phase; G-ECON/G-CAPS and financial-retention decisions remain open. No real allowance, refill, AI call cap, billing, cross-device sync or deployment was delivered.
+
+## Historical D-0165 Phase 5 accepted in review; publication pending at that checkpoint
 
 Arthur passed the same isolated Phase 5 review copy, including its visual-only blue-to-red bar and neutral-blue warning correction. The stopped executor's 13 account-usage implementation/test paths and two Dashboard-presentation paths are frozen from canonical base `ee93d10121b82fcb256174caa5d7d0ab08886ade`. Original ignored manifest SHA-256 `3e7281d099e514e9e8ea21663bec190c2bd22a42d3e6da0c975e839cd49c3cd3` binds the 13 paths; the separate ignored visual-correction proof binds the two later presentation hashes. The Phase 5 result is **accepted in review but not yet published or integrated**. Canonical main still has Phases 1–4.5. Phase 6 starts only after separate publication and clean synchronization; no real allowance, refill, AI cap, billing, cross-device sync or deployment is included.
 

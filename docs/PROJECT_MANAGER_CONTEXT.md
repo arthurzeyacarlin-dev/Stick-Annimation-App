@@ -1,6 +1,10 @@
 # Project Manager Context
 
-## D-0165 accepted Phase 5 review; publication next
+## D-0166 Phase 5 published and locally active; Phase 6 awaits separate authority
+
+Exact 30-path Phase 5 commit `1b4acd7db0b57188e95cb8474816c4e453172abd` directly follows `ee93d10121b82fcb256174caa5d7d0ab08886ade` and is synchronized on clean canonical/local-origin/live GitHub `main` at `0/0`. The main app returns Home `200` and unauthenticated account usage `401`; browser policy blocked a signed-in main UI retest, so Arthur's accepted isolated A/B/visual review remains the functional proof. Port 58666 is closed, the accepted worktree is archived, and proof/account data are preserved at `/Users/arthurcarlin/Projects/stick-animation-app/.local/recovery/phase5-accepted-20261002`; both sealed proof hashes match. Do not recreate or import review accounts. Phase 6 is next only for separate authorization after G-ECON/G-CAPS and financial-retention choices; no Phase 6 coding, real cap, refill, bill, payment or deployment has occurred.
+
+## Historical D-0165 accepted Phase 5 review; publication next at that checkpoint
 
 Arthur passed the same local Phase 5 copy after personally checking the account Dashboard and the corrected blue/cyan low-usage bars and blue-toned partial warning. The stopped executor's 13-path usage result and later two-path visual-only correction are frozen in `/Users/arthurcarlin/.codex/worktrees/spec0015-phase5-correction/stick-animation-app`, detached at `ee93d10121b82fcb256174caa5d7d0ab08886ade`, index empty. Original ignored manifest SHA-256 is `3e7281d099e514e9e8ea21663bec190c2bd22a42d3e6da0c975e839cd49c3cd3`; `output/spec0015/phase5/visual-correction-proof.json` supersedes only the original protected chart hash and binds the CSS change. The CPA owns this worktree exclusively after executor shutdown and may change canonical records/tree only. Keep review port 58666 and its account data/proof intact until later publication and D-0054 cleanup. Main remains at Phase 4.5 during propagation. Arthur has requested later GitHub/main publication, but no staging or publication occurs in this CPA pass. Phase 6 entitlements are next only after Phase 5 publication/sync and separate authorization.
 

@@ -3,7 +3,7 @@
 Status: canonical product intent
 Last updated: 2026-10-02
 
-D-0165 records Arthur's acceptance of the isolated Phase 5 account-usage Dashboard and its visual-only correction. Prospective local account usage is owner-filtered, while the blue-to-red bars remain a display-only test preview. The result is still outside canonical main until separately published; Phase 6 funded entitlements are next only after that integration and separate authorization. No real AI cap or refill exists yet.
+D-0166 records exact Phase 5 publication in canonical/GitHub main commit `1b4acd7db0b57188e95cb8474816c4e453172abd`, clean `0/0` synchronization, main Home `200` and unsigned account-usage `401`. Arthur accepted the isolated account-usage Dashboard and its visual correction; signed-in main-browser visual proof was blocked, so the accepted review remains the user-flow evidence. The review copy is retired with restricted proof/account-data backup. Phase 6 funded entitlements are the next possible separately authorized phase after G-ECON/G-CAPS and financial-retention decisions. No real AI cap or refill exists yet. D-0165's prepublication status is historical.
 
 D-0164 records publication of Arthur's accepted Phase 4.5 local account-continuity result in exact canonical-main commit `47bfe1ab376606a2b05de9d15fff958046521425`. Phase 5 account-scoped usage and Dashboard work is now the next product phase for separate authorization. Cross-device account access and the new private MP4 account archive remain Version 2 or later. The earlier D-0163 acceptance was a prepublication checkpoint.
 

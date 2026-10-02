@@ -1,5 +1,11 @@
 # Session Handoff
 
+## D-0167 SPEC-0016 planning proposal — exact next starting point
+
+Arthur directed a docs-only professional workspace compression/polish plan from clean synchronized canonical `main` / `origin/main` `988531e3a3e1f65558d32952256877c366a04c9d`. [SPEC-0016](specs/0016-professional-workspace-compression-and-polish.md) is now **Proposed** with five phases and an under-seven-day target. Phase 1 is narrowly Home/header only: compact final Home presentation, quiet Dashboard/bell/menu/account chrome, and direct one-click links to the unchanged Edit library, Watch library, Assistant, Tutorials and Export. Phases 2–5 respectively own Projects/Export/media, Help/Assistant/Tutorials, the editor shell, and account/Dashboard/recovery integration. Every capability is protected. Tutorials remain placeholders; workspace Help is still inert; SPEC-0008 remains paused. SPEC-0015 Phases 6–8 are paused, not cancelled, and resume after SPEC-0016 closeout.
+
+No app/test/proof implementation, server, account/user-data, provider/payment, stage, commit, push or deployment operation occurred. Accepted earlier live evidence remains the functional baseline; fresh signed-in canonical visual proof was blocked by browser policy and not bypassed. **Next exact operation:** PM/Arthur review this exact docs-only package and dirty-path allowlist. A separate publication instruction is required to integrate it. Only after accepted publication may Arthur separately authorize one Plan-mode Phase 1 Spec Executor from that exact SHA. Phase 1 is decision-complete for that later authorization but is not currently authorized.
+
 ## D-0166 published SPEC-0015 Phase 5 — next starting point
 
 Arthur accepted the isolated A/B account-usage Dashboard and blue-to-red/blue-warning correction. The exact 15 technical plus 15 reviewed record/tree paths were committed as `1b4acd7db0b57188e95cb8474816c4e453172abd`, parent `ee93d10121b82fcb256174caa5d7d0ab08886ade`, fast-forwarded into clean canonical `main`, pushed normally, and verified against local `origin/main` and live GitHub at `0/0`. Original ignored proof SHA-256 is `3e7281d099e514e9e8ea21663bec190c2bd22a42d3e6da0c975e839cd49c3cd3`; visual-correction proof SHA-256 is `5dff36e63acbc153349ccee8657fc70f15c6a558f681ce209951fdc97747b24b`. Restricted proof/account-data recovery is preserved at `/Users/arthurcarlin/Projects/stick-animation-app/.local/recovery/phase5-accepted-20261002`; port 58666 is closed and the accepted review worktree is archived. No review account was imported.
@@ -224,7 +230,7 @@ Expected tracked dirty allowlist: `docs/00_MASTER_PROJECT.md`, `docs/AI_SYSTEM.m
 - Exact next task: review this planning package and, only if separately authorized, publish its exact control-plane/tree paths. No runtime, provider/paid action, app copy, phase executor, staging, commit, merge, push or deployment is authorized here.
 
 Status: current canonical stopping point
-Last updated: 2026-09-26
+Last updated: 2026-10-02
 
 All seven SPEC-0006 phases are closed through GIT-061. Drawing-only SPEC-0007 is fully closed through GIT-066. SPEC-0008 Phase 1 is fully closed through GIT-070; D-0093 keeps Phases 2–6 paused as Unauthorized/Not started/not rejected. All three SPEC-0009 phases are fully closed through GIT-079, all three SPEC-0010 phases through GIT-083, all three SPEC-0011 phases through GIT-088, all six SPEC-0012 phases through GIT-096, and SPEC-0013 through GIT-097.
 

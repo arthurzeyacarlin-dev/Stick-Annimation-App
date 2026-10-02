@@ -1,5 +1,9 @@
 # Diamond Animator Control Plane
 
+## D-0167 proposes SPEC-0016 before remaining SPEC-0015 work
+
+Arthur has directed a docs-only [SPEC-0016 UI compression and polish plan](specs/0016-professional-workspace-compression-and-polish.md) from clean synchronized canonical baseline `988531e3a3e1f65558d32952256877c366a04c9d`. The proposed five-phase sequence targets completion in under seven calendar days at one or two accepted phases per day without relaxing proof, review, sequential ownership or publication gates. Phase 1 is narrowly limited to compact Home and quiet global chrome, with direct one-click routes to the unchanged Edit library, Watch library, Assistant, Tutorials and Export. Later phases own Projects/Export, Help, the editor shell, then account/Dashboard/recovery integration. SPEC-0015 Phases 6–8 are **paused, not cancelled**, until SPEC-0016 closes; SPEC-0008 remains paused. This planning package is unaccepted/unpublished and authorizes no implementation.
+
 ## D-0166 Phase 5 published, locally active, and review copy retired
 
 Arthur's accepted SPEC-0015 Phase 5 result and visual correction are published in exact 30-path commit `1b4acd7db0b57188e95cb8474816c4e453172abd`, parent `ee93d10121b82fcb256174caa5d7d0ab08886ade`. Clean canonical `main`, local `origin/main`, and a fresh live GitHub read matched at `0/0`. The main app returned Home `200` and an unauthenticated `/api/account/usage` read `401`; a signed-in main-browser walkthrough was blocked by browser policy and is **not** claimed. Arthur's earlier accepted isolated A/B and visual review remains the functional evidence. The port-58666 review server is stopped, its accepted worktree retired, and restricted proof/account-data recovery is preserved at `/Users/arthurcarlin/Projects/stick-animation-app/.local/recovery/phase5-accepted-20261002`. Phase 6 is the next possible separately authorized phase; G-ECON/G-CAPS and financial-retention decisions remain open. No real allowance, refill, AI call cap, billing, cross-device sync or deployment was delivered.
@@ -18,7 +22,7 @@ Arthur passed the local account-continuity review copy. The stopped executor's e
 
 Status: canonical repository memory
 Established: 2026-08-09
-Last reconciled with current records and source: 2026-10-02 through D-0164's published Phase 4.5 result. Phases 1–4.5 are integrated locally. The earlier `/84bf/` and port-58582 Phase 4 reviews remain rejected/unpublished. D-0162 defers cross-device access and the new account-linked MP4 archive to Version 2 or later; older hosted Phase 4.5 passages below are historical.
+Last reconciled with current records and source: 2026-10-02 through D-0167's proposed SPEC-0016 planning package. SPEC-0015 Phases 1–5 are integrated locally; Phases 6–8 are paused behind the unpublished SPEC-0016 proposal. The earlier `/84bf/` and port-58582 Phase 4 reviews remain rejected/unpublished. D-0162 defers cross-device access and the new account-linked MP4 archive to Version 2 or later; older hosted Phase 4.5 passages below are historical.
 Snapshot basis: pull request `#1` merged into `main` as `093bbac82fd3b4d97984448b6c6dbd716153354d`; functional anchor `c7de444536f3e0dd578a2063f70b0914e6af60b1`; tag `baseline-2026-08-09-control-plane`; SPEC-0014 Phase 1 GIT-099 `06365eacffe493ea3550de71b3baff0f57bf03b2`; Phase 2 GIT-100 `318566d6d20acec672c3d8c6a0e5620ad70c7d66`; Phase 4 GIT-102 product commit `283c297d1df01371dc599a52719d35dc78e1d2f4` plus this records-only closeout.
 
 ## D-0160 published Phase 4 — canonical local app running

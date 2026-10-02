@@ -1,10 +1,21 @@
 # TODO
 
+## D-0167 SPEC-0016 proposal; remaining SPEC-0015 work paused
+
+- [x] **PLAN-016 — Draft decision-complete SPEC-0016.** Code-trace the current Home/chrome/projects/Help/Assistant/Tutorials/editor/Export/account/Dashboard/notification paths from clean `988531e`; define five bounded phases, final user flows, protected regressions and an exact one-day Phase 1 contract. This is docs-only and does not prove the final visuals.
+- [ ] **PUB-016-PLAN — Review and separately publish the SPEC-0016 planning package.** PM/Arthur must accept the exact spec and reviewed docs-only dirty-path allowlist before a later explicit publication task. No staging, commit, push or implementation is implied.
+- [ ] **POLISH-016-1 — Compact Home and quiet global chrome.** Not started or authorized. It becomes technically ready for separate Phase 1 authorization only after plan acceptance/publication; its exact runtime/proof ceiling is SPEC-0016 §11.
+- [ ] **POLISH-016-2 — One Projects library, contextual Export and project-media surfaces.** Unauthorized; starts only after Phase 1 is accepted, propagated, published and synchronized, and G-016-PROJECT-ACTIONS is frozen.
+- [ ] **POLISH-016-3 — Help, Assistant, Tutorials and workspace Help.** Unauthorized; requires published Phase 2 and G-016-HELP-UNSAVED.
+- [ ] **POLISH-016-4 — Creative editor shell.** Unauthorized; requires published Phase 3 and G-016-EDITOR-SHELL.
+- [ ] **POLISH-016-5 — Account, Dashboard, recovery and integration closeout.** Unauthorized; requires published Phase 4 and G-016-ACCOUNT-DASH.
+- [ ] **RESUME-015-6 — Return to funded entitlements after SPEC-0016.** SPEC-0015 Phases 6–8 are paused, not cancelled. Resume Phase 6 planning only after SPEC-0016 Phase 5 is accepted/published/synchronized and Arthur resolves G-ECON/G-CAPS plus financial-retention policy.
+
 ## D-0166 Phase 5 published, activated locally, and review copy retired
 
 - [x] **PUB-015-5 — Publish accepted Phase 5 and reviewed records.** Exact 30-path commit `1b4acd7db0b57188e95cb8474816c4e453172abd`, parent `ee93d10121b82fcb256174caa5d7d0ab08886ade`, was fast-forwarded into clean canonical main and pushed normally; local `main`, `origin/main` and fresh live GitHub main matched at `0/0`.
 - [x] **CLEAN-015-5 — Preserve accepted review evidence and retire that copy.** Restricted proof/account-data backup is `/Users/arthurcarlin/Projects/stick-animation-app/.local/recovery/phase5-accepted-20261002`; original and visual proof hashes match, port 58666 is closed, and the accepted review worktree is archived. The main app returned Home `200` and unauthenticated account usage `401`; authenticated main UI was blocked by browser policy and is not claimed.
-- [ ] **DASH-015-6 — Funded entitlements and real-plan depletion.** Next possible phase, **not started and not authorized**. Arthur must approve G-ECON/G-CAPS and financial-retention policy, then separately authorize an exact bounded implementation. No real refill, call block, payment or Phase 6 code exists.
+- [ ] **DASH-015-6 — Funded entitlements and real-plan depletion.** **Paused behind SPEC-0016; not started and not authorized.** After SPEC-0016 closeout, Arthur must still approve G-ECON/G-CAPS and financial-retention policy, then separately authorize an exact bounded implementation. No real refill, call block, payment or Phase 6 code exists.
 
 ## Historical D-0165 Phase 5 accepted in review; publication next at that checkpoint
 
@@ -74,7 +85,7 @@ The former DASH-015-4B, 4C, 4D and 4E planning IDs are superseded by the single 
 Phases 1–4 are integrated locally; D-0160 published the frozen Phase 4 result in `c10cd39` and restarted canonical port 3000. The Alex/Sam and placeholder Phase 3 copies plus both earlier failed Phase 4 copies remain rejected/unpublished. Arthur waived continued visibility only for the original main origin's one disposable test project. General valuable-project preservation remains open; Phase 4.5 and Phases 5–8 are unauthorized. No paid provider operation, public deployment or account credential migration is authorized. SPEC-0008 remains paused and SPEC-0014's accepted bells/Export boundaries remain.
 
 Status: canonical actionable queue
-Last updated: 2026-09-29
+Last updated: 2026-10-02
 
 ## Queue Rules
 

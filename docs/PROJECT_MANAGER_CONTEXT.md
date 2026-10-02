@@ -1,5 +1,11 @@
 # Project Manager Context
 
+## D-0167 SPEC-0016 proposal — PM review is the next operation
+
+Arthur wants the current interface compressed and professionally finished before SPEC-0015 continues. The proposed [SPEC-0016](specs/0016-professional-workspace-compression-and-polish.md) uses five surface-owned phases with an under-seven-day target and no repeated generic polish pass. Phase 1 is one plausible day: compact Home plus quiet global chrome only, with direct one-click links into the existing Edit library, Watch library, Assistant, Tutorials and Export. Phase 2 owns the unified Projects library/contextual Export/media surfaces; Phase 3 Help/Assistant/Tutorials/workspace Help; Phase 4 the editor shell; Phase 5 account entry/Dashboard/recovery/shared-dialog integration. Every current capability remains protected, including signup's explicit local preview-plan choice. Tutorials remain placeholders, workspace Help remains inert until Phase 3, and visual polish does not resume SPEC-0008 AI editing. SPEC-0015 Phases 6–8 are paused, not cancelled, and resume after SPEC-0016 closeout.
+
+This task changes canonical planning documents only from synchronized `988531e`. The proposal is not published or implementation-authorized. PM/Arthur review this exact package first; a separate publication task must integrate it, then Arthur may separately authorize Phase 1 only. Fresh signed-in canonical visual proof is unavailable under the current browser policy and was not bypassed.
+
 ## D-0166 Phase 5 published and locally active; Phase 6 awaits separate authority
 
 Exact 30-path Phase 5 commit `1b4acd7db0b57188e95cb8474816c4e453172abd` directly follows `ee93d10121b82fcb256174caa5d7d0ab08886ade` and is synchronized on clean canonical/local-origin/live GitHub `main` at `0/0`. The main app returns Home `200` and unauthenticated account usage `401`; browser policy blocked a signed-in main UI retest, so Arthur's accepted isolated A/B/visual review remains the functional proof. Port 58666 is closed, the accepted worktree is archived, and proof/account data are preserved at `/Users/arthurcarlin/Projects/stick-animation-app/.local/recovery/phase5-accepted-20261002`; both sealed proof hashes match. Do not recreate or import review accounts. Phase 6 is next only for separate authorization after G-ECON/G-CAPS and financial-retention choices; no Phase 6 coding, real cap, refill, bill, payment or deployment has occurred.
@@ -107,7 +113,7 @@ D-0137 and [`SPEC-0014`](specs/0014-in-app-notification-center.md) define the ap
 All implementation phases are **Unauthorized; Not started**. Before Phase 1, Arthur must create **Project Manager Version 5**, the current Project Manager must transition to **AI Animator/Dad support**, the planning package must be separately published, and Arthur must separately authorize Phase 1 from that exact planning SHA. This task does not perform the role transition, implement runtime behavior or authorize provider/paid/Git/deployment work.
 
 Status: canonical owner and collaboration context
-Last updated: 2026-09-25
+Last updated: 2026-10-02
 
 ## Ownership, Sponsorship, and PM Collaboration
 

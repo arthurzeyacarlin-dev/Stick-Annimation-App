@@ -1,5 +1,13 @@
 # Current State
 
+## D-0167 planning-only SPEC-0016 proposal; runtime remains D-0166
+
+**Code/check verified, 2026-10-02:** canonical `main` and `origin/main` started clean at `988531e3a3e1f65558d32952256877c366a04c9d`. The current root still authenticates into `ExistingHome`; Home still has six tall cards; Open Project and My Projects still mount the same `ProjectLibrary` in edit/watch modes; editor File → Export and the separate Home Export chooser still use `AnimationExportFlow`; `/assistant`, placeholder Tutorials, `/credits`, two notification bells and the account/menu paths remain current. Workspace Help is still visibly inert. New-account signup still requires one explicitly non-financial local preview-plan choice. No runtime or test byte changed in this planning task.
+
+**Intended only:** [SPEC-0016](specs/0016-professional-workspace-compression-and-polish.md) proposes five phases to compress and polish those surfaces while protecting all existing owners and user data. Phase 1 owns Home/header only and uses direct one-click routes to unchanged destinations; later phases own Projects/Export, Help, editor shell, and account/Dashboard/recovery integration. SPEC-0015 Phases 6–8 are paused rather than cancelled and resume after SPEC-0016 closeout; SPEC-0008 remains paused. The package is unaccepted/unpublished and grants no implementation authority.
+
+**Evidence limit:** accepted earlier isolated live reviews remain valid recorded evidence. Browser policy blocked a fresh signed-in canonical visual walkthrough and Arthur declined alternate browser/DevTools workarounds, so no new appearance, no-scroll or latency result is claimed here.
+
 ## D-0166 Phase 5 published on main and activated locally
 
 **Git/live-route verified, 2026-10-02:** Arthur's accepted 15 technical paths and 15 control-plane/tree paths were committed as `1b4acd7db0b57188e95cb8474816c4e453172abd`, parent `ee93d10121b82fcb256174caa5d7d0ab08886ade`; clean canonical `main`, local `origin/main` and a fresh live GitHub read matched at `0/0`. The existing main app returned Home `200` and an unauthenticated `/api/account/usage` read `401`, proving the route is active and rejects that unsigned request. Browser URL policy blocked a signed-in main walkthrough; isolated A/B save/chat/usage/logout/restart and Arthur's visual PASS remain the functional evidence, not a new main-browser pass.

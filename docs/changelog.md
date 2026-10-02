@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-10-02 — D-0167 proposes SPEC-0016 and pauses SPEC-0015 after Phase 5 (docs only)
+
+- Added a five-phase professional workspace compression/polish proposal from clean canonical baseline `988531e`: Home/header; Projects/Export/media; Help/Assistant/Tutorials; editor shell; then account/Dashboard/recovery integration. The target is under seven days at one or two accepted phases per day without relaxing proof or publication gates.
+- Made Phase 1 a bounded one-day Home/header result with direct one-click links to the unchanged Edit library, Watch library, Assistant, Tutorials and Export. The final plan retains one Projects destination, contextual Export, one Help hub, genuine posters, compact no-scroll desktop Home and responsive reflow.
+- Paused—not cancelled—SPEC-0015 Phases 6–8 until SPEC-0016 closeout. Preserved every current capability, the explicit non-financial signup preview choice, truthful tutorial placeholders, inert-until-Phase-3 workspace Help and paused SPEC-0008. No runtime/test/server/account/provider/payment/Git publication/deployment change occurred.
+
 ## 2026-10-02 — D-0166 publishes SPEC-0015 Phase 5 and retires its review copy
 
 - Published exactly 15 accepted technical plus 15 reviewed control-plane/tree paths as `1b4acd7db0b57188e95cb8474816c4e453172abd`, parent `ee93d10121b82fcb256174caa5d7d0ab08886ade`; clean canonical/local-origin/live GitHub main matched at `0/0` after normal fast-forward and push.

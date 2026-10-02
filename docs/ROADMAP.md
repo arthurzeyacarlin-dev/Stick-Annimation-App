@@ -1,5 +1,17 @@
 # Roadmap
 
+## Proposed next sequence — SPEC-0016 before SPEC-0015 Phase 6 (D-0167)
+
+From published canonical baseline `988531e`, pause—not cancel—SPEC-0015 Phases 6–8 and complete proposed SPEC-0016 in five independently reviewed/published phases. The delivery target is under seven calendar days from Phase 1 start, aiming for one or two accepted phases per day; proof, owner review, sequential worktree ownership and separate publication remain mandatory.
+
+1. **Compact Home and quiet global chrome:** final Home/header presentation only; direct one-click access to unchanged Edit, Watch, Assistant, Tutorials and Export paths. No destination restyling.
+2. **One Projects library, contextual Export and project-media surfaces:** explicit Edit/Watch/Export per valid row, genuine posters, viewer/export finish; retire transitional Home Export only after proof.
+3. **Help, Assistant, Tutorials and workspace Help:** one final Help hub; truthful placeholder Tutorials; safe no-loss workspace Help; preserved chats/deep links/notifications.
+4. **Creative editor shell:** presentation-only editor finish with drawing, timeline, playback, history, save and AI engines protected.
+5. **Account, Dashboard, recovery and integration closeout:** preserve the required local preview-plan choice, account isolation, usage math and all end-to-end protected flows.
+
+The proposal awaits PM/Arthur acceptance, separate docs publication and separate Phase 1 authorization. After Phase 5 closeout, resume SPEC-0015 Phase 6 planning at G-ECON/G-CAPS and the financial-retention gates. SPEC-0008 remains paused throughout.
+
 ## SPEC-0015 Phase 5 integrated; Phase 6 next only after decisions — D-0166
 
 The accepted local account-usage Dashboard and visual correction are published on canonical/GitHub main in `1b4acd7db0b57188e95cb8474816c4e453172abd`, synchronized cleanly at `0/0` and active on the local main server. The isolated review copy is retired with restricted proof/account-data backup. Phase 6 real funded entitlements, actual-plan allowance/refill and call enforcement are a **next possible** outcome, not started or authorized; Arthur must first decide G-ECON/G-CAPS and financial-retention policy. The current 10,000-token line is only a display preview. Cross-device account sync and the new MP4 archive remain Version 2 or later.
@@ -41,7 +53,7 @@ Arthur has authorized only revised Phase 3 implementation after this docs-only a
 D-0146/GIT-103 and D-0147/D-0148/GIT-104 preserve the accepted/published first two [SPEC-0015](specs/0015-functional-ai-dashboard.md) phases: guest browser-local TEST PREVIEW and the separate 90-day local observational journal. D-0149 verifies GIT-105 records-only closeout at `cfcdaf05dfa2faad02a9c291d4a2252ddbee8dfd`. Arthur product-rejected the isolated Dashboard-only Alex/Sam Phase 3 copy; its bytes remain unpublished and non-reusable. D-0150's Option B splits the remainder into (3) one app-wide auth/session and truthful guest boundary, (4) account-owned projects/chats/jobs plus explicit optional import, (5) prospective account usage and Dashboard integration, (6) real entitlements/funded depletion with Arthur's plan-scaling math, (7) sandbox payment lifecycle, (8) reconciliation/launch proof. D-0151 records completed hash-verified rejected-copy D-0054 cleanup and separate docs-only publication authority. Revised Phases 3–8 are **Unauthorized / Not started**; Phase 3 is **not implementation-ready** until G-AUTH/G-PRIV, exact selected-stack allowlist and separate Arthur implementation authorization. Guest private-local AI remains usable. No current account balance, cloud sync, payment, AI enforcement, xAI/Grok integration, SPEC-0008 resumption or deployment follows from this plan.
 
 Status: canonical ordered direction; not a delivery schedule
-Last updated: 2026-09-29
+Last updated: 2026-10-02
 
 ## Roadmap Rules
 

@@ -1,5 +1,9 @@
 # Architecture and System Map
 
+## D-0165 accepted isolated Phase 5 account-usage path; publication pending
+
+In the accepted port-58666 copy, `requireAccountRequest` derives the verified Better Auth user at Project AI, Assistant and transcription route admission. `withAccountUsageOwner` carries that owner through detached job work; `recordUsageEvent` preserves the separate Phase 2 local-instance journal and also writes a content-free owner-scoped event to restricted local `.local/spec0015-phase3/account-usage.sqlite`. `GET /api/account/usage` requires the current session, selects only its owner's rows and projects the Dashboard read model; unknown retries, failed writes or read overflow remain partial rather than a false zero. `AiDashboardScreen` invalidates old-owner fetches and never reads browser-local receipts as account history. `AiUsageChart` keeps the existing blue-to-red test-preview palette under partial coverage, and the warning CSS is blue-toned. The preview roof does not enforce AI admission or refill. Phase 4 project storage, Phase 4.5 account-data/logout, AI prompts/provider/replies and Finder Export were not changed. These are accepted review bytes, **not yet in canonical main**; no cross-device or billing ledger is claimed.
+
 ## D-0164 Phase 4.5 architecture integrated locally
 
 The D-0163 account-data path below is published in canonical main commit `47bfe1ab376606a2b05de9d15fff958046521425`; its code and accepted proof remained unchanged through publication. The existing main server returned Home `200` and unauthenticated account-data GET `401`, proving the route active and rejecting that unsigned request. Authenticated main-browser UI was blocked by browser URL policy and is not newly claimed; the accepted review copy supplies the A/B flow. Phase 5 remains the next separate usage/Dashboard phase, without changing the Phase 4 project path or local Finder Export.

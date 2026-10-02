@@ -19,7 +19,7 @@
 .warning,.exhausted,.partial { margin: 14px 0 0; padding: 12px 14px; border-radius: 10px; line-height: 1.45; }
 .warning { border: 1px solid #fbbf24; background: #553d16; color: #fff0c6; }
 .exhausted { border: 1px solid #fa6666; background: #561e2a; color: #fff0f0; }
-.partial { border: 1px solid #a58868; background: #493b2b; color: #ffecd3; display: grid; gap: 5px; }
+.partial { border: 1px solid #5b84ad; background: #19314d; color: #e4f0ff; display: grid; gap: 5px; }
 .partial ul { margin: 5px 0 0; padding-left: 19px; }
 .scope,.chartNote { color: #aabdd6; font-size: 12px; line-height: 1.5; margin: 16px 0 0; }
 .refresh,.segmented button { color: #e6f1ff; border: 1px solid #456080; background: #1b2c43; border-radius: 9px; padding: 9px 12px; font: inherit; cursor: pointer; }

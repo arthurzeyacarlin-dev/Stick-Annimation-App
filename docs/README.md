@@ -1,5 +1,9 @@
 # Diamond Animator Control Plane
 
+## D-0165 Phase 5 accepted in review; publication pending
+
+Arthur passed the same isolated Phase 5 review copy, including its visual-only blue-to-red bar and neutral-blue warning correction. The stopped executor's 13 account-usage implementation/test paths and two Dashboard-presentation paths are frozen from canonical base `ee93d10121b82fcb256174caa5d7d0ab08886ade`. Original ignored manifest SHA-256 `3e7281d099e514e9e8ea21663bec190c2bd22a42d3e6da0c975e839cd49c3cd3` binds the 13 paths; the separate ignored visual-correction proof binds the two later presentation hashes. The Phase 5 result is **accepted in review but not yet published or integrated**. Canonical main still has Phases 1–4.5. Phase 6 starts only after separate publication and clean synchronization; no real allowance, refill, AI cap, billing, cross-device sync or deployment is included.
+
 ## D-0164 Phase 4.5 published; Phase 5 is next
 
 The accepted 22 technical and 14 reviewed record/tree paths were published in exact commit `47bfe1ab376606a2b05de9d15fff958046521425`, parent `52b906919eb07367c23125847c0e07b47a6ebd4e`. Clean canonical `main`, local `origin/main` and a fresh live GitHub read matched at `0/0`. The existing port-3000 main server returned Home `200` and an unauthenticated account-data read `401`, proving the route is active; an authenticated main-browser walkthrough was not available for this closeout. The accepted review proof remains SHA-256 `3b662a47272a6c47c2d8feea919cde8a0d5c6327a6c1ba4626a6cba1f231eb74`. Phase 5 account usage is the next phase to authorize from integrated main; no Phase 5 implementation has begun. The D-0163 prepublication entry below is historical as to Git state.

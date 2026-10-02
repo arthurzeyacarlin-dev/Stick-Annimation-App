@@ -1673,6 +1673,15 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Local runtime evidence: the existing port-3000 main server returned Home `200` and unauthenticated account-data GET `401`, showing that the published route is active and rejects that unsigned request. Browser URL policy blocked an authenticated main UI walkthrough; no workaround or authenticated-main pass is claimed. Arthur's accepted isolated review is the user-flow evidence. The review server/data/proof stay preserved until D-0054 cleanup.
 - Boundary: Phase 5 account usage/Dashboard is next but requires its own authorization and G-USAGE/G-PRIV selection. This publication does not deliver account usage, cross-device access, a new MP4 archive, billing or deployment, and does not erase earlier Phase 4 proof limits.
 
+### D-0165 — Accept isolated SPEC-0015 Phase 5 account usage and visual correction
+
+- Date: 2026-10-02
+- Status: Arthur accepted the isolated review copy and separately requested canonical control-plane propagation followed by GitHub/main publication. The CPA propagation and later publication are sequential; this decision does not claim either has occurred.
+- Account-usage choice: prospective events are recorded locally under the verified Better Auth session owner at AI admission, including detached job continuation. A verified-owner API reads only that owner's content-free usage rows; the Dashboard resets prior-owner display on account switch, marks unknown/missing/provider-retry coverage partial, and never assigns old browser receipts or the Phase 2 local-instance journal to an account. This closes G-USAGE for the accepted Version 1 local scope. G-PRIV retains local restricted storage and owner filtering; longer-term deletion/financial retention remain later decisions.
+- Accepted presentation: known-usage bars retain the existing blue → green → yellow → orange → red test-preview scale even when coverage is partial; the partial warning is blue-toned, not gold. These visual-only bytes do not change usage arithmetic, AI calls or the display-only 10,000-token test line.
+- Exact review boundary: 13 usage implementation/test paths are frozen by ignored manifest SHA-256 `3e7281d099e514e9e8ea21663bec190c2bd22a42d3e6da0c975e839cd49c3cd3` from base `ee93d10121b82fcb256174caa5d7d0ab08886ade`; two later Dashboard presentation paths are bound by `output/spec0015/phase5/visual-correction-proof.json`. Index remains empty. Keep review port 58666, account data and proof until publication plus D-0054 cleanup.
+- Non-claims: no real plan balance, refill, enforcement, billing, cross-device account sync, provider-retry completeness or public deployment. Phase 6 requires separate authorization after Phase 5 publication and its own G-ECON/G-CAPS decisions.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

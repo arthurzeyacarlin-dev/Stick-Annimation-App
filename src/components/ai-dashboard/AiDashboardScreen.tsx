@@ -4,7 +4,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AiUsageChart } from "./AiUsageChart";
 import { buildBuckets, currentWeekTotals, intervalSpec, nextUtcWeek, summarizeReceipts, windowStart } from "../../lib/ai-dashboard/dashboardAggregation";
 import { TEST_WEEKLY_TOKENS, type DashboardFilter, type DashboardInterval, type DashboardSnapshot } from "../../lib/ai-dashboard/dashboardContract";
-import { readDashboardSnapshot, subscribeDashboardChanges } from "../../lib/ai-dashboard/dashboardSources";
+import { subscribeDashboardChanges } from "../../lib/ai-dashboard/dashboardSources";
+import { useAccountSession } from "../account/AccountSessionProvider";
 import styles from "./AiDashboard.module.css";
 
 const filters: { value: DashboardFilter; label: string }[] = [
@@ -18,7 +19,9 @@ const number = (value: number) => value.toLocaleString("en-US");
 const utc = (value: number) => new Date(value).toISOString().replace(".000Z", "Z");
 
 export function AiDashboardScreen() {
-  const [real, setReal] = useState<DashboardSnapshot | null>(null);
+  const account = useAccountSession();
+  const ownerId = account?.id ?? null;
+  const [real, setReal] = useState<{ ownerId: string; snapshot: DashboardSnapshot } | null>(null);
   const [filter, setFilter] = useState<DashboardFilter>("combined");
   const [interval, setInterval] = useState<DashboardInterval>("quarter");
   const [reading, setReading] = useState(true);
@@ -31,14 +34,20 @@ export function AiDashboardScreen() {
     abortRef.current = controller;
     const current = ++generation.current;
     setReading(true);
-    void readDashboardSnapshot(controller.signal).then((snapshot) => {
+    void fetch("/api/account/usage", { cache: "no-store", signal: controller.signal }).then(async (response) => {
+      if (!response.ok) throw new Error("account_usage_unavailable");
+      const value = await response.json() as { schema?: string; ownerId?: string; snapshot?: DashboardSnapshot };
+      if (value.schema !== "diamond-account-usage/v1" || value.ownerId !== ownerId || !value.snapshot)
+        throw new Error("account_usage_owner_mismatch");
+      return value.snapshot;
+    }).then((snapshot) => {
       if (current !== generation.current || controller.signal.aborted) return;
-      setReal(snapshot); setReadError(false); setReading(false);
+      setReal({ ownerId: ownerId!, snapshot }); setReadError(false); setReading(false);
     }).catch(() => {
       if (current !== generation.current || controller.signal.aborted) return;
       setReadError(true); setReading(false);
     });
-  }, []);
+  }, [ownerId]);
   useEffect(() => {
     const initialRead = window.setTimeout(refresh, 0);
     const unsubscribe = subscribeDashboardChanges(refresh);
@@ -47,7 +56,7 @@ export function AiDashboardScreen() {
     return () => { window.clearTimeout(initialRead); generationRef.current++; abortControllerRef.current?.abort(); unsubscribe(); };
   }, [refresh]);
 
-  const snapshot = real;
+  const snapshot = real?.ownerId === ownerId ? real.snapshot : null;
   const now = snapshot?.readAt ?? 0;
   const complete = !!snapshot && !readError && [snapshot.project.state, snapshot.assistant.state].every((state) => state === "ready" || state === "absent");
   const selectedSources = snapshot ? filter === "combined" ? [snapshot.project, snapshot.assistant] : [snapshot[filter]] : [];
@@ -70,14 +79,14 @@ export function AiDashboardScreen() {
     <main className={styles.main}>
       <div className={styles.content}>
         <section className={styles.hero} aria-labelledby="dashboard-heading">
-          <div className={styles.heroTop}><div><p className={styles.eyebrow}>Conversation usage · this browser</p><h2 id="dashboard-heading">AI Dashboard</h2>
-            <p className={styles.lead}>Temporary test line based on retained conversation receipts in this browser.</p></div></div>
+          <div className={styles.heroTop}><div><p className={styles.eyebrow}>Conversation usage · this account</p><h2 id="dashboard-heading">AI Dashboard</h2>
+            <p className={styles.lead}>Prospective provider usage recorded for this signed-in account.</p></div></div>
           <div className={styles.testNotice}><strong>10,000 recorded conversation tokens per UTC week — TEST PREVIEW</strong>
             <span>Display only. This is not a paid plan, account balance, provider bill, or AI request limit.</span></div>
         </section>
 
         <section className={styles.previewCard} aria-labelledby="weekly-heading">
-          <div className={styles.cardHeading}><div><p className={styles.eyebrow}>Shared weekly test line</p><h3 id="weekly-heading">Combined test progress</h3></div>
+          <div className={styles.cardHeading}><div><p className={styles.eyebrow}>Account weekly test line</p><h3 id="weekly-heading">Combined test progress</h3></div>
             {snapshot && <span className={styles.period}>Preview resets {utc(nextUtcWeek(now))}</span>}</div>
           {!snapshot ? <p role="status">Reading local conversation records…</p> : partial ?
             <div role="status" className={styles.partial}><strong>Partial data — combined percentage unavailable</strong><span>Readable receipts are shown below, but missing records prevent a confident remaining amount.</span></div> :
@@ -86,7 +95,7 @@ export function AiDashboardScreen() {
               <div><strong>{number(Math.max(0, TEST_WEEKLY_TOKENS - current.combinedTokens))}</strong><span>test tokens before line, not a real balance</span></div></div>}
           {complete && status === "warning" && <p className={styles.warning} role="status">TEST PREVIEW: 10% or less remains before this temporary line. AI continues working.</p>}
           {complete && status === "exhausted" && <p className={styles.exhausted} role="status">TEST PREVIEW exhausted. An enforced plan would wait until weekly refill. AI continues working here.</p>}
-          <p className={styles.scope}>This browser only. Older or deleted records, dictation, and some failed or cancelled requests are missing; this may undercount actual provider usage.</p>
+          <p className={styles.scope}>This account on this installation only. Current Project AI, Assistant, and Dictation are covered; the dormant legacy AI route is not. Older browser-only receipts were not reassigned. Unknown provider usage is marked partial, never silently counted as zero.</p>
         </section>
 
         <section className={styles.chartCard} aria-labelledby="usage-heading">
@@ -96,18 +105,18 @@ export function AiDashboardScreen() {
             <button type="button" key={option.value} aria-pressed={filter === option.value} onClick={() => setFilter(option.value)}>{option.label}</button>)}</div></fieldset>
             <fieldset><legend>Interval · UTC</legend><div className={styles.segmented}>{intervals.map((option) =>
               <button type="button" key={option.value} aria-pressed={interval === option.value} onClick={() => setInterval(option.value)}>{option.label}</button>)}</div></fieldset></div>
-          {readError && <p className={styles.partial} role="alert">Local records could not be refreshed. Previous results may be stale. Try Refresh.</p>}
+          {readError && <p className={styles.partial} role="alert">Account usage could not be refreshed. Previous results may be stale; unavailable data is not zero. Try Refresh.</p>}
           {issues.length > 0 && <div className={styles.partial} role="status"><strong>Some local usage is unknown.</strong><ul>{[...new Set(issues)].map((issue) => <li key={issue}>{issue}</li>)}</ul></div>}
           {snapshot && buckets.length === 0 && !partial && <p className={styles.empty}>No recorded conversation usage in this view.</p>}
           {snapshot && <AiUsageChart key={`${filter}-${interval}`} buckets={buckets} filter={filter} complete={complete} capacity={intervalSpec[interval].count} />}
-          <p className={styles.chartNote}>Bars show the selected source&apos;s cumulative recorded tokens against the same shared test line. Color follows usage, not source identity. Combined progress above covers both AI sources in this browser in every filter.</p>
+          <p className={styles.chartNote}>Bars show this account&apos;s cumulative recorded tokens against the same temporary test line. Color follows usage, not source identity. Combined progress covers both AI sources in this account.</p>
         </section>
 
         <section className={styles.summaryGrid} aria-label="Recorded usage details">
-          <div className={styles.summaryCard}><p className={styles.eyebrow}>Recorded tokens</p><strong>{snapshot ? number(summary.total) : "—"}</strong><span>{filter === "combined" ? "Combined" : filter === "project" ? "Project AI" : "Assistant"} in selected time view · retained in this browser</span>{summary.unknownTotals > 0 && <small>Additional usage unknown: {summary.unknownTotals} receipt(s).</small>}</div>
+          <div className={styles.summaryCard}><p className={styles.eyebrow}>Recorded tokens</p><strong>{snapshot ? number(summary.total) : "—"}</strong><span>{filter === "combined" ? "Combined" : filter === "project" ? "Project AI" : "Assistant"} in selected time view · saved for this account</span>{summary.unknownTotals > 0 && <small>Additional usage unknown: {summary.unknownTotals} receipt(s).</small>}</div>
           <div className={styles.summaryCard}><p className={styles.eyebrow}>Input / output</p><strong>{snapshot ? `${number(summary.input)} / ${number(summary.output)}` : "—"}</strong><span>Recorded provider tokens in selected view</span>{(summary.unknownInput + summary.unknownOutput > 0) && <small>Some components are unknown.</small>}</div>
           <div className={styles.summaryCard}><p className={styles.eyebrow}>Estimated provider cost</p><strong>{snapshot && (summary.receipts === 0 || summary.unknownCost < summary.receipts) ? `$${summary.cost.toFixed(4)}` : "Not available"}</strong><span>Stored estimates only; not a bill.</span><small>{summary.unknownCost > 0 ? `${summary.unknownCost} estimate(s) unknown. ` : ""}{costSources.join(" · ")}</small></div>
-          <div className={styles.summaryCard}><p className={styles.eyebrow}>Other activity</p><strong>{snapshot ? `${summary.toolCalls} search call(s)` : "—"}</strong><span>Known hosted calls in selected view</span><small>Dictation is not recorded here. {attempts.failed} failed, {attempts.cancelled} cancelled, {attempts.pending} pending, {attempts.prior} earlier attempts in retained records.</small></div>
+          <div className={styles.summaryCard}><p className={styles.eyebrow}>Other activity</p><strong>{snapshot ? `${summary.toolCalls} search call(s)` : "—"}</strong><span>Known hosted calls in selected view</span><small>Dictation has no token bars; observed cost is included. {attempts.failed} failed, {attempts.cancelled} cancelled, {attempts.pending} pending, {attempts.prior} earlier attempts in retained records.</small></div>
         </section>
 
         <section className={styles.realPlan} aria-labelledby="real-plan-heading"><p className={styles.eyebrow}>Real account and allowance</p><h3 id="real-plan-heading">No paid plan connected</h3>

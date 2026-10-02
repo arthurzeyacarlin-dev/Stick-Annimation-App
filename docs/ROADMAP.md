@@ -1,5 +1,9 @@
 # Roadmap
 
+## SPEC-0015 Phase 5 accepted in isolated review — D-0165
+
+Arthur passed prospective local account-scoped AI usage and the Dashboard's blue-to-red bars/blue partial warning in the same port-58666 copy. Its 13 usage paths plus two visual-only paths are frozen with separate ignored proof bindings; canonical main still contains Phases 1–4.5 until a later bounded publication. Phase 6 real entitlements, actual-plan allowance/refill and enforcement are the next possible product step only after clean Phase 5 integration and separate G-ECON/G-CAPS authorization. The 10,000-token roof is still a test display, not an AI cap or bill. Cross-device account sync and the new MP4 archive remain Version 2 or later.
+
 ## SPEC-0015 Phase 4.5 integrated — D-0164
 
 The accepted local account-continuity result is published on canonical main in `47bfe1ab376606a2b05de9d15fff958046521425`. Phase 5 account-scoped usage and Dashboard identity are next for separate authorization from integrated main, after G-USAGE/G-PRIV. Cross-device access and the new private MP4 account archive remain Version 2 or later; existing Finder Export is unchanged. The D-0162 entry below is historical planning state.

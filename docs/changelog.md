@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-10-02 — D-0165 accepts isolated SPEC-0015 Phase 5 (publication pending)
+
+- Arthur passed the prospective, local verified-account usage Dashboard and the later same-copy visual correction. Known bars display blue → green → yellow → orange → red even when other usage is partial; the partial warning is blue-toned. The red roof remains a display-only test line, not an AI cap/refill.
+- Frozen 13-path usage result at original ignored manifest SHA-256 `3e7281d099e514e9e8ea21663bec190c2bd22a42d3e6da0c975e839cd49c3cd3` plus two separate visual-proof hashes from base `ee93d101`. Deterministic usage/color/project checks, build/type/lint and real A/B save/chat/usage review passed with stated microphone/notification/outage/provider-retry limits.
+- This CPA pass updates only canonical records and generated tree, keeps accepted source/proof/review server/account data unchanged, and stops before staging. Main integration, GitHub push, proof preservation and D-0054 cleanup belong to later sequential publication/cleanup work; Phase 6 is not started.
+
 ## 2026-10-02 — D-0164 publishes SPEC-0015 Phase 4.5
 
 - Published the frozen 22 technical and 14 reviewed record/tree paths as `47bfe1ab376606a2b05de9d15fff958046521425`, fast-forwarded clean canonical main, pushed normally and verified canonical/local-origin/live GitHub equality at `0/0`. Sealed review proof hash remains `3b662a47272a6c47c2d8feea919cde8a0d5c6327a6c1ba4626a6cba1f231eb74`.

@@ -1,6 +1,7 @@
 import { resolve } from "node:path";
 import type { UsageJournalEventInput, UsageJournalSummary } from "./usageJournalContract.ts";
 import { UsageJournalStore, type UsageJournalPolicy } from "./usageJournalStore.ts";
+import { recordAccountUsageEvent } from "../account-usage/accountUsageStore.ts";
 
 export const USAGE_JOURNAL_RETENTION_DAYS = 90;
 export const USAGE_JOURNAL_POLICY: Readonly<UsageJournalPolicy> = Object.freeze({
@@ -17,6 +18,7 @@ const filePath = () => process.env.DIAMOND_USAGE_JOURNAL_PATH?.trim() || resolve
 const journal = () => owner.diamondUsageJournalV1 ??= new UsageJournalStore({ filePath: filePath(), policy: USAGE_JOURNAL_POLICY });
 
 export function recordUsageEvent(event: UsageJournalEventInput): boolean {
+  recordAccountUsageEvent(event);
   try { return journal().enqueue(event); }
   catch { return false; }
 }

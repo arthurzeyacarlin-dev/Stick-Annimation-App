@@ -101,7 +101,7 @@ export function AiUsageChart({ buckets, filter, complete, capacity }: { buckets:
                       const next = positionFor(index, event.currentTarget, "touch");
                       if (next) setActive((current) => current?.mode === "touch" && current.index === index ? null : next);
                     }}
-                    style={{ height, backgroundColor: complete ? bucket.color : "#64748b" }} />
+                    style={{ height, backgroundColor: bucket.color }} />
                 </button>
               </div>
             );

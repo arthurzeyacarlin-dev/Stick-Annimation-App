@@ -5,6 +5,7 @@ import { generateAiAnimatorReply } from "@/src/lib/openai/generateAiAnimatorRepl
 import { recordUsageEvent } from "@/src/lib/usage-journal/usageJournalRuntime";
 import { requireAccountRequest } from "@/src/lib/account/access";
 import { accountProjectBelongsToOwner } from "@/src/lib/account/projectServer";
+import { withAccountUsageOwner } from "@/src/lib/account-usage/accountUsageStore";
 
 export const runtime = "nodejs";
 
@@ -37,7 +38,8 @@ export async function POST(request: Request) {
     if (!await accountProjectBelongsToOwner(access.session.user.id, normalized.workspace.projectId)) {
       return NextResponse.json({ error: "Project is not available to this account." }, { status: 403 });
     }
-    return NextResponse.json(jobs.submit(normalized, access.session.user.id), { status: 202 });
+    return NextResponse.json(withAccountUsageOwner(access.session.user.id,
+      () => jobs.submit(normalized, access.session.user.id)), { status: 202 });
   } catch (error) {
     return safeError(error);
   }
@@ -78,7 +80,8 @@ export async function DELETE(request: Request) {
   if (!await accountProjectBelongsToOwner(access.session.user.id, projectId)) {
     return NextResponse.json({ error: "Project is not available to this account." }, { status: 403 });
   }
-  const snapshot = jobs.cancel(jobId, projectId, access.session.user.id);
+  const snapshot = withAccountUsageOwner(access.session.user.id,
+    () => jobs.cancel(jobId, projectId, access.session.user.id));
   return snapshot
     ? NextResponse.json(snapshot)
     : NextResponse.json({ error: "This AI Animator job is no longer available." }, { status: 404 });

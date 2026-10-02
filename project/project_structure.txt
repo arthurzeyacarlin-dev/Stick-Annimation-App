@@ -13,6 +13,8 @@
 ./app/api/account/projects/[projectId]
 ./app/api/account/projects/[projectId]/route.ts
 ./app/api/account/projects/route.ts
+./app/api/account/usage
+./app/api/account/usage/route.ts
 ./app/api/ai
 ./app/api/ai-animator
 ./app/api/ai-animator/route.ts
@@ -695,6 +697,10 @@
 ./scripts/spec0015-account/phase45/proof-manifest.mjs
 ./scripts/spec0015-account/phase45/record-browser-evidence.mjs
 ./scripts/spec0015-account/phase45/verify-remote-cleanup.mjs
+./scripts/spec0015-account/phase5
+./scripts/spec0015-account/phase5/cleanup-synthetic.mjs
+./scripts/spec0015-account/phase5/proof-manifest.mjs
+./scripts/spec0015-account/phase5/usage-oracle.mjs
 ./scripts/spec0015-dashboard
 ./scripts/spec0015-dashboard/phase1BrowserProof.ts
 ./scripts/spec0015-dashboard/phase1BuildProof.ts
@@ -817,6 +823,9 @@
 ./src/components/workspace/timelineStructure.ts
 ./src/lib
 ./src/lib/account
+./src/lib/account-usage
+./src/lib/account-usage/accountUsageProjection.ts
+./src/lib/account-usage/accountUsageStore.ts
 ./src/lib/account/access.ts
 ./src/lib/account/accountConfig.ts
 ./src/lib/account/accountDataClient.ts

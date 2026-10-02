@@ -4,6 +4,7 @@ import { DiamondAssistantJobService } from "@/src/lib/assistant/assistantJobServ
 import { generateAssistantReply } from "@/src/lib/assistant/assistantProvider";
 import { recordUsageEvent } from "@/src/lib/usage-journal/usageJournalRuntime";
 import { requireAccountRequest } from "@/src/lib/account/access";
+import { withAccountUsageOwner } from "@/src/lib/account-usage/accountUsageStore";
 
 export const runtime = "nodejs";
 const owner = globalThis as typeof globalThis & { diamondGuidanceAssistantV1?: DiamondAssistantJobService };
@@ -25,7 +26,8 @@ export async function POST(request: Request) {
   const access = await requireAccountRequest(request);
   if ("response" in access) return access.response;
   if (!localRequest(request)) return respond({ error: "Assistant access is limited to this local review app." }, 403);
-  try { return respond(jobs.submit(await boundedJson(request), access.session.user.id), 202); }
+  try { const body = await boundedJson(request); return respond(withAccountUsageOwner(access.session.user.id,
+    () => jobs.submit(body, access.session.user.id)), 202); }
   catch (error) { return respond({ error: error instanceof AssistantError ? error.message : "The Assistant request could not be read." }, error instanceof AssistantError && error.code === "conflict" ? 409 : error instanceof AssistantError && error.code === "capacity" ? 429 : 400); }
 }
 export async function GET(request: Request) {
@@ -42,6 +44,8 @@ export async function DELETE(request: Request) {
   if ("response" in access) return access.response;
   if (!localRequest(request)) return respond({ error: "Local access required." }, 403);
   try {
-    return respond(jobs.cancelRequest(await boundedJson(request), access.session.user.id));
+    const body = await boundedJson(request);
+    return respond(withAccountUsageOwner(access.session.user.id,
+      () => jobs.cancelRequest(body, access.session.user.id)));
   } catch { return respond({ error: "Cancellation request could not be read." }, 400); }
 }

@@ -3,6 +3,8 @@
 Status: canonical product intent
 Last updated: 2026-10-02
 
+D-0165 records Arthur's acceptance of the isolated Phase 5 account-usage Dashboard and its visual-only correction. Prospective local account usage is owner-filtered, while the blue-to-red bars remain a display-only test preview. The result is still outside canonical main until separately published; Phase 6 funded entitlements are next only after that integration and separate authorization. No real AI cap or refill exists yet.
+
 D-0164 records publication of Arthur's accepted Phase 4.5 local account-continuity result in exact canonical-main commit `47bfe1ab376606a2b05de9d15fff958046521425`. Phase 5 account-scoped usage and Dashboard work is now the next product phase for separate authorization. Cross-device account access and the new private MP4 account archive remain Version 2 or later. The earlier D-0163 acceptance was a prepublication checkpoint.
 
 D-0162 limits Version 1 accounts to one installation: multiple separate accounts may exist there, one signed in at a time. Phase 4.5 owns local account-private chats/jobs/notifications/recovery/preferences. Cross-device access and the new account-linked MP4 archive move to Version 2 or later; existing Finder Export and Phase 5 Dashboard ownership stay unchanged. Earlier hosted Phase 4.5 passages below are historical.

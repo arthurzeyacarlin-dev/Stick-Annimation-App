@@ -1,5 +1,9 @@
 # SPEC-0008 — Conversational AI Animator and Editable Video Reconstruction
 
+## Current stewardship handoff
+
+Arthur transfers former PM V4 AI Animator continuity to Claude on 2026-10-03 (D-0171). This changes the next collaborator, not this spec's runtime or paused-phase authority. Phase 1 remains completed. Phases 2–6 remain paused under D-0093 until explicit resumption and fresh architecture/spec reconciliation; dated provider/search/model/pricing declarations below must be reverified before use. Claude should assess the smallest genuine editable, undoable, saved and exportable animation slice against Arthur's 30-day target, without reusing rejected motion bytes or claiming this historical reference-video approach is already working. Whole-product next task is SPEC-0016 Phase 3 after Phase 2 publication; preserve the two independent assistants' purposes.
+
 Status: **Approved historical contract, paused after Phase 1 under D-0093; Phase 1 Verified/published/integrated/recorded/cleaned up through D-0089/D-0090/GIT-070; Phases 2–6 Paused/Unauthorized/Not started/not rejected**
 Owner: Arthur
 Task role: planning/control-plane architecture only; this task changes no runtime or technical proof

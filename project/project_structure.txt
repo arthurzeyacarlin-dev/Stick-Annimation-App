@@ -2,6 +2,7 @@
 ./.env.example
 ./.gitignore
 ./AGENTS.md
+./CLAUDE.md
 ./README.md
 ./app
 ./app/ScrollbarActivity.tsx
@@ -722,6 +723,12 @@
 ./scripts/spec0016-ui/phase1/navigation-oracle.mjs
 ./scripts/spec0016-ui/phase1/proof-manifest.mjs
 ./scripts/spec0016-ui/phase1/protected-regressions.mjs
+./scripts/spec0016-ui/phase2
+./scripts/spec0016-ui/phase2/action-oracle.mjs
+./scripts/spec0016-ui/phase2/boundary-oracle.mjs
+./scripts/spec0016-ui/phase2/instant-hover-oracle.mjs
+./scripts/spec0016-ui/phase2/proof-manifest.mjs
+./scripts/spec0016-ui/phase2/record-technical.mjs
 ./scripts/sync_docs_to_github.sh
 ./scripts/traceExplosionLivePath.ts
 ./scripts/traceGenerateSoundsLivePath.mjs
@@ -785,6 +792,7 @@
 ./src/components/export/AnimationExportFlow.tsx
 ./src/components/home
 ./src/components/home/HomeWorkspace.module.css
+./src/components/home/useInstantHover.ts
 ./src/components/notifications
 ./src/components/notifications/NotificationCenterProvider.tsx
 ./src/components/notifications/NotificationTrigger.tsx

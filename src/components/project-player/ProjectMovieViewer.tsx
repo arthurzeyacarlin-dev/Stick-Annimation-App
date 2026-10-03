@@ -26,7 +26,7 @@ export function ProjectMovieViewer({ project, onClose }: Props) {
   }, [onClose]);
 
   useEffect(() => {
-    const library = document.querySelector<HTMLElement>('[data-project-library="my-projects"]');
+    const library = document.querySelector<HTMLElement>('[data-project-library]');
     const previousAriaHidden = library?.getAttribute("aria-hidden") ?? null;
     const previousInert = library?.inert ?? false;
     if (library) {

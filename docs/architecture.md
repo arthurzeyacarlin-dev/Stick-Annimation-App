@@ -1,5 +1,12 @@
 # Architecture and System Map
 
+## Accepted SPEC-0016 Phase 2 presentation path
+
+D-0170 freezes the reviewed UI: `ExistingHome` opens `ProjectLibrary surface="combined"`; primary Edit retains `openProject`/WorkspaceBootstrap. Watch and row Export use the existing controller's exact-entry revalidation plus saved-project digest check. Export reuses `ExportAnimationPlayer`, accepts the verified owner and exact saved snapshot, rejects zero authored frames, and restores row focus on return. The Viewer background-inert selector now recognizes the unified library. No new project reader, storage owner, player clock, renderer or encoder is introduced.
+
+`useInstantHover` is a scoped Home/library presentation owner: mouse/pointer over/move mark the current enabled control, clear previous marks, and clear on leave/cancel/touch/unmount. It does not depend on a held mouse button, change click actions, persist state or register global input listeners. Keyboard focus retains an outline rather than another solid-blue fill. A stale review client and focus/hover conflation were observed; the exact physical failure cause is not conclusively attributed. Auth, account-private data, AI and usage architecture below remain unchanged. Phase 3's no-loss editor Help entry must be traced before implementing it.
+
+
 ## D-0166 Phase 5 account-usage path integrated locally
 
 The D-0165 account-usage implementation below is now present in canonical main commit `1b4acd7db0b57188e95cb8474816c4e453172abd`. Main Home returned `200` and unsigned `/api/account/usage` returned `401`. Authenticated A/B and chart appearance were accepted in the isolated review copy; browser policy blocked a fresh signed-in main UI retest. Its review server/worktree are retired with restricted proof/account-data backup. Phase 6 ledger/admission architecture remains unimplemented and gated by G-ECON/G-CAPS and financial retention.

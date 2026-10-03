@@ -1,25 +1,30 @@
-.library {
-  --library-bg: #0b1220;
-  --library-surface: #111827;
-  --library-raised: #172033;
-  --library-border: #2a3a55;
+.library,
+.contextMenu,
+.managementDialog {
+  --library-bg: #030914;
+  --library-surface: #071120;
+  --library-raised: #071120;
+  --library-border: #244267;
   --library-text: #f8fafc;
-  --library-muted: #94a3b8;
-  --library-cyan: #22d3ee;
-  --library-blue: #0ea5e9;
+  --library-muted: #8aa4c5;
+  --library-cyan: #0066ff;
+  --library-blue: #0066ff;
+}
+
+.library {
   height: 100%;
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
   background:
-    radial-gradient(circle at 18% -10%, rgba(14, 165, 233, 0.15), transparent 34%),
-    linear-gradient(180deg, #0b1220 0%, #09111e 100%);
+    radial-gradient(ellipse 680px 270px at 50% 0%, #0066ff24, transparent 100%),
+    #030914;
   color: var(--library-text);
   padding: 24px clamp(16px, 4vw, 46px) 64px;
 }
 
 .shell {
-  width: min(1240px, 100%);
+  width: min(1440px, 100%);
   margin: 0 auto;
 }
 
@@ -50,7 +55,7 @@
 }
 
 .eyebrow {
-  color: var(--library-cyan);
+  color: var(--library-muted);
   font-size: 11px;
   font-weight: 850;
   letter-spacing: 0.14em;
@@ -78,15 +83,17 @@
   justify-self: end;
 }
 
-.secondaryButton:hover,
-.inlineButton:hover {
+.secondaryButton[data-pointer-hover],
+.inlineButton[data-pointer-hover] {
   border-color: var(--library-cyan);
+  background: #0066ff;
+  color: #fff;
 }
 
 .primaryButton {
   padding: 10px 16px;
-  border: 1px solid #38bdf8;
-  background: #0369a1;
+  border: 1px solid var(--library-border);
+  background: var(--library-surface);
   color: #ffffff;
 }
 
@@ -94,7 +101,7 @@
   flex: 0 0 auto;
   padding: 7px 11px;
   border: 1px solid var(--library-border);
-  background: #111827;
+  background: var(--library-surface);
   color: var(--library-text);
 }
 
@@ -112,11 +119,10 @@
   outline-offset: 3px;
 }
 
-.localNote,
 .notice {
   border: 1px solid var(--library-border);
   border-radius: 12px;
-  background: rgba(17, 24, 39, 0.82);
+  background: var(--library-surface);
   color: #b6c4d8;
   font-size: 13px;
   line-height: 1.5;
@@ -147,7 +153,7 @@
   min-height: 44px;
   border: 1px solid var(--library-border);
   border-radius: 10px;
-  background: #0d1728;
+  background: var(--library-surface);
   color: var(--library-text);
   padding: 9px 12px;
   font: inherit;
@@ -159,7 +165,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  border-color: rgba(34, 211, 238, 0.3);
+  border-color: var(--library-border);
 }
 
 .results {
@@ -169,41 +175,80 @@
 .grid,
 .loadingGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr));
-  gap: 18px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
 }
 
 .card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 106px 106px 72px;
   position: relative;
   min-width: 0;
   overflow: hidden;
   border: 1px solid var(--library-border);
   border-radius: 16px;
   background: var(--library-surface);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.24);
 }
 
 .overflowButton {
-  position: absolute;
-  z-index: 3;
-  top: 10px;
-  right: 10px;
+  position: static;
   min-width: 44px;
   min-height: 44px;
-  border: 1px solid rgba(148, 163, 184, 0.46);
-  border-radius: 10px;
-  background: rgba(7, 16, 29, 0.9);
-  color: #f8fafc;
+  border: 0;
+  border-left: 1px solid var(--library-border);
+  border-radius: 0;
+  background: transparent;
+  color: var(--library-muted);
   font-size: 16px;
   font-weight: 900;
   letter-spacing: 0.08em;
   cursor: pointer;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.32);
 }
 
-.overflowButton:hover {
-  border-color: var(--library-cyan);
-  background: #10233a;
+.overflowButton[data-pointer-hover],
+.rowAction[data-pointer-hover]:not(:disabled) {
+  color: #fff;
+  background: #0066ff;
+  box-shadow: inset 0 0 28px #0066ff22;
+  text-shadow: none;
+}
+
+.rowAction {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  min-height: 56px;
+  border: 0;
+  border-left: 1px solid var(--library-border);
+  background: transparent;
+  color: var(--library-muted);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+}
+.rowAction svg { width: 29px; height: 29px; }
+.rowAction:disabled { opacity: .45; cursor: default; }
+.rowAction:focus-visible { outline: 2px solid #0066ff; outline-offset: -4px; }
+.library button, .library input, .library select, .contextMenu button, .managementDialog button { transition: none; animation: none; }
+.primaryButton[data-pointer-hover]:not(:disabled) { background: #0066ff; border-color: #0066ff; }
+.toolbar input:hover, .toolbar select:hover { border-color: #0066ff; }
+.card:has(.cardButton[data-pointer-hover]:not([aria-disabled="true"])) { border-color: #0066ff; box-shadow: 0 0 25px #0066ff33; }
+.cardButton:not([aria-disabled="true"])[data-pointer-hover] {
+  background: #0066ff;
+  color: #fff;
+}
+.cardButton[data-pointer-hover]:not([aria-disabled="true"]) .cardBody > *,
+.cardButton[data-pointer-hover]:not([aria-disabled="true"]) .titleRow > *,
+.cardButton[data-pointer-hover]:not([aria-disabled="true"]) .metadata { color: #fff; }
+.cardButton:focus-visible { outline-offset: -4px; }
+.cardButton {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .cardButton {
@@ -211,11 +256,11 @@
   height: 100%;
   min-width: 0;
   border: 0;
-  border-radius: inherit;
+  border-radius: 0;
   background: transparent;
   color: var(--library-text);
   cursor: pointer;
-  padding: 0;
+  padding: 14px;
   text-align: left;
 }
 
@@ -223,23 +268,16 @@
   cursor: default;
 }
 
-.cardButton:not([aria-disabled="true"]):hover .posterFrame {
-  border-color: rgba(34, 211, 238, 0.58);
-}
-
-.cardButton:not([aria-disabled="true"]):hover .projectTitle {
-  color: #cffafe;
-}
-
 .posterFrame {
   position: relative;
   display: grid;
   place-items: center;
-  width: 100%;
+  width: 174px;
+  flex: 0 0 174px;
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  border-bottom: 1px solid var(--library-border);
-  background: #07101d;
+  border-radius: 7px;
+  background: #030914;
 }
 
 .posterCanvas {
@@ -266,7 +304,7 @@
   color: var(--library-muted);
   font-size: 12px;
   text-align: center;
-  background: linear-gradient(120deg, rgba(23, 32, 51, 0.92), rgba(11, 18, 32, 0.92));
+  background: var(--library-surface);
 }
 
 .posterFailure {
@@ -275,6 +313,7 @@
 
 .cardBody {
   display: flex;
+  flex: 1;
   min-width: 0;
   flex-direction: column;
   gap: 9px;
@@ -308,9 +347,9 @@
 }
 
 .watchPill {
-  background: rgba(14, 165, 233, 0.18);
-  color: #67e8f9;
-  border: 1px solid rgba(34, 211, 238, 0.35);
+  background: transparent;
+  color: var(--library-muted);
+  border: 0;
 }
 
 .statusPill {
@@ -332,7 +371,7 @@
   min-height: 20px;
   flex-wrap: wrap;
   gap: 7px 12px;
-  color: #c8f7ff;
+  color: #a8bddd;
   font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
@@ -372,12 +411,10 @@
 }
 
 .skeletonCard {
-  min-height: 340px;
+  min-height: 142px;
   border: 1px solid var(--library-border);
   border-radius: 16px;
-  background: linear-gradient(105deg, #111827 25%, #172033 42%, #111827 60%);
-  background-size: 240% 100%;
-  animation: library-shimmer 1.5s linear infinite;
+  background: var(--library-surface);
 }
 
 .loadingText {
@@ -396,7 +433,7 @@
   padding: 7px;
   border: 1px solid var(--library-border);
   border-radius: 12px;
-  background: #111827;
+  background: var(--library-surface);
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.48);
   color: var(--library-text);
 }
@@ -415,7 +452,7 @@
 
 .contextMenu button:hover:not(:disabled),
 .contextMenu button:focus-visible {
-  background: #172b45;
+  background: #0066ff;
 }
 
 .contextMenu button:disabled {
@@ -450,7 +487,7 @@
   overflow: auto;
   border: 1px solid var(--library-border);
   border-radius: 16px;
-  background: #111827;
+  background: var(--library-surface);
   color: var(--library-text);
   padding: clamp(20px, 4vw, 30px);
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.58);
@@ -505,6 +542,12 @@
 }
 
 @media (max-width: 640px) {
+  .card { grid-template-columns: minmax(0, 1fr) 66px 66px 48px; }
+  .cardButton { flex-direction: column; align-items: stretch; padding: 10px; }
+  .posterFrame { width: 100%; flex: 0 0 auto; }
+  .cardBody { padding: 8px 0 0; gap: 6px; }
+  .rowAction { font-size: 11px; }
+  .rowAction svg { width: 24px; height: 24px; }
   .library {
     padding: 14px 12px 36px;
   }
@@ -527,10 +570,6 @@
     grid-row: 2;
   }
 
-  .header .secondaryButton:last-child {
-    grid-column: 2;
-    grid-row: 2;
-  }
 
   .notice {
     align-items: stretch;

@@ -1,5 +1,10 @@
 # Diamond Animator Control Plane
 
+## Current entry point for Claude
+
+Arthur transfers whole-product continuity from Codex PM V5 to Claude on 2026-10-03 (D-0171). Read `AGENTS.md`, then this map and the latest sections of the canonical files. [`SESSION_HANDOFF.md`](SESSION_HANDOFF.md) owns the complete onboarding message and exact next operation; `CLAUDE.md` is only a bootstrap pointer, not competing project memory. D-0170 records Arthur's accepted SPEC-0016 Phase 2 and its bounded proof. Git publication is a separate operation after CPA closeout; do not infer it from acceptance. Older headings saying Phase 2 is unstarted are historical.
+
+
 ## D-0169 — Phase 1 published; Phase 2 is next
 
 Phase 1 is published and integrated on canonical/GitHub main in exact 21-path commit `2cea6de9103c21d21a4aec8d933740d64c66239b`, parent `413f71ba4cd3e6b12e05040aacfb8038b67bcd28`. Canonical main, origin/main and a fresh live GitHub read matched clean `0/0`. Main Home returned `200`; unsigned usage returned `401`; Chrome reached the unchanged main account entry. A new signed-in main walkthrough is not claimed; Arthur's accepted isolated Home/functional review and frozen-byte comparison remain the evidence.

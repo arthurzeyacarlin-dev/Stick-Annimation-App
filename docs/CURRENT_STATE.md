@@ -1,5 +1,14 @@
 # Current State
 
+## Accepted Phase 2 awaiting verified publication
+
+**Owner verified:** Arthur said “IT IS FIXED!!! STOP!” and that the copy passed, then confirmed it was fixed without identifying the exact tab. He subsequently requested Open Project review access and now explicitly instructs propagation/main/GitHub publication. No programming resumed after his stop. The copy at port 58584 has one combined Open Project list: dominant Edit plus sibling Watch, eligible Export and existing management; My Projects is no longer a Home destination. Background #030914, moderate centered #0066FF glow, instant solid #0066FF/white action hover. Home layout/header and Help/Tutorials remain, except removal of My Projects and a presentation-only hover owner shared with the list. Standalone Home Export remains by the owner's narrower scope; full Viewer/Export restyling is not claimed.
+
+**Check verified:** six focused suites freshly passed; 251 protected tracked files match base `511155a4230f4f005c1064a7cad57d1051a8fb73`; 12 technical paths and ignored evidence are sealed by SHA-256 `fcfc73d1943628fe746b2588b406e6f1e0fd15edbdbd4527fbad0e8cb024856c`. Seal creation occurred during proof-only closeout after acceptance, not before review. The prior failed browser/implementation JSON records remain immutable history; `acceptance-closeout.json` records the later user pass without converting skipped checks into PASS.
+
+**Limits:** recorded isolated signup/login/logout/save/reopen/search/sort/rename/duplicate/Watch/Export-return flows passed; physical hover acceptance is Arthur's evidence, not conclusively diagnosed causality. Two inherited dev AI-cost PageProps errors remain; no new native MP4 write, paid AI answer, full A/B/fault/race, Axe/200% zoom or quantitative performance matrix is claimed. Final production compile/generate preview succeeded. New authenticated canonical-main proof is not yet claimed. Main stays at the base until the separately verified publication operation. Claude handoff and next-phase gates are in `SESSION_HANDOFF.md`.
+
+
 ## D-0169 — Phase 1 published; Phase 2 is next
 
 Phase 1 is published and integrated on canonical/GitHub main in exact 21-path commit `2cea6de9103c21d21a4aec8d933740d64c66239b`, parent `413f71ba4cd3e6b12e05040aacfb8038b67bcd28`. Canonical main, origin/main and a fresh live GitHub read matched clean `0/0`. Main Home returned `200`; unsigned usage returned `401`; Chrome reached the unchanged main account entry. A new signed-in main walkthrough is not claimed; Arthur's accepted isolated Home/functional review and frozen-byte comparison remain the evidence.

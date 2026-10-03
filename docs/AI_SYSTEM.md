@@ -1,5 +1,12 @@
 # AI System Snapshot
 
+## Claude ownership does not imply new AI capability
+
+Arthur transfers the former PM V4 SPEC-0008 AI Animator continuity to Claude (D-0171). The completed Terra-only conversation/job foundation remains; later animation generation, video/slicing/reconstruction and conversational editing are not implemented or resumed by this transfer. SPEC-0008 Phases 2–6 remain paused until explicit resumption, fresh architecture reconciliation and bounded privacy/cost/provider authority. Do not substitute a model, add auto-retry or claim a custom-trained LLM.
+
+Accepted SPEC-0016 Phase 2 changes UI composition/action seams and hover only; no prompts, models, thinking/reply/search/citation/dictation, provider calls, job semantics or usage recording changed. SPEC-0016 Phase 3 polishes the existing Guidance Assistant and Help; it must not become a second chatbot or silently resume AI animation mutation. Distinguish Guidance Assistant (SPEC-0012) from project AI Animator (SPEC-0008).
+
+
 Status: canonical current AI architecture and gap map
 Last traced: 2026-10-02 in the accepted isolated SPEC-0015 Phase 5 review; its exact bytes are now published in canonical main `1b4acd7db0b57188e95cb8474816c4e453172abd`. Main Home returned `200` and unsigned account usage `401`; signed-in main-browser flow remains unproven. SPEC-0008 Phases 2–6 remain paused; SPEC-0014 Phase 3 Export remains rejected and Phase 4 is published; public beta and deployment remain unauthorized.
 

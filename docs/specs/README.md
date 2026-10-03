@@ -1,5 +1,10 @@
 # Specification Index and Lifecycle
 
+## Current specification handoff
+
+D-0170 records SPEC-0016 Phase 2 owner acceptance and explicit propagation/publication request. Seven runtime and five technical-script paths are frozen by post-acceptance seal `fcfc73d1943628fe746b2588b406e6f1e0fd15edbdbd4527fbad0e8cb024856c`; proof limits remain explicit in the spec. Phase 3 is the next task after verified predecessor publication. D-0171 transfers continuity to Claude, including former PM V4 SPEC-0008. That spec's completed Phase 1 remains accepted; Phases 2–6 stay paused pending explicit resumption/reconciliation, not automatically programmed by tool transfer. SPEC-0015 Phases 6–8 remain paused behind SPEC-0016. Older index/table status is historical where it conflicts with this entry and the latest spec checkpoint.
+
+
 ## D-0169 — Phase 1 published; Phase 2 is next
 
 Phase 1 is published and integrated on canonical/GitHub main in exact 21-path commit `2cea6de9103c21d21a4aec8d933740d64c66239b`, parent `413f71ba4cd3e6b12e05040aacfb8038b67bcd28`. Canonical main, origin/main and a fresh live GitHub read matched clean `0/0`. Main Home returned `200`; unsigned usage returned `401`; Chrome reached the unchanged main account entry. A new signed-in main walkthrough is not claimed; Arthur's accepted isolated Home/functional review and frozen-byte comparison remain the evidence.

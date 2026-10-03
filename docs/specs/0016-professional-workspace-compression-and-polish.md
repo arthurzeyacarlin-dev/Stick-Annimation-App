@@ -1,17 +1,29 @@
 # SPEC-0016 — Professional Workspace Compression and Polish
 
-Status: **Approved; Phase 1 Arthur-accepted/published/integrated; Phase 2 next for separate implementation authorization; Phases 2–5 not started**
+Status: **Approved; Phase 1 published/integrated; Phase 2 Arthur-accepted and frozen, publication explicitly authorized after CPA closeout; Phase 3 next after verified publication; Phases 3–5 not started**
 Owner: Arthur
 Planning role: docs-only Spec Architect; Project Manager reviews before any implementation authorization
 Created: 2026-10-02
-Last updated: 2026-10-02
-Decision links: D-0169; D-0168; D-0167; D-0166; D-0093; D-0134; D-0136; D-0143
+Last updated: 2026-10-03
+Decision links: D-0171; D-0170; D-0169; D-0168; D-0167; D-0166; D-0093; D-0134; D-0136; D-0143
 TODO IDs: PLAN-016; POLISH-016-1 through POLISH-016-5; PUB-016-PLAN; RESUME-015-6
 Planning baseline: clean synchronized canonical `main` / `origin/main` at `988531e3a3e1f65558d32952256877c366a04c9d`
 Runtime baseline inside that record: accepted SPEC-0015 Phase 5 product commit `1b4acd7db0b57188e95cb8474816c4e453172abd`
 Delivery target: **five phases planned to finish in under seven calendar days from Phase 1 start, aiming for one or two accepted implementation phases per day; this is not a 30-day program. The target never relaxes proof, human review, sequential ownership or publication gates.**
 
 ## 1. Exact goal
+
+### Accepted Phase 2 and next Phase 3
+
+D-0170 supersedes older “Phase 2 unstarted” checkpoints. Arthur accepted the final copy and stopped programming; source is frozen from base `511155a4230f4f005c1064a7cad57d1051a8fb73`. The narrower owner outcome is combined Open Project, full-width split Edit/Watch/eligible Export/management rows, no Home My Projects destination, centered moderate #0066FF glow, #030914 navy and instant solid #0066FF/white pointer hover. Existing Home Export and Help/Tutorials remain. Existing Viewer/Export presentation remains except narrow entry/return/inert seams; §10's broader media restyle/removal is not claimed as delivered.
+
+Exact runtime ceiling: `ExistingHome.tsx`, `ProjectLibrary.tsx`, `projectLibrary.module.css`, `ProjectMovieViewer.tsx`, `AnimationExportFlow.tsx`, `HomeWorkspace.module.css`, and new `home/useInstantHover.ts` under their existing component directories. Exact proof ceiling: five `scripts/spec0016-ui/phase2/` files (boundary/action/instant-hover oracles, record-technical, proof-manifest). Ignored proof is `output/spec-0016/phase-2/`; 12 technical paths are bound by post-acceptance seal `fcfc73d1943628fe746b2588b406e6f1e0fd15edbdbd4527fbad0e8cb024856c`.
+
+G-016-PROJECT-ACTIONS is resolved for this slice: Edit retains the existing bootstrap; Watch/Export revalidate the exact entry through the existing controller and compare saved digest, never use a title/index as identity; Export requires authored frames and reuses the existing saved-snapshot player/settings/encoding owner. Search/sort/management and automatic focus/invalidation refresh remain; only the manual Refresh and storage-note presentation are removed.
+
+Six focused suites freshly pass; 251 protected tracked files match the base. Recorded isolated account/save/reopen/Watch/Export-return flows pass. Physical hover is owner accepted; the exact original physical cause is not conclusively diagnosed. Historical failed JSON stays intact and later acceptance is additive. Seal timing was after Arthur's stop, during proof-only closeout. Full type/build retains two inherited dev AI-cost PageProps errors; new MP4/paid AI/full A/B/fault/race/Axe/200% zoom/quantified performance are unproven, not silently green.
+
+The next task after exact Phase 2 publication/synchronization is §10 Phase 3 and G-016-HELP-UNSAVED. D-0171 hands continuity to Claude but starts no Phase 3 implementation here. Preserve the accepted Home/header and all protected engines. Tutorials remain placeholders; editor Help must retain the mounted editor/unsaved work; do not create a duplicate Assistant state owner.
 
 ### Published Phase 1 closeout — D-0169
 

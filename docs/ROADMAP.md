@@ -1,5 +1,12 @@
 # Roadmap
 
+## Current sequence and 30 day target
+
+D-0170/D-0171: close out and publish the accepted SPEC-0016 Phase 2, then hand off to Claude for Phase 3 Help/Assistant/Tutorials/no-loss workspace Help, Phase 4 editor shell, and Phase 5 account/Dashboard/recovery integration. The five-phase polish spec targets under seven days total, with one or two accepted phases per day where feasible; do not stretch it into a 30-day UI program.
+
+Arthur's broader target is a useful, polished, tested Version 1 built or very close by 2026-11-02, with the separate website first-beta goal 2026-11-30. Measure completeness against named end-to-end flows, not button counts or invented percentages. Recommended scheduling, not implementation authority: finish remaining polish in the first week; immediately reconcile the paused AI Animator architecture into the smallest genuine editable/undoable/exportable slice; devote the middle weeks to that slice and required beta safety; reserve the final week for save/auth/export regressions, defects and release proof. Do not leave the first AI feasibility test until the final 15 days. Paid plans/caps/payment/public launch require their gates; hosted cross-device accounts and new account-linked MP4 archive remain Version 2 or later. No full rebuild is needed to preserve the working engines.
+
+
 ## D-0169 — Phase 1 published; Phase 2 is next
 
 Phase 1 is published and integrated on canonical/GitHub main in exact 21-path commit `2cea6de9103c21d21a4aec8d933740d64c66239b`, parent `413f71ba4cd3e6b12e05040aacfb8038b67bcd28`. Canonical main, origin/main and a fresh live GitHub read matched clean `0/0`. Main Home returned `200`; unsigned usage returned `401`; Chrome reached the unchanged main account entry. A new signed-in main walkthrough is not claimed; Arthur's accepted isolated Home/functional review and frozen-byte comparison remain the evidence.

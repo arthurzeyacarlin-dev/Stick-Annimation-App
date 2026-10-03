@@ -10,6 +10,7 @@ import { ProjectPoster } from "@/src/components/project-library/ProjectPoster";
 import { createProjectLibraryController } from "@/src/lib/project-library/projectLibraryController";
 import type { ProjectLibrarySnapshot } from "@/src/lib/project-library/projectLibraryModel";
 import homeStyles from "@/src/components/home/HomeWorkspace.module.css";
+import { useInstantHover } from "@/src/components/home/useInstantHover";
 import { createUntitledWorkspace, prepareCollectionWorkspace, prepareRecoveryWorkspace, WorkspaceBootstrap, type MountedWorkspace } from "@/src/lib/animation/unifiedWorkspaceBootstrap";
 import { createAccountProjectRepositoryV2, createAccountProjectSourceReader, readAccountProjectV2 } from "@/src/lib/account/projectClient";
 import { withAccountProjectWrite } from "@/src/lib/account/projectPending";
@@ -72,6 +73,7 @@ const sameRecoveryGeneration = (left: ProjectRecoveryEnvelopeV1, right: ProjectR
   left.candidateDigest === right.candidateDigest;
 
 export default function Page() {
+  const homeHover = useInstantHover(`.${homeStyles.shortcutGroup}`);
   const account = useAccountSession();
   const ownerId = account?.id;
   const createReader = useCallback(() => {
@@ -82,7 +84,7 @@ export default function Page() {
   const { snapshot: notificationSnapshot } = useNotificationCenterV1();
   const terraTargetKey = useMemo(() => JSON.stringify(notificationSnapshot.rows.filter(row => row.target.kind === "workspace-terra-turn").map(row => row.target)), [notificationSnapshot.rows]);
   const [view, setView] = useState<
-    "home" | "tutorials" | "openProject" | "myProjects" | "animationWorkspace" | "animationExport"
+    "home" | "tutorials" | "openProject" | "animationWorkspace" | "animationExport"
   >("home");
   const [exportOrigin, setExportOrigin] = useState<"home" | "workspace">("home");
   const [welcomeOpen, setWelcomeOpen] = useState(false);
@@ -97,14 +99,13 @@ export default function Page() {
   const [bootstrapMessage, setBootstrapMessage] = useState<string | null>(null);
   const [startupRecovery, setStartupRecovery] = useState<StartupRecoveryState>({ kind: "checking" });
   const [recoveryBusyAction, setRecoveryBusyAction] = useState<"recover" | "discard" | null>(null);
-  const homeFocusRef = useRef<"new" | "open" | "myProjects" | "recent">("new");
+  const homeFocusRef = useRef<"new" | "open" | "recent">("new");
   const recentButtonRef = useRef<HTMLButtonElement | null>(null);
   const recentProjectIdRef = useRef<string | null>(ownerId ? visitRecentProjectIds().get(ownerId) ?? null : null);
   const [recentProject, setRecentProject] = useState<RecentHomeProject | null>(null);
   const [recentNotice, setRecentNotice] = useState<string | null>(null);
   const newProjectButtonRef = useRef<HTMLButtonElement | null>(null);
   const openProjectButtonRef = useRef<HTMLButtonElement | null>(null);
-  const myProjectsButtonRef = useRef<HTMLButtonElement | null>(null);
   const restoreHomeFocus = useRef(false);
   const homeMainRef = useRef<HTMLElement | null>(null);
   const homeScrollHideTimeoutRef = useRef<number | null>(null);
@@ -237,9 +238,7 @@ export default function Page() {
         ? recentButtonRef.current ?? newProjectButtonRef.current
         : homeFocusRef.current === "new"
         ? newProjectButtonRef.current
-        : homeFocusRef.current === "open"
-          ? openProjectButtonRef.current
-          : myProjectsButtonRef.current;
+        : openProjectButtonRef.current;
       target?.focus();
       restoreHomeFocus.current = false;
     }
@@ -773,7 +772,7 @@ export default function Page() {
 
       {/* HOME: presentation and visit-only recent-project state. */}
       {view === "home" && (
-        <main ref={homeMainRef} className={`home-main-scroll ${homeStyles.main}`}>
+        <main ref={homeMainRef} className={`home-main-scroll ${homeStyles.main}`} {...homeHover}>
           <div className={homeStyles.frame}>
             <section className={homeStyles.hero} aria-labelledby="home-heading">
               <div className={homeStyles.heroCopy}>
@@ -853,22 +852,6 @@ export default function Page() {
                   </svg>
                   <span><strong>Open Project</strong><small>Continue a saved animation.</small></span>
                 </button>
-                <button ref={myProjectsButtonRef} type="button" className={homeStyles.secondary}
-                  onClick={(event) => {
-                    event.currentTarget.blur();
-                    homeFocusRef.current = "myProjects";
-                    setBootstrapMessage(null);
-                    bootstrap.cancel();
-                    setView("myProjects");
-                  }}>
-                  <svg viewBox="0 0 34 34" fill="none" aria-hidden="true">
-                    <rect x="1" y="5.5" width="32" height="23" rx="1.5" stroke="currentColor" strokeWidth="2" />
-                    <path d="M5 9v3M5 16v3M5 23v2M29 9v3M29 16v3M29 23v2" stroke="currentColor" strokeWidth="2.5" />
-                    <rect x="10" y="10.5" width="14" height="13" rx="1.3" stroke="currentColor" strokeWidth="1.8" />
-                    <path d="m15 14 6 3-6 3v-6Z" fill="currentColor" />
-                  </svg>
-                  My Projects <span aria-hidden="true">↗</span>
-                </button>
               </section>
               <section className={homeStyles.shortcutGroup} aria-label="Help">
                 <button id="ai-assistant" ref={assistantButtonRef} type="button" className={homeStyles.shortcut} onClick={() => router.push("/assistant")}>
@@ -920,16 +903,9 @@ export default function Page() {
   <AnimationExportFlow origin={exportOrigin} onBack={() => setView(exportOrigin === "workspace" && workspace ? "animationWorkspace" : "home")} />
 )}
 {view === "openProject" && (
-  <ProjectLibrary surface="edit" ownerId={ownerId} onOpenProject={openProject} onBack={() => {
+  <ProjectLibrary surface="combined" ownerId={ownerId} onOpenProject={openProject} onBack={() => {
     bootstrap.cancel();
     restoreHomeFocus.current = true;
-    setView("home");
-  }} />
-)}
-{view === "myProjects" && (
-  <ProjectLibrary ownerId={ownerId} onBack={() => {
-    restoreHomeFocus.current = true;
-    homeFocusRef.current = "myProjects";
     setView("home");
   }} />
 )}

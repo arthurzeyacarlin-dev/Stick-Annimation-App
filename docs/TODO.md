@@ -1,5 +1,17 @@
 # TODO
 
+## Current queue for Claude
+
+- [x] **POLISH-016-2** — Arthur accepted the combined Open Project surface and final Home/library hover correction, then stopped programming. Exact 12 technical paths remain frozen. The proposal's broader Viewer/Export restyle and Home Export removal did not occur under the narrower owner scope; no capability was removed.
+- [ ] **PUB-016-2** — Explicitly authorized now: CPA records, then exact approved-path commit, clean canonical-main fast-forward, normal GitHub push, ref/route checks and D-0054 preservation/retirement. Do not mark complete before those checks.
+- [ ] **POLISH-016-3** — Next after Phase 2 integrates: Help hub, existing Assistant/Tutorial presentation and safe editor Help. Freeze G-016-HELP-UNSAVED and an exact current-main runtime/proof ceiling; preserve editor mounting, unsaved work, chats/deep links/notifications and AI behavior.
+- [ ] **POLISH-016-4 / POLISH-016-5** — Editor shell, then account/Dashboard/recovery/shared-dialog integration. Not started.
+- [ ] **AIANIM-RESUME** — Claude now owns former PM V4 SPEC-0008 continuity. Reconcile the paused architecture and obtain bounded resumption/implementation authority before Phases 2–6; no provider spend follows from ownership.
+- [ ] **V1-30-DAYS** — Arthur targets a polished usable release built or very close within 30 days, by 2026-11-02. Define/measure release flows, expose risks early, and reserve stabilization time. Website first-beta goal stays 2026-11-30.
+- [ ] **RESUME-015-6** — Still paused behind SPEC-0016 and G-ECON/G-CAPS/financial retention. No real allowance/refill/billing is implemented.
+
+Older queues below are dated history, not the next dispatch instruction.
+
 ## D-0169 — Phase 1 closed; Phase 2 next
 
 - [x] **PUB-016-1** — Exact 21-path product commit `2cea6de9103c21d21a4aec8d933740d64c66239b` is published/integrated with fresh live local/origin/main equality at clean 0/0. Main Home 200 / unsigned usage 401; main Chrome account entry reached. Accepted isolated review remains the signed-in evidence.

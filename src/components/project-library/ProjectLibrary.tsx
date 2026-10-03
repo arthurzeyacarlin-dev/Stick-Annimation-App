@@ -23,11 +23,13 @@ import {
 } from "@/src/lib/project-library/projectLibraryModel";
 import { ProjectMovieViewer } from "../project-player/ProjectMovieViewer";
 import { ProjectPoster } from "./ProjectPoster";
+import { ExportAnimationPlayer } from "../export/AnimationExportFlow";
 import styles from "./projectLibrary.module.css";
+import { useInstantHover } from "../home/useInstantHover";
 
 type Props = {
   onBack: () => void;
-  surface?: "watch" | "edit";
+  surface?: "watch" | "edit" | "combined";
   onOpenProject?: (entry: ProjectCollectionEntry) => Promise<BootstrapResult>;
   ownerId?: string;
 };
@@ -54,6 +56,7 @@ const sortLabels: Array<{ value: ProjectLibrarySort; label: string }> = [
 ];
 
 export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, ownerId }: Props) {
+  const libraryHover = useInstantHover();
   const createReader = useCallback(() => {
     if (!ownerId) throw new Error("account_session_required");
     return createAccountProjectSourceReader(ownerId);
@@ -71,6 +74,8 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
   const [notice, setNotice] = useState<string | null>(null);
   const [busyEntryId, setBusyEntryId] = useState<string | null>(null);
   const [viewer, setViewer] = useState<{ project: ProjectLibrarySnapshot; entryId: string } | null>(null);
+  const [exportProject, setExportProject] = useState<ProjectLibrarySnapshot | null>(null);
+  const actionInvokerRef = useRef<HTMLButtonElement | null>(null);
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<ProjectLibrarySort>("updated-desc");
   const [menu, setMenu] = useState<MenuState>(null);
@@ -78,6 +83,7 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
   const [dialogError, setDialogError] = useState<string | null>(null);
   const generationRef = useRef(0);
   const primaryRefs = useRef(new Map<string, HTMLButtonElement>());
+  const exportRefs = useRef(new Map<string, HTMLButtonElement>());
   const overflowRefs = useRef(new Map<string, HTMLButtonElement>());
   const queuedEntryIdsRef = useRef(new Set<string>());
   const libraryRef = useRef<HTMLElement | null>(null);
@@ -87,7 +93,7 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
   const pendingFocusIdRef = useRef<string | null>(null);
 
   const heading = surface === "watch" ? "My Projects" : "Open Project";
-  const help = surface === "watch" ? (ownerId ? "Watch animations saved to your account" : "Watch saved animations stored in this browser") : "Choose a saved project to edit";
+  const help = surface === "combined" ? "Edit, watch, or export your saved animations." : surface === "watch" ? (ownerId ? "Watch animations saved to your account" : "Watch saved animations stored in this browser") : "Choose a saved project to edit";
   const actionLabel = surface === "watch" ? "Watch" : "Edit";
   const visibleEntries = useMemo(() => filterAndSortProjectEntries(entries, query, sort), [entries, query, sort]);
 
@@ -167,7 +173,7 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
     }, { root: libraryRef.current, rootMargin: "600px 0px" });
     for (const node of nodes) observer.observe(node);
     return () => observer.disconnect();
-  }, [controller, entries]);
+  }, [controller, entries, exportProject, query, sort]);
 
   useEffect(() => {
     if (!viewer) return;
@@ -175,7 +181,7 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
   }, [viewer]);
 
   const restorePrimaryFocus = useCallback((entryId: string) => {
-    window.setTimeout(() => primaryRefs.current.get(entryId)?.focus({ preventScroll: true }), 0);
+    window.setTimeout(() => (actionInvokerRef.current?.isConnected ? actionInvokerRef.current : primaryRefs.current.get(entryId))?.focus({ preventScroll: true }), 0);
   }, []);
 
   const closeViewer = useCallback(() => {
@@ -234,16 +240,19 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
     window.setTimeout(() => dialogInitialRef.current?.focus(), 0);
   }, [dialog]);
 
-  const activateProject = async (entry: ProjectCollectionEntry) => {
+  const activateProject = async (entry: ProjectCollectionEntry, action: "edit" | "watch" | "export" = surface === "watch" ? "watch" : "edit") => {
     const state = snapshots[entry.id];
     if (state?.status !== "ready" || busyEntryId) return;
     setBusyEntryId(entry.id);
-    setNotice(surface === "watch" ? "Checking the exact saved animation…" : "Checking the complete saved project before opening…");
+    setNotice(action !== "edit" ? "Checking the exact saved animation…" : "Checking the complete saved project before opening…");
     try {
-      if (surface === "watch") {
+      if (action !== "edit") {
         const current = await controller.watch(entry);
         if (current.snapshot.projectDigest !== state.project.snapshot.projectDigest) throw new Error("source_changed");
-        setViewer({ project: current, entryId: entry.id });
+        if (action === "export") {
+          if (current.snapshot.frameCount === 0) throw new Error("No authored frames to export.");
+          setExportProject(current);
+        } else setViewer({ project: current, entryId: entry.id });
         setNotice(null);
       } else {
         const result = await onOpenProject?.(entry);
@@ -351,9 +360,15 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
     else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
   };
 
+  if (exportProject && ownerId) return <ExportAnimationPlayer snapshot={exportProject.snapshot} ownerId={ownerId} changeLabel="← Back to Open Project" onChange={() => {
+    const entryId = exportProject.snapshot.entry.id;
+    setExportProject(null);
+    window.setTimeout(() => (exportRefs.current.get(entryId) ?? primaryRefs.current.get(entryId))?.focus({ preventScroll: true }), 0);
+  }} />;
+
   return (
     <>
-      <main ref={libraryRef} className={styles.library} data-project-library={surface === "watch" ? "my-projects" : "open-project"} aria-labelledby="project-library-heading">
+      <main ref={libraryRef} className={styles.library} data-project-library={surface === "watch" ? "my-projects" : "open-project"} aria-labelledby="project-library-heading" {...libraryHover}>
         <div className={styles.shell}>
           <header className={styles.header}>
             <button type="button" onClick={onBack} className={styles.secondaryButton}>← Back</button>
@@ -362,12 +377,8 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
               <h1 id="project-library-heading">{heading}</h1>
               <p>{help}</p>
             </div>
-            <button type="button" onClick={() => void loadCollection()} className={styles.secondaryButton}>Refresh</button>
           </header>
 
-          <div className={styles.localNote} role="note">
-            Projects are saved to your account on this installation. {surface === "watch" ? "Watching" : "Browsing"} does not change saved work or recovery drafts.
-          </div>
 
           <div className={styles.toolbar} aria-label="Project search and sort">
             <label className={styles.searchLabel}><span>Search</span><input type="search" value={query} onChange={event => setQuery(event.currentTarget.value)} placeholder="Search project names" /></label>
@@ -397,6 +408,7 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
                   const fps = ready ? state.project.snapshot.project.document.fps : null;
                   const duration = ready ? state.project.snapshot.durationSeconds : null;
                   const cardDisabled = !ready || busyEntryId !== null;
+                  const exportDisabled = cardDisabled || (ready && state.project.snapshot.frameCount === 0);
                   return (
                     <article key={entry.id} className={styles.card} data-project-library-entry={entry.classification} data-project-evaluate-id={entry.classification === "invalid" ? undefined : entry.id}
                       onContextMenu={event => { event.preventDefault(); openMenu(entry, event.clientX, event.clientY, primaryRefs.current.get(entry.id) ?? event.currentTarget); }}
@@ -416,9 +428,19 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
                           <span className={styles.titleRow}><span className={styles.projectTitle}>{entry.title}</span><span className={ready ? styles.watchPill : styles.statusPill}>{busy ? "Working…" : ready ? actionLabel : unavailable ? "Unavailable" : "Loading"}</span></span>
                           <span className={styles.updatedAt}>{updatedAt.iso ? <time dateTime={updatedAt.iso} aria-label={`Last updated ${updatedAt.iso}`}>{updatedAt.visible}</time> : updatedAt.visible}</span>
                           <span className={styles.metadata}>{ready && stage && fps !== null && duration !== null ? <><span aria-label={`Duration ${duration.toFixed(3)} seconds`}>{formatProjectDuration(duration)}</span><span>{fps} FPS</span><span>{stage.width}×{stage.height}</span></> : unavailable ? <span className={styles.failureText}>{state.message}</span> : <span>Checking duration, FPS, and stage…</span>}</span>
-                          <span className={styles.classification}>{entry.classification === "canonical" ? "Native project · saved to your account" : projectClassificationLabel(entry)}</span><span className={styles.identity}>ID {shortenProjectIdentity(entry)}</span>
+                        <span className={styles.classification}>{entry.classification === "canonical" ? "Saved animation" : projectClassificationLabel(entry)}</span>
                         </span>
                       </button>
+                      {surface === "combined" ? <>
+                        <button type="button" className={styles.rowAction} aria-label={`Watch ${entry.title}`} disabled={cardDisabled} onClick={event => { actionInvokerRef.current = event.currentTarget; void activateProject(entry, "watch"); }}>
+                          <svg viewBox="0 0 34 34" fill="none" aria-hidden="true"><rect x="1" y="5.5" width="32" height="23" rx="1.5" stroke="currentColor" strokeWidth="2" /><path d="M5 9v3M5 16v3M5 23v2M29 9v3M29 16v3M29 23v2" stroke="currentColor" strokeWidth="2.5" /><rect x="10" y="10.5" width="14" height="13" rx="1.3" stroke="currentColor" strokeWidth="1.8" /><path d="m15 14 6 3-6 3v-6Z" fill="currentColor" /></svg>
+                          <span>Watch</span>
+                        </button>
+                        <button ref={node => { if (node) exportRefs.current.set(entry.id, node); else exportRefs.current.delete(entry.id); }} type="button" className={styles.rowAction} aria-label={`Export ${entry.title}`} disabled={exportDisabled} title={ready && state.project.snapshot.frameCount === 0 ? "Save an authored frame before exporting" : "Export this saved animation"} onClick={event => { actionInvokerRef.current = event.currentTarget; void activateProject(entry, "export"); }}>
+                          <svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 21V4m-6 6 6-6 6 6M6 19v9h20v-9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                          <span>Export</span>
+                        </button>
+                      </> : null}
                       <button ref={node => { if (node) overflowRefs.current.set(entry.id, node); else overflowRefs.current.delete(entry.id); }} type="button" className={styles.overflowButton}
                         aria-label={`Manage ${entry.title}`} aria-haspopup="menu" aria-expanded={menu?.entryId === entry.id}
                         onClick={event => { event.stopPropagation(); openMenuFromButton(entry, event.currentTarget); }}>•••</button>

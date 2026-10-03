@@ -1,5 +1,65 @@
 # Session Handoff
 
+## Codex to Claude handoff on 2026 10 03
+
+I am Codex, the agent that has been programming Diamond Animator with Arthur as PM V5. Arthur is transferring future PM/programming continuity to you, Claude, including the AI Animator context formerly held by PM V4. You are Claude, not Codex; retain the repository's facts, product decisions and safeguards, not a false identity. This section is the canonical onboarding message. Older entries below remain dated history.
+
+### Repository and current publication checkpoint
+
+Canonical checkout: `/Users/arthurcarlin/Projects/stick-animation-app`; GitHub: `git@github.com:arthurzeyacarlin-dev/Stick-Annimation-App.git`. Main app: `http://127.0.0.1:3000/`. The accepted Phase 2 copy is `/Users/arthurcarlin/.codex/worktrees/spec0016-phase2-projects/stick-animation-app`, branch `codex/spec0016-phase2-projects`, origin `http://127.0.0.1:58584/`, exact predecessor `511155a4230f4f005c1064a7cad57d1051a8fb73`.
+
+At this CPA propagation checkpoint, canonical/local-origin/live GitHub main still match that predecessor; publication is explicitly requested but not yet claimed. Read the later publication entry above this section, when present, and independently verify Git refs. Root completed proof-only closeout and now has exclusive CPA ownership; no executor/helper is active. Accepted app/test bytes are frozen. After CPA packet with empty index, the separately named publication operation may stage exactly 12 accepted technical paths plus reviewed records/tree, commit, fast-forward clean unchanged main, push normally and verify clean 0/0. Stop on changed refs/bytes/paths; no pull, rebase, force or history rewrite.
+
+Seal: `output/spec-0016/phase-2/proof-manifest.json`, SHA-256 `fcfc73d1943628fe746b2588b406e6f1e0fd15edbdbd4527fbad0e8cb024856c`. It was generated and separately validated after owner acceptance, during proof-only closeout, not before review. Earlier failed browser/implementation packets remain; additive `acceptance-closeout.json` records Arthur's later “IT IS FIXED!!! STOP!”/PASS and latest publication request. Preserve ignored proof/config/review account data in restricted canonical `.local/recovery/spec0016-phase2-accepted-20261003` before retiring the exact copy after clean publication. Never import review accounts into main or commit secrets. Do not remove canonical main, PM worktrees or unrelated old copies.
+
+### Arthur's product and time target
+
+Build a simple, polished AI-assisted animation tool: create animations, reopen/edit/watch projects, obtain app guidance, and export real video. The manual editor and AI must ultimately share genuine editable project capabilities. Users should feel “I can create something useful here” and “I will like using this.” Preserve existing capabilities; fewer visible buttons means combined destinations, not secretly deleting functionality.
+
+Arthur targets a useful, polished Version 1 built or very close within 30 days from this handoff (2026-11-02), aiming for 85–100% of agreed tested release scope. His website's first-beta goal is 2026-11-30. These are targets, not a promise or an already measured percentage. SPEC-0016 itself must take under a week, not 30 days. Flag real risks early and simplify the smallest genuine V1 outcome; do not treat deadline pressure as permission to bypass save/privacy/cost proof.
+
+Visual contract: navy #030914 page, slightly brighter #071120 header/normal buttons, exact #0066FF instant hover, white hovered action icons/text; no fades, movement or lingering unrelated highlight. Preserve the accepted Home/header. No gray/gold usage bars: the existing display-only usage palette rises blue → green → yellow → orange → red. The red test roof is not yet a real stop/refill system.
+
+### What is actually finished
+
+- SPEC-0006 unified V2 project/editor foundation: one ordinary writable editor, save/history/repository owner; historical sources are read-only import leaves.
+- SPEC-0007 drawing-only manual editor: accepted tools, Draw Rig as ordinary raster drawing, safe active structured-rig retirement/migration, still assets and future-AI command registry. Do not restore old rig authoring or reuse rejected “natural motion” implementations.
+- SPEC-0008 Phase 1: Terra-only conversational AI Animator, project-bound chats/jobs, reasoning choices, natural replies, truthful Thinking/streaming/cancel/reconnect. It does **not** yet generate/reconstruct/edit animations. The old motion/reconstruction alternatives need reconciliation, not a false “AI Animator complete” label.
+- SPEC-0009: local genuine video Export, 720p/1080p H.264 MP4 and AAC where applicable, destination/custom contain framing, Finder save/cancel/validation. Export does not call AI or publish to social services.
+- SPEC-0010: Save and Exit, separate emergency recovery draft and safe startup Recover/Discard.
+- SPEC-0011: saved project library, genuine posters, playback-only Movie Viewer, search/sort/rename/duplicate/delete.
+- SPEC-0012: separate Guidance Assistant for explaining the app, persisted chats, knowledge/search/citations/dictation and offline/recovery safety. It does not mutate animations or watch videos.
+- SPEC-0013: obsolete Home Finalizer removed.
+- SPEC-0014: Home/global and Assistant bells, durable unread/exact-target completion and offline/restored notices. Export notifications were rejected; do not resurrect them. There are four phases, no Phase 5.
+- SPEC-0015 Phases 1–5, including 4.5: local verified Better Auth/SQLite accounts, private editable account projects, account-private chats/jobs/notifications/recovery/preferences, prospective owner-scoped usage and truthful Dashboard. Account identity/data are local-installation scope, not hosted cross-device recovery. The usage roof is a non-financial 10,000-recorded-token UTC-week TEST PREVIEW, not funded allowance or billing.
+- SPEC-0016 Phase 1: accepted/published compact Home/header. Phase 2: Arthur accepted one Open Project destination with full-width split Edit/Watch/eligible Export/management and reliable instant Home/list hover; My Projects Home button removed while Watch capability remains.
+
+Read `docs/specs/README.md` for all spec files and `docs/DECISIONS.md`/`docs/changelog.md` plus Git history for exact accepted/rejected/publication identities. Archived/design docs are not competing implemented truth. The no-transfer account and drawing-no-silent-deletion rules are permanent.
+
+### Exact next task and remaining phases
+
+After Phase 2 and its records are durably integrated and synchronized, **SPEC-0016 Phase 3** is next: one Help hub, assigned Assistant/Tutorial presentation and functional workspace Help. Begin in planning/read-only mode; trace the active editor, resolve **G-016-HELP-UNSAVED**, and freeze exact paths/commands/proof. Prefer a shell-owned overlay/drawer that keeps the editor mounted. Do not duplicate Assistant state or naïvely navigate away from unsaved work. Keep existing chats/deep links, notification targets, search/citations/dictation and truthful placeholder Tutorials. Home/header changes are routing seams only, not another restyle.
+
+Then Phase 4 polishes the existing editor shell without drawing/timeline/history/rendering/provider changes; Phase 5 polishes account entry/Dashboard/recovery/shared dialogs and proves integration without auth/usage math/billing changes. Respect their G-016 entry gates. No Phase 3–5 programming occurs in this handoff.
+
+SPEC-0015 Phases 6–8 are paused, not cancelled: funded allowance/admission/refill, sandbox payment, then launch proof need G-ECON/G-CAPS, retention and release decisions. Prices/credits/provider caps are not approved. SPEC-0008 Phases 2–6 are also paused under D-0093. You now own its continuity; explicit resumption and fresh architecture/spec reconciliation are required. Its historical phases are reference-video preparation/research, deterministic slicing, editable reconstruction, registry-based conversational edits, then beta/export closeout. Reverify dated provider/model/tool/pricing terms before use; ownership/deadline grants no paid calls, model switch, asset purchase or deployment. Hosted cross-device identity and a new private account-linked MP4 archive remain Version 2 or later.
+
+Recommended near-term planning: finish the three remaining polish phases quickly, assess AI creation feasibility immediately rather than in the final fortnight, choose the smallest genuine editable/undoable/savable/exportable animation slice with Arthur, and reserve the last week of the month for defects and full release flows. This is scheduling advice, not blanket implementation authority.
+
+### Evidence and limitations you must retain
+
+Phase 2 has exactly seven runtime paths (`ExistingHome`, `ProjectLibrary` TSX/CSS, `ProjectMovieViewer`, `AnimationExportFlow`, Home CSS and `useInstantHover`) and five `scripts/spec0016-ui/phase2/` files. Six focused suites pass; 251 protected tracked files match base. Recorded isolated signup/login/logout, saved project/reopen, search/sort/rename/duplicate, Watch/play/close/focus and exact selected Export/preflight/back pass. Hover unit proof covers 100 blank-space/return cycles with buttons=0; physical mouse acceptance is Arthur's later PASS. Stale-client and keyboard-focus/hover overlap were separately observed; the full physical root cause is not conclusively attributed.
+
+The owner's narrowed Phase 2 kept Home Export and existing Viewer/Export styling except entry/return/inert seams; do not claim the proposal's full media restyle or Home Export removal. Two inherited dev AI-cost PageProps errors block the full regular type/build gate; production compile/generate preview succeeds. New native MP4 write, paid AI replies, full two-account/fault/race matrix, Axe/200% zoom and quantified performance are unproven. No universal no-bug/100%-ready claim follows. The built-in review tab can be stale; verify the exact origin/current copy. Browser policy denied raw emulation inspection; do not bypass it. Review port requires its own isolated ignored stores and the existing webpack build path; Turbopack cannot follow this copy's node_modules symlink.
+
+### Working method and protected systems
+
+Follow `AGENTS.md` and the canonical source-of-truth order. Understand → trace live code/real flow → narrow patch → reread → browser verify → regressions → loop until the actual issue is resolved. A green compile or synthetic oracle does not override a user-observed failure. Proactively identify defects, but fix only authorized systems; report out-of-scope findings rather than quietly changing login, saving or AI.
+
+One phase, one dedicated current-main worktree and one exclusive executor. Seal proof and return the ten-part Implementation Review Packet, then stop. Arthur/PM acceptance precedes exclusive CPA transfer; CPA updates canonical records/tree and returns its packet with an empty index, then a separately authorized publication operation integrates and verifies. No concurrent executor/architect writers. Use Claude's equivalent planning mode rather than skipping the gate because the UI is not called Codex Plan. Keep secrets/account databases/ignored recovery outside Git. Do not silently migrate/import/delete old work or accounts, start helpers/message other tasks, run paid/provider operations or deploy.
+
+Read `README.md` and `package.json` for current commands; `docs/architecture.md`, `AI_SYSTEM.md` and `testing_workflow.md` for owners and proof. `bash scripts/update_memory.sh` validates canonical files/regenerates only the sanitized tree; it never stages or commits. Main's existing environment and account stores must survive this transition byte-for-byte where applicable. The active Codex PM checkout `/Users/arthurcarlin/.codex/worktrees/d658/stick-animation-app` contains an unrelated dirty SPEC-0014 document; preserve it and do not copy it into this publication.
+
 ## D-0169 — Phase 1 published; Phase 2 is next
 
 Phase 1 is published and integrated on canonical/GitHub main in exact 21-path commit `2cea6de9103c21d21a4aec8d933740d64c66239b`, parent `413f71ba4cd3e6b12e05040aacfb8038b67bcd28`. Canonical main, origin/main and a fresh live GitHub read matched clean `0/0`. Main Home returned `200`; unsigned usage returned `401`; Chrome reached the unchanged main account entry. A new signed-in main walkthrough is not claimed; Arthur's accepted isolated Home/functional review and frozen-byte comparison remain the evidence.

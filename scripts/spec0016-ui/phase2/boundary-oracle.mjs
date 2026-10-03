@@ -1,0 +1,37 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+export const runtime = ['src/components/account/ExistingHome.tsx', 'src/components/project-library/ProjectLibrary.tsx', 'src/components/project-library/projectLibrary.module.css', 'src/components/project-player/ProjectMovieViewer.tsx', 'src/components/export/AnimationExportFlow.tsx', 'src/components/home/HomeWorkspace.module.css', 'src/components/home/useInstantHover.ts'];
+const git = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trimEnd();
+assert.equal(git('rev-parse', 'HEAD'), '511155a4230f4f005c1064a7cad57d1051a8fb73');
+let protectedFiles = 0;
+for (const path of git('ls-files', 'src', 'app', 'docs', 'AGENTS.md', 'project/project_structure.txt', 'package.json', 'package-lock.json', 'next.config.ts').split('\n')) {
+  if (runtime.includes(path)) continue;
+  assert.equal(readFileSync(path, 'utf8'), execFileSync('git', ['show', `HEAD:${path}`], { encoding: 'utf8' }), path);
+  protectedFiles++;
+}
+const dirty = git('status', '--porcelain', '--untracked-files=all').split('\n').filter(Boolean).map(line => line.slice(3));
+for (const path of dirty) assert.ok(runtime.includes(path) || path.startsWith('scripts/spec0016-ui/phase2/'), `Outside allowlist: ${path}`);
+assert.equal(git('diff', '--cached', '--name-only'), '');
+const old = path => execFileSync('git', ['show', `HEAD:${path}`], { encoding: 'utf8' });
+const segment = (text, a, b) => { const start = text.indexOf(a); assert.ok(start >= 0, a); const end = text.indexOf(b, start); assert.ok(end > start, b); return text.slice(start, end); };
+const home = readFileSync(runtime[0], 'utf8');
+assert.equal(readFileSync(runtime[5], 'utf8'), old(runtime[5]).replaceAll(':hover', '[data-pointer-hover]'), 'Home CSS may only transfer existing hover selectors to the pointer owner');
+assert.doesNotMatch(readFileSync(runtime[6], 'utf8'), /fetch\(|localStorage|sessionStorage|\.click\(|\.focus\(|preventDefault|stopPropagation|setState|requestAnimationFrame|setTimeout/);
+for (const [a, b] of [['  const openProject =', '  useEffect(() => {'], ['  const recoverStartupDraft =', '  if (startupRecovery.kind'], ['              <section className={homeStyles.shortcutGroup} aria-label="Help">', '{view === "tutorials" && (']]) assert.equal(segment(home, a, b), segment(old(runtime[0]), a, b), `Protected Home segment ${a}`);
+assert.doesNotMatch(home, /setView\("myProjects"\)|My Projects <|myProjectsButtonRef/);
+assert.equal(readFileSync(runtime[3], 'utf8'), old(runtime[3]).replace('[data-project-library="my-projects"]', '[data-project-library]'), 'Only viewer accessibility selector may change');
+assert.equal(readFileSync(runtime[4], 'utf8'), old(runtime[4]).replace('function ExportAnimationPlayer({ snapshot, onChange, ownerId }: { snapshot: ExportProjectSnapshot; onChange: () => void; ownerId: string })', 'export function ExportAnimationPlayer({ snapshot, onChange, ownerId, changeLabel = "Change animation" }: { snapshot: ExportProjectSnapshot; onChange: () => void; ownerId: string; changeLabel?: string })').replace('>Change animation</button>', '>{changeLabel}</button>'), 'Export body unchanged except reusable UI entry');
+const lib = readFileSync(runtime[1], 'utf8');
+assert.match(lib, /current\.snapshot\.projectDigest !== state\.project\.snapshot\.projectDigest/);
+assert.match(lib, /await controller\.watch\(entry\)/);
+assert.match(lib, /await onOpenProject\?\.\(entry\)/);
+assert.match(lib, /current\.snapshot\.frameCount === 0/);
+assert.doesNotMatch(lib, />Refresh<|Projects are saved to your account on this installation/);
+const css = readFileSync(runtime[2], 'utf8');
+assert.match(css, /at 50% 0%, #0066ff24/);
+assert.match(css, /transition: none; animation: none/);
+assert.match(css, /grid-template-columns: minmax\(0, 1fr\) 106px 106px 72px/);
+assert.match(css, /\.rowAction\[data-pointer-hover\]:not\(:disabled\) \{\s*color: #fff;\s*background: #0066ff;/);
+assert.doesNotMatch(css, /\.rowAction:focus-visible \{\s*color:/);
+console.log(JSON.stringify({ status: 'PASS', protectedFiles, emptyIndex: true, exactEntryHandoff: true, protectedHomeHelpExport: true, encoderPlayerAuthSavingAIUntouched: true }));

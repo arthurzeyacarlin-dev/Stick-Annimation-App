@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-10-03 Phase 2 acceptance and Claude handoff
+
+- D-0170 records Arthur's later PASS/stop, freezes 12 accepted technical paths and adds a clearly dated post-acceptance hash seal without changing runtime. Combined Open Project exposes Edit/Watch/eligible Export/management; instantaneous Home/list hover has one presentation owner and keyboard focus is separate.
+- D-0171 transfers whole-product PM continuity and former PM V4 SPEC-0008 stewardship to Claude, records the 30-day target, precise Phase 3 Help entry and protected/paused systems, and adds a pointer-only `CLAUDE.md` bootstrap. Full history remains in the canonical decision/spec/Git records.
+- Earlier failed review packets are preserved, not rewritten into green proof. Known type/build, accessibility/performance/fault/paid/native-output gaps remain disclosed. Propagation does not itself imply GitHub publication; the later closeout records actual refs and activation.
+
+
 ## D-0169 — Phase 1 published; Phase 2 is next
 
 Phase 1 is published and integrated on canonical/GitHub main in exact 21-path commit `2cea6de9103c21d21a4aec8d933740d64c66239b`, parent `413f71ba4cd3e6b12e05040aacfb8038b67bcd28`. Canonical main, origin/main and a fresh live GitHub read matched clean `0/0`. Main Home returned `200`; unsigned usage returned `401`; Chrome reached the unchanged main account entry. A new signed-in main walkthrough is not claimed; Arthur's accepted isolated Home/functional review and frozen-byte comparison remain the evidence.

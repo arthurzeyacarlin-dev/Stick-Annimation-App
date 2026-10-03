@@ -1,5 +1,12 @@
 # Verification and Regression Workflow
 
+## Phase 2 evidence and Claude continuity
+
+D-0170 freezes exactly seven runtime and five technical-script paths at base `511155a`. Fresh Phase 2 boundary, 100-cycle instant-hover, action eligibility/privacy, library read-only, search/sort/management and export identity/rendering suites pass. The first closeout rerun was blocked by sandbox loopback access; the authorized rerun passed. Post-acceptance technical seal SHA-256 is `fcfc73d1943628fe746b2588b406e6f1e0fd15edbdbd4527fbad0e8cb024856c`; preserve all original failure JSON and the later acceptance record. Technical source and evidence hashes must remain equal after CPA edits. The strict original exact-technical-dirty-set validator is a pre-propagation gate, not a test claimed to pass after docs enter the dirty set.
+
+Owner acceptance does not prove unrun native MP4/paid AI/full A/B/fault/race/Axe/200% zoom/performance checks. Full type/build retains two inherited dev AI-cost PageProps errors; preview compile/generate is separate evidence. Browser security denials must not be bypassed; stale tabs must be identified without assuming they explain every failure. Claude must reproduce reported flows, keep exact phase ceilings, use synthetic isolated data, seal technical proof before future acceptance, and return the complete ten-part PM Review Packet. No provider/payment/deployment testing is authorized by the deadline alone.
+
+
 ## D-0169 — Phase 1 published; Phase 2 is next
 
 Phase 1 is published and integrated on canonical/GitHub main in exact 21-path commit `2cea6de9103c21d21a4aec8d933740d64c66239b`, parent `413f71ba4cd3e6b12e05040aacfb8038b67bcd28`. Canonical main, origin/main and a fresh live GitHub read matched clean `0/0`. Main Home returned `200`; unsigned usage returned `401`; Chrome reached the unchanged main account entry. A new signed-in main walkthrough is not claimed; Arthur's accepted isolated Home/functional review and frozen-byte comparison remain the evidence.

@@ -68,7 +68,7 @@ function ExportThumbnail({ snapshot }: { snapshot: ExportProjectSnapshot }) {
   return <canvas ref={canvasRef} width={240} height={135} aria-label={`${snapshot.project.title} thumbnail`} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />;
 }
 
-function ExportAnimationPlayer({ snapshot, onChange, ownerId }: { snapshot: ExportProjectSnapshot; onChange: () => void; ownerId: string }) {
+export function ExportAnimationPlayer({ snapshot, onChange, ownerId, changeLabel = "Change animation" }: { snapshot: ExportProjectSnapshot; onChange: () => void; ownerId: string; changeLabel?: string }) {
   const playerRef = useRef<CanonicalProjectPlayerHandle | null>(null);
   const [filename, setFilename] = useState(snapshot.project.title);
   const [quality, setQuality] = useState<ExportQualityTier>("720p");
@@ -237,7 +237,7 @@ function ExportAnimationPlayer({ snapshot, onChange, ownerId }: { snapshot: Expo
       <div style={{ width: "min(1180px, 100%)", margin: "0 auto", display: "flex", flexDirection: "column", gap: 18 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
           <div><div style={{ fontSize: 13, color: "#80b8ff", fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase" }}>Export video</div><h1 style={{ margin: "6px 0 0", fontSize: 26 }}>{snapshot.project.title}</h1></div>
-          <button type="button" onClick={changeAnimation} style={secondaryButtonStyle}>Change animation</button>
+          <button type="button" onClick={changeAnimation} style={secondaryButtonStyle}>{changeLabel}</button>
         </div>
         <div style={{ border: "1px solid rgba(255,255,255,.12)", borderRadius: 16, background: "#171d28", padding: 16 }}>
           <CanonicalProjectPlayer

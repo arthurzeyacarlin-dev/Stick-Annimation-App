@@ -1,17 +1,28 @@
 # SPEC-0016 — Professional Workspace Compression and Polish
 
-Status: **Approved; Phases 1–2 published/integrated; Phase 2 frozen at product commit 8b8ba6453df01a18492bedeffa1ac2bca5037416; Phases 3–5 not started; Claude awaits Arthur's next instruction**
+Status: **Approved; Phases 1–3 published/integrated (Phase 3 product commit b7bc3dcd08d51f9156b2de848e0773cc3f0066c1); Phase 4 is next; Phase 5 not started**
 Owner: Arthur
 Planning role: docs-only Spec Architect; Project Manager reviews before any implementation authorization
 Created: 2026-10-02
 Last updated: 2026-10-03
-Decision links: D-0172; D-0171; D-0170; D-0169; D-0168; D-0167; D-0166; D-0093; D-0134; D-0136; D-0143
+Decision links: D-0174; D-0173; D-0172; D-0171; D-0170; D-0169; D-0168; D-0167; D-0166; D-0093; D-0134; D-0136; D-0143
 TODO IDs: PLAN-016; POLISH-016-1 through POLISH-016-5; PUB-016-PLAN; RESUME-015-6
 Planning baseline: clean synchronized canonical `main` / `origin/main` at `988531e3a3e1f65558d32952256877c366a04c9d`
 Runtime baseline inside that record: accepted SPEC-0015 Phase 5 product commit `1b4acd7db0b57188e95cb8474816c4e453172abd`
 Delivery target: **five phases planned to finish in under seven calendar days from Phase 1 start, aiming for one or two accepted implementation phases per day; this is not a 30-day program. The target never relaxes proof, human review, sequential ownership or publication gates.**
 
 ## 1. Exact goal
+
+### Phase 3 result — D-0174 (Arthur PASS, published)
+
+- **Help page:** Home **Help** opens one Help page (`src/components/help/HelpHub.tsx`) with **Ask the Assistant** (existing `/assistant` route) and **Tutorials** (existing placeholder screen). The separate Home "Tutorials ↗" link was removed. Back from Assistant ("Back to Help", `/#help`) and from Tutorials returns to Help; Back from Help returns Home.
+- **Assistant polish (presentation only):** navy #030914 main, brighter #071120 sidebar, new shared `DiamondLogo`, one-line disclaimer, dull blues with instant #0066FF hover, redundant header label removed, footer no longer clipped.
+- **Tutorials polish:** title "Tutorials", four even non-clickable placeholder cards with icons, descriptions and COMING LATER.
+- **G-016-HELP-UNSAVED resolved:** the editor **Help** menu opens the Assistant (`DiamondAssistantScreen onClose`, bell hidden) or Tutorials as a full-screen overlay while the editor stays mounted. A new-tab approach was rejected because the Claude preview panel replaced the editor page instead of opening a tab.
+- **Unchanged:** Assistant replies/chats/search/dictation logic, notifications, login, saving, drawing, export, Dashboard, Edit/View/Window menus.
+- **Checks:** TypeScript and ESLint clean on touched files; real-app flows verified in an isolated review copy (Home→Help→Assistant→Back to Help; Help→Tutorials→Back; editor draw unsaved → Help → Assistant/Tutorials → back with drawing intact). Old SPEC-0003/0012/0013 one-time proof scripts still expect old wording and were not updated.
+- Files: `ExistingHome.tsx`, `HelpHub.tsx`, `HelpHub.module.css`, `DiamondLogo.tsx`, `DiamondAssistantScreen.tsx`, `AssistantComposer.tsx`, `AssistantSessionSidebar.tsx`, `diamondAssistant.module.css`, `TutorialsScreen.tsx`, `TutorialsScreen.module.css`, `tutorialCatalog.ts`, `DrawingTopBar.tsx`.
+
 
 ### Accepted Phase 2 and next Phase 3
 

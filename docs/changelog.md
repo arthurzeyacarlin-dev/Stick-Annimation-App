@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-10-03 — D-0174 Phase 3 Help published; D-0173 simple workflow
+
+- One Help page joins the Assistant and Tutorials; Assistant and Tutorials restyled; editor Help menu now works without leaving unsaved drawings. Product commit `b7bc3dcd08d51f9156b2de848e0773cc3f0066c1`.
+- `AGENTS.md`/`CLAUDE.md` rewritten for the simple short-plan → build → review workflow; audit findings and 30-day direction recorded in D-0173.
+
 ## 2026-10-03 — D-0172 publishes Phase 2 and finalizes Claude orientation
 
 - Exact 29-path product commit `8b8ba6453df01a18492bedeffa1ac2bca5037416` was committed, cleanly fast-forwarded into main and pushed; fresh local/origin/live GitHub refs matched clean 0/0. Main Home 200/private unsigned APIs 401 and built-in browser account entry pass; no new authenticated-main/provider/native-output proof is claimed.

@@ -1748,6 +1748,21 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Preservation/cleanup: exact old review server PID 8657/cwd stopped; 58584 closed. Fourteen ignored proof/config/account files are byte-verified under restricted canonical `.local/recovery/spec0016-phase2-accepted-20261003`; inventory SHA-256 `32dcdf8f496fec0a545a4b455897a557fa2521745ea3e4c2a9a7ca8e5ba2da75`; three copied SQLite restore quick checks pass. Original technical seal remains `fcfc73d1943628fe746b2588b406e6f1e0fd15edbdbd4527fbad0e8cb024856c`. Managed accepted review-worktree/merged-local-branch retirement follows this records-only synchronization. Recovery/main/PM/unrelated worktrees remain preserved.
 - Latest owner direction supersedes automatic-next-task language: the Claude handoff is product/history orientation only. Arthur will tell Claude what to do next, including audits. Phase 3 is a planned candidate, not started or authorized by this transfer. No helpers, later implementation, AI resumption, paid calls or deployment follows.
 
+### D-0173 — Simple workflow, full audit and 30-day direction
+
+- Date: 2026-10-03
+- Decision: Arthur replaced the multi-role Spec Executor / Control Plane Architect / separate-publication process, proof-manifest hash seals and ten-part packets with a simple loop: short plan → Arthur OK → build (separate review copy when Arthur asks) → test in the real app → Arthur review → commit/push when Arthur says. `AGENTS.md` and `CLAUDE.md` were rewritten accordingly. Safety rules (protected systems, no paid calls/deploys/commits without OK, backups, no secrets) remain.
+- Audit findings (Claude, read-only): about 65% of commits were documentation-only; about 75k of 134k app/src lines are unused legacy code (old `/api/ai` engine, old stick-figure workspace); no reusable automated test suite; app is locked to loopback ports and not yet deployable; the Dashboard usage roof blocks nothing and legacy `/api/ai` is unmetered; the AI Animator can only chat; the project format is raster-only with no skeleton; earlier stick-motion attempts failed on natural-looking poses, not plumbing.
+- Direction: finish SPEC-0016 (Arthur's choice), then run two AI Animator tests side by side: (1) AI (Grok vs Terra) writes key poses and deterministic math makes the in-betweens; (2) motion from Arthur's Blender files used as a motion library. Compare which looks better, is more reliable, cheaper and better long term. Blender files are motion data, not training for the AI. Grok is the intended animation AI via the xAI API; Arthur's dad handles keys and payments. Hosting, real AI spending limits, cleanup and automated tests are part of the 30-day V1 plan but each needs its own short plan and OK.
+
+### D-0174 — SPEC-0016 Phase 3 accepted and published
+
+- Date: 2026-10-03
+- Arthur: PASS on the isolated review copy; asked to publish to main and update records.
+- Publication: product commit `b7bc3dcd08d51f9156b2de848e0773cc3f0066c1` fast-forwarded into main and pushed to GitHub, followed by this records commit.
+- Result: one Help page (Assistant + Tutorials), Assistant/Tutorials visual polish, working editor Help that keeps unsaved drawing open (G-016-HELP-UNSAVED resolved with overlays). See SPEC-0016 §1 Phase 3 result.
+- Next: SPEC-0016 Phase 4 editor shell polish.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

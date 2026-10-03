@@ -787,9 +787,13 @@
 ./src/components/assistant/useAssistantSessions.ts
 ./src/components/chrome
 ./src/components/chrome/AIcreditspage.tsx
+./src/components/chrome/DiamondLogo.tsx
 ./src/components/chrome/appChrome.module.css
 ./src/components/export
 ./src/components/export/AnimationExportFlow.tsx
+./src/components/help
+./src/components/help/HelpHub.module.css
+./src/components/help/HelpHub.tsx
 ./src/components/home
 ./src/components/home/HomeWorkspace.module.css
 ./src/components/home/useInstantHover.ts

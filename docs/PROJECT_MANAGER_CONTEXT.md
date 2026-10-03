@@ -1,5 +1,11 @@
 # Project Manager Context
 
+## D-0174 — Phase 3 published; Phase 4 is next (current)
+
+Arthur passed SPEC-0016 Phase 3 on 2026-10-03 (D-0174). Product commit `b7bc3dcd08d51f9156b2de848e0773cc3f0066c1` is on main and GitHub. Home **Help** now opens one Help page with **Ask the Assistant** and **Tutorials**; the Assistant and Tutorials screens were restyled (navy, brighter Assistant sidebar, new diamond logo, dull blues with instant #0066FF hover); the editor's **Help** menu works and opens the Assistant or Tutorials *over* the drawing so unsaved work stays put. Assistant answers, chats, dictation, search, login, saving, drawing and export are unchanged. D-0173 replaced the old multi-role process with the simple workflow in `AGENTS.md`.
+
+**Next:** SPEC-0016 Phase 4 (editor shell polish), then Phase 5 (account/Dashboard/recovery). After SPEC-0016, run the two AI Animator tests side by side once Arthur's Blender files arrive (see D-0173).
+
 ## Claude takes over project continuity
 
 D-0170 records Arthur's later Phase 2 PASS and explicit stop-programming instruction; accepted source is frozen. D-0171 names Claude the next whole-product PM/coding collaborator and custodian of the former PM V4 AI Animator work. No other Codex thread or helper is authorized to continue this handoff. Root completes proof-only closeout, then exclusively owns CPA records and the separately named publication operation; no parallel executor is active.

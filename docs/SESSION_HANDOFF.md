@@ -1,5 +1,11 @@
 # Session Handoff
 
+## D-0174 — Phase 3 published; Phase 4 is next (current)
+
+Arthur passed SPEC-0016 Phase 3 on 2026-10-03 (D-0174). Product commit `b7bc3dcd08d51f9156b2de848e0773cc3f0066c1` is on main and GitHub. Home **Help** now opens one Help page with **Ask the Assistant** and **Tutorials**; the Assistant and Tutorials screens were restyled (navy, brighter Assistant sidebar, new diamond logo, dull blues with instant #0066FF hover); the editor's **Help** menu works and opens the Assistant or Tutorials *over* the drawing so unsaved work stays put. Assistant answers, chats, dictation, search, login, saving, drawing and export are unchanged. D-0173 replaced the old multi-role process with the simple workflow in `AGENTS.md`.
+
+**Next:** SPEC-0016 Phase 4 (editor shell polish), then Phase 5 (account/Dashboard/recovery). After SPEC-0016, run the two AI Animator tests side by side once Arthur's Blender files arrive (see D-0173).
+
 ## D-0172 — Published Phase 2; orientation only for Claude
 
 Accepted Phase 2 and its first continuity records are committed, integrated into canonical main and pushed to GitHub as `8b8ba6453df01a18492bedeffa1ac2bca5037416`, parent `511155a4230f4f005c1064a7cad57d1051a8fb73`, exactly 12 accepted technical plus 17 control-plane/bootstrap/tree paths. Fresh local main, origin/main and live GitHub refs matched at clean `0/0`. This records-only successor changes no accepted runtime/test byte. Read its final SHA from Git rather than inventing a self-referential hash.

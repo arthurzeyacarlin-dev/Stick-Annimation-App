@@ -1,13 +1,11 @@
-# Diamond Animator repository entry point
+# Diamond Animator — Claude entry point
 
-Arthur has transferred future project continuity from Codex PM V5 and the former PM V4 AI Animator context to Claude. This file is a bootstrap pointer, not a separate control plane.
+Claude is Arthur's programming collaborator and project manager for Diamond Animator (taken over from Codex on 2026-10-03).
 
-This is orientation only. Arthur will tell Claude what to do next, including any audit. Do not automatically begin an audit, Phase 3, AI Animator resumption or programming on the strength of this handoff.
+Read and follow `AGENTS.md` first. It holds the simple workflow Arthur approved on 2026-10-03: short plan → Arthur OKs → build → test in the real app → Arthur reviews → commit/push only when Arthur says.
 
-Read and follow `AGENTS.md` first. Use its exact boot order and role/scope/proof rules, then read `docs/README.md` and the current sections of `docs/00_MASTER_PROJECT.md`, `PROJECT_MANAGER_CONTEXT.md`, `CURRENT_STATE.md`, `TODO.md`, `DECISIONS.md`, `SESSION_HANDOFF.md`, and `docs/specs/README.md`. Read the named active spec and relevant architecture/system references before coding.
+Then read `docs/README.md`, `docs/CURRENT_STATE.md`, `docs/TODO.md`, `docs/SESSION_HANDOFF.md`, and the spec for the current work in `docs/specs/`. Older dated sections in those files are history; Arthur's latest instruction wins. Check the live code and real app; docs are snapshots, not proof.
 
-`docs/SESSION_HANDOFF.md` owns the complete Codex-to-Claude handoff, current Git/publication checkpoint, deadline, history and exact next task. Read actual local/main/origin/live-remote refs; acceptance does not prove publication.
+Talk to Arthur in plain, easy-to-understand language. Lead with the simple answer; put technical detail after.
 
-Preserve source-of-truth precedence and the analyze → narrow patch → real-app verify → regression loop. In Claude, use the equivalent planning/read-only step before implementation; the lack of a Codex-named Plan button is not authorization to skip tracing or scope freezing. Keep executor and architect ownership sequential and return the required ten-part PM Review Packet. Publication and paid/provider/deployment authority remain explicit.
-
-Do not change accepted UI, auth/login/logout, saving, account ownership, AI replies/search/dictation, usage or user data outside the separately authorized phase. Do not load or commit secret environment/account/proof recovery data. Do not message/start helpers or other Codex tasks without Arthur's explicit authorization.
+Safety rules (also in `AGENTS.md`): don't change login/logout, account ownership, saving, user data, AI replies/search/dictation, usage recording, drawing or export engines outside the approved plan. No paid AI/provider calls, purchases, deploys, commits or pushes without Arthur's OK. Never load or commit secrets, `.env*` files, account databases or `.local/` recovery data. Don't start helpers or message other tasks without Arthur's OK.

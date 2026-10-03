@@ -1,5 +1,17 @@
 # TODO
 
+## Current queue (D-0174)
+
+- [x] **POLISH-016-3** — Help page, Assistant/Tutorials polish and working editor Help. Arthur PASS; published in `b7bc3dcd08d51f9156b2de848e0773cc3f0066c1`.
+- [ ] **POLISH-016-4** — Editor shell polish (next). Short plan → Arthur OK → build in a separate review copy → Arthur review.
+- [ ] **POLISH-016-5** — Account entry, Dashboard, recovery and shared dialogs polish.
+- [ ] **AIANIM-TESTS** — After SPEC-0016: Test 1 = AI (Grok vs Terra) writes key poses, math makes in-betweens; Test 2 = motion from Arthur's Blender files. Compare look, reliability, cost and long-term value. Needs an xAI API key set up by Arthur's dad and Arthur's OK for the small paid test calls.
+- [ ] **CLEANUP-PROOF-SCRIPTS** — Old one-time proof scripts (e.g. SPEC-0003/0012/0013 browser proofs) still expect old wording; retire or replace with a real automated smoke test.
+- [ ] **V1-30-DAYS** — Target: useful, polished V1 by about 2026-11-02 (see D-0173 audit plan: hosting, real AI spending limits, dead-code cleanup, automated tests).
+- [ ] **RESUME-015-6** — Still paused (funded allowance/billing).
+
+Older queues below are history.
+
 ## Current queue for Claude
 
 - [x] **POLISH-016-2** — Arthur accepted the combined Open Project surface and final Home/library hover correction, then stopped programming. Exact 12 technical paths remain frozen. The proposal's broader Viewer/Export restyle and Home Export removal did not occur under the narrower owner scope; no capability was removed.

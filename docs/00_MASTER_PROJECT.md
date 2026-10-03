@@ -1,5 +1,11 @@
 # Diamond Animator Master Project Charter
 
+## D-0174 — Phase 3 published; Phase 4 is next (current)
+
+Arthur passed SPEC-0016 Phase 3 on 2026-10-03 (D-0174). Product commit `b7bc3dcd08d51f9156b2de848e0773cc3f0066c1` is on main and GitHub. Home **Help** now opens one Help page with **Ask the Assistant** and **Tutorials**; the Assistant and Tutorials screens were restyled (navy, brighter Assistant sidebar, new diamond logo, dull blues with instant #0066FF hover); the editor's **Help** menu works and opens the Assistant or Tutorials *over* the drawing so unsaved work stays put. Assistant answers, chats, dictation, search, login, saving, drawing and export are unchanged. D-0173 replaced the old multi-role process with the simple workflow in `AGENTS.md`.
+
+**Next:** SPEC-0016 Phase 4 (editor shell polish), then Phase 5 (account/Dashboard/recovery). After SPEC-0016, run the two AI Animator tests side by side once Arthur's Blender files arrive (see D-0173).
+
 ## Current delivery target and ownership
 
 D-0171 transfers PM V5 continuity and the former PM V4 SPEC-0008 AI Animator context to Claude. Arthur's target is a polished, useful Version 1 built or very close within 30 days of the 2026-10-03 handoff, aiming for 85–100% of an explicitly tested release scope by 2026-11-02; the public website's first-beta goal remains 2026-11-30. These are targets, not a verified completion percentage or guaranteed date. Preserve the capable manual editor and saved work; simplify presentation without deleting features. Users should feel both “I can create something useful here” and “I want to stay here.”

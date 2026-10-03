@@ -1,6 +1,6 @@
 # SPEC-0017 — AI Animator Engine and Director
 
-Status: **Draft. Waiting for Arthur's OK. No code written yet.**
+Status: **Approved by Arthur 2026-10-04 (all decisions answered). Phase 1 ready to start. No code written yet.**
 Owner: Arthur
 Builder: Claude
 Created: 2026-10-03
@@ -22,7 +22,7 @@ Earlier tries failed about 6 times. Each time the AI had to invent every pose an
 | Job | Who does it | What it means |
 | --- | --- | --- |
 | **What happens** | The AI (Grok or Terra) | Picks the characters, the moves, the timing and where everyone stands. It writes a short plan, not pictures. |
-| **How moves look** | The **moves library** (made with math, built into the app) | About 12 body moves (walk, run, jump, wave, sit, squat, kick, punch, turn, fall, high-five, stand still) plus object moves (slide, bounce, spin, grow/shrink, fade). Each move has knobs like speed, energy, direction and height. |
+| **How moves look** | The **moves library** (made with math, built into the app) | About 12 body moves (walk, run, jump, wave, sit, squat, kick, punch, turn, fall, high-five, stand still) plus object moves (slide, bounce, spin, grow/shrink). Each move has knobs like speed, energy, direction and height. |
 | **Keeping it natural** | The **engine rules** | Arms and legs never stretch. Elbows and knees only bend the right way. Feet stay put on the ground when they should. Moves speed up and slow down smoothly and follow curved paths. The engine checks and fixes every AI plan before anything reaches your timeline. |
 
 **Why it works without Blender:** the AI only picks moves and knobs, and the math library and engine rules make every pose. So a confused AI can't produce a broken body. The worst case is a plain or wrong move, never a twisted one. Blender motion (Phase 5) is an optional upgrade to how moves look. It isn't needed for the app to work.
@@ -36,7 +36,9 @@ Earlier tries failed about 6 times. Each time the AI had to invent every pose an
 - **No drag-the-joints posing tool** for now. You chose to leave it out. It could be added later in about 1 day.
 - No talking or lip-sync, no crowds (V1 limit: up to 4 characters and 4 objects in a scene), no 3D camera moves.
 - Scenes are short: up to about 8 seconds (the exact cap comes from Phase 1's memory test).
+- **No fade** (objects slowly appearing/disappearing). Arthur's decision: it doesn't fit the app.
 - It never changes your existing frames or layers. Every new scene goes on a **new layer**.
+- **You never have to place anything.** You don't move the playhead or type frame numbers. You say it in story words ("after the stick figure punches, a ball bounces") and the AI works out where it goes.
 
 ## 3. The 5 phases
 
@@ -61,7 +63,7 @@ Click a scene. Frames appear on a new layer. Press Play. Then pick a generated f
 
 ### Phase 2 — Moves library (no AI) · about 2 days
 
-**Builds:** the math-made moves. Body: stand still/breathe, walk, run, jump, wave, sit, squat, kick, punch, turn around, fall down, high-five. Objects (for Symbols): slide along a path, bounce, spin, grow/shrink, fade.
+**Builds:** the math-made moves. Body: stand still/breathe, walk, run, jump, wave, sit, squat, kick, punch, turn around, fall down, high-five. Objects (for Symbols): slide along a path, bounce, spin, grow/shrink. (No fade — Arthur's decision.)
 
 **How Arthur tests it:** the "Engine test" list gets a **Moves** section. Pick a move, change 2–3 knobs (speed slow/normal/fast, energy, height, direction left/right) and press Make. For object moves, draw something (a ball), name it as a Symbol, then pick "bounce".
 
@@ -90,9 +92,10 @@ Click a scene. Frames appear on a new layer. Press Play. Then pick a generated f
 2. Press Apply. A new layer appears with the frames. Press Play.
 3. Draw on one of those frames. Undo, then Redo.
 4. Type "make him wave twice". The scene updates.
-5. Save, reopen and export. Check the AI Dashboard shows the usage.
+5. Type "after he waves, a ball bounces" (with a Ball symbol). The ball starts right after the wave ends — no playhead needed.
+6. Save, reopen and export. Check the AI Dashboard shows the usage.
 
-**Pass when:** all 5 steps work. Nothing else in the project changes. The chat box looks exactly the same as the Assistant's. If the AI fails, you see a friendly message and nothing changes.
+**Pass when:** all 6 steps work. Story-order requests ("after…", "then…", "at the same time as…", "at the end") land in the right place. Nothing else in the project changes. The chat box looks exactly the same as the Assistant's. If the AI fails, you see a friendly message and nothing changes.
 
 **Not included:** Blender motion. Animating hand drawings limb by limb.
 
@@ -197,6 +200,7 @@ The AI writes a strict JSON object. A strict schema is enforced with structured 
     { "actor": "ball", "move": "bounce", "at": 0, "dur": 3, "params": { "height": 0.2, "count": 3 } },
     { "actor": "a", "move": "custom", "at": 2.5, "dur": 1, "keyPoses": [ { "t": 0, "pose": { "...": "PoseAngles" } } ] }
   ],
+  "place": { "type": "after", "ref": "scene-1:a:punch" },
   "reply": "Red and Blue run in and high-five."
 }
 ```
@@ -210,7 +214,7 @@ The AI writes a strict JSON object. A strict schema is enforced with structured 
 
 Every move is a pure function: `(params, durationSec, startPose, ctx) → PoseKey[]` (key poses with timing, easing and contacts). The engine does the in-betweens. Body moves: `idle, walk, run, jump, wave, sit, squat, kick, punch, turn, fall, highFive`. Shared knobs are `speed` (slow/normal/fast or a number), `energy` (0–1: bigger swings, more squash), `direction`, `height` (jump/kick), `toX` (travel) and `side` (which arm/leg).
 
-Animation principles built in: anticipation (dip before a jump, wind-up before a punch), follow-through/settle (land and recover), arcs (hands and head travel on curves), slow-in/slow-out (eased keys), and a contra-posed arm/leg swing for walk and run. Walk and run use a gait cycle with planted feet, so they look the same at any `toX`. Object moves (`slide` along a path, `bounce` with squash timing, `spin`, `scale`, `fade`) change x, y, rotation, scale and opacity over time.
+Animation principles built in: anticipation (dip before a jump, wind-up before a punch), follow-through/settle (land and recover), arcs (hands and head travel on curves), slow-in/slow-out (eased keys), and a contra-posed arm/leg swing for walk and run. Walk and run use a gait cycle with planted feet, so they look the same at any `toX`. Object moves (`slide` along a path, `bounce` with squash timing, `spin`, `scale`) change x, y, rotation and scale over time. No `fade` (D-0179).
 
 A move is plain data plus a function, so a Blender clip (Phase 5) can register under the same name and replace or sit beside the math version.
 
@@ -240,14 +244,14 @@ It is deterministic: the same plan always gives the same frames. It's pure TypeS
 - The canvas bitmap is the "authoring world", about 4.6× the visible stage times the screen's pixel ratio. Map the 1920×1080 stage into bitmap pixels with `drawingCanvasRef.current.getPlaybackSurfaceLayout()` (`drawingCanvasWidth/Height`, `worldDisplayRect`, `stageDisplayRect`).
 - Draw with Canvas 2D (`OffscreenCanvas` if available): round caps and joins, the style's color and thickness scaled to the bitmap, the head circle, and draw order (back-facing limbs first). Read back with `getImageData` to make an `ImageData` the same size as the canvas.
 - **Hold cells:** if a frame is pixel-identical to the previous one (for example, standing still), use a `hold` cell instead of a new bitmap. This saves memory.
-- **Insert:** add a new callback `applyAnimatorScene` in `DrawingWorkspace.tsx`, modeled on the existing `applyGeneratedFrameToWorkspace` (~line 8410). It creates **one new layer** named `AI: <title>` the same way `addLayer` does (~line 7515). It fills cells from the playhead frame with `createTimelineFrame(..., "keyframe", "keyframe", ...)`. It writes symbol tracks into `symbolInstancesByCellRef`, calls `recordUndoSnapshot()` once before and `commitCurrentHistoryState({ assumeChanged: true })` once after, then `renderWorkspaceCanvases`. Result: **one Undo removes the whole scene.** Saving is untouched: the existing `buildUnifiedProjectSnapshot` (~line 7149) crops and saves these frames like hand-drawn ones.
+- **Insert:** add a new callback `applyAnimatorScene` in `DrawingWorkspace.tsx`, modeled on the existing `applyGeneratedFrameToWorkspace` (~line 8410). It creates **one new layer** named `AI: <title>` the same way `addLayer` does (~line 7515). It fills cells from the **start frame chosen by the placement rule (6.11)** — never from the playhead — with `createTimelineFrame(..., "keyframe", "keyframe", ...)`. It writes symbol tracks into `symbolInstancesByCellRef`, calls `recordUndoSnapshot()` once before and `commitCurrentHistoryState({ assumeChanged: true })` once after, then `renderWorkspaceCanvases`. Result: **one Undo removes the whole scene.** Saving is untouched: the existing `buildUnifiedProjectSnapshot` (~line 7149) crops and saves these frames like hand-drawn ones.
 - Don't reuse the legacy callback as-is. It is capped at 20 frames (`MAX_FRAMES_PER_REQUEST` in `frameGenerationSafety.ts`), has a debounce, and may paint onto the *active* layer.
 
 ### 6.8 Objects (Symbols)
 
 - Symbols are saved definitions (`catalogs.symbols`: PNG + size) placed per cell as `symbol-instance/v1` with `x, y, width, height, rotation, flipX, flipY`. Export already draws them (`exportRenderer.ts`).
 - Object moves write one symbol instance per generated cell on the scene's layer. **The objects stay movable whole objects** after Apply.
-- **Limit found:** symbol instances have **no opacity field**. `fade` either bakes the symbol into the frame pixels for those frames, or is left out of V1. Arthur decides (see section 9). Adding an opacity field would change the save format, which is protected.
+- **Limit found:** symbol instances have **no opacity field**, so there is **no fade in V1** (Arthur's decision, D-0179). Objects always stay movable whole objects; the save format is not changed.
 - Must verify in Phase 2: a cell that holds only symbol instances (no bitmap) saves, reopens and exports correctly. Fallback: draw the symbol into the frame bitmap.
 
 ### 6.9 AI director: providers, prompt and cost caps
@@ -258,7 +262,7 @@ It is deterministic: the same plan always gives the same frames. It's pure TypeS
 - **Prompt:** short instructions, the move catalog (names + knobs + one-line meaning), the schema, the stage size, the names of the project's Symbols, and the current plan (for follow-ups). No pixels or frames are sent.
 - **Caps (server-side, per request):** max output tokens about 3,000. Input trimmed to about 6,000 tokens. Pre-send estimated cost ≤ $0.05, or the request is refused. One retry max. The existing 90 s deadline and the 2-active-jobs limit stay (`aiAnimatorJobService.ts`). The bench has a run budget (default $3, Phase 3 total hard cap $5) and stops when it is reached.
 - **Usage:** record with the existing usage journal. The `operationKind: "animation_job"` already exists in `usageJournalContract.ts`, and `provider` is a free string. `usageJournalEvents.ts` currently hardcodes `provider: "openai"` and the Terra model in project events. The only change is passing the provider and model through.
-- **Phase 3 bench** (dev only, signed-in, `NODE_ENV=development`): `app/dev/animator-bench/page.tsx` + `app/api/dev/animator-bench/route.ts`. It runs the 20 prompts in `director/benchPrompts.ts` one at a time against each provider, previews both results with the Phase 1 renderer, and collects ratings. Results go to ignored `output/spec-0017/`. The 20 prompts cover single moves, combos, 2–3 characters, objects, timing words ("slowly", "suddenly") and 3 "tricky" prompts (impossible or vague) to test the fallback.
+- **Phase 3 bench** (dev only, signed-in, `NODE_ENV=development`): `app/dev/animator-bench/page.tsx` + `app/api/dev/animator-bench/route.ts`. It runs the 20 prompts in `director/benchPrompts.ts` one at a time against each provider, previews both results with the Phase 1 renderer, and collects ratings. Results go to ignored `output/spec-0017/`. The 20 prompts cover single moves, combos, 2–3 characters, objects, timing words ("slowly", "suddenly") story-order requests ("after he punches, a ball bounces", "then", "at the same time", "at the end"), and 3 "tricky" prompts (impossible or vague) to test the fallback.
 
 ### 6.10 Editor flow, follow-ups and Undo (Phase 4)
 
@@ -269,7 +273,22 @@ It is deterministic: the same plan always gives the same frames. It's pure TypeS
 - **Follow-up ("jump higher"):** the AI edits the kept plan, and the engine remakes the frames. If the scene's layer is **unchanged since Apply**, its frames are replaced as one undoable step. If the user has drawn on it, a **new** layer `AI: <title> (2)` is made and the chat says so. User drawing is never silently overwritten.
 - The chat box stays the shared `ChatComposerParts`. The preview card uses `--da-*` tokens.
 
-### 6.11 Blender import (Phase 5)
+### 6.11 Where a new scene goes (placement — Arthur's rule)
+
+Arthur's rule (D-0179): **users never place things by hand and never use frame numbers.** They talk in story order — "after the stick figure punches, a ball bounces". The AI works out the start frame. The playhead is **ignored**.
+
+- **Timeline summary sent to the AI:** with each request the server sends a short list of what is already in the project: total length in frames/seconds, and for every AI scene (from the kept plans) its layer, start/end time and each step (`scene-1: Red punches 1.2–1.8 s; ball bounces 2.0–3.0 s`). No pixels.
+- **The plan's `place` field** (one of):
+  - `start` — begin at frame 1 (plays with the whole movie)
+  - `end` — begin right after the project's last frame
+  - `after` + `ref` — begin right after a named step/scene ends (`scene-1:a:punch`)
+  - `with` + `ref` — begin at the same time as a named step/scene
+  - optional `gapSec` (0–3) for "a moment later"
+- **Default when the user gives no clue:** a follow-up to the last AI scene goes right **after** it; anything else starts at **frame 1** (`start`).
+- **Validation:** an unknown `ref` is a retry reason (never a silent guess). The timeline grows if needed (`ensureTimelineLength`). The start frame is computed in code from the kept plans, not by the AI doing frame math.
+- **Honest limit:** the AI knows what's in **AI-made scenes** (it kept their plans). It cannot *see* hand-drawn frames (no vision in V1), so for hand drawings it only knows their length and layer names. "After my drawn dog jumps" won't work in V1; "at the end" or "after the punch" will.
+
+### 6.12 Blender import (Phase 5)
 
 - **What to ask the Blender person for** (send early): one action per file; 24 or 30 fps; side view with the character facing +X; in place or with root motion clearly noted; standard bone names (Rigify, Mixamo or similar). Delivered as **`.blend` + BVH export** (BVH is a standard per-frame rotation format). If possible, also run our small script `scripts/blender/export_stick_motion.py`, which writes per-frame world positions of the needed bones as JSON.
 - **Converter** (`blender/importClip.ts`): map bones → our 11 joints (hips→hip, spine top/neck→neck, head→head, upper_arm/forearm/hand→elbow/hand, thigh/shin/foot→knee/foot). Project to 2D (x→x, z→−y). Convert to **our angles** (our bone lengths are kept, so proportions stay ours). Resample to the project FPS. Detect foot contacts from low foot speed near the lowest height. Register as a `ClipMove` under the same move name.
@@ -304,7 +323,7 @@ It is deterministic: the same plan always gives the same frames. It's pure TypeS
 - `engine.ts`: plan → per-frame poses (blend, contacts, ground, final checks)
 - `moves/index.ts`: move registry (math moves and, later, Blender clips)
 - `moves/body/*.ts`: idle, walk, run, jump, wave, sit, squat, kick, punch, turn, fall, highFive
-- `moves/objects.ts`: slide, bounce, spin, scale, fade
+- `moves/objects.ts`: slide, bounce, spin, scale
 - `render.ts`: draws one frame (characters + optional baked symbols) into `ImageData` using stage→bitmap mapping
 - `toFrames.ts`: scene → frames + symbol tracks + hold detection
 - `testScenes.ts`: the Phase 1 hand-written scenes (removed or hidden in Phase 5 cleanup)
@@ -337,7 +356,7 @@ There is no test runner today. Node 24 can run TypeScript tests directly with `n
 - Also run each phase: `npx tsc --noEmit`, and `npx eslint` on changed files.
 - **In the real app** (each phase, review copy): insert → play → draw/erase → undo/redo → save → reopen → export. Assistant chat still works, and AI Dashboard numbers still add up.
 
-## 9. Risks and open questions
+## 9. Risks and Arthur's decisions
 
 **Risks**
 1. **Natural look:** the biggest risk. Arthur judges Phases 1–2 before any AI spend. Bad moves get fixed one by one, and Blender clips are the backup.
@@ -346,9 +365,9 @@ There is no test runner today. Node 24 can run TypeScript tests directly with `n
 4. **Inserting a layer shifts saved layer IDs.** The save step matches layers by position (`buildUnifiedProjectSnapshot`). The new layer is inserted the same way the existing "+ Layer" button does it, so this adds no new risk. Phase 1 still checks save → reopen with layers above and below.
 5. **xAI details** (model name, structured output, price) aren't in the code yet and are confirmed at Phase 3 start.
 
-**Open questions for Arthur** (Claude's recommendation in brackets — Arthur decides)
-1. OK to replace SPEC-0008's paused video plan with this one (D-0179)? **[Yes.]**
-2. One new layer per scene (simpler), or one layer per character (easier to edit each one)? **[One layer per scene for V1; revisit if editing feels hard.]**
-3. `fade` for Symbols: bake into the pixels (the faded frames are no longer a movable object), or leave fade out of V1? **[Leave fade out of V1.]**
-4. Should a scene start at the playhead frame (current plan) or always at frame 1? **[At the playhead, like pasting.]**
-5. After Phase 3: if both AIs pass, use one (cheaper) or both (let the user choose)? **[Decide after seeing the Phase 3 results.]**
+**Arthur's decisions (2026-10-04, recorded as D-0179 when Phase 1 starts)**
+1. Replace SPEC-0008's paused video plan with this one: **Yes.**
+2. Layers: **one new layer per scene** for V1; revisit if editing feels hard.
+3. Fade: **no fade.** It doesn't fit the app.
+4. Where a scene goes: **the AI decides from story words** ("after the punch", "then", "at the same time", "at the end"); never the playhead, never frame numbers. Default: frame 1, or right after the last AI scene for follow-ups (6.11).
+5. If both Grok and Terra pass: **decide after seeing the Phase 3 results.**

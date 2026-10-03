@@ -3,12 +3,15 @@
 .managementDialog {
   --library-bg: #030914;
   --library-surface: #071120;
-  --library-raised: #071120;
+  --library-line: #163058;
   --library-border: #244267;
-  --library-text: #f8fafc;
-  --library-muted: #8aa4c5;
-  --library-cyan: #0066ff;
-  --library-blue: #0066ff;
+  --library-text: #f6f9ff;
+  --library-text-2: #c9d6ea;
+  --library-muted: #8fabd0;
+  --library-label: #7895bc;
+  --library-hover: #0066ff;
+  --library-focus: #66c7ff;
+  --library-danger: #ff8a95;
 }
 
 .library {
@@ -17,7 +20,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   background:
-    radial-gradient(ellipse 680px 270px at 50% 0%, #0066ff24, transparent 100%),
+    radial-gradient(ellipse at 50% 0%, rgba(9, 33, 65, 0.16), transparent 48%),
     #030914;
   color: var(--library-text);
   padding: 24px clamp(16px, 4vw, 46px) 64px;
@@ -55,7 +58,7 @@
 }
 
 .eyebrow {
-  color: var(--library-muted);
+  color: var(--library-label);
   font-size: 11px;
   font-weight: 850;
   letter-spacing: 0.14em;
@@ -75,8 +78,8 @@
   justify-self: start;
   padding: 9px 13px;
   border: 1px solid var(--library-border);
-  background: var(--library-raised);
-  color: var(--library-text);
+  background: var(--library-surface);
+  color: var(--library-text-2);
 }
 
 .header .secondaryButton:last-child {
@@ -85,15 +88,37 @@
 
 .secondaryButton:hover,
 .inlineButton:hover {
-  border-color: var(--library-cyan);
-  background: #0066ff;
+  border-color: var(--library-hover);
+  background: var(--library-hover);
+  color: #fff;
+}
+
+/* Canonical Back button (same as Help, Tutorials and Export). */
+.header .backButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--library-border);
+  border-radius: 10px;
+  background: var(--library-surface);
+  color: var(--library-text-2);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.header .backButton:hover {
+  border-color: var(--library-hover);
+  background: var(--library-hover);
   color: #fff;
 }
 
 .primaryButton {
   padding: 10px 16px;
-  border: 1px solid var(--library-border);
-  background: var(--library-surface);
+  border: 1px solid #3a6aa3;
+  background: #0f2a52;
   color: #ffffff;
 }
 
@@ -102,7 +127,7 @@
   padding: 7px 11px;
   border: 1px solid var(--library-border);
   background: var(--library-surface);
-  color: var(--library-text);
+  color: var(--library-text-2);
 }
 
 .secondaryButton:focus-visible,
@@ -115,15 +140,15 @@
 .toolbar select:focus-visible,
 .managementDialog input:focus-visible,
 .deleteButton:focus-visible {
-  outline: 2px solid var(--library-cyan);
+  outline: 2px solid var(--library-focus);
   outline-offset: 3px;
 }
 
 .notice {
-  border: 1px solid var(--library-border);
+  border: 1px solid var(--library-line);
   border-radius: 12px;
   background: var(--library-surface);
-  color: #b6c4d8;
+  color: var(--library-muted);
   font-size: 13px;
   line-height: 1.5;
   padding: 12px 14px;
@@ -141,7 +166,7 @@
 .dialogField {
   display: grid;
   gap: 7px;
-  color: #cbd5e1;
+  color: #a8bddd;
   font-size: 12px;
   font-weight: 750;
 }
@@ -152,8 +177,8 @@
   width: 100%;
   min-height: 44px;
   border: 1px solid var(--library-border);
-  border-radius: 10px;
-  background: var(--library-surface);
+  border-radius: 9px;
+  background: var(--library-bg);
   color: var(--library-text);
   padding: 9px 12px;
   font: inherit;
@@ -165,7 +190,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  border-color: var(--library-border);
+  border-color: var(--library-line);
 }
 
 .results {
@@ -208,9 +233,7 @@
 .overflowButton:hover,
 .rowAction:hover:not(:disabled) {
   color: #fff;
-  background: #0066ff;
-  box-shadow: inset 0 0 28px #0066ff22;
-  text-shadow: none;
+  background: var(--library-hover);
 }
 
 .rowAction {
@@ -232,11 +255,12 @@
 }
 .rowAction svg { width: 29px; height: 29px; }
 .rowAction:disabled { opacity: .45; cursor: default; }
-.rowAction:focus-visible { outline: 2px solid #0066ff; outline-offset: -4px; }
+.rowAction:focus-visible { outline: 2px solid var(--library-focus); outline-offset: -4px; }
 .library button, .library input, .library select, .contextMenu button, .managementDialog button { transition: none; animation: none; }
-.primaryButton:hover:not(:disabled) { background: #0066ff; border-color: #0066ff; }
-.toolbar input:hover, .toolbar select:hover { border-color: #0066ff; }
-.card:has(.cardButton:hover:not([aria-disabled="true"])) { border-color: #0066ff; box-shadow: 0 0 25px #0066ff33; }
+.primaryButton:hover:not(:disabled) { background: var(--library-hover); border-color: var(--library-hover); color: #fff; }
+.toolbar input:hover, .toolbar select:hover { border-color: #3a6aa3; }
+.toolbar input:focus, .toolbar input:focus-visible, .toolbar select:focus, .toolbar select:focus-visible { border-color: #3a6aa3; outline: 2px solid var(--library-focus); outline-offset: 2px; }
+.card:has(.cardButton:hover:not([aria-disabled="true"])) { border-color: var(--library-hover); }
 .cardButton:not([aria-disabled="true"]):hover {
   background: #0066ff;
   color: #fff;
@@ -308,7 +332,7 @@
 }
 
 .posterFailure {
-  color: #fca5a5;
+  color: var(--library-danger);
 }
 
 .cardBody {
@@ -353,9 +377,9 @@
 }
 
 .statusPill {
-  background: rgba(148, 163, 184, 0.1);
-  color: #cbd5e1;
-  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: var(--library-bg);
+  color: var(--library-text-2);
+  border: 1px solid var(--library-border);
 }
 
 .updatedAt,
@@ -377,13 +401,13 @@
 }
 
 .failureText {
-  color: #fca5a5;
+  color: var(--library-danger);
   line-height: 1.45;
 }
 
 .identity {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  color: #71839d;
+  color: var(--library-muted);
 }
 
 .statePanel {
@@ -394,7 +418,7 @@
   gap: 10px;
   text-align: center;
   padding: 28px;
-  border: 1px solid var(--library-border);
+  border: 1px solid var(--library-line);
   border-radius: 16px;
   background: var(--library-surface);
 }
@@ -412,7 +436,7 @@
 
 .skeletonCard {
   min-height: 142px;
-  border: 1px solid var(--library-border);
+  border: 1px solid var(--library-line);
   border-radius: 16px;
   background: var(--library-surface);
 }
@@ -431,10 +455,10 @@
   display: grid;
   gap: 4px;
   padding: 7px;
-  border: 1px solid var(--library-border);
+  border: 1px solid var(--library-line);
   border-radius: 12px;
   background: var(--library-surface);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.48);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.45);
   color: var(--library-text);
 }
 
@@ -450,9 +474,14 @@
   cursor: pointer;
 }
 
-.contextMenu button:hover:not(:disabled),
+.contextMenu button:hover:not(:disabled) {
+  background: var(--library-hover);
+  color: #fff;
+}
+
 .contextMenu button:focus-visible {
-  background: #0066ff;
+  outline: 2px solid var(--library-focus);
+  outline-offset: -2px;
 }
 
 .contextMenu button:disabled {
@@ -461,7 +490,11 @@
 }
 
 .contextMenu .destructiveMenuItem:not(:disabled) {
-  color: #fca5a5;
+  color: var(--library-danger);
+}
+
+.contextMenu .destructiveMenuItem:hover:not(:disabled) {
+  color: #fff;
 }
 
 .contextMenu p {
@@ -543,7 +576,7 @@
 .managementDialog input:focus,
 .managementDialog input:focus-visible {
   border-color: #3a6aa3;
-  outline: 2px solid #3a6aa3;
+  outline: 2px solid var(--library-focus);
   outline-offset: 2px;
 }
 
@@ -618,11 +651,6 @@
   padding: 10px 12px;
   font-size: 13px;
   line-height: 1.45;
-}
-
-@keyframes library-shimmer {
-  from { background-position: 100% 0; }
-  to { background-position: -100% 0; }
 }
 
 @media (max-width: 640px) {

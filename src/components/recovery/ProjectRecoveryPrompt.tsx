@@ -222,7 +222,7 @@ const recoveryStyles = `
   }
   .recovery-details span { display: block; margin-bottom: 6px; color: #7895bc; font-size: 11px; font-weight: 750; letter-spacing: 0.1em; text-transform: uppercase; }
   .recovery-details strong { display: block; overflow-wrap: anywhere; color: #f6f9ff; font-size: 14px; line-height: 1.35; }
-  .recovery-message { margin: 18px 0 0; padding: 12px 14px; border-radius: 10px; color: #ffd9b0; background: #030914; border: 1px solid rgba(233, 157, 75, 0.35); font-size: 13px; line-height: 1.5; }
+  .recovery-message { margin: 18px 0 0; padding: 12px 14px; border-radius: 10px; color: #f3d89c; background: #030914; border: 1px solid rgba(255, 190, 65, 0.35); font-size: 13px; line-height: 1.5; }
   .recovery-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 26px; }
   .recovery-actions button, .recovery-confirm-actions button, .recovery-continue {
     min-height: 46px;
@@ -235,7 +235,7 @@ const recoveryStyles = `
     transition: none;
     box-shadow: none;
   }
-  .recovery-actions button:focus-visible, .recovery-confirm-actions button:focus-visible, .recovery-continue:focus-visible { outline: 2px solid #0066ff; outline-offset: 3px; }
+  .recovery-actions button:focus-visible, .recovery-confirm-actions button:focus-visible, .recovery-continue:focus-visible { outline: 2px solid #66c7ff; outline-offset: 3px; }
   .recovery-actions button:disabled, .recovery-confirm-actions button:disabled, .recovery-continue:disabled { cursor: not-allowed; opacity: 0.45; }
   .recovery-primary { color: #ffffff; background: #0f2a52; border: 1px solid #3a6aa3; }
   .recovery-secondary { color: #c9d6ea; background: #071120; border: 1px solid #244267; }

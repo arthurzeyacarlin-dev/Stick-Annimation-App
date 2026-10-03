@@ -37,6 +37,7 @@ import {
   type ExportInspection,
   type ExportProgress,
 } from "@/src/lib/export/exportVideo";
+import styles from "./animationExport.module.css";
 
 type Props = { origin: "home" | "workspace"; onBack: () => void };
 type SnapshotState = { status: "loading" } | { status: "ready"; snapshot: ExportProjectSnapshot } | { status: "failed"; message: string };
@@ -64,8 +65,8 @@ function ExportThumbnail({ snapshot }: { snapshot: ExportProjectSnapshot }) {
     void renderCanonicalExportFrame(canvas, snapshot.project, 0).catch(() => { if (active) setFailed(true); });
     return () => { active = false; };
   }, [snapshot]);
-  if (snapshot.frameCount === 0 || failed) return <div style={{ color: "rgba(255,255,255,0.46)", fontSize: 12 }}>No thumbnail</div>;
-  return <canvas ref={canvasRef} width={240} height={135} aria-label={`${snapshot.project.title} thumbnail`} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />;
+  if (snapshot.frameCount === 0 || failed) return <div className={styles.thumbNote}>No thumbnail</div>;
+  return <canvas ref={canvasRef} width={240} height={135} aria-label={`${snapshot.project.title} thumbnail`} className={styles.thumbCanvas} />;
 }
 
 export function ExportAnimationPlayer({ snapshot, onChange, ownerId, changeLabel = "Change animation" }: { snapshot: ExportProjectSnapshot; onChange: () => void; ownerId: string; changeLabel?: string }) {
@@ -233,13 +234,13 @@ export function ExportAnimationPlayer({ snapshot, onChange, ownerId, changeLabel
   const percent = showDeterminate ? Math.min(100, Math.round((progress.completed / progress.total) * 100)) : null;
 
   return (
-    <main aria-label="Watch saved animation" style={{ minHeight: "100vh", background: "#0d121b", color: "white", padding: 24, overflowY: "auto" }}>
-      <div style={{ width: "min(1180px, 100%)", margin: "0 auto", display: "flex", flexDirection: "column", gap: 18 }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
-          <div><div style={{ fontSize: 13, color: "#80b8ff", fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase" }}>Export video</div><h1 style={{ margin: "6px 0 0", fontSize: 26 }}>{snapshot.project.title}</h1></div>
-          <button type="button" onClick={changeAnimation} style={secondaryButtonStyle}>{changeLabel}</button>
+    <main aria-label="Watch saved animation" className={`${styles.page} ${styles.playerPage}`}>
+      <div className={`${styles.column} ${styles.playerColumn}`}>
+        <div className={styles.headerRow}>
+          <div><div className={styles.eyebrow}>Export video</div><h1 className={styles.title}>{snapshot.project.title}</h1></div>
+          <button type="button" onClick={changeAnimation} className={styles.button}>{changeLabel}</button>
         </div>
-        <div style={{ border: "1px solid rgba(255,255,255,.12)", borderRadius: 16, background: "#171d28", padding: 16 }}>
+        <div className={styles.playerPanel}>
           <CanonicalProjectPlayer
             ref={playerRef}
             snapshot={snapshot}
@@ -249,75 +250,72 @@ export function ExportAnimationPlayer({ snapshot, onChange, ownerId, changeLabel
             contentRect={geometry.contentRect}
           />
         </div>
-        <div style={{ border: "1px solid rgba(255,255,255,.08)", borderRadius: 14, padding: 18, background: "rgba(255,255,255,.035)", display: "grid", gap: 15 }}>
-          <div style={{ fontWeight: 750 }}>Create a local MP4</div>
-          <label style={{ display: "grid", gap: 6 }}>File name
-            <input aria-label="Video file name" value={filename} disabled={running} onChange={event => { setFilename(event.target.value); resetPreparedExport(); }} style={{ minHeight: 42, borderRadius: 9, border: "1px solid rgba(255,255,255,.16)", background: "#10151e", color: "white", padding: "8px 11px" }} />
+        <div className={styles.settingsPanel}>
+          <div className={styles.settingsTitle}>Create a local MP4</div>
+          <label className={styles.field}>File name
+            <input aria-label="Video file name" value={filename} disabled={running} onChange={event => { setFilename(event.target.value); resetPreparedExport(); }} className={styles.input} />
           </label>
-          <fieldset disabled={running} style={{ border: 0, padding: 0, margin: 0, display: "grid", gap: 10 }}>
-            <legend style={{ marginBottom: 7, fontWeight: 700 }}>Destination</legend>
-            <div role="group" aria-label="Video destinations" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 9 }}>
+          <fieldset disabled={running} className={styles.fieldset}>
+            <legend className={styles.legend}>Destination</legend>
+            <div role="group" aria-label="Video destinations" className={styles.tileGrid}>
               {EXPORT_DESTINATION_CATALOG.map(preset => {
                 const active = preset.id === destinationId;
-                return <button key={preset.id} type="button" aria-pressed={active} onClick={() => { setDestinationId(preset.id); resetPreparedExport(); }} style={{ minHeight: 72, padding: 10, display: "grid", gridTemplateColumns: "34px 1fr", alignItems: "center", gap: 9, textAlign: "left", borderRadius: 10, border: active ? "2px solid #64a9ff" : "1px solid rgba(255,255,255,.14)", background: active ? "rgba(54,124,205,.2)" : "#10151e", color: "white", cursor: "pointer" }}>
-                  <span aria-hidden="true" style={{ width: 32, height: 32, display: "grid", placeItems: "center", borderRadius: 9, background: "rgba(118,176,255,.15)", color: "#a8d1ff", fontSize: 11, fontWeight: 850 }}>{preset.brandAsset.label}</span>
-                  <span><span style={{ display: "block", fontWeight: 760 }}>{preset.displayName}</span><span style={{ display: "block", marginTop: 3, color: "rgba(255,255,255,.52)", fontSize: 11 }}>{preset.shape === "custom-choice" ? "Choose shape" : preset.shape === "original" ? "Saved shape" : preset.shape}</span></span>
+                return <button key={preset.id} type="button" aria-pressed={active} onClick={() => { setDestinationId(preset.id); resetPreparedExport(); }} className={styles.tile}>
+                  <span aria-hidden="true" className={styles.tileBadge}>{preset.brandAsset.label}</span>
+                  <span><span className={styles.tileName}>{preset.displayName}</span><span className={styles.tileShape}>{preset.shape === "custom-choice" ? "Choose shape" : preset.shape === "original" ? "Saved shape" : preset.shape}</span></span>
                 </button>;
               })}
             </div>
           </fieldset>
-          {destinationId === "custom-other" ? <div style={{ display: "grid", gap: 10 }}>
-            <label style={{ display: "grid", gap: 6 }}>Custom canvas shape
-              <select aria-label="Custom canvas shape" disabled={running} value={customShape} onChange={event => { setCustomShape(event.target.value as ExportCanvasShape); resetPreparedExport(); }} style={{ minHeight: 42, borderRadius: 9, border: "1px solid rgba(255,255,255,.16)", background: "#10151e", color: "white", padding: "8px 11px" }}>
+          {destinationId === "custom-other" ? <div className={styles.customGroup}>
+            <label className={styles.field}>Custom canvas shape
+              <select aria-label="Custom canvas shape" disabled={running} value={customShape} onChange={event => { setCustomShape(event.target.value as ExportCanvasShape); resetPreparedExport(); }} className={styles.input}>
                 <option value="original">Original saved shape</option><option value="16:9">16:9</option><option value="9:16">9:16</option><option value="1:1">1:1 square</option><option value="4:5">4:5 portrait</option><option value="custom">Custom dimensions</option>
               </select>
             </label>
-            {usingCustomDimensions ? <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10 }}>
-              <label style={{ display: "grid", gap: 6 }}>Width
-                <input aria-label="Custom video width" aria-invalid={Boolean(customDimensionError)} aria-describedby="custom-dimension-error" type="number" min={256} max={1920} step={2} value={customWidth} onChange={event => { setCustomWidth(event.target.value); resetPreparedExport(); }} style={{ minHeight: 42, borderRadius: 9, border: "1px solid rgba(255,255,255,.16)", background: "#10151e", color: "white", padding: "8px 11px" }} />
+            {usingCustomDimensions ? <div className={styles.twoColumn}>
+              <label className={styles.field}>Width
+                <input aria-label="Custom video width" aria-invalid={Boolean(customDimensionError)} aria-describedby="custom-dimension-error" type="number" min={256} max={1920} step={2} value={customWidth} onChange={event => { setCustomWidth(event.target.value); resetPreparedExport(); }} className={styles.input} />
               </label>
-              <label style={{ display: "grid", gap: 6 }}>Height
-                <input aria-label="Custom video height" aria-invalid={Boolean(customDimensionError)} aria-describedby="custom-dimension-error" type="number" min={256} max={1920} step={2} value={customHeight} onChange={event => { setCustomHeight(event.target.value); resetPreparedExport(); }} style={{ minHeight: 42, borderRadius: 9, border: "1px solid rgba(255,255,255,.16)", background: "#10151e", color: "white", padding: "8px 11px" }} />
+              <label className={styles.field}>Height
+                <input aria-label="Custom video height" aria-invalid={Boolean(customDimensionError)} aria-describedby="custom-dimension-error" type="number" min={256} max={1920} step={2} value={customHeight} onChange={event => { setCustomHeight(event.target.value); resetPreparedExport(); }} className={styles.input} />
               </label>
             </div> : null}
-            {usingCustomDimensions ? <div id="custom-dimension-error" role={customDimensionError ? "alert" : undefined} style={{ color: customDimensionError ? "#ffb3b3" : "rgba(255,255,255,.55)", fontSize: 12 }}>{customDimensionError ?? "Even whole numbers from 256 through 1920 pixels."}</div> : null}
+            {usingCustomDimensions ? <div id="custom-dimension-error" role={customDimensionError ? "alert" : undefined} className={customDimensionError ? styles.hintError : styles.hint}>{customDimensionError ?? "Even whole numbers from 256 through 1920 pixels."}</div> : null}
           </div> : null}
-          {!usingCustomDimensions ? <fieldset disabled={running} style={{ border: 0, padding: 0, margin: 0, display: "flex", gap: 12, flexWrap: "wrap" }}>
-            <legend style={{ marginBottom: 7 }}>Video quality</legend>
-            {(["720p", "1080p"] as const).map(tier => <label key={tier} style={{ display: "flex", gap: 7, alignItems: "center" }}><input type="radio" name="quality" checked={quality === tier} onChange={() => { setQuality(tier); resetPreparedExport(); }} />{tier}</label>)}
+          {!usingCustomDimensions ? <fieldset disabled={running} className={styles.qualityFieldset}>
+            <legend className={styles.legend}>Video quality</legend>
+            {(["720p", "1080p"] as const).map(tier => <label key={tier} className={styles.radioLabel}><input type="radio" name="quality" checked={quality === tier} onChange={() => { setQuality(tier); resetPreparedExport(); }} />{tier}</label>)}
           </fieldset> : null}
-          <div aria-label="Destination framing details" style={{ padding: 13, borderRadius: 10, border: "1px solid rgba(100,169,255,.22)", background: "rgba(62,128,207,.08)", color: "rgba(255,255,255,.78)", fontSize: 13, lineHeight: 1.55 }}>
-            <strong style={{ color: "white" }}>{selectedPreset.displayName} · Fit complete animation</strong><br />
+          <div aria-label="Destination framing details" className={styles.framing}>
+            <strong>{selectedPreset.displayName} · Fit complete animation</strong><br />
             {selectedPreset.shapeExplanation}<br />
             Canvas {dimensions.width}×{dimensions.height}; content {geometry.contentRect.width}×{geometry.contentRect.height} at ({geometry.contentRect.x}, {geometry.contentRect.y}). {geometry.paddingDescription}<br />
             {selectedPreset.guidance} Catalog {EXPORT_DESTINATION_CATALOG_VERSION}; local guidance only, not a posting guarantee.
           </div>
-          <div style={{ color: "rgba(255,255,255,.66)", fontSize: 13, lineHeight: 1.55 }}>
+          <div className={styles.summary}>
             {dimensions.width}×{dimensions.height} · {snapshot.project.document.fps} FPS · {formatExportDuration(snapshot.durationSeconds)} · H.264 MP4{hasAudio ? " with AAC audio" : " without audio"}<br />
-            Background: <span style={{ display: "inline-block", width: 12, height: 12, verticalAlign: "-1px", borderRadius: 2, background: resolveProjectBackground(snapshot.project), border: "1px solid rgba(255,255,255,.35)" }} /> {resolveProjectBackground(snapshot.project)}. Everything stays on this Mac; exporting uses no AI credits.
+            Background: <span className={styles.swatch} style={{ background: resolveProjectBackground(snapshot.project) }} /> {resolveProjectBackground(snapshot.project)}. Everything stays on this Mac; exporting uses no AI credits.
           </div>
-          {snapshot.durationSeconds >= 60 ? <div role="note" style={{ color: "#f3d89c", background: "rgba(255,190,65,.08)", border: "1px solid rgba(255,190,65,.2)", borderRadius: 10, padding: 11, fontSize: 12, lineHeight: 1.5 }}>Long exports can use significant local CPU, memory, and storage. Keep this tab open until validation finishes.</div> : null}
-          {progress ? <div role="status" aria-live="polite" style={{ display: "grid", gap: 7 }}>
+          {snapshot.durationSeconds >= 60 ? <div role="note" className={`${styles.statusWarning} ${styles.smallNote}`}>Long exports can use significant local CPU, memory, and storage. Keep this tab open until validation finishes.</div> : null}
+          {progress ? <div role="status" aria-live="polite" className={styles.progress}>
             <div>{progress.stage === "awaiting-location" ? "Ready for Finder" : progress.stage.charAt(0).toUpperCase() + progress.stage.slice(1)}{percent !== null ? ` · ${percent}%` : progress.bytesWritten ? ` · ${Math.round(progress.bytesWritten / 1024)} KB written` : ""}</div>
-            {percent !== null ? <progress aria-label="Export progress" max={100} value={percent} style={{ width: "100%" }} /> : null}
+            {percent !== null ? <progress aria-label="Export progress" max={100} value={percent} className={styles.progressBar} /> : null}
           </div> : null}
-          {exportError ? <div role="alert" style={{ color: exportState === "cancelled" ? "#f3d89c" : "#ffb3b3" }}>{exportError}</div> : null}
-          {inspection ? <div role="status" style={{ color: "#9fe3b2", lineHeight: 1.5 }}>Saved and validated <strong>{inspection.filename}</strong> · {inspection.width}×{inspection.height} · {inspection.frameCount} frames · {inspection.durationSeconds.toFixed(2)}s · {(inspection.byteLength / 1024).toFixed(0)} KB</div> : null}
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-            {exportState !== "awaiting-location" ? <button type="button" disabled={running || Boolean(customDimensionError)} onClick={() => void prepareExport()} style={{ ...primaryButtonStyle, opacity: running || customDimensionError ? .5 : 1 }}>{exportState === "preflighting" ? "Checking this Mac…" : exportState === "succeeded" ? "Export another video" : "Export video"}</button> : null}
-            {exportState === "awaiting-location" && request ? <button type="button" onClick={() => void chooseLocationAndExport()} style={primaryButtonStyle}>Choose save location…</button> : null}
-            {exportState === "exporting" ? <button type="button" onClick={cancelExport} style={secondaryButtonStyle}>Cancel export</button> : null}
-            {exportState === "cancelling" ? <button type="button" disabled style={{ ...secondaryButtonStyle, opacity: .55 }}>Cancelling…</button> : null}
+          {exportError ? <div role="alert" className={exportState === "cancelled" ? styles.statusWarning : styles.statusError}>{exportError}</div> : null}
+          {inspection ? <div role="status" className={styles.statusSuccess}>Saved and validated <strong>{inspection.filename}</strong> · {inspection.width}×{inspection.height} · {inspection.frameCount} frames · {inspection.durationSeconds.toFixed(2)}s · {(inspection.byteLength / 1024).toFixed(0)} KB</div> : null}
+          <div className={styles.actions}>
+            {exportState !== "awaiting-location" ? <button type="button" disabled={running || Boolean(customDimensionError)} onClick={() => void prepareExport()} className={styles.primaryButton}>{exportState === "preflighting" ? "Checking this Mac…" : exportState === "succeeded" ? "Export another video" : "Export video"}</button> : null}
+            {exportState === "awaiting-location" && request ? <button type="button" onClick={() => void chooseLocationAndExport()} className={styles.primaryButton}>Choose save location…</button> : null}
+            {exportState === "exporting" ? <button type="button" onClick={cancelExport} className={styles.button}>Cancel export</button> : null}
+            {exportState === "cancelling" ? <button type="button" disabled className={styles.button}>Cancelling…</button> : null}
           </div>
-          <div style={{ color: "rgba(255,255,255,.48)", fontSize: 12 }}>Suggested Finder name: {sanitizeExportFilename(filename, snapshot.project.title)}</div>
+          <div className={styles.finderName}>Suggested Finder name: {sanitizeExportFilename(filename, snapshot.project.title)}</div>
         </div>
       </div>
     </main>
   );
 }
-
-const primaryButtonStyle = { padding: "10px 16px", borderRadius: 10, border: "1px solid #4b91e8", background: "#2867b2", color: "white", fontWeight: 750, cursor: "pointer" } as const;
-const secondaryButtonStyle = { padding: "10px 14px", borderRadius: 10, border: "1px solid rgba(255,255,255,.16)", background: "rgba(255,255,255,.06)", color: "white", cursor: "pointer" } as const;
 
 export function AnimationExportFlow({ origin, onBack }: Props) {
   const account = useAccountSession();
@@ -379,31 +377,31 @@ export function AnimationExportFlow({ origin, onBack }: Props) {
   };
 
   return (
-    <main data-animation-export="choose" aria-label="Choose a saved animation to export" style={{ minHeight: "100vh", background: "#0d121b", color: "white", padding: "22px 22px 60px", overflowY: "auto" }}>
-      <div style={{ width: "min(1180px, 100%)", margin: "0 auto", display: "flex", flexDirection: "column", gap: 24 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
-          <button type="button" onClick={onBack} style={secondaryButtonStyle}>← Back</button>
-          <div style={{ textAlign: "center" }}><div style={{ color: "#80b8ff", fontSize: 12, fontWeight: 800, letterSpacing: ".1em", textTransform: "uppercase" }}>Export · Phase 3</div><h1 style={{ margin: "5px 0 0", fontSize: 28 }}>Choose and watch</h1></div>
-          <div style={{ width: 72 }} />
+    <main data-animation-export="choose" aria-label="Choose a saved animation to export" className={`${styles.page} ${styles.choosePage}`}>
+      <div className={`${styles.column} ${styles.chooseColumn}`}>
+        <div className={styles.headerRow}>
+          <button type="button" onClick={onBack} className={styles.backButton}>← Back</button>
+          <div className={styles.headerCenter}><div className={styles.eyebrow}>Export · Phase 3</div><h1 className={styles.chooseTitle}>Choose and watch</h1></div>
+          <div className={styles.headerSpacer} />
         </div>
-        <div style={{ color: "rgba(255,255,255,.68)", textAlign: "center" }}>Select a saved animation, then choose <strong>Use this animation</strong> to watch the exact saved frames.</div>
-        {origin === "workspace" ? <div role="note" style={{ background: "rgba(255,190,65,.09)", border: "1px solid rgba(255,190,65,.25)", borderRadius: 12, padding: 12, color: "#f3d89c" }}>Export uses the last saved version. Unsaved workspace changes are not included.</div> : null}
-        {message ? <div role="status" aria-live="polite" style={{ borderRadius: 10, padding: 12, background: "rgba(90,145,220,.1)", color: "#b9d8ff" }}>{message}</div> : null}
-        {loading ? <div style={{ padding: 60, textAlign: "center", color: "rgba(255,255,255,.55)" }}>Loading saved animations…</div> : collectionError ? <div style={{ padding: 40, textAlign: "center" }}>Saved animations could not be read. Nothing was changed.<div style={{ marginTop: 14 }}><button type="button" onClick={loadCollection} style={secondaryButtonStyle}>Try again</button></div></div> : entries.length === 0 ? <div style={{ padding: 60, textAlign: "center", color: "rgba(255,255,255,.55)" }}>No saved animations yet. Save an animation first, then return to Export.</div> : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 340px))", justifyContent: "center", gap: 16 }}>
+        <div className={styles.intro}>Select a saved animation, then choose <strong>Use this animation</strong> to watch the exact saved frames.</div>
+        {origin === "workspace" ? <div role="note" className={styles.statusWarning}>Export uses the last saved version. Unsaved workspace changes are not included.</div> : null}
+        {message ? <div role="status" aria-live="polite" className={styles.statusInfo}>{message}</div> : null}
+        {loading ? <div className={styles.emptyState}>Loading saved animations…</div> : collectionError ? <div className={styles.errorState}>Saved animations could not be read. Nothing was changed.<div className={styles.errorStateAction}><button type="button" onClick={loadCollection} className={styles.button}>Try again</button></div></div> : entries.length === 0 ? <div className={styles.emptyState}>No saved animations yet. Save an animation first, then return to Export.</div> : (
+          <div className={styles.grid}>
             {entries.map(entry => {
               const state = snapshots[entry.id];
               const invalid = entry.classification === "invalid" || state?.status === "failed";
               const selected = selectedId === entry.id;
               const snapshot = state?.status === "ready" ? state.snapshot : null;
-              return <button key={entry.id} type="button" aria-pressed={selected} disabled={invalid} onClick={() => { setSelectedId(entry.id); setMessage(null); }} style={{ padding: 0, overflow: "hidden", borderRadius: 14, border: selected ? "2px solid #5aa2ff" : "1px solid rgba(255,255,255,.12)", background: selected ? "rgba(46,111,190,.16)" : "#171d28", color: "white", cursor: invalid ? "default" : "pointer", opacity: invalid ? .62 : 1, textAlign: "left" }}>
-                <div style={{ aspectRatio: "16 / 9", background: "#242b37", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>{snapshot ? <ExportThumbnail snapshot={snapshot} /> : state?.status === "loading" ? <span style={{ color: "rgba(255,255,255,.46)", fontSize: 12 }}>Preparing exact preview…</span> : <span style={{ color: "rgba(255,255,255,.46)", fontSize: 12 }}>Unavailable</span>}</div>
-                <div style={{ padding: 14, display: "flex", flexDirection: "column", gap: 7 }}><div style={{ fontWeight: 780, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{entry.title}</div><div style={{ color: "rgba(255,255,255,.55)", fontSize: 12 }}>{formatUpdatedAt(entry.updatedAt)}</div><div style={{ color: snapshot?.frameCount ? "#9bc7ff" : "rgba(255,255,255,.55)", fontSize: 12 }}>{invalid ? state?.status === "failed" ? state.message : "Unavailable" : snapshot ? snapshot.frameCount === 0 ? "No authored frames" : `${formatExportDuration(snapshot.durationSeconds)} · ${snapshot.project.document.fps} FPS` : "Checking saved animation…"}</div></div>
+              return <button key={entry.id} type="button" aria-pressed={selected} disabled={invalid} onClick={() => { setSelectedId(entry.id); setMessage(null); }} className={styles.card}>
+                <div className={styles.cardThumb}>{snapshot ? <ExportThumbnail snapshot={snapshot} /> : state?.status === "loading" ? <span className={styles.thumbNote}>Preparing exact preview…</span> : <span className={styles.thumbNote}>Unavailable</span>}</div>
+                <div className={styles.cardBody}><div className={styles.cardTitle}>{entry.title}</div><div className={styles.cardMeta}>{formatUpdatedAt(entry.updatedAt)}</div><div className={snapshot?.frameCount ? styles.cardMetaReady : styles.cardMeta}>{invalid ? state?.status === "failed" ? state.message : "Unavailable" : snapshot ? snapshot.frameCount === 0 ? "No authored frames" : `${formatExportDuration(snapshot.durationSeconds)} · ${snapshot.project.document.fps} FPS` : "Checking saved animation…"}</div></div>
               </button>;
             })}
           </div>
         )}
-        <div style={{ position: "sticky", bottom: 0, padding: "14px 0", background: "linear-gradient(180deg, rgba(13,18,27,0), #0d121b 28%)", display: "flex", justifyContent: "center" }}><button type="button" disabled={busy || selectedState?.status !== "ready" || selectedState.snapshot.frameCount === 0} onClick={() => void openSelectedAnimation()} style={{ ...primaryButtonStyle, minWidth: 190, opacity: busy || selectedState?.status !== "ready" || selectedState.snapshot.frameCount === 0 ? .45 : 1, cursor: busy || selectedState?.status !== "ready" || selectedState.snapshot.frameCount === 0 ? "default" : "pointer" }}>{busy ? "Checking…" : "Use this animation"}</button></div>
+        <div className={styles.footer}><button type="button" disabled={busy || selectedState?.status !== "ready" || selectedState.snapshot.frameCount === 0} onClick={() => void openSelectedAnimation()} className={`${styles.primaryButton} ${styles.wideButton}`}>{busy ? "Checking…" : "Use this animation"}</button></div>
       </div>
     </main>
   );

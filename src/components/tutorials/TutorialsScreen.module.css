@@ -27,31 +27,27 @@
   align-items: center;
   gap: 6px;
   min-height: 40px;
-  padding: 8px 14px 8px 10px;
+  padding: 0 14px;
   border: 1px solid #244267;
   border-radius: 10px;
   background: #071120;
-  color: #c9d9f0;
+  color: #c9d6ea;
   font: inherit;
   font-size: 13px;
-  font-weight: 650;
+  font-weight: 600;
   cursor: pointer;
   transition: none;
   animation: none;
 }
 
 .backIcon {
-  color: #8cbbf3;
+  color: inherit;
   flex: 0 0 auto;
 }
 
 .backButton:hover {
   border-color: #0066ff;
   background: #0066ff;
-  color: #fff;
-}
-
-.backButton:hover .backIcon {
   color: #fff;
 }
 
@@ -111,7 +107,7 @@
   column-gap: 16px;
   row-gap: 18px;
   padding: 22px 24px;
-  border: 1px solid #244267;
+  border: 1px solid #163058;
   border-radius: 14px;
   background: #071120;
   cursor: default;

@@ -369,7 +369,7 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
       <main ref={libraryRef} className={styles.library} data-project-library={surface === "watch" ? "my-projects" : "open-project"} aria-labelledby="project-library-heading">
         <div className={styles.shell}>
           <header className={styles.header}>
-            <button type="button" onClick={onBack} className={styles.secondaryButton}>← Back</button>
+            <button type="button" onClick={onBack} className={`${styles.secondaryButton} ${styles.backButton}`}>← Back</button>
             <div className={styles.headingGroup}>
               <div className={styles.eyebrow}>Project library</div>
               <h1 id="project-library-heading">{heading}</h1>

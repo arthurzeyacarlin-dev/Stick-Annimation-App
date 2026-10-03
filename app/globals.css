@@ -1,34 +1,35 @@
-/* HARD ROOT BACKGROUND LOCK – prevents white first-paint flash */
-html, body {
-  background: rgb(26, 32, 42);
-  margin: 0;
-  height: 100%;
-}
-/* === HARD ROOT BACKGROUND LOCK === */
-/* Prevents white flash on refresh */
-
-html {
-  background: rgb(26, 32, 42) !important;
-}
-
-body {
-  margin: 0;
-  padding: 0;
-  min-height: 100vh;
-  background: rgb(26, 32, 42) !important;
-  color-scheme: dark;
-}
-
-/* Also lock the Next.js root container */
-#__next {
-  background: rgb(26, 32, 42);
-  min-height: 100vh;
-}
 @import "tailwindcss";
 
+/* === Diamond Animator design kit (SPEC-0016 Phase 6) ===
+   One palette for every screen. Use these variables instead of new hex values. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --da-page: #030914;          /* dark navy: page and work areas */
+  --da-panel: #071120;         /* brighter navy: bars, panels, cards, chat boxes, buttons at rest */
+  --da-line: #163058;          /* dividers and card/dialog borders */
+  --da-border: #244267;        /* button and input borders */
+  --da-selected-bg: #0f2a52;   /* selected / primary (dull blue) */
+  --da-selected-border: #3a6aa3;
+  --da-hover: #0066ff;         /* hover: filled buttons turn this with white text; links/bell change text only */
+  --da-text: #f6f9ff;
+  --da-text-2: #c9d6ea;
+  --da-text-3: #a8bddd;
+  --da-muted: #8fabd0;
+  --da-label: #7895bc;         /* small uppercase labels */
+  --da-link: #8cbbf3;          /* text links at rest */
+  --da-focus: #66c7ff;         /* keyboard focus ring */
+  --da-danger: #ff8a95;
+  --da-danger-border: rgba(255, 138, 149, 0.35);
+  --da-danger-solid: #d23a52;
+  --da-warning: #f3d89c;
+  --da-warning-border: rgba(255, 190, 65, 0.35);
+  --da-success: #7fd8a6;
+  --da-success-border: rgba(127, 216, 166, 0.35);
+  --da-scrim: rgba(3, 9, 20, 0.72);
+  --da-radius-control: 10px;
+  --da-radius-card: 16px;
+  --da-shadow-pop: 0 18px 44px rgba(0, 0, 0, 0.45);
+  --background: var(--da-page);
+  --foreground: var(--da-text);
 }
 
 @theme inline {
@@ -38,31 +39,24 @@ body {
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #101010;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}/* Force global background (prevents overrides) */
-html, body {
-  background: #23252b !important; /* darker, pro */
-}
-/* --- Diamond Animator base --- */
+/* One base background (prevents a light first-paint flash). */
 html, body {
   height: 100%;
   margin: 0;
+  background: var(--da-page);
+  color-scheme: dark;
 }
 
 body {
-  background: #141a24;
-  color: rgba(255,255,255,0.92);
+  padding: 0;
+  min-height: 100vh;
+  color: var(--da-text);
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+#__next {
+  background: var(--da-page);
+  min-height: 100vh;
 }
 
 /* App wrapper */

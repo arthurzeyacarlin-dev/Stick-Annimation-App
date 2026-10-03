@@ -502,7 +502,7 @@ export default function Page() {
   className="app"
   style={{
     height: "100vh",
-    background: view === "home" || view === "help" || view === "tutorials" ? "#030914" : "rgb(26, 27, 36)",
+    background: "#030914",
     display: "flex",
     flexDirection: "column",
     overflow: "hidden", // IMPORTANT: keep page scrollbar from being on <body>
@@ -779,7 +779,7 @@ export default function Page() {
     }}
   />
 )}
-{bootstrapMessage && view === "home" ? <div role="status" style={{ position: "fixed", bottom: 12, left: 12, color: "white", background: "#182334", padding: 12, borderRadius: 8 }}>{bootstrapMessage}</div> : null}
+{bootstrapMessage && view === "home" ? <div role="status" style={{ position: "fixed", bottom: 12, left: 12, color: "#f6f9ff", background: "#071120", border: "1px solid #163058", padding: 12, borderRadius: 12 }}>{bootstrapMessage}</div> : null}
 {workspace && (view === "animationWorkspace" || (view === "animationExport" && exportOrigin === "workspace")) && (
   <div style={{ display: view === "animationWorkspace" ? "contents" : "none" }}>
     <AnimationWorkspace

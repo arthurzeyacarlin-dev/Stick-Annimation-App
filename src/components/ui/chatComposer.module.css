@@ -1,0 +1,36 @@
+/* Shared chat box used by the Assistant and the editor's AI Animator.
+   Brighter navy box with #244267 outline on a dark area; dull blue at rest; native :hover -> #0066FF. */
+.box { background: #071120; border: 1px solid #244267; border-radius: 14px; padding: 10px 12px 8px; }
+.box:focus-within { border-color: #31588a; }
+.box textarea { display: block; width: 100%; min-height: 44px; max-height: 150px; resize: none; background: transparent; color: #f6f9ff; border: 0; padding: 2px 4px; font: inherit; font-size: 14px; line-height: 1.5; overflow-y: auto; overflow-wrap: anywhere; scrollbar-width: thin; scrollbar-color: #244267 transparent; }
+.box textarea:focus, .box textarea:focus-visible { outline: none; }
+.box textarea::placeholder { color: #6f8db4; }
+.box textarea:disabled { opacity: .6; }
+.compact textarea { min-height: 38px; max-height: 96px; font-size: 13px; }
+
+.tools { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 6px; }
+.reasoning { display: flex; align-items: center; gap: 6px; min-width: 0; font-size: 12px; color: #8fabd0; }
+.reasoning select { min-height: 32px; max-width: 140px; border: 1px solid #244267; border-radius: 10px; padding: 4px 8px; color: #c9d6ea; background: #071120; font: inherit; font-size: 12px; cursor: pointer; transition: none; }
+.reasoning select:hover:enabled { border-color: #0066ff; background: #0066ff; color: #fff; }
+.reasoning select:disabled { opacity: .45; cursor: not-allowed; }
+.reasoning select:focus-visible { outline: 2px solid #66c7ff; outline-offset: 2px; }
+
+.actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+/* Dictate, Send (check) and Stop (X): plain white icons, no bubble; the blue fill appears only on hover. */
+.iconButton { width: 34px; height: 34px; display: grid; place-items: center; padding: 8px; border: 1px solid transparent; border-radius: 10px; background: transparent; color: #ffffff; cursor: pointer; transition: none; }
+.iconButton svg { width: 100%; height: 100%; }
+.iconButton:focus-visible { outline: 2px solid #66c7ff; outline-offset: 2px; }
+.iconButton:hover:enabled { border-color: #0066ff; background: #0066ff; color: #fff; }
+.iconButton:disabled { opacity: .45; cursor: not-allowed; }
+
+.dictationPanel { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; padding: 10px 0 6px; border-top: 1px solid #163058; margin-top: 6px; }
+.dictationState { display: flex; align-items: center; gap: 7px; color: #c9d6ea; font-size: 12px; font-variant-numeric: tabular-nums; }
+.recordingDot { width: 7px; height: 7px; background: #8cbbf3; border-radius: 50%; flex-shrink: 0; }
+.waveform { flex: 1; min-width: 60px; height: 32px; display: flex; align-items: center; justify-content: center; gap: 3px; overflow: hidden; }
+.waveform span { width: 3px; flex: 1; max-width: 4px; background: #8cbbf3; border-radius: 2px; }
+.dictationControls { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+.dictationControls button { min-height: 32px; border: 1px solid #244267; color: #c9d6ea; border-radius: 10px; padding: 5px 12px; background: #071120; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; transition: none; }
+.dictationControls .dictationStop { background: #0f2a52; color: #f6f9ff; border-color: #3a6aa3; }
+.dictationControls button:hover { border-color: #0066ff; background: #0066ff; color: #fff; }
+.dictationNotice { text-align: center; font-size: 12px; color: #8cbbf3; margin-top: 6px; line-height: 1.5; }
+.dictationNotice:empty { display: none; }

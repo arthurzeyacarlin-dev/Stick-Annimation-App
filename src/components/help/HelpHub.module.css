@@ -9,7 +9,7 @@
 .frame { width: min(920px, 100%); min-height: 100%; margin: 0 auto; display: flex; flex-direction: column; justify-content: center; gap: 28px; }
 .screen button { border: 0; background: transparent; color: inherit; cursor: pointer; font: inherit; transition: none; animation: none; }
 .screen button:focus-visible { outline: 2px solid #66c7ff; outline-offset: 4px; }
-.screen .back { align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 8px 14px; border: 1px solid #244267; border-radius: 10px; background: #071120; color: #c9d6ea; font-size: 13px; font-weight: 600; }
+.screen .back { align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px; border: 1px solid #244267; border-radius: 10px; background: #071120; color: #c9d6ea; font-size: 13px; font-weight: 600; }
 .screen .back:hover { border-color: #0066ff; background: #0066ff; color: #fff; }
 .intro { display: flex; flex-direction: column; gap: 8px; }
 .heading { margin: 0; font-size: clamp(36px, 4vw, 52px); font-weight: 740; line-height: 1.05; letter-spacing: -.05em; }

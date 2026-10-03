@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  type CSSProperties,
   forwardRef,
   useCallback,
   useEffect,
@@ -45,15 +46,10 @@ type AudioUiState =
   | { status: "blocked"; message: string }
   | { status: "unavailable"; message: string };
 
-const playerButtonStyle = {
-  padding: "10px 16px",
-  borderRadius: 10,
-  border: "1px solid #4b91e8",
-  background: "#2867b2",
-  color: "white",
-  fontWeight: 750,
-  cursor: "pointer",
-} as const;
+/** Presentation only: the played fraction drawn by the custom seek track. */
+const seekFillStyle = (value: number, maximum: number): CSSProperties => ({
+  ["--player-seek-fill" as string]: `${maximum > 0 ? Math.min(100, Math.max(0, (value / maximum) * 100)) : 0}%`,
+});
 
 const performanceSeconds = () => performance.now() / 1000;
 
@@ -442,7 +438,7 @@ export const CanonicalProjectPlayer = forwardRef<CanonicalProjectPlayerHandle, P
             type="button"
             onClick={togglePlayback}
             disabled={playbackDisabled}
-            style={{ ...playerButtonStyle, opacity: playbackDisabled ? 0.5 : 1 }}
+            className={styles.exportPlayButton}
           >
             {playing ? "Pause" : "Play"}
           </button>
@@ -454,6 +450,7 @@ export const CanonicalProjectPlayer = forwardRef<CanonicalProjectPlayerHandle, P
             value={Math.min(displayFrame, exportFrameMaximum)}
             onChange={event => seekTo(Number(event.target.value) / fps, false)}
             className={styles.seek}
+            style={seekFillStyle(Math.min(displayFrame, exportFrameMaximum), exportFrameMaximum)}
           />
           <div className={styles.time} aria-label={`${mediaTimeSeconds.toFixed(3)} seconds of ${durationSeconds.toFixed(3)} seconds`}>
             {`${mediaTimeSeconds.toFixed(1)}s / ${formatExportDuration(durationSeconds)} · Frame ${visibleFrameNumber}/${snapshot.frameCount}`}
@@ -532,6 +529,7 @@ export const CanonicalProjectPlayer = forwardRef<CanonicalProjectPlayerHandle, P
               }}
               onBlur={finishSeek}
               className={styles.viewerSeek}
+              style={seekFillStyle(mediaTimeSeconds * fps, snapshot.frameCount)}
             />
             <div className={styles.viewerTime} aria-label={`${mediaTimeSeconds.toFixed(3)} seconds of ${durationSeconds.toFixed(3)} seconds`}>
               <span>{currentTime} / {totalTime}</span>

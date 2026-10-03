@@ -1599,10 +1599,10 @@ export function DrawingTimelineRow({
               flexDirection: "column",
               gap: 4,
               padding: 6,
-              borderRadius: 10,
-              border: `1px solid ${workspaceColors.border}`,
+              borderRadius: 12,
+              border: `1px solid ${workspaceColors.divider}`,
               background: workspaceColors.panel,
-              boxShadow: "0 16px 36px rgba(0,0,0,0.5)",
+              boxShadow: "0 18px 44px rgba(0,0,0,0.45)",
               zIndex: 9999,
             }}
           >

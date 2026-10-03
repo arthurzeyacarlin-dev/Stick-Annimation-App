@@ -17,13 +17,13 @@
   width: auto;
   height: auto;
   display: block;
-  border-radius: 10px;
+  border-radius: var(--da-radius-control);
 }
 
 .contentRect {
   position: absolute;
   pointer-events: none;
-  border: 2px solid rgba(115, 205, 255, 0.92);
+  border: 2px solid var(--da-focus);
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.55) inset;
   border-radius: 4px;
 }
@@ -40,25 +40,139 @@
 .seek:focus-visible,
 .viewerControlButton:focus-visible,
 .viewerSeek:focus-visible {
-  outline: 2px solid #22d3ee;
+  outline: 2px solid var(--da-focus);
   outline-offset: 3px;
+}
+
+/* Primary (Play/Pause) and secondary filled buttons: native :hover, instant. */
+.exportPlayButton,
+.viewerControlButton,
+.viewerClose {
+  border-radius: var(--da-radius-control);
+  cursor: pointer;
+  transition: none;
+}
+
+.exportPlayButton,
+.viewerControlRow > .viewerControlButton:first-child {
+  border: 1px solid var(--da-selected-border);
+  background: var(--da-selected-bg);
+  color: #ffffff;
+}
+
+.exportPlayButton {
+  padding: 10px 16px;
+  font-weight: 750;
+}
+
+.exportPlayButton:hover:not(:disabled),
+.viewerControlButton:hover:not(:disabled),
+.viewerClose:hover:not(:disabled) {
+  border-color: var(--da-hover);
+  background: var(--da-hover);
+  color: #ffffff;
+}
+
+.exportPlayButton:disabled,
+.viewerControlButton:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+/*
+ * Seek sliders are drawn by hand so the browser never tints them.
+ * --player-seek-fill is the played fraction (set inline from the slider value).
+ * Rest: dull #3a6aa3 fill/thumb; hover or drag: #0066ff. Track: #163058.
+ */
+.seek,
+.viewerSeek {
+  --player-seek-color: var(--da-selected-border);
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.seek:hover,
+.seek:active,
+.viewerSeek:hover,
+.viewerSeek:active {
+  --player-seek-color: var(--da-hover);
+}
+
+.seek::-webkit-slider-runnable-track,
+.viewerSeek::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    var(--player-seek-color) 0,
+    var(--player-seek-color) var(--player-seek-fill, 0%),
+    var(--da-line) var(--player-seek-fill, 0%),
+    var(--da-line) 100%
+  );
+}
+
+.seek::-webkit-slider-thumb,
+.viewerSeek::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  margin-top: -5px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--player-seek-color);
+  box-shadow: none;
+}
+
+.seek::-moz-range-track,
+.viewerSeek::-moz-range-track {
+  height: 6px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--da-line);
+}
+
+.seek::-moz-range-progress,
+.viewerSeek::-moz-range-progress {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--player-seek-color);
+}
+
+.seek::-moz-range-thumb,
+.viewerSeek::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--player-seek-color);
+  box-shadow: none;
 }
 
 .seek {
   flex: 1 1 340px;
   min-width: 0;
-  accent-color: #0ea5e9;
+  height: 32px;
+  margin: 0;
 }
 
 .time {
   min-width: 155px;
   text-align: right;
-  color: rgba(255, 255, 255, 0.68);
+  color: var(--da-muted);
   font-variant-numeric: tabular-nums;
 }
 
 .renderError {
-  color: #fecaca;
+  align-self: flex-start;
+  max-width: min(100%, 720px);
+  padding: 8px 10px;
+  border: 1px solid var(--da-danger-border);
+  border-radius: var(--da-radius-control);
+  background: var(--da-page);
+  color: var(--da-danger);
   font-size: 12px;
   line-height: 1.35;
 }
@@ -70,8 +184,7 @@
   display: grid;
   place-items: center;
   padding: 24px;
-  background: rgba(2, 6, 14, 0.82);
-  backdrop-filter: blur(8px);
+  background: var(--da-scrim);
 }
 
 .viewerDialog {
@@ -82,11 +195,11 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  border-radius: 18px;
-  border: 1px solid #2a3a55;
-  background: #111827;
-  color: #f8fafc;
-  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.62), 0 0 0 1px rgba(34, 211, 238, 0.06);
+  border-radius: var(--da-radius-card);
+  border: 1px solid var(--da-line);
+  background: var(--da-panel);
+  color: var(--da-text);
+  box-shadow: var(--da-shadow-pop);
   padding: 20px;
 }
 
@@ -105,12 +218,12 @@
 }
 
 .viewerHeadingGroup:focus-visible {
-  outline: 2px solid #22d3ee;
+  outline: 2px solid var(--da-focus);
   outline-offset: 4px;
 }
 
 .viewerEyebrow {
-  color: #22d3ee;
+  color: var(--da-label);
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.12em;
@@ -120,13 +233,14 @@
 .viewerTitle {
   margin: 5px 0 0;
   overflow-wrap: anywhere;
+  color: var(--da-text);
   font-size: clamp(20px, 3vw, 30px);
   line-height: 1.16;
 }
 
 .viewerDescription {
   margin: 7px 0 0;
-  color: #94a3b8;
+  color: var(--da-muted);
   font-size: 13px;
   line-height: 1.45;
 }
@@ -136,19 +250,14 @@
   min-height: 44px;
   flex: 0 0 auto;
   padding: 9px 14px;
-  border-radius: 10px;
-  border: 1px solid #2a3a55;
-  background: #172033;
-  color: #f8fafc;
-  cursor: pointer;
-}
-
-.viewerClose:hover {
-  border-color: #22d3ee;
+  border: 1px solid var(--da-border);
+  background: var(--da-panel);
+  color: var(--da-text-2);
+  font-weight: 700;
 }
 
 .viewerClose:focus-visible {
-  outline: 2px solid #22d3ee;
+  outline: 2px solid var(--da-focus);
   outline-offset: 3px;
 }
 
@@ -168,8 +277,8 @@
   min-height: 220px;
   overflow: hidden;
   border-radius: 12px;
-  background: #030712;
-  border: 1px solid #2a3a55;
+  background: var(--da-page);
+  border: 1px solid var(--da-line);
   isolation: isolate;
 }
 
@@ -179,7 +288,7 @@
   min-height: 0;
   border: 0;
   border-radius: 0;
-  background: #000814;
+  background: var(--da-page);
 }
 
 .viewerVideoSurface {
@@ -190,7 +299,7 @@
   place-items: center;
   overflow: hidden;
   cursor: pointer;
-  background: #030712;
+  background: var(--da-page);
 }
 
 .viewerCanvas {
@@ -208,14 +317,14 @@
   flex-direction: column;
   gap: 9px;
   padding: 10px 16px 14px;
-  border-top: 1px solid #2a3a55;
-  background: #08111f;
-  transition: opacity 180ms ease;
+  border-top: 1px solid var(--da-line);
+  background: var(--da-panel);
+  transition: none;
 }
 
+/* Auto-hide shows/hides the controls instantly (no fade). */
 .viewerChromeVisible {
   opacity: 1;
-  transform: translateY(0);
   pointer-events: auto;
 }
 
@@ -227,12 +336,11 @@
 .viewerChromeTitle {
   max-width: min(75%, 680px);
   overflow: hidden;
-  color: #f8fafc;
+  color: var(--da-text);
   font-size: 14px;
   font-weight: 800;
   text-overflow: ellipsis;
   white-space: nowrap;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.75);
 }
 
 .viewerControlRow {
@@ -247,21 +355,10 @@
   min-width: 70px;
   flex: 0 0 auto;
   padding: 8px 12px;
-  border: 1px solid rgba(148, 210, 255, 0.72);
-  border-radius: 10px;
-  background: rgba(3, 105, 161, 0.94);
-  color: #ffffff;
+  border: 1px solid var(--da-border);
+  background: var(--da-panel);
+  color: var(--da-text-2);
   font-weight: 800;
-  cursor: pointer;
-}
-
-.viewerControlButton:hover:not(:disabled) {
-  background: rgba(2, 132, 199, 0.98);
-}
-
-.viewerControlButton:disabled {
-  cursor: default;
-  opacity: 0.5;
 }
 
 .viewerSeek {
@@ -269,8 +366,6 @@
   flex: 1 1 auto;
   height: 44px;
   margin: 0;
-  accent-color: #22d3ee;
-  cursor: pointer;
 }
 
 .viewerTime {
@@ -279,7 +374,7 @@
   flex-direction: column;
   gap: 2px;
   min-width: 104px;
-  color: #f8fafc;
+  color: var(--da-text);
   font-size: 12px;
   line-height: 1.2;
   font-variant-numeric: tabular-nums;
@@ -287,7 +382,7 @@
 }
 
 .viewerTime span:last-child {
-  color: #a9bbcf;
+  color: var(--da-muted);
   font-size: 10px;
 }
 
@@ -298,10 +393,10 @@
   gap: 8px;
   max-width: min(100%, 720px);
   padding: 8px 10px;
-  border: 1px solid rgba(251, 191, 36, 0.5);
-  border-radius: 9px;
-  background: rgba(69, 44, 4, 0.92);
-  color: #fef3c7;
+  border: 1px solid var(--da-warning-border);
+  border-radius: var(--da-radius-control);
+  background: var(--da-page);
+  color: var(--da-warning);
   font-size: 12px;
   line-height: 1.35;
 }
@@ -311,9 +406,9 @@
 }
 
 .fullscreenWarning {
-  border-color: rgba(248, 113, 113, 0.54);
-  background: rgba(80, 19, 28, 0.92);
-  color: #fecaca;
+  border-color: var(--da-danger-border);
+  background: var(--da-page);
+  color: var(--da-danger);
 }
 
 .srOnly {
@@ -341,7 +436,6 @@
     width: calc(100vw - 16px);
     height: calc(100vh - 16px);
     padding: 12px;
-    border-radius: 14px;
   }
 
   .viewerHeader {

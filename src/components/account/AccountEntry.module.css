@@ -114,19 +114,25 @@
 .switchRow { margin: 0; color: #8fabd0; font-size: 13px; text-align: center; }
 .switch {
   margin-left: 4px;
-  padding: 2px 6px;
-  border: 1px solid transparent;
+  padding: 2px 4px;
+  border: 0;
   border-radius: 6px;
   background: transparent;
-  color: #c9d6ea;
+  color: #8cbbf3;
   font: inherit;
   font-weight: 650;
   cursor: pointer;
 }
 
 .button:hover:not(:disabled),
-.plan:hover,
-.switch:hover:not(:disabled) { border-color: #0066ff; background: #0066ff; color: #ffffff; }
+.plan:hover { border-color: #0066ff; background: #0066ff; color: #ffffff; }
+/* Text link: only the text turns #0066ff on hover, no fill. */
+.switch:hover:not(:disabled) { background: transparent; color: #0066ff; }
+
+/* Back (the non-primary button beside the submit action): canonical back control. */
+.actions { align-items: center; }
+.actions > .button:not(.primary) { height: 40px; min-height: 40px; padding: 0 14px; font-size: 13px; font-weight: 600; }
+.actions > .primary { align-self: stretch; }
 .plan:hover .planNote { color: #ffffff; }
 
 .button:focus-visible, .plan:focus-visible, .switch:focus-visible { outline: 2px solid #66c7ff; outline-offset: 2px; }

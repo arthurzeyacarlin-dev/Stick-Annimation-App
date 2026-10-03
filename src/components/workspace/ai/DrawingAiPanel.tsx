@@ -39,7 +39,9 @@ import {
   subscribeNotificationNavigationIntentV1,
 } from "@/src/lib/notifications/notificationNavigation";
 import type { NotificationTargetV1 } from "@/src/lib/notifications/notificationContracts";
-import { WorkspaceAiComposerShell, WorkspaceAiPanelShell } from "./WorkspaceAiPanelShell";
+import { WorkspaceAiPanelShell } from "./WorkspaceAiPanelShell";
+import { AssistantDictationCapture, type DictationView } from "@/src/lib/assistant/assistantDictationCapture";
+import { ChatDictateButton, ChatDictationPanel, ChatReasoningSelect, ChatSendButton, ChatStopButton, ChatToolsRow, chatComposerStyles } from "@/src/components/ui/ChatComposerParts";
 import { workspaceColors } from "../workspaceTheme";
 
 type DrawingAiPanelProps = {
@@ -155,7 +157,8 @@ export function DrawingAiPanel({
   const [ledger, setLedger] = useState<AiAnimatorLedger>(() => createEmptyAiAnimatorLedger(projectId));
   const [reasoningLevel, setReasoningLevel] = useState<DrawingAiReasoningLevel>("medium");
   const [inputValue, setInputValue] = useState("");
-  const [isReasoningMenuOpen, setIsReasoningMenuOpen] = useState(false);
+  const [dictation, setDictation] = useState<DictationView>({ phase: "idle", seconds: 0, message: "", levels: [] });
+  const dictationRef = useRef<AssistantDictationCapture | null>(null);
   const [requestError, setRequestError] = useState<string | null>(null);
   const shellRef = useRef<HTMLDivElement | null>(null);
   const bodyRef = useRef<HTMLDivElement | null>(null);
@@ -354,7 +357,7 @@ export function DrawingAiPanel({
       createdAt: Date.parse(now),
       acceptedAt: null,
     };
-    setInputValue(""); setRequestError(null); setIsReasoningMenuOpen(false);
+    setInputValue(""); setRequestError(null); dictationRef.current?.cancel("");
     const requestBody: AiAnimatorRequest = {
       jobId, turnId, message, reasoningLevel,
       recentConversation: priorMessages.slice(-12).map(({ role, content }) => ({ role, content })),
@@ -406,14 +409,28 @@ export function DrawingAiPanel({
     }
   };
 
+  // Same voice typing as the Assistant: recorded audio is sent for transcription and the text is added to the draft.
+  useEffect(() => {
+    const controller = new AssistantDictationCapture(setDictation, (text) => {
+      setInputValue((current) => current ? `${current}${/\s$/.test(current) ? "" : " "}${text}` : text);
+      composerRef.current?.focus();
+      return true;
+    });
+    dictationRef.current = controller;
+    const leave = () => controller.cancel("Dictation stopped because you left the editor. Nothing was inserted.");
+    const hide = () => { if (document.hidden) leave(); };
+    window.addEventListener("pagehide", leave); document.addEventListener("visibilitychange", hide);
+    return () => { window.removeEventListener("pagehide", leave); document.removeEventListener("visibilitychange", hide); controller.dispose(); dictationRef.current = null; };
+  }, []);
+
   const handleComposerKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); event.currentTarget.form?.requestSubmit(); }
   };
   const finishAssistantReveal = useCallback((messageId: string) => {
     pendingRevealMessageIdsRef.current.delete(messageId);
   }, []);
-  const selectedReasoning = REASONING_OPTIONS.find((option) => option.value === reasoningLevel) ?? REASONING_OPTIONS[1];
   const reasoningDisabled = Boolean(activeJob) || readOnly;
+  const dictationActive = dictation.phase !== "idle";
   const sendDisabled = !inputValue.trim() || readOnly || !workspaceContext;
 
   return (
@@ -447,18 +464,20 @@ export function DrawingAiPanel({
           {activeJob && <div role="status" aria-live="polite" aria-label="AI Animator request status" style={{ alignSelf: "flex-start", padding: "8px 4px", fontSize: 12 }}><span className="ai-animator-thinking" data-text="Thinking" data-sweep-pattern="paired-continuous-long-pause">Thinking</span></div>}
           {requestError && <div role="alert" style={{ color: workspaceColors.danger, fontSize: 11, lineHeight: 1.4 }}>{requestError}</div>}
         </>}
-        composer={<form onSubmit={submit}><WorkspaceAiComposerShell
-          input={<textarea ref={composerRef} aria-label="Message AI Animator" value={inputValue} onChange={(event) => setInputValue(event.target.value)} onKeyDown={handleComposerKeyDown} placeholder="Chat with Terra" disabled={Boolean(activeJob) || readOnly} rows={2} style={{ width: "100%", minHeight: 38, maxHeight: 76, resize: "vertical", border: 0, outline: 0, background: "transparent", color: workspaceColors.textPrimary, font: "inherit", fontSize: 12, lineHeight: 1.45 }} />}
-          controls={<>
-            <div style={{ position: "relative" }}>
-              {isReasoningMenuOpen && <div role="menu" aria-label="Reasoning options" style={{ position: "absolute", left: 0, bottom: 38, width: 190, padding: 6, borderRadius: 12, background: workspaceColors.panel, border: `1px solid ${workspaceColors.border}`, boxShadow: "0 14px 34px rgba(0,0,0,.4)", zIndex: 30 }}>{REASONING_OPTIONS.map((option) => <button type="button" role="menuitemradio" aria-checked={reasoningLevel === option.value} key={option.value} onClick={() => { setReasoningLevel(option.value); setIsReasoningMenuOpen(false); composerRef.current?.focus(); }} style={{ display: "block", width: "100%", padding: "8px 9px", border: 0, borderRadius: 8, textAlign: "left", background: reasoningLevel === option.value ? workspaceColors.selectedFill : "transparent", color: reasoningLevel === option.value ? workspaceColors.textPrimary : workspaceColors.textSecondary, fontSize: 12, fontWeight: reasoningLevel === option.value ? 600 : 500, cursor: "pointer" }}>{option.label}</button>)}</div>}
-              <button type="button" aria-haspopup="menu" aria-expanded={isReasoningMenuOpen} onClick={() => setIsReasoningMenuOpen((open) => !open)} disabled={Boolean(activeJob) || readOnly} title={`Terra effort: ${AI_ANIMATOR_REASONING_EFFORT[reasoningLevel]}`} style={{ height: 30, padding: "0 11px", borderRadius: 999, border: `1px solid ${workspaceColors.selectedBorder}`, background: workspaceColors.selectedFill, color: workspaceColors.textSecondary, fontSize: 12, fontWeight: 500, cursor: reasoningDisabled ? "default" : "pointer", opacity: reasoningDisabled ? .4 : 1, whiteSpace: "nowrap" }}>Reasoning: {selectedReasoning.label}</button>
-            </div>
-            {activeJob
-              ? <button type="button" onClick={cancelActiveJob} aria-label={`Cancel AI Animator job ${activeJob.jobId}`} style={{ height: 30, padding: "0 13px", borderRadius: 999, border: `1px solid ${workspaceColors.border}`, background: workspaceColors.panel, color: workspaceColors.danger, fontSize: 12, fontWeight: 600, cursor: "pointer" }}>Cancel</button>
-              : <button type="submit" disabled={!inputValue.trim() || readOnly || !workspaceContext} style={{ height: 30, padding: "0 15px", borderRadius: 999, border: `1px solid ${workspaceColors.border}`, background: workspaceColors.panel, color: workspaceColors.textSecondary, fontSize: 12, fontWeight: 600, cursor: sendDisabled ? "default" : "pointer", opacity: sendDisabled ? .4 : 1 }}>Send</button>}
-          </>}
-        /></form>}
+        composer={<form onSubmit={submit} className={`${chatComposerStyles.box} ${chatComposerStyles.compact}`} aria-label="AI Animator message composer">
+          <textarea ref={composerRef} aria-label="Message AI Animator" value={inputValue} onChange={(event) => setInputValue(event.target.value)} onKeyDown={handleComposerKeyDown} placeholder="Chat with Terra" disabled={Boolean(activeJob) || readOnly} rows={2} />
+          <ChatDictationPanel dictation={dictation} onCancel={() => { dictationRef.current?.cancel(); composerRef.current?.focus(); }} onStop={() => void dictationRef.current?.stop()} />
+          <ChatToolsRow
+            left={<ChatReasoningSelect value={reasoningLevel} options={REASONING_OPTIONS} disabled={reasoningDisabled} onChange={setReasoningLevel} title={`Terra effort: ${AI_ANIMATOR_REASONING_EFFORT[reasoningLevel]}`} />}
+            right={<>
+              <ChatDictateButton disabled={dictationActive || Boolean(activeJob) || readOnly} onClick={() => void dictationRef.current?.start()} />
+              {activeJob
+                ? <ChatStopButton label={`Cancel AI Animator job ${activeJob.jobId}`} onClick={cancelActiveJob} />
+                : <ChatSendButton disabled={sendDisabled} />}
+            </>}
+          />
+          <div className={chatComposerStyles.dictationNotice} role="status" aria-live="polite">{dictation.message}</div>
+        </form>}
       />
     </>
   );

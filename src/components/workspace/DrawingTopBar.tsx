@@ -23,7 +23,7 @@ const topBarButtonStyle = (isActive = false, cursor: "pointer" | "default" = "de
     borderRadius: 8,
     border: isActive ? "1px solid #3a6aa3" : "1px solid transparent",
     background: isActive ? "#0f2a52" : "transparent",
-    color: isActive ? "#f6f9ff" : "#c9d6ea",
+    color: isActive ? "#eaf3ff" : "#c9d6ea",
     fontSize: 13,
     fontWeight: 500,
     fontFamily: "inherit",
@@ -67,10 +67,10 @@ const menuStyle = (minWidth: number) =>
     left: 0,
     minWidth,
     padding: 4,
-    borderRadius: 10,
-    border: "1px solid #244267",
+    borderRadius: 12,
+    border: "1px solid #163058",
     background: "#071120",
-    boxShadow: "0 16px 32px rgba(0,0,0,0.38)",
+    boxShadow: "0 18px 44px rgba(0,0,0,0.45)",
     display: "flex",
     flexDirection: "column" as const,
     gap: 2,
@@ -158,10 +158,10 @@ export function DrawingTopBar({
   const statusDotColor = hasSaveProblem
     ? "#ff8a95"
     : saveState === "saved" || saveState === "quiet-saved"
-      ? "#4fa8a0"
+      ? "#7fd8a6"
       : saveState === "saving"
         ? "#8cbbf3"
-        : "#b8955a";
+        : "#f3d89c";
 
   return (
     <div

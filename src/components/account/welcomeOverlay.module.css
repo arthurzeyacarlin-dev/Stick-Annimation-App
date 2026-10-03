@@ -10,18 +10,19 @@
 
 .dialog {
   position: fixed;
-  top: 14px;
+  top: 50%;
   left: 50%;
   z-index: 70;
   box-sizing: border-box;
   width: min(860px, calc(100vw - 32px));
   max-height: calc(100vh - 28px);
   overflow-y: auto;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   border: 1px solid #163058;
   border-radius: 16px;
   background: #071120;
   color: #f6f9ff;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.45);
   padding: 22px 24px 24px;
 }
 
@@ -173,7 +174,7 @@
 .close:focus-visible,
 .button:focus-visible,
 .choice:focus-visible {
-  outline: 2px solid #0066ff;
+  outline: 2px solid #66c7ff;
   outline-offset: 3px;
 }
 

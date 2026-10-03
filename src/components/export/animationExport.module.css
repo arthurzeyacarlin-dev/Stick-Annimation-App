@@ -1,0 +1,523 @@
+/* SPEC-0016 Phase 6: Export screens on the shared design kit (presentation only). */
+
+.page {
+  min-height: 100vh;
+  background: var(--da-page);
+  color: var(--da-text);
+  overflow-y: auto;
+}
+
+.choosePage {
+  padding: 22px 22px 0;
+}
+
+.playerPage {
+  padding: 24px;
+}
+
+.column {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.chooseColumn {
+  gap: 24px;
+}
+
+.playerColumn {
+  gap: 18px;
+}
+
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.headerCenter {
+  text-align: center;
+}
+
+.headerSpacer {
+  width: 72px;
+}
+
+.eyebrow {
+  color: var(--da-label);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 6px 0 0;
+  font-size: 26px;
+  color: var(--da-text);
+}
+
+.chooseTitle {
+  margin: 5px 0 0;
+  font-size: 28px;
+  color: var(--da-text);
+}
+
+.intro {
+  color: var(--da-text-3);
+  text-align: center;
+}
+
+.intro strong {
+  color: var(--da-text);
+}
+
+/* Buttons */
+
+.button,
+.primaryButton,
+.backButton {
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: var(--da-radius-control);
+  border: 1px solid var(--da-border);
+  background: var(--da-panel);
+  color: var(--da-text-2);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.backButton {
+  height: 40px;
+  padding: 0 14px;
+}
+
+.primaryButton {
+  background: var(--da-selected-bg);
+  border-color: var(--da-selected-border);
+  color: #fff;
+}
+
+.wideButton {
+  min-width: 190px;
+}
+
+.button:hover:not(:disabled),
+.primaryButton:hover:not(:disabled),
+.backButton:hover:not(:disabled) {
+  background: var(--da-hover);
+  border-color: var(--da-hover);
+  color: #fff;
+}
+
+.button:disabled,
+.primaryButton:disabled,
+.backButton:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.button:focus-visible,
+.primaryButton:focus-visible,
+.backButton:focus-visible,
+.tile:focus-visible,
+.card:focus-visible {
+  outline: 2px solid var(--da-focus);
+  outline-offset: 2px;
+}
+
+/* Status boxes */
+
+.note,
+.statusInfo,
+.statusError,
+.statusWarning,
+.statusSuccess {
+  background: var(--da-page);
+  border: 1px solid var(--da-border);
+  border-radius: var(--da-radius-control);
+  padding: 12px;
+  line-height: 1.5;
+}
+
+.statusInfo {
+  color: var(--da-text-2);
+}
+
+.note,
+.statusWarning {
+  border-color: var(--da-warning-border);
+  color: var(--da-warning);
+}
+
+.statusError {
+  border-color: var(--da-danger-border);
+  color: var(--da-danger);
+}
+
+.statusSuccess {
+  border-color: var(--da-success-border);
+  color: var(--da-success);
+}
+
+.statusSuccess strong {
+  color: var(--da-text);
+}
+
+.smallNote {
+  font-size: 12px;
+  padding: 11px;
+}
+
+/* Choose screen */
+
+.emptyState {
+  padding: 60px;
+  text-align: center;
+  color: var(--da-muted);
+}
+
+.errorState {
+  padding: 40px;
+  text-align: center;
+  color: var(--da-text-2);
+}
+
+.errorStateAction {
+  margin-top: 14px;
+  display: flex;
+  justify-content: center;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 340px));
+  justify-content: center;
+  gap: 16px;
+}
+
+.card {
+  padding: 0;
+  overflow: hidden;
+  border-radius: var(--da-radius-card);
+  border: 1px solid var(--da-line);
+  background: var(--da-panel);
+  color: var(--da-text);
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+}
+
+.card:hover:not(:disabled) {
+  border-color: var(--da-hover);
+}
+
+.card[aria-pressed="true"] {
+  border-color: var(--da-selected-border);
+  background: var(--da-selected-bg);
+}
+
+.card:disabled {
+  cursor: default;
+  opacity: 0.62;
+}
+
+.cardThumb {
+  aspect-ratio: 16 / 9;
+  background: var(--da-page);
+  border-bottom: 1px solid var(--da-line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.thumbNote {
+  color: var(--da-muted);
+  font-size: 12px;
+}
+
+.thumbCanvas {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.cardBody {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.cardTitle {
+  font-weight: 700;
+  color: var(--da-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cardMeta {
+  color: var(--da-muted);
+  font-size: 12px;
+}
+
+.cardMetaReady {
+  color: var(--da-text-3);
+  font-size: 12px;
+}
+
+.footer {
+  position: sticky;
+  bottom: 0;
+  margin: 0 -22px;
+  padding: 14px 22px;
+  background: var(--da-panel);
+  border-top: 1px solid var(--da-line);
+  display: flex;
+  justify-content: center;
+}
+
+/* Player screen */
+
+.playerPanel {
+  border: 1px solid var(--da-line);
+  border-radius: var(--da-radius-card);
+  background: var(--da-panel);
+  padding: 16px;
+}
+
+.settingsPanel {
+  border: 1px solid var(--da-line);
+  border-radius: var(--da-radius-card);
+  background: var(--da-panel);
+  padding: 18px;
+  display: grid;
+  gap: 15px;
+  color: var(--da-text-2);
+}
+
+.settingsTitle {
+  font-weight: 700;
+  color: var(--da-text);
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+  color: var(--da-text-2);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.input {
+  min-height: 42px;
+  border-radius: 9px;
+  border: 1px solid var(--da-border);
+  background: var(--da-page);
+  color: var(--da-text);
+  padding: 8px 11px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--da-selected-border);
+}
+
+.input:focus-visible {
+  border-color: var(--da-selected-border);
+  box-shadow: 0 0 0 2px var(--da-focus);
+}
+
+.input:disabled {
+  opacity: 0.6;
+}
+
+.input[aria-invalid="true"] {
+  border-color: var(--da-danger-border);
+}
+
+.fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.legend {
+  margin-bottom: 7px;
+  color: var(--da-label);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.tileGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 9px;
+}
+
+.tile {
+  min-height: 72px;
+  padding: 10px;
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  align-items: center;
+  gap: 9px;
+  text-align: left;
+  border-radius: var(--da-radius-control);
+  border: 1px solid var(--da-border);
+  background: var(--da-page);
+  color: var(--da-text);
+  cursor: pointer;
+  font: inherit;
+}
+
+.tile:hover:not(:disabled) {
+  border-color: var(--da-hover);
+}
+
+.tile[aria-pressed="true"] {
+  border-color: var(--da-selected-border);
+  background: var(--da-selected-bg);
+}
+
+.tile:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.tileBadge {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: var(--da-panel);
+  border: 1px solid var(--da-line);
+  color: var(--da-text-3);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.tileName {
+  display: block;
+  font-weight: 700;
+  color: var(--da-text);
+}
+
+.tileShape {
+  display: block;
+  margin-top: 3px;
+  color: var(--da-muted);
+  font-size: 11px;
+}
+
+.customGroup {
+  display: grid;
+  gap: 10px;
+}
+
+.twoColumn {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.hint {
+  color: var(--da-muted);
+  font-size: 12px;
+}
+
+.hintError {
+  color: var(--da-danger);
+  font-size: 12px;
+}
+
+.qualityFieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.radioLabel {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  color: var(--da-text-2);
+}
+
+.radioLabel input {
+  accent-color: var(--da-selected-border);
+}
+
+.framing {
+  padding: 13px;
+  border-radius: var(--da-radius-control);
+  border: 1px solid var(--da-border);
+  background: var(--da-page);
+  color: var(--da-text-2);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.framing strong {
+  color: var(--da-text);
+}
+
+.summary {
+  color: var(--da-text-3);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  vertical-align: -1px;
+  border-radius: 2px;
+  border: 1px solid var(--da-border);
+}
+
+.progress {
+  display: grid;
+  gap: 7px;
+  color: var(--da-text-2);
+}
+
+.progressBar {
+  width: 100%;
+  accent-color: var(--da-selected-border);
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.finderName {
+  color: var(--da-muted);
+  font-size: 12px;
+}

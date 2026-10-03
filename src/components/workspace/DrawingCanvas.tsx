@@ -11231,6 +11231,13 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   return (
     <>
     <style>{`
+      .drawing-symbol-name-input:focus {
+        border-color: #3a6aa3 !important;
+      }
+      .drawing-symbol-name-input:focus-visible {
+        outline: 2px solid #66c7ff;
+        outline-offset: 2px;
+      }
       @media (max-width: 640px) {
         .drawing-canvas-area {
           width: 100% !important;
@@ -11512,7 +11519,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
           alignItems: "center",
           justifyContent: "center",
           padding: 20,
-          background: "rgba(3, 9, 20, 0.78)",
+          background: "rgba(3, 9, 20, 0.72)",
         }}
       >
         <form
@@ -11531,9 +11538,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
             gap: 16,
             padding: 24,
             borderRadius: 16,
-            border: "1px solid #244267",
+            border: "1px solid #163058",
             background: "#071120",
-            boxShadow: "0 24px 80px rgba(0,0,0,0.6)",
+            boxShadow: "0 18px 44px rgba(0,0,0,0.45)",
             color: "#f6f9ff",
           }}
         >
@@ -11545,6 +11552,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
           </div>
           <input
             ref={symbolNameInputRef}
+            className="drawing-symbol-name-input"
             aria-label="Symbol name"
             value={symbolDialog.name}
             disabled={symbolDialog.submitting}
@@ -11557,12 +11565,11 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               width: "100%",
               boxSizing: "border-box",
               padding: "11px 12px",
-              borderRadius: 8,
-              border: symbolDialog.error ? "1px solid #ff7b86" : "1px solid #244267",
+              borderRadius: 9,
+              border: symbolDialog.error ? "1px solid rgba(255,138,149,0.6)" : "1px solid #244267",
               background: "#030914",
               color: "#f6f9ff",
               fontSize: 15,
-              outline: "none",
             }}
           />
           {symbolDialog.error && (
@@ -11580,7 +11587,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
             <button
               type="submit"
               disabled={symbolDialog.submitting}
-              style={{ minWidth: 88, minHeight: 40, borderRadius: 10, border: "1px solid #3a6aa3", background: "#0f2a52", color: "#eaf3ff", cursor: "pointer", fontWeight: 700 }}
+              style={{ minWidth: 88, minHeight: 40, borderRadius: 10, border: "1px solid #3a6aa3", background: "#0f2a52", color: "#fff", cursor: "pointer", fontWeight: 700 }}
             >
               {symbolDialog.submitting ? "Creating…" : "Create"}
             </button>

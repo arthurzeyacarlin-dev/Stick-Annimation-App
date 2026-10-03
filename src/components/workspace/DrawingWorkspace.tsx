@@ -9291,6 +9291,13 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
             outline: 2px solid #66c7ff !important;
             outline-offset: 2px;
           }
+          #save-as-project-name:focus {
+            border-color: #3a6aa3 !important;
+          }
+          #save-as-project-name:focus-visible {
+            outline: 2px solid #66c7ff;
+            outline-offset: 2px;
+          }
           @media (max-width: 640px) {
             [data-unified-workspace-area="true"] > div:has([data-workspace-stage-guide="camera"]) {
               flex-direction: column;
@@ -9343,9 +9350,9 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
             opacity: saveNotification.isVisible ? 1 : 0,
             padding: "12px 16px",
             borderRadius: 12,
-            border: "1px solid #244267",
+            border: "1px solid #163058",
             background: "#071120",
-            boxShadow: "0 14px 34px rgba(0,0,0,0.30)",
+            boxShadow: "0 18px 44px rgba(0,0,0,0.45)",
             display: "flex",
             flexDirection: "column",
             gap: 4,
@@ -9533,7 +9540,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
           alignItems: "center",
           justifyContent: "center",
           padding: 20,
-          background: "rgba(3, 9, 20, 0.78)",
+          background: "rgba(3, 9, 20, 0.72)",
         }}
       >
         <form
@@ -9555,10 +9562,10 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
             gap: 16,
             padding: 24,
             borderRadius: 16,
-            border: "1px solid #244267",
+            border: "1px solid #163058",
             background: "#071120",
-            boxShadow: "0 24px 80px rgba(0,0,0,0.52)",
-            color: "white",
+            boxShadow: "0 18px 44px rgba(0,0,0,0.45)",
+            color: "#f6f9ff",
           }}
         >
           <div>
@@ -9567,7 +9574,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
               Save a new copy to your account. The current project stays unchanged until saving succeeds.
             </p>
           </div>
-          <label htmlFor="save-as-project-name" style={{ display: "flex", flexDirection: "column", gap: 7, color: "#c9d6ea", fontSize: 13 }}>
+          <label htmlFor="save-as-project-name" style={{ display: "flex", flexDirection: "column", gap: 7, color: "#a8bddd", fontSize: 13 }}>
             Project name
             <input
               id="save-as-project-name"
@@ -9582,15 +9589,14 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
                 boxSizing: "border-box",
                 padding: "11px 12px",
                 borderRadius: 9,
-                border: saveAsDialog.error ? "1px solid #ff7b86" : "1px solid #244267",
+                border: saveAsDialog.error ? "1px solid rgba(255,138,149,0.6)" : "1px solid #244267",
                 background: "#030914",
-                color: "white",
+                color: "#f6f9ff",
                 fontSize: 15,
-                outline: "none",
               }}
             />
           </label>
-          {saveAsDialog.error ? <div id="save-as-dialog-error" role="alert" style={{ color: "#ff9aa3", fontSize: 13 }}>{saveAsDialog.error}</div> : null}
+          {saveAsDialog.error ? <div id="save-as-dialog-error" role="alert" style={{ color: "#ff8a95", fontSize: 13 }}>{saveAsDialog.error}</div> : null}
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
             <button
               type="button"
@@ -9603,7 +9609,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
             <button
               type="submit"
               disabled={saveAsDialog.submitting}
-              style={{ minWidth: 88, minHeight: 40, borderRadius: 10, border: "1px solid #3a6aa3", background: "#0f2a52", color: "#f6f9ff", cursor: saveAsDialog.submitting ? "default" : "pointer", fontWeight: 700 }}
+              style={{ minWidth: 88, minHeight: 40, borderRadius: 10, border: "1px solid #3a6aa3", background: "#0f2a52", color: "#fff", cursor: saveAsDialog.submitting ? "default" : "pointer", fontWeight: 700 }}
             >
               {saveAsDialog.submitting ? "Saving…" : "Save copy"}
             </button>

@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-10-03 — D-0176 adds SPEC-0016 Phase 6
+
+- Added Phase 6 (shared design kit + agreed consistency checklist) to SPEC-0016. Docs only.
+
 ## 2026-10-03 — D-0175 Phase 4 editor polish published
 
 - Editor restyled to match Home/Help/Assistant (palette, timeline frame outlines, one Play/Pause, even tool bar, sliders, save chip, inert Edit/View/Window/Help). Product commit `282ddd91809a8d6512298f546334e71a4482d8be`.

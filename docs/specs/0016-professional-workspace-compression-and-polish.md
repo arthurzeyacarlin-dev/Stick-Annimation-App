@@ -1,15 +1,15 @@
 # SPEC-0016 — Professional Workspace Compression and Polish
 
-Status: **Approved; Phases 1–4 published/integrated (Phase 4 product commit 282ddd91809a8d6512298f546334e71a4482d8be); Phase 5 is next**
+Status: **Approved; Phases 1–4 published/integrated (Phase 4 product commit 282ddd91809a8d6512298f546334e71a4482d8be); Phase 5 is next; Phase 6 added by Arthur (D-0176), not started**
 Owner: Arthur
 Planning role: docs-only Spec Architect; Project Manager reviews before any implementation authorization
 Created: 2026-10-02
 Last updated: 2026-10-03
-Decision links: D-0175; D-0174; D-0173; D-0172; D-0171; D-0170; D-0169; D-0168; D-0167; D-0166; D-0093; D-0134; D-0136; D-0143
+Decision links: D-0176; D-0175; D-0174; D-0173; D-0172; D-0171; D-0170; D-0169; D-0168; D-0167; D-0166; D-0093; D-0134; D-0136; D-0143
 TODO IDs: PLAN-016; POLISH-016-1 through POLISH-016-5; PUB-016-PLAN; RESUME-015-6
 Planning baseline: clean synchronized canonical `main` / `origin/main` at `988531e3a3e1f65558d32952256877c366a04c9d`
 Runtime baseline inside that record: accepted SPEC-0015 Phase 5 product commit `1b4acd7db0b57188e95cb8474816c4e453172abd`
-Delivery target: **five phases planned to finish in under seven calendar days from Phase 1 start, aiming for one or two accepted implementation phases per day; this is not a 30-day program. The target never relaxes proof, human review, sequential ownership or publication gates.**
+Delivery target: **originally five phases (Phase 6 added by D-0176) planned to finish in under seven calendar days from Phase 1 start, aiming for one or two accepted implementation phases per day; this is not a 30-day program. The target never relaxes proof, human review, sequential ownership or publication gates.**
 
 ## 1. Exact goal
 
@@ -256,7 +256,7 @@ The target introduces no second project reader, player, export encoder, help cha
 | User data | No deletion, import, transfer, reassignment, account merge or new telemetry. Synthetic fixtures stay in isolated review storage. |
 | Security | Auth guards, server-derived owner, CSRF/origin rules, route access and account filtering remain unchanged. UI must not trust a client-supplied owner or project title as identity. |
 
-## 10. Five-phase delivery plan
+## 10. Phase delivery plan (five original phases plus Phase 6)
 
 Every phase starts in Plan mode from the exact published predecessor, uses one dedicated Spec Executor worktree, finishes its assigned surface's visual/responsive/accessibility work, produces an independently validated manifest and stops. Arthur/PM review, CPA propagation and later publication remain sequential. The planning target is one or two phases per day and complete closeout in under one week. Evidence and acceptance are not skipped to meet the date; a genuine blocker pauses or returns only the affected phase while the PM keeps the remaining plan narrow.
 
@@ -291,6 +291,20 @@ Entry gate **G-016-EDITOR-SHELL:** freeze the then-current presentation-only com
 **User-visible result:** account entry, Dashboard, recovery prompt and remaining shared dialogs match the finished shell without implying public hosting or billing. Signup's required local preview choice is compact, explicit and unchanged semantically. Dashboard numbers/account filtering/test-roof math remain unchanged. The end-to-end app passes the full responsive, keyboard, focus, failure and no-regression matrix.
 
 Entry gate **G-016-ACCOUNT-DASH:** freeze presentation-only paths and deterministic snapshots after verifying the current Phase 5 account-usage projection. This is not a second broad polish pass: Phase 5 owns only account/Dashboard/recovery/shared-dialog surfaces and evidence-driven integration seam fixes. No auth API, account database, usage journal/store/projection, entitlement, billing, prior-phase presentation owner or engine may change without returning to its owning phase.
+
+### Phase 6 — App-wide consistency and shared design kit (added by Arthur, D-0176)
+
+**Why:** each screen was polished in its own phase, so the same kind of element can look different from screen to screen (for example, the notification bell, chat boxes, panels and buttons). Arthur wants every screen to feel like one app with the same patterns and colors.
+
+**User-visible result:** the same kind of element looks and behaves the same everywhere — buttons, chat boxes, panels/cards, notification bells, back buttons, tabs, inputs, menus/pop-ups, selected states and status chips — using the accepted palette: dark navy #030914 for work areas, brighter navy #071120 for bars/panels and chat boxes, one divider color #163058, dull blue rest/selected states, instant #0066FF hover with white text (red stays red on dangerous actions). Nothing changes how any feature works.
+
+**How (two parts):**
+1. **Shared design kit:** one small set of shared style tokens and reusable components/classes (button, chat box, panel/card, bell, back button, tab, input, menu, chip) used by every screen, so screens cannot drift apart again and future screens (such as the AI Animator) match automatically.
+2. **Mismatch checklist:** Arthur lists the mismatches he finds; Claude audits every screen (Home, Open Project, Watch/Export, Help, Assistant, Tutorials, editor, account entry, Dashboard, recovery, dialogs) and adds the ones it finds. Phase 6 fixes exactly that agreed checklist — it is not an open-ended polish loop.
+
+**Boundaries:** presentation only. No change to login/logout, accounts, saving/recovery behavior, project data, drawing/timeline behavior, export, AI replies/search/dictation, notifications behavior, usage math or Dashboard numbers. Starts after Phase 5 is accepted and published. Built in a separate review copy like earlier phases; Arthur reviews; publish when Arthur says.
+
+**Done when:** every item on the agreed checklist is fixed and Arthur passes the review; the shared design kit is in use on every screen it covers.
 
 ## 11. Phase 1 exact implementation contract
 

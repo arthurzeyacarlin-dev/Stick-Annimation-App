@@ -1771,6 +1771,12 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Decisions inside the phase: editor palette follows the Home/Assistant pattern (brighter navy bars/panels, dark work areas, brighter chat box, one divider color); timeline frames stay gray with black dots and outline-only current/hover states; editor Edit/View/Window/Help are shown but inert until a later spec (Phase 3 editor Help menu turned off); buttons app-wide use native `:hover` instead of the custom tracker. Arthur's product direction: Diamond Animator should ultimately be used as a downloadable app; V1 ships as a web app, desktop packaging is a Version 2 goal.
 - Next: SPEC-0016 Phase 5.
 
+### D-0176 — Add SPEC-0016 Phase 6: app-wide consistency
+
+- Date: 2026-10-03
+- Arthur added a sixth SPEC-0016 phase after Phase 5: a shared design kit plus a fixed mismatch checklist so every screen uses the same patterns and colors (example: notification bells and chat boxes looking different on different screens). Presentation only; checklist-bounded, not open-ended. Recorded in the main checkout as a docs-only change; no code changed.
+- Order: Phase 5 (account entry, Dashboard, recovery, shared dialogs) → Phase 6 (consistency) → AI Animator tests (D-0173).
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

@@ -4,6 +4,7 @@
 
 - [x] **POLISH-016-4** — Editor shell polish. Arthur PASS; published in `282ddd91809a8d6512298f546334e71a4482d8be`.
 - [ ] **POLISH-016-5** — Account entry, Dashboard, recovery and shared dialogs polish (next). Short plan → Arthur OK → separate review copy → Arthur review.
+- [ ] **POLISH-016-6** — App-wide consistency: shared design kit + agreed mismatch checklist (Arthur's list + Claude's audit). Starts after Phase 5 is published (D-0176).
 - [ ] **EDITOR-MENUS** — Make editor Edit/View/Window/Help menus work (future spec; currently inert by Arthur's choice).
 - [ ] **AIANIM-TESTS** — After SPEC-0016: Test 1 = AI (Grok vs Terra) key poses + math in-betweens; Test 2 = motion from Arthur's Blender files. Compare look, reliability, cost, long-term value. Needs xAI key from Arthur's dad and OK for small paid test calls.
 - [ ] **CLEANUP-PROOF-SCRIPTS** — Old one-time proof scripts (SPEC-0001/0002/0003/0008/0012/0013 browser proofs, validateStickFigureAiUiAdapter) expect old wording/buttons; retire or replace with a real automated smoke test.

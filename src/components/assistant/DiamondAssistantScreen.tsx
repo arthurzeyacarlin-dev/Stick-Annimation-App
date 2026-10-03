@@ -9,6 +9,8 @@ import { AssistantConversation } from "./AssistantConversation";
 import { AssistantComposer } from "./AssistantComposer";
 import { useAssistantSessions } from "./useAssistantSessions";
 import { NotificationTrigger } from "@/src/components/notifications/NotificationTrigger";
+import { DiamondLogo } from "@/src/components/chrome/DiamondLogo";
+import { useInstantHover } from "@/src/components/home/useInstantHover";
 import {
   clearNotificationNavigationIntentV1,
   confirmNotificationTargetArrivalV1,
@@ -23,33 +25,25 @@ const SIDEBAR_MIN_MAIN_WIDTH = 560;
 const SIDEBAR_COMPACT_BREAKPOINT = 760;
 const SIDEBAR_KEYBOARD_STEP = 12;
 
-function DiamondMark() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.7"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M3 9l4-5h10l4 5-9 11L3 9z" />
-    </svg>
-  );
-}
+type DiamondAssistantScreenProps = {
+  // Set when the Assistant is shown over the editor: Back closes it instead of navigating,
+  // and the bell is hidden so notification navigation can't leave unsaved work.
+  onClose?: () => void;
+};
 
-export function DiamondAssistantScreen() {
+export function DiamondAssistantScreen({ onClose }: DiamondAssistantScreenProps = {}) {
   const chats = useAssistantSessions();
+  const instantHover = useInstantHover();
   const [composerGeneration, setComposerGeneration] = useState(0);
   const backRef = useRef<HTMLAnchorElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
   const screenRef = useRef<HTMLDivElement>(null);
   const sidebarResizeRef = useRef<{ pointerId: number; startX: number; startWidth: number } | null>(null);
   const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_DEFAULT_WIDTH);
   const [sidebarMaxWidth, setSidebarMaxWidth] = useState(SIDEBAR_MAX_WIDTH);
   const [sidebarResizing, setSidebarResizing] = useState(false);
   const [navigationVersion, setNavigationVersion] = useState(0);
-  useEffect(() => { backRef.current?.focus({ preventScroll: true }); }, []);
+  useEffect(() => { (closeRef.current ?? backRef.current)?.focus({ preventScroll: true }); }, []);
   useEffect(() => {
     const changed = () => setNavigationVersion(version => version + 1);
     window.addEventListener("hashchange", changed);
@@ -201,8 +195,9 @@ export function DiamondAssistantScreen() {
       data-assistant-screen
       data-sidebar-resizing={sidebarResizing ? "true" : "false"}
       style={{ "--assistant-sidebar-width": `${sidebarWidth}px` } as CSSProperties}
+      {...instantHover}
     >
-      <AssistantSessionSidebar chats={{ ...chats, newChat: () => { setComposerGeneration(value => value + 1); chats.newChat(); } }} mark={<DiamondMark />} />
+      <AssistantSessionSidebar chats={{ ...chats, newChat: () => { setComposerGeneration(value => value + 1); chats.newChat(); } }} mark={<DiamondLogo />} />
       <div
         className={styles.sidebarResizer}
         role="separator"
@@ -226,15 +221,22 @@ export function DiamondAssistantScreen() {
       />
       <main id="assistant-conversation-main" className={styles.main}>
         <header className={styles.header}>
-          <Link ref={backRef} href="/#ai-assistant" prefetch={false} className={styles.back}>
-            <span aria-hidden="true">←</span> Back to Home
-          </Link>
-          <span className={styles.headerActions}>
-            <span className={styles.headerTitle}>Assistant</span>
-            <NotificationTrigger view="assistant" />
-          </span>
+          {onClose ? (
+            <button ref={closeRef} type="button" onClick={onClose} className={styles.back}>
+              <span aria-hidden="true">←</span> Back to drawing
+            </button>
+          ) : (
+            <Link ref={backRef} href="/#help" prefetch={false} className={styles.back}>
+              <span aria-hidden="true">←</span> Back to Help
+            </Link>
+          )}
+          {onClose ? null : (
+            <span className={styles.headerActions}>
+              <NotificationTrigger view="assistant" />
+            </span>
+          )}
         </header>
-        <AssistantConversation key={chats.selectedId ?? "blank"} chats={chats} mark={<DiamondMark />} />
+        <AssistantConversation key={chats.selectedId ?? "blank"} chats={chats} mark={<DiamondLogo />} />
         <AssistantComposer key={`${chats.selectedId ?? "blank"}:${composerGeneration}`} chats={chats} />
       </main>
     </div>

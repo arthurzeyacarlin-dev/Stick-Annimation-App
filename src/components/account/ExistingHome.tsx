@@ -2,6 +2,7 @@
 
 import { AppChrome as MainScreenHeader } from "@/src/components/chrome/AIcreditspage";
 import { TutorialsScreen } from "@/src/components/tutorials/TutorialsScreen";
+import { HelpHub } from "@/src/components/help/HelpHub";
 import { AnimationWorkspace } from "@/src/components/workspace/AnimationWorkspace";
 import { AnimationExportFlow } from "@/src/components/export/AnimationExportFlow";
 import { ProjectRecoveryPrompt } from "@/src/components/recovery/ProjectRecoveryPrompt";
@@ -84,7 +85,7 @@ export default function Page() {
   const { snapshot: notificationSnapshot } = useNotificationCenterV1();
   const terraTargetKey = useMemo(() => JSON.stringify(notificationSnapshot.rows.filter(row => row.target.kind === "workspace-terra-turn").map(row => row.target)), [notificationSnapshot.rows]);
   const [view, setView] = useState<
-    "home" | "tutorials" | "openProject" | "animationWorkspace" | "animationExport"
+    "home" | "help" | "tutorials" | "openProject" | "animationWorkspace" | "animationExport"
   >("home");
   const [exportOrigin, setExportOrigin] = useState<"home" | "workspace">("home");
   const [welcomeOpen, setWelcomeOpen] = useState(false);
@@ -109,11 +110,9 @@ export default function Page() {
   const restoreHomeFocus = useRef(false);
   const homeMainRef = useRef<HTMLElement | null>(null);
   const homeScrollHideTimeoutRef = useRef<number | null>(null);
-  const tutorialsButtonRef = useRef<HTMLButtonElement | null>(null);
   const assistantButtonRef = useRef<HTMLButtonElement | null>(null);
-  const restoreTutorialsFocusRef = useRef(false);
-  const homeRootBackground =
-    "linear-gradient(180deg, #060f18 0%, #08111b 44%, #09131d 100%)";
+  const restoreHelpFocusRef = useRef(false);
+  const [helpFocus, setHelpFocus] = useState<"assistant" | "tutorials" | null>(null);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -144,7 +143,7 @@ export default function Page() {
   useEffect(() => {
     if (startupRecovery.kind !== "home") return;
     // Returning from Assistant continues the current visit without reopening setup.
-    if (window.location.hash === "#ai-assistant") return;
+    if (window.location.hash === "#ai-assistant" || window.location.hash === "#help") return;
     // First-time welcome (client-only)
     let cancelled = false;
     const timeoutId = window.setTimeout(() => {
@@ -171,6 +170,13 @@ export default function Page() {
   useEffect(() => {
     if (view !== "home" || startupRecovery.kind !== "home" || welcomeOpen) return;
     const restoreAssistantFocus = () => {
+      if (window.location.hash === "#help") {
+        // Assistant's back link returns to the Help page it was opened from.
+        window.history.replaceState(window.history.state, "", window.location.pathname + window.location.search);
+        setHelpFocus("assistant");
+        setView("help");
+        return;
+      }
       if (window.location.hash !== "#ai-assistant") return;
       const button = assistantButtonRef.current;
       if (!button) return;
@@ -219,14 +225,14 @@ export default function Page() {
   }, [view]);
 
   useEffect(() => {
-    if (view !== "home" || !restoreTutorialsFocusRef.current) return;
+    if (view !== "home" || !restoreHelpFocusRef.current) return;
 
     const timeoutId = window.setTimeout(() => {
-      const tutorialsButton = tutorialsButtonRef.current;
-      if (!tutorialsButton) return;
-      tutorialsButton.scrollIntoView({behavior: "auto", block: "nearest"});
-      tutorialsButton.focus({preventScroll: true});
-      restoreTutorialsFocusRef.current = false;
+      const helpButton = assistantButtonRef.current;
+      if (!helpButton) return;
+      helpButton.scrollIntoView({behavior: "auto", block: "nearest"});
+      helpButton.focus({preventScroll: true});
+      restoreHelpFocusRef.current = false;
     }, 0);
 
     return () => window.clearTimeout(timeoutId);
@@ -497,13 +503,13 @@ export default function Page() {
   className="app"
   style={{
     height: "100vh",
-    background: view === "home" ? "#030914" : view === "tutorials" ? homeRootBackground : "rgb(26, 27, 36)",
+    background: view === "home" || view === "help" || view === "tutorials" ? "#030914" : "rgb(26, 27, 36)",
     display: "flex",
     flexDirection: "column",
     overflow: "hidden", // IMPORTANT: keep page scrollbar from being on <body>
   }}
 >
-      {view === "home" && <MainScreenHeader theme="home" />}
+      {(view === "home" || view === "help") && <MainScreenHeader theme="home" />}
 
 {/* WELCOME OVERLAY (first-time guided setup) */}
 {view === "home" && (
@@ -854,7 +860,12 @@ export default function Page() {
                 </button>
               </section>
               <section className={homeStyles.shortcutGroup} aria-label="Help">
-                <button id="ai-assistant" ref={assistantButtonRef} type="button" className={homeStyles.shortcut} onClick={() => router.push("/assistant")}>
+                <button id="ai-assistant" ref={assistantButtonRef} type="button" className={homeStyles.shortcut}
+                  onClick={(event) => {
+                    event.currentTarget.blur();
+                    setHelpFocus(null);
+                    setView("help");
+                  }}>
                   <svg className={homeStyles.robotIcon} viewBox="0 -2 34 36" fill="none" aria-hidden="true">
                     <path d="M17.55 10.2V8.15l-1.8-1.6 1.8-1.5v-2.6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     <circle cx="17.55" cy="1.15" r="2.15" fill="currentColor" />
@@ -863,9 +874,8 @@ export default function Page() {
                     <ellipse cx="13.5" cy="17.5" rx="1.7" ry="2.05" fill="currentColor" />
                     <ellipse cx="20.5" cy="17.5" rx="1.7" ry="2.05" fill="currentColor" />
                   </svg>
-                  <span><strong>Help</strong><small>Ask the Assistant about the app.</small></span>
+                  <span><strong>Help</strong><small>Ask the Assistant or learn the basics.</small></span>
                 </button>
-                <button ref={tutorialsButtonRef} type="button" className={homeStyles.secondary} onClick={() => setView("tutorials")}>Tutorials <span aria-hidden="true">↗</span></button>
               </section>
             </nav>
             <div className={homeStyles.utility}>
@@ -875,11 +885,22 @@ export default function Page() {
           </div>
         </main>
       )}
+{view === "help" && (
+  <HelpHub
+    initialFocus={helpFocus}
+    onBack={() => {
+      restoreHelpFocusRef.current = true;
+      setView("home");
+    }}
+    onOpenAssistant={() => router.push("/assistant")}
+    onOpenTutorials={() => setView("tutorials")}
+  />
+)}
 {view === "tutorials" && (
   <TutorialsScreen
     onBack={() => {
-      restoreTutorialsFocusRef.current = true;
-      setView("home");
+      setHelpFocus("tutorials");
+      setView("help");
     }}
   />
 )}

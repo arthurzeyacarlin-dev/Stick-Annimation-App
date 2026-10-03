@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { TutorialsScreen } from "@/src/components/tutorials/TutorialsScreen";
+import { DiamondAssistantScreen } from "@/src/components/assistant/DiamondAssistantScreen";
 
 type DrawingTopBarProps = {
   projectTitle?: string;
@@ -72,6 +74,12 @@ export function DrawingTopBar({
   const [isFileMenuOpen, setIsFileMenuOpen] = useState(false);
   const [hoveredHistoryAction, setHoveredHistoryAction] = useState<"undo" | "redo" | null>(null);
   const fileMenuRef = useRef<HTMLDivElement | null>(null);
+  const [isHelpMenuOpen, setIsHelpMenuOpen] = useState(false);
+  const [isTutorialsOpen, setIsTutorialsOpen] = useState(false);
+  const [isAssistantOpen, setIsAssistantOpen] = useState(false);
+  const [hoveredHelpItem, setHoveredHelpItem] = useState<"assistant" | "tutorials" | null>(null);
+  const helpMenuRef = useRef<HTMLDivElement | null>(null);
+  const helpButtonRef = useRef<HTMLButtonElement | null>(null);
   const hasFileMenu = typeof onSave === "function" || typeof onSaveAs === "function" || typeof onExport === "function" || typeof onSaveAndExit === "function";
   const hasHistoryControls = typeof onUndo === "function" || typeof onRedo === "function";
 
@@ -89,6 +97,68 @@ export function DrawingTopBar({
     document.addEventListener("pointerdown", handlePointerDown);
     return () => document.removeEventListener("pointerdown", handlePointerDown);
   }, [isFileMenuOpen]);
+
+  useEffect(() => {
+    if (!isHelpMenuOpen) return;
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!helpMenuRef.current?.contains(event.target as Node)) setIsHelpMenuOpen(false);
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsHelpMenuOpen(false);
+    };
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isHelpMenuOpen]);
+
+  useEffect(() => {
+    if (!isTutorialsOpen) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.stopPropagation();
+      setIsTutorialsOpen(false);
+    };
+    window.addEventListener("keydown", handleKeyDown, true);
+    return () => window.removeEventListener("keydown", handleKeyDown, true);
+  }, [isTutorialsOpen]);
+
+  // The editor stays mounted underneath: Assistant and Tutorials both open over this screen.
+  const openAssistantOverlay = () => {
+    setIsHelpMenuOpen(false);
+    setHoveredHelpItem(null);
+    setIsAssistantOpen(true);
+  };
+  const closeAssistantOverlay = () => {
+    setIsAssistantOpen(false);
+    helpButtonRef.current?.focus({ preventScroll: true });
+  };
+  const openTutorialsOverlay = () => {
+    setIsHelpMenuOpen(false);
+    setHoveredHelpItem(null);
+    setIsTutorialsOpen(true);
+  };
+  const closeTutorialsOverlay = () => {
+    setIsTutorialsOpen(false);
+    helpButtonRef.current?.focus({ preventScroll: true });
+  };
+  const helpItemStyle = (isHovered: boolean) =>
+    ({
+      width: "100%",
+      padding: "8px 10px",
+      border: "none",
+      borderRadius: 6,
+      background: isHovered ? "#0066ff" : "transparent",
+      color: isHovered ? "#ffffff" : "rgba(255,255,255,0.88)",
+      fontSize: 12,
+      textAlign: "left" as const,
+      cursor: "pointer",
+      display: "flex",
+      flexDirection: "column" as const,
+      gap: 2,
+    });
 
   const runFileAction = (action?: () => void | Promise<void>) => {
     setIsFileMenuOpen(false);
@@ -253,11 +323,88 @@ export function DrawingTopBar({
           )}
         </div>
 
-        {(["Edit", "View", "Window", "Help"] as const).map((label) => (
+        {(["Edit", "View", "Window"] as const).map((label) => (
           <button key={label} type="button" style={topBarButtonStyle()}>
             {label}
           </button>
         ))}
+
+        <div ref={helpMenuRef} style={{ position: "relative", display: "flex", alignItems: "center" }}>
+          <button
+            ref={helpButtonRef}
+            type="button"
+            aria-haspopup="menu"
+            aria-expanded={isHelpMenuOpen}
+            onClick={() => setIsHelpMenuOpen((current) => !current)}
+            style={topBarButtonStyle(isHelpMenuOpen, "pointer")}
+          >
+            Help
+          </button>
+
+          {isHelpMenuOpen && (
+            <div
+              role="menu"
+              onPointerLeave={() => setHoveredHelpItem(null)}
+              style={{
+                position: "absolute",
+                top: "calc(100% + 6px)",
+                left: 0,
+                minWidth: 196,
+                padding: 4,
+                borderRadius: 8,
+                border: "1px solid #244267",
+                background: "#071120",
+                boxShadow: "0 12px 24px rgba(0,0,0,0.26)",
+                display: "flex",
+                flexDirection: "column",
+                gap: 2,
+                zIndex: 20,
+              }}
+            >
+              <button
+                type="button"
+                role="menuitem"
+                onClick={openAssistantOverlay}
+                onPointerEnter={() => setHoveredHelpItem("assistant")}
+                style={helpItemStyle(hoveredHelpItem === "assistant")}
+              >
+                <span>Ask the Assistant</span>
+                <span style={{ fontSize: 11, color: hoveredHelpItem === "assistant" ? "#ffffff" : "#8fabd0" }}>Your drawing stays open</span>
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={openTutorialsOverlay}
+                onPointerEnter={() => setHoveredHelpItem("tutorials")}
+                style={helpItemStyle(hoveredHelpItem === "tutorials")}
+              >
+                Tutorials
+              </button>
+            </div>
+          )}
+        </div>
+
+        {isTutorialsOpen && (
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Tutorials"
+            style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", flexDirection: "column", background: "#030914" }}
+          >
+            <TutorialsScreen onBack={closeTutorialsOverlay} />
+          </div>
+        )}
+
+        {isAssistantOpen && (
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Assistant"
+            style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", flexDirection: "column", background: "#030914" }}
+          >
+            <DiamondAssistantScreen onClose={closeAssistantOverlay} />
+          </div>
+        )}
       </div>
 
       {hasHistoryControls && (

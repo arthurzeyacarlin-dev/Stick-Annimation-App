@@ -39,7 +39,7 @@ export function AssistantSessionSidebar({ chats, mark }: { chats: Chats; mark: R
       {!chats.sessions.length && <p>{chats.ready ? "No chats yet" : "Loading chats…"}</p>}
       <p id="assistant-sessions-note" className={styles.sessionNote}>{chats.sessions.length >= 50 ? "Delete a chat before creating another." : !chats.sessions.length ? "Your chats will appear here after you send a message." : "Saved on this device"}</p>
       <div className={styles.chatCards}>
-        {chats.sessions.map(session => <div key={session.id} className={styles.chatCard} data-selected={session.id === chats.selectedId} data-session-id={session.id}>
+        {chats.sessions.map(session => <div key={session.id} className={styles.chatCard} data-hover-group data-selected={session.id === chats.selectedId} data-session-id={session.id}>
           <button className={styles.chatSelect} aria-label={`Open chat: ${session.title}`} aria-current={session.id === chats.selectedId ? "true" : undefined} title={session.title} onClick={() => chats.select(session.id)}><ChatTitle session={session} animate={!!chats.reveal[session.id] && session.titleSource === "automatic" && session.title !== "Untitled chat"} /></button>
           <div className={styles.chatActions}>
             <button type="button" aria-label={`Rename chat: ${session.title}`} title="Rename chat" onClick={() => open("rename", session)}>✎</button>

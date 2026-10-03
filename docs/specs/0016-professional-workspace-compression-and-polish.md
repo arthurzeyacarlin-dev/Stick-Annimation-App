@@ -1,17 +1,26 @@
 # SPEC-0016 — Professional Workspace Compression and Polish
 
-Status: **Approved; Phases 1–5 published/integrated (Phase 5 product commit 49eb13e4b6882c9711db2d3756c7f457b132e577); Phase 6 (D-0176) is next**
+Status: **Complete; Phases 1–6 published/integrated (Phase 6 product commit c63810d4ef0e634b6aa13883ec24fd1bf4300198)**
 Owner: Arthur
 Planning role: docs-only Spec Architect; Project Manager reviews before any implementation authorization
 Created: 2026-10-02
 Last updated: 2026-10-03
-Decision links: D-0177; D-0176; D-0175; D-0174; D-0173; D-0172; D-0171; D-0170; D-0169; D-0168; D-0167; D-0166; D-0093; D-0134; D-0136; D-0143
-TODO IDs: PLAN-016; POLISH-016-1 through POLISH-016-5; PUB-016-PLAN; RESUME-015-6
+Decision links: D-0178; D-0177; D-0176; D-0175; D-0174; D-0173; D-0172; D-0171; D-0170; D-0169; D-0168; D-0167; D-0166; D-0093; D-0134; D-0136; D-0143
+TODO IDs: PLAN-016; POLISH-016-1 through POLISH-016-6; PUB-016-PLAN; RESUME-015-6
 Planning baseline: clean synchronized canonical `main` / `origin/main` at `988531e3a3e1f65558d32952256877c366a04c9d`
 Runtime baseline inside that record: accepted SPEC-0015 Phase 5 product commit `1b4acd7db0b57188e95cb8474816c4e453172abd`
 Delivery target: **originally five phases (Phase 6 added by D-0176) planned to finish in under seven calendar days from Phase 1 start, aiming for one or two accepted implementation phases per day; this is not a 30-day program. The target never relaxes proof, human review, sequential ownership or publication gates.**
 
 ## 1. Exact goal
+
+### Phase 6 result — D-0178 (Arthur PASS, published)
+
+- **Shared chat box:** `src/components/ui/ChatComposerParts.tsx` + `chatComposer.module.css` used by both `AssistantComposer` and the editor `DrawingAiPanel`: Reasoning select (boxed), Dictate (mic), Send (white check) / Stop (white X while working). Icon buttons have no bubble at rest; #0066FF fill on hover only. Editor AI Animator gains dictation via the existing `AssistantDictationCapture`.
+- **Bells:** every notification bell trigger is icon-only (#c9d6ea rest, #8cbbf3 open, #0066FF hover, no box); notification panel restyled to the palette.
+- **Design kit:** `--da-*` tokens in `app/globals.css` (page, panel, line, border, selected, hover, text levels, link, focus, danger/warning/success, scrim, radii); one error red #ff8a95 / solid #d23a52, warning #f3d89c, success #7fd8a6; canonical Back button; unified pop-ups, menus, inputs and #66c7ff focus rings.
+- **Screens converted:** Export (`animationExport.module.css`) and Movie Viewer from slate/cyan to navy; Home glows removed; tab title "Diamond Animator".
+- **Protected/unchanged:** Dashboard bar colors/red line/dashes, gray timeline frames, white canvas, login/saving/AI/dictation behavior.
+- **Checks:** TypeScript clean; ESLint clean on changed files (2 pre-existing errors in untouched `drawingFrameExecutor.ts`). Real-app: Assistant and editor composers, button hover, Watch, Export. Not live-tested: editor dictation recording (mic blocked in preview), Stop X on screen (needs a paid AI send).
 
 ### Phase 5 result — D-0177 (Arthur PASS, published)
 

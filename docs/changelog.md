@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-10-03 — D-0178 Phase 6 consistency and shared chat box published
+
+- One shared chat box (Reasoning, Dictate, white-check Send, white-X Stop) for Assistant and AI Animator; icon-only bell hover; design kit tokens; Export and Movie Viewer in navy. Product commit `c63810d4ef0e634b6aa13883ec24fd1bf4300198`. SPEC-0016 complete.
+
 ## 2026-10-03 — D-0177 Phase 5 account entry, Dashboard, recovery and pop-ups published
 
 - Create account / Log in screens, global header on the Dashboard, plain-language Dashboard, restyled recovery screen and pop-ups. Product commit `49eb13e4b6882c9711db2d3756c7f457b132e577`.

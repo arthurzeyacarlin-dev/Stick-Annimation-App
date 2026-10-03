@@ -793,6 +793,7 @@
 ./src/components/chrome/appChrome.module.css
 ./src/components/export
 ./src/components/export/AnimationExportFlow.tsx
+./src/components/export/animationExport.module.css
 ./src/components/help
 ./src/components/help/HelpHub.module.css
 ./src/components/help/HelpHub.tsx
@@ -817,6 +818,9 @@
 ./src/components/tutorials
 ./src/components/tutorials/TutorialsScreen.module.css
 ./src/components/tutorials/TutorialsScreen.tsx
+./src/components/ui
+./src/components/ui/ChatComposerParts.tsx
+./src/components/ui/chatComposer.module.css
 ./src/components/workspace
 ./src/components/workspace/AnimationWorkspace.module.css
 ./src/components/workspace/AnimationWorkspace.tsx

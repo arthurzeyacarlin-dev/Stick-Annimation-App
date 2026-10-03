@@ -1,5 +1,18 @@
 # TODO
 
+## Current queue (D-0178)
+
+- [x] **POLISH-016-6** — App-wide consistency + shared chat box. Arthur PASS; published in `c63810d4ef0e634b6aa13883ec24fd1bf4300198`. SPEC-0016 complete.
+- [ ] **AIANIM-ENGINE** — Recommended next spec (SPEC-0017, awaiting Arthur's OK): character rig + pose format + in-between engine that writes normal editable frames, multi-character, no paid AI calls needed to build/test.
+- [ ] **AIANIM-TESTS** — In a few days, when Arthur's Blender files arrive: Test 1 = AI (Grok vs Terra) key poses + engine in-betweens; Test 2 = AI key poses + Blender motion. Compare smoothness, reliability, cost, long-term value; may combine. Needs xAI key from Arthur's dad and OK for small paid test calls.
+- [ ] **EDITOR-MENUS** — Make editor Edit/View/Window/Help menus work (future spec; currently inert by Arthur's choice).
+- [ ] **CLEANUP-PROOF-SCRIPTS** — Old one-time proof scripts expect old wording/buttons; retire or replace with a real automated smoke test.
+- [ ] **CLEANUP-LINT** — Two pre-existing `prefer-const` ESLint errors in `src/lib/ai/drawingFrameExecutor.ts` (lines ~2301, ~5084); old `WorkspaceAiComposerShell` still used by legacy stick-figure panel.
+- [ ] **V1-30-DAYS** — Target: useful, polished V1 by about 2026-11-02 (D-0173 plan). V1 ships as a web app; a downloadable desktop app is a Version 2 goal.
+- [ ] **RESUME-015-6** — Still paused (funded allowance/billing).
+
+Older queues below are history.
+
 ## Current queue (D-0175)
 
 - [x] **POLISH-016-4** — Editor shell polish. Arthur PASS; published in `282ddd91809a8d6512298f546334e71a4482d8be`.

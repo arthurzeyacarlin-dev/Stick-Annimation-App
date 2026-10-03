@@ -1785,6 +1785,14 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Decisions inside the phase: "Sign in" → "Create account"; one global header on Home and Dashboard, including the notification bell on the Dashboard (supersedes the SPEC-0014 "bells only on Home and Assistant" rule for the Dashboard); header bell and nav link use text/icon-only hover; Dashboard bar colors/red line/dashed line are owner-protected and unchanged, bar hover outline #0066FF.
 - Next: SPEC-0016 Phase 6 (consistency).
 
+### D-0178 — SPEC-0016 Phase 6 accepted and published; SPEC-0016 complete
+
+- Date: 2026-10-03
+- Arthur: PASS (after one tweak: white check-mark Send, white X Stop, no bubble on Dictate/Send/Stop — blue only on hover; Reasoning keeps its box; Assistant and AI Animator identical); asked to publish to main, update records and push.
+- Publication: product commit `c63810d4ef0e634b6aa13883ec24fd1bf4300198` fast-forwarded into main and pushed, followed by this records commit.
+- Decisions inside the phase: one shared chat box component for Assistant and AI Animator (changes to one apply to both); all bells icon-only hover; `--da-*` design kit tokens are the source of app colors going forward.
+- Next: Claude recommends SPEC-0017 AI Animator engine foundation before the Blender-file tests; awaiting Arthur's OK.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

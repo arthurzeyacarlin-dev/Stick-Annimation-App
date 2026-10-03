@@ -2,7 +2,7 @@
 
 ## Current entry point for Claude
 
-Arthur transfers whole-product continuity from Codex PM V5 to Claude on 2026-10-03 (D-0171). Read `AGENTS.md`, then this map and the latest sections of the canonical files. [`SESSION_HANDOFF.md`](SESSION_HANDOFF.md) owns the complete onboarding message and exact next operation; `CLAUDE.md` is only a bootstrap pointer, not competing project memory. D-0170 records Arthur's accepted SPEC-0016 Phase 2 and its bounded proof. Git publication is a separate operation after CPA closeout; do not infer it from acceptance. Older headings saying Phase 2 is unstarted are historical.
+Arthur transfers whole-product continuity from Codex PM V5 to Claude on 2026-10-03 (D-0171). Read `AGENTS.md`, then this map and the latest sections of the canonical files. [`SESSION_HANDOFF.md`](SESSION_HANDOFF.md) owns the complete onboarding message; `CLAUDE.md` is only a bootstrap pointer. D-0172 records actual publication/integration of accepted Phase 2 in product commit `8b8ba6453df01a18492bedeffa1ac2bca5037416` with fresh clean local/origin/live-remote 0/0. Claude receives orientation only and waits for Arthur to assign the next action; no audit or Phase 3 starts automatically. Older Phase 2 unstarted/publication-pending headings are dated history.
 
 
 ## D-0169 — Phase 1 published; Phase 2 is next

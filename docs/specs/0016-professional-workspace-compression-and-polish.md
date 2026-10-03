@@ -1,11 +1,11 @@
 # SPEC-0016 — Professional Workspace Compression and Polish
 
-Status: **Approved; Phase 1 published/integrated; Phase 2 Arthur-accepted and frozen, publication explicitly authorized after CPA closeout; Phase 3 next after verified publication; Phases 3–5 not started**
+Status: **Approved; Phases 1–2 published/integrated; Phase 2 frozen at product commit 8b8ba6453df01a18492bedeffa1ac2bca5037416; Phases 3–5 not started; Claude awaits Arthur's next instruction**
 Owner: Arthur
 Planning role: docs-only Spec Architect; Project Manager reviews before any implementation authorization
 Created: 2026-10-02
 Last updated: 2026-10-03
-Decision links: D-0171; D-0170; D-0169; D-0168; D-0167; D-0166; D-0093; D-0134; D-0136; D-0143
+Decision links: D-0172; D-0171; D-0170; D-0169; D-0168; D-0167; D-0166; D-0093; D-0134; D-0136; D-0143
 TODO IDs: PLAN-016; POLISH-016-1 through POLISH-016-5; PUB-016-PLAN; RESUME-015-6
 Planning baseline: clean synchronized canonical `main` / `origin/main` at `988531e3a3e1f65558d32952256877c366a04c9d`
 Runtime baseline inside that record: accepted SPEC-0015 Phase 5 product commit `1b4acd7db0b57188e95cb8474816c4e453172abd`
@@ -14,6 +14,8 @@ Delivery target: **five phases planned to finish in under seven calendar days fr
 ## 1. Exact goal
 
 ### Accepted Phase 2 and next Phase 3
+
+D-0172 records exact Phase 2 publication/main integration and fresh clean local/origin/live-remote 0/0 at product commit `8b8ba6453df01a18492bedeffa1ac2bca5037416`. Arthur's latest direction is orientation only: Claude waits for his next instruction; no audit or Phase 3 starts automatically. Accepted runtime/test hashes remain unchanged.
 
 D-0170 supersedes older “Phase 2 unstarted” checkpoints. Arthur accepted the final copy and stopped programming; source is frozen from base `511155a4230f4f005c1064a7cad57d1051a8fb73`. The narrower owner outcome is combined Open Project, full-width split Edit/Watch/eligible Export/management rows, no Home My Projects destination, centered moderate #0066FF glow, #030914 navy and instant solid #0066FF/white pointer hover. Existing Home Export and Help/Tutorials remain. Existing Viewer/Export presentation remains except narrow entry/return/inert seams; §10's broader media restyle/removal is not claimed as delivered.
 

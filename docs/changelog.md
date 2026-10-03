@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-10-03 — D-0172 publishes Phase 2 and finalizes Claude orientation
+
+- Exact 29-path product commit `8b8ba6453df01a18492bedeffa1ac2bca5037416` was committed, cleanly fast-forwarded into main and pushed; fresh local/origin/live GitHub refs matched clean 0/0. Main Home 200/private unsigned APIs 401 and built-in browser account entry pass; no new authenticated-main/provider/native-output proof is claimed.
+- Preserved 14 ignored proof/config/review-account files with exact hashes and three SQLite restore quick checks; stopped only the exact old review server and verified port 58584 closed. Managed obsolete worktree/local-branch retirement follows this records-only synchronization, with recovery retained.
+- Clarified Arthur's latest instruction: Claude receives product/history orientation and waits for his next task. Phase 3 remains a planned candidate, not automatic audit/programming authority. No accepted runtime or test byte changed in this closeout.
+
 ## 2026-10-03 Phase 2 acceptance and Claude handoff
 
 - D-0170 records Arthur's later PASS/stop, freezes 12 accepted technical paths and adds a clearly dated post-acceptance hash seal without changing runtime. Combined Open Project exposes Edit/Watch/eligible Export/management; instantaneous Home/list hover has one presentation owner and keyboard focus is separate.

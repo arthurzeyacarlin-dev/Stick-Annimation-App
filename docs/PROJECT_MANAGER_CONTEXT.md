@@ -4,7 +4,7 @@
 
 D-0170 records Arthur's later Phase 2 PASS and explicit stop-programming instruction; accepted source is frozen. D-0171 names Claude the next whole-product PM/coding collaborator and custodian of the former PM V4 AI Animator work. No other Codex thread or helper is authorized to continue this handoff. Root completes proof-only closeout, then exclusively owns CPA records and the separately named publication operation; no parallel executor is active.
 
-The exact next product task after synchronized Phase 2 publication is SPEC-0016 Phase 3, not SPEC-0015 Phase 6. Start with G-016-HELP-UNSAVED and a narrow current-main plan. Keep the editor mounted when Help opens; preserve Assistant state, chats, citations/search, dictation, notification targets, auth and save owners. Read the complete current onboarding in `SESSION_HANDOFF.md`; old PM/model-specific instructions are history where D-0171 changes tool/ownership, but safety, proof, role and publication boundaries remain in force.
+D-0172 records published/integrated Phase 2 at product commit `8b8ba6453df01a18492bedeffa1ac2bca5037416` with fresh clean local/origin/live-remote 0/0. Arthur's latest instruction is orientation only: he will assign Claude's next action, including any audit. SPEC-0016 Phase 3 is the next planned phase candidate, not an automatic start order. If separately authorized, it must resolve G-016-HELP-UNSAVED in a narrow current-main plan, keep the editor mounted when Help opens, and preserve Assistant state, chats, citations/search, dictation, notification targets, auth and save owners. Read the complete onboarding in `SESSION_HANDOFF.md`; historical PM/model instructions never override the latest owner direction.
 
 
 ## D-0169 — Phase 1 published; Phase 2 is next

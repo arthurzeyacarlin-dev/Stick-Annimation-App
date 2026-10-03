@@ -1740,6 +1740,14 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - AI boundary: transferring SPEC-0008 stewardship is not blanket resumption/provider-spend/deployment authority. Completed Phase 1 remains; Phases 2–6 retain D-0093's pause until explicit resumption, fresh architecture reconciliation and bounded authorization. Claude should make the AI feasibility/smallest editable-animation path a near-term planning priority, not postpone it to the final fortnight.
 - Continuity: `SESSION_HANDOFF.md` owns the complete message; root `CLAUDE.md` points to existing AGENTS/control-plane documents only. Canonical history/spec/Git records remain intact; no competing state, TODO or handoff store.
 
+### D-0172 — Publish accepted Phase 2; Claude orientation awaits Arthur
+
+- Date: 2026-10-03
+- Publication: exact 29-path product commit `8b8ba6453df01a18492bedeffa1ac2bca5037416`, parent `511155a4230f4f005c1064a7cad57d1051a8fb73`, integrated by fast-forward into clean canonical main and pushed normally. Fresh local main/origin/main/live GitHub refs matched at clean 0/0. Twelve accepted technical plus seventeen reviewed control-plane/bootstrap/tree paths; no accepted runtime correction in CPA/publication.
+- Main activation: Home 200, unsigned account usage/projects/data 401, built-in browser existing sign-in/login entry. No new authenticated-main walkthrough, paid AI or native MP4 proof. Existing main environment/account stores were not replaced or imported.
+- Preservation/cleanup: exact old review server PID 8657/cwd stopped; 58584 closed. Fourteen ignored proof/config/account files are byte-verified under restricted canonical `.local/recovery/spec0016-phase2-accepted-20261003`; inventory SHA-256 `32dcdf8f496fec0a545a4b455897a557fa2521745ea3e4c2a9a7ca8e5ba2da75`; three copied SQLite restore quick checks pass. Original technical seal remains `fcfc73d1943628fe746b2588b406e6f1e0fd15edbdbd4527fbad0e8cb024856c`. Managed accepted review-worktree/merged-local-branch retirement follows this records-only synchronization. Recovery/main/PM/unrelated worktrees remain preserved.
+- Latest owner direction supersedes automatic-next-task language: the Claude handoff is product/history orientation only. Arthur will tell Claude what to do next, including audits. Phase 3 is a planned candidate, not started or authorized by this transfer. No helpers, later implementation, AI resumption, paid calls or deployment follows.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

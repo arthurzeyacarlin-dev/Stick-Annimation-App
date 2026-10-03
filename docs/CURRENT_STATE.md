@@ -1,6 +1,10 @@
 # Current State
 
-## Accepted Phase 2 awaiting verified publication
+## Published Phase 2 — D-0172
+
+Exact product commit `8b8ba6453df01a18492bedeffa1ac2bca5037416` is integrated into canonical main and GitHub, with fresh clean local/origin/live-remote `0/0` verification. Main Home 200 and unsigned account usage/projects/data 401 pass; the built-in browser reached unchanged sign-in/login entry. No authenticated main/paid-AI/native-MP4 retest is claimed. Fourteen ignored review files are hash-preserved in restricted canonical `.local/recovery/spec0016-phase2-accepted-20261003`, three copied SQLite restore checks pass, and exact review server/58584 are closed. Managed review-worktree/local-branch retirement follows synchronization of this records-only closeout. Claude receives orientation only and waits for Arthur's next instruction; Phase 3 is a planned candidate, not started or authorized by the handoff.
+
+## Accepted Phase 2 evidence — historical prepublication checkpoint
 
 **Owner verified:** Arthur said “IT IS FIXED!!! STOP!” and that the copy passed, then confirmed it was fixed without identifying the exact tab. He subsequently requested Open Project review access and now explicitly instructs propagation/main/GitHub publication. No programming resumed after his stop. The copy at port 58584 has one combined Open Project list: dominant Edit plus sibling Watch, eligible Export and existing management; My Projects is no longer a Home destination. Background #030914, moderate centered #0066FF glow, instant solid #0066FF/white action hover. Home layout/header and Help/Tutorials remain, except removal of My Projects and a presentation-only hover owner shared with the list. Standalone Home Export remains by the owner's narrower scope; full Viewer/Export restyling is not claimed.
 

@@ -4,7 +4,7 @@
 
 D-0171 transfers PM V5 continuity and the former PM V4 SPEC-0008 AI Animator context to Claude. Arthur's target is a polished, useful Version 1 built or very close within 30 days of the 2026-10-03 handoff, aiming for 85–100% of an explicitly tested release scope by 2026-11-02; the public website's first-beta goal remains 2026-11-30. These are targets, not a verified completion percentage or guaranteed date. Preserve the capable manual editor and saved work; simplify presentation without deleting features. Users should feel both “I can create something useful here” and “I want to stay here.”
 
-SPEC-0016 Phase 1 is published; Arthur accepted Phase 2's unified Open Project surface and later hover correction (D-0170). After that exact accepted package and records publish cleanly, Phase 3 Help is next. SPEC-0016 remains a five-phase under-week polish effort, not the whole 30-day build. AI animation creation/editing is not completed by these UI phases. SPEC-0015 Phases 6–8 and SPEC-0008 Phases 2–6 remain paused pending their specific resumption and gates; Claude now owns their continuity and readiness planning.
+SPEC-0016 Phases 1 and 2 are published/integrated; Phase 2 product commit is `8b8ba6453df01a18492bedeffa1ac2bca5037416` (D-0172). Phase 3 Help is the next planned phase candidate, but Arthur will assign Claude's next action; this handoff authorizes no automatic audit/programming. SPEC-0016 remains a five-phase under-week polish effort, not the whole 30-day build. AI animation creation/editing is not completed by these UI phases. SPEC-0015 Phases 6–8 and SPEC-0008 Phases 2–6 remain paused pending their specific resumption and gates; Claude now owns their continuity.
 
 
 ## D-0169 — Phase 1 published; Phase 2 is next

@@ -1,5 +1,17 @@
 # Session Handoff
 
+## D-0172 — Published Phase 2; orientation only for Claude
+
+Accepted Phase 2 and its first continuity records are committed, integrated into canonical main and pushed to GitHub as `8b8ba6453df01a18492bedeffa1ac2bca5037416`, parent `511155a4230f4f005c1064a7cad57d1051a8fb73`, exactly 12 accepted technical plus 17 control-plane/bootstrap/tree paths. Fresh local main, origin/main and live GitHub refs matched at clean `0/0`. This records-only successor changes no accepted runtime/test byte. Read its final SHA from Git rather than inventing a self-referential hash.
+
+Arthur's latest instruction is **orientation, not a next-work order**. Claude should understand Diamond Animator and wait for Arthur to assign the next action, including any audit. SPEC-0016 Phase 3 is the next planned phase candidate, not automatically authorized or started. No programming resumed after Arthur's stop/PASS.
+
+Canonical main remains `/Users/arthurcarlin/Projects/stick-animation-app`, app `http://127.0.0.1:3000/`. Home returned 200; unsigned account usage/projects/data returned 401; the built-in browser reached the existing sign-in/login entry. No new signed-in main walkthrough, paid AI turn or native MP4 write is claimed. Main environment/account stores were not replaced with review data.
+
+The exact old review server (PID 8657, verified review cwd) was stopped and port 58584 verified closed. Fourteen ignored proof/config/account files are byte-verified at restricted canonical `.local/recovery/spec0016-phase2-accepted-20261003`; preservation inventory SHA-256 is `32dcdf8f496fec0a545a4b455897a557fa2521745ea3e4c2a9a7ca8e5ba2da75`. Three isolated copied SQLite restore quick checks pass. Original proof seal remains `fcfc73d1943628fe746b2588b406e6f1e0fd15edbdbd4527fbad0e8cb024856c`. The old review worktree/merged local branch are eligible for managed retirement only after this records-only successor synchronizes; final cleanup proof lives beside that inventory. The old review URL is no longer an active app. Never import this recovery into main, commit it or delete it as routine cleanup.
+
+The onboarding below remains the product/history briefing. Its earlier publication-pending paragraph is a dated prepublication checkpoint superseded by this entry; earlier scheduling suggestions do not override Arthur's instruction to wait.
+
 ## Codex to Claude handoff on 2026 10 03
 
 I am Codex, the agent that has been programming Diamond Animator with Arthur as PM V5. Arthur is transferring future PM/programming continuity to you, Claude, including the AI Animator context formerly held by PM V4. You are Claude, not Codex; retain the repository's facts, product decisions and safeguards, not a false identity. This section is the canonical onboarding message. Older entries below remain dated history.
@@ -36,15 +48,15 @@ Visual contract: navy #030914 page, slightly brighter #071120 header/normal butt
 
 Read `docs/specs/README.md` for all spec files and `docs/DECISIONS.md`/`docs/changelog.md` plus Git history for exact accepted/rejected/publication identities. Archived/design docs are not competing implemented truth. The no-transfer account and drawing-no-silent-deletion rules are permanent.
 
-### Exact next task and remaining phases
+### Remaining phase map — await Arthur's next instruction
 
-After Phase 2 and its records are durably integrated and synchronized, **SPEC-0016 Phase 3** is next: one Help hub, assigned Assistant/Tutorial presentation and functional workspace Help. Begin in planning/read-only mode; trace the active editor, resolve **G-016-HELP-UNSAVED**, and freeze exact paths/commands/proof. Prefer a shell-owned overlay/drawer that keeps the editor mounted. Do not duplicate Assistant state or naïvely navigate away from unsaved work. Keep existing chats/deep links, notification targets, search/citations/dictation and truthful placeholder Tutorials. Home/header changes are routing seams only, not another restyle.
+The next planned phase candidate is **SPEC-0016 Phase 3**: one Help hub, assigned Assistant/Tutorial presentation and functional workspace Help. This is context, not permission to begin. If Arthur later authorizes that phase, its entry trace must resolve **G-016-HELP-UNSAVED** and freeze exact paths/commands/proof. A shell-owned overlay/drawer that keeps the editor mounted is the current safe candidate. Do not duplicate Assistant state or naïvely navigate away from unsaved work. Keep existing chats/deep links, notification targets, search/citations/dictation and truthful placeholder Tutorials. Home/header changes are routing seams only, not another restyle.
 
 Then Phase 4 polishes the existing editor shell without drawing/timeline/history/rendering/provider changes; Phase 5 polishes account entry/Dashboard/recovery/shared dialogs and proves integration without auth/usage math/billing changes. Respect their G-016 entry gates. No Phase 3–5 programming occurs in this handoff.
 
 SPEC-0015 Phases 6–8 are paused, not cancelled: funded allowance/admission/refill, sandbox payment, then launch proof need G-ECON/G-CAPS, retention and release decisions. Prices/credits/provider caps are not approved. SPEC-0008 Phases 2–6 are also paused under D-0093. You now own its continuity; explicit resumption and fresh architecture/spec reconciliation are required. Its historical phases are reference-video preparation/research, deterministic slicing, editable reconstruction, registry-based conversational edits, then beta/export closeout. Reverify dated provider/model/tool/pricing terms before use; ownership/deadline grants no paid calls, model switch, asset purchase or deployment. Hosted cross-device identity and a new private account-linked MP4 archive remain Version 2 or later.
 
-Recommended near-term planning: finish the three remaining polish phases quickly, assess AI creation feasibility immediately rather than in the final fortnight, choose the smallest genuine editable/undoable/savable/exportable animation slice with Arthur, and reserve the last week of the month for defects and full release flows. This is scheduling advice, not blanket implementation authority.
+Deadline context: the remaining polish, genuine editable/undoable/savable/exportable AI creation feasibility and final stabilization compete for the same month. Arthur will choose the next work; this briefing does not instruct Claude to start a planning task, audit or implementation automatically.
 
 ### Evidence and limitations you must retain
 

@@ -1,0 +1,145 @@
+/* SPEC-0016 Phase 5: signed-out entry. Presentation only; native :hover, no transitions. */
+.page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  padding: 32px 16px;
+  color: #f6f9ff;
+  background: radial-gradient(ellipse at 50% 30%, rgba(9, 33, 65, .16), transparent 50%), #030914;
+}
+.page *, .page *::before, .page *::after { box-sizing: border-box; transition: none; animation: none; }
+
+.card {
+  width: min(460px, 100%);
+  padding: 36px 36px 32px;
+  border: 1px solid #163058;
+  border-radius: 16px;
+  background: #071120;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, .34);
+}
+.cardWide { width: min(600px, 100%); padding: 30px 36px 28px; }
+
+.brand { display: flex; align-items: center; gap: 10px; color: #a8bddd; font-size: 13px; font-weight: 650; letter-spacing: .02em; }
+.logo { color: #ffffff; flex: none; }
+.logoLarge { color: #ffffff; display: block; margin: 0 auto 22px; }
+
+.intro { text-align: center; }
+.title { margin: 0; font-size: 28px; font-weight: 720; line-height: 1.15; letter-spacing: -.03em; color: #f6f9ff; }
+.cardWide .title, .formTitle { margin-top: 18px; font-size: 24px; }
+.lead { margin: 10px 0 0; color: #a8bddd; font-size: 15px; line-height: 1.55; }
+.muted { margin: 0; color: #8fabd0; font-size: 12.5px; line-height: 1.5; }
+.entryNote { margin-top: 22px; text-align: center; }
+
+.choices { display: grid; gap: 10px; margin-top: 30px; }
+
+.form { display: flex; flex-direction: column; gap: 20px; margin-top: 22px; }
+.step { display: flex; flex-direction: column; gap: 12px; min-width: 0; margin: 0; padding: 0; border: 0; }
+.stepDivider { padding-top: 18px; border-top: 1px solid #163058; }
+.stepHead { display: flex; align-items: center; gap: 10px; margin: 0; padding: 0; color: #f6f9ff; font-size: 15px; font-weight: 680; }
+.stepNumber {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  flex: none;
+  border: 1px solid #244267;
+  border-radius: 50%;
+  color: #a8bddd;
+  font-size: 12px;
+  font-weight: 700;
+}
+.legend { float: left; width: 100%; }
+.stepHint { margin: -4px 0 0 34px; }
+
+.fields { display: grid; gap: 12px; }
+.fieldRow { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.label { display: grid; gap: 6px; color: #a8bddd; font-size: 13px; font-weight: 550; }
+.input {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid #244267;
+  border-radius: 9px;
+  outline: none;
+  background: #030914;
+  color: #f6f9ff;
+  font: inherit;
+  font-size: 14px;
+}
+.input:focus { border-color: #3a6aa3; }
+.input:focus-visible { border-color: #3a6aa3; outline: 2px solid #66c7ff; outline-offset: 1px; }
+
+.plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.plan {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-height: 66px;
+  padding: 12px 14px;
+  border: 1px solid #244267;
+  border-radius: 11px;
+  background: #071120;
+  color: #f6f9ff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 650;
+  text-align: left;
+  cursor: pointer;
+}
+.planNote { color: #8fabd0; font-size: 11.5px; font-weight: 500; }
+.planSelected { border-color: #3a6aa3; background: #0f2a52; color: #eaf3ff; }
+.planSelected .planNote { color: #c9d6ea; }
+
+.actions { display: flex; gap: 10px; }
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid #244267;
+  border-radius: 10px;
+  background: #071120;
+  color: #c9d6ea;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 650;
+  cursor: pointer;
+}
+.primary { flex: 1; border-color: #3a6aa3; background: #0f2a52; color: #ffffff; }
+.choices .button { width: 100%; min-height: 48px; font-size: 16px; }
+
+.switchRow { margin: 0; color: #8fabd0; font-size: 13px; text-align: center; }
+.switch {
+  margin-left: 4px;
+  padding: 2px 6px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: #c9d6ea;
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.button:hover:not(:disabled),
+.plan:hover,
+.switch:hover:not(:disabled) { border-color: #0066ff; background: #0066ff; color: #ffffff; }
+.plan:hover .planNote { color: #ffffff; }
+
+.button:focus-visible, .plan:focus-visible, .switch:focus-visible { outline: 2px solid #66c7ff; outline-offset: 2px; }
+.button:disabled, .switch:disabled { opacity: .5; cursor: not-allowed; }
+.button.busy:disabled { cursor: wait; opacity: .7; }
+
+.error { margin: 0; color: #ff8a95; font-size: 13px; line-height: 1.45; }
+
+@media (max-width: 560px) {
+  .page { padding: 20px 16px; place-items: start center; }
+  .card, .cardWide { padding: 24px 18px 22px; }
+  .title { font-size: 24px; }
+  .fieldRow, .plans { grid-template-columns: minmax(0, 1fr); }
+  .plan { min-height: 0; }
+  .stepHint { margin-left: 0; }
+}

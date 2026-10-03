@@ -15,7 +15,7 @@ const localRange = (start: number, end: number) => {
   return `${first.toLocaleDateString()} ${clock(first)}–${last.toLocaleDateString()} ${clock(last)}`;
 };
 const sourceName: Record<DashboardFilter, string> = {
-  combined: "Combined", project: "Project AI", assistant: "Assistant",
+  combined: "All", project: "AI Animator", assistant: "Assistant",
 };
 
 export function AiUsageChart({ buckets, filter, complete, capacity }: { buckets: DashboardBucket[]; filter: DashboardFilter; complete: boolean; capacity: number }) {
@@ -59,9 +59,9 @@ export function AiUsageChart({ buckets, filter, complete, capacity }: { buckets:
   const detailChange = active ? intervalChange(active.index) : null;
   return (
     <div className={styles.chartArea} aria-label={`${sourceName[filter]} weekly test preview chart`}>
-      <div className={styles.thresholdLegend} aria-label="Test preview thresholds">
-        <span><i className={styles.roofKey} aria-hidden="true" />0% remaining — TEST PREVIEW exhausted</span>
-        <span><i className={styles.warningKey} aria-hidden="true" />10% remaining — shared TEST PREVIEW</span>
+      <div className={styles.thresholdLegend} aria-label="Preview limit markers">
+        <span><i className={styles.roofKey} aria-hidden="true" />Red line: weekly preview limit reached</span>
+        <span><i className={styles.warningKey} aria-hidden="true" />Dashed line: 10% left before the preview limit</span>
       </div>
       <div className={styles.plotWrap} ref={plotRef}
         onPointerDown={(event) => {
@@ -74,7 +74,7 @@ export function AiUsageChart({ buckets, filter, complete, capacity }: { buckets:
             const height = bucket.selectedTokens > 0 ? `${Math.max(1.4, Math.min(100, bucket.selectedPercent))}%` : "0%";
             const remaining = Math.max(0, TEST_WEEKLY_TOKENS - bucket.combinedTokens);
             const change = intervalChange(index);
-            const label = `${sourceName[filter]} activity interval, local ${localRange(bucket.start, bucket.end)}; UTC ${time(bucket.start)} to ${time(bucket.end)}; spent ${number(bucket.intervalSelectedTokens)} tokens in interval; cumulative selected source ${number(bucket.selectedTokens)} of 10,000 shared TEST PREVIEW tokens, ${bucket.selectedPercent.toFixed(1)}%; Combined ${number(bucket.combinedTokens)}, ${number(remaining)} before shared test line${change === null ? "" : `; interval spend change since last plotted bar ${signedNumber(change)} tokens in this UTC week`}${bucket.resetAfter ? "; UTC-week reset follows" : ""}${bucket.isCurrent ? "; interval in progress" : ""}${complete ? "" : "; partial data"}`;
+            const label = `${sourceName[filter]} activity interval, local ${localRange(bucket.start, bucket.end)}; UTC ${time(bucket.start)} to ${time(bucket.end)}; spent ${number(bucket.intervalSelectedTokens)} tokens in interval; cumulative selected source ${number(bucket.selectedTokens)} of the 10,000-token weekly preview limit, ${bucket.selectedPercent.toFixed(1)}%; all AI ${number(bucket.combinedTokens)}, ${number(remaining)} left in the preview${change === null ? "" : `; interval spend change since last plotted bar ${signedNumber(change)} tokens in this UTC week`}${bucket.resetAfter ? "; UTC-week reset follows" : ""}${bucket.isCurrent ? "; interval in progress" : ""}${complete ? "" : "; partial data"}`;
             return (
               <div key={bucket.start} className={`${styles.barSlot} ${bucket.resetAfter ? styles.resetAfter : ""}`}>
                 <button type="button" className={styles.barButton} aria-label={label}
@@ -110,19 +110,19 @@ export function AiUsageChart({ buckets, filter, complete, capacity }: { buckets:
         {detail && active && <div ref={tooltipRef} className={styles.barTooltip} data-testid="usage-tooltip"
           style={{ left: active.left }} aria-hidden="true">
           <strong>{sourceName[filter]} · {localRange(detail.start, detail.end)}</strong>
-          <span>Spent: {number(detail.intervalSelectedTokens)} recorded tokens</span>
+          <span>Used in this bar: {number(detail.intervalSelectedTokens)} tokens</span>
           {detailChange !== null &&
             <span>Since last bar: {signedNumber(detailChange)} tokens</span>}
-          <span>This UTC week: {number(detail.selectedTokens)} ({detail.selectedPercent.toFixed(1)}%) of shared 10,000 TEST PREVIEW</span>
+          <span>This week so far: {number(detail.selectedTokens)} ({detail.selectedPercent.toFixed(1)}%) of the 10,000-token preview limit</span>
           {((detail.firstInWeek && active.index > 0) || detail.isCurrent || !complete) &&
             <small>{[
               detail.firstInWeek && active.index > 0 ? "UTC week reset" : "",
               detail.isCurrent ? "In progress" : "",
-              !complete ? "Partial records; totals may be low" : "",
+              !complete ? "Some records are missing, so totals may be low" : "",
             ].filter(Boolean).join(" · ")}</small>}
         </div>}
       </div>
-      <p className={styles.chartRange}>{buckets.length ? `${time(buckets[0].start)} → ${time(buckets[buckets.length - 1].sampleAt)} · UTC · plotted activity, oldest to newest` : "No active intervals in this selected time view."}</p>
+      <p className={styles.chartRange}>{buckets.length ? `${time(buckets[0].start)} → ${time(buckets[buckets.length - 1].sampleAt)} · UTC · oldest to newest` : "No AI use in this view yet."}</p>
     </div>
   );
 }

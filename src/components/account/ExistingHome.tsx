@@ -11,6 +11,7 @@ import { ProjectPoster } from "@/src/components/project-library/ProjectPoster";
 import { createProjectLibraryController } from "@/src/lib/project-library/projectLibraryController";
 import type { ProjectLibrarySnapshot } from "@/src/lib/project-library/projectLibraryModel";
 import homeStyles from "@/src/components/home/HomeWorkspace.module.css";
+import welcomeStyles from "@/src/components/account/welcomeOverlay.module.css";
 import { createUntitledWorkspace, prepareCollectionWorkspace, prepareRecoveryWorkspace, WorkspaceBootstrap, type MountedWorkspace } from "@/src/lib/animation/unifiedWorkspaceBootstrap";
 import { createAccountProjectRepositoryV2, createAccountProjectSourceReader, readAccountProjectV2 } from "@/src/lib/account/projectClient";
 import { withAccountProjectWrite } from "@/src/lib/account/projectPending";
@@ -514,19 +515,16 @@ export default function Page() {
   <>
     <div
       aria-hidden={!welcomeOpen}
+      className={welcomeStyles.scrim}
       onClick={(e) => {
         // IMPORTANT: Do NOT allow clicking outside the welcome to close it.
         // Users must choose buttons inside the welcome.
         e.stopPropagation();
       }}
       style={{
-        position: "fixed",
-        inset: 0,
-        background: "rgba(0,0,0,0.50)",
+        // Shown or hidden instantly: no fade or movement.
         opacity: welcomeOpen ? 1 : 0,
-        transition: "opacity 180ms ease",
         pointerEvents: welcomeOpen ? "auto" : "none",
-        zIndex: 60,
       }}
     />
 
@@ -534,105 +532,52 @@ export default function Page() {
       role="dialog"
       aria-modal="true"
       aria-label="Welcome to Diamond Animator"
+      className={welcomeStyles.dialog}
       onClick={(e) => e.stopPropagation()}
       style={{
-        position: "fixed",
-        top: 14,
-        left: "50%",
-        transform: welcomeOpen
-          ? "translateX(-50%) translateY(0)"
-          : "translateX(-50%) translateY(-18px)",
         opacity: welcomeOpen ? 1 : 0,
-        transition: "transform 220ms ease, opacity 180ms ease",
-        width: "min(860px, calc(100vw - 40px))",
-        borderRadius: "12px",
-        border: "1px solid rgba(110, 170, 255, 0.22)",
-        background: "rgba(18,22,28,0.98)",
-        boxShadow: "0 18px 60px rgba(0,0,0,0.55)",
-        padding: "16px 16px",
-        zIndex: 70,
         pointerEvents: welcomeOpen ? "auto" : "none",
       }}
     >
-  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "14px" }}>
-    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-      <div
-        style={{
-          fontSize: "12px",
-          letterSpacing: "0.12em",
-          textTransform: "uppercase",
-          color: "rgba(180,220,255,0.75)",
-        }}
-      >
+  <div className={welcomeStyles.header}>
+    <div className={welcomeStyles.heading}>
+      <div className={welcomeStyles.eyebrow}>
         {welcomeStep === 0 ? "Welcome" : "Guided setup"}
       </div>
-      <div style={{ fontSize: "18px", fontWeight: 800, color: "rgba(255,255,255,0.92)" }}>
+      <div className={welcomeStyles.title}>
         {welcomeStep === 0 ? "Welcome to Diamond Animator" : "Choose your guided setup"}
       </div>
     </div>
 
     <button
       aria-label="Close welcome"
+      className={welcomeStyles.close}
       onClick={() => closeWelcome({ markSeen: true })}
-      style={{
-        appearance: "none",
-        border: "none",
-        background: "transparent",
-        padding: "4px 8px",
-        margin: 0,
-        color: "rgba(255,255,255,0.85)",
-        fontSize: "28px",
-        lineHeight: 1,
-        cursor: "pointer",
-      }}
     >
       ×
     </button>
   </div>
 
-  <div style={{ height: 10 }} />
-
   {/* Step 0: intro */}
   {welcomeStep === 0 && (
     <>
-      <div style={{ color: "rgba(255,255,255,0.72)", fontSize: "13px", lineHeight: 1.55 }}>
+      <div className={welcomeStyles.body}>
         Welcome to Diamond Animator. Would you like a guided setup?
       </div>
 
-      <div style={{ height: 12 }} />
-
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+      <div className={welcomeStyles.actions}>
         <button
           type="button"
+          className={`${welcomeStyles.button} ${welcomeStyles.primary}`}
           onClick={() => setWelcomeStep(1)}
-          style={{
-            padding: "10px 12px",
-            borderRadius: "10px",
-            border: "1px solid rgba(110, 170, 255, 0.30)",
-            background: "rgba(110, 170, 255, 0.10)",
-            color: "rgba(255,255,255,0.92)",
-            fontSize: "13px",
-            fontWeight: 650,
-            cursor: "pointer",
-            appearance: "none",
-          }}
         >
           Continue with guided setup
         </button>
 
         <button
           type="button"
+          className={welcomeStyles.button}
           onClick={() => closeWelcome({ neverShow: true, markSeen: true })}
-          style={{
-            padding: "10px 12px",
-            borderRadius: "10px",
-            border: "1px solid rgba(255,255,255,0.10)",
-            background: "rgba(255,255,255,0.035)",
-            color: "rgba(255,255,255,0.72)",
-            fontSize: "13px",
-            cursor: "pointer",
-            appearance: "none",
-          }}
         >
           Don&apos;t show again
         </button>
@@ -643,127 +588,59 @@ export default function Page() {
   {/* Step 1: choose guided setup */}
   {welcomeStep === 1 && (
     <>
-      <div style={{ color: "rgba(255,255,255,0.80)", fontSize: "13px", lineHeight: 1.55 }}>
+      <div className={welcomeStyles.body}>
         What guided setup would you like?
       </div>
 
-      <div style={{ height: 12 }} />
-
-      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+      <div className={welcomeStyles.choices}>
         <button
           type="button"
+          className={`${welcomeStyles.choice} ${guidedChoices.includes("beginner") ? welcomeStyles.choiceSelected : ""}`}
           onClick={() => toggleGuidedChoice("beginner")}
-          style={{
-            textAlign: "left",
-            padding: "12px 12px",
-            borderRadius: "12px",
-            border: guidedChoices.includes("beginner")
-              ? "1px solid rgba(110, 170, 255, 0.50)"
-              : "1px solid rgba(255,255,255,0.10)",
-            background: guidedChoices.includes("beginner")
-              ? "rgba(110, 170, 255, 0.10)"
-              : "rgba(255,255,255,0.035)",
-            color: "rgba(255,255,255,0.90)",
-            cursor: "pointer",
-            appearance: "none",
-          }}
         >
-          <div style={{ fontWeight: 750, fontSize: "13px" }}>Learn animation fundamentals</div>
-          <div style={{ color: "rgba(255,255,255,0.65)", fontSize: "12px", marginTop: 4 }}>
+          <div className={welcomeStyles.choiceTitle}>Learn animation fundamentals</div>
+          <div className={welcomeStyles.choiceText}>
             Smooth start + confidence boosters.
           </div>
         </button>
 
         <button
           type="button"
+          className={`${welcomeStyles.choice} ${guidedChoices.includes("pro") ? welcomeStyles.choiceSelected : ""}`}
           onClick={() => toggleGuidedChoice("pro")}
-          style={{
-            textAlign: "left",
-            padding: "12px 12px",
-            borderRadius: "12px",
-            border: guidedChoices.includes("pro")
-              ? "1px solid rgba(110, 170, 255, 0.50)"
-              : "1px solid rgba(255,255,255,0.10)",
-            background: guidedChoices.includes("pro")
-              ? "rgba(110, 170, 255, 0.10)"
-              : "rgba(255,255,255,0.035)",
-            color: "rgba(255,255,255,0.90)",
-            cursor: "pointer",
-            appearance: "none",
-          }}
         >
-          <div style={{ fontWeight: 750, fontSize: "13px" }}>Speed up your workflow</div>
-          <div style={{ color: "rgba(255,255,255,0.65)", fontSize: "12px", marginTop: 4 }}>
+          <div className={welcomeStyles.choiceTitle}>Speed up your workflow</div>
+          <div className={welcomeStyles.choiceText}>
             Faster production and efficient tools.
           </div>
         </button>
 
         <button
           type="button"
+          className={`${welcomeStyles.choice} ${guidedChoices.includes("visionary") ? welcomeStyles.choiceSelected : ""}`}
           onClick={() => toggleGuidedChoice("visionary")}
-          style={{
-            textAlign: "left",
-            padding: "12px 12px",
-            borderRadius: "12px",
-            border: guidedChoices.includes("visionary")
-              ? "1px solid rgba(110, 170, 255, 0.50)"
-              : "1px solid rgba(255,255,255,0.10)",
-            background: guidedChoices.includes("visionary")
-              ? "rgba(110, 170, 255, 0.10)"
-              : "rgba(255,255,255,0.035)",
-            color: "rgba(255,255,255,0.90)",
-            cursor: "pointer",
-            appearance: "none",
-          }}
         >
-          <div style={{ fontWeight: 750, fontSize: "13px" }}>Build ambitious animation projects</div>
-          <div style={{ color: "rgba(255,255,255,0.65)", fontSize: "12px", marginTop: 4 }}>
+          <div className={welcomeStyles.choiceTitle}>Build ambitious animation projects</div>
+          <div className={welcomeStyles.choiceText}>
             Scale your ideas with optional AI assistance.
           </div>
         </button>
       </div>
 
-      <div style={{ height: 12 }} />
-
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+      <div className={welcomeStyles.actions}>
         <button
           type="button"
+          className={`${welcomeStyles.button} ${welcomeStyles.primary}`}
           disabled={guidedChoices.length === 0}
           onClick={() => closeWelcome({ markSeen: true })}
-          style={{
-            padding: "10px 12px",
-            borderRadius: "10px",
-            border: guidedChoices.length === 0
-              ? "1px solid rgba(255,255,255,0.10)"
-              : "1px solid rgba(110, 170, 255, 0.30)",
-            background: guidedChoices.length === 0
-              ? "rgba(255,255,255,0.035)"
-              : "rgba(110, 170, 255, 0.10)",
-            color: guidedChoices.length === 0
-              ? "rgba(255,255,255,0.45)"
-              : "rgba(255,255,255,0.92)",
-            fontSize: "13px",
-            fontWeight: 650,
-            cursor: guidedChoices.length === 0 ? "not-allowed" : "pointer",
-            appearance: "none",
-          }}
         >
           Finish setup
         </button>
 
         <button
           type="button"
+          className={welcomeStyles.button}
           onClick={() => closeWelcome({ neverShow: true, markSeen: true })}
-          style={{
-            padding: "10px 12px",
-            borderRadius: "10px",
-            border: "1px solid rgba(255,255,255,0.10)",
-            background: "rgba(255,255,255,0.035)",
-            color: "rgba(255,255,255,0.72)",
-            fontSize: "13px",
-            cursor: "pointer",
-            appearance: "none",
-          }}
         >
           Don&apos;t show again
         </button>

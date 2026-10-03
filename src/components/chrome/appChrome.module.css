@@ -1,45 +1,99 @@
-.homeBar { position: relative; z-index: 10; flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 86px; padding: 14px clamp(20px, 4vw, 56px); border-bottom: 1px solid #163058; background: #071120; color: #f5f8ff; }
+/* Global app header (Home + AI Dashboard), side Menu panel, account popover and About/Terms dialogs.
+   Palette: page #030914, panels #071120, dividers #163058, buttons #071120/#244267/#c9d6ea,
+   selected #0f2a52/#3a6aa3, hover #0066ff + white. Hover is native :hover only and instant. */
+
+.homeBar { position: relative; z-index: 10; flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 86px; padding: 14px clamp(20px, 4vw, 56px); border-bottom: 1px solid #163058; background: #071120; color: #f6f9ff; }
 .homeBrand { display: inline-flex; align-items: center; gap: 15px; min-width: 0; color: inherit; cursor: default; }
 .brandDiamond { width: 46px; height: 46px; flex: 0 0 auto; color: #fff; }
 .homeBrandText { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
 .homeBrandText strong { font-size: 19px; font-weight: 750; letter-spacing: -.025em; white-space: nowrap; }
 .homeBrandText small { font-size: 10px; font-weight: 650; letter-spacing: .055em; color: #507caf; }
-.homeActions { display: flex; align-items: center; gap: 21px; min-width: 0; }
+.homeActions { display: flex; align-items: center; gap: 18px; min-width: 0; }
 .homeBell { display: grid; place-items: center; }
 .homeBar a, .homeBar button, .homeBar svg { transition: none !important; animation: none !important; }
-.homeBell button { border: 0 !important; background: transparent !important; box-shadow: none !important; }
-.homeBell button:hover { color: #0066ff !important; filter: drop-shadow(0 0 7px #0066ff88); }
-.homeDashboard { display: inline-flex; align-items: center; gap: 9px; min-height: 44px; padding: 6px 0; color: #abcdfc; font-size: 13px; font-weight: 680; text-decoration: none; }
-.homeDashboard svg { width: 18px; height: 18px; }
-.homeDashboard:hover { color: #0066ff; text-shadow: 0 0 18px #0066ff88; }
-.homeDashboard:hover svg { color: #0066ff; }
-.homeMenu, .homeAvatar { display: grid; place-items: center; width: 44px; height: 44px; flex: 0 0 auto; border: 1px solid #24548b; border-radius: 11px; background: #0a2346; color: #e3efff; cursor: pointer; }
+.homeBell button { border: 1px solid transparent !important; border-radius: 10px !important; background: transparent !important; box-shadow: none !important; }
+.homeBell button[aria-expanded='true'] { color: #8cbbf3 !important; }
+/* Bell and nav link: only the icon/text turns #0066ff on hover — no filled box (matches "Continue creating"). */
+.homeBell button:hover { border-color: transparent !important; background: transparent !important; color: #0066ff !important; filter: none !important; }
+
+.navLink { display: inline-flex; align-items: center; gap: 9px; min-height: 44px; padding: 0 12px; border: 1px solid transparent; border-radius: 10px; color: #abcdfc; font-size: 13px; font-weight: 680; text-decoration: none; white-space: nowrap; }
+.navLink svg { width: 18px; height: 18px; flex: 0 0 auto; }
+.navLink:hover { color: #0066ff; }
+
+.homeMenu, .homeAvatar { display: grid; place-items: center; width: 44px; height: 44px; flex: 0 0 auto; padding: 0; border: 1px solid #244267; border-radius: 10px; background: #071120; color: #c9d6ea; cursor: pointer; }
 .homeMenu svg { width: 23px; height: 23px; }
-.homeAvatar { border-radius: 50%; border-color: #3187d3; background: #103c70; color: white; font: inherit; font-weight: 750; }
-.homeMenu:hover, .homeAvatar:hover, .homeMenu[aria-expanded='true'], .homeAvatar[aria-expanded='true'] { border-color: #0066ff; background: #0066ff; color: #fff; box-shadow: 0 0 18px #0066ff55; }
-.homeAvatar:hover, .homeAvatar[aria-expanded='true'] { color: #fff; }
+.homeAvatar { border-radius: 50%; border-color: #3187d3; background: #103c70; color: #fff; font: inherit; font-weight: 750; }
+.homeMenu[aria-expanded='true'], .homeAvatar[aria-expanded='true'] { border-color: #3a6aa3; background: #0f2a52; color: #f6f9ff; }
+.homeMenu:hover, .homeAvatar:hover { border-color: #0066ff; background: #0066ff; color: #fff; }
+
+/* Account popover */
 .accountShell { position: relative; }
-.accountPopover { position: absolute; z-index: 70; top: calc(100% + 12px); right: 0; width: min(260px, calc(100vw - 28px)); padding: 19px; border: 1px solid #2264a9; border-radius: 12px; background: #092448; box-shadow: 0 20px 50px #01071488; color: #edf5ff; font-size: 12px; line-height: 1.5; }
-.accountPopover strong, .accountPopover > span { display: block; overflow-wrap: anywhere; }
-.accountPopover > span { color: #a3c0e5; }
-.accountPopover p { margin: 10px 0 3px; }
-.accountPopover small { color: #87a6cf; }
-.accountPopover button { display: block; min-height: 44px; padding: 12px 0 0; border: 0; background: transparent; color: #74c3ff; cursor: pointer; font: inherit; font-weight: 700; }
-.accountPopover button:hover { color: #0066ff; text-shadow: 0 0 12px #0066ff77; }
-.accountPopover button:disabled { opacity: .6; cursor: wait; }
+.accountPopover { position: absolute; z-index: 70; top: calc(100% + 12px); right: 0; width: min(270px, calc(100vw - 28px)); padding: 16px; border: 1px solid #163058; border-radius: 12px; background: #071120; box-shadow: 0 20px 50px rgba(0, 0, 0, .45); color: #f6f9ff; font-size: 12px; line-height: 1.5; }
+.accountPopover strong { display: block; font-size: 13px; overflow-wrap: anywhere; }
+.accountEmail { display: block; color: #a8bddd; overflow-wrap: anywhere; }
+.accountPlan { margin: 12px 0 0; padding-top: 12px; border-top: 1px solid #163058; color: #c9d6ea; }
+.accountNote { display: block; color: #8fabd0; }
+.logoutButton { display: block; width: 100%; min-height: 40px; margin-top: 14px; padding: 0 12px; border: 1px solid #6b2a35; border-radius: 10px; background: #071120; color: #ffb4ae; cursor: pointer; font: inherit; font-weight: 700; text-align: center; }
+.logoutButton:hover:not(:disabled) { border-color: #d93a3a; background: #d93a3a; color: #fff; }
+.logoutButton:disabled { opacity: .6; cursor: wait; }
 .accountError { color: #ffd0cc; margin-top: 8px; }
-.homeBar a:focus-visible, .homeBar button:focus-visible { outline: 2px solid #66c7ff; outline-offset: 5px; }
+
+/* Side Menu panel */
+.menuScrim { position: fixed; inset: 0; z-index: 45; background: rgba(3, 9, 20, .7); }
+.menuScrimClosed { display: none; }
+.menuPanel { position: fixed; top: 0; right: 0; z-index: 50; display: flex; flex-direction: column; gap: 16px; width: min(320px, 100vw); height: 100vh; padding: 20px 18px 26px; overflow-y: auto; border-left: 1px solid #163058; background: #071120; box-shadow: -24px 0 48px rgba(0, 0, 0, .4); color: #f6f9ff; }
+.menuPanelClosed { visibility: hidden; transform: translateX(100%); pointer-events: none; }
+.menuHead { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.menuTitle { font-size: 15px; font-weight: 750; letter-spacing: -.01em; color: #f6f9ff; }
+.divider { height: 1px; flex: 0 0 auto; background: #163058; }
+.section { display: flex; flex-direction: column; gap: 8px; }
+.sectionLabel { margin-bottom: 2px; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #7895bc; }
+
+.panelButton { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; min-height: 42px; padding: 0 14px; border: 1px solid #244267; border-radius: 10px; background: #071120; color: #c9d6ea; font: inherit; font-size: 13px; font-weight: 600; text-align: left; cursor: pointer; appearance: none; }
+.panelButton svg { width: 16px; height: 16px; flex: 0 0 auto; color: #8fabd0; }
+.panelButton:hover { border-color: #0066ff; background: #0066ff; color: #fff; }
+.panelButton:hover svg { color: #fff; }
+.backButton { justify-content: center; }
+
+.staticCard { padding: 12px 14px; border: 1px solid #163058; border-radius: 10px; background: #030914; color: #a8bddd; font-size: 13px; }
+.settingsCard { display: flex; flex-direction: column; gap: 8px; padding: 14px; border: 1px solid #163058; border-radius: 12px; background: #030914; font-size: 13px; line-height: 1.5; }
+.settingsCard strong { color: #f6f9ff; font-size: 14px; }
+.settingsCard p { margin: 0 0 6px; color: #a8bddd; }
+
+.iconButton { display: grid; place-items: center; width: 36px; height: 36px; flex: 0 0 auto; padding: 0; border: 1px solid #244267; border-radius: 10px; background: #071120; color: #c9d6ea; cursor: pointer; appearance: none; }
+.iconButton svg { width: 16px; height: 16px; }
+.iconButton:hover { border-color: #0066ff; background: #0066ff; color: #fff; }
+
+/* About / Terms dialogs */
+.modalScrim { position: fixed; inset: 0; z-index: 80; display: flex; align-items: center; justify-content: center; padding: 18px; background: rgba(3, 9, 20, .7); }
+.modal { width: min(880px, calc(100vw - 36px)); max-height: calc(100vh - 36px); overflow: auto; padding: 24px; border: 1px solid #163058; border-radius: 16px; background: #071120; box-shadow: 0 24px 70px rgba(0, 0, 0, .5); color: #f6f9ff; }
+.modalHead { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+.modalTitleGroup { display: flex; flex-direction: column; gap: 6px; }
+.modalTitle { margin: 0; font-size: 26px; font-weight: 750; letter-spacing: -.02em; color: #f6f9ff; }
+.modalBody { padding: 20px; border: 1px solid #163058; border-radius: 12px; background: #030914; color: #a8bddd; font-size: 14px; line-height: 1.65; }
+.modalBody p { margin: 0 0 12px; }
+.modalBody ul { margin: 0 0 12px; padding-left: 20px; }
+.modalBody li { margin-bottom: 4px; }
+.modalBody b { color: #f6f9ff; font-weight: 700; }
+.modalBody h3 { margin: 0 0 12px; font-size: 20px; font-weight: 750; letter-spacing: -.01em; color: #f6f9ff; }
+.modalBody h4 { margin: 18px 0 6px; font-size: 14px; font-weight: 700; color: #f6f9ff; }
+.modalBody > :last-child { margin-bottom: 0; }
+.modalMuted { color: #8fabd0; }
+
+.homeBar a:focus-visible, .homeBar button:focus-visible,
+.menuPanel button:focus-visible, .modal button:focus-visible { outline: 2px solid #66c7ff; outline-offset: 3px; }
+
 @media (max-width: 760px) {
   .homeBar { flex-wrap: wrap; gap: 12px; padding-inline: 24px; }
-  .homeActions { width: 100%; justify-content: flex-end; gap: 20px; }
-  .homeDashboard { margin-right: auto; }
+  .homeActions { width: 100%; justify-content: flex-end; gap: 14px; }
+  .navLink { margin-right: auto; }
+  .modal { padding: 18px; }
+  .modalBody { padding: 16px; }
+  .modalTitle { font-size: 22px; }
 }
 @media (max-width: 380px) {
   .homeBar { padding-inline: 18px; }
   .homeBrandText strong { font-size: 17px; }
-  .homeActions { gap: 14px; }
-  .homeDashboard { font-size: 12px; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .homeBar a, .homeBar button { transition: none; }
+  .homeActions { gap: 10px; }
+  .navLink { font-size: 12px; }
 }

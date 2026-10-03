@@ -81,8 +81,6 @@ export function ProjectRecoveryPrompt({
   return (
     <main className="recovery-shell" data-project-recovery-prompt={mode}>
       <style>{recoveryStyles}</style>
-      <div className="recovery-orb recovery-orb-one" aria-hidden="true" />
-      <div className="recovery-orb recovery-orb-two" aria-hidden="true" />
       <div
         ref={dialogRef}
         className="recovery-card"
@@ -173,104 +171,92 @@ const recoveryStyles = `
     display: grid;
     place-items: center;
     overflow: hidden;
+    box-sizing: border-box;
     padding: 28px;
     color: #f6f9ff;
-    background:
-      radial-gradient(circle at 18% 14%, rgba(41, 112, 229, 0.18), transparent 34%),
-      radial-gradient(circle at 82% 86%, rgba(108, 63, 196, 0.14), transparent 32%),
-      linear-gradient(160deg, #07111d 0%, #0a101a 48%, #090d16 100%);
+    background: radial-gradient(ellipse at 50% 30%, rgba(9, 33, 65, 0.16), transparent 50%), #030914;
   }
   .recovery-card {
-    width: min(620px, 100%);
+    width: min(600px, 100%);
     position: relative;
-    z-index: 2;
     box-sizing: border-box;
-    padding: 42px;
-    border: 1px solid rgba(138, 170, 222, 0.22);
-    border-radius: 24px;
-    background: linear-gradient(160deg, rgba(19, 29, 45, 0.97), rgba(11, 18, 30, 0.98));
-    box-shadow: 0 28px 90px rgba(0, 0, 0, 0.48), inset 0 1px rgba(255, 255, 255, 0.04);
+    padding: 36px;
+    border: 1px solid #163058;
+    border-radius: 16px;
+    background: #071120;
   }
   .recovery-mark {
-    width: 54px;
-    height: 54px;
+    width: 48px;
+    height: 48px;
     display: grid;
     place-items: center;
-    margin-bottom: 24px;
-    border-radius: 16px;
-    color: #83b7ff;
-    background: linear-gradient(145deg, rgba(61, 139, 255, 0.18), rgba(74, 99, 191, 0.08));
-    border: 1px solid rgba(106, 164, 255, 0.28);
+    margin-bottom: 22px;
+    border-radius: 12px;
+    color: #8fabd0;
+    background: #030914;
+    border: 1px solid #163058;
   }
-  .recovery-mark svg { width: 30px; height: 30px; }
+  .recovery-mark svg { width: 26px; height: 26px; }
   .recovery-eyebrow {
     margin-bottom: 8px;
-    color: #83b7ff;
-    font-size: 12px;
+    color: #7895bc;
+    font-size: 11px;
     font-weight: 800;
-    letter-spacing: 0.13em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
   }
-  .recovery-card h1 { margin: 0; font-size: clamp(29px, 5vw, 42px); line-height: 1.04; letter-spacing: -0.035em; }
-  .recovery-description { margin: 16px 0 0; max-width: 52ch; color: rgba(220, 229, 244, 0.72); font-size: 15px; line-height: 1.65; }
+  .recovery-card h1 { margin: 0; color: #f6f9ff; font-size: clamp(28px, 5vw, 38px); font-weight: 800; line-height: 1.08; letter-spacing: -0.02em; }
+  .recovery-description { margin: 14px 0 0; max-width: 52ch; color: #a8bddd; font-size: 15px; line-height: 1.6; }
   .recovery-details {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
-    margin-top: 28px;
+    margin-top: 26px;
   }
   .recovery-details > div {
     min-width: 0;
-    padding: 15px 16px;
-    border-radius: 14px;
-    background: rgba(255, 255, 255, 0.035);
-    border: 1px solid rgba(255, 255, 255, 0.075);
-  }
-  .recovery-details span { display: block; margin-bottom: 6px; color: rgba(184, 198, 220, 0.6); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
-  .recovery-details strong { display: block; overflow-wrap: anywhere; color: rgba(247, 250, 255, 0.92); font-size: 14px; line-height: 1.35; }
-  .recovery-message { margin: 18px 0 0; padding: 12px 14px; border-radius: 12px; color: #ffd9b0; background: rgba(126, 74, 22, 0.22); border: 1px solid rgba(233, 157, 75, 0.24); font-size: 13px; line-height: 1.5; }
-  .recovery-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 28px; }
-  .recovery-actions button, .recovery-confirm-actions button, .recovery-continue {
-    min-height: 48px;
-    padding: 12px 17px;
+    padding: 14px 16px;
     border-radius: 12px;
+    background: #030914;
+    border: 1px solid #163058;
+  }
+  .recovery-details span { display: block; margin-bottom: 6px; color: #7895bc; font-size: 11px; font-weight: 750; letter-spacing: 0.1em; text-transform: uppercase; }
+  .recovery-details strong { display: block; overflow-wrap: anywhere; color: #f6f9ff; font-size: 14px; line-height: 1.35; }
+  .recovery-message { margin: 18px 0 0; padding: 12px 14px; border-radius: 10px; color: #ffd9b0; background: #030914; border: 1px solid rgba(233, 157, 75, 0.35); font-size: 13px; line-height: 1.5; }
+  .recovery-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 26px; }
+  .recovery-actions button, .recovery-confirm-actions button, .recovery-continue {
+    min-height: 46px;
+    padding: 11px 17px;
+    border-radius: 10px;
     font: inherit;
     font-size: 14px;
     font-weight: 750;
     cursor: pointer;
-    transition: transform 150ms ease, border-color 150ms ease, background 150ms ease, opacity 150ms ease;
+    transition: none;
+    box-shadow: none;
   }
-  .recovery-actions button:hover:not(:disabled), .recovery-confirm-actions button:hover:not(:disabled), .recovery-continue:hover:not(:disabled) { transform: translateY(-1px); }
-  .recovery-actions button:focus-visible, .recovery-confirm-actions button:focus-visible, .recovery-continue:focus-visible { outline: 3px solid rgba(131, 183, 255, 0.52); outline-offset: 3px; }
+  .recovery-actions button:focus-visible, .recovery-confirm-actions button:focus-visible, .recovery-continue:focus-visible { outline: 2px solid #0066ff; outline-offset: 3px; }
   .recovery-actions button:disabled, .recovery-confirm-actions button:disabled, .recovery-continue:disabled { cursor: not-allowed; opacity: 0.45; }
-  .recovery-primary { color: #07101b; background: linear-gradient(180deg, #99c7ff, #68a9ff); border: 1px solid #abd1ff; box-shadow: 0 9px 22px rgba(45, 126, 235, 0.22); }
-  .recovery-secondary { color: rgba(245, 248, 255, 0.9); background: rgba(255, 255, 255, 0.045); border: 1px solid rgba(255, 255, 255, 0.12); }
-  .recovery-danger { color: #ffc9c9; }
-  .recovery-confirm { margin-top: 24px; padding: 16px; border-radius: 14px; background: rgba(111, 30, 38, 0.18); border: 1px solid rgba(238, 102, 116, 0.24); }
+  .recovery-primary { color: #ffffff; background: #0f2a52; border: 1px solid #3a6aa3; }
+  .recovery-secondary { color: #c9d6ea; background: #071120; border: 1px solid #244267; }
+  .recovery-continue { width: 100%; margin-top: 12px; color: #c9d6ea; background: #071120; border: 1px solid #244267; }
+  .recovery-primary:hover:not(:disabled), .recovery-secondary:hover:not(:disabled), .recovery-continue:hover:not(:disabled) { color: #ffffff; background: #0066ff; border-color: #0066ff; }
+  .recovery-danger, .recovery-danger-confirm { color: #ff8a95; background: #071120; border: 1px solid rgba(255, 138, 149, 0.35); }
+  .recovery-danger:hover:not(:disabled), .recovery-danger-confirm:hover:not(:disabled) { color: #ffffff; background: #d23a52; border-color: #d23a52; }
+  .recovery-confirm { margin-top: 24px; padding: 16px; border-radius: 12px; background: #030914; border: 1px solid rgba(255, 138, 149, 0.35); }
   .recovery-confirm > strong, .recovery-confirm > span { display: block; }
-  .recovery-confirm > strong { color: #ffe5e7; font-size: 15px; }
-  .recovery-confirm > span { margin-top: 6px; color: rgba(255, 220, 224, 0.68); font-size: 13px; line-height: 1.45; }
+  .recovery-confirm > strong { color: #f6f9ff; font-size: 15px; }
+  .recovery-confirm > span { margin-top: 6px; color: #a8bddd; font-size: 13px; line-height: 1.45; }
   .recovery-confirm-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
-  .recovery-danger-confirm { color: white; background: #b93b4a; border: 1px solid #dc6875; }
-  .recovery-continue { width: 100%; margin-top: 12px; color: #bcd7ff; background: transparent; border: 1px solid rgba(115, 165, 237, 0.22); }
-  .recovery-footnote { margin: 22px 0 0; color: rgba(173, 188, 211, 0.48); font-size: 12px; text-align: center; }
-  .recovery-loading { z-index: 2; display: flex; align-items: center; gap: 12px; color: rgba(224, 234, 248, 0.78); font-size: 14px; }
-  .recovery-spinner { width: 18px; height: 18px; border: 2px solid rgba(131, 183, 255, 0.22); border-top-color: #83b7ff; border-radius: 999px; animation: recovery-spin 800ms linear infinite; }
-  .recovery-orb { position: absolute; width: 420px; height: 420px; border-radius: 999px; filter: blur(80px); opacity: 0.12; }
-  .recovery-orb-one { left: -180px; top: -210px; background: #3586ff; }
-  .recovery-orb-two { right: -210px; bottom: -230px; background: #7558e8; }
-  @keyframes recovery-spin { to { transform: rotate(360deg); } }
+  .recovery-footnote { margin: 22px 0 0; color: #8fabd0; font-size: 12px; text-align: center; }
+  .recovery-loading { display: flex; align-items: center; gap: 12px; color: #a8bddd; font-size: 14px; }
+  .recovery-spinner { width: 14px; height: 14px; box-sizing: border-box; border: 2px solid #3a6aa3; border-radius: 999px; }
   @media (max-width: 640px) {
     .recovery-shell { padding: 16px; align-items: center; }
-    .recovery-card { padding: 28px 22px; border-radius: 19px; }
-    .recovery-orb { display: none; }
+    .recovery-card { padding: 26px 20px; }
     .recovery-details, .recovery-actions { grid-template-columns: 1fr; }
-    .recovery-mark { width: 48px; height: 48px; margin-bottom: 20px; }
+    .recovery-mark { width: 44px; height: 44px; margin-bottom: 18px; }
     .recovery-confirm-actions { flex-direction: column-reverse; }
     .recovery-confirm-actions button { width: 100%; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .recovery-actions button, .recovery-confirm-actions button, .recovery-continue { transition: none; }
-    .recovery-spinner { animation-duration: 1.8s; }
   }
 `;

@@ -7,7 +7,7 @@ export default async function CreditsPage() {
   if (!await getServerAccountSession()) redirect("/");
   return (
     <div style={{ minHeight: "100vh", background: "#080f1b", color: "#f4f7ff" }}>
-      <AppChrome />
+      <AppChrome page="dashboard" />
       <AiDashboardScreen />
     </div>
   );

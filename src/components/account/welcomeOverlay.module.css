@@ -1,0 +1,185 @@
+/* First-time Welcome / guided-setup overlay. Presentation only: shown or hidden
+   instantly, no transitions or movement. Hover is native CSS and instant. */
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(3, 9, 20, 0.72);
+}
+
+.dialog {
+  position: fixed;
+  top: 14px;
+  left: 50%;
+  z-index: 70;
+  box-sizing: border-box;
+  width: min(860px, calc(100vw - 32px));
+  max-height: calc(100vh - 28px);
+  overflow-y: auto;
+  transform: translateX(-50%);
+  border: 1px solid #163058;
+  border-radius: 16px;
+  background: #071120;
+  color: #f6f9ff;
+  padding: 22px 24px 24px;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.eyebrow {
+  color: #7895bc;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.title {
+  color: #f6f9ff;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.close {
+  appearance: none;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid #244267;
+  border-radius: 10px;
+  background: #071120;
+  color: #c9d6ea;
+  font: inherit;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.body {
+  margin: 14px 0 0;
+  color: #a8bddd;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.button {
+  appearance: none;
+  min-height: 40px;
+  padding: 9px 14px;
+  border: 1px solid #244267;
+  border-radius: 10px;
+  background: #071120;
+  color: #c9d6ea;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primary {
+  border-color: #3a6aa3;
+  background: #0f2a52;
+  color: #ffffff;
+}
+
+.button:disabled {
+  border-color: #244267;
+  background: #071120;
+  color: #8fabd0;
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.choice {
+  appearance: none;
+  display: block;
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid #163058;
+  border-radius: 12px;
+  background: #030914;
+  color: #f6f9ff;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.choiceSelected {
+  border-color: #3a6aa3;
+  background: #0f2a52;
+}
+
+.choiceTitle {
+  color: #f6f9ff;
+  font-size: 14px;
+  font-weight: 750;
+}
+
+.choiceText {
+  margin-top: 4px;
+  color: #8fabd0;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.choiceSelected .choiceText {
+  color: #c9d6ea;
+}
+
+.close:hover,
+.button:hover:not(:disabled),
+.choice:hover {
+  border-color: #0066ff;
+  background: #0066ff;
+  color: #ffffff;
+}
+
+.choice:hover .choiceTitle,
+.choice:hover .choiceText {
+  color: #ffffff;
+}
+
+.close:focus-visible,
+.button:focus-visible,
+.choice:focus-visible {
+  outline: 2px solid #0066ff;
+  outline-offset: 3px;
+}
+
+@media (max-width: 640px) {
+  .dialog {
+    width: calc(100vw - 32px);
+    padding: 18px 16px 18px;
+  }
+}

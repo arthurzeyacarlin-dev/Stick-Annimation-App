@@ -1,74 +1,81 @@
-.main { min-height: calc(100vh - 100px); padding: 28px 20px 72px; background: linear-gradient(180deg,#09111f,#070d17); color: #f2f6ff; }
-.content { width: min(1100px,100%); margin: 0 auto; display: grid; gap: 20px; }
-.hero,.previewCard,.chartCard,.summaryCard,.realPlan { border: 1px solid #344760; border-radius: 20px; background: linear-gradient(180deg,#132239,#101b2c); box-shadow: 0 16px 32px #02091455; }
-.hero { padding: 27px 29px; }
+.main { min-height: calc(100vh - 100px); padding: 28px 20px 72px; background: #030914; color: #f6f9ff; }
+.content { width: min(1100px,100%); margin: 0 auto; display: grid; gap: 16px; }
+.hero,.previewCard,.chartCard,.summaryCard,.realPlan { border: 1px solid #163058; border-radius: 14px; background: #071120; }
+.hero { padding: 24px 26px; }
 .heroTop,.cardHeading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
-.eyebrow { margin: 0 0 8px; color: #96b3d6; font-size: 11px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
-.hero h2 { margin: 0; font-size: clamp(30px,5vw,43px); line-height: 1.1; }
-.lead { color: #c7d6eb; line-height: 1.5; margin: 9px 0 0; }
-.testNotice { margin-top: 22px; padding: 14px 17px; border: 1px solid #4575b4; border-radius: 12px; background: #122d50; display: grid; gap: 5px; line-height: 1.45; }
-.testNotice strong { color: #e0efff; }
-.testNotice span { color: #b7cce6; font-size: 13px; }
-.previewCard,.chartCard,.realPlan { padding: 23px 27px; }
-.cardHeading h3,.realPlan h3 { margin: 0; font-size: clamp(20px,3vw,26px); }
-.period { color: #b9cee9; font-size: 13px; padding-top: 6px; }
-.progressGrid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; margin-top: 19px; }
-.progressGrid > div { display: grid; align-content: start; gap: 4px; border: 1px solid #37516e; background: #10243d; border-radius: 12px; padding: 15px; }
-.progressGrid strong { font-size: clamp(22px,3vw,32px); line-height: 1.1; overflow-wrap: anywhere; }
-.progressGrid span { color: #b6c9e2; font-size: 12px; line-height: 1.4; }
-.warning,.exhausted,.partial { margin: 14px 0 0; padding: 12px 14px; border-radius: 10px; line-height: 1.45; }
-.warning { border: 1px solid #fbbf24; background: #553d16; color: #fff0c6; }
-.exhausted { border: 1px solid #fa6666; background: #561e2a; color: #fff0f0; }
-.partial { border: 1px solid #5b84ad; background: #19314d; color: #e4f0ff; display: grid; gap: 5px; }
-.partial ul { margin: 5px 0 0; padding-left: 19px; }
-.scope,.chartNote { color: #aabdd6; font-size: 12px; line-height: 1.5; margin: 16px 0 0; }
-.refresh,.segmented button { color: #e6f1ff; border: 1px solid #456080; background: #1b2c43; border-radius: 9px; padding: 9px 12px; font: inherit; cursor: pointer; }
-.refresh:hover,.segmented button:hover { background: #2b4669; }
-.refresh:disabled { opacity: .65; cursor: default; }
-.controls { display: flex; flex-wrap: wrap; gap: 14px 26px; margin: 20px 0 12px; }
+.eyebrow { margin: 0 0 6px; color: #7895bc; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.hero h2 { margin: 0; color: #f6f9ff; font-size: clamp(28px,4vw,36px); line-height: 1.15; }
+.lead { color: #a8bddd; font-size: 15px; line-height: 1.5; margin: 6px 0 0; }
+.testNotice { margin-top: 18px; padding: 14px 16px; border: 1px solid #163058; border-radius: 12px; background: #030914; display: grid; gap: 4px; line-height: 1.45; }
+.testNotice strong { color: #f6f9ff; font-size: 15px; }
+.testNotice span { color: #a8bddd; font-size: 13px; }
+.testNotice .explainer { color: #8fabd0; font-size: 12px; margin-top: 4px; }
+.previewCard,.chartCard,.realPlan { padding: 22px 24px; }
+.cardHeading h3,.realPlan h3 { margin: 0; color: #f6f9ff; font-size: clamp(19px,2.6vw,23px); line-height: 1.2; }
+.period { color: #a8bddd; font-size: 13px; padding-top: 4px; }
+.period small { color: #7895bc; font-size: 11px; }
+.loading { color: #a8bddd; margin: 16px 0 0; }
+.progressGrid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; margin-top: 18px; }
+.progressGrid > div { display: grid; align-content: start; gap: 4px; border: 1px solid #163058; background: #030914; border-radius: 12px; padding: 16px; }
+.progressGrid strong { color: #f6f9ff; font-size: clamp(22px,3vw,30px); line-height: 1.1; overflow-wrap: anywhere; }
+.progressGrid span { color: #a8bddd; font-size: 13px; line-height: 1.4; }
+.warning,.exhausted,.partial { margin: 14px 0 0; padding: 12px 14px; border-radius: 10px; line-height: 1.45; font-size: 14px; }
+.warning { border: 1px solid #b58a2a; background: #2a2210; color: #fbe7b5; }
+.exhausted { border: 1px solid #b84a4a; background: #2c1418; color: #ffdede; }
+.partial { border: 1px solid #244267; background: #030914; color: #c9d6ea; display: grid; gap: 4px; }
+.partial strong { color: #f6f9ff; }
+.partial ul { margin: 4px 0 0; padding-left: 19px; color: #a8bddd; }
+.scope,.chartNote { color: #8fabd0; font-size: 13px; line-height: 1.5; margin: 14px 0 0; }
+.refresh,.segmented button { color: #c9d6ea; border: 1px solid #244267; background: #071120; border-radius: 8px; padding: 8px 12px; font: inherit; font-size: 13px; cursor: pointer; }
+.segmented button[aria-pressed="true"] { border-color: #3a6aa3; background: #0f2a52; color: #eaf3ff; }
+.refresh:hover:not(:disabled),.segmented button:hover { border-color: #0066FF; background: #0066FF; color: #fff; }
+.refresh:focus-visible,.segmented button:focus-visible { outline: 2px solid #0066FF; outline-offset: 2px; }
+.refresh:disabled { opacity: .6; cursor: default; }
+.controls { display: flex; flex-wrap: wrap; gap: 14px 26px; margin: 18px 0 12px; }
 .controls fieldset { min-width: 0; border: 0; padding: 0; margin: 0; }
-.controls legend { color: #aac5e6; margin-bottom: 8px; font-size: 12px; font-weight: 750; }
-.segmented { display: flex; flex-wrap: wrap; gap: 7px; }
-.segmented button { white-space: nowrap; font-size: 13px; }
-.segmented button[aria-pressed="true"] { border-color: #73b6ff; background: #1f568b; box-shadow: inset 0 0 0 1px #6fbcff55; }
-.empty { margin: 17px 0 0; color: #c7d8ed; }
-.chartArea { margin-top: 24px; }
-.thresholdLegend { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 7px 18px; margin-bottom: 8px; color: #c7d7e9; font-size: 11px; line-height: 1.35; }
+.controls legend { color: #7895bc; margin-bottom: 8px; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.segmented { display: flex; flex-wrap: wrap; gap: 6px; }
+.segmented button { white-space: nowrap; }
+.empty { margin: 16px 0 0; color: #a8bddd; }
+.chartArea { margin-top: 22px; }
+.thresholdLegend { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 7px 18px; margin-bottom: 8px; color: #a8bddd; font-size: 11px; line-height: 1.35; }
 .thresholdLegend span { display: inline-flex; align-items: center; gap: 6px; }
 .thresholdLegend i { width: 14px; height: 0; display: inline-block; flex: 0 0 auto; }
 .roofKey { border-top: 2px solid #f34848; }
 .warningKey { border-top: 1px dashed #c5cbd3; }
-.plotWrap { position: relative; height: 220px; border: 1px solid #53708f; border-bottom: 2px solid #92aac6; border-radius: 8px 8px 0 0; background: linear-gradient(180deg,#122035,#0d1929); overflow: hidden; }
+.plotWrap { position: relative; height: 220px; border: 1px solid #163058; border-bottom: 2px solid #3a6aa3; border-radius: 8px 8px 0 0; background: #030914; overflow: hidden; }
 .plot { position: absolute; inset: 0; display: grid; gap: 7px; align-items: end; padding: 0 8px; }
 .barSlot { height: 100%; min-width: 0; position: relative; }
 .barButton { display: flex; align-items: flex-end; width: 100%; height: 100%; padding: 0; border: 0; background: transparent; cursor: default; position: relative; z-index: 3; }
 .barButton:focus-visible { outline: none; }
 .bar { width: 100%; display: block; border-radius: 3px 3px 0 0; flex: 0 0 auto; cursor: pointer; transition: height 140ms ease, background-color 140ms ease; }
-.bar[data-active="true"],.barButton:focus-visible .bar { outline: 2px solid #fff; outline-offset: -2px; }
-.barTooltip { position: absolute; z-index: 6; box-sizing: border-box; width: 218px; max-width: calc(100% - 12px); display: grid; gap: 4px; padding: 9px 10px; border: 1px solid #8fc4ff; border-radius: 9px; background: #174d86; box-shadow: 0 9px 24px #0009; color: #f7fbff; font-size: 11px; line-height: 1.3; pointer-events: none; }
-.barTooltip strong { font-size: 11px; line-height: 1.3; }
-.barTooltip small { color: #d4e7ff; font-size: 10px; }
+.bar[data-active="true"],.barButton:focus-visible .bar { outline: 2px solid #0066FF; outline-offset: 1px; }
+.barTooltip { position: absolute; z-index: 6; box-sizing: border-box; width: 218px; max-width: calc(100% - 12px); display: grid; gap: 4px; padding: 9px 10px; border: 1px solid #244267; border-radius: 10px; background: #071120; box-shadow: 0 8px 20px #000a; color: #f6f9ff; font-size: 11px; line-height: 1.35; pointer-events: none; }
+.barTooltip strong { color: #f6f9ff; font-size: 11px; line-height: 1.3; }
+.barTooltip span { color: #c9d6ea; }
+.barTooltip small { color: #8fabd0; font-size: 10px; }
 .resetAfter::after { content: ""; position: absolute; right: -4px; top: 0; height: 100%; border-right: 1px dashed #d2e3f1; opacity: .78; pointer-events: none; z-index: 4; }
 .roof,.warningLine { position: absolute; left: 0; right: 0; pointer-events: none; z-index: 2; display: flex; justify-content: flex-end; }
 .roof { top: 0; border-top: 2px solid #f34848; }
 .warningLine { bottom: 90%; border-top: 1px dashed #c5cbd3; }
-.chartRange { color: #b9cce5; font-size: 11px; text-align: center; line-height: 1.4; margin: 10px 0 0; overflow-wrap: anywhere; }
-.summaryGrid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
+.chartRange { color: #7895bc; font-size: 11px; text-align: center; line-height: 1.4; margin: 10px 0 0; overflow-wrap: anywhere; }
+.summaryGrid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
 .summaryCard { padding: 20px; display: grid; align-content: start; gap: 6px; min-width: 0; }
-.summaryCard strong { font-size: clamp(23px,3vw,31px); line-height: 1.15; overflow-wrap: anywhere; }
-.summaryCard span,.summaryCard small { color: #b5c9e2; line-height: 1.45; }
-.realPlan h3 { margin-bottom: 17px; }
+.summaryCard strong { color: #f6f9ff; font-size: clamp(22px,3vw,28px); line-height: 1.15; overflow-wrap: anywhere; }
+.summaryCard span { color: #a8bddd; font-size: 14px; line-height: 1.45; }
+.summaryCard small { color: #8fabd0; font-size: 12px; line-height: 1.45; }
+.realPlan h3 { margin-bottom: 16px; }
 .realPlanGrid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; }
-.realPlanGrid > div { display: grid; gap: 8px; padding: 14px; border: 1px solid #36506e; border-radius: 10px; background: #102138; }
-.realPlanGrid span { color: #a9c0dd; font-size: 12px; }
-.realPlanGrid strong { font-size: 16px; }
-.realPlan p:not(.eyebrow) { color: #b8cce5; font-size: 13px; line-height: 1.5; }
-.disabledActions { display: flex; flex-wrap: wrap; gap: 9px; }
-.disabledActions button { border: 1px solid #53677f; color: #aebed1; background: #223144; padding: 10px 13px; border-radius: 8px; }
+.realPlanGrid > div { display: grid; gap: 6px; padding: 14px; border: 1px solid #163058; border-radius: 12px; background: #030914; }
+.realPlanGrid span { color: #7895bc; font-size: 12px; }
+.realPlanGrid strong { color: #f6f9ff; font-size: 16px; }
+.realPlan p:not(.eyebrow) { color: #a8bddd; font-size: 13px; line-height: 1.5; }
+.disabledActions { display: flex; flex-wrap: wrap; gap: 8px; }
+.disabledActions button { border: 1px solid #163058; color: #7895bc; background: #071120; padding: 8px 12px; border-radius: 8px; font: inherit; font-size: 13px; cursor: not-allowed; }
 @media (max-width: 640px) {
-  .main { padding: 15px 12px 52px; }
+  .main { padding: 16px 16px 52px; }
   .content { gap: 14px; }
-  .hero,.previewCard,.chartCard,.realPlan { padding: 18px 14px; border-radius: 15px; }
+  .hero,.previewCard,.chartCard,.realPlan { padding: 18px 16px; }
   .progressGrid,.realPlanGrid,.summaryGrid { grid-template-columns: 1fr; }
   .controls { gap: 14px; }
   .segmented button { padding: 8px 10px; }

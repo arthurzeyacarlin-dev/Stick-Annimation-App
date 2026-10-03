@@ -478,33 +478,73 @@
   display: grid;
   place-items: center;
   padding: 16px;
-  background: rgba(2, 6, 15, 0.78);
+  background: rgba(3, 9, 20, 0.72);
 }
 
+/* Rename / duplicate / delete dialog: same palette as Home, Help and the editor. */
 .managementDialog {
   width: min(520px, 100%);
   max-height: calc(100vh - 32px);
   overflow: auto;
-  border: 1px solid var(--library-border);
+  box-sizing: border-box;
+  border: 1px solid #163058;
   border-radius: 16px;
-  background: var(--library-surface);
-  color: var(--library-text);
-  padding: clamp(20px, 4vw, 30px);
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.58);
+  background: #071120;
+  color: #f6f9ff;
+  padding: clamp(20px, 4vw, 28px);
+  box-shadow: none;
 }
 
 .managementDialog h2 {
   margin: 0;
-  font-size: 24px;
+  color: #f6f9ff;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.2;
 }
 
 .managementDialog p {
-  color: #cbd5e1;
+  margin: 12px 0 0;
+  color: #a8bddd;
+  font-size: 14px;
   line-height: 1.6;
+}
+
+.managementDialog p strong {
+  color: #f6f9ff;
 }
 
 .dialogField {
   margin-top: 18px;
+}
+
+.managementDialog .dialogField {
+  color: #7895bc;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.managementDialog input {
+  border-color: #244267;
+  background: #030914;
+  color: #f6f9ff;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.managementDialog input:hover {
+  border-color: #3a6aa3;
+}
+
+.managementDialog input:focus,
+.managementDialog input:focus-visible {
+  border-color: #3a6aa3;
+  outline: 2px solid #3a6aa3;
+  outline-offset: 2px;
 }
 
 .dialogActions {
@@ -515,24 +555,68 @@
   margin-top: 22px;
 }
 
+.managementDialog .secondaryButton,
+.managementDialog .primaryButton,
+.managementDialog .deleteButton {
+  min-height: 42px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 750;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.managementDialog .secondaryButton {
+  border: 1px solid #244267;
+  background: #071120;
+  color: #c9d6ea;
+}
+
+.managementDialog .primaryButton {
+  border: 1px solid #3a6aa3;
+  background: #0f2a52;
+  color: #ffffff;
+}
+
+.managementDialog .secondaryButton:hover:not(:disabled),
+.managementDialog .primaryButton:hover:not(:disabled) {
+  border-color: #0066ff;
+  background: #0066ff;
+  color: #ffffff;
+}
+
 .deleteButton {
   min-height: 42px;
-  border: 1px solid #fca5a5;
+  border: 1px solid rgba(255, 138, 149, 0.35);
   border-radius: 10px;
-  background: #991b1b;
-  color: #ffffff;
+  background: #071120;
+  color: #ff8a95;
   padding: 10px 16px;
   font-weight: 800;
   cursor: pointer;
 }
 
+.deleteButton:hover:not(:disabled) {
+  border-color: #d23a52;
+  background: #d23a52;
+  color: #ffffff;
+}
+
+.managementDialog button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 .dialogError {
   margin-top: 14px;
-  border: 1px solid rgba(248, 113, 113, 0.5);
+  border: 1px solid rgba(255, 138, 149, 0.35);
   border-radius: 10px;
-  background: rgba(127, 29, 29, 0.32);
-  color: #fecaca;
+  background: #030914;
+  color: #ff8a95;
   padding: 10px 12px;
+  font-size: 13px;
   line-height: 1.45;
 }
 

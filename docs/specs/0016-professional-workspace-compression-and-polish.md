@@ -1,17 +1,26 @@
 # SPEC-0016 — Professional Workspace Compression and Polish
 
-Status: **Approved; Phases 1–4 published/integrated (Phase 4 product commit 282ddd91809a8d6512298f546334e71a4482d8be); Phase 5 is next; Phase 6 added by Arthur (D-0176), not started**
+Status: **Approved; Phases 1–5 published/integrated (Phase 5 product commit 49eb13e4b6882c9711db2d3756c7f457b132e577); Phase 6 (D-0176) is next**
 Owner: Arthur
 Planning role: docs-only Spec Architect; Project Manager reviews before any implementation authorization
 Created: 2026-10-02
 Last updated: 2026-10-03
-Decision links: D-0176; D-0175; D-0174; D-0173; D-0172; D-0171; D-0170; D-0169; D-0168; D-0167; D-0166; D-0093; D-0134; D-0136; D-0143
+Decision links: D-0177; D-0176; D-0175; D-0174; D-0173; D-0172; D-0171; D-0170; D-0169; D-0168; D-0167; D-0166; D-0093; D-0134; D-0136; D-0143
 TODO IDs: PLAN-016; POLISH-016-1 through POLISH-016-5; PUB-016-PLAN; RESUME-015-6
 Planning baseline: clean synchronized canonical `main` / `origin/main` at `988531e3a3e1f65558d32952256877c366a04c9d`
 Runtime baseline inside that record: accepted SPEC-0015 Phase 5 product commit `1b4acd7db0b57188e95cb8474816c4e453172abd`
 Delivery target: **originally five phases (Phase 6 added by D-0176) planned to finish in under seven calendar days from Phase 1 start, aiming for one or two accepted implementation phases per day; this is not a 30-day program. The target never relaxes proof, human review, sequential ownership or publication gates.**
 
 ## 1. Exact goal
+
+### Phase 5 result — D-0177 (Arthur PASS, published)
+
+- **Account entry:** "Sign in" renamed **Create account** (Log in unchanged); new `AccountEntry.module.css`; three numbered steps (details, test plan, create); short honest notes (test previews, no charge, account on this computer, no password recovery yet). Requests, fields, required plan choice and redirects unchanged.
+- **Global header:** `AppChrome` renders the same polished header on Home and the Dashboard (`page="dashboard"` → nav link "Home" to `/`; Home keeps "AI Dashboard"); old Dashboard header, JS hover state and unreachable in-panel About/Terms views removed; bell now also on the Dashboard (Arthur's request; changes the earlier "two bells" rule); bell and nav-link hover change only icon/text to #0066FF; side menu, Settings, account popover and About/Terms dialogs use the palette; menu opens instantly.
+- **AI Dashboard:** plain-language wording (usage, tokens explainer, "This week", "Usage over time", "Show: All / AI Animator / Assistant", "Group by", "Sent to AI / Written by AI", "Web searches", "Estimated AI cost — our estimate, not a bill", friendly reset date); palette cards; bar colors, red ceiling line, dashed 10% line, heights and all math unchanged; hovered/selected bar outline #0066FF.
+- **Recovery / pop-ups:** recovery screen (no purple glow; dull blue Recover Work, red Discard Draft; static spinner), welcome overlay (`welcomeOverlay.module.css`, no fade), project Rename/Duplicate/Delete dialog restyled. Behavior unchanged.
+- **Checks:** TypeScript and ESLint clean. Real-app: create account, welcome pop-up, Dashboard header/links, side menu, recovery prompt + Recover Work, Delete dialog + delete, log out, log in. Not seen: Dashboard bars with real usage (test account had zero usage).
+
 
 ### Phase 4 result — D-0175 (Arthur PASS, published)
 

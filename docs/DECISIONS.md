@@ -1777,6 +1777,14 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Arthur added a sixth SPEC-0016 phase after Phase 5: a shared design kit plus a fixed mismatch checklist so every screen uses the same patterns and colors (example: notification bells and chat boxes looking different on different screens). Presentation only; checklist-bounded, not open-ended. Recorded in the main checkout as a docs-only change; no code changed.
 - Order: Phase 5 (account entry, Dashboard, recovery, shared dialogs) → Phase 6 (consistency) → AI Animator tests (D-0173).
 
+### D-0177 — SPEC-0016 Phase 5 accepted and published
+
+- Date: 2026-10-03
+- Arthur: PASS (after one hover tweak); asked to publish to main, update records and push.
+- Publication: product commit `49eb13e4b6882c9711db2d3756c7f457b132e577` fast-forwarded into main and pushed, followed by this records commit.
+- Decisions inside the phase: "Sign in" → "Create account"; one global header on Home and Dashboard, including the notification bell on the Dashboard (supersedes the SPEC-0014 "bells only on Home and Assistant" rule for the Dashboard); header bell and nav link use text/icon-only hover; Dashboard bar colors/red line/dashed line are owner-protected and unchanged, bar hover outline #0066FF.
+- Next: SPEC-0016 Phase 6 (consistency).
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

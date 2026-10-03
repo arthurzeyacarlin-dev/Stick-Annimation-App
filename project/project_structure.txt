@@ -770,9 +770,11 @@
 ./src
 ./src/components
 ./src/components/account
+./src/components/account/AccountEntry.module.css
 ./src/components/account/AccountEntry.tsx
 ./src/components/account/AccountSessionProvider.tsx
 ./src/components/account/ExistingHome.tsx
+./src/components/account/welcomeOverlay.module.css
 ./src/components/ai-dashboard
 ./src/components/ai-dashboard/AiDashboard.module.css
 ./src/components/ai-dashboard/AiDashboardScreen.tsx

@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-10-03 — D-0177 Phase 5 account entry, Dashboard, recovery and pop-ups published
+
+- Create account / Log in screens, global header on the Dashboard, plain-language Dashboard, restyled recovery screen and pop-ups. Product commit `49eb13e4b6882c9711db2d3756c7f457b132e577`.
+
 ## 2026-10-03 — D-0176 adds SPEC-0016 Phase 6
 
 - Added Phase 6 (shared design kit + agreed consistency checklist) to SPEC-0016. Docs only.

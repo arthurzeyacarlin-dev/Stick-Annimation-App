@@ -1,5 +1,11 @@
 # Session Handoff
 
+## D-0177 — Phase 5 published; Phase 6 is next (current)
+
+Arthur passed SPEC-0016 Phase 5 on 2026-10-03 (D-0177). Product commit `49eb13e4b6882c9711db2d3756c7f457b132e577` is on main and GitHub. The signed-out entry now offers **Create account** (formerly "Sign in") and **Log in** with polished step-by-step screens. The AI Dashboard uses the same global header as Home (logo, bell, menu, account; the nav link reads **Home** on the Dashboard and **AI Dashboard** on Home), has plain-language wording ("How much AI you've used this week", "Sent to AI / Written by AI", "Web searches", "Estimated AI cost — our estimate, not a bill"), and keeps the same numbers, bar colors, red line and dashed line; the bar hover/selected outline is #0066FF. Header bell and nav-link hover change only the icon/text color. The recovery screen, welcome pop-up, side menu, account popover and project Rename/Delete dialogs use the app palette. Login/logout, accounts, saving, recovery behavior and usage math are unchanged.
+
+**Next:** SPEC-0016 Phase 6 — shared design kit + agreed consistency checklist (Arthur's list + Claude's audit). Then the AI Animator tests (D-0173).
+
 ## D-0175 — Phase 4 published; Phase 5 is next (current)
 
 Arthur passed SPEC-0016 Phase 4 on 2026-10-03 (D-0175). Product commit `282ddd91809a8d6512298f546334e71a4482d8be` is on main and GitHub. The drawing editor now matches Home/Help/Assistant: brighter navy (#071120) top bar, timeline bar, Properties panel and tool bar; dark navy (#030914) canvas area and AI Animator section; an Assistant-style brighter chat box; one divider color (#163058); dull blue rest/selected states and instant #0066FF hover. Timeline frames are gray with black dots (dull blue outline = current frame, bright outline = hover); Play/Pause is one button; the tool bar is evenly spaced; property sliders are dull until hovered/dragged; the save status is one chip. Top bar shows File, Edit, View, Window, Help with no logo — only File works (the editor Help menu from Phase 3 was turned off at Arthur's request; Home Help is unchanged). App-wide, buttons now use native CSS :hover; the custom `useInstantHover` tracker was removed because a click on empty space could disable it in Google Chrome. Drawing, frames, saving, export, login and AI behavior are unchanged.

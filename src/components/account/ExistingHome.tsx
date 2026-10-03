@@ -11,7 +11,6 @@ import { ProjectPoster } from "@/src/components/project-library/ProjectPoster";
 import { createProjectLibraryController } from "@/src/lib/project-library/projectLibraryController";
 import type { ProjectLibrarySnapshot } from "@/src/lib/project-library/projectLibraryModel";
 import homeStyles from "@/src/components/home/HomeWorkspace.module.css";
-import { useInstantHover } from "@/src/components/home/useInstantHover";
 import { createUntitledWorkspace, prepareCollectionWorkspace, prepareRecoveryWorkspace, WorkspaceBootstrap, type MountedWorkspace } from "@/src/lib/animation/unifiedWorkspaceBootstrap";
 import { createAccountProjectRepositoryV2, createAccountProjectSourceReader, readAccountProjectV2 } from "@/src/lib/account/projectClient";
 import { withAccountProjectWrite } from "@/src/lib/account/projectPending";
@@ -74,7 +73,6 @@ const sameRecoveryGeneration = (left: ProjectRecoveryEnvelopeV1, right: ProjectR
   left.candidateDigest === right.candidateDigest;
 
 export default function Page() {
-  const homeHover = useInstantHover(`.${homeStyles.shortcutGroup}`);
   const account = useAccountSession();
   const ownerId = account?.id;
   const createReader = useCallback(() => {
@@ -778,7 +776,7 @@ export default function Page() {
 
       {/* HOME: presentation and visit-only recent-project state. */}
       {view === "home" && (
-        <main ref={homeMainRef} className={`home-main-scroll ${homeStyles.main}`} {...homeHover}>
+        <main ref={homeMainRef} className={`home-main-scroll ${homeStyles.main}`}>
           <div className={homeStyles.frame}>
             <section className={homeStyles.hero} aria-labelledby="home-heading">
               <div className={homeStyles.heroCopy}>

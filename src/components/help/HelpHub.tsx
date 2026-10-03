@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useInstantHover } from "@/src/components/home/useInstantHover";
 import styles from "./HelpHub.module.css";
 
 type HelpHubProps = {
@@ -13,7 +12,6 @@ type HelpHubProps = {
 
 // One Help destination: the existing Assistant route and the placeholder Tutorials screen.
 export function HelpHub({ onBack, onOpenAssistant, onOpenTutorials, initialFocus = null }: HelpHubProps) {
-  const hover = useInstantHover();
   const assistantRef = useRef<HTMLButtonElement | null>(null);
   const tutorialsRef = useRef<HTMLButtonElement | null>(null);
 
@@ -23,7 +21,7 @@ export function HelpHub({ onBack, onOpenAssistant, onOpenTutorials, initialFocus
   }, [initialFocus]);
 
   return (
-    <main className={styles.screen} data-help-hub {...hover}>
+    <main className={styles.screen} data-help-hub>
       <div className={styles.frame}>
         <button type="button" className={styles.back} onClick={onBack}>
           <span aria-hidden="true">←</span> Back to Home

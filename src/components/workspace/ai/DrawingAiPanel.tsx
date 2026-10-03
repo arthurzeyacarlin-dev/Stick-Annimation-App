@@ -40,6 +40,7 @@ import {
 } from "@/src/lib/notifications/notificationNavigation";
 import type { NotificationTargetV1 } from "@/src/lib/notifications/notificationContracts";
 import { WorkspaceAiComposerShell, WorkspaceAiPanelShell } from "./WorkspaceAiPanelShell";
+import { workspaceColors } from "../workspaceTheme";
 
 type DrawingAiPanelProps = {
   workspaceContext?: DrawingAiWorkspaceContext | null;
@@ -50,11 +51,11 @@ type DrawingAiPanelProps = {
   readOnly?: boolean;
 };
 
-const REASONING_OPTIONS: Array<{ value: DrawingAiReasoningLevel; label: string; color: string }> = [
-  { value: "low", label: "Low", color: "#4ed684" },
-  { value: "medium", label: "Medium", color: "#efcb5a" },
-  { value: "high", label: "High", color: "#ffa24e" },
-  { value: "extra-high", label: "Extra High", color: "#ff6969" },
+const REASONING_OPTIONS: Array<{ value: DrawingAiReasoningLevel; label: string }> = [
+  { value: "low", label: "Low" },
+  { value: "medium", label: "Medium" },
+  { value: "high", label: "High" },
+  { value: "extra-high", label: "Extra High" },
 ];
 const MINIMUM_THINKING_PRESENTATION_MS = 2_000;
 const PENDING_PROMPT_DIGEST = "0".repeat(64);
@@ -129,7 +130,7 @@ function AiAnimatorAssistantReply({
       data-ai-assistant-message={message.id}
       data-reveal-state={complete ? "complete" : "revealing"}
       aria-live="polite"
-      style={{ alignSelf: "flex-start", maxWidth: "92%", color: "rgba(255,255,255,.9)", fontSize: 12, lineHeight: 1.55 }}
+      style={{ alignSelf: "flex-start", maxWidth: "92%", color: workspaceColors.textSecondary, fontSize: 12, lineHeight: 1.55 }}
     >
       <span className="ai-animator-sr-only">Terra: {message.content}</span>
       <span className="ai-animator-assistant-visual" data-ai-assistant-visual aria-hidden="true">
@@ -412,11 +413,13 @@ export function DrawingAiPanel({
     pendingRevealMessageIdsRef.current.delete(messageId);
   }, []);
   const selectedReasoning = REASONING_OPTIONS.find((option) => option.value === reasoningLevel) ?? REASONING_OPTIONS[1];
+  const reasoningDisabled = Boolean(activeJob) || readOnly;
+  const sendDisabled = !inputValue.trim() || readOnly || !workspaceContext;
 
   return (
     <>
       <style>{`
-        .ai-animator-thinking { position: relative; display: inline-block; color: rgba(255,255,255,.48); font-weight: 750; }
+        .ai-animator-thinking { position: relative; display: inline-block; color: ${workspaceColors.accentMuted}; font-weight: 600; }
         .ai-animator-thinking::before, .ai-animator-thinking::after { content: attr(data-text); position: absolute; inset: 0; z-index: 1; pointer-events: none; color: transparent; background-size: 100% 100%; background-position: 50% 50%; background-repeat: no-repeat; background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,.34) 8%, #000 18%, #000 82%, rgba(0,0,0,.34) 92%, transparent 100%); mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,.34) 8%, #000 18%, #000 82%, rgba(0,0,0,.34) 92%, transparent 100%); -webkit-mask-size: 57% 100%; mask-size: 57% 100%; -webkit-mask-position: -132.5581% 50%; mask-position: -132.5581% 50%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; opacity: 0; }
         .ai-animator-thinking::before { background-image: linear-gradient(90deg, #2f86ff 0%, #58aaff 30%, #a9eeff 52%, #5bb8ff 74%, #2a7be4 100%); animation: ai-animator-sweep-primary 3.75s linear infinite, ai-animator-sweep-primary-visibility 3.75s steps(1, end) infinite; }
         .ai-animator-thinking::after { background-image: linear-gradient(90deg, #103f82 0%, #1764ae 26%, #48cee7 52%, #278bc5 76%, #123f7a 100%); animation: ai-animator-sweep-follow 3.75s linear infinite, ai-animator-sweep-follow-visibility 3.75s steps(1, end) infinite; }
@@ -437,23 +440,23 @@ export function DrawingAiPanel({
         shellRef={shellRef}
         bodyRef={bodyRef}
         body={<>
-          {ledger.messages.length === 0 && !activeJob && <div style={{ margin: "auto", maxWidth: 270, textAlign: "center", color: "rgba(255,255,255,.62)", fontSize: 12, lineHeight: 1.55 }}>Chat with Terra about your animation. Creation and editing arrive in later phases.</div>}
+          {ledger.messages.length === 0 && !activeJob && <div style={{ margin: "auto", maxWidth: 240, textAlign: "center", color: workspaceColors.textMuted, fontSize: 12, lineHeight: 1.55 }}>Ask Terra anything about your animation. Creating and editing frames comes later.</div>}
           {ledger.messages.map((message) => message.role === "user"
-            ? <div className="ai-animator-message" data-ai-user-message={message.id} key={message.id} style={{ alignSelf: "flex-end", maxWidth: "88%", padding: "9px 11px", borderRadius: 12, whiteSpace: "pre-wrap", color: "rgba(255,255,255,.9)", background: "rgba(74,118,180,.24)", border: "1px solid rgba(255,255,255,.08)", fontSize: 12, lineHeight: 1.48 }}>{message.content}</div>
+            ? <div className="ai-animator-message" data-ai-user-message={message.id} key={message.id} style={{ alignSelf: "flex-end", maxWidth: "88%", padding: "9px 11px", borderRadius: 12, whiteSpace: "pre-wrap", color: "#eaf3ff", background: workspaceColors.selectedFill, border: `1px solid ${workspaceColors.selectedBorder}`, fontSize: 12, lineHeight: 1.48 }}>{message.content}</div>
             : <AiAnimatorAssistantReply key={message.id} message={message} animate={pendingRevealMessageIdsRef.current.has(message.id)} onRevealComplete={finishAssistantReveal} />)}
           {activeJob && <div role="status" aria-live="polite" aria-label="AI Animator request status" style={{ alignSelf: "flex-start", padding: "8px 4px", fontSize: 12 }}><span className="ai-animator-thinking" data-text="Thinking" data-sweep-pattern="paired-continuous-long-pause">Thinking</span></div>}
-          {requestError && <div role="alert" style={{ color: "#ff9c9c", fontSize: 11, lineHeight: 1.4 }}>{requestError}</div>}
+          {requestError && <div role="alert" style={{ color: workspaceColors.danger, fontSize: 11, lineHeight: 1.4 }}>{requestError}</div>}
         </>}
         composer={<form onSubmit={submit}><WorkspaceAiComposerShell
-          input={<textarea ref={composerRef} aria-label="Message AI Animator" value={inputValue} onChange={(event) => setInputValue(event.target.value)} onKeyDown={handleComposerKeyDown} placeholder="Chat with Terra" disabled={Boolean(activeJob) || readOnly} rows={2} style={{ width: "100%", minHeight: 38, maxHeight: 76, resize: "vertical", border: 0, outline: 0, background: "transparent", color: "rgba(255,255,255,.92)", font: "inherit", lineHeight: 1.45 }} />}
+          input={<textarea ref={composerRef} aria-label="Message AI Animator" value={inputValue} onChange={(event) => setInputValue(event.target.value)} onKeyDown={handleComposerKeyDown} placeholder="Chat with Terra" disabled={Boolean(activeJob) || readOnly} rows={2} style={{ width: "100%", minHeight: 38, maxHeight: 76, resize: "vertical", border: 0, outline: 0, background: "transparent", color: workspaceColors.textPrimary, font: "inherit", fontSize: 12, lineHeight: 1.45 }} />}
           controls={<>
             <div style={{ position: "relative" }}>
-              {isReasoningMenuOpen && <div role="menu" aria-label="Reasoning options" style={{ position: "absolute", left: 0, bottom: 38, width: 190, padding: 6, borderRadius: 12, background: "#11161d", border: "1px solid rgba(255,255,255,.12)", boxShadow: "0 14px 34px rgba(0,0,0,.4)", zIndex: 30 }}>{REASONING_OPTIONS.map((option) => <button type="button" role="menuitemradio" aria-checked={reasoningLevel === option.value} key={option.value} onClick={() => { setReasoningLevel(option.value); setIsReasoningMenuOpen(false); composerRef.current?.focus(); }} style={{ display: "block", width: "100%", padding: "8px 9px", border: 0, borderRadius: 8, textAlign: "left", background: reasoningLevel === option.value ? "rgba(255,255,255,.08)" : "transparent", color: option.color, cursor: "pointer" }}>{option.label}</button>)}</div>}
-              <button type="button" aria-haspopup="menu" aria-expanded={isReasoningMenuOpen} onClick={() => setIsReasoningMenuOpen((open) => !open)} disabled={Boolean(activeJob) || readOnly} title={`Terra effort: ${AI_ANIMATOR_REASONING_EFFORT[reasoningLevel]}`} style={{ height: 30, padding: "0 10px", borderRadius: 999, border: "1px solid rgba(255,255,255,.12)", background: "rgba(255,255,255,.04)", color: selectedReasoning.color, cursor: "pointer", whiteSpace: "nowrap" }}>Reasoning: {selectedReasoning.label}</button>
+              {isReasoningMenuOpen && <div role="menu" aria-label="Reasoning options" style={{ position: "absolute", left: 0, bottom: 38, width: 190, padding: 6, borderRadius: 12, background: workspaceColors.panel, border: `1px solid ${workspaceColors.border}`, boxShadow: "0 14px 34px rgba(0,0,0,.4)", zIndex: 30 }}>{REASONING_OPTIONS.map((option) => <button type="button" role="menuitemradio" aria-checked={reasoningLevel === option.value} key={option.value} onClick={() => { setReasoningLevel(option.value); setIsReasoningMenuOpen(false); composerRef.current?.focus(); }} style={{ display: "block", width: "100%", padding: "8px 9px", border: 0, borderRadius: 8, textAlign: "left", background: reasoningLevel === option.value ? workspaceColors.selectedFill : "transparent", color: reasoningLevel === option.value ? workspaceColors.textPrimary : workspaceColors.textSecondary, fontSize: 12, fontWeight: reasoningLevel === option.value ? 600 : 500, cursor: "pointer" }}>{option.label}</button>)}</div>}
+              <button type="button" aria-haspopup="menu" aria-expanded={isReasoningMenuOpen} onClick={() => setIsReasoningMenuOpen((open) => !open)} disabled={Boolean(activeJob) || readOnly} title={`Terra effort: ${AI_ANIMATOR_REASONING_EFFORT[reasoningLevel]}`} style={{ height: 30, padding: "0 11px", borderRadius: 999, border: `1px solid ${workspaceColors.selectedBorder}`, background: workspaceColors.selectedFill, color: workspaceColors.textSecondary, fontSize: 12, fontWeight: 500, cursor: reasoningDisabled ? "default" : "pointer", opacity: reasoningDisabled ? .4 : 1, whiteSpace: "nowrap" }}>Reasoning: {selectedReasoning.label}</button>
             </div>
             {activeJob
-              ? <button type="button" onClick={cancelActiveJob} aria-label={`Cancel AI Animator job ${activeJob.jobId}`} style={{ height: 30, padding: "0 13px", borderRadius: 999, border: "1px solid rgba(255,115,115,.35)", background: "rgba(255,90,90,.1)", color: "#ffabab", cursor: "pointer" }}>Cancel</button>
-              : <button type="submit" disabled={!inputValue.trim() || readOnly || !workspaceContext} style={{ height: 30, padding: "0 15px", borderRadius: 999, border: "1px solid rgba(110,170,255,.38)", background: "rgba(80,130,205,.18)", color: "#dceaff", cursor: inputValue.trim() ? "pointer" : "default", opacity: inputValue.trim() ? 1 : .5 }}>Send</button>}
+              ? <button type="button" onClick={cancelActiveJob} aria-label={`Cancel AI Animator job ${activeJob.jobId}`} style={{ height: 30, padding: "0 13px", borderRadius: 999, border: `1px solid ${workspaceColors.border}`, background: workspaceColors.panel, color: workspaceColors.danger, fontSize: 12, fontWeight: 600, cursor: "pointer" }}>Cancel</button>
+              : <button type="submit" disabled={!inputValue.trim() || readOnly || !workspaceContext} style={{ height: 30, padding: "0 15px", borderRadius: 999, border: `1px solid ${workspaceColors.border}`, background: workspaceColors.panel, color: workspaceColors.textSecondary, fontSize: 12, fontWeight: 600, cursor: sendDisabled ? "default" : "pointer", opacity: sendDisabled ? .4 : 1 }}>Send</button>}
           </>}
         /></form>}
       />

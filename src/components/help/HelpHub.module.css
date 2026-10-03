@@ -10,7 +10,7 @@
 .screen button { border: 0; background: transparent; color: inherit; cursor: pointer; font: inherit; transition: none; animation: none; }
 .screen button:focus-visible { outline: 2px solid #66c7ff; outline-offset: 4px; }
 .screen .back { align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 8px 14px; border: 1px solid #244267; border-radius: 10px; background: #071120; color: #c9d6ea; font-size: 13px; font-weight: 600; }
-.screen .back[data-pointer-hover] { border-color: #0066ff; background: #0066ff; color: #fff; }
+.screen .back:hover { border-color: #0066ff; background: #0066ff; color: #fff; }
 .intro { display: flex; flex-direction: column; gap: 8px; }
 .heading { margin: 0; font-size: clamp(36px, 4vw, 52px); font-weight: 740; line-height: 1.05; letter-spacing: -.05em; }
 .subheading { margin: 0; color: #a8bddd; font-size: 16px; }
@@ -21,8 +21,8 @@
 .text strong { font-size: 23px; font-weight: 680; letter-spacing: -.03em; }
 .text small { color: #8fabd0; font-size: 13px; line-height: 1.5; }
 .text em { margin-top: 14px; color: #8cbbf3; font-size: 11px; font-style: normal; font-weight: 720; letter-spacing: .13em; text-transform: uppercase; }
-.screen .choice[data-pointer-hover] { border-color: #0066ff; background: #0066ff; color: #fff; }
-.choice[data-pointer-hover] .icon, .choice[data-pointer-hover] small, .choice[data-pointer-hover] em { color: #fff; }
+.screen .choice:hover { border-color: #0066ff; background: #0066ff; color: #fff; }
+.choice:hover .icon, .choice:hover small, .choice:hover em { color: #fff; }
 @media (max-width: 760px) {
   .choices { grid-template-columns: 1fr; }
   .screen .choice { min-height: 132px; }

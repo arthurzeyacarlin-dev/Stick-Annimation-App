@@ -10,7 +10,6 @@ import { AssistantComposer } from "./AssistantComposer";
 import { useAssistantSessions } from "./useAssistantSessions";
 import { NotificationTrigger } from "@/src/components/notifications/NotificationTrigger";
 import { DiamondLogo } from "@/src/components/chrome/DiamondLogo";
-import { useInstantHover } from "@/src/components/home/useInstantHover";
 import {
   clearNotificationNavigationIntentV1,
   confirmNotificationTargetArrivalV1,
@@ -33,7 +32,6 @@ type DiamondAssistantScreenProps = {
 
 export function DiamondAssistantScreen({ onClose }: DiamondAssistantScreenProps = {}) {
   const chats = useAssistantSessions();
-  const instantHover = useInstantHover();
   const [composerGeneration, setComposerGeneration] = useState(0);
   const backRef = useRef<HTMLAnchorElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -195,7 +193,6 @@ export function DiamondAssistantScreen({ onClose }: DiamondAssistantScreenProps 
       data-assistant-screen
       data-sidebar-resizing={sidebarResizing ? "true" : "false"}
       style={{ "--assistant-sidebar-width": `${sidebarWidth}px` } as CSSProperties}
-      {...instantHover}
     >
       <AssistantSessionSidebar chats={{ ...chats, newChat: () => { setComposerGeneration(value => value + 1); chats.newChat(); } }} mark={<DiamondLogo />} />
       <div

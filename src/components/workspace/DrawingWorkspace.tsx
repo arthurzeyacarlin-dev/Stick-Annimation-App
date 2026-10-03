@@ -1,4 +1,5 @@
 import { memo, startTransition, useCallback, useDeferredValue, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import workspaceThemeStyles from "./workspaceTheme.module.css";
 import type { MutableRefObject } from "react";
 import { DrawingCanvas } from "./DrawingCanvas";
 import { bitmapCenterOffset } from "@/src/lib/animation/unifiedStageGeometry";
@@ -9275,9 +9276,10 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
   return (
     <>
     <div
+      className={workspaceThemeStyles.workspace}
       style={{
         height: "100vh",
-        background: "rgb(26, 27, 36)",
+        background: "#030914",
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",
@@ -9286,7 +9288,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       <style>{`
           [data-unified-workspace-area="true"] + div button:focus-visible,
           [data-unified-workspace-area="true"] [aria-label="Workspace panels"] button:focus-visible {
-            outline: 2px solid #b5d5ff !important;
+            outline: 2px solid #66c7ff !important;
             outline-offset: 2px;
           }
           @media (max-width: 640px) {
@@ -9304,7 +9306,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
               min-height: 200px;
               flex: 0 0 200px !important;
               border-left: 0 !important;
-              border-top: 1px solid rgba(255,255,255,0.10);
+              border-top: 1px solid #163058;
             }
             [data-unified-workspace-area="true"] + div {
               width: 100% !important;
@@ -9339,11 +9341,10 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
               ? "translateX(-50%) translateY(0)"
               : "translateX(-50%) translateY(-14px)",
             opacity: saveNotification.isVisible ? 1 : 0,
-            transition: "transform 220ms ease, opacity 180ms ease",
             padding: "12px 16px",
             borderRadius: 12,
-            border: "1px solid rgba(255,255,255,0.10)",
-            background: "rgba(18,22,28,0.96)",
+            border: "1px solid #244267",
+            background: "#071120",
             boxShadow: "0 14px 34px rgba(0,0,0,0.30)",
             display: "flex",
             flexDirection: "column",
@@ -9354,8 +9355,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
             textAlign: "center",
           }}
         >
-          <div style={{ color: "rgba(255,255,255,0.94)", fontSize: 14, fontWeight: 700 }}>Project saved</div>
-          <div style={{ color: "rgba(255,255,255,0.68)", fontSize: 12 }}>{saveNotification.projectName}</div>
+          <div style={{ color: "#f6f9ff", fontSize: 14, fontWeight: 700 }}>Project saved</div>
+          <div style={{ color: "#8fabd0", fontSize: 12 }}>{saveNotification.projectName}</div>
         </div>
       )}
       <MemoizedDrawingTimelineRow
@@ -9522,6 +9523,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     {saveAsDialog && (
       <div
         role="presentation"
+        className={workspaceThemeStyles.workspace}
         onPointerDown={(event) => { if (event.target === event.currentTarget) cancelSaveAsDialog(); }}
         style={{
           position: "fixed",
@@ -9531,7 +9533,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
           alignItems: "center",
           justifyContent: "center",
           padding: 20,
-          background: "rgba(4, 7, 12, 0.72)",
+          background: "rgba(3, 9, 20, 0.78)",
         }}
       >
         <form
@@ -9553,19 +9555,19 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
             gap: 16,
             padding: 24,
             borderRadius: 16,
-            border: "1px solid rgba(255,255,255,0.16)",
-            background: "rgb(24, 28, 36)",
+            border: "1px solid #244267",
+            background: "#071120",
             boxShadow: "0 24px 80px rgba(0,0,0,0.52)",
             color: "white",
           }}
         >
           <div>
             <h2 id="save-as-dialog-title" style={{ margin: 0, fontSize: 20 }}>Save project as</h2>
-            <p id="save-as-dialog-help" style={{ margin: "7px 0 0", color: "rgba(255,255,255,0.64)", fontSize: 13 }}>
+            <p id="save-as-dialog-help" style={{ margin: "7px 0 0", color: "#8fabd0", fontSize: 13 }}>
               Save a new copy to your account. The current project stays unchanged until saving succeeds.
             </p>
           </div>
-          <label htmlFor="save-as-project-name" style={{ display: "flex", flexDirection: "column", gap: 7, color: "rgba(255,255,255,0.82)", fontSize: 13 }}>
+          <label htmlFor="save-as-project-name" style={{ display: "flex", flexDirection: "column", gap: 7, color: "#c9d6ea", fontSize: 13 }}>
             Project name
             <input
               id="save-as-project-name"
@@ -9580,8 +9582,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
                 boxSizing: "border-box",
                 padding: "11px 12px",
                 borderRadius: 9,
-                border: saveAsDialog.error ? "1px solid #ff7b86" : "1px solid rgba(110,170,255,0.55)",
-                background: "rgba(255,255,255,0.05)",
+                border: saveAsDialog.error ? "1px solid #ff7b86" : "1px solid #244267",
+                background: "#030914",
                 color: "white",
                 fontSize: 15,
                 outline: "none",
@@ -9594,14 +9596,14 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
               type="button"
               disabled={saveAsDialog.submitting}
               onClick={cancelSaveAsDialog}
-              style={{ minWidth: 88, minHeight: 40, borderRadius: 9, border: "1px solid rgba(255,255,255,0.14)", background: "rgba(255,255,255,0.05)", color: "white", cursor: saveAsDialog.submitting ? "default" : "pointer" }}
+              style={{ minWidth: 88, minHeight: 40, borderRadius: 10, border: "1px solid #244267", background: "#071120", color: "#c9d6ea", cursor: saveAsDialog.submitting ? "default" : "pointer" }}
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saveAsDialog.submitting}
-              style={{ minWidth: 88, minHeight: 40, borderRadius: 9, border: "1px solid rgba(110,170,255,0.62)", background: "rgba(57,139,255,0.24)", color: "white", cursor: saveAsDialog.submitting ? "default" : "pointer", fontWeight: 700 }}
+              style={{ minWidth: 88, minHeight: 40, borderRadius: 10, border: "1px solid #3a6aa3", background: "#0f2a52", color: "#f6f9ff", cursor: saveAsDialog.submitting ? "default" : "pointer", fontWeight: 700 }}
             >
               {saveAsDialog.submitting ? "Saving…" : "Save copy"}
             </button>

@@ -1,6 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { TutorialsScreen } from "@/src/components/tutorials/TutorialsScreen";
-import { DiamondAssistantScreen } from "@/src/components/assistant/DiamondAssistantScreen";
 
 type DrawingTopBarProps = {
   projectTitle?: string;
@@ -20,31 +18,37 @@ type DrawingTopBarProps = {
 
 const topBarButtonStyle = (isActive = false, cursor: "pointer" | "default" = "default") =>
   ({
-    padding: "4px 8px",
-    borderRadius: 6,
-    border: isActive ? "1px solid rgba(255,255,255,0.12)" : "1px solid transparent",
-    background: isActive ? "rgba(255,255,255,0.06)" : "transparent",
-    color: isActive ? "rgba(255,255,255,0.92)" : "rgba(255,255,255,0.72)",
-    fontSize: 12,
+    height: 30,
+    padding: "0 10px",
+    borderRadius: 8,
+    border: isActive ? "1px solid #3a6aa3" : "1px solid transparent",
+    background: isActive ? "#0f2a52" : "transparent",
+    color: isActive ? "#f6f9ff" : "#c9d6ea",
+    fontSize: 13,
+    fontWeight: 500,
+    fontFamily: "inherit",
+    lineHeight: 1,
+    display: "inline-flex",
+    alignItems: "center",
     cursor,
     outline: "none",
     userSelect: "none" as const,
   });
 
-const historyButtonStyle = (isHovered: boolean, isEnabled: boolean) =>
+const historyButtonStyle = (isEnabled: boolean) =>
   ({
-    width: 28,
-    height: 28,
+    width: 30,
+    height: 30,
     padding: 0,
-    borderRadius: 7,
-    border: isHovered && isEnabled ? "1px solid rgba(255,255,255,0.12)" : "1px solid transparent",
-    background: isHovered && isEnabled ? "rgba(255,255,255,0.08)" : "transparent",
-    color: isEnabled ? "rgba(255,255,255,0.86)" : "rgba(255,255,255,0.38)",
+    borderRadius: 8,
+    border: "1px solid transparent",
+    background: "transparent",
+    color: "#8fabd0",
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
     cursor: isEnabled ? "pointer" : "default",
-    opacity: isEnabled ? 1 : 0.72,
+    opacity: isEnabled ? 1 : 0.4,
     outline: "none",
     userSelect: "none" as const,
   });
@@ -55,6 +59,38 @@ const historyIconStyle = {
   display: "block",
   flexShrink: 0,
 } as const;
+
+const menuStyle = (minWidth: number) =>
+  ({
+    position: "absolute" as const,
+    top: "calc(100% + 6px)",
+    left: 0,
+    minWidth,
+    padding: 4,
+    borderRadius: 10,
+    border: "1px solid #244267",
+    background: "#071120",
+    boxShadow: "0 16px 32px rgba(0,0,0,0.38)",
+    display: "flex",
+    flexDirection: "column" as const,
+    gap: 2,
+    zIndex: 20,
+  });
+
+const menuItemStyle = (isEnabled = true) =>
+  ({
+    width: "100%",
+    padding: "8px 10px",
+    border: "1px solid transparent",
+    borderRadius: 7,
+    background: "transparent",
+    color: "#c9d6ea",
+    fontSize: 13,
+    fontFamily: "inherit",
+    textAlign: "left" as const,
+    cursor: isEnabled ? "pointer" : "default",
+    opacity: isEnabled ? 1 : 0.4,
+  });
 
 export function DrawingTopBar({
   projectTitle = "Unnamed drawing project",
@@ -72,14 +108,7 @@ export function DrawingTopBar({
   canRedo = false,
 }: DrawingTopBarProps) {
   const [isFileMenuOpen, setIsFileMenuOpen] = useState(false);
-  const [hoveredHistoryAction, setHoveredHistoryAction] = useState<"undo" | "redo" | null>(null);
   const fileMenuRef = useRef<HTMLDivElement | null>(null);
-  const [isHelpMenuOpen, setIsHelpMenuOpen] = useState(false);
-  const [isTutorialsOpen, setIsTutorialsOpen] = useState(false);
-  const [isAssistantOpen, setIsAssistantOpen] = useState(false);
-  const [hoveredHelpItem, setHoveredHelpItem] = useState<"assistant" | "tutorials" | null>(null);
-  const helpMenuRef = useRef<HTMLDivElement | null>(null);
-  const helpButtonRef = useRef<HTMLButtonElement | null>(null);
   const hasFileMenu = typeof onSave === "function" || typeof onSaveAs === "function" || typeof onExport === "function" || typeof onSaveAndExit === "function";
   const hasHistoryControls = typeof onUndo === "function" || typeof onRedo === "function";
 
@@ -98,68 +127,6 @@ export function DrawingTopBar({
     return () => document.removeEventListener("pointerdown", handlePointerDown);
   }, [isFileMenuOpen]);
 
-  useEffect(() => {
-    if (!isHelpMenuOpen) return;
-    const handlePointerDown = (event: PointerEvent) => {
-      if (!helpMenuRef.current?.contains(event.target as Node)) setIsHelpMenuOpen(false);
-    };
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setIsHelpMenuOpen(false);
-    };
-    document.addEventListener("pointerdown", handlePointerDown);
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("pointerdown", handlePointerDown);
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isHelpMenuOpen]);
-
-  useEffect(() => {
-    if (!isTutorialsOpen) return;
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return;
-      event.stopPropagation();
-      setIsTutorialsOpen(false);
-    };
-    window.addEventListener("keydown", handleKeyDown, true);
-    return () => window.removeEventListener("keydown", handleKeyDown, true);
-  }, [isTutorialsOpen]);
-
-  // The editor stays mounted underneath: Assistant and Tutorials both open over this screen.
-  const openAssistantOverlay = () => {
-    setIsHelpMenuOpen(false);
-    setHoveredHelpItem(null);
-    setIsAssistantOpen(true);
-  };
-  const closeAssistantOverlay = () => {
-    setIsAssistantOpen(false);
-    helpButtonRef.current?.focus({ preventScroll: true });
-  };
-  const openTutorialsOverlay = () => {
-    setIsHelpMenuOpen(false);
-    setHoveredHelpItem(null);
-    setIsTutorialsOpen(true);
-  };
-  const closeTutorialsOverlay = () => {
-    setIsTutorialsOpen(false);
-    helpButtonRef.current?.focus({ preventScroll: true });
-  };
-  const helpItemStyle = (isHovered: boolean) =>
-    ({
-      width: "100%",
-      padding: "8px 10px",
-      border: "none",
-      borderRadius: 6,
-      background: isHovered ? "#0066ff" : "transparent",
-      color: isHovered ? "#ffffff" : "rgba(255,255,255,0.88)",
-      fontSize: 12,
-      textAlign: "left" as const,
-      cursor: "pointer",
-      display: "flex",
-      flexDirection: "column" as const,
-      gap: 2,
-    });
-
   const runFileAction = (action?: () => void | Promise<void>) => {
     setIsFileMenuOpen(false);
     void action?.();
@@ -170,7 +137,7 @@ export function DrawingTopBar({
     unsaved: "Unsaved changes",
     saving: "Saving…",
     saved: accountSaved ? "Saved to your account" : "Saved on this browser",
-    "quiet-saved": "",
+    "quiet-saved": "Saved",
     "too-large": "Too large to save",
     failed: "Save failed",
   }[saveState];
@@ -185,308 +152,198 @@ export function DrawingTopBar({
     failed: "Safety backup failed — use Save",
   }[recoveryState];
 
+  const hasRecoveryWarning = recoveryState === "blocked" || recoveryState === "unavailable" || recoveryState === "failed";
+  const hasSaveProblem = saveState === "failed" || saveState === "too-large";
+  const syncLabel = isLegacyProject ? "Older local project — Save to upgrade on this browser" : "Local only — not synced to another device";
+  const statusDotColor = hasSaveProblem
+    ? "#ff8a95"
+    : saveState === "saved" || saveState === "quiet-saved"
+      ? "#4fa8a0"
+      : saveState === "saving"
+        ? "#8cbbf3"
+        : "#b8955a";
+
   return (
     <div
       style={{
-        height: 44,
+        height: 48,
         display: "flex",
         alignItems: "center",
-        gap: 14,
-        padding: "0 14px",
-        background: "rgb(20, 24, 32)",
-        borderBottom: "1px solid rgba(255,255,255,0.08)",
+        gap: 12,
+        padding: "0 16px",
+        background: "#071120",
+        borderBottom: "1px solid #163058",
         flexShrink: 0,
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-        <div ref={fileMenuRef} style={{ position: "relative", display: "flex", alignItems: "center" }}>
-          <button
-            type="button"
-            aria-haspopup={hasFileMenu ? "menu" : undefined}
-            aria-expanded={hasFileMenu ? isFileMenuOpen : undefined}
-            onClick={() => {
-              if (!hasFileMenu) {
-                return;
-              }
+      <div style={{ flex: "1 1 0", display: "flex", alignItems: "center", gap: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <div ref={fileMenuRef} style={{ position: "relative", display: "flex", alignItems: "center" }}>
+            <button
+              type="button"
+              aria-haspopup={hasFileMenu ? "menu" : undefined}
+              aria-expanded={hasFileMenu ? isFileMenuOpen : undefined}
+              onClick={() => {
+                if (!hasFileMenu) {
+                  return;
+                }
 
-              setIsFileMenuOpen((current) => !current);
-            }}
-            style={topBarButtonStyle(isFileMenuOpen, hasFileMenu ? "pointer" : "default")}
-          >
-            File
-          </button>
-
-          {hasFileMenu && isFileMenuOpen && (
-            <div
-              role="menu"
-              style={{
-                position: "absolute",
-                top: "calc(100% + 6px)",
-                left: 0,
-                minWidth: 148,
-                padding: 4,
-                borderRadius: 8,
-                border: "1px solid rgba(255,255,255,0.10)",
-                background: "rgb(24, 28, 36)",
-                boxShadow: "0 12px 24px rgba(0,0,0,0.26)",
-                display: "flex",
-                flexDirection: "column",
-                gap: 2,
-                zIndex: 20,
+                setIsFileMenuOpen((current) => !current);
               }}
+              style={topBarButtonStyle(isFileMenuOpen, hasFileMenu ? "pointer" : "default")}
             >
-              <button
-                type="button"
-                role="menuitem"
-                disabled={isSaving}
-                onClick={() => runFileAction(onSave)}
-                style={{
-                  width: "100%",
-                  padding: "7px 10px",
-                  border: "none",
-                  borderRadius: 6,
-                  background: "transparent",
-                  color: "rgba(255,255,255,0.88)",
-                  fontSize: 12,
-                  textAlign: "left",
-                  cursor: isSaving ? "default" : "pointer",
-                  opacity: isSaving ? 0.5 : 1,
-                }}
-              >
-                Save
-              </button>
-              <button
-                type="button"
-                role="menuitem"
-                disabled={isSaving}
-                onClick={() => runFileAction(onSaveAs)}
-                style={{
-                  width: "100%",
-                  padding: "7px 10px",
-                  border: "none",
-                  borderRadius: 6,
-                  background: "transparent",
-                  color: "rgba(255,255,255,0.88)",
-                  fontSize: 12,
-                  textAlign: "left",
-                  cursor: isSaving ? "default" : "pointer",
-                  opacity: isSaving ? 0.5 : 1,
-                }}
-              >
-                Save As
-              </button>
-              {onExport ? (
-                <button
-                  type="button"
-                  role="menuitem"
-                  onClick={() => runFileAction(onExport)}
-                  style={{
-                    width: "100%",
-                    padding: "7px 10px",
-                    border: "none",
-                    borderRadius: 6,
-                    background: "transparent",
-                    color: "rgba(255,255,255,0.88)",
-                    fontSize: 12,
-                    textAlign: "left",
-                    cursor: "pointer",
-                  }}
-                >
-                  Export…
-                </button>
-              ) : null}
-              {onSaveAndExit ? (
+              File
+            </button>
+
+            {hasFileMenu && isFileMenuOpen && (
+              <div role="menu" style={menuStyle(168)}>
                 <button
                   type="button"
                   role="menuitem"
                   disabled={isSaving}
-                  onClick={() => runFileAction(onSaveAndExit)}
-                  style={{
-                    width: "100%",
-                    marginTop: 2,
-                    padding: "7px 10px",
-                    border: "none",
-                    borderTop: "1px solid rgba(255,255,255,0.08)",
-                    borderRadius: 6,
-                    background: "transparent",
-                    color: "rgba(255,255,255,0.88)",
-                    fontSize: 12,
-                    textAlign: "left",
-                    cursor: isSaving ? "default" : "pointer",
-                    opacity: isSaving ? 0.5 : 1,
-                  }}
+                  onClick={() => runFileAction(onSave)}
+                  style={menuItemStyle(!isSaving)}
                 >
-                  Save and Exit
+                  Save
                 </button>
-              ) : null}
-            </div>
-          )}
+                <button
+                  type="button"
+                  role="menuitem"
+                  disabled={isSaving}
+                  onClick={() => runFileAction(onSaveAs)}
+                  style={menuItemStyle(!isSaving)}
+                >
+                  Save As
+                </button>
+                {onExport ? (
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => runFileAction(onExport)}
+                    style={menuItemStyle()}
+                  >
+                    Export…
+                  </button>
+                ) : null}
+                {onSaveAndExit ? (
+                  <>
+                    <div aria-hidden="true" style={{ height: 1, margin: "2px 6px", background: "#163058" }} />
+                    <button
+                      type="button"
+                      role="menuitem"
+                      disabled={isSaving}
+                      onClick={() => runFileAction(onSaveAndExit)}
+                      style={menuItemStyle(!isSaving)}
+                    >
+                      Save and Exit
+                    </button>
+                  </>
+                ) : null}
+              </div>
+            )}
+          </div>
+
+          {/* Not wired yet; a later spec will decide what these menus do. */}
+          {(["Edit", "View", "Window", "Help"] as const).map((label) => (
+            <button key={label} type="button" aria-disabled="true" tabIndex={-1} style={topBarButtonStyle(false, "default")}>
+              {label}
+            </button>
+          ))}
         </div>
 
-        {(["Edit", "View", "Window"] as const).map((label) => (
-          <button key={label} type="button" style={topBarButtonStyle()}>
-            {label}
-          </button>
-        ))}
-
-        <div ref={helpMenuRef} style={{ position: "relative", display: "flex", alignItems: "center" }}>
-          <button
-            ref={helpButtonRef}
-            type="button"
-            aria-haspopup="menu"
-            aria-expanded={isHelpMenuOpen}
-            onClick={() => setIsHelpMenuOpen((current) => !current)}
-            style={topBarButtonStyle(isHelpMenuOpen, "pointer")}
-          >
-            Help
-          </button>
-
-          {isHelpMenuOpen && (
-            <div
-              role="menu"
-              onPointerLeave={() => setHoveredHelpItem(null)}
-              style={{
-                position: "absolute",
-                top: "calc(100% + 6px)",
-                left: 0,
-                minWidth: 196,
-                padding: 4,
-                borderRadius: 8,
-                border: "1px solid #244267",
-                background: "#071120",
-                boxShadow: "0 12px 24px rgba(0,0,0,0.26)",
-                display: "flex",
-                flexDirection: "column",
-                gap: 2,
-                zIndex: 20,
-              }}
-            >
+        {hasHistoryControls && (
+          <>
+            <div aria-hidden="true" style={{ width: 1, height: 18, background: "#163058", flexShrink: 0 }} />
+            <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
               <button
                 type="button"
-                role="menuitem"
-                onClick={openAssistantOverlay}
-                onPointerEnter={() => setHoveredHelpItem("assistant")}
-                style={helpItemStyle(hoveredHelpItem === "assistant")}
+                aria-label="Undo"
+                title="Undo"
+                disabled={!onUndo || !canUndo}
+                onClick={onUndo}
+                style={historyButtonStyle(Boolean(onUndo) && canUndo)}
               >
-                <span>Ask the Assistant</span>
-                <span style={{ fontSize: 11, color: hoveredHelpItem === "assistant" ? "#ffffff" : "#8fabd0" }}>Your drawing stays open</span>
+                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" style={historyIconStyle}>
+                  <path
+                    d="M6 3.5 1.75 7.75 6 12M2.25 7.75H14"
+                    stroke="currentColor"
+                    strokeWidth="1.7"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
               </button>
               <button
                 type="button"
-                role="menuitem"
-                onClick={openTutorialsOverlay}
-                onPointerEnter={() => setHoveredHelpItem("tutorials")}
-                style={helpItemStyle(hoveredHelpItem === "tutorials")}
+                aria-label="Redo"
+                title="Redo"
+                disabled={!onRedo || !canRedo}
+                onClick={onRedo}
+                style={historyButtonStyle(Boolean(onRedo) && canRedo)}
               >
-                Tutorials
+                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" style={historyIconStyle}>
+                  <path
+                    d="m10 3.5 4.25 4.25L10 12M13.75 7.75H2"
+                    stroke="currentColor"
+                    strokeWidth="1.7"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
               </button>
             </div>
-          )}
-        </div>
-
-        {isTutorialsOpen && (
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-label="Tutorials"
-            style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", flexDirection: "column", background: "#030914" }}
-          >
-            <TutorialsScreen onBack={closeTutorialsOverlay} />
-          </div>
-        )}
-
-        {isAssistantOpen && (
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-label="Assistant"
-            style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", flexDirection: "column", background: "#030914" }}
-          >
-            <DiamondAssistantScreen onClose={closeAssistantOverlay} />
-          </div>
+          </>
         )}
       </div>
 
-      {hasHistoryControls && (
-        <div style={{ display: "flex", alignItems: "center", gap: 4, marginLeft: 2 }}>
-          <button
-            type="button"
-            aria-label="Undo"
-            title="Undo"
-            disabled={!onUndo || !canUndo}
-            onClick={onUndo}
-            onMouseEnter={() => setHoveredHistoryAction("undo")}
-            onMouseLeave={() => setHoveredHistoryAction((current) => (current === "undo" ? null : current))}
-            style={historyButtonStyle(hoveredHistoryAction === "undo", Boolean(onUndo) && canUndo)}
-          >
-            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" style={historyIconStyle}>
-              <path
-                d="M6 3.5 1.75 7.75 6 12M2.25 7.75H14"
-                stroke="currentColor"
-                strokeWidth="1.7"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
-          <button
-            type="button"
-            aria-label="Redo"
-            title="Redo"
-            disabled={!onRedo || !canRedo}
-            onClick={onRedo}
-            onMouseEnter={() => setHoveredHistoryAction("redo")}
-            onMouseLeave={() => setHoveredHistoryAction((current) => (current === "redo" ? null : current))}
-            style={historyButtonStyle(hoveredHistoryAction === "redo", Boolean(onRedo) && canRedo)}
-          >
-            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" style={historyIconStyle}>
-              <path
-                d="m10 3.5 4.25 4.25L10 12M13.75 7.75H2"
-                stroke="currentColor"
-                strokeWidth="1.7"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
-        </div>
-      )}
-
       <div
+        title={projectTitle}
         style={{
+          flex: "0 1 auto",
+          minWidth: 0,
+          maxWidth: "40%",
           fontSize: 13,
-          fontWeight: 700,
-          color: "rgba(255,255,255,0.88)",
-          marginLeft: 8,
+          fontWeight: 600,
+          color: "#f6f9ff",
+          textAlign: "center",
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
           userSelect: "none",
         }}
       >
         {projectTitle}
       </div>
 
-      <div style={{ flex: 1 }} />
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", lineHeight: 1.2 }}>
+      <div
+        data-project-recovery-state={recoveryState}
+        style={{ flex: "1 1 0", display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 10, whiteSpace: "nowrap" }}
+      >
+        {hasRecoveryWarning ? (
+          <span style={{ fontSize: 12, fontWeight: 500, color: "#ff8a95" }}>{recoveryStateLabel}</span>
+        ) : null}
+        {isLegacyProject ? <span style={{ fontSize: 12, color: "#8fabd0" }}>{syncLabel}</span> : null}
         <div
           role="status"
           aria-live="polite"
+          title={`${recoveryStateLabel} · ${syncLabel}`}
           style={{
+            height: 26,
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 7,
+            padding: "0 10px",
+            borderRadius: 999,
+            border: "1px solid #163058",
+            background: "#030914",
+            color: hasSaveProblem ? "#ff8a95" : "#c9d6ea",
             fontSize: 12,
-            fontWeight: 650,
-            color: saveState === "failed" || saveState === "too-large" ? "#ff9e9e" : "rgba(255,255,255,0.78)",
+            fontWeight: 500,
+            userSelect: "none",
           }}
         >
+          <span aria-hidden="true" style={{ width: 6, height: 6, borderRadius: 999, background: statusDotColor, flexShrink: 0 }} />
           {saveStateLabel}
-        </div>
-        <div
-          data-project-recovery-state={recoveryState}
-          style={{
-            fontSize: 10,
-            color: recoveryState === "blocked" || recoveryState === "unavailable" || recoveryState === "failed"
-              ? "#ffb0b0"
-              : "rgba(255,255,255,0.48)",
-          }}
-        >
-          {recoveryStateLabel} · {isLegacyProject ? "Older local project — Save to upgrade on this browser" : "Local only — not synced to another device"}
         </div>
       </div>
     </div>

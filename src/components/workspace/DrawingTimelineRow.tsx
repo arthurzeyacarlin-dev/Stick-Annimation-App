@@ -5,6 +5,7 @@ import {
   isDrawingAiSoundOption,
   type DrawingAiSoundOption,
 } from "@/src/lib/ai/drawingAiContract";
+import { workspaceColors } from "./workspaceTheme";
 
 export type TimelineFrameKind = "frame" | "keyframe" | "tween";
 
@@ -94,27 +95,65 @@ type TimelineActivationSource = "row-background" | "frame-button" | "resize-edge
 
 const clampFps = (value: number) => Math.max(1, Math.min(55, Math.round(value)));
 
-const timelineButtonStyle = {
-  minHeight: 26,
-  padding: "0 10px",
-  borderRadius: 8,
-  border: "1px solid rgba(255,255,255,0.10)",
-  background: "rgba(255,255,255,0.03)",
-  color: "rgba(255,255,255,0.74)",
+// Compact pill controls. Rest/selected only: pointer hover comes from workspaceTheme.module.css.
+const timelineButtonStyle: CSSProperties = {
+  height: 30,
+  padding: "0 12px",
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 6,
+  boxSizing: "border-box",
+  borderRadius: 9,
+  border: `1px solid ${workspaceColors.border}`,
+  background: workspaceColors.panel,
+  color: workspaceColors.textSecondary,
   fontSize: 12,
   fontWeight: 600,
+  lineHeight: 1,
   cursor: "pointer",
-  whiteSpace: "nowrap" as const,
+  whiteSpace: "nowrap",
 };
+
+const timelineSelectedButtonStyle: CSSProperties = {
+  ...timelineButtonStyle,
+  border: `1px solid ${workspaceColors.selectedBorder}`,
+  background: workspaceColors.selectedFill,
+  color: "#eaf3ff",
+};
+
+const contextMenuItemStyle = (enabled: boolean, tone: "default" | "danger" = "default"): CSSProperties => ({
+  width: "100%",
+  minHeight: 30,
+  padding: "6px 10px",
+  borderRadius: 8,
+  border: "1px solid transparent",
+  background: "transparent",
+  color:
+    tone === "danger"
+      ? enabled
+        ? workspaceColors.danger
+        : "rgba(255,138,149,0.38)"
+      : enabled
+        ? workspaceColors.textSecondary
+        : "rgba(201,214,234,0.36)",
+  fontSize: 12,
+  fontWeight: 500,
+  textAlign: "left",
+  cursor: enabled ? "pointer" : "not-allowed",
+});
 
 const FRAME_CELL_WIDTH = 17;
 const TIMELINE_RULER_HEIGHT = 10;
 const TIMELINE_RULER_INTERVAL = 5;
 const TIMELINE_MAX_FRAME_RANGE = 10000;
 const TIMELINE_SCROLL_END_PADDING = FRAME_CELL_WIDTH * 2;
-const TIMELINE_EMPTY_SLOT_FILL = "transparent";
-const TIMELINE_EMPTY_SLOT_BORDER = "transparent";
-const TIMELINE_SELECTED_SLOT_BORDER = "rgba(102,196,255,0.86)";
+// Frames are gray with black keyframe dots (classic animation-app look) on a navy lane.
+// Current frame: dull blue outline. Hover: bright #0066FF outline via data-hover="outline".
+const TIMELINE_LANE_BACKGROUND = workspaceColors.chrome;
+const TIMELINE_EMPTY_SLOT_FILL = "#071120";
+const TIMELINE_EMPTY_SLOT_BORDER = workspaceColors.divider;
+const TIMELINE_SELECTED_SLOT_OUTLINE = `2px solid ${workspaceColors.selectedBorder}`;
+const TIMELINE_SELECTED_SLOT_BORDER = workspaceColors.selectedBorder;
 const TIMELINE_FRAME_SPAN_FILL = "rgb(124,128,136)";
 const TIMELINE_FRAME_SPAN_BORDER = "rgba(20,22,28,0.88)";
 const TIMELINE_FRAME_SPAN_LINE = "rgb(158,164,172)";
@@ -123,6 +162,7 @@ const TIMELINE_TWEEN_SPAN_BORDER = "rgba(39,55,82,0.9)";
 const TIMELINE_TWEEN_SPAN_LINE = "rgb(116,172,246)";
 const TIMELINE_SOUND_SLOT_FILL = "rgba(88, 44, 168, 0.92)";
 const TIMELINE_SOUND_SLOT_BORDER = "rgba(58, 26, 116, 1)";
+const TIMELINE_KEYFRAME_DOT = "#111111";
 const TIMELINE_SPAN_DOT_LINE_GAP = 14;
 const TIMELINE_LEFT_RAIL_HEIGHT = 54;
 const TIMELINE_LAYER_ROW_HEIGHT = 38;
@@ -424,15 +464,6 @@ export function DrawingTimelineRow({
     window.addEventListener("resize", updateWidth);
     return () => window.removeEventListener("resize", updateWidth);
   }, [isExpanded]);
-
-  const timelineActions = useMemo(
-    () => [
-      { label: "Onion", onClick: onToggleOnion, isActive: isOnionEnabled },
-      { label: "Play", onClick: onPlay, isActive: isPlaying },
-      { label: "Pause", onClick: onPause, isActive: !isPlaying },
-    ],
-    [isOnionEnabled, isPlaying, onPause, onPlay, onToggleOnion],
-  );
 
   const commitFps = () => {
     const parsed = Number(fpsInputValue);
@@ -745,10 +776,11 @@ export function DrawingTimelineRow({
           overflow: "hidden",
           display: "grid",
           gridTemplateRows: `${TIMELINE_RULER_HEIGHT}px ${rowsHeight}px ${TIMELINE_BOTTOM_SCROLLBAR_HEIGHT}px ${panelResizeEdgeHeight}px`,
-          background: "rgb(26, 27, 36)",
+          background: TIMELINE_LANE_BACKGROUND,
           zIndex: isOverlay ? 20 : 1,
-          border: isOverlay ? "1px solid rgba(255,255,255,0.1)" : "none",
-          boxShadow: isOverlay ? "0 14px 28px rgba(0,0,0,0.28), inset 0 0 0 1px rgba(255,255,255,0.03)" : "none",
+          border: isOverlay ? `1px solid ${workspaceColors.border}` : "none",
+          borderRadius: isOverlay ? "0 0 10px 10px" : 0,
+          boxShadow: isOverlay ? "0 16px 32px rgba(0,0,0,0.45)" : "none",
           boxSizing: "border-box",
           pointerEvents: "auto",
         }}
@@ -761,7 +793,7 @@ export function DrawingTimelineRow({
             top: 0,
             width: 1,
             height: TIMELINE_LEFT_RAIL_HEIGHT,
-            background: "rgba(255,255,255,0.12)",
+            background: workspaceColors.divider,
             pointerEvents: "none",
             zIndex: 3,
           }}
@@ -771,9 +803,9 @@ export function DrawingTimelineRow({
           style={{
             position: "relative",
             overflow: "hidden",
-            background: "rgb(26, 27, 36)",
-            borderBottom: "1px solid rgba(30,32,38,0.96)",
-            borderTop: "1px solid rgba(255,255,255,0.16)",
+            background: workspaceColors.chrome,
+            borderBottom: `1px solid ${workspaceColors.divider}`,
+            borderTop: `1px solid ${workspaceColors.divider}`,
           }}
         >
           <div
@@ -802,7 +834,7 @@ export function DrawingTimelineRow({
                     top: 0,
                     width: 1,
                     height: 2,
-                    background: "rgba(255,255,255,0.5)",
+                    background: "#3d5a82",
                     pointerEvents: "none",
                   }}
                 />
@@ -817,7 +849,7 @@ export function DrawingTimelineRow({
                     top: 0,
                     width: 1,
                     height: 5,
-                    background: "rgba(255,255,255,0.54)",
+                    background: "#557399",
                     pointerEvents: "none",
                   }}
                 />
@@ -848,7 +880,7 @@ export function DrawingTimelineRow({
                         top: 0,
                         width: 1,
                         height: 6,
-                        background: "rgba(255,255,255,0.34)",
+                        background: workspaceColors.label,
                       }}
                     />
                     <div
@@ -856,7 +888,7 @@ export function DrawingTimelineRow({
                         position: "absolute",
                         left: labelLeft,
                         top: 1,
-                        color: "rgba(255,255,255,0.56)",
+                        color: workspaceColors.label,
                         fontSize: 8,
                         fontWeight: 700,
                         lineHeight: "8px",
@@ -880,7 +912,7 @@ export function DrawingTimelineRow({
             height: rowsHeight,
             overflowY: showVerticalOverflow ? "auto" : "hidden",
             overflowX: "hidden",
-            background: "rgb(26, 27, 36)",
+            background: TIMELINE_LANE_BACKGROUND,
           }}
         >
           <div
@@ -914,8 +946,8 @@ export function DrawingTimelineRow({
                       minWidth: rulerWidth,
                       height: TIMELINE_LAYER_ROW_HEIGHT,
                       position: "relative",
-                      background: "transparent",
-                      borderBottom: "1px solid rgba(255,255,255,0.06)",
+                      background: isActiveLayer && renderedLayers.length > 1 ? "rgba(15,42,82,0.55)" : "transparent",
+                      borderBottom: `1px solid ${workspaceColors.divider}`,
                     }}
                   >
                     <div
@@ -1023,39 +1055,47 @@ export function DrawingTimelineRow({
                           const showsSpanLine = !hasSoundAttachment && !isEmpty && !isTween && (isHold || continuesFromLeft || continuesRight);
                           const resolvedFill = hasSoundAttachment ? TIMELINE_SOUND_SLOT_FILL : spanFill;
                           const resolvedBorder = hasSoundAttachment ? TIMELINE_SOUND_SLOT_BORDER : spanBorder;
-                          const frameBackground = hasSoundAttachment
-                            ? resolvedFill
-                            : isEmpty
-                              ? TIMELINE_EMPTY_SLOT_FILL
-                              : resolvedFill;
-                          const borderTopColor = hasSoundAttachment
-                            ? resolvedBorder
-                            : isEmpty
+                          const isCurrentSlot = isSelectedTimelineSlot;
+                          const isInHighlightedSpan =
+                            highlightedSpanBounds !== null &&
+                            index >= highlightedSpanBounds.startIndex &&
+                            index <= highlightedSpanBounds.endIndex;
+                          const restFill = isEmpty && !hasSoundAttachment ? TIMELINE_EMPTY_SLOT_FILL : resolvedFill;
+                          // The current slot keeps its white/empty fill and gets a dull blue outline.
+                          const frameBackground = restFill;
+                          const interiorSeam = frameBackground;
+                          const borderTopColor = isCurrentSlot || isInHighlightedSpan
+                            ? TIMELINE_SELECTED_SLOT_BORDER
+                            : isEmpty && !hasSoundAttachment
                               ? TIMELINE_EMPTY_SLOT_BORDER
                               : resolvedBorder;
-                          const borderBottomColor = hasSoundAttachment
-                            ? resolvedBorder
-                            : isEmpty
-                              ? TIMELINE_EMPTY_SLOT_BORDER
-                              : resolvedBorder;
-                          const borderLeftColor = hasSoundAttachment
-                            ? continuesFromLeft
-                              ? "transparent"
-                              : resolvedBorder
-                            : isEmpty
-                              ? TIMELINE_EMPTY_SLOT_BORDER
-                              : continuesFromLeft
-                                ? resolvedFill
-                                : resolvedBorder;
-                          const borderRightColor = hasSoundAttachment
-                            ? continuesRight && !showResizeEdge
-                              ? "transparent"
-                              : resolvedBorder
-                            : !isEmpty
-                              ? continuesRight && !showResizeEdge
-                                ? resolvedFill
-                                : resolvedBorder
-                              : TIMELINE_EMPTY_SLOT_BORDER;
+                          const borderBottomColor = borderTopColor;
+                          const borderLeftColor =
+                            isCurrentSlot || (isInHighlightedSpan && index === highlightedSpanBounds?.startIndex)
+                              ? TIMELINE_SELECTED_SLOT_BORDER
+                              : hasSoundAttachment
+                                ? continuesFromLeft
+                                  ? "transparent"
+                                  : resolvedBorder
+                                : isEmpty
+                                  ? previousFrame?.cellType === "empty"
+                                    ? interiorSeam
+                                    : TIMELINE_EMPTY_SLOT_BORDER
+                                  : continuesFromLeft
+                                    ? interiorSeam
+                                    : resolvedBorder;
+                          const borderRightColor =
+                            isCurrentSlot || (isInHighlightedSpan && index === highlightedSpanBounds?.endIndex)
+                              ? TIMELINE_SELECTED_SLOT_BORDER
+                              : hasSoundAttachment
+                                ? continuesRight && !showResizeEdge
+                                  ? "transparent"
+                                  : resolvedBorder
+                                : !isEmpty
+                                  ? continuesRight && !showResizeEdge
+                                    ? interiorSeam
+                                    : resolvedBorder
+                                  : TIMELINE_EMPTY_SLOT_BORDER;
                           const tweenSpanHasVisibleDuration = isTween && (continuesFromLeft || continuesRight);
                           const showsTweenStartDot = isTween && (!previousFrame || previousFrame.cellType !== "tween");
                           const showsTweenEndDot = isTween && isTweenVisualEnd && tweenSpanHasVisibleDuration;
@@ -1101,6 +1141,8 @@ export function DrawingTimelineRow({
                                 activateTimelineSlot(layer.id, event.clientX, "frame-button");
                               }}
                               onContextMenu={(event) => openContextMenu(event, index, layer.id)}
+                              data-hover="outline"
+                              data-timeline-current={isCurrentSlot ? "true" : undefined}
                               style={{
                                 all: "unset",
                                 width: FRAME_CELL_WIDTH,
@@ -1111,21 +1153,18 @@ export function DrawingTimelineRow({
                                 cursor: "pointer",
                                 boxSizing: "border-box",
                                 userSelect: "none",
+                                // Fill and borders live on the button itself so the theme's
+                                // hover outline (data-hover="outline") paints above them.
+                                background: frameBackground,
+                                borderTop: `1px solid ${borderTopColor}`,
+                                borderBottom: `1px solid ${borderBottomColor}`,
+                                borderLeft: `1px solid ${borderLeftColor}`,
+                                borderRight: `${showResizeEdge ? 2 : 1}px solid ${borderRightColor}`,
+                                borderRadius: 0,
+                                outline: isCurrentSlot ? TIMELINE_SELECTED_SLOT_OUTLINE : undefined,
+                                outlineOffset: isCurrentSlot ? -2 : undefined,
                               }}
                             >
-                              <div
-                                style={{
-                                  position: "absolute",
-                                  inset: 0,
-                                  background: frameBackground,
-                                  boxSizing: "border-box",
-                                  borderTop: `1px solid ${borderTopColor}`,
-                                  borderBottom: `1px solid ${borderBottomColor}`,
-                                  borderLeft: `1px solid ${borderLeftColor}`,
-                                  borderRight: `${showResizeEdge ? 2 : 1}px solid ${borderRightColor}`,
-                                  borderRadius: 0,
-                                }}
-                              >
                                 {showsSpanLine && (
                                   <div
                                     style={{
@@ -1150,17 +1189,7 @@ export function DrawingTimelineRow({
                                       height: 6,
                                       borderRadius: "50%",
                                       transform: "translateX(-50%)",
-                                      background: "rgba(10,10,12,0.95)",
-                                      pointerEvents: "none",
-                                    }}
-                                  />
-                                )}
-                                {isEmpty && isSelectedTimelineSlot && (
-                                  <div
-                                    style={{
-                                      position: "absolute",
-                                      inset: 0,
-                                      border: `1px solid ${TIMELINE_SELECTED_SLOT_BORDER}`,
+                                      background: TIMELINE_KEYFRAME_DOT,
                                       pointerEvents: "none",
                                     }}
                                   />
@@ -1190,7 +1219,6 @@ export function DrawingTimelineRow({
                                     }}
                                   />
                                 )}
-                              </div>
                             </button>
                           );
                         })}
@@ -1211,20 +1239,6 @@ export function DrawingTimelineRow({
                           />
                         ))}
 
-                        {highlightedSpanBounds && (
-                          <div
-                            style={{
-                              position: "absolute",
-                              left: highlightedSpanBounds.startIndex * FRAME_CELL_WIDTH,
-                              top: 0,
-                              width: (highlightedSpanBounds.endIndex - highlightedSpanBounds.startIndex + 1) * FRAME_CELL_WIDTH,
-                              height: "100%",
-                              boxSizing: "border-box",
-                              border: `1px solid ${TIMELINE_SELECTED_SLOT_BORDER}`,
-                              pointerEvents: "none",
-                            }}
-                          />
-                        )}
                       </div>
 
                       {isActiveLayer && selectedTimelineIndex >= layerFrames.length && (
@@ -1236,7 +1250,8 @@ export function DrawingTimelineRow({
                             width: FRAME_CELL_WIDTH,
                             height: "100%",
                             boxSizing: "border-box",
-                            border: `1px solid ${TIMELINE_SELECTED_SLOT_BORDER}`,
+                            background: "transparent",
+                            border: TIMELINE_SELECTED_SLOT_OUTLINE,
                             pointerEvents: "none",
                           }}
                         />
@@ -1255,7 +1270,7 @@ export function DrawingTimelineRow({
             height: TIMELINE_BOTTOM_SCROLLBAR_HEIGHT,
             display: "flex",
             alignItems: "center",
-            background: hasHorizontalOverflow ? "rgba(255,255,255,0.02)" : "transparent",
+            background: workspaceColors.chrome,
           }}
         >
           {hasHorizontalOverflow && (
@@ -1283,8 +1298,8 @@ export function DrawingTimelineRow({
               alignItems: "center",
               justifyContent: "center",
               cursor: "ns-resize",
-              borderTop: "1px solid rgba(255,255,255,0.06)",
-              background: "rgba(255,255,255,0.02)",
+              borderTop: `1px solid ${workspaceColors.divider}`,
+              background: workspaceColors.chrome,
               zIndex: 7,
             }}
             onPointerDown={(event) => {
@@ -1302,8 +1317,8 @@ export function DrawingTimelineRow({
                 width: 36,
                 height: 3,
                 borderRadius: 999,
-                background: "rgba(255,255,255,0.22)",
-                boxShadow: "0 5px 0 rgba(255,255,255,0.08)",
+                background: "#3a5a85",
+                boxShadow: `0 5px 0 ${workspaceColors.border}`,
                 pointerEvents: "none",
               }}
             />
@@ -1327,8 +1342,8 @@ export function DrawingTimelineRow({
         gridTemplateColumns: "max-content minmax(0, 1fr)",
         columnGap: 10,
         padding: "0 0 0 14px",
-        background: "transparent",
-        borderBottom: "1px solid rgba(255,255,255,0.06)",
+        background: workspaceColors.chrome,
+        borderBottom: `1px solid ${workspaceColors.divider}`,
         flexShrink: 0,
       } as CSSProperties}
     >
@@ -1385,7 +1400,7 @@ export function DrawingTimelineRow({
 
         .timeline-bottom-scrollbar-slider::-webkit-slider-runnable-track {
           height: 3px;
-          background: rgba(255,255,255,0.02);
+          background: #163058;
           border-radius: 999px;
         }
 
@@ -1397,12 +1412,12 @@ export function DrawingTimelineRow({
           margin-top: -1.5px;
           border: none;
           border-radius: 999px;
-          background: rgba(255,255,255,0.34);
+          background: #3a5a85;
         }
 
         .timeline-bottom-scrollbar-slider::-moz-range-track {
           height: 3px;
-          background: rgba(255,255,255,0.02);
+          background: #163058;
           border-radius: 999px;
         }
 
@@ -1411,7 +1426,7 @@ export function DrawingTimelineRow({
           height: 6px;
           border: none;
           border-radius: 999px;
-          background: rgba(255,255,255,0.34);
+          background: #3a5a85;
         }
       `}</style>
 
@@ -1430,13 +1445,14 @@ export function DrawingTimelineRow({
           style={{
             display: "flex",
             alignItems: "center",
-            fontSize: 12,
-            letterSpacing: "0.12em",
+            fontSize: 10.5,
+            letterSpacing: "0.14em",
             textTransform: "uppercase",
-            color: "rgba(180,220,255,0.72)",
-            fontWeight: 800,
+            color: workspaceColors.label,
+            fontWeight: 700,
             userSelect: "none",
             whiteSpace: "nowrap",
+            marginRight: 2,
           }}
         >
           Timeline
@@ -1446,22 +1462,23 @@ export function DrawingTimelineRow({
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 8,
-            margin: "6px 0",
-            padding: "0 10px",
-            borderRadius: 8,
-            border: "1px solid rgba(255,255,255,0.10)",
-            background: "rgba(255,255,255,0.03)",
-            color: "rgba(255,255,255,0.74)",
+            gap: 7,
+            height: 30,
+            boxSizing: "border-box",
+            padding: "0 4px 0 10px",
+            borderRadius: 9,
+            border: `1px solid ${workspaceColors.border}`,
+            background: workspaceColors.panel,
+            color: workspaceColors.textSecondary,
             flexShrink: 0,
           }}
         >
           <span
             style={{
-              fontSize: 11,
-              letterSpacing: "0.08em",
+              fontSize: 10.5,
+              letterSpacing: "0.12em",
               textTransform: "uppercase",
-              color: "rgba(180,220,255,0.66)",
+              color: workspaceColors.label,
               fontWeight: 700,
               userSelect: "none",
             }}
@@ -1482,13 +1499,14 @@ export function DrawingTimelineRow({
               }
             }}
             style={{
-              width: 48,
-              height: 24,
-              padding: "0 6px",
+              width: 46,
+              height: 22,
+              boxSizing: "border-box",
+              padding: "0 4px",
               borderRadius: 6,
-              border: "1px solid rgba(255,255,255,0.12)",
-              background: "rgba(11,14,20,0.46)",
-              color: "rgba(255,255,255,0.88)",
+              border: `1px solid ${workspaceColors.divider}`,
+              background: workspaceColors.inset,
+              color: workspaceColors.textPrimary,
               fontSize: 12,
               fontWeight: 700,
               textAlign: "center",
@@ -1497,7 +1515,7 @@ export function DrawingTimelineRow({
           />
         </label>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "0 0 0 2px", flexShrink: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, margin: "0 0 0 2px", flexShrink: 0 }}>
           <button
             type="button"
             onClick={onAddLayer}
@@ -1505,22 +1523,36 @@ export function DrawingTimelineRow({
           >
             + Layer
           </button>
-          {timelineActions.map((action) => (
-            <button
-              key={action.label}
-              type="button"
-              onClick={action.onClick}
-              style={{
-                ...timelineButtonStyle,
-                border: action.isActive ? "1px solid rgba(110,170,255,0.26)" : timelineButtonStyle.border,
-                background: action.isActive ? "rgba(110,170,255,0.10)" : timelineButtonStyle.background,
-                color: action.isActive ? "rgba(225,238,255,0.92)" : timelineButtonStyle.color,
-                cursor: "pointer",
-              }}
-            >
-              {action.label}
-            </button>
-          ))}
+          <button
+            type="button"
+            onClick={onToggleOnion}
+            aria-pressed={isOnionEnabled}
+            style={isOnionEnabled ? timelineSelectedButtonStyle : timelineButtonStyle}
+          >
+            Onion
+          </button>
+          <button
+            type="button"
+            onClick={isPlaying ? onPause : onPlay}
+            aria-label={isPlaying ? "Pause" : "Play"}
+            style={{
+              ...(isPlaying ? timelineSelectedButtonStyle : timelineButtonStyle),
+              minWidth: 76,
+              justifyContent: "center",
+            }}
+          >
+            {isPlaying ? (
+              <svg aria-hidden="true" width="11" height="11" viewBox="0 0 12 12" style={{ flexShrink: 0 }}>
+                <rect x="2" y="1.5" width="3" height="9" rx="1" fill="currentColor" />
+                <rect x="7" y="1.5" width="3" height="9" rx="1" fill="currentColor" />
+              </svg>
+            ) : (
+              <svg aria-hidden="true" width="11" height="11" viewBox="0 0 12 12" style={{ flexShrink: 0 }}>
+                <path d="M3 1.6v8.8a.6.6 0 0 0 .9.52l7.2-4.4a.6.6 0 0 0 0-1.04L3.9 1.08A.6.6 0 0 0 3 1.6Z" fill="currentColor" />
+              </svg>
+            )}
+            <span>{isPlaying ? "Pause" : "Play"}</span>
+          </button>
         </div>
       </div>
 
@@ -1568,9 +1600,9 @@ export function DrawingTimelineRow({
               gap: 4,
               padding: 6,
               borderRadius: 10,
-              border: "1px solid rgba(255,255,255,0.14)",
-              background: "rgba(18,22,28,0.98)",
-              boxShadow: "0 10px 24px rgba(0,0,0,0.32)",
+              border: `1px solid ${workspaceColors.border}`,
+              background: workspaceColors.panel,
+              boxShadow: "0 16px 36px rgba(0,0,0,0.5)",
               zIndex: 9999,
             }}
           >
@@ -1585,18 +1617,7 @@ export function DrawingTimelineRow({
                 onClick={() =>
                   runMenuAction(() => onAddFrame(contextMenu.targetLayerId, item.kind, contextMenu.targetIndex, { blank: item.blank }))
                 }
-                style={{
-                  width: "100%",
-                  minHeight: 30,
-                  padding: "6px 10px",
-                  borderRadius: 8,
-                  border: "1px solid rgba(255,255,255,0.10)",
-                  background: "rgba(255,255,255,0.04)",
-                  color: "rgba(255,255,255,0.84)",
-                  fontSize: 12,
-                  textAlign: "left",
-                  cursor: "pointer",
-                }}
+                style={contextMenuItemStyle(true)}
               >
                 {item.label}
               </button>
@@ -1606,18 +1627,7 @@ export function DrawingTimelineRow({
                 type="button"
                 onClick={() => runMenuAction(() => onCopyFrame(contextMenu.targetLayerId, contextMenu.targetIndex))}
                 disabled={!canCopyContextTarget}
-                style={{
-                  width: "100%",
-                  minHeight: 30,
-                  padding: "6px 10px",
-                  borderRadius: 8,
-                  border: "1px solid rgba(255,255,255,0.10)",
-                  background: "rgba(255,255,255,0.04)",
-                  color: canCopyContextTarget ? "rgba(255,255,255,0.84)" : "rgba(255,255,255,0.42)",
-                  fontSize: 12,
-                  textAlign: "left",
-                  cursor: canCopyContextTarget ? "pointer" : "not-allowed",
-                }}
+                style={contextMenuItemStyle(canCopyContextTarget)}
               >
                 Copy Frame
               </button>
@@ -1627,18 +1637,7 @@ export function DrawingTimelineRow({
                 type="button"
                 onClick={() => runMenuAction(() => onPasteFrame(contextMenu.targetLayerId, contextMenu.targetIndex))}
                 disabled={!canPasteFrame}
-                style={{
-                  width: "100%",
-                  minHeight: 30,
-                  padding: "6px 10px",
-                  borderRadius: 8,
-                  border: "1px solid rgba(110,170,255,0.22)",
-                  background: "rgba(255,255,255,0.04)",
-                  color: canPasteFrame ? "rgba(194,225,255,0.96)" : "rgba(194,225,255,0.4)",
-                  fontSize: 12,
-                  textAlign: "left",
-                  cursor: canPasteFrame ? "pointer" : "not-allowed",
-                }}
+                style={contextMenuItemStyle(canPasteFrame)}
               >
                 Paste Frame
               </button>
@@ -1647,18 +1646,7 @@ export function DrawingTimelineRow({
               type="button"
               onClick={() => runMenuAction(() => onRemoveFrame(contextMenu.targetLayerId, contextMenu.targetIndex))}
               disabled={!canRemoveContextTarget}
-              style={{
-                width: "100%",
-                minHeight: 30,
-                padding: "6px 10px",
-                borderRadius: 8,
-                border: "1px solid rgba(255,120,120,0.18)",
-                background: "rgba(255,255,255,0.04)",
-                color: !canRemoveContextTarget ? "rgba(255,120,120,0.4)" : "rgba(255,120,120,0.96)",
-                fontSize: 12,
-                textAlign: "left",
-                cursor: !canRemoveContextTarget ? "not-allowed" : "pointer",
-              }}
+              style={contextMenuItemStyle(canRemoveContextTarget, "danger")}
             >
               Remove Frame
             </button>
@@ -1667,18 +1655,7 @@ export function DrawingTimelineRow({
                 type="button"
                 onClick={() => runMenuAction(() => onRemoveSoundAttachment(contextMenu.targetLayerId, contextMenu.targetIndex))}
                 disabled={!canRemoveSoundAttachmentTarget}
-                style={{
-                  width: "100%",
-                  minHeight: 30,
-                  padding: "6px 10px",
-                  borderRadius: 8,
-                  border: "1px solid rgba(163,126,255,0.22)",
-                  background: "rgba(255,255,255,0.04)",
-                  color: canRemoveSoundAttachmentTarget ? "rgba(204,182,255,0.96)" : "rgba(204,182,255,0.4)",
-                  fontSize: 12,
-                  textAlign: "left",
-                  cursor: canRemoveSoundAttachmentTarget ? "pointer" : "not-allowed",
-                }}
+                style={contextMenuItemStyle(canRemoveSoundAttachmentTarget, "danger")}
               >
                 Remove Attached Sound
               </button>
@@ -1691,18 +1668,7 @@ export function DrawingTimelineRow({
                   runMenuAction(onDeleteLayer);
                 }}
                 disabled={!canDeleteContextLayer}
-                style={{
-                  width: "100%",
-                  minHeight: 30,
-                  padding: "6px 10px",
-                  borderRadius: 8,
-                  border: "1px solid rgba(255,120,120,0.18)",
-                  background: "rgba(255,255,255,0.04)",
-                  color: canDeleteContextLayer ? "rgba(255,120,120,0.96)" : "rgba(255,120,120,0.4)",
-                  fontSize: 12,
-                  textAlign: "left",
-                  cursor: canDeleteContextLayer ? "pointer" : "not-allowed",
-                }}
+                style={contextMenuItemStyle(canDeleteContextLayer, "danger")}
               >
                 Delete Layer
               </button>

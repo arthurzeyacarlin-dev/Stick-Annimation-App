@@ -79,7 +79,7 @@ export function DrawingRightPanel({
         flex: `0 0 ${panelWidth}px`,
         maxWidth: "none",
         borderLeft: 0,
-        background: "rgba(18,22,28,0.92)",
+        background: "#071120",
         display: "flex",
         flexDirection: "column",
         minHeight: 0,
@@ -94,19 +94,17 @@ export function DrawingRightPanel({
           position: absolute;
           inset: 0 auto 0 4px;
           width: 1px;
-          background: rgba(255,255,255,0.18);
-          transition: background-color 120ms ease, box-shadow 120ms ease;
+          background: #163058;
         }
 
         .drawing-right-panel-resizer:hover::after,
         .drawing-right-panel-resizer:focus-visible::after,
         .drawing-right-panel-resizer[data-resizing="true"]::after {
-          background: rgba(110,170,255,0.88);
-          box-shadow: 0 0 8px rgba(70,140,255,0.34);
+          background: #0066ff;
         }
 
         .drawing-right-panel-resizer:focus-visible {
-          outline: 2px solid rgba(110,170,255,0.72);
+          outline: 2px solid #66c7ff;
           outline-offset: -2px;
         }
 
@@ -123,7 +121,7 @@ export function DrawingRightPanel({
 
         .workspace-properties-scroll {
           scrollbar-width: thin;
-          scrollbar-color: rgba(255,255,255,0.18) rgba(18,22,28,0.92);
+          scrollbar-color: #244267 #071120;
         }
 
         .workspace-properties-scroll::-webkit-scrollbar {
@@ -131,17 +129,17 @@ export function DrawingRightPanel({
         }
 
         .workspace-properties-scroll::-webkit-scrollbar-track {
-          background: rgba(18,22,28,0.92);
+          background: #071120;
         }
 
         .workspace-properties-scroll::-webkit-scrollbar-thumb {
-          background: rgba(255,255,255,0.18);
+          background: #244267;
           border-radius: 999px;
-          border: 2px solid rgba(18,22,28,0.92);
+          border: 2px solid #071120;
         }
 
         .workspace-properties-scroll::-webkit-scrollbar-thumb:hover {
-          background: rgba(255,255,255,0.24);
+          background: #3a6aa3;
         }
       `}</style>
 
@@ -182,7 +180,7 @@ export function DrawingRightPanel({
           display: "flex",
           gap: 8,
           padding: "10px 10px 8px 10px",
-          borderBottom: "1px solid rgba(255,255,255,0.08)",
+          borderBottom: "1px solid #163058",
           flexShrink: 0,
         }}
       >
@@ -196,10 +194,10 @@ export function DrawingRightPanel({
               onClick={() => onRightPanelTabChange(tab)}
               style={{
                 padding: "8px 12px",
-                borderRadius: 8,
-                border: isActiveTab ? "1px solid rgba(110,170,255,0.34)" : "1px solid rgba(255,255,255,0.08)",
-                background: isActiveTab ? "rgba(110,170,255,0.10)" : "rgba(255,255,255,0.02)",
-                color: isActiveTab ? "rgba(225,238,255,0.92)" : "rgba(255,255,255,0.70)",
+                borderRadius: 10,
+                border: isActiveTab ? "1px solid #3a6aa3" : "1px solid #244267",
+                background: isActiveTab ? "#0f2a52" : "#071120",
+                color: isActiveTab ? "#eaf3ff" : "#c9d6ea",
                 fontSize: 12,
                 fontWeight: 600,
                 userSelect: "none",
@@ -223,15 +221,15 @@ export function DrawingRightPanel({
           minHeight: 0,
           padding: rightPanelTab === "Assets" ? "12px 12px 8px 12px" : rightPanelTab === "Library" ? "12px 12px 6px 12px" : 12,
           boxSizing: "border-box",
-          borderBottom: "1px solid rgba(255,255,255,0.08)",
-          background: "rgba(18,22,28,0.92)",
-          color: "rgba(255,255,255,0.55)",
+          borderBottom: "1px solid #163058",
+          background: "#071120",
+          color: "#8fabd0",
           fontSize: 12,
           lineHeight: 1.5,
           overflowX: "hidden",
           overflowY: "auto",
           scrollbarWidth: "thin",
-          scrollbarColor: "rgba(255,255,255,0.18) rgba(18,22,28,0.92)",
+          scrollbarColor: "#244267 #071120",
         }}
       >
         {rightPanelContent}
@@ -250,9 +248,9 @@ export function DrawingRightPanel({
             gap: 4,
             padding: 6,
             borderRadius: 12,
-            border: "1px solid rgba(255,255,255,0.16)",
-            background: "rgba(18,22,28,0.98)",
-            boxShadow: "0 10px 22px rgba(0,0,0,0.34)",
+            border: "1px solid #244267",
+            background: "#071120",
+            boxShadow: "0 12px 28px rgba(0,0,0,0.45)",
             zIndex: 30,
             transformOrigin: "bottom center",
             visibility: brushToolsMenuPosition ? "visible" : "hidden",
@@ -272,9 +270,9 @@ export function DrawingRightPanel({
                   minHeight: 34,
                   padding: "8px 12px",
                   borderRadius: 10,
-                  border: isSelected ? "1px solid rgba(110,170,255,0.36)" : "1px solid rgba(255,255,255,0.12)",
-                  background: isSelected ? "rgba(110,170,255,0.12)" : "rgba(255,255,255,0.045)",
-                  color: "rgba(255,255,255,0.9)",
+                  border: isSelected ? "1px solid #3a6aa3" : "1px solid #244267",
+                  background: isSelected ? "#0f2a52" : "#071120",
+                  color: isSelected ? "#eaf3ff" : "#c9d6ea",
                   fontSize: 12,
                   fontWeight: 700,
                   cursor: "pointer",

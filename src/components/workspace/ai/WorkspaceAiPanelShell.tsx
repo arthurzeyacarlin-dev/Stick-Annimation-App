@@ -1,4 +1,5 @@
 import type { ReactNode, Ref } from "react";
+import { workspaceColors } from "../workspaceTheme";
 
 type WorkspaceAiPanelShellProps = {
   body: ReactNode;
@@ -30,13 +31,15 @@ export function WorkspaceAiPanelShell({
         minHeight: 0,
         display: "flex",
         flexDirection: "column",
-        borderTop: "1px solid rgba(255,255,255,0.08)",
+        background: workspaceColors.stage,
+        borderTop: `1px solid ${workspaceColors.divider}`,
+        color: workspaceColors.textSecondary,
       }}
     >
       <style>{`
         .workspace-ai-messages-scroll {
           scrollbar-width: thin;
-          scrollbar-color: rgba(255,255,255,0.18) transparent;
+          scrollbar-color: ${workspaceColors.border} transparent;
         }
 
         .workspace-ai-messages-scroll::-webkit-scrollbar {
@@ -48,16 +51,19 @@ export function WorkspaceAiPanelShell({
         }
 
         .workspace-ai-messages-scroll::-webkit-scrollbar-thumb {
-          background: rgba(255,255,255,0.18);
+          background: ${workspaceColors.border};
           border-radius: 999px;
           border: 2px solid transparent;
           background-clip: padding-box;
         }
 
-        .workspace-ai-messages-scroll::-webkit-scrollbar-thumb:hover {
-          background: rgba(255,255,255,0.24);
-          border: 2px solid transparent;
-          background-clip: padding-box;
+        .workspace-ai-composer textarea::placeholder {
+          color: ${workspaceColors.textMuted};
+          opacity: 1;
+        }
+
+        .workspace-ai-composer:focus-within {
+          border-color: #31588a;
         }
 
         @media (max-width: 600px) {
@@ -69,10 +75,10 @@ export function WorkspaceAiPanelShell({
             height: min(46vh, 370px);
             min-height: 280px;
             z-index: 35;
-            border: 1px solid rgba(110,170,255,0.24);
+            border: 1px solid ${workspaceColors.border};
             border-radius: 14px;
             overflow: hidden;
-            background: rgba(15,19,25,0.985);
+            background: ${workspaceColors.panel};
             box-shadow: 0 20px 50px rgba(0,0,0,0.52);
           }
 
@@ -85,7 +91,7 @@ export function WorkspaceAiPanelShell({
       <div
         style={{
           padding: "10px 12px",
-          borderBottom: "1px solid rgba(255,255,255,0.05)",
+          borderBottom: `1px solid ${workspaceColors.divider}`,
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
@@ -93,90 +99,38 @@ export function WorkspaceAiPanelShell({
           flexShrink: 0,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <div
+        <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
+          <svg
             aria-hidden="true"
-            style={{
-              width: 18,
-              height: 18,
-              borderRadius: 4,
-              background: "transparent",
-              border: "1px solid rgba(110, 170, 255, 0.55)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-              position: "relative",
-              boxSizing: "border-box",
-              transform: "translateY(1px)",
-            }}
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke={workspaceColors.iconMuted}
+            strokeWidth="1.4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{ flexShrink: 0, display: "block" }}
           >
-            <div
-              style={{
-                position: "absolute",
-                top: "-7px",
-                left: "50%",
-                transform: "translateX(-50%)",
-                width: 2,
-                height: 7,
-                borderRadius: 2,
-                background: "rgba(110, 170, 255, 0.90)",
-              }}
-            />
-            <div
-              style={{
-                position: "absolute",
-                top: "-9px",
-                left: "50%",
-                transform: "translateX(-50%)",
-                width: 4,
-                height: 4,
-                borderRadius: 999,
-                background: "rgba(110, 170, 255, 0.95)",
-              }}
-            />
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 4,
-                transform: "translateY(-1px)",
-              }}
-            >
-              <div
-                style={{
-                  width: 2,
-                  height: 2,
-                  borderRadius: 999,
-                  background: "rgba(110, 170, 255, 0.90)",
-                }}
-              />
-              <div
-                style={{
-                  width: 2,
-                  height: 2,
-                  borderRadius: 999,
-                  background: "rgba(110, 170, 255, 0.90)",
-                }}
-              />
-            </div>
-          </div>
+            <path d="M8 1.6v2.2" />
+            <circle cx="8" cy="1.6" r="0.6" fill={workspaceColors.iconMuted} />
+            <rect x="2.4" y="3.8" width="11.2" height="9" rx="2.4" />
+            <circle cx="5.9" cy="8" r="0.9" fill={workspaceColors.iconMuted} stroke="none" />
+            <circle cx="10.1" cy="8" r="0.9" fill={workspaceColors.iconMuted} stroke="none" />
+            <path d="M6.2 10.7h3.6" />
+          </svg>
 
           <div
             style={{
-              fontSize: 11,
-              letterSpacing: "0.12em",
-              textTransform: "uppercase",
-              color: "rgba(180,220,255,0.78)",
-              fontWeight: 900,
+              fontSize: 13,
+              fontWeight: 600,
+              color: workspaceColors.textPrimary,
               userSelect: "none",
-              lineHeight: 1.1,
+              lineHeight: 1.2,
+              whiteSpace: "nowrap",
             }}
           >
-            AI
-            <br />
-            ANIMATOR
+            AI Animator
           </div>
         </div>
 
@@ -184,15 +138,17 @@ export function WorkspaceAiPanelShell({
           className="workspace-ai-tagline"
           style={{
             fontSize: 12,
-            color: "rgba(255,255,255,0.50)",
+            color: workspaceColors.textMuted,
             userSelect: "none",
             lineHeight: 1.2,
             whiteSpace: "nowrap",
-            flexShrink: 0,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            minWidth: 0,
             marginRight: "22px",
           }}
         >
-          Generate frames • Clean drawings • Animate faster
+          Chat with Terra about your animation
         </div>
       </div>
 
@@ -214,8 +170,8 @@ export function WorkspaceAiPanelShell({
 
       <div
         style={{
-          padding: 10,
-          background: "rgba(18,22,28,0.92)",
+          padding: "8px 10px 10px",
+          background: workspaceColors.stage,
           flexShrink: 0,
         }}
       >
@@ -228,12 +184,13 @@ export function WorkspaceAiPanelShell({
 export function WorkspaceAiComposerShell({ input, controls }: WorkspaceAiComposerShellProps) {
   return (
     <div
+      className="workspace-ai-composer"
       style={{
         padding: "10px 10px 10px 12px",
         borderRadius: 14,
-        border: "1px solid rgba(110, 170, 255, 0.28)",
-        background: "rgba(18,22,28,0.92)",
-        color: "rgba(255,255,255,0.62)",
+        border: `1px solid ${workspaceColors.chatBoxBorder}`,
+        background: workspaceColors.chatBox,
+        color: workspaceColors.textSecondary,
         fontSize: 12,
         userSelect: "none",
         display: "flex",

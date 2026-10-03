@@ -2,7 +2,6 @@
 
 import type {ReactNode} from "react";
 import {DiamondLogo} from "@/src/components/chrome/DiamondLogo";
-import {useInstantHover} from "@/src/components/home/useInstantHover";
 import {TUTORIAL_CARDS, TUTORIAL_STATUS, type TutorialCard} from "@/src/lib/tutorials/tutorialCatalog";
 import styles from "./TutorialsScreen.module.css";
 
@@ -62,10 +61,9 @@ const TutorialPlaceholder = ({card}: {card: TutorialCard}) => (
 );
 
 export function TutorialsScreen({onBack}: TutorialsScreenProps) {
-  const hover = useInstantHover();
 
   return (
-    <main className={styles.screen} data-tutorials-screen {...hover}>
+    <main className={styles.screen} data-tutorials-screen>
       <div className={styles.frame}>
         <button type="button" className={styles.backButton} onClick={onBack} aria-label="Back">
           <svg className={styles.backIcon} {...iconProps} width={18} height={18}>

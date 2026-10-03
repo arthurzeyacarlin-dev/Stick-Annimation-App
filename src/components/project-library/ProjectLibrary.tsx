@@ -25,7 +25,6 @@ import { ProjectMovieViewer } from "../project-player/ProjectMovieViewer";
 import { ProjectPoster } from "./ProjectPoster";
 import { ExportAnimationPlayer } from "../export/AnimationExportFlow";
 import styles from "./projectLibrary.module.css";
-import { useInstantHover } from "../home/useInstantHover";
 
 type Props = {
   onBack: () => void;
@@ -56,7 +55,6 @@ const sortLabels: Array<{ value: ProjectLibrarySort; label: string }> = [
 ];
 
 export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, ownerId }: Props) {
-  const libraryHover = useInstantHover();
   const createReader = useCallback(() => {
     if (!ownerId) throw new Error("account_session_required");
     return createAccountProjectSourceReader(ownerId);
@@ -368,7 +366,7 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
 
   return (
     <>
-      <main ref={libraryRef} className={styles.library} data-project-library={surface === "watch" ? "my-projects" : "open-project"} aria-labelledby="project-library-heading" {...libraryHover}>
+      <main ref={libraryRef} className={styles.library} data-project-library={surface === "watch" ? "my-projects" : "open-project"} aria-labelledby="project-library-heading">
         <div className={styles.shell}>
           <header className={styles.header}>
             <button type="button" onClick={onBack} className={styles.secondaryButton}>← Back</button>

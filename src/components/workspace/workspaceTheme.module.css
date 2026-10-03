@@ -1,0 +1,88 @@
+/*
+ * Editor (drawing workspace) theme — matches Home/Help/Assistant.
+ * Rest: dull navy/blue. Pointer hover: instant #0066FF with white text/icons.
+ * Hover uses the browser's native :hover, so clicks elsewhere never disable it.
+ * Elements marked data-hover="outline" (timeline frames, color swatches) get a
+ * bright outline instead of a blue fill. Help overlays opt out with
+ * data-workspace-theme-exempt so they keep their own styling.
+ */
+.workspace :global(button),
+.workspace :global([role="menuitem"]),
+.workspace :global([role="tab"]) {
+  transition: none !important;
+  animation: none !important;
+}
+
+.workspace :global(button:not(:disabled):not([aria-disabled="true"]):not([data-hover="outline"]):hover:not([data-workspace-theme-exempt] *)) {
+  background: #0066ff !important;
+  border-color: #0066ff !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+.workspace :global(button:not(:disabled):not([aria-disabled="true"]):not([data-hover="outline"]):hover:not([data-workspace-theme-exempt] *) *) {
+  color: #ffffff !important;
+}
+
+.workspace :global([data-hover="outline"]:hover:not(:disabled):not([data-workspace-theme-exempt] *)) {
+  outline: 2px solid #0066ff !important;
+  outline-offset: -2px;
+}
+
+.workspace :global(button:focus-visible:not([data-workspace-theme-exempt] *)) {
+  outline: 2px solid #66c7ff !important;
+  outline-offset: 2px;
+}
+
+/*
+ * Property sliders (canvas/side-panel area): dull blue at rest, bright #0066FF
+ * while hovered or dragged. Custom-drawn so the browser never darkens it on hover.
+ */
+.workspace :global([data-unified-workspace-area="true"] input[type="range"]) {
+  --slider-color: #3a6aa3;
+  --slider-rest: #163058;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 14px;
+  background: none;
+  cursor: pointer;
+  overflow: hidden;
+}
+.workspace :global([data-unified-workspace-area="true"] input[type="range"]:not(:disabled):hover),
+.workspace :global([data-unified-workspace-area="true"] input[type="range"]:not(:disabled):active),
+.workspace :global([data-unified-workspace-area="true"] input[type="range"]:focus-visible) {
+  --slider-color: #0066ff;
+}
+.workspace :global([data-unified-workspace-area="true"] input[type="range"]:disabled) {
+  opacity: 0.45;
+  cursor: default;
+}
+.workspace :global([data-unified-workspace-area="true"] input[type="range"]::-webkit-slider-runnable-track) {
+  height: 14px;
+  background: none;
+}
+.workspace :global([data-unified-workspace-area="true"] input[type="range"]::-webkit-slider-thumb) {
+  -webkit-appearance: none;
+  height: 14px;
+  width: 14px;
+  border-radius: 50%;
+  background: var(--slider-color);
+  border-image: linear-gradient(90deg, var(--slider-color) 50%, var(--slider-rest) 0) 0 1 / 5px 100vw / 0 100vw;
+}
+.workspace :global([data-unified-workspace-area="true"] input[type="range"]::-moz-range-thumb) {
+  height: 14px;
+  width: 14px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--slider-color);
+}
+.workspace :global([data-unified-workspace-area="true"] input[type="range"]::-moz-range-track) {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--slider-rest);
+}
+.workspace :global([data-unified-workspace-area="true"] input[type="range"]::-moz-range-progress) {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--slider-color);
+}

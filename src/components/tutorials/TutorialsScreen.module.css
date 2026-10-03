@@ -1,7 +1,6 @@
 /* Calm, muted placeholder page. Cards are informational only: no pointer,
    no hover state. The Back button is the only interactive control and its
-   bright hover is driven by data-pointer-hover (useInstantHover), instant
-   and never lingering. */
+   bright hover uses native :hover, instant (no transitions). */
 .screen {
   width: 100%;
   height: 100%;
@@ -46,13 +45,13 @@
   flex: 0 0 auto;
 }
 
-.backButton[data-pointer-hover] {
+.backButton:hover {
   border-color: #0066ff;
   background: #0066ff;
   color: #fff;
 }
 
-.backButton[data-pointer-hover] .backIcon {
+.backButton:hover .backIcon {
   color: #fff;
 }
 

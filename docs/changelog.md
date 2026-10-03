@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-10-03 — D-0175 Phase 4 editor polish published
+
+- Editor restyled to match Home/Help/Assistant (palette, timeline frame outlines, one Play/Pause, even tool bar, sliders, save chip, inert Edit/View/Window/Help). Product commit `282ddd91809a8d6512298f546334e71a4482d8be`.
+- App-wide buttons switched to native CSS hover; removed the custom `useInstantHover` tracker.
+
 ## 2026-10-03 — D-0174 Phase 3 Help published; D-0173 simple workflow
 
 - One Help page joins the Assistant and Tutorials; Assistant and Tutorials restyled; editor Help menu now works without leaving unsaved drawings. Product commit `b7bc3dcd08d51f9156b2de848e0773cc3f0066c1`.

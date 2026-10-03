@@ -796,7 +796,6 @@
 ./src/components/help/HelpHub.tsx
 ./src/components/home
 ./src/components/home/HomeWorkspace.module.css
-./src/components/home/useInstantHover.ts
 ./src/components/notifications
 ./src/components/notifications/NotificationCenterProvider.tsx
 ./src/components/notifications/NotificationTrigger.tsx
@@ -843,6 +842,8 @@
 ./src/components/workspace/stickfigure/types.ts
 ./src/components/workspace/timelinePlayback.ts
 ./src/components/workspace/timelineStructure.ts
+./src/components/workspace/workspaceTheme.module.css
+./src/components/workspace/workspaceTheme.ts
 ./src/lib
 ./src/lib/account
 ./src/lib/account-usage

@@ -1,17 +1,28 @@
 # SPEC-0016 — Professional Workspace Compression and Polish
 
-Status: **Approved; Phases 1–3 published/integrated (Phase 3 product commit b7bc3dcd08d51f9156b2de848e0773cc3f0066c1); Phase 4 is next; Phase 5 not started**
+Status: **Approved; Phases 1–4 published/integrated (Phase 4 product commit 282ddd91809a8d6512298f546334e71a4482d8be); Phase 5 is next**
 Owner: Arthur
 Planning role: docs-only Spec Architect; Project Manager reviews before any implementation authorization
 Created: 2026-10-02
 Last updated: 2026-10-03
-Decision links: D-0174; D-0173; D-0172; D-0171; D-0170; D-0169; D-0168; D-0167; D-0166; D-0093; D-0134; D-0136; D-0143
+Decision links: D-0175; D-0174; D-0173; D-0172; D-0171; D-0170; D-0169; D-0168; D-0167; D-0166; D-0093; D-0134; D-0136; D-0143
 TODO IDs: PLAN-016; POLISH-016-1 through POLISH-016-5; PUB-016-PLAN; RESUME-015-6
 Planning baseline: clean synchronized canonical `main` / `origin/main` at `988531e3a3e1f65558d32952256877c366a04c9d`
 Runtime baseline inside that record: accepted SPEC-0015 Phase 5 product commit `1b4acd7db0b57188e95cb8474816c4e453172abd`
 Delivery target: **five phases planned to finish in under seven calendar days from Phase 1 start, aiming for one or two accepted implementation phases per day; this is not a 30-day program. The target never relaxes proof, human review, sequential ownership or publication gates.**
 
 ## 1. Exact goal
+
+### Phase 4 result — D-0175 (Arthur PASS, published)
+
+- **Palette (editor only):** bars/panels #071120 (top bar, timeline, Properties, tool bar); dark #030914 canvas surround and whole AI Animator section; chat box #071120 with #244267 outline like the Assistant; inputs/cards inside bright panels are dark #030914 wells; one divider color #163058; buttons dull at rest (#071120/#244267), selected dull blue (#0f2a52/#3a6aa3), hover #0066FF/white. Shared tokens: `src/components/workspace/workspaceTheme.ts` and `workspaceTheme.module.css`.
+- **Timeline:** original gray frames rgb(124,128,136) with black keyframe dots; current frame 2px dull blue outline; hovered frame 2px #0066FF outline; one Play/Pause toggle; compact FPS/+Layer/Onion pills.
+- **Top bar:** File, Edit, View, Window, Help (no logo); only File works. The Phase 3 editor Help menu/overlays were turned off at Arthur's request (Home Help unchanged; `DiamondAssistantScreen` keeps an unused `onClose` prop for a future editor Help). Save status is one chip with details in its tooltip; recovery warnings stay visible.
+- **Other:** evenly spaced tool bar; property sliders custom-drawn dull #3a6aa3 at rest and #0066FF on hover/drag; AI panel tagline is truthful ("Chat with Terra about your animation").
+- **Hover fix (app-wide buttons):** all hover rules now use native CSS `:hover`; `src/components/home/useInstantHover.ts` was deleted and its uses removed (Home, Open Project, Help, Tutorials, Assistant, editor). Reason: in Google Chrome a click on empty space could stop the custom tracker from seeing pointer movement. Not reproduced in Arthur's Chrome by Claude (Chrome connection unavailable); verified in the built-in browser that hover works before and after clicking empty space. Arthur said Chrome matters less because V1/V2 should ship as an app.
+- **Unchanged:** drawing/canvas rendering, frame data, saving, export, login/accounts, AI behavior, Dashboard.
+- **Checks:** TypeScript clean; ESLint clean on all touched folders (two inherited `prefer-const` errors remain in unused `src/lib/ai/drawingFrameExecutor.ts`). Old one-time proof scripts expecting separate Play/Pause, Edit/View/Window menus or old wording will fail and are queued for cleanup.
+
 
 ### Phase 3 result — D-0174 (Arthur PASS, published)
 

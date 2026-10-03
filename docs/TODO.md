@@ -1,5 +1,17 @@
 # TODO
 
+## Current queue (D-0175)
+
+- [x] **POLISH-016-4** — Editor shell polish. Arthur PASS; published in `282ddd91809a8d6512298f546334e71a4482d8be`.
+- [ ] **POLISH-016-5** — Account entry, Dashboard, recovery and shared dialogs polish (next). Short plan → Arthur OK → separate review copy → Arthur review.
+- [ ] **EDITOR-MENUS** — Make editor Edit/View/Window/Help menus work (future spec; currently inert by Arthur's choice).
+- [ ] **AIANIM-TESTS** — After SPEC-0016: Test 1 = AI (Grok vs Terra) key poses + math in-betweens; Test 2 = motion from Arthur's Blender files. Compare look, reliability, cost, long-term value. Needs xAI key from Arthur's dad and OK for small paid test calls.
+- [ ] **CLEANUP-PROOF-SCRIPTS** — Old one-time proof scripts (SPEC-0001/0002/0003/0008/0012/0013 browser proofs, validateStickFigureAiUiAdapter) expect old wording/buttons; retire or replace with a real automated smoke test.
+- [ ] **V1-30-DAYS** — Target: useful, polished V1 by about 2026-11-02 (D-0173 plan). V1 ships as a web app; a downloadable desktop app (Electron/Tauri) is a Version 2 goal.
+- [ ] **RESUME-015-6** — Still paused (funded allowance/billing).
+
+Older queues below are history.
+
 ## Current queue (D-0174)
 
 - [x] **POLISH-016-3** — Help page, Assistant/Tutorials polish and working editor Help. Arthur PASS; published in `b7bc3dcd08d51f9156b2de848e0773cc3f0066c1`.

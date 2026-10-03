@@ -1763,6 +1763,14 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Result: one Help page (Assistant + Tutorials), Assistant/Tutorials visual polish, working editor Help that keeps unsaved drawing open (G-016-HELP-UNSAVED resolved with overlays). See SPEC-0016 §1 Phase 3 result.
 - Next: SPEC-0016 Phase 4 editor shell polish.
 
+### D-0175 — SPEC-0016 Phase 4 accepted and published
+
+- Date: 2026-10-03
+- Arthur: PASS after several visual rounds in the isolated review copy; asked to publish to main, update records and push.
+- Publication: product commit `282ddd91809a8d6512298f546334e71a4482d8be` fast-forwarded into main and pushed, followed by this records commit.
+- Decisions inside the phase: editor palette follows the Home/Assistant pattern (brighter navy bars/panels, dark work areas, brighter chat box, one divider color); timeline frames stay gray with black dots and outline-only current/hover states; editor Edit/View/Window/Help are shown but inert until a later spec (Phase 3 editor Help menu turned off); buttons app-wide use native `:hover` instead of the custom tracker. Arthur's product direction: Diamond Animator should ultimately be used as a downloadable app; V1 ships as a web app, desktop packaging is a Version 2 goal.
+- Next: SPEC-0016 Phase 5.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

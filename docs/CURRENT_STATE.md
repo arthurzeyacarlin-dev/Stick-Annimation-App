@@ -1,5 +1,11 @@
 # Current State
 
+## D-0175 — Phase 4 published; Phase 5 is next (current)
+
+Arthur passed SPEC-0016 Phase 4 on 2026-10-03 (D-0175). Product commit `282ddd91809a8d6512298f546334e71a4482d8be` is on main and GitHub. The drawing editor now matches Home/Help/Assistant: brighter navy (#071120) top bar, timeline bar, Properties panel and tool bar; dark navy (#030914) canvas area and AI Animator section; an Assistant-style brighter chat box; one divider color (#163058); dull blue rest/selected states and instant #0066FF hover. Timeline frames are gray with black dots (dull blue outline = current frame, bright outline = hover); Play/Pause is one button; the tool bar is evenly spaced; property sliders are dull until hovered/dragged; the save status is one chip. Top bar shows File, Edit, View, Window, Help with no logo — only File works (the editor Help menu from Phase 3 was turned off at Arthur's request; Home Help is unchanged). App-wide, buttons now use native CSS :hover; the custom `useInstantHover` tracker was removed because a click on empty space could disable it in Google Chrome. Drawing, frames, saving, export, login and AI behavior are unchanged.
+
+**Next:** SPEC-0016 Phase 5 (account entry, Dashboard, recovery and shared dialogs polish). After SPEC-0016, run the two AI Animator tests side by side once Arthur's Blender files arrive (see D-0173).
+
 ## D-0174 — Phase 3 published; Phase 4 is next (current)
 
 Arthur passed SPEC-0016 Phase 3 on 2026-10-03 (D-0174). Product commit `b7bc3dcd08d51f9156b2de848e0773cc3f0066c1` is on main and GitHub. Home **Help** now opens one Help page with **Ask the Assistant** and **Tutorials**; the Assistant and Tutorials screens were restyled (navy, brighter Assistant sidebar, new diamond logo, dull blues with instant #0066FF hover); the editor's **Help** menu works and opens the Assistant or Tutorials *over* the drawing so unsaved work stays put. Assistant answers, chats, dictation, search, login, saving, drawing and export are unchanged. D-0173 replaced the old multi-role process with the simple workflow in `AGENTS.md`.

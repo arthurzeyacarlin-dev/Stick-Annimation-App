@@ -3,6 +3,9 @@ import workspaceThemeStyles from "./workspaceTheme.module.css";
 import type { MutableRefObject } from "react";
 import { DrawingCanvas } from "./DrawingCanvas";
 import { bitmapCenterOffset } from "@/src/lib/animation/unifiedStageGeometry";
+import { buildScene as buildAnimatorScene, type Scene as AnimatorScene } from "@/src/lib/animator/engine";
+import { compactOrigin, copyRasterReferenceSize, getRasterReferenceSize, resolveRasterReferenceSize } from "@/src/lib/animation/compactRasterBitmap";
+import { rasterizeFrames as rasterizeAnimatorFrames } from "@/src/lib/animator/toFrames";
 import type {
   DrawingCanvasHandle,
   DrawingCanvasPlaybackSurfaceLayout,
@@ -576,7 +579,7 @@ const cloneBitmap = (bitmap: ImageData | null) => {
 
   const cloned = createImageDataSafely(usableBitmap.data, usableBitmap.width, usableBitmap.height);
   if (!cloned) throw new Error("bitmap_clone_failed");
-  return copyBitmapPaintCoverage(usableBitmap, cloned);
+  return copyRasterReferenceSize(usableBitmap, copyBitmapPaintCoverage(usableBitmap, cloned));
 };
 
 const bitmapCanvasCache = new WeakMap<ImageData, HTMLCanvasElement>();
@@ -897,7 +900,9 @@ const normalizeCapturedSnapshotExtent = (snapshot: DrawingCanvasSnapshot, curren
   const viewHeight = dirty ? snapshot.bitmapHeight : snapshot.bitmap?.height;
   if (!viewWidth || !viewHeight) throw new Error("missing_snapshot_extent");
   if (viewWidth === current.width && viewHeight === current.height) return snapshot;
-  const width = Math.max(viewWidth, current.width), height = Math.max(viewHeight, current.height);
+  // A compact frame stands for its full reference size; keep that size so export framing never changes.
+  const reference = resolveRasterReferenceSize(current);
+  const width = Math.max(viewWidth, reference.width), height = Math.max(viewHeight, reference.height);
   if (getExpectedBitmapDataLength(width, height) === null) throw new Error("snapshot_extent_limit");
   const patch = dirty ? snapshot.dirtyPatchBitmap : snapshot.bitmap!;
   const rect = {
@@ -997,12 +1002,12 @@ const createEmptyTimelineFrame = (id: number): WorkspaceTimelineFrame => createT
 const serializeBitmap = (bitmap: ImageData | null, preserveDataReference = false): PaintSerializedBitmap | null => {
   const usableBitmap = getUsableBitmap(bitmap);
   return usableBitmap
-    ? {
+    ? copyRasterReferenceSize(usableBitmap, {
         width: usableBitmap.width,
         height: usableBitmap.height,
         data: preserveDataReference ? usableBitmap.data : new Uint8ClampedArray(usableBitmap.data),
         ...(getBitmapPaintCoverage(usableBitmap) ? { paintCoverage: getBitmapPaintCoverage(usableBitmap)! } : {}),
-      }
+      })
     : null;
 };
 
@@ -1012,7 +1017,7 @@ const deserializeBitmap = (bitmap: SerializedBitmap | null | undefined, reuseCla
   }
 
   const restored = createImageDataSafely(bitmap.data, bitmap.width, bitmap.height, reuseClampedData);
-  return restored ? attachBitmapPaintCoverage(restored, (bitmap as PaintSerializedBitmap).paintCoverage ?? getBitmapPaintCoverage(bitmap)) : null;
+  return restored ? copyRasterReferenceSize(bitmap, attachBitmapPaintCoverage(restored, (bitmap as PaintSerializedBitmap).paintCoverage ?? getBitmapPaintCoverage(bitmap))) : null;
 };
 
 const serializeMotionTweenData = (motionTween: MotionTweenData | null, preserveBitmapReferences = false): StoredMotionTweenData | null =>
@@ -1650,7 +1655,10 @@ const createBlankBitmap = (width: number, height: number) => {
   return createImageDataSafely(new Uint8ClampedArray(expectedLength), width, height);
 };
 
-const createBlankBitmapLike = (bitmap: ImageData | null) => (bitmap ? createBlankBitmap(bitmap.width, bitmap.height) : null);
+const createBlankBitmapLike = (bitmap: ImageData | null) => {
+  const blank = bitmap ? createBlankBitmap(bitmap.width, bitmap.height) : null;
+  return blank && bitmap ? copyRasterReferenceSize(bitmap, blank) : blank;
+};
 
 type BitmapBounds = {
   left: number;
@@ -2161,13 +2169,15 @@ const deriveMotionTweenOriginFromBitmap = (bitmap: ImageData | null): DerivedMot
     return null;
   }
 
+  // Compact pictures are measured in their full (reference) size so start and end share one frame of reference.
+  const reference = resolveRasterReferenceSize(bitmap);
   return {
     origin: {
-      x: bounds.left,
-      y: bounds.top,
+      x: bounds.left + compactOrigin(reference.width, bitmap.width),
+      y: bounds.top + compactOrigin(reference.height, bitmap.height),
     },
-    stageWidth: bitmap.width,
-    stageHeight: bitmap.height,
+    stageWidth: reference.width,
+    stageHeight: reference.height,
     bounds,
   };
 };
@@ -4634,10 +4644,10 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
           ? worldDisplayRect.height * (sourceCanvas.height / referenceHeight)
           : worldDisplayRect.height;
         const drawLeft = sourceCanvas
-          ? worldDisplayRect.left + Math.round((worldDisplayRect.width - drawWidth) / 2)
+          ? worldDisplayRect.left + bitmapCenterOffset(referenceWidth, sourceCanvas.width) * (worldDisplayRect.width / referenceWidth)
           : worldDisplayRect.left;
         const drawTop = sourceCanvas
-          ? worldDisplayRect.top + Math.round((worldDisplayRect.height - drawHeight) / 2)
+          ? worldDisplayRect.top + bitmapCenterOffset(referenceHeight, sourceCanvas.height) * (worldDisplayRect.height / referenceHeight)
           : worldDisplayRect.top;
         if (sourceCanvas) {
           ctx.drawImage(sourceCanvas, drawLeft, drawTop, drawWidth, drawHeight);
@@ -7169,6 +7179,19 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         const existingItems = baseLayer?.cells[ownerIndex]?.content?.items ?? [];
         const cropBitmap = (sourceBitmap: typeof frame.bitmap) => {
           if (!sourceBitmap) return null;
+          const reference = getRasterReferenceSize(sourceBitmap);
+          if (reference) {
+            // Compact picture: save it exactly as its full-size version would have been saved.
+            const originX = compactOrigin(reference.width, sourceBitmap.width), originY = compactOrigin(reference.height, sourceBitmap.height);
+            const crop = cropBitmapRaw(sourceBitmap);
+            const coverage = (sourceBitmap as PaintSerializedBitmap).paintCoverage ?? getBitmapPaintCoverage(sourceBitmap);
+            if (!crop) return null;
+            return { ...crop, x: crop.x + originX, y: crop.y + originY, stageWidth: reference.width, stageHeight: reference.height,
+              ...(coverage ? { paintCoverage: cropPaintCoverage(coverage, -originX, -originY, reference.width, reference.height)! } : {}) };
+          }
+          return cropBitmapRaw(sourceBitmap);
+        };
+        const cropBitmapRaw = (sourceBitmap: NonNullable<typeof frame.bitmap>) => {
           const sourceData = sourceBitmap.data instanceof Uint8ClampedArray
             ? sourceBitmap.data
             : Uint8ClampedArray.from(sourceBitmap.data);
@@ -8350,8 +8373,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     }
 
     const exportCanvas = document.createElement("canvas");
-    exportCanvas.width = referenceBitmap.width;
-    exportCanvas.height = referenceBitmap.height;
+    exportCanvas.width = Math.max(...stageBitmaps.map((bitmap) => resolveRasterReferenceSize(bitmap).width));
+    exportCanvas.height = Math.max(...stageBitmaps.map((bitmap) => resolveRasterReferenceSize(bitmap).height));
     const exportCtx = exportCanvas.getContext("2d");
     if (!exportCtx) {
       return false;
@@ -8366,7 +8389,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         continue;
       }
 
-      exportCtx.drawImage(sourceCanvas, 0, 0);
+      exportCtx.drawImage(sourceCanvas, bitmapCenterOffset(exportCanvas.width, bitmap.width), bitmapCenterOffset(exportCanvas.height, bitmap.height));
     }
 
     const downloadLink = document.createElement("a");
@@ -8637,6 +8660,79 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     ],
   );
 
+  // SPEC-0017: put an engine scene on a new layer at the top, starting at frame 1, as ordinary
+  // editable frames. One Undo removes the whole scene (layer included).
+  const applyAnimatorScene = useCallback((scene: AnimatorScene) => {
+    if (isTimelinePlayingRef.current || isApplyingGeneratedFramesRef.current) return false;
+    saveCurrentFrameSnapshot(currentFrameIndexRef.current, activeLayerIdRef.current, {
+      debugCaller: "applyAnimatorScene",
+      forceCapture: drawingCanvasRef.current?.hasPendingAuthoringChanges() ?? true,
+    });
+    if (drawingCanvasRef.current?.hasPendingAuthoringChanges()) return false;
+    const layout = drawingCanvasRef.current?.getPlaybackSurfaceLayout() ?? null;
+    const canvasWidth = layout?.drawingCanvasWidth ?? 0, canvasHeight = layout?.drawingCanvasHeight ?? 0;
+    if (!layout || canvasWidth <= 0 || canvasHeight <= 0 || layout.worldDisplayRect.width <= 0) return false;
+    // The page's shape follows the window, so scenes are sized by page height and centered:
+    // a figure looks the same size on a wide or a tall page (and in export).
+    const pageWidth = layout.stageDisplayRect.width, pageHeight = layout.stageDisplayRect.height;
+    if (pageWidth <= 0 || pageHeight <= 0) return false;
+    const pageScale = pageHeight / 1080;
+    const fit = { scale: pageScale, offsetX: pageWidth / 2 - 960 * pageScale, offsetY: 0 };
+    const pixelsPerCssPixel = canvasWidth / layout.worldDisplayRect.width;
+    const map = {
+      scale: fit.scale * pixelsPerCssPixel,
+      offsetX: (layout.stageDisplayRect.left + fit.offsetX - layout.worldDisplayRect.left) * pixelsPerCssPixel,
+      offsetY: (layout.stageDisplayRect.top + fit.offsetY - layout.worldDisplayRect.top) * pixelsPerCssPixel,
+    };
+
+    isApplyingGeneratedFramesRef.current = true;
+    try {
+      const startMs = performance.now();
+      const built = buildAnimatorScene(scene, timelineFps);
+      const raster = rasterizeAnimatorFrames(built.frames, canvasWidth, canvasHeight, map);
+      recordUndoSnapshot();
+      const frames: WorkspaceTimelineFrame[] = [];
+      let ownerStateId = -1;
+      for (const entry of raster) {
+        const id = nextTimelineFrameIdRef.current;
+        nextTimelineFrameIdRef.current += 1;
+        if (entry.hold && ownerStateId >= 0) {
+          frames.push(createSpanContinuationFrame(id, ownerStateId, "frame"));
+        } else {
+          frames.push(createTimelineFrame(id, "keyframe", "keyframe", id, { bitmap: entry.bitmap, previewUrl: null }));
+          ownerStateId = id;
+        }
+      }
+      const layerId = `layer-${nextLayerNumberRef.current}`;
+      nextLayerNumberRef.current += 1;
+      const nextLayers = normalizeLayerOrder([
+        { id: layerId, name: `AI: ${scene.title}`, orderIndex: 0, timelineFrames: frames },
+        ...layersRef.current,
+      ]);
+      layersRef.current = nextLayers;
+      setLayers(nextLayers);
+      activeLayerIdRef.current = layerId;
+      timelineFramesRef.current = frames;
+      setActiveLayerId(layerId);
+      currentFrameIndexRef.current = 0;
+      setCurrentFrameIndex(0);
+      selectedTimelineIndexRef.current = 0;
+      setSelectedTimelineIndex(0);
+      drawingCanvasRef.current?.clearTransientEditingState();
+      commitCurrentHistoryState({ assumeChanged: true });
+      window.requestAnimationFrame(() => {
+        renderWorkspaceCanvases(nextLayers, 0, { activeLayerId: layerId, debugCaller: "ai:apply-animator-scene" });
+      });
+      console.info("[animator] scene applied", {
+        scene: scene.id, frames: frames.length, pictures: raster.filter((entry) => !entry.hold).length,
+        canvas: `${canvasWidth}x${canvasHeight}`, ms: Math.round(performance.now() - startMs), report: built.report,
+      });
+      return true;
+    } finally {
+      isApplyingGeneratedFramesRef.current = false;
+    }
+  }, [commitCurrentHistoryState, recordUndoSnapshot, renderWorkspaceCanvases, saveCurrentFrameSnapshot, timelineFps]);
+
   const handleSaveAs = useCallback(() => {
     requireManualEditorCommand("project.save-as/v2", "DrawingWorkspace.handleSaveAs");
     if (isTimelinePlayingRef.current || saveInFlightRef.current && !backgroundSavePromiseRef.current) {
@@ -8748,10 +8844,10 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       currentFrameIndex,
       selectedTimelineIndex,
       currentFrameHasBitmap: Boolean(currentBounds),
-      currentFrameBounds: currentBounds
+      currentFrameBounds: currentBounds && currentBitmap
         ? {
-            left: currentBounds.left,
-            top: currentBounds.top,
+            left: currentBounds.left + compactOrigin(resolveRasterReferenceSize(currentBitmap).width, currentBitmap.width),
+            top: currentBounds.top + compactOrigin(resolveRasterReferenceSize(currentBitmap).height, currentBitmap.height),
             width: currentBounds.width,
             height: currentBounds.height,
           }
@@ -9197,13 +9293,23 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         continue;
       }
 
+      // Compact pictures: move both boxes into full-size coordinates.
+      const startReference = resolveRasterReferenceSize(ownerFrame.bitmap);
+      const endReference = resolveRasterReferenceSize(ownerFrame.tweenEndBitmap);
+      const stageWidth = Math.max(startReference.width, endReference.width);
+      const stageHeight = Math.max(startReference.height, endReference.height);
+      const toStage = (bounds: BitmapBounds, bitmap: ImageData) => ({
+        ...bounds,
+        left: bounds.left + compactOrigin(stageWidth, bitmap.width),
+        top: bounds.top + compactOrigin(stageHeight, bitmap.height),
+      });
       return {
         startIndex: segment.startIndex,
         endIndex: segment.endIndex,
-        stageWidth: ownerFrame.bitmap.width,
-        stageHeight: ownerFrame.bitmap.height,
-        startBounds,
-        endBounds,
+        stageWidth,
+        stageHeight,
+        startBounds: toStage(startBounds, ownerFrame.bitmap),
+        endBounds: toStage(endBounds, ownerFrame.tweenEndBitmap),
       };
     }
 
@@ -9431,6 +9537,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
           projectAiMemory={projectAiMemory}
           onProjectAiMemoryChange={setProjectAiMemory}
           onApplyGeneratedFrame={applyGeneratedFrameToWorkspace}
+          onApplyAnimatorScene={applyAnimatorScene}
           onExecuteActionPlan={executeAiActionPlan}
           ref={drawingCanvasRef}
           shapeType={shapeType}

@@ -1,4 +1,5 @@
 import type { KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent, ReactNode, RefObject } from "react";
+import type { Scene as AnimatorScene } from "@/src/lib/animator/engine";
 
 import { DrawingAiPanel } from "./ai/DrawingAiPanel";
 import type { DrawingAiActionPlan, DrawingAiProjectMemory, DrawingAiWorkspaceContext } from "@/src/lib/ai/drawingAiContract";
@@ -40,6 +41,7 @@ type DrawingRightPanelProps = {
     source: { prompt: string; response: string },
   ) => Promise<boolean> | boolean;
   onExecuteActionPlan?: (actionPlan: NonNullable<DrawingAiActionPlan>) => Promise<boolean> | boolean;
+  onApplyAnimatorScene?: (scene: AnimatorScene) => boolean;
 };
 
 export function DrawingRightPanel({
@@ -68,6 +70,7 @@ export function DrawingRightPanel({
   onProjectAiMemoryChange,
   onApplyGeneratedFrame,
   onExecuteActionPlan,
+  onApplyAnimatorScene,
 }: DrawingRightPanelProps) {
   return (
     <div
@@ -292,6 +295,7 @@ export function DrawingRightPanel({
         onProjectAiMemoryChange={onProjectAiMemoryChange}
         onApplyGeneratedFrame={onApplyGeneratedFrame}
         onExecuteActionPlan={onExecuteActionPlan}
+        onApplyAnimatorScene={onApplyAnimatorScene}
       />
     </div>
   );

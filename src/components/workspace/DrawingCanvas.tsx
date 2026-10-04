@@ -1,4 +1,5 @@
 import { canonicalPaint, compositeRasterPaint, mergePaintPixel, rasterCommandDigest, RASTER_ALGORITHM_VERSION, RASTER_GESTURE_COMMAND, RasterGestureDraft, unionRect, type RasterGestureCommandV2, type RasterPreview, type RasterRect } from "@/src/lib/animation/editorCommands/rasterGesture";
+import type { Scene as AnimatorScene } from "@/src/lib/animator/engine";
 import { attachBitmapPaintCoverage, compositeRasterSelectionV1, cropPaintCoverage, copyBitmapPaintCoverage, forEachPaintCoverage, getBitmapPaintCoverage, createPaintCoverageWriter, getPaintCoverage, patchPaintCoverage, remapSketchOwners, resolveSketchKnifeOwner, transformPaintCoverage, type UnifiedRasterPaintCoverageV1 } from "@/src/lib/animation/unifiedRasterPaintCoverageV1";
 import { authorizeDestructiveCommand } from "@/src/lib/animation/editorCommands/destructiveRegistry";
 import { requireManualEditorCommand } from "@/src/lib/animation/editorCommands/manualCapabilityRegistry";
@@ -555,6 +556,7 @@ type DrawingCanvasProps = {
     source: { prompt: string; response: string },
   ) => Promise<boolean> | boolean;
   onExecuteActionPlan?: (actionPlan: NonNullable<DrawingAiActionPlan>) => Promise<boolean> | boolean;
+  onApplyAnimatorScene?: (scene: AnimatorScene) => boolean;
   onAuthoringActionCommitted?: (reason: "stroke" | "fill" | "shape" | "shape-cutout" | "placed-asset" | "clear-canvas" | "knife" | "selection", command?: RasterGestureCommandV2) => boolean | void;
   onUnifiedSelectionActionCommitted?: (action: {
     drawingChanged: boolean;
@@ -1725,6 +1727,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   onProjectAiMemoryChange,
   onApplyGeneratedFrame,
   onExecuteActionPlan,
+  onApplyAnimatorScene,
   onAuthoringActionCommitted,
   onUnifiedSelectionActionCommitted,
   unifiedStickContent = { figures: [], structureGraph: { joints: [], limbs: [], activeJointId: null } },
@@ -11506,6 +11509,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
         onProjectAiMemoryChange={onProjectAiMemoryChange}
         onApplyGeneratedFrame={onApplyGeneratedFrame}
         onExecuteActionPlan={onExecuteActionPlan}
+        onApplyAnimatorScene={onApplyAnimatorScene}
       />
     </div>
     {symbolDialog && (

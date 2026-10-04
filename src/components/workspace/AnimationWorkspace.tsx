@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { compactRasterFromCrop } from "@/src/lib/animation/compactRasterBitmap";
 import { DrawingWorkspace } from "./DrawingWorkspace";
 import type { MountedWorkspace } from "@/src/lib/animation/unifiedWorkspaceBootstrap";
 import type { DrawingProjectData, DrawingProjectOpenCandidate, StoredDrawingTextObject } from "@/src/lib/drawingProjectStorage";
@@ -44,12 +45,19 @@ const hydrateDrawingCompatibility = (project: UnifiedAnimationProjectV2, source:
     }
     return { width, height, data, ...(bitmap.paintCoverage ? { paintCoverage: bitmap.paintCoverage } : {}) };
   };
+  // SPEC-0017 compact frames: a plain drawing comes back as a small centered picture that remembers
+  // its full size, instead of a full-size picture that is mostly empty. Tween pictures stay full size.
+  const placeCompactBitmap = (bitmap: UnifiedRasterBitmapV2 | null | undefined) => {
+    if (!bitmap) return null;
+    const reference = { width: bitmap.stageWidth ?? bitmap.width, height: bitmap.stageHeight ?? bitmap.height };
+    return compactRasterFromCrop({ width: bitmap.width, height: bitmap.height, data: bitmap.data, x: bitmap.x ?? 0, y: bitmap.y ?? 0, reference, paintCoverage: bitmap.paintCoverage ?? null });
+  };
   drawingData.layers.forEach((layer, layerIndex) => {
     const unifiedLayer = project.document.layers[layerIndex];
     layer.timelineFrames.forEach((frame, frameIndex) => {
       const raster = unifiedLayer?.cells[frameIndex]?.content?.items.find(item => item.kind === "drawing-raster/v1");
       if (raster?.kind === "drawing-raster/v1") {
-        frame.bitmap = placeBitmap(raster.bitmap);
+        frame.bitmap = raster.motionTween || raster.tweenEndBitmap ? placeBitmap(raster.bitmap) : placeCompactBitmap(raster.bitmap);
         frame.tweenEndBitmap = placeBitmap(raster.tweenEndBitmap);
         frame.motionTween = raster.motionTween ? {
           mode: raster.motionTween.mode,

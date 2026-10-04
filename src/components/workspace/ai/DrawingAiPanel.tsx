@@ -43,6 +43,11 @@ import { WorkspaceAiPanelShell } from "./WorkspaceAiPanelShell";
 import { AssistantDictationCapture, type DictationView } from "@/src/lib/assistant/assistantDictationCapture";
 import { ChatDictateButton, ChatDictationPanel, ChatReasoningSelect, ChatSendButton, ChatStopButton, ChatToolsRow, chatComposerStyles } from "@/src/components/ui/ChatComposerParts";
 import { workspaceColors } from "../workspaceTheme";
+import type { Scene as AnimatorScene } from "@/src/lib/animator/engine";
+import { ENGINE_TEST_SCENES } from "@/src/lib/animator/testScenes";
+
+// SPEC-0017 Phase 1-2 review-only list of hand-written engine scenes (hidden unless the review flag is set).
+const ENGINE_TEST_ENABLED = process.env.NEXT_PUBLIC_SPEC0017_ENGINE_TEST === "1";
 
 type DrawingAiPanelProps = {
   workspaceContext?: DrawingAiWorkspaceContext | null;
@@ -50,6 +55,7 @@ type DrawingAiPanelProps = {
   onProjectAiMemoryChange?: (memory: DrawingAiProjectMemory | null) => void;
   onApplyGeneratedFrame?: (result: GeneratedFrameRenderResult, source: { prompt: string; response: string }) => Promise<boolean> | boolean;
   onExecuteActionPlan?: (actionPlan: NonNullable<DrawingAiActionPlan>) => Promise<boolean> | boolean;
+  onApplyAnimatorScene?: (scene: AnimatorScene) => boolean;
   readOnly?: boolean;
 };
 
@@ -149,6 +155,7 @@ export function DrawingAiPanel({
   onProjectAiMemoryChange: _onProjectAiMemoryChange,
   onApplyGeneratedFrame: _onApplyGeneratedFrame,
   onExecuteActionPlan: _onExecuteActionPlan,
+  onApplyAnimatorScene,
   readOnly = false,
 }: DrawingAiPanelProps = {}) {
   void _projectAiMemory; void _onProjectAiMemoryChange; void _onApplyGeneratedFrame; void _onExecuteActionPlan;
@@ -157,6 +164,7 @@ export function DrawingAiPanel({
   const [ledger, setLedger] = useState<AiAnimatorLedger>(() => createEmptyAiAnimatorLedger(projectId));
   const [reasoningLevel, setReasoningLevel] = useState<DrawingAiReasoningLevel>("medium");
   const [inputValue, setInputValue] = useState("");
+  const [engineTestStatus, setEngineTestStatus] = useState("");
   const [dictation, setDictation] = useState<DictationView>({ phase: "idle", seconds: 0, message: "", levels: [] });
   const dictationRef = useRef<AssistantDictationCapture | null>(null);
   const [requestError, setRequestError] = useState<string | null>(null);
@@ -450,6 +458,14 @@ export function DrawingAiPanel({
         .ai-animator-assistant-visual { white-space: pre-wrap; }
         .ai-animator-typewriter-edge { color: transparent; background: linear-gradient(90deg, #89bfff 0%, #71e7ff 62%, rgba(255,255,255,.92) 100%); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 10px rgba(79,181,255,.18); }
         .ai-animator-reduced-copy { display: none; white-space: pre-wrap; }
+        .animator-engine-test { display: grid; gap: 8px; padding: 10px; border: 1px solid ${workspaceColors.border}; border-radius: 10px; background: #071120; }
+        .animator-engine-test h3 { margin: 0; font-size: 12px; font-weight: 700; color: #f6f9ff; }
+        .animator-engine-test p { margin: 0; font-size: 11px; line-height: 1.45; color: #8fabd0; }
+        .animator-engine-test-list { display: flex; flex-wrap: wrap; gap: 6px; }
+        .animator-engine-test-list button { min-height: 30px; padding: 4px 10px; border-radius: 10px; border: 1px solid #3a6aa3; background: #0f2a52; color: #f6f9ff; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; transition: none; }
+        .animator-engine-test-list button:hover:enabled { border-color: #0066ff; background: #0066ff; color: #fff; }
+        .animator-engine-test-list button:disabled { opacity: .45; cursor: not-allowed; }
+        .animator-engine-test-list button:focus-visible { outline: 2px solid #66c7ff; outline-offset: 2px; }
         .ai-animator-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
         @media (prefers-reduced-motion: reduce) { .ai-animator-thinking::before, .ai-animator-thinking::after { animation: none; display: none; } .ai-animator-message { animation: none; } .ai-animator-assistant-visual { display: none; } .ai-animator-reduced-copy { display: inline; } }
       `}</style>
@@ -457,6 +473,21 @@ export function DrawingAiPanel({
         shellRef={shellRef}
         bodyRef={bodyRef}
         body={<>
+          {ENGINE_TEST_ENABLED && onApplyAnimatorScene && (
+            <section className="animator-engine-test" aria-label="Engine test">
+              <h3>Engine test</h3>
+              <p>Review copy only. Each button adds a ready-made scene on a new layer. No AI is used.</p>
+              <div className="animator-engine-test-list">
+                {ENGINE_TEST_SCENES.map((scene) => (
+                  <button type="button" key={scene.id} disabled={readOnly} onClick={() => {
+                    const ok = onApplyAnimatorScene(scene);
+                    setEngineTestStatus(ok ? `Added "${scene.title}" on layer "AI: ${scene.title}". Press Play to watch.` : "Couldn't add the scene. Stop playback or finish your current edit, then try again.");
+                  }}>{scene.title}</button>
+                ))}
+              </div>
+              {engineTestStatus && <p role="status">{engineTestStatus}</p>}
+            </section>
+          )}
           {ledger.messages.length === 0 && !activeJob && <div style={{ margin: "auto", maxWidth: 240, textAlign: "center", color: workspaceColors.textMuted, fontSize: 12, lineHeight: 1.55 }}>Ask Terra anything about your animation. Creating and editing frames comes later.</div>}
           {ledger.messages.map((message) => message.role === "user"
             ? <div className="ai-animator-message" data-ai-user-message={message.id} key={message.id} style={{ alignSelf: "flex-end", maxWidth: "88%", padding: "9px 11px", borderRadius: 12, whiteSpace: "pre-wrap", color: "#eaf3ff", background: workspaceColors.selectedFill, border: `1px solid ${workspaceColors.selectedBorder}`, fontSize: 12, lineHeight: 1.48 }}>{message.content}</div>

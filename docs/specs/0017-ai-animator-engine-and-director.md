@@ -1,10 +1,10 @@
 # SPEC-0017 — AI Animator Engine and Director
 
-Status: **Approved by Arthur 2026-10-04 (all decisions answered). Phase 1 ready to start. No code written yet.**
+Status: **Approved 2026-10-04. Phase 1 published (product commit b7a0800c61973d7729e1d9cf2f7a0bea90f537b2); Phase 2 next.**
 Owner: Arthur
 Builder: Claude
 Created: 2026-10-03
-Decision link: D-0179 (to be written when Arthur says OK)
+Decision link: D-0179
 TODO IDs: AIANIM-ENGINE, AIANIM-TESTS
 Starting point: `main` at `19ba17c`
 Time box: 8–10 working days (Phases 1–5), so V1 can still be ready around 2026-11-02.
@@ -43,6 +43,13 @@ Earlier tries failed about 6 times. Each time the AI had to invent every pose an
 ## 3. The 5 phases
 
 Each phase is built in a separate review copy of the app (same as SPEC-0016). You test it there. Nothing reaches the real app until you say PASS and then "publish".
+
+### Phase 1 result — D-0179 (Arthur PASS, published `b7a0800`)
+
+- **Built:** `src/lib/animator/` — `rig.ts` (11 joints, proportions, bend limits, style), `pose.ts` (forward kinematics from angles), `easing.ts` (monotone-cubic channels, ease curves, shortest-turn shoulders), `ik.ts` (two-bone solver), `engine.ts` (key poses → frames: clamp limits, stand on ground with `lift`, planted-foot locks, hips sink when a planted foot is out of reach, swinging feet never go through the floor, per-frame report), `render.ts`, `toFrames.ts` (compact frame pictures + holds), `testScenes.ts` (5 scenes), `engine.test.ts` (17 checks). Editor hook: `applyAnimatorScene` in `DrawingWorkspace.tsx` (new top layer `AI: <title>`, starts at frame 1, one undo step). Scenes are sized by page height and centered.
+- **Compact frames (added during Phase 1 with Arthur's OK):** `src/lib/animation/compactRasterBitmap.ts` (+6 checks). See D-0179 for results and limits.
+- **Arthur:** PASS — "definitely natural"; keep the engine untouched. Engine files are frozen at this version unless Arthur asks.
+- **Not included (as planned):** AI, moves library, joint-posing tool.
 
 ### Phase 1 — Characters + engine (no AI) · about 2 days
 
@@ -365,7 +372,7 @@ There is no test runner today. Node 24 can run TypeScript tests directly with `n
 4. **Inserting a layer shifts saved layer IDs.** The save step matches layers by position (`buildUnifiedProjectSnapshot`). The new layer is inserted the same way the existing "+ Layer" button does it, so this adds no new risk. Phase 1 still checks save → reopen with layers above and below.
 5. **xAI details** (model name, structured output, price) aren't in the code yet and are confirmed at Phase 3 start.
 
-**Arthur's decisions (2026-10-04, recorded as D-0179 when Phase 1 starts)**
+**Arthur's decisions (2026-10-04, recorded as D-0179)**
 1. Replace SPEC-0008's paused video plan with this one: **Yes.**
 2. Layers: **one new layer per scene** for V1; revisit if editing feels hard.
 3. Fade: **no fade.** It doesn't fit the app.

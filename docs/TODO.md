@@ -1,5 +1,20 @@
 # TODO
 
+## Current queue (D-0179)
+
+- [x] **AIANIM-ENGINE (SPEC-0017 Phase 1)** — Characters + engine + compact frames. Arthur PASS; published in `b7a0800c61973d7729e1d9cf2f7a0bea90f537b2`.
+- [ ] **SPEC-0017 Phase 2** — Moves library (math-made body moves + object moves for Symbols, no fade). Next, after Arthur's note. Short plan → OK → review copy (set `NEXT_PUBLIC_SPEC0017_ENGINE_TEST=1` in the copy's `.env.local`, with a newline before it).
+- [ ] **SPEC-0017 Phase 3** — AI director = Test 1 (Grok vs Terra). Needs xAI key from Arthur's dad + OK for small paid calls.
+- [ ] **SPEC-0017 Phases 4–5** — AI Animator in the editor; Blender test + final pick (when the Blender files arrive).
+- [ ] **COMPACT-FRAMES-2** — Optional: also compact frames hand-drawn during a session (touches per-stroke Undo; not started).
+- [ ] **EDITOR-MENUS** — Make editor Edit/View/Window/Help menus work (future spec).
+- [ ] **CLEANUP-PROOF-SCRIPTS** — Old one-time proof scripts expect old wording/buttons; retire or replace.
+- [ ] **CLEANUP-LINT** — Two pre-existing `prefer-const` errors in `src/lib/ai/drawingFrameExecutor.ts`; legacy `WorkspaceAiComposerShell` in the old stick-figure panel.
+- [ ] **V1-30-DAYS** — Useful, polished V1 by about 2026-11-02 (web app; desktop app is V2).
+- [ ] **RESUME-015-6** — Still paused (funded allowance/billing).
+
+Older queues below are history.
+
 ## Current queue (D-0178)
 
 - [x] **POLISH-016-6** — App-wide consistency + shared chat box. Arthur PASS; published in `c63810d4ef0e634b6aa13883ec24fd1bf4300198`. SPEC-0016 complete.

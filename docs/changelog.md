@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-10-04 — D-0179 SPEC-0017 Phase 1: stick-figure engine + compact frames published
+
+- Math engine for natural stick-figure motion (no AI yet) with a review-only Engine test list; compact frame storage cuts scene memory ~30× and makes Play start instantly. Product commit `b7a0800c61973d7729e1d9cf2f7a0bea90f537b2`.
+
 ## 2026-10-03 — D-0178 Phase 6 consistency and shared chat box published
 
 - One shared chat box (Reasoning, Dictate, white-check Send, white-X Stop) for Assistant and AI Animator; icon-only bell hover; design kit tokens; Export and Movie Viewer in navy. Product commit `c63810d4ef0e634b6aa13883ec24fd1bf4300198`. SPEC-0016 complete.

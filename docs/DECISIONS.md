@@ -1793,6 +1793,16 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Decisions inside the phase: one shared chat box component for Assistant and AI Animator (changes to one apply to both); all bells icon-only hover; `--da-*` design kit tokens are the source of app colors going forward.
 - Next: Claude recommends SPEC-0017 AI Animator engine foundation before the Blender-file tests; awaiting Arthur's OK.
 
+### D-0179 — SPEC-0017 approved; Phase 1 accepted and published (with compact frames)
+
+- Date: 2026-10-04
+- Arthur approved SPEC-0017 (AI Animator engine and director): the AI is the director and never draws; a math moves library + engine body rules make the motion; Blender motion is an optional upgrade. It replaces SPEC-0008's paused Phases 2–6 (video→frames); SPEC-0008 Phase 1 (Terra chat) stays.
+- Arthur's answers: one new layer per scene; **no fade**; **scenes are placed by the AI from story words** ("after he punches, a ball bounces") — never the playhead or frame numbers (default frame 1, follow-ups right after the last AI scene); Grok vs Terra decided after Test 1.
+- Phase 1 PASS: "the most natural AI animation" Arthur has seen; the engine must stay untouched.
+- Arthur authorized the compact-frames fix to the protected drawing/save area after Phase 1 measured ~93–238 MB per frame. Requirement: nothing else may break; verified (saves byte-identical, editing/undo/playback/export/recovery).
+- Publication: product commit `b7a0800c61973d7729e1d9cf2f7a0bea90f537b2` fast-forwarded into main and pushed, followed by this records commit.
+- Next: Arthur has a note before Phase 2 (moves library).
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

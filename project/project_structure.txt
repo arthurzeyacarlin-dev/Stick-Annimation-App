@@ -152,6 +152,7 @@
 ./docs/specs/0014-in-app-notification-center.md
 ./docs/specs/0015-functional-ai-dashboard.md
 ./docs/specs/0016-professional-workspace-compression-and-polish.md
+./docs/specs/0017-ai-animator-engine-and-director.md
 ./docs/specs/README.md
 ./docs/specs/TEMPLATE.md
 ./docs/testing_workflow.md
@@ -912,6 +913,8 @@
 ./src/lib/ai/stickFigureMotionEngine.ts
 ./src/lib/ai/strictStickJson.ts
 ./src/lib/animation
+./src/lib/animation/compactRasterBitmap.test.ts
+./src/lib/animation/compactRasterBitmap.ts
 ./src/lib/animation/editorCommands
 ./src/lib/animation/editorCommands/destructiveRegistry.ts
 ./src/lib/animation/editorCommands/drawRigCorridor.ts
@@ -941,6 +944,16 @@
 ./src/lib/animation/unifiedTimelineReducer.ts
 ./src/lib/animation/unifiedWorkspaceBootstrap.ts
 ./src/lib/animation/unifiedWorkspaceFactoryV2.ts
+./src/lib/animator
+./src/lib/animator/easing.ts
+./src/lib/animator/engine.test.ts
+./src/lib/animator/engine.ts
+./src/lib/animator/ik.ts
+./src/lib/animator/pose.ts
+./src/lib/animator/render.ts
+./src/lib/animator/rig.ts
+./src/lib/animator/testScenes.ts
+./src/lib/animator/toFrames.ts
 ./src/lib/assistant
 ./src/lib/assistant/assistantContracts.ts
 ./src/lib/assistant/assistantDictationCapture.ts

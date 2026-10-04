@@ -1803,6 +1803,18 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Publication: product commit `b7a0800c61973d7729e1d9cf2f7a0bea90f537b2` fast-forwarded into main and pushed, followed by this records commit.
 - Next: Arthur has a note before Phase 2 (moves library).
 
+### D-0180 — SPEC-0017 Phase 2 Round A (walk + run) accepted and published
+
+- Date: 2026-10-04
+- Arthur passed Round A after several review rounds: run (long stride, flight, lean, arms driven back as well as forward), speed-up/slow-down, styles. Walk unchanged from the version he loved.
+- Rules Arthur set (permanent engine lessons): no frozen ready pose; speed-up and slow-down about half a second for walk and run (borderline fast but visible), arms "slowly swinging faster and faster" then full; slow running = small arm swing; tired/low energy longer (~1–1.5 s), hurt much longer, lively quicker; robot is the only style with no speed-up/slow-down.
+- Page rule (strict): no figure ever leaves the page; the whole animation (not the figure's start point) is centered; figure size never changes to make it fit. A follow camera was tried and rejected by Arthur.
+- Default look: the classic stick figure — solid head, no neck ("90–95% of stick figures have no neck"); hollow head and neck stay options. Figure colors are chosen per figure; the AI will map color words.
+- Sneaky = crouched low, long slow careful strides, small tucked arm movements, slight lean.
+- Arthur authorized the small engine changes involved (facing, optional neck, default look); Phase 1 motion is unchanged.
+- Publication: product commit `3e40515c99b04c370b07b9aeb93fcf5fe4e3b2cf` fast-forwarded into main and pushed, followed by this records commit.
+- Next: Phase 2 Round B (remaining body moves, object moves, AI lessons), then Phase 3.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

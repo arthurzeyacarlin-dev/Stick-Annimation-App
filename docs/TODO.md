@@ -1,5 +1,22 @@
 # TODO
 
+## Current queue (D-0180)
+
+- [x] **AIANIM-ENGINE (SPEC-0017 Phase 1)** — Published in `b7a0800c61973d7729e1d9cf2f7a0bea90f537b2`.
+- [x] **SPEC-0017 Phase 2 Round A** — Walk + run, styles, ~0.5 s speed-up/slow-down, page rule, classic look, colors. Arthur PASS; published in `3e40515c99b04c370b07b9aeb93fcf5fe4e3b2cf`.
+- [ ] **SPEC-0017 Phase 2 Round B** — Next. Stand/breathe, jump, wave, sit, squat, kick, punch, turn around, fall, high-five; object moves for Symbols (slide, bounce, spin, grow/shrink; verify symbol-only cells save/reopen/export); AI lessons made from the move code. Short plan → OK → review copy (`NEXT_PUBLIC_SPEC0017_ENGINE_TEST=1` in the copy's `.env.local`, newline first).
+- [ ] **SPEC-0017 Phase 3** — AI director = Test 1 (Grok vs Terra). Needs xAI key from Arthur's dad + OK for small paid calls.
+- [ ] **SPEC-0017 Phases 4–5** — AI Animator chat flow in the editor; library check + cleanup (no Blender/motion files in V1).
+- [ ] **HEAD-SIZE** — Arthur's drawing has a head about twice as wide as ours; size left unchanged (ask if he wants it bigger).
+- [ ] **COMPACT-FRAMES-2** — Optional: also compact frames hand-drawn during a session.
+- [ ] **EDITOR-MENUS** — Make editor Edit/View/Window/Help menus work (future spec).
+- [ ] **CLEANUP-PROOF-SCRIPTS** — Old one-time proof scripts expect old wording/buttons; retire or replace. `npx tsc` over the whole folder also trips on untracked `output/` proof scripts (not app code).
+- [ ] **CLEANUP-LINT** — Two pre-existing `prefer-const` errors in `src/lib/ai/drawingFrameExecutor.ts`; legacy `WorkspaceAiComposerShell` in the old stick-figure panel.
+- [ ] **V1-30-DAYS** — Useful, polished V1 by about 2026-11-02 (web app; desktop app is V2).
+- [ ] **RESUME-015-6** — Still paused (funded allowance/billing).
+
+Older queues below are history.
+
 ## Current queue (D-0179)
 
 - [x] **AIANIM-ENGINE (SPEC-0017 Phase 1)** — Characters + engine + compact frames. Arthur PASS; published in `b7a0800c61973d7729e1d9cf2f7a0bea90f537b2`.

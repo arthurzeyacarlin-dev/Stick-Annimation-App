@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-10-04 — D-0180 SPEC-0017 Phase 2 Round A: walk + run published
+
+- Math-made walk and run with 8 styles, speeds, energy and directions; quick natural speed-up/slow-down; every animation stays inside the page and centered; classic stick figure (solid head, no neck) by default; figure colors. Product commit `3e40515c99b04c370b07b9aeb93fcf5fe4e3b2cf`.
+
 ## 2026-10-04 — D-0179 SPEC-0017 Phase 1: stick-figure engine + compact frames published
 
 - Math engine for natural stick-figure motion (no AI yet) with a review-only Engine test list; compact frame storage cuts scene memory ~30× and makes Play start instantly. Product commit `b7a0800c61973d7729e1d9cf2f7a0bea90f537b2`.

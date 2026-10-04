@@ -1,5 +1,18 @@
 # Project Manager Context
 
+## D-0180 — SPEC-0017 Phase 2 Round A (walk + run) published; Round B is next (current)
+
+Arthur passed SPEC-0017 Phase 2 Round A on 2026-10-04 (D-0180): walk and run are "great for version one"; no more tweaks needed. Product commit `3e40515c99b04c370b07b9aeb93fcf5fe4e3b2cf` is on main and GitHub.
+
+- **Moves library (no AI):** `src/lib/animator/moves/` — walk and run made from foot plants by recipe (no hard-coded frames): a long-striding run with flight, lean and full arm drive; styles natural, robot, sneaky, tired, happy, angry, heavy, hurt; speed slow/normal/fast; energy low/normal/high; left or right. Review-only **Moves** test section (Move, Style, Speed, Energy, Direction, Color, Head, Neck → Make), behind the same `NEXT_PUBLIC_SPEC0017_ENGINE_TEST=1` flag.
+- **Lessons the engine now knows (apply to every move):** no frozen "ready" pose; speeding up and slowing down take about half a second (arms and legs grow, then shrink; a slow run swings the arms only a little); tired/heavy/hurt/low energy take longer (hurt hesitates), lively/angry quicker, robot has no speed-up/slow-down; a knee never touches the floor in a crouch.
+- **Page rule (strict):** every animation stays fully inside the page and the whole animation is centered (not the figure's start point) at the figure's normal size, on any page shape (`src/lib/animator/stageFit.ts`); a move covers only as much ground as fits.
+- **Classic stick figure by default:** solid head sitting right on the body, no neck; hollow head and neck are options. Figure colors with the color words the AI will use (`src/lib/animator/colors.ts`).
+- **Engine changes Arthur asked for:** per-key facing (for turning), optional neck, default look. Phase 1 motion unchanged; its scenes now use the classic look and are centered.
+- **Checks:** 53 automated tests (`npm run test:animator`): body rules for every style × speed × energy × direction, speed-up/slow-down timing, page fit on 4 page shapes, look. An independent frame-by-frame audit found 0 canvas failures in 288 moves × 4 page shapes.
+
+**Next:** SPEC-0017 Phase 2 Round B — the rest of the moves library (stand/breathe, jump, wave, sit, squat, kick, punch, turn around, fall, high-five), object moves for Symbols (slide, bounce, spin, grow/shrink) and the AI lessons. Short plan → Arthur's OK → review copy. Then Phase 3 (AI director; needs the xAI key + OK for small paid calls).
+
 ## D-0179 — SPEC-0017 Phase 1 published; Phase 2 is next (current)
 
 Arthur approved SPEC-0017 (AI Animator engine and director) and passed Phase 1 on 2026-10-04 (D-0179): "the most natural AI-made animation" he has seen; the engine must stay untouched. Product commit `b7a0800c61973d7729e1d9cf2f7a0bea90f537b2` is on main and GitHub.

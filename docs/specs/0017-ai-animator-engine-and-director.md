@@ -1,10 +1,10 @@
 # SPEC-0017 — AI Animator Engine and Director
 
-Status: **Approved 2026-10-04. Phase 1 published (product commit b7a0800c61973d7729e1d9cf2f7a0bea90f537b2); Phase 2 next.**
+Status: **Approved 2026-10-04. Phase 1 published (b7a0800c61973d7729e1d9cf2f7a0bea90f537b2). Phase 2 Round A (walk + run) published (3e40515c99b04c370b07b9aeb93fcf5fe4e3b2cf); Round B next.**
 Owner: Arthur
 Builder: Claude
 Created: 2026-10-03
-Decision link: D-0179
+Decision links: D-0179, D-0180
 TODO IDs: AIANIM-ENGINE, AIANIM-TESTS
 Starting point: `main` at `19ba17c`
 Time box: 8–10 working days (Phases 1–5), so V1 can still be ready around 2026-11-02.
@@ -40,7 +40,7 @@ Earlier tries failed about 6 times. Each time the AI had to invent every pose an
 ## 2. What it will NOT do in V1
 
 - It will **not animate your hand-drawn pictures limb by limb.** A drawing is just colored dots (pixels) with no bones inside. The AI *can* move a drawing you named as a Symbol as one whole piece: slide it, bounce it, spin it, grow it or shrink it.
-- Characters are **stick figures only.** You can choose color, line thickness and head size. No faces, clothes or custom bodies yet.
+- Characters are **stick figures only.** By default the classic stick figure: a solid head sitting right on the body, no neck (Arthur, D-0180). You can choose color, line thickness, head size, hollow or solid head, and neck or no neck. No faces, clothes or custom bodies yet.
 - **No drag-the-joints posing tool** for now. You chose to leave it out. It could be added later in about 1 day.
 - No talking or lip-sync, no crowds (V1 limit: up to 4 characters and 4 objects in a scene), no 3D camera moves.
 - Scenes are short: up to about 8 seconds (the exact cap comes from Phase 1's memory test).
@@ -61,6 +61,14 @@ Each phase is built in a separate review copy of the app (same as SPEC-0016). Yo
 - **Compact frames (added during Phase 1 with Arthur's OK):** `src/lib/animation/compactRasterBitmap.ts` (+6 checks). See D-0179 for results and limits.
 - **Arthur:** PASS — "definitely natural"; keep the engine untouched. Engine files are frozen at this version unless Arthur asks.
 - **Not included (as planned):** AI, moves library, joint-posing tool.
+
+### Phase 2 Round A result — D-0180 (Arthur PASS, published `3e40515`)
+
+- **Built:** `src/lib/animator/moves/` — `gait.ts` (walk + run from foot plants: hip path, stance legs by IK, run swing leg from phase curves, arm waves, step plan with speed-up/cruise/slow-down), `styles.ts` (8 styles, speeds, energy, `RAMP_SCALE`), `index.ts` (library list + review-only Moves test scene), `moves.test.ts`. `src/lib/animator/stageFit.ts` (page rule) and `colors.ts` (figure colors + color words). Engine: per-key `facing`; optional `neck` (default off) and solid head by default. Editor: `applyAnimatorScene` takes a scene or a recipe that fits itself to the page, and centers the whole animation.
+- **Engine lessons (apply to every move):** no frozen ready pose; speed-up and slow-down about half a second (arms/legs grow then shrink; slow running = small arm swing); robot none; tired ≈1–1.5 s, hurt longer and hesitant, low energy longer, lively/angry quicker; hips never sink so low a knee touches the floor.
+- **Page rule (strict):** the whole animation is centered and always fully inside the page, figure size unchanged; a move covers only the ground that fits (natural step length kept).
+- **Checks:** 53 tests; independent audit 0 canvas failures over 288 moves × 4 page shapes.
+- **Arthur:** PASS — "great for version one"; no more tweaks to walk/run.
 
 ### Phase 1 — Characters + engine (no AI) · about 2 days
 

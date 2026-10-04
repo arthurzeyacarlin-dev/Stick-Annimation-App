@@ -11,6 +11,8 @@ Arthur passed SPEC-0017 Phase 2 Round A on 2026-10-04 (D-0180): walk and run are
 - **Engine changes Arthur asked for:** per-key facing (for turning), optional neck, default look. Phase 1 motion unchanged; its scenes now use the classic look and are centered.
 - **Checks:** 53 automated tests (`npm run test:animator`): body rules for every style × speed × energy × direction, speed-up/slow-down timing, page fit on 4 page shapes, look. An independent frame-by-frame audit found 0 canvas failures in 288 moves × 4 page shapes.
 
+- **Log-in fix (`51c1bc6`, Arthur OK):** accounts now accept `localhost:<port>` as well as `127.0.0.1:<port>`; before, every sign-up/log-in at localhost was refused.
+
 **Next:** SPEC-0017 Phase 2 Round B — the rest of the moves library (stand/breathe, jump, wave, sit, squat, kick, punch, turn around, fall, high-five), object moves for Symbols (slide, bounce, spin, grow/shrink) and the AI lessons. Short plan → Arthur's OK → review copy. Then Phase 3 (AI director; needs the xAI key + OK for small paid calls).
 
 ## D-0179 — SPEC-0017 Phase 1 published; Phase 2 is next (current)

@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-10-04 — Local log-in fix
+
+- Sign-up and log-in were refused whenever the app was opened as `localhost:3000` (accounts only trusted `127.0.0.1:3000`), showing a vague "couldn't create that account" for about two weeks. Both addresses now work; other sites stay blocked; the form says when an email already has an account. Commit `51c1bc6`.
+
 ## 2026-10-04 — D-0180 SPEC-0017 Phase 2 Round A: walk + run published
 
 - Math-made walk and run with 8 styles, speeds, energy and directions; quick natural speed-up/slow-down; every animation stays inside the page and centered; classic stick figure (solid head, no neck) by default; figure colors. Product commit `3e40515c99b04c370b07b9aeb93fcf5fe4e3b2cf`.

@@ -21,11 +21,15 @@ Earlier tries failed about 6 times. Each time the AI had to invent every pose an
 
 | Job | Who does it | What it means |
 | --- | --- | --- |
-| **What happens** | The AI (Grok or Terra) | Picks the characters, the moves, the timing and where everyone stands. It writes a short plan, not pictures. |
-| **How moves look** | The **moves library** (made with math, built into the app) | About 12 body moves (walk, run, jump, wave, sit, squat, kick, punch, turn, fall, high-five, stand still) plus object moves (slide, bounce, spin, grow/shrink). Each move has knobs like speed, energy, direction and height. |
+| **What happens** | The AI (Grok or Terra) | Picks the characters, the moves, the styles, the timing and where everyone stands. For a move that isn't in the library, it invents new key poses using what the library taught it. It writes a short plan, not pictures. |
+| **How moves look** | The **moves library** (made with math, built into the app) | About 12 body moves (walk, run, jump, wave, sit, squat, kick, punch, turn, fall, high-five, stand still) plus object moves (slide, bounce, spin, grow/shrink). Each move has knobs like speed, energy, direction and height, plus a **style** (natural, robot, sneaky, tired, happy, angry, heavy…). |
 | **Keeping it natural** | The **engine rules** | Arms and legs never stretch. Elbows and knees only bend the right way. Feet stay put on the ground when they should. Moves speed up and slow down smoothly and follow curved paths. The engine checks and fixes every AI plan before anything reaches your timeline. |
 
-**Why it works without Blender:** the AI only picks moves and knobs, and the math library and engine rules make every pose. So a confused AI can't produce a broken body. The worst case is a plain or wrong move, never a twisted one. Blender motion (Phase 5) is an optional upgrade to how moves look. It isn't needed for the app to work.
+**Why it works without Blender:** the AI picks moves, styles and knobs, and the math library and engine rules make every pose. So a confused AI can't produce a broken body. The worst case is a plain or wrong move, never a twisted one. **Blender files are optional** (Arthur's dad, 2026-10-04: they're expensive to make). They're only used if a move can't look natural with math.
+
+**How the AI learns (Arthur's idea: teach it the basics, then let it solve new problems).** Like teaching a kid 5 + 5 = 10 and 10 − 2 = 8, then asking 3 + 3: every time the AI connects, it is first given **lessons** made from the moves library. Each lesson shows a move's key poses and timing, and *why* they look natural (wind-up before a punch, bending to land, speeding up and slowing down). Then, when you ask for something the library doesn't have ("do a cartwheel", "robot dance"), the AI writes **its own original key poses** using what the lessons taught. The engine still does all the in-between math, timing and body rules, so **every animation, library or original, stays natural. That is permanent in Diamond Animator.**
+
+**You only talk to the AI.** The finished AI Animator has **no move-picker buttons**. You chat: "a stick figure walks in and punches a bag." It plans the animation and shows it. Then you edit by chatting: "make the punch more powerful", "make him walk like a robot". The AI changes only what you asked for.
 
 **You judge the look before any money is spent.** Phases 1 and 2 use no AI at all. You see the engine and the moves and say if they look good. Only then do we pay for small AI tests.
 
@@ -37,6 +41,8 @@ Earlier tries failed about 6 times. Each time the AI had to invent every pose an
 - No talking or lip-sync, no crowds (V1 limit: up to 4 characters and 4 objects in a scene), no 3D camera moves.
 - Scenes are short: up to about 8 seconds (the exact cap comes from Phase 1's memory test).
 - **No fade** (objects slowly appearing/disappearing). Arthur's decision: it doesn't fit the app.
+- **V1 = animation only.** No sound effects and no character voices; those are Version 2 or later.
+- **No move-picker buttons** in the finished app. Everything is made and edited through chat. (The test buttons in Phases 1–4 are temporary and only in review copies.)
 - It never changes your existing frames or layers. Every new scene goes on a **new layer**.
 - **You never have to place anything.** You don't move the playhead or type frame numbers. You say it in story words ("after the stick figure punches, a ball bounces") and the AI works out where it goes.
 
@@ -70,29 +76,33 @@ Click a scene. Frames appear on a new layer. Press Play. Then pick a generated f
 
 ### Phase 2 — Moves library (no AI) · about 2 days
 
-**Builds:** the math-made moves. Body: stand still/breathe, walk, run, jump, wave, sit, squat, kick, punch, turn around, fall down, high-five. Objects (for Symbols): slide along a path, bounce, spin, grow/shrink. (No fade — Arthur's decision.)
+**Builds:** the math-made moves, **walk and run first** (they're the hardest to make natural and decide whether any Blender files are needed). Body: walk, run, stand still/breathe, jump, wave, sit, squat, kick, punch, turn around, fall down, high-five. Objects (for Symbols): slide along a path, bounce, spin, grow/shrink. (No fade — Arthur's decision.)
 
-**How Arthur tests it:** the "Engine test" list gets a **Moves** section. Pick a move, change 2–3 knobs (speed slow/normal/fast, energy, height, direction left/right) and press Make. For object moves, draw something (a ball), name it as a Symbol, then pick "bounce".
+Every move also gets a **style** knob: natural, robot, sneaky, tired, happy, angry, heavy. A style changes *how* the move looks (a robot walk is stiff with sharp starts and stops; a tired walk is slumped and slow), and the engine rules still apply. Each move is also written up as a **lesson** for the AI (its key poses, timing and why it looks natural). The lessons are made automatically from the same move code, so they can never disagree with the moves.
 
-**Pass when:** you'd be happy to see each move in a real cartoon. You mark each move good / OK / redo. Moves marked "redo" get fixed before Phase 3. Knobs change the motion the way you expect.
+**How Arthur tests it:** the "Engine test" list gets a **Moves** section (review copy only). Pick a move, change 2–3 knobs (speed slow/normal/fast, energy, height, direction left/right, **style**) and press Make. Start with walk and run, natural and robot. For object moves, draw something (a ball), name it as a Symbol, then pick "bounce". Arthur and his dad decide if walk and run look natural enough to skip Blender files.
+
+**Pass when:** you'd be happy to see each move in a real cartoon. You mark each move good / OK / redo. Moves marked "redo" get fixed before Phase 3. Knobs and styles change the motion the way you expect (a robot walk clearly looks like a robot, and still never breaks the body rules).
 
 **Not included:** AI.
 
 ### Phase 3 — AI director = Test 1 (Grok vs Terra) · about 2 days
 
-**Builds:** the AI director. Grok (xAI) and Terra each get the same request and write a plan. The engine checks and fixes the plan, then makes the frames. A private **test bench page** runs a fixed set of **20 test prompts** through both AIs and shows the results side by side.
+**Builds:** the AI director. When it connects, it first gets the **lessons** from the moves library (see section 1). Grok (xAI) and Terra each get the same request and write a plan. The engine checks and fixes the plan, then makes the frames. A private **test bench page** runs a fixed set of **20 test prompts** through both AIs and shows the results side by side. **5 of the 20 are "never taught" moves** (for example a cartwheel, a robot dance, tiptoeing, throwing a ball, a victory celebration): the "3 + 3" test of whether the AI can invent original moves that still look natural. Others use styles ("walk like a robot", "a tired run") and energy ("a powerful punch").
 
 **Needs first:** the xAI key, set up by your dad, and **your OK for small paid test calls** (see section 4).
 
 **How Arthur tests it:** open the test bench and press Run. Watch each prompt's result from Grok and from Terra play side by side. Rate each one good / OK / bad. The page also shows how many plans worked, how many needed fixing, the cost per animation and the time per animation.
 
-**Pass when:** at least 17 of 20 prompts give a usable scene for the winning AI. Zero broken bodies reach the frames (the engine catches 100%). Each animation costs a few cents or less. You pick Grok, Terra or "use both".
+**Pass when:** at least 17 of 20 prompts give a usable scene for the winning AI, **including at least 4 of the 5 never-taught moves looking natural to Arthur**. Zero broken bodies reach the frames (the engine catches 100%). Each animation costs a few cents or less. You pick Grok, Terra or "use both".
 
 **Not included:** typing in the real editor chat (that's Phase 4), Blender motion.
 
 ### Phase 4 — AI Animator in the editor · about 2 days
 
-**Builds:** the real flow. Type in the shared chat box. A small **preview** plays right in the chat. Press **Apply** and editable frames appear on a new layer. Undo works. Follow-ups like "make the jump higher" or "slower" change the kept plan and remake the scene.
+**Builds:** the real flow, **chat only, no move-picker buttons**. Type in the shared chat box. The AI plans the animation and a small **preview** plays right in the chat. Press **Apply** and editable frames appear on a new layer. Undo works. Follow-ups edit only what you asked: "make the punch more powerful" changes that punch's energy, "make him walk like a robot" changes that walk's style, "make the jump higher" or "slower" change those knobs. The kept plan is changed and the scene is remade.
+
+*Stretch goal, only if time allows:* say "remember that move as robot dance" and an AI-invented move is saved into the library, so the library grows for free.
 
 **How Arthur tests it:**
 1. Type "a stick figure walks in and waves". A preview plays in the chat.
@@ -106,15 +116,15 @@ Click a scene. Frames appear on a new layer. Press Play. Then pick a generated f
 
 **Not included:** Blender motion. Animating hand drawings limb by limb.
 
-### Phase 5 — Blender test (Test 2) + final pick · about 1–2 days
+### Phase 5 — Library check + cleanup (Blender optional) · about 1 day
 
-**Builds:** a converter that turns the Blender files into moves in the same format as the math moves. Then a side-by-side run on the Phase 3 prompts: **math moves vs Blender moves**, with the same AI and the same engine. Then cleanup: the temporary test lists are removed and the final choice is wired in.
+**Builds:** cleanup and the final check. The temporary test lists are removed, so only the chat remains. The full library and the never-taught moves are re-checked in the real editor flow. **Blender is optional** (decided 2026-10-04 with Arthur's dad, since motion files are expensive): only if a move still can't look natural with math do we bring in motion for **just that move**, from a few Blender files or a free motion-capture library (license checked first). It goes through the converter in 6.12, under the same move name, and the engine rules still apply.
 
-**When:** whenever the Blender files arrive, any time after Phase 1. It doesn't block Phases 2–4.
+**When:** after Phase 4. Blender work happens only if Phase 2 or 3 shows a move that math can't make natural.
 
-**How Arthur tests it:** the test bench gets a "math / Blender" switch. You rate the same prompts both ways. Then you pick **math moves, Blender moves, or both** (for example, Blender for walk and run, math for everything else).
+**How Arthur tests it:** make a few animations only by chatting, and edit them by chatting. If any move needed motion files, compare it math vs file side by side and pick.
 
-**Pass when:** you've picked, and the picked option works in the editor flow from Phase 4.
+**Pass when:** the AI Animator works by chat alone, every library move is marked good, and any motion-file move (if used) works in the editor flow.
 
 ## 4. Timeline and money
 
@@ -124,7 +134,7 @@ Click a scene. Frames appear on a new layer. Press Play. Then pick a generated f
 | 3–4 | 2. Moves library | $0 |
 | 5–6 | 3. Grok vs Terra test | about $1–4 total, **hard cap $5** |
 | 7–8 | 4. In the editor | under $1 of test calls |
-| 9–10 (or when files arrive) | 5. Blender test + pick | under $1 |
+| 9–10 | 5. Library check + cleanup (Blender optional) | under $1 |
 
 Your review time is extra, usually the same day. Target finish: around **2026-10-15 to 10-17**, which leaves about 2 weeks for the rest of V1.
 
@@ -136,7 +146,7 @@ Your review time is extra, usually the same day. Target finish: around **2026-10
 - Keys stay on the server. The browser never sees them.
 - Rough real-use cost after V1: about 1–5 cents per animation (to be measured in Phase 3).
 
-**Biggest risk: it still might not look natural.** Fix: you judge the engine (Phase 1) and every move (Phase 2) **before** any AI money is spent. If a move looks wrong, we fix that one move's math. We don't ask the AI to try harder. Blender motion is the backup for moves that math can't make look good.
+**Biggest risk: it still might not look natural.** Fix: you judge the engine (Phase 1) and every move (Phase 2) **before** any AI money is spent. If a move looks wrong, we fix that one move's math. We don't ask the AI to try harder. Motion files (optional) are the backup only for a move that math can't make look good.
 
 ## 5. Protected — what must NOT change
 
@@ -223,7 +233,11 @@ Every move is a pure function: `(params, durationSec, startPose, ctx) → PoseKe
 
 Animation principles built in: anticipation (dip before a jump, wind-up before a punch), follow-through/settle (land and recover), arcs (hands and head travel on curves), slow-in/slow-out (eased keys), and a contra-posed arm/leg swing for walk and run. Walk and run use a gait cycle with planted feet, so they look the same at any `toX`. Object moves (`slide` along a path, `bounce` with squash timing, `spin`, `scale`) change x, y, rotation and scale over time. No `fade` (D-0179).
 
-A move is plain data plus a function, so a Blender clip (Phase 5) can register under the same name and replace or sit beside the math version.
+**Styles** (`params.style`: `natural | robot | sneaky | tired | happy | angry | heavy`): a style is a small set of changes applied to a move's key poses and timing, never a separate move. For example: robot = linear segment timing with short holds at each key, stiff elbows/knees, no follow-through, squared arm swings; tired = slumped lean, smaller swings, slower; sneaky = crouched, high slow knees, long holds; happy = bouncy root, bigger arm swings; angry = forward lean, fast sharp keys; heavy = deeper knee bends, longer settles. The engine rules (bone lengths, limits, feet, ground) apply after every style.
+
+**Lessons for the AI:** `moves/lessons.ts` turns each move into a lesson: its name and meaning, its knobs and styles, a compact sample of its key poses (angles + timing + contacts) for one or two settings, and the principle it shows (anticipation, follow-through, weight shift, arcs, slow-in/slow-out). Lessons are generated from the move code, so they never drift from it.
+
+A move is plain data plus a function, so a motion-file clip (optional, Phase 5) can register under the same name and replace or sit beside the math version.
 
 ### 6.5 Engine pipeline
 
@@ -266,10 +280,10 @@ It is deterministic: the same plan always gives the same frames. It's pure TypeS
 - **Provider adapter** (`director/providers.ts`): `plan(request) → { planJson, provider, model, usage, estimatedCostUsd, latencyMs }`.
   - **Terra:** existing `getOpenAiClient()` (`src/lib/openai/client.ts`, env `OPENAI_API_KEY`). Uses the Responses API with a `json_schema` strict format, the same as `generateAiAnimatorReply.ts`. Model `gpt-5.6-terra`. The estimator prices it at $2 / $12 per million input/output tokens.
   - **Grok:** **no xAI code exists today.** Add a client: the `openai` package with `baseURL: "https://api.x.ai/v1"` and a new env var **`XAI_API_KEY`** (set by Arthur's dad in `.env.local`; Claude never reads it). Exact model name, structured-output support and prices get confirmed from xAI's docs at Phase 3 start and written into a pricing table with a version string.
-- **Prompt:** short instructions, the move catalog (names + knobs + one-line meaning), the schema, the stage size, the names of the project's Symbols, and the current plan (for follow-ups). No pixels or frames are sent.
+- **Prompt:** short instructions, the **lessons** (6.4: every move's meaning, knobs, styles and sample key poses, plus the animation principles and joint limits), the schema, the stage size, the names of the project's Symbols, and the current plan (for follow-ups). The lessons come first and stay the same between requests, so they can use the provider's prompt caching to keep cost low. For a move that isn't in the library, the AI writes a `custom` step with its own key poses, following the lessons; the engine adds all in-betweens and body rules. No pixels or frames are sent.
 - **Caps (server-side, per request):** max output tokens about 3,000. Input trimmed to about 6,000 tokens. Pre-send estimated cost ≤ $0.05, or the request is refused. One retry max. The existing 90 s deadline and the 2-active-jobs limit stay (`aiAnimatorJobService.ts`). The bench has a run budget (default $3, Phase 3 total hard cap $5) and stops when it is reached.
 - **Usage:** record with the existing usage journal. The `operationKind: "animation_job"` already exists in `usageJournalContract.ts`, and `provider` is a free string. `usageJournalEvents.ts` currently hardcodes `provider: "openai"` and the Terra model in project events. The only change is passing the provider and model through.
-- **Phase 3 bench** (dev only, signed-in, `NODE_ENV=development`): `app/dev/animator-bench/page.tsx` + `app/api/dev/animator-bench/route.ts`. It runs the 20 prompts in `director/benchPrompts.ts` one at a time against each provider, previews both results with the Phase 1 renderer, and collects ratings. Results go to ignored `output/spec-0017/`. The 20 prompts cover single moves, combos, 2–3 characters, objects, timing words ("slowly", "suddenly") story-order requests ("after he punches, a ball bounces", "then", "at the same time", "at the end"), and 3 "tricky" prompts (impossible or vague) to test the fallback.
+- **Phase 3 bench** (dev only, signed-in, `NODE_ENV=development`): `app/dev/animator-bench/page.tsx` + `app/api/dev/animator-bench/route.ts`. It runs the 20 prompts in `director/benchPrompts.ts` one at a time against each provider, previews both results with the Phase 1 renderer, and collects ratings. Results go to ignored `output/spec-0017/`. The 20 prompts cover single moves, combos, 2–3 characters, objects, styles ("walk like a robot"), energy ("a powerful punch"), **5 never-taught moves** (the "3 + 3" test), timing words ("slowly", "suddenly") story-order requests ("after he punches, a ball bounces", "then", "at the same time", "at the end"), and 3 "tricky" prompts (impossible or vague) to test the fallback.
 
 ### 6.10 Editor flow, follow-ups and Undo (Phase 4)
 
@@ -295,9 +309,9 @@ Arthur's rule (D-0179): **users never place things by hand and never use frame n
 - **Validation:** an unknown `ref` is a retry reason (never a silent guess). The timeline grows if needed (`ensureTimelineLength`). The start frame is computed in code from the kept plans, not by the AI doing frame math.
 - **Honest limit:** the AI knows what's in **AI-made scenes** (it kept their plans). It cannot *see* hand-drawn frames (no vision in V1), so for hand drawings it only knows their length and layer names. "After my drawn dog jumps" won't work in V1; "at the end" or "after the punch" will.
 
-### 6.12 Blender import (Phase 5)
+### 6.12 Motion-file import (optional, Phase 5)
 
-- **What to ask the Blender person for** (send early): one action per file; 24 or 30 fps; side view with the character facing +X; in place or with root motion clearly noted; standard bone names (Rigify, Mixamo or similar). Delivered as **`.blend` + BVH export** (BVH is a standard per-frame rotation format). If possible, also run our small script `scripts/blender/export_stick_motion.py`, which writes per-frame world positions of the needed bones as JSON.
+- **What to ask the Blender person for** (only if a move needs motion files): one action per file; 24 or 30 fps; side view with the character facing +X; in place or with root motion clearly noted; standard bone names (Rigify, Mixamo or similar). Delivered as **`.blend` + BVH export** (BVH is a standard per-frame rotation format). If possible, also run our small script `scripts/blender/export_stick_motion.py`, which writes per-frame world positions of the needed bones as JSON.
 - **Converter** (`blender/importClip.ts`): map bones → our 11 joints (hips→hip, spine top/neck→neck, head→head, upper_arm/forearm/hand→elbow/hand, thigh/shin/foot→knee/foot). Project to 2D (x→x, z→−y). Convert to **our angles** (our bone lengths are kept, so proportions stay ours). Resample to the project FPS. Detect foot contacts from low foot speed near the lowest height. Register as a `ClipMove` under the same move name.
 - Clips still pass through the same limits, contacts and checks. They improve the look; they don't bypass the rules.
 
@@ -331,6 +345,8 @@ Arthur's rule (D-0179): **users never place things by hand and never use frame n
 - `moves/index.ts`: move registry (math moves and, later, Blender clips)
 - `moves/body/*.ts`: idle, walk, run, jump, wave, sit, squat, kick, punch, turn, fall, highFive
 - `moves/objects.ts`: slide, bounce, spin, scale
+- `moves/styles.ts`: style changes (robot, tired, sneaky, happy, angry, heavy)
+- `moves/lessons.ts`: turns each move into a lesson for the AI
 - `render.ts`: draws one frame (characters + optional baked symbols) into `ImageData` using stage→bitmap mapping
 - `toFrames.ts`: scene → frames + symbol tracks + hold detection
 - `testScenes.ts`: the Phase 1 hand-written scenes (removed or hidden in Phase 5 cleanup)
@@ -359,14 +375,16 @@ There is no test runner today. Node 24 can run TypeScript tests directly with `n
 - **Plans:** 20+ bad plan fixtures are either clamped (with a report entry) or rejected. Unknown moves, actors or Symbols are rejected. Overlong scenes are capped.
 - **Repeatable:** the same plan gives the same poses.
 - **Frames:** frame count = duration × FPS. Output size = requested canvas size. Identical frames become holds.
-- **Blender (Phase 5):** a small sample clip converts with our bone lengths and detected contacts.
+- **Motion files (only if used, Phase 5):** a small sample clip converts with our bone lengths and detected contacts.
 - Also run each phase: `npx tsc --noEmit`, and `npx eslint` on changed files.
 - **In the real app** (each phase, review copy): insert → play → draw/erase → undo/redo → save → reopen → export. Assistant chat still works, and AI Dashboard numbers still add up.
 
 ## 9. Risks and Arthur's decisions
 
 **Risks**
-1. **Natural look:** the biggest risk. Arthur judges Phases 1–2 before any AI spend. Bad moves get fixed one by one, and Blender clips are the backup.
+1. **Natural look:** the biggest risk. Arthur judges Phases 1–2 before any AI spend. Bad moves get fixed one by one; motion files (only for a move that math can't fix) are the backup.
+6. **AI-invented (never-taught) moves** may look less natural than library moves. Mitigation: the lessons, the engine's body and timing rules, and the 5 never-taught bench prompts that Arthur judges in Phase 3.
+7. **Prompt size:** lessons for every move make the prompt longer. Mitigation: compact lessons and the provider's prompt caching; the per-request cost cap still applies.
 2. **Memory:** frames are full-canvas bitmaps (about 4.6× the stage times the screen's pixel ratio). Dozens of new frames could use a lot of browser memory. Phase 1 measures a 48-frame, 2-character scene. Fixes, in order: hold cells → render on twos (every other frame held) → lower the scene length cap. Changing how the editor stores frames would touch the drawing engine, which needs Arthur's OK.
 3. **AI plan quality:** the AI may pick odd moves or timing. Strict schema, repair, one retry and the 20-prompt bench measure and limit this.
 4. **Inserting a layer shifts saved layer IDs.** The save step matches layers by position (`buildUnifiedProjectSnapshot`). The new layer is inserted the same way the existing "+ Layer" button does it, so this adds no new risk. Phase 1 still checks save → reopen with layers above and below.
@@ -378,3 +396,10 @@ There is no test runner today. Node 24 can run TypeScript tests directly with `n
 3. Fade: **no fade.** It doesn't fit the app.
 4. Where a scene goes: **the AI decides from story words** ("after the punch", "then", "at the same time", "at the end"); never the playhead, never frame numbers. Default: frame 1, or right after the last AI scene for follow-ups (6.11).
 5. If both Grok and Terra pass: **decide after seeing the Phase 3 results.**
+
+**Arthur's later decisions (2026-10-04)**
+6. **Blender files are optional** (his dad: they're expensive). Walk and run are built first in Phase 2; motion files are used only for a move math can't make natural. Phase 5 becomes "library check + cleanup".
+7. **Chat only:** no move-picker buttons in the finished AI Animator; create and edit everything by chatting ("more powerful punch", "walk like a robot").
+8. **Styles:** every move has a style knob (natural, robot, sneaky, tired, happy, angry, heavy).
+9. **Teach-by-example:** the AI is taught with lessons from the moves library every time it connects, so it can invent original moves that are still natural; tested with never-taught prompts in Phase 3.
+10. **V1 = animation only:** no sound effects or voices until Version 2+.

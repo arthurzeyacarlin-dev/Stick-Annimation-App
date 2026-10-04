@@ -2,7 +2,7 @@ import Database from "better-sqlite3";
 import { betterAuth } from "better-auth";
 import fs from "node:fs";
 import path from "node:path";
-import { ACCOUNT_LOCAL_ORIGIN, ACCOUNT_PREVIEW_PLANS } from "./accountConfig";
+import { ACCOUNT_LOCAL_ORIGIN, ACCOUNT_LOCAL_ORIGINS, ACCOUNT_PREVIEW_PLANS } from "./accountConfig";
 
 const LOCAL_ROOT = path.resolve(process.cwd(), ".local/spec0015-phase3");
 const SECRET_PATH = path.join(LOCAL_ROOT, "auth-secret");
@@ -40,7 +40,7 @@ export const auth = betterAuth({
   basePath: "/api/auth",
   secret,
   database,
-  trustedOrigins: [ACCOUNT_LOCAL_ORIGIN],
+  trustedOrigins: ACCOUNT_LOCAL_ORIGINS,
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false,

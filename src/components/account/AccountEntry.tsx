@@ -31,12 +31,20 @@ export function AccountEntry() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-      if (!response.ok) throw new Error("auth-failed");
+      if (!response.ok) {
+        // Say what actually went wrong when we know (e.g. the email already has an account).
+        const code = String(((await response.json().catch(() => null)) as { code?: unknown } | null)?.code ?? "");
+        setError(mode === "signup" && code.startsWith("USER_ALREADY_EXISTS")
+          ? "That email already has an account. Press Back, then Log in."
+          : code === "PASSWORD_TOO_SHORT" ? "Use a password with at least 8 characters."
+          : mode === "signup" ? "We couldn't create that account. Check your details or try a different email."
+          : "That email and password didn't match. Please try again.");
+        setBusy(false);
+        return;
+      }
       window.location.assign("/");
     } catch {
-      setError(mode === "signup"
-        ? "We couldn't create that account. Check your details or try a different email."
-        : "That email and password didn't match. Please try again.");
+      setError("We couldn't reach Diamond Animator. Please try again.");
       setBusy(false);
     }
   };

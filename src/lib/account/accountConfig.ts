@@ -6,6 +6,10 @@ if (accountPort !== "3000" && accountPort !== "58580" && accountPort !== "58584"
 
 export const ACCOUNT_LOCAL_HOST = `127.0.0.1:${accountPort}`;
 export const ACCOUNT_LOCAL_ORIGIN = `http://${ACCOUNT_LOCAL_HOST}`;
+// The same app on this computer opens as either address (browsers often use "localhost"), so accounts
+// accept both. Each request must still come from the same address it was sent to (no other site).
+export const ACCOUNT_LOCAL_HOSTS = [ACCOUNT_LOCAL_HOST, `localhost:${accountPort}`];
+export const ACCOUNT_LOCAL_ORIGINS = ACCOUNT_LOCAL_HOSTS.map((host) => `http://${host}`);
 
 export const isTrustedAccountRequest = (request: Request) => {
   const host = request.headers.get("host") ?? "";
@@ -13,8 +17,8 @@ export const isTrustedAccountRequest = (request: Request) => {
   const forwardedProto = request.headers.get("x-forwarded-proto");
   const origin = request.headers.get("origin");
   const fetchSite = request.headers.get("sec-fetch-site") ?? "";
-  return host === ACCOUNT_LOCAL_HOST && (!forwardedHost || forwardedHost === host) &&
-    (!forwardedProto || forwardedProto === "http") && (!origin || origin === ACCOUNT_LOCAL_ORIGIN) &&
+  return ACCOUNT_LOCAL_HOSTS.includes(host) && (!forwardedHost || forwardedHost === host) &&
+    (!forwardedProto || forwardedProto === "http") && (!origin || origin === `http://${host}`) &&
     !["cross-site", "same-site"].includes(fetchSite);
 };
 

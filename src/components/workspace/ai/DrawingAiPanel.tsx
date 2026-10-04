@@ -43,8 +43,10 @@ import { WorkspaceAiPanelShell } from "./WorkspaceAiPanelShell";
 import { AssistantDictationCapture, type DictationView } from "@/src/lib/assistant/assistantDictationCapture";
 import { ChatDictateButton, ChatDictationPanel, ChatReasoningSelect, ChatSendButton, ChatStopButton, ChatToolsRow, chatComposerStyles } from "@/src/components/ui/ChatComposerParts";
 import { workspaceColors } from "../workspaceTheme";
-import type { Scene as AnimatorScene } from "@/src/lib/animator/engine";
+import type { SceneForPage } from "@/src/lib/animator/stageFit";
+import { FIGURE_COLOR_NAMES, FIGURE_COLORS, type FigureColorName } from "@/src/lib/animator/colors";
 import { ENGINE_TEST_SCENES } from "@/src/lib/animator/testScenes";
+import { LIBRARY_MOVES, MOVE_SPEEDS, MOVE_STYLES, makeMoveTestScene, type LibraryMoveId, type MoveSpeed, type MoveStyle } from "@/src/lib/animator/moves";
 
 // SPEC-0017 Phase 1-2 review-only list of hand-written engine scenes (hidden unless the review flag is set).
 const ENGINE_TEST_ENABLED = process.env.NEXT_PUBLIC_SPEC0017_ENGINE_TEST === "1";
@@ -55,7 +57,7 @@ type DrawingAiPanelProps = {
   onProjectAiMemoryChange?: (memory: DrawingAiProjectMemory | null) => void;
   onApplyGeneratedFrame?: (result: GeneratedFrameRenderResult, source: { prompt: string; response: string }) => Promise<boolean> | boolean;
   onExecuteActionPlan?: (actionPlan: NonNullable<DrawingAiActionPlan>) => Promise<boolean> | boolean;
-  onApplyAnimatorScene?: (scene: AnimatorScene) => boolean;
+  onApplyAnimatorScene?: (scene: SceneForPage) => boolean;
   readOnly?: boolean;
 };
 
@@ -165,6 +167,7 @@ export function DrawingAiPanel({
   const [reasoningLevel, setReasoningLevel] = useState<DrawingAiReasoningLevel>("medium");
   const [inputValue, setInputValue] = useState("");
   const [engineTestStatus, setEngineTestStatus] = useState("");
+  const [moveTest, setMoveTest] = useState<{ move: LibraryMoveId; style: MoveStyle; speed: MoveSpeed; energy: number; direction: 1 | -1; color: FigureColorName; hollowHead: boolean; neck: boolean }>({ move: "walk", style: "natural", speed: "normal", energy: 0.5, direction: 1, color: "black", hollowHead: false, neck: false });
   const [dictation, setDictation] = useState<DictationView>({ phase: "idle", seconds: 0, message: "", levels: [] });
   const dictationRef = useRef<AssistantDictationCapture | null>(null);
   const [requestError, setRequestError] = useState<string | null>(null);
@@ -466,6 +469,11 @@ export function DrawingAiPanel({
         .animator-engine-test-list button:hover:enabled { border-color: #0066ff; background: #0066ff; color: #fff; }
         .animator-engine-test-list button:disabled { opacity: .45; cursor: not-allowed; }
         .animator-engine-test-list button:focus-visible { outline: 2px solid #66c7ff; outline-offset: 2px; }
+        .animator-moves { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 6px; align-items: end; }
+        .animator-moves label { display: grid; gap: 3px; font-size: 11px; color: #8fabd0; }
+        .animator-moves select { min-height: 30px; border: 1px solid #244267; border-radius: 10px; padding: 3px 6px; color: #c9d6ea; background: #030914; font: inherit; font-size: 12px; cursor: pointer; transition: none; }
+        .animator-moves select:hover { border-color: #0066ff; background: #0066ff; color: #fff; }
+        .animator-moves select:focus-visible { outline: 2px solid #66c7ff; outline-offset: 2px; }
         .ai-animator-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
         @media (prefers-reduced-motion: reduce) { .ai-animator-thinking::before, .ai-animator-thinking::after { animation: none; display: none; } .ai-animator-message { animation: none; } .ai-animator-assistant-visual { display: none; } .ai-animator-reduced-copy { display: inline; } }
       `}</style>
@@ -484,6 +492,22 @@ export function DrawingAiPanel({
                     setEngineTestStatus(ok ? `Added "${scene.title}" on layer "AI: ${scene.title}". Press Play to watch.` : "Couldn't add the scene. Stop playback or finish your current edit, then try again.");
                   }}>{scene.title}</button>
                 ))}
+              </div>
+              <h3>Moves</h3>
+              <div className="animator-moves">
+                <label>Move<select aria-label="Move" value={moveTest.move} onChange={(event) => setMoveTest((m) => ({ ...m, move: event.target.value as LibraryMoveId }))}>{LIBRARY_MOVES.map((m) => <option key={m.id} value={m.id}>{m.title}</option>)}</select></label>
+                <label>Style<select aria-label="Style" value={moveTest.style} onChange={(event) => setMoveTest((m) => ({ ...m, style: event.target.value as MoveStyle }))}>{MOVE_STYLES.map((style) => <option key={style} value={style}>{style[0].toUpperCase() + style.slice(1)}</option>)}</select></label>
+                <label>Speed<select aria-label="Speed" value={moveTest.speed} onChange={(event) => setMoveTest((m) => ({ ...m, speed: event.target.value as MoveSpeed }))}>{MOVE_SPEEDS.map((speed) => <option key={speed} value={speed}>{speed[0].toUpperCase() + speed.slice(1)}</option>)}</select></label>
+                <label>Energy<select aria-label="Energy" value={String(moveTest.energy)} onChange={(event) => setMoveTest((m) => ({ ...m, energy: Number(event.target.value) }))}><option value="0.2">Low</option><option value="0.5">Normal</option><option value="0.85">High</option></select></label>
+                <label>Direction<select aria-label="Direction" value={String(moveTest.direction)} onChange={(event) => setMoveTest((m) => ({ ...m, direction: event.target.value === "-1" ? -1 : 1 }))}><option value="1">Right →</option><option value="-1">← Left</option></select></label>
+                <label>Color<select aria-label="Color" value={moveTest.color} onChange={(event) => setMoveTest((m) => ({ ...m, color: event.target.value as FigureColorName }))}>{FIGURE_COLOR_NAMES.map((name) => <option key={name} value={name}>{name[0].toUpperCase() + name.slice(1)}</option>)}</select></label>
+                <label>Head<select aria-label="Head" value={moveTest.hollowHead ? "hollow" : "solid"} onChange={(event) => setMoveTest((m) => ({ ...m, hollowHead: event.target.value === "hollow" }))}><option value="solid">Solid</option><option value="hollow">Hollow</option></select></label>
+                <label>Neck<select aria-label="Neck" value={moveTest.neck ? "yes" : "no"} onChange={(event) => setMoveTest((m) => ({ ...m, neck: event.target.value === "yes" }))}><option value="no">No</option><option value="yes">Yes</option></select></label>
+                <div className="animator-engine-test-list"><button type="button" disabled={readOnly} onClick={() => {
+                  let title = "";
+                  const ok = onApplyAnimatorScene((page) => { const scene = makeMoveTestScene({ ...moveTest, color: FIGURE_COLORS[moveTest.color], stageWidth: page.stageWidth }); title = scene.title; return scene; });
+                  setEngineTestStatus(ok ? `Added "${title}" on layer "AI: ${title}". Press Play to watch.` : "Couldn't add the move. Stop playback or finish your current edit, then try again.");
+                }}>Make</button></div>
               </div>
               {engineTestStatus && <p role="status">{engineTestStatus}</p>}
             </section>

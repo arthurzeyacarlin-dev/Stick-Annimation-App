@@ -17,6 +17,7 @@ export type CharacterKey = {
   ease?: Ease; // angles, segment starting at this key
   xEase?: Ease;
   liftEase?: Ease;
+  facing?: Facing; // which way the figure faces from this key on (turning); defaults to the character's facing
 };
 
 export type SceneCharacter = { id: string; name: string; facing: Facing; height: number; style: CharacterStyle; keys: CharacterKey[] };
@@ -51,15 +52,25 @@ const contactActive = (keys: CharacterKey[], contact: FootContact, t: number) =>
   return has(keys[i]) && has(keys[i + 1]);
 };
 
+// The facing in effect at time t: set by the latest key at or before t (a turn is a switch at a key).
+const facingAt = (keys: CharacterKey[], fallback: Facing, t: number): Facing => {
+  let facing = fallback;
+  for (const key of keys) {
+    if (key.t > t) break;
+    facing = key.facing ?? facing;
+  }
+  return facing;
+};
+
 const lowestBodyY = (skeleton: Skeleton) => Math.max(skeleton.lFoot.y, skeleton.rFoot.y, skeleton.lKnee.y, skeleton.rKnee.y);
 
 const dist = (a: Point, b: Point) => Math.hypot(a.x - b.x, a.y - b.y);
 
-export const measureBoneError = (skeleton: Skeleton, height: number, radius: number) => {
+export const measureBoneError = (skeleton: Skeleton, height: number, radius: number, neck = true) => {
   const bones = boneLengths(height);
   const pairs: [Point, Point, number][] = [
     [skeleton.hip, skeleton.neck, bones.torso],
-    [skeleton.neck, skeleton.head, bones.neck + radius],
+    [skeleton.neck, skeleton.head, (neck ? bones.neck : 0) + radius],
     [skeleton.neck, skeleton.lElbow, bones.upperArm], [skeleton.lElbow, skeleton.lHand, bones.forearm],
     [skeleton.neck, skeleton.rElbow, bones.upperArm], [skeleton.rElbow, skeleton.rHand, bones.forearm],
     [skeleton.hip, skeleton.lKnee, bones.thigh], [skeleton.lKnee, skeleton.lFoot, bones.shin],
@@ -97,6 +108,7 @@ export function buildScene(scene: Scene, fps: number): SceneFrames {
     const locks: Partial<Record<FootContact, Point>> = {};
     const report: CharacterReport = { id: character.id, maxBoneErrorPx: 0, maxFootDriftPx: 0, clampedAngles: 0, belowGroundFrames: 0, maxJointStepPx: 0 };
     let previous: Skeleton | null = null;
+    let previousFacing: Facing | null = null;
 
     for (let index = 0; index < frameCount; index += 1) {
       const t = Math.min(scene.durationSec, index / fps);
@@ -110,8 +122,13 @@ export function buildScene(scene: Scene, fps: number): SceneFrames {
       const x = sampleChannel(xChannel.times, xChannel.values, xChannel.tangents, xChannel.eases, t);
       const lift = Math.max(0, sampleChannel(liftChannel.times, liftChannel.values, liftChannel.tangents, liftChannel.eases, t));
 
+      // A turn changes how the body is drawn, so planted feet are re-planted after it.
+      const facing = facingAt(keys, character.facing, t);
+      if (facing !== previousFacing) { delete locks.lFoot; delete locks.rFoot; }
+      previousFacing = facing;
+
       // Stand the body on the ground: the lowest foot/knee sits `lift` above groundY.
-      const atOrigin = forwardKinematics(pose, character.facing, { x, y: 0 }, character.height, character.style.headSize);
+      const atOrigin = forwardKinematics(pose, facing, { x, y: 0 }, character.height, character.style.headSize, character.style.neck === true);
       let skeleton = translateSkeleton(atOrigin, 0, scene.groundY - lift - lowestBodyY(atOrigin));
 
       // Planted feet stay exactly where they landed; the knee re-bends to reach them.
@@ -132,7 +149,7 @@ export function buildScene(scene: Scene, fps: number): SceneFrames {
       for (const contact of planted) {
         const lock = locks[contact]!;
         const side = contact === "lFoot" ? "l" : "r";
-        const solved = solveTwoBone(skeleton.hip, lock, bones.thigh, bones.shin, kneeDirection(character.facing, side));
+        const solved = solveTwoBone(skeleton.hip, lock, bones.thigh, bones.shin, kneeDirection(facing, side));
         skeleton = { ...skeleton, [`${side}Knee`]: solved.mid, [contact]: solved.end } as Skeleton;
         report.maxFootDriftPx = Math.max(report.maxFootDriftPx, solved.drift);
       }
@@ -140,11 +157,11 @@ export function buildScene(scene: Scene, fps: number): SceneFrames {
       for (const contact of ["lFoot", "rFoot"] as const) {
         if (planted.includes(contact) || skeleton[contact].y <= scene.groundY) continue;
         const side = contact === "lFoot" ? "l" : "r";
-        const solved = solveTwoBone(skeleton.hip, { x: skeleton[contact].x, y: scene.groundY }, bones.thigh, bones.shin, kneeDirection(character.facing, side));
+        const solved = solveTwoBone(skeleton.hip, { x: skeleton[contact].x, y: scene.groundY }, bones.thigh, bones.shin, kneeDirection(facing, side));
         skeleton = { ...skeleton, [`${side}Knee`]: solved.mid, [contact]: solved.end } as Skeleton;
       }
 
-      report.maxBoneErrorPx = Math.max(report.maxBoneErrorPx, measureBoneError(skeleton, character.height, radius));
+      report.maxBoneErrorPx = Math.max(report.maxBoneErrorPx, measureBoneError(skeleton, character.height, radius, character.style.neck === true));
       const lowest = Math.max(...JOINTS.filter((name) => name !== "head").map((name) => skeleton[name].y));
       if (lowest > scene.groundY + GROUND_TOLERANCE_PX) report.belowGroundFrames += 1;
       if (previous) {
@@ -152,7 +169,7 @@ export function buildScene(scene: Scene, fps: number): SceneFrames {
         report.maxJointStepPx = Math.max(report.maxJointStepPx, ...JOINTS.map((name) => dist(skeleton[name], prev[name])));
       }
       previous = skeleton;
-      frames[index].push({ id: character.id, skeleton, style: character.style, headRadius: radius, facing: character.facing });
+      frames[index].push({ id: character.id, skeleton, style: character.style, headRadius: radius, facing });
     }
     reports.push(report);
   }

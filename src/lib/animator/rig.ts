@@ -36,8 +36,10 @@ export const JOINT_LIMITS: Record<Exclude<PoseKey, "lShoulder" | "rShoulder">, r
   rKnee: [0, 150],
 };
 
-export type CharacterStyle = { color: string; thickness: number; headSize: HeadSize; headFilled: boolean };
-export const DEFAULT_STYLE: CharacterStyle = { color: "#111111", thickness: 7, headSize: "normal", headFilled: false };
+// Look of a figure. The classic stick figure (Arthur, 2026-10-04) is the default: a solid head sitting
+// right on top of the body, no neck. A hollow head and a neck are options ("neck" off when missing).
+export type CharacterStyle = { color: string; thickness: number; headSize: HeadSize; headFilled: boolean; neck?: boolean };
+export const DEFAULT_STYLE: CharacterStyle = { color: "#111111", thickness: 7, headSize: "normal", headFilled: true, neck: false };
 
 export const STAND: PoseAngles = { lean: 0, head: 0, lShoulder: 8, rShoulder: -6, lElbow: 14, rElbow: 10, lHip: 3, rHip: -3, lKnee: 3, rKnee: 3 };
 export const STAND_FRONT: PoseAngles = { lean: 0, head: 0, lShoulder: 14, rShoulder: 14, lElbow: 6, rElbow: 6, lHip: 9, rHip: 9, lKnee: 0, rKnee: 0 };

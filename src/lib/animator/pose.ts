@@ -6,14 +6,16 @@ const down = (degrees: number): Point => ({ x: Math.sin(rad(degrees)), y: Math.c
 const add = (a: Point, b: Point, length: number): Point => ({ x: a.x + b.x * length, y: a.y + b.y * length });
 
 // Angles -> joint positions. The hip is placed at `hip`; bone lengths always come from the rig.
-export function forwardKinematics(pose: PoseAngles, facing: Facing, hip: Point, height: number, headSize: HeadSize = "normal"): Skeleton {
+// Without a neck the head sits right on top of the body (the classic stick figure).
+export function forwardKinematics(pose: PoseAngles, facing: Facing, hip: Point, height: number, headSize: HeadSize = "normal", withNeck = true): Skeleton {
   const bones = boneLengths(height);
   const radius = headRadius(height, headSize);
+  const neckLength = withNeck ? bones.neck : 0;
 
   if (facing === "front") {
     const neck = add(hip, { x: Math.sin(rad(pose.lean)), y: -Math.cos(rad(pose.lean)) }, bones.torso);
     const headDir = { x: Math.sin(rad(pose.lean + pose.head)), y: -Math.cos(rad(pose.lean + pose.head)) };
-    const head = add(neck, headDir, bones.neck + radius);
+    const head = add(neck, headDir, neckLength + radius);
     // side = -1 for the figure's left (screen left), +1 for its right.
     const limb = (side: -1 | 1, upper: number, bend: number, upperLength: number, lowerLength: number, root: Point, bendSign: 1 | -1) => {
       const a = upper;
@@ -31,7 +33,7 @@ export function forwardKinematics(pose: PoseAngles, facing: Facing, hip: Point, 
 
   // Side view, solved facing right, then mirrored for facing left.
   const neck = add(hip, { x: Math.sin(rad(pose.lean)), y: -Math.cos(rad(pose.lean)) }, bones.torso);
-  const head = add(neck, { x: Math.sin(rad(pose.lean + pose.head)), y: -Math.cos(rad(pose.lean + pose.head)) }, bones.neck + radius);
+  const head = add(neck, { x: Math.sin(rad(pose.lean + pose.head)), y: -Math.cos(rad(pose.lean + pose.head)) }, neckLength + radius);
   const torsoDown = -pose.lean;
   const arm = (shoulder: number, elbow: number) => {
     const upper = torsoDown + shoulder;

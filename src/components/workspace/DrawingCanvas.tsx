@@ -1,5 +1,5 @@
 import { canonicalPaint, compositeRasterPaint, mergePaintPixel, rasterCommandDigest, RASTER_ALGORITHM_VERSION, RASTER_GESTURE_COMMAND, RasterGestureDraft, unionRect, type RasterGestureCommandV2, type RasterPreview, type RasterRect } from "@/src/lib/animation/editorCommands/rasterGesture";
-import type { Scene as AnimatorScene } from "@/src/lib/animator/engine";
+import type { SceneForPage } from "@/src/lib/animator/stageFit";
 import { attachBitmapPaintCoverage, compositeRasterSelectionV1, cropPaintCoverage, copyBitmapPaintCoverage, forEachPaintCoverage, getBitmapPaintCoverage, createPaintCoverageWriter, getPaintCoverage, patchPaintCoverage, remapSketchOwners, resolveSketchKnifeOwner, transformPaintCoverage, type UnifiedRasterPaintCoverageV1 } from "@/src/lib/animation/unifiedRasterPaintCoverageV1";
 import { authorizeDestructiveCommand } from "@/src/lib/animation/editorCommands/destructiveRegistry";
 import { requireManualEditorCommand } from "@/src/lib/animation/editorCommands/manualCapabilityRegistry";
@@ -556,7 +556,7 @@ type DrawingCanvasProps = {
     source: { prompt: string; response: string },
   ) => Promise<boolean> | boolean;
   onExecuteActionPlan?: (actionPlan: NonNullable<DrawingAiActionPlan>) => Promise<boolean> | boolean;
-  onApplyAnimatorScene?: (scene: AnimatorScene) => boolean;
+  onApplyAnimatorScene?: (scene: SceneForPage) => boolean;
   onAuthoringActionCommitted?: (reason: "stroke" | "fill" | "shape" | "shape-cutout" | "placed-asset" | "clear-canvas" | "knife" | "selection", command?: RasterGestureCommandV2) => boolean | void;
   onUnifiedSelectionActionCommitted?: (action: {
     drawingChanged: boolean;

@@ -6,6 +6,7 @@ import { bitmapCenterOffset } from "@/src/lib/animation/unifiedStageGeometry";
 import { buildScene as buildAnimatorScene, type Scene as AnimatorScene } from "@/src/lib/animator/engine";
 import { compactOrigin, copyRasterReferenceSize, getRasterReferenceSize, resolveRasterReferenceSize } from "@/src/lib/animation/compactRasterBitmap";
 import { rasterizeFrames as rasterizeAnimatorFrames } from "@/src/lib/animator/toFrames";
+import { centerAnimation, visibleStageWidth, type SceneForPage } from "@/src/lib/animator/stageFit";
 import type {
   DrawingCanvasHandle,
   DrawingCanvasPlaybackSurfaceLayout,
@@ -8662,7 +8663,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
 
   // SPEC-0017: put an engine scene on a new layer at the top, starting at frame 1, as ordinary
   // editable frames. One Undo removes the whole scene (layer included).
-  const applyAnimatorScene = useCallback((scene: AnimatorScene) => {
+  const applyAnimatorScene = useCallback((source: SceneForPage) => {
     if (isTimelinePlayingRef.current || isApplyingGeneratedFramesRef.current) return false;
     saveCurrentFrameSnapshot(currentFrameIndexRef.current, activeLayerIdRef.current, {
       debugCaller: "applyAnimatorScene",
@@ -8677,6 +8678,9 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     const pageWidth = layout.stageDisplayRect.width, pageHeight = layout.stageDisplayRect.height;
     if (pageWidth <= 0 || pageHeight <= 0) return false;
     const pageScale = pageHeight / 1080;
+    // The scene may be a recipe that fits itself to this page (e.g. a run covers less ground on a narrow page).
+    const stageWidth = visibleStageWidth(pageWidth, pageHeight);
+    const scene: AnimatorScene = typeof source === "function" ? source({ stageWidth }) : source;
     const fit = { scale: pageScale, offsetX: pageWidth / 2 - 960 * pageScale, offsetY: 0 };
     const pixelsPerCssPixel = canvasWidth / layout.worldDisplayRect.width;
     const map = {
@@ -8689,7 +8693,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     try {
       const startMs = performance.now();
       const built = buildAnimatorScene(scene, timelineFps);
-      const raster = rasterizeAnimatorFrames(built.frames, canvasWidth, canvasHeight, map);
+      // The whole animation is centered on the page (slid sideways as one piece; sizes and motion untouched).
+      const raster = rasterizeAnimatorFrames(centerAnimation(built.frames, stageWidth).frames, canvasWidth, canvasHeight, map);
       recordUndoSnapshot();
       const frames: WorkspaceTimelineFrame[] = [];
       let ownerStateId = -1;

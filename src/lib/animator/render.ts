@@ -36,9 +36,10 @@ export function drawFrame(ctx: Ctx, characters: FrameCharacter[], map: StageToPi
     const leg = (side: "l" | "r") => line(ctx, [s.hip, s[`${side}Knee`], s[`${side}Foot`]]);
     arm(far);
     leg(far);
-    // Torso + neck up to the bottom of the head circle.
+    // Torso (and the neck, if the figure has one) up to the bottom of the head circle.
     const dx = s.head.x - s.neck.x, dy = s.head.y - s.neck.y, length = Math.hypot(dx, dy) || 1;
-    line(ctx, [s.hip, s.neck, { x: s.head.x - (dx / length) * headRadius, y: s.head.y - (dy / length) * headRadius }]);
+    const headBottom = { x: s.head.x - (dx / length) * headRadius, y: s.head.y - (dy / length) * headRadius };
+    line(ctx, Math.hypot(headBottom.x - s.neck.x, headBottom.y - s.neck.y) > 0.5 ? [s.hip, s.neck, headBottom] : [s.hip, s.neck]);
     leg(near);
     arm(near);
     ctx.beginPath();

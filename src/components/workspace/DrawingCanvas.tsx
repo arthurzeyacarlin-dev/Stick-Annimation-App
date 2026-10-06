@@ -39,6 +39,7 @@ import {
   classifyUnifiedSymbolSourceV2,
   resolveStructuredSymbolGeometryV2,
 } from "@/src/lib/animation/unifiedProjectCatalogV2";
+import { referenceStageScaleV2 } from "@/src/lib/animation/unifiedSymbolRenderV2";
 import {
   authoredStagePoint,
   bitmapCenterOffset,
@@ -379,6 +380,9 @@ type UnifiedSymbolInteractionState = {
   startY: number;
   initial: UnifiedSymbolInstanceItemV2;
   handle?: ResizeHandle;
+  // How big one of the instance's stage units is shown, relative to the overlay's (1 unless it
+  // remembers a drawing canvas); pointer moves are divided by it.
+  viewScale: number;
 };
 
 type SelectionBoxDraft = {
@@ -637,6 +641,8 @@ export type DrawingCanvasHandle = {
   getAuthoringSnapshotIdentity: () => { generation: number; contextKey: string };
   captureAuthoringSnapshot: (options?: DrawingCanvasSnapshotOptions) => DrawingCanvasSnapshot | null;
   clearTransientEditingState: () => void;
+  // Places an asset/symbol that was dropped on the canvas but not committed yet (so Play keeps it).
+  commitPendingPlacement: () => void;
   getPlaybackSurfaceLayout: () => DrawingCanvasPlaybackSurfaceLayout | null;
   hasActiveBitmapSelectionSession: () => boolean;
   hasPendingAuthoringChanges: () => boolean;
@@ -1802,6 +1808,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   const activePlacedImageAssetRef = useRef<ActivePlacedImageAsset | null>(null);
   const activePlacedImageSourceRef = useRef<DrawableImageSource | null>(null);
   const placedImageInteractionRef = useRef<PlacedImageInteractionState>(null);
+  const commitPlacedImageAssetToCanvasRef = useRef<(() => void) | null>(null);
   const dismissBoxSelectionRef = useRef<() => void>(() => {});
   const bitmapSelectionSessionRef = useRef<BitmapSelectionSession | null>(null);
   const bitmapSelectionInteractionRef = useRef<BitmapSelectionInteractionState>(null);
@@ -7103,6 +7110,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       cancelPendingAuthoringGesture,
       getAuthoringSnapshotIdentity: () => ({ generation: authoringChangeVersionRef.current, contextKey: currentRasterContextRef.current }),
       clearTransientEditingState,
+      commitPendingPlacement: () => {
+        if (activePlacedImageAssetRef.current) commitPlacedImageAssetToCanvasRef.current?.();
+      },
       getPlaybackSurfaceLayout,
       hasActiveBitmapSelectionSession: () => Boolean(bitmapSelectionSessionRef.current?.items.length),
       hasPendingAuthoringChanges,
@@ -7161,7 +7171,10 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
         flipX: placedAsset.flipX,
         flipY: placedAsset.flipY,
       };
-      if (!onUnifiedSymbolInstancesChange([...unifiedSymbolInstances, instance])) return;
+      if (!onUnifiedSymbolInstancesChange([...unifiedSymbolInstances, instance])) {
+        setWorkspaceNotice("The symbol can't be placed on an empty frame. Add a keyframe here first.");
+        return;
+      }
       placedImageInteractionRef.current = null;
       activePlacedImageSourceRef.current = null;
       setActivePlacedImageAsset(null);
@@ -7176,6 +7189,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     setActivePlacedImageAsset(null);
     onAuthoringActionCommitted?.("placed-asset");
   }, [drawPlacedImageAsset, getDisplayedPlacedImageRect, getUnifiedStagePresentation, markAuthoringDirty, onAuthoringActionCommitted, onUnifiedSymbolInstancesChange, unifiedSymbolInstances]);
+  useEffect(() => {
+    commitPlacedImageAssetToCanvasRef.current = commitPlacedImageAssetToCanvas;
+  }, [commitPlacedImageAssetToCanvas]);
 
   useEffect(() => {
     if (activeTool === "Lasso") return;
@@ -7385,6 +7401,11 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
             const image = images.get(instance.definitionId);
             if (!definition || definition.definitionDigest !== instance.definitionDigest) continue;
             ctx.save();
+            if (instance.drawingCanvas) {
+              // Shown like a drawing made on that canvas: its stage size, around the canvas middle.
+              const unit = referenceStageScaleV2(instance.drawingCanvas);
+              ctx.setTransform(unit, 0, 0, unit, baseCanvas.width / 2 - 960 * unit, baseCanvas.height / 2 - 540 * unit);
+            }
             const cx = instance.x + instance.width / 2;
             const cy = instance.y + instance.height / 2;
             ctx.translate(cx, cy);
@@ -9477,6 +9498,15 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   const selectedUnifiedSymbolInstance = renderedUnifiedSymbolInstances.find(
     instance => instance.itemId === selectedUnifiedSymbolInstanceId,
   ) ?? null;
+  // An instance that remembers the drawing canvas it was placed against is shown like a drawing
+  // made then: scaled about the page middle by (its stage size in canvas pixels) / (the overlay's).
+  const unifiedSymbolViewScale = (instance: Pick<UnifiedSymbolInstanceItemV2, "drawingCanvas">) => {
+    if (!instance.drawingCanvas) return 1;
+    const stage = getUnifiedStagePresentation();
+    const shown = stage ? stage.metrics.scaleX * stage.presentation.scale : 0;
+    const scale = shown > 0 ? referenceStageScaleV2(instance.drawingCanvas) / shown : 1;
+    return Number.isFinite(scale) && scale > 0 ? scale : 1;
+  };
   const unifiedSymbolStagePoint = (event: React.PointerEvent<SVGElement>) => {
     const svg = event.currentTarget.ownerSVGElement;
     const matrix = svg?.getScreenCTM();
@@ -9501,6 +9531,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       startY: instance.y,
       initial: structuredClone(instance),
       handle,
+      viewScale: unifiedSymbolViewScale(instance),
     };
     setSelectedUnifiedSymbolInstanceId(instance.itemId);
     publishUnifiedSymbolDraft(structuredClone(instance));
@@ -9516,7 +9547,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       const initial = interaction.initial;
       const angle = initial.rotation * Math.PI / 180;
       const cos = Math.cos(angle), sin = Math.sin(angle);
-      const dx = point.x - interaction.startPointer.x, dy = point.y - interaction.startPointer.y;
+      const dx = (point.x - interaction.startPointer.x) / interaction.viewScale, dy = (point.y - interaction.startPointer.y) / interaction.viewScale;
       const localX = (cos * dx + sin * dy) * (initial.flipX ? -1 : 1);
       const localY = (-sin * dx + cos * dy) * (initial.flipY ? -1 : 1);
       const h = interaction.handle;
@@ -9532,8 +9563,8 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     }
     publishUnifiedSymbolDraft({
       ...interaction.initial,
-      x: interaction.startX + (point.x - interaction.startPointer.x),
-      y: interaction.startY + (point.y - interaction.startPointer.y),
+      x: interaction.startX + (point.x - interaction.startPointer.x) / interaction.viewScale,
+      y: interaction.startY + (point.y - interaction.startPointer.y) / interaction.viewScale,
     });
   };
   const finishUnifiedSymbolGesture = (event: React.PointerEvent<SVGElement>) => {
@@ -11044,7 +11075,8 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                   height: 42,
                   borderRadius: 6,
                   border: "1px solid #163058",
-                  background: "#030914",
+                  // Symbol pictures are always shown on white (Arthur's rule), whatever they are.
+                  backgroundColor: "#ffffff",
                   backgroundImage: `url("${item.previewUrl}")`,
                   backgroundPosition: "center",
                   backgroundRepeat: "no-repeat",
@@ -11328,7 +11360,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 if (!definition || definition.definitionDigest !== instance.definitionDigest) return null;
                 const centerX = instance.x + instance.width / 2;
                 const centerY = instance.y + instance.height / 2;
-                const transform = `translate(${centerX} ${centerY}) rotate(${instance.rotation}) scale(${instance.flipX ? -1 : 1} ${instance.flipY ? -1 : 1}) translate(${-centerX} ${-centerY})`;
+                const viewScale = unifiedSymbolViewScale(instance);
+                const anchor = viewScale !== 1 ? `translate(960 540) scale(${viewScale}) translate(-960 -540) ` : "";
+                const transform = `${anchor}translate(${centerX} ${centerY}) rotate(${instance.rotation}) scale(${instance.flipX ? -1 : 1} ${instance.flipY ? -1 : 1}) translate(${-centerX} ${-centerY})`;
                 const selected = instance.itemId === selectedUnifiedSymbolInstanceId && activeTool === "Select" && canvasInteractionOwner === "drawing";
                 const geometry = resolveStructuredSymbolGeometryV2(definition, instance);
                 const rasterUrl = definition.structuredPayload ? definition.structuredPayload.drawingPngDataUrl : definition.pngDataUrl;
@@ -11356,7 +11390,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                       {RESIZE_HANDLE_ORDER.map(handle => <circle key={handle} data-symbol-resize-handle={handle}
                         cx={instance.x + (handle.includes("w") ? 0 : handle.includes("e") ? instance.width : instance.width / 2)}
                         cy={instance.y + (handle.includes("n") ? 0 : handle.includes("s") ? instance.height : instance.height / 2)}
-                        r={6 / Math.max(0.01, (getUnifiedStagePresentation()?.presentation.scale ?? 1) * cameraZoom)}
+                        r={6 / Math.max(0.01, (getUnifiedStagePresentation()?.presentation.scale ?? 1) * cameraZoom * viewScale)}
                         fill="white" stroke="#398bff" strokeWidth="2" vectorEffect="non-scaling-stroke"
                         style={{ pointerEvents: activeTool === "Select" ? "all" : "none", cursor: handle + "-resize" }}
                         onPointerDown={event => beginUnifiedSymbolGesture(event, instance, handle)}

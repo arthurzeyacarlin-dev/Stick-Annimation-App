@@ -5,14 +5,30 @@ const DB_NAME = "diamond-animation-unified-v2";
 const DB_VERSION = 2;
 const STORES = Object.freeze({ projects: "projects", heads: "heads", versions: "versions", assets: "assets", assetMetadata: "assetMetadata" });
 const PROJECT_LIMIT = 64;
+// Bytes stored for one project (a version's storedByteLength: after compression, if any).
 const PROJECT_BYTE_LIMIT = 134_217_728;
+// Bytes of the project once opened (pictures uncompressed). Also caps how much compressed
+// pictures may grow back to, so a broken or hostile file can never expand without limit.
+const PROJECT_DECODED_BYTE_LIMIT = 1_073_741_824;
 const COLLECTION_BYTE_LIMIT = 536_870_912;
+
+// SPEC-0017 (Arthur's Option A): frame pictures (typed arrays) can be stored losslessly compressed
+// (the account save bundle does this). assetId, sha256 and byteLength always describe the
+// UNCOMPRESSED bytes, so compression never changes a project's digest or identity. Records without
+// `compression` (everything saved before this) are raw and load exactly as before.
+export type UnifiedAssetCompressionV2 = "deflate";
+const ASSET_COMPRESSION: UnifiedAssetCompressionV2 = "deflate";
+const MIN_COMPRESSIBLE_BYTES = 64;
 
 export type UnifiedEncodedAssetV2 = {
   assetId: string;
   sha256: string;
   byteLength: number;
   encoding: "typed-array" | "data-url";
+  // Optional: absent = `bytes` are the raw bytes. "deflate" = `bytes` are the raw bytes compressed
+  // with deflate (zlib format), `compressedByteLength` long.
+  compression?: UnifiedAssetCompressionV2;
+  compressedByteLength?: number;
   bytes: Uint8Array;
 };
 
@@ -82,6 +98,84 @@ const sha256Hex = async (bytes: Uint8Array) => {
   return [...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2, "0")).join("");
 };
 
+// Feeds `input` through a (de)compression stream and hands each output chunk to `onChunk`.
+// If onChunk throws, the stream is cancelled and that error is rethrown.
+const runCodec = async (codec: CompressionStream | DecompressionStream, input: Uint8Array, onChunk: (chunk: Uint8Array) => void) => {
+  const writer = codec.writable.getWriter();
+  const writing = writer.write(input as BufferSource).then(() => writer.close());
+  writing.catch(() => undefined);
+  const reader = codec.readable.getReader();
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      onChunk(value);
+    }
+    await writing;
+  } catch (error) {
+    await reader.cancel().catch(() => undefined);
+    throw error;
+  }
+};
+
+const deflateBytes = async (input: Uint8Array) => {
+  const chunks: Uint8Array[] = [];
+  let length = 0;
+  await runCodec(new CompressionStream(ASSET_COMPRESSION), input, chunk => { chunks.push(chunk); length += chunk.byteLength; });
+  const output = new Uint8Array(length);
+  let offset = 0;
+  for (const chunk of chunks) { output.set(chunk, offset); offset += chunk.byteLength; }
+  return output;
+};
+
+// Decompresses into a buffer of exactly `byteLength` bytes and refuses to write past it.
+const inflateExact = async (input: Uint8Array, byteLength: number) => {
+  const output = new Uint8Array(byteLength);
+  let offset = 0;
+  try {
+    await runCodec(new DecompressionStream(ASSET_COMPRESSION), input, chunk => {
+      if (chunk.byteLength > byteLength - offset) throw new Error("asset_digest_mismatch");
+      output.set(chunk, offset);
+      offset += chunk.byteLength;
+    });
+  } catch (error) {
+    fail(error instanceof Error && error.message === "asset_digest_mismatch" ? "asset_digest_mismatch" : "decode_failed");
+  }
+  if (offset !== byteLength) fail("asset_digest_mismatch");
+  return output;
+};
+
+const storedAssetByteLength = (asset: Pick<UnifiedEncodedAssetV2, "byteLength" | "compression" | "compressedByteLength">) =>
+  asset.compression === undefined ? asset.byteLength : asset.compressedByteLength ?? Number.NaN;
+
+// Turns a prepared (raw) project into what is stored: every frame picture (typed array) is
+// compressed when that makes it smaller. The digest, asset ids and assetIds stay the same;
+// storedByteLength becomes the bytes actually stored (metadata + stored asset bytes), which must
+// be within the project limit (else project_too_large).
+// onlyIfTooLarge: a project that fits raw is returned unchanged (stored exactly as before).
+export const compressUnifiedProjectStorageV2 = async (
+  prepared: { version: UnifiedProjectVersionV2; assets: UnifiedEncodedAssetV2[] },
+  options: { onlyIfTooLarge?: boolean } = {},
+) => {
+  if (options.onlyIfTooLarge && prepared.version.storedByteLength <= PROJECT_BYTE_LIMIT) return { version: prepared.version, assets: prepared.assets };
+  const assets: UnifiedEncodedAssetV2[] = [];
+  let storedByteLength = prepared.version.metadataByteLength;
+  for (const asset of prepared.assets) {
+    let stored = asset;
+    if (asset.encoding === "typed-array" && asset.compression === undefined && asset.byteLength >= MIN_COMPRESSIBLE_BYTES) {
+      const compressed = await deflateBytes(asset.bytes);
+      if (compressed.byteLength < asset.byteLength) {
+        stored = { assetId: asset.assetId, sha256: asset.sha256, byteLength: asset.byteLength, encoding: asset.encoding,
+          compression: ASSET_COMPRESSION, compressedByteLength: compressed.byteLength, bytes: compressed };
+      }
+    }
+    storedByteLength += storedAssetByteLength(stored);
+    if (storedByteLength > PROJECT_BYTE_LIMIT) fail("project_too_large");
+    assets.push(stored);
+  }
+  return { version: { ...prepared.version, storedByteLength } satisfies UnifiedProjectVersionV2, assets };
+};
+
 export const prepareUnifiedProjectStorageV2 = async (project: UnifiedAnimationProjectV2, hooks: UnifiedStorageFaultHooksV2 = {}) => {
   hooks.encode?.();
   const assets = new Map<string, UnifiedEncodedAssetV2>();
@@ -135,8 +229,11 @@ export const prepareUnifiedProjectStorageV2 = async (project: UnifiedAnimationPr
   hooks.hash?.();
   const projectDigest = await sha256Hex(utf8(encodedJson));
   const metadataByteLength = utf8(encodedJson).byteLength;
+  // Raw (uncompressed) size. The stored-size limit is checked by each writer: write() (browser
+  // database, raw) and compressUnifiedProjectStorageV2 (account bundle). Recovery drafts keep
+  // their own limit (PROJECT_RECOVERY_BYTE_LIMIT_V1).
   const storedByteLength = metadataByteLength + [...assets.values()].reduce((total, asset) => total + asset.byteLength, 0);
-  if (storedByteLength > PROJECT_BYTE_LIMIT) fail("project_too_large");
+  if (storedByteLength > PROJECT_DECODED_BYTE_LIMIT) fail("project_too_large");
   return {
     assets: [...assets.values()].sort((left, right) => left.assetId.localeCompare(right.assetId)),
     version: {
@@ -158,27 +255,45 @@ export const hydrateUnifiedProjectStorageV2 = async (
 ) => {
   hooks.decode?.();
   const byId = new Map(assets.map(asset => [asset.assetId, asset]));
-  const verifiedAssetIds = new Set<string>();
+  // Never decompress more than an opened project may hold.
+  let declaredByteLength = Number.isSafeInteger(version.metadataByteLength) ? version.metadataByteLength : 0;
+  for (const asset of byId.values()) if (Number.isSafeInteger(asset.byteLength) && asset.byteLength > 0) declaredByteLength += asset.byteLength;
+  if (!(declaredByteLength <= PROJECT_DECODED_BYTE_LIMIT)) fail("project_too_large");
+  // Verified uncompressed bytes per asset. A freshly decompressed buffer belongs to nobody yet, so
+  // the first typed array made from it can use it without another copy.
+  const verifiedBytes = new Map<string, Uint8Array>();
+  const unclaimedFreshBytes = new Set<string>();
   const hydratedTypedArrays = new Map<string, Uint8Array | Uint8ClampedArray>();
   const visit = async (value: unknown): Promise<unknown> => {
     if (isAssetReference(value)) {
       const asset = byId.get(value.__unifiedAssetRef);
       if (!asset) throw new Error("asset_missing");
-      if (asset.encoding !== value.encoding || asset.byteLength !== value.byteLength || asset.bytes.byteLength !== asset.byteLength) fail("asset_missing");
-      if (!verifiedAssetIds.has(asset.assetId)) {
-        const digest = await sha256Hex(asset.bytes);
+      if (asset.encoding !== value.encoding || asset.byteLength !== value.byteLength) fail("asset_missing");
+      let bytes = verifiedBytes.get(asset.assetId);
+      if (!bytes) {
+        if (asset.compression === undefined) {
+          if (asset.compressedByteLength !== undefined || asset.bytes.byteLength !== asset.byteLength) fail("asset_missing");
+          bytes = asset.bytes;
+        } else {
+          if (asset.compression !== ASSET_COMPRESSION || asset.encoding !== "typed-array" || !Number.isSafeInteger(asset.byteLength) ||
+            asset.byteLength < 0 || asset.bytes.byteLength !== asset.compressedByteLength) fail("asset_missing");
+          bytes = await inflateExact(asset.bytes, asset.byteLength);
+          unclaimedFreshBytes.add(asset.assetId);
+        }
+        const digest = await sha256Hex(bytes);
         if (digest !== asset.sha256 || asset.assetId !== `sha256:${digest}`) fail("asset_digest_mismatch");
-        verifiedAssetIds.add(asset.assetId);
+        verifiedBytes.set(asset.assetId, bytes);
       }
-      if (value.encoding === "data-url") return text(asset.bytes);
+      if (value.encoding === "data-url") return text(bytes);
       const hydratedKey = `${asset.assetId}:${value.constructorName}`;
       const existingHydrated = hydratedTypedArrays.get(hydratedKey);
       if (existingHydrated) return existingHydrated;
-      const hydrated = value.constructorName === "Uint8ClampedArray"
-        ? new Uint8ClampedArray(asset.bytes.slice().buffer)
-        : value.constructorName === "Uint8Array"
-          ? asset.bytes.slice()
-          : null;
+      const owned = value.constructorName === "Uint8ClampedArray" || value.constructorName === "Uint8Array"
+        ? unclaimedFreshBytes.delete(asset.assetId) ? bytes : bytes.slice()
+        : null;
+      const hydrated = owned && value.constructorName === "Uint8ClampedArray"
+        ? new Uint8ClampedArray(owned.buffer, owned.byteOffset, owned.byteLength)
+        : owned;
       if (hydrated) {
         hydratedTypedArrays.set(hydratedKey, hydrated);
         return hydrated;
@@ -196,8 +311,13 @@ export const hydrateUnifiedProjectStorageV2 = async (
   const project = assertUnifiedAnimationProjectV2(await visit(version.encodedProject) as UnifiedAnimationProjectV2);
   await assertStructuredSymbolDigestsV2(project.document.catalogs.symbols);
   const prepared = await prepareUnifiedProjectStorageV2(project);
+  // storedByteLength = metadata + the bytes stored for each asset (raw or compressed). For raw
+  // records (every save before compression) this is exactly the old check against the raw size.
+  const storedByteLength = Array.isArray(version.assetIds)
+    ? version.assetIds.reduce((total, assetId) => total + storedAssetByteLength(byId.get(assetId) ?? { byteLength: Number.NaN }), version.metadataByteLength)
+    : Number.NaN;
   if (prepared.version.projectDigest !== version.projectDigest || prepared.version.metadataByteLength !== version.metadataByteLength ||
-    prepared.version.storedByteLength !== version.storedByteLength || JSON.stringify(prepared.version.assetIds) !== JSON.stringify(version.assetIds)) fail("version_mismatch");
+    storedByteLength !== version.storedByteLength || JSON.stringify(prepared.version.assetIds) !== JSON.stringify(version.assetIds)) fail("version_mismatch");
   return project;
 };
 
@@ -253,6 +373,8 @@ export const createUnifiedProjectStorageV2 = (adapter: UnifiedProjectStorageAdap
     const candidate = assertUnifiedAnimationProjectV2(project);
     await assertStructuredSymbolDigestsV2(candidate.document.catalogs.symbols);
     const prepared = await prepareUnifiedProjectStorageV2(candidate, hooks);
+    // This browser database stores pictures raw (as before), so its stored size is the raw size.
+    if (prepared.version.storedByteLength > PROJECT_BYTE_LIMIT) fail("project_too_large");
     const head: UnifiedProjectHeadV2 = {
       projectId: candidate.projectId,
       title: candidate.title,

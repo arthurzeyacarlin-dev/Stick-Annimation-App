@@ -10,24 +10,60 @@ import { RAMP_SCALE, STYLE_CHANGES, tune, type GaitTuning, type MoveSpeed, type 
 // follows a natural arc; leg angles come from those foot positions, so nothing slides or pops.
 // The engine then adds the in-betweens and checks every body rule.
 
-export type GaitKind = "walk" | "run";
+export type GaitKind = "walk" | "jog" | "run";
 export type GaitOptions = {
   kind: GaitKind; startX: number; distance: number; direction: 1 | -1; height: number;
   startT?: number; speed?: MoveSpeed; style?: MoveStyle; energy?: number;
+  // ARRIVE INTO IT: the next move goes down (pick something up, squat, sit): stop still leaning in,
+  // without straightening up first.
+  keepLean?: boolean;
 };
 export type GaitResult = { keys: CharacterKey[]; endT: number; endX: number };
 
-const WALK_BASE: GaitTuning = { stepLength: 0.37, stepSeconds: 0.55, clearance: 0.07, reach: 0.995, dip: 0.025, lean: 4, head: -2, armSwing: 24, elbowBase: 14, elbowSwing: 18, armForward: 0, hold: 0, linear: false };
+const WALK_BASE: GaitTuning = { stepLength: 0.3, stepSeconds: 0.5, clearance: 0.07, reach: 0.995, dip: 0.025, lean: 4, head: -2, armSwing: 24, elbowBase: 14, elbowSwing: 18, armForward: 0, hold: 0, linear: false };
 // Run recipe: a long stride with the legs split wide in the air, a whole-body forward lean, a clear
 // moment in the air every step, a leg that folds under the body and then opens into a long reach
-// (not a march), and arms pumping far forward and back with the elbows bent a little under 90 degrees.
-const RUN_BASE: GaitTuning = { stepLength: 0.85, stepSeconds: 0.36, clearance: 0.25, reach: 0.99, dip: 0.02, lean: 19, head: -14, armSwing: 50, elbowBase: 75, elbowSwing: 13, armForward: 0, hold: 0, linear: false };
-const WALK_DOUBLE_SUPPORT = 0.22; // share of a step with both feet down
-const RUN_STANCE = 0.42; // share of a step with the foot on the ground (the rest is flight)
-const RUN_AHEAD = 0.16; // how far in front of the hips the foot lands, x height
+// (not a march), and loose arms swinging far forward and back: the elbow bends as the arm comes
+// forward and opens out as it goes back (never locked at 90 degrees).
+// (Arthur, round 6: "too fast, my eyes can't even see it running"; new projects play at 12 frames a
+// second, so a step lasts about 5-6 pictures: contact, push-off, airborne, passing...)
+const RUN_BASE: GaitTuning = { stepLength: 1.1, stepSeconds: 0.5, clearance: 0.25, reach: 0.99, dip: 0.02, lean: 25, head: -16, armSwing: 72, elbowBase: 42, elbowSwing: 18, armForward: 0, hold: 0, linear: false };
+// (Arthur, round 6: "the legs are a little too wide": the back foot lifts a little sooner, so the legs
+// never split far apart; with the shorter steps the widest split is about 20% narrower.)
+const WALK_DOUBLE_SUPPORT = 0.14; // share of a step with both feet down
+// EVERY WALK LIFTS ITS FEET (Arthur, round 11, the sad walk: "he's dragging his foot behind ... it doesn't
+// look like a walk"). Whatever the mood (sad, tired, hurt, robot, low energy), a walking foot leaves the
+// floor going UP first (it lifts before it swings forward) and clearly clears the floor: the cruise lift
+// is never under WALK_MIN_CLEARANCE and no swing, not even the first or the closing one, lifts under
+// WALK_MIN_LIFT (both x height). A mood shows in the posture, the pace and the step length, never by
+// sliding the foot along the floor. (The natural walk lifts more than both, so it doesn't change.)
+const WALK_MIN_CLEARANCE = 0.055;
+const WALK_MIN_LIFT = 0.04;
+// WALK, JOG, RUN (Arthur, round 8: "there's only two speeds, walk and run; why shouldn't there be an
+// in-between?"). A JOG is about twice walking speed and NEVER airborne: one foot is always down (a short
+// moment with both down as the next foot lands), knees soft, the body bouncing a little on each landing,
+// arms bent near 90 degrees pumping small. A RUN is the "end of the world, I need to get there" speed:
+// a clear moment in the air every step, both feet off the ground (see AIRBORNE below).
+// (Round 10, Arthur jogged in his room: "jogging, you're actually airborne a little ... no flight looks like walking".)
+// A jog has a SHORT, LOW moment in the air every step (well under half a second; the feet just clear the floor),
+// with the foot down for most of the step: short quick steps, soft knees, a small bounce, arms bent near 90 degrees.
+const JOG_BASE: GaitTuning = { stepLength: 0.42, stepSeconds: 0.34, clearance: 0.12, reach: 0.97, dip: 0.035, lean: 8, head: -6, armSwing: 40, elbowBase: 80, elbowSwing: 12, armForward: 0, hold: 0, linear: false };
+const JOG_STANCE = 0.62; // share of a step with the foot down (the rest is the short hop)
+const JOG_AHEAD = 0.13; // the jogging foot lands this far in front of the hips, x height
+const JOG_BEHIND = 0.15; // and pushes off once the hips have passed it by this much
+const JOG_FLIGHT_PEAK = 0.012; // how high the body floats in the hop, x height (just off the floor)
+const JOG_MIN_STEP_SECONDS = 0.28;
+// The hips of a jog stay at least this high (x the legs' reach) over the ground a foot covers: a faster or
+// livelier jog takes quicker steps, never longer ones that would sink it into a crouch.
+const JOG_LOWEST_HIPS = 0.9;
+const JOG_LEG_SWING = { thigh: 0.45, knee: 0.55 }; // the jog's knee lift and heel kick, x the run's
+const RUN_STANCE = 0.32; // share of a step with the foot on the ground (the rest is airborne)
+// (Round 7: "the legs, same as the arms: equal space in front and behind" — the foot reaches further
+// ahead to land and pushes off a little less far behind.)
+const RUN_AHEAD = 0.25; // how far in front of the hips the foot lands, x height
 // The foot pushes off once the hips have passed it by this much (x height). Like a real runner the
 // ground contact covers about the same length at any speed, so a slow first step stays down longer.
-const RUN_BEHIND = 0.26;
+const RUN_BEHIND = 0.25;
 
 // Running swing leg as smooth phase curves (u: 0 = push-off, 1 = landing), shaped on average human
 // running: the thigh keeps going back a moment after push-off, swings through under the body and
@@ -35,21 +71,39 @@ const RUN_BEHIND = 0.26;
 // to about 90 degrees as the leg passes under the body, then opens out into a long reach before the
 // landing. Each curve = straight blend from the push-off angle to the landing angle + a few sine
 // waves (which are zero at both ends, so the leg leaves and lands exactly on the planted poses).
-const SWING_THIGH_WAVES = [9.1, -23.2, 1.6];
-const SWING_KNEE_WAVES = [74.5, -7.6, -2.9, 0.8, 0.8, 2, -3.1];
+// AIRBORNE (Arthur, round 8, with a drawing: "it's never truly airborne, it's almost like marching").
+// In the air both feet are clearly off the ground: the back foot has just left its spot and the front foot
+// hasn't landed yet. (The legs don't switch in the air: the leg in front at the push-off lands in front;
+// legs and arms pass each other only while a foot is on the ground.) The back leg's heel kicks up behind right after the
+// push-off (the knee folds early, not only as it passes under the body), and the front leg's knee is
+// driven up high, the thigh nearly level, the shin hanging under it, before it reaches down to land.
+// (Was: the knee folded most only while passing under the body and the thigh peaked late at about 45
+// degrees, so in the air both feet trailed low in a long scissor: a march.) Shapes = how far the swing
+// leg is from a straight blend between its push-off and landing angles (zero at both ends), by phase
+// u (0 = push-off, 1 = landing; the body is in the air for about u < 0.4 and u > 0.6).
+const SWING_THIGH_SHAPE: [number, number][] = [[0, 0], [0.15, -2], [0.35, 8], [0.55, 45], [0.7, 63], [0.85, 36], [1, 0]];
+const SWING_KNEE_SHAPE: [number, number][] = [[0, 0], [0.15, 56], [0.35, 107], [0.55, 103], [0.7, 83], [0.85, 44], [1, 0]];
 // The first step from standing: the knee lifts and drives forward (no kick back).
 const DRIVE_THIGH_WAVES = [36, 8];
 const DRIVE_KNEE_WAVES = [50, 18];
-const RUN_ARM_FRONT_RATIO = 0.92; // forward arm swing compared with the base swing
-const RUN_ARM_BACK_RATIO = 1.45; // backward arm swing compared with the base swing
-const RUN_BACK_ELBOW_OPEN = 1.8; // the elbow opens this much more on the back swing
 // Arms: a smooth back-and-forth over the stride, each arm with the opposite leg; most forward just
 // before that leg lands.
 const ARM_PEAK_PHASE = 0.84;
-const STOP_FADE_AT_LAST_LANDING = 0.6; // arm swing left (x full) when the last stride lands
-const RUN_ARM_GROWTH = 1.6; // running arm swing = step size ^ this (small while slow, full only at cruise)
+// ARM SWING RULE (Arthur, 2026-10-04 round 4): the arms swing to balance the legs (their weight helps
+// the body along), so whenever the legs step, the arms swing and PASS each other, every step, from the
+// first step to the last. Getting going, the swings start small and grow bigger each step; stopping,
+// they shrink each step until the figure stands. Their speed always follows the steps (slow steps,
+// slow swings). Size of the swing (x the cruise swing) on the first / last step, and over how many
+// steps it grows / shrinks (a slower ramp style adds the same extra steps as its speed-up).
+// (A run pushes off hard: its arms start bigger and reach full swing by the second step.)
+const ARM_FIRST: Record<GaitKind, number> = { walk: 0.38, jog: 0.45, run: 0.5 };
+const ARM_LAST = 0.35;
+const ARM_GROW_STEPS: Record<GaitKind, number> = { walk: 2, jog: 2, run: 2 };
+const ARM_SHRINK_STEPS: Record<GaitKind, number> = { walk: 2, jog: 2, run: 2 };
 
-const RUN_FLIGHT_PEAK = 0.03; // how high the body floats in each flight, x height
+const RUN_MIN_STEP_SECONDS = 0.34; // the quickest a running step may be (see SEEN, NOT A BLUR)
+const RUN_FLIGHT_PEAK = 0.05; // how high the body floats in each flight, x height
+const BASES: Record<GaitKind, GaitTuning> = { walk: WALK_BASE, jog: JOG_BASE, run: RUN_BASE };
 
 // ---- Tempo ramp: speed up quickly, cruise, slow down quickly, stand ----
 // (Arthur, 2026-10-04: "teaching the engine multiplication and division".) A person does not freeze in
@@ -83,16 +137,17 @@ type Ramp = {
   settleSeconds: number; // from the last landing into the plain stand
 };
 const RAMPS: Record<GaitKind, Ramp> = {
-  run: { settle: 0.06, hold: 0, setLean: 0, setCrouch: 0.012, setShift: 0.012, setElbow: 0, accelSteps: 1, decelSteps: 0, startSpeed: 0.55, endSpeed: 0.6, accelLean: 5, uprightOnStop: 0.8, stopLean: -3, stopSeconds: 0.3, settleSeconds: 0.15 },
+  run: { settle: 0.06, hold: 0, setLean: 0, setCrouch: 0.012, setShift: 0.012, setElbow: 0, accelSteps: 1.2, decelSteps: 0, startSpeed: 0.6, endSpeed: 0.6, accelLean: 10, uprightOnStop: 0.8, stopLean: -3, stopSeconds: 0.3, settleSeconds: 0.15 },
   walk: { settle: 0.05, hold: 0, setLean: 0, setCrouch: 0.003, setShift: 0.008, setElbow: 0, accelSteps: 1, decelSteps: 0, startSpeed: 0.85, endSpeed: 0.62, accelLean: 1.5, uprightOnStop: 0.5, stopLean: 0, stopSeconds: 0.75, settleSeconds: 0.15 },
+  jog: { settle: 0.05, hold: 0, setLean: 0, setCrouch: 0.008, setShift: 0.01, setElbow: 0, accelSteps: 1.1, decelSteps: 0, startSpeed: 0.7, endSpeed: 0.6, accelLean: 5, uprightOnStop: 0.7, stopLean: -1, stopSeconds: 0.45, settleSeconds: 0.15 },
 };
 // A style's ramp: longer for tired / heavy / hurt bodies (a hurt one also hesitates before going and
 // starts slower); none at all for a robot. Energy too: lively bodies get going and stop quicker, low
 // energy ones slower (energy 0.5 = normal; 0.85 about 25% quicker, 0.2 about 30% slower).
 // Extra speed-up / slow-down steps per unit of ramp scale above natural (walking steps take longer).
-const RAMP_STEPS_PER_SCALE: Record<GaitKind, number> = { run: 1.6, walk: 0.7 };
+const RAMP_STEPS_PER_SCALE: Record<GaitKind, number> = { run: 1.6, jog: 1.2, walk: 0.7 };
 // The first step from standing is a quick, short one.
-const FIRST_STEP_TIME: Record<GaitKind, number> = { run: 0.92, walk: 0.82 };
+const FIRST_STEP_TIME: Record<GaitKind, number> = { run: 0.92, jog: 0.88, walk: 0.82 };
 function rampFor(kind: GaitKind, style: MoveStyle, energy = 0.5): Ramp {
   const base = RAMPS[kind], r = RAMP_SCALE[style] * 2 ** (1.2 * (0.5 - clamp(energy, 0, 1)));
   if (r === 0) return { ...base, settle: 0, hold: 0, setLean: 0, setCrouch: 0, setShift: 0, setElbow: 0, accelSteps: 0, decelSteps: 0, startSpeed: 1, endSpeed: 1, accelLean: 0, uprightOnStop: 0, stopLean: 0, stopSeconds: 0.5, settleSeconds: 0.15 };
@@ -139,14 +194,14 @@ function speedProfile(ramp: Ramp, n: number, squeeze: number, top: number) {
 // that: it squeezes the speed-up into fewer steps (never under two) and/or tops out below full speed,
 // whichever keeps the steps closest to the cruise length with the smoothest speed changes.
 function planSteps(kind: GaitKind, D: number, cruiseLength: number, ramp: Ramp) {
-  const units = (f: number[]) => kind === "run"
+  const units = (f: number[]) => kind !== "walk"
     ? RUN_FIRST_SHARE * lengthOf(f[0]) + sum(f.slice(1).map(lengthOf)) + RUN_STOP_SHARE * lengthOf(f[f.length - 1])
     : sum(f.map(lengthOf));
   // Average hip speed of each step as seen on screen, including the first step (from standing) and the
   // closing step(s), which are slower than their speed factor.
-  const seen = (f: number[]) => kind === "run" ? [0.65 * f[0], ...f.slice(1), 0.36 * f[f.length - 1], 0.17 * f[f.length - 1]] : [0.47 * f[0], ...f.slice(1), 0.55 * f[f.length - 1]];
+  const seen = (f: number[]) => kind !== "walk" ? [0.65 * f[0], ...f.slice(1), 0.36 * f[f.length - 1], 0.17 * f[f.length - 1]] : [0.47 * f[0], ...f.slice(1), 0.55 * f[f.length - 1]];
   // Quick speed-ups and slow-downs (about half a second) are meant to be big changes per step.
-  const smoothJump = kind === "run" ? 0.6 : 0.65;
+  const smoothJump = kind !== "walk" ? 0.6 : 0.65;
   let best: { score: number; steps: ReturnType<typeof speedProfile>; L: number } | null = null;
   const maxN = Math.max(4, Math.ceil((2 * D) / cruiseLength) + 8);
   for (const top of [1, 0.9, 0.8, 0.7, 0.6]) for (const squeeze of [1, 0.85, 0.7, 0.55]) {
@@ -186,11 +241,19 @@ function legAngles(hip: Point, foot: Point, lean: number, thigh: number, shin: n
 }
 
 // The step plan for a distance (used by the tests).
+// RIGHT GAIT FOR THE DISTANCE (W14, round 14, Arthur: "walking fast looks weird"): the pace of a natural
+// walk with these settings — never a longer stride or a quicker step than the library's own natural walk
+// (a slow, tired or hurt walk may be slower). `brisk`: this figure's own walk would be quicker than that.
+export function naturalWalkPace(style: MoveStyle, speed: MoveSpeed, energy: number) {
+  const t = tune(WALK_BASE, style, speed, energy);
+  const stepLength = Math.min(WALK_BASE.stepLength, t.stepLength), stepSeconds = Math.max(WALK_BASE.stepSeconds, t.stepSeconds);
+  return { stepLength, stepSeconds, brisk: t.stepSeconds < 0.9 * WALK_BASE.stepSeconds || t.stepLength / t.stepSeconds > 1.15 * (WALK_BASE.stepLength / WALK_BASE.stepSeconds) };
+}
 export const planGaitSteps = (kind: GaitKind, distance: number, cruiseLength: number, style: MoveStyle = "natural", energy = 0.5) => planSteps(kind, distance, cruiseLength, rampFor(kind, style, energy));
 // The longest distance up to `maxDistance` that the move covers with its natural step length (the plan
 // stretches or squeezes steps to land exactly; this picks a distance where it hardly has to).
 export function naturalDistance(options: Omit<GaitOptions, "distance">, maxDistance: number, tolerance = 0.035) {
-  const t = tune(options.kind === "run" ? RUN_BASE : WALK_BASE, options.style ?? "natural", options.speed ?? "normal", options.energy ?? 0.5);
+  const t = tune(BASES[options.kind], options.style ?? "natural", options.speed ?? "normal", options.energy ?? 0.5);
   const cruise = t.stepLength * options.height, ramp = rampFor(options.kind, options.style ?? "natural", options.energy ?? 0.5);
   for (let d = maxDistance; d >= 0.6 * maxDistance; d -= 2) {
     if (Math.abs(planSteps(options.kind, d, cruise, ramp).L / cruise - 1) <= tolerance) return d;
@@ -199,20 +262,33 @@ export function naturalDistance(options: Omit<GaitOptions, "distance">, maxDista
 }
 export function buildGait(options: GaitOptions): GaitResult {
   const H = options.height;
-  const run = options.kind === "run";
-  const t = tune(run ? RUN_BASE : WALK_BASE, options.style ?? "natural", options.speed ?? "normal", options.energy ?? 0.5);
+  // A jog is built like a run (bouncing hips, a swinging leg that folds and drives) with a shorter, lower hop.
+  const run = options.kind !== "walk", jog = options.kind === "jog";
+  const base = BASES[options.kind];
+  const t = tune(base, options.style ?? "natural", options.speed ?? "normal", options.energy ?? 0.5);
   // Running arms already swing wide; styles may not push them past a natural pump.
   if (run) {
-    t.armSwing = Math.min(t.armSwing, 58);
+    t.armSwing = Math.min(t.armSwing, jog ? 55 : 80);
+    // SEEN, NOT A BLUR: even the fastest run keeps each step long enough to be seen (about 4 pictures
+    // at 12 frames a second); a faster runner covers more ground per step instead.
+    const minStep = jog ? JOG_MIN_STEP_SECONDS : RUN_MIN_STEP_SECONDS;
+    if (t.stepSeconds < minStep) { t.stepLength *= Math.sqrt(minStep / t.stepSeconds); t.stepSeconds = minStep; }
     // Style postures are set for walking; a run keeps its own lean and arm bend and moves half way
     // toward the style (an angry or tired run leans further, a happy one a little less).
     const change = STYLE_CHANGES[options.style ?? "natural"];
-    if (change.lean !== undefined) t.lean = RUN_BASE.lean + 0.5 * (change.lean - WALK_BASE.lean);
-    if (change.elbowBase !== undefined) t.elbowBase = RUN_BASE.elbowBase + 0.5 * (change.elbowBase - WALK_BASE.elbowBase);
+    if (change.lean !== undefined) t.lean = base.lean + 0.5 * (change.lean - WALK_BASE.lean);
+    if (change.elbowBase !== undefined) t.elbowBase = base.elbowBase + 0.5 * (change.elbowBase - WALK_BASE.elbowBase);
   }
-  const ramp = rampFor(options.kind, options.style ?? "natural", options.energy ?? 0.5);
+  if (!run) t.clearance = Math.max(t.clearance, WALK_MIN_CLEARANCE); // EVERY WALK LIFTS ITS FEET
+  const ramp0 = rampFor(options.kind, options.style ?? "natural", options.energy ?? 0.5);
+  const ramp = options.keepLean ? { ...ramp0, uprightOnStop: Math.min(ramp0.uprightOnStop, 0.2), stopLean: Math.max(0, ramp0.stopLean) } : ramp0;
   const bones = boneLengths(H);
   const leg = bones.thigh + bones.shin;
+  if (jog) {
+    // (One stance covers about JOG_STANCE of a step.)
+    const longest = (2 * Math.sqrt(1 - JOG_LOWEST_HIPS ** 2) * t.reach * leg) / JOG_STANCE / H;
+    t.stepLength = Math.min(t.stepLength, longest);
+  }
   const R = leg * t.reach;
   const Ts = t.stepSeconds;
   const startT = options.startT ?? 0;
@@ -269,7 +345,7 @@ export function buildGait(options: GaitOptions): GaitResult {
   } else {
     // Shorter-striding styles and speeds also land and push off a little closer to the hips; slower
     // steps a little closer still.
-    const reachScale = clamp(t.stepLength / RUN_BASE.stepLength, 0.7, 1.12);
+    const reachScale = clamp(t.stepLength / base.stepLength, 0.7, 1.12);
     const stopLand = Math.max(MIN_STOP_STEP, RUN_STOP_LAND * dur[n - 1]);
     // Ground contact patch of the step that starts at landing k: shorter while speeding up (quick
     // pushes), a little shorter while slowing down.
@@ -278,20 +354,20 @@ export function buildGait(options: GaitOptions): GaitResult {
       return reachScale * speedF[step] ** (plan.steps[step].speedingUp ? RUN_PUSH_SHARE : RUN_CONTACT_SHARE);
     };
     plants[lead].push({ x: stand[lead], from: startT, to: t0 + 0.02 });
-    const trailPlant = { x: stand[trail], from: startT, to: t0 + RUN_STANCE * dur[0] };
+    const trailPlant = { x: stand[trail], from: startT, to: t0 + (jog ? JOG_STANCE : RUN_STANCE) * dur[0] };
     plants[trail].push(trailPlant);
-    runPlants.push({ plant: trailPlant, behind: RUN_BEHIND * H * contact(0), base: t0, d: dur[0], size: size[0] });
+    runPlants.push({ plant: trailPlant, behind: (jog ? JOG_BEHIND : RUN_BEHIND) * H * contact(0), base: t0, d: dur[0], size: size[0] });
     let hip = 0;
     for (let k = 1; k <= n; k += 1) {
       const foot: Foot = k % 2 === 1 ? lead : trail;
       hip += k === 1 ? RUN_FIRST_SHARE * len[0] : len[k - 1];
       // The foot lands in front of the hips, then pushes off far behind. While speeding up the foot
       // lands closer under the body (it pushes rather than reaches).
-      const ahead = RUN_AHEAD * H * contact(k - 1);
-      const plant = { x: hip + ahead, from: T[k], to: k === n ? T[k] + stopLand + 0.03 : T[k] + RUN_STANCE * dur[k] };
+      const ahead = (jog ? JOG_AHEAD : RUN_AHEAD) * H * contact(k - 1);
+      const plant = { x: hip + ahead, from: T[k], to: k === n ? T[k] + stopLand + 0.03 : T[k] + (jog ? JOG_STANCE : RUN_STANCE) * dur[k] };
       plants[foot].push(plant);
-      if (k < n) runPlants.push({ plant, behind: RUN_BEHIND * H * contact(k), base: T[k], d: dur[k], size: size[k] });
-      landings.push({ t: T[k], give: RUN_STANCE * durAfter(k) });
+      if (k < n) runPlants.push({ plant, behind: (jog ? JOG_BEHIND : RUN_BEHIND) * H * contact(k), base: T[k], d: dur[k], size: size[k] });
+      landings.push({ t: T[k], give: (jog ? JOG_STANCE : RUN_STANCE) * durAfter(k) });
       hipPoints.push([T[k], hip]);
     }
     // Stopping: the other foot lands beside the hips, then a small catch step brings the feet together.
@@ -303,7 +379,9 @@ export function buildGait(options: GaitOptions): GaitResult {
     plants[stopFoot].push({ x: D + stand[stopFoot], from: Tc, to: Infinity });
     landings.push({ t: Tf, give: RUN_STANCE * dur[n - 1] }, { t: Tc, give: RUN_STANCE * dur[n - 1] });
     hipPoints.push([Tf, D - 0.12 * len[n - 1]], [Tc, D]);
-    stopPoints.lean.push([Tf, ramp.stopLean], [Tc, 0.4 * ramp.stopLean]);
+    // (Arriving into a move that goes down, the runner stays leaning in as it stops.)
+    const arriveLean = options.keepLean ? 0.45 * t.lean : null;
+    stopPoints.lean.push([Tf, arriveLean ?? ramp.stopLean], [Tc, arriveLean ?? 0.4 * ramp.stopLean]);
     endT = Tc;
   }
 
@@ -339,21 +417,60 @@ export function buildGait(options: GaitOptions): GaitResult {
   const crouchAt = curve([[startT, 0], [tSet, low + ramp.setCrouch * H], [t0, low + ramp.setCrouch * H], [T[1], low + 0.35 * ramp.setCrouch * H], [T[Math.min(2, n)], low], [endT, low]]);
   // Running arms: extra elbow bend in the set pose, fading as the runner gets going.
   const elbowAddAt = curve([[t0, ramp.setElbow * (1 - size[0])], ...mids.map((m, i): [number, number] => [m, plan.steps[i].speedingUp ? ramp.setElbow * (1 - size[i]) : 0])]);
+  // ARM SWING RULE: the size of the arm swing in each step (see ARM_FIRST); a robot swings at full size.
+  const extraSteps = Math.max(0, ramp.accelSteps - RAMPS[options.kind].accelSteps);
+  // (A short trip can't spend most of its steps growing and shrinking: it gets to full swing sooner. A
+  // short dash pumps the arms hard: full swing by its middle step.)
+  const short = run ? Math.max(1, Math.floor((n - 1) / 2)) : Math.max(2, Math.round((n - 1) / 3));
+  const grow = Math.min(ARM_GROW_STEPS[options.kind] + extraSteps, short), shrink = Math.min(ARM_SHRINK_STEPS[options.kind] + extraSteps, short);
+  // ARMS HANG BY GRAVITY (Arthur, round 5: "equally spaced in front and behind"): whatever the lean and
+  // the elbow bend, the swing is centred so the hand reaches as far in front of the shoulder as behind it.
+  const handAhead = (shoulder: number, elbow: number) => bones.upperArm * Math.sin(rad(shoulder - t.lean)) + bones.forearm * Math.sin(rad(shoulder - t.lean + elbow));
+  const centred = (arm: (w: number, c: number) => { shoulder: number; elbow: number }) => {
+    let lo = -80, hi = 80;
+    for (let i = 0; i < 40; i += 1) {
+      const c = (lo + hi) / 2, f = arm(1, c), b = arm(-1, c);
+      if (handAhead(f.shoulder, f.elbow) + handAhead(b.shoulder, b.elbow) > 0) hi = c; else lo = c;
+    }
+    return (lo + hi) / 2;
+  };
+  const walkArm = (w: number, c: number) => ({ shoulder: c + t.armSwing * w, elbow: t.elbowBase + t.elbowSwing * Math.max(0, w) });
+  // Running arms (Arthur, round 6: "the arms are stiff as rock, 90-degree angles ... they have to go
+  // equally in front of him far away, same for behind him"; round 7: "they're not really going behind
+  // the stick figure, just up, down, up, down. They need to go left, right: the arms actually need to go
+  // behind the stick figure"): loose, big and swinging AROUND THE BODY. A runner leans forward, so
+  // "behind him" means behind his back, not behind straight down: the upper arm swings back to
+  // `armSwing` degrees behind the body line and just far enough forward that the hand is as far in front
+  // of the body line as it is behind it (if a bent front arm can't reach that far, the back swing is
+  // shortened to match). The elbow bends a little more coming forward and opens going back, never locked.
+  const runElbow = (w: number) => Math.max(8, t.elbowBase + t.elbowSwing * w);
+  // How far the hand is in front of the body line (angles from the body's downward line).
+  const reachOf = (fromBody: number, elbow: number) => bones.upperArm * Math.sin(rad(fromBody)) + bones.forearm * Math.sin(rad(fromBody + elbow));
+  let runBack = t.armSwing, runFront = 0;
+  if (run) {
+    let best = 0;
+    for (let a = 0; a <= 100; a += 0.25) if (reachOf(a, runElbow(1)) > reachOf(best, runElbow(1)) + 1e-9) best = a;
+    const frontMax = reachOf(best, runElbow(1));
+    while (runBack > 10 && -reachOf(-runBack, runElbow(-1)) > frontMax) runBack -= 0.25;
+    const backReach = -reachOf(-runBack, runElbow(-1));
+    runFront = best;
+    for (let a = 0; a <= best; a += 0.25) if (reachOf(a, runElbow(1)) >= backReach) { runFront = a; break; }
+  }
+  // The upper arm's angle from the body line goes smoothly from -runBack (w = -1) to runFront (w = 1).
+  const runArm = (w: number) => ({ shoulder: (runFront - runBack) / 2 + ((runFront + runBack) / 2) * w, elbow: runElbow(w) });
+  const armCentre = run ? 0 : centred(walkArm);
+  const armSizeOf = (i: number) => ramp.accelSteps <= 0 ? 1
+    : Math.min(1, ARM_FIRST[options.kind] + (1 - ARM_FIRST[options.kind]) * (i / grow), ARM_LAST + (1 - ARM_LAST) * ((n - 1 - i) / shrink));
+  const armEnvelopeAt = curve([[startT, 0], [t0, ramp.accelSteps <= 0 ? 1 : 0.5 * ARM_FIRST[options.kind]], ...mids.map((m, i): [number, number] => [m, armSizeOf(i)]), [endT, ramp.accelSteps <= 0 ? 1 : 0.4 * ARM_LAST]]);
   // Arm swing timing: frozen while getting ready, then following the steps (one full swing per two steps).
   const phasePoints: [number, number][] = [[startT, -0.5], [t0, -0.5]];
   for (let k = 1; k <= n; k += 1) phasePoints.push([T[k], (k - 1) / 2]);
   phasePoints.push([endT, (n - 1) / 2 + (0.5 * (endT - T[n])) / dur[n - 1]]);
   const phaseAt = curve(phasePoints);
-  // While stopping, the arms drift toward their resting stand.
-  const relaxAt = curve([[T[n - 1], 0], [endT, 0.8]]);
-  // Stopping quickly: the arm swings already start dying away during the last stride, so they shrink
-  // smoothly to nothing instead of finishing a full swing and halting.
-  const stopFadeAt = curve([[T[n - 1], 1], [T[n], STOP_FADE_AT_LAST_LANDING], [endT, 0]]);
-  // A walker's arms only start to swing once the first foot is on its way.
-  // (A robot's arms swing at full size from the first moment.)
-  const armsGoAt = ramp.accelSteps > 0 ? curve([[t0, 0], [(t0 + T[1]) / 2, 1]]) : () => 1;
-  // The arms bend into their running / walking carry during the first step (while their swing is still small).
-  const readyAt = curve([[startT, 0], [T[1], 1]]);
+  // Only once the last foot has landed do the arms settle into their resting stand.
+  const relaxAt = curve([[T[n], 0], [endT, 0.85]]);
+  // The arms bend into their running / walking carry early in the first step (while their swing is still small).
+  const readyAt = curve([[startT, 0], [t0 + 0.4 * dur[0], 1]]);
 
   const plantAt = (foot: Foot, time: number) => plants[foot].find((p) => time >= p.from - 1e-9 && time <= p.to + 1e-9) ?? null;
   const plantedHeight = (time: number) => {
@@ -379,7 +496,7 @@ export function buildGait(options: GaitOptions): GaitResult {
     const a = offs[0], b = ons[0];
     const ha = plantedHeight(a) ?? R, hb = plantedHeight(b) ?? R;
     const w = (time - a) / Math.max(1e-6, b - a);
-    return ha + (hb - ha) * w + 4 * RUN_FLIGHT_PEAK * H * sizeAt((a + b) / 2) * w * (1 - w);
+    return ha + (hb - ha) * w + 4 * (jog ? JOG_FLIGHT_PEAK : RUN_FLIGHT_PEAK) * H * sizeAt((a + b) / 2) * w * (1 - w);
   };
   // How high a knee is when the hips are at height h over a planted foot `d` behind them (the knee
   // bends forward, so a foot far behind low hips brings that knee down toward the floor).
@@ -414,7 +531,7 @@ export function buildGait(options: GaitOptions): GaitResult {
     const prev = [...list].reverse().find((q) => q.to < time)!;
     const next = list.find((q) => q.from > time)!;
     const v = (time - prev.to) / Math.max(1e-6, next.from - prev.to);
-    const lift = t.clearance * H * legScaleAt((prev.to + next.from) / 2);
+    const lift = run ? t.clearance * H * legScaleAt((prev.to + next.from) / 2) : Math.max(WALK_MIN_LIFT * H, t.clearance * H * legScaleAt((prev.to + next.from) / 2));
     if (!run || next.from === Infinity) {
       const s = v * v * (3 - 2 * v);
       return { x: prev.x + (next.x - prev.x) * s, h: lift * Math.sin(Math.PI * v), planted: false };
@@ -437,11 +554,14 @@ export function buildGait(options: GaitOptions): GaitResult {
     return { x: fx, h: fh, planted: false };
   };
 
-  // Running swing leg from the phase curves (see SWING_THIGH_WAVES). Livelier runs fold the knee
+  // Running swing leg from the phase shapes (see AIRBORNE). Livelier runs fold the knee
   // further and swing the thigh further; tired, small or slow runs less.
-  const kneeFold = clamp(1 + 1.6 * (t.clearance - 0.25), 0.85, 1.15);
-  const thighSwing = clamp(0.6 + 1.6 * t.clearance, 0.75, 1.25);
+  // (Measured against this gait's own natural foot lift, so a jog's lower lift isn't read as "tired".)
+  const lively = 0.25 * t.clearance / base.clearance;
+  const kneeFold = clamp(1 + 1.6 * (lively - 0.25), 0.85, 1.15) * (jog ? JOG_LEG_SWING.knee : 1);
+  const thighSwing = clamp(0.6 + 1.6 * lively, 0.75, 1.25) * (jog ? JOG_LEG_SWING.thigh : 1);
   const waves = (amps: number[], u: number) => amps.reduce((total, a, i) => total + a * Math.sin((i + 1) * Math.PI * u), 0);
+  const swingThigh = curve(SWING_THIGH_SHAPE), swingKnee = curve(SWING_KNEE_SHAPE);
   const runSwingLeg = (swing: { prev: Plant; next: Plant; u: number }, time: number) => {
     const at = (when: number, footX: number) => {
       const lean = leanAt(when);
@@ -455,8 +575,8 @@ export function buildGait(options: GaitOptions): GaitResult {
     // to follow through from, and a slow step has little speed to carry the leg back: the knee lifts
     // and drives forward instead of kicking back. At cruise this is exactly the running swing.
     const behind = swing.prev.from <= startT ? 0 : sizeAt(time);
-    const thighWave = behind * waves(SWING_THIGH_WAVES, u) + (1 - behind) * waves(DRIVE_THIGH_WAVES, u);
-    const kneeWave = behind * waves(SWING_KNEE_WAVES, u) + (1 - behind) * waves(DRIVE_KNEE_WAVES, u);
+    const thighWave = behind * swingThigh(u) + (1 - behind) * waves(DRIVE_THIGH_WAVES, u);
+    const kneeWave = behind * swingKnee(u) + (1 - behind) * waves(DRIVE_KNEE_WAVES, u);
     const thighAngle = start.thigh + (end.thigh - start.thigh) * u + grow * thighSwing * thighWave; // from vertical, forward +
     // The first step from standing and the stopping steps are short and low: the foot's clearance fades
     // gently toward the landing, so it sets down smoothly instead of being held up and snapping down.
@@ -498,32 +618,32 @@ export function buildGait(options: GaitOptions): GaitResult {
     const legL = legFor("l");
     const legR = legFor("r");
     // Each arm swings with the opposite leg (left arm forward when the right leg is forward); the
-    // swing grows and shrinks with the step size.
-    const swingSize = sizeAt(time);
+    // swing grows and shrinks step by step (ARM SWING RULE).
     let lArm: number, rArm: number, lElbow: number, rElbow: number;
     if (run) {
       // Running arms: a smooth wave over the stride (one full swing per two steps). Elbows bend a
       // little more going forward.
       const phase = phaseAt(time);
-      // A slow run swings the arms only a little; they open out wide only near full speed.
-      const armSize = swingSize ** RUN_ARM_GROWTH * stopFadeAt(time);
+      // Small swings while getting going, growing each step; shrinking each step while stopping.
+      const armSize = armEnvelopeAt(time);
       const wave = (p: number) => armSize * Math.cos(2 * Math.PI * (p - ARM_PEAK_PHASE));
       const lWave = wave(phase), rWave = wave(phase - 0.5); // phase 0 = right foot lands, 0.5 = left foot lands
-      // Runners drive the elbows well back, not just forward: the back half of the swing gets a bigger
-      // range and the elbow opens more, so the hand reaches about as far behind the hip as in front.
-      const shoulderAt = (w: number) => t.armForward + (w >= 0 ? RUN_ARM_FRONT_RATIO * t.armSwing * w : RUN_ARM_BACK_RATIO * t.armSwing * w);
+      // The hand reaches as far behind the shoulder as in front (see runArm and ARMS HANG BY GRAVITY).
+      const shoulderAt = (w: number) => runArm(w).shoulder;
       const extraBend = elbowAddAt(time);
-      const elbowAt = (w: number) => Math.max(10, t.elbowBase + (w >= 0 ? t.elbowSwing * w : RUN_BACK_ELBOW_OPEN * t.elbowSwing * w)) + extraBend;
+      const elbowAt = (w: number) => runArm(w).elbow + extraBend;
       lArm = shoulderAt(lWave);
       rArm = shoulderAt(rWave);
       lElbow = elbowAt(lWave);
       rElbow = elbowAt(rWave);
     } else {
       const reach = 22 * lengthScaleAt(time); // shorter steps swing the legs less far, so the arms follow them
-      const forwardness = (limb: { hip: number }) => swingSize * armsGoAt(time) * stopFadeAt(time) * clamp((limb.hip - lean) / reach, -1, 1);
-      lArm = t.armForward + t.armSwing * forwardness(legR);
-      rArm = t.armForward + t.armSwing * forwardness(legL);
-      const elbow = (arm: number) => t.elbowBase + t.elbowSwing * Math.max(0, (arm - t.armForward) / Math.max(1, t.armSwing));
+      // The arms balance the legs: they swing opposite each other by how far the legs are split (so
+      // even a crouched walker, with both thighs forward, swings its arms past each other every step).
+      const split = clamp((legR.hip - legL.hip) / (2 * reach), -1, 1) * armEnvelopeAt(time);
+      lArm = armCentre + t.armSwing * split;
+      rArm = armCentre - t.armSwing * split;
+      const elbow = (arm: number) => t.elbowBase + t.elbowSwing * Math.max(0, (arm - armCentre) / Math.max(1, t.armSwing));
       lElbow = elbow(lArm);
       rElbow = elbow(rArm);
     }

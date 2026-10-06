@@ -47,6 +47,8 @@ import type { SceneForPage } from "@/src/lib/animator/stageFit";
 import { FIGURE_COLOR_NAMES, FIGURE_COLORS, type FigureColorName } from "@/src/lib/animator/colors";
 import { ENGINE_TEST_SCENES } from "@/src/lib/animator/testScenes";
 import { LIBRARY_MOVES, MOVE_SPEEDS, MOVE_STYLES, makeMoveTestScene, type LibraryMoveId, type MoveSpeed, type MoveStyle } from "@/src/lib/animator/moves";
+import { COMBO_TESTS, SINGLE_MOVE_TESTS, makeSurpriseScene, makeTestScene } from "@/src/lib/animator/moves/tests";
+import { makeFightScene } from "@/src/lib/animator/moves/fightScene";
 
 // SPEC-0017 Phase 1-2 review-only list of hand-written engine scenes (hidden unless the review flag is set).
 const ENGINE_TEST_ENABLED = process.env.NEXT_PUBLIC_SPEC0017_ENGINE_TEST === "1";
@@ -167,7 +169,7 @@ export function DrawingAiPanel({
   const [reasoningLevel, setReasoningLevel] = useState<DrawingAiReasoningLevel>("medium");
   const [inputValue, setInputValue] = useState("");
   const [engineTestStatus, setEngineTestStatus] = useState("");
-  const [moveTest, setMoveTest] = useState<{ move: LibraryMoveId; style: MoveStyle; speed: MoveSpeed; energy: number; direction: 1 | -1; color: FigureColorName; hollowHead: boolean; neck: boolean }>({ move: "walk", style: "natural", speed: "normal", energy: 0.5, direction: 1, color: "black", hollowHead: false, neck: false });
+  const [moveTest, setMoveTest] = useState<{ move: string; style: MoveStyle; speed: MoveSpeed; energy: number; direction: 1 | -1; color: FigureColorName; hollowHead: boolean; neck: boolean }>({ move: "walk", style: "natural", speed: "normal", energy: 0.5, direction: 1, color: "black", hollowHead: false, neck: false });
   const [dictation, setDictation] = useState<DictationView>({ phase: "idle", seconds: 0, message: "", levels: [] });
   const dictationRef = useRef<AssistantDictationCapture | null>(null);
   const [requestError, setRequestError] = useState<string | null>(null);
@@ -495,7 +497,7 @@ export function DrawingAiPanel({
               </div>
               <h3>Moves</h3>
               <div className="animator-moves">
-                <label>Move<select aria-label="Move" value={moveTest.move} onChange={(event) => setMoveTest((m) => ({ ...m, move: event.target.value as LibraryMoveId }))}>{LIBRARY_MOVES.map((m) => <option key={m.id} value={m.id}>{m.title}</option>)}</select></label>
+                <label>Move<select aria-label="Move" value={moveTest.move} onChange={(event) => setMoveTest((m) => ({ ...m, move: event.target.value }))}>{[...LIBRARY_MOVES, ...SINGLE_MOVE_TESTS].map((m) => <option key={m.id} value={m.id}>{m.title}</option>)}</select></label>
                 <label>Style<select aria-label="Style" value={moveTest.style} onChange={(event) => setMoveTest((m) => ({ ...m, style: event.target.value as MoveStyle }))}>{MOVE_STYLES.map((style) => <option key={style} value={style}>{style[0].toUpperCase() + style.slice(1)}</option>)}</select></label>
                 <label>Speed<select aria-label="Speed" value={moveTest.speed} onChange={(event) => setMoveTest((m) => ({ ...m, speed: event.target.value as MoveSpeed }))}>{MOVE_SPEEDS.map((speed) => <option key={speed} value={speed}>{speed[0].toUpperCase() + speed.slice(1)}</option>)}</select></label>
                 <label>Energy<select aria-label="Energy" value={String(moveTest.energy)} onChange={(event) => setMoveTest((m) => ({ ...m, energy: Number(event.target.value) }))}><option value="0.2">Low</option><option value="0.5">Normal</option><option value="0.85">High</option></select></label>
@@ -505,10 +507,42 @@ export function DrawingAiPanel({
                 <label>Neck<select aria-label="Neck" value={moveTest.neck ? "yes" : "no"} onChange={(event) => setMoveTest((m) => ({ ...m, neck: event.target.value === "yes" }))}><option value="no">No</option><option value="yes">Yes</option></select></label>
                 <div className="animator-engine-test-list"><button type="button" disabled={readOnly} onClick={() => {
                   let title = "";
-                  const ok = onApplyAnimatorScene((page) => { const scene = makeMoveTestScene({ ...moveTest, color: FIGURE_COLORS[moveTest.color], stageWidth: page.stageWidth }); title = scene.title; return scene; });
+                  const look = { ...moveTest, color: FIGURE_COLORS[moveTest.color] };
+                  const ok = onApplyAnimatorScene((page) => {
+                    const scene = LIBRARY_MOVES.some((m) => m.id === moveTest.move)
+                      ? makeMoveTestScene({ ...look, move: moveTest.move as LibraryMoveId, stageWidth: page.stageWidth })
+                      : makeTestScene(moveTest.move, look, page.stageWidth);
+                    title = scene.title;
+                    return scene;
+                  });
                   setEngineTestStatus(ok ? `Added "${title}" on layer "AI: ${title}". Press Play to watch.` : "Couldn't add the move. Stop playback or finish your current edit, then try again.");
                 }}>Make</button></div>
               </div>
+              <h3>Combos</h3>
+              <p>Several moves in a row, and figures timed to each other. Uses the Style, Speed, Energy, Direction and look above.</p>
+              <div className="animator-engine-test-list">
+                {COMBO_TESTS.map((combo) => (
+                  <button type="button" key={combo.id} disabled={readOnly} onClick={() => {
+                    let title = "";
+                    const ok = onApplyAnimatorScene((page) => { const scene = makeTestScene(combo.id, { ...moveTest, color: FIGURE_COLORS[moveTest.color] }, page.stageWidth); title = scene.title; return scene; });
+                    setEngineTestStatus(ok ? `Added "${title}" on layer "AI: ${title}". Press Play to watch.` : "Couldn't add the combo. Stop playback or finish your current edit, then try again.");
+                  }}>{combo.title}</button>
+                ))}
+                <button type="button" disabled={readOnly} onClick={() => {
+                  let title = "";
+                  const seed = Date.now() % 2147483647;
+                  const ok = onApplyAnimatorScene((page) => { const scene = makeSurpriseScene(seed, { ...moveTest, color: FIGURE_COLORS[moveTest.color] }, page.stageWidth); title = scene.title; return scene; });
+                  setEngineTestStatus(ok ? `Added "${title}" on layer "AI: ${title}". Nobody wrote this combo: the engine animated it from its rules. Press Play to watch.` : "Couldn't add the combo. Stop playback or finish your current edit, then try again.");
+                }}>Random combo (the engine has never seen it)</button>
+                <button type="button" disabled={readOnly} onClick={() => {
+                  let title = "";
+                  const seed = Date.now() % 2147483647;
+                  const ok = onApplyAnimatorScene((page) => { const scene = makeFightScene(seed, { hollowHead: moveTest.hollowHead, neck: moveTest.neck }, page.stageWidth); title = scene.title; return scene; });
+                  setEngineTestStatus(ok ? `Added "${title}" on layer "AI: ${title}". A new fight every press: the engine decided how hard every hit was and how each fighter reacts. Press Play to watch.` : "Couldn't add the fight. Stop playback or finish your current edit, then try again.");
+                }}>Energetic fight (2 figures, about 30 s)</button>
+              </div>
+              <p>Random combo: picks 3 to 5 moves at random, in a random order, sometimes in a different style. Nobody wrote that combo, so it shows whether the engine can animate something new on its own. Each press makes a different one; the layer&apos;s name lists the moves.</p>
+              <p>Energetic fight: red against blue, about 30 seconds, a different fight every press. They walk up to each other and fight in the middle of the page, never on top of each other. Some punches get blocked (forearms up, a small push back). Small hits barely hurt (a flinch); big wound-up hits stagger the other one, make it almost fall (it catches itself), or knock it down if there is room on the page to fall; the more hurt a fighter is, the longer it stays down and the more slumped it stands, until one is beaten.</p>
               {engineTestStatus && <p role="status">{engineTestStatus}</p>}
             </section>
           )}

@@ -7,7 +7,7 @@ import {
   resolveExportRasterPlacement,
   type ExportRasterPlacement,
 } from "./exportPhase1";
-import { resolveExportRasterTransform, resolveUniformContainTransform } from "./exportContracts";
+import { resolveExportRasterTransform, resolveExportSymbolTransform, resolveUniformContainTransform } from "./exportContracts";
 
 export const DEFAULT_PROJECT_BACKGROUND = "#ffffff" as const;
 
@@ -157,10 +157,18 @@ export async function renderCanonicalExportFrame(
         const definition = definitions.get(item.definitionId);
         if (!definition || definition.definitionDigest !== item.definitionDigest) throw new Error("export_symbol_definition_missing");
         const image = await loadSymbolImage(definition);
-        const width = item.width * stageTransform.scaleX;
-        const height = item.height * stageTransform.scaleY;
-        const x = stageTransform.offsetX + item.x * stageTransform.scaleX;
-        const y = stageTransform.offsetY + item.y * stageTransform.scaleY;
+        // With a drawing in the same cell (or a remembered drawing canvas), line the symbol up with
+        // the drawings exactly as the editor and Play show them; otherwise fit the stage as before.
+        const symbolFrame = rasterReference ?? (item.drawingCanvas
+          ? { referenceWidth: item.drawingCanvas.width, referenceHeight: item.drawingCanvas.height }
+          : null);
+        const symbolTransform = symbolFrame
+          ? resolveExportSymbolTransform(canvas.width, canvas.height, symbolFrame.referenceWidth, symbolFrame.referenceHeight, EXPORT_AUTHORING_WORLD_SCALE, item.drawingCanvas)
+          : stageTransform;
+        const width = item.width * symbolTransform.scaleX;
+        const height = item.height * symbolTransform.scaleY;
+        const x = symbolTransform.offsetX + item.x * symbolTransform.scaleX;
+        const y = symbolTransform.offsetY + item.y * symbolTransform.scaleY;
         context.save();
         context.imageSmoothingEnabled = true;
         context.translate(x + width / 2, y + height / 2);

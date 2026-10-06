@@ -1,5 +1,6 @@
 import { assertUnifiedAnimationProjectV2, type UnifiedAnimationProjectV2 } from "./unifiedAnimationContractV2.ts";
 import {
+  compressUnifiedProjectStorageV2,
   hydrateUnifiedProjectStorageV2,
   prepareUnifiedProjectStorageV2,
   type UnifiedEncodedAssetV2,
@@ -7,6 +8,7 @@ import {
 } from "./unifiedProjectStorageV2.ts";
 import {
   assertProjectRecoveryEnvelopeV1,
+  PROJECT_RECOVERY_BYTE_LIMIT_V1,
   PROJECT_RECOVERY_DRAFT_ID_V1,
   projectRecoveryEnvelopeMatchesOwnerV1,
   type ProjectRecoveryEnvelopeV1,
@@ -139,7 +141,54 @@ const assertCandidateBinding = (
   return envelope;
 };
 
-export const createProjectRecoveryStorageV1 = (adapter: ProjectRecoveryStorageAdapterV1) => ({
+// How one asset record is stored: raw (no compression tag, byteLength bytes) or deflate-compressed
+// (compressedByteLength bytes). Records written before compression existed are always raw.
+type StoredAssetFormV1 = Pick<UnifiedEncodedAssetV2, "byteLength" | "compression" | "compressedByteLength">;
+const storedAssetLengthV1 = (asset: StoredAssetFormV1) =>
+  asset.compression === undefined ? asset.byteLength : asset.compressedByteLength ?? Number.NaN;
+// Record metadata without bytes. Raw assets keep exactly the old four fields.
+const assetMetadataV1 = ({ assetId, sha256, byteLength, encoding, compression, compressedByteLength }: UnifiedEncodedAssetV2) =>
+  compression === undefined
+    ? { assetId, sha256, byteLength, encoding }
+    : { assetId, sha256, byteLength, encoding, compression, compressedByteLength };
+
+// The browser database keeps ONE record per asset id, shared by the current draft and the draft
+// being staged. If the two drafts would store the same picture in different forms (raw vs
+// compressed, e.g. a project that just grew past the raw limit), the smaller record is kept and
+// the storedByteLength of the draft whose record changed is lowered to match. Stored sizes only
+// ever shrink, so no draft is pushed over the limit; pixels and digests never change.
+export const reconcileRecoveryAssetFormsV1 = (
+  existing: ReadonlyMap<string, StoredAssetFormV1>,
+  incoming: readonly UnifiedEncodedAssetV2[],
+  currentDraftAssetIds: ReadonlySet<string>,
+) => {
+  const write: UnifiedEncodedAssetV2[] = [];
+  let stagedDelta = 0;
+  let currentDelta = 0;
+  for (const asset of incoming) {
+    const stored = existing.get(asset.assetId);
+    if (!stored) { write.push(asset); continue; }
+    const before = storedAssetLengthV1(stored);
+    const after = storedAssetLengthV1(asset);
+    if ((stored.compression ?? null) === (asset.compression ?? null) && before === after) continue;
+    if (after < before) {
+      write.push(asset);
+      if (currentDraftAssetIds.has(asset.assetId)) currentDelta += after - before;
+    } else {
+      stagedDelta += before - after;
+    }
+  }
+  return { write, stagedDelta, currentDelta };
+};
+
+export const withStoredByteLengthDeltaV1 = (candidate: ProjectRecoveryCandidateV1, delta: number): ProjectRecoveryCandidateV1 => {
+  if (delta === 0) return candidate;
+  const storedByteLength = candidate.version.storedByteLength + delta;
+  const envelope = assertProjectRecoveryEnvelopeV1({ ...candidate.envelope, storedByteLength });
+  return { ...candidate, envelope, version: { ...candidate.version, storedByteLength } };
+};
+
+export const createProjectRecoveryStorageV1 =(adapter: ProjectRecoveryStorageAdapterV1) => ({
   async readCurrent() {
     const head = adapter.readHead ? await adapter.readHead() : null;
     if (!head) return null;
@@ -177,8 +226,12 @@ export const createProjectRecoveryStorageV1 = (adapter: ProjectRecoveryStorageAd
       !Number.isSafeInteger(input.workspaceGeneration) || input.workspaceGeneration < 1
     ) throw new Error("recovery_invalid_binding");
 
+    // SPEC-0017 round 8: a draft too large to store raw keeps its frame pictures losslessly
+    // compressed (same codec as the account save). Digest, asset ids and bindings describe the
+    // uncompressed bytes; storedByteLength (checked against the recovery limit) is what is stored.
+    // A draft that fits raw is stored exactly as before.
     const [preparedCandidate, preparedSource] = await Promise.all([
-      prepareUnifiedProjectStorageV2(candidate),
+      prepareUnifiedProjectStorageV2(candidate).then(prepared => compressUnifiedProjectStorageV2(prepared, { onlyIfTooLarge: true })),
       prepareUnifiedProjectStorageV2(sourceProject),
     ]);
     const existingHead = await adapter.readHead();
@@ -394,13 +447,23 @@ const browserAdapter = (ownerId?: string): ProjectRecoveryStorageAdapterV1 => {
         if (existing && (existing.sha256 !== asset.sha256 || existing.byteLength !== asset.byteLength || existing.encoding !== asset.encoding)) {
           throw new Error("recovery_asset_mismatch");
         }
-        if (!existing) {
-          assets.put(asset);
-          assetMetadata.put({ assetId: asset.assetId, sha256: asset.sha256, byteLength: asset.byteLength, encoding: asset.encoding });
-        }
+      }
+      const currentHead = head ? assertProjectRecoveryEnvelopeV1(head) : null;
+      const forms = reconcileRecoveryAssetFormsV1(metadataById, input.assets, new Set(currentHead?.assetBindings.map(binding => binding.assetId) ?? []));
+      for (const asset of forms.write) {
+        assets.put(asset);
+        assetMetadata.put(assetMetadataV1(asset));
+      }
+      if (currentHead && forms.currentDelta !== 0) {
+        // A shared picture of the current draft is now stored smaller: keep its accounting exact.
+        const currentCandidate = existingCandidates.find(candidate => [candidate.draftId, candidate.draftSequence, candidate.candidateDigest].join("\n") === currentKey);
+        if (!currentCandidate) throw new Error("recovery_candidate_missing");
+        const adjusted = withStoredByteLengthDeltaV1(currentCandidate, forms.currentDelta);
+        candidates.put(adjusted);
+        heads.put(assertProjectRecoveryEnvelopeV1({ ...currentHead, storedByteLength: currentHead.storedByteLength + forms.currentDelta }));
       }
       owners.put(input.owner);
-      candidates.put(input.candidate);
+      candidates.put(withStoredByteLengthDeltaV1(input.candidate, forms.stagedDelta));
     } catch (error) {
       transaction.abort();
       await done.catch(() => undefined);
@@ -601,8 +664,14 @@ const browserAdapter = (ownerId?: string): ProjectRecoveryStorageAdapterV1 => {
   };
 };
 
+// v1: every asset is raw. v2 (SPEC-0017 round 8): an asset entry may also say
+// `compression: "deflate"` + `compressedByteLength`. Only a draft too large to store raw has
+// compressed assets (v2); every other draft is written as v1, byte-for-byte as before.
+const ACCOUNT_RECOVERY_WIRE_V1 = "account-project-recovery/v1";
+const ACCOUNT_RECOVERY_WIRE_V2 = "account-project-recovery/v2";
+
 type AccountRecoveryWireHeaderV1 = {
-  schema: "account-project-recovery/v1";
+  schema: typeof ACCOUNT_RECOVERY_WIRE_V1 | typeof ACCOUNT_RECOVERY_WIRE_V2;
   owner: ProjectRecoveryOwnerV1;
   candidate: ProjectRecoveryCandidateV1;
   assets: Array<Omit<UnifiedEncodedAssetV2, "bytes">>;
@@ -614,12 +683,12 @@ type AccountRecoveryWireV1 = {
   assets: UnifiedEncodedAssetV2[];
 };
 
-const encodeAccountRecoveryWireV1 = (wire: AccountRecoveryWireV1) => {
+export const encodeAccountRecoveryWireV1 = (wire: AccountRecoveryWireV1) => {
   const header: AccountRecoveryWireHeaderV1 = {
-    schema: "account-project-recovery/v1",
+    schema: wire.assets.some(asset => asset.compression !== undefined) ? ACCOUNT_RECOVERY_WIRE_V2 : ACCOUNT_RECOVERY_WIRE_V1,
     owner: wire.owner,
     candidate: wire.candidate,
-    assets: wire.assets.map(asset => ({ assetId: asset.assetId, sha256: asset.sha256, byteLength: asset.byteLength, encoding: asset.encoding })),
+    assets: wire.assets.map(assetMetadataV1),
   };
   const headerBytes = new TextEncoder().encode(JSON.stringify(header));
   const total = 4 + headerBytes.byteLength + wire.assets.reduce((sum, asset) => sum + asset.bytes.byteLength, 0);
@@ -634,18 +703,30 @@ const encodeAccountRecoveryWireV1 = (wire: AccountRecoveryWireV1) => {
   return encoded;
 };
 
-const decodeAccountRecoveryWireV1 = (encoded: Uint8Array): AccountRecoveryWireV1 => {
+export const decodeAccountRecoveryWireV1 = (encoded: Uint8Array): AccountRecoveryWireV1 => {
   if (encoded.byteLength < 4) throw new Error("recovery_invalid_record");
   const headerLength = new DataView(encoded.buffer, encoded.byteOffset, encoded.byteLength).getUint32(0, false);
   if (headerLength < 1 || headerLength > encoded.byteLength - 4) throw new Error("recovery_invalid_record");
   const header = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(encoded.subarray(4, 4 + headerLength))) as AccountRecoveryWireHeaderV1;
-  if (header?.schema !== "account-project-recovery/v1" || !header.owner || !header.candidate || !Array.isArray(header.assets)) throw new Error("recovery_invalid_record");
+  if ((header?.schema !== ACCOUNT_RECOVERY_WIRE_V1 && header?.schema !== ACCOUNT_RECOVERY_WIRE_V2) ||
+    !header.owner || !header.candidate || !Array.isArray(header.assets)) throw new Error("recovery_invalid_record");
   let offset = 4 + headerLength;
   const assets = header.assets.map(metadata => {
-    if (!metadata || !Number.isSafeInteger(metadata.byteLength) || metadata.byteLength < 0 || offset + metadata.byteLength > encoded.byteLength) throw new Error("recovery_invalid_record");
-    const bytes = encoded.slice(offset, offset + metadata.byteLength);
-    offset += metadata.byteLength;
-    return { ...metadata, bytes } satisfies UnifiedEncodedAssetV2;
+    if (!metadata || !Number.isSafeInteger(metadata.byteLength) || metadata.byteLength < 0) throw new Error("recovery_invalid_record");
+    const compressed = metadata.compression !== undefined || metadata.compressedByteLength !== undefined;
+    // Compression is only allowed in v2, only "deflate", only for typed-array pictures, and the
+    // compressed size can never exceed the recovery limit.
+    if (compressed && (header.schema !== ACCOUNT_RECOVERY_WIRE_V2 || metadata.compression !== "deflate" || metadata.encoding !== "typed-array" ||
+      !Number.isSafeInteger(metadata.compressedByteLength) || metadata.compressedByteLength! < 0 ||
+      metadata.compressedByteLength! > PROJECT_RECOVERY_BYTE_LIMIT_V1)) throw new Error("recovery_invalid_record");
+    const length = compressed ? metadata.compressedByteLength! : metadata.byteLength;
+    if (offset + length > encoded.byteLength) throw new Error("recovery_invalid_record");
+    const bytes = encoded.slice(offset, offset + length);
+    offset += length;
+    const { assetId, sha256, byteLength, encoding } = metadata;
+    return compressed
+      ? { assetId, sha256, byteLength, encoding, compression: metadata.compression, compressedByteLength: metadata.compressedByteLength, bytes } satisfies UnifiedEncodedAssetV2
+      : { ...metadata, bytes } satisfies UnifiedEncodedAssetV2;
   });
   if (offset !== encoded.byteLength) throw new Error("recovery_invalid_record");
   assertCandidateBinding(header.candidate, assets);

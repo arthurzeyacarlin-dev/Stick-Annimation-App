@@ -98,6 +98,12 @@ export type UnifiedSymbolInstanceItemV2 = {
   rotation: number;
   flipX: boolean;
   flipY: boolean;
+  // Optional (absent on older instances, which keep fitting the stage to the current page).
+  // The drawing canvas size (device pixels) the instance was placed against. With it, the
+  // instance is shown exactly like a drawing made at that moment: same size and place around
+  // the page middle even when the window or canvas area later changes size, so it stays
+  // lined up with that drawing (used for AI heads and balls placed on AI-drawn bodies).
+  drawingCanvas?: { width: number; height: number };
 };
 
 export type UnifiedAnimationItemV2 = UnifiedDrawingRasterItemV2 | UnifiedDrawingTextItemV2 | UnifiedStickRigItemV2 | UnifiedSymbolInstanceItemV2;

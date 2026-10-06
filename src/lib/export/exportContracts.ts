@@ -56,6 +56,38 @@ export const resolveExportRasterTransform = (
   };
 };
 
+// Library symbols are placed on the 1920x1080 stage, which the editor fits whole and centered
+// inside the page (the window's canvas area). When a cell also has a drawing, that drawing's saved
+// canvas size tells which page it was made on; export then puts the symbols where the editor showed
+// them on that page, so they stay lined up with the drawing (same as Play). On a 16:9 page this is
+// exactly the plain stage fit. Returns a stage -> output transform.
+// `instanceCanvas`: an instance placed against a drawing canvas of that size (AI heads/balls) uses
+// that moment's stage size, exactly like a drawing made then (see symbol-instance drawingCanvas).
+export const resolveExportSymbolTransform = (
+  outputWidth: number,
+  outputHeight: number,
+  referenceWidth: number,
+  referenceHeight: number,
+  authoringWorldScale: number,
+  instanceCanvas?: { width: number; height: number },
+) => {
+  const raster = resolveExportRasterTransform(outputWidth, outputHeight, referenceWidth, referenceHeight, authoringWorldScale);
+  const safeReferenceWidth = Math.max(1, referenceWidth);
+  const safeReferenceHeight = Math.max(1, referenceHeight);
+  const safeWorldScale = Math.max(1, authoringWorldScale);
+  const stagePage = instanceCanvas ?? { width: safeReferenceWidth, height: safeReferenceHeight };
+  // Drawing-canvas pixels per stage unit; the stage's middle sits at the canvas middle.
+  const stageScale = Math.min(Math.max(1, stagePage.width) / safeWorldScale / 1920, Math.max(1, stagePage.height) / safeWorldScale / 1080);
+  const stageLeft = safeReferenceWidth / 2 - 960 * stageScale;
+  const stageTop = safeReferenceHeight / 2 - 540 * stageScale;
+  return {
+    offsetX: raster.offsetX + stageLeft * raster.scaleX,
+    offsetY: raster.offsetY + stageTop * raster.scaleY,
+    scaleX: stageScale * raster.scaleX,
+    scaleY: stageScale * raster.scaleY,
+  };
+};
+
 export type ExportSelectionV1 = {
   schemaVersion: "export-selection/v1";
   selectionId: string;

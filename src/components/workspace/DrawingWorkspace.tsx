@@ -92,7 +92,18 @@ import {
   removeProjectAssetV2,
   removeSymbolDefinitionV2,
 } from "@/src/lib/animation/unifiedProjectCatalogV2";
+import {
+  createSymbolImageCacheV2,
+  drawSymbolInstancesV2,
+  indexSymbolDefinitionsV2,
+  instancePresentationV2,
+  resolveSymbolStagePresentationV2,
+  symbolInstancesAtFrameV2,
+} from "@/src/lib/animation/unifiedSymbolRenderV2";
+import { addSymbolInstancesToCellsV2, createSymbolInstanceV2, symbolCellKeyV2 } from "@/src/lib/animation/unifiedSymbolLibraryV2";
+import { prepareAnimatorSceneSymbolsV1 } from "@/src/lib/animation/animatorSceneSymbolsV1";
 import { authorizeDestructiveCommand, isAuthoringSnapshotCurrent, type AuthoringSnapshotIdentity } from "@/src/lib/animation/editorCommands/destructiveRegistry";
+import { accountSaveStatusV1 } from "@/src/lib/animation/projectSaveStatusV1";
 import {
   requireManualEditorCommand,
   type ManualEditorCommandId,
@@ -321,6 +332,8 @@ type PlaybackBitmapResolution = {
   bitmap: ImageData | null;
   drawSource: HTMLCanvasElement | null;
   textObjects: DrawingTextObject[];
+  // Library symbol instances shown on this layer at this frame (drawn on top, like the canvas).
+  symbolInstances?: UnifiedSymbolInstanceItemV2[];
   renderSource: PlaybackResolutionSource;
   debugMeta?: Record<string, unknown>;
 };
@@ -3626,6 +3639,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     structuredClone(unifiedProject.compatibility?.symbolInstancesByCell ?? {}),
   );
   const symbolInstancesByCellRef = useRef(symbolInstancesByCell);
+  // Decoded Library symbol pictures for Play (decoded once, reused every frame).
+  const [symbolImageCache] = useState(() => createSymbolImageCacheV2());
   const [canvasOverlayRect, setCanvasOverlayRect] = useState<CanvasOverlayRect | null>(null);
   const [saveNotification, setSaveNotification] = useState<{ projectName: string; isVisible: boolean } | null>(null);
   const [saveAsDialog, setSaveAsDialog] = useState<SaveAsDialogState | null>(null);
@@ -3708,6 +3723,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
   useEffect(() => { stickByCellRef.current = stickByCell; }, [stickByCell]);
   useEffect(() => { unifiedCatalogsRef.current = unifiedCatalogs; }, [unifiedCatalogs]);
   useEffect(() => { symbolInstancesByCellRef.current = symbolInstancesByCell; }, [symbolInstancesByCell]);
+  // Decode every Library symbol picture ahead of Play, so the first played frame already has them.
+  useEffect(() => { void symbolImageCache.warm(unifiedCatalogs.symbols); }, [symbolImageCache, unifiedCatalogs.symbols]);
   const isApplyingGeneratedFramesRef = useRef(false);
   const lastGeneratedFrameApplyAtRef = useRef(0);
   const historyWorkspaceStampRef = useRef<{
@@ -4613,11 +4630,26 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         ctx.fillRect(stageDisplayRect.left, stageDisplayRect.top, stageDisplayRect.width, stageDisplayRect.height);
       }
       ctx.imageSmoothingEnabled = false;
+      // Symbols use the canvas overlay's stage fit (whole 1920x1080 stage, centered in the page).
+      const symbolPresentation = resolveSymbolStagePresentationV2(
+        stageDisplayRect ?? { left: 0, top: 0, width: cssWidth, height: cssHeight },
+      );
+      const symbolDefinitions = indexSymbolDefinitionsV2(unifiedCatalogsRef.current.symbols);
+      // Instances placed against a drawing canvas (AI heads/balls) follow the drawings exactly.
+      const drawingView = referenceWidth && referenceWidth > 0 && worldDisplayRect.width > 0
+        ? { centerX: worldDisplayRect.left + worldDisplayRect.width / 2, centerY: worldDisplayRect.top + worldDisplayRect.height / 2, perCanvasPixel: worldDisplayRect.width / referenceWidth }
+        : null;
+      const drawPlaybackSymbols = (instances: UnifiedSymbolInstanceItemV2[] | undefined) => {
+        if (!instances?.length || !symbolPresentation) return;
+        drawSymbolInstancesV2(ctx, instances, symbolDefinitions,
+          (instance) => instancePresentationV2(instance, symbolPresentation, drawingView), symbolImageCache.get);
+      };
 
       for (const resolution of resolutions) {
         const bitmap = resolution.bitmap ?? null;
         const sourceCanvas = resolution.drawSource ?? (bitmap ? createBitmapCanvas(bitmap) : null);
         if (!sourceCanvas && resolution.textObjects.length === 0) {
+          drawPlaybackSymbols(resolution.symbolInstances);
           continue;
         }
 
@@ -4635,6 +4667,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
               scaleY: cssHeight / textReferenceHeight,
             });
           }
+          drawPlaybackSymbols(resolution.symbolInstances);
           continue;
         }
 
@@ -4663,9 +4696,10 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
             scaleY: textScaleY,
           });
         }
+        drawPlaybackSymbols(resolution.symbolInstances);
       }
     },
-    [getPlaybackCanvas, getPlaybackSurfaceMetrics],
+    [getPlaybackCanvas, getPlaybackSurfaceMetrics, symbolImageCache],
   );
 
   const renderWorkspaceCanvases = useCallback(
@@ -4690,6 +4724,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
 
       if (playback) {
         const playbackLayers = [...nextLayers].reverse();
+        const symbolInstancesByCell = symbolInstancesByCellRef.current;
         const playbackResolutions = playbackLayers.map((layer) => {
           const resolution = resolvePlaybackTimelineBitmap(layer, frameIndex, frozenTweenPlaybackCacheRef.current);
           if (ENABLE_MOTION_TWEEN_DEBUG) {
@@ -4701,9 +4736,12 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
               ...resolution.debugMeta,
             });
           }
+          // Same symbols the canvas shows for this layer and frame (holds share their owner's).
+          const symbolInstances = symbolInstancesAtFrameV2(symbolInstancesByCell, layer.id, layer.timelineFrames, frameIndex);
+          if (symbolInstances) resolution.symbolInstances = symbolInstances;
           return resolution;
         });
-        if (!playbackResolutions.some((resolution) => resolution.bitmap != null || resolution.drawSource != null || resolution.textObjects.length > 0)) {
+        if (!playbackResolutions.some((resolution) => resolution.bitmap != null || resolution.drawSource != null || resolution.textObjects.length > 0 || Boolean(resolution.symbolInstances?.length))) {
           const stageClearPayload = {
             caller: debugCaller,
             frameIndex,
@@ -6866,6 +6904,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       }
 
       if (!isTimelinePlayingRef.current) {
+        // A dropped picture/symbol still waiting to be placed is placed on the frame it was dropped on.
+        drawingCanvasRef.current?.commitPendingPlacement();
         saveCurrentFrameSnapshot(currentIndex, activeLayerIdRef.current, {
           debugCaller: "switchToFrame",
           forceCapture: drawingCanvasRef.current?.hasPendingAuthoringChanges() ?? true,
@@ -6946,6 +6986,10 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
   const handlePlayTimeline = useCallback(() => {
     requireManualEditorCommand("playback.start/v1", "DrawingWorkspace.handlePlayTimeline");
     const currentIndex = currentFrameIndexRef.current;
+    // A picture or symbol that was dropped but not placed yet is visible on the canvas, so it
+    // must be in the playback too: place it first (the same as clicking "Commit Placement").
+    drawingCanvasRef.current?.commitPendingPlacement();
+    void symbolImageCache.warm(unifiedCatalogsRef.current.symbols);
     saveCurrentFrameSnapshot(currentIndex, activeLayerIdRef.current, {
       debugCaller: "handlePlayTimeline",
       forceCapture: drawingCanvasRef.current?.hasPendingAuthoringChanges() ?? true,
@@ -7020,7 +7064,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     }
 
     setIsTimelinePlaying(true);
-  }, [ensureTimelinePlaybackAudioContext, invalidatePlaybackSurfaceMetrics, playAttachedSoundsForFrameIndices, renderBitmapToPlaybackCanvas, renderWorkspaceCanvases, saveCurrentFrameSnapshot, stopTimelinePlaybackAudio]);
+  }, [ensureTimelinePlaybackAudioContext, invalidatePlaybackSurfaceMetrics, playAttachedSoundsForFrameIndices, renderBitmapToPlaybackCanvas, renderWorkspaceCanvases, saveCurrentFrameSnapshot, stopTimelinePlaybackAudio, symbolImageCache]);
 
   const handlePauseTimeline = useCallback(() => {
     requireManualEditorCommand("playback.pause/v1", "DrawingWorkspace.handlePauseTimeline");
@@ -7159,9 +7203,20 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
 
   const buildUnifiedProjectSnapshot = useCallback((drawingData: DrawingProjectData): UnifiedAnimationProjectV2 => {
     const base = activeUnifiedProjectRef.current;
+    // Ids already in the saved document are handed out by position below. A remembered id that is
+    // now one of them (a layer/frame that moved, e.g. after a layer was inserted above it) would be a
+    // duplicate and the save would be refused, so such an id is replaced by a new one.
+    const baseIds = new Set<string>();
+    for (const baseLayer of base.document.layers) {
+      baseIds.add(baseLayer.layerId);
+      for (const cell of baseLayer.cells) {
+        baseIds.add(cell.cellId);
+        for (const item of cell.content?.items ?? []) baseIds.add(item.itemId);
+      }
+    }
     const stableId = (key: string) => {
       const existing = unifiedIdsRef.current.get(key);
-      if (existing) return existing;
+      if (existing && !baseIds.has(existing)) return existing;
       const created = crypto.randomUUID(); unifiedIdsRef.current.set(key, created); return created;
     };
     const layers = drawingData.layers.map((layer, orderIndex) => {
@@ -7681,6 +7736,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
   const addTimelineFrame = useCallback(
     (layerId: string, kind: TimelineFrameKind, targetIndex: number, options?: { blank?: boolean }) => {
       requireManualEditorCommand("timeline.frame.insert/v1", "DrawingWorkspace.addTimelineFrame");
+      drawingCanvasRef.current?.commitPendingPlacement();
       const currentIndex = currentFrameIndexRef.current;
       let liveSnapshot: TimelineFrameSnapshot | null = null;
       if (layerId !== activeLayerIdRef.current) {
@@ -8259,7 +8315,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         );
         coversCurrentGeneration = documentGenerationRef.current === capturedGeneration;
       }
-      if (coversCurrentGeneration && recoveryDraftCleared) {
+      // The account save covers every edit: it IS saved, even if the old safety backup could not be cleared.
+      if (accountSaveStatusV1({ officialWriteSucceeded: true, coversCurrentGeneration, recoveryDraftCleared }) === "saved") {
         lastConfirmedGenerationRef.current = capturedGeneration;
         accountDirtyRef.current = false;
         accountDirtyHandleRef.current?.setDirty(false);
@@ -8310,7 +8367,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         setProjectTitle(saved.title);
         if (documentGenerationRef.current === capturedGeneration) {
           const cleared = await clearCoveredRecoveryDraft(candidate, capturedRecoveryGeneration);
-          if (cleared && documentGenerationRef.current === capturedGeneration) {
+          if (accountSaveStatusV1({ officialWriteSucceeded: true, coversCurrentGeneration: documentGenerationRef.current === capturedGeneration, recoveryDraftCleared: cleared }) === "saved") {
             lastConfirmedGenerationRef.current = capturedGeneration;
             accountDirtyRef.current = false;
             accountDirtyHandleRef.current?.setDirty(false);
@@ -8693,12 +8750,19 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     try {
       const startMs = performance.now();
       const built = buildAnimatorScene(scene, timelineFps);
-      // The whole animation is centered on the page (slid sideways as one piece; sizes and motion untouched).
-      const raster = rasterizeAnimatorFrames(centerAnimation(built.frames, stageWidth).frames, canvasWidth, canvasHeight, map);
+      // The whole animation (figures and objects) is centered on the page (slid as one piece; sizes and motion untouched).
+      const centered = centerAnimation(built.frames, stageWidth, built.objects);
+      // Heads and objects become Library symbols ("Basketball", "Blue stick figure head") placed once
+      // per frame, so they can't be erased by accident and can be reused. The body lines stay in the
+      // frame pictures. If anything about the symbols fails, they are drawn into the pictures as before.
+      const symbolPlan = prepareAnimatorSceneSymbolsV1(scene, centered.frames, centered.objects, { width: pageWidth, height: pageHeight }, unifiedCatalogsRef.current);
+      const raster = rasterizeAnimatorFrames(centered.frames, canvasWidth, canvasHeight, map, centered.objects,
+        symbolPlan ? { skipHeads: true, skipObjects: true } : undefined);
       recordUndoSnapshot();
       const frames: WorkspaceTimelineFrame[] = [];
+      const keyframes: { index: number; stateId: number }[] = [];
       let ownerStateId = -1;
-      for (const entry of raster) {
+      for (const [index, entry] of raster.entries()) {
         const id = nextTimelineFrameIdRef.current;
         nextTimelineFrameIdRef.current += 1;
         if (entry.hold && ownerStateId >= 0) {
@@ -8706,10 +8770,24 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         } else {
           frames.push(createTimelineFrame(id, "keyframe", "keyframe", id, { bitmap: entry.bitmap, previewUrl: null }));
           ownerStateId = id;
+          keyframes.push({ index, stateId: id });
         }
       }
       const layerId = `layer-${nextLayerNumberRef.current}`;
       nextLayerNumberRef.current += 1;
+      if (symbolPlan) {
+        // One set of instances per keyframe; its holds share them (same stateId).
+        const nextInstances = addSymbolInstancesToCellsV2(symbolInstancesByCellRef.current, keyframes.map(({ index, stateId }) => ({
+          cellKey: symbolCellKeyV2(layerId, stateId),
+          instances: (symbolPlan.placements[index] ?? []).map((placement) => createSymbolInstanceV2(symbolPlan.definitions.get(placement.pictureKey)!, {
+            ...placement, drawingCanvas: { width: canvasWidth, height: canvasHeight },
+          })),
+        })).filter((addition) => addition.instances.length > 0), symbolPlan.catalogs);
+        unifiedCatalogsRef.current = symbolPlan.catalogs;
+        setUnifiedCatalogs(symbolPlan.catalogs);
+        symbolInstancesByCellRef.current = nextInstances;
+        setSymbolInstancesByCell(nextInstances);
+      }
       const nextLayers = normalizeLayerOrder([
         { id: layerId, name: `AI: ${scene.title}`, orderIndex: 0, timelineFrames: frames },
         ...layersRef.current,
@@ -8730,6 +8808,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       });
       console.info("[animator] scene applied", {
         scene: scene.id, frames: frames.length, pictures: raster.filter((entry) => !entry.hold).length,
+        symbols: symbolPlan ? [...symbolPlan.definitions.values()].map((definition) => definition.name) : [],
         canvas: `${canvasWidth}x${canvasHeight}`, ms: Math.round(performance.now() - startMs), report: built.report,
       });
       return true;
@@ -8791,7 +8870,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       setProjectAiMemory(bindDrawingAiProjectMemoryToProject(saved.auxiliary?.drawingAiMemory as DrawingAiProjectMemory | null, saved.projectId));
       if (documentGenerationRef.current === capturedGeneration) {
         const cleared = await clearCoveredRecoveryDraft(candidate, capturedRecoveryGeneration);
-        if (cleared && documentGenerationRef.current === capturedGeneration) {
+        if (accountSaveStatusV1({ officialWriteSucceeded: true, coversCurrentGeneration: documentGenerationRef.current === capturedGeneration, recoveryDraftCleared: cleared }) === "saved") {
           lastConfirmedGenerationRef.current = capturedGeneration;
           accountDirtyRef.current = false;
           accountDirtyHandleRef.current?.setDirty(false);
@@ -9256,6 +9335,11 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
   const commitUnifiedSymbolInstances = useCallback((instances: UnifiedSymbolInstanceItemV2[]) => {
     requireManualEditorCommand("symbol.instances.commit/v1", "DrawingWorkspace.commitUnifiedSymbolInstances");
     if (!activeStickCellKey || isTimelinePlayingRef.current || isApplyingHistoryRef.current) return false;
+    // An empty timeline cell is not saved, so a symbol added there would silently disappear.
+    // Changing or removing instances that are already there stays allowed.
+    const activeFrame = timelineFramesRef.current[currentFrameIndexRef.current] ?? null;
+    const existingItemIds = new Set((symbolInstancesByCellRef.current[activeStickCellKey] ?? []).map((instance) => instance.itemId));
+    if ((!activeFrame || activeFrame.cellType === "empty") && instances.some((instance) => !existingItemIds.has(instance.itemId))) return false;
     recordUndoSnapshot();
     const next = { ...symbolInstancesByCellRef.current, [activeStickCellKey]: structuredClone(instances) };
     symbolInstancesByCellRef.current = next;

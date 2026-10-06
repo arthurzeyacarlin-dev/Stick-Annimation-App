@@ -9,6 +9,7 @@ export { MOVE_SPEEDS, MOVE_STYLES, type MoveSpeed, type MoveStyle } from "./styl
 
 export const LIBRARY_MOVES = [
   { id: "walk", title: "Walk" },
+  { id: "jog", title: "Jog" },
   { id: "run", title: "Run" },
 ] as const;
 export type LibraryMoveId = (typeof LIBRARY_MOVES)[number]["id"];
@@ -26,7 +27,7 @@ const PAGE_MARGIN = 0.04; // keep this share of the page free at each side
 // speed up, cruise and slow down, so on a wide page it covers more ground; on a narrower page it covers
 // only what fits (the editor then centers the whole animation on the page).
 export function makeMoveTestScene(options: MoveTestOptions): Scene {
-  const wanted = options.move === "run" ? 1500 : 700;
+  const wanted = options.move === "run" ? 1500 : options.move === "jog" ? 1000 : 700;
   let scene = moveScene(options, wanted);
   if (options.stageWidth === undefined) return scene;
   const room = options.stageWidth * (1 - 2 * PAGE_MARGIN);

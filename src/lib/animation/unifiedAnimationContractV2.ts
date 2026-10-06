@@ -289,7 +289,12 @@ export function assertUnifiedAnimationDocumentV2(document: UnifiedAnimationDocum
               item.width <= 0 ||
               !finite(item.height) ||
               item.height <= 0 ||
-              !finite(item.rotation)
+              !finite(item.rotation) ||
+              (item.drawingCanvas !== undefined && (
+                !item.drawingCanvas || typeof item.drawingCanvas !== "object" ||
+                !Number.isInteger(item.drawingCanvas.width) || item.drawingCanvas.width < 1 || item.drawingCanvas.width > 1_000_000 ||
+                !Number.isInteger(item.drawingCanvas.height) || item.drawingCanvas.height < 1 || item.drawingCanvas.height > 1_000_000
+              ))
             ) throw new Error("invalid_record");
           } else throw new Error("invalid_record");
         }

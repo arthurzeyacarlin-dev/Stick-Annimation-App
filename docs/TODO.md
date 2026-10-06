@@ -1,10 +1,12 @@
 # TODO
 
-## Current queue (D-0180)
+## Current queue (D-0181)
 
 - [x] **AIANIM-ENGINE (SPEC-0017 Phase 1)** — Published in `b7a0800c61973d7729e1d9cf2f7a0bea90f537b2`.
 - [x] **SPEC-0017 Phase 2 Round A** — Walk + run, styles, ~0.5 s speed-up/slow-down, page rule, classic look, colors. Arthur PASS; published in `3e40515c99b04c370b07b9aeb93fcf5fe4e3b2cf`.
-- [ ] **SPEC-0017 Phase 2 Round B** — Next. Stand/breathe, jump, wave, sit, squat, kick, punch, turn around, fall, high-five; object moves for Symbols (slide, bounce, spin, grow/shrink; verify symbol-only cells save/reopen/export); AI lessons made from the move code. Short plan → OK → review copy (`NEXT_PUBLIC_SPEC0017_ENGINE_TEST=1` in the copy's `.env.local`, newline first).
+- [x] **SPEC-0017 Phase 2 Round B** — All stick-figure moves, object moves, fights (dash, barrage, hammer strike, lift-and-slam, ground fight), director and lessons. Arthur PASS 2026-10-06; published in `6430fcf85936dceffdbd5b3276ed7231775264c4`.
+- [ ] **SPEC-0017 Phase 2C** — Next (Tue Oct 6): effects, powers, moving backgrounds, original symbols and poses, editing a made animation.
+- [ ] **ANIM-KNOWN-3** — Fix the 3 open animator checks: tired/angry dash alone (airborne vs faster than the run; the run's last stride should stretch to the take-off spot), fight seed 8 joint jump 133 px @24 fps, "vague fight" seed 8 reaction off its strike. Also: running hammer strike in fights jumps lower than the passed one; long fights (up to 44 s).
 - [ ] **SPEC-0017 Phase 3** — AI director = Test 1 (Grok vs Terra). Needs xAI key from Arthur's dad + OK for small paid calls.
 - [ ] **SPEC-0017 Phases 4–5** — AI Animator chat flow in the editor; library check + cleanup (no Blender/motion files in V1).
 - [ ] **HEAD-SIZE** — Arthur's drawing has a head about twice as wide as ours; size left unchanged (ask if he wants it bigger).

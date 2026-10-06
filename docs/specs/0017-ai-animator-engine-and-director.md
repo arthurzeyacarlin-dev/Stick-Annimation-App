@@ -1,13 +1,13 @@
 # SPEC-0017 — AI Animator Engine and Director
 
-Status: **Approved 2026-10-04. Phase 1 published (b7a0800c61973d7729e1d9cf2f7a0bea90f537b2). Phase 2 Round A (walk + run) published (3e40515c99b04c370b07b9aeb93fcf5fe4e3b2cf); Round B next.**
+Status: **Approved 2026-10-04. Phase 1 published (b7a0800c61973d7729e1d9cf2f7a0bea90f537b2). Phase 2 Round A (walk + run) published (3e40515c99b04c370b07b9aeb93fcf5fe4e3b2cf). Phase 2 Part B (all other moves, moods, fights, objects) built in a review copy through round 8 (2026-10-05), not published yet. Phases changed 2026-10-05 (Arthur): new Phase 2C "Beyond stick figures" and a 5-day deadline (section 3).**
 Owner: Arthur
 Builder: Claude
 Created: 2026-10-03
 Decision links: D-0179, D-0180
 TODO IDs: AIANIM-ENGINE, AIANIM-TESTS
 Starting point: `main` at `19ba17c`
-Time box: 8–10 working days (Phases 1–5), so V1 can still be ready around 2026-11-02.
+Time box: **5 days, Monday 2026-10-05 to Friday 2026-10-09** (Arthur, 2026-10-05). Monday and Tuesday are school-free, so the hardest, longest work goes there (about 8 hours Monday, 12–14 hours Tuesday). Wednesday to Friday are school days, so they hold the lighter work, and Arthur's part on them is short reviews. Live plan: the AI Animator Roadmap page (claude.ai artifact 3hnFrm1L79HU6wmJT9RPfP), which always matches this section and section 3.
 
 ---
 
@@ -37,23 +37,94 @@ Earlier tries failed about 6 times. Each time the AI had to invent every pose an
 
 **You judge the look before any money is spent.** Phases 1 and 2 use no AI at all. You see the engine and the moves and say if they look good. Only then do we pay for small AI tests.
 
+**More than stick figures (Arthur, 2026-10-05).** The engine is taught the fundamentals of animation for things that are *not* stick figures too, the same way it was taught walking and punching: rules, never hard-coded frames. In V1 these are simple cartoon versions:
+- **Effects:** fire, lightning, water, smoke that breaks apart and drifts away, a light bulb flickering. Each has its own timing, anticipation and follow-through (a fire blast builds up before it shoots; smoke thins out as it rises).
+- **Powers ("elementalists"):** a stick figure blasts fire from its hands, another blocks with a water shield, someone teleports. The body move and the effect are timed together (pose → build-up → blast → recoil). Arthur's sister's example: a fire stick figure against a water stick figure.
+- **Backgrounds:** the engine draws simple backgrounds (sky, ground, hills, trees, buildings) on their own layer and can move parts of them (clouds drifting, water flowing, a light flickering).
+- **Original things:** the engine makes **original symbols** (new props built from simple shapes, given a name), **original key poses** (a different way to sit, a new fighting style) and original animations. It **learns from the user**: a pose, style or character the user names ("remember this as my fighting style") is kept and used again.
+- **Editing:** the engine can change an animation it already made (a stronger punch, slower, another color) by remaking only what was asked.
+
+**50-50: AI and your own drawing work together (Arthur, 2026-10-05).** Nobody should have to pick "all by hand" or "all AI". Both directions work in V1:
+- **AI frames are yours to edit:** everything the AI makes is normal frames on a new layer, so every manual tool works on it (this was already the rule).
+- **The AI adds to your own animation:** you animated a fight by hand, but the fire and water aren't there ("they're fighting with air"). You say "red is a fire fighter, blue is a water fighter". The AI looks at small pictures of your frames to find where the figures and hands are. The engine then draws the fire and water on a **new layer**, timed to your frames. Your drawings are never changed. If the AI isn't sure where something goes, it asks. You can move or fix the new layer with the normal tools.
+- **Not in V1:** redrawing or "improving" your hand drawings, or adding in-betweens between your drawn frames. A drawing is only pixels with no bones, so this needs much more than V1 has (Version 2+).
+
+**Internet search is the AI's job, not the engine's.** When a request needs outside knowledge ("make the Dark Lord from my sister's favorite YouTube channel"), Terra or Grok may search the internet, **and the chat shows what it is searching** ("Searching YouTube for …"). The AI then turns what it learned into engine words, for example "Dark Lord = a red stick figure with a hollow head". That character is remembered, so the next "Dark Lord" looks the same. The engine itself never searches. It only gets plans, like today.
+
 ## 2. What it will NOT do in V1
 
-- It will **not animate your hand-drawn pictures limb by limb.** A drawing is just colored dots (pixels) with no bones inside. The AI *can* move a drawing you named as a Symbol as one whole piece: slide it, bounce it, spin it, grow it or shrink it.
-- Characters are **stick figures only.** By default the classic stick figure: a solid head sitting right on the body, no neck (Arthur, D-0180). You can choose color, line thickness, head size, hollow or solid head, and neck or no neck. No faces, clothes or custom bodies yet.
+- It will **not animate your hand-drawn pictures limb by limb**, redraw them, or add in-betweens between your drawn frames. A drawing is just colored dots (pixels) with no bones inside. The AI *can* move a drawing you named as a Symbol as one whole piece (slide, bounce, spin, grow or shrink), and it *can* add effects, powers and backgrounds on a new layer over your own animation (section 1, "50-50").
+- Characters are **stick figures only.** By default the classic stick figure: a solid head sitting right on the body, no neck (Arthur, D-0180). You can choose color, line thickness, head size, hollow or solid head, and neck or no neck. No faces or custom bodies (four arms, animals) in V1; simple outfits are only colored body lines. (Effects, powers, simple backgrounds and engine-made symbols *are* in V1: see section 1, "More than stick figures". Detailed drawn backgrounds, drawn clothes and other bodies are Version 2+.)
 - **No drag-the-joints posing tool** for now. You chose to leave it out. It could be added later in about 1 day.
 - No talking or lip-sync, no crowds (V1 limit: up to 4 characters and 4 objects in a scene), no 3D camera moves.
-- Scenes are short: up to about 8 seconds (the exact cap comes from Phase 1's memory test).
-- **No fade** (objects slowly appearing/disappearing). Arthur's decision: it doesn't fit the app.
+- Scenes: up to about 40 seconds. A 30-second fight saves, using the compressed save Arthur approved (2026-10-05).
+- **No fade** (objects slowly appearing/disappearing). Arthur's decision: it doesn't fit the app. Effects like smoke don't fade either: they break into smaller pieces that drift and shrink away.
 - **V1 = animation only.** No sound effects and no character voices; those are Version 2 or later.
 - **No Blender or motion files.** Every move is made by the engine's math (Version 2 or 3 may revisit this).
 - **No move-picker buttons** in the finished app. Everything is made and edited through chat. (The test buttons in Phases 1–4 are temporary and only in review copies.)
 - It never changes your existing frames or layers. Every new scene goes on a **new layer**.
 - **You never have to place anything.** You don't move the playhead or type frame numbers. You say it in story words ("after the stick figure punches, a ball bounces") and the AI works out where it goes.
 
-## 3. The 5 phases
+## 3. The phases (5-day plan, Arthur 2026-10-05)
 
 Each phase is built in a separate review copy of the app (same as SPEC-0016). You test it there. Nothing reaches the real app until you say PASS and then "publish".
+
+| Day | Arthur's day | Phase | What gets done |
+| --- | --- | --- | --- |
+| **Mon Oct 5** | No school, **big day** (about 8 h) | 2, Part B | Stick-figure fundamentals finished: round 8 review, then fix the last notes (cartoon fight with no pattern, arms never swing round the head, a runner stops before the friend he runs to, "Saved" stays Saved when you press Play). PASS → publish Part B. |
+| **Tue Oct 6** | No school, **biggest day** (12–14 h) | 2C (new) | Beyond stick figures: effects (fire, lightning, water, smoke, flickering light), powers (fire blast, water shield, teleport), simple backgrounds that move, original symbols and key poses, editing a made animation, effects aimed at any spot and timed to frames you drew. Several review rounds. |
+| **Wed Oct 7** | School, light | 3 | AI connected: Terra and Grok get the lessons first, internet search with a visible "Searching …" line, names become remembered characters, adding effects to your own hand-drawn animation ("50-50"), plan checker, test bench. Needs Dad's xAI key and Arthur's OK for paid tests. |
+| **Thu Oct 8** | School, light | 3 test + 4 | Test day (Arthur rates results, 15–30 min) and the AI Animator in the editor: chat → preview → Apply, follow-up edits, colors and frames per second by chat, simple outfits. |
+| **Fri Oct 9** | School, light | 5 | Cleanup: test buttons removed, final check by chatting, final PASS, publish. Dad's side test: Blender files (outside the app). |
+
+**Honest risk:** this is a lot for 5 days. Every new thing is built as a simple V1 version first. The permanent rule still wins: anything that doesn't look natural or good by Friday is left out of V1, not shipped broken.
+
+### Phase 2 Part B progress (review copy, rounds 1–8, not published)
+
+- **Built:** every basic move (stand/breathe, jump and running jump, wave, sit, squat, kick, punch with jab/straight/power/uppercut/overhand, block, get hit, almost fall and catch yourself, get knocked down, get up, turn, look back, fall/trip, high-five, throw/catch/hand-off/bounce pass, pick up), moods (natural, robot, sneaky, tired, happy, angry, irritated, sad, hurt, heavy), scene planner (moves flow into each other, partners timed to each other, held objects stay in the hands, eyes look where it matters), the energetic fight director, and the review-only "Random combo" exam (a new never-seen combo every press).
+- **Rules the engine learned** (each one is code plus a line in `moves/lessons.ts`): anticipation always opposite the action ("input behind, output in front"), arms swing round the body and never windmill or go round the head, balance (the weight stays over the feet), personal space in fights, no unnecessary key poses, accidents have a cause, arrive into a move, go from where you are, hands busy, one way round.
+- **Round 8 (2026-10-05):** 280 automated tests pass; 400 never-seen random plans and 1,800 move pairs have 0 problems; a 30-second fight saves, reopens and plays in the app.
+- **Arthur's decision (2026-10-05):** the robot's high-five arm stays **bent** on the way up behind the head, and straightens only at the slap.
+- **Round 8 review (2026-10-05):** walk-turn-walk 9–10, walk up and high-five 10, passes and long pass 10, run-trip-get-up 9–10, squat-jump-sit 9–10, run-grab-throw 9, jab-punch-kick 8–9, sneak 8–9, long fight 8, block-block-hit 7–8, run 7, energetic fight 5–6, one random combo 3 (others 7–9). **Parkour: "a master animation"**. It is the reference for a good run, weight, anticipation, speeding up and slowing down, with run-grab-throw, the passes and run-trip-get-up.
+- **Round 10 (Arthur's final stick-figure round, 2026-10-05):** walk 10, run 10, parkour 10, passes and high-five 9–10, trip-get-up 9–10, random combo 7 (first time). Fixes: jog with a small hop, lower resting arms, no guard stance by default, straight arm paths (never round the head), ground fight without floating or wiggling, both-hand punches, dash punch, catch the punch, lift-and-slam, squash and stretch at high fps, 3 new story buttons.
+- **Round 10 review and Round 11 = THE LAST ROUND (Arthur, 2026-10-05, ~7 PM):** walk, run and jog 10; jab-punch-kick and long fight 8–10; walk up and high-five 9–10; passes 9–10; story 1 9–10; story 2 10 except the carried ball held straight out (4); story 3 10 except the sad walk at the start (0–1); parkour 10; run-grab-throw, trip-get-up and squat-jump-sit 9; sneak 8; ground fight 8; overhand-from-range 7–8; ground counter 6–7; energetic fight 5; dash punch "better than I expected". Arthur: **no more rounds after round 11, no new buttons** (only the random combo changes). Round 11 fixes, built at the same time by 10 helpers: almost-fall = short teeter then a catching step back; dash anticipation (punching fist cocked by the head in the air, shoulders twist on landing, slight arc, then a step forward); fast get-up in a fight (legs push away, a hard visible arm push, legs extend, face the other); no fighting-stance feet by default (natural stand, walk over with hands up a little, no boxer shuffle); press the advantage when the other is down or off balance (unless the request says otherwise); a vague fight is filled in (random combo); carry by weight (a ball in one hand at the side); every walk lifts its feet; strikes straight out of a jog.
+- **Round 11 result (2026-10-05, built and checked, waiting for Arthur):** 315 of 316 automated tests pass; 400 never-seen plans, 1,800 move pairs, all exams and arm paths have 0 problems; all 8 energetic fights pass at 24 and 12 fps; 2 of 200 random combos have a problem. Not done: the gait does not yet flow straight into a strike (it jogs over, then a short stop); grab the punch, lift-and-slam, roll away; an angry dash on a very wide page has one 250 px joint jump at 12 fps (limit 240); some energetic fights take 10–35 s to build.
+- **Round 11 review and Round 12 (Arthur, 2026-10-05 night):** almost everything 10/10. A small final fix: the dash punch must SHOW the loaded punch (fist cocked behind, other arm out in front, leaning back) for the whole airborne part, then the arms switch on landing, one step; get-ups 2–3× slower (too fast is unnatural); the energetic fight needs breaks of 3–4 s at most, more punching, varied follow-ups (not always a stomp: a hop-and-punch down, a lift-and-slam, a parry and fast counter) and never a pattern.
+- **Round 12 review and Round 13 (Arthur, 2026-10-05, ~9 PM; Phase 2B must finish tonight):** dash: the anticipation speeds up through the air, then an overhand that goes straight into the face (never downward), a visible impact, and he ends STANDING (no lunge or half-fall). Get-ups: no sliding on the floor (friction), same overall speed, the rise from the crouch a bit slower and ending in a small hop backwards (spine leaning back) for space. Energetic fight: action about every second, mixed hands (not left-left-left then a right), smarter fighters (dodge a stomp and counter, fight harder when hurt), never a pattern. New rule: a figure standing still always stands upright unless asked otherwise.
+- **Round 13 review (Arthur, 2026-10-05, ~10:15 PM):** dash punch PASS (8/10); ground fight 7–8/10 (rise slower, no pause before a farther back hop, legs straighten in the air and bend a little on landing — done that night). Energetic fight: no slow, off-timing dash at the start (a dash only with room for a full-speed run-up — done), no fast walking ("walking fast looks weird": jog, run or dash instead), run over to someone on the floor, more special attacks (grab, spin, throw), a hit about every second, break any pattern the moment it shows. Worked on overnight; Arthur reviews on Tue Oct 6.
+- **2026-10-06 — Phase 2 PASS (D-0181):** barrage, lift-and-slam and energetic fights passed after the Oct 6 rounds; everything in the review copy published in `6430fcf85936dceffdbd5b3276ed7231775264c4`. Open engine checks listed in TODO (ANIM-KNOWN-3).
+- **Oct 6 review steers (Arthur):** back hop = a real jump (load, legs extend, feet close together in the air, land, squash) on Earth gravity (air time from the hop height, never from mood); lift-and-slam = grab the FOOT, haul (a strain, jogging pace), swing overhead like a bat, turn, gravity slams him fast, the body bounces up on impact, air resistance (limbs trail, the body bows, never stiff); a fighter turns to face the opponent before taking a hit, and a hit pushes the body away from where it came from; a BARRAGE = a punch about every 0.3 s, leaning back for power; no walking or jogging in a fight. Grab-spin-throw: built but paused in fights. Arthur's tip: in 2D the thrown one must be drawn BEHIND the thrower as he swings round, then in front again (this needs a per-picture drawing order, which is a drawing change waiting for Arthur's OK).
+- **Round 9 (2026-10-05):**
+  - **A real run plus a new jog.** Walk, jog and run are three speeds. Jog is nearly twice walking speed and never airborne. Run is airborne at full speed: both feet leave the ground every step (Arthur's drawing: back foot just left its spot, front foot not landed yet), like parkour's run. The legs and arms pass each other only while a foot is on the ground, never in the air.
+  - **Frames per second:** every move is checked at 8, 10, 13, 15 and 24 FPS.
+  - **Faster kick.**
+  - **Tired:** smaller breathing, and the arms sink a little. Very tired means bent over, arms straight down onto the knees.
+  - **"Almost knocked over" pose** from Arthur's drawing (head and chest thrown back, an arm flung up by the head), with a smooth way into it, facing either way.
+  - **A mad stomp** that doesn't look like limping or skipping.
+  - **Energetic fight:**
+    - no random "step back, hands down, hands up"
+    - no repeating pattern
+    - **ground fighting**, used only when the request (or the energetic fight) calls for it: stomp on someone down, mount and punch, grab the feet and throw, and a quick get-up counter (grab the arm, spin, throw).
+
+### Phase 2C — Beyond stick figures (new, 2026-10-05) · Tuesday Oct 6
+
+**V1 size (Arthur, 2026-10-05): "version one, not version 10."** A beta user needs the basics working well, not everything. So Phase 2C is a **small set done well**: the few effects, powers and background pieces below, each one simple and good. Anything more (more powers, more effects, detailed backgrounds) waits for Version 2+.
+
+**Builds:** the fundamentals of animation for things that are not stick figures, taught as rules, not drawn frames:
+- **Effects:** fire (flames flicker and rise), lightning (a fast jagged flash), water (flows, splashes), smoke (puffs that break apart, drift and shrink), a light bulb flickering. Each effect has knobs: size, color, direction, speed, spread, and where it starts (a hand, the ground, a point in the sky).
+- **Original effects, never told (Arthur, 2026-10-05):** effects follow the same "3 + 3" rule as stick figures. The engine learns *what makes* fire look like fire (flicker, rising, spreading, colors fading from bright to dark), not one fixed fire. So it can make things nobody wrote: a **green flame**, a **wildfire** that spreads along the ground, a huge fire, or other variants built from the same rules. When the AI doesn't know what something looks like, it searches the internet (Phase 3) or uses what it already knows, then describes it to the engine in engine words (color, size, spread, speed).
+- **Powers:** effects joined to body moves with the same timing rules as a punch: a ready pose, a build-up (anticipation), the blast, a recoil. V1 powers: fire blast from the hands, water shield, teleport (gone in a flash or puff, appears somewhere else). The other figure can react (shield up, get hit, get knocked back).
+- **Backgrounds:** simple drawn backgrounds (sky, ground, hills, trees, buildings, spikes, a pit) on their own layer behind the figures, plus moving pieces (clouds, flowing water, a flickering light).
+- **Original symbols:** the engine builds new props from simple shapes (circles, lines, polygons) and names them ("Spike", "Box", "Bat"). They become normal Library symbols.
+- **Original key poses:** a new sitting style or fighting style, written as key poses. The engine still does every in-between and keeps the body rules. A named pose or style is kept and can be used again ("remember this as my fighting style").
+- **Editing a made animation:** remake only the part that changed (a stronger punch, a slower run, another color) from the kept plan.
+- **Effects for your own animation (engine half of "50-50"):** an effect or power can be aimed at any spot on the page and timed to frames that are already there, on a new layer. (The AI half, finding the spot in your drawing, is Phase 3.)
+
+**How Arthur tests it:** review buttons in the app copy (temporary, like Part B): fire blast vs water shield, teleport, lightning strike, smoke, flickering bulb, a background with drifting clouds, "make an original symbol", "a new sitting style", "edit: make the punch stronger". Plus random combos that mix moves, powers and effects.
+
+**Pass when:** the effects and powers look good at 12 fps, have clear anticipation and timing, stay inside the page, and save, reopen and export like other frames.
+
+**Storage note:** remembering named poses, styles and characters must use places the project already saves (the Library symbols and the per-project AI Animator record). If it needs anything new in the saved file or the account, Claude asks Arthur first (saving and user data are protected).
 
 ### Phase 1 result — D-0179 (Arthur PASS, published `b7a0800`)
 
@@ -99,9 +170,14 @@ Every move also gets a **style** knob: natural, robot, sneaky, tired, happy, ang
 
 **Not included:** AI.
 
-### Phase 3 — AI director = Test 1 (Grok vs Terra) · about 2 days
+### Phase 3 — AI director = Test 1 (Grok vs Terra) · Wednesday Oct 7 (build), Thursday Oct 8 (test)
 
-**Builds:** the AI director. When it connects, it first gets the **lessons** from the moves library (see section 1). Grok (xAI) and Terra each get the same request and write a plan. The engine checks and fixes the plan, then makes the frames. A private **test bench page** runs a fixed set of **20 test prompts** through both AIs and shows the results side by side. **5 of the 20 are "never taught" moves** (for example a cartwheel, a robot dance, tiptoeing, throwing a ball, a victory celebration): the "3 + 3" test of whether the AI can invent original moves that still look natural. Others use styles ("walk like a robot", "a tired run") and energy ("a powerful punch").
+**Builds:** the AI director. When it connects, it first gets the **lessons** from the moves library and from Phase 2C's effects, powers and backgrounds (see section 1). Grok (xAI) and Terra each get the same request and write a plan. The engine checks and fixes the plan, then makes the frames. A private **test bench page** runs a fixed set of **20 test prompts** through both AIs and shows the results side by side. **5 of the 20 are "never taught" moves** (for example a cartwheel, a robot dance, tiptoeing, a victory celebration, a new power): the "3 + 3" test of whether the AI can invent original moves that still look natural. Others use styles ("walk like a robot", "a tired run"), energy ("a powerful punch"), powers ("a fire stick figure blasts fire, the blue one shields with water") and Dad's and Arthur's story tests (block-block-hit, parkour over spikes).
+
+**Also builds (2026-10-05):**
+- **Internet search, only when needed.** Terra and Grok may search the internet when a request needs it (a YouTube channel's characters, what something looks like). The chat shows a line saying what it is searching ("Searching YouTube for …"). The search is the AI's job; the engine never searches. The Assistant's own search is not changed.
+- **Names become characters.** The AI turns what it learns into engine words ("Dark Lord = a red stick figure with a hollow head") and the character is remembered for later requests (see the storage note in Phase 2C).
+- **Adding to your own animation ("50-50").** Only when you ask it to add to frames you drew, the AI is sent small pictures of those frames so it can find where the figures and hands are. It then writes a plan for effects on a new layer, timed to your frames. If it isn't sure, it asks you. Your drawings are never changed. Test: you draw a short fight by hand, then say "red is fire, blue is water".
 
 **Needs first:** the xAI key, set up by your dad, and **your OK for small paid test calls** (see section 4).
 
@@ -111,9 +187,9 @@ Every move also gets a **style** knob: natural, robot, sneaky, tired, happy, ang
 
 **Not included:** typing in the real editor chat (that's Phase 4).
 
-### Phase 4 — AI Animator in the editor · about 2 days
+### Phase 4 — AI Animator in the editor · Thursday Oct 8
 
-**Builds:** the real flow, **chat only, no move-picker buttons**. Type in the shared chat box. The AI plans the animation and a small **preview** plays right in the chat. Press **Apply** and editable frames appear on a new layer. Undo works. Follow-ups edit only what you asked: "make the punch more powerful" changes that punch's energy, "make him walk like a robot" changes that walk's style, "make the jump higher" or "slower" change those knobs. The kept plan is changed and the scene is remade.
+**Builds:** the real flow, **chat only, no move-picker buttons**. Type in the shared chat box. The AI plans the animation and a small **preview** plays right in the chat. Press **Apply** and editable frames appear on a new layer. Undo works. Follow-ups edit only what you asked: "make the punch more powerful" changes that punch's energy, "make him walk like a robot" changes that walk's style, "make the jump higher" or "slower" change those knobs. The kept plan is changed and the scene is remade. The AI can also set figure colors and the frames per second, and add a simple outfit (shirt and pants as colored body lines), when the user asks.
 
 *Stretch goal, only if time allows:* say "remember that move as robot dance" and an AI-invented move is saved into the library, so the library grows for free.
 
@@ -129,9 +205,11 @@ Every move also gets a **style** knob: natural, robot, sneaky, tired, happy, ang
 
 **Not included:** Animating hand drawings limb by limb.
 
-### Phase 5 — Library check + cleanup · about 1 day
+### Phase 5 — Library check + cleanup · Friday Oct 9
 
-**Builds:** cleanup and the final check. The temporary test lists are removed, so only the chat remains. The full library and the never-taught moves are re-checked in the real editor flow. Any move that still isn't natural gets better math; if it can't be fixed in time, it's left out of V1. No motion files are used.
+**Builds:** cleanup and the final check. The temporary test lists are removed, so only the chat remains. The full library, the effects and powers, and the never-taught moves are re-checked in the real editor flow. Any move that still isn't natural gets better math; if it can't be fixed in time, it's left out of V1. No motion files are used in the app.
+
+**Dad's side test (outside the app):** Dad tries Blender files on Friday to learn what they could add later. This doesn't change the V1 rule in section 1: the V1 app makes every move with the engine's math, unless Arthur and Dad decide otherwise.
 
 **When:** after Phase 4.
 
@@ -141,15 +219,18 @@ Every move also gets a **style** knob: natural, robot, sneaky, tired, happy, ang
 
 ## 4. Timeline and money
 
-| Days | Phase | AI money |
+| Day | Phase | AI money |
 | --- | --- | --- |
-| 1–2 | 1. Characters + engine | $0 |
-| 3–4 | 2. Moves library | $0 |
-| 5–6 | 3. Grok vs Terra test | about $1–4 total, **hard cap $5** |
-| 7–8 | 4. In the editor | under $1 of test calls |
-| 9–10 | 5. Library check + cleanup | under $1 |
+| Done (Oct 3–4) | 1. Characters + engine; 2 Round A walk + run | $0 |
+| Mon Oct 5 | 2 Part B: stick-figure fundamentals finished | $0 |
+| Tue Oct 6 | 2C: effects, powers, backgrounds, original symbols and poses, editing | $0 |
+| Wed Oct 7 | 3: AI connected (+ internet search) | small test calls only, inside the cap below |
+| Thu Oct 8 | 3 test (Grok vs Terra) + 4: in the editor | about $1–4 total for Phases 3–5, **hard cap $5** |
+| Fri Oct 9 | 5: cleanup, final PASS, publish | inside the same cap |
 
-Your review time is extra, usually the same day. Target finish: around **2026-10-15 to 10-17**, which leaves about 2 weeks for the rest of V1.
+Target finish: **Friday 2026-10-09** (Arthur, 2026-10-05). After that, a one-week roadmap for the rest of the app; V1 in about a month.
+
+**Arthur's time:** Monday and Tuesday are long working days with many short review rounds. Wednesday to Friday, Arthur only does short reviews and ratings (about 15–30 minutes a day), and Dad sets up the xAI key.
 
 **Money safety:**
 - No paid AI call happens before you say OK for Phase 3. Keys are set up by your dad, not by Claude.
@@ -158,6 +239,8 @@ Your review time is extra, usually the same day. Target finish: around **2026-10
 - The test bench stops by itself when the run reaches its budget.
 - Keys stay on the server. The browser never sees them.
 - Rough real-use cost after V1: about 1–5 cents per animation (to be measured in Phase 3).
+- **Internet search costs extra** per search. The AI searches only when a request needs it, and searches count toward the same per-request cap and the $5 test cap.
+- **Pictures of your frames cost extra** too. They are sent only when you ask the AI to add to your own animation, kept small, and counted toward the same caps.
 
 **Biggest risk: it still might not look natural.** Fix: you judge the engine (Phase 1) and every move (Phase 2) **before** any AI money is spent. If a move looks wrong, we fix that one move's math. We don't ask the AI to try harder, and we never fall back to motion files in V1. If one move can't be made natural in time, it's left out of V1.
 
@@ -168,7 +251,7 @@ SPEC-0017 adds a **new engine alongside** the app. It only writes **ordinary fra
 - login/logout, accounts, who owns which project
 - saving, Save As, reopen, recovery drafts and the project file format (no new fields)
 - your existing frames, layers and drawings (no silent deletion, ever)
-- Assistant AI replies, web search and dictation
+- Assistant AI replies, web search and dictation (the AI Animator's own search in Phase 3 is new and separate; the Assistant's search is not changed)
 - notifications
 - usage recording math (Phase 3/4 only adds the provider name, "xai" or "openai", to the same records)
 - the drawing engine (brushes, eraser, fill, lasso, tweens) and the export engine
@@ -235,10 +318,11 @@ The AI writes a strict JSON object. A strict schema is enforced with structured 
 }
 ```
 
-- Positions are fractions of the stage (0..1). Times are in seconds. The engine renders at the **project's current FPS** and never changes it.
+- Positions are fractions of the stage (0..1). Times are in seconds. **Frames per second (Arthur, 2026-10-05, not optional):** the engine always animates at the **project's own FPS**, whatever number the user picked (8, 12, 13, 15, 24…). It never switches to 12 by itself. It changes the FPS only when the user asks ("make it 8 FPS"); then the project's FPS changes and the same animation is remade with the same timing in seconds, just with fewer or more pictures. Every move must look right at any FPS from 8 to 30.
 - Limits: ≤4 characters, ≤4 objects, ≤8 s (final number set in Phase 1), ≤40 steps, ≤6 key poses per `custom` step.
 - `custom` is for special moves only. The AI writes a few key poses as angles, and the engine clamps them and fills in everything between.
 - The plan is kept, so follow-ups edit the plan, not the pixels.
+- **Phase 2C additions (2026-10-05, exact fields set when built):** effect steps (`fire`, `lightning`, `water`, `smoke`, `flicker`) with knobs (size, color, direction, speed, start point such as an actor's hand); power steps that join a body move and an effect (`fireBlast`, `waterShield`, `teleport`); a `background` section (simple pieces and their moving parts, on their own layer); `newSymbols` (a name plus simple shapes); `newPoses` (a name plus key poses as angles). Named poses, styles and characters (e.g. "Dark Lord" → red, hollow head) are kept for later requests.
 
 ### 6.4 Moves library
 
@@ -320,7 +404,7 @@ Arthur's rule (D-0179): **users never place things by hand and never use frame n
   - optional `gapSec` (0–3) for "a moment later"
 - **Default when the user gives no clue:** a follow-up to the last AI scene goes right **after** it; anything else starts at **frame 1** (`start`).
 - **Validation:** an unknown `ref` is a retry reason (never a silent guess). The timeline grows if needed (`ensureTimelineLength`). The start frame is computed in code from the kept plans, not by the AI doing frame math.
-- **Honest limit:** the AI knows what's in **AI-made scenes** (it kept their plans). It cannot *see* hand-drawn frames (no vision in V1), so for hand drawings it only knows their length and layer names. "After my drawn dog jumps" won't work in V1; "at the end" or "after the punch" will.
+- **Honest limit:** the AI knows what's in **AI-made scenes** (it kept their plans). Hand-drawn frames are only looked at (small pictures) when you ask it to add to your own animation (section 1, "50-50"). Otherwise it only knows their length and layer names. "After the punch" or "at the end" always work; finding a moment inside a hand drawing works only when it is looking at those frames.
 
 ## 7. Where it plugs in
 
@@ -393,6 +477,7 @@ There is no test runner today. Node 24 can run TypeScript tests directly with `n
 3. **AI plan quality:** the AI may pick odd moves or timing. Strict schema, repair, one retry and the 20-prompt bench measure and limit this.
 4. **Inserting a layer shifts saved layer IDs.** The save step matches layers by position (`buildUnifiedProjectSnapshot`). The new layer is inserted the same way the existing "+ Layer" button does it, so this adds no new risk. Phase 1 still checks save → reopen with layers above and below.
 5. **xAI details** (model name, structured output, price) aren't in the code yet and are confirmed at Phase 3 start.
+8. **Five days is tight** (2026-10-05). Mitigation: hardest work on the two free days, simple V1 versions of every new thing, and anything that isn't good by Friday is left out of V1.
 
 **Arthur's decisions (2026-10-04, recorded as D-0179)**
 1. Replace SPEC-0008's paused video plan with this one: **Yes.**
@@ -407,6 +492,29 @@ There is no test runner today. Node 24 can run TypeScript tests directly with `n
 8. **Styles:** every move has a style knob (natural, robot, sneaky, tired, happy, angry, heavy).
 9. **Teach-by-example:** the AI is taught with lessons from the moves library every time it connects, so it can invent original moves that are still natural; tested with never-taught prompts in Phase 3.
 10. **V1 = animation only:** no sound effects or voices until Version 2+.
+
+**Arthur's decisions (2026-10-05)**
+11. **Deadline: 5 days, Mon Oct 5 – Fri Oct 9.** The hardest, longest work goes on the two school-free days (Mon, Tue). Wed–Fri hold the lighter work and short reviews.
+12. **V1 is "version one, not version 10":** the basics a beta user needs, working well. New things are small, simple versions.
+13. **Beyond stick figures (new Phase 2C):** the engine learns effects (fire, lightning, water, smoke, flicker), powers (fire blast, water shield, teleport), simple moving backgrounds, original symbols, original key poses, and editing a made animation, all as rules.
+14. **Learns from the user:** named poses, styles and characters are remembered and reused.
+15. **Internet search:** Terra and Grok (not the engine) search only when needed and show what they search. They turn references into engine words ("Dark Lord" = red stick figure, hollow head).
+16. **Robot high-five:** the arm stays bent on the way up behind the head; it straightens only at the slap.
+17. **Blender:** Dad tests Blender files on Friday as a side test. The V1 app still uses no motion files unless Arthur and Dad decide otherwise.
+18. **No new bodies in V1:** four legs, four arms, three heads, stretchy bodies and regenerating limbs are Version 2+ (they need a new body and break the "bones never stretch" rule).
+19. **50-50 (Claude's call, Arthur asked):** in V1 the AI can add effects, powers and backgrounds on a new layer over the user's own animation (it looks at small pictures of those frames only when asked). Redrawing hand drawings or adding in-betweens to them is Version 2+.
+20. **Frames per second is not optional:** every animation follows the project's FPS; the AI changes it only when asked, and the same animation is remade at the new FPS (section 6.3).
+21. **Walk, jog, run:** three speeds. Jog = a short, low hop every step (well under half a second; Arthur's round 10 correction: "jogging, you're actually airborne a little"); run = a clear airborne moment every step. Legs and arms pass each other only while a foot is on the ground (parkour is the reference).
+22. **Ground fighting** (mount, stomp, grab and throw, get-up counter) is part of V1 fights, used when the user's request or the energetic fight calls for it.
+23. **No guard stance by default (round 10):** stick-figure fights stand loose, hands low (about half as high as in a real guard, around the belly), arms a little apart. Hands held higher only when the user asks for it. A real boxing guard only when the user explicitly asks for realistic or educational (MMA-style) fighting. The engine can do all three.
+24. **Fights never have a pattern:** both hands punch about 50/50 (strong punches with either hand), everything a little different each time; a fighter lowers his hands while the other is down or staggering.
+25. **Dash punch:** run to top speed, crouch, push off into a short airborne dash (arm back), the front foot lands as the punch hits, then a little slow-down (Arthur's drawings). Also: catching a punch with both hands, and lifting a fallen fighter to slam him (Arthur's drawings).
+26. **Squash and stretch only at high frame rates** (Claude's recommendation: 20 fps and up), one or two pictures (e.g. a dash push-off); never at 12 fps or below, where it looks wrong on stick figures.
+27. **Lying is lying:** a figure on the floor never floats or wiggles; a stomp dents the body and bounces the legs; getting up is a real physical get-up.
+28. **Press the advantage (round 11):** in a fight the user did not describe in detail, a fighter who sees the other down or off balance goes after them (stomp, kick, overhand, uppercut) and the other answers (cover up, move away, get hit, strike back). Only a request that says otherwise ("blue looks at him while he gets up") holds back.
+29. **Carry by weight (round 11):** a held symbol changes how the figure moves by its weight: a ball is carried in one hand at the side and the walk stays the same; heavy things use both arms, shorter steps and a lean back.
+30. **No guard stance means the feet too (round 11):** by default fighters stand naturally and walk or run over with the hands up a little; the boxer stance and shuffle steps only for a realistic guard.
+31. **Ideas noted for later, not in round 11:** a jump-and-punch-the-ground shockwave that can't be blocked (an effect, Phase 2C), grabbing the hand, a kick that drops someone to their knees, a push to the floor.
 
 ## 10. Future (Version 2 or 3, not V1): motion files
 

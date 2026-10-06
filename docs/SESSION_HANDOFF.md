@@ -1,5 +1,19 @@
 # Session Handoff
 
+## D-0181 — SPEC-0017 Phase 2 (all stick-figure moves and fights) published; Phase 2C is next (current)
+
+Arthur passed the rest of SPEC-0017 Phase 2 on 2026-10-06 (D-0181): every move and combo he reviewed rated 7–10/10, including dash punch, running hammer strike, ground fight and counter, barrage (8–9/10), lift-and-slam and the energetic fights ("a machine — in a great way"; his dad loved the dashes). Product commit `6430fcf85936dceffdbd5b3276ed7231775264c4` is on main and GitHub. The review copy and its branch are retired.
+
+- **Moves library (no AI, `src/lib/animator/moves/`):** stand/breathe, jump, wave, sit, squat, kick, punches (jab, straight, power, overhand, uppercut), turn around, trip/fall and get-up, high-five, block/parry, hit reactions, dash punch, barrage, stomp, running hammer strike, lift-and-slam, grab-spin-throw (built; paused in fights), ball hold/pass/throw/catch, object moves for Symbols. `plan.ts` chains moves and keeps two figures in sync; `fightScene.ts` directs energetic fights; `lessons.ts` is the AI lesson pack (rules in Arthur's words).
+- **Rules the engine learned (examples):** anticipation before every action; Earth gravity (jumps and slams speed up); weight carries through (the slammer sways, the slammed body arches and eases out); every hit really touches and pushes the other away from where it came from (no "portal punches"); a fighter faces its opponent first; no walking in a fight (jog, run, dash); a dash takes off far out and is really airborne; a barrage is "the switch", strictly left-right, every punch landing on a picture; something happens every 1.5–2 s; no patterns; ~60% punches, the rest barrage, dash, kicks and floor attacks (lift-and-slam, hammer strike, stomp about a third each).
+- **Rig:** the torso may tip up to 15° past flat (for the slammed arch); checked that no other move asks for it.
+- **Saving (Arthur's Option A, earlier in Phase 2):** a project too large to store raw keeps its frame pictures losslessly compressed (deflate) in the account bundle and recovery drafts; every project that fit before is stored byte-for-byte as before.
+- **Checks:** 324 of 327 animator tests pass. Known open (engine quality, not app breakage): (1) a tired or angry dash alone can't be both fully airborne and faster than the run when the run's last stride lands at the wrong spot; (2) fight seed 8 has one 133 px joint jump at 24 fps (limit 120); (3) one short "vague fight" test has a reaction off its strike. Type check, lint and production build pass.
+- **Frame viewer:** the review-only frame-by-frame viewer was not committed (it would be public); it stays in the session scratchpad.
+- **In the main app** the Engine test list stays hidden (review flag); users reach these moves through the AI director (Phase 3).
+
+**Next:** SPEC-0017 Phase 2C (Tue Oct 6): effects (fire, lightning, water, smoke, flickering light), powers (fire blast, water shield, teleport), simple moving backgrounds, original symbols and key poses, editing a made animation. Short plan → Arthur's OK → review copy.
+
 ## D-0180 — SPEC-0017 Phase 2 Round A (walk + run) published; Round B is next (current)
 
 Arthur passed SPEC-0017 Phase 2 Round A on 2026-10-04 (D-0180): walk and run are "great for version one"; no more tweaks needed. Product commit `3e40515c99b04c370b07b9aeb93fcf5fe4e3b2cf` is on main and GitHub.

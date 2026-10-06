@@ -12,6 +12,7 @@ import { chainMoves } from "./sit.ts";
 import { STYLE_CHANGES } from "./styles.ts";
 import { stand, stepInto } from "./turn.ts";
 import { footAt, handAt as handTo, safePose } from "./squat.ts";
+import { poseStyle } from "./poseMaker.ts";
 
 // SPEC-0017 Phase 2 (Arthur, 2026-10-05: "When they get hit, they get hurt, get back up... Small hits barely
 // hurt. Big hits hurt fast, and recovery takes longer and longer"). Getting hit, worked out from RULES,
@@ -105,9 +106,9 @@ function tallDrop(feet: Feet, at: number, straight: number) {
 // FIGHT LOOK (round 9): the stance is LOOSE by default (hands around the chest), the boxer's guard only for
 // `look` "realistic" (punch.ts LOOSE / GUARD); either way the hands sink toward the belly as it gets hurt.
 const BEATEN_ARMS: Record<"l" | "r", WorldArm> = { l: { upper: 10, fore: 81 }, r: { upper: 2, fore: 70 } };
-export function slumpedGuard(feet: Feet, hurt: number, at = guardAt(feet), look?: GuardLook): PoseAngles {
+// `base` (ORIGINAL POSES): a remembered fighting pose's chest, head and arms instead of the look's stance.
+export function slumpedGuard(feet: Feet, hurt: number, at = guardAt(feet), look?: GuardLook, base: PoseAngles = stanceArms(look)): PoseAngles {
   const h = clamp01(hurt);
-  const base = stanceArms(look);
   const lean = base.lean + 22 * h;
   const upper = withPose(base, {
     lean, head: base.head + 14 * h,
@@ -669,8 +670,8 @@ export const readyFeet = (pose: PoseAngles, look?: GuardLook) => look === "reali
 // Feet it can hold its guard on for a moment without stepping (a wide stance is fine inside a combo).
 export const canSettle = (pose: PoseAngles, look?: GuardLook) => look === "realistic" ? spreadOf(pose) >= 0.2 : spreadOf(pose) > -0.05;
 // The pose to STEP INTO to wait (realistic: the fighting stance; otherwise the natural stand).
-export const standReadyPose = (pose: PoseAngles, hurt: number, look?: GuardLook): PoseAngles =>
-  look === "realistic" ? fightReadyPose(pose, hurt, look) : slumpedGuard(NATURAL_FEET, hurt, guardAt(NATURAL_FEET), look);
+export const standReadyPose = (pose: PoseAngles, hurt: number, look?: GuardLook, base?: PoseAngles): PoseAngles =>
+  look === "realistic" ? fightReadyPose(pose, hurt, look, base) : slumpedGuard(NATURAL_FEET, hurt, guardAt(NATURAL_FEET), look, base);
 
 // WALK OVER, NOT THE BOXER SHUFFLE (Arthur, round 11: "you're doing guard-stance steps. No. They should
 // just walk over with their hands up a little — their hands not going left, right, left, right"): a default
@@ -874,11 +875,17 @@ function pushedBack(out: MoveOutput, dx: number): MoveOutput {
   const lift = out.keys.findIndex((k) => (k.contacts ?? []).length === 0);
   if (lift < 1) return out;
   // (Only once no foot is on the floor: a planted foot never slides.)
+  // THE PUSH THROWS THE BODY, IT NEVER SKIDS THE FEET (Arthur: "any foot slide is a fail"): no key planting a foot
+  // is not enough — the body stands its lowest point on the floor, so a foot would drag back along it. The hit lifts
+  // the body off its feet first (a little arc, ~a fifth of the push high, landing on the back at the impact), and the
+  // push carries it back only once the feet are clear.
   const t0 = out.keys[lift].t, t1 = Math.max(t0 + 1e-3, out.marks.impact ?? out.end.t);
+  // (The feet leave the floor from the last key that planted them: the legs going is the body leaving the floor.)
+  const high = 0.2 * Math.abs(dx), tUp = out.keys[lift - 1].t;
   const keys = out.keys.map((k) => {
-    if (k.t <= t0) return k;
-    const u = Math.min(1, (k.t - t0) / (t1 - t0));
-    return { ...k, x: k.x + dx * (1 - (1 - u) * (1 - u)) };
+    if (k.t < t0) return k;
+    const u = Math.min(1, (k.t - t0) / (t1 - t0)), w = Math.min(1, (k.t - tUp) / Math.max(1e-3, t1 - tUp));
+    return { ...k, x: k.x + dx * (1 - (1 - u) * (1 - u)), lift: (k.lift ?? 0) + high * Math.sin(Math.PI * w) };
   });
   return { ...out, keys, end: { ...out.end, x: out.end.x + dx } };
 }
@@ -1056,10 +1063,10 @@ export function hurtSettings(settings: MoveSettings, hurt: number, styleGiven: b
 // (NATURAL STAND, round 11: a default fighter's feet stay where they are — a wide stance inside a combo, its
 // natural stand between exchanges — and only crossed feet are put in the natural stand; standReadyPose is
 // the pose it STEPS into to wait.)
-export function fightReadyPose(pose: PoseAngles, hurt: number, look?: GuardLook): PoseAngles {
+export function fightReadyPose(pose: PoseAngles, hurt: number, look?: GuardLook, base?: PoseAngles): PoseAngles {
   const feet = feetOf(pose);
-  if (look !== "realistic") return slumpedGuard(canSettle(pose, look) ? feet : NATURAL_FEET, hurt, undefined, look);
-  return feet.l - feet.r >= 0.2 ? slumpedGuard(feet, hurt, undefined, look) : slumpedGuard(fightFeet(feetOf(STAND)), hurt, undefined, look);
+  if (look !== "realistic") return slumpedGuard(canSettle(pose, look) ? feet : NATURAL_FEET, hurt, undefined, look, base);
+  return feet.l - feet.r >= 0.2 ? slumpedGuard(feet, hurt, undefined, look, base) : slumpedGuard(fightFeet(feetOf(STAND)), hurt, undefined, look, base);
 }
 
 // How far in front of the hips (px) a kick's foot reaches at the hit, from this stance.
@@ -1075,7 +1082,10 @@ export function kickReach(start: Stance, params: KickParams, settings: MoveSetti
 // standing one lowers his hands"): with `relax` and a long enough wait, the fighter lets its hands sink to
 // its belly and hips (no one to defend against), breathes, and brings them back up just before it goes in.
 // How low and how quick are a little different every time (never the same twice).
-export type GuardParams = { seconds?: number; hurt?: number; guard?: GuardLook; relax?: boolean };
+// style (ORIGINAL POSES): the name of a remembered fighting pose (poseMaker.ts): it waits with that pose's
+// chest, head and arms on its own planted feet (unknown names: the usual stance).
+export type GuardParams = { seconds?: number; hurt?: number; guard?: GuardLook; relax?: boolean; style?: string };
+const guardStyle = (params: GuardParams) => poseStyle(params.style, ["fight", "stand", "victory"]);
 export const RELAX_AFTER = 1.2;
 export function relaxedPose(ready: PoseAngles, k = 1): PoseAngles {
   const lower = (side: "l" | "r", arm: WorldArm) => armFromWorld(ready.lean, side, blendArm(worldArm(ready, side), arm, clamp01(k)));
@@ -1086,7 +1096,7 @@ export function guardUp(start: Stance, params: GuardParams, settings: MoveSettin
   // NATURAL STAND (round 11): a default fighter not yet in its natural stand (feet wide after a strike)
   // first steps into it, then waits there; only `guard: "realistic"` waits in the fighting stance.
   if (look !== "realistic" && !readyFeet(start.pose, look)) {
-    const step = stepInto(start, standReadyPose(start.pose, clamp01(Number(params.hurt ?? 0)), look), settings);
+    const step = stepInto(start, standReadyPose(start.pose, clamp01(Number(params.hurt ?? 0)), look, guardStyle(params)), settings);
     const left = Math.max(0, Number(params.seconds ?? 0.5) - (step.end.t - start.t));
     return chainMoves(start, [() => step, (from) => holdGuard(from, { ...params, seconds: left }, settings)]);
   }
@@ -1095,7 +1105,7 @@ export function guardUp(start: Stance, params: GuardParams, settings: MoveSettin
 function holdGuard(start: Stance, params: GuardParams, settings: MoveSettings): MoveOutput {
   const hurt = clamp01(Number(params.hurt ?? 0));
   const look = params.guard ?? settings.guard;
-  const ready = fightReadyPose(start.pose, hurt, look);
+  const ready = fightReadyPose(start.pose, hurt, look, guardStyle(params));
   const feet = feetOf(start.pose);
   const seconds = Math.max(0, Number(params.seconds ?? 0.5));
   if (params.relax && seconds >= RELAX_AFTER && canSettle(start.pose, look)) {

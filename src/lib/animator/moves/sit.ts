@@ -4,6 +4,7 @@ import { STAND, withPose, type PoseAngles } from "../rig.ts";
 import { headToward } from "./gaze.ts";
 import { amplitudeOf, beatsToKeys, lerpPose, windUp, type Beat, type MoveOutput, type MoveSettings, type Stance } from "./motion.ts";
 import { feetAhead, fromHere, handAt, onFeet as plant, placeBeats, safePose, standOrigin, type PlacedBeat } from "./squat.ts";
+import { poseStyle, seatAhead } from "./poseMaker.ts";
 
 // SPEC-0017 Phase 2: sitting down on the floor (no chair) and standing back up.
 // Sitting down: chest up and a little back, a breath in (anticipation: the opposite way of going down,
@@ -18,7 +19,7 @@ import { feetAhead, fromHere, handAt, onFeet as plant, placeBeats, safePose, sta
 // where another move can take over straight away.
 
 // Where things are, x figure height, relative to the standing hips (forward +, up +).
-const SEAT_HEIGHT = 0.012; // hips this far above the floor when sitting (the bottom rests on it)
+export const SEAT_HEIGHT = 0.012; // hips this far above the floor when sitting (the bottom rests on it)
 const FEET_AHEAD = 0.42; // the front foot this far in front of the hips when sitting (knees up)
 const HAND_CLEAR = 0.012; // a hand resting on the floor stays this far above it (never through it)
 
@@ -69,8 +70,7 @@ function between(x: number, height: number, lean: number, arms: Partial<PoseAngl
 
 // A sitting pose: hips on the floor, both feet planted, the near hand resting on the near knee and the far
 // hand on the floor beside and behind the hips. `lean` tilts the chest (back -, forward +).
-function seated(lean: number, head = 4, shoulders = 0, feet: Feet = FEET): PoseAngles {
-  const x = seatX(feet);
+function seated(lean: number, head = 4, shoulders = 0, feet: Feet = FEET, x = seatX(feet)): PoseAngles {
   const legs = onFeet(withPose(STAND, { lean, head }), x, SEAT_HEIGHT, feet);
   const { lKnee } = joints(legs, x, SEAT_HEIGHT);
   const nearHand = handTo(legs, "l", x, SEAT_HEIGHT, { x: lKnee.x - 0.01, y: lKnee.y + 0.03 });
@@ -131,7 +131,18 @@ const PATH = [{ x: -0.15, height: 0.13 }, { x: -0.27, height: 0.065 }];
 
 // hurt: sitting down hurt (the planner sets it after a fall; the hurt style is always hurt): it leans over
 // the hurt spot, holds it and looks at it (EYES ON THE INJURY).
-export type SitParams = { seconds?: number; hurt?: HurtSpot | boolean };
+// style: the name of a remembered sitting pose (poseMaker.ts ORIGINAL POSES): it sits in that pose instead
+// (the legs re-planted where its feet are; unknown names and hurt sitting keep the usual pose).
+export type SitParams = { seconds?: number; hurt?: HurtSpot | boolean; style?: string };
+
+// ORIGINAL POSES: a remembered sitting pose, sat in where this figure's feet are planted: the hips the
+// pose's own distance behind the front foot, on the floor, the legs re-bent to the planted feet, the chest,
+// head and arms as remembered. `lean` tips the chest a little (the arms keep their direction: a breath).
+function styledSeat(style: PoseAngles, feet: Feet, lean = 0, lift = 0) {
+  const x = Math.max(feet.l, feet.r) - seatAhead(style);
+  const pose = onFeet({ ...style, lean: style.lean + lean, lShoulder: style.lShoulder + lean + lift, rShoulder: style.rShoulder + lean + lift / 2 }, x, SEAT_HEIGHT, feet);
+  return { pose: safePose(pose), x };
+}
 // Arthur (2026-10-04): no needless resting; a short sit by default.
 export const SIT_DEFAULTS = { seconds: 1.2 };
 
@@ -143,9 +154,11 @@ export function sitDown(start: Stance, params: SitParams, settings: MoveSettings
   const H = settings.height;
   const { origin, feet } = groundOf(start.pose);
   const hurt = hurtOf(params, settings);
-  const sitting = (lean: number, head: number, shoulders: number) => hurt ? hurtSeated(feet) : seated(lean, head, shoulders, feet);
+  const style = hurt ? undefined : poseStyle(params.style, ["sit"]);
+  const seat = style ? styledSeat(style, feet).x : seatX(feet);
+  const sitting = (lean: number, head: number, shoulders: number) => hurt ? hurtSeated(feet) : style ? styledSeat(style, feet).pose : seated(lean, head, shoulders, feet);
   if (isSitting(start.pose)) {
-    const settle: PlacedBeat = { kind: "settle", seconds: 0.5, pose: sitting(-6, 4, 0), at: (origin + seatX(feet)) * H, name: "seated" };
+    const settle: PlacedBeat = { kind: "settle", seconds: 0.5, pose: sitting(-6, 4, 0), at: (origin + seat) * H, name: "seated" };
     return beatsToKeys(start, placeBeats(handOver(start.pose, settle, 0.6), settings), settings);
   }
   const squatPose = lowSquat(feet);
@@ -163,9 +176,9 @@ export function sitDown(start: Stance, params: SitParams, settings: MoveSettings
     { kind: "action", seconds: 0.3, pose: between(PATH[0].x, PATH[0].height, 20, forward, 0.1, feet), at: origin + PATH[0].x, ease: "smooth" },
     { kind: "action", seconds: 0.3, pose: between(PATH[1].x, PATH[1].height, 12, forward, 0.03, feet), at: origin + PATH[1].x, ease: "smooth" },
     // The bottom touches down softly.
-    { kind: "follow", seconds: 0.3, pose: seated(4, -2, 14, feet), at: origin + seatX(feet) },
-    // Settle: sit up tall (hurt: lean over the hurt knee, hold it and look at it).
-    { kind: "settle", seconds: 0.5, pose: sitting(-6, 4, 0), at: origin + seatX(feet), name: "seated" },
+    { kind: "follow", seconds: 0.3, pose: seated(4, -2, 14, feet, seat), at: origin + seat },
+    // Settle: sit up tall (hurt: lean over the hurt knee, hold it and look at it; a style: its own pose).
+    { kind: "settle", seconds: 0.5, pose: sitting(-6, 4, 0), at: origin + seat, name: "seated" },
   ];
   if (hurt) beats.push(...handOver(beats[beats.length - 2].pose, beats.pop()!, 0.6));
   return beatsToKeys(start, placeBeats(beats.map((beat) => ({ ...beat, at: beat.at * H })), settings), settings);
@@ -173,13 +186,16 @@ export function sitDown(start: Stance, params: SitParams, settings: MoveSettings
 
 // Stand up from sitting (start.pose should be SEATED, e.g. the end of sitDown). Mark: "up" (back up,
 // nearly standing and still rising: the flow point). Ends standing in STAND.
-export function standUp(start: Stance, _params: Record<string, unknown>, settings: MoveSettings): MoveOutput {
+// `style`: it sat in a remembered sitting pose (sit's style), so it rocks from where its hips are.
+export function standUp(start: Stance, params: { style?: string }, settings: MoveSettings): MoveOutput {
   const H = settings.height;
   const { origin, feet } = groundOf(start.pose);
   const swing = { lShoulder: 96, rShoulder: 88, lElbow: 16, rElbow: 20 };
+  // (Sitting in a remembered style, the hips may sit nearer or further from the feet: it rocks from there.)
+  const seat = poseStyle(params?.style, ["sit"]) && isSitting(start.pose) ? -origin : seatX(feet);
   const beats: PlacedBeat[] = [
     // Anticipation (the opposite way): rock back a little, arms drawing back, ready to throw the weight forward.
-    { kind: "anticipation", seconds: 0.45, pose: seated(-14, 6, -30, feet), at: seatX(feet) },
+    { kind: "anticipation", seconds: 0.45, pose: seated(-14, 6, -30, feet, seat), at: seat },
     // Action: the arms swing forward and the hips rock up off the floor and forward over the feet.
     { kind: "action", seconds: 0.28, pose: between(PATH[1].x, PATH[1].height, 20, swing, undefined, feet), at: PATH[1].x, ease: "smooth" },
     { kind: "action", seconds: 0.22, pose: between(PATH[0].x, PATH[0].height, 26, swing, undefined, feet), at: PATH[0].x, ease: "smooth" },
@@ -199,11 +215,11 @@ export function standUp(start: Stance, _params: Record<string, unknown>, setting
 // Sitting still: slow breaths (the chest rises and falls a little), ending back in the seated pose it
 // started in. Breathing isn't sped up by the style or speed: it takes exactly `seconds`. Hurt, it breathes
 // over its knee, still looking at it, the far hand rubbing it.
-function breathe(start: Stance, seconds: number, settings: MoveSettings, hurt?: HurtSpot): MoveOutput {
+function breathe(start: Stance, seconds: number, settings: MoveSettings, hurt?: HurtSpot, style?: PoseAngles): MoveOutput {
   if (seconds <= 0) return { keys: [], end: start, marks: {} };
   const breaths = Math.max(1, Math.round(seconds / 3)); // a calm breath takes about 3 seconds
   const feet = groundOf(start.pose).feet;
-  const inhale = hurt ? hurtSeated(feet, 21, 0.03) : seated(-7.5, 2, 3, feet);
+  const inhale = hurt ? hurtSeated(feet, 21, 0.03) : style ? styledSeat(style, feet, -1.5, 3).pose : seated(-7.5, 2, 3, feet);
   const beats: Beat[] = [];
   for (let i = 0; i < breaths; i += 1) {
     beats.push({ kind: "hold", seconds: (0.45 * seconds) / breaths, pose: inhale }, { kind: "hold", seconds: (0.55 * seconds) / breaths, pose: start.pose });
@@ -241,12 +257,12 @@ export function sit(start: Stance, params: SitParams, settings: MoveSettings): M
   const hurt = hurtOf(params, settings);
   return chainMoves(start, [
     (from) => sitDown(from, params, settings),
-    (from) => breathe(from, seconds, settings, hurt),
+    (from) => breathe(from, seconds, settings, hurt, hurt ? undefined : poseStyle(params.style, ["sit"])),
     // (Hurt, the legs were stretched out: it draws its feet back in under it, ready to get up.)
     (from) => {
       if (!hurt) return { keys: [], end: from, marks: {} };
       return beatsToKeys(from, placeBeats(handOver(from.pose, { kind: "settle", seconds: 0.4, pose: seated(-2, 2, 0), at: 0 }, 0.5), settings), settings);
     },
-    (from) => standUp(from, {}, settings),
+    (from) => standUp(from, hurt ? {} : { style: params.style }, settings),
   ]);
 }

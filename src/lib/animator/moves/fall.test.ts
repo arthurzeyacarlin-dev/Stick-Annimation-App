@@ -211,3 +211,30 @@ test("getting up to sit down: no standing pose in between (it gets up only part 
     assert.ok(look > lean + 15, `${label}: the head is turned down toward the knee (${look.toFixed(0)} vs body ${lean.toFixed(0)})`);
   }
 });
+
+// (The push itself no longer skids a foot — the body leaves the floor. NOT YET: the one stumble step before the fall still
+// slips a foot 1-6 px as it lifts and lands — stumble() in hit.ts.)
+for (const [id, todo] of [["swordFight", "the stumble step before the fall still slips a foot 1-3 px (stumble in hit.ts)"], ["elementalFight", "the stumble step before the fall still drags a foot 1-6 px (stumble in hit.ts)"]] as const) test(`a KNOCK-DOWN throws the body off its feet: no foot skids along the floor while the push carries it back (12 and 24 fps): ${id}`, { todo }, async () => {
+  const { buildScene } = await import("../engine.ts");
+  const { effectsTestScenes, makeEffectsTestScene } = await import("./tests2c.ts");
+  const skids: string[] = [];
+  {
+    const entry = effectsTestScenes().find((e) => e.id === id)!;
+    const scene = { ...makeEffectsTestScene(entry.plan!, 1920), stageWidth: 1920 };
+    const down = Object.entries(scene.marks ?? {}).filter(([name]) => name.endsWith(".knockdown")).map(([, t]) => t as number);
+    assert.ok(down.length > 0, `${id} has a knock-down`);
+    for (const fps of [12, 24]) {
+      const b = buildScene(scene, fps), g = scene.groundY;
+      for (let i = 1; i < b.frames.length; i++) {
+        const t = i / fps;
+        if (!down.some((d) => t >= d && t <= d + 0.8)) continue;
+        b.frames[i].forEach((c, ci) => {
+          const p = b.frames[i - 1][ci]?.skeleton, q = c.skeleton, H = c.skeleton.hip ? (scene.characters[ci].height ?? 300) : 300;
+          if (!p || g - p.hip.y < 0.38 * H || g - q.hip.y < 0.38 * H) return;
+          for (const f of ["lFoot", "rFoot"] as const) if (Math.abs(p[f].y - g) < 2 && Math.abs(q[f].y - g) < 2 && Math.abs(q[f].x - p[f].x) > 1) skids.push(`${id} ${c.id}.${f} skids ${Math.abs(q[f].x - p[f].x).toFixed(1)} px at ${t.toFixed(2)} s @${fps}`);
+        });
+      }
+    }
+  }
+  assert.deepEqual(skids, []);
+});

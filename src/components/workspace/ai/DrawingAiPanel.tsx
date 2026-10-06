@@ -49,9 +49,12 @@ import { ENGINE_TEST_SCENES } from "@/src/lib/animator/testScenes";
 import { LIBRARY_MOVES, MOVE_SPEEDS, MOVE_STYLES, makeMoveTestScene, type LibraryMoveId, type MoveSpeed, type MoveStyle } from "@/src/lib/animator/moves";
 import { COMBO_TESTS, SINGLE_MOVE_TESTS, makeSurpriseScene, makeTestScene } from "@/src/lib/animator/moves/tests";
 import { makeFightScene } from "@/src/lib/animator/moves/fightScene";
+import { effectsTestButtons, makeEffectsTestScene } from "@/src/lib/animator/moves/tests2c";
 
 // SPEC-0017 Phase 1-2 review-only list of hand-written engine scenes (hidden unless the review flag is set).
 const ENGINE_TEST_ENABLED = process.env.NEXT_PUBLIC_SPEC0017_ENGINE_TEST === "1";
+// SPEC-0017 Phase 2C review list. Each plan is built only when its button is pressed.
+const EFFECTS_TESTS = ENGINE_TEST_ENABLED ? effectsTestButtons() : [];
 
 type DrawingAiPanelProps = {
   workspaceContext?: DrawingAiWorkspaceContext | null;
@@ -543,6 +546,19 @@ export function DrawingAiPanel({
               </div>
               <p>Random combo: picks 3 to 5 moves at random, in a random order, sometimes in a different style. Nobody wrote that combo, so it shows whether the engine can animate something new on its own. Each press makes a different one; the layer&apos;s name lists the moves.</p>
               <p>Energetic fight: red against blue, about 30 seconds, a different fight every press. They walk up to each other and fight in the middle of the page, never on top of each other. Some punches get blocked (forearms up, a small push back). Small hits barely hurt (a flinch); big wound-up hits stagger the other one, make it almost fall (it catches itself), or knock it down if there is room on the page to fall; the more hurt a fighter is, the longer it stays down and the more slumped it stands, until one is beaten.</p>
+              <h3>Effects (2C)</h3>
+              <p>Fire, water, lightning, smoke and light made by the effects engine. Effects go into the scene&apos;s layer; a background gets its own layer below it. An effect that isn&apos;t finished yet draws nothing.</p>
+              <div className="animator-engine-test-list">
+                {EFFECTS_TESTS.map((entry) => (
+                  <button type="button" key={entry.id} disabled={readOnly} onClick={() => {
+                    const plan = entry.make();
+                    if (!plan) { setEngineTestStatus(`"${entry.label}" isn't written yet.`); return; }
+                    let title = "";
+                    const ok = onApplyAnimatorScene((page) => { const scene = makeEffectsTestScene(plan, page.stageWidth); title = scene.title; return scene; });
+                    setEngineTestStatus(ok ? `Added "${title}" on layer "AI: ${title}" (and "AI: ${title} background" if it has a background). Press Play to watch.` : "Couldn't add the scene. Stop playback or finish your current edit, then try again.");
+                  }}>{entry.label}</button>
+                ))}
+              </div>
               {engineTestStatus && <p role="status">{engineTestStatus}</p>}
             </section>
           )}

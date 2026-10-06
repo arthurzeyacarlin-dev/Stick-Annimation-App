@@ -3,6 +3,7 @@ import { solveTwoBone } from "./ik.ts";
 import { buildObjectFrames } from "./objects.ts";
 import { forwardKinematics, translateSkeleton } from "./pose.ts";
 import { boneLengths, clampPose, headRadius, JOINTS, POSE_KEYS, type CharacterStyle, type Facing, type PoseAngles, type PoseKey, type Point, type Skeleton } from "./rig.ts";
+import { buildCameraFrames, hasCamera, type CameraFrames } from "./camera.ts";
 
 // SPEC-0017 engine: key poses -> every frame, with the body rules applied.
 // Pure TypeScript (no React/DOM) and deterministic: the same scene always gives the same frames.
@@ -28,7 +29,8 @@ export type CharacterKey = {
 // The keys a figure has at `fps` (a key with minFps above it is left out), in time order.
 export const keysAt = (keys: CharacterKey[], fps: number) => keys.filter((key) => (key.minFps ?? 0) <= fps).sort((a, b) => a.t - b.t);
 
-export type SceneCharacter = { id: string; name: string; facing: Facing; height: number; style: CharacterStyle; keys: CharacterKey[] };
+// `namedByUser`: the USER gave this name (plan.ts CharacterPlan; it names the head symbol "<name>'s head").
+export type SceneCharacter = { id: string; name: string; namedByUser?: boolean; facing: Facing; height: number; style: CharacterStyle; keys: CharacterKey[] };
 // Objects (a ball, a box): drawn into the same frame pictures as the figures.
 export type ObjectLook = {
   kind: "ball" | "box";
@@ -61,7 +63,9 @@ export type SceneObject = { id: string; name: string; look: ObjectLook; keys: Ob
 // one gets a picture of its own at any frame rate (momentTimes).
 export type Scene = { id: string; title: string; durationSec: number; groundY: number; characters: SceneCharacter[]; objects?: SceneObject[]; marks?: Record<string, number> };
 
-export type FrameCharacter = { id: string; skeleton: Skeleton; style: CharacterStyle; headRadius: number; facing: Facing };
+// offPage (THE CAMERA, camera.ts): running off the page or in from its edge on purpose, in a scene with film
+// cuts: drawn, but the page fit ignores it (like a ball thrown away). Never set otherwise.
+export type FrameCharacter = { id: string; skeleton: Skeleton; style: CharacterStyle; headRadius: number; facing: Facing; offPage?: boolean };
 
 export type CharacterReport = {
   id: string;
@@ -78,7 +82,8 @@ export type EngineReport = { frameCount: number; fps: number; characters: Charac
 // x, y = center (stage px); rotation in degrees; scale is applied along the stage axes (a squash is always up/down).
 // leaving = flying off the page for good (a ball thrown away): drawn, but the page fit ignores it.
 export type FrameObject = { id: string; x: number; y: number; rotation: number; scaleX: number; scaleY: number; look: ObjectLook; leaving?: boolean };
-export type SceneFrames = { fps: number; frames: FrameCharacter[][]; report: EngineReport; objects: FrameObject[][] };
+// camera: only for a scene with film cuts or a screen shake (camera.ts): where the cuts are, how far each picture shakes.
+export type SceneFrames = { fps: number; frames: FrameCharacter[][]; report: EngineReport; objects: FrameObject[][]; camera?: CameraFrames };
 
 const GROUND_TOLERANCE_PX = 0.5;
 
@@ -112,6 +117,22 @@ const contactActive = (keys: CharacterKey[], contact: FootContact, t: number) =>
   while (i < last - 1 && t >= keys[i + 1].t) i += 1;
   return has(keys[i]) && has(keys[i + 1]);
 };
+
+// A VIEW SWITCH IS INSTANT: the time to sample a picture at — the start of a very short key gap (≤ 0.03 s) that ends in
+// a switch of the view, else t itself.
+const VIEW_SWITCH_GAP = 0.03;
+const viewSwitchHoldTime = (keys: CharacterKey[], fallback: Facing, t: number) => {
+  for (let i = 0; i + 1 < keys.length; i += 1) {
+    const a = keys[i], b = keys[i + 1];
+    if (t <= a.t) break;
+    if (t < b.t && b.t - a.t <= VIEW_SWITCH_GAP && b.facing !== undefined && b.facing !== facingAt(keys, fallback, a.t)) return a.t;
+  }
+  return t;
+};
+
+// NO FOOT SLIDING AT TOUCH-DOWN: how far (x figure height) a foot that touched the floor a picture early may be from where
+// its plant puts it and still be planted where it touched (a few px; further is a real step).
+const TOUCH_DOWN_SNAP = 0.012;
 
 // The facing in effect at time t: set by the latest key at or before t (a turn is a switch at a key).
 const facingAt = (keys: CharacterKey[], fallback: Facing, t: number): Facing => {
@@ -241,6 +262,8 @@ export function momentTimes(scene: Scene, fps: number, frameCount = frameCountFo
 }
 
 export function buildScene(scene: Scene, fps: number): SceneFrames {
+  // THE CAMERA (camera.ts): only a scene that asks for film cuts or a screen shake; each shot is built right here.
+  if (hasCamera(scene)) return buildCameraFrames(scene, fps, buildScene, momentTimes);
   const frameCount = frameCountFor(scene.durationSec, fps);
   const frames: FrameCharacter[][] = Array.from({ length: frameCount }, () => []);
   const reports: CharacterReport[] = [];
@@ -267,15 +290,19 @@ export function buildScene(scene: Scene, fps: number): SceneFrames {
 
     for (let index = 0; index < frameCount; index += 1) {
       const t = pictureTimes[index];
+      // A VIEW SWITCH IS INSTANT: a picture inside a very short key gap that ends in a switch of the view (side ->
+      // front, a spin's turn) shows the old view's pose whole — the angles of two views never mix (the hands would
+      // fly apart for one picture).
+      const st = viewSwitchHoldTime(keys, character.facing, t);
       const sampled = {} as PoseAngles;
       for (const name of POSE_KEYS) {
         const ch = channels[name];
-        sampled[name] = sampleChannel(ch.times, ch.values, ch.tangents, ch.eases, t);
+        sampled[name] = sampleChannel(ch.times, ch.values, ch.tangents, ch.eases, st);
       }
       const { pose, clamped } = clampPose(sampled);
       report.clampedAngles += clamped;
-      const x = sampleChannel(xChannel.times, xChannel.values, xChannel.tangents, xChannel.eases, t);
-      const lift = Math.max(0, sampleChannel(liftChannel.times, liftChannel.values, liftChannel.tangents, liftChannel.eases, t));
+      const x = sampleChannel(xChannel.times, xChannel.values, xChannel.tangents, xChannel.eases, st);
+      const lift = Math.max(0, sampleChannel(liftChannel.times, liftChannel.values, liftChannel.tangents, liftChannel.eases, st));
 
       // A turn changes how the body is drawn, so planted feet are re-planted after it.
       const facing = facingAt(keys, character.facing, t);
@@ -286,6 +313,7 @@ export function buildScene(scene: Scene, fps: number): SceneFrames {
           if (previousFacing === null || !(contactActive(keys, contact, t) && contactActive(keys, contact, index > 0 ? pictureTimes[index - 1] : 0))) delete locks[contact];
         }
       }
+      const previousFacingAtStart = previousFacing;
       previousFacing = facing;
 
       // Stand the body on the ground: its lowest point sits `lift` above groundY.
@@ -298,7 +326,14 @@ export function buildScene(scene: Scene, fps: number): SceneFrames {
         // A foot lifted and put down again between two pictures (a quick step at a low frame rate) is
         // planted where it lands now, not where it stood before.
         if (index > 0 && keys.some((key) => key.t > pictureTimes[index - 1] && key.t < t && !key.contacts?.includes(contact))) delete locks[contact];
-        if (!locks[contact]) { locks[contact] = { x: skeleton[contact].x, y: Math.min(skeleton[contact].y, scene.groundY) }; return false; }
+        if (!locks[contact]) {
+          // NO FOOT SLIDING AT TOUCH-DOWN: a foot that already touched the floor in the picture before (a step landing a
+          // moment before its plant key) is planted right where it touched — it never slides the last few px into place.
+          const before = previous && facing === previousFacingAtStart ? previous[contact] : undefined;
+          const touched = before !== undefined && scene.groundY - before.y <= 2 && Math.abs(before.x - skeleton[contact].x) <= TOUCH_DOWN_SNAP * character.height;
+          locks[contact] = { x: touched ? before.x : skeleton[contact].x, y: Math.min(skeleton[contact].y, scene.groundY) };
+          return touched;
+        }
         return true;
       });
       // A leg can't stretch: if a planted foot is out of reach, lower the hips (soften the knees) until it fits.

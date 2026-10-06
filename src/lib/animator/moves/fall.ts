@@ -6,6 +6,7 @@ import { amplitudeOf, beatSeconds, beatsToKeys, lerpPose, windUp, type Beat, typ
 import { chainMoves } from "./sit.ts";
 import { footAt, handAt, levelFeet, onFeet, placeBeats, safePose, type PlacedBeat } from "./squat.ts";
 import { RAMP_SCALE } from "./styles.ts";
+import { landOnBack } from "./liftSlam.ts";
 
 // SPEC-0017 Phase 2: falling down and getting back up (Arthur's round-4 review: "you gotta understand
 // where the weight is going").
@@ -228,13 +229,29 @@ export function fall(start: Stance, params: FallParams, settings: MoveSettings):
   const H = settings.height;
   const speed = Math.max(0, Number(params.speed ?? 0)) / H; // body heights per second
   const direction = params.direction ?? FALL_DEFAULTS.direction;
-  const beats = direction === "back" ? fallBack(start.pose, speed, settings) : fallForward(start.pose, speed, settings);
+  const back = direction === "back" ? fallBack(start.pose, speed, settings) : undefined;
+  const beats = back ? back.beats : fallForward(start.pose, speed, settings);
   const out = beatsToKeys(start, placeBeats(beats.map((b) => ({ ...b, at: b.at * H, lift: (b.lift ?? 0) * H })), settings), settings);
   // It starts on the feet that are really on the floor (a run hands over mid-stride, one foot up).
   const { down } = feetDown(start.pose);
   const contacts: FootContact[] = [...(down.l ? ["lFoot" as const] : []), ...(down.r ? ["rFoot" as const] : [])];
   out.keys[0] = { ...out.keys[0], contacts };
-  return out;
+  if (!back) return out;
+  // LANDINGS DEPEND ON THE FALL: the back has hit — the shared landing, scaled by how fast it hit.
+  // (It slides on along the floor through the landing, as far as friction lets it — the landing's own skid is off.)
+  const land = landOnBack(out.end, FALLEN_BACK, 1, settings, { speed: back.landing.speed, skid: 0, front: FALLEN_FORWARD, seconds: back.landing.seconds[0] + back.landing.seconds[1] });
+  const sign = start.facing === "left" ? -1 : 1, t0 = out.end.t;
+  const slideX = (t: number) => sign * back.landing.slid(t - t0) * H;
+  const last = out.keys.length - 1;
+  out.keys[last] = { ...out.keys[last], ease: land.keys[0].ease, xEase: land.keys[0].xEase, liftEase: land.keys[0].liftEase };
+  const keys = [...out.keys, ...land.keys.slice(1).map((k) => ({ ...k, x: k.x + slideX(k.t) }))];
+  // (Lying still until the old settle would have ended: a fight's timing stays the same.)
+  const until = out.end.t + back.landing.seconds[0] + back.landing.seconds[1];
+  if (land.end.t < until - 1e-6) keys.push({ ...keys[keys.length - 1], t: until, x: land.end.x + slideX(until), ease: undefined, xEase: undefined, liftEase: undefined });
+  else if (land.end.t < until + 1e-6) keys[keys.length - 1] = { ...keys[keys.length - 1], t: until };
+  const endT = land.end.t < until + 1e-6 ? until : land.end.t;
+  const end = { ...land.end, t: endT, x: land.end.x + slideX(endT) };
+  return { keys, end, marks: { ...out.marks, down: endT } };
 }
 
 function fallForward(from: PoseAngles, speed: number, settings: MoveSettings): PlacedBeat[] {
@@ -399,7 +416,7 @@ function armsAbove(pose: PoseAngles, reach: PoseAngles, height: number): PoseAng
   return withArms(lo);
 }
 
-function fallBack(from: PoseAngles, speed: number, settings: MoveSettings): PlacedBeat[] {
+function fallBack(from: PoseAngles, speed: number, settings: MoveSettings): { beats: PlacedBeat[]; landing: { speed: number; slid: (dt: number) => number; seconds: [number, number] } } {
   const beats: PlacedBeat[] = [];
   const wobble = wobbleShare(speed);
   const h0 = hipHeight(from);
@@ -448,15 +465,13 @@ function fallBack(from: PoseAngles, speed: number, settings: MoveSettings): Plac
   const slam = dropSeconds(-bodyOf(bottom).neck.y, 0, CARRY_ON * G * fallTime);
   const slammed = safePose(legs(supineWith(28), [118, 40], [104, 30])); // arms flopped down along the body
   beats.push({ kind: "action", seconds: physical("action", slam, settings), pose: slammed, at: xB + slide.at(slam), contacts: [], ease: "in", xEase: "smooth" });
-  // The legs drop to the floor (still sliding, if it was going fast), then lying still on the back.
-  const legsDown = withPose(FALLEN_BACK, { head: 26 });
-  if (slide.seconds > slam + 0.05) {
-    beats.push({ kind: "settle", seconds: physical("settle", slide.seconds - slam, settings), pose: legsDown, at: xB + slide.distance, contacts: [] });
-  } else {
-    beats.push({ kind: "follow", seconds: 0.22, pose: legsDown, at: xB + slide.distance, contacts: [] });
-  }
-  beats.push({ kind: "settle", seconds: 0.35, pose: FALLEN_BACK, at: xB + slide.distance, contacts: [], name: "down" });
-  return beats;
+  // LANDINGS DEPEND ON THE FALL (liftSlam.ts landOnBack, called by fall()): the back hits at this speed; the
+  // shared landing (scaled by it: a normal fall barely bounces) lets the legs drop, slides on, and lies still on
+  // the back, taking at least as long as the legs' drop and the settle did before (`seconds`).
+  const forward = Math.max(0, slide.speed - FRICTION * G * slam), downward = CARRY_ON * G * fallTime + G * slam;
+  const settleSeconds: [number, number] = [slide.seconds > slam + 0.05 ? beatSeconds("settle", physical("settle", slide.seconds - slam, settings), settings) : beatSeconds("follow", 0.22, settings), beatSeconds("settle", 0.35, settings)];
+  // (`slid(dt)`: how much further it has slid dt after the back hit, x height — it slides on through the landing.)
+  return { beats, landing: { speed: Math.hypot(forward, downward), slid: (dt: number) => slide.at(slam + Math.max(0, dt)) - slide.at(slam), seconds: settleSeconds } };
 }
 
 // ---- Getting up ----

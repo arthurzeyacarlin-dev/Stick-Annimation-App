@@ -5,8 +5,10 @@ import { DrawingCanvas } from "./DrawingCanvas";
 import { bitmapCenterOffset } from "@/src/lib/animation/unifiedStageGeometry";
 import { buildScene as buildAnimatorScene, type Scene as AnimatorScene } from "@/src/lib/animator/engine";
 import { compactOrigin, copyRasterReferenceSize, getRasterReferenceSize, resolveRasterReferenceSize } from "@/src/lib/animation/compactRasterBitmap";
-import { rasterizeFrames as rasterizeAnimatorFrames } from "@/src/lib/animator/toFrames";
-import { centerAnimation, visibleStageWidth, type SceneForPage } from "@/src/lib/animator/stageFit";
+import { rasterizeFrames as rasterizeAnimatorFrames, rasterizeShapeFrames as rasterizeAnimatorShapeFrames, sceneEffectLayers as animatorSceneEffectLayers } from "@/src/lib/animator/toFrames";
+import { centerAnimation, effectFitBounds, visibleStageWidth, type SceneForPage } from "@/src/lib/animator/stageFit";
+import { movingBackgroundLayers } from "@/src/lib/animator/effects/movingBackground";
+import { cameraMovingBackground } from "@/src/lib/animator/cameraLayers";
 import type {
   DrawingCanvasHandle,
   DrawingCanvasPlaybackSurfaceLayout,
@@ -32,6 +34,7 @@ import {
   getAuthoredPlaybackFrameCount,
   getClampedPlaybackFrameDurationMs,
   resolvePlaybackRenderScale,
+  resolvePausedPlaybackReturnState,
   resolveSafeGeneratedSequenceFps,
   shouldSyncPlaybackUiState,
 } from "./timelinePlayback";
@@ -101,7 +104,7 @@ import {
   symbolInstancesAtFrameV2,
 } from "@/src/lib/animation/unifiedSymbolRenderV2";
 import { addSymbolInstancesToCellsV2, createSymbolInstanceV2, symbolCellKeyV2 } from "@/src/lib/animation/unifiedSymbolLibraryV2";
-import { prepareAnimatorSceneSymbolsV1 } from "@/src/lib/animation/animatorSceneSymbolsV1";
+import { prepareAnimatorSceneSymbolsV1, prepareEffectSymbolsV1, type AnimatorSymbolPlacementV1 } from "@/src/lib/animation/animatorSceneSymbolsV1";
 import { authorizeDestructiveCommand, isAuthoringSnapshotCurrent, type AuthoringSnapshotIdentity } from "@/src/lib/animation/editorCommands/destructiveRegistry";
 import { accountSaveStatusV1 } from "@/src/lib/animation/projectSaveStatusV1";
 import {
@@ -2133,6 +2136,57 @@ const createStoredBitmapPreviewUrl = (bitmap: ImageData | null) => {
   return previewUrl;
 };
 
+// LAG (Oct 6): making each frame's stored preview picture (WebP, up to 15 tries) was the slowest part of every save and
+// safety backup — seconds (simple frames) to minutes (colourful ones) of frozen page on a 300-frame project. The pictures
+// are made AHEAD, a few at a time with pauses between (the page never freezes), so a save only reads them back. Same
+// function, same bitmap: the very same bytes are saved.
+const STORED_PREVIEW_SLICE_MS = 12;
+const unpreparedStoredPreviewBitmaps = (layers: readonly WorkspaceLayer[]) => {
+  const pending: ImageData[] = [];
+  for (const layer of layers) {
+    for (const frame of layer.timelineFrames) {
+      if (frame.cellType === "blank-keyframe") continue;
+      if (frame.bitmap && !bitmapStoredPreviewUrlCache.has(frame.bitmap)) pending.push(frame.bitmap);
+      if (frame.tweenEndBitmap && !bitmapStoredPreviewUrlCache.has(frame.tweenEndBitmap)) pending.push(frame.tweenEndBitmap);
+    }
+  }
+  return pending;
+};
+// (A pause that lets the page react, then carries straight on — a message to itself, which the browser never slows down
+// in a background tab the way it slows timers.)
+let pageYieldChannel: MessageChannel | null = null;
+const pageYieldQueue: (() => void)[] = [];
+const yieldToPage = () => new Promise<void>((resolve) => {
+  if (typeof MessageChannel === "undefined") { setTimeout(resolve, 0); return; }
+  if (!pageYieldChannel) {
+    pageYieldChannel = new MessageChannel();
+    pageYieldChannel.port1.onmessage = () => pageYieldQueue.shift()?.();
+  }
+  pageYieldQueue.push(resolve);
+  pageYieldChannel.port2.postMessage(null);
+});
+let storedPreviewWarming: Promise<void> | null = null;
+const prepareStoredPreviews = (getLayers: () => readonly WorkspaceLayer[], isBusy: () => boolean = () => false): Promise<void> => {
+  if (storedPreviewWarming) return storedPreviewWarming;
+  const run = async () => {
+    for (;;) {
+      if (isBusy()) { await new Promise<void>((resolve) => setTimeout(resolve, 250)); continue; }
+      const pending = unpreparedStoredPreviewBitmaps(getLayers());
+      if (pending.length === 0) return;
+      const sliceStart = performance.now();
+      for (const bitmap of pending) {
+        createStoredBitmapPreviewUrl(bitmap);
+        if (performance.now() - sliceStart >= STORED_PREVIEW_SLICE_MS) break;
+      }
+      await yieldToPage();
+    }
+  };
+  // (Cleared only once it has really finished — even when there was nothing to do and it finished straight away.)
+  const warming: Promise<void> = run().finally(() => { if (storedPreviewWarming === warming) storedPreviewWarming = null; });
+  storedPreviewWarming = warming;
+  return warming;
+};
+
 const cropBitmapToBounds = (bitmap: ImageData, bounds: BitmapBounds) => {
   const sourceCanvas = createBitmapCanvas(bitmap);
   if (!sourceCanvas) return null;
@@ -2732,14 +2786,26 @@ const workspaceLayersStructureEqual = (left: WorkspaceLayer[], right: WorkspaceL
   return true;
 };
 
+// LAG (Oct 6): an undo entry's stick figures, symbol catalogs and placements are its own copies and never change after it
+// is made, so each is turned into text once for the history comparisons — not again on every action and undo.
+const historyJsonCache = new WeakMap<object, string>();
+const historyJson = (value: unknown): string | undefined => {
+  if (value === null || typeof value !== "object") return JSON.stringify(value);
+  const known = historyJsonCache.get(value);
+  if (known !== undefined) return known;
+  const json = JSON.stringify(value);
+  historyJsonCache.set(value, json);
+  return json;
+};
+
 const historyEntriesMatchDocument = (left: DrawingWorkspaceHistoryEntry, right: DrawingWorkspaceHistoryEntry) =>
   left === right ||
   (left.nextTimelineFrameId === right.nextTimelineFrameId &&
     left.nextLayerNumber === right.nextLayerNumber &&
     workspaceLayersEqual(left.layers, right.layers) &&
-    JSON.stringify(left.stickByCell) === JSON.stringify(right.stickByCell) &&
-    JSON.stringify(left.unifiedCatalogs) === JSON.stringify(right.unifiedCatalogs) &&
-    JSON.stringify(left.symbolInstancesByCell) === JSON.stringify(right.symbolInstancesByCell));
+    historyJson(left.stickByCell) === historyJson(right.stickByCell) &&
+    historyJson(left.unifiedCatalogs) === historyJson(right.unifiedCatalogs) &&
+    historyJson(left.symbolInstancesByCell) === historyJson(right.symbolInstancesByCell));
 
 const historyEntriesEqual = (left: DrawingWorkspaceHistoryEntry, right: DrawingWorkspaceHistoryEntry) =>
   left === right || historyEntriesMatchDocument(left, right);
@@ -3663,6 +3729,9 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     deferHistory?: boolean;
   }) => TimelineFrameSnapshot | null) | null>(null);
   const layersRef = useRef<WorkspaceLayer[]>(layers);
+  // (LAG: a safety backup / background save waits for the frames' stored preview pictures at most once each time.)
+  const recoveryWaitedForPreviewsRef = useRef(false);
+  const backgroundSaveWaitedForPreviewsRef = useRef(false);
   const timelineRowLayersSourceRef = useRef<WorkspaceLayer[]>(layers);
   const timelineRowLayersViewRef = useRef<TimelineLayer[]>(
     layers.map((layer) => ({
@@ -3907,13 +3976,13 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
           continue;
         }
 
-        if (JSON.stringify(currentEntry.stickByCell) !== JSON.stringify(candidateEntry.stickByCell)) {
+        if (historyJson(currentEntry.stickByCell) !== historyJson(candidateEntry.stickByCell)) {
           return historyIndex;
         }
 
         if (
-          JSON.stringify(currentEntry.unifiedCatalogs) !== JSON.stringify(candidateEntry.unifiedCatalogs) ||
-          JSON.stringify(currentEntry.symbolInstancesByCell) !== JSON.stringify(candidateEntry.symbolInstancesByCell)
+          historyJson(currentEntry.unifiedCatalogs) !== historyJson(candidateEntry.unifiedCatalogs) ||
+          historyJson(currentEntry.symbolInstancesByCell) !== historyJson(candidateEntry.symbolInstancesByCell)
         ) {
           return historyIndex;
         }
@@ -4237,6 +4306,13 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       }),
     [authoredPlaybackFrameCount, layers.length, timelineFps],
   );
+
+  // (LAG: after the frames change — a project opened, a scene added, a frame drawn — their stored preview pictures are
+  // made ahead in the background, a few at a time, so the next safety backup or save doesn't freeze the page.)
+  useEffect(() => {
+    const handle = window.setTimeout(() => { void prepareStoredPreviews(() => layersRef.current, () => isTimelinePlayingRef.current); }, 400);
+    return () => window.clearTimeout(handle);
+  }, [layers]);
 
   useEffect(() => {
     layersRef.current = layers;
@@ -7068,6 +7144,12 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
 
   const handlePauseTimeline = useCallback(() => {
     requireManualEditorCommand("playback.pause/v1", "DrawingWorkspace.handlePauseTimeline");
+    // Pause stays on the frame that is showing (it used to jump back to where Play started).
+    playbackReturnStateRef.current = resolvePausedPlaybackReturnState({
+      returnState: playbackReturnStateRef.current,
+      shownFrameIndex: currentFrameIndexRef.current,
+      activeLayerId: activeLayerIdRef.current,
+    });
     frozenTweenPlaybackCacheRef.current = new Map();
     playbackRestorePendingRef.current = true;
     playbackUiSyncAtRef.current = 0;
@@ -7357,6 +7439,14 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       return;
     }
 
+    // (LAG: the frames' stored preview pictures are made first, a few at a time — then the backup runs, exactly as before.)
+    // (Waits for them at most once per backup: if any are still missing after that, the backup makes them itself.)
+    if (!recoveryWaitedForPreviewsRef.current && unpreparedStoredPreviewBitmaps(layersRef.current).length > 0) {
+      recoveryWaitedForPreviewsRef.current = true;
+      void prepareStoredPreviews(() => layersRef.current, () => isTimelinePlayingRef.current).catch(() => undefined).finally(() => armRecoveryDraftWrite(0));
+      return;
+    }
+    recoveryWaitedForPreviewsRef.current = false;
     const draftSequence = recoveryDraftSequenceRef.current;
     const workspaceGeneration = recoveryWorkspaceGenerationRef.current;
     const ownerSessionId = recoverySessionIdRef.current;
@@ -8282,6 +8372,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     const capturedWorkspaceInstanceId = workspaceInstanceIdRef.current;
     saveInFlightRef.current = true; setSaveState("saving");
     try {
+      // (LAG: the frames' stored preview pictures are made first, a few at a time, so the page never freezes while saving.)
+      await prepareStoredPreviews(() => layersRef.current).catch(() => undefined);
       if (!commitCurrentFrameSnapshotWithoutHistory("unified:save")) throw new Error("snapshot_capture_failed");
       const candidate = buildUnifiedProjectSnapshot(createPersistedProjectSnapshot());
       if (!candidate) throw new Error("invalid_record");
@@ -8350,6 +8442,13 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       armBackgroundSave(500);
       return;
     }
+    // (LAG: the frames' stored preview pictures are made first, a few at a time — then the save runs, exactly as before.)
+    if (!backgroundSaveWaitedForPreviewsRef.current && unpreparedStoredPreviewBitmaps(layersRef.current).length > 0) {
+      backgroundSaveWaitedForPreviewsRef.current = true;
+      void prepareStoredPreviews(() => layersRef.current, () => isTimelinePlayingRef.current).catch(() => undefined).finally(() => armBackgroundSave(0));
+      return;
+    }
+    backgroundSaveWaitedForPreviewsRef.current = false;
     const workspaceInstanceId = workspaceInstanceIdRef.current;
     const capturedGeneration = documentGenerationRef.current;
     const capturedRecoveryGeneration = recoveryWorkspaceGenerationRef.current;
@@ -8751,45 +8850,115 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       const startMs = performance.now();
       const built = buildAnimatorScene(scene, timelineFps);
       // The whole animation (figures and objects) is centered on the page (slid as one piece; sizes and motion untouched).
-      const centered = centerAnimation(built.frames, stageWidth, built.objects);
+      // (Effects at fixed spots that say so count too — an explosion far away: effectFitBounds; none for other scenes.)
+      const centered = centerAnimation(built.frames, stageWidth, built.objects, effectFitBounds(scene));
       // Heads and objects become Library symbols ("Basketball", "Blue stick figure head") placed once
       // per frame, so they can't be erased by accident and can be reused. The body lines stay in the
       // frame pictures. If anything about the symbols fails, they are drawn into the pictures as before.
-      const symbolPlan = prepareAnimatorSceneSymbolsV1(scene, centered.frames, centered.objects, { width: pageWidth, height: pageHeight }, unifiedCatalogsRef.current);
-      const raster = rasterizeAnimatorFrames(centered.frames, canvasWidth, canvasHeight, map, centered.objects,
-        symbolPlan ? { skipHeads: true, skipObjects: true } : undefined);
+      // (NO NEAR-DUPLICATE SYMBOLS: a Library symbol whose look this page doesn't know — after a reload — is compared
+      // by its decoded picture, from the same image cache the canvas draws symbols with.)
+      const symbolPlan = prepareAnimatorSceneSymbolsV1(scene, centered.frames, centered.objects, { width: pageWidth, height: pageHeight }, unifiedCatalogsRef.current, undefined, symbolImageCache.get);
+      // SPEC-0017 Phase 2C: effects (fire, water, lightning…) are drawn into the same pictures, behind
+      // ("back") or in front of the figures; a background gets its own layer below. Both slide with the
+      // centered animation. A scene without them is drawn exactly as before.
+      const effectLayers = animatorSceneEffectLayers(scene, built, centered.shift);
+      // MOVING BACKGROUNDS (rain, a waterfall, wind): the background's still part stays one held picture; its moving
+      // parts get their own layers just above it, drawn every picture and only inside the page ("AI: <title> rain",
+      // "AI: <title> wind"), so the motion is smooth. Only a scene with such pieces (effects/movingBackground.ts);
+      // any other scene is drawn exactly as before.
+      // (THE CAMERA: a scene with film cuts or a screen shake is split shot by shot — animator/cameraLayers.ts.)
+      const movingBackground = !effectLayers.background ? null : built.camera ? cameraMovingBackground(scene, built, centered.shift) : movingBackgroundLayers(scene, built, centered.shift, effectLayers.background);
+      if (movingBackground) effectLayers.background = movingBackground.still;
+      const pageClip = { x0: (layout.stageDisplayRect.left - layout.worldDisplayRect.left) * pixelsPerCssPixel, y0: (layout.stageDisplayRect.top - layout.worldDisplayRect.top) * pixelsPerCssPixel };
+      // STILL THINGS ARE SYMBOLS (Arthur): still pieces of effects and backgrounds (a bulb, droplets, spikes) become
+      // Library symbols ("Light bulb", "Water droplet", "Spike") placed once per frame — on this AI layer for
+      // effects, on the background layer for background pieces — and are left out of the pictures. If anything
+      // about them fails, they are drawn into the pictures as before. A scene without them is unchanged.
+      const effectSymbolPlan = prepareEffectSymbolsV1(movingBackground ? { ...effectLayers, moving: movingBackground.layers.map((layer) => layer.pictures) } : effectLayers,{ width: pageWidth, height: pageHeight }, symbolPlan?.catalogs ?? unifiedCatalogsRef.current, undefined, symbolImageCache.get);
+      const skipSymbols = effectSymbolPlan ? { skipSymbolShapes: true } : {};
+      const rasterOptions = symbolPlan || effectLayers.effects
+        ? { ...(symbolPlan ? { skipHeads: true, skipObjects: true } : {}), ...(effectLayers.effects ? { effects: effectLayers.effects, ...skipSymbols } : {}) }
+        : undefined;
+      const raster = rasterizeAnimatorFrames(centered.frames, canvasWidth, canvasHeight, map, centered.objects, rasterOptions);
+      // (A background is page-sized: moving parts are redrawn less often if every picture would use too much memory.)
+      // (THE CAMERA: a film cut or a screen shake is always redrawn — only a scene that has one.)
+      const backgroundRaster = effectLayers.background ? rasterizeAnimatorShapeFrames(effectLayers.background, canvasWidth, canvasHeight, map, { maxBytes: 256 * 1024 * 1024, ...skipSymbols, ...(built.camera ? { mustDraw: built.camera.redraw } : {}) }) : null;
+      const movingRasters = (movingBackground?.layers ?? []).map((layer) => rasterizeAnimatorShapeFrames(layer.pictures, canvasWidth, canvasHeight, map, { maxBytes: 256 * 1024 * 1024, ...skipSymbols, clip: { ...pageClip, x1: pageClip.x0 + pageWidth * pixelsPerCssPixel, y1: pageClip.y0 + pageHeight * pixelsPerCssPixel }, ...(built.camera ? { mustDraw: built.camera.redraw } : {}) }));
+      // OVER THE HEADS (laser eyes: the beams come out of the eyes): "top" effects get their own layer just above the
+      // AI layer ("AI: <title> lasers"), so they are drawn over the head symbols; the glowing eyes are placed on it,
+      // over the beams. Only a scene that has them; any other scene is drawn exactly as before.
+      const topRaster = effectLayers.top ? rasterizeAnimatorShapeFrames(effectLayers.top, canvasWidth, canvasHeight, map, { maxBytes: 256 * 1024 * 1024, ...skipSymbols, ...(built.camera ? { mustDraw: built.camera.redraw } : {}) }) : null;
       recordUndoSnapshot();
-      const frames: WorkspaceTimelineFrame[] = [];
-      const keyframes: { index: number; stateId: number }[] = [];
-      let ownerStateId = -1;
-      for (const [index, entry] of raster.entries()) {
-        const id = nextTimelineFrameIdRef.current;
-        nextTimelineFrameIdRef.current += 1;
-        if (entry.hold && ownerStateId >= 0) {
-          frames.push(createSpanContinuationFrame(id, ownerStateId, "frame"));
-        } else {
-          frames.push(createTimelineFrame(id, "keyframe", "keyframe", id, { bitmap: entry.bitmap, previewUrl: null }));
-          ownerStateId = id;
-          keyframes.push({ index, stateId: id });
+      // Pictures → ordinary timeline frames (a hold continues the picture before it).
+      const toTimelineFrames = (pictures: typeof raster) => {
+        const timelineFrames: WorkspaceTimelineFrame[] = [];
+        const keys: { index: number; stateId: number }[] = [];
+        let ownerStateId = -1;
+        for (const [index, entry] of pictures.entries()) {
+          const id = nextTimelineFrameIdRef.current;
+          nextTimelineFrameIdRef.current += 1;
+          if (entry.hold && ownerStateId >= 0) {
+            timelineFrames.push(createSpanContinuationFrame(id, ownerStateId, "frame"));
+          } else {
+            timelineFrames.push(createTimelineFrame(id, "keyframe", "keyframe", id, { bitmap: entry.bitmap, previewUrl: null }));
+            ownerStateId = id;
+            keys.push({ index, stateId: id });
+          }
         }
-      }
+        return { timelineFrames, keys };
+      };
+      const { timelineFrames: frames, keys: keyframes } = toTimelineFrames(raster);
       const layerId = `layer-${nextLayerNumberRef.current}`;
       nextLayerNumberRef.current += 1;
-      if (symbolPlan) {
-        // One set of instances per keyframe; its holds share them (same stateId).
-        const nextInstances = addSymbolInstancesToCellsV2(symbolInstancesByCellRef.current, keyframes.map(({ index, stateId }) => ({
-          cellKey: symbolCellKeyV2(layerId, stateId),
-          instances: (symbolPlan.placements[index] ?? []).map((placement) => createSymbolInstanceV2(symbolPlan.definitions.get(placement.pictureKey)!, {
-            ...placement, drawingCanvas: { width: canvasWidth, height: canvasHeight },
+      const backgroundTimeline = backgroundRaster ? toTimelineFrames(backgroundRaster) : null;
+      const backgroundFrames = backgroundTimeline?.timelineFrames ?? null;
+      const backgroundLayerId = backgroundFrames ? `layer-${nextLayerNumberRef.current}` : null;
+      if (backgroundFrames) nextLayerNumberRef.current += 1;
+      const movingTimelines = movingRasters.map((pictures) => {
+        const timeline = toTimelineFrames(pictures), id = `layer-${nextLayerNumberRef.current}`;
+        nextLayerNumberRef.current += 1;
+        return { ...timeline, id };
+      });
+      const topTimeline = topRaster ? { ...toTimelineFrames(topRaster), id: `layer-${nextLayerNumberRef.current}` } : null;
+      if (topTimeline) nextLayerNumberRef.current += 1;
+      const symbolCatalogs = effectSymbolPlan?.catalogs ?? symbolPlan?.catalogs;
+      if (symbolCatalogs) {
+        // One set of instances per keyframe; its holds share them (same stateId). On the AI layer: effect symbols
+        // behind the figures ("back"), then heads and objects, then effect symbols in front.
+        const instancesFor = (placements: readonly AnimatorSymbolPlacementV1[]) => placements.map((placement) => createSymbolInstanceV2(
+          (symbolPlan?.definitions.get(placement.pictureKey) ?? effectSymbolPlan?.definitions.get(placement.pictureKey))!,
+          { ...placement, drawingCanvas: { width: canvasWidth, height: canvasHeight } },
+        ));
+        const effectPlacements = effectSymbolPlan?.effects, backgroundPlacements = effectSymbolPlan?.background;
+        const nextInstances = addSymbolInstancesToCellsV2(symbolInstancesByCellRef.current, [
+          ...keyframes.map(({ index, stateId }) => ({
+            cellKey: symbolCellKeyV2(layerId, stateId),
+            instances: instancesFor([...(effectPlacements?.[index]?.back ?? []), ...(symbolPlan?.placements[index] ?? []), ...(effectPlacements?.[index]?.front ?? [])]),
           })),
-        })).filter((addition) => addition.instances.length > 0), symbolPlan.catalogs);
-        unifiedCatalogsRef.current = symbolPlan.catalogs;
-        setUnifiedCatalogs(symbolPlan.catalogs);
+          ...(backgroundTimeline && backgroundLayerId && backgroundPlacements ? backgroundTimeline.keys.map(({ index, stateId }) => ({
+            cellKey: symbolCellKeyV2(backgroundLayerId, stateId),
+            instances: instancesFor(backgroundPlacements[index] ?? []),
+          })) : []),
+          ...movingTimelines.flatMap((timeline, k) => timeline.keys.map(({ index, stateId }) => ({
+            cellKey: symbolCellKeyV2(timeline.id, stateId),
+            instances: instancesFor(effectSymbolPlan?.moving?.[k]?.[index] ?? []),
+          }))),
+          ...(topTimeline ? topTimeline.keys.map(({ index, stateId }) => ({
+            cellKey: symbolCellKeyV2(topTimeline.id, stateId),
+            instances: instancesFor(effectSymbolPlan?.top?.[index] ?? []),
+          })) : []),
+        ].filter((addition) => addition.instances.length > 0), symbolCatalogs);
+        unifiedCatalogsRef.current = symbolCatalogs;
+        setUnifiedCatalogs(symbolCatalogs);
         symbolInstancesByCellRef.current = nextInstances;
         setSymbolInstancesByCell(nextInstances);
       }
       const nextLayers = normalizeLayerOrder([
+        // (Named for what is on it: "lasers" when laser beams are; otherwise "over heads" — a worn cap or hat.)
+        ...(topTimeline ? [{ id: topTimeline.id, name: `AI: ${scene.title} ${((scene as { effects?: { kind: string; layer?: string }[] }).effects ?? []).some((e) => e.layer === "top" && /laser/i.test(e.kind)) ? "lasers" : "over heads"}`, orderIndex: 0, timelineFrames: topTimeline.timelineFrames }] : []),
         { id: layerId, name: `AI: ${scene.title}`, orderIndex: 0, timelineFrames: frames },
+        ...movingTimelines.map((timeline, k) => ({ id: timeline.id, name: `AI: ${scene.title} ${movingBackground?.layers[k].name ?? "moving background"}`, orderIndex: 1, timelineFrames: timeline.timelineFrames })),
+        ...(backgroundFrames && backgroundLayerId ? [{ id: backgroundLayerId, name: `AI: ${scene.title} background`, orderIndex: 1, timelineFrames: backgroundFrames }] : []),
         ...layersRef.current,
       ]);
       layersRef.current = nextLayers;
@@ -8803,19 +8972,28 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       setSelectedTimelineIndex(0);
       drawingCanvasRef.current?.clearTransientEditingState();
       commitCurrentHistoryState({ assumeChanged: true });
+      // "Make the background gray" (plan.canvasColor): the project's own Background Color (Select tool →
+      // Properties), set the same way the Properties picker sets it. Only when the scene asks for one.
+      const canvasColor = (scene as { canvasColor?: unknown }).canvasColor;
+      if (typeof canvasColor === "string" && /^#[0-9a-f]{6}$/i.test(canvasColor)) {
+        setCanvasBackgroundColor(canvasColor.toLowerCase());
+        setSaveState("unsaved");
+      }
       window.requestAnimationFrame(() => {
         renderWorkspaceCanvases(nextLayers, 0, { activeLayerId: layerId, debugCaller: "ai:apply-animator-scene" });
       });
       console.info("[animator] scene applied", {
         scene: scene.id, frames: frames.length, pictures: raster.filter((entry) => !entry.hold).length,
-        symbols: symbolPlan ? [...symbolPlan.definitions.values()].map((definition) => definition.name) : [],
+        effects: Boolean(effectLayers.effects), backgroundPictures: backgroundRaster ? backgroundRaster.filter((entry) => !entry.hold).length : 0,
+        ...(movingRasters.length ? { movingBackgroundPictures: movingRasters.map((pictures) => pictures.filter((entry) => !entry.hold).length) } : {}),
+        symbols: [...(symbolPlan?.definitions.values() ?? []), ...(effectSymbolPlan?.definitions.values() ?? [])].map((definition) => definition.name),
         canvas: `${canvasWidth}x${canvasHeight}`, ms: Math.round(performance.now() - startMs), report: built.report,
       });
       return true;
     } finally {
       isApplyingGeneratedFramesRef.current = false;
     }
-  }, [commitCurrentHistoryState, recordUndoSnapshot, renderWorkspaceCanvases, saveCurrentFrameSnapshot, timelineFps]);
+  }, [commitCurrentHistoryState, recordUndoSnapshot, renderWorkspaceCanvases, saveCurrentFrameSnapshot, symbolImageCache, timelineFps]);
 
   const handleSaveAs = useCallback(() => {
     requireManualEditorCommand("project.save-as/v2", "DrawingWorkspace.handleSaveAs");

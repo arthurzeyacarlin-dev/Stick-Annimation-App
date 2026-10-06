@@ -1,8 +1,10 @@
+import type { Anchor, BackgroundPiece, BackgroundSpec, EffectTrack } from "../effects/types.ts";
+import { POWER_MOVES, powerEffects, powerParams } from "./powers.ts";
 import { buildScene, type CharacterKey, type ObjectHand, type ObjectKey, type ObjectLook, type ObjectSegment, type Scene, type SceneObject } from "../engine.ts";
 import { bouncePassTime, carryWeight, defaultApex, heldCenter } from "../objects.ts";
 import type { PoseAngles } from "../rig.ts";
 import { flightTime } from "../objectMoves.ts";
-import { animationBounds } from "../stageFit.ts";
+import { animationBounds, effectFitBounds } from "../stageFit.ts";
 import { DEFAULT_STYLE, jointRange, STAND, type CharacterStyle, type Facing } from "../rig.ts";
 import { forwardKinematics } from "../pose.ts";
 import { buildGait, naturalDistance, naturalWalkPace, type GaitKind } from "./gait.ts";
@@ -21,6 +23,10 @@ import { blendPose, choosePunch, feetOf, fightRest, REALLY_TIRED } from "./punch
 import { GROUND_ATTACKS, GROUND_MOVES, groundApproach, groundStandAt, kipUpClear, type Other } from "./grapple.ts";
 import { groundPunchStandAt } from "./groundPunch.ts";
 import { dashSpan } from "./dash.ts";
+import { cuffKeys, cuffsPlan, escortParams, type CuffedOption } from "./cuffs.ts";
+import { blastHurt, blastParams, pushOn } from "./blownAway.ts";
+import { wearPlan } from "./wear.ts";
+import { DASH_SLASH_REACH, WEAPON_DASH_AIR, WEAPON_MOVES, weaponKeys } from "./swordMoves.ts";
 
 // SPEC-0017 Phase 2: the scene plan — what the AI director will write in Phase 3. Each character gets a
 // list of actions ("walk 400 px, turn around, run back"); every action starts exactly where the last one
@@ -35,6 +41,9 @@ export type MoveEntry = {
   side?: boolean;
   // A short description for the AI's lessons.
   about: string;
+  // (A compact lesson: only the first and last key poses and those at these named moments, and only these marks — a
+  // move written with many in-between keys.)
+  lessonMarks?: string[];
 };
 
 export type Action = {
@@ -52,6 +61,9 @@ export type Action = {
 export type CharacterPlan = {
   id: string;
   name?: string;
+  // SYMBOL NAMES: true only when the USER gave this name ("Dark Lord"; the AI director sets it). Then the head
+  // symbol is "Dark Lord's head"; otherwise it is "<Color> stick figure head" (engine and test names never show).
+  namedByUser?: boolean;
   x: number; // hip x at the start
   facing: Facing;
   look?: Partial<CharacterStyle>;
@@ -62,6 +74,11 @@ export type CharacterPlan = {
   // realistic, educational fighting); "high" = loose, hands up at the chest (asked for higher hands);
   // otherwise fighters stand loose, hands low (punch.ts LOOSE).
   guard?: "loose" | "high" | "realistic";
+  // HANDCUFFS (cuffs.ts): hands behind the back in every move, the Handcuffs symbol on the wrists (`true` = the
+  // whole scene, `{ from }` = from that second on).
+  cuffed?: CuffedOption;
+  // WORN ACCESSORIES (wear.ts): what it wears ("militaryCap"): on its body part in every picture of the scene.
+  wears?: string[];
   actions: Action[];
 };
 
@@ -75,7 +92,10 @@ export type ObjectPlan = { id: string; name?: string; look: ObjectLook; heldBy?:
 // (a knock-down) know how much there is.
 // `lengthScale` (set by fitPlanToPage): how far the page fit has shrunk the ground the plan covers; ground
 // the planner adds by itself (an accident's steps before a trip) shrinks with it.
-export type ScenePlan = { id: string; title: string; height: number; groundY: number; characters: CharacterPlan[]; objects?: ObjectPlan[]; until?: number; stageWidth?: number; lengthScale?: number; fillIn?: boolean };
+// (Phase 2C: `effects` — fire, water, lightning… on the timeline; `background` — its own layer behind everything;
+// `canvasColor` — "make the background gray": the page's own background color (#rrggbb), which the app puts in
+// the project's existing Background Color setting (Select tool → Properties). Left out = the page keeps its color.)
+export type ScenePlan = { id: string; title: string; height: number; groundY: number; characters: CharacterPlan[]; objects?: ObjectPlan[]; until?: number; stageWidth?: number; lengthScale?: number; fillIn?: boolean; effects?: EffectTrack[]; background?: BackgroundSpec; canvasColor?: string };
 // (`fillIn`: the user only asked for something vague — "a fight" — so the engine fills in what comes next: followUp.ts.)
 
 // A throw or catch of an object, for working out who holds it when.
@@ -193,6 +213,10 @@ export const BASE_MOVES: Record<string, MoveEntry> = {
 export function planToScene(plan: ScenePlan, moves: Record<string, MoveEntry>): Scene & { marks: Record<string, number>; hurt: Record<string, number>; power: Record<string, number> } {
   // ("block" and "almostFall" are getHit with that result: they count as hits taken.)
   plan = { ...plan, characters: plan.characters.map((c) => ({ ...c, actions: c.actions.map(asGetHit) })) };
+  // (HANDCUFFS, cuffs.ts: the Handcuffs symbol on cuffed wrists, an escort starting right behind its prisoner.)
+  plan = cuffsPlan(plan);
+  // (WORN ACCESSORIES, wear.ts: a cap on the head in every picture of the scene.)
+  plan = wearPlan(plan);
   const marks: Record<string, number> = {};
   const events: ObjectEvent[] = [];
   const built = new Map<string, CharacterKey[]>();
@@ -243,6 +267,10 @@ export function planToScene(plan: ScenePlan, moves: Record<string, MoveEntry>): 
     // (Settled: no moment moved by more than a microsecond — rounding noise doesn't count.)
     if (Object.keys(marks).length === Object.keys(before).length && Object.entries(marks).every(([k, v]) => Math.abs((before[k] ?? Infinity) - v) < 1e-6) && posOf() === beforePos) break;
   }
+  // (HANDCUFFS, cuffs.ts: cuffed hands behind the back in every key; an escort's hands on the cuffs and the shoulder.)
+  cuffKeys(plan, built, marks);
+  // (WEAPON HOLD, swordMoves.ts: an armed fighter keeps its weapon up in the guard outside its own weapon moves.)
+  weaponKeys(plan, built, marks);
   const end = Math.max(...[...built.values()].map((keys) => keys[keys.length - 1].t), ...(plan.objects ?? []).flatMap((o) => (o.keys ?? []).map((k) => k.t)));
   // The scene lasts a little past the last move (rounded to a tenth of a second); everyone and everything
   // stays as it is until then (a held ball stays held to the very last frame).
@@ -254,11 +282,17 @@ export function planToScene(plan: ScenePlan, moves: Record<string, MoveEntry>): 
     // How hard each strike was (STRIKE POWER, by "<id>.strike<k>").
     power: fight.power,
     characters: plan.characters.map((c) => ({
-      id: c.id, name: c.name ?? c.id, facing: c.facing, height: plan.height, style: { ...DEFAULT_STYLE, ...c.look },
+      id: c.id, name: c.name ?? c.id, ...(c.namedByUser === true ? { namedByUser: true } : {}), facing: c.facing, height: plan.height, style: { ...DEFAULT_STYLE, ...c.look },
       // Everyone stays in their final pose until the scene ends.
       keys: holdTo(built.get(c.id)!, duration),
     })),
     objects: (plan.objects ?? []).map((o) => objectOf(o, events, duration)),
+    // (EFFECTS, Phase 2C: the plan's own effects, plus the ones a POWER move makes — fire from the hands at its
+    // release, a water shield while it holds, a teleport's flash — timed by that move's marks.)
+    ...(plan.effects || plan.characters.some((c) => c.actions.some((x) => POWER_MOVES.has(x.move))) ? { effects: [...(plan.effects ?? []), ...powerEffects(plan, marks, (id) => built.get(id))] } : {}),
+    ...(plan.background ? { background: plan.background } : {}),
+    ...(plan.stageWidth !== undefined ? { stageWidth: plan.stageWidth } : {}),
+    ...(plan.canvasColor ? { canvasColor: plan.canvasColor } : {}),
   };
 }
 
@@ -704,17 +738,24 @@ function buildCharacter(plan: ScenePlan, character: CharacterPlan, moves: Record
     // far enough that the dash itself (gather, push, under half a second in the air, the fist landing as the
     // front foot does) covers the rest — and takes over at the run's speed the moment a foot lands. Its
     // `distance` is to where the target really is when the fist lands (AIM AT WHERE THEY ARE).
-    if (action.move === "dashPunch" && !onTheGround(at.pose) && at.facing !== "front") {
+    // (DASH SLASH, swordMoves.ts: the same run-up; the weapon reaches `reachExtra` heights further than a fist.)
+    if ((action.move === "dashPunch" || action.move === "dashSlash") && !onTheGround(at.pose) && at.facing !== "front") {
       const targetId = typeof params.target === "string" ? params.target : nearestInFront();
       if (!(Number(params.speed ?? 0) > 0) && targetId) {
         // (The run hands over on the first landing at or after its distance: up to a step later; the dash's
         // own range — a shorter or longer flight — covers what is left.)
         // (It tries a few run lengths, a third of a step apart, and keeps one that leaves a gap the dash can
         // cover at the speed that run hands over, the closest to its natural length.)
+        // (DASH SLASH: the passed dash's take-off exactly — it leaves the ground where a dash punch would; the weapon's
+        // extra reach is made up in the flight.)
         const gap = Math.abs(aimAt(targetId, at.t) - at.x);
         const DASH_FAR_OUT = 1.6; // x height (the passed dash punch hands over 2.2 heights out and takes off 1.7 out; fight 2 handed over 1.2 out)
+        // (A WEAPON DASH TAKES OFF A WEAPON'S REACH FURTHER OUT, Arthur Oct 6: "airborne's a little too late ... it almost
+        // looks like a hop": the dash slash's own flight is the dash punch's at `distance - reachExtra`, so the run hands
+        // over that much further out — the same long, flat, full-speed flight as the passed dash, never a short hop.)
+        const reach = action.move === "dashSlash" ? Number(params.reachExtra ?? DASH_SLASH_REACH) : 0;
         const leftOver = (p: MoveOutput) => {
-          const left = (gap - Math.abs(p.end.x - at.x)) / plan.height, span = dashSpan(settings, p.marks.speed ?? 0, left);
+          const left = (gap - Math.abs(p.end.x - at.x)) / plan.height - reach, span = dashSpan(settings, p.marks.speed ?? 0, left, action.move === "dashSlash" ? WEAPON_DASH_AIR : 0);
           // (A DASH TAKES OFF FAR OUT, round 16, Arthur on fight 2: "the airborne was a little too late... like three
           // times farther away": never a run that ends right in front of them — it hands over at least DASH_FAR_OUT
           // heights out, as the passed dash punch does, and the dash covers that ground in the air.)
@@ -974,6 +1015,10 @@ function buildCharacter(plan: ScenePlan, character: CharacterPlan, moves: Record
     }
     // Contact moves need the figure's line width (the hand is the end of the line, so hands just touch).
     if (action.move === "highFive" && params.thickness === undefined) params = { ...params, thickness: character.look?.thickness ?? DEFAULT_STYLE.thickness };
+    // (POWERS, powers.ts: a water shield learns when a fire blast aimed at it will hit, so its holder braces then.)
+    if (POWER_MOVES.has(action.move)) params = powerParams(plan, character.id, action.move, params, marks);
+    // (ESCORT, cuffs.ts: the police is told its prisoner's moves — it waits until they are worked out.)
+    if (action.move === "escort") { const p = escortParams(plan, character.id, params, fight.keys, ignoreSync ? undefined : fight.done, marks); if (!p) return null; params = p; }
     if (isGait(action.move) && holdingNow && params.carrying === undefined) params = { ...params, carrying: sizeOf(heldObject) ?? true };
     // CARRY BY WEIGHT (round 11): how heavy the held thing is says how it is carried (gaitMove). A light one
     // goes in one hand — the hand already holding it, else the right — unless the run starts in the air
@@ -1124,7 +1169,9 @@ function buildCharacter(plan: ScenePlan, character: CharacterPlan, moves: Record
         // after a throw) or hold the next move's pose for ages; it settles into its resting stand (holding
         // the ball at the chest if it has it) and breathes. The next move then starts just in time, with
         // its own short get-ready (a catch raises the hands as the ball comes).
-        if (!onTheGround(at.pose)) {
+        // (WAIT IN THE WEAPON GUARD, swordMoves.ts: before a weapon move an armed fighter just stands in its weapon
+        // stance, breathing — no settling into another stance, so its feet never shuffle between exchanges.)
+        if (!onTheGround(at.pose) && !WEAPON_MOVES.has(action.move)) {
           // (IN A FIGHT, WAIT IN THE GUARD: before a fight move a fighter keeps its hands up, in its
           // fighting stance — slumped as it gets hurt — instead of dropping into a relaxed stand.)
           const fighting = (FIGHT_MOVES.has(action.move) || action.move === "guard") && at.facing !== "front";
@@ -1262,6 +1309,13 @@ function buildCharacter(plan: ScenePlan, character: CharacterPlan, moves: Record
     // ROOM TO FALL (hit.ts): a hit's reaction knows how much page there is behind the figure.
     const edge = pageEdgeBehind();
     if (action.move === "getHit" && edge !== undefined && params.room === undefined) params = { ...params, room: Math.max(0, (at.x - edge) * forwardSign(at.facing)) };
+    // BLOWN AWAY (blownAway.ts): the floor, the page's edges, and a blast point given as a figure or its joint.
+    if (action.move === "blownAway") {
+      params = blastParams(params, at.t, plan, (id) => fight.keys.get(id));
+      // (HURT AFTER A BIG HIT: thrown by a blast it is hurt — the moves after it keep the hurt style, hit.ts hurtSettings.)
+      hurt = Math.max(hurt, blastHurt(pushOn(at, params, plan.height).push));
+      if (fight.hurt) fight.hurt[character.id] = hurt;
+    }
     // (K11 GET UP CLEAR, hit.ts getUpRoom: a knock-down knows where its attacker stands while it gets up.)
     if (action.move === "getHit" && typeof params.from === "string" && params.other === undefined) { const o = otherAt(params.from, at.t + 1.5); if (o) params = { ...params, other: o }; }
     // ARRIVE IN THE GUARD (hit.ts walkIntoGuard): a fighter's walk straight into a fight move lands its last
@@ -1269,7 +1323,7 @@ function buildCharacter(plan: ScenePlan, character: CharacterPlan, moves: Record
     const intoGuard = action.move === "walk" && fightMiddle !== undefined && (FIGHT_MOVES.has(next?.move ?? "") || next?.move === "guard") && !holdingNow && !onTheGround(at.pose) && at.facing !== "front";
     // (No run-up, no running jump: a walk or run shorter than RUN_UP, or that has hardly got going — slower
     // than JUMP_MOMENTUM — stops first, and the jump is a standing jump.)
-    const cutShort = trips && !flying ? untilTrip(entry, at, params, settings, action.move as GaitKind, next!.move === "jump" || next!.move === "dashPunch") : undefined;
+    const cutShort = trips && !flying ? untilTrip(entry, at, params, settings, action.move as GaitKind, next!.move === "jump" || next!.move === "dashPunch" || next!.move === "dashSlash") : undefined;
     if (cutShort && next!.move === "jump" && ((cutShort.marks.speed ?? 0) < JUMP_MOMENTUM * plan.height || Number(params.distance ?? 300) < RUN_UP * plan.height)) trips = false;
     const out = flying ? flyingRun(flying, at, Number(params.distance ?? 300), trips ? next!.move : undefined)
       : trips && cutShort ? cutShort
@@ -1395,7 +1449,12 @@ function buildCharacter(plan: ScenePlan, character: CharacterPlan, moves: Record
     // (A hit taken in a fight is seen all the way through — guard back, back to its spot — unless the
     // attacker's next strike follows straight on: in a combo the next hit lands while it recovers.)
     const wholeHit = action.move === "getHit" && fightMiddle !== undefined && !(next?.move === "getHit" && next.params?.from === params.from && comboGoesOn(String(params.from), hitsFrom[String(params.from)] ?? 0));
-    const flows = out.flow && !wholeHit && (outOfBreath || fightEnds || (next && (nextIsShuffle || !isGait(next.move)) && !(next.move === "wait" && Number(next.params?.seconds ?? 1) >= 1)));
+    // NO UNNEEDED POSES (Arthur, 2026-10-06: "the engine is still doing unnecessary key poses"): a get-up followed
+    // by a styled move (hurt, tired, angry…) flows straight from the get-up's own "up" pose into it — never up to a
+    // normal stand first (a walk or run goes from where it is, GO FROM WHERE YOU ARE).
+    const styledNext = next !== undefined && all[next.move] !== undefined && !["natural", "robot"].includes(nextSettings().style);
+    const getUpFlows = (action.move === "getUp" || action.move === "fall") && styledNext;
+    const flows = out.flow && !wholeHit && (outOfBreath || fightEnds || getUpFlows || (next && (nextIsShuffle || !isGait(next.move)) && !(next.move === "wait" && Number(next.params?.seconds ?? 1) >= 1)));
     // (FIGHTING SPOTS: an attack that stepped in, once the combo is over — the fighter waits to be hit, or
     // the fight is over — ends with fighting steps back to its spot, after the strike's own return to the
     // guard; only if they are done before the next hit lands: a reaction is never late. Mark
@@ -1470,7 +1529,8 @@ const FIGHT_MOVES = new Set(["punch", "kick", "getHit", "stomp"]);
 // Moves that carry on the speed of a walk or run right before them (param `speed`, px/s).
 // (A jump after a walk or run is a RUNNING JUMP: it takes off from the stride, jump.ts.)
 // (A dash punch takes the run's speed too: dash.ts.)
-const TAKES_MOMENTUM = new Set(["fall", "fallDown", "jump", "dashPunch"]);
+// (A cuffed figure's escape attempt bursts out of the walk mid-stride — no stop first: cuffs.ts tug.)
+const TAKES_MOMENTUM = new Set(["fall", "fallDown", "jump", "dashPunch", "tug", "dashSlash"]);
 // Moves that travel on foot: walk, jog (the in-between speed, never airborne) and run.
 const GAITS = new Set(["walk", "jog", "run"]);
 const isGait = (move?: string) => GAITS.has(move ?? "");
@@ -1623,15 +1683,66 @@ const LENGTH_PARAMS = ["distance", "partnerDistance"];
 const scaledLengths = (params: Record<string, unknown>, k: number) =>
   Object.fromEntries(Object.entries(params).map(([name, v]) => [name, LENGTH_PARAMS.includes(name) && typeof v === "number" ? v * k : v]));
 
+// A spot on the stage given as a number (a teleport `to` x) moves toward the middle with the page.
+const scaledSpot = (params: Record<string, unknown>, at: (x: number) => number) => {
+  let out = typeof params.to === "number" ? { ...params, to: at(params.to) } : params;
+  // (A blast point given as a stage spot — blownAway `from` — moves with the page too, so the push stays the same.)
+  const from = out.from as unknown;
+  if (typeof from === "number") out = { ...out, from: at(from) };
+  else if (from && typeof from === "object" && typeof (from as { x?: unknown }).x === "number") out = { ...out, from: { ...(from as object), x: at((from as { x: number }).x) } };
+  return out;
+};
+
 const scaledPlan = (plan: ScenePlan, k: number): ScenePlan => {
   const center = plan.characters.reduce((sum, c) => sum + c.x, 0) / Math.max(1, plan.characters.length);
+  const at = (x: number) => center + (x - center) * k;
   return {
     ...plan,
     lengthScale: (plan.lengthScale ?? 1) * k,
     characters: plan.characters.map((c) => ({
       ...c,
-      x: center + (c.x - center) * k,
-      actions: c.actions.map((a) => (a.params ? { ...a, params: scaledLengths(a.params, k) } : a)),
+      x: at(c.x),
+      actions: c.actions.map((a) => (a.params ? { ...a, params: scaledSpot(scaledLengths(a.params, k), at) } : a)),
     })),
+  };
+};
+
+// The page rule for a plan with a BACKGROUND (Phase 2C). Its pieces were placed for the plan's own distances
+// (spikes exactly where the jumps clear them), and shrinking only the ground covered would move the runs but not
+// the jumps or the pieces. So when it is too wide for the page, the WHOLE scene is zoomed out together around the
+// middle of the ground line: the figures (height, where they start, how far they go, teleport spots), effects at
+// fixed spots, and the background pieces (x, y, w, h; `size` is x the figure's height, so it follows by itself).
+// Moves are measured in figure heights, so the zoomed-out scene moves exactly like the original, only smaller —
+// every jump still clears its spikes. A plan that already fits is returned unchanged.
+export function fitBackgroundPlanToPage(plan: ScenePlan, moves: Record<string, MoveEntry>, stageWidth: number, margin = PAGE_MARGIN): ScenePlan {
+  const room = stageWidth * (1 - 2 * margin);
+  let k = 1, fitted = plan;
+  for (let i = 0; i < 4; i += 1) {
+    const fittedScene = planToScene(fitted, moves), built = buildScene(fittedScene, 12);
+    // (Effects at fixed spots that must show count too: an explosion far away, effectFitBounds.)
+    const b = animationBounds(built.frames, built.objects, effectFitBounds(fittedScene));
+    const width = b.right - b.left;
+    if (!(width > room + 0.5)) break;
+    k *= (room - 4) / width;
+    fitted = zoomedPlan(plan, k);
+  }
+  return fitted;
+}
+
+const zoomedPlan = (plan: ScenePlan, k: number): ScenePlan => {
+  const zx = (x: number) => STAGE_MIDDLE + (x - STAGE_MIDDLE) * k, zy = (y: number) => plan.groundY + (y - plan.groundY) * k;
+  const spot = (a: Anchor): Anchor => ("character" in a
+    ? { ...a, ...(a.dx !== undefined ? { dx: a.dx * k } : {}), ...(a.dy !== undefined ? { dy: a.dy * k } : {}) }
+    : { x: zx(a.x), y: zy(a.y) });
+  const num = (v: unknown, f: (n: number) => number) => (typeof v === "number" ? f(v) : v);
+  const piece = (p: NonNullable<BackgroundPiece["params"]>) => Object.fromEntries(Object.entries(p).map(([name, v]) => [name,
+    name === "x" ? num(v, zx) : name === "y" ? num(v, zy) : name === "w" || name === "h" ? num(v, (n) => n * k) : v]));
+  return {
+    ...plan,
+    height: plan.height * k,
+    lengthScale: (plan.lengthScale ?? 1) * k,
+    characters: plan.characters.map((c) => ({ ...c, x: zx(c.x), actions: c.actions.map((a) => (a.params ? { ...a, params: scaledSpot(scaledLengths(a.params, k), zx) } : a)) })),
+    ...(plan.effects ? { effects: plan.effects.map((e) => ({ ...e, anchor: spot(e.anchor), ...(e.target ? { target: spot(e.target) } : {}) })) } : {}),
+    ...(plan.background ? { background: { ...plan.background, pieces: plan.background.pieces.map((p) => (p.params ? { ...p, params: piece(p.params) } : p)) } } : {}),
   };
 };

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { buildScene } from "./engine.ts";
 import { makeMoveTestScene, MOVE_SPEEDS, MOVE_STYLES } from "./moves/index.ts";
-import { animationBounds, centerAnimation, STAGE_CENTER_X, STAGE_HEIGHT } from "./stageFit.ts";
+import { animationBounds, centerAnimation, lostOffPage, STAGE_CENTER_X, STAGE_HEIGHT } from "./stageFit.ts";
 import { ENGINE_TEST_SCENES } from "./testScenes.ts";
 
 // Arthur, 2026-10-04: every animation is always fully inside the page and centered as a whole, at the
@@ -65,4 +65,17 @@ test("the classic stick figure is the default: solid head right on the body, no 
   const classic = top(false, false), withNeck = top(true, true);
   assert.ok(Math.abs(classic.gap) < 1e-6 && classic.filled, "head sits right on the shoulders, solid");
   assert.ok(Math.abs(withNeck.gap - PROPORTIONS.neck * 300) < 1e-6 && !withNeck.filled, "with a neck and a hollow head");
+});
+
+// OFF THE PAGE ONLY ON PURPOSE (Arthur, 2026-10-06): the check flags a figure that leaves the page and never
+// comes back ("he just disappeared"), and lets one that comes back (or never leaves) be.
+test("lostOffPage flags a figure that leaves the page for good, not one that comes back", () => {
+  const stageWidth = STAGE_HEIGHT;
+  const scene = makeMoveTestScene({ move: "walk", style: "natural", speed: "normal", energy: 0.5, direction: 1, stageWidth });
+  const { frames } = centerAnimation(buildScene(scene, 12).frames, stageWidth);
+  assert.deepEqual(lostOffPage(frames, stageWidth), [], "a walk that fits: nobody lost");
+  const away = (dx: number) => frames[frames.length - 1].map((c) => ({ ...c, skeleton: Object.fromEntries(Object.entries(c.skeleton).map(([n, p]) => [n, { x: p.x + dx, y: p.y }])) as typeof c.skeleton }));
+  const gone = [...frames, away(700), away(1200), away(1700)];
+  assert.deepEqual(lostOffPage(gone, stageWidth), [{ id: frames[0][0].id, lastSeen: frames.length - 1 }], "walked off and never came back");
+  assert.deepEqual(lostOffPage([...gone, frames[frames.length - 1]], stageWidth), [], "it came back: not lost");
 });

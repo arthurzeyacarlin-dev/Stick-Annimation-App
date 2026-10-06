@@ -176,7 +176,11 @@ export const compressUnifiedProjectStorageV2 = async (
   return { version: { ...prepared.version, storedByteLength } satisfies UnifiedProjectVersionV2, assets };
 };
 
-export const prepareUnifiedProjectStorageV2 = async (project: UnifiedAnimationProjectV2, hooks: UnifiedStorageFaultHooksV2 = {}) => {
+// Digests already verified for these exact values (only ever filled by hydrate, for the values it just made from bytes it
+// just checked, and used right away): the same bytes always give the same digest, so they are not hashed a second time.
+type VerifiedDigestsV2 = { views: WeakMap<object, string>; strings: Map<string, string> };
+
+export const prepareUnifiedProjectStorageV2 = async (project: UnifiedAnimationProjectV2, hooks: UnifiedStorageFaultHooksV2 = {}, verified?: VerifiedDigestsV2) => {
   hooks.encode?.();
   const assets = new Map<string, UnifiedEncodedAssetV2>();
   type Ancestor = { value: object; parent: Ancestor | null };
@@ -184,7 +188,7 @@ export const prepareUnifiedProjectStorageV2 = async (project: UnifiedAnimationPr
     if (typeof value === "string" && /^data:(?:image|audio)\//.test(value)) {
       const bytes = utf8(value);
       hooks.hash?.();
-      const digest = await sha256Hex(bytes);
+      const digest = verified?.strings.get(value) ?? await sha256Hex(bytes);
       const assetId = `sha256:${digest}`;
       assets.set(assetId, { assetId, sha256: digest, byteLength: bytes.byteLength, encoding: "data-url", bytes });
       return { __unifiedAssetRef: assetId, encoding: "data-url", constructorName: null, byteLength: bytes.byteLength } satisfies EncodedAssetReferenceV2;
@@ -194,7 +198,7 @@ export const prepareUnifiedProjectStorageV2 = async (project: UnifiedAnimationPr
       if (!(view instanceof Uint8Array) && !(view instanceof Uint8ClampedArray)) fail("encode_failed");
       const bytes = new Uint8Array(view.buffer, view.byteOffset, view.byteLength);
       hooks.hash?.();
-      const digest = await sha256Hex(bytes);
+      const digest = verified?.views.get(view) ?? await sha256Hex(bytes);
       const assetId = `sha256:${digest}`;
       assets.set(assetId, { assetId, sha256: digest, byteLength: bytes.byteLength, encoding: "typed-array", bytes });
       return {
@@ -264,6 +268,9 @@ export const hydrateUnifiedProjectStorageV2 = async (
   const verifiedBytes = new Map<string, Uint8Array>();
   const unclaimedFreshBytes = new Set<string>();
   const hydratedTypedArrays = new Map<string, Uint8Array | Uint8ClampedArray>();
+  // (LAG, Oct 6: the check below re-encodes the project it just made; each value made from verified bytes keeps the
+  // digest those bytes were verified against, so it isn't hashed a second time — the same bytes, the same digest.)
+  const verifiedDigests: VerifiedDigestsV2 = { views: new WeakMap(), strings: new Map() };
   const visit = async (value: unknown): Promise<unknown> => {
     if (isAssetReference(value)) {
       const asset = byId.get(value.__unifiedAssetRef);
@@ -284,7 +291,11 @@ export const hydrateUnifiedProjectStorageV2 = async (
         if (digest !== asset.sha256 || asset.assetId !== `sha256:${digest}`) fail("asset_digest_mismatch");
         verifiedBytes.set(asset.assetId, bytes);
       }
-      if (value.encoding === "data-url") return text(bytes);
+      if (value.encoding === "data-url") {
+        const decoded = text(bytes);
+        verifiedDigests.strings.set(decoded, asset.sha256);
+        return decoded;
+      }
       const hydratedKey = `${asset.assetId}:${value.constructorName}`;
       const existingHydrated = hydratedTypedArrays.get(hydratedKey);
       if (existingHydrated) return existingHydrated;
@@ -296,6 +307,7 @@ export const hydrateUnifiedProjectStorageV2 = async (
         : owned;
       if (hydrated) {
         hydratedTypedArrays.set(hydratedKey, hydrated);
+        verifiedDigests.views.set(hydrated, asset.sha256);
         return hydrated;
       }
       fail("decode_failed");
@@ -310,7 +322,7 @@ export const hydrateUnifiedProjectStorageV2 = async (
   };
   const project = assertUnifiedAnimationProjectV2(await visit(version.encodedProject) as UnifiedAnimationProjectV2);
   await assertStructuredSymbolDigestsV2(project.document.catalogs.symbols);
-  const prepared = await prepareUnifiedProjectStorageV2(project);
+  const prepared = await prepareUnifiedProjectStorageV2(project, {}, verifiedDigests);
   // storedByteLength = metadata + the bytes stored for each asset (raw or compressed). For raw
   // records (every save before compression) this is exactly the old check against the raw size.
   const storedByteLength = Array.isArray(version.assetIds)

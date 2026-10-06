@@ -138,3 +138,21 @@ export const advancePlaybackAccumulator = (
     droppedSteps,
   };
 };
+
+/**
+ * Pause stops right on the frame that is showing. Only the active layer comes back from before
+ * Play; the playhead and the selected frame stay where playback was paused.
+ */
+export const resolvePausedPlaybackReturnState = ({
+  returnState,
+  shownFrameIndex,
+  activeLayerId,
+}: {
+  returnState: { activeLayerId: string } | null;
+  shownFrameIndex: number;
+  activeLayerId: string;
+}) => ({
+  activeLayerId: returnState?.activeLayerId ?? activeLayerId,
+  currentFrameIndex: shownFrameIndex,
+  selectedTimelineIndex: shownFrameIndex,
+});

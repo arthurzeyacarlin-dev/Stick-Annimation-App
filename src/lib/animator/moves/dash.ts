@@ -30,7 +30,11 @@ import { RAMP_SCALE } from "./styles.ts";
 // SQUASH & STRETCH (only from 20 pictures a second: engine keysAt / minFps): one squashed key just before
 // the push (a deeper crouch) and one stretched key just after it (the body in one long straight line, a
 // bit more lean). Bones never stretch: it is all in the pose.
-export type DashParams = { distance?: number; speed?: number; targetHeight?: number };
+export type DashParams = { distance?: number; speed?: number; targetHeight?: number; air?: number; heavy?: boolean };
+// air (opt-in, the WEAPON DASH only — Arthur, Oct 6: "airborne for maybe two-thirds of a second, half a second"): seconds
+// in the air wanted (0.45-0.6), at FULL SPEED the whole flight — never slower than the run (a body in the air keeps its
+// speed; only gravity bends the arc): with less room it flies a little shorter, never slower. heavy: it lands heavy —
+// the knees bend deep, the hips drop — and stops fast. (Without them: the passed dash punch, unchanged.)
 // distance: px from the hips where the dash starts to the target's hips when the fist lands (the planner
 // fills it from `target`). speed: the run's speed when it hands over (px/s, filled in by the planner).
 // targetHeight: where the fist lands, x height above the floor (default: the chest of a standing figure).
@@ -68,9 +72,12 @@ const SQUASH_FPS = 20; // squash & stretch keys only exist from this many pictur
 // How far (x height) a dash covers from the foot it starts on to the target's hips when the fist lands,
 // at its natural speed: the planner runs up to about this far from the target before handing over.
 // (`miss`: how far outside what it can cover a gap is, x height: 0 when the dash can reach it.)
-export function dashSpan(settings: MoveSettings, speedPx = 2.1 * settings.height, gap?: number) {
+export function dashSpan(settings: MoveSettings, speedPx = 2.1 * settings.height, gap?: number, air = 0) {
   const v = Math.max(0.6, speedPx / settings.height), tempo = tempoOf(settings), fly = v * (RAMP_SCALE[settings.style] === 0 ? 1 : boostOf(settings));
-  const around = 0.15 + 0.3 + 0.45, natural = around + fly * clamp(0.34 * tempo, MIN_AIR, MAX_AIR);
+  const around = 0.15 + 0.3 + 0.45;
+  // (the weapon dash, `air` seconds at full speed: DashParams.air)
+  if (air > 0) return { natural: around + fly * air, miss: gap === undefined ? 0 : Math.max(0, around + v * 0.45 - gap, gap - (around + 1.2 * fly * 0.6)) };
+  const natural = around + fly * clamp(0.34 * tempo, MIN_AIR, MAX_AIR);
   const lo = around + Math.max(0.92 * fly * MIN_AIR, v * REAL_AIR), hi = around + 1.3 * fly * MAX_AIR; // (never slower than the run)
   return { natural, miss: gap === undefined ? 0 : Math.max(0, lo - gap, gap - hi) };
 }
@@ -127,11 +134,20 @@ export function dashPunch(start: Stance, params: DashParams, settings: MoveSetti
   const natural = vFly * clamp(0.34 * tempo, MIN_AIR, MAX_AIR);
   const asked = Number(params.distance) > 0 ? Number(params.distance) / H - reachX - xPush : natural;
   // (Never slower than a dash: a short gap is a shorter flight, a long one a longer and a little faster one.)
-  const air = clamp(asked / vFly, REAL_AIR, MAX_AIR);
-  vFly = clamp(asked / air, robot ? Math.min(v, asked / air) : 0.92 * vFly, robot ? v : 1.35 * vFly);
-  // (Too close: NEVER PAST THE TARGET and NEVER A LITTLE HOP — it still flies its full REAL_AIR, high, just
-  // slower: the gather brakes into it. The planner gives it the room first, so this is rare.)
-  if (asked / air < vFly) vFly = Math.max(0.15, asked / air);
+  const wantAir = Number(params.air) > 0 ? clamp(Number(params.air), 0.45, 0.6) : 0;
+  let air = clamp(asked / vFly, REAL_AIR, MAX_AIR);
+  if (wantAir) {
+    // (THE WEAPON DASH: ~wantAir seconds at full speed — never slower than the run; short of room, a shorter flight
+    // at that speed (never under 0.45 s), and only then a little slower.)
+    vFly = Math.max(v, asked / wantAir);
+    air = clamp(asked / vFly, 0.45, 0.6);
+    vFly = Math.max(0.15, asked / air);
+  } else {
+    vFly = clamp(asked / air, robot ? Math.min(v, asked / air) : 0.92 * vFly, robot ? v : 1.35 * vFly);
+    // (Too close: NEVER PAST THE TARGET and NEVER A LITTLE HOP — it still flies its full REAL_AIR, high, just
+    // slower: the gather brakes into it. The planner gives it the room first, so this is rare.)
+    if (asked / air < vFly) vFly = Math.max(0.15, asked / air);
+  }
   // (THE ARC IS NEVER LOWER THAN THE PASSED DASH'S: its gravity is never lighter than what lifts a DASH_AIR
   // flight as high as it does at natural gravity — nor, for a quick style, more than half again as high.)
   const gFly = clamp(g, GRAVITY * (DASH_AIR / air) ** 2, 1.6 * GRAVITY * (DASH_AIR / air) ** 2);
@@ -182,7 +198,7 @@ export function dashPunch(start: Stance, params: DashParams, settings: MoveSetti
   const hipX = (t: number) => (t <= tLow ? g1(t) : t <= tPush ? g2(t) : t <= tLand ? xPush + vFly * (t - tPush) : t <= tStop ? s1(t) : t <= tStep ? s2(t) : s3(t));
   const yG1 = hermite(0, tLow, y0, yLow, 0, 0), yG2 = hermite(tLow, tPush, yLow, yPush, 0, (yPush - yLow) / Math.max(0.05, tPush - tLow));
   const fly = (t: number) => { const u = t - tPush; return yPush + vy0 * u - 0.5 * gFly * u * u; };
-  const yAbs = yLand - (robot ? 0 : 0.03 * amp);
+  const yAbs = yLand - (robot ? 0 : params.heavy ? 0.09 : 0.03 * amp); // (heavy: the knees bend deep on landing)
   const legUp = (dx: number, k: number) => Math.sqrt((k * LEG) ** 2 - dx * dx);
   const yStep = Math.min(yAbs + 0.01, legUp(xStepHip - xF, 0.975), legUp(xF + step - xStepHip, 0.975));
   const yStand = Math.min(legUp(xEnd - xF, 0.99), legUp(xF + step - xEnd, 0.99));

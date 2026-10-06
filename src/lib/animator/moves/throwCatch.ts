@@ -97,7 +97,17 @@ export const CATCH_POSE: PoseAngles = withPose(STAND, { lean: 3, head: 4, ...bot
 // fills it in): the moment the taker's hands are on the ball — the giver holds it out at least until then.
 // `handOverHold` (the planner's ONE WAY ROUND, plan.ts): base seconds the throwing arm holds its follow-through
 // before the next move takes it on.
-export type ThrowParams = { distance: number; overhand?: boolean; handOff?: boolean; bounce?: boolean; to?: string; until?: number; handOverHold?: number };
+export type ThrowParams = { distance: number; overhand?: boolean; handOff?: boolean; bounce?: boolean; to?: string; until?: number; handOverHold?: number; effort?: number; loft?: boolean; swing?: number };
+// A SHORT TOSS KEEPS THE QUICK RHYTHM (Arthur, 2026-10-06: the soft toss "looks like slow motion"): `swing` (0..1,
+// default 1; underhand) makes the arm's path SMALLER — a short back-swing and a smaller follow-through — in exactly
+// the same time as the passed toss (every beat the same length), so the hand lets go slower and the thing lands
+// nearer. Distance comes from the size of the swing, never from slowing down.
+// THE EFFORT MATCHES THE FLIGHT (Arthur, 2026-10-06: "he looks like he throws it really hard, but it just falls straight
+// to the ground"): a thrown thing leaves the hand at the hand's own speed and direction, so how hard the body throws
+// is how far it goes. `effort` (default 1 = the usual throw): the hand's speed through the release x this, with a
+// smaller (or fuller) wind-up and step to match — 0.5 is a soft toss, like passing a basketball underhand; 1.2 a
+// strong throw. `loft: true`: let go while the hand still rises (LOFT_OVER / LOFT_UNDER), so it flies on a taller
+// arc (overhand about 40 degrees up, underhand a lob about 55). Not given = exactly the throw as before.
 export const THROW_DEFAULTS = { distance: 500 } as const;
 // `handOff`: the giver is this close (px, hip to hip) and hands it over (the planner fills it in, with
 // `handOffRise`: how much higher (x height) than usual the giver holds it, so the hands meet on it).
@@ -301,7 +311,17 @@ const GATHER_SETTLE = 0.06;
 const UNDER_GATHER: WorldArm = { upper: -6, fore: 100 };
 const UNDER_PULL: WorldArm = { upper: UNDER_GATHER.upper - 28, fore: UNDER_GATHER.fore - 28 };
 const underBack = (k: number): WorldArm => { const upper = -(36 + 14 * Math.min(1, k)); return { upper, fore: upper + 12 }; };
+// (a smaller swing: the arm's path from the back of the swing to the release is only `swing` of the full one, and it
+// lets go a touch higher up the swing, so a short toss still goes UP in an arc, not out flat)
+const releaseUnder = (swing: number): WorldArm => ({ upper: RELEASE_UNDER.upper + 12 * (1 - swing), fore: RELEASE_UNDER.fore + 24 * (1 - swing) });
+const scaledArm = (arm: WorldArm, swing: number): WorldArm => { const r = releaseUnder(swing); return { upper: r.upper + (arm.upper - r.upper) * swing, fore: r.fore + (arm.fore - r.fore) * swing }; };
 const RELEASE_UNDER: WorldArm = { upper: 55, fore: 66 };
+// A LOFTED throw (`loft: true`): let go later in the swing, while the hand is still rising, so it flies on a taller
+// arc. Overhand: the forearm lies back low behind the head in the lag and whips up and forward, let go about 40
+// degrees up, the body still upright; underhand: the swing carries on up in front to a lob about 55 degrees up.
+// (Found by measuring where the hand really goes: the thrown thing leaves at the hand's own speed and direction.)
+const LOFT_OVER = { lag: { upper: -185, fore: -80 } as WorldArm, arm: { upper: -180, fore: -115 } as WorldArm, lean: 3 };
+const LOFT_UNDER = { arm: { upper: 60, fore: 80 } as WorldArm, lean: 3 };
 const FOLLOW_UNDER: WorldArm = { upper: 104, fore: 122 };
 
 // A ROBOT THROWS STIFF (Arthur, round 8: "robots don't feel weight ... When he throws, the right arm goes
@@ -316,7 +336,7 @@ const stiffArm = (upper: number): WorldArm => ({ upper, fore: upper });
 const STIFF = { back: stiffArm(-55), cocked: stiffArm(-135), release: stiffArm(-205), follow: stiffArm(-222), backOver: stiffArm(-130), underBack: stiffArm(-50), underRelease: stiffArm(58), underFollow: stiffArm(110) } as const;
 
 // The throw's key poses for one throw kind and strength `k` (about 0.4 to 1.5), from feet `feet0`.
-function throwPoses(overhand: boolean, k: number, feet0: Feet, robot = false) {
+function throwPoses(overhand: boolean, k: number, feet0: Feet, robot = false, loft = false, swing = 1) {
   // (Only the overhand goes stiff: a robot's underhand toss is already a nearly straight pendulum.)
   const stiff = robot && overhand;
   const feet = fightFeet(feet0); // the front foot steps forward: wide stance
@@ -326,10 +346,12 @@ function throwPoses(overhand: boolean, k: number, feet0: Feet, robot = false) {
   const gatherBody = withPose(STAND, { lean: 2, head: 2 });
   const gather = plantedLegs(withPose(gatherBody, throwingHand(2, overhand ? GATHER_ARM : UNDER_GATHER, true)), feet0, 0, 0.025);
 
-  const release = legsAt(withPose(STAND, { lean: (overhand ? 9 : 5) * body, head: overhand ? 0 : -4, ...armOf("l", 18, 40) }), releaseAt);
-  Object.assign(release, armFromWorld(release.lean, "r", stiff ? (overhand ? STIFF.release : STIFF.underRelease) : overhand ? RELEASE_OVER : RELEASE_UNDER));
+  // (A lofted throw lets go before the body has leaned into it, so the hand still goes up.)
+  const LOFTED = loft ? (overhand ? LOFT_OVER : LOFT_UNDER) : null;
+  const release = legsAt(withPose(STAND, { lean: (LOFTED ? LOFTED.lean : overhand ? 9 : 5) * body, head: overhand ? 0 : -4, ...armOf("l", 18, 40) }), releaseAt);
+  Object.assign(release, armFromWorld(release.lean, "r", stiff ? (overhand ? STIFF.release : STIFF.underRelease) : LOFTED ? LOFTED.arm : overhand ? RELEASE_OVER : swing < 1 ? releaseUnder(swing) : RELEASE_UNDER));
   const follow = legsAt(withPose(STAND, { lean: (overhand ? 15 : 6) * body, head: 2, ...armOf("l", overhand ? -15 : 4, overhand ? 30 : 20) }), followAt);
-  Object.assign(follow, armFromWorld(follow.lean, "r", stiff ? (overhand ? STIFF.follow : STIFF.underFollow) : overhand ? FOLLOW_OVER : FOLLOW_UNDER));
+  Object.assign(follow, armFromWorld(follow.lean, "r", stiff ? (overhand ? STIFF.follow : STIFF.underFollow) : overhand ? FOLLOW_OVER : swing < 1 ? { upper: releaseUnder(swing).upper + (FOLLOW_UNDER.upper - releaseUnder(swing).upper) * swing, fore: releaseUnder(swing).fore + (FOLLOW_UNDER.fore - releaseUnder(swing).fore) * swing } : FOLLOW_UNDER));
 
   // WIND-UP, the opposite way (windUp rule): the body leans back, the throwing arm swings back — overhand
   // far back and up, nearly straight, the ball behind the head (the strike rule, cockedArm); underhand
@@ -339,7 +361,7 @@ function throwPoses(overhand: boolean, k: number, feet0: Feet, robot = false) {
   // Overhand = Arthur's drawing: arms pass, the arm goes straight back, the forearm folds up so the ball
   // sits above and behind the head; the other arm points straight at the catcher.
   const cock = stiff ? (overhand ? { arm: STIFF.cocked, via: STIFF.back } : { arm: STIFF.underBack, via: undefined })
-    : overhand ? { arm: cockOver(k), via: RISE_OVER } : { arm: underBack(k), via: undefined };
+    : overhand ? { arm: cockOver(k), via: RISE_OVER } : { arm: swing < 1 ? scaledArm(underBack(k), swing) : underBack(k), via: undefined };
   const aim = aimArm(lean, { x: 1, y: -0.12 }, 0.99);
   const windup = legsAt(withPose(STAND, { lean, head: -3, ...armOf("l", aim.shoulder, aim.elbow), ...armFromWorld(lean, "r", cock.arm) }), windAt, overhand ? 0.02 : 0.02 + 0.02 * Math.min(1, k));
   // Overhand: held cocked a moment, sinking a touch further back (never a dead freeze).
@@ -359,7 +381,9 @@ function throwPoses(overhand: boolean, k: number, feet0: Feet, robot = false) {
   // Overhand: the elbow leads forward over the head, the ball lagging behind the head, then the forearm
   // snaps through.
   const lagBody = blendPose(loaded ?? windup, release, 0.45);
-  const lag = overhand && !stiff ? legsAt(withPose(lagBody, armFromWorld(lagBody.lean, "r", LAG_OVER)), windAt + (releaseAt - windAt) * 0.3) : null;
+  // (LOFT: the forearm lies lower behind the head in the lag, so it rises forward into the release — let go while
+  // the hand still goes up: a taller arc.)
+  const lag = overhand && !stiff ? legsAt(withPose(lagBody, armFromWorld(lagBody.lean, "r", loft ? LOFT_OVER.lag : LAG_OVER)), windAt + (releaseAt - windAt) * 0.3) : null;
   const whipBody = blendPose(windup, release, 0.7);
   const whip = overhand && USE_WHIP ? legsAt(withPose(whipBody, armFromWorld(whipBody.lean, "r", WHIP_ARM)), windAt + (releaseAt - windAt) * 0.62) : null;
   // After the follow-through: the same stance, both arms hanging down relaxed (as in the plain stand).
@@ -434,22 +458,29 @@ export function throwBall(start: Stance, params: ThrowParams, settings: MoveSett
   const overhand = throwsOverhand(params, settings.height);
   // A farther throw winds up deeper and steps the weight further; energy and style add to that.
   const reach = Math.min(1.3, Math.max(0.6, distance / (3 * settings.height)));
-  const k = Math.min(MAX_THROW_POWER, reach * powerOf(settings));
+  // (EFFORT: a softer toss winds up and steps less and swings slower; a harder one the other way.)
+  const effort = params.effort !== undefined ? Math.min(1.5, Math.max(0.2, params.effort)) : 1;
+  const k = Math.min(MAX_THROW_POWER, reach * powerOf(settings) * (params.effort !== undefined ? Math.min(1.25, Math.max(0.2, effort)) : 1));
   const robot = isRobot(settings);
-  const p = throwPoses(overhand, k, feetOf(start.pose), robot);
+  const swing = overhand || params.swing === undefined ? 1 : Math.min(1, Math.max(0, params.swing));
+  const p = throwPoses(overhand, k, feetOf(start.pose), robot, params.loft === true, swing);
   const timing = throwTiming(settings, overhand);
-  const strike = actionThrough([...(p.lag ? [{ pose: p.lag, at: p.lagAt }] : []), ...(p.whip ? [{ pose: p.whip, at: p.whipAt }] : []), { pose: p.release, at: p.releaseAt, name: "release" }], { pose: p.loaded ?? p.windup, at: p.windAt }, BALL_HAND, timing.release, settings);
+  const strikeOf = (q: typeof p) => actionThrough([...(q.lag ? [{ pose: q.lag, at: q.lagAt }] : []), ...(q.whip ? [{ pose: q.whip, at: q.whipAt }] : []), { pose: q.release, at: q.releaseAt, name: "release" }], { pose: q.loaded ?? q.windup, at: q.windAt }, BALL_HAND, timing.release / Math.max(1, effort), settings); // (NO SLOW MOTION: an effort below 1 never slows it down)
+  const strike = strikeOf(p);
   // The follow-through carries on from the release at about the hand's speed there, then slows down.
-  const last = strike[strike.length - 1];
-  const releaseSpeed = chainLength([strike.length > 1 ? strike[strike.length - 2].pose : p.loaded ?? p.windup, last.pose], BALL_HAND) / Math.max(1e-3, beatSeconds("action", last.seconds, settings));
-  const followSecs = (2 * chainLength([p.release, p.follow], BALL_HAND)) / Math.max(1e-3, 0.9 * releaseSpeed);
+  // (A smaller `swing` keeps every beat of the full toss: its follow-through and arms-down times come from the full
+  // swing — the same rhythm, only a smaller path.)
+  const pRef = swing < 1 ? throwPoses(overhand, k, feetOf(start.pose), robot, params.loft === true) : p, strikeRef = swing < 1 ? strikeOf(pRef) : strike;
+  const last = strikeRef[strikeRef.length - 1];
+  const releaseSpeed = chainLength([strikeRef.length > 1 ? strikeRef[strikeRef.length - 2].pose : pRef.loaded ?? pRef.windup, last.pose], BALL_HAND) / Math.max(1e-3, beatSeconds("action", last.seconds, settings));
+  const followSecs = (2 * chainLength([pRef.release, pRef.follow], BALL_HAND)) / Math.max(1e-3, 0.9 * releaseSpeed);
   const followBase = followSecs / Math.max(1e-6, beatSeconds("follow", 1, settings));
   // Then the arms drop (in about a quarter of a second), never faster than the throw itself: at their
   // fastest under 70% of the hand's speed at the release (a smooth beat peaks at 1.5x its average speed);
   // a robot moves at one even speed, so its arm comes down at the speed it threw. A robot has no
   // follow-through, so its arm comes down the front way, through the follow-through pose (not back over
   // the shoulder).
-  const downPath = robot ? [p.release, p.follow, ...(p.backOver ? [p.backOver] : []), p.relaxed] : [p.follow, p.relaxed];
+  const downPath = robot ? [pRef.release, pRef.follow, ...(pRef.backOver ? [pRef.backOver] : []), pRef.relaxed] : [pRef.follow, pRef.relaxed];
   const drop = Math.max(chainLength(downPath, BALL_HAND), chainLength(downPath, "lHand"));
   const armsDownSecs = Math.max(beatSeconds("settle", ARMS_DOWN_SECONDS, settings), (robot ? 1 : 1.5 / 0.7) * drop / Math.max(1e-3, releaseSpeed));
   const armsDownBase = armsDownSecs / Math.max(1e-6, beatSeconds("settle", 1, settings));
@@ -462,10 +493,10 @@ export function throwBall(start: Stance, params: ThrowParams, settings: MoveSett
     // (Overhand: the throwing hand settles under the ball for an instant before it carries it up — the
     // rise goes a new way, up in front of the face.)
     ...(overhand ? [{ kind: "hold" as const, pose: p.gather, seconds: GATHER_SETTLE, at: 0 }] : []),
-    { ...windPart(p, timing, "pull"), contacts: ["rFoot"] },
+    { ...windPart(p, timing, "pull", pRef), contacts: ["rFoot"] },
     // (The swing back and the fold up share their time by how far the ball goes in each: an even pace.)
-    ...(p.back ? [{ ...windPart(p, timing, "windup"), pose: p.back, at: p.backAt, seconds: windPart(p, timing, "windup").seconds * backShare(p) }] : []),
-    { ...windPart(p, timing, "windup"), seconds: windPart(p, timing, "windup").seconds * (p.back ? 1 - backShare(p) : 1), name: "windup" },
+    ...(p.back ? [{ ...windPart(p, timing, "windup", pRef), pose: p.back, at: p.backAt, seconds: windPart(p, timing, "windup", pRef).seconds * backShare(p) }] : []),
+    { ...windPart(p, timing, "windup", pRef), seconds: windPart(p, timing, "windup", pRef).seconds * (p.back ? 1 - backShare(p) : 1), name: "windup" },
     // Overhand: the cocked arm is held a moment (ball above and behind the head), so it reads.
     ...(p.loaded ? [{ kind: "hold" as const, pose: p.loaded, seconds: timing.windup * COCK_HOLD, at: p.windAt, name: "cocked" }] : []),
     ...strike,
@@ -501,8 +532,9 @@ const backShare = (p: ReturnType<typeof throwPoses>) => {
 
 // The two parts of the wind-up (stepping and pulling back, then swinging back and up), sharing its time
 // by how far the hand goes in each.
-function windPart(p: ReturnType<typeof throwPoses>, timing: ReturnType<typeof throwTiming>, part: "pull" | "windup"): PlacedBeat {
-  const a = chainLength([p.gather, p.pull], BALL_HAND), b = chainLength([p.pull, p.windup], BALL_HAND);
+// (`ref`: whose path shares out the time — the full swing's, for a smaller `swing`: the same rhythm.)
+function windPart(p: ReturnType<typeof throwPoses>, timing: ReturnType<typeof throwTiming>, part: "pull" | "windup", ref = p): PlacedBeat {
+  const a = chainLength([ref.gather, ref.pull], BALL_HAND), b = chainLength([ref.pull, ref.windup], BALL_HAND);
   const share = timing.share ?? Math.min(0.7, Math.max(0.3, a / Math.max(1e-6, a + b)));
   return part === "pull"
     ? { kind: timing.kind, pose: p.pull, seconds: timing.windup * share, at: p.pullAt }

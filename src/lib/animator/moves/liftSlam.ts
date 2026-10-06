@@ -2,10 +2,12 @@ import { buildScene, type CharacterKey } from "../engine.ts";
 import { forwardKinematics } from "../pose.ts";
 import { DEFAULT_STYLE, HEAD_RADIUS, PROPORTIONS, STAND, withPose, type Facing, type PoseAngles, type Point, type Skeleton } from "../rig.ts";
 import type { MoveOutput, MoveSettings, Stance } from "./motion.ts";
-import { beatSeconds, forwardSign } from "./motion.ts";
+import { beatSeconds, forwardSign, lerpPose } from "./motion.ts";
 import { armFromWorld, feetOf, placedBeatsToKeys, plantedLegs, STAND_HIP, windKind, type PlacedBeat } from "./punch.ts";
 import { keepLying, otherBody, isDown, type Other } from "./grapple.ts";
 import { handAt, safePose } from "./squat.ts";
+import { GRAVITY } from "../objectMoves.ts";
+import { hipHeight } from "./fall.ts";
 
 // SPEC-0017 Phase 2 round 12: LIFT AND SLAM (Arthur: "Red went over, grabbed his waist or his spine, lifted
 // him up, and slammed him on the ground hard"). A two-figure ground attack on someone lying on the back:
@@ -429,6 +431,37 @@ export function slammed(start: Stance, params: SlammedParams, settings: MoveSett
   }
   const landFacing = slamKey!.facing ?? face0;
   const slamX = slamKey!.x;
+  // THE IMPACT: the shared hard landing on the back (hardBackLanding, below).
+  // (Which way it was flying at the impact, in its own facing frame.)
+  const prevKey = keys[keys.length - 2];
+  const skidWay = Math.sign(((slamKey!.x - (prevKey?.x ?? slamKey!.x)) || 1) * forwardSign(landFacing));
+  // (LANDINGS DEPEND ON THE FALL: the speed it hits at — the hips' speed over the last step into the floor.)
+  const hipAt = (key: CharacterKey) => ({ x: key.x / h, y: (key.lift ?? 0) / h + hipHeight(key.pose) });
+  const a0 = hipAt(prevKey ?? slamKey!), a1 = hipAt(slamKey!);
+  const impactSpeed = Math.hypot(a1.x - a0.x, a1.y - a0.y) / Math.max(1e-3, slamKey!.t - (prevKey?.t ?? slamKey!.t - 1));
+  const after = landOnBack({ t: c.slam, x: slamX, facing: landFacing, pose: slamKey!.pose }, p0, skidWay, settings, { speed: impactSpeed });
+  for (const k of after.keys.slice(1)) keys.push({ ...k, facing: landFacing });
+  const liftMark = c.lift ?? (c.grab + c.slam) / 2;
+  return {
+    keys,
+    end: { ...after.end, facing: landFacing },
+    // (FAST SPAN, engine.ts fastSpans: thrown down from the top — the lifter's turn — to the impact.)
+    marks: { sees: Math.max(seeAt + 0.02, c.grab - 0.03), grab: from, lift: liftMark, ...(shared.length ? { fastFrom: shared[0], fastTo: c.slam } : {}), hit: c.slam, slam: c.slam, down: after.marks.down },
+  };
+}
+
+// HARD LANDINGS (shared, Phase 2C, Arthur 2026-10-06: "it must not repeat a mistake we already fixed"): every hard
+// landing on the back — a slam (slammed, below), a blast throw (blownAway.ts) — uses these same impact rules, the
+// ones Arthur passed for the slam: it hits at full speed (the move's own keys run straight into `impact`, no
+// easing before contact), a hit-stop, one small bounce and jolt, the back ARCHES and eases straight over 4-5
+// pictures, the limbs keep moving a little with their weight, then it lies in `p0` (a lying-on-the-back pose).
+// `impact` = the stance at the moment the back hits (its pose, place, facing); `skidWay` = +1/-1, which way it
+// was flying (in its own facing frame); `SKID` = how far (x height) it skids on (a slam: a little).
+export const HARD_LANDING_SKID = 0.05;
+// `s` (0..1, LANDINGS DEPEND ON THE FALL, landOnBack below): how big the impact is. 1 = the slam, exactly as Arthur
+// passed it; smaller = a smaller fall: every pose only that share of the way from calm (the impact pose easing
+// into the lying one), so the jolt, the arch and the bounce shrink with it, and it all takes a little less time.
+export function hardBackLanding(impact: Stance, p0: PoseAngles, skidWay: number, settings: MoveSettings, SKID = HARD_LANDING_SKID, s = 1, timeK = 1): MoveOutput {
   // THE IMPACT (like a hard fall's): the body jolts (shoulders curl, legs fly up), slams back flat, lies hurt.
   const lean = p0.lean;
   // THE IMPACT HURTS (Arthur: "the slam should really HURT ... his body should bounce a little, and his arms
@@ -444,7 +477,7 @@ export function slammed(start: Stance, params: SlammedParams, settings: MoveSett
   // (still moving through the hit-stop, never a held stick); it bounces into a gentle ARCH (see below); it
   // crashes down arched (head whipped back); the jolt is a small curl. The bounce is
   // a LITTLE one ("bounce just a little and go back just a little bit"), skidding back the way it was going.
-  const s0p = slamKey!.pose;
+  const s0p = impact.pose;
   const legsOf = (q: PoseAngles, up = 0) => ({ lHip: q.lHip + up, rHip: q.rHip + up, lKnee: q.lKnee, rKnee: q.rKnee });
   // (Shoulders curled up off the floor `c` degrees, the legs kept where they point in the world.)
   const curled = (q: PoseAngles, c: number): PoseAngles => ({ ...q, lean: q.lean + c, lHip: q.lHip + c, rHip: q.rHip + c });
@@ -474,30 +507,109 @@ export function slammed(start: Stance, params: SlammedParams, settings: MoveSett
   const flung = archAt(1);
   const jolt = keepLying(safePose(curled(withPose(p0, { head: p0.head + 8, ...armFromWorld(lean, "l", { upper: 108, fore: 140 }), ...armFromWorld(lean, "r", { upper: 112, fore: 150 }), lHip: 98 + lean, lKnee: 15, rHip: 108 + lean, rKnee: 45 }), 3)));
   const hurt = keepLying(safePose(withPose(p0, { head: p0.head + 2, ...armFromWorld(lean, "l", { upper: 92, fore: 150 }), ...armFromWorld(lean, "r", { upper: 88, fore: 140 }), lHip: 89 + lean, lKnee: 0, rHip: 125 + lean, rKnee: 100 })));
-  const SKID = 0.05; // x height it skids on along the floor, the way it was flying (a little)
-  // (Which way it was flying at the impact, in its own facing frame.)
-  const prevKey = keys[keys.length - 2];
-  const skidWay = Math.sign(((slamKey!.x - (prevKey?.x ?? slamKey!.x)) || 1) * forwardSign(landFacing));
-  const real = (kind: "action" | "settle" | "hold", seconds: number) => (seconds * seconds) / Math.max(1e-3, beatSeconds(kind, seconds, settings));
-  const after = placedBeatsToKeys({ t: c.slam, x: slamX, facing: landFacing, pose: slamKey!.pose }, [
-    { kind: "action", ease: "out", pose: squash, seconds: real("action", 0.04), at: 0, contacts: [], name: "flat" },
-    { kind: "action", ease: "out", pose: whip, seconds: real("action", 0.04), at: SKID * 0.15 * skidWay, contacts: [], name: "hitStop" },
-    { kind: "action", ease: "out", liftEase: "out", xEase: "out", pose: flung, seconds: real("action", 0.09), at: SKID * 0.7 * skidWay, lift: 0, contacts: [], name: "bounce" },
+  const real0 = (kind: "action" | "settle" | "hold", seconds: number) => (seconds * seconds) / Math.max(1e-3, beatSeconds(kind, seconds, settings));
+  const real = (kind: "action" | "settle" | "hold", seconds: number) => real0(kind, s === 1 ? seconds : seconds * (0.5 + 0.5 * s) * timeK);
+  // (u = how far through the landing, 0..1: where the calm pose is by then.)
+  // (Shoulders turn freely: each blend takes the short way round, never an arm swung through the floor.)
+  const near = (x: PoseAngles, ref: PoseAngles): PoseAngles => ({ ...x, lShoulder: x.lShoulder + 360 * Math.round((ref.lShoulder - x.lShoulder) / 360), rShoulder: x.rShoulder + 360 * Math.round((ref.rShoulder - x.rShoulder) / 360) });
+  const sc = (u: number, q: PoseAngles) => (s === 1 ? q : keepLying(safePose(lerpPose(near(lerpPose(near(s0p, p0), p0, u), q), q, s))));
+  return placedBeatsToKeys({ t: impact.t, x: impact.x, facing: impact.facing, pose: impact.pose }, [
+    { kind: "action", ease: "out", pose: sc(0.04, squash), seconds: real("action", 0.04), at: 0, contacts: [], name: "flat" },
+    { kind: "action", ease: "out", pose: sc(0.08, whip), seconds: real("action", 0.04), at: SKID * 0.15 * skidWay, contacts: [], name: "hitStop" },
+    { kind: "action", ease: "out", liftEase: "out", xEase: "out", pose: sc(0.17, flung), seconds: real("action", 0.09), at: SKID * 0.7 * skidWay, lift: 0, contacts: [], name: "bounce" },
     // (Round 16, Arthur: "it almost looks like slow motion when he's at that arc" — the arch eases out over about
     // 2-3 pictures at 12 a second, not 4-5: bounce, back bent, and down again, all in a quick moment.)
-    { kind: "action", ease: "inOut", xEase: "out", pose: archAt(0.45), seconds: real("action", 0.08), at: SKID * 0.9 * skidWay, lift: 0, contacts: [], name: "flung" },
-    { kind: "settle", ease: "inOut", pose: archAt(0.1), seconds: real("settle", 0.07), at: SKID * skidWay, lift: 0, contacts: [], name: "jolt" },
-    { kind: "settle", ease: "inOut", pose: jolt, seconds: real("settle", 0.08), at: SKID * skidWay, lift: 0, contacts: [] },
-    { kind: "settle", pose: hurt, seconds: real("settle", 0.2), at: SKID * skidWay, contacts: [] },
-    { kind: "hold", pose: hurt, seconds: real("hold", 0.18), at: SKID * skidWay, contacts: [] },
+    { kind: "action", ease: "inOut", xEase: "out", pose: sc(0.25, archAt(0.45)), seconds: real("action", 0.08), at: SKID * 0.9 * skidWay, lift: 0, contacts: [], name: "flung" },
+    { kind: "settle", ease: "inOut", pose: sc(0.31, archAt(0.1)), seconds: real("settle", 0.07), at: SKID * skidWay, lift: 0, contacts: [], name: "jolt" },
+    { kind: "settle", ease: "inOut", pose: sc(0.39, jolt), seconds: real("settle", 0.08), at: SKID * skidWay, lift: 0, contacts: [] },
+    { kind: "settle", pose: sc(0.59, hurt), seconds: real("settle", 0.2), at: SKID * skidWay, contacts: [] },
+    { kind: "hold", pose: sc(0.76, hurt), seconds: real("hold", 0.18), at: SKID * skidWay, contacts: [] },
     { kind: "settle", pose: p0, seconds: real("settle", 0.24), at: SKID * skidWay, contacts: [], name: "down" },
   ], settings);
-  for (const k of after.keys.slice(1)) keys.push({ ...k, facing: landFacing });
-  const liftMark = c.lift ?? (c.grab + c.slam) / 2;
-  return {
-    keys,
-    end: { ...after.end, facing: landFacing },
-    // (FAST SPAN, engine.ts fastSpans: thrown down from the top — the lifter's turn — to the impact.)
-    marks: { sees: Math.max(seeAt + 0.02, c.grab - 0.03), grab: from, lift: liftMark, ...(shared.length ? { fastFrom: shared[0], fastTo: c.slam } : {}), hit: c.slam, slam: c.slam, down: after.marks.down },
+}
+
+// LANDINGS DEPEND ON THE FALL (Arthur, 2026-10-06: "it depends on the fall"): ONE rule for every fall onto the
+// body, scaled by the impact speed `speed` (body heights a second, at contact) — every fall calls landOnBack:
+// - a small fall (falling over, a normal knock-down; slower than LANDING.bigFrom): the slam's landing shrunk
+//   (hardBackLanding's `s`, growing with the speed cubed) — barely a bounce, a tiny jolt, a small arch, settle;
+// - a big hit (a slam, a blast throw; LANDING.bigFrom..bigTo): exactly the slam's landing, as Arthur passed it;
+// - a huge fall (faster than bigTo, e.g. off a skyscraper): it BOUNCES HIGH (growing smoothly to about 0.85 x
+//   height), and from LANDING.flipAt up it TUMBLES over in the air (the body turns right over, about 200
+//   degrees) and lands FACE DOWN (`front`, a lying-face-down pose), a smaller jolt, and settles. Below flipAt it
+//   bounces up arched and crashes back down on its back (the slam's landing again).
+// Bounce, arch and tumble grow smoothly with the speed; the only switch is the flip appearing at flipAt.
+export const LANDING = { bigFrom: 3.5, bigTo: 12, huge: 26, flipAt: 18, bounceHuge: 0.85 };
+// (The slam landing's own length, seconds: its beats added up.)
+const LANDING_SECONDS = 0.04 + 0.04 + 0.09 + 0.08 + 0.07 + 0.08 + 0.2 + 0.18 + 0.24;
+export const landingScale = (speed: number) => (speed >= LANDING.bigFrom ? 1 : (Math.max(0, speed) / LANDING.bigFrom) ** 3);
+const smooth01 = (u: number) => { const x = clamp(u, 0, 1); return x * x * (3 - 2 * x); };
+// `seconds`: a small fall's landing takes no longer than this (a fall keeps its own timing).
+export type LandingOptions = { speed: number; skid?: number; front?: PoseAngles; seconds?: number };
+export function landOnBack(impact: Stance, p0: PoseAngles, skidWay: number, settings: MoveSettings, o: LandingOptions): MoveOutput {
+  const skid = o.skid ?? HARD_LANDING_SKID;
+  if (!(o.speed > LANDING.bigTo)) {
+    const s = landingScale(o.speed);
+    const timeK = s < 1 && o.seconds !== undefined ? Math.min(1, o.seconds / (LANDING_SECONDS * (0.5 + 0.5 * s))) : 1;
+    return hardBackLanding(impact, p0, skidWay, settings, skid, s, timeK);
+  }
+  const h = settings.height, g = GRAVITY / 300;
+  const k = smooth01((o.speed - LANDING.bigTo) / (LANDING.huge - LANDING.bigTo));
+  const flip = o.speed >= LANDING.flipAt && o.front !== undefined;
+  // The slam's own landing to the hit-stop and the arch it bounces into.
+  const slam = hardBackLanding(impact, p0, skidWay, settings, skid, 1);
+  const iStop = slam.keys.findIndex((key) => Math.abs(key.t - slam.marks.hitStop) < 1e-9);
+  const iArch = slam.keys.findIndex((key) => Math.abs(key.t - slam.marks.bounce) < 1e-9);
+  const keys: CharacterKey[] = slam.keys.slice(0, iStop + 1).map((key) => ({ ...key, facing: impact.facing }));
+  const stop = keys[keys.length - 1], arch = slam.keys[iArch].pose;
+  // THE BOUNCE: the hips fly up (bounce x height above where they lie) and come down under gravity.
+  const bounce = 0.065 + (LANDING.bounceHuge - 0.065) * k;
+  const hip0 = hipHeight(stop.pose);
+  const up = Math.sqrt(2 * g * bounce);
+  const lean0 = arch.lean;
+  // TUMBLE: tucked going over, then stretched out face down (the legs flung up behind), or (no flip) arched,
+  // tipping up a little and back down onto its back.
+  const front = o.front ?? p0;
+  const tuck = safePose(withPose(STAND, { lean: -20, head: 20, ...armFromWorld(-20, "l", { upper: 120, fore: 150 }), ...armFromWorld(-20, "r", { upper: 100, fore: 135 }), lHip: 60, rHip: 45, lKnee: 120, rKnee: 105 }));
+  const over = safePose(withPose(STAND, { lean: 50, head: -10, ...armFromWorld(50, "l", { upper: 150, fore: 175 }), ...armFromWorld(50, "r", { upper: 130, fore: 160 }), lHip: 20, rHip: 5, lKnee: 70, rKnee: 90 }));
+  // (Tipped past flat as it hits, the arms keep their direction on the stage: along and above the floor.)
+  const tip = 100 - front.lean;
+  const faceDown = safePose(withPose(front, { lean: 100, head: front.head - 6, lShoulder: front.lShoulder + tip + 6, rShoulder: front.rShoulder + tip + 6, lHip: front.lHip + 10, rHip: front.rHip + 10, lKnee: 70, rKnee: 95 }));
+  const tipped = safePose(withPose(arch, { lean: lean0 + 50 * k, head: arch.head + 10 }));
+  const way = flip ? [{ u: 0, pose: stop.pose }, { u: 0.12, pose: arch }, { u: 0.45, pose: tuck }, { u: 0.75, pose: over }, { u: 1, pose: faceDown }]
+    : [{ u: 0, pose: stop.pose }, { u: 0.15, pose: arch }, { u: 0.5, pose: tipped }, { u: 1, pose: arch }];
+  const poseAt = (u: number) => {
+    let i = 0;
+    while (i < way.length - 2 && u > way[i + 1].u) i += 1;
+    const a = way[i], b = way[i + 1];
+    return safePose(lerpPose(a.pose, b.pose, smooth01((u - a.u) / (b.u - a.u))));
   };
+  const hipEnd = hipHeight(way[way.length - 1].pose);
+  // Time in the air: up and back down to where the hips are lying at the next hit.
+  const air = (up + Math.sqrt(Math.max(0, up * up + 2 * g * (hip0 - hipEnd)))) / g;
+  const drift = skidWay * Math.max(skid, 0.3 * k) * h; // it keeps going the way it was flying
+  const n = Math.ceil(air * 48);
+  for (let i = 1; i <= n; i += 1) {
+    const t = (air * i) / n, u = t / air, pose = i === n ? way[way.length - 1].pose : poseAt(u);
+    const hipH = hip0 + up * t - 0.5 * g * t * t;
+    keys.push({ t: stop.t + t, pose, x: stop.x + forwardSign(impact.facing) * drift * u, lift: i === n ? 0 : Math.max(0, (hipH - hipHeight(pose)) * h), contacts: [], facing: impact.facing, ease: "linear", xEase: "linear", liftEase: "linear" });
+  }
+  const land: Stance = { t: stop.t + air, x: keys[keys.length - 1].x, facing: impact.facing, pose: way[way.length - 1].pose };
+  const marks: Record<string, number> = { flat: slam.marks.flat, hitStop: slam.marks.hitStop, bounce: stop.t + Math.min(air, up / g), land2: land.t };
+  let tail: MoveOutput;
+  if (flip) {
+    // FACE DOWN: the chest and face hit, the legs slap down behind, a small jolt, it lies still.
+    const real = (kind: "action" | "settle", seconds: number) => (seconds * seconds) / Math.max(1e-3, beatSeconds(kind, seconds, settings));
+    const flat = keepLying(safePose(withPose(front, { head: front.head - 10, lKnee: 40, rKnee: 60 })));
+    const jolt = keepLying(safePose(withPose(front, { head: front.head + 6, lKnee: 55, rKnee: 30 })));
+    tail = placedBeatsToKeys(land, [
+      { kind: "action", ease: "out", pose: flat, seconds: real("action", 0.06), at: 0.02 * skidWay, contacts: [] },
+      { kind: "action", ease: "out", pose: jolt, seconds: real("action", 0.12), at: 0.04 * skidWay, lift: 0.03 * h, contacts: [], name: "jolt" },
+      { kind: "settle", pose: flat, seconds: real("settle", 0.14), at: 0.05 * skidWay, contacts: [] },
+      { kind: "settle", pose: front, seconds: real("settle", 0.45), at: 0.05 * skidWay, contacts: [], name: "down" },
+    ], settings);
+  } else {
+    tail = hardBackLanding(land, p0, skidWay, settings, skid, 0.6);
+  }
+  for (const key of tail.keys.slice(1)) keys.push({ ...key, facing: impact.facing });
+  return { keys, end: { ...tail.end, facing: impact.facing }, marks: { ...marks, ...tail.marks, flat: marks.flat, hitStop: marks.hitStop, bounce: marks.bounce } };
 }

@@ -155,7 +155,12 @@ test("lessons for the AI are made from the library itself", () => {
     assert.ok(lesson.keyPoses.length >= 2 && lesson.seconds > 0, `${lesson.id} has key poses`);
     assert.ok(lesson.about.length > 10);
   }
-  assert.ok(JSON.stringify(pack).length < 200_000, "small enough to send to the AI");
+  // (Phase 2C: the powers — fire blast, water shield, teleport — took it just past 200 000; the 2C extras — laser
+  // eyes, ice, handcuffs, moving backgrounds, camera, elemental fights — to about 227 000. Phase 3 must send the AI
+  // only the lessons a request needs, or cache them, so each animation still costs a few cents or less. The
+  // explosions, grenade, blast throw and weapon fights took it to about 242 000; weapon moves already send compact
+  // lessons — lessonMarks.)
+  assert.ok(JSON.stringify(pack).length < 260_000, "small enough to send to the AI");
 });
 
 // NEVER TOLD (Arthur, 2026-10-04): the engine must make animations nobody showed it. Random combos of

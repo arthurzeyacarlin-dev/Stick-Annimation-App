@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, DragEvent, MouseEvent } from "react";
 import {
   DRAWING_AI_SOUND_OPTION_DRAG_TYPE,
@@ -321,6 +321,372 @@ const resolveTweenActivationSpan = (frames: TimelineFrame[], frameIndex: number)
   };
 };
 
+type TimelineLaneHandlers = {
+  activateTimelineSlot: (layerId: string, clientX: number, source: TimelineActivationSource) => void;
+  getTimelineIndexFromClientX: (clientX: number) => number;
+  openContextMenu: (event: MouseEvent, targetIndex: number, targetLayerId: string) => void;
+  dropSoundOption: (layerId: string, frameIndex: number, option: DrawingAiSoundOption) => void;
+  startResize: (state: TimelineResizeState) => void;
+};
+
+type TimelineLayerLaneProps = {
+  layer: TimelineLayer;
+  isOverlay: boolean;
+  isActiveLayer: boolean;
+  showActiveBackground: boolean;
+  // Only meaningful on the current layer (-1 elsewhere), so other layers' rows don't redraw on every click.
+  selectedTimelineIndex: number;
+  highlightedStartIndex: number;
+  highlightedEndIndex: number;
+  rulerWidth: number;
+  canDropSound: boolean;
+  handlers: TimelineLaneHandlers;
+};
+
+// One layer's row of frame cells. Memoized (SPEED, Arthur): clicking a frame or switching layers only
+// redraws the rows that actually look different (the old and the new current layer), instead of
+// rebuilding every cell of every layer on every click. What the row looks like is unchanged.
+const TimelineLayerLane = memo(function TimelineLayerLane({
+  layer,
+  isOverlay,
+  isActiveLayer,
+  showActiveBackground,
+  selectedTimelineIndex,
+  highlightedStartIndex,
+  highlightedEndIndex,
+  rulerWidth,
+  canDropSound,
+  handlers,
+}: TimelineLayerLaneProps) {
+  const layerFrames = layer.frames;
+  const realFrameRowWidth = layerFrames.length * FRAME_CELL_WIDTH;
+  const highlightedSpanBounds: TimelineSpanBounds | null =
+    highlightedStartIndex >= 0 ? { startIndex: highlightedStartIndex, endIndex: highlightedEndIndex } : null;
+  const tweenLineSegments = useMemo(() => getTweenLineSegments(layerFrames), [layerFrames]);
+
+  return (
+    <div
+      data-timeline-layer-active={isActiveLayer ? "true" : "false"}
+      style={{
+        width: rulerWidth,
+        minWidth: rulerWidth,
+        height: TIMELINE_LAYER_ROW_HEIGHT,
+        position: "relative",
+        background: showActiveBackground ? "rgba(15,42,82,0.55)" : "transparent",
+        borderBottom: `1px solid ${workspaceColors.divider}`,
+      }}
+    >
+      <div
+        data-timeline-layer-row={layer.id}
+        style={{
+          position: "relative",
+          width: rulerWidth,
+          minWidth: rulerWidth,
+          height: "100%",
+        }}
+        onClick={(event) => {
+          handlers.activateTimelineSlot(layer.id, event.clientX, "row-background");
+        }}
+        onContextMenu={(event) => {
+          if (event.target !== event.currentTarget) return;
+          const targetIndex = handlers.getTimelineIndexFromClientX(event.clientX);
+          handlers.openContextMenu(event, targetIndex, layer.id);
+        }}
+      >
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "stretch",
+            width: realFrameRowWidth,
+            minWidth: realFrameRowWidth,
+            height: "100%",
+            position: "relative",
+          }}
+        >
+          {layerFrames.map((frame, index) => {
+            const isSelectedTimelineSlot = isActiveLayer && index === selectedTimelineIndex;
+            const previousFrame = layerFrames[index - 1];
+            const nextFrame = layerFrames[index + 1];
+            const isEmpty = frame.cellType === "empty";
+            const isHold = frame.cellType === "hold";
+            const isTween = frame.cellType === "tween";
+            const previousVisualType = !previousFrame
+              ? null
+              : previousFrame.cellType === "empty"
+                ? null
+                : previousFrame.cellType === "tween"
+                  ? "tween"
+                  : "frame";
+            const nextVisualType = !nextFrame
+              ? null
+              : nextFrame.cellType === "empty"
+                ? null
+                : nextFrame.cellType === "tween"
+                  ? "tween"
+                  : "frame";
+            const visualType = isEmpty ? null : isTween ? "tween" : "frame";
+            const isTweenStart =
+              isTween && (!previousFrame || previousFrame.stateId !== frame.stateId || previousFrame.cellType !== "tween");
+            const isFrameStart =
+              !isEmpty &&
+              !isTween &&
+              (!previousFrame || previousFrame.stateId !== frame.stateId || previousFrame.cellType === "empty");
+
+            let stateStartIndex = index;
+            while (
+              stateStartIndex > 0 &&
+              layerFrames[stateStartIndex].cellType !== "keyframe" &&
+              layerFrames[stateStartIndex].cellType !== "blank-keyframe"
+            ) {
+              stateStartIndex -= 1;
+            }
+
+            let tweenSpanStartIndex = index;
+            while (
+              tweenSpanStartIndex > 0 &&
+              layerFrames[tweenSpanStartIndex - 1].cellType === "tween" &&
+              layerFrames[tweenSpanStartIndex - 1].stateId === frame.stateId
+            ) {
+              tweenSpanStartIndex -= 1;
+            }
+
+            const spanSourceFrame =
+              !isEmpty && !isTween ? layerFrames[stateStartIndex] ?? frame : isTween ? layerFrames[tweenSpanStartIndex] ?? frame : frame;
+            const hasSoundAttachment = Boolean(frame.soundAttachment ?? spanSourceFrame.soundAttachment);
+
+            const continuesFromLeft =
+              isTween
+                ? Boolean(previousFrame) && previousFrame.cellType === "tween"
+                : Boolean(previousFrame) &&
+                  previousFrame.stateId === frame.stateId &&
+                  previousVisualType === visualType &&
+                  !isFrameStart &&
+                  !isTweenStart;
+            const continuesRight =
+              isTween
+                ? Boolean(nextFrame) && nextFrame.cellType === "tween"
+                : Boolean(nextFrame) && nextFrame.stateId === frame.stateId && nextVisualType === visualType;
+            const isFrameSpanEnd =
+              !isEmpty && !isTween && (!nextFrame || nextFrame.stateId !== frame.stateId || nextVisualType !== "frame");
+            const isTweenSpanEnd =
+              isTween && (!nextFrame || nextFrame.stateId !== frame.stateId || nextFrame.cellType !== "tween");
+            const isTweenVisualEnd = isTween && (!nextFrame || nextFrame.cellType !== "tween");
+            const hasFrameDuration = isHold || continuesFromLeft || continuesRight;
+            const hasTweenDuration = isTween;
+            const showResizeEdge = (isFrameSpanEnd && hasFrameDuration) || (isTweenVisualEnd && hasTweenDuration);
+            const usesTweenSpanColors = isTween;
+            const spanFill = usesTweenSpanColors ? TIMELINE_TWEEN_SPAN_FILL : TIMELINE_FRAME_SPAN_FILL;
+            const spanBorder = usesTweenSpanColors ? TIMELINE_TWEEN_SPAN_BORDER : TIMELINE_FRAME_SPAN_BORDER;
+            const spanLineColor = usesTweenSpanColors ? TIMELINE_TWEEN_SPAN_LINE : TIMELINE_FRAME_SPAN_LINE;
+            const showsSpanLine = !hasSoundAttachment && !isEmpty && !isTween && (isHold || continuesFromLeft || continuesRight);
+            const resolvedFill = hasSoundAttachment ? TIMELINE_SOUND_SLOT_FILL : spanFill;
+            const resolvedBorder = hasSoundAttachment ? TIMELINE_SOUND_SLOT_BORDER : spanBorder;
+            const isCurrentSlot = isSelectedTimelineSlot;
+            const isInHighlightedSpan =
+              highlightedSpanBounds !== null &&
+              index >= highlightedSpanBounds.startIndex &&
+              index <= highlightedSpanBounds.endIndex;
+            const restFill = isEmpty && !hasSoundAttachment ? TIMELINE_EMPTY_SLOT_FILL : resolvedFill;
+            // The current slot keeps its white/empty fill and gets a dull blue outline.
+            const frameBackground = restFill;
+            const interiorSeam = frameBackground;
+            const borderTopColor = isCurrentSlot || isInHighlightedSpan
+              ? TIMELINE_SELECTED_SLOT_BORDER
+              : isEmpty && !hasSoundAttachment
+                ? TIMELINE_EMPTY_SLOT_BORDER
+                : resolvedBorder;
+            const borderBottomColor = borderTopColor;
+            const borderLeftColor =
+              isCurrentSlot || (isInHighlightedSpan && index === highlightedSpanBounds?.startIndex)
+                ? TIMELINE_SELECTED_SLOT_BORDER
+                : hasSoundAttachment
+                  ? continuesFromLeft
+                    ? "transparent"
+                    : resolvedBorder
+                  : isEmpty
+                    ? previousFrame?.cellType === "empty"
+                      ? interiorSeam
+                      : TIMELINE_EMPTY_SLOT_BORDER
+                    : continuesFromLeft
+                      ? interiorSeam
+                      : resolvedBorder;
+            const borderRightColor =
+              isCurrentSlot || (isInHighlightedSpan && index === highlightedSpanBounds?.endIndex)
+                ? TIMELINE_SELECTED_SLOT_BORDER
+                : hasSoundAttachment
+                  ? continuesRight && !showResizeEdge
+                    ? "transparent"
+                    : resolvedBorder
+                  : !isEmpty
+                    ? continuesRight && !showResizeEdge
+                      ? interiorSeam
+                      : resolvedBorder
+                    : TIMELINE_EMPTY_SLOT_BORDER;
+            const tweenSpanHasVisibleDuration = isTween && (continuesFromLeft || continuesRight);
+            const showsTweenStartDot = isTween && (!previousFrame || previousFrame.cellType !== "tween");
+            const showsTweenEndDot = isTween && isTweenVisualEnd && tweenSpanHasVisibleDuration;
+            const showsDot = isTween ? showsTweenStartDot || showsTweenEndDot : !isEmpty && isFrameStart;
+            const spanLineLeft = continuesFromLeft ? -2 : showsTweenStartDot ? 16 : showsDot ? 16 : 2;
+            const spanLineRight = continuesRight ? -2 : showsTweenEndDot ? TIMELINE_SPAN_DOT_LINE_GAP : 4;
+
+            return (
+              <button
+                key={frame.id}
+                type="button"
+                data-timeline-cell="true"
+                data-layer-id={layer.id}
+                data-frame-index={index}
+                onDragOver={(event) => {
+                  if (!canDropSound) {
+                    return;
+                  }
+
+                  if (!Array.from(event.dataTransfer.types).includes(DRAWING_AI_SOUND_OPTION_DRAG_TYPE)) {
+                    return;
+                  }
+
+                  event.preventDefault();
+                  event.dataTransfer.dropEffect = "copy";
+                }}
+                onDrop={(event) => {
+                  if (!canDropSound) {
+                    return;
+                  }
+
+                  const droppedSoundOption = readDroppedSoundOption(event);
+                  if (!droppedSoundOption) {
+                    return;
+                  }
+
+                  event.preventDefault();
+                  event.stopPropagation();
+                  handlers.dropSoundOption(layer.id, index, droppedSoundOption);
+                }}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  handlers.activateTimelineSlot(layer.id, event.clientX, "frame-button");
+                }}
+                onContextMenu={(event) => handlers.openContextMenu(event, index, layer.id)}
+                data-hover="outline"
+                data-timeline-current={isCurrentSlot ? "true" : undefined}
+                style={{
+                  all: "unset",
+                  width: FRAME_CELL_WIDTH,
+                  flex: `0 0 ${FRAME_CELL_WIDTH}px`,
+                  height: "100%",
+                  position: "relative",
+                  overflow: "hidden",
+                  cursor: "pointer",
+                  boxSizing: "border-box",
+                  userSelect: "none",
+                  // Fill and borders live on the button itself so the theme's
+                  // hover outline (data-hover="outline") paints above them.
+                  background: frameBackground,
+                  borderTop: `1px solid ${borderTopColor}`,
+                  borderBottom: `1px solid ${borderBottomColor}`,
+                  borderLeft: `1px solid ${borderLeftColor}`,
+                  borderRight: `${showResizeEdge ? 2 : 1}px solid ${borderRightColor}`,
+                  borderRadius: 0,
+                  outline: isCurrentSlot ? TIMELINE_SELECTED_SLOT_OUTLINE : undefined,
+                  outlineOffset: isCurrentSlot ? -2 : undefined,
+                }}
+              >
+                  {showsSpanLine && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        left: spanLineLeft,
+                        right: spanLineRight,
+                        top: 22,
+                        height: 2,
+                        background: spanLineColor,
+                        borderRadius: 999,
+                        pointerEvents: "none",
+                      }}
+                    />
+                  )}
+                  {showsDot && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        left: "50%",
+                        top: 20,
+                        width: 6,
+                        height: 6,
+                        borderRadius: "50%",
+                        transform: "translateX(-50%)",
+                        background: TIMELINE_KEYFRAME_DOT,
+                        pointerEvents: "none",
+                      }}
+                    />
+                  )}
+                  {showResizeEdge && (
+                    <div
+                      onPointerDown={(event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        handlers.activateTimelineSlot(layer.id, event.clientX, "resize-edge");
+                        handlers.startResize({
+                          pointerId: event.pointerId,
+                          layerId: layer.id,
+                          stateId: frame.stateId,
+                          spanType: isTweenSpanEnd ? "tween" : "frame",
+                          minimumEndIndex: isTweenSpanEnd ? tweenSpanStartIndex : stateStartIndex,
+                        });
+                      }}
+                      style={{
+                        position: "absolute",
+                        top: 0,
+                        right: 0,
+                        width: 6,
+                        bottom: 0,
+                        cursor: "ew-resize",
+                        background: "transparent",
+                      }}
+                    />
+                  )}
+              </button>
+            );
+          })}
+
+          {tweenLineSegments.map((segment) => (
+            <div
+              key={`${isOverlay ? "overlay" : "baseline"}-tween-line-${layer.id}-${segment.startIndex}`}
+              style={{
+                position: "absolute",
+                left: segment.startIndex * FRAME_CELL_WIDTH + 16,
+                top: 22,
+                width: segment.width,
+                height: 2,
+                background: TIMELINE_TWEEN_SPAN_LINE,
+                borderRadius: 999,
+                pointerEvents: "none",
+              }}
+            />
+          ))}
+
+        </div>
+
+        {isActiveLayer && selectedTimelineIndex >= layerFrames.length && (
+          <div
+            style={{
+              position: "absolute",
+              left: selectedTimelineIndex * FRAME_CELL_WIDTH,
+              top: 0,
+              width: FRAME_CELL_WIDTH,
+              height: "100%",
+              boxSizing: "border-box",
+              background: "transparent",
+              border: TIMELINE_SELECTED_SLOT_OUTLINE,
+              pointerEvents: "none",
+            }}
+          />
+        )}
+      </div>
+    </div>
+  );
+});
+
 export function DrawingTimelineRow({
   responsiveLayout = false,
   fps,
@@ -568,6 +934,58 @@ export function DrawingTimelineRow({
     [logicalTimelineFrameCount, visibleTimelineWidth],
   );
   const scrollableContentWidth = rulerWidth;
+  // The ruler's frame numbers (about 1000 of them) only change when the ruler's length or spacing
+  // changes, so they are built once here instead of on every frame click (SPEED, Arthur).
+  const rulerLabelElements = useMemo(() => {
+    const build = (panel: "overlay" | "baseline") =>
+      Array.from({ length: rulerLabelCount }, (_, index) => {
+        const tickNumber = (index + 1) * rulerLabelInterval;
+        const tickPosition = tickNumber * FRAME_CELL_WIDTH - FRAME_CELL_WIDTH / 2;
+        const labelWidthEstimate = String(tickNumber).length * 5 + 2;
+        const labelLeft = Math.min(3, rulerWidth - tickPosition - labelWidthEstimate - 1);
+
+        return (
+          <div
+            key={`${panel}-ruler-${tickNumber}`}
+            style={{
+              position: "absolute",
+              left: tickPosition,
+              top: 0,
+              width: 1,
+              height: TIMELINE_RULER_HEIGHT,
+              pointerEvents: "none",
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                left: 0,
+                top: 0,
+                width: 1,
+                height: 6,
+                background: workspaceColors.label,
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                left: labelLeft,
+                top: 1,
+                color: workspaceColors.label,
+                fontSize: 8,
+                fontWeight: 700,
+                lineHeight: "8px",
+                userSelect: "none",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {tickNumber}
+            </div>
+          </div>
+        );
+      });
+    return { overlay: build("overlay"), baseline: build("baseline") };
+  }, [rulerLabelCount, rulerLabelInterval, rulerWidth]);
   const hasHorizontalOverflow = scrollableContentWidth > visibleTimelineWidth + 1;
   const maxTimelineScrollLeft = Math.max(0, scrollableContentWidth - visibleTimelineWidth);
   const scrollbarHeight = TIMELINE_BOTTOM_SCROLLBAR_HEIGHT;
@@ -660,6 +1078,20 @@ export function DrawingTimelineRow({
       onTimelinePositionSelect,
     ],
   );
+
+  // The layer rows are memoized, so they get one stable set of handlers that always calls the
+  // latest versions (updated right after every render, before any click can happen).
+  const laneHandlerTargetsRef = useRef({ activateTimelineSlot, getTimelineIndexFromClientX, openContextMenu, onSoundOptionDrop });
+  useLayoutEffect(() => {
+    laneHandlerTargetsRef.current = { activateTimelineSlot, getTimelineIndexFromClientX, openContextMenu, onSoundOptionDrop };
+  });
+  const laneHandlers = useMemo<TimelineLaneHandlers>(() => ({
+    activateTimelineSlot: (layerId, clientX, source) => laneHandlerTargetsRef.current.activateTimelineSlot(layerId, clientX, source),
+    getTimelineIndexFromClientX: (clientX) => laneHandlerTargetsRef.current.getTimelineIndexFromClientX(clientX),
+    openContextMenu: (event, targetIndex, targetLayerId) => laneHandlerTargetsRef.current.openContextMenu(event, targetIndex, targetLayerId),
+    dropSoundOption: (layerId, frameIndex, option) => laneHandlerTargetsRef.current.onSoundOptionDrop?.(layerId, frameIndex, option),
+    startResize: (state) => setResizeState(state),
+  }), []);
 
   useEffect(() => {
     if (!resizeState) return;
@@ -855,52 +1287,7 @@ export function DrawingTimelineRow({
                 />
               ))}
 
-              {Array.from({ length: rulerLabelCount }, (_, index) => {
-                const tickNumber = (index + 1) * rulerLabelInterval;
-                const tickPosition = tickNumber * FRAME_CELL_WIDTH - FRAME_CELL_WIDTH / 2;
-                const labelWidthEstimate = String(tickNumber).length * 5 + 2;
-                const labelLeft = Math.min(3, rulerWidth - tickPosition - labelWidthEstimate - 1);
-
-                return (
-                  <div
-                    key={`${isOverlay ? "overlay" : "baseline"}-ruler-${tickNumber}`}
-                    style={{
-                      position: "absolute",
-                      left: tickPosition,
-                      top: 0,
-                      width: 1,
-                      height: TIMELINE_RULER_HEIGHT,
-                      pointerEvents: "none",
-                    }}
-                  >
-                    <div
-                      style={{
-                        position: "absolute",
-                        left: 0,
-                        top: 0,
-                        width: 1,
-                        height: 6,
-                        background: workspaceColors.label,
-                      }}
-                    />
-                    <div
-                      style={{
-                        position: "absolute",
-                        left: labelLeft,
-                        top: 1,
-                        color: workspaceColors.label,
-                        fontSize: 8,
-                        fontWeight: 700,
-                        lineHeight: "8px",
-                        userSelect: "none",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {tickNumber}
-                    </div>
-                  </div>
-                );
-              })}
+              {rulerLabelElements[isOverlay ? "overlay" : "baseline"]}
             </div>
           </div>
         </div>
@@ -929,335 +1316,25 @@ export function DrawingTimelineRow({
           >
             <div style={{ width: rulerWidth, minWidth: rulerWidth, height: rowLanesHeight, position: "relative" }}>
               {renderedLayers.map((layer) => {
-                const layerFrames = layer.frames;
-                const realFrameRowWidth = layerFrames.length * FRAME_CELL_WIDTH;
                 const isActiveLayer = layer.id === activeLayerId;
                 const highlightedSpanBounds = isActiveLayer
-                  ? getHighlightedSpanBounds(layerFrames, currentFrameIndex, selectedTimelineIndex)
+                  ? getHighlightedSpanBounds(layer.frames, currentFrameIndex, selectedTimelineIndex)
                   : null;
-                const tweenLineSegments = getTweenLineSegments(layerFrames);
 
                 return (
-                  <div
+                  <TimelineLayerLane
                     key={`${isOverlay ? "overlay" : "baseline"}-${layer.id}`}
-                    data-timeline-layer-active={isActiveLayer ? "true" : "false"}
-                    style={{
-                      width: rulerWidth,
-                      minWidth: rulerWidth,
-                      height: TIMELINE_LAYER_ROW_HEIGHT,
-                      position: "relative",
-                      background: isActiveLayer && renderedLayers.length > 1 ? "rgba(15,42,82,0.55)" : "transparent",
-                      borderBottom: `1px solid ${workspaceColors.divider}`,
-                    }}
-                  >
-                    <div
-                      data-timeline-layer-row={layer.id}
-                      style={{
-                        position: "relative",
-                        width: rulerWidth,
-                        minWidth: rulerWidth,
-                        height: "100%",
-                      }}
-                      onClick={(event) => {
-                        activateTimelineSlot(layer.id, event.clientX, "row-background");
-                      }}
-                      onContextMenu={(event) => {
-                        if (event.target !== event.currentTarget) return;
-                        const targetIndex = getTimelineIndexFromClientX(event.clientX);
-                        openContextMenu(event, targetIndex, layer.id);
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "stretch",
-                          width: realFrameRowWidth,
-                          minWidth: realFrameRowWidth,
-                          height: "100%",
-                          position: "relative",
-                        }}
-                      >
-                        {layerFrames.map((frame, index) => {
-                          const isSelectedTimelineSlot = isActiveLayer && index === selectedTimelineIndex;
-                          const previousFrame = layerFrames[index - 1];
-                          const nextFrame = layerFrames[index + 1];
-                          const isEmpty = frame.cellType === "empty";
-                          const isHold = frame.cellType === "hold";
-                          const isTween = frame.cellType === "tween";
-                          const previousVisualType = !previousFrame
-                            ? null
-                            : previousFrame.cellType === "empty"
-                              ? null
-                              : previousFrame.cellType === "tween"
-                                ? "tween"
-                                : "frame";
-                          const nextVisualType = !nextFrame
-                            ? null
-                            : nextFrame.cellType === "empty"
-                              ? null
-                              : nextFrame.cellType === "tween"
-                                ? "tween"
-                                : "frame";
-                          const visualType = isEmpty ? null : isTween ? "tween" : "frame";
-                          const isTweenStart =
-                            isTween && (!previousFrame || previousFrame.stateId !== frame.stateId || previousFrame.cellType !== "tween");
-                          const isFrameStart =
-                            !isEmpty &&
-                            !isTween &&
-                            (!previousFrame || previousFrame.stateId !== frame.stateId || previousFrame.cellType === "empty");
-
-                          let stateStartIndex = index;
-                          while (
-                            stateStartIndex > 0 &&
-                            layerFrames[stateStartIndex].cellType !== "keyframe" &&
-                            layerFrames[stateStartIndex].cellType !== "blank-keyframe"
-                          ) {
-                            stateStartIndex -= 1;
-                          }
-
-                          let tweenSpanStartIndex = index;
-                          while (
-                            tweenSpanStartIndex > 0 &&
-                            layerFrames[tweenSpanStartIndex - 1].cellType === "tween" &&
-                            layerFrames[tweenSpanStartIndex - 1].stateId === frame.stateId
-                          ) {
-                            tweenSpanStartIndex -= 1;
-                          }
-
-                          const spanSourceFrame =
-                            !isEmpty && !isTween ? layerFrames[stateStartIndex] ?? frame : isTween ? layerFrames[tweenSpanStartIndex] ?? frame : frame;
-                          const hasSoundAttachment = Boolean(frame.soundAttachment ?? spanSourceFrame.soundAttachment);
-
-                          const continuesFromLeft =
-                            isTween
-                              ? Boolean(previousFrame) && previousFrame.cellType === "tween"
-                              : Boolean(previousFrame) &&
-                                previousFrame.stateId === frame.stateId &&
-                                previousVisualType === visualType &&
-                                !isFrameStart &&
-                                !isTweenStart;
-                          const continuesRight =
-                            isTween
-                              ? Boolean(nextFrame) && nextFrame.cellType === "tween"
-                              : Boolean(nextFrame) && nextFrame.stateId === frame.stateId && nextVisualType === visualType;
-                          const isFrameSpanEnd =
-                            !isEmpty && !isTween && (!nextFrame || nextFrame.stateId !== frame.stateId || nextVisualType !== "frame");
-                          const isTweenSpanEnd =
-                            isTween && (!nextFrame || nextFrame.stateId !== frame.stateId || nextFrame.cellType !== "tween");
-                          const isTweenVisualEnd = isTween && (!nextFrame || nextFrame.cellType !== "tween");
-                          const hasFrameDuration = isHold || continuesFromLeft || continuesRight;
-                          const hasTweenDuration = isTween;
-                          const showResizeEdge = (isFrameSpanEnd && hasFrameDuration) || (isTweenVisualEnd && hasTweenDuration);
-                          const usesTweenSpanColors = isTween;
-                          const spanFill = usesTweenSpanColors ? TIMELINE_TWEEN_SPAN_FILL : TIMELINE_FRAME_SPAN_FILL;
-                          const spanBorder = usesTweenSpanColors ? TIMELINE_TWEEN_SPAN_BORDER : TIMELINE_FRAME_SPAN_BORDER;
-                          const spanLineColor = usesTweenSpanColors ? TIMELINE_TWEEN_SPAN_LINE : TIMELINE_FRAME_SPAN_LINE;
-                          const showsSpanLine = !hasSoundAttachment && !isEmpty && !isTween && (isHold || continuesFromLeft || continuesRight);
-                          const resolvedFill = hasSoundAttachment ? TIMELINE_SOUND_SLOT_FILL : spanFill;
-                          const resolvedBorder = hasSoundAttachment ? TIMELINE_SOUND_SLOT_BORDER : spanBorder;
-                          const isCurrentSlot = isSelectedTimelineSlot;
-                          const isInHighlightedSpan =
-                            highlightedSpanBounds !== null &&
-                            index >= highlightedSpanBounds.startIndex &&
-                            index <= highlightedSpanBounds.endIndex;
-                          const restFill = isEmpty && !hasSoundAttachment ? TIMELINE_EMPTY_SLOT_FILL : resolvedFill;
-                          // The current slot keeps its white/empty fill and gets a dull blue outline.
-                          const frameBackground = restFill;
-                          const interiorSeam = frameBackground;
-                          const borderTopColor = isCurrentSlot || isInHighlightedSpan
-                            ? TIMELINE_SELECTED_SLOT_BORDER
-                            : isEmpty && !hasSoundAttachment
-                              ? TIMELINE_EMPTY_SLOT_BORDER
-                              : resolvedBorder;
-                          const borderBottomColor = borderTopColor;
-                          const borderLeftColor =
-                            isCurrentSlot || (isInHighlightedSpan && index === highlightedSpanBounds?.startIndex)
-                              ? TIMELINE_SELECTED_SLOT_BORDER
-                              : hasSoundAttachment
-                                ? continuesFromLeft
-                                  ? "transparent"
-                                  : resolvedBorder
-                                : isEmpty
-                                  ? previousFrame?.cellType === "empty"
-                                    ? interiorSeam
-                                    : TIMELINE_EMPTY_SLOT_BORDER
-                                  : continuesFromLeft
-                                    ? interiorSeam
-                                    : resolvedBorder;
-                          const borderRightColor =
-                            isCurrentSlot || (isInHighlightedSpan && index === highlightedSpanBounds?.endIndex)
-                              ? TIMELINE_SELECTED_SLOT_BORDER
-                              : hasSoundAttachment
-                                ? continuesRight && !showResizeEdge
-                                  ? "transparent"
-                                  : resolvedBorder
-                                : !isEmpty
-                                  ? continuesRight && !showResizeEdge
-                                    ? interiorSeam
-                                    : resolvedBorder
-                                  : TIMELINE_EMPTY_SLOT_BORDER;
-                          const tweenSpanHasVisibleDuration = isTween && (continuesFromLeft || continuesRight);
-                          const showsTweenStartDot = isTween && (!previousFrame || previousFrame.cellType !== "tween");
-                          const showsTweenEndDot = isTween && isTweenVisualEnd && tweenSpanHasVisibleDuration;
-                          const showsDot = isTween ? showsTweenStartDot || showsTweenEndDot : !isEmpty && isFrameStart;
-                          const spanLineLeft = continuesFromLeft ? -2 : showsTweenStartDot ? 16 : showsDot ? 16 : 2;
-                          const spanLineRight = continuesRight ? -2 : showsTweenEndDot ? TIMELINE_SPAN_DOT_LINE_GAP : 4;
-
-                          return (
-                            <button
-                              key={frame.id}
-                              type="button"
-                              data-timeline-cell="true"
-                              data-layer-id={layer.id}
-                              data-frame-index={index}
-                              onDragOver={(event) => {
-                                if (!onSoundOptionDrop) {
-                                  return;
-                                }
-
-                                if (!Array.from(event.dataTransfer.types).includes(DRAWING_AI_SOUND_OPTION_DRAG_TYPE)) {
-                                  return;
-                                }
-
-                                event.preventDefault();
-                                event.dataTransfer.dropEffect = "copy";
-                              }}
-                              onDrop={(event) => {
-                                if (!onSoundOptionDrop) {
-                                  return;
-                                }
-
-                                const droppedSoundOption = readDroppedSoundOption(event);
-                                if (!droppedSoundOption) {
-                                  return;
-                                }
-
-                                event.preventDefault();
-                                event.stopPropagation();
-                                onSoundOptionDrop(layer.id, index, droppedSoundOption);
-                              }}
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                activateTimelineSlot(layer.id, event.clientX, "frame-button");
-                              }}
-                              onContextMenu={(event) => openContextMenu(event, index, layer.id)}
-                              data-hover="outline"
-                              data-timeline-current={isCurrentSlot ? "true" : undefined}
-                              style={{
-                                all: "unset",
-                                width: FRAME_CELL_WIDTH,
-                                flex: `0 0 ${FRAME_CELL_WIDTH}px`,
-                                height: "100%",
-                                position: "relative",
-                                overflow: "hidden",
-                                cursor: "pointer",
-                                boxSizing: "border-box",
-                                userSelect: "none",
-                                // Fill and borders live on the button itself so the theme's
-                                // hover outline (data-hover="outline") paints above them.
-                                background: frameBackground,
-                                borderTop: `1px solid ${borderTopColor}`,
-                                borderBottom: `1px solid ${borderBottomColor}`,
-                                borderLeft: `1px solid ${borderLeftColor}`,
-                                borderRight: `${showResizeEdge ? 2 : 1}px solid ${borderRightColor}`,
-                                borderRadius: 0,
-                                outline: isCurrentSlot ? TIMELINE_SELECTED_SLOT_OUTLINE : undefined,
-                                outlineOffset: isCurrentSlot ? -2 : undefined,
-                              }}
-                            >
-                                {showsSpanLine && (
-                                  <div
-                                    style={{
-                                      position: "absolute",
-                                      left: spanLineLeft,
-                                      right: spanLineRight,
-                                      top: 22,
-                                      height: 2,
-                                      background: spanLineColor,
-                                      borderRadius: 999,
-                                      pointerEvents: "none",
-                                    }}
-                                  />
-                                )}
-                                {showsDot && (
-                                  <div
-                                    style={{
-                                      position: "absolute",
-                                      left: "50%",
-                                      top: 20,
-                                      width: 6,
-                                      height: 6,
-                                      borderRadius: "50%",
-                                      transform: "translateX(-50%)",
-                                      background: TIMELINE_KEYFRAME_DOT,
-                                      pointerEvents: "none",
-                                    }}
-                                  />
-                                )}
-                                {showResizeEdge && (
-                                  <div
-                                    onPointerDown={(event) => {
-                                      event.preventDefault();
-                                      event.stopPropagation();
-                                      activateTimelineSlot(layer.id, event.clientX, "resize-edge");
-                                      setResizeState({
-                                        pointerId: event.pointerId,
-                                        layerId: layer.id,
-                                        stateId: frame.stateId,
-                                        spanType: isTweenSpanEnd ? "tween" : "frame",
-                                        minimumEndIndex: isTweenSpanEnd ? tweenSpanStartIndex : stateStartIndex,
-                                      });
-                                    }}
-                                    style={{
-                                      position: "absolute",
-                                      top: 0,
-                                      right: 0,
-                                      width: 6,
-                                      bottom: 0,
-                                      cursor: "ew-resize",
-                                      background: "transparent",
-                                    }}
-                                  />
-                                )}
-                            </button>
-                          );
-                        })}
-
-                        {tweenLineSegments.map((segment) => (
-                          <div
-                            key={`${isOverlay ? "overlay" : "baseline"}-tween-line-${layer.id}-${segment.startIndex}`}
-                            style={{
-                              position: "absolute",
-                              left: segment.startIndex * FRAME_CELL_WIDTH + 16,
-                              top: 22,
-                              width: segment.width,
-                              height: 2,
-                              background: TIMELINE_TWEEN_SPAN_LINE,
-                              borderRadius: 999,
-                              pointerEvents: "none",
-                            }}
-                          />
-                        ))}
-
-                      </div>
-
-                      {isActiveLayer && selectedTimelineIndex >= layerFrames.length && (
-                        <div
-                          style={{
-                            position: "absolute",
-                            left: selectedTimelineIndex * FRAME_CELL_WIDTH,
-                            top: 0,
-                            width: FRAME_CELL_WIDTH,
-                            height: "100%",
-                            boxSizing: "border-box",
-                            background: "transparent",
-                            border: TIMELINE_SELECTED_SLOT_OUTLINE,
-                            pointerEvents: "none",
-                          }}
-                        />
-                      )}
-                    </div>
-                  </div>
+                    layer={layer}
+                    isOverlay={isOverlay}
+                    isActiveLayer={isActiveLayer}
+                    showActiveBackground={isActiveLayer && renderedLayers.length > 1}
+                    selectedTimelineIndex={isActiveLayer ? selectedTimelineIndex : -1}
+                    highlightedStartIndex={highlightedSpanBounds?.startIndex ?? -1}
+                    highlightedEndIndex={highlightedSpanBounds?.endIndex ?? -1}
+                    rulerWidth={rulerWidth}
+                    canDropSound={Boolean(onSoundOptionDrop)}
+                    handlers={laneHandlers}
+                  />
                 );
               })}
             </div>

@@ -1,5 +1,30 @@
 # TODO
 
+## Current queue (D-0182)
+
+- [x] **AIANIM-ENGINE (SPEC-0017 Phase 1)** — Published in `b7a0800c61973d7729e1d9cf2f7a0bea90f537b2`.
+- [x] **SPEC-0017 Phase 2 (Rounds A + B)** — All stick-figure moves, fights, director and lessons. Published in `3e40515` and `6430fcf85936dceffdbd5b3276ed7231775264c4`.
+- [x] **SPEC-0017 Phase 2C** — Effects, powers, moving backgrounds, camera, explosions, weapon fights, text, Library symbols; workspace lag fixes. Arthur PASS 2026-10-07; published in `2827350`.
+- [ ] **SPEC-0017 "50-50" engine half** — Next: effects on your own drawing (click the spot, pick the frame); your drawing comes true (click the joints; look-alike engine figure moves into your pose; drawn frame hidden, one Undo); finish my animation. Short plan → OK → review copy.
+- [ ] **SPEC-0017 Phase 3** — AI director = Test 1 (Grok vs Terra), incl. the AI half of 50-50 (finds pose/hands/spots itself). Needs xAI key from Arthur's dad + OK for small paid calls.
+- [ ] **SPEC-0017 Phases 4–5** — AI Animator chat flow in the editor; library check + cleanup.
+- [ ] **ANIM-FOOT-SLIPS** — Zero foot slides everywhere (Arthur's rule): end of a run before a dash (~5 px), a kicking foot coming back at 24 fps, the stumble before a knock-down (1–6 px), police escort steps. Two engine-wide attempts broke passed moves; fix per move or with a narrower engine rule.
+- [ ] **SWORD-RHYTHM** — Strikes about every second after the opener (now 1.2–1.5 s; overlap the block's recovery with the counter's wind-up like the passed fist fights); other seeds "never at the hands" (overhead block vs chop).
+- [ ] **ANIM-KNOWN-3** — The 3 old open engine checks (tired/angry dash alone, energetic-fight seed checks, "vague fight" reaction).
+- [ ] **LAG-SAVE (needs Arthur's OK)** — Save uploads only changed frames / server's second full check; Open Project posters without loading whole projects; frame/layer clicks not marking the project unsaved.
+- [ ] **NEW-PROJECT-LAYER** — A new project's empty starting layer isn't kept after save + reopen (old behaviour; check if intended).
+- [ ] **UNDO-AI-SCENE** — Undo right after Insert Frame goes back past a whole added AI scene (old behaviour).
+- [ ] **TEXT-LETTERS** — Optional: letters popping one after another.
+- [ ] **HEAD-SIZE** — Arthur's drawing has a head about twice as wide as ours; size left unchanged (ask if he wants it bigger).
+- [ ] **COMPACT-FRAMES-2** — Optional: also compact frames hand-drawn during a session.
+- [ ] **EDITOR-MENUS** — Make editor Edit/View/Window/Help menus work (future spec).
+- [ ] **CLEANUP-PROOF-SCRIPTS** — Old one-time proof scripts expect old wording/buttons; retire or replace. `npx tsc` / `next build` in the main folder also trip on the untracked, git-ignored `output/` proof scripts (not app code) — build from a clean copy.
+- [ ] **CLEANUP-LINT** — Two pre-existing `prefer-const` errors in `src/lib/ai/drawingFrameExecutor.ts`; legacy `WorkspaceAiComposerShell` in the old stick-figure panel.
+- [ ] **V1-30-DAYS** — Useful, polished V1 by about 2026-11-02 (web app; desktop app is V2).
+- [ ] **RESUME-015-6** — Still paused (funded allowance/billing).
+
+Older queues below are history.
+
 ## Current queue (D-0181)
 
 - [x] **AIANIM-ENGINE (SPEC-0017 Phase 1)** — Published in `b7a0800c61973d7729e1d9cf2f7a0bea90f537b2`.

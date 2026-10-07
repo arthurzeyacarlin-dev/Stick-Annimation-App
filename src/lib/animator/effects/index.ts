@@ -22,7 +22,9 @@ export const EFFECTS: Record<string, EffectRecipe> = Object.fromEntries([...FIRE
 export const BACKGROUND_PIECES: Record<string, BackgroundRecipe> = Object.fromEntries(BACKGROUNDS.map((r) => [r.id, r]));
 
 // A scene with effects and a background (both optional; a plain scene draws none).
-export type EffectScene = Scene & { effects?: EffectTrack[]; background?: BackgroundSpec; stageWidth?: number };
+// (`effectHeight`: the figure size the effects are measured by when the scene has no figures — an effect put on the
+// user's own drawing, moves/fromDrawing.ts; a scene with figures always uses its first figure's height.)
+export type EffectScene = Scene & { effects?: EffectTrack[]; background?: BackgroundSpec; stageWidth?: number; effectHeight?: number };
 
 // Where an anchor is in one picture (a joint follows its character; a missing character → the point itself).
 export function anchorAt(anchor: Anchor, characters: readonly FrameCharacter[]): Point | undefined {
@@ -44,7 +46,7 @@ export function anchorAt(anchor: Anchor, characters: readonly FrameCharacter[]):
 export function buildEffectFrames(scene: EffectScene, built: SceneFrames): EffectFrame[] {
   // THE CAMERA (camera.ts): only a scene with film cuts or a screen shake — each shot's own background and effects.
   if (built.camera && hasCamera(scene)) return cameraEffectFrames(scene, built, buildEffectFrames);
-  const height = scene.characters[0]?.height ?? 300;
+  const height = scene.characters[0]?.height ?? scene.effectHeight ?? 300;
   const stageWidth = scene.stageWidth ?? 1920;
   return built.frames.map((characters, i) => {
     const t = i / built.fps;

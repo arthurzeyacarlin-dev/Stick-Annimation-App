@@ -7,6 +7,7 @@ import { buildScene as buildAnimatorScene, type Scene as AnimatorScene } from "@
 import { compactOrigin, copyRasterReferenceSize, getRasterReferenceSize, resolveRasterReferenceSize } from "@/src/lib/animation/compactRasterBitmap";
 import { rasterizeFrames as rasterizeAnimatorFrames, rasterizeShapeFrames as rasterizeAnimatorShapeFrames, sceneEffectLayers as animatorSceneEffectLayers } from "@/src/lib/animator/toFrames";
 import { centerAnimation, effectFitBounds, visibleStageWidth, type SceneForPage } from "@/src/lib/animator/stageFit";
+import { bitmapToInk, type AnimatorScenePlacement, type DrawnSpan, type EngineDrawingBridge, type PageToCanvasMap } from "./ai/engineDrawingBridge";
 import { movingBackgroundLayers } from "@/src/lib/animator/effects/movingBackground";
 import { cameraMovingBackground } from "@/src/lib/animator/cameraLayers";
 import type {
@@ -1015,6 +1016,15 @@ const createTimelineFrame = (
 };
 
 const createEmptyTimelineFrame = (id: number): WorkspaceTimelineFrame => createTimelineFrame(id, "frame", "empty", id);
+
+// The layer's frames with `count` of them (from `start`) replaced by `inserted`; later frames come after the
+// inserted ones. A held picture whose own cell is replaced goes with it (no hold is left without its picture).
+const spliceAnimatorFrames = (frames: WorkspaceTimelineFrame[], start: number, count: number, inserted: WorkspaceTimelineFrame[]) => {
+  let end = Math.min(frames.length, start + Math.max(0, count));
+  const removed = new Set(frames.slice(start, end).filter((frame) => frame.cellType !== "empty").map((frame) => frame.stateId));
+  while (end < frames.length && frames[end].cellType !== "empty" && !isFrameStateStart(frames[end]) && removed.has(frames[end].stateId)) end += 1;
+  return [...frames.slice(0, start), ...inserted, ...frames.slice(end)];
+};
 
 const serializeBitmap = (bitmap: ImageData | null, preserveDataReference = false): PaintSerializedBitmap | null => {
   const usableBitmap = getUsableBitmap(bitmap);
@@ -8819,8 +8829,13 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
 
   // SPEC-0017: put an engine scene on a new layer at the top, starting at frame 1, as ordinary
   // editable frames. One Undo removes the whole scene (layer included).
-  const applyAnimatorScene = useCallback((source: SceneForPage) => {
+  // (SPEC-0017 "50-50", helping with the user's OWN drawing: with `place`, the scene is NOT centered — it lands
+  // exactly where the user drew — and goes either on a new layer starting at `place.frameIndex` (empty cells
+  // before it), or REPLACES `place.count` frames of `place.layerId` from `place.frameIndex` (later frames move
+  // to after the inserted ones). Still one Undo. Without `place` everything is exactly as before.)
+  const placeAnimatorScene = useCallback((source: SceneForPage, place: AnimatorScenePlacement | null) => {
     if (isTimelinePlayingRef.current || isApplyingGeneratedFramesRef.current) return false;
+    if (place?.mode === "replace" && !getLayerById(layersRef.current, place.layerId)) return false;
     saveCurrentFrameSnapshot(currentFrameIndexRef.current, activeLayerIdRef.current, {
       debugCaller: "applyAnimatorScene",
       forceCapture: drawingCanvasRef.current?.hasPendingAuthoringChanges() ?? true,
@@ -8851,7 +8866,9 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       const built = buildAnimatorScene(scene, timelineFps);
       // The whole animation (figures and objects) is centered on the page (slid as one piece; sizes and motion untouched).
       // (Effects at fixed spots that say so count too — an explosion far away: effectFitBounds; none for other scenes.)
-      const centered = centerAnimation(built.frames, stageWidth, built.objects, effectFitBounds(scene));
+      const centered = place
+        ? { frames: built.frames, objects: built.objects, shift: { x: 0, y: 0 } }
+        : centerAnimation(built.frames, stageWidth, built.objects, effectFitBounds(scene));
       // Heads and objects become Library symbols ("Basketball", "Blue stick figure head") placed once
       // per frame, so they can't be erased by accident and can be reused. The body lines stay in the
       // frame pictures. If anything about the symbols fails, they are drawn into the pictures as before.
@@ -8890,36 +8907,56 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       const topRaster = effectLayers.top ? rasterizeAnimatorShapeFrames(effectLayers.top, canvasWidth, canvasHeight, map, { maxBytes: 256 * 1024 * 1024, ...skipSymbols, ...(built.camera ? { mustDraw: built.camera.redraw } : {}) }) : null;
       recordUndoSnapshot();
       // Pictures → ordinary timeline frames (a hold continues the picture before it).
+      // ("Finish my animation": the scene's first picture IS the user's last drawing, so it is left out there.)
+      const firstPicture = place?.mode === "new-layer" && place.skipFirstPicture ? 1 : 0;
       const toTimelineFrames = (pictures: typeof raster) => {
         const timelineFrames: WorkspaceTimelineFrame[] = [];
         const keys: { index: number; stateId: number }[] = [];
         let ownerStateId = -1;
         for (const [index, entry] of pictures.entries()) {
+          if (index < firstPicture) continue;
           const id = nextTimelineFrameIdRef.current;
           nextTimelineFrameIdRef.current += 1;
           if (entry.hold && ownerStateId >= 0) {
             timelineFrames.push(createSpanContinuationFrame(id, ownerStateId, "frame"));
           } else {
-            timelineFrames.push(createTimelineFrame(id, "keyframe", "keyframe", id, { bitmap: entry.bitmap, previewUrl: null }));
+            // (When the first picture is left out, a hold right after it starts from the picture it holds.)
+            let owner = index;
+            while (owner > 0 && pictures[owner].hold) owner -= 1;
+            timelineFrames.push(createTimelineFrame(id, "keyframe", "keyframe", id, { bitmap: pictures[owner].bitmap, previewUrl: null }));
             ownerStateId = id;
-            keys.push({ index, stateId: id });
+            keys.push({ index: owner, stateId: id });
           }
         }
         return { timelineFrames, keys };
       };
-      const { timelineFrames: frames, keys: keyframes } = toTimelineFrames(raster);
-      const layerId = `layer-${nextLayerNumberRef.current}`;
-      nextLayerNumberRef.current += 1;
-      const backgroundTimeline = backgroundRaster ? toTimelineFrames(backgroundRaster) : null;
+      // (Placed at a frame: empty cells before it on a new layer; replacing: the user's frames around the inserted ones.)
+      const leadIn = (timeline: ReturnType<typeof toTimelineFrames>) => {
+        if (!place || place.frameIndex <= 0) return timeline;
+        const empty = Array.from({ length: place.frameIndex }, () => {
+          const id = nextTimelineFrameIdRef.current;
+          nextTimelineFrameIdRef.current += 1;
+          return createEmptyTimelineFrame(id);
+        });
+        return { ...timeline, timelineFrames: [...empty, ...timeline.timelineFrames] };
+      };
+      const ownTimeline = toTimelineFrames(raster);
+      const replaceLayer = place?.mode === "replace" ? getLayerById(layersRef.current, place.layerId) : null;
+      const { timelineFrames: frames, keys: keyframes } = replaceLayer && place?.mode === "replace"
+        ? { ...ownTimeline, timelineFrames: spliceAnimatorFrames(ensureTimelineLength(replaceLayer.timelineFrames, place.frameIndex - 1), place.frameIndex, place.count, ownTimeline.timelineFrames) }
+        : leadIn(ownTimeline);
+      const layerId = replaceLayer ? replaceLayer.id : `layer-${nextLayerNumberRef.current}`;
+      if (!replaceLayer) nextLayerNumberRef.current += 1;
+      const backgroundTimeline = backgroundRaster ? leadIn(toTimelineFrames(backgroundRaster)) : null;
       const backgroundFrames = backgroundTimeline?.timelineFrames ?? null;
       const backgroundLayerId = backgroundFrames ? `layer-${nextLayerNumberRef.current}` : null;
       if (backgroundFrames) nextLayerNumberRef.current += 1;
       const movingTimelines = movingRasters.map((pictures) => {
-        const timeline = toTimelineFrames(pictures), id = `layer-${nextLayerNumberRef.current}`;
+        const timeline = leadIn(toTimelineFrames(pictures)), id = `layer-${nextLayerNumberRef.current}`;
         nextLayerNumberRef.current += 1;
         return { ...timeline, id };
       });
-      const topTimeline = topRaster ? { ...toTimelineFrames(topRaster), id: `layer-${nextLayerNumberRef.current}` } : null;
+      const topTimeline = topRaster ? { ...leadIn(toTimelineFrames(topRaster)), id: `layer-${nextLayerNumberRef.current}` } : null;
       if (topTimeline) nextLayerNumberRef.current += 1;
       const symbolCatalogs = effectSymbolPlan?.catalogs ?? symbolPlan?.catalogs;
       if (symbolCatalogs) {
@@ -8956,20 +8993,21 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       const nextLayers = normalizeLayerOrder([
         // (Named for what is on it: "lasers" when laser beams are; otherwise "over heads" — a worn cap or hat.)
         ...(topTimeline ? [{ id: topTimeline.id, name: `AI: ${scene.title} ${((scene as { effects?: { kind: string; layer?: string }[] }).effects ?? []).some((e) => e.layer === "top" && /laser/i.test(e.kind)) ? "lasers" : "over heads"}`, orderIndex: 0, timelineFrames: topTimeline.timelineFrames }] : []),
-        { id: layerId, name: `AI: ${scene.title}`, orderIndex: 0, timelineFrames: frames },
+        ...(replaceLayer ? [] : [{ id: layerId, name: `AI: ${scene.title}`, orderIndex: 0, timelineFrames: frames }]),
         ...movingTimelines.map((timeline, k) => ({ id: timeline.id, name: `AI: ${scene.title} ${movingBackground?.layers[k].name ?? "moving background"}`, orderIndex: 1, timelineFrames: timeline.timelineFrames })),
         ...(backgroundFrames && backgroundLayerId ? [{ id: backgroundLayerId, name: `AI: ${scene.title} background`, orderIndex: 1, timelineFrames: backgroundFrames }] : []),
-        ...layersRef.current,
+        ...(replaceLayer ? layersRef.current.map((layer) => layer.id === replaceLayer.id ? { ...layer, timelineFrames: frames } : layer) : layersRef.current),
       ]);
       layersRef.current = nextLayers;
       setLayers(nextLayers);
       activeLayerIdRef.current = layerId;
       timelineFramesRef.current = frames;
       setActiveLayerId(layerId);
-      currentFrameIndexRef.current = 0;
-      setCurrentFrameIndex(0);
-      selectedTimelineIndexRef.current = 0;
-      setSelectedTimelineIndex(0);
+      const startFrame = place ? Math.max(0, place.frameIndex) : 0;
+      currentFrameIndexRef.current = startFrame;
+      setCurrentFrameIndex(startFrame);
+      selectedTimelineIndexRef.current = startFrame;
+      setSelectedTimelineIndex(startFrame);
       drawingCanvasRef.current?.clearTransientEditingState();
       commitCurrentHistoryState({ assumeChanged: true });
       // "Make the background gray" (plan.canvasColor): the project's own Background Color (Select tool →
@@ -8980,9 +9018,10 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         setSaveState("unsaved");
       }
       window.requestAnimationFrame(() => {
-        renderWorkspaceCanvases(nextLayers, 0, { activeLayerId: layerId, debugCaller: "ai:apply-animator-scene" });
+        renderWorkspaceCanvases(nextLayers, startFrame, { activeLayerId: layerId, debugCaller: "ai:apply-animator-scene" });
       });
       console.info("[animator] scene applied", {
+        ...(place ? { place } : {}),
         scene: scene.id, frames: frames.length, pictures: raster.filter((entry) => !entry.hold).length,
         effects: Boolean(effectLayers.effects), backgroundPictures: backgroundRaster ? backgroundRaster.filter((entry) => !entry.hold).length : 0,
         ...(movingRasters.length ? { movingBackgroundPictures: movingRasters.map((pictures) => pictures.filter((entry) => !entry.hold).length) } : {}),
@@ -8993,7 +9032,65 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     } finally {
       isApplyingGeneratedFramesRef.current = false;
     }
-  }, [commitCurrentHistoryState, recordUndoSnapshot, renderWorkspaceCanvases, saveCurrentFrameSnapshot, symbolImageCache, timelineFps]);
+  }, [commitCurrentHistoryState, ensureTimelineLength, recordUndoSnapshot, renderWorkspaceCanvases, saveCurrentFrameSnapshot, symbolImageCache, timelineFps]);
+  const applyAnimatorScene = useCallback((source: SceneForPage) => placeAnimatorScene(source, null), [placeAnimatorScene]);
+  // SPEC-0017 "50-50": page → drawing-canvas pixels (the same map applyAnimatorScene draws with).
+  const enginePageMap = useCallback((): PageToCanvasMap | null => {
+    const layout = drawingCanvasRef.current?.getPlaybackSurfaceLayout() ?? null;
+    const canvasWidth = layout?.drawingCanvasWidth ?? 0;
+    if (!layout || canvasWidth <= 0 || layout.worldDisplayRect.width <= 0 || !layout.stageDisplayRect || layout.stageDisplayRect.height <= 0) return null;
+    const pageScale = layout.stageDisplayRect.height / 1080, ppc = canvasWidth / layout.worldDisplayRect.width;
+    return {
+      scale: pageScale * ppc,
+      offsetX: (layout.stageDisplayRect.left + layout.stageDisplayRect.width / 2 - 960 * pageScale - layout.worldDisplayRect.left) * ppc,
+      offsetY: (layout.stageDisplayRect.top - layout.worldDisplayRect.top) * ppc,
+    };
+  }, []);
+  // SPEC-0017 "50-50": what the AI panel's engine tools (helping with the user's own drawing) need.
+  const engineDrawingBridge = useMemo<EngineDrawingBridge>(() => ({
+    place: (source, placement) => placeAnimatorScene(source, placement),
+    info: () => {
+      const layer = getLayerById(layersRef.current, activeLayerIdRef.current);
+      if (!layer) return null;
+      const spans: DrawnSpan[] = [];
+      layer.timelineFrames.forEach((frame, index) => {
+        if (frame.cellType === "empty") return;
+        const previous = layer.timelineFrames[index - 1];
+        if (isFrameStateStart(frame) || !previous || previous.cellType === "empty" || previous.stateId !== frame.stateId || !spans.length) spans.push({ start: index, end: index });
+        else spans[spans.length - 1].end = index;
+      });
+      return { frameIndex: currentFrameIndexRef.current, layerId: layer.id, layerName: layer.name, fps: timelineFps, spans };
+    },
+    goToFrame: (frameIndex) => switchToFrame(frameIndex),
+    pageMap: () => enginePageMap(),
+    // (The engine LOOKS at the drawing: a frame's picture on the active layer as page-space ink. A held cell gives the
+    // picture it holds; the frame being drawn on is saved first so a fresh stroke counts. Reads only — changes nothing.)
+    frameInk: (frameIndex) => {
+      if (isTimelinePlayingRef.current || isApplyingGeneratedFramesRef.current) return null;
+      if (frameIndex === currentFrameIndexRef.current) saveCurrentFrameSnapshot(currentFrameIndexRef.current, activeLayerIdRef.current, { debugCaller: "engineFrameInk" });
+      const layout = drawingCanvasRef.current?.getPlaybackSurfaceLayout() ?? null, map = enginePageMap();
+      const frames = getLayerById(layersRef.current, activeLayerIdRef.current)?.timelineFrames ?? [];
+      let owner = frameIndex;
+      while (owner > 0 && frames[owner] && frames[owner].cellType === "hold" && frames[owner - 1]?.cellType !== "empty" && frames[owner - 1]?.stateId === frames[owner].stateId) owner -= 1;
+      const bitmap = frames[owner] && frames[owner].cellType !== "empty" ? getUsableBitmap(frames[owner].bitmap) : null;
+      if (!layout?.drawingCanvasWidth || !layout.drawingCanvasHeight || !map || !bitmap) return null;
+      // (An engine-drawn figure's head is a Library symbol placed on the cell, not in its picture: drawn in too, the
+      // same way the canvas draws it, so the engine can read its own figures again.)
+      const instances = symbolInstancesByCellRef.current[`${activeLayerIdRef.current}:${frames[owner].stateId}`] ?? [];
+      const stage = layout.stageDisplayRect, world = layout.worldDisplayRect;
+      const symbolPresentation = instances.length && stage ? resolveSymbolStagePresentationV2(stage) : null;
+      const overlay = symbolPresentation && stage ? {
+        pad: 160,
+        draw: (ctx: CanvasRenderingContext2D, ink: { x0: number; y0: number; scale: number }) => {
+          const pageScale = stage.height / 1080, k = ink.scale / pageScale;
+          ctx.setTransform(k, 0, 0, k, -((stage.left + stage.width / 2 - 960 * pageScale) / pageScale + ink.x0) * ink.scale, -(stage.top / pageScale + ink.y0) * ink.scale);
+          const drawingView = { centerX: world.left + world.width / 2, centerY: world.top + world.height / 2, perCanvasPixel: world.width / layout.drawingCanvasWidth! };
+          drawSymbolInstancesV2(ctx, instances, indexSymbolDefinitionsV2(unifiedCatalogsRef.current.symbols), (instance) => instancePresentationV2(instance, symbolPresentation, drawingView), symbolImageCache.get);
+        },
+      } : undefined;
+      try { return bitmapToInk(bitmap, layout.drawingCanvasWidth, layout.drawingCanvasHeight, map, overlay); } catch { return null; }
+    },
+  }), [enginePageMap, placeAnimatorScene, saveCurrentFrameSnapshot, switchToFrame, symbolImageCache, timelineFps]);
 
   const handleSaveAs = useCallback(() => {
     requireManualEditorCommand("project.save-as/v2", "DrawingWorkspace.handleSaveAs");
@@ -9805,6 +9902,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
           onProjectAiMemoryChange={setProjectAiMemory}
           onApplyGeneratedFrame={applyGeneratedFrameToWorkspace}
           onApplyAnimatorScene={applyAnimatorScene}
+          engineDrawing={engineDrawingBridge}
           onExecuteActionPlan={executeAiActionPlan}
           ref={drawingCanvasRef}
           shapeType={shapeType}

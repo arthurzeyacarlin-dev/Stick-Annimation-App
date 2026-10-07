@@ -1,5 +1,6 @@
 import type { KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent, ReactNode, RefObject } from "react";
 import type { SceneForPage } from "@/src/lib/animator/stageFit";
+import type { EngineDrawingBridge } from "./ai/engineDrawingBridge";
 
 import { DrawingAiPanel } from "./ai/DrawingAiPanel";
 import type { DrawingAiActionPlan, DrawingAiProjectMemory, DrawingAiWorkspaceContext } from "@/src/lib/ai/drawingAiContract";
@@ -42,6 +43,7 @@ type DrawingRightPanelProps = {
   ) => Promise<boolean> | boolean;
   onExecuteActionPlan?: (actionPlan: NonNullable<DrawingAiActionPlan>) => Promise<boolean> | boolean;
   onApplyAnimatorScene?: (scene: SceneForPage) => boolean;
+  engineDrawing?: EngineDrawingBridge;
 };
 
 export function DrawingRightPanel({
@@ -71,6 +73,7 @@ export function DrawingRightPanel({
   onApplyGeneratedFrame,
   onExecuteActionPlan,
   onApplyAnimatorScene,
+  engineDrawing,
 }: DrawingRightPanelProps) {
   return (
     <div
@@ -296,6 +299,7 @@ export function DrawingRightPanel({
         onApplyGeneratedFrame={onApplyGeneratedFrame}
         onExecuteActionPlan={onExecuteActionPlan}
         onApplyAnimatorScene={onApplyAnimatorScene}
+        engineDrawing={engineDrawing}
       />
     </div>
   );

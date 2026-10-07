@@ -44,6 +44,8 @@ import { AssistantDictationCapture, type DictationView } from "@/src/lib/assista
 import { ChatDictateButton, ChatDictationPanel, ChatReasoningSelect, ChatSendButton, ChatStopButton, ChatToolsRow, chatComposerStyles } from "@/src/components/ui/ChatComposerParts";
 import { workspaceColors } from "../workspaceTheme";
 import type { SceneForPage } from "@/src/lib/animator/stageFit";
+import type { EngineDrawingBridge } from "./engineDrawingBridge";
+import { EngineDrawingTools } from "./EngineDrawingTools";
 import { FIGURE_COLOR_NAMES, FIGURE_COLORS, type FigureColorName } from "@/src/lib/animator/colors";
 import { ENGINE_TEST_SCENES } from "@/src/lib/animator/testScenes";
 import { LIBRARY_MOVES, MOVE_SPEEDS, MOVE_STYLES, makeMoveTestScene, type LibraryMoveId, type MoveSpeed, type MoveStyle } from "@/src/lib/animator/moves";
@@ -63,6 +65,7 @@ type DrawingAiPanelProps = {
   onApplyGeneratedFrame?: (result: GeneratedFrameRenderResult, source: { prompt: string; response: string }) => Promise<boolean> | boolean;
   onExecuteActionPlan?: (actionPlan: NonNullable<DrawingAiActionPlan>) => Promise<boolean> | boolean;
   onApplyAnimatorScene?: (scene: SceneForPage) => boolean;
+  engineDrawing?: EngineDrawingBridge;
   readOnly?: boolean;
 };
 
@@ -163,6 +166,7 @@ export function DrawingAiPanel({
   onApplyGeneratedFrame: _onApplyGeneratedFrame,
   onExecuteActionPlan: _onExecuteActionPlan,
   onApplyAnimatorScene,
+  engineDrawing,
   readOnly = false,
 }: DrawingAiPanelProps = {}) {
   void _projectAiMemory; void _onProjectAiMemoryChange; void _onApplyGeneratedFrame; void _onExecuteActionPlan;
@@ -560,6 +564,7 @@ export function DrawingAiPanel({
                 ))}
               </div>
               {engineTestStatus && <p role="status">{engineTestStatus}</p>}
+              {engineDrawing && <EngineDrawingTools bridge={engineDrawing} readOnly={readOnly} />}
             </section>
           )}
           {ledger.messages.length === 0 && !activeJob && <div style={{ margin: "auto", maxWidth: 240, textAlign: "center", color: workspaceColors.textMuted, fontSize: 12, lineHeight: 1.55 }}>Ask Terra anything about your animation. Creating and editing frames comes later.</div>}

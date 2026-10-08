@@ -17,10 +17,8 @@ import {
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-type SearchParamsInput =
-  | Record<string, string | string[] | undefined>
-  | Promise<Record<string, string | string[] | undefined>>
-  | undefined;
+// (Next.js 16 passes a page's search params as a Promise; the code awaits it either way.)
+type SearchParamsInput = Promise<Record<string, string | string[] | undefined>> | undefined;
 
 const getFirstSearchParam = (value: string | string[] | undefined) =>
   Array.isArray(value) ? value[0] ?? "" : value ?? "";
@@ -399,7 +397,7 @@ export default async function DevAiCostDashboardPage({
     notFound();
   }
 
-  const resolvedSearchParams = await Promise.resolve(searchParams ?? {});
+  const resolvedSearchParams = ((await searchParams) ?? {}) as Record<string, string | string[] | undefined>;
   const query = getFirstSearchParam(resolvedSearchParams.q).trim();
   const timeRangeParam = getFirstSearchParam(resolvedSearchParams.range).trim();
   const workspaceType = getFirstSearchParam(resolvedSearchParams.workspace).trim();

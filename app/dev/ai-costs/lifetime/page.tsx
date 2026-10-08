@@ -18,10 +18,8 @@ import {
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-type SearchParamsInput =
-  | Record<string, string | string[] | undefined>
-  | Promise<Record<string, string | string[] | undefined>>
-  | undefined;
+// (Next.js 16 passes a page's search params as a Promise; the code awaits it either way.)
+type SearchParamsInput = Promise<Record<string, string | string[] | undefined>> | undefined;
 
 type ForecastScenarioKey = "current" | "2x" | "3x";
 
@@ -773,7 +771,7 @@ export default async function DevAiCostDashboardLifetimePage({
     notFound();
   }
 
-  const resolvedSearchParams = await Promise.resolve(searchParams ?? {});
+  const resolvedSearchParams = ((await searchParams) ?? {}) as Record<string, string | string[] | undefined>;
   const rangeParam = getFirstSearchParam(resolvedSearchParams.range).trim();
   const selectedBucketKey = getFirstSearchParam(resolvedSearchParams.bucket).trim();
   const selectedForecastParam = getFirstSearchParam(resolvedSearchParams.forecast).trim();

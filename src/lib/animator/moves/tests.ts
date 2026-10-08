@@ -149,7 +149,7 @@ export const COMBO_TESTS: TestEntry[] = [
 // (Blocking or almost falling with nobody hitting makes no sense alone: they are partner moves.)
 // (D10, round 10: a dash punch is aimed at another figure: not a solo move.)
 // (Phase 2C: the powers have their own review scenes — scenesPowers.ts — and leaving them out keeps every old random seed the same.)
-const NOT_SOLO = new Set(["highFive", "throw", "catch", "pickUp", "getUp", "stand", "catchBreath", "block", "almostFall", "stompDown", "groundPunch", "coverUp", "kipUp", "dashPunch", "fireBlast", "waterShield", "teleport", "laserEyes", "escort", "tug", "iceBlast", "waterBlast", "iceMountain", "iceThrow", "blownAway", "swordSlash", "swordChop", "swordThrust", "swordSpin", "dashSlash", "swordBlock", "swordDodge", "swordStep", "swordVictory"]);
+const NOT_SOLO = new Set(["highFive", "throw", "catch", "pickUp", "getUp", "stand", "catchBreath", "block", "almostFall", "stompDown", "groundPunch", "coverUp", "kipUp", "dashPunch", "fireBlast", "waterShield", "teleport", "laserEyes", "escort", "tug", "iceBlast", "waterBlast", "iceMountain", "iceThrow", "blownAway", "swordSlash", "swordChop", "swordThrust", "swordSpin", "dashSlash", "swordBlock", "swordDodge", "swordStep", "swordVictory", "cartwheel"]);
 export function surprisePlan(seed: number, o: TestLook): ScenePlan {
   let state = Math.floor(Math.abs(seed)) % 2147483647 || 1;
   const random = () => (state = (state * 48271) % 2147483647) / 2147483647;

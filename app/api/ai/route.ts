@@ -3575,10 +3575,11 @@ export async function POST(req: Request) {
       return preserved.slice(0, 8);
     };
     const getNextGenerateFramesRecoveryModel = (model: string | null | undefined) => {
-      if (model === AI_TEXT_ECONOMY_MODEL) {
+      // (All tiers are Luna now: never "escalate" to the same model.)
+      if (model === AI_TEXT_ECONOMY_MODEL && AI_TEXT_BALANCED_MODEL !== model) {
         return AI_TEXT_BALANCED_MODEL;
       }
-      if (model === AI_TEXT_BALANCED_MODEL) {
+      if (model === AI_TEXT_BALANCED_MODEL && AI_TEXT_MODEL !== model) {
         return AI_TEXT_MODEL;
       }
       return null;
@@ -6136,6 +6137,7 @@ export async function POST(req: Request) {
         const fallbackEscalatedFromDefault =
           effectiveTaskType === "generate-frames" &&
           usageSummary.modelNames.includes(AI_TEXT_ECONOMY_MODEL) &&
+          new Set(usageSummary.modelNames).size > 1 &&
           (usageSummary.modelNames.includes(AI_TEXT_BALANCED_MODEL) || usageSummary.modelNames.includes(AI_TEXT_MODEL));
         const fallbackEscalatedTo =
           usageSummary.modelNames.length > 1 ? usageSummary.modelNames[usageSummary.modelNames.length - 1] ?? null : null;

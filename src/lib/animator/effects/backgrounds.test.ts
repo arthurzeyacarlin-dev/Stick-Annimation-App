@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { buildScene } from "../engine.ts";
 import { LIBRARY } from "../moves/library.ts";
-import { fitBackgroundPlanToPage, planToScene, type ScenePlan } from "../moves/plan.ts";
+import { fitBackgroundPlanToPage, planToScene, shortenCourseForPage, type ScenePlan } from "../moves/plan.ts";
 import { parkourPlan } from "../moves/scenes2c.ts";
 import { effectsTestScenes, makeEffectsTestScene } from "../moves/tests2c.ts";
 import { JOINTS } from "../rig.ts";
@@ -107,7 +107,12 @@ test("parkour fits each page by zooming out figure and background together (16:9
   for (const { page, plan: fitted } of fittedParkour.slice(1)) {
     const k = fitted.height / plan.height;
     assert.ok(k < 1, `${page.name}: zoomed out`);
-    for (const [i, r] of spikeRows(fitted).entries()) assert.ok(Math.abs((r.left + r.right) / 2 - (960 + ((rows[i].left + rows[i].right) / 2 - 960) * k)) < 1e-6, `${page.name}: row ${i + 1} moved with the zoom`);
+    // (A zoomed scene hanging off one side is slid onto the page as a whole: the figure and the rows by the same dx.)
+    // (FIGURES STAY BIG ENOUGH TO READ, H52: a course too long for the page is shortened first — shortenCourseForPage —
+    // and only that is zoomed; on a page where it fits, nothing is shortened.)
+    const base = shortenCourseForPage(plan, LIBRARY, page.stageWidth).plan, baseRows = spikeRows(base);
+    const dx = fitted.characters[0].x - (960 + (base.characters[0].x - 960) * k);
+    for (const [i, r] of spikeRows(fitted).entries()) assert.ok(Math.abs((r.left + r.right) / 2 - (960 + ((baseRows[i].left + baseRows[i].right) / 2 - 960) * k) - dx) < 1e-6, `${page.name}: row ${i + 1} moved with the zoom`);
   }
 });
 

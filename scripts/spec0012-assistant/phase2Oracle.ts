@@ -12,7 +12,7 @@ const check = (condition: unknown, name: string) => { assert.ok(condition, name)
 const equal = (a: unknown, b: unknown, name: string) => { assert.deepEqual(a, b, name); assertions.push(name); };
 const rejects = async (run: () => unknown, name: string) => { let failed = false; try { await run(); } catch { failed = true; } check(failed, name); };
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-equal(ASSISTANT_MODEL, "gpt-5.6-terra", "fixed Terra model");
+equal(ASSISTANT_MODEL, "gpt-5.6-luna", "fixed Luna model (replaced Terra, 2026-10-08)");
 equal(REASONING, { low: "Low", medium: "Medium", high: "High", xhigh: "Extra High" }, "exact four reasoning mappings");
 equal(ASSISTANT_LIMITS, { sessions: 50, messages: 200, userChars: 12000, answerChars: 16000, sessionBytes: 1048576, databaseBytes: 33554432, contextMessages: 32, contextChars: 48000, inputTokens: 24000, outputTokens: 4000, deadlineMs: 90000, activeJobs: 2, replyReserveBytes: 68000 }, "frozen ceilings");
 const good = fixtureRequest(); validateRequest(good);

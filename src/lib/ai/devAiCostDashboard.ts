@@ -203,6 +203,13 @@ const MAX_VISIBLE_RECENT_ENTRIES = 60;
 const requestScopeStorage = new AsyncLocalStorage<DevAiRequestScope>();
 
 const DEV_AI_PRICING_BY_MODEL: Record<string, DevAiPricingConfig> = {
+  // Luna (Arthur, 2026-10-08: replaces every text AI). OpenAI, checked 2026-10-07: $0.20 in / $1.20 out per million;
+  // cached input counted at the full input price (no cached price known).
+  "gpt-5.6-luna": {
+    inputUsdPerMillion: 0.2,
+    cachedInputUsdPerMillion: 0.2,
+    outputUsdPerMillion: 1.2,
+  },
   "gpt-5.2": {
     inputUsdPerMillion: 1.75,
     cachedInputUsdPerMillion: 0.175,
@@ -265,7 +272,9 @@ const estimateTokenCountFromText = (...values: Array<string | null | undefined>)
 };
 
 const getPricingConfigForModel = (model: string) =>
-  DEV_AI_PRICING_BY_MODEL[model] ?? DEV_AI_PRICING_BY_MODEL["gpt-5.4"];
+  DEV_AI_PRICING_BY_MODEL[model] ??
+  (model.startsWith("gpt-5.6-luna-") ? DEV_AI_PRICING_BY_MODEL["gpt-5.6-luna"] : undefined) ??
+  DEV_AI_PRICING_BY_MODEL["gpt-5.4"];
 
 const calculateEstimatedCostUsd = ({
   model,

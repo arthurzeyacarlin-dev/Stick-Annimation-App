@@ -105,7 +105,7 @@ export function lightningPhases(duration: number, params: EffectParams) {
   return { k, leaderEnd: 0.1 * k, strikes: strikes.map(([a, b, s]) => [a * k, b * k, s] as [number, number, number]), fadeFrom: fadeFrom * k, end: total * k };
 }
 
-type SparkOptions = { count: number; life: number; speed: number; dir: number; spread: number; width: number; color: string; core: string; seed: number; burst: boolean; groundY: number; gravity: number };
+type SparkOptions = { count: number; life: number; speed: number; dir: number; spread: number; width: number; color: string; core: string; seed: number; burst: boolean; groundY: number; gravity: number; stars?: boolean };
 
 // Small bright sparks flying out of `o` and falling (burst = all at once; otherwise born again and again).
 function sparkShapes(o: Point, t: number, opt: SparkOptions): Shape[] {
@@ -124,13 +124,25 @@ function sparkShapes(o: Point, t: number, opt: SparkOptions): Shape[] {
       life = opt.life * lerp(0.6, 1, rand(opt.seed, key, 41));
     }
     if (age < 0 || age > life) continue;
-    const a = ((opt.dir + (rand(opt.seed, key, 42) - 0.5) * opt.spread) * Math.PI) / 180;
+    let a = ((opt.dir + (rand(opt.seed, key, 42) - 0.5) * opt.spread) * Math.PI) / 180;
+    // (A burst ON the ground sprays up, never into it: a spark aimed below the floor bounces to the same angle above it
+    // — else half a wide burst at a landing vanished at once.)
+    if (o.y >= opt.groundY - 2 && Math.sin(a) > 0) a = -a;
     const v = opt.speed * lerp(0.45, 1.25, rand(opt.seed, key, 43));
     const at = (s: number) => ({ x: o.x + Math.cos(a) * v * s, y: o.y + Math.sin(a) * v * s + 0.5 * opt.gravity * s * s });
     const head = at(age);
     if (head.y > opt.groundY) continue; // it has landed
     const tail = at(Math.max(0, age - 0.04));
     const fade = 1 - (age / life) ** 2;
+    // STARS (Arthur: "bursts into stars"): a little spinning five-point star at each spark's head, not a streak.
+    if (opt.stars) {
+      const r = opt.width * 7 * lerp(0.7, 1.3, rand(opt.seed, key, 44)), spin = age * 6 + rand(opt.seed, key, 45) * 6;
+      const points: number[] = [];
+      for (let j = 0; j < 10; j += 1) { const ang = spin - Math.PI / 2 + (j * Math.PI) / 5, rr = j % 2 ? r * 0.45 : r; points.push(head.x + Math.cos(ang) * rr, head.y + Math.sin(ang) * rr); }
+      // (filled in a pale tint of its colour, not plain white — white stars vanished on a white page)
+      shapes.push({ kind: "poly", points, fill: mixColor(opt.color, opt.core, 0.45), stroke: opt.color, width: opt.width * 0.8, alpha: fade, glow: 10 });
+      continue;
+    }
     const pts = [tail.x, Math.min(tail.y, opt.groundY), head.x, head.y];
     shapes.push({ kind: "line", points: pts, stroke: opt.color, width: opt.width * 2.2, alpha: fade * 0.5, glow: 8 });
     shapes.push({ kind: "line", points: pts, stroke: opt.core, width: opt.width, alpha: fade, glow: 4 });
@@ -224,15 +236,27 @@ const lightning: EffectRecipe = {
 
 const sparks: EffectRecipe = {
   id: "sparks",
-  about: "Small bright sparks flying out of the anchor and falling (for impacts or electric hands). `color` (default gold #ffd84d) with a hot `color2` core (default white); `direction` (default -90 = up) and `spread` (default 140°) aim them; `burst: true` = one burst at the start instead of a steady stream; `intensity` = how many; `speed`, `size`, `seed`.",
+  about: "Small bright sparks flying out of the anchor and falling (for impacts or electric hands). `color` (default gold #ffd84d) with a hot `color2` core (default white); `direction` (default -90 = up) and `spread` (default 140°) aim them; `burst: true` = one burst at the start instead of a steady stream; `stars: true` = little spinning stars instead of streaks (a power ball \"bursting into stars\"); `intensity` = how many; `speed`, `size`, `seed`.",
   draw(ctx: EffectContext, p: EffectParams): Shape[] {
     const speed = Math.max(0.05, num(p.speed, 1)), size = num(p.size, 1), intensity = clamp(num(p.intensity, 1), 0, 3);
     if (intensity <= 0) return [];
-    return sparkShapes(ctx.at, ctx.t, {
-      count: Math.max(1, Math.round(16 * intensity)), life: 0.55 / speed, speed: ctx.height * 1.6 * speed * size, dir: num(p.direction, -90), spread: num(p.spread, 140),
-      width: Math.max(1, ctx.height * 0.008 * size), color: str(p.color, "#ffd84d"), core: str(p.color2, "#ffffff"), seed: num(p.seed, 1), burst: p.burst === true,
-      groundY: ctx.groundY, gravity: ctx.height * 7 * speed * speed,
+    // STARS ARE ENERGY, NOT GLASS (Arthur: the star burst "looks like glass falling on the ground"): a burst of stars
+    // blooms out all round from a glowing flash and twinkles out in the air — light, so it barely falls.
+    const stars = p.stars === true, color = str(p.color, "#ffd84d");
+    const shapes = sparkShapes(ctx.at, ctx.t, {
+      count: Math.max(1, Math.round(16 * intensity)), life: (stars ? 0.75 : 0.55) / speed, speed: ctx.height * (stars ? 1.1 : 1.6) * speed * size, dir: num(p.direction, -90), spread: num(p.spread, stars && p.burst === true ? 240 : 140),
+      width: Math.max(1, ctx.height * 0.008 * size), color, core: str(p.color2, "#ffffff"), seed: num(p.seed, 1), burst: p.burst === true,
+      groundY: ctx.groundY, gravity: ctx.height * (stars ? 0.8 : 7) * speed * speed, stars,
     });
+    // (The flash is big and bright from its first picture — it was a faint dot smaller than the ball, at its biggest
+    // when almost gone.)
+    if (stars && p.burst === true && ctx.t < 0.35 / speed) {
+      const u = (ctx.t * speed) / 0.35, r = ctx.height * 0.15 * size * (0.8 + 0.7 * u);
+      // (on the floor it is a dome that never digs into the ground)
+      const ball = (rr: number, fill: string, alpha: number, glow: number): Shape => ctx.at.y >= ctx.groundY - 2 ? { kind: "poly", points: dome(ctx.at.x, ctx.groundY, rr, rr), fill, alpha, glow } : { kind: "circle", x: ctx.at.x, y: ctx.at.y, r: rr, fill, alpha, glow };
+      shapes.unshift(ball(r, color, 0.6 * (1 - u) ** 0.7, 30), ball(r * 0.45, str(p.color2, "#ffffff"), 0.9 * (1 - u), 16));
+    }
+    return shapes;
   },
 };
 

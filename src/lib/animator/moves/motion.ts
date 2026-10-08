@@ -1,6 +1,7 @@
 import type { CharacterKey, FootContact } from "../engine.ts";
 import type { Ease } from "../easing.ts";
-import { clampPose, ELBOW_ACROSS_AUTO, JOINT_LIMITS, jointRange, STAND, type Facing, type PoseAngles, type PoseKey } from "../rig.ts";
+import { forwardKinematics } from "../pose.ts";
+import { clampPose, ELBOW_ACROSS_AUTO, HEAD_RADIUS, JOINT_LIMITS, jointRange, STAND, type Facing, type PoseAngles, type PoseKey } from "../rig.ts";
 import { RAMP_SCALE, SPEED_CHANGES, STYLE_CHANGES, type MoveSpeed, type MoveStyle } from "./styles.ts";
 
 // SPEC-0017 Phase 2: the shared motion lesson every body move uses (Arthur, 2026-10-04).
@@ -58,6 +59,122 @@ export const forwardSign = (facing: Facing) => (facing === "left" ? -1 : 1);
 export function tempoOf(settings: MoveSettings) {
   const style = STYLE_CHANGES[settings.style].scale?.stepSeconds ?? 1;
   return style * SPEED_CHANGES[settings.speed].stepSeconds;
+}
+
+// A BODY IS HEAVY (Arthur, cartwheel: "I can't genuinely see his arms bend ... the weight of a stick figure is actually
+// heavy"): any limb that takes the body's weight bends CLEARLY at the elbow/knee — enough to SEE at stick-figure size —
+// in proportion to how much of the weight it takes (`share`: 1 = alone, 0.5 = shared by two hands or two feet) and how
+// hard it arrives (`impact` 0..1: a bigger landing bends more); it straightens again as the weight leaves it.
+// A STICK FIGURE IS SKIN AND BONE (Arthur: "I don't want him as strong as Hulk ... he's skin and bone"): a light, weak
+// body GIVES a lot under its own weight — ~54° when two limbs share it, ~60° for one alone, up to 66° on a hard
+// landing — so it visibly sinks into the support and pushes back out of it (never a rigid wheel). How far is limited
+// by the head and the floor (seenWeightArm: the head never within HEAD_CLEAR of the floor, no elbow through it).
+export function weightBend(share: number, impact = 0): number {
+  const c = (v: number) => Math.max(0, Math.min(1, v));
+  return Math.round(Math.min(66, 48 + 12 * c(share) + 10 * c(impact)));
+}
+
+// HOW MUCH A SUPPORT GIVES depends on how much of the body is RIGHT ABOVE it (Arthur, cartwheel: "his arm should bend
+// MOST when he's upside down — right when both of his arms are on the ground"): `over` 0..1 = how stacked the body is
+// over its supports (1 = straight above them, e.g. upside down over both hands; ~0.2-0.3 = still leaning off them, the
+// first or last hand of a cartwheel). Stacked = the deepest give (~66), leaning off = clearly less (~48-51).
+// THE SINK IS SLOW: a move that reaches its deepest give eases DOWN into it (slow in), the whole-body turn slows to a
+// crawl for a beat (SINK_BEAT s) at the bottom, then carries on and speeds up again.
+export const SINK_BEAT = 0.1;
+// WEIGHT HANDS OVER (Arthur, cartwheel): the support taking the weight eases into its bend until it stops; as the
+// weight moves on to the next support the old one straightens while the new one starts to give (arms bend -> arms
+// straighten as the landing legs bend -> legs straighten as he stands) — never both stiff, never both giving at once.
+
+// A BODY TIPPING OVER LEADS WITH ITS WEIGHT (Arthur, cartwheel: "his legs need to start going in that direction —
+// leaning over there because he's falling that way"): once the body tips past its support toward where it will land,
+// the free legs swing toward that side (the landing leg reaches out for its spot early, the other follows) instead of
+// trailing stiffly. Front view: `toward` = the figure's side it is falling to; that hip opens, the other closes.
+export const FALL_LEAD = 15;
+export function leadTheFall(pose: PoseAngles, toward: "l" | "r", amount = FALL_LEAD): PoseAngles {
+  const away = toward === "l" ? "r" : "l";
+  return { ...pose, [`${toward}Hip`]: pose[`${toward}Hip`] + amount, [`${away}Hip`]: Math.max(0, pose[`${away}Hip`] - amount) };
+}
+export function stackedBend(over: number, impact = 0): number {
+  const c = (v: number) => Math.max(0, Math.min(1, v));
+  return Math.round(Math.min(66, 44 + 22 * c(over) + 10 * c(impact)));
+}
+
+// A BEND THAT CARRIES WEIGHT MUST BE SEEN (Arthur, cartwheel: "I should genuinely see a bend in the arms"): a weight-
+// bearing elbow bent next to the head is hidden by the head circle at stick-figure size. So the arm that carries the
+// weight (its hand on the floor) bends by `bend` (the natural way only) and turns at the shoulder just enough that its
+// elbow sits OUT, at least ELBOW_SEEN figure heights from the head's centre (in a front view: out to the side, away
+// from the middle line — the planted hands land a little wider than the shoulders, so the bent arm makes a clear
+// angle). The hand still reaches past the top of the head; given the body's `spin` (the whole-body turn, degrees) the
+// head stays at least HEAD_CLEAR figure heights above the lowest point and the elbow never dips to the floor. If the
+// bend would not let it, the bend is limited there (a light body gives, but the head never comes to the floor).
+export const ELBOW_SEEN = 0.125;
+export const HEAD_CLEAR = 0.05;
+export function seenWeightArm(pose: PoseAngles, side: "l" | "r", bend: number, facing: Facing, spin?: number): PoseAngles {
+  const S = `${side}Shoulder` as const, E = `${side}Elbow` as const;
+  for (let elbow = Math.max(pose[E], bend); elbow >= pose[E]; elbow -= 2) {
+    const found = seenAt(pose, S, E, side, elbow, facing, spin);
+    if (found) return found;
+  }
+  return pose;
+}
+function seenAt(pose: PoseAngles, S: "lShoulder" | "rShoulder", E: "lElbow" | "rElbow", side: "l" | "r", elbow: number, facing: Facing, spin?: number): PoseAngles | null {
+  const check = (s: number) => {
+    const q = { ...pose, [S]: s, [E]: elbow };
+    let seen = Infinity, clear = true;
+    for (const neck of [false, true]) {
+      const b = forwardKinematics(q, facing, { x: 0, y: 0 }, 1, "normal", neck);
+      const el = b[`${side}Elbow`], hand = b[`${side}Hand`];
+      seen = Math.min(seen, Math.hypot(el.x - b.head.x, el.y - b.head.y));
+      const ux = b.head.x - b.neck.x, uy = b.head.y - b.neck.y, n = Math.hypot(ux, uy) || 1;
+      if (((hand.x - b.neck.x) * ux + (hand.y - b.neck.y) * uy) / n < n + HEAD_RADIUS.normal + 0.005) clear = false;
+      if (spin !== undefined) {
+        // (Turned as the engine turns the whole body, about the middle of the trunk. A long-necked figure whose head
+        // is nearer the floor even with straight arms keeps at least that gap.)
+        const gap = (k: typeof b) => {
+          const c = Math.cos((spin * Math.PI) / 180), sn = Math.sin((spin * Math.PI) / 180), my = (k.hip.y + k.neck.y) / 2, mx = (k.hip.x + k.neck.x) / 2;
+          const y = (p: { x: number; y: number }) => my + (p.x - mx) * sn + (p.y - my) * c;
+          const head = y(k.head) + HEAD_RADIUS.normal, low = Math.max(y(k.lHand), y(k.rHand), y(k.lFoot), y(k.rFoot), head);
+          return { head: low - head, elbow: low - y(k[`${side}Elbow`]) };
+        };
+        const straight = gap(forwardKinematics({ ...q, [E]: pose[E] }, facing, { x: 0, y: 0 }, 1, "normal", neck)).head;
+        const g = gap(b);
+        if (g.head < Math.min(HEAD_CLEAR, straight) - 1e-6 || g.elbow < 0.01) clear = false;
+      }
+    }
+    return { q, ok: clear && seen >= ELBOW_SEEN };
+  };
+  for (let turn = 0; turn <= 50; turn += 1) for (const sgn of [-1, 1]) { const c = check(pose[S] + sgn * turn); if (c.ok) return c.q; }
+  return null;
+}
+
+// BIG WHOLE-BODY MOVES TAKE TIME (Arthur, phase 3, cartwheel rated OK but "it must be slower"): the body has weight,
+// so the WHOLE body turning over (a cartwheel, flip, roll, full spin) never snaps by. At normal speed and energy it
+// turns at most WHOLE_BODY_TURN_DEG_PER_SEC on average (a full 360 takes at least 1.3 s, ~1.6 s with its speed-up
+// and slow-down); fast / full of energy turns quicker, slow / tired / heavy slower. A piece that speeds up or slows
+// down (an eased one) peaks faster than its average, so it gets half as much time again. Any move that turns the
+// whole body times each turning key with this: the key takes max(its own time, this).
+export const WHOLE_BODY_TURN_DEG_PER_SEC = 280;
+export function wholeBodyTurnSeconds(degrees: number, settings: MoveSettings, ease?: Ease): number {
+  const e = Math.min(1, Math.max(0, settings.energy));
+  const most = (WHOLE_BODY_TURN_DEG_PER_SEC * (0.85 + 0.3 * e)) / tempoOf(settings);
+  const peak = ease === undefined || ease === "linear" ? 1 : 1.5;
+  return (Math.abs(degrees) * peak) / most;
+}
+
+// JOINTS MOVE AT A HUMAN SPEED (Arthur, phase 3, a custom superhero pose: "he's really fast"): limbs have weight, so
+// going from one pose to the next takes time in proportion to how much the body changes — never a snap. At normal
+// speed and energy the biggest single joint turns at most JOINT_DEG_PER_SEC on average and all the joints together
+// change at most BODY_DEG_PER_SEC (a whole-body pose change of ~170 degrees takes ~0.6 s); fast / full of energy is
+// quicker, slow / tired slower, a robot snappier (x1.3) but still readable. A move's key (and its first key, reached
+// from the figure's stand) takes max(its own time, this). Strikes are timed by their own strike speed.
+export const JOINT_DEG_PER_SEC = 200;
+export const BODY_DEG_PER_SEC = 280;
+export function jointChangeSeconds(from: PoseAngles, to: PoseAngles, settings: MoveSettings): number {
+  const e = Math.min(1, Math.max(0, settings.energy));
+  const robot = RAMP_SCALE[settings.style] === 0 ? 1.3 : 1;
+  const k = (robot * (0.85 + 0.3 * e)) / tempoOf(settings);
+  const d = (Object.keys(STAND) as PoseKey[]).map((j) => Math.abs((to[j] ?? 0) - (from[j] ?? 0)));
+  return Math.max(Math.max(...d) / (JOINT_DEG_PER_SEC * k), d.reduce((a, b) => a + b, 0) / (BODY_DEG_PER_SEC * k));
 }
 
 // How big a move is (x the natural size): energy makes wind-ups deeper and actions bigger.

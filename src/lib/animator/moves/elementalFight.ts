@@ -107,7 +107,7 @@ export function elementalFightPlan(options: ElementalFightOptions, fixes: Fixes 
         const w = add(y, "iceMountain", { distance: WALL_AHEAD * H, shape: "mountain", seconds: 0.3 }, { sync: { mark: "release", at: `${b}.release`, offset: -0.3 } });
         return { at: `${w}.shatter`, offset: 0.02 };
       }
-      const w = add(y, "waterShield", { seconds: hold + 0.5 }, { sync: { mark: "hold", at: `${b}.release`, offset: -0.25 } });
+      const w = add(y, "waterShield", { seconds: hold + 0.5 }, { sync: { mark: "hold", at: `${b}.release`, offset: -0.35 } });
       return { at: `${w}.release`, offset: 0 };
     } },
     // A BEAM THAT HITS: knocked back hard (it staggers, or almost falls).

@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import {
   AI_ANIMATOR_REASONING_EFFORT,
   AI_ANIMATOR_MODEL,
+  isAiAnimatorProviderModel,
   isAiAnimatorTerminalStatus,
   type AiAnimatorJobEvent,
   type AiAnimatorJobSnapshot,
@@ -132,8 +133,8 @@ export class AiAnimatorJobService {
       if (isAiAnimatorTerminalStatus(job.status)) {
         return;
       }
-      if (result.requestedModel !== AI_ANIMATOR_MODEL || result.providerModel !== AI_ANIMATOR_MODEL) {
-        throw new Error("AI Animator provider identity did not match gpt-5.6-terra.");
+      if (result.requestedModel !== AI_ANIMATOR_MODEL || !isAiAnimatorProviderModel(result.providerModel)) {
+        throw new Error(`AI Animator provider identity did not match ${AI_ANIMATOR_MODEL}.`);
       }
       if (result.reply.intent === "create-animation" || result.reply.intent === "edit-animation") {
         this.append(job, { status: "planning" });

@@ -149,3 +149,15 @@ test("energetic fights: the opening dash takes off about as far out as the passe
     assert.ok(gap >= 0.9 * alone, `fight ${seed}: the dash takes off ${gap.toFixed(2)} x height out, the passed dash punch ${alone.toFixed(2)}`);
   }
 });
+
+// REPEATED STRIKES ALTERNATE HANDS (Arthur, block-block-hit card: "left, right, left, right... never left, left, left"):
+// unnamed punches alternate front/back hand, remembered through the blocks and kicks between them.
+test("punches with blocks or kicks between them still alternate hands (never the same hand three times)", () => {
+  const plan: ScenePlan = { id: "t", title: "t", height: TEST_HEIGHT, groundY: 900, characters: [{ id: "a", x: 500, facing: "right", actions: [
+    { move: "punch" }, { move: "kick" }, { move: "punch" }, { move: "kick" }, { move: "punch" }, { move: "kick" }, { move: "punch" }] }] };
+  const scene = planToScene(plan, LIBRARY);
+  const frames = buildScene(scene, 24).frames;
+  const hands = [1, 2, 3, 4].map((n) => { const s = frames[Math.round(scene.marks[`a.punch${n}.hit`] * 24)][0].skeleton; return s.lHand.x > s.rHand.x ? "l" : "r"; });
+  for (let i = 2; i < hands.length; i += 1) assert.ok(!(hands[i] === hands[i - 1] && hands[i] === hands[i - 2]), `never three in a row with one hand (${hands.join(",")})`);
+  assert.notEqual(hands[0], hands[1], `a punch after a kick switches hands (${hands.join(",")})`);
+});

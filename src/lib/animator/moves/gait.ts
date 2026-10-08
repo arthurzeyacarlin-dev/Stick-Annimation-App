@@ -17,6 +17,8 @@ export type GaitOptions = {
   // ARRIVE INTO IT: the next move goes down (pick something up, squat, sit): stop still leaning in,
   // without straightening up first.
   keepLean?: boolean;
+  // TIPTOE (Phase 3): the walk on tiptoe (TIPTOE below).
+  tiptoe?: boolean;
 };
 export type GaitResult = { keys: CharacterKey[]; endT: number; endX: number };
 
@@ -254,12 +256,38 @@ export const planGaitSteps = (kind: GaitKind, distance: number, cruiseLength: nu
 // stretches or squeezes steps to land exactly; this picks a distance where it hardly has to).
 export function naturalDistance(options: Omit<GaitOptions, "distance">, maxDistance: number, tolerance = 0.035) {
   const t = tune(BASES[options.kind], options.style ?? "natural", options.speed ?? "normal", options.energy ?? 0.5);
+  if (options.tiptoe && options.kind === "walk") tiptoeTuning(t);
   const cruise = t.stepLength * options.height, ramp = rampFor(options.kind, options.style ?? "natural", options.energy ?? 0.5);
   for (let d = maxDistance; d >= 0.6 * maxDistance; d -= 2) {
     if (Math.abs(planSteps(options.kind, d, cruise, ramp).L / cruise - 1) <= tolerance) return d;
   }
   return maxDistance;
 }
+// TIPTOE (Arthur, Terra review: "one leg just stays there and the other leg goes around it really slowly; he's
+// not tiptoeing"). A tiptoe is a real walk (both feet take turns, each planted foot stays put) made small and
+// careful: SHORT steps, each knee lifted HIGHER than a walk's and set down softly, up on the toes (the standing
+// leg straight, the body tall, rising a little after each landing — the feet barely touch), a careful little
+// pause after each landing, slow and steady travel, the head down watching the floor, and the arms lifted in
+// front and bent for balance — and (Arthur, round 2: "they need to go left, right, left, right, passing each
+// other, slowly") still swinging opposite the legs, passing each other every step, as slowly as the steps.
+export const TIPTOE_ARMS = 22; // degrees: upper arms lifted forward for balance
+export const TIPTOE_SWING = 28; // degrees each way: the bent arms pass each other every step
+export function tiptoeTuning(t: GaitTuning) {
+  t.stepLength *= 0.55;
+  t.stepSeconds *= 1.35;
+  t.clearance = Math.max(t.clearance * 1.9, 0.12);
+  t.reach = 1;
+  t.dip = -0.012;
+  t.lean = 5;
+  t.head = 12;
+  t.armSwing = TIPTOE_SWING;
+  t.elbowBase = 62; // (bent, but open enough that the hands really swing past each other)
+  t.elbowSwing = 14;
+  t.hold = Math.max(t.hold, 0.08);
+  return t;
+}
+export const TIPTOE_ABOUT = "Tiptoe forward `distance` px (a quiet, careful walk; or walk with `tiptoe: true`): short careful steps, each knee lifted higher than a walk and set down softly, up on the toes (standing leg straight, body tall), a tiny pause after each landing, slow steady travel, head down watching the floor, arms lifted in front and bent for balance. Styles and speeds still apply (sneaky = a low crouch, tiptoe = tall and light).";
+
 export function buildGait(options: GaitOptions): GaitResult {
   const H = options.height;
   // A jog is built like a run (bouncing hips, a swinging leg that folds and drives) with a shorter, lower hop.
@@ -280,6 +308,7 @@ export function buildGait(options: GaitOptions): GaitResult {
     if (change.elbowBase !== undefined) t.elbowBase = base.elbowBase + 0.5 * (change.elbowBase - WALK_BASE.elbowBase);
   }
   if (!run) t.clearance = Math.max(t.clearance, WALK_MIN_CLEARANCE); // EVERY WALK LIFTS ITS FEET
+  if (options.tiptoe && !run) tiptoeTuning(t);
   const ramp0 = rampFor(options.kind, options.style ?? "natural", options.energy ?? 0.5);
   const ramp = options.keepLean ? { ...ramp0, uprightOnStop: Math.min(ramp0.uprightOnStop, 0.2), stopLean: Math.max(0, ramp0.stopLean) } : ramp0;
   const bones = boneLengths(H);
@@ -458,7 +487,7 @@ export function buildGait(options: GaitOptions): GaitResult {
   }
   // The upper arm's angle from the body line goes smoothly from -runBack (w = -1) to runFront (w = 1).
   const runArm = (w: number) => ({ shoulder: (runFront - runBack) / 2 + ((runFront + runBack) / 2) * w, elbow: runElbow(w) });
-  const armCentre = run ? 0 : centred(walkArm);
+  const armCentre = run ? 0 : options.tiptoe ? TIPTOE_ARMS : centred(walkArm);
   const armSizeOf = (i: number) => ramp.accelSteps <= 0 ? 1
     : Math.min(1, ARM_FIRST[options.kind] + (1 - ARM_FIRST[options.kind]) * (i / grow), ARM_LAST + (1 - ARM_LAST) * ((n - 1 - i) / shrink));
   const armEnvelopeAt = curve([[startT, 0], [t0, ramp.accelSteps <= 0 ? 1 : 0.5 * ARM_FIRST[options.kind]], ...mids.map((m, i): [number, number] => [m, armSizeOf(i)]), [endT, ramp.accelSteps <= 0 ? 1 : 0.4 * ARM_LAST]]);

@@ -2265,7 +2265,7 @@ export const generateGenerateFramesStructuredResponse = async ({
     strongerRetry?: boolean;
   }) => {
     const attemptReasoningEffort =
-      model === GENERATE_FRAMES_MEDIUM_MODEL && reasoningEffort === "low" ? "medium" : reasoningEffort;
+      model === GENERATE_FRAMES_MEDIUM_MODEL && /^gpt-5\.3(?:-|$)/.test(model) && reasoningEffort === "low" ? "medium" : reasoningEffort;
     const retryPromptSuffix = strongerRetry
       ? [
           "This is one stronger retry for a hard prompt because the previous structured output was weak or incomplete.",

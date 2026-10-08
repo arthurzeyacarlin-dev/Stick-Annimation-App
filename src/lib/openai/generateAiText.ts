@@ -2,9 +2,11 @@ import { getOpenAiClient } from "./client";
 import { recordDevAiModelCall } from "@/src/lib/ai/devAiCostDashboard";
 import type { DrawingAiReasoningEffort } from "@/src/lib/ai/drawingAiProfiles";
 
-export const AI_TEXT_STRONG_MODEL = "gpt-5.4";
-export const AI_TEXT_BALANCED_MODEL = "gpt-5.3-chat-latest";
-export const AI_TEXT_ECONOMY_MODEL = "gpt-5.2";
+// Arthur, 2026-10-08: Luna replaces every text AI (was gpt-5.4 / gpt-5.3-chat-latest / gpt-5.2). All tiers are now the
+// same model, so the tier "escalation" steps are no-ops (route.ts stops when the next tier is the same model).
+export const AI_TEXT_STRONG_MODEL = "gpt-5.6-luna";
+export const AI_TEXT_BALANCED_MODEL = "gpt-5.6-luna";
+export const AI_TEXT_ECONOMY_MODEL = "gpt-5.6-luna";
 export const AI_TEXT_MODEL = AI_TEXT_STRONG_MODEL;
 
 export type GenerateAiTextInput = {
@@ -51,7 +53,7 @@ const resolveReasoningEffortForModel = ({
     return undefined;
   }
 
-  if (model === AI_TEXT_BALANCED_MODEL || /^gpt-5\.3(?:-|$)/.test(model)) {
+  if (/^gpt-5\.3(?:-|$)/.test(model)) {
     return "medium" satisfies DrawingAiReasoningEffort;
   }
 

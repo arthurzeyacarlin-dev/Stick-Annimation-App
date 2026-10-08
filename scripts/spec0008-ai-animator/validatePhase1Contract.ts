@@ -53,7 +53,7 @@ const providerResult = (intent: AiAnimatorIntent): AiAnimatorProviderResult => (
   promptDigest: "a".repeat(64),
 });
 
-equal(AI_ANIMATOR_MODEL, "gpt-5.6-terra", "production model is exact");
+equal(AI_ANIMATOR_MODEL, "gpt-5.6-luna", "production model is exact (Luna replaced Terra, 2026-10-08)");
 equal(AI_ANIMATOR_REASONING_EFFORT, { low: "low", medium: "medium", high: "high", "extra-high": "xhigh" }, "all reasoning mappings are exact");
 for (const level of ["low", "medium", "high", "extra-high"] as const) {
   const request = baseRequest(`reasoning-${level}`, "test", level);

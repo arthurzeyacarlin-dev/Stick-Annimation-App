@@ -148,7 +148,7 @@ export function WorkspaceAiPanelShell({
             marginRight: "22px",
           }}
         >
-          Chat with Terra about your animation
+          Chat with the AI Animator about your animation
         </div>
       </div>
 

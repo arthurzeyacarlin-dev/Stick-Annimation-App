@@ -32,6 +32,9 @@ export type PlanEdit =
   | { kind: "color"; character?: CharacterRef; effect?: EffectRef; color: string; second?: boolean }
   // An effect's size (x `factor`, default 1.3).
   | { kind: "bigger" | "smaller"; effect: EffectRef; factor?: number }
+  // EDIT THE SAME ANIMATION AGAIN: any of an effect's own knobs (count, size, motion, speed...) set on THAT effect;
+  // its kind, times, anchor and everything else in the scene stay exactly as they were.
+  | { kind: "effectParams"; effect: EffectRef; params: Record<string, unknown> }
   // Another move in its place (punch -> kick). Who/what params (target, from, to, object, with) stay;
   // `params` adds to them. Style / speed / energy overrides stay.
   | { kind: "replace"; action: ActionRef; move: string; params?: Record<string, unknown> }
@@ -237,6 +240,12 @@ function applyOne(plan: EditedPlan, edit: PlanEdit): void {
       plan.effects![i] = { ...e, params: { ...e.params, size } };
       return;
     }
+    case "effectParams": {
+      const i = findEffect(plan, edit.effect);
+      const e = plan.effects![i];
+      plan.effects![i] = { ...e, params: { ...e.params, ...edit.params } as typeof e.params };
+      return;
+    }
     case "replace": {
       const { character, index } = findAction(plan, edit.action);
       const old = character.actions[index];
@@ -360,6 +369,7 @@ export function describeEdit(edit: PlanEdit): string {
     case "color": return edit.character !== undefined ? `Make ${edit.character} ${edit.color}.` : `Make ${effectText(edit.effect ?? {})}${edit.second ? "'s second color" : ""} ${edit.color}.`;
     case "bigger":
     case "smaller": return `Make ${effectText(edit.effect)} ${edit.kind}.`;
+    case "effectParams": return `Change ${effectText(edit.effect)}: ${Object.entries(edit.params).map(([k, v]) => `${k} ${String(v)}`).join(", ")}.`;
     case "replace": return `Change ${actionText(edit.action)} into a ${words(edit.move)}.`;
     case "add": return `Add a ${words(edit.action.move)} after ${actionText(edit.after)}.`;
     case "remove": return `Take out ${actionText(edit.action)}.`;

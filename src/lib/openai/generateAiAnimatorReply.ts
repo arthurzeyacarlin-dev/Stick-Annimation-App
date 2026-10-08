@@ -4,6 +4,7 @@ import {
   AI_ANIMATOR_MODEL,
   AI_ANIMATOR_REASONING_EFFORT,
   AI_ANIMATOR_RESPONSE_SCHEMA,
+  isAiAnimatorProviderModel,
   normalizeAiAnimatorStructuredReply,
   type AiAnimatorProviderResult,
   type AiAnimatorRequest,
@@ -14,11 +15,12 @@ import {
 } from "../usage-journal/usageJournalEvents.ts";
 import { recordUsageEvent } from "../usage-journal/usageJournalRuntime.ts";
 
-const INPUT_PRICE_PER_MILLION = 2;
-const OUTPUT_PRICE_PER_MILLION = 12;
+// Luna's prices (OpenAI, checked 2026-10-07; Terra was $2 / $12).
+const INPUT_PRICE_PER_MILLION = 0.2;
+const OUTPUT_PRICE_PER_MILLION = 1.2;
 const PRICING_VERSION = "project-conversation-estimator-v1";
 
-const instructions = `You are Terra, the conversational brain inside Diamond Animator.
+const instructions = `You are Luna, the conversational brain inside Diamond Animator.
 Return only the required structured object. Understand the user's meaning semantically; never use or imply a keyword-routing recipe.
 Classify the turn as conversation, create-animation, edit-animation, or clarify.
 Conversation includes greetings, ordinary questions, brainstorming, planning, creative discussion, and requests for ideas unless the user explicitly asks the app to create, animate, generate, draw, change, revise, remove, or edit animation content.
@@ -78,7 +80,7 @@ export const createAiAnimatorReplyGenerator = (
     requestedModel: AI_ANIMATOR_MODEL, returnedModel: response.model ?? null, responseId: response.id ?? null,
     usage: observedUsage, pricingVersion: PRICING_VERSION,
   }));
-  if (response.model !== AI_ANIMATOR_MODEL) {
+  if (!isAiAnimatorProviderModel(response.model)) {
     throw new Error("AI Animator received a response from an unexpected model.");
   }
   const rawOutput = typeof response.output_text === "string" ? response.output_text : "";
@@ -86,11 +88,11 @@ export const createAiAnimatorReplyGenerator = (
   try {
     parsed = JSON.parse(rawOutput);
   } catch {
-    throw new Error("Terra returned malformed structured output.");
+    throw new Error("The AI Animator returned malformed structured output.");
   }
   const reply = normalizeAiAnimatorStructuredReply(parsed);
   if (!reply) {
-    throw new Error("Terra returned an invalid intent response.");
+    throw new Error("The AI Animator returned an invalid intent response.");
   }
 
   return {

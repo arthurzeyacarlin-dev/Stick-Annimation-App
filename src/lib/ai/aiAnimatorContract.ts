@@ -1,6 +1,11 @@
 import type { DrawingAiReasoningLevel } from "./drawingAiContract";
 
-export const AI_ANIMATOR_MODEL = "gpt-5.6-terra" as const;
+export const AI_ANIMATOR_MODEL = "gpt-5.6-luna" as const;
+// Older saved AI Animator jobs were answered by Terra (Arthur, 2026-10-08: Luna replaces Terra); they stay readable.
+export const AI_ANIMATOR_LEGACY_MODEL = "gpt-5.6-terra" as const;
+// The provider may answer with a dated snapshot name ("gpt-5.6-luna-2026-...").
+export const isAiAnimatorProviderModel = (model: unknown): boolean =>
+  typeof model === "string" && (model === AI_ANIMATOR_MODEL || model.startsWith(`${AI_ANIMATOR_MODEL}-`));
 export const AI_ANIMATOR_MAX_INPUT_CHARACTERS = 48_000;
 export const AI_ANIMATOR_MAX_OUTPUT_TOKENS = 1_200;
 export const AI_ANIMATOR_RECENT_MESSAGE_LIMIT = 12;
@@ -72,7 +77,7 @@ export type AiAnimatorProviderResult = {
 };
 
 export type AiAnimatorTelemetry = {
-  model: typeof AI_ANIMATOR_MODEL;
+  model: typeof AI_ANIMATOR_MODEL | typeof AI_ANIMATOR_LEGACY_MODEL;
   effort: "low" | "medium" | "high" | "xhigh";
   outcome: "active" | "succeeded" | "failed" | "cancelled";
   latencyMs: number | null;
@@ -253,7 +258,7 @@ export const normalizeAiAnimatorJobSnapshot = (value: unknown): AiAnimatorJobSna
     !(value.reasoningLevel in AI_ANIMATOR_REASONING_EFFORT) ||
     (intent !== null && !AI_ANIMATOR_INTENTS.includes(intent as AiAnimatorIntent)) ||
     (terminal ? typeof value.completedAt !== "string" : value.completedAt !== null) ||
-    !isRecord(telemetry) || telemetry.model !== AI_ANIMATOR_MODEL ||
+    !isRecord(telemetry) || (telemetry.model !== AI_ANIMATOR_MODEL && telemetry.model !== AI_ANIMATOR_LEGACY_MODEL) ||
     telemetry.effort !== AI_ANIMATOR_REASONING_EFFORT[value.reasoningLevel as DrawingAiReasoningLevel] ||
     !["active", "succeeded", "failed", "cancelled"].includes(String(telemetry.outcome)) ||
     !/^[0-9a-f]{64}$/.test(String(telemetry.promptDigest)) ||

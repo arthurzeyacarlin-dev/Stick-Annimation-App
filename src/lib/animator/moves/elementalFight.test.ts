@@ -52,7 +52,7 @@ function answers(plan: ScenePlan, scene: Built): Answer[] {
     const wall = uses.find((w) => w.kind === "wall" && w.id === them && w.start <= arrive + 0.05 && w.end >= arrive && w.start >= u.start - 0.6);
     if (wall) found.push({ attack: name, kind: "block", dt: Math.max(0, wall.start - arrive), arrive });
     // (a counter: the crystals shatter in the air on their way, where a beam meets them)
-    if (u.kind === "volley" && fx.some((e) => e.kind === "iceShatter" && e.start >= u.start && e.start <= arrive + 0.05 && !("character" in e.anchor) && e.anchor.y < plan.groundY - 0.3 * H)) found.push({ attack: name, kind: "counter", dt: 0, arrive });
+    if (u.kind === "volley" && fx.some((e) => e.kind === "iceShatter" && e.start >= u.start && e.start <= arrive + 0.05 && "y" in e.anchor && e.anchor.y < plan.groundY - 0.3 * H)) found.push({ attack: name, kind: "counter", dt: 0, arrive });
     for (let t = arrive - 0.15; t <= arrive + 0.15; t += 0.05) if (jumpAt(plan, marks, them, t)) { found.push({ attack: name, kind: "dodge", dt: 0, arrive }); break; }
     const hit = hitsOn(them).filter((t) => t >= arrive - 0.1 && t <= arrive + 0.5).sort((a, b) => a - b)[0];
     if (hit !== undefined) found.push({ attack: name, kind: "hit", dt: hit - arrive, arrive });
@@ -158,7 +158,7 @@ test("elements interact: laser on an ice wall cracks and shatters it with steam;
   const blueX = scene.characters[1].keys.find((k) => k.t >= laser.start)!.x;
   assert.ok(blueX - (beam.target as { x: number }).x > 0.4 * H, `the face is in front of Blue (${((blueX - (beam.target as { x: number }).x) / H).toFixed(2)} x height)`);
   // ZAPPED: the first crystals shatter in the air (with steam), and their own flight ends there
-  const zaps = fx.filter((e) => e.kind === "iceShatter" && !("character" in e.anchor) && e.anchor.y < plan.groundY - 0.3 * H);
+  const zaps = fx.filter((e) => e.kind === "iceShatter" && "y" in e.anchor && e.anchor.y < plan.groundY - 0.3 * H);
   assert.ok(zaps.length >= 2, `${zaps.length} crystals zapped mid-air`);
   for (const z of zaps) assert.ok(fx.some((e) => e.kind === "iceShards" && Math.abs(e.end - z.start) < 1e-6), "a zapped crystal stops where it shatters");
   // THE CLASH: the point moves back and forth and the winner pushes it to the loser; both knocked back at the burst

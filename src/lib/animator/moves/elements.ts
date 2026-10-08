@@ -96,6 +96,7 @@ function jointAt(plan: ScenePlan, id: string, t: number, joint: "head" | "neck" 
 }
 // The stage point an anchor is at, at time t.
 function pointOf(plan: ScenePlan, a: Anchor, t: number, keysOf?: KeysOf): Point {
+  if ("object" in a) return { x: a.dx ?? 0, y: a.dy ?? 0 }; // (an object anchor: powers never use one)
   if (!("character" in a)) return a;
   const j = (a.joint === "head" || a.joint === "neck" || a.joint === "hip" || a.joint === "lHand" || a.joint === "rHand") ? a.joint : "neck";
   const p = jointAt(plan, a.character, t, j, keysOf);
@@ -277,7 +278,7 @@ export function elementalTracks(plan: ScenePlan, marks: Record<string, number>, 
     // An ICE MOUNTAIN in front: where it stands and where the beam meets its face.
     const spikes = ownTracks(wall, out).find((tr) => tr.kind === "iceSpikes");
     if (!spikes) continue;
-    const cx = spikes.target && !("character" in spikes.target) ? spikes.target.x : (spikes.anchor as Point).x;
+    const cx = spikes.target && "x" in spikes.target ? spikes.target.x : (spikes.anchor as Point).x;
     const size = Math.max(WALL_SIZE, Number(spikes.params?.size ?? SPIKE_SIZE));
     const own = ownTracks(att, out);
     const stream = own.find((tr) => STREAM_KINDS.has(tr.kind) || tr.kind === "iceShards");

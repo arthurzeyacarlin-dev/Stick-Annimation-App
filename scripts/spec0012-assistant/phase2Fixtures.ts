@@ -5,7 +5,7 @@ export function fixtureRequest(overrides: Partial<AssistantRequest> = {}): Assis
   return { schema: "diamond-assistant-request/v1", jobId: crypto.randomUUID(), sessionId: crypto.randomUUID(), turnId: crypto.randomUUID(), message: "I am new. What do the Home buttons do?", reasoningLevel: "medium", recentConversation: [], catalogVersion: CATALOG_VERSION, clientSessionRevision: 1, ...overrides };
 }
 export function fixtureResult(request: AssistantRequest, answer = newcomerAnswer, title = "Getting started with Diamond Animator"): ProviderResult {
-  return { reply: { answer, title }, usage: { inputTokens: 200, outputTokens: 150, totalTokens: 350, estimatedCostUsd: .0022, priceDate: "2026-09-22", responseId: `fixture_${request.jobId}`, latencyMs: 40, model: ASSISTANT_MODEL, reasoning: request.reasoningLevel, toolCalls: 0 } };
+  return { reply: { answer, title }, usage: { inputTokens: 200, outputTokens: 150, totalTokens: 350, estimatedCostUsd: .00022 /* Luna: 200 x $0.20 + 150 x $1.20 per million */, priceDate: "2026-09-22", responseId: `fixture_${request.jobId}`, latencyMs: 40, model: ASSISTANT_MODEL, reasoning: request.reasoningLevel, toolCalls: 0 } };
 }
 export async function fixtureSession(index: number, pairs = 1, answerChars = 100, reasoning: Reasoning = "medium", userChars = 20): Promise<Session> {
   const at = 1790073000000 + index * 1000;

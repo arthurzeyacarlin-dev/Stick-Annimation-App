@@ -10,7 +10,7 @@ const inside = (s: ReturnType<typeof makeSymbol>, label: string) => {
 };
 
 test("every built-in recipe draws inside its box (sizes, seeds and colors)", () => {
-  assert.deepEqual(SYMBOL_RECIPE_IDS, ["spike", "box", "tree", "bat", "rock", "star", "sword", "shield", "torch", "droplet", "bulb", "onespike", "crystal", "icespike", "icecrumb", "lasereye", "raindrop", "leaf", "handcuffs", "grenade", "militarycap", "plank", "woodchip", "pebble", "heldsword", "bamboostick", "woodenstick", "metalbat", "baseballbat"]);
+  assert.deepEqual(SYMBOL_RECIPE_IDS, ["spike", "box", "tree", "bat", "rock", "star", "sword", "shield", "torch", "droplet", "bulb", "onespike", "crystal", "icespike", "icecrumb", "lasereye", "raindrop", "leaf", "handcuffs", "grenade", "militarycap", "car", "moon", "plank", "woodchip", "pebble", "heldsword", "bamboostick", "woodenstick", "metalbat", "baseballbat"]);
   for (const kind of SYMBOL_RECIPE_IDS) for (const size of [20, 100, 333]) for (const seed of [1, 7, 42]) {
     const s = makeSymbol({ name: kind[0].toUpperCase() + kind.slice(1), kind, size, seed, color: seed === 7 ? "#3366cc" : undefined });
     inside(s, `${kind} ${size} ${seed}`);

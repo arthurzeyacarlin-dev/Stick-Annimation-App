@@ -39,7 +39,12 @@ export type SymbolShape = { kind: "symbol"; name: string; x: number; y: number; 
 // hand/foot/head as the figure moves), with an offset in stage px.
 // `onHead` (laser eyes): a spot ON THE FACE instead of the joint — `forward` x head radius toward where the face
 // points and `up` x head radius up the head, turning with the head and flipping with the facing (then dx, dy).
-export type Anchor = Point | { character: string; joint: JointName; dx?: number; dy?: number; onHead?: { forward: number; up: number } };
+export type Anchor = Point | { character: string; joint: JointName; dx?: number; dy?: number; onHead?: { forward: number; up: number } } | ObjectAnchor;
+// ON THE THROWN THING (Arthur, 2026-10-07: "the effects are supposed to be WITH the purple ball when he throws it"): an
+// effect anchored to an OBJECT follows it every picture (a glow round an energy ball, in the hand and in flight);
+// `landing: true` = a burst WHERE AND WHEN it lands or hits: the effect starts at that moment (keeping its length) at
+// that spot (index.ts objectLanding).
+export type ObjectAnchor = { object: string; dx?: number; dy?: number; landing?: boolean };
 
 // The knobs every effect understands (each recipe uses the ones that make sense for it).
 export type EffectParams = {
@@ -84,6 +89,7 @@ export type EffectContext = {
 export type EffectRecipe = {
   id: string;
   about: string; // one line for the AI lessons
+  staysWhenGone?: boolean; // its figure left the pictures (moves/transform.ts): it stays where it last saw it
   draw: (ctx: EffectContext, params: EffectParams) => Shape[];
 };
 

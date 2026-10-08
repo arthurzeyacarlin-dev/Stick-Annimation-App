@@ -225,7 +225,8 @@ function waterShield(ctx: EffectContext, p: EffectParams): Shape[] {
   const h = ctx.height, G = GRAVITY * h, g = ctx.groundY;
   const ts = ctx.t * k.speed, T = Math.max(0.1, ctx.duration * k.speed);
   const c = ctx.at, R = k.size * h;
-  const form = Math.min(0.55, T * 0.3), burst = Math.min(0.6, T * 0.3), burstAt = T - burst;
+  // (`form`: seconds the dome takes to rise — the planner makes it quicker when something is about to hit it.)
+  const form = typeof p.form === "number" && p.form > 0 ? Math.min(p.form * k.speed, T * 0.3) : Math.min(0.55, T * 0.3), burst = Math.min(0.6, T * 0.3), burstAt = T - burst;
   const out: Shape[] = [];
   const top = c.y - R;
   const amp = 0.008 + 0.02 * k.turbulence;

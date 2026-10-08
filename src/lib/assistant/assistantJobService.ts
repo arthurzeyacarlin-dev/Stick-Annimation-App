@@ -58,7 +58,7 @@ export class DiamondAssistantJobService {
     if (!this.active(job) || job.snapshot.status === status) return;
     const terminal = status === "done" || status === "failed" || status === "cancelled";
     if (!terminal && job.snapshot.events.length >= ASSISTANT_JOB_EVENT_LIMIT - 1) {
-      this.fail(job, "Terra reported too many activity changes. Your message is saved. You can try again explicitly."); return;
+      this.fail(job, "The assistant reported too many activity changes. Your message is saved. You can try again explicitly."); return;
     }
     const event = status === "searching" ? { sequence: job.snapshot.events.length + 1, at: Date.now(), status, topic } : { sequence: job.snapshot.events.length + 1, at: Date.now(), status };
     const candidate: JobSnapshot = { ...job.snapshot, status, result, error, events: [...job.snapshot.events, event] };
@@ -95,7 +95,7 @@ export class DiamondAssistantJobService {
       this.transition(job, "done", result);
     } catch (error) {
       if (!this.active(job)) return;
-      const safe = error instanceof AssistantError && ["configuration", "output", "input", "privacy", "search", "network"].includes(error.code) ? error.message : "Terra could not complete this answer. Your message is saved. You can try again explicitly.";
+      const safe = error instanceof AssistantError && ["configuration", "output", "input", "privacy", "search", "network"].includes(error.code) ? error.message : "The assistant could not complete this answer. Your message is saved. You can try again explicitly.";
       this.fail(job, safe);
     }
   }

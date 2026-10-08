@@ -28,6 +28,8 @@ export const POWER_MOVES = new Set<string>(["fireBlast", "waterShield", "telepor
 export const SHIELD_FORWARD = 0.05;
 export const SHIELD_UP = 0;
 export const SHIELD_RADIUS = 0.65;
+// Seconds the shield is fully up before what is aimed at it arrives (it barely misses).
+const SHIELD_READY = 0.12;
 // The fire stream flies at hand height (above the ground) and this fast (heights a second); it reaches its
 // target after travelSeconds.
 export const STREAM_HEIGHT = 0.72;
@@ -313,7 +315,13 @@ export function powerEffects(plan: ScenePlan, marks: Record<string, number>, key
       const hold = p.mark("hold"), release = p.mark("release");
       if (hold === undefined || release === undefined) continue;
       const me = placeAt(plan, p.id, hold, keysOf), dir = dirOf(me.facing);
-      tracks.push({ kind: "waterShield", start: hold, end: release, anchor: { character: p.id, joint: "hip", dx: dir * SHIELD_FORWARD * h, dy: -SHIELD_UP * h }, params: { size: SHIELD_RADIUS, direction: dir > 0 ? 0 : 180, ...colors(p.params) } });
+      // UP JUST IN TIME (Arthur, 2026-10-07: "the water shield was a little too late — it should come a tiny bit earlier
+      // so the fire barely misses"): when something is about to hit it, the dome is fully up SHIELD_READY s before.
+      const arrives = typeof p.params.impactAt === "number" ? p.params.impactAt : fireArrival(plan, marks, p.id) ?? iceArrival(plan, marks, p.id);
+      // (Too late to rise in full before it hits: the dome starts rising with the arms — from `raise` — and rises faster.)
+      const raise = p.mark("raise") ?? hold, start = arrives !== undefined ? Math.max(raise, Math.min(hold, arrives - SHIELD_READY - 0.55)) : hold;
+      const form = arrives !== undefined && arrives - start > SHIELD_READY ? Math.max(0.12, Math.min(0.55, arrives - SHIELD_READY - start)) : undefined;
+      tracks.push({ kind: "waterShield", start, end: release, anchor: { character: p.id, joint: "hip", dx: dir * SHIELD_FORWARD * h, dy: -SHIELD_UP * h }, params: { size: SHIELD_RADIUS, direction: dir > 0 ? 0 : 180, ...(form !== undefined ? { form } : {}), ...colors(p.params) } });
     } else if (p.move === "teleport") {
       const vanish = p.mark("vanish"), appear = p.mark("appear");
       if (vanish === undefined || appear === undefined) continue;

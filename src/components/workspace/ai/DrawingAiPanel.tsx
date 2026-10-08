@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent, KeyboardEvent } from "react";
 import {
+  AI_ANIMATOR_MODEL,
   AI_ANIMATOR_REASONING_EFFORT,
   isAiAnimatorTerminalStatus,
   normalizeAiAnimatorJobSnapshot,
@@ -40,6 +41,7 @@ import {
 } from "@/src/lib/notifications/notificationNavigation";
 import type { NotificationTargetV1 } from "@/src/lib/notifications/notificationContracts";
 import { WorkspaceAiPanelShell } from "./WorkspaceAiPanelShell";
+import { AssistantActivity } from "@/src/components/assistant/AssistantText";
 import { AssistantDictationCapture, type DictationView } from "@/src/lib/assistant/assistantDictationCapture";
 import { ChatDictateButton, ChatDictationPanel, ChatReasoningSelect, ChatSendButton, ChatStopButton, ChatToolsRow, chatComposerStyles } from "@/src/components/ui/ChatComposerParts";
 import { workspaceColors } from "../workspaceTheme";
@@ -87,12 +89,12 @@ const notificationProjectTitle = (value: string) => {
 const readAiAnimatorResponse = async (response: Response): Promise<unknown> => {
   const contentType = response.headers.get("content-type")?.toLowerCase() ?? "";
   if (!contentType.includes("application/json")) {
-    throw new Error(`Terra service returned an unexpected ${response.status} response. No animation changed. Try again when the service is available.`);
+    throw new Error(`The AI Animator service returned an unexpected ${response.status} response. No animation changed. Try again when the service is available.`);
   }
   try {
     return await response.json() as unknown;
   } catch {
-    throw new Error("Terra service returned an unreadable response. No animation changed. Try again when the service is available.");
+    throw new Error("The AI Animator service returned an unreadable response. No animation changed. Try again when the service is available.");
   }
 };
 
@@ -150,7 +152,7 @@ function AiAnimatorAssistantReply({
       aria-live="polite"
       style={{ alignSelf: "flex-start", maxWidth: "92%", color: workspaceColors.textSecondary, fontSize: 12, lineHeight: 1.55 }}
     >
-      <span className="ai-animator-sr-only">Terra: {message.content}</span>
+      <span className="ai-animator-sr-only">AI Animator: {message.content}</span>
       <span className="ai-animator-assistant-visual" data-ai-assistant-visual aria-hidden="true">
         {complete ? message.content : <>{settledText}<span className="ai-animator-typewriter-edge">{leadingText}</span></>}
       </span>
@@ -210,7 +212,7 @@ export function DrawingAiPanel({
       if (cancelled) return;
       knownMessageIdsRef.current = new Set(result.ledger.messages.map(message => message.id));
       setLedger(result.ledger);
-    }).catch(() => { if (!cancelled) setRequestError("Saved Terra history is temporarily unavailable."); });
+    }).catch(() => { if (!cancelled) setRequestError("Saved AI Animator history is temporarily unavailable."); });
     const unsubscribe = subscribeAccountAiAnimatorLedger(projectId, next => {
       const submittedOnThisMount = new Set(submittedThinkingStartedAtRef.current.keys());
       for (const job of next.jobs) {
@@ -290,9 +292,9 @@ export function DrawingAiPanel({
         status: "failed",
         createdAt: failedAt,
         errorCode: "stale_generation",
-        errorMessage: "The workspace changed before Terra finished. No animation changed. Send the message again for the current project state.",
+        errorMessage: "The workspace changed before the AI Animator finished. No animation changed. Send the message again for the current project state.",
       }],
-    }).catch(error => setRequestError(error instanceof Error ? error.message : "Terra could not save the terminal result."));
+    }).catch(error => setRequestError(error instanceof Error ? error.message : "The AI Animator could not save the terminal result."));
   }, [activeJob, projectGeneration, projectId]);
 
   useEffect(() => {
@@ -360,7 +362,7 @@ export function DrawingAiPanel({
       version: 1, jobId, turnId, projectId, projectGeneration: workspaceContext.projectGeneration, reasoningLevel, intent: null,
       status: "thinking", lastSequence: 1, createdAt: now, updatedAt: now,
       completedAt: null,
-      telemetry: { model: "gpt-5.6-terra", effort: AI_ANIMATOR_REASONING_EFFORT[reasoningLevel], outcome: "active", latencyMs: null, promptDigest: PENDING_PROMPT_DIGEST, usage: EMPTY_USAGE },
+      telemetry: { model: AI_ANIMATOR_MODEL, effort: AI_ANIMATOR_REASONING_EFFORT[reasoningLevel], outcome: "active", latencyMs: null, promptDigest: PENDING_PROMPT_DIGEST, usage: EMPTY_USAGE },
       events: [{ sequence: 1, status: "thinking", createdAt: now }],
     };
     const priorMessages = ledger.messages;
@@ -395,12 +397,12 @@ export function DrawingAiPanel({
       const snapshot = normalizeAiAnimatorJobSnapshot(body);
       if (!response.ok || !snapshot) {
         const errorMessage = typeof body === "object" && body !== null && "error" in body && typeof body.error === "string"
-          ? body.error : "Terra could not start. No animation changed.";
+          ? body.error : "The AI Animator could not start. No animation changed.";
         throw new Error(errorMessage);
       }
       await acceptTerraJobSnapshotV1(descriptor, snapshot);
     } catch (error) {
-      const messageText = error instanceof Error ? error.message : "Terra could not start. No animation changed.";
+      const messageText = error instanceof Error ? error.message : "The AI Animator could not start. No animation changed.";
       const failedAt = new Date().toISOString();
       if (getPendingTerraDescriptorV1(jobId)) await acceptTerraJobSnapshotV1(descriptor, { ...localJob, status: "failed", lastSequence: 2, updatedAt: failedAt, completedAt: failedAt,
         telemetry: { ...localJob.telemetry, outcome: "failed", latencyMs: Date.now() - Date.parse(localJob.createdAt) },
@@ -456,14 +458,6 @@ export function DrawingAiPanel({
   return (
     <>
       <style>{`
-        .ai-animator-thinking { position: relative; display: inline-block; color: ${workspaceColors.accentMuted}; font-weight: 600; }
-        .ai-animator-thinking::before, .ai-animator-thinking::after { content: attr(data-text); position: absolute; inset: 0; z-index: 1; pointer-events: none; color: transparent; background-size: 100% 100%; background-position: 50% 50%; background-repeat: no-repeat; background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,.34) 8%, #000 18%, #000 82%, rgba(0,0,0,.34) 92%, transparent 100%); mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,.34) 8%, #000 18%, #000 82%, rgba(0,0,0,.34) 92%, transparent 100%); -webkit-mask-size: 57% 100%; mask-size: 57% 100%; -webkit-mask-position: -132.5581% 50%; mask-position: -132.5581% 50%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; opacity: 0; }
-        .ai-animator-thinking::before { background-image: linear-gradient(90deg, #2f86ff 0%, #58aaff 30%, #a9eeff 52%, #5bb8ff 74%, #2a7be4 100%); animation: ai-animator-sweep-primary 3.75s linear infinite, ai-animator-sweep-primary-visibility 3.75s steps(1, end) infinite; }
-        .ai-animator-thinking::after { background-image: linear-gradient(90deg, #103f82 0%, #1764ae 26%, #48cee7 52%, #278bc5 76%, #123f7a 100%); animation: ai-animator-sweep-follow 3.75s linear infinite, ai-animator-sweep-follow-visibility 3.75s steps(1, end) infinite; }
-        @keyframes ai-animator-sweep-primary { 0% { -webkit-mask-position: -132.5581% 50%; mask-position: -132.5581% 50%; } 26.6667%, 100% { -webkit-mask-position: 232.5581% 50%; mask-position: 232.5581% 50%; } }
-        @keyframes ai-animator-sweep-follow { 0%, 26.6667% { -webkit-mask-position: -132.5581% 50%; mask-position: -132.5581% 50%; } 53.3333%, 100% { -webkit-mask-position: 232.5581% 50%; mask-position: 232.5581% 50%; } }
-        @keyframes ai-animator-sweep-primary-visibility { 0% { opacity: 1; } 26.6667%, 100% { opacity: 0; } }
-        @keyframes ai-animator-sweep-follow-visibility { 0% { opacity: 0; } 26.6667% { opacity: 1; } 53.3333%, 100% { opacity: 0; } }
         .ai-animator-message { animation: ai-animator-reveal .18s ease-out both; overflow-wrap: anywhere; }
         @keyframes ai-animator-reveal { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
         .ai-animator-assistant-message { padding: 0; border: 0; border-radius: 0; background: transparent; white-space: pre-wrap; }
@@ -484,7 +478,7 @@ export function DrawingAiPanel({
         .animator-moves select:hover { border-color: #0066ff; background: #0066ff; color: #fff; }
         .animator-moves select:focus-visible { outline: 2px solid #66c7ff; outline-offset: 2px; }
         .ai-animator-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
-        @media (prefers-reduced-motion: reduce) { .ai-animator-thinking::before, .ai-animator-thinking::after { animation: none; display: none; } .ai-animator-message { animation: none; } .ai-animator-assistant-visual { display: none; } .ai-animator-reduced-copy { display: inline; } }
+        @media (prefers-reduced-motion: reduce) { .ai-animator-message { animation: none; } .ai-animator-assistant-visual { display: none; } .ai-animator-reduced-copy { display: inline; } }
       `}</style>
       <WorkspaceAiPanelShell
         shellRef={shellRef}
@@ -567,18 +561,19 @@ export function DrawingAiPanel({
               {engineDrawing && <EngineDrawingTools bridge={engineDrawing} readOnly={readOnly} />}
             </section>
           )}
-          {ledger.messages.length === 0 && !activeJob && <div style={{ margin: "auto", maxWidth: 240, textAlign: "center", color: workspaceColors.textMuted, fontSize: 12, lineHeight: 1.55 }}>Ask Terra anything about your animation. Creating and editing frames comes later.</div>}
+          {ledger.messages.length === 0 && !activeJob && <div style={{ margin: "auto", maxWidth: 240, textAlign: "center", color: workspaceColors.textMuted, fontSize: 12, lineHeight: 1.55 }}>Ask the AI Animator anything about your animation. Creating and editing frames comes later.</div>}
           {ledger.messages.map((message) => message.role === "user"
             ? <div className="ai-animator-message" data-ai-user-message={message.id} key={message.id} style={{ alignSelf: "flex-end", maxWidth: "88%", padding: "9px 11px", borderRadius: 12, whiteSpace: "pre-wrap", color: "#eaf3ff", background: workspaceColors.selectedFill, border: `1px solid ${workspaceColors.selectedBorder}`, fontSize: 12, lineHeight: 1.48 }}>{message.content}</div>
             : <AiAnimatorAssistantReply key={message.id} message={message} animate={pendingRevealMessageIdsRef.current.has(message.id)} onRevealComplete={finishAssistantReveal} />)}
-          {activeJob && <div role="status" aria-live="polite" aria-label="AI Animator request status" style={{ alignSelf: "flex-start", padding: "8px 4px", fontSize: 12 }}><span className="ai-animator-thinking" data-text="Thinking" data-sweep-pattern="paired-continuous-long-pause">Thinking</span></div>}
+          {/* (Arthur, 2026-10-08: the AI Animator and the Help Assistant show "Thinking" exactly alike — the same component.) */}
+          {activeJob && <div aria-label="AI Animator request status" style={{ alignSelf: "flex-start", padding: "8px 4px" }}><AssistantActivity label="Thinking" /></div>}
           {requestError && <div role="alert" style={{ color: workspaceColors.danger, fontSize: 11, lineHeight: 1.4 }}>{requestError}</div>}
         </>}
         composer={<form onSubmit={submit} className={`${chatComposerStyles.box} ${chatComposerStyles.compact}`} aria-label="AI Animator message composer">
-          <textarea ref={composerRef} aria-label="Message AI Animator" value={inputValue} onChange={(event) => setInputValue(event.target.value)} onKeyDown={handleComposerKeyDown} placeholder="Chat with Terra" disabled={Boolean(activeJob) || readOnly} rows={2} />
+          <textarea ref={composerRef} aria-label="Message AI Animator" value={inputValue} onChange={(event) => setInputValue(event.target.value)} onKeyDown={handleComposerKeyDown} placeholder="Chat with the AI Animator" disabled={Boolean(activeJob) || readOnly} rows={2} />
           <ChatDictationPanel dictation={dictation} onCancel={() => { dictationRef.current?.cancel(); composerRef.current?.focus(); }} onStop={() => void dictationRef.current?.stop()} />
           <ChatToolsRow
-            left={<ChatReasoningSelect value={reasoningLevel} options={REASONING_OPTIONS} disabled={reasoningDisabled} onChange={setReasoningLevel} title={`Terra effort: ${AI_ANIMATOR_REASONING_EFFORT[reasoningLevel]}`} />}
+            left={<ChatReasoningSelect value={reasoningLevel} options={REASONING_OPTIONS} disabled={reasoningDisabled} onChange={setReasoningLevel} title={`AI Animator effort: ${AI_ANIMATOR_REASONING_EFFORT[reasoningLevel]}`} />}
             right={<>
               <ChatDictateButton disabled={dictationActive || Boolean(activeJob) || readOnly} onClick={() => void dictationRef.current?.start()} />
               {activeJob

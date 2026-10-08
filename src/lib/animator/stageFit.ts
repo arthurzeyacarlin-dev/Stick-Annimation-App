@@ -22,13 +22,20 @@ type ObjectFrames = readonly (readonly FrameObject[])[];
 // ON THE PAGE (explosions, 2026-10-06): the room taken by effects at FIXED spots that say so (EffectTrack `fit`: a
 // grenade exploding far from everyone, a crate's pieces flying), so the page fit and the centering count them like
 // a figure. null when no effect says so (then everything is exactly as before).
-type FitTrack = { anchor: { x: number; y: number } | { character: string }; fit?: { left: number; right: number; top: number } };
+type FitTrack = { kind?: string; anchor: { x: number; y: number } | { character: string }; fit?: { left: number; right: number; top: number }; params?: { size?: unknown } };
+// A THING PLACED IN THE SCENE IS SEEN (2026-10-07, Luna's car to the moon: the moon at a fixed spot was left off the
+// page, and so was the car driving to it): a `prop` at a fixed spot counts for the page fit like an effect that says
+// `fit` — its size (x the figure height) all round it.
+const propFit = (e: FitTrack) => {
+  const r = Math.max(0.1, Math.min(4, typeof e.params?.size === "number" ? e.params.size : 0.3));
+  return { left: -r, right: r, top: r };
+};
 export function effectFitBounds(scene: Scene): Bounds | null {
-  const tracks = ((scene as Scene & { effects?: FitTrack[] }).effects ?? []).filter((e) => e.fit && !("character" in e.anchor));
+  const tracks = ((scene as Scene & { effects?: FitTrack[] }).effects ?? []).filter((e) => (e.fit || e.kind === "prop") && !("character" in e.anchor));
   if (!tracks.length) return null;
   const height = scene.characters[0]?.height ?? 300, b: Bounds = { left: Infinity, right: -Infinity, top: Infinity, bottom: -Infinity };
   for (const e of tracks) {
-    const at = e.anchor as { x: number; y: number }, fit = e.fit!;
+    const at = e.anchor as { x: number; y: number }, fit = e.fit ?? propFit(e);
     b.left = Math.min(b.left, at.x + fit.left * height); b.right = Math.max(b.right, at.x + fit.right * height);
     b.top = Math.min(b.top, at.y - fit.top * height); b.bottom = Math.max(b.bottom, scene.groundY);
   }

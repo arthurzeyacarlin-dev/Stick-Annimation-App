@@ -14,6 +14,9 @@ import { kick, type KickParams } from "./kick.ts";
 import { dashPunch, type DashParams } from "./dash.ts";
 import { pickUp, type PickUpParams } from "./pickUp.ts";
 import { BASE_MOVES, type MoveEntry } from "./plan.ts";
+import { TIPTOE_ABOUT } from "./gait.ts";
+import { custom, CUSTOM_ABOUT, type CustomParams } from "./custom.ts";
+import { cartwheel, CARTWHEEL_ABOUT, type CartwheelParams } from "./cartwheel.ts";
 import { punch, type PunchParams } from "./punch.ts";
 import { fireBlast, teleport, waterShield, type FireBlastParams, type TeleportParams, type WaterShieldParams } from "./powers.ts";
 import { iceMountain, iceThrow, type IceMountainParams, type IceThrowParams } from "./powerIce.ts";
@@ -24,6 +27,7 @@ import { catchBall, throwBall, type CatchParams, type ThrowParams } from "./thro
 import { lookBack, LOOK_BACK_ABOUT, type LookBackParams } from "./turn.ts";
 import { wave, type WaveParams } from "./wave.ts";
 import { blownAway, BLOWN_AWAY_ABOUT, type BlownAwayParams } from "./blownAway.ts";
+import { celebrate, CELEBRATE_ABOUT, type CelebrateParams } from "./celebrate.ts";
 import { dashSlash, swordBlock, swordChop, swordDodge, swordSlash, swordSpin, swordStep, swordThrust, swordVictory, type DashSlashParams, type SwordBlockParams, type SwordDodgeParams, type SwordStrikeParams } from "./swordMoves.ts";
 
 // SPEC-0017 Phase 2: the whole moves library, by id. The scene plan (and later the AI director) uses
@@ -88,6 +92,14 @@ export const LIBRARY: Record<string, MoveEntry> = {
   swordBlock: { title: "Weapon block", side: true, lessonMarks: ["hit", "ready"], run: (s, p, set) => swordBlock(s, p as SwordBlockParams, set), about: "Block with the weapon on the attacker's \"hit\": `height` mid/high/low; gives ground `push` (x height) by steps; `parry` knocks it aside." },
   swordDodge: { title: "Dodge back", side: true, lessonMarks: ["hit"], run: (s, p, set) => swordDodge(s, p as SwordDodgeParams, set), about: "Hop back `distance` (x height), in the air at \"hit\"." },
   swordStep: { title: "Step in the guard", side: true, lessonMarks: [], run: (s, p, set) => swordStep(s, p as { advance?: number }, set), about: "Real steps in (`advance` x height; out if negative) in the weapon guard." },
+  // ORIGINAL MOVES (custom.ts, Phase 3): key poses from the AI; the engine adds timing, anticipation, ease,
+  // follow-through, gravity, planted feet and balance.
+  cartwheel: { title: "Cartwheel", lessonMarks: ["top"], run: (s, p, set) => cartwheel(s, p as CartwheelParams, set), about: CARTWHEEL_ABOUT },
+  custom: { title: "Original move", side: true, run: (s, p, set) => custom(s, p as CustomParams, set), about: CUSTOM_ABOUT },
+  // CELEBRATE (celebrate.ts, Phase 3: Arthur, "the cool pose with the sword ... but not holding a sword").
+  celebrate: { title: "Celebrate (victory)", side: true, lessonMarks: ["raised"], run: (s, p, set) => celebrate(s, p as CelebrateParams, set), about: CELEBRATE_ABOUT },
+  // TIPTOE (gait.ts `tiptoe`, Phase 3): the walk on tiptoe.
+  tiptoe: { title: "Tiptoe", side: true, lessonMarks: [], run: (s, p, set) => BASE_MOVES.walk.run(s, { ...p, tiptoe: true }, set), about: TIPTOE_ABOUT },
   swordVictory: { title: "Weapon raised (victory)", side: true, lessonMarks: ["raised"], run: (s, p, set) => swordVictory(s, p as { seconds?: number }, set), about: "Raise the weapon high and hold it (`seconds`)." },
 };
 

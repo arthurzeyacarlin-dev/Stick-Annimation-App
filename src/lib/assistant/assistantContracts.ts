@@ -1,5 +1,11 @@
 /** Assistant-only data. No workspace identifiers, commands, or project payloads. */
-export const ASSISTANT_MODEL = "gpt-5.6-terra";
+export const ASSISTANT_MODEL = "gpt-5.6-luna";
+// Older saved answers were written by Terra at $2 / $12 per million tokens (Arthur, 2026-10-08: Luna replaces Terra); they stay readable.
+export const ASSISTANT_LEGACY_MODEL = "gpt-5.6-terra";
+export const ASSISTANT_PRICES_PER_MILLION = Object.freeze({ [ASSISTANT_MODEL]: { input: 0.2, output: 1.2 }, [ASSISTANT_LEGACY_MODEL]: { input: 2, output: 12 } } as const);
+// The provider may answer with a dated snapshot name ("gpt-5.6-luna-2026-...").
+export const isAssistantProviderModel = (model: unknown): boolean =>
+  typeof model === "string" && (model === ASSISTANT_MODEL || model.startsWith(`${ASSISTANT_MODEL}-`));
 export const CATALOG_VERSION = "diamond-animator-knowledge/v1:2026-09-24";
 export const ASSISTANT_LIMITS = Object.freeze({ sessions: 50, messages: 200, userChars: 12000, answerChars: 16000, sessionBytes: 1024 * 1024, databaseBytes: 32 * 1024 * 1024, contextMessages: 32, contextChars: 48000, inputTokens: 24000, outputTokens: 4000, deadlineMs: 55000, activeJobs: 2, replyReserveBytes: 68000 });
 export const ASSISTANT_SEARCH_LIMITS = Object.freeze({ deadlineMs: 30000, toolCalls: 2, processedSources: 8, displayedSources: 6, queryChars: 512 });
@@ -10,7 +16,7 @@ export type SearchAction = { type: "search"; queries: string[] } | { type: "open
 export type SearchSource = { title: string; url: string };
 export type SearchReceipt = { topic: string; toolCalls: number; processedSourceCount: number; actions: SearchAction[]; sources: SearchSource[] };
 export type Message = { id: string; turnId: string; role: "user" | "assistant"; text: string; at: number; citations?: Citation[] };
-export type Usage = { inputTokens: number; outputTokens: number; totalTokens: number; estimatedCostUsd: number; priceDate: "2026-09-22" | "2026-09-23"; responseId: string; latencyMs: number; model: typeof ASSISTANT_MODEL; reasoning: Reasoning; toolCalls: number };
+export type Usage = { inputTokens: number; outputTokens: number; totalTokens: number; estimatedCostUsd: number; priceDate: "2026-09-22" | "2026-09-23"; responseId: string; latencyMs: number; model: typeof ASSISTANT_MODEL | typeof ASSISTANT_LEGACY_MODEL; reasoning: Reasoning; toolCalls: number };
 export type PriorAttempt = { jobId: string; status: "failed" | "cancelled" | "interrupted"; endedAt: number; error: string };
 export type Turn = { id: string; jobId: string; status: "pending" | "done" | "failed" | "cancelled" | "interrupted"; reasoning: Reasoning; at: number; acceptedAt: number | null; endedAt: number | null; contextIds: string[]; error: string | null; usage: Usage | null; search?: SearchReceipt; priorAttempts?: PriorAttempt[] };
 export type Session = { schema: "diamond-assistant-session/v1"; id: string; title: string; titleSource: "automatic" | "manual"; manualTitleRevision: number; createdAt: number; updatedAt: number; reasoning: Reasoning; revision: number; digest: string; messages: Message[]; turns: Turn[] };
@@ -61,13 +67,15 @@ export function validateUsage(value: unknown): asserts value is Usage {
   insist(exactKeys(value, ["inputTokens", "outputTokens", "totalTokens", "estimatedCostUsd", "priceDate", "responseId", "latencyMs", "model", "reasoning", "toolCalls"]));
   insist(integer(value.inputTokens, 0, ASSISTANT_LIMITS.inputTokens) && integer(value.outputTokens, 0, ASSISTANT_LIMITS.outputTokens) && value.totalTokens === value.inputTokens + value.outputTokens);
   insist(integer(value.toolCalls, 0, ASSISTANT_SEARCH_LIMITS.toolCalls));
-  const expectedCost = (value.inputTokens * 2 + value.outputTokens * 12) / 1000000 + (value.priceDate === "2026-09-23" ? value.toolCalls * .01 : 0);
+  insist(value.model === ASSISTANT_MODEL || value.model === ASSISTANT_LEGACY_MODEL);
+  const price = ASSISTANT_PRICES_PER_MILLION[value.model as typeof ASSISTANT_MODEL | typeof ASSISTANT_LEGACY_MODEL];
+  const expectedCost = (value.inputTokens * price.input + value.outputTokens * price.output) / 1000000 + (value.priceDate === "2026-09-23" ? value.toolCalls * .01 : 0);
   insist(typeof value.estimatedCostUsd === "number" && Math.abs(value.estimatedCostUsd - expectedCost) < 1e-12 && value.estimatedCostUsd <= .15);
-  insist((value.priceDate === "2026-09-22" ? value.toolCalls === 0 : value.priceDate === "2026-09-23") && isId(value.responseId) && integer(value.latencyMs, 0, 120000) && value.model === ASSISTANT_MODEL && isReasoning(value.reasoning));
+  insist((value.priceDate === "2026-09-22" ? value.toolCalls === 0 : value.priceDate === "2026-09-23") && isId(value.responseId) && integer(value.latencyMs, 0, 120000) && isReasoning(value.reasoning));
 }
 export function validateAnswer(value: unknown): asserts value is Answer {
-  insist(exactKeys(value, ["answer", "title"]) || exactKeys(value, ["answer", "title", "citations"]), "output", "Terra returned an invalid answer. Your message is saved.");
-  insist(validText(value.answer, ASSISTANT_LIMITS.answerChars) && validTitle(value.title), "output", "Terra returned an invalid answer. Your message is saved.");
+  insist(exactKeys(value, ["answer", "title"]) || exactKeys(value, ["answer", "title", "citations"]), "output", "The assistant returned an invalid answer. Your message is saved.");
+  insist(validText(value.answer, ASSISTANT_LIMITS.answerChars) && validTitle(value.title), "output", "The assistant returned an invalid answer. Your message is saved.");
   if ("citations" in value) validateCitations(value.citations, value.answer);
 }
 function validHttpsUrl(value: unknown): value is string {

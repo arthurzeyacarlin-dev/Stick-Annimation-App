@@ -288,7 +288,7 @@ function grass(p: Params, t: number, s: Stage): Shape[] {
 // (`time: "storm"` or "overcast").
 const RAINDROP_SIZE = PLACED_SYMBOLS.Raindrop?.size ?? 100;
 const SPLASH = 0.26; // seconds a splash lasts
-function rain(p: Params, t: number, s: Stage): Shape[] {
+export function rain(p: Params, t: number, s: Stage): Shape[] {
   const seed = seedOf(p, 83), H = s.height, I = clamp(num(p.intensity, 0.6), 0.05, 1.5), wind = clamp(num(p.wind, 0.25), -1.5, 1.5);
   const top = num(p.y, s.groundY - 0.5 * H - 660), speed = num(p.speed, 1), ends = bandEnds(s, WEATHER_BLEED);
   // Where drops land: x … x + w, or (without them) the whole page and on past its edges (BACKGROUNDS FILL THE PAGE).

@@ -57,7 +57,7 @@ const zoomActions = (actions: Action[], k: number): Action[] => (k === 1 ? actio
 function zoomShotParts(shot: ShotPlan, k: number, groundY: number) {
   if (k === 1) return { background: shot.background, effects: shot.effects, objects: shot.objects };
   const zy = (y: number) => groundY + (y - groundY) * k;
-  const spot = (a: Anchor): Anchor => ("character" in a ? { ...a, ...(a.dx !== undefined ? { dx: a.dx * k } : {}), ...(a.dy !== undefined ? { dy: a.dy * k } : {}) } : { x: zoomX(a.x, k), y: zy(a.y) });
+  const spot = (a: Anchor): Anchor => ("character" in a || "object" in a ? { ...a, ...(a.dx !== undefined ? { dx: a.dx * k } : {}), ...(a.dy !== undefined ? { dy: a.dy * k } : {}) } : { x: zoomX(a.x, k), y: zy(a.y) });
   const piece = (p: NonNullable<BackgroundPiece["params"]>) => Object.fromEntries(Object.entries(p).map(([name, v]) => [name,
     typeof v !== "number" ? v : name === "x" ? zoomX(v, k) : name === "y" ? zy(v) : name === "w" || name === "h" ? v * k : v]));
   return {

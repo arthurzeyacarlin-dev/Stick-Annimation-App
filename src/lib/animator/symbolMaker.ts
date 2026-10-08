@@ -311,6 +311,20 @@ export const SYMBOL_RECIPES: Record<string, Recipe> = {
     draw: ({ size: S, color, color2 }, w, h) => militaryCapShapes(S, w, h, color, color2),
   },
   // DEBRIS ARE SYMBOLS (explosions: they keep their shape while they fly; effects/explosion.ts).
+  car: { about: "a car facing right: a red body with a hood, a cabin with two windows, two black wheels with hubs, a headlight (color = the body, color2 = the windows)", aspect: 2.2, draw: ({ size: S, color = "#e04040", color2 = "#bfe6ff" }, w, h) => {
+    const lw = line(S), wr = h * 0.2, by = h * 0.78 - wr * 0.6;
+    return [
+      { kind: "poly", points: [w * 0.04, by, w * 0.04, h * 0.45, w * 0.3, h * 0.42, w * 0.38, h * 0.12, w * 0.68, h * 0.12, w * 0.8, h * 0.42, w * 0.96, h * 0.48, w * 0.97, by], fill: color, stroke: shade(color), width: lw },
+      { kind: "poly", points: [w * 0.4, h * 0.18, w * 0.52, h * 0.18, w * 0.52, h * 0.4, w * 0.34, h * 0.4], fill: color2, stroke: shade(color), width: lw * 0.7 },
+      { kind: "poly", points: [w * 0.56, h * 0.18, w * 0.66, h * 0.18, w * 0.75, h * 0.4, w * 0.56, h * 0.4], fill: color2, stroke: shade(color), width: lw * 0.7 },
+      { kind: "circle", x: w * 0.93, y: h * 0.53, r: h * 0.05, fill: "#ffe680", stroke: shade(color), width: lw * 0.5 },
+      ...[0.24, 0.76].flatMap((f): Shape[] => [{ kind: "circle", x: w * f, y: h - wr - lw, r: wr, fill: "#222222", stroke: "#000000", width: lw }, { kind: "circle", x: w * f, y: h - wr - lw, r: wr * 0.45, fill: "#bbbbbb" }]),
+    ];
+  } },
+  moon: { about: "a full moon: a pale yellow-gray disc with a soft rim and craters (color = the moon, color2 = the craters)", aspect: 1, draw: ({ size: S, color = "#f2ecc8", color2 = "#d6cfa4" }, w, h) => [
+    { kind: "circle", x: w / 2, y: h / 2, r: h * 0.46, fill: color, stroke: shade(color, 0.25), width: line(S) },
+    ...[[0.36, 0.38, 0.1], [0.62, 0.3, 0.06], [0.58, 0.64, 0.12], [0.3, 0.66, 0.05]].map(([x, y, r]): Shape => ({ kind: "circle", x: w * x, y: h * y, r: h * r, fill: color2, stroke: shade(color2, 0.15), width: line(S) * 0.5 })),
+  ] },
   plank: { about: "a broken wooden plank lying along x: a board with a dark edge, grain lines, a nail hole, one end square and one splintered (color = the wood, color2 = its edge)", aspect: PLANK.aspect, draw: ({ size: S, color, color2 }, w, h) => woodPlankShapes(S, w, h, color, color2) },
   woodchip: { about: "a small wood chip: a splinter pointed at both ends with a grain line (color = the wood, color2 = its edge)", aspect: CHIP.aspect, draw: ({ size: S, color, color2 }, w, h) => woodChipShapes(S, w, h, color, color2) },
   pebble: { about: "a pebble: a rough gray-brown stone with a shadow and a highlight (color = the stone, color2 = its edge)", aspect: PEBBLE_ASPECT, draw: ({ size: S, color, color2 }, w, h) => pebbleShapes(S, w, h, color, color2) },
@@ -355,6 +369,8 @@ export const PLACED_SYMBOLS: Record<string, { kind: string; size: number }> = {
   "Wood plank": { kind: "plank", size: PLANK.size },
   "Wood chip": { kind: "woodchip", size: CHIP.size },
   Pebble: { kind: "pebble", size: PEBBLE_SIZE },
+  Car: { kind: "car", size: 100 }, // (moves/transform.ts: a figure turns into it)
+  Moon: { kind: "moon", size: 100 },
   // (Held weapons, effects/weapons.ts: made WEAPON_SYMBOL_ACROSS px across.)
   Sword: { kind: "heldsword", size: WEAPON_SYMBOL_ACROSS },
   "Bamboo stick": { kind: "bamboostick", size: WEAPON_SYMBOL_ACROSS },

@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import {
-  ASSISTANT_LIMITS, ASSISTANT_MODEL, ASSISTANT_SEARCH_LIMITS, AssistantError, byteSize, insist, normalizeTitle, validateAnswer, validateProviderResult,
+  ASSISTANT_LIMITS, ASSISTANT_MODEL, ASSISTANT_PRICES_PER_MILLION, isAssistantProviderModel, ASSISTANT_SEARCH_LIMITS, AssistantError, byteSize, insist, normalizeTitle, validateAnswer, validateProviderResult,
   type Answer, type AssistantRequest, type Citation, type ProviderResult, type SearchAction, type SearchReceipt,
 } from "./assistantContracts.ts";
 import { ASSISTANT_INSTRUCTIONS, ASSISTANT_SEARCH_INSTRUCTIONS, retrieveKnowledge } from "./assistantKnowledge.ts";
@@ -11,7 +11,8 @@ import {
 } from "../usage-journal/usageJournalEvents.ts";
 import { recordUsageEvent } from "../usage-journal/usageJournalRuntime.ts";
 
-export const ASSISTANT_PRICE = Object.freeze({ date: "2026-09-22", inputPerMillion: 2, outputPerMillion: 12, requestUsd: .15 });
+// Luna's prices (OpenAI, checked 2026-10-07; Terra was $2 / $12). The dates stay: they name the conversation/search price lists.
+export const ASSISTANT_PRICE = Object.freeze({ date: "2026-09-22", inputPerMillion: ASSISTANT_PRICES_PER_MILLION[ASSISTANT_MODEL].input, outputPerMillion: ASSISTANT_PRICES_PER_MILLION[ASSISTANT_MODEL].output, requestUsd: .15 });
 export const ASSISTANT_SEARCH_PRICE = Object.freeze({ date: "2026-09-23", webSearchCallUsd: .01 });
 const CONVERSATION_PRICING_VERSION = "assistant-conversation-2026-09-22-v1";
 const SEARCH_PRICING_VERSION = "assistant-search-2026-09-23-v1";
@@ -69,16 +70,16 @@ function canonicalPublicUrl(raw: string) {
 }
 
 function answerStringMap(raw: string) {
-  const match = /"answer"\s*:\s*"/.exec(raw); insist(match, "output", "Terra returned an unreadable answer. Your message is saved.");
+  const match = /"answer"\s*:\s*"/.exec(raw); insist(match, "output", "The assistant returned an unreadable answer. Your message is saved.");
   const start = match.index + match[0].length; const boundaries = new Map<number, number>([[start, 0]]); let cursor = start; let decoded = "";
   while (cursor < raw.length) {
     if (raw[cursor] === '"') return { answer: decoded, start, end: cursor, boundaries };
     let length = 1; if (raw[cursor] === "\\") length = raw[cursor + 1] === "u" ? 6 : 2;
-    insist(cursor + length <= raw.length, "output", "Terra returned an unreadable answer. Your message is saved.");
-    let value: string; try { value = JSON.parse(`"${raw.slice(cursor, cursor + length)}"`); } catch { throw new AssistantError("output", "Terra returned an unreadable answer. Your message is saved."); }
+    insist(cursor + length <= raw.length, "output", "The assistant returned an unreadable answer. Your message is saved.");
+    let value: string; try { value = JSON.parse(`"${raw.slice(cursor, cursor + length)}"`); } catch { throw new AssistantError("output", "The assistant returned an unreadable answer. Your message is saved."); }
     decoded += value; cursor += length; boundaries.set(cursor, decoded.length);
   }
-  throw new AssistantError("output", "Terra returned an unreadable answer. Your message is saved.");
+  throw new AssistantError("output", "The assistant returned an unreadable answer. Your message is saved.");
 }
 
 type TextEdit = { start: number; end: number; replacement: string };
@@ -115,7 +116,7 @@ export function normalizeAssistantPresentation(text: string, citations: Citation
   }
   while (cursor < text.length) { boundaries[cursor] = output.length; output += text[cursor]; cursor++; boundaries[cursor] = output.length; }
   const cleaned = output.replace(/[ \t]+(?=\n)/g, "").replace(/\n{3,}/g, "\n\n").replace(/ {2,}/g, " ").trim();
-  insist(cleaned.length >= 1, "output", "Terra returned an unreadable answer. Your message is saved.");
+  insist(cleaned.length >= 1, "output", "The assistant returned an unreadable answer. Your message is saved.");
 
   // trim/whitespace normalization can shift a boundary by a few characters.
   // Citation links are rendered in the Sources panel; keep each verified source
@@ -157,7 +158,7 @@ function searchResult(final: OpenAI.Responses.Response, raw: string, annotations
   insist(calls.length >= 1 && calls.length <= ASSISTANT_SEARCH_LIMITS.toolCalls && calls.every(call => call.status === "completed"), "output", "Current public information could not be verified. Your message is saved.");
   const actionRecords = calls.map(actionRecord); const actualUrls = new Set(actionRecords.flatMap(record => record.urls));
   insist(actualUrls.size >= 1, "output", "Current public information could not be verified. Your message is saved.");
-  const mapping = answerStringMap(raw); let parsed: unknown; try { parsed = JSON.parse(raw); } catch { throw new AssistantError("output", "Terra returned an unreadable answer. Your message is saved."); }
+  const mapping = answerStringMap(raw); let parsed: unknown; try { parsed = JSON.parse(raw); } catch { throw new AssistantError("output", "The assistant returned an unreadable answer. Your message is saved."); }
   validateAnswer(parsed); const parsedAnswer = parsed as Answer; insist(parsedAnswer.answer === mapping.answer, "output", "Search annotations did not match the answer. Your message is saved.");
   const sourceIndex = new Map<string, number>(); const sourceTitles = new Map<string, string>(); const citations: Citation[] = [];
   if (annotations.length) {
@@ -206,7 +207,7 @@ export function createAssistantProvider(factory: AssistantClientFactory = client
   return async (request, options): Promise<ProviderResult> => {
     const meter = (event: Parameters<UsageEventRecorder>[0]) => { try { recorder(event); } catch { /* Best-effort observation only. */ } };
     const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) throw new AssistantError("configuration", "Terra is not configured on this review server. Your message is saved.");
+    if (!apiKey) throw new AssistantError("configuration", "The assistant is not configured on this review server. Your message is saved.");
     const prepared = buildAssistantResponseRequest(request); if (options.signal.aborted) throw new AssistantError("cancelled", "Cancelled");
     const maximumToolCost = prepared.decision.mode === "required" ? ASSISTANT_SEARCH_LIMITS.toolCalls * ASSISTANT_SEARCH_PRICE.webSearchCallUsd : 0;
     const maximumCostUsd = (prepared.estimatedTokens * ASSISTANT_PRICE.inputPerMillion + ASSISTANT_LIMITS.outputTokens * ASSISTANT_PRICE.outputPerMillion) / 1000000 + maximumToolCost;
@@ -216,7 +217,7 @@ export function createAssistantProvider(factory: AssistantClientFactory = client
     const completedSearchIds = new Set<string>();
     const startSearch = (id: string) => {
       if (completedSearchIds.has(id) || activeSearchId === id) return;
-      insist(activeSearchId === null, "output", "Terra returned an overlapping search lifecycle. Your message is saved.");
+      insist(activeSearchId === null, "output", "The assistant returned an overlapping search lifecycle. Your message is saved.");
       activeSearchId = id; emit(options, { type: "search-start", topic: prepared.decision.mode === "required" ? prepared.decision.topic : "current public information" });
       searchTimer = setTimeout(() => searchAbort.abort("search-timeout"), searchDeadlineMs);
     };
@@ -248,18 +249,18 @@ export function createAssistantProvider(factory: AssistantClientFactory = client
             toolCalls, estimatedCostUsd, pricingVersion: operationKind === "hosted_search" ? SEARCH_PRICING_VERSION : CONVERSATION_PRICING_VERSION,
           }));
         }
-        if (event.type === "response.failed" || event.type === "response.incomplete" || event.type === "error") throw new AssistantError("output", "Terra could not finish a complete answer. Your message is saved.");
+        if (event.type === "response.failed" || event.type === "response.incomplete" || event.type === "error") throw new AssistantError("output", "The assistant could not finish a complete answer. Your message is saved.");
       }
     } catch (error) {
       if (searchAbort.signal.aborted && !options.signal.aborted) throw new AssistantError("search", "Current public information could not be verified before the search deadline. Your message is saved.");
       if (!options.signal.aborted && error instanceof Error && (error instanceof TypeError || /^(?:APIConnectionError|APIConnectionTimeoutError)$/.test(error.name))) {
         throw new AssistantError("network", prepared.decision.mode === "required"
           ? "Could not reach web search. Check your internet connection. Your question is saved; no current answer was published. Reconnect, then choose Retry."
-          : "Terra could not connect. Your question is saved; no answer was published. Reconnect, then choose Retry.");
+          : "The assistant could not connect. Your question is saved; no answer was published. Reconnect, then choose Retry.");
       }
       throw error;
     } finally { if (searchTimer) clearTimeout(searchTimer); }
-    insist(final && final.status === "completed" && final.model === ASSISTANT_MODEL && final.usage, "output", "Terra returned an incomplete or unexpected response. Your message is saved.");
+    insist(final && final.status === "completed" && isAssistantProviderModel(final.model) && final.usage, "output", "The assistant returned an incomplete or unexpected response. Your message is saved.");
     endActiveSearch();
     insist(final.output.every(item => item.type === "message" || item.type === "reasoning" || item.type === "web_search_call"), "output", "An unexpected tool response was rejected. Your message is saved.");
     const textParts = final.output.filter(item => item.type === "message").flatMap(item => item.content).filter((part): part is OpenAI.Responses.ResponseOutputText => part.type === "output_text");
@@ -270,13 +271,13 @@ export function createAssistantProvider(factory: AssistantClientFactory = client
       ({ answer: reply, search } = searchResult(final, raw, annotations, prepared.decision));
     } else {
       insist(final.output.every(item => item.type !== "web_search_call") && textParts.every(part => (part.annotations ?? []).length === 0), "output", "An unexpected search response was rejected. Your message is saved.");
-      try { reply = JSON.parse(raw); } catch { throw new AssistantError("output", "Terra returned an unreadable answer. Your message is saved."); }
+      try { reply = JSON.parse(raw); } catch { throw new AssistantError("output", "The assistant returned an unreadable answer. Your message is saved."); }
       validateAnswer(reply); insist(!("citations" in reply));
       const presentation = normalizeAssistantPresentation(reply.answer);
       reply = { answer: presentation.text, title: reply.title };
     }
     const toolCalls = search?.toolCalls ?? 0;
-    const usage = { inputTokens: final.usage.input_tokens, outputTokens: final.usage.output_tokens, totalTokens: final.usage.total_tokens, estimatedCostUsd: (final.usage.input_tokens * 2 + final.usage.output_tokens * 12) / 1000000 + toolCalls * ASSISTANT_SEARCH_PRICE.webSearchCallUsd, priceDate: toolCalls ? ASSISTANT_SEARCH_PRICE.date : ASSISTANT_PRICE.date, responseId: final.id, latencyMs: Math.round(performance.now() - started), model: ASSISTANT_MODEL, reasoning: request.reasoningLevel, toolCalls } as const;
+    const usage = { inputTokens: final.usage.input_tokens, outputTokens: final.usage.output_tokens, totalTokens: final.usage.total_tokens, estimatedCostUsd: (final.usage.input_tokens * ASSISTANT_PRICE.inputPerMillion + final.usage.output_tokens * ASSISTANT_PRICE.outputPerMillion) / 1000000 + toolCalls * ASSISTANT_SEARCH_PRICE.webSearchCallUsd, priceDate: toolCalls ? ASSISTANT_SEARCH_PRICE.date : ASSISTANT_PRICE.date, responseId: final.id, latencyMs: Math.round(performance.now() - started), model: ASSISTANT_MODEL, reasoning: request.reasoningLevel, toolCalls } as const;
     const result: ProviderResult = search ? { reply, usage, search } : { reply, usage }; validateProviderResult(result); return result;
   };
 }

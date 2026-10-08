@@ -5,6 +5,11 @@ import { forwardKinematics, translateSkeleton } from "./pose.ts";
 import { boneLengths, clampPose, headRadius, JOINTS, POSE_KEYS, type CharacterStyle, type Facing, type PoseAngles, type PoseKey, type Point, type Skeleton } from "./rig.ts";
 import { buildCameraFrames, hasCamera, type CameraFrames } from "./camera.ts";
 
+// Steps other parts of the engine add after a scene is built (moves/transform.ts adds the morph).
+type BuiltHook = (scene: Scene, built: SceneFrames) => SceneFrames;
+const builtHooks: BuiltHook[] = [];
+export const addBuiltHook = (hook: BuiltHook) => { if (!builtHooks.includes(hook)) builtHooks.push(hook); };
+
 // SPEC-0017 engine: key poses -> every frame, with the body rules applied.
 // Pure TypeScript (no React/DOM) and deterministic: the same scene always gives the same frames.
 
@@ -25,7 +30,74 @@ export type CharacterKey = {
   // or more (keysAt). It adds an extra squashed or stretched pose for a picture or two; the move must look
   // right without it (at 12 fps and below it is never there).
   minFps?: number;
+  // THE WHOLE BODY CAN TURN OVER (Arthur, phase 3: a cartwheel "is supposed to SPIN"): `spin` = degrees the whole
+  // skeleton is turned around its middle (halfway up the torso), clockwise on screen (+), from this key on (a missing
+  // value carries over; 360 = a full turn). Joint angles stay inside their limits — the BODY turns, not the joints.
+  // `roll`: from this key to the next key that also rolls, the turning body rolls over its lowest hand or foot: that
+  // point is planted where it touched the floor (never slides) and the body travels by turning over it (x is not used);
+  // when another hand or foot comes down lower it takes over, planted where it touched. A figure without spin or roll
+  // keys is built exactly as before.
+  spin?: number;
+  spinEase?: Ease;
+  roll?: boolean;
 };
+export type RollPoint = "lHand" | "rHand" | "lFoot" | "rFoot";
+const ROLL_POINTS: RollPoint[] = ["lHand", "rHand", "lFoot", "rFoot"];
+// The skeleton turned by `degrees` (clockwise on screen) around the middle of its torso.
+export function turnSkeleton(skeleton: Skeleton, degrees: number): Skeleton {
+  if (Math.abs(degrees) < 1e-9) return skeleton;
+  const c = Math.cos((degrees * Math.PI) / 180), s = Math.sin((degrees * Math.PI) / 180);
+  const mx = (skeleton.hip.x + skeleton.neck.x) / 2, my = (skeleton.hip.y + skeleton.neck.y) / 2;
+  const next = {} as Skeleton;
+  for (const [name, p] of Object.entries(skeleton) as [keyof Skeleton, Point][]) {
+    const dx = p.x - mx, dy = p.y - my;
+    next[name] = { x: mx + dx * c - dy * s, y: my + dx * s + dy * c };
+  }
+  return next;
+}
+// ROLLING on a fine clock (240 a second): at each moment the lowest hand or foot is the pivot, planted where it
+// touched; the body is shifted so it stays put. Returns the shift (stage px) at fine times; constant outside rolls.
+const ROLL_HZ = 240;
+export type RollTrack = { times: number[]; shifts: number[] };
+export function buildRollTrack(allKeys: CharacterKey[], fallback: Facing, height: number): RollTrack {
+  const keys = allKeys.slice().sort((a, b) => a.t - b.t);
+  const times = keys.map((k) => k.t), eases = keys.map((k) => k.ease);
+  const ch = {} as Record<PoseKey, Channel>;
+  for (const name of POSE_KEYS) { const raw = keys.map((k) => k.pose[name]); ch[name] = makeChannel(times, name === "lShoulder" || name === "rShoulder" ? unwrapAngles(raw) : raw, eases); }
+  const xc = makeChannel(times, keys.map((k) => k.x), keys.map((k) => k.xEase));
+  let last = 0;
+  const sc = makeChannel(times, keys.map((k) => (last = k.spin ?? last)), keys.map((k) => k.spinEase ?? k.ease));
+  const at = (c: Channel, t: number) => sampleChannel(c.times, c.values, c.tangents, c.eases, t);
+  const out: RollTrack = { times: [], shifts: [] };
+  let shift = 0;
+  let lock: { point: RollPoint; x: number } | null = null;
+  const end = times[times.length - 1] ?? 0;
+  for (let i = 0; i <= Math.ceil(end * ROLL_HZ); i += 1) {
+    const t = Math.min(end, i / ROLL_HZ);
+    const rolling = keys.some((key, k) => key.roll && keys[k + 1]?.roll && t >= key.t - 1e-9 && t <= keys[k + 1].t + 1e-9);
+    if (!rolling) { lock = null; out.times.push(t); out.shifts.push(shift); continue; }
+    const sampled = {} as PoseAngles;
+    for (const name of POSE_KEYS) sampled[name] = at(ch[name], t);
+    const sk = turnSkeleton(forwardKinematics(clampPose(sampled).pose, facingAt(keys, fallback, t), { x: at(xc, t) + shift, y: 0 }, height), at(sc, t));
+    const lowest = ROLL_POINTS.reduce((a, b) => (sk[b].y > sk[a].y + 0.01 ? b : a));
+    if (lock && lock.point !== lowest && sk[lowest].y > sk[lock.point].y + 0.01) lock = null;
+    if (lock) shift += lock.x - sk[lock.point].x;
+    else lock = { point: lowest, x: sk[lowest].x };
+    out.times.push(t); out.shifts.push(shift);
+  }
+  return out;
+}
+export function rollShiftAt(track: RollTrack, t: number) {
+  const n = track.times.length;
+  if (n === 0) return 0;
+  if (t <= track.times[0]) return track.shifts[0];
+  if (t >= track.times[n - 1]) return track.shifts[n - 1];
+  const i = Math.min(n - 2, Math.floor(t * ROLL_HZ));
+  const u = (t - track.times[i]) / Math.max(1e-9, track.times[i + 1] - track.times[i]);
+  return track.shifts[i] + (track.shifts[i + 1] - track.shifts[i]) * Math.min(1, Math.max(0, u));
+}
+// A turning body rests on whatever is lowest — its hands count too (a cartwheel stands on its hands).
+export const lowestTurningY = (skeleton: Skeleton, headRadius: number) => Math.max(lowestBodyY(skeleton, headRadius), skeleton.lHand.y, skeleton.rHand.y);
 // The keys a figure has at `fps` (a key with minFps above it is left out), in time order.
 export const keysAt = (keys: CharacterKey[], fps: number) => keys.filter((key) => (key.minFps ?? 0) <= fps).sort((a, b) => a.t - b.t);
 
@@ -280,6 +352,11 @@ export function buildScene(scene: Scene, fps: number): SceneFrames {
     }
     const xChannel = makeChannel(times, keys.map((key) => key.x), keys.map((key) => key.xEase));
     const liftChannel = makeChannel(times, keys.map((key) => key.lift ?? 0), keys.map((key) => key.liftEase));
+    // THE WHOLE BODY CAN TURN OVER: only a figure with spin or roll keys.
+    const turning = keys.some((key) => key.spin !== undefined || key.roll);
+    let lastSpin = 0;
+    const spinChannel = turning ? makeChannel(times, keys.map((key) => (lastSpin = key.spin ?? lastSpin)), keys.map((key) => key.spinEase ?? key.ease)) : null;
+    const rollTrack = turning ? buildRollTrack(keys, character.facing, character.height) : null;
     const radius = headRadius(character.height, character.style.headSize);
     const bones = boneLengths(character.height);
     const locks: Partial<Record<FootContact, Point>> = {};
@@ -317,8 +394,11 @@ export function buildScene(scene: Scene, fps: number): SceneFrames {
       previousFacing = facing;
 
       // Stand the body on the ground: its lowest point sits `lift` above groundY.
-      const atOrigin = forwardKinematics(pose, facing, { x, y: 0 }, character.height, character.style.headSize, character.style.neck === true);
-      let skeleton = translateSkeleton(atOrigin, 0, scene.groundY - lift - lowestBodyY(atOrigin, radius));
+      const flat = forwardKinematics(pose, facing, { x, y: 0 }, character.height, character.style.headSize, character.style.neck === true);
+      const atOrigin = spinChannel ? turnSkeleton(flat, sampleChannel(spinChannel.times, spinChannel.values, spinChannel.tangents, spinChannel.eases, st)) : flat;
+      let skeleton = translateSkeleton(atOrigin, 0, scene.groundY - lift - (spinChannel ? lowestTurningY(atOrigin, radius) : lowestBodyY(atOrigin, radius)));
+      // ROLLING: the distance the body has rolled so far (worked out on a fine clock, the same at every frame rate).
+      if (spinChannel) skeleton = translateSkeleton(skeleton, rollShiftAt(rollTrack!, t), 0);
 
       // Planted feet stay exactly where they landed; the knee re-bends to reach them.
       const planted = (["lFoot", "rFoot"] as const).filter((contact) => {
@@ -377,7 +457,11 @@ export function buildScene(scene: Scene, fps: number): SceneFrames {
 
   const ok = reports.every((r) => r.maxBoneErrorPx <= 0.5 && r.maxFootDriftPx <= 1 && r.belowGroundFrames === 0);
   // Objects come after the figures (a held ball follows the finished hands). Characters are unchanged.
-  return { fps, frames, report: { frameCount, fps, characters: reports, ok }, objects: buildObjectFrames(scene, fps, frames, pictureTimes) };
+  // TRANSFORM (moves/transform.ts): a figure morphing into a symbol is squashed, then gone while it is the symbol.
+  // (Added as a hook by transform.ts, so the engine imports nothing that imports it back.)
+  let built: SceneFrames = { fps, frames, report: { frameCount, fps, characters: reports, ok }, objects: buildObjectFrames(scene, fps, frames, pictureTimes) };
+  for (const hook of builtHooks) built = hook(scene, built);
+  return built;
 }
 
 // Two frames are the same picture when every joint of every character is within a hair.

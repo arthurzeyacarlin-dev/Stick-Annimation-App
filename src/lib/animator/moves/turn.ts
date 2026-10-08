@@ -56,6 +56,15 @@ export function onTheGround(pose: PoseAngles): boolean {
   return Math.abs(pose.lean) > 50 || feetOf(pose, "right").hip < 0.3;
 }
 
+// CROUCHED ON ITS FEET (a landing crouch, a squat): low hips, but the feet are the lowest points (the knees
+// up, the hips well off the floor) — it is standing on its feet and can rise, unlike sitting or kneeling.
+export function crouchedOnFeet(pose: PoseAngles): boolean {
+  if (Math.abs(pose.lean) > 50) return false;
+  const body = forwardKinematics(pose, "right", { x: 0, y: 0 }, 1, "normal", false);
+  const feet = Math.max(body.lFoot.y, body.rFoot.y);
+  return Math.min(body.lKnee.y, body.rKnee.y, body.lFoot.y, body.rFoot.y) <= Math.min(body.lFoot.y, body.rFoot.y) && Math.max(body.lKnee.y, body.rKnee.y) < feet - 0.05 && feet > 0.1;
+}
+
 // Thigh and knee angles that put a foot `dx` (stage x, x height) from the hips and `below` under them,
 // the knee bending the natural way for the view.
 function legTo(facing: Facing, side: Side, dx: number, below: number, lean: number) {
@@ -430,7 +439,9 @@ export function catchBreath(start: Stance, params: { seconds?: number; stay?: bo
   const timing: MoveSettings = { ...settings, speed: "normal", style: settings.style === "robot" ? "robot" : "natural" };
   // Still on the ground (knocked out, sitting, lying): it catches its breath where it is — it doesn't
   // spring up into a bent-over stand.
-  if (onTheGround(start.pose)) return stand(start, { seconds: 0.62 * breaths + 1.8 }, settings);
+  // (A landing crouch or squat is on its feet: TIRED REST NEVER FREEZES IN A SQUAT — it rises into the
+  // bent-over rest, hands on knees, and stands up after.)
+  if (onTheGround(start.pose) && !crouchedOnFeet(start.pose)) return stand(start, { seconds: 0.62 * breaths + 1.8 }, settings);
   // Seen from the front a body can't be drawn bending toward the viewer: it stays upright (balanced over
   // both feet) and breathes hard, the shoulders heaving.
   if (start.facing === "front") {

@@ -23,7 +23,7 @@ equal(ASSISTANT_SEARCH_LIMITS.processedSources, 8, 'eight processed sources maxi
 equal(ASSISTANT_SEARCH_LIMITS.displayedSources, 6, 'six displayed sources maximum');
 equal(ASSISTANT_SEARCH_LIMITS.queryChars, 512, '512 search query characters maximum');
 const local = buildAssistantResponseRequest(fixtureRequest());
-equal(local.body.model, 'gpt-5.6-terra', 'fixed Terra model');
+equal(local.body.model, 'gpt-5.6-luna', 'fixed Luna model (replaced Terra, 2026-10-08)');
 equal(local.body.tools, [], 'internal guidance has no tools');
 equal(local.body.store, false, 'provider store disabled');
 check(local.estimatedTokens <= ASSISTANT_LIMITS.inputTokens, 'local input under ceiling');
@@ -36,7 +36,7 @@ process.env.OPENAI_API_KEY = 'deterministic-test-key';
 try {
   const broken = createAssistantProvider(() => ({ create: async () => { throw new TypeError('simulated network loss'); } }));
   for (const [name, request] of [['search', searchRequest()], ['local', fixtureRequest()]] as const) {
-    await assert.rejects(() => broken(request, { signal: new AbortController().signal }), error => error instanceof AssistantError && error.code === 'network' && error.message.includes(name === 'search' ? 'Could not reach web search' : 'Terra could not connect'));
+    await assert.rejects(() => broken(request, { signal: new AbortController().signal }), error => error instanceof AssistantError && error.code === 'network' && error.message.includes(name === 'search' ? 'Could not reach web search' : 'The assistant could not connect'));
     checks.push(`${name} network loss maps to safe terminal message`);
   }
 } finally { delete process.env.OPENAI_API_KEY; }

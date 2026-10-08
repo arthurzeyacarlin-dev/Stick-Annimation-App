@@ -4,6 +4,8 @@ import { buildScene, type CharacterKey } from "../engine.ts";
 import { HEAD_RADIUS, STAND, type Facing, type JointName, type Skeleton } from "../rig.ts";
 import type { MoveOutput, MoveSettings, Stance } from "./motion.ts";
 import { kick } from "./kick.ts";
+import { LIBRARY } from "./library.ts";
+import { planToScene, type ScenePlan } from "./plan.ts";
 import { choosePunch, feetOf, inGuard, LEVEL_UP, MIN_WINDUP_SECONDS, punch, PUNCH_HEIGHTS, RAISED_ABOVE_LEVEL, type PunchParams, type PunchTechnique } from "./punch.ts";
 import { allSettings, assertNatural, sceneOfKeys, startStance, TEST_GROUND, TEST_HEIGHT } from "./testkit.ts";
 
@@ -412,5 +414,25 @@ test("kick (round 8): EYES — the head turns to where the kick goes: the spot t
       // (A high kick leans the body far back, so the neck can only tip the head down a little there: a mid kick.)
       assert.ok(face({ height: "mid", look: { ahead: 250, up: -150 } }, mark) < -12, `${facing}/${mark}: looks down at someone lower`);
     }
+  }
+});
+
+// Round 2 (Arthur, dad's block-block-hit: "blue punches, steps out slowly, steps back in slowly, punches — like
+// they're scared"): a punch at a NAMED target measures the gap itself (a stale `distance` is ignored), so strikes
+// at one target flow one after another from the guard — no stepping out and back in between them.
+test("punches at a named target with a stale distance: no stepping out and in; a strike about every second (8/12/24 fps)", () => {
+  const plan: ScenePlan = { id: "bbh", title: "t", height: TEST_HEIGHT, groundY: TEST_GROUND, characters: [
+    { id: "blue", x: 700, facing: "right", actions: [1, 2, 3].map(() => ({ move: "punch", params: { target: "red", distance: 300 } })) },
+    { id: "red", x: 1000, facing: "left", actions: [{ move: "block" }, { move: "block" }, { move: "almostFall" }] },
+  ] };
+  const scene = planToScene(plan, LIBRARY);
+  const hits = [1, 2, 3].map((k) => scene.marks?.[`blue.strike${k}.hit`] ?? NaN);
+  for (let k = 1; k < 3; k += 1) assert.ok(hits[k] - hits[k - 1] <= 1.1, `strike ${k + 1} follows strike ${k} quickly (${(hits[k] - hits[k - 1]).toFixed(2)} s)`);
+  const keys = scene.characters[0].keys.filter((key) => key.t >= hits[0] - 0.01 && key.t <= hits[2] + 0.01);
+  const back = Math.max(...keys.map((key) => keys[0].x - key.x));
+  assert.ok(back < 0.1 * TEST_HEIGHT, `no stepping back out between the punches (${back.toFixed(0)} px)`);
+  for (const fps of [8, 12, 24]) {
+    const r = buildScene(scene, fps).report.characters[0];
+    assert.ok(r.maxBoneErrorPx <= 0.5 && r.belowGroundFrames === 0, `@${fps}: body rules`);
   }
 });

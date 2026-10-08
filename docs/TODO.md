@@ -9,7 +9,11 @@
 - [x] **FINISH-HOP-HEIGHT** (fixed 2026-10-07 before publishing: a finished hop's hips rise at most 0.25 of the body; test "never a rocket") — Finish once made a drawn hop go far too high ("turned into a rocket", Arthur 2026-10-07): the take-off speed from the crouch depth can overshoot; keep a finished hop near the passed jump's height unless the drawing shows a big jump.
 - [ ] **MAKE-BETTER-AI (Phase 3)** — "Make my animation better" through the AI: Terra hears what the user wants, Grok tells the engine what the animation is (explosion? hop? walk?) and what to change (color, smoother, acceleration/deceleration); the engine does it with its passed moves/effects. Reuse the round 7–8 move-naming code kept in the session scratchpad (phase3-ideas) as hints.
 - [ ] **PLAN-STAND-AFTER-JUMP** — in the engine planner, a `stand` action straight after `jump` cuts the jump's own stand-up and holds the landing crouch (seen 2026-10-07 in 50-50 Make better; worked around there by not adding the stand). Fix in the planner before Phase 3, since AI plans will chain moves like this.
-- [ ] **SPEC-0017 Phase 3** — AI director = Test 1 (Grok vs Terra), incl. the AI half of 50-50 (finds pose/hands/spots itself). Needs xAI key from Arthur's dad + OK for small paid calls.
+- [x] **SPEC-0017 Phase 3** (PASSED 2026-10-08, D-0184, `d25ba98`; Luna is the AI everywhere) — AI director, **Terra only** (Arthur, 2026-10-07: no Grok; Terra → engine), incl. "Make my animation better" through the AI. Arthur OK'd small paid test calls (2026-10-07; hard cap $5). No xAI key needed.
+  - 2026-10-07 evening: **Luna beat Terra** (same quality on most cards, failures 1–1, ~9× cheaper); then the blind test Luna vs Claude Haiku 4.5 was a tie on quality and **Luna won on price** (2.7× cheaper). Luna is the AI Animator's AI.
+  - [x] Asked: Arthur OK'd switching the main app's AI to Luna (2026-10-08) — done in `d25ba98`.
+- [ ] **SPEC-0017 Phase 4 (NEXT)** — the AI Animator in the editor: plan together in the chat, preview, Apply puts frames on a new layer, follow-ups change only what was asked, Undo; then "the big test" (Arthur chats with Luna for an original animation).
+- [ ] **Website rebuild** (dad + Arthur, 2026-10-08) — starts when dad has Cloudflare/Stripe ready (pages, funnel, pricing, admin reports; same colors/fonts, instant-blue hover).
 - [ ] **SPEC-0017 Phases 4–5** — AI Animator chat flow in the editor; library check + cleanup.
 - [ ] **ANIM-FOOT-SLIPS** — Zero foot slides everywhere (Arthur's rule): end of a run before a dash (~5 px), a kicking foot coming back at 24 fps, the stumble before a knock-down (1–6 px), police escort steps. Two engine-wide attempts broke passed moves; fix per move or with a narrower engine rule.
 - [ ] **SWORD-RHYTHM** — Strikes about every second after the opener (now 1.2–1.5 s; overlap the block's recovery with the counter's wind-up like the passed fist fights); other seeds "never at the hands" (overhead block vs chop).
@@ -35,7 +39,7 @@ Older queues below are history.
 - [x] **SPEC-0017 Phase 2 Round B** — All stick-figure moves, object moves, fights (dash, barrage, hammer strike, lift-and-slam, ground fight), director and lessons. Arthur PASS 2026-10-06; published in `6430fcf85936dceffdbd5b3276ed7231775264c4`.
 - [ ] **SPEC-0017 Phase 2C** — Next (Tue Oct 6): effects, powers, moving backgrounds, original symbols and poses, editing a made animation.
 - [ ] **ANIM-KNOWN-3** — Fix the 3 open animator checks: tired/angry dash alone (airborne vs faster than the run; the run's last stride should stretch to the take-off spot), fight seed 8 joint jump 133 px @24 fps, "vague fight" seed 8 reaction off its strike. Also: running hammer strike in fights jumps lower than the passed one; long fights (up to 44 s).
-- [ ] **SPEC-0017 Phase 3** — AI director = Test 1 (Grok vs Terra). Needs xAI key from Arthur's dad + OK for small paid calls.
+- [x] **SPEC-0017 Phase 3** (PASSED 2026-10-08, D-0184, `d25ba98`; Luna is the AI everywhere) — AI director = Test 1 (Grok vs Terra). Needs xAI key from Arthur's dad + OK for small paid calls.
 - [ ] **SPEC-0017 Phases 4–5** — AI Animator chat flow in the editor; library check + cleanup (no Blender/motion files in V1).
 - [ ] **HEAD-SIZE** — Arthur's drawing has a head about twice as wide as ours; size left unchanged (ask if he wants it bigger).
 - [ ] **COMPACT-FRAMES-2** — Optional: also compact frames hand-drawn during a session.
@@ -51,7 +55,7 @@ Older queues below are history.
 
 - [x] **AIANIM-ENGINE (SPEC-0017 Phase 1)** — Characters + engine + compact frames. Arthur PASS; published in `b7a0800c61973d7729e1d9cf2f7a0bea90f537b2`.
 - [ ] **SPEC-0017 Phase 2** — Moves library (math-made body moves + object moves for Symbols, no fade). Next, after Arthur's note. Short plan → OK → review copy (set `NEXT_PUBLIC_SPEC0017_ENGINE_TEST=1` in the copy's `.env.local`, with a newline before it).
-- [ ] **SPEC-0017 Phase 3** — AI director = Test 1 (Grok vs Terra). Needs xAI key from Arthur's dad + OK for small paid calls.
+- [x] **SPEC-0017 Phase 3** (PASSED 2026-10-08, D-0184, `d25ba98`; Luna is the AI everywhere) — AI director = Test 1 (Grok vs Terra). Needs xAI key from Arthur's dad + OK for small paid calls.
 - [ ] **SPEC-0017 Phases 4–5** — AI Animator in the editor; Blender test + final pick (when the Blender files arrive).
 - [ ] **COMPACT-FRAMES-2** — Optional: also compact frames hand-drawn during a session (touches per-stroke Undo; not started).
 - [ ] **EDITOR-MENUS** — Make editor Edit/View/Window/Help menus work (future spec).

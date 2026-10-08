@@ -3,10 +3,20 @@ import {
   dictationAcceptedEvent, dictationDispatchedEvent, dictationProviderObservedEvent, dictationTerminalEvent,
   noUsageEventRecorder, type UsageEventRecorder,
 } from "../usage-journal/usageJournalEvents.ts";
+import { watchSharedCancellation, type SharedJobStore } from "../ai-jobs/sharedJobStore.ts";
 
 type Fetcher = typeof fetch;
 export type TranscriptionReceipt = { requestedModel: string; returnedModel: string | null; identity: "fixed-endpoint-request"; providerRequestId: string | null; seconds: number; estimatedUsd: number; priceDate: string; latencyMs: number; transcriptionCalls: number; outcome: string };
 type Entry = { controller: AbortController; active: boolean; at: number };
+export type TranscriptionServiceOptions = {
+  /** Who may use dictation. Default: this computer only (the original local review rule). */
+  allowRequest?: (request: Request) => boolean;
+  /** Online: the shared job table, so a Cancel that reaches another server copy still stops the recording upload. */
+  sharedStore?: () => SharedJobStore | null;
+  cancelCheckMs?: number;
+};
+// Online: a stored dictation still "active" this long after it started belongs to a stopped server copy.
+const SHARED_STALE_MS = 120_000;
 async function rejectBody(request: Request, code: string, status: number) { await request.body?.cancel().catch(() => {}); return reply({ code }, status); }
 const reply = (body: unknown, status = 200) => Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
 const local = (request: Request) => {
@@ -35,30 +45,62 @@ export class AssistantTranscriptionService {
   private readonly key: () => string | undefined;
   private readonly timeoutMs: number;
   private readonly recordUsage: UsageEventRecorder;
+  private readonly allowRequest: (request: Request) => boolean;
+  private readonly sharedStore: () => SharedJobStore | null;
+  private readonly cancelCheckMs: number;
   constructor(transport: Fetcher = fetch, key = () => process.env.OPENAI_API_KEY, timeoutMs: number = LIMITS.timeoutMs,
-    recordUsage: UsageEventRecorder = noUsageEventRecorder) {
+    recordUsage: UsageEventRecorder = noUsageEventRecorder, options: TranscriptionServiceOptions = {}) {
     this.transport = transport; this.key = key; this.timeoutMs = timeoutMs; this.recordUsage = recordUsage;
+    this.allowRequest = options.allowRequest ?? local; this.sharedStore = options.sharedStore ?? (() => null);
+    this.cancelCheckMs = options.cancelCheckMs ?? 1000;
   }
   private meter(event: Parameters<UsageEventRecorder>[0]) { try { this.recordUsage(event); } catch { /* Best-effort observation only. */ } }
   private prune() { for (const [id, entry] of this.entries) if (!entry.active && Date.now() - entry.at > 10 * 60 * 1000) this.entries.delete(id); }
   cancel(request: Request) {
-    if (!local(request)) return reply({ code: "invalid" }, 403);
+    if (!this.allowRequest(request)) return reply({ code: "invalid" }, 403);
     const id = new URL(request.url).searchParams.get("id"); if (!isDictationId(id)) return reply({ code: "invalid" }, 400);
     this.prune(); const entry = this.entries.get(id);
     if (entry) entry.controller.abort("cancelled");
     else { if (this.entries.size >= LIMITS.identities) return reply({ code: "capacity" }, 429); const controller = new AbortController(); controller.abort("cancelled"); this.entries.set(id, { controller, active: false, at: Date.now() }); }
     return reply({ id, cancelled: true });
   }
-  async transcribe(request: Request) {
-    if (!local(request)) return rejectBody(request, "invalid", 403);
+  /** Online cancel: marks the dictation "please stop" in the shared table (or leaves a tombstone if it has not arrived yet). */
+  async cancelShared(request: Request, ownerId: string) {
+    const store = this.sharedStore(); if (!store) return this.cancel(request);
+    if (!this.allowRequest(request)) return reply({ code: "invalid" }, 403);
+    const id = new URL(request.url).searchParams.get("id"); if (!isDictationId(id)) return reply({ code: "invalid" }, 400);
+    this.entries.get(id)?.controller.abort("cancelled");
+    try {
+      if (!await store.requestCancel("dictation", id, ownerId)
+        && !await store.insert({ kind: "dictation", jobId: id, ownerId, scopeId: id, fingerprint: null, active: false, snapshot: null, cancelRequested: true })) {
+        await store.requestCancel("dictation", id, ownerId); // The upload arrived at the same moment.
+      }
+    } catch { return reply({ code: "capacity" }, 503); }
+    return reply({ id, cancelled: true });
+  }
+  async transcribe(request: Request, ownerId = "legacy-local-owner") {
+    if (!this.allowRequest(request)) return rejectBody(request, "invalid", 403);
     const id = request.headers.get("x-dictation-id"); if (!isDictationId(id)) return rejectBody(request, "invalid", 400);
     if (request.headers.get("content-type") !== "audio/wav") return rejectBody(request, "format", 415);
     const advertised = request.headers.get("content-length");
     if (advertised && (!/^\d+$/.test(advertised) || Number(advertised) > LIMITS.bytes)) return rejectBody(request, "limit", 413);
     this.prune();
     if (this.entries.has(id)) return rejectBody(request, this.entries.get(id)!.controller.signal.aborted ? "cancelled" : "invalid", 409);
-    if (this.entries.size >= LIMITS.identities || [...this.entries.values()].filter(e => e.active).length >= LIMITS.active) return rejectBody(request, "capacity", 429);
+    const store = this.sharedStore();
+    if (store) {
+      // Online: limits count every server copy (two active dictations per account), and a Cancel
+      // tombstone written by another copy wins, exactly like the local rule below.
+      try {
+        if ((await store.listActive("dictation", ownerId, SHARED_STALE_MS)).length >= LIMITS.active) return rejectBody(request, "capacity", 429);
+        if (!await store.insert({ kind: "dictation", jobId: id, ownerId, scopeId: id, fingerprint: null, active: true, snapshot: null })) {
+          return rejectBody(request, (await store.get("dictation", id))?.cancelRequested ? "cancelled" : "invalid", 409);
+        }
+      } catch { return rejectBody(request, "capacity", 503); }
+    } else if (this.entries.size >= LIMITS.identities || [...this.entries.values()].filter(e => e.active).length >= LIMITS.active) return rejectBody(request, "capacity", 429);
     const entry: Entry = { controller: new AbortController(), active: true, at: Date.now() }; this.entries.set(id, entry);
+    const stopWatching = store
+      ? watchSharedCancellation(store, "dictation", id, () => entry.controller.abort("cancelled"), this.cancelCheckMs)
+      : () => {};
     this.meter(dictationAcceptedEvent(id, entry.at));
     const signal = entry.controller.signal; const disconnect = () => entry.controller.abort("cancelled");
     request.signal.addEventListener("abort", disconnect, { once: true }); if (request.signal.aborted) disconnect();
@@ -103,6 +145,8 @@ export class AssistantTranscriptionService {
       clearTimeout(timer); request.signal.removeEventListener("abort", disconnect); form?.delete("file"); form = undefined; bytes?.fill(0); bytes = undefined;
       entry.active = false; entry.at = Date.now();
       this.meter(dictationTerminalEvent(id, journalOutcome, entry.at));
+      stopWatching();
+      if (store) { await store.update("dictation", id, { snapshot: null, active: false }).catch(() => false); this.entries.delete(id); }
     }
   }
 }

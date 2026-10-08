@@ -11,7 +11,7 @@ export const getServerAccountSession = async () => auth.api.getSession({ headers
 
 export const requireAccountRequest = async (request: Request) => {
   if (!isTrustedAccountRequest(request)) {
-    return { response: NextResponse.json({ error: "Access is limited to this local review app." }, { status: 403 }) } as const;
+    return { response: NextResponse.json({ error: "Access is limited to the Diamond Animator app itself." }, { status: 403 }) } as const;
   }
   const session = await auth.api.getSession({ headers: request.headers });
   if (!session) {

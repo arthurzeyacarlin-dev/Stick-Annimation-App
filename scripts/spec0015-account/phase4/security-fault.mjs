@@ -29,18 +29,24 @@ for (const route of ["app/api/account/projects/route.ts", "app/api/account/proje
   assert.match(source, /access\.session\.user\.id/);
 }
 
-const server = fs.readFileSync("src/lib/account/projectServer.ts", "utf8");
+// Online beta: logic lives in projectStorageCore.ts (projectServer.ts only wires the service-role client).
+const server = fs.readFileSync("src/lib/account/projectStorageCore.ts", "utf8");
+assert.match(fs.readFileSync("src/lib/account/projectServer.ts", "utf8"), /^import "server-only";/);
 assert.match(server, /\.eq\("owner_id", ownerId\)/);
 assert.match(server, /ACCOUNT_PROJECT_PART_BYTES = 5 \* 1024 \* 1024/);
 assert.match(server, /await readVerifiedBundle\(ownerId, stored\)/);
+assert.match(server, /await readVerifiedBundle\(ownerId, stored, "account_project_upload_invalid"\)/);
 assert.match(server, /accountProjectHeadReceipt\(ownerId, project\.projectId\)/);
 
 let projectServerCalls = 0;
 const projectServer = {
   listAccountProjectHeads: async () => { projectServerCalls++; return []; },
-  saveAccountProjectBundle: async ownerId => { projectServerCalls++; return { ownerId, projectId: "test", revision: 1, projectDigest: "a".repeat(64), storedByteLength: 1 }; },
+  prepareAccountProjectUpload: async () => { projectServerCalls++; return { status: "stored" }; },
+  commitAccountProjectUpload: async ownerId => { projectServerCalls++; return { ownerId, projectId: "test", revision: 1, projectDigest: "a".repeat(64), storedByteLength: 1 }; },
   accountProjectHeadReceipt: async ownerId => { projectServerCalls++; return { ownerId, projectId: "test", revision: 1, projectDigest: "a".repeat(64), storedByteLength: 1 }; },
-  readAccountProjectBundle: async () => { projectServerCalls++; return new Uint8Array([1]); },
+  accountProjectDownload: async () => { projectServerCalls++; return { receipt: null, download: null }; },
+  parseAccountProjectUploadBody: body => ({ action: body.action, input: body }),
+  accountProjectErrorStatus: () => 503,
   deleteAccountProject: async () => { projectServerCalls++; return { projectId: "test", deletedAssetIds: [] }; },
 };
 const loadRoute = file => {
@@ -64,10 +70,10 @@ const makeRequest = (path, method, owner) => new Request(`http://127.0.0.1:58584
   method,
   headers: {
     ...(owner ? { "X-Account-Owner": owner } : {}),
-    ...(method === "POST" ? { "Content-Type": "application/octet-stream", "X-Expected-Revision": "new" } : {}),
+    ...(method === "POST" ? { "Content-Type": "application/json" } : {}),
     ...(method === "DELETE" ? { "Content-Type": "application/json" } : {}),
   },
-  ...(method === "POST" ? { body: new Uint8Array([1, 2, 3, 4, 5]) } : {}),
+  ...(method === "POST" ? { body: JSON.stringify({ action: "prepare" }) } : {}),
   ...(method === "DELETE" ? { body: JSON.stringify({ expectedRevision: 1, expectedDigest: "a".repeat(64) }) } : {}),
   ...(method === "POST" ? { duplex: "half" } : {}),
 });
@@ -84,6 +90,13 @@ assert.equal((await collectionRoute.GET(makeRequest("/api/account/projects", "GE
 assert.equal((await collectionRoute.POST(makeRequest("/api/account/projects", "POST", "owner-B"))).status, 200);
 assert.equal((await projectRoute.GET(makeRequest("/api/account/projects/test?head=1", "GET", "owner-B"), context)).status, 200);
 assert.equal((await projectRoute.DELETE(makeRequest("/api/account/projects/test", "DELETE", "owner-B"), context)).status, 200);
+assert.equal(projectServerCalls, 4);
+// Online beta: the bundle never comes through the app server; a raw bundle POST is refused.
+const rawPost = new Request("http://127.0.0.1:58584/api/account/projects", {
+  method: "POST", headers: { "X-Account-Owner": "owner-B", "Content-Type": "application/octet-stream" },
+  body: new Uint8Array([1, 2, 3, 4, 5]), duplex: "half",
+});
+assert.equal((await collectionRoute.POST(rawPost)).status, 400);
 assert.equal(projectServerCalls, 4);
 
 if (process.argv.includes("--create-private-bucket")) {

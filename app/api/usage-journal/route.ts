@@ -3,17 +3,11 @@ import { readUsageSummary } from "@/src/lib/usage-journal/usageJournalRuntime";
 import { requireAccountRequest } from "@/src/lib/account/access";
 
 export const runtime = "nodejs";
-const localRequest = (request: Request) => {
-  const host = request.headers.get("host") ?? "";
-  const origin = request.headers.get("origin");
-  return /^(127\.0\.0\.1|localhost|\[::1\]):\d{1,5}$/.test(host) && (!origin || origin === `http://${host}`) &&
-    !["cross-site", "same-site"].includes(request.headers.get("sec-fetch-site") ?? "");
-};
+// requireAccountRequest runs the shared same-site check (local http or the configured https app address).
 
 export async function GET(request: Request) {
   const access = await requireAccountRequest(request);
   if ("response" in access) return access.response;
-  if (!localRequest(request)) return NextResponse.json({ error: "Usage records are limited to this local app." }, { status: 403 });
   try {
     return NextResponse.json(await readUsageSummary(), { headers: { "Cache-Control": "no-store" } });
   } catch {

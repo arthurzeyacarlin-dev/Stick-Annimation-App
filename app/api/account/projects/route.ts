@@ -1,14 +1,17 @@
 import { NextResponse } from "next/server";
 import { requireAccountRequest } from "@/src/lib/account/access";
-import { listAccountProjectHeads, saveAccountProjectBundle } from "@/src/lib/account/projectServer";
+import {
+  accountProjectErrorStatus, commitAccountProjectUpload, listAccountProjectHeads,
+  parseAccountProjectUploadBody, prepareAccountProjectUpload,
+} from "@/src/lib/account/projectServer";
 
 export const runtime = "nodejs";
+// Commit downloads and verifies up to ~140 MB of uploaded parts before saving the version.
+export const maxDuration = 120;
 
 const responseForError = (error: unknown) => {
   const code = error instanceof Error ? error.message : "account_project_failed";
-  const status = code === "stale_revision" ? 409 : code === "account_project_import_forbidden" ? 403 :
-    code === "project_too_large" ? 413 : code === "bundle_invalid" || code === "account_project_invalid_scope" ? 400 : 503;
-  return NextResponse.json({ error: code }, { status });
+  return NextResponse.json({ error: code }, { status: accountProjectErrorStatus(code) });
 };
 
 export async function GET(request: Request) {
@@ -19,22 +22,26 @@ export async function GET(request: Request) {
   catch (error) { return responseForError(error); }
 }
 
+// Metadata only. The project bundle itself never passes through this server:
+// "prepare" checks ownership/revision and returns signed upload links to the private
+// bucket; the browser uploads the parts there; "commit" verifies those parts on the
+// server (size, SHA-256, gzip, bundle, project identity) and only then saves the version.
 export async function POST(request: Request) {
   const access = await requireAccountRequest(request);
   if ("response" in access) return access.response;
   if (request.headers.get("x-account-owner") !== access.session.user.id) return NextResponse.json({ error: "account_session_changed" }, { status: 403 });
-  const expectedHeader = request.headers.get("x-expected-revision");
-  if (request.headers.get("content-type")?.split(";")[0] !== "application/octet-stream" ||
-    expectedHeader === null || !/^(new|[1-9][0-9]{0,9})$/.test(expectedHeader)) {
+  const length = Number(request.headers.get("content-length") ?? 0);
+  if (request.headers.get("content-type")?.split(";")[0] !== "application/json" || !(length <= 16_384)) {
     return NextResponse.json({ error: "account_project_invalid_request" }, { status: 400 });
   }
-  const length = Number(request.headers.get("content-length") ?? 0);
-  if (length > 140_000_000) return NextResponse.json({ error: "project_too_large" }, { status: 413 });
   try {
-    const raw = new Uint8Array(await request.arrayBuffer());
-    const expectedRevision = expectedHeader === "new" ? null : Number(expectedHeader);
-    const receipt = await saveAccountProjectBundle(access.session.user.id, raw, expectedRevision);
-    if (!receipt) return NextResponse.json({ error: "account_project_readback_failed" }, { status: 503 });
-    return NextResponse.json({ receipt });
+    const text = await request.text();
+    if (text.length > 16_384) return NextResponse.json({ error: "account_project_invalid_request" }, { status: 400 });
+    let body: unknown = null;
+    try { body = JSON.parse(text); } catch { /* rejected by the parser below */ }
+    const { action, input } = parseAccountProjectUploadBody(body);
+    const ownerId = access.session.user.id;
+    if (action === "prepare") return NextResponse.json(await prepareAccountProjectUpload(ownerId, input));
+    return NextResponse.json({ receipt: await commitAccountProjectUpload(ownerId, input) });
   } catch (error) { return responseForError(error); }
 }

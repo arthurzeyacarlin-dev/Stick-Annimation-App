@@ -41,7 +41,7 @@ export async function GET(request: Request) {
   if ("response" in access) return access.response;
   try {
     const { namespace, key } = identity(request);
-    const record = readAccountDataRecord(access.session.user.id, namespace, key);
+    const record = await readAccountDataRecord(access.session.user.id, namespace, key);
     if (!record) {
       return new NextResponse(null, {
         status: 204,
@@ -61,7 +61,7 @@ export async function PUT(request: Request) {
   try {
     const { namespace, key } = identity(request);
     const expectedRevision = revision(request, true);
-    const record = writeAccountDataRecord(access.session.user.id, namespace, key, expectedRevision, new Uint8Array(await request.arrayBuffer()));
+    const record = await writeAccountDataRecord(access.session.user.id, namespace, key, expectedRevision, new Uint8Array(await request.arrayBuffer()));
     return NextResponse.json({ revision: record.revision, digest: record.digest, updatedAt: record.updatedAt }, { headers: recordHeaders(record) });
   } catch (error) { return safeError(error); }
 }
@@ -71,7 +71,7 @@ export async function DELETE(request: Request) {
   if ("response" in access) return access.response;
   try {
     const { namespace, key } = identity(request);
-    const removed = deleteAccountDataRecord(access.session.user.id, namespace, key, revision(request, false));
+    const removed = await deleteAccountDataRecord(access.session.user.id, namespace, key, revision(request, false));
     return NextResponse.json({ removed }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) { return safeError(error); }
 }

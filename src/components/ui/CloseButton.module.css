@@ -1,0 +1,5 @@
+/* SPEC-0020 Phase 3: the global close X — no box. Doubled class so a screen's own button rules can't restyle it. */
+.close.close { box-sizing: border-box; display: inline-grid; place-items: center; flex: 0 0 auto; width: 36px; height: 36px; min-height: 36px; margin: 0; padding: 0; border: 0; border-radius: 8px; background: transparent; box-shadow: none; color: var(--da-text-2, #c9d6ea); font: inherit; cursor: pointer; appearance: none; transition: none; }
+.close.close svg { width: 20px; height: 20px; }
+.close.close:hover { border: 0; background: transparent; color: var(--da-hover, #0066ff); }
+.close.close:focus-visible { outline: 2px solid var(--da-focus, #66c7ff); outline-offset: 2px; }

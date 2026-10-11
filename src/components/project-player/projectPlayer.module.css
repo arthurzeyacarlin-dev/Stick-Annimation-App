@@ -82,7 +82,7 @@
 /*
  * Seek sliders are drawn by hand so the browser never tints them.
  * --player-seek-fill is the played fraction (set inline from the slider value).
- * Rest: dull #3a6aa3 fill/thumb; hover or drag: #0066ff. Track: #163058.
+ * Rest: dull var(--da-selected-border, #3a6aa3) fill/thumb; hover or drag: var(--da-hover, #0066ff). Track: var(--da-line, #163058).
  */
 .seek,
 .viewerSeek {

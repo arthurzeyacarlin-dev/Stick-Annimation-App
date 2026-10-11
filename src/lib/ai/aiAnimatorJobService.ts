@@ -181,8 +181,8 @@ export class AiAnimatorJobService {
         status: "failed",
         errorCode: wasAborted ? "deadline_exceeded" : "provider_failed",
         errorMessage: wasAborted
-          ? "Terra did not finish within 90 seconds. No animation changed. You can try again."
-          : `${error instanceof Error ? error.message : "Terra could not complete the request."} No animation changed.`,
+          ? "The AI Animator did not finish within 90 seconds. No animation changed. You can try again."
+          : `${error instanceof Error ? error.message : "The AI Animator could not complete the request."} No animation changed.`,
       });
       job.completedAt = job.updatedAt;
       job.telemetry = {

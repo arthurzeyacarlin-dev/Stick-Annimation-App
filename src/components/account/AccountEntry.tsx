@@ -87,7 +87,7 @@ export function AccountEntry() {
 
   if (mode === null) {
     return (
-      <main className={styles.page}>
+      <main className={`${styles.page} da-keep-dark`}>
         <section aria-labelledby="account-entry-title" className={styles.card}>
           <div className={styles.intro}>
             <DiamondLogo className={styles.logoLarge} size={44} />
@@ -106,7 +106,7 @@ export function AccountEntry() {
 
   if (mode === "login") {
     return (
-      <main className={styles.page}>
+      <main className={`${styles.page} da-keep-dark`}>
         <section aria-labelledby="account-entry-title" className={styles.card}>
           <div className={styles.brand}><DiamondLogo className={styles.logo} size={24} />Diamond Animator</div>
           <h1 id="account-entry-title" className={`${styles.title} ${styles.formTitle}`}>Log in</h1>
@@ -131,7 +131,7 @@ export function AccountEntry() {
 
   if (mode === "forgot") {
     return (
-      <main className={styles.page}>
+      <main className={`${styles.page} da-keep-dark`}>
         <section aria-labelledby="account-entry-title" className={styles.card}>
           <div className={styles.brand}><DiamondLogo className={styles.logo} size={24} />Diamond Animator</div>
           <h1 id="account-entry-title" className={`${styles.title} ${styles.formTitle}`}>Forgot password</h1>
@@ -161,7 +161,7 @@ export function AccountEntry() {
   }
 
   return (
-    <main className={styles.page}>
+    <main className={`${styles.page} da-keep-dark`}>
       <section aria-labelledby="account-entry-title" className={`${styles.card} ${styles.cardWide}`}>
         <div className={styles.brand}><DiamondLogo className={styles.logo} size={24} />Diamond Animator</div>
         <h1 id="account-entry-title" className={styles.title}>Create account</h1>

@@ -22,9 +22,9 @@ const topBarButtonStyle = (isActive = false, cursor: "pointer" | "default" = "de
     height: 30,
     padding: "0 10px",
     borderRadius: 8,
-    border: isActive ? "1px solid #3a6aa3" : "1px solid transparent",
-    background: isActive ? "#0f2a52" : "transparent",
-    color: isActive ? "#eaf3ff" : "#c9d6ea",
+    border: isActive ? "1px solid var(--da-selected-border, #3a6aa3)" : "1px solid transparent",
+    background: isActive ? "var(--da-selected-bg, #0f2a52)" : "transparent",
+    color: isActive ? "var(--da-on-selected, #eaf3ff)" : "var(--da-text-2, #c9d6ea)",
     fontSize: 13,
     fontWeight: 500,
     fontFamily: "inherit",
@@ -44,7 +44,7 @@ const historyButtonStyle = (isEnabled: boolean) =>
     borderRadius: 8,
     border: "1px solid transparent",
     background: "transparent",
-    color: "#8fabd0",
+    color: "var(--da-muted, #8fabd0)",
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
@@ -69,8 +69,8 @@ const menuStyle = (minWidth: number) =>
     minWidth,
     padding: 4,
     borderRadius: 12,
-    border: "1px solid #163058",
-    background: "#071120",
+    border: "1px solid var(--da-line, #163058)",
+    background: "var(--da-panel, #071120)",
     boxShadow: "0 18px 44px rgba(0,0,0,0.45)",
     display: "flex",
     flexDirection: "column" as const,
@@ -85,7 +85,7 @@ const menuItemStyle = (isEnabled = true) =>
     border: "1px solid transparent",
     borderRadius: 7,
     background: "transparent",
-    color: "#c9d6ea",
+    color: "var(--da-text-2, #c9d6ea)",
     fontSize: 13,
     fontFamily: "inherit",
     textAlign: "left" as const,
@@ -157,11 +157,11 @@ export function DrawingTopBar({
   const hasSaveProblem = saveState === "failed" || saveState === "too-large";
   const syncLabel = isLegacyProject ? "Older local project — Save to upgrade on this browser" : "Local only — not synced to another device";
   const statusDotColor = hasSaveProblem
-    ? "#ff8a95"
+    ? "var(--da-danger, #ff8a95)"
     : saveState === "saved" || saveState === "quiet-saved"
       ? "#7fd8a6"
       : saveState === "saving"
-        ? "#8cbbf3"
+        ? "var(--da-link, #8cbbf3)"
         : "#f3d89c";
 
   return (
@@ -172,8 +172,8 @@ export function DrawingTopBar({
         alignItems: "center",
         gap: 12,
         padding: "0 16px",
-        background: "#071120",
-        borderBottom: "1px solid #163058",
+        background: "var(--da-panel, #071120)",
+        borderBottom: "1px solid var(--da-line, #163058)",
         flexShrink: 0,
       }}
     >
@@ -228,7 +228,7 @@ export function DrawingTopBar({
                 ) : null}
                 {onSaveAndExit ? (
                   <>
-                    <div aria-hidden="true" style={{ height: 1, margin: "2px 6px", background: "#163058" }} />
+                    <div aria-hidden="true" style={{ height: 1, margin: "2px 6px", background: "var(--da-line, #163058)" }} />
                     <button
                       type="button"
                       role="menuitem"
@@ -254,7 +254,7 @@ export function DrawingTopBar({
 
         {hasHistoryControls && (
           <>
-            <div aria-hidden="true" style={{ width: 1, height: 18, background: "#163058", flexShrink: 0 }} />
+            <div aria-hidden="true" style={{ width: 1, height: 18, background: "var(--da-line, #163058)", flexShrink: 0 }} />
             <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
               <button
                 type="button"
@@ -305,7 +305,7 @@ export function DrawingTopBar({
           maxWidth: "40%",
           fontSize: 13,
           fontWeight: 600,
-          color: "#f6f9ff",
+          color: "var(--da-text, #f6f9ff)",
           textAlign: "center",
           whiteSpace: "nowrap",
           overflow: "hidden",
@@ -321,9 +321,9 @@ export function DrawingTopBar({
         style={{ flex: "1 1 0", display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 10, whiteSpace: "nowrap" }}
       >
         {hasRecoveryWarning ? (
-          <span style={{ fontSize: 12, fontWeight: 500, color: "#ff8a95" }}>{recoveryStateLabel}</span>
+          <span style={{ fontSize: 12, fontWeight: 500, color: "var(--da-danger, #ff8a95)" }}>{recoveryStateLabel}</span>
         ) : null}
-        {isLegacyProject ? <span style={{ fontSize: 12, color: "#8fabd0" }}>{syncLabel}</span> : null}
+        {isLegacyProject ? <span style={{ fontSize: 12, color: "var(--da-muted, #8fabd0)" }}>{syncLabel}</span> : null}
         <CreditsBadge />
         <div
           role="status"
@@ -336,9 +336,9 @@ export function DrawingTopBar({
             gap: 7,
             padding: "0 10px",
             borderRadius: 999,
-            border: "1px solid #163058",
-            background: "#030914",
-            color: hasSaveProblem ? "#ff8a95" : "#c9d6ea",
+            border: "1px solid var(--da-line, #163058)",
+            background: "var(--da-page, #030914)",
+            color: hasSaveProblem ? "var(--da-danger, #ff8a95)" : "var(--da-text-2, #c9d6ea)",
             fontSize: 12,
             fontWeight: 500,
             userSelect: "none",

@@ -9749,7 +9749,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       className={workspaceThemeStyles.workspace}
       style={{
         height: "100vh",
-        background: "#030914",
+        background: "var(--da-page, #030914)",
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",
@@ -9758,14 +9758,14 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       <style>{`
           [data-unified-workspace-area="true"] + div button:focus-visible,
           [data-unified-workspace-area="true"] [aria-label="Workspace panels"] button:focus-visible {
-            outline: 2px solid #66c7ff !important;
+            outline: 2px solid var(--da-focus, #66c7ff) !important;
             outline-offset: 2px;
           }
           #save-as-project-name:focus {
-            border-color: #3a6aa3 !important;
+            border-color: var(--da-selected-border, #3a6aa3) !important;
           }
           #save-as-project-name:focus-visible {
-            outline: 2px solid #66c7ff;
+            outline: 2px solid var(--da-focus, #66c7ff);
             outline-offset: 2px;
           }
           @media (max-width: 640px) {
@@ -9783,7 +9783,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
               min-height: 200px;
               flex: 0 0 200px !important;
               border-left: 0 !important;
-              border-top: 1px solid #163058;
+              border-top: 1px solid var(--da-line, #163058);
             }
             [data-unified-workspace-area="true"] + div {
               width: 100% !important;
@@ -9820,8 +9820,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
             opacity: saveNotification.isVisible ? 1 : 0,
             padding: "12px 16px",
             borderRadius: 12,
-            border: "1px solid #163058",
-            background: "#071120",
+            border: "1px solid var(--da-line, #163058)",
+            background: "var(--da-panel, #071120)",
             boxShadow: "0 18px 44px rgba(0,0,0,0.45)",
             display: "flex",
             flexDirection: "column",
@@ -9832,8 +9832,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
             textAlign: "center",
           }}
         >
-          <div style={{ color: "#f6f9ff", fontSize: 14, fontWeight: 700 }}>Project saved</div>
-          <div style={{ color: "#8fabd0", fontSize: 12 }}>{saveNotification.projectName}</div>
+          <div style={{ color: "var(--da-text, #f6f9ff)", fontSize: 14, fontWeight: 700 }}>Project saved</div>
+          <div style={{ color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>{saveNotification.projectName}</div>
         </div>
       )}
       <MemoizedDrawingTimelineRow
@@ -10034,19 +10034,19 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
             gap: 16,
             padding: 24,
             borderRadius: 16,
-            border: "1px solid #163058",
-            background: "#071120",
+            border: "1px solid var(--da-line, #163058)",
+            background: "var(--da-panel, #071120)",
             boxShadow: "0 18px 44px rgba(0,0,0,0.45)",
-            color: "#f6f9ff",
+            color: "var(--da-text, #f6f9ff)",
           }}
         >
           <div>
             <h2 id="save-as-dialog-title" style={{ margin: 0, fontSize: 20 }}>Save project as</h2>
-            <p id="save-as-dialog-help" style={{ margin: "7px 0 0", color: "#8fabd0", fontSize: 13 }}>
+            <p id="save-as-dialog-help" style={{ margin: "7px 0 0", color: "var(--da-muted, #8fabd0)", fontSize: 13 }}>
               Save a new copy to your account. The current project stays unchanged until saving succeeds.
             </p>
           </div>
-          <label htmlFor="save-as-project-name" style={{ display: "flex", flexDirection: "column", gap: 7, color: "#a8bddd", fontSize: 13 }}>
+          <label htmlFor="save-as-project-name" style={{ display: "flex", flexDirection: "column", gap: 7, color: "var(--da-text-3, #a8bddd)", fontSize: 13 }}>
             Project name
             <input
               id="save-as-project-name"
@@ -10061,27 +10061,27 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
                 boxSizing: "border-box",
                 padding: "11px 12px",
                 borderRadius: 9,
-                border: saveAsDialog.error ? "1px solid rgba(255,138,149,0.6)" : "1px solid #244267",
-                background: "#030914",
-                color: "#f6f9ff",
+                border: saveAsDialog.error ? "1px solid rgba(255,138,149,0.6)" : "1px solid var(--da-border, #244267)",
+                background: "var(--da-page, #030914)",
+                color: "var(--da-text, #f6f9ff)",
                 fontSize: 15,
               }}
             />
           </label>
-          {saveAsDialog.error ? <div id="save-as-dialog-error" role="alert" style={{ color: "#ff8a95", fontSize: 13 }}>{saveAsDialog.error}</div> : null}
+          {saveAsDialog.error ? <div id="save-as-dialog-error" role="alert" style={{ color: "var(--da-danger, #ff8a95)", fontSize: 13 }}>{saveAsDialog.error}</div> : null}
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
             <button
               type="button"
               disabled={saveAsDialog.submitting}
               onClick={cancelSaveAsDialog}
-              style={{ minWidth: 88, minHeight: 40, borderRadius: 10, border: "1px solid #244267", background: "#071120", color: "#c9d6ea", cursor: saveAsDialog.submitting ? "default" : "pointer" }}
+              style={{ minWidth: 88, minHeight: 40, borderRadius: 10, border: "1px solid var(--da-border, #244267)", background: "var(--da-panel, #071120)", color: "var(--da-text-2, #c9d6ea)", cursor: saveAsDialog.submitting ? "default" : "pointer" }}
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saveAsDialog.submitting}
-              style={{ minWidth: 88, minHeight: 40, borderRadius: 10, border: "1px solid #3a6aa3", background: "#0f2a52", color: "#fff", cursor: saveAsDialog.submitting ? "default" : "pointer", fontWeight: 700 }}
+              style={{ minWidth: 88, minHeight: 40, borderRadius: 10, border: "1px solid var(--da-selected-border, #3a6aa3)", background: "var(--da-selected-bg, #0f2a52)", color: "#fff", cursor: saveAsDialog.submitting ? "default" : "pointer", fontWeight: 700 }}
             >
               {saveAsDialog.submitting ? "Saving…" : "Save copy"}
             </button>

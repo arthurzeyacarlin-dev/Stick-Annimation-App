@@ -10,7 +10,7 @@ export default async function CreditsPage() {
   // SPEC-0020 Phase 2: a locked account (trial over, no plan) sees the "trial ended" screen on Home.
   if (getAccountPlanStatus(session.user.id).locked) redirect("/");
   return (
-    <div style={{ minHeight: "100vh", background: "#030914", color: "#f6f9ff" }}>
+    <div style={{ minHeight: "100vh", background: "var(--da-page, #030914)", color: "var(--da-text, #f6f9ff)" }}>
       <AppChrome page="dashboard" />
       <AiDashboardScreen />
     </div>

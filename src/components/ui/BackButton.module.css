@@ -1,0 +1,6 @@
+/* SPEC-0020 Phase 3 (Arthur): the global Back control — a back arrow, no box. Hover turns it var(--da-hover, #0066ff), instantly.
+   The class is doubled (.back.back) so a screen's own "button { … }" rules can never restyle it. */
+.back.back { box-sizing: border-box; display: inline-grid; place-items: center; align-self: flex-start; width: 40px; height: 40px; min-height: 40px; margin: 0 0 0 -8px; padding: 0; border: 0; border-radius: 10px; background: transparent; color: var(--da-text-2, #c9d6ea); font: inherit; text-decoration: none; cursor: pointer; appearance: none; transition: none; }
+.back.back svg { width: 26px; height: 26px; }
+.back.back:hover { border: 0; background: transparent; color: var(--da-hover, #0066ff); }
+.back.back:focus-visible { outline: 2px solid var(--da-focus, #66c7ff); outline-offset: 2px; }

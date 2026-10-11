@@ -8,11 +8,14 @@ import { reconcileBrowserConnectivityV1, startBrowserConnectivityObserverV1 } fr
 import { registerNotificationNavigationHandlerV1 } from "@/src/lib/notifications/notificationNavigation";
 import type { NotificationTargetV1 } from "@/src/lib/notifications/notificationContracts";
 import { startTerraCompletionObserverV1 } from "@/src/lib/notifications/terraCompletionObserver";
+import { playNotificationDing } from "@/src/lib/notifications/notificationSound";
+import { getAppSettings } from "@/src/lib/account/appSettings";
 import {
   getValidatedNotificationSnapshotV1,
   markAllNotificationsReadV1,
   markNotificationReadV1,
   retryNotificationRecoveryV1,
+  subscribeNotificationCommitsV1,
   subscribeNotificationsV1,
   type ValidatedNotificationSnapshotV1,
 } from "@/src/lib/notifications/notificationStorage";
@@ -35,6 +38,16 @@ export function NotificationCenterProvider({ children }: { children: ReactNode }
   const assistantTargetKey = useMemo(() => JSON.stringify(snapshot.rows.filter(row => row.target.kind === "assistant-turn").map(row => row.target)), [snapshot.rows]);
 
   useEffect(() => subscribeNotificationsV1(setSnapshot), []);
+  // SPEC-0020 Phase 3 (Arthur): "ding ding" for every new notification, on every page (the editor too),
+  // following Settings → Notification sound / Volume. Once per notification.
+  useEffect(() => {
+    const played = new Set<string>();
+    return subscribeNotificationCommitsV1(notification => {
+      if (notification.readAt !== null || played.has(notification.notificationId)) return;
+      played.add(notification.notificationId);
+      void getAppSettings().then(settings => { if (settings.notificationSound) playNotificationDing(settings.notificationVolume); });
+    });
+  }, []);
   useEffect(() => { void getValidatedNotificationSnapshotV1(); }, []);
   useEffect(() => startBrowserConnectivityObserverV1(state => setBrowserOffline(state.offline)), []);
   useEffect(() => {

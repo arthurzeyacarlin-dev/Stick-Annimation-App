@@ -118,7 +118,7 @@ const timelineSelectedButtonStyle: CSSProperties = {
   ...timelineButtonStyle,
   border: `1px solid ${workspaceColors.selectedBorder}`,
   background: workspaceColors.selectedFill,
-  color: "#eaf3ff",
+  color: "var(--da-on-selected, #eaf3ff)",
 };
 
 const contextMenuItemStyle = (enabled: boolean, tone: "default" | "danger" = "default"): CSSProperties => ({
@@ -148,9 +148,9 @@ const TIMELINE_RULER_INTERVAL = 5;
 const TIMELINE_MAX_FRAME_RANGE = 10000;
 const TIMELINE_SCROLL_END_PADDING = FRAME_CELL_WIDTH * 2;
 // Frames are gray with black keyframe dots (classic animation-app look) on a navy lane.
-// Current frame: dull blue outline. Hover: bright #0066FF outline via data-hover="outline".
+// Current frame: dull blue outline. Hover: bright var(--da-hover, #0066FF) outline via data-hover="outline".
 const TIMELINE_LANE_BACKGROUND = workspaceColors.chrome;
-const TIMELINE_EMPTY_SLOT_FILL = "#071120";
+const TIMELINE_EMPTY_SLOT_FILL = "var(--da-panel, #071120)";
 const TIMELINE_EMPTY_SLOT_BORDER = workspaceColors.divider;
 const TIMELINE_SELECTED_SLOT_OUTLINE = `2px solid ${workspaceColors.selectedBorder}`;
 const TIMELINE_SELECTED_SLOT_BORDER = workspaceColors.selectedBorder;
@@ -1394,7 +1394,7 @@ export function DrawingTimelineRow({
                 width: 36,
                 height: 3,
                 borderRadius: 999,
-                background: "#3a5a85",
+                background: "var(--da-c-3a5a85, #3a5a85)",
                 boxShadow: `0 5px 0 ${workspaceColors.border}`,
                 pointerEvents: "none",
               }}
@@ -1477,7 +1477,7 @@ export function DrawingTimelineRow({
 
         .timeline-bottom-scrollbar-slider::-webkit-slider-runnable-track {
           height: 3px;
-          background: #163058;
+          background: var(--da-line, #163058);
           border-radius: 999px;
         }
 
@@ -1489,12 +1489,12 @@ export function DrawingTimelineRow({
           margin-top: -1.5px;
           border: none;
           border-radius: 999px;
-          background: #3a5a85;
+          background: var(--da-c-3a5a85, #3a5a85);
         }
 
         .timeline-bottom-scrollbar-slider::-moz-range-track {
           height: 3px;
-          background: #163058;
+          background: var(--da-line, #163058);
           border-radius: 999px;
         }
 
@@ -1503,7 +1503,7 @@ export function DrawingTimelineRow({
           height: 6px;
           border: none;
           border-radius: 999px;
-          background: #3a5a85;
+          background: var(--da-c-3a5a85, #3a5a85);
         }
       `}</style>
 

@@ -16,6 +16,7 @@ import {
   registerNotificationOriginSurfaceV1,
   registerNotificationTargetSurfaceV1,
 } from "@/src/lib/notifications/notificationNavigation";
+import { BACK_BUTTON_CLASS, BackChevron } from "@/src/components/ui/BackButton";
 
 const SIDEBAR_MIN_WIDTH = 200;
 const SIDEBAR_DEFAULT_WIDTH = 256;
@@ -219,12 +220,12 @@ export function DiamondAssistantScreen({ onClose }: DiamondAssistantScreenProps 
       <main id="assistant-conversation-main" className={styles.main}>
         <header className={styles.header}>
           {onClose ? (
-            <button ref={closeRef} type="button" onClick={onClose} className={styles.back}>
-              <span aria-hidden="true">←</span> Back to drawing
+            <button ref={closeRef} type="button" onClick={onClose} className={BACK_BUTTON_CLASS} aria-label="Back to drawing" title="Back to drawing">
+              <BackChevron />
             </button>
           ) : (
-            <Link ref={backRef} href="/#help" prefetch={false} className={styles.back}>
-              <span aria-hidden="true">←</span> Back to Help
+            <Link ref={backRef} href="/#help" prefetch={false} className={BACK_BUTTON_CLASS} aria-label="Back to Help" title="Back to Help">
+              <BackChevron />
             </Link>
           )}
           {onClose ? null : (

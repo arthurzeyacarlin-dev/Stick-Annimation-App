@@ -497,7 +497,12 @@ export async function observeBrowserOnlineV1(source: "browser-online-event" | "b
     if (!stillOnline()) return { rows, changed: false, result: staleResult };
     if (!activeIncident) return { rows, changed: false, result: { status: "already-online", incident: null, notification: null } satisfies BrowserConnectivityObservationResultV1 };
     const now = Date.now();
-    const retiredOffline = await retireUnreadRows(rows, envelopes, notification => notification.eventType === "system.internet.offline" && notification.origin.kind === "connectivity" && notification.origin.offlineIncidentId === activeIncident.offlineIncidentId, now);
+    // SPEC-0020 Phase 3 (Arthur): when the internet comes back during a visit, keep the red "lost" notification
+    // next to the green "restored" one (both show until the bell is opened). A stale incident found when the
+    // page first loads online is still retired quietly.
+    const retiredOffline = source === "browser-initial-online"
+      ? await retireUnreadRows(rows, envelopes, notification => notification.eventType === "system.internet.offline" && notification.origin.kind === "connectivity" && notification.origin.offlineIncidentId === activeIncident.offlineIncidentId, now)
+      : { count: 0, rows };
     if (source === "browser-initial-online") {
       return {
         rows: retiredOffline.rows,

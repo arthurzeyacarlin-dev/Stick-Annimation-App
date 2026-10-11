@@ -25,6 +25,7 @@ import { ProjectMovieViewer } from "../project-player/ProjectMovieViewer";
 import { ProjectPoster } from "./ProjectPoster";
 import { ExportAnimationPlayer } from "../export/AnimationExportFlow";
 import styles from "./projectLibrary.module.css";
+import { BackButton } from "@/src/components/ui/BackButton";
 
 type Props = {
   onBack: () => void;
@@ -369,7 +370,7 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
       <main ref={libraryRef} className={styles.library} data-project-library={surface === "watch" ? "my-projects" : "open-project"} aria-labelledby="project-library-heading">
         <div className={styles.shell}>
           <header className={styles.header}>
-            <button type="button" onClick={onBack} className={`${styles.secondaryButton} ${styles.backButton}`}>← Back</button>
+            <BackButton onClick={onBack}>Back to Home</BackButton>
             <div className={styles.headingGroup}>
               <div className={styles.eyebrow}>Project library</div>
               <h1 id="project-library-heading">{heading}</h1>

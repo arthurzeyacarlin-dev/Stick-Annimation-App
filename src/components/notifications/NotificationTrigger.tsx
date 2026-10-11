@@ -6,7 +6,10 @@ import { notificationBelongsToViewV1, notificationCopyForV1, type DiamondNotific
 import { dispatchNotificationTargetV1 } from "@/src/lib/notifications/notificationNavigation";
 import { subscribeNotificationCommitsV1 } from "@/src/lib/notifications/notificationStorage";
 import { useNotificationCenterV1 } from "./NotificationCenterProvider";
+import { countNotificationTonesV1, NOTIFICATION_TONES_V1, notificationToneV1, type NotificationToneV1 } from "@/src/lib/notifications/notificationTone";
+import { getAppSettings } from "@/src/lib/account/appSettings";
 import styles from "./notificationCenter.module.css";
+import { CloseButton } from "@/src/components/ui/CloseButton";
 
 const BellIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -15,11 +18,15 @@ const BellIcon = () => (
   </svg>
 );
 
+// SPEC-0020 Phase 3: what people see says "AI Animator" (the saved notification text stays unchanged).
+const AI_ANIMATOR_TITLES: Record<string, string> = { "Terra replied": "AI Animator replied", "Terra reply failed": "AI Animator reply failed" };
+const TONE_LABEL: Record<NotificationToneV1, string> = { news: "update", bad: "problem", good: "new" };
 const displayTime = (notification: DiamondNotificationV1) => new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(notification.occurredAt);
 const offlineCopy = notificationCopyForV1("system.internet.offline", { kind: "connectivity", offlineIncidentId: "current-browser-state", offlineSince: 1 });
 
 export function NotificationTrigger({ view }: { view: "home" | "assistant" }) {
   const { snapshot, browserOffline, markRead, markAll, retryRecovery } = useNotificationCenterV1();
+  const [ringTone, setRingTone] = useState<NotificationToneV1>("good");
   const panelId = useId();
   const [open, setOpen] = useState(false);
   const [ringing, setRinging] = useState(false);
@@ -34,6 +41,10 @@ export function NotificationTrigger({ view }: { view: "home" | "assistant" }) {
   const announceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const rows = useMemo(() => snapshot.rows.filter(row => row.readAt === null && notificationBelongsToViewV1(row, view)), [snapshot.rows, view]);
   const unreadCount = rows.length;
+  const toneCounts = useMemo(() => countNotificationTonesV1(rows), [rows]);
+  const tonesShown = NOTIFICATION_TONES_V1.filter(tone => toneCounts[tone] > 0);
+  const unreadRef = useRef(0);
+  useEffect(() => { unreadRef.current = unreadCount; }, [unreadCount]);
   const hasUnreadOffline = rows.some(row => row.eventType === "system.internet.offline");
   const assistantSessionKey = useMemo(() => JSON.stringify(rows.flatMap(row => row.origin.kind === "assistant" ? [row.origin.sessionId] : [])), [rows]);
 
@@ -53,7 +64,7 @@ export function NotificationTrigger({ view }: { view: "home" | "assistant" }) {
     }
     if (notification.origin.kind === "workspace-terra") {
       const project = notification.origin.projectTitle;
-      return { title: `${notification.title} in “${project}”`, body: `Project: ${project}.` };
+      return { title: `${AI_ANIMATOR_TITLES[notification.title] ?? notification.title} in “${project}”`, body: `Project: ${project}.` };
     }
     return { title: notification.title, body: notification.body };
   };
@@ -71,7 +82,19 @@ export function NotificationTrigger({ view }: { view: "home" | "assistant" }) {
     if (ringTimerRef.current) clearTimeout(ringTimerRef.current);
     if (announceTimerRef.current) clearTimeout(announceTimerRef.current);
     setRinging(false);
-    requestAnimationFrame(() => setRinging(true));
+    // SPEC-0020 Phase 3 (Arthur): the bell rings left-right (Settings → Ring the bell). The "ding ding" is played
+    // once for the whole page by NotificationCenterProvider, so it also sounds in the editor.
+    setRingTone(notificationToneV1(notification));
+    // The stop timer starts when the ring really starts: a tab in the background delays the ring until it is
+    // seen again, and the bell must not stay green afterwards.
+    void getAppSettings().then(settings => {
+      if (!settings.bellRing) return;
+      requestAnimationFrame(() => {
+        setRinging(true);
+        if (ringTimerRef.current) clearTimeout(ringTimerRef.current);
+        ringTimerRef.current = setTimeout(() => setRinging(false), 1300);
+      });
+    });
     if (notification.origin.kind === "assistant") {
       const sessionId = notification.origin.sessionId;
       void listSessions().then(({ sessions }) => {
@@ -79,9 +102,8 @@ export function NotificationTrigger({ view }: { view: "home" | "assistant" }) {
         setAnnouncement({ key: notification.notificationId, text: `${notification.title} in “${chat}”.` });
       }).catch(() => setAnnouncement({ key: notification.notificationId, text: notification.title }));
     } else if (notification.origin.kind === "workspace-terra") {
-      setAnnouncement({ key: notification.notificationId, text: `${notification.title} in “${notification.origin.projectTitle}”.` });
+      setAnnouncement({ key: notification.notificationId, text: `${AI_ANIMATOR_TITLES[notification.title] ?? notification.title} in “${notification.origin.projectTitle}”.` });
     } else setAnnouncement({ key: notification.notificationId, text: `${notification.title}. ${notification.body}` });
-    ringTimerRef.current = setTimeout(() => setRinging(false), 760);
     announceTimerRef.current = setTimeout(() => setAnnouncement(null), 4_000);
   }), [view]);
 
@@ -90,8 +112,11 @@ export function NotificationTrigger({ view }: { view: "home" | "assistant" }) {
     if (announceTimerRef.current) clearTimeout(announceTimerRef.current);
   }, []);
 
+  // SPEC-0020 Phase 3 (Arthur): no "Mark all as read" button — opening the bell fades the dots away and
+  // closing it marks everything in it as read.
   const close = (restoreFocus = true) => {
     setOpen(false);
+    if (unreadRef.current > 0) void markAll(view).catch(() => setLocalStatus("Notifications could not be marked as read. Retry notification recovery and try again."));
     if (restoreFocus) requestAnimationFrame(() => triggerRef.current?.focus({ preventScroll: true }));
   };
 
@@ -137,12 +162,6 @@ export function NotificationTrigger({ view }: { view: "home" | "assistant" }) {
     }
   };
 
-  const markCurrentViewRead = async () => {
-    setLocalStatus("");
-    try { await markAll(view); }
-    catch { setLocalStatus("Notifications could not be marked as read. Retry notification recovery and try again."); }
-  };
-
   const recover = async () => {
     setLocalStatus("");
     try { await retryRecovery(); }
@@ -155,16 +174,21 @@ export function NotificationTrigger({ view }: { view: "home" | "assistant" }) {
         ref={triggerRef}
         type="button"
         className={`${styles.trigger} ${ringing ? styles.ringing : ""} ${browserOffline ? styles.offline : ""}`}
+        data-ring-tone={ringing ? ringTone : undefined}
         aria-label={`Notifications, ${unreadCount} unread, ${open ? "expanded" : "collapsed"}${browserOffline ? ", offline" : ""}`}
         aria-expanded={open}
         aria-controls={panelId}
         aria-haspopup={compact ? "dialog" : undefined}
-        onClick={() => setOpen(value => !value)}
+        onClick={() => { if (open) close(false); else setOpen(true); }}
         data-notification-trigger={view}
         data-notification-offline={browserOffline ? "true" : "false"}
       >
         <BellIcon />
-        {unreadCount > 0 && <span className={styles.dot} aria-hidden="true" />}
+        {tonesShown.length > 0 && (
+          <span className={styles.dots} data-count={tonesShown.length} data-fading={open ? "true" : undefined} aria-hidden="true">
+            {tonesShown.map(tone => <span key={tone} className={styles.toneDot} data-tone={tone} title={`${toneCounts[tone]} ${TONE_LABEL[tone]}`}>{toneCounts[tone] > 99 ? "99+" : toneCounts[tone]}</span>)}
+          </span>
+        )}
       </button>
       <span className={styles.srOnly} aria-live="polite" aria-atomic="true" data-notification-announcement>
         {announcement && <span key={announcement.key}>{announcement.text}</span>}
@@ -186,7 +210,7 @@ export function NotificationTrigger({ view }: { view: "home" | "assistant" }) {
                 <h2>Notifications</h2>
                 <p>{unreadCount} unread</p>
               </div>
-              <button ref={closeRef} type="button" className={styles.close} onClick={() => close()} aria-label="Close notifications">Close</button>
+              <CloseButton ref={closeRef} label="Close notifications" onClick={() => close()} />
             </div>
 
             {snapshot.fault && (
@@ -222,9 +246,6 @@ export function NotificationTrigger({ view }: { view: "home" | "assistant" }) {
               </ul>
             )}
 
-            {unreadCount > 0 && (
-              <button type="button" className={styles.markAll} onClick={() => void markCurrentViewRead()}>Mark all as read</button>
-            )}
           </div>
         </div>
       )}

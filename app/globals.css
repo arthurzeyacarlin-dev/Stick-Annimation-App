@@ -28,9 +28,25 @@
   --da-radius-control: 10px;
   --da-radius-card: 16px;
   --da-shadow-pop: 0 18px 44px rgba(0, 0, 0, 0.45);
+  --da-icon: #7296bd;           /* resting icons (e.g. Home cards) */
   --background: var(--da-page);
   --foreground: var(--da-text);
 }
+
+/* === SPEC-0020 Phase 3: Appearance (Settings → Appearance) ===
+   Dark + Diamond blue (above) is the default. Every other accent recolors the whole app and Bright mode is the
+   light version of the accent — all generated in app/themes.css. Set on <html> as data-theme / data-accent
+   (cookie, so no flash). */
+/* The Diamond logo is always solid white (Arthur), so the places that show it stay navy in Bright mode. */
+html[data-theme="light"] .da-keep-dark {
+  --da-page: #030914; --da-panel: #071120; --da-line: #163058; --da-border: #244267;
+  --da-selected-bg: #0f2a52; --da-selected-border: #3a6aa3; --da-text: #f6f9ff; --da-text-2: #c9d6ea;
+  --da-text-3: #a8bddd; --da-muted: #8fabd0; --da-label: #7895bc; --da-link: #8cbbf3; --da-focus: #66c7ff;
+  --da-danger: #ff8a95; --da-icon: #7296bd; --da-scrim: rgba(3, 9, 20, 0.72); --da-shadow-pop: 0 18px 44px rgba(0, 0, 0, 0.45);
+  color-scheme: dark;
+}
+/* Bright mode: the logo stays solid white on a small dark tile in the theme's own color (themes.css). */
+html[data-theme="light"] .da-logo:not(.da-keep-dark .da-logo) { color: #ffffff !important; background: var(--da-logo-tile, #071120); box-shadow: 0 0 0 6px var(--da-logo-tile, #071120); border-radius: 4px; }
 
 @theme inline {
   --color-background: var(--background);
@@ -46,6 +62,7 @@ html, body {
   background: var(--da-page);
   color-scheme: dark;
 }
+html[data-theme="light"], html[data-theme="light"] body { color-scheme: light; }
 
 body {
   padding: 0;

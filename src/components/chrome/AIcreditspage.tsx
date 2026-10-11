@@ -7,6 +7,7 @@ import { NotificationTrigger } from "@/src/components/notifications/Notification
 import { useAccountSession } from "@/src/components/account/AccountSessionProvider";
 import { AccountAvatarContent } from "@/src/components/account/AccountAvatar";
 import { runAccountProjectLogout } from "@/src/lib/account/projectPending";
+import { CloseButton } from "@/src/components/ui/CloseButton";
 
 type AppChromeProps = {
   /** The page hosting the global header. Only the nav link differs: Home links to the AI Dashboard, the Dashboard links Home. */
@@ -14,12 +15,6 @@ type AppChromeProps = {
   /** Legacy alias kept for existing callers: `theme="home"` is the same as `page="home"`. */
   theme?: "default" | "home";
 };
-
-const CloseIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-    <path d="M6 6l12 12M18 6 6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-  </svg>
-);
 
 // SPEC-0020 Phase 1 (Arthur): the account menu has only Profile and Log out.
 const ProfileIcon = () => (
@@ -130,7 +125,7 @@ export function AppChrome({ page, theme }: AppChromeProps) {
           </button>
           {account && (
             <div className={styles.accountShell}>
-              <button ref={accountButtonRef} type="button" className={styles.homeAvatar} aria-label={`Account for ${account.name || account.email}`} aria-expanded={accountPopoverOpen} title={account.email}
+              <button ref={accountButtonRef} type="button" className={styles.homeAvatar} data-has-image={account.image ? "true" : undefined} aria-label={`Account for ${account.name || account.email}`} aria-expanded={accountPopoverOpen} title={account.email}
                 onClick={() => { setAccountPopoverOpen(open => !open); setLogoutError(null); setMenuOpen(false); }}><AccountAvatarContent account={account} imageClassName={styles.avatarImage} /></button>
               {accountPopoverOpen && (
                 <div role="dialog" aria-label="Account actions" className={styles.accountPopover}>
@@ -168,9 +163,7 @@ export function AppChrome({ page, theme }: AppChromeProps) {
       >
         <div className={styles.menuHead}>
           <div className={styles.menuTitle}>Menu</div>
-          <button type="button" aria-label="Close menu" onClick={closeMenuLayers} className={styles.iconButton}>
-            <CloseIcon />
-          </button>
+          <CloseButton label="Close menu" onClick={closeMenuLayers} />
         </div>
 
         <div className={styles.divider} />
@@ -189,7 +182,7 @@ export function AppChrome({ page, theme }: AppChromeProps) {
 
         <div className={styles.section}>
           <div className={styles.sectionLabel}>Workspace</div>
-          <Link href="/account#settings" className={styles.panelButton}>
+          <Link href="/settings" className={styles.panelButton}>
             Settings <ChevronIcon />
           </Link>
         </div>
@@ -210,19 +203,17 @@ export function AppChrome({ page, theme }: AppChromeProps) {
                 <div className={styles.sectionLabel}>About Diamond Animator</div>
                 <h2 className={styles.modalTitle}>Description</h2>
               </div>
-              <button type="button" aria-label="Close description" onClick={() => setAboutOpen(false)} className={styles.iconButton}>
-                <CloseIcon />
-              </button>
+              <CloseButton label="Close description" onClick={() => setAboutOpen(false)} />
             </div>
 
             <div className={styles.modalBody}>
-              <h3>Diamond Animator Pro</h3>
+              <h3>Diamond Animator</h3>
               <p>
-                Diamond Animator Pro is a high-focus animation workspace designed to dramatically reduce the time and effort required
+                Diamond Animator is a high-focus animation workspace designed to dramatically reduce the time and effort required
                 to create high-quality animations.
               </p>
               <p>
-                Built for creators who want speed, power, and precision, Diamond Animator Pro integrates advanced AI assistance
+                Built for creators who want speed, power, and precision, Diamond Animator integrates advanced AI assistance
                 directly into the animation pipeline, helping transform what once took years into months, months into weeks, and
                 weeks into days.
               </p>
@@ -236,7 +227,7 @@ export function AppChrome({ page, theme }: AppChromeProps) {
                 <li>Handling overnight processing for heavy workloads</li>
               </ul>
               <p>
-                Diamond Animator Pro is not about replacing creators. It is about amplifying them. The AI works alongside you to keep
+                Diamond Animator is not about replacing creators. It is about amplifying them. The AI works alongside you to keep
                 your creative momentum moving forward.
               </p>
               <h4>Workspace add-ons</h4>
@@ -261,16 +252,14 @@ export function AppChrome({ page, theme }: AppChromeProps) {
                 <div className={styles.sectionLabel}>About Diamond Animator</div>
                 <h2 className={styles.modalTitle}>Terms of Service</h2>
               </div>
-              <button type="button" aria-label="Close terms" onClick={() => setTermsOpen(false)} className={styles.iconButton}>
-                <CloseIcon />
-              </button>
+              <CloseButton label="Close terms" onClick={() => setTermsOpen(false)} />
             </div>
 
             <div className={styles.modalBody}>
-              <h3>Diamond Animator Pro</h3>
+              <h3>Diamond Animator</h3>
               <h4>1. Purpose of the Platform</h4>
               <p>
-                Diamond Animator Pro is a creative animation workspace designed for building original animated content using drawing
+                Diamond Animator is a creative animation workspace designed for building original animated content using drawing
                 tools, character systems, and AI assistance.
               </p>
               <p>

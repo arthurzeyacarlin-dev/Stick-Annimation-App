@@ -5,6 +5,7 @@ import { useState } from "react";
 import { ACCOUNT_PLANS, PAID_PLAN_IDS, type AccountPlanId } from "@/src/lib/account/plans";
 import { ACCOUNT_PLAN_CHANGED_EVENT, useAccountPlan } from "./useAccountPlan";
 import styles from "./PlansScreen.module.css";
+import { BackButton } from "@/src/components/ui/BackButton";
 
 // SPEC-0020 Phase 2: the plans page. Real payments (Stripe, set up by dad) arrive in SPEC-0020 Phase 5.
 // Until then, in the test copy (development) "Choose" switches the plan with no payment — loudly labeled;
@@ -42,6 +43,7 @@ export function PlansScreen() {
   return (
     <main className={styles.main}>
       <div className={styles.frame}>
+        <BackButton href="/">Back to Home</BackButton>
         <p className={styles.eyebrow}>Plans</p>
         <h1 className={styles.title}>Choose your plan</h1>
         <p className={styles.lead}>

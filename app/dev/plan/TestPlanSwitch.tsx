@@ -17,7 +17,7 @@ const ACTIONS: { action: string; label: string; hint: string }[] = [
   { action: "studio", label: "Switch to Studio", hint: "3,000 credits a month" },
 ];
 
-const box: React.CSSProperties = { padding: 16, border: "1px solid #163058", borderRadius: 12, background: "#071120" };
+const box: React.CSSProperties = { padding: 16, border: "1px solid var(--da-line, #163058)", borderRadius: 12, background: "var(--da-panel, #071120)" };
 
 export function TestPlanSwitch() {
   const { status, refresh } = useAccountPlan();
@@ -37,12 +37,12 @@ export function TestPlanSwitch() {
     setBusy(null);
   };
   return (
-    <main style={{ minHeight: "100vh", padding: "32px 24px", background: "#030914", color: "#f6f9ff", font: "14px/1.55 system-ui, sans-serif" }}>
+    <main style={{ minHeight: "100vh", padding: "32px 24px", background: "var(--da-page, #030914)", color: "var(--da-text, #f6f9ff)", font: "14px/1.55 system-ui, sans-serif" }}>
       <div style={{ maxWidth: 720, margin: "0 auto", display: "grid", gap: 16 }}>
         <div>
-          <p style={{ margin: 0, color: "#7895bc", fontSize: 11, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase" }}>Developer only · test switch</p>
+          <p style={{ margin: 0, color: "var(--da-label, #7895bc)", fontSize: 11, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase" }}>Developer only · test switch</p>
           <h1 style={{ margin: "6px 0 4px", fontSize: 26 }}>Plans and credits</h1>
-          <p style={{ margin: 0, color: "#a8bddd" }}>Pretend clock for the free trial and a plan switch. Nothing is charged. <Link href="/" style={{ color: "#8cbbf3" }}>Back to Home</Link></p>
+          <p style={{ margin: 0, color: "var(--da-text-3, #a8bddd)" }}>Pretend clock for the free trial and a plan switch. Nothing is charged. <Link href="/" style={{ color: "var(--da-link, #8cbbf3)" }}>Back to Home</Link></p>
         </div>
         <div style={box}>
           {status ? (
@@ -53,14 +53,14 @@ export function TestPlanSwitch() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 10 }}>
           {ACTIONS.map((item) => (
             <button key={item.action} type="button" disabled={busy !== null} onClick={() => void run(item.action)} className="dev-plan-button"
-              style={{ ...box, display: "grid", gap: 2, textAlign: "left", color: "#f6f9ff", font: "inherit", cursor: "pointer" }}>
+              style={{ ...box, display: "grid", gap: 2, textAlign: "left", color: "var(--da-text, #f6f9ff)", font: "inherit", cursor: "pointer" }}>
               <strong>{busy === item.action ? "Working…" : item.label}</strong>
-              <span style={{ color: "#8fabd0", fontSize: 12 }}>{item.hint}</span>
+              <span style={{ color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>{item.hint}</span>
             </button>
           ))}
         </div>
-        {error && <p role="alert" style={{ color: "#ff8a95", margin: 0 }}>{error}</p>}
-        <style>{`.dev-plan-button:hover:not(:disabled){background:#0066ff!important;border-color:#0066ff!important}.dev-plan-button:hover span{color:#fff!important}`}</style>
+        {error && <p role="alert" style={{ color: "var(--da-danger, #ff8a95)", margin: 0 }}>{error}</p>}
+        <style>{`.dev-plan-button:hover:not(:disabled){background:var(--da-hover, #0066ff)!important;border-color:var(--da-hover, #0066ff)!important}.dev-plan-button:hover span{color:#fff!important}`}</style>
       </div>
     </main>
   );

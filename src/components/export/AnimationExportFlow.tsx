@@ -38,6 +38,7 @@ import {
   type ExportProgress,
 } from "@/src/lib/export/exportVideo";
 import styles from "./animationExport.module.css";
+import { BackButton } from "@/src/components/ui/BackButton";
 
 type Props = { origin: "home" | "workspace"; onBack: () => void };
 type SnapshotState = { status: "loading" } | { status: "ready"; snapshot: ExportProjectSnapshot } | { status: "failed"; message: string };
@@ -380,7 +381,7 @@ export function AnimationExportFlow({ origin, onBack }: Props) {
     <main data-animation-export="choose" aria-label="Choose a saved animation to export" className={`${styles.page} ${styles.choosePage}`}>
       <div className={`${styles.column} ${styles.chooseColumn}`}>
         <div className={styles.headerRow}>
-          <button type="button" onClick={onBack} className={styles.backButton}>← Back</button>
+          <BackButton onClick={onBack}>Back</BackButton>
           <div className={styles.headerCenter}><div className={styles.eyebrow}>Export · Phase 3</div><h1 className={styles.chooseTitle}>Choose and watch</h1></div>
           <div className={styles.headerSpacer} />
         </div>

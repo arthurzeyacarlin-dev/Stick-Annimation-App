@@ -1,6 +1,6 @@
 /*
  * Editor (drawing workspace) theme — matches Home/Help/Assistant.
- * Rest: dull navy/blue. Pointer hover: instant #0066FF with white text/icons.
+ * Rest: dull navy/blue. Pointer hover: instant var(--da-hover, #0066FF) with white text/icons.
  * Hover uses the browser's native :hover, so clicks elsewhere never disable it.
  * Elements marked data-hover="outline" (timeline frames, color swatches) get a
  * bright outline instead of a blue fill. Help overlays opt out with
@@ -14,8 +14,8 @@
 }
 
 .workspace :global(button:not(:disabled):not([aria-disabled="true"]):not([data-hover="outline"]):hover:not([data-workspace-theme-exempt] *)) {
-  background: #0066ff !important;
-  border-color: #0066ff !important;
+  background: var(--da-hover, #0066ff) !important;
+  border-color: var(--da-hover, #0066ff) !important;
   color: #ffffff !important;
   box-shadow: none !important;
 }
@@ -25,22 +25,22 @@
 }
 
 .workspace :global([data-hover="outline"]:hover:not(:disabled):not([data-workspace-theme-exempt] *)) {
-  outline: 2px solid #0066ff !important;
+  outline: 2px solid var(--da-hover, #0066ff) !important;
   outline-offset: -2px;
 }
 
 .workspace :global(button:focus-visible:not([data-workspace-theme-exempt] *)) {
-  outline: 2px solid #66c7ff !important;
+  outline: 2px solid var(--da-focus, #66c7ff) !important;
   outline-offset: 2px;
 }
 
 /*
- * Property sliders (canvas/side-panel area): dull blue at rest, bright #0066FF
+ * Property sliders (canvas/side-panel area): dull blue at rest, bright var(--da-hover, #0066FF)
  * while hovered or dragged. Custom-drawn so the browser never darkens it on hover.
  */
 .workspace :global([data-unified-workspace-area="true"] input[type="range"]) {
-  --slider-color: #3a6aa3;
-  --slider-rest: #163058;
+  --slider-color: var(--da-selected-border, #3a6aa3);
+  --slider-rest: var(--da-line, #163058);
   -webkit-appearance: none;
   appearance: none;
   height: 14px;
@@ -51,7 +51,7 @@
 .workspace :global([data-unified-workspace-area="true"] input[type="range"]:not(:disabled):hover),
 .workspace :global([data-unified-workspace-area="true"] input[type="range"]:not(:disabled):active),
 .workspace :global([data-unified-workspace-area="true"] input[type="range"]:focus-visible) {
-  --slider-color: #0066ff;
+  --slider-color: var(--da-hover, #0066ff);
 }
 .workspace :global([data-unified-workspace-area="true"] input[type="range"]:disabled) {
   opacity: 0.45;

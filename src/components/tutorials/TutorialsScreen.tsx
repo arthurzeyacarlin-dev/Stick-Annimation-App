@@ -4,6 +4,7 @@ import type {ReactNode} from "react";
 import {DiamondLogo} from "@/src/components/chrome/DiamondLogo";
 import {TUTORIAL_CARDS, TUTORIAL_STATUS, type TutorialCard} from "@/src/lib/tutorials/tutorialCatalog";
 import styles from "./TutorialsScreen.module.css";
+import { BackButton } from "@/src/components/ui/BackButton";
 
 type TutorialsScreenProps = {
   onBack: () => void;
@@ -65,12 +66,7 @@ export function TutorialsScreen({onBack}: TutorialsScreenProps) {
   return (
     <main className={styles.screen} data-tutorials-screen>
       <div className={styles.frame}>
-        <button type="button" className={styles.backButton} onClick={onBack} aria-label="Back">
-          <svg className={styles.backIcon} {...iconProps} width={18} height={18}>
-            <path d="M15 5l-7 7 7 7" />
-          </svg>
-          <span>Back</span>
-        </button>
+        <BackButton onClick={onBack}>Back to Help</BackButton>
 
         <div className={styles.content}>
           <header className={styles.header}>

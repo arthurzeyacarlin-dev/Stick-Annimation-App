@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import styles from "./HelpHub.module.css";
+import { BackButton } from "@/src/components/ui/BackButton";
 
 type HelpHubProps = {
   onBack: () => void;
@@ -23,9 +24,7 @@ export function HelpHub({ onBack, onOpenAssistant, onOpenTutorials, initialFocus
   return (
     <main className={styles.screen} data-help-hub>
       <div className={styles.frame}>
-        <button type="button" className={styles.back} onClick={onBack}>
-          <span aria-hidden="true">←</span> Back to Home
-        </button>
+        <BackButton onClick={onBack}>Back to Home</BackButton>
         <header className={styles.intro}>
           <h1 className={styles.heading}>Help</h1>
           <p className={styles.subheading}>Get answers or learn the basics.</p>

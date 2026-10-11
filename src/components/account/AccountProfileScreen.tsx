@@ -2,20 +2,19 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { useAccountSession } from "./AccountSessionProvider";
 import { AccountAvatarContent } from "./AccountAvatar";
 import { useAccountPlan } from "./useAccountPlan";
 import { ACCOUNT_PROFILE_IMAGE_MAX_CHARS } from "@/src/lib/account/accountConfig";
-import { readAccountJson, writeAccountJson } from "@/src/lib/account/accountDataClient";
 import styles from "./AccountProfileScreen.module.css";
+import { BackButton } from "@/src/components/ui/BackButton";
 
-// SPEC-0020 Phase 1: Profile (picture, name, email), Password, Settings and Delete my account.
-// Name, picture, password and deletion go through the account system (better-auth); Settings are saved in the
-// account's own preferences record (the same one Home's welcome screen reads).
+// SPEC-0020 Phase 1: Profile (picture, name, email), Your plan, Password and Delete my account.
+// Name, picture, password and deletion go through the account system (better-auth). App settings moved to
+// their own Settings page (SPEC-0020 Phase 3).
 
 type Status = { kind: "ok" | "error"; text: string } | null;
-type HomePreferencesV1 = { schema: "account-home-preferences/v1"; welcomeSeen: boolean; neverShowWelcome: boolean; guidedChoices: string[] };
 
 const PICTURE_SIZE = 256;
 
@@ -65,9 +64,6 @@ export function AccountProfileScreen() {
   const [passwordBusy, setPasswordBusy] = useState(false);
   const [passwordStatus, setPasswordStatus] = useState<Status>(null);
 
-  const [preferences, setPreferences] = useState<{ revision: number; value: HomePreferencesV1 } | null>(null);
-  const [settingsBusy, setSettingsBusy] = useState(false);
-  const [settingsStatus, setSettingsStatus] = useState<Status>(null);
 
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deletePassword, setDeletePassword] = useState("");
@@ -75,19 +71,6 @@ export function AccountProfileScreen() {
   const [deleteBusy, setDeleteBusy] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
-    void readAccountJson<HomePreferencesV1>("preferences", "home").then((record) => {
-      if (cancelled) return;
-      const value = record?.value;
-      const valid = value?.schema === "account-home-preferences/v1" && typeof value.welcomeSeen === "boolean" && typeof value.neverShowWelcome === "boolean" && Array.isArray(value.guidedChoices);
-      setPreferences({
-        revision: record?.revision ?? 0,
-        value: valid ? value : { schema: "account-home-preferences/v1", welcomeSeen: false, neverShowWelcome: false, guidedChoices: [] },
-      });
-    }).catch(() => { if (!cancelled) setSettingsStatus({ kind: "error", text: "Your settings couldn't load. Reload the page to try again." }); });
-    return () => { cancelled = true; };
-  }, []);
 
   if (!account) return null;
 
@@ -142,20 +125,6 @@ export function AccountProfileScreen() {
     setPasswordStatus({ kind: "ok", text: "Password changed. Other devices were logged out." });
   };
 
-  const setShowWelcome = async (show: boolean) => {
-    if (!preferences || settingsBusy) return;
-    const next: HomePreferencesV1 = { ...preferences.value, neverShowWelcome: !show, welcomeSeen: !show };
-    setSettingsBusy(true);
-    setSettingsStatus(null);
-    try {
-      const result = await writeAccountJson("preferences", "home", next, preferences.revision);
-      setPreferences({ revision: result.revision, value: next });
-      setSettingsStatus({ kind: "ok", text: show ? "Saved. You'll see the welcome screen next time you open Home." : "Saved. The welcome screen won't show." });
-    } catch {
-      setSettingsStatus({ kind: "error", text: "That setting couldn't be saved. Reload the page and try again." });
-    }
-    setSettingsBusy(false);
-  };
 
   const onDelete = async (event: FormEvent) => {
     event.preventDefault();
@@ -171,12 +140,12 @@ export function AccountProfileScreen() {
     window.location.assign("/");
   };
 
-  const showWelcome = preferences ? !preferences.value.neverShowWelcome && !preferences.value.welcomeSeen : false;
 
   return (
     <main className={styles.main}>
       <div className={styles.frame}>
         <header className={styles.pageHead}>
+          <BackButton href="/">Back to Home</BackButton>
           <p className={styles.eyebrow}>Your account</p>
           <h1 className={styles.title}>Profile</h1>
         </header>
@@ -235,19 +204,6 @@ export function AccountProfileScreen() {
             </div>
           </form>
           {passwordStatus && <p role={passwordStatus.kind === "error" ? "alert" : "status"} className={passwordStatus.kind === "error" ? styles.error : styles.ok}>{passwordStatus.text}</p>}
-        </section>
-
-        <section id="settings" className={styles.card} aria-labelledby="settings-heading">
-          <h2 id="settings-heading" className={styles.cardTitle}>Settings</h2>
-          <label className={styles.toggleRow} htmlFor="setting-welcome">
-            <span>
-              <strong>Welcome screen</strong>
-              <small>Show the welcome screen and guided setup next time you open Home.</small>
-            </span>
-            <input id="setting-welcome" type="checkbox" role="switch" aria-label="Show the welcome screen" className={styles.switch} checked={showWelcome} disabled={!preferences || settingsBusy}
-              onChange={(event) => void setShowWelcome(event.target.checked)} />
-          </label>
-          {settingsStatus && <p role={settingsStatus.kind === "error" ? "alert" : "status"} className={settingsStatus.kind === "error" ? styles.error : styles.ok}>{settingsStatus.text}</p>}
         </section>
 
         <section className={`${styles.card} ${styles.danger}`} aria-labelledby="delete-heading">

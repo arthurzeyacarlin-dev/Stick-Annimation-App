@@ -19,22 +19,22 @@ export default function DevMailPage() {
   if (process.env.NODE_ENV !== "development") notFound();
   const mail = readAccountMailOutbox();
   return (
-    <main style={{ minHeight: "100vh", padding: "32px 24px", background: "#030914", color: "#f6f9ff", font: "14px/1.55 system-ui, sans-serif" }}>
+    <main style={{ minHeight: "100vh", padding: "32px 24px", background: "var(--da-page, #030914)", color: "var(--da-text, #f6f9ff)", font: "14px/1.55 system-ui, sans-serif" }}>
       <div style={{ maxWidth: 760, margin: "0 auto", display: "grid", gap: 16 }}>
         <div>
-          <p style={{ margin: 0, color: "#7895bc", fontSize: 11, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase" }}>Developer only</p>
+          <p style={{ margin: 0, color: "var(--da-label, #7895bc)", fontSize: 11, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase" }}>Developer only</p>
           <h1 style={{ margin: "6px 0 4px", fontSize: 26 }}>Test inbox</h1>
-          <p style={{ margin: 0, color: "#a8bddd" }}>Emails the app would send. Nothing here was sent over the internet. Newest first.</p>
+          <p style={{ margin: 0, color: "var(--da-text-3, #a8bddd)" }}>Emails the app would send. Nothing here was sent over the internet. Newest first.</p>
         </div>
-        {mail.length === 0 && <p style={{ color: "#8fabd0" }}>No emails yet. Try Log in → Forgot password?</p>}
+        {mail.length === 0 && <p style={{ color: "var(--da-muted, #8fabd0)" }}>No emails yet. Try Log in → Forgot password?</p>}
         {mail.map((item) => {
           const path = item.link ? samePagePath(item.link) : null;
           return (
-            <article key={`${item.at}-${item.to}`} style={{ padding: 16, border: "1px solid #163058", borderRadius: 12, background: "#071120", display: "grid", gap: 6 }}>
+            <article key={`${item.at}-${item.to}`} style={{ padding: 16, border: "1px solid var(--da-line, #163058)", borderRadius: 12, background: "var(--da-panel, #071120)", display: "grid", gap: 6 }}>
               <strong>{item.subject}</strong>
-              <span style={{ color: "#8fabd0", fontSize: 12 }}>To {item.to} · {new Date(item.at).toLocaleString()}</span>
-              <p style={{ margin: 0, color: "#c9d6ea", whiteSpace: "pre-wrap" }}>{item.text}</p>
-              {path && <a href={path} style={{ color: "#8cbbf3", fontWeight: 700 }}>Open the link</a>}
+              <span style={{ color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>To {item.to} · {new Date(item.at).toLocaleString()}</span>
+              <p style={{ margin: 0, color: "var(--da-text-2, #c9d6ea)", whiteSpace: "pre-wrap" }}>{item.text}</p>
+              {path && <a href={path} style={{ color: "var(--da-link, #8cbbf3)", fontWeight: 700 }}>Open the link</a>}
             </article>
           );
         })}

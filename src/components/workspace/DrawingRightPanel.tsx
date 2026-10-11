@@ -85,7 +85,7 @@ export function DrawingRightPanel({
         flex: `0 0 ${panelWidth}px`,
         maxWidth: "none",
         borderLeft: 0,
-        background: "#071120",
+        background: "var(--da-panel, #071120)",
         display: "flex",
         flexDirection: "column",
         minHeight: 0,
@@ -100,17 +100,17 @@ export function DrawingRightPanel({
           position: absolute;
           inset: 0 auto 0 4px;
           width: 1px;
-          background: #163058;
+          background: var(--da-line, #163058);
         }
 
         .drawing-right-panel-resizer:hover::after,
         .drawing-right-panel-resizer:focus-visible::after,
         .drawing-right-panel-resizer[data-resizing="true"]::after {
-          background: #0066ff;
+          background: var(--da-hover, #0066ff);
         }
 
         .drawing-right-panel-resizer:focus-visible {
-          outline: 2px solid #66c7ff;
+          outline: 2px solid var(--da-focus, #66c7ff);
           outline-offset: -2px;
         }
 
@@ -127,7 +127,7 @@ export function DrawingRightPanel({
 
         .workspace-properties-scroll {
           scrollbar-width: thin;
-          scrollbar-color: #244267 #071120;
+          scrollbar-color: var(--da-border, #244267) var(--da-panel, #071120);
         }
 
         .workspace-properties-scroll::-webkit-scrollbar {
@@ -135,17 +135,17 @@ export function DrawingRightPanel({
         }
 
         .workspace-properties-scroll::-webkit-scrollbar-track {
-          background: #071120;
+          background: var(--da-panel, #071120);
         }
 
         .workspace-properties-scroll::-webkit-scrollbar-thumb {
-          background: #244267;
+          background: var(--da-border, #244267);
           border-radius: 999px;
-          border: 2px solid #071120;
+          border: 2px solid var(--da-panel, #071120);
         }
 
         .workspace-properties-scroll::-webkit-scrollbar-thumb:hover {
-          background: #3a6aa3;
+          background: var(--da-selected-border, #3a6aa3);
         }
       `}</style>
 
@@ -186,7 +186,7 @@ export function DrawingRightPanel({
           display: "flex",
           gap: 8,
           padding: "10px 10px 8px 10px",
-          borderBottom: "1px solid #163058",
+          borderBottom: "1px solid var(--da-line, #163058)",
           flexShrink: 0,
         }}
       >
@@ -201,9 +201,9 @@ export function DrawingRightPanel({
               style={{
                 padding: "8px 12px",
                 borderRadius: 10,
-                border: isActiveTab ? "1px solid #3a6aa3" : "1px solid #244267",
-                background: isActiveTab ? "#0f2a52" : "#071120",
-                color: isActiveTab ? "#eaf3ff" : "#c9d6ea",
+                border: isActiveTab ? "1px solid var(--da-selected-border, #3a6aa3)" : "1px solid var(--da-border, #244267)",
+                background: isActiveTab ? "var(--da-selected-bg, #0f2a52)" : "var(--da-panel, #071120)",
+                color: isActiveTab ? "var(--da-on-selected, #eaf3ff)" : "var(--da-text-2, #c9d6ea)",
                 fontSize: 12,
                 fontWeight: 600,
                 userSelect: "none",
@@ -227,15 +227,15 @@ export function DrawingRightPanel({
           minHeight: 0,
           padding: rightPanelTab === "Assets" ? "12px 12px 8px 12px" : rightPanelTab === "Library" ? "12px 12px 6px 12px" : 12,
           boxSizing: "border-box",
-          borderBottom: "1px solid #163058",
-          background: "#071120",
-          color: "#8fabd0",
+          borderBottom: "1px solid var(--da-line, #163058)",
+          background: "var(--da-panel, #071120)",
+          color: "var(--da-muted, #8fabd0)",
           fontSize: 12,
           lineHeight: 1.5,
           overflowX: "hidden",
           overflowY: "auto",
           scrollbarWidth: "thin",
-          scrollbarColor: "#244267 #071120",
+          scrollbarColor: "var(--da-border, #244267) var(--da-panel, #071120)",
         }}
       >
         {rightPanelContent}
@@ -254,8 +254,8 @@ export function DrawingRightPanel({
             gap: 4,
             padding: 6,
             borderRadius: 12,
-            border: "1px solid #163058",
-            background: "#071120",
+            border: "1px solid var(--da-line, #163058)",
+            background: "var(--da-panel, #071120)",
             boxShadow: "0 18px 44px rgba(0,0,0,0.45)",
             zIndex: 30,
             transformOrigin: "bottom center",
@@ -276,9 +276,9 @@ export function DrawingRightPanel({
                   minHeight: 34,
                   padding: "8px 12px",
                   borderRadius: 10,
-                  border: isSelected ? "1px solid #3a6aa3" : "1px solid #244267",
-                  background: isSelected ? "#0f2a52" : "#071120",
-                  color: isSelected ? "#eaf3ff" : "#c9d6ea",
+                  border: isSelected ? "1px solid var(--da-selected-border, #3a6aa3)" : "1px solid var(--da-border, #244267)",
+                  background: isSelected ? "var(--da-selected-bg, #0f2a52)" : "var(--da-panel, #071120)",
+                  color: isSelected ? "var(--da-on-selected, #eaf3ff)" : "var(--da-text-2, #c9d6ea)",
                   fontSize: 12,
                   fontWeight: 700,
                   cursor: "pointer",

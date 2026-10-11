@@ -32,8 +32,8 @@ export type WorkspaceCandidate = {
 export type MountedWorkspace = { generation: number; candidate: WorkspaceCandidate };
 export type BootstrapResult = { status: "opened"; root: MountedWorkspace } | { status: "stale" } | { status: "failed"; code: string };
 
-export const createUntitledWorkspace = async (): Promise<WorkspaceCandidate> => {
-  const project = createNativeUnifiedProjectV2();
+export const createUntitledWorkspace = async (options: { fps?: number } = {}): Promise<WorkspaceCandidate> => {
+  const project = createNativeUnifiedProjectV2(undefined, options);
   return { id: project.projectId, title: project.title, document: project.document as unknown as UnifiedAnimationDocumentV1, digest: JSON.stringify(project.document), migration: null, editor: { kind: "unified", project } };
 };
 

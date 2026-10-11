@@ -10,6 +10,7 @@ import { useAccountPlan } from "../account/useAccountPlan";
 import Link from "next/link";
 import { ACCOUNT_PLANS } from "../../lib/account/plans";
 import styles from "./AiDashboard.module.css";
+import { BackButton } from "../ui/BackButton";
 
 const filters: { value: DashboardFilter; label: string }[] = [
   { value: "combined", label: "All" }, { value: "project", label: "AI Animator" }, { value: "assistant", label: "Assistant" },
@@ -78,6 +79,7 @@ export function AiDashboardScreen() {
     <main className={styles.main}>
       <div className={styles.content}>
         <section className={styles.top} aria-labelledby="dashboard-heading">
+          <BackButton href="/">Back to Home</BackButton>
           <p className={styles.eyebrow}>AI Dashboard</p>
           <h2 id="dashboard-heading" className={styles.headline}>
             {!plan ? (planFailed ? "Your credits couldn't be read. Try again in a moment." : "Loading your credits…")

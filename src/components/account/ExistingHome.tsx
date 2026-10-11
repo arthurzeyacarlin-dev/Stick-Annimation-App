@@ -35,6 +35,8 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { readAccountJson, writeAccountJson } from "@/src/lib/account/accountDataClient";
+import { getAppSettings } from "@/src/lib/account/appSettings";
+import { CloseButton } from "@/src/components/ui/CloseButton";
 
 // Visit-only UI memory; login/logout reloads reset it. No persistent writes.
 const visitRecentProjectIds = () => {
@@ -502,7 +504,7 @@ export default function Page() {
   className="app"
   style={{
     height: "100vh",
-    background: "#030914",
+    background: "var(--da-page, #030914)",
     display: "flex",
     flexDirection: "column",
     overflow: "hidden", // IMPORTANT: keep page scrollbar from being on <body>
@@ -549,13 +551,7 @@ export default function Page() {
       </div>
     </div>
 
-    <button
-      aria-label="Close welcome"
-      className={welcomeStyles.close}
-      onClick={() => closeWelcome({ markSeen: true })}
-    >
-      ×
-    </button>
+    <CloseButton label="Close welcome" onClick={() => closeWelcome({ markSeen: true })} />
   </div>
 
   {/* Step 0: intro */}
@@ -667,7 +663,9 @@ export default function Page() {
                     setBootstrapMessage("Creating project…");
                     void bootstrap.open(async () => {
                       if (!ownerId) throw new Error("account_session_required");
-                      const candidate = await createUntitledWorkspace();
+                      // SPEC-0020 Phase 3: new projects start at Settings → Frames per second.
+                      const { newProjectFps } = await getAppSettings();
+                      const candidate = await createUntitledWorkspace({ fps: newProjectFps });
                       const saved = await withAccountProjectWrite(ownerId, () => createAccountProjectRepositoryV2(ownerId).save(candidate.editor.project));
                       candidate.editor.project = saved;
                       candidate.id = saved.projectId;
@@ -706,9 +704,11 @@ export default function Page() {
                   </button>
                 ) : (
                   <div className={homeStyles.emptyRecent}>
-                    <svg className={homeStyles.emptyMark} viewBox="0 0 48 48" fill="none" aria-hidden="true">
-                      <path d="M10 37 13 27 31 9l8 8-18 18-11 2Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
-                      <path d="m28 12 8 8M13 27l8 8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                    {/* SPEC-0020 Phase 3 (Arthur): the same brush as the editor's Brush tool, not a pencil. */}
+                    <svg className={homeStyles.emptyMark} viewBox="0 0 40 40" aria-hidden="true">
+                      <line x1="9" y1="31" x2="29" y2="11" stroke="currentColor" strokeWidth="5" strokeLinecap="round" />
+                      <path d="M29 2 C36 2 38 8 34 13 C32 16 30 18 29 19 C28 18 26 16 24 13 C20 8 22 2 29 2 Z" fill="currentColor" transform="rotate(-135 29 11)" />
+                      <polygon points="29,16 27,13 31,13" fill="currentColor" />
                     </svg>
                     <p>No recent projects edited</p>
                     <small>Your next creation starts here.</small>

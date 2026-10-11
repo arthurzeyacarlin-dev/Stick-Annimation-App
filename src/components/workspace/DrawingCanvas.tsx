@@ -1638,7 +1638,7 @@ const RotationValueField = ({ value, onCommit }: RotationValueFieldProps) => {
   );
 
   return (
-    <label style={{ display: "flex", flexDirection: "column", gap: 8, color: "#8fabd0", fontSize: 12 }}>
+    <label style={{ display: "flex", flexDirection: "column", gap: 8, color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
       Rotation
       <input
         type="text"
@@ -1663,9 +1663,9 @@ const RotationValueField = ({ value, onCommit }: RotationValueFieldProps) => {
           width: 120,
           padding: "8px 10px",
           borderRadius: 8,
-          border: "1px solid #163058",
-          background: "#030914",
-          color: "#f6f9ff",
+          border: "1px solid var(--da-line, #163058)",
+          background: "var(--da-page, #030914)",
+          color: "var(--da-text, #f6f9ff)",
           fontSize: 12,
         }}
       />
@@ -9624,19 +9624,19 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       emptyMessage: string,
     ) => (
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <div style={{ color: "#f6f9ff", fontSize: 13, fontWeight: 600 }}>{title}</div>
+        <div style={{ color: "var(--da-text, #f6f9ff)", fontSize: 13, fontWeight: 600 }}>{title}</div>
         {!canEditTextInCurrentFrame ? (
-          <div style={{ color: "#8fabd0", fontSize: 12 }}>
+          <div style={{ color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
             Text can be added on existing frame content boxes. Select a non-empty frame to place text.
           </div>
         ) : !selectedTextObject ? (
-          <div style={{ display: "flex", flexDirection: "column", gap: 6, color: "#8fabd0", fontSize: 12 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6, color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
             <div>{emptyMessage}</div>
             <div>Drag inside text to move it, or drag the edge and corner handles to resize with more control.</div>
           </div>
         ) : (
           <>
-            <label style={{ display: "flex", flexDirection: "column", gap: 8, color: "#8fabd0", fontSize: 12 }}>
+            <label style={{ display: "flex", flexDirection: "column", gap: 8, color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
               Text
               <textarea
                 value={selectedTextObject.text}
@@ -9651,15 +9651,15 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                   width: "100%",
                   padding: "8px 10px",
                   borderRadius: 8,
-                  border: "1px solid #163058",
-                  background: "#030914",
-                  color: "#f6f9ff",
+                  border: "1px solid var(--da-line, #163058)",
+                  background: "var(--da-page, #030914)",
+                  color: "var(--da-text, #f6f9ff)",
                   fontSize: 12,
                   resize: "vertical",
                 }}
               />
             </label>
-            <label style={{ display: "flex", flexDirection: "column", gap: 8, color: "#8fabd0", fontSize: 12 }}>
+            <label style={{ display: "flex", flexDirection: "column", gap: 8, color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
               Font
               <select
                 value={selectedTextObject.fontFamily}
@@ -9673,9 +9673,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                   width: "100%",
                   padding: "8px 10px",
                   borderRadius: 8,
-                  border: "1px solid #163058",
-                  background: "#030914",
-                  color: "#f6f9ff",
+                  border: "1px solid var(--da-line, #163058)",
+                  background: "var(--da-page, #030914)",
+                  color: "var(--da-text, #f6f9ff)",
                   fontSize: 12,
                 }}
               >
@@ -9686,7 +9686,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 ))}
               </select>
             </label>
-            <label style={{ display: "flex", flexDirection: "column", gap: 8, color: "#8fabd0", fontSize: 12 }}>
+            <label style={{ display: "flex", flexDirection: "column", gap: 8, color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
               Font size: {Math.round(selectedTextObject.fontSize)}
               <input
                 type="range"
@@ -9700,10 +9700,10 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                     fontSize: Number(e.target.value),
                   }));
                 }}
-                style={{ width: "100%", accentColor: "#3a6aa3" }}
+                style={{ width: "100%", accentColor: "var(--da-selected-border, #3a6aa3)" }}
               />
             </label>
-            <label style={{ display: "flex", flexDirection: "column", gap: 8, color: "#8fabd0", fontSize: 12 }}>
+            <label style={{ display: "flex", flexDirection: "column", gap: 8, color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
               Box width: {Math.round(selectedTextObject.width)}
               <input
                 type="range"
@@ -9717,7 +9717,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                     width: Number(e.target.value),
                   }));
                 }}
-                style={{ width: "100%", accentColor: "#3a6aa3" }}
+                style={{ width: "100%", accentColor: "var(--da-selected-border, #3a6aa3)" }}
               />
             </label>
             <RotationValueField
@@ -9726,7 +9726,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 commitSelectedTextObjectRotation(rotation);
               }}
             />
-            <label style={{ display: "flex", flexDirection: "column", gap: 8, color: "#8fabd0", fontSize: 12 }}>
+            <label style={{ display: "flex", flexDirection: "column", gap: 8, color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
               Color
               <input
                 type="color"
@@ -9739,7 +9739,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                     color: e.target.value,
                   }));
                 }}
-                style={{ width: 48, height: 32, padding: 2, border: "1px solid #244267", borderRadius: 8, background: "#030914", cursor: "pointer", boxSizing: "border-box" }}
+                style={{ width: 48, height: 32, padding: 2, border: "1px solid var(--da-border, #244267)", borderRadius: 8, background: "var(--da-page, #030914)", cursor: "pointer", boxSizing: "border-box" }}
               />
             </label>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -9755,9 +9755,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                   minHeight: 34,
                   padding: "6px 10px",
                   borderRadius: 10,
-                  border: selectedTextObject.bold ? "1px solid #3a6aa3" : "1px solid #244267",
-                  background: selectedTextObject.bold ? "#0f2a52" : "#071120",
-                  color: selectedTextObject.bold ? "#eaf3ff" : "#c9d6ea",
+                  border: selectedTextObject.bold ? "1px solid var(--da-selected-border, #3a6aa3)" : "1px solid var(--da-border, #244267)",
+                  background: selectedTextObject.bold ? "var(--da-selected-bg, #0f2a52)" : "var(--da-panel, #071120)",
+                  color: selectedTextObject.bold ? "var(--da-on-selected, #eaf3ff)" : "var(--da-text-2, #c9d6ea)",
                   fontSize: 12,
                   cursor: "pointer",
                   fontWeight: 700,
@@ -9777,9 +9777,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                   minHeight: 34,
                   padding: "6px 10px",
                   borderRadius: 10,
-                  border: selectedTextObject.italic ? "1px solid #3a6aa3" : "1px solid #244267",
-                  background: selectedTextObject.italic ? "#0f2a52" : "#071120",
-                  color: selectedTextObject.italic ? "#eaf3ff" : "#c9d6ea",
+                  border: selectedTextObject.italic ? "1px solid var(--da-selected-border, #3a6aa3)" : "1px solid var(--da-border, #244267)",
+                  background: selectedTextObject.italic ? "var(--da-selected-bg, #0f2a52)" : "var(--da-panel, #071120)",
+                  color: selectedTextObject.italic ? "var(--da-on-selected, #eaf3ff)" : "var(--da-text-2, #c9d6ea)",
                   fontSize: 12,
                   cursor: "pointer",
                   fontStyle: "italic",
@@ -9799,9 +9799,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                   minHeight: 34,
                   padding: "6px 10px",
                   borderRadius: 10,
-                  border: selectedTextObject.flipX ? "1px solid #3a6aa3" : "1px solid #244267",
-                  background: selectedTextObject.flipX ? "#0f2a52" : "#071120",
-                  color: selectedTextObject.flipX ? "#eaf3ff" : "#c9d6ea",
+                  border: selectedTextObject.flipX ? "1px solid var(--da-selected-border, #3a6aa3)" : "1px solid var(--da-border, #244267)",
+                  background: selectedTextObject.flipX ? "var(--da-selected-bg, #0f2a52)" : "var(--da-panel, #071120)",
+                  color: selectedTextObject.flipX ? "var(--da-on-selected, #eaf3ff)" : "var(--da-text-2, #c9d6ea)",
                   fontSize: 12,
                   cursor: "pointer",
                 }}
@@ -9820,9 +9820,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                   minHeight: 34,
                   padding: "6px 10px",
                   borderRadius: 10,
-                  border: selectedTextObject.flipY ? "1px solid #3a6aa3" : "1px solid #244267",
-                  background: selectedTextObject.flipY ? "#0f2a52" : "#071120",
-                  color: selectedTextObject.flipY ? "#eaf3ff" : "#c9d6ea",
+                  border: selectedTextObject.flipY ? "1px solid var(--da-selected-border, #3a6aa3)" : "1px solid var(--da-border, #244267)",
+                  background: selectedTextObject.flipY ? "var(--da-selected-bg, #0f2a52)" : "var(--da-panel, #071120)",
+                  color: selectedTextObject.flipY ? "var(--da-on-selected, #eaf3ff)" : "var(--da-text-2, #c9d6ea)",
                   fontSize: 12,
                   cursor: "pointer",
                 }}
@@ -9840,9 +9840,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                   minHeight: 34,
                   padding: "6px 10px",
                   borderRadius: 10,
-                  border: "1px solid #244267",
-                  background: "#071120",
-                  color: "#ff8a95",
+                  border: "1px solid var(--da-border, #244267)",
+                  background: "var(--da-panel, #071120)",
+                  color: "var(--da-danger, #ff8a95)",
                   fontSize: 12,
                   cursor: "pointer",
                 }}
@@ -9861,12 +9861,12 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     activeTool === "Select" ? (
       <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-          <div style={{ color: "#f6f9ff", fontSize: 13, fontWeight: 600, letterSpacing: 0.4 }}>SELECT TOOL</div>
-          <div style={{ color: "#8fabd0", fontSize: 12 }}>Navigate and move the canvas</div>
+          <div style={{ color: "var(--da-text, #f6f9ff)", fontSize: 13, fontWeight: 600, letterSpacing: 0.4 }}>SELECT TOOL</div>
+          <div style={{ color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>Navigate and move the canvas</div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <div style={{ color: "#7895bc", fontSize: 11, fontWeight: 700, letterSpacing: 0.7 }}>VIEW</div>
-          <label style={{ display: "flex", flexDirection: "column", gap: 8, color: "#8fabd0", fontSize: 12 }}>
+          <div style={{ color: "var(--da-label, #7895bc)", fontSize: 11, fontWeight: 700, letterSpacing: 0.7 }}>VIEW</div>
+          <label style={{ display: "flex", flexDirection: "column", gap: 8, color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
             Zoom
             <input
               type="text"
@@ -9883,9 +9883,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 width: 120,
                 padding: "7px 10px",
                 borderRadius: 8,
-                border: "1px solid #163058",
-                background: "#030914",
-                color: "#f6f9ff",
+                border: "1px solid var(--da-line, #163058)",
+                background: "var(--da-page, #030914)",
+                color: "var(--da-text, #f6f9ff)",
                 fontSize: 13,
               }}
             />
@@ -9898,9 +9898,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 width: 168,
                 padding: "9px 12px",
                 borderRadius: 10,
-                border: "1px solid #244267",
-                background: "#071120",
-                color: "#c9d6ea",
+                border: "1px solid var(--da-border, #244267)",
+                background: "var(--da-panel, #071120)",
+                color: "var(--da-text-2, #c9d6ea)",
                 fontSize: 12,
                 cursor: "pointer",
               }}
@@ -9911,9 +9911,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <div style={{ color: "#7895bc", fontSize: 11, fontWeight: 700, letterSpacing: 0.7 }}>CANVAS</div>
+          <div style={{ color: "var(--da-label, #7895bc)", fontSize: 11, fontWeight: 700, letterSpacing: 0.7 }}>CANVAS</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            <div style={{ color: "#8fabd0", fontSize: 12 }}>Show Canvas</div>
+            <div style={{ color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>Show Canvas</div>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               {([
                 { label: "On", value: true },
@@ -9929,9 +9929,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                       minHeight: 34,
                       padding: "6px 10px",
                       borderRadius: 10,
-                      border: isSelected ? "1px solid #3a6aa3" : "1px solid #244267",
-                      background: isSelected ? "#0f2a52" : "#071120",
-                      color: isSelected ? "#eaf3ff" : "#c9d6ea",
+                      border: isSelected ? "1px solid var(--da-selected-border, #3a6aa3)" : "1px solid var(--da-border, #244267)",
+                      background: isSelected ? "var(--da-selected-bg, #0f2a52)" : "var(--da-panel, #071120)",
+                      color: isSelected ? "var(--da-on-selected, #eaf3ff)" : "var(--da-text-2, #c9d6ea)",
                       fontSize: 12,
                       cursor: "pointer",
                     }}
@@ -9950,9 +9950,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 width: 168,
                 padding: "9px 12px",
                 borderRadius: 10,
-                border: "1px solid #244267",
-                background: "#071120",
-                color: "#c9d6ea",
+                border: "1px solid var(--da-border, #244267)",
+                background: "var(--da-panel, #071120)",
+                color: "var(--da-text-2, #c9d6ea)",
                 fontSize: 12,
                 cursor: "pointer",
               }}
@@ -9960,7 +9960,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               Clear Canvas
             </button>
           </div>
-          <label style={{ display: "flex", flexDirection: "column", gap: 8, color: "#8fabd0", fontSize: 12 }}>
+          <label style={{ display: "flex", flexDirection: "column", gap: 8, color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
             Background Color
             <input
               type="color"
@@ -9968,38 +9968,38 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               data-hover="outline"
               value={backgroundColor}
               onChange={(e) => onBackgroundColorChange(e.target.value)}
-              style={{ width: 48, height: 32, padding: 2, border: "1px solid #244267", borderRadius: 8, background: "#030914", cursor: "pointer", boxSizing: "border-box" }}
+              style={{ width: 48, height: 32, padding: 2, border: "1px solid var(--da-border, #244267)", borderRadius: 8, background: "var(--da-page, #030914)", cursor: "pointer", boxSizing: "border-box" }}
             />
           </label>
         </div>
 
         {selectedUnifiedSymbolInstance && (
           <div data-unified-symbol-properties style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            <div style={{ color: "#8fabd0", fontSize: 11 }}>Symbol instance</div>
-            <div style={{ color: "#8fabd0", fontSize: 12 }}>
+            <div style={{ color: "var(--da-muted, #8fabd0)", fontSize: 11 }}>Symbol instance</div>
+            <div style={{ color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
               This instance has an independent transform and keeps its project Library definition linked by digest.
             </div>
             <RotationValueField value={selectedUnifiedSymbolInstance.rotation} onCommit={(rotation) => updateSelectedUnifiedSymbol({ rotation })} />
-            <button type="button" onClick={() => updateSelectedUnifiedSymbol({ flipX: !selectedUnifiedSymbolInstance.flipX })} style={{ minHeight: 34, borderRadius: 10, border: "1px solid #244267", background: "#071120", color: "#c9d6ea", cursor: "pointer" }}>Flip X</button>
-            <button type="button" onClick={() => updateSelectedUnifiedSymbol({ flipY: !selectedUnifiedSymbolInstance.flipY })} style={{ minHeight: 34, borderRadius: 10, border: "1px solid #244267", background: "#071120", color: "#c9d6ea", cursor: "pointer" }}>Flip Y</button>
-            <button type="button" onClick={duplicateSelectedUnifiedSymbol} style={{ minHeight: 34, borderRadius: 10, border: "1px solid #244267", background: "#071120", color: "#c9d6ea", cursor: "pointer" }}>Duplicate Instance</button>
-            <button type="button" onClick={deleteSelectedUnifiedSymbol} style={{ minHeight: 34, borderRadius: 10, border: "1px solid #244267", background: "#071120", color: "#ff8a95", cursor: "pointer" }}>Delete Instance</button>
+            <button type="button" onClick={() => updateSelectedUnifiedSymbol({ flipX: !selectedUnifiedSymbolInstance.flipX })} style={{ minHeight: 34, borderRadius: 10, border: "1px solid var(--da-border, #244267)", background: "var(--da-panel, #071120)", color: "var(--da-text-2, #c9d6ea)", cursor: "pointer" }}>Flip X</button>
+            <button type="button" onClick={() => updateSelectedUnifiedSymbol({ flipY: !selectedUnifiedSymbolInstance.flipY })} style={{ minHeight: 34, borderRadius: 10, border: "1px solid var(--da-border, #244267)", background: "var(--da-panel, #071120)", color: "var(--da-text-2, #c9d6ea)", cursor: "pointer" }}>Flip Y</button>
+            <button type="button" onClick={duplicateSelectedUnifiedSymbol} style={{ minHeight: 34, borderRadius: 10, border: "1px solid var(--da-border, #244267)", background: "var(--da-panel, #071120)", color: "var(--da-text-2, #c9d6ea)", cursor: "pointer" }}>Duplicate Instance</button>
+            <button type="button" onClick={deleteSelectedUnifiedSymbol} style={{ minHeight: 34, borderRadius: 10, border: "1px solid var(--da-border, #244267)", background: "var(--da-panel, #071120)", color: "var(--da-danger, #ff8a95)", cursor: "pointer" }}>Delete Instance</button>
           </div>
         )}
 
         {activePlacedImageAsset && (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            <div style={{ color: "#8fabd0", fontSize: 11 }}>Placed asset</div>
-            <div style={{ color: "#8fabd0", fontSize: 12, lineHeight: 1.4 }}>
+            <div style={{ color: "var(--da-muted, #8fabd0)", fontSize: 11 }}>Placed asset</div>
+            <div style={{ color: "var(--da-muted, #8fabd0)", fontSize: 12, lineHeight: 1.4 }}>
               Drag inside the asset to move it, use the edge and corner handles to resize it, and drag the round
               handle at the lower-right to rotate it.
             </div>
-            <label style={{ display: "flex", alignItems: "center", gap: 8, color: "#8fabd0", fontSize: 12 }}>
+            <label style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
               <input
                 type="checkbox"
                 checked={placedAssetAspectLocked}
                 onChange={event => setPlacedAssetAspectLocked(event.currentTarget.checked)}
-                style={{ accentColor: "#3a6aa3" }}
+                style={{ accentColor: "var(--da-selected-border, #3a6aa3)" }}
               />
               Lock image proportions
             </label>
@@ -10017,9 +10017,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 minHeight: 34,
                 padding: "6px 10px",
                 borderRadius: 10,
-                border: "1px solid #244267",
-                background: "#071120",
-                color: "#c9d6ea",
+                border: "1px solid var(--da-border, #244267)",
+                background: "var(--da-panel, #071120)",
+                color: "var(--da-text-2, #c9d6ea)",
                 fontSize: 12,
                 cursor: "pointer",
                 textAlign: "left",
@@ -10040,9 +10040,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 minHeight: 34,
                 padding: "6px 10px",
                 borderRadius: 10,
-                border: "1px solid #244267",
-                background: "#071120",
-                color: "#ff8a95",
+                border: "1px solid var(--da-border, #244267)",
+                background: "var(--da-panel, #071120)",
+                color: "var(--da-danger, #ff8a95)",
                 fontSize: 12,
                 cursor: "pointer",
                 textAlign: "left",
@@ -10055,7 +10055,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
 
         {activeBoxSelection && (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            <div style={{ color: "#8fabd0", fontSize: 11 }}>Selection actions</div>
+            <div style={{ color: "var(--da-muted, #8fabd0)", fontSize: 11 }}>Selection actions</div>
             {activeBoxSelection.kind === "bitmap" && (
               <RotationValueField
                 value={activeBoxSelection.rotation}
@@ -10070,9 +10070,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 minHeight: 40,
                 padding: "6px 10px",
                 borderRadius: 10,
-                border: "1px solid #244267",
-                background: "#071120",
-                color: "#c9d6ea",
+                border: "1px solid var(--da-border, #244267)",
+                background: "var(--da-panel, #071120)",
+                color: "var(--da-text-2, #c9d6ea)",
                 fontSize: 12,
                 cursor: "pointer",
                 textAlign: "left",
@@ -10083,7 +10083,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               }}
             >
               Duplicate
-              <span style={{ color: "#7895bc", fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>
+              <span style={{ color: "var(--da-label, #7895bc)", fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>
                 Create a copy of the selected artwork region.
               </span>
             </button>
@@ -10095,9 +10095,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 minHeight: 40,
                 padding: "6px 10px",
                 borderRadius: 10,
-                border: "1px solid #244267",
-                background: "#071120",
-                color: "#ff8a95",
+                border: "1px solid var(--da-border, #244267)",
+                background: "var(--da-panel, #071120)",
+                color: "var(--da-danger, #ff8a95)",
                 fontSize: 12,
                 cursor: "pointer",
                 textAlign: "left",
@@ -10108,7 +10108,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               }}
             >
               Delete
-              <span style={{ color: "#7895bc", fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>
+              <span style={{ color: "var(--da-label, #7895bc)", fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>
                 Remove the selected artwork region from the canvas.
               </span>
             </button>
@@ -10120,9 +10120,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 minHeight: 34,
                 padding: "6px 10px",
                 borderRadius: 10,
-                border: "1px solid #244267",
-                background: "#071120",
-                color: "#c9d6ea",
+                border: "1px solid var(--da-border, #244267)",
+                background: "var(--da-panel, #071120)",
+                color: "var(--da-text-2, #c9d6ea)",
                 fontSize: 12,
                 cursor: "pointer",
                 textAlign: "left",
@@ -10133,7 +10133,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               }}
             >
               Flip X
-              <span style={{ color: "#7895bc", fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>
+              <span style={{ color: "var(--da-label, #7895bc)", fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>
                 Mirror the current selection horizontally.
               </span>
             </button>
@@ -10145,9 +10145,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 minHeight: 34,
                 padding: "6px 10px",
                 borderRadius: 10,
-                border: "1px solid #244267",
-                background: "#071120",
-                color: "#c9d6ea",
+                border: "1px solid var(--da-border, #244267)",
+                background: "var(--da-panel, #071120)",
+                color: "var(--da-text-2, #c9d6ea)",
                 fontSize: 12,
                 cursor: "pointer",
                 textAlign: "left",
@@ -10158,7 +10158,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               }}
             >
               Flip Y
-              <span style={{ color: "#7895bc", fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>
+              <span style={{ color: "var(--da-label, #7895bc)", fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>
                 Mirror the current selection vertically.
               </span>
             </button>
@@ -10170,9 +10170,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 minHeight: 34,
                 padding: "6px 10px",
                 borderRadius: 10,
-                border: "1px solid #244267",
-                background: "#071120",
-                color: "#c9d6ea",
+                border: "1px solid var(--da-border, #244267)",
+                background: "var(--da-panel, #071120)",
+                color: "var(--da-text-2, #c9d6ea)",
                 fontSize: 12,
                 cursor: "pointer",
                 textAlign: "left",
@@ -10183,7 +10183,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               }}
             >
               Convert to Symbol
-              <span style={{ color: "#7895bc", fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>
+              <span style={{ color: "var(--da-label, #7895bc)", fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>
                 Turn this selected region into a reusable library symbol.
               </span>
             </button>
@@ -10195,9 +10195,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 minHeight: 40,
                 padding: "6px 10px",
                 borderRadius: 10,
-                border: "1px solid #244267",
-                background: "#071120",
-                color: "#c9d6ea",
+                border: "1px solid var(--da-border, #244267)",
+                background: "var(--da-panel, #071120)",
+                color: "var(--da-text-2, #c9d6ea)",
                 fontSize: 12,
                 cursor: "pointer",
                 textAlign: "left",
@@ -10208,7 +10208,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               }}
             >
               Deselect
-              <span style={{ color: "#7895bc", fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>
+              <span style={{ color: "var(--da-label, #7895bc)", fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>
                 Clear the current box selection.
               </span>
             </button>
@@ -10218,8 +10218,8 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       </div>
     ) : activeTool === "Brush" ? (
       <div style={{ display: "flex", flexDirection: "column", gap: 8, paddingBottom: 0 }}>
-        <div style={{ color: "#f6f9ff", fontSize: 13, fontWeight: 600 }}>Tool: Brush</div>
-        <label style={{ display: "flex", flexDirection: "column", gap: 5, color: "#8fabd0", fontSize: 12 }}>
+        <div style={{ color: "var(--da-text, #f6f9ff)", fontSize: 13, fontWeight: 600 }}>Tool: Brush</div>
+        <label style={{ display: "flex", flexDirection: "column", gap: 5, color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
           {brushToolVariant} size: {brushSize}
           <input
             type="range"
@@ -10228,10 +10228,10 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
             step={1}
             value={brushSize}
             onChange={(e) => onBrushSizeChange(Number(e.target.value))}
-            style={{ width: "100%", accentColor: "#3a6aa3" }}
+            style={{ width: "100%", accentColor: "var(--da-selected-border, #3a6aa3)" }}
           />
         </label>
-        <label style={{ display: "flex", flexDirection: "column", gap: 5, color: "#8fabd0", fontSize: 12 }}>
+        <label style={{ display: "flex", flexDirection: "column", gap: 5, color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
           Transparency: {brushTransparency}
           <input
             type="range"
@@ -10240,11 +10240,11 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
             step={1}
             value={brushTransparency}
             onChange={(e) => setBrushTransparency(Number(e.target.value))}
-            style={{ width: "100%", accentColor: "#3a6aa3" }}
+            style={{ width: "100%", accentColor: "var(--da-selected-border, #3a6aa3)" }}
           />
         </label>
         {brushToolVariant === "Glow" && (
-          <label style={{ display: "flex", flexDirection: "column", gap: 5, color: "#8fabd0", fontSize: 12 }}>
+          <label style={{ display: "flex", flexDirection: "column", gap: 5, color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
             Gradient Brightness: {glowGradientBrightness}
             <input
               type="range"
@@ -10253,12 +10253,12 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               step={1}
               value={glowGradientBrightness}
               onChange={(e) => setGlowGradientBrightness(Number(e.target.value))}
-              style={{ width: "100%", accentColor: "#3a6aa3" }}
+              style={{ width: "100%", accentColor: "var(--da-selected-border, #3a6aa3)" }}
             />
           </label>
         )}
         {brushToolVariant === "Glow" && (
-          <label style={{ display: "flex", flexDirection: "column", gap: 5, color: "#8fabd0", fontSize: 12 }}>
+          <label style={{ display: "flex", flexDirection: "column", gap: 5, color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
             Gradient Radius: {glowGradientRadius}
             <input
               type="range"
@@ -10267,11 +10267,11 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               step={1}
               value={glowGradientRadius}
               onChange={(e) => setGlowGradientRadius(Number(e.target.value))}
-              style={{ width: "100%", accentColor: "#3a6aa3" }}
+              style={{ width: "100%", accentColor: "var(--da-selected-border, #3a6aa3)" }}
             />
           </label>
         )}
-        <label style={{ display: "flex", flexDirection: "column", gap: 5, color: "#8fabd0", fontSize: 12 }}>
+        <label style={{ display: "flex", flexDirection: "column", gap: 5, color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
           Smoothing: {brushSmoothing}
           <input
             type="range"
@@ -10280,13 +10280,13 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
             step={1}
             value={brushSmoothing}
             onChange={(e) => setBrushSmoothing(Number(e.target.value))}
-            style={{ width: "100%", accentColor: "#3a6aa3" }}
+            style={{ width: "100%", accentColor: "var(--da-selected-border, #3a6aa3)" }}
           />
         </label>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, color: "#8fabd0", fontSize: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <span>Draw Rig</span>
-            <span style={{ color: "#7895bc", fontSize: 10 }}>Straighten each live run as you draw.</span>
+            <span style={{ color: "var(--da-label, #7895bc)", fontSize: 10 }}>Straighten each live run as you draw.</span>
           </div>
           <button
             type="button"
@@ -10299,9 +10299,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               minHeight: 26,
               padding: "4px 9px",
               borderRadius: 999,
-              border: drawRigEnabled ? "1px solid #3a6aa3" : "1px solid #244267",
-              background: drawRigEnabled ? "#0f2a52" : "#071120",
-              color: drawRigEnabled ? "#eaf3ff" : "#c9d6ea",
+              border: drawRigEnabled ? "1px solid var(--da-selected-border, #3a6aa3)" : "1px solid var(--da-border, #244267)",
+              background: drawRigEnabled ? "var(--da-selected-bg, #0f2a52)" : "var(--da-panel, #071120)",
+              color: drawRigEnabled ? "var(--da-on-selected, #eaf3ff)" : "var(--da-text-2, #c9d6ea)",
               fontSize: 11,
               fontWeight: 700,
               cursor: "pointer",
@@ -10311,7 +10311,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
           </button>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 4, color: "#8fabd0", fontSize: 12 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 4, color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
               <div>Color</div>
               <input
@@ -10321,10 +10321,10 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 aria-label="Brush color"
                 value={brushColor}
                 onChange={(e) => setBrushColor(e.target.value)}
-                style={{ width: 28, height: 28, padding: 2, border: "1px solid #244267", borderRadius: 8, background: "#030914", cursor: "pointer", boxSizing: "border-box" }}
+                style={{ width: 28, height: 28, padding: 2, border: "1px solid var(--da-border, #244267)", borderRadius: 8, background: "var(--da-page, #030914)", cursor: "pointer", boxSizing: "border-box" }}
               />
             </div>
-            <div style={{ color: "#7895bc", fontSize: 11 }}>Choose the color your brush will paint with.</div>
+            <div style={{ color: "var(--da-label, #7895bc)", fontSize: 11 }}>Choose the color your brush will paint with.</div>
           </div>
           <div style={{ position: "relative", display: "flex", flexDirection: "column", gap: 2 }}>
             <button
@@ -10336,9 +10336,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 minHeight: 44,
                 padding: "11px 12px",
                 borderRadius: 10,
-                border: "1px solid #244267",
-                background: "#071120",
-                color: "#c9d6ea",
+                border: "1px solid var(--da-border, #244267)",
+                background: "var(--da-panel, #071120)",
+                color: "var(--da-text-2, #c9d6ea)",
                 fontSize: 12,
                 fontWeight: 700,
                 cursor: "pointer",
@@ -10352,9 +10352,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       </div>
     ) : activeTool === "Eraser" ? (
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <div style={{ color: "#f6f9ff", fontSize: 13, fontWeight: 600 }}>Tool: Eraser</div>
-        <div style={{ color: "#8fabd0", fontSize: 12 }}>Mode: Erase</div>
-        <label style={{ display: "flex", flexDirection: "column", gap: 8, color: "#8fabd0", fontSize: 12 }}>
+        <div style={{ color: "var(--da-text, #f6f9ff)", fontSize: 13, fontWeight: 600 }}>Tool: Eraser</div>
+        <div style={{ color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>Mode: Erase</div>
+        <label style={{ display: "flex", flexDirection: "column", gap: 8, color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
           Eraser size: {eraserSize}
           <input
             type="range"
@@ -10363,14 +10363,14 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
             step={1}
             value={eraserSize}
             onChange={(e) => onEraserSizeChange(Number(e.target.value))}
-            style={{ width: "100%", accentColor: "#3a6aa3" }}
+            style={{ width: "100%", accentColor: "var(--da-selected-border, #3a6aa3)" }}
           />
         </label>
       </div>
     ) : activeTool === "Fill" ? (
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <div style={{ color: "#f6f9ff", fontSize: 13, fontWeight: 600 }}>Tool: Fill</div>
-        <label style={{ display: "flex", flexDirection: "column", gap: 8, color: "#8fabd0", fontSize: 12 }}>
+        <div style={{ color: "var(--da-text, #f6f9ff)", fontSize: 13, fontWeight: 600 }}>Tool: Fill</div>
+        <label style={{ display: "flex", flexDirection: "column", gap: 8, color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
           Fill color
           <input
             type="color"
@@ -10378,10 +10378,10 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
             data-hover="outline"
             value={fillColor}
             onChange={(e) => onFillColorChange(e.target.value)}
-            style={{ width: 48, height: 32, padding: 2, border: "1px solid #244267", borderRadius: 8, background: "#030914", cursor: "pointer", boxSizing: "border-box" }}
+            style={{ width: 48, height: 32, padding: 2, border: "1px solid var(--da-border, #244267)", borderRadius: 8, background: "var(--da-page, #030914)", cursor: "pointer", boxSizing: "border-box" }}
           />
         </label>
-        <label style={{ display: "flex", flexDirection: "column", gap: 8, color: "#8fabd0", fontSize: 12 }}>
+        <label style={{ display: "flex", flexDirection: "column", gap: 8, color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
           Tolerance: {fillTolerance}
           <input
             type="range"
@@ -10390,9 +10390,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
             step={1}
             value={fillTolerance}
             onChange={(e) => setFillTolerance(Number(e.target.value))}
-            style={{ width: "100%", accentColor: "#3a6aa3" }}
+            style={{ width: "100%", accentColor: "var(--da-selected-border, #3a6aa3)" }}
           />
-          <div style={{ color: "#7895bc", fontSize: 11 }}>
+          <div style={{ color: "var(--da-label, #7895bc)", fontSize: 11 }}>
             Controls how similar colors must be to be filled. Low tolerance fills only very similar colors. High
             tolerance fills a wider range of colors.
           </div>
@@ -10402,12 +10402,12 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       renderTextPropertiesEditor("Tool: Text", "Click the canvas to create a text object.")
     ) : activeTool === "Lasso" ? (
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-        <div style={{ color: "#f6f9ff", fontSize: 13, fontWeight: 600 }}>Tool: Lasso</div>
+        <div style={{ color: "var(--da-text, #f6f9ff)", fontSize: 13, fontWeight: 600 }}>Tool: Lasso</div>
         {!activeLassoSelection ? (
-          <div style={{ color: "#8fabd0", fontSize: 12 }}>Draw around an area to select it.</div>
+          <div style={{ color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>Draw around an area to select it.</div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            <div style={{ color: "#8fabd0", fontSize: 11 }}>Selection actions</div>
+            <div style={{ color: "var(--da-muted, #8fabd0)", fontSize: 11 }}>Selection actions</div>
             {activeLassoSelection.kind === "bitmap" && (
               <RotationValueField
                 value={activeLassoSelection.rotation}
@@ -10422,9 +10422,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 minHeight: 40,
                 padding: "6px 10px",
                 borderRadius: 10,
-                border: "1px solid #244267",
-                background: "#071120",
-                color: "#c9d6ea",
+                border: "1px solid var(--da-border, #244267)",
+                background: "var(--da-panel, #071120)",
+                color: "var(--da-text-2, #c9d6ea)",
                 fontSize: 12,
                 cursor: "pointer",
                 textAlign: "left",
@@ -10435,7 +10435,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               }}
             >
               Duplicate
-              <span style={{ color: "#7895bc", fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>
+              <span style={{ color: "var(--da-label, #7895bc)", fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>
                 Create a copy of the selected drawing.
               </span>
             </button>
@@ -10447,9 +10447,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 minHeight: 40,
                 padding: "6px 10px",
                 borderRadius: 10,
-                border: "1px solid #244267",
-                background: "#071120",
-                color: "#ff8a95",
+                border: "1px solid var(--da-border, #244267)",
+                background: "var(--da-panel, #071120)",
+                color: "var(--da-danger, #ff8a95)",
                 fontSize: 12,
                 cursor: "pointer",
                 textAlign: "left",
@@ -10460,7 +10460,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               }}
             >
               Delete
-              <span style={{ color: "#7895bc", fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>
+              <span style={{ color: "var(--da-label, #7895bc)", fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>
                 Remove the selected drawing from the canvas.
               </span>
             </button>
@@ -10472,9 +10472,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 minHeight: 34,
                 padding: "6px 10px",
                 borderRadius: 10,
-                border: "1px solid #244267",
-                background: "#071120",
-                color: "#c9d6ea",
+                border: "1px solid var(--da-border, #244267)",
+                background: "var(--da-panel, #071120)",
+                color: "var(--da-text-2, #c9d6ea)",
                 fontSize: 12,
                 cursor: "pointer",
                 textAlign: "left",
@@ -10485,7 +10485,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               }}
             >
               Flip X
-              <span style={{ color: "#7895bc", fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>
+              <span style={{ color: "var(--da-label, #7895bc)", fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>
                 Mirror the lasso selection horizontally.
               </span>
             </button>
@@ -10497,9 +10497,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 minHeight: 34,
                 padding: "6px 10px",
                 borderRadius: 10,
-                border: "1px solid #244267",
-                background: "#071120",
-                color: "#c9d6ea",
+                border: "1px solid var(--da-border, #244267)",
+                background: "var(--da-panel, #071120)",
+                color: "var(--da-text-2, #c9d6ea)",
                 fontSize: 12,
                 cursor: "pointer",
                 textAlign: "left",
@@ -10510,7 +10510,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               }}
             >
               Flip Y
-              <span style={{ color: "#7895bc", fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>
+              <span style={{ color: "var(--da-label, #7895bc)", fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>
                 Mirror the lasso selection vertically.
               </span>
             </button>
@@ -10522,9 +10522,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 minHeight: 34,
                 padding: "6px 10px",
                 borderRadius: 10,
-                border: "1px solid #244267",
-                background: "#071120",
-                color: "#c9d6ea",
+                border: "1px solid var(--da-border, #244267)",
+                background: "var(--da-panel, #071120)",
+                color: "var(--da-text-2, #c9d6ea)",
                 fontSize: 12,
                 cursor: "pointer",
                 textAlign: "left",
@@ -10535,7 +10535,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               }}
             >
               Convert to Symbol
-              <span style={{ color: "#7895bc", fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>
+              <span style={{ color: "var(--da-label, #7895bc)", fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>
                 Turn this selection into a symbol you can reuse in the library.
               </span>
             </button>
@@ -10547,9 +10547,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 minHeight: 40,
                 padding: "6px 10px",
                 borderRadius: 10,
-                border: "1px solid #244267",
-                background: "#071120",
-                color: "#c9d6ea",
+                border: "1px solid var(--da-border, #244267)",
+                background: "var(--da-panel, #071120)",
+                color: "var(--da-text-2, #c9d6ea)",
                 fontSize: 12,
                 cursor: "pointer",
                 textAlign: "left",
@@ -10560,7 +10560,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               }}
             >
               Deselect
-              <span style={{ color: "#7895bc", fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>
+              <span style={{ color: "var(--da-label, #7895bc)", fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>
                 Exit lasso selection without keeping it active.
               </span>
             </button>
@@ -10570,10 +10570,10 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       </div>
     ) : activeTool === "Knife" ? (
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <div style={{ color: "#f6f9ff", fontSize: 13, fontWeight: 600 }}>Tool: Knife</div>
+        <div style={{ color: "var(--da-text, #f6f9ff)", fontSize: 13, fontWeight: 600 }}>Tool: Knife</div>
         {activeKnifePieces.length > 0 && (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            <div style={{ color: "#8fabd0", fontSize: 11 }}>Selection actions</div>
+            <div style={{ color: "var(--da-muted, #8fabd0)", fontSize: 11 }}>Selection actions</div>
             <button
               type="button"
               onClick={duplicateKnifePieces}
@@ -10582,9 +10582,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 minHeight: 40,
                 padding: "6px 10px",
                 borderRadius: 10,
-                border: "1px solid #244267",
-                background: "#071120",
-                color: "#c9d6ea",
+                border: "1px solid var(--da-border, #244267)",
+                background: "var(--da-panel, #071120)",
+                color: "var(--da-text-2, #c9d6ea)",
                 fontSize: 12,
                 cursor: "pointer",
                 textAlign: "left",
@@ -10595,7 +10595,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               }}
             >
               Duplicate
-              <span style={{ color: "#7895bc", fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>
+              <span style={{ color: "var(--da-label, #7895bc)", fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>
                 Keep the cut pieces in place and make a new selected copy.
               </span>
             </button>
@@ -10607,9 +10607,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 minHeight: 40,
                 padding: "6px 10px",
                 borderRadius: 10,
-                border: "1px solid #244267",
-                background: "#071120",
-                color: "#ff8a95",
+                border: "1px solid var(--da-border, #244267)",
+                background: "var(--da-panel, #071120)",
+                color: "var(--da-danger, #ff8a95)",
                 fontSize: 12,
                 cursor: "pointer",
                 textAlign: "left",
@@ -10620,7 +10620,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               }}
             >
               Delete
-              <span style={{ color: "#7895bc", fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>
+              <span style={{ color: "var(--da-label, #7895bc)", fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>
                 Remove only the currently selected cut pieces.
               </span>
             </button>
@@ -10632,9 +10632,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 minHeight: 34,
                 padding: "6px 10px",
                 borderRadius: 10,
-                border: "1px solid #244267",
-                background: "#071120",
-                color: "#c9d6ea",
+                border: "1px solid var(--da-border, #244267)",
+                background: "var(--da-panel, #071120)",
+                color: "var(--da-text-2, #c9d6ea)",
                 fontSize: 12,
                 cursor: "pointer",
                 textAlign: "left",
@@ -10645,7 +10645,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               }}
             >
               Flip X
-              <span style={{ color: "#7895bc", fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>
+              <span style={{ color: "var(--da-label, #7895bc)", fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>
                 Mirror the selected cut pieces horizontally.
               </span>
             </button>
@@ -10657,9 +10657,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 minHeight: 34,
                 padding: "6px 10px",
                 borderRadius: 10,
-                border: "1px solid #244267",
-                background: "#071120",
-                color: "#c9d6ea",
+                border: "1px solid var(--da-border, #244267)",
+                background: "var(--da-panel, #071120)",
+                color: "var(--da-text-2, #c9d6ea)",
                 fontSize: 12,
                 cursor: "pointer",
                 textAlign: "left",
@@ -10670,7 +10670,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               }}
             >
               Flip Y
-              <span style={{ color: "#7895bc", fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>
+              <span style={{ color: "var(--da-label, #7895bc)", fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>
                 Mirror the selected cut pieces vertically.
               </span>
             </button>
@@ -10682,9 +10682,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 minHeight: 34,
                 padding: "6px 10px",
                 borderRadius: 10,
-                border: "1px solid #244267",
-                background: "#071120",
-                color: "#c9d6ea",
+                border: "1px solid var(--da-border, #244267)",
+                background: "var(--da-panel, #071120)",
+                color: "var(--da-text-2, #c9d6ea)",
                 fontSize: 12,
                 cursor: "pointer",
                 textAlign: "left",
@@ -10695,7 +10695,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               }}
             >
               Convert to Symbol
-              <span style={{ color: "#7895bc", fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>
+              <span style={{ color: "var(--da-label, #7895bc)", fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>
                 Turn the selected cut pieces into a reusable symbol.
               </span>
             </button>
@@ -10707,9 +10707,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 minHeight: 40,
                 padding: "6px 10px",
                 borderRadius: 10,
-                border: "1px solid #244267",
-                background: "#071120",
-                color: "#c9d6ea",
+                border: "1px solid var(--da-border, #244267)",
+                background: "var(--da-panel, #071120)",
+                color: "var(--da-text-2, #c9d6ea)",
                 fontSize: 12,
                 cursor: "pointer",
                 textAlign: "left",
@@ -10720,14 +10720,14 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               }}
             >
               Deselect
-              <span style={{ color: "#7895bc", fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>
+              <span style={{ color: "var(--da-label, #7895bc)", fontSize: 9, fontWeight: 500, lineHeight: 1.2 }}>
                 Commit the current cut-piece placement and clear the selection.
               </span>
             </button>
           </div>
         )}
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <div style={{ color: "#8fabd0", fontSize: 12 }}>Straight line</div>
+          <div style={{ color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>Straight line</div>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             {([
               { label: "Off", value: false },
@@ -10743,9 +10743,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                     minHeight: 34,
                     padding: "6px 10px",
                     borderRadius: 10,
-                    border: isSelected ? "1px solid #3a6aa3" : "1px solid #244267",
-                    background: isSelected ? "#0f2a52" : "#071120",
-                    color: isSelected ? "#eaf3ff" : "#c9d6ea",
+                    border: isSelected ? "1px solid var(--da-selected-border, #3a6aa3)" : "1px solid var(--da-border, #244267)",
+                    background: isSelected ? "var(--da-selected-bg, #0f2a52)" : "var(--da-panel, #071120)",
+                    color: isSelected ? "var(--da-on-selected, #eaf3ff)" : "var(--da-text-2, #c9d6ea)",
                     fontSize: 12,
                     cursor: "pointer",
                   }}
@@ -10756,7 +10756,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
             })}
           </div>
         </div>
-        <label style={{ display: "flex", flexDirection: "column", gap: 8, color: "#8fabd0", fontSize: 12 }}>
+        <label style={{ display: "flex", flexDirection: "column", gap: 8, color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
           Smoothing: {knifeSmoothing}
           <input
             type="range"
@@ -10765,15 +10765,15 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
             step={1}
             value={knifeSmoothing}
             onChange={(e) => setKnifeSmoothing(Number(e.target.value))}
-            style={{ width: "100%", accentColor: "#3a6aa3" }}
+            style={{ width: "100%", accentColor: "var(--da-selected-border, #3a6aa3)" }}
           />
         </label>
       </div>
     ) : activeTool === "Shape" ? (
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <div style={{ color: "#f6f9ff", fontSize: 13, fontWeight: 600 }}>Tool: Shape</div>
+        <div style={{ color: "var(--da-text, #f6f9ff)", fontSize: 13, fontWeight: 600 }}>Tool: Shape</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <div style={{ color: "#8fabd0", fontSize: 12 }}>Shape type</div>
+          <div style={{ color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>Shape type</div>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             {SHAPE_TYPES.map((option) => {
               const isSelected = shapeType === option;
@@ -10786,9 +10786,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                     minHeight: 34,
                     padding: "6px 10px",
                     borderRadius: 10,
-                    border: isSelected ? "1px solid #3a6aa3" : "1px solid #244267",
-                    background: isSelected ? "#0f2a52" : "#071120",
-                    color: isSelected ? "#eaf3ff" : "#c9d6ea",
+                    border: isSelected ? "1px solid var(--da-selected-border, #3a6aa3)" : "1px solid var(--da-border, #244267)",
+                    background: isSelected ? "var(--da-selected-bg, #0f2a52)" : "var(--da-panel, #071120)",
+                    color: isSelected ? "var(--da-on-selected, #eaf3ff)" : "var(--da-text-2, #c9d6ea)",
                     fontSize: 12,
                     cursor: "pointer",
                   }}
@@ -10800,7 +10800,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
           </div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <div style={{ color: "#8fabd0", fontSize: 12 }}>Mode</div>
+          <div style={{ color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>Mode</div>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             {(["Draw", "Cutout"] as const).map((option) => {
               const isSelected = shapeMode === option;
@@ -10813,9 +10813,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                     minHeight: 34,
                     padding: "6px 10px",
                     borderRadius: 10,
-                    border: isSelected ? "1px solid #3a6aa3" : "1px solid #244267",
-                    background: isSelected ? "#0f2a52" : "#071120",
-                    color: isSelected ? "#eaf3ff" : "#c9d6ea",
+                    border: isSelected ? "1px solid var(--da-selected-border, #3a6aa3)" : "1px solid var(--da-border, #244267)",
+                    background: isSelected ? "var(--da-selected-bg, #0f2a52)" : "var(--da-panel, #071120)",
+                    color: isSelected ? "var(--da-on-selected, #eaf3ff)" : "var(--da-text-2, #c9d6ea)",
                     fontSize: 12,
                     cursor: "pointer",
                   }}
@@ -10826,7 +10826,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
             })}
           </div>
         </div>
-        <label style={{ display: "flex", flexDirection: "column", gap: 8, color: "#8fabd0", fontSize: 12 }}>
+        <label style={{ display: "flex", flexDirection: "column", gap: 8, color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
           Fill color
           <input
             type="color"
@@ -10834,10 +10834,10 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
             data-hover="outline"
             value={shapeFillColor}
             onChange={(e) => setShapeFillColor(e.target.value)}
-            style={{ width: 48, height: 32, padding: 2, border: "1px solid #244267", borderRadius: 8, background: "#030914", cursor: "pointer", boxSizing: "border-box" }}
+            style={{ width: 48, height: 32, padding: 2, border: "1px solid var(--da-border, #244267)", borderRadius: 8, background: "var(--da-page, #030914)", cursor: "pointer", boxSizing: "border-box" }}
           />
         </label>
-        <label style={{ display: "flex", flexDirection: "column", gap: 8, color: "#8fabd0", fontSize: 12 }}>
+        <label style={{ display: "flex", flexDirection: "column", gap: 8, color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
           Outline color
           <input
             type="color"
@@ -10845,10 +10845,10 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
             data-hover="outline"
             value={shapeOutlineColor}
             onChange={(e) => setShapeOutlineColor(e.target.value)}
-            style={{ width: 48, height: 32, padding: 2, border: "1px solid #244267", borderRadius: 8, background: "#030914", cursor: "pointer", boxSizing: "border-box" }}
+            style={{ width: 48, height: 32, padding: 2, border: "1px solid var(--da-border, #244267)", borderRadius: 8, background: "var(--da-page, #030914)", cursor: "pointer", boxSizing: "border-box" }}
           />
         </label>
-        <label style={{ display: "flex", flexDirection: "column", gap: 8, color: "#8fabd0", fontSize: 12 }}>
+        <label style={{ display: "flex", flexDirection: "column", gap: 8, color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
           Outline thickness: {shapeOutlineThickness}
           <input
             type="range"
@@ -10857,10 +10857,10 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
             step={1}
             value={shapeOutlineThickness}
             onChange={(e) => setShapeOutlineThickness(Number(e.target.value))}
-            style={{ width: "100%", accentColor: "#3a6aa3" }}
+            style={{ width: "100%", accentColor: "var(--da-selected-border, #3a6aa3)" }}
           />
         </label>
-        <label style={{ display: "flex", flexDirection: "column", gap: 8, color: "#8fabd0", fontSize: 12 }}>
+        <label style={{ display: "flex", flexDirection: "column", gap: 8, color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
                 Corner curveness : {shapeCornerRadius}
           <input
             type="range"
@@ -10869,12 +10869,12 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
             step={1}
             value={shapeCornerRadius}
             onChange={(e) => setShapeCornerRadius(Number(e.target.value))}
-            style={{ width: "100%", accentColor: "#3a6aa3" }}
+            style={{ width: "100%", accentColor: "var(--da-selected-border, #3a6aa3)" }}
           />
         </label>
       </div>
     ) : (
-      <div style={{ color: "#8fabd0" }}>{activeTool} tool is not functional yet.</div>
+      <div style={{ color: "var(--da-muted, #8fabd0)" }}>{activeTool} tool is not functional yet.</div>
     );
 
   const assetsTabContent = (
@@ -10892,12 +10892,12 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
         minHeight: 0,
         height: "100%",
         borderRadius: 10,
-        outline: assetDropActive ? "2px solid #0066ff" : "2px solid transparent",
+        outline: assetDropActive ? "2px solid var(--da-hover, #0066ff)" : "2px solid transparent",
         outlineOffset: 4,
       }}
     >
-      <div style={{ color: "#f6f9ff", fontSize: 13, fontWeight: 600 }}>Assets</div>
-      <div style={{ color: "#8fabd0", fontSize: 12 }}>
+      <div style={{ color: "var(--da-text, #f6f9ff)", fontSize: 13, fontWeight: 600 }}>Assets</div>
+      <div style={{ color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
         Drop or import static PNG, JPEG, and WebP images. Up to 32 images per batch and 16 MB per image.
       </div>
       <input
@@ -10917,9 +10917,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
           width: "fit-content",
           padding: "7px 10px",
           borderRadius: 10,
-          border: "1px solid #3a6aa3",
-          background: "#0f2a52",
-          color: "#eaf3ff",
+          border: "1px solid var(--da-selected-border, #3a6aa3)",
+          background: "var(--da-selected-bg, #0f2a52)",
+          color: "var(--da-on-selected, #eaf3ff)",
           fontSize: 12,
           fontWeight: 600,
           cursor: assetImportBusy ? "wait" : "pointer",
@@ -10931,10 +10931,10 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       {importedAssets.length === 0 ? (
         <div
           style={{
-            border: "1px dashed #244267",
+            border: "1px dashed var(--da-border, #244267)",
             borderRadius: 10,
             padding: "12px 10px",
-            color: "#8fabd0",
+            color: "var(--da-muted, #8fabd0)",
             fontSize: 12,
           }}
         >
@@ -10949,9 +10949,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               draggable={asset.kind === "image" && !!asset.previewUrl}
               onDragStart={(e) => handleAssetDragStart(e, asset)}
               style={{
-                border: "1px solid #163058",
+                border: "1px solid var(--da-line, #163058)",
                 borderRadius: 10,
-                background: "#030914",
+                background: "var(--da-page, #030914)",
                 padding: 8,
                 minHeight: 88,
                 display: "flex",
@@ -10968,9 +10968,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                     height: 72,
                     width: "100%",
                     borderRadius: 6,
-                    border: "1px solid #163058",
+                    border: "1px solid var(--da-line, #163058)",
                     padding: 6,
-                    background: "#030914",
+                    background: "var(--da-page, #030914)",
                     backgroundImage: `url("${asset.previewUrl}")`,
                     backgroundPosition: "center",
                     backgroundRepeat: "no-repeat",
@@ -10984,12 +10984,12 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                   style={{
                     height: 72,
                     borderRadius: 6,
-                    border: "1px solid #163058",
-                    background: "linear-gradient(135deg, #0f2a52, #030914 60%)",
+                    border: "1px solid var(--da-line, #163058)",
+                    background: "linear-gradient(135deg, var(--da-selected-bg, #0f2a52), var(--da-page, #030914) 60%)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    color: "#8fabd0",
+                    color: "var(--da-muted, #8fabd0)",
                     fontSize: 10,
                     fontWeight: 700,
                     letterSpacing: 0.5,
@@ -10999,7 +10999,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 </div>
               )}
               <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
-                <div style={{ color: "#c9d6ea", fontSize: 11, fontWeight: 600, lineHeight: 1.25, minWidth: 0, overflowWrap: "anywhere" }}>{asset.name}</div>
+                <div style={{ color: "var(--da-text-2, #c9d6ea)", fontSize: 11, fontWeight: 600, lineHeight: 1.25, minWidth: 0, overflowWrap: "anywhere" }}>{asset.name}</div>
                 {onRemoveUnifiedAsset && (
                   <button
                     type="button"
@@ -11017,15 +11017,15 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                       }
                       setWorkspaceNotice(`Deleted ${asset.name} from Assets.`);
                     }}
-                    style={{ marginLeft: "auto", flexShrink: 0, border: "1px solid #244267", borderRadius: 8, background: "#071120", color: "#ff8a95", cursor: "pointer", padding: "3px 6px", fontSize: 10 }}
+                    style={{ marginLeft: "auto", flexShrink: 0, border: "1px solid var(--da-border, #244267)", borderRadius: 8, background: "var(--da-panel, #071120)", color: "var(--da-danger, #ff8a95)", cursor: "pointer", padding: "3px 6px", fontSize: 10 }}
                   >
                     Delete
                   </button>
                 )}
               </div>
-              <div style={{ color: "#7895bc", fontSize: 10 }}>{asset.meta}</div>
+              <div style={{ color: "var(--da-label, #7895bc)", fontSize: 10 }}>{asset.meta}</div>
               {asset.kind === "image" && (
-                <div style={{ color: "#7895bc", fontSize: 10 }}>{asset.sizeLabel}</div>
+                <div style={{ color: "var(--da-label, #7895bc)", fontSize: 10 }}>{asset.sizeLabel}</div>
               )}
             </div>
           ))}
@@ -11036,17 +11036,17 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
 
   const libraryTabContent = (
     <div style={{ display: "flex", flexDirection: "column", gap: 8, minHeight: 0, height: "100%" }}>
-      <div style={{ color: "#f6f9ff", fontSize: 13, fontWeight: 600 }}>Library</div>
-      <div style={{ color: "#8fabd0", fontSize: 12 }}>
+      <div style={{ color: "var(--da-text, #f6f9ff)", fontSize: 13, fontWeight: 600 }}>Library</div>
+      <div style={{ color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
         Store reusable project-created symbols, poses, drawings, and effects.
       </div>
       {librarySymbols.length === 0 ? (
         <div
           style={{
-            border: "1px dashed #244267",
+            border: "1px dashed var(--da-border, #244267)",
             borderRadius: 10,
             padding: "12px 10px",
-            color: "#8fabd0",
+            color: "var(--da-muted, #8fabd0)",
             fontSize: 12,
           }}
         >
@@ -11060,9 +11060,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               draggable
               onDragStart={(e) => handleLibrarySymbolDragStart(e, item)}
               style={{
-                border: "1px solid #163058",
+                border: "1px solid var(--da-line, #163058)",
                 borderRadius: 10,
-                background: "#030914",
+                background: "var(--da-page, #030914)",
                 padding: "8px 10px",
                 display: "flex",
                 alignItems: "center",
@@ -11077,7 +11077,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                   width: 42,
                   height: 42,
                   borderRadius: 6,
-                  border: "1px solid #163058",
+                  border: "1px solid var(--da-line, #163058)",
                   // Symbol pictures are always shown on white (Arthur's rule), whatever they are.
                   backgroundColor: "#ffffff",
                   backgroundImage: `url("${item.previewUrl}")`,
@@ -11088,8 +11088,8 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 }}
               />
               <div style={{ minWidth: 0 }}>
-                <div style={{ color: "#c9d6ea", fontSize: 12, fontWeight: 600, lineHeight: 1.2 }}>{item.name}</div>
-                <div style={{ color: "#7895bc", fontSize: 10 }}>{item.tag}</div>
+                <div style={{ color: "var(--da-text-2, #c9d6ea)", fontSize: 12, fontWeight: 600, lineHeight: 1.2 }}>{item.name}</div>
+                <div style={{ color: "var(--da-label, #7895bc)", fontSize: 10 }}>{item.tag}</div>
               </div>
               {onRemoveUnifiedSymbolDefinition && (
                 <button
@@ -11102,7 +11102,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                       setWorkspaceNotice("Delete the symbol instances that use this definition first.");
                     }
                   }}
-                  style={{ marginLeft: "auto", border: "1px solid #244267", borderRadius: 8, background: "#071120", color: "#ff8a95", cursor: "pointer", padding: "4px 7px" }}
+                  style={{ marginLeft: "auto", border: "1px solid var(--da-border, #244267)", borderRadius: 8, background: "var(--da-panel, #071120)", color: "var(--da-danger, #ff8a95)", cursor: "pointer", padding: "4px 7px" }}
                 >
                   Delete
                 </button>
@@ -11270,10 +11270,10 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     <>
     <style>{`
       .drawing-symbol-name-input:focus {
-        border-color: #3a6aa3 !important;
+        border-color: var(--da-selected-border, #3a6aa3) !important;
       }
       .drawing-symbol-name-input:focus-visible {
-        outline: 2px solid #66c7ff;
+        outline: 2px solid var(--da-focus, #66c7ff);
         outline-offset: 2px;
       }
       @media (max-width: 640px) {
@@ -11298,7 +11298,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
           boxSizing: "border-box",
           minWidth: 0,
           padding: 14,
-          background: "#030914",
+          background: "var(--da-page, #030914)",
         }}
       >
         <div
@@ -11309,8 +11309,8 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
           style={{
             height: "100%",
             borderRadius: 0,
-            border: "1px solid #163058",
-            background: "#030914",
+            border: "1px solid var(--da-line, #163058)",
+            background: "var(--da-page, #030914)",
             position: "relative",
             overflow: "hidden",
           }}
@@ -11337,7 +11337,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 width: `${CAMERA_FRAME_SIZE_PERCENT}%`,
                 height: `${CAMERA_FRAME_SIZE_PERCENT}%`,
                 background: backgroundColor,
-                boxShadow: "0 0 0 1px #163058, 0 18px 40px rgba(0,0,0,0.55)",
+                boxShadow: "0 0 0 1px var(--da-line, #163058), 0 18px 40px rgba(0,0,0,0.55)",
                 pointerEvents: "none",
               }}
             />
@@ -11580,15 +11580,15 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
             gap: 16,
             padding: 24,
             borderRadius: 16,
-            border: "1px solid #163058",
-            background: "#071120",
+            border: "1px solid var(--da-line, #163058)",
+            background: "var(--da-panel, #071120)",
             boxShadow: "0 18px 44px rgba(0,0,0,0.45)",
-            color: "#f6f9ff",
+            color: "var(--da-text, #f6f9ff)",
           }}
         >
           <div>
-            <h2 id="symbol-name-dialog-title" style={{ margin: 0, fontSize: 20, fontWeight: 600, color: "#f6f9ff" }}>Name this symbol</h2>
-            <p id="symbol-name-dialog-help" style={{ margin: "7px 0 0", color: "#8fabd0", fontSize: 13 }}>
+            <h2 id="symbol-name-dialog-title" style={{ margin: 0, fontSize: 20, fontWeight: 600, color: "var(--da-text, #f6f9ff)" }}>Name this symbol</h2>
+            <p id="symbol-name-dialog-help" style={{ margin: "7px 0 0", color: "var(--da-muted, #8fabd0)", fontSize: 13 }}>
               Give this reusable Library symbol a unique name.
             </p>
           </div>
@@ -11608,28 +11608,28 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               boxSizing: "border-box",
               padding: "11px 12px",
               borderRadius: 9,
-              border: symbolDialog.error ? "1px solid rgba(255,138,149,0.6)" : "1px solid #244267",
-              background: "#030914",
-              color: "#f6f9ff",
+              border: symbolDialog.error ? "1px solid rgba(255,138,149,0.6)" : "1px solid var(--da-border, #244267)",
+              background: "var(--da-page, #030914)",
+              color: "var(--da-text, #f6f9ff)",
               fontSize: 15,
             }}
           />
           {symbolDialog.error && (
-            <div role="alert" style={{ color: "#ff8a95", fontSize: 13 }}>{symbolDialog.error}</div>
+            <div role="alert" style={{ color: "var(--da-danger, #ff8a95)", fontSize: 13 }}>{symbolDialog.error}</div>
           )}
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
             <button
               type="button"
               disabled={symbolDialog.submitting}
               onClick={cancelSymbolCreationDialog}
-              style={{ minWidth: 88, minHeight: 40, borderRadius: 10, border: "1px solid #244267", background: "#071120", color: "#c9d6ea", cursor: "pointer" }}
+              style={{ minWidth: 88, minHeight: 40, borderRadius: 10, border: "1px solid var(--da-border, #244267)", background: "var(--da-panel, #071120)", color: "var(--da-text-2, #c9d6ea)", cursor: "pointer" }}
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={symbolDialog.submitting}
-              style={{ minWidth: 88, minHeight: 40, borderRadius: 10, border: "1px solid #3a6aa3", background: "#0f2a52", color: "#fff", cursor: "pointer", fontWeight: 700 }}
+              style={{ minWidth: 88, minHeight: 40, borderRadius: 10, border: "1px solid var(--da-selected-border, #3a6aa3)", background: "var(--da-selected-bg, #0f2a52)", color: "#fff", cursor: "pointer", fontWeight: 700 }}
             >
               {symbolDialog.submitting ? "Creating…" : "Create"}
             </button>
@@ -11641,7 +11641,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       <div
         role="status"
         aria-live="polite"
-        style={{ position: "fixed", right: 18, bottom: 84, pointerEvents: "none", zIndex: 1150, maxWidth: 340, padding: "10px 13px", borderRadius: 10, border: "1px solid #244267", background: "#071120", color: "#f6f9ff", fontSize: 13, boxShadow: "0 10px 32px rgba(0,0,0,0.35)" }}
+        style={{ position: "fixed", right: 18, bottom: 84, pointerEvents: "none", zIndex: 1150, maxWidth: 340, padding: "10px 13px", borderRadius: 10, border: "1px solid var(--da-border, #244267)", background: "var(--da-panel, #071120)", color: "var(--da-text, #f6f9ff)", fontSize: 13, boxShadow: "0 10px 32px rgba(0,0,0,0.35)" }}
       >
         {workspaceNotice}
       </div>

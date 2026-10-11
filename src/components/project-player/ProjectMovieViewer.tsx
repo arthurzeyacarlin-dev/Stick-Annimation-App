@@ -5,6 +5,7 @@ import type { ProjectLibrarySnapshot } from "@/src/lib/project-library/projectLi
 import { formatProjectDuration } from "@/src/lib/project-library/projectLibraryModel";
 import { CanonicalProjectPlayer, type CanonicalProjectPlayerHandle } from "./CanonicalProjectPlayer";
 import styles from "./projectPlayer.module.css";
+import { CloseButton } from "@/src/components/ui/CloseButton";
 
 type Props = {
   project: ProjectLibrarySnapshot;
@@ -95,7 +96,7 @@ export function ProjectMovieViewer({ project, onClose }: Props) {
               Saved animation · {stage.width}×{stage.height} · {snapshot.project.document.fps} FPS · {formatProjectDuration(snapshot.durationSeconds)}
             </p>
           </div>
-          <button ref={closeRef} type="button" onClick={() => void requestClose()} className={styles.viewerClose}>Close</button>
+          <CloseButton ref={closeRef} label="Close the movie" onClick={() => void requestClose()} />
         </div>
         <CanonicalProjectPlayer
           ref={playerRef}

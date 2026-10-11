@@ -1885,6 +1885,17 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0193 — Pricing v1 approved by Arthur's dad (PM3)
+
+- Date: 2026-10-12
+- Dad's rule: the business can't run on a 20–30% margin, so price as if most users are heavy users.
+- Credits priced per action at worst-case AI cost (1 credit = 1¢): chat/small edit 2, simple animation 25, big animation 90; cost shown before every action; refused/failed = free.
+- Plans: Starter $5.99 / 180 credits, Creator $11.99 / 420, Studio $19.99 / 750 per month; yearly $59 / $119 / $199; monthly refill, no rollover; worst-case profit 51–61%, typical ~72%.
+- Top-ups at ~2× cost (not +20%, which Stripe fees would eat): 200 / $4.99, 400 / $9.99, 800 / $19.99.
+- Trial 14 days, 75 credits; afterwards creating is locked but users can open, watch and export their work.
+- Replaces SPEC-0020 Phase 2's "1 credit = 1 answered message" (300/1,200/3,000; trial 150). The website's prices/credits must be updated to match. Revisit after 2–4 weeks of real usage (floor 50% profit).
+- Research: `docs/research/2026-10-12-pricing-plans-research.md`.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

@@ -112,6 +112,17 @@ After Phase 4 PM3 clicked through every screen except the AI Animator and a help
 - **Resize undone:** not reproducible (real-mouse resizes twice, auto-save, deselect all kept the change); Arthur will show the exact steps if it happens again.
 
 ### Next — Plans that work (PM3's recommendation, 2026-10-11)
+**Pricing v1 (APPROVED by dad 2026-10-12, D-0193 — may change as real costs come in):**
+- 1 credit = 1¢ of AI cost; every action is priced at its WORST-CASE cost and shown on the button first; a refused or failed animation is free.
+- Chat message / small edit = 2 credits · simple animation = 25 · big/complex animation = 90.
+- Plans (unchanged prices): Starter $5.99 → 180 credits/month · Creator $11.99 → 420 · Studio $19.99 → 750. Yearly $59 / $119 / $199 (same monthly credits). Credits refill monthly; no rollover.
+- Profit if EVERY user uses every credit at worst-case cost (after Stripe fees, before hosting): monthly 57–61%, yearly 51–59%; typical ~72–73%. Floor: never below 50%.
+- Top-up packs (subscribers only, ~2× cost; a 20% markup would leave 1–10% after Stripe's 30¢ + 3.6%): 200 credits $4.99 · 400 $9.99 · 800 $19.99 (50–55% worst case).
+- Trial: 14 days, 75 credits (≤ 75¢ AI cost per trial user), no card.
+- After the trial: creating (drawing, AI, editing) is LOCKED until a plan is chosen; users can still open, watch and export what they already made.
+- App Store later: ~$1–2 higher to cover Apple's 15%.
+- Review after 2–4 weeks of real usage: track the real cost of every action; adjust credit prices so profit stays ≥ 50%.
+
 1. Dad decides: credits per plan vs the AI Animator's 10–40¢ cost per animation; Stripe test keys; how to handle Apple's in-app purchase rule for the App Store app.
 2. Build in a new app copy: Plans → Stripe Checkout (test mode) → webhook sets the plan and credits → monthly refill on each renewal → "Manage plan" (Stripe customer portal: cancel / change / card) → failed payment warns, then locks the AI Animator after a grace period (projects stay safe) → trial lock unchanged.
 3. Test every case with Stripe's test cards; Arthur reviews. Then the website, then online, then the Mac App Store.

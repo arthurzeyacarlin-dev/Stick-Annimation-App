@@ -2,7 +2,7 @@
 
 ## PM2 — AI Animator engine, branch `claude/spec0021-claude-animator` (D-PM2-0021, 2026-10-11)
 
-SPEC-0021 restarted in a new copy (version 1's Oct 7 engine + the laws as a checker). Arthur passed Phases 1–3: Claude writes version 1's plan format, the engine animates it, the laws check it, Claude looks and fixes. Not in the app yet. Next: Phase 4 (complex scenes). Main is unchanged by this branch.
+SPEC-0021 restarted in a new copy (version 1's Oct 7 engine + the laws as a checker). Arthur passed Phases 1–3 and every Phase 4 scene shown so far (complex scenes: places, weather, swords with sparks, cuts, explosions that break things into real parts). Waiting figures breathe. Not in the app yet. Phase 4 needs one more round (17/20 bar); the Claude budget ($20, $14.85 spent) needs dad's own OK to grow. Main is unchanged by this branch.
 
 ## D-0189 — PM3: SPEC-0020 re-planned; Phase 5 (Projects and Export) published; Phase 6 (Words, help and menus) is next (current, PM3 — app and website)
 

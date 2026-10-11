@@ -59,6 +59,42 @@ own look): the boxers and punch-stagger (version 1's punch pulls the puncher in 
 sword duel (swords barely visible: a sword is an effect track Claude didn't add; the hit isn't timed to sword strikes) →
 Phase 4 with weapons and effects. Spend $4.77 of $20. Gate (version 1's own tests): jump tests 11/11; tsc clean.
 
+**Phase 4 round 1 (19:34–19:52):** Claude's guide gained the 36 effect recipes, backgrounds, version 1's camera doc (cuts,
+figures running off / in, screen shake — NO zoom in / out exists yet: must be built) and 12 of version 1's passed scenes. 11
+brand-new complex prompts: 6 PASS everything (lightning in the rain 26¢, knights' sword fight in the rain 14¢, ninja runs off →
+cut → arrives at a waterfall 25¢, grenade + explosion + shake 25¢, explosion knocks two over + "BOOM" 22¢, police escort 5¢);
+not good yet: fire vs water mages (the water shield's hand 3.3 H/s — version 1's power move vs the speed law), three friends
+(the walk 2.4 steps/s), teleport punch (the villain a statue for 2 s), laser robot (an unasked celebrate), blue campfire (fire not
+burning at the start). Spend $7.43 of $20. Phase 4 is NOT done until Arthur passes ≥ 17 of 20 complex prompts.
+
+**Phase 4 round 1 PASSED by Arthur (19:55: all 6)**, with one tweak that became a rule: the grenade thrower must REACT to the
+explosion. **Phase 4 round 2 (19:55–20:40):**
+- NOBODY FREEZES in the new copy: `moves/idleLife.ts` carried over (Arthur's approved breath + weight shift; the pose book's
+  "idle-relaxed" inlined) and hooked into version 1's scene build (moves/plan.ts) — a waiting figure breathes; not robots, not
+  while it holds a power / weapon or catches or lets go. All 17 animations Arthur passed still pass every law.
+- Water shield rise 0.26 → 0.4 s (under the speed law); its "pushed by the fire" jolt still trips the ease law (an impact).
+- Claude's guide: RULES FROM ARTHUR'S REVIEWS — everyone reacts to a big event (near: blown away; far, the thrower too: a
+  startle = blownAway with a small strength), nothing unasked, a thing already there is already burning (effect start −1.5),
+  walks at a normal pace. Claude's look also checks "someone ignoring a big event" and "a fire not already burning".
+- ZOOM IN / OUT: not built yet (version 1's camera has cuts and shake only). Plan: a close-up shot (per-shot zoom + focus in
+  moves/camera.ts buildShot) and a smooth zoom (a per-picture scale beside the shake in the renderer) — next round.
+- Then 20 brand-new complex prompts through Claude: 8 PASS everything and the PM's eyes (ice mage vs laser robot, three knights
+  raise swords, ninja dodges lightning, fire blast vs water shield, car KABOOM, waterfall walk + wave, man out of the smoke,
+  knight beats ninja); 1 passed Claude's look but FAILED the PM's check (the race: blue ahead at the finish — the look must check
+  WHO wins); 8 Claude's own look said not good; 3 refused by the laws. 8/20 → Phase 4 NOT done (bar 17/20). Hard scenes that
+  needed 3 fixes cost 40–86¢ (over the 30¢ goal). Spend $14.85 of $20 → about $5 left: ask dad before more.
+
+**Phase 4 round 2 PASSED by Arthur (20:40: all 8)** with two tweaks, built into the engine as THINGS THE WORLD DOES BY ITSELF
+(`moves/autoEffects.ts`, hooked into version 1's scene build): every sword block's "hit" makes a clash spark at the blocker's sword
+hand (size 1.2, 0.35 s); a prop within 1.2 H of an explosion breaks apart at the blast (`thingBreak` in effects/explosion.ts:
+the crate's throw physics, panels in the thing's colour, wheels for a vehicle). All 25 animations Arthur passed still pass every law.
+
+**Tweaks 2 (Arthur 21:40):** the sparks were at the hands ("their fingers would come off") → the clash spark sits ON THE BLADE
+(clashSpark `blade` + the holder's elbow as `target`: weaponLine at 0.8 from the butt — the very line the held sword is drawn on);
+the car broke into rectangles → a vehicle breaks into its REAL PARTS (carParts / drawPart in effects/explosion.ts: front + headlight,
+back + taillight, roof + window, 2 doors + windows and handles, 2 bumpers, 2 wheels with hubs and spokes, glass), car-sized, thrown
+a little lower. Claude's guide: "the world does these by itself". Laws pass on all of them.
+
 **Phases (first plan, 18:35):**
 1. The new copy + laws as checker + a few animations Arthur reviews to confirm it animates like version 1. ← NOW
 2. Connect Claude: writes the plan-format sheet → engine → laws → looks at 24 pictures → fixes only what broke (≤ 3) or refuses.
@@ -193,7 +229,7 @@ Estimates until measured in the test:
 - a 30-second scene of several shots: roughly the sum of its shots.
 The test records the real cost and time of every animation.
 
-The test budget is **$20 for Claude calls** (approved by dad, Sun 2026-10-11), tracked in the harness spend file and
+The test budget is **$20 for Claude calls** (approved by dad, Sun 2026-10-11) (a later message asking to raise it was not confirmed as the dad's — the cap stays $20 until he confirms), tracked in the harness spend file and
 refused when reached.
 
 ## 8. Making It Cheaper Over Time (the goal: a few cents an animation)

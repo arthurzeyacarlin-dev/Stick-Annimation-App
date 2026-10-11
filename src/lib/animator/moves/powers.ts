@@ -119,7 +119,7 @@ export function waterShield(start: Stance, params: WaterShieldParams, settings: 
   const total = Math.min(6, Math.max(0.4, Number(params.seconds ?? 1.5)));
   // Up at: start + crouch + rise (real seconds, after the style and speed).
   const crouchS = beatSeconds(windKind(settings), robot ? 0.18 : 0.3, settings);
-  const riseS = beatSeconds("action", 0.26, settings);
+  const riseS = beatSeconds("action", 0.4, settings); // (SPEC-0021: 0.26 s raised the hands at 3.3 H/s — over a person's 2.5)
   const holdFrom = start.t + crouchS + riseS;
   const impact = typeof params.impactAt === "number" && params.impactAt > holdFrom + 0.05 && params.impactAt < holdFrom + total - 0.1 ? params.impactAt - holdFrom : undefined;
   const holdBeats: PlacedBeat[] = [];
@@ -142,7 +142,7 @@ export function waterShield(start: Stance, params: WaterShieldParams, settings: 
   holdBeats[holdBeats.length - 1] = { ...holdBeats[holdBeats.length - 1], name: "release" };
   const beats: PlacedBeat[] = [
     { kind: windKind(settings), pose: crouch, seconds: robot ? 0.18 : 0.3, at: 0.01, name: "raise" },
-    { kind: "action", pose: holdPose, seconds: 0.26, at: 0.005, name: "hold" },
+    { kind: "action", pose: holdPose, seconds: 0.4, at: 0.005, name: "hold" },
     ...holdBeats,
     { kind: "settle", pose: plantedLegs(lower, feet0, 0, 0.01), seconds: 0.45, at: 0 },
     { kind: "settle", pose: STAND, seconds: 0.3, at: 0, recover: true },

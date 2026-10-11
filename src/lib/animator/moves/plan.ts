@@ -31,6 +31,8 @@ import { impactByMaterial } from "../effects/impact.ts";
 import { placeGround, placeSky } from "../effects/ground.ts";
 import { stormsAvoid } from "../effects/thunderstorm.ts";
 import { DASH_SLASH_REACH, WEAPON_DASH_AIR, WEAPON_MOVES, weaponKeys } from "./swordMoves.ts";
+import { idleLife } from "./idleLife.ts";
+import { autoEffects } from "./autoEffects.ts";
 
 // SPEC-0017 Phase 2: the scene plan — what the AI director will write in Phase 3. Each character gets a
 // list of actions ("walk 400 px, turn around, run back"); every action starts exactly where the last one
@@ -394,6 +396,8 @@ export function planToScene(plan: ScenePlan, moves: Record<string, MoveEntry>): 
   // The scene lasts a little past the last move (rounded to a tenth of a second); everyone and everything
   // stays as it is until then (a held ball stays held to the very last frame).
   const duration = Math.ceil((end + 0.25) * 10) / 10;
+  // (SPEC-0021 — THINGS THE WORLD DOES BY ITSELF, autoEffects.ts: swords spark at every block; a thing by an explosion breaks apart.)
+  { const auto = autoEffects(plan, marks, duration); if (auto) plan = { ...plan, effects: auto }; }
   // (A THING THAT IS HIT REACTS, hitThings.ts: a punched or kicked thing swings, rocks or is knocked back.)
   return thingsReactToHits({
     id: plan.id, title: plan.title, groundY: plan.groundY, durationSec: duration, marks,
@@ -404,7 +408,10 @@ export function planToScene(plan: ScenePlan, moves: Record<string, MoveEntry>): 
     characters: plan.characters.map((c) => ({
       id: c.id, name: c.name ?? c.id, ...(c.namedByUser === true ? { namedByUser: true } : {}), facing: c.facing, height: plan.height * (c.size ?? 1), style: { ...DEFAULT_STYLE, ...c.look },
       // Everyone stays in their final pose until the scene ends.
-      keys: holdTo(built.get(c.id)!, duration),
+      // (SPEC-0021 NEW COPY — NOBODY FREEZES, moves/idleLife.ts: a figure standing still longer than a beat while the scene goes on
+      // breathes and shifts its weight; not a robot, not a floating figure, not while it holds a power, a weapon or catches / lets
+      // go of a thing in that span.)
+      keys: c.style === "robot" ? holdTo(built.get(c.id)!, duration) : idleLife(holdTo(built.get(c.id)!, duration), { height: plan.height * (c.size ?? 1), facing: c.facing, kind: c.actions.some((a) => /punch|kick|block|getHit|guard|sword|dashSlash|barrage/.test(a.move)) ? "fighter" : "calm", end: duration, seed: plan.characters.indexOf(c), skip: (from: number, to: number) => c.actions.some((a) => POWER_MOVES.has(a.move) || /^sword|dashSlash/.test(a.move)) || events.some((e) => e.character === c.id && e.t > from + 1e-3 && e.t < to - 1e-3), armsFree: !c.cuffed && !(plan.objects ?? []).some((o) => o.heldBy === c.id) && !events.some((e) => e.character === c.id) }),
     })),
     objects: (plan.objects ?? []).map((o) => objectOf(o, events, duration)),
     // (EFFECTS, Phase 2C: the plan's own effects, plus the ones a POWER move makes — fire from the hands at its

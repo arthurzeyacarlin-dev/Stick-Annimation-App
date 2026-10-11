@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { CreditsBadge } from "@/src/components/account/CreditsBadge";
 
 type DrawingTopBarProps = {
   projectTitle?: string;
@@ -15,7 +14,14 @@ type DrawingTopBarProps = {
   onRedo?: () => void;
   canUndo?: boolean;
   canRedo?: boolean;
+  /** SPEC-0020 Phase 4: Edit / View / Window / Help menus, built by DrawingWorkspace from its own handlers. */
+  menus?: TopBarMenu[];
 };
+
+export type TopBarMenuItem =
+  | { kind?: "item"; label: string; shortcut?: string; onSelect: () => void; disabled?: boolean; checked?: boolean }
+  | { kind: "separator" };
+export type TopBarMenu = { label: "Edit" | "View" | "Window" | "Help"; items: TopBarMenuItem[] };
 
 const topBarButtonStyle = (isActive = false, cursor: "pointer" | "default" = "default") =>
   ({
@@ -107,7 +113,10 @@ export function DrawingTopBar({
   onRedo,
   canUndo = false,
   canRedo = false,
+  menus = [],
 }: DrawingTopBarProps) {
+  const [openMenu, setOpenMenu] = useState<TopBarMenu["label"] | null>(null);
+  const menuBarRef = useRef<HTMLDivElement | null>(null);
   const [isFileMenuOpen, setIsFileMenuOpen] = useState(false);
   const fileMenuRef = useRef<HTMLDivElement | null>(null);
   const hasFileMenu = typeof onSave === "function" || typeof onSaveAs === "function" || typeof onExport === "function" || typeof onSaveAndExit === "function";
@@ -128,6 +137,25 @@ export function DrawingTopBar({
     return () => document.removeEventListener("pointerdown", handlePointerDown);
   }, [isFileMenuOpen]);
 
+  useEffect(() => {
+    if (!openMenu) return;
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!menuBarRef.current?.contains(event.target as Node)) setOpenMenu(null);
+    };
+    const handleKeyDown = (event: KeyboardEvent) => { if (event.key === "Escape") setOpenMenu(null); };
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [openMenu]);
+
+  const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform);
+  const fileShortcut = { save: isMac ? "⌘S" : "Ctrl+S", saveAs: isMac ? "⇧⌘S" : "Ctrl+Shift+S", export: isMac ? "⌘E" : "Ctrl+E", exit: isMac ? "⌥⌘S" : "Ctrl+Alt+S" };
+  const shortcutLabel = (label: string, keys: string) => (
+    <span style={{ display: "flex", alignItems: "center", gap: 16, width: "100%" }}><span style={{ flex: 1 }}>{label}</span><span style={{ color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>{keys}</span></span>
+  );
   const runFileAction = (action?: () => void | Promise<void>) => {
     setIsFileMenuOpen(false);
     void action?.();
@@ -189,6 +217,7 @@ export function DrawingTopBar({
                   return;
                 }
 
+                setOpenMenu(null);
                 setIsFileMenuOpen((current) => !current);
               }}
               style={topBarButtonStyle(isFileMenuOpen, hasFileMenu ? "pointer" : "default")}
@@ -197,7 +226,7 @@ export function DrawingTopBar({
             </button>
 
             {hasFileMenu && isFileMenuOpen && (
-              <div role="menu" style={menuStyle(168)}>
+              <div role="menu" style={menuStyle(220)}>
                 <button
                   type="button"
                   role="menuitem"
@@ -205,7 +234,7 @@ export function DrawingTopBar({
                   onClick={() => runFileAction(onSave)}
                   style={menuItemStyle(!isSaving)}
                 >
-                  Save
+                  {shortcutLabel("Save", fileShortcut.save)}
                 </button>
                 <button
                   type="button"
@@ -214,7 +243,7 @@ export function DrawingTopBar({
                   onClick={() => runFileAction(onSaveAs)}
                   style={menuItemStyle(!isSaving)}
                 >
-                  Save As
+                  {shortcutLabel("Save As", fileShortcut.saveAs)}
                 </button>
                 {onExport ? (
                   <button
@@ -223,7 +252,7 @@ export function DrawingTopBar({
                     onClick={() => runFileAction(onExport)}
                     style={menuItemStyle()}
                   >
-                    Export…
+                    {shortcutLabel("Export…", fileShortcut.export)}
                   </button>
                 ) : null}
                 {onSaveAndExit ? (
@@ -236,7 +265,7 @@ export function DrawingTopBar({
                       onClick={() => runFileAction(onSaveAndExit)}
                       style={menuItemStyle(!isSaving)}
                     >
-                      Save and Exit
+                      {shortcutLabel("Save and Exit", fileShortcut.exit)}
                     </button>
                   </>
                 ) : null}
@@ -244,12 +273,44 @@ export function DrawingTopBar({
             )}
           </div>
 
-          {/* Not wired yet; a later spec will decide what these menus do. */}
-          {(["Edit", "View", "Window", "Help"] as const).map((label) => (
-            <button key={label} type="button" aria-disabled="true" tabIndex={-1} style={topBarButtonStyle(false, "default")}>
-              {label}
-            </button>
-          ))}
+          {/* SPEC-0020 Phase 4: Edit / View / Window / Help — real actions from the workspace. */}
+          <div ref={menuBarRef} style={{ display: "flex", alignItems: "center", gap: 2 }}>
+            {menus.map((menu) => (
+              <div key={menu.label} style={{ position: "relative", display: "flex", alignItems: "center" }}>
+                <button
+                  type="button"
+                  aria-haspopup="menu"
+                  aria-expanded={openMenu === menu.label}
+                  onClick={() => { setIsFileMenuOpen(false); setOpenMenu((current) => current === menu.label ? null : menu.label); }}
+                  onPointerEnter={() => { if (openMenu && openMenu !== menu.label) setOpenMenu(menu.label); }}
+                  style={topBarButtonStyle(openMenu === menu.label, "pointer")}
+                >
+                  {menu.label}
+                </button>
+                {openMenu === menu.label && (
+                  <div role="menu" aria-label={menu.label} style={menuStyle(220)}>
+                    {menu.items.map((item, index) => item.kind === "separator"
+                      ? <div key={`sep-${index}`} aria-hidden="true" style={{ height: 1, margin: "2px 6px", background: "var(--da-line, #163058)" }} />
+                      : (
+                        <button
+                          key={item.label}
+                          type="button"
+                          role={item.checked === undefined ? "menuitem" : "menuitemcheckbox"}
+                          aria-checked={item.checked}
+                          disabled={item.disabled}
+                          onClick={() => { setOpenMenu(null); item.onSelect(); }}
+                          style={{ ...menuItemStyle(!item.disabled), display: "flex", alignItems: "center", gap: 10 }}
+                        >
+                          <span aria-hidden="true" style={{ width: 12, flexShrink: 0, textAlign: "center" }}>{item.checked ? "✓" : ""}</span>
+                          <span style={{ flex: 1 }}>{item.label}</span>
+                          {item.shortcut ? <span style={{ color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>{item.shortcut}</span> : null}
+                        </button>
+                      ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
 
         {hasHistoryControls && (
@@ -324,7 +385,6 @@ export function DrawingTopBar({
           <span style={{ fontSize: 12, fontWeight: 500, color: "var(--da-danger, #ff8a95)" }}>{recoveryStateLabel}</span>
         ) : null}
         {isLegacyProject ? <span style={{ fontSize: 12, color: "var(--da-muted, #8fabd0)" }}>{syncLabel}</span> : null}
-        <CreditsBadge />
         <div
           role="status"
           aria-live="polite"

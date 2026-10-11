@@ -13,14 +13,14 @@
   animation: none !important;
 }
 
-.workspace :global(button:not(:disabled):not([aria-disabled="true"]):not([data-hover="outline"]):hover:not([data-workspace-theme-exempt] *)) {
+.workspace :global(button:not(:disabled):not([aria-disabled="true"]):not([data-hover="outline"]):not([data-hover="icon"]):not([data-hover="danger"]):hover:not([data-workspace-theme-exempt] *)) {
   background: var(--da-hover, #0066ff) !important;
   border-color: var(--da-hover, #0066ff) !important;
   color: #ffffff !important;
   box-shadow: none !important;
 }
 
-.workspace :global(button:not(:disabled):not([aria-disabled="true"]):not([data-hover="outline"]):hover:not([data-workspace-theme-exempt] *) *) {
+.workspace :global(button:not(:disabled):not([aria-disabled="true"]):not([data-hover="outline"]):not([data-hover="icon"]):not([data-hover="danger"]):hover:not([data-workspace-theme-exempt] *) *) {
   color: #ffffff !important;
 }
 
@@ -86,3 +86,44 @@
   border-radius: 999px;
   background: var(--slider-color);
 }
+
+/* SPEC-0020 Phase 4 (Arthur): bare symbol buttons (Add layer, Onion skin) — no box; hover turns the symbol
+   (and its fading copies) the accent color, instantly. */
+.workspace :global(button[data-hover="icon"]:not(:disabled):hover) {
+  background: transparent !important;
+  border-color: transparent !important;
+  color: var(--da-hover, #0066ff) !important;
+}
+
+/* SPEC-0020 Phase 4 (Arthur): a quick name label when you point at a tool or symbol button
+   (data-tooltip="…", data-tooltip-side="above" | "below"). Shows instantly; never blocks clicks. */
+.workspace :global([data-tooltip]) { position: relative; }
+.workspace :global([data-tooltip]:hover::after) {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  padding: 5px 9px;
+  border: 1px solid var(--da-line, #163058);
+  border-radius: 7px;
+  background: var(--da-panel, #071120);
+  color: var(--da-text, #f6f9ff) !important;
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.2;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+}
+.workspace :global([data-tooltip][data-tooltip-side="above"]:hover::after) { bottom: calc(100% + 8px); }
+.workspace :global([data-tooltip][data-tooltip-side="below"]:hover::after),
+.workspace :global([data-tooltip]:not([data-tooltip-side]):hover::after) { top: calc(100% + 8px); }
+
+/* SPEC-0020 Phase 4: destructive buttons (Delete layer) turn a brighter red on hover, instantly. */
+.workspace :global(button[data-hover="danger"]:not(:disabled):hover) {
+  background: #e5384a !important;
+  border-color: #e5384a !important;
+  color: #ffffff !important;
+}
+.workspace :global([data-tooltip][data-tooltip-side="right"]:hover::after) { left: calc(100% + 6px); top: 50%; transform: translateY(-50%); }

@@ -1,5 +1,0 @@
-/* SPEC-0020 Phase 2: AI credits counter in the editor's top bar (not clickable). App palette. */
-.badge { display: inline-flex; align-items: center; gap: 7px; height: 26px; padding: 0 10px; border: 1px solid var(--da-line, #163058); border-radius: 999px; background: var(--da-page, #030914); color: var(--da-text-2, #c9d6ea); font-size: 12px; font-weight: 600; white-space: nowrap; user-select: none; }
-.badge svg { width: 13px; height: 13px; flex: 0 0 auto; }
-.low { border-color: rgba(240, 181, 66, .55); color: #f0b542; }
-.empty { border-color: rgba(255, 138, 149, .5); color: var(--da-danger, #ff8a95); }

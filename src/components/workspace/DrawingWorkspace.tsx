@@ -2,6 +2,9 @@ import { memo, startTransition, useCallback, useDeferredValue, useEffect, useLay
 import workspaceThemeStyles from "./workspaceTheme.module.css";
 import type { MutableRefObject } from "react";
 import { DrawingCanvas } from "./DrawingCanvas";
+import type { TopBarMenu } from "./DrawingTopBar";
+import { DiamondAssistantScreen } from "@/src/components/assistant/DiamondAssistantScreen";
+import { CloseButton } from "@/src/components/ui/CloseButton";
 import { bitmapCenterOffset } from "@/src/lib/animation/unifiedStageGeometry";
 import { buildScene as buildAnimatorScene, type Scene as AnimatorScene } from "@/src/lib/animator/engine";
 import { compactOrigin, copyRasterReferenceSize, getRasterReferenceSize, resolveRasterReferenceSize } from "@/src/lib/animation/compactRasterBitmap";
@@ -3689,6 +3692,9 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
   const [timelineFps, setTimelineFps] = useState(initialWorkspaceState.timelineFps);
   const [shapeType, setShapeType] = useState<DrawingShapeType>(initialWorkspaceState.shapeType);
   const [layers, setLayers] = useState<WorkspaceLayer[]>(initialWorkspaceState.layers);
+  // SPEC-0020 Phase 4 (Arthur): layers hidden with the timeline's eye button (this editing session only).
+  const [hiddenLayerIds, setHiddenLayerIds] = useState<string[]>([]);
+  const hiddenLayerIdsRef = useRef<string[]>([]);
   const [activeLayerId, setActiveLayerId] = useState(initialWorkspaceState.activeLayerId);
   const [currentFrameIndex, setCurrentFrameIndex] = useState(initialWorkspaceState.currentFrameIndex);
   const [selectedTimelineIndex, setSelectedTimelineIndex] = useState(initialWorkspaceState.selectedTimelineIndex);
@@ -4809,7 +4815,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       }
 
       if (playback) {
-        const playbackLayers = [...nextLayers].reverse();
+        const playbackLayers = [...nextLayers].reverse().filter((layer) => !hiddenLayerIdsRef.current.includes(layer.id));
         const symbolInstancesByCell = symbolInstancesByCellRef.current;
         const playbackResolutions = playbackLayers.map((layer) => {
           const resolution = resolvePlaybackTimelineBitmap(layer, frameIndex, frozenTweenPlaybackCacheRef.current);
@@ -4868,8 +4874,17 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
 
       const tweenEditContext = resolveTweenEditContext(activeLayerForRender.timelineFrames, frameIndex, activeLayerForRender.id);
       const activeBitmap = resolveTimelineBitmap(activeLayerForRender.timelineFrames, frameIndex, { tweenEditContext });
-      renderBitmapsToTargetCanvas(getBackgroundCanvas(), []);
-      renderBitmapsToTargetCanvas(getForegroundCanvas(), []);
+      // SPEC-0020 Phase 4 (Arthur): while you draw on one layer, the other layers show too (unless hidden with
+      // the eye): layers below it on the background canvas, layers above it on the foreground canvas.
+      const activeIndexForRender = nextLayers.findIndex((layer) => layer.id === activeLayerForRender.id);
+      const otherLayerBitmap = (layer: WorkspaceLayer) => {
+        if (hiddenLayerIdsRef.current.includes(layer.id)) return null;
+        try { return resolveTimelineBitmap(layer.timelineFrames, frameIndex); } catch { return null; }
+      };
+      const belowBitmaps = nextLayers.slice(activeIndexForRender + 1).map(otherLayerBitmap).reverse();
+      const aboveBitmaps = nextLayers.slice(0, Math.max(0, activeIndexForRender)).map(otherLayerBitmap).reverse();
+      renderBitmapsToTargetCanvas(getBackgroundCanvas(), belowBitmaps);
+      renderBitmapsToTargetCanvas(getForegroundCanvas(), aboveBitmaps);
       const alreadyPresented = debugCaller === "useEffect:paused-render-sync" && drawingCanvasRef.current?.takePresentedRasterCommit(activeBitmap);
       if (!alreadyPresented) restoreBitmapToCanvas(activeBitmap);
     },
@@ -5494,7 +5509,20 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       options?: { blank?: boolean; nextTimelineFrameId: number; sourceTextObjects?: DrawingTextObject[] },
     ) => {
       const nextFrames = frames.slice();
-      const targetSlotIndex = Math.max(0, targetIndex);
+      // SPEC-0020 Phase 4 (Arthur): no gaps on the timeline. Inserting into an empty cell — anywhere past the
+      // end, or inside an old gap — lands right after the previous frame's span: Insert Frame adds ONE frame to
+      // that span (never a long hold up to where you clicked) and a keyframe goes right after it. A blank
+      // keyframe counts as a real frame here (it used to be skipped, so the span before it kept growing).
+      const requestedIndex = Math.max(0, targetIndex);
+      const targetSlotIndex = (() => {
+        if (frames[requestedIndex] && frames[requestedIndex].cellType !== "empty") return requestedIndex;
+        for (let index = Math.min(requestedIndex, frames.length) - 1; index >= 0; index -= 1) {
+          if (frames[index] && frames[index].cellType !== "empty") {
+            return Math.min(requestedIndex, getFrameDurationEndIndex(frames, index) + 1);
+          }
+        }
+        return 0;
+      })();
       const nextTimelineFrameIdCursor = { current: options?.nextTimelineFrameId ?? 1 } as MutableRefObject<number>;
       const previousLength = nextFrames.length;
 
@@ -5531,7 +5559,10 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
             textObjects: options?.blank ? [] : cloneWorkspaceTextObjects(options?.sourceTextObjects ?? []),
           };
         } else {
-          const sourceIndex = findPreviousFilledIndex(nextFrames, targetSlotIndex - 1);
+          let sourceIndex = -1;
+          for (let index = targetSlotIndex - 1; index >= 0; index -= 1) {
+            if (nextFrames[index] && nextFrames[index].cellType !== "empty") { sourceIndex = index; break; }
+          }
 
           if (sourceIndex < 0) {
             nextFrames[targetSlotIndex] =
@@ -5545,32 +5576,17 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
           } else {
             const sourceFrame = nextFrames[sourceIndex];
             const spanType = kind === "tween" || sourceFrame.cellType === "tween" ? "tween" : "frame";
-            const sourceEndIndex = getFrameDurationEndIndex(nextFrames, sourceIndex);
-            const nextFilledIndex = findNextFilledIndex(nextFrames, targetSlotIndex + 1);
-
+            // targetSlotIndex is the first empty cell right after the source span (see the no-gaps rule above),
+            // so this adds exactly one frame to that span, filling the empty cell in place (nothing shifts).
             fillTimelineRangeWithSpan(
               nextFrames,
-              sourceEndIndex + 1,
+              targetSlotIndex,
               targetSlotIndex,
               sourceFrame.stateId,
               spanType,
               nextTimelineFrameIdCursor,
             );
-
-            if (nextFilledIndex >= 0) {
-              fillTimelineRangeWithSpan(
-                nextFrames,
-                targetSlotIndex + 1,
-                targetSlotIndex + 1,
-                sourceFrame.stateId,
-                spanType,
-                nextTimelineFrameIdCursor,
-              );
-              shiftBoundary = targetSlotIndex + 1;
-            } else {
-              shiftBoundary = previousLength;
-            }
-
+            shiftBoundary = previousLength;
             nextIndex = targetSlotIndex;
           }
         }
@@ -6897,11 +6913,6 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       return false;
     }
 
-    const currentFrame = timelineFramesRef.current[currentFrameIndexRef.current] ?? null;
-    if (!currentFrame || currentFrame.cellType === "empty") {
-      return false;
-    }
-
     if (!drawingCanvasRef.current?.hasPendingAuthoringChanges()) {
       return false;
     }
@@ -6910,6 +6921,57 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       const identity = drawingCanvasRef.current.getAuthoringSnapshotIdentity();
       const before = resolveTimelineSnapshot(timelineFramesRef.current, currentFrameIndexRef.current);
       if (!command || !validateRasterGestureCommand(command, { ...identity, bitmap: before.bitmap })) {
+        setSaveState("failed");
+        return false;
+      }
+    }
+
+    const currentFrame = timelineFramesRef.current[currentFrameIndexRef.current] ?? null;
+    if (!currentFrame || currentFrame.cellType === "empty") {
+      // SPEC-0020 Phase 4 (Arthur): drawing where there is no frame used to throw the drawing away. Now it
+      // makes a blank keyframe right after the previous frame (or the first frame when there is none) and the
+      // drawing lands there. The no-gaps rule in applyTimelineFrameInsertion picks the spot. The drawing is
+      // read from the canvas first, while the canvas still belongs to the cell it was drawn on.
+      const layerId = activeLayerIdRef.current;
+      const requestedIndex = currentFrameIndexRef.current;
+      const captured = captureCanvasSnapshot({ includePreviewUrl: false, preferIncrementalBitmapCapture: false });
+      if (!captured || !captured.bitmap) {
+        setSaveState("failed");
+        return false;
+      }
+      const existingFrames = getLayerById(layersRef.current, layerId)?.timelineFrames ?? timelineFramesRef.current;
+      const insertionResult = applyTimelineFrameInsertion(existingFrames, "keyframe", requestedIndex,
+        { bitmap: null, previewUrl: null }, {
+          blank: true,
+          nextTimelineFrameId: nextTimelineFrameIdRef.current,
+          sourceTextObjects: EMPTY_DRAWING_TEXT_OBJECTS,
+        });
+      const nextIndex = insertionResult.nextIndex;
+      if (insertionResult.frames[nextIndex]?.cellType !== "blank-keyframe") return false;
+      nextTimelineFrameIdRef.current = insertionResult.nextTimelineFrameId;
+      replaceLayerFrames(layerId, insertionResult.frames);
+      rebaseHistoryAfterFrameInsertion(layerId, "keyframe", requestedIndex, {
+        blank: true,
+        nextActiveLayerId: layerId,
+        nextCurrentFrameIndex: nextIndex,
+        nextSelectedTimelineIndex: nextIndex,
+        nextTimelineFrameId: insertionResult.nextTimelineFrameId,
+      });
+      currentFrameIndexRef.current = nextIndex;
+      setCurrentFrameIndex(nextIndex);
+      selectedTimelineIndexRef.current = nextIndex;
+      setSelectedTimelineIndex(nextIndex);
+      updateHistoryWorkspaceStamp();
+      try {
+        const snapshot = normalizeCapturedSnapshotExtent(captured, null);
+        const persisted = persistSnapshotAtomically(snapshot, null, () => updateFrameSnapshot(nextIndex, snapshot, layerId, {
+          assumeBitmapChanged: true,
+        }));
+        window.requestAnimationFrame(() => {
+          renderWorkspaceCanvases(layersRef.current, nextIndex, { activeLayerId: layerId, debugCaller: "auto-blank-keyframe" });
+        });
+        return Boolean(persisted);
+      } catch {
         setSaveState("failed");
         return false;
       }
@@ -6925,7 +6987,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       setSaveState("failed");
       return false;
     }
-  }, [saveCurrentFrameSnapshot]);
+  }, [applyTimelineFrameInsertion, captureCanvasSnapshot, persistSnapshotAtomically, rebaseHistoryAfterFrameInsertion, renderWorkspaceCanvases, replaceLayerFrames, saveCurrentFrameSnapshot, updateFrameSnapshot, updateHistoryWorkspaceStamp]);
 
   const activateLayer = useCallback(
     (layerId: string) => {
@@ -7169,7 +7231,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
 
   const handleTimelineFpsChange = useCallback((nextFps: number) => {
     requireManualEditorCommand("timeline.fps.set/v1", "DrawingWorkspace.handleTimelineFpsChange");
-    setTimelineFps(Math.max(1, Math.min(55, nextFps)));
+    setTimelineFps(Math.max(1, Math.min(60, nextFps)));
   }, []);
 
   const handleToggleOnion = useCallback(() => {
@@ -7771,53 +7833,105 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     updateHistoryWorkspaceStamp,
   ]);
 
-  const deleteActiveLayer = useCallback(() => {
-    requireManualEditorCommand("delete-layer", "DrawingWorkspace.deleteActiveLayer");
+  // SPEC-0020 Phase 4 (Arthur): Delete Layer always deletes the layer that was right-clicked — big or small.
+  // Before, it quietly gave up when saving the current picture of a big layer failed, and it could delete the
+  // wrong layer when switching to the right-clicked one was refused. The deleted layer's unsaved strokes no
+  // longer block the delete; Undo brings the layer back.
+  // The browser's own confirm()/alert() pop-ups are blocked in some windows (e.g. the Claude app's browser pane,
+  // where confirm() answers "Cancel" at once) — that was why Delete Layer did nothing. The editor uses its own
+  // confirm box instead.
+  const [layerDeleteRequest, setLayerDeleteRequest] = useState<{ layerId: string; name: string; isOnlyLayer: boolean } | null>(null);
+  const [layerDeleteNotice, setLayerDeleteNotice] = useState<string | null>(null);
+  const toggleLayerVisibility = useCallback((layerId: string) => {
+    const next = hiddenLayerIdsRef.current.includes(layerId)
+      ? hiddenLayerIdsRef.current.filter((id) => id !== layerId)
+      : [...hiddenLayerIdsRef.current, layerId];
+    hiddenLayerIdsRef.current = next;
+    setHiddenLayerIds(next);
+    window.requestAnimationFrame(() => {
+      if (isTimelinePlayingRef.current) return;
+      renderWorkspaceCanvases(layersRef.current, currentFrameIndexRef.current, { debugCaller: "toggleLayerVisibility" });
+    });
+  }, [renderWorkspaceCanvases]);
+
+  const deleteActiveLayer = useCallback((layerId?: string) => {
     const currentLayers = layersRef.current;
-    if (currentLayers.length <= 1) {
+    const targetLayerId = layerId && currentLayers.some((layer) => layer.id === layerId) ? layerId : activeLayerIdRef.current;
+    const target = currentLayers.find((layer) => layer.id === targetLayerId);
+    if (!target) return;
+    setLayerDeleteNotice(null);
+    setLayerDeleteRequest({ layerId: target.id, name: target.name, isOnlyLayer: currentLayers.length <= 1 });
+  }, []);
+
+  const performLayerDelete = useCallback((layerId: string) => {
+    requireManualEditorCommand("delete-layer", "DrawingWorkspace.deleteActiveLayer");
+    const initialLayers = layersRef.current;
+    const deletedLayerId = layerId;
+    if (!initialLayers.some((layer) => layer.id === deletedLayerId)) {
       return;
     }
-
-    const activeIndex = currentLayers.findIndex((layer) => layer.id === activeLayerIdRef.current);
-    if (activeIndex < 0) {
-      return;
+    const isOnlyLayer = initialLayers.length <= 1;
+    // A project always has at least one layer: deleting the only one swaps in a fresh empty layer first.
+    if (isOnlyLayer) {
+      addLayer();
+      if (layersRef.current.length <= 1) return;
     }
-
-    if (!window.confirm("Delete the active layer?")) {
-      return;
-    }
-
-    const deletedLayerId = activeLayerIdRef.current;
 
     if (!isTimelinePlayingRef.current) {
-      saveCurrentFrameSnapshot(currentFrameIndexRef.current, deletedLayerId, {
-        debugCaller: "deleteActiveLayer",
-        forceCapture: drawingCanvasRef.current?.hasPendingAuthoringChanges() ?? true,
-      });
-      if (drawingCanvasRef.current?.hasPendingAuthoringChanges()) return;
+      // Keep the active layer's newest strokes (they belong in Undo, or stay on the layer that remains).
+      try {
+        saveCurrentFrameSnapshot(currentFrameIndexRef.current, activeLayerIdRef.current, {
+          debugCaller: "deleteActiveLayer",
+          forceCapture: drawingCanvasRef.current?.hasPendingAuthoringChanges() ?? true,
+        });
+      } catch (error) {
+        console.warn("[delete-layer] saving the current frame before deleting failed", error);
+      }
+      if (drawingCanvasRef.current?.hasPendingAuthoringChanges()) {
+        if (activeLayerIdRef.current !== deletedLayerId) {
+          // The unsaved strokes belong to a layer that stays: never throw them away.
+          setLayerDeleteNotice("Your latest drawing couldn't be saved yet, so the layer wasn't deleted. Try again in a moment.");
+          return;
+        }
+        // The unsaved strokes are on the layer being deleted, so they go with it.
+        drawingCanvasRef.current?.cancelPendingAuthoringGesture("delete-layer");
+        drawingCanvasRef.current?.markAuthoringChangesCommitted();
+      }
     }
 
     const latestLayers = layersRef.current;
-    const latestActiveIndex = latestLayers.findIndex((layer) => layer.id === activeLayerIdRef.current);
-    if (latestLayers.length <= 1 || latestActiveIndex < 0) {
+    const deletedIndex = latestLayers.findIndex((layer) => layer.id === deletedLayerId);
+    if (latestLayers.length <= 1 || deletedIndex < 0) {
       return;
     }
 
-    const nextLayers = normalizeLayerOrder(latestLayers.filter((_, index) => index !== latestActiveIndex));
-    const nextActiveLayer = nextLayers[Math.min(latestActiveIndex, nextLayers.length - 1)] ?? nextLayers[0];
+    const nextLayers = normalizeLayerOrder(latestLayers.filter((_, index) => index !== deletedIndex));
+    const keepsActive = activeLayerIdRef.current !== deletedLayerId && nextLayers.some((layer) => layer.id === activeLayerIdRef.current);
+    const nextActiveLayer = (keepsActive ? nextLayers.find((layer) => layer.id === activeLayerIdRef.current) : null)
+      ?? nextLayers[Math.min(deletedIndex, nextLayers.length - 1)] ?? nextLayers[0];
     if (!nextActiveLayer) {
       return;
     }
 
     if (!authorizeDestructiveCommand({ commandId: "delete-layer", targetIds: [deletedLayerId],
       availableTargetIds: latestLayers.map(layer => layer.id), confirmed: true, remainingCount: nextLayers.length }).allowed) return;
-    recordUndoSnapshot();
+    try {
+      recordUndoSnapshot();
+    } catch (error) {
+      // The person already confirmed: delete anyway, and say Undo can't bring this one back.
+      console.warn("[delete-layer] undo snapshot failed", error);
+      setLayerDeleteNotice("The layer was deleted, but it was too big for Undo to bring back.");
+    }
     layersRef.current = nextLayers;
     activeLayerIdRef.current = nextActiveLayer.id;
     timelineFramesRef.current = nextActiveLayer.timelineFrames;
     setLayers(nextLayers);
     setActiveLayerId(nextActiveLayer.id);
-    commitCurrentHistoryState({ assumeChanged: true });
+    try {
+      commitCurrentHistoryState({ assumeChanged: true });
+    } catch (error) {
+      console.warn("[delete-layer] history update failed", error);
+    }
 
       window.requestAnimationFrame(() => {
         renderWorkspaceCanvases(nextLayers, currentFrameIndexRef.current, {
@@ -7827,6 +7941,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         });
       });
   }, [
+    addLayer,
     commitCurrentHistoryState,
     recordUndoSnapshot,
     renderWorkspaceCanvases,
@@ -7872,7 +7987,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       const nextIndex = insertionResult.nextIndex;
       nextTimelineFrameIdRef.current = insertionResult.nextTimelineFrameId;
       const insertedFrame = nextFrames[nextIndex];
-      const sourceFrameForStick = existingFrames[Math.max(0, Math.min(targetSlotIndex - 1, existingFrames.length - 1))];
+      const sourceFrameForStick = existingFrames[Math.max(0, Math.min(nextIndex - 1, existingFrames.length - 1))];
       if (!options?.blank && insertedFrame && sourceFrameForStick) {
         const sourceStick = stickByCellRef.current[`${layerId}:${sourceFrameForStick.stateId}`];
         if (sourceStick) {
@@ -8699,7 +8814,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
 
         if (result.workspaceIntent?.applySuggestedFps && typeof result.workspaceIntent.fpsSuggestion === "number") {
           const suggestedFps = resolveSafeGeneratedSequenceFps({
-            suggestedFps: Math.max(1, Math.min(55, Math.round(result.workspaceIntent.fpsSuggestion))),
+            suggestedFps: Math.max(1, Math.min(60, Math.round(result.workspaceIntent.fpsSuggestion))),
             generatedFrameCount: generatedFrames.length,
             totalLayerCount: layersRef.current.length,
             renderScaleDownApplied: result.diagnostics.renderScaleDownApplied,
@@ -9743,8 +9858,132 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     };
   }, [activeTweenGuide, canvasOverlayRect]);
 
+  // SPEC-0020 Phase 4 (Arthur): Edit / View / Window / Help menus and keyboard shortcuts, all using the
+  // editor's existing actions (nothing new happens to projects that the timeline/canvas couldn't already do).
+  const [isAssistantOpen, setIsAssistantOpen] = useState(false);
+  const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
+  const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform);
+  const mod = isMac ? "⌘" : "Ctrl+";
+  const insertAtSelection = useCallback((kind: "frame" | "keyframe", blank = false) => {
+    if (isTimelinePlayingRef.current) return;
+    addTimelineFrame(activeLayerIdRef.current, kind, selectedTimelineIndexRef.current, blank ? { blank: true } : undefined);
+  }, [addTimelineFrame]);
+  const togglePlayback = useCallback(() => {
+    if (isTimelinePlayingRef.current) handlePauseTimeline(); else handlePlayTimeline();
+  }, [handlePauseTimeline, handlePlayTimeline]);
+  const editorMenus = useMemo<TopBarMenu[]>(() => [
+    { label: "Edit", items: [
+      { label: "Undo", shortcut: `${mod}Z`, onSelect: handleUndo, disabled: isTimelinePlaying || !canUndoHistory },
+      { label: "Redo", shortcut: isMac ? "⇧⌘Z" : "Ctrl+Y", onSelect: handleRedo, disabled: isTimelinePlaying || !canRedoHistory },
+      { kind: "separator" },
+      { label: "Insert Frame", shortcut: "F5", onSelect: () => insertAtSelection("frame"), disabled: isTimelinePlaying },
+      { label: "Insert Keyframe", shortcut: "F6", onSelect: () => insertAtSelection("keyframe"), disabled: isTimelinePlaying },
+      { label: "Insert Blank Keyframe", shortcut: "F7", onSelect: () => insertAtSelection("keyframe", true), disabled: isTimelinePlaying },
+      { kind: "separator" },
+      { label: "Copy Frame", onSelect: () => { copyTimelineFrame(activeLayerIdRef.current, selectedTimelineIndexRef.current); }, disabled: isTimelinePlaying },
+      { label: "Paste Frame", onSelect: () => { pasteTimelineFrame(activeLayerIdRef.current, selectedTimelineIndexRef.current); }, disabled: isTimelinePlaying || !hasCopiedTimelineFrame },
+      { label: "Remove Frame", onSelect: () => { removeTimelineFrame(activeLayerIdRef.current, selectedTimelineIndexRef.current); }, disabled: isTimelinePlaying },
+    ] },
+    { label: "View", items: [
+      { label: "Zoom In", shortcut: `${mod}+`, onSelect: () => drawingCanvasRef.current?.zoomBy(1.25) },
+      { label: "Zoom Out", shortcut: `${mod}−`, onSelect: () => drawingCanvasRef.current?.zoomBy(0.8) },
+      { label: "Reset View", shortcut: `${mod}0`, onSelect: () => drawingCanvasRef.current?.resetView() },
+      { kind: "separator" },
+      { label: "Onion Skin", checked: isOnionEnabled, onSelect: handleToggleOnion },
+      { label: isTimelinePlaying ? "Pause" : "Play", shortcut: "Enter", onSelect: togglePlayback },
+    ] },
+    { label: "Window", items: [
+      { label: "Properties", onSelect: () => drawingCanvasRef.current?.showPanel("Properties") },
+      { label: "Library", onSelect: () => drawingCanvasRef.current?.showPanel("Library") },
+      { label: "Assets", onSelect: () => drawingCanvasRef.current?.showPanel("Assets") },
+      { kind: "separator" },
+      { label: "New Layer", onSelect: addLayer, disabled: isTimelinePlaying },
+      { label: "Delete Layer", onSelect: () => deleteActiveLayer(), disabled: isTimelinePlaying },
+    ] },
+    { label: "Help", items: [
+      { label: "Ask the Assistant…", onSelect: () => setIsAssistantOpen(true) },
+      { label: "Keyboard Shortcuts", onSelect: () => setIsShortcutsOpen(true) },
+    ] },
+  ], [addLayer, canRedoHistory, canUndoHistory, copyTimelineFrame, deleteActiveLayer, handleRedo, handleToggleOnion, handleUndo,
+    hasCopiedTimelineFrame, insertAtSelection, isMac, isOnionEnabled, isTimelinePlaying, layers.length, mod, pasteTimelineFrame,
+    removeTimelineFrame, togglePlayback]);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (isAssistantOpen || event.defaultPrevented) return;
+      const target = event.target as HTMLElement | null;
+      const typing = !!target && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName));
+      if (typing) return;
+      const key = event.key.toLowerCase();
+      const command = event.metaKey || event.ctrlKey;
+      // SPEC-0020 Phase 4 (Arthur): File menu shortcuts too. Matched by physical key (Option changes event.key).
+      if (command && event.code === "KeyS" && event.altKey && onExit) { event.preventDefault(); void saveAndExit(); return; }
+      if (command && event.code === "KeyS" && event.shiftKey) { event.preventDefault(); handleSaveAs(); return; }
+      if (command && event.code === "KeyS") { event.preventDefault(); void saveProject(); return; }
+      if (command && event.code === "KeyE" && onExport) { event.preventDefault(); onExport(); return; }
+      if (command && key === "z" && !event.shiftKey) { event.preventDefault(); if (!isTimelinePlayingRef.current) handleUndo(); return; }
+      if (command && ((key === "z" && event.shiftKey) || key === "y")) { event.preventDefault(); if (!isTimelinePlayingRef.current) handleRedo(); return; }
+      if (command && (key === "=" || key === "+")) { event.preventDefault(); drawingCanvasRef.current?.zoomBy(1.25); return; }
+      if (command && (key === "-" || key === "_")) { event.preventDefault(); drawingCanvasRef.current?.zoomBy(0.8); return; }
+      if (command && key === "0") { event.preventDefault(); drawingCanvasRef.current?.resetView(); return; }
+      if (command || event.altKey) return;
+      if (event.key === "F5") { event.preventDefault(); insertAtSelection("frame"); return; }
+      if (event.key === "F6") { event.preventDefault(); insertAtSelection("keyframe"); return; }
+      if (event.key === "F7") { event.preventDefault(); insertAtSelection("keyframe", true); return; }
+      if (event.key === "Enter" && target?.tagName !== "BUTTON") { event.preventDefault(); togglePlayback(); }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [handleRedo, handleSaveAs, handleUndo, insertAtSelection, isAssistantOpen, onExit, onExport, saveAndExit, saveProject, togglePlayback]);
+
   return (
     <>
+    {isAssistantOpen && (
+      <div data-workspace-theme-exempt="true" style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", background: "var(--da-page, #030914)" }}>
+        <DiamondAssistantScreen onClose={() => setIsAssistantOpen(false)} />
+      </div>
+    )}
+    {(layerDeleteRequest || layerDeleteNotice) && (
+      <div role="presentation" className={workspaceThemeStyles.workspace} onClick={() => { setLayerDeleteRequest(null); setLayerDeleteNotice(null); }} style={{ position: "fixed", inset: 0, zIndex: 1000, display: "grid", placeItems: "center", background: "var(--da-scrim, rgba(3, 9, 20, 0.72))" }}>
+        <div role="alertdialog" aria-modal="true" aria-label={layerDeleteRequest ? "Delete layer" : "Layer"} onClick={(event) => event.stopPropagation()} style={{ width: "min(420px, calc(100vw - 32px))", padding: 22, border: "1px solid var(--da-line, #163058)", borderRadius: 16, background: "var(--da-panel, #071120)", color: "var(--da-text, #f6f9ff)", boxShadow: "var(--da-shadow-pop, 0 18px 44px rgba(0,0,0,.45))", display: "grid", gap: 12 }}>
+          {layerDeleteRequest ? (
+            <>
+              <strong style={{ fontSize: 18 }}>Delete &ldquo;{layerDeleteRequest.name}&rdquo;?</strong>
+              <p style={{ margin: 0, color: "var(--da-text-2, #c9d6ea)", fontSize: 14, lineHeight: 1.5 }}>
+                {layerDeleteRequest.isOnlyLayer ? "It's your only layer, so a new empty layer takes its place. " : ""}You can bring it back with Undo.
+              </p>
+              <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+                <button type="button" autoFocus onClick={() => setLayerDeleteRequest(null)} style={{ minHeight: 38, padding: "0 16px", border: "1px solid var(--da-border, #244267)", borderRadius: 10, background: "var(--da-panel, #071120)", color: "var(--da-text-2, #c9d6ea)", font: "inherit", fontWeight: 650, cursor: "pointer" }}>Cancel</button>
+                <button type="button" data-hover="danger" onClick={() => { const request = layerDeleteRequest; setLayerDeleteRequest(null); performLayerDelete(request.layerId); }} style={{ minHeight: 38, padding: "0 16px", border: "1px solid var(--da-danger-solid, #d23a52)", borderRadius: 10, background: "var(--da-danger-solid, #d23a52)", color: "#ffffff", font: "inherit", fontWeight: 700, cursor: "pointer" }}>Delete layer</button>
+              </div>
+            </>
+          ) : (
+            <>
+              <p style={{ margin: 0, color: "var(--da-text-2, #c9d6ea)", fontSize: 14, lineHeight: 1.5 }}>{layerDeleteNotice}</p>
+              <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                <button type="button" autoFocus onClick={() => setLayerDeleteNotice(null)} style={{ minHeight: 38, padding: "0 16px", border: "1px solid var(--da-border, #244267)", borderRadius: 10, background: "var(--da-panel, #071120)", color: "var(--da-text-2, #c9d6ea)", font: "inherit", fontWeight: 650, cursor: "pointer" }}>OK</button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    )}
+    {isShortcutsOpen && (
+      <div role="presentation" onClick={() => setIsShortcutsOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 1000, display: "grid", placeItems: "center", background: "var(--da-scrim, rgba(3, 9, 20, 0.72))" }}>
+        <div role="dialog" aria-label="Keyboard shortcuts" onClick={(event) => event.stopPropagation()} style={{ width: "min(420px, calc(100vw - 32px))", padding: 22, border: "1px solid var(--da-line, #163058)", borderRadius: 16, background: "var(--da-panel, #071120)", color: "var(--da-text, #f6f9ff)", boxShadow: "var(--da-shadow-pop, 0 18px 44px rgba(0,0,0,.45))" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+            <strong style={{ fontSize: 18 }}>Keyboard shortcuts</strong>
+            <CloseButton label="Close keyboard shortcuts" onClick={() => setIsShortcutsOpen(false)} />
+          </div>
+          {[["Save", `${mod}S`], ["Save As", isMac ? "⇧⌘S" : "Ctrl+Shift+S"], ["Export", `${mod}E`], ["Save and Exit", isMac ? "⌥⌘S" : "Ctrl+Alt+S"], ["Undo", `${mod}Z`], ["Redo", isMac ? "⇧⌘Z" : "Ctrl+Y"], ["Insert Frame", "F5"], ["Insert Keyframe", "F6"], ["Insert Blank Keyframe", "F7"],
+            ["Play / Pause", "Enter"], ["Zoom In", `${mod}+`], ["Zoom Out", `${mod}−`], ["Reset View", `${mod}0`]].map(([label, keys]) => (
+            <div key={label} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderTop: "1px solid var(--da-line, #163058)", fontSize: 14, color: "var(--da-text-2, #c9d6ea)" }}>
+              <span>{label}</span><kbd style={{ fontFamily: "inherit", color: "var(--da-text, #f6f9ff)", fontWeight: 650 }}>{keys}</kbd>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
     <div
       className={workspaceThemeStyles.workspace}
       style={{
@@ -9806,6 +10045,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         onRedo={handleRedo}
         canUndo={!isTimelinePlaying && canUndoHistory}
         canRedo={!isTimelinePlaying && canRedoHistory}
+        menus={editorMenus}
       />
       {saveNotification && (
         <div
@@ -9852,7 +10092,9 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         onActiveLayerChange={activateLayer}
         onAddLayer={addLayer}
         onDeleteLayer={deleteActiveLayer}
-        canDeleteLayer={layers.length > 1}
+        hiddenLayerIds={hiddenLayerIds}
+        onToggleLayerVisibility={toggleLayerVisibility}
+        canDeleteLayer={layers.length >= 1}
         onToggleOnion={handleToggleOnion}
         onPlay={handlePlayTimeline}
         onPause={handlePauseTimeline}

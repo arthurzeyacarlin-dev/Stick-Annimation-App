@@ -39,7 +39,9 @@ export function DrawingToolBar({
             <button
               data-workspace-tool={t.toLowerCase()}
               type="button"
-              title={t}
+              aria-label={t === "Shape" ? "Shape tool" : t === "Knife" ? "Knife tool" : t}
+              data-tooltip={t === "Shape" ? "Shape tool" : t === "Knife" ? "Knife tool" : t}
+              data-tooltip-side="above"
               onClick={() => onToolSelect(t)}
               style={{
                 width: 42,

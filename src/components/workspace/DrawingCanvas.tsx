@@ -652,6 +652,10 @@ export type DrawingCanvasHandle = {
   takePresentedRasterCommit: (bitmap: ImageData | null) => boolean;
   setOnionOverlayContent: (content: OnionOverlayContent) => void;
   shouldDeferAuthoringSnapshotCapture: (minimumIdleMs?: number) => boolean;
+  /** SPEC-0020 Phase 4: the editor's View / Window menus. */
+  zoomBy: (factor: number) => void;
+  resetView: () => void;
+  showPanel: (tab: DrawingRightPanelTab) => void;
 };
 
 type CanvasDirtyRect = {
@@ -3385,6 +3389,12 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
         }>;
       } | null;
     };
+    // SPEC-0020 Phase 4 (lag): this test-only readout recomputed every handle on every move of a resize. It now
+    // runs only when NEXT_PUBLIC_ENABLE_SELECTION_DEBUG=1 (old browser-proof scripts set it).
+    if (process.env.NEXT_PUBLIC_ENABLE_SELECTION_DEBUG !== "1") {
+      debugWindow.__codexBitmapSelectionDebug = null;
+      return;
+    }
     const metrics = getAuthoringMetrics();
 
     if (!activeBitmapSelectionSession?.items.length || !metrics) {
@@ -4600,6 +4610,8 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
         }
         const maskKey = top / 32 * Math.ceil(canvas.width / 32) + left / 32;
         const stableTile = preview.stable.tiles.get(maskKey), tailTile = preview.tail.tiles.get(maskKey);
+        // SPEC-0020 Phase 4 (lag): only repaint a 32×32 tile when one of its pixels really changed.
+        let tileChanged = false;
         for (let y = Math.max(top, rect.top); y < Math.min(top + tile.base.height, rect.top + rect.height); y++) {
           for (let x = Math.max(left, rect.left); x < Math.min(left + tile.base.width, rect.left + rect.width); x++) {
             const offset = ((y - top) * tile.base.width + x - left) * 4;
@@ -4623,9 +4635,10 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               draft.candidateWriter.set(x, y, pixel);
             }
             tile.presentedCoverage[point] = coverage; tile.presentedLight[point] = light;
+            tileChanged = true;
           }
         }
-        ctx.putImageData(tile.display, left, top);
+        if (tileChanged) ctx.putImageData(tile.display, left, top);
       }
     }
     // Resolve ownership as it would be released now. Keep the complete candidate
@@ -7106,9 +7119,13 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     return result;
   }, [cameraPan, cameraZoom, drawBitmapSelectionImageToAuthoringCanvas, drawPlacedImageAsset, getAuthoringMetrics, getDisplayedBitmapTransformBounds]);
 
+  const viewControlsRef = useRef<{ zoomBy: (factor: number) => void; resetView: () => void; showPanel: (tab: DrawingRightPanelTab) => void } | null>(null);
   useImperativeHandle(
     ref,
     () => ({
+      zoomBy: (factor: number) => viewControlsRef.current?.zoomBy(factor),
+      resetView: () => viewControlsRef.current?.resetView(),
+      showPanel: (tab: DrawingRightPanelTab) => viewControlsRef.current?.showPanel(tab),
       captureAuthoringSnapshot,
       cancelPendingAuthoringGesture,
       getAuthoringSnapshotIdentity: () => ({ generation: authoringChangeVersionRef.current, contextKey: currentRasterContextRef.current }),
@@ -7739,53 +7756,31 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     const targetB = data[startIndex + 2];
     const targetA = data[startIndex + 3];
     const fill = parseHexColor(fillColor);
-    const tolerance = fillTolerance / 100;
-    const COLOR_TOLERANCE = Math.round(tolerance * 96);
-    const ALPHA_TOLERANCE = Math.round(tolerance * 96);
-    const TRANSPARENT_TARGET_ALPHA = 32;
-    const VERY_LOW_ALPHA = 8;
-    const NOT_FULLY_OPAQUE = 250;
-    const FILL_EDGE_TOLERANCE = 28;
-
-    const isWithinTolerance = (value: number, target: number, tolerance: number) =>
-      Math.abs(value - target) <= tolerance;
-
-    if (
-      isWithinTolerance(targetR, fill.r, COLOR_TOLERANCE) &&
-      isWithinTolerance(targetG, fill.g, COLOR_TOLERANCE) &&
-      isWithinTolerance(targetB, fill.b, COLOR_TOLERANCE) &&
-      isWithinTolerance(targetA, fill.a, ALPHA_TOLERANCE)
-    ) {
-      return;
-    }
-
-    const isTargetMostlyTransparent = targetA <= TRANSPARENT_TARGET_ALPHA;
-
-    const matchesTargetColor = (idx: number) => {
-      const r = data[idx];
-      const g = data[idx + 1];
-      const b = data[idx + 2];
-      const a = data[idx + 3];
-
-      const closeToTarget =
-        isWithinTolerance(r, targetR, COLOR_TOLERANCE) &&
-        isWithinTolerance(g, targetG, COLOR_TOLERANCE) &&
-        isWithinTolerance(b, targetB, COLOR_TOLERANCE) &&
-        isWithinTolerance(a, targetA, ALPHA_TOLERANCE);
-
-      if (!isTargetMostlyTransparent) return closeToTarget;
-
-      const closeToFillColor =
-        isWithinTolerance(r, fill.r, FILL_EDGE_TOLERANCE) &&
-        isWithinTolerance(g, fill.g, FILL_EDGE_TOLERANCE) &&
-        isWithinTolerance(b, fill.b, FILL_EDGE_TOLERANCE);
-
-      // When refilling erased patches, include semi-transparent edge pixels
-      // that are not fully opaque and are visually part of the erased region.
-      return closeToTarget || (a <= NOT_FULLY_OPAQUE && (a <= VERY_LOW_ALPHA || closeToFillColor));
+    // SPEC-0020 Phase 4 (Arthur): Tolerance compares colors the way they LOOK — each pixel over the canvas
+    // background — so a see-through edge counts as the lighter color it shows. Tolerance 0 fills only the area
+    // you clicked; higher tolerance also swallows similar colors (grays inside an outline); a solid outline in
+    // a clearly different color always stops the fill (the maximum stays below a full black-vs-white change).
+    const stage = parseHexColor(/^#[0-9a-f]{6}$/i.test(backgroundColor) ? backgroundColor : "#ffffff");
+    const shownChannel = (idx: number, channel: number) => {
+      const alpha = data[idx + 3] / 255;
+      const stageValue = channel === 0 ? stage.r : channel === 1 ? stage.g : stage.b;
+      return data[idx + channel] * alpha + stageValue * (1 - alpha);
     };
+    const targetShown = [shownChannel(startIndex, 0), shownChannel(startIndex, 1), shownChannel(startIndex, 2)];
+    const toleranceLimit = 255 * (0.04 + 0.9 * Math.max(0, Math.min(100, fillTolerance)) / 100);
+    const shownDistance = (idx: number, reference: readonly number[]) => Math.max(
+      Math.abs(shownChannel(idx, 0) - reference[0]),
+      Math.abs(shownChannel(idx, 1) - reference[1]),
+      Math.abs(shownChannel(idx, 2) - reference[2]),
+    );
+    if (targetA >= 250 && shownDistance(startIndex, [fill.r, fill.g, fill.b]) <= 4) return;
+    void targetR; void targetG; void targetB;
+    const matchesTargetColor = (idx: number) => shownDistance(idx, targetShown) <= toleranceLimit;
 
     const totalPixels = width * height;
+    // queued: 0 = not seen, 1 = seen (the fill stopped here), 2 = filled, 3 = filled under the outline's edge.
+    const boundary: number[] = [];
+    let leakedToWorldEdge = false;
     const stack: number[] = [y * width + x];
     const queued = new Uint8Array(totalPixels);
     const coverageWriter = createPaintCoverageWriter(getBitmapPaintCoverage(canvas), width, height);
@@ -7798,13 +7793,20 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       if (currentX < 0 || currentY < 0 || currentX >= width || currentY >= height) continue;
 
       const idx = (currentY * width + currentX) * 4;
-      if (!matchesTargetColor(idx)) continue;
+      if (!matchesTargetColor(idx)) { if (data[idx + 3] > 0 && data[idx + 3] < 255) boundary.push(currentPixel); continue; }
 
       data[idx] = fill.r;
       data[idx + 1] = fill.g;
       data[idx + 2] = fill.b;
       data[idx + 3] = fill.a;
+      queued[currentPixel] = 2;
       coverageWriter.clear(currentX, currentY);
+      // SPEC-0020 Phase 4 (Arthur): a fill that leaks to the edge of the whole drawing world isn't inside any
+      // shape (e.g. a click on the empty canvas) — do nothing instead of flooding everything.
+      if (currentX === 0 || currentY === 0 || currentX === width - 1 || currentY === height - 1) {
+        leakedToWorldEdge = true;
+        break;
+      }
 
       const queueNeighbor = (nextX: number, nextY: number) => {
         if (nextX < 0 || nextY < 0 || nextX >= width || nextY >= height) {
@@ -7822,6 +7824,43 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       queueNeighbor(currentX - 1, currentY);
       queueNeighbor(currentX, currentY + 1);
       queueNeighbor(currentX, currentY - 1);
+    }
+
+    if (leakedToWorldEdge) return; // nothing was drawn yet: the canvas still shows the untouched picture
+
+    // SPEC-0020 Phase 4 (Arthur: "no little white gaps"): paint the fill UNDER the soft, see-through edge of
+    // the outline (2 pixels deep). The outline keeps its look; the light ring between fill and outline is gone.
+    // Fully solid outline pixels don't change.
+    {
+      const underFill = (pixel: number) => {
+        const px = pixel % width, py = (pixel - px) / width, idx = pixel * 4, alpha = data[idx + 3];
+        queued[pixel] = 3;
+        const record = coverageWriter.get(px, py);
+        if (record) {
+          record.base = [fill.r, fill.g, fill.b, 255];
+          coverageWriter.set(px, py, record);
+          compositeRasterPaint(record, data, idx);
+        } else {
+          const a = alpha / 255;
+          data[idx] = Math.round(data[idx] * a + fill.r * (1 - a));
+          data[idx + 1] = Math.round(data[idx + 1] * a + fill.g * (1 - a));
+          data[idx + 2] = Math.round(data[idx + 2] * a + fill.b * (1 - a));
+          data[idx + 3] = 255;
+        }
+      };
+      // Pass 1: the see-through edge pixels where the fill stopped. Pass 2: one more pixel into the edge.
+      const firstPass = boundary.filter((pixel) => queued[pixel] === 1);
+      for (const pixel of firstPass) underFill(pixel);
+      for (const pixel of firstPass) {
+        const px = pixel % width, py = (pixel - px) / width;
+        for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+          const nx = px + dx, ny = py + dy;
+          if ((!dx && !dy) || nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
+          const neighbor = ny * width + nx, alpha = data[neighbor * 4 + 3];
+          if (queued[neighbor] >= 2 || alpha === 0 || alpha >= 255) continue;
+          underFill(neighbor);
+        }
+      }
     }
 
     const filledCoverage = coverageWriter.finish();
@@ -9584,6 +9623,28 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     if (!current || (current.x === draft.x && current.y === draft.y && current.width === draft.width && current.height === draft.height)) return;
     onUnifiedSymbolInstancesChange?.(unifiedSymbolInstances.map(instance => instance.itemId === draft.itemId ? draft : instance));
   };
+  // SPEC-0020 Phase 4 (Arthur: "sometimes it undid what I did"): losing the mouse grab in the middle of a
+  // move/resize keeps the change made so far instead of throwing it away (Cancel/Escape still undo it).
+  const keepUnifiedSymbolGestureOnLostCapture = (event: React.PointerEvent<SVGElement>) => {
+    const interaction = unifiedSymbolInteractionRef.current;
+    if (!interaction || interaction.pointerId !== event.pointerId) return;
+    unifiedSymbolInteractionRef.current = null;
+    const draft = draftUnifiedSymbolInstanceRef.current;
+    publishUnifiedSymbolDraft(null);
+    if (!draft) return;
+    const current = unifiedSymbolInstances.find(instance => instance.itemId === draft.itemId);
+    if (!current || (current.x === draft.x && current.y === draft.y && current.width === draft.width && current.height === draft.height)) return;
+    onUnifiedSymbolInstancesChange?.(unifiedSymbolInstances.map(instance => instance.itemId === draft.itemId ? draft : instance));
+  };
+  const keepCanvasGestureOnLostCapture = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    // A brush stroke still follows the old rule (its last point is unknown); transforms are kept.
+    if (rasterDraftRef.current) { cancelCanvasStroke(e); return; }
+    if (placedImageInteractionRef.current || bitmapSelectionInteractionRef.current || textInteractionRef.current) {
+      endCanvasStroke(e);
+      return;
+    }
+    cancelCanvasStroke(e);
+  };
   const cancelUnifiedSymbolGesture = (event: React.PointerEvent<SVGElement>) => {
     const interaction = unifiedSymbolInteractionRef.current;
     if (!interaction || interaction.pointerId !== event.pointerId) return;
@@ -11247,6 +11308,14 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     setRightPanelTab(tab);
     setCanvasInteractionOwner("drawing");
   };
+  // SPEC-0020 Phase 4: the latest zoom / panel controls for the editor's View and Window menus.
+  useEffect(() => {
+    viewControlsRef.current = {
+      zoomBy: (factor: number) => { updateCameraZoom(cameraZoom * factor); },
+      resetView: resetCanvasView,
+      showPanel: handleRightPanelTabChange,
+    };
+  });
   const selectionPreviewStickContent = activeBitmapSelectionSession?.structuredStick
     ? materializeStructuredStickSelection(activeBitmapSelectionSession)
     : null;
@@ -11298,6 +11367,8 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
           boxSizing: "border-box",
           minWidth: 0,
           padding: 14,
+          // SPEC-0020 Phase 4 (Arthur): outside the drawing area's black border stays navy. Inside it (below) is
+          // the canvas color everywhere, so things drawn off-screen (a figure about to run in) are visible.
           background: "var(--da-page, #030914)",
         }}
       >
@@ -11310,7 +11381,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
             height: "100%",
             borderRadius: 0,
             border: "1px solid var(--da-line, #163058)",
-            background: "var(--da-page, #030914)",
+            background: backgroundColor,
             position: "relative",
             overflow: "hidden",
           }}
@@ -11337,7 +11408,6 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 width: `${CAMERA_FRAME_SIZE_PERCENT}%`,
                 height: `${CAMERA_FRAME_SIZE_PERCENT}%`,
                 background: backgroundColor,
-                boxShadow: "0 0 0 1px var(--da-line, #163058), 0 18px 40px rgba(0,0,0,0.55)",
                 pointerEvents: "none",
               }}
             />
@@ -11386,7 +11456,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                       fill="transparent" style={{ pointerEvents: activeTool === "Select" && canvasInteractionOwner === "drawing" && !isTimelinePlaying ? "all" : "none", cursor: "move" }}
                       onPointerDown={event => beginUnifiedSymbolGesture(event, instance)}
                       onPointerMove={moveUnifiedSymbolGesture} onPointerUp={finishUnifiedSymbolGesture}
-                      onPointerCancel={cancelUnifiedSymbolGesture} onLostPointerCapture={cancelUnifiedSymbolGesture} />
+                      onPointerCancel={cancelUnifiedSymbolGesture} onLostPointerCapture={keepUnifiedSymbolGestureOnLostCapture} />
                     {selected && !isTimelinePlaying ? <>
                       <rect x={instance.x} y={instance.y} width={instance.width} height={instance.height}
                         fill="none" stroke="#398bff" strokeWidth="2" vectorEffect="non-scaling-stroke" strokeDasharray="6 4" style={{ pointerEvents: "none" }} />
@@ -11398,7 +11468,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                         style={{ pointerEvents: activeTool === "Select" ? "all" : "none", cursor: handle + "-resize" }}
                         onPointerDown={event => beginUnifiedSymbolGesture(event, instance, handle)}
                         onPointerMove={moveUnifiedSymbolGesture} onPointerUp={finishUnifiedSymbolGesture}
-                        onPointerCancel={cancelUnifiedSymbolGesture} onLostPointerCapture={cancelUnifiedSymbolGesture} />)}
+                        onPointerCancel={cancelUnifiedSymbolGesture} onLostPointerCapture={keepUnifiedSymbolGestureOnLostCapture} />)}
                     </> : null}
                   </g>
                 );
@@ -11445,7 +11515,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               onPointerUp={endCanvasStroke}
               onPointerLeave={endCanvasStroke}
               onPointerCancel={cancelCanvasStroke}
-              onLostPointerCapture={cancelCanvasStroke}
+              onLostPointerCapture={keepCanvasGestureOnLostCapture}
             />
             <canvas
               ref={textCanvasRef}
@@ -11480,6 +11550,24 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 pointerEvents: "none",
               }}
             />
+            {/* SPEC-0020 Phase 4 (Arthur): the canvas edge is a blue (accent) outline drawn on top of everything,
+                so drawings never hide it. Not shown while playing — Play shows only what's inside it. */}
+            {!isTimelinePlaying && (
+              <div
+                aria-hidden="true"
+                data-workspace-stage-outline="true"
+                style={{
+                  position: "absolute",
+                  left: `${CAMERA_FRAME_INSET_PERCENT}%`,
+                  top: `${CAMERA_FRAME_INSET_PERCENT}%`,
+                  width: `${CAMERA_FRAME_SIZE_PERCENT}%`,
+                  height: `${CAMERA_FRAME_SIZE_PERCENT}%`,
+                  boxShadow: `0 0 0 ${2 / Math.max(0.1, cameraZoom)}px var(--da-hover, #0066ff)`,
+                  pointerEvents: "none",
+                  zIndex: 20,
+                }}
+              />
+            )}
           </div>
           <canvas
             ref={playbackCanvasRef}

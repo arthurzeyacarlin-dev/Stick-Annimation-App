@@ -44,7 +44,10 @@ type DrawingTimelineRowProps = {
   onTimelinePositionSelect: (index: number) => void;
   onActiveLayerChange: (layerId: string) => void;
   onAddLayer: () => void;
-  onDeleteLayer: () => void;
+  onDeleteLayer: (layerId?: string) => void;
+  /** SPEC-0020 Phase 4: layers hidden with the eye button (editor only), and the toggle. */
+  hiddenLayerIds?: string[];
+  onToggleLayerVisibility?: (layerId: string) => void;
   canDeleteLayer: boolean;
   onToggleOnion: () => void;
   onPlay: () => void;
@@ -93,9 +96,26 @@ type TweenActivationSpan = {
 
 type TimelineActivationSource = "row-background" | "frame-button" | "resize-edge";
 
-const clampFps = (value: number) => Math.max(1, Math.min(55, Math.round(value)));
+const clampFps = (value: number) => Math.max(1, Math.min(60, Math.round(value)));
 
 // Compact pill controls. Rest/selected only: pointer hover comes from workspaceTheme.module.css.
+// SPEC-0020 Phase 4 (Arthur): Add layer / Onion skin are bare symbols (no box). Hover turns the symbol the
+// accent color (workspaceTheme.module.css, data-hover="icon"); Onion skin stays the accent color while it's on.
+const timelineIconButtonStyle = (isOn: boolean): CSSProperties => ({
+  width: 30,
+  height: 30,
+  padding: 0,
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  boxSizing: "border-box",
+  border: 0,
+  borderRadius: 8,
+  background: "transparent",
+  color: isOn ? "var(--da-hover, #0066ff)" : "var(--da-text-2, #c9d6ea)",
+  cursor: "pointer",
+});
+
 const timelineButtonStyle: CSSProperties = {
   height: 30,
   padding: "0 12px",
@@ -166,6 +186,20 @@ const TIMELINE_KEYFRAME_DOT = "#111111";
 const TIMELINE_SPAN_DOT_LINE_GAP = 14;
 const TIMELINE_LEFT_RAIL_HEIGHT = 54;
 const TIMELINE_LAYER_ROW_HEIGHT = 38;
+const LAYER_CONTROLS_WIDTH = 62;
+const layerControlButtonStyle: CSSProperties = {
+  width: 26,
+  height: 26,
+  padding: 0,
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  border: 0,
+  borderRadius: 6,
+  background: "transparent",
+  color: "var(--da-text-2, #c9d6ea)",
+  cursor: "pointer",
+};
 const TIMELINE_BOTTOM_SCROLLBAR_HEIGHT = 6;
 const TIMELINE_RESIZE_EDGE_HEIGHT = 12;
 const TIMELINE_MIN_PANEL_ROWS_HEIGHT = TIMELINE_LAYER_ROW_HEIGHT;
@@ -703,6 +737,8 @@ export function DrawingTimelineRow({
   onActiveLayerChange,
   onAddLayer,
   onDeleteLayer,
+  hiddenLayerIds = [],
+  onToggleLayerVisibility,
   canDeleteLayer,
   onToggleOnion,
   onPlay,
@@ -1194,6 +1230,9 @@ export function DrawingTimelineRow({
     panelResizeEdgeHeight: number;
   }) => {
     const rowLanesHeight = renderedLayers.length * TIMELINE_LAYER_ROW_HEIGHT;
+    // SPEC-0020 Phase 4 (Arthur): with 2+ layers each layer row starts with an eye (show/hide) and a trash can
+    // (delete); the frames move right to make room. One layer: no column.
+    const layerControlsWidth = layers.length >= 2 ? LAYER_CONTROLS_WIDTH : 0;
     const showVerticalOverflow = rowsHeight > TIMELINE_MIN_PANEL_ROWS_HEIGHT && rowLanesHeight > rowsHeight + 1;
 
     return (
@@ -1238,6 +1277,7 @@ export function DrawingTimelineRow({
             background: workspaceColors.chrome,
             borderBottom: `1px solid ${workspaceColors.divider}`,
             borderTop: `1px solid ${workspaceColors.divider}`,
+            marginLeft: layerControlsWidth,
           }}
         >
           <div
@@ -1300,13 +1340,43 @@ export function DrawingTimelineRow({
             overflowY: showVerticalOverflow ? "auto" : "hidden",
             overflowX: "hidden",
             background: TIMELINE_LANE_BACKGROUND,
+            display: "flex",
+            alignItems: "flex-start",
           }}
         >
+          {layerControlsWidth > 0 && (
+            <div style={{ flex: `0 0 ${layerControlsWidth}px`, height: rowLanesHeight, background: workspaceColors.chrome, borderRight: `1px solid ${workspaceColors.divider}`, boxSizing: "border-box" }}>
+              {renderedLayers.map((layer) => {
+                const isHidden = hiddenLayerIds.includes(layer.id);
+                return (
+                  <div key={`${isOverlay ? "overlay" : "baseline"}-controls-${layer.id}`} style={{ height: TIMELINE_LAYER_ROW_HEIGHT, display: "flex", alignItems: "center", justifyContent: "center", gap: 2, boxSizing: "border-box", borderBottom: `1px solid ${workspaceColors.divider}` }}>
+                    <button type="button" data-hover="icon" data-tooltip={isHidden ? "Show layer" : "Hide layer"} data-tooltip-side="right"
+                      aria-label={`${isHidden ? "Show" : "Hide"} ${layer.name}`} aria-pressed={isHidden}
+                      onClick={() => onToggleLayerVisibility?.(layer.id)} style={layerControlButtonStyle}>
+                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M2.5 12s3.5-6.5 9.5-6.5S21.5 12 21.5 12s-3.5 6.5-9.5 6.5S2.5 12 2.5 12Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+                        <circle cx="12" cy="12" r="2.8" stroke="currentColor" strokeWidth="1.8" />
+                        {isHidden && <path d="M4 20 20 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />}
+                      </svg>
+                    </button>
+                    <button type="button" data-hover="icon" data-tooltip="Delete layer" data-tooltip-side="right"
+                      aria-label={`Delete ${layer.name}`} onClick={() => onDeleteLayer(layer.id)} style={layerControlButtonStyle}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M4 7h16M9.5 7V4.8c0-.7.5-1.3 1.2-1.3h2.6c.7 0 1.2.6 1.2 1.3V7M6.5 7l.9 12.2c.1.9.8 1.6 1.7 1.6h5.8c.9 0 1.6-.7 1.7-1.6L17.5 7M10 11v6M14 11v6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
           <div
             ref={attachInteractionRefs ? frameLaneViewportRef : null}
             className="timeline-frame-main-scroll"
             onScroll={attachInteractionRefs ? (event) => setTimelineScrollLeft(event.currentTarget.scrollLeft) : undefined}
             style={{
+              flex: 1,
+              minWidth: 0,
               width: "100%",
               height: rowLanesHeight,
               overflowX: "auto",
@@ -1542,12 +1612,12 @@ export function DrawingTimelineRow({
             gap: 7,
             height: 30,
             boxSizing: "border-box",
-            padding: "0 4px 0 10px",
-            borderRadius: 9,
-            border: `1px solid ${workspaceColors.border}`,
-            background: workspaceColors.panel,
+            padding: "0 2px",
+            border: 0,
+            background: "transparent",
             color: workspaceColors.textSecondary,
             flexShrink: 0,
+            cursor: "text",
           }}
         >
           <span
@@ -1565,7 +1635,7 @@ export function DrawingTimelineRow({
           <input
             type="number"
             min={1}
-            max={55}
+            max={60}
             step={1}
             value={fpsInputValue}
             onChange={(event) => setFpsInputValue(event.target.value)}
@@ -1575,14 +1645,14 @@ export function DrawingTimelineRow({
                 commitFps();
               }
             }}
+            // SPEC-0020 Phase 4 (Arthur): one box only — the FPS field has no box of its own inside the outer one.
             style={{
-              width: 46,
+              width: 34,
               height: 22,
               boxSizing: "border-box",
-              padding: "0 4px",
-              borderRadius: 6,
-              border: `1px solid ${workspaceColors.divider}`,
-              background: workspaceColors.inset,
+              padding: "0 2px",
+              border: 0,
+              background: "transparent",
               color: workspaceColors.textPrimary,
               fontSize: 12,
               fontWeight: 700,
@@ -1593,20 +1663,38 @@ export function DrawingTimelineRow({
         </label>
 
         <div style={{ display: "flex", alignItems: "center", gap: 6, margin: "0 0 0 2px", flexShrink: 0 }}>
+          {/* SPEC-0020 Phase 4 (Arthur): Layer and Onion are symbols only (Play keeps its word).
+              Add layer = stacked squares fading back; Onion skin = a stick figure with fading "ghost" copies. */}
           <button
             type="button"
             onClick={onAddLayer}
-            style={timelineButtonStyle}
+            aria-label="Add layer"
+            data-tooltip="Add layer"
+            data-tooltip-side="below"
+            data-hover="icon"
+            style={timelineIconButtonStyle(false)}
           >
-            + Layer
+            <svg aria-hidden="true" width="17" height="17" viewBox="0 0 20 20" fill="none" style={{ flexShrink: 0 }}>
+              <path d="M7.5 4.5V3.1c0-.9.7-1.6 1.6-1.6h6.8c.9 0 1.6.7 1.6 1.6v6.8c0 .9-.7 1.6-1.6 1.6H15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.3" />
+              <path d="M5 7.5V6.1c0-.9.7-1.6 1.6-1.6h6.8c.9 0 1.6.7 1.6 1.6v6.8c0 .9-.7 1.6-1.6 1.6H12.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
+              <rect x="2.5" y="7.5" width="10" height="10" rx="1.6" stroke="currentColor" strokeWidth="1.7" />
+            </svg>
           </button>
           <button
             type="button"
             onClick={onToggleOnion}
             aria-pressed={isOnionEnabled}
-            style={isOnionEnabled ? timelineSelectedButtonStyle : timelineButtonStyle}
+            aria-label={isOnionEnabled ? "Onion skin on" : "Onion skin off"}
+            data-tooltip={isOnionEnabled ? "Onion skin: on" : "Onion skin: off"}
+            data-tooltip-side="below"
+            data-hover="icon"
+            style={timelineIconButtonStyle(isOnionEnabled)}
           >
-            Onion
+            <svg aria-hidden="true" width="19" height="17" viewBox="0 0 24 20" fill="none" strokeLinecap="round" style={{ flexShrink: 0 }}>
+              <g opacity="0.28" stroke="currentColor" strokeWidth="1.5"><circle cx="5" cy="4" r="2.2" /><path d="M5 6.4v6.4M5 8.6 2.4 11M5 8.6 7.6 11M5 12.8 3 18M5 12.8 7 18" /></g>
+              <g opacity="0.55" stroke="currentColor" strokeWidth="1.6"><circle cx="11" cy="4" r="2.2" /><path d="M11 6.4v6.4M11 8.6 8.4 11M11 8.6 13.6 11M11 12.8 9 18M11 12.8 13 18" /></g>
+              <g stroke="currentColor" strokeWidth="1.8"><circle cx="17.5" cy="4" r="2.3" fill="currentColor" /><path d="M17.5 6.4v6.4M17.5 8.6 14.8 11M17.5 8.6 20.2 11M17.5 12.8 15.4 18M17.5 12.8 19.6 18" /></g>
+            </svg>
           </button>
           <button
             type="button"
@@ -1742,7 +1830,9 @@ export function DrawingTimelineRow({
                 type="button"
                 onClick={() => {
                   if (!canDeleteContextLayer) return;
-                  runMenuAction(onDeleteLayer);
+                  // SPEC-0020 Phase 4: delete the layer that was right-clicked, not whichever one is active.
+                  const targetLayerId = contextMenu?.targetLayerId;
+                  runMenuAction(() => onDeleteLayer(targetLayerId));
                 }}
                 disabled={!canDeleteContextLayer}
                 style={contextMenuItemStyle(canDeleteContextLayer, "danger")}

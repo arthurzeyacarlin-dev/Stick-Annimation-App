@@ -178,7 +178,7 @@ export function assertStructuredSymbolPayloadV2(definition: Pick<UnifiedBitmapSy
 
 export function assertUnifiedAnimationDocumentV2(document: UnifiedAnimationDocumentV2) {
   if (document.kind !== "diamond-animation-document" || document.schemaVersion !== 2 || !uuid.test(document.projectId)) throw new Error("invalid_record");
-  if (!Number.isInteger(document.fps) || document.fps < 1 || document.fps > 55) throw new Error("invalid_record");
+  if (!Number.isInteger(document.fps) || document.fps < 1 || document.fps > 60) throw new Error("invalid_record");
   if (document.background !== undefined && (
     document.background.kind !== "solid-color/v1" ||
     !/^#[0-9a-f]{6}$/i.test(document.background.color)

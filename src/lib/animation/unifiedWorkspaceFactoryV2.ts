@@ -3,7 +3,7 @@ import { assertUnifiedAnimationProjectV2 } from "./unifiedAnimationContractV2.ts
 
 // SPEC-0020 Phase 3: Settings → "Frames per second" for new projects (12 by default; the contract allows 1–55).
 export function createNativeUnifiedProjectV2(now = new Date().toISOString(), options: { fps?: number } = {}): UnifiedAnimationProjectV2 {
-  const fps = Number.isInteger(options.fps) && options.fps! >= 1 && options.fps! <= 55 ? options.fps! : 12;
+  const fps = Number.isInteger(options.fps) && options.fps! >= 1 && options.fps! <= 60 ? options.fps! : 12;
   const projectId = crypto.randomUUID();
   const layerId = crypto.randomUUID();
   const cellId = crypto.randomUUID();

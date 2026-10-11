@@ -6,7 +6,7 @@ import type { StickAiCreationLatchV1 } from "../stickfigure/stickProjectHistory.
 export const UNIFIED_ANIMATION_LIMITS = Object.freeze({
   layers: 64,
   cellsPerLayer: 10_000,
-  fps: 55,
+  fps: 60, // SPEC-0020 Phase 4 (Arthur): up to 60 frames per second
   projectStoredBytes: 134_217_728,
   idUtf8Bytes: 128,
   titleUtf8Bytes: 512,

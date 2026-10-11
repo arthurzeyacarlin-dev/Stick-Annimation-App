@@ -121,9 +121,10 @@
 .workspace :global([data-tooltip]:not([data-tooltip-side]):hover::after) { top: calc(100% + 8px); }
 
 /* SPEC-0020 Phase 4: destructive buttons (Delete layer) turn a brighter red on hover, instantly. */
+/* Danger buttons (Delete layer, Clear frame): red text + red outline; hover fills the whole button red (Arthur). */
 .workspace :global(button[data-hover="danger"]:not(:disabled):hover) {
-  background: #e5384a !important;
-  border-color: #e5384a !important;
+  background: var(--da-danger-solid, #d23a52) !important;
+  border-color: var(--da-danger-solid, #d23a52) !important;
   color: #ffffff !important;
 }
 .workspace :global([data-tooltip][data-tooltip-side="right"]:hover::after) { left: calc(100% + 6px); top: 50%; transform: translateY(-50%); }

@@ -8,6 +8,7 @@ import { CloseButton } from "@/src/components/ui/CloseButton";
 import { bitmapCenterOffset } from "@/src/lib/animation/unifiedStageGeometry";
 import { buildScene as buildAnimatorScene, type Scene as AnimatorScene } from "@/src/lib/animator/engine";
 import { compactOrigin, copyRasterReferenceSize, getRasterReferenceSize, resolveRasterReferenceSize } from "@/src/lib/animation/compactRasterBitmap";
+import { openedHiddenLayerIdsV1, savedHiddenLayerIdsV1 } from "@/src/lib/animation/editorHiddenLayersV1";
 import { rasterizeFrames as rasterizeAnimatorFrames, rasterizeShapeFrames as rasterizeAnimatorShapeFrames, sceneEffectLayers as animatorSceneEffectLayers } from "@/src/lib/animator/toFrames";
 import { centerAnimation, effectFitBounds, visibleStageWidth, type SceneForPage } from "@/src/lib/animator/stageFit";
 import { bitmapToInk, type AnimatorScenePlacement, type DrawnSpan, type EngineDrawingBridge, type PageToCanvasMap } from "./ai/engineDrawingBridge";
@@ -3693,9 +3694,14 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
   const [timelineFps, setTimelineFps] = useState(initialWorkspaceState.timelineFps);
   const [shapeType, setShapeType] = useState<DrawingShapeType>(initialWorkspaceState.shapeType);
   const [layers, setLayers] = useState<WorkspaceLayer[]>(initialWorkspaceState.layers);
-  // SPEC-0020 Phase 4 (Arthur): layers hidden with the timeline's eye button (this editing session only).
-  const [hiddenLayerIds, setHiddenLayerIds] = useState<string[]>([]);
-  const hiddenLayerIdsRef = useRef<string[]>([]);
+  // SPEC-0020 Phase 4 (Arthur): layers hidden with the timeline's eye button. Phase 7: remembered with the
+  // project (auxiliary.editorHiddenLayerIds), so they open hidden again; export still shows every layer.
+  const [hiddenLayerIds, setHiddenLayerIds] = useState<string[]>(() => openedHiddenLayerIdsV1(
+    unifiedProject.auxiliary?.editorHiddenLayerIds,
+    unifiedProject.document.layers.map((layer) => layer.layerId),
+    initialWorkspaceState.layers.map((layer) => layer.id),
+  ));
+  const hiddenLayerIdsRef = useRef<string[]>(hiddenLayerIds);
   const [activeLayerId, setActiveLayerId] = useState(initialWorkspaceState.activeLayerId);
   const [currentFrameIndex, setCurrentFrameIndex] = useState(initialWorkspaceState.currentFrameIndex);
   const [selectedTimelineIndex, setSelectedTimelineIndex] = useState(initialWorkspaceState.selectedTimelineIndex);
@@ -4383,6 +4389,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     currentFrameIndex,
     eraserSize,
     fillColor,
+    hiddenLayerIds,
     isOnionEnabled,
     layers,
     selectedTimelineIndex,
@@ -5801,56 +5808,6 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       };
     },
     [],
-  );
-
-  const rebaseHistoryAfterLayerAddition = useCallback(
-    (
-      addedLayer: WorkspaceLayer,
-      options?: {
-        addedLayerIndex?: number;
-        nextActiveLayerId?: string;
-        nextCurrentFrameIndex?: number;
-        nextSelectedTimelineIndex?: number;
-        nextTimelineFrameId?: number;
-        nextLayerNumber?: number;
-      },
-    ) => {
-      if (historyEntriesRef.current.length === 0 || currentHistoryIndexRef.current < 0) {
-        return;
-      }
-
-      trimGlobalHistoryEntriesToLimit();
-      clearLocalDrawingHistory();
-
-      historyEntriesRef.current = historyEntriesRef.current.map((entry, historyIndex) => {
-        if (getLayerById(entry.layers, addedLayer.id)) {
-          return entry;
-        }
-
-        const rebasedLayers = cloneWorkspaceLayers(entry.layers);
-        const insertIndex = Math.max(0, Math.min(options?.addedLayerIndex ?? rebasedLayers.length, rebasedLayers.length));
-        rebasedLayers.splice(insertIndex, 0, cloneWorkspaceLayer(addedLayer));
-        const normalizedRebasedLayers = normalizeLayerOrder(rebasedLayers);
-        const isCurrentEntry = historyIndex === currentHistoryIndexRef.current;
-
-        return {
-          ...entry,
-          layers: normalizedRebasedLayers,
-          activeLayerId: isCurrentEntry ? (options?.nextActiveLayerId ?? addedLayer.id) : entry.activeLayerId,
-          currentFrameIndex: isCurrentEntry
-            ? (options?.nextCurrentFrameIndex ?? entry.currentFrameIndex)
-            : entry.currentFrameIndex,
-          selectedTimelineIndex: isCurrentEntry
-            ? (options?.nextSelectedTimelineIndex ?? entry.selectedTimelineIndex)
-            : entry.selectedTimelineIndex,
-          nextTimelineFrameId: Math.max(entry.nextTimelineFrameId, options?.nextTimelineFrameId ?? entry.nextTimelineFrameId),
-          nextLayerNumber: Math.max(entry.nextLayerNumber, options?.nextLayerNumber ?? entry.nextLayerNumber),
-        };
-      });
-
-      syncHistoryAvailability();
-    },
-    [clearLocalDrawingHistory, syncHistoryAvailability, trimGlobalHistoryEntriesToLimit],
   );
 
   const rebaseHistoryAfterTimelineSpanResize = useCallback(
@@ -7469,7 +7426,11 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         })),
       })),
     };
-    return { ...base, title: projectTitle, auxiliary: { ...base.auxiliary, drawingAiMemory: structuredClone(projectAiMemory), stickAiCreationLatch: structuredClone(base.auxiliary?.stickAiCreationLatch ?? null) }, document, compatibility: { ...base.compatibility, drawingData: compatibilityDrawingData, stickByCell: {}, symbolInstancesByCell: structuredClone(symbolInstancesByCellRef.current) } };
+    // SPEC-0020 Phase 7: remember the eye button (editor-only; the key is left out when nothing is hidden).
+    const { editorHiddenLayerIds: _previousHiddenLayerIds, ...baseAuxiliary } = base.auxiliary ?? { drawingAiMemory: null, stickAiCreationLatch: null };
+    void _previousHiddenLayerIds;
+    const editorHiddenLayerIds = savedHiddenLayerIdsV1(layers.map((layer) => layer.layerId), drawingData.layers.map((layer) => layer.id), hiddenLayerIdsRef.current);
+    return { ...base, title: projectTitle, auxiliary: { ...baseAuxiliary, drawingAiMemory: structuredClone(projectAiMemory), stickAiCreationLatch: structuredClone(base.auxiliary?.stickAiCreationLatch ?? null), ...(editorHiddenLayerIds.length > 0 ? { editorHiddenLayerIds } : {}) }, document, compatibility: { ...base.compatibility, drawingData: compatibilityDrawingData, stickByCell: {}, symbolInstancesByCell: structuredClone(symbolInstancesByCellRef.current) } };
   }, [canvasBackgroundColor, projectAiMemory, projectTitle]);
 
   const armRecoveryDraftWrite = useCallback((delayMs: number) => {
@@ -7586,7 +7547,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       return;
     }
     queueRecoveryDraftWrite();
-  }, [canvasBackgroundColor, layers, queueRecoveryDraftWrite, stickByCell, symbolInstancesByCell, timelineFps, unifiedCatalogs]);
+  }, [canvasBackgroundColor, hiddenLayerIds, layers, queueRecoveryDraftWrite, stickByCell, symbolInstancesByCell, timelineFps, unifiedCatalogs]);
 
   const clearCoveredRecoveryDraft = useCallback(async (
     candidate: UnifiedAnimationProjectV2,
@@ -7763,6 +7724,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       });
       if (drawingCanvasRef.current?.hasPendingAuthoringChanges()) return;
     }
+    // Arthur: New Layer is its own Undo step. Save the "before" step now; the "after" step is saved below.
+    recordUndoSnapshot();
 
     const targetFrameIndex = Math.max(0, currentFrameIndexRef.current);
     const currentActiveLayerId = activeLayerIdRef.current;
@@ -7806,20 +7769,11 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     }
     selectedTimelineIndexRef.current = currentSelectedTimelineIndex;
     setSelectedTimelineIndex(currentSelectedTimelineIndex);
-    rebaseHistoryAfterLayerAddition(getLayerById(nextLayers, nextLayerId) ?? {
-      id: nextLayerId,
-      name: nextLayerName,
-      orderIndex: insertIndex,
-      timelineFrames: nextLayerFrames,
-    }, {
-      addedLayerIndex: insertIndex,
-      nextActiveLayerId: currentActiveLayer?.id ?? currentActiveLayerId,
-      nextCurrentFrameIndex: currentFrameIndexRef.current,
-      nextSelectedTimelineIndex: currentSelectedTimelineIndex,
-      nextTimelineFrameId: nextTimelineFrameIdRef.current,
-      nextLayerNumber: nextLayerNumberRef.current,
-    });
-    updateHistoryWorkspaceStamp();
+    try {
+      commitCurrentHistoryState({ assumeChanged: true });
+    } catch (error) {
+      console.warn("[add-layer] history update failed", error);
+    }
 
       window.requestAnimationFrame(() => {
         renderWorkspaceCanvases(nextLayers, targetFrameIndex, {
@@ -7828,10 +7782,10 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         });
       });
   }, [
-    rebaseHistoryAfterLayerAddition,
+    commitCurrentHistoryState,
+    recordUndoSnapshot,
     renderWorkspaceCanvases,
     saveCurrentFrameSnapshot,
-    updateHistoryWorkspaceStamp,
   ]);
 
   // SPEC-0020 Phase 4 (Arthur): Delete Layer always deletes the layer that was right-clicked — big or small.
@@ -7986,6 +7940,10 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       });
       const nextFrames = insertionResult.frames;
       const nextIndex = insertionResult.nextIndex;
+      // Arthur: Undo undoes exactly what you just did. Inserting a frame is its own Undo step (like Remove Frame):
+      // save the "before" step here, change the timeline, then save the "after" step below. Before, the new frame
+      // was written into every older Undo step, so ⌘Z undid the stroke before it and the frame stayed.
+      recordUndoSnapshot();
       nextTimelineFrameIdRef.current = insertionResult.nextTimelineFrameId;
       const insertedFrame = nextFrames[nextIndex];
       const sourceFrameForStick = existingFrames[Math.max(0, Math.min(nextIndex - 1, existingFrames.length - 1))];
@@ -7998,13 +7956,6 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       }
 
       const nextLayers = replaceLayerFrames(layerId, nextFrames);
-      rebaseHistoryAfterFrameInsertion(layerId, kind, targetSlotIndex, {
-        blank: options?.blank,
-        nextActiveLayerId: layerId,
-        nextCurrentFrameIndex: nextIndex,
-        nextSelectedTimelineIndex: nextIndex,
-        nextTimelineFrameId: insertionResult.nextTimelineFrameId,
-      });
       activeLayerIdRef.current = layerId;
       setActiveLayerId(layerId);
       timelineFramesRef.current = nextFrames;
@@ -8012,7 +7963,11 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       setCurrentFrameIndex(nextIndex);
       selectedTimelineIndexRef.current = nextIndex;
       setSelectedTimelineIndex(nextIndex);
-      updateHistoryWorkspaceStamp();
+      try {
+        commitCurrentHistoryState({ assumeChanged: true });
+      } catch (error) {
+        console.warn("[insert-frame] history update failed", error);
+      }
 
       window.requestAnimationFrame(() => {
         renderWorkspaceCanvases(nextLayers, nextIndex, {
@@ -8023,13 +7978,13 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     },
     [
       applyTimelineFrameInsertion,
+      commitCurrentHistoryState,
+      recordUndoSnapshot,
       renderWorkspaceCanvases,
-      rebaseHistoryAfterFrameInsertion,
       replaceLayerFrames,
       resolveInsertionSourceTextObjects,
       resolveInsertionSourceSnapshot,
       saveCurrentFrameSnapshot,
-      updateHistoryWorkspaceStamp,
     ],
   );
 
@@ -9962,7 +9917,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
               </p>
               <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
                 <button type="button" autoFocus onClick={() => setLayerDeleteRequest(null)} style={{ minHeight: 38, padding: "0 16px", border: "1px solid var(--da-border, #244267)", borderRadius: 10, background: "var(--da-panel, #071120)", color: "var(--da-text-2, #c9d6ea)", font: "inherit", fontWeight: 650, cursor: "pointer" }}>Cancel</button>
-                <button type="button" data-hover="danger" onClick={() => { const request = layerDeleteRequest; setLayerDeleteRequest(null); performLayerDelete(request.layerId); }} style={{ minHeight: 38, padding: "0 16px", border: "1px solid var(--da-danger-solid, #d23a52)", borderRadius: 10, background: "var(--da-danger-solid, #d23a52)", color: "#ffffff", font: "inherit", fontWeight: 700, cursor: "pointer" }}>Delete layer</button>
+                <button type="button" data-hover="danger" onClick={() => { const request = layerDeleteRequest; setLayerDeleteRequest(null); performLayerDelete(request.layerId); }} style={{ minHeight: 38, padding: "0 16px", border: "1px solid var(--da-danger-solid, #d23a52)", borderRadius: 10, background: "transparent", color: "var(--da-danger-solid, #d23a52)", font: "inherit", fontWeight: 700, cursor: "pointer" }}>Delete layer</button>
               </div>
             </>
           ) : (

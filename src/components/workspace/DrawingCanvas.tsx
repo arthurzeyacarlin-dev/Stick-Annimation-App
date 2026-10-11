@@ -1925,6 +1925,11 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   const [librarySymbols, setLibrarySymbols] = useState<LibrarySymbol[]>([]);
   const [symbolDialog, setSymbolDialog] = useState<SymbolDialogState | null>(null);
   const [workspaceNotice, setWorkspaceNotice] = useState<string | null>(null);
+  useEffect(() => {
+    if (!workspaceNotice) return;
+    const timer = window.setTimeout(() => setWorkspaceNotice(null), 6000);
+    return () => window.clearTimeout(timer);
+  }, [workspaceNotice]);
   const [activePlacedImageAsset, setActivePlacedImageAsset] = useState<ActivePlacedImageAsset | null>(null);
   const [placedAssetAspectLocked, setPlacedAssetAspectLocked] = useState(true);
   const [assetImportBusy, setAssetImportBusy] = useState(false);
@@ -2183,7 +2188,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
           }
         }
       } catch (error) {
-        window.alert(`The canvas could not be resized. Your drawing is preserved. ${error instanceof Error ? error.message : ""}`);
+        setWorkspaceNotice("The canvas couldn't be resized. Your drawing is safe.");
         return;
       }
 
@@ -4653,7 +4658,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     if (hasPendingAuthoringChangesRef.current) {
       try { onAuthoringActionCommitted?.("selection"); } catch { /* Pending state blocks this new draft. */ }
       if (hasPendingAuthoringChangesRef.current) {
-        window.alert("The previous edit could not be saved. Your drawing is preserved; retry before drawing another stroke.");
+        setWorkspaceNotice("Your last change is still saving. Your drawing is safe — try that stroke again in a moment.");
         return;
       }
     }
@@ -4670,7 +4675,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     e.currentTarget.setPointerCapture(e.pointerId);
     try { presentRasterDraft(engine.append(point)); } catch (error) {
       cancelPendingAuthoringGesture("prepare-failed");
-      window.alert(`The stroke was canceled; your previous drawing is preserved. ${error instanceof Error ? error.message : ""}`);
+      setWorkspaceNotice("That stroke was stopped. Your drawing is safe — please draw it again.");
     }
   };
 
@@ -4682,7 +4687,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       if (point) presentRasterDraft(draft.engine.append(point));
     } catch (error) {
       cancelPendingAuthoringGesture("preview-failed");
-      window.alert(`The stroke was canceled; your previous drawing is preserved. ${error instanceof Error ? error.message : ""}`);
+      setWorkspaceNotice("That stroke was stopped. Your drawing is safe — please draw it again.");
     }
   };
 
@@ -4725,7 +4730,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       if (canvas) attachBitmapPaintCoverage(canvas, draft.baseCoverage);
       hasPendingAuthoringChangesRef.current = false;
       authoringDirtyRectRef.current = null;
-      window.alert(`The stroke could not be committed. Your previous drawing is preserved. ${error instanceof Error ? error.message : ""}`);
+      setWorkspaceNotice("That stroke didn't stick. Your drawing is safe — please draw it again.");
     }
     preparedRasterCommandRef.current = null;
     if (canvas?.hasPointerCapture(e.pointerId)) canvas.releasePointerCapture(e.pointerId);
@@ -7874,7 +7879,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       ctx.putImageData(rollbackImage, 0, 0);
       attachBitmapPaintCoverage(canvas, rollbackCoverage);
       markAuthoringChangesCommitted();
-      window.alert("The fill could not be committed. Your drawing is preserved; retry the fill.");
+      setWorkspaceNotice("That fill didn't stick. Your drawing is safe — please fill again.");
     } finally {
       preparedFillSnapshotRef.current = null;
     }
@@ -9396,11 +9401,15 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     setCameraPan(DEFAULT_CAMERA_PAN);
   };
 
+  // SPEC-0020 Phase 7: browser pop-ups are blocked in some windows (e.g. the Claude app), so Clear Canvas asks
+  // in an in-app box instead of window.confirm.
+  const [clearCanvasConfirmOpen, setClearCanvasConfirmOpen] = useState(false);
+  const requestClearCanvas = () => setClearCanvasConfirmOpen(true);
   const clearCanvasContent = () => {
+    setClearCanvasConfirmOpen(false);
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
-    if (!window.confirm("Clear the current canvas? This will remove the visible artwork on this canvas.")) return;
     const owner = currentRasterContextRef.current;
     requireManualEditorCommand("clear-canvas", "DrawingWorkspace.commitCanvasAuthoringAction");
     if (!authorizeDestructiveCommand({ commandId: "clear-canvas", targetIds: [owner], availableTargetIds: [owner], confirmed: true }).allowed) return;
@@ -10006,7 +10015,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
           <div style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "flex-start" }}>
             <button
               type="button"
-              onClick={clearCanvasContent}
+              onClick={requestClearCanvas}
               style={{
                 width: 168,
                 padding: "9px 12px",
@@ -11726,6 +11735,36 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
             </button>
           </div>
         </form>
+      </div>
+    )}
+    {clearCanvasConfirmOpen && (
+      <div
+        role="presentation"
+        onPointerDown={(event) => { if (event.target === event.currentTarget) setClearCanvasConfirmOpen(false); }}
+        onKeyDown={(event) => { if (event.key === "Escape") setClearCanvasConfirmOpen(false); }}
+        style={{ position: "fixed", inset: 0, zIndex: 1200, display: "flex", alignItems: "center", justifyContent: "center", padding: 20, background: "rgba(3, 9, 20, 0.72)" }}
+      >
+        <div
+          role="alertdialog"
+          aria-modal="true"
+          aria-labelledby="clear-canvas-dialog-title"
+          style={{ width: "min(400px, 100%)", display: "flex", flexDirection: "column", gap: 16, padding: 24, borderRadius: 16, border: "1px solid var(--da-line, #163058)", background: "var(--da-panel, #071120)", boxShadow: "0 18px 44px rgba(0,0,0,0.45)", color: "var(--da-text, #f6f9ff)" }}
+        >
+          <div>
+            <h2 id="clear-canvas-dialog-title" style={{ margin: 0, fontSize: 20, fontWeight: 600 }}>Clear this frame?</h2>
+            <p style={{ margin: "7px 0 0", color: "var(--da-muted, #8fabd0)", fontSize: 13 }}>Everything drawn on this frame of this layer will be erased. You can bring it back with Undo.</p>
+          </div>
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
+            <button type="button" autoFocus onClick={() => setClearCanvasConfirmOpen(false)}
+              style={{ minWidth: 88, minHeight: 40, borderRadius: 10, border: "1px solid var(--da-border, #244267)", background: "var(--da-panel, #071120)", color: "var(--da-text-2, #c9d6ea)", cursor: "pointer" }}>
+              Cancel
+            </button>
+            <button type="button" data-hover="danger" onClick={clearCanvasContent}
+              style={{ minWidth: 88, minHeight: 40, borderRadius: 10, border: "1px solid var(--da-danger-solid, #d23a52)", background: "transparent", color: "var(--da-danger-solid, #d23a52)", cursor: "pointer", fontWeight: 700 }}>
+              Clear frame
+            </button>
+          </div>
+        </div>
       </div>
     )}
     {workspaceNotice && (

@@ -758,7 +758,10 @@ export function DrawingTimelineRow({
   const [resizeState, setResizeState] = useState<TimelineResizeState | null>(null);
   const [panelResizeState, setPanelResizeState] = useState<TimelinePanelResizeState | null>(null);
   const [timelineRowsHeight, setTimelineRowsHeight] = useState(TIMELINE_MIN_PANEL_ROWS_HEIGHT);
-  const previousLayerCountRef = useRef(layers.length);
+  // SPEC-0020 Phase 7 (Arthur's "empty layer disappears after reopening"): the layer was never lost — a reopened
+  // project started with the timeline folded to one row, which only shows the active layer. Starting the count
+  // at 1 makes a project that opens with 2+ layers unfold to show them, the same as adding a layer does.
+  const previousLayerCountRef = useRef(1);
   const rowsViewportRef = useRef<HTMLDivElement | null>(null);
   const frameLaneViewportRef = useRef<HTMLDivElement | null>(null);
 

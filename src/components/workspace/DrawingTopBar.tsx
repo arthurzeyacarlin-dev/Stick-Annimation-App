@@ -133,8 +133,14 @@ export function DrawingTopBar({
       }
     };
 
+    // SPEC-0020 Phase 7: Escape closes the File menu too (it only closed the other menus).
+    const handleKeyDown = (event: KeyboardEvent) => { if (event.key === "Escape") setIsFileMenuOpen(false); };
     document.addEventListener("pointerdown", handlePointerDown);
-    return () => document.removeEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown, true);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown, true);
+    };
   }, [isFileMenuOpen]);
 
   useEffect(() => {
@@ -144,10 +150,10 @@ export function DrawingTopBar({
     };
     const handleKeyDown = (event: KeyboardEvent) => { if (event.key === "Escape") setOpenMenu(null); };
     document.addEventListener("pointerdown", handlePointerDown);
-    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown, true);
     return () => {
       document.removeEventListener("pointerdown", handlePointerDown);
-      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("keydown", handleKeyDown, true);
     };
   }, [openMenu]);
 

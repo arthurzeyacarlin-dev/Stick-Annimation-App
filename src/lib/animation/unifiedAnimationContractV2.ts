@@ -104,6 +104,9 @@ export type UnifiedAnimationProjectV2 = {
   auxiliary?: {
     drawingAiMemory: unknown | null;
     stickAiCreationLatch: StickAiCreationLatchV1 | null;
+    /** SPEC-0020 Phase 7: layers hidden with the editor's eye button (document layerIds). Editor-only:
+     *  export and thumbnails still show every layer. Absent = nothing hidden. */
+    editorHiddenLayerIds?: string[];
     rigRetirementReceipt?: {
       version: 3;
       rendererVersion: "legacy-rig-raster/v1";

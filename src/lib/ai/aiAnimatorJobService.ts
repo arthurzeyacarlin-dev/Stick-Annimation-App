@@ -13,6 +13,12 @@ import {
   noUsageEventRecorder, projectAcceptedEvent, projectTerminalEvent, type UsageEventRecorder,
 } from "../usage-journal/usageJournalEvents.ts";
 import { accountAiCreditGate, type AiCreditGate } from "../account/aiCredits.ts";
+import { claudeChat } from "../animator/claude/claudeChat.ts";
+import { claudeAnimate, CLAUDE_ANIMATOR_MODEL, ClaudeBudgetError } from "../animator/claude/claudeAnimator.ts";
+
+// SPEC-0021 Phase 5: AI_ANIMATOR_ENGINE=claude → Claude is the chat brain AND the animator (Luna's path stays as it was).
+const CLAUDE_ENGINE = () => process.env.AI_ANIMATOR_ENGINE === "claude";
+const CLAUDE_DEADLINE_MS = 240_000;
 
 type Provider = (request: AiAnimatorRequest, options: { signal: AbortSignal }) => Promise<AiAnimatorProviderResult>;
 type InternalJob = AiAnimatorJobSnapshot & { ownerId: string; abortController: AbortController };
@@ -94,7 +100,7 @@ export class AiAnimatorJobService {
     };
     this.jobs.set(job.jobId, job);
     this.meter(projectAcceptedEvent(request, Date.parse(now)));
-    void this.run(job, request);
+    void (CLAUDE_ENGINE() ? this.runClaude(job, request) : this.run(job, request));
     return publicSnapshot(job);
   }
 
@@ -130,6 +136,65 @@ export class AiAnimatorJobService {
     job.status = nextEvent.status;
     job.lastSequence = nextEvent.sequence;
     job.updatedAt = createdAt;
+  }
+
+  // SPEC-0021 Phase 5 — THE CLAUDE ENGINE: Claude reads the message (talk / make / edit / ask); to make or edit, Claude's animator
+  // writes the plan, the laws check it, Claude fixes what broke; the plan rides on the "done" event and the workspace places it.
+  // Nothing broken is ever placed: a plan that still breaks a law is refused, said in plain words, and no animation changes.
+  // MEMORY: the project's current animation (its plan) is kept here, so an edit changes only what was asked.
+  private readonly currentPlans = new Map<string, Record<string, unknown>>();
+  private async runClaude(job: InternalJob, request: AiAnimatorRequest) {
+    const timeout = setTimeout(() => job.abortController.abort(), CLAUDE_DEADLINE_MS);
+    const startedAt = Date.now();
+    try {
+      const memoryKey = `${job.ownerId}:${job.projectId}`;
+      const current = this.currentPlans.get(memoryKey) ?? null;
+      const chat = await claudeChat(request.message, request.recentConversation, !!current, job.abortController.signal);
+      if (isAiAnimatorTerminalStatus(job.status)) return;
+      let reply = chat.reply, usd = chat.usage.usd, inputTokens = chat.usage.inputTokens, outputTokens = chat.usage.outputTokens;
+      let animation: AiAnimatorJobEvent["animation"];
+      if (reply.intent === "create-animation" || reply.intent === "edit-animation") {
+        this.append(job, { status: "planning" });
+        const edit = reply.intent === "edit-animation" && !!current;
+        const convo = request.recentConversation.slice(-6).map((m) => `${m.role === "assistant" ? "AI" : "User"}: ${m.content.slice(0, 400)}`).join("\n");
+        const made = await claudeAnimate(request.message, { current: edit ? current : null, conversation: convo, signal: job.abortController.signal });
+        if (isAiAnimatorTerminalStatus(job.status)) return;
+        usd += made.usage.usd; inputTokens += made.usage.inputTokens; outputTokens += made.usage.outputTokens;
+        if (made.ok && made.plan) {
+          this.currentPlans.set(memoryKey, made.plan);
+          animation = { plan: made.plan, title: made.title, edit, rounds: made.rounds, costUsd: +made.usage.usd.toFixed(4) };
+          reply = { ...reply, reply: `${reply.reply}\n\n${edit ? "Changed" : "Added"}: "${made.title}" is on your canvas (passed every animation law). Ctrl+Z undoes it.` };
+        } else {
+          const why = made.problems.slice(0, 2).map((x) => x.replace(/^(LAW \w+|ENGINE): /, "")).join(" ");
+          reply = { ...reply, reply: `${reply.reply}\n\nI couldn't make this one without breaking an animation rule, so nothing was added (I never put a broken animation on your canvas). What went wrong: ${why} Try a simpler or different wording.` };
+        }
+      }
+      const usage = { inputTokens, outputTokens, totalTokens: inputTokens + outputTokens, estimatedCostUsd: +usd.toFixed(4) };
+      const latencyMs = Date.now() - startedAt;
+      this.append(job, {
+        status: "done", reply,
+        provider: { requestedModel: CLAUDE_ANIMATOR_MODEL, providerModel: CLAUDE_ANIMATOR_MODEL, responseId: null, usage, latencyMs, promptDigest: promptDigest(request.message) },
+        ...(animation ? { animation } : {}),
+      });
+      job.intent = reply.intent;
+      job.completedAt = job.updatedAt;
+      job.telemetry = { ...job.telemetry, outcome: "succeeded", latencyMs, promptDigest: promptDigest(request.message), usage };
+      this.meter(projectTerminalEvent(request, "succeeded", Date.parse(job.completedAt)));
+      try { this.credits.spend(job.ownerId, job.jobId); } catch { /* The answer is already shown; a failed count must not break it. */ }
+    } catch (error) {
+      if (isAiAnimatorTerminalStatus(job.status)) return;
+      const wasAborted = job.abortController.signal.aborted;
+      this.append(job, {
+        status: "failed",
+        errorCode: wasAborted ? "deadline_exceeded" : error instanceof ClaudeBudgetError ? "budget" : "provider_failed",
+        errorMessage: wasAborted ? "The AI Animator did not finish within 4 minutes. No animation changed. You can try again." : `${error instanceof Error ? error.message : "The AI Animator could not complete the request."}${error instanceof ClaudeBudgetError ? "" : " No animation changed."}`,
+      });
+      job.completedAt = job.updatedAt;
+      job.telemetry = { ...job.telemetry, outcome: "failed", latencyMs: Date.now() - startedAt };
+      this.meter(projectTerminalEvent(request, wasAborted ? "timeout" : "failed", Date.parse(job.completedAt)));
+    } finally {
+      clearTimeout(timeout);
+    }
   }
 
   private async run(job: InternalJob, request: AiAnimatorRequest) {

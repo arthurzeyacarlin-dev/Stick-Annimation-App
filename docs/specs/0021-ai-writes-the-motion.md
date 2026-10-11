@@ -327,3 +327,22 @@ Next (on Arthur's go): fix those four engine gaps (each one rescues many prompts
   and gate scene 7's pan still jumps 64 px (the pan is not drawn by that recipe).
 - NOT DONE: sitting from the side (walk to the seat's FRONT, turn, sit back).
 Gate 9/10 (unchanged), tsc clean.
+
+### PHASE 5 round 1 — the app's AI Animator runs on Claude (Sun 21:57–22:25, PM2, Arthur asleep: "you're in charge")
+
+App copy `diamond-review/claude-app` (git worktree, branch `claude/spec0021-phase5-app` = main 5f8190d + the engine branch merged;
+dev server "claude-app-phase5" on http://127.0.0.1:58672; `.local` copied from main like PM3's app copies; this chat's key unset so
+the app's .env.local key is used; AI_ANIMATOR_ENGINE=claude; the $20 cap shared with the harness spend file).
+Before this, main's AI Animator chat could NOT make animations ("creation and editing arrive in later phases"); now:
+- `src/lib/animator/claude/claudeChat.ts` — Claude is the chat brain (talk / make / edit / ask one question).
+- `src/lib/animator/claude/claudeAnimator.ts` — the passed loop in the app: Claude writes version 1's plan → engine → THE LAWS →
+  Claude fixes ≤ 3 → placed only if every law passes; else an honest refusal in plain words, nothing added. EDITS: the project's
+  current plan is remembered on the server; Claude changes only what was asked.
+- `aiAnimatorJobService.ts` runClaude (Luna's `run` untouched behind the switch); the plan rides on the job's "done" event.
+- `DrawingAiPanel.tsx` places a finished job's animation ONCE (the Moves panel's own placement: symbols, effects, backgrounds,
+  camera), replacing the AI chat's current animation (its "AI: <title>…" layers) in one Undo step — never two stacked.
+Checked in the real app copy with a local test account: make (walk + wave) ✔, edit "make him green" ✔ (one figure, replaced),
+"red", "blue" ✔, Ctrl+Z / redo ✔, complex "two knights sword fight in the rain, blue wins" ✔ (background, rain, wind, swords),
+a new request replaces all 4 knight layers ✔. 11 Claude calls ≈ $0.37 (≈ 7¢ a request). tsc + lint clean.
+KNOWN: after Ctrl+Z, Claude's memory is still the newer version (the next edit starts from it); memory lives in the dev server
+(a restart forgets it); no "look at the pictures" step in the app yet (laws only); Phase 4's 17/20 bar still open.

@@ -68,7 +68,7 @@ export type AiAnimatorUsage = {
 
 export type AiAnimatorProviderResult = {
   reply: AiAnimatorStructuredReply;
-  requestedModel: typeof AI_ANIMATOR_MODEL;
+  requestedModel: string; // (Luna's model name, or Claude's with SPEC-0021 Phase 5)
   providerModel: string;
   responseId: string | null;
   usage: AiAnimatorUsage;
@@ -95,6 +95,8 @@ export type AiAnimatorJobEvent = {
   errorCode?: string;
   errorMessage?: string;
   provider?: Omit<AiAnimatorProviderResult, "reply">;
+  // (SPEC-0021 Phase 5: Claude made or edited an animation — the workspace places this plan on the canvas; an edit replaces the last one.)
+  animation?: { plan: Record<string, unknown>; title: string; edit: boolean; rounds: number; costUsd: number };
 };
 
 export type AiAnimatorJobSnapshot = {

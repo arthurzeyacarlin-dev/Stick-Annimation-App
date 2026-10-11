@@ -8911,7 +8911,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
   // exactly where the user drew — and goes either on a new layer starting at `place.frameIndex` (empty cells
   // before it), or REPLACES `place.count` frames of `place.layerId` from `place.frameIndex` (later frames move
   // to after the inserted ones). Still one Undo. Without `place` everything is exactly as before.)
-  const placeAnimatorScene = useCallback((source: SceneForPage, place: AnimatorScenePlacement | null) => {
+  const placeAnimatorScene = useCallback((source: SceneForPage, place: AnimatorScenePlacement | null, removeLayerIds: readonly string[] = []) => {
     if (isTimelinePlayingRef.current || isApplyingGeneratedFramesRef.current) return false;
     if (place?.mode === "replace" && !getLayerById(layersRef.current, place.layerId)) return false;
     saveCurrentFrameSnapshot(currentFrameIndexRef.current, activeLayerIdRef.current, {
@@ -9074,7 +9074,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         ...(replaceLayer ? [] : [{ id: layerId, name: `AI: ${scene.title}`, orderIndex: 0, timelineFrames: frames }]),
         ...movingTimelines.map((timeline, k) => ({ id: timeline.id, name: `AI: ${scene.title} ${movingBackground?.layers[k].name ?? "moving background"}`, orderIndex: 1, timelineFrames: timeline.timelineFrames })),
         ...(backgroundFrames && backgroundLayerId ? [{ id: backgroundLayerId, name: `AI: ${scene.title} background`, orderIndex: 1, timelineFrames: backgroundFrames }] : []),
-        ...(replaceLayer ? layersRef.current.map((layer) => layer.id === replaceLayer.id ? { ...layer, timelineFrames: frames } : layer) : layersRef.current),
+        // (SPEC-0021 Phase 5: an AI chat EDIT drops the previous AI animation's layers in this same Undo step)
+        ...(replaceLayer ? layersRef.current.map((layer) => layer.id === replaceLayer.id ? { ...layer, timelineFrames: frames } : layer) : layersRef.current.filter((layer) => !removeLayerIds.includes(layer.id))),
       ]);
       layersRef.current = nextLayers;
       setLayers(nextLayers);
@@ -9111,7 +9112,14 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       isApplyingGeneratedFramesRef.current = false;
     }
   }, [commitCurrentHistoryState, ensureTimelineLength, recordUndoSnapshot, renderWorkspaceCanvases, saveCurrentFrameSnapshot, symbolImageCache, timelineFps]);
-  const applyAnimatorScene = useCallback((source: SceneForPage) => placeAnimatorScene(source, null), [placeAnimatorScene]);
+  // (SPEC-0021 Phase 5: an AI chat EDIT replaces the previous AI animation — its layers are the ones named "AI: <its title>…" —
+  // in the same Undo step, instead of adding a copy on top)
+  const applyAnimatorScene = useCallback((source: SceneForPage, options?: { aiChat?: boolean; replaceTitle?: string | null }) => {
+    if (!options?.aiChat || !options.replaceTitle) return placeAnimatorScene(source, null);
+    const name = `AI: ${options.replaceTitle}`;
+    const remove = layersRef.current.filter((layer) => layer.name === name || layer.name.startsWith(`${name} `)).map((layer) => layer.id);
+    return placeAnimatorScene(source, null, remove);
+  }, [placeAnimatorScene]);
   // SPEC-0017 "50-50": page → drawing-canvas pixels (the same map applyAnimatorScene draws with).
   const enginePageMap = useCallback((): PageToCanvasMap | null => {
     const layout = drawingCanvasRef.current?.getPlaybackSurfaceLayout() ?? null;

@@ -66,7 +66,7 @@ type DrawingAiPanelProps = {
   onProjectAiMemoryChange?: (memory: DrawingAiProjectMemory | null) => void;
   onApplyGeneratedFrame?: (result: GeneratedFrameRenderResult, source: { prompt: string; response: string }) => Promise<boolean> | boolean;
   onExecuteActionPlan?: (actionPlan: NonNullable<DrawingAiActionPlan>) => Promise<boolean> | boolean;
-  onApplyAnimatorScene?: (scene: SceneForPage) => boolean;
+  onApplyAnimatorScene?: (scene: SceneForPage, options?: { aiChat?: boolean; replaceTitle?: string | null }) => boolean;
   engineDrawing?: EngineDrawingBridge;
   readOnly?: boolean;
 };
@@ -188,6 +188,11 @@ export function DrawingAiPanel({
   const observedWorkspaceRef = useRef({ projectId, projectGeneration });
   const pendingRevealMessageIdsRef = useRef(new Set<string>());
   const knownMessageIdsRef = useRef(new Set(ledger.messages.map(message => message.id)));
+  // (SPEC-0021 Phase 5: the AI chat's animations are placed ONCE — jobs already finished when the saved history loads count as
+  // placed, so a reload never adds an old animation again.)
+  const placedAnimationJobsRef = useRef<Set<string> | null>(null);
+  const lastAnimationTitleRef = useRef<string | null>(null); // (the AI chat's current animation: an edit replaces it)
+  const ledgerLoadedRef = useRef(false);
   const submittedThinkingStartedAtRef = useRef(new Map<string, number>());
   const presentationTimersRef = useRef(new Map<string, ReturnType<typeof setTimeout>>());
   const [navigationTarget, setNavigationTarget] = useState<Extract<NotificationTargetV1, { kind: "workspace-terra-turn" }> | null>(() => {
@@ -208,9 +213,12 @@ export function DrawingAiPanel({
     const initial = createEmptyAiAnimatorLedger(projectId);
     knownMessageIdsRef.current = new Set();
     setReasoningLevel("medium"); setInputValue(""); setRequestError(null); setLedger(initial);
+    placedAnimationJobsRef.current = null; ledgerLoadedRef.current = false; lastAnimationTitleRef.current = null;
     void readAccountAiAnimatorLedger(projectId).then(result => {
       if (cancelled) return;
       knownMessageIdsRef.current = new Set(result.ledger.messages.map(message => message.id));
+      placedAnimationJobsRef.current = new Set(result.ledger.jobs.map(job => job.jobId)); ledgerLoadedRef.current = true;
+      lastAnimationTitleRef.current = [...result.ledger.jobs].reverse().flatMap(job => [...job.events].reverse()).find(event => event.animation)?.animation?.title ?? null;
       setLedger(result.ledger);
     }).catch(() => { if (!cancelled) setRequestError("Saved AI Animator history is temporarily unavailable."); });
     const unsubscribe = subscribeAccountAiAnimatorLedger(projectId, next => {
@@ -255,6 +263,22 @@ export function DrawingAiPanel({
     });
     return () => { cancelled = true; unsubscribe(); };
   }, [projectId]);
+
+  // SPEC-0021 Phase 5 — CLAUDE'S ANIMATION GOES ON THE CANVAS: a finished AI Animator job that carries an animation (a plan that
+  // passed every law) is placed with the same engine the Moves panel uses; it REPLACES the AI chat's current animation (an edit, or a
+  // new request — never two stacked on top of each other: what Claude remembers is what the canvas shows) in one Undo step.
+  useEffect(() => {
+    if (!onApplyAnimatorScene || !ledgerLoadedRef.current || !placedAnimationJobsRef.current) return;
+    for (const job of ledger.jobs) {
+      if (job.status !== "done" || placedAnimationJobsRef.current.has(job.jobId)) continue;
+      placedAnimationJobsRef.current.add(job.jobId);
+      const animation = [...job.events].reverse().find(event => event.animation)?.animation;
+      if (!animation?.plan) continue;
+      const placed = onApplyAnimatorScene((page) => makeEffectsTestScene(animation.plan as unknown as Parameters<typeof makeEffectsTestScene>[0], page.stageWidth), { aiChat: true, replaceTitle: lastAnimationTitleRef.current });
+      if (placed) lastAnimationTitleRef.current = animation.title;
+      else setRequestError("The animation is ready, but the canvas was busy (playing or drawing). Stop playback and ask again.");
+    }
+  }, [ledger.jobs, onApplyAnimatorScene]);
 
   useEffect(() => () => {
     for (const timer of presentationTimersRef.current.values()) clearTimeout(timer);

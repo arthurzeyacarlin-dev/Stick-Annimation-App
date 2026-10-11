@@ -1850,6 +1850,17 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Publication: product commit `44eae38` fast-forwarded into main and pushed, followed by this records commit.
 - Next: SPEC-0020 Phase 5 (online and launch rehearsal).
 
+### D-PM2-0021 — SPEC-0021 "The AI writes the motion": restarted in a new copy; Phases 1–3 passed (PM2; number assigned when merged to main)
+
+- Date: 2026-10-11
+- Decided with Arthur's dad (~16:30): the AI becomes the animator — writes the motion sheet, the engine builds it, the laws check it, the AI looks at the pictures and fixes only what broke (≤ 3 rounds) or refuses. Claude API first ($20 test budget approved by dad); Blender route dropped; cost goal 1–30¢ per animation, falling over time.
+- Arthur (18:35): the first copy (diamond-review/diamond-engine, SPEC-0019 v2) REJECTED — half Luna, half Claude, its later layers made motion worse. Restarted in branch `claude/spec0021-claude-animator` from main aa2e907 = version 1's Oct 7 engine (SPEC-0017 Phase 2/2C) + the published app. The motion sheet = version 1's plan format.
+- Carried over as checkers / human-pace fixes only: `src/lib/animator/laws/measure.ts` (+ `laws/propBox.ts`, `things.ts`, `moves/timing.ts`); human-speed `highFive.ts` / `celebrate.ts`; Phase 3 move fixes (`jump.ts` happy arms, `swordMoves.ts` swordStep ≥ 0.6 s).
+- Arthur passed Phase 1 (18:50: version 1's engine + laws, 5 hand-written plans), Phase 2 (19:05: 5 animations Claude made by itself, "the animations looked natural"), Phase 3 (19:30: fixed moves, Claude remade the refused ones — fire wizard, jumps). Claude spend $4.77 of $20 (upper-estimate prices).
+- The Claude loop runs in the review harness (outside the repo); it is not wired into the app yet (SPEC-0021 Phase 6, with PM3).
+- Phase 4 (complex scenes), Sun evening: Claude's guide gained version 1's effects, backgrounds, camera cuts and 12 passed scenes; round 1 6/11 and round 2 8/20 complex prompts passed and Arthur passed every one shown (rain + lightning, sword fights in the rain, a cut to a waterfall, grenade + screen shake, explosions with text, fire vs water shield, ice vs laser, three knights, smoke…). Engine additions (all reviewed by Arthur): waiting figures breathe (moves/idleLife.ts — nobody freezes); THINGS THE WORLD DOES BY ITSELF (moves/autoEffects.ts): sword blocks spark ON THE BLADE near the tip, a thing beside an explosion breaks into its real parts (effects/explosion.ts thingBreak: a car's wheels, front, back, doors, roof, glass); water shield rise under the speed law. Phase 3's sword-step change reverted (it broke version 1's sword-fight tests). Tests: explosion, weapon fight, camera, jump 63/63; tsc clean; every animation Arthur passed still passes every law. Claude spend $14.85 of the $20 cap.
+- Phase 4 is NOT done: the bar is 17 of 20 new complex prompts (last round 8/20). Next: fix the 12 causes, zoom in / out, the look checks who wins, cheaper hard scenes — needs dad's own OK to raise the $20 budget.
+
 ### D-0189 — SPEC-0020 re-planned; Phase 5 (Projects and Export) accepted and published (PM3)
 
 - Date: 2026-10-11

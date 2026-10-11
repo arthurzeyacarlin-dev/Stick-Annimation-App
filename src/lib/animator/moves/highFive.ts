@@ -1,6 +1,7 @@
 import { clampPose, DEFAULT_STYLE, PROPORTIONS, STAND, withPose, type PoseAngles, type Point } from "../rig.ts";
 import { beatSeconds, windUp, type MoveOutput, type MoveSettings, type Stance } from "./motion.ts";
 import { lookToward, type LookTarget } from "./gaze.ts";
+import { TIMING } from "./timing.ts";
 import {
   actionSecondsFor, actionThrough, armReach, atLeast, blendArm, feetOf, worldArm, isRobot, pathLength, placedBeatsToKeys, plantedLegs, powerOf, recoverBeats, ROBOT_WINDUP, STAND_HIP, unitBody,
   windKind, windupSecondsFor, type Feet, type PlacedBeat, type WorldArm,
@@ -46,6 +47,9 @@ import {
 // frame their lines stay at least `touchGap` apart (`limbDistance`) and never cross (`limbsCross`).
 
 // How far apart (px) two limb-end points are when their round drawn ends just touch.
+// THE SLAPPING HAND (Phase C2): the move raises and slaps with the LEFT arm (`lShoulder`/`lElbow` below); the other arm hangs. Anything
+// that joins a high five (script/compile.ts's partner contact) uses this same side — never the other hand.
+export const SLAP_HAND = "lHand" as const;
 export const touchGap = (thicknessA: number, thicknessB = thicknessA) => (thicknessA + thicknessB) / 2;
 
 const side = (o: Point, a: Point, b: Point) => (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
@@ -302,9 +306,13 @@ function windupPoses(plan: ReturnType<typeof windupPlan>) {
 // base time and the swing 0.2 s: about two and a half walking steps before the hands met.)
 const WALK_STEP_SECONDS = 0.52;
 const WINDUP_SECONDS = WALK_STEP_SECONDS;
-const SLAP_SECONDS = 0.11;
-// After the slap, the bounce apart and the arm going back down the way it came up (base seconds).
-const AFTER_SECONDS = { bounce: 0.12, over: 0.13, back: 0.12, fold: 0.13, robotBounce: 0.08 } as const;
+// HUMAN PACE (Phase C3, Arthur Sun 12:55: "Red high fives HYPERSONICALLY — like Sonic"): the swing and the follow-through come from
+// the timing card (moves/timing.ts TIMING.highFive): the swing ≈ 0.25 s (was 0.11 s: the hand crossed a whole arm's length in two
+// pictures), the follow-through ≈ 0.3 s, the arm comes down eased ≈ 0.45 s (was 0.5 s for all four after-beats together).
+const SLAP_SECONDS = TIMING.highFive.swing;
+// After the slap, the bounce apart and the arm going back down the way it came up (base seconds): bounce + over = the follow-through,
+// back + fold = the arms coming down.
+const AFTER_SECONDS = { bounce: TIMING.highFive.follow / 2, over: TIMING.highFive.follow / 2, back: TIMING.highFive.armsDown / 2, fold: TIMING.highFive.armsDown / 2, robotBounce: 0.1 } as const;
 const STEP_BACK_SECONDS = 0.55; // only when nothing follows: the foot steps back, stand
 const ROBOT_STOP = 0.1; // a robot's dead stop at the top of its wind-up (base seconds; its walk holds 0.1 s too)
 // How hard the slap is: the mood's power (energy x style, punch.ts powerOf: natural 1, happy a bit
@@ -327,8 +335,13 @@ function slapTiming(plan: ReturnType<typeof windupPlan>, settings: MoveSettings)
   const strike = pathLength(plan.cocked, plan.slap, "lHand");
   // (A harder slap swings faster: the same swing in less time, never faster than the speed limit.)
   const slap = beatSeconds("action", actionSecondsFor(SLAP_SECONDS / Math.sqrt(plan.hard), strike, settings), settings);
-  const windBase = WINDUP_SECONDS * k;
-  const wind = beatSeconds(kind, windupSecondsFor(windBase, windupParts(plan).reduce((a, b) => a + b, 0), strike, slap, settings, kind, 3), settings);
+  // (Phase C3: the wind-up is the timing card's step-in + wind-up — a fixed human pace — not "N x the swing": with the swing at a
+  // human 0.25 s, the old "wind-up slower than the strike" rule stretched the wind-up to 1.5 s.)
+  // (the card's step-in + wind-up, but never quicker than the swing's own pace over the wind-up's longer path — so a soft, low-energy
+  // slap never has a wind-up that outruns its swing;
+  // a robot too: its swing is 0.25 s now, so the old "N x the strike" robot rule would stretch its wind-up past 1.3 s)
+  void windupSecondsFor; void WINDUP_SECONDS;
+  const wind = Math.max(beatSeconds(kind, (TIMING.highFive.stepIn + TIMING.highFive.windUp) * k, settings), (slap * windupParts(plan).reduce((a, b) => a + b, 0) / Math.max(1e-6, strike)) * (isRobot(settings) ? 1.3 : 1.1));
   return { slap, wind, kind };
 }
 function timingFor(partner: number, short: Short, settings: MoveSettings) {
@@ -372,23 +385,26 @@ export function highFive(start: Stance, params: HighFiveParams, settings: MoveSe
   // rocks back a little (the FLOW pose). Touching limbs always come apart first, so even a robot (no
   // follow-through) pulls its hand back before the arm comes down.
   const slapBend = ((slap.lElbow % 360) + 540) % 360 - 180; // the slap's bend as it looks (-180..180)
+  // NO FLINCH (night round M7, Oct 10: "the partner reacts as if hit"): a high five is a meeting, not a hit — after the slap the
+  // hips STAY where they stood (the old bounce rocked them 0.02–0.03 x height back, read as being knocked); only the hand
+  // comes off the other's and both lower their arms, then step back to the stand.
   // (A harder slap bounces further apart.)
   // (A robot's straight arm just tips back, still straight; a happy one pops further apart.)
-  const bounce = lookToward(plantedLegs(withPose(slap, { lShoulder: slap.lShoulder + 10 * hard * mood.bounce, lElbow: slap.lElbow + (mood.straight ? 0 : Math.min(28 * hard * mood.bounce, 150 - slapBend)), lean: 2 + mood.hunch, head: -8 }), legs, step - 0.02, dropFor(legs, step - 0.02)), handsLook);
+  const bounce = lookToward(plantedLegs(withPose(slap, { lShoulder: slap.lShoulder + 10 * hard * mood.bounce, lElbow: slap.lElbow + (mood.straight ? 0 : Math.min(28 * hard * mood.bounce, 150 - slapBend)), lean: 2 + mood.hunch, head: -8 }), legs, step, dropFor(legs, step)), handsLook);
   // Back down the way it came up (never on round in a whole circle): the elbow back up behind the head
   // -> the elbow back, the hand by the back of the head -> the hand down past the ear to the chest (the
   // FLOW pose) — so on the way down the hand stays close to the body and never swings out toward the
   // partner.
   const otherDown = mood === MOODS.natural ? { upper: worldArm(slap, "r").upper * 0.5, fore: worldArm(slap, "r").upper * 0.5 + 20 } : mood.otherArm;
   const lowered = (a: WorldArm, at: number) => lookToward(plantedLegs(armAcross(armAcross(withPose(slap, { lean: 1 + mood.hunch, head: -2 }), a), otherDown, "r"), legs, at, dropFor(legs, at)), partnerLook);
-  const over = lowered(mood.arms.after, step - 0.025), back = lowered(mood.arms.back, step - 0.03);
-  const fold = lowered(mood.arms.fold, step - 0.03);
+  const over = lowered(mood.arms.after, step), back = lowered(mood.arms.back, step);
+  const fold = lowered(mood.arms.fold, step);
 
   // A robot winds up too, just shorter and at an even speed.
   const timing = timingFor(partner, short, settings);
   const kind = timing.kind;
   const up = params.handOver === "up";
-  const recover = recoverBeats({ pose: fold, at: step - 0.03 }, legs, STAND, STEP_BACK_SECONDS);
+  const recover = recoverBeats({ pose: fold, at: step }, legs, STAND, STEP_BACK_SECONDS);
   recover[recover.length - 1].name = "back";
   const beats: PlacedBeat[] = [
     { kind, pose: ready, seconds: timing.wind[0], at: -0.01, name: "ready" },
@@ -402,11 +418,11 @@ export function highFive(start: Stance, params: HighFiveParams, settings: MoveSe
     // The palms press together, stopped dead against each other (the slap is the middle of the press).
     { kind: "hold", pose: slap, seconds: timing.press / 2, at: step, name: "slap" },
     { kind: "hold", pose: slap, seconds: timing.press / 2, at: step },
-    { kind: isRobot(settings) ? "settle" : "follow", pose: bounce, seconds: isRobot(settings) ? AFTER_SECONDS.robotBounce : AFTER_SECONDS.bounce, at: step - 0.02 },
+    { kind: isRobot(settings) ? "settle" : "follow", pose: bounce, seconds: isRobot(settings) ? AFTER_SECONDS.robotBounce : AFTER_SECONDS.bounce, at: step },
     // (ONE WAY ROUND: handing over with the arm up, the way back down is only for when nothing follows.)
-    { kind: "settle", pose: over, seconds: AFTER_SECONDS.over, at: step - 0.025, recover: up || undefined },
-    { kind: "settle", pose: back, seconds: AFTER_SECONDS.back, at: step - 0.03, recover: up || undefined },
-    { kind: "settle", pose: fold, seconds: AFTER_SECONDS.fold, at: step - 0.03, recover: up || undefined },
+    { kind: "settle", pose: over, seconds: AFTER_SECONDS.over, at: step, recover: up || undefined },
+    { kind: "settle", pose: back, seconds: AFTER_SECONDS.back, at: step, recover: up || undefined },
+    { kind: "settle", pose: fold, seconds: AFTER_SECONDS.fold, at: step, recover: up || undefined },
     ...recover,
   ];
   // (ONE WAY ROUND: a hand-over that would still turn the arm too far in one second waits there a moment.)

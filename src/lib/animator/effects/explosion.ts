@@ -840,7 +840,62 @@ const crateBreak: EffectRecipe = {
   },
 };
 
-export const RECIPES: EffectRecipe[] = [explosion, grenade, militaryCap, crateBreak];
+// THING BREAK (SPEC-0021, Arthur: "when the car explodes I want to see the car pieces — the wheels, the front, the back, actual car
+// pieces, not a bunch of rectangles"): any thing next to a blast breaks apart like the crate — the same throw (crateBreakPiece: away
+// from the blast and up, spinning, clattering, settling flat). A VEHICLE breaks into its REAL PARTS: the front (hood, fender and a
+// yellow headlight), the back (trunk and a red taillight), the roof with its window, two doors (window and handle), two bumpers,
+// both wheels (tyre, grey hub, spokes that show the spin) and glass shards. Anything else: panels in its colour. `size` x height.
+type PartKind = "front" | "back" | "roof" | "door" | "bumper" | "wheel" | "glass" | "panel";
+type Part = CratePiece & { kind: PartKind };
+function carParts(at: Point, s: number): Part[] {
+  const W = 2.2 * s, G = at.y, out: Part[] = [];
+  const add = (kind: PartKind, x: number, y: number, len: number, thick: number, rot = 0) => out.push({ kind, x: at.x + x, y: G - y, len, thick, rot, chip: kind === "glass" });
+  add("front", 0.36 * W, 0.3 * s, 0.32 * W, 0.26 * s);
+  add("back", -0.36 * W, 0.3 * s, 0.3 * W, 0.26 * s);
+  add("roof", 0, 0.62 * s, 0.42 * W, 0.26 * s);
+  add("door", 0.11 * W, 0.32 * s, 0.2 * W, 0.3 * s);
+  add("door", -0.11 * W, 0.32 * s, 0.2 * W, 0.3 * s);
+  add("bumper", 0.5 * W, 0.12 * s, 0.14 * W, 0.06 * s, 90);
+  add("bumper", -0.5 * W, 0.12 * s, 0.14 * W, 0.06 * s, 90);
+  add("wheel", 0.3 * W, 0.13 * s, 0.26 * s, 0.26 * s);
+  add("wheel", -0.3 * W, 0.13 * s, 0.26 * s, 0.26 * s);
+  for (let i = 0; i < 5; i += 1) add("glass", (i / 4 - 0.5) * 0.3 * W, 0.6 * s, 0.07 * s, 0.035 * s, (i * 53) % 180);
+  return out;
+}
+function drawPart(part: Part, q: { x: number; y: number; rot: number }, color: string, s: number): Shape[] {
+  const a = (q.rot * Math.PI) / 180, c = Math.cos(a), sn = Math.sin(a), L = part.len / 2, T = part.thick / 2, w = Math.max(1, s * 0.014);
+  const pt = (lx: number, ly: number) => [q.x + lx * c - ly * sn, q.y + lx * sn + ly * c];
+  const poly = (pts: [number, number][], fill: string, stroke = "#2b1a12"): Shape => ({ kind: "poly", points: pts.flatMap(([x, y]) => pt(x, y)), fill, stroke, width: w });
+  const circ = (lx: number, ly: number, r: number, fill: string, stroke?: string): Shape => { const [x, y] = pt(lx, ly); return { kind: "circle", x, y, r, fill, ...(stroke ? { stroke, width: w } : {}) }; };
+  const dark = mixColor(color, "#000000", 0.35), glass = "#a8d8f0";
+  switch (part.kind) {
+    case "front": return [poly([[-L, -T * 0.6], [L * 0.55, -T * 0.6], [L, 0], [L, T], [-L, T]], color), circ(L * 0.8, T * 0.2, T * 0.32, "#ffd54f", "#8d6e00"), poly([[-L * 0.2, T * 0.25], [L * 0.2, T * 0.25], [L * 0.2, T * 0.45], [-L * 0.2, T * 0.45]], dark)];
+    case "back": return [poly([[-L, 0], [-L * 0.6, -T * 0.6], [L, -T * 0.6], [L, T], [-L, T]], color), poly([[-L * 0.95, T * 0.05], [-L * 0.7, T * 0.05], [-L * 0.7, T * 0.5], [-L * 0.95, T * 0.5]], "#c62828", "#5d0000")];
+    case "roof": return [poly([[-L, T], [-L * 0.6, -T], [L * 0.6, -T], [L, T]], color), poly([[-L * 0.62, T * 0.7], [-L * 0.38, -T * 0.6], [L * 0.38, -T * 0.6], [L * 0.62, T * 0.7]], glass, "#3b6b85")];
+    case "door": return [poly([[-L, -T], [L, -T], [L, T], [-L, T]], color), poly([[-L * 0.8, -T * 0.85], [L * 0.8, -T * 0.85], [L * 0.8, -T * 0.1], [-L * 0.8, -T * 0.1]], glass, "#3b6b85"), poly([[L * 0.3, T * 0.15], [L * 0.7, T * 0.15], [L * 0.7, T * 0.3], [L * 0.3, T * 0.3]], "#9e9e9e")];
+    case "bumper": return [poly([[-L, -T], [L, -T], [L, T], [-L, T]], "#9e9e9e", "#424242")];
+    case "wheel": { const r = T; const out: Shape[] = [circ(0, 0, r, "#212121", "#000000"), circ(0, 0, r * 0.45, "#bdbdbd", "#616161")]; for (let k = 0; k < 3; k += 1) { const b = (k * 2 * Math.PI) / 3; out.push({ kind: "line", points: [...pt(0, 0), ...pt(Math.cos(b) * r * 0.42, Math.sin(b) * r * 0.42)], stroke: "#616161", width: w }); } return out; }
+    case "glass": return [poly([[-L, T], [0, -T], [L, T]], glass, "#3b6b85")];
+    default: return [poly([[-L, -T], [L, -T], [L, T], [-L, T]], color)];
+  }
+}
+const thingBreak: EffectRecipe = {
+  id: "thingBreak",
+  about: "A thing beside a blast BREAKS APART (anchor = its bottom middle, target = the blast spot): a vehicle (wheels: true) into its REAL parts — front with headlight, back with taillight, roof with window, doors, bumpers, wheels, glass — anything else into panels (color); all thrown up and away, spinning, then they fall, clatter and settle flat. size x height.",
+  draw(ctx, p) {
+    const s = num(p.size, 0.4) * ctx.height, at = { x: ctx.at.x, y: ctx.groundY }, seed = num(p.seed, 5), u = Math.max(0, ctx.t);
+    const blast = ctx.target ?? { x: at.x - s, y: ctx.groundY }, color = typeof p.color === "string" ? p.color : "#8d6e63", out: Shape[] = [];
+    // (a vehicle's parts at the size the car was drawn: about 1.35 x its size box; thrown a little lower so they stay readable)
+    const parts: Part[] = p.wheels === true ? carParts(at, 1.35 * s) : cratePieces(at, s).map((c) => ({ ...c, kind: (c.chip ? "glass" : "panel") as PartKind }));
+    parts.forEach((part, i) => {
+      const q = crateBreakPiece(part, i, u, blast, num(p.strength, p.wheels === true ? 0.85 : 1.2), ctx.groundY, ctx.height, seed);
+      out.push(...drawPart(part, q, color, s));
+    });
+    return keepAboveGround(out, ctx.groundY);
+  },
+};
+
+export const RECIPES: EffectRecipe[] = [explosion, grenade, militaryCap, crateBreak, thingBreak];
 export type { EffectContext, EffectParams };
 
 // How well a placed cap covers a head (ACCESSORIES COVER THE BODY PART): in head radii, how far the crown reaches

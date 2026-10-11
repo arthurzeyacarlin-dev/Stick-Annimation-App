@@ -88,7 +88,11 @@ export const RECIPES: EffectRecipe[] = [
       // my screenshot"): thick yellow marker strokes — a '+' in the middle, a broken ring around it, rays shooting out.
       const size = clamp(Number(params.size ?? 1), 0.1, 1.5), seed = Number(params.seed ?? 1), H = ctx.height;
       const u = clamp(ctx.t / Math.max(0.01, ctx.duration), 0, 1), out: Shape[] = [];
-      const R = (0.09 + 0.1 * size) * H, cx = ctx.at.x, cy = ctx.at.y;
+      // (SPEC-0021, Arthur: "the sparks are only at the handles, their fingers would come off" — with `blade` (the weapon) and the
+      // holder's ELBOW as `target`, the spark sits ON THE BLADE where blocks catch a strike — `along` of the way from the butt to the
+      // tip (default 0.8) — on the very line the held weapon is drawn on.)
+      const onBlade = typeof params.blade === "string" && ctx.target ? weaponLine(ctx.at, ctx.target, H, WEAPONS[weaponOf(params.blade).kind]).at(clamp(Number(params.along ?? 0.8), 0, 1)) : null;
+      const R = (0.09 + 0.1 * size) * H, cx = onBlade ? onBlade.x : ctx.at.x, cy = onBlade ? onBlade.y : ctx.at.y;
       const turn = (rand(seed, 0, 9) - 0.5) * 0.9; // (each spark turned a little differently)
       const alpha = u < 0.5 ? 1 : clamp(1 - (u - 0.5) / 0.5, 0, 1);
       const width = Math.max(2.5, 0.12 * R);

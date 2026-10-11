@@ -17,8 +17,8 @@ const hueOf = (c: string) => { const [r, g, b] = [1, 3, 5].map((j) => parseInt(c
 const area = (pts: number[]) => { let a = 0; for (let i = 0; i < pts.length; i += 2) { const j = (i + 2) % pts.length; a += pts[i] * pts[j + 1] - pts[j] * pts[i + 1]; } return Math.abs(a) / 2; };
 
 test("explosions: the recipes and the symbols are registered", () => {
-  for (const id of ["explosion", "grenade", "militaryCap", "crateBreak"]) assert.ok(EFFECTS[id], id);
-  assert.equal(RECIPES.length, 4);
+  for (const id of ["explosion", "grenade", "militaryCap", "crateBreak", "thingBreak"]) assert.ok(EFFECTS[id], id);
+  assert.equal(RECIPES.length, 5); // (SPEC-0021: + thingBreak — a thing beside a blast breaks into its real parts)
   for (const name of ["Grenade", "Military cap", "Wooden crate", "Wood plank", "Wood chip", "Pebble"]) assert.ok(PLACED_SYMBOLS[name], name);
   // (debris symbols: inside their boxes, a plank long and thin, a chip small, a pebble round-ish)
   for (const name of ["Wood plank", "Wood chip", "Pebble"]) { const m = placedSymbol({ name }), b = shapeBounds(m.shapes); assert.ok(b.minX >= -0.01 && b.minY >= -0.01 && b.maxX <= m.width + 0.01 && b.maxY <= m.height + 0.01, `${name} inside its box`); }

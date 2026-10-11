@@ -1,5 +1,9 @@
 # Current State
 
+## PM2 — AI Animator engine (SPEC-0021, branch `claude/spec0021-claude-animator`, app copy `claude/spec0021-phase5-app`)
+
+SPEC-0021: Claude writes version 1's plan format, the engine animates it, the laws check it, Claude looks and fixes. Arthur passed Phases 1–3 and every Phase 4 scene shown. Phase 5 (Sun 22:00) puts it into the app's AI Animator chat in an app copy. Not on main yet.
+
 ## D-0192 — PM3: SPEC-0020 Phase 8 (Drawing fixes) published; next = plans that work (current, PM3 — app and website)
 
 Arthur passed Phase 8 on 2026-10-11 (D-0192). Product commit `134bbcb` is on main and GitHub.

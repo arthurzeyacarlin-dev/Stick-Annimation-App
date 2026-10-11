@@ -89,6 +89,12 @@ explosion. **Phase 4 round 2 (19:55–20:40):**
 hand (size 1.2, 0.35 s); a prop within 1.2 H of an explosion breaks apart at the blast (`thingBreak` in effects/explosion.ts:
 the crate's throw physics, panels in the thing's colour, wheels for a vehicle). All 25 animations Arthur passed still pass every law.
 
+**Tweaks 2 (Arthur 21:40):** the sparks were at the hands ("their fingers would come off") → the clash spark sits ON THE BLADE
+(clashSpark `blade` + the holder's elbow as `target`: weaponLine at 0.8 from the butt — the very line the held sword is drawn on);
+the car broke into rectangles → a vehicle breaks into its REAL PARTS (carParts / drawPart in effects/explosion.ts: front + headlight,
+back + taillight, roof + window, 2 doors + windows and handles, 2 bumpers, 2 wheels with hubs and spokes, glass), car-sized, thrown
+a little lower. Claude's guide: "the world does these by itself". Laws pass on all of them.
+
 **Phases (first plan, 18:35):**
 1. The new copy + laws as checker + a few animations Arthur reviews to confirm it animates like version 1. ← NOW
 2. Connect Claude: writes the plan-format sheet → engine → laws → looks at 24 pictures → fixes only what broke (≤ 3) or refuses.

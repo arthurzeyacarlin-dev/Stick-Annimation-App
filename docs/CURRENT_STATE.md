@@ -1,5 +1,16 @@
 # Current State
 
+## D-0186 — PM3: SPEC-0020 Phase 2 (credits, plans, 14-day trial) published; Phase 3 (Home, menus, help, notifications) is next (current, PM3 — app and website)
+
+Arthur passed SPEC-0020 Phase 2 on 2026-10-11 (D-0186). Product commit `7049ab3` is on main and GitHub.
+
+- Free trial: 14 days, 150 AI credits (starts the first time an account is seen). 1 credit = 1 answered AI Animator message; Help Assistant and voice typing free. The AI Animator refuses new messages at 0 credits before calling the AI (friendly message in the chat).
+- After the trial without a plan: "Your free trial has ended" (Choose a plan / Profile / Log out). Plans page `/plans` (Starter/Creator/Studio); choosing works only in development (Test mode) until payments in Phase 5.
+- AI Dashboard: next refill or trial end at the top, plan + Change plan, numbers in one plain row, credits meter, chart with joined controls, no Refresh. Credits counter in the editor's top bar. Profile page shows "Your plan".
+- Fixed: red error box from the AI Animator reply checker when a background read failed; `npm exec -- auth migrate` works again.
+- **Checks:** type check + lint of the changed files; tests: plan rules 7/7, credit spending with a pretend AI 3/3 (no paid calls); tried in the app copy: new account → 150 credits, low credits, 0 credits (AI Animator message refused with 402, no AI call), trial ended → lock screen → Choose a plan → Starter → unlocked; Dashboard and Plans page. Main app on port 3000 checked after the merge: plan API (Free trial, 150, 14 days), Dashboard and Plans load.
+- **Next:** SPEC-0020 Phase 3 — Home "Animate with AI", Description, Report a problem, guided setup, tutorials, notifications, Assistant knowledge, export wording, computers-only screen.
+
 ## D-0185 — PM3: SPEC-0020 Phase 1 (account and profile) published; Phase 2 (credits and the 14-day trial) is next (current, PM3 — app and website)
 
 Arthur passed SPEC-0020 Phase 1 on 2026-10-11 (D-0185). Product commit `0527663` is on main and GitHub. (PM2's AI Animator work is recorded separately in its own sections and specs 0017/0019.)

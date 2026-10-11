@@ -1,6 +1,6 @@
 # SPEC-0020 — Ready for beta users (the app around the AI Animator)
 
-Status: **APPROVED by Arthur 2026-10-11.** Phase 1 PASSED and published 2026-10-11 (D-0185, product commit `0527663`). **Phase 2 is next.** (Written by PM3.)
+Status: **APPROVED by Arthur 2026-10-11.** Phase 1 PASSED and published 2026-10-11 (D-0185, `0527663`). Phase 2 PASSED and published 2026-10-11 (D-0186, `7049ab3`). **Phase 3 is next.** (Written by PM3.)
 Owner: Arthur · Builder: Claude (PM3) · Launch: **Tuesday, October 20, 2026**
 Baseline: `main` at `22efcf2`
 Not in this spec: the AI Animator engine and Luna (PM2, SPEC-0019), and the website (SPEC-0018).
@@ -37,12 +37,15 @@ Each phase is built in its own app copy, Arthur reviews it, and only on his OK: 
 - Side menu: "Terms of Service" (was "Terms of Policy"); Settings opens the Profile page's settings.
 - Not in Phase 1 (later phases): Report a problem (Phase 3); the plan line in the profile menu (Phase 2); real emails (Phase 5).
 
-### Phase 2 — Credits, plans and the 14-day trial (Mon Oct 12 – Tue Oct 13)
-- Credits instead of tokens: **1 credit = 1 message to the AI Animator**. Trial 150 credits for 14 days; Starter 300, Creator 1,200, Studio 3,000 a month (the website's numbers).
-- A credits counter in the header; the AI stops at 0 with a friendly "You're out of credits" card.
-- **Trial clock** and a **"Your trial ended"** screen (projects stay safe; choosing a plan unlocks).
-- **AI Dashboard** shows credits (keep its bars, red line and dashed line look); "Your plan" shows the real plan and trial days left; no dollar costs shown to users; fix "This week" totals disappearing after a chat.
-- The credit check lives in shared account code. The AI Animator's own server file belongs to PM2, so PM2 adds the one-line call to it (Arthur passes the message).
+### Phase 2 — Credits, plans and the 14-day trial (Sun Oct 11) — PASSED, published (`7049ab3`)
+- **Free trial:** every account gets 14 days and 150 AI credits the first time it is seen (existing accounts start fresh, never locked at once). **1 credit = 1 AI Animator message that gets an answer**; failed or stopped messages are free; the same job never counts twice. The Help Assistant and voice typing are free (Arthur's OK on PM3's recommendation).
+- **The AI stops at 0:** the credit check runs before a message starts (it never reaches the AI) and the chat shows a friendly message. Lives in `src/lib/ai/aiAnimatorJobService.ts` (constructor's 3rd argument, default = the real credit store) — **PM2 must keep it when porting the engine.**
+- **Credits counter** in the editor's top bar (amber when low, red at 0). Arthur removed the header version (the AI Dashboard link is already there).
+- **"Your free trial has ended"** screen: Choose a plan, Profile, Log out. Home, AI Dashboard and Assistant lead there; `/plans` and `/account` stay open. Projects are safe.
+- **Plans page** `/plans`: Starter $5.99 / 300, Creator $11.99 / 1,200, Studio $19.99 / 3,000 credits every 30 days. In development "Choose" switches the plan with no payment (labeled Test mode); elsewhere "Payments open soon". Real payments: Phase 5.
+- **AI Dashboard** (Arthur's layout): next refill / trial end in big text at the top; plan line + Choose/Change plan; one plain row of numbers (credits left, credits used, tokens, sent/written, estimated cost, web searches); credits meter (Arthur kept it); chart in its card with joined Show / Group by controls; no Refresh button. **Rule (Arthur): only clickable things and the chart get boxes.** Profile page got "Your plan" and lost its boxes.
+- Storage: `.local/spec0015-phase3/account-plans.sqlite` (plan + one row per answered message). Development test switch: `/dev/plan`.
+- Fixes found on the way: the AI Animator reply checker showed a red error box when a background read failed (now: logged out → stop, else retry in 5 s); `auth.ts` loads server-only helpers inside its hooks so `npm exec -- auth migrate` works again.
 
 ### Phase 3 — Home, menus, help and notifications (Wed Oct 14)
 - **Home:** a big "Animate with AI" card (opens a new project with the AI Animator ready); the recent-projects card shows your last saved projects (today it only remembers this visit).

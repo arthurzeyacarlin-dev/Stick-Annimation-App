@@ -1,12 +1,14 @@
 # Session Handoff
 
-## PM3 — STATUS (Sun 2026-10-11, D-0185) — app and website; PM3 READ THIS FIRST, then the PM3 handoff below
+## PM3 — STATUS (Sun 2026-10-11, D-0186) — app and website; PM3 READ THIS FIRST, then the PM3 handoff below
 
-- **SPEC-0020 "Ready for beta users"** (`docs/specs/0020-ready-for-beta-users.md`) is Arthur's approved plan for the app: 5 phases. **Phase 1 (account and profile) PASSED and is on main + GitHub (`0527663`).** **Next: Phase 2 — credits, plans and the 14-day trial** (short plan → Arthur OK → new app copy → Arthur review → on "pass": main, GitHub, these records).
-- **How Arthur wants each phase:** build everything in a NEW app copy (git worktree under `diamond-review/`, node_modules symlinked, own `.local` account store made with `npm exec -- auth migrate`, its port allowed in `accountConfig.ts`); he reviews there; only on his "pass" → fast-forward main, push, update CURRENT_STATE / TODO / DECISIONS / this section.
-- **Mac is 8 GB and Arthur notices lag:** one heavy job at a time through `heavy.sh`, no repeated checks, stop the app copy's server after the merge, close extra browser tabs. He told PM3 to "simmer down" on 2026-10-11 during tsc + lint + two dev servers.
-- **Launch Board** artifact (audit + dad's list): https://claude.ai/artifact/TLViBqCUn7tFM7mR3CSzxx.
-- **Known:** app copies use the same project storage settings as main (`.env.local` copied); Phase 1's test made one empty project there and the delete-account test marked it deleted.
+- **SPEC-0020 "Ready for beta users"** (`docs/specs/0020-ready-for-beta-users.md`) is Arthur's approved plan for the app: 5 phases. **Phase 1 (account and profile, `0527663`) and Phase 2 (credits, plans, 14-day trial, `7049ab3`) PASSED and are on main + GitHub.** **Next: Phase 3 — Home, menus, help and notifications** (short plan → Arthur OK → new app copy → Arthur review → on "pass": main, GitHub, these records).
+- **How Arthur wants each phase:** build everything in a NEW app copy (git worktree under `diamond-review/`, node_modules symlinked, own `.local` account store made with `npm exec -- auth migrate`, its port allowed in `accountConfig.ts`); he reviews there; only on his "pass" → fast-forward main, push, update CURRENT_STATE / TODO / DECISIONS / this section. Never build in the main folder (Arthur reminded PM3 on 2026-10-11).
+- **Arthur's design rule (2026-10-11):** only clickable things (buttons) and the chart get boxes/cards; everything else is plain with thin divider lines.
+- **For PM2:** the AI credit check lives in `src/lib/ai/aiAnimatorJobService.ts` (3rd constructor argument; `assertAvailable` before a job, `spend` on an answer). Keep it when the engine is ported.
+- **Mac is 8 GB and Arthur notices lag:** one heavy job at a time through `heavy.sh`, no repeated checks, stop the app copy's server after the merge, close extra browser tabs.
+- **Launch Board** artifact (phases + dad's list): https://claude.ai/artifact/TLViBqCUn7tFM7mR3CSzxx.
+- **Known:** app copies use the same project storage settings as main (`.env.local` copied); test projects there are marked deleted by the delete-account tests.
 
 ## D-0184 — SPEC-0017 Phase 3 published: Luna is the AI, the director and the engine that makes its plans come true; Phase 4 (the AI Animator in the editor) is next (current)
 

@@ -1,10 +1,10 @@
 # TODO
 
-## PM3 queue — app and website (D-0185, 2026-10-11)
+## PM3 queue — app and website (D-0186, 2026-10-11)
 
 - [x] **SPEC-0020 Phase 1** — account and profile. Arthur PASS 2026-10-11; published in `0527663`.
-- [ ] **SPEC-0020 Phase 2 (NEXT)** — credits (1 credit = 1 AI Animator message), plans, 14-day trial clock, "trial ended" screen, AI stops at 0 credits, AI Dashboard in credits (fix "This week" totals hiding after a chat). The credit check in the AI Animator's own server file is PM2's (Arthur passes the message).
-- [ ] **SPEC-0020 Phase 3** — Home "Animate with AI", Description, Report a problem, guided setup, tutorials, notifications ("Terra" → "the AI Animator"), Assistant knowledge, export wording, computers-only screen.
+- [x] **SPEC-0020 Phase 2** — credits, plans, 14-day trial, Plans page, AI Dashboard redesign. Arthur PASS 2026-10-11; published in `7049ab3`. PM2: keep the credit check in `src/lib/ai/aiAnimatorJobService.ts` when porting the engine.
+- [ ] **SPEC-0020 Phase 3 (NEXT)** — Home "Animate with AI", Description, Report a problem, guided setup, tutorials, notifications ("Terra" → "the AI Animator"), Assistant knowledge, export wording, computers-only screen.
 - [ ] **SPEC-0020 Phase 4** — workspace small fixes (Arthur's list), editor menus, unsaved-work warnings.
 - [ ] **SPEC-0020 Phase 5** — online (`claude/online-beta`), Stripe test mode, real emails, production build, full beta-user test.
 - [ ] **Dad** — database key for the online app, app.diamondanimator.com address, Stripe test keys + 6 prices, Resend email, Cloudflare Access on the website's /admin, lawyer (legal pages, under-13 sign-up).

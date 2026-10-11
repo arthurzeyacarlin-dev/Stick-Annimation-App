@@ -1824,6 +1824,16 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Publication: product commit `0527663` fast-forwarded into main and pushed, followed by this records commit.
 - Next: SPEC-0020 Phase 2 (credits, plans and the 14-day trial).
 
+### D-0186 — SPEC-0020 Phase 2 (credits, plans, 14-day trial) accepted and published (PM3)
+
+- Date: 2026-10-11
+- Arthur passed Phase 2 after two tweak rounds (header credits button removed; AI Dashboard: next refill big at the top, numbers in one plain row, no Refresh, professional Show / Group by controls; a Plans page so a plan can be chosen; the credits meter kept).
+- Rules: 1 credit = 1 answered AI Animator message (failed/stopped free); Help Assistant and voice typing free; 14-day trial with 150 credits starts the first time an account is seen; after it, without a plan, the app is locked except Plans, Profile and Log out (no free mode); paid plans refill every 30 days. Only clickable things and the chart get boxes (Arthur's design rule).
+- Until payments (Phase 5), choosing a plan works only in development, labeled Test mode.
+- The credit check lives in `src/lib/ai/aiAnimatorJobService.ts`; PM2 keeps it when the engine is ported.
+- Publication: product commit `7049ab3` fast-forwarded into main and pushed, followed by this records commit.
+- Next: SPEC-0020 Phase 3 (Home, menus, help and notifications).
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

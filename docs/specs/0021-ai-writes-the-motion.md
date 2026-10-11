@@ -4,7 +4,7 @@ Status: RESTARTED in a new copy (Sun 2026-10-11 18:35, Arthur) — see "THE NEW 
 Owner: Arthur (decisions with his dad)
 Implementer: Claude (PM2, AI Animator engine)
 Created: 2026-10-11
-Last updated: 2026-10-11
+Last updated: 2026-10-12 (dad's policy decisions, §8.1)
 Decision links: dad's approval of the direction and a $20 Claude test budget (chat, Sun 2026-10-11)
 TODO IDs: none yet
 Baseline: engine copy `/Users/arthurcarlin/Projects/diamond-review/diamond-engine` (not git); backup `backups/diamond-engine-before-unasked`
@@ -244,7 +244,28 @@ The more pieces exist, the less the AI has to write:
   projects; needs a privacy and terms check before it's built.
 Target: a few cents per simple animation. This is a goal, not a promise; the test gives the starting point.
 
-## 9. Phases (each ends with a check; nothing starts without Arthur's go)
+### 8.1 Dad's policy decisions (Mon 2026-10-12, relayed by PM3) — these are now rules
+
+1. **Proven scenes library.** Every scene or piece that passes the laws AND Arthur's review is saved as a named, reusable
+   building block (sword fight, explosion, walk-and-wave…). Claude reuses it by name instead of writing it again (cheaper,
+   more reliable). The passed recipes already in Claude's guide (blast, fights, car explosion, sparks) are the first entries.
+2. **Cheaper model for looking and small fixes.** The strong model keeps writing the plan. A cheaper model (e.g. Haiku or
+   Luna) is tested for the "look" and small-fix steps on the SAME fresh prompts first; quality and cost reported side by side
+   before any switch.
+3. **Fewer fix rounds.** Refuse early, and free, when a request clearly needs an engine feature that does not exist yet
+   (a missing piece, zoom, a house…) instead of paying for 3 failed fix rounds.
+4. **Short clip first, then build up (§6.5) is policy.** A core clip of about 15 s (30 s at most) first; then add-ons that
+   change only their own part.
+5. **Credits per action from real cost, shown before each action.** PM3 builds the app side (proposal: 1 credit per chat or
+   small edit, 10 per simple animation, 30 per big one; the dad still confirms the numbers). The engine gives a per-action
+   cost estimate when it can. Measured Oct 12 in the app copy: chat 0.4–2¢, chat with web search 3–4¢, new animation ~9¢,
+   edit ~4¢.
+6. **Reports start with the fail count**: the fresh-prompt scoreboard (pass / fail / refused vs the bar) comes first,
+   then the videos.
+7. **Budget**: no spending past the $20 cap without the dad's own yes. PM2's estimate (Oct 12): about $20–30 more than
+   what is left to reach 17/20 complex and the 100-prompt bar.
+
+
 
 1. **Spec OK.** Arthur and his dad read this and say yes or change it.
 2. **The sheet and the builder.** Claude (in this chat, no API cost) writes 5 sheets by hand for fresh prompts; they build

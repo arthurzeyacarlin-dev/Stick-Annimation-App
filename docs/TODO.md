@@ -1,17 +1,19 @@
 # TODO
 
-## PM3 queue — app and website (D-0188, 2026-10-11)
+## PM3 queue — app and website (D-0189, 2026-10-11)
 
 - [x] **SPEC-0020 Phase 1** — account and profile. Arthur PASS 2026-10-11; published in `0527663`.
 - [x] **SPEC-0020 Phase 2** — credits, plans, 14-day trial, Plans page, AI Dashboard redesign. Arthur PASS 2026-10-11; published in `7049ab3`. PM2: keep the credit check in `src/lib/ai/aiAnimatorJobService.ts` when porting the engine.
 - [x] **SPEC-0020 Phase 3** — Home, menus, Settings + Appearance (Dark/Bright, accents), global Back/close, notifications. Arthur PASS 2026-10-11; published in `9c55342`.
-- [ ] **UPDATE-NOTIFICATIONS** — blue "update" dot needs a producer: detect a new deployed version once the app is online (Phase 5).
+- [ ] **UPDATE-NOTIFICATIONS** — blue "update" dot needs a producer: detect a new deployed version once the app is online (last step).
 - [ ] **CONTENT-POLICY** — when a request breaks the Terms, refuse with a clear message, notify the user and email Arthur (later; Arthur 2026-10-11).
-- [ ] **PHASE3-LEFTOVERS (Arthur picks)** — Home "Animate with AI" card, Report a problem that sends, Assistant product knowledge, export wording (Finder / this Mac / "Phase 3"), computers-only screen.
+- [ ] **PHASE3-LEFTOVERS** — export wording done in Phase 5; Report a problem, Assistant knowledge and the computers-only screen are in Phase 6; Home "Animate with AI" card waits for PM2's engine.
 - [x] **SPEC-0020 Phase 4** — workspace: menus + shortcuts, layer eye/trash, delete layer, no timeline gaps, auto blank keyframe when drawing on no frame, FPS 1–60, canvas outline, fill fix. Arthur PASS 2026-10-11; published in `44eae38`.
-- [ ] **WORKSPACE-LAG** — authoring canvases are 4.6× world size × screen density; shrink carefully in its own round (drawing engine is protected — needs Arthur's OK).
-- [ ] **PHASE4-LEFTOVERS** — unsaved-work warning on Home / closing the tab; NEW-PROJECT-LAYER; UNDO-AI-SCENE; save layer visibility in projects; Clear Canvas and stroke-error pop-ups → in-app boxes; timeline with 2+ layers can grow over the right panel tabs.
-- [ ] **SPEC-0020 Phase 5 (NEXT)** — online (`claude/online-beta`), Stripe test mode, real emails, production build, full beta-user test.
+- [x] **SPEC-0020 Phase 5** — Projects and Export: Video / GIF / Pictures export, Home recent project from the account, plain Open Project. Arthur PASS 2026-10-11; published in `9d398e7`.
+- [ ] **SPEC-0020 Phase 6 (NEXT)** — Words, help and menus: Report a Problem that works (owner-only inbox + bell; email later), Description rewrite with Arthur, Help Assistant knowledge, "this computer/device/browser" wording, remove guided setup, Library empty-state hint, Help back arrow, computers-only screen.
+- [ ] **EDITOR-BUGS (Arthur picks when)** — Undo after Insert Frame / New Layer; empty layer disappearing after reopen; hidden layers not saved; Clear Canvas + stroke/fill error pop-ups → in-app boxes; Escape in editor menus; big-canvas lag (drawing engine, needs OK); timeline over right-panel tabs with 2+ layers.
+- [ ] **CREDITS-PER-ACTION (later, Arthur + dad)** — SPEC-0021 §6.5: cost shown on each AI action, refused/failed free, "core first then build up" guidance; replaces "1 credit per answered message". Wait for PM2's engine signal.
+- [ ] **LAST (only when the whole app is done)** — online (`claude/online-beta`), real emails, payments (Stripe / Apple), production build, Mac App Store, website update, tutorials (Arthur's videos), full new-user test.
 - [ ] **Dad** — database key for the online app, app.diamondanimator.com address, Stripe test keys + 6 prices, Resend email, Cloudflare Access on the website's /admin, lawyer (legal pages, under-13 sign-up).
 
 ## Current queue (D-0182)

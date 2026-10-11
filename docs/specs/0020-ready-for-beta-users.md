@@ -1,7 +1,7 @@
 # SPEC-0020 — Ready for beta users (the app around the AI Animator)
 
-Status: **APPROVED by Arthur 2026-10-11.** Phase 1 PASSED and published 2026-10-11 (D-0185, `0527663`). Phase 2 PASSED and published 2026-10-11 (D-0186, `7049ab3`). Phase 3 PASSED and published 2026-10-11 (D-0187, `9c55342`). Phase 4 PASSED and published 2026-10-11 (D-0188, `44eae38`). **Phase 5 is next.** (Written by PM3.)
-Owner: Arthur · Builder: Claude (PM3) · Launch: **Tuesday, October 20, 2026**
+Status: **APPROVED by Arthur 2026-10-11.** Phase 1 PASSED and published 2026-10-11 (D-0185, `0527663`). Phase 2 PASSED and published 2026-10-11 (D-0186, `7049ab3`). Phase 3 PASSED and published 2026-10-11 (D-0187, `9c55342`). Phase 4 PASSED and published 2026-10-11 (D-0188, `44eae38`). **Re-planned 2026-10-11 after a full check of the app:** Phase 5 (Projects and Export) and Phase 6 (Words, help and menus) are new; going online, payments, the App Store and tutorials wait until the whole app (AI Animator too) is done. Phase 5 PASSED and published 2026-10-11 (D-0189, `9d398e7`). **Phase 6 is next.** (Written by PM3.)
+Owner: Arthur · Builder: Claude (PM3) · Launch: **only when the whole app is done** (was Tue Oct 20, 2026; Arthur re-planned 2026-10-11)
 Baseline: `main` at `22efcf2`
 Not in this spec: the AI Animator engine and Luna (PM2, SPEC-0019), and the website (SPEC-0018).
 
@@ -69,18 +69,49 @@ Arthur's list, four review rounds:
 - **Lag (first step):** the stroke preview only repaints changed tiles; selection debugging only with its flag; a lost pointer capture keeps a resize/move instead of undoing it.
 - **Not done (later):** the big-canvas lag round (authoring canvases 4.6× world size); unsaved-work warning on Home / closing the tab; NEW-PROJECT-LAYER and UNDO-AI-SCENE bugs; saving layer visibility; Clear Canvas and stroke-error pop-ups → in-app boxes; the Phase 3 leftovers.
 
-### Phase 5 — Online and launch rehearsal (Sat Oct 17 – Mon Oct 19)
-- Bring the online work (`claude/online-beta`) into `main`; the app on app.diamondanimator.com (dad: database key, address).
-- Stripe test mode → the app knows who paid and gives them their plan.
-- Real emails (welcome, forgot password, trial ending).
-- The beta runs as a production build, so developer pages (`/dev/*`) are hidden.
-- All "on this computer" wording becomes "your account."
-- Full beta-user test on the real address: website → sign up → trial → AI Animator → save → export → pay (test mode). Then the website's trial buttons are switched on (with Arthur's OK).
+### Re-plan (Arthur, 2026-10-11)
+After Phase 4 PM3 clicked through every screen except the AI Animator and a helper read the code (about 35 unfinished or broken things). Arthur's decisions:
+- **The App Store, going online and tutorials come only when the whole app is 100% done** (AI Animator included). Tutorials are last; Arthur may record the videos himself.
+- A proposed "editor safety" phase (unsaved-work warning, Undo fixes) was dropped: the app already offers "Unsaved work found → Recover Work" after a reload. Its real bugs stay on the later list (TODO EDITOR-BUGS).
+- **Guided setup is removed** (maybe in Version 2).
+- **Export also makes GIFs and pictures**, not only MP4 video.
+- Changing your email: not decided; not in these phases.
+
+### Phase 5 — Projects and Export (simple, like a real professional tool) — PASSED, published (`9d398e7`)
+- **Export screen redesigned:** simple and professional. Pick a format — **Video (MP4)**, **GIF**, or **Pictures (PNG)** (the current frame, or every frame) — then the size/destination and quality, then Export. No techy lines ("Canvas 1280×720; content at (0, 0)", "Catalog 2026-09-20", "local guidance only"), no "Phase 3", no "Finder" / "this Mac"; the destinations show their names (not "YT", "TT" letter boxes); the back control is the plain arrow.
+- **Export preview** shows and plays the real animation (it stayed blank and stuck on frame 1 in the check).
+- **Saving the file:** works in Chrome with a save window; other browsers get a normal download instead of an error.
+- **Export from the editor** offers to save first, and opens with the project you're working on.
+- **Home "recent projects"** shows your last saved projects from your account (today it forgets them on reload and says "No recent projects edited").
+- **Open Project:** plain words (no "Preparing exact poster…", "Protected legacy source", "saved in this browser"), no technical ID in the Delete box, real lengths for short animations (not "0:00"), Escape closes its menus.
+- The MP4 video engine itself is not changed; GIF and PNG are new outputs built from the same frames.
+- **Found in Arthur's review:** the app has no sound yet, so "with sound" was removed; the browser inside the Claude app has a broken save window (it cancels, refuses to write, or hangs), so exports there always download to the Downloads folder; the Video / GIF / Pictures buttons use the app's normal hover (accent fill, white text).
+
+### Phase 6 — Words, help and menus
+- **Report a Problem works:** a short form (what happened, which screen, optional screenshot). Each report is saved to the account server and appears in an owner-only **Problem reports** inbox in the app (only Arthur's account can open it; newest first; mark as done) and rings Arthur's bell. When real emails exist (the "last" step), each report is also emailed to Arthur.
+- **Description** rewritten with Arthur (no plugins, packs or "overnight processing").
+- **Help Assistant's knowledge** updated to the real app (real buttons and paths; Settings and menus are real; projects save to your account; dictation exists).
+- **Wording:** every "this computer / this device / this browser" that is wrong becomes "your account" (sign-in page, Assistant chats, save status tooltip, etc.).
+- **Guided setup removed.**
+- **Library panel** explains how to make a symbol when it is empty.
+- **Help page** back arrow in the normal place; Tutorials card stays "Coming later" until the last step.
+- **Phones and tablets:** a friendly "Diamond Animator works on computers" screen.
+
+### Later list (Arthur picks when)
+- **EDITOR-BUGS:** Undo after Insert Frame / New Layer undoes the wrong thing; a new project's empty layer can disappear after reopening; hidden layers aren't saved; Clear Canvas and stroke/fill error pop-ups → in-app boxes; Escape doesn't close the editor menus; the big-canvas lag fix (drawing engine — needs Arthur's OK).
+
+### Last — only when the whole app is done
+- Online: accounts and projects on the server (`claude/online-beta`), app address (dad: database key, address), production build (developer `/dev/*` pages hidden).
+- Real emails (welcome, forgot password, trial ending, problem reports to Arthur).
+- Payments (Stripe for the website; Apple's rules inside the App Store app — dad decides).
+- The Mac App Store (Apple Developer account in dad's name, Apple review).
+- The website updated with the finished app; tutorials (Arthur's videos).
+- Full new-user test before anything goes public.
 
 ## 4. Not changing
 - The AI Animator engine, Luna, and their files (`src/lib/animator/**`, `src/components/workspace/ai/**`, `app/api/ai-animator/**`) — PM2.
-- The drawing and export engines, the saved project file format, and how projects are stored.
-- The website (except flipping its trial buttons in Phase 5, with OK).
+- The drawing engine, the saved project file format, and how projects are stored. The export engine only gains GIF and PNG outputs (Phase 5, Arthur 2026-10-11); MP4 stays as it is.
+- The website (until the last step).
 
 ## 5. Safety
 - Login, accounts and usage records are protected systems; this spec is the plan that allows the changes listed above and nothing else.
@@ -92,3 +123,4 @@ Arthur's list, four review rounds:
 2. Guided setup: make it useful or remove it (Phase 3).
 3. Tutorials: hide or 3 starter lessons (Phase 3).
 4. His button, notification and workspace tweak lists (Phases 3–4).
+5. Re-plan 2026-10-11: guided setup removed; GIF + pictures export yes; email change undecided; App Store, online and tutorials only when the app is done.

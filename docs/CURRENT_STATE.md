@@ -1,5 +1,16 @@
 # Current State
 
+## D-0189 — PM3: SPEC-0020 re-planned; Phase 5 (Projects and Export) published; Phase 6 (Words, help and menus) is next (current, PM3 — app and website)
+
+Arthur passed SPEC-0020 Phase 5 on 2026-10-11 (D-0189). Product commit `9d398e7` is on main and GitHub.
+
+- **Re-plan (Arthur):** after a full check of the app (about 35 unfinished things), the App Store, going online and tutorials wait until the whole app (AI Animator too) is done; Phase 5 = Projects and Export, Phase 6 = Words, help and menus; guided setup will be removed; GIF + picture export added. See SPEC-0020 "Re-plan".
+- **Export:** one simple screen — Video (MP4), GIF, Pictures (PNG frame or every frame in a ZIP); real destination names; plain words; Export from the editor saves first and opens on that project. New `src/lib/export/exportImages.ts` (GIF encoder, stored ZIP, save helpers, 11 tests) and `exportMemoryFile.ts`.
+- **Saving files:** the save window opens right after the click; browsers without one, and the browser inside the Claude app (broken save window), download instead.
+- **Home** shows the newest saved project from the account; **Open Project** uses plain words, real short lengths, Escape closes its menu.
+- **Checks:** type check; lint (0 errors); 11/11 export-image tests; in the app copy with real clicks: Video, GIF, Pictures (ZIP and single) all finish and hand over the file; GIF checked frame by frame (4 frames, drawing inside), ZIP has numbered PNGs, MP4 passes the app's own MP4 check; editor Export includes a just-drawn line and Back returns to the editor. Not checked by PM3: that the Claude app panel really lands the download in Downloads (Arthur tested and passed).
+- **Next:** SPEC-0020 Phase 6 — Words, help and menus.
+
 ## D-0188 — PM3: SPEC-0020 Phase 4 (workspace) published; Phase 5 (online and launch rehearsal) is next (current, PM3 — app and website)
 
 Arthur passed SPEC-0020 Phase 4 on 2026-10-11 (D-0188). Product commit `44eae38` is on main and GitHub.

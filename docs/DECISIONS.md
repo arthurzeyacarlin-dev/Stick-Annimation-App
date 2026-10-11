@@ -1850,6 +1850,15 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Publication: product commit `44eae38` fast-forwarded into main and pushed, followed by this records commit.
 - Next: SPEC-0020 Phase 5 (online and launch rehearsal).
 
+### D-0189 — SPEC-0020 re-planned; Phase 5 (Projects and Export) accepted and published (PM3)
+
+- Date: 2026-10-11
+- Arthur's re-plan: the App Store, going online and tutorials only when the whole app is done; a proposed editor-safety phase dropped (the app's "Unsaved work found → Recover Work" covers it; its bugs stay on TODO EDITOR-BUGS); guided setup removed in Phase 6; export gains GIF and pictures; changing your email undecided.
+- Export rule: the browser inside the Claude app has a broken save window, so exports there always download; everywhere else a failed or missing save window also falls back to a download. Only a real "Cancel" stops an export.
+- Publication: product commit `9d398e7` fast-forwarded into main and pushed, followed by this records commit.
+- PM2 note (SPEC-0021 §6.5, dad-approved): later the app guides users "core first (~15 s), then build up", shows the credit cost on each action and never charges for refused/failed animations. This conflicts with SPEC-0020's "1 credit per answered message" pricing; Arthur and dad decide the new credit math when PM2's engine is ready.
+- Next: SPEC-0020 Phase 6 (Words, help and menus).
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

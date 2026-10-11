@@ -199,3 +199,11 @@ export const checkpointAccountDataDatabase = () => {
   fs.chmodSync(databasePath, 0o600);
   return databasePath;
 };
+
+// SPEC-0020 Phase 1 (Delete my account): removes every saved app record (chats, notifications, preferences,
+// recovery copies) for one account. Called only from the account-deletion hook in auth.ts.
+const deleteOwnerStatement = database.prepare("DELETE FROM account_state_v1 WHERE owner_id = ?");
+export const deleteAllAccountDataForOwner = (ownerId: string) => {
+  if (!ownerId) throw new Error("account_data_owner_required");
+  return deleteOwnerStatement.run(ownerId).changes;
+};

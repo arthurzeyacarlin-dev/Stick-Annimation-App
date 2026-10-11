@@ -218,3 +218,12 @@ export const deleteAccountProject = async (ownerId: string, projectId: string, e
   if (!data) fail("stale_revision");
   return { projectId, deletedAssetIds: [] as string[] };
 };
+
+// SPEC-0020 Phase 1 (Delete my account): marks every project of one account as deleted, exactly like the
+// library's own Delete does for one project. Called only from the account-deletion hook in auth.ts.
+export const deleteAllAccountProjects = async (ownerId: string) => {
+  assertScope(ownerId);
+  const { error } = await db().from(HEADS).update({ deleted_at: new Date().toISOString() })
+    .eq("owner_id", ownerId).is("deleted_at", null);
+  if (error) fail("account_project_delete_failed");
+};

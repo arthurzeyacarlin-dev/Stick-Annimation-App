@@ -3,7 +3,7 @@ import "server-only";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { auth } from "./auth";
-import { isAccountPreviewPlan, isTrustedAccountRequest, type AccountPublicUser } from "./accountConfig";
+import { isAccountPreviewPlan, isAccountProfileImage, isTrustedAccountRequest, type AccountPublicUser } from "./accountConfig";
 
 export { isTrustedAccountRequest } from "./accountConfig";
 
@@ -26,4 +26,5 @@ export const toAccountPublicUser = (session: NonNullable<Awaited<ReturnType<type
   email: session.user.email,
   emailVerified: session.user.emailVerified,
   previewPlan: isAccountPreviewPlan(session.user.previewPlan) ? session.user.previewPlan : "starter_preview",
+  image: isAccountProfileImage(session.user.image) ? session.user.image : null,
 });

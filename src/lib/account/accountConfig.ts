@@ -1,7 +1,7 @@
 const accountPort = process.env.PORT?.trim() || "3000";
 
-if (accountPort !== "3000" && accountPort !== "58580" && accountPort !== "58584" && accountPort !== "58645" && accountPort !== "58666") {
-  throw new Error("Local account access is configured only for ports 3000, 58580, 58584, 58645, and 58666.");
+if (accountPort !== "3000" && accountPort !== "58580" && accountPort !== "58584" && accountPort !== "58645" && accountPort !== "58666" && accountPort !== "58671") {
+  throw new Error("Local account access is configured only for ports 3000, 58580, 58584, 58645, 58666 and 58671.");
 }
 
 export const ACCOUNT_LOCAL_HOST = `127.0.0.1:${accountPort}`;
@@ -39,4 +39,11 @@ export type AccountPublicUser = {
   email: string;
   emailVerified: boolean;
   previewPlan: AccountPreviewPlan;
+  /** Profile picture as a small image data URL (SPEC-0020 Phase 1), or null for the letter avatar. */
+  image: string | null;
 };
+
+/** Profile pictures are resized in the browser to a small square JPEG before saving (~20–60 KB). */
+export const ACCOUNT_PROFILE_IMAGE_MAX_CHARS = 200_000;
+export const isAccountProfileImage = (value: unknown): value is string =>
+  typeof value === "string" && value.length <= ACCOUNT_PROFILE_IMAGE_MAX_CHARS && /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(value);

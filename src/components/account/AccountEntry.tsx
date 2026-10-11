@@ -2,29 +2,48 @@
 
 import { useState, type FormEvent } from "react";
 import { DiamondLogo } from "@/src/components/chrome/DiamondLogo";
-import { ACCOUNT_PREVIEW_PLANS, type AccountPreviewPlan } from "@/src/lib/account/accountConfig";
 import styles from "./AccountEntry.module.css";
 
-type EntryMode = "signup" | "login" | null;
+type EntryMode = "signup" | "login" | "forgot" | null;
 
 export function AccountEntry() {
   const [mode, setMode] = useState<EntryMode>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [previewPlan, setPreviewPlan] = useState<AccountPreviewPlan | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [resetSent, setResetSent] = useState(false);
+
+  // SPEC-0020 Phase 1: "Forgot password?" — always the same answer, so nobody can find out which emails have accounts.
+  const requestReset = async (event: FormEvent) => {
+    event.preventDefault();
+    if (busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/auth/request-password-reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), redirectTo: "/reset-password" }),
+      });
+      if (!response.ok && response.status !== 400) throw new Error("reset_request_failed");
+      setResetSent(true);
+    } catch {
+      setError("We couldn't reach Diamond Animator. Please try again.");
+    }
+    setBusy(false);
+  };
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!mode || busy || (mode === "signup" && !previewPlan)) return;
+    if (!mode || mode === "forgot" || busy) return;
     setBusy(true);
     setError(null);
     try {
       const endpoint = mode === "signup" ? "/api/auth/sign-up/email" : "/api/auth/sign-in/email";
       const body = mode === "signup"
-        ? { name: name.trim(), email: email.trim(), password, previewPlan }
+        ? { name: name.trim(), email: email.trim(), password }
         : { email: email.trim(), password, rememberMe: true };
       const response = await fetch(endpoint, {
         method: "POST",
@@ -52,9 +71,10 @@ export function AccountEntry() {
   const switchMode = (next: EntryMode) => {
     setMode(next);
     setError(null);
+    setResetSent(false);
   };
 
-  const submitDisabled = busy || (mode === "signup" && !previewPlan);
+  const submitDisabled = busy;
   const emailField = (
     <label className={styles.label}>Email<input className={styles.input} required type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} /></label>
   );
@@ -96,7 +116,7 @@ export function AccountEntry() {
               {emailField}
               {passwordField}
             </div>
-            <p className={styles.muted}>Password recovery isn&apos;t available yet.</p>
+            <p className={styles.forgotRow}><button type="button" className={styles.switch} disabled={busy} onClick={() => switchMode("forgot")}>Forgot password?</button></p>
             {error && <p role="alert" className={styles.error}>{error}</p>}
             <div className={styles.actions}>
               <button type="submit" className={`${styles.button} ${styles.primary}${busy ? ` ${styles.busy}` : ""}`} disabled={submitDisabled}>{busy ? "Logging in…" : "Log in"}</button>
@@ -109,12 +129,43 @@ export function AccountEntry() {
     );
   }
 
+  if (mode === "forgot") {
+    return (
+      <main className={styles.page}>
+        <section aria-labelledby="account-entry-title" className={styles.card}>
+          <div className={styles.brand}><DiamondLogo className={styles.logo} size={24} />Diamond Animator</div>
+          <h1 id="account-entry-title" className={`${styles.title} ${styles.formTitle}`}>Forgot password</h1>
+          {resetSent ? (
+            <>
+              <p className={styles.lead}>If an account uses <strong>{email.trim()}</strong>, we sent it a link to choose a new password. The link works for 1 hour.</p>
+              <div className={`${styles.actions} ${styles.sentActions}`}>
+                <button type="button" className={`${styles.button} ${styles.primary}`} onClick={() => switchMode("login")}>Back to Log in</button>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className={styles.lead}>Type the email you signed up with. We&apos;ll send you a link to choose a new password.</p>
+              <form onSubmit={requestReset} className={styles.form}>
+                <div className={styles.fields}>{emailField}</div>
+                {error && <p role="alert" className={styles.error}>{error}</p>}
+                <div className={styles.actions}>
+                  <button type="submit" className={`${styles.button} ${styles.primary}${busy ? ` ${styles.busy}` : ""}`} disabled={busy}>{busy ? "Sending…" : "Send reset link"}</button>
+                  <button type="button" className={styles.button} disabled={busy} onClick={() => switchMode("login")}>Back</button>
+                </div>
+              </form>
+            </>
+          )}
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main className={styles.page}>
       <section aria-labelledby="account-entry-title" className={`${styles.card} ${styles.cardWide}`}>
         <div className={styles.brand}><DiamondLogo className={styles.logo} size={24} />Diamond Animator</div>
         <h1 id="account-entry-title" className={styles.title}>Create account</h1>
-        <p className={styles.lead}>Three quick steps and you&apos;re ready to create.</p>
+        <p className={styles.lead}>Two quick steps and you&apos;re ready to create.</p>
         <form onSubmit={submit} className={styles.form}>
           <div className={styles.step}>
             <h2 className={styles.stepHead}><span className={styles.stepNumber} aria-hidden="true">1</span>Your details</h2>
@@ -127,25 +178,9 @@ export function AccountEntry() {
             </div>
           </div>
 
-          <fieldset className={`${styles.step} ${styles.stepDivider}`}>
-            <legend className={`${styles.stepHead} ${styles.legend}`}><span className={styles.stepNumber} aria-hidden="true">2</span>Pick a test plan</legend>
-            <p className={`${styles.muted} ${styles.stepHint}`}>Choose one. Test previews have no charge and don&apos;t change AI access.</p>
-            <div className={styles.plans}>
-              {ACCOUNT_PREVIEW_PLANS.map((plan) => {
-                const selected = previewPlan === plan.id;
-                return (
-                  <button key={plan.id} type="button" aria-pressed={selected} className={`${styles.plan}${selected ? ` ${styles.planSelected}` : ""}`} onClick={() => setPreviewPlan(plan.id)}>
-                    {plan.label}
-                    <span className={styles.planNote}>{selected ? "Selected · no charge" : "No charge"}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </fieldset>
-
           <div className={`${styles.step} ${styles.stepDivider}`}>
-            <h2 className={styles.stepHead}><span className={styles.stepNumber} aria-hidden="true">3</span>Create your account</h2>
-            <p className={`${styles.muted} ${styles.stepHint}`}>Your account lives on this computer. Password recovery isn&apos;t available yet.</p>
+            <h2 className={styles.stepHead}><span className={styles.stepNumber} aria-hidden="true">2</span>Create your account</h2>
+            <p className={`${styles.muted} ${styles.stepHint}`}>Your account lives on this computer.</p>
             {error && <p role="alert" className={styles.error}>{error}</p>}
             <div className={styles.actions}>
               <button type="submit" className={`${styles.button} ${styles.primary}${busy ? ` ${styles.busy}` : ""}`} disabled={submitDisabled}>{busy ? "Creating account…" : "Create account"}</button>

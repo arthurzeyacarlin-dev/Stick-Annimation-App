@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import styles from "./appChrome.module.css";
 import { NotificationTrigger } from "@/src/components/notifications/NotificationTrigger";
 import { useAccountSession } from "@/src/components/account/AccountSessionProvider";
-import { ACCOUNT_PREVIEW_PLANS } from "@/src/lib/account/accountConfig";
+import { AccountAvatarContent } from "@/src/components/account/AccountAvatar";
 import { runAccountProjectLogout } from "@/src/lib/account/projectPending";
 
 type AppChromeProps = {
@@ -19,6 +19,11 @@ const CloseIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
     <path d="M6 6l12 12M18 6 6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
   </svg>
+);
+
+// SPEC-0020 Phase 1 (Arthur): the account menu has only Profile and Log out.
+const ProfileIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="8.5" r="3.6" stroke="currentColor" strokeWidth="1.8" /><path d="M5 19.5c1.2-3.4 3.9-5 7-5s5.8 1.6 7 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>
 );
 
 const ChevronIcon = () => (
@@ -35,7 +40,6 @@ export function AppChrome({ page, theme }: AppChromeProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
-  const [menuView, setMenuView] = useState<"root" | "settings">("root");
   const [logoutBusy, setLogoutBusy] = useState(false);
   const [logoutError, setLogoutError] = useState<string | null>(null);
   const [accountPopoverOpen, setAccountPopoverOpen] = useState(false);
@@ -48,7 +52,6 @@ export function AppChrome({ page, theme }: AppChromeProps) {
         setMenuOpen(false);
         setAboutOpen(false);
         setTermsOpen(false);
-        setMenuView("root");
         setAccountPopoverOpen(false);
       }
     };
@@ -62,14 +65,9 @@ export function AppChrome({ page, theme }: AppChromeProps) {
     setMenuOpen(false);
     setAboutOpen(false);
     setTermsOpen(false);
-    setMenuView("root");
     setAccountPopoverOpen(false);
   };
 
-  const previewPlanLabel = account
-    ? ACCOUNT_PREVIEW_PLANS.find((plan) => plan.id === account.previewPlan)?.label ?? "Starter Preview"
-    : null;
-  const accountInitial = (account?.name || account?.email || "A").trim().slice(0, 1).toUpperCase();
 
   const logOut = async () => {
     if (logoutBusy) return;
@@ -133,13 +131,19 @@ export function AppChrome({ page, theme }: AppChromeProps) {
           {account && (
             <div className={styles.accountShell}>
               <button ref={accountButtonRef} type="button" className={styles.homeAvatar} aria-label={`Account for ${account.name || account.email}`} aria-expanded={accountPopoverOpen} title={account.email}
-                onClick={() => { setAccountPopoverOpen(open => !open); setLogoutError(null); setMenuOpen(false); }}>{accountInitial}</button>
+                onClick={() => { setAccountPopoverOpen(open => !open); setLogoutError(null); setMenuOpen(false); }}><AccountAvatarContent account={account} imageClassName={styles.avatarImage} /></button>
               {accountPopoverOpen && (
                 <div role="dialog" aria-label="Account actions" className={styles.accountPopover}>
-                  <strong>{account.name || account.email}</strong>
-                  <span className={styles.accountEmail}>{account.email}</span>
-                  <p className={styles.accountPlan}>{previewPlanLabel} · Local test preview</p>
-                  <small className={styles.accountNote}>No paid plan or real allowance.</small>
+                  <div className={styles.accountHead}>
+                    <span className={styles.accountHeadAvatar} aria-hidden="true"><AccountAvatarContent account={account} imageClassName={styles.avatarImage} /></span>
+                    <span className={styles.accountHeadText}>
+                      <strong>{account.name || account.email}</strong>
+                      <span className={styles.accountEmail}>{account.email}</span>
+                    </span>
+                  </div>
+                  <nav className={styles.accountLinks} aria-label="Account">
+                    <Link href="/account" className={styles.accountLink}><ProfileIcon />Profile</Link>
+                  </nav>
                   <button type="button" className={styles.logoutButton} onClick={logOut} disabled={logoutBusy}>{logoutBusy ? "Logging out…" : "Log out"}</button>
                   {logoutError && <div role="alert" className={styles.accountError}>{logoutError}</div>}
                 </div>
@@ -171,38 +175,24 @@ export function AppChrome({ page, theme }: AppChromeProps) {
 
         <div className={styles.divider} />
 
-        {menuView === "root" && (
-          <>
-            <div className={styles.section}>
-              <div className={styles.sectionLabel}>About Diamond Animator</div>
-              <button type="button" className={styles.panelButton} onClick={() => { setMenuOpen(false); setAboutOpen(true); }}>
-                Description <ChevronIcon />
-              </button>
-              <button type="button" className={styles.panelButton} onClick={() => { setMenuOpen(false); setTermsOpen(true); }}>
-                Terms of Policy <ChevronIcon />
-              </button>
-            </div>
+        <div className={styles.section}>
+          <div className={styles.sectionLabel}>About Diamond Animator</div>
+          <button type="button" className={styles.panelButton} onClick={() => { setMenuOpen(false); setAboutOpen(true); }}>
+            Description <ChevronIcon />
+          </button>
+          <button type="button" className={styles.panelButton} onClick={() => { setMenuOpen(false); setTermsOpen(true); }}>
+            Terms of Service <ChevronIcon />
+          </button>
+        </div>
 
-            <div className={styles.divider} />
+        <div className={styles.divider} />
 
-            <div className={styles.section}>
-              <div className={styles.sectionLabel}>Workspace</div>
-              <button type="button" className={styles.panelButton} onClick={() => setMenuView("settings")}>
-                Settings <ChevronIcon />
-              </button>
-            </div>
-          </>
-        )}
-
-        {menuView === "settings" && (
-          <div className={styles.settingsCard}>
-            <strong>Settings</strong>
-            <p>Settings are not available yet. Nothing here changes your account or projects.</p>
-            <button type="button" className={`${styles.panelButton} ${styles.backButton}`} onClick={() => setMenuView("root")}>
-              Back
-            </button>
-          </div>
-        )}
+        <div className={styles.section}>
+          <div className={styles.sectionLabel}>Workspace</div>
+          <Link href="/account#settings" className={styles.panelButton}>
+            Settings <ChevronIcon />
+          </Link>
+        </div>
 
         <div className={styles.divider} />
 
@@ -269,7 +259,7 @@ export function AppChrome({ page, theme }: AppChromeProps) {
             <div className={styles.modalHead}>
               <div className={styles.modalTitleGroup}>
                 <div className={styles.sectionLabel}>About Diamond Animator</div>
-                <h2 className={styles.modalTitle}>Terms of Policy</h2>
+                <h2 className={styles.modalTitle}>Terms of Service</h2>
               </div>
               <button type="button" aria-label="Close terms" onClick={() => setTermsOpen(false)} className={styles.iconButton}>
                 <CloseIcon />

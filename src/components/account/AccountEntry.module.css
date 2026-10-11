@@ -153,3 +153,6 @@
 /* SPEC-0020 Phase 1: "Forgot password?" link row and the sent screen. */
 .forgotRow { display: flex; justify-content: flex-end; margin: -8px 0 0; }
 .sentActions { margin-top: 24px; }
+
+/* SPEC-0020 Phase 2: links styled as buttons (trial-ended screen, reset page). */
+a.button { text-decoration: none; }

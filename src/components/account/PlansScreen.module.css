@@ -1,0 +1,23 @@
+/* SPEC-0020 Phase 2: plans page. Only clickable things are boxes (Arthur); hover = #0066ff, white text, instant. */
+.main { padding: 40px clamp(20px, 4vw, 56px) 64px; }
+.main *, .main *::before, .main *::after { box-sizing: border-box; transition: none; animation: none; }
+.frame { display: flex; flex-direction: column; gap: 12px; width: min(960px, 100%); margin: 0 auto; }
+.eyebrow { margin: 0; color: #7895bc; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.title { margin: 0; color: #f6f9ff; font-size: 34px; font-weight: 760; letter-spacing: -.03em; }
+.lead { margin: 0; color: #a8bddd; font-size: 15px; }
+.testMode { margin: 8px 0 0; color: #f0b542; font-size: 13px; }
+.plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
+.plan { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 22px; border: 1px solid #244267; border-radius: 14px; background: #071120; color: #f6f9ff; font: inherit; text-align: left; cursor: pointer; }
+.plan ul { margin: 6px 0 8px; padding-left: 18px; color: #a8bddd; font-size: 13.5px; line-height: 1.6; }
+.popular { border-color: #3a6aa3; }
+.current { border-color: #3a6aa3; background: #0f2a52; cursor: default; }
+.planName { font-size: 18px; font-weight: 750; }
+.price { color: #f6f9ff; font-size: 26px; font-weight: 760; letter-spacing: -.02em; }
+.choose { margin-top: auto; color: #8cbbf3; font-size: 14px; font-weight: 700; }
+.plan:hover:not(:disabled) { border-color: #0066ff; background: #0066ff; }
+.plan:hover:not(:disabled) ul, .plan:hover:not(:disabled) .choose { color: #fff; }
+.plan:disabled { cursor: default; }
+.plan:focus-visible { outline: 2px solid #66c7ff; outline-offset: 3px; }
+.error { margin: 0; color: #ff8a95; font-size: 13px; }
+.note { margin: 10px 0 0; color: #8fabd0; font-size: 13px; }
+@media (max-width: 760px) { .plans { grid-template-columns: 1fr; } }

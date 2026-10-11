@@ -1,9 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { useAccountSession } from "./AccountSessionProvider";
 import { AccountAvatarContent } from "./AccountAvatar";
+import { useAccountPlan } from "./useAccountPlan";
 import { ACCOUNT_PROFILE_IMAGE_MAX_CHARS } from "@/src/lib/account/accountConfig";
 import { readAccountJson, writeAccountJson } from "@/src/lib/account/accountDataClient";
 import styles from "./AccountProfileScreen.module.css";
@@ -50,6 +52,7 @@ async function pictureToDataUrl(file: File): Promise<string> {
 export function AccountProfileScreen() {
   const account = useAccountSession();
   const router = useRouter();
+  const { status: plan } = useAccountPlan();
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [name, setName] = useState(account?.name ?? "");
@@ -201,6 +204,16 @@ export function AccountProfileScreen() {
           </form>
           <div className={styles.label}>Email<span className={styles.readOnly}>{account.email}</span></div>
           {profileStatus && <p role={profileStatus.kind === "error" ? "alert" : "status"} className={profileStatus.kind === "error" ? styles.error : styles.ok}>{profileStatus.text}</p>}
+        </section>
+
+        <section className={styles.card} aria-labelledby="plan-heading">
+          <h2 id="plan-heading" className={styles.cardTitle}>Your plan</h2>
+          <div className={styles.planRow}>
+            <p className={styles.help}>{!plan ? "Loading your plan…" : plan.trialEndsAt !== null
+              ? `Free trial · ${plan.creditsLeft.toLocaleString("en-US")} of ${plan.creditsTotal} AI credits left · ${plan.trialDaysLeft === 1 ? "1 day" : `${plan.trialDaysLeft} days`} left`
+              : `${plan.label} plan · ${plan.creditsLeft.toLocaleString("en-US")} of ${plan.creditsTotal.toLocaleString("en-US")} AI credits left · refills ${new Date(plan.windowEnd).toLocaleDateString("en-US", { month: "long", day: "numeric" })}`}</p>
+            <Link href="/plans" className={`${styles.button} ${styles.primary}`}>{plan?.trialEndsAt !== null ? "Choose a plan" : "Change plan"}</Link>
+          </div>
         </section>
 
         <section className={styles.card} aria-labelledby="password-heading">

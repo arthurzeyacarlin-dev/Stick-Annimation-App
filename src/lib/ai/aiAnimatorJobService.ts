@@ -12,6 +12,7 @@ import {
 import {
   noUsageEventRecorder, projectAcceptedEvent, projectTerminalEvent, type UsageEventRecorder,
 } from "../usage-journal/usageJournalEvents.ts";
+import { accountAiCreditGate, type AiCreditGate } from "../account/aiCredits.ts";
 
 type Provider = (request: AiAnimatorRequest, options: { signal: AbortSignal }) => Promise<AiAnimatorProviderResult>;
 type InternalJob = AiAnimatorJobSnapshot & { ownerId: string; abortController: AbortController };
@@ -34,10 +35,14 @@ export class AiAnimatorJobService {
   private readonly jobs = new Map<string, InternalJob>();
   private readonly provider: Provider;
   private readonly recordUsage: UsageEventRecorder;
+  private readonly credits: AiCreditGate;
 
-  constructor(provider: Provider, recordUsage: UsageEventRecorder = noUsageEventRecorder) {
+  // SPEC-0020 Phase 2: every account's AI credits are checked before a message starts and one credit is spent
+  // when the message gets an answer (failed or stopped messages are free).
+  constructor(provider: Provider, recordUsage: UsageEventRecorder = noUsageEventRecorder, credits: AiCreditGate = accountAiCreditGate) {
     this.provider = provider;
     this.recordUsage = recordUsage;
+    this.credits = credits;
   }
 
   private meter(event: Parameters<UsageEventRecorder>[0]) { try { this.recordUsage(event); } catch { /* Best-effort observation only. */ } }
@@ -58,6 +63,7 @@ export class AiAnimatorJobService {
     if (environmentActiveCount >= 2) {
       throw Object.assign(new Error("AI Animator is busy. Try again after an active request finishes."), { status: 429 });
     }
+    this.credits.assertAvailable(ownerId, environmentActiveCount);
 
     const now = new Date().toISOString();
     const event: AiAnimatorJobEvent = { sequence: 1, status: "thinking", createdAt: now };
@@ -165,6 +171,7 @@ export class AiAnimatorJobService {
         usage: result.usage,
       };
       this.meter(projectTerminalEvent(request, "succeeded", Date.parse(job.completedAt)));
+      try { this.credits.spend(job.ownerId, job.jobId); } catch { /* The answer is already shown; a failed count must not break it. */ }
     } catch (error) {
       if (isAiAnimatorTerminalStatus(job.status)) {
         return;

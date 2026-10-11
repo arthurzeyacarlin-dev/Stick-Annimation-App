@@ -3,9 +3,8 @@ import { betterAuth } from "better-auth";
 import fs from "node:fs";
 import path from "node:path";
 import { ACCOUNT_LOCAL_ORIGIN, ACCOUNT_LOCAL_ORIGINS, ACCOUNT_PREVIEW_PLANS, isAccountProfileImage } from "./accountConfig";
-import { deleteAllAccountDataForOwner } from "./accountDataServer";
-import { sendAccountMail } from "./accountMail";
-import { deleteAllAccountProjects } from "./projectServer";
+// Server-only helpers are imported inside the hooks (not at the top), so the account setup tool
+// (`npm exec -- auth migrate --config src/lib/account/auth.ts`) can still load this file.
 
 const LOCAL_ROOT = path.resolve(process.cwd(), ".local/spec0015-phase3");
 const SECRET_PATH = path.join(LOCAL_ROOT, "auth-secret");
@@ -54,6 +53,7 @@ export const auth = betterAuth({
     resetPasswordTokenExpiresIn: 60 * 60,
     revokeSessionsOnPasswordReset: true,
     sendResetPassword: async ({ user, url }) => {
+      const { sendAccountMail } = await import("./accountMail");
       await sendAccountMail({
         to: user.email,
         subject: "Reset your Diamond Animator password",
@@ -78,8 +78,10 @@ export const auth = betterAuth({
     deleteUser: {
       enabled: true,
       beforeDelete: async (user) => {
+        const [{ deleteAllAccountProjects }, { deleteAllAccountDataForOwner }, { deleteAccountPlan }] = await Promise.all([import("./projectServer"), import("./accountDataServer"), import("./aiCredits")]);
         await deleteAllAccountProjects(user.id);
         deleteAllAccountDataForOwner(user.id);
+        deleteAccountPlan(user.id);
       },
     },
   },

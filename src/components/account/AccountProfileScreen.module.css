@@ -7,7 +7,8 @@
 .eyebrow { margin: 0; color: #7895bc; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
 .title { margin: 0; color: #f6f9ff; font-size: 34px; font-weight: 760; letter-spacing: -.03em; }
 
-.card { display: flex; flex-direction: column; gap: 16px; padding: 22px 24px; border: 1px solid #163058; border-radius: 14px; background: #071120; }
+/* Arthur (SPEC-0020 Phase 2): no boxes — only clickable things get a box; sections are split by a line. */
+.card { display: flex; flex-direction: column; gap: 16px; padding: 22px 2px; border-top: 1px solid #163058; }
 .cardTitle { margin: 0; color: #f6f9ff; font-size: 17px; font-weight: 700; letter-spacing: -.01em; }
 .help { margin: 0; color: #8fabd0; font-size: 13px; line-height: 1.5; }
 
@@ -49,7 +50,7 @@
 .checkRow { display: flex; align-items: center; gap: 10px; color: #c9d6ea; font-size: 13.5px; cursor: pointer; }
 .checkRow input { width: 16px; height: 16px; accent-color: #d23a52; }
 
-.danger { border-color: rgba(255, 138, 149, .28); }
+.danger { border-top-color: rgba(255, 138, 149, .35); }
 .dangerButton { border-color: rgba(255, 138, 149, .4); color: #ff8a95; }
 .dangerButton:hover:not(:disabled) { border-color: #d23a52; background: #d23a52; color: #fff; }
 
@@ -60,3 +61,6 @@
   .twoColumns { grid-template-columns: 1fr; }
   .title { font-size: 28px; }
 }
+
+.planRow { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+a.button { text-decoration: none; }

@@ -18,6 +18,7 @@ export const TERRA_PENDING_STORAGE_KEY_V1 = "diamond_terra_pending_jobs_v1";
 const TERRA_PENDING_CHANGED_EVENT_V1 = "diamond-terra-pending-changed-v1";
 const TERRA_LOCK_KEY_V1 = "diamond_terra_completion_lease_v1";
 const POLL_INTERVAL_MS = 300;
+const SCAN_RETRY_MS = 5_000;
 const REQUEST_TIMEOUT_MS = 10_000;
 const PREPARED_GRACE_MS = 18_000;
 const MAX_PENDING = 40;
@@ -316,6 +317,11 @@ async function scan() {
       polling.set(descriptor.jobId, controller);
       void poll(descriptor, controller);
     }
+  } catch (error) {
+    // SPEC-0020 Phase 2 fix: a failed background read (logged out, server restarting, "Failed to fetch") was
+    // never caught and showed as a red error box. Now: logged out → stop checking; anything else → retry later.
+    scanInFlight = false;
+    if (!(error instanceof Error && error.message === "account_session_required")) scheduleScan(SCAN_RETRY_MS);
   } finally { scanInFlight = false; }
 }
 

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { CreditsBadge } from "@/src/components/account/CreditsBadge";
 
 type DrawingTopBarProps = {
   projectTitle?: string;
@@ -323,6 +324,7 @@ export function DrawingTopBar({
           <span style={{ fontSize: 12, fontWeight: 500, color: "#ff8a95" }}>{recoveryStateLabel}</span>
         ) : null}
         {isLegacyProject ? <span style={{ fontSize: 12, color: "#8fabd0" }}>{syncLabel}</span> : null}
+        <CreditsBadge />
         <div
           role="status"
           aria-live="polite"

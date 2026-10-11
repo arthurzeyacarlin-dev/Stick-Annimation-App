@@ -60,8 +60,8 @@ export function AiUsageChart({ buckets, filter, complete, capacity }: { buckets:
   return (
     <div className={styles.chartArea} aria-label={`${sourceName[filter]} weekly test preview chart`}>
       <div className={styles.thresholdLegend} aria-label="Preview limit markers">
-        <span><i className={styles.roofKey} aria-hidden="true" />Red line: weekly preview limit reached</span>
-        <span><i className={styles.warningKey} aria-hidden="true" />Dashed line: 10% left before the preview limit</span>
+        <span><i className={styles.roofKey} aria-hidden="true" />Red line: 10,000 tokens in a week (a guide, not your credits)</span>
+        <span><i className={styles.warningKey} aria-hidden="true" />Dashed line: 9,000 tokens</span>
       </div>
       <div className={styles.plotWrap} ref={plotRef}
         onPointerDown={(event) => {

@@ -1,5 +1,15 @@
 # Current State
 
+## D-0187 — PM3: SPEC-0020 Phase 3 (Home, menus, Settings + Appearance, notifications) published; Phase 4 (workspace small fixes) is next (current, PM3 — app and website)
+
+Arthur passed SPEC-0020 Phase 3 on 2026-10-11 (D-0187). Product commit `9c55342` is on main and GitHub.
+
+- Settings `/settings`: Appearance (Dark / Bright, 7 accent colors that recolor the whole app), notification sound + volume, ring the bell, frames per second for new projects. Theme from a cookie on first paint; colors through `--da-*` tokens + generated `app/themes.css`.
+- Home brush icon and bigger shortcut cards; menu slides in; global Back arrow and close X (no boxes); "Diamond Animator Pro" removed; profile circle hover by picture/no picture.
+- Notifications: bell ring visible, "ding ding" everywhere (editor too), green/red/blue count dots, auto-read on close, offline kept next to restored.
+- **Checks:** type check; lint of changed files (only old warnings); tests 12/12 (plans, credit spending, notification colors); tried in the app copy: settings save + reach other tabs, sound off = silent / on = one ding (counted), new project at 24 fps, Dark unchanged, Bright + purple + pink on Home / Dashboard / Settings / Open Project / Assistant / editor, header logo visible, bell ring animation running, dots and auto-read. Main app on port 3000 checked after the merge (Settings with Appearance, themes loaded).
+- **Next:** SPEC-0020 Phase 4 — workspace small fixes (Arthur's list) + editor menus + unsaved-work warnings.
+
 ## D-0186 — PM3: SPEC-0020 Phase 2 (credits, plans, 14-day trial) published; Phase 3 (Home, menus, help, notifications) is next (current, PM3 — app and website)
 
 Arthur passed SPEC-0020 Phase 2 on 2026-10-11 (D-0186). Product commit `7049ab3` is on main and GitHub.

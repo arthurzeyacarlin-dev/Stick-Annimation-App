@@ -1,6 +1,6 @@
 # SPEC-0020 — Ready for beta users (the app around the AI Animator)
 
-Status: **APPROVED by Arthur 2026-10-11.** Phase 1 PASSED and published 2026-10-11 (D-0185, `0527663`). Phase 2 PASSED and published 2026-10-11 (D-0186, `7049ab3`). **Phase 3 is next.** (Written by PM3.)
+Status: **APPROVED by Arthur 2026-10-11.** Phase 1 PASSED and published 2026-10-11 (D-0185, `0527663`). Phase 2 PASSED and published 2026-10-11 (D-0186, `7049ab3`). Phase 3 PASSED and published 2026-10-11 (D-0187, `9c55342`). **Phase 4 is next.** (Written by PM3.)
 Owner: Arthur · Builder: Claude (PM3) · Launch: **Tuesday, October 20, 2026**
 Baseline: `main` at `22efcf2`
 Not in this spec: the AI Animator engine and Luna (PM2, SPEC-0019), and the website (SPEC-0018).
@@ -47,16 +47,16 @@ Each phase is built in its own app copy, Arthur reviews it, and only on his OK: 
 - Storage: `.local/spec0015-phase3/account-plans.sqlite` (plan + one row per answered message). Development test switch: `/dev/plan`.
 - Fixes found on the way: the AI Animator reply checker showed a red error box when a background read failed (now: logged out → stop, else retry in 5 s); `auth.ts` loads server-only helpers inside its hooks so `npm exec -- auth migrate` works again.
 
-### Phase 3 — Home, menus, help and notifications (Wed Oct 14)
-- **Home:** a big "Animate with AI" card (opens a new project with the AI Animator ready); the recent-projects card shows your last saved projects (today it only remembers this visit).
-- **Side menu:** new Description (the AI Animator, stick figures, made by Arthur); "Terms of Service" opening the real terms; **Report a problem** that really sends (saved, and emailed once emails work).
-- **Guided setup:** either does something useful (shows the AI Animator first) or is removed — Arthur picks.
-- **Tutorials:** hide the card until they exist, or 3 short starter lessons — Arthur picks.
-- **Notifications:** Arthur's tweaks, plus useful messages (welcome, credits running low, trial ending in 3 days, export finished); "Terra" becomes "the AI Animator" everywhere users see it.
-- **Diamond Assistant:** its product knowledge updated to the real app (it describes buttons and a model that don't exist).
-- **Export wording:** remove "Phase 3", no "Finder"/"this Mac"; a clear message on browsers that can't save. (GIF or share link: Arthur decides, later.)
-- **Buttons:** Arthur's tweaks list.
-- **Phones and tablets:** a friendly "Diamond Animator works on computers" screen.
+### Phase 3 — Home, menus, Settings, notifications (Sun Oct 11) — PASSED, published (`9c55342`)
+Arthur replaced the planned list with his own (several review rounds):
+- **Home:** empty recent card shows the editor's Brush icon; "+" lifted; Open Project / Help: big icon column on the left, title + subtitle to the right (tuned smaller and further left).
+- **Side menu** slides in from the right; its close X has no box; "Diamond Animator Pro" → "Diamond Animator" everywhere.
+- **Settings page** `/settings` (separate from Profile and the plan): **Appearance** — Dark / Bright and 7 accent colors (Diamond blue, purple, green, orange, pink, red, teal) that recolor the whole app in both modes; **Notifications** — sound on/off, volume (quiet/normal/loud), ring the bell; **New projects** — frames per second (12/24/30). Arthur rejected "layout-only" settings (reduce motion, show credits, welcome screen): every setting must change something real.
+- **Appearance engineering:** the core palette (~1,100 typed-in colors in 35 files) now uses the shared `--da-*` tokens with the old colors as fallbacks, so Dark + Diamond blue is unchanged; `app/themes.css` is generated (script in the PM3 session scratchpad: hue-shifted palettes per accent, light versions for Bright) and set on `<html data-theme data-accent>` from a cookie (no flash). The logo stays solid white: in Bright the top bar is a darker accent shade with white text (hover = bright accent), and on other light backgrounds the logo sits on a small dark tile. The editor and the AI Animator panel follow through `workspaceTheme.ts` (no PM2 files edited). The drawing canvas and drawing colors never change.
+- **One global Back control** (an arrow, no box) and **one close X** (no box) on every screen.
+- **Profile circle:** no picture → the whole circle turns the accent on hover; with a picture → only the outline glows.
+- **Notifications:** the bell rings left-right (the header had a rule blocking every animation); a "ding ding" plays once per notification on every page, the editor too, following Settings; count dots green (good) / red (bad) / blue (update), side by side for two kinds, a triangle for three; opening the bell fades the dots, closing it marks everything read (no "Mark all as read"); "internet lost" stays next to "internet restored"; "Terra" is shown as "AI Animator".
+- **Not done (later):** blue "update" notifications need a producer (detect a new version once online — Phase 5); content-policy blocking with a user notification and an email to Arthur; the Phase 3 items Arthur didn't ask for this round (Animate with AI card, Report a problem, Assistant knowledge, export wording, computers-only screen) move to Phase 4's list for his choice.
 
 ### Phase 4 — Workspace small fixes (Thu Oct 15 – Fri Oct 16)
 - Arthur's list of tiny workspace things (he gives it at the start of the phase).

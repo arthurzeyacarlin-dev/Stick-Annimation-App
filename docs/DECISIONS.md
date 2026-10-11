@@ -1834,6 +1834,14 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Publication: product commit `7049ab3` fast-forwarded into main and pushed, followed by this records commit.
 - Next: SPEC-0020 Phase 3 (Home, menus, help and notifications).
 
+### D-0187 — SPEC-0020 Phase 3 (Home, menus, Settings + Appearance, notifications) accepted and published (PM3)
+
+- Date: 2026-10-11
+- Arthur passed Phase 3 after several review rounds. His rules: Settings must change real things (no layout-only switches); every close is a plain X and every back a plain arrow (no boxes); accents recolor the whole app (Dark = dark shades of the accent, Bright = light version); the logo is always solid white (Bright: darker accent top bar; elsewhere a small dark tile); notification dots are green good / red bad / blue update with counts; opening the bell fades dots and closing marks read.
+- The app's colors now come from the shared `--da-*` tokens (with the old colors as fallbacks) plus generated `app/themes.css`. New UI must use `var(--da-…)` tokens, never typed-in hex, so themes keep working (applies to PM2's new UI too).
+- Publication: product commit `9c55342` fast-forwarded into main and pushed, followed by this records commit.
+- Next: SPEC-0020 Phase 4 (workspace small fixes).
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

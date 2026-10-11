@@ -223,7 +223,7 @@ Estimates until measured in the test:
 - a 30-second scene of several shots: roughly the sum of its shots.
 The test records the real cost and time of every animation.
 
-The test budget is **$20 for Claude calls** (approved by dad, Sun 2026-10-11), tracked in the harness spend file and
+The test budget is **$20 for Claude calls** (approved by dad, Sun 2026-10-11) (a later message asking to raise it was not confirmed as the dad's — the cap stays $20 until he confirms), tracked in the harness spend file and
 refused when reached.
 
 ## 8. Making It Cheaper Over Time (the goal: a few cents an animation)

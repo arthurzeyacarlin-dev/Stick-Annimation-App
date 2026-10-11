@@ -55,7 +55,8 @@ const yieldToBrowser = () => new Promise<void>(resolve => {
 });
 
 export async function preflightLocalMp4(request: ExportRequestV1) {
-  if (!window.isSecureContext || typeof window.showSaveFilePicker !== "function") throw new Error("export_finder_unavailable");
+  // (SPEC-0020 Phase 5: no save window needed — browsers without one get a download instead.)
+  if (!window.isSecureContext) throw new Error("export_finder_unavailable");
   if (!(await canEncodeVideo("avc", {
     width: request.outputCanvas.width,
     height: request.outputCanvas.height,

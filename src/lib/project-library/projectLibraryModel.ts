@@ -95,38 +95,61 @@ export const formatProjectDuration = (durationSeconds: number) => {
   return `${minutes}:${String(seconds).padStart(2, "0")}`;
 };
 
-export const formatProjectUpdatedAt = (updatedAt: string | null) => {
-  if (!updatedAt) return { visible: "Saved locally · time unavailable", iso: null };
-  const value = new Date(updatedAt);
-  if (Number.isNaN(value.getTime())) return { visible: "Saved locally · invalid saved time", iso: null };
-  return { visible: value.toLocaleString(), iso: value.toISOString() };
+// SPEC-0020 Phase 5: a project's length in plain words. Short animations show
+// tenths of a second ("0.3 s") instead of "0:00"; longer ones show m:ss.
+export const formatProjectLength = (durationSeconds: number) => {
+  const totalSeconds = Number.isFinite(durationSeconds) ? Math.max(0, durationSeconds) : 0;
+  if (totalSeconds < 10) {
+    const tenths = Math.round(totalSeconds * 10) / 10;
+    return `${Number.isInteger(tenths) ? tenths : tenths.toFixed(1)} s`;
+  }
+  return formatProjectDuration(totalSeconds);
 };
 
-export const shortenProjectIdentity = (entry: ProjectCollectionEntry) => {
-  const identity = entry.sourceId || entry.locator;
-  return identity.length <= 18 ? identity : `${identity.slice(0, 8)}…${identity.slice(-6)}`;
+export const formatProjectUpdatedAt = (updatedAt: string | null) => {
+  if (!updatedAt) return { visible: "Save time unknown", iso: null };
+  const value = new Date(updatedAt);
+  if (Number.isNaN(value.getTime())) return { visible: "Save time unknown", iso: null };
+  return { visible: value.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" }), iso: value.toISOString() };
+};
+
+// SPEC-0020 Phase 5: "Edited 5 minutes ago" / "Edited yesterday" / "Edited Oct 3".
+export const formatProjectEditedAgo = (updatedAt: string | null, now = Date.now()) => {
+  const time = updatedAt ? Date.parse(updatedAt) : Number.NaN;
+  if (!Number.isFinite(time)) return "Edited earlier";
+  const minutes = Math.floor(Math.max(0, now - time) / 60_000);
+  if (minutes < 1) return "Edited just now";
+  if (minutes < 60) return `Edited ${minutes} minute${minutes === 1 ? "" : "s"} ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `Edited ${hours} hour${hours === 1 ? "" : "s"} ago`;
+  const days = Math.floor(hours / 24);
+  if (days === 1) return "Edited yesterday";
+  if (days < 7) return `Edited ${days} days ago`;
+  const date = new Date(time);
+  const sameYear = date.getFullYear() === new Date(now).getFullYear();
+  return `Edited ${date.toLocaleDateString(undefined, sameYear ? { month: "short", day: "numeric" } : { month: "short", day: "numeric", year: "numeric" })}`;
 };
 
 export const projectClassificationLabel = (entry: ProjectCollectionEntry) => {
-  if (entry.classification === "invalid") return "Unavailable local record";
-  if (entry.classification === "legacy") return "Protected legacy source";
-  if (entry.protectedSource) return "Native project · original legacy source kept";
-  return "Native project · saved in this browser";
+  if (entry.classification === "invalid") return "Can't be opened";
+  if (entry.classification === "legacy") return "Older project";
+  return "Saved animation";
 };
 
 export const projectFailureMessage = (error: unknown) => {
   const code = error instanceof Error ? error.message : typeof error === "string" ? error : "storage_read_failed";
-  if (code === "source_changed") return { code, message: "Project changed or was deleted. Refresh and try again." };
-  if (code === "duplicate_identity") return { code, message: "Conflicting local records share this project identity. Watching is disabled." };
+  if (code === "source_changed") return { code, message: "This project changed or was deleted. Refresh and try again." };
+  if (code === "duplicate_identity") return { code, message: "Two saved copies of this project don't match, so it can't be opened." };
   if (code === "asset_missing" || code === "asset_digest_mismatch" || code === "source_digest_mismatch") {
-    return { code, message: "Saved project data is missing or corrupt. The record remains listed." };
+    return { code, message: "Part of this project is missing or damaged, so it can't be opened." };
   }
   if (code === "invalid_record" || code === "invalid_cell_owner" || code === "source_space_inconsistent") {
-    return { code, message: "This local project record is invalid and cannot be watched safely." };
+    return { code, message: "This project is damaged and can't be opened." };
   }
   if (code === "unsupported_version" || code === "rig_migration_incomplete") {
-    return { code, message: "This local project format is not supported for watching yet." };
+    return { code, message: "This project was made with an older version of the app and can't be opened yet." };
   }
-  if (code === "project_too_large") return { code, message: "This project is too large to load safely." };
-  return { code, message: "This local project is unavailable. Nothing was changed." };
+  if (code === "project_too_large") return { code, message: "This project is too big to open." };
+  if (code === "no_frames") return { code, message: "This animation has no frames to export yet." };
+  return { code, message: "This project can't be opened right now. Nothing was changed." };
 };

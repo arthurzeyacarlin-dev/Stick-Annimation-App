@@ -3655,7 +3655,8 @@ type DrawingWorkspaceProps = {
   initialTitle: string;
   unifiedProject: UnifiedAnimationProjectV2;
   recoveryClaim?: RecoveredWorkspaceClaimV1;
-  onExport?: () => void;
+  /** Opens Export; gets the saved project's id when the save just before it worked. */
+  onExport?: (savedProjectId: string | null) => void;
   onExit?: () => void;
 };
 
@@ -8550,6 +8551,13 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     finally { saveInFlightRef.current = false; }
   }, [buildUnifiedProjectSnapshot, clearCoveredRecoveryDraft, commitCurrentFrameSnapshotWithoutHistory, createPersistedProjectSnapshot, openedInitialProject.id, ownerId, projectId, publishAndClearCoveredRecoveryDraft, showSaveNotification]);
 
+  // SPEC-0020 Phase 5: Export always saves first, so the export has your newest drawing, then opens on this project.
+  const exportProject = useCallback(async () => {
+    if (!onExport) return;
+    const result = await saveProject();
+    onExport(result.officialWriteSucceeded ? activeUnifiedProjectRef.current.projectId : null);
+  }, [onExport, saveProject]);
+
   const armBackgroundSave = useCallback((delayMs: number) => {
     if (backgroundSaveTimerRef.current !== null) window.clearTimeout(backgroundSaveTimerRef.current);
     backgroundSaveTimerRef.current = window.setTimeout(() => {
@@ -9920,7 +9928,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       if (command && event.code === "KeyS" && event.altKey && onExit) { event.preventDefault(); void saveAndExit(); return; }
       if (command && event.code === "KeyS" && event.shiftKey) { event.preventDefault(); handleSaveAs(); return; }
       if (command && event.code === "KeyS") { event.preventDefault(); void saveProject(); return; }
-      if (command && event.code === "KeyE" && onExport) { event.preventDefault(); onExport(); return; }
+      if (command && event.code === "KeyE" && onExport) { event.preventDefault(); void exportProject(); return; }
       if (command && key === "z" && !event.shiftKey) { event.preventDefault(); if (!isTimelinePlayingRef.current) handleUndo(); return; }
       if (command && ((key === "z" && event.shiftKey) || key === "y")) { event.preventDefault(); if (!isTimelinePlayingRef.current) handleRedo(); return; }
       if (command && (key === "=" || key === "+")) { event.preventDefault(); drawingCanvasRef.current?.zoomBy(1.25); return; }
@@ -9934,7 +9942,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [handleRedo, handleSaveAs, handleUndo, insertAtSelection, isAssistantOpen, onExit, onExport, saveAndExit, saveProject, togglePlayback]);
+  }, [exportProject, handleRedo, handleSaveAs, handleUndo, insertAtSelection, isAssistantOpen, onExit, onExport, saveAndExit, saveProject, togglePlayback]);
 
   return (
     <>
@@ -10035,7 +10043,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         projectTitle={projectTitle}
         onSave={async () => { await saveProject(); }}
         onSaveAs={handleSaveAs}
-        onExport={onExport}
+        onExport={onExport ? () => void exportProject() : undefined}
         onSaveAndExit={onExit ? saveAndExit : undefined}
         saveState={saveState}
         accountSaved={Boolean(ownerId)}

@@ -13,11 +13,10 @@ import { createAccountProjectRepositoryV2, createAccountProjectSourceReader } fr
 import { inspectProjectRecoveryDraftV1 } from "@/src/lib/animation/projectRecoveryStorageV1";
 import {
   filterAndSortProjectEntries,
-  formatProjectDuration,
+  formatProjectLength,
   formatProjectUpdatedAt,
   projectClassificationLabel,
   projectFailureMessage,
-  shortenProjectIdentity,
   type ProjectLibrarySnapshot,
   type ProjectLibrarySort,
 } from "@/src/lib/project-library/projectLibraryModel";
@@ -92,7 +91,7 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
   const pendingFocusIdRef = useRef<string | null>(null);
 
   const heading = surface === "watch" ? "My Projects" : "Open Project";
-  const help = surface === "combined" ? "Edit, watch, or export your saved animations." : surface === "watch" ? (ownerId ? "Watch animations saved to your account" : "Watch saved animations stored in this browser") : "Choose a saved project to edit";
+  const help = surface === "combined" ? "Edit, watch, or export your saved animations." : surface === "watch" ? "Watch animations saved to your account" : "Choose a saved project to edit";
   const actionLabel = surface === "watch" ? "Watch" : "Edit";
   const visibleEntries = useMemo(() => filterAndSortProjectEntries(entries, query, sort), [entries, query, sort]);
 
@@ -225,13 +224,28 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
     };
   }, [controller, entries, restorePrimaryFocus, viewer]);
 
+  // SPEC-0020 Phase 5: Escape anywhere and a click outside both close the "•••" menu.
+  // A click on the same "•••" button is left to its own toggle.
   useEffect(() => {
     if (!menu) return;
     const close = (event: PointerEvent) => {
-      if (!menuRef.current?.contains(event.target as Node)) setMenu(null);
+      const target = event.target as Node;
+      if (menuRef.current?.contains(target)) return;
+      if (overflowRefs.current.get(menu.entryId)?.contains(target)) return;
+      setMenu(null);
     };
-    window.addEventListener("pointerdown", close);
-    return () => window.removeEventListener("pointerdown", close);
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      setMenu(null);
+      menuInvokerRef.current?.focus({ preventScroll: true });
+    };
+    window.addEventListener("pointerdown", close, true);
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      window.removeEventListener("pointerdown", close, true);
+      window.removeEventListener("keydown", closeOnEscape);
+    };
   }, [menu]);
 
   useEffect(() => {
@@ -243,19 +257,19 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
     const state = snapshots[entry.id];
     if (state?.status !== "ready" || busyEntryId) return;
     setBusyEntryId(entry.id);
-    setNotice(action !== "edit" ? "Checking the exact saved animation…" : "Checking the complete saved project before opening…");
+    setNotice(action !== "edit" ? "Loading…" : "Opening…");
     try {
       if (action !== "edit") {
         const current = await controller.watch(entry);
         if (current.snapshot.projectDigest !== state.project.snapshot.projectDigest) throw new Error("source_changed");
         if (action === "export") {
-          if (current.snapshot.frameCount === 0) throw new Error("No authored frames to export.");
+          if (current.snapshot.frameCount === 0) throw new Error("no_frames");
           setExportProject(current);
         } else setViewer({ project: current, entryId: entry.id });
         setNotice(null);
       } else {
         const result = await onOpenProject?.(entry);
-        if (!result || result.status === "failed") setNotice(`This project could not be opened safely${result?.status === "failed" ? ` (${result.code})` : ""}. The current editor was not changed.`);
+        if (!result || result.status === "failed") setNotice("This project couldn't be opened. Nothing was changed.");
         else if (result.status === "stale") setNotice("Open cancelled. Nothing was changed.");
       }
     } catch (error) {
@@ -326,7 +340,7 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
     setDialogError(null);
     const focusId = result.kind === "delete" ? nextLogicalId : result.project ? `unified-v2:${result.project.projectId}` : entry.id;
     pendingFocusIdRef.current = focusId;
-    await loadCollection(result.kind === "rename" ? "Project renamed." : result.kind === "duplicate" ? "Project duplicated as an independent native copy." : "Project deleted from your account.");
+    await loadCollection(result.kind === "rename" ? "Project renamed." : result.kind === "duplicate" ? "Project duplicated." : "Project deleted from your account.");
   };
 
   const menuEntry = menu ? entries.find(entry => entry.id === menu.entryId) ?? null : null;
@@ -420,14 +434,14 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
                         }
                       }}>
                       <button ref={node => { if (node) primaryRefs.current.set(entry.id, node); else primaryRefs.current.delete(entry.id); }} type="button" className={styles.cardButton} aria-disabled={cardDisabled}
-                        aria-label={ready ? `${actionLabel} ${entry.title}` : `${entry.title}. ${unavailable ? state.message : "Preparing saved project details"}`}
+                        aria-label={ready ? `${actionLabel} ${entry.title}` : `${entry.title}. ${unavailable ? state.message : "Loading"}`}
                         onClick={() => { if (!cardDisabled) void activateProject(entry); }}>
-                        <span className={styles.posterFrame}>{ready ? <ProjectPoster key={state.project.snapshot.projectDigest} project={state.project} /> : <span className={unavailable ? styles.posterFailure : styles.posterStatus}>{unavailable ? "Unavailable" : "Preparing exact poster…"}</span>}</span>
+                        <span className={styles.posterFrame}>{ready ? <ProjectPoster key={state.project.snapshot.projectDigest} project={state.project} /> : <span className={unavailable ? styles.posterFailure : styles.posterStatus}>{unavailable ? "Unavailable" : "Loading preview…"}</span>}</span>
                         <span className={styles.cardBody}>
                           <span className={styles.titleRow}><span className={styles.projectTitle}>{entry.title}</span><span className={ready ? styles.watchPill : styles.statusPill}>{busy ? "Working…" : ready ? actionLabel : unavailable ? "Unavailable" : "Loading"}</span></span>
                           <span className={styles.updatedAt}>{updatedAt.iso ? <time dateTime={updatedAt.iso} aria-label={`Last updated ${updatedAt.iso}`}>{updatedAt.visible}</time> : updatedAt.visible}</span>
-                          <span className={styles.metadata}>{ready && stage && fps !== null && duration !== null ? <><span aria-label={`Duration ${duration.toFixed(3)} seconds`}>{formatProjectDuration(duration)}</span><span>{fps} FPS</span><span>{stage.width}×{stage.height}</span></> : unavailable ? <span className={styles.failureText}>{state.message}</span> : <span>Checking duration, FPS, and stage…</span>}</span>
-                        <span className={styles.classification}>{entry.classification === "canonical" ? "Saved animation" : projectClassificationLabel(entry)}</span>
+                          <span className={styles.metadata}>{ready && stage && fps !== null && duration !== null ? <><span aria-label={`Length ${formatProjectLength(duration)}`}>{formatProjectLength(duration)}</span><span>{fps} FPS</span><span>{stage.width}×{stage.height}</span></> : unavailable ? <span className={styles.failureText}>{state.message}</span> : <span>Loading…</span>}</span>
+                        <span className={styles.classification}>{projectClassificationLabel(entry)}</span>
                         </span>
                       </button>
                       {surface === "combined" ? <>
@@ -435,14 +449,14 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
                           <svg viewBox="0 0 34 34" fill="none" aria-hidden="true"><rect x="1" y="5.5" width="32" height="23" rx="1.5" stroke="currentColor" strokeWidth="2" /><path d="M5 9v3M5 16v3M5 23v2M29 9v3M29 16v3M29 23v2" stroke="currentColor" strokeWidth="2.5" /><rect x="10" y="10.5" width="14" height="13" rx="1.3" stroke="currentColor" strokeWidth="1.8" /><path d="m15 14 6 3-6 3v-6Z" fill="currentColor" /></svg>
                           <span>Watch</span>
                         </button>
-                        <button ref={node => { if (node) exportRefs.current.set(entry.id, node); else exportRefs.current.delete(entry.id); }} type="button" className={styles.rowAction} aria-label={`Export ${entry.title}`} disabled={exportDisabled} title={ready && state.project.snapshot.frameCount === 0 ? "Save an authored frame before exporting" : "Export this saved animation"} onClick={event => { actionInvokerRef.current = event.currentTarget; void activateProject(entry, "export"); }}>
+                        <button ref={node => { if (node) exportRefs.current.set(entry.id, node); else exportRefs.current.delete(entry.id); }} type="button" className={styles.rowAction} aria-label={`Export ${entry.title}`} disabled={exportDisabled} title={ready && state.project.snapshot.frameCount === 0 ? "Draw something first, then export" : "Export this animation"} onClick={event => { actionInvokerRef.current = event.currentTarget; void activateProject(entry, "export"); }}>
                           <svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 21V4m-6 6 6-6 6 6M6 19v9h20v-9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
                           <span>Export</span>
                         </button>
                       </> : null}
                       <button ref={node => { if (node) overflowRefs.current.set(entry.id, node); else overflowRefs.current.delete(entry.id); }} type="button" className={styles.overflowButton}
                         aria-label={`Manage ${entry.title}`} aria-haspopup="menu" aria-expanded={menu?.entryId === entry.id}
-                        onClick={event => { event.stopPropagation(); openMenuFromButton(entry, event.currentTarget); }}>•••</button>
+                        onClick={event => { event.stopPropagation(); if (menu?.entryId === entry.id) setMenu(null); else openMenuFromButton(entry, event.currentTarget); }}>•••</button>
                     </article>
                   );
                 })}
@@ -457,7 +471,7 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
           <button type="button" role="menuitem" disabled={!nativeManageable} onClick={() => beginCommand("rename", menuEntry)}>Rename</button>
           <button type="button" role="menuitem" disabled={!canDuplicate} onClick={() => beginCommand("duplicate", menuEntry)}>Duplicate</button>
           <button type="button" role="menuitem" className={styles.destructiveMenuItem} disabled={!nativeManageable} onClick={() => beginCommand("delete", menuEntry)}>Delete</button>
-          {!nativeManageable && menuEntry.classification !== "invalid" ? <p>Open and save a native copy before managing this legacy project.</p> : null}
+          {!nativeManageable && menuEntry.classification !== "invalid" ? <p>Older projects can&apos;t be renamed or deleted.</p> : null}
         </div>
       ) : null}
 
@@ -466,11 +480,11 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
           <div className={styles.managementDialog} role="dialog" aria-modal="true" aria-labelledby="management-dialog-title" aria-describedby="management-dialog-description" onKeyDown={handleDialogKeys}>
             <h2 id="management-dialog-title">{dialog.kind === "rename" ? "Rename project" : dialog.kind === "duplicate" ? "Duplicate project" : "Delete project?"}</h2>
             {dialog.kind === "delete" ? (
-              <><p id="management-dialog-description">Delete <strong>{dialog.entry.title}</strong>, last updated {formatProjectUpdatedAt(dialog.entry.updatedAt).visible}, ID {shortenProjectIdentity(dialog.entry)}? This removes the account project and its saved history and cannot be undone.</p>
+              <><p id="management-dialog-description">Delete <strong>{dialog.entry.title}</strong>? It will be removed from your account for good. This can&apos;t be undone.</p>
                 {dialogError ? <div className={styles.dialogError} role="alert">{dialogError}</div> : null}
                 <div className={styles.dialogActions}><button ref={node => { dialogInitialRef.current = node; }} type="button" className={styles.secondaryButton} onClick={() => closeDialog()} disabled={busyEntryId !== null}>Cancel</button><button type="button" className={styles.deleteButton} onClick={() => void runDialogCommand()} disabled={busyEntryId !== null}>{busyEntryId ? "Deleting…" : "Delete project"}</button></div></>
             ) : (
-              <><p id="management-dialog-description">{dialog.kind === "rename" ? "Change only this project’s saved name. Its identity and history stay intact." : "Create a new independent native copy with its own identity and history."}</p>
+              <><p id="management-dialog-description">{dialog.kind === "rename" ? "Give this project a new name." : "Make a separate copy of this project. The original stays the same."}</p>
                 <label className={styles.dialogField}><span>Project name</span><input ref={node => { dialogInitialRef.current = node; }} value={dialog.value} maxLength={512} onChange={event => setDialog({ ...dialog, value: event.currentTarget.value })} onKeyDown={event => { if (event.key === "Enter") { event.preventDefault(); void runDialogCommand(); } }} /></label>
                 {dialogError ? <div className={styles.dialogError} role="alert">{dialogError}</div> : null}
                 <div className={styles.dialogActions}><button type="button" className={styles.secondaryButton} onClick={() => closeDialog()} disabled={busyEntryId !== null}>Cancel</button><button type="button" className={styles.primaryButton} onClick={() => void runDialogCommand()} disabled={busyEntryId !== null}>{busyEntryId ? "Working…" : dialog.kind === "rename" ? "Rename" : "Duplicate"}</button></div></>

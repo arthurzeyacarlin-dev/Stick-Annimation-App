@@ -28,6 +28,8 @@ import styles from "./projectPlayer.module.css";
 
 export type CanonicalProjectPlayerHandle = {
   pause: () => void;
+  /** The frame on screen now (0-based) — Export uses it for "This frame" pictures. */
+  currentFrame: () => number;
 };
 
 type ContentRect = { x: number; y: number; width: number; height: number };
@@ -90,6 +92,8 @@ export const CanonicalProjectPlayer = forwardRef<CanonicalProjectPlayerHandle, P
   const playableFrameCount = Math.max(1, snapshot.frameCount);
   const playbackDisabled = snapshot.frameCount <= 1 || durationSeconds <= 0;
   const displayFrame = projectPlayerFrameAtTime(mediaTimeSeconds, fps, snapshot.frameCount);
+  const displayFrameRef = useRef(displayFrame);
+  useEffect(() => { displayFrameRef.current = displayFrame; }, [displayFrame]);
   const canvasWidth = mode === "export"
     ? outputWidth ?? stage.width
     : canvasGeometry?.backingWidth ?? stage.width;
@@ -173,7 +177,7 @@ export const CanonicalProjectPlayer = forwardRef<CanonicalProjectPlayerHandle, P
     stopAtCurrentTime(true);
   }, [stopAtCurrentTime]);
 
-  useImperativeHandle(forwardedRef, () => ({ pause }), [pause]);
+  useImperativeHandle(forwardedRef, () => ({ pause, currentFrame: () => displayFrameRef.current }), [pause]);
 
   const seekTo = useCallback((value: number, resume: boolean) => {
     operationRef.current += 1;

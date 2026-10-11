@@ -9,7 +9,7 @@ import { ProjectRecoveryPrompt } from "@/src/components/recovery/ProjectRecovery
 import { ProjectLibrary } from "@/src/components/project-library/ProjectLibrary";
 import { ProjectPoster } from "@/src/components/project-library/ProjectPoster";
 import { createProjectLibraryController } from "@/src/lib/project-library/projectLibraryController";
-import type { ProjectLibrarySnapshot } from "@/src/lib/project-library/projectLibraryModel";
+import { filterAndSortProjectEntries, formatProjectEditedAgo, type ProjectLibrarySnapshot } from "@/src/lib/project-library/projectLibraryModel";
 import homeStyles from "@/src/components/home/HomeWorkspace.module.css";
 import welcomeStyles from "@/src/components/account/welcomeOverlay.module.css";
 import { createUntitledWorkspace, prepareCollectionWorkspace, prepareRecoveryWorkspace, WorkspaceBootstrap, type MountedWorkspace } from "@/src/lib/animation/unifiedWorkspaceBootstrap";
@@ -38,14 +38,16 @@ import { readAccountJson, writeAccountJson } from "@/src/lib/account/accountData
 import { getAppSettings } from "@/src/lib/account/appSettings";
 import { CloseButton } from "@/src/components/ui/CloseButton";
 
-// Visit-only UI memory; login/logout reloads reset it. No persistent writes.
-const visitRecentProjectIds = () => {
-  if (typeof window === "undefined") return new Map<string, string>();
-  // Keep Home's visit-only UI memory across client-side route remounts.
-  const visitWindow = window as Window & { diamondHomeRecentProjects?: Map<string, string> };
-  return visitWindow.diamondHomeRecentProjects ??= new Map<string, string>();
-};
-type RecentHomeProject = { entry: ProjectCollectionEntry; project: ProjectLibrarySnapshot };
+// SPEC-0020 Phase 5: Home shows the account's most recently saved project, read
+// with the same one list call the Open Project library uses (newest first). Only
+// that one project is loaded for its preview picture; a failed preview never
+// hides the card.
+type RecentHomeState =
+  | { status: "loading" }
+  | { status: "empty" }
+  | { status: "failed" }
+  | { status: "ready"; entry: ProjectCollectionEntry; project: ProjectLibrarySnapshot | null; previewFailed: boolean };
+const recentEntryKey = (entry: ProjectCollectionEntry) => `${entry.id}:${entry.sourceRevision ?? ""}:${entry.sourceDigest ?? ""}`;
 
 type StartupRecoveryState =
   | { kind: "checking" }
@@ -89,6 +91,7 @@ export default function Page() {
     "home" | "help" | "tutorials" | "openProject" | "animationWorkspace" | "animationExport"
   >("home");
   const [exportOrigin, setExportOrigin] = useState<"home" | "workspace">("home");
+  const [exportProjectId, setExportProjectId] = useState<string | null>(null);
   const [welcomeOpen, setWelcomeOpen] = useState(false);
   const [welcomeStep, setWelcomeStep] = useState<0 | 1>(0);
   const [guidedChoices, setGuidedChoices] = useState<string[]>([]);
@@ -103,8 +106,8 @@ export default function Page() {
   const [recoveryBusyAction, setRecoveryBusyAction] = useState<"recover" | "discard" | null>(null);
   const homeFocusRef = useRef<"new" | "open" | "recent">("new");
   const recentButtonRef = useRef<HTMLButtonElement | null>(null);
-  const recentProjectIdRef = useRef<string | null>(ownerId ? visitRecentProjectIds().get(ownerId) ?? null : null);
-  const [recentProject, setRecentProject] = useState<RecentHomeProject | null>(null);
+  const [recentProject, setRecentProject] = useState<RecentHomeState>(() => ownerId ? { status: "loading" } : { status: "empty" });
+  const recentPreviewRef = useRef<{ key: string; project: ProjectLibrarySnapshot } | null>(null);
   const [recentNotice, setRecentNotice] = useState<string | null>(null);
   const newProjectButtonRef = useRef<HTMLButtonElement | null>(null);
   const openProjectButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -255,16 +258,12 @@ export default function Page() {
     const initialProjectId = workspace?.candidate.editor.project.projectId;
     if (!initialProjectId) return;
     let projectId = initialProjectId;
-    recentProjectIdRef.current = projectId;
-    if (ownerId) visitRecentProjectIds().set(ownerId, projectId);
     let release = acquireProjectOpenLeaseV2(projectId, "editor");
     const identityChanged = (event: Event) => {
       const nextProjectId = (event as CustomEvent<{ projectId?: unknown }>).detail?.projectId;
       if (typeof nextProjectId !== "string" || nextProjectId === projectId) return;
       release();
       projectId = nextProjectId;
-      recentProjectIdRef.current = projectId;
-      if (ownerId) visitRecentProjectIds().set(ownerId, projectId);
       release = acquireProjectOpenLeaseV2(projectId, "editor");
     };
     window.addEventListener(UNIFIED_PROJECT_EDITOR_IDENTITY_EVENT_V2, identityChanged);
@@ -275,29 +274,32 @@ export default function Page() {
   }, [workspace, ownerId]);
 
   useEffect(() => {
-    if (view !== "home" || !ownerId || !recentProjectIdRef.current) return;
-    const projectId = recentProjectIdRef.current;
+    if (view !== "home" || !ownerId) return;
     let cancelled = false;
     const controller = createProjectLibraryController(createReader);
-    void controller.list().then(async entries => {
-      const matches = entries.filter(entry => entry.classification === "canonical" && entry.sourceId === projectId);
-      if (matches.length !== 1) {
-        if (!cancelled) {
-          setRecentProject(null);
-          setRecentNotice("Open Projects to choose another saved animation.");
-        }
+    void controller.list().then(entries => {
+      if (cancelled) return;
+      const newest = filterAndSortProjectEntries(entries, "", "updated-desc").find(entry => entry.classification === "canonical") ?? null;
+      setRecentNotice(null);
+      if (!newest) {
+        recentPreviewRef.current = null;
+        setRecentProject({ status: "empty" });
         return;
       }
-      const project = await controller.evaluate(matches[0]);
-      if (!cancelled) {
-        setRecentProject({ entry: matches[0], project });
-        setRecentNotice(null);
-      }
+      const key = recentEntryKey(newest);
+      const cached = recentPreviewRef.current?.key === key ? recentPreviewRef.current.project : null;
+      setRecentProject({ status: "ready", entry: newest, project: cached, previewFailed: false });
+      if (cached) return;
+      void controller.evaluate(newest).then(project => {
+        if (cancelled) return;
+        recentPreviewRef.current = { key, project };
+        setRecentProject(current => current.status === "ready" && recentEntryKey(current.entry) === key ? { ...current, project } : current);
+      }).catch(() => {
+        if (cancelled) return;
+        setRecentProject(current => current.status === "ready" && recentEntryKey(current.entry) === key ? { ...current, previewFailed: true } : current);
+      });
     }).catch(() => {
-      if (!cancelled) {
-        setRecentProject(null);
-        setRecentNotice("Preview unavailable. Your saved projects are still in Projects.");
-      }
+      if (!cancelled) setRecentProject(current => current.status === "ready" ? current : { status: "failed" });
     });
     return () => { cancelled = true; };
   }, [view, ownerId, createReader]);
@@ -647,7 +649,7 @@ export default function Page() {
   </>
 )}
 
-      {/* HOME: presentation and visit-only recent-project state. */}
+      {/* HOME: presentation and the account's most recently saved project. */}
       {view === "home" && (
         <main ref={homeMainRef} className={`home-main-scroll ${homeStyles.main}`}>
           <div className={homeStyles.frame}>
@@ -682,21 +684,25 @@ export default function Page() {
                 </button>
               </div>
               <div className={homeStyles.recent} aria-label="Recently edited project">
-                {recentProject ? (
+                {recentProject.status === "ready" ? (
                   <button ref={recentButtonRef} type="button" className={homeStyles.recentProjectButton}
                     aria-label={`Continue creating ${recentProject.entry.title}`}
                     onClick={() => {
                       homeFocusRef.current = "recent";
+                      setRecentNotice(null);
+                      // Same path as clicking the project in Open Project.
                       void openProject(recentProject.entry).then(result => {
-                        if (result.status === "failed") setRecentNotice("This project changed. Open Projects to choose its latest saved version.");
-                      }).catch(() => setRecentNotice("This project could not be opened. Choose it from Projects."));
+                        if (result.status === "failed") setRecentNotice("This project couldn't be opened. Nothing was changed. Try it from Open Project.");
+                      }).catch(() => setRecentNotice("This project couldn't be opened. Nothing was changed. Try it from Open Project."));
                     }}>
                     <p className={homeStyles.recentLabel}>PICK UP WHERE YOU LEFT OFF</p>
                     <div className={homeStyles.poster}>
-                      <ProjectPoster key={recentProject.project.snapshot.projectDigest} project={recentProject.project} />
+                      {recentProject.project
+                        ? <ProjectPoster key={recentProject.project.snapshot.projectDigest} project={recentProject.project} />
+                        : <span className={homeStyles.posterStatus}>{recentProject.previewFailed ? "Preview unavailable" : "Loading preview…"}</span>}
                     </div>
                     <div className={homeStyles.recentFooter}>
-                      <div className={homeStyles.recentTitle}><strong>{recentProject.entry.title}</strong><span>Edited during this visit</span></div>
+                      <div className={homeStyles.recentTitle}><strong>{recentProject.entry.title}</strong><span>{formatProjectEditedAgo(recentProject.entry.updatedAt)}</span></div>
                       <span className={homeStyles.continue}>
                         Continue creating <span aria-hidden="true">→</span>
                       </span>
@@ -710,8 +716,9 @@ export default function Page() {
                       <path d="M29 2 C36 2 38 8 34 13 C32 16 30 18 29 19 C28 18 26 16 24 13 C20 8 22 2 29 2 Z" fill="currentColor" transform="rotate(-135 29 11)" />
                       <polygon points="29,16 27,13 31,13" fill="currentColor" />
                     </svg>
-                    <p>No recent projects edited</p>
-                    <small>Your next creation starts here.</small>
+                    {recentProject.status === "loading" ? <p>Loading your recent project…</p>
+                      : recentProject.status === "failed" ? <><p>Couldn&apos;t load your recent project</p><small>Your projects are still in Open Project.</small></>
+                      : <><p>No recent projects edited</p><small>Your next creation starts here.</small></>}
                   </div>
                 )}
                 {recentNotice && <p className={homeStyles.recentNotice} role="status">{recentNotice}</p>}
@@ -784,7 +791,7 @@ export default function Page() {
   <div style={{ display: view === "animationWorkspace" ? "contents" : "none" }}>
     <AnimationWorkspace
       root={workspace}
-      onExport={() => { setExportOrigin("workspace"); setView("animationExport"); }}
+      onExport={(savedProjectId) => { setExportProjectId(savedProjectId); setExportOrigin("workspace"); setView("animationExport"); }}
       onExit={() => {
         restoreHomeFocus.current = true;
         homeFocusRef.current = "new";
@@ -796,7 +803,7 @@ export default function Page() {
   </div>
 )}
 {view === "animationExport" && (
-  <AnimationExportFlow origin={exportOrigin} onBack={() => setView(exportOrigin === "workspace" && workspace ? "animationWorkspace" : "home")} />
+  <AnimationExportFlow origin={exportOrigin} preferredProjectId={exportOrigin === "workspace" ? exportProjectId : null} onBack={() => setView(exportOrigin === "workspace" && workspace ? "animationWorkspace" : "home")} />
 )}
 {view === "openProject" && (
   <ProjectLibrary surface="combined" ownerId={ownerId} onOpenProject={openProject} onBack={() => {

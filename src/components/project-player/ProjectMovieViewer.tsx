@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef } from "react";
 import type { ProjectLibrarySnapshot } from "@/src/lib/project-library/projectLibraryModel";
-import { formatProjectDuration } from "@/src/lib/project-library/projectLibraryModel";
+import { formatProjectLength } from "@/src/lib/project-library/projectLibraryModel";
 import { CanonicalProjectPlayer, type CanonicalProjectPlayerHandle } from "./CanonicalProjectPlayer";
 import styles from "./projectPlayer.module.css";
 import { CloseButton } from "@/src/components/ui/CloseButton";
@@ -93,7 +93,7 @@ export function ProjectMovieViewer({ project, onClose }: Props) {
             <div className={styles.viewerEyebrow}>Playback only</div>
             <h2 id="project-movie-viewer-title" className={styles.viewerTitle}>{snapshot.project.title}</h2>
             <p id="project-movie-viewer-description" className={styles.viewerDescription}>
-              Saved animation · {stage.width}×{stage.height} · {snapshot.project.document.fps} FPS · {formatProjectDuration(snapshot.durationSeconds)}
+              Saved animation · {stage.width}×{stage.height} · {snapshot.project.document.fps} FPS · {formatProjectLength(snapshot.durationSeconds)}
             </p>
           </div>
           <CloseButton ref={closeRef} label="Close the movie" onClick={() => void requestClose()} />

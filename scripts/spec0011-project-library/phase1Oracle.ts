@@ -48,7 +48,7 @@ equal(entries.length, 5, "all supported read-only legacy fixture sources remain 
 equal(new Set(entries.map(entry => entry.sourceKind)), new Set(["drawing-v1", "drawing-v2", "stick-v1", "stick-v2", "unified-v1"]), "all supported legacy source kinds are present");
 for (const entry of entries) {
   equal(entry.classification, "legacy", `${entry.sourceKind} is truthfully classified as legacy`);
-  equal(projectClassificationLabel(entry), "Protected legacy source", `${entry.sourceKind} receives the protected legacy label`);
+  equal(projectClassificationLabel(entry), "Older project", `${entry.sourceKind} receives the plain older-project label`);
   check(Boolean(entry.sourceId && entry.locator && entry.candidateDigest && entry.sourceDigest), `${entry.sourceKind} retains stable source identity and digests`);
 }
 
@@ -92,9 +92,9 @@ equal(maximumActiveLists, 4, "snapshot evaluation concurrency never exceeds four
 equal(formatProjectDuration(0), "0:00", "zero duration is shown as m:ss");
 equal(formatProjectDuration(65.9), "1:05", "minute duration is shown as m:ss");
 equal(formatProjectDuration(3_661.2), "1:01:01", "long duration is shown as h:mm:ss");
-equal(projectFailureMessage(new Error("source_changed")).message, "Project changed or was deleted. Refresh and try again.", "source changes remain explicit and retryable");
-check(projectFailureMessage(new Error("asset_missing")).message.includes("corrupt"), "missing assets remain truthfully visible as corrupt");
-check(projectFailureMessage(new Error("duplicate_identity")).message.includes("Conflicting"), "identity conflicts remain truthfully visible");
+equal(projectFailureMessage(new Error("source_changed")).message, "This project changed or was deleted. Refresh and try again.", "source changes remain explicit and retryable");
+check(projectFailureMessage(new Error("asset_missing")).message.includes("missing or damaged"), "missing assets remain truthfully visible as damaged");
+check(projectFailureMessage(new Error("duplicate_identity")).message.includes("don't match"), "identity conflicts remain truthfully visible");
 equal(digest(fixtures.transport), before, "listing and evaluation do not mutate legacy fixture bytes");
 
 console.log(JSON.stringify({ status: "PASS", assertions, entries: entries.length, maximumConcurrentEvaluations: maximumActiveLists }));

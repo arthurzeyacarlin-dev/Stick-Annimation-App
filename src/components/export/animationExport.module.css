@@ -521,3 +521,161 @@
   color: var(--da-muted);
   font-size: 12px;
 }
+
+/* SPEC-0020 Phase 5: the simple export screen — preview on the left, settings on the right.
+   Only clickable things get boxes (Arthur's rule); the settings column is plain with thin dividers. */
+
+.exportHeader {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.exportLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 28px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .exportLayout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.previewColumn {
+  min-width: 0;
+}
+
+.playerFrame {
+  border-radius: var(--da-radius-card);
+  overflow: hidden;
+  background: var(--da-panel);
+}
+
+.settingsColumn {
+  display: grid;
+  gap: 16px;
+  color: var(--da-text-2);
+}
+
+.formatRow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--da-line);
+}
+
+.formatButton {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: 12px 6px 10px;
+  border-radius: var(--da-radius-control);
+  border: 1px solid var(--da-border);
+  background: var(--da-panel);
+  color: var(--da-text-2);
+  font: inherit;
+  cursor: pointer;
+}
+
+.formatButton svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* Same hover as every other button in the app: accent fill, white text, instantly. */
+.formatButton:hover:not(:disabled) {
+  background: var(--da-hover);
+  border-color: var(--da-hover);
+  color: #fff;
+}
+
+.formatButton:hover:not(:disabled) .formatDetail {
+  color: inherit;
+  opacity: 0.85;
+}
+
+.formatButton[aria-checked="true"] {
+  border-color: var(--da-selected-border);
+  background: var(--da-selected-bg);
+  color: var(--da-text);
+}
+
+.formatButton:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.formatButton:focus-visible {
+  outline: 2px solid var(--da-focus);
+  outline-offset: 2px;
+}
+
+.formatName {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.formatDetail {
+  font-size: 11px;
+  color: var(--da-muted);
+}
+
+.formatButton[aria-checked="true"] .formatDetail {
+  color: inherit;
+  opacity: 0.8;
+}
+
+.checkRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--da-text-2);
+}
+
+.checkRow input {
+  accent-color: var(--da-selected-border);
+}
+
+.summaryLine {
+  padding-top: 14px;
+  border-top: 1px solid var(--da-line);
+  color: var(--da-text-3);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.resultSuccess,
+.resultError,
+.resultNote {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.resultSuccess {
+  color: var(--da-success);
+}
+
+.resultError {
+  color: var(--da-danger);
+}
+
+.resultNote {
+  color: var(--da-text-3);
+}
+
+.exportButton {
+  width: 100%;
+  min-height: 44px;
+  font-size: 14px;
+}
+
+.footnote {
+  color: var(--da-muted);
+  font-size: 12px;
+}

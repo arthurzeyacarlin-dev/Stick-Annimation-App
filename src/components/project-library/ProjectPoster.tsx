@@ -39,14 +39,14 @@ export function ProjectPoster({ project }: Props) {
     return () => { active = false; };
   }, [project]);
 
-  if (failed) return <div className={styles.posterStatus}>Poster unavailable</div>;
+  if (failed) return <div className={styles.posterStatus}>Preview unavailable</div>;
   if (imageUrl) {
     return (
       // The alt text is intentionally factual and does not infer image semantics.
       // eslint-disable-next-line @next/next/no-img-element
       <img
         src={imageUrl}
-        alt={`Canonical saved poster for ${project.snapshot.project.title}, frame ${project.posterFrameIndex + 1}`}
+        alt={`Preview of ${project.snapshot.project.title}`}
         className={styles.posterImage}
       />
     );
@@ -58,9 +58,9 @@ export function ProjectPoster({ project }: Props) {
         width={dimensions.width}
         height={dimensions.height}
         className={styles.posterCanvas}
-        aria-label={`Preparing canonical saved poster for ${project.snapshot.project.title}`}
+        aria-label={`Loading preview of ${project.snapshot.project.title}`}
       />
-      <div className={styles.posterStatus}>Preparing exact poster…</div>
+      <div className={styles.posterStatus}>Loading preview…</div>
     </>
   );
 }

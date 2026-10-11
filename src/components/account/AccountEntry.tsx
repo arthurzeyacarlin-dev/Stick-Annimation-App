@@ -98,7 +98,7 @@ export function AccountEntry() {
             <button type="button" className={`${styles.button} ${styles.primary}`} onClick={() => switchMode("signup")}>Create account</button>
             <button type="button" className={styles.button} onClick={() => switchMode("login")}>Log in</button>
           </div>
-          <p className={`${styles.muted} ${styles.entryNote}`}>Your account and work stay on this computer.</p>
+          <p className={`${styles.muted} ${styles.entryNote}`}>Your projects and chats save to your account.</p>
         </section>
       </main>
     );
@@ -180,7 +180,7 @@ export function AccountEntry() {
 
           <div className={`${styles.step} ${styles.stepDivider}`}>
             <h2 className={styles.stepHead}><span className={styles.stepNumber} aria-hidden="true">2</span>Create your account</h2>
-            <p className={`${styles.muted} ${styles.stepHint}`}>Your account lives on this computer.</p>
+            <p className={`${styles.muted} ${styles.stepHint}`}>Your projects and chats will save to this account.</p>
             {error && <p role="alert" className={styles.error}>{error}</p>}
             <div className={styles.actions}>
               <button type="submit" className={`${styles.button} ${styles.primary}${busy ? ` ${styles.busy}` : ""}`} disabled={submitDisabled}>{busy ? "Creating account…" : "Create account"}</button>

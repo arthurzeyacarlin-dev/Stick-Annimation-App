@@ -9,6 +9,8 @@ import { getServerAccountSession, toAccountPublicUser } from "@/src/lib/account/
 import { cookies } from "next/headers";
 import { AppearanceSync } from "@/src/components/account/AppearanceSync";
 import { APPEARANCE_COOKIE, parseAppearanceCookie } from "@/src/lib/account/appearance";
+import { ComputersOnlyGate } from "@/src/components/chrome/ComputersOnlyGate";
+import { ChunkReloadGuard } from "@/src/components/chrome/ChunkReloadGuard";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,7 +44,9 @@ export default async function RootLayout({
           {session && <AppearanceSync />}
           <NotificationCenterProvider>
             <ScrollbarActivity />
+            <ChunkReloadGuard />
             {children}
+            <ComputersOnlyGate />
           </NotificationCenterProvider>
         </AccountSessionProvider>
       </body>

@@ -8,6 +8,8 @@ import { reconcileBrowserConnectivityV1, startBrowserConnectivityObserverV1 } fr
 import { registerNotificationNavigationHandlerV1 } from "@/src/lib/notifications/notificationNavigation";
 import type { NotificationTargetV1 } from "@/src/lib/notifications/notificationContracts";
 import { startTerraCompletionObserverV1 } from "@/src/lib/notifications/terraCompletionObserver";
+import { startProblemReportObserverV1 } from "@/src/lib/notifications/problemReportObserver";
+import { useAccountSession } from "@/src/components/account/AccountSessionProvider";
 import { playNotificationDing } from "@/src/lib/notifications/notificationSound";
 import { getAppSettings } from "@/src/lib/account/appSettings";
 import {
@@ -33,9 +35,11 @@ const NotificationCenterContext = createContext<NotificationCenterContextValue |
 
 export function NotificationCenterProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
+  const accountId = useAccountSession()?.id ?? null;
   const [snapshot, setSnapshot] = useState(initialSnapshot);
   const [browserOffline, setBrowserOffline] = useState(false);
   const assistantTargetKey = useMemo(() => JSON.stringify(snapshot.rows.filter(row => row.target.kind === "assistant-turn").map(row => row.target)), [snapshot.rows]);
+  const problemReportTargetKey = useMemo(() => JSON.stringify(snapshot.rows.filter(row => row.target.kind === "problem-reports").map(row => row.target)), [snapshot.rows]);
 
   useEffect(() => subscribeNotificationsV1(setSnapshot), []);
   // SPEC-0020 Phase 3 (Arthur): "ding ding" for every new notification, on every page (the editor too),
@@ -75,6 +79,21 @@ export function NotificationCenterProvider({ children }: { children: ReactNode }
       }));
     return () => { for (const handle of handles) handle.unregister(); };
   }, [assistantTargetKey, router]);
+
+  // SPEC-0020 Phase 6: the owner's bell for new problem reports (asks the server; see problemReportObserver.ts).
+  useEffect(() => startProblemReportObserverV1(accountId), [accountId]);
+  useEffect(() => {
+    const targets = JSON.parse(problemReportTargetKey) as NotificationTargetV1[];
+    const handles = targets.map(target => registerNotificationNavigationHandlerV1({
+      target,
+      handler: target => {
+        if (target.kind !== "problem-reports") return "unavailable";
+        router.push("/reports");
+        return "handled";
+      },
+    }));
+    return () => { for (const handle of handles) handle.unregister(); };
+  }, [problemReportTargetKey, router]);
 
   const markRead = useCallback((notificationId: string) => markNotificationReadV1(notificationId), []);
   const markAll = useCallback((view: "home" | "assistant") => markAllNotificationsReadV1(view), []);

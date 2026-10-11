@@ -11109,9 +11109,12 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
             padding: "12px 10px",
             color: "var(--da-muted, #8fabd0)",
             fontSize: 12,
+            lineHeight: 1.45,
           }}
         >
-          No symbols created yet.
+          No symbols yet.
+          <br />
+          To make one, select a drawing with the Select or Lasso tool, then click Convert to Symbol in Properties.
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>

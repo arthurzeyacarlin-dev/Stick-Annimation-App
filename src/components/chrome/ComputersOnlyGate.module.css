@@ -1,0 +1,42 @@
+/* SPEC-0020 Phase 6: the phones-and-tablets screen. Covers the whole app; plain text, no card box. */
+.gate {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--da-page);
+  color: var(--da-text);
+  overflow-y: auto;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  max-width: 360px;
+  text-align: center;
+}
+
+.logo {
+  color: #ffffff;
+  margin-bottom: 8px;
+}
+
+.title {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 740;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.text {
+  margin: 0;
+  color: var(--da-text-3);
+  font-size: 15px;
+  line-height: 1.55;
+}

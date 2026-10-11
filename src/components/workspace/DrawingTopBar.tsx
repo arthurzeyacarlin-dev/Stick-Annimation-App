@@ -183,7 +183,9 @@ export function DrawingTopBar({
 
   const hasRecoveryWarning = recoveryState === "blocked" || recoveryState === "unavailable" || recoveryState === "failed";
   const hasSaveProblem = saveState === "failed" || saveState === "too-large";
-  const syncLabel = isLegacyProject ? "Older local project — Save to upgrade on this browser" : "Local only — not synced to another device";
+  const syncLabel = accountSaved
+    ? (isLegacyProject ? "Older project — Save to add it to your account" : "Projects save to your account")
+    : isLegacyProject ? "Older local project — Save to upgrade on this browser" : "Local only — not synced to another device";
   const statusDotColor = hasSaveProblem
     ? "var(--da-danger, #ff8a95)"
     : saveState === "saved" || saveState === "quiet-saved"

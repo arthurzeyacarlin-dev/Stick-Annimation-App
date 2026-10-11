@@ -8,7 +8,7 @@ export const DIAMOND_NOTIFICATION_SCHEMA_V1 = "diamond-notification/v1" as const
 export const DIAMOND_NOTIFICATION_ENVELOPE_SCHEMA_V1 = "diamond-notification-envelope/v1" as const;
 export const DIAMOND_NOTIFICATION_BINDING_SCHEMA_V1 = "diamond-notification-terminal-binding/v1" as const;
 export const DIAMOND_NOTIFICATION_MAX_BYTES_V1 = 8 * 1024;
-export const ACTIVE_NOTIFICATION_EVENT_TYPES_V1 = ["export.completed", "export.failed", "assistant.reply.completed", "assistant.reply.failed", "workspace.terra.reply.completed", "workspace.terra.reply.failed", "system.internet.offline", "system.internet.restored"] as const;
+export const ACTIVE_NOTIFICATION_EVENT_TYPES_V1 = ["export.completed", "export.failed", "assistant.reply.completed", "assistant.reply.failed", "workspace.terra.reply.completed", "workspace.terra.reply.failed", "system.internet.offline", "system.internet.restored", "support.problem-report.received"] as const;
 export const DORMANT_NOTIFICATION_EVENT_TYPES_V1 = ["workspace.ai-animation.completed", "ai.usage.low", "app.update.available"] as const;
 export type ActiveNotificationEventTypeV1 = (typeof ACTIVE_NOTIFICATION_EVENT_TYPES_V1)[number];
 export type DormantNotificationEventTypeV1 = (typeof DORMANT_NOTIFICATION_EVENT_TYPES_V1)[number];
@@ -23,7 +23,9 @@ export type NotificationOriginV1 =
   | { kind: "connectivity-restored"; offlineIncidentId: string; offlineSince: number; restoredAt: number }
   | { kind: "workspace-ai-animation"; projectId: string; projectGeneration: number; jobId: string; transactionId: string; projectTitle: string }
   | { kind: "ai-usage"; usageScopeId: string; allowancePeriodId: string; remainingPercent: 10; thresholdEpisodeId: string }
-  | { kind: "app-update"; updaterChannel: string; availableVersion: string };
+  | { kind: "app-update"; updaterChannel: string; availableVersion: string }
+  // SPEC-0020 Phase 6: a new "Report a Problem" report (only the app owner's account gets these).
+  | { kind: "problem-report"; reportId: string; reporterName: string; excerpt: string };
 
 export type NotificationTargetV1 =
   | { kind: "assistant-turn"; sessionId: string; turnId: string; jobId: string }
@@ -33,10 +35,11 @@ export type NotificationTargetV1 =
   | { kind: "connectivity-restored"; offlineIncidentId: string }
   | { kind: "workspace-ai-animation-result"; projectId: string; projectGeneration: number; jobId: string; transactionId: string }
   | { kind: "ai-usage-refill"; usageScopeId: string; allowancePeriodId: string; actionLabel: "Buy AI credits" | "Refill AI usage" }
-  | { kind: "app-update"; updaterChannel: string; availableVersion: string };
+  | { kind: "app-update"; updaterChannel: string; availableVersion: string }
+  | { kind: "problem-reports"; reportId: string };
 
 export type NotificationSourceV1 = {
-  kind: "export" | "assistant" | "workspace-terra" | "connectivity" | "workspace-ai-animation" | "ai-usage" | "updater";
+  kind: "export" | "assistant" | "workspace-terra" | "connectivity" | "workspace-ai-animation" | "ai-usage" | "updater" | "problem-report";
   sourceId: string;
   attemptId: string;
   terminalSequence: number;
@@ -84,7 +87,9 @@ export type OfflineNotificationTerminalReceiptV1 =
   | { schema: "offline-notification-terminal/v1"; offlineIncidentId: string; offlineSince: number; detectedAt: number; source: "browser-offline-event"; onlineBefore: true; onlineAfter: false }
   | { schema: "offline-notification-terminal/v1"; offlineIncidentId: string; offlineSince: number; detectedAt: number; source: "browser-initial-offline"; onlineBefore: false; onlineAfter: false };
 export type OnlineNotificationTerminalReceiptV1 = { schema: "online-notification-terminal/v1"; offlineIncidentId: string; offlineSince: number; restoredAt: number; source: "browser-online-event"; onlineBefore: false; onlineAfter: true };
-export type NotificationTerminalReceiptV1 = AssistantNotificationTerminalReceiptV1 | TerraNotificationTerminalReceiptV1 | ExportNotificationTerminalReceiptV1 | OfflineNotificationTerminalReceiptV1 | OnlineNotificationTerminalReceiptV1;
+/** SPEC-0020 Phase 6: the owner's browser saw a new problem report on the server (reportedAt = when it was sent). */
+export type ProblemReportNotificationTerminalReceiptV1 = { schema: "problem-report-notification-terminal/v1"; reportId: string; reporterName: string; excerpt: string; reportedAt: number };
+export type NotificationTerminalReceiptV1 = AssistantNotificationTerminalReceiptV1 | TerraNotificationTerminalReceiptV1 | ExportNotificationTerminalReceiptV1 | OfflineNotificationTerminalReceiptV1 | OnlineNotificationTerminalReceiptV1 | ProblemReportNotificationTerminalReceiptV1;
 
 export class NotificationContractError extends Error {
   readonly code: string;
@@ -105,6 +110,11 @@ const sanitizeProjectTitle = (value: string) => {
   const scalars = Array.from(normalized);
   return scalars.length <= 120 ? normalized : `${scalars.slice(0, 119).join("")}…`;
 };
+// SPEC-0020 Phase 6: problem-report notifications show who sent it (≤ 60 letters) and the first 60 letters of the text.
+const oneLineText = (value: string) => value.normalize("NFC").replace(/[\u0000-\u001f\u007f]/g, " ").replace(/\s+/g, " ").trim();
+const reportReporterName = (value: unknown) => typeof value === "string" && value === oneLineText(value) && scalarLength(value) >= 1 && scalarLength(value) <= 60;
+const reportExcerpt = (value: unknown) => typeof value === "string" && value === oneLineText(value) && scalarLength(value) >= 1 && scalarLength(value) <= 61;
+const reportId = (value: unknown) => typeof value === "string" && /^pr_[a-z0-9]{32}$/.test(value);
 const bodyForProject = (prefix: string, title: string) => {
   const suffix = "”.";
   const available = 280 - scalarLength(prefix) - scalarLength(suffix);
@@ -126,6 +136,9 @@ export const notificationCopyForV1 = (eventType: NotificationEventTypeV1, origin
     case "workspace.ai-animation.completed": return { title: "Animation ready", body: bodyForProject("AI Animator finished animating “", origin.kind === "workspace-ai-animation" ? origin.projectTitle : "") };
     case "ai.usage.low": return { title: "AI usage is low", body: "You have 10% of your AI usage remaining." };
     case "app.update.available": return { title: "Update available", body: "A new Diamond Animator update is available." };
+    case "support.problem-report.received": return origin.kind === "problem-report"
+      ? { title: "New problem report", body: `New problem report from ${origin.reporterName}: ${origin.excerpt}` }
+      : { title: "New problem report", body: "Someone sent a problem report." };
   }
 };
 
@@ -140,6 +153,7 @@ function validateOrigin(value: unknown): asserts value is NotificationOriginV1 {
     case "workspace-ai-animation": if (!exactKeys(value, ["kind", "projectId", "projectGeneration", "jobId", "transactionId", "projectTitle"]) || !normalizedIdentity(value.projectId) || !integer(value.projectGeneration) || !normalizedIdentity(value.jobId) || !normalizedIdentity(value.transactionId) || typeof value.projectTitle !== "string" || value.projectTitle !== sanitizeProjectTitle(value.projectTitle)) fail("origin", "Future Animator origin is invalid."); return;
     case "ai-usage": if (!exactKeys(value, ["kind", "usageScopeId", "allowancePeriodId", "remainingPercent", "thresholdEpisodeId"]) || !normalizedIdentity(value.usageScopeId) || !normalizedIdentity(value.allowancePeriodId) || value.remainingPercent !== 10 || !normalizedIdentity(value.thresholdEpisodeId)) fail("origin", "Future usage origin is invalid."); return;
     case "app-update": if (!exactKeys(value, ["kind", "updaterChannel", "availableVersion"]) || !normalizedIdentity(value.updaterChannel) || !normalizedIdentity(value.availableVersion)) fail("origin", "Future updater origin is invalid."); return;
+    case "problem-report": if (!exactKeys(value, ["kind", "reportId", "reporterName", "excerpt"]) || !reportId(value.reportId) || !reportReporterName(value.reporterName) || !reportExcerpt(value.excerpt)) fail("origin", "Problem report origin is invalid."); return;
     default: fail("origin", "Unknown notification origin.");
   }
 }
@@ -155,6 +169,7 @@ function validateTarget(value: unknown): asserts value is NotificationTargetV1 {
     case "workspace-ai-animation-result": if (!exactKeys(value, ["kind", "projectId", "projectGeneration", "jobId", "transactionId"]) || !normalizedIdentity(value.projectId) || !integer(value.projectGeneration) || !normalizedIdentity(value.jobId) || !normalizedIdentity(value.transactionId)) fail("target", "Future Animator target is invalid."); return;
     case "ai-usage-refill": if (!exactKeys(value, ["kind", "usageScopeId", "allowancePeriodId", "actionLabel"]) || !normalizedIdentity(value.usageScopeId) || !normalizedIdentity(value.allowancePeriodId) || (value.actionLabel !== "Buy AI credits" && value.actionLabel !== "Refill AI usage")) fail("target", "Future usage target is invalid."); return;
     case "app-update": if (!exactKeys(value, ["kind", "updaterChannel", "availableVersion"]) || !normalizedIdentity(value.updaterChannel) || !normalizedIdentity(value.availableVersion)) fail("target", "Future updater target is invalid."); return;
+    case "problem-reports": if (!exactKeys(value, ["kind", "reportId"]) || !reportId(value.reportId)) fail("target", "Problem report target is invalid."); return;
     default: fail("target", "Unknown notification target.");
   }
 }
@@ -179,6 +194,7 @@ const identitiesMatchEvent = (eventType: NotificationEventTypeV1, outcome: Notif
   if (eventType === "system.internet.restored") return origin.kind === "connectivity-restored" && target.kind === "connectivity-restored" && origin.offlineIncidentId === target.offlineIncidentId && outcome === "completed";
   if (eventType === "workspace.ai-animation.completed") return origin.kind === "workspace-ai-animation" && target.kind === "workspace-ai-animation-result" && origin.projectId === target.projectId && origin.projectGeneration === target.projectGeneration && origin.jobId === target.jobId && origin.transactionId === target.transactionId && outcome === "completed";
   if (eventType === "ai.usage.low") return origin.kind === "ai-usage" && target.kind === "ai-usage-refill" && origin.usageScopeId === target.usageScopeId && origin.allowancePeriodId === target.allowancePeriodId && outcome === "warning";
+  if (eventType === "support.problem-report.received") return origin.kind === "problem-report" && target.kind === "problem-reports" && origin.reportId === target.reportId && outcome === "completed";
   return eventType === "app.update.available" && origin.kind === "app-update" && target.kind === "app-update" && origin.updaterChannel === target.updaterChannel && origin.availableVersion === target.availableVersion && outcome === "warning";
 };
 
@@ -192,6 +208,7 @@ const sourceIdentityFor = (origin: NotificationOriginV1) => {
     case "workspace-ai-animation": return { kind: "workspace-ai-animation" as const, sourceId: `${origin.projectId}/${origin.projectGeneration}/${origin.transactionId}`, attemptId: origin.jobId };
     case "ai-usage": return { kind: "ai-usage" as const, sourceId: `${origin.usageScopeId}/${origin.allowancePeriodId}`, attemptId: origin.thresholdEpisodeId };
     case "app-update": return { kind: "updater" as const, sourceId: origin.updaterChannel, attemptId: origin.availableVersion };
+    case "problem-report": return { kind: "problem-report" as const, sourceId: "problem-reports", attemptId: origin.reportId };
   }
 };
 
@@ -282,6 +299,13 @@ export async function createNotificationEnvelopeFromTerminalV1(receipt: Notifica
     const target = { kind: "connectivity-restored", offlineIncidentId: receipt.offlineIncidentId } as const;
     return sealEnvelope({ eventType: "system.internet.restored", outcome: "completed", occurredAt: receipt.restoredAt, terminalSequence: 2, terminalDigest: await digest(receipt), origin, target, readAt });
   }
+  if (receipt.schema === "problem-report-notification-terminal/v1") {
+    if (!exactKeys(receipt, ["schema", "reportId", "reporterName", "excerpt", "reportedAt"]) || !reportId(receipt.reportId) || !reportReporterName(receipt.reporterName) || !reportExcerpt(receipt.excerpt) || !timestamp(receipt.reportedAt)) fail("receipt", "Problem report receipt is invalid.");
+    const origin = { kind: "problem-report", reportId: receipt.reportId, reporterName: receipt.reporterName, excerpt: receipt.excerpt } as const;
+    const target = { kind: "problem-reports", reportId: receipt.reportId } as const;
+    // The report was timed by the server; never let it look like it happened after this browser saw it.
+    return sealEnvelope({ eventType: "support.problem-report.received", outcome: "completed", occurredAt: Math.min(receipt.reportedAt, Date.now()), terminalSequence: 1, terminalDigest: await digest(receipt), origin, target, readAt });
+  }
   fail("event-type", "Unknown, game, or dormant notification publication is rejected.");
 }
 
@@ -303,7 +327,7 @@ export async function validateNotificationEnvelopeV1(value: unknown): Promise<Di
   const binding = envelope.binding as NotificationTerminalBindingV1;
   const notificationKeys = ["schema", "notificationId", "eventType", "producerVersion", "outcome", "source", "origin", "target", "title", "body", "occurredAt", "createdAt", "readAt", "revision", "payloadDigest"];
   if (!exactKeys(notification, notificationKeys) || notification.schema !== DIAMOND_NOTIFICATION_SCHEMA_V1 || ![...ACTIVE_NOTIFICATION_EVENT_TYPES_V1, ...DORMANT_NOTIFICATION_EVENT_TYPES_V1].includes(notification.eventType as NotificationEventTypeV1) || notification.producerVersion !== 1 || !["completed", "failed", "warning"].includes(String(notification.outcome))) fail("notification", "Notification schema or fields are invalid.");
-  if (!hexDigest(notification.notificationId) || !exactKeys(notification.source, ["kind", "sourceId", "attemptId", "terminalSequence", "terminalDigest"]) || !["export", "assistant", "workspace-terra", "connectivity", "workspace-ai-animation", "ai-usage", "updater"].includes(String(notification.source.kind)) || !normalizedIdentity(notification.source.sourceId) || !normalizedIdentity(notification.source.attemptId) || !integer(notification.source.terminalSequence, 1) || !hexDigest(notification.source.terminalDigest) || !timestamp(notification.occurredAt) || !timestamp(notification.createdAt) || notification.occurredAt > notification.createdAt || !(notification.readAt === null || (timestamp(notification.readAt) && notification.readAt >= notification.createdAt)) || !integer(notification.revision, 1) || !hexDigest(notification.payloadDigest)) fail("notification", "Notification values are invalid.");
+  if (!hexDigest(notification.notificationId) || !exactKeys(notification.source, ["kind", "sourceId", "attemptId", "terminalSequence", "terminalDigest"]) || !["export", "assistant", "workspace-terra", "connectivity", "workspace-ai-animation", "ai-usage", "updater", "problem-report"].includes(String(notification.source.kind)) || !normalizedIdentity(notification.source.sourceId) || !normalizedIdentity(notification.source.attemptId) || !integer(notification.source.terminalSequence, 1) || !hexDigest(notification.source.terminalDigest) || !timestamp(notification.occurredAt) || !timestamp(notification.createdAt) || notification.occurredAt > notification.createdAt || !(notification.readAt === null || (timestamp(notification.readAt) && notification.readAt >= notification.createdAt)) || !integer(notification.revision, 1) || !hexDigest(notification.payloadDigest)) fail("notification", "Notification values are invalid.");
   validateOrigin(notification.origin); validateTarget(notification.target);
   const copy = notificationCopyForV1(notification.eventType as NotificationEventTypeV1, notification.origin as NotificationOriginV1);
   if (notification.title !== copy.title || notification.body !== copy.body || scalarLength(notification.title) > 80 || scalarLength(notification.body) > 280 || !identitiesMatchEvent(notification.eventType as NotificationEventTypeV1, notification.outcome as NotificationOutcomeV1, notification.origin as NotificationOriginV1, notification.target as NotificationTargetV1)) fail("copy-or-identity", "Notification copy, outcome, origin, or target is incompatible.");

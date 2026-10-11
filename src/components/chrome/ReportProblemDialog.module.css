@@ -1,0 +1,32 @@
+/* SPEC-0020 Phase 6: Report a Problem. Colors only from the --da-* tokens; buttons fill with the accent on hover. */
+.dialog { max-width: 560px; }
+.form { display: flex; flex-direction: column; gap: 18px; }
+.field { display: flex; flex-direction: column; gap: 8px; }
+.label { color: var(--da-text); font-size: 14px; font-weight: 700; }
+.optional { color: var(--da-muted); font-weight: 500; }
+.textarea, .select {
+  width: 100%; padding: 10px 12px; border: 1px solid var(--da-border); border-radius: var(--da-radius-control);
+  background: var(--da-page); color: var(--da-text); font: inherit; font-size: 14px; line-height: 1.5;
+}
+.textarea { min-height: 132px; resize: vertical; }
+.select { min-height: 42px; cursor: pointer; }
+.textarea::placeholder { color: var(--da-muted); }
+.textarea:focus-visible, .select:focus-visible { outline: 2px solid var(--da-focus); outline-offset: 1px; }
+.select:hover { border-color: var(--da-hover); }
+.counter { align-self: flex-end; color: var(--da-muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.fileInput { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; opacity: 0; }
+.pictureRow { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.preview { display: block; max-width: 120px; max-height: 72px; border-radius: 6px; object-fit: contain; }
+.hint { color: var(--da-muted); font-size: 12px; }
+.button {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 16px;
+  border: 1px solid var(--da-border); border-radius: var(--da-radius-control); background: var(--da-panel);
+  color: var(--da-text-2); font: inherit; font-size: 13px; font-weight: 650; cursor: pointer; appearance: none;
+}
+.button:hover:not(:disabled) { border-color: var(--da-hover); background: var(--da-hover); color: white; }
+.button:disabled { opacity: .6; cursor: default; }
+.button:focus-visible { outline: 2px solid var(--da-focus); outline-offset: 2px; }
+.primary { border-color: var(--da-selected-border); background: var(--da-selected-bg); color: var(--da-on-selected, var(--da-text)); }
+.actions { display: flex; justify-content: flex-end; }
+.error { margin: 0; color: var(--da-danger); font-size: 13px; }
+.thanks { margin: 0; color: var(--da-text-2); font-size: 15px; }

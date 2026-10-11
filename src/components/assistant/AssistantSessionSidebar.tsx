@@ -37,7 +37,7 @@ export function AssistantSessionSidebar({ chats, mark }: { chats: Chats; mark: R
     <div className={styles.sessionList} data-full={chats.sessions.length >= 50}>
       <h2>Your chats</h2>
       {!chats.sessions.length && <p>{chats.ready ? "No chats yet" : "Loading chats…"}</p>}
-      <p id="assistant-sessions-note" className={styles.sessionNote}>{chats.sessions.length >= 50 ? "Delete a chat before creating another." : !chats.sessions.length ? "Your chats will appear here after you send a message." : "Saved on this device"}</p>
+      <p id="assistant-sessions-note" className={styles.sessionNote}>{chats.sessions.length >= 50 ? "Delete a chat before creating another." : !chats.sessions.length ? "Your chats will appear here after you send a message." : "Saved to your account"}</p>
       <div className={styles.chatCards}>
         {chats.sessions.map(session => <div key={session.id} className={styles.chatCard} data-hover-group data-selected={session.id === chats.selectedId} data-session-id={session.id}>
           <button className={styles.chatSelect} aria-label={`Open chat: ${session.title}`} aria-current={session.id === chats.selectedId ? "true" : undefined} title={session.title} onClick={() => chats.select(session.id)}><ChatTitle session={session} animate={!!chats.reveal[session.id] && session.titleSource === "automatic" && session.title !== "Untitled chat"} /></button>
@@ -52,7 +52,7 @@ export function AssistantSessionSidebar({ chats, mark }: { chats: Chats; mark: R
     {dialog && <dialog ref={dialogRef} className={styles.chatDialog} aria-labelledby="chat-dialog-title" aria-describedby="chat-dialog-description" onCancel={event => { event.preventDefault(); close(); }}>
       <form onSubmit={event => { event.preventDefault(); void submit(); }}>
         <h2 id="chat-dialog-title">{dialog.kind === "rename" ? "Rename chat" : "Delete chat?"}</h2>
-        <p id="chat-dialog-description">{dialog.kind === "rename" ? "Your chosen name stays in charge of this chat." : `“${dialog.target.title}” and its conversation will be removed from this device.`}</p>
+        <p id="chat-dialog-description">{dialog.kind === "rename" ? "Your chosen name stays in charge of this chat." : `“${dialog.target.title}” and its conversation will be deleted from your account.`}</p>
         {dialog.kind === "rename" && <label>Chat name<input autoFocus value={name} onChange={event => setName(event.target.value)} maxLength={160} /></label>}
         {dialog.kind === "delete" && dialog.target.turns.at(-1)?.status === "pending" && <p>Cancel the active answer and wait for it to stop before deleting this chat.</p>}
         {error && <p className={styles.dialogError} role="alert">{error} Close this dialog to review the current chat.</p>}

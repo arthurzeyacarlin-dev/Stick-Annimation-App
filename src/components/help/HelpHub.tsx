@@ -23,8 +23,10 @@ export function HelpHub({ onBack, onOpenAssistant, onOpenTutorials, initialFocus
 
   return (
     <main className={styles.screen} data-help-hub>
+      {/* SPEC-0020 Phase 6: the back arrow sits top-left like every other screen (it used to float above the cards). */}
+      <div className={styles.backRow}><BackButton onClick={onBack}>Back to Home</BackButton></div>
       <div className={styles.frame}>
-        <BackButton onClick={onBack}>Back to Home</BackButton>
+
         <header className={styles.intro}>
           <h1 className={styles.heading}>Help</h1>
           <p className={styles.subheading}>Get answers or learn the basics.</p>

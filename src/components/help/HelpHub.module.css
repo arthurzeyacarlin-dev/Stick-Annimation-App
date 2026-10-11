@@ -1,4 +1,5 @@
 .screen {
+  position: relative;
   flex: 1;
   min-height: 0;
   overflow-y: auto;
@@ -11,6 +12,7 @@
 .screen button:focus-visible { outline: 2px solid var(--da-focus, #66c7ff); outline-offset: 4px; }
 .screen .back { align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px; border: 1px solid var(--da-border, #244267); border-radius: 10px; background: var(--da-panel, #071120); color: var(--da-text-2, #c9d6ea); font-size: 13px; font-weight: 600; }
 .screen .back:hover { border-color: var(--da-hover, #0066ff); background: var(--da-hover, #0066ff); color: #fff; }
+.backRow { position: absolute; top: 20px; left: clamp(16px, 3vw, 32px); }
 .intro { display: flex; flex-direction: column; gap: 8px; }
 .heading { margin: 0; font-size: clamp(36px, 4vw, 52px); font-weight: 740; line-height: 1.05; letter-spacing: -.05em; }
 .subheading { margin: 0; color: var(--da-text-3, #a8bddd); font-size: 16px; }

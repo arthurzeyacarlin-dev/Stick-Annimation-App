@@ -11,7 +11,6 @@ import { ProjectPoster } from "@/src/components/project-library/ProjectPoster";
 import { createProjectLibraryController } from "@/src/lib/project-library/projectLibraryController";
 import { filterAndSortProjectEntries, formatProjectEditedAgo, type ProjectLibrarySnapshot } from "@/src/lib/project-library/projectLibraryModel";
 import homeStyles from "@/src/components/home/HomeWorkspace.module.css";
-import welcomeStyles from "@/src/components/account/welcomeOverlay.module.css";
 import { createUntitledWorkspace, prepareCollectionWorkspace, prepareRecoveryWorkspace, WorkspaceBootstrap, type MountedWorkspace } from "@/src/lib/animation/unifiedWorkspaceBootstrap";
 import { createAccountProjectRepositoryV2, createAccountProjectSourceReader, readAccountProjectV2 } from "@/src/lib/account/projectClient";
 import { withAccountProjectWrite } from "@/src/lib/account/projectPending";
@@ -34,7 +33,6 @@ import {
 } from "@/src/lib/animation/projectRecoveryStorageV1";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { readAccountJson, writeAccountJson } from "@/src/lib/account/accountDataClient";
 import { getAppSettings } from "@/src/lib/account/appSettings";
 import { CloseButton } from "@/src/components/ui/CloseButton";
 
@@ -54,13 +52,6 @@ type StartupRecoveryState =
   | { kind: "home" }
   | { kind: "valid"; envelope: ProjectRecoveryEnvelopeV1; message?: string }
   | { kind: "invalid"; error: string; envelope?: ProjectRecoveryEnvelopeV1; message?: string; allowContinueHome?: boolean };
-
-type HomePreferencesV1 = {
-  schema: "account-home-preferences/v1";
-  welcomeSeen: boolean;
-  neverShowWelcome: boolean;
-  guidedChoices: string[];
-};
 
 const recoveryProblemMessage = (error: string) => {
   if (error === "recovery_storage_blocked") return "The local recovery store is busy in another tab. Close the other tab, then try again.";
@@ -92,13 +83,6 @@ export default function Page() {
   >("home");
   const [exportOrigin, setExportOrigin] = useState<"home" | "workspace">("home");
   const [exportProjectId, setExportProjectId] = useState<string | null>(null);
-  const [welcomeOpen, setWelcomeOpen] = useState(false);
-  const [welcomeStep, setWelcomeStep] = useState<0 | 1>(0);
-  const [guidedChoices, setGuidedChoices] = useState<string[]>([]);
-  const homePreferencesRef = useRef<{ revision: number; value: HomePreferencesV1 }>({
-    revision: 0,
-    value: { schema: "account-home-preferences/v1", welcomeSeen: false, neverShowWelcome: false, guidedChoices: [] },
-  });
   const [bootstrap] = useState(() => new WorkspaceBootstrap());
   const [workspace, setWorkspace] = useState<MountedWorkspace | null>(null);
   const [bootstrapMessage, setBootstrapMessage] = useState<string | null>(null);
@@ -119,16 +103,6 @@ export default function Page() {
   const [helpFocus, setHelpFocus] = useState<"assistant" | "tutorials" | null>(null);
 
   useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setWelcomeOpen(false);
-      }
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, []);
-
-  useEffect(() => {
     let cancelled = false;
     void inspectProjectRecoveryDraftV1(ownerId).then(result => {
       if (cancelled) return;
@@ -145,34 +119,7 @@ export default function Page() {
   }, [ownerId]);
 
   useEffect(() => {
-    if (startupRecovery.kind !== "home") return;
-    // Returning from Assistant continues the current visit without reopening setup.
-    if (window.location.hash === "#ai-assistant" || window.location.hash === "#help") return;
-    // First-time welcome (client-only)
-    let cancelled = false;
-    const timeoutId = window.setTimeout(() => {
-      void readAccountJson<HomePreferencesV1>("preferences", "home").then(record => {
-        if (cancelled) return;
-        const value = record?.value;
-        const valid = value?.schema === "account-home-preferences/v1" && typeof value.welcomeSeen === "boolean" && typeof value.neverShowWelcome === "boolean" && Array.isArray(value.guidedChoices) && value.guidedChoices.every(choice => typeof choice === "string");
-        const preferences = valid ? value : homePreferencesRef.current.value;
-        homePreferencesRef.current = { revision: record?.revision ?? 0, value: preferences };
-        setGuidedChoices(preferences.guidedChoices);
-        if (!preferences.neverShowWelcome && !preferences.welcomeSeen) {
-          setWelcomeStep(0);
-          setWelcomeOpen(true);
-        }
-      }).catch(() => undefined);
-    }, 0);
-
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timeoutId);
-    };
-  }, [startupRecovery.kind]);
-
-  useEffect(() => {
-    if (view !== "home" || startupRecovery.kind !== "home" || welcomeOpen) return;
+    if (view !== "home" || startupRecovery.kind !== "home") return;
     const restoreAssistantFocus = () => {
       if (window.location.hash === "#help") {
         // Assistant's back link returns to the Help page it was opened from.
@@ -194,7 +141,7 @@ export default function Page() {
       window.clearTimeout(timeoutId);
       window.removeEventListener("hashchange", restoreAssistantFocus);
     };
-  }, [view, startupRecovery.kind, welcomeOpen]);
+  }, [view, startupRecovery.kind]);
 
   useEffect(() => {
     if (view !== "home") return;
@@ -334,25 +281,6 @@ export default function Page() {
       }));
     return () => { for (const handle of handles) handle.unregister(); };
   }, [createReader, openProject, terraTargetKey, view, workspace]);
-
-  const toggleGuidedChoice = (key: string) => {
-    setGuidedChoices((prev) => (prev.includes(key) ? prev.filter((x) => x !== key) : [...prev, key]));
-  };
-
-  const closeWelcome = (opts?: { neverShow?: boolean; markSeen?: boolean }) => {
-    const current = homePreferencesRef.current;
-    const next: HomePreferencesV1 = {
-      schema: "account-home-preferences/v1",
-      welcomeSeen: current.value.welcomeSeen || Boolean(opts?.markSeen),
-      neverShowWelcome: current.value.neverShowWelcome || Boolean(opts?.neverShow),
-      guidedChoices: opts?.markSeen && guidedChoices.length ? [...guidedChoices] : current.value.guidedChoices,
-    };
-    homePreferencesRef.current = { ...current, value: next };
-    void writeAccountJson("preferences", "home", next, current.revision).then(result => {
-      if (homePreferencesRef.current.value === next) homePreferencesRef.current = { revision: result.revision, value: next };
-    }).catch(() => undefined);
-    setWelcomeOpen(false);
-  };
 
   const recoverStartupDraft = async () => {
     if (startupRecovery.kind !== "valid" || recoveryBusyAction) return;
@@ -514,141 +442,7 @@ export default function Page() {
 >
       {(view === "home" || view === "help") && <MainScreenHeader theme="home" />}
 
-{/* WELCOME OVERLAY (first-time guided setup) */}
-{view === "home" && (
-  <>
-    <div
-      aria-hidden={!welcomeOpen}
-      className={welcomeStyles.scrim}
-      onClick={(e) => {
-        // IMPORTANT: Do NOT allow clicking outside the welcome to close it.
-        // Users must choose buttons inside the welcome.
-        e.stopPropagation();
-      }}
-      style={{
-        // Shown or hidden instantly: no fade or movement.
-        opacity: welcomeOpen ? 1 : 0,
-        pointerEvents: welcomeOpen ? "auto" : "none",
-      }}
-    />
-
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label="Welcome to Diamond Animator"
-      className={welcomeStyles.dialog}
-      onClick={(e) => e.stopPropagation()}
-      style={{
-        opacity: welcomeOpen ? 1 : 0,
-        pointerEvents: welcomeOpen ? "auto" : "none",
-      }}
-    >
-  <div className={welcomeStyles.header}>
-    <div className={welcomeStyles.heading}>
-      <div className={welcomeStyles.eyebrow}>
-        {welcomeStep === 0 ? "Welcome" : "Guided setup"}
-      </div>
-      <div className={welcomeStyles.title}>
-        {welcomeStep === 0 ? "Welcome to Diamond Animator" : "Choose your guided setup"}
-      </div>
-    </div>
-
-    <CloseButton label="Close welcome" onClick={() => closeWelcome({ markSeen: true })} />
-  </div>
-
-  {/* Step 0: intro */}
-  {welcomeStep === 0 && (
-    <>
-      <div className={welcomeStyles.body}>
-        Welcome to Diamond Animator. Would you like a guided setup?
-      </div>
-
-      <div className={welcomeStyles.actions}>
-        <button
-          type="button"
-          className={`${welcomeStyles.button} ${welcomeStyles.primary}`}
-          onClick={() => setWelcomeStep(1)}
-        >
-          Continue with guided setup
-        </button>
-
-        <button
-          type="button"
-          className={welcomeStyles.button}
-          onClick={() => closeWelcome({ neverShow: true, markSeen: true })}
-        >
-          Don&apos;t show again
-        </button>
-      </div>
-    </>
-  )}
-
-  {/* Step 1: choose guided setup */}
-  {welcomeStep === 1 && (
-    <>
-      <div className={welcomeStyles.body}>
-        What guided setup would you like?
-      </div>
-
-      <div className={welcomeStyles.choices}>
-        <button
-          type="button"
-          className={`${welcomeStyles.choice} ${guidedChoices.includes("beginner") ? welcomeStyles.choiceSelected : ""}`}
-          onClick={() => toggleGuidedChoice("beginner")}
-        >
-          <div className={welcomeStyles.choiceTitle}>Learn animation fundamentals</div>
-          <div className={welcomeStyles.choiceText}>
-            Smooth start + confidence boosters.
-          </div>
-        </button>
-
-        <button
-          type="button"
-          className={`${welcomeStyles.choice} ${guidedChoices.includes("pro") ? welcomeStyles.choiceSelected : ""}`}
-          onClick={() => toggleGuidedChoice("pro")}
-        >
-          <div className={welcomeStyles.choiceTitle}>Speed up your workflow</div>
-          <div className={welcomeStyles.choiceText}>
-            Faster production and efficient tools.
-          </div>
-        </button>
-
-        <button
-          type="button"
-          className={`${welcomeStyles.choice} ${guidedChoices.includes("visionary") ? welcomeStyles.choiceSelected : ""}`}
-          onClick={() => toggleGuidedChoice("visionary")}
-        >
-          <div className={welcomeStyles.choiceTitle}>Build ambitious animation projects</div>
-          <div className={welcomeStyles.choiceText}>
-            Scale your ideas with optional AI assistance.
-          </div>
-        </button>
-      </div>
-
-      <div className={welcomeStyles.actions}>
-        <button
-          type="button"
-          className={`${welcomeStyles.button} ${welcomeStyles.primary}`}
-          disabled={guidedChoices.length === 0}
-          onClick={() => closeWelcome({ markSeen: true })}
-        >
-          Finish setup
-        </button>
-
-        <button
-          type="button"
-          className={welcomeStyles.button}
-          onClick={() => closeWelcome({ neverShow: true, markSeen: true })}
-        >
-          Don&apos;t show again
-        </button>
-      </div>
-    </>
-  )}
-    </div>
-  </>
-)}
-
+{/* SPEC-0020 Phase 6 (Arthur): the first-time "guided setup" welcome was removed (maybe in Version 2). */}
       {/* HOME: presentation and the account's most recently saved project. */}
       {view === "home" && (
         <main ref={homeMainRef} className={`home-main-scroll ${homeStyles.main}`}>

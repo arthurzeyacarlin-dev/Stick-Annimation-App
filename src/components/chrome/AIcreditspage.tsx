@@ -1,13 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import styles from "./appChrome.module.css";
 import { NotificationTrigger } from "@/src/components/notifications/NotificationTrigger";
 import { useAccountSession } from "@/src/components/account/AccountSessionProvider";
 import { AccountAvatarContent } from "@/src/components/account/AccountAvatar";
 import { runAccountProjectLogout } from "@/src/lib/account/projectPending";
 import { CloseButton } from "@/src/components/ui/CloseButton";
+import { ReportProblemDialog } from "./ReportProblemDialog";
+import { subscribeProblemReportSummaryV1, type ProblemReportSummaryStateV1 } from "@/src/lib/notifications/problemReportObserver";
 
 type AppChromeProps = {
   /** The page hosting the global header. Only the nav link differs: Home links to the AI Dashboard, the Dashboard links Home. */
@@ -35,6 +37,10 @@ export function AppChrome({ page, theme }: AppChromeProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
+  // SPEC-0020 Phase 6: the owner sees a "Problem reports" row (with the count of new ones) under Support.
+  const [problemReports, setProblemReports] = useState<ProblemReportSummaryStateV1>({ owner: false, newCount: 0 });
+  useEffect(() => subscribeProblemReportSummaryV1(setProblemReports), []);
   const [logoutBusy, setLogoutBusy] = useState(false);
   const [logoutError, setLogoutError] = useState<string | null>(null);
   const [accountPopoverOpen, setAccountPopoverOpen] = useState(false);
@@ -47,6 +53,7 @@ export function AppChrome({ page, theme }: AppChromeProps) {
         setMenuOpen(false);
         setAboutOpen(false);
         setTermsOpen(false);
+        setReportOpen(false);
         setAccountPopoverOpen(false);
       }
     };
@@ -63,6 +70,8 @@ export function AppChrome({ page, theme }: AppChromeProps) {
     setAccountPopoverOpen(false);
   };
 
+
+  const closeReport = useCallback(() => setReportOpen(false), []);
 
   const logOut = async () => {
     if (logoutBusy) return;
@@ -191,9 +200,18 @@ export function AppChrome({ page, theme }: AppChromeProps) {
 
         <div className={styles.section}>
           <div className={styles.sectionLabel}>Support</div>
-          <div className={styles.staticCard}>Report a Problem</div>
+          <button type="button" className={styles.panelButton} onClick={() => { setMenuOpen(false); setReportOpen(true); }}>
+            Report a Problem <ChevronIcon />
+          </button>
+          {problemReports.owner && (
+            <Link href="/reports" className={styles.panelButton}>
+              <span>Problem reports{problemReports.newCount > 0 ? ` (${problemReports.newCount} new)` : ""}</span> <ChevronIcon />
+            </Link>
+          )}
         </div>
       </aside>
+
+      {reportOpen && <ReportProblemDialog onClose={closeReport} />}
 
       {aboutOpen && (
         <div onClick={() => setAboutOpen(false)} className={styles.modalScrim}>
@@ -206,38 +224,29 @@ export function AppChrome({ page, theme }: AppChromeProps) {
               <CloseButton label="Close description" onClick={() => setAboutOpen(false)} />
             </div>
 
+            {/* SPEC-0020 Phase 6: a true description of the app today (the old one promised plugins, packs and
+                "overnight processing", which don't exist). Arthur reviews the words. */}
             <div className={styles.modalBody}>
               <h3>Diamond Animator</h3>
               <p>
-                Diamond Animator is a high-focus animation workspace designed to dramatically reduce the time and effort required
-                to create high-quality animations.
+                Diamond Animator is an animation studio for your computer, made for stick-figure animation. Draw your
+                characters, bring them to life frame by frame, and share what you make.
               </p>
-              <p>
-                Built for creators who want speed, power, and precision, Diamond Animator integrates advanced AI assistance
-                directly into the animation pipeline, helping transform what once took years into months, months into weeks, and
-                weeks into days.
-              </p>
-              <h4>AI assistance can help you with:</h4>
+              <h4>What you can do</h4>
               <ul>
-                <li>Assisting in generating animation frames</li>
-                <li>Helping create visual effects</li>
-                <li>Supporting scene refinement and enhancement</li>
-                <li>Automating repetitive tasks</li>
-                <li>Accelerating creative workflows</li>
-                <li>Handling overnight processing for heavy workloads</li>
+                <li>Draw with the brush, eraser, fill, shapes, text, lasso and knife</li>
+                <li>Animate on a timeline with frames, keyframes, layers and onion skin</li>
+                <li>Talk to the AI Animator about your animation in plain words</li>
+                <li>Export your animation as a video, a GIF or pictures</li>
+                <li>Get answers any time from the Help Assistant</li>
               </ul>
               <p>
-                Diamond Animator is not about replacing creators. It is about amplifying them. The AI works alongside you to keep
-                your creative momentum moving forward.
-              </p>
-              <h4>Workspace add-ons</h4>
-              <p className={styles.modalMuted}>
-                Diamond Animator is a developing platform that continues to improve over time. Through plugins and packs, creators will
-                be able to extend their workspace with additional tools and creative enhancements as they become available.
+                Your projects are saved to your account. The AI Animator uses credits; drawing, exporting and the Help
+                Assistant are free.
               </p>
               <p className={styles.modalMuted}>
-                Some add-ons will be free, while others may offer more advanced capabilities for focused workflows. These expansions
-                are designed to support creativity without disrupting the core experience of the workspace.
+                Diamond Animator is made by Arthur and gets better with every update. Found a problem? Use Report a Problem
+                in this menu — every report is read.
               </p>
             </div>
           </div>

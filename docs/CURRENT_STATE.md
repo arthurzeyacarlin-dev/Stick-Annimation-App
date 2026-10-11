@@ -1,5 +1,13 @@
 # Current State
 
+## D-0192 — PM3: SPEC-0020 Phase 8 (Drawing fixes) published; next = plans that work (current, PM3 — app and website)
+
+Arthur passed Phase 8 on 2026-10-11 (D-0192). Product commit `134bbcb` is on main and GitHub.
+
+- Strokes that lose the pointer are finished (kept) instead of cancelled — the "drawing randomly deleted" bug. Pen-lift ~0.23 s → ~0.15 s (cached tile digests). Resize-undo not reproducible.
+- **Checks:** type check; lint (0 errors); drawing raster oracle PASS (19,844 assertions); the old no-loss oracle fails the same way before and after (registry count 11 vs 10 — stale script); in the app copy: lost-capture and pointercancel strokes kept, 36 stress strokes with background saves lost none, real-mouse resizes kept.
+- **Next (PM3's pick):** plans that work — dad decides credit math, Stripe test keys and the Apple in-app purchase question; then Stripe Checkout + webhook + monthly refills in a new copy; then the website; then online and the Mac App Store.
+
 ## D-0191 — PM3: SPEC-0020 Phase 7 (Editor fixes) published (current, PM3 — app and website)
 
 Arthur passed SPEC-0020 Phase 7 on 2026-10-11 (D-0191). Product commit `d316b80` is on main and GitHub.

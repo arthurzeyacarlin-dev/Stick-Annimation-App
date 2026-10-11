@@ -1877,6 +1877,14 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Publication: product commit `d316b80` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 - Next: Arthur picks — drawing-lag round or the website.
 
+### D-0192 — SPEC-0020 Phase 8 (Drawing fixes) accepted and published (PM3)
+
+- Date: 2026-10-11
+- A brush stroke is never thrown away because the pointer was lost; it is finished with the points drawn so far.
+- Commit checks stay; only repeated digest work is cached.
+- Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
+- Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

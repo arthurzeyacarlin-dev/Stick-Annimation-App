@@ -1,6 +1,6 @@
 # SPEC-0020 — Ready for beta users (the app around the AI Animator)
 
-Status: **APPROVED by Arthur 2026-10-11.** Phase 1 PASSED and published 2026-10-11 (D-0185, `0527663`). Phase 2 PASSED and published 2026-10-11 (D-0186, `7049ab3`). Phase 3 PASSED and published 2026-10-11 (D-0187, `9c55342`). Phase 4 PASSED and published 2026-10-11 (D-0188, `44eae38`). **Re-planned 2026-10-11 after a full check of the app:** Phase 5 (Projects and Export) and Phase 6 (Words, help and menus) are new; going online, payments, the App Store and tutorials wait until the whole app (AI Animator too) is done. Phase 5 PASSED and published 2026-10-11 (D-0189, `9d398e7`). Phase 6 PASSED and published 2026-10-11 (D-0190, `968bd3e`). Phase 7 PASSED and published 2026-10-11 (D-0191, `d316b80`). **Next: Arthur picks — the drawing-lag round or the website.** (Written by PM3.)
+Status: **APPROVED by Arthur 2026-10-11.** Phase 1 PASSED and published 2026-10-11 (D-0185, `0527663`). Phase 2 PASSED and published 2026-10-11 (D-0186, `7049ab3`). Phase 3 PASSED and published 2026-10-11 (D-0187, `9c55342`). Phase 4 PASSED and published 2026-10-11 (D-0188, `44eae38`). **Re-planned 2026-10-11 after a full check of the app:** Phase 5 (Projects and Export) and Phase 6 (Words, help and menus) are new; going online, payments, the App Store and tutorials wait until the whole app (AI Animator too) is done. Phase 5 PASSED and published 2026-10-11 (D-0189, `9d398e7`). Phase 6 PASSED and published 2026-10-11 (D-0190, `968bd3e`). Phase 7 PASSED and published 2026-10-11 (D-0191, `d316b80`). Phase 8 PASSED and published 2026-10-11 (D-0192, `134bbcb`). **Next (PM3's pick, Arthur asked): make the plans work (Stripe test mode, monthly refills), then the website, then online and the Mac App Store.** (Written by PM3.)
 Owner: Arthur · Builder: Claude (PM3) · Launch: **only when the whole app is done** (was Tue Oct 20, 2026; Arthur re-planned 2026-10-11)
 Baseline: `main` at `22efcf2`
 Not in this spec: the AI Animator engine and Luna (PM2, SPEC-0019), and the website (SPEC-0018).
@@ -105,6 +105,16 @@ After Phase 4 PM3 clicked through every screen except the AI Animator and a help
 - **In-app boxes:** Clear Canvas asks "Clear this frame?" in the app; stroke/fill/resize problems show a short in-app notice (no browser pop-ups). Danger buttons have red text + red outline and turn fully red on hover (Arthur).
 - **Escape** closes the File menu.
 - **Not done:** the drawing-lag fix (big canvases; drawing engine) — its own careful round.
+
+### Phase 8 — Drawing fixes (Sun Oct 11, night) — PASSED, published (`134bbcb`)
+- **"Drawings randomly get deleted":** a stroke that lost the pointer (button let go outside the window, focus stolen, pointercancel) was thrown away on purpose. Now it is finished with the points already drawn.
+- **Lag:** pen-lift measured ~0.23 s → ~0.15 s for a big stroke (tile digests cached so the commit check doesn't redo them; the check itself is unchanged). The real cause is the 4.6× authoring canvas — a separate, careful round (WORKSPACE-LAG).
+- **Resize undone:** not reproducible (real-mouse resizes twice, auto-save, deselect all kept the change); Arthur will show the exact steps if it happens again.
+
+### Next — Plans that work (PM3's recommendation, 2026-10-11)
+1. Dad decides: credits per plan vs the AI Animator's 10–40¢ cost per animation; Stripe test keys; how to handle Apple's in-app purchase rule for the App Store app.
+2. Build in a new app copy: Plans → Stripe Checkout (test mode) → webhook sets the plan and credits → monthly refill on each renewal → "Manage plan" (Stripe customer portal: cancel / change / card) → failed payment warns, then locks the AI Animator after a grace period (projects stay safe) → trial lock unchanged.
+3. Test every case with Stripe's test cards; Arthur reviews. Then the website, then online, then the Mac App Store.
 
 ### Later list (Arthur picks when)
 - **EDITOR-BUGS:** done in Phase 7 except the big-canvas lag fix (drawing engine — its own round).

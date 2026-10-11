@@ -268,6 +268,8 @@ Every move also gets a **style** knob: natural, robot, sneaky, tired, happy, ang
 
 ### Phase 4 — AI Animator in the editor · Thursday Oct 8
 
+**ARTHUR'S DECISION (2026-10-08, overrides the preview/Apply wording below and in §6.10): NO preview card and NO Apply/Discard buttons.** When the user accepts the plan in the chat, the AI Animator animates and the frames go **straight onto the timeline** on a new layer `AI: <title>` — automatically. Undo (one step) takes it all back. Follow-ups still change only what was asked (a drawn-on layer is never overwritten: a new layer is made). Arthur: "the most important tiny baby step in my entire app" — the engine must create animations on its own with everything it has learned (anticipation, ease in/out = acceleration/deceleration, follow-through, weight, impacts, planted feet, effects, original symbols/props, key poses, animated backgrounds), must not bring back any problem already fixed (e.g. two identical symbols) and must not create new ones. Timing: a normal natural pace for every move — **no weird delays, no slow motion and no super-fast motion unless the user explicitly asks** (then `keepPace`). Guard helpers audit the whole engine + app every round so nothing else breaks.
+
 **Builds:** the real flow, **chat only, no move-picker buttons**. Type in the shared chat box. The AI plans the animation and a small **preview** plays right in the chat. Press **Apply** and editable frames appear on a new layer. Undo works. Follow-ups edit only what you asked: "make the punch more powerful" changes that punch's energy, "make him walk like a robot" changes that walk's style, "make the jump higher" or "slower" change those knobs. The kept plan is changed and the scene is remade. The AI can also set figure colors and the frames per second, and add a simple outfit (shirt and pants as colored body lines), when the user asks.
 
 **"0-100" — AI only, and the engine edits its OWN animation (Arthur, 2026-10-07):** besides 50-50 (the user draws, the engine helps), the AI can make the whole animation and then keep editing it on request: "make him jump higher", "punch harder", "stronger anticipation", "make the run last longer until he leaves the screen, then take him to a different white background". Each follow-up changes only what was asked (the kept plan is edited and the scene remade). The same goes for timing: by default the engine keeps every animation at a normal, smooth pace for its kind (a run is fast); only when the user says a fast or slow part is intentional ("keep all this the same, only tweak this") is it left alone — the AI passes that to the engine (`keepPace`).
@@ -284,8 +286,8 @@ Every move also gets a **style** knob: natural, robot, sneaky, tired, happy, ang
 *Stretch goal, only if time allows:* say "remember that move as robot dance" and an AI-invented move is saved into the library, so the library grows for free.
 
 **How Arthur tests it:**
-1. Type "a stick figure walks in and waves". A preview plays in the chat.
-2. Press Apply. A new layer appears with the frames. Press Play.
+1. Type "a stick figure walks in and waves" and accept the plan. No preview, no Apply: the animation appears on the timeline by itself.
+2. A new layer `AI: …` has the frames. Press Play.
 3. Draw on one of those frames. Undo, then Redo.
 4. Type "make him wave twice". The scene updates.
 5. Type "after he waves, a ball bounces" (with a Ball symbol). The ball starts right after the wave ends — no playhead needed.
@@ -294,6 +296,36 @@ Every move also gets a **style** knob: natural, robot, sneaky, tired, happy, ang
 **Pass when:** all 6 steps work. Story-order requests ("after…", "then…", "at the same time as…", "at the end") land in the right place. Nothing else in the project changes. The chat box looks exactly the same as the Assistant's. If the AI fails, you see a friendly message and nothing changes.
 
 **Not included:** Animating hand drawings limb by limb.
+
+**Today's pass (Arthur, Oct 8 night):** in the app copy, New Project → plan with Luna in the chat → when you clearly say OK in any words, one animation lands on the timeline by itself on its own layer "AI: …" → one Cmd+Z takes it away.
+
+### Phase 4 — final part: editing with the AI Animator · Friday Oct 9 (Arthur's decisions, Oct 8 night)
+
+Most of Diamond Animator is editing your animation with the AI Animator, so it has to be good at that.
+
+**Builds:**
+1. **Edit any animation by chat**: Luna's animation or your own drawing ("jump higher", "punch harder", "make it 8 FPS", "make him red"). The engine changes only what you asked; everything else stays exactly the same.
+2. **The edit card** (the only new card): after an AI animation or edit it shows frames added in green and frames deleted ("+86 −0"), with **Undo** and **Redo**. Once you send another plan or animation, that card's Undo/Redo is no longer available.
+3. **Memory**: Luna remembers the animation and everything you said about it in this project's chat.
+4. **Automatic compacting**: when the chat gets long, it is squeezed down to what matters by itself, with nothing for you to do.
+5. **New Luna session**: only when the chat is dangerously long (it would burn too much usage), a red card says: "This chat session for <project name> has gotten too long. Please start a new chat session by clicking Yes." There is only a **Yes** button and no X. Yes starts a new Luna session with a full handoff in the background. No handoff message is shown. The new Luna's first message is: "Hello, I'm your new AI Animator. The old session got too long, so I was replaced to keep working smoothly. I know everything about your animation and where we left off."
+6. **Search only when needed**: while planning, Luna searches the internet only for things she can't know herself (YouTube channels, Alan Becker characters like the Dark Lord, Chosen One or Victim, a specific show or person), showing "Searching…". Plain requests never search.
+
+**Chat look rules (Arthur):**
+- The chat shows only the chat box, Luna's text messages, the **Animating** card (title with the moving gradient, progress bar inside, "Finalizing animation", never "Finalizing answer") and the edit card. No plan cards and no "Make animation" buttons.
+- When Luna starts, she explains in specifics what she'll do, like Claude narrating ("First I'll set up the forest background and the hiking stick, then make sure he uses the stick without broken poses, then your animation is ready").
+
+**Later, for the live app (with Dad):** hover a Luna message to rate it bad / fine / good; after rating, "Give more feedback" can become a testimonial for the website.
+
+**Pass when:** Arthur edits both Luna's animation and his own drawing by chat; the edit card counts frames correctly and its Undo/Redo work; a long chat compacts by itself; the red "too long" card hands over to a new Luna who knows where you left off; nothing else in the project changes.
+
+#### Oct 9 decisions (Arthur, during the day plan)
+- **Two engines, two roles (no AI, no extra cost).** Luna writes the plan → **Engine 1, the animator** makes it, as good as possible on the first try → **Engine 2, the checker** (`src/lib/animator/checker/`) reviews every frame like Arthur would ("Why is he outside the rocket? Why is he standing still?"), knows the 12 principles and what figures, things and places look like, and reads Luna's plan → the animator applies small fixes → loop **only when needed**, at most 20 rounds, always keeping the best version → only a pass (or the best version) goes on the timeline. To the beta user it looks like Luna animating.
+- **Wait time:** about 1 minute for a normal animation; **always under ~3 minutes**, even for a 1–2 minute story with loops. The animating card shows an estimate ("About 30 seconds left") **only when the wait is long**, and it **only counts down**.
+- **Luna never says "too complex"** and never shows an error (only "this chat session got too long"). Only a request far beyond V1 (more than ~2 minutes of animation, e.g. a 20-minute one) gets an honest "V1 makes up to about 2 minutes".
+- **Editing with Luna is the most important, most reliable part:** "make the rocket orange", "make it bigger", "zoom the camera out", "add a scene where…" — only what was asked changes, with memory per project, the edit card (+frames green / −frames, Undo/Redo with hover colors) only after something really landed, and the red new-session card with a hidden handoff.
+- **Only what was asked:** a white canvas unless the words name a place; no sun unless asked; nothing hangs on a string; nothing random (every effect has a cause); open space has no ground; things at their real size, drawn from parts (a rocket is a rocket, never a box).
+- **Tonight's acceptance test (the NASA story):** a stick figure in a giant rocket at a NASA launch site; the thrusters fire; it launches into outer space and lands on the moon; two astronauts float out; low gravity; three backflips in a row — "animate that" works, lands in about a minute, no lying.
 
 ### Phase 5 — Library check + cleanup · Friday Oct 9
 
@@ -475,7 +507,7 @@ It is deterministic: the same plan always gives the same frames. It's pure TypeS
 ### 6.10 Editor flow, follow-ups and Undo (Phase 4)
 
 - `DrawingAiPanel.tsx` today only chats. It receives `onApplyGeneratedFrame` but ignores it (`void _onApplyGeneratedFrame`). Phase 4 adds a new prop `onApplyAnimatorScene`, passed from `DrawingWorkspace` → `DrawingCanvas` → `DrawingRightPanel` → `DrawingAiPanel`.
-- Server: when Terra's intent is `create-animation`/`edit-animation`, the job runs the director, checks the plan, and returns the plan in the finished job event. The browser runs the engine again (same pure code), shows a small preview card in the chat (a mini canvas looping the scene) with **Apply** and **Discard**, and Apply calls `onApplyAnimatorScene`.
+- Server: when Terra's intent is `create-animation`/`edit-animation`, the job runs the director, checks the plan, and returns the plan in the finished job event. The browser runs the engine again (same pure code) and calls `onApplyAnimatorScene` **automatically** (Arthur 2026-10-08: no preview card, no Apply/Discard — the frames land on the timeline as one undoable step; the chat says "Animation ready — it's on the timeline as layer AI: <title>").
 - Contract change: `aiAnimatorContract.ts` locks the model to the literal `gpt-5.6-terra` (`AI_ANIMATOR_MODEL`, also checked in `normalizeAiAnimatorJobSnapshot`). Widen it to the chosen director provider/model and add an optional `scenePlan` field on the done event.
 - **Plan kept:** in the finished job record in the existing per-project AI Animator ledger (`aiAnimatorStorage.ts`), linked to the scene's layer by name and ID. The project file format doesn't change.
 - **Follow-up ("jump higher"):** the AI edits the kept plan, and the engine remakes the frames. If the scene's layer is **unchanged since Apply**, its frames are replaced as one undoable step. If the user has drawn on it, a **new** layer `AI: <title> (2)` is made and the chat says so. User drawing is never silently overwritten.

@@ -46,9 +46,21 @@ const coverageDigest = (coverage: UnifiedRasterPaintCoverageV1 | null) => {
   }
   return digest;
 };
+// SPEC-0020 Phase 8 (lag): the same tile bytes were digested twice per stroke (when the stroke is sealed and
+// again when the commit is validated, in the same synchronous call). Each tile byte array's digest is cached by
+// identity, so the second pass reuses it. The comparison itself is unchanged.
+const tileByteDigests = new WeakMap<Uint8ClampedArray, string>();
+const cachedTileDigest = (bytes: Uint8ClampedArray) => {
+  let digest = tileByteDigests.get(bytes);
+  if (!digest) {
+    digest = byteDigest(bytes);
+    tileByteDigests.set(bytes, digest);
+  }
+  return digest;
+};
 export function rasterCommandDigest(tiles: RasterGestureCommandV2['tiles'], side: 'before' | 'after', coverage: UnifiedRasterPaintCoverageV1 | null): string {
   return `raster-target/v1:${byteDigest(new TextEncoder().encode(JSON.stringify([
-    tiles.map(tile => [tile.left, tile.top, tile.width, tile.height, byteDigest(tile[side])]), coverageDigest(coverage),
+    tiles.map(tile => [tile.left, tile.top, tile.width, tile.height, cachedTileDigest(tile[side])]), coverageDigest(coverage),
   ])))}`;
 }
 function validOptions(options: RasterGestureOptions) {

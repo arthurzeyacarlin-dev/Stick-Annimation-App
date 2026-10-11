@@ -9396,7 +9396,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     const handlePointerCancel = () => {
       pending = null;
       clearQueuedAutosave();
-      drawingCanvasRef.current?.cancelPendingAuthoringGesture("pointercancel");
+      // (Phase 7b: the canvas itself finishes a stroke that loses the pointer, keeping what was drawn.)
     };
     root.addEventListener("pointerdown", handlePointerDown);
     root.addEventListener("pointerup", handlePointerUp);

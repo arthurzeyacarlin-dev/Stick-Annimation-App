@@ -4691,11 +4691,14 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     }
   };
 
-  const finishRasterDraft = (e: React.PointerEvent<HTMLCanvasElement>) => {
+  // SPEC-0020 Phase 7b (Arthur: "sometimes my drawing randomly gets deleted"): a stroke that loses the mouse
+  // (button let go outside the window, focus stolen, pointercancel) used to be thrown away. Now it is finished
+  // with the points already drawn, exactly like a normal pointerup without the final point.
+  const finishRasterDraft = (e: React.PointerEvent<HTMLCanvasElement>, options?: { lostPointer?: boolean }) => {
     const draft = rasterDraftRef.current;
-    if (!draft || draft.pointerId !== e.pointerId || e.type !== "pointerup") return;
+    if (!draft || draft.pointerId !== e.pointerId || (e.type !== "pointerup" && !options?.lostPointer)) return;
     if (draft.contextKey !== currentRasterContextRef.current || draft.generation !== authoringChangeVersionRef.current) { cancelPendingAuthoringGesture("stale-base"); return; }
-    moveRasterDraft(e);
+    if (!options?.lostPointer) moveRasterDraft(e);
     if (rasterDraftRef.current !== draft) return;
     const prepared = draft.engine.seal();
     if (draft.ownerId && !sketchDraftAddsPaint(draft)) { cancelPendingAuthoringGesture("unchanged-sketch"); return; }
@@ -9268,7 +9271,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   };
 
   const cancelCanvasStroke = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    if (rasterDraftRef.current) { cancelPendingAuthoringGesture("pointer-cancel"); return; }
+    if (rasterDraftRef.current) { finishRasterDraft(e, { lostPointer: true }); return; }
     const releaseCapture = () => {
       if (e.currentTarget.hasPointerCapture(e.pointerId)) {
         e.currentTarget.releasePointerCapture(e.pointerId);
@@ -9646,8 +9649,8 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     onUnifiedSymbolInstancesChange?.(unifiedSymbolInstances.map(instance => instance.itemId === draft.itemId ? draft : instance));
   };
   const keepCanvasGestureOnLostCapture = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    // A brush stroke still follows the old rule (its last point is unknown); transforms are kept.
-    if (rasterDraftRef.current) { cancelCanvasStroke(e); return; }
+    // A brush stroke keeps every point drawn so far (Phase 7b); transforms are kept too (Phase 4).
+    if (rasterDraftRef.current) { finishRasterDraft(e, { lostPointer: true }); return; }
     if (placedImageInteractionRef.current || bitmapSelectionInteractionRef.current || textInteractionRef.current) {
       endCanvasStroke(e);
       return;

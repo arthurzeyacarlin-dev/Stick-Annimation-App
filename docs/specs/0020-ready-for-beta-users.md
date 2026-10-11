@@ -1,6 +1,6 @@
 # SPEC-0020 — Ready for beta users (the app around the AI Animator)
 
-Status: **APPROVED by Arthur 2026-10-11.** Phase 1 PASSED and published 2026-10-11 (D-0185, `0527663`). Phase 2 PASSED and published 2026-10-11 (D-0186, `7049ab3`). Phase 3 PASSED and published 2026-10-11 (D-0187, `9c55342`). Phase 4 PASSED and published 2026-10-11 (D-0188, `44eae38`). **Re-planned 2026-10-11 after a full check of the app:** Phase 5 (Projects and Export) and Phase 6 (Words, help and menus) are new; going online, payments, the App Store and tutorials wait until the whole app (AI Animator too) is done. Phase 5 PASSED and published 2026-10-11 (D-0189, `9d398e7`). **Phase 6 is next.** (Written by PM3.)
+Status: **APPROVED by Arthur 2026-10-11.** Phase 1 PASSED and published 2026-10-11 (D-0185, `0527663`). Phase 2 PASSED and published 2026-10-11 (D-0186, `7049ab3`). Phase 3 PASSED and published 2026-10-11 (D-0187, `9c55342`). Phase 4 PASSED and published 2026-10-11 (D-0188, `44eae38`). **Re-planned 2026-10-11 after a full check of the app:** Phase 5 (Projects and Export) and Phase 6 (Words, help and menus) are new; going online, payments, the App Store and tutorials wait until the whole app (AI Animator too) is done. Phase 5 PASSED and published 2026-10-11 (D-0189, `9d398e7`). Phase 6 PASSED and published 2026-10-11 (D-0190, `968bd3e`). **All six phases are done; the editor-fixes list is next (Arthur picks).** (Written by PM3.)
 Owner: Arthur · Builder: Claude (PM3) · Launch: **only when the whole app is done** (was Tue Oct 20, 2026; Arthur re-planned 2026-10-11)
 Baseline: `main` at `22efcf2`
 Not in this spec: the AI Animator engine and Luna (PM2, SPEC-0019), and the website (SPEC-0018).
@@ -87,7 +87,7 @@ After Phase 4 PM3 clicked through every screen except the AI Animator and a help
 - The MP4 video engine itself is not changed; GIF and PNG are new outputs built from the same frames.
 - **Found in Arthur's review:** the app has no sound yet, so "with sound" was removed; the browser inside the Claude app has a broken save window (it cancels, refuses to write, or hangs), so exports there always download to the Downloads folder; the Video / GIF / Pictures buttons use the app's normal hover (accent fill, white text).
 
-### Phase 6 — Words, help and menus
+### Phase 6 — Words, help and menus — PASSED, published (`968bd3e`)
 - **Report a Problem works:** a short form (what happened, which screen, optional screenshot). Each report is saved to the account server and appears in an owner-only **Problem reports** inbox in the app (only Arthur's account can open it; newest first; mark as done) and rings Arthur's bell. When real emails exist (the "last" step), each report is also emailed to Arthur.
 - **Description** rewritten with Arthur (no plugins, packs or "overnight processing").
 - **Help Assistant's knowledge** updated to the real app (real buttons and paths; Settings and menus are real; projects save to your account; dictation exists).
@@ -96,6 +96,7 @@ After Phase 4 PM3 clicked through every screen except the AI Animator and a help
 - **Library panel** explains how to make a symbol when it is empty.
 - **Help page** back arrow in the normal place; Tutorials card stays "Coming later" until the last step.
 - **Phones and tablets:** a friendly "Diamond Animator works on computers" screen.
+- **Found in Arthur's review:** reports always stay, even if the sender deletes their account; only the owner's account can read them (checked on the server); a red "ChunkLoadError" after an update now reloads the page once instead; the plain 404 became the app's own "This page isn't here" page. Emailing each report to Arthur waits for real emails (the last step).
 
 ### Later list (Arthur picks when)
 - **EDITOR-BUGS:** Undo after Insert Frame / New Layer undoes the wrong thing; a new project's empty layer can disappear after reopening; hidden layers aren't saved; Clear Canvas and stroke/fill error pop-ups → in-app boxes; Escape doesn't close the editor menus; the big-canvas lag fix (drawing engine — needs Arthur's OK).

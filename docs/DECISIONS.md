@@ -1859,6 +1859,15 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - PM2 note (SPEC-0021 §6.5, dad-approved): later the app guides users "core first (~15 s), then build up", shows the credit cost on each action and never charges for refused/failed animations. This conflicts with SPEC-0020's "1 credit per answered message" pricing; Arthur and dad decide the new credit math when PM2's engine is ready.
 - Next: SPEC-0020 Phase 6 (Words, help and menus).
 
+### D-0190 — SPEC-0020 Phase 6 (Words, help and menus) accepted and published (PM3)
+
+- Date: 2026-10-11
+- Arthur's rules: only his account can read problem reports (server-checked owner email); reports always stay, even when the sender deletes their account; he wants each report messaged to him — the bell does it now, email when real emails exist.
+- Guided setup removed (maybe in Version 2).
+- For going online (last step): sign-up must verify email ownership, so nobody can register the owner's email first.
+- Publication: product commit `968bd3e` fast-forwarded into main and pushed, followed by this records commit. Arthur also asked for a clean working tree after every push, so PM2's and the website's uncommitted notes were committed too.
+- Next: Arthur picks — editor fixes (TODO EDITOR-BUGS) or the website.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

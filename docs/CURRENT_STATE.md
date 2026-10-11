@@ -1,5 +1,15 @@
 # Current State
 
+## D-0190 — PM3: SPEC-0020 Phase 6 (Words, help and menus) published; all six phases done (current, PM3 — app and website)
+
+Arthur passed SPEC-0020 Phase 6 on 2026-10-11 (D-0190). Product commit `968bd3e` is on main and GitHub.
+
+- **Report a Problem** works: side-menu form → saved on the server (`.local/spec0015-phase3/problem-reports.sqlite`, created on first use) → owner-only `/reports` inbox (owner = `OWNER_EMAILS` in `src/lib/account/owner.ts`, checked on the server) + "Problem reports (N new)" menu row + one bell notification per new report. Reports stay if the sender deletes their account.
+- **Words:** true Description; Help Assistant knowledge rewritten from the real UI; "your account" instead of "this computer/device"; Library empty state explains Convert to Symbol.
+- **Removed / added:** guided setup removed; Help back arrow top-left; app-styled not-found page; phones/tablets get "Diamond Animator works on computers"; a ChunkLoadError after an update reloads the page once.
+- **Checks:** type check; lint (0 errors); 9/9 tests (problem reports 7, notification tone 2); in the app copy: a real report with a screenshot was accepted, a non-owner gets "not found" for the inbox and its API, the phone screen shows on Mobile and not on a computer, no welcome pop-up, Help arrow top-left, the reload-once guard reloaded on a simulated ChunkLoadError. Arthur checked the inbox as himself.
+- **Next:** Arthur picks — EDITOR-BUGS (TODO) or the website; the last step (online, emails, payments, App Store, tutorials) waits until the whole app is done.
+
 ## D-0189 — PM3: SPEC-0020 re-planned; Phase 5 (Projects and Export) published; Phase 6 (Words, help and menus) is next (current, PM3 — app and website)
 
 Arthur passed SPEC-0020 Phase 5 on 2026-10-11 (D-0189). Product commit `9d398e7` is on main and GitHub.

@@ -1,5 +1,13 @@
 # Current State
 
+## D-0191 — PM3: SPEC-0020 Phase 7 (Editor fixes) published (current, PM3 — app and website)
+
+Arthur passed SPEC-0020 Phase 7 on 2026-10-11 (D-0191). Product commit `d316b80` is on main and GitHub.
+
+- Undo/Redo for Insert Frame / Keyframe / Blank Keyframe and New Layer (own history steps; `rebaseHistoryAfterLayerAddition` removed). Hidden layers saved as `auxiliary.editorHiddenLayerIds` (`src/lib/animation/editorHiddenLayersV1.ts`). Reopened projects with 2+ layers show the timeline unfolded (the "missing" empty layer was only folded away). Clear Canvas uses an in-app box; editor error pop-ups are in-app notices; danger buttons red outline → red fill on hover; Escape closes the File menu.
+- **Checks:** type check; lint (0 errors); 3/3 hidden-layer tests; in the app copy: F5 → ⌘Z removes the frame and keeps the drawing, ⇧⌘Z restores it; New Layer undo/redo; save → reopen keeps the empty layer and the hidden state; Clear Canvas box (Cancel keeps, Clear frame erases); Escape closes the File menu. Arthur reviewed and passed.
+- **Next:** Arthur picks — the drawing-lag round or the website.
+
 ## D-0190 — PM3: SPEC-0020 Phase 6 (Words, help and menus) published; all six phases done (current, PM3 — app and website)
 
 Arthur passed SPEC-0020 Phase 6 on 2026-10-11 (D-0190). Product commit `968bd3e` is on main and GitHub.

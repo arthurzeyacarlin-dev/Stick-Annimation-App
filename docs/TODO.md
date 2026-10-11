@@ -1,6 +1,6 @@
 # TODO
 
-## PM3 queue — app and website (D-0190, 2026-10-11)
+## PM3 queue — app and website (D-0191, 2026-10-11)
 
 - [x] **SPEC-0020 Phase 1** — account and profile. Arthur PASS 2026-10-11; published in `0527663`.
 - [x] **SPEC-0020 Phase 2** — credits, plans, 14-day trial, Plans page, AI Dashboard redesign. Arthur PASS 2026-10-11; published in `7049ab3`. PM2: keep the credit check in `src/lib/ai/aiAnimatorJobService.ts` when porting the engine.
@@ -11,8 +11,9 @@
 - [x] **SPEC-0020 Phase 4** — workspace: menus + shortcuts, layer eye/trash, delete layer, no timeline gaps, auto blank keyframe when drawing on no frame, FPS 1–60, canvas outline, fill fix. Arthur PASS 2026-10-11; published in `44eae38`.
 - [x] **SPEC-0020 Phase 5** — Projects and Export: Video / GIF / Pictures export, Home recent project from the account, plain Open Project. Arthur PASS 2026-10-11; published in `9d398e7`.
 - [x] **SPEC-0020 Phase 6** — Report a Problem (owner inbox + bell), true Description, Help Assistant knowledge, "your account" wording, guided setup removed, computers-only screen. Arthur PASS 2026-10-11; published in `968bd3e`.
-- [ ] **NEXT (Arthur picks)** — EDITOR-BUGS below, or the website (SPEC-0018).
-- [ ] **EDITOR-BUGS (Arthur picks when)** — Undo after Insert Frame / New Layer; empty layer disappearing after reopen; hidden layers not saved; Clear Canvas + stroke/fill error pop-ups → in-app boxes; Escape in editor menus; big-canvas lag (drawing engine, needs OK); timeline over right-panel tabs with 2+ layers.
+- [x] **SPEC-0020 Phase 7** — editor fixes: Undo for new frames/layers, hidden layers saved, layers unfolded on reopen, in-app boxes, Escape. Arthur PASS 2026-10-11; published in `d316b80`.
+- [ ] **NEXT (Arthur picks)** — the drawing-lag round (WORKSPACE-LAG) or the website (SPEC-0018).
+- [ ] **WORKSPACE-LAG** — authoring canvases are 4.6× world size × screen density; shrink carefully in its own round (drawing engine; needs Arthur's OK). Also: timeline over the right-panel tabs with 2+ layers.
 - [ ] **CREDITS-PER-ACTION (later, Arthur + dad)** — SPEC-0021 §6.5: cost shown on each AI action, refused/failed free, "core first then build up" guidance; replaces "1 credit per answered message". Wait for PM2's engine signal.
 - [ ] **LAST (only when the whole app is done)** — online (`claude/online-beta`) with email verification on sign-up, real emails (incl. problem reports to Arthur), payments (Stripe / Apple), production build, Mac App Store, website update, tutorials (Arthur's videos), full new-user test.
 - [ ] **Dad** — database key for the online app, app.diamondanimator.com address, Stripe test keys + 6 prices, Resend email, Cloudflare Access on the website's /admin, lawyer (legal pages, under-13 sign-up).

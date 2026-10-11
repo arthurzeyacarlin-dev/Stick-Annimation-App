@@ -1868,6 +1868,15 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Publication: product commit `968bd3e` fast-forwarded into main and pushed, followed by this records commit. Arthur also asked for a clean working tree after every push, so PM2's and the website's uncommitted notes were committed too.
 - Next: Arthur picks — editor fixes (TODO EDITOR-BUGS) or the website.
 
+### D-0191 — SPEC-0020 Phase 7 (Editor fixes) accepted and published (PM3)
+
+- Date: 2026-10-11
+- Timeline structure changes (insert frame, new layer) are ordinary Undo steps; strokes before them undo together (no per-stroke full copies — 8 GB Mac).
+- The eye button is an editor-only setting saved with the project; exports always include every layer.
+- Danger buttons: red text + red outline at rest, fully red on hover (Arthur).
+- Publication: product commit `d316b80` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
+- Next: Arthur picks — drawing-lag round or the website.
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

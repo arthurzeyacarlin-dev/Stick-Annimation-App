@@ -1,5 +1,17 @@
 # Current State
 
+## D-0188 — PM3: SPEC-0020 Phase 4 (workspace) published; Phase 5 (online and launch rehearsal) is next (current, PM3 — app and website)
+
+Arthur passed SPEC-0020 Phase 4 on 2026-10-11 (D-0188). Product commit `44eae38` is on main and GitHub.
+
+- Editor menus work: Edit / View / Window / Help (Undo/Redo, Insert Frame/Keyframe/Blank, Copy/Paste/Remove Frame, Zoom, Onion Skin, Play, panels, New/Delete Layer, Ask the Assistant, Keyboard Shortcuts); File menu shows shortcuts; ⌘S / ⇧⌘S / ⌘E / ⌥⌘S / ⌘Z / ⇧⌘Z / ⌘= / ⌘- / ⌘0 / F5–F7 / Enter.
+- Layers: bare Layer / Onion symbols with hover names (tools too); with 2+ layers an eye (hide/show, session only) and a trash per layer; Delete Layer uses an in-app box (the Claude app pane blocks `window.confirm`); other layers show while editing.
+- Timeline: no gaps (Insert Frame on an empty cell adds one frame after the previous span); drawing on a cell with no frame makes a blank keyframe right after the previous frame and keeps the drawing (it used to be erased). FPS 1–60, no box.
+- Canvas: navy around the stage, accent outline on the drawable area (hidden while playing). Fill: tolerance on visible colors, fills under line edges, never floods the whole world. "150 credits" badge removed from the editor.
+- **Checks:** type check; lint (0 errors); tried in the app copy with page scripts: menus and shortcuts, eye hides/shows another layer's drawing, delete box + hover colors, fill on empty area changes nothing, drawing on an empty cell lands in a new blank keyframe (Undo/Redo work), normal drawing unchanged. Main on port 3000 serves after the merge (log-in screen; the editor itself was checked in the copy).
+- **Not done:** big-canvas lag round (authoring canvases are 4.6× world size); unsaved-work warning on Home/close tab; NEW-PROJECT-LAYER and UNDO-AI-SCENE bugs; layer visibility not saved; Clear Canvas and stroke-error messages still use browser pop-ups.
+- **Next:** SPEC-0020 Phase 5 — online and launch rehearsal (needs dad's keys).
+
 ## D-0187 — PM3: SPEC-0020 Phase 3 (Home, menus, Settings + Appearance, notifications) published; Phase 4 (workspace small fixes) is next (current, PM3 — app and website)
 
 Arthur passed SPEC-0020 Phase 3 on 2026-10-11 (D-0187). Product commit `9c55342` is on main and GitHub.

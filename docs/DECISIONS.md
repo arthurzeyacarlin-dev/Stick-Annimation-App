@@ -1842,6 +1842,14 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Publication: product commit `9c55342` fast-forwarded into main and pushed, followed by this records commit.
 - Next: SPEC-0020 Phase 4 (workspace small fixes).
 
+### D-0188 — SPEC-0020 Phase 4 (workspace) accepted and published (PM3)
+
+- Date: 2026-10-11
+- Arthur passed Phase 4 after four review rounds. His rules: no gaps on the timeline; drawing where there is no frame makes a blank keyframe right after the previous frame (or the first frame) instead of erasing the drawing; Fill must never fill the whole world; symbols (Layer, Onion, eye, trash) have no button box; every tool shows its name on hover; FPS is plain text you click and type, max 60; the area around the stage is navy and the drawable area has an accent outline that hides while playing.
+- Confirmations inside the editor use in-app boxes, never `window.confirm`/`alert` (the Claude app pane blocks them, which made Delete Layer look broken).
+- Publication: product commit `44eae38` fast-forwarded into main and pushed, followed by this records commit.
+- Next: SPEC-0020 Phase 5 (online and launch rehearsal).
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

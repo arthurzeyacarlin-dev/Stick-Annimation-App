@@ -1,6 +1,6 @@
 # TODO
 
-## PM3 queue — app and website (D-0187, 2026-10-11)
+## PM3 queue — app and website (D-0188, 2026-10-11)
 
 - [x] **SPEC-0020 Phase 1** — account and profile. Arthur PASS 2026-10-11; published in `0527663`.
 - [x] **SPEC-0020 Phase 2** — credits, plans, 14-day trial, Plans page, AI Dashboard redesign. Arthur PASS 2026-10-11; published in `7049ab3`. PM2: keep the credit check in `src/lib/ai/aiAnimatorJobService.ts` when porting the engine.
@@ -8,8 +8,10 @@
 - [ ] **UPDATE-NOTIFICATIONS** — blue "update" dot needs a producer: detect a new deployed version once the app is online (Phase 5).
 - [ ] **CONTENT-POLICY** — when a request breaks the Terms, refuse with a clear message, notify the user and email Arthur (later; Arthur 2026-10-11).
 - [ ] **PHASE3-LEFTOVERS (Arthur picks)** — Home "Animate with AI" card, Report a problem that sends, Assistant product knowledge, export wording (Finder / this Mac / "Phase 3"), computers-only screen.
-- [ ] **SPEC-0020 Phase 4 (NEXT)** — workspace small fixes (Arthur's list), editor menus, unsaved-work warnings.
-- [ ] **SPEC-0020 Phase 5** — online (`claude/online-beta`), Stripe test mode, real emails, production build, full beta-user test.
+- [x] **SPEC-0020 Phase 4** — workspace: menus + shortcuts, layer eye/trash, delete layer, no timeline gaps, auto blank keyframe when drawing on no frame, FPS 1–60, canvas outline, fill fix. Arthur PASS 2026-10-11; published in `44eae38`.
+- [ ] **WORKSPACE-LAG** — authoring canvases are 4.6× world size × screen density; shrink carefully in its own round (drawing engine is protected — needs Arthur's OK).
+- [ ] **PHASE4-LEFTOVERS** — unsaved-work warning on Home / closing the tab; NEW-PROJECT-LAYER; UNDO-AI-SCENE; save layer visibility in projects; Clear Canvas and stroke-error pop-ups → in-app boxes; timeline with 2+ layers can grow over the right panel tabs.
+- [ ] **SPEC-0020 Phase 5 (NEXT)** — online (`claude/online-beta`), Stripe test mode, real emails, production build, full beta-user test.
 - [ ] **Dad** — database key for the online app, app.diamondanimator.com address, Stripe test keys + 6 prices, Resend email, Cloudflare Access on the website's /admin, lawyer (legal pages, under-13 sign-up).
 
 ## Current queue (D-0182)

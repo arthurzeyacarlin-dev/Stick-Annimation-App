@@ -1,6 +1,6 @@
 # SPEC-0020 — Ready for beta users (the app around the AI Animator)
 
-Status: **APPROVED by Arthur 2026-10-11.** Phase 1 PASSED and published 2026-10-11 (D-0185, `0527663`). Phase 2 PASSED and published 2026-10-11 (D-0186, `7049ab3`). Phase 3 PASSED and published 2026-10-11 (D-0187, `9c55342`). **Phase 4 is next.** (Written by PM3.)
+Status: **APPROVED by Arthur 2026-10-11.** Phase 1 PASSED and published 2026-10-11 (D-0185, `0527663`). Phase 2 PASSED and published 2026-10-11 (D-0186, `7049ab3`). Phase 3 PASSED and published 2026-10-11 (D-0187, `9c55342`). Phase 4 PASSED and published 2026-10-11 (D-0188, `44eae38`). **Phase 5 is next.** (Written by PM3.)
 Owner: Arthur · Builder: Claude (PM3) · Launch: **Tuesday, October 20, 2026**
 Baseline: `main` at `22efcf2`
 Not in this spec: the AI Animator engine and Luna (PM2, SPEC-0019), and the website (SPEC-0018).
@@ -58,11 +58,16 @@ Arthur replaced the planned list with his own (several review rounds):
 - **Notifications:** the bell rings left-right (the header had a rule blocking every animation); a "ding ding" plays once per notification on every page, the editor too, following Settings; count dots green (good) / red (bad) / blue (update), side by side for two kinds, a triangle for three; opening the bell fades the dots, closing it marks everything read (no "Mark all as read"); "internet lost" stays next to "internet restored"; "Terra" is shown as "AI Animator".
 - **Not done (later):** blue "update" notifications need a producer (detect a new version once online — Phase 5); content-policy blocking with a user notification and an email to Arthur; the Phase 3 items Arthur didn't ask for this round (Animate with AI card, Report a problem, Assistant knowledge, export wording, computers-only screen) move to Phase 4's list for his choice.
 
-### Phase 4 — Workspace small fixes (Thu Oct 15 – Fri Oct 16)
-- Arthur's list of tiny workspace things (he gives it at the start of the phase).
-- Edit / View / Window / Help menus: make the basics work (Undo, Redo, Zoom, Help) or remove the empty ones.
-- A way back to Home without saving (with an "unsaved work" warning), and a warning when closing the tab with unsaved work.
-- Known bugs: a new project's empty layer disappears after reopening; Undo after Insert Frame goes back past an AI scene. Faster Save only with Arthur's separate OK (saving is protected).
+### Phase 4 — Workspace (Sun Oct 11) — PASSED, published (`44eae38`)
+Arthur's list, four review rounds:
+- **Menus:** Edit / View / Window / Help do real things (Undo/Redo, Insert Frame/Keyframe/Blank, Copy/Paste/Remove Frame, Zoom in/out/reset, Onion Skin, Play, Properties/Library/Assets, New/Delete Layer, Ask the Assistant, Keyboard Shortcuts). File shows its shortcuts. Shortcuts: ⌘S, ⇧⌘S, ⌘E, ⌥⌘S, ⌘Z, ⇧⌘Z/⌘Y, ⌘=, ⌘-, ⌘0, F5, F6, F7, Enter.
+- **Top bar:** the "150 credits" badge is gone from the editor.
+- **Layers:** Layer and Onion skin are bare symbols (accent on hover) with hover names; every bottom tool shows its name on hover. With 2+ layers each layer has an eye (hide/show; a line through it when hidden; hidden layers leave the canvas and playback; not saved yet) and a trash button; frames move right to make room. Delete Layer opens an in-app "Delete layer?" box (Cancel blue, Delete red on hover), deletes the right-clicked layer, swaps the only layer for a fresh one, Undo brings it back. Other layers show while you edit.
+- **Timeline:** no gaps — Insert Frame on an empty cell adds one frame right after the previous span (no "fat frame"), a keyframe goes right after it, a blank keyframe counts as a frame. **Drawing on a cell with no frame** makes a blank keyframe right after the previous frame (or the first frame) and keeps the drawing there (it used to be erased). FPS: plain number, click and type, 1–60 (contract limit 55 → 60).
+- **Canvas:** navy around the stage; accent outline on the drawable area, hidden while playing.
+- **Fill:** tolerance works on the visible colors; fills under line edges (no white gaps); never floods the world when clicked outside a closed shape.
+- **Lag (first step):** the stroke preview only repaints changed tiles; selection debugging only with its flag; a lost pointer capture keeps a resize/move instead of undoing it.
+- **Not done (later):** the big-canvas lag round (authoring canvases 4.6× world size); unsaved-work warning on Home / closing the tab; NEW-PROJECT-LAYER and UNDO-AI-SCENE bugs; saving layer visibility; Clear Canvas and stroke-error pop-ups → in-app boxes; the Phase 3 leftovers.
 
 ### Phase 5 — Online and launch rehearsal (Sat Oct 17 – Mon Oct 19)
 - Bring the online work (`claude/online-beta`) into `main`; the app on app.diamondanimator.com (dad: database key, address).

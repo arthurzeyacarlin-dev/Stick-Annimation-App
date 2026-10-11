@@ -709,7 +709,8 @@ export function swordStep(start: Stance, params: { hand?: Side; advance?: number
   const fw = new Footwork(f, b, lookAtStart(start, hand));
   fw.pose("settle", 0.06, guard);
   fw.shift(A, closing, SWORD_TIMING.closeIn);
-  fw.pose("settle", 0.06, closing, { name: "stepped" });
+  // (SPEC-0021 phase 3, THE LAWS "longEnough": a step in the guard lasted 0.5 s — the guard settles a little longer so the beat is ≥ 0.6 s)
+  fw.pose("settle", 0.22, closing, { name: "stepped" });
   return swordKeys(start, settings, hand, fw.beats);
 }
 

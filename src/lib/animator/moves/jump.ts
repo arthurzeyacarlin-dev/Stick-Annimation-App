@@ -38,7 +38,7 @@ const JUMP_STYLES: Record<MoveStyle, JumpStyle> = {
   robot: { height: 0.6, crouch: 0.4, absorb: 0.35, arms: 0.6, lean: -4 }, // (a robot skips the crouch and the soft landing)
   sneaky: { height: 0.6, crouch: 1, absorb: 1.2, arms: 0.5, lean: 6 },
   tired: { height: 0.5, crouch: 0.8, absorb: 1.15, arms: 0.45, lean: 6 },
-  happy: { height: 1.2, crouch: 1, absorb: 0.75, arms: 1.1, lean: -4, bounce: true },
+  happy: { height: 1.2, crouch: 1, absorb: 0.75, arms: 0.7, lean: -4, bounce: true }, // (SPEC-0021 phase 3: arms 1.1 swung a hand at 3.5 H/s — a person's limit is 2.5)
   angry: { height: 1.05, crouch: 1.05, absorb: 1.05, arms: 1, lean: 6 },
   heavy: { height: 0.5, crouch: 1.1, absorb: 1.35, arms: 0.7, lean: 4 },
   hurt: { height: 0.4, crouch: 0.75, absorb: 1.25, arms: 0.4, lean: 8 },

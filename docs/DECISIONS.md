@@ -1815,6 +1815,15 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Publication: product commit `3e40515c99b04c370b07b9aeb93fcf5fe4e3b2cf` fast-forwarded into main and pushed, followed by this records commit.
 - Next: Phase 2 Round B (remaining body moves, object moves, AI lessons), then Phase 3.
 
+### D-0185 — SPEC-0020 approved; Phase 1 (account and profile) accepted and published (PM3)
+
+- Date: 2026-10-11
+- Arthur split the work: PM2 owns the AI Animator engine and Luna; PM3 owns the app and the website. Launch for beta users: October 20, 2026.
+- Arthur approved SPEC-0020 "Ready for beta users" (5 phases: account and profile; credits, plans and the 14-day trial; Home/menus/help/notifications; workspace small fixes; online and rehearsal). Beta users will mostly use the AI Animator, so their path comes first and the drawing workspace gets only small fixes.
+- Phase 1 passed in the app copy `diamond-review/beta-ready` (port 58671). Arthur's tweak: the profile circle's menu is only Profile and Log out. Rule: every phase is built in its own app copy; only after Arthur's pass does it go to main and GitHub.
+- Publication: product commit `0527663` fast-forwarded into main and pushed, followed by this records commit.
+- Next: SPEC-0020 Phase 2 (credits, plans and the 14-day trial).
+
 ## Provisional Legacy Classifications
 
 ### D-0006 — Preserve the V1 motion-tween specification for reconciliation

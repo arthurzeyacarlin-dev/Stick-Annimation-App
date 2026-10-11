@@ -1,5 +1,17 @@
 # Current State
 
+## D-0185 — PM3: SPEC-0020 Phase 1 (account and profile) published; Phase 2 (credits and the 14-day trial) is next (current, PM3 — app and website)
+
+Arthur passed SPEC-0020 Phase 1 on 2026-10-11 (D-0185). Product commit `0527663` is on main and GitHub. (PM2's AI Animator work is recorded separately in its own sections and specs 0017/0019.)
+
+- **Profile circle** in the header shows the account's picture (or first letter), dim outline, #0066FF glow on hover; its menu is Profile and Log out.
+- **Profile page** `/account`: picture (add/change/remove), display name, change password, Settings (welcome screen switch), Delete my account (password required; projects marked deleted, the account's saved app records removed, then the account).
+- **Forgot password?** on Log in → reset link (1 hour, one use, logs out everywhere). Emails go to a local test inbox (`/dev/mail`, development only) until the real email service exists.
+- **Sign-up** has no test-plan step. Side menu says "Terms of Service".
+- **Checks:** type check and lint of the changed files pass; tried in the app copy as a new user: sign-up, picture, name, password change (wrong + right), settings switch saved and seen on Home, forgot password end to end (old password refused, link can't be reused), delete account (wrong password deletes nothing; afterwards the account can't log in and its saved records are gone). Main app on port 3000 checked after the merge: new menu and Profile page load.
+- **Known:** the app copy and main save projects to the same online storage as before (unchanged); the test made one empty project there, marked deleted by the delete-account test. The test inbox is development-only.
+- **Next:** SPEC-0020 Phase 2 — credits, plans and the 14-day trial (short plan → Arthur OK → new app copy).
+
 ## D-0184 — SPEC-0017 Phase 3 published: Luna is the AI, the director and the engine that makes its plans come true; Phase 4 (the AI Animator in the editor) is next (current)
 
 Arthur passed Phase 3 on 2026-10-08 (D-0184) after reviewing every test card with the real AI (punching bag GOOD: "it swung back and forth until it stopped — I loved that"; the cartwheel left at OK). Product commit `d25ba98` is on main and GitHub.

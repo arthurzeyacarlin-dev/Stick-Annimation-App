@@ -1,6 +1,20 @@
 # Current State
 
-## D-0192 — PM3: SPEC-0020 Phase 8 (Drawing fixes) published; next = plans that work (current, PM3 — app and website)
+## D-0194 — PM3: SPEC-0020 Phase 9 (plans that work, fake payments) published; next = the website (current, PM3 — app and website)
+
+Arthur passed Phase 9 on 2026-10-12 (D-0194). Product commit `7730e7d` is on main and GitHub.
+
+- **Plans:** Basic 180 / Pro 420 / Creator 750 AI credits ($5.99 / $11.99 / $19.99 a month; yearly $59 / $119 / $199). Plan ids stay `starter` / `creator` / `studio`; only the names changed (Arthur's review). 14-day trial with 75 credits; after it, creating locks and watching and exporting stay open.
+- **Fake payments only (Stripe TEST MODE, live keys refused):** plan checkout, monthly or yearly, Manage plan (Stripe portal), extra-credit packs, failed-payment warning, then the AI waits after 3 days. Missed checkouts are caught up automatically. Webhooks and live payments come when the app goes online.
+- **Extra credits (Arthur):** each plan has its own 3 packs, the biggest = half the plan: Basic 30/$1.49 · 60/$1.99 · 90/$2.99; Pro 70/$2.49 · 140/$3.99 · 210/$5.99; Creator 125/$3.49 · 250/$6.99 · 375/$9.99. All ≥50% profit at worst-case AI cost after Stripe's fee (tested). **These replace D-0193's 200/400/800 packs and the new names need dad's OK before going live.**
+- **Refills:** on the same date every month (the date Stripe charges), not every 30 days; yearly plans refill monthly too.
+- **AI Dashboard:** back to the Phase 2 layout Arthur liked (refill date big, one row of numbers, chart) + a credits bar that fades blue → green → yellow → amber (75% used) → red (90% used) + the plan's 3 buy buttons. Arthur removed "What things cost" and the per-action list (the engine will keep changing); per-action costs (2 / 25 / 90) stay in the code and the credit check.
+- **TEST CONTROLS** (development only, labeled not real): pretend plans, ± credits, refill, waiting for refill, pretend AI use, payment failed/fixed, plan ended, trial states, pretend buy packs.
+- **Header:** the Diamond Animator header stays at the top while scrolling (sticky), everywhere it appears.
+- **Checks:** type check; lint 0 errors; 22/22 tests (plans, Stripe rules, credit gate); real app copy: Stripe test checkout and pack purchase, portal, every test button, sticky header, refill dates.
+- **Next:** the website (prices, names and packs must match the app; dad OKs the new pack prices and names first), then legal pages, then online (webhooks, real emails), then the Mac App Store after the LLC.
+
+## D-0192 — PM3: SPEC-0020 Phase 8 (Drawing fixes) published; next = plans that work (PM3 — app and website)
 
 Arthur passed Phase 8 on 2026-10-11 (D-0192). Product commit `134bbcb` is on main and GitHub.
 

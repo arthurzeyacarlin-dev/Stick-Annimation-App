@@ -1885,6 +1885,13 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0194 — SPEC-0020 Phase 9 passed: plans that work with fake payments (PM3)
+
+- Date: 2026-10-12. Commit `7730e7d`.
+- Arthur's review changes to Pricing v1 (D-0193): plan names Basic / Pro / Creator (ids unchanged); extra-credit packs per plan, biggest = half the plan (Basic 30/60/90, Pro 70/140/210, Creator 125/250/375 at $1.49–$9.99, all ≥50% profit after Stripe's fee); refills on the same date every month (Stripe's billing date); "What things cost" removed from the screens.
+- Dad still has to OK the new pack prices and names before anything goes live (they change D-0193).
+- Stripe stays in test mode; live keys are refused in code.
+
 ### D-0193 — Pricing v1 approved by Arthur's dad (PM3)
 
 - Date: 2026-10-12

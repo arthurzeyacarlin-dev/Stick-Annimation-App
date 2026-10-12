@@ -1,5 +1,36 @@
 # Session Handoff
 
+## PM4 — START HERE (written by PM3, Tue 2026-10-13). PM4 = project manager for the Diamond Animator APP and WEBSITE (takes over from PM3)
+
+**Who:** Arthur (owner, says he is 12) reviews everything; talk in plain, short, simple words; lead with the answer; always end with exactly what to review in simple steps. His **dad** decides direction and money (prices, Stripe, legal, App Store). **PM2** owns the AI Animator engine — never edit `src/lib/animator/**`, `src/components/workspace/ai/**`, `app/api/ai-animator/**`.
+
+**Save usage (Arthur, Oct 12–13: plan nearly used up):** work lean — short messages, text checks (get_page_text / JS) over screenshots, no helpers unless needed (cheapest model if so), one review per phase, read only the files you need.
+
+**How every phase works (Arthur's rules):**
+1. Short plan → Arthur OKs.
+2. Build in a NEW app copy: `git worktree add ../diamond-review/<name> -b claude/<branch>` from main; symlink node_modules; copy `.env.local` from main and `.local/` from the last copy (never read them); add the copy's port to the allowlist in `src/lib/account/accountConfig.ts`; add a launch config in main `.claude/launch.json`; start it with preview_start. Never build in the main folder.
+3. Test it yourself in the real app (type check `heavy.sh npx tsc --noEmit -p .`, lint, `node --test` files, browser). Heavy jobs only through `/Users/arthurcarlin/Projects/diamond-review/harness-phase4/heavy.sh`; ONE dev server at a time (8 GB Mac); keep the browser pane open or the server stops.
+4. Tell Arthur exactly what to review. Fix his tweaks in the same copy.
+5. On "pass": commit in the copy → `git merge --ff-only` into main → check main on port 3000 → update records (the spec, CURRENT_STATE new D-number on top, DECISIONS, TODO, this file) → commit → push → **`git status` must show ZERO changes** (commit other PMs' notes in a separate "clean tree" commit after a secret scan) → tick the Launch Board artifact (claude.ai/artifact/TLViBqCUn7tFM7mR3CSzxx, ArtifactData collection `ticks`, next doc id `p11`) → stop the copy server → tell Arthur what's next, simply.
+
+**Safety:** no commits/pushes/deploys/paid AI calls/purchases without Arthur's OK; payments are ALWAYS fake (Stripe TEST mode — code refuses live keys); never read, load or commit `.env*`, account databases, `.local/`; never type real keys or bank info (dad does).
+
+**Where things stand (D-0194):** SPEC-0020 (`docs/specs/0020-ready-for-beta-users.md`) Phases 1–9 PASSED and on main/GitHub. Phase 9 = plans with fake payments (`7730e7d`): plans **Basic 180 / Pro 420 / Creator 750 AI credits** at $5.99 / $11.99 / $19.99 a month (yearly $59/$119/$199; code ids `starter`/`creator`/`studio`), 14-day trial with 75 credits then creating locks (watch + export stay open), per-plan extra-credit packs (Basic 30/60/90 · Pro 70/140/210 · Creator 125/250/375, $1.49–$9.99, all ≥50% profit — tested), refills on the same date monthly, AI Dashboard with a color-fading credits bar, developer TEST CONTROLS, sticky header. Code: `src/lib/account/plans.ts`, `aiCredits.ts`, `stripeBilling*.ts`, `src/components/ai-dashboard/`, `src/components/account/`.
+
+**Open items:**
+- **Dad must OK** the new plan names and per-plan pack prices (they change D-0193) before the website shows them.
+- **Tutorials:** PM3 recommended NO in-app video tutorials (in-app first-time tips + the Help Assistant instead; videos maybe later as YouTube marketing). Arthur is deciding — ask him.
+- **AI Animator** (PM2, SPEC-0021) still not merged into the app; its scoreboard: complex 8/20, goal 17/20. Dad's rule: every report to Arthur about it starts with the fail count.
+
+**Next phases (in order):**
+1. **The website** (diamondanimator.com; launch config `diamond-website`): names, prices, credits and packs must match the app exactly; simple and professional. Build in a new copy, Arthur reviews.
+2. **Legal pages** written by PM (no lawyer, dad's call): Terms, Privacy, Refunds/cancel, under-13 (COPPA), AI content.
+3. **Online:** accounts/projects on a server (`claude/online-beta`), Stripe webhooks, real emails (welcome, password, trial ending, problem reports to Arthur), email verification.
+4. **Mac App Store** — only after dad's LLC, and only when the whole app (AI Animator included) is 100% done.
+- Later list: big-canvas drawing lag, timeline overlapping the right-panel tabs with 2+ layers, resize-undo (ask Arthur for steps).
+
+Read also: `AGENTS.md`, `docs/CURRENT_STATE.md` (top entry), `docs/TODO.md`, the PM3 section below (history), dad's decisions D-0193/D-0194 in `docs/DECISIONS.md`, pricing research `docs/research/2026-10-12-pricing-plans-research.md`.
+
 ## PM3 — STATUS (Mon 2026-10-12, D-0194) — app and website; PM3 READ THIS FIRST, then the PM3 handoff below
 
 - **SPEC-0020 "Ready for beta users"** (`docs/specs/0020-ready-for-beta-users.md`) is Arthur's approved plan for the app: 5 phases. **Phases 1 (account/profile, `0527663`), 2 (credits/plans/trial, `7049ab3`), 3 (Home, menus, Settings + Appearance, notifications, `9c55342`) , 4 (workspace, `44eae38`), 5 (Projects and Export, `9d398e7`) 6 (Words, help and menus, `968bd3e`), 7 (Editor fixes, `d316b80`) and 8 (Drawing fixes, `134bbcb`) and 9 (plans that work with fake payments, `7730e7d`) PASSED and are on main + GitHub.** **Re-planned (D-0189): the App Store, going online and tutorials wait until the whole app is done.** **Next: the website** (match the app's names, prices and per-plan packs — dad OKs them first; see D-0194), then legal pages, then online, then the Mac App Store after the LLC (short plan → Arthur OK → new app copy → Arthur review → on "pass": main, GitHub, these records).

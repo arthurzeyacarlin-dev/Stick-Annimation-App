@@ -178,10 +178,14 @@ export function AccountProfileScreen() {
         <section className={styles.card} aria-labelledby="plan-heading">
           <h2 id="plan-heading" className={styles.cardTitle}>Your plan</h2>
           <div className={styles.planRow}>
-            <p className={styles.help}>{!plan ? "Loading your plan…" : plan.trialEndsAt !== null
-              ? `Free trial · ${plan.creditsLeft.toLocaleString("en-US")} of ${plan.creditsTotal} AI credits left · ${plan.trialDaysLeft === 1 ? "1 day" : `${plan.trialDaysLeft} days`} left`
-              : `${plan.label} plan · ${plan.creditsLeft.toLocaleString("en-US")} of ${plan.creditsTotal.toLocaleString("en-US")} AI credits left · refills ${new Date(plan.windowEnd).toLocaleDateString("en-US", { month: "long", day: "numeric" })}`}</p>
-            <Link href="/plans" className={`${styles.button} ${styles.primary}`}>{plan?.trialEndsAt !== null ? "Choose a plan" : "Change plan"}</Link>
+            {/* SPEC-0020 Phase 9 (Pricing v1): "Creator plan · 312 of 420 credits left · 200 extra". */}
+            <p className={styles.help}>{!plan ? "Loading your plan…"
+              : plan.lockReason === "plan_ended" ? "Your plan has ended · you can still watch and export your animations"
+              : plan.lockReason === "trial_ended" ? "Your free trial has ended · you can still watch and export your animations"
+              : `${plan.plan === "trial" ? "Free trial" : `${plan.label} plan`}${plan.interval === "year" ? " (yearly)" : ""} · ${plan.planCreditsLeft.toLocaleString("en-US")} of ${plan.creditsTotal.toLocaleString("en-US")} credits left`
+                + (plan.topUpCredits > 0 ? ` · ${plan.topUpCredits.toLocaleString("en-US")} extra` : "")
+                + (plan.plan === "trial" ? ` · ${plan.trialDaysLeft === 1 ? "1 day" : `${plan.trialDaysLeft} days`} left` : "")}</p>
+            <Link href="/plans" className={`${styles.button} ${styles.primary}`}>{!plan || plan.plan === "trial" || plan.locked ? "Choose a plan" : "Change plan"}</Link>
           </div>
         </section>
 

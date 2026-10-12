@@ -1,25 +1,48 @@
-/* SPEC-0020 Phase 2: plans page. Only clickable things are boxes (Arthur); hover = var(--da-hover, #0066ff), white text, instant. */
+/* SPEC-0020 Phase 2 + 9: plans page. Only clickable things are boxes (Arthur); hover = var(--da-hover, #0066ff), white text, instant.
+   The monthly/yearly choice is two plain text buttons (no segmented control): the chosen one is bold and underlined. */
 .main { padding: 40px clamp(20px, 4vw, 56px) 64px; }
 .main *, .main *::before, .main *::after { box-sizing: border-box; transition: none; animation: none; }
 .frame { display: flex; flex-direction: column; gap: 12px; width: min(960px, 100%); margin: 0 auto; }
 .eyebrow { margin: 0; color: var(--da-label, #7895bc); font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
 .title { margin: 0; color: var(--da-text, #f6f9ff); font-size: 34px; font-weight: 760; letter-spacing: -.03em; }
 .lead { margin: 0; color: var(--da-text-3, #a8bddd); font-size: 15px; }
-.testMode { margin: 8px 0 0; color: #f0b542; font-size: 13px; }
-.plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
+.testMode { margin: 8px 0 0; color: var(--da-warning, #f3d89c); font-size: 13px; font-weight: 600; }
+.notice { margin: 4px 0 0; color: var(--da-success, #7fd8a6); font-size: 15px; font-weight: 650; }
+
+.intervals { display: flex; flex-wrap: wrap; gap: 22px; margin-top: 14px; }
+.interval { padding: 4px 0; border: 0; background: transparent; color: var(--da-text-3, #a8bddd); font: inherit; font-size: 14.5px; font-weight: 500; text-decoration: none; text-underline-offset: 6px; cursor: pointer; }
+.interval[aria-pressed="true"] { color: var(--da-text, #f6f9ff); font-weight: 750; text-decoration: underline; text-decoration-thickness: 2px; }
+.interval:hover { color: var(--da-hover, #0066ff); }
+.interval:focus-visible { outline: 2px solid var(--da-focus, #66c7ff); outline-offset: 3px; border-radius: 4px; }
+
+.plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 8px; }
 .plan { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 22px; border: 1px solid var(--da-border, #244267); border-radius: 14px; background: var(--da-panel, #071120); color: var(--da-text, #f6f9ff); font: inherit; text-align: left; cursor: pointer; }
 .plan ul { margin: 6px 0 8px; padding-left: 18px; color: var(--da-text-3, #a8bddd); font-size: 13.5px; line-height: 1.6; }
 .popular { border-color: var(--da-selected-border, #3a6aa3); }
 .current { border-color: var(--da-selected-border, #3a6aa3); background: var(--da-selected-bg, #0f2a52); cursor: default; }
 .planName { font-size: 18px; font-weight: 750; }
 .price { color: var(--da-text, #f6f9ff); font-size: 26px; font-weight: 760; letter-spacing: -.02em; }
+.saving { min-height: 1.2em; color: var(--da-success, #7fd8a6); font-size: 13px; font-weight: 650; white-space: pre; }
 .choose { margin-top: auto; color: var(--da-link, #8cbbf3); font-size: 14px; font-weight: 700; }
-.plan:hover:not(:disabled) { border-color: var(--da-hover, #0066ff); background: var(--da-hover, #0066ff); }
-.plan:hover:not(:disabled) ul, .plan:hover:not(:disabled) .choose { color: #fff; }
+.yours { margin-top: auto; color: var(--da-text, #f6f9ff); font-size: 14px; font-weight: 700; }
+.manage { display: inline-flex; align-items: center; min-height: 40px; padding: 0 16px; border: 1px solid var(--da-selected-border, #3a6aa3); border-radius: var(--da-radius-control, 10px); background: var(--da-panel, #071120); color: var(--da-text, #f6f9ff); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
+.manage:hover:not(:disabled) { border-color: var(--da-hover, #0066ff); background: var(--da-hover, #0066ff); color: #fff; }
+.manage:focus-visible { outline: 2px solid var(--da-focus, #66c7ff); outline-offset: 3px; }
+.manage:disabled { cursor: default; }
+.plan:hover:not(:disabled):not(.current) { border-color: var(--da-hover, #0066ff); background: var(--da-hover, #0066ff); }
+.plan:hover:not(:disabled):not(.current) ul, .plan:hover:not(:disabled):not(.current) .choose, .plan:hover:not(:disabled):not(.current) .saving { color: #fff; }
 .plan:disabled { cursor: default; }
+.plan:disabled .choose { color: var(--da-label, #7895bc); }
 .plan:focus-visible { outline: 2px solid var(--da-focus, #66c7ff); outline-offset: 3px; }
 .error { margin: 0; color: var(--da-danger, #ff8a95); font-size: 13px; }
-.note { margin: 10px 0 0; color: var(--da-muted, #8fabd0); font-size: 13px; }
+
+.costsTitle { margin: 26px 0 0; color: var(--da-text, #f6f9ff); font-size: 18px; font-weight: 720; }
+.costs { margin: 4px 0 0; padding: 0; max-width: 520px; }
+.costRow { display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--da-line, #163058); font-size: 14px; }
+.costRow:first-child { border-top: 1px solid var(--da-line, #163058); }
+.costRow dt { color: var(--da-text-2, #c9d6ea); }
+.costRow dd { margin: 0; color: var(--da-text, #f6f9ff); font-weight: 700; }
+.note { margin: 10px 0 0; max-width: 720px; color: var(--da-muted, #8fabd0); font-size: 13px; line-height: 1.55; }
 @media (max-width: 760px) { .plans { grid-template-columns: 1fr; } }
 
 .frame > :first-child { margin-bottom: 14px; }

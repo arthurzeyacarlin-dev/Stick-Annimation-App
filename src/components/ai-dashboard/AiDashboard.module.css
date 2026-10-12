@@ -88,9 +88,9 @@
 
 /* SPEC-0020 Phase 2: credits meter and plan button. */
 .creditMeter { height: 10px; margin-top: 14px; overflow: hidden; border: 1px solid var(--da-line, #163058); border-radius: 999px; background: var(--da-page, #030914); }
-.creditMeter i { display: block; height: 100%; background: var(--da-c-3d8bff, #3d8bff); }
-.creditMeter .creditMeterLow { background: #f0b542; }
-.creditMeter .creditMeterEmpty { background: var(--da-danger, #ff8a95); }
+/* Phase 9 (Arthur): one bar whose color fades blue → green → yellow → amber (75% used) → red (90% used), smoothly. */
+.creditMeter i { display: block; height: 100%; border-radius: 999px; transition: width 400ms ease, background-color 400ms ease; }
+@media (prefers-reduced-motion: reduce) { .creditMeter i { transition: none; } }
 .planActions { display: flex; flex-wrap: wrap; gap: 8px; }
 .planActions a { display: inline-flex; align-items: center; min-height: 40px; padding: 0 16px; border: 1px solid var(--da-selected-border, #3a6aa3); border-radius: 10px; background: var(--da-selected-bg, #0f2a52); color: #fff; font-size: 14px; font-weight: 650; text-decoration: none; transition: none; }
 .planActions a:hover { border-color: var(--da-hover, #0066ff); background: var(--da-hover, #0066ff); color: #fff; }
@@ -131,3 +131,30 @@
 }
 
 .top > :first-child { margin-bottom: 10px; }
+
+/* SPEC-0020 Phase 9 (Pricing v1): "What you spent credits on" and "What things cost" as plain lists with thin dividers (Arthur: only clickable things and
+   the chart get boxes; warnings are outlined so they stand out). Tokens only. */
+.planActions { align-items: center; }
+.planActions button { display: inline-flex; align-items: center; min-height: 42px; padding: 0 18px; border: 1px solid var(--da-selected-border); border-radius: var(--da-radius-control, 10px); background: var(--da-selected-bg); color: #fff; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; transition: none; }
+.planActions button:hover:not(:disabled) { border-color: var(--da-hover); background: var(--da-hover); color: #fff; }
+.planActions button:focus-visible { outline: 2px solid var(--da-focus); outline-offset: 3px; }
+.warning { border-color: var(--da-warning-border); color: var(--da-warning); }
+.exhausted { border-color: var(--da-danger-border); color: var(--da-danger); }
+.lists { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 40px; }
+.listTitle { margin: 0 0 6px; color: var(--da-text); font-size: 18px; font-weight: 700; }
+.list { margin: 0; padding: 0; list-style: none; }
+.list li { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--da-line); color: var(--da-text-2); font-size: 14px; line-height: 1.4; }
+.list li strong { color: var(--da-text); font-weight: 680; white-space: nowrap; }
+.list .listTotal { border-bottom: 0; }
+.list .listTotal span, .list .listTotal strong { color: var(--da-text); font-weight: 750; }
+.listNote { margin: 10px 0 0; color: var(--da-muted); font-size: 13px; line-height: 1.5; }
+.testPanel { padding: 16px 18px; border: 1px dashed var(--da-warning-border); border-radius: var(--da-radius-card, 14px); }
+.testPanel > summary { color: var(--da-warning); font-size: 12px; font-weight: 750; letter-spacing: .08em; cursor: pointer; }
+.testPanel > summary:hover { color: var(--da-text); }
+.testPanel > summary:focus-visible { outline: 2px solid var(--da-focus); outline-offset: 3px; }
+.testPanel[open] > summary { margin-bottom: 4px; }
+.testPanel > p { margin: 0 0 14px; }
+@media (max-width: 760px) {
+  .lists { grid-template-columns: 1fr; gap: 22px; }
+}
+.planActions .planButton { min-height: 42px; padding: 0 18px; font-weight: 700; }

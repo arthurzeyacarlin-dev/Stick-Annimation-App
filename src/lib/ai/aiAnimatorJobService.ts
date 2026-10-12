@@ -13,6 +13,7 @@ import {
   noUsageEventRecorder, projectAcceptedEvent, projectTerminalEvent, type UsageEventRecorder,
 } from "../usage-journal/usageJournalEvents.ts";
 import { accountAiCreditGate, type AiCreditGate } from "../account/aiCredits.ts";
+import { AI_ACTION_CREDITS } from "../account/plans.ts";
 
 type Provider = (request: AiAnimatorRequest, options: { signal: AbortSignal }) => Promise<AiAnimatorProviderResult>;
 type InternalJob = AiAnimatorJobSnapshot & { ownerId: string; abortController: AbortController };
@@ -63,7 +64,9 @@ export class AiAnimatorJobService {
     if (environmentActiveCount >= 2) {
       throw Object.assign(new Error("AI Animator is busy. Try again after an active request finishes."), { status: 429 });
     }
-    this.credits.assertAvailable(ownerId, environmentActiveCount);
+    // Pricing v1 (D-0193): today's AI Animator chat costs AI_ACTION_CREDITS.chat per answered message; running
+    // messages reserve their credits. (When animations arrive, the engine passes the action's own cost.)
+    this.credits.assertAvailable(ownerId, environmentActiveCount * AI_ACTION_CREDITS.chat, AI_ACTION_CREDITS.chat);
 
     const now = new Date().toISOString();
     const event: AiAnimatorJobEvent = { sequence: 1, status: "thinking", createdAt: now };
@@ -171,7 +174,7 @@ export class AiAnimatorJobService {
         usage: result.usage,
       };
       this.meter(projectTerminalEvent(request, "succeeded", Date.parse(job.completedAt)));
-      try { this.credits.spend(job.ownerId, job.jobId); } catch { /* The answer is already shown; a failed count must not break it. */ }
+      try { this.credits.spend(job.ownerId, job.jobId, AI_ACTION_CREDITS.chat, "chat"); } catch { /* The answer is already shown; a failed count must not break it. */ }
     } catch (error) {
       if (isAiAnimatorTerminalStatus(job.status)) {
         return;

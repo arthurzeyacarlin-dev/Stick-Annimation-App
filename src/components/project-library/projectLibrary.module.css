@@ -715,3 +715,11 @@
     transition: none !important;
   }
 }
+
+/* SPEC-0020 Phase 9: read-only library (after the trial or plan ends): no Back button, no "•••" column. */
+.headerReadOnly { grid-template-columns: minmax(0, 1fr); min-height: 0; padding-bottom: 8px; }
+.headingGroup h2 { margin: 5px 0 0; font-size: clamp(24px, 3vw, 32px); line-height: 1.06; letter-spacing: -0.03em; }
+.card.cardReadOnly { grid-template-columns: minmax(0, 1fr) 106px 106px; }
+@media (max-width: 640px) {
+  .card.cardReadOnly { grid-template-columns: minmax(0, 1fr) 66px 66px; }
+}

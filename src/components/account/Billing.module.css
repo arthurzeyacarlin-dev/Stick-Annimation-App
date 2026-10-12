@@ -1,0 +1,25 @@
+/* SPEC-0020 Phase 9: billing pieces (Buy credits, Manage plan). Only clickable things are boxes (Arthur);
+   hover = var(--da-hover) fill with white text, instant. */
+.panel { display: flex; flex-direction: column; gap: 10px; }
+.panel *, .panel *::before, .panel *::after { box-sizing: border-box; transition: none; animation: none; }
+.heading { margin: 0; color: var(--da-text, #f6f9ff); font-size: 16px; font-weight: 720; }
+.text { margin: 0; color: var(--da-text-3, #a8bddd); font-size: 13.5px; }
+.testMode { margin: 0; color: var(--da-warning, #f3d89c); font-size: 13px; font-weight: 600; }
+.packs { display: flex; flex-wrap: wrap; gap: 10px; }
+.button { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 0 18px; border: 1px solid var(--da-border, #244267); border-radius: var(--da-radius-control, 10px); background: var(--da-panel, #071120); color: var(--da-text, #f6f9ff); font: inherit; font-size: 14px; font-weight: 700; text-decoration: none; cursor: pointer; }
+.button:hover:not(:disabled) { border-color: var(--da-hover, #0066ff); background: var(--da-hover, #0066ff); color: #fff; }
+.button:focus-visible { outline: 2px solid var(--da-focus, #66c7ff); outline-offset: 3px; }
+.button:disabled { color: var(--da-label, #7895bc); border-color: var(--da-line, #163058); cursor: not-allowed; }
+.link { color: var(--da-link, #8cbbf3); font-weight: 700; text-decoration: none; }
+.link:hover { color: var(--da-hover, #0066ff); }
+.success { margin: 0; color: var(--da-success, #7fd8a6); font-size: 14px; font-weight: 600; }
+.error { margin: 0; color: var(--da-danger, #ff8a95); font-size: 13px; }
+.packGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.pack { display: grid; justify-items: start; gap: 4px; padding: 16px 18px; border: 1px solid var(--da-border, #244267); border-radius: var(--da-radius-card, 14px); background: var(--da-panel, #071120); color: var(--da-text-3, #a8bddd); font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
+.pack strong { color: var(--da-text, #f6f9ff); font-size: 20px; font-weight: 760; }
+.pack .packPrice { color: var(--da-text, #f6f9ff); font-size: 16px; font-weight: 700; }
+.pack:hover:not(:disabled) { border-color: var(--da-hover, #0066ff); background: var(--da-hover, #0066ff); }
+.pack:hover:not(:disabled), .pack:hover:not(:disabled) strong, .pack:hover:not(:disabled) span { color: #fff; }
+.pack:focus-visible { outline: 2px solid var(--da-focus, #66c7ff); outline-offset: 3px; }
+.pack:disabled { cursor: not-allowed; opacity: .55; }
+@media (max-width: 640px) { .packGrid { grid-template-columns: 1fr; } }

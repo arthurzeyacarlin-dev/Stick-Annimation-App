@@ -2,7 +2,8 @@
    Palette: page var(--da-page, #030914), panels var(--da-panel, #071120), dividers var(--da-line, #163058), buttons var(--da-panel, #071120)/var(--da-border, #244267)/var(--da-text-2, #c9d6ea),
    selected var(--da-selected-bg, #0f2a52)/var(--da-selected-border, #3a6aa3), hover var(--da-hover, #0066ff) + white. Hover is native :hover only and instant. */
 
-.homeBar { position: relative; z-index: 10; flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 86px; padding: 14px clamp(20px, 4vw, 56px); border-bottom: 1px solid var(--da-header-line, var(--da-line, #163058)); background: var(--da-header, var(--da-panel, #071120)); color: var(--da-text, #f6f9ff); }
+/* Arthur (Phase 9): the Diamond Animator header stays at the top while you scroll, everywhere. */
+.homeBar { position: sticky; top: 0; z-index: 50; flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 86px; padding: 14px clamp(20px, 4vw, 56px); border-bottom: 1px solid var(--da-header-line, var(--da-line, #163058)); background: var(--da-header, var(--da-panel, #071120)); color: var(--da-text, #f6f9ff); }
 .homeBrand { display: inline-flex; align-items: center; gap: 15px; min-width: 0; color: inherit; cursor: default; }
 .brandDiamond { width: 46px; height: 46px; flex: 0 0 auto; color: #fff; }
 .homeBrandText { display: flex; flex-direction: column; gap: 5px; min-width: 0; }

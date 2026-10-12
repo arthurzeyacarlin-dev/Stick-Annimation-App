@@ -32,16 +32,33 @@ const colorStops = [
   { percent: 100, rgb: [255, 0, 0] },
 ];
 
-export function colorForPercent(value: number): string {
+function blendStops(stops: { percent: number; rgb: number[] }[], value: number): string {
   const percent = Math.max(0, Math.min(100, value));
-  const upperIndex = colorStops.findIndex((stop) => stop.percent >= percent);
-  if (upperIndex <= 0) return "#2563eb";
-  const lower = colorStops[upperIndex - 1];
-  const upper = colorStops[upperIndex];
+  const hex = (rgb: number[]) => `#${rgb.map((component) => component.toString(16).padStart(2, "0")).join("")}`;
+  const upperIndex = stops.findIndex((stop) => stop.percent >= percent);
+  if (upperIndex <= 0) return hex(stops[0].rgb);
+  const lower = stops[upperIndex - 1];
+  const upper = stops[upperIndex];
   const blend = (percent - lower.percent) / (upper.percent - lower.percent);
-  const rgb = lower.rgb.map((component, index) => Math.round(component + (upper.rgb[index] - component) * blend));
-  return `#${rgb.map((component) => component.toString(16).padStart(2, "0")).join("")}`;
+  return hex(lower.rgb.map((component, index) => Math.round(component + (upper.rgb[index] - component) * blend)));
 }
+
+export const colorForPercent = (value: number): string => blendStops(colorStops, value);
+
+// SPEC-0020 Phase 9 (Arthur): the credits bar fades like the chart's bars — blue → green → yellow, amber once 75% of
+// the plan credits are used, red once 90% are used (10% left), and red to the end.
+const creditMeterStops = [
+  { percent: 0, rgb: [37, 99, 235] },
+  { percent: 25, rgb: [14, 165, 233] },
+  { percent: 45, rgb: [34, 197, 94] },
+  { percent: 62, rgb: [234, 179, 8] },
+  { percent: 75, rgb: [245, 158, 11] },
+  { percent: 90, rgb: [255, 0, 0] },
+  { percent: 100, rgb: [255, 0, 0] },
+];
+
+/** The credits bar's color for how much of the plan credits are used (0–100). */
+export const creditMeterColor = (usedPercent: number): string => blendStops(creditMeterStops, usedPercent);
 
 export const validReceipt = (receipt: DashboardReceipt, now: number) =>
   Number.isSafeInteger(receipt.at) && receipt.at > 0 && receipt.at <= now &&

@@ -1,0 +1,26 @@
+/* SPEC-0020 Phase 9: the locked screen (trial or plan ended): a short message with Choose a plan / Profile / Log out
+   on top, and the read-only library (Watch + Export) filling the rest. Text is plain; only buttons are boxes. */
+.page { height: 100vh; display: flex; flex-direction: column; overflow: hidden; background: var(--da-page); color: var(--da-text); }
+.page *, .page *::before, .page *::after { box-sizing: border-box; }
+.top { flex: none; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px 24px; padding: 20px clamp(16px, 4vw, 46px) 18px; border-bottom: 1px solid var(--da-line); }
+.message { display: flex; align-items: flex-start; gap: 14px; min-width: 0; flex: 1 1 420px; }
+.logo { color: #ffffff; flex: none; margin-top: 2px; }
+.title { margin: 0; font-size: clamp(22px, 2.6vw, 28px); font-weight: 720; line-height: 1.15; letter-spacing: -.03em; color: var(--da-text); }
+.lead { margin: 6px 0 0; max-width: 64ch; color: var(--da-text-3); font-size: 15px; line-height: 1.5; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.button { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 0 16px; border: 1px solid var(--da-border); border-radius: var(--da-radius-control, 10px); background: var(--da-panel); color: var(--da-text-2); font: inherit; font-size: 14px; font-weight: 650; text-decoration: none; cursor: pointer; transition: none; }
+.primary { border-color: var(--da-selected-border); background: var(--da-selected-bg); color: #ffffff; }
+.button:hover:not(:disabled) { border-color: var(--da-hover); background: var(--da-hover); color: #ffffff; }
+.button:focus-visible { outline: 2px solid var(--da-focus); outline-offset: 2px; }
+.button:disabled { opacity: .5; cursor: not-allowed; }
+.error { flex-basis: 100%; margin: 0; color: var(--da-danger); font-size: 13px; line-height: 1.45; }
+.testLink { flex-basis: 100%; margin: 0; color: var(--da-warning); font-size: 12px; font-weight: 650; }
+.testLink a { color: var(--da-link); }
+.testLink a:hover { color: var(--da-hover); }
+.library { flex: 1; min-height: 0; }
+@media (max-width: 560px) {
+  .page { height: auto; min-height: 100vh; overflow: visible; }
+  .library { flex: none; }
+  .actions { width: 100%; }
+  .actions .button { flex: 1; }
+}

@@ -1,0 +1,18 @@
+/* SPEC-0020 Phase 9 (development only): the grouped test buttons. Buttons are boxes (they're clickable);
+   group titles and results are plain text. Hover = accent fill + white text, instantly. */
+.groups { display: grid; gap: 18px; }
+.group { display: grid; gap: 8px; padding-top: 14px; border-top: 1px solid var(--da-line); }
+.group:first-child { padding-top: 0; border-top: 0; }
+.groupTitle { margin: 0; color: var(--da-label); font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.buttons { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; }
+.button { display: grid; gap: 2px; padding: 10px 12px; border: 1px solid var(--da-border); border-radius: var(--da-radius-control, 10px); background: var(--da-panel); color: var(--da-text); font: inherit; font-size: 13px; text-align: left; cursor: pointer; transition: none; }
+.button strong { font-weight: 680; }
+.button span { color: var(--da-muted); font-size: 12px; line-height: 1.35; }
+.button:hover:not(:disabled) { border-color: var(--da-hover); background: var(--da-hover); color: #fff; }
+.button:hover:not(:disabled) span { color: #fff; }
+.button:focus-visible { outline: 2px solid var(--da-focus); outline-offset: 2px; }
+.button:disabled { opacity: .6; cursor: default; }
+.ok, .refused, .error { margin: 0; font-size: 13px; line-height: 1.45; }
+.ok { color: var(--da-success); }
+.refused { color: var(--da-warning); }
+.error { color: var(--da-danger); }

@@ -27,10 +27,12 @@ import styles from "./projectLibrary.module.css";
 import { BackButton } from "@/src/components/ui/BackButton";
 
 type Props = {
-  onBack: () => void;
+  onBack?: () => void;
   surface?: "watch" | "edit" | "combined";
   onOpenProject?: (entry: ProjectCollectionEntry) => Promise<BootstrapResult>;
   ownerId?: string;
+  /** SPEC-0020 Phase 9: after the trial or plan ends — Watch and Export only (no Edit, Rename, Duplicate or Delete). */
+  readOnly?: boolean;
 };
 type SnapshotState =
   | { status: "loading" }
@@ -54,7 +56,7 @@ const sortLabels: Array<{ value: ProjectLibrarySort; label: string }> = [
   { value: "name-desc", label: "Name — Z to A" },
 ];
 
-export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, ownerId }: Props) {
+export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, ownerId, readOnly = false }: Props) {
   const createReader = useCallback(() => {
     if (!ownerId) throw new Error("account_session_required");
     return createAccountProjectSourceReader(ownerId);
@@ -90,9 +92,12 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
   const dialogInitialRef = useRef<HTMLInputElement | HTMLButtonElement | null>(null);
   const pendingFocusIdRef = useRef<string | null>(null);
 
-  const heading = surface === "watch" ? "My Projects" : "Open Project";
-  const help = surface === "combined" ? "Edit, watch, or export your saved animations." : surface === "watch" ? "Watch animations saved to your account" : "Choose a saved project to edit";
-  const actionLabel = surface === "watch" ? "Watch" : "Edit";
+  const heading = readOnly ? "My animations" : surface === "watch" ? "My Projects" : "Open Project";
+  const help = readOnly ? "Watch or export your saved animations." : surface === "combined" ? "Edit, watch, or export your saved animations." : surface === "watch" ? "Watch animations saved to your account" : "Choose a saved project to edit";
+  const actionLabel = readOnly || surface === "watch" ? "Watch" : "Edit";
+  const showRowActions = readOnly || surface === "combined";
+  const HeadingTag = readOnly ? "h2" : "h1";
+  const Root = readOnly ? "section" : "main";
   const visibleEntries = useMemo(() => filterAndSortProjectEntries(entries, query, sort), [entries, query, sort]);
 
   const loadCollection = useCallback(async (nextNotice: string | null = null) => {
@@ -253,9 +258,9 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
     window.setTimeout(() => dialogInitialRef.current?.focus(), 0);
   }, [dialog]);
 
-  const activateProject = async (entry: ProjectCollectionEntry, action: "edit" | "watch" | "export" = surface === "watch" ? "watch" : "edit") => {
+  const activateProject = async (entry: ProjectCollectionEntry, action: "edit" | "watch" | "export" = readOnly || surface === "watch" ? "watch" : "edit") => {
     const state = snapshots[entry.id];
-    if (state?.status !== "ready" || busyEntryId) return;
+    if (state?.status !== "ready" || busyEntryId || (readOnly && action === "edit")) return;
     setBusyEntryId(entry.id);
     setNotice(action !== "edit" ? "Loading…" : "Opening…");
     try {
@@ -280,6 +285,7 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
   };
 
   const openMenu = (entry: ProjectCollectionEntry, x: number, y: number, invoker: HTMLElement) => {
+    if (readOnly) return;
     menuInvokerRef.current = invoker;
     setMenu({ entryId: entry.id, x: Math.max(232, Math.min(x, window.innerWidth - 12)), y: Math.max(12, Math.min(y, window.innerHeight - 210)) });
     window.setTimeout(() => {
@@ -373,7 +379,7 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
     else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
   };
 
-  if (exportProject && ownerId) return <ExportAnimationPlayer snapshot={exportProject.snapshot} ownerId={ownerId} changeLabel="← Back to Open Project" onChange={() => {
+  if (exportProject && ownerId) return <ExportAnimationPlayer snapshot={exportProject.snapshot} ownerId={ownerId} changeLabel={readOnly ? "← Back to My animations" : "← Back to Open Project"} onChange={() => {
     const entryId = exportProject.snapshot.entry.id;
     setExportProject(null);
     window.setTimeout(() => (exportRefs.current.get(entryId) ?? primaryRefs.current.get(entryId))?.focus({ preventScroll: true }), 0);
@@ -381,13 +387,13 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
 
   return (
     <>
-      <main ref={libraryRef} className={styles.library} data-project-library={surface === "watch" ? "my-projects" : "open-project"} aria-labelledby="project-library-heading">
+      <Root ref={libraryRef} className={styles.library} data-project-library={readOnly ? "read-only" : surface === "watch" ? "my-projects" : "open-project"} aria-labelledby="project-library-heading">
         <div className={styles.shell}>
-          <header className={styles.header}>
-            <BackButton onClick={onBack}>Back to Home</BackButton>
+          <header className={`${styles.header}${readOnly ? ` ${styles.headerReadOnly}` : ""}`}>
+            {!readOnly && onBack ? <BackButton onClick={onBack}>Back to Home</BackButton> : null}
             <div className={styles.headingGroup}>
               <div className={styles.eyebrow}>Project library</div>
-              <h1 id="project-library-heading">{heading}</h1>
+              <HeadingTag id="project-library-heading">{heading}</HeadingTag>
               <p>{help}</p>
             </div>
           </header>
@@ -406,7 +412,7 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
             ) : collectionUnavailable ? (
               <div className={styles.statePanel}><h2>Projects unavailable</h2><p>Your account projects could not be read. Nothing was changed.</p><button type="button" onClick={() => void loadCollection()} className={styles.primaryButton}>Try again</button></div>
             ) : entries.length === 0 ? (
-              <div className={styles.statePanel}><h2>No saved projects</h2><p>No projects have been saved to this account yet.</p><button type="button" onClick={onBack} className={styles.primaryButton}>Back to Home</button></div>
+              <div className={styles.statePanel}><h2>No saved projects</h2><p>No projects have been saved to this account yet.</p>{!readOnly && onBack ? <button type="button" onClick={onBack} className={styles.primaryButton}>Back to Home</button> : null}</div>
             ) : visibleEntries.length === 0 ? (
               <div className={styles.statePanel}><h2>No matching projects</h2><p>Try a different project name or clear Search.</p><button type="button" onClick={() => setQuery("")} className={styles.primaryButton}>Clear Search</button></div>
             ) : (
@@ -423,7 +429,7 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
                   const cardDisabled = !ready || busyEntryId !== null;
                   const exportDisabled = cardDisabled || (ready && state.project.snapshot.frameCount === 0);
                   return (
-                    <article key={entry.id} className={styles.card} data-project-library-entry={entry.classification} data-project-evaluate-id={entry.classification === "invalid" ? undefined : entry.id}
+                    <article key={entry.id} className={`${styles.card}${readOnly ? ` ${styles.cardReadOnly}` : ""}`} data-project-library-entry={entry.classification} data-project-evaluate-id={entry.classification === "invalid" ? undefined : entry.id}
                       onContextMenu={event => { event.preventDefault(); openMenu(entry, event.clientX, event.clientY, primaryRefs.current.get(entry.id) ?? event.currentTarget); }}
                       onKeyDown={event => {
                         if ((event.shiftKey && event.key === "F10") || event.key === "ContextMenu") {
@@ -444,7 +450,7 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
                         <span className={styles.classification}>{projectClassificationLabel(entry)}</span>
                         </span>
                       </button>
-                      {surface === "combined" ? <>
+                      {showRowActions ? <>
                         <button type="button" className={styles.rowAction} aria-label={`Watch ${entry.title}`} disabled={cardDisabled} onClick={event => { actionInvokerRef.current = event.currentTarget; void activateProject(entry, "watch"); }}>
                           <svg viewBox="0 0 34 34" fill="none" aria-hidden="true"><rect x="1" y="5.5" width="32" height="23" rx="1.5" stroke="currentColor" strokeWidth="2" /><path d="M5 9v3M5 16v3M5 23v2M29 9v3M29 16v3M29 23v2" stroke="currentColor" strokeWidth="2.5" /><rect x="10" y="10.5" width="14" height="13" rx="1.3" stroke="currentColor" strokeWidth="1.8" /><path d="m15 14 6 3-6 3v-6Z" fill="currentColor" /></svg>
                           <span>Watch</span>
@@ -454,9 +460,9 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
                           <span>Export</span>
                         </button>
                       </> : null}
-                      <button ref={node => { if (node) overflowRefs.current.set(entry.id, node); else overflowRefs.current.delete(entry.id); }} type="button" className={styles.overflowButton}
+                      {readOnly ? null : <button ref={node => { if (node) overflowRefs.current.set(entry.id, node); else overflowRefs.current.delete(entry.id); }} type="button" className={styles.overflowButton}
                         aria-label={`Manage ${entry.title}`} aria-haspopup="menu" aria-expanded={menu?.entryId === entry.id}
-                        onClick={event => { event.stopPropagation(); if (menu?.entryId === entry.id) setMenu(null); else openMenuFromButton(entry, event.currentTarget); }}>•••</button>
+                        onClick={event => { event.stopPropagation(); if (menu?.entryId === entry.id) setMenu(null); else openMenuFromButton(entry, event.currentTarget); }}>•••</button>}
                     </article>
                   );
                 })}
@@ -464,9 +470,9 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
             )}
           </section>
         </div>
-      </main>
+      </Root>
 
-      {menu && menuEntry ? (
+      {menu && menuEntry && !readOnly ? (
         <div ref={menuRef} className={styles.contextMenu} role="menu" tabIndex={-1} aria-label={`Manage ${menuEntry.title}`} style={{ left: menu.x, top: menu.y }} onKeyDown={handleMenuKeys}>
           <button type="button" role="menuitem" disabled={!nativeManageable} onClick={() => beginCommand("rename", menuEntry)}>Rename</button>
           <button type="button" role="menuitem" disabled={!canDuplicate} onClick={() => beginCommand("duplicate", menuEntry)}>Duplicate</button>
@@ -475,7 +481,7 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
         </div>
       ) : null}
 
-      {dialog ? (
+      {dialog && !readOnly ? (
         <div className={styles.dialogBackdrop} onPointerDown={event => { if (event.target === event.currentTarget) closeDialog(); }}>
           <div className={styles.managementDialog} role="dialog" aria-modal="true" aria-labelledby="management-dialog-title" aria-describedby="management-dialog-description" onKeyDown={handleDialogKeys}>
             <h2 id="management-dialog-title">{dialog.kind === "rename" ? "Rename project" : dialog.kind === "duplicate" ? "Duplicate project" : "Delete project?"}</h2>

@@ -1,5 +1,9 @@
 # Current State
 
+## D-0197 — PM4: SPEC-0022 Phase 3 published (current)
+
+Consistent red/delete buttons, no ellipses, connected right-panel tabs. Next: Phase 4 (AI Animator as its own right-panel tab; needs PM2's OK). See DECISIONS D-0197.
+
 ## D-0196 — PM4: SPEC-0022 Phase 2 published (current)
 
 Dashboard bar, "credits used" and chart all read one credit list; bar depends on plan and packs; Stripe product name = Pro and USD only; logo shown on every page load. Next: Phase 3 (one look for buttons). See DECISIONS D-0196.

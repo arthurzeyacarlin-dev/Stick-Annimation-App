@@ -1885,6 +1885,11 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0197 — SPEC-0022 Phase 3 passed: consistent buttons (PM4)
+
+- Arthur passed 2026-10-13. Every red/delete/warning button = see-through, red text + thin red outline, solid red (`--da-danger-solid`) with white text on hover, one global rule in `app/globals.css` (matches `danger`, `destructive`, `delete`, `discard` class names and the workspace `data-hover="danger"`; icon buttons excluded). No "…" or "..." in button/label text (Arthur: any dot dot dot is removed). Right panel Properties/Library/Assets = one connected group like the dashboard's "Group by". Rule for new work: new red buttons need no special CSS, just a name containing "danger".
+- Not done on purpose: no global blue-hover rewrite (already instant on reviewed screens).
+
 ### D-0196 — SPEC-0022 Phase 2 passed: one credit list for bar, numbers and chart (PM4)
 
 - Arthur passed 2026-10-13. The AI dashboard's bar, "credits used" and the chart all read the SAME ledger (`account_credit_use_v1`; chart via `/api/account/credit-use` `events`). The old token chart (AI receipts) was the source of the "bar full, chart empty" contradiction; tokens/cost/web-search numbers are no longer shown to the customer.

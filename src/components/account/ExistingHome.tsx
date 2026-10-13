@@ -1,5 +1,6 @@
 "use client";
 
+import { PencilIcon } from "@/src/components/ui/ToolIcons";
 import { AppChrome as MainScreenHeader } from "@/src/components/chrome/AIcreditspage";
 import { AnimationWorkspace } from "@/src/components/workspace/AnimationWorkspace";
 import { AnimationExportFlow } from "@/src/components/export/AnimationExportFlow";
@@ -494,11 +495,7 @@ export default function Page() {
                 ) : (
                   <div className={homeStyles.emptyRecent}>
                     {/* SPEC-0020 Phase 3 (Arthur): the same brush as the editor's Brush tool, not a pencil. */}
-                    <svg className={homeStyles.emptyMark} viewBox="0 0 40 40" aria-hidden="true">
-                      <line x1="9" y1="31" x2="29" y2="11" stroke="currentColor" strokeWidth="5" strokeLinecap="round" />
-                      <path d="M29 2 C36 2 38 8 34 13 C32 16 30 18 29 19 C28 18 26 16 24 13 C20 8 22 2 29 2 Z" fill="currentColor" transform="rotate(-135 29 11)" />
-                      <polygon points="29,16 27,13 31,13" fill="currentColor" />
-                    </svg>
+                    <PencilIcon size={40} className={homeStyles.emptyMark} />
                     {recentProject.status === "loading" ? <p>Loading your recent project</p>
                       : recentProject.status === "failed" ? <><p>Couldn&apos;t load your recent project</p><small>Your projects are still in Open Project.</small></>
                       : <><p>No recent projects edited</p><small>Your next creation starts here.</small></>}

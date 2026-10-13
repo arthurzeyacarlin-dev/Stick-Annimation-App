@@ -10265,9 +10265,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       </div>
     ) : activeTool === "Brush" ? (
       <div style={{ display: "flex", flexDirection: "column", gap: 8, paddingBottom: 0 }}>
-        <div style={{ color: "var(--da-text, #f6f9ff)", fontSize: 13, fontWeight: 600 }}>Tool: Brush</div>
+        <div style={{ color: "var(--da-text, #f6f9ff)", fontSize: 13, fontWeight: 600 }}>Tool: Pencil</div>
         <label style={{ display: "flex", flexDirection: "column", gap: 5, color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
-          {brushToolVariant} size: {brushSize}
+          {brushToolVariant === "Brush" ? "Pencil" : brushToolVariant === "Pencil" ? "Graphite" : brushToolVariant} size: {brushSize}
           <input
             type="range"
             min={1}
@@ -10372,7 +10372,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 textAlign: "left",
               }}
             >
-              Brush Tools: {brushToolVariant}
+              Pencil Tools: {brushToolVariant === "Brush" ? "Pencil" : brushToolVariant === "Pencil" ? "Graphite" : brushToolVariant}
             </button>
           </div>
         </div>

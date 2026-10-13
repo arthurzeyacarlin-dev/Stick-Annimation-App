@@ -1,3 +1,4 @@
+import { TextIcon, PencilIcon, EraserIcon, FillIcon, LassoIcon, SelectIcon } from "@/src/components/ui/ToolIcons";
 const TOOL_NAMES = ["Select", "Lasso", "Brush", "Eraser", "Fill", "Text", "Shape", "Knife"] as const;
 export type DrawingToolName = (typeof TOOL_NAMES)[number];
 export type DrawingShapeType = "Square" | "Triangle" | "Circle";
@@ -39,8 +40,8 @@ export function DrawingToolBar({
             <button
               data-workspace-tool={t.toLowerCase()}
               type="button"
-              aria-label={t === "Shape" ? "Shape tool" : t === "Knife" ? "Knife tool" : t}
-              data-tooltip={t === "Shape" ? "Shape tool" : t === "Knife" ? "Knife tool" : t}
+              aria-label={t === "Shape" ? "Shape tool" : t === "Knife" ? "Knife tool" : t === "Brush" ? "Pencil" : t}
+              data-tooltip={t === "Shape" ? "Shape tool" : t === "Knife" ? "Knife tool" : t === "Brush" ? "Pencil" : t}
               data-tooltip-side="above"
               onClick={() => onToolSelect(t)}
               style={{
@@ -101,108 +102,17 @@ export function DrawingToolBar({
               <rect x="23" y="24" width="14" height="14" rx="1" fill="none" stroke="currentColor" strokeWidth="2" />
             </svg>
           ) : t === "Text" ? (
-            <svg
-              viewBox="0 0 40 40"
-              aria-hidden="true"
-              style={{
-                width: 24,
-                height: 24,
-                overflow: "visible",
-              }}
-            >
-              <path
-                d="M9 10 H31 M20 10 V30 M14 30 H26"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <TextIcon size={26} />
           ) : t === "Fill" ? (
-            <svg
-              viewBox="0 0 40 40"
-              aria-hidden="true"
-              style={{
-                width: 28,
-                height: 28,
-                overflow: "visible",
-              }}
-            >
-              <g transform="translate(16 20) rotate(25) translate(-20 -20)">
-                <rect x="14" y="10" width="16" height="19" rx="3" fill="none" stroke="currentColor" strokeWidth="2.4" />
-              </g>
-            <path
-  d="M32.1 20.4 C32.1 18.2 30.5 16.9 29 15.4 C27.5 16.9 25.9 18.2 25.9 20.4 C25.9 22.8 27.4 24.6 29 24.6 C30.6 24.6 32.1 22.8 32.1 20.4 Z"
-  fill="currentColor"
-/>
-            </svg>
+            <FillIcon size={26} />
           ) : t === "Eraser" ? (
-            <svg
-              viewBox="0 0 40 40"
-              aria-hidden="true"
-              style={{
-                width: 24,
-                height: 24,
-              }}
-            >
-              <g transform="rotate(35 20 20)">
-                <rect x="12" y="7" width="16" height="22" rx="4" fill="none" stroke="currentColor" strokeWidth="2.6" />
-                <line x1="12" y1="16.5" x2="28" y2="16.5" stroke="currentColor" strokeWidth="2.6" strokeLinecap="butt" />
-              </g>
-              <line
-                x1="10.5"
-                y1="30.5"
-                x2="36.5"
-                y2="30.5"
-                stroke="currentColor"
-                strokeWidth="3"
-                strokeLinecap="butt"
-                shapeRendering="geometricPrecision"
-              />
-            </svg>
+            <EraserIcon size={26} />
           ) : t === "Brush" ? (
-            <svg
-              viewBox="0 0 40 40"
-              aria-hidden="true"
-              style={{
-                width: 24,
-                height: 24,
-              }}
-            >
-              <line x1="9" y1="31" x2="29" y2="11" stroke="currentColor" strokeWidth="5" strokeLinecap="round" />
-              <path
-                d="M29 2
-     C36 2 38 8 34 13
-     C32 16 30 18 29 19
-     C28 18 26 16 24 13
-     C20 8 22 2 29 2
-     Z"
-                fill="currentColor"
-                transform="rotate(-135 29 11)"
-              />
-              <polygon points="29,16 27,13 31,13" fill="currentColor" />
-            </svg>
+            <PencilIcon size={26} />
           ) : t === "Lasso" ? (
-            <svg viewBox="0 0 32 32" width="100%" height="100%">
-              <line x1="16" y1="6" x2="16" y2="10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-              <line x1="16" y1="22" x2="16" y2="26" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-              <line x1="6" y1="16" x2="10" y2="16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-              <line x1="22" y1="16" x2="26" y2="16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-              <circle cx="16" cy="16" r="4.75" stroke="currentColor" strokeWidth="1.25" fill="none" />
-              <circle cx="16" cy="16" r="1.25" fill="currentColor" />
-            </svg>
+            <LassoIcon size={26} />
           ) : t === "Select" ? (
-            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
-              <path
-                d="M4 3 L19 12 L12.5 14 L15 21 L11.8 22 L9.5 15.5 L4 19 Z"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinejoin="round"
-                strokeLinecap="round"
-              />
-            </svg>
+            <SelectIcon size={26} />
           ) : (
             t[0]
           )}

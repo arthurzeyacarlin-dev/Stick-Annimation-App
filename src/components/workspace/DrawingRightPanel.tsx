@@ -313,7 +313,7 @@ export function DrawingRightPanel({
                   textAlign: "left",
                 }}
               >
-                {option}
+                {option === "Brush" ? "Pencil" : option === "Pencil" ? "Graphite" : option}
               </button>
             );
           })}

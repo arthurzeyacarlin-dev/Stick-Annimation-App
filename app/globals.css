@@ -467,3 +467,7 @@ button.da-switch { min-height: 0 !important; height: 24px !important; width: 44p
 button.da-switch:hover { border-color: var(--da-hover, #0066ff) !important; box-shadow: none !important; }
 button.da-switch:not([aria-checked="true"]) { background: var(--da-panel, #071120) !important; }
 button.da-switch[aria-checked="true"] { background: var(--da-hover, #0066ff) !important; border-color: var(--da-hover, #0066ff) !important; }
+
+/* A plain outlined button (used by Settings → Learn mode): blue and white on hover, instantly. */
+.da-plain-button { min-height: 36px; padding: 0 16px; border: 1px solid var(--da-border, #244267); border-radius: 10px; background: transparent; color: var(--da-text, #f6f9ff); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: none; }
+.da-plain-button:hover { background: var(--da-hover, #0066ff); border-color: var(--da-hover, #0066ff); color: #ffffff; }

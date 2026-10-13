@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { NEW_PROJECT_FPS_CHOICES, saveAppSettings, useAppSettings, type AppSettingsV1, type NotificationVolume } from "@/src/lib/account/appSettings";
 import { playNotificationDing } from "@/src/lib/notifications/notificationSound";
+import { startLearnMode } from "@/src/components/learn/LearnMode";
 import { BackButton } from "@/src/components/ui/BackButton";
 import styles from "./SettingsScreen.module.css";
 
@@ -69,6 +70,14 @@ export function SettingsScreen() {
                 <button key={fps} type="button" aria-pressed={settings.newProjectFps === fps} disabled={disabled} onClick={() => void save({ newProjectFps: fps })}>{fps} fps</button>
               ))}
             </div>
+          </div>
+        </section>
+
+        <section className={styles.section} aria-labelledby="settings-learn">
+          <h2 id="settings-learn" className={styles.sectionTitle}>Learn mode</h2>
+          <div className={styles.row}>
+            <span className={styles.text}><strong>Guided setup</strong><small>A short walk through Home, the AI Dashboard and the editor. It starts on Home.</small></span>
+            <button type="button" className="da-plain-button" onClick={() => { startLearnMode(); window.location.assign("/"); }}>Start learn mode</button>
           </div>
         </section>
 

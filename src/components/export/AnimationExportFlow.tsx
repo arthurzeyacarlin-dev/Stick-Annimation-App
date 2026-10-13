@@ -217,7 +217,7 @@ export function ExportAnimationPlayer({ snapshot, onChange, ownerId, changeLabel
       memory = createMemoryFileHandle(request.sanitizedBaseFilename, "video/mp4");
       handle = memory;
     }
-    setProgress({ label: "Getting ready…", percent: null });
+    setProgress({ label: "Getting ready", percent: null });
     try {
       await assertSnapshotIsCurrent();
       await preflightLocalMp4(request);
@@ -231,8 +231,8 @@ export function ExportAnimationPlayer({ snapshot, onChange, ownerId, changeLabel
       handle,
       signal,
       onProgress: (next: ExportProgress) => {
-        if (next.stage === "rendering" || next.stage === "encoding") setProgress({ label: "Making your video…", percent: Math.round((next.completed / Math.max(1, next.total)) * 100) });
-        else if (next.stage === "validating") setProgress({ label: "Checking the video…", percent: 100 });
+        if (next.stage === "rendering" || next.stage === "encoding") setProgress({ label: "Making your video", percent: Math.round((next.completed / Math.max(1, next.total)) * 100) });
+        else if (next.stage === "validating") setProgress({ label: "Checking the video", percent: 100 });
       },
     });
     if (memory) downloadedRef.current = (await writeSaveTarget({ type: "download" }, memory.toBlob(), request.sanitizedBaseFilename, "mp4")) === "downloaded";
@@ -243,7 +243,7 @@ export function ExportAnimationPlayer({ snapshot, onChange, ownerId, changeLabel
     const name = `${baseName(filename, snapshot.project.title)}.gif`;
     const target = await pickSaveTarget(name, "gif");
     if (!target) return "cancelled" as const;
-    setProgress({ label: "Getting ready…", percent: null });
+    setProgress({ label: "Getting ready", percent: null });
     await assertSnapshotIsCurrent();
     const canvas = document.createElement("canvas");
     canvas.width = output.width;
@@ -267,7 +267,7 @@ export function ExportAnimationPlayer({ snapshot, onChange, ownerId, changeLabel
     for (let frameIndex = 0; frameIndex < total; frameIndex += 1) {
       const context = await renderFrame(canvas, frameIndex, signal);
       writer.addFrame(context.getImageData(0, 0, canvas.width, canvas.height));
-      setProgress({ label: "Making your GIF…", percent: Math.round(((frameIndex + 1) / total) * 100) });
+      setProgress({ label: "Making your GIF", percent: Math.round(((frameIndex + 1) / total) * 100) });
       await nextTick();
     }
     if (signal.aborted) throw new DOMException("Export cancelled", "AbortError");
@@ -283,7 +283,7 @@ export function ExportAnimationPlayer({ snapshot, onChange, ownerId, changeLabel
     const name = single ? `${base} ${padFrameNumber(frameIndex, total)}.png` : `${base} frames.zip`;
     const target = await pickSaveTarget(name, single ? "png" : "zip");
     if (!target) return "cancelled" as const;
-    setProgress({ label: "Getting ready…", percent: null });
+    setProgress({ label: "Getting ready", percent: null });
     await assertSnapshotIsCurrent();
     const canvas = document.createElement("canvas");
     canvas.width = output.width;
@@ -297,7 +297,7 @@ export function ExportAnimationPlayer({ snapshot, onChange, ownerId, changeLabel
     for (let index = 0; index < total; index += 1) {
       await renderFrame(canvas, index, signal);
       files.push({ name: `${base} ${padFrameNumber(index, total)}.png`, data: await canvasToPngBytes(canvas) });
-      setProgress({ label: "Making your pictures…", percent: Math.round(((index + 1) / total) * 100) });
+      setProgress({ label: "Making your pictures", percent: Math.round(((index + 1) / total) * 100) });
       await nextTick();
     }
     if (signal.aborted) throw new DOMException("Export cancelled", "AbortError");
@@ -384,7 +384,7 @@ export function ExportAnimationPlayer({ snapshot, onChange, ownerId, changeLabel
                 <select aria-label="Made for" value={destinationId} disabled={running} onChange={event => { setDestinationId(event.target.value as ExportDestinationPresetId); resetResult(); }} className={styles.input}>
                   {EXPORT_DESTINATION_CATALOG.map(preset => (
                     <option key={preset.id} value={preset.id}>
-                      {preset.id === "original" ? "Anything (same shape as your stage)" : preset.id === "custom-other" ? "Custom size…" : `${preset.displayName} — ${shapeLabel(preset.shape)}`}
+                      {preset.id === "original" ? "Anything (same shape as your stage)" : preset.id === "custom-other" ? "Custom size" : `${preset.displayName} — ${shapeLabel(preset.shape)}`}
                     </option>
                   ))}
                 </select>
@@ -452,7 +452,7 @@ export function ExportAnimationPlayer({ snapshot, onChange, ownerId, changeLabel
 
             <div className={styles.actions}>
               {runState === "working" || runState === "cancelling"
-                ? <button type="button" onClick={cancelExport} disabled={runState === "cancelling"} className={styles.button}>{runState === "cancelling" ? "Stopping…" : "Stop"}</button>
+                ? <button type="button" onClick={cancelExport} disabled={runState === "cancelling"} className={styles.button}>{runState === "cancelling" ? "Stopping" : "Stop"}</button>
                 : <button type="button" disabled={Boolean(customDimensionError) || snapshot.frameCount === 0} onClick={() => void runExport()} className={`${styles.primaryButton} ${styles.exportButton}`}>{exportLabel}</button>}
             </div>
             <div className={styles.footnote}>Exporting doesn&apos;t use AI credits.</div>
@@ -552,7 +552,7 @@ export function AnimationExportFlow({ origin, onBack, preferredProjectId = null 
         <div className={styles.intro}>Pick the animation you want to export, then choose <strong>Next</strong>.</div>
         {origin === "workspace" && preferredProjectId === null ? <div role="note" className={styles.statusWarning}>Your latest changes couldn&apos;t be saved, so Export uses your last save.</div> : null}
         {message ? <div role="status" aria-live="polite" className={styles.statusInfo}>{message}</div> : null}
-        {loading ? <div className={styles.emptyState}>Loading your animations…</div> : collectionError ? <div className={styles.errorState}>Your animations couldn&apos;t be loaded.<div className={styles.errorStateAction}><button type="button" onClick={loadCollection} className={styles.button}>Try again</button></div></div> : entries.length === 0 ? <div className={styles.emptyState}>No saved animations yet. Save one first, then come back to Export.</div> : (
+        {loading ? <div className={styles.emptyState}>Loading your animations</div> : collectionError ? <div className={styles.errorState}>Your animations couldn&apos;t be loaded.<div className={styles.errorStateAction}><button type="button" onClick={loadCollection} className={styles.button}>Try again</button></div></div> : entries.length === 0 ? <div className={styles.emptyState}>No saved animations yet. Save one first, then come back to Export.</div> : (
           <div className={styles.grid}>
             {entries.map(entry => {
               const state = snapshots[entry.id];
@@ -560,13 +560,13 @@ export function AnimationExportFlow({ origin, onBack, preferredProjectId = null 
               const selected = selectedId === entry.id;
               const snapshot = state?.status === "ready" ? state.snapshot : null;
               return <button key={entry.id} type="button" aria-pressed={selected} disabled={invalid} onClick={() => { setSelectedId(entry.id); setMessage(null); }} className={styles.card}>
-                <div className={styles.cardThumb}>{snapshot ? <ExportThumbnail snapshot={snapshot} /> : state?.status === "loading" ? <span className={styles.thumbNote}>Loading preview…</span> : <span className={styles.thumbNote}>Unavailable</span>}</div>
-                <div className={styles.cardBody}><div className={styles.cardTitle}>{entry.title}</div><div className={styles.cardMeta}>{formatUpdatedAt(entry.updatedAt)}</div><div className={snapshot?.frameCount ? styles.cardMetaReady : styles.cardMeta}>{invalid ? state?.status === "failed" ? state.message : "Unavailable" : snapshot ? snapshot.frameCount === 0 ? "Nothing drawn yet" : `${formatExportDuration(snapshot.durationSeconds)} · ${snapshot.project.document.fps} fps` : "Loading…"}</div></div>
+                <div className={styles.cardThumb}>{snapshot ? <ExportThumbnail snapshot={snapshot} /> : state?.status === "loading" ? <span className={styles.thumbNote}>Loading preview</span> : <span className={styles.thumbNote}>Unavailable</span>}</div>
+                <div className={styles.cardBody}><div className={styles.cardTitle}>{entry.title}</div><div className={styles.cardMeta}>{formatUpdatedAt(entry.updatedAt)}</div><div className={snapshot?.frameCount ? styles.cardMetaReady : styles.cardMeta}>{invalid ? state?.status === "failed" ? state.message : "Unavailable" : snapshot ? snapshot.frameCount === 0 ? "Nothing drawn yet" : `${formatExportDuration(snapshot.durationSeconds)} · ${snapshot.project.document.fps} fps` : "Loading"}</div></div>
               </button>;
             })}
           </div>
         )}
-        <div className={styles.footer}><button type="button" disabled={busy || selectedState?.status !== "ready" || selectedState.snapshot.frameCount === 0} onClick={() => void openSelectedAnimation()} className={`${styles.primaryButton} ${styles.wideButton}`}>{busy ? "Opening…" : "Next"}</button></div>
+        <div className={styles.footer}><button type="button" disabled={busy || selectedState?.status !== "ready" || selectedState.snapshot.frameCount === 0} onClick={() => void openSelectedAnimation()} className={`${styles.primaryButton} ${styles.wideButton}`}>{busy ? "Opening" : "Next"}</button></div>
       </div>
     </main>
   );

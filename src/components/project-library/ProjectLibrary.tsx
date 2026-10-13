@@ -262,7 +262,7 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
     const state = snapshots[entry.id];
     if (state?.status !== "ready" || busyEntryId || (readOnly && action === "edit")) return;
     setBusyEntryId(entry.id);
-    setNotice(action !== "edit" ? "Loading…" : "Opening…");
+    setNotice(action !== "edit" ? "Loading" : "Opening");
     try {
       if (action !== "edit") {
         const current = await controller.watch(entry);
@@ -408,7 +408,7 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
 
           <section aria-label="Saved projects" className={styles.results} aria-busy={loading}>
             {loading && entries.length === 0 ? (
-              <div className={styles.loadingGrid} aria-label="Loading account projects">{[0, 1, 2].map(index => <div key={index} className={styles.skeletonCard} />)}<div className={styles.loadingText}>Loading saved projects…</div></div>
+              <div className={styles.loadingGrid} aria-label="Loading account projects">{[0, 1, 2].map(index => <div key={index} className={styles.skeletonCard} />)}<div className={styles.loadingText}>Loading saved projects</div></div>
             ) : collectionUnavailable ? (
               <div className={styles.statePanel}><h2>Projects unavailable</h2><p>Your account projects could not be read. Nothing was changed.</p><button type="button" onClick={() => void loadCollection()} className={styles.primaryButton}>Try again</button></div>
             ) : entries.length === 0 ? (
@@ -442,11 +442,11 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
                       <button ref={node => { if (node) primaryRefs.current.set(entry.id, node); else primaryRefs.current.delete(entry.id); }} type="button" className={styles.cardButton} aria-disabled={cardDisabled}
                         aria-label={ready ? `${actionLabel} ${entry.title}` : `${entry.title}. ${unavailable ? state.message : "Loading"}`}
                         onClick={() => { if (!cardDisabled) void activateProject(entry); }}>
-                        <span className={styles.posterFrame}>{ready ? <ProjectPoster key={state.project.snapshot.projectDigest} project={state.project} /> : <span className={unavailable ? styles.posterFailure : styles.posterStatus}>{unavailable ? "Unavailable" : "Loading preview…"}</span>}</span>
+                        <span className={styles.posterFrame}>{ready ? <ProjectPoster key={state.project.snapshot.projectDigest} project={state.project} /> : <span className={unavailable ? styles.posterFailure : styles.posterStatus}>{unavailable ? "Unavailable" : "Loading preview"}</span>}</span>
                         <span className={styles.cardBody}>
-                          <span className={styles.titleRow}><span className={styles.projectTitle}>{entry.title}</span><span className={ready ? styles.watchPill : styles.statusPill}>{busy ? "Working…" : ready ? actionLabel : unavailable ? "Unavailable" : "Loading"}</span></span>
+                          <span className={styles.titleRow}><span className={styles.projectTitle}>{entry.title}</span><span className={ready ? styles.watchPill : styles.statusPill}>{busy ? "Working" : ready ? actionLabel : unavailable ? "Unavailable" : "Loading"}</span></span>
                           <span className={styles.updatedAt}>{updatedAt.iso ? <time dateTime={updatedAt.iso} aria-label={`Last updated ${updatedAt.iso}`}>{updatedAt.visible}</time> : updatedAt.visible}</span>
-                          <span className={styles.metadata}>{ready && stage && fps !== null && duration !== null ? <><span aria-label={`Length ${formatProjectLength(duration)}`}>{formatProjectLength(duration)}</span><span>{fps} FPS</span><span>{stage.width}×{stage.height}</span></> : unavailable ? <span className={styles.failureText}>{state.message}</span> : <span>Loading…</span>}</span>
+                          <span className={styles.metadata}>{ready && stage && fps !== null && duration !== null ? <><span aria-label={`Length ${formatProjectLength(duration)}`}>{formatProjectLength(duration)}</span><span>{fps} FPS</span><span>{stage.width}×{stage.height}</span></> : unavailable ? <span className={styles.failureText}>{state.message}</span> : <span>Loading</span>}</span>
                         <span className={styles.classification}>{projectClassificationLabel(entry)}</span>
                         </span>
                       </button>
@@ -488,12 +488,12 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
             {dialog.kind === "delete" ? (
               <><p id="management-dialog-description">Delete <strong>{dialog.entry.title}</strong>? It will be removed from your account for good. This can&apos;t be undone.</p>
                 {dialogError ? <div className={styles.dialogError} role="alert">{dialogError}</div> : null}
-                <div className={styles.dialogActions}><button ref={node => { dialogInitialRef.current = node; }} type="button" className={styles.secondaryButton} onClick={() => closeDialog()} disabled={busyEntryId !== null}>Cancel</button><button type="button" className={styles.deleteButton} onClick={() => void runDialogCommand()} disabled={busyEntryId !== null}>{busyEntryId ? "Deleting…" : "Delete project"}</button></div></>
+                <div className={styles.dialogActions}><button ref={node => { dialogInitialRef.current = node; }} type="button" className={styles.secondaryButton} onClick={() => closeDialog()} disabled={busyEntryId !== null}>Cancel</button><button type="button" className={styles.deleteButton} onClick={() => void runDialogCommand()} disabled={busyEntryId !== null}>{busyEntryId ? "Deleting" : "Delete project"}</button></div></>
             ) : (
               <><p id="management-dialog-description">{dialog.kind === "rename" ? "Give this project a new name." : "Make a separate copy of this project. The original stays the same."}</p>
                 <label className={styles.dialogField}><span>Project name</span><input ref={node => { dialogInitialRef.current = node; }} value={dialog.value} maxLength={512} onChange={event => setDialog({ ...dialog, value: event.currentTarget.value })} onKeyDown={event => { if (event.key === "Enter") { event.preventDefault(); void runDialogCommand(); } }} /></label>
                 {dialogError ? <div className={styles.dialogError} role="alert">{dialogError}</div> : null}
-                <div className={styles.dialogActions}><button type="button" className={styles.secondaryButton} onClick={() => closeDialog()} disabled={busyEntryId !== null}>Cancel</button><button type="button" className={styles.primaryButton} onClick={() => void runDialogCommand()} disabled={busyEntryId !== null}>{busyEntryId ? "Working…" : dialog.kind === "rename" ? "Rename" : "Duplicate"}</button></div></>
+                <div className={styles.dialogActions}><button type="button" className={styles.secondaryButton} onClick={() => closeDialog()} disabled={busyEntryId !== null}>Cancel</button><button type="button" className={styles.primaryButton} onClick={() => void runDialogCommand()} disabled={busyEntryId !== null}>{busyEntryId ? "Working" : dialog.kind === "rename" ? "Rename" : "Duplicate"}</button></div></>
             )}
           </div>
         </div>

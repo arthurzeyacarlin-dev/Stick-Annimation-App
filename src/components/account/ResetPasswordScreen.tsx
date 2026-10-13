@@ -67,7 +67,7 @@ export function ResetPasswordScreen({ token }: { token: string | null }) {
             </div>
             {error && <p role="alert" className={styles.error}>{error}</p>}
             <div className={styles.actions}>
-              <button type="submit" className={`${styles.button} ${styles.primary}${busy ? ` ${styles.busy}` : ""}`} disabled={busy}>{busy ? "Saving…" : "Save new password"}</button>
+              <button type="submit" className={`${styles.button} ${styles.primary}${busy ? ` ${styles.busy}` : ""}`} disabled={busy}>{busy ? "Saving" : "Save new password"}</button>
             </div>
           </form>
         )}

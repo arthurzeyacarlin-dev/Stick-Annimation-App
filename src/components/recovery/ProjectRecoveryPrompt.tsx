@@ -125,7 +125,7 @@ export function ProjectRecoveryPrompt({
               disabled={mode !== "valid" || busy}
               onClick={onRecover}
             >
-              {busyAction === "recover" ? "Opening recovered work…" : "Recover Work"}
+              {busyAction === "recover" ? "Opening recovered work" : "Recover Work"}
             </button>
             <button
               ref={discardButtonRef}
@@ -146,7 +146,7 @@ export function ProjectRecoveryPrompt({
                 Cancel
               </button>
               <button ref={discardButtonRef} type="button" className="recovery-danger-confirm" disabled={busy} onClick={onDiscard}>
-                {busyAction === "discard" ? "Discarding…" : "Discard Draft"}
+                {busyAction === "discard" ? "Discarding" : "Discard Draft"}
               </button>
             </div>
           </div>

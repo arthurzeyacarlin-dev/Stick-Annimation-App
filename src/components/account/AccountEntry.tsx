@@ -119,7 +119,7 @@ export function AccountEntry() {
             <p className={styles.forgotRow}><button type="button" className={styles.switch} disabled={busy} onClick={() => switchMode("forgot")}>Forgot password?</button></p>
             {error && <p role="alert" className={styles.error}>{error}</p>}
             <div className={styles.actions}>
-              <button type="submit" className={`${styles.button} ${styles.primary}${busy ? ` ${styles.busy}` : ""}`} disabled={submitDisabled}>{busy ? "Logging in…" : "Log in"}</button>
+              <button type="submit" className={`${styles.button} ${styles.primary}${busy ? ` ${styles.busy}` : ""}`} disabled={submitDisabled}>{busy ? "Logging in" : "Log in"}</button>
               {backButton}
             </div>
             <p className={styles.switchRow}>New here?<button type="button" className={styles.switch} disabled={busy} onClick={() => switchMode("signup")}>Create account</button></p>
@@ -149,7 +149,7 @@ export function AccountEntry() {
                 <div className={styles.fields}>{emailField}</div>
                 {error && <p role="alert" className={styles.error}>{error}</p>}
                 <div className={styles.actions}>
-                  <button type="submit" className={`${styles.button} ${styles.primary}${busy ? ` ${styles.busy}` : ""}`} disabled={busy}>{busy ? "Sending…" : "Send reset link"}</button>
+                  <button type="submit" className={`${styles.button} ${styles.primary}${busy ? ` ${styles.busy}` : ""}`} disabled={busy}>{busy ? "Sending" : "Send reset link"}</button>
                   <button type="button" className={styles.button} disabled={busy} onClick={() => switchMode("login")}>Back</button>
                 </div>
               </form>
@@ -183,7 +183,7 @@ export function AccountEntry() {
             <p className={`${styles.muted} ${styles.stepHint}`}>Your projects and chats will save to this account.</p>
             {error && <p role="alert" className={styles.error}>{error}</p>}
             <div className={styles.actions}>
-              <button type="submit" className={`${styles.button} ${styles.primary}${busy ? ` ${styles.busy}` : ""}`} disabled={submitDisabled}>{busy ? "Creating account…" : "Create account"}</button>
+              <button type="submit" className={`${styles.button} ${styles.primary}${busy ? ` ${styles.busy}` : ""}`} disabled={submitDisabled}>{busy ? "Creating account" : "Create account"}</button>
               {backButton}
             </div>
           </div>

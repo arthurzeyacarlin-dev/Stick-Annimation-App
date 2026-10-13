@@ -24,7 +24,7 @@ export function BuyCreditsPanel() {
       const back = takeCheckoutReturn("topup");
       if (!back) return;
       if (back.result === "canceled" || !back.sessionId) { setNotice("No payment was made."); return; }
-      setNotice("Adding your credits…");
+      setNotice("Adding your credits");
       postBilling<{ status: { kind: string; credits: number } }>("/api/account/billing/complete", { sessionId: back.sessionId })
         .then(({ status: result }) => {
           setNotice(`${number(result.credits)} extra credits added.`);
@@ -67,7 +67,7 @@ export function BuyCreditsPanel() {
         {packs.map((pack) => (
           <button key={pack.id} type="button" className={styles.pack} disabled={!canBuy || busy !== null} onClick={() => void buy(pack.id)}
             aria-label={`Buy ${number(pack.credits)} extra credits for ${pack.price}`}>
-            <strong>{busy === pack.id ? "Opening Stripe…" : `${number(pack.credits)} credits`}</strong>
+            <strong>{busy === pack.id ? "Opening Stripe" : `${number(pack.credits)} credits`}</strong>
             <span className={styles.packPrice}>{pack.price}</span>
           </button>
         ))}

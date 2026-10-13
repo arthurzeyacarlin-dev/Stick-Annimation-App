@@ -35,7 +35,7 @@ const POST_APPLY_COPY = "AI editing comes later; use manual tools.";
 const REQUEST_TIMEOUT_MS = 10_000;
 
 const availabilityCopy = (availability: AvailabilityState) => {
-  if (availability.status === "checking") return "Checking Stick AI availability…";
+  if (availability.status === "checking") return "Checking Stick AI availability";
   if (availability.status === "failed") return "Stick AI availability could not be checked. Try again.";
   if (availability.status === "available") return "Stick AI is ready.";
   switch (availability.reason) {
@@ -102,7 +102,7 @@ export function StickFigureAiPanel({adapter}: {adapter: StickFigureAiWorkspaceAd
     setHasSentAttempt(true);
     const snapshot = adapter.readSnapshot();
     if (!snapshot?.ready) {
-      setMessage("Preparing this Stick project…");
+      setMessage("Preparing this Stick project");
       return;
     }
     if (snapshot.playing) {
@@ -132,7 +132,7 @@ export function StickFigureAiPanel({adapter}: {adapter: StickFigureAiWorkspaceAd
       return;
     }
     setRequesting(true);
-    setMessage("Preparing a safe preview…");
+    setMessage("Preparing a safe preview");
     const controller = new AbortController();
     abortRef.current = controller;
     abortReasonRef.current = null;

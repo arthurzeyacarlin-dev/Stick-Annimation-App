@@ -170,17 +170,17 @@ export function DrawingTopBar({
   const saveStateLabel = {
     "not-saved": "Not saved",
     unsaved: "Unsaved changes",
-    saving: "Saving…",
+    saving: "Saving",
     saved: accountSaved ? "Saved to your account" : "Saved on this browser",
     "quiet-saved": "Saved",
     "too-large": "Too large to save",
     failed: "Save failed",
   }[saveState];
   const recoveryStateLabel = {
-    checking: "Checking safety backup…",
+    checking: "Checking safety backup",
     idle: "Safety backup ready",
     pending: "Safety backup pending",
-    writing: "Updating safety backup…",
+    writing: "Updating safety backup",
     current: "Safety backup current",
     blocked: "Unsaved draft found — use Save",
     unavailable: "Safety backup unavailable — use Save",
@@ -260,7 +260,7 @@ export function DrawingTopBar({
                     onClick={() => runFileAction(onExport)}
                     style={menuItemStyle()}
                   >
-                    {shortcutLabel("Export…", fileShortcut.export)}
+                    {shortcutLabel("Export", fileShortcut.export)}
                   </button>
                 ) : null}
                 {onSaveAndExit ? (

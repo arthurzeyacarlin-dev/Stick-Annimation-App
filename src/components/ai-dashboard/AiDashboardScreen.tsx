@@ -120,7 +120,7 @@ export function AiDashboardScreen() {
         <section className={styles.top} aria-labelledby="dashboard-heading">
           <p className={styles.eyebrow}>AI Dashboard</p>
           <h2 id="dashboard-heading" className={styles.headline}>
-            {!plan ? (planFailed ? "Your credits couldn't be read. Try again in a moment." : "Loading your credits…")
+            {!plan ? (planFailed ? "Your credits couldn't be read. Try again in a moment." : "Loading your credits")
               : trial ? <>Free trial ends <time dateTime={new Date(plan.windowEnd).toISOString()}>{longDay(plan.windowEnd)}</time></>
               : plan.cancelAtPeriodEnd ? <>Plan ends <time dateTime={new Date(refill).toISOString()}>{longDay(refill)}</time></>
               : <>Next refill: <time dateTime={new Date(refill).toISOString()}>{longDay(refill)}</time></>}

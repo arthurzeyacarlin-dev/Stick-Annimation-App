@@ -148,7 +148,7 @@ export function AppChrome({ page, theme }: AppChromeProps) {
                   <nav className={styles.accountLinks} aria-label="Account">
                     <Link href="/account" className={styles.accountLink}><ProfileIcon />Profile</Link>
                   </nav>
-                  <button type="button" className={styles.logoutButton} onClick={logOut} disabled={logoutBusy}>{logoutBusy ? "Logging out…" : "Log out"}</button>
+                  <button type="button" className={styles.logoutButton} onClick={logOut} disabled={logoutBusy}>{logoutBusy ? "Logging out" : "Log out"}</button>
                   {logoutError && <div role="alert" className={styles.accountError}>{logoutError}</div>}
                 </div>
               )}

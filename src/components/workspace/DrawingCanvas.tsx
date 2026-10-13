@@ -10999,7 +10999,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
           opacity: assetImportBusy ? 0.72 : 1,
         }}
       >
-        {assetImportBusy ? "Checking Images…" : "Import Images"}
+        {assetImportBusy ? "Checking Images" : "Import Images"}
       </button>
       {importedAssets.length === 0 ? (
         <div
@@ -11734,7 +11734,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               disabled={symbolDialog.submitting}
               style={{ minWidth: 88, minHeight: 40, borderRadius: 10, border: "1px solid var(--da-selected-border, #3a6aa3)", background: "var(--da-selected-bg, #0f2a52)", color: "#fff", cursor: "pointer", fontWeight: 700 }}
             >
-              {symbolDialog.submitting ? "Creating…" : "Create"}
+              {symbolDialog.submitting ? "Creating" : "Create"}
             </button>
           </div>
         </form>

@@ -190,6 +190,7 @@ export function DrawingRightPanel({
           flexShrink: 0,
         }}
       >
+        <div role="group" aria-label="Right panel" style={{ display: "flex", gap: 2, padding: 3, width: "100%", border: "1px solid var(--da-border, #244267)", borderRadius: 11, background: "var(--da-page, #030914)" }}>
         {RIGHT_PANEL_TABS.map((tab) => {
           const isActiveTab = rightPanelTab === tab;
 
@@ -198,13 +199,17 @@ export function DrawingRightPanel({
               key={tab}
               type="button"
               onClick={() => onRightPanelTabChange(tab)}
+              aria-pressed={isActiveTab}
               style={{
-                padding: "8px 12px",
-                borderRadius: 10,
-                border: isActiveTab ? "1px solid var(--da-selected-border, #3a6aa3)" : "1px solid var(--da-border, #244267)",
-                background: isActiveTab ? "var(--da-selected-bg, #0f2a52)" : "var(--da-panel, #071120)",
-                color: isActiveTab ? "var(--da-on-selected, #eaf3ff)" : "var(--da-text-2, #c9d6ea)",
-                fontSize: 12,
+                flex: 1,
+                height: 32,
+                padding: "0 12px",
+                borderRadius: 8,
+                border: 0,
+                background: isActiveTab ? "var(--da-selected-bg, #0f2a52)" : "transparent",
+                boxShadow: isActiveTab ? "inset 0 0 0 1px var(--da-selected-border, #3a6aa3)" : "none",
+                color: isActiveTab ? "#ffffff" : "var(--da-text-3, #a8bddd)",
+                fontSize: 13,
                 fontWeight: 600,
                 userSelect: "none",
                 cursor: "pointer",
@@ -216,6 +221,7 @@ export function DrawingRightPanel({
             </button>
           );
         })}
+        </div>
       </div>
 
       <div

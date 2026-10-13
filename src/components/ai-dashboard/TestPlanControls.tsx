@@ -108,7 +108,7 @@ export function TestPlanControls({ goHomeWhenLocked = false, onChanged }: { goHo
           <div className={styles.buttons}>
             {group.buttons.map(item => (
               <button key={item.action} type="button" disabled={busy !== null} onClick={() => void run(item.action)} className={styles.button}>
-                <strong>{busy === item.action ? "Working…" : item.label}</strong>
+                <strong>{busy === item.action ? "Working" : item.label}</strong>
                 <span>{item.hint}</span>
               </button>
             ))}

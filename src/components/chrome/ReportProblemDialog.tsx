@@ -177,7 +177,7 @@ export function ReportProblemDialog({ onClose }: { onClose: () => void }) {
                 onChange={(event) => void pickPicture(event.target.files?.[0])} />
               <div className={styles.pictureRow}>
                 <button type="button" className={styles.button} disabled={pictureBusy || sending} onClick={() => fileRef.current?.click()}>
-                  {pictureBusy ? "Getting the picture ready…" : screenshot ? "Choose another picture" : "Add a screenshot"}
+                  {pictureBusy ? "Getting the picture ready" : screenshot ? "Choose another picture" : "Add a screenshot"}
                 </button>
                 {screenshot && (
                   <>
@@ -193,7 +193,7 @@ export function ReportProblemDialog({ onClose }: { onClose: () => void }) {
             {error && <p role="alert" className={styles.error}>{error}</p>}
 
             <div className={styles.actions}>
-              <button type="submit" className={`${styles.button} ${styles.primary}`} disabled={sending || pictureBusy}>{sending ? "Sending…" : "Send report"}</button>
+              <button type="submit" className={`${styles.button} ${styles.primary}`} disabled={sending || pictureBusy}>{sending ? "Sending" : "Send report"}</button>
             </div>
           </form>
         )}

@@ -425,3 +425,14 @@ html {
   opacity: 1;
   transition: opacity var(--app-scrollbar-fade-in);
 }
+
+/* SPEC-0022 Phase 3 (Arthur 2026-10-13): every red / delete / warning button looks the same everywhere:
+   see-through, red text and a thin red outline; on hover solid red with white text (instant, no fade). */
+button[class*="danger" i], button[class*="destructive" i], button[class*="delete" i]:not([data-hover="icon"]), button[class*="discard" i]:not([data-hover="icon"]), button[data-hover="danger"], a[class*="danger" i][class*="button" i] {
+  background: transparent !important; color: var(--da-danger, #ff8a95) !important; border: 1px solid var(--da-danger, #ff8a95) !important;
+  box-shadow: none !important; transition: none !important;
+}
+button[class*="danger" i]:hover:not(:disabled), button[class*="destructive" i]:hover:not(:disabled), button[class*="delete" i]:not([data-hover="icon"]):hover:not(:disabled), button[class*="discard" i]:not([data-hover="icon"]):hover:not(:disabled), button[data-hover="danger"]:hover:not(:disabled), a[class*="danger" i][class*="button" i]:hover {
+  background: var(--da-danger-solid, #d23a52) !important; border-color: var(--da-danger-solid, #d23a52) !important; color: #ffffff !important;
+}
+button[class*="danger" i]:disabled, button[class*="destructive" i]:disabled, button[class*="delete" i]:not([data-hover="icon"]):disabled, button[class*="discard" i]:not([data-hover="icon"]):disabled, button[data-hover="danger"]:disabled { opacity: .55; cursor: not-allowed; }

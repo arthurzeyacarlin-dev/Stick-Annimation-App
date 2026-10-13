@@ -49,7 +49,7 @@ export function TrialEndedScreen({ name, lockReason = "trial_ended", showTestLin
         <div className={styles.actions}>
           <Link href="/plans" className={`${styles.button} ${styles.primary}`}>Choose a plan</Link>
           <Link href="/account" className={styles.button}>Profile</Link>
-          <button type="button" className={styles.button} onClick={() => void logOut()} disabled={busy}>{busy ? "Logging out…" : "Log out"}</button>
+          <button type="button" className={styles.button} onClick={() => void logOut()} disabled={busy}>{busy ? "Logging out" : "Log out"}</button>
         </div>
         {error && <p role="alert" className={styles.error}>{error}</p>}
         {showTestLink && <p className={styles.testLink}>TEST ONLY (developer): <Link href="/dev/plan">open the test controls</Link> to unlock this account again.</p>}

@@ -179,7 +179,7 @@ export function AccountProfileScreen() {
           <h2 id="plan-heading" className={styles.cardTitle}>Your plan</h2>
           <div className={styles.planRow}>
             {/* SPEC-0020 Phase 9 (Pricing v1): "Creator plan · 312 of 420 credits left · 200 extra". */}
-            <p className={styles.help}>{!plan ? "Loading your plan…"
+            <p className={styles.help}>{!plan ? "Loading your plan"
               : plan.lockReason === "plan_ended" ? "Your plan has ended · you can still watch and export your animations"
               : plan.lockReason === "trial_ended" ? "Your free trial has ended · you can still watch and export your animations"
               : `${plan.plan === "trial" ? "Free trial" : `${plan.label} plan`}${plan.interval === "year" ? " (yearly)" : ""} · ${plan.planCreditsLeft.toLocaleString("en-US")} of ${plan.creditsTotal.toLocaleString("en-US")} credits left`
@@ -204,7 +204,7 @@ export function AccountProfileScreen() {
               </label>
             </div>
             <div className={styles.buttonRow}>
-              <button type="submit" className={`${styles.button} ${styles.primary}`} disabled={passwordBusy}>{passwordBusy ? "Changing…" : "Change password"}</button>
+              <button type="submit" className={`${styles.button} ${styles.primary}`} disabled={passwordBusy}>{passwordBusy ? "Changing" : "Change password"}</button>
             </div>
           </form>
           {passwordStatus && <p role={passwordStatus.kind === "error" ? "alert" : "status"} className={passwordStatus.kind === "error" ? styles.error : styles.ok}>{passwordStatus.text}</p>}
@@ -215,7 +215,7 @@ export function AccountProfileScreen() {
           <p className={styles.help}>This deletes your account, your projects, your AI chats and your settings. It can&apos;t be undone.</p>
           {!deleteOpen ? (
             <div className={styles.buttonRow}>
-              <button type="button" className={`${styles.button} ${styles.dangerButton}`} onClick={() => setDeleteOpen(true)}>Delete my account…</button>
+              <button type="button" className={`${styles.button} ${styles.dangerButton}`} onClick={() => setDeleteOpen(true)}>Delete my account</button>
             </div>
           ) : (
             <form className={styles.fields} onSubmit={(event) => void onDelete(event)}>
@@ -228,7 +228,7 @@ export function AccountProfileScreen() {
               </label>
               {deleteError && <p role="alert" className={styles.error}>{deleteError}</p>}
               <div className={styles.buttonRow}>
-                <button type="submit" className={`${styles.button} ${styles.dangerButton}`} disabled={!deleteUnderstood || deleteBusy}>{deleteBusy ? "Deleting…" : "Delete my account"}</button>
+                <button type="submit" className={`${styles.button} ${styles.dangerButton}`} disabled={!deleteUnderstood || deleteBusy}>{deleteBusy ? "Deleting" : "Delete my account"}</button>
                 <button type="button" className={styles.button} disabled={deleteBusy} onClick={() => { setDeleteOpen(false); setDeletePassword(""); setDeleteUnderstood(false); setDeleteError(null); }}>Cancel</button>
               </div>
             </form>

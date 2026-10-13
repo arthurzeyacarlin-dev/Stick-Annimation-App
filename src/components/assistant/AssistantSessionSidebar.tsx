@@ -36,7 +36,7 @@ export function AssistantSessionSidebar({ chats, mark }: { chats: Chats; mark: R
     <button ref={newRef} className={styles.newChat} type="button" disabled={!chats.ready || chats.storageBlocked || chats.busy || chats.sessions.length >= 50} aria-describedby="assistant-sessions-note" onClick={chats.newChat}><span aria-hidden="true">＋</span> New Chat</button>
     <div className={styles.sessionList} data-full={chats.sessions.length >= 50}>
       <h2>Your chats</h2>
-      {!chats.sessions.length && <p>{chats.ready ? "No chats yet" : "Loading chats…"}</p>}
+      {!chats.sessions.length && <p>{chats.ready ? "No chats yet" : "Loading chats"}</p>}
       <p id="assistant-sessions-note" className={styles.sessionNote}>{chats.sessions.length >= 50 ? "Delete a chat before creating another." : !chats.sessions.length ? "Your chats will appear here after you send a message." : "Saved to your account"}</p>
       <div className={styles.chatCards}>
         {chats.sessions.map(session => <div key={session.id} className={styles.chatCard} data-hover-group data-selected={session.id === chats.selectedId} data-session-id={session.id}>
@@ -56,7 +56,7 @@ export function AssistantSessionSidebar({ chats, mark }: { chats: Chats; mark: R
         {dialog.kind === "rename" && <label>Chat name<input autoFocus value={name} onChange={event => setName(event.target.value)} maxLength={160} /></label>}
         {dialog.kind === "delete" && dialog.target.turns.at(-1)?.status === "pending" && <p>Cancel the active answer and wait for it to stop before deleting this chat.</p>}
         {error && <p className={styles.dialogError} role="alert">{error} Close this dialog to review the current chat.</p>}
-        <div className={styles.dialogActions}><button type="button" autoFocus={dialog.kind === "delete"} onClick={close}>Cancel</button><button type="submit" disabled={saving || (dialog.kind === "delete" && dialog.target.turns.at(-1)?.status === "pending")} className={dialog.kind === "delete" ? styles.dangerButton : ""}>{saving ? "Saving…" : dialog.kind === "rename" ? "Save name" : "Delete chat"}</button></div>
+        <div className={styles.dialogActions}><button type="button" autoFocus={dialog.kind === "delete"} onClick={close}>Cancel</button><button type="submit" disabled={saving || (dialog.kind === "delete" && dialog.target.turns.at(-1)?.status === "pending")} className={dialog.kind === "delete" ? styles.dangerButton : ""}>{saving ? "Saving" : dialog.kind === "rename" ? "Save name" : "Delete chat"}</button></div>
       </form>
     </dialog>}
   </aside>;

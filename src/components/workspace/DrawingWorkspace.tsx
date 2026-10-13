@@ -9864,7 +9864,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       { label: "Delete Layer", onSelect: () => deleteActiveLayer(), disabled: isTimelinePlaying },
     ] },
     { label: "Help", items: [
-      { label: "Ask the Assistant…", onSelect: () => setIsAssistantOpen(true) },
+      { label: "Ask the Assistant", onSelect: () => setIsAssistantOpen(true) },
       { label: "Keyboard Shortcuts", onSelect: () => setIsShortcutsOpen(true) },
     ] },
   ], [addLayer, canRedoHistory, canUndoHistory, copyTimelineFrame, deleteActiveLayer, handleRedo, handleToggleOnion, handleUndo,
@@ -10288,7 +10288,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
               disabled={saveAsDialog.submitting}
               style={{ minWidth: 88, minHeight: 40, borderRadius: 10, border: "1px solid var(--da-selected-border, #3a6aa3)", background: "var(--da-selected-bg, #0f2a52)", color: "#fff", cursor: saveAsDialog.submitting ? "default" : "pointer", fontWeight: 700 }}
             >
-              {saveAsDialog.submitting ? "Saving…" : "Save copy"}
+              {saveAsDialog.submitting ? "Saving" : "Save copy"}
             </button>
           </div>
         </form>

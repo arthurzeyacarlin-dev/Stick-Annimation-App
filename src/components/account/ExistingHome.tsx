@@ -445,7 +445,7 @@ export default function Page() {
                   onClick={(event) => {
                     event.currentTarget.blur();
                     homeFocusRef.current = "new";
-                    setBootstrapMessage("Creating project…");
+                    setBootstrapMessage("Creating project");
                     void bootstrap.open(async () => {
                       if (!ownerId) throw new Error("account_session_required");
                       // SPEC-0020 Phase 3: new projects start at Settings → Frames per second.
@@ -482,7 +482,7 @@ export default function Page() {
                     <div className={homeStyles.poster}>
                       {recentProject.project
                         ? <ProjectPoster key={recentProject.project.snapshot.projectDigest} project={recentProject.project} />
-                        : <span className={homeStyles.posterStatus}>{recentProject.previewFailed ? "Preview unavailable" : "Loading preview…"}</span>}
+                        : <span className={homeStyles.posterStatus}>{recentProject.previewFailed ? "Preview unavailable" : "Loading preview"}</span>}
                     </div>
                     <div className={homeStyles.recentFooter}>
                       <div className={homeStyles.recentTitle}><strong>{recentProject.entry.title}</strong><span>{formatProjectEditedAgo(recentProject.entry.updatedAt)}</span></div>
@@ -499,7 +499,7 @@ export default function Page() {
                       <path d="M29 2 C36 2 38 8 34 13 C32 16 30 18 29 19 C28 18 26 16 24 13 C20 8 22 2 29 2 Z" fill="currentColor" transform="rotate(-135 29 11)" />
                       <polygon points="29,16 27,13 31,13" fill="currentColor" />
                     </svg>
-                    {recentProject.status === "loading" ? <p>Loading your recent project…</p>
+                    {recentProject.status === "loading" ? <p>Loading your recent project</p>
                       : recentProject.status === "failed" ? <><p>Couldn&apos;t load your recent project</p><small>Your projects are still in Open Project.</small></>
                       : <><p>No recent projects edited</p><small>Your next creation starts here.</small></>}
                   </div>

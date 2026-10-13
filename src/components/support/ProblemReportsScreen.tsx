@@ -87,7 +87,7 @@ export function ProblemReportsScreen() {
         </div>
 
         {error && <p role="alert" className={styles.error}>{error}</p>}
-        {reports === null && !error && <p className={styles.muted}>Loading reports…</p>}
+        {reports === null && !error && <p className={styles.muted}>Loading reports</p>}
         {reports && reports.length === 0 && <p className={styles.muted}>{EMPTY[filter]}</p>}
 
         {reports && reports.length > 0 && (

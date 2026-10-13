@@ -28,7 +28,7 @@ export function ManagePlanButton({ returnTo = "/credits", className, children = 
   return (
     <>
       <button type="button" className={className ?? styles.button} disabled={disabled || busy} onClick={() => void open()}>
-        {busy ? "Opening…" : children}
+        {busy ? "Opening" : children}
       </button>
       {error && <p role="alert" className={styles.error}>{error}</p>}
     </>

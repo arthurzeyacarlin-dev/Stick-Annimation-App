@@ -33,7 +33,7 @@ export function PlansScreen() {
       const back = takeCheckoutReturn("checkout");
       if (!back) return;
       if (back.result === "canceled" || !back.sessionId) { setNotice("No payment was made."); return; }
-      setNotice("Getting your plan ready…");
+      setNotice("Getting your plan ready");
       postBilling<{ status: { kind: string; label?: string; credits: number } }>("/api/account/billing/complete", { sessionId: back.sessionId })
         .then(({ status: result }) => {
           setNotice(result.kind === "plan" && result.label
@@ -118,7 +118,7 @@ export function PlansScreen() {
               );
             }
             const label = mode === "off" ? "Payments open soon"
-              : busy === id ? "Opening Stripe…"
+              : busy === id ? "Opening Stripe"
               : payingNow ? `Switch to ${plan.label}`
               : `Choose ${plan.label}`;
             return (

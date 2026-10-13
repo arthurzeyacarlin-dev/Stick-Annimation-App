@@ -60,7 +60,7 @@ export function ProjectPoster({ project }: Props) {
         className={styles.posterCanvas}
         aria-label={`Loading preview of ${project.snapshot.project.title}`}
       />
-      <div className={styles.posterStatus}>Loading preview…</div>
+      <div className={styles.posterStatus}>Loading preview</div>
     </>
   );
 }

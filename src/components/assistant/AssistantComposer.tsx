@@ -33,7 +33,7 @@ export function AssistantComposer({ chats }: { chats: ReturnType<typeof useAssis
   return <div className={styles.composerArea}>
     <form className={chatComposerStyles.box} onSubmit={event => { event.preventDefault(); send(); }} aria-label="Message composer">
       <label htmlFor="assistant-message" className={styles.srOnly}>Message the Assistant</label>
-      <textarea ref={input} id="assistant-message" value={chats.draft} onChange={event => chats.setDraft(event.target.value)} onKeyDown={event => { if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); if (!disabled) send(); } }} placeholder="Ask about Diamond Animator…" rows={2} maxLength={12000} aria-describedby="assistant-preview-note" />
+      <textarea ref={input} id="assistant-message" value={chats.draft} onChange={event => chats.setDraft(event.target.value)} onKeyDown={event => { if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); if (!disabled) send(); } }} placeholder="Ask about Diamond Animator" rows={2} maxLength={12000} aria-describedby="assistant-preview-note" />
       <ChatDictationPanel dictation={dictation} onCancel={() => { capture.current?.cancel(); input.current?.focus(); }} onStop={() => void capture.current?.stop()} />
       <ChatToolsRow
         left={<ChatReasoningSelect value={chats.reasoning} options={Object.entries(REASONING).map(([value, label]) => ({ value: value as Reasoning, label }))} disabled={chats.busy || chats.storageBlocked} onChange={(value) => void chats.reasoningChange(value)} />}

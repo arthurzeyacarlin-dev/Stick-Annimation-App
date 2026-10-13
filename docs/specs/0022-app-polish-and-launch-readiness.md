@@ -1,6 +1,6 @@
 # SPEC-0022 — App polish and launch readiness
 
-Status: Phase 1 PASSED 2026-10-13 (`60a0c27`); Phases 2–10 planned. Written by PM4 from Arthur's list. Each phase = short plan → Arthur OK → build in a NEW app copy → test in the real app → Arthur reviews → "pass" → main.
+Status: Phases 1–6 PASSED 2026-10-13; Phase 7 skipped; Phases 8–10 planned. Written by PM4 from Arthur's list. Each phase = short plan → Arthur OK → build in a NEW app copy → test in the real app → Arthur reviews → "pass" → main.
 
 Arthur's rules that apply to every phase: plain words; only buttons/clickable things and charts get boxes; all colors via `var(--da-…)` tokens; logo solid white; hover = blue `#0066FF`, instant; confirmations are in-app boxes (never `window.confirm`); don't touch `src/lib/animator/**`, `src/components/workspace/ai/**`, `app/api/ai-animator/**` (PM2) without PM2's OK; payments stay fake until the last phase.
 
@@ -40,7 +40,7 @@ Redraw: **Select** (a real arrow cursor, not bent), **Lasso** (a real lasso loop
 - Yes starts a tour: arrows and short tip boxes pointing at the main parts (tools, canvas, timeline, layers, right panel, AI Animator); hovering or clicking a part shows what it does. Can be skipped any time.
 - Replaces the old tutorials (Phase 1 removed them).
 
-### Phase 7 — Layers check
+### Phase 7 — Layers check — SKIPPED (rejected by Arthur, 2026-10-13: layers were already passed in SPEC-0020 Phases 4 and 7; only the timeline-overlaps-right-panel item stays on `docs/TODO.md`)
 - Add layer, hide/show (visibility), delete layer: test everything with 2+ layers; fix what is broken. (Related open item: timeline overlapping right-panel tabs with 2+ layers.)
 
 ### Phase 8 — Report a problem

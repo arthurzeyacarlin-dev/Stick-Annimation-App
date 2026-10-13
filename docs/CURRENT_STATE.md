@@ -1,5 +1,9 @@
 # Current State
 
+## D-0198 — PM4: SPEC-0022 Phase 4 published (current)
+
+AI Animator tab in the right panel, connected button groups, shared on/off switch, dark navy right panel. Next: Phase 5 (tool icons: select, lasso, brush + Home, eraser, fill). See DECISIONS D-0198.
+
 ## D-0197 — PM4: SPEC-0022 Phase 3 published (current)
 
 Consistent red/delete buttons, no ellipses, connected right-panel tabs. Next: Phase 4 (AI Animator as its own right-panel tab; needs PM2's OK). See DECISIONS D-0197.

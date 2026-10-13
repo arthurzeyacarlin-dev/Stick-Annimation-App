@@ -1885,6 +1885,12 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0198 — SPEC-0022 Phase 4 passed: AI Animator tab, one control look (PM4)
+
+- Arthur passed 2026-10-13. The AI Animator chat is a fourth tab (Properties / Library / Assets / AI Animator) with the whole right panel; the bottom-right chat is gone. Only placement changed: `src/components/workspace/ai/**` is untouched (PM2). The chat stays mounted (hidden) so its memory survives tab switches.
+- Right panel: dark navy page color (`--da-page`), runs to the window bottom. Choices with 2+ options = one rounded bar like the tab group (selected highlighted); delete stands apart. Yes/no choices = `OnOffSwitch` (`src/components/ui/OnOffSwitch.tsx`), identical to the Settings switch (44×24, blue outline on hover). Rule for new work: 3+ options → connected group; exactly on/off → `OnOffSwitch`.
+- Removed: "Created … in Library" notice. Unselected panel buttons are brighter navy so they don't blend in.
+
 ### D-0197 — SPEC-0022 Phase 3 passed: consistent buttons (PM4)
 
 - Arthur passed 2026-10-13. Every red/delete/warning button = see-through, red text + thin red outline, solid red (`--da-danger-solid`) with white text on hover, one global rule in `app/globals.css` (matches `danger`, `destructive`, `delete`, `discard` class names and the workspace `data-hover="danger"`; icon buttons excluded). No "…" or "..." in button/label text (Arthur: any dot dot dot is removed). Right panel Properties/Library/Assets = one connected group like the dashboard's "Group by". Rule for new work: new red buttons need no special CSS, just a name containing "danger".

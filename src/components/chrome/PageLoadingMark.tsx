@@ -9,10 +9,9 @@ import { DiamondLogo } from "@/src/components/chrome/DiamondLogo";
 export function PageLoadingMark() {
   const [ready, setReady] = useState(false);
   useEffect(() => {
-    let first = 0;
-    let second = 0;
-    first = window.requestAnimationFrame(() => { second = window.requestAnimationFrame(() => setReady(true)); });
-    return () => { window.cancelAnimationFrame(first); window.cancelAnimationFrame(second); };
+    // setTimeout (not requestAnimationFrame) so it also clears in a background or embedded tab.
+    const timer = window.setTimeout(() => setReady(true), 80);
+    return () => window.clearTimeout(timer);
   }, []);
   return (
     <div

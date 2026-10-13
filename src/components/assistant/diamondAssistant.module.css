@@ -267,3 +267,18 @@
 .dictationNotice:empty { display: none; }
 @media (max-width: 460px) { .waveform { order: 3; flex-basis: 100%; height: 26px; } .dictationPanel { gap: 8px; } }
 @media (forced-colors: active) { .waveform span, .recordingDot { background: Highlight; } .dictationControls button { border: 1px solid ButtonText; background: ButtonFace; color: ButtonText; } }
+
+/* SPEC-0022 Phase 9: phones. The chat list is a drawer from the left (like ChatGPT); the chat gets the whole screen. */
+.drawerToggle, .drawerScrim { display: none; }
+@media (max-width: 760px) {
+  .screen { grid-template-columns: 1fr !important; grid-template-rows: minmax(0, 1fr) !important; }
+  .drawerToggle { display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border: 1px solid var(--da-border, #244267); border-radius: 10px; background: transparent; color: var(--da-text, #f6f9ff); font-size: 13px; font-weight: 650; cursor: pointer; }
+  .drawerToggle:hover { background: var(--da-hover, #0066ff); border-color: var(--da-hover, #0066ff); color: #fff; }
+  .sidebar { position: fixed !important; z-index: 80; left: 0; top: 0; bottom: 0; width: min(300px, 86vw); display: flex !important; flex-direction: column; padding: 18px 14px 28px !important; border-right: 1px solid var(--da-line, #163058) !important; border-bottom: 0 !important; overflow-y: auto !important; transform: translateX(-102%); transition: transform 200ms ease; }
+  .screen[data-drawer-open="true"] .sidebar { transform: none; box-shadow: 18px 0 44px rgba(0, 0, 0, .5); }
+  .screen[data-drawer-open="true"] .drawerScrim { display: block; position: fixed; inset: 0; z-index: 70; border: 0; background: rgba(3, 9, 20, .6); }
+  .sessionList { display: block !important; }
+  .chatCards { display: block !important; overflow: visible !important; }
+  .chatCard { flex: none !important; }
+  .sidebarFoot { display: block !important; }
+}

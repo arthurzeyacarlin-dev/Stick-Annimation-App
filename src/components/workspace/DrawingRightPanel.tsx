@@ -78,14 +78,21 @@ export function DrawingRightPanel({
   engineDrawing,
 }: DrawingRightPanelProps) {
   // SPEC-0022 Phase 4: the AI Animator is a fourth tab with the whole panel (it no longer sits in the bottom corner).
-  const [aiTabActive, setAiTabActive] = useState(false);
+  // Phones (≤ 640 px) open on the AI Animator tab: tell it what you want instead of drawing frame by frame.
+  const [aiTabActive, setAiTabActive] = useState(() => typeof window !== "undefined" && window.innerWidth <= 640);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [seenPanelTab, setSeenPanelTab] = useState(rightPanelTab);
   if (seenPanelTab !== rightPanelTab) { setSeenPanelTab(rightPanelTab); setAiTabActive(false); }
 
   return (
+    <>
+    <button type="button" className="da-sheet-toggle" aria-expanded={sheetOpen} onClick={() => setSheetOpen((open) => !open)}>
+      {sheetOpen ? "Close panel" : "Panel"}
+    </button>
     <div
       ref={rightPanelRef}
       className="drawing-right-panel"
+      data-sheet-open={sheetOpen ? "true" : "false"}
       data-workspace-right-panel="true"
       style={{
         width: panelWidth,
@@ -333,5 +340,6 @@ export function DrawingRightPanel({
       />
       </div>
     </div>
+    </>
   );
 }

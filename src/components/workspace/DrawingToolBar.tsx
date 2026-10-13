@@ -17,6 +17,7 @@ export function DrawingToolBar({
   return (
     <div
       data-workspace-tool-bar="true"
+      className="drawing-toolbar"
       style={{
         height: 56,
         width: `calc(100% - ${rightPanelWidth}px)`,

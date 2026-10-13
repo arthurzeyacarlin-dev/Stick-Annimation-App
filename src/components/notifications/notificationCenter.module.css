@@ -90,3 +90,9 @@
 .dots[data-count="3"] .toneDot[data-tone="good"] { grid-column: 2; grid-row: 2; }
 @media (prefers-reduced-motion: reduce) { .dots { transition: none; } }
 @media (forced-colors: active) { .toneDot { background: Highlight; color: HighlightText; border-color: Canvas; } }
+
+@media (max-width: 640px) {
+  /* Phones: notifications drop down from the top, only as tall as they need to be. */
+  .panel { top: 0; bottom: auto; right: 0; left: 0; width: 100vw !important; height: auto !important; max-height: 70dvh; border-left: 0; border-bottom: 1px solid var(--da-line, #163058); border-radius: 0 0 16px 16px; animation: notificationDropIn 200ms ease-out; }
+  @keyframes notificationDropIn { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+}

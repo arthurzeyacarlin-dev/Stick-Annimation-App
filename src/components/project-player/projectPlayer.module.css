@@ -545,3 +545,9 @@
     animation: none !important;
   }
 }
+
+/* SPEC-0022 Phase 9: phones. The viewer fits its video (no tall black box). */
+@media (max-width: 620px) {
+  .viewerDialog { height: auto !important; max-height: calc(100dvh - 16px); align-self: center; }
+  .viewerStage { height: 300px !important; min-height: 220px !important; flex: 0 0 auto !important; }
+}

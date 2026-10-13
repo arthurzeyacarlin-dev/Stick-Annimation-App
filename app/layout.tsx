@@ -9,7 +9,6 @@ import { getServerAccountSession, toAccountPublicUser } from "@/src/lib/account/
 import { cookies } from "next/headers";
 import { AppearanceSync } from "@/src/components/account/AppearanceSync";
 import { APPEARANCE_COOKIE, parseAppearanceCookie } from "@/src/lib/account/appearance";
-import { ComputersOnlyGate } from "@/src/components/chrome/ComputersOnlyGate";
 import { ChunkReloadGuard } from "@/src/components/chrome/ChunkReloadGuard";
 import { PageLoadingMark } from "@/src/components/chrome/PageLoadingMark";
 import { LearnMode } from "@/src/components/learn/LearnMode";
@@ -48,7 +47,6 @@ export default async function RootLayout({
             <ScrollbarActivity />
             <ChunkReloadGuard />
             {children}
-            <ComputersOnlyGate />
             <PageLoadingMark />
             {session && <LearnMode />}
           </NotificationCenterProvider>

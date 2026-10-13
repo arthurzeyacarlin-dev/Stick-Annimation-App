@@ -723,3 +723,21 @@
 @media (max-width: 640px) {
   .card.cardReadOnly { grid-template-columns: minmax(0, 1fr) 66px 66px; }
 }
+
+/* SPEC-0022 Phase 9: phones. A project is a neat card: preview + name/date on top, then Watch / Export / more as one row. */
+@media (max-width: 640px) {
+  .card { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 56px !important; }
+  .cardButton { grid-column: 1 / -1; flex-direction: row !important; align-items: center !important; gap: 14px; padding: 12px !important; min-height: 0 !important; }
+  .posterFrame { width: 96px !important; flex: 0 0 96px !important; }
+  .cardBody { padding: 0 !important; gap: 4px; min-width: 0; }
+  .projectTitle { font-size: 16px; overflow-wrap: anywhere; word-break: normal; }
+  .rowAction { flex-direction: row !important; justify-content: center; gap: 8px; min-height: 46px; border-top: 1px solid var(--library-border); }
+  .rowAction svg { width: 20px !important; height: 20px !important; }
+  .overflowButton { min-height: 46px; border-top: 1px solid var(--library-border); }
+}
+
+@media (max-width: 640px) {
+  .card { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 76px !important; }
+  .overflowButton { min-width: 76px; min-height: 52px; font-size: 26px; padding-left: 6px; }
+  .rowAction { min-height: 52px; }
+}

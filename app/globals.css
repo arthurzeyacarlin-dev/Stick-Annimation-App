@@ -471,3 +471,25 @@ button.da-switch[aria-checked="true"] { background: var(--da-hover, #0066ff) !im
 /* A plain outlined button (used by Settings → Learn mode): blue and white on hover, instantly. */
 .da-plain-button { min-height: 36px; padding: 0 16px; border: 1px solid var(--da-border, #244267); border-radius: 10px; background: transparent; color: var(--da-text, #f6f9ff); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: none; }
 .da-plain-button:hover { background: var(--da-hover, #0066ff); border-color: var(--da-hover, #0066ff); color: #ffffff; }
+
+/* SPEC-0022 Phase 9 (Arthur 2026-10-13): tablets and phones. The right panel becomes a bottom sheet with a Panel button;
+   the tool row takes the whole width and scrolls sideways if it must. Computers (> 900 px) are untouched. */
+.da-sheet-toggle { display: none; }
+@media (max-width: 900px) {
+  .drawing-right-panel {
+    position: fixed !important; inset: auto 0 0 0 !important; width: 100% !important; max-width: none !important; flex: none !important;
+    height: min(62vh, 560px) !important; z-index: 60 !important; transform: translateY(110%); transition: transform 200ms ease;
+    border-top: 1px solid var(--da-line, #163058); border-radius: 16px 16px 0 0; box-shadow: 0 -18px 44px rgba(0, 0, 0, .5);
+  }
+  .drawing-right-panel[data-sheet-open="true"] { transform: none; }
+  .drawing-right-panel-resizer { display: none !important; }
+  .da-sheet-toggle {
+    display: flex; position: fixed; right: 12px; bottom: 72px; z-index: 70; min-height: 40px; align-items: center; padding: 0 16px;
+    border: 1px solid #3a6aa3; border-radius: 12px; background: #1b3358; color: #fff; font: inherit; font-size: 14px; font-weight: 650; cursor: pointer;
+  }
+  .da-sheet-toggle:hover { background: #0066ff; border-color: #0066ff; }
+  .drawing-toolbar { width: 100% !important; overflow-x: auto; grid-template-columns: repeat(8, minmax(46px, 1fr)) !important; }
+}
+@media (max-width: 640px) {
+  .da-sheet-toggle { bottom: 70px; right: 10px; }
+}

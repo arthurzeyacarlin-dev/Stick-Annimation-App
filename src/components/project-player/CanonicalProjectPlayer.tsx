@@ -209,9 +209,12 @@ export const CanonicalProjectPlayer = forwardRef<CanonicalProjectPlayerHandle, P
     setFullscreenError(false);
     try {
       if (document.fullscreenElement) {
+        try { screen.orientation?.unlock?.(); } catch { /* nothing to unlock */ }
         await document.exitFullscreen();
       } else if (stageRef.current?.requestFullscreen) {
         await stageRef.current.requestFullscreen();
+        // Phones: go sideways while full screen so the movie fills the screen (browsers that don't allow it just skip this).
+        try { await (screen.orientation as ScreenOrientation & { lock?: (o: string) => Promise<void> }).lock?.("landscape"); } catch { /* not allowed here */ }
       } else {
         throw new Error("fullscreen_unavailable");
       }

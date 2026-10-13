@@ -127,3 +127,33 @@
 .newProject strong { font-size: 23px; }
 .newProject small { font-size: 11.5px; }
 .plus { width: 38px; height: 38px; font-size: 40px; }
+
+/* SPEC-0022 Phase 9 (Arthur 2026-10-13): phones. Tighter hero, full-width New Project, Open Project and Help side by side. */
+@media (max-width: 700px) {
+  .main { padding: 18px 16px 24px; }
+  .frame { gap: 18px; }
+  .eyebrow { margin-bottom: 12px; }
+  .heading { font-size: 34px; }
+  .description { margin: 12px 0 16px; font-size: 14px; line-height: 1.55; }
+  .main .newProject { width: 100%; min-height: 72px; padding: 12px 16px; }
+  .newProject strong { font-size: 21px; }
+  .recent, .emptyRecent { min-height: 0; }
+  .emptyRecent { padding: 6px 0 2px; }
+  .shortcuts { grid-template-columns: 1fr 1fr; gap: 12px; padding-top: 14px; }
+  .main .shortcut { grid-template-columns: 1fr; justify-items: start; row-gap: 8px; padding: 16px; min-height: 124px; }
+  .main .shortcut > svg { justify-self: start; }
+  .paperIcon, .robotIcon { width: 40px; height: 40px; }
+  .shortcut strong { font-size: 19px; }
+  .shortcut small { font-size: 12px; }
+}
+
+@media (max-width: 700px) {
+  .poster { max-height: 150px; }
+  .poster img, .poster canvas { width: 100%; height: 100%; object-fit: contain; }
+}
+
+@media (max-width: 700px) {
+  .emptyRecent { display: grid; grid-template-columns: 44px minmax(0, 1fr); align-items: center; column-gap: 14px; row-gap: 2px; min-height: 0; padding: 14px 16px; border: 1px solid var(--da-border, #244267); border-radius: 14px; text-align: left; }
+  .emptyRecent > svg { grid-row: 1 / span 2; width: 36px; height: 36px; margin: 0; justify-self: center; }
+  .emptyRecent p, .emptyRecent small { margin: 0; }
+}

@@ -140,3 +140,57 @@
 :global(html[data-theme="light"]) .homeBell [data-notification-trigger] { color: #ffffff !important; }
 :global(html[data-theme="light"]) .homeBell [data-notification-trigger]:hover { color: var(--da-header-hover, #7ab0ff) !important; }
 :global(html[data-theme="light"]) .navLink:hover { color: var(--da-header-hover, #7ab0ff); }
+
+/* SPEC-0022 Phase 9: phones. Two tidy rows: brand (with its tagline) on top; bell, AI Dashboard (with its name), menu and
+   profile grouped together on the right. The menu becomes a full-screen page. */
+@media (max-width: 640px) {
+  .homeBar { flex-wrap: wrap; gap: 8px; min-height: 0; padding: 10px 16px; }
+  .homeActions { width: 100%; justify-content: flex-end; gap: 10px; }
+  .navLink { margin-right: 0; }
+  .menuPanel { width: 100vw !important; }
+}
+
+@media (max-width: 640px) {
+  .homeBrand { align-items: center; gap: 12px; }
+  .homeBrandText { justify-content: center; gap: 3px; }
+  .homeBrandText small { white-space: nowrap; letter-spacing: .04em; }
+  .homeActions { padding-top: 2px; }
+}
+
+/* SPEC-0022 Phase 9 (round 3): the same tidy header on every phone and tablet width (up to 900 px). */
+@media (max-width: 900px) {
+  .homeBar { flex-wrap: wrap !important; gap: 6px 12px !important; min-height: 0 !important; padding: 10px 16px !important; }
+  .homeBrand { align-items: center !important; gap: 12px !important; }
+  .homeBrandText { justify-content: center !important; gap: 2px !important; }
+  .homeBrandText strong { line-height: 1.15 !important; font-size: 18px !important; }
+  .homeBrandText small { display: block !important; line-height: 1.2 !important; white-space: nowrap; }
+  .homeActions { width: 100% !important; justify-content: flex-end !important; gap: 10px !important; }
+  .navLink { margin-right: 0 !important; }
+}
+
+/* SPEC-0022 Phase 9 (round 4, Arthur): phones and tablets. Row 1 = logo, name, slogan. Row 2 = "AI Dashboard" on the left edge,
+   bell · menu · profile grouped together on the right with equal gaps. Nothing floats or overlaps. */
+@media (max-width: 900px) {
+  .homeActions { justify-content: flex-start !important; gap: 8px !important; align-items: center !important; }
+  .navLink { order: -1; margin-right: auto !important; padding: 0 !important; }
+}
+
+/* SPEC-0022 Phase 9 (round 5, Arthur): on every phone and tablet width the four buttons stay together in one group under the
+   brand: AI Dashboard · bell · menu · profile, with equal gaps. They never spread across a wide screen. */
+@media (max-width: 900px) {
+  .homeActions { justify-content: flex-start !important; gap: 12px !important; }
+  .navLink { margin-right: 0 !important; margin-left: 0 !important; }
+}
+
+/* SPEC-0022 Phase 9 (round 6, Arthur): phones and tablets: everything in the header is centered. Row 1: the brand, centered.
+   Row 2: AI Dashboard · bell · menu · profile, evenly spaced, in a block no wider than 400 px so they never drift apart. */
+@media (max-width: 900px) {
+  .homeBar { justify-content: center !important; row-gap: 10px !important; }
+  .homeBrand { flex: 0 0 100% !important; justify-content: center !important; }
+  .homeActions { width: 100% !important; max-width: 400px !important; margin: 0 auto !important; justify-content: space-between !important; }
+}
+
+/* SPEC-0022 Phase 9 (round 7, Arthur): the four buttons are one tight group, centered under the brand (not spread out). */
+@media (max-width: 900px) {
+  .homeActions { justify-content: center !important; gap: 12px !important; max-width: none !important; }
+}

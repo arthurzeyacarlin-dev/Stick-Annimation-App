@@ -34,6 +34,7 @@ type DiamondAssistantScreenProps = {
 export function DiamondAssistantScreen({ onClose }: DiamondAssistantScreenProps = {}) {
   const chats = useAssistantSessions();
   const [composerGeneration, setComposerGeneration] = useState(0);
+  const [drawerOpen, setDrawerOpen] = useState(false); // phones: the chat list is a drawer from the left, like ChatGPT
   const backRef = useRef<HTMLAnchorElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const screenRef = useRef<HTMLDivElement>(null);
@@ -193,9 +194,12 @@ export function DiamondAssistantScreen({ onClose }: DiamondAssistantScreenProps 
       className={styles.screen}
       data-assistant-screen
       data-sidebar-resizing={sidebarResizing ? "true" : "false"}
+      data-drawer-open={drawerOpen ? "true" : "false"}
+      onClickCapture={(event) => { if (drawerOpen && (event.target as HTMLElement).closest("aside button")) window.setTimeout(() => setDrawerOpen(false), 0); }}
       style={{ "--assistant-sidebar-width": `${sidebarWidth}px` } as CSSProperties}
     >
       <AssistantSessionSidebar chats={{ ...chats, newChat: () => { setComposerGeneration(value => value + 1); chats.newChat(); } }} mark={<DiamondLogo />} />
+      <button type="button" className={styles.drawerScrim} aria-label="Close chat list" onClick={() => setDrawerOpen(false)} />
       <div
         className={styles.sidebarResizer}
         role="separator"
@@ -228,6 +232,7 @@ export function DiamondAssistantScreen({ onClose }: DiamondAssistantScreenProps 
               <BackChevron />
             </Link>
           )}
+          <button type="button" className={styles.drawerToggle} onClick={() => setDrawerOpen(true)} aria-label="Show chats">Chats</button>
           {onClose ? null : (
             <span className={styles.headerActions}>
               <NotificationTrigger view="assistant" />

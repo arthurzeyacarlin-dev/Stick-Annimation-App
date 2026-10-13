@@ -46,3 +46,20 @@
 @media (max-width: 760px) { .plans { grid-template-columns: 1fr; } }
 
 .frame > :first-child { margin-bottom: 14px; }
+
+/* SPEC-0022 Phase 9: phones. Compact plan cards (no blank gaps). Monthly / Yearly keeps the same underlined look as the computer. */
+@media (max-width: 640px) {
+  .main { padding: 16px 14px 40px; }
+  .title { font-size: 26px; }
+  .plans { gap: 10px; margin-top: 4px; }
+  .plan { padding: 16px; gap: 6px; }
+  .price { font-size: 22px; }
+  .saving { min-height: 0; }
+}
+
+/* SPEC-0022 (Arthur): Monthly / Yearly uses the same choice bar as everywhere else, on every device:
+   a rounded bar, the selected one a filled block with a blue bar under it. */
+.intervals { gap: 2px; padding: 3px; border: 1px solid var(--da-border, #244267); border-radius: 12px; width: min(100%, 520px); }
+.interval { flex: 1 1 0; padding: 11px 10px; border-radius: 8px; text-align: center; font-size: 14.5px; text-decoration: none; }
+.interval[aria-pressed="true"] { background: var(--da-selected-bg, #0f2a52); color: #fff; text-decoration: none; box-shadow: inset 0 -3px 0 #0066ff; }
+.interval:hover { background: var(--da-hover, #0066ff); color: #fff; }

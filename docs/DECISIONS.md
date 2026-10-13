@@ -1885,6 +1885,12 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0204 — SPEC-0022 Phase 9 Plans screen on phones passed; phones/tablets work is done (PM4)
+
+- Arthur passed 2026-10-13. Plans: compact cards on ≤ 640 px; extra-credit packs three side by side (one column under 340 px); Monthly / Yearly = the shared choice bar (rounded bar, selected = filled block + blue bar) on every device.
+- Phase 9 (phones, tablets, computers) is complete: Build 1 (D-0202), Build 2 (D-0203), Plans (this). Only open item: the canvas is shaped 16:9 by display only on ≤ 900 px; making the saved canvas itself a fixed 16:9 on computers is a separate, protected-engine plan (not started).
+- Next in SPEC-0022: Phase 10 — real payments (last; needs dad, live keys, online phase).
+
 ### D-0203 — SPEC-0022 Phase 9 Build 2 passed: the phone / tablet editor (PM4)
 
 - Arthur passed 2026-10-13. On ≤ 900 px the editor is one column in the same order as the computer: top bar (menus on top of the canvas) → timeline controls (label, FPS, onion skin, layers, Play in even cells) → ruler/frames → canvas → tab bar (Properties · Library · Assets · AI; one always selected, selecting the active one does nothing, NO hide button) → the panel → tool row. No page scroll; the timeline scrolls inside itself; ruler ticks always drawn (≤ 3000 frames); no tooltips on the tool/timeline rows.

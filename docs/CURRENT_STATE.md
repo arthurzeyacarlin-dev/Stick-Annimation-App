@@ -1,5 +1,9 @@
 # Current State
 
+## D-0204 — PM4: SPEC-0022 Phase 9 complete (current)
+
+Plans screen on phones done; phones/tablets/computers all work. Next: Phase 10 (real payments, last) after the online phase. See DECISIONS D-0204.
+
 ## D-0203 — PM4: SPEC-0022 Phase 9 Build 2 published (current)
 
 Phone / tablet editor done (stacked layout, always-on panel, 16:9 canvas, no stray scrolling). Next: Plans screen on phones, then Phase 10 (real payments, last). See DECISIONS D-0203.

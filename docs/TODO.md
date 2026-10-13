@@ -8,7 +8,7 @@
 - [x] **Phase 4** — AI Animator tab + consistent controls. Arthur PASS 2026-10-13.
 - [x] **Phase 5** — tool icons + Pencil rename. Arthur PASS 2026-10-13.
 - [x] **Phase 6** — first-time guided tour (learn mode). Arthur PASS 2026-10-13.
-- [x] **Phase 7** — layers check: SKIPPED by Arthur 2026-10-13 (already passed in SPEC-0020). Open item stays: timeline overlaps right-panel tabs with 2+ layers. **Phase 8** — report a problem delivery (next). **Phase 9** — phones/tablets/computers (needs Arthur's yes). **Phase 10** — real payments (last).
+- [x] **Phase 7** — layers check: SKIPPED by Arthur 2026-10-13 (already passed in SPEC-0020). Open item stays: timeline overlaps right-panel tabs with 2+ layers. **Phase 8** — report a problem: PASSED 2026-10-13 (email delivery waits for the online phase; optional Delete button not built). **Phase 9** — phones/tablets/computers (needs Arthur's yes). **Phase 10** — real payments (last).
 
 ## PM3 queue — app and website (D-0192, 2026-10-11)
 

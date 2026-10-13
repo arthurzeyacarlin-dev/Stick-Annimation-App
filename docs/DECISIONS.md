@@ -1885,6 +1885,12 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0201 — SPEC-0022 Phase 8 passed: Report a Problem checked end to end (PM4)
+
+- Arthur passed 2026-10-13. A report sent from the menu reaches `/reports` (list with New / Done / All, Mark done) — verified in the app copy. The page has no menu link; it is opened by address.
+- Local-development-only change: `isOwnerEmail` (`src/lib/account/owner.ts`) returns true for any signed-in account when `NODE_ENV === "development"` and the default owner list is used, so Arthur can read reports from his test account (`hkhgj@gmail.com`). Real builds still allow only `OWNER_EMAILS` (`arthurzeyacarlin@gmail.com`). Reports are per app copy / per account store.
+- Not done: email to Arthur (needs the online phase + Resend); a Delete button for reports (offered, Arthur did not ask). Arthur typed passwords into test reports — he was told to change them.
+
 ### D-0200 — SPEC-0022 Phase 6 passed: one-time guided setup / learn mode (PM4)
 
 - Arthur passed 2026-10-13. First time on Home: a welcome card (Guided setup · X · Don't show again); any choice closes it for good (stored per account in this browser, `da-learn-v1:<userId>`). Guided setup = 6 steps, Home only: New Project, Open Project, Help, AI Dashboard, Notifications + Menu, Export. Each step: blue glowing outline + a card with a pointer (appears by itself, no hover needed); nothing is clickable; slim top progress bar = one bar cut into pieces that fill blue left to right on Next; Stop asks to confirm. Settings → Learn mode restarts it. Code: `src/components/learn/LearnMode.tsx` (mounted in `app/layout.tsx`).

@@ -1,5 +1,9 @@
 # Current State
 
+## D-0201 — PM4: SPEC-0022 Phase 8 published (current)
+
+Problem reports verified end to end; dev-only owner relaxation so the test account can open `/reports`. Next: Phase 9 (phones/tablets — needs Arthur's yes) or Phase 10 (real payments, last). See DECISIONS D-0201.
+
 ## D-0200 — PM4: SPEC-0022 Phase 6 published (current)
 
 One-time learn mode (welcome card + 6 Home steps), restartable in Settings. Next: Phase 7 (layers check). See DECISIONS D-0200.

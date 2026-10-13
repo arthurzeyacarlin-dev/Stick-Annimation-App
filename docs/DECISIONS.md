@@ -1885,6 +1885,12 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0202 — SPEC-0022 Phase 9 Build 1 passed: phones and tablets (PM4)
+
+- Arthur said yes to phones/tablets 2026-10-13 (his dad's idea: on a phone people tell the AI Animator what they want instead of drawing frame by frame). Reverses "computers only"; `ComputersOnlyGate` is no longer mounted. Computer layout (> 900 px) is untouched.
+- Build 1 (passed): header on ≤ 900 px = brand centered on row 1, AI Dashboard · bell · menu · profile as one tight centered group on row 2 (`appChrome.module.css`); menu = full-screen page on phones; notifications drop down from the top on phones; Home tiles side by side + proper empty-recent card; Open Project cards (preview + name, then Watch / Export / ⋯ row); Watch viewer compact, Fullscreen asks for landscape; Help chat list is a left drawer; editor right panel = bottom sheet with a Panel button (placeholder, replaced in Build 2).
+- Open: Build 2 = phone editor (top bar, tool bar with More, one-row timeline, bottom tab bar); Plans screen on phones; tablet editor polish. Preview note: in the Claude browser pane `vh`/`vw` units are unreliable; check phone layouts in Chrome at localhost:58680.
+
 ### D-0201 — SPEC-0022 Phase 8 passed: Report a Problem checked end to end (PM4)
 
 - Arthur passed 2026-10-13. A report sent from the menu reaches `/reports` (list with New / Done / All, Mark done) — verified in the app copy. The page has no menu link; it is opened by address.

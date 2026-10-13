@@ -1,5 +1,9 @@
 # Current State
 
+## D-0202 — PM4: SPEC-0022 Phase 9 Build 1 published (current)
+
+Phones and tablets: computers-only gate removed, tidy header/menus/Home/Open Project/Watch/Help. Next: Build 2 (phone editor), then the Plans screen. See DECISIONS D-0202.
+
 ## D-0201 — PM4: SPEC-0022 Phase 8 published (current)
 
 Problem reports verified end to end; dev-only owner relaxation so the test account can open `/reports`. Next: Phase 9 (phones/tablets — needs Arthur's yes) or Phase 10 (real payments, last). See DECISIONS D-0201.

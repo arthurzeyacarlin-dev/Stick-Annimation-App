@@ -1885,6 +1885,14 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0203 — SPEC-0022 Phase 9 Build 2 passed: the phone / tablet editor (PM4)
+
+- Arthur passed 2026-10-13. On ≤ 900 px the editor is one column in the same order as the computer: top bar (menus on top of the canvas) → timeline controls (label, FPS, onion skin, layers, Play in even cells) → ruler/frames → canvas → tab bar (Properties · Library · Assets · AI; one always selected, selecting the active one does nothing, NO hide button) → the panel → tool row. No page scroll; the timeline scrolls inside itself; ruler ticks always drawn (≤ 3000 frames); no tooltips on the tool/timeline rows.
+- The canvas area is shaped 16:9 and fitted (`container-type: size`, `min(100cqw, 100cqh * 16/9)`), display only — saving/export code untouched. Computer layout > 900 px untouched.
+- Choice groups everywhere use one selected look: filled block + blue bar under it. Phones' tool row keeps all 8 tools (no More menu needed).
+- Preview note: in the Claude browser pane `vh`/`dvh` and CSS transitions are unreliable; verify phone layouts in Chrome at localhost:58680 (F12 → device mode).
+- Still open: Plans screen on phones (everything stacked), tablet polish, AI Animator panel shows more on real devices (heights use dvh).
+
 ### D-0202 — SPEC-0022 Phase 9 Build 1 passed: phones and tablets (PM4)
 
 - Arthur said yes to phones/tablets 2026-10-13 (his dad's idea: on a phone people tell the AI Animator what they want instead of drawing frame by frame). Reverses "computers only"; `ComputersOnlyGate` is no longer mounted. Computer layout (> 900 px) is untouched.

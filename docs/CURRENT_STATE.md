@@ -1,5 +1,9 @@
 # Current State
 
+## D-0203 — PM4: SPEC-0022 Phase 9 Build 2 published (current)
+
+Phone / tablet editor done (stacked layout, always-on panel, 16:9 canvas, no stray scrolling). Next: Plans screen on phones, then Phase 10 (real payments, last). See DECISIONS D-0203.
+
 ## D-0202 — PM4: SPEC-0022 Phase 9 Build 1 published (current)
 
 Phones and tablets: computers-only gate removed, tidy header/menus/Home/Open Project/Watch/Help. Next: Build 2 (phone editor), then the Plans screen. See DECISIONS D-0202.

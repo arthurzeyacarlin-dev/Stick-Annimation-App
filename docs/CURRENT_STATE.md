@@ -1,5 +1,12 @@
 # Current State
 
+## D-0195 — PM4: SPEC-0022 Phase 1 published; website live with the app's plans (current, PM4 — app and website)
+
+- Arthur passed SPEC-0022 Phase 1 on 2026-10-13 (`60a0c27`, merged to main). Website is live with the new plans/story/AI Animator page (`diamond-website` `0195976`).
+- **Phase 1:** Help → assistant directly (Tutorials gone); AI dashboard has no Back button and no TEST CONTROLS (`/dev/plan` still exists for developers); Settings has no Appearance (always Dark + blue; `AppearanceSync` forces it); Export animation sits next to its text on Home; startup "checking" screen = dark navy + big centered white logo; notification panel = 320 px right slide-out with the same overlay (behind the header, fade in/out) as the menu.
+- **Next:** SPEC-0022 Phase 2 (AI dashboard bars that really work per plan). Then Phases 3–10 in `docs/specs/0022-app-polish-and-launch-readiness.md`.
+- **Pending Arthur's yes:** phones/tablets (Phase 9), PM2's OK for the AI Animator tab (Phase 4).
+
 ## D-0194 — PM3: SPEC-0020 Phase 9 (plans that work, fake payments) published; next = the website (current, PM3 — app and website)
 
 Arthur passed Phase 9 on 2026-10-12 (D-0194). Product commit `7730e7d` is on main and GitHub.

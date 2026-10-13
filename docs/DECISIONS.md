@@ -1885,6 +1885,12 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0195 — Website live with the app's plans; SPEC-0022 Phase 1 passed (PM4)
+
+- Website (`diamond-website` `0195976`, pushed 2026-10-13): plans renamed Basic / Pro / Creator with 180 / 420 / 750 credits, 75-credit trial, per-plan packs, per-action credit wording, no draft/lawyer notes or placeholders (Arthur, 2026-10-13: nobody will see "draft"), Compare page removed, new AI Animator page, Arthur's real story. Dad approved names, packs and margins (58–62% plans, 52–57% packs at worst-case AI cost; ~65–70% typical at scale).
+- Arthur's list became `docs/specs/0022-app-polish-and-launch-readiness.md` (10 phases). Phase 1 passed 2026-10-13: tutorials removed (Help opens the assistant), dashboard Back button + TEST CONTROLS removed, Appearance removed (app always Dark + Diamond blue), Export next to its text, logo startup screen, notifications slide-out same size and overlay as the menu.
+- Open for later: Arthur wants phones/tablets to work (reverses "computers-only"; Phase 9, needs his yes); the guided first-time tour returns in Phase 6.
+
 ### D-0194 — SPEC-0020 Phase 9 passed: plans that work with fake payments (PM3)
 
 - Date: 2026-10-12. Commit `7730e7d`.

@@ -1,5 +1,15 @@
 # TODO
 
+## PM4 queue — SPEC-0022 (app polish and launch readiness, 2026-10-13)
+
+- [x] **Phase 1** — quick clean-ups. Arthur PASS 2026-10-13; `60a0c27`.
+- [ ] **Phase 2** — AI dashboard bars work per plan (red line, packs lower the bar, no "inaccurate").
+- [ ] **Phase 3** — one look for buttons (danger, hover, grouped).
+- [ ] **Phase 4** — AI Animator as its own right-panel tab (needs PM2's OK).
+- [ ] **Phase 5** — tool icons (select, lasso, brush + Home, eraser, fill).
+- [ ] **Phase 6** — first-time guided tour.
+- [ ] **Phase 7** — layers check. **Phase 8** — report a problem delivery. **Phase 9** — phones/tablets/computers (needs Arthur's yes). **Phase 10** — real payments (last).
+
 ## PM3 queue — app and website (D-0192, 2026-10-11)
 
 - [x] **SPEC-0020 Phase 1** — account and profile. Arthur PASS 2026-10-11; published in `0527663`.

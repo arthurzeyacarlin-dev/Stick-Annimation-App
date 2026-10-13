@@ -6,7 +6,7 @@
 - [x] **Phase 2** — AI dashboard bar + chart from one credit list, per plan. Arthur PASS 2026-10-13.
 - [x] **Phase 3** — one look for buttons. Arthur PASS 2026-10-13.
 - [x] **Phase 4** — AI Animator tab + consistent controls. Arthur PASS 2026-10-13.
-- [ ] **Phase 5** — tool icons (select, lasso, brush + Home, eraser, fill).
+- [x] **Phase 5** — tool icons + Pencil rename. Arthur PASS 2026-10-13.
 - [ ] **Phase 6** — first-time guided tour.
 - [ ] **Phase 7** — layers check. **Phase 8** — report a problem delivery. **Phase 9** — phones/tablets/computers (needs Arthur's yes). **Phase 10** — real payments (last).
 

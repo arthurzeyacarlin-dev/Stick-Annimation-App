@@ -1885,6 +1885,12 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0199 — SPEC-0022 Phase 5 passed: tool icons, Brush → Pencil (PM4)
+
+- Arthur passed 2026-10-13. One icon set in `src/components/ui/ToolIcons.tsx` (24 grid, line style, currentColor): arrow (Select), lasso, pencil, eraser, fill drop, text T. Used by the toolbar and the Home empty-project card.
+- The Brush tool is now called **Pencil** on screen (toolbar tooltip, "Tool: Pencil", "Pencil Tools"). Internal ids unchanged (`"Brush"`). In the variant menu the old "Pencil" variant shows as "Graphite" (so two items aren't both "Pencil"); Pixelate, Sketch, Glow unchanged.
+- Fill is a single solid drop (a bucket never read clearly; Arthur picked the simpler symbol).
+
 ### D-0198 — SPEC-0022 Phase 4 passed: AI Animator tab, one control look (PM4)
 
 - Arthur passed 2026-10-13. The AI Animator chat is a fourth tab (Properties / Library / Assets / AI Animator) with the whole right panel; the bottom-right chat is gone. Only placement changed: `src/components/workspace/ai/**` is untouched (PM2). The chat stays mounted (hidden) so its memory survives tab switches.

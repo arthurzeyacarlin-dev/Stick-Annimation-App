@@ -1,5 +1,9 @@
 # Current State
 
+## D-0199 — PM4: SPEC-0022 Phase 5 published (current)
+
+New tool icons; Brush renamed Pencil (variant "Pencil" shown as "Graphite"). Next: Phase 6 (first-time guided tour) or Phase 7 (layers check). See DECISIONS D-0199.
+
 ## D-0198 — PM4: SPEC-0022 Phase 4 published (current)
 
 AI Animator tab in the right panel, connected button groups, shared on/off switch, dark navy right panel. Next: Phase 5 (tool icons: select, lasso, brush + Home, eraser, fill). See DECISIONS D-0198.

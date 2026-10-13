@@ -8,7 +8,7 @@ class TestImageData {
 }
 (globalThis as unknown as { ImageData: typeof TestImageData }).ImageData = TestImageData;
 
-const { compactRaster, compactRasterFromCrop, expandRaster, getRasterReferenceSize, compactOrigin } = await import("./compactRasterBitmap.ts");
+const { captureRasterReferencePatch, compactRaster, compactRasterFromCrop, expandRaster, getRasterReferenceSize, compactOrigin, mergeRasterReferencePatch } = await import("./compactRasterBitmap.ts");
 const { bitmapCenterOffset } = await import("./unifiedStageGeometry.ts");
 
 const paint = (image: { width: number; data: Uint8ClampedArray }, x: number, y: number, value: number) => {
@@ -60,4 +60,19 @@ test("an empty picture becomes a tiny one that still remembers its full size", (
   const compact = compactRaster(new ImageData(500, 400) as ImageData);
   assert.ok(compact.width <= 2 && compact.height <= 2);
   assert.deepEqual(getRasterReferenceSize(compact), { width: 500, height: 400 });
+});
+
+test("a small patch edits an old large reference without expanding it", () => {
+  const full = new ImageData(1200, 800);
+  paint(full, 600, 400, 20);
+  const compact = compactRaster(full as ImageData);
+  const patch = new ImageData(32, 32);
+  paint(patch, 4, 5, 90);
+  const merged = mergeRasterReferencePatch(compact, patch, { left: 700, top: 440, width: 32, height: 32 }, { width: 1200, height: 800 });
+  assert.deepEqual(getRasterReferenceSize(merged), { width: 1200, height: 800 });
+  assert.ok(merged.width < 1200 && merged.height < 800, "the old full canvas was not allocated");
+  const first = captureRasterReferencePatch(merged, { left: 600, top: 400, width: 1, height: 1 }, { width: 1200, height: 800 });
+  const second = captureRasterReferencePatch(merged, { left: 704, top: 445, width: 1, height: 1 }, { width: 1200, height: 800 });
+  assert.equal(first.data[0], 20);
+  assert.equal(second.data[0], 90);
 });

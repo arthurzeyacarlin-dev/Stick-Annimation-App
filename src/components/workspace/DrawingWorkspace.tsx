@@ -7,7 +7,8 @@ import { DiamondAssistantScreen } from "@/src/components/assistant/DiamondAssist
 import { CloseButton } from "@/src/components/ui/CloseButton";
 import { bitmapCenterOffset } from "@/src/lib/animation/unifiedStageGeometry";
 import { buildScene as buildAnimatorScene, type Scene as AnimatorScene } from "@/src/lib/animator/engine";
-import { compactOrigin, copyRasterReferenceSize, getRasterReferenceSize, resolveRasterReferenceSize } from "@/src/lib/animation/compactRasterBitmap";
+import { captureRasterReferencePatch, compactOrigin, copyRasterReferenceSize, getRasterReferenceSize, mergeRasterReferencePatch, resolveRasterReferenceSize } from "@/src/lib/animation/compactRasterBitmap";
+import { renderRasterBitmapsToAuthoringSurface } from "@/src/lib/animation/authoringSurfaceViewport";
 import { openedHiddenLayerIdsV1, savedHiddenLayerIdsV1 } from "@/src/lib/animation/editorHiddenLayersV1";
 import { rasterizeFrames as rasterizeAnimatorFrames, rasterizeShapeFrames as rasterizeAnimatorShapeFrames, sceneEffectLayers as animatorSceneEffectLayers } from "@/src/lib/animator/toFrames";
 import { centerAnimation, effectFitBounds, visibleStageWidth, type SceneForPage } from "@/src/lib/animator/stageFit";
@@ -469,6 +470,7 @@ type LocalDrawingHistoryStack = {
   entries: LocalDrawingHistoryEntry[];
   position: number;
   blocksGlobalTraversal: boolean;
+  globalHistoryIndex: number;
 };
 
 type CopiedTimelineFrame = {
@@ -804,26 +806,16 @@ const applyBitmapPatch = (
 const captureBitmapPatch = (
   sourceBitmap: ImageData | null,
   rect: { left: number; top: number; width: number; height: number },
+  reference?: { width: number; height: number },
 ): ImageData => {
   const expectedLength = getExpectedBitmapDataLength(rect.width, rect.height);
   if (expectedLength === null) {
     return new ImageData(1, 1);
   }
 
-  const patch = new Uint8ClampedArray(expectedLength);
   const usableSourceBitmap = getUsableBitmap(sourceBitmap);
-  if (usableSourceBitmap) {
-    const rowWidth = rect.width * 4;
-    for (let row = 0; row < rect.height; row += 1) {
-      const sourceStart = ((rect.top + row) * usableSourceBitmap.width + rect.left) * 4;
-      const targetStart = row * rowWidth;
-      patch.set(usableSourceBitmap.data.subarray(sourceStart, sourceStart + rowWidth), targetStart);
-    }
-  }
-
-  return attachBitmapPaintCoverage(new ImageData(patch, rect.width, rect.height), cropPaintCoverage(
-    getBitmapPaintCoverage(usableSourceBitmap), rect.left, rect.top, rect.width, rect.height,
-  ));
+  if (!usableSourceBitmap) return new ImageData(rect.width, rect.height);
+  return captureRasterReferencePatch(usableSourceBitmap, rect, reference ?? resolveRasterReferenceSize(usableSourceBitmap));
 };
 
 const snapshotBitmapMatches = (
@@ -831,23 +823,19 @@ const snapshotBitmapMatches = (
   snapshot?: TimelineFrameSnapshot | DrawingCanvasSnapshot | WorkspaceTimelineFrame | null,
 ) => {
   if (hasSnapshotDirtyPatch(snapshot)) {
-    if (
-      currentBitmap &&
-      (currentBitmap.width !== snapshot.bitmapWidth || currentBitmap.height !== snapshot.bitmapHeight)
-    ) {
-      return false;
-    }
-
     const { dirtyPatchBitmap, dirtyPatchRect } = snapshot;
+    const currentPatch = captureRasterReferencePatch(
+      currentBitmap,
+      dirtyPatchRect,
+      { width: snapshot.bitmapWidth, height: snapshot.bitmapHeight },
+    );
     const rowWidth = dirtyPatchRect.width * 4;
     for (let row = 0; row < dirtyPatchRect.height; row += 1) {
       const sourceStart = row * rowWidth;
-      const targetStart = currentBitmap
-        ? ((dirtyPatchRect.top + row) * currentBitmap.width + dirtyPatchRect.left) * 4
-        : -1;
+      const targetStart = row * rowWidth;
 
       for (let index = 0; index < rowWidth; index += 1) {
-        const currentValue = targetStart >= 0 ? currentBitmap!.data[targetStart + index] : 0;
+        const currentValue = currentPatch.data[targetStart + index];
         if (currentValue !== dirtyPatchBitmap.data[sourceStart + index]) {
           return false;
         }
@@ -855,7 +843,7 @@ const snapshotBitmapMatches = (
     }
 
     return paintCoveragesEqual(
-      cropPaintCoverage(getBitmapPaintCoverage(currentBitmap), dirtyPatchRect.left, dirtyPatchRect.top, dirtyPatchRect.width, dirtyPatchRect.height),
+      getBitmapPaintCoverage(currentPatch),
       getBitmapPaintCoverage(dirtyPatchBitmap),
     );
   }
@@ -873,42 +861,25 @@ const materializeSnapshotBitmap = (
     if (!usableDirtyPatchBitmap || getExpectedBitmapDataLength(snapshot.bitmapWidth, snapshot.bitmapHeight) === null) {
       throw new Error("invalid_snapshot_patch");
     }
-    if (currentBitmap && (!isBitmapDataShapeValid(currentBitmap) || currentBitmap.width !== snapshot.bitmapWidth || currentBitmap.height !== snapshot.bitmapHeight)) {
+    if (currentBitmap && !isBitmapDataShapeValid(currentBitmap)) {
       throw new Error("snapshot_base_dimensions_changed");
     }
-
-    const patchCoversWholeBitmap =
-      snapshot.dirtyPatchRect.left === 0 &&
-      snapshot.dirtyPatchRect.top === 0 &&
-      snapshot.dirtyPatchRect.width === snapshot.bitmapWidth &&
-      snapshot.dirtyPatchRect.height === snapshot.bitmapHeight;
-    if (patchCoversWholeBitmap) {
-      return usableDirtyPatchBitmap;
+    if (
+      options?.mutateCurrentBitmap &&
+      currentBitmap &&
+      !getRasterReferenceSize(currentBitmap) &&
+      currentBitmap.width === snapshot.bitmapWidth &&
+      currentBitmap.height === snapshot.bitmapHeight
+    ) {
+      applyBitmapPatch(currentBitmap, usableDirtyPatchBitmap, snapshot.dirtyPatchRect);
+      return currentBitmap;
     }
-
-    let targetBitmap: ImageData;
-    const usableCurrentBitmap =
-      getUsableBitmap(currentBitmap) &&
-      currentBitmap!.width === snapshot.bitmapWidth &&
-      currentBitmap!.height === snapshot.bitmapHeight
-        ? currentBitmap
-        : null;
-    if (usableCurrentBitmap) {
-      targetBitmap = options?.mutateCurrentBitmap ? usableCurrentBitmap : cloneBitmap(usableCurrentBitmap)!;
-    } else {
-      const blankBitmap = createImageDataSafely(
-        new Uint8ClampedArray(snapshot.bitmapWidth * snapshot.bitmapHeight * 4),
-        snapshot.bitmapWidth,
-        snapshot.bitmapHeight,
-      );
-      if (!blankBitmap) {
-        throw new Error("snapshot_allocation_failed");
-      }
-      targetBitmap = blankBitmap;
-    }
-
-    applyBitmapPatch(targetBitmap, usableDirtyPatchBitmap, snapshot.dirtyPatchRect);
-    return targetBitmap;
+    return mergeRasterReferencePatch(
+      currentBitmap,
+      usableDirtyPatchBitmap,
+      snapshot.dirtyPatchRect,
+      { width: snapshot.bitmapWidth, height: snapshot.bitmapHeight },
+    );
   }
 
   return getUsableBitmap(snapshot?.bitmap ?? null);
@@ -916,31 +887,33 @@ const materializeSnapshotBitmap = (
 
 /** A smaller view is never authority to crop the stored authoring extent. */
 const normalizeCapturedSnapshotExtent = (snapshot: DrawingCanvasSnapshot, current: ImageData | null): DrawingCanvasSnapshot => {
+  if (snapshot.replaceBitmap) return snapshot;
   if (!current) return snapshot;
   const dirty = hasSnapshotDirtyPatch(snapshot);
-  const viewWidth = dirty ? snapshot.bitmapWidth : snapshot.bitmap?.width;
-  const viewHeight = dirty ? snapshot.bitmapHeight : snapshot.bitmap?.height;
+  const snapshotBitmap = snapshot.bitmap;
+  const snapshotReference = snapshotBitmap ? resolveRasterReferenceSize(snapshotBitmap) : null;
+  const viewWidth = dirty ? snapshot.bitmapWidth : snapshotReference?.width;
+  const viewHeight = dirty ? snapshot.bitmapHeight : snapshotReference?.height;
   if (!viewWidth || !viewHeight) throw new Error("missing_snapshot_extent");
-  if (viewWidth === current.width && viewHeight === current.height) return snapshot;
   // A compact frame stands for its full reference size; keep that size so export framing never changes.
   const reference = resolveRasterReferenceSize(current);
   const width = Math.max(viewWidth, reference.width), height = Math.max(viewHeight, reference.height);
   if (getExpectedBitmapDataLength(width, height) === null) throw new Error("snapshot_extent_limit");
-  const patch = dirty ? snapshot.dirtyPatchBitmap : snapshot.bitmap!;
+  if (dirty && viewWidth === width && viewHeight === height) return snapshot;
+  const patch = dirty ? snapshot.dirtyPatchBitmap : snapshotBitmap!;
   const rect = {
     left: bitmapCenterOffset(width, viewWidth) + (dirty ? snapshot.dirtyPatchRect.left : 0),
     top: bitmapCenterOffset(height, viewHeight) + (dirty ? snapshot.dirtyPatchRect.top : 0),
     width: patch.width, height: patch.height,
   };
-  if (width === current.width && height === current.height) return {
-    ...snapshot, bitmap: null, dirtyPatchBitmap: patch, dirtyPatchRect: rect, bitmapWidth: width, bitmapHeight: height,
+  return {
+    ...snapshot,
+    bitmap: null,
+    dirtyPatchBitmap: patch,
+    dirtyPatchRect: rect,
+    bitmapWidth: width,
+    bitmapHeight: height,
   };
-  const expanded = new ImageData(width, height);
-  const left = bitmapCenterOffset(width, current.width), top = bitmapCenterOffset(height, current.height);
-  for (let y = 0; y < current.height; y++) expanded.data.set(current.data.subarray(y * current.width * 4, (y + 1) * current.width * 4), ((top + y) * width + left) * 4);
-  attachBitmapPaintCoverage(expanded, cropPaintCoverage(getBitmapPaintCoverage(current), -left, -top, width, height));
-  applyBitmapPatch(expanded, patch, rect);
-  return { bitmap: expanded, previewUrl: snapshot.previewUrl, captureVersion: snapshot.captureVersion, identity: snapshot.identity };
 };
 
 const adoptSnapshot = (
@@ -1318,7 +1291,10 @@ const createLocalDrawingHistoryEntry = ({
       bitmapWidth: snapshot.bitmapWidth,
       bitmapHeight: snapshot.bitmapHeight,
       patchRect: { ...snapshot.dirtyPatchRect },
-      beforePatchBitmap: beforePatchBitmapOverride ?? captureBitmapPatch(currentBitmap, snapshot.dirtyPatchRect),
+      beforePatchBitmap: beforePatchBitmapOverride ?? captureBitmapPatch(currentBitmap, snapshot.dirtyPatchRect, {
+        width: snapshot.bitmapWidth,
+        height: snapshot.bitmapHeight,
+      }),
       afterPatchBitmap: cloneBitmap(snapshot.dirtyPatchBitmap)!,
       beforeBitmapNull: currentBitmap === null,
       afterBitmapNull: nextBitmap === null,
@@ -3959,6 +3935,17 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       };
     }
 
+    // Local drawing steps belong immediately after one global/timeline step.
+    // Keep them dormant while Undo is visiting older global steps, then make
+    // them available again when Redo returns to their anchor.
+    if (stack.globalHistoryIndex !== currentHistoryIndexRef.current) {
+      return {
+        canUndo: false,
+        canRedo: false,
+        blocksGlobalTraversal: false,
+      };
+    }
+
     const currentLayer = getLayerById(layersRef.current, context.layerId) ?? null;
     const hasEntryTarget = (entry: LocalDrawingHistoryEntry | null | undefined) =>
       Boolean(entry && currentLayer && findTimelineFrameIndexById(currentLayer.timelineFrames, entry.targetFrameId) >= 0);
@@ -4578,6 +4565,10 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
   }, []);
 
   const renderBitmapsToTargetCanvas = useCallback((canvas: HTMLCanvasElement | null, bitmaps: ReadonlyArray<ImageData | null>) => {
+    if (canvas && canvas.dataset.authoringSurface === "true") {
+      renderRasterBitmapsToAuthoringSurface(canvas, bitmaps);
+      return;
+    }
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
 
@@ -4906,6 +4897,14 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     ],
   );
 
+  const handleAuthoringSurfaceViewportChange = useCallback(() => {
+    if (isTimelinePlayingRef.current) return;
+    renderWorkspaceCanvases(layersRef.current, currentFrameIndexRef.current, {
+      activeLayerId: activeLayerIdRef.current,
+      debugCaller: "authoring-surface-viewport",
+    });
+  }, [renderWorkspaceCanvases]);
+
   const restorePrePlaybackEditState = useCallback(() => {
     const returnState = playbackReturnStateRef.current;
     invalidatePlaybackSurfaceMetrics();
@@ -5120,7 +5119,6 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
 
       resizeCommitSessionRef.current = null;
       frozenTweenPlaybackCacheRef.current = new Map();
-      clearLocalDrawingHistory();
       suppressNextWorkspaceAutosaveRef.current = true;
       drawingCanvasRef.current?.clearTransientEditingState();
       isTimelinePlayingRef.current = false;
@@ -5170,7 +5168,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         window.requestAnimationFrame(() => { suppressNextWorkspaceAutosaveRef.current = false; });
       }
     },
-    [clearLocalDrawingHistory, renderWorkspaceCanvases, stopTimelinePlaybackAudio, syncHistoryAvailability, updateHistoryWorkspaceStamp],
+    [renderWorkspaceCanvases, stopTimelinePlaybackAudio, syncHistoryAvailability, updateHistoryWorkspaceStamp],
   );
 
   const replaceLayerFrames = useCallback((
@@ -5210,16 +5208,24 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     entry: LocalDrawingHistoryEntry,
     options?: { resetStack?: boolean },
   ) => {
-    const existingStack = options?.resetStack
+    const globalHistoryIndex = currentHistoryIndexRef.current;
+    if (globalHistoryIndex >= 0 && globalHistoryIndex < historyEntriesRef.current.length - 1) {
+      historyEntriesRef.current = historyEntriesRef.current.slice(0, globalHistoryIndex + 1);
+      historyWorkspaceStampRef.current = null;
+    }
+    const storedStack = localDrawingHistoryRef.current.get(entry.contextKey) ?? null;
+    const existingStack = options?.resetStack || storedStack?.globalHistoryIndex !== globalHistoryIndex
       ? {
           entries: [],
           position: -1,
           blocksGlobalTraversal: false,
+          globalHistoryIndex,
         }
-      : localDrawingHistoryRef.current.get(entry.contextKey) ?? {
+      : storedStack ?? {
           entries: [],
           position: -1,
           blocksGlobalTraversal: false,
+          globalHistoryIndex,
         };
     const nextEntries = existingStack.entries.slice(0, existingStack.position + 1);
     nextEntries.push(entry);
@@ -5227,6 +5233,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       entries: nextEntries,
       position: nextEntries.length - 1,
       blocksGlobalTraversal: existingStack.blocksGlobalTraversal,
+      globalHistoryIndex: existingStack.globalHistoryIndex,
     });
     syncHistoryAvailability();
   }, [syncHistoryAvailability]);
@@ -5363,7 +5370,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       }
 
       const stack = localDrawingHistoryRef.current.get(context.key) ?? null;
-      if (!stack) {
+      if (!stack || stack.globalHistoryIndex !== currentHistoryIndexRef.current) {
         return false;
       }
 
@@ -6329,7 +6336,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       snapshot.dirtyPatchRect.height === snapshot.bitmapHeight;
     const beforePatchBitmap =
       useLocalDrawingHistory && hasDirtyPatch
-        ? captureBitmapPatch(currentStateFrame.bitmap, snapshot.dirtyPatchRect)
+        ? captureBitmapPatch(currentStateFrame.bitmap, snapshot.dirtyPatchRect, { width: snapshot.bitmapWidth, height: snapshot.bitmapHeight })
         : null;
     if (didBitmapChange && !useLocalDrawingHistory && !options?.deferHistory) {
       recordUndoSnapshot();
@@ -6339,6 +6346,9 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       hasDirtyPatch &&
       !patchCoversWholeBitmap &&
       useLocalDrawingHistory &&
+      currentStateFrame.bitmap?.width === snapshot.bitmapWidth &&
+      currentStateFrame.bitmap?.height === snapshot.bitmapHeight &&
+      !getRasterReferenceSize(currentStateFrame.bitmap) &&
       ensureDetachedLocalHistoryBitmap(localDrawingContext, currentStateFrame.bitmap);
     if (canMutateCurrentBitmap) {
       invalidateBitmapRenderCaches(currentStateFrame.bitmap);
@@ -6519,7 +6529,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       snapshot.dirtyPatchRect.height === snapshot.bitmapHeight;
     const beforePatchBitmap =
       useLocalDrawingHistory && hasDirtyPatch
-        ? captureBitmapPatch(ownerFrame?.tweenEndBitmap ?? null, snapshot.dirtyPatchRect)
+        ? captureBitmapPatch(ownerFrame?.tweenEndBitmap ?? null, snapshot.dirtyPatchRect, { width: snapshot.bitmapWidth, height: snapshot.bitmapHeight })
         : null;
     if (didBitmapChange && !useLocalDrawingHistory && !options?.deferHistory) {
       recordUndoSnapshot();
@@ -6529,6 +6539,9 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       hasDirtyPatch &&
       !patchCoversWholeBitmap &&
       useLocalDrawingHistory &&
+      ownerFrame?.tweenEndBitmap?.width === snapshot.bitmapWidth &&
+      ownerFrame?.tweenEndBitmap?.height === snapshot.bitmapHeight &&
+      !getRasterReferenceSize(ownerFrame?.tweenEndBitmap) &&
       ensureDetachedLocalHistoryBitmap(localDrawingContext, ownerFrame?.tweenEndBitmap ?? null);
     if (canMutateCurrentBitmap) {
       invalidateBitmapRenderCaches(ownerFrame?.tweenEndBitmap ?? null);
@@ -6687,7 +6700,13 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     // those pixels before any history or document mutation can occur.
     let rollbackPatch: ImageData | null = null;
     try {
-      if (currentBitmap && hasSnapshotDirtyPatch(snapshot)) rollbackPatch = captureBitmapPatch(currentBitmap, snapshot.dirtyPatchRect);
+      if (
+        currentBitmap &&
+        hasSnapshotDirtyPatch(snapshot) &&
+        !getRasterReferenceSize(currentBitmap) &&
+        currentBitmap.width === snapshot.bitmapWidth &&
+        currentBitmap.height === snapshot.bitmapHeight
+      ) rollbackPatch = captureBitmapPatch(currentBitmap, snapshot.dirtyPatchRect, { width: snapshot.bitmapWidth, height: snapshot.bitmapHeight });
       const persisted = persist();
       drawingCanvasRef.current?.markAuthoringChangesCommitted(persisted.bitmap, snapshot.captureVersion ?? null);
       return persisted;
@@ -7654,9 +7673,9 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       setSaveState("failed");
       syncHistoryAvailability();
     } finally {
-      window.requestAnimationFrame(() => {
-        isApplyingHistoryRef.current = false;
-      });
+      // Document refs are already updated. Waiting for the next paint here
+      // silently drops quick repeated Undo clicks.
+      isApplyingHistoryRef.current = false;
     }
   }, [
     applyLocalDrawingHistoryTraversal,
@@ -7700,9 +7719,9 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       setSaveState("failed");
       syncHistoryAvailability();
     } finally {
-      window.requestAnimationFrame(() => {
-        isApplyingHistoryRef.current = false;
-      });
+      // Let every intentional Redo click advance one step, even if React has
+      // not painted the previous step yet.
+      isApplyingHistoryRef.current = false;
     }
   }, [
     applyLocalDrawingHistoryTraversal,
@@ -7952,6 +7971,18 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         if (sourceStick) {
           const nextStick = { ...stickByCellRef.current, [`${layerId}:${insertedFrame.stateId}`]: structuredClone(sourceStick) };
           stickByCellRef.current = nextStick; setStickByCell(nextStick);
+        }
+        const sourceSymbolInstances = symbolInstancesByCellRef.current[`${layerId}:${sourceFrameForStick.stateId}`] ?? [];
+        if (sourceSymbolInstances.length > 0) {
+          const nextInstances = {
+            ...symbolInstancesByCellRef.current,
+            [`${layerId}:${insertedFrame.stateId}`]: sourceSymbolInstances.map(instance => ({
+              ...structuredClone(instance),
+              itemId: crypto.randomUUID(),
+            })),
+          };
+          symbolInstancesByCellRef.current = nextInstances;
+          setSymbolInstancesByCell(nextInstances);
         }
       }
 
@@ -10122,6 +10153,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
           }}
           onTextObjectsChange={handleTextObjectsChange}
           onRightPanelWidthChange={setRightPanelWidth}
+          onAuthoringSurfaceViewportChange={handleAuthoringSurfaceViewportChange}
           unifiedSymbolDefinitions={unifiedCatalogs.symbols}
           unifiedProjectAssets={unifiedCatalogs.assets}
           unifiedSymbolInstances={activeUnifiedSymbolInstances}

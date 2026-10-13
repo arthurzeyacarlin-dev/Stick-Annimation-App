@@ -1,5 +1,5 @@
 import { bitmapCenterOffset } from "./unifiedStageGeometry.ts";
-import { attachBitmapPaintCoverage, cropPaintCoverage, getBitmapPaintCoverage, type UnifiedRasterPaintCoverageV1 } from "./unifiedRasterPaintCoverageV1.ts";
+import { attachBitmapPaintCoverage, cropPaintCoverage, getBitmapPaintCoverage, patchPaintCoverage, type UnifiedRasterPaintCoverageV1 } from "./unifiedRasterPaintCoverageV1.ts";
 
 // SPEC-0017 compact frames.
 // A frame picture used to be the full "authoring world" size (about 21x the visible page).
@@ -111,4 +111,89 @@ export function expandRaster(bitmap: ImageData): ImageData {
   const coverage = getBitmapPaintCoverage(bitmap);
   if (coverage) attachBitmapPaintCoverage(out, cropPaintCoverage(coverage, -x, -y, reference.width, reference.height));
   return out;
+}
+
+// Reads a box from the full centered coordinate space without expanding a compact bitmap.
+export function captureRasterReferencePatch(
+  bitmap: ImageData | null,
+  rect: { left: number; top: number; width: number; height: number },
+  reference: RasterSize,
+): ImageData {
+  const out = new ImageData(rect.width, rect.height);
+  if (!bitmap) return out;
+  const sourceLeft = compactOrigin(reference.width, bitmap.width);
+  const sourceTop = compactOrigin(reference.height, bitmap.height);
+  const left = Math.max(rect.left, sourceLeft);
+  const top = Math.max(rect.top, sourceTop);
+  const right = Math.min(rect.left + rect.width, sourceLeft + bitmap.width);
+  const bottom = Math.min(rect.top + rect.height, sourceTop + bitmap.height);
+  for (let y = top; y < bottom; y += 1) {
+    const sourceStart = ((y - sourceTop) * bitmap.width + left - sourceLeft) * 4;
+    const targetStart = ((y - rect.top) * rect.width + left - rect.left) * 4;
+    out.data.set(bitmap.data.subarray(sourceStart, sourceStart + (right - left) * 4), targetStart);
+  }
+  const coverage = getBitmapPaintCoverage(bitmap);
+  if (coverage) {
+    attachBitmapPaintCoverage(out, cropPaintCoverage(
+      coverage,
+      rect.left - sourceLeft,
+      rect.top - sourceTop,
+      rect.width,
+      rect.height,
+    ));
+  }
+  return out;
+}
+
+// Applies a reference-coordinate patch and keeps the result compact. This is the
+// memory-safe replacement for expanding a sparse frame to its old full stage.
+export function mergeRasterReferencePatch(
+  bitmap: ImageData | null,
+  patch: ImageData,
+  rect: { left: number; top: number; width: number; height: number },
+  reference: RasterSize,
+): ImageData {
+  const sourceLeft = bitmap ? compactOrigin(reference.width, bitmap.width) : Math.floor(reference.width / 2);
+  const sourceTop = bitmap ? compactOrigin(reference.height, bitmap.height) : Math.floor(reference.height / 2);
+  const sourceRight = bitmap ? sourceLeft + bitmap.width : sourceLeft;
+  const sourceBottom = bitmap ? sourceTop + bitmap.height : sourceTop;
+  const left = Math.min(sourceLeft, rect.left);
+  const top = Math.min(sourceTop, rect.top);
+  const right = Math.max(sourceRight, rect.left + rect.width);
+  const bottom = Math.max(sourceBottom, rect.top + rect.height);
+  const width = centeredLength(reference.width, left, right);
+  const height = centeredLength(reference.height, top, bottom);
+  const originX = compactOrigin(reference.width, width);
+  const originY = compactOrigin(reference.height, height);
+  const out = new ImageData(width, height);
+  if (bitmap) {
+    for (let y = 0; y < bitmap.height; y += 1) {
+      out.data.set(
+        bitmap.data.subarray(y * bitmap.width * 4, (y + 1) * bitmap.width * 4),
+        ((sourceTop - originY + y) * width + sourceLeft - originX) * 4,
+      );
+    }
+  }
+  for (let y = 0; y < rect.height; y += 1) {
+    out.data.set(
+      patch.data.subarray(y * rect.width * 4, (y + 1) * rect.width * 4),
+      ((rect.top - originY + y) * width + rect.left - originX) * 4,
+    );
+  }
+  const sourceCoverage = bitmap ? getBitmapPaintCoverage(bitmap) : null;
+  const patchCoverage = getBitmapPaintCoverage(patch);
+  const referenceCoverage = patchPaintCoverage(
+    sourceCoverage ? cropPaintCoverage(sourceCoverage, -sourceLeft, -sourceTop, reference.width, reference.height) : null,
+    patchCoverage,
+    rect.left,
+    rect.top,
+    rect.width,
+    rect.height,
+    reference.width,
+    reference.height,
+  );
+  if (referenceCoverage) {
+    attachBitmapPaintCoverage(out, cropPaintCoverage(referenceCoverage, originX, originY, width, height));
+  }
+  return compactRaster(setRasterReferenceSize(out, reference));
 }

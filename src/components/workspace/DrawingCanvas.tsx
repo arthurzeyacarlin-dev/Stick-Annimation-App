@@ -48,6 +48,19 @@ import {
   fitAuthoredStage,
   presentStagePoint,
 } from "@/src/lib/animation/unifiedStageGeometry";
+import {
+  authoringSurfaceWorldTransform,
+  captureAuthoringSurfaceReferencePatch,
+  createAuthoringSurfaceViewport,
+  drawReferencePatchToAuthoringSurface,
+  drawRasterBitmapToAuthoringSurface,
+  getAuthoringSurfaceViewport,
+  projectRasterCoverageToAuthoringSurface,
+  renderRasterBitmapsToAuthoringSurface,
+  setAuthoringSurfaceViewport,
+  type AuthoringSurfaceViewport,
+} from "@/src/lib/animation/authoringSurfaceViewport";
+import { captureRasterReferencePatch, compactOrigin, compactRaster, compactRasterFromCrop } from "@/src/lib/animation/compactRasterBitmap";
 
 type LassoPoint = {
   x: number;
@@ -554,6 +567,7 @@ type DrawingCanvasProps = {
   onBackgroundColorChange: (color: string) => void;
   onTextObjectsChange?: (nextTextObjects: DrawingTextObject[]) => boolean;
   onRightPanelWidthChange?: (width: number) => void;
+  onAuthoringSurfaceViewportChange?: () => void;
   workspaceContext?: DrawingAiWorkspaceContext | null;
   projectAiMemory?: DrawingAiProjectMemory | null;
   onProjectAiMemoryChange?: (memory: DrawingAiProjectMemory | null) => void;
@@ -591,6 +605,7 @@ type DrawingCanvasProps = {
 export type DrawingCanvasSnapshot = {
   bitmap: ImageData | null;
   previewUrl: string | null | undefined;
+  replaceBitmap?: boolean;
   captureVersion?: number;
   identity?: { generation: number; contextKey: string };
   dirtyPatchBitmap?: ImageData | null;
@@ -1735,6 +1750,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   onBackgroundColorChange,
   onTextObjectsChange,
   onRightPanelWidthChange,
+  onAuthoringSurfaceViewportChange,
   workspaceContext = null,
   projectAiMemory = null,
   onProjectAiMemoryChange,
@@ -1774,6 +1790,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   const textCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const foregroundCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const lassoOverlayRef = useRef<HTMLCanvasElement | null>(null);
+  const clearAllRasterOnNextSnapshotRef = useRef(false);
+  const authoringSurfaceViewportRef = useRef<AuthoringSurfaceViewport | null>(null);
+  const [authoringSurfaceViewport, setAuthoringSurfaceViewportState] = useState<AuthoringSurfaceViewport | null>(null);
   const onionBitmapWorkCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const onionOverlayContentRef = useRef<OnionOverlayContent>({
     previousBitmap: null,
@@ -1794,6 +1813,8 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     worldCenterY: number;
     stageOffsetX: number;
     stageOffsetY: number;
+    surfaceWorldLeft: number;
+    surfaceWorldTop: number;
     scaleX: number;
     scaleY: number;
     canvasWidth: number;
@@ -2148,52 +2169,42 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     const resizeAuthoringCanvases = () => {
       const rect = getCanvasHostContentRect(host);
       const dpr = window.devicePixelRatio || 1;
-      const width = Math.max(1, Math.floor(rect.width * AUTHORING_WORLD_SCALE * dpr));
-      const height = Math.max(1, Math.floor(rect.height * AUTHORING_WORLD_SCALE * dpr));
+      const viewport = createAuthoringSurfaceViewport({
+        hostWidth: rect.width,
+        hostHeight: rect.height,
+        worldScale: AUTHORING_WORLD_SCALE,
+        zoom: cameraZoom,
+        panX: cameraPan.x,
+        panY: cameraPan.y,
+        devicePixelRatio: dpr,
+      });
+      const width = viewport.pixelWidth;
+      const height = viewport.pixelHeight;
       invalidateAuthoringMetrics();
 
-      const editableSizeChanged = canvas.width !== width || canvas.height !== height;
-      if (!editableSizeChanged && backgroundCanvas.width === width && backgroundCanvas.height === height) return;
-      if (editableSizeChanged) cancelRasterDraftRef.current?.("viewport-change");
-      const preservedEditableCanvas = editableSizeChanged ? document.createElement("canvas") : null;
-      let preservedCoverage = getBitmapPaintCoverage(canvas);
+      const previousViewport = authoringSurfaceViewportRef.current;
+      const viewportChanged = !previousViewport ||
+        previousViewport.worldLeft !== viewport.worldLeft || previousViewport.worldTop !== viewport.worldTop ||
+        previousViewport.worldWidth !== viewport.worldWidth || previousViewport.worldHeight !== viewport.worldHeight ||
+        previousViewport.pixelWidth !== viewport.pixelWidth || previousViewport.pixelHeight !== viewport.pixelHeight ||
+        previousViewport.referenceWidth !== viewport.referenceWidth || previousViewport.referenceHeight !== viewport.referenceHeight;
+      if (!viewportChanged && backgroundCanvas.width === width && backgroundCanvas.height === height) return;
+      cancelRasterDraftRef.current?.("viewport-change");
       try {
-        if (editableSizeChanged && hasPendingAuthoringChangesRef.current) {
+        if (hasPendingAuthoringChangesRef.current) {
           commitPendingAuthoringChangesRef.current?.("selection");
           if (hasPendingAuthoringChangesRef.current) throw new Error("pending_snapshot_failed");
-        }
-        if (preservedEditableCanvas) {
-          preservedEditableCanvas.width = width;
-          preservedEditableCanvas.height = height;
-          const preservedCtx = preservedEditableCanvas.getContext("2d");
-          if (!preservedCtx || !canvas.getContext("2d")) throw new Error("resize_surface_unavailable");
-          const committed = authoringCommittedBitmapRef.current;
-          preservedCoverage = null;
-          if (committed) {
-            const left = bitmapCenterOffset(width, committed.width), top = bitmapCenterOffset(height, committed.height);
-            preservedCtx.putImageData(committed, left, top);
-            preservedCoverage = cropPaintCoverage(getBitmapPaintCoverage(committed), -left, -top, width, height);
-          }
-          // Floating selections own a cut-out presentation. Keep that area,
-          // while restoring newly exposed pixels from the full stored bitmap.
-          if (!committed || bitmapSelectionSessionRef.current?.items.length) {
-            const left = bitmapCenterOffset(width, canvas.width), top = bitmapCenterOffset(height, canvas.height);
-            const x = Math.max(0, left), y = Math.max(0, top);
-            const w = Math.min(width, left + canvas.width) - x, h = Math.min(height, top + canvas.height) - y;
-            if (w > 0 && h > 0) {
-              preservedCtx.clearRect(x, y, w, h);
-              preservedCtx.drawImage(canvas, left, top);
-              preservedCoverage = patchPaintCoverage(preservedCoverage,
-                cropPaintCoverage(getBitmapPaintCoverage(canvas), x - left, y - top, w, h), x, y, w, h, width, height);
-            }
-          }
         }
       } catch (error) {
         setWorkspaceNotice("The canvas couldn't be resized. Your drawing is safe.");
         return;
       }
 
+      authoringSurfaceViewportRef.current = viewport;
+      setAuthoringSurfaceViewportState(viewport);
       for (const targetCanvas of [backgroundCanvas, onionCanvas, canvas, textCanvas, foregroundCanvas, overlayCanvas]) {
+        setAuthoringSurfaceViewport(targetCanvas, viewport);
+        targetCanvas.dataset.authoringSurface = "true";
         const targetCtx =
           targetCanvas === canvas
             ? targetCanvas.getContext("2d", { desynchronized: true }) ?? targetCanvas.getContext("2d")
@@ -2202,28 +2213,18 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
 
         if (targetCanvas.width !== width) targetCanvas.width = width;
         if (targetCanvas.height !== height) targetCanvas.height = height;
-        // The same exact backing-store / authoring-world ratio is used by
-        // pointer mapping, paint, and dirty-patch capture (including rounding).
-        targetCtx.setTransform(width / (rect.width * AUTHORING_WORLD_SCALE), 0, 0,
-          height / (rect.height * AUTHORING_WORLD_SCALE), 0, 0);
+        authoringSurfaceWorldTransform(targetCtx, viewport);
         targetCtx.lineCap = "round";
         targetCtx.lineJoin = "round";
         targetCtx.strokeStyle = "#000000";
       }
 
-      if (preservedEditableCanvas) {
-        const canvasCtx = canvas.getContext("2d", { desynchronized: true }) ?? canvas.getContext("2d");
-        if (canvasCtx) {
-          canvasCtx.save();
-          canvasCtx.setTransform(1, 0, 0, 1, 0, 0);
-          canvasCtx.drawImage(preservedEditableCanvas, 0, 0);
-          canvasCtx.restore();
-        }
-        attachBitmapPaintCoverage(canvas, preservedCoverage);
-      }
+      renderRasterBitmapsToAuthoringSurface(canvas, [authoringCommittedBitmapRef.current]);
+      attachBitmapPaintCoverage(canvas, projectRasterCoverageToAuthoringSurface(canvas, authoringCommittedBitmapRef.current));
       authoringDirtyRectRef.current = null;
       authoringDirtyCaptureModeRef.current = "region";
       setAuthoringSurfaceVersion(version => version + 1);
+      window.requestAnimationFrame(() => onAuthoringSurfaceViewportChange?.());
     };
 
     resizeAuthoringCanvases();
@@ -2234,7 +2235,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       observer.disconnect();
       window.removeEventListener("resize", resizeAuthoringCanvases);
     };
-  }, [AUTHORING_WORLD_SCALE, getCanvasHostContentRect, invalidateAuthoringMetrics]);
+  }, [AUTHORING_WORLD_SCALE, cameraPan.x, cameraPan.y, cameraZoom, getCanvasHostContentRect, invalidateAuthoringMetrics, onAuthoringSurfaceViewportChange]);
 
   useEffect(() => {
     const host = canvasHostRef.current;
@@ -2337,6 +2338,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     if (!host || !canvas) return null;
 
     const hostRect = getCanvasHostContentRect(host);
+    const viewport = getAuthoringSurfaceViewport(canvas);
     const cachedMetrics = authoringMetricsRef.current;
     if (
       cachedMetrics &&
@@ -2362,8 +2364,10 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       worldCenterY: worldHeight / 2,
       stageOffsetX,
       stageOffsetY,
-      scaleX: canvas.width / worldWidth,
-      scaleY: canvas.height / worldHeight,
+      surfaceWorldLeft: viewport?.worldLeft ?? 0,
+      surfaceWorldTop: viewport?.worldTop ?? 0,
+      scaleX: canvas.width / (viewport?.worldWidth ?? worldWidth),
+      scaleY: canvas.height / (viewport?.worldHeight ?? worldHeight),
     };
     authoringMetricsRef.current = {
       ...nextMetrics,
@@ -2396,9 +2400,10 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     }
 
     const hostRect = getCanvasHostContentRect(host);
+    const viewport = getAuthoringSurfaceViewport(canvas);
     return {
-      drawingCanvasWidth: canvas.width,
-      drawingCanvasHeight: canvas.height,
+      drawingCanvasWidth: viewport?.referenceWidth ?? canvas.width,
+      drawingCanvasHeight: viewport?.referenceHeight ?? canvas.height,
       worldWidth: hostRect.width * AUTHORING_WORLD_SCALE,
       worldHeight: hostRect.height * AUTHORING_WORLD_SCALE,
       worldDisplayRect: {
@@ -3105,10 +3110,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     let preparedCoverage: UnifiedRasterPaintCoverageV1 | null = null;
     if (committedBitmap !== undefined) {
       if (canvas) {
-        const companion = getBitmapPaintCoverage(committedBitmap);
-        preparedCoverage = companion && (companion.width !== canvas.width || companion.height !== canvas.height)
-          ? cropPaintCoverage(companion, -bitmapCenterOffset(canvas.width, companion.width), -bitmapCenterOffset(canvas.height, companion.height), canvas.width, canvas.height)
-          : companion;
+        preparedCoverage = projectRasterCoverageToAuthoringSurface(canvas, committedBitmap);
       }
       // A selection snapshot includes its floating pieces, while this canvas
       // still contains only the backdrop. Keep its existing matching companion;
@@ -3136,8 +3138,8 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       const hostY = clientY - metrics.hostRect.top;
       const x = (hostX - metrics.hostRect.width / 2 - cameraPan.x) / cameraZoom + metrics.worldCenterX;
       const y = (hostY - metrics.hostRect.height / 2 - cameraPan.y) / cameraZoom + metrics.worldCenterY;
-      const pixelX = Math.floor(x * metrics.scaleX);
-      const pixelY = Math.floor(y * metrics.scaleY);
+      const pixelX = Math.floor((x - metrics.surfaceWorldLeft) * metrics.scaleX);
+      const pixelY = Math.floor((y - metrics.surfaceWorldTop) * metrics.scaleY);
       return { x, y, pixelX, pixelY };
     },
     [cameraPan.x, cameraPan.y, cameraZoom, getAuthoringMetrics]
@@ -4554,9 +4556,10 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     rasterDraftRef.current = null;
     if (draft) {
       draft.engine.cancel();
-      const ctx = canvasRef.current?.getContext("2d");
-      if (ctx) for (const tile of draft.tiles.values()) ctx.putImageData(tile.base, tile.left, tile.top);
-      if (canvasRef.current) attachBitmapPaintCoverage(canvasRef.current, draft.baseCoverage);
+      if (canvasRef.current) {
+        renderRasterBitmapsToAuthoringSurface(canvasRef.current, [authoringCommittedBitmapRef.current]);
+        attachBitmapPaintCoverage(canvasRef.current, projectRasterCoverageToAuthoringSurface(canvasRef.current, authoringCommittedBitmapRef.current));
+      }
       isDrawingRef.current = false;
       const canvas = canvasRef.current;
       if (canvas?.hasPointerCapture(draft.pointerId)) canvas.releasePointerCapture(draft.pointerId);
@@ -4581,6 +4584,8 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   const presentRasterDraft = (preview: RasterPreview | null) => {
     const draft = rasterDraftRef.current, canvas = canvasRef.current, ctx = canvas?.getContext("2d");
     if (!preview?.changed || !draft || !canvas || !ctx || draft.presented === preview) return;
+    const viewport = getAuthoringSurfaceViewport(canvas);
+    if (!viewport) return;
     const rect = preview.changed;
     // The writer clones each accepted pixel. Reuse only this private temporary
     // record, avoiding several short-lived arrays for every changed halo pixel.
@@ -4592,12 +4597,12 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
         let tile = draft.tiles.get(key);
         if (!tile) {
           const committed = authoringCommittedBitmapRef.current;
-          const width = Math.min(32, canvas.width - left), height = Math.min(32, canvas.height - top);
-          const base = committed ? new ImageData(width, height) : ctx.getImageData(left, top, width, height);
+          const width = Math.min(32, draft.engine.options.width - left), height = Math.min(32, draft.engine.options.height - top);
+          const base = new ImageData(width, height);
           // Use authored bytes as the transaction base. Canvas readback can
           // quantize RGB at low alpha even when no edit has happened.
           if (committed) {
-            const offsetX = bitmapCenterOffset(canvas.width, committed.width), offsetY = bitmapCenterOffset(canvas.height, committed.height);
+            const offsetX = bitmapCenterOffset(draft.engine.options.width, committed.width), offsetY = bitmapCenterOffset(draft.engine.options.height, committed.height);
             const sx0 = Math.max(0, left - offsetX), sx1 = Math.min(committed.width, left + base.width - offsetX);
             for (let y = 0; y < base.height; y++) {
               const sy = top + y - offsetY;
@@ -4614,7 +4619,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
           tile = { left, top, base, basePixels, display: new ImageData(new Uint8ClampedArray(base.data), base.width, base.height), presentedCoverage: new Uint8Array(1024), presentedLight: new Uint8Array(1024) };
           draft.tiles.set(key, tile);
         }
-        const maskKey = top / 32 * Math.ceil(canvas.width / 32) + left / 32;
+        const maskKey = top / 32 * Math.ceil(draft.engine.options.width / 32) + left / 32;
         const stableTile = preview.stable.tiles.get(maskKey), tailTile = preview.tail.tiles.get(maskKey);
         // SPEC-0020 Phase 4 (lag): only repaint a 32×32 tile when one of its pixels really changed.
         let tileChanged = false;
@@ -4644,7 +4649,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
             tileChanged = true;
           }
         }
-        if (tileChanged) ctx.putImageData(tile.display, left, top);
+        if (tileChanged) drawReferencePatchToAuthoringSurface(ctx, tile.display, left, top, viewport);
       }
     }
     // Resolve ownership as it would be released now. Keep the complete candidate
@@ -4668,10 +4673,20 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     const erase = activeTool === "Eraser";
     if (erase) requireManualEditorCommand("eraser", "DrawingWorkspace.commitCanvasAuthoringAction");
     if (erase && !authorizeDestructiveCommand({ commandId: "eraser", targetIds: [currentRasterContextRef.current], availableTargetIds: [currentRasterContextRef.current] }).allowed) return;
-    const baseCoverage = getBitmapPaintCoverage(canvas);
-    const engine = new RasterGestureDraft({ key: canonicalPaint(erase ? "Brush" : brushToolVariant, erase ? "#000000" : brushColor, erase ? 0 : brushTransparency), size: erase ? eraserSize : brushSize, smoothing: erase ? 0 : brushSmoothing, brightness: glowGradientBrightness, radius: glowGradientRadius, seed: 173, width: canvas.width, height: canvas.height, scaleX: metrics.scaleX, scaleY: metrics.scaleY, ...(!erase && drawRigEnabled ? { drawRig: true as const } : {}) });
-    const writer = createPaintCoverageWriter(baseCoverage, canvas.width, canvas.height);
-    rasterDraftRef.current = { engine, pointerId: e.pointerId, contextKey: currentRasterContextRef.current, generation: authoringChangeVersionRef.current, erase, ownerId: !erase && brushToolVariant === "Sketch" ? crypto.randomUUID() : undefined, baseCoverage, writer, candidateWriter: writer, baseWriter: !erase && brushToolVariant === "Sketch" ? createPaintCoverageWriter(baseCoverage, canvas.width, canvas.height) : writer, tiles: new Map(), dirty: null, presented: null };
+    const viewport = getAuthoringSurfaceViewport(canvas);
+    if (!viewport) return;
+    const committed = authoringCommittedBitmapRef.current;
+    const committedCoverage = getBitmapPaintCoverage(committed);
+    const committedLeft = committed ? bitmapCenterOffset(viewport.referenceWidth, committed.width) : 0;
+    const committedTop = committed ? bitmapCenterOffset(viewport.referenceHeight, committed.height) : 0;
+    const baseCoverage = committedCoverage
+      ? cropPaintCoverage(committedCoverage, -committedLeft, -committedTop, viewport.referenceWidth, viewport.referenceHeight)
+      : null;
+    const referenceScaleX = viewport.referenceWidth / viewport.fullWorldWidth;
+    const referenceScaleY = viewport.referenceHeight / viewport.fullWorldHeight;
+    const engine = new RasterGestureDraft({ key: canonicalPaint(erase ? "Brush" : brushToolVariant, erase ? "#000000" : brushColor, erase ? 0 : brushTransparency), size: erase ? eraserSize : brushSize, smoothing: erase ? 0 : brushSmoothing, brightness: glowGradientBrightness, radius: glowGradientRadius, seed: 173, width: viewport.referenceWidth, height: viewport.referenceHeight, scaleX: referenceScaleX, scaleY: referenceScaleY, ...(!erase && drawRigEnabled ? { drawRig: true as const } : {}) });
+    const writer = createPaintCoverageWriter(baseCoverage, viewport.referenceWidth, viewport.referenceHeight);
+    rasterDraftRef.current = { engine, pointerId: e.pointerId, contextKey: currentRasterContextRef.current, generation: authoringChangeVersionRef.current, erase, ownerId: !erase && brushToolVariant === "Sketch" ? crypto.randomUUID() : undefined, baseCoverage, writer, candidateWriter: writer, baseWriter: !erase && brushToolVariant === "Sketch" ? createPaintCoverageWriter(baseCoverage, viewport.referenceWidth, viewport.referenceHeight) : writer, tiles: new Map(), dirty: null, presented: null };
     isDrawingRef.current = true;
     e.currentTarget.setPointerCapture(e.pointerId);
     try { presentRasterDraft(engine.append(point)); } catch (error) {
@@ -4708,12 +4723,12 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     const canvas = canvasRef.current;
     try {
       if (prepared && draft.dirty && canvas) {
-        attachBitmapPaintCoverage(canvas, draft.writer.finish());
+        const preparedCoverage = draft.writer.finish();
         markAuthoringDirtyRegion(draft.dirty, true);
         const command: RasterGestureCommandV2 = {
           commandId: RASTER_GESTURE_COMMAND,
           algorithmVersion: RASTER_ALGORITHM_VERSION,
-          baseCoverage: draft.baseCoverage, preparedCoverage: getBitmapPaintCoverage(canvas), baseDigest: "", preparedDigest: "",
+          baseCoverage: draft.baseCoverage, preparedCoverage, baseDigest: "", preparedDigest: "",
           operationId: draft.ownerId ?? `${draft.contextKey}:${draft.generation}:${draft.pointerId}`,
           contextKey: draft.contextKey, baseGeneration: draft.generation,
           preparedGeneration: authoringChangeVersionRef.current,
@@ -4729,9 +4744,10 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
         if (onAuthoringActionCommitted?.("stroke", command) === false) throw new Error("raster_commit_rejected");
       }
     } catch (error) {
-      const ctx = canvas?.getContext("2d");
-      if (ctx) for (const tile of draft.tiles.values()) ctx.putImageData(tile.base, tile.left, tile.top);
-      if (canvas) attachBitmapPaintCoverage(canvas, draft.baseCoverage);
+      if (canvas) {
+        renderRasterBitmapsToAuthoringSurface(canvas, [authoringCommittedBitmapRef.current]);
+        attachBitmapPaintCoverage(canvas, projectRasterCoverageToAuthoringSurface(canvas, authoringCommittedBitmapRef.current));
+      }
       hasPendingAuthoringChangesRef.current = false;
       authoringDirtyRectRef.current = null;
       setWorkspaceNotice("That stroke didn't stick. Your drawing is safe — please draw it again.");
@@ -5089,17 +5105,18 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     const angle = selection.rotation * Math.PI / 180, cos = Math.cos(angle), sin = Math.sin(angle);
     const halfWidth = (Math.abs(cos) * selection.width + Math.abs(sin) * selection.height) / 2;
     const halfHeight = (Math.abs(sin) * selection.width + Math.abs(cos) * selection.height) / 2;
-    const left = Math.max(0, Math.floor((centerX - halfWidth) * metrics.scaleX));
-    const top = Math.max(0, Math.floor((centerY - halfHeight) * metrics.scaleY));
-    const right = Math.min(ctx.canvas.width, Math.ceil((centerX + halfWidth) * metrics.scaleX));
-    const bottom = Math.min(ctx.canvas.height, Math.ceil((centerY + halfHeight) * metrics.scaleY));
+    const left = Math.max(0, Math.floor((centerX - halfWidth - metrics.surfaceWorldLeft) * metrics.scaleX));
+    const top = Math.max(0, Math.floor((centerY - halfHeight - metrics.surfaceWorldTop) * metrics.scaleY));
+    const right = Math.min(ctx.canvas.width, Math.ceil((centerX + halfWidth - metrics.surfaceWorldLeft) * metrics.scaleX));
+    const bottom = Math.min(ctx.canvas.height, Math.ceil((centerY + halfHeight - metrics.surfaceWorldTop) * metrics.scaleY));
     if (right <= left || bottom <= top) return true;
     const destination = ctx.getImageData(left, top, right - left, bottom - top);
     const prepared = compositeRasterSelectionV1(destination,
       sourceCtx.getImageData(0, 0, selectionSource.width, selectionSource.height),
       getBitmapPaintCoverage(ctx.canvas), getBitmapPaintCoverage(selectionSource),
       ctx.canvas.width, ctx.canvas.height, left, top, (x, y) => {
-        const dx = x / metrics.scaleX - centerX, dy = y / metrics.scaleY - centerY;
+        const dx = x / metrics.scaleX + metrics.surfaceWorldLeft - centerX;
+        const dy = y / metrics.scaleY + metrics.surfaceWorldTop - centerY;
         return {
           x: ((cos * dx + sin * dy) * (selection.flipX ? -1 : 1) / selection.width + .5) * selectionSource.width,
           y: ((-sin * dx + cos * dy) * (selection.flipY ? -1 : 1) / selection.height + .5) * selectionSource.height,
@@ -5638,8 +5655,8 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     const cssToPixelX = metrics.scaleX;
     const cssToPixelY = metrics.scaleY;
     const rawPath = path.map((p) => ({
-      x: p.x * cssToPixelX,
-      y: p.y * cssToPixelY,
+      x: (p.x - metrics.surfaceWorldLeft) * cssToPixelX,
+      y: (p.y - metrics.surfaceWorldTop) * cssToPixelY,
     }));
 
     const width = canvas.width;
@@ -6232,8 +6249,8 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
 
     if (!hasAnySelection || trimMaxX < trimMinX || trimMaxY < trimMinY) {
       createStructuredStickOnlySelection("lasso", {
-        x: minPixelX / metrics.scaleX,
-        y: minPixelY / metrics.scaleY,
+        x: minPixelX / metrics.scaleX + metrics.surfaceWorldLeft,
+        y: minPixelY / metrics.scaleY + metrics.surfaceWorldTop,
         width: boxWidth / metrics.scaleX,
         height: boxHeight / metrics.scaleY,
       }, path);
@@ -6268,14 +6285,14 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     });
     attachBitmapPaintCoverage(selectionSourceCanvas, extracted.finish());
     const drawingBounds = {
-      x: (minPixelX + trimMinX) / metrics.scaleX,
-      y: (minPixelY + trimMinY) / metrics.scaleY,
+      x: (minPixelX + trimMinX) / metrics.scaleX + metrics.surfaceWorldLeft,
+      y: (minPixelY + trimMinY) / metrics.scaleY + metrics.surfaceWorldTop,
       width: trimWidth / metrics.scaleX,
       height: trimHeight / metrics.scaleY,
     };
     const selectionBounds = {
-      x: minPixelX / metrics.scaleX,
-      y: minPixelY / metrics.scaleY,
+      x: minPixelX / metrics.scaleX + metrics.surfaceWorldLeft,
+      y: minPixelY / metrics.scaleY + metrics.surfaceWorldTop,
       width: boxWidth / metrics.scaleX,
       height: boxHeight / metrics.scaleY,
     };
@@ -6354,8 +6371,8 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     if (!hasVisiblePixels) {
       const textObjectIds = findTextObjectIdsInRect(
         {
-          x: minPixelX / metrics.scaleX,
-          y: minPixelY / metrics.scaleY,
+          x: minPixelX / metrics.scaleX + metrics.surfaceWorldLeft,
+          y: minPixelY / metrics.scaleY + metrics.surfaceWorldTop,
           width: boxWidth / metrics.scaleX,
           height: boxHeight / metrics.scaleY,
         },
@@ -6366,8 +6383,8 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
         return true;
       }
       return createStructuredStickOnlySelection("select", {
-        x: minPixelX / metrics.scaleX,
-        y: minPixelY / metrics.scaleY,
+        x: minPixelX / metrics.scaleX + metrics.surfaceWorldLeft,
+        y: minPixelY / metrics.scaleY + metrics.surfaceWorldTop,
         width: boxWidth / metrics.scaleX,
         height: boxHeight / metrics.scaleY,
       });
@@ -6382,8 +6399,8 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     const baseCoverage = getBitmapPaintCoverage(canvas);
     attachBitmapPaintCoverage(sourceCanvas, cropPaintCoverage(baseCoverage, minPixelX, minPixelY, boxWidth, boxHeight));
     const drawingBounds = {
-      x: minPixelX / metrics.scaleX,
-      y: minPixelY / metrics.scaleY,
+      x: minPixelX / metrics.scaleX + metrics.surfaceWorldLeft,
+      y: minPixelY / metrics.scaleY + metrics.surfaceWorldTop,
       width: boxWidth / metrics.scaleX,
       height: boxHeight / metrics.scaleY,
     };
@@ -6597,8 +6614,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     pending.resolve(true);
   }, [createCanvasSignature, onCreateUnifiedSymbolDefinition, symbolDialog]);
 
+  const isSymbolDialogOpen = symbolDialog !== null;
   useEffect(() => {
-    if (!symbolDialog) return;
+    if (!isSymbolDialogOpen) return;
     const frame = window.requestAnimationFrame(() => {
       symbolNameInputRef.current?.focus();
       symbolNameInputRef.current?.select();
@@ -6611,7 +6629,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       window.cancelAnimationFrame(frame);
       window.removeEventListener("keydown", cancelOnEscape);
     };
-  }, [cancelSymbolCreationDialog, symbolDialog]);
+  }, [cancelSymbolCreationDialog, isSymbolDialogOpen]);
 
   const convertSelectedTextObjectsToSymbol = useCallback(async (objectIds: string[]) => {
     const selectionSource = createTextSelectionCanvas(objectIds, displayedTextObjects);
@@ -6676,10 +6694,10 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       }
     }
 
-    const pixelLeft = Math.max(0, Math.floor(minX * metrics.scaleX));
-    const pixelTop = Math.max(0, Math.floor(minY * metrics.scaleY));
-    const pixelRight = Math.min(fullCanvas.width, Math.ceil(maxX * metrics.scaleX));
-    const pixelBottom = Math.min(fullCanvas.height, Math.ceil(maxY * metrics.scaleY));
+    const pixelLeft = Math.max(0, Math.floor((minX - metrics.surfaceWorldLeft) * metrics.scaleX));
+    const pixelTop = Math.max(0, Math.floor((minY - metrics.surfaceWorldTop) * metrics.scaleY));
+    const pixelRight = Math.min(fullCanvas.width, Math.ceil((maxX - metrics.surfaceWorldLeft) * metrics.scaleX));
+    const pixelBottom = Math.min(fullCanvas.height, Math.ceil((maxY - metrics.surfaceWorldTop) * metrics.scaleY));
     const pixelWidth = Math.max(1, pixelRight - pixelLeft);
     const pixelHeight = Math.max(1, pixelBottom - pixelTop);
 
@@ -6693,8 +6711,8 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
 
     croppedCtx.drawImage(fullCanvas, pixelLeft, pixelTop, pixelWidth, pixelHeight, 0, 0, pixelWidth, pixelHeight);
     const captureBounds = {
-      x: pixelLeft / metrics.scaleX,
-      y: pixelTop / metrics.scaleY,
+      x: pixelLeft / metrics.scaleX + metrics.surfaceWorldLeft,
+      y: pixelTop / metrics.scaleY + metrics.surfaceWorldTop,
       width: pixelWidth / metrics.scaleX,
       height: pixelHeight / metrics.scaleY,
     };
@@ -6835,9 +6853,6 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   const captureAuthoringSnapshot = useCallback((options?: DrawingCanvasSnapshotOptions): DrawingCanvasSnapshot | null => {
     if (rasterDraftRef.current) return null;
     const identity = { generation: authoringChangeVersionRef.current, contextKey: currentRasterContextRef.current };
-    if (preparedFillSnapshotRef.current && options?.includePreviewUrl !== true) {
-      return { bitmap: preparedFillSnapshotRef.current, previewUrl: undefined, captureVersion: identity.generation, identity };
-    }
     const canvas = canvasRef.current;
     const sourceCtx = canvas?.getContext("2d");
     if (!canvas || !sourceCtx || canvas.width <= 0 || canvas.height <= 0) {
@@ -6848,6 +6863,20 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
         canvasHeight: canvas?.height ?? null,
       });
       return null;
+    }
+    if (clearAllRasterOnNextSnapshotRef.current) {
+      const viewport = getAuthoringSurfaceViewport(canvas);
+      if (!viewport) return null;
+      clearAllRasterOnNextSnapshotRef.current = false;
+      const empty = compactRasterFromCrop({
+        width: 1,
+        height: 1,
+        data: new Uint8ClampedArray(4),
+        x: Math.floor(viewport.referenceWidth / 2),
+        y: Math.floor(viewport.referenceHeight / 2),
+        reference: { width: viewport.referenceWidth, height: viewport.referenceHeight },
+      });
+      return { bitmap: empty, replaceBitmap: true, previewUrl: undefined, captureVersion: identity.generation, identity };
     }
 
     const activeBitmapSession = bitmapSelectionSessionRef.current;
@@ -6916,6 +6945,8 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       }
 
       compositeSnapshotCtx.setTransform(1, 0, 0, 1, 0, 0);
+      const viewport = getAuthoringSurfaceViewport(canvas);
+      if (viewport) setAuthoringSurfaceViewport(snapshotCanvas, viewport);
       snapshotCtx = compositeSnapshotCtx;
       snapshotPreviewSource = snapshotCanvas;
     } else {
@@ -6931,22 +6962,17 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
         options?.preferIncrementalBitmapCapture === true &&
         !includePreviewUrl &&
         dirtyRect &&
-        (preparedRasterCommandRef.current || !committedBitmap || (committedBitmap.width === canvas.width && committedBitmap.height === canvas.height));
+        prepared;
 
       if (canUseDirtyPatch) {
         const bitmapCaptureStart = performance.now();
-        const dirtyPatch = prepared ? new ImageData(dirtyRect.width, dirtyRect.height) : sourceCtx.getImageData(
-          dirtyRect.left,
-          dirtyRect.top,
-          dirtyRect.width,
-          dirtyRect.height,
-        );
+        const dirtyPatch = new ImageData(dirtyRect.width, dirtyRect.height);
         if (prepared) {
           // The command owns exact RGBA. Keep gaps byte-exact from the authored
           // base; avoid both GPU readback stalls and low-alpha RGB quantization.
           if (committedBitmap) {
-            const offsetX = bitmapCenterOffset(canvas.width, committedBitmap.width);
-            const offsetY = bitmapCenterOffset(canvas.height, committedBitmap.height);
+            const offsetX = bitmapCenterOffset(prepared.options.width, committedBitmap.width);
+            const offsetY = bitmapCenterOffset(prepared.options.height, committedBitmap.height);
             const left = Math.max(dirtyRect.left, offsetX), right = Math.min(dirtyRect.left + dirtyRect.width, offsetX + committedBitmap.width);
             for (let y = Math.max(dirtyRect.top, offsetY); y < Math.min(dirtyRect.top + dirtyRect.height, offsetY + committedBitmap.height); y++) {
               if (right <= left) continue;
@@ -6990,8 +7016,8 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
           identity,
           dirtyPatchBitmap: attachBitmapPaintCoverage(dirtyPatch, cropPaintCoverage(prepared ? prepared.preparedCoverage : getBitmapPaintCoverage(canvas), dirtyRect.left, dirtyRect.top, dirtyRect.width, dirtyRect.height)),
           dirtyPatchRect: { ...dirtyRect },
-          bitmapWidth: canvas.width,
-          bitmapHeight: canvas.height,
+          bitmapWidth: prepared.options.width,
+          bitmapHeight: prepared.options.height,
         };
         return result;
       }
@@ -7005,23 +7031,26 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     if (needsAuthoringMetrics && !metrics) {
       return null;
     }
-    const stageCropLeft = metrics ? Math.max(0, Math.round(metrics.stageOffsetX * metrics.scaleX)) : 0;
-    const stageCropTop = metrics ? Math.max(0, Math.round(metrics.stageOffsetY * metrics.scaleY)) : 0;
+    const stageCropLeft = metrics ? Math.max(0, Math.round((metrics.stageOffsetX - metrics.surfaceWorldLeft) * metrics.scaleX)) : 0;
+    const stageCropTop = metrics ? Math.max(0, Math.round((metrics.stageOffsetY - metrics.surfaceWorldTop) * metrics.scaleY)) : 0;
     const stageCropWidth = metrics ? Math.max(1, Math.round(metrics.hostRect.width * metrics.scaleX)) : cropWidth;
     const stageCropHeight = metrics ? Math.max(1, Math.round(metrics.hostRect.height * metrics.scaleY)) : cropHeight;
 
-    if (!snapshotBitmap) {
-      const bitmapCaptureStart = performance.now();
-      snapshotBitmap = snapshotCtx.getImageData(cropLeft, cropTop, cropWidth, cropHeight);
-      bitmapCaptureDurationMs = performance.now() - bitmapCaptureStart;
+    const bitmapCaptureStart = performance.now();
+    const surfaceCapture = captureAuthoringSurfaceReferencePatch(snapshotCtx.canvas);
+    if (!surfaceCapture) {
+      setWorkspaceNotice("Zoom in before using that tool so the drawing stays exact.");
+      return null;
     }
+    snapshotBitmap = surfaceCapture.bitmap;
+    bitmapCaptureDurationMs = performance.now() - bitmapCaptureStart;
     const activeSelectionDisplayRect =
       ENABLE_MOTION_TWEEN_DEBUG && debugBitmapSelectionItem ? getDisplayedBitmapTransformBounds(debugBitmapSelectionItem) : null;
     const expectedSelectionPixelRect =
       ENABLE_MOTION_TWEEN_DEBUG && debugBitmapSelectionItem && metrics && metrics.hostRect.width > 0 && metrics.hostRect.height > 0
         ? {
-            x: activeSelectionDisplayRect!.x * metrics.scaleX - cropLeft,
-            y: activeSelectionDisplayRect!.y * metrics.scaleY - cropTop,
+            x: (activeSelectionDisplayRect!.x - metrics.surfaceWorldLeft) * metrics.scaleX - cropLeft,
+            y: (activeSelectionDisplayRect!.y - metrics.surfaceWorldTop) * metrics.scaleY - cropTop,
             width: activeSelectionDisplayRect!.width * metrics.scaleX,
             height: activeSelectionDisplayRect!.height * metrics.scaleY,
           }
@@ -7118,12 +7147,33 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       }
     }
 
-    const result = {
-      bitmap: snapshotBitmap ? copyBitmapPaintCoverage(snapshotCtx.canvas, snapshotBitmap) : null,
-      previewUrl,
-      captureVersion,
-      identity,
-    };
+    const localCompactBitmap = compactRaster(surfaceCapture.bitmap);
+    const compactX = surfaceCapture.rect.left + compactOrigin(surfaceCapture.bitmap.width, localCompactBitmap.width);
+    const compactY = surfaceCapture.rect.top + compactOrigin(surfaceCapture.bitmap.height, localCompactBitmap.height);
+    const localCompactCoverage = getBitmapPaintCoverage(localCompactBitmap);
+    const compactBitmap = compactRasterFromCrop({
+      width: localCompactBitmap.width,
+      height: localCompactBitmap.height,
+      data: localCompactBitmap.data,
+      x: compactX,
+      y: compactY,
+      reference: surfaceCapture.reference,
+      paintCoverage: localCompactCoverage
+        ? cropPaintCoverage(localCompactCoverage, -compactX, -compactY, surfaceCapture.reference.width, surfaceCapture.reference.height)
+        : null,
+    });
+    const result = authoringCommittedBitmapRef.current
+      ? {
+          bitmap: null,
+          previewUrl,
+          captureVersion,
+          identity,
+          dirtyPatchBitmap: surfaceCapture.bitmap,
+          dirtyPatchRect: surfaceCapture.rect,
+          bitmapWidth: surfaceCapture.reference.width,
+          bitmapHeight: surfaceCapture.reference.height,
+        }
+      : { bitmap: compactBitmap, previewUrl, captureVersion, identity };
     return result;
   }, [cameraPan, cameraZoom, drawBitmapSelectionImageToAuthoringCanvas, drawPlacedImageAsset, getAuthoringMetrics, getDisplayedBitmapTransformBounds]);
 
@@ -7403,9 +7453,12 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
         if (!bitmap && !textObjects.length && !symbols.length && !stick?.structureGraph.joints.length && !stick?.structureGraph.limbs.length) continue;
         drawTintedOnionMask(onionCtx, baseCanvas.width, baseCanvas.height, ONION_TINT_STYLES[direction].fillStyle, ctx => {
           if (bitmap) {
-            ctx.putImageData(bitmap, bitmapCenterOffset(baseCanvas.width, bitmap.width), bitmapCenterOffset(baseCanvas.height, bitmap.height));
+            const viewport = getAuthoringSurfaceViewport(baseCanvas);
+            if (viewport) drawRasterBitmapToAuthoringSurface(ctx, bitmap, viewport);
+            else ctx.putImageData(bitmap, bitmapCenterOffset(baseCanvas.width, bitmap.width), bitmapCenterOffset(baseCanvas.height, bitmap.height));
           }
-          ctx.setTransform(metrics.scaleX, 0, 0, metrics.scaleY, 0, 0);
+          ctx.setTransform(metrics.scaleX, 0, 0, metrics.scaleY,
+            -metrics.surfaceWorldLeft * metrics.scaleX, -metrics.surfaceWorldTop * metrics.scaleY);
           for (const text of textObjects) drawDrawingTextObject(ctx, text, { colorOverride: ONION_TEXT_MASK_COLOR, opacity: 1 });
           ctx.translate(presentation.offsetX, presentation.offsetY);
           ctx.scale(presentation.scale, presentation.scale);
@@ -7477,7 +7530,8 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       return;
     }
 
-    textCtx.setTransform(metrics.scaleX, 0, 0, metrics.scaleY, 0, 0);
+    textCtx.setTransform(metrics.scaleX, 0, 0, metrics.scaleY,
+      -metrics.surfaceWorldLeft * metrics.scaleX, -metrics.surfaceWorldTop * metrics.scaleY);
     for (const activeTextObject of displayedTextObjects) {
       drawDrawingTextObject(textCtx, activeTextObject);
     }
@@ -7524,7 +7578,8 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     const scaleX = metrics.scaleX;
     const scaleY = metrics.scaleY;
 
-    overlayCtx.setTransform(scaleX, 0, 0, scaleY, 0, 0);
+    overlayCtx.setTransform(scaleX, 0, 0, scaleY,
+      -metrics.surfaceWorldLeft * scaleX, -metrics.surfaceWorldTop * scaleY);
 
     const drawSelectionHandles = (displayRect: RectBounds) => {
       const handleBounds = buildResizeHandleBounds(displayRect, LASSO_RESIZE_HANDLE_SIZE);
@@ -7748,13 +7803,15 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     const imageData = new ImageData(new Uint8ClampedArray(rollbackImage.data), canvas.width, canvas.height);
     const committed = authoringCommittedBitmapRef.current;
     if (committed) {
-      imageData.data.fill(0);
-      const offsetX = bitmapCenterOffset(canvas.width, committed.width), offsetY = bitmapCenterOffset(canvas.height, committed.height);
-      const left = Math.max(0, offsetX), right = Math.min(canvas.width, offsetX + committed.width);
-      for (let row = Math.max(0, offsetY); row < Math.min(canvas.height, offsetY + committed.height); row++) {
-        if (right <= left) continue;
-        const start = ((row - offsetY) * committed.width + left - offsetX) * 4;
-        imageData.data.set(committed.data.subarray(start, start + (right - left) * 4), (row * canvas.width + left) * 4);
+      const viewport = getAuthoringSurfaceViewport(canvas);
+      if (viewport && canvas.width === viewport.referenceSpanWidth && canvas.height === viewport.referenceSpanHeight) {
+        const exactSurface = captureRasterReferencePatch(committed, {
+          left: viewport.referenceLeft,
+          top: viewport.referenceTop,
+          width: canvas.width,
+          height: canvas.height,
+        }, { width: viewport.referenceWidth, height: viewport.referenceHeight });
+        imageData.data.set(exactSurface.data);
       }
     }
     const { data, width, height } = imageData;
@@ -9419,6 +9476,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     cancelPendingAuthoringGesture("clear-canvas");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     attachBitmapPaintCoverage(canvas, null);
+    clearAllRasterOnNextSnapshotRef.current = true;
     markAuthoringDirty();
     onAuthoringActionCommitted?.("clear-canvas");
   };
@@ -11277,6 +11335,15 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     ? { x: unifiedStickPreviewEndJoint.x, y: unifiedStickPreviewEndJoint.y }
     : unifiedStickDrag?.currentPoint ?? null;
   const rightPanelContent = rightPanelTab === "Properties" ? propertiesTabContent : rightPanelTab === "Assets" ? assetsTabContent : libraryTabContent;
+  const authoringSurfacePosition = authoringSurfaceViewport
+    ? {
+        position: "absolute" as const,
+        left: authoringSurfaceViewport.worldLeft,
+        top: authoringSurfaceViewport.worldTop,
+        width: authoringSurfaceViewport.worldWidth,
+        height: authoringSurfaceViewport.worldHeight,
+      }
+    : { position: "absolute" as const, inset: 0, width: "100%", height: "100%" };
 
   return (
     <>
@@ -11358,10 +11425,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               ref={backgroundCanvasRef}
               data-workspace-canvas="background"
               style={{
-                position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
+                ...authoringSurfacePosition,
                 pointerEvents: "none",
               }}
             />
@@ -11421,10 +11485,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               ref={onionCanvasRef}
               data-workspace-canvas="onion"
               style={{
-                position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
+                ...authoringSurfacePosition,
                 pointerEvents: "none",
               }}
             />
@@ -11432,10 +11493,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               ref={canvasRef}
               data-workspace-canvas="editable"
               style={{
-                position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
+                ...authoringSurfacePosition,
                 touchAction:
                   activeTool === "Fill" || isTimelinePlaying
                     ? "auto"
@@ -11464,10 +11522,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               ref={textCanvasRef}
               data-workspace-canvas="text"
               style={{
-                position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
+                ...authoringSurfacePosition,
                 pointerEvents: "none",
               }}
             />
@@ -11475,10 +11530,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               ref={foregroundCanvasRef}
               data-workspace-canvas="foreground"
               style={{
-                position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
+                ...authoringSurfacePosition,
                 pointerEvents: "none",
               }}
             />
@@ -11486,10 +11538,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               ref={lassoOverlayRef}
               data-workspace-canvas="overlay"
               style={{
-                position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
+                ...authoringSurfacePosition,
                 pointerEvents: "none",
               }}
             />

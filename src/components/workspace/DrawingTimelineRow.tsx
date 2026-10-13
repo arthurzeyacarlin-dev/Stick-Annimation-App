@@ -931,6 +931,9 @@ export function DrawingTimelineRow({
   );
 
   const visibleTickRange = useMemo(() => {
+    // Arthur 2026-10-13: on phones the scroll position wasn't always reported, so ticks vanished when scrolling.
+    // Drawing every tick up to 3000 frames is cheap and always right; longer timelines keep the windowed version.
+    if (logicalTimelineFrameCount <= 3000) return { firstVisibleTick: 1, lastVisibleTick: logicalTimelineFrameCount };
     const firstVisibleTick = Math.max(1, Math.floor(timelineScrollLeft / FRAME_CELL_WIDTH) - 2);
     const lastVisibleTick = Math.min(
       logicalTimelineFrameCount,

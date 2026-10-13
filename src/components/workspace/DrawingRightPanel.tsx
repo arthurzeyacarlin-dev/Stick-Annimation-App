@@ -80,19 +80,36 @@ export function DrawingRightPanel({
   // SPEC-0022 Phase 4: the AI Animator is a fourth tab with the whole panel (it no longer sits in the bottom corner).
   // Phones (≤ 640 px) open on the AI Animator tab: tell it what you want instead of drawing frame by frame.
   const [aiTabActive, setAiTabActive] = useState(() => typeof window !== "undefined" && window.innerWidth <= 640);
-  const [sheetOpen, setSheetOpen] = useState(false);
+  // Phones and tablets: like the computer, the panel is always there and one tab is always selected (no hide button).
   const [seenPanelTab, setSeenPanelTab] = useState(rightPanelTab);
   if (seenPanelTab !== rightPanelTab) { setSeenPanelTab(rightPanelTab); setAiTabActive(false); }
 
   return (
     <>
-    <button type="button" className="da-sheet-toggle" aria-expanded={sheetOpen} onClick={() => setSheetOpen((open) => !open)}>
-      {sheetOpen ? "Close panel" : "Panel"}
-    </button>
+    <div className="da-sheet-tabs" role="tablist" aria-label="Panels">
+      {([...RIGHT_PANEL_TABS, "AI Animator"] as const).map((name) => {
+        const active = name === "AI Animator" ? aiTabActive : !aiTabActive && rightPanelTab === name;
+        return (
+          <button
+            key={name}
+            type="button"
+            role="tab"
+            aria-selected={active}
+            onClick={() => {
+              if (active) return; // choosing the tab you are already on does nothing (Arthur)
+              if (name === "AI Animator") setAiTabActive(true);
+              else { setAiTabActive(false); onRightPanelTabChange(name); }
+            }}
+          >
+            {name === "AI Animator" ? "AI" : name}
+          </button>
+        );
+      })}
+    </div>
     <div
       ref={rightPanelRef}
       className="drawing-right-panel"
-      data-sheet-open={sheetOpen ? "true" : "false"}
+      data-sheet-open="true"
       data-workspace-right-panel="true"
       style={{
         width: panelWidth,

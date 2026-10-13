@@ -202,6 +202,7 @@ export function DrawingTopBar({
 
   return (
     <div
+      className="drawing-topbar"
       style={{
         height: 48,
         display: "flex",
@@ -213,7 +214,7 @@ export function DrawingTopBar({
         flexShrink: 0,
       }}
     >
-      <div style={{ flex: "1 1 0", display: "flex", alignItems: "center", gap: 12 }}>
+      <div className="drawing-topbar-menus" style={{ flex: "1 1 0", display: "flex", alignItems: "center", gap: 12 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
           <div ref={fileMenuRef} style={{ position: "relative", display: "flex", alignItems: "center" }}>
             <button
@@ -367,6 +368,7 @@ export function DrawingTopBar({
       </div>
 
       <div
+        className="drawing-topbar-title"
         title={projectTitle}
         style={{
           flex: "0 1 auto",

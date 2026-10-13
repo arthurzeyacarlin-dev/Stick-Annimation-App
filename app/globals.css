@@ -477,8 +477,8 @@ button.da-switch[aria-checked="true"] { background: var(--da-hover, #0066ff) !im
 .da-sheet-toggle { display: none; }
 @media (max-width: 900px) {
   .drawing-right-panel {
-    position: fixed !important; inset: auto 0 0 0 !important; width: 100% !important; max-width: none !important; flex: none !important;
-    height: min(62vh, 560px) !important; z-index: 60 !important; transform: translateY(110%); transition: transform 200ms ease;
+    position: fixed !important; inset: auto 0 102px 0 !important; width: 100% !important; max-width: none !important; flex: none !important;
+    height: min(54dvh, 460px) !important; max-height: calc(100dvh - 300px) !important; z-index: 60 !important; transform: translateY(140%); transition: transform 200ms ease;
     border-top: 1px solid var(--da-line, #163058); border-radius: 16px 16px 0 0; box-shadow: 0 -18px 44px rgba(0, 0, 0, .5);
   }
   .drawing-right-panel[data-sheet-open="true"] { transform: none; }
@@ -492,4 +492,121 @@ button.da-switch[aria-checked="true"] { background: var(--da-hover, #0066ff) !im
 }
 @media (max-width: 640px) {
   .da-sheet-toggle { bottom: 70px; right: 10px; }
+}
+
+/* SPEC-0022 Phase 9 Build 2: the phone editor. A tab bar sits above the tool row (Properties · Library · Assets · AI);
+   tapping a tab slides the sheet up, tapping it again closes it. The top bar loses its long labels so nothing is cut off. */
+.da-sheet-tabs { display: none; }
+@media (max-width: 900px) {
+  .da-sheet-tabs { display: grid; grid-template-columns: repeat(4, 1fr); position: fixed; left: 0; right: 0; bottom: 56px; height: 46px; z-index: 65; background: var(--da-panel, #071120); border-top: 1px solid var(--da-line, #163058); }
+  .da-sheet-tabs button { border: 0; background: transparent; color: var(--da-text-3, #a8bddd); font: inherit; font-size: 13px; font-weight: 650; cursor: pointer; }
+  .da-sheet-tabs button[aria-selected="true"] { color: #fff; background: var(--da-selected-bg, #0f2a52); box-shadow: inset 0 -2px 0 #0066ff; }
+  .da-sheet-tabs button:hover { background: var(--da-hover, #0066ff); color: #fff; }
+  .drawing-topbar { padding: 0 8px !important; gap: 6px !important; }
+  .drawing-topbar-menus { flex: 1 1 auto !important; overflow-x: auto; scrollbar-width: none; }
+  .drawing-topbar-title { display: none; }
+  .drawing-topbar [role="status"] { font-size: 0 !important; padding: 0 8px !important; }
+  .drawing-topbar [role="status"] > span { width: 9px !important; height: 9px !important; }
+}
+
+/* Build 2: the bottom tab bar replaces the panel's own tab group on phones and tablets (no duplicate tabs). */
+@media (max-width: 900px) {
+  .drawing-right-panel > div:has(> [role="group"][aria-label="Right panel"]) { display: none !important; }
+}
+
+/* ===== SPEC-0022 Phase 9 Build 2 (round 2, Arthur) ===== */
+/* One selected look everywhere (the bottom tab bar he loves): a filled block with a blue bar under it. Choices outside the
+   editor keep their rounded corners but act and look the same. */
+[class*="segmented"] button[aria-pressed="true"],
+[role="group"][aria-label="Right panel"] button[aria-pressed="true"],
+.workspace-properties-scroll div[style*="flex-wrap: wrap"] > button:not([style*="background: var(--da-panel"]):not([data-hover="danger"]):not([class*="delete" i]) {
+  background: var(--da-selected-bg, #0f2a52) !important; color: #ffffff !important; border-color: transparent !important;
+  box-shadow: inset 0 -3px 0 #0066ff !important;
+}
+[class*="segmented"] button[aria-pressed="true"]:hover,
+[role="group"][aria-label="Right panel"] button[aria-pressed="true"]:hover { background: var(--da-hover, #0066ff) !important; box-shadow: none !important; }
+.da-sheet-tabs button[aria-selected="true"] { box-shadow: inset 0 -3px 0 #0066ff; }
+
+@media (max-width: 900px) {
+  /* Nothing cut off, no stray page scroll in the editor. */
+  html:has(.drawing-right-panel), body:has(.drawing-right-panel) { height: 100dvh; overflow: hidden; overscroll-behavior: none; }
+  .drawing-toolbar { margin-top: 46px; }
+  .workspace-properties-scroll { padding-bottom: 28px !important; scroll-padding-bottom: 28px; }
+  .drawing-ai-tab { padding-bottom: 6px; }
+  /* The timeline controls: spread evenly across the row, a little bigger. */
+  /* The label, then FPS, then onion skin · layers · Play: each in its own even share, like the tool row below. */
+  .drawing-timeline-controls { width: 100%; justify-content: space-between !important; gap: 10px !important; }
+  .drawing-timeline-controls > :nth-child(2) { flex: 1 1 0; display: flex; justify-content: center; }
+  .drawing-timeline-controls > :nth-child(3) { flex: 2.4 1 0; display: flex; justify-content: space-evenly; gap: 6px; }
+  /* A layer added makes the timeline taller; it scrolls inside itself so the page never grows. */
+  div:has(> .drawing-timeline-controls) { max-height: 36dvh; overflow-y: auto; }
+  .drawing-timeline-controls button { min-width: 44px; min-height: 40px; }
+}
+
+/* The AI Animator's older phone style made its panel float over everything ("popping out", cutting things off).
+   Inside the bottom sheet it is a plain part of the sheet and fills it exactly. */
+@media (max-width: 900px) {
+  .drawing-right-panel { min-height: 240px !important; }
+  .drawing-ai-tab { overflow: hidden; }
+  .drawing-ai-tab > .workspace-ai-panel-shell {
+    position: static !important; left: auto !important; right: auto !important; bottom: auto !important; height: auto !important;
+    min-height: 0 !important; z-index: auto !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important;
+  }
+}
+
+/* The panel's "Hide panel" handle (only on phones and tablets), the editor never scrolls as a page. */
+.da-sheet-close { display: none; }
+@media (max-width: 900px) {
+  .da-sheet-close { display: flex; align-items: center; justify-content: center; flex: 0 0 auto; min-height: 36px; border: 0; border-bottom: 1px solid var(--da-line, #163058); background: transparent; color: var(--da-text-3, #a8bddd); font: inherit; font-size: 12px; font-weight: 650; cursor: pointer; }
+  .da-sheet-close:hover { background: var(--da-hover, #0066ff); color: #fff; }
+  [class*="workspaceTheme_workspace"] { overflow: hidden !important; overscroll-behavior: none; }
+  body:has(.drawing-right-panel) { touch-action: manipulation; }
+}
+
+/* ===== SPEC-0022 Phase 9 Build 2 (final pass, Arthur): no hiding, no stray scrolling, no hover jumps ===== */
+@media (max-width: 900px) {
+  :root { --da-sheet-h: min(44dvh, 380px); }
+  .da-sheet-close { display: none !important; }
+  /* The panel is always there, one tab always selected, and the canvas gets the space that is left. */
+  .drawing-right-panel { height: var(--da-sheet-h) !important; min-height: 200px !important; max-height: none !important; transform: none !important; }
+  .drawing-toolbar { margin-top: calc(46px + var(--da-sheet-h)) !important; overflow: visible !important; }
+  /* The editor never scrolls as a page, and the menus (File, Edit...) open on top, not behind the canvas. */
+  div:has(> .drawing-canvas-area) { overflow: hidden !important; }
+  .drawing-topbar-menus { overflow: visible !important; }
+  .drawing-topbar { overflow: visible !important; }
+  /* Tool and timeline buttons: no tooltips that push things around, nothing moves on hover. */
+  .drawing-toolbar [data-tooltip]::before, .drawing-toolbar [data-tooltip]::after,
+  .drawing-timeline-controls [data-tooltip]::before, .drawing-timeline-controls [data-tooltip]::after { display: none !important; }
+  .drawing-toolbar *, .drawing-timeline-controls * { transition: none !important; }
+  .drawing-toolbar button:hover, .drawing-timeline-controls button:hover { transform: none !important; margin: 0 !important; }
+  /* Timeline: the label, then four equal cells: FPS, onion skin, layers, Play. */
+  .drawing-timeline-controls { justify-content: flex-start !important; gap: 4px !important; }
+  .drawing-timeline-controls > :nth-child(2) { flex: 1 1 0; display: flex; justify-content: center; }
+  .drawing-timeline-controls > :nth-child(3) { display: contents; }
+  .drawing-timeline-controls > :nth-child(3) > * { flex: 1 1 0; display: flex; justify-content: center; }
+}
+
+/* ===== Final layout for phones and tablets: everything in the normal flow, nothing floats or overlaps =====
+   column: canvas (takes what is left) → tab bar → the panel → tool row. Same order of things as the computer. */
+@media (max-width: 900px) {
+  div:has(> .drawing-canvas-area) { flex-direction: column !important; }
+  div:has(> .drawing-canvas-area) > .drawing-canvas-area { flex: 1 1 0 !important; min-height: 0 !important; width: 100% !important; }
+  .da-sheet-tabs { position: static !important; flex: 0 0 46px; z-index: auto; }
+  .drawing-right-panel {
+    position: relative !important; inset: auto !important; width: 100% !important; max-width: none !important;
+    flex: 0 0 var(--da-sheet-h) !important; height: var(--da-sheet-h) !important; transform: none !important;
+    border-radius: 0 !important; box-shadow: none !important; z-index: auto !important; border-top: 0 !important;
+  }
+  .drawing-toolbar { margin-top: 0 !important; }
+}
+
+/* ===== SPEC-0022 Phase 9: the canvas has the SAME SHAPE on phones and tablets (16:9, the whole picture, centered) =====
+   Display only: the drawing area is shaped like the picture and fitted into the space that is left. The computer is untouched. */
+@media (max-width: 900px) {
+  .drawing-canvas-area { container-type: size; display: flex !important; align-items: center; justify-content: center; }
+  .drawing-canvas-area > [data-workspace-canvas-host="true"] {
+    flex: 0 0 auto !important;
+    width: min(100cqw, 100cqh * 16 / 9) !important;
+    height: min(100cqh, 100cqw * 9 / 16) !important;
+  }
 }

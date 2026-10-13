@@ -52,8 +52,8 @@
 - [ ] **SWORD-RHYTHM** — Strikes about every second after the opener (now 1.2–1.5 s; overlap the block's recovery with the counter's wind-up like the passed fist fights); other seeds "never at the hands" (overhead block vs chop).
 - [ ] **ANIM-KNOWN-3** — The 3 old open engine checks (tired/angry dash alone, energetic-fight seed checks, "vague fight" reaction).
 - [ ] **LAG-SAVE (needs Arthur's OK)** — Save uploads only changed frames / server's second full check; Open Project posters without loading whole projects; frame/layer clicks not marking the project unsaved.
-- [ ] **NEW-PROJECT-LAYER** — A new project's empty starting layer isn't kept after save + reopen (old behaviour; check if intended).
-- [ ] **UNDO-AI-SCENE** — Undo right after Insert Frame goes back past a whole added AI scene (old behaviour).
+- [x] **NEW-PROJECT-LAYER** — CHECKED 2026-10-13 (PM4, SPEC-0023 Phase 0): a new project keeps its starting layer, and added layers survive Save and Exit + reopen. Not reproducible, closed.
+- [ ] **UNDO-AI-SCENE** — Undo right after Insert Frame goes back past a whole added AI scene. 2026-10-13: cannot be tested until PM2's AI Animator is merged (AI scenes only come from it); it lives in PM2's area. Re-test right after the merge.
 - [ ] **TEXT-LETTERS** — Optional: letters popping one after another.
 - [ ] **HEAD-SIZE** — Arthur's drawing has a head about twice as wide as ours; size left unchanged (ask if he wants it bigger).
 - [ ] **COMPACT-FRAMES-2** — Optional: also compact frames hand-drawn during a session.

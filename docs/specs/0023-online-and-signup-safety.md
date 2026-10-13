@@ -4,7 +4,8 @@ Status: PLAN (PM4, 2026-10-13). Nothing built yet. Same workflow as every phase:
 
 Why: the app only runs on this computer. Before real users and real payments we need accounts and projects on a server, real emails, and a safe sign-up for kids under 13 (the law, COPPA, needs a parent's OK).
 
-## Phase 0 — Two small bugs (quick, no one else needed)
+## Phase 0 — Two small bugs: DONE 2026-10-13 (checked)
+- Result: NEW-PROJECT-LAYER does not reproduce (starting layer and added layers survive Save and Exit + reopen) → closed. UNDO-AI-SCENE needs the AI Animator merged first → re-test then. No code change was needed.
 - NEW-PROJECT-LAYER: a new project's empty starting layer is not kept after save + reopen.
 - UNDO-AI-SCENE: Undo right after Insert Frame goes back past a whole added AI scene.
 

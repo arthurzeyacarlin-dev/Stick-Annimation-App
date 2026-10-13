@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { listSessions } from "@/src/lib/assistant/assistantStorage";
 import { notificationBelongsToViewV1, notificationCopyForV1, type DiamondNotificationV1 } from "@/src/lib/notifications/notificationContracts";
 import { dispatchNotificationTargetV1 } from "@/src/lib/notifications/notificationNavigation";
@@ -29,6 +30,15 @@ export function NotificationTrigger({ view }: { view: "home" | "assistant" }) {
   const [ringTone, setRingTone] = useState<NotificationToneV1>("good");
   const panelId = useId();
   const [open, setOpen] = useState(false);
+  // Keeps the panel on screen for its short fade/slide-out after closing (same feel as the menu).
+  const [mounted, setMounted] = useState(false);
+  const [seenOpen, setSeenOpen] = useState(false);
+  if (open !== seenOpen) { setSeenOpen(open); if (open) setMounted(true); }
+  useEffect(() => {
+    if (open) return;
+    const id = window.setTimeout(() => setMounted(false), 200);
+    return () => window.clearTimeout(id);
+  }, [open]);
   const [ringing, setRinging] = useState(false);
   const [announcement, setAnnouncement] = useState<{ key: string; text: string } | null>(null);
   const [localStatus, setLocalStatus] = useState("");
@@ -194,8 +204,9 @@ export function NotificationTrigger({ view }: { view: "home" | "assistant" }) {
         {announcement && <span key={announcement.key}>{announcement.text}</span>}
       </span>
 
-      {open && (
-        <div className={compact ? styles.backdrop : undefined} data-notification-backdrop={compact ? "true" : undefined}>
+      {(open || mounted) && createPortal(<div className={styles.scrim} data-closing={open ? undefined : "true"} aria-hidden="true" />, document.body)}
+      {(open || mounted) && (
+        <div data-closing={open ? undefined : "true"} className={compact ? styles.backdrop : undefined} data-notification-backdrop={compact ? "true" : undefined}>
           <div
             id={panelId}
             ref={panelRef}

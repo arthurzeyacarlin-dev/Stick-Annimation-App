@@ -1,5 +1,6 @@
 "use client";
 
+import { DiamondLogo } from "@/src/components/chrome/DiamondLogo";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 type ProjectRecoveryPromptProps = {
@@ -70,9 +71,8 @@ export function ProjectRecoveryPrompt({
     return (
       <main className="recovery-shell" data-project-recovery-prompt="checking">
         <style>{recoveryStyles}</style>
-        <div className="recovery-loading" role="status" aria-live="polite">
-          <span className="recovery-spinner" aria-hidden="true" />
-          <span>Checking for unsaved work…</span>
+        <div className="recovery-loading" role="status" aria-live="polite" aria-label="Loading Diamond Animator" style={{ color: "#ffffff" }}>
+          <DiamondLogo size={160} />
         </div>
       </main>
     );

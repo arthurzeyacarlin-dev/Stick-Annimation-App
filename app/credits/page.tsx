@@ -13,7 +13,7 @@ export default async function CreditsPage() {
     <div style={{ minHeight: "100vh", background: "var(--da-page, #030914)", color: "var(--da-text, #f6f9ff)" }}>
       <AppChrome page="dashboard" />
       {/* SPEC-0020 Phase 9: the test controls exist only in development (the server decides; /api/dev/plan is 404 elsewhere). */}
-      <AiDashboardScreen showTestControls={process.env.NODE_ENV === "development"} />
+      <AiDashboardScreen />
     </div>
   );
 }

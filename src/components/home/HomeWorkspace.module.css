@@ -55,7 +55,7 @@
 .robotIcon { width: 43px; height: 43px; color: var(--da-icon, #7296bd); flex: 0 0 auto; }
 .main .secondary { position: absolute; z-index: 1; left: 85px; bottom: 12px; display: flex; align-items: center; gap: 9px; min-height: 44px; padding: 4px 0; color: var(--da-link, #8cbbf3); font-size: 13px; font-weight: 600; }
 .secondary svg { width: 24px; height: 24px; }
-.utility { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-top: 4px; color: #7e98bb; font-size: 12px; }
+.utility { display: flex; align-items: center; justify-content: flex-start; gap: 12px; padding-top: 4px; color: #7e98bb; font-size: 12px; }
 .utility button { min-height: 44px; padding: 8px 0; color: var(--da-link, #8cbbf3); font-size: 13px; font-weight: 650; }
 .utility button span { margin-left: 6px; }
 .main .secondary:hover, .utility button:hover { color: var(--da-hover, #0066ff); }

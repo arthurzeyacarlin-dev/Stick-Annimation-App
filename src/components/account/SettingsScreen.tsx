@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { APP_ACCENTS, NEW_PROJECT_FPS_CHOICES, saveAppSettings, useAppSettings, type AppAccent, type AppSettingsV1, type NotificationVolume } from "@/src/lib/account/appSettings";
+import { NEW_PROJECT_FPS_CHOICES, saveAppSettings, useAppSettings, type AppSettingsV1, type NotificationVolume } from "@/src/lib/account/appSettings";
 import { playNotificationDing } from "@/src/lib/notifications/notificationSound";
 import { BackButton } from "@/src/components/ui/BackButton";
 import styles from "./SettingsScreen.module.css";
@@ -9,10 +9,6 @@ import styles from "./SettingsScreen.module.css";
 // SPEC-0020 Phase 3: settings for Diamond Animator itself (Profile and the plan have their own pages).
 // Every control saves to the account right away and changes the app (Arthur: no layout-only settings).
 const VOLUMES: { value: NotificationVolume; label: string }[] = [{ value: "quiet", label: "Quiet" }, { value: "normal", label: "Normal" }, { value: "loud", label: "Loud" }];
-const ACCENT_COLORS: Record<AppAccent, { label: string; color: string }> = {
-  blue: { label: "Diamond blue", color: "#0066ff" }, purple: { label: "Purple", color: "#7c3aed" }, green: { label: "Green", color: "#12a150" },
-  orange: { label: "Orange", color: "#ef6c1a" }, pink: { label: "Pink", color: "#e0408a" }, red: { label: "Red", color: "#e5384a" }, teal: { label: "Teal", color: "#0f9b9b" },
-};
 const FPS_HINT: Record<number, string> = { 12: "the classic hand-drawn look", 24: "smooth, like movies", 30: "extra smooth, like videos" };
 
 export function SettingsScreen() {
@@ -40,26 +36,6 @@ export function SettingsScreen() {
         <BackButton href="/">Back to Home</BackButton>
         <p className={styles.eyebrow}>Diamond Animator</p>
         <h1 className={styles.title}>Settings</h1>
-
-        <section className={styles.section} aria-labelledby="settings-appearance">
-          <h2 id="settings-appearance" className={styles.sectionTitle}>Appearance</h2>
-          <div className={styles.row}>
-            <span className={styles.text}><strong>Mode</strong><small>Dark is Diamond Animator&apos;s navy look. Bright uses white panels with dark text.</small></span>
-            <div className={styles.segmented} role="group" aria-label="Mode">
-              <button type="button" aria-pressed={settings.theme === "dark"} disabled={disabled} onClick={() => void save({ theme: "dark" })}>Dark</button>
-              <button type="button" aria-pressed={settings.theme === "light"} disabled={disabled} onClick={() => void save({ theme: "light" })}>Bright</button>
-            </div>
-          </div>
-          <div className={styles.row}>
-            <span className={styles.text}><strong>Accent color</strong><small>The color every button and switch turns when you point at it. Now: {ACCENT_COLORS[settings.accent].label}.</small></span>
-            <div className={styles.swatches} role="group" aria-label="Accent color">
-              {APP_ACCENTS.map((accent) => (
-                <button key={accent} type="button" className={styles.swatch} style={{ background: ACCENT_COLORS[accent].color }} aria-pressed={settings.accent === accent}
-                  aria-label={ACCENT_COLORS[accent].label} title={ACCENT_COLORS[accent].label} disabled={disabled} onClick={() => void save({ accent })} />
-              ))}
-            </div>
-          </div>
-        </section>
 
         <section className={styles.section} aria-labelledby="settings-notifications">
           <h2 id="settings-notifications" className={styles.sectionTitle}>Notifications</h2>

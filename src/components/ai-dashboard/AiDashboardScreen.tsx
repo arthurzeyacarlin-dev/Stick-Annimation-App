@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AiUsageChart } from "./AiUsageChart";
-import { TestPlanControls } from "./TestPlanControls";
 import { buildBuckets, creditMeterColor, intervalSpec, nextUtcWeek, summarizeReceipts } from "../../lib/ai-dashboard/dashboardAggregation";
 import { type DashboardFilter, type DashboardInterval, type DashboardSnapshot } from "../../lib/ai-dashboard/dashboardContract";
 import { subscribeDashboardChanges } from "../../lib/ai-dashboard/dashboardSources";
@@ -11,7 +10,6 @@ import { useAccountPlan } from "../account/useAccountPlan";
 import Link from "next/link";
 import { ACCOUNT_PLANS, PAYMENT_GRACE_DAYS, type AccountPlanStatus } from "../../lib/account/plans";
 import styles from "./AiDashboard.module.css";
-import { BackButton } from "../ui/BackButton";
 import { BuyCreditsPanel } from "../account/BuyCreditsPanel";
 import { ManagePlanButton } from "../account/ManagePlanButton";
 
@@ -45,10 +43,10 @@ function PlanWarnings({ plan, trial }: { plan: AccountPlanStatus; trial: boolean
   </>;
 }
 
-export function AiDashboardScreen({ showTestControls = false }: { showTestControls?: boolean }) {
+export function AiDashboardScreen() {
   const account = useAccountSession();
   const ownerId = account?.id ?? null;
-  const { status: plan, failed: planFailed, refresh: refreshPlan } = useAccountPlan();
+  const { status: plan, failed: planFailed } = useAccountPlan();
   const [real, setReal] = useState<{ ownerId: string; snapshot: DashboardSnapshot } | null>(null);
   const [filter, setFilter] = useState<DashboardFilter>("combined");
   const [interval, setInterval] = useState<DashboardInterval>("quarter");
@@ -105,7 +103,6 @@ export function AiDashboardScreen({ showTestControls = false }: { showTestContro
     <main className={styles.main}>
       <div className={styles.content}>
         <section className={styles.top} aria-labelledby="dashboard-heading">
-          <BackButton href="/">Back to Home</BackButton>
           <p className={styles.eyebrow}>AI Dashboard</p>
           <h2 id="dashboard-heading" className={styles.headline}>
             {!plan ? (planFailed ? "Your credits couldn't be read. Try again in a moment." : "Loading your credits…")
@@ -152,11 +149,6 @@ export function AiDashboardScreen({ showTestControls = false }: { showTestContro
 
         <BuyCreditsPanel />
 
-        {showTestControls && <details className={styles.testPanel}>
-          <summary>TEST CONTROLS — not real. Nothing is charged and no AI runs.</summary>
-          <p className={styles.listNote}>Developer only (hidden in the real app). These buttons change only this account&apos;s plan record on this computer.</p>
-          <TestPlanControls goHomeWhenLocked onChanged={async () => { await refreshPlan(); }} />
-        </details>}
       </div>
     </main>
   );

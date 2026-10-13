@@ -1,8 +1,6 @@
 "use client";
 
 import { AppChrome as MainScreenHeader } from "@/src/components/chrome/AIcreditspage";
-import { TutorialsScreen } from "@/src/components/tutorials/TutorialsScreen";
-import { HelpHub } from "@/src/components/help/HelpHub";
 import { AnimationWorkspace } from "@/src/components/workspace/AnimationWorkspace";
 import { AnimationExportFlow } from "@/src/components/export/AnimationExportFlow";
 import { ProjectRecoveryPrompt } from "@/src/components/recovery/ProjectRecoveryPrompt";
@@ -34,7 +32,6 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getAppSettings } from "@/src/lib/account/appSettings";
-import { CloseButton } from "@/src/components/ui/CloseButton";
 
 // SPEC-0020 Phase 5: Home shows the account's most recently saved project, read
 // with the same one list call the Open Project library uses (newest first). Only
@@ -100,7 +97,6 @@ export default function Page() {
   const homeScrollHideTimeoutRef = useRef<number | null>(null);
   const assistantButtonRef = useRef<HTMLButtonElement | null>(null);
   const restoreHelpFocusRef = useRef(false);
-  const [helpFocus, setHelpFocus] = useState<"assistant" | "tutorials" | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -121,14 +117,7 @@ export default function Page() {
   useEffect(() => {
     if (view !== "home" || startupRecovery.kind !== "home") return;
     const restoreAssistantFocus = () => {
-      if (window.location.hash === "#help") {
-        // Assistant's back link returns to the Help page it was opened from.
-        window.history.replaceState(window.history.state, "", window.location.pathname + window.location.search);
-        setHelpFocus("assistant");
-        setView("help");
-        return;
-      }
-      if (window.location.hash !== "#ai-assistant") return;
+      if (window.location.hash !== "#ai-assistant" && window.location.hash !== "#help") return;
       const button = assistantButtonRef.current;
       if (!button) return;
       button.scrollIntoView({ behavior: "auto", block: "nearest" });
@@ -539,8 +528,7 @@ export default function Page() {
                 <button id="ai-assistant" ref={assistantButtonRef} type="button" className={homeStyles.shortcut}
                   onClick={(event) => {
                     event.currentTarget.blur();
-                    setHelpFocus(null);
-                    setView("help");
+                    router.push("/assistant");
                   }}>
                   <svg className={homeStyles.robotIcon} viewBox="0 -2 34 36" fill="none" aria-hidden="true">
                     <path d="M17.55 10.2V8.15l-1.8-1.6 1.8-1.5v-2.6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -550,7 +538,7 @@ export default function Page() {
                     <ellipse cx="13.5" cy="17.5" rx="1.7" ry="2.05" fill="currentColor" />
                     <ellipse cx="20.5" cy="17.5" rx="1.7" ry="2.05" fill="currentColor" />
                   </svg>
-                  <span><strong>Help</strong><small>Ask the Assistant or learn the basics.</small></span>
+                  <span><strong>Help</strong><small>Ask the Assistant.</small></span>
                 </button>
               </section>
             </nav>
@@ -561,25 +549,6 @@ export default function Page() {
           </div>
         </main>
       )}
-{view === "help" && (
-  <HelpHub
-    initialFocus={helpFocus}
-    onBack={() => {
-      restoreHelpFocusRef.current = true;
-      setView("home");
-    }}
-    onOpenAssistant={() => router.push("/assistant")}
-    onOpenTutorials={() => setView("tutorials")}
-  />
-)}
-{view === "tutorials" && (
-  <TutorialsScreen
-    onBack={() => {
-      setHelpFocus("tutorials");
-      setView("help");
-    }}
-  />
-)}
 {bootstrapMessage && view === "home" ? <div role="status" style={{ position: "fixed", bottom: 12, left: 12, color: "#f6f9ff", background: "#071120", border: "1px solid #163058", padding: 12, borderRadius: 12 }}>{bootstrapMessage}</div> : null}
 {workspace && (view === "animationWorkspace" || (view === "animationExport" && exportOrigin === "workspace")) && (
   <div style={{ display: view === "animationWorkspace" ? "contents" : "none" }}>

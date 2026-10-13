@@ -1,3 +1,4 @@
+import { OnOffSwitch } from "@/src/components/ui/OnOffSwitch";
 import type { CSSProperties, ReactNode } from "react";
 
 import type {StickFigureAiWorkspaceAdapterV2} from "../../../lib/ai/stickFigureAiWorkspaceAdapter";
@@ -532,33 +533,7 @@ function SelectPropertiesTabContent({
         <div style={{ color: "rgba(255,255,255,0.52)", fontSize: 11, fontWeight: 700, letterSpacing: 0.7 }}>CANVAS</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <div style={{ color: "rgba(255,255,255,0.76)", fontSize: 12 }}>Show Canvas</div>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            {([
-              { label: "On", value: true },
-              { label: "Off", value: false },
-            ] as const).map((option) => {
-              const isSelected = canvasMovementEnabled === option.value;
-              return (
-                <button
-                  key={option.label}
-                  type="button"
-                  onClick={() => onCanvasMovementChange(option.value)}
-                  style={{
-                    minHeight: 34,
-                    padding: "6px 10px",
-                    borderRadius: 8,
-                    border: isSelected ? "1px solid rgba(110,170,255,0.34)" : "1px solid rgba(255,255,255,0.12)",
-                    background: isSelected ? "rgba(110,170,255,0.10)" : "rgba(255,255,255,0.04)",
-                    color: isSelected ? "rgba(225,238,255,0.92)" : "rgba(255,255,255,0.82)",
-                    fontSize: 12,
-                    cursor: "pointer",
-                  }}
-                >
-                  {option.label}
-                </button>
-              );
-            })}
-          </div>
+          <OnOffSwitch label="On or off" checked={canvasMovementEnabled} onChange={onCanvasMovementChange} />
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "flex-start" }}>
           <button

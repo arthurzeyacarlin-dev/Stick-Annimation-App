@@ -1,3 +1,4 @@
+import { OnOffSwitch } from "@/src/components/ui/OnOffSwitch";
 import { canonicalPaint, compositeRasterPaint, mergePaintPixel, rasterCommandDigest, RASTER_ALGORITHM_VERSION, RASTER_GESTURE_COMMAND, RasterGestureDraft, unionRect, type RasterGestureCommandV2, type RasterPreview, type RasterRect } from "@/src/lib/animation/editorCommands/rasterGesture";
 import type { SceneForPage } from "@/src/lib/animator/stageFit";
 import type { EngineDrawingBridge } from "./ai/engineDrawingBridge";
@@ -6593,7 +6594,6 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       : nextSymbolNumberRef.current;
     pendingSymbolCreationRef.current = null;
     setSymbolDialog(null);
-    setWorkspaceNotice(`Created ${finalName} in Library.`);
     pending.resolve(true);
   }, [createCanvasSignature, onCreateUnifiedSymbolDefinition, symbolDialog]);
 
@@ -9902,7 +9902,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               >
                 Flip Y
               </button>
-              <button
+              <button data-hover="danger"
                 type="button"
                 onClick={() => {
                   if (deleteSelectedTextObjects([selectedTextObject.id])) {
@@ -9987,33 +9987,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
           <div style={{ color: "var(--da-label, #7895bc)", fontSize: 11, fontWeight: 700, letterSpacing: 0.7 }}>CANVAS</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             <div style={{ color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>Show Canvas</div>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              {([
-                { label: "On", value: true },
-                { label: "Off", value: false },
-              ] as const).map((option) => {
-                const isSelected = canvasMovementEnabled === option.value;
-                return (
-                  <button
-                    key={option.label}
-                    type="button"
-                    onClick={() => setCanvasMovementEnabled(option.value)}
-                    style={{
-                      minHeight: 34,
-                      padding: "6px 10px",
-                      borderRadius: 10,
-                      border: isSelected ? "1px solid var(--da-selected-border, #3a6aa3)" : "1px solid var(--da-border, #244267)",
-                      background: isSelected ? "var(--da-selected-bg, #0f2a52)" : "var(--da-panel, #071120)",
-                      color: isSelected ? "var(--da-on-selected, #eaf3ff)" : "var(--da-text-2, #c9d6ea)",
-                      fontSize: 12,
-                      cursor: "pointer",
-                    }}
-                  >
-                    {option.label}
-                  </button>
-                );
-              })}
-            </div>
+            <OnOffSwitch label="On or off" checked={canvasMovementEnabled} onChange={setCanvasMovementEnabled} />
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "flex-start" }}>
             <button
@@ -10361,27 +10335,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
             <span>Draw Rig</span>
             <span style={{ color: "var(--da-label, #7895bc)", fontSize: 10 }}>Straighten each live run as you draw.</span>
           </div>
-          <button
-            type="button"
-            role="switch"
-            aria-label="Draw Rig"
-            aria-checked={drawRigEnabled}
-            onClick={() => setDrawRigEnabled((enabled) => !enabled)}
-            style={{
-              minWidth: 46,
-              minHeight: 26,
-              padding: "4px 9px",
-              borderRadius: 999,
-              border: drawRigEnabled ? "1px solid var(--da-selected-border, #3a6aa3)" : "1px solid var(--da-border, #244267)",
-              background: drawRigEnabled ? "var(--da-selected-bg, #0f2a52)" : "var(--da-panel, #071120)",
-              color: drawRigEnabled ? "var(--da-on-selected, #eaf3ff)" : "var(--da-text-2, #c9d6ea)",
-              fontSize: 11,
-              fontWeight: 700,
-              cursor: "pointer",
-            }}
-          >
-            {drawRigEnabled ? "On" : "Off"}
-          </button>
+          <OnOffSwitch label="Draw Rig" checked={drawRigEnabled} onChange={(next) => setDrawRigEnabled(next)} />
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 4, color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
@@ -10801,33 +10755,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
         )}
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <div style={{ color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>Straight line</div>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            {([
-              { label: "Off", value: false },
-              { label: "On", value: true },
-            ] as const).map((option) => {
-              const isSelected = knifeStraightLine === option.value;
-              return (
-                <button
-                  key={option.label}
-                  type="button"
-                  onClick={() => setKnifeStraightLine(option.value)}
-                  style={{
-                    minHeight: 34,
-                    padding: "6px 10px",
-                    borderRadius: 10,
-                    border: isSelected ? "1px solid var(--da-selected-border, #3a6aa3)" : "1px solid var(--da-border, #244267)",
-                    background: isSelected ? "var(--da-selected-bg, #0f2a52)" : "var(--da-panel, #071120)",
-                    color: isSelected ? "var(--da-on-selected, #eaf3ff)" : "var(--da-text-2, #c9d6ea)",
-                    fontSize: 12,
-                    cursor: "pointer",
-                  }}
-                >
-                  {option.label}
-                </button>
-              );
-            })}
-          </div>
+          <OnOffSwitch label="On or off" checked={knifeStraightLine} onChange={setKnifeStraightLine} />
         </div>
         <label style={{ display: "flex", flexDirection: "column", gap: 8, color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
           Smoothing: {knifeSmoothing}
@@ -11074,7 +11002,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               <div style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
                 <div style={{ color: "var(--da-text-2, #c9d6ea)", fontSize: 11, fontWeight: 600, lineHeight: 1.25, minWidth: 0, overflowWrap: "anywhere" }}>{asset.name}</div>
                 {onRemoveUnifiedAsset && (
-                  <button
+                  <button data-hover="danger"
                     type="button"
                     aria-label={`Delete ${asset.name} asset`}
                     onPointerDown={event => event.stopPropagation()}
@@ -11168,7 +11096,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 <div style={{ color: "var(--da-label, #7895bc)", fontSize: 10 }}>{item.tag}</div>
               </div>
               {onRemoveUnifiedSymbolDefinition && (
-                <button
+                <button data-hover="danger"
                   type="button"
                   aria-label={`Delete ${item.name} definition`}
                   onPointerDown={event => event.stopPropagation()}

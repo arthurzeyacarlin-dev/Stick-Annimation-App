@@ -436,3 +436,34 @@ button[class*="danger" i]:hover:not(:disabled), button[class*="destructive" i]:h
   background: var(--da-danger-solid, #d23a52) !important; border-color: var(--da-danger-solid, #d23a52) !important; color: #ffffff !important;
 }
 button[class*="danger" i]:disabled, button[class*="destructive" i]:disabled, button[class*="delete" i]:not([data-hover="icon"]):disabled, button[class*="discard" i]:not([data-hover="icon"]):disabled, button[data-hover="danger"]:disabled { opacity: .55; cursor: not-allowed; }
+
+/* SPEC-0022 Phase 4 (Arthur 2026-10-13): choice buttons in the workspace right panel (On/Off, Square/Triangle/Circle,
+   Draw/Cutout, Reset View…) share one height, radius and text size. Color swatches and icon buttons are left alone. */
+.workspace-properties-scroll button:not(:has(input[type="color"])):not([data-hover="icon"]):not(.da-switch) {
+  min-height: 34px; border-radius: 10px; font-size: 13px; font-weight: 600; line-height: 1.2;
+}
+
+/* SPEC-0022 Phase 4 (Arthur 2026-10-13): choices with 2+ options in the workspace right panel look like the Properties /
+   Library / Assets tab group: one rounded bar, the selected option highlighted inside it. A delete button in the row stands
+   apart. (Yes/no choices are OnOffSwitch toggles instead.) */
+.workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button) { display: inline-flex !important; flex-wrap: nowrap !important; gap: 2px !important; padding: 3px; border: 1px solid var(--da-border, #244267); border-radius: 11px; background: var(--da-page, #030914); width: fit-content; max-width: 100%; }
+.workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button) > button { height: 32px; min-height: 32px; padding: 0 14px; border: 0 !important; border-radius: 8px !important; margin: 0 !important; background: transparent !important; color: var(--da-text-3, #a8bddd) !important; font-size: 13px; font-weight: 600; box-shadow: none; }
+.workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button) > button:not([style*="background: var(--da-panel"]):not([data-hover="danger"]):not([class*="delete" i]) { background: var(--da-selected-bg, #0f2a52) !important; color: #ffffff !important; box-shadow: inset 0 0 0 1px var(--da-selected-border, #3a6aa3); }
+.workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button) > button:hover { background: var(--da-hover, #0066ff) !important; color: #ffffff !important; }
+.workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button):has(> button[data-hover="danger"], > button[class*="delete" i]) { display: flex !important; gap: 0 !important; padding: 0; border: 0; border-radius: 0; background: transparent; width: auto; }
+.workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button):has(> button[data-hover="danger"], > button[class*="delete" i]) > button { border: 1px solid var(--da-border, #244267) !important; border-radius: 0 !important; margin-left: -1px !important; background: #0d1c36 !important; }
+.workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button):has(> button[data-hover="danger"], > button[class*="delete" i]) > button:first-child { border-radius: 10px 0 0 10px !important; margin-left: 0 !important; }
+.workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button):has(> button[data-hover="danger"], > button[class*="delete" i]) > button:has(+ button[data-hover="danger"]), .workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button):has(> button[data-hover="danger"], > button[class*="delete" i]) > button:has(+ button[class*="delete" i]) { border-radius: 0 10px 10px 0 !important; }
+.workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button):has(> button[data-hover="danger"], > button[class*="delete" i]) > button[data-hover="danger"], .workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button):has(> button[data-hover="danger"], > button[class*="delete" i]) > button[class*="delete" i] { border-radius: 10px !important; margin-left: 12px !important; background: transparent !important; }
+
+/* SPEC-0022 Phase 4: the right panel is the app's dark navy page color (same as the AI Animator tab), so unselected
+   buttons inside it are lifted to a brighter navy with a brighter outline and do not blend into the background. */
+.workspace-properties-scroll button[style*="background: var(--da-panel"]:not(.da-switch) {
+  background: #0d1c36 !important; border-color: #2f527f !important;
+}
+
+/* On/Off switch (OnOffSwitch): exactly the Settings switch. Pointing at it lights its outline blue (on or off). */
+button.da-switch { min-height: 0 !important; height: 24px !important; width: 44px !important; border-radius: 999px !important; padding: 0 !important; }
+button.da-switch:hover { border-color: var(--da-hover, #0066ff) !important; box-shadow: none !important; }
+button.da-switch:not([aria-checked="true"]) { background: var(--da-panel, #071120) !important; }
+button.da-switch[aria-checked="true"] { background: var(--da-hover, #0066ff) !important; border-color: var(--da-hover, #0066ff) !important; }

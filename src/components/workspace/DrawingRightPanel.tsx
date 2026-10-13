@@ -1,3 +1,5 @@
+"use client";
+import { useState } from "react";
 import type { KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent, ReactNode, RefObject } from "react";
 import type { SceneForPage } from "@/src/lib/animator/stageFit";
 import type { EngineDrawingBridge } from "./ai/engineDrawingBridge";
@@ -75,6 +77,11 @@ export function DrawingRightPanel({
   onApplyAnimatorScene,
   engineDrawing,
 }: DrawingRightPanelProps) {
+  // SPEC-0022 Phase 4: the AI Animator is a fourth tab with the whole panel (it no longer sits in the bottom corner).
+  const [aiTabActive, setAiTabActive] = useState(false);
+  const [seenPanelTab, setSeenPanelTab] = useState(rightPanelTab);
+  if (seenPanelTab !== rightPanelTab) { setSeenPanelTab(rightPanelTab); setAiTabActive(false); }
+
   return (
     <div
       ref={rightPanelRef}
@@ -85,12 +92,12 @@ export function DrawingRightPanel({
         flex: `0 0 ${panelWidth}px`,
         maxWidth: "none",
         borderLeft: 0,
-        background: "var(--da-panel, #071120)",
+        background: "var(--da-page, #030914)",
         display: "flex",
         flexDirection: "column",
         minHeight: 0,
         position: "absolute",
-        inset: "0 0 0 auto",
+        inset: "0 0 -56px auto", // runs to the bottom of the window, past the 56 px tools row (Arthur: no dark rectangle)
         zIndex: 20,
       }}
     >
@@ -192,13 +199,13 @@ export function DrawingRightPanel({
       >
         <div role="group" aria-label="Right panel" style={{ display: "flex", gap: 2, padding: 3, width: "100%", border: "1px solid var(--da-border, #244267)", borderRadius: 11, background: "var(--da-page, #030914)" }}>
         {RIGHT_PANEL_TABS.map((tab) => {
-          const isActiveTab = rightPanelTab === tab;
+          const isActiveTab = !aiTabActive && rightPanelTab === tab;
 
           return (
             <button
               key={tab}
               type="button"
-              onClick={() => onRightPanelTabChange(tab)}
+              onClick={() => { setAiTabActive(false); onRightPanelTabChange(tab); }}
               aria-pressed={isActiveTab}
               style={{
                 flex: 1,
@@ -221,6 +228,20 @@ export function DrawingRightPanel({
             </button>
           );
         })}
+        <button
+          type="button"
+          onClick={() => setAiTabActive(true)}
+          aria-pressed={aiTabActive}
+          style={{
+            flex: 1, height: 32, padding: "0 12px", borderRadius: 8, border: 0,
+            background: aiTabActive ? "var(--da-selected-bg, #0f2a52)" : "transparent",
+            boxShadow: aiTabActive ? "inset 0 0 0 1px var(--da-selected-border, #3a6aa3)" : "none",
+            color: aiTabActive ? "#ffffff" : "var(--da-text-3, #a8bddd)",
+            fontSize: 13, fontWeight: 600, userSelect: "none", cursor: "pointer", outline: "none", appearance: "none", whiteSpace: "nowrap",
+          }}
+        >
+          AI Animator
+        </button>
         </div>
       </div>
 
@@ -228,13 +249,14 @@ export function DrawingRightPanel({
         className="workspace-properties-scroll"
         data-workspace-right-panel-content={rightPanelTab.toLowerCase()}
         style={{
-          flex: "0 0 45%",
+          display: aiTabActive ? "none" : "block",
+          flex: "1 1 0",
           maxHeight: "100%",
           minHeight: 0,
           padding: rightPanelTab === "Assets" ? "12px 12px 8px 12px" : rightPanelTab === "Library" ? "12px 12px 6px 12px" : 12,
           boxSizing: "border-box",
           borderBottom: "1px solid var(--da-line, #163058)",
-          background: "var(--da-panel, #071120)",
+          background: "var(--da-page, #030914)",
           color: "var(--da-muted, #8fabd0)",
           fontSize: 12,
           lineHeight: 1.5,
@@ -298,6 +320,8 @@ export function DrawingRightPanel({
         </div>
       )}
 
+      <div className="drawing-ai-tab" style={{ display: aiTabActive ? "flex" : "none", flex: "1 1 0", minHeight: 0, flexDirection: "column" }}>
+        <style>{`.drawing-ai-tab > .workspace-ai-panel-shell { flex: 1 1 0 !important; border-top: 0 !important; background: var(--da-page, #030914) !important; } .drawing-ai-tab .workspace-ai-messages-scroll { background: transparent !important; } .drawing-ai-tab .workspace-ai-panel-shell > style + div { display: none !important; } .drawing-ai-tab .workspace-ai-panel-shell > * { background: var(--da-page, #030914) !important; }`}</style>
       <DrawingAiPanel
         workspaceContext={workspaceContext}
         projectAiMemory={projectAiMemory}
@@ -307,6 +331,7 @@ export function DrawingRightPanel({
         onApplyAnimatorScene={onApplyAnimatorScene}
         engineDrawing={engineDrawing}
       />
+      </div>
     </div>
   );
 }

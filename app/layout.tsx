@@ -11,6 +11,7 @@ import { AppearanceSync } from "@/src/components/account/AppearanceSync";
 import { APPEARANCE_COOKIE, parseAppearanceCookie } from "@/src/lib/account/appearance";
 import { ComputersOnlyGate } from "@/src/components/chrome/ComputersOnlyGate";
 import { ChunkReloadGuard } from "@/src/components/chrome/ChunkReloadGuard";
+import { PageLoadingMark } from "@/src/components/chrome/PageLoadingMark";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -47,6 +48,7 @@ export default async function RootLayout({
             <ChunkReloadGuard />
             {children}
             <ComputersOnlyGate />
+            <PageLoadingMark />
           </NotificationCenterProvider>
         </AccountSessionProvider>
       </body>

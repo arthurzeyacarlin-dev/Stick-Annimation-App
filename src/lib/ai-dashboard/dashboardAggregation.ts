@@ -79,7 +79,7 @@ export function currentWeekTotals(receipts: DashboardReceipt[], now: number) {
   return { projectTokens, assistantTokens, combinedTokens: projectTokens + assistantTokens };
 }
 
-export function buildBuckets(receipts: DashboardReceipt[], interval: DashboardInterval, filter: DashboardFilter, now: number): DashboardBucket[] {
+export function buildBuckets(receipts: DashboardReceipt[], interval: DashboardInterval, filter: DashboardFilter, now: number, roof: number = TEST_WEEKLY_TOKENS): DashboardBucket[] {
   if (now <= 0) return [];
   const { duration } = intervalSpec[interval];
   const firstStart = windowStart(interval, now);
@@ -108,7 +108,7 @@ export function buildBuckets(receipts: DashboardReceipt[], interval: DashboardIn
     }
     const combinedTokens = projectTokens + assistantTokens;
     const selectedTokens = filter === "project" ? projectTokens : filter === "assistant" ? assistantTokens : combinedTokens;
-    const selectedPercent = selectedTokens / TEST_WEEKLY_TOKENS * 100;
+    const selectedPercent = selectedTokens / roof * 100;
     const previous = index > 0 ? activeStarts[index - 1] : null;
     const firstInWeek = previous === null || utcWeekStart(previous) !== utcWeekStart(start);
     const previousSelectedTokens = firstInWeek ? null : filter === "project" ?
@@ -122,7 +122,7 @@ export function buildBuckets(receipts: DashboardReceipt[], interval: DashboardIn
       start, end, sampleAt, projectTokens, assistantTokens, combinedTokens, selectedTokens,
       intervalSelectedTokens, sincePreviousSelectedTokens: previousSelectedTokens === null ? null : selectedTokens - previousSelectedTokens,
       firstInWeek,
-      selectedPercent, combinedPercent: combinedTokens / TEST_WEEKLY_TOKENS * 100,
+      selectedPercent, combinedPercent: combinedTokens / roof * 100,
       color: colorForPercent(selectedPercent), resetAfter: index < activeStarts.length - 1 && utcWeekStart(activeStarts[index + 1]) !== utcWeekStart(start), isCurrent,
     };
   });

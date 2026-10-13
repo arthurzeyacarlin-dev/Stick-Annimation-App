@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AiUsageChart } from "./AiUsageChart";
+import { creditMeterPercent } from "../../lib/ai-dashboard/creditMeter";
 import { buildBuckets, creditMeterColor, intervalSpec, nextUtcWeek, summarizeReceipts } from "../../lib/ai-dashboard/dashboardAggregation";
 import { type DashboardFilter, type DashboardInterval, type DashboardSnapshot } from "../../lib/ai-dashboard/dashboardContract";
 import { subscribeDashboardChanges } from "../../lib/ai-dashboard/dashboardSources";
@@ -51,6 +52,8 @@ export function AiDashboardScreen() {
   const [filter, setFilter] = useState<DashboardFilter>("combined");
   const [interval, setInterval] = useState<DashboardInterval>("quarter");
   const [readError, setReadError] = useState(false);
+  // SPEC-0022 Phase 2: the chart reads the SAME credit list as the bar and "credits used" (Arthur: they must agree).
+  const [creditEvents, setCreditEvents] = useState<{ at: number; credits: number; kind: string }[]>([]);
   const abortRef = useRef<AbortController | null>(null);
   const generation = useRef(0);
   const refresh = useCallback(() => {
@@ -81,10 +84,22 @@ export function AiDashboardScreen() {
   }, [refresh]);
 
   const snapshot = real?.ownerId === ownerId ? real.snapshot : null;
-  const now = snapshot?.readAt ?? 0;
+  const creditsUsedNow = plan?.creditsUsed;
+  useEffect(() => {
+    let live = true;
+    void fetch("/api/account/credit-use", { cache: "no-store" }).then((res) => res.ok ? res.json() : null)
+      .then((value: { events?: { at: number; credits: number; kind: string }[] } | null) => { if (live && value?.events) setCreditEvents(value.events); })
+      .catch(() => {});
+    return () => { live = false; };
+  }, [creditsUsedNow, snapshot?.readAt]);
+  const now = snapshot ? Math.max(snapshot.readAt, ...creditEvents.map((event) => event.at)) : 0;
   const complete = !!snapshot && !readError && [snapshot.project.state, snapshot.assistant.state].every((state) => state === "ready" || state === "absent");
-  const allReceipts = useMemo(() => snapshot ? [...snapshot.project.receipts, ...snapshot.assistant.receipts] : [], [snapshot]);
-  const buckets = useMemo(() => buildBuckets(allReceipts, interval, filter, now), [allReceipts, interval, filter, now]);
+  const allReceipts = useMemo(() => creditEvents.map((event, index) => ({
+    id: `credit-${event.at}-${index}`, source: "project" as const, at: event.at, inputTokens: null, outputTokens: null, totalTokens: event.credits,
+    estimatedCostUsd: null, priceDate: null, model: null, reasoning: null, toolCalls: 0,
+  })), [creditEvents]);
+  const roof = plan ? Math.max(1, plan.creditsTotal) : 1;
+  const buckets = useMemo(() => buildBuckets(allReceipts, interval, filter, now, roof), [allReceipts, interval, filter, now, roof]);
   const issues = snapshot ? [...snapshot.project.issues, ...snapshot.assistant.issues] : [];
   const partial = !!snapshot && !complete;
 
@@ -95,7 +110,7 @@ export function AiDashboardScreen() {
   const week = summarizeReceipts(allReceipts, weekStart, now);
   const trial = plan?.plan === "trial";
   const paid = !!plan && !trial && !plan.locked;
-  const usedPercent = plan && plan.creditsTotal ? Math.min(100, plan.creditsUsed / plan.creditsTotal * 100) : 0;
+  const usedPercent = plan ? creditMeterPercent(plan.creditsUsed, plan.creditsTotal, plan.topUpCredits) : 0;
   const refill = plan ? plan.refillsAt ?? plan.windowEnd : 0;
   const price = plan ? (plan.interval === "year" ? `$${ACCOUNT_PLANS[plan.plan].yearlyUsd} a year` : ACCOUNT_PLANS[plan.plan].price) : "";
 
@@ -122,10 +137,7 @@ export function AiDashboardScreen() {
         <section className={styles.stats} aria-label="Your AI credits and usage">
           <div><strong>{plan ? number(plan.creditsLeft) : "—"}</strong><span>AI credits left{plan && plan.topUpCredits > 0 ? ` (${number(plan.topUpCredits)} extra)` : ""}</span></div>
           <div><strong>{plan ? number(plan.creditsUsed) : "—"}</strong><span>AI credits used {trial ? "in your trial" : "this month"}</span></div>
-          <div><strong>{snapshot ? number(week.total) : "—"}</strong><span>AI tokens used this week</span></div>
-          <div><strong>{snapshot ? `${number(week.input)} / ${number(week.output)}` : "—"}</strong><span>sent to AI / written by AI</span></div>
-          <div><strong>{snapshot && (week.receipts === 0 || week.unknownCost < week.receipts) ? `$${week.cost.toFixed(4)}` : "—"}</strong><span>estimated AI cost (not a bill)</span></div>
-          <div><strong>{snapshot ? number(week.toolCalls) : "—"}</strong><span>web searches</span></div>
+          <div><strong>{snapshot ? number(week.total) : "—"}</strong><span>AI credits used this week</span></div>
         </section>
         {plan && <div className={styles.creditMeter} role="meter" aria-valuemin={0} aria-valuemax={plan.creditsTotal} aria-valuenow={plan.creditsUsed}
           aria-label={`${number(plan.creditsUsed)} of ${number(plan.creditsTotal)} plan credits used`}>
@@ -135,7 +147,7 @@ export function AiDashboardScreen() {
         <p className={styles.scope}>The bar fills up as you use your AI credits. The Help Assistant and voice typing are free.</p>
 
         <section className={styles.chartCard} aria-labelledby="usage-heading">
-          <div className={styles.cardHeading}><div><p className={styles.eyebrow}>Details · tokens</p><h3 id="usage-heading">Usage over time</h3></div></div>
+          <div className={styles.cardHeading}><div><p className={styles.eyebrow}>Details · credits</p><h3 id="usage-heading">Usage over time</h3></div></div>
           <div className={styles.controls}><fieldset><legend>Show</legend><div className={styles.segmented}>{filters.map((option) =>
             <button type="button" key={option.value} aria-pressed={filter === option.value} onClick={() => setFilter(option.value)}>{option.label}</button>)}</div></fieldset>
             <fieldset><legend>Group by</legend><div className={styles.segmented}>{intervals.map((option) =>
@@ -143,8 +155,8 @@ export function AiDashboardScreen() {
           {readError && <p className={styles.partial} role="alert">Couldn&apos;t update your usage. The numbers may be out of date; it tries again by itself.</p>}
           {issues.length > 0 && <div className={styles.partial} role="status"><strong>Some usage couldn&apos;t be read.</strong><ul>{[...new Set(issues)].map((issue) => <li key={issue}>{issue}</li>)}</ul></div>}
           {snapshot && buckets.length === 0 && !partial && <p className={styles.empty}>No AI usage to show here yet.</p>}
-          {snapshot && <AiUsageChart key={`${filter}-${interval}`} buckets={buckets} filter={filter} complete={complete} capacity={intervalSpec[interval].count} />}
-          <p className={styles.chartNote}>Each bar adds up the AI&apos;s tokens so far this week. Tokens are small pieces of text the AI reads and writes; they don&apos;t change your credits.</p>
+          {snapshot && <AiUsageChart key={`${filter}-${interval}`} buckets={buckets} filter={filter} complete={complete} capacity={intervalSpec[interval].count} roof={roof} />}
+          <p className={styles.chartNote}>Each bar adds up the AI credits you used so far this week. It is the same list as the bar above, so the numbers match.</p>
         </section>
 
         <BuyCreditsPanel />

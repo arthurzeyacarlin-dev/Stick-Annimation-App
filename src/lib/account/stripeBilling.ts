@@ -111,6 +111,11 @@ async function loadCatalog(): Promise<StripeCatalog> {
     const price = found.get(entry.lookupKey);
     if (price && productUsable(price.product) && !products.has(entry.productKey)) products.set(entry.productKey, productIdOf(price.product));
   }
+  // Keep product names current (plans were renamed: "Creator" at $11.99 is now "Pro").
+  for (const entry of STRIPE_CATALOG) {
+    const id = products.get(entry.productKey);
+    if (id && entry.kind === "plan" && entry.interval === "month") await stripeRequest("POST", `/products/${id}`, { name: entry.productName });
+  }
   const catalog: StripeCatalog = {};
   for (const entry of STRIPE_CATALOG) {
     const existing = found.get(entry.lookupKey);
@@ -334,6 +339,7 @@ export async function createPlanCheckout(ownerId: string, user: BillingUser, pla
   const customer = await getOrCreateCustomer(ownerId, user.email, user.name);
   const session = await stripeRequest<{ url: string | null }>("POST", "/checkout/sessions", {
     mode: "subscription",
+    adaptive_pricing: { enabled: false }, // USD only: no THB/USD switch (Arthur 2026-10-13)
     customer,
     client_reference_id: ownerId,
     line_items: [{ price: price.priceId, quantity: 1 }],
@@ -367,6 +373,7 @@ export async function createTopUpCheckout(ownerId: string, user: BillingUser, pa
   const customer = await getOrCreateCustomer(ownerId, user.email, user.name);
   const session = await stripeRequest<{ url: string | null }>("POST", "/checkout/sessions", {
     mode: "payment",
+    adaptive_pricing: { enabled: false }, // USD only: no THB/USD switch (Arthur 2026-10-13)
     customer,
     client_reference_id: ownerId,
     line_items: [{ price: price.priceId, quantity: 1 }],

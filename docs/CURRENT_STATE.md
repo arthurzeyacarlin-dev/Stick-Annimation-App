@@ -1,5 +1,9 @@
 # Current State
 
+## D-0196 — PM4: SPEC-0022 Phase 2 published (current)
+
+Dashboard bar, "credits used" and chart all read one credit list; bar depends on plan and packs; Stripe product name = Pro and USD only; logo shown on every page load. Next: Phase 3 (one look for buttons). See DECISIONS D-0196.
+
 ## D-0195 — PM4: SPEC-0022 Phase 1 published; website live with the app's plans (current, PM4 — app and website)
 
 - Arthur passed SPEC-0022 Phase 1 on 2026-10-13 (`60a0c27`, merged to main). Website is live with the new plans/story/AI Animator page (`diamond-website` `0195976`).

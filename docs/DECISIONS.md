@@ -1885,6 +1885,13 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0196 — SPEC-0022 Phase 2 passed: one credit list for bar, numbers and chart (PM4)
+
+- Arthur passed 2026-10-13. The AI dashboard's bar, "credits used" and the chart all read the SAME ledger (`account_credit_use_v1`; chart via `/api/account/credit-use` `events`). The old token chart (AI receipts) was the source of the "bar full, chart empty" contradiction; tokens/cost/web-search numbers are no longer shown to the customer.
+- Bar = credits used out of plan credits + extra pack credits left (`src/lib/ai-dashboard/creditMeter.ts`, tested): same spend fills Basic faster than Creator; buying a pack shrinks it. Chart red line = the plan's credits.
+- Stripe: plan product names update to the current plan names (Pro); checkout is USD only (`adaptive_pricing` off). Every page load shows the Diamond logo (72 px, 50% see-through) until ready (`PageLoadingMark`).
+- Payments reminder (Arthur asked): customers pay Diamond Animator's Stripe account (dad's); Arthur never pays himself; test mode uses fake card 4242… only.
+
 ### D-0195 — Website live with the app's plans; SPEC-0022 Phase 1 passed (PM4)
 
 - Website (`diamond-website` `0195976`, pushed 2026-10-13): plans renamed Basic / Pro / Creator with 180 / 420 / 750 credits, 75-credit trial, per-plan packs, per-action credit wording, no draft/lawyer notes or placeholders (Arthur, 2026-10-13: nobody will see "draft"), Compare page removed, new AI Animator page, Arthur's real story. Dad approved names, packs and margins (58–62% plans, 52–57% packs at worst-case AI cost; ~65–70% typical at scale).

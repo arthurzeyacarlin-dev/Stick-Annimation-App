@@ -3,7 +3,7 @@
 ## PM4 queue — SPEC-0022 (app polish and launch readiness, 2026-10-13)
 
 - [x] **Phase 1** — quick clean-ups. Arthur PASS 2026-10-13; `60a0c27`.
-- [ ] **Phase 2** — AI dashboard bars work per plan (red line, packs lower the bar, no "inaccurate").
+- [x] **Phase 2** — AI dashboard bar + chart from one credit list, per plan. Arthur PASS 2026-10-13.
 - [ ] **Phase 3** — one look for buttons (danger, hover, grouped).
 - [ ] **Phase 4** — AI Animator as its own right-panel tab (needs PM2's OK).
 - [ ] **Phase 5** — tool icons (select, lasso, brush + Home, eraser, fill).

@@ -7,7 +7,7 @@
 - [x] **Phase 3** — one look for buttons. Arthur PASS 2026-10-13.
 - [x] **Phase 4** — AI Animator tab + consistent controls. Arthur PASS 2026-10-13.
 - [x] **Phase 5** — tool icons + Pencil rename. Arthur PASS 2026-10-13.
-- [ ] **Phase 6** — first-time guided tour.
+- [x] **Phase 6** — first-time guided tour (learn mode). Arthur PASS 2026-10-13.
 - [ ] **Phase 7** — layers check. **Phase 8** — report a problem delivery. **Phase 9** — phones/tablets/computers (needs Arthur's yes). **Phase 10** — real payments (last).
 
 ## PM3 queue — app and website (D-0192, 2026-10-11)

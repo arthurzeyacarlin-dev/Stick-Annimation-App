@@ -1,5 +1,9 @@
 # Current State
 
+## D-0200 — PM4: SPEC-0022 Phase 6 published (current)
+
+One-time learn mode (welcome card + 6 Home steps), restartable in Settings. Next: Phase 7 (layers check). See DECISIONS D-0200.
+
 ## D-0199 — PM4: SPEC-0022 Phase 5 published (current)
 
 New tool icons; Brush renamed Pencil (variant "Pencil" shown as "Graphite"). Next: Phase 6 (first-time guided tour) or Phase 7 (layers check). See DECISIONS D-0199.

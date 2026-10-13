@@ -1885,6 +1885,11 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0200 — SPEC-0022 Phase 6 passed: one-time guided setup / learn mode (PM4)
+
+- Arthur passed 2026-10-13. First time on Home: a welcome card (Guided setup · X · Don't show again); any choice closes it for good (stored per account in this browser, `da-learn-v1:<userId>`). Guided setup = 6 steps, Home only: New Project, Open Project, Help, AI Dashboard, Notifications + Menu, Export. Each step: blue glowing outline + a card with a pointer (appears by itself, no hover needed); nothing is clickable; slim top progress bar = one bar cut into pieces that fill blue left to right on Next; Stop asks to confirm. Settings → Learn mode restarts it. Code: `src/components/learn/LearnMode.tsx` (mounted in `app/layout.tsx`).
+- To change the steps, edit the `STEPS` list in that file. Guided setup button = the dull blue of the profile circle (`#1b3358`), blue on hover.
+
 ### D-0199 — SPEC-0022 Phase 5 passed: tool icons, Brush → Pencil (PM4)
 
 - Arthur passed 2026-10-13. One icon set in `src/components/ui/ToolIcons.tsx` (24 grid, line style, currentColor): arrow (Select), lasso, pencil, eraser, fill drop, text T. Used by the toolbar and the Home empty-project card.

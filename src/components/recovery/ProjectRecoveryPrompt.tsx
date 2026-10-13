@@ -72,7 +72,7 @@ export function ProjectRecoveryPrompt({
       <main className="recovery-shell" data-project-recovery-prompt="checking">
         <style>{recoveryStyles}</style>
         <div className="recovery-loading" role="status" aria-live="polite" aria-label="Loading Diamond Animator" style={{ color: "#ffffff" }}>
-          <DiamondLogo size={160} />
+          <span style={{ opacity: 0.5, display: "block", lineHeight: 0 }}><DiamondLogo size={72} /></span>
         </div>
       </main>
     );

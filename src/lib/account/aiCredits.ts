@@ -137,6 +137,14 @@ export function spendAiCredit(ownerId: string, jobId: string, credits: number = 
 }
 
 /** Credits spent per action kind in the current window (for the AI Dashboard). */
+/** Every credit spend in this window (time, credits, kind): the dashboard chart reads the same list as the bar. */
+export function getCreditUseEvents(ownerId: string, now = Date.now()) {
+  const record = readAccountPlanRecord(ownerId, now);
+  const { start, end } = creditWindow(record, now);
+  return database().prepare("SELECT used_at AS at, credits, kind FROM account_credit_use_v1 WHERE owner_id = ? AND used_at >= ? AND used_at < ? ORDER BY used_at")
+    .all(ownerId, start, end) as { at: number; credits: number; kind: string }[];
+}
+
 export function getCreditUseByKind(ownerId: string, now = Date.now()) {
   const record = readAccountPlanRecord(ownerId, now);
   const { start, end } = creditWindow(record, now);

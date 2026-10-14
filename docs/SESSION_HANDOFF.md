@@ -1,5 +1,9 @@
 # Session Handoff
 
+## PM4 update (later) — Wed 2026-10-14
+
+D-0206 merged (`1f9fedd`): nine screens-audit fixes. Logout mystery solved (cookie shared across localhost ports). Test copies `beta-stress`, `canvas-memory-budget`, `screens-check`, `audit-fixes` can be retired. Next: TIMELINE-SLOW, 1080p export check, then SPEC-0023 Phase 2 (online). 
+
 ## PM4 update — Wed 2026-10-14
 
 Merged D-0205 (canvas memory cut, layer-eye fix, keyframe/symbol-name/Undo fixes, timeline edge fix) to main. Codex 2 is auditing non-editor screens in `screens-check` (port 58681); Groups 1–2 reported, Group 3 pending, nothing merged from it. Test copies: `beta-stress`, `canvas-memory-budget`, `screens-check` — retire after Arthur confirms. Next: UNEXPECTED-LOGOUT steps, TIMELINE-SLOW, 1080p export check, then SPEC-0023 Phase 2. Arthur's test accounts in copies are throwaway (never record passwords).

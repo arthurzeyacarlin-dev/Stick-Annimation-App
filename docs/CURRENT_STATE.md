@@ -1,5 +1,9 @@
 # Current State
 
+## D-0206 — PM4: screens audit fixes passed (current)
+
+Arthur passed 2026-10-14. Codex 2 audited Home, Settings, AI Dashboard, Plans, Open Project, notifications, Report a Problem, tour, login (no severe problems); PM4 fixed the nine small items. The "unexpected logouts" were test copies overwriting each other's login cookie on localhost, not an app bug. See DECISIONS D-0206 and TODO.
+
 ## D-0205 — PM4 + Codex: canvas memory cut, layer eye fixed, old editor bugs fixed (current)
 
 Arthur passed 2026-10-14. The six drawing canvases now stay under a 192 MiB budget (was about 1.3 GB on a blank project). Open-eye layers show drawings, text, symbols and shapes from any selected layer; keyframes copy symbols; symbol names can be typed; 12 undos + 12 redos restore everything. Timeline no longer covers the right-panel tabs. Open: unexpected logout in test copies, slow long timelines, oversized timeline page, screens audit (Codex 2, Groups 1–2 reported). See DECISIONS D-0205 and TODO.

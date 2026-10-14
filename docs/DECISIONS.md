@@ -1885,6 +1885,13 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0206 — Screens audit fixes passed; unexpected logouts explained (PM4)
+
+- Arthur passed 2026-10-14; merged fast-forward as `1f9fedd`. Audit by Codex 2 in `screens-check` (Groups 1–3: 10 + 4 + 6 findings, none severe; no broken buttons, no sideways scrolling at 1280/768/390).
+- Fixed: Terms/About popup top bar (with Close) stays in view; Plans cards stack at ≤ 860 px; Monthly/Yearly bar shorter; "CVC" → "any 3 digits for the card security code"; trial line says "14 days" once; Open Project when empty has one Back button and no Search/Sort; empty notifications say "You're all caught up…"; sign-up password box shows "At least 8 characters"; guided tour starts with a client-side route change (no page reload); Codex 2's tour/Settings/Dashboard layout and wording fixes included.
+- Logouts: sessions last 7 days; the "spontaneous" logouts happened when two test copies (different ports, same `localhost`) were open — they share one cookie name but have different secrets, so each login replaced the other's cookie. Not seen in a single copy. Not an app bug for beta users (one address). Rule for testing: one copy logged in at a time.
+- Not done: "Add an image, up to 4 MB" wording and screen-reader double label in Report a Problem (accessibility markup, small); Terms/About as proper dialogs (focus containment); plain-language summary above Terms; "session ended" message; Show/Hide password; Terms/Privacy links on sign-up. See TODO.
+
 ### D-0205 — Canvas memory budget + layer visibility + editor bug fixes passed (PM4 with Codex)
 
 - Arthur passed 2026-10-14 (stress test by Codex in `beta-stress`, build in `canvas-memory-budget`, merged fast-forward as `66cdbb3` + `4cb2aa9`).

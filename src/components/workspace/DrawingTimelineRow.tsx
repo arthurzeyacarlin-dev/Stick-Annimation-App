@@ -17,6 +17,9 @@ export type TimelineFrame = {
   cellType: TimelineFrameCellType;
   stateId: number;
   isBlank?: boolean;
+  // Picture / text on this frame (a frame with none of these, and no stick or symbols, is shown see-through).
+  hasDrawing?: boolean;
+  hasText?: boolean;
   hasTweenEndpoint?: boolean;
   soundAttachment?: {
     id: string;
@@ -57,6 +60,15 @@ type DrawingTimelineRowProps = {
   onRemoveFrame: (layerId: string, targetIndex: number) => void;
   onCopyFrame?: (layerId: string, targetIndex: number) => void;
   onPasteFrame?: (layerId: string, targetIndex: number) => void;
+  // Move the picked frames (layer id -> frame numbers) so they land before frame `insertIndex` of a layer. One Undo step.
+  // sourceLayerId -> layerId it should land on (frames from several layers keep their layout).
+  // "layerId:stateId" of frames that hold stick figures or symbols (so they are not shown as empty).
+  contentStateKeys?: ReadonlySet<string>;
+  onMoveFrames?: (picked: Record<string, number[]>, assignments: Record<string, string>, insertIndex: number, anchorLayerId?: string) => boolean;
+  // Copy / paste the picked (blue) frames from the right-click menu. Copy returns how many frames it took.
+  onCopyPickedFrames?: (picked: Record<string, number[]>) => number;
+  onPastePickedFrames?: (assignments: Record<string, string>, insertIndex: number, anchorLayerId?: string) => boolean;
+  onRemovePickedFrames?: (picked: Record<string, number[]>) => boolean;
   onRemoveSoundAttachment?: (layerId: string, targetIndex: number) => void;
   onResizeTimelineSpan: (layerId: string, stateId: number, spanType: "frame" | "tween", nextEndIndex: number) => void;
   onSoundOptionDrop?: (layerId: string, frameIndex: number, option: DrawingAiSoundOption) => void;
@@ -176,6 +188,8 @@ const TIMELINE_EMPTY_SLOT_BORDER = workspaceColors.divider;
 const TIMELINE_SELECTED_SLOT_OUTLINE = `2px solid ${workspaceColors.selectedBorder}`;
 const TIMELINE_SELECTED_SLOT_BORDER = workspaceColors.selectedBorder;
 const TIMELINE_FRAME_SPAN_FILL = "rgb(124,128,136)";
+// A blank keyframe (nothing drawn) is still a real frame, shown a little see-through.
+const TIMELINE_BLANK_SPAN_FILL = "rgba(124, 128, 136, 0.4)";
 const TIMELINE_FRAME_SPAN_BORDER = "rgba(20,22,28,0.88)";
 const TIMELINE_FRAME_SPAN_LINE = "rgb(158,164,172)";
 const TIMELINE_TWEEN_SPAN_FILL = "rgb(83,97,129)";
@@ -373,6 +387,9 @@ type TimelineLayerLaneProps = {
   selectedTimelineIndex: number;
   highlightedStartIndex: number;
   highlightedEndIndex: number;
+  // Frames of this layer picked with box / Shift / Cmd-click (null = none). Same object until the picking changes.
+  selectedFrames: ReadonlySet<number> | null;
+  contentStateKeys: ReadonlySet<string> | undefined;
   rulerWidth: number;
   canDropSound: boolean;
   handlers: TimelineLaneHandlers;
@@ -389,6 +406,8 @@ const TimelineLayerLane = memo(function TimelineLayerLane({
   selectedTimelineIndex,
   highlightedStartIndex,
   highlightedEndIndex,
+  selectedFrames,
+  contentStateKeys,
   rulerWidth,
   canDropSound,
   handlers,
@@ -521,10 +540,17 @@ const TimelineLayerLane = memo(function TimelineLayerLane({
               highlightedSpanBounds !== null &&
               index >= highlightedSpanBounds.startIndex &&
               index <= highlightedSpanBounds.endIndex;
-            const restFill = isEmpty && !hasSoundAttachment ? TIMELINE_EMPTY_SLOT_FILL : resolvedFill;
+            // Nothing drawn, written or placed on this frame: it is a blank frame, shown a little see-through.
+            const isBlankSpan =
+              !isEmpty && !isTween && !hasSoundAttachment &&
+              (spanSourceFrame.cellType === "blank-keyframe" ||
+                spanSourceFrame.isBlank === true ||
+                (!spanSourceFrame.hasDrawing && !spanSourceFrame.hasText && !contentStateKeys?.has(`${layer.id}:${spanSourceFrame.stateId}`)));
+            const restFill = isEmpty && !hasSoundAttachment ? TIMELINE_EMPTY_SLOT_FILL : isBlankSpan ? TIMELINE_BLANK_SPAN_FILL : resolvedFill;
             // The current slot keeps its white/empty fill and gets a dull blue outline.
+            const isPicked = selectedFrames?.has(index) ?? false;
             const frameBackground = restFill;
-            const interiorSeam = frameBackground;
+            const interiorSeam = isBlankSpan ? "transparent" : frameBackground;
             const borderTopColor = isCurrentSlot || isInHighlightedSpan
               ? TIMELINE_SELECTED_SLOT_BORDER
               : isEmpty && !hasSoundAttachment
@@ -624,9 +650,10 @@ const TimelineLayerLane = memo(function TimelineLayerLane({
                   borderRadius: 0,
                   outline: isCurrentSlot ? TIMELINE_SELECTED_SLOT_OUTLINE : undefined,
                   outlineOffset: isCurrentSlot ? -2 : undefined,
+
                 }}
               >
-                  {showsSpanLine && (
+                  {showsSpanLine && !isBlankSpan && (
                     <div
                       style={{
                         position: "absolute",
@@ -749,12 +776,257 @@ export function DrawingTimelineRow({
   onRemoveFrame,
   onCopyFrame,
   onPasteFrame,
+  contentStateKeys,
+  onMoveFrames,
+  onCopyPickedFrames,
+  onPastePickedFrames,
+  onRemovePickedFrames,
   onRemoveSoundAttachment,
   onResizeTimelineSpan,
   onSoundOptionDrop,
 }: DrawingTimelineRowProps) {
   const [fpsInputValue, setFpsInputValue] = useState(String(fps));
   const [contextMenu, setContextMenu] = useState<TimelineContextMenuState>(null);
+
+  // Pass 1 (Arthur): pick many frames. Box = press on a frame and drag across frames / layers.
+  // Shift-click = range, Cmd/Ctrl-click = add or remove one, Esc or a plain click = clear. Nothing moves yet.
+  const [picked, setPicked] = useState<Record<string, number[]>>({});
+  const pickedByLayer = useMemo(() => {
+    const map = new Map<string, ReadonlySet<number>>();
+    for (const [layerId, list] of Object.entries(picked)) if (list.length) map.set(layerId, new Set(list));
+    return map;
+  }, [picked]);
+  const [copiedPickedCount, setCopiedPickedCount] = useState(0);
+  const copiedPickedLayersRef = useRef<string[]>([]);
+  // Frames from several layers keep their layout: the layer you drop on takes the grabbed layer's frames and the
+  // layers above / below it take the frames of the layers above / below the grabbed one.
+  const assignLayers = (sourceIds: string[], anchorId: string, targetId: string) => {
+    const order = layers.map((layer) => layer.id);
+    const anchorPos = order.indexOf(anchorId);
+    const targetPos = order.indexOf(targetId);
+    const result: Record<string, string> = {};
+    if (anchorPos < 0 || targetPos < 0) { sourceIds.forEach((id) => { result[id] = targetId; }); return result; }
+    const positions = sourceIds.map((id) => order.indexOf(id)).filter((pos) => pos >= 0);
+    let shift = targetPos - anchorPos;
+    if (positions.length) {
+      shift = Math.max(-Math.min(...positions), Math.min(order.length - 1 - Math.max(...positions), shift));
+    }
+    sourceIds.forEach((id) => {
+      const pos = order.indexOf(id);
+      result[id] = pos < 0 ? targetId : order[Math.max(0, Math.min(order.length - 1, pos + shift))];
+    });
+    return result;
+  };
+  const pickedLayerIdsInOrder = (map: Record<string, number[]>) =>
+    layers.map((layer) => layer.id).filter((id) => (map[id]?.length ?? 0) > 0);
+  // One rectangle per block of picked frames: neighbouring layers with the same picked frame numbers share one box.
+  const pickedBoxes = (rendered: TimelineLayer[]) => {
+    type Box = { row: number; rows: number; start: number; end: number };
+    const boxes: Box[] = [];
+    rendered.forEach((layer, row) => {
+      const list = picked[layer.id];
+      if (!list?.length) return;
+      const sorted = list.slice().sort((a, b) => a - b);
+      let start = sorted[0];
+      let previous = sorted[0];
+      const flush = (from: number, to: number) => {
+        const above = boxes.find((box) => box.row + box.rows === row && box.start === from && box.end === to);
+        if (above) above.rows += 1;
+        else boxes.push({ row, rows: 1, start: from, end: to });
+      };
+      for (let k = 1; k < sorted.length; k += 1) {
+        if (sorted[k] === previous + 1) { previous = sorted[k]; continue; }
+        flush(start, previous);
+        start = sorted[k];
+        previous = sorted[k];
+      }
+      flush(start, previous);
+    });
+    return boxes;
+  };
+  const pickAnchorRef = useRef<{ layerId: string; index: number } | null>(null);
+  // While picked frames are being dragged: the blue drop line and a small "N frames" stack under the mouse.
+  const [moveUi, setMoveUi] = useState<{ line: { left: number; top: number; height: number } | null; x: number; y: number; count: number } | null>(null);
+  const swallowClickRef = useRef(false);
+  const clearPicked = useCallback(() => setPicked((current) => (Object.keys(current).length ? {} : current)), []);
+
+  const buildPicked = useCallback((order: string[], from: { layerId: string; index: number }, to: { layerId: string; index: number }) => {
+    const a = order.indexOf(from.layerId);
+    const b = order.indexOf(to.layerId);
+    if (a < 0 || b < 0) return null;
+    const result: Record<string, number[]> = {};
+    const firstFrame = Math.min(from.index, to.index);
+    const lastFrame = Math.max(from.index, to.index);
+    for (let row = Math.min(a, b); row <= Math.max(a, b); row += 1) {
+      const layer = layers.find((item) => item.id === order[row]);
+      if (!layer) continue;
+      const list: number[] = [];
+      for (let index = firstFrame; index <= lastFrame && index < layer.frames.length; index += 1) list.push(index);
+      if (list.length) result[layer.id] = list;
+    }
+    return result;
+  }, [layers]);
+
+  const cellOf = (target: EventTarget | null) => {
+    const cell = target instanceof Element ? target.closest<HTMLElement>("[data-timeline-cell]") : null;
+    if (!cell) return null;
+    const layerId = cell.dataset.layerId;
+    const index = Number(cell.dataset.frameIndex);
+    return layerId && Number.isFinite(index) ? { layerId, index } : null;
+  };
+
+  const onPickPointerDown = (event: React.PointerEvent<HTMLElement>) => {
+    if (event.button !== 0 || event.shiftKey || event.metaKey || event.ctrlKey) return;
+    const start = cellOf(event.target);
+    if (!start) return;
+    // Pressing on a frame that is already picked: dragging carries ALL picked frames to a new place.
+    if (pickedByLayer.get(start.layerId)?.has(start.index)) {
+      if (!onMoveFrames) return;
+      const pickedNow = picked;
+      const count = Object.values(pickedNow).reduce((sum, list) => sum + list.length, 0);
+      const px = event.clientX;
+      const py = event.clientY;
+      let carrying = false;
+      let drop: { layerId: string; index: number } | null = null;
+      const computeDrop = (x: number, y: number) => {
+        const el = document.elementFromPoint(x, y);
+        const cellEl = el instanceof Element ? el.closest<HTMLElement>("[data-timeline-cell]") : null;
+        if (cellEl && cellEl.dataset.layerId) {
+          const rect = cellEl.getBoundingClientRect();
+          const frameNumber = Number(cellEl.dataset.frameIndex);
+          const rightHalf = x >= rect.left + rect.width / 2;
+          return {
+            target: { layerId: cellEl.dataset.layerId, index: rightHalf ? frameNumber + 1 : frameNumber },
+            line: { left: (rightHalf ? rect.right : rect.left) - 2, top: rect.top, height: rect.height },
+          };
+        }
+        // Open space: no frame under the mouse. Use the layer row the mouse is in and snap to just after its last
+        // frame (never leave a gap before the new frames).
+        // Find the layer lane that is really under the mouse (the element on top), not just any row at this height.
+        let lane: Element | null = el;
+        let sameLayer: HTMLElement[] = [];
+        for (let depth = 0; lane && depth < 6; depth += 1, lane = lane.parentElement) {
+          const inside = Array.from(lane.querySelectorAll<HTMLElement>("[data-timeline-cell]"));
+          if (inside.length && new Set(inside.map((cell) => cell.dataset.layerId)).size === 1) { sameLayer = inside; break; }
+        }
+        if (!sameLayer.length) return null;
+        const layerId = sameLayer[0].dataset.layerId;
+        if (!layerId) return null;
+        const last = sameLayer.reduce((best, cell) => (Number(cell.dataset.frameIndex) > Number(best.dataset.frameIndex) ? cell : best), sameLayer[0]);
+        const lastRect = last.getBoundingClientRect();
+        if (x < lastRect.right) return null;
+        return {
+          target: { layerId, index: Number(last.dataset.frameIndex) + 1 },
+          line: { left: lastRect.right - 2, top: lastRect.top, height: lastRect.height },
+        };
+      };
+      const onMove = (moveEvent: PointerEvent) => {
+        if (!carrying && Math.hypot(moveEvent.clientX - px, moveEvent.clientY - py) < 6) return;
+        carrying = true;
+        const found = computeDrop(moveEvent.clientX, moveEvent.clientY);
+        drop = found ? found.target : null;
+        setMoveUi({ line: found ? found.line : null, x: moveEvent.clientX, y: moveEvent.clientY, count });
+      };
+      const onUp = (upEvent: PointerEvent) => {
+        window.removeEventListener("pointermove", onMove);
+        window.removeEventListener("pointerup", onUp);
+        window.removeEventListener("pointercancel", onUp);
+        setMoveUi(null);
+        if (!carrying && Math.hypot(upEvent.clientX - px, upEvent.clientY - py) >= 6) carrying = true;
+        if (carrying) {
+          const atRelease = computeDrop(upEvent.clientX, upEvent.clientY);
+          if (atRelease) drop = atRelease.target;
+          swallowClickRef.current = true;
+          window.setTimeout(() => { swallowClickRef.current = false; }, 0);
+          if (drop && onMoveFrames(pickedNow, assignLayers(pickedLayerIdsInOrder(pickedNow), start.layerId, drop.layerId), drop.index, drop.layerId)) clearPicked();
+        }
+      };
+      window.addEventListener("pointermove", onMove);
+      window.addEventListener("pointerup", onUp);
+      window.addEventListener("pointercancel", onUp);
+      return;
+    }
+    const container = event.currentTarget;
+    const order: string[] = [];
+    container.querySelectorAll<HTMLElement>("[data-timeline-cell]").forEach((cell) => {
+      const id = cell.dataset.layerId;
+      if (id && !order.includes(id)) order.push(id);
+    });
+    const startX = event.clientX;
+    const startY = event.clientY;
+    let dragging = false;
+    const move = (moveEvent: PointerEvent) => {
+      if (!dragging && Math.hypot(moveEvent.clientX - startX, moveEvent.clientY - startY) < 6) return;
+      dragging = true;
+      const over = cellOf(document.elementFromPoint(moveEvent.clientX, moveEvent.clientY));
+      if (!over) return;
+      const next = buildPicked(order, start, over);
+      if (next) setPicked(next);
+    };
+    const up = () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+      window.removeEventListener("pointercancel", up);
+      if (dragging) {
+        swallowClickRef.current = true;
+        window.setTimeout(() => { swallowClickRef.current = false; }, 0);
+      }
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+    window.addEventListener("pointercancel", up);
+  };
+
+  const onPickClickCapture = (event: React.MouseEvent<HTMLElement>) => {
+    if (swallowClickRef.current) {
+      event.stopPropagation();
+      event.preventDefault();
+      return;
+    }
+    const cell = cellOf(event.target);
+    if (!cell) return;
+    if (event.shiftKey && pickAnchorRef.current) {
+      event.stopPropagation();
+      event.preventDefault();
+      const order: string[] = [];
+      event.currentTarget.querySelectorAll<HTMLElement>("[data-timeline-cell]").forEach((el) => {
+        const id = el.dataset.layerId;
+        if (id && !order.includes(id)) order.push(id);
+      });
+      const next = buildPicked(order, pickAnchorRef.current, cell);
+      if (next) setPicked(next);
+      return;
+    }
+    if (event.metaKey || event.ctrlKey) {
+      event.stopPropagation();
+      event.preventDefault();
+      pickAnchorRef.current = cell;
+      setPicked((current) => {
+        const list = new Set(current[cell.layerId] ?? []);
+        if (list.has(cell.index)) list.delete(cell.index); else list.add(cell.index);
+        return { ...current, [cell.layerId]: [...list].sort((x, y) => x - y) };
+      });
+      return;
+    }
+    pickAnchorRef.current = cell;
+    clearPicked();
+  };
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") { clearPicked(); return; }
+      if ((event.key === "Delete" || event.key === "Backspace") && onRemovePickedFrames) {
+        const target = event.target instanceof HTMLElement ? event.target : null;
+        if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.tagName === "SELECT" || target.isContentEditable)) return;
+        if (!Object.values(picked).some((list) => list.length)) return;
+        event.preventDefault();
+        if (onRemovePickedFrames(picked)) clearPicked();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [clearPicked, onRemovePickedFrames, picked]);
+  useEffect(() => { clearPicked(); }, [activeLayerId, clearPicked]);
   const [visibleTimelineWidth, setVisibleTimelineWidth] = useState(0);
   const [timelineScrollLeft, setTimelineScrollLeft] = useState(0);
   const [resizeState, setResizeState] = useState<TimelineResizeState | null>(null);
@@ -1381,6 +1653,8 @@ export function DrawingTimelineRow({
           <div
             ref={attachInteractionRefs ? frameLaneViewportRef : null}
             className="timeline-frame-main-scroll"
+            onPointerDown={onPickPointerDown}
+            onClickCapture={onPickClickCapture}
             onScroll={attachInteractionRefs ? (event) => setTimelineScrollLeft(event.currentTarget.scrollLeft) : undefined}
             style={{
               flex: 1,
@@ -1409,12 +1683,31 @@ export function DrawingTimelineRow({
                     selectedTimelineIndex={isActiveLayer ? selectedTimelineIndex : -1}
                     highlightedStartIndex={highlightedSpanBounds?.startIndex ?? -1}
                     highlightedEndIndex={highlightedSpanBounds?.endIndex ?? -1}
+                    selectedFrames={pickedByLayer.get(layer.id) ?? null}
+                    contentStateKeys={contentStateKeys}
                     rulerWidth={rulerWidth}
                     canDropSound={Boolean(onSoundOptionDrop)}
                     handlers={laneHandlers}
                   />
                 );
               })}
+              {pickedBoxes(renderedLayers).map((box) => (
+                <div
+                  key={`${isOverlay ? "overlay" : "baseline"}-picked-${box.row}-${box.start}`}
+                  aria-hidden="true"
+                  style={{
+                    position: "absolute",
+                    left: box.start * FRAME_CELL_WIDTH - 2,
+                    top: box.row * TIMELINE_LAYER_ROW_HEIGHT - 2,
+                    width: (box.end - box.start + 1) * FRAME_CELL_WIDTH + 4,
+                    height: box.rows * TIMELINE_LAYER_ROW_HEIGHT + 4,
+                    boxSizing: "border-box",
+                    border: "2px solid #0066ff",
+                    pointerEvents: "none",
+                    zIndex: 5,
+                  }}
+                />
+              ))}
             </div>
           </div>
         </div>
@@ -1488,7 +1781,8 @@ export function DrawingTimelineRow({
       className={responsiveLayout ? "drawing-timeline" : undefined}
       style={{
         "--timeline-panel-height": `${rightPanelHeight}px`,
-        "--timeline-desktop-right-inset": `${desktopRightInset}px`,
+        // The timeline floats above the panel and canvas and runs the full width; nothing else moves (Arthur).
+        "--timeline-desktop-right-inset": "0px",
         position: "relative",
         zIndex: 12,
         overflow: "visible",
@@ -1767,6 +2061,20 @@ export function DrawingTimelineRow({
             panelResizeEdgeHeight: resizeEdgeHeight,
           })}
 
+        {moveUi?.line && (
+          <div
+            aria-hidden="true"
+            style={{ position: "fixed", left: moveUi.line.left, top: moveUi.line.top - 2, width: 5, height: moveUi.line.height + 4, background: "#1f7bff", borderRadius: 3, boxShadow: "0 0 0 1px #ffffff, 0 0 10px 2px rgba(0, 102, 255, 0.85)", pointerEvents: "none", zIndex: 60 }}
+          />
+        )}
+        {moveUi && (
+          <div
+            aria-hidden="true"
+            style={{ position: "fixed", left: moveUi.x + 12, top: moveUi.y + 12, padding: "3px 8px", borderRadius: 6, background: "#0066ff", color: "#fff", font: "600 12px system-ui, sans-serif", pointerEvents: "none", zIndex: 61 }}
+          >
+            {moveUi.count} {moveUi.count === 1 ? "frame" : "frames"}
+          </div>
+        )}
         {contextMenu && (
           <div
             onPointerDown={(event) => event.stopPropagation()}
@@ -1802,34 +2110,58 @@ export function DrawingTimelineRow({
                 {item.label}
               </button>
             ))}
-            {onCopyFrame && (
-              <button
-                type="button"
-                onClick={() => runMenuAction(() => onCopyFrame(contextMenu.targetLayerId, contextMenu.targetIndex))}
-                disabled={!canCopyContextTarget}
-                style={contextMenuItemStyle(canCopyContextTarget)}
-              >
-                Copy Frame
-              </button>
-            )}
+            {onCopyFrame && (() => {
+              const pickedCount = Object.values(picked).reduce((sum, list) => sum + list.length, 0);
+              const targetIsPicked = !!pickedByLayer.get(contextMenu.targetLayerId)?.has(contextMenu.targetIndex);
+              const many = targetIsPicked && pickedCount > 0 && !!onCopyPickedFrames;
+              return (
+                <button
+                  type="button"
+                  onClick={() => runMenuAction(() => {
+                    if (many) { copiedPickedLayersRef.current = pickedLayerIdsInOrder(picked); setCopiedPickedCount(onCopyPickedFrames!(picked)); }
+                    else { setCopiedPickedCount(0); onCopyFrame(contextMenu.targetLayerId, contextMenu.targetIndex); }
+                  })}
+                  disabled={!many && !canCopyContextTarget}
+                  style={contextMenuItemStyle(many || canCopyContextTarget)}
+                >
+                  {many ? `Copy ${pickedCount} ${pickedCount === 1 ? "Frame" : "Frames"}` : "Copy Frame"}
+                </button>
+              );
+            })()}
             {onPasteFrame && (
               <button
                 type="button"
-                onClick={() => runMenuAction(() => onPasteFrame(contextMenu.targetLayerId, contextMenu.targetIndex))}
-                disabled={!canPasteFrame}
-                style={contextMenuItemStyle(canPasteFrame)}
+                onClick={() => runMenuAction(() => {
+                  if (copiedPickedCount > 0 && onPastePickedFrames) {
+                    const sources = copiedPickedLayersRef.current;
+                    onPastePickedFrames(assignLayers(sources, sources[0] ?? contextMenu.targetLayerId, contextMenu.targetLayerId), contextMenu.targetIndex + 1, contextMenu.targetLayerId);
+                }
+                  else onPasteFrame(contextMenu.targetLayerId, contextMenu.targetIndex);
+                })}
+                disabled={!(copiedPickedCount > 0 || canPasteFrame)}
+                style={contextMenuItemStyle(copiedPickedCount > 0 || canPasteFrame)}
               >
-                Paste Frame
+                {copiedPickedCount > 1 ? `Paste ${copiedPickedCount} Frames` : "Paste Frame"}
               </button>
             )}
-            <button
-              type="button"
-              onClick={() => runMenuAction(() => onRemoveFrame(contextMenu.targetLayerId, contextMenu.targetIndex))}
-              disabled={!canRemoveContextTarget}
-              style={contextMenuItemStyle(canRemoveContextTarget, "danger")}
-            >
-              Remove Frame
-            </button>
+            {(() => {
+              const pickedCount = Object.values(picked).reduce((sum, list) => sum + list.length, 0);
+              const targetIsPicked = !!pickedByLayer.get(contextMenu.targetLayerId)?.has(contextMenu.targetIndex);
+              const many = targetIsPicked && pickedCount > 1 && !!onRemovePickedFrames;
+              return (
+                <button
+                  type="button"
+                  onClick={() => runMenuAction(() => {
+                    if (many) { if (onRemovePickedFrames!(picked)) clearPicked(); }
+                    else onRemoveFrame(contextMenu.targetLayerId, contextMenu.targetIndex);
+                  })}
+                  disabled={!many && !canRemoveContextTarget}
+                  style={contextMenuItemStyle(many || canRemoveContextTarget, "danger")}
+                >
+                  {many ? `Remove ${pickedCount} Frames` : "Remove Frame"}
+                </button>
+              );
+            })()}
             {onRemoveSoundAttachment && (
               <button
                 type="button"

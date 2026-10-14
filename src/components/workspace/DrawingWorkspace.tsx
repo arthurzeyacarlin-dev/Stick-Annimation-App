@@ -521,7 +521,24 @@ const timelineFrameMatchesRowView = (frame: WorkspaceTimelineFrame, rowFrame: Ti
   frame.stateId === rowFrame.stateId &&
   Boolean(frame.isBlank) === Boolean(rowFrame.isBlank) &&
   Boolean(frame.hasTweenEndpoint) === Boolean(rowFrame.hasTweenEndpoint) &&
+  bitmapHasInk(frame.bitmap, frame.previewUrl) === Boolean(rowFrame.hasDrawing) &&
+  (frame.textObjects.length > 0) === Boolean(rowFrame.hasText) &&
   timelineFrameSoundAttachmentId(frame) === timelineFrameSoundAttachmentId(rowFrame);
+
+// True when a frame's picture has any visible pixel (cached per picture). A frame with nothing drawn shows see-through.
+const inkCache = new WeakMap<object, boolean>();
+const bitmapHasInk = (bitmap: ImageData | null | undefined, previewUrl: string | null | undefined) => {
+  if (!bitmap) return Boolean(previewUrl);
+  const cached = inkCache.get(bitmap);
+  if (cached !== undefined) return cached;
+  const data = bitmap.data;
+  let ink = false;
+  for (let index = 3; index < data.length; index += 4) {
+    if (data[index] !== 0) { ink = true; break; }
+  }
+  inkCache.set(bitmap, ink);
+  return ink;
+};
 
 const createTimelineRowFrameView = (frame: WorkspaceTimelineFrame): TimelineFrame => ({
   id: frame.id,
@@ -529,6 +546,8 @@ const createTimelineRowFrameView = (frame: WorkspaceTimelineFrame): TimelineFram
   cellType: frame.cellType,
   stateId: frame.stateId,
   isBlank: frame.isBlank,
+  hasDrawing: bitmapHasInk(frame.bitmap, frame.previewUrl),
+  hasText: frame.textObjects.length > 0,
   hasTweenEndpoint: frame.hasTweenEndpoint,
   soundAttachment: frame.soundAttachment ? { id: frame.soundAttachment.id } : null,
 });
@@ -4313,6 +4332,17 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     timelineRowLayersViewRef.current = nextTimelineLayers;
     return nextTimelineLayers;
   }, [layers]);
+  // Which frames hold stick figures or placed symbols (they are never shown as blank).
+  const contentStateKeys = useMemo(() => {
+    const keys = new Set<string>();
+    for (const [key, value] of Object.entries(stickByCell)) {
+      if ((value as { figures?: unknown[] } | null)?.figures?.length) keys.add(key);
+    }
+    for (const [key, value] of Object.entries(symbolInstancesByCell)) {
+      if (Array.isArray(value) && value.length) keys.add(key);
+    }
+    return keys;
+  }, [stickByCell, symbolInstancesByCell]);
   const authoredPlaybackFrameCount = useMemo(
     () => getAuthoredPlaybackFrameCountForTimelineLayers(timelineRowLayers),
     [timelineRowLayers],
@@ -6313,6 +6343,238 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     ],
   );
 
+  type PickedFrameItem = { layerId: string; content: WorkspaceTimelineFrame; stick: unknown; symbols: unknown[] | null };
+  const copiedPickedFramesRef = useRef<PickedFrameItem[] | null>(null);
+  // Reads what the picked (blue) frames hold: layer by layer, frame by frame. Stops (null) if a tween is involved.
+  const readPickedFrames = (picked: Record<string, number[]>) => {
+    const moved: PickedFrameItem[] = [];
+    const removals: { layerId: string; index: number }[] = [];
+    for (const layer of layersRef.current) {
+      const indexes = (picked[layer.id] ?? []).slice().sort((a, b) => a - b);
+      const frames = layer.timelineFrames;
+      for (const index of indexes) {
+        const cell = frames[index];
+        if (!cell || cell.cellType === "empty") continue;
+        if (cell.cellType === "tween" || cell.motionTween || cell.hasTweenEndpoint) return null;
+        const start = frames[resolveStateStartIndex(frames, index)];
+        if (!start || start.motionTween) return null;
+        moved.push({
+          layerId: layer.id,
+          content: start,
+          stick: stickByCellRef.current[`${layer.id}:${start.stateId}`] ?? null,
+          symbols: symbolInstancesByCellRef.current[`${layer.id}:${start.stateId}`] ?? null,
+        });
+        removals.push({ layerId: layer.id, index });
+      }
+    }
+    return { moved, removals };
+  };
+  const copyPickedFrames = useCallback((picked: Record<string, number[]>) => {
+    const read = readPickedFrames(picked);
+    if (!read || !read.moved.length) return 0;
+    copiedPickedFramesRef.current = read.moved;
+    return read.moved.length;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Arthur: grab the picked (blue) frames and drop them somewhere else — same layer, another layer, or in
+  // between frames. One move = one Undo step. Every moved frame lands as its own keyframe with the same picture,
+  // text and stick content; frames left behind close up; a held span that is cut keeps its picture.
+  const moveTimelineFrames = useCallback(
+    (picked: Record<string, number[]>, assignments: Record<string, string>, targetInsertIndex: number, options?: { clip?: PickedFrameItem[]; deleteOnly?: boolean; anchorLayerId?: string }) => {
+      saveCurrentFrameSnapshotRef.current?.(currentFrameIndexRef.current, activeLayerIdRef.current, {
+        debugCaller: "moveTimelineFrames:commit-active-layer",
+        forceCapture: drawingCanvasRef.current?.hasPendingAuthoringChanges() ?? true,
+      });
+      if (drawingCanvasRef.current?.hasPendingAuthoringChanges()) return false;
+
+      const layersNow = layersRef.current;
+      for (const targetId of Object.values(assignments)) if (!getLayerById(layersNow, targetId)) return false;
+      const work = new Map<string, WorkspaceTimelineFrame[]>();
+      for (const layer of layersNow) work.set(layer.id, layer.timelineFrames.slice());
+      const stick = { ...stickByCellRef.current };
+      const instances = { ...symbolInstancesByCellRef.current };
+
+      // 1. Read what is being moved (or copied), before anything changes.
+      const read = options?.clip ? { moved: options.clip, removals: [] as { layerId: string; index: number }[] } : readPickedFrames(picked);
+      if (!read || !read.moved.length) return false;
+      const { moved, removals } = read;
+
+      // 2. Take them out (last first). A cut-off keyframe hands its picture to the held frame after it.
+      const removedBefore: Record<string, number> = {};
+      for (const { layerId, index } of removals.slice().reverse()) {
+        const frames = work.get(layerId);
+        if (!frames) continue;
+        const cell = frames[index];
+        const next = frames[index + 1];
+        if (cell.cellType !== "hold" && next && next.cellType === "hold" && next.stateId === cell.stateId) {
+          frames[index + 1] = {
+            ...next,
+            cellType: cell.cellType,
+            kind: cell.kind,
+            bitmap: cell.bitmap,
+            previewUrl: cell.previewUrl,
+            isBlank: cell.isBlank,
+            textObjects: cell.textObjects,
+            soundAttachment: cell.soundAttachment,
+          } as WorkspaceTimelineFrame;
+        }
+        frames.splice(index, 1);
+        if (index < targetInsertIndex) removedBefore[layerId] = (removedBefore[layerId] ?? 0) + 1;
+      }
+
+      let targetLayerId: string = Object.values(assignments)[0] ?? removals[0]?.layerId ?? layersNow[0]?.id ?? "";
+      let insertAt = 0;
+      let idCursor = nextTimelineFrameIdRef.current;
+
+      if (options?.deleteOnly) {
+        // Deleting only: nothing is put back, and no empty "ghost" frames are left behind at the end.
+        for (const layer of layersNow) {
+          const frames = work.get(layer.id);
+          if (!frames) continue;
+          while (frames.length > 1 && frames[frames.length - 1].cellType === "empty") frames.pop();
+          if (!frames.length) frames.push(createEmptyTimelineFrame(idCursor++));
+        }
+        targetLayerId = removals[0]?.layerId ?? targetLayerId;
+        insertAt = Math.max(0, Math.min(removals[0]?.index ?? 0, (work.get(targetLayerId)?.length ?? 1) - 1));
+      } else {
+        // 3. Put them in, layer by layer. Each source layer's frames go to the layer it was assigned to, all at the
+        // same frame number, so frames from several layers keep their layout. Frames snap left: never past the end
+        // of the real frames. A span that is cut in two keeps its picture on the right-hand part.
+        const byTarget = new Map<string, PickedFrameItem[]>();
+        for (const item of moved) {
+          const targetId = assignments[item.layerId];
+          if (!targetId) continue;
+          const list = byTarget.get(targetId) ?? [];
+          list.push(item);
+          byTarget.set(targetId, list);
+        }
+        const lastRealOf = (frames: WorkspaceTimelineFrame[]) => {
+          for (let index = frames.length - 1; index >= 0; index -= 1) if (frames[index].cellType !== "empty") return index;
+          return -1;
+        };
+        // The layer you dropped on snaps left (never past its last frame). Every other layer keeps the SAME column;
+        // if its frames end earlier, a see-through blank keyframe fills the gap (like Adobe Animate) so the frames
+        // land exactly under the others instead of sliding to the left.
+        const anchorId = options?.anchorLayerId && byTarget.has(options.anchorLayerId) ? options.anchorLayerId : (byTarget.keys().next().value as string);
+        const anchorFrames = work.get(anchorId) ?? [];
+        const anchorAt = Math.max(0, Math.min(targetInsertIndex - (removedBefore[anchorId] ?? 0), lastRealOf(anchorFrames) + 1));
+        const column = anchorAt + (removedBefore[anchorId] ?? 0);
+        let firstDone = false;
+        for (const [targetId, items] of byTarget) {
+          const targetFrames = work.get(targetId) ?? [];
+          const lastRealIndex = lastRealOf(targetFrames);
+          const wanted = Math.max(0, column - (removedBefore[targetId] ?? 0));
+          if (wanted > lastRealIndex + 1) {
+            // Fill the gap: one blank keyframe plus holds, so the layer is continuous up to the new frames.
+            targetFrames.length = lastRealIndex + 1;
+            const blankId = idCursor++;
+            targetFrames.push(createTimelineFrame(blankId, "keyframe", "blank-keyframe", blankId));
+            for (let filler = lastRealIndex + 2; filler < wanted; filler += 1) {
+              targetFrames.push(createTimelineFrame(idCursor++, "frame", "hold", blankId));
+            }
+          }
+          const at = Math.max(0, Math.min(wanted, targetFrames.length));
+          const inserted: WorkspaceTimelineFrame[] = [];
+          for (const item of items) {
+            const id = idCursor++;
+            const blank = item.content.cellType === "blank-keyframe";
+            inserted.push({
+              ...createTimelineFrame(id, "keyframe", blank ? "blank-keyframe" : "keyframe", id, blank
+                ? { bitmap: null, previewUrl: null }
+                : { bitmap: cloneBitmap(item.content.bitmap), previewUrl: item.content.previewUrl ?? null }),
+              soundAttachment: item.content.soundAttachment ? { ...item.content.soundAttachment } : null,
+              textObjects: cloneWorkspaceTextObjects(item.content.textObjects),
+            });
+            if (item.stick) stick[`${targetId}:${id}`] = structuredClone(item.stick) as typeof stick[string];
+            if (item.symbols) {
+              instances[`${targetId}:${id}`] = (item.symbols as Array<Record<string, unknown>>).map(symbol => ({
+                ...structuredClone(symbol),
+                itemId: crypto.randomUUID(),
+              })) as unknown as typeof instances[string];
+            }
+          }
+          const after = targetFrames[at];
+          if (after && after.cellType === "hold") {
+            const owner = targetFrames[resolveStateStartIndex(targetFrames, at)];
+            if (owner) {
+              targetFrames[at] = {
+                ...after,
+                cellType: owner.cellType,
+                kind: owner.kind,
+                bitmap: owner.bitmap,
+                previewUrl: owner.previewUrl,
+                isBlank: owner.isBlank,
+                textObjects: owner.textObjects,
+                soundAttachment: owner.soundAttachment,
+              } as WorkspaceTimelineFrame;
+            }
+          }
+          targetFrames.splice(at, 0, ...inserted);
+          work.set(targetId, targetFrames);
+          if (!firstDone) { targetLayerId = targetId; insertAt = at; firstDone = true; }
+        }
+        if (!firstDone) return false;
+      }
+
+      // 4. One history step, then show it (same steps as Paste).
+      const nextLayers = layersNow.map(layer => ({ ...layer, timelineFrames: work.get(layer.id) ?? layer.timelineFrames }));
+      const nextActiveIndex = insertAt;
+      const afterEntry: DrawingWorkspaceHistoryEntry = {
+        ...createHistoryEntryFromWorkspace(),
+        layers: nextLayers,
+        activeLayerId: targetLayerId, currentFrameIndex: nextActiveIndex, selectedTimelineIndex: nextActiveIndex,
+        nextTimelineFrameId: idCursor,
+        stickByCell: structuredClone(stick), symbolInstancesByCell: structuredClone(instances),
+      };
+      recordUndoSnapshot();
+      nextTimelineFrameIdRef.current = idCursor;
+      stickByCellRef.current = stick;
+      setStickByCell(stick);
+      symbolInstancesByCellRef.current = instances;
+      setSymbolInstancesByCell(instances);
+      for (const layer of nextLayers) replaceLayerFrames(layer.id, layer.timelineFrames);
+      activeLayerIdRef.current = targetLayerId;
+      timelineFramesRef.current = work.get(targetLayerId) ?? [];
+      currentFrameIndexRef.current = nextActiveIndex;
+      selectedTimelineIndexRef.current = nextActiveIndex;
+      setActiveLayerId(targetLayerId);
+      setCurrentFrameIndex(nextActiveIndex);
+      setSelectedTimelineIndex(nextActiveIndex);
+      commitHistoryEntry(afterEntry, { skipCurrentEqualityCheck: true, skipFutureEqualityCheck: true });
+      clearLocalDrawingHistory();
+      updateHistoryWorkspaceStamp();
+      syncHistoryAvailability();
+      window.requestAnimationFrame(() => {
+        drawingCanvasRef.current?.clearTransientEditingState();
+        renderWorkspaceCanvases(nextLayers, nextActiveIndex, { activeLayerId: targetLayerId, debugCaller: "moveTimelineFrames" });
+      });
+      return true;
+    },
+    [
+      clearLocalDrawingHistory,
+      commitHistoryEntry,
+      createHistoryEntryFromWorkspace,
+      recordUndoSnapshot,
+      renderWorkspaceCanvases,
+      replaceLayerFrames,
+      syncHistoryAvailability,
+      updateHistoryWorkspaceStamp,
+    ],
+  );
+
+  const removePickedFrames = useCallback((picked: Record<string, number[]>) => {
+    const firstLayerId = layersRef.current.find(layer => (picked[layer.id] ?? []).length > 0)?.id;
+    if (!firstLayerId) return false;
+    return moveTimelineFrames(picked, {}, 0, { deleteOnly: true });
+  }, [moveTimelineFrames]);
+
+  const pastePickedFrames = useCallback((assignments: Record<string, string>, insertIndex: number, anchorLayerId?: string) => {
+    const clip = copiedPickedFramesRef.current;
+    if (!clip?.length) return false;
+    return moveTimelineFrames({}, assignments, insertIndex, { clip, anchorLayerId });
+  }, [moveTimelineFrames]);
+
   const updateFrameTextObjects = useCallback((
     frameIndex: number,
     nextTextObjects: DrawingTextObject[],
@@ -8181,6 +8443,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         removeEndIndex,
         nextTimelineFrameId,
       } = removalResult;
+      // Arthur: deleting must not leave empty "ghost" frames at the end of the layer.
+      while (collapsedFrames.length > 1 && collapsedFrames[collapsedFrames.length - 1].cellType === "empty") collapsedFrames.pop();
       const currentIndex = currentFrameIndexRef.current;
       const nextIndex =
         currentIndex >= removeStartIndex && currentIndex <= removeEndIndex
@@ -10224,6 +10488,11 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         onRemoveFrame={removeTimelineFrame}
         onCopyFrame={copyTimelineFrame}
         onPasteFrame={pasteTimelineFrame}
+        contentStateKeys={contentStateKeys}
+        onMoveFrames={(picked, assignments, insertIndex, anchorLayerId) => moveTimelineFrames(picked, assignments, insertIndex, { anchorLayerId })}
+        onCopyPickedFrames={copyPickedFrames}
+        onPastePickedFrames={pastePickedFrames}
+        onRemovePickedFrames={removePickedFrames}
         onRemoveSoundAttachment={removeSoundAttachmentFromFrame}
         onResizeTimelineSpan={resizeTimelineSpan}
         onSoundOptionDrop={attachSoundOptionToFrame}

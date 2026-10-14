@@ -126,7 +126,7 @@ export function AiDashboardScreen() {
               : <>Next refill: <time dateTime={new Date(refill).toISOString()}>{longDay(refill)}</time></>}
           </h2>
           {plan && <div className={styles.planRow}>
-            <p className={styles.planLine}><strong>{trial ? "Free trial" : `${plan.label} plan`}</strong> · {price} · {number(plan.creditsTotal)} AI credits {trial ? "for 14 days" : "every month"}{trial ? ` · ${plural(plan.trialDaysLeft ?? 0, "day", "days")} left` : ""}</p>
+            <p className={styles.planLine}><strong>{trial ? "Free trial" : `${plan.label} plan`}</strong> · {price} · {number(plan.creditsTotal)} AI credits {trial ? "" : "every month"}{trial ? ` · ${plural(plan.trialDaysLeft ?? 0, "day", "days")} left` : ""}</p>
             <div className={styles.planActions}>
               <Link href="/plans" className={styles.planButton}>{trial ? "Choose a plan" : "Change plan"}</Link>
               {paid && <ManagePlanButton returnTo="/credits" />}

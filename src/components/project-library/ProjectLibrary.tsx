@@ -399,10 +399,10 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
           </header>
 
 
-          <div className={styles.toolbar} aria-label="Project search and sort">
+          {(loading || entries.length > 0) ? <div className={styles.toolbar} aria-label="Project search and sort">
             <label className={styles.searchLabel}><span>Search</span><input type="search" value={query} onChange={event => setQuery(event.currentTarget.value)} placeholder="Search project names" /></label>
             <label className={styles.sortLabel}><span>Sort</span><select value={sort} onChange={event => setSort(event.currentTarget.value as ProjectLibrarySort)}>{sortLabels.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
-          </div>
+          </div> : null}
 
           {notice ? <div className={styles.notice} role="status" aria-live="polite"><span>{notice}</span>{notice.includes("Refresh") ? <button type="button" onClick={() => void loadCollection()} className={styles.inlineButton}>Try again</button> : null}</div> : null}
 
@@ -412,7 +412,7 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
             ) : collectionUnavailable ? (
               <div className={styles.statePanel}><h2>Projects unavailable</h2><p>Your account projects could not be read. Nothing was changed.</p><button type="button" onClick={() => void loadCollection()} className={styles.primaryButton}>Try again</button></div>
             ) : entries.length === 0 ? (
-              <div className={styles.statePanel}><h2>No saved projects</h2><p>No projects have been saved to this account yet.</p>{!readOnly && onBack ? <button type="button" onClick={onBack} className={styles.primaryButton}>Back to Home</button> : null}</div>
+              <div className={styles.statePanel}><h2>No saved projects</h2><p>No projects have been saved to this account yet.</p></div>
             ) : visibleEntries.length === 0 ? (
               <div className={styles.statePanel}><h2>No matching projects</h2><p>Try a different project name or clear Search.</p><button type="button" onClick={() => setQuery("")} className={styles.primaryButton}>Clear Search</button></div>
             ) : (

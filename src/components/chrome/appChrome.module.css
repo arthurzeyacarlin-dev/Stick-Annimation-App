@@ -87,10 +87,10 @@
 /* About / Terms dialogs */
 .modalScrim { position: fixed; inset: 0; z-index: 80; display: flex; align-items: center; justify-content: center; padding: 18px; background: rgba(3, 9, 20, .72); }
 .modal { width: min(880px, calc(100vw - 36px)); max-height: calc(100vh - 36px); overflow: auto; padding: 24px; border: 1px solid var(--da-line, #163058); border-radius: 16px; background: var(--da-panel, #071120); box-shadow: 0 18px 44px rgba(0, 0, 0, .45); color: var(--da-text, #f6f9ff); }
-.modalHead { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+.modalHead { position: sticky; top: -24px; z-index: 2; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin: -24px -24px 18px; padding: 24px 24px 12px; background: var(--da-panel, #071120); }
 .modalTitleGroup { display: flex; flex-direction: column; gap: 6px; }
 .modalTitle { margin: 0; font-size: 26px; font-weight: 750; letter-spacing: -.02em; color: var(--da-text, #f6f9ff); }
-.modalBody { padding: 20px; border: 1px solid var(--da-line, #163058); border-radius: 12px; background: var(--da-page, #030914); color: var(--da-text-3, #a8bddd); font-size: 14px; line-height: 1.65; }
+.modalBody { color: var(--da-text-3, #a8bddd); font-size: 14px; line-height: 1.65; }
 .modalBody p { margin: 0 0 12px; }
 .modalBody ul { margin: 0 0 12px; padding-left: 20px; }
 .modalBody li { margin-bottom: 4px; }
@@ -108,7 +108,7 @@
   .homeActions { width: 100%; justify-content: flex-end; gap: 14px; }
   .navLink { margin-right: auto; }
   .modal { padding: 18px; }
-  .modalBody { padding: 16px; }
+  .modalHead { top: -18px; margin: -18px -18px 18px; padding: 18px 18px 12px; }
   .modalTitle { font-size: 22px; }
 }
 @media (max-width: 380px) {

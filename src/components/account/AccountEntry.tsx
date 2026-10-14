@@ -79,7 +79,7 @@ export function AccountEntry() {
     <label className={styles.label}>Email<input className={styles.input} required type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} /></label>
   );
   const passwordField = (
-    <label className={styles.label}>Password<input className={styles.input} required type="password" minLength={8} maxLength={128} autoComplete={mode === "signup" ? "new-password" : "current-password"} value={password} onChange={(event) => setPassword(event.target.value)} /></label>
+    <label className={styles.label}>Password<input className={styles.input} required type="password" minLength={8} maxLength={128} placeholder={mode === "signup" ? "At least 8 characters" : undefined} autoComplete={mode === "signup" ? "new-password" : "current-password"} value={password} onChange={(event) => setPassword(event.target.value)} /></label>
   );
   const backButton = (
     <button type="button" className={styles.button} disabled={busy} onClick={() => switchMode(null)}>Back</button>

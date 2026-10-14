@@ -105,7 +105,7 @@
 .planButton { display: inline-flex; align-items: center; min-height: 42px; padding: 0 18px; border: 1px solid var(--da-selected-border, #3a6aa3); border-radius: 10px; background: var(--da-selected-bg, #0f2a52); color: #fff; font-size: 14px; font-weight: 700; text-decoration: none; transition: none; }
 .planButton:hover { border-color: var(--da-hover, #0066ff); background: var(--da-hover, #0066ff); color: #fff; }
 .planButton:focus-visible { outline: 2px solid var(--da-focus, #66c7ff); outline-offset: 3px; }
-.stats { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0; margin-top: 10px; padding: 18px 0; border-top: 1px solid var(--da-line, #163058); border-bottom: 1px solid var(--da-line, #163058); }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; margin-top: 10px; padding: 18px 0; border-top: 1px solid var(--da-line, #163058); border-bottom: 1px solid var(--da-line, #163058); }
 .stats > div { display: grid; align-content: start; gap: 4px; padding: 0 16px; border-left: 1px solid var(--da-line, #163058); min-width: 0; }
 .stats > div:first-child { padding-left: 2px; border-left: 0; }
 .stats strong { color: var(--da-text, #f6f9ff); font-size: clamp(20px, 2.4vw, 28px); font-weight: 740; line-height: 1.15; overflow-wrap: anywhere; }

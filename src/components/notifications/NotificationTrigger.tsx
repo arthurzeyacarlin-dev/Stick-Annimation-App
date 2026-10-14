@@ -238,7 +238,7 @@ export function NotificationTrigger({ view }: { view: "home" | "assistant" }) {
                 <span>{offlineCopy.body}</span>
               </div>
             )}
-            {rows.length === 0 && !browserOffline && <p className={styles.empty}>No unread notifications.</p>}
+            {rows.length === 0 && !browserOffline && <p className={styles.empty}>You’re all caught up. Project and account updates will appear here.</p>}
             {rows.length > 0 && (
               <ul className={styles.list}>
                 {rows.map(notification => {

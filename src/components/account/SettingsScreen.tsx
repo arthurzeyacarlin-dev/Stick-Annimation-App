@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { NEW_PROJECT_FPS_CHOICES, saveAppSettings, useAppSettings, type AppSettingsV1, type NotificationVolume } from "@/src/lib/account/appSettings";
 import { playNotificationDing } from "@/src/lib/notifications/notificationSound";
 import { startLearnMode } from "@/src/components/learn/LearnMode";
@@ -13,6 +14,7 @@ const VOLUMES: { value: NotificationVolume; label: string }[] = [{ value: "quiet
 const FPS_HINT: Record<number, string> = { 12: "the classic hand-drawn look", 24: "smooth, like movies", 30: "extra smooth, like videos" };
 
 export function SettingsScreen() {
+  const router = useRouter();
   const { settings, ready } = useAppSettings();
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
@@ -45,7 +47,7 @@ export function SettingsScreen() {
             <input id="setting-sound" type="checkbox" role="switch" aria-label="Notification sound" className={styles.switch} checked={settings.notificationSound} disabled={disabled}
               onChange={(event) => void save({ notificationSound: event.target.checked }, (next) => { if (next.notificationSound) playNotificationDing(next.notificationVolume); })} />
           </div>
-          <div className={styles.row}>
+          <div className={`${styles.row} ${styles.choiceRow}`}>
             <span className={styles.text}><strong>Volume</strong><small>How loud the &ldquo;ding ding&rdquo; is. Choosing one plays it.</small></span>
             <div className={styles.segmented} role="group" aria-label="Notification volume">
               {VOLUMES.map((option) => (
@@ -63,7 +65,7 @@ export function SettingsScreen() {
 
         <section className={styles.section} aria-labelledby="settings-projects">
           <h2 id="settings-projects" className={styles.sectionTitle}>New projects</h2>
-          <div className={styles.row}>
+          <div className={`${styles.row} ${styles.choiceRow}`}>
             <span className={styles.text}><strong>Frames per second</strong><small>New projects start at {settings.newProjectFps} frames per second: {FPS_HINT[settings.newProjectFps]}. You can still change it in the editor.</small></span>
             <div className={styles.segmented} role="group" aria-label="Frames per second for new projects">
               {NEW_PROJECT_FPS_CHOICES.map((fps) => (
@@ -74,10 +76,10 @@ export function SettingsScreen() {
         </section>
 
         <section className={styles.section} aria-labelledby="settings-learn">
-          <h2 id="settings-learn" className={styles.sectionTitle}>Learn mode</h2>
-          <div className={styles.row}>
-            <span className={styles.text}><strong>Guided setup</strong><small>A short walk through Home, the AI Dashboard and the editor. It starts on Home.</small></span>
-            <button type="button" className="da-plain-button" onClick={() => { startLearnMode(); window.location.assign("/"); }}>Start learn mode</button>
+          <h2 id="settings-learn" className={styles.sectionTitle}>Guided tour</h2>
+          <div className={`${styles.row} ${styles.choiceRow}`}>
+            <span className={styles.text}><strong>Guided tour</strong><small>A short walk through the main controls on Home.</small></span>
+            <button type="button" className="da-plain-button" onClick={() => { startLearnMode(); router.push("/"); }}>Start guided tour</button>
           </div>
         </section>
 

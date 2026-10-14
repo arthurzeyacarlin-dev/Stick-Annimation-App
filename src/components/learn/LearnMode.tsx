@@ -153,9 +153,9 @@ export function LearnMode() {
         <div style={{ position: "relative", width: "min(420px, calc(100vw - 32px))", padding: "28px 26px", borderRadius: 16, border: "1px solid var(--da-line, #163058)", background: "var(--da-panel, #071120)", color: "var(--da-text, #f6f9ff)", textAlign: "center" }}>
           <button type="button" className="da-learn-btn" aria-label="Close" onClick={() => closeWelcome(false)} style={{ position: "absolute", top: 10, right: 10, width: 34, height: 34, borderRadius: 10, border: "1px solid transparent", background: "transparent", color: "var(--da-muted, #8fabd0)", fontSize: 20, lineHeight: 1, cursor: "pointer" }}>×</button>
           <h2 style={{ margin: "0 0 8px", fontSize: 22 }}>Welcome to Diamond Animator</h2>
-          <p style={{ margin: "0 0 20px", color: "var(--da-text-2, #c9d6ea)", fontSize: 14, lineHeight: 1.5 }}>Want a quick guided setup? It takes about a minute and shows you the important parts.</p>
+          <p style={{ margin: "0 0 20px", color: "var(--da-text-2, #c9d6ea)", fontSize: 14, lineHeight: 1.5 }}>Want a quick guided tour? It takes about a minute and shows you the important parts.</p>
           <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
-            <button type="button" className="da-learn-btn" onClick={() => closeWelcome(true)} style={{ ...BUTTON, background: "#1b3358", borderColor: "#3a6aa3", color: "#fff" }}>Guided setup</button>
+            <button type="button" className="da-learn-btn" onClick={() => closeWelcome(true)} style={{ ...BUTTON, background: "#1b3358", borderColor: "#3a6aa3", color: "#fff" }}>Start guided tour</button>
             <button type="button" className="da-learn-btn" onClick={() => closeWelcome(false)} style={BUTTON}>Don&apos;t show again</button>
           </div>
         </div>
@@ -205,13 +205,13 @@ export function LearnMode() {
           ))}
         </div>
         <span style={{ fontSize: 11, color: "var(--da-muted, #8fabd0)", whiteSpace: "nowrap" }}>{Math.min(stepIndex + 1, STEPS.length)}/{STEPS.length}</span>
-        <button type="button" className="da-learn-btn" onClick={() => setConfirmStop(true)} style={{ ...BUTTON, minHeight: 28, padding: "0 10px", fontSize: 12 }}>Stop</button>
-        <button type="button" className="da-learn-btn" onClick={goNext} disabled={finishing} style={{ ...BUTTON, minHeight: 28, padding: "0 12px", fontSize: 12, background: "#0066ff", borderColor: "#0066ff", color: "#fff" }}>{last ? "Finish" : "Next"}</button>
+        <button type="button" className="da-learn-btn" onClick={() => setConfirmStop(true)} style={{ ...BUTTON, minHeight: 40, padding: "0 10px", fontSize: 12 }}>Stop</button>
+        <button type="button" className="da-learn-btn" onClick={goNext} disabled={finishing} style={{ ...BUTTON, minHeight: 40, padding: "0 12px", fontSize: 12, background: "#0066ff", borderColor: "#0066ff", color: "#fff" }}>{last ? "Finish" : "Next"}</button>
       </div>
       {confirmStop && (
         <div role="dialog" aria-modal="true" style={{ position: "fixed", inset: 0, zIndex: 9010, display: "grid", placeItems: "center", background: "rgba(3,9,20,0.6)" }}>
           <div style={{ width: "min(380px, calc(100vw - 32px))", padding: "22px", borderRadius: 16, border: "1px solid var(--da-line, #163058)", background: "var(--da-panel, #071120)", color: "var(--da-text, #f6f9ff)", textAlign: "center" }}>
-            <h3 style={{ margin: "0 0 8px", fontSize: 18 }}>Stop learn mode?</h3>
+            <h3 style={{ margin: "0 0 8px", fontSize: 18 }}>Stop guided tour?</h3>
             <p style={{ margin: "0 0 18px", color: "var(--da-text-2, #c9d6ea)", fontSize: 14, lineHeight: 1.5 }}>You can start it again any time in Settings.</p>
             <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
               <button type="button" className="da-learn-btn" onClick={() => { setConfirmStop(false); finish(); }} style={BUTTON}>Stop</button>
@@ -224,7 +224,7 @@ export function LearnMode() {
   );
 }
 
-const BUTTON: React.CSSProperties = { minHeight: 38, padding: "0 16px", borderRadius: 10, border: "1px solid var(--da-border, #244267)", background: "transparent", color: "var(--da-text, #f6f9ff)", fontSize: 14, fontWeight: 600, cursor: "pointer" };
+const BUTTON: React.CSSProperties = { minHeight: 40, padding: "0 16px", borderRadius: 10, border: "1px solid var(--da-border, #244267)", background: "transparent", color: "var(--da-text, #f6f9ff)", fontSize: 14, fontWeight: 600, cursor: "pointer" };
 
 const LEARN_CSS = `
 .da-learn-btn:hover { background: #0066ff !important; border-color: #0066ff !important; color: #ffffff !important; }

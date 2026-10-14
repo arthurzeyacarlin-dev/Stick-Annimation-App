@@ -229,7 +229,7 @@ export function AppChrome({ page, theme }: AppChromeProps) {
             <div className={styles.modalBody}>
               <h3>Diamond Animator</h3>
               <p>
-                Diamond Animator is an animation studio for your computer, made for stick-figure animation. Draw your
+                Diamond Animator is an animation studio made for stick-figure animation. Draw your
                 characters, bring them to life frame by frame, and share what you make.
               </p>
               <h4>What you can do</h4>

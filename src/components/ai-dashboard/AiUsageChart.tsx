@@ -121,7 +121,7 @@ export function AiUsageChart({ buckets, filter, complete, capacity, roof = TEST_
             ].filter(Boolean).join(" · ")}</small>}
         </div>}
       </div>
-      <p className={styles.chartRange}>{buckets.length ? `${time(buckets[0].start)} → ${time(buckets[buckets.length - 1].sampleAt)} · UTC · oldest to newest` : "No AI use in this view yet."}</p>
+      {buckets.length > 0 && <p className={styles.chartRange}>{`${time(buckets[0].start)} → ${time(buckets[buckets.length - 1].sampleAt)} · UTC · oldest to newest`}</p>}
     </div>
   );
 }

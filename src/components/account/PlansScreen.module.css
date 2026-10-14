@@ -43,7 +43,7 @@
 .costRow dt { color: var(--da-text-2, #c9d6ea); }
 .costRow dd { margin: 0; color: var(--da-text, #f6f9ff); font-weight: 700; }
 .note { margin: 10px 0 0; max-width: 720px; color: var(--da-muted, #8fabd0); font-size: 13px; line-height: 1.55; }
-@media (max-width: 760px) { .plans { grid-template-columns: 1fr; } }
+@media (max-width: 860px) { .plans { grid-template-columns: 1fr; } }
 
 .frame > :first-child { margin-bottom: 14px; }
 
@@ -60,6 +60,6 @@
 /* SPEC-0022 (Arthur): Monthly / Yearly uses the same choice bar as everywhere else, on every device:
    a rounded bar, the selected one a filled block with a blue bar under it. */
 .intervals { gap: 2px; padding: 3px; border: 1px solid var(--da-border, #244267); border-radius: 12px; width: min(100%, 520px); }
-.interval { flex: 1 1 0; padding: 11px 10px; border-radius: 8px; text-align: center; font-size: 14.5px; text-decoration: none; }
+.interval { flex: 1 1 0; padding: 8px 10px; border-radius: 8px; text-align: center; font-size: 14.5px; text-decoration: none; }
 .interval[aria-pressed="true"] { background: var(--da-selected-bg, #0f2a52); color: #fff; text-decoration: none; box-shadow: inset 0 -3px 0 #0066ff; }
 .interval:hover { background: var(--da-hover, #0066ff); color: #fff; }

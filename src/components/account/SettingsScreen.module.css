@@ -30,6 +30,13 @@
 .segmented button:hover:not(:disabled) { background: var(--da-hover, #0066ff); color: #fff; box-shadow: none; }
 .segmented button:disabled { opacity: .5; cursor: default; }
 .segmented button:focus-visible { outline: 2px solid var(--da-focus, #66c7ff); outline-offset: 1px; }
+.choiceRow :global(.da-plain-button) { min-height: 42px; padding-inline: 18px; font-weight: 700; }
+@media (max-width: 520px) {
+  .choiceRow { align-items: stretch; flex-direction: column; gap: 10px; }
+  .choiceRow .segmented { width: 100%; }
+  .choiceRow .segmented button { flex: 1 1 0; min-width: 0; padding-inline: 8px; }
+  .choiceRow :global(.da-plain-button) { align-self: flex-start; white-space: nowrap; }
+}
 /* Accent color swatches: round color buttons; the chosen one gets a ring. */
 .swatches { display: inline-flex; flex-wrap: wrap; gap: 10px; flex: 0 0 auto; }
 .swatch { width: 28px; height: 28px; padding: 0; border: 2px solid transparent; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .25); cursor: pointer; }

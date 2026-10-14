@@ -1,5 +1,14 @@
 # TODO
 
+## PM4 queue — beta readiness (2026-10-14)
+
+- [x] **CANVAS-MEMORY** — passed D-0205: 192 MiB cap, strokes fixed, layer eye fixed. Keep checking a big old project after each drawing change.
+- [ ] **UNEXPECTED-LOGOUT** — the signed-in session returned to the login screen without Log out in both Codex test copies (2026-10-14). Not yet seen in main. Get exact steps; account code → needs a plan first.
+- [ ] **TIMELINE-SLOW** — inserting frames near frame 110 takes about 0.7–1 s each; blank timeline renders ruler labels to frame 10,000 (3,314 elements blank, 6,659 with 8 layers). Fix in a new copy.
+- [ ] **CANVAS-WARNING** — Chrome warns about repeated canvas reads (`willReadFrequently`). Low.
+- [ ] **EXPORT-1080P-CHECK** — render a real 1080p export from a big project and play it outside the app (not done in D-0205).
+- [ ] **SCREENS-AUDIT** — Codex 2 in `screens-check`. Small items: Terms Close button scrolls off on phones; About/Terms need proper dialog behavior; "14 days" repeated 3× in trial text; Plans cards cramped at 768 px; Monthly/Yearly control differs; "CVC" unclear; Open Project empty shows two Back buttons; empty notifications wording. Group 3 pending.
+
 ## PM4 queue — SPEC-0022 (app polish and launch readiness, 2026-10-13)
 
 - [x] **Phase 1** — quick clean-ups. Arthur PASS 2026-10-13; `60a0c27`.

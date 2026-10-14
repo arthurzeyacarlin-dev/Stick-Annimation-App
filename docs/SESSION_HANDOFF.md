@@ -1,5 +1,9 @@
 # Session Handoff
 
+## PM4 update — Wed 2026-10-14
+
+Merged D-0205 (canvas memory cut, layer-eye fix, keyframe/symbol-name/Undo fixes, timeline edge fix) to main. Codex 2 is auditing non-editor screens in `screens-check` (port 58681); Groups 1–2 reported, Group 3 pending, nothing merged from it. Test copies: `beta-stress`, `canvas-memory-budget`, `screens-check` — retire after Arthur confirms. Next: UNEXPECTED-LOGOUT steps, TIMELINE-SLOW, 1080p export check, then SPEC-0023 Phase 2. Arthur's test accounts in copies are throwaway (never record passwords).
+
 ## PM4 — START HERE (written by PM3, Tue 2026-10-13). PM4 = project manager for the Diamond Animator APP and WEBSITE (takes over from PM3)
 
 **Who:** Arthur (owner, says he is 12) reviews everything; talk in plain, short, simple words; lead with the answer; always end with exactly what to review in simple steps. His **dad** decides direction and money (prices, Stripe, legal, App Store). **PM2** owns the AI Animator engine — never edit `src/lib/animator/**`, `src/components/workspace/ai/**`, `app/api/ai-animator/**`.

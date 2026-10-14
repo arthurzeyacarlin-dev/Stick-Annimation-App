@@ -1885,6 +1885,16 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0205 — Canvas memory budget + layer visibility + editor bug fixes passed (PM4 with Codex)
+
+- Arthur passed 2026-10-14 (stress test by Codex in `beta-stress`, build in `canvas-memory-budget`, merged fast-forward as `66cdbb3` + `4cb2aa9`).
+- Memory: each authoring canvas has a hard 32 MiB cap, six canvases ≤ 192 MiB (measured about 27 MiB in a normal window; old stress test about 1.34 GiB). Saved bitmaps keep their original coordinates and size; tests cover old-style saved bitmap data and small edits (`authoringSurfaceViewport.ts`, `compactRasterBitmap.ts`).
+- The first memory version broke brush strokes (gaps, blobs, lag; old pixels reused). Fixed before merge; Pencil, Pixelate, Sketch, Graphite, Glow, Eraser, Shape and Fill checked at fast/slow/long/short.
+- Layer eye: open-eye layers render bitmap, text, symbols and shapes in order from any selected layer; closed-eye layers are hidden while another layer is selected and visible while selected. Also fixed symbols missing after reopen and transparent layers wiping lower layers.
+- Old main bugs fixed on the way: Insert Keyframe now copies symbols; symbol-name box no longer stays fully selected; Undo/Redo no longer stops after 10.
+- Timeline: expanded layers stop before the right panel (`desktopRightInset`). The testing-port line in `accountConfig.ts` was NOT merged (account code untouched).
+- Not done: a real 1080p video export was not rendered (RAM); exported files not played outside the app; new "main" stroke picture missing. Screens audit by Codex 2 still running (`screens-check`): Groups 1–2 found only small items, listed in TODO.
+
 ### D-0204 — SPEC-0022 Phase 9 Plans screen on phones passed; phones/tablets work is done (PM4)
 
 - Arthur passed 2026-10-13. Plans: compact cards on ≤ 640 px; extra-credit packs three side by side (one column under 340 px); Monthly / Yearly = the shared choice bar (rounded bar, selected = filled block + blue bar) on every device.

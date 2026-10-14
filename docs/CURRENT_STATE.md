@@ -1,5 +1,9 @@
 # Current State
 
+## D-0205 — PM4 + Codex: canvas memory cut, layer eye fixed, old editor bugs fixed (current)
+
+Arthur passed 2026-10-14. The six drawing canvases now stay under a 192 MiB budget (was about 1.3 GB on a blank project). Open-eye layers show drawings, text, symbols and shapes from any selected layer; keyframes copy symbols; symbol names can be typed; 12 undos + 12 redos restore everything. Timeline no longer covers the right-panel tabs. Open: unexpected logout in test copies, slow long timelines, oversized timeline page, screens audit (Codex 2, Groups 1–2 reported). See DECISIONS D-0205 and TODO.
+
 ## D-0204 — PM4: SPEC-0022 Phase 9 complete (current)
 
 Plans screen on phones done; phones/tablets/computers all work. Next: Phase 10 (real payments, last) after the online phase. See DECISIONS D-0204.

@@ -3677,6 +3677,11 @@ type SaveAsDialogState = {
 type ProjectRecoveryState = "checking" | "idle" | "pending" | "writing" | "current" | "blocked" | "unavailable" | "failed";
 
 const PROJECT_RECOVERY_DEBOUNCE_MS = 750;
+// SPEED (Arthur): a big project takes longer to back up, so the backup waits longer between runs (3x / 8x of how
+// long the last one took, never more than 6 s / 15 s). Small projects keep the exact old timing.
+const PROJECT_RECOVERY_MAX_WAIT_MS = 3_000;
+const projectRecoveryDebounceFor = (lastWriteMs: number) => Math.min(6_000, Math.max(PROJECT_RECOVERY_DEBOUNCE_MS, lastWriteMs * 3));
+const projectRecoveryMaxWaitFor = (lastWriteMs: number) => Math.min(15_000, Math.max(PROJECT_RECOVERY_MAX_WAIT_MS, lastWriteMs * 8));
 
 export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject, recoveryClaim, onExport, onExit }: DrawingWorkspaceProps) {
   const account = useAccountSession();
@@ -3812,6 +3817,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
   const recoveryFirstPendingAtRef = useRef<number | null>(null);
   const recoveryTimerRef = useRef<number | null>(null);
   const recoveryWriteInFlightRef = useRef<Promise<void> | null>(null);
+  const lastRecoveryWriteMsRef = useRef(0);
   const runRecoveryDraftWriteRef = useRef<() => void>(() => undefined);
   const historyEntriesRef = useRef<DrawingWorkspaceHistoryEntry[]>([]);
   const currentHistoryIndexRef = useRef(-1);
@@ -7867,8 +7873,9 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       }, 10_000);
     }
     setProjectRecoveryState("pending");
-    const remainingMaximumWait = Math.max(0, 3_000 - (performance.now() - recoveryFirstPendingAtRef.current));
-    armRecoveryDraftWrite(Math.min(PROJECT_RECOVERY_DEBOUNCE_MS, remainingMaximumWait));
+    const lastWriteMs = lastRecoveryWriteMsRef.current;
+    const remainingMaximumWait = Math.max(0, projectRecoveryMaxWaitFor(lastWriteMs) - (performance.now() - recoveryFirstPendingAtRef.current));
+    armRecoveryDraftWrite(Math.min(projectRecoveryDebounceFor(lastWriteMs), remainingMaximumWait));
   }, [armRecoveryDraftWrite, ownerId]);
 
   const runRecoveryDraftWrite = useCallback(() => {
@@ -7889,6 +7896,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       return;
     }
     recoveryWaitedForPreviewsRef.current = false;
+    const writeStartedAt = performance.now();
     const draftSequence = recoveryDraftSequenceRef.current;
     const workspaceGeneration = recoveryWorkspaceGenerationRef.current;
     const ownerSessionId = recoverySessionIdRef.current;
@@ -7925,7 +7933,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       }
     }).finally(() => {
       recoveryWriteInFlightRef.current = null;
-      if (recoveryEnabledRef.current && recoveryDraftSequenceRef.current > draftSequence) armRecoveryDraftWrite(PROJECT_RECOVERY_DEBOUNCE_MS);
+      lastRecoveryWriteMsRef.current = performance.now() - writeStartedAt;
+      if (recoveryEnabledRef.current && recoveryDraftSequenceRef.current > draftSequence) armRecoveryDraftWrite(projectRecoveryDebounceFor(lastRecoveryWriteMsRef.current));
     });
     recoveryWriteInFlightRef.current = write;
   }, [activeUnifiedProject, armRecoveryDraftWrite, buildUnifiedProjectSnapshot, createPersistedProjectSnapshot, ownerId]);

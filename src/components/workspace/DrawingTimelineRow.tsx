@@ -31,6 +31,7 @@ export type TimelineLayer = {
 
 type DrawingTimelineRowProps = {
   responsiveLayout?: boolean;
+  desktopRightInset?: number;
   fps: number;
   isPlaying: boolean;
   isOnionEnabled: boolean;
@@ -723,6 +724,7 @@ const TimelineLayerLane = memo(function TimelineLayerLane({
 
 export function DrawingTimelineRow({
   responsiveLayout = false,
+  desktopRightInset = 0,
   fps,
   isPlaying,
   isOnionEnabled,
@@ -1486,6 +1488,7 @@ export function DrawingTimelineRow({
       className={responsiveLayout ? "drawing-timeline" : undefined}
       style={{
         "--timeline-panel-height": `${rightPanelHeight}px`,
+        "--timeline-desktop-right-inset": `${desktopRightInset}px`,
         position: "relative",
         zIndex: 12,
         overflow: "visible",
@@ -1525,6 +1528,12 @@ export function DrawingTimelineRow({
             grid-column: 1 !important;
             margin-left: 0 !important;
             height: var(--timeline-panel-height) !important;
+          }
+        }
+
+        @media (min-width: 901px) {
+          .drawing-timeline .drawing-timeline-frames {
+            margin-right: var(--timeline-desktop-right-inset);
           }
         }
 

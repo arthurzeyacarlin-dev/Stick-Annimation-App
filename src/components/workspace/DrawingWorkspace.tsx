@@ -8,7 +8,11 @@ import { CloseButton } from "@/src/components/ui/CloseButton";
 import { bitmapCenterOffset } from "@/src/lib/animation/unifiedStageGeometry";
 import { buildScene as buildAnimatorScene, type Scene as AnimatorScene } from "@/src/lib/animator/engine";
 import { captureRasterReferencePatch, compactOrigin, copyRasterReferenceSize, getRasterReferenceSize, mergeRasterReferencePatch, resolveRasterReferenceSize } from "@/src/lib/animation/compactRasterBitmap";
-import { renderRasterBitmapsToAuthoringSurface } from "@/src/lib/animation/authoringSurfaceViewport";
+import {
+  authoringSurfaceWorldTransform,
+  getAuthoringSurfaceViewport,
+  renderRasterBitmapsToAuthoringSurface,
+} from "@/src/lib/animation/authoringSurfaceViewport";
 import { openedHiddenLayerIdsV1, savedHiddenLayerIdsV1 } from "@/src/lib/animation/editorHiddenLayersV1";
 import { rasterizeFrames as rasterizeAnimatorFrames, rasterizeShapeFrames as rasterizeAnimatorShapeFrames, sceneEffectLayers as animatorSceneEffectLayers } from "@/src/lib/animator/toFrames";
 import { centerAnimation, effectFitBounds, visibleStageWidth, type SceneForPage } from "@/src/lib/animator/stageFit";
@@ -25,6 +29,7 @@ import {
   cloneDrawingTextObjects,
   DEFAULT_DRAWING_TEXT_COLOR,
   DEFAULT_DRAWING_TEXT_FONT,
+  drawDrawingTextObject,
   drawScaledDrawingTextObject,
   drawingTextObjectsEqual,
   normalizeDrawingTextRotation,
@@ -102,6 +107,7 @@ import {
   removeSymbolDefinitionV2,
 } from "@/src/lib/animation/unifiedProjectCatalogV2";
 import {
+  AUTHORING_WORLD_SCALE_V2,
   createSymbolImageCacheV2,
   drawSymbolInstancesV2,
   indexSymbolDefinitionsV2,
@@ -345,6 +351,12 @@ type PlaybackBitmapResolution = {
   symbolInstances?: UnifiedSymbolInstanceItemV2[];
   renderSource: PlaybackResolutionSource;
   debugMeta?: Record<string, unknown>;
+};
+
+type PausedLayerResolution = {
+  bitmap: ImageData | null;
+  textObjects: DrawingTextObject[];
+  symbolInstances?: UnifiedSymbolInstanceItemV2[];
 };
 
 type DrawingWorkspaceInitialState = {
@@ -3791,8 +3803,6 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
   useEffect(() => { stickByCellRef.current = stickByCell; }, [stickByCell]);
   useEffect(() => { unifiedCatalogsRef.current = unifiedCatalogs; }, [unifiedCatalogs]);
   useEffect(() => { symbolInstancesByCellRef.current = symbolInstancesByCell; }, [symbolInstancesByCell]);
-  // Decode every Library symbol picture ahead of Play, so the first played frame already has them.
-  useEffect(() => { void symbolImageCache.warm(unifiedCatalogs.symbols); }, [symbolImageCache, unifiedCatalogs.symbols]);
   const isApplyingGeneratedFramesRef = useRef(false);
   const lastGeneratedFrameApplyAtRef = useRef(0);
   const historyWorkspaceStampRef = useRef<{
@@ -4590,6 +4600,86 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     ctx.restore();
   }, []);
 
+  const renderPausedLayersToTargetCanvas = useCallback((
+    canvas: HTMLCanvasElement | null,
+    resolutions: ReadonlyArray<PausedLayerResolution>,
+  ) => {
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) return;
+
+    const viewport = getAuthoringSurfaceViewport(canvas);
+    const fallbackLayout = drawingCanvasRef.current?.getPlaybackSurfaceLayout() ?? null;
+    const worldWidth = viewport?.fullWorldWidth ?? Math.max(1, fallbackLayout?.worldWidth ?? canvas.width);
+    const worldHeight = viewport?.fullWorldHeight ?? Math.max(1, fallbackLayout?.worldHeight ?? canvas.height);
+    const referenceWidth = viewport?.referenceWidth ?? Math.max(1, fallbackLayout?.drawingCanvasWidth ?? canvas.width);
+    const hostWidth = worldWidth / AUTHORING_WORLD_SCALE_V2;
+    const hostHeight = worldHeight / AUTHORING_WORLD_SCALE_V2;
+    const stageRect = {
+      left: (worldWidth - hostWidth) / 2,
+      top: (worldHeight - hostHeight) / 2,
+      width: hostWidth,
+      height: hostHeight,
+    };
+    const symbolPresentation = resolveSymbolStagePresentationV2(stageRect);
+    const symbolDefinitions = indexSymbolDefinitionsV2(unifiedCatalogsRef.current.symbols);
+    const drawingView = referenceWidth > 0
+      ? { centerX: worldWidth / 2, centerY: worldHeight / 2, perCanvasPixel: worldWidth / referenceWidth }
+      : null;
+
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.imageSmoothingEnabled = false;
+
+    for (const resolution of resolutions) {
+      if (resolution.bitmap) {
+        if (viewport) {
+          const source = createBitmapCanvas(resolution.bitmap);
+          if (!source) throw new Error("bitmap_presentation_failed");
+          const scaleX = canvas.width / viewport.referenceSpanWidth;
+          const scaleY = canvas.height / viewport.referenceSpanHeight;
+          const left = bitmapCenterOffset(viewport.referenceWidth, resolution.bitmap.width);
+          const top = bitmapCenterOffset(viewport.referenceHeight, resolution.bitmap.height);
+          ctx.drawImage(
+            source,
+            (left - viewport.referenceLeft) * scaleX,
+            (top - viewport.referenceTop) * scaleY,
+            resolution.bitmap.width * scaleX,
+            resolution.bitmap.height * scaleY,
+          );
+        } else {
+          const source = createBitmapCanvas(resolution.bitmap);
+          if (!source) throw new Error("bitmap_presentation_failed");
+          drawBitmapCanvasCentered(ctx, source, canvas.width, canvas.height);
+        }
+      }
+
+      if (resolution.textObjects.length > 0 || resolution.symbolInstances?.length) {
+        ctx.save();
+        if (viewport) {
+          authoringSurfaceWorldTransform(ctx, viewport);
+        } else {
+          ctx.setTransform(canvas.width / worldWidth, 0, 0, canvas.height / worldHeight, 0, 0);
+        }
+        for (const textObject of resolution.textObjects) {
+          drawDrawingTextObject(ctx, textObject);
+        }
+        if (resolution.symbolInstances?.length && symbolPresentation) {
+          drawSymbolInstancesV2(
+            ctx,
+            resolution.symbolInstances,
+            symbolDefinitions,
+            (instance) => instancePresentationV2(instance, symbolPresentation, drawingView),
+            symbolImageCache.get,
+          );
+        }
+        ctx.restore();
+      }
+    }
+
+    ctx.restore();
+  }, [symbolImageCache]);
+
   const restoreBitmapToTargetCanvas = useCallback((canvas: HTMLCanvasElement | null, bitmap: ImageData | null) => {
     renderBitmapsToTargetCanvas(canvas, [bitmap]);
   }, [renderBitmapsToTargetCanvas]);
@@ -4865,8 +4955,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
 
       const activeLayerForRender = getLayerById(nextLayers, nextActiveLayerId) ?? nextLayers[0] ?? null;
       if (!activeLayerForRender) {
-        renderBitmapsToTargetCanvas(getBackgroundCanvas(), []);
-        renderBitmapsToTargetCanvas(getForegroundCanvas(), []);
+        renderPausedLayersToTargetCanvas(getBackgroundCanvas(), []);
+        renderPausedLayersToTargetCanvas(getForegroundCanvas(), []);
         restoreBitmapToCanvas(null);
         return;
       }
@@ -4876,14 +4966,33 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       // SPEC-0020 Phase 4 (Arthur): while you draw on one layer, the other layers show too (unless hidden with
       // the eye): layers below it on the background canvas, layers above it on the foreground canvas.
       const activeIndexForRender = nextLayers.findIndex((layer) => layer.id === activeLayerForRender.id);
-      const otherLayerBitmap = (layer: WorkspaceLayer) => {
+      const otherLayerResolution = (layer: WorkspaceLayer): PausedLayerResolution | null => {
         if (hiddenLayerIdsRef.current.includes(layer.id)) return null;
-        try { return resolveTimelineBitmap(layer.timelineFrames, frameIndex); } catch { return null; }
+        let bitmap: ImageData | null = null;
+        try { bitmap = resolveTimelineBitmap(layer.timelineFrames, frameIndex); } catch { /* Keep its text and symbols visible. */ }
+        return {
+          bitmap,
+          textObjects: resolveTimelineTextObjects(layer.timelineFrames, frameIndex),
+          symbolInstances: symbolInstancesAtFrameV2(
+            symbolInstancesByCellRef.current,
+            layer.id,
+            layer.timelineFrames,
+            frameIndex,
+          ),
+        };
       };
-      const belowBitmaps = nextLayers.slice(activeIndexForRender + 1).map(otherLayerBitmap).reverse();
-      const aboveBitmaps = nextLayers.slice(0, Math.max(0, activeIndexForRender)).map(otherLayerBitmap).reverse();
-      renderBitmapsToTargetCanvas(getBackgroundCanvas(), belowBitmaps);
-      renderBitmapsToTargetCanvas(getForegroundCanvas(), aboveBitmaps);
+      const belowLayers = nextLayers
+        .slice(activeIndexForRender + 1)
+        .map(otherLayerResolution)
+        .reverse()
+        .filter((resolution): resolution is PausedLayerResolution => resolution !== null);
+      const aboveLayers = nextLayers
+        .slice(0, Math.max(0, activeIndexForRender))
+        .map(otherLayerResolution)
+        .reverse()
+        .filter((resolution): resolution is PausedLayerResolution => resolution !== null);
+      renderPausedLayersToTargetCanvas(getBackgroundCanvas(), belowLayers);
+      renderPausedLayersToTargetCanvas(getForegroundCanvas(), aboveLayers);
       const alreadyPresented = debugCaller === "useEffect:paused-render-sync" && drawingCanvasRef.current?.takePresentedRasterCommit(activeBitmap);
       if (!alreadyPresented) restoreBitmapToCanvas(activeBitmap);
     },
@@ -4891,11 +5000,27 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       getBackgroundCanvas,
       getForegroundCanvas,
       renderBitmapsToPlaybackCanvas,
-      renderBitmapsToTargetCanvas,
+      renderPausedLayersToTargetCanvas,
       renderBitmapToPlaybackCanvas,
       restoreBitmapToCanvas,
     ],
   );
+
+  // Decoding is asynchronous. Repaint paused layers once every Library picture is ready so symbols from
+  // non-active layers are present on the first render after opening a saved project, not only after a layer switch.
+  useEffect(() => {
+    let cancelled = false;
+    void symbolImageCache.warm(unifiedCatalogs.symbols).then(() => {
+      if (cancelled || isTimelinePlayingRef.current) return;
+      renderWorkspaceCanvases(layersRef.current, currentFrameIndexRef.current, {
+        activeLayerId: activeLayerIdRef.current,
+        debugCaller: "symbol-image-cache-ready",
+      });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [renderWorkspaceCanvases, symbolImageCache, unifiedCatalogs.symbols]);
 
   const handleAuthoringSurfaceViewportChange = useCallback(() => {
     if (isTimelinePlayingRef.current) return;
@@ -6975,6 +7100,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       }
 
       if (!isTimelinePlayingRef.current) {
+        // Match frame switching: a dropped symbol still waiting for placement belongs to the layer it was dropped on.
+        drawingCanvasRef.current?.commitPendingPlacement();
         saveCurrentFrameSnapshot(currentFrameIndexRef.current, activeLayerIdRef.current, {
           debugCaller: "activateLayer",
           forceCapture: drawingCanvasRef.current?.hasPendingAuthoringChanges() ?? true,
@@ -10072,6 +10199,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       )}
       <MemoizedDrawingTimelineRow
         responsiveLayout
+        desktopRightInset={rightPanelWidth}
         fps={timelineFps}
         isPlaying={isTimelinePlaying}
         isOnionEnabled={isOnionEnabled}

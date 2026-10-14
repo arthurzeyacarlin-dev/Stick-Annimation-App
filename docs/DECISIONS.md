@@ -1885,6 +1885,14 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0208 — Editor speed: adaptive recovery-backup timing (PM4)
+
+- Arthur passed 2026-10-14; merged fast-forward as `0bfe2ff` (15 lines, `DrawingWorkspace.tsx` only).
+- Measured in real Chrome (1440x900 @2x, 8 layers): blank frames insert in about 30–45 ms at 110+ frames (not slow). With drawings on the frames, the automatic recovery backup re-processed and uploaded every frame's picture every ~3 s (about 1.4 MB per frame; 66 MB at 30 frames), freezing the main thread for 1–3.8 s.
+- Change: the backup waits 3x (debounce, min 750 ms, max 6 s) and 8x (maximum wait, min 3 s, max 15 s) of how long the last backup took. Small projects keep the old 750 ms / 3 s. What is saved is unchanged.
+- Result at 30 drawn frames (dev build): worst freeze 3.8 s → 0.7 s; average insert 611 → 468 ms; backups during the test 8+ → 4.
+- Not done: only re-send frames that changed (needs the account-data API + recovery wire format, a saving-area change); per-frame capture cost of drawn canvases (toDataURL previews, opaque bounds) still about 0.3–0.5 s per insert in the dev build; no production-build measurement yet.
+
 ### D-0207 — Timeline frame tools: pick, move, copy/paste, delete many frames (PM4)
 
 - Arthur passed 2026-10-14; merged fast-forward as `ec8f1f3`. Built by PM4 (not Codex) in copy `timeline-pm` after Codex's attempt `timeline-speed` failed review (extra buttons, tiny timeline) and was fully reverted.

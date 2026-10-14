@@ -53,6 +53,7 @@ No broken or unnecessary moves, no in-betweens of doing nothing, no floating (ex
 - Every fix is a broad rule that helps future animations, with a test.
 - The lost-ball basketball story is a permanent test: replay, save/reopen, export after every engine change.
 - Reviews use fresh, never-seen sheets; I watch every video first; ≥90% must pass.
+- Every programming task 30–60 min, max 1 h 30 (Arthur, Oct 14).
 - Usage: medium effort when planning, high when programming. Mac RAM: slow down parallel work above 7.3 GB of 8; one heavy job at a time.
 - No commits, pushes, paid AI calls or deploys without Arthur's OK.
 

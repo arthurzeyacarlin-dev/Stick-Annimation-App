@@ -1,5 +1,9 @@
 # Session Handoff
 
+## PM4 update (night) — Wed 2026-10-14
+
+D-0208 merged (`0bfe2ff`): backup timing speed fix. Measure scripts live only in the scratchpad (headless Chrome via `playwright-core` + system Chrome; sign up a throwaway account on the local copy). Next: SPEED-BACKUP-2 plan (only changed frames), 1080p export check, Cmd+C/V for many frames, SPEC-0023 Phase 2. Test copies `timeline-speed-2`, `timeline-pm` etc. can be retired.
+
 ## PM4 update (evening) — Wed 2026-10-14
 
 D-0207 merged (`ec8f1f3`): timeline pick / move / copy-paste / delete many frames, blank frames see-through, timeline floats full width. Test copies `timeline-pm`, `timeline-speed`, `audit-fixes`, `beta-stress`, `canvas-memory-budget`, `screens-check` can be retired. Another PM left a docs reorganisation (old specs moved to `docs/specs/old/`, new `0024-ai-animator-oct20.md`) uncommitted in main; PM4 committed it with this update after a secret scan (docs only). Next: TIMELINE-SLOW, 1080p export check, SPEC-0023 Phase 2.

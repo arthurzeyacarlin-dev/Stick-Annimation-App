@@ -1,5 +1,9 @@
 # Current State
 
+## D-0208 — PM4: editor speed (backup waits longer on big projects) passed (current)
+
+Arthur passed 2026-10-14. The automatic project backup no longer freezes the editor for seconds on big projects: it waits longer between runs when the last one took long. Same data, same recovery. See DECISIONS D-0208 and TODO (bigger fix: send only changed frames).
+
 ## D-0207 — PM4: timeline frame tools passed (current)
 
 Arthur passed 2026-10-14. In the timeline you can now pick many frames (box drag, Shift-click, Cmd/Ctrl-click, Esc to clear), drag them as a group to another place or layer, copy and paste them (right-click), and delete them — each is one Undo step. Frames from several layers keep their layout; a see-through blank keyframe fills the gap on shorter layers (Adobe Animate way). Frames with nothing drawn show see-through; deleting no longer leaves empty ghost frames; the timeline floats over panel and canvas at full width. See DECISIONS D-0207 and TODO.

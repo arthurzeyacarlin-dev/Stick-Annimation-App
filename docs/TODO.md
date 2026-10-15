@@ -5,6 +5,9 @@
 - [x] **CANVAS-MEMORY** — passed D-0205: 192 MiB cap, strokes fixed, layer eye fixed. Keep checking a big old project after each drawing change.
 - [x] **UNEXPECTED-LOGOUT** — explained D-0206: two test copies on `localhost` overwrite each other's login cookie. Not an app bug. Re-check only if it ever happens with one copy open.
 - [x] **TIMELINE-FRAME-TOOLS** — passed D-0207 (`ec8f1f3`). Left: Cmd/Ctrl+C/V for many frames, live stack preview while dragging.
+- [ ] **CANVAS-REGRESSION-SWEEP** — after D-0205, test every canvas tool for coordinate/offset bugs (lasso, select, fill, text, shape, cutout, symbols, import) at desktop and phone sizes; the knife bug slipped through (fixed D-0209).
+- [ ] **DRAWING-PASTE-OTHER-FRAME** — Cmd+V of a copied drawing selection onto another frame (today the copy is made on the same frame).
+- [x] **EDITOR-TWEAKS-OCT15** — passed D-0209 (`df08839`).
 - [x] **SPEED-BACKUP** — passed D-0208 (`0bfe2ff`): backup waits longer on big projects.
 - [ ] **SPEED-BACKUP-2** — bigger fix (needs a plan; saving area): only re-send frames that changed in the recovery backup / background save; cheaper per-frame capture (toDataURL previews, opaque bounds); measure a production build.
 - [ ] **TIMELINE-SLOW** — inserting frames near frame 110 takes about 0.7–1 s each; blank timeline renders ruler labels to frame 10,000 (3,314 elements blank, 6,659 with 8 layers). Fix in a new copy.

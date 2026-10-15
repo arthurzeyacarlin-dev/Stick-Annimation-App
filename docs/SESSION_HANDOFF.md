@@ -1,5 +1,9 @@
 # Session Handoff
 
+## PM4 update (Oct 15)
+
+D-0209 merged (`df08839`): knife fixed (it was my D-0205 regression), Cmd+C/V for frames and drawing selections, tool letters, menu cleanup. Next: CANVAS-REGRESSION-SWEEP (test every tool after D-0205), then SPEED-BACKUP-2, 1080p export check. Going online only when the AI Animator and everything else is done (Arthur). Test copies `timeline-tidy`, `timeline-speed-2`, `timeline-pm` can be retired.
+
 ## PM4 update (night) — Wed 2026-10-14
 
 D-0208 merged (`0bfe2ff`): backup timing speed fix. Measure scripts live only in the scratchpad (headless Chrome via `playwright-core` + system Chrome; sign up a throwaway account on the local copy). Next: SPEED-BACKUP-2 plan (only changed frames), 1080p export check, Cmd+C/V for many frames, SPEC-0023 Phase 2. Test copies `timeline-speed-2`, `timeline-pm` etc. can be retired.

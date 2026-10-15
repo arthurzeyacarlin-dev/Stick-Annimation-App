@@ -1885,6 +1885,15 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0209 — Editor tweaks: knife regression fixed, copy/paste, tool letters (PM4)
+
+- Arthur passed; merged fast-forward as `df08839` (3 files, 89 insertions / 48 deletions: `DrawingCanvas.tsx`, `DrawingTimelineRow.tsx`, `DrawingWorkspace.tsx`). Type check clean, lint 0 errors, 17 unit tests pass.
+- Knife: the cut pieces were placed without adding `surfaceWorldLeft/Top` back (a regression from the D-0205 canvas memory change, which converted the cut input but not the output), so they landed off-screen and looked deleted. Fixed in `createKnifeCutSelection`. Lesson: after any change to canvas coordinates, test knife, lasso, select, fill, text and shapes, not only brush strokes.
+- Copy / paste: with a Select / Lasso / Knife selection (or selected text), Cmd/Ctrl+C then Cmd/Ctrl+V makes a selected copy in place (uses the existing Duplicate); otherwise Cmd+C / Cmd+V copy and paste frames (picked frames after the current frame; no picked frames = the current frame).
+- Tool letters: M select, L lasso, P pencil, E eraser, F fill, T text, S shape, K knife (work with a button focused; ignored while typing). Listed in Help → Keyboard Shortcuts, which now scrolls.
+- Timeline: right-click menu no longer has Delete Layer or Remove Attached Sound; Remove Frame uses the red danger look; empty cells after the last real frame (left by Undo/delete) are not drawn; the hold line on see-through frames is a little brighter than on gray frames.
+- Not done: a regression test pass of the other canvas tools after D-0205 beyond knife (lasso/select/fill/text/shape moved with the knife check only); keyboard copy of selected drawing into another frame (copy stays in the same frame).
+
 ### D-0208 — Editor speed: adaptive recovery-backup timing (PM4)
 
 - Arthur passed 2026-10-14; merged fast-forward as `0bfe2ff` (15 lines, `DrawingWorkspace.tsx` only).

@@ -1,5 +1,9 @@
 # Current State
 
+## D-0209 — PM4: editor tweaks passed — knife fixed, Cmd+C/V, tool letters (current)
+
+Arthur passed 2026-10-14/15. Knife pieces visible again (regression from D-0205 fixed). Cmd+C / Cmd+V copies frames (picked or current) and drawing selections (Select / Lasso / Knife → selected copy). Tool letters M L P E F T S K. Right-click menu trimmed; no ghost frames after Undo/delete; shortcuts window scrolls. See DECISIONS D-0209 and TODO.
+
 ## D-0208 — PM4: editor speed (backup waits longer on big projects) passed (current)
 
 Arthur passed 2026-10-14. The automatic project backup no longer freezes the editor for seconds on big projects: it waits longer between runs when the last one took long. Same data, same recovery. See DECISIONS D-0208 and TODO (bigger fix: send only changed frames).

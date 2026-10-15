@@ -3824,6 +3824,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
   const isApplyingHistoryRef = useRef(false);
   const localDrawingHistoryRef = useRef<Map<string, LocalDrawingHistoryStack>>(new Map());
   const copiedTimelineFrameRef = useRef<CopiedTimelineFrame | null>(null);
+  const drawingSelectionCopiedRef = useRef(false);
   const unifiedIdsRef = useRef(new Map<string, string>());
   useEffect(() => { stickByCellRef.current = stickByCell; }, [stickByCell]);
   useEffect(() => { unifiedCatalogsRef.current = unifiedCatalogs; }, [unifiedCatalogs]);
@@ -10317,10 +10318,35 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       if (command && event.code === "KeyE" && onExport) { event.preventDefault(); void exportProject(); return; }
       if (command && key === "z" && !event.shiftKey) { event.preventDefault(); if (!isTimelinePlayingRef.current) handleUndo(); return; }
       if (command && ((key === "z" && event.shiftKey) || key === "y")) { event.preventDefault(); if (!isTimelinePlayingRef.current) handleRedo(); return; }
+      // Copy / paste frames (Arthur): picked frames are handled in the timeline; otherwise the current frame.
+      // A selection on the drawing (Select / Lasso / Knife) wins: Copy then Paste makes a selected copy right there,
+      // ready to move (Arthur). Otherwise it copies / pastes the frame.
+      if (command && !event.shiftKey && key === "c") {
+        if (drawingCanvasRef.current?.hasCopyableSelection()) { event.preventDefault(); drawingSelectionCopiedRef.current = true; return; }
+        drawingSelectionCopiedRef.current = false;
+        if (!isTimelinePlayingRef.current) { event.preventDefault(); copyTimelineFrame(activeLayerIdRef.current, selectedTimelineIndexRef.current); }
+        return;
+      }
+      if (command && !event.shiftKey && key === "v") {
+        if (drawingSelectionCopiedRef.current && drawingCanvasRef.current?.hasCopyableSelection()) {
+          event.preventDefault();
+          drawingCanvasRef.current.duplicateActiveSelection();
+          return;
+        }
+        if (!isTimelinePlayingRef.current && copiedTimelineFrameRef.current) { event.preventDefault(); pasteTimelineFrame(activeLayerIdRef.current, selectedTimelineIndexRef.current); }
+        return;
+      }
       if (command && (key === "=" || key === "+")) { event.preventDefault(); drawingCanvasRef.current?.zoomBy(1.25); return; }
       if (command && (key === "-" || key === "_")) { event.preventDefault(); drawingCanvasRef.current?.zoomBy(0.8); return; }
       if (command && key === "0") { event.preventDefault(); drawingCanvasRef.current?.resetView(); return; }
       if (command || event.altKey) return;
+      // Tool letters (Arthur): M select (mouse), L lasso, P pencil, E eraser, F fill, T text, S shape, K knife.
+      const toolForKey: Record<string, DrawingToolName> = { m: "Select", l: "Lasso", p: "Brush", e: "Eraser", f: "Fill", t: "Text", s: "Shape", k: "Knife" };
+      if (!event.shiftKey && !event.repeat && toolForKey[key]) {
+        event.preventDefault();
+        activateDrawingTool(toolForKey[key]);
+        return;
+      }
       if (event.key === "F5") { event.preventDefault(); insertAtSelection("frame"); return; }
       if (event.key === "F6") { event.preventDefault(); insertAtSelection("keyframe"); return; }
       if (event.key === "F7") { event.preventDefault(); insertAtSelection("keyframe", true); return; }
@@ -10328,7 +10354,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [exportProject, handleRedo, handleSaveAs, handleUndo, insertAtSelection, isAssistantOpen, onExit, onExport, saveAndExit, saveProject, togglePlayback]);
+  }, [activateDrawingTool, copyTimelineFrame, pasteTimelineFrame, exportProject, handleRedo, handleSaveAs, handleUndo, insertAtSelection, isAssistantOpen, onExit, onExport, saveAndExit, saveProject, togglePlayback]);
 
   return (
     <>
@@ -10364,13 +10390,13 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     )}
     {isShortcutsOpen && (
       <div role="presentation" onClick={() => setIsShortcutsOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 1000, display: "grid", placeItems: "center", background: "var(--da-scrim, rgba(3, 9, 20, 0.72))" }}>
-        <div role="dialog" aria-label="Keyboard shortcuts" onClick={(event) => event.stopPropagation()} style={{ width: "min(420px, calc(100vw - 32px))", padding: 22, border: "1px solid var(--da-line, #163058)", borderRadius: 16, background: "var(--da-panel, #071120)", color: "var(--da-text, #f6f9ff)", boxShadow: "var(--da-shadow-pop, 0 18px 44px rgba(0,0,0,.45))" }}>
+        <div role="dialog" aria-label="Keyboard shortcuts" onClick={(event) => event.stopPropagation()} style={{ width: "min(420px, calc(100vw - 32px))", maxHeight: "calc(100vh - 32px)", overflowY: "auto", padding: 22, border: "1px solid var(--da-line, #163058)", borderRadius: 16, background: "var(--da-panel, #071120)", color: "var(--da-text, #f6f9ff)", boxShadow: "var(--da-shadow-pop, 0 18px 44px rgba(0,0,0,.45))" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
             <strong style={{ fontSize: 18 }}>Keyboard shortcuts</strong>
             <CloseButton label="Close keyboard shortcuts" onClick={() => setIsShortcutsOpen(false)} />
           </div>
           {[["Save", `${mod}S`], ["Save As", isMac ? "⇧⌘S" : "Ctrl+Shift+S"], ["Export", `${mod}E`], ["Save and Exit", isMac ? "⌥⌘S" : "Ctrl+Alt+S"], ["Undo", `${mod}Z`], ["Redo", isMac ? "⇧⌘Z" : "Ctrl+Y"], ["Insert Frame", "F5"], ["Insert Keyframe", "F6"], ["Insert Blank Keyframe", "F7"],
-            ["Play / Pause", "Enter"], ["Zoom In", `${mod}+`], ["Zoom Out", `${mod}−`], ["Reset View", `${mod}0`]].map(([label, keys]) => (
+            ["Play / Pause", "Enter"], ["Select tool", "M"], ["Lasso", "L"], ["Pencil", "P"], ["Eraser", "E"], ["Fill", "F"], ["Text", "T"], ["Shape", "S"], ["Knife", "K"], ["Copy frames", `${mod}C`], ["Paste frames", `${mod}V`], ["Zoom In", `${mod}+`], ["Zoom Out", `${mod}−`], ["Reset View", `${mod}0`]].map(([label, keys]) => (
             <div key={label} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderTop: "1px solid var(--da-line, #163058)", fontSize: 14, color: "var(--da-text-2, #c9d6ea)" }}>
               <span>{label}</span><kbd style={{ fontFamily: "inherit", color: "var(--da-text, #f6f9ff)", fontWeight: 650 }}>{keys}</kbd>
             </div>

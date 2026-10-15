@@ -663,6 +663,10 @@ export type DrawingCanvasHandle = {
   commitPendingPlacement: () => void;
   getPlaybackSurfaceLayout: () => DrawingCanvasPlaybackSurfaceLayout | null;
   hasActiveBitmapSelectionSession: () => boolean;
+  /** Cmd+C / Cmd+V on a drawing: true when a Select / Lasso / Knife selection (or selected text) can be copied. */
+  hasCopyableSelection: () => boolean;
+  /** Makes a selected copy of the current selection, right where it is, ready to be moved. */
+  duplicateActiveSelection: () => boolean;
   hasPendingAuthoringChanges: () => boolean;
   markAuthoringChangesCommitted: (committedBitmap?: ImageData | null, captureVersion?: number | null) => void;
   takePresentedRasterCommit: (bitmap: ImageData | null) => boolean;
@@ -6032,8 +6036,8 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       {
         id: createBitmapSelectionSessionItemId(),
         sourceCanvas: sideOneCanvas,
-        x: sideOneMinX / cssToPixelX + separationOffsetX,
-        y: sideOneMinY / cssToPixelY + separationOffsetY,
+        x: sideOneMinX / cssToPixelX + metrics.surfaceWorldLeft + separationOffsetX,
+        y: sideOneMinY / cssToPixelY + metrics.surfaceWorldTop + separationOffsetY,
         width: sideOneWidth / cssToPixelX,
         height: sideOneHeight / cssToPixelY,
         flipX: false,
@@ -6044,8 +6048,8 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       {
         id: createBitmapSelectionSessionItemId(),
         sourceCanvas: sideTwoCanvas,
-        x: sideTwoMinX / cssToPixelX - separationOffsetX,
-        y: sideTwoMinY / cssToPixelY - separationOffsetY,
+        x: sideTwoMinX / cssToPixelX + metrics.surfaceWorldLeft - separationOffsetX,
+        y: sideTwoMinY / cssToPixelY + metrics.surfaceWorldTop - separationOffsetY,
         width: sideTwoWidth / cssToPixelX,
         height: sideTwoHeight / cssToPixelY,
         flipX: false,
@@ -7193,6 +7197,14 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       },
       getPlaybackSurfaceLayout,
       hasActiveBitmapSelectionSession: () => Boolean(bitmapSelectionSessionRef.current?.items.length),
+      hasCopyableSelection: () => Boolean(bitmapSelectionSessionRef.current?.items.length || activeLassoSelectionRef.current || activeBoxSelectionRef.current),
+      duplicateActiveSelection: () => {
+        const owner = bitmapSelectionSessionRef.current?.owner;
+        if (owner === "knife" && bitmapSelectionSessionRef.current?.items.length) { duplicateKnifePieces(); return true; }
+        if (activeLassoSelectionRef.current) { duplicateLassoSelection(); return true; }
+        if (activeBoxSelectionRef.current) { duplicateBoxSelection(); return true; }
+        return false;
+      },
       hasPendingAuthoringChanges,
       markAuthoringChangesCommitted,
       takePresentedRasterCommit: (bitmap) => {
@@ -7210,6 +7222,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       captureAuthoringSnapshot,
       cancelPendingAuthoringGesture,
       clearTransientEditingState,
+      duplicateBoxSelection,
+      duplicateKnifePieces,
+      duplicateLassoSelection,
       getPlaybackSurfaceLayout,
       hasPendingAuthoringChanges,
       markAuthoringChangesCommitted,

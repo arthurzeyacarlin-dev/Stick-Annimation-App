@@ -192,6 +192,8 @@ const TIMELINE_FRAME_SPAN_FILL = "rgb(124,128,136)";
 const TIMELINE_BLANK_SPAN_FILL = "rgba(124, 128, 136, 0.4)";
 const TIMELINE_FRAME_SPAN_BORDER = "rgba(20,22,28,0.88)";
 const TIMELINE_FRAME_SPAN_LINE = "rgb(158,164,172)";
+// The hold line on a see-through (blank) frame: same line, a little brighter so it still reads.
+const TIMELINE_BLANK_SPAN_LINE = "rgb(176,182,192)";
 const TIMELINE_TWEEN_SPAN_FILL = "rgb(83,97,129)";
 const TIMELINE_TWEEN_SPAN_BORDER = "rgba(39,55,82,0.9)";
 const TIMELINE_TWEEN_SPAN_LINE = "rgb(116,172,246)";
@@ -413,7 +415,13 @@ const TimelineLayerLane = memo(function TimelineLayerLane({
   handlers,
 }: TimelineLayerLaneProps) {
   const layerFrames = layer.frames;
-  const realFrameRowWidth = layerFrames.length * FRAME_CELL_WIDTH;
+  // Empty placeholder cells after the last real frame (left over from an Undo or a delete) are not drawn.
+  let lastRealFrameIndex = -1;
+  for (let index = layerFrames.length - 1; index >= 0; index -= 1) {
+    if (layerFrames[index].cellType !== "empty") { lastRealFrameIndex = index; break; }
+  }
+  const visibleFrameCount = lastRealFrameIndex + 1;
+  const realFrameRowWidth = visibleFrameCount * FRAME_CELL_WIDTH;
   const highlightedSpanBounds: TimelineSpanBounds | null =
     highlightedStartIndex >= 0 ? { startIndex: highlightedStartIndex, endIndex: highlightedEndIndex } : null;
   const tweenLineSegments = useMemo(() => getTweenLineSegments(layerFrames), [layerFrames]);
@@ -457,7 +465,7 @@ const TimelineLayerLane = memo(function TimelineLayerLane({
             position: "relative",
           }}
         >
-          {layerFrames.map((frame, index) => {
+          {layerFrames.slice(0, visibleFrameCount).map((frame, index) => {
             const isSelectedTimelineSlot = isActiveLayer && index === selectedTimelineIndex;
             const previousFrame = layerFrames[index - 1];
             const nextFrame = layerFrames[index + 1];
@@ -653,7 +661,7 @@ const TimelineLayerLane = memo(function TimelineLayerLane({
 
                 }}
               >
-                  {showsSpanLine && !isBlankSpan && (
+                  {showsSpanLine && (
                     <div
                       style={{
                         position: "absolute",
@@ -661,7 +669,7 @@ const TimelineLayerLane = memo(function TimelineLayerLane({
                         right: spanLineRight,
                         top: 22,
                         height: 2,
-                        background: spanLineColor,
+                        background: isBlankSpan ? TIMELINE_BLANK_SPAN_LINE : spanLineColor,
                         borderRadius: 999,
                         pointerEvents: "none",
                       }}
@@ -729,7 +737,7 @@ const TimelineLayerLane = memo(function TimelineLayerLane({
 
         </div>
 
-        {isActiveLayer && selectedTimelineIndex >= layerFrames.length && (
+        {isActiveLayer && selectedTimelineIndex >= visibleFrameCount && (
           <div
             style={{
               position: "absolute",
@@ -1014,6 +1022,30 @@ export function DrawingTimelineRow({
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
+      const target0 = event.target instanceof HTMLElement ? event.target : null;
+      const typing0 = !!target0 && (target0.tagName === "INPUT" || target0.tagName === "TEXTAREA" || target0.tagName === "SELECT" || target0.isContentEditable);
+      if (!typing0 && (event.metaKey || event.ctrlKey) && !event.altKey && !event.shiftKey) {
+        const letter = event.key.toLowerCase();
+        const hasPicked = Object.values(picked).some((list) => list.length);
+        if (letter === "c") {
+          // Frames picked: copy the frames. Nothing picked: leave Copy alone (drawing selections keep working).
+          if (hasPicked && onCopyPickedFrames) {
+            event.preventDefault();
+            copiedPickedLayersRef.current = pickedLayerIdsInOrder(picked);
+            setCopiedPickedCount(onCopyPickedFrames(picked));
+          } else if (copiedPickedCount !== 0) {
+            setCopiedPickedCount(0);
+          }
+          return;
+        }
+        if (letter === "v" && copiedPickedCount > 0 && onPastePickedFrames) {
+          // Paste the copied frames right after the current frame, on the layer that is open.
+          event.preventDefault();
+          const sources = copiedPickedLayersRef.current;
+          onPastePickedFrames(assignLayers(sources, sources[0] ?? activeLayerId, activeLayerId), selectedTimelineIndex + 1, activeLayerId);
+          return;
+        }
+      }
       if (event.key === "Escape") { clearPicked(); return; }
       if ((event.key === "Delete" || event.key === "Backspace") && onRemovePickedFrames) {
         const target = event.target instanceof HTMLElement ? event.target : null;
@@ -1023,9 +1055,9 @@ export function DrawingTimelineRow({
         if (onRemovePickedFrames(picked)) clearPicked();
       }
     };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [clearPicked, onRemovePickedFrames, picked]);
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
+  }, [activeLayerId, clearPicked, copiedPickedCount, onCopyPickedFrames, onPastePickedFrames, onRemovePickedFrames, picked, selectedTimelineIndex]);
   useEffect(() => { clearPicked(); }, [activeLayerId, clearPicked]);
   const [visibleTimelineWidth, setVisibleTimelineWidth] = useState(0);
   const [timelineScrollLeft, setTimelineScrollLeft] = useState(0);
@@ -1485,14 +1517,6 @@ export function DrawingTimelineRow({
     const targetFrame = targetLayer?.frames[contextMenu.targetIndex];
     return Boolean(targetFrame?.soundAttachment);
   }, [contextMenu, layers]);
-  const showsDeleteLayerAction = useMemo(() => {
-    if (!contextMenu) return false;
-    return layers.some((layer) => layer.id === contextMenu.targetLayerId);
-  }, [contextMenu, layers]);
-  const canDeleteContextLayer = useMemo(() => {
-    if (!showsDeleteLayerAction || !canDeleteLayer) return false;
-    return true;
-  }, [canDeleteLayer, showsDeleteLayerAction]);
 
   const renderTimelineRightPanel = ({
     rowsHeight,
@@ -2156,37 +2180,13 @@ export function DrawingTimelineRow({
                     else onRemoveFrame(contextMenu.targetLayerId, contextMenu.targetIndex);
                   })}
                   disabled={!many && !canRemoveContextTarget}
+                  data-hover="danger"
                   style={contextMenuItemStyle(many || canRemoveContextTarget, "danger")}
                 >
                   {many ? `Remove ${pickedCount} Frames` : "Remove Frame"}
                 </button>
               );
             })()}
-            {onRemoveSoundAttachment && (
-              <button
-                type="button"
-                onClick={() => runMenuAction(() => onRemoveSoundAttachment(contextMenu.targetLayerId, contextMenu.targetIndex))}
-                disabled={!canRemoveSoundAttachmentTarget}
-                style={contextMenuItemStyle(canRemoveSoundAttachmentTarget, "danger")}
-              >
-                Remove Attached Sound
-              </button>
-            )}
-            {showsDeleteLayerAction && (
-              <button
-                type="button"
-                onClick={() => {
-                  if (!canDeleteContextLayer) return;
-                  // SPEC-0020 Phase 4: delete the layer that was right-clicked, not whichever one is active.
-                  const targetLayerId = contextMenu?.targetLayerId;
-                  runMenuAction(() => onDeleteLayer(targetLayerId));
-                }}
-                disabled={!canDeleteContextLayer}
-                style={contextMenuItemStyle(canDeleteContextLayer, "danger")}
-              >
-                Delete Layer
-              </button>
-            )}
           </div>
         )}
       </div>

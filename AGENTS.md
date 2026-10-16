@@ -55,3 +55,8 @@ After a meaningful change, update only what actually changed: the spec's status,
 - **What the app actually does:** the live code and real-app behavior → `docs/CURRENT_STATE.md` / `SESSION_HANDOFF.md` (dated snapshots) → older docs and `diamond-animator-docs/` (history/reference only).
 
 If docs and code disagree, say so and check the real app rather than silently picking one.
+
+## Handoff at 60% chat memory (dad, 2026-10-16)
+
+When a project manager chat reaches 60% context (check with get_usage), write everything into the docs/board/memory, refresh the handoff message and the board's green Handoff button (see docs/SESSION_HANDOFF.md top section), and hand off. Monitor Mac CPU as well as RAM.
+

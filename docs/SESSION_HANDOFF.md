@@ -1,5 +1,21 @@
 # Session Handoff
 
+## AI ANIMATOR PM — START HERE (written by PM v2 AI Animator, Thu 2026-10-16)
+
+**Who:** Arthur (owner, says he is 12) reviews; his dad decides direction and money. Plain, short words; answer first; end with exactly what to review. The APP + WEBSITE project manager is a separate session ("pm v4 app and website") — don't step on its work; the planning advisor is "AI Animator October path planning" (Fable), reachable with SendMessage.
+
+**State:** see `docs/specs/0025-kimodo-ai-animator-oct20.md` → "Oct 16 — progress, decisions and the ONE plan" (what exists, paths, reviews, root cause, the plan, open bugs) and `/Users/arthurcarlin/Projects/diamond-review/board/RESUME_PHASE1.md` (exact stop point). Work lives in the app copy `/Users/arthurcarlin/Projects/diamond-review/kimodo-app` (not merged, not committed) and `/Users/arthurcarlin/Projects/diamond-review/kimodo` (Modal scripts).
+
+**Next (Oct 16 14:20):** PM v3 builds Session G1 = GROUP ENGINE (Arthur approved 1 h) — see the spec "Oct 16 14:00" block and board/HANDOFF_MESSAGE.md.
+
+**Efficiency (dad, Oct 16):** watch Mac RAM AND CPU (board tiles; keep CPU < 70%, RAM < 7 GB) and this chat's memory (`get_usage` → context %; record it with `board.py usage <weekly> <5h> "<resets>" <context%>`). Modal: max 5 GPUs at once (`max_containers=5`); the free Starter plan's 10-GPU limit is a speed cap, not a bill — no $100 upgrade needed.
+
+**HANDOFF AT 60% CHAT MEMORY (dad, Oct 16):** at 50% start keeping docs current; at 60%: (1) write everything still only in the chat into the spec, this file, CURRENT_STATE/TODO if app-relevant, memory, and the board; (2) refresh `/Users/arthurcarlin/Projects/diamond-review/board/HANDOFF_MESSAGE.md` (self-contained: who, read-first list, where we are, next, rules); (3) `python3 board.py handoff` — the board's Handoff button turns green (yellow from 50%); (4) tell Arthur: click it, open a NEW Claude chat in this project, paste. Nothing may survive only inside a chat.
+
+## PM4 update (Oct 17)
+
+D-0210 merged (`a22ce03`): two regression sweeps (22 checks) all pass; paste a drawing on any frame; Delete key for symbols/drawings; symbol selection look = drawing selection look. Re-run `scripts/regression-sweep.mjs` and `scripts/regression-sweep-2.mjs` (app on port 58680, system Chrome) after any canvas / selection / layer change. Next: SELECT-DRAWING-AND-SYMBOL plan, SPEED-BACKUP-2, 1080p export check, then work outside the editor. Going online only when the AI Animator and everything else is done (Arthur). Test copies `timeline-tidy` (branch claude/regression-sweep), `timeline-speed-2`, `timeline-pm` can be retired.
+
 ## PM4 update (Oct 15)
 
 D-0209 merged (`df08839`): knife fixed (it was my D-0205 regression), Cmd+C/V for frames and drawing selections, tool letters, menu cleanup. Next: CANVAS-REGRESSION-SWEEP (test every tool after D-0205), then SPEED-BACKUP-2, 1080p export check. Going online only when the AI Animator and everything else is done (Arthur). Test copies `timeline-tidy`, `timeline-speed-2`, `timeline-pm` can be retired.

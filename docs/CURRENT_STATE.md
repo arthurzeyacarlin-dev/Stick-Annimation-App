@@ -1,5 +1,9 @@
 # Current State
 
+## D-0210 — PM4: regression sweeps passed; paste on any frame, Delete key, symbol look (current)
+
+Arthur passed 2026-10-17. Two regression sweeps (22 real-app checks across every drawing tool, symbols, assets, zoom, layers, save/reopen) all pass. New: paste a copied drawing on any frame; Delete / Backspace removes a selected symbol or drawing; a selected symbol looks like a selected drawing. Sweeps live in `scripts/`. See DECISIONS D-0210 and TODO.
+
 ## D-0209 — PM4: editor tweaks passed — knife fixed, Cmd+C/V, tool letters (current)
 
 Arthur passed 2026-10-14/15. Knife pieces visible again (regression from D-0205 fixed). Cmd+C / Cmd+V copies frames (picked or current) and drawing selections (Select / Lasso / Knife → selected copy). Tool letters M L P E F T S K. Right-click menu trimmed; no ghost frames after Undo/delete; shortcuts window scrolls. See DECISIONS D-0209 and TODO.

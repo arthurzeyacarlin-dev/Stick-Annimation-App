@@ -1885,6 +1885,16 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0210 — Regression sweeps + paste on any frame, Delete key, symbol selection look (PM4)
+
+- Arthur passed 2026-10-17; merged fast-forward as `a22ce03` (after rebasing onto `7491b6f`). Type check clean, lint 0 errors, 17 unit tests pass.
+- Sweeps (headless Chrome, real mouse; `scripts/regression-sweep.mjs` 15 checks, `scripts/regression-sweep-2.mjs` 7 checks): pencil, undo, eraser, fill, shape, text, lasso and select move, knife, copy/paste same and other frame, timeline insert/undo, add layer, save + reopen, drop a PNG into Assets, drag an asset onto the canvas, create a symbol and place it from the Library, move and delete a symbol, zoomed drawing, layer eye (note: a new layer is not the active layer until you click it; hiding the other layer then hides its drawing), onion skin + play, small window. All pass. Run them after any change to canvas coordinates, selection or layers (the D-0205 knife bug was found this way).
+- Copy / paste: Cmd+C on a Select / Lasso / Knife selection remembers its pixels (`copySelectionToClipboard`); Cmd+V on any frame puts a selected copy there (same spot; nudged 16 on the frame it was copied from). Text or stick selections keep the old same-frame Duplicate.
+- Delete / Backspace now removes a selected symbol, a Select / Lasso selection or knife pieces (`deleteActiveSelection`); picked timeline frames still delete frames.
+- A selected symbol uses the same frame and handles as a selected drawing (thin solid frame, dark square corners, dark edge bars).
+- Not done: select a drawing and a symbol together and move both (needs a plan: pixel selections and symbol instances live in different coordinate systems; must be one history step); Cmd+V of a drawing selection that also holds symbols; sweep cover for cutout, tweens, export, phone layouts.
+- Also committed with this update: other PMs' uncommitted notes (`AGENTS.md` handoff rule at 60% memory, `docs/SESSION_HANDOFF.md`, `docs/specs/0025-kimodo-ai-animator-oct20.md`) after a secret scan (none).
+
 ### D-0209 — Editor tweaks: knife regression fixed, copy/paste, tool letters (PM4)
 
 - Arthur passed; merged fast-forward as `df08839` (3 files, 89 insertions / 48 deletions: `DrawingCanvas.tsx`, `DrawingTimelineRow.tsx`, `DrawingWorkspace.tsx`). Type check clean, lint 0 errors, 17 unit tests pass.

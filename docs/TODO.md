@@ -5,8 +5,10 @@
 - [x] **CANVAS-MEMORY** — passed D-0205: 192 MiB cap, strokes fixed, layer eye fixed. Keep checking a big old project after each drawing change.
 - [x] **UNEXPECTED-LOGOUT** — explained D-0206: two test copies on `localhost` overwrite each other's login cookie. Not an app bug. Re-check only if it ever happens with one copy open.
 - [x] **TIMELINE-FRAME-TOOLS** — passed D-0207 (`ec8f1f3`). Left: Cmd/Ctrl+C/V for many frames, live stack preview while dragging.
-- [ ] **CANVAS-REGRESSION-SWEEP** — after D-0205, test every canvas tool for coordinate/offset bugs (lasso, select, fill, text, shape, cutout, symbols, import) at desktop and phone sizes; the knife bug slipped through (fixed D-0209).
-- [ ] **DRAWING-PASTE-OTHER-FRAME** — Cmd+V of a copied drawing selection onto another frame (today the copy is made on the same frame).
+- [x] **CANVAS-REGRESSION-SWEEP** — done D-0210 (22 checks pass; scripts in `scripts/`). Not covered: cutout, tweens, export, phone layouts.
+- [ ] **SELECT-DRAWING-AND-SYMBOL** — select a drawing and a symbol together, move / copy / delete both as one (plan first; selection engine).
+- [ ] **CANVAS-REGRESSION-SWEEP-OLD** — after D-0205, test every canvas tool for coordinate/offset bugs (lasso, select, fill, text, shape, cutout, symbols, import) at desktop and phone sizes; the knife bug slipped through (fixed D-0209).
+- [x] **DRAWING-PASTE-OTHER-FRAME** — done D-0210. (old note:) — Cmd+V of a copied drawing selection onto another frame (today the copy is made on the same frame).
 - [x] **EDITOR-TWEAKS-OCT15** — passed D-0209 (`df08839`).
 - [x] **SPEED-BACKUP** — passed D-0208 (`0bfe2ff`): backup waits longer on big projects.
 - [ ] **SPEED-BACKUP-2** — bigger fix (needs a plan; saving area): only re-send frames that changed in the recovery backup / background save; cheaper per-frame capture (toDataURL previews, opaque bounds); measure a production build.

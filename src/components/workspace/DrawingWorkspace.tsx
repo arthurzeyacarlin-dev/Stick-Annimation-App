@@ -3824,7 +3824,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
   const isApplyingHistoryRef = useRef(false);
   const localDrawingHistoryRef = useRef<Map<string, LocalDrawingHistoryStack>>(new Map());
   const copiedTimelineFrameRef = useRef<CopiedTimelineFrame | null>(null);
-  const drawingSelectionCopiedRef = useRef(false);
+  const drawingSelectionCopiedRef = useRef<"pixels" | "duplicate" | null>(null);
+  const drawingSelectionCopiedFromRef = useRef("");
   const unifiedIdsRef = useRef(new Map<string, string>());
   useEffect(() => { stickByCellRef.current = stickByCell; }, [stickByCell]);
   useEffect(() => { unifiedCatalogsRef.current = unifiedCatalogs; }, [unifiedCatalogs]);
@@ -10319,18 +10320,31 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       if (command && key === "z" && !event.shiftKey) { event.preventDefault(); if (!isTimelinePlayingRef.current) handleUndo(); return; }
       if (command && ((key === "z" && event.shiftKey) || key === "y")) { event.preventDefault(); if (!isTimelinePlayingRef.current) handleRedo(); return; }
       // Copy / paste frames (Arthur): picked frames are handled in the timeline; otherwise the current frame.
-      // A selection on the drawing (Select / Lasso / Knife) wins: Copy then Paste makes a selected copy right there,
-      // ready to move (Arthur). Otherwise it copies / pastes the frame.
+      // A selection on the drawing (Select / Lasso / Knife) wins: Copy remembers its pixels, Paste puts a selected copy on
+      // the frame you are on (any frame, same spot; nudged on the same frame so you can see it). Otherwise frames.
       if (command && !event.shiftKey && key === "c") {
-        if (drawingCanvasRef.current?.hasCopyableSelection()) { event.preventDefault(); drawingSelectionCopiedRef.current = true; return; }
-        drawingSelectionCopiedRef.current = false;
+        const canvas = drawingCanvasRef.current;
+        if (canvas?.hasCopyableSelection()) {
+          event.preventDefault();
+          drawingSelectionCopiedRef.current = canvas.copySelectionToClipboard() ? "pixels" : "duplicate";
+          drawingSelectionCopiedFromRef.current = `${activeLayerIdRef.current}:${selectedTimelineIndexRef.current}`;
+          return;
+        }
+        drawingSelectionCopiedRef.current = null;
         if (!isTimelinePlayingRef.current) { event.preventDefault(); copyTimelineFrame(activeLayerIdRef.current, selectedTimelineIndexRef.current); }
         return;
       }
       if (command && !event.shiftKey && key === "v") {
-        if (drawingSelectionCopiedRef.current && drawingCanvasRef.current?.hasCopyableSelection()) {
+        const canvas = drawingCanvasRef.current;
+        if (drawingSelectionCopiedRef.current === "pixels" && canvas?.hasSelectionClipboard() && !isTimelinePlayingRef.current) {
           event.preventDefault();
-          drawingCanvasRef.current.duplicateActiveSelection();
+          const here = `${activeLayerIdRef.current}:${selectedTimelineIndexRef.current}`;
+          canvas.pasteSelectionClipboard(here === drawingSelectionCopiedFromRef.current ? 16 : 0);
+          return;
+        }
+        if (drawingSelectionCopiedRef.current === "duplicate" && canvas?.hasCopyableSelection()) {
+          event.preventDefault();
+          canvas.duplicateActiveSelection();
           return;
         }
         if (!isTimelinePlayingRef.current && copiedTimelineFrameRef.current) { event.preventDefault(); pasteTimelineFrame(activeLayerIdRef.current, selectedTimelineIndexRef.current); }
@@ -10345,6 +10359,10 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       if (!event.shiftKey && !event.repeat && toolForKey[key]) {
         event.preventDefault();
         activateDrawingTool(toolForKey[key]);
+        return;
+      }
+      if ((event.key === "Delete" || event.key === "Backspace") && !isTimelinePlayingRef.current && drawingCanvasRef.current?.deleteActiveSelection()) {
+        event.preventDefault();
         return;
       }
       if (event.key === "F5") { event.preventDefault(); insertAtSelection("frame"); return; }

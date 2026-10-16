@@ -667,6 +667,13 @@ export type DrawingCanvasHandle = {
   hasCopyableSelection: () => boolean;
   /** Makes a selected copy of the current selection, right where it is, ready to be moved. */
   duplicateActiveSelection: () => boolean;
+  /** Cmd+C on a drawing selection: remembers its pixels (any frame can paste them later). Returns false for text / stick selections. */
+  copySelectionToClipboard: () => boolean;
+  hasSelectionClipboard: () => boolean;
+  /** Delete / Backspace: removes the selected symbol or drawing selection. Returns true when something was removed. */
+  deleteActiveSelection: () => boolean;
+  /** Cmd+V: puts the remembered pixels on THIS frame as a selected copy, moved by offset (world units). */
+  pasteSelectionClipboard: (offset: number) => boolean;
   hasPendingAuthoringChanges: () => boolean;
   markAuthoringChangesCommitted: (committedBitmap?: ImageData | null, captureVersion?: number | null) => void;
   takePresentedRasterCommit: (bitmap: ImageData | null) => boolean;
@@ -7182,6 +7189,45 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   }, [cameraPan, cameraZoom, drawBitmapSelectionImageToAuthoringCanvas, drawPlacedImageAsset, getAuthoringMetrics, getDisplayedBitmapTransformBounds]);
 
   const viewControlsRef = useRef<{ zoomBy: (factor: number) => void; resetView: () => void; showPanel: (tab: DrawingRightPanelTab) => void } | null>(null);
+  const selectionClipboardRef = useRef<BitmapSelectionSessionItem[] | null>(null);
+  const selectedUnifiedSymbolInstanceRef = useRef<string | null>(null);
+  const deleteSelectedUnifiedSymbolRef = useRef<() => void>(() => undefined);
+  const copySelectionToClipboard = useCallback(() => {
+    const session = bitmapSelectionSessionRef.current;
+    if (!session || !session.items.length || session.structuredStick) return false;
+    if (session.items.some((item) => !item.sourceCanvas)) return false;
+    const items: BitmapSelectionSessionItem[] = [];
+    for (const item of session.items) {
+      const cloned = cloneBitmapSelectionSourceCanvas(item.sourceCanvas!);
+      if (!cloned) return false;
+      items.push({ ...item, sourceCanvas: cloned });
+    }
+    selectionClipboardRef.current = items;
+    return true;
+  }, [cloneBitmapSelectionSourceCanvas]);
+  const pasteSelectionClipboard = useCallback((offset: number) => {
+    const clip = selectionClipboardRef.current;
+    const ctx = canvasRef.current?.getContext("2d");
+    if (!clip?.length || !ctx) return false;
+    // Anything still floating on this frame is put down first, then the copy floats above the picture.
+    if (bitmapSelectionSessionRef.current) commitActiveBitmapSelectionSessionRef.current?.();
+    ctx.globalCompositeOperation = "source-over";
+    markAuthoringDirty();
+    captureBitmapSelectionBackdropFromCanvas();
+    const items: BitmapSelectionSessionItem[] = [];
+    for (const item of clip) {
+      const cloned = cloneBitmapSelectionSourceCanvas(item.sourceCanvas!);
+      if (!cloned) return false;
+      attachBitmapPaintCoverage(cloned, remapSketchOwners(getBitmapPaintCoverage(cloned), () => crypto.randomUUID()));
+      items.push({ ...item, id: createBitmapSelectionSessionItemId(), sourceCanvas: cloned, x: item.x + offset, y: item.y + offset });
+    }
+    const nextSession: BitmapSelectionSession = { owner: "select", items, structuredStick: null };
+    flushBitmapSelectionSessionState(nextSession);
+    commitUnifiedSelectionMutation(nextSession, null);
+    scheduleBitmapSelectionBackdropRestore();
+    return true;
+  }, [captureBitmapSelectionBackdropFromCanvas, cloneBitmapSelectionSourceCanvas, commitUnifiedSelectionMutation, createBitmapSelectionSessionItemId, flushBitmapSelectionSessionState, markAuthoringDirty, scheduleBitmapSelectionBackdropRestore]);
+
   useImperativeHandle(
     ref,
     () => ({
@@ -7198,6 +7244,17 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       getPlaybackSurfaceLayout,
       hasActiveBitmapSelectionSession: () => Boolean(bitmapSelectionSessionRef.current?.items.length),
       hasCopyableSelection: () => Boolean(bitmapSelectionSessionRef.current?.items.length || activeLassoSelectionRef.current || activeBoxSelectionRef.current),
+      copySelectionToClipboard,
+      deleteActiveSelection: () => {
+        if (selectedUnifiedSymbolInstanceRef.current) { deleteSelectedUnifiedSymbolRef.current(); return true; }
+        const owner = bitmapSelectionSessionRef.current?.owner;
+        if (owner === "knife" && bitmapSelectionSessionRef.current?.items.length) { deleteKnifePieces(); return true; }
+        if (activeLassoSelectionRef.current) { deleteLassoSelection(); return true; }
+        if (activeBoxSelectionRef.current) { deleteBoxSelection(); return true; }
+        return false;
+      },
+      hasSelectionClipboard: () => Boolean(selectionClipboardRef.current?.length),
+      pasteSelectionClipboard,
       duplicateActiveSelection: () => {
         const owner = bitmapSelectionSessionRef.current?.owner;
         if (owner === "knife" && bitmapSelectionSessionRef.current?.items.length) { duplicateKnifePieces(); return true; }
@@ -7222,10 +7279,15 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       captureAuthoringSnapshot,
       cancelPendingAuthoringGesture,
       clearTransientEditingState,
+      copySelectionToClipboard,
+      deleteBoxSelection,
+      deleteKnifePieces,
+      deleteLassoSelection,
       duplicateBoxSelection,
       duplicateKnifePieces,
       duplicateLassoSelection,
       getPlaybackSurfaceLayout,
+      pasteSelectionClipboard,
       hasPendingAuthoringChanges,
       markAuthoringChangesCommitted,
       setOnionOverlayContent,
@@ -9749,7 +9811,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     const duplicate = { ...structuredClone(selectedUnifiedSymbolInstance), itemId: crypto.randomUUID(), x: selectedUnifiedSymbolInstance.x + 32, y: selectedUnifiedSymbolInstance.y + 32 };
     if (onUnifiedSymbolInstancesChange([...unifiedSymbolInstances, duplicate])) setSelectedUnifiedSymbolInstanceId(duplicate.itemId);
   };
-  const deleteSelectedUnifiedSymbol = () => {
+  const deleteSelectedUnifiedSymbolLatest = () => {
     if (!selectedUnifiedSymbolInstance || !onUnifiedSymbolInstancesChange) return;
     requireManualEditorCommand("delete-instance", "DrawingWorkspace.commitUnifiedSymbolInstances");
     if (!authorizeDestructiveCommand({ commandId: "delete-instance", targetIds: [selectedUnifiedSymbolInstance.itemId], availableTargetIds: unifiedSymbolInstances.map(instance => instance.itemId) }).allowed) return;
@@ -9757,6 +9819,10 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       setSelectedUnifiedSymbolInstanceId(null);
     }
   };
+
+  const deleteSelectedUnifiedSymbol = deleteSelectedUnifiedSymbolLatest;
+  selectedUnifiedSymbolInstanceRef.current = selectedUnifiedSymbolInstance ? selectedUnifiedSymbolInstance.itemId : null;
+  deleteSelectedUnifiedSymbolRef.current = deleteSelectedUnifiedSymbolLatest;
 
   useEffect(() => {
     if (selectedUnifiedSymbolInstanceId && !unifiedSymbolInstances.some(instance => instance.itemId === selectedUnifiedSymbolInstanceId)) {
@@ -11480,17 +11546,25 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                       onPointerMove={moveUnifiedSymbolGesture} onPointerUp={finishUnifiedSymbolGesture}
                       onPointerCancel={cancelUnifiedSymbolGesture} onLostPointerCapture={keepUnifiedSymbolGestureOnLostCapture} />
                     {selected && !isTimelinePlaying ? <>
+                      {/* Same look as a selected drawing: thin solid frame, dark square corner handles, dark bar edge handles. */}
                       <rect x={instance.x} y={instance.y} width={instance.width} height={instance.height}
-                        fill="none" stroke="#398bff" strokeWidth="2" vectorEffect="non-scaling-stroke" strokeDasharray="6 4" style={{ pointerEvents: "none" }} />
-                      {RESIZE_HANDLE_ORDER.map(handle => <circle key={handle} data-symbol-resize-handle={handle}
-                        cx={instance.x + (handle.includes("w") ? 0 : handle.includes("e") ? instance.width : instance.width / 2)}
-                        cy={instance.y + (handle.includes("n") ? 0 : handle.includes("s") ? instance.height : instance.height / 2)}
-                        r={6 / Math.max(0.01, (getUnifiedStagePresentation()?.presentation.scale ?? 1) * cameraZoom * viewScale)}
-                        fill="white" stroke="#398bff" strokeWidth="2" vectorEffect="non-scaling-stroke"
-                        style={{ pointerEvents: activeTool === "Select" ? "all" : "none", cursor: handle + "-resize" }}
-                        onPointerDown={event => beginUnifiedSymbolGesture(event, instance, handle)}
-                        onPointerMove={moveUnifiedSymbolGesture} onPointerUp={finishUnifiedSymbolGesture}
-                        onPointerCancel={cancelUnifiedSymbolGesture} onLostPointerCapture={keepUnifiedSymbolGestureOnLostCapture} />)}
+                        fill="none" stroke="#8b93a5" strokeWidth="1" vectorEffect="non-scaling-stroke" style={{ pointerEvents: "none" }} />
+                      {RESIZE_HANDLE_ORDER.map(handle => {
+                        const unit = 1 / Math.max(0.01, (getUnifiedStagePresentation()?.presentation.scale ?? 1) * cameraZoom * viewScale);
+                        const isCorner = handle.length === 2;
+                        const horizontalBar = handle === "n" || handle === "s";
+                        const w = (isCorner ? 8 : horizontalBar ? 30 : 8) * unit;
+                        const h = (isCorner ? 8 : horizontalBar ? 8 : 30) * unit;
+                        const cx = instance.x + (handle.includes("w") ? 0 : handle.includes("e") ? instance.width : instance.width / 2);
+                        const cy = instance.y + (handle.includes("n") ? 0 : handle.includes("s") ? instance.height : instance.height / 2);
+                        return <rect key={handle} data-symbol-resize-handle={handle}
+                          x={cx - w / 2} y={cy - h / 2} width={w} height={h}
+                          fill="#141c2b" stroke="#398bff" strokeWidth="1" vectorEffect="non-scaling-stroke"
+                          style={{ pointerEvents: activeTool === "Select" ? "all" : "none", cursor: handle + "-resize" }}
+                          onPointerDown={event => beginUnifiedSymbolGesture(event, instance, handle)}
+                          onPointerMove={moveUnifiedSymbolGesture} onPointerUp={finishUnifiedSymbolGesture}
+                          onPointerCancel={cancelUnifiedSymbolGesture} onLostPointerCapture={keepUnifiedSymbolGestureOnLostCapture} />;
+                      })}
                     </> : null}
                   </g>
                 );

@@ -18,7 +18,7 @@ import { claudeAnimate, CLAUDE_ANIMATOR_MODEL, ClaudeBudgetError } from "../anim
 
 // SPEC-0021 Phase 5: AI_ANIMATOR_ENGINE=claude → Claude is the chat brain AND the animator (Luna's path stays as it was).
 const CLAUDE_ENGINE = () => process.env.AI_ANIMATOR_ENGINE === "claude";
-const CLAUDE_DEADLINE_MS = 240_000;
+const CLAUDE_DEADLINE_MS = 300_000;
 
 type Provider = (request: AiAnimatorRequest, options: { signal: AbortSignal }) => Promise<AiAnimatorProviderResult>;
 type InternalJob = AiAnimatorJobSnapshot & { ownerId: string; abortController: AbortController };
@@ -148,25 +148,32 @@ export class AiAnimatorJobService {
     const startedAt = Date.now();
     try {
       const memoryKey = `${job.ownerId}:${job.projectId}`;
-      const current = this.currentPlans.get(memoryKey) ?? null;
-      const chat = await claudeChat(request.message, request.recentConversation, !!current, job.abortController.signal);
+      // (the app sends the animation that is on the canvas now; the server memory is only the fallback)
+      const current = request.currentAnimation ?? this.currentPlans.get(memoryKey) ?? null;
+      const chat = await claudeChat(request.message, request.recentConversation, !!current, job.abortController.signal,
+        (query) => { if (!isAiAnimatorTerminalStatus(job.status)) this.append(job, { status: "thinking", progress: { percent: 0, note: "Searching the internet", etaSec: null, searching: query } }); });
       if (isAiAnimatorTerminalStatus(job.status)) return;
       let reply = chat.reply, usd = chat.usage.usd, inputTokens = chat.usage.inputTokens, outputTokens = chat.usage.outputTokens;
       let animation: AiAnimatorJobEvent["animation"];
+      // NO PROMISES THAT DON'T HAPPEN (Arthur, Oct 12: "it says animating and then he never animates… I don't want to see lies"):
+      // a talking reply that promises to make or change something IS a request to animate — it animates.
+      if (reply.intent === "conversation" && /\b(i'll|i will|let me|i'm going to|i am going to|going to|here's|here is)\s+(now\s+)?(make|animate|add|create|change|build|put|draw|redo|fix)\b/i.test(reply.reply)) reply = { ...reply, intent: current ? "edit-animation" : "create-animation" };
       if (reply.intent === "create-animation" || reply.intent === "edit-animation") {
-        this.append(job, { status: "planning" });
+        this.append(job, { status: "planning", progress: { percent: 5, note: chat.searches.length ? "Turning what I found into your animation" : "Getting your idea ready", etaSec: 45 } });
         const edit = reply.intent === "edit-animation" && !!current;
         const convo = request.recentConversation.slice(-6).map((m) => `${m.role === "assistant" ? "AI" : "User"}: ${m.content.slice(0, 400)}`).join("\n");
-        const made = await claudeAnimate(request.message, { current: edit ? current : null, conversation: convo, signal: job.abortController.signal });
+        const made = await claudeAnimate(request.message, { current: edit ? current : null, conversation: convo, research: chat.research ?? undefined, signal: job.abortController.signal,
+          onProgress: (progress) => { if (!isAiAnimatorTerminalStatus(job.status)) this.append(job, { status: "planning", progress }); } });
         if (isAiAnimatorTerminalStatus(job.status)) return;
         usd += made.usage.usd; inputTokens += made.usage.inputTokens; outputTokens += made.usage.outputTokens;
         if (made.ok && made.plan) {
           this.currentPlans.set(memoryKey, made.plan);
           animation = { plan: made.plan, title: made.title, edit, rounds: made.rounds, costUsd: +made.usage.usd.toFixed(4) };
-          reply = { ...reply, reply: `${reply.reply}\n\n${edit ? "Changed" : "Added"}: "${made.title}" is on your canvas (passed every animation law). Ctrl+Z undoes it.` };
+          // (the message is written AFTER the result, so it only says what really happened)
+          reply = { ...reply, reply: `${edit ? "Done — I changed it" : "Done"}: "${made.title}" is on your canvas. It passed every animation law. Ctrl+Z undoes it.${made.notes ? `\n\nPlease note: ${made.notes}` : ""}` };
         } else {
-          const why = made.problems.slice(0, 2).map((x) => x.replace(/^(LAW \w+|ENGINE): /, "")).join(" ");
-          reply = { ...reply, reply: `${reply.reply}\n\nI couldn't make this one without breaking an animation rule, so nothing was added (I never put a broken animation on your canvas). What went wrong: ${why} Try a simpler or different wording.` };
+          const why = made.problems.filter((x) => x.startsWith("LAW ")).slice(0, 2).map((x) => x.replace(/^LAW \w+: /, "")).join(" ");
+          reply = { ...reply, reply: `I couldn't make this one without breaking an animation rule, so nothing was added — I never put a broken animation on your canvas, and this one is free. What went wrong: ${why} Try a simpler or different wording.` };
         }
       }
       const usage = { inputTokens, outputTokens, totalTokens: inputTokens + outputTokens, estimatedCostUsd: +usd.toFixed(4) };
@@ -187,7 +194,7 @@ export class AiAnimatorJobService {
       this.append(job, {
         status: "failed",
         errorCode: wasAborted ? "deadline_exceeded" : error instanceof ClaudeBudgetError ? "budget" : "provider_failed",
-        errorMessage: wasAborted ? "The AI Animator did not finish within 4 minutes. No animation changed. You can try again." : `${error instanceof Error ? error.message : "The AI Animator could not complete the request."}${error instanceof ClaudeBudgetError ? "" : " No animation changed."}`,
+        errorMessage: wasAborted ? "The AI Animator did not finish within 5 minutes. No animation changed. You can try again." : `${error instanceof Error ? error.message : "The AI Animator could not complete the request."}${error instanceof ClaudeBudgetError ? "" : " No animation changed."}`,
       });
       job.completedAt = job.updatedAt;
       job.telemetry = { ...job.telemetry, outcome: "failed", latencyMs: Date.now() - startedAt };

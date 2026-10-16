@@ -39,11 +39,13 @@ export type SymbolShape = { kind: "symbol"; name: string; x: number; y: number; 
 // hand/foot/head as the figure moves), with an offset in stage px.
 // `onHead` (laser eyes): a spot ON THE FACE instead of the joint — `forward` x head radius toward where the face
 // points and `up` x head radius up the head, turning with the head and flipping with the facing (then dx, dy).
-export type Anchor = Point | { character: string; joint: JointName; dx?: number; dy?: number; onHead?: { forward: number; up: number } } | ObjectAnchor;
+export type Anchor = Point | { character: string; joint: JointName; dx?: number; dy?: number; onHead?: { forward: number; up: number }; with?: JointName } | ObjectAnchor;
 // ON THE THROWN THING (Arthur, 2026-10-07: "the effects are supposed to be WITH the purple ball when he throws it"): an
 // effect anchored to an OBJECT follows it every picture (a glow round an energy ball, in the hand and in flight);
 // `landing: true` = a burst WHERE AND WHEN it lands or hits: the effect starts at that moment (keeping its length) at
 // that spot (index.ts objectLanding).
+// HELD IN BOTH HANDS (`with`: the other hand, Oct 14 — "holding with only one of his hands, not both"): a board / pad / plank
+// held out to be struck sits BETWEEN both hands (the midpoint of `joint` and `with`), one hand on each end.
 export type ObjectAnchor = { object: string; dx?: number; dy?: number; landing?: boolean };
 
 // The knobs every effect understands (each recipe uses the ones that make sense for it).
@@ -66,7 +68,8 @@ export type EffectParams = {
 // its own layer just above the AI layer in the app ("AI: <title> lasers"; only a scene that has one).
 // `behind`: times (seconds, [from, to]) when the effect is drawn behind the figures although its layer is "front" — a
 // held sword on the far side of a turn (BEHIND THE BODY ON THE FAR SIDE).
-export type EffectTrack = { kind: string; start: number; end: number; anchor: Anchor; target?: Anchor; params?: EffectParams; layer?: "back" | "front" | "top"; fit?: EffectFit; behind?: [number, number][] };
+// `cause`: what makes it (the hand holding the match / torch / wand): it starts when that touches its spot (effects/causes.ts).
+export type EffectTrack = { kind: string; start: number; end: number; anchor: Anchor; target?: Anchor; cause?: Anchor; outBy?: Anchor; params?: EffectParams; layer?: "back" | "front" | "top"; fit?: EffectFit; behind?: [number, number][] };
 // ON THE PAGE (explosions, 2026-10-06): an effect at a FIXED spot far from everyone (a grenade exploding far away) can
 // say how much room it takes, so the page fit and the centering count it like a figure: from `left` to `right` (x the
 // figure height, + = right of its anchor) and from `top` (x height, above its anchor) down to the ground.
@@ -79,11 +82,19 @@ export type EffectContext = {
   duration: number; // its whole length (end - start)
   fps: number;
   at: Point; // the anchor's stage position now
+  // EMITTED THINGS LIVE IN THE WORLD (Arthur, Oct 14: "when he moves his arm, the bubbles move with his arm. That's not possible"):
+  // where the anchor WAS at an earlier moment `t` (seconds since the effect started, 0..now) — a bubble / puff of smoke / spark /
+  // drop is born where its source was at its birth and then moves on its own (random.ts sourceAt). Undefined → use `at`.
+  anchorAt?: (t: number) => Point | undefined;
+  // EMITTERS ONLY WHEN THEIR CAUSE IS TRUE (emitterCause.ts): may a piece be born at `t` (seconds since the effect started)? A
+  // bubble wand only at the mouth or waved, a whistle only at the mouth. Undefined → always.
+  emitsAt?: (t: number) => boolean;
   target?: Point; // the target's stage position now
   height: number; // figure height in px (sizes are x this)
   groundY: number;
   stageWidth: number;
   facing?: "left" | "right" | "front"; // the way the anchor's character faces (an anchor on a figure only)
+  forearm?: Point; // (an anchor on a figure's HAND: the unit direction elbow → hand — a held tool points the way the arm points)
 };
 
 export type EffectRecipe = {

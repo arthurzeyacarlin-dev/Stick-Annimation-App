@@ -50,6 +50,7 @@ export type GetHitParams = {
   seconds?: number; // extra time lying down after a knock-down
   stayDown?: boolean; // F11 PRESS THE ADVANTAGE: a knock-down that stays lying (a ground move — coverUp, kipUp, getUp — follows)
   result?: HitResult;
+  fromBehind?: boolean; // the hit came from behind the figure: it lurches FORWARD (away from the hit)
   // Room (px) behind the figure to the edge of the page (the planner fills it when it knows the page):
   // a knock-down needs room to fall; with too little, it almost falls and catches itself instead.
   room?: number;
@@ -141,6 +142,39 @@ function snapped(from: PoseAngles, feet: Feet, at: number, k: number, up: "l" | 
   });
   return plantedLegs(upper, feet, at, legsDrop(feet, at) + 0.01);
 }
+// HIT FROM BEHIND: the chest and head lurch FORWARD (away from the hit), both arms are thrown back and out; a harder hit
+// (stagger and up) stumbles the front foot a step forward to catch the weight. It comes back to standing as it was (not a
+// fight guard: a ball in the back is a surprise, not a fight).
+function lurchPose(from: PoseAngles, feet: Feet, at: number, k: number): PoseAngles {
+  const lean = from.lean + (9 + 13 * k);
+  const la = worldArm(from, "l"), ra = worldArm(from, "r");
+  const upper = withPose(from, {
+    lean, head: Math.min(30, from.head + (8 + 10 * k)),
+    // (the arms are thrown back FROM WHERE THEY WERE — a raised waving hand drops back and down, it is not whipped round)
+    ...armFromWorld(lean, "l", { upper: la.upper + (-40 - 25 * clamp01(k) - la.upper) * 0.4, fore: la.fore + (-10 - 20 * clamp01(k) - la.fore) * 0.4 }),
+    ...armFromWorld(lean, "r", { upper: ra.upper + (-55 - 30 * clamp01(k) - ra.upper) * 0.5, fore: ra.fore + (-25 - 20 * clamp01(k) - ra.fore) * 0.5 }),
+  });
+  return plantedLegs(upper, feet, at, legsDrop(feet, at) + 0.012);
+}
+function lurched(start: Stance, feet0: Feet, k: number, shake: number, settings: MoveSettings): MoveOutput {
+  const fwd = 0.02 + 0.03 * k;
+  const snap = lurchPose(start.pose, feet0, fwd, k);
+  const beats: PlacedBeat[] = [{ kind: "action", ease: "smooth", pose: snap, seconds: snapSeconds(0.22, start.pose, snap, settings), at: fwd, name: "react" }];
+  let feet = feet0, at = 0;
+  if (shake >= STAGGER_AT) {
+    const step = 0.08 + 0.1 * Math.min(1.4, shake);
+    const to: Feet = { ...feet0, l: Math.min(feet0.r + MAX_STANCE, feet0.l + step) };
+    const landAt = stanceAt(to, 0.55);
+    const land = lurchPose(start.pose, to, landAt, k); // (arms stay where the hit threw them while the foot catches the weight: no extra whip)
+    const airAt = (fwd + landAt) / 2;
+    const air = stepPose(blendPose(snap, land, 0.5), feet0, to, airAt, Math.max(0.02, legsDrop(feet0, airAt) + 0.01), "l", 0.035);
+    beats.push({ kind: "action", ease: "smooth", pose: air, seconds: 0.12, at: airAt, contacts: ["rFoot"] }, { kind: "follow", pose: land, seconds: 0.12, at: landAt });
+    feet = to; at = landAt;
+  } else beats.push({ kind: "hold", pose: lurchPose(start.pose, feet0, fwd * 0.9, k * 0.85), seconds: 0.07, at: fwd * 0.9 });
+  const back = plantedLegs(withPose(start.pose, {}), feet, at, legsDrop(feet, at));
+  beats.push({ kind: "settle", pose: back, seconds: 0.75, at, name: "ready", recover: true }); // (arms come back at a person's pace)
+  return marked(placedBeatsToKeys(start, beats, settings), start.t, shake >= STAGGER_AT ? "stagger" : "flinch");
+}
 // (The snap is as quick as the body allows: hands flung far take a moment longer — the speed limit for
 // hands, as for every strike.)
 const snapSeconds = (seconds: number, from: PoseAngles, to: PoseAngles, settings: MoveSettings) =>
@@ -161,6 +195,10 @@ export function getHit(start: Stance, params: GetHitParams, settings: MoveSettin
   const at0 = 0;
   const k = Math.min(1.5, shake);
 
+  // A HIT IS FELT AWAY FROM WHERE IT CAME (Arthur, Oct 14: Blue "leans INTO the attack" when the ball hits his back): hit from
+  // BEHIND (`fromBehind`, the planner fills it from where the thing came from), the body is thrown FORWARD — chest and head
+  // lurch forward, arms fly back, a hard hit stumbles a step forward — never back into the hit. Any thrown or struck thing.
+  if (params.fromBehind && kind !== "block" && kind !== "grab" && kind !== "parry") return lurched(start, feet0, k, shake, settings);
   if (kind === "block") return blocked(start, feet0, k, after, slow, settings);
   if (kind === "grab") return grabbed(start, feet0, k, after, slow, settings);
   if (kind === "parry") return parried(start, feet0, after, settings);
@@ -756,6 +794,31 @@ export function fightSteps(start: Stance, distance: number, settings: MoveSettin
   return placedBeatsToKeys(start, beats, settings);
 }
 export const stepBack = (start: Stance, distance: number, settings: MoveSettings) => fightSteps(start, -Math.abs(distance), settings);
+// ONE STEP-UP INTO A STRIKE (Arthur, Oct 14: a karate kick at a coach's pads "lifts the feet again and again" before it kicks): a
+// kick whose target is a short way past its reach (up to STEP_UP_MAX x height) closes the gap with ONE step — the back foot steps
+// up past the front one (the front foot stays planted), the hips come forward `distance` — and the strike chambers from there.
+// Never a shuffle of several little steps. (Farther away: the ordinary walk / jog in.)
+export const STEP_UP_MAX = 0.5;
+export function stepUp(start: Stance, distance: number, settings: MoveSettings): MoveOutput {
+  const feet0 = feetOf(start.pose);
+  const d = Math.max(0, distance) / settings.height;
+  if (d < 1e-4) return fightSteps(start, distance, settings);
+  // (the foot that steps is the one the kick will STAND on — the r foot, kick.ts — so the other leg chambers straight from where it
+  // is; the hips end between the feet: the stepping foot moves twice the hips' way, at most a long stride past the other one)
+  const back: "l" | "r" = "r", front = other(back);
+  // (it lands where the hips will stand over it to kick, and the weight goes straight onto it)
+  const to = { ...feet0, [back]: d - 0.03 } as Feet; // (kick.ts stands the hips 0.03 past it: they end `distance` on)
+  if (to[back] - feet0[front] > 0.45 || to[back] <= feet0[back]) return fightSteps(start, distance, settings);
+  const end = d; // (the weight goes onto the stepped foot, hips just past it — where the kick stands them: no shift after)
+  const drop = (feet: Feet, at: number) => legsDrop(feet, at) + 0.012;
+  const land = plantedLegs(start.pose, to, end, drop(to, end));
+  const air = stepPose(blendPose(start.pose, land, 0.5), feet0, to, end / 2, drop(feet0, end / 2), back, 0.03);
+  const beats: PlacedBeat[] = [
+    { kind: "action", ease: "smooth", pose: air, seconds: atLeast("action", 0.12, 0.1, settings), at: end / 2, contacts: [`${front}Foot`] },
+    { kind: "settle", ease: "smooth", pose: land, seconds: atLeast("action", 0.1, 0.08, settings), at: end },
+  ];
+  return placedBeatsToKeys(start, beats, settings);
+}
 
 // ---- Fight space (the planner's fight rules, plan.ts) ------------------------------------------------
 
@@ -1095,7 +1158,8 @@ export function guardUp(start: Stance, params: GuardParams, settings: MoveSettin
   const look = params.guard ?? settings.guard;
   // NATURAL STAND (round 11): a default fighter not yet in its natural stand (feet wide after a strike)
   // first steps into it, then waits there; only `guard: "realistic"` waits in the fighting stance.
-  if (look !== "realistic" && !readyFeet(start.pose, look)) {
+  // (straight after a kick — `keepFeet`, set by the planner — it guards in the stance the kick landed in: no extra step)
+  if (look !== "realistic" && !readyFeet(start.pose, look) && !(params as { keepFeet?: boolean }).keepFeet) {
     const step = stepInto(start, standReadyPose(start.pose, clamp01(Number(params.hurt ?? 0)), look, guardStyle(params)), settings);
     const left = Math.max(0, Number(params.seconds ?? 0.5) - (step.end.t - start.t));
     return chainMoves(start, [() => step, (from) => holdGuard(from, { ...params, seconds: left }, settings)]);

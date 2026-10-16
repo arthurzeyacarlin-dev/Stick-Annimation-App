@@ -26,9 +26,22 @@ type FitTrack = { kind?: string; anchor: { x: number; y: number } | { character:
 // A THING PLACED IN THE SCENE IS SEEN (2026-10-07, Luna's car to the moon: the moon at a fixed spot was left off the
 // page, and so was the car driving to it): a `prop` at a fixed spot counts for the page fit like an effect that says
 // `fit` — its size (x the figure height) all round it.
-const propFit = (e: FitTrack) => {
+// (FITS THE PAGE BY WHAT IS DRAWN — Arthur, Oct 15: a basketball hoop drawn 200 px wide at the right was counted as a box its size
+// "all round" — 780 px wide — so the scene said "190 px off the page" and slid everyone to the left. A thing built from PARTS takes
+// exactly its parts' width — each part's x ± w/2 (a line from x to x + w), × its size — plus a little air; a symbol keeps the box.)
+export const propFit = (e: FitTrack) => {
   const r = Math.max(0.1, Math.min(4, typeof e.params?.size === "number" ? e.params.size : 0.3));
-  return { left: -r, right: r, top: r };
+  const parts = (e.params as { parts?: unknown } | undefined)?.parts;
+  const n = (v: unknown, d: number) => (typeof v === "number" && Number.isFinite(v) ? v : d);
+  const rs = Array.isArray(parts) ? parts.filter((q): q is Record<string, unknown> => !!q && typeof q === "object") : [];
+  if (!rs.length) return { left: -r, right: r, top: r };
+  const k = typeof e.params?.size === "number" && e.params.size > 0 ? e.params.size : 0.5; // (drawn at exactly size × figure: moves/transform.ts drawPropBody)
+  const xs = rs.flatMap((q) => { const x = n(q.x, 0), w = n(q.w, q.shape === "line" ? 0 : 0.3); return q.shape === "line" ? [x, x + w] : [x - Math.abs(w) / 2, x + Math.abs(w) / 2]; });
+  const ys = rs.flatMap((q) => { const y = n(q.y, 0), h = n(q.h, q.shape === "line" ? 0 : 0.3), hh = q.shape === "circle" ? Math.abs(n(q.w, 0.3)) : Math.abs(h); return q.shape === "line" ? [y, y + h] : [y - hh / 2, y + hh / 2]; });
+  const air = 0.06, tall = (Math.max(...ys) - Math.min(...ys)) * k;
+  const fit = { left: Math.min(...xs) * k - air, right: Math.max(...xs) * k + air, top: Math.max(tall, -Math.min(...ys) * k) + air };
+  // (parts still in pixels — not yet read into the thing's own units: absurdly wide — keep the old all-round box)
+  return Math.max(-fit.left, fit.right, fit.top) > 6 ? { left: -r, right: r, top: r } : fit;
 };
 export function effectFitBounds(scene: Scene): Bounds | null {
   const tracks = ((scene as Scene & { effects?: FitTrack[] }).effects ?? []).filter((e) => (e.fit || e.kind === "prop") && !("character" in e.anchor));

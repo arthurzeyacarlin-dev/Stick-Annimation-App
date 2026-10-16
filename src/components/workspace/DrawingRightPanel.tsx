@@ -42,7 +42,8 @@ type DrawingRightPanelProps = {
     source: { prompt: string; response: string },
   ) => Promise<boolean> | boolean;
   onExecuteActionPlan?: (actionPlan: NonNullable<DrawingAiActionPlan>) => Promise<boolean> | boolean;
-  onApplyAnimatorScene?: (scene: SceneForPage) => boolean;
+  onApplyAnimatorScene?: (scene: SceneForPage, options?: { aiChat?: boolean; replaceTitle?: string | null }) => boolean;
+  aiAnimationOnCanvas?: (title: string) => boolean;
   engineDrawing?: EngineDrawingBridge;
 };
 
@@ -73,6 +74,7 @@ export function DrawingRightPanel({
   onApplyGeneratedFrame,
   onExecuteActionPlan,
   onApplyAnimatorScene,
+  aiAnimationOnCanvas,
   engineDrawing,
 }: DrawingRightPanelProps) {
   return (
@@ -299,6 +301,7 @@ export function DrawingRightPanel({
         onApplyGeneratedFrame={onApplyGeneratedFrame}
         onExecuteActionPlan={onExecuteActionPlan}
         onApplyAnimatorScene={onApplyAnimatorScene}
+        aiAnimationOnCanvas={aiAnimationOnCanvas}
         engineDrawing={engineDrawing}
       />
     </div>

@@ -2,6 +2,9 @@ import { monotoneTangents, sampleChannel, type Ease } from "./easing.ts";
 import { GRAVITY } from "./objectMoves.ts";
 import type { FrameCharacter, FrameObject, ObjectKey, ObjectLook, ObjectSegment, Scene } from "./engine.ts";
 import type { Facing, Point } from "./rig.ts";
+import type { EffectTrack } from "./effects/types.ts";
+import { bounceOffWalls, solidWalls, type SolidWall } from "./moves/hitThings.ts";
+import { FLAT_SCALE, flightPoint, flightStyleOf } from "./objectFlight.ts";
 
 // SPEC-0017 objects: a ball or a box that slides, bounces, spins, grows, or is held and thrown by the
 // figures. Pure and deterministic like the rest of the engine. The engine calls buildObjectFrames after
@@ -63,7 +66,9 @@ export const GRIP = 0.9;
 // Where a held object's center is, given the finished figure of that frame. `radius` = the object's half size.
 // One hand: just past the hand along the forearm. Both hands: between them; when the hands are closer
 // together than the ball, it is pushed out (toward where the forearms point) until both hands touch it.
-export function heldCenter(character: FrameCharacter, joint: "lHand" | "rHand" | "hands", radius: number, offset?: Point): Point {
+// `ellipse` (half width / half height as DRAWN): a squashed thing (a frisbee seen edge-on, scaleY 0.38) is gripped at its drawn
+// edge along the forearm, not at the round radius (Oct 15: the frisbee floated 9 px off the palm).
+export function heldCenter(character: FrameCharacter, joint: "lHand" | "rHand" | "hands", radius: number, offset?: Point, ellipse?: { rx: number; ry: number }): Point {
   const s = character.skeleton;
   const reach = radius * GRIP;
   const fallback = facingVector(character.facing);
@@ -84,7 +89,8 @@ export function heldCenter(character: FrameCharacter, joint: "lHand" | "rHand" |
   } else {
     const hand = s[joint], elbow = s[joint === "lHand" ? "lElbow" : "rElbow"];
     const dir = unit({ x: hand.x - elbow.x, y: hand.y - elbow.y }, fallback);
-    center = { x: hand.x + dir.x * reach, y: hand.y + dir.y * reach };
+    const edge = ellipse && ellipse.rx > 0 && ellipse.ry > 0 ? GRIP / Math.hypot(dir.x / ellipse.rx, dir.y / ellipse.ry) : reach;
+    center = { x: hand.x + dir.x * edge, y: hand.y + dir.y * edge };
   }
   return offset ? { x: center.x + offset.x, y: center.y + offset.y } : center;
 }
@@ -124,7 +130,8 @@ type State = { x: number; y: number; rotation: number; scaleX: number; scaleY: n
 // in real time (small fixed steps), so it is the same at any frame rate.
 const DROP = { ball: { bounce: 0.5, grip: 0.6, roll: 1500 }, box: { bounce: 0.15, grip: 0.4, roll: 3000 } };
 const DROP_STEP = 1 / 480;
-export function dropPath(start: { x: number; y: number; rotation: number }, velocity: { vx: number; vy: number }, frames: number, fps: number, floorY: number, look: ObjectLook) {
+// (BALLS HIT THINGS, Oct 14: `walls` — solid things standing on the ground, hitThings.ts solidWalls — bounce it back off their side.)
+export function dropPath(start: { x: number; y: number; rotation: number }, velocity: { vx: number; vy: number }, frames: number, fps: number, floorY: number, look: ObjectLook, walls: readonly SolidWall[] = [], t0 = 0) {
   const kind = look.kind === "box" ? DROP.box : DROP.ball, r = Math.max(1, look.size / 2);
   let x = start.x, y = Math.min(start.y, floorY), rotation = start.rotation, time = 0;
   let { vx, vy } = velocity;
@@ -136,7 +143,8 @@ export function dropPath(start: { x: number; y: number; rotation: number }, velo
       const slow = kind.roll * dt;
       vx = Math.abs(vx) <= slow ? 0 : vx - Math.sign(vx) * slow;
     }
-    x += vx * dt;
+    const x0 = x; x += vx * dt;
+    if (walls.length) ({ x, vx } = bounceOffWalls(walls, t0 + time, x0, x, y, vx, r, kind.bounce + 0.1));
     if (look.kind !== "box") rotation += ((vx * dt) / r) * (180 / Math.PI);
   };
   const out = [{ x, y, rotation }];
@@ -148,6 +156,48 @@ export function dropPath(start: { x: number; y: number; rotation: number }, velo
   return out;
 }
 type Channel = { values: number[]; tangents: number[]; eases: (Ease | undefined)[] };
+
+const HIT_SNAP_REACH = 0.12; // (x height: a thing this close to a body's lines on its hit picture is put right on its skin)
+const nearestOnSegment = (p: Point, a: Point, b: Point): Point => {
+  const dx = b.x - a.x, dy = b.y - a.y, len2 = dx * dx + dy * dy;
+  const u = len2 < 1e-9 ? 0 : Math.min(1, Math.max(0, ((p.x - a.x) * dx + (p.y - a.y) * dy) / len2));
+  return { x: a.x + dx * u, y: a.y + dy * u };
+};
+// The point `r` out from the nearest BODY line (spine, legs, head — not the arms: a ball brushing a waving hand is no hit) of any
+// figure on this picture, for a thing at p (coming from `prev`); undefined when no body is within reach.
+export function snapToBody(p: Point, prev: Point | undefined, frame: readonly FrameCharacter[], r: number, height: number): Point | undefined {
+  let best: { d: number; q: Point; r: number } | undefined;
+  for (const c of frame) {
+    const s = c.skeleton;
+    const lines: [Point, Point][] = [[s.neck, s.hip], [s.hip, s.lKnee], [s.lKnee, s.lFoot], [s.hip, s.rKnee], [s.rKnee, s.rFoot]];
+    for (const [a, b] of lines) { const q = nearestOnSegment(p, a, b), d = Math.hypot(p.x - q.x, p.y - q.y); if (!best || d < best.d) best = { d, q, r }; }
+    const dh = Math.hypot(p.x - s.head.x, p.y - s.head.y) - c.headRadius;
+    if (!best || dh < best.d) best = { d: dh, q: s.head, r: r + c.headRadius };
+  }
+  if (!best || best.d > r + HIT_SNAP_REACH * height) return undefined;
+  let ux = p.x - best.q.x, uy = p.y - best.q.y, len = Math.hypot(ux, uy);
+  if (len < 1e-6 && prev) { ux = prev.x - p.x; uy = prev.y - p.y; len = Math.hypot(ux, uy); }
+  if (len < 1e-6) return undefined;
+  return { x: best.q.x + (ux / len) * best.r, y: best.q.y + (uy / len) * best.r };
+}
+// How far p is from the nearest BODY line of this figure (0 = on the line; the head counts from its rim).
+export function bodyLineGap(p: Point, c: FrameCharacter): number {
+  const s = c.skeleton;
+  const lines: [Point, Point][] = [[s.neck, s.hip], [s.hip, s.lKnee], [s.lKnee, s.lFoot], [s.hip, s.rKnee], [s.rKnee, s.rFoot]];
+  let d = Math.hypot(p.x - s.head.x, p.y - s.head.y) - c.headRadius;
+  for (const [a, b] of lines) { const q = nearestOnSegment(p, a, b); d = Math.min(d, Math.hypot(p.x - q.x, p.y - q.y)); }
+  return d;
+}
+// A THING FLYING INTO A BODY TOUCHES ITS SKIN (Arthur, Oct 15: "the snowball never truly hits him" — the splat went off a
+// body-width short of the man's back): the moment, between the picture before (`prev`) and this one (`p`), a thing of radius r
+// first reaches a body line of this figure, and the skin point it touches there. Undefined when it never reaches the body.
+export function bodyTouch(p: Point, prev: Point, c: FrameCharacter, r: number, height: number): { u: number; at: Point } | undefined {
+  for (let k = 0; k <= 8; k += 1) {
+    const u = k / 8, q = { x: prev.x + (p.x - prev.x) * u, y: prev.y + (p.y - prev.y) * u };
+    if (bodyLineGap(q, c) <= r + 1) { const at = snapToBody(q, prev, [c], r, height) ?? q; return { u, at }; }
+  }
+  return undefined;
+}
 
 // The picture showing time t: the one whose time is nearest (pictureTimes: the engine's time of each
 // picture, momentTimes in engine.ts; without it, picture i is at i / fps).
@@ -199,7 +249,7 @@ export function buildObjectFrames(scene: Scene, fps: number, frames: FrameCharac
       if (held) {
         const { character, joint, offset } = held;
         const holder = frames[i].find((c) => c.id === character);
-        if (holder) position = heldCenter(holder, joint, (object.look.size / 2) * (Math.abs(scaleX) + Math.abs(scaleY)) / 2, offset);
+        if (holder) { const he = objectHalfExtents(object.look, rotation, scaleX, scaleY * FLAT_SCALE[flightStyleOf(object.id, object.name, object.look.kind)]); position = heldCenter(holder, joint, (object.look.size / 2) * (Math.abs(scaleX) + Math.abs(scaleY)) / 2, offset, { rx: he.halfW, ry: he.halfH }); }
       }
       if (!position && keys.length) position = { x: sample(X, t, 0), y: sample(Y, t, 0) };
       states.push(position ? { ...position, rotation, scaleX, scaleY } : null);
@@ -208,17 +258,47 @@ export function buildObjectFrames(scene: Scene, fps: number, frames: FrameCharac
     for (let i = 1; i < n; i += 1) if (!states[i] && states[i - 1]) states[i] = { ...states[i - 1]! };
     for (let i = n - 2; i >= 0; i -= 1) if (!states[i] && states[i + 1]) states[i] = { ...states[i + 1]! };
     if (!states[0]) continue; // no keys and no holder: nothing to draw
+    // NOTHING EVER JUMPS (Arthur, Oct 14: "no teleporting allowed, freaking enforce that law"): where the thing changes who has it —
+    // picked up, handed over, put down — and no flight carries it there, it slides from where it was into its new place over
+    // ~0.25 s (a pebble a short reach away comes up INTO the hand, never pops into it). Flights already arrive where they land.
+    {
+      const holderAt = (i: number) => { let h: ObjectSegment | null = null; for (const { segment, f0, f1 } of segments) if (segment.mode === "held" && f0 <= i && i <= f1) h = segment; return h; };
+      const ease = Math.max(2, Math.round(0.25 * fps));
+      for (let i = 1; i < n; i += 1) {
+        // (only a real change of WHO has it — the same figure moving it from one hand to both is no change of owner)
+        const who = (k: number) => { const h = holderAt(k) as { character?: string } | null; return h ? h.character ?? "?" : null; };
+        // (hand to hand — a hand-off — already meets at one spot, built by the pass itself: only rest ↔ hand slides)
+        if (who(i) === who(i - 1) || (who(i) !== null && who(i - 1) !== null) || segments.some((s) => s.segment.mode === "flight" && (Math.abs(s.f1 - i) <= 1 || Math.abs(s.f0 - i) <= 1))) continue;
+        const from = states[i - 1]!, dx = from.x - states[i]!.x, dy = from.y - states[i]!.y;
+        if (Math.hypot(dx, dy) < 4) continue;
+        for (let k = 0; k < ease && i + k < n; k += 1) { const u = (k + 1) / (ease + 1), s = u * u * (3 - 2 * u); states[i + k] = { ...states[i + k]!, x: states[i + k]!.x + dx * (1 - s), y: states[i + k]!.y + dy * (1 - s) }; }
+      }
+    }
 
     // 2) Flights: a ballistic arc between where it is when thrown and where it is when caught (a bounce
     // pass: down to the floor and up into the hands; thrown away: on under gravity, then gone).
     const base = states.map((state) => ({ ...state! }));
     const floorY = scene.groundY - objectHalfExtents(object.look, 0, 1, 1).halfH;
     const leaving = new Set<number>(), gone = new Set<number>();
+    // (the solid things a dropped or tossed ball bounces back off: plan px, the tallest figure's height as the plan's height)
+    const sceneHeight = Number((scene as { height?: number }).height ?? Math.max(0, ...scene.characters.map((c) => Number((c as { height?: number }).height ?? 0)))) || 300;
+    const walls = solidWalls((scene as { effects?: EffectTrack[] }).effects, sceneHeight, scene.groundY);
     const drops = new Map<ObjectSegment, { x: number; y: number; rotation: number }[]>();
     const dropOf = (segment: ObjectSegment, velocity: { vx: number; vy: number }, f0: number, f1: number) => {
-      if (!drops.has(segment)) drops.set(segment, dropPath(base[f0], velocity, f1 - f0, fps, floorY, object.look));
+      // (HIT: a shot that hits a body bounces back off it at that moment — `hit.after` seconds into the flight — and drops)
+      const hit = (segment as { hit?: { after: number; rebound: { vx: number; vy: number } } }).hit;
+      if (!drops.has(segment) && hit) {
+        const first = dropPath(base[f0], velocity, f1 - f0, fps, floorY, object.look, walls, timeOf(f0)), k = Math.max(1, Math.min(first.length - 1, Math.round(hit.after * fps)));
+        // A THROWN THING THAT HITS A BODY REALLY TOUCHES IT (Arthur, Oct 15: "the snowball never truly hits him"): the hit picture is
+        // the nearest whole picture to the touching moment, so the thing there was up to a picture's travel short of the body (or
+        // inside it). Its flight end SNAPS to the body's surface point on that final picture: the bounce / splat starts right on the skin.
+        const at = snapToBody(first[k], first[k - 1], frames[f0 + k] ?? [], object.look.size / 2, sceneHeight) ?? first[k];
+        drops.set(segment, [...first.slice(0, k), ...dropPath({ ...base[f0], ...first[k], ...at }, hit.rebound, f1 - f0 - k, fps, floorY, object.look, walls, timeOf(f0) + k / fps)]);
+      }
+      if (!drops.has(segment)) drops.set(segment, dropPath(base[f0], velocity, f1 - f0, fps, floorY, object.look, walls, timeOf(f0)));
       return drops.get(segment)!;
     };
+    const style = flightStyleOf(object.id, object.name, object.look.kind);
     for (const { segment, f0, f1 } of segments) {
       if (segment.mode !== "flight" || f1 <= f0) continue;
       const a = base[f0], b = base[f1];
@@ -233,12 +313,20 @@ export function buildObjectFrames(scene: Scene, fps: number, frames: FrameCharac
           leaving.add(i);
           continue;
         }
-        if (segment.drop) { states[i] = { ...states[i]!, ...dropOf(segment, segment.drop, f0, f1)[i - f0] }; continue; }
+        // (a shot thrown AT someone that misses flies on and may roll off the page: the page fit ignores it — `leaves`)
+        if (segment.drop) { states[i] = { ...states[i]!, ...dropOf(segment, segment.drop, f0, f1)[i - f0] }; if ((segment as { leaves?: boolean }).leaves) leaving.add(i); continue; }
+        // (EACH THING FLIES ITS OWN WAY — objectFlight.ts: a frisbee glides and hangs, a paper plane swoops, a balloon floats)
+        if (!segment.bounce && style !== "ballistic") {
+          const q = flightPoint(style, a, b, u);
+          states[i] = { ...states[i]!, x: q.x, y: q.y, rotation: a.rotation + (b.rotation - a.rotation) * u + turn * u + q.rotation, scaleX: states[i]!.scaleX * q.scale, scaleY: states[i]!.scaleY * q.scale };
+          continue;
+        }
         const p = segment.bounce ? bouncePassPoint(a, b, floorY, u) : ballisticPoint(a, b, apex, u);
         states[i] = { ...states[i]!, x: p.x, y: p.y, rotation: a.rotation + (b.rotation - a.rotation) * u + turn * u };
       }
       // (Dropped: it lies where it stopped on the last frame too.)
       if (segment.drop) states[f1] = { ...states[f1]!, ...dropOf(segment, segment.drop, f0, f1)[f1 - f0] };
+      if (segment.drop && (segment as { leaves?: boolean }).leaves) { const back = segments.find((s) => s.segment.mode === "held" && s.f0 >= f1); for (let i = f1; i < (back ? back.f0 : n); i += 1) leaving.add(i); }
       // Thrown away: gone from the end of its flight on (until someone has it again).
       if (segment.away) {
         const back = segments.find((s) => s.segment.mode === "held" && s.f0 >= f1);
@@ -256,7 +344,8 @@ export function buildObjectFrames(scene: Scene, fps: number, frames: FrameCharac
       if (gone.has(i)) continue;
       const s = states[i]!;
       const { halfH } = objectHalfExtents(object.look, s.rotation, s.scaleX, s.scaleY);
-      out[i].push({ id: object.id, x: s.x, y: Math.min(s.y, scene.groundY - halfH), rotation: s.rotation, scaleX: s.scaleX, scaleY: s.scaleY, look: object.look, ...(leaving.has(i) ? { leaving: true } : {}) });
+      // (a flat thing — a disc — is seen nearly edge-on from the side: objectFlight.ts FLAT_SCALE)
+      out[i].push({ id: object.id, x: s.x, y: Math.min(s.y, scene.groundY - halfH), rotation: s.rotation, scaleX: s.scaleX, scaleY: s.scaleY * FLAT_SCALE[style], look: object.look, ...(leaving.has(i) ? { leaving: true } : {}) });
     }
   }
   return out;

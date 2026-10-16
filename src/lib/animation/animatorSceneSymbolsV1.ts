@@ -1,5 +1,6 @@
 import type { FrameCharacter, FrameObject, ObjectLook, Scene } from "../animator/engine.ts";
 import { drawHead, drawObjects } from "../animator/render.ts";
+import { HALO_PAD } from "../animator/rig.ts";
 import { lookThickness } from "../animator/objects.ts";
 import { FIGURE_COLORS } from "../animator/colors.ts";
 import { fitAuthoredStage } from "./unifiedStageGeometry.ts";
@@ -289,18 +290,18 @@ export type AnimatorSymbolPictureV1 = {
 
 function headPicture(character: FrameCharacter, name: string): AnimatorSymbolPictureV1 {
   const ppu = SYMBOL_PICTURE_PIXELS_PER_UNIT;
-  const extent = character.headRadius + character.style.thickness / 2 + PICTURE_PAD_UNITS;
+  const extent = character.headRadius + character.style.thickness / 2 + (character.style.halo ? HALO_PAD : 0) + PICTURE_PAD_UNITS;
   const pixelSize = Math.ceil(2 * extent * ppu);
   const boxUnits = pixelSize / ppu;
   const style = { ...character.style };
   // Its look: a filled head is a round dot (any size looks the same); a hollow one is a ring as thick as it is.
   const outer = 2 * character.headRadius + style.thickness, color = hexRgb(style.color) ? [style.color] : [];
   const look: SymbolLookV1 = {
-    form: JSON.stringify(["head", style.headFilled === true, color.length ? null : style.color]),
+    form: JSON.stringify(["head", style.headFilled === true, color.length ? null : style.color, ...(style.halo ? [style.halo] : [])]),
     numbers: style.headFilled ? [] : [style.thickness / outer], colors: color, size: outer, boxWidth: boxUnits, boxHeight: boxUnits,
   };
   return {
-    key: JSON.stringify(["head", name, style.color, style.thickness, style.headFilled, character.headRadius]),
+    key: JSON.stringify(["head", name, style.color, style.thickness, style.headFilled, character.headRadius, ...(style.halo ? [style.halo] : [])]),
     name, pixelSize, boxUnits, look,
     draw: (ctx) => drawHead(ctx, { style, headRadius: character.headRadius }, { x: boxUnits / 2, y: boxUnits / 2 }, { scale: ppu, offsetX: 0, offsetY: 0 }),
   };

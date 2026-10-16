@@ -3,6 +3,7 @@
 // ground line: grass green outdoors (darker under a storm), white only for snow, sand for a beach or desert, gray
 // rock for the moon, red rock for Mars, gray road for a city. No background = the plain page (the empty studio), and a
 // page colour the user asked for (canvasColor) is left as it is.
+import { placeOf, timeOf } from "./places.ts";
 import type { BackgroundSpec, EffectTrack } from "./types.ts";
 
 // Pieces that say "we are outside".
@@ -45,6 +46,13 @@ const SPACE = /outer space|\bin space|\bspace ?(ship|station|walk)|galaxy|\borbi
 const NIGHT = /\bnight|midnight|evening|dusk|\bmoon(lit|light)?\b|\bstars\b|starry|\bdark sky/i;
 const DAY = /\bday(time|light)?\b|morning|\bnoon|afternoon|sunny|\bsun\b|sunshine/i;
 export function placeSky(background: BackgroundSpec | undefined, words: string, effects: EffectTrack[] = [], canvasColor?: string): BackgroundSpec | undefined {
+  // THE PLACE IN THE WORDS IS DRAWN (Arthur, Oct 16, effects/places.ts): a story that names a place (a park, a kitchen, a boxing
+  // ring, a street at night…) and has no background gets that whole place; a `place` piece draws its own sky and light, so it
+  // only takes the time the words say.
+  if (!background?.pieces?.length && !canvasColor && placeOf(words)) return { pieces: [{ kind: "place", params: { place: words, time: timeOf(words, placeOf(words)) } }] };
+  if (background?.pieces?.some((p) => p.kind === "place")) {
+    return canvasColor ? background : { ...background, pieces: background.pieces.map((p) => (p.kind !== "place" || p.params?.time ? p : { ...p, params: { ...(p.params ?? {}), time: timeOf(`${words} ${String(p.params?.place ?? "")}`, placeOf(p.params?.place ?? words)) } })) };
+  }
   const pieces = background?.pieces ?? [];
   if (canvasColor || pieces.some((p) => p.kind === "thunderstorm")) return background;
   const sky = pieces.find((p) => p.kind === "sky");
@@ -60,4 +68,27 @@ export function placeSky(background: BackgroundSpec | undefined, words: string, 
   // under the figures' feet — the moon's gray rock, night grass — never a white strip; space gets a dark floor.)
   const floor = time === SPACE_SKY && !rest.some((p) => GROUND.has(p.kind)) ? [{ kind: "ground", params: { color: "#2c3150", color2: "#1b1e33" } }] : [];
   return { ...(background ?? {}), pieces: [{ kind: "sky", params: { ...(sky?.params ?? {}), ...time } }, ...floor, ...rest] };
+}
+
+// FIGURES STAND OUT (Arthur, Oct 16: the black boxer vanished into the night ring). Is what stands BEHIND the figures dark — a
+// night sky or night place, a dark room wall (a boxing arena), a dark page colour? Then a dark figure gets a soft light outline
+// (rig.ts CharacterStyle.halo) — its own color never changes. A storm's sky is made light enough already (placeSky above).
+const lum = (hex: string) => {
+  const m = /^#([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!m) return 1;
+  const [r, g, b] = [0, 2, 4].map((k) => parseInt(m[1].slice(k, k + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+export const isDarkColor = (hex: string) => lum(hex) < 0.1;
+export const FIGURE_HALO = "#cfd6e4";
+export function darkBackdrop(background: BackgroundSpec | undefined, canvasColor?: string): boolean {
+  if (canvasColor && isDarkColor(canvasColor)) return true;
+  for (const p of background?.pieces ?? []) {
+    if (p.kind === "place") {
+      const place = placeOf(p.params?.place), time = p.params?.time === "night" ? "night" : timeOf(String(p.params?.place ?? ""), place);
+      if (place && (time === "night" || (place.indoor && isDarkColor(place.wall ?? "#e6e0d0")))) return true;
+    }
+    if (p.kind === "sky" && (p.params?.time === "night" || (typeof p.params?.color === "string" && isDarkColor(p.params.color) && typeof p.params?.color2 === "string" && isDarkColor(p.params.color2)))) return true;
+  }
+  return false;
 }

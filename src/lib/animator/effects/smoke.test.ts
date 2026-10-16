@@ -201,3 +201,34 @@ test("the color knobs: purple smoke is purple everywhere; default is gray", () =
   }
   for (const col of colors(draw("smoke", ctx(1, 3, SOURCE)))) { const [r, g, b] = rgb(col); assert.ok(Math.max(r, g, b) - Math.min(r, g, b) <= 2, `${col} is gray`); }
 });
+
+test("SMALL FIRE, SMALL SMOKE: a candle's smoke (size < 0.05) is ONE thin wavy wisp — narrow, connected, fading — never puffs", () => {
+  for (const t of [0.6, 1.5, 2.5]) {
+    const ps = polys(draw("smoke", ctx(t, 4, SOURCE), { size: 0.025, seed: 3 }));
+    assert.ok(ps.length >= 6, `a ribbon in pieces @${t}`);
+    const xs = ps.flatMap((s) => s.points.filter((_, i) => i % 2 === 0)), ys2 = ps.flatMap((s) => s.points.filter((_, i) => i % 2 === 1));
+    const wide = Math.max(...xs) - Math.min(...xs), tall = SOURCE.y - Math.min(...ys2);
+    assert.ok(wide < 0.18 * H, `thin (${(wide / H).toFixed(2)} H wide) @${t}`);
+    assert.ok(tall > 0.15 * H && tall < 0.9 * H, `rises a little (${(tall / H).toFixed(2)} H) @${t}`);
+    for (const s of ps) { const w = Math.hypot(s.points[0] - s.points[6], s.points[1] - s.points[7]); assert.ok(w < 0.05 * H, "every piece is a thin strip"); }
+  }
+  const camp = polys(draw("smoke", ctx(1.5, 4, SOURCE), { size: 0.12 }));
+  const campW = Math.max(...camp.flatMap((s) => s.points.filter((_, i) => i % 2 === 0))) - Math.min(...camp.flatMap((s) => s.points.filter((_, i) => i % 2 === 0)));
+  assert.ok(campW > 0.25 * H, "a campfire keeps its bigger smoke");
+});
+
+// A TRAIL STAYS CONNECTED TO ITS SOURCE (Arthur, Oct 15, the running torch: "the smoke isn't coming up from the fire — it looks like
+// it's behind his head"): smoke from a carried source is one connected stream from the flame back and UP — no loose puffs.
+test("smoke from a moving source: one connected stream from the flame, back and up", () => {
+  const src = (t: number) => ({ x: 300 + 600 * Math.min(t, 3), y: 600 });
+  const t = 2, at = src(t);
+  const shapes = polys(draw("smoke", ctx(t, 10, at, { anchorAt: src }), { size: 0.06 }));
+  assert.ok(shapes.length > 5);
+  const pts = shapes.flatMap((s) => xs(s).map((x, i) => ({ x, y: ys(s)[i] })));
+  assert.ok(Math.min(...pts.map((p) => Math.hypot(p.x - at.x, p.y - at.y))) < 0.03 * H, "it starts AT the flame");
+  // connected: going back from the flame, every 0.1 H strip of the trail has smoke in it, out to 0.8 H
+  for (let d = 0; d < 0.8 * H; d += 0.1 * H) assert.ok(pts.some((p) => at.x - p.x >= d && at.x - p.x < d + 0.1 * H), `a gap ${Math.round(d)} px behind the flame`);
+  // back and up: smoke a body height behind is clearly above the flame
+  const behind = shapes.map(centroid).filter((c) => at.x - c.x > 0.9 * H && at.x - c.x < 1.3 * H);
+  assert.ok(behind.length && behind.every((c) => c.y < at.y - 0.12 * H), "it rises as it streams back");
+});

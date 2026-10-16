@@ -16,9 +16,9 @@ import { beatsToKeys } from "./motion.ts";
 
 // (SPEC-0021 phase 3 — THE NATURAL SPEED LAW: the arm thrust took 0.18 s, the hand ~3.5 H/s, twice a person's everyday limit;
 // every action / follow beat is ~1.6× longer so the hand stays under HAND_SPEED_MAX, still with anticipation and a snap of ease-out.)
-export type CelebrateParams = { kind?: "thrust" | "hop" | "pump"; seed?: number; hand?: "left" | "right"; seconds?: number };
-export const CELEBRATE_KINDS = ["thrust", "hop", "pump"] as const;
-export const CELEBRATE_ABOUT = "Celebrate a win (no weapon): ANTICIPATION (knees dip, fist cocked low by the shoulder), then ONE arm thrust straight up high while the OTHER arm stays bent with a clenched fist, chest up, feet planted (never both arms straight up); follow-through (a hair past) and settle, hold `seconds` (1), back to the stand. `kind`: thrust (default) / hop (a small hop into it) / pump (then two fist pumps: \"yes! yes!\"); `seed` varies it; `hand` left/right = the arm that goes up. Mark `raised`.";
+export type CelebrateParams = { kind?: "thrust" | "hop" | "pump" | "hooray"; seed?: number; hand?: "left" | "right"; seconds?: number };
+export const CELEBRATE_KINDS = ["thrust", "hop", "pump", "hooray"] as const;
+export const CELEBRATE_ABOUT = "Celebrate a win (no weapon): ANTICIPATION (knees dip, fist cocked low by the shoulder), then ONE arm thrust straight up high while the OTHER arm stays bent with a clenched fist, chest up, feet planted (never both arms straight up); follow-through (a hair past) and settle, hold `seconds` (1), back to the stand. `kind`: thrust (default) / hop (a small hop into it) / pump (then two fist pumps: \"yes! yes!\") / hooray (both arms up in a V with a little hop); `seed` varies it; `hand` left/right = the arm that goes up. Mark `raised`.";
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 type Side = "l" | "r";
@@ -50,10 +50,12 @@ export function celebrate(start: Stance, params: CelebrateParams, settings: Move
   const feet = feetAhead(start.pose) * H;
   const legs = { lHip: STAND.lHip, rHip: STAND.rHip, lKnee: STAND.lKnee, rKnee: STAND.rKnee };
   const arms = victoryArms(seed, up, kind !== "pump");
-  const raised = levelFeet(safePose(withPose(STAND, { ...legs, ...arms })));
+  // HOORAY (a variant: 95% together, 5% their own): BOTH arms up in an open V (never two parallel straight arms), chest up.
+  const hooray = kind === "hooray";
+  const raised = levelFeet(safePose(withPose(STAND, { ...legs, ...arms, ...(hooray ? { [`${up}Shoulder`]: 158, [`${up}Elbow`]: 8, [`${down}Shoulder`]: 128, [`${down}Elbow`]: 16 } : {}) } as Partial<PoseAngles>)));
   // ANTICIPATION: the opposite way first — knees dip, chest forward and down, the rising fist cocked low by the shoulder.
   // EVERY TAKE-OFF HAS A WIND-UP: the hop dips as deep as a small jump does (a visible crouch, arms back).
-  const dip = kind === "hop" ? 44 : 14;
+  const dip = kind === "hop" ? 44 : hooray ? 30 : 14;
   const ready = levelFeet(safePose(withPose(STAND, {
     lean: 12, head: 8, lHip: STAND.lHip + dip * 0.6, rHip: STAND.rHip + dip * 0.6, lKnee: STAND.lKnee + dip * 1.2, rKnee: STAND.rKnee + dip * 1.2,
     [`${up}Shoulder`]: 25, [`${up}Elbow`]: 125, [`${down}Shoulder`]: kind === "hop" ? -32 : -12, [`${down}Elbow`]: 75,
@@ -61,12 +63,12 @@ export function celebrate(start: Stance, params: CelebrateParams, settings: Move
   // FOLLOW-THROUGH: the arm and chest carry a hair past the pose, then settle back into it.
   const past = levelFeet(safePose(withPose(raised, { lean: raised.lean - 4, head: raised.head - 4, [`${up}Shoulder`]: raised[`${up}Shoulder`] + 6, [`${down}Elbow`]: raised[`${down}Elbow`] + 10 } as Partial<PoseAngles>)));
   const placed: PlacedBeat[] = [{ kind: "anticipation", seconds: kind === "hop" ? 0.32 : 0.26, pose: ready, at: hipsOver(feet, ready, H) }];
-  if (kind === "hop") {
+  if (kind === "hop" || hooray) {
     // A small hop (the jump's rules, small height): push off into the air with the arm going up, land soft, then the pose.
     const air = levelFeet(safePose(withPose(raised, { lHip: 10, rHip: 4, lKnee: 22, rKnee: 22 })));
     const land = levelFeet(safePose(withPose(raised, { lHip: STAND.lHip + 10, rHip: STAND.rHip + 10, lKnee: STAND.lKnee + 20, rKnee: STAND.rKnee + 20, lean: 4 })));
     placed.push(
-      { kind: "action", seconds: 0.36, pose: air, at: hipsOver(feet, air, H), lift: 0.1 * H, contacts: [], liftEase: "out", name: "raised" },
+      { kind: "action", seconds: 0.36, pose: air, at: hipsOver(feet, air, H), lift: (hooray ? 0.06 : 0.1) * H, contacts: [], liftEase: "out", name: "raised" },
       { kind: "follow", seconds: 0.26, pose: land, at: hipsOver(feet, land, H), lift: 0, liftEase: "in" },
       { kind: "settle", seconds: 0.22, pose: past, at: hipsOver(feet, past, H) },
     );

@@ -41,7 +41,11 @@ export const JOINT_LIMITS: Record<Exclude<PoseKey, "lShoulder" | "rShoulder">, r
 
 // Look of a figure. The classic stick figure (Arthur, 2026-10-04) is the default: a solid head sitting
 // right on top of the body, no neck. A hollow head and a neck are options ("neck" off when missing).
-export type CharacterStyle = { color: string; thickness: number; headSize: HeadSize; headFilled: boolean; neck?: boolean };
+// `halo` (FIGURES STAND OUT, Oct 16): a soft light outline drawn behind a DARK figure on a DARK scene (a black boxer in a night
+// ring), so it never disappears into what's behind it. The engine sets it (moves/plan.ts); the figure's own color never changes.
+export type CharacterStyle = { color: string; thickness: number; headSize: HeadSize; headFilled: boolean; neck?: boolean; halo?: string };
+// (how far the halo reaches past the line on each side, in stage units)
+export const HALO_PAD = 3;
 export const DEFAULT_STYLE: CharacterStyle = { color: "#111111", thickness: 7, headSize: "normal", headFilled: true, neck: false };
 
 export const STAND: PoseAngles = { lean: 0, head: 0, lShoulder: 8, rShoulder: -6, lElbow: 14, rElbow: 10, lHip: 3, rHip: -3, lKnee: 3, rKnee: 3 };

@@ -2,7 +2,8 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { buildScene, type CharacterKey } from "../engine.ts";
 import { STAND } from "../rig.ts";
-import { bearWeight, custom, WEIGHT_GIVE, type CustomKey, type CustomParams } from "./custom.ts";
+import { bearWeight, custom, isPowerMove, kneelPose, WEIGHT_GIVE, type CustomKey, type CustomParams } from "./custom.ts";
+import { forwardKinematics } from "../pose.ts";
 import { NEVER_TAUGHT } from "./customExamples.ts";
 import { LIBRARY } from "./library.ts";
 import { PRINCIPLES } from "./lessons.ts";
@@ -70,7 +71,8 @@ test("eased starts and stops: the body is (nearly) still at holds", () => {
   for (let n = 1; n <= 4; n += 1) {
     const holdMid = out.marks[`k${n}`] + (n < 4 ? 0.3 : 0.4) / 2 + 0.3;
     const i = Math.min(frames.length - 2, Math.round(holdMid * fps));
-    assert.ok(speed(i) < 0.15 * peak, `hold ${n}: ${speed(i).toFixed(1)} px/frame vs peak ${peak.toFixed(1)}`);
+    // (0.2: since Oct 14 a dance has no engine wind-up — only power moves do — so its fastest moment is calmer)
+    assert.ok(speed(i) < 0.2 * peak, `hold ${n}: ${speed(i).toFixed(1)} px/frame vs peak ${peak.toFixed(1)}`);
   }
   // The very first picture eases out of the stand.
   assert.ok(speed(0) < 0.6 * Math.max(speed(1), speed(2), speed(3), speed(4)), "eases out of the start (speeds up)");
@@ -215,4 +217,46 @@ test("JOINTS MOVE AT A HUMAN SPEED: a big pose change takes time (the superhero 
   assert.ok(into("fast", "robot") >= 0.3, `a robot is snappier but still readable (${into("fast", "robot").toFixed(2)} s)`);
   const k1 = custom({ t: 0, x: 500, facing: "right", pose: STAND }, hero, SET).marks.k1;
   assert.ok(k1 >= 0.22, `the first key is reached from the stand at a human speed too (${k1.toFixed(2)} s)`);
+});
+
+// POWER OR CAREFUL + THE KNEEL (Arthur, Oct 14, campfire: "whenever a stick figure goes to kneel down, it's so slow. They always
+// lean back super fast, then slowly lean forward… not even a comfortable pose").
+test("a careful move (kneel, bend, reach…) goes straight to its pose at a calm speed — no lean-back wind-up; power moves keep theirs", () => {
+  const kneel: CustomParams = { name: "kneel and tie the shoe", keys: [
+    { pose: { lean: 35, head: 10, lShoulder: 60, rShoulder: 70, lElbow: 30, rElbow: 30, lHip: 95, lKnee: 120, rHip: 50, rKnee: 125 }, hold: 1.5 },
+  ] };
+  const out = runOf(kneel);
+  // (never leans back: every key before the kneel leans forward of the stand, and the lean only grows on the way down)
+  const down = out.keys.filter((k) => k.t <= out.marks.k1 + 1e-6);
+  for (let i = 1; i < down.length; i += 1) assert.ok(down[i].pose.lean >= down[i - 1].pose.lean - 1, `no backward jerk at ${down[i].t.toFixed(2)}: ${down[i - 1].pose.lean} -> ${down[i].pose.lean}`);
+  assert.ok(out.marks.k1 >= 0.55 && out.marks.k1 <= 1.0, `kneels in a person's time: ${out.marks.k1.toFixed(2)} s`);
+  // (a power move with the same shape still winds up first: the dab's arm goes back, the kata kicks after a wind-up)
+  assert.equal(isPowerMove(NEVER_TAUGHT.dab, [{ strike: true, pose: STAND }], STAND), true);
+  assert.equal(isPowerMove({ name: "chop the log" }, [{ pose: STAND }], STAND), true);
+  assert.equal(isPowerMove({ name: "pick up the cup" }, [{ pose: STAND }], STAND), false);
+  assert.equal(isPowerMove({ name: "pet the dog" }, [{ pose: STAND }], STAND), false);
+});
+
+test("THE KNEEL: the down knee on the floor, the front foot flat with its shin upright, held still and comfortable", () => {
+  for (const lean of [0, 30, 38]) {
+    const p = kneelPose({ ...STAND, lean }, "r");
+    const b = forwardKinematics(p, "right", { x: 0, y: 0 }, 1, "normal", false);
+    const floor = Math.max(b.lFoot.y, b.rFoot.y);
+    assert.ok(Math.abs(b.rKnee.y - floor) < 0.01, `lean ${lean}: the down knee is on the floor`);
+    assert.ok(Math.abs(b.rFoot.y - floor) < 0.01 && b.rFoot.x < b.rKnee.x - 0.15, `lean ${lean}: its shin lies flat behind`);
+    assert.ok(Math.abs(b.lFoot.x - b.lKnee.x) < 0.03, `lean ${lean}: the front shin is upright`);
+    assert.ok(Math.abs(b.lFoot.y - floor) < 0.01, `lean ${lean}: the front foot is on the floor`);
+  }
+  // (in a move: the low keys next to a kneeling key kneel too, and the figure is still kneeling in the hold — both feet planted)
+  const out = runOf({ name: "kneel by the fire", keys: [
+    { pose: { lean: 30, lHip: 95, lKnee: 120, rHip: 50, rKnee: 125 }, hold: 0.3 },
+    { pose: { lean: 40, lHip: 100, lKnee: 125, rHip: 55, rKnee: 130 }, kneel: true, hold: 0.9 },
+    { pose: { lean: 25, lHip: 95, lKnee: 120, rHip: 50, rKnee: 125 }, hold: 1.0 },
+  ] });
+  for (const m of ["k1", "k2", "k3"]) {
+    const k = out.keys.find((q) => Math.abs(q.t - out.marks[m]) < 1e-6)!;
+    const b = forwardKinematics(k.pose, "right", { x: 0, y: 0 }, 1, "normal", false);
+    assert.ok(Math.abs(b.rKnee.y - Math.max(b.lFoot.y, b.rFoot.y)) < 0.03, `${m}: kneeling`);
+    assert.equal(k.contacts?.length, 2, `${m}: on the knee and the front foot`);
+  }
 });

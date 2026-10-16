@@ -509,7 +509,8 @@ test("the Effects (2C) test buttons: color head names, no near-duplicates (one L
   assert.deepEqual(made.elementalFight.filter(n => n.includes("head")), ["Red stick figure head", "Blue stick figure head"], "not \"Red (laser)'s head\"");
   assert.deepEqual(made.elementalFight.filter(n => n.startsWith("Laser eye")), ["Laser eye"]);
   assert.deepEqual(made.policeEscort, ["Blue stick figure head", "Red stick figure head", "Handcuffs"], "not \"Officer's head\" / \"Red stick figure head 2\"");
-  assert.deepEqual(made.rainyWindyDay, ["Black stick figure head", "Raindrop", "Leaf"], "not \"Hero's head\"; one Leaf");
+  // (order is not the point — blown leaves share the rain's every-picture layer since Oct 12 — exactly one of each is)
+  assert.deepEqual([...made.rainyWindyDay].sort(), ["Black stick figure head", "Leaf", "Raindrop"], "not \"Hero's head\"; one Leaf");
   assert.deepEqual(made.flicker, ["Black stick figure head", "Light bulb"]);
   const names = catalogs.symbols.map(s => s.name);
   assert.ok(names.every(n => !/ \d+$/.test(n) && !n.includes("'s head")), names.join(" | "));

@@ -227,6 +227,12 @@ const wobbleShare = (speed: number) => clamp(1 - speed / STUMBLE, 0, 1);
 // going (forward).
 export function fall(start: Stance, params: FallParams, settings: MoveSettings): MoveOutput {
   const H = settings.height;
+  // ALREADY DOWN (Oct 15, a random combo "tumble down → fall down" flipped a body lying on its face onto its back in one picture):
+  // a body that already lies on the floor can't fall — it stays lying the way it lies, breathing a moment (marks still come).
+  if (Math.abs(start.pose.lean) >= 65) {
+    const hold = 0.6, k0 = { t: start.t, x: start.x, pose: start.pose, facing: start.facing, contacts: [] as FootContact[], ease: "inOut" as const };
+    return { keys: [k0, { ...k0, t: start.t + hold / 2, pose: { ...start.pose, head: start.pose.head + 3 } }, { ...k0, t: start.t + hold }], end: { ...start, t: start.t + hold }, marks: { impact: start.t, down: start.t + hold } };
+  }
   const speed = Math.max(0, Number(params.speed ?? 0)) / H; // body heights per second
   const direction = params.direction ?? FALL_DEFAULTS.direction;
   const back = direction === "back" ? fallBack(start.pose, speed, settings) : undefined;
@@ -536,7 +542,10 @@ const TALL = levelFeet(withPose(STAND, { lean: 8, head: 6, lShoulder: 20, rShoul
 // Get up from a fall (start.pose should be FALLEN_FORWARD or FALLEN_BACK; the direction is read from the
 // pose if not given). Ends standing. Mark: "up" (back up, nearly standing: the flow point).
 export function getUp(start: Stance, params: GetUpParams, settings: MoveSettings): MoveOutput {
-  const direction = params.direction ?? (start.pose.lean > 20 ? "forward" : "back");
+  // (GETS UP THE WAY IT LIES: a body clearly lying on its face or back gets up from there whatever the plan guessed — a tumble or
+  // fall decides how it lands; getting up "from the back" while lying face down would be a pop)
+  const lying = Math.abs(start.pose.lean) > 45 ? (start.pose.lean > 0 ? "forward" : "back") : undefined;
+  const direction = lying ?? params.direction ?? (start.pose.lean > 20 ? "forward" : "back");
   const H = settings.height;
   const timing = hurtTiming(settings);
   const robot = RAMP_SCALE[settings.style] === 0;

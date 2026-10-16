@@ -4,7 +4,7 @@
 // round as it floats. They are blown out round the anchor, DRIFT up and sway side to side, grow a little, and at the end
 // of their life SOME POP (the ring breaks into a few tiny drops flying out) while the rest fade. Any color.
 // Pure: the same moment gives the same bubbles at 8, 12 or 24 pictures a second.
-import { clamp, lifeOf, mixColor, rand, wobble } from "./random.ts";
+import { clamp, emerge, fromSource, lifeOf, mixColor, rand, sourceAt, wobble } from "./random.ts";
 import type { EffectContext, EffectParams, EffectRecipe, Shape } from "./types.ts";
 
 const DEFAULTS = { color: "#8fd3ff", color2: "#ffffff", size: 0.06, count: 8, spread: 0.45, speed: 1, pop: 0.5, life: 2.4 };
@@ -27,15 +27,29 @@ export function bubbles(ctx: EffectContext, p: EffectParams): Shape[] {
   if (master <= 0) return out;
   for (let i = 0; i < count; i += 1) {
     const L = life * (0.75 + 0.5 * rand(seed, i, 1));
-    const { n, u } = floating ? { n: 0, u: 0.5 } : lifeOf(t, i, count, L, seed);
+    const { n, u, bornAt } = floating ? { n: 0, u: 0.5, bornAt: 0 } : lifeOf(t, i, count, L, seed);
+    if (!floating && bornAt < -1e-9) continue; // (no bubble before the wand blew it: the first ones come out of it)
+    // (EMITTERS ONLY WHEN THEIR CAUSE IS TRUE — emitterCause.ts: a wand makes a bubble only while it is at the mouth or waved; the
+    // ones already out float on)
+    if (!floating && ctx.emitsAt && !ctx.emitsAt(Math.max(0, bornAt))) continue;
     const s = seed + n * 13 + i * 7;
-    const r = R0 * (0.6 + 0.8 * rand(s, i, 2)) * (0.85 + 0.25 * Math.min(1, u * 2));
+    const r0 = R0 * (0.6 + 0.8 * rand(s, i, 2)) * (0.85 + 0.25 * Math.min(1, u * 2));
     // where it is: born somewhere round the anchor, drifting along `direction` and swaying across it
-    const born = { x: ctx.at.x + (rand(s, i, 3) - 0.5) * 2 * area, y: ctx.at.y + (rand(s, i, 4) - 0.5) * area };
+    // (BUBBLES COME OUT OF THE WAND — Arthur: "bubbles from the wand", never from thin air: a rising bubble is born AT the
+    // anchor (the wand's ring / the hand) and only spreads out over the area as it drifts away; floating ones keep their spot)
+    // (EMITTED THINGS LIVE IN THE WORLD — random.ts sourceAt: it comes out where the wand WAS when it was blown and then floats on
+    // its own; moving the wand later never drags it. Floating ones stay round where the wand was at the start.)
+    const src = sourceAt(ctx, floating ? 0 : bornAt);
+    const out1 = floating ? 1 : clamp(u * 2.2, 0, 1);
+    const born = { x: src.x + (rand(s, i, 3) - 0.5) * 2 * area * out1, y: src.y + (rand(s, i, 4) - 0.5) * area * out1 };
     const travel = u * L * h * 0.22 * speed;
     const sway = wobble(s, i, t, 1.6) * h * 0.06 + Math.sin((u * L + rand(s, i, 5) * 6) * 2.4) * h * 0.035;
-    const x = floating ? born.x + wobble(s, i, t, 0.35 * speed) * area * 0.35 + sway : born.x + dx * travel - dy * sway;
-    const y = floating ? born.y + wobble(s, i + 40, t, 0.3 * speed) * area * 0.25 : born.y + dy * travel + dx * sway;
+    const x0 = floating ? born.x + wobble(s, i, t, 0.35 * speed) * area * 0.35 + sway : born.x + dx * travel - dy * sway;
+    const y0 = floating ? born.y + wobble(s, i + 40, t, 0.3 * speed) * area * 0.25 : born.y + dy * travel + dx * sway;
+    // (THINGS COME FROM THEIR SOURCE — random.ts emerge: a rising bubble is blown out of the wand's loop as a small bubble and
+    // swells to its size as it leaves it; it never pops into being big or away from the loop)
+    const em = floating ? { size: 1, out: 1 } : emerge(u * L, 0.45, 0.25);
+    const { x, y } = fromSource(src, { x: x0, y: y0 }, em.out), r = r0 * em.size;
     if (y + r > ctx.groundY) continue;
     const pops = !floating && rand(s, i, 6) < popShare, popAt = 0.86 + 0.08 * rand(s, i, 7);
     if (pops && u >= popAt) {
@@ -70,5 +84,5 @@ export function bubbles(ctx: EffectContext, p: EffectParams): Shape[] {
 }
 
 export const RECIPES: EffectRecipe[] = [
-  { id: "bubbles", about: "real floating bubbles (a thin see-through ring, white shine, wobbling): blown out round the anchor, drift up and sway, some pop into tiny drops. color = ring (any color, e.g. pink), color2 = shine, size = bubble radius x height (0.06), count (8), spread = area x height (0.45), pop = share that pop (0.5), direction (-90 up), speed, motion (rise = drift away and pop, new ones keep coming; float = the same bubbles stay, wandering, no popping). Put the anchor on a hand or an object to follow it.", draw: bubbles },
+  { id: "bubbles", about: "real floating bubbles (a thin see-through ring, white shine, wobbling): blown out OF the anchor (born right at it — put the anchor on the wand / the hand), then spread, drift up and sway, some pop into tiny drops. color = ring (any color, e.g. pink), color2 = shine, size = bubble radius x height (0.06), count (8), spread = area x height (0.45), pop = share that pop (0.5), direction (-90 up), speed, motion (rise = drift away and pop, new ones keep coming; float = the same bubbles stay, wandering, no popping). Put the anchor on a hand or an object to follow it: each bubble comes out where the wand is at that moment and then floats on by itself in the air (moving the wand later never drags bubbles already out).", draw: bubbles },
 ];

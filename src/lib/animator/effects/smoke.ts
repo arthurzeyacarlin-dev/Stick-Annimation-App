@@ -8,7 +8,7 @@
 // Every recipe obeys the knobs (color = young smoke, color2 = old smoke, size, speed, direction, intensity,
 // turbulence, spread, seed, wind), so purple or green smoke comes from knobs alone. Stateless and seeded: the same
 // moment always gives the same shapes, at any frame rate. Never below the ground.
-import { clamp, mixColor, rand, smooth, wobble } from "./random.ts";
+import { clamp, emerge, mixColor, rand, smooth, sourceAt, stretchAt, wobble } from "./random.ts";
 import type { EffectContext, EffectParams, EffectRecipe, Point, Shape } from "./types.ts";
 
 const SMOKE = "#6b6b6b";
@@ -30,7 +30,7 @@ function knobs(p: EffectParams, def: { size: number; direction: number; spread: 
     turbulence: clamp(num(p.turbulence, 0.5), 0, 1),
     spread: clamp(num(p.spread, def.spread), 0, 360),
     seed: num(p.seed, 1),
-    wind: clamp(num(p.wind, def.wind), -2, 2),
+    wind: clamp(num(p.wind, def.wind), -1, 1), // (real wind drifts smoke sideways a little; it never blows it flat)
   };
 }
 
@@ -83,8 +83,42 @@ const COLUMN = 0.9; // seconds: smoke younger than this is still one connected c
 const DARK_TILL = 0.38, MID_TILL = 0.64, SPLIT_AT = 0.55; // when (in its life 0..1) a bit gets lighter (on average) / tears apart
 const END = 0.9; // seconds: at the end the source stops first, and the last smoke rises, gets lighter and fades out
 
+// SMALL FIRE, SMALL SMOKE — A THIN WAVY WISP (Arthur, Oct 12–14: "small fires make small smoke"; "smoke is not clouds"): smoke
+// under WISP_SIZE (a candle, a match, a blown-out torch) is ONE thin ribbon that keeps coming out of the source, rises, sways
+// in a slow S that travels up it, drifts with the wind, gets paler and fades by its height — never dots, puffs or chunks.
+export const WISP_SIZE = 0.05;
+const WISP_LIFE = 1.7; // seconds a bit of the wisp lives (at speed 1)
+function wisp(ctx: EffectContext, k: Knobs): Shape[] {
+  const h = ctx.height, ts = ctx.t * k.speed, T = Math.max(0.1, ctx.duration * k.speed);
+  const stopAt = Math.max(T * 0.5, T - END - 0.1), endF = smooth((T - ts) / END);
+  const big = clamp(k.size / 0.025, 0.6, 2); // a slightly bigger flame → a slightly taller, wider wisp
+  const rise = 0.55 * h * big, shades = shadesOf(k);
+  const S = 26, pts: { x: number; y: number; w: number; u: number }[] = [];
+  for (let j = 0; j <= S; j += 1) {
+    const u = j / S, a = u * WISP_LIFE, b = ts - a;
+    if (b < 0 || b > stopAt || (ctx.emitsAt && !ctx.emitsAt(b / k.speed))) { pts.push({ x: NaN, y: NaN, w: 0, u }); continue; } // (emitterCause.ts)
+    const sway = (0.012 + 0.05 * u) * h * big * (0.6 + 0.6 * k.turbulence) * Math.sin(b * 2.3 + u * 7 + k.seed) + 0.01 * h * u * wobble(k.seed, 3, ts * 0.5, 1);
+    const src = sourceAt(ctx, b / k.speed); // (born where the source was then — random.ts sourceAt)
+    pts.push({ x: src.x + sway + k.wind * 0.25 * h * u ** 1.6, y: src.y - rise * (u + 0.25 * u * u) / 1.25, w: (h * big * (0.004 + 0.012 * u)) / stretchAt(ctx, b / k.speed, (rise / WISP_LIFE) * k.speed), u });
+  }
+  const out: Shape[] = [];
+  // the ribbon in short pieces: dark and solid low, paler and more see-through higher, gone at the top
+  for (let j = 0; j < S; j += 1) {
+    const p0 = pts[j], p1 = pts[j + 1];
+    if (!Number.isFinite(p0.x) || !Number.isFinite(p1.x)) continue;
+    const tx = p1.x - p0.x, ty = p1.y - p0.y, L = Math.hypot(tx, ty) || 1, nx = -ty / L, ny = tx / L;
+    const alpha = 0.85 * (1 - smooth((p0.u - 0.45) / 0.55)) * smooth(p0.u * 12 + 0.3) * endF;
+    if (alpha < 0.03) continue;
+    out.push({ kind: "poly", points: [p0.x + nx * p0.w, p0.y + ny * p0.w, p1.x + nx * p1.w, p1.y + ny * p1.w, p1.x - nx * p1.w, p1.y - ny * p1.w, p0.x - nx * p0.w, p0.y - ny * p0.w], fill: shades[p0.u < 0.35 ? 0 : p0.u < 0.65 ? 1 : 2], alpha });
+  }
+  return keepAboveGround(out, ctx.groundY);
+}
+
 function smoke(ctx: EffectContext, p: EffectParams): Shape[] {
-  const k = knobs(p, { size: 0.12, direction: -90, spread: 25, wind: 0.35 });
+  // (SMOKE RISES UP FROM ITS FLAME — Arthur, Oct 14: "he is holding the torch, but the smoke is in front of him": no wind unless the
+  // scene has wind — the plan's `wind` knob — so a still day's smoke goes straight up; a moving source leaves its trail behind)
+  const k = knobs(p, { size: 0.12, direction: -90, spread: 25, wind: 0 });
+  if (k.size < WISP_SIZE && p.wisp !== false) return wisp(ctx, k);
   const h = ctx.height, turb = k.turbulence;
   const ts = ctx.t * k.speed, T = Math.max(0.1, ctx.duration * k.speed);
   const stopAt = Math.max(T * 0.5, T - END - 0.1);
@@ -94,23 +128,39 @@ function smoke(ctx: EffectContext, p: EffectParams): Shape[] {
   // own timing) makes them reach higher, then lower, then higher again, like real smoke.
   const swellOf = (j: number, sp: number) => clamp(0.55 * Math.sin(ts * sp + TAU * rand(k.seed, j, 21)) + 0.6 * wobble(k.seed, 21 + j, ts * sp * 0.4, 1), -1, 1);
   const swell = swellOf(0, 2.4), swell2 = swellOf(1, 2.1);
-  const column = COLUMN * (1 + 0.4 * swell);
+  // (SMALL FIRE, SMALL SMOKE — Arthur, Oct 12: "smoke is usually really tiny with tiny things"): the plume rises in proportion to its
+  // size — a candle's wisp (size ~0.02) climbs a little, a campfire's (0.12) a body height or more
+  const column = COLUMN * (1 + 0.4 * swell) * clamp(k.size / 0.12, 0.12, 1.6);
   const onGround = ctx.at.y >= ctx.groundY - 0.05 * h;
   // How much smoke comes out at time b: it builds up at the start and tails off at the end.
   const strength = (b: number) => (b < 0 || b > stopAt ? 0 : smooth(b / 0.5 + 0.15) * smooth((stopAt - b) / 0.35));
   // Where the bit of smoke that came out `a` seconds ago (at b = ts − a) is now: it goes along `direction` at a
   // steady pace that slows a little (smoke sideways also floats up), and the wind carries it more and more;
   // turbulence sways the column. `lat` pushes a bit to one side of the column, `dj` turns its direction a little.
+  // How much the source was moving when the bit born at b came out (0 = still, 1 = carried fast: a torch on a run, an exhaust, a fuse,
+  // a rocket) — fixed at the bit's birth.
+  const ownSpeed = 0.81 * h * k.speed;
+  const movAt = (b: number) => (ctx.anchorAt ? smooth((stretchAt(ctx, b / k.speed, ownSpeed) - 1.15) / 0.8) : 0);
   const at = (a: number, b: number, lat = 0, dj = 0): Point => {
     const d = k.dir + dj, ux = Math.cos(d), uy = Math.sin(d);
     const along = h * (0.81 * a - 0.064 * a * a + 0.15 * (1 - Math.exp(-a / 0.25)));
     const float = 0.15 * h * a * a * (1 + Math.sin(k.dir));
     const sway = turb * 0.14 * h * wobble(k.seed, 3, b * 0.9 + 0.15 * ts, 1) * smooth(a / 1.05);
     const side = lat * 0.15 * h * (0.27 + a) + sway;
-    return { x: ctx.at.x + ux * along - uy * side + k.wind * 0.3 * h * a ** 1.5, y: ctx.at.y + uy * along + ux * side - float };
+    // (EMITTED THINGS LIVE IN THE WORLD: this bit left the source where the source was at its birth b — a torch carried on a run
+    // leaves its smoke trail behind in the air; random.ts sourceAt)
+    const o = sourceAt(ctx, b / k.speed);
+    // (A TRAIL STAYS CONNECTED TO ITS SOURCE — Arthur, Oct 15, the running torch: "the smoke isn't coming up from the fire, it looks like
+    // it's behind his head": hot smoke left behind a moving source still floats UP as it streams back — a lift for what came out while
+    // the source moved, fixed at its birth, so nothing jumps when the source stops)
+    // (and right out of the flame it first puffs UP over the flame before it bends back — the root never runs back past a head)
+    const lift = (0.22 * h * a + 0.16 * h * (1 - Math.exp(-a / 0.12))) * movAt(b);
+    return { x: o.x + ux * along - uy * side + k.wind * 0.3 * h * a ** 1.5, y: o.y + uy * along + ux * side - float - lift };
   };
   // How wide the smoke is at age a: narrow where it comes out, wider and wider as it rises (a cone, like a volcano).
-  const width = (a: number, b: number) => k.size * h * (0.75 + 2.4 * (a / LIFE)) * (0.7 + 0.3 * strength(b));
+  // (stretched thin where the source was moving fast when it came out — random.ts stretchAt)
+  // (only a little: a trail is a stream you can see, never a hairline — Oct 15)
+  const width = (a: number, b: number) => (k.size * h * (0.75 + 2.4 * (a / LIFE)) * (0.7 + 0.3 * strength(b))) / (1 + 0.3 * (stretchAt(ctx, b / k.speed, ownSpeed) - 1));
   const out: Shape[] = [];
   const items: { u: number; draw: () => void }[] = [];
 
@@ -154,8 +204,33 @@ function smoke(ctx: EffectContext, p: EffectParams): Shape[] {
         if (!(onGround && aBot === 0)) points.push(...cap(bot, Math.PI, 1, 7));
         out.push({ kind: "poly", points, fill: dark, alpha: endF });
         // its rounded, billowing head (the first smoke out leads the way up)
-        const hr = top.w * 1.25;
+        const hr = top.w * 1.25 * emerge(aTop - aBot, 0.4, 0.3).size; // (THINGS COME FROM THEIR SOURCE: the first puff is small at the source and swells as it rises)
         out.push({ kind: "poly", points: wavyOutline(top.c.x, top.c.y - 0.15 * hr, hr * 1.1, hr * 0.9, 0, k.seed + 3, ts, turb), fill: dark, alpha: endF });
+      },
+    });
+  }
+
+  // THE TRAIL (a moving source): past the column the smoke that came out while the source moved is ONE connected stream from the
+  // column back along where the source was, rising and widening, paler and thinner to its end — never loose puffs dotted in the air.
+  // Each bit's share of the stream is how much the source moved at its birth, so a stop fades the stream into the usual plume.
+  const trailEnd = Math.min(ts, LIFE * 0.5);
+  if (ctx.anchorAt && trailEnd - aTop > 0.05) {
+    items.push({
+      u: 0.99,
+      draw: () => {
+        const S = 24;
+        let prev: { c: Point; w: number; m: number; v: number } | null = null;
+        for (let j = 0; j <= S; j += 1) {
+          const a = Math.max(0, aTop - 0.06) + ((trailEnd - Math.max(0, aTop - 0.06)) * j) / S, b = ts - a;
+          const ok = b >= 0 && b <= stopAt && !(ctx.emitsAt && !ctx.emitsAt(b / k.speed));
+          const cur = { c: at(a, b), w: 0.85 * width(a, b) * (1 + 0.12 * Math.sin(b * 9 + k.seed)), m: ok ? movAt(b) * smooth(strength(b) * 4) : 0, v: j / S };
+          if (prev && prev.m > 0.02 && cur.m > 0.02) {
+            const tx = cur.c.x - prev.c.x, ty = cur.c.y - prev.c.y, L = Math.hypot(tx, ty) || 1, nx = -ty / L, ny = tx / L;
+            const alpha = Math.min(prev.m, cur.m) * (1 - smooth((prev.v - 0.35) / 0.65)) * endF;
+            if (alpha >= 0.03) out.push({ kind: "poly", points: [prev.c.x + nx * prev.w, prev.c.y + ny * prev.w, cur.c.x + nx * cur.w, cur.c.y + ny * cur.w, cur.c.x - nx * cur.w, cur.c.y - ny * cur.w, prev.c.x - nx * prev.w, prev.c.y - ny * prev.w], fill: shades[prev.v < 0.3 ? 0 : prev.v < 0.65 ? 1 : 2], alpha });
+          }
+          prev = cur;
+        }
       },
     });
   }
@@ -166,7 +241,7 @@ function smoke(ctx: EffectContext, p: EffectParams): Shape[] {
   for (let i = 0; i < N; i += 1) {
     const age0 = ts + ((i + 0.5 * rand(k.seed, i, 9)) / N) * LIFE, n = Math.floor(age0 / LIFE);
     const u = (age0 - n * LIFE) / LIFE, a = u * LIFE, b = ts - a;
-    if (a < 0.12 || b < 0 || b > stopAt) continue;
+    if (a < 0.12 || b < 0 || b > stopAt || (ctx.emitsAt && !ctx.emitsAt(b / k.speed))) continue; // (emitterCause.ts)
     const st = strength(b);
     if (st < 0.03) continue;
     const s = k.seed + n * 53 + i;
@@ -179,7 +254,10 @@ function smoke(ctx: EffectContext, p: EffectParams): Shape[] {
     const midTill = Math.max(darkTill + 0.1, MID_TILL + 0.08 * swell2 + 0.05 * (2 * rand(s, i, 12) - 1));
     const shade = u < darkTill ? 0 : u < midTill ? 1 : 2;
     const fill = shades[Math.min(2, shade + (endF < 0.4 ? 2 : endF < 0.75 ? 1 : 0))];
-    const alpha = (shade < 2 ? 1 : 0.8) * (1 - smooth((u - 0.7) / 0.3)) * smooth(st * 4) * endF;
+    // (a SMALL plume — a campfire's, under 0.1 — fades as it tears, so its top never scatters into loose chunks; only big smoke
+    // keeps drifting pieces)
+    const small = k.size < 0.1 ? 1 - smooth((u - SPLIT_AT) / 0.22) : 1;
+    const alpha = (shade < 2 ? 1 : 0.8) * (1 - smooth((u - 0.7) / 0.3)) * smooth(st * 4) * endF * small * (1 - 0.9 * movAt(b)); // (a moving source's smoke is the trail above)
     if (alpha < 0.03) continue;
     const roll = rand(s, i, 5) * Math.PI + (i % 2 ? 1 : -1) * 0.5 * a; // billows roll as they rise
     items.push({
@@ -224,7 +302,8 @@ function smokeBurst(ctx: EffectContext, p: EffectParams): Shape[] {
   const rise0 = 0.1 * h * Math.max(0, ts - outT); // it drifts up a little while it hangs there
   const shades = shadesOf(k);
   const out: Shape[] = [];
-  const cx = ctx.at.x, cy = Math.min(ctx.at.y, g - R * 0.3);
+  const o0 = sourceAt(ctx, 0); // (a poof stays where it burst, in the world — random.ts sourceAt)
+  const cx = o0.x, cy = Math.min(o0.y, g - R * 0.3);
   const ux = Math.cos(k.dir), uy = Math.sin(k.dir), upA = k.dir; // "up" for this burst (direction)
   const px = -uy, py = ux; // sideways
   const drift = k.wind * 0.15 * h * after;
@@ -276,6 +355,6 @@ function smokeBurst(ctx: EffectContext, p: EffectParams): Shape[] {
 }
 
 export const RECIPES: EffectRecipe[] = [
-  { id: "smoke", about: "smoke that keeps coming out of the anchor (the ground, a chimney, a fire) like a volcano: one wavy dark column that rises (or goes along `direction`), widens and drifts with the wind, billows out, gets lighter, then breaks into wavy wisps that thin and fade out by a certain height; builds up then tails off. Drawn by hand: 8–30 flat shapes in 3 grays (dark low, light high), wavy outlines that change every picture — never round cloud puffs. Knobs: color = young smoke, color2 = old smoke, size = how wide (x height, 0.12), wind (sideways drift, + = right, default 0.25), turbulence = how wavy, spread, intensity, speed, seed.", draw: smoke },
+  { id: "smoke", about: "smoke that keeps coming out of the anchor (the ground, a chimney, a fire) like a volcano: one wavy dark column that rises (or goes along `direction`), widens and drifts with the wind, billows out, gets lighter, then breaks into wavy wisps that thin and fade out by a certain height; builds up then tails off. Drawn by hand: 8–30 flat shapes in 3 grays (dark low, light high), wavy outlines that change every picture — never round cloud puffs. Knobs: color = young smoke, color2 = old smoke, size = how wide (x height, 0.12; under 0.05 = a candle/match: ONE thin wavy wisp), wind (sideways drift ONLY when the scene has wind, + = right, default 0 = straight up, at most ±1), turbulence = how wavy, spread, intensity, speed, seed.", draw: smoke },
   { id: "smokeBurst", about: "a quick 'poof' cloud bursting out from the anchor (not for teleports — those are a quick flash): a wavy cloud big enough to hide a figure (size = radius x height, 0.6) in under 0.2 s, in flat layers (a lighter lump on top, darker lumps low), then it rolls up and spreads like a mushroom, gets lighter and tears into ragged wavy wisps that drift up and fade. Knobs: color, color2, size, speed, intensity, turbulence, direction, wind, seed.", draw: smokeBurst },
 ];

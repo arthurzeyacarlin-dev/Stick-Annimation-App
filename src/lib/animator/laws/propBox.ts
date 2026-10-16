@@ -37,7 +37,11 @@ export function propBox(plan: DirectedPlan, e: EffectTrack): Box | null {
   const ends = thingFor(p.symbol ?? p.name) ? null : partsEnds(p.parts);
   if (ends) {
     const hpx = (ends.bottom - ends.top) * S;
-    const standing = a.y + ends.bottom * S >= G - 0.25 * S || (p.onWall !== true && p.hangs !== true && p.flies !== true);
+    // (ON A WALL / DOWN IN A PIT — exactly drawProp's rule: `onWall` or wholly below the ground line = drawn where it was put, so its
+    // box is there too. Oct 14, Arthur: the cliff's rocks were drawn down the cliff but measured up on the ground line, so the falling
+    // body "goes through them".)
+    const inWall = p.onWall === true || a.y + ends.top * S > G + 0.02 * H;
+    const standing = !inWall && (a.y + ends.bottom * S >= G - 0.25 * S || (p.hangs !== true && p.flies !== true));
     const bottom = standing ? G : a.y + ends.bottom * S;
     return { left: a.x + ends.minX * S, right: a.x + ends.maxX * S, top: bottom - hpx, bottom, cx: a.x + ((ends.minX + ends.maxX) / 2) * S };
   }

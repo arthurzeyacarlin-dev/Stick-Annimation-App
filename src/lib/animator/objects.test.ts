@@ -225,3 +225,20 @@ test("adding objects does not change the figures at all", () => {
     assert.ok(withBall.objects.every((frame) => frame.length === 1));
   }
 });
+
+test("a thrown thing that hits a body lands ON the body's skin on its hit picture (then bounces off), never short of it", () => {
+  // A ball shot flat at a figure 500 px away; the hit moment is found by claude/claudeAnimator.ts shotsHit, here given as `hit.after`.
+  const H = 300, ground = 900, size = 40;
+  const stand = (id: string, x: number, facing: "left" | "right"): SceneCharacter => ({ id, name: id, facing, height: H, style: DEFAULT_STYLE, keys: [{ t: 0, x, pose: STAND, contacts: ["lFoot", "rFoot"] }, { t: 2, x, pose: STAND, contacts: ["lFoot", "rFoot"] }] });
+  const ball: SceneObject = { id: "ball", name: "ball", look: ballLook("ball", { size }), keys: [{ t: 0, x: 700, y: ground - 0.6 * H }], segments: [{ from: 0.2, to: 2, mode: "flight", drop: { vx: 2400, vy: -200 }, hit: { after: 0.2 + 0.3 / 24, rebound: { vx: -600, vy: -300 } } }] };
+  const scene: Scene = { id: "hit", title: "hit", durationSec: 2, groundY: ground, characters: [stand("a", 700, "right"), stand("b", 700 + 480, "left")], objects: [ball] };
+  const built = buildScene(scene, 24);
+  const k = Math.round(0.2 * 24) + Math.round((0.2 + 0.3 / 24) * 24), o = built.objects[k][0], b = built.frames[k][1].skeleton;
+  // The ball's center is one radius from the body's spine line: it is touching the skin, not floating short of it.
+  const dx = b.hip.x - b.neck.x, dy = b.hip.y - b.neck.y, u = Math.min(1, Math.max(0, ((o.x - b.neck.x) * dx + (o.y - b.neck.y) * dy) / (dx * dx + dy * dy)));
+  const toSpine = Math.hypot(o.x - b.neck.x - dx * u, o.y - b.neck.y - dy * u);
+  assert.ok(Math.abs(toSpine - size / 2) <= 2.5, `ball center ${toSpine.toFixed(1)} px from the spine (radius ${size / 2})`);
+  assert.ok(o.y >= b.neck.y - 1 && o.y <= b.hip.y + 1, "at chest height");
+  // It bounces back the way it came on the next pictures.
+  assert.ok(built.objects[k + 2][0].x < o.x - 5, "bounced back off the body");
+});

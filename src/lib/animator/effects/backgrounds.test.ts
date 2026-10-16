@@ -20,7 +20,8 @@ const STAGE = { width: 1920, groundY: 900, height: 150 };
 const KINDS = ["sky", "sun", "clouds", "ground", "hills", "trees", "grass", "spikes", "pit", "water", "rain", "waterfall"];
 
 test("every background piece kind is there and draws shapes", () => {
-  assert.deepEqual(BACKGROUNDS.map((r) => r.id).sort(), [...KINDS].sort());
+  // ("place" = a whole named place built from these: tested in places.test.ts)
+  assert.deepEqual(BACKGROUNDS.map((r) => r.id).sort(), [...KINDS, "place"].sort());
   for (const kind of KINDS) assert.ok(BACKGROUND_PIECES[kind].draw({ kind, params: { seed: 2 } }, 1.5, STAGE).length > 0, kind);
 });
 
@@ -52,7 +53,9 @@ test("knobs are obeyed: colors, count, position", () => {
   assert.equal(row(1).length, 1);
   assert.equal(row(4).length, 4);
   const pit = BACKGROUND_PIECES.pit.draw({ kind: "pit", params: { x: 800, w: 200 } }, 0, STAGE)[0];
-  assert.ok(pit.kind === "rect" && pit.x === 700 && pit.w === 200 && pit.y <= STAGE.groundY && pit.y + pit.h > STAGE.groundY + 100, "the pit is cut into the ground");
+  // (a rough pit since Oct 12 — zig-zag walls, uneven bottom — still where `x`/`w` say, cut deep into the ground)
+  const xs = pit.kind === "poly" ? pit.points.filter((_, i) => i % 2 === 0) : [], ys = pit.kind === "poly" ? pit.points.filter((_, i) => i % 2 === 1) : [];
+  assert.ok(pit.kind === "poly" && Math.abs(Math.min(...xs) - 700) <= 12 && Math.abs(Math.max(...xs) - 900) <= 12 && Math.min(...ys) <= STAGE.groundY && Math.max(...ys) > STAGE.groundY + 100, "the pit is cut into the ground");
 });
 
 test("spikes stand ON the ground: their bases sit on the ground line, the tips point up", () => {
@@ -342,7 +345,7 @@ test("app layers: the still part is one picture; rain and wind get their own lay
         assert.ok(!(A.minX < B.maxX && B.minX < A.maxX && A.minY < B.maxY && B.minY < A.maxY), `${plan.id} picture ${i}: shape ${j} would end up under shape ${q}`);
       }
     });
-    for (const s of split.layers.find((l) => l.name === "rain")?.pictures.flat() ?? []) assert.ok(s.kind !== "symbol" || s.name === "Raindrop", "only rain on the rain layer");
+    for (const s of split.layers.find((l) => l.name === "rain")?.pictures.flat() ?? []) assert.ok(s.kind !== "symbol" || s.name === "Raindrop" || s.name === "Leaf", "only raindrops (and blown leaves: cheap symbols drawn every picture, Oct 12) on the rain layer");
   }
   // A scene without rain, a waterfall or wind is left exactly as before.
   assert.equal(appLayers(parkourPlan()).split, null);

@@ -160,7 +160,10 @@ test("lessons for the AI are made from the library itself", () => {
   // only the lessons a request needs, or cache them, so each animation still costs a few cents or less. The
   // explosions, grenade, blast throw and weapon fights took it to about 242 000; weapon moves already send compact
   // lessons — lessonMarks.)
-  assert.ok(JSON.stringify(pack).length < 260_000, "small enough to send to the AI");
+  // (Oct 14: the new `pull` move — tug of war, ropes, sleds — sent compact (first/last key only) took it just past 260 000.)
+  // (Oct 15: the touch-from-the-name guide — handshakes, fist bumps, hands ON things — took it to ~265 300; +1 000 chars ≈ 250 tokens.)
+  // (Oct 15, SPEC-0025: + the realMotion lesson; the hand-made move lessons are removed in the Kimodo cleanup, which shrinks it a lot)
+  assert.ok(JSON.stringify(pack).length < 268_000, "small enough to send to the AI");
 });
 
 // NEVER TOLD (Arthur, 2026-10-04): the engine must make animations nobody showed it. Random combos of

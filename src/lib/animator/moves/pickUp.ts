@@ -53,6 +53,7 @@ const LOWEST_HIPS = 0.17; // hips never lower than this above the floor (x heigh
 // Balance: the body's weight (centre of mass) is kept over the feet: ideally this far in front of the
 // middle of the feet (the ball of the foot), never further than the toes.
 const WEIGHT = 0.06, MAX_WEIGHT = 0.11;
+const SMALL_REACH = 0.06; // a thing smaller than this (radius x height) is reached as if it were this big (fingers close round it)
 const CLEAR = 0.025; // the object stays at least this far from the legs (x height)
 const LEG = (PROPORTIONS.thigh + PROPORTIONS.shin) * 0.998;
 
@@ -240,8 +241,12 @@ function makeGrabPlan(start: PoseAngles, feet: Feet, params: PickUpParams, setti
   const lean = STYLE_LEAN[settings.style];
   const toe = Math.max(feet.l, feet.r);
   const want = Math.max(radius + 0.01, (params.reach ?? PICK_UP_DEFAULTS.reach * H) / H);
-  const bendFor = (reach: number) => bendTo(start, feet, { x: toe + reach, y: radius }, radius, hand, lean);
-  const clear = (b: Bend | null) => b !== null && legClearance(b.pose, b.x, b.height, b.center, radius) >= CLEAR;
+  // (A SMALL THING CAN BE PICKED UP, Oct 14: a pebble's centre is nearly on the floor, lower than the deepest bend's hands reach — "the
+  // object can't be reached" for a 20 px stone, though a 30 px one worked. The bend is worked out as for a thing at least SMALL_REACH
+  // big — the fingers close round the small thing from just above it — so anything small enough to hold is reachable.)
+  const grabR = Math.max(radius, SMALL_REACH), grabY = grabR;
+  const bendFor = (reach: number) => bendTo(start, feet, { x: toe + reach, y: grabY }, grabR, hand, lean);
+  const clear = (b: Bend | null) => b !== null && legClearance(b.pose, b.x, b.height, b.center, grabR) >= CLEAR;
   let reach = want, bend = bendFor(want);
   if (bend && !clear(bend)) {
     // Too close: it would touch the legs. Move it out just far enough.

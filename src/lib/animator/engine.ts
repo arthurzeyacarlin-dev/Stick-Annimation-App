@@ -1,9 +1,13 @@
 import { monotoneTangents, sampleChannel, unwrapAngles, type Ease } from "./easing.ts";
+import { applyRealMotion } from "./moves/realMotion.ts";
 import { solveTwoBone } from "./ik.ts";
 import { buildObjectFrames } from "./objects.ts";
 import { forwardKinematics, translateSkeleton } from "./pose.ts";
 import { boneLengths, clampPose, headRadius, JOINTS, POSE_KEYS, type CharacterStyle, type Facing, type PoseAngles, type PoseKey, type Point, type Skeleton } from "./rig.ts";
 import { buildCameraFrames, hasCamera, type CameraFrames } from "./camera.ts";
+import { markDrawOrder, markObjectsBehind } from "./depth.ts";
+import { solveContacts, type ContactReport, type SceneContact } from "./contacts.ts";
+export type { ContactJoint, ContactTarget, SceneContact } from "./contacts.ts";
 
 // Steps other parts of the engine add after a scene is built (moves/transform.ts adds the morph).
 type BuiltHook = (scene: Scene, built: SceneFrames) => SceneFrames;
@@ -40,6 +44,10 @@ export type CharacterKey = {
   spin?: number;
   spinEase?: Ease;
   roll?: boolean;
+  // DEPTH (depth.ts): from this key on, how near the camera the figure is (+ in front, - behind; 0 / missing = as listed);
+  // `wrap`: its far arm goes BEHIND everyone (an arm round the other's back in a hug).
+  z?: number;
+  wrap?: boolean;
 };
 export type RollPoint = "lHand" | "rHand" | "lFoot" | "rFoot";
 const ROLL_POINTS: RollPoint[] = ["lHand", "rHand", "lFoot", "rFoot"];
@@ -97,7 +105,8 @@ export function rollShiftAt(track: RollTrack, t: number) {
   return track.shifts[i] + (track.shifts[i + 1] - track.shifts[i]) * Math.min(1, Math.max(0, u));
 }
 // A turning body rests on whatever is lowest — its hands count too (a cartwheel stands on its hands).
-export const lowestTurningY = (skeleton: Skeleton, headRadius: number) => Math.max(lowestBodyY(skeleton, headRadius), skeleton.lHand.y, skeleton.rHand.y);
+// (a turning body rests on whatever is lowest — its elbows too: a body propped on its forearms never sinks an elbow into the floor)
+export const lowestTurningY = (skeleton: Skeleton, headRadius: number) => Math.max(lowestBodyY(skeleton, headRadius), skeleton.lHand.y, skeleton.rHand.y, skeleton.lElbow.y, skeleton.rElbow.y);
 // The keys a figure has at `fps` (a key with minFps above it is left out), in time order.
 export const keysAt = (keys: CharacterKey[], fps: number) => keys.filter((key) => (key.minFps ?? 0) <= fps).sort((a, b) => a.t - b.t);
 
@@ -128,16 +137,17 @@ export type ObjectSegment =
   // drop = let go of without a throw (to catch a fall): it leaves with this velocity (the body's, stage
   // px/s, +y down), falls under gravity, bounces and rolls (a box slides) to a stop on the floor, and lies
   // there until `to` (objects.ts).
-  | { from: number; to: number; mode: "flight"; apex?: number; spin?: number; bounce?: boolean; away?: { vx: number; vy: number }; drop?: { vx: number; vy: number } };
+  | { from: number; to: number; mode: "flight"; apex?: number; spin?: number; bounce?: boolean; away?: { vx: number; vy: number }; drop?: { vx: number; vy: number }; leaves?: boolean; hit?: { after: number; rebound: { vx: number; vy: number } } };
 export type SceneObject = { id: string; name: string; look: ObjectLook; keys: ObjectKey[]; segments?: ObjectSegment[] };
 
 // marks: the plan's named moments ("<character>.<move><n>.<moment>" = seconds, e.g. "a.punch1.hit"); each
 // one gets a picture of its own at any frame rate (momentTimes).
-export type Scene = { id: string; title: string; durationSec: number; groundY: number; characters: SceneCharacter[]; objects?: SceneObject[]; marks?: Record<string, number> };
+// contacts (contacts.ts): the touches the moves declare — solved exactly on the final pictures by the contact pass.
+export type Scene = { id: string; title: string; durationSec: number; groundY: number; characters: SceneCharacter[]; objects?: SceneObject[]; marks?: Record<string, number>; contacts?: SceneContact[] };
 
 // offPage (THE CAMERA, camera.ts): running off the page or in from its edge on purpose, in a scene with film
 // cuts: drawn, but the page fit ignores it (like a ball thrown away). Never set otherwise.
-export type FrameCharacter = { id: string; skeleton: Skeleton; style: CharacterStyle; headRadius: number; facing: Facing; offPage?: boolean };
+export type FrameCharacter = { id: string; skeleton: Skeleton; style: CharacterStyle; headRadius: number; facing: Facing; offPage?: boolean; z?: number; wrap?: boolean; draw?: number };
 
 export type CharacterReport = {
   id: string;
@@ -153,9 +163,10 @@ export type CharacterReport = {
 export type EngineReport = { frameCount: number; fps: number; characters: CharacterReport[]; ok: boolean };
 // x, y = center (stage px); rotation in degrees; scale is applied along the stage axes (a squash is always up/down).
 // leaving = flying off the page for good (a ball thrown away): drawn, but the page fit ignores it.
-export type FrameObject = { id: string; x: number; y: number; rotation: number; scaleX: number; scaleY: number; look: ObjectLook; leaving?: boolean };
+export type FrameObject = { id: string; x: number; y: number; rotation: number; scaleX: number; scaleY: number; look: ObjectLook; leaving?: boolean; behind?: boolean };
 // camera: only for a scene with film cuts or a screen shake (camera.ts): where the cuts are, how far each picture shakes.
-export type SceneFrames = { fps: number; frames: FrameCharacter[][]; report: EngineReport; objects: FrameObject[][]; camera?: CameraFrames };
+// contacts: the contact pass's report per declared contact (laws/measure.ts reads it).
+export type SceneFrames = { fps: number; frames: FrameCharacter[][]; report: EngineReport; objects: FrameObject[][]; camera?: CameraFrames; contacts?: ContactReport[] };
 
 const GROUND_TOLERANCE_PX = 0.5;
 
@@ -352,6 +363,8 @@ export function buildScene(scene: Scene, fps: number): SceneFrames {
     }
     const xChannel = makeChannel(times, keys.map((key) => key.x), keys.map((key) => key.xEase));
     const liftChannel = makeChannel(times, keys.map((key) => key.lift ?? 0), keys.map((key) => key.liftEase));
+    // (DOWN IN A PIT, moves/tumble.ts: a figure keyed below the ground line — fallen into a pit — may be down there; never lower than its lowest key.)
+    const liftFloor = Math.min(0, ...keys.map((key) => key.lift ?? 0));
     // THE WHOLE BODY CAN TURN OVER: only a figure with spin or roll keys.
     const turning = keys.some((key) => key.spin !== undefined || key.roll);
     let lastSpin = 0;
@@ -364,6 +377,7 @@ export function buildScene(scene: Scene, fps: number): SceneFrames {
     const spans = fastSpans(scene, character.id);
     let previous: Skeleton | null = null;
     let previousFacing: Facing | null = null;
+    const deep = keys.some((key) => key.z !== undefined || key.wrap !== undefined);
 
     for (let index = 0; index < frameCount; index += 1) {
       const t = pictureTimes[index];
@@ -379,7 +393,7 @@ export function buildScene(scene: Scene, fps: number): SceneFrames {
       const { pose, clamped } = clampPose(sampled);
       report.clampedAngles += clamped;
       const x = sampleChannel(xChannel.times, xChannel.values, xChannel.tangents, xChannel.eases, st);
-      const lift = Math.max(0, sampleChannel(liftChannel.times, liftChannel.values, liftChannel.tangents, liftChannel.eases, st));
+      const lift = Math.max(liftFloor, sampleChannel(liftChannel.times, liftChannel.values, liftChannel.tangents, liftChannel.eases, st));
 
       // A turn changes how the body is drawn, so planted feet are re-planted after it.
       const facing = facingAt(keys, character.facing, t);
@@ -394,6 +408,7 @@ export function buildScene(scene: Scene, fps: number): SceneFrames {
       previousFacing = facing;
 
       // Stand the body on the ground: its lowest point sits `lift` above groundY.
+      const floorY = scene.groundY - Math.min(0, lift); // (the floor it is on: the ground line, or a pit's floor)
       const flat = forwardKinematics(pose, facing, { x, y: 0 }, character.height, character.style.headSize, character.style.neck === true);
       const atOrigin = spinChannel ? turnSkeleton(flat, sampleChannel(spinChannel.times, spinChannel.values, spinChannel.tangents, spinChannel.eases, st)) : flat;
       let skeleton = translateSkeleton(atOrigin, 0, scene.groundY - lift - (spinChannel ? lowestTurningY(atOrigin, radius) : lowestBodyY(atOrigin, radius)));
@@ -410,8 +425,8 @@ export function buildScene(scene: Scene, fps: number): SceneFrames {
           // NO FOOT SLIDING AT TOUCH-DOWN: a foot that already touched the floor in the picture before (a step landing a
           // moment before its plant key) is planted right where it touched — it never slides the last few px into place.
           const before = previous && facing === previousFacingAtStart ? previous[contact] : undefined;
-          const touched = before !== undefined && scene.groundY - before.y <= 2 && Math.abs(before.x - skeleton[contact].x) <= TOUCH_DOWN_SNAP * character.height;
-          locks[contact] = { x: touched ? before.x : skeleton[contact].x, y: Math.min(skeleton[contact].y, scene.groundY) };
+          const touched = before !== undefined && floorY - before.y <= 2 && Math.abs(before.x - skeleton[contact].x) <= TOUCH_DOWN_SNAP * character.height;
+          locks[contact] = { x: touched ? before.x : skeleton[contact].x, y: Math.min(skeleton[contact].y, floorY) };
           return touched;
         }
         return true;
@@ -434,15 +449,15 @@ export function buildScene(scene: Scene, fps: number): SceneFrames {
       }
       // A swinging foot never goes through the floor: it slides along the ground instead.
       for (const contact of ["lFoot", "rFoot"] as const) {
-        if (planted.includes(contact) || skeleton[contact].y <= scene.groundY) continue;
+        if (planted.includes(contact) || skeleton[contact].y <= floorY) continue;
         const side = contact === "lFoot" ? "l" : "r";
-        const solved = solveTwoBone(skeleton.hip, { x: skeleton[contact].x, y: scene.groundY }, bones.thigh, bones.shin, kneeDirection(facing, side));
+        const solved = solveTwoBone(skeleton.hip, { x: skeleton[contact].x, y: floorY }, bones.thigh, bones.shin, kneeDirection(facing, side));
         skeleton = { ...skeleton, [`${side}Knee`]: solved.mid, [contact]: solved.end } as Skeleton;
       }
 
       report.maxBoneErrorPx = Math.max(report.maxBoneErrorPx, measureBoneError(skeleton, character.height, radius, character.style.neck === true));
       const lowest = Math.max(...JOINTS.filter((name) => name !== "head").map((name) => skeleton[name].y));
-      if (lowest > scene.groundY + GROUND_TOLERANCE_PX) report.belowGroundFrames += 1;
+      if (lowest > floorY + GROUND_TOLERANCE_PX) report.belowGroundFrames += 1;
       if (previous) {
         const prev = previous;
         const step = Math.max(...JOINTS.map((name) => dist(skeleton[name], prev[name])));
@@ -450,7 +465,10 @@ export function buildScene(scene: Scene, fps: number): SceneFrames {
         else report.maxJointStepPx = Math.max(report.maxJointStepPx, step);
       }
       previous = skeleton;
-      frames[index].push({ id: character.id, skeleton, style: character.style, headRadius: radius, facing });
+      // (DEPTH: the z / wrap of the last key at or before this moment.)
+      let depthKey: CharacterKey | undefined;
+      if (deep) for (const key of keys) { if (key.t <= t + 1e-9) depthKey = key; else break; }
+      frames[index].push({ id: character.id, skeleton, style: character.style, headRadius: radius, facing, ...(depthKey?.z ? { z: depthKey.z } : {}), ...(depthKey?.wrap ? { wrap: true } : {}) });
     }
     reports.push(report);
   }
@@ -459,7 +477,29 @@ export function buildScene(scene: Scene, fps: number): SceneFrames {
   // Objects come after the figures (a held ball follows the finished hands). Characters are unchanged.
   // TRANSFORM (moves/transform.ts): a figure morphing into a symbol is squashed, then gone while it is the symbol.
   // (Added as a hook by transform.ts, so the engine imports nothing that imports it back.)
-  let built: SceneFrames = { fps, frames, report: { frameCount, fps, characters: reports, ok }, objects: buildObjectFrames(scene, fps, frames, pictureTimes) };
+  // DEPTH (depth.ts): each picture's figures in depth order — whoever is behind is drawn first.
+  // (The lists keep the plan's order — the laws and moves read figures by position; only `draw` says the drawing order.)
+  // THE FINAL CONTACT PASS (contacts.ts): declared touches solved exactly on the finished figures, before objects ride the hands.
+  applyRealMotion(scene as never, frames as never, pictureTimes, fps); // (REAL MOTION: Kimodo's own joints, passed through — moves/realMotion.ts)
+  // (THE GROUND IS CHECKED ON WHAT IS DRAWN, Oct 16: for a real-motion figure the check above judged the hidden angle copy — a knocked-
+  // out body "went under the ground" while the drawn one lay on the floor. Its count is redone on the final figures.)
+  for (const character of scene.characters) {
+    if (!(character.keys as { real?: unknown }[]).some((k) => k.real)) continue;
+    const report = reports.find((r) => r.id === character.id);
+    if (!report) continue;
+    report.belowGroundFrames = frames.filter((f) => { const fig = f.find((x) => x.id === character.id); return fig && Math.max(...JOINTS.filter((n) => n !== "head").map((n) => fig.skeleton[n].y)) > scene.groundY + GROUND_TOLERANCE_PX; }).length;
+  }
+  const contactReports = solveContacts(scene, frames, pictureTimes, fps);
+  markDrawOrder(frames, fps);
+  // (ONE 3D STAGE: figures on the shared stage are drawn by their real depth — farthest first — moves/realMotion.ts)
+  for (const f of frames) {
+    const deep = f.filter((c) => typeof (c as { stageDepth?: number }).stageDepth === "number");
+    if (deep.length < 2) continue;
+    [...f].sort((a, b) => ((b as { stageDepth?: number }).stageDepth ?? 0) - ((a as { stageDepth?: number }).stageDepth ?? 0)).forEach((c, n) => { c.draw = n; });
+  }
+  const objectFrames = buildObjectFrames(scene, fps, frames, pictureTimes);
+  markObjectsBehind(frames, objectFrames); // (a thrown thing passes behind a figure, never through it)
+  let built: SceneFrames = { fps, frames, report: { frameCount, fps, characters: reports, ok }, objects: objectFrames, ...(contactReports.length ? { contacts: contactReports } : {}) };
   for (const hook of builtHooks) built = hook(scene, built);
   return built;
 }

@@ -32,7 +32,9 @@ test("celebrate: one arm up high, the other lower and bent; anticipation first, 
       const h = handHeight(frames[peak]);
       const high = Math.max(h.l, h.r), low = Math.min(h.l, h.r);
       assert.ok(high > 0.25 * TEST_HEIGHT, `${label}@${fps}: the raised hand is high (${high.toFixed(0)})`);
-      assert.ok(high - low > 0.15 * TEST_HEIGHT, `${label}@${fps}: NOT both arms straight up (${high.toFixed(0)} vs ${low.toFixed(0)})`);
+      // (HOORAY, Oct 15 — Arthur asked for it as one figure's own version: both arms up, but in an open V, never two parallel arms)
+      if (kind === "hooray") assert.ok(low > 0.1 * TEST_HEIGHT && Math.abs(frames[peak].lHand.x - frames[peak].rHand.x) > 0.06 * TEST_HEIGHT, `${label}@${fps}: hooray = both arms up in a V`);
+      else assert.ok(high - low > 0.15 * TEST_HEIGHT, `${label}@${fps}: NOT both arms straight up (${high.toFixed(0)} vs ${low.toFixed(0)})`);
       const upSide = h.l > h.r ? "l" : "r";
       // (The near arm goes up by default; `hand` picks it. The figure's "l" side is its near side facing right.)
       void upSide;

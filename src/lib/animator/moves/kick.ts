@@ -20,7 +20,7 @@ import {
 
 // `look`: where the one it kicks is (gaze.ts LookTarget); the planner sets it when there is someone.
 // `arriving`: straight out of a walk, jog or run (the planner sets it: STRIKE OUT OF THE STRIDE).
-export type KickParams = { height?: "low" | "mid" | "high"; look?: LookTarget; arriving?: boolean };
+export type KickParams = { height?: "low" | "mid" | "high"; look?: LookTarget; arriving?: boolean; landBack?: boolean };
 export const KICK_DEFAULTS: Required<Omit<KickParams, "look" | "arriving">> = { height: "mid" };
 
 // Per height: where the foot is at the hit (above the ground, x height) and how far the body leans
@@ -48,7 +48,9 @@ export function kick(start: Stance, params: KickParams, settings: MoveSettings):
   const robot = isRobot(settings);
   const feet0 = feetOf(start.pose);
   // The kicking (l) foot lands in front, in the fighting stance; the standing (r) foot never moves.
-  const stance = fightFeet(feet0);
+  // (LAND IN PLACE after a kick at a THING — a bag, pads, a board (`landBack`, set by claudeAnimator strikesReachThings): the
+  // foot comes back down where it left, never a step forward into the thing — Arthur, Oct 14)
+  const stance = params.landBack ? feet0 : fightFeet(feet0);
   const standing = (pose: PoseAngles, at: number, drop: number) => plantedLegs(pose, feet0, at, drop, "r");
   const overFoot = feet0.r + 0.03; // hips just in front of the standing foot while on one leg
 

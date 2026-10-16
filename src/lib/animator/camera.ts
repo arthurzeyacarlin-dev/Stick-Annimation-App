@@ -34,7 +34,9 @@ export type OffPageRule = { id: string; kind: "enter" | "leave"; side: "left" | 
 export type CameraShot = { scene: Scene; start: number; offPage?: OffPageRule[]; shake?: ShakeMark[] };
 // A scene that uses the camera. `characters` is the cast (everyone who appears in any shot, first look kept);
 // `shake` (seconds into the whole scene) is for a scene without shots.
-export type CameraScene = Scene & { shots?: CameraShot[]; shake?: ShakeMark[] };
+// follow: THE CAMERA FOLLOWS figure `id` (or "all": the group's middle) — each picture is slid left by how far the camera has
+// moved, so the followed figures stay on the page while the world (wider: backgroundWidth) passes by.
+export type CameraScene = Scene & { shots?: CameraShot[]; shake?: ShakeMark[]; follow?: { id: string; pageWidth: number }; backgroundWidth?: number };
 // What the camera did, per picture of the built scene (SceneFrames.camera).
 export type CameraFrames = {
   shots: { from: number; to: number }[]; // each shot's pictures: from (included) .. to (not included)
@@ -50,14 +52,33 @@ const PAGE_HEIGHT = 1080; // stage px the page shows from top to bottom
 
 export const hasCamera = (scene: Scene) => {
   const s = scene as CameraScene;
-  return Boolean(s.shots?.length || s.shake?.length);
+  return Boolean(s.shots?.length || s.shake?.length || s.follow);
 };
 const withoutCamera = (scene: Scene): Scene => {
   const plain = { ...scene } as CameraScene;
   delete plain.shots;
   delete plain.shake;
+  delete plain.follow;
   return plain;
 };
+// THE FOLLOW: the camera's x for every picture — it stays put while the followed figure is in the left half of the page, then
+// keeps it about in the middle, easing (never a jerk), and never shows past the world's right end. Returned as how far each picture
+// slides left.
+function followOffsets(built: SceneFrames, follow: { id: string; pageWidth: number }, worldWidth: number): number[] {
+  const W = follow.pageWidth, ids = follow.id === "all" ? null : follow.id;
+  let cam = 0;
+  const lerp = 1 - Math.exp(-(1 / built.fps) / 0.45);
+  return built.frames.map((list) => {
+    const who = ids ? list.filter((c) => c.id === ids) : list;
+    const xs = who.map((c) => c.skeleton.hip.x).filter(Number.isFinite);
+    if (xs.length) {
+      const mid = ids ? xs[0] : (Math.min(...xs) + Math.max(...xs)) / 2;
+      const target = Math.max(0, Math.min(worldWidth - W, mid - 0.5 * W));
+      cam += (target - cam) * lerp;
+    }
+    return cam;
+  });
+}
 const frameCount = (seconds: number, fps: number) => Math.max(1, Math.round(seconds * fps) + 1);
 
 // How far one shake moves the picture `u` seconds after its impact picture, on the `k`-th picture since then.
@@ -129,6 +150,7 @@ export function buildCameraFrames(scene: CameraScene, fps: number, build: (scene
     const built = build(plain, fps);
     const shake = built.frames.map(() => ({ x: 0, y: 0 }));
     addShakes(shake, scene.shake ?? [], timesOf(plain, fps, built.frames.length));
+    if (scene.follow) followOffsets(built, scene.follow, scene.backgroundWidth ?? scene.follow.pageWidth).forEach((c, i) => { shake[i].x -= c; });
     return finish(built, [{ from: 0, to: built.frames.length }], shake);
   }
   const shots = scene.shots, last = shots.length - 1;

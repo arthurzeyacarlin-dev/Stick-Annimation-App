@@ -20,6 +20,7 @@ import { HANDCUFFS_ASPECT, HANDCUFFS_SIZE, handcuffsShapes } from "./effects/han
 import { CAP_ASPECT, CAP_SIZE, CHIP, GRENADE_ASPECT, GRENADE_SIZE, grenadeShapes, militaryCapShapes, PEBBLE_ASPECT, PEBBLE_SIZE, pebbleShapes, PLANK, woodChipShapes, woodPlankShapes } from "./effects/explosion.ts";
 import { WEAPON_SYMBOL_ACROSS, weaponAspect, weaponShapes } from "./effects/weapons.ts";
 import type { Shape } from "./effects/types.ts";
+import { everydayThing, type EverydayPart } from "./effects/everydayThings.ts";
 
 export type SymbolPartShape = "circle" | "rect" | "triangle" | "polygon" | "line" | "star";
 
@@ -488,6 +489,20 @@ const recipeFor = (request: SymbolRequest) => {
   return undefined;
 };
 
+// The built-in recipe a name means ("crate" → box, "oak tree" → tree), or undefined.
+export const symbolRecipeFor = (name: string) => recipeFor({ name });
+
+// The placed symbol's name for "car" / "Car" / a kind ("moon") — or a built-in recipe named by the name's HEAD NOUN, its last word
+// ("oak tree", "big rock", "crate", "spike trap"; EVERY NAMED THING HAS A PICTURE, Oct 15: "stone bench" is a bench, never a rock).
+export function placedSymbolName(into: unknown): string | undefined {
+  const want = String(into ?? "").trim().toLowerCase();
+  if (!want) return undefined;
+  for (const [name, { kind }] of Object.entries(PLACED_SYMBOLS)) if (name.toLowerCase() === want || kind === want) return name;
+  const head = want.split(/[^a-z]+/).filter(Boolean).pop();
+  if (head && symbolRecipeFor(head)) return String(into).trim().replace(/^./, (c) => c.toUpperCase());
+  return undefined;
+}
+
 export function makeSymbol(request: SymbolRequest): MadeSymbol {
   const name = request.name.trim();
   if (!name) throw new Error("symbol_name_required");
@@ -498,10 +513,28 @@ export function makeSymbol(request: SymbolRequest): MadeSymbol {
     return fromParts(name, request.parts, S, palette, request.aspect);
   }
   const id = recipeFor(request);
+  // (EVERY NAMED THING HAS A PICTURE, Oct 15: a name the everyday picture book knows — "Ball", "Broom", "Ladder" — is drawn as that
+  // thing, never as a random invented gizmo; only a name nobody knows is invented)
+  const everyday = id ? null : everydayThing(request.kind ?? name);
+  if (everyday) return fromParts(name, everyday.parts.map(everydayToSymbolPart), S, PALETTE);
   if (!id) return inventSymbol(name, seed, { size: S, color: request.color, color2: request.color2 });
   const recipe = SYMBOL_RECIPES[id];
   const width = S * recipe.aspect, height = S;
   return { name, shapes: recipe.draw({ size: S, seed, color: request.color, color2: request.color2 }, width, height), width, height };
+}
+
+// An everyday part (moves/transform.ts partsShapes: middle-centered, w × h) in the generic builder's terms.
+function everydayToSymbolPart(p: EverydayPart): SymbolPart {
+  const x = p.x + 0.5, y = p.y + 0.5;
+  if (p.shape === "line") return { shape: "line", x, y, x2: x + p.w, y2: y + p.h, color: p.color, width: 0.03 };
+  if (p.shape === "circle") return { shape: "circle", x, y, size: p.w, color: p.color };
+  if (p.shape === "triangle") return { shape: "triangle", x, y, size: p.w, h: p.h, color: p.color };
+  if (p.shape === "ellipse") {
+    const points: number[] = [];
+    for (let i = 0; i < 20; i += 1) points.push(x + (p.w / 2) * Math.cos((i / 20) * 2 * Math.PI), y + (p.h / 2) * Math.sin((i / 20) * 2 * Math.PI));
+    return { shape: "polygon", x, y, points, color: p.color };
+  }
+  return { shape: "rect", x, y, size: p.w, h: p.h, color: p.color };
 }
 
 // ---- Inventing an original ---------------------------------------------------------------------

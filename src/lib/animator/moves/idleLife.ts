@@ -4,6 +4,7 @@ import type { CharacterKey } from "../engine.ts";
 import { POSE_KEYS, STAND, type Facing, type PoseAngles } from "../rig.ts";
 import { onTheGround } from "./turn.ts";
 import { TIMING } from "./timing.ts";
+import { individuality, NEUTRAL } from "./individual.ts";
 
 // NOBODY FREEZES (Arthur, Block 1, 2026-10-09: "a lot of action, a lot of movement, not a lot of standing, not a lot of
 // breaks"). A figure that has nothing to do for more than IDLE_MIN while the scene goes on — waiting for its moment in a
@@ -34,6 +35,9 @@ export type LifeOptions = {
   seed?: number; // a little variety between figures
   skip?: (from: number, to: number) => boolean; // spans that must stay as they are (holding a power's aim)
   armsFree?: boolean; // nothing in the hands, not cuffed, no weapon: the arms may swing a little
+  // HOW MUCH IT BREATHES (Arthur, Oct 12: "can you make him breathe less?"): 1 = normal; 0.3 = barely, calm; 1.6 = heavy, out of
+  // breath. Scales the breath, the weight shift, the soft knee and a fighter's bounce — the rhythm stays.
+  breath?: number;
 };
 export type Span = { i: number; j: number; from: number; to: number };
 
@@ -89,16 +93,17 @@ export function relaxedStand(p: PoseAngles): PoseAngles {
 function beatsFor(base: CharacterKey, from: number, to: number, o: LifeOptions): { t: number; pose: PoseAngles; x: number }[] {
   const H = o.height, out: { t: number; pose: PoseAngles; x: number }[] = [];
   const p = o.kind === "calm" && o.armsFree ? relaxedStand(base.pose) : base.pose;
-  const inhale = (q: PoseAngles, deep = 1) => breath(q, deep, o.armsFree === true);
+  const B = Math.max(0, Math.min(2, o.breath ?? 1));
+  const inhale = (q: PoseAngles, deep = 1) => breath(q, deep * B, o.armsFree === true);
   const len = to - from, room = to - Math.min(0.25, len / 3); // the last beat leaves time to settle back into the span's last pose
   const jitter = (n: number) => 0.06 * Math.sin(1.7 * n + 2.3 * (o.seed ?? 0));
   if (o.kind === "fighter") {
     // BOUNCING GUARD: a dip and rise every half second, rocking a little forward and back each second.
-    const half = 0.25;
-    for (let n = 0, t = from + Math.min(half, len / 2); t < room; n += 1, t += half) {
+    const mine = individuality(o.seed ?? 0), half = 0.25 * mine.tempo; // (each fighter bounces to its own rhythm)
+    for (let n = 0, t = from + Math.min(half, len / 2) * (mine === NEUTRAL ? 1 : 0.5 + 0.5 * mine.phase); t < room; n += 1, t += half) {
       const dip = n % 2 === 0, rock = (Math.floor(n / 2) % 2 === 0 ? 1 : -1) * 0.03 * H;
       out.push(dip
-        ? { t, pose: withPose(p, { lKnee: p.lKnee + 20, rKnee: p.rKnee + 20, lHip: p.lHip + 10, rHip: p.rHip + 10, lean: p.lean + 3 }), x: base.x + rock }
+        ? { t, pose: withPose(p, { lKnee: p.lKnee + 20 * B, rKnee: p.rKnee + 20 * B, lHip: p.lHip + 10 * B, rHip: p.rHip + 10 * B, lean: p.lean + 3 * B }), x: base.x + rock * B }
         : { t, pose: inhale(p, 0.6), x: base.x + rock * 0.4 });
     }
     return out;
@@ -107,7 +112,7 @@ function beatsFor(base: CharacterKey, from: number, to: number, o: LifeOptions):
   // shift onto the other foot — about one beat every 0.7 s, a little different for every figure.
   const side = (o.seed ?? 0) % 2 === 0 ? 1 : -1;
   // (Free hands swing a little with the breath; hands that hold something, are cuffed or hold a weapon keep their pose.)
-  const arms = (q: PoseAngles, k: number) => (o.armsFree ? withPose(q, { lElbow: Math.max(0, q.lElbow + 8 * k), rElbow: Math.max(0, q.rElbow + 6 * k), lShoulder: q.lShoulder + 5 * k, rShoulder: q.rShoulder - 4 * k }) : q);
+  const arms = (q: PoseAngles, k0: number) => { const k = k0 * B; return o.armsFree ? withPose(q, { lElbow: Math.max(0, q.lElbow + 8 * k), rElbow: Math.max(0, q.rElbow + 6 * k), lShoulder: q.lShoulder + 5 * k, rShoulder: q.rShoulder - 4 * k }) : q; };
   // NO DRUNK IDLE (Phase C3, Arthur on h-3: "looking down, straightens his leg, swings left-right like he's drunk"): the old cycle
   // swung the hips 0.09 H side to side (±0.045 H), nodded the head 14° (+8 down / −6 up) and bent both knees 8° every 0.6 s. Now
   // (moves/timing.ts TIMING.idle): a weight shift of at most ±0.015 H, the head within ±2° (level), the knees soft by 3°, one beat
@@ -115,15 +120,18 @@ function beatsFor(base: CharacterKey, from: number, to: number, o: LifeOptions):
   const I = TIMING.idle;
   // (the weight shift is a real one: the hips go over one foot by ≤ 0.02 H and the OTHER knee goes soft — one knee at a time, never
   // both knees bobbing; the head stays level)
-  const soft = (q: PoseAngles, leg: "l" | "r") => withPose(q, leg === "l" ? { lKnee: q.lKnee + I.kneeDeg } : { rKnee: q.rKnee + I.kneeDeg });
+  const soft = (q: PoseAngles, leg: "l" | "r") => withPose(q, leg === "l" ? { lKnee: q.lKnee + I.kneeDeg * B } : { rKnee: q.rKnee + I.kneeDeg * B });
   // (two beats: over the left foot, then over the right — every beat differs from the last and from the stand, so no still span is left)
   const cycle = [
     (q: PoseAngles) => ({ pose: arms(soft(withPose(inhale(q, 1.2), { head: q.head - I.headDeg }), side > 0 ? "l" : "r"), 1), dx: side * I.shift }),
     (q: PoseAngles) => ({ pose: arms(soft(withPose(inhale(q, 0.4), { head: q.head + I.headDeg / 2 }), side > 0 ? "r" : "l"), -1), dx: -side * I.shift }),
   ];
-  for (let n = 0, t = from + Math.min(0.5, len / 2); t < room; n += 1, t += I.beat + jitter(n)) {
+  // (NOBODY BREATHES IN SYNC, individual.ts: each figure's first breath comes at its own moment and its breath has its own
+  // rhythm, so two figures waiting side by side never breathe as copies.)
+  const own = individuality(o.seed ?? 0), first = Math.min(0.5, len / 2) * (own === NEUTRAL ? 1 : 0.45 + 0.55 * own.phase);
+  for (let n = 0, t = from + first; t < room; n += 1, t += I.beat * own.tempo + jitter(n)) {
     const beat = cycle[n % cycle.length](p);
-    out.push({ t, pose: beat.pose, x: base.x + beat.dx * H });
+    out.push({ t, pose: beat.pose, x: base.x + beat.dx * B * H });
   }
   return out;
 }

@@ -1,9 +1,13 @@
+import { depthValue } from "../depth.ts";
+import { declareContacts } from "./declareContacts.ts";
+import { palmsOnSmallThings } from "../contacts.ts";
 import type { Anchor, BackgroundPiece, BackgroundSpec, EffectTrack } from "../effects/types.ts";
 import { POWER_MOVES, powerEffects, powerParams } from "./powers.ts";
 import { buildScene, type CharacterKey, type ObjectHand, type ObjectKey, type ObjectLook, type ObjectSegment, type Scene, type SceneObject } from "../engine.ts";
 import { bouncePassTime, carryWeight, defaultApex, heldCenter, objectHalfExtents } from "../objects.ts";
 import type { PoseAngles } from "../rig.ts";
 import { flightTime } from "../objectMoves.ts";
+import { FLIGHT_TIME_FACTOR, flightStyleOf } from "../objectFlight.ts";
 import { animationBounds, effectFitBounds } from "../stageFit.ts";
 import { DEFAULT_STYLE, jointRange, STAND, type CharacterStyle, type Facing } from "../rig.ts";
 import { forwardKinematics } from "../pose.ts";
@@ -16,23 +20,30 @@ import { eyesOf, lookTarget } from "./gaze.ts";
 import { ARM_TURN_MAX, armTurn, highFiveMaxDistance, turnsLess } from "./highFive.ts";
 import type { MoveSpeed, MoveStyle } from "./styles.ts";
 import { grabJoint, grabPoint, pickUpEnd, type PickUpParams } from "./pickUp.ts";
+import { placeSpot, SLIDE_ON } from "./pushPlan.ts";
 import { AWAY_ANGLE, AWAY_SPEED, ballCenter, catchPoint, HANDOFF_SHOWN, HOLD_BALL, isHandOff, releaseHeight, type ThrowParams } from "./throwCatch.ts";
+import { SEATED } from "./sit.ts";
+import { HUG_CLOSE, HUG_REACH_FROM_REST, openArmsOnTheWay } from "./hug.ts";
 import { catchBreath, feetMustMove, onTheGround, restPoseFor, shuffle, stanceDifference, stand, stepInto, turn, TURN_ABOUT } from "./turn.ts";
-import { ARMS_AHEAD, HURT_STYLE_AT, asGetHit, BLOCKED, FIGHT_GAP, fightReadyPose, relaxedPose, RELAX_AFTER, HEAD_SPACE, IN_RANGE, slumpReach, guardUp, hurtSettings, isFighter, fightSteps, kickReach, PERSONAL_SPACE, strikePowerOf, takeDamage, walkIntoGuard, readyFeet, canSettle, standReadyPose } from "./hit.ts";
+import { ARMS_AHEAD, HURT_STYLE_AT, asGetHit, BLOCKED, FIGHT_GAP, fightReadyPose, relaxedPose, RELAX_AFTER, HEAD_SPACE, IN_RANGE, slumpReach, guardUp, hurtSettings, isFighter, fightSteps, stepUp, STEP_UP_MAX, kickReach, PERSONAL_SPACE, strikePowerOf, takeDamage, walkIntoGuard, readyFeet, canSettle, standReadyPose } from "./hit.ts";
 import { blendPose, choosePunch, feetOf, fightRest, REALLY_TIRED } from "./punch.ts";
 import { GROUND_ATTACKS, GROUND_MOVES, groundApproach, groundStandAt, kipUpClear, type Other } from "./grapple.ts";
 import { groundPunchStandAt } from "./groundPunch.ts";
 import { dashSpan } from "./dash.ts";
 import { cuffKeys, cuffsPlan, escortParams, type CuffedOption } from "./cuffs.ts";
-import { blastHurt, blastParams, pushOn } from "./blownAway.ts";
+import { blastHurt, blastParams, hurtGetUp, pushOn } from "./blownAway.ts";
+import { fallHurt } from "./tumble.ts";
 import { wearPlan } from "./wear.ts";
 import { thingsReactToHits } from "./hitThings.ts";
+import { restScenery, tumbleScene } from "./tumbleScene.ts";
 import { impactByMaterial } from "../effects/impact.ts";
-import { placeGround, placeSky } from "../effects/ground.ts";
+import { darkBackdrop, FIGURE_HALO, isDarkColor, placeGround, placeSky } from "../effects/ground.ts";
 import { stormsAvoid } from "../effects/thunderstorm.ts";
 import { DASH_SLASH_REACH, WEAPON_DASH_AIR, WEAPON_MOVES, weaponKeys } from "./swordMoves.ts";
 import { idleLife } from "./idleLife.ts";
+import { atTempo, FREE_MOVES, individuality, NEUTRAL, ownVersion, reactionLag } from "./individual.ts";
 import { autoEffects } from "./autoEffects.ts";
+import { believableSize } from "./believableSize.ts";
 
 // SPEC-0017 Phase 2: the scene plan — what the AI director will write in Phase 3. Each character gets a
 // list of actions ("walk 400 px, turn around, run back"); every action starts exactly where the last one
@@ -62,6 +73,9 @@ export type Action = {
   // Line this action up so its mark `mark` happens at another moment: `at` = "<characterId>.<mark>"
   // (+ offset seconds). The character waits (breathing) until then.
   sync?: { mark: string; at: string; offset?: number };
+  // DEPTH (depth.ts) during this action: "behind" / "front" the other figures, "around" = in front with the far arm behind
+  // them (a hug), or a number (+ nearer the camera). Missing = the figure's own `depth`.
+  depth?: "behind" | "front" | "around" | number;
 };
 
 export type CharacterPlan = {
@@ -72,10 +86,14 @@ export type CharacterPlan = {
   namedByUser?: boolean;
   x: number; // hip x at the start
   facing: Facing;
+  // START SEATED ON THE FLOOR (Oct 14): "sitting" = the scene opens with this figure already sitting on the floor (knees up) — never
+  // standing first then sitting; its first "sit" only settles, holds `seconds` and stands up.
+  start?: "sitting";
   look?: Partial<CharacterStyle>;
   style?: MoveStyle;
   speed?: MoveSpeed;
   energy?: number;
+  breath?: number; // how much it breathes while it waits (idleLife): 0.3 barely … 1 normal … 1.6 heavy
   // FIGHT LOOK: "realistic" = a real boxing/MMA guard between strikes (only when the user asks for
   // realistic, educational fighting); "high" = loose, hands up at the chest (asked for higher hands);
   // otherwise fighters stand loose, hands low (punch.ts LOOSE).
@@ -88,6 +106,8 @@ export type CharacterPlan = {
   // SIZE SHOWS AGE AND ROLE: body height x the scene's (1 = a grown-up; a kid ~0.7, a baby ~0.5, a giant > 1). The
   // whole figure is built at its own height (steps, reach, poses), so a kid's feet still plant without sliding.
   size?: number;
+  // DEPTH for the whole scene (an action's own `depth` wins): "behind" = on the far side (walking behind, hiding).
+  depth?: "behind" | "front" | "around" | number;
   actions: Action[];
 };
 
@@ -112,7 +132,7 @@ export type ScenePlan = { id: string; title: string; height: number; groundY: nu
 // (`handOff`: a release or catch that is part of a hand-off: the ball goes straight from hands to hands.)
 // (`drop`: let go of without a throw — to catch a fall — with the body's velocity: it drops, bounces and
 // rolls to a stop.)
-type ObjectEvent = { object: string; kind: "release" | "catch" | "oneHand" | "grab" | "twoHands"; t: number; character: string; joint?: ObjectHand; at?: { x: number; y: number }; bounce?: boolean; away?: { vx: number; vy: number }; handOff?: boolean; drop?: { vx: number; vy: number }; toss?: { vx: number; vy: number } };
+type ObjectEvent = { object: string; kind: "release" | "catch" | "oneHand" | "grab" | "twoHands"; t: number; character: string; joint?: ObjectHand; at?: { x: number; y: number }; bounce?: boolean; away?: { vx: number; vy: number }; aimed?: boolean; hit?: { after: number; rebound: { vx: number; vy: number } }; handOff?: boolean; drop?: { vx: number; vy: number }; toss?: { vx: number; vy: number }; place?: { x: number; y: number; from?: { x: number; y: number } } };
 
 const GAP = 1e-4;
 // The shortest calm settle into the resting stand while waiting (seconds).
@@ -128,6 +148,25 @@ const STEP_OFF = 0.9;
 // the body leans back (degrees).
 const CARRY_SIDE = { shoulder: 4, elbow: 14 };
 const CARRY_SWAY = 0.3;
+// STEADY IN THE HAND (Oct 14, the torch run): a thing that must stay upright and steady — a torch, a candle, a lantern, a cup, a
+// tray, a flag, an ice cream, a phone — held in one hand while walking / jogging / running is NOT swung about: that arm stays bent,
+// the hand held out in front at the chest (STEADY_ARM, degrees from the body line), bobbing only a little with the steps
+// (STEADY_SWAY x the gait's own swing); the other arm swings as usual. Held props are effects anchored on a hand (steadyHandOf).
+const STEADY_ARM = { shoulder: 18, elbow: 78 };
+const STEADY_SWAY = 0.08;
+const STEADY_THINGS = /torch|candle|lantern|lamp|flashlight|cup|mug|glass|drink|coffee|tea|soda|juice|tray|plate|bowl|soup|cake|pie|flag|banner|ice ?cream|cone|popsicle|phone|camera|sparkler|bottle|bucket/i;
+const STEADY_EFFECTS = new Set(["fire", "flicker", "glow", "light"]);
+// Which hand (if any) holds such a thing through a walk / run starting at `t`: a prop with one of those names, or a flame / light
+// burning in the hand, anchored on that hand from (about) the start of the walk to at least half a second in.
+export function steadyHandOf(effects: readonly EffectTrack[] | undefined, character: string, t: number): "l" | "r" | undefined {
+  for (const e of effects ?? []) {
+    const a = e.anchor as { character?: string; joint?: string };
+    if (a.character !== character || (a.joint !== "lHand" && a.joint !== "rHand") || e.start > t + 0.15 || e.end < t + 0.5) continue;
+    const name = `${(e.params as { name?: unknown } | undefined)?.name ?? ""} ${(e.params as { symbol?: unknown } | undefined)?.symbol ?? ""}`;
+    if ((e.kind === "prop" && STEADY_THINGS.test(name)) || STEADY_EFFECTS.has(e.kind)) return a.joint === "lHand" ? "l" : "r";
+  }
+  return undefined;
+}
 const HEAVY_LOWER = 40;
 const HEAVY_LEAN = 4;
 
@@ -148,8 +187,11 @@ function gaitMove(kind: GaitKind): MoveFn {
     // run's own over the first step: the lean, head and arms all the way through it, the bent legs while
     // both feet are still down (it pushes off out of the crouch).
     // (CARRY BY WEIGHT, below: something heavy makes the steps slower and shorter.)
-    const heavy = Boolean(params.carrying) && params.carryWeight === "heavy";
-    const g = buildGait({ kind, startX: start.x, distance, direction: forwardSign(start.facing) as 1 | -1, height: settings.height, startT: start.t, style: settings.style, speed: heavy ? "slow" : settings.speed, energy: heavy ? Math.min(0.35, settings.energy ?? 0.5) : settings.energy, keepLean: Boolean(params.keepLean), tiptoe: kind === "walk" && Boolean(params.tiptoe) });
+    // (PUSHING IS WALKING — moves/pushPlan.ts: `pushing` = the push pose's upper body {lean, head, arms}: a slow heavy walk, both
+    // arms locked forward on the thing, leaning in; the legs step with the gait, so the body — and the thing in the hand — go forward.)
+    const pushing = params.pushing && typeof params.pushing === "object" ? (params.pushing as Partial<Record<keyof PoseAngles, number>>) : null;
+    const heavy = (Boolean(params.carrying) && params.carryWeight === "heavy") || Boolean(pushing);
+    const g = buildGait({ kind, startX: start.x, distance, direction: forwardSign(start.facing) as 1 | -1, height: settings.height, startT: start.t, style: settings.style, speed: heavy ? "slow" : settings.speed, energy: heavy ? Math.min(0.35, settings.energy ?? 0.5) : settings.energy, keepLean: Boolean(params.keepLean), ...(params.stride !== undefined ? { stride: Number(params.stride), armAmp: Number(params.armAmp ?? 1) } : {}), tiptoe: kind === "walk" && Boolean(params.tiptoe) });
     if (travel(start.pose, STAND) > 0.02) {
       const firstLift = g.keys.findIndex((k) => (k.contacts ?? []).length < 2);
       const window = Math.max(0.25, (firstLift > 0 ? g.keys[firstLift].t - start.t : 0.3) + 0.3);
@@ -182,6 +224,18 @@ function gaitMove(kind: GaitKind): MoveFn {
       : heavy ? { lShoulder: hold.lShoulder - HEAVY_LOWER, rShoulder: hold.rShoulder - HEAVY_LOWER, lElbow: hold.lElbow, rElbow: hold.rElbow } : hold;
     // (...and hands holding it differently — after a catch, a turn — go into the carry over the first
     // steps: CARRY_LIFT seconds, never in one picture.)
+    // (STEADY IN THE HAND: a torch / cup / lantern hand held out steady, eased in over CARRY_LIFT, a small bob with the steps)
+    const steady = !carry && (params.steadyHand === "l" || params.steadyHand === "r") ? (params.steadyHand as "l" | "r") : null;
+    if (steady) {
+      const from = start.pose, sh = `${steady}Shoulder` as const, el = `${steady}Elbow` as const;
+      g.keys = g.keys.map((k) => {
+        const w = 1 - smoothstep01((k.t - start.t) / CARRY_LIFT), pose = { ...k.pose };
+        const sTarget = STEADY_ARM.shoulder + STEADY_SWAY * (k.pose[sh] - STAND[sh]), eTarget = STEADY_ARM.elbow;
+        pose[sh] = sTarget + (from[sh] - sTarget) * w;
+        pose[el] = eTarget + (from[el] - eTarget) * w;
+        return { ...k, pose };
+      });
+    }
     if (carry) {
       const from = start.pose;
       g.keys = g.keys.map((k) => {
@@ -200,11 +254,27 @@ function gaitMove(kind: GaitKind): MoveFn {
         return { ...k, pose };
       });
     }
+    if (pushing) {
+      const from = start.pose, lean = pushing.lean ?? 15;
+      g.keys = g.keys.map((k, i) => {
+        // (every key keeps the push, the last too: the hands stay on the thing when the walk stops — they let go only in the next move)
+        void i;
+        const w = 1 - smoothstep01((k.t - start.t) / CARRY_LIFT), pose = { ...k.pose };
+        for (const name of ["head", "lShoulder", "rShoulder", "lElbow", "rElbow"] as const) {
+          const target = pushing[name] ?? k.pose[name];
+          pose[name] = target + (from[name] - target) * w;
+        }
+        // (lean in; the hips turn with it so the legs keep the gait's own steps)
+        const add = (lean - k.pose.lean) * (1 - w);
+        pose.lean += add; pose.lHip += add; pose.rHip += add;
+        return { ...k, pose };
+      });
+    }
     // The last key only eases into the plain stand: if something follows (grab, punch...), it can start
     // as soon as the feet have stopped.
     const stopped = g.keys[g.keys.length - 2];
     const flow = stopped ? { keys: g.keys.length - 1, stance: { t: stopped.t, x: stopped.x, facing: start.facing, pose: stopped.pose } } : undefined;
-    return { keys: g.keys, end: { t: g.endT, x: g.endX, facing: start.facing, pose: carry ? g.keys[g.keys.length - 1].pose : STAND }, marks: { arrived: stopped?.t ?? g.endT }, flow };
+    return { keys: g.keys, end: { t: g.endT, x: g.endX, facing: start.facing, pose: carry || pushing ? g.keys[g.keys.length - 1].pose : STAND }, marks: { arrived: stopped?.t ?? g.endT }, flow };
   };
 }
 
@@ -280,6 +350,22 @@ export function partsInPropUnits(e: EffectTrack, plan: ScenePlan): EffectTrack {
   const S = (typeof e.params?.size === "number" ? e.params.size : 0.5) * plan.height, ax = at.x, ay = at.y;
   const n = (v: unknown, d: number) => (typeof v === "number" && Number.isFinite(v) ? v : d);
   const rs = parts.filter((q): q is Record<string, unknown> => !!q && typeof q === "object");
+  // THINGS LOOK LIKE WHAT THEY ARE (Arthur, Oct 15: "tripping over a little tiny black thing — if it was supposed to be a skateboard,
+  // fail"): one long part (a skateboard deck 10 units wide, a plank, a bench) is NOT a sign of pixels. `size` is the thing's HEIGHT ×
+  // the figure, so read the parts the way that makes their HEIGHT match it: in the thing's own units the parts' height is ~1; in pixels
+  // it is ~size × figure height. Whichever reading is nearer wins — a 10 × 1.4 skateboard at size 0.045 stays a skateboard (never a
+  // 10 px speck), and Luna's punching bag written 300 px tall at size 1 is still read as pixels.
+  const ys = rs.flatMap((r) => { const y = n(r.y, 0), h = n(r.h, r.shape === "line" ? 0 : 0.3); return r.shape === "line" ? [y, y + h] : [y - Math.abs(h) / 2, y + Math.abs(h) / 2]; });
+  const tall = ys.length ? Math.max(...ys) - Math.min(...ys) : 0;
+  // (only a long w / h, every place within a few units of the spot — or within reach of the longest part: a fence's posts stand
+  // along its 14-unit rails, x up to ±6.5 — Oct 15, the backyard fence was read as pixels and vanished into a 14 px speck)
+  const reach = Math.max(6, ...rs.map((r) => Math.max(Math.abs(n(r.w, 0)), Math.abs(n(r.h, 0))) / 2 + 1));
+  const placesSmall = !rs.some((r) => Math.abs(n(r.x, 0)) > reach || Math.abs(n(r.y, 0)) > reach);
+  // (a near tie goes to the thing's own units when reading it in pixels would leave a speck under 0.08 of the figure — a bench, a
+  // board — never a dot nobody can name)
+  const xs = rs.flatMap((r) => { const x = n(r.x, 0), w = n(r.w, r.shape === "line" ? 0 : 0.3); return r.shape === "line" ? [x, x + w] : [x - Math.abs(w) / 2, x + Math.abs(w) / 2]; });
+  const speck = Math.max(tall, xs.length ? Math.max(...xs) - Math.min(...xs) : 0) < 0.08 * plan.height;
+  if (placesSmall && tall > 0 && S > 0 && Math.abs(Math.log(tall)) < Math.abs(Math.log(tall / S)) + (speck ? 0.7 : 0)) return e;
   // (Page pixels or pixels FROM the spot? Whichever reading puts the parts nearer the spot — Luna writes both.)
   const page = (k: "x" | "y", c: number) => rs.reduce((t, r) => t + Math.abs(n(r[k], c) - c), 0) <= rs.reduce((t, r) => t + Math.abs(n(r[k], 0)), 0);
   const ox = page("x", ax) ? ax : 0, oy = page("y", ay) ? ay : 0;
@@ -299,6 +385,37 @@ function skyBodyReadable(e: EffectTrack, plan: ScenePlan): EffectTrack {
   if (e.kind !== "prop" || !/\b(moon|sun|planet|earth|mars|jupiter|saturn)\b/i.test(symbol) || typeof at.y !== "number" || at.y > plan.groundY - plan.height) return e;
   const size = typeof e.params?.size === "number" ? e.params.size : 0.5;
   return size >= SKY_BODY_MIN ? e : { ...e, params: { ...e.params, size: SKY_BODY_MIN } };
+}
+
+// OBJECTS TIMED TO MOVES: keys with `at` (a move moment, the same words actions sync to: "<id>.<move><k>.<mark>") get their time from
+// that moment (+ `offset` s); keys with neither a time nor a moment that comes are dropped; the keys are put in time order.
+export function syncObjectKeys<P extends Pick<ScenePlan, "objects">>(plan: P, marks: Record<string, number>): P {
+  if (!(plan.objects ?? []).some((o) => (o.keys ?? []).some((k) => typeof (k as { at?: unknown }).at === "string"))) return plan;
+  return { ...plan, objects: plan.objects!.map((o) => {
+    if (!(o.keys ?? []).some((k) => typeof (k as { at?: unknown }).at === "string")) return o;
+    const keys = o.keys!.map((k) => {
+      const { at, offset, ...rest } = k as ObjectKey & { at?: unknown; offset?: unknown };
+      if (typeof at !== "string") return k;
+      const m = marks[at];
+      return m === undefined ? null : { ...rest, t: Math.max(0, m + (typeof offset === "number" ? offset : 0)) };
+    }).filter((k): k is ObjectKey => k !== null && Number.isFinite(k.t)).sort((a, b) => a.t - b.t);
+    return { ...o, keys };
+  }) };
+}
+
+// A THING ON THE WATER FLOATS ON IT (Oct 14: a fishing float on the lake was drawn hanging from a chain out of the sky): a placed
+// thing (not held, not flying) whose place is at a water piece's surface or in its water — `y` from a little above the surface to
+// the water's bottom, `x` over the water — floats there: it sits on the surface (half under, like a bobber) and never hangs.
+export function floatsOnWater(e: EffectTrack, plan: Pick<ScenePlan, "height" | "background">): EffectTrack {
+  const at = e.anchor as { x?: unknown; y?: unknown };
+  if (e.kind !== "prop" || typeof at.x !== "number" || typeof at.y !== "number" || e.params?.flies === true || e.params?.hangs === true || e.params?.onWall === true) return e;
+  for (const q of plan.background?.pieces ?? []) {
+    if (q.kind !== "water" || typeof q.params?.y !== "number") continue;
+    const surface = q.params.y, deep = surface + Number(q.params.h ?? 130), w = Number(q.params.w ?? 1e5), mid = q.params.x === undefined ? 960 : Number(q.params.x);
+    if (at.x < mid - w / 2 || at.x > mid + w / 2 || at.y < surface - 0.06 * plan.height || at.y > deep) continue;
+    return { ...e, anchor: { ...(e.anchor as object), y: surface } as EffectTrack["anchor"], params: { ...e.params, hangs: false, onWater: true } };
+  }
+  return e;
 }
 
 // Build every character's keys from the plan. Characters whose actions are timed to others are built
@@ -338,6 +455,8 @@ export function planToScene(plan: ScenePlan, moves: Record<string, MoveEntry>): 
   plan = cuffsPlan(plan);
   // (WORN ACCESSORIES, wear.ts: a cap on the head in every picture of the scene.)
   plan = wearPlan(plan);
+  // (SCENERY RESTS ON SOMETHING, tumbleScene.ts: a rock / ledge in a pit that touches nothing grows out of the nearest wall or stands on a pillar.)
+  plan = restScenery(plan);
   const marks: Record<string, number> = {};
   const events: ObjectEvent[] = [];
   const built = new Map<string, CharacterKey[]>();
@@ -372,7 +491,10 @@ export function planToScene(plan: ScenePlan, moves: Record<string, MoveEntry>): 
   // (Passing a ball too: a giver holds it out until the taker's hands are on it, and the taker reaches
   // when it is held out — each needs the other's moment, so they settle the same way.)
   const passing = plan.characters.some((c) => c.actions.some((a) => a.move === "catch" && typeof a.params?.from === "string"));
-  for (let round = 0; (fighting || passing) && round < 12; round += 1) {
+  // (GREETINGS too, Oct 14: Red turned round to wave at where his friend STOOD at the start — the friend had walked past him. A wave
+  // or high-five to someone named faces where they really are then, so it needs the other's built path the same way.)
+  const greeting = plan.characters.some((c) => c.actions.some((a) => (a.move === "wave" && typeof a.params?.to === "string") || (a.move === "highFive" && typeof a.params?.with === "string")));
+  for (let round = 0; (fighting || passing || greeting) && round < 12; round += 1) {
     const before = { ...marks };
     // (...and where everyone stands: round 16, a punch aimed at where the other stood in the last round — the
     // other then moved, the moments didn't — landed from half the page away, "hit before the hit".)
@@ -392,26 +514,34 @@ export function planToScene(plan: ScenePlan, moves: Record<string, MoveEntry>): 
   cuffKeys(plan, built, marks);
   // (WEAPON HOLD, swordMoves.ts: an armed fighter keeps its weapon up in the guard outside its own weapon moves.)
   weaponKeys(plan, built, marks);
+  // (OBJECTS TIMED TO MOVES, Oct 14: an object's key can be synced to a move's moment like an action — `{ "at": "d.pull1.last",
+  // "offset": 0.1, x, y }` — so a stuck kite falls exactly when dad's last heave lands; a key whose moment never comes is dropped.)
+  plan = syncObjectKeys(plan, marks);
   const end = Math.max(...[...built.values()].map((keys) => keys[keys.length - 1].t), ...(plan.objects ?? []).flatMap((o) => (o.keys ?? []).map((k) => k.t)));
   // The scene lasts a little past the last move (rounded to a tenth of a second); everyone and everything
   // stays as it is until then (a held ball stays held to the very last frame).
   const duration = Math.ceil((end + 0.25) * 10) / 10;
   // (SPEC-0021 — THINGS THE WORLD DOES BY ITSELF, autoEffects.ts: swords spark at every block; a thing by an explosion breaks apart.)
-  { const auto = autoEffects(plan, marks, duration); if (auto) plan = { ...plan, effects: auto }; }
+  { const auto = autoEffects(plan, marks, duration, built); if (auto) plan = { ...plan, effects: auto }; }
+  const sceneBackground = placeGround(placeSky(plan.background, `${plan.title} ${plan.id}`, plan.effects, plan.canvasColor), `${plan.title} ${plan.id}`, plan.canvasColor);
+  const backdropDark = darkBackdrop(sceneBackground, plan.canvasColor); // (FIGURES STAND OUT: effects/ground.ts)
   // (A THING THAT IS HIT REACTS, hitThings.ts: a punched or kicked thing swings, rocks or is knocked back.)
   return thingsReactToHits({
     id: plan.id, title: plan.title, groundY: plan.groundY, durationSec: duration, marks,
+    // THE CONTACT PASS (contacts.ts): the touches the moves declare through their marks, solved exactly on the final pictures.
+    // (BOTH PALMS ON A SMALL THING, contacts.ts palmsOnSmallThings: a two-hand hold of a light thing closes both hands onto its edge.)
+    contacts: ((declared) => [...declared, ...palmsOnSmallThings((plan.objects ?? []).map((o) => objectOf(o, events, duration)), (id) => plan.height * (plan.characters.find((c) => c.id === id)?.size ?? 1), declared)])(declareContacts(plan, marks)),
     // How hurt each figure ends up (DAMAGE, 0 fine .. 1 beaten).
     hurt: fight.hurt ?? {},
     // How hard each strike was (STRIKE POWER, by "<id>.strike<k>").
     power: fight.power,
     characters: plan.characters.map((c) => ({
-      id: c.id, name: c.name ?? c.id, ...(c.namedByUser === true ? { namedByUser: true } : {}), facing: c.facing, height: plan.height * (c.size ?? 1), style: { ...DEFAULT_STYLE, ...c.look },
+      id: c.id, name: c.name ?? c.id, ...(c.namedByUser === true ? { namedByUser: true } : {}), facing: c.facing, height: plan.height * (c.size ?? 1), style: ((st) => (backdropDark && isDarkColor(st.color) ? { ...st, halo: FIGURE_HALO } : st))({ ...DEFAULT_STYLE, ...c.look }),
       // Everyone stays in their final pose until the scene ends.
       // (SPEC-0021 NEW COPY — NOBODY FREEZES, moves/idleLife.ts: a figure standing still longer than a beat while the scene goes on
       // breathes and shifts its weight; not a robot, not a floating figure, not while it holds a power, a weapon or catches / lets
       // go of a thing in that span.)
-      keys: c.style === "robot" ? holdTo(built.get(c.id)!, duration) : idleLife(holdTo(built.get(c.id)!, duration), { height: plan.height * (c.size ?? 1), facing: c.facing, kind: c.actions.some((a) => /punch|kick|block|getHit|guard|sword|dashSlash|barrage/.test(a.move)) ? "fighter" : "calm", end: duration, seed: plan.characters.indexOf(c), skip: (from: number, to: number) => c.actions.some((a) => POWER_MOVES.has(a.move) || /^sword|dashSlash/.test(a.move)) || events.some((e) => e.character === c.id && e.t > from + 1e-3 && e.t < to - 1e-3), armsFree: !c.cuffed && !(plan.objects ?? []).some((o) => o.heldBy === c.id) && !events.some((e) => e.character === c.id) }),
+      keys: c.style === "robot" ? holdTo(built.get(c.id)!, duration) : idleLife(holdTo(built.get(c.id)!, duration), { height: plan.height * (c.size ?? 1), facing: c.facing, kind: c.actions.some((a) => /punch|kick|block|getHit|guard|sword|dashSlash|barrage/.test(a.move)) ? "fighter" : "calm", end: duration, seed: plan.characters.indexOf(c), breath: c.breath, skip: (from: number, to: number) => c.actions.some((a) => POWER_MOVES.has(a.move) || /^sword|dashSlash/.test(a.move)) || events.some((e) => e.character === c.id && e.t > from + 1e-3 && e.t < to - 1e-3), armsFree: !c.cuffed && !(plan.objects ?? []).some((o) => o.heldBy === c.id) && !events.some((e) => e.character === c.id) }),
     })),
     objects: (plan.objects ?? []).map((o) => objectOf(o, events, duration)),
     // (EFFECTS, Phase 2C: the plan's own effects, plus the ones a POWER move makes — fire from the hands at its
@@ -419,11 +549,11 @@ export function planToScene(plan: ScenePlan, moves: Record<string, MoveEntry>): 
     // (A LASTING CHANGE STAYS TO THE END, 2026-10-07: a change of form with no way back that runs to about the end of
     // the story stays until the very last picture; A PLACED THING STAYS, 2026-10-08: a prop — the moon, a punching bag —
     // that is there for most of the story stays to the end, never vanishing in its last half-second.)
-    ...(plan.effects || plan.characters.some((c) => c.actions.some((x) => POWER_MOVES.has(x.move))) ? { effects: [...(plan.effects ?? []), ...powerEffects(plan, marks, (id) => built.get(id))].map((e) => (((e.kind === "prop" && e.end >= 0.5 * duration) || (e.kind === "transform" && !(e.params as { back?: unknown } | undefined)?.back && e.end >= duration - 0.6)) && e.end < duration ? { ...e, end: duration } : e)).map((e) => skyBodyReadable(partsInPropUnits(e, plan), plan)) } : {}),
+    ...(plan.effects || plan.characters.some((c) => c.actions.some((x) => POWER_MOVES.has(x.move))) ? { effects: [...(plan.effects ?? []), ...powerEffects(plan, marks, (id) => built.get(id))].map((e) => (((e.kind === "prop" && e.end >= 0.5 * duration && !(e.params as { letGo?: unknown } | undefined)?.letGo && !(e.params as { hinge?: unknown } | undefined)?.hinge) || (e.kind === "transform" && !(e.params as { back?: unknown } | undefined)?.back && e.end >= duration - 0.6)) && e.end < duration ? { ...e, end: duration } : e)).map((e) => floatsOnWater(skyBodyReadable(believableSize(partsInPropUnits(e, plan)), plan), plan)) } : {}),
     // (THE GROUND SHOWS THE PLACE, effects/ground.ts: an outdoor background gets its place's ground — never snow-white rain.)
     // (LIGHTNING STRIKES AWAY FROM PEOPLE, effects/thunderstorm.ts: a storm's near bolts land beside the figures, not through them.)
     // (THE SKY SHOWS THE TIME OF DAY, effects/ground.ts placeSky: the moon / night = a dark night sky, the sun = day.)
-    ...((bg) => (bg ? { background: { ...bg, pieces: stormsAvoid(bg.pieces ?? [], plan.characters.map((c) => c.x), plan.height) } } : {}))(placeGround(placeSky(plan.background, `${plan.title} ${plan.id}`, plan.effects, plan.canvasColor), `${plan.title} ${plan.id}`, plan.canvasColor)),
+    ...(sceneBackground ? { background: { ...sceneBackground, pieces: stormsAvoid(sceneBackground.pieces ?? [], plan.characters.map((c) => c.x), plan.height) } } : {}),
     ...(plan.stageWidth !== undefined ? { stageWidth: plan.stageWidth } : {}),
     ...(plan.canvasColor ? { canvasColor: plan.canvasColor } : {}),
   }, plan.height, plan.characters, built, marks, fight.power);
@@ -462,7 +592,9 @@ function objectOf(plan: ObjectPlan, events: ObjectEvent[], end: number): SceneOb
       // DROPPED (LET GO TO CATCH THE FALL): nobody catches it; it falls, bounces and rolls to a stop, and
       // lies there to the end (objects.ts).
       if (e.drop) { segments.push({ from: e.t, to: Math.max(end, e.t), mode: "flight", drop: e.drop }); released = null; }
-      if (e.toss && !e.drop && !e.away) { segments.push({ from: e.t, to: Math.max(end, e.t), mode: "flight", drop: e.toss }); released = null; }
+      // (PUT DOWN — moves/pushPlan.ts placeSpot: set on a surface's drawn top, it rests right there from the release on)
+      if (e.place) { const f = e.place.from; keys = [...keys.filter((k) => k.t < e.t - 1e-3), ...(f ? [{ t: e.t, x: f.x, y: f.y }, { t: e.t + SLIDE_ON, x: e.place.x, y: e.place.y }] : [{ t: e.t, x: e.place.x, y: e.place.y }])]; released = null; }
+      if (e.toss && !e.drop && !e.away) { segments.push({ from: e.t, to: Math.max(end, e.t), mode: "flight", drop: e.toss, ...(e.hit ? { hit: e.hit } : e.aimed ? { leaves: true } : {}) }); released = null; }
       // THROWN AWAY: nobody will catch it. It flies on under gravity until it is surely off the page, then
       // it is gone (it never comes back by itself; while leaving it doesn't count for the page fit).
       if (e.away) {
@@ -494,6 +626,13 @@ const tossVelocity = (facing: Facing, distance: number, height: number) => {
   const g = 2000, d = Math.max(0.3 * height, Math.abs(distance) - 0.2 * height), apex = 0.2 * height + 0.12 * d, from = 0.8 * height;
   const up = Math.sqrt(2 * g * apex), T = (up + Math.sqrt(2 * g * (apex + from))) / g;
   return { vx: (facing === "left" ? -1 : 1) * Math.sign(distance || 1) * (d / T), vy: -up };
+};
+
+// A hard shot at a figure standing at `x`: released ~0.8 H up, it reaches the aim height there (same gravity as a toss).
+const throwAt = (from: { x: number; facing: Facing }, x: number, height: number, aim: string, energy: number, released = 0.8 * height) => {
+  const g = 2000, d = Math.abs(x - from.x), T = Math.max(0.22, d / ((3.2 + 2.2 * Math.min(1, Math.max(0, energy))) * height));
+  const drop = (Number.isFinite(released) && released > 0 ? released : 0.8 * height) - (aim === "feet" ? 0.12 : aim === "head" ? 0.9 : 0.62) * height;
+  return { vx: Math.sign(x - from.x || forwardSign(from.facing)) * (d / T), vy: (drop - 0.5 * g * T * T) / T };
 };
 
 // THROWN THINGS START IN THE THROWER'S HANDS (Arthur, 2026-10-07: "he didn't really throw it"): an object a throw
@@ -544,7 +683,7 @@ const STRIKES = new Set(["punch", "kick"]);
 // (IN REACH FIRST: hip to hip, x height, a barrage starts from — barrage.ts's own default distance.)
 const BARRAGE_FROM = 0.67;
 // Moves where the hands are needed to catch the body (a held thing is not clutched through them).
-const FALLS = new Set(["fall", "fallDown", "getUp"]);
+const FALLS = new Set(["fall", "fallDown", "getUp", "tumble", "blownAway"]); // (a holder who falls, tumbles or is blown away lets go of what it holds)
 // HOLD ON TO IT (round 8, Arthur: "as long as you're holding it, visually it should be holding it"):
 // moves whose arms only help the body — balance (a kick, squat, jump, stomp, a look round), a hand
 // put down on the floor or a knee (sitting, catching its breath), a guard — don't need the hands: holding
@@ -599,7 +738,7 @@ function buildCharacter(plan: ScenePlan, character: CharacterPlan, moves: Record
   // (HOLDING SIZE: what it holds and how big that is, for the hold at the chest.)
   const lookOf = (id: string | undefined) => plan.objects?.find((o) => o.id === id)?.look;
   const sizeOf = (id: string | undefined) => lookOf(id)?.size;
-  let at: Stance = { t: 0, x: character.x, facing: character.facing, pose: holding ? holdPose(sizeOf((plan.objects ?? []).find((o) => o.heldBy === character.id)?.id), plan.height) : restPoseFor(character.facing) };
+  let at: Stance = { t: 0, x: character.x, facing: character.facing, pose: holding ? holdPose(sizeOf((plan.objects ?? []).find((o) => o.heldBy === character.id)?.id), plan.height) : character.start === "sitting" && character.facing !== "front" ? SEATED : restPoseFor(character.facing) };
   const keys: CharacterKey[] = [];
   fight.keys.set(character.id, keys);
   // (Building again after a wait repeats the same moves from the same spots: each is worked out once.)
@@ -609,15 +748,23 @@ function buildCharacter(plan: ScenePlan, character: CharacterPlan, moves: Record
     if (!cache.has(key)) cache.set(key, make());
     return cache.get(key) as T;
   };
+  // NOBODY MOVES IN PERFECT SYNC (individual.ts): this figure's own small differences; `freeNow` = the free action being built
+  // now (its move is played at the figure's own tempo).
+  const myIndex = plan.characters.findIndex((c) => c.id === character.id);
+  const own = plan.characters.length >= 2 ? individuality(myIndex) : NEUTRAL;
+  let freeNow: MoveEntry | null = null;
   const run = (entry: MoveEntry, from: Stance, params: Record<string, unknown>, settings: MoveSettings): MoveOutput => {
     const out = remember(JSON.stringify([moveId(entry.run), from, params, settings]), () => entry.run(from, params, settings));
-    return { ...out, keys: out.keys.slice(), marks: { ...out.marks } };
+    const copy = { ...out, keys: out.keys.slice(), marks: { ...out.marks } };
+    return freeNow === entry ? atTempo(copy, from.t, own.tempo) : copy;
   };
   // AIM AT WHERE THEY ARE: where another figure is at time t (from its keys so far; before it has any,
   // where it starts; after its last key, where it stopped).
   const whereIs = (id: string, t: number) => {
     const theirs = fight.keys.get(id);
-    if (!theirs || theirs.length === 0) return plan.characters.find((c) => c.id === id)?.x ?? at.x;
+    // (KICK A BALL BY NAME, Oct 14: a strike's target can be an OBJECT — where it lies is where it is, never "right here", which
+    // made the kicker back off for seconds and kick air far from the ball.)
+    if (!theirs || theirs.length === 0) return plan.characters.find((c) => c.id === id)?.x ?? plan.objects?.find((o) => o.id === id && !o.heldBy)?.keys?.[0]?.x ?? at.x;
     const after = theirs.findIndex((k) => k.t > t);
     if (after < 0) return theirs[theirs.length - 1].x;
     if (after === 0) return theirs[0].x;
@@ -645,15 +792,20 @@ function buildCharacter(plan: ScenePlan, character: CharacterPlan, moves: Record
   // `from`, `target`); a wave or high-five with nobody named, the nearest figure in front; a punch or kick
   // with nobody named, the nearest one in front within reach of a step (as it aims).
   const lookedAt = (move: string, p: Record<string, unknown>) => {
-    const named = move === "wave" || move === "throw" ? p.to : move === "highFive" ? p.with : move === "catch" ? p.from : move === "punch" || move === "kick" ? p.target : undefined;
+    const named = move === "wave" || move === "throw" || move === "talk" ? p.to : move === "highFive" || move === "hug" ? p.with : move === "catch" ? p.from : move === "punch" || move === "kick" ? p.target : undefined;
     if (typeof named === "string" && named !== character.id && plan.characters.some((c) => c.id === named)) return named;
-    if (move === "wave" || move === "highFive") return nearestInFront();
+    if (move === "wave" || move === "highFive" || move === "hug" || move === "talk") return nearestInFront();
     if (move === "punch" || move === "kick") return nearestInFront(2 * plan.height);
     return undefined;
   };
   // DAMAGE (hit.ts): how hurt this figure is (0 fine .. 1 beaten), its strikes so far, the hits it has
   // taken from each attacker, and whether it is out (knocked down for good: it does nothing more).
   let hurt = 0, strikes = 0, knockedOut = false;
+  // (HURT AFTER A HARD FALL, tumble.ts fallHurt: how hard its last fall was — the get-up after it struggles: blownAway.ts hurtGetUp)
+  let fallHurtNow = 0;
+  // (TUMBLE, tumble.ts: a figure that fell into a pit / onto a lower floor stays down there — every later move's keys sit at that level.)
+  let level = 0;
+  let standAt: ((x: number) => number) | undefined;
   // (Trying out a plan only `until` a time: waiting for a moment of someone who has already stopped
   // means this figure stops there too.)
   const neverComes = (id: string) => plan.until !== undefined && fight.done?.has(id) === true;
@@ -753,17 +905,35 @@ function buildCharacter(plan: ScenePlan, character: CharacterPlan, moves: Record
   };
   const local: Record<string, number> = {};
   const plant = footPlanter(plan.height);
+  const depthUsed = character.depth !== undefined || character.actions.some((x) => x.depth !== undefined);
+  let depthNow: number | undefined = depthValue(character.depth), depthWrap = character.depth === "around";
   const add = (out: MoveOutput) => {
     // The first key of a move is the last key of the one before. That key is the truth about the body at
     // that moment (a foot may be in the air mid-stride); the new move only adds how it moves on from there.
-    let moveKeys = out.keys;
+    const newLevel = (out as { level?: number }).level;
+    let moveKeys = level && newLevel === undefined ? out.keys.map((k) => ({ ...k, lift: (k.lift ?? 0) + level })) : out.keys;
+    // (FEET ON THE FLOOR UNDER THEM, tumble.ts standAt: lying on a rough lower floor the body rests on the highest bit under its whole
+    // length; the first move that ends ON ITS FEET down there eases its height onto the floor under its feet as it rises — never a
+    // figure standing on air above a dip.)
+    const lastOut = out.keys[out.keys.length - 1];
+    if (standAt && newLevel === undefined && moveKeys.length > 1 && lastOut?.contacts?.some((c) => c === "lFoot" || c === "rFoot")) {
+      const to = standAt(lastOut.x), t0 = moveKeys[0].t, t1 = moveKeys[moveKeys.length - 1].t;
+      const ease = (u: number) => { const c = Math.min(1, Math.max(0, u)); return c * c * (3 - 2 * c); };
+      // (the drop is done while the feet first take the weight — before they plant — so no planted foot is left under the floor)
+      const tf = moveKeys.find((k) => k.contacts?.some((c) => c === "lFoot" || c === "rFoot"))?.t ?? t1;
+      moveKeys = moveKeys.map((k) => ({ ...k, lift: (k.lift ?? 0) + (to - level) * ease((k.t - t0) / Math.max(1e-6, tf - t0)) }));
+      level = to; standAt = undefined;
+    }
+    if (newLevel !== undefined) { level = newLevel; standAt = (out as { standAt?: (x: number) => number }).standAt; }
     const last = keys[keys.length - 1];
     if (last && moveKeys.length && Math.abs(last.t - moveKeys[0].t) < GAP) {
       const first = moveKeys[0];
       moveKeys = [{ ...last, ease: first.ease ?? last.ease, xEase: first.xEase ?? last.xEase, liftEase: first.liftEase ?? last.liftEase }, ...moveKeys.slice(1)];
     }
     // Planted feet don't move: the hips go where the planted feet put them (see planted.ts).
-    const placed = plant(moveKeys);
+    // (DEPTH, depth.ts: the action's / figure's `depth` rides on its keys — "behind", "front", "around" = in front with
+    // the far arm round the other's back.)
+    const placed = depthUsed ? plant(moveKeys).map((key) => ({ ...key, z: depthNow ?? 0, wrap: depthWrap })) : plant(moveKeys);
     for (const key of placed) {
       if (keys.length && Math.abs(keys[keys.length - 1].t - key.t) < GAP) keys[keys.length - 1] = key;
       else keys.push(key);
@@ -811,7 +981,19 @@ function buildCharacter(plan: ScenePlan, character: CharacterPlan, moves: Record
   const actions = [...character.actions];
   for (let index = 0; index < actions.length && !knockedOut && !(at.t > (plan.until ?? Infinity)); index += 1) {
     const action = actions[index];
+    // A BODY LYING ON THE GROUND GETS UP BEFORE ANY STANDING MOVE (Oct 14, tumble → look back went through the floor): after a fall,
+    // a knock-down or a tumble the figure lies face down or on its back; a move made for a standing body (look back, a throw, a
+    // walk…) never starts from there — the getUp comes first (the way it lies: fall.ts getUp), unless the move is itself one done
+    // from the ground (getting up, being hit / slammed while down, more falling, a custom move, waiting).
+    if (keys.length && Math.abs(at.pose.lean) > 50 && !DONE_LYING.has(action.move)) {
+      actions.splice(index, 0, { move: "getUp", params: {}, ...(action.style ? { style: action.style } : {}) } as typeof action);
+      index -= 1;
+      continue;
+    }
     const next = actions[index + 1];
+    freeNow = null;
+    let steppedUp = false; // (this kick stepped up into range: hit.ts stepUp)
+    if (depthUsed) { const d = action.depth ?? character.depth; depthNow = depthValue(d); depthWrap = d === "around"; }
     // (A hurt figure moves like it: less energy, then the hurt style — hit.ts hurtSettings.)
     const settings: MoveSettings = hurtSettings({
       height: plan.height,
@@ -863,7 +1045,7 @@ function buildCharacter(plan: ScenePlan, character: CharacterPlan, moves: Record
     }
     // EYES: a figure waves at (or high-fives) someone it is looking at. Told whom (`to` / `with`) and they
     // are behind it (or it faces the viewer), it turns to them first.
-    const greeted = action.move === "wave" ? action.params?.to : action.move === "highFive" ? action.params?.with : undefined;
+    const greeted = action.move === "wave" || action.move === "talk" ? action.params?.to : action.move === "highFive" ? action.params?.with : undefined;
     if (typeof greeted === "string" && greeted !== character.id && plan.characters.some((c) => c.id === greeted) && !onTheGround(at.pose)) {
       const there = whereIs(greeted, at.t);
       if (Math.abs(there - at.x) > 1 && (at.facing === "front" || (there - at.x) * forwardSign(at.facing) < 0)) turnTo(there > at.x ? "right" : "left", settings);
@@ -873,6 +1055,29 @@ function buildCharacter(plan: ScenePlan, character: CharacterPlan, moves: Record
     count[action.move] = (count[action.move] ?? 0) + 1;
     let params = action.params ?? {};
     if (toward !== undefined) params = { ...params, distance: toward };
+    // NOBODY MOVES IN PERFECT SYNC (individual.ts): free repetition (a walk, run, wave, cheer, celebration — not lined up to a
+    // moment, not in a fight) is played at this figure's own tempo; the scene's opening one starts a little later; a celebration
+    // gets its own pose; a pull its own heave timing, strength and tremble (pull.ts `vary`).
+    // (A figure that must meet a moment LATER — a high five, a catch — keeps its timing: a walk or run before it only changes its
+    // stride and arm swing, which arrive at the same time; it never starts late or slows down.)
+    // (A hand-made "custom" move that REPEATS — a dance step, a chant, a work rhythm — is free repetition too.)
+    // (a figure TIED to a partner — escorting / escorted / cuffed, or meeting someone later for a high five, a hug, a catch — keeps
+    // the partner's exact pace: the pair's own timing is the point)
+    const tiedToPartner = plan.characters.some((c) => (c as { cuffed?: unknown }).cuffed || c.actions.some((a) => a.move === "escort")) || actions.slice(index).some((a) => /^(highFive|hug|catch|escort)$/.test(a.move));
+    if (own !== NEUTRAL && !tiedToPartner && !action.sync && fightMiddle === undefined && (FREE_MOVES.test(action.move) || (action.move === "custom" && Number(params.repeat ?? 1) > 1))) {
+      const keepsTime = actions.slice(index + 1).some((a) => a.sync);
+      if (isGait(action.move)) { if (params.stride === undefined) params = { ...params, stride: own.tempo, armAmp: own.amp }; }
+      else if (!keepsTime) freeNow = entry;
+      if (!keepsTime && index === 0 && at.t < 0.05 && own.lag > 0) add(stand(at, { seconds: own.lag }, settings));
+      if (action.move === "celebrate" && params.seed === undefined) params = { ...params, seed: myIndex + 1 };
+      // 95% TOGETHER, 5% THEIR OWN (individual.ts): when another figure does this same free move, this one plays its OWN
+      // version (a variant) and, after a shared moment, reacts a little later than the first figure (reaction time).
+      if (!isGait(action.move) && plan.characters.some((c) => c.id !== character.id && c.actions.some((a) => a.move === action.move))) {
+        params = ownVersion(action.move, myIndex, params);
+        if (!keepsTime && index > 0) add(stand(at, { seconds: reactionLag(myIndex) }, settings));
+      }
+    }
+    if (own !== NEUTRAL && action.move === "pull" && params.vary === undefined) params = { ...params, vary: myIndex };
     // Punches in a row alternate hands (jab with the front hand, then cross with the back hand...).
     if (action.move === "punch" && params.hand === undefined) params = { ...params, hand: lastPunchHand === "front" ? "back" : "front" };
     // ROOM: a move that can go either way (falling forward or back), if the plan doesn't say, goes the way
@@ -1005,11 +1210,19 @@ function buildCharacter(plan: ScenePlan, character: CharacterPlan, moves: Record
     if (STRIKES.has(action.move) && typeof params.target === "string" && !onTheGround(at.pose) && at.facing !== "front") {
       const targetId = String(params.target), way = forwardSign(at.facing);
       const choice = action.move === "punch" ? remember(JSON.stringify(["choosePunch", at, params, settings]), () => choosePunch(at, params, settings)) : null;
-      const kickAt = action.move === "kick" ? remember(JSON.stringify(["kickReach", at.pose, params, settings]), () => kickReach(at, params, settings)) + 0.03 * plan.height : 0;
-      const reach = choice ? (params.technique === "straight" ? choice.straightUpTo : choice.overhandUpTo) : kickAt + 0.06 * plan.height;
-      const near = PERSONAL_SPACE * plan.height;
-      const want = Math.max(near + 0.02 * plan.height, choice ? (params.technique === "overhand" ? (choice.straightUpTo + choice.overhandUpTo) / 2 : 0.9 * choice.straightUpTo) : kickAt);
-      const short = blocks(targetId) ? ARMS_AHEAD * plan.height : 0;
+      // (AN OBJECT TARGET — a ball on the floor: the foot meets the ball's near side, so the hips stop a kick's reach plus its radius
+      // from it; no personal space with a thing, and a ball kicked by name is kicked low unless the plan says otherwise.)
+      const thing = plan.characters.some((c) => c.id === targetId) ? undefined : plan.objects?.find((o) => o.id === targetId && !o.heldBy && o.keys?.length);
+      if (thing && action.move === "kick" && params.height === undefined && (thing.keys![0].y ?? plan.groundY) > plan.groundY - 0.3 * plan.height) params = { ...params, height: "low" };
+      const kickAt = action.move === "kick" ? remember(JSON.stringify(["kickReach", at.pose, params, settings]), () => kickReach(at, params, settings)) + (thing ? 0.45 * thing.look.size : 0.03 * plan.height) : 0;
+      const reach = (choice ? (params.technique === "straight" ? choice.straightUpTo : choice.overhandUpTo) : kickAt + (thing ? 0.02 : 0.06) * plan.height) + Math.max(0, Math.min(0.8, Number((params as { holdOut?: number }).holdOut ?? 0))) * plan.height;
+      const near = thing ? -1e6 : PERSONAL_SPACE * plan.height;
+      // (STRIKE WHAT THEY HOLD OUT, Arthur Oct 14: "the student stood too close" to the board; the kick landed inside the coach):
+      // a target holding a pad / board / bag out in front (`holdOut`, x height: how far it sticks out toward the striker, set by
+      // claudeAnimator strikesReachThings) is struck AT THAT THING — the hips stay that much further apart.
+      const holdOut = Math.max(0, Math.min(0.8, Number((params as { holdOut?: number }).holdOut ?? 0))) * plan.height;
+      const want = holdOut + Math.max(near + 0.02 * plan.height, choice ? (params.technique === "overhand" ? (choice.straightUpTo + choice.overhandUpTo) / 2 : 0.9 * choice.straightUpTo) : kickAt);
+      const short = (blocks(targetId) ? ARMS_AHEAD * plan.height : 0) + holdOut;
       // (After a stride in, the strike goes on straight out of it: `arriving`, STRIKE OUT OF THE STRIDE.)
       const aimed = (from: Stance, pre: MoveOutput | null = null) => {
         const p = pre?.marks.stride ? { ...params, arriving: true } : params;
@@ -1046,7 +1259,8 @@ function buildCharacter(plan: ScenePlan, character: CharacterPlan, moves: Record
         if (slow || d <= (fightMiddle !== undefined ? ONE_STEP : 1.2) * H) return "walk";
         return d > 3.5 * H || (d > 2 * H && (settings.speed === "fast" || settings.energy >= 0.7)) ? "run" : "jog";
       };
-      const closing = (d: number): MoveOutput => d < 0 ? fightSteps(at, d, settings) : d <= (fightMiddle !== undefined && gaitFor(d) !== "walk" ? ONE_STEP : 0.6) * plan.height ? shuffleIn(at, d, settings)
+      // (ONE STEP-UP INTO A KICK, hit.ts stepUp: a short way past its reach, one step then the chamber — never a shuffle of lifts)
+      const closing = (d: number): MoveOutput => d < 0 ? fightSteps(at, d, settings) : action.move === "kick" && d <= STEP_UP_MAX * plan.height ? stepUp(at, d, settings) : d <= (fightMiddle !== undefined && gaitFor(d) !== "walk" ? ONE_STEP : 0.6) * plan.height ? shuffleIn(at, d, settings)
         : close(all[gaitFor(d)], d, settings);
       const gap = hitGap(null);
       const far = gap.atHit > reach;
@@ -1074,7 +1288,7 @@ function buildCharacter(plan: ScenePlan, character: CharacterPlan, moves: Record
       // landed short and the other reacted to thin air. Out of reach is never "a hair": it steps in.)
       if (known !== undefined && (Math.abs(known - d) < 0.01 * plan.height || (hair && Math.abs(known - d) <= 0.1 * plan.height))) d = known;
       fight.closings?.set(mine, d);
-      if (Math.abs(d) > 0.02 * plan.height) { const pre = closing(d); add(pre); params = aimed(at, pre); }
+      if (Math.abs(d) > 0.02 * plan.height) { const pre = closing(d); add(pre); params = aimed(at, pre); if (action.move === "kick" && d > 0 && d <= STEP_UP_MAX * plan.height) steppedUp = true; }
     }
     // GETTING HIT: the k-th "getHit" from someone is their k-th strike (punch or kick): it happens exactly
     // when that strike lands, as hard as that strike really was (STRIKE POWER), and adds its DAMAGE.
@@ -1202,6 +1416,8 @@ function buildCharacter(plan: ScenePlan, character: CharacterPlan, moves: Record
     // (ESCORT, cuffs.ts: the police is told its prisoner's moves — it waits until they are worked out.)
     if (action.move === "escort") { const p = escortParams(plan, character.id, params, fight.keys, ignoreSync ? undefined : fight.done, marks); if (!p) return null; params = p; }
     if (isGait(action.move) && holdingNow && params.carrying === undefined) params = { ...params, carrying: sizeOf(heldObject) ?? true };
+    // (STEADY IN THE HAND: a torch / cup / lantern prop in one hand through this walk or run → that arm is held steady)
+    if (isGait(action.move) && !holdingNow && params.steadyHand === undefined) { const hand = steadyHandOf(plan.effects, character.id, at.t); if (hand) params = { ...params, steadyHand: hand }; }
     // CARRY BY WEIGHT (round 11): how heavy the held thing is says how it is carried (gaitMove). A light one
     // goes in one hand — the hand already holding it, else the right — unless the run starts in the air
     // out of a running jump (that lands holding it at the chest).
@@ -1232,6 +1448,31 @@ function buildCharacter(plan: ScenePlan, character: CharacterPlan, moves: Record
       }
     }
     let sync = action.sync;
+    // HUG TOGETHER (ONE CONTINUOUS APPROACH): when both hug and the partner walks or runs in, the arms close round it as it
+    // arrives — the one there first waits (and opens its arms as the other comes in), never wrapping empty air.
+    const hugArrival = (): string | undefined => {
+      if (action.move !== "hug") return undefined;
+      const who = lookedAt("hug", params), them = plan.characters.find((c) => c.id === who);
+      const i = them?.actions.findIndex((x) => x.move === "hug") ?? -1, prev = i > 0 ? them!.actions[i - 1] : undefined;
+      if (!prev || !isGait(prev.move)) return undefined;
+      return `${them!.id}.${prev.move}${them!.actions.slice(0, i).filter((x) => x.move === prev.move).length}.arrived`;
+    };
+    // (mark "start": its own walk-in is not worked out yet here; from its resting stand the wrap comes HUG_REACH_FROM_REST after
+    // the start, the partner's — arms opened on the way in — 0.3 s after it arrives.)
+    // (Never both waiting on each other: the one listed first waits for the other's arrival; the other waits only once the
+    // first one's arrival is known.)
+    // (A HUG IS TIMED BY THE BODIES, NOT BY THE OTHER HUG — Arthur, Oct 15, the station hug: "they never truly hug": a hug synced to
+    // its partner's HUG — "start with the other's hug" — while the partner hugs back made the two wait on each other; the planner
+    // broke the knot by ignoring the timing and the first one wrapped empty air 4 s before the other arrived. Such a sync is
+    // dropped: the hug then waits for the partner's real arrival, as above, so the arms close only when the bodies meet.)
+    if (sync && action.move === "hug" && at.facing !== "front") {
+      const who = lookedAt("hug", params), them = plan.characters.find((c) => c.id === who);
+      if (them && them.actions.some((x) => x.move === "hug") && new RegExp(`^${them.id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\.hug\\d+\\.`).test(sync.at)) sync = undefined;
+    }
+    if (!sync && action.move === "hug" && at.facing !== "front") {
+      const at2 = hugArrival(), them = at2 ? plan.characters.findIndex((c) => c.id === at2.split(".")[0]) : -1;
+      if (at2 && (marks[at2] !== undefined || plan.characters.indexOf(character) < them)) sync = { mark: "start", at: at2, offset: 0.3 - HUG_REACH_FROM_REST };
+    }
     // Throwing: aim at the catcher. Catching: be ready exactly when the ball arrives (the k-th catch from
     // someone matches their k-th throw), after a flight that obeys gravity.
     // (AIM AT WHERE THEY ARE: after a walk the partner is somewhere else than where it started.)
@@ -1273,7 +1514,9 @@ function buildCharacter(plan: ScenePlan, character: CharacterPlan, moves: Record
         sync = { mark: "catch", at: `${params.from}.throw${k}.offer`, offset: HANDOFF_SHOWN };
       } else {
         const hands = plan.groundY - catchPoint(at.facing, at.x, plan.height, plan.groundY).y;
-        const flight = thrown.bounce ? bouncePassTime(releaseHeight(thrown, settings), hands) : flightTime(0, 0, defaultApex({ x: 0, y: 0 }, { x: gap, y: 0 }));
+        // (EACH THING FLIES ITS OWN WAY — objectFlight.ts: a frisbee hangs in the air about twice as long as a ball, a balloon longer)
+        const thing = plan.objects?.find((o) => o.id === String(params.object ?? ""));
+        const flight = thrown.bounce ? bouncePassTime(releaseHeight(thrown, settings), hands) : flightTime(0, 0, defaultApex({ x: 0, y: 0 }, { x: gap, y: 0 })) * FLIGHT_TIME_FACTOR[flightStyleOf(String(params.object ?? ""), thing?.name, thing?.look?.kind)];
         sync = { mark: "catch", at: `${params.from}.throw${k}.release`, offset: flight };
       }
     }
@@ -1332,7 +1575,11 @@ function buildCharacter(plan: ScenePlan, character: CharacterPlan, moves: Record
     // after a fighting stance, before a squat), the figure first steps them into its standing stance.
     // (A sit always does: a hurt one lifts its feet to stretch the legs out, so they aren't planted all the
     // way through, but it sits down from — and stands back up into — its own stance.)
-    if (!flying && !onTheGround(at.pose) && !(Number(params.speed ?? 0) > 0) && stanceDifference(at.pose, restPoseFor(at.facing), at.facing) > FEET_SLACK
+    // (not after a kick's own STEP-UP: the kick chambers straight from that step — hit.ts stepUp; and a GUARD straight after a kick
+    // keeps the stance the kick landed in — no extra step: chamber, kick, re-chamber, land, guard)
+    const guardAfterKick = action.move === "guard" && actions[index - 1]?.move === "kick";
+    if (guardAfterKick) params = { ...params, keepFeet: true };
+    if (!flying && !onTheGround(at.pose) && !(Number(params.speed ?? 0) > 0) && !steppedUp && !guardAfterKick && stanceDifference(at.pose, restPoseFor(at.facing), at.facing) > FEET_SLACK
       && (action.move === "sit" || feetMustMove(run(entry, at, params, settings).keys) > FEET_SLACK)) add(stepInto(at, restPoseFor(at.facing), settings));
     if (sync && !ignoreSync && !flying) {
       const target = marks[sync.at];
@@ -1407,6 +1654,34 @@ function buildCharacter(plan: ScenePlan, character: CharacterPlan, moves: Record
       const who = lookedAt("highFive", params);
       const gap = who ? Math.abs(whereIs(who, at.t) - at.x) : 0;
       if (gap > 1 && gap <= highFiveMaxDistance(plan.height) && Math.abs(gap - Number(params.partnerDistance ?? 0)) > 0.5) params = { ...params, partnerDistance: gap };
+    }
+    // TALKING = GESTURES (talk.ts): a tap on the listener's shoulder walks in from where the listener really is when it starts.
+    if (action.move === "talk" && at.facing !== "front" && params.partnerDistance === undefined) {
+      const who = lookedAt("talk", params);
+      if (who) params = { ...params, partnerDistance: Math.abs(whereIs(who, at.t) - at.x) };
+    }
+    // A REAL HUG (hug.ts): it walks in from where the partner really is when it starts; half the gap when the partner hugs back.
+    if (action.move === "hug" && at.facing !== "front") {
+      const who = lookedAt("hug", params);
+      const them = plan.characters.find((c) => c.id === who), both = them?.actions.some((x) => x.move === "hug") ?? false;
+      // (both hug: they meet in the MIDDLE of where each one will be when its hug starts — from the plan's own walks, so the one
+      // built first never aims at where the other merely started; one hugs a still figure: where that figure really is)
+      const planned = (c: ScenePlan["characters"][number]) => { let x = c.x; for (const a of c.actions) { if (a.move === "hug") break; const d = Number((a.params as { distance?: unknown } | undefined)?.distance ?? 0); if (/^(walk|jog|run|tiptoe|sneak)$/.test(a.move) && Number.isFinite(d)) x += forwardSign(c.facing ?? "right") * d; } return x; };
+      const gap = !who || !them ? 0 : both ? 2 * Math.abs((planned(them) + planned(character)) / 2 - at.x) : Math.abs(whereIs(who, at.t) - at.x);
+      if (gap > 1) params = { ...params, partnerDistance: gap, both };
+      // (A SMALLER OR TALLER PARTNER — hug.ts: the arms wrap at THEIR torso; the size ratio tells the hug how far to come down / up)
+      if (them && params.partnerScale === undefined) { const r = (Number(them.size ?? 1) || 1) / (Number(character.size ?? 1) || 1); if (Math.abs(r - 1) > 0.04) params = { ...params, partnerScale: r }; }
+      // (THEY LET GO TOGETHER — Oct 15, the station hug: a slow, tired grandpa's hold stretched 1.3 s past the girl's, so he went on
+      // hugging after she had let go. When the partner's hug is already built, this hold is set so both release at the same moment.)
+      const theirRelease = both && them ? marks[`${them.id}.hug1.release`] : undefined;
+      if (theirRelease !== undefined) {
+        for (let k = 0; k < 3; k += 1) {
+          const tr = run(entry, at, params, settings), mine = tr.marks.release, from = tr.marks.squeeze ?? tr.marks.touch;
+          if (mine === undefined || from === undefined || Math.abs(theirRelease - mine) < 0.04) break;
+          const sec0 = Number(params.seconds ?? 1.2), stretch = Math.max(0.3, (mine - from) / Math.max(0.1, sec0));
+          params = { ...params, seconds: Math.min(5, Math.max(0.4, sec0 + (theirRelease - mine) / stretch)) };
+        }
+      }
     }
     // (They may be moving — jumping, walking up: it looks where they are at the move's main moment.)
     if (LOOKS_AT.has(action.move) && params.look === undefined && at.facing !== "front") {
@@ -1491,6 +1766,14 @@ function buildCharacter(plan: ScenePlan, character: CharacterPlan, moves: Record
     // ROOM TO FALL (hit.ts): a hit's reaction knows how much page there is behind the figure.
     const edge = pageEdgeBehind();
     if (action.move === "getHit" && edge !== undefined && params.room === undefined) params = { ...params, room: Math.max(0, (at.x - edge) * forwardSign(at.facing)) };
+    // ROOM TO RIDE (ride.ts, Oct 14): a ride's length shrinks with the page like a walk's (`lengthScale`), and never rolls past the
+    // page edge ahead (with room to step off the board).
+    if (action.move === "ride") {
+      const ahead = edge === undefined ? Infinity : Math.max(0, (2 * STAGE_MIDDLE - edge - at.x) * forwardSign(at.facing) - 0.5 * plan.height);
+      params = { ...params, distance: Math.min(Number(params.distance ?? 4 * plan.height * (plan.lengthScale ?? 1)), ahead) };
+    }
+    // TUMBLE (tumble.ts): what catches the falling body — the scene's solid props and the pits — the page's edges, and where it stands now.
+    if (action.move === "tumble") params = { ...tumbleScene(plan), ...params, level };
     // BLOWN AWAY (blownAway.ts): the floor, the page's edges, and a blast point given as a figure or its joint.
     if (action.move === "blownAway") {
       params = blastParams(params, at.t, plan, (id) => fight.keys.get(id));
@@ -1500,6 +1783,24 @@ function buildCharacter(plan: ScenePlan, character: CharacterPlan, moves: Record
     }
     // (K11 GET UP CLEAR, hit.ts getUpRoom: a knock-down knows where its attacker stands while it gets up.)
     if (action.move === "getHit" && typeof params.from === "string" && params.other === undefined) { const o = otherAt(params.from, at.t + 1.5); if (o) params = { ...params, other: o }; }
+    // ONE CONTINUOUS APPROACH (Arthur, Oct 14: "when they ran up to each other they just stopped, then got a little bit closer,
+    // almost like 'are you ready for this?'"): a walk, jog or run straight into a hug carries on until the chests are HUG_CLOSE
+    // apart — the hug's own walk-in is added to it — slowing over its last steps as every gait does, the arms opening on the way
+    // (below), so the hug wraps where the feet stop: never stop, then creep closer. (Both hug: each covers half the gap to the
+    // middle of where the two of them will be, the same middle the hug aims at.)
+    const intoHug = isGait(action.move) && next?.move === "hug" && at.facing !== "front" && !flying && !trips;
+    if (intoHug) {
+      const hp = (next!.params ?? {}) as Record<string, unknown>;
+      const who = lookedAt("hug", hp), them = plan.characters.find((c) => c.id === who);
+      const both = them?.actions.some((x) => x.move === "hug") ?? false, share = hp.both === false ? 1 : both ? 0.5 : 1;
+      const plannedX = (c: ScenePlan["characters"][number]) => { let x = c.x; for (const a of c.actions) { if (a.move === "hug") break; const d = Number((a.params as { distance?: unknown } | undefined)?.distance ?? 0); if (/^(walk|jog|run|tiptoe|sneak)$/.test(a.move) && Number.isFinite(d)) x += forwardSign(c.facing ?? "right") * d; } return x; };
+      const d0 = Math.max(0, Number(params.distance ?? 300)), endX = at.x + forwardSign(at.facing) * d0;
+      const target = !them ? undefined : both ? (plannedX(them) + plannedX(character)) / 2 : whereIs(them.id, at.t);
+      const ahead = target === undefined ? 0 : (target - endX) * forwardSign(at.facing);
+      const gap = both ? 2 * ahead : ahead;
+      const extra = (gap - HUG_CLOSE * settings.height) * share;
+      if (extra > 0.03 * settings.height) params = { ...params, distance: d0 + extra };
+    }
     // ARRIVE IN THE GUARD (hit.ts walkIntoGuard): a fighter's walk straight into a fight move lands its last
     // step in the fighting stance, the hands coming up — no stop, stand and stamp into the guard.
     const intoGuard = action.move === "walk" && fightMiddle !== undefined && (FIGHT_MOVES.has(next?.move ?? "") || next?.move === "guard") && !holdingNow && !onTheGround(at.pose) && at.facing !== "front";
@@ -1511,7 +1812,25 @@ function buildCharacter(plan: ScenePlan, character: CharacterPlan, moves: Record
       : trips && cutShort ? cutShort
       : action.move === "walk" && fightMiddle !== undefined && !holdingNow && !onTheGround(at.pose) && at.facing !== "front" && brisk(settings) ? calmlyTo(Number(params.distance ?? 300), settings, params)
       : intoGuard ? remember(JSON.stringify(["intoGuard", at, params, settings, STRIKES.has(next?.move ?? "")]), () => walkIntoGuard((d) => entry.run(at, { ...params, distance: d }, settings), at, Number(params.distance ?? 300), settings, !STRIKES.has(next?.move ?? "")))
+      : action.move === "getUp" && fallHurtNow >= HURT_STYLE_AT && params.low !== true && settings.style !== "robot" && fightMiddle === undefined && at.facing !== "front" && onTheGround(at.pose) ? hurtGetUp(at, fallHurtNow, settings)
       : run(entry, at, params, settings);
+    // HURT AFTER A HARD FALL (Oct 15, Arthur: "he should get up hurt — how is he not hurt?"): a tumble down a drop or a fall at speed
+    // leaves it hurt (tumble.ts fallHurt) — the get-up struggles (above) and the moves after it keep the hurt style (hit.ts hurtSettings).
+    if (action.move === "getUp") fallHurtNow = 0;
+    if (action.move === "tumble" || action.move === "fall" || action.move === "fallDown") {
+      const dropped = action.move === "tumble" ? Math.max(0, level - Number((out as { level?: number }).level ?? level)) / plan.height : 0;
+      fallHurtNow = fallHurt(dropped, Math.abs(Number(params.speed ?? 0)) / plan.height);
+      if (fallHurtNow > hurt) { hurt = fallHurtNow; if (fight.hurt) fight.hurt[character.id] = hurt; }
+    }
+    // (ONE CONTINUOUS APPROACH: the arms open into the hug over the last steps, up to where the feet stop.)
+    // (...not when the partner gets there well after: it stops, waits in its resting stand and opens them as the other comes in)
+    const partnerIn = intoHug ? (() => { const hp = (next!.params ?? {}) as Record<string, unknown>; const who = lookedAt("hug", hp), them = plan.characters.find((c) => c.id === who); const i = them?.actions.findIndex((x) => x.move === "hug") ?? -1, prev = i > 0 ? them!.actions[i - 1] : undefined; return prev && isGait(prev.move) ? marks[`${them!.id}.${prev.move}${them!.actions.slice(0, i).filter((x) => x.move === prev.move).length}.arrived`] : undefined; })() : undefined;
+    // (Oct 15 contact pass: NO "stop and wait" — the faster one keeps going and meets the partner; the hug's touch is solved on the final pictures.)
+    if (intoHug && out.flow) {
+      out.keys = openArmsOnTheWay(out.keys, out.flow.stance.t);
+      const stopped = out.keys[out.flow.keys - 1] ?? out.keys[out.keys.length - 1];
+      out.flow = { ...out.flow, stance: { ...out.flow.stance, pose: stopped.pose } };
+    }
     // HANDS BUSY (round 6): holding something, a move that needs one hand (a high-five, a wave, a punch)
     // first takes the thing in the other hand. The engine sees which arm the move really uses: the one
     // that moves far more than the other.
@@ -1533,7 +1852,16 @@ function buildCharacter(plan: ScenePlan, character: CharacterPlan, moves: Record
     if (holdingNow && heldObject && !HANDLES_OBJECTS.has(action.move) && out.keys.length > 1) {
       const used = (side: "l" | "r") => out.keys.slice(1).reduce((sum, k, i) => sum + Math.abs(k.pose[`${side}Shoulder`] - out.keys[i].pose[`${side}Shoulder`]) + Math.abs(k.pose[`${side}Elbow`] - out.keys[i].pose[`${side}Elbow`]), 0);
       const l = used("l"), r = used("r");
-      if (FALLS.has(action.move)) {
+      // (the hand that puts it down is the one the move really moves; the thing goes into that hand as the move starts, like HANDS BUSY)
+      const placeHand: ObjectHand = l > r ? "lHand" : "rHand";
+      const placed = action.move === "custom" ? placeSpot(plan, String(params.name ?? ""), out.keys, (k) => ballCenter(k.pose, k.facing ?? at.facing, k.x, plan.height, plan.groundY, Math.max(l, r) > 30 ? placeHand : heldIn, sizeOf(heldObject), k.lift ?? 0), (sizeOf(heldObject) ?? 30) / 2) : undefined;
+      if (placed) {
+        if (Math.max(l, r) > 30 && heldIn !== placeHand) { heldIn = placeHand; myEvents.push({ object: heldObject, kind: "oneHand", t: out.keys[0].t, character: character.id, joint: heldIn }); }
+        // PUT IT DOWN (moves/pushPlan.ts): "puts / places / sets / lays the <thing> on the <surface>" — at the lowest hand key the
+        // thing leaves the hand onto the surface's drawn top and stays there.
+        myEvents.push({ object: heldObject, kind: "release", t: placed.t, character: character.id, place: { x: placed.x, y: placed.y, ...(placed.from ? { from: placed.from } : {}) } });
+        dropped = true;
+      } else if (FALLS.has(action.move)) {
         // LET GO TO CATCH THE FALL (round 8): falling, the hands are needed to catch the body, so they let go
         // of what they hold the moment it trips or slips: it keeps the speed the hands had, drops under
         // gravity, bounces and rolls (a box slides) to a stop on the floor, and lies there (objects.ts drop).
@@ -1583,6 +1911,10 @@ function buildCharacter(plan: ScenePlan, character: CharacterPlan, moves: Record
       marks[`${character.id}.${name}`] = t;
       marks[`${character.id}.${action.move}${count[action.move]}.${name}`] = t;
     }
+    // (EVERY MOVE HAS A START — Oct 15, the station hug: a plan synced the girl's run to "g.walk1.start", a moment no walk ever
+    // recorded, so the timing could never resolve; the planner then built her ignoring ALL her timing and she hugged empty air
+    // seconds before her grandpa arrived. Every move now records "<who>.<move><n>.start" — when its own keys begin.)
+    if (out.marks.start === undefined && out.keys.length) marks[`${character.id}.${action.move}${count[action.move]}.start`] = out.keys[0].t;
     // (Ground fighting: every ground attack's landing is also "<id>.groundHit<k>".)
     if (GROUND_ATTACKS.has(action.move) && out.marks.stomp !== undefined) marks[`${character.id}.groundHit${(groundHits += 1)}`] = out.marks.stomp;
     // (FACE YOUR OPPONENT, round 11: up again in a fight with the other one standing behind it — it got up
@@ -1608,8 +1940,13 @@ function buildCharacter(plan: ScenePlan, character: CharacterPlan, moves: Record
       if (action.move === "throw" && out.marks.release !== undefined) {
         const away = params.to === "away" ? awayVelocity(at.facing, plan.height) : undefined;
         // (Thrown to nobody — just `distance`: it flies there, lands, bounces and rolls to a stop.)
-        const toss = !away && out.marks.offer === undefined && !plan.characters.some((c) => c.id === params.to) ? tossVelocity(at.facing, Number(params.distance ?? 300), plan.height) : undefined;
-        myEvents.push({ object: params.object, kind: "release", t: out.marks.release, character: character.id, ...(params.bounce === true ? { bounce: true } : {}), ...(away ? { away } : {}), ...(toss ? { toss } : {}), ...(out.marks.offer !== undefined ? { handOff: true } : {}) });
+        // THROWN AT SOMEONE (Arthur: the dodgeball "passes through"; a hard throw at a person is a fast, nearly flat shot AT them,
+        // not a lob over them): nobody catches it, and a figure stands in front (or `at` names one) → aimed at that figure's
+        // chest (`aim`: "feet" | "head" | "chest"), as fast as the throw is hard. A miss flies on, lands, bounces and rolls.
+        const targetId = !away && out.marks.offer === undefined && !plan.characters.some((c) => c.id === params.to) ? (typeof params.at === "string" ? params.at : plan.characters.filter((c) => c.id !== character.id).map((c) => ({ c, x: (fight.keys.get(c.id) ?? []).filter((k) => k.t <= out.marks.release!).pop()?.x ?? c.x })).filter(({ x }) => forwardSign(at.facing) * (x - at.x) > 0.5 * plan.height && Math.abs(x - at.x) <= 1.4 * Number(params.distance ?? 300)).sort((a, b) => Math.abs(a.x - at.x) - Math.abs(b.x - at.x))[0]?.c.id) : undefined;
+        const aimed = targetId ? throwAt(at, (fight.keys.get(targetId) ?? []).filter((k) => k.t <= out.marks.release!).pop()?.x ?? plan.characters.find((c) => c.id === targetId)!.x, plan.height, String(params.aim ?? "chest"), action.energy ?? character.energy ?? 0.7, releaseHeight(params as unknown as ThrowParams, settings)) : undefined;
+        const toss = aimed ?? (!away && out.marks.offer === undefined && !plan.characters.some((c) => c.id === params.to) ? tossVelocity(at.facing, Number(params.distance ?? 300), plan.height) : undefined);
+        myEvents.push({ object: params.object, kind: "release", t: out.marks.release, character: character.id, ...(params.bounce === true ? { bounce: true } : {}), ...(away ? { away } : {}), ...(toss ? { toss } : {}), ...(aimed ? { aimed: true } : {}), ...(aimed && Number(params.hitAt) > 0 ? { hit: { after: Number(params.hitAt), rebound: { vx: -0.3 * aimed.vx, vy: -0.25 * Math.abs(aimed.vx) } } } : {}), ...(out.marks.offer !== undefined ? { handOff: true } : {}) });
       }
       if (action.move === "catch" && out.marks.catch !== undefined) myEvents.push({ object: params.object, kind: "catch", t: out.marks.catch, character: character.id, ...(params.handOff !== undefined ? { handOff: true } : {}) });
     }
@@ -1716,7 +2053,9 @@ const FIGHT_MOVES = new Set(["punch", "kick", "getHit", "stomp"]);
 // (A jump after a walk or run is a RUNNING JUMP: it takes off from the stride, jump.ts.)
 // (A dash punch takes the run's speed too: dash.ts.)
 // (A cuffed figure's escape attempt bursts out of the walk mid-stride — no stop first: cuffs.ts tug.)
-const TAKES_MOMENTUM = new Set(["fall", "fallDown", "jump", "dashPunch", "tug", "dashSlash"]);
+// Moves a body lying on the ground can do from there (any other move gets up first — see the loop).
+const DONE_LYING = new Set(["getUp", "kipUp", "custom", "slammed", "barraged", "coverUp", "fall", "fallDown", "tumble", "blownAway", "wait", "getHit"]);
+const TAKES_MOMENTUM = new Set(["fall", "fallDown", "jump", "dashPunch", "tug", "dashSlash", "tumble"]); // (tumble: a walk or run trips over the edge at speed — no stop first)
 // Moves that travel on foot: walk, jog (the in-between speed, never airborne) and run.
 const GAITS = new Set(["walk", "jog", "run", "tiptoe"]); // (tiptoe: the walk on tiptoe, library.ts)
 const isGait = (move?: string) => GAITS.has(move ?? "");
@@ -1908,7 +2247,11 @@ export function fitBackgroundPlanToPage(plan: ScenePlan, moves: Record<string, M
   for (let i = 0; i < 4; i += 1) {
     const fittedScene = planToScene(fitted, moves), built = buildScene(fittedScene, 12);
     // (Effects at fixed spots that must show count too: an explosion far away, effectFitBounds.)
-    const b = animationBounds(built.frames, built.objects, effectFitBounds(fittedScene));
+    // (THE FIGURES DECIDE THE FRAMING — Arthur, Oct 12: a lamp or a tree placed far off to one side zoomed the whole page out, so the
+    // figures were tiny and the sun got cut off: things at fixed spots only count while they would shrink the figures by at most
+    // 20%; one placed farther away no longer shrinks everyone — the cut-off law tells the animator to bring it closer)
+    const mustShow = effectFitBounds({ ...fittedScene, effects: ((fittedScene as { effects?: { fit?: unknown }[] }).effects ?? []).filter((e) => e.fit) } as typeof fittedScene), bFig = animationBounds(built.frames, built.objects, mustShow), bAll = animationBounds(built.frames, built.objects, effectFitBounds(fittedScene));
+    const b = (bAll.right - bAll.left) > 1.25 * Math.max(1, bFig.right - bFig.left) && (bFig.right - bFig.left) > 0 ? bFig : bAll;
     const width = b.right - b.left;
     if (!(width > room + 0.5)) break;
     k *= (room - 4) / width;
@@ -1919,7 +2262,8 @@ export function fitBackgroundPlanToPage(plan: ScenePlan, moves: Record<string, M
   // off one side is slid sideways as a whole (figures, fixed-spot effects, background pieces) to sit inside it.
   if (fitted !== asWritten) {
     const fittedScene = planToScene(fitted, moves), built = buildScene(fittedScene, 12);
-    const b = animationBounds(built.frames, built.objects, effectFitBounds(fittedScene));
+    const mustShow = effectFitBounds({ ...fittedScene, effects: ((fittedScene as { effects?: { fit?: unknown }[] }).effects ?? []).filter((e) => e.fit) } as typeof fittedScene), bFig = animationBounds(built.frames, built.objects, mustShow), bAll = animationBounds(built.frames, built.objects, effectFitBounds(fittedScene));
+    const b = (bAll.right - bAll.left) > 1.25 * Math.max(1, bFig.right - bFig.left) && (bFig.right - bFig.left) > 0 ? bFig : bAll;
     const lo = stageWidth * margin, hi = stageWidth - stageWidth * margin;
     const dx = b.left < lo ? Math.min(lo - b.left, hi - b.right) : b.right > hi ? Math.max(hi - b.right, lo - b.left) : 0;
     if (Math.abs(dx) > 0.5) fitted = zoomedPlan(plan, k, dx);

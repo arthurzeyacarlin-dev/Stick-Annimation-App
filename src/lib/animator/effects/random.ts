@@ -33,3 +33,35 @@ export function lifeOf(t: number, i: number, count: number, life: number, seed: 
   const n = Math.floor(age / every);
   return { n, u: (age - n * every) / life, bornAt: t - (age - n * every) };
 }
+
+// THINGS COME FROM THEIR SOURCE (Arthur, Oct 14: "the smoke needs to be forming from the fire, not from thin air — same problem
+// as bubbles: from the little bubble stick"). Every EMITTED thing (smoke, steam, bubbles, sparks, spray, dust, breath fog) is
+// BORN at its source as a small piece and grows / spreads out from there over its first moments — never appearing already big
+// or already away from the source. `age` = seconds since this piece came out, `grow` = seconds it takes to reach full size.
+// emerge → 0..1: its size share (starts at `small`) and how far it has spread from the source (starts at 0).
+export function emerge(age: number, grow = 0.35, small = 0.2): { size: number; out: number } {
+  const u = smooth(age / Math.max(0.01, grow));
+  return { size: small + (1 - small) * u, out: u };
+}
+// …and the place it is at: from the source toward where it would be fully spread, by `out`.
+export const fromSource = (src: { x: number; y: number }, at: { x: number; y: number }, out: number) => ({ x: lerp(src.x, at.x, out), y: lerp(src.y, at.y, out) });
+
+// EMITTED THINGS LIVE IN THE WORLD (Arthur, Oct 14, the bubble wand: "when he moves his arm, the bubbles move with his arm. That's
+// not possible. The bubbles just float away until they pop."): every emitted piece — a bubble, a bit of smoke, a spark, a drop of
+// spray, a puff of dust or breath — is BORN where its source was AT ITS BIRTH (`born`, seconds since the effect started) and from
+// then on moves on its own in the world (drift, rise, wind, gravity). Moving the source later never drags pieces already out.
+// Recipes place a piece at sourceAt(ctx, born) + its own motion, never at ctx.at (the source NOW) + its motion.
+export function sourceAt(ctx: { t: number; at: { x: number; y: number }; anchorAt?: (t: number) => { x: number; y: number } | undefined }, born: number): { x: number; y: number } {
+  if (!ctx.anchorAt || !(born < ctx.t - 1e-6)) return ctx.at;
+  return ctx.anchorAt(Math.max(0, born)) ?? ctx.at;
+}
+
+// …and SMOKE LEFT BEHIND A MOVING SOURCE IS STRETCHED THIN: a torch carried on a run lays its smoke out along its path, so the same
+// smoke covers more length — thinner and paler, never a thick gray hose. Stretch (≥ 1) of what came out at `born`, for a plume
+// whose own speed out of the source is `ownSpeed` px/s: √(1 + (source speed / own speed)²). A still source → 1.
+export function stretchAt(ctx: Parameters<typeof sourceAt>[0], born: number, ownSpeed: number): number {
+  if (!ctx.anchorAt) return 1;
+  const dt = 0.06, a = sourceAt(ctx, born - dt), b = sourceAt(ctx, born);
+  const v = Math.hypot(b.x - a.x, b.y - a.y) / dt;
+  return Math.sqrt(1 + (v / Math.max(1, ownSpeed)) ** 2);
+}

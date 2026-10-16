@@ -7,6 +7,7 @@
 import { PLACED_SYMBOLS, spikeBody } from "../symbolMaker.ts";
 import { clamp, lerp, mixColor, rand, wobble } from "./random.ts";
 import { wavyOutline } from "./smoke.ts";
+import { drawPlace, PLACES, type BaseRecipes } from "./places.ts";
 import type { BackgroundPiece, BackgroundRecipe, Point, Shape } from "./types.ts";
 
 type Stage = { width: number; groundY: number; height: number };
@@ -240,11 +241,16 @@ function blownLeaves(seed: number, slots: number, wind: number, H: number, s: St
       const landAt = Math.max(0, (ground - p0.y) / sink), air = Math.min(a, landAt);
       // (the flutter starts gently and dies away as the leaf comes down onto the ground)
       const flutter = Math.min(1, air * 2) * clamp((ground - (p0.y + sink * air)) / (0.08 * H), 0, 1);
-      const x = p0.x + vx * air + 0.05 * H * Math.sin(1.9 * air + ph) * flutter + 0.35 * vx * Math.max(0, a - landAt);
+      // (NOTHING POPS — Arthur, Oct 12: "the leaves were teleporting": a leaf grows out of the crown over its first 0.3 s, and on the
+      // ground it slides a moment, slows to a stop and fades away — never vanishing mid-move or after its life ends)
+      const slide = Math.max(0, a - landAt), slid = 0.35 * vx * Math.min(slide, 1.2) * (1 - Math.min(slide, 1.2) / 2.4);
+      const grow = Math.min(1, a / 0.3), fade = clamp(1 - (slide - 1.4) / 0.8, 0, 1) * clamp((LIFE - a) / 0.6, 0, 1);
+      if (fade <= 0.02) continue;
+      const x = p0.x + vx * air + 0.05 * H * Math.sin(1.9 * air + ph) * flutter + slid;
       const y = p0.y + sink * air + 0.05 * H * Math.sin(2.7 * air + 2 * ph) * flutter;
       if (x < -200 || x > s.width + 200) continue;
       const spin = (r(86) < 0.5 ? -1 : 1) * (200 + 160 * r(87));
-      out.push({ kind: "symbol", name: "Leaf", x, y, scale: (0.055 * H) / LEAF_SIZE, rotation: spin * air + 30 * Math.sin(2.2 * air + ph) + 0.25 * spin * Math.max(0, a - landAt), color, color2 });
+      out.push({ kind: "symbol", name: "Leaf", x, y, scale: (0.055 * H * (0.25 + 0.75 * grow)) / LEAF_SIZE, rotation: spin * air + 30 * Math.sin(2.2 * air + ph) + 0.25 * spin * Math.min(slide, 1.2), color, color2, ...(fade < 1 ? { alpha: fade } : {}) });
     }
   }
   return out;
@@ -427,24 +433,69 @@ function spikes(p: Params, _t: number, s: Stage): Shape[] {
 
 // PIT: a gap in the ground centred on `x`, `w` wide and `h` deep: dark, cut into the ground band (put it after
 // "ground"), with dirt walls.
-function pit(p: Params, _t: number, s: Stage): Shape[] {
-  const w = num(p.w, 0.9 * s.height), x = num(p.x, s.width / 2) - w / 2, y = num(p.y, s.groundY), h = num(p.h, pageBottom(s) - y);
-  const dark = str(p.color, "#1c1410"), dirt = str(p.color2, "#6b4a2f");
+function pit(p: Params, t: number, s: Stage): Shape[] {
+  // (A HOLE GROWS WITH WORK — effects/causes.ts: `steps` = the dig moments; before the first dig a shallow dent, each dig makes
+  // it deeper and wider, and a lumpy dirt pile on `pileSide` (+1 right, -1 left) grows with it.)
+  if (Array.isArray(p.steps) && p.steps.length) return dugPit(p, t, s);
+  // (A PIT IS ROUGH — Arthur, Oct 12: "pits are usually a lot deeper and a lot more uneven… no perfectly straight pits": the walls
+  // zig-zag down, narrowing a little, to an uneven bottom; the dirt rim is broken and lumpy — every pit a different shape, by seed)
+  const { w, cx, y, left, right, bottom } = pitOutline(p, s);
+  const dark = str(p.color, "#1c1410"), dirt = str(p.color2, "#6b4a2f"), seed = seedOf(p, 61);
+  const hole = [...left, ...bottom, ...[...right].reverse()];
+  const rim = (side: number) => { const x0 = cx + side * w / 2; return { kind: "poly" as const, points: flat([{ x: x0 - 0.06 * w, y: y }, { x: x0 - 0.03 * w, y: y - 0.025 * w - rand(seed, side + 5, 4) * 0.02 * w }, { x: x0 + 0.01 * w, y: y - 0.015 * w }, { x: x0 + 0.05 * w, y: y - 0.03 * w * rand(seed, side + 9, 5) }, { x: x0 + 0.07 * w, y: y }]), fill: mixColor(dirt, "#ffffff", 0.15) }; };
   return [
-    { kind: "rect", x, y: y - 1, w, h, fill: mixColor(dark, "#3b2a1e", 0.4), fill2: dark },
-    { kind: "rect", x, y: y - 1, w: 7, h, fill: dirt },
-    { kind: "rect", x: x + w - 7, y: y - 1, w: 7, h, fill: dirt },
-    { kind: "rect", x: x - 3, y: y - 2, w: 6, h: 10, fill: mixColor(dirt, "#ffffff", 0.2) },
-    { kind: "rect", x: x + w - 3, y: y - 2, w: 6, h: 10, fill: mixColor(dirt, "#ffffff", 0.2) },
+    { kind: "poly", points: flat(hole), fill: mixColor(dark, "#3b2a1e", 0.4) },
+    { kind: "line", points: flat(left), stroke: dirt, width: 7 },
+    { kind: "line", points: flat([...right].reverse()), stroke: dirt, width: 7 },
+    rim(-1), rim(1),
   ];
+}
+// THE PIT'S DRAWN OUTLINE (page px) — ONE SOURCE OF TRUTH: the drawing above and everything that touches the pit (a falling body
+// landing on its floor and its walls, moves/tumbleScene.ts; a rock stuck in its wall; the laws) read these same points.
+// `left` / `right` = the walls top → bottom; `bottom` = the rough floor between the walls' feet (left to right).
+export function pitOutline(p: Params, s: Stage) {
+  const w = num(p.w, 0.9 * s.height), cx = num(p.x, s.width / 2), y = num(p.y, s.groundY), h = num(p.h, pageBottom(s) - y);
+  const seed = seedOf(p, 61), J = 0.05 * w;
+  const left: Point[] = [], right: Point[] = [], bottom: Point[] = [];
+  for (let k = 0; k <= 6; k += 1) { const u = k / 6, inset = 0.12 * w * u; left.push({ x: cx - w / 2 + inset + (rand(seed, k, 1) - 0.5) * 2 * J, y: y - 1 + u * h }); right.push({ x: cx + w / 2 - inset + (rand(seed, k, 2) - 0.5) * 2 * J, y: y - 1 + u * h }); }
+  for (let k = 1; k < 6; k += 1) bottom.push({ x: cx - w / 2 + 0.12 * w + (k / 6) * 0.76 * w, y: y + h - (rand(seed, k, 3)) * 0.04 * w });
+  return { w, cx, y, h, left, right, bottom };
+}
+
+function dugPit(p: Params, t: number, s: Stage): Shape[] {
+  const steps = (p.steps as number[]).filter(Number.isFinite), done = steps.filter((x) => x <= t).length;
+  // (each dig eases in over 0.15 s, so the hole steps up as the shovel bites — never smoothly by itself)
+  const last = steps[done - 1], ease = last === undefined ? 1 : Math.min(1, (t - last) / 0.15);
+  const f = 0.12 + 0.88 * Math.max(0, done - 1 + ease) / steps.length;
+  const W = num(p.w, 0.9 * s.height), y = num(p.y, s.groundY), H0 = num(p.h, Math.min(pageBottom(s) - y, 0.5 * s.height));
+  const shapes = pit({ ...p, steps: undefined, w: W * (0.45 + 0.55 * f), h: Math.max(6, H0 * f) }, t, s);
+  const side = num(p.pileSide, 1), seed = seedOf(p, 61), dirt = str(p.color2, "#6b4a2f");
+  // (the PILE grows when each scoop LANDS on it — `pileSteps`, the toss moments (causes.ts) — or else with the hole)
+  const ps = Array.isArray(p.pileSteps) ? (p.pileSteps as number[]).filter(Number.isFinite) : undefined, pd = ps ? ps.filter((x) => x <= t).length : 0;
+  const fp = ps?.length ? 0.12 + 0.88 * Math.max(0, pd - 1 + (pd ? Math.min(1, (t - ps[pd - 1]) / 0.15) : 1)) / ps.length : f;
+  const cx = num(p.x, s.width / 2) + side * (W / 2 + 0.28 * W * Math.sqrt(fp)), pw = 0.35 * W * Math.sqrt(fp) + 8, ph = 0.22 * W * fp + 3;
+  const mound: Point[] = [{ x: cx - pw, y }];
+  for (let k = 1; k < 8; k += 1) { const u = k / 8, a = Math.sin(Math.PI * u); mound.push({ x: cx - pw + 2 * pw * u + (rand(seed, k, 11) - 0.5) * 0.12 * pw, y: y - ph * a * (0.8 + 0.4 * rand(seed, k, 12)) }); }
+  mound.push({ x: cx + pw, y });
+  shapes.push({ kind: "poly", points: flat(mound), fill: mixColor(dirt, "#000000", 0.08) });
+  for (let k = 0; k < 4; k += 1) shapes.push({ kind: "circle", x: cx + (rand(seed, k, 13) - 0.5) * 1.4 * pw, y: y - ph * 0.3 * rand(seed, k, 14), r: 2 + 0.05 * pw * rand(seed, k, 15), fill: mixColor(dirt, "#ffffff", 0.18) });
+  return shapes;
 }
 
 // WATER: a strip (x, y = its surface, w, h) with gentle waves rolling along at `speed`, and drifting ripples. Without
 // `x`/`w` it runs on past both page edges (BACKGROUNDS FILL THE PAGE).
 function water(p: Params, t: number, s: Stage): Shape[] {
-  const seed = seedOf(p, 53), x0 = num(p.x, 0), w = num(p.w, s.width), y = num(p.y, s.groundY), h = num(p.h, 140);
+  // (`x` is the water's MIDDLE — the same meaning the plan tidy-up and the guide use for every piece placed with x and w)
+  const seed = seedOf(p, 53), w = num(p.w, s.width), x0 = p.x === undefined ? 0 : num(p.x, 0) - w / 2, y = num(p.y, s.groundY), h = num(p.h, 140);
   const color = str(p.color, "#2f8fd8"), deep = str(p.color2, mixColor(color, "#0b2545", 0.55)), speed = num(p.speed, 1);
-  const amp = num(p.size, 0.05) * s.height, len = 140, ph = 6.283 * rand(seed, 0, 1);
+  // A POND / LAKE IS NATURAL (Arthur, rule 19: natural things irregular): water placed with x and w that does not span the page is
+  // a pond — a flat calm surface (water is level) with a soft, uneven, rounded shore going down into the ground, never a box.
+  if (p.x !== undefined && p.w !== undefined && w < 0.9 * s.width) return pond(p, t, s, seed, x0, w, y, h, color, deep, speed);
+  // (CALM BY DEFAULT — Arthur, Oct 12: "the engine keeps thinking water equals massive waves… only if the user explicitly says so":
+  // a lake, a river, the sea at rest has a nearly straight surface with gentle ripples; "size" asks for real waves)
+  // (THE HORIZON IS A STRAIGHT LINE — Arthur, Oct 12, again: "a straight freaking horizon… not dramatic waves": whatever "size" a sheet
+  // writes, the surface stays nearly straight; only "waves": true (the user asked for waves, a storm, a tsunami) lets it roll)
+  const amp = (p.waves === true ? num(p.size, 0.05) : Math.min(num(p.size, 0.008), 0.01)) * s.height, len = 140, ph = 6.283 * rand(seed, 0, 1);
   const surf = (x: number) => y + amp * Math.sin(((x - x0) / len) * 6.283 - t * 1.6 * speed + ph) + 0.4 * amp * Math.sin(((x - x0) / (len * 0.47)) * 6.283 + t * 1.1 * speed + 2 * ph);
   const N = Math.max(8, Math.round(w / 12)), step = w / N, more = bleedSteps(p, s, x0, w, step);
   const L = x0 - more.before * step, R = x0 + w + more.after * step;
@@ -466,9 +517,38 @@ function water(p: Params, t: number, s: Stage): Shape[] {
   return out;
 }
 
+function pond(p: Params, t: number, s: Stage, seed: number, x0: number, w: number, y: number, h: number, color: string, deep: string, speed: number): Shape[] {
+  const N = 36, depth = Math.min(h, 0.45 * w), shore = str(p.shore, "#8a6a45"), bottom: Point[] = [];
+  // the shore: deepest near the middle, rounded at both ends, bumpy (seeded) — the water's edge slopes in at the surface
+  for (let j = 0; j <= N; j += 1) {
+    const u = j / N, round = Math.pow(Math.sin(Math.PI * u), 0.55);
+    const bump = 1 + 0.12 * Math.sin(u * 13 + 6.283 * rand(seed, 0, 5)) + 0.08 * Math.sin(u * 29 + 6.283 * rand(seed, 0, 6));
+    bottom.push({ x: x0 + u * w + (rand(seed, j, 7) - 0.5) * 0.01 * w, y: y + depth * round * bump });
+  }
+  const lip = 0.03 * w, out: Shape[] = [
+    // a muddy shore band round the water, then the water itself (darker deeper)
+    { kind: "poly", points: flat([{ x: x0 - lip, y }, ...bottom.map((q) => ({ x: q.x + (q.x - (x0 + w / 2)) * 0.04, y: q.y + 0.08 * depth })), { x: x0 + w + lip, y }]), fill: shore },
+    { kind: "poly", points: flat([{ x: x0, y }, ...bottom, { x: x0 + w, y }]), fill: color },
+    { kind: "poly", points: flat([{ x: x0 + 0.12 * w, y: y + 0.35 * depth }, ...bottom.slice(6, N - 5).map((q) => ({ x: q.x, y: y + (q.y - y) * 0.92 })), { x: x0 + 0.88 * w, y: y + 0.35 * depth }]), fill: deep, alpha: 0.45 },
+    { kind: "line", points: [x0 + 2, y + 1, x0 + w - 2, y + 1], stroke: mixColor(color, "#ffffff", 0.55), width: 4 },
+  ];
+  // calm: a few short ripple lines drifting slowly, always inside the water
+  const n = Math.round(num(p.count, Math.max(2, w / 220)));
+  for (let i = 0; i < n; i += 1) {
+    const rl = 14 + 22 * rand(seed, i, 4), rx = x0 + 0.15 * w + wrap(rand(seed, i, 2) * 0.7 * w + t * 12 * speed, 0, 0.7 * w - rl), ry = y + (0.15 + 0.35 * rand(seed, i, 3)) * depth;
+    out.push({ kind: "line", points: [rx, ry, rx + rl, ry], stroke: mixColor(color, "#ffffff", 0.35), width: 3, alpha: clamp(0.6 + 0.3 * wobble(seed, i, t), 0, 1) });
+  }
+  return out;
+}
+
 const piece = (id: string, about: string, draw: (p: Params, t: number, s: Stage) => Shape[]): BackgroundRecipe => ({ id, about, draw: (pc, t, s) => draw(pc.params ?? {}, t, s) });
 
+// A WHOLE PLACE FROM ITS WORDS (effects/places.ts): the sky or back wall, the far scenery, the ground or floor, a few things that
+// belong there at the sides (standing on the ground line / hanging on the wall), all lit by the time of day.
+const placePiece = (p: Params, t: number, s: Stage) => drawPlace(p as Record<string, unknown>, t, s, { sky, sun, clouds, hills, trees, grass } as unknown as BaseRecipes, bandEnds(s, 600));
+
 export const BACKGROUNDS: BackgroundRecipe[] = [
+  piece("place", `A WHOLE NAMED PLACE in one piece — use it FIRST whenever the story says where it is: "params": { "place": the place words (${PLACES.map((q) => q.id).join(", ")} — or just the user's words, e.g. "a street at night"), "time": "day" | "sunset" | "night" (default: from the words) }. It draws the sky or the room's wall, the ground or floor, and a few things that belong there at the page sides, lit for the time of day. Add weather (rain) or extra pieces AFTER it; never add sky / ground / hills with it.`, placePiece),
   piece("sky", "the sky behind everything: a gradient; `time` day / sunset / night / overcast / storm (or `color` top, `color2` horizon); stars at night (`stars`, `count`).", sky),
   piece("sun", "a sun with a soft glow (`moon: true` = a moon); `x`, `y` centre, `size` radius x figure height, `color`, `color2` glow.", sun),
   piece("clouds", "`count` cartoon clouds drifting at `speed` (negative = leftward), wrapping round the page; `y`/`h` = their band, `size` = width x figure height.", clouds),
@@ -479,6 +559,6 @@ export const BACKGROUNDS: BackgroundRecipe[] = [
   piece("rain", "rain falling from above the page to the ground: slanted streaks (each the \"Raindrop\" symbol) and a little splash (a crown and a spreading ring) where each hits the ground; `intensity` 0.2 drizzle .. 1 storm, `wind` slants it (-1..1, gusts slant it more), `size` streak length x figure height, `speed`, `color`, `color2` splashes. Make the sky darker with sky `time: \"storm\"` or \"overcast\".", rain),
   piece("waterfall", "water pouring over a cliff edge into a pool on the ground: a sheet with wavy edges and bands moving down (faster as they fall), churning foam and rising mist at the bottom, ripples spreading in the pool; `x` middle, `w` width, `y` the lip, `side` right/left (where the cliff runs off the page), `rock` cliff color, `pool` its half-width x w, `speed`, `color` water, `color2` foam.", waterfall),
   piece("spikes", "a row of `count` sharp spikes standing on the ground at `x` (things to jump over); `size` = spike height x figure height.", spikes),
-  piece("pit", "a dark gap cut into the ground at `x`, `w` wide, `h` deep (put it after ground).", pit),
-  piece("water", "a strip of water (`x`, `y` surface, `w`, `h`) with gently rolling waves (`speed`, `size` wave height) and ripples.", water),
+  piece("pit", "a dark gap cut into the ground at `x`, `w` wide, `h` deep (put it after ground). DUG DURING THE SCENE: `dugBy` = the digger's id (who holds a shovel prop) — it starts as a dent and gets deeper and wider at each shovel dig, with a dirt pile beside it growing too.", pit),
+  piece("water", "water (`x` = its MIDDLE, `y` surface, `w`, `h`): with x and w narrower than the page = a POND / LAKE with a soft uneven shore (natural, never a box); without = water across the whole page (the sea, a straight horizon). CALM by default — a nearly straight surface with gentle ripples (a lake, a river, the sea at rest); `waves`: true with `size` (0.05 big rolling waves, 0.1 stormy) ONLY when the user asks for waves; `speed`.", water),
 ];

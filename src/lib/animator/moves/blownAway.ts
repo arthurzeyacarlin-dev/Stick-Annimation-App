@@ -323,6 +323,26 @@ export function struggleUp(start: Stance, hurt: number, settings: MoveSettings):
   ]);
 }
 
+// HURT GET-UP, either way it lies (Oct 15, a hard fall or tumble — tumble.ts fallHurt): on its back, the struggle above; on its
+// face, the hurt get-up from the belly (fall.ts getUp in the hurt timing) as far as the push up from the knee, then straight into the
+// hurt stance (wobbly knees, a hand on its side, swaying). Ends in that weak stance.
+export function hurtGetUp(start: Stance, hurt: number, settings: MoveSettings): MoveOutput {
+  if (!(start.pose.lean > 45)) return struggleUp(start, hurt, settings);
+  const k = clamp((hurt - HURT_STYLE_AT) / (1 - HURT_STYLE_AT), 0, 1);
+  const timing: MoveSettings = { ...settings, style: "hurt", energy: Math.min(settings.energy, 0.4) };
+  const calm: MoveSettings = { ...settings, style: "natural", speed: "normal" };
+  return chainMoves(start, [
+    (from) => {
+      const out = getUp(from, { direction: "forward" }, timing);
+      const up = out.marks.up ?? out.end.t;
+      const keys = out.keys.filter((q) => q.t < up - 1e-6);
+      const last = keys[keys.length - 1];
+      return { keys, end: { t: last.t, x: last.x, facing: from.facing, pose: last.pose }, marks: { up: last.t } };
+    },
+    (from) => hurtStand(from, k, calm),
+  ]);
+}
+
 // THE HURT STANCE (the hurt style's own lean and head, rig styles.ts, and its bent knees): hunched over, one hand
 // pressed to its side, the other arm hanging, the knees soft; `k` (0..1) how badly. `sway` -1..1 leans it a little.
 export function hurtStance(k: number, sway = 0): PoseAngles {

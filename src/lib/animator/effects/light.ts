@@ -8,7 +8,7 @@
 //   impacts.
 // Nothing goes below the ground: round lights are kept above it, and light on the ground is a dome sitting on it.
 import { bulbGlass, PLACED_SYMBOLS } from "../symbolMaker.ts";
-import { clamp, lerp, lifeOf, mixColor, rand, wobble } from "./random.ts";
+import { clamp, lerp, lifeOf, mixColor, rand, sourceAt, wobble } from "./random.ts";
 import { groundLight } from "./groundLight.ts";
 import type { EffectContext, EffectParams, EffectRecipe, Shape } from "./types.ts";
 
@@ -95,10 +95,10 @@ const glow: EffectRecipe = {
     for (let i = 0; i < count; i += 1) {
       const l = lifeOf(ctx.t, i, count, 0.9 / speed, seed + 7);
       if (l.bornAt < -1e-9) continue;
-      const k = i * 13 + l.n * 101;
+      const k = i * 13 + l.n * 101, o = sourceAt(ctx, l.bornAt); // (a mote floats on from where the glow was when it left — random.ts sourceAt)
       const ang = rand(seed, k, 1) * Math.PI * 2;
-      const mx = x + Math.cos(ang) * R * 0.6 * rand(seed, k, 2) + Math.sin(l.u * 5 + k) * R * 0.1;
-      const my = y + Math.sin(ang) * R * 0.4 - l.u * R * 1.3;
+      const mx = o.x + Math.cos(ang) * R * 0.6 * rand(seed, k, 2) + Math.sin(l.u * 5 + k) * R * 0.1;
+      const my = o.y + Math.sin(ang) * R * 0.4 - l.u * R * 1.3;
       if (my > ctx.groundY) continue;
       shapes.push({ kind: "circle", x: mx, y: my, r: Math.max(1, ctx.height * 0.008 * size), fill: core, alpha: a * Math.sin(Math.PI * l.u), glow: 8 });
     }

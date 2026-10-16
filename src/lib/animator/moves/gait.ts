@@ -19,6 +19,9 @@ export type GaitOptions = {
   keepLean?: boolean;
   // TIPTOE (Phase 3): the walk on tiptoe (TIPTOE below).
   tiptoe?: boolean;
+  // NOBODY WALKS IN SYNC (individual.ts): this figure's own stride (> 1 = longer, slower steps at the same speed, so it arrives at
+  // the same time) and its own arm swing.
+  stride?: number; armAmp?: number;
 };
 export type GaitResult = { keys: CharacterKey[]; endT: number; endX: number };
 
@@ -294,6 +297,10 @@ export function buildGait(options: GaitOptions): GaitResult {
   const run = options.kind !== "walk", jog = options.kind === "jog";
   const base = BASES[options.kind];
   const t = tune(base, options.style ?? "natural", options.speed ?? "normal", options.energy ?? 0.5);
+  { // (a run's stride is near its longest: it varies half as much)
+    const k = 1 + (Math.min(1.12, Math.max(0.9, options.stride ?? 1)) - 1) * (run ? 0.5 : 1);
+    t.stepSeconds *= k; t.stepLength *= k; t.armSwing *= Math.min(1.15, Math.max(0.85, options.armAmp ?? 1));
+  }
   // Running arms already swing wide; styles may not push them past a natural pump.
   if (run) {
     t.armSwing = Math.min(t.armSwing, jog ? 55 : 80);
@@ -433,8 +440,11 @@ export function buildGait(options: GaitOptions): GaitResult {
   const legScaleAt = (time: number) => LEG_SWING_MIN + (1 - LEG_SWING_MIN) * sizeAt(time);
   const lengthScaleAt = curve(mids.map((m, i): [number, number] => [m, lengthOf(speedF[i])]));
   // Lean: further over in the set pose and while speeding up; back toward upright while slowing down.
+  // (NO HEAD SNAP when setting off — Arthur, Oct 14, law #1: a quick set pose (a run's settle is a few hundredths of a second)
+  // can't throw the body into its lean in one picture; the set lean grows with the time the set pose really has)
+  const setLeanNow = (0.5 * t.lean + ramp.setLean) * Math.min(1, (tSet - startT) / 0.25);
   const leanAt = curve([
-    [startT, 0], [tSet, 0.5 * t.lean + ramp.setLean], [t0, 0.5 * t.lean + ramp.setLean],
+    [startT, 0], [tSet, setLeanNow], [t0, setLeanNow],
     ...mids.map((m, i): [number, number] => [m, plan.steps[i].speedingUp
       ? t.lean + ramp.accelLean * (1 - size[i])
       : t.lean * (1 - ramp.uprightOnStop * (1 - size[i]))]),
@@ -615,7 +625,16 @@ export function buildGait(options: GaitOptions): GaitResult {
     const hh = hipHeight(time), upper = rad(thighAngle), margin = 0.065 * H * grow * (edgeStep ? Math.sin(Math.PI * u) : Math.min(1, 3 * Math.sin(Math.PI * u)));
     const room = (hh - Math.cos(upper) * bones.thigh - margin) / bones.shin;
     if (room < 1) knee = Math.max(knee, thighAngle + deg(Math.acos(clamp(room, -1, 1))));
-    const hipAngle = clamp(thighAngle + lean, -45, 130), kneeAngle = clamp(knee, 0, 150);
+    let hipAngle = clamp(thighAngle + lean, -45, 130), kneeAngle = clamp(knee, 0, 150);
+    // THE SWINGING FOOT ARRIVES WHERE IT LANDS (Oct 14, a run's stopping step: the foot hung back near the floor, then leapt
+    // 65 px forward onto its landing spot in one picture): over the last part of every swing the leg blends into reaching for
+    // the landing spot (a little above it, coming down to it), so at landing it is already there — no jump, whatever the hips do.
+    const land = smooth01((u - 0.65) / 0.35);
+    if (land > 0 && Number.isFinite(swing.next.x)) {
+      const reachFor = legAngles({ x: hipX(time), y: -hh }, { x: swing.next.x, y: -0.04 * H * grow * (1 - land) }, lean, bones.thigh, bones.shin);
+      hipAngle += (reachFor.hip - hipAngle) * land;
+      kneeAngle += (reachFor.knee - kneeAngle) * land;
+    }
     // Knee and foot height (for the ground check) from the chosen angles.
     const thighDown = rad(hipAngle - lean);
     const kneeY = -hh + Math.cos(thighDown) * bones.thigh;

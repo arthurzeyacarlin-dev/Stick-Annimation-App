@@ -37,3 +37,11 @@ test("rise (default) still drifts up and pops; count and size are knobs", () => 
   const big = Math.max(...rings(draw(2, { motion: "float", size: 0.1 })).map(radius));
   assert.ok(big > 1.8 * small, `bigger size = bigger bubbles (${small} -> ${big})`);
 });
+
+test("BUBBLES COME OUT OF THE WAND: a new bubble is born right at the anchor, then spreads out as it drifts", () => {
+  // at the very start every bubble is still close to the wand (no bubble out of thin air across the page)
+  for (const r of rings(draw(0.35, { seed: 9, count: 10 }))) assert.ok(Math.hypot(middle(r).x - 960, middle(r).y - 500) < 0.25 * H, `born at the wand (${JSON.stringify(middle(r))})`);
+  // later they have spread over the area
+  const later = rings(draw(3, { seed: 9, count: 10 })).map(middle);
+  assert.ok(Math.max(...later.map((m) => Math.abs(m.x - 960))) > 0.15 * H, "they spread out as they drift");
+});

@@ -63,3 +63,80 @@ for (const [name, anchor, parts, hanging] of [
     assert.ok(Math.abs(lowXs(frames.length - 1) - lowXs(0)) < (hanging ? 6 : 2), `settles (a hanging thing on its long chain: within 6 px as the scene ends): last ${lowXs(frames.length - 1).toFixed(1)} vs first ${lowXs(0).toFixed(1)} (${frames.length} pictures, hit at ${hit.toFixed(2)} s)`);
   });
 }
+
+// BALLS HIT THINGS (Oct 14): a kicked ball that reaches a solid thing standing on the ground bounces back off it (slower),
+// never passes through it; a tree only stops it at its trunk; a hanging or flying thing is no wall.
+test("a kicked ball bounces back off a wall, crate or tree trunk instead of going through", async () => {
+  const { objectReacts, solidWalls } = await import("./hitThings.ts");
+  const H = 260, G = 900;
+  const wall = { kind: "prop", start: -1.5, end: 60, anchor: { x: 1500, y: 900 }, params: { name: "brick wall", size: 1.1, parts: [{ shape: "rect", x: 0, y: 0, w: 0.35, h: 1 }] } } as never;
+  const crate = { kind: "prop", start: 0, end: 60, anchor: { x: 1300, y: 900 }, params: { name: "wooden crate", size: 0.4, parts: [{ shape: "rect", x: 0, y: 0, w: 1, h: 1 }] } } as never;
+  const kite = { kind: "prop", start: 0, end: 60, anchor: { x: 1300, y: 400 }, params: { name: "box kite", flies: true, size: 0.3, parts: [{ shape: "rect", x: 0, y: 0, w: 1, h: 1 }] } } as never;
+  assert.equal(solidWalls([kite], H, G).length, 0, "a flying thing is no wall");
+  for (const thing of [wall, crate]) {
+    const walls = solidWalls([thing], H, G);
+    assert.equal(walls.length, 1);
+    const ball = { id: "ball", look: { kind: "ball", size: 40, color: "#fff", filled: true, thickness: 3 }, keys: [{ t: 0, x: 880, y: 880 }] } as never;
+    const out = objectReacts(ball, [{ t: 0.5, power: 0.9, dir: 1, kick: true, height: "low" }], H, G, 6, 1920, walls);
+    const xs = out.keys.map((k) => k.x), far = Math.max(...xs);
+    assert.ok(far <= walls[0].left - 20 + 1, `never inside the ${(thing as { params: { name: string } }).params.name}: reached ${far.toFixed(0)}, side at ${walls[0].left.toFixed(0)}`);
+    assert.ok(far > walls[0].left - 40, "it really reaches it");
+    assert.ok(xs[xs.length - 1] < far - 0.3 * H, "and comes back");
+  }
+  const tree = { kind: "prop", start: 0, end: 60, anchor: { x: 1500, y: 900 }, params: { name: "big tree", size: 1.5, parts: [{ shape: "circle", x: 0, y: -0.5, w: 1, h: 1 }, { shape: "rect", x: 0, y: 0, w: 0.15, h: 0.6 }] } } as never;
+  const tw = solidWalls([tree], H, G)[0];
+  assert.ok(tw.right - tw.left <= 0.12 * H + 1, "a tree stops the ball only at its trunk");
+});
+
+// KICK A BALL BY NAME (Oct 14: `target: "ball"` walked the kicker backward for 3 s, then he kicked air 400 px away): the kicker
+// steps up to the ball and the foot reaches it when the kick lands; the ball flies.
+test("a kick at a ball named as its target steps up to the ball and the foot touches it", async () => {
+  const { planToScene } = await import("./plan.ts");
+  const { buildScene } = await import("../engine.ts");
+  for (const ballX of [700, 1100]) {
+    const plan = { ...base, height: 260, characters: [{ id: "k", x: 640, facing: "right" as const, actions: [{ move: "kick", params: { target: "ball" } }] }],
+      objects: [{ id: "ball", look: { kind: "ball" as const, size: 40, color: "#fff", filled: true, thickness: 3 }, keys: [{ t: 0, x: ballX, y: 880 }] }] } as unknown as ScenePlan;
+    const scene = planToScene(plan, LIBRARY);
+    const hitT = scene.marks!["k.strike1.hit"];
+    assert.ok(hitT !== undefined && hitT < 2.5, `the kick lands soon (${hitT})`);
+    const built = buildScene(scene, 24), i = Math.round(hitT * 24);
+    const foot = built.frames[i].find((c) => c.id === "k")!.skeleton.lFoot;
+    const ball = built.objects[Math.max(0, i - 1)].find((o) => o.id === "ball")!;
+    assert.ok(Math.hypot(foot.x - ball.x, foot.y - ball.y) < 20 + 0.12 * 260, `ball at ${ballX}: the foot (${foot.x.toFixed(0)},${foot.y.toFixed(0)}) touches the ball (${ball.x.toFixed(0)},${ball.y.toFixed(0)})`);
+    const kx = scene.characters[0].keys.map((k) => k.x);
+    assert.ok(Math.min(...kx) >= 640 - 5, "never walks backward away from the ball");
+    assert.ok(built.objects[built.objects.length - 1].find((o) => o.id === "ball")!.x > ballX + 100, "the ball flies off");
+  }
+});
+
+// A THING ON THE WATER FLOATS ON IT (Oct 14: a fishing float on the lake hung from a chain out of the sky): a placed thing at a
+// water surface sits on the surface and is never drawn hanging; the same thing up in the air away from water still hangs.
+test("a thing placed on a lake floats on its surface with no chain from the sky", async () => {
+  const lake = { pieces: [{ kind: "sky", params: {} }, { kind: "water", params: { y: 770, h: 130 } }, { kind: "ground", params: {} }] };
+  const float = { kind: "prop", start: 0, end: 4, anchor: { x: 1500, y: 800 }, params: { name: "fishing float", size: 0.05, parts: [{ shape: "circle", x: 0, y: 0, w: 1, h: 1 }] }, layer: "back" };
+  for (const [anchor, onWater] of [[{ x: 1500, y: 800 }, true], [{ x: 1500, y: 300 }, false]] as const) {
+    const plan = { ...base, background: lake, characters: [{ id: "a", x: 600, facing: "right" as const, actions: [{ move: "stand", params: { seconds: 2 } }] }], effects: [{ ...float, anchor }] } as unknown as ScenePlan;
+    const scene = planToScene(plan, LIBRARY), built = buildScene(scene, 12);
+    const frames = buildEffectFrames(scene as never, built);
+    const lines = [...frames[6].back, ...frames[6].front].filter((s) => s.kind === "line" && (s.points ?? []).some((v, i) => i % 2 === 1 && v < 100));
+    assert.equal(lines.length === 0, onWater, onWater ? "on the water: no chain up out of the page" : "up in the air: it still hangs on its chain");
+    if (onWater) assert.equal((scene as { effects: { anchor: { y: number } }[] }).effects[0].anchor.y, 770, "it sits on the surface");
+  }
+});
+
+// OBJECTS TIMED TO MOVES (Oct 14): an object's key synced to a move moment (`at` + `offset`, the words actions sync to) happens
+// exactly then — a stuck kite stays until dad's last heave lands, then falls.
+test("an object key timed to a move moment happens exactly at that moment", async () => {
+  const { syncObjectKeys } = await import("./plan.ts");
+  const plan = { ...base, height: 260, characters: [{ id: "d", x: 700, facing: "right" as const, actions: [{ move: "walk", params: { distance: 200 } }, { move: "pull", params: { heaves: 3 } }] }],
+    objects: [{ id: "kite", look: { kind: "box" as const, size: 60, color: "#ef4444", filled: true, thickness: 4 }, keys: [{ t: 0, x: 1400, y: 500 }, { at: "d.pull1.last", x: 1400, y: 500 }, { at: "d.pull1.last", offset: 0.6, x: 1350, y: 860 }, { at: "nobody.jump1.land", x: 0, y: 0 }] }] } as unknown as ScenePlan;
+  const scene = planToScene(plan, LIBRARY), last = scene.marks["d.pull1.last"];
+  assert.ok(last !== undefined && last > 1, `the pull's last heave lands (${last})`);
+  const keys = scene.objects![0].keys;
+  assert.deepEqual(keys.map((k) => Number(k.t.toFixed(3))), [0, last, last + 0.6].map((t) => Number(t.toFixed(3))), "synced keys at the moment (+ offset); a moment that never comes is dropped");
+  assert.equal(keys.length, 3);
+  const built = buildScene(scene, 24), y = (t: number) => built.objects[Math.round(t * 24)].find((o) => o.id === "kite")!.y;
+  assert.ok(Math.abs(y(last - 0.3) - 500) < 2, "still stuck just before the last heave");
+  assert.ok(y(last + 0.6) > 800, "fallen after it");
+  assert.deepEqual(syncObjectKeys({ objects: [] }, {}), { objects: [] });
+});

@@ -844,7 +844,7 @@ const crateBreak: EffectRecipe = {
 // pieces, not a bunch of rectangles"): any thing next to a blast breaks apart like the crate — the same throw (crateBreakPiece: away
 // from the blast and up, spinning, clattering, settling flat). A VEHICLE breaks into its REAL PARTS: the front (hood, fender and a
 // yellow headlight), the back (trunk and a red taillight), the roof with its window, two doors (window and handle), two bumpers,
-// both wheels (tyre, grey hub, spokes that show the spin) and glass shards. Anything else: panels in its colour. `size` x height.
+// both wheels (tyre, grey hub, spokes that show the spin) and glass shards. A rock / stone / brick / ice thing ("material": "rock"…): jagged chunks of every size. Anything else (wood…): panels in its colour. `size` x height.
 type PartKind = "front" | "back" | "roof" | "door" | "bumper" | "wheel" | "glass" | "panel";
 type Part = CratePiece & { kind: PartKind };
 function carParts(at: Point, s: number): Part[] {
@@ -862,7 +862,7 @@ function carParts(at: Point, s: number): Part[] {
   for (let i = 0; i < 5; i += 1) add("glass", (i / 4 - 0.5) * 0.3 * W, 0.6 * s, 0.07 * s, 0.035 * s, (i * 53) % 180);
   return out;
 }
-function drawPart(part: Part, q: { x: number; y: number; rot: number }, color: string, s: number): Shape[] {
+function drawPart(part: Part, q: { x: number; y: number; rot: number }, color: string, s: number, rocky = false, seed = 0, index = 0): Shape[] {
   const a = (q.rot * Math.PI) / 180, c = Math.cos(a), sn = Math.sin(a), L = part.len / 2, T = part.thick / 2, w = Math.max(1, s * 0.014);
   const pt = (lx: number, ly: number) => [q.x + lx * c - ly * sn, q.y + lx * sn + ly * c];
   const poly = (pts: [number, number][], fill: string, stroke = "#2b1a12"): Shape => ({ kind: "poly", points: pts.flatMap(([x, y]) => pt(x, y)), fill, stroke, width: w });
@@ -876,20 +876,43 @@ function drawPart(part: Part, q: { x: number; y: number; rot: number }, color: s
     case "bumper": return [poly([[-L, -T], [L, -T], [L, T], [-L, T]], "#9e9e9e", "#424242")];
     case "wheel": { const r = T; const out: Shape[] = [circ(0, 0, r, "#212121", "#000000"), circ(0, 0, r * 0.45, "#bdbdbd", "#616161")]; for (let k = 0; k < 3; k += 1) { const b = (k * 2 * Math.PI) / 3; out.push({ kind: "line", points: [...pt(0, 0), ...pt(Math.cos(b) * r * 0.42, Math.sin(b) * r * 0.42)], stroke: "#616161", width: w }); } return out; }
     case "glass": return [poly([[-L, T], [0, -T], [L, T]], glass, "#3b6b85")];
-    default: return [poly([[-L, -T], [L, -T], [L, T], [-L, T]], color)];
+    // (A ROCK BREAKS INTO ROCK — Arthur, Oct 12: "it needs to look like crumbs… actual pieces of the rock, not a bunch of rectangles":
+    // a stone / rock / brick / concrete piece is a jagged chunk, every one a different shape and size)
+    default: if (rocky) { const n = 5 + Math.floor(rand(seed, index, 31) * 3), R = Math.max(L, T) * (0.55 + 0.6 * rand(seed, index, 32)); return [poly(Array.from({ length: n }, (_, k) => { const ang = (k / n) * 2 * Math.PI + rand(seed, index * 7 + k, 33) * 0.6, rr = R * (0.55 + 0.45 * rand(seed, index * 11 + k, 34)); return [rr * Math.cos(ang), rr * Math.sin(ang) * 0.8] as [number, number]; }), color, mixColor(color, "#000000", 0.5))]; }
+      return [poly([[-L, -T], [L, -T], [L, T], [-L, T]], color)];
   }
 }
 const thingBreak: EffectRecipe = {
   id: "thingBreak",
-  about: "A thing beside a blast BREAKS APART (anchor = its bottom middle, target = the blast spot): a vehicle (wheels: true) into its REAL parts — front with headlight, back with taillight, roof with window, doors, bumpers, wheels, glass — anything else into panels (color); all thrown up and away, spinning, then they fall, clatter and settle flat. size x height.",
+  about: "A thing beside a blast BREAKS APART (anchor = its bottom middle, target = the blast spot): a vehicle (wheels: true) into its REAL parts — front with headlight, back with taillight, roof with window, doors, bumpers, wheels, glass — a rock / stone / brick / ice thing (`material`: rock) into jagged chunks of every size; anything else (wood…) into panels (color); all thrown up and away, spinning, then they fall, clatter and settle flat. size x height.",
   draw(ctx, p) {
     const s = num(p.size, 0.4) * ctx.height, at = { x: ctx.at.x, y: ctx.groundY }, seed = num(p.seed, 5), u = Math.max(0, ctx.t);
     const blast = ctx.target ?? { x: at.x - s, y: ctx.groundY }, color = typeof p.color === "string" ? p.color : "#8d6e63", out: Shape[] = [];
+    const rocky = /rock|stone|boulder|brick|concrete|wall|statue|ice|crystal/i.test(String(p.material ?? p.of ?? p.name ?? ""));
+    // A BOARD SNAPS IN TWO (Oct 14, a karate chop): a board / plank / stick / bat / beam breaks at the strike point into its 2 HALVES —
+    // never a crate's worth of panels: each half tips down about the break (its inner end drops), drifts a little outward, falls
+    // with gravity, clatters once and settles flat. Its anchor's y = where the board was held (its middle).
+    if (p.wheels !== true && /\b(board|plank|stick|bat|beam|pole|shelf|branch|ruler|tile)s?\b/i.test(String(p.material ?? p.of ?? p.name ?? ""))) {
+      const g = gravityFor(ctx.height), cy = Math.min(ctx.groundY - 0.02 * ctx.height, typeof ctx.at.y === "number" ? ctx.at.y : ctx.groundY - 0.5 * ctx.height), thick = 0.14 * s;
+      [-1, 1].forEach((side, i) => {
+        // (HELD UPRIGHT — a board held up facing the striker, `upright`: it snaps into a TOP and a BOTTOM half that fly on the way
+        // the strike went (`away`: +1 right / -1 left), the top one further, spinning down; else the left and right halves)
+        const up = p.upright === true, away = num(p.away, 0);
+        const part: Part = up ? { x: at.x, y: cy + side * s / 4, len: s / 2, thick, rot: 90, chip: false, kind: "panel" } : { x: at.x + side * s / 4, y: cy, len: s / 2, thick, rot: 0, chip: false, kind: "panel" };
+        const vx = up ? away * (side < 0 ? 0.3 : 0.15) * ctx.height : side * 0.35 * ctx.height, vy = up ? (side < 0 ? -0.1 : 0.2) * ctx.height : 0.3 * ctx.height, spin = up ? away * (side < 0 ? 300 : 160) : -side * 260;
+        const floor = ctx.groundY - thick / 2, T = (-vy + Math.sqrt(vy * vy + 2 * g * Math.max(0, floor - part.y))) / g;
+        let q;
+        if (u < T) q = { x: part.x + vx * u, y: Math.min(part.y + vy * u + (g * u * u) / 2, ctx.groundY - halfDown(part.len, thick, part.rot + spin * u)), rot: part.rot + spin * u };
+        else { const a = part.rot + spin * T, flat = 180 * Math.round(a / 180), k = smooth((u - T) / 0.25), rot = lerp(a, flat, k); q = { x: part.x + vx * T + (vx / 6) * (1 - Math.exp(-6 * (u - T))), y: ctx.groundY - halfDown(part.len, thick, rot), rot }; }
+        out.push(...drawPart(part, q, color, s, false, seed, i));
+      });
+      return keepAboveGround(out, ctx.groundY);
+    }
     // (a vehicle's parts at the size the car was drawn: about 1.35 x its size box; thrown a little lower so they stay readable)
     const parts: Part[] = p.wheels === true ? carParts(at, 1.35 * s) : cratePieces(at, s).map((c) => ({ ...c, kind: (c.chip ? "glass" : "panel") as PartKind }));
     parts.forEach((part, i) => {
       const q = crateBreakPiece(part, i, u, blast, num(p.strength, p.wheels === true ? 0.85 : 1.2), ctx.groundY, ctx.height, seed);
-      out.push(...drawPart(part, q, color, s));
+      out.push(...drawPart(part, q, color, s, rocky, seed, i));
     });
     return keepAboveGround(out, ctx.groundY);
   },

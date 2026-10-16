@@ -6,7 +6,7 @@ import { planToScene, type ScenePlan } from "../moves/plan.ts";
 import { LIBRARY } from "../moves/library.ts";
 import { ballLook } from "../objects.ts";
 import { buildEffectFrames, EFFECTS, type EffectScene, type EffectTrack } from "./index.ts";
-import { materialOf } from "./impact.ts";
+import { impactByMaterial, impactFor, materialOf } from "./impact.ts";
 
 const H = 300, G = 900;
 const throwPlan = (id: string, name: string, effects: EffectTrack[], title = "throw"): ScenePlan => ({
@@ -89,4 +89,19 @@ test("THE GROUND SHOWS THE PLACE: rain / a thunderstorm on grass (never snow-whi
   // (a ground the plan gave is kept; a page colour the user asked for is kept)
   assert.equal(sceneWith("park", [{ kind: "sky" }, { kind: "ground", params: { color: "#8b5a2b" } }]).background?.pieces.filter((p) => p.kind === "ground").length, 1);
   assert.equal(sceneWith("storm", [{ kind: "rain" }], "#1d2333").background?.pieces.some((p) => p.kind === "ground"), false);
+});
+
+test("SPLAT ON IMPACT: snow, mud, paint, food burst where they hit; a scene's words name a nameless thrown thing (soft stuff only)", () => {
+  assert.equal(materialOf("snowball"), "snow");
+  assert.equal(materialOf("mud ball"), "mud");
+  assert.equal(materialOf("paint balloon"), "paint");
+  assert.equal(materialOf("rotten tomato"), "food");
+  assert.equal(materialOf("water balloon"), "water");
+  const kinds = impactFor("snow", 0.1).map((m) => m.kind);
+  assert.ok(kinds.includes("smokeBurst") && kinds.includes("iceShatter"), "snow = a white puff + chunks");
+  assert.equal(impactFor("mud", 0.1)[0].params.color, "#6b4423", "mud splats brown");
+  const plan = (title: string) => ({ height: 300, title, characters: [{ actions: [{ move: "throw", params: { object: "s1" } }] }], objects: [{ id: "s1", look: { size: 26, color: "#ffffff" } }], effects: [] as EffectTrack[] });
+  const snow = impactByMaterial(plan("Snowball!")).effects.filter((e) => "object" in e.anchor && e.anchor.landing);
+  assert.ok(snow.some((e) => e.kind === "smokeBurst"), "a nameless ball in a snowball scene bursts as snow");
+  assert.equal(impactByMaterial(plan("Fire drill")).effects.length, 0, "a scene's words never make a plain ball a fireball");
 });

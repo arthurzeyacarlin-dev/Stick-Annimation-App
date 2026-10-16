@@ -19,7 +19,7 @@ import { armOf, feetOf, isRobot, plantedLegs, type PlacedBeat, placedBeatsToKeys
 
 // `handOver` (the planner's ONE WAY ROUND): "down" = when another move follows, the waving arm still comes
 // down first (instead of the next move starting from the arm up), so the next move can't swing it straight on round.
-export type WaveParams = { times?: number; hand?: "left" | "right"; look?: LookTarget; handOver?: "up" | "down" };
+export type WaveParams = { times?: number; hand?: "left" | "right"; look?: LookTarget; handOver?: "up" | "down"; size?: number };
 export const WAVE_DEFAULTS: Required<Omit<WaveParams, "look" | "handOver">> = { times: 2, hand: "right" };
 
 const SWING_SECONDS = 0.25; // one swing out or back (Phase 1 timing)
@@ -37,7 +37,8 @@ export function wave(start: Stance, params: WaveParams, settings: MoveSettings):
   const side: Side = hand === "left" ? "l" : "r";
   const front = start.facing === "front";
   // Bigger swings with more energy and a lively style; small ones when tired or hurt.
-  const size = Math.min(1.25, amplitudeOf(settings) * Math.sqrt(STYLE_POWER[settings.style]));
+  // (`size`: this figure's own version — a small quick wave or a big one, individual.ts VARIANTS)
+  const size = Math.min(1.3, amplitudeOf(settings) * Math.sqrt(STYLE_POWER[settings.style]) * Math.min(1.3, Math.max(0.6, Number(params.size ?? 1))));
   const rest = front ? STAND_FRONT : STAND;
 
   // Front view (Phase 1): the arm is out to the side and up; the body tilts a little away from it and

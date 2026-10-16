@@ -9120,6 +9120,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     const remove = layersRef.current.filter((layer) => layer.name === name || layer.name.startsWith(`${name} `)).map((layer) => layer.id);
     return placeAnimatorScene(source, null, remove);
   }, [placeAnimatorScene]);
+  // (SPEC-0021 Phase 5: is this AI animation's layer on the canvas right now? After an Undo it is not — the AI then edits what IS there.)
+  const aiAnimationOnCanvas = useCallback((title: string) => layersRef.current.some((layer) => layer.name === `AI: ${title}` || layer.name.startsWith(`AI: ${title} `)), []);
   // SPEC-0017 "50-50": page → drawing-canvas pixels (the same map applyAnimatorScene draws with).
   const enginePageMap = useCallback((): PageToCanvasMap | null => {
     const layout = drawingCanvasRef.current?.getPlaybackSurfaceLayout() ?? null;
@@ -10115,6 +10117,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
           onProjectAiMemoryChange={setProjectAiMemory}
           onApplyGeneratedFrame={applyGeneratedFrameToWorkspace}
           onApplyAnimatorScene={applyAnimatorScene}
+          aiAnimationOnCanvas={aiAnimationOnCanvas}
           engineDrawing={engineDrawingBridge}
           onExecuteActionPlan={executeAiActionPlan}
           ref={drawingCanvasRef}

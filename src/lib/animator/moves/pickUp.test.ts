@@ -267,3 +267,11 @@ test("pickUp flows: squat -> pick up -> throw, jump -> pick up, from a guard; th
     }
   }
 });
+
+// A SMALL THING CAN BE PICKED UP (Oct 14: a size-20 stone threw "the object can't be reached"; size 30 worked): a pebble, a coin, a
+// stone of any small size is reached (bending lower, fingers round it), with one hand or both, near or far.
+test("pickUp: small things (a pebble, a coin, a stone) are always reachable", () => {
+  for (const H of [208, 260, 300]) for (const size of [6, 8, 12, 16, 20, 24]) for (const reach of [undefined, 0.1 * H, 0.4 * H]) for (const hand of ["hands", "rHand"] as const) {
+    assert.doesNotThrow(() => pickUp({ t: 0, x: 0, facing: "right", pose: STAND }, { size, reach, hand } as PickUpParams, { height: H, style: "natural", speed: "normal", energy: 0.5 } as never), `size ${size} at height ${H}, reach ${reach}, ${hand}`);
+  }
+});

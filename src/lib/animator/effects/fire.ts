@@ -8,7 +8,7 @@
 // picture by hand. Never hundreds of circles; never spears, diamonds or plain puffs. One rule draws every moving
 // fire shape (flameOutline): point it any way, stretch it long (a blast) or keep it small (a chunk).
 // Particles are seeded and stateless (random.ts), so a flame looks the same at 8, 12 and 24 fps.
-import { clamp, lerp, lifeOf, mixColor, rand, smooth, wobble } from "./random.ts";
+import { clamp, lerp, lifeOf, mixColor, rand, smooth, sourceAt, wobble } from "./random.ts";
 import { groundLight } from "./groundLight.ts";
 import type { EffectContext, EffectParams, EffectRecipe, Point, Shape } from "./types.ts";
 
@@ -235,7 +235,7 @@ export function fireParticle(i: number, t: number, o: { x: number; y: number; h:
   return { x, y, u, n, bornAt, a, b };
 }
 
-type FlameOpts = { x: number; y: number; h: number; w: number; amp: number; t: number; seed: number; k: Knobs; lean: number; tongues: number; licks: number; embers: number; glow: boolean; yellow?: boolean };
+type FlameOpts = { x: number; y: number; h: number; w: number; amp: number; t: number; seed: number; k: Knobs; lean: number; tongues: number; licks: number; embers: number; glow: boolean; yellow?: boolean; shift?: (born: number) => Point };
 
 // A whole cartoon flame in 3 flat layers: red tongues behind, orange over them, yellow in the middle; a few
 // licks breaking off the top and rising, and a few ember dots. `amp` 0..1 = how built-up it is.
@@ -278,8 +278,8 @@ function flame(out: Shape[], o: FlameOpts) {
   const nE = Math.round(o.embers * Math.min(1, amp) * k.intensity);
   for (let i = 0; i < nE; i += 1) {
     const p = fireParticle(i + 100, ts, { x: o.x, y: o.y - H * 0.4, h: H, w: W * 0.7, life: 1.1, rise: 1.3, lean: o.lean, turbulence: turb + 0.3, seed });
-    const r = Math.max(2, o.h * 0.016) * (1 - 0.4 * p.u) * (0.7 + 0.6 * p.b);
-    out.push({ kind: "circle", x: p.x, y: p.y, r, fill: p.u < 0.5 ? k.color2 : k.color, alpha: 1 - smooth((p.u - 0.6) / 0.4) });
+    const r = Math.max(2, o.h * 0.016) * (1 - 0.4 * p.u) * (0.7 + 0.6 * p.b), d = o.shift?.(p.bornAt / k.speed) ?? { x: 0, y: 0 };
+    out.push({ kind: "circle", x: p.x + d.x, y: p.y + d.y, r, fill: p.u < 0.5 ? k.color2 : k.color, alpha: 1 - smooth((p.u - 0.6) / 0.4) });
   }
 }
 
@@ -292,7 +292,8 @@ function licks(out: Shape[], o: FlameOpts, H: number, W: number) {
     const p = fireParticle(i, ts, { x: o.x, y: o.y - H * (0.5 + 0.12 * rand(seed, i, 8)), h: H, w: W * 0.45, life: 0.6, rise: 0.75, lean: o.lean, turbulence: k.turbulence, seed });
     const lh = H * 0.32 * Math.pow(1 - p.u, 0.8) * (0.6 + 0.6 * p.b);
     if (lh < 1) continue;
-    const pts = tongue(p.x, p.y, -Math.PI / 2, lh, lh * 0.46, o.lean * 0.2 + lh * 0.3 * wobble(seed, i + 60, ts, 6), 0.4, seed + 9, i, ts);
+    const d = o.shift?.(p.bornAt / k.speed) ?? { x: 0, y: 0 }; // (left behind in the air where the flame was — EMITTED THINGS LIVE IN THE WORLD)
+    const pts = tongue(p.x + d.x, p.y + d.y, -Math.PI / 2, lh, lh * 0.46, o.lean * 0.2 + lh * 0.3 * wobble(seed, i + 60, ts, 6), 0.4, seed + 9, i, ts);
     out.push({ kind: "poly", points: pts, fill: p.u < 0.35 ? k.color : k.color2, alpha: 1 - smooth((p.u - 0.45) / 0.55) });
   }
 }
@@ -344,11 +345,14 @@ const fire: EffectRecipe = {
     const k = knobs(p);
     const size = num(p.size, 0.35);
     const H = size * ctx.height * (0.75 + 0.25 * Math.min(1.5, k.intensity));
-    const grow = Math.min(0.7, ctx.duration * 0.3), fade = Math.min(0.8, ctx.duration * 0.3);
+    const grow = Math.min(num(p.grow, 0.7), ctx.duration * (p.grow === undefined ? 0.3 : 0.5)), fade = Math.min(0.8, ctx.duration * 0.3); // (`grow`: seconds to build up — a fire just lit grows slowly, effects/causes.ts)
     const amp = (0.16 + 0.84 * smooth(ctx.t / Math.max(0.01, grow))) * smooth((ctx.duration - ctx.t) / Math.max(0.01, fade));
     const lean = Math.cos(deg(num(p.direction, -90))) * H * 0.5;
     const out: Shape[] = [];
-    flame(out, { x: ctx.at.x, y: Math.min(ctx.at.y, ctx.groundY), h: H, w: H * 0.62, amp, t: ctx.t, seed: k.seed, k, lean, tongues: 4, licks: 3, embers: 4, glow: true });
+    // (EMITTED THINGS LIVE IN THE WORLD — random.ts sourceAt: the flame rides its torch, but licks and embers that broke off stay
+    // where the flame was when they left it and rise from there)
+    const shift = (born: number): Point => { const q = sourceAt(ctx, born); return { x: q.x - ctx.at.x, y: Math.min(q.y, ctx.groundY) - Math.min(ctx.at.y, ctx.groundY) }; };
+    flame(out, { x: ctx.at.x, y: Math.min(ctx.at.y, ctx.groundY), h: H, w: H * 0.62, amp, t: ctx.t, seed: k.seed, k, lean, tongues: 4, licks: 3, embers: 4, glow: true, shift });
     return onPage(out, ctx);
   },
 };

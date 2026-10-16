@@ -28,11 +28,14 @@ export type ShakePlan = { at: number | string; strength?: number; seconds?: numb
 export type Gait = "walk" | "jog" | "run";
 export type ShotCharacter = CharacterPlan & { enter?: "left" | "right"; leave?: "left" | "right"; enterMove?: Gait; leaveMove?: Gait };
 export type ShotPlan = { title?: string; characters: ShotCharacter[]; background?: BackgroundSpec; effects?: EffectTrack[]; objects?: ObjectPlan[]; at?: number; after?: number; shake?: ShakePlan[] };
-export type CameraPlan = ScenePlan & { characters: ShotCharacter[]; shake?: ShakePlan[]; cuts?: ShotPlan[] };
+// camera.follow (Arthur, Oct 12: "walking in the forest for 15 seconds"): THE CAMERA FOLLOWS a figure ("<id>") or the group
+// ("all") through ONE continuous shot — the world is as wide as the walk, the background fills it, and the whole picture slides
+// so they stay on the page (figures at their normal size; no cuts). A tool Claude chooses, never a saved scene.
+export type CameraPlan = ScenePlan & { characters: ShotCharacter[]; shake?: ShakePlan[]; cuts?: ShotPlan[]; camera?: { follow?: string } };
 
 export const isCameraPlan = (plan: ScenePlan): plan is CameraPlan => {
   const p = plan as CameraPlan;
-  return Boolean(p.cuts?.length || p.shake?.length || (p.characters as ShotCharacter[]).some((c) => c.enter || c.leave));
+  return Boolean(p.cuts?.length || p.shake?.length || p.camera?.follow || (p.characters as ShotCharacter[]).some((c) => c.enter || c.leave));
 };
 
 // Seconds between a figure being fully off the page and the cut to the next shot.
@@ -161,7 +164,9 @@ function joinShots(plan: CameraPlan, shots: ShotPlan[], cast: Map<string, ShotCh
   built.slice(1).forEach((b, i) => { for (const [name, t] of Object.entries(b.scene.marks)) marks[`shot${i + 2}/${name}`] = starts[i + 1] + t; });
   // (The whole story's effects and first background, for anyone who only asks whether it has any; the pictures
   // come from each shot's own: camera.ts cameraEffectFrames.)
-  const effects = built.flatMap((b, n) => ((b.scene as { effects?: EffectTrack[] }).effects ?? []).map((e) => ({ ...e, start: e.start + starts[n], end: e.end + starts[n] })));
+  // (each shot's things live inside THAT shot: a scene's "from before it starts" (-1.5 s) props and "to the end" (60 s) props are
+  // clipped to the shot — they never leak into the scene before or after, so a story's scenery is never counted twice)
+  const effects = built.flatMap((b, n) => ((b.scene as { effects?: EffectTrack[] }).effects ?? []).map((e) => ({ ...e, start: Math.max(e.start + starts[n], n === 0 ? e.start : starts[n]), end: Math.min(e.end + starts[n], starts[n] + lengths[n]) })).filter((e) => e.end > e.start));
   const background = built.map((b) => (b.scene as { background?: BackgroundSpec }).background).find((bg) => bg?.pieces.length);
   const last = built.length - 1;
   return {
@@ -175,8 +180,16 @@ function joinShots(plan: CameraPlan, shots: ShotPlan[], cast: Map<string, ShotCh
 // running off or in on purpose) is zoomed out if it is too wide — every shot the same, so figures keep one size — and
 // the page edges they cross are put where the app's centering will put them.
 export function cameraPlanToScene(plan: CameraPlan, moves: Record<string, MoveEntry>, stageWidth = plan.stageWidth ?? 1920): CameraScene & { marks: Record<string, number>; stageWidth: number } {
-  const { cuts, shake, ...first } = plan;
+  const { cuts, shake, camera, ...first } = plan;
   const shots: ShotPlan[] = [{ characters: first.characters, background: first.background, effects: first.effects, objects: first.objects, shake }, ...(cuts ?? [])];
+  // FOLLOW: one shot, NOT shrunk to fit the page (the camera does the fitting); the world's width = as far as anyone goes, plus a page.
+  if (camera?.follow && shots.length === 1) {
+    const scene = planToScene(first, moves);
+    const built = buildScene(scene, 12);
+    const xs = built.frames.flat().map((c) => c.skeleton.hip.x).filter(Number.isFinite);
+    const worldWidth = Math.max(stageWidth, Math.ceil((xs.length ? Math.max(...xs) : stageWidth) + 0.6 * stageWidth));
+    return { ...scene, stageWidth, shake: resolveShake(shake, scene.marks), follow: { id: camera.follow, pageWidth: stageWidth }, backgroundWidth: worldWidth } as ReturnType<typeof cameraPlanToScene>;
+  }
   // Only a shake, in one ordinary shot: the usual page fit, then the shake.
   if (shots.length === 1 && !(plan.characters as ShotCharacter[]).some((c) => c.enter || c.leave)) {
     const scene = first.background ? planToScene(fitBackgroundPlanToPage(first, moves, stageWidth), moves) : fitPlanToPage(first, moves, stageWidth);

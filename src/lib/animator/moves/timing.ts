@@ -28,6 +28,7 @@ export const THROW_SPEED_MAX = 4.0; // H/s: a throw's release (the ball must lea
 export const STILL_SPEED = 0.3; // H/s
 export const SPEED_JUMP_MAX = 1.8; // H/s within two pictures (gate scene 3, the witch reaching into the stir right after her walk, measures 1.6: a passed move sits under it)
 // The words that ask for speed (the law then steps aside for that scene).
-export const FAST_WORDS = /\b(fast|faster|quick|quickly|hurry|hurries|hurried|rush|rushes|rushing|speed|speedy|sprint|lightning|hyper|zoom|race|races|racing|instantly|snap)\b/i;
+export const FAST_WORDS = /\b(time ?lapse|timelapse|fast[- ]forward|sped up|speed up|fast|faster|quick|quickly|hurry|hurries|hurried|rush|rushes|rushing|speed|speedy|sprint|lightning|hyper|zoom|race|races|racing|instantly|snap)\b/i;
 // The moves that are fast on purpose (exempt): fights and strikes, falls, flights and jumps, runs, and anything thrown or blown.
-export const FAST_MOVES = /punch|kick|jab|hook|uppercut|slap|block|dodge|strike|hit|getHit|clash|barrage|combo|dash|fight|fall|trip|knock|faint|blown|fly|flight|float|jump|leap|flip|cartwheel|run|flee|chase|electro|power|blast|spin|slam|grapple|lift|transform|ice|laser|fire|grenade|sword|weapon|parry|landing/i;
+// (A STOMP is a strike with the foot — "the foot SLAMS down fast" — Arthur, Oct 12: "bigger stomps" were refused as hypersonic.)
+export const FAST_MOVES = /realMotion|tumble|stomp|punch|kick|jab|hook|uppercut|slap|block|dodge|strike|hit|getHit|clash|barrage|combo|dash|fight|fall|trip|knock|faint|blown|fly|flight|float|jump|leap|flip|cartwheel|run|flee|chase|electro|power|blast|spin|slam|grapple|lift|transform|ice|laser|fire|grenade|sword|weapon|parry|landing|pull|tug|haul|heave|yank/i; // (pulling: a heave and the loser's yank are strong on purpose — Arthur, Oct 14)

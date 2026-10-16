@@ -1,5 +1,6 @@
 import type { FrameCharacter, ObjectHand } from "../engine.ts";
 import { flightTime, GRAVITY } from "../objectMoves.ts";
+import { flightStyleOf } from "../objectFlight.ts";
 import { defaultApex, GRIP, heldCenter } from "../objects.ts";
 import { DEFAULT_STYLE, PROPORTIONS, STAND, withPose, type Facing, type Point, type PoseAngles } from "../rig.ts";
 import { beatSeconds, windUp, type MoveOutput, type MoveSettings, type Stance } from "./motion.ts";
@@ -323,6 +324,9 @@ const RELEASE_UNDER: WorldArm = { upper: 55, fore: 66 };
 const LOFT_OVER = { lag: { upper: -185, fore: -80 } as WorldArm, arm: { upper: -180, fore: -115 } as WorldArm, lean: 3 };
 const LOFT_UNDER = { arm: { upper: 60, fore: 80 } as WorldArm, lean: 3 };
 const FOLLOW_UNDER: WorldArm = { upper: 104, fore: 122 };
+// The backhand's arm (world degrees from straight down, + = forward; the elbow only bends one way): wound far round behind the back at
+// chest height, swept round low and flung out level at the shoulder, pointing on at the catcher.
+const BACKHAND = { pull: { upper: -35, fore: 5 }, wrap: { upper: -100, fore: -62 }, lead: { upper: 25, fore: 62 }, release: { upper: 88, fore: 92 }, follow: { upper: 124, fore: 132 } } satisfies Record<string, WorldArm>;
 
 // A ROBOT THROWS STIFF (Arthur, round 8: "robots don't feel weight ... When he throws, the right arm goes
 // behind him, around his head, and throws"): the throwing arm stays STRAIGHT — down and back behind the
@@ -455,7 +459,9 @@ function ballTravel(poses: PoseAngles[], steps = 24) {
 export function throwBall(start: Stance, params: ThrowParams, settings: MoveSettings): MoveOutput {
   if (isHandOff(params, settings.height)) return handOff(start, params.distance ?? THROW_DEFAULTS.distance, settings, params.until);
   const distance = params.to === "away" ? 6 * settings.height : params.distance ?? THROW_DEFAULTS.distance;
-  const overhand = throwsOverhand(params, settings.height);
+  // (EACH THING IS THROWN ITS OWN WAY — objectFlight.ts: a frisbee / flying disc is thrown BACKHAND, never like a ball)
+  const backhand = !params.bounce && !isRobot(settings) && flightStyleOf(String((params as { object?: unknown }).object ?? "")) === "glide";
+  const overhand = !backhand && throwsOverhand(params, settings.height);
   // A farther throw winds up deeper and steps the weight further; energy and style add to that.
   const reach = Math.min(1.3, Math.max(0.6, distance / (3 * settings.height)));
   // (EFFORT: a softer toss winds up and steps less and swings slower; a harder one the other way.)
@@ -463,9 +469,22 @@ export function throwBall(start: Stance, params: ThrowParams, settings: MoveSett
   const k = Math.min(MAX_THROW_POWER, reach * powerOf(settings) * (params.effort !== undefined ? Math.min(1.25, Math.max(0.2, effort)) : 1));
   const robot = isRobot(settings);
   const swing = overhand || params.swing === undefined ? 1 : Math.min(1, Math.max(0, params.swing));
-  const p = throwPoses(overhand, k, feetOf(start.pose), robot, params.loft === true, swing);
+  const p0 = throwPoses(overhand, k, feetOf(start.pose), robot, params.loft === true, swing);
+  // A BOUNCE PASS PUSHES DOWN (Arthur, Oct 12: "it looks like they're throwing up, but the ball goes down… defying physics"): the arm
+  // goes where the ball goes — the ball is lifted UP high (the wind-up: the OPPOSITE of the downward push; Arthur: "more anticipation for
+  // that strong bounce"), body leaning back, then both arms
+  // push it forward and DOWN toward the bounce spot, the follow-through ending low with the palms down.
+  const arms = (q: typeof p0.release, sh: number, el: number, lean: number) => ({ ...q, lShoulder: sh, rShoulder: sh - 4, lElbow: el, rElbow: el + 6, lean: q.lean + lean });
+  const pB = params.bounce && !overhand && !robot ? { ...p0, windup: arms(p0.windup, 62, 95, -8), ...(p0.loaded ? { loaded: arms(p0.loaded, 68, 88, -9) } : {}), ...(p0.lag ? { lag: arms(p0.lag, 30, 70, 4) } : {}), ...(p0.whip ? { whip: arms(p0.whip, 40, 35, 6) } : {}), release: arms(p0.release, 48, 12, 9), follow: arms(p0.follow, 38, 6, 10) } : p0;
+  // THE BACKHAND (Arthur, Oct 15: "the arm should go almost around him, then fling it"): the throwing arm wraps across the body —
+  // the elbow stays in front, the hand curls round behind at belly height — then the ELBOW LEADS out level and the forearm flings
+  // the disc out flat at chest height, the arm ending pointed at the catcher. (Never down and under like a ball toss.)
+  const bh = (q: typeof p0.release, arm: WorldArm) => ({ ...q, ...armFromWorld(q.lean, "r", arm) });
+  const p = backhand ? { ...pB, pull: bh(pB.pull, BACKHAND.pull), windup: bh(pB.windup, BACKHAND.wrap), lag: bh(blendPose(pB.windup, pB.release, 0.3) as typeof p0.release, BACKHAND.lead), lagAt: pB.lagAt, release: bh(pB.release, BACKHAND.release), follow: bh(pB.follow, BACKHAND.follow) } : pB;
   const timing = throwTiming(settings, overhand);
-  const strikeOf = (q: typeof p) => actionThrough([...(q.lag ? [{ pose: q.lag, at: q.lagAt }] : []), ...(q.whip ? [{ pose: q.whip, at: q.whipAt }] : []), { pose: q.release, at: q.releaseAt, name: "release" }], { pose: q.loaded ?? q.windup, at: q.windAt }, BALL_HAND, timing.release / Math.max(1, effort), settings); // (NO SLOW MOTION: an effort below 1 never slows it down)
+  // (the backhand's hand goes much further round than a toss's: the swing gets the time for its longer path — no hypersonic hand)
+  const slowBy = backhand ? 1.15 * Math.max(1, chainLength([p.windup, p.lag!, p.release], BALL_HAND) / Math.max(1e-6, chainLength([pB.windup, pB.release], BALL_HAND))) : 1;
+  const strikeOf = (q: typeof p) => actionThrough([...(q.lag ? [{ pose: q.lag, at: q.lagAt }] : []), ...(q.whip ? [{ pose: q.whip, at: q.whipAt }] : []), { pose: q.release, at: q.releaseAt, name: "release" }], { pose: q.loaded ?? q.windup, at: q.windAt }, BALL_HAND, timing.release * slowBy / Math.max(1, effort), settings); // (NO SLOW MOTION: an effort below 1 never slows it down)
   const strike = strikeOf(p);
   // The follow-through carries on from the release at about the hand's speed there, then slows down.
   // (A smaller `swing` keeps every beat of the full toss: its follow-through and arms-down times come from the full

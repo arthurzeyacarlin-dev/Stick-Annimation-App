@@ -5,7 +5,7 @@
 // one look for everything. Only fills in what the plan leaves out (and swaps a shatter on a thing that can't break).
 import type { EffectParams, EffectTrack } from "./types.ts";
 
-export type Material = "fire" | "electric" | "energy" | "water" | "ice" | "glass" | "soft";
+export type Material = "fire" | "electric" | "energy" | "water" | "snow" | "mud" | "paint" | "food" | "ice" | "glass" | "soft";
 
 // The effect kinds carried ON a thing that tell what it is made of.
 const ON_KIND: Record<string, Material> = { fireball: "fire", fire: "fire", fireStream: "fire", fireBurst: "fire", wildfire: "fire", lightning: "electric", sparks: "electric", glow: "energy", flash: "energy", waterStream: "water", splash: "water", waterShield: "water", bubbles: "water", iceStream: "ice", iceShards: "ice" };
@@ -14,7 +14,12 @@ const WORDS: [RegExp, Material][] = [
   [/fire|flam|burn|blaz|lava|magma|ember|inferno|torch|meteor/i, "fire"],
   [/electr|lightn|thunder|shock|volt|zap|spark|plasma/i, "electric"],
   [/water|aqua|bubble|wet|rain|slime|splash/i, "water"],
-  [/(^|[^a-z])ice|frozen|frost|snowball|icicle/i, "ice"],
+  // (SPLAT ON IMPACT, Arthur Oct 15: "stuff would explode like fire, snowball, mud" — soft packed things burst where they hit)
+  [/snow|slush/i, "snow"],
+  [/mud|dirt|clay|sludge|muck/i, "mud"],
+  [/paint/i, "paint"],
+  [/egg|tomato|pie|cake|custard|jelly|pudding|food|fruit|banana|melon/i, "food"],
+  [/(^|[^a-z])ice|frozen|frost|icicle/i, "ice"],
   [/glass|bottle|vase|jar|window|mirror|plate|cup|crystal|bulb/i, "glass"],
   [/energy|magic|power|aura|spirit|mana|\bki\b|chi\b|orb|spell|star|cosmic|soul/i, "energy"],
   [/rubber|bouncy|soft|tennis|basket|soccer|foot ?ball|beach ?ball|balloon|pillow|plush/i, "soft"],
@@ -44,6 +49,11 @@ export function impactFor(material: Material, size: number, color?: string): { k
     // up and out is what reads, so it comes along; the landing rule makes it bigger than the thing.)
     case "energy": return [{ kind: "flash", seconds: 0.3, params: { size: s * 1.6, color: color ?? "#d9a8ff" } }, { kind: "glow", seconds: 0.45, params: { size: s * 1.4, color: color ?? "#b266ff", intensity: 1.2 } }, { kind: "sparks", seconds: 0.6, params: { burst: true, spread: 240, intensity: 1.2, size: Math.max(0.6, s * 3), color: color ?? "#d9a8ff" } }];
     case "water": return [{ kind: "splash", seconds: 0.8, params: { size: Math.max(0.15, s * 1.5), ...(color ? { color } : {}) } }];
+    // SPLAT ON IMPACT (Arthur, Oct 15): a snowball bursts into a white puff and chunks of snow; mud splats brown; paint splats in
+    // its colour; food (egg, tomato, pie) splats in its colour — a burst of the stuff thrown out, and the thing is gone.
+    case "snow": return [{ kind: "smokeBurst", seconds: 0.7, params: { size: Math.max(0.12, s * 2.2), color: "#ffffff", color2: "#e2e8f0", speed: 1.6, intensity: 0.7 } }, { kind: "iceShatter", seconds: 0.9, params: { size: s * 0.8, tall: s, count: 6, color: "#ffffff", color2: "#f1f5f9" } }];
+    case "mud": return [{ kind: "splash", seconds: 0.9, params: { size: Math.max(0.15, s * 1.6), color: color && !/^#?f/i.test(color) ? color : "#6b4423", color2: "#8b5a2b" } }];
+    case "paint": case "food": return [{ kind: "splash", seconds: 1.0, params: { size: Math.max(0.15, s * 1.6), color: color ?? (material === "paint" ? "#e11d48" : "#ef4444"), color2: color ?? "#fca5a5" } }];
     // a thing that can break breaks into pieces (glass: clear pale pieces; ice: ice pieces)
     case "ice": return [{ kind: "iceShatter", seconds: 0.9, params: { size: s * 0.8, tall: s, count: 5 } }];
     case "glass": return [{ kind: "iceShatter", seconds: 0.9, params: { size: s * 0.8, tall: s, count: 6, color: "#e8f6ff", color2: "#ffffff" } }];
@@ -51,11 +61,13 @@ export function impactFor(material: Material, size: number, color?: string): { k
   }
 }
 
+// The soft stuff that bursts where it hits (read from the scene's words when the thing has none of its own).
+const SPLATS = new Set<Material>(["snow", "mud", "paint", "food"]);
 // Shatter looks: only for things that can break.
 const SHATTERS = new Set(["iceShatter", "crateBreak", "iceShards"]);
 const BREAKS = new Set<Material | undefined>(["ice", "glass", undefined]);
 
-type PlanLike = { height: number; characters: { actions: { move: string; params?: Record<string, unknown> }[] }[]; objects?: { id: string; name?: string; look: { size: number; color: string } }[]; effects?: EffectTrack[] };
+type PlanLike = { height: number; title?: string; prompt?: string; characters: { actions: { move: string; params?: Record<string, unknown> }[] }[]; objects?: { id: string; name?: string; look: { size: number; color: string; kind?: string } }[]; effects?: EffectTrack[] };
 
 // A THROWN THING'S IMPACT FROM ITS MATERIAL: every thrown object whose material is known and whose landing the plan
 // leaves empty gets its material's impact ({object, landing: true}, so the engine moves it to the landing and the thing
@@ -69,7 +81,11 @@ export function impactByMaterial<P extends PlanLike>(plan: P): P {
   for (const o of plan.objects) {
     if (!thrown.has(o.id)) continue;
     const on = effects.filter((e) => "object" in e.anchor && e.anchor.object === o.id && !e.anchor.landing);
-    const material = materialOf(`${o.id} ${o.name ?? ""}`, on.map((e) => e.kind), on.map((e) => e.params ?? {}));
+    // (no words on the thing itself — "s1", a white ball — and it is the only thing thrown: the scene's own words say what it is,
+    // but only for the soft stuff that splats — a "Snowball!" scene throws a snowball; never a fire from a "Fire drill" title)
+    const own = materialOf(`${o.id} ${o.name ?? ""}`, on.map((e) => e.kind), on.map((e) => e.params ?? {}));
+    const scene = thrown.size === 1 ? materialOf(`${plan.title ?? ""} ${plan.prompt ?? ""}`) : undefined;
+    const material = own ?? (scene && SPLATS.has(scene) ? scene : undefined);
     if (!material) continue;
     const color = on.find((e) => typeof e.params?.color === "string")?.params?.color as string | undefined;
     // (sized by the thing: the effect on it, else the ball itself)
@@ -79,7 +95,7 @@ export function impactByMaterial<P extends PlanLike>(plan: P): P {
     const wrong = lands.filter((e) => SHATTERS.has(e.kind) && !BREAKS.has(material));
     if (lands.length && !wrong.length) continue;
     const start = Math.min(...(lands.length ? lands.map((e) => e.start) : [0]));
-    const made = impactFor(material, size, material === "fire" ? undefined : color).map((m) => ({ kind: m.kind, start, end: start + m.seconds, anchor: { object: o.id, landing: true }, params: m.params }) as EffectTrack);
+    const made = impactFor(material, size, material === "fire" ? undefined : color ?? (material === "paint" || material === "food" || material === "mud" ? o.look.color : undefined)).map((m) => ({ kind: m.kind, start, end: start + m.seconds, anchor: { object: o.id, landing: true }, params: m.params }) as EffectTrack);
     if (!made.length && !wrong.length) continue;
     effects = [...effects.filter((e) => !wrong.includes(e)), ...made];
     changed = true;

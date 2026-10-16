@@ -67,6 +67,7 @@ type DrawingAiPanelProps = {
   onApplyGeneratedFrame?: (result: GeneratedFrameRenderResult, source: { prompt: string; response: string }) => Promise<boolean> | boolean;
   onExecuteActionPlan?: (actionPlan: NonNullable<DrawingAiActionPlan>) => Promise<boolean> | boolean;
   onApplyAnimatorScene?: (scene: SceneForPage, options?: { aiChat?: boolean; replaceTitle?: string | null }) => boolean;
+  aiAnimationOnCanvas?: (title: string) => boolean;
   engineDrawing?: EngineDrawingBridge;
   readOnly?: boolean;
 };
@@ -168,6 +169,7 @@ export function DrawingAiPanel({
   onApplyGeneratedFrame: _onApplyGeneratedFrame,
   onExecuteActionPlan: _onExecuteActionPlan,
   onApplyAnimatorScene,
+  aiAnimationOnCanvas,
   engineDrawing,
   readOnly = false,
 }: DrawingAiPanelProps = {}) {
@@ -274,9 +276,14 @@ export function DrawingAiPanel({
       placedAnimationJobsRef.current.add(job.jobId);
       const animation = [...job.events].reverse().find(event => event.animation)?.animation;
       if (!animation?.plan) continue;
-      const placed = onApplyAnimatorScene((page) => makeEffectsTestScene(animation.plan as unknown as Parameters<typeof makeEffectsTestScene>[0], page.stageWidth), { aiChat: true, replaceTitle: lastAnimationTitleRef.current });
-      if (placed) lastAnimationTitleRef.current = animation.title;
-      else setRequestError("The animation is ready, but the canvas was busy (playing or drawing). Stop playback and ask again.");
+      // (the canvas may be busy — playing, or a stroke being drawn: the animation waits and is placed the moment it is free)
+      const tryPlace = (attempt: number) => {
+        const placed = onApplyAnimatorScene((page) => makeEffectsTestScene(animation.plan as unknown as Parameters<typeof makeEffectsTestScene>[0], page.stageWidth), { aiChat: true, replaceTitle: lastAnimationTitleRef.current });
+        if (placed) lastAnimationTitleRef.current = animation.title;
+        else if (attempt < 600) setTimeout(() => tryPlace(attempt + 1), 500);
+        else setRequestError("The animation is ready, but the canvas stayed busy for 5 minutes. Stop playback and ask again.");
+      };
+      tryPlace(0);
     }
   }, [ledger.jobs, onApplyAnimatorScene]);
 
@@ -291,35 +298,10 @@ export function DrawingAiPanel({
 
   useEffect(() => { if (bodyRef.current) bodyRef.current.scrollTop = bodyRef.current.scrollHeight; }, [activeJob?.status, ledger.messages.length]);
 
-  useEffect(() => {
-    const observed = observedWorkspaceRef.current;
-    if (observed.projectId !== projectId) {
-      observedWorkspaceRef.current = { projectId, projectGeneration };
-      return;
-    }
-    if (observed.projectGeneration === projectGeneration) return;
-    observedWorkspaceRef.current = { projectId, projectGeneration };
-    if (!activeJob || activeJob.projectGeneration !== observed.projectGeneration) return;
-    const failedAt = new Date().toISOString();
-    const descriptor = getPendingTerraDescriptorV1(activeJob.jobId);
-    if (!descriptor) return;
-    void acceptTerraJobSnapshotV1(descriptor, {
-      ...activeJob,
-      status: "failed",
-      intent: null,
-      lastSequence: activeJob.lastSequence + 1,
-      updatedAt: failedAt,
-      completedAt: failedAt,
-      telemetry: { ...activeJob.telemetry, outcome: "failed", latencyMs: Date.now() - Date.parse(activeJob.createdAt) },
-      events: [...activeJob.events, {
-        sequence: activeJob.lastSequence + 1,
-        status: "failed",
-        createdAt: failedAt,
-        errorCode: "stale_generation",
-        errorMessage: "The workspace changed before the AI Animator finished. No animation changed. Send the message again for the current project state.",
-      }],
-    }).catch(error => setRequestError(error instanceof Error ? error.message : "The AI Animator could not save the terminal result."));
-  }, [activeJob, projectGeneration, projectId]);
+  // (SPEC-0021 Phase 5, Arthur: "the AI should be fine animating even when I'm doing a million things" — playing, onion skin, hiding,
+  // adding or deleting layers no longer fail the job with "the workspace changed": Claude's animation is placed on the canvas as it is
+  // when the job finishes, replacing only the AI chat's own animation.)
+  useEffect(() => { observedWorkspaceRef.current = { projectId, projectGeneration }; }, [projectGeneration, projectId]);
 
   useEffect(() => {
     const surface = shellRef.current;
@@ -390,6 +372,10 @@ export function DrawingAiPanel({
       events: [{ sequence: 1, status: "thinking", createdAt: now }],
     };
     const priorMessages = ledger.messages;
+    // THE CURRENT ANIMATION travels with the message (SPEC-0021 Phase 5): the newest AI animation whose layer is on the canvas right
+    // now — so an edit after Undo changes what IS there, and edits still work after the server restarts.
+    const onCanvas = [...ledger.jobs].reverse().flatMap((job) => [...job.events].reverse()).map((event) => event.animation).find((a) => a && (aiAnimationOnCanvas ? aiAnimationOnCanvas(a.title) : a.title === lastAnimationTitleRef.current));
+    lastAnimationTitleRef.current = onCanvas?.title ?? null;
     submittedThinkingStartedAtRef.current.set(jobId, Date.now());
     const userMessage = newMessage("user", message, jobId);
     const descriptor: TerraPendingDescriptorV1 = {
@@ -407,6 +393,7 @@ export function DrawingAiPanel({
     const requestBody: AiAnimatorRequest = {
       jobId, turnId, message, reasoningLevel,
       recentConversation: priorMessages.slice(-12).map(({ role, content }) => ({ role, content })),
+      ...(onCanvas ? { currentAnimation: onCanvas.plan } : {}),
       workspace: {
         projectId, projectTitle: workspaceContext.projectTitle, projectGeneration: workspaceContext.projectGeneration,
         totalLayers: workspaceContext.totalLayers, authoredFrameCount: workspaceContext.authoredFrameCount,
@@ -590,7 +577,13 @@ export function DrawingAiPanel({
             ? <div className="ai-animator-message" data-ai-user-message={message.id} key={message.id} style={{ alignSelf: "flex-end", maxWidth: "88%", padding: "9px 11px", borderRadius: 12, whiteSpace: "pre-wrap", color: "#eaf3ff", background: workspaceColors.selectedFill, border: `1px solid ${workspaceColors.selectedBorder}`, fontSize: 12, lineHeight: 1.48 }}>{message.content}</div>
             : <AiAnimatorAssistantReply key={message.id} message={message} animate={pendingRevealMessageIdsRef.current.has(message.id)} onRevealComplete={finishAssistantReveal} />)}
           {/* (Arthur, 2026-10-08: the AI Animator and the Help Assistant show "Thinking" exactly alike — the same component.) */}
-          {activeJob && <div aria-label="AI Animator request status" style={{ alignSelf: "flex-start", padding: "8px 4px" }}><AssistantActivity label="Thinking" /></div>}
+          {activeJob && (() => {
+            // (SPEC-0021 Phase 5, Arthur: "I want the animating card back — the progress bar, how much longer I need to wait")
+            const progress = [...activeJob.events].reverse().find(event => event.progress)?.progress;
+            // (Arthur, Oct 12: while searching, the moving gradient says WHAT is being searched)
+            if (progress?.searching) return <div aria-label="AI Animator request status" style={{ alignSelf: "flex-start", padding: "8px 4px" }}><AssistantActivity label={`Searching the internet for "${progress.searching}"`} /></div>;
+            return progress ? <AiAnimatingCard progress={progress} /> : <div aria-label="AI Animator request status" style={{ alignSelf: "flex-start", padding: "8px 4px" }}><AssistantActivity label="Thinking" /></div>;
+          })()}
           {requestError && <div role="alert" style={{ color: workspaceColors.danger, fontSize: 11, lineHeight: 1.4 }}>{requestError}</div>}
         </>}
         composer={<form onSubmit={submit} className={`${chatComposerStyles.box} ${chatComposerStyles.compact}`} aria-label="AI Animator message composer">
@@ -609,5 +602,24 @@ export function DrawingAiPanel({
         </form>}
       />
     </>
+  );
+}
+
+// THE ANIMATING CARD (SPEC-0021 Phase 5; Arthur's look, Oct 12): "Animating" OUTSIDE the card with the moving gradient (no dots),
+// then the card: what Claude is doing (friendly words, never engine jargon), a bright blue bar (no sweep — only the word moves),
+// the percent and about how long is left ("32s").
+function AiAnimatingCard({ progress }: { progress: { percent: number; note: string; etaSec: number | null } }) {
+  const percent = Math.max(3, Math.min(100, Math.round(progress.percent)));
+  return (
+    <div role="status" aria-label="Animating" style={{ alignSelf: "stretch", display: "flex", flexDirection: "column", gap: 6 }}>
+      <div style={{ padding: "2px 4px" }}><AssistantActivity label="Animating" /></div>
+      <div style={{ padding: "10px 12px", borderRadius: 12, border: `1px solid ${workspaceColors.chatBoxBorder}`, background: workspaceColors.chatBox, color: workspaceColors.textPrimary }}>
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 8, fontSize: 11, color: workspaceColors.textSecondary }}><span>{progress.note}</span><span style={{ fontVariantNumeric: "tabular-nums", fontWeight: 600, color: workspaceColors.textPrimary }}>{percent}%</span></div>
+        <div style={{ position: "relative", height: 6, borderRadius: 3, background: workspaceColors.inset, marginTop: 7, overflow: "hidden" }}>
+          <div style={{ width: `${percent}%`, height: "100%", borderRadius: 3, background: "linear-gradient(90deg, #2f7bff, #5aa9ff)", boxShadow: "0 0 8px rgba(90, 169, 255, 0.55)", transition: "width 0.6s ease" }} />
+        </div>
+        {progress.etaSec !== null && <div style={{ fontSize: 11, marginTop: 7, color: workspaceColors.textMuted }}>About {Math.max(1, Math.round(progress.etaSec))}s left</div>}
+      </div>
+    </div>
   );
 }

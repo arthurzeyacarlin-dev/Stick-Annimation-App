@@ -9,7 +9,7 @@
 // "sparks": small bright sparks that fly out of the anchor and fall (impacts, electric hands).
 //
 // Every shape is worked out from (seed, t) alone, so it is the same at any frame rate.
-import { clamp, lerp, lifeOf, mixColor, rand } from "./random.ts";
+import { clamp, lerp, lifeOf, mixColor, rand, sourceAt } from "./random.ts";
 import { groundLight } from "./groundLight.ts";
 import type { EffectContext, EffectParams, EffectRecipe, Point, Shape } from "./types.ts";
 
@@ -105,10 +105,10 @@ export function lightningPhases(duration: number, params: EffectParams) {
   return { k, leaderEnd: 0.1 * k, strikes: strikes.map(([a, b, s]) => [a * k, b * k, s] as [number, number, number]), fadeFrom: fadeFrom * k, end: total * k };
 }
 
-type SparkOptions = { count: number; life: number; speed: number; dir: number; spread: number; width: number; color: string; core: string; seed: number; burst: boolean; groundY: number; gravity: number; stars?: boolean };
+type SparkOptions = { from?: (born: number) => Point; count: number; life: number; speed: number; dir: number; spread: number; width: number; color: string; core: string; seed: number; burst: boolean; groundY: number; gravity: number; stars?: boolean };
 
 // Small bright sparks flying out of `o` and falling (burst = all at once; otherwise born again and again).
-function sparkShapes(o: Point, t: number, opt: SparkOptions): Shape[] {
+function sparkShapes(o0: Point, t: number, opt: SparkOptions): Shape[] {
   const shapes: Shape[] = [];
   for (let i = 0; i < opt.count; i += 1) {
     let age: number, life: number, key: number;
@@ -124,6 +124,7 @@ function sparkShapes(o: Point, t: number, opt: SparkOptions): Shape[] {
       life = opt.life * lerp(0.6, 1, rand(opt.seed, key, 41));
     }
     if (age < 0 || age > life) continue;
+    const o = opt.from ? opt.from(t - age) : o0; // (born where the source was then — random.ts sourceAt)
     let a = ((opt.dir + (rand(opt.seed, key, 42) - 0.5) * opt.spread) * Math.PI) / 180;
     // (A burst ON the ground sprays up, never into it: a spark aimed below the floor bounces to the same angle above it
     // — else half a wide burst at a landing vanished at once.)
@@ -244,6 +245,7 @@ const sparks: EffectRecipe = {
     // blooms out all round from a glowing flash and twinkles out in the air — light, so it barely falls.
     const stars = p.stars === true, color = str(p.color, "#ffd84d");
     const shapes = sparkShapes(ctx.at, ctx.t, {
+      from: (born) => sourceAt(ctx, born),
       count: Math.max(1, Math.round(16 * intensity)), life: (stars ? 0.75 : 0.55) / speed, speed: ctx.height * (stars ? 1.1 : 1.6) * speed * size, dir: num(p.direction, -90), spread: num(p.spread, stars && p.burst === true ? 240 : 140),
       width: Math.max(1, ctx.height * 0.008 * size), color, core: str(p.color2, "#ffffff"), seed: num(p.seed, 1), burst: p.burst === true,
       groundY: ctx.groundY, gravity: ctx.height * (stars ? 0.8 : 7) * speed * speed, stars,

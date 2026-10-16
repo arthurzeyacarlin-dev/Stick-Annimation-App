@@ -99,6 +99,24 @@ export function effectsTestScenes(): EffectsTestEntry[] {
 export function makeEffectsTestScene(plan: ScenePlan, stageWidth?: number): Scene {
   // (THE CAMERA, camera.ts: only a plan with film cuts or a screen shake.)
   if (isCameraPlan(plan)) return cameraPlanToScene(plan, LIBRARY, stageWidth);
-  if (stageWidth === undefined) return planToScene(plan, LIBRARY);
-  return plan.background ? planToScene(fitBackgroundPlanToPage(plan, LIBRARY, stageWidth), LIBRARY) : fitPlanToPage(plan, LIBRARY, stageWidth);
+  if (stageWidth === undefined) return timeLapse(plan, planToScene(plan, LIBRARY));
+  return timeLapse(plan, plan.background ? planToScene(fitBackgroundPlanToPage(plan, LIBRARY, stageWidth), LIBRARY) : fitPlanToPage(plan, LIBRARY, stageWidth));
+}
+
+// A REAL TIME LAPSE (Arthur, Oct 12: "time lapse needs to be like five times faster… like watching a plant grow in five minutes"):
+// "timeScale": k (2–12) plays the WHOLE scene k times faster — every figure, thing, effect and moment — so a day's work passes in
+// seconds. The figures' moves are built at real speed first (so every body rule holds), then the clock is squeezed.
+function timeLapse(plan: ScenePlan, scene: Scene): Scene {
+  const k = Number((plan as { timeScale?: unknown }).timeScale);
+  if (!Number.isFinite(k) || k <= 1.05) return scene;
+  const f = 1 / Math.min(12, k);
+  const sc = scene as Scene & { effects?: { start: number; end: number }[] };
+  return {
+    ...scene,
+    durationSec: scene.durationSec * f,
+    characters: scene.characters.map((c) => ({ ...c, keys: c.keys.map((key) => ({ ...key, t: key.t * f })) })),
+    ...(scene.objects ? { objects: scene.objects.map((o) => ({ ...o, keys: o.keys.map((key) => ({ ...key, t: key.t * f })), ...(o.segments ? { segments: o.segments.map((g) => ({ ...g, from: g.from * f, to: g.to * f })) } : {}), ...((o as unknown as { struckFlight?: [number, number] }).struckFlight ? { struckFlight: (o as unknown as { struckFlight: [number, number] }).struckFlight.map((v) => v * f) } : {}) })) } : {}),
+    ...(sc.effects ? { effects: sc.effects.map((e) => ({ ...e, start: e.start * f, end: e.end * f })) } : {}),
+    ...(scene.marks ? { marks: Object.fromEntries(Object.entries(scene.marks).map(([m, v]) => [m, v * f])) } : {}),
+  } as Scene;
 }

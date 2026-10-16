@@ -42,7 +42,8 @@ export function movingBackgroundLayers(scene: object, built: SceneFrames, shift:
       if (!recipe) continue;
       for (const s of recipe.draw({ ...piece, params: { seed: fx.background?.seed, ...piece.params } }, i / built.fps, stage)) {
         const shape = moved(s, shift.x, shift.y);
-        list.push({ shape, key: JSON.stringify(shape), fast: FAST.has(piece.kind), box: shapeBounds([shape]), lane: 0 });
+        // (a blown leaf is a cheap symbol like a raindrop: it is drawn EVERY picture, so it never jumps on a long scene)
+        list.push({ shape, key: JSON.stringify(shape), fast: FAST.has(piece.kind) || (shape.kind === "symbol" && shape.name === "Leaf"), box: shapeBounds([shape]), lane: 0 });
       }
     }
     if (list.length !== pictures[i].length || list.some((item, j) => item.key !== JSON.stringify(pictures[i][j]))) return null;
@@ -69,7 +70,7 @@ export function movingBackgroundLayers(scene: object, built: SceneFrames, shift:
   const still = lanePictures(0);
   if (still.every((list) => list.length === 0)) return null;
   const kinds = new Set(pieces.filter(isMoving).map((piece) => piece.kind));
-  const fastName = kinds.has("rain") && kinds.has("waterfall") ? "rain and water" : kinds.has("rain") ? "rain" : "water";
+  const fastName = kinds.has("rain") && kinds.has("waterfall") ? "rain and water" : kinds.has("rain") ? "rain" : kinds.has("waterfall") ? "water" : "leaves";
   const slowName = kinds.has("trees") || kinds.has("grass") ? "wind" : "moving background";
   const layers = [{ name: fastName, pictures: lanePictures(2) }, { name: slowName, pictures: lanePictures(1) }].filter((layer) => layer.pictures.some((list) => list.length > 0));
   return layers.length ? { still, layers } : null;

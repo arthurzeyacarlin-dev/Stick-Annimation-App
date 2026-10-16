@@ -1,6 +1,6 @@
 import type { FrameCharacter, FrameObject } from "./engine.ts";
 import { BASKETBALL_SEAM, lookThickness } from "./objects.ts";
-import type { Point } from "./rig.ts";
+import { HALO_PAD, type Point } from "./rig.ts";
 
 // Maps 1920x1080 stage units to the pixels of the picture being drawn.
 export type StageToPixels = { scale: number; offsetX: number; offsetY: number };
@@ -28,19 +28,35 @@ export type DrawFrameOptions = { skipHeads?: boolean };
 // Draws one frame of stick figures, then its objects on top (so a held ball is in front of the hand).
 // Far-side limbs first so near-side limbs sit on top.
 export function drawFrame(ctx: Ctx, characters: FrameCharacter[], map: StageToPixels, objects: readonly FrameObject[] = [], options: DrawFrameOptions = {}) {
+  // (a thrown thing passing behind a figure is drawn before the figures — depth.ts markObjectsBehind)
+  const behind = objects.filter((o) => o.behind);
+  if (behind.length > 0) drawObjects(ctx, behind, map);
   ctx.save();
   ctx.setTransform(map.scale, 0, 0, map.scale, map.offsetX, map.offsetY);
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
-  for (const { skeleton: s, style, headRadius, facing } of characters) {
+  // DEPTH (depth.ts): figures are drawn in their `draw` order when a picture has one (first = farthest back), and a
+  // figure that WRAPS (a hug's arm round the other's back) has its far arm drawn first, behind everyone.
+  const ordered = characters.some((c) => c.draw !== undefined) ? characters.map((c, n) => ({ c, k: c.draw ?? n })).sort((a, b) => a.k - b.k).map((x) => x.c) : characters;
+  const farSide = (facing: FrameCharacter["facing"]) => (facing === "left" ? "l" : "r");
+  for (const { skeleton: s, style, facing, wrap } of ordered) {
+    if (!wrap) continue;
     ctx.strokeStyle = style.color;
-    ctx.fillStyle = style.color;
     ctx.lineWidth = style.thickness;
+    const side = farSide(facing);
+    line(ctx, [s.neck, s[`${side}Elbow`], s[`${side}Hand`]]);
+  }
+  // (FIGURES STAND OUT: a figure with a `halo` gets its light outline first, then itself on top — rig.ts CharacterStyle)
+  const passes = ordered.flatMap((c) => (c.style.halo ? [{ c, halo: true }, { c, halo: false }] : [{ c, halo: false }]));
+  for (const { c: { skeleton: s, style, headRadius, facing, wrap }, halo } of passes) {
+    ctx.strokeStyle = halo ? style.halo! : style.color;
+    ctx.fillStyle = style.color;
+    ctx.lineWidth = style.thickness + (halo ? 2 * HALO_PAD : 0);
     const near = facing === "left" ? "r" : "l";
     const far = near === "l" ? "r" : "l";
     const arm = (side: "l" | "r") => line(ctx, [s.neck, s[`${side}Elbow`], s[`${side}Hand`]]);
     const leg = (side: "l" | "r") => line(ctx, [s.hip, s[`${side}Knee`], s[`${side}Foot`]]);
-    arm(far);
+    if (!wrap) arm(far);
     leg(far);
     // Torso (and the neck, if the figure has one) up to the bottom of the head circle.
     const dx = s.head.x - s.neck.x, dy = s.head.y - s.neck.y, length = Math.hypot(dx, dy) || 1;
@@ -51,11 +67,12 @@ export function drawFrame(ctx: Ctx, characters: FrameCharacter[], map: StageToPi
     if (options.skipHeads) continue;
     ctx.beginPath();
     ctx.arc(s.head.x, s.head.y, headRadius, 0, Math.PI * 2);
-    if (style.headFilled) ctx.fill();
+    if (style.headFilled && !halo) ctx.fill();
     ctx.stroke();
   }
   ctx.restore();
-  if (objects.length > 0) drawObjects(ctx, objects, map);
+  const front = objects.filter((o) => !o.behind);
+  if (front.length > 0) drawObjects(ctx, front, map);
 }
 
 // One head on its own, drawn exactly as drawFrame draws it (same color, thickness, solid/hollow and
@@ -66,6 +83,13 @@ export function drawHead(ctx: Ctx, character: Pick<FrameCharacter, "style" | "he
   ctx.setTransform(map.scale, 0, 0, map.scale, map.offsetX, map.offsetY);
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
+  if (style.halo) {
+    ctx.strokeStyle = style.halo;
+    ctx.lineWidth = style.thickness + 2 * HALO_PAD;
+    ctx.beginPath();
+    ctx.arc(center.x, center.y, headRadius, 0, Math.PI * 2);
+    ctx.stroke();
+  }
   ctx.strokeStyle = style.color;
   ctx.fillStyle = style.color;
   ctx.lineWidth = style.thickness;

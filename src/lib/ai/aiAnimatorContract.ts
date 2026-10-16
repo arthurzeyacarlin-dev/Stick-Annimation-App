@@ -49,6 +49,8 @@ export type AiAnimatorRequest = {
   message: string;
   reasoningLevel: DrawingAiReasoningLevel;
   recentConversation: Array<Pick<AiAnimatorConversationMessage, "role" | "content">>;
+  // (SPEC-0021 Phase 5: the plan of the AI animation on the canvas now — Claude edits this one; only data the engine reads)
+  currentAnimation?: Record<string, unknown>;
   workspace: AiAnimatorWorkspaceSummary;
 };
 
@@ -97,6 +99,8 @@ export type AiAnimatorJobEvent = {
   provider?: Omit<AiAnimatorProviderResult, "reply">;
   // (SPEC-0021 Phase 5: Claude made or edited an animation — the workspace places this plan on the canvas; an edit replaces the last one.)
   animation?: { plan: Record<string, unknown>; title: string; edit: boolean; rounds: number; costUsd: number };
+  // (SPEC-0021 Phase 5: the animating card — what Claude is doing, how far, about how long is left)
+  progress?: { percent: number; note: string; etaSec: number | null; searching?: string };
 };
 
 export type AiAnimatorJobSnapshot = {
@@ -194,6 +198,7 @@ export const normalizeAiAnimatorRequest = (value: unknown): AiAnimatorRequest | 
     message,
     reasoningLevel: reasoningLevel as DrawingAiReasoningLevel,
     recentConversation: conversation,
+    ...(isRecord(value.currentAnimation) && JSON.stringify(value.currentAnimation).length <= 120_000 ? { currentAnimation: value.currentAnimation } : {}),
     workspace: {
       projectId,
       projectTitle,

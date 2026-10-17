@@ -5,9 +5,11 @@
 // punched" starts at the strike). Kimodo's motion is never changed — only where people stand.
 import { buildScene } from "../engine.ts";
 import { makeEffectsTestScene } from "../moves/tests2c.ts";
-import { findMotion } from "./library.ts";
+import { findMotion, type KimodoClip } from "./library.ts";
 
 type Act = { move?: string; params?: Record<string, unknown> };
+// (LIVE CLIPS, Oct 17 R3: a motion Kimodo made live for this plan travels inside it — params.clip; else the saved library)
+const clipOf = (a: Act | undefined) => { const c = a?.params?.clip as KimodoClip | undefined; return c && Array.isArray(c.frames) && c.frames.length > 1 ? c : findMotion(String(a?.params?.motion ?? "")); };
 type Ch = { id: string; x?: number; actions?: Act[] };
 
 export function aimRealHits(plan: Record<string, unknown>): Record<string, unknown> {
@@ -133,7 +135,7 @@ export function directBeats(plan: Record<string, unknown>): Record<string, unkno
   // their shared stage and filmed by one camera (moves/realMotion.ts StageView). No 2D sliding, snapping, re-timing or facing
   // guesses: those flattened each person separately and folded the punching arm (Oct 16 review).
   const lc0 = chars.find((c) => c.id === lead), li0 = realOf(lc0);
-  const ca = findMotion(String((lc0?.actions ?? [])[li0]?.params?.motion ?? "")), cb = findMotion(String((fc.actions ?? [])[fi]?.params?.motion ?? ""));
+  const ca = clipOf((lc0?.actions ?? [])[li0]), cb = clipOf((fc.actions ?? [])[fi]);
   if (ca.stage && cb.stage && ca.stage.S > 0.2) {
     const f0 = ca.frames[0] as Record<string, number[]>, tall = f0.HeadEnd[1] - Math.min(f0.LeftFoot[1], f0.RightFoot[1]);
     // (THE CAMERA LOOKS ACROSS THE PAIR, Oct 16: people shaking hands stand a little diagonal, like real people — seen from the plain
@@ -158,10 +160,10 @@ export function directBeats(plan: Record<string, unknown>): Record<string, unkno
   try { r = read(plan); } catch { return plan; }
   // (A REACTION MADE FOR ITS HIT knows its own hit times — make_clips.py react: it was told "get hit at 1.0 s" and knocked back
   // there — so the director uses those exact times, never a guess from the motion)
-  const known = findMotion(String((fc.actions ?? [])[fi]?.params?.motion ?? "")).hits;
+  const known = clipOf((fc.actions ?? [])[fi]).hits;
   if (known?.length) r.F.snaps = known.map((h) => r.b0 + h);
   // (ONE PLAN FOR BOTH, Session A2: an attacker made from the same plan knows its real hit times and limbs too — make_clips.py duet)
-  const lc = chars.find((c) => c.id === lead), lClip = findMotion(String((lc?.actions ?? [])[realOf(lc)]?.params?.motion ?? ""));
+  const lc = chars.find((c) => c.id === lead), lClip = clipOf((lc?.actions ?? [])[realOf(lc)]);
   const LIMB: Record<string, string> = { LeftHand: "lHand", RightHand: "rHand", LeftFoot: "lFoot", RightFoot: "rFoot" };
   if (lClip.hits?.length && lClip.limbs?.length === lClip.hits.length) r.L.strikes = lClip.hits.map((h, k) => ({ t: r.a0 + h, limb: LIMB[lClip.limbs![k]] ?? "rHand" }));
   // 1. THE CLOCK: pair each beat's moment of the follower with the leader's, in order
@@ -193,6 +195,37 @@ export function directBeats(plan: Record<string, unknown>): Record<string, unkno
   if (map.length) {
     const acts = [...(fc.actions ?? [])]; acts[fi] = { ...acts[fi], params: { ...(acts[fi].params ?? {}), timeMap: map } };
     out = { ...plan, characters: chars.map((c) => (c.id === follow ? { ...c, actions: acts } : c)) };
+  }
+  // THE 3 MOMENTS OF A TOUCH (Oct 17 R3b — Arthur: "one is early, one is late"; Fable's rules): when both people's live clips
+  // carry their measured moments (arm starts, touch pose, let go — kimodo/live_clip.py touch_moments, the bridge already kept
+  // the take PAIR that matches best), the follower's clock is lined up on ALL THREE: the touch pose lands EXACTLY on the
+  // leader's, the arm start and the let go as close as the speed limit allows (0.75x–1.35x — a bigger change would spoil
+  // Kimodo's feel), and BOTH hold the touch for 2 more pictures. Only WHEN pictures show changes; never a pose.
+  const ma = ca.moments, mb = cb.moments;
+  if (ma && mb && beats.every((b) => b.result === "touch")) {
+    const F = 1 / 24, clampR = (x: number) => Math.min(1.35, Math.max(0.75, x));
+    const S = ma.start, T = ma.touch, G = ma.letgo + 2 * F, shift = r.a0 - r.b0; // (leader scene times, relative to its own start)
+    const lacts = [...(lc0!.actions ?? [])]; lacts[li0] = { ...lacts[li0], params: { ...(lacts[li0].params ?? {}), timeMap: [[T, T], [T + F, T + 3 * F]] } };
+    const tT = T + shift, tS = S + shift, tG = G + shift, fmap: [number, number][] = [];
+    if (mb.touch - mb.start > 2 * F) fmap.push([mb.start, tT - clampR((tT - tS) / (mb.touch - mb.start)) * (mb.touch - mb.start)]);
+    fmap.push([mb.touch, tT], [mb.touch + F, tT + 3 * F]);
+    if (mb.letgo - mb.touch > 3 * F) fmap.push([mb.letgo, tT + 3 * F + clampR((tG - (tT + 3 * F)) / (mb.letgo - mb.touch - F)) * (mb.letgo - mb.touch - F)]);
+    const facts = [...(fc.actions ?? [])]; facts[fi] = { ...facts[fi], params: { ...(facts[fi].params ?? {}), timeMap: fmap } };
+    out = { ...plan, characters: chars.map((c) => (c.id === lead ? { ...c, actions: lacts } : c.id === follow ? { ...c, actions: facts } : c)), touchAt: [{ by: lead, on: follow, t: r.a0 + T, until: r.a0 + G, hand: ma.hand }] };
+    contacts.length = 0; contacts.push({ t: r.a0 + T + 1 * F, by: lead, limb: ma.hand, on: follow, result: "touch" });
+  }
+  // (A GENTLE TOUCH, Oct 17 R3 — handing a hammer over has no fast "strike", so no contact was found and the giver walked right
+  // through the taker: then the touch is where the leader's hand reaches out FURTHEST toward the other person in its clip)
+  if (!contacts.length && beats.some((b) => b.result === "touch")) {
+    try { r = read(out); } catch { return out; }
+    let best: { t: number; limb: string; reach: number } | null = null;
+    for (let i = Math.ceil((r.a0 + 0.35) * r.fps); i < r.frames.length; i += 1) {
+      const A = r.frames[i].find((x) => x.id === lead), B = r.frames[i].find((x) => x.id === follow);
+      if (!A || !B) continue;
+      const toward = Math.sign(B.skeleton.hip.x - A.skeleton.hip.x) || 1;
+      for (const l of HANDS) { const reach = (A.skeleton[l].x - A.skeleton.neck.x) * toward; if (!best || reach > best.reach) best = { t: i / r.fps, limb: l, reach }; }
+    }
+    if (best) contacts.push({ t: best.t, by: lead, limb: best.limb, on: follow, result: "touch" });
   }
   // 2. THE PLACE: move the follower so the first contact meets (a fist on the head's near edge, a fist on the blocking hand, hand to hand)
   if (!contacts.length) return out;

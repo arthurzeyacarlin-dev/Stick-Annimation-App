@@ -443,3 +443,220 @@ def touch(only: str = ""):
         for d, side in ((a, 1), (b, -1)): d["stage"] = {"S": round(S, 3), "side": side, "floor": fl}; d["sentence"] = n; d["touch"] = {"from": f0 / 30, "to": f1 / 30, "gapCm": round(best[1] * 100, 1)}
         json.dump(a, open(f"{LIB}/{n}-a.json", "w")); json.dump(b, open(f"{LIB}/{n}-b.json", "w"))
         print(n, "DONE: hands apart during the touch (max)", round(best[1] * 100, 1), "cm (before pinning", round(P[n]["miss1"] * 100, 1), "cm), pops", round(best[2], 2), flush=True)
+
+# SESSION G1 — THE GROUP ENGINE (Oct 16, PM v3): both people made TOGETHER in one Kimodo batch, each step aiming at the other's
+# current motion (kimodo_modal.generate_group). Saved g-<name>-a/-b with "stage" (+ "touch" or "hits"), same format as A4/A2,
+# so kimodo/director.ts puts them on the stage unchanged. Run:  python3 -m modal run make_clips.py::group [--only g-handshake]
+from kimodo_modal import generate_group
+ANIM = os.environ.get("ANIM", "kimodo")  # (Oct 16: ANIM=ardy makes the same two-person scenes with NVIDIA ARDY)
+GROUP = {
+    "g-handshake": {"kind": "touch", "seconds": 4.0, "touch": {"hand": "RightHand", "span_s": 1.2},
+        "people": ["A person walks forward two steps toward a friend, reaches out the right hand and shakes hands with the friend, pumping it up and down twice, then lets go and smiles."] * 2},
+    "g-punch": {"kind": "hit", "seconds": 4.0, "hit": {"limb": "RightHand", "window_s": [0.9, 2.2], "radius": 0.09, "back": 0.8},
+        "people": ["A person stands in a fighting guard facing the opponent, steps in, winds up and throws a hard powerful right cross to the opponent's face, then returns to a fighting guard.",
+                   "A person stands in a fighting guard facing the opponent, gets punched very hard in the face, the head snaps back hard and the body is knocked backward two steps with the arms flying up, then recovers into guard."]},
+}
+
+def g_mir(p, S):
+    return np.array([-p[0], p[1], S - p[2]])
+
+@app.local_entrypoint()
+def group(only: str = "", takes: int = 3, seed: int = 101):
+    import io
+    names = [n for n in GROUP if not only or n in only.split(",")]
+    scenes = [dict(GROUP[n], takes=takes, seed=seed, post=os.environ.get("G_POST", "1") == "1") for n in names]
+    for n, r in zip(names, generate_group.map(scenes)):
+        if not r.get("ok"): print(n, "FAILED", r); continue
+        D = [np.load(io.BytesIO(b), allow_pickle=True) for b in r["npzs"]]; sc = GROUP[n]; best = None
+        for j in range(r["K"]):
+            A, B = D[j * 2]["posed_joints"], D[j * 2 + 1]["posed_joints"]; pl = r["plan"][j] if isinstance(r["plan"], list) else r["plan"][str(j)] if str(j) in r["plan"] else r["plan"][j]
+            S = pl["S"]; T = min(len(A), len(B))
+            # (hips apart — the 0.7 m rule — checked on EVERY picture, in 3D)
+            hipgap = min(float(np.linalg.norm((A[f, 0] - g_mir(B[f, 0], S))[[0, 2]])) for f in range(T))
+            L = np.concatenate([A[:, [14, 42, 69, 74]], B[:, [14, 42, 69, 74]]], 1); vv = np.linalg.norm(np.diff(L, axis=0), axis=-1) * 30
+            pops = float(np.max(vv[1:-1] - 3 * np.maximum(np.maximum(vv[:-2], vv[2:]), 0.15)))
+            if sc["kind"] == "touch":
+                f0, f1 = pl["f0"], pl["f1"]
+                gap = max(float(np.linalg.norm(A[f, 42] - g_mir(B[f, 42], S))) for f in range(f0, min(f1, T - 1) + 1)); info = {"gapCm": round(gap * 100, 1)}
+            else:
+                fh = pl["fh"]; face = g_mir(B[fh, 6], S); gap = max(0.0, float(np.linalg.norm(A[fh, 42] - face)) - sc["hit"]["radius"])
+                back = float(B[min(T - 1, fh + 30), 0, 2] - B[fh, 0, 2]); pre = float(np.max(np.abs(np.diff(B[max(0, fh - 15):fh - 2, 6, 2])) * 30)) if fh > 17 else 0.0
+                info = {"missCm": round(gap * 100, 1), "knockBackM": round(-back, 2), "flinch": round(pre, 2)}
+            info.update(hipGapMinM=round(hipgap, 2), pops=round(pops, 2), S=round(S, 2))
+            print(n, "take", j, info, flush=True)
+            s = gap + 0.05 * max(0.0, pops) + (1.0 if hipgap < 0.55 else 0.0)
+            if best is None or s < best[0]: best = (s, j, info, pl)
+        s, j, info, pl = best
+        a = to_json(r["npzs"][j * 2]); b = to_json(r["npzs"][j * 2 + 1]); S = pl["S"]; fl = 0.07
+        for d, side in ((a, 1), (b, -1)): d["stage"] = {"S": round(S, 3), "side": side, "floor": fl}; d["sentence"] = n; d["group"] = info
+        if sc["kind"] == "touch":
+            for d in (a, b): d["touch"] = {"from": pl["f0"] / 30, "to": pl["f1"] / 30, "gapCm": info["gapCm"]}
+        else:
+            for d in (a, b): d["hits"] = [round(pl["fh"] / 30, 3)]
+            a["limbs"] = [sc["hit"]["limb"]]; a["contactMissM"] = round(info["missCm"] / 100, 3); a["from"] = "group engine"
+        json.dump(a, open(f"{LIB}/{n}-a.json", "w")); json.dump(b, open(f"{LIB}/{n}-b.json", "w"))
+        print(n, "DONE best take", j, info, "GPU secs", r["secs"], flush=True)
+
+# SESSION LF — LEADER & FOLLOWER (Oct 16, PM v3, Arthur OK; G1 per-step re-aiming REJECTED: it made Kimodo teleport bodies).
+# Rule (Arthur): Kimodo animates; we never make him worse. So every Kimodo run gets STEADY targets, fixed before he starts.
+#   1. LEADER: made alone, untouched (like the single figures Arthur loved). Best of 3 takes.
+#   2. READ the leader's FINISHED motion: when and where his hand / fist really is (not a draft).
+#   3. FOLLOWER: made with steady targets read from that finished motion — touch: his hand on the leader's REAL hand over the
+#      touch (his own draft pose moved there, a smooth walk-up to his spot); hit: his reaction timed to the leader's REAL hit
+#      pictures (Session A's way) and the stage placed so his face is where the fist lands; sync: timing matched.
+#   4. CHECKER (no AI): contact gap, teleports (hips speed), pops, bodies apart; the best pair wins; numbers printed.
+# Saved lf-<name>-a/-b with "stage" (+ touch / hits) → kimodo/director.ts puts them on the one 3D stage, camera at the end.
+LF = {
+    "lf-handshake": {"kind": "touch", "lead": TOUCH["t-handshake"][:2], "span": 1.2},
+    "lf-highfive":  {"kind": "touch", "lead": TOUCH["t-highfive"][:2], "span": 0.25},
+    "lf-fistbump":  {"kind": "touch", "lead": TOUCH["t-fistbump2"][:2], "span": 0.25},
+    "lf-wave":      {"kind": "sync", "S": 2.4, "lead": (["A person stands.", "A person waves hello to a friend with the right hand raised high.", "A person stands."], [0.6, 2.0, 1.2]),
+                     "follow": (["A person stands.", "A person sees a friend waving and waves back with the right hand raised high, smiling.", "A person stands."], [1.1, 2.0, 0.7])},
+    "lf-rps":       {"kind": "sync", "S": 1.15, "lead": (DUO["d-rps"][0], DUO["d-rps"][1]), "follow": (DUO["d-rps2"][0], DUO["d-rps2"][1])},
+    "lf-punch":     {"kind": "hit", "beats": DUET["s-punch"]},
+    "lf-jjc":       {"kind": "hit", "beats": DUET["s-jabjabcross"]},
+}
+
+def lf_json(J, src_fps=30):
+    # (same as to_json, from a joints array — the follower may be slid sideways on the stage first: where he stands, not his pose)
+    buf = __import__("io").BytesIO(); np.savez(buf, posed_joints=J); return to_json(buf.getvalue(), src_fps)
+
+def lf_check(J):
+    # (TELEPORT LAW: the hips never move faster than a sprinter (8 m/s) between two pictures; POPS: a hand/foot jump vs neighbours)
+    hip = float(np.max(np.linalg.norm(np.diff(J[:, 0], axis=0), axis=-1)) * 30)
+    L = J[:, [14, 42, 69, 74], :]; vv = np.linalg.norm(np.diff(L, axis=0), axis=-1) * 30
+    pop = float(np.max(vv[1:-1] - 3 * np.maximum(np.maximum(vv[:-2], vv[2:]), 0.15))) if len(vv) > 2 else 0.0
+    return hip, max(0.0, pop)
+
+def lf_reach(J, h=42):
+    return J[:, h, 2] - J[:, 0, 2]  # (how far the hand is out in front of the hips; everyone faces +z in his own clip)
+
+def _gen():
+    from kimodo_modal import ardy_gen
+    return ardy_gen if ANIM == "ardy" else generate
+
+def _nm(n):
+    return n.replace("lf-", "la-") if ANIM == "ardy" else n
+
+@app.local_entrypoint()
+def follow(only: str = ""):
+    import io
+    names = [n for n in LF if not only or n in only.split(",")]
+    ld = lambda b: np.load(io.BytesIO(b), allow_pickle=True)
+    # ROUND 1 (all scenes at once): leaders, 3 takes each; for touches and syncs also the follower's own draft / takes
+    jobs, keys = [], []
+    for n in names:
+        sc = LF[n]
+        if sc["kind"] == "hit":
+            beats = sc["beats"]; durs, planned = seg_plan(beats); T = int(sum(durs) * 30); steps = [BACK[s] for _, _, s in beats[:-1]]
+            sc.update(durs=durs, planned=planned)
+            jobs.append((attacker_text(beats), durs, 21, [path(T, planned[:-1], steps, +1)], 3)); keys.append((n, "lead"))
+        else:
+            jobs.append((" ".join(sc["lead"][0]), sc["lead"][1], 51, None, 3)); keys.append((n, "lead"))
+            fo = sc.get("follow", sc["lead"])
+            jobs.append((" ".join(fo[0]), fo[1], 52, None, 3)); keys.append((n, "draft"))
+    R1 = {}
+    for k, r in zip(keys, _gen().starmap(jobs)):
+        R1[k] = [b for b in (r.get("npzs") or []) if "posed_joints" in ld(b)] if r["ok"] else []
+        if not R1[k]: print(k, "ROUND 1 FAILED", r.get("log", "")[-300:])
+    # pick the leader: untouched; the cleanest take that really does the move
+    P, jobs, keys = {}, [], []
+    for n in names:
+        sc = LF[n]; takes = R1.get((n, "lead"), [])
+        if not takes: continue
+        best = None
+        for b in takes:
+            J = ld(b)["posed_joints"]; hip, pop = lf_check(J)
+            if sc["kind"] == "hit":
+                hs = hits_of(to_json(b)["frames"], len(sc["beats"]))
+                if len(hs) < len(sc["beats"]): continue
+                s = sum(h[0] for h in hs) - 2 * sum(abs(h[1] - p) for h, p in zip(hs, sc["planned"])) - 3 * pop - (20 if hip > 8 else 0); extra = hs
+            else:
+                s = float(np.max(lf_reach(J))) - 0.3 * pop - (20 if hip > 8 else 0); extra = None
+            if best is None or s > best[0]: best = (s, b, extra)
+        if not best: print(n, "no usable leader take"); continue
+        A = ld(best[1])["posed_joints"]; P[n] = {"A": A, "a": best[1]}
+        if sc["kind"] == "touch":
+            # the touch on the LEADER's finished motion: the pictures around his furthest reach
+            re = lf_reach(A); lo, hi = int(0.3 * len(A)), int(0.85 * len(A)); fc = lo + int(np.argmax(re[lo:hi]))
+            half = max(2, int(sc["span"] * 30 / 2)); f0, f1 = max(1, fc - half), min(len(A) - 2, fc + half)
+            # follower draft: the take whose own reach is most like a reach (its pose is what gets moved to the hand)
+            drafts = R1.get((n, "draft"), [])
+            if not drafts: continue
+            Bd = max((ld(b)["posed_joints"] for b in drafts), key=lambda J: float(np.max(lf_reach(J))) - lf_check(J)[1])
+            rb = lf_reach(Bd); gc = lo + int(np.argmax(rb[lo:hi]))
+            S = float(A[fc, 42, 2] + Bd[gc, 42, 2]); S = max(S, float(A[fc, 0, 2] + Bd[gc, 0, 2] + 0.7))
+            items = []
+            for f in sorted(set(list(range(f0, f1 + 1, 3)) + [f1])):
+                g = min(len(Bd) - 1, max(0, gc + (f - fc)))
+                goal = g_mir(A[f, 42], S)  # (the leader's REAL hand, seen from the follower's side of the stage)
+                items.append((f, ld(drafts[0])["root_positions"][g] * 0 + Bd[g, 0] + (goal - Bd[g, 42]), g))
+            Bdf = [ld(b) for b in drafts if np.array_equal(ld(b)["posed_joints"], Bd)][0]
+            cons = [{"type": "right-hand", "frame_indices": [it[0] for it in items],
+                     "root_positions": [(Bdf["root_positions"][it[2]] + (g_mir(A[it[0], 42], S) - Bd[it[2], 42])).tolist() for it in items],
+                     "local_joints_rot": [aa_of(Bdf["local_rot_mats"][it[2]]).tolist() for it in items]}]
+            f_first = items[0][0]; goal0 = cons[0]["root_positions"][0]; idx = list(range(0, f_first, 3)) + [f_first]
+            ss = lambda u: u * u * (3 - 2 * u)
+            cons.append({"type": "root2d", "frame_indices": idx, "smooth_root_2d": [[float(goal0[0] * ss(i / f_first)), float(goal0[2] * ss(i / f_first))] for i in idx]})
+            # (STAY AFTER THE TOUCH, Oct 16: Orange let go and kept walking right THROUGH Blue — the follower's hips hold his touch
+            # spot from the end of the touch to the end: a steady target, his own pose untouched)
+            last = cons[0]["root_positions"][-1]; idx2 = list(range(f1 + 3, len(Bd), 3))
+            if idx2: cons.append({"type": "root2d", "frame_indices": idx2, "smooth_root_2d": [[float(last[0]), float(last[2])] for _ in idx2]})
+            P[n].update(S=S, f0=f0, f1=f1, miss0=float(np.linalg.norm(A[fc, 42] - g_mir(Bd[gc, 42], S))))
+            jobs.append((" ".join(sc["lead"][0]), sc["lead"][1], 62, cons, 3)); keys.append(n)
+            print(n, "leader ok: touch", round(f0 / 30, 2), "-", round(f1 / 30, 2), "s, stage", round(S, 2), "m, follower's own hand was", round(P[n]["miss0"] * 100, 1), "cm off", flush=True)
+        elif sc["kind"] == "hit":
+            hs = best[2]; hits = [h[1] for h in hs]; P[n].update(hits=hits, limbs=[h[2] for h in hs])
+            beats = sc["beats"]; durs = [hits[0]] + [max(0.35, hits[i + 1] - hits[i]) for i in range(len(hits) - 1)] + [2.4 if beats[-1][2] >= 5 else 2.0]
+            lines = []
+            for (mv, tg, s) in beats:
+                w = REACT_WORDS[tg].get(s) or REACT_WORDS[tg][min(REACT_WORDS[tg], key=lambda q: abs(q - s))]
+                lines.append(f"A person gets hit {'very hard ' if s >= 4 else 'lightly ' if s == 1 else ''}in the {tg} and {w}.")
+            T = int(sum(durs) * 30); backs = [BACK[s] for _, _, s in beats]; P[n].update(backs=backs)
+            full = path(T, hits, backs, -1, start_delay=0.0, ease=0.45); zz = dict(zip(full["frame_indices"], full["smooth_root_2d"]))
+            keep = sorted(set(k for k in [i for i in full["frame_indices"] if i < int(hits[0] * 30)] + [min(T - 1, int((h + 1.0) * 30)) // 3 * 3 for h in hits] if k in zz))
+            jobs.append(("A person stands in a fighting guard facing the opponent. " + " ".join(lines), durs, 31, [{"type": "root2d", "frame_indices": keep, "smooth_root_2d": [zz[k] for k in keep]}], 3)); keys.append(n)
+            print(n, "leader ok: real hits at", [round(h, 2) for h in hits], "s with", P[n]["limbs"], flush=True)
+        else:
+            P[n]["Bs"] = [ld(b)["posed_joints"] for b in R1.get((n, "draft"), [])]
+    # ROUND 2: the followers, with steady targets from the leader's finished motion
+    R2 = dict(zip(keys, _gen().starmap(jobs))) if jobs else {}
+    for n in names:
+        if n not in P: continue
+        sc = LF[n]; A = P[n]["A"]; cands = []
+        if sc["kind"] == "sync": cands = P[n]["Bs"]
+        elif R2.get(n, {}).get("ok"): cands = [ld(b)["posed_joints"] for b in R2[n]["npzs"] if "posed_joints" in ld(b)]
+        if not cands: print(n, "ROUND 2 FAILED", (R2.get(n) or {}).get("log", "")[-300:]); continue
+        best = None
+        for Bj in cands:
+            hip, pop = lf_check(Bj); T = min(len(A), len(Bj)); Bj = Bj.copy()
+            if sc["kind"] == "touch":
+                S = P[n]["S"]; gap = max(float(np.linalg.norm(A[f, 42] - g_mir(Bj[f, 42], S))) for f in range(P[n]["f0"], min(P[n]["f1"], T - 1) + 1)); info = {"gapCm": round(gap * 100, 1)}; cost = gap
+            elif sc["kind"] == "hit":
+                hits = P[n]["hits"]; fh = [min(T - 1, int(round(h * 30))) for h in hits]; k = int(np.argmax([s for _, _, s in sc["beats"]]))
+                L = J_LIMB[P[n]["limbs"][k]]; fist = A[fh[k], L]; hB = Bj[fh[k], 6]
+                S = float(fist[2] + hB[2] + 0.09); side = float(fist[0] + hB[0])  # (stand where the hardest hit lands; slide sideways, never re-pose)
+                Bj[..., 0] -= side
+                miss = [max(0.0, float(np.linalg.norm(A[f, J_LIMB[l]] - g_mir(Bj[f, 6], S))) - 0.09) for f, l in zip(fh, P[n]["limbs"])]
+                sc_, tinfo = score(Bj, hits, sum(P[n]["backs"]))
+                info = {"missCm": [round(m * 100, 1) for m in miss], "react": tinfo}; cost = max(miss) * 3 - 0.05 * sc_
+            else:
+                S = sc["S"]; ta = int(np.argmax(np.linalg.norm(np.diff(A[:, 42], axis=0), axis=-1)[int(0.4 * T):])) + int(0.4 * T)
+                tb = int(np.argmax(np.linalg.norm(np.diff(Bj[:, 42], axis=0), axis=-1)[int(0.4 * T):])) + int(0.4 * T)
+                info = {"timeGapS": round(abs(ta - tb) / 30, 2)} if "rps" in n else {}; cost = abs(ta - tb) / 30 if "rps" in n else 0.0
+            hipgap = min(float(np.linalg.norm((A[f, 0] - g_mir(Bj[f, 0], S))[[0, 2]])) for f in range(T))
+            info.update(followerHipMaxMs=round(hip, 1), pops=round(pop, 2), hipsApartMinM=round(hipgap, 2), S=round(S, 2))
+            cost += 0.1 * pop + (5 if hip > 8 else 0) + (2 if hipgap < 0.55 else 0)
+            print(n, "follower take", info, flush=True)
+            if best is None or cost < best[0]: best = (cost, Bj, info, S)
+        cost, Bj, info, S = best
+        ah, ap = lf_check(A); info.update(leaderHipMaxMs=round(ah, 1), leaderPops=round(ap, 2))
+        a = to_json(P[n]["a"]); b = lf_json(Bj)
+        for d, sd in ((a, 1), (b, -1)): d["stage"] = {"S": round(S, 3), "side": sd, "floor": 0.07}; d["sentence"] = n; d["check"] = info
+        if sc["kind"] == "touch":
+            for d in (a, b): d["touch"] = {"from": P[n]["f0"] / 30, "to": P[n]["f1"] / 30, "gapCm": info["gapCm"]}
+        if sc["kind"] == "hit":
+            for d in (a, b): d["hits"] = [round(h, 3) for h in P[n]["hits"]]
+            a["limbs"] = P[n]["limbs"]; a["contactMissM"] = round(max(info["missCm"]) / 100, 3); a["from"] = "leader-follower"
+        json.dump(a, open(f"{LIB}/{_nm(n)}-a.json", "w")); json.dump(b, open(f"{LIB}/{_nm(n)}-b.json", "w"))
+        print(n, "DONE", info, flush=True)

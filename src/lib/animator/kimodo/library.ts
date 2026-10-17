@@ -76,22 +76,74 @@ import tHandshakeBClip from "./motions/t-handshake-b.json" with { type: "json" }
 import tHighfiveAClip from "./motions/t-highfive-a.json" with { type: "json" };
 import tHighfiveBClip from "./motions/t-highfive-b.json" with { type: "json" };
 
+import lfHandshakeAClip from "./motions/lf-handshake-a.json" with { type: "json" };
+import lfHandshakeBClip from "./motions/lf-handshake-b.json" with { type: "json" };
+import lfHighfiveAClip from "./motions/lf-highfive-a.json" with { type: "json" };
+import lfHighfiveBClip from "./motions/lf-highfive-b.json" with { type: "json" };
+import lfFistbumpAClip from "./motions/lf-fistbump-a.json" with { type: "json" };
+import lfFistbumpBClip from "./motions/lf-fistbump-b.json" with { type: "json" };
+import lfWaveAClip from "./motions/lf-wave-a.json" with { type: "json" };
+import lfWaveBClip from "./motions/lf-wave-b.json" with { type: "json" };
+import lfRpsAClip from "./motions/lf-rps-a.json" with { type: "json" };
+import lfRpsBClip from "./motions/lf-rps-b.json" with { type: "json" };
+import lfPunchAClip from "./motions/lf-punch-a.json" with { type: "json" };
+import lfPunchBClip from "./motions/lf-punch-b.json" with { type: "json" };
+import lfJjcAClip from "./motions/lf-jjc-a.json" with { type: "json" };
+import lfJjcBClip from "./motions/lf-jjc-b.json" with { type: "json" };
+import vPunchAClip from "./motions/v-punch-a.json" with { type: "json" };
+import vPunchBClip from "./motions/v-punch-b.json" with { type: "json" };
+import vHandshakeAClip from "./motions/v-handshake-a.json" with { type: "json" };
+import vHandshakeBClip from "./motions/v-handshake-b.json" with { type: "json" };
+import vHighfiveAClip from "./motions/v-highfive-a.json" with { type: "json" };
+import vHighfiveBClip from "./motions/v-highfive-b.json" with { type: "json" };
+import btWalkKimodoClip from "./motions/bt-walk-kimodo.json" with { type: "json" };
+import btSweepKimodoClip from "./motions/bt-sweep-kimodo.json" with { type: "json" };
+import btPunchKimodoClip from "./motions/bt-punch-kimodo.json" with { type: "json" };
+import btFallKimodoClip from "./motions/bt-fall-kimodo.json" with { type: "json" };
+import btJumpKimodoClip from "./motions/bt-jump-kimodo.json" with { type: "json" };
+import btDigKimodoClip from "./motions/bt-dig-kimodo.json" with { type: "json" };
+import btWalkArdyClip from "./motions/bt-walk-ardy.json" with { type: "json" };
+import btSweepArdyClip from "./motions/bt-sweep-ardy.json" with { type: "json" };
+import btPunchArdyClip from "./motions/bt-punch-ardy.json" with { type: "json" };
+import btFallArdyClip from "./motions/bt-fall-ardy.json" with { type: "json" };
+import btJumpArdyClip from "./motions/bt-jump-ardy.json" with { type: "json" };
+import btDigArdyClip from "./motions/bt-dig-ardy.json" with { type: "json" };
+import laHandshakeAClip from "./motions/la-handshake-a.json" with { type: "json" };
+import laHandshakeBClip from "./motions/la-handshake-b.json" with { type: "json" };
+import laPunchAClip from "./motions/la-punch-a.json" with { type: "json" };
+import laPunchBClip from "./motions/la-punch-b.json" with { type: "json" };
+import lvHandshakeAClip from "./motions/lv-handshake-a.json" with { type: "json" };
+import lvHandshakeBClip from "./motions/lv-handshake-b.json" with { type: "json" };
+import lvPunchAClip from "./motions/lv-punch-a.json" with { type: "json" };
+import lvPunchBClip from "./motions/lv-punch-b.json" with { type: "json" };
+import lvBlockBClip from "./motions/lv-block-b.json" with { type: "json" };
+import lvBlockAClip from "./motions/lv-block-a.json" with { type: "json" };
+import lvPushBClip from "./motions/lv-push-b.json" with { type: "json" };
+import lvPushAClip from "./motions/lv-push-a.json" with { type: "json" };
+import lvComboBClip from "./motions/lv-combo-b.json" with { type: "json" };
+import lvComboAClip from "./motions/lv-combo-a.json" with { type: "json" };
+import lvFistbumpBClip from "./motions/lv-fistbump-b.json" with { type: "json" };
+import lvFistbumpAClip from "./motions/lv-fistbump-a.json" with { type: "json" };
+import lvHighfiveBClip from "./motions/lv-highfive-b.json" with { type: "json" };
+import lvHighfiveAClip from "./motions/lv-highfive-a.json" with { type: "json" };
 import tFistbump2AClip from "./motions/t-fistbump2-a.json" with { type: "json" };
 import tFistbump2BClip from "./motions/t-fistbump2-b.json" with { type: "json" };
 import tJumpfiveAClip from "./motions/t-jumpfive-a.json" with { type: "json" };
 import tJumpfiveBClip from "./motions/t-jumpfive-b.json" with { type: "json" };
 
 export type KimodoFrame = Record<string, number[]>;
-export type KimodoClip = { id: string; sentence: string; fps: number; frames: KimodoFrame[]; times: number[]; hits?: number[]; limbs?: string[]; stage?: { S: number; side: number; floor: number }; touch?: { from: number; to: number } };
+export type KimodoClip = { id: string; sentence: string; fps: number; frames: KimodoFrame[]; times: number[]; moments?: { start: number; touch: number; letgo: number; hand: "rHand" | "lHand" }; hits?: number[]; limbs?: string[]; stage?: { S: number; side: number; floor: number }; touch?: { from: number; to: number }; midAction?: boolean };
 
 // TRUE TIMES (Oct 16: a hand "popped" in rock-paper-scissors): Kimodo makes 30 pictures a second; the converter kept the NEAREST
 // one for each of our 24, so every 4th step skipped ahead (Python rounding: 0, 1, 2, 4, 5, 6, 8…) — a tiny stutter in every clip.
 // Each saved picture keeps its REAL time (its Kimodo picture / 30), so the motion plays at Kimodo's own even speed.
 const pyRound = (x: number) => { const f = Math.floor(x), d = x - f; return d > 0.5 + 1e-9 ? f + 1 : d < 0.5 - 1e-9 ? f : f % 2 === 0 ? f : f + 1; };
-const clip = (id: string, sentence: string, data: { fps: number; srcFps?: number; blended?: boolean; hits?: number[]; limbs?: string[]; stage?: { S: number; side: number; floor: number }; touch?: { from: number; to: number }; frames: KimodoFrame[] }): KimodoClip => ({
-  id, sentence, fps: data.fps, frames: data.frames, ...(data.hits ? { hits: data.hits } : {}), ...(data.limbs ? { limbs: data.limbs } : {}), ...(data.stage ? { stage: data.stage } : {}), ...(data.touch ? { touch: data.touch } : {}),
+const clip = (id: string, sentence: string, data: { fps: number; srcFps?: number; blended?: boolean; hits?: number[]; limbs?: string[]; stage?: { S: number; side: number; floor: number }; touch?: { from: number; to: number }; trimmedS?: number; frames: KimodoFrame[] }): KimodoClip => ({
+  id, sentence, fps: data.fps, frames: id.startsWith("v-") && data.frames[0] ? [{ ...data.frames[0], __src: "video" } as unknown as KimodoFrame, ...data.frames.slice(1)] : data.frames, ...(data.hits ? { hits: data.hits } : {}), ...(data.limbs ? { limbs: data.limbs } : {}), ...(data.stage ? { stage: data.stage } : {}), ...(data.touch ? { touch: data.touch } : {}), ...(data.trimmedS ? { midAction: true } : {}),
   times: data.frames.map((_, i) => (data.srcFps && data.srcFps !== data.fps && !data.blended ? pyRound((i * data.srcFps) / data.fps) / data.srcFps : i / data.fps)),
 });
+export const makeClip = clip;
+ // (live Kimodo clips are built the same way — kimodo/live.ts)
 export const MOTIONS: KimodoClip[] = [
   clip("fall", "walks forward, trips over something, stumbles and falls flat on the ground", fall as never),
   clip("sweep", "sweeps the floor with a broom held in both hands", sweep as never),
@@ -157,6 +209,62 @@ export const MOTIONS: KimodoClip[] = [
   clip("t-doublefive-b", "t-doublefive", tDoublefiveBClip as never),
   clip("t-fistbump-a", "t-fistbump", tFistbumpAClip as never),
   clip("t-fistbump-b", "t-fistbump", tFistbumpBClip as never),
+  // (LEADER & FOLLOWER, Oct 16 PM v3: leader made alone, follower aimed at the leader's finished motion)
+  clip("lf-handshake-a", "lf-handshake", lfHandshakeAClip as never),
+  clip("lf-handshake-b", "lf-handshake", lfHandshakeBClip as never),
+  clip("lf-highfive-a", "lf-highfive", lfHighfiveAClip as never),
+  clip("lf-highfive-b", "lf-highfive", lfHighfiveBClip as never),
+  clip("lf-fistbump-a", "lf-fistbump", lfFistbumpAClip as never),
+  clip("lf-fistbump-b", "lf-fistbump", lfFistbumpBClip as never),
+  clip("lf-wave-a", "lf-wave", lfWaveAClip as never),
+  clip("lf-wave-b", "lf-wave", lfWaveBClip as never),
+  clip("lf-rps-a", "lf-rps", lfRpsAClip as never),
+  clip("lf-rps-b", "lf-rps", lfRpsBClip as never),
+  clip("lf-punch-a", "lf-punch", lfPunchAClip as never),
+  clip("lf-punch-b", "lf-punch", lfPunchBClip as never),
+  clip("lf-jjc-a", "lf-jjc", lfJjcAClip as never),
+  clip("lf-jjc-b", "lf-jjc", lfJjcBClip as never),
+  // (INTERACTION LIBRARY TEST, Oct 16: both people from ONE AI video, read by a pose reader — kimodo/video_to_clips.py)
+  clip("v-punch-a", "v-punch", vPunchAClip as never),
+  clip("v-punch-b", "v-punch", vPunchBClip as never),
+  clip("v-handshake-a", "v-handshake", vHandshakeAClip as never),
+  clip("v-handshake-b", "v-handshake", vHandshakeBClip as never),
+  clip("v-highfive-a", "v-highfive", vHighfiveAClip as never),
+  clip("v-highfive-b", "v-highfive", vHighfiveBClip as never),
+  // (BLIND TEST Oct 16: Kimodo vs ARDY, same sentence)
+  clip("bt-walk-kimodo", "bt-walk-kimodo", btWalkKimodoClip as never),
+  clip("bt-sweep-kimodo", "bt-sweep-kimodo", btSweepKimodoClip as never),
+  clip("bt-punch-kimodo", "bt-punch-kimodo", btPunchKimodoClip as never),
+  clip("bt-fall-kimodo", "bt-fall-kimodo", btFallKimodoClip as never),
+  clip("bt-jump-kimodo", "bt-jump-kimodo", btJumpKimodoClip as never),
+  clip("bt-dig-kimodo", "bt-dig-kimodo", btDigKimodoClip as never),
+  // (BLIND TEST Oct 16: Kimodo vs ARDY, same sentence)
+  clip("bt-walk-ardy", "bt-walk-ardy", btWalkArdyClip as never),
+  clip("bt-sweep-ardy", "bt-sweep-ardy", btSweepArdyClip as never),
+  clip("bt-punch-ardy", "bt-punch-ardy", btPunchArdyClip as never),
+  clip("bt-fall-ardy", "bt-fall-ardy", btFallArdyClip as never),
+  clip("bt-jump-ardy", "bt-jump-ardy", btJumpArdyClip as never),
+  clip("bt-dig-ardy", "bt-dig-ardy", btDigArdyClip as never),
+  // (ARDY two-person, Oct 16: same leader-follower method, ARDY as the animator)
+  clip("la-handshake-a", "la-handshake", laHandshakeAClip as never),
+  clip("la-handshake-b", "la-handshake", laHandshakeBClip as never),
+  clip("la-punch-a", "la-punch", laPunchAClip as never),
+  clip("la-punch-b", "la-punch", laPunchBClip as never),
+  // (LIVE CONTACT Oct 16 night: Kimodo alone → ARDY contact moment from Kimodo's last pose — kimodo/live.py)
+  clip("lv-handshake-a", "lv-handshake", lvHandshakeAClip as never),
+  clip("lv-handshake-b", "lv-handshake", lvHandshakeBClip as never),
+  clip("lv-punch-a", "lv-punch", lvPunchAClip as never),
+  clip("lv-punch-b", "lv-punch", lvPunchBClip as never),
+  clip("lv-block-b", "lv-block", lvBlockBClip as never),
+  clip("lv-block-a", "lv-block", lvBlockAClip as never),
+  clip("lv-push-b", "lv-push", lvPushBClip as never),
+  clip("lv-push-a", "lv-push", lvPushAClip as never),
+  clip("lv-combo-b", "lv-combo", lvComboBClip as never),
+  clip("lv-combo-a", "lv-combo", lvComboAClip as never),
+  clip("lv-fistbump-b", "lv-fistbump", lvFistbumpBClip as never),
+  clip("lv-fistbump-a", "lv-fistbump", lvFistbumpAClip as never),
+  clip("lv-highfive-b", "lv-highfive", lvHighfiveBClip as never),
+  clip("lv-highfive-a", "lv-highfive", lvHighfiveAClip as never),
   clip("t-handshake-a", "t-handshake", tHandshakeAClip as never),
   clip("t-handshake-b", "t-handshake", tHandshakeBClip as never),
   clip("t-highfive-a", "t-highfive", tHighfiveAClip as never),

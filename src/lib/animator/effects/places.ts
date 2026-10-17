@@ -94,9 +94,19 @@ const SUNSET = /\bsun ?set|\bsun ?rise|\bdawn\b|\bgolden hour\b|\btwilight\b/i;
 const DAY = /\bmorning|\bnoon\b|\bafternoon|\bday ?time|\bsunny\b|\bdaylight\b/i;
 
 // The place a sentence names (the first in the book that matches), or null.
+// THE PLACE WITH THE MOST MATCHING WORDS WINS (Oct 17 R1b — "a frozen snowy lake shore" was drawn as a sunny BEACH: the first place
+// in the list matching any word won, and "shore" came first). Ties keep the list order. Frozen / icy / ice = a snowy place.
+const FROZEN = /\bfrozen\b|\bicy\b|\bice\b/gi;
 export function placeOf(words: unknown): Place | null {
-  const w = String(words ?? "");
-  return PLACES.find((p) => p.words.test(w) || p.id.toLowerCase() === w.replace(/[^a-z]/gi, "").toLowerCase()) ?? null;
+  const w = String(words ?? ""), id = w.replace(/[^a-z]/gi, "").toLowerCase();
+  const exact = PLACES.find((p) => p.id.toLowerCase() === id);
+  if (exact) return exact;
+  let best: Place | null = null, most = 0;
+  for (const p of PLACES) {
+    const n = (w.match(new RegExp(p.words.source, "gi")) ?? []).length + (p.id === "snow" ? 2 * (w.match(FROZEN) ?? []).length : 0);
+    if (n > most) { best = p; most = n; }
+  }
+  return best;
 }
 // The time the words say (or the place's own usual time, or day).
 export function timeOf(words: unknown, place?: Place | null): Time {

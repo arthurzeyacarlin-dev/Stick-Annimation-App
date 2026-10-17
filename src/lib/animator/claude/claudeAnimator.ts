@@ -17,6 +17,7 @@ import { PLACED_SYMBOLS } from "../symbolMaker.ts";
 import { COMBO_TESTS } from "../moves/tests.ts";
 import { effectsTestButtons, makeEffectsTestScene } from "../moves/tests2c.ts";
 import { aimRealHits, directBeats } from "../kimodo/director.ts";
+import { fillLiveMotions, sizeOneFigure, withoutClips } from "../kimodo/live.ts";
 import { BACKGROUND_PIECES, EFFECTS, heldTip } from "../effects/index.ts";
 import { toolAtThing } from "./toolAtThing.ts"; // (THE TOOL'S WORKING END REACHES THE WORKED THING)
 import { intentTouches, partnersTouchInTime, touchIntentBuilder } from "./touchIntent.ts"; // (THE BODY GOES TO THE THING IT SAYS IT TOUCHES)
@@ -58,10 +59,61 @@ export function animatorGuide(): string {
   const SCENE_IDS = effectsTestButtons().map((b: { id: string }) => b.id);
   const sceneExamples = effectsTestButtons().filter((b: { id: string }) => SCENE_IDS.includes(b.id)).map((b: { label: string; make: () => unknown }) => { try { return `${b.label}:\n${JSON.stringify(b.make())}`; } catch { return ""; } }).filter(Boolean).join("\n\n");
   const LOOK = { style: "natural", speed: "normal", energy: 0.7, direction: 1 };
-  const examples = ["meetHighFive", "passBack", "sneakRun", "blockBlockHit", "tripFall"].flatMap((id) => COMBO_TESTS.filter((t) => t.id === id)).map((t) => `${t.title}:\n${JSON.stringify(t.plan(LOOK as Parameters<typeof t.plan>[0]))}`).join("\n\n");
+  const examples = ["passBack", "sneakRun", "blockBlockHit", "tripFall"].flatMap((id) => COMBO_TESTS.filter((t) => t.id === id)).map((t) => `${t.title}:\n${JSON.stringify(t.plan(LOOK as Parameters<typeof t.plan>[0]))}`).join("\n\n");
   return `You are the ANIMATOR of Diamond Animator. For the user's sentence you write a SCENE PLAN (JSON) for a 2D stick-figure
   animation; the engine animates it with its passed moves library (math: real joints, feet planted, eased timing). Then the LAWS
   measure it and you look at pictures of it, and you fix only what is wrong.
+
+  PEOPLE ARE REAL MOTION (Oct 17 — read this first): every person's body is moved by realMotion (Kimodo, real people), also
+  when two people's HANDS MEET — a high five, a fist bump, a handshake, handing a thing over. NEVER use the old moves
+  "highFive", "fistBump", "handshake", "walk", "wave", "nod", "point" for people any more: write realMotion steps + "beats"
+  (rules below). The old engine moves are only for what real people cannot do (magic, effects) and for hits that land.
+
+  SEVERAL PEOPLE WHO DO NOT TOUCH = REAL MOTION TOO (Oct 17 R2): when the figures do not touch each other (walking together,
+  waving, talking, pointing and nodding, working side by side, a chase, a crowd cheering), EVERY figure gets its own ONE
+  realMotion with \`steps\` (the rules below), and they share ONE CLOCK: step 1 of every figure starts at 0 s, so line them
+  up with the step seconds — a figure that waits for someone says so ("A person stands still and watches." for the seconds
+  until its cue), then reacts. Each figure is made from real people separately; the engine gives each its own seed, so two
+  people never move like copies (vary the words a little too). Place them: people who talk or wave to each other FACE each
+  other (left one "facing":"right", right one "facing":"left") about 1.5 figure heights apart; people walking or running
+  together face the same way, a little apart; a chaser starts behind the runner and starts a beat later. A leader who sends
+  others somewhere stands BEHIND them on the side away from where he points and they FACE HIM while he points (he points past
+  them): leader "A person points forward with the right arm straight out." (starting at once); the others: "A person stands
+  and watches." (about 1 s — waits are short) → "A person nods yes, moving the head up and down several times." (1.5 s,
+  "show": ["nod"]) → "A person turns around and walks forward." People who watch or listen to someone always FACE them.
+  People who listen nod the same way ("show": ["nod"] — the engine keeps the take that really nods); people who talk move
+  their hands ("A person talks, moving both hands while speaking."). Nobody walks through anybody: the engine keeps them apart. People whose HANDS MEET (a high five, a fist bump, a handshake, handing a thing over) are real
+  motion too: each gets its own realMotion with steps, the two FACE each other, and the plan gets "beats": [{"by": "<first id>",
+  "on": "<second id>", "result": "touch"}] — the director lines up their clocks and places them so the hands meet (only where
+  they stand and when; their motion is Kimodo's own). Words, one person each: "A person walks up to someone and gives a high
+  five with the right arm reaching straight out, hand raised high." (every touch: "show": ["reach"] — the engine keeps the take
+  whose arm reaches out furthest, so the two can stand a real arm's length apart) / "A person bumps fists, pushing the right fist straight out forward at chest height." / "A person
+  shakes hands with the right hand." HANDING A THING OVER (a hammer, a ball, a cup): the giver "A person walks forward and holds
+  out the right hand, handing something over." (the thing is a held prop anchored to the giver's "rHand" with "giveTo": the
+  taker's id — the engine moves it into the taker's hand the moment their hands meet); the taker "A person stands, then
+  reaches out the right hand and takes something, then holds it." Hits that land (a punch, a push, a fight, a hug) keep using
+  the engine's moves — not realMotion.
+  ONE PERSON = REAL MOTION (Oct 17): when the scene has ONE figure, its body is moved by REAL human motion (Kimodo makes it live
+  from real people) — ONE realMotion action with \`steps\`: the action in order as SHORT steps, each ONE simple thing the body
+  does, starting "A person", with its \`seconds\` (0.6–4; all steps together = the length the user asked for, else about 4–6 s):
+  {"move":"realMotion","params":{"steps":[{"text":"A person walks forward.","seconds":1.5},{"text":"A person slips and falls
+  backward onto their back.","seconds":2},{"text":"A person lies on the ground.","seconds":1}],"show":["slip"]}}
+  - Say only what the BODY does, in plain common words — no objects, places or other people it would have to touch.
+  - Say HOW it looks when that matters, in body words: a march = STOMPING with HIGH steps, never wide steps and never a jog (Arthur, Oct 17):
+    "A person marches in place like a soldier, stomping: lifting each knee up high and stamping each foot down hard." (or
+    "marches forward …, stomping: …" when they go somewhere) with "show": ["knees-high", "stomp"]. A count = repeat the step ("A person does
+    a jumping jack." ×3). Words like "run", "jog", "jump", "hop", "skip" only when the user asked for them — the engine keeps only
+    takes with one foot on the ground otherwise.
+  - Turning: a turn and the walk after it are ONE step, in Kimodo's own words: "A person walks forward, turns around and walks
+    back." (never "A person turns around." then "A person walks forward." — Kimodo then forgets to go back) with "show":
+    ["turn-around"]. Never "spins" or "twirls" unless the user asked — the engine drops a take that spins more than the words say.
+  - Running and jogging leave the ground (that is right for them): "A person runs forward fast." / "A person jogs forward at an
+    easy pace." Walking never does.
+  - An accident happens IN the middle of something: a slip or trip starts while walking, never from standing still.
+  - Hopping, jumping or running only when the user asked for it. No engine moves for that figure.
+  - \`show\` (optional): what the action must clearly SHOW — any of "knees-high" (march: knees up to hip level), "stomp" (each foot stamped down hard: marching, stomping), "turn-around" (ends up facing the other way), "nod" (the head really nods up and down), "big-steps", "slip" (a slip or
+    trip: the foot shoots out before the fall), "fast-fall" (falls, knock-downs), "hands-up" (cheers, reaching up). Kimodo makes 3
+    takes and the engine keeps the one that shows it most.
 
   TOUCH MEANS TOUCH: when a hand / foot / held tool must touch something (lighting a fire, pressing, knocking, painting, pushing),
   give the effect a \`cause\` (that hand) and place the figure within reach (step, kneel, bend; a custom key's rHand/lHand target on
@@ -355,6 +407,137 @@ function knownMove(a: Record<string, unknown>): Record<string, unknown> | null {
   const close = names.filter((n) => low.startsWith(n.toLowerCase()) || n.toLowerCase().startsWith(low)).sort((x, y) => y.length - x.length)[0];
   return close ? { ...a, move: close } : null;
 }
+// PEOPLE WHO DO NOT TOUCH NEVER WALK THROUGH EACH OTHER (Oct 17 R2b — Arthur: in the chase the officer ran into and through the
+// thief, and the two kept swapping in front / behind). When every figure moves by real motion (the scenes where nobody touches),
+// the scene is built once and each pair's hips must stay at least half a figure height apart, on the SAME side they started on;
+// if not, the second figure starts farther away by exactly what was missing (where it stands, never how it moves — Kimodo's
+// motion is untouched). No overlap also means no front/back flipping (depth.ts orders figures only when they are close).
+export function keepApart(plan: Record<string, unknown>): Record<string, unknown> {
+  const chars = (Array.isArray(plan.characters) ? plan.characters : []) as { id?: string; x?: number; actions?: { move?: string }[] }[];
+  if (chars.length < 2 || !chars.every((c) => (c.actions ?? []).some((a) => a.move === "realMotion"))) return plan;
+  if (Array.isArray(plan.beats) && plan.beats.length) return plan; // (people who TOUCH are placed by the director — kimodo/director.ts)
+  const gap = 0.5 * (Number(plan.height) || 300);
+  for (let pass = 0; pass < 3; pass += 1) {
+    let frames: { id: string; offPage?: boolean; skeleton: Record<string, { x: number }> }[][];
+    try { frames = buildScene(makeEffectsTestScene(plan as never, 1920), 24).frames as never; } catch { return plan; }
+    let moved = false;
+    for (let a = 0; a < chars.length; a += 1) for (let b = a + 1; b < chars.length; b += 1) {
+      const d = frames.map((f) => { const A = f.find((x) => x.id === chars[a].id), B = f.find((x) => x.id === chars[b].id); return A && B && !A.offPage && !B.offPage ? B.skeleton.hip.x - A.skeleton.hip.x : NaN; }).filter(Number.isFinite);
+      if (!d.length) continue;
+      const side = Math.sign(d.slice(0, 6).reduce((t, v) => t + v, 0)) || 1;
+      const need = Math.max(0, ...d.map((v) => gap - side * v));
+      if (need > 1) { chars[b].x = Math.round(Number(chars[b].x ?? 960) + side * (need + 10)); moved = true; }
+    }
+    if (!moved) break;
+  }
+  return plan;
+}
+
+// HANDING A THING OVER (Oct 17 R3 — Arthur: "walking over, here's my hammer, and he gets it"): a held prop with "giveTo": "<id>"
+// stays in its holder's hand until the two people's hands are CLOSEST (after the director has made them meet), then it is in the
+// other person's same-side hand. It never flies or teleports: at the switch the two hands are at the same spot. Only which hand
+// holds it changes — both people's motion is Kimodo's own.
+export function handOver(plan: Record<string, unknown>): Record<string, unknown> {
+  // ONE THING, ONE OWNER AT A TIME (R3b — Arthur: "the hammers get duplicated… no objects are supposed to duplicate; if the person
+  // had three items he should be able to give them"): a given thing stays ONE prop with an OWNER TIMELINE ("owners": who holds
+  // it from when — effects/index.ts draws it once per picture, in its owner's hand). The switch is the touch pose the director
+  // measured (plan.touchAt) — both hands are on it — else the picture where the two hands are closest. Two separate props
+  // (the old way) made the first one DROP while the second was already in the taker's hand: a duplicate that floated.
+  const effects = (plan.effects as HeldProp[] | undefined) ?? [];
+  const giveOf = (e: HeldProp) => { const g = (e as { giveTo?: unknown }).giveTo ?? e.params?.giveTo; return typeof g === "string" ? g : undefined; };
+  if (!effects.some((e) => e.kind === "prop" && giveOf(e) && e.anchor?.character)) return plan;
+  const touches = (plan.touchAt as { by: string; on: string; t: number; hand?: string }[] | undefined) ?? [];
+  let frames: { id: string; skeleton: Record<string, { x: number; y: number }> }[][] | null = null;
+  const out = effects.map((e) => {
+    const to = giveOf(e);
+    if (e.kind !== "prop" || !to || !e.anchor?.character) return e;
+    const from = e.anchor.character, j = (e.anchor.joint ?? "rHand") as string, t0 = Number(e.start ?? 0);
+    let at = touches.find((x) => (x.by === from && x.on === to) || (x.by === to && x.on === from))?.t, hand = "rHand";
+    if (frames === null) { try { frames = buildScene(makeEffectsTestScene(plan as never, 1920), 24).frames as never; } catch { frames = []; } }
+    let best = { i: -1, d: Infinity, hand: "rHand" };
+    (frames ?? []).forEach((f, i) => {
+      if (i / 24 < t0 + 0.5 || (at !== undefined && Math.abs(i / 24 - at) > 0.15)) return;
+      const A = f.find((x) => x.id === from), B = f.find((x) => x.id === to);
+      if (!A || !B) return;
+      for (const h of ["rHand", "lHand"]) { const d = Math.hypot(A.skeleton[j].x - B.skeleton[h].x, A.skeleton[j].y - B.skeleton[h].y); if (d < best.d) best = { i, d, hand: h }; }
+    });
+    if (best.i >= 0) { at = best.i / 24; hand = best.hand; }
+    if (at === undefined) return e;
+    const { giveTo: _g, ...rest } = e as HeldProp & { giveTo?: string };
+    const { giveTo: _p, ...params } = (rest.params ?? {}) as Record<string, unknown>;
+    return { ...rest, params, owners: [{ t: t0, character: from, joint: j }, { t: +at.toFixed(3), character: to, joint: hand }] };
+  });
+  return { ...plan, effects: out };
+}
+
+// THE TOUCH GATE (Oct 17 R3b, Fable): before Arthur sees a touching video — (1) both people's hands reach their touch pose (their
+// peak reach toward each other, measured on the FINAL pictures) within 2 pictures of each other; (2) at the touch the two hands
+// are within 3 cm (stage px: figure height = 1.75 m); (3) every handed thing is in exactly ONE place on every picture.
+export function touchGate(plan: Record<string, unknown>): { ok: boolean; notes: string[] } {
+  const touches = (plan.touchAt as { by: string; on: string; t: number }[] | undefined) ?? [];
+  const notes: string[] = [];
+  let frames: { id: string; skeleton: Record<string, { x: number; y: number }> }[][];
+  try { frames = buildScene(makeEffectsTestScene(plan as never, 1920), 24).frames as never; } catch (e) { return { ok: false, notes: [`build failed: ${String(e).slice(0, 80)}`] }; }
+  const H = Number(plan.height) || 300, cm3 = (0.03 / 1.75) * H;
+  for (const tc of touches) {
+    const i0 = Math.round(tc.t * 24), lo = Math.max(0, i0 - 14), hi = Math.min(frames.length - 1, i0 + 14);
+    // (WHEN EACH ARM RISES AND FALLS: a fist bump holds a flat top for half a second, so its "peak" picture is noise — the
+    // picture the reach crosses halfway up, and halfway down again, are what must match)
+    const edges = (who: string, other: string) => {
+      const r: number[] = [];
+      for (let i = lo; i <= hi; i += 1) {
+        const A = frames[i].find((x) => x.id === who), B = frames[i].find((x) => x.id === other);
+        const toward = A && B ? Math.sign(B.skeleton.hip.x - A.skeleton.hip.x) || 1 : 1;
+        r.push(A ? Math.max(...["lHand", "rHand"].map((h) => (A.skeleton[h].x - A.skeleton.hip.x) * toward)) : 0);
+      }
+      const mn = Math.min(...r), mx = Math.max(...r), mid = (mn + mx) / 2, k = r.indexOf(mx);
+      let up = k; while (up > 0 && r[up - 1] >= mid) up -= 1;
+      let down = k; while (down < r.length - 1 && r[down + 1] >= mid) down += 1;
+      return { up, down };
+    };
+    const ea = edges(tc.by, tc.on), eb = edges(tc.on, tc.by), ia = 0, ib = Math.max(Math.abs(ea.up - eb.up), Math.abs(ea.down - eb.down));
+    const A = frames[i0]?.find((x) => x.id === tc.by), B = frames[i0]?.find((x) => x.id === tc.on);
+    const d = A && B ? Math.min(...["lHand", "rHand"].flatMap((h) => ["lHand", "rHand"].map((k) => Math.hypot(A.skeleton[h].x - B.skeleton[k].x, A.skeleton[h].y - B.skeleton[k].y)))) : Infinity;
+    notes.push(`touch ${tc.by}→${tc.on} at ${tc.t.toFixed(2)} s: arms rise/fall ${Math.abs(ia - ib)} pictures apart (≤2), hands ${(d / H * 1.75 * 100).toFixed(1)} cm apart (≤3)`);
+    if (Math.abs(ia - ib) > 2 || d > cm3) notes.push("GATE FAIL: touch timing or distance");
+  }
+  const props = ((plan.effects as HeldProp[] | undefined) ?? []).filter((e) => e.kind === "prop" && e.anchor?.character);
+  const name = (e: HeldProp) => String(e.params?.symbol ?? e.params?.name ?? "");
+  for (let i = 0; i < frames.length; i += 1) {
+    const t = i / 24, seen = new Map<string, number>();
+    for (const e of props) if (t >= Number(e.start ?? 0) - 1e-9 && t <= Number(e.end ?? Infinity) + 1e-9) seen.set(name(e), (seen.get(name(e)) ?? 0) + 1);
+    const dup = [...seen].find(([n, k]) => n && k > 1);
+    if (dup) { notes.push(`GATE FAIL: "${dup[0]}" is in two places at ${t.toFixed(2)} s`); break; }
+  }
+  return { ok: !notes.some((n) => n.startsWith("GATE FAIL")), notes };
+}
+
+// UNTIL THE GATE PASSES (Oct 17 R3b): a touching pair that fails the touch gate gets FRESH Kimodo takes — the same words, new
+// seeds (+100 each try), at most 2 more tries — and the take pair, the director's clock and place and the hand-over run again.
+// The best try is kept and the gate's notes say what is still off; a failing pair is never presented as a pass.
+export async function gateTouches(plan: Record<string, unknown>, words: string, signal?: AbortSignal): Promise<{ plan: Record<string, unknown>; gate: { ok: boolean; notes: string[] }; tries: number }> {
+  let best = { plan, gate: touchGate(plan) }, cur = plan, tries = 0;
+  const score = (g: { notes: string[] }) => g.notes.filter((n) => n.startsWith("GATE FAIL")).length;
+  while (!best.gate.ok && tries < 2 && Array.isArray(cur.touchAt) && cur.touchAt.length) {
+    tries += 1;
+    const next = JSON.parse(JSON.stringify(cur, withoutClips)) as Record<string, unknown>;
+    for (const c of (next.characters as { actions?: { move?: string; params?: Record<string, unknown> }[] }[]) ?? []) for (const a of c.actions ?? []) {
+      if (a.move !== "realMotion" || !a.params) continue;
+      a.params.seed = Number(a.params.seed ?? 11) + 100; delete a.params.timeMap;
+    }
+    for (const e of (next.effects as (HeldProp & { owners?: { character: string; joint: string }[]; giveTo?: string })[] | undefined) ?? []) {
+      if (e.owners?.length) { e.giveTo = e.owners[e.owners.length - 1].character; e.anchor = { ...e.anchor, character: e.owners[0].character, joint: e.owners[0].joint }; delete e.owners; }
+    }
+    delete next.touchAt;
+    let p2 = (await fillLiveMotions(next, { signal })).plan;
+    p2 = handOver(autoRepair(keepApart(sizeOneFigure(p2)), words, null).plan);
+    const g = touchGate(p2);
+    cur = p2;
+    if (g.ok || score(g) < score(best.gate)) best = { plan: p2, gate: g };
+  }
+  return { ...best, tries };
+}
+
 export function tidyPlan(plan: Record<string, unknown>): Record<string, unknown> {
   const shot = (s: Record<string, unknown>) => !Array.isArray(s.characters) ? s : ({ ...s, characters: ((s.characters as Record<string, unknown>[] | undefined) ?? []).map((c) => ({ ...c,
     actions: ((c.actions as Record<string, unknown>[] | undefined) ?? []).map(knownMove).filter((a): a is Record<string, unknown> => a !== null).map((a) => a.move === "getHit" && a.sync && typeof (a.params as { from?: unknown } | undefined)?.from === "string" ? (({ sync: _s, ...rest }) => { void _s; return rest; })(a) : a) })) });
@@ -1117,7 +1300,7 @@ const wordsSeconds = (w: string): number | null => { const all = [...w.matchAll(
 // flags every change the user did NOT ask for (Arthur, Oct 12: "he just wants it nighttime… does he want the stick figures to
 // change? No. Does he want a time lapse? No.") — Claude then puts those parts back exactly as they were.
 export function planDiff(before: Record<string, unknown>, after: Record<string, unknown>): string[] {
-  const j = (v: unknown) => JSON.stringify(v ?? null), out: string[] = [];
+  const j = (v: unknown) => JSON.stringify(v ?? null, withoutClips), out: string[] = [];
   type Ch = { id: string; name?: string; look?: unknown; actions?: unknown; x?: unknown; facing?: unknown; size?: unknown; breath?: unknown; style?: unknown; speed?: unknown };
   const A = (before.characters as Ch[] | undefined) ?? [], B = (after.characters as Ch[] | undefined) ?? [];
   for (const c of B) {
@@ -1156,7 +1339,7 @@ export function revertUnasked(before: Record<string, unknown>, after: Record<str
   return out;
 }
 async function missingParts(words: string, plan: Record<string, unknown>, edit: boolean, signal?: AbortSignal, changed: string[] = []): Promise<{ missing: string[]; usage: ClaudeUsage }> {
-  const r = await askClaude(`You check a 2D stick-figure animation plan against what the user asked. Reply with ONE JSON object: {"missing": ["…"]} — every thing the user asked for${edit ? " in this edit" : ""} that the plan does NOT do (a figure, a count, a color, a place, an action, an effect, a length). The engine CAN draw any physical thing (built from parts: a desk, a chair, a mug, a laptop, a tent…), sit figures on seats and put things in hands — so a note saying such a thing "cannot be drawn" does NOT excuse it: it is missing. Only things truly impossible in a 2D stick-figure scene (animals, real people) may be excused by the notes. Empty list if everything is there.`, [{ role: "user", content: `The user asked: "${words}"\n\nThe plan:\n${JSON.stringify(plan)}${edit ? `\n\nTHIS IS AN EDIT. Compared with the animation before it, the edit changed: ${changed.length ? changed.join("; ") : "nothing"}. Add to "missing", each written as "UNASKED: " + the change's words EXACTLY as listed, every one of these changes the user did NOT ask for (e.g. they asked for night: only the sky, light and colors of the place may change — not the figures, their moves, the things or the scenes). A change the user's words clearly need is fine.` : ""}` }], { maxTokens: 400, signal, kind: "check" });
+  const r = await askClaude(`You check a 2D stick-figure animation plan against what the user asked. Reply with ONE JSON object: {"missing": ["…"]} — every thing the user asked for${edit ? " in this edit" : ""} that the plan does NOT do (a figure, a count, a color, a place, an action, an effect, a length). The engine CAN draw any physical thing (built from parts: a desk, a chair, a mug, a laptop, a tent…), sit figures on seats and put things in hands — so a note saying such a thing "cannot be drawn" does NOT excuse it: it is missing. Only things truly impossible in a 2D stick-figure scene (animals, real people) may be excused by the notes. Empty list if everything is there.`, [{ role: "user", content: `The user asked: "${words}"\n\nThe plan:\n${JSON.stringify(plan, withoutClips)}${edit ? `\n\nTHIS IS AN EDIT. Compared with the animation before it, the edit changed: ${changed.length ? changed.join("; ") : "nothing"}. Add to "missing", each written as "UNASKED: " + the change's words EXACTLY as listed, every one of these changes the user did NOT ask for (e.g. they asked for night: only the sky, light and colors of the place may change — not the figures, their moves, the things or the scenes). A change the user's words clearly need is fine.` : ""}` }], { maxTokens: 400, signal, kind: "check" });
   let missing: string[] = [];
   try { const j = firstJson(r.text) as { missing?: unknown }; missing = Array.isArray(j.missing) ? j.missing.map(String).filter(Boolean).slice(0, 6) : []; } catch { /* unreadable: nothing flagged */ }
   return { missing, usage: r.usage };
@@ -1165,7 +1348,7 @@ async function missingParts(words: string, plan: Record<string, unknown>, edit: 
 export async function claudeAnimate(words: string, o: { current?: Record<string, unknown> | null; conversation?: string; research?: string; signal?: AbortSignal; onProgress?: (p: AnimateProgress) => void } = {}): Promise<AnimateResult> {
   const t0 = Date.now(), usage: ClaudeUsage = { inputTokens: 0, outputTokens: 0, usd: 0 };
   const first = o.current
-    ? `This is the CURRENT animation's plan:\n${JSON.stringify(o.current)}\n\nThe user asks for an EDIT: "${words}". Change ONLY what they asked (a color, a length, one more scene, removing a thing…) and keep everything else EXACTLY the same — same figures, ids, moves, timing and places. Reply with the whole edited plan JSON.`
+    ? `This is the CURRENT animation's plan:\n${JSON.stringify(o.current, withoutClips)}\n\nThe user asks for an EDIT: "${words}". Change ONLY what they asked (a color, a length, one more scene, removing a thing…) and keep everything else EXACTLY the same — same figures, ids, moves, timing and places. Reply with the whole edited plan JSON.`
     : `${o.conversation ? `Recent conversation (for context):\n${o.conversation}\n\n` : ""}${o.research ? `What a web search found about what they mention:\n${o.research}\n\n` : ""}The user typed: "${words}". Write the plan.`;
   const progress = (percent: number, note: string, etaSec: number | null) => { try { o.onProgress?.({ percent, note, etaSec }); } catch { /* the card is best effort */ } };
   // (an edit that adds scenes may run longer than 15 s: the length law allows the current length + 30 s, or what the words ask)
@@ -1186,7 +1369,10 @@ export async function claudeAnimate(words: string, o: { current?: Record<string,
     catch { messages.push({ role: "assistant", content: r.text }, { role: "user", content: "That was not one valid JSON object. Reply with only the plan JSON." }); continue; }
     messages.push({ role: "assistant", content: r.text });
     progress(20 + round * 22, "Making the movements feel right", Math.max(6, 30 - round * 8));
-    plan = autoRepair(plan, words, askedSec).plan;
+    // (LIVE KIMODO, Oct 17: each sentence of real motion is made now and travels inside the plan — kimodo/live.ts; cached = free)
+    plan = (await fillLiveMotions(plan, { signal: o.signal, onLog: (x) => { try { process.stderr.write(`${x}\n`); } catch { /* log only */ } } })).plan;
+    plan = keepApart(sizeOneFigure(plan));
+    plan = handOver(autoRepair(plan, words, askedSec).plan);
     let problems = lawProblems(plan, words, askedSec);
     if (!problems.some(isBroken) && tasteTries === 0) {
       progress(26 + round * 22, "Double-checking everything you asked for", Math.max(5, 25 - round * 8));
@@ -1201,7 +1387,7 @@ export async function claudeAnimate(words: string, o: { current?: Record<string,
       problems = [...problems, ...check.missing.map((m) => `MISSING from the request: ${m}`)];
     }
     // (THE ANIMATOR LOG: every round's problems, so a refusal can always be traced to its real cause — no guessing)
-    try { const lf = spendFile().replace(/claude-spend\.json$/, "animator-log.jsonl"); if (lf && lf !== spendFile()) appendFileSync(lf, JSON.stringify({ at: new Date().toISOString(), words: words.slice(0, 400), edit: !!o.current, round, problems, plan }) + "\n"); } catch { /* best effort */ }
+    try { const lf = spendFile().replace(/claude-spend\.json$/, "animator-log.jsonl"); if (lf && lf !== spendFile()) appendFileSync(lf, JSON.stringify({ at: new Date().toISOString(), words: words.slice(0, 400), edit: !!o.current, round, problems, plan }, withoutClips) + "\n"); } catch { /* best effort */ }
     const broken = problems.filter(isBroken), taste = problems.filter((x) => !isBroken(x));
     const score = broken.length * 100 + taste.length;
     if (!best || score < best.score) best = { score, plan, problems, round };
@@ -1219,6 +1405,11 @@ export async function claudeAnimate(words: string, o: { current?: Record<string,
   const waits = best?.problems.filter((x) => x.startsWith("TASTE idle:")).map((x) => x.replace(/^TASTE idle: /, "").replace(/ \(at most.*$/, "")) ?? [];
   const gaps = best?.problems.filter((x) => x.startsWith("MISSING")).map((x) => x.replace(/^MISSING from the request: /, "")) ?? [];
   const notes = [typeof best?.plan?.notes === "string" && best.plan.notes.trim() ? best.plan.notes.trim() : "", gaps.length ? `Not in it yet: ${gaps.join("; ")}.` : "", waits.length ? `Still a bit of standing: ${waits.join("; ")}. Ask me to fill it with more action.` : ""].filter(Boolean).join(" ") || null;
+  if (lawsOk && best && Array.isArray(best.plan.touchAt) && best.plan.touchAt.length) {
+    progress(90, "Checking the touch", 30);
+    const g = await gateTouches(best.plan, words, o.signal);
+    best = { ...best, plan: g.plan, problems: [...best.problems, ...g.gate.notes.filter((n) => n.startsWith("GATE FAIL")).map((n) => `TASTE touch: ${n}`)] };
+  }
   progress(96, lawsOk ? "Adding it to your canvas" : "Finishing up", 2);
   return { ok: lawsOk, plan: best?.plan ?? null, title: String(best?.plan?.title ?? "Animation"), problems: best?.problems ?? ["Claude did not write a plan."], rounds: (best?.round ?? 0) + 1, usage, ms: Date.now() - t0, notes };
 }

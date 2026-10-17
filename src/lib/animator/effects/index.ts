@@ -37,6 +37,16 @@ export type EffectScene = Scene & { effects?: EffectTrack[]; background?: Backgr
 
 // Where an anchor is in one picture (a joint follows its character; a missing character → the point itself).
 // (An anchor on an OBJECT follows it in this picture's `objects`; gone from the picture → no effect there.)
+// ONE THING, ONE OWNER (Oct 17 R3b): a prop handed from person to person has an owner timeline ("owners": [{ t, character, joint }])
+// — at each moment it is in exactly ONE hand: the latest owner whose time has come (claude/claudeAnimator.ts handOver).
+export function ownerAt(track: EffectTrack, t: number): EffectTrack {
+  const owners = (track as { owners?: { t: number; character: string; joint: string }[] }).owners;
+  if (!Array.isArray(owners) || !owners.length || !("character" in track.anchor)) return track;
+  let o = owners[0];
+  for (const x of owners) if (t >= x.t - 1e-9) o = x;
+  return { ...track, anchor: { ...track.anchor, character: o.character, joint: o.joint } as Anchor };
+}
+
 export function anchorAt(anchor: Anchor, characters: readonly FrameCharacter[], objects: readonly FrameObject[] = []): Point | undefined {
   if ("object" in anchor) {
     const o = objects.find((f) => f.id === anchor.object);
@@ -347,7 +357,7 @@ export function buildEffectFrames(scene: EffectScene, built: SceneFrames): Effec
       if (recipe) frame.background.push(...recipe.draw({ ...piece, params: { seed: scene.background?.seed, ...piece.params } }, t, { width: (scene as { backgroundWidth?: number }).backgroundWidth ?? stageWidth, groundY: scene.groundY, height }));
     }
     for (const raw of scene.effects ?? []) {
-      const track = landed.get(raw) ?? raw;
+      const track = ownerAt(landed.get(raw) ?? raw, t);
       if (t < track.start - 1e-9 || t > track.end + 1e-9) continue;
       const recipe = EFFECTS[track.kind];
       const seen0 = fromToolHead(track, characters, heads, workers) ?? anchorAt(track.anchor, characters, built.objects[i]), shove = pushed.get(raw)?.[i] ?? 0;

@@ -12,7 +12,7 @@ import { forwardKinematics } from "../pose.ts";
 import type { MoveOutput, MoveSettings, Stance } from "./motion.ts";
 import { findMotion, type KimodoClip, type KimodoFrame } from "../kimodo/library.ts";
 
-export type RealMotionParams = { motion?: string; prompt?: string; seconds?: number; timeMap?: [number, number][]; stage?: StageView };
+export type RealMotionParams = { motion?: string; prompt?: string; seconds?: number; seed?: number; clip?: KimodoClip; timeMap?: [number, number][]; stage?: StageView };
 // ONE 3D STAGE, ONE CAMERA (Session A3, Oct 16 — Arthur: "it's 3D motion that looks 2D"): people made together (make_clips.py duet)
 // share one 3D stage — the first at stage z = 0 facing +z, the second S metres away facing back — and ONE camera, turned `theta`
 // off the pure side view, flattens everything at the very end. The whole stage is sized once (standing height → H): Kimodo's own
@@ -29,7 +29,7 @@ type V3 = [number, number, number];
 
 // The side view: forward = perpendicular to the hips' left→right line at the start (turned to the side the hands are on —
 // a boxer's guard, a catcher's hands — or the way the body travels), up = y. Returns (forward, up) per joint.
-function sideView(frames: KimodoFrame[]): { f: (p: V3) => number; h0: V3 } {
+function sideView(frames: KimodoFrame[]): { f: (p: V3) => number; h0: V3; angle: number } {
   const at = (fr: KimodoFrame, k: string) => fr[k] as V3;
   const L = at(frames[0], "LeftLeg"), R = at(frames[0], "RightLeg"), h0 = at(frames[0], "Hips");
   let fx = -(R[2] - L[2]), fz = R[0] - L[0];
@@ -40,8 +40,49 @@ function sideView(frames: KimodoFrame[]): { f: (p: V3) => number; h0: V3 } {
   // travels. Oct 16: a boxer who staggers BACKWARD was turned around by "travel" and walked into his opponent.)
   const early = frames.slice(0, Math.min(frames.length, 24));
   const hands = early.reduce((s, fr) => s + along([(at(fr, "LeftHand")[0] + at(fr, "RightHand")[0]) / 2, 0, (at(fr, "LeftHand")[2] + at(fr, "RightHand")[2]) / 2]) - along(at(fr, "Hips")), 0) / early.length;
-  const sign = Math.abs(hands) > 0.08 ? Math.sign(hands) : Math.abs(travel) > 0.3 ? Math.sign(travel) : Math.sign(hands) || 1;
-  return { f: (p) => sign * along(p), h0 };
+  // (THE BODY'S REAL FRONT, Oct 17 R2b — Arthur: the followers "turned around and walked" straight back INTO the leader: with
+  // the hands at the sides, the front was guessed from the way the body travels, so someone who turns around first and then
+  // walks got a backwards front. Kimodo's SOMA skeleton always has its front on the same side of the hips' left→right line —
+  // measured on every walking clip (15/15): front = −(this perpendicular). The old guess stays only for clips from elsewhere.)
+  const kimodoFront = (frames[0] as { __src?: string }).__src !== "video";
+  const sign = kimodoFront ? -1 : Math.abs(hands) > 0.08 ? Math.sign(hands) : Math.abs(travel) > 0.3 ? Math.sign(travel) : Math.sign(hands) || 1;
+  // THE CAMERA TURNS TO SHOW THE MOVE (Oct 17 R1 — Arthur: the pure side view hid jumping jacks): Kimodo's person is 3D, so the
+  // camera is turned around the person (0° = side, 90° = front) to the angle where the arms, legs and the path the body travels
+  // are seen the LEAST squashed — a walk stays side-on, jumping jacks or a wave turn toward the front. Only the camera moves;
+  // Kimodo's motion is untouched. (A slight preference for the side view: it only turns when the move really needs it.)
+  const lat = (p: V3) => (p[0] - h0[0]) * fz - (p[2] - h0[2]) * fx;
+  const view = (deg: number) => { const c = Math.cos(deg / DEG), sn = Math.sin(deg / DEG); return (p: V3) => sign * along(p) * c + lat(p) * sn; };
+  const BONES: [string, string][] = [["Neck1", "LeftForeArm"], ["LeftForeArm", "LeftHand"], ["Neck1", "RightForeArm"], ["RightForeArm", "RightHand"], ["Hips", "LeftShin"], ["LeftShin", "LeftFoot"], ["Hips", "RightShin"], ["RightShin", "RightFoot"]];
+  const path = Math.hypot(at(last, "Hips")[0] - h0[0], at(last, "Hips")[2] - h0[2]);
+  const score = (deg: number) => {
+    const g = view(deg); let seen = 0, n2 = 0;
+    for (let i = 0; i < frames.length; i += 3) for (const [a, b] of BONES) {
+      const A = at(frames[i], a), B = at(frames[i], b), full = Math.hypot(B[0] - A[0], B[1] - A[1], B[2] - A[2]) || 1;
+      seen += Math.hypot(g(B) - g(A), B[1] - A[1]) / full; n2 += 1;
+    }
+    const travelSeen = path > 0.3 ? Math.abs(g(at(last, "Hips"))) / path : 1;
+    return seen / (n2 || 1) + 0.5 * travelSeen - deg * 0.0006;
+  };
+  // THE PATH GOES ACROSS THE SCREEN (Oct 17 R1e — Arthur: "walking and turning around looks horrible"): when the body really
+  // travels (its hips walk more than 1 m in all), the camera looks at the PATH from the side — the line the hips walk along
+  // (its main direction) runs left↔right across the picture, so a walk goes across, a turn-around shows the body turning
+  // through the front, and the walk back goes back across — never a figure walking at the camera. Standing moves (jumping
+  // jacks, a wave, a dance on the spot) keep the angle that shows the limbs best, as before.
+  let walked = 0;
+  for (let i = 6; i < frames.length; i += 6) walked += Math.hypot(at(frames[i], "Hips")[0] - at(frames[i - 6], "Hips")[0], at(frames[i], "Hips")[2] - at(frames[i - 6], "Hips")[2]);
+  if (walked > 1) {
+    let sxx = 0, szz = 0, sxz = 0;
+    const mx = frames.reduce((t, fr) => t + at(fr, "Hips")[0], 0) / frames.length, mz = frames.reduce((t, fr) => t + at(fr, "Hips")[2], 0) / frames.length;
+    for (const fr of frames) { const dx = at(fr, "Hips")[0] - mx, dz = at(fr, "Hips")[2] - mz; sxx += dx * dx; szz += dz * dz; sxz += dx * dz; }
+    const th = 0.5 * Math.atan2(2 * sxz, sxx - szz);
+    let dx = Math.cos(th), dz = Math.sin(th);
+    if (dx * fx * sign + dz * fz * sign < 0) { dx = -dx; dz = -dz; } // (the figure starts out facing / going to the right)
+    const across = (p: V3) => (p[0] - h0[0]) * dx + (p[2] - h0[2]) * dz;
+    return { f: across, h0, angle: Math.round((Math.acos(Math.max(-1, Math.min(1, Math.abs(dx * fx + dz * fz)))) * DEG)) };
+  }
+  // (at most 60° — a three-quarter view: a pure front view hid the "bend over" after the jumping jacks, Oct 17 R1)
+  const best = [0, 15, 30, 45, 60].reduce((b, d) => (score(d) > score(b) ? d : b), 0);
+  return { f: view(best), h0, angle: best };
 }
 
 // One Kimodo frame → our pose angles (side view, facing right; our angle rules are in pose.ts forwardKinematics).
@@ -108,7 +149,8 @@ const lerpPose = (a: PoseAngles, b: PoseAngles, u: number): PoseAngles => Object
 
 export function realMotion(start: Stance, params: RealMotionParams, settings: MoveSettings): MoveOutput {
   const H = settings.height;
-  const clip: KimodoClip = findMotion(String(params?.motion ?? params?.prompt ?? ""));
+  // (LIVE KIMODO, Oct 17: a clip made live for this plan travels inside it — kimodo/live.ts; else the saved library)
+  const clip: KimodoClip = params?.clip && Array.isArray(params.clip.frames) && params.clip.frames.length > 1 ? params.clip : findMotion(String(params?.motion ?? params?.prompt ?? ""));
   let frames = clip.frames;
   const want = Number(params?.seconds);
   if (Number.isFinite(want) && want > 0.5) frames = frames.slice(0, Math.max(2, Math.round(want * clip.fps)));
@@ -143,12 +185,16 @@ export function realMotion(start: Stance, params: RealMotionParams, settings: Mo
   const st = params?.stage as StageView | undefined;
   // (stage → screen: the person's own Kimodo frame (x, y, z) → the stage → the camera. u = across the picture, d = depth)
   const onStage = (v: V3) => { const X = st!.side >= 0 ? v[0] : -v[0], Z = st!.side >= 0 ? v[2] : st!.S - v[2], c = Math.cos(st!.theta), sn = Math.sin(st!.theta);
-    return { x: st!.originX + (Z * c + X * sn) * st!.scale, h: (v[1] - st!.floor) * st!.scale, d: -Z * sn + X * c }; };
+    // (FLOATING FIX, Oct 16: each person stands on HIS OWN measured floor — the lowest foot of his clip, like single figures —
+    // not one fixed 7 cm guess for both; Kimodo feet sit a little higher in some clips and those people hovered)
+    return { x: st!.originX + (Z * c + X * sn) * st!.scale, h: (v[1] - floor) * st!.scale, d: -Z * sn + X * c }; };
   const keys0: (CharacterKey | null)[] = frames.map((fr, i) => {
     const t = tOf(i);
     if (t < start.t - 1e-6) return null;
     if (st) {
-      const u = Math.min(1, (t - tFirst) / BLEND_IN), ease = u * u * (3 - 2 * u);
+      // (MID-ACTION START, Oct 16 night: a contact clip whose slow start was cut (kimodo/trim.py) already starts in its real pose —
+      // easing in from a plain standing pose popped in 3 pictures, so it is shown as it is from the first picture)
+      const u = clip.midAction ? 1 : Math.min(1, (t - tFirst) / BLEND_IN), ease = u * u * (3 - 2 * u);
       const J = (k: string) => { const q = onStage(fr[k] as V3); return [q.x, q.h]; };
       const real = { w: ease, d: onStage(fr.Hips as V3).d, j: { hip: J("Hips"), neck: J("Neck1"), headTop: J("HeadEnd"), lElbow: J("LeftForeArm"), lHand: J("LeftHand"), rElbow: J("RightForeArm"), rHand: J("RightHand"), lKnee: J("LeftShin"), lFoot: J("LeftFoot"), rKnee: J("RightShin"), rFoot: J("RightFoot") } };
       return { t, real, pose: lerpPose(start.pose ?? STAND, smooth[i], ease), x: real.j.hip[0], lift: 0, facing: start.facing, ease: "linear", xEase: "linear", liftEase: "linear" } as CharacterKey;
@@ -222,8 +268,17 @@ export function applyRealMotion(scene: { groundY: number; characters: { id: stri
       // (on the floor: nothing below the ground line — the lowest joint, or the head's bottom, rests on it)
       const low = Math.max(...Object.entries(sk).map(([k, p]) => p.y + (k === "head" ? r : 0)));
       const up = Math.max(0, low - scene.groundY);
+      // A BODY LYING DOWN RESTS ON THE GROUND (Oct 17 R1b — Arthur: "when he falls he's floating, not laying on the sand"): a real
+      // person's joints sit 10–15 cm above the floor when lying (body thickness) and our cartoon head is bigger than a real head,
+      // so the rule above held the back 40–64 px in the air. When the torso is lying (tilted past 50°, fully by 75°), its lowest
+      // JOINT (an elbow, the hips, the back of the neck) rests ON the ground line instead — the big head circle may sink into the
+      // ground band in front (the ground law measures joints, not the head circle: engine.ts belowGroundFrames). Eased by the tilt,
+      // so standing up / falling never jumps. Only where the floor is changes — Kimodo's pose is untouched.
+      const tilt = Math.atan2(Math.abs(sk.neck.x - sk.hip.x), Math.max(1e-6, sk.hip.y - sk.neck.y)) * DEG;
+      const lying = Math.min(1, Math.max(0, (tilt - 50) / 25)), lowJoint = Math.max(...Object.entries(sk).filter(([k]) => k !== "head").map(([, p]) => p.y));
+      const shift = lying * (scene.groundY - lowJoint) - (1 - lying) * up;
       for (const k of Object.keys(sk)) {
-        const a = fig.skeleton[k], b = { x: sk[k].x, y: sk[k].y - up };
+        const a = fig.skeleton[k], b = { x: sk[k].x, y: sk[k].y + shift };
         fig.skeleton[k] = a ? { x: a.x + (b.x - a.x) * real.w, y: a.y + (b.y - a.y) * real.w } : b;
       }
       held = Object.fromEntries(Object.entries(fig.skeleton).map(([k, p]) => [k, { ...p }]));

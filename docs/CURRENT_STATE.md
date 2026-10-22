@@ -1,5 +1,9 @@
 # Current State
 
+## D-0211 — Website PM: beta opens November 3, sign-up fixed, new discount words, Arthur's photo (current, website)
+
+Live on diamondanimator.com since 2026-10-20/22 (`diamond-website` main `ef244a5`, `556dc54`, `1445eed`). The beta date is November 3, 2026 everywhere, with a short "Why November 3?" note (roadblock with complicated stick-figure moves; the 3D-to-2D engine planned for Version 3 was built into Version 1). Repeat sign-ups from the cheat-sheet form, footer or contact form now take a discount spot; the progress bar fades blue → red and shows full red at 50/50; the reserve screen says "discount spot #N of 50"; Arthur's photo sits in the story hero. See DECISIONS D-0211. Not verified from here: welcome emails (needs dad's Resend keys), the real list in Cloudflare D1.
+
 ## D-0210 — PM4: regression sweeps passed; paste on any frame, Delete key, symbol look (current)
 
 Arthur passed 2026-10-17. Two regression sweeps (22 real-app checks across every drawing tool, symbols, assets, zoom, layers, save/reopen) all pass. New: paste a copied drawing on any frame; Delete / Backspace removes a selected symbol or drawing; a selected symbol looks like a selected drawing. Sweeps live in `scripts/`. See DECISIONS D-0210 and TODO.

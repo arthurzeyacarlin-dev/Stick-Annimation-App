@@ -133,3 +133,65 @@ Order: A4 touches (1 h) → A5 caused hit reactions + one 3-person scene (1 h) �
 - Rules learned tonight: (1) wind-up sentences need 4-s clips (the punch comes ~2.5 s in); (2) a strike take only counts if ≥3 m/s AND its real fist reaches the target with hips ≥0.6 m apart; (3) pass 2 re-makes the take from the SAME seed and ALSO pins the take's own pulled-back pose — a new seed / no wind-up pin lost the wind-up every time; (4) clips start 1.6 s before the first hit (`kimodo/trim.py`) and the app shows such mid-action clips without the 0.3 s ease-in from standing (`midAction`, realMotion.ts); (5) `seam_check.py`: a reaction that builds up over pictures is OK, only one-picture spikes are teleports; (6) one Modal job at a time — two at once stalled twice (0 machines).
 - Push wording: "pulls both hands back…" = weak shoves (≤2.7 m/s); "steps forward, then shoves…, then steps back" = 3.3–3.9 m/s.
 - Oct 17 01:55 — overnight result: 6/7 pass (card k-lv2: handshake, punch, high five, fist bump, block, combo). PUSH NOT DONE (stopped, waits for Arthur): every strong ARDY shove (16 takes, 2 wordings) happens face to face — heads 0.13–0.22 m apart before the shove, and the aim pass pulls them closer (0.13 m = heads overlapping). New rule kept: strikes need heads ≥0.4 m apart before the hit (`heads` per move). Possible fixes to propose: the receiver's guard piece stands back (a root path) so the pusher has to step in from further; or reach-in wording ("reaches out and shoves from arm's length"); or Kimodo for the pusher (single figure) with ARDY only for the reaction.
+- Oct 17 05:40–06:22 round (Arthur failed all 6 overnight videos by eye; audit + Fable: TWEAK, not a new path): contact camera (zoom height 620, side view turned 12° — the old view put both figures in 10% of the width at 18°); touch moves MIRROR figure B left-right in 3D so the nearest arms meet (no arm across the chest); punch takes fail if any arm stretches ≥0.55 m outside the planned hit (the speed test vs the neck missed a real jab); fist bump picks the quickest tap. Card k-lv3: handshake, punch (one punch, 44 cm wind-up, 4 cm), high five, fist bump — all checked by eye. CMU (mocap.cs.cmu.edu, "free for all uses") has real two-person handshake/high five/low five but no fights.
+- Oct 17 06:40–07:20 round (Arthur: "no speed change, no acceleration, no real anticipation"; audit: ARDY contact moves 2–3x softer than Kimodo alone, the app draws ARDY's joints untouched). Added `kimodo/retime.py` TIMING PASS: only WHEN ARDY's pictures show changes (same clock for both figures, 0.6x–1.5x): slower wind-up, hold the loaded pose, fast action, impact hold, ease out — punch speed-up 46 → 95 m/s² (Kimodo alone 105). Snap/wind-up take choice + 1-target touches tried: new takes were softer (snap 3–12), so last round's takes + timing pass were kept. Card k-lv4: handshake, punch, high five, fist bump (by eye). k-u1 (unsure): 1-figure (side camera hides waves/jumps) and 3-figure tests from existing Kimodo clips (same walk ×3 = in sync; small wave; dig figure stays bent).
+- Oct 17 ~08:00 — NEW PLAN proposed (PM v4 + Fable, Arthur's own reorder idea; needs his OK): ARDY is autoregressive/short-sighted → no anticipation (raw test); Kimodo is single-person. Day 1: live Kimodo in the app (the app still only uses a fixed clip library — no live call), multi-figure WITHOUT touching, one 1-h Kimodo leader-follower box for touching (fail = "coming soon", V1.1 = ComMDM on CMU two-person clips). Day 2: backgrounds (FLUX.1-schnell + Depth Anything V2 small layers), props stay vector. Day 3: camera + final check. Full brief: diamond-review/board/HANDOFF_MESSAGE.md.
+
+## Oct 19 evening — THE PLAN: everything in ONE app copy (PM BG + PM v7 + Fable; read this first)
+
+**Arthur (Oct 19):** "Tonight or tomorrow morning I want to review my APP COPY with everything working: Kimodo, FLUX, the new AI (LTX-2, dad's
+okay), 3D stick figures, good timing. Phase 1 has to be done and over with." Deadlines: real goal = the morning review Mon Oct 20 (he decides
+the website then); safety goal **Oct 27 (latest Oct 30)**; official deadline **Sat Nov 1** (only if we really can't). Rules unchanged: nothing in
+MAIN until ready for beta users; no hard-coded outputs; Kimodo = figures, FLUX = objects + backgrounds, our engine = gentle motion + basic
+effects, LTX-2 = special effects; every scene is 3D drawn in 2D (depth layers); unpassed features OFF ("coming soon"), never shipped broken.
+
+**Honest answer (PM v7 checked the code):** ALL of it by tomorrow morning = NO. What CAN be ready for the morning review:
+| Part | Owner | Morning review | Done by |
+|---|---|---|---|
+| A. App copy: chat → plan → live Kimodo → figures + painted places + FLUX things + depth layers + steady draw order + metres | PM v7 | YES (1–2 h once keys are solved) | tonight |
+| A2. AI roles (hide/seek) + LOOK3D v2 as plan/scene flags in the server path (today they're harness-only / process.env) | PM v7 | if Arthur passes r5-hide / r5-3d | tonight (+1–2 h) |
+| A3. Passed single hits in the app (server route running the beat_hits recipe) | PM v7 | only if time allows | Oct 21–22 |
+| B. FLUX library: ~20 layered places + ~40 things pre-painted (3/4 view, no straight cuts, real metres); camera never shows past the painting | PM BG | YES | tonight |
+| B2. Paint-on-demand in the app (server route, fal key server-side, daily $ cap, trace + cache for all) | PM BG | only if keys are solved | Oct 21–22 |
+| C. LTX-2 effects: fire, explosion, lightning, smoke — each next to the engine's own version (FLUX start on black → LTX-2 ~2¢ → brightness = see-through → traced frames → editable effect layer) | PM BG helper | YES (test) | tonight |
+| C2. Effect-clip piece + cached library (campfire, torch, pour, splash, magic…) | PM BG | — | Oct 22–24 |
+| D. QA: 10–15 fresh prompts in the app copy, PM v7 pre-review, one card + simple report | PM v7 | YES | early morning |
+| Touches, combos, HITS v4 gates, WORDS, multi-shot Director | PM v7 | "coming soon" | after Oct 27 / V1.1 |
+
+**Switches ON in the app copy tonight:** KINDS; metres + depth layers + steady draw order + ground-patch + no-engine-prop (structural, passed
+videos identical); roles (hide/seek) only after Arthur's r5-hide verdict; LOOK3D v2 only if he passes r5-3d; HITS v3 reactions only if he passes
+ZZ3/P5. **OFF:** WORDS, HITS v4 gates, combos, touches, the old glued touch path.
+
+**Decisions only Arthur/dad can make (blocking):**
+1. KEYS: kimodo-combo has no `.env.local`, so its app can't call Claude, Modal or fal. Dad/Arthur decide how the review copy gets its keys (we
+   never open, print or commit them).
+2. MONEY: tonight ≈ $5–6 (FLUX ~$1.5, LTX-2 ~$0.5–1, Claude ~$2–3, Modal ~$1). Claude ledger $19.56 of $25 → ask for a **$30 cap**.
+3. Arthur's verdicts on r5-3d and r5-hide (they decide two switches).
+
+**How we work tonight:** max 3 helpers, one dev server, one heavy job at a time (8 GB). Gates every ~2 h on the board; at the freeze anything not
+passing is switched OFF. PM BG never edits kimodo-combo's painted.ts directly — new files + hook lines, PM v7 merges. PM v7 gives Arthur the report.
+Research behind C: `diamond-review/board/AI_SEARCH_OCT19.md`. Director (multi-shot films) stays after launch: `board/DIRECTOR_PLAN.md`.
+
+**Fable's risk audit (Oct 19, read-only; files cited) — changes to the plan above:**
+- Arthur's passes came from the HARNESS, not the app: prop roles only via `harness-phase4/review/teach.ts:136`; HITS only in `kimodo/beat_hits.py`
+  (no `src` caller); `look3d.ts:17` reads `process.env` → OFF in the browser. "Recipes ON" = porting work (3–5 h), not a switch.
+- SILENT WRONG OUTPUT: `kimodo/live.ts:4` falls back to the saved library and `library.ts:288-291` to the "fall" clip → a busy Modal turns "a girl
+  waves" into a fall. RULE for the copy: an honest failure ("Kimodo is busy, try again"), never a fallback clip. `MODAL_LOCK_INSIDE=1`.
+- SPEED: Modal cold start 1–2 min + Claude plan ≈ 2.5–4 min vs the 5-min job abort (`aiAnimatorJobService.ts:21`) → keep one Modal machine warm
+  (`min_containers=1`) during Arthur's review only (< $1/h).
+- MEMORY (8 GB, swap nearly full now): stop the :3000 dev server and spare windows before the copy's server starts; one dev server only.
+  `paintedData.ts` (1.6 MB) ships in the browser bundle — keep ≤600 shapes per layer (park 1533 / cityStreet 1272 / mine 1090 re-traced) and add
+  at most ~10 new places tonight; data moves to a server cache later.
+- BUDGET/KEYS: `claudeAnimator.ts:331` default cap $20 (ledger $19.56) → the copy's own `.env.local` needs the raised cap; no `.env.local` exists yet.
+- LTX-2: cartoon quality untested + 5 unbuilt steps → tonight = the 10-clip TEST only (26¢), decide tomorrow; wiring later, default OFF.
+- No end-to-end test exists → one scene rendered both ways (app compositor vs harness) at Gate 2.
+
+**Revised night order (gates every 2 h):** Gate 0 (15 min): backup, stop :3000, `.env.local` (Arthur/dad), one dev server, one prompt reaches
+Kimodo. 0–2 h: PM v7 honest failure + lock + touch gate ("fights coming soon") + roles + LOOK3D flag; PM BG helper re-traces heavy places + ≤10
+measured places; PM BG helper LTX-2 test (report only). GATE 2 h: 3 app prompts (one figure in a painted place / two no-touch / one with a thing)
+play smoothly, no fallback, memory steady. 2–4 h: 10 fresh prompts, fixes in scope, painted tests + OFF-identical proofs. GATE 4 h: ≥8/10 pass.
+4–6 h: 20 fresh prompts, pre-review, card, morning report (scoreboard first, list what is OFF). 6–8 h spare: LTX-2 wiring only if the test passed.
+**Morning review scope (honest):** one figure + groups that don't touch, in painted places with FLUX things and depth, 3D look if passed; LTX-2
+test clips next to engine effects. Fights/touches/combos = "coming soon" until Oct 27.
+
+**Oct 20 — NEW LAUNCH DATE (Arthur):** the beta launch moves from Oct 20 to **Monday, November 3, 2026** (the AI Animator is not ready for users yet). A new website PM updates diamondanimator.com (date + Arthur's story photos): `diamond-review/board/HANDOFF_WEBSITE_PM.md`.

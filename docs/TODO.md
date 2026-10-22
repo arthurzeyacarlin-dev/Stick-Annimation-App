@@ -1,5 +1,15 @@
 # TODO
 
+## Website PM queue (D-0211, 2026-10-22)
+
+- [x] **WEBSITE-DATE-NOV3** — beta date November 3 everywhere, "Why November 3?" note, roadmap/FAQ/story/home words (`ef244a5`).
+- [x] **WEBSITE-SIGNUP-FIX** — repeat emails join the list, bot box never fakes "ok", reserve screen remembered/"already on the list", bar fade, spot #N (`556dc54`).
+- [x] **WEBSITE-STORY-PHOTO** — Arthur's photo in the story hero (`1445eed`).
+- [ ] **ASK DAD:** are the Resend keys (`RESEND_API_KEY`, `UNSUBSCRIBE_SECRET`) and `BETA_CODE` set in Cloudflare? Without them no welcome/launch email is sent. Test: sign up once with a real email and look for the welcome email.
+- [ ] **ASK DAD:** email the people who reserved before the move (they were told October 20)?
+- [ ] **WEBSITE-SCREENSHOTS** — real app screenshots for the site (need a clean test account; see `docs/media.md` in the website).
+- [ ] **WEBSITE-LAUNCH-DAY (Nov 3)** — flip `SITE.trialLive` only when the app's trial really works; send the launch email from /admin/ (Dry run first). Check the first-50 list against the bar.
+
 ## PM4 queue — beta readiness (2026-10-14)
 
 - [x] **CANVAS-MEMORY** — passed D-0205: 192 MiB cap, strokes fixed, layer eye fixed. Keep checking a big old project after each drawing change.

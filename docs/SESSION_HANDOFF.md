@@ -12,6 +12,10 @@
 
 **HANDOFF AT 60% CHAT MEMORY (dad, Oct 16):** at 50% start keeping docs current; at 60%: (1) write everything still only in the chat into the spec, this file, CURRENT_STATE/TODO if app-relevant, memory, and the board; (2) refresh `/Users/arthurcarlin/Projects/diamond-review/board/HANDOFF_MESSAGE.md` (self-contained: who, read-first list, where we are, next, rules); (3) `python3 board.py handoff` — the board's Handoff button turns green (yellow from 50%); (4) tell Arthur: click it, open a NEW Claude chat in this project, paste. Nothing may survive only inside a chat.
 
+## Website PM update (Wed 2026-10-22)
+
+Beta date is now **November 3** (live). Work happens in a website COPY (`/Users/arthurcarlin/Projects/diamond-review/website-nov3`, branch `claude/website-nov3`, preview config `diamond-website-nov3`, port 3101), then fast-forward into `/Users/arthurcarlin/Projects/diamond-website` main and push; Cloudflare Pages deploys by itself (~1 min). Shipped: date + why-note, sign-up fixes (repeat emails now count), bar fade, spot #N, discount words, Arthur's story photo. Next: dad's Resend keys check, whether to email earlier reservers, app screenshots, launch day. Details: DECISIONS D-0211. Rules kept: never reuse an image file name when a picture changes; test sign-up changes against an email that already exists; photo of Arthur = dad OKs, EXIF stripped, first name only.
+
 ## PM4 update (Oct 17)
 
 D-0210 merged (`a22ce03`): two regression sweeps (22 checks) all pass; paste a drawing on any frame; Delete key for symbols/drawings; symbol selection look = drawing selection look. Re-run `scripts/regression-sweep.mjs` and `scripts/regression-sweep-2.mjs` (app on port 58680, system Chrome) after any canvas / selection / layer change. Next: SELECT-DRAWING-AND-SYMBOL plan, SPEED-BACKUP-2, 1080p export check, then work outside the editor. Going online only when the AI Animator and everything else is done (Arthur). Test copies `timeline-tidy` (branch claude/regression-sweep), `timeline-speed-2`, `timeline-pm` can be retired.

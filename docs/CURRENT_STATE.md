@@ -1,5 +1,9 @@
 # Current State
 
+## D-0213 — App PM: phone screens — Help chat list, Export and Open Project headers (current)
+
+Arthur passed 2026-10-25. On phones the Help chat list has no outlines (like the computer), Export's title is centered with Next at the bottom, and Open Project's back arrow sits above the title. All other screens checked at phone size looked fine. See DECISIONS D-0213.
+
 ## D-0212 — App PM: phone workspace — drag-able bottom panel over an anchored canvas (current)
 
 Arthur passed 2026-10-25. On phones/tablets the bottom panel (Properties · Library · Assets · AI) is a sheet with three sizes — small, half, full — dragged by its top edge or opened with the tabs; the AI chat opens full. The canvas never changes size or moves (centered, anchored); the panel and a taller timeline slide over it. All 8 tools fit on narrow phones. Computer layout unchanged. See DECISIONS D-0212.

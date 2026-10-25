@@ -1885,6 +1885,15 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0213 — Phone screens: Help chat list without outlines, Export and Open Project headers (App PM, 2026-10-25)
+
+- Arthur passed 2026-10-25. Copy `diamond-review/phone-screens` (branch `claude/phone-screens`, port 58680), product commit `6523575` fast-forwarded into main.
+- Phone audit (all 16 screens at 390x844, real app): Help, Export and Open Project needed fixes; Welcome, Log in, Sign up, Home, Menu, Notifications, AI Dashboard, Plans, Settings, Profile, Problem reports looked fine.
+- Help (<= 760 px): every chat in the Chats drawer had an outline (old sideways-strip rule); now borderless like the computer, only the selected / pointed-at chat is highlighted. Checked with a real chat (Arthur OK'd 2 tiny paid Help messages on the test account).
+- Export (<= 640 px): back arrow on its own row, title centered, Next fixed at the bottom. Open Project (<= 640 px): back arrow above the title.
+- Tests: phone pictures before/after, regression sweeps 15/15 (one rerun after a popup covered the canvas on a fresh account) + 7/7.
+- Left alone: Help's Back arrow focus glow on open (same on the computer; Arthur: not the problem). Open: "Problem reports" is visible to every account in dev (D-0201 relaxation) — must be owner-only before going online.
+
 ### D-0212 — Phone workspace: drag-able bottom panel over an anchored canvas (App PM, 2026-10-25)
 
 - Arthur passed 2026-10-25 ("Pass. The phone workspace is good."). Built in the copy `diamond-review/phone-workspace` (branch `claude/phone-workspace`, port 58680), product commit `b1021e9` fast-forwarded into main.

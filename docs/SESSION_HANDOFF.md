@@ -12,6 +12,10 @@
 
 **HANDOFF AT 60% CHAT MEMORY (dad, Oct 16):** at 50% start keeping docs current; at 60%: (1) write everything still only in the chat into the spec, this file, CURRENT_STATE/TODO if app-relevant, memory, and the board; (2) refresh `/Users/arthurcarlin/Projects/diamond-review/board/HANDOFF_MESSAGE.md` (self-contained: who, read-first list, where we are, next, rules); (3) `python3 board.py handoff` — the board's Handoff button turns green (yellow from 50%); (4) tell Arthur: click it, open a NEW Claude chat in this project, paste. Nothing may survive only inside a chat.
 
+## App PM update 2 (Sun 2026-10-25)
+
+D-0213 merged (`6523575`): phone screens — Help chat list without outlines, Export and Open Project headers. Next: Arthur's minor workspace tweaks, then polish. Test copies `phone-workspace` and `phone-screens` can be retired.
+
 ## App PM update (Sun 2026-10-25)
 
 D-0212 merged (`b1021e9`): phone workspace — the bottom panel is a drag-able sheet (small / half / full, top edge = grab line) over an anchored, centered canvas that NEVER changes size (Arthur's rule for every PM). Arthur's beta goals: (1) the workspace, (2) the WHOLE app on phones. Next: the rest of the app at phone size, AI chat list plan, then AI Animator frames + going online (see TODO "App PM queue"). Test copy `phone-workspace` (port 58680, own `.local` store made with `auth migrate`) can be retired. Re-run `scripts/regression-sweep*.mjs` after any canvas/layout change.

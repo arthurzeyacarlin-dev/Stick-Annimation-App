@@ -6,7 +6,9 @@
 - [ ] **PHONE-AI-CHAT-LIST** — list of past AI chats + New chat on phones (the app keeps ONE chat per project; needs a plan — AI storage is protected).
 - [ ] **PHONE-PROPERTIES-SECTIONS** — fold-out sections in Properties on phones, if Arthur still wants them.
 - [ ] **PHONE-CANVAS-CLIP** — drawings drawn on the computer poke past the 16:9 canvas on phones (display-only clip, D-0204; protected drawing area — plan first).
-- [ ] **PHONE-WHOLE-APP-CHECK** — every screen and tool at phone size (Home, Open Project, Export, Plans, Settings, AI Dashboard) before beta.
+- [x] **PHONE-WHOLE-APP-CHECK** — done D-0213 (`6523575`): 16 screens checked; Help chat list, Export, Open Project fixed.
+- [ ] **REPORTS-OWNER-ONLY** — "Problem reports" shows for every account in dev (D-0201); owner-only before online.
+- [ ] **WORKSPACE-MINOR-TWEAKS** — Arthur has a few small workspace changes next; then polish.
 - [ ] **AI-ANIMATOR-FRAMES** — the app's AI panel still only chats; wire the passed engine (PM v9 owns the engine).
 - [ ] **ONLINE** — the app only runs on Arthur's Mac (SPEC-0023; dad's keys needed).
 

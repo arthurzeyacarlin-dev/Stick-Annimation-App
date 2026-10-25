@@ -1885,6 +1885,14 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0217 — Assets: drop images anywhere in the editor; delete buttons always red-outline (App PM, 2026-10-26)
+
+- Arthur passed 2026-10-26. Copy `diamond-review/assets-drop` (branch `claude/assets-drop`), product commit `17684b9` fast-forwarded into main.
+- Drop images anywhere in the editor, whichever panel tab is open: window-level drag listeners in `DrawingCanvas.tsx`; while files are dragged a dashed frame + "Drop images to add them to Assets" card appear (no dimming) and the Assets tab (computer tab group + phone tab bar, `data-file-target`) turns blue and pulses. Drop → existing `importAssetFiles` (same checks: PNG/JPEG/WebP, 32 per batch, 16 MB, duplicates refused) and the Assets tab opens. A drop on the Assets panel itself is handled there first (no double import). Phones cannot drag files from other apps (browser limit); tablets with split screen use the same path.
+- RULE (Arthur): anything that deletes = see-through, red text, red outline; solid red + white on hover; never navy/blue. `globals.css`: the panel navy-lift rule skips delete buttons; red-text delete buttons are caught even without `data-hover="danger"`; Delete Instance got the mark.
+- Not built (next idea, Arthur's goal): ready-made asset packs (blocks, characters). Must be our own original art — no Minecraft/Roblox art or names (their trademarks/copyright).
+- Tests: Playwright fake file drag (real PNG) over the canvas on Properties, computer + phone: overlay + pulsing Assets tab, drop → Assets open, "Imported 1 asset" (phone: duplicate correctly refused); Assets Delete measured transparent / red text / red border, hover solid red / white.
+
 ### D-0216 — Export: click to open, library-style choose page (App PM, 2026-10-26)
 
 - Arthur passed 2026-10-26. Copy `diamond-review/export-click` (branch `claude/export-click`), product commit `1e87b79` fast-forwarded into main. File: `src/components/export/AnimationExportFlow.tsx` + `animationExport.module.css`.

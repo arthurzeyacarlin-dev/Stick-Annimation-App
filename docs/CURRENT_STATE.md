@@ -1,5 +1,9 @@
 # Current State
 
+## D-0217 — App PM: drop images anywhere into Assets; delete buttons red-outline (current)
+
+Arthur passed 2026-10-26. Drag images over the editor from any tab: a drop card appears and the Assets tab pulses; dropping imports them into Assets. Every delete button is red text + red outline, never blue. See DECISIONS D-0217.
+
 ## D-0216 — App PM: Export — click to open, library-style page (current)
 
 Arthur passed 2026-10-26. Clicking an animation on the Export page opens it right away (no Next). The page has a left-aligned title, search + count, a full-width grid and a plain "What you can export" column; phones stack it. See DECISIONS D-0216.

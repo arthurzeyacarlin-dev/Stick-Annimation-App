@@ -12,6 +12,10 @@
 
 **HANDOFF AT 60% CHAT MEMORY (dad, Oct 16):** at 50% start keeping docs current; at 60%: (1) write everything still only in the chat into the spec, this file, CURRENT_STATE/TODO if app-relevant, memory, and the board; (2) refresh `/Users/arthurcarlin/Projects/diamond-review/board/HANDOFF_MESSAGE.md` (self-contained: who, read-first list, where we are, next, rules); (3) `python3 board.py handoff` — the board's Handoff button turns green (yellow from 50%); (4) tell Arthur: click it, open a NEW Claude chat in this project, paste. Nothing may survive only inside a chat.
 
+## App PM update (Sun 2026-10-25)
+
+D-0212 merged (`b1021e9`): phone workspace — the bottom panel is a drag-able sheet (small / half / full, top edge = grab line) over an anchored, centered canvas that NEVER changes size (Arthur's rule for every PM). Arthur's beta goals: (1) the workspace, (2) the WHOLE app on phones. Next: the rest of the app at phone size, AI chat list plan, then AI Animator frames + going online (see TODO "App PM queue"). Test copy `phone-workspace` (port 58680, own `.local` store made with `auth migrate`) can be retired. Re-run `scripts/regression-sweep*.mjs` after any canvas/layout change.
+
 ## Website PM update (Wed 2026-10-22)
 
 Beta date is now **November 3** (live). Work happens in a website COPY (`/Users/arthurcarlin/Projects/diamond-review/website-nov3`, branch `claude/website-nov3`, preview config `diamond-website-nov3`, port 3101), then fast-forward into `/Users/arthurcarlin/Projects/diamond-website` main and push; Cloudflare Pages deploys by itself (~1 min). Shipped: date + why-note, sign-up fixes (repeat emails now count), bar fade, spot #N, discount words, Arthur's story photo. Next: dad's Resend keys check, whether to email earlier reservers, app screenshots, launch day. Details: DECISIONS D-0211. Rules kept: never reuse an image file name when a picture changes; test sign-up changes against an email that already exists; photo of Arthur = dad OKs, EXIF stripped, first name only.

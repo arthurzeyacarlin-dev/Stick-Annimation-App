@@ -1885,6 +1885,17 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0212 — Phone workspace: drag-able bottom panel over an anchored canvas (App PM, 2026-10-25)
+
+- Arthur passed 2026-10-25 ("Pass. The phone workspace is good."). Built in the copy `diamond-review/phone-workspace` (branch `claude/phone-workspace`, port 58680), product commit `b1021e9` fast-forwarded into main.
+- Arthur 2026-10-24: the WHOLE app must work on phones for beta (replaces the Oct 8 computers-only note); goal 1 = the workspace.
+- Phones/tablets (<= 900 px): Properties / Library / Assets / AI is a sheet with three sizes — small (tabs sit on the tools bar), half (up to where the canvas ends), full (12 px under the timeline's real bottom). Drag its top edge (thin blue line on hover, no handle bar) or tap a tab; tapping the open tab makes it small; the AI tab opens full, the others half; sizes remembered per browser (localStorage).
+- RULE (Arthur, told every PM): the canvas NEVER changes size or moves. It is centered and anchored at the one-layer timeline line; the sheet and a timeline that grows with layers slide OVER it.
+- Root cause of "cramped": an old <= 640 px rule in `DrawingWorkspace.tsx` pinned the panel at 200 px (and the canvas at 220 px min); overridden in `app/globals.css` (left in place, phone-only overrides). Also fixed a stale `bottom: 56px` offset on the tab bar; all 8 tools fit on narrow phones.
+- Files: `src/components/workspace/DrawingRightPanel.tsx` (sheet state, drag, measuring; `.da-sheet` wrapper is `display: contents` on computers), `app/globals.css`.
+- Tests: regression sweeps 15/15 + 7/7 on the computer layout, tsc clean, Playwright phone checks (canvas 362x204 at every size; small/half/full; edge drag full -> small; 1 vs 6 layers: canvas fixed, full stops under the timeline), 360x640 fits.
+- Not done / open: a list of past AI chats (the app keeps one AI chat per project; needs a protected AI-storage change), Properties fold-out sections, drawings poking past the canvas on phones (display-only 16:9 clip, D-0204 item), the AI Animator making frames, going online.
+
 ### D-0211 — Website: beta moves to November 3, sign-up fixes, discount words, Arthur's photo (Website PM)
 
 - Arthur passed 2026-10-20 to 2026-10-22; his dad OK'd the new date. Work was done in the website COPY `diamond-review/website-nov3` (branch `claude/website-nov3`), then fast-forwarded into `diamond-website` main: `ef244a5` (date + "Why November 3?" note + roadmap/FAQ/story/home words), `556dc54` (sign-up fixes, bar, place numbers, discount words), `1445eed` (story photo). Cloudflare Pages deployed each push by itself in about a minute.

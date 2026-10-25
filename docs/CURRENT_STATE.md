@@ -1,5 +1,9 @@
 # Current State
 
+## D-0212 — App PM: phone workspace — drag-able bottom panel over an anchored canvas (current)
+
+Arthur passed 2026-10-25. On phones/tablets the bottom panel (Properties · Library · Assets · AI) is a sheet with three sizes — small, half, full — dragged by its top edge or opened with the tabs; the AI chat opens full. The canvas never changes size or moves (centered, anchored); the panel and a taller timeline slide over it. All 8 tools fit on narrow phones. Computer layout unchanged. See DECISIONS D-0212.
+
 ## D-0211 — Website PM: beta opens November 3, sign-up fixed, new discount words, Arthur's photo (current, website)
 
 Live on diamondanimator.com since 2026-10-20/22 (`diamond-website` main `ef244a5`, `556dc54`, `1445eed`). The beta date is November 3, 2026 everywhere, with a short "Why November 3?" note (roadblock with complicated stick-figure moves; the 3D-to-2D engine planned for Version 3 was built into Version 1). Repeat sign-ups from the cheat-sheet form, footer or contact form now take a discount spot; the progress bar fades blue → red and shows full red at 50/50; the reserve screen says "discount spot #N of 50"; Arthur's photo sits in the story hero. See DECISIONS D-0211. Not verified from here: welcome emails (needs dad's Resend keys), the real list in Cloudflare D1.

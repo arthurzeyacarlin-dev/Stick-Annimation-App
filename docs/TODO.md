@@ -1,5 +1,15 @@
 # TODO
 
+## App PM queue — beta on phones + workspace (D-0212, 2026-10-25)
+
+- [x] **PHONE-WORKSPACE-PANEL** — passed D-0212 (`b1021e9`): drag-able sheet (small/half/full), anchored centered canvas, 8 tools fit.
+- [ ] **PHONE-AI-CHAT-LIST** — list of past AI chats + New chat on phones (the app keeps ONE chat per project; needs a plan — AI storage is protected).
+- [ ] **PHONE-PROPERTIES-SECTIONS** — fold-out sections in Properties on phones, if Arthur still wants them.
+- [ ] **PHONE-CANVAS-CLIP** — drawings drawn on the computer poke past the 16:9 canvas on phones (display-only clip, D-0204; protected drawing area — plan first).
+- [ ] **PHONE-WHOLE-APP-CHECK** — every screen and tool at phone size (Home, Open Project, Export, Plans, Settings, AI Dashboard) before beta.
+- [ ] **AI-ANIMATOR-FRAMES** — the app's AI panel still only chats; wire the passed engine (PM v9 owns the engine).
+- [ ] **ONLINE** — the app only runs on Arthur's Mac (SPEC-0023; dad's keys needed).
+
 ## Website PM queue (D-0211, 2026-10-22)
 
 - [x] **WEBSITE-DATE-NOV3** — beta date November 3 everywhere, "Why November 3?" note, roadmap/FAQ/story/home words (`ef244a5`).

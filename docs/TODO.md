@@ -9,7 +9,8 @@
 - [x] **PHONE-WHOLE-APP-CHECK** — done D-0213 (`6523575`): 16 screens checked; Help chat list, Export, Open Project fixed.
 - [ ] **REPORTS-OWNER-ONLY** — "Problem reports" shows for every account in dev (D-0201); owner-only before online.
 - [x] **CHAT-BOX-TWEAKS** — passed D-0214 (`b5d0ad5`): quiet mic, dot waves, Effort slider with Auto, bigger check.
-- [ ] **NEXT-APP-CHANGE** — Arthur's next change (one step closer to finishing); then polish.
+- [x] **SMOOTH-SWITCHES** — passed D-0215 (`e6475bc`): every on/off switch slides and fades.
+- [ ] **NEXT-APP-CHANGE** — Arthur's next change; then polish.
 - [ ] **AI-ANIMATOR-FRAMES** — the app's AI panel still only chats; wire the passed engine (PM v9 owns the engine).
 - [ ] **ONLINE** — the app only runs on Arthur's Mac (SPEC-0023; dad's keys needed).
 

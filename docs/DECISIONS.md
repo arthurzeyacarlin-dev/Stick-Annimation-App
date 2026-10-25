@@ -1885,6 +1885,13 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0215 — Every on/off switch slides and fades (App PM, 2026-10-25)
+
+- Arthur passed 2026-10-25. Copy `diamond-review/smooth-switches` (branch `claude/smooth-switches`), product commit `e6475bc` fast-forwarded into main.
+- RULE (Arthur): no on/off control may "teleport". Every switch slides its knob and fades between dull and blue (220 ms, `--da-switch-motion` in `app/globals.css`, same timing as the Effort dot). New switches should use `OnOffSwitch` (or the Settings `.switch`) to get it automatically.
+- Covered: Settings (Notification sound, Ring the bell; `SettingsScreen.module.css`), the editor's shared `OnOffSwitch` (Show Canvas, stick figure panel). The switch is the only exception to the editor's instant-buttons rule (`workspaceTheme` transition none); hover stays instant everywhere else. Reduced motion turns the slide off.
+- Tests: Playwright flipped each switch and read the knob 70 ms later: Settings 8.7 / 20 px with the color mid-fade, Show Canvas 17.8 / 20 px; final states correct.
+
 ### D-0214 — Chat boxes: quiet microphone, dot waves, Effort slider with Auto, bigger check (App PM, 2026-10-25)
 
 - Arthur passed 2026-10-25 after three review rounds. Copy `diamond-review/chat-controls` (branch `claude/chat-controls`), product commit `b5d0ad5` fast-forwarded into main. Shared parts in `src/components/ui/ChatComposerParts.tsx` + `chatComposer.module.css`, used by Help (`AssistantComposer.tsx`) and the editor AI tab (`DrawingAiPanel.tsx`).

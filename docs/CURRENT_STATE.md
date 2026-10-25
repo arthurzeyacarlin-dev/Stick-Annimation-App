@@ -1,5 +1,9 @@
 # Current State
 
+## D-0215 — App PM: every on/off switch slides and fades (current)
+
+Arthur passed 2026-10-25. Settings and editor switches no longer jump: the dot slides and the color fades (220 ms). See DECISIONS D-0215.
+
 ## D-0214 — App PM: chat boxes — quiet microphone, dot waves, Effort slider with Auto (current)
 
 Arthur passed 2026-10-25. Help and the editor's AI tab: the microphone never shows a message; while talking only ✕, evenly spaced dots that grow with the voice, and ✓; the Reasoning dropdown is now an Effort slider (Auto, Low, Medium, High) that always starts on Auto and really sets how hard the AI thinks; bigger check mark. See DECISIONS D-0214.

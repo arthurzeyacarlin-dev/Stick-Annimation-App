@@ -53,6 +53,7 @@ type DrawingRightPanelProps = {
   rightPanelTab: DrawingRightPanelTab;
   onRightPanelTabChange: (tab: DrawingRightPanelTab) => void;
   rightPanelContent: ReactNode;
+  fileDragActive?: boolean;
   showBrushToolsMenu: boolean;
   brushToolsMenuRef: RefObject<HTMLDivElement | null>;
   brushToolsMenuPosition: { left: number; width: number; top: number } | null;
@@ -86,6 +87,7 @@ export function DrawingRightPanel({
   rightPanelTab,
   onRightPanelTabChange,
   rightPanelContent,
+  fileDragActive = false,
   showBrushToolsMenu,
   brushToolsMenuRef,
   brushToolsMenuPosition,
@@ -253,6 +255,7 @@ export function DrawingRightPanel({
             type="button"
             role="tab"
             aria-selected={active}
+            data-file-target={name === "Assets" && fileDragActive ? "true" : undefined}
             onClick={() => {
               if (active) {
                 // The open tab again: a small sheet opens, an open sheet gets small (the canvas comes back).
@@ -395,6 +398,7 @@ export function DrawingRightPanel({
               type="button"
               onClick={() => { setAiTabActive(false); onRightPanelTabChange(tab); }}
               aria-pressed={isActiveTab}
+              data-file-target={tab === "Assets" && fileDragActive ? "true" : undefined}
               style={{
                 flex: 1,
                 height: 32,

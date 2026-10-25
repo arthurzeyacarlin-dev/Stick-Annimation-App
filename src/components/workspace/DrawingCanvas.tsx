@@ -1967,6 +1967,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   const [placedAssetAspectLocked, setPlacedAssetAspectLocked] = useState(true);
   const [assetImportBusy, setAssetImportBusy] = useState(false);
   const [assetDropActive, setAssetDropActive] = useState(false);
+  // Dragging image files anywhere over the editor (Arthur 2026-10-26): Assets lights up and catches the drop.
+  const [fileDragActive, setFileDragActive] = useState(false);
+  const fileDropRef = useRef<{ importFiles: (files: File[]) => void; showAssets: () => void } | null>(null);
   const [activeBitmapSelectionSession, setActiveBitmapSelectionSession] = useState<BitmapSelectionSession | null>(null);
   const [selectionBoxDraft, setSelectionBoxDraft] = useState<SelectionBoxDraft | null>(null);
   const [activeBoxSelection, setActiveBoxSelection] = useState<ActiveBoxSelection | null>(null);
@@ -9681,6 +9684,31 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     void importAssetFiles(Array.from(event.dataTransfer.files));
   };
 
+  // Drop images anywhere in the editor, whichever panel tab is open: they go into Assets and the Assets tab opens.
+  // The Assets panel's own drop zone handles a drop on it first (it calls preventDefault), so nothing imports twice.
+  useEffect(() => {
+    let depth = 0;
+    const hasFiles = (event: DragEvent) => Array.from(event.dataTransfer?.types ?? []).includes("Files");
+    const enter = (event: DragEvent) => { if (!hasFiles(event)) return; depth += 1; setFileDragActive(true); };
+    const over = (event: DragEvent) => { if (!hasFiles(event)) return; event.preventDefault(); if (event.dataTransfer) event.dataTransfer.dropEffect = "copy"; };
+    const leave = (event: DragEvent) => { if (!hasFiles(event)) return; depth = Math.max(0, depth - 1); if (depth === 0) setFileDragActive(false); };
+    const drop = (event: DragEvent) => {
+      if (!hasFiles(event)) return;
+      depth = 0; setFileDragActive(false);
+      const handledByAssetsPanel = event.defaultPrevented;
+      event.preventDefault();
+      fileDropRef.current?.showAssets();
+      if (!handledByAssetsPanel) fileDropRef.current?.importFiles(Array.from(event.dataTransfer?.files ?? []));
+    };
+    const reset = () => { depth = 0; setFileDragActive(false); };
+    window.addEventListener("dragenter", enter); window.addEventListener("dragover", over);
+    window.addEventListener("dragleave", leave); window.addEventListener("drop", drop); window.addEventListener("dragend", reset);
+    return () => {
+      window.removeEventListener("dragenter", enter); window.removeEventListener("dragover", over);
+      window.removeEventListener("dragleave", leave); window.removeEventListener("drop", drop); window.removeEventListener("dragend", reset);
+    };
+  }, []);
+
   const renderedUnifiedSymbolInstances = unifiedSymbolInstances.map(instance =>
     draftUnifiedSymbolInstance?.itemId === instance.itemId ? draftUnifiedSymbolInstance : instance,
   );
@@ -10169,7 +10197,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
             <button type="button" onClick={() => updateSelectedUnifiedSymbol({ flipX: !selectedUnifiedSymbolInstance.flipX })} style={{ minHeight: 34, borderRadius: 10, border: "1px solid var(--da-border, #244267)", background: "var(--da-panel, #071120)", color: "var(--da-text-2, #c9d6ea)", cursor: "pointer" }}>Flip X</button>
             <button type="button" onClick={() => updateSelectedUnifiedSymbol({ flipY: !selectedUnifiedSymbolInstance.flipY })} style={{ minHeight: 34, borderRadius: 10, border: "1px solid var(--da-border, #244267)", background: "var(--da-panel, #071120)", color: "var(--da-text-2, #c9d6ea)", cursor: "pointer" }}>Flip Y</button>
             <button type="button" onClick={duplicateSelectedUnifiedSymbol} style={{ minHeight: 34, borderRadius: 10, border: "1px solid var(--da-border, #244267)", background: "var(--da-panel, #071120)", color: "var(--da-text-2, #c9d6ea)", cursor: "pointer" }}>Duplicate Instance</button>
-            <button type="button" onClick={deleteSelectedUnifiedSymbol} style={{ minHeight: 34, borderRadius: 10, border: "1px solid var(--da-border, #244267)", background: "var(--da-panel, #071120)", color: "var(--da-danger, #ff8a95)", cursor: "pointer" }}>Delete Instance</button>
+            <button type="button" data-hover="danger" onClick={deleteSelectedUnifiedSymbol} style={{ minHeight: 34, borderRadius: 10, border: "1px solid var(--da-border, #244267)", background: "var(--da-panel, #071120)", color: "var(--da-danger, #ff8a95)", cursor: "pointer" }}>Delete Instance</button>
           </div>
         )}
 
@@ -11389,7 +11417,8 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   const handleRightPanelTabChange = (tab: DrawingRightPanelTab) => {
     setRightPanelTab(tab);
     setCanvasInteractionOwner("drawing");
-  };
+  };  fileDropRef.current = { importFiles: (files) => { void importAssetFiles(files); }, showAssets: () => handleRightPanelTabChange("Assets") };
+
   // SPEC-0020 Phase 4: the latest zoom / panel controls for the editor's View and Window menus.
   useEffect(() => {
     viewControlsRef.current = {
@@ -11692,6 +11721,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
         rightPanelTab={rightPanelTab}
         onRightPanelTabChange={handleRightPanelTabChange}
         rightPanelContent={rightPanelContent}
+        fileDragActive={fileDragActive}
         showBrushToolsMenu={brushToolsMenuOpen && rightPanelTab === "Properties" && activeTool === "Brush"}
         brushToolsMenuRef={brushToolsMenuRef}
         brushToolsMenuPosition={brushToolsMenuPosition}
@@ -11719,6 +11749,15 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
         engineDrawing={engineDrawing}
       />
     </div>
+    {fileDragActive && (
+      <div className="da-file-drop-overlay" aria-hidden="true">
+        <div className="da-file-drop-card">
+          <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 15V4m0 0-4 4m4-4 4 4" /><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" /></svg>
+          <strong>Drop images to add them to Assets</strong>
+          <span>PNG, JPEG or WebP · up to 16 MB each</span>
+        </div>
+      </div>
+    )}
     {symbolDialog && (
       <div
         role="presentation"

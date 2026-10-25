@@ -458,9 +458,19 @@ button[class*="danger" i]:disabled, button[class*="destructive" i]:disabled, but
 
 /* SPEC-0022 Phase 4: the right panel is the app's dark navy page color (same as the AI Animator tab), so unselected
    buttons inside it are lifted to a brighter navy with a brighter outline and do not blend into the background. */
-.workspace-properties-scroll button[style*="background: var(--da-panel"]:not(.da-switch) {
+.workspace-properties-scroll button[style*="background: var(--da-panel"]:not(.da-switch):not([data-hover="danger"]):not([class*="delete" i]):not([style*="color: var(--da-danger"]) {
   background: #0d1c36 !important; border-color: #2f527f !important;
 }
+
+/* Delete rule everywhere (Arthur 2026-10-26): anything that deletes is see-through with red text and a red outline, and
+   solid red with white text on hover — never navy or blue. Also catches red-text delete buttons without a danger mark. */
+button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-hover="icon"]) {
+  background: transparent !important; color: var(--da-danger, #ff8a95) !important; border: 1px solid var(--da-danger, #ff8a95) !important; box-shadow: none !important;
+}
+button[data-hover="danger"]:hover:not(:disabled), button[style*="color: var(--da-danger"]:not([data-hover="icon"]):hover:not(:disabled) {
+  background: var(--da-danger, #ff8a95) !important; color: #fff !important; border-color: var(--da-danger, #ff8a95) !important;
+}
+button[data-hover="danger"] *, button[style*="color: var(--da-danger"]:not([data-hover="icon"]) * { color: inherit !important; }
 
 /* On/Off switch (OnOffSwitch): exactly the Settings switch. Pointing at it lights its outline blue (on or off). */
 button.da-switch { min-height: 0 !important; height: 24px !important; width: 44px !important; border-radius: 999px !important; padding: 0 !important; }
@@ -655,3 +665,19 @@ button.da-switch > span { transition: transform var(--da-switch-motion), backgro
   .drawing-toolbar.drawing-toolbar { grid-template-columns: repeat(8, minmax(0, 1fr)) !important; overflow: hidden !important; }
   .drawing-toolbar.drawing-toolbar > * { min-width: 0 !important; }
 }
+
+/* Drag image files over the editor (Arthur 2026-10-26): a dashed frame and a drop card appear (no dimming, so the tab stays bright), and the
+   Assets tab (computer tabs and phone tab bar) turns blue and pulses. The overlay never blocks the drop. */
+.da-file-drop-overlay { position: fixed; inset: 0; z-index: 1100; pointer-events: none; display: grid; place-items: center; background: transparent; animation: daDropFade 140ms ease-out; }
+.da-file-drop-overlay::before { content: ""; position: absolute; inset: 14px; border: 2px dashed var(--da-hover, #0066ff); border-radius: 18px; }
+.da-file-drop-card { position: relative; display: grid; justify-items: center; gap: 8px; padding: 26px 34px; border: 1px solid var(--da-selected-border, #3a6aa3); border-radius: 16px; background: var(--da-panel, #071120); box-shadow: 0 24px 60px rgba(0, 0, 0, .55); color: var(--da-text, #f6f9ff); text-align: center; }
+.da-file-drop-card svg { color: var(--da-hover, #0066ff); }
+.da-file-drop-card strong { font-size: 15px; font-weight: 650; }
+.da-file-drop-card span { color: var(--da-muted, #8fabd0); font-size: 12.5px; }
+@keyframes daDropFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes daDropPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(0, 102, 255, .6); } 60% { box-shadow: 0 0 0 7px rgba(0, 102, 255, 0); } }
+button[data-file-target="true"], [class*="workspaceTheme_workspace"] button[data-file-target="true"] {
+  background: var(--da-hover, #0066ff) !important; color: #fff !important; border-color: var(--da-hover, #0066ff) !important;
+  animation: daDropPulse 1.1s ease-out infinite !important;
+}
+@media (prefers-reduced-motion: reduce) { .da-file-drop-overlay { animation: none; } button[data-file-target="true"] { animation: none !important; } }

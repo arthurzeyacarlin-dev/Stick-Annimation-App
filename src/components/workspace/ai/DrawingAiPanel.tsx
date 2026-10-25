@@ -43,7 +43,7 @@ import type { NotificationTargetV1 } from "@/src/lib/notifications/notificationC
 import { WorkspaceAiPanelShell } from "./WorkspaceAiPanelShell";
 import { AssistantActivity } from "@/src/components/assistant/AssistantText";
 import { AssistantDictationCapture, type DictationView } from "@/src/lib/assistant/assistantDictationCapture";
-import { ChatDictateButton, ChatDictationPanel, ChatReasoningSelect, ChatSendButton, ChatStopButton, ChatToolsRow, chatComposerStyles } from "@/src/components/ui/ChatComposerParts";
+import { ChatDictateButton, ChatDictationPanel, ChatDictationStatus, ChatEffortPicker, ChatSendButton, ChatStopButton, ChatToolsRow, chatComposerStyles, pickAutoEffort, type ChatEffort } from "@/src/components/ui/ChatComposerParts";
 import { workspaceColors } from "../workspaceTheme";
 import type { SceneForPage } from "@/src/lib/animator/stageFit";
 import type { EngineDrawingBridge } from "./engineDrawingBridge";
@@ -71,12 +71,6 @@ type DrawingAiPanelProps = {
   readOnly?: boolean;
 };
 
-const REASONING_OPTIONS: Array<{ value: DrawingAiReasoningLevel; label: string }> = [
-  { value: "low", label: "Low" },
-  { value: "medium", label: "Medium" },
-  { value: "high", label: "High" },
-  { value: "extra-high", label: "Extra High" },
-];
 const MINIMUM_THINKING_PRESENTATION_MS = 2_000;
 const PENDING_PROMPT_DIGEST = "0".repeat(64);
 const EMPTY_USAGE = { inputTokens: null, outputTokens: null, totalTokens: null, estimatedCostUsd: null };
@@ -176,6 +170,7 @@ export function DrawingAiPanel({
   const projectGeneration = workspaceContext?.projectGeneration ?? 0;
   const [ledger, setLedger] = useState<AiAnimatorLedger>(() => createEmptyAiAnimatorLedger(projectId));
   const [reasoningLevel, setReasoningLevel] = useState<DrawingAiReasoningLevel>("medium");
+  const [effort, setEffort] = useState<ChatEffort>("auto");
   const [inputValue, setInputValue] = useState("");
   const [engineTestStatus, setEngineTestStatus] = useState("");
   const [moveTest, setMoveTest] = useState<{ move: string; style: MoveStyle; speed: MoveSpeed; energy: number; direction: 1 | -1; color: FigureColorName; hollowHead: boolean; neck: boolean }>({ move: "walk", style: "natural", speed: "normal", energy: 0.5, direction: 1, color: "black", hollowHead: false, neck: false });
@@ -207,7 +202,7 @@ export function DrawingAiPanel({
     pendingRevealMessageIdsRef.current.clear();
     const initial = createEmptyAiAnimatorLedger(projectId);
     knownMessageIdsRef.current = new Set();
-    setReasoningLevel("medium"); setInputValue(""); setRequestError(null); setLedger(initial);
+    setReasoningLevel("medium"); setEffort("auto"); setInputValue(""); setRequestError(null); setLedger(initial);
     void readAccountAiAnimatorLedger(projectId).then(result => {
       if (cancelled) return;
       knownMessageIdsRef.current = new Set(result.ledger.messages.map(message => message.id));
@@ -354,15 +349,17 @@ export function DrawingAiPanel({
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     const message = inputValue.trim();
+    // Effort: Auto picks the level from the message; otherwise the level the person chose.
+    const sentLevel: DrawingAiReasoningLevel = effort === "auto" ? pickAutoEffort(message) : effort;
     if (!message || activeJob || readOnly || !workspaceContext) return;
     const jobId = crypto.randomUUID();
     const turnId = crypto.randomUUID();
     const now = new Date().toISOString();
     const localJob: AiAnimatorJobSnapshot = {
-      version: 1, jobId, turnId, projectId, projectGeneration: workspaceContext.projectGeneration, reasoningLevel, intent: null,
+      version: 1, jobId, turnId, projectId, projectGeneration: workspaceContext.projectGeneration, reasoningLevel: sentLevel, intent: null,
       status: "thinking", lastSequence: 1, createdAt: now, updatedAt: now,
       completedAt: null,
-      telemetry: { model: AI_ANIMATOR_MODEL, effort: AI_ANIMATOR_REASONING_EFFORT[reasoningLevel], outcome: "active", latencyMs: null, promptDigest: PENDING_PROMPT_DIGEST, usage: EMPTY_USAGE },
+      telemetry: { model: AI_ANIMATOR_MODEL, effort: AI_ANIMATOR_REASONING_EFFORT[sentLevel], outcome: "active", latencyMs: null, promptDigest: PENDING_PROMPT_DIGEST, usage: EMPTY_USAGE },
       events: [{ sequence: 1, status: "thinking", createdAt: now }],
     };
     const priorMessages = ledger.messages;
@@ -381,7 +378,7 @@ export function DrawingAiPanel({
     };
     setInputValue(""); setRequestError(null); dictationRef.current?.cancel("");
     const requestBody: AiAnimatorRequest = {
-      jobId, turnId, message, reasoningLevel,
+      jobId, turnId, message, reasoningLevel: sentLevel,
       recentConversation: priorMessages.slice(-12).map(({ role, content }) => ({ role, content })),
       workspace: {
         projectId, projectTitle: workspaceContext.projectTitle, projectGeneration: workspaceContext.projectGeneration,
@@ -571,17 +568,18 @@ export function DrawingAiPanel({
         </>}
         composer={<form onSubmit={submit} className={`${chatComposerStyles.box} ${chatComposerStyles.compact}`} aria-label="AI Animator message composer">
           <textarea ref={composerRef} aria-label="Message AI Animator" value={inputValue} onChange={(event) => setInputValue(event.target.value)} onKeyDown={handleComposerKeyDown} placeholder="Chat with the AI Animator" disabled={Boolean(activeJob) || readOnly} rows={2} />
-          <ChatDictationPanel dictation={dictation} onCancel={() => { dictationRef.current?.cancel(); composerRef.current?.focus(); }} onStop={() => void dictationRef.current?.stop()} />
-          <ChatToolsRow
-            left={<ChatReasoningSelect value={reasoningLevel} options={REASONING_OPTIONS} disabled={reasoningDisabled} onChange={setReasoningLevel} title={`AI Animator effort: ${AI_ANIMATOR_REASONING_EFFORT[reasoningLevel]}`} />}
-            right={<>
-              <ChatDictateButton disabled={dictationActive || Boolean(activeJob) || readOnly} onClick={() => void dictationRef.current?.start()} />
-              {activeJob
-                ? <ChatStopButton label={`Cancel AI Animator job ${activeJob.jobId}`} onClick={cancelActiveJob} />
-                : <ChatSendButton disabled={sendDisabled} />}
-            </>}
-          />
-          <div className={chatComposerStyles.dictationNotice} role="status" aria-live="polite">{dictation.message}</div>
+          {dictationActive
+            ? <ChatDictationPanel dictation={dictation} onCancel={() => { dictationRef.current?.cancel(); composerRef.current?.focus(); }} onStop={() => void dictationRef.current?.stop()} />
+            : <ChatToolsRow
+              left={<ChatEffortPicker value={effort} onChange={setEffort} disabled={reasoningDisabled} />}
+              right={<>
+                <ChatDictateButton disabled={dictationActive || Boolean(activeJob) || readOnly} onClick={() => void dictationRef.current?.start()} />
+                {activeJob
+                  ? <ChatStopButton label={`Cancel AI Animator job ${activeJob.jobId}`} onClick={cancelActiveJob} />
+                  : <ChatSendButton disabled={sendDisabled} />}
+              </>}
+            />}
+          <ChatDictationStatus dictation={dictation} />
         </form>}
       />
     </>

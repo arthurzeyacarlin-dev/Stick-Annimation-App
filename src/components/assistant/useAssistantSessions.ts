@@ -82,13 +82,13 @@ export function useAssistantSessions() {
   useEffect(() => {
     if (ready && selectedId && !selected && !storageBlocked) { select(null); setNotice("That chat is no longer saved. You can start a new conversation."); }
   }, [ready, selected, selectedId, storageBlocked, select]);
-  const send = async () => {
+  const send = async (reasoningOverride?: Reasoning) => {
     if (sendGuard.current || storageBlocked || !ready || !draft.trim() || selected?.turns.at(-1)?.status === "pending") return;
     sendGuard.current = true; setBusy(true); setNotice("");
     let created: Session | null = null;
     try {
       const id = selected?.id ?? crypto.randomUUID();
-      created = await beginTurn(id, draft, selected?.reasoning ?? blankReasoning, selected);
+      created = await beginTurn(id, draft, reasoningOverride ?? selected?.reasoning ?? blankReasoning, selected);
       refreshGeneration.current++;
       const turn = created.turns.at(-1)!; setAssistantJobPostingV1(turn.jobId, true);
       progressEligible.current.add(turn.jobId);

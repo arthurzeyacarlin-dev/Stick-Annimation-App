@@ -279,6 +279,6 @@
   .screen[data-drawer-open="true"] .drawerScrim { display: block; position: fixed; inset: 0; z-index: 70; border: 0; background: rgba(3, 9, 20, .6); }
   .sessionList { display: block !important; }
   .chatCards { display: block !important; overflow: visible !important; }
-  .chatCard { flex: none !important; }
+  .chatCard { flex: none !important; border-color: transparent; } /* like the computer: only the selected / pointed-at chat gets a border */
   .sidebarFoot { display: block !important; }
 }

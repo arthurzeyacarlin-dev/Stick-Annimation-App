@@ -544,6 +544,16 @@
   }
 }
 
+/* Phones (Arthur 2026-10-25): back arrow on its own row and the title centered under it; Next sits at the bottom of
+   the screen instead of stopping halfway down. */
+@media (max-width: 640px) {
+  .chooseColumn .headerRow { flex-direction: column; align-items: stretch; gap: 10px; }
+  .chooseColumn .headerRow > :first-child { align-self: flex-start; }
+  .chooseColumn .headerSpacer { display: none; }
+  .chooseColumn { padding-bottom: 96px; }
+  .chooseColumn .footer { position: fixed; left: 0; right: 0; bottom: 0; margin: 0; z-index: 5; }
+}
+
 .previewColumn {
   min-width: 0;
 }

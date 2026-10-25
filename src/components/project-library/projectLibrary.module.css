@@ -671,15 +671,17 @@
     padding-bottom: 18px;
   }
 
+  /* Back arrow on its own row above the title, like every other page (Arthur 2026-10-25). */
   .headingGroup {
     grid-column: 1 / -1;
-    grid-row: 1;
+    grid-row: 2;
     padding: 4px 0 2px;
   }
 
-  .header .secondaryButton:first-child {
+  .header > :first-child:not(.headingGroup) {
     grid-column: 1;
-    grid-row: 2;
+    grid-row: 1;
+    justify-self: start;
   }
 
 

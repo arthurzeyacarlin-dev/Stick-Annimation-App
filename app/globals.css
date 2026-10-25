@@ -467,6 +467,12 @@ button.da-switch { min-height: 0 !important; height: 24px !important; width: 44p
 button.da-switch:hover { border-color: var(--da-hover, #0066ff) !important; box-shadow: none !important; }
 button.da-switch:not([aria-checked="true"]) { background: var(--da-panel, #071120) !important; }
 button.da-switch[aria-checked="true"] { background: var(--da-hover, #0066ff) !important; border-color: var(--da-hover, #0066ff) !important; }
+/* Every on/off switch slides its knob and fades its colors (Arthur 2026-10-25: "no teleporting"). The same timing as the
+   Effort dot. The switch is the one exception to the editor's instant-buttons rule (workspaceTheme: transition none). */
+:root { --da-switch-motion: 220ms cubic-bezier(.2, .8, .2, 1); }
+button.da-switch, [class*="workspaceTheme_workspace"] button.da-switch { transition: background-color var(--da-switch-motion), border-color var(--da-switch-motion) !important; }
+button.da-switch > span { transition: transform var(--da-switch-motion), background-color var(--da-switch-motion) !important; }
+@media (prefers-reduced-motion: reduce) { button.da-switch, button.da-switch > span { transition: none !important; } }
 
 /* A plain outlined button (used by Settings → Learn mode): blue and white on hover, instantly. */
 .da-plain-button { min-height: 36px; padding: 0 16px; border: 1px solid var(--da-border, #244267); border-radius: 10px; background: transparent; color: var(--da-text, #f6f9ff); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: none; }

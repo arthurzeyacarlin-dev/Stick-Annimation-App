@@ -10,6 +10,7 @@
 - [ ] **REPORTS-OWNER-ONLY** — "Problem reports" shows for every account in dev (D-0201); owner-only before online.
 - [x] **CHAT-BOX-TWEAKS** — passed D-0214 (`b5d0ad5`): quiet mic, dot waves, Effort slider with Auto, bigger check.
 - [x] **SMOOTH-SWITCHES** — passed D-0215 (`e6475bc`): every on/off switch slides and fades.
+- [x] **EXPORT-CLICK-TO-OPEN** — passed D-0216 (`1e87b79`): click to open, library-style Export page.
 - [ ] **NEXT-APP-CHANGE** — Arthur's next change; then polish.
 - [ ] **AI-ANIMATOR-FRAMES** — the app's AI panel still only chats; wire the passed engine (PM v9 owns the engine).
 - [ ] **ONLINE** — the app only runs on Arthur's Mac (SPEC-0023; dad's keys needed).

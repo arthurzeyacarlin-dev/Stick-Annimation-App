@@ -1885,6 +1885,13 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0216 — Export: click to open, library-style choose page (App PM, 2026-10-26)
+
+- Arthur passed 2026-10-26. Copy `diamond-review/export-click` (branch `claude/export-click`), product commit `1e87b79` fast-forwarded into main. File: `src/components/export/AnimationExportFlow.tsx` + `animationExport.module.css`.
+- No Next button (Arthur: works like Open Project): clicking an animation opens it for export; the clicked card is highlighted while it opens, the others wait (disabled).
+- Choose page = library page ("looks empty, 70% dark"): bold title on the left + one-line lead, search + count, a grid filling the width (`auto-fill, minmax(230px, 1fr)`), and a plain "What you can export" side column (formats from `FORMATS`, up to 1080p; text + dividers, no boxes — boxes only for clickable things). Phones stack it.
+- Tests: Playwright on computer and phone: no Next button, one click leaves the choose page; pictures checked.
+
 ### D-0215 — Every on/off switch slides and fades (App PM, 2026-10-25)
 
 - Arthur passed 2026-10-25. Copy `diamond-review/smooth-switches` (branch `claude/smooth-switches`), product commit `e6475bc` fast-forwarded into main.

@@ -1,5 +1,9 @@
 # Current State
 
+## D-0216 — App PM: Export — click to open, library-style page (current)
+
+Arthur passed 2026-10-26. Clicking an animation on the Export page opens it right away (no Next). The page has a left-aligned title, search + count, a full-width grid and a plain "What you can export" column; phones stack it. See DECISIONS D-0216.
+
 ## D-0215 — App PM: every on/off switch slides and fades (current)
 
 Arthur passed 2026-10-25. Settings and editor switches no longer jump: the dot slides and the color fades (220 ms). See DECISIONS D-0215.

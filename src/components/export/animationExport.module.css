@@ -200,8 +200,7 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 340px));
-  justify-content: center;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
   gap: 16px;
 }
 
@@ -219,6 +218,12 @@
 
 .card:hover:not(:disabled) {
   border-color: var(--da-hover);
+}
+
+.card[aria-busy="true"] {
+  border-color: var(--da-selected-border);
+  background: var(--da-selected-bg);
+  opacity: 1;
 }
 
 .card[aria-pressed="true"] {
@@ -544,14 +549,12 @@
   }
 }
 
-/* Phones (Arthur 2026-10-25): back arrow on its own row and the title centered under it; Next sits at the bottom of
-   the screen instead of stopping halfway down. */
+/* Phones (Arthur 2026-10-25): back arrow on its own row and the title centered under it. */
 @media (max-width: 640px) {
   .chooseColumn .headerRow { flex-direction: column; align-items: stretch; gap: 10px; }
   .chooseColumn .headerRow > :first-child { align-self: flex-start; }
   .chooseColumn .headerSpacer { display: none; }
-  .chooseColumn { padding-bottom: 96px; }
-  .chooseColumn .footer { position: fixed; left: 0; right: 0; bottom: 0; margin: 0; z-index: 5; }
+  .chooseColumn { padding-bottom: 32px; }
 }
 
 .previewColumn {
@@ -688,4 +691,34 @@
 .footnote {
   color: var(--da-muted);
   font-size: 12px;
+}
+
+/* Choose screen as a library page (Arthur 2026-10-25): heading on the left, search + count, grid, plain side column. */
+.chooseHeader { display: grid; gap: 18px; }
+.chooseHeader > :first-child { justify-self: start; }
+.chooseHeading { display: grid; gap: 4px; }
+.chooseHeading .chooseTitle { margin: 0; text-align: left; font-size: 30px; font-weight: 700; letter-spacing: -.02em; }
+.chooseLead { margin: 2px 0 0; color: var(--da-text-3); font-size: 14px; }
+.chooseLayout { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 40px; align-items: start; }
+.chooseMain { display: grid; gap: 16px; min-width: 0; }
+.chooseToolbar { display: flex; align-items: center; gap: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--da-line); }
+.chooseSearch { flex: 0 1 320px; min-width: 0; height: 38px; padding: 0 12px; border: 1px solid var(--da-border); border-radius: var(--da-radius-control); background: var(--da-panel); color: var(--da-text); font: inherit; font-size: 14px; }
+.chooseSearch::placeholder { color: var(--da-text-3); }
+.chooseSearch:focus-visible { outline: 2px solid var(--da-focus); outline-offset: 2px; }
+.chooseCount { margin-left: auto; color: var(--da-text-3); font-size: 13px; font-variant-numeric: tabular-nums; }
+.chooseAside { padding-left: 24px; border-left: 1px solid var(--da-line); display: grid; gap: 14px; }
+.chooseAsideTitle { margin: 0; color: var(--da-label); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.chooseFormats { list-style: none; margin: 0; padding: 0; display: grid; }
+.chooseFormats li { display: grid; gap: 2px; padding: 12px 0; border-bottom: 1px solid var(--da-line); }
+.chooseFormats li:first-child { padding-top: 0; }
+.chooseFormatName { color: var(--da-text); font-size: 14px; font-weight: 600; }
+.chooseFormatDetail { color: var(--da-text-3); font-size: 13px; }
+.chooseAsideNote { margin: 0; color: var(--da-text-3); font-size: 13px; line-height: 1.5; }
+@media (max-width: 900px) {
+  .chooseLayout { grid-template-columns: 1fr; gap: 28px; }
+  .chooseAside { padding-left: 0; padding-top: 20px; border-left: 0; border-top: 1px solid var(--da-line); }
+}
+@media (max-width: 640px) {
+  .chooseHeading .chooseTitle { font-size: 24px; }
+  .chooseSearch { flex: 1 1 auto; }
 }

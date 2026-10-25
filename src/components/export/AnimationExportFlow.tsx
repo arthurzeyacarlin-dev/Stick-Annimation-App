@@ -477,6 +477,7 @@ export function AnimationExportFlow({ origin, onBack, preferredProjectId = null 
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [watching, setWatching] = useState<ExportProjectSnapshot | null>(null);
   const [busy, setBusy] = useState(false);
+  const [query, setQuery] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const collectionGenerationRef = useRef(0);
 
@@ -528,14 +529,16 @@ export function AnimationExportFlow({ origin, onBack, preferredProjectId = null 
       setWatching(null); setSelectedId(null); setMessage(null); loadCollection();
     }} />;
   }
-  const selectedState = selectedId ? snapshots[selectedId] : null;
 
-  const openSelectedAnimation = async () => {
-    if (!selectedId || selectedState?.status !== "ready" || selectedState.snapshot.frameCount === 0 || busy) return;
-    setBusy(true); setMessage(null);
+  const visibleEntries = query.trim() ? entries.filter((entry) => entry.title.toLowerCase().includes(query.trim().toLowerCase())) : entries;
+  // Click an animation and it opens for export right away, like Open Project (Arthur 2026-10-25: no Next button).
+  const openAnimation = async (entryId: string) => {
+    const state = snapshots[entryId];
+    if (state?.status !== "ready" || state.snapshot.frameCount === 0 || busy) return;
+    setSelectedId(entryId); setBusy(true); setMessage(null);
     try {
-      const current = await loadExportProjectSnapshot(createReader(), selectedState.snapshot.entry);
-      if (current.projectDigest !== selectedState.snapshot.projectDigest) throw new Error("source_changed");
+      const current = await loadExportProjectSnapshot(createReader(), state.snapshot.entry);
+      if (current.projectDigest !== state.snapshot.projectDigest) throw new Error("source_changed");
       setWatching(current); setMessage(null);
     } catch (error) { setMessage(errorMessage(error)); }
     finally { setBusy(false); }
@@ -544,29 +547,43 @@ export function AnimationExportFlow({ origin, onBack, preferredProjectId = null 
   return (
     <main data-animation-export="choose" aria-label="Choose a saved animation to export" className={`${styles.page} ${styles.choosePage}`}>
       <div className={`${styles.column} ${styles.chooseColumn}`}>
-        <div className={styles.headerRow}>
+        {/* Library-style page (Arthur 2026-10-25: "looks empty"): title on the left, search + count, a grid that fills the
+            width, and a plain column on the right that says what you can export. Phones stack it. */}
+        <div className={styles.chooseHeader}>
           <BackButton onClick={onBack}>Back</BackButton>
-          <div className={styles.headerCenter}><div className={styles.eyebrow}>Export</div><h1 className={styles.chooseTitle}>Choose an animation</h1></div>
-          <div className={styles.headerSpacer} />
+          <div className={styles.chooseHeading}><div className={styles.eyebrow}>Export</div><h1 className={styles.chooseTitle}>Choose an animation</h1><p className={styles.chooseLead}>Click an animation to preview it and pick a format.</p></div>
         </div>
-        <div className={styles.intro}>Pick the animation you want to export, then choose <strong>Next</strong>.</div>
         {origin === "workspace" && preferredProjectId === null ? <div role="note" className={styles.statusWarning}>Your latest changes couldn&apos;t be saved, so Export uses your last save.</div> : null}
         {message ? <div role="status" aria-live="polite" className={styles.statusInfo}>{message}</div> : null}
-        {loading ? <div className={styles.emptyState}>Loading your animations</div> : collectionError ? <div className={styles.errorState}>Your animations couldn&apos;t be loaded.<div className={styles.errorStateAction}><button type="button" onClick={loadCollection} className={styles.button}>Try again</button></div></div> : entries.length === 0 ? <div className={styles.emptyState}>No saved animations yet. Save one first, then come back to Export.</div> : (
+        <div className={styles.chooseLayout}>
+        <section className={styles.chooseMain} aria-label="Your animations">
+          <div className={styles.chooseToolbar}>
+            <input type="search" className={styles.chooseSearch} placeholder="Search animations" aria-label="Search animations" value={query} onChange={(event) => setQuery(event.target.value)} />
+            <span className={styles.chooseCount}>{loading ? "" : `${visibleEntries.length} ${visibleEntries.length === 1 ? "animation" : "animations"}`}</span>
+          </div>
+        {loading ? <div className={styles.emptyState}>Loading your animations</div> : collectionError ? <div className={styles.errorState}>Your animations couldn&apos;t be loaded.<div className={styles.errorStateAction}><button type="button" onClick={loadCollection} className={styles.button}>Try again</button></div></div> : entries.length === 0 ? <div className={styles.emptyState}>No saved animations yet. Save one first, then come back to Export.</div> : visibleEntries.length === 0 ? <div className={styles.emptyState}>No animation matches “{query.trim()}”.</div> : (
           <div className={styles.grid}>
-            {entries.map(entry => {
+            {visibleEntries.map(entry => {
               const state = snapshots[entry.id];
               const invalid = entry.classification === "invalid" || state?.status === "failed";
               const selected = selectedId === entry.id;
               const snapshot = state?.status === "ready" ? state.snapshot : null;
-              return <button key={entry.id} type="button" aria-pressed={selected} disabled={invalid} onClick={() => { setSelectedId(entry.id); setMessage(null); }} className={styles.card}>
+              return <button key={entry.id} type="button" aria-busy={selected && busy} disabled={invalid || !snapshot?.frameCount || busy} onClick={() => void openAnimation(entry.id)} className={styles.card} aria-label={`Export ${entry.title}`}>
                 <div className={styles.cardThumb}>{snapshot ? <ExportThumbnail snapshot={snapshot} /> : state?.status === "loading" ? <span className={styles.thumbNote}>Loading preview</span> : <span className={styles.thumbNote}>Unavailable</span>}</div>
                 <div className={styles.cardBody}><div className={styles.cardTitle}>{entry.title}</div><div className={styles.cardMeta}>{formatUpdatedAt(entry.updatedAt)}</div><div className={snapshot?.frameCount ? styles.cardMetaReady : styles.cardMeta}>{invalid ? state?.status === "failed" ? state.message : "Unavailable" : snapshot ? snapshot.frameCount === 0 ? "Nothing drawn yet" : `${formatExportDuration(snapshot.durationSeconds)} · ${snapshot.project.document.fps} fps` : "Loading"}</div></div>
               </button>;
             })}
           </div>
         )}
-        <div className={styles.footer}><button type="button" disabled={busy || selectedState?.status !== "ready" || selectedState.snapshot.frameCount === 0} onClick={() => void openSelectedAnimation()} className={`${styles.primaryButton} ${styles.wideButton}`}>{busy ? "Opening" : "Next"}</button></div>
+        </section>
+        <aside className={styles.chooseAside} aria-label="What you can export">
+          <h2 className={styles.chooseAsideTitle}>What you can export</h2>
+          <ul className={styles.chooseFormats}>
+            {FORMATS.map((format) => <li key={format.id}><span className={styles.chooseFormatName}>{format.name}</span><span className={styles.chooseFormatDetail}>{format.detail}</span></li>)}
+          </ul>
+          <p className={styles.chooseAsideNote}>Up to 1080p. You choose the format and size on the next screen.</p>
+        </aside>
+        </div>
       </div>
     </main>
   );

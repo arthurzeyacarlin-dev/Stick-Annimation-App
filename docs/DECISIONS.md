@@ -1885,6 +1885,15 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0214 — Chat boxes: quiet microphone, dot waves, Effort slider with Auto, bigger check (App PM, 2026-10-25)
+
+- Arthur passed 2026-10-25 after three review rounds. Copy `diamond-review/chat-controls` (branch `claude/chat-controls`), product commit `b5d0ad5` fast-forwarded into main. Shared parts in `src/components/ui/ChatComposerParts.tsx` + `chatComposer.module.css`, used by Help (`AssistantComposer.tsx`) and the editor AI tab (`DrawingAiPanel.tsx`).
+- RULE (Arthur): dictation NEVER shows a message — not for a refused, cancelled or failed microphone. The old visible notice is gone (`ChatDictationStatus` is screen-reader only, live phases only).
+- Dictating: only ✕ (far left) and ✓ (far right), same size; Effort / mic / send hidden; round 4 px dots with 9 px gaps across the whole box (count from the width, same in every box); noise gate + true to volume (silence = still dots, talking = big, very loud = full); no timer; no warm-up or loader — after ✓ the waves settle flat while transcribing.
+- Effort replaces the Reasoning dropdown: small "Effort · Auto" button → card with a sentence per stop, 6 px bar, 4 ticks, a dot that slides (220 ms), stop names, "Auto-pick … Smarter". Stops Auto / Low / Medium / High (Extra High removed from the UI). ALWAYS starts on Auto (new chat, chat switch, project change; not remembered). Auto = `pickAutoEffort` (short → low, long / planning words → high, else medium). The level really reaches the AI: Help → OpenAI `reasoning.effort`; AI Animator → `AI_ANIMATOR_REASONING_EFFORT[level]`. AI contracts unchanged (Auto is resolved in the chat box; `useAssistantSessions.send` takes the chosen level).
+- Send / Done / Cancel icons bigger, thicker lines (stroke 2.8).
+- Tests: Playwright with fake microphones (talking-level and near-silent sound files, real off-screen Chrome — headless Chrome never starts audio): no text after cancel or refused mic, 2 buttons while dictating, gaps 9.1–9.4 px in Help (computer, phone) and editor AI, quiet = flat dots, Effort Medium → New Chat → Auto, a Help answer on Auto. Paid: 3 tiny Help messages on the test account (Arthur OK'd). tsc clean.
+
 ### D-0213 — Phone screens: Help chat list without outlines, Export and Open Project headers (App PM, 2026-10-25)
 
 - Arthur passed 2026-10-25. Copy `diamond-review/phone-screens` (branch `claude/phone-screens`, port 58680), product commit `6523575` fast-forwarded into main.

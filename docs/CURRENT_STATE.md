@@ -1,5 +1,9 @@
 # Current State
 
+## D-0214 — App PM: chat boxes — quiet microphone, dot waves, Effort slider with Auto (current)
+
+Arthur passed 2026-10-25. Help and the editor's AI tab: the microphone never shows a message; while talking only ✕, evenly spaced dots that grow with the voice, and ✓; the Reasoning dropdown is now an Effort slider (Auto, Low, Medium, High) that always starts on Auto and really sets how hard the AI thinks; bigger check mark. See DECISIONS D-0214.
+
 ## D-0213 — App PM: phone screens — Help chat list, Export and Open Project headers (current)
 
 Arthur passed 2026-10-25. On phones the Help chat list has no outlines (like the computer), Export's title is centered with Next at the bottom, and Open Project's back arrow sits above the title. All other screens checked at phone size looked fine. See DECISIONS D-0213.

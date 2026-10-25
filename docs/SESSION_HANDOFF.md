@@ -12,6 +12,10 @@
 
 **HANDOFF AT 60% CHAT MEMORY (dad, Oct 16):** at 50% start keeping docs current; at 60%: (1) write everything still only in the chat into the spec, this file, CURRENT_STATE/TODO if app-relevant, memory, and the board; (2) refresh `/Users/arthurcarlin/Projects/diamond-review/board/HANDOFF_MESSAGE.md` (self-contained: who, read-first list, where we are, next, rules); (3) `python3 board.py handoff` — the board's Handoff button turns green (yellow from 50%); (4) tell Arthur: click it, open a NEW Claude chat in this project, paste. Nothing may survive only inside a chat.
 
+## App PM update 3 (Sun 2026-10-25)
+
+D-0214 merged (`b5d0ad5`): chat boxes (Help + editor AI) — microphone never shows a message, dot waves true to volume, Effort slider (Auto default, resets every chat/project, level really sent to the AI), bigger check. Arthur's tweak list lives in the side-session notes (beta-readiness-pm-app.md). Test copy `chat-controls` can be retired. Next: Arthur's next app change.
+
 ## App PM update 2 (Sun 2026-10-25)
 
 D-0213 merged (`6523575`): phone screens — Help chat list without outlines, Export and Open Project headers. Next: Arthur's minor workspace tweaks, then polish. Test copies `phone-workspace` and `phone-screens` can be retired.

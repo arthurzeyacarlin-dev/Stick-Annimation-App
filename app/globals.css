@@ -610,3 +610,42 @@ button.da-switch[aria-checked="true"] { background: var(--da-hover, #0066ff) !im
     height: min(100cqh, 100cqw * 9 / 16) !important;
   }
 }
+
+/* ===== Phones and tablets: the bottom panel is a sheet that slides OVER the canvas (Arthur 2026-10-24/25) =====
+   The canvas never changes size: it sits at the top of its area, and the sheet (tab bar + panel) covers it from below.
+   Small = tab bar only, half = up to the canvas's bottom edge, full = up to just under the timeline (12 px gap).
+   Heights come from DrawingRightPanel (--da-sheet-px). The sheet's top edge is the grab line: it turns thin blue when
+   pointed at, like the computer's resize edge. Computers (> 900 px) are untouched: .da-sheet is display: contents. */
+.da-sheet { display: contents; }
+.da-sheet-handle { display: none; }
+@media (max-width: 900px) {
+  div:has(> .da-sheet) { position: relative !important; display: block !important; overflow: hidden !important; }
+  /* The canvas is anchored (Arthur): the timeline floats on top and grows down OVER the canvas when layers are added;
+     the canvas area always starts where a one-layer timeline ends (--da-timeline-base, set by DrawingRightPanel). */
+  [class*="workspaceTheme_workspace"]:has(.da-sheet) { position: relative; }
+  [class*="workspaceTheme_workspace"]:has(.da-sheet) > .drawing-timeline { position: absolute !important; top: var(--da-topbar-h, 48px); left: 0; right: 0; z-index: 25; }
+  div:has(> .da-sheet) > .drawing-canvas-area.drawing-canvas-area.drawing-canvas-area.drawing-canvas-area {
+    position: absolute !important; inset: var(--da-timeline-base, 109px) 0 46px 0 !important; width: auto !important; height: auto !important; min-height: 0 !important;
+    align-items: center !important; padding: 12px 14px !important; /* centered, same size (Arthur) */
+  }
+  .da-sheet {
+    display: flex; flex-direction: column; position: absolute; left: 0; right: 0; bottom: 0; z-index: 30;
+    height: var(--da-sheet-px, min(44dvh, 380px)); box-shadow: 0 -12px 28px rgba(0, 0, 0, .35);
+    min-height: 0 !important; max-height: none !important; /* small goes all the way down to the tools (an old rule held it at 200 px) */
+  }
+  .da-sheet[data-sheet-size="small"]:not([data-sheet-dragging]) { box-shadow: none; }
+  .da-sheet > .da-sheet-tabs { display: flex !important; flex-direction: column; flex: 0 0 auto !important; height: auto !important; position: relative !important; inset: auto !important; touch-action: none; user-select: none; }
+  .da-sheet-tab-row { display: grid; grid-template-columns: repeat(4, 1fr); height: 44px; }
+  .da-sheet > .drawing-right-panel.drawing-right-panel.drawing-right-panel { flex: 1 1 0 !important; height: auto !important; min-height: 0 !important; overflow: hidden !important; }
+  /* The grab line: an invisible strip over the sheet's top edge (no handle bar). */
+  .da-sheet-tabs .da-sheet-handle { display: block; position: absolute; left: 0; right: 0; top: -8px; height: 16px; padding: 0; border: 0; background: transparent; cursor: ns-resize; z-index: 2; }
+  .da-sheet-tabs .da-sheet-handle:hover { background: transparent; }
+  .da-sheet-tabs:has(.da-sheet-handle:hover), .da-sheet-tabs:has(.da-sheet-handle:focus-visible),
+  .da-sheet[data-sheet-dragging] > .da-sheet-tabs { border-top-color: var(--da-hover, #0066ff) !important; }
+  .da-sheet[data-sheet-size="small"] .da-sheet-tab-row button[aria-selected="true"] { background: transparent; color: #fff; }
+}
+@media (max-width: 900px) {
+  /* All 8 tools fit the width (the last one was cut off on phones under 380 px). */
+  .drawing-toolbar.drawing-toolbar { grid-template-columns: repeat(8, minmax(0, 1fr)) !important; overflow: hidden !important; }
+  .drawing-toolbar.drawing-toolbar > * { min-width: 0 !important; }
+}

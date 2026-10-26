@@ -22,7 +22,7 @@ const byTour = (name: string) => () => visible(document.querySelector(`[data-tou
 const STEPS: Step[] = [
   { where: "home", title: "New project", text: "Start a blank animation. Every animation you make begins here.", find: byTour("new-project") },
   { where: "home", title: "Open project", text: "All your saved animations. Edit, watch or export any of them.", find: byTour("open-project") },
-  { where: "home", title: "Pick up where you left off", text: "Your latest animation waits here. Click it to keep going.", find: byTour("recent") },
+  { where: "home", title: "Your latest animation", text: "Your most recent animation waits here. Click it to keep going.", find: byTour("recent") },
   { where: "home", title: "AI Dashboard", text: "See your AI credits and how many you have used.", find: byTour("ai-dashboard") },
   { where: "home", title: "Notifications and Menu", text: "The bell shows new messages. The menu has Help (ask the Assistant anything), Report a Problem and more.", find: byTour("bell-menu") },
   { where: "home", title: "Export", text: "Turn an animation into a video, a GIF or pictures you can share.", find: byTour("export") },

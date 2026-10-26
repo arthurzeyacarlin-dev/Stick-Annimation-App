@@ -14,7 +14,7 @@
 - [x] **ASSETS-DROP + DELETE-RED** — passed D-0217 (`17684b9`).
 - [x] **REDESIGN (outside the editor)** — passed D-0218 (`dd5bb9f`).
 - [x] **HOME-TOUR** — passed D-0219 (`bfa8238`): tour back on, 7 new Home steps, Help in the menu.
-- [ ] **WELCOME-NEW-USER** — Home says "Welcome back" to brand-new users; say "Welcome" instead.
+- [x] **WELCOME-NEW-USER** — passed D-0220 (`6a2f017`): first visit "Welcome, Name" + new words; "Welcome back" after coming back.
 - [ ] **EDITOR-REDESIGN** — redesign the editor's look together with Arthur (behaviour unchanged).
 - [ ] **ASSET-PACKS** — ready-made original asset packs (blocks, characters); own art only, no Minecraft/Roblox art or names (plan first).
 - [ ] **NEXT-APP-CHANGE** — Arthur's next change; then polish.

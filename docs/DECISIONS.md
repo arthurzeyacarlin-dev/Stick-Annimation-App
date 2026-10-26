@@ -1885,6 +1885,14 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0220 — Home greeting: first visit vs coming back (App PM, 2026-10-26)
+
+- Arthur passed 2026-10-26. Copy `diamond-review/home-tour` (branch `claude/welcome-new`), product commit `6a2f017` fast-forwarded into main. File: `src/components/main/MainScreen.tsx` (`useGreeting`).
+- RULE (Arthur): first visit = all-new words, nothing about coming back: "Welcome, Name" · "Your first animation starts here. Draw it yourself, or let the AI Animator help." · section "Your latest animation". Coming back = "Welcome back, Name" · "Start a fresh canvas, or jump back into something you were making." · "Pick up where you left off".
+- First visit = this browser has never shown this account's Home (`localStorage diamond.homeSeen.v1:<userId>`); the whole first visit in that tab stays "Welcome" (`sessionStorage diamond.firstVisit.v1:<userId>`). Storage blocked → "Welcome". Greeting + subtitle hidden (space kept) until known, so words never flip. Limit: a new browser/computer counts as a first visit.
+- Tour step 3 renamed "Your latest animation". Refs destructured in MainScreen (react-hooks/refs lint).
+- Tests: new account → first visit + reload "Welcome, Arthur" with new words; new tab → "Welcome back, Arthur"; tsc + eslint clean.
+
 ### D-0219 — Guided tour back on the new Home; Help in the menu (App PM, 2026-10-26)
 
 - Arthur passed 2026-10-26. Copy `diamond-review/home-tour` (branch `claude/home-tour`), product commit `bfa8238` fast-forwarded into main.

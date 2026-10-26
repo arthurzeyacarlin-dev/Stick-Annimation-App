@@ -1,6 +1,10 @@
 # Current State
 
-## D-0219 — App PM: guided tour back on the new Home; Help in the menu (current)
+## D-0220 — App PM: first visit says "Welcome, Name" with brand-new words (current)
+
+Arthur passed 2026-10-26. A brand-new person's first visit: "Welcome, Name", a first-animation line and "Your latest animation". After they leave and come back: "Welcome back, Name" and the jump-back words. See DECISIONS D-0220.
+
+## D-0219 — App PM: guided tour back on the new Home; Help in the menu
 
 Arthur passed 2026-10-26. The tour shows once for new users and restarts from Settings: 7 steps (New project, Open project, Pick up where you left off, AI Dashboard, bell + menu, Export, your account) in the new look. The menu has "Help · Ask the Assistant". See DECISIONS D-0219.
 

@@ -12,6 +12,9 @@
 - [x] **SMOOTH-SWITCHES** — passed D-0215 (`e6475bc`): every on/off switch slides and fades.
 - [x] **EXPORT-CLICK-TO-OPEN** — passed D-0216 (`1e87b79`): click to open, library-style Export page.
 - [x] **ASSETS-DROP + DELETE-RED** — passed D-0217 (`17684b9`).
+- [x] **REDESIGN (outside the editor)** — passed D-0218 (`dd5bb9f`).
+- [ ] **HOME-TOUR** — guided tour must point at the new Home controls.
+- [ ] **EDITOR-REDESIGN** — redesign the editor's look together with Arthur (behaviour unchanged).
 - [ ] **ASSET-PACKS** — ready-made original asset packs (blocks, characters); own art only, no Minecraft/Roblox art or names (plan first).
 - [ ] **NEXT-APP-CHANGE** — Arthur's next change; then polish.
 - [ ] **AI-ANIMATOR-FRAMES** — the app's AI panel still only chats; wire the passed engine (PM v9 owns the engine).

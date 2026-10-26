@@ -1,6 +1,10 @@
 # Current State
 
-## D-0217 — App PM: drop images anywhere into Assets; delete buttons red-outline (current)
+## D-0218 — App PM: the redesign — new look for every screen outside the editor (current)
+
+Arthur passed 2026-10-26. New sign-up/log-in, new Home, one shared top bar (AI Dashboard, bell, menu, Export everywhere, avatar menu), polished AI Dashboard with a usage line, new loading screen, three hover levels (dull / bright / extra-bright) + red delete, blue glows with dot grids, sliding selected highlights. Editor behaviour unchanged (only hover looks); the editor redesign comes later, together with Arthur. See DECISIONS D-0218.
+
+## D-0217 — App PM: drop images anywhere into Assets; delete buttons red-outline
 
 Arthur passed 2026-10-26. Drag images over the editor from any tab: a drop card appears and the Assets tab pulses; dropping imports them into Assets. Every delete button is red text + red outline, never blue. See DECISIONS D-0217.
 

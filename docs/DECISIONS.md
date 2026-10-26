@@ -1885,6 +1885,18 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0218 — Redesign: new look for every screen outside the editor (App PM, 2026-10-26)
+
+- Arthur passed 2026-10-26 after rounds A, B, C. Copy `diamond-review/redesign` (branch `claude/redesign`), product commit `dd5bb9f` fast-forwarded into main. Goal (Arthur): erase the old look, keep the code; Viewer-Magnet-level polish (not copied), same blue palette, one color system, logo always solid white.
+- Sign-up / log-in / forgot: `src/components/auth/AuthScreen.tsx` (same better-auth endpoints; returning users open on Log in via `diamond.returningUser.v1`; autofill names). `app/page.tsx`: no session → AuthScreen; locked plan → TrialEndedScreen; else ExistingHome.
+- Home: `src/components/main/MainScreen.tsx` inside ExistingHome (same handlers). Shared top bar `src/components/main/AppHeader.tsx` on every page (via `AppChrome`): AI Dashboard + credits / Home, bell, menu (Description, Terms, Report a Problem, Problem reports), Export (opens `/#export` when not on Home), avatar menu with plan + Profile/Settings/Plans + Log out through `runAccountProjectLogout`.
+- AI Dashboard: cumulative usage line with dots + tooltips (`AiUsageChart.tsx`), stats row, meter.
+- RULE (Arthur): three hover levels app-wide — dull blue `--da-hover-soft` (normal), bright `--da-hover` (special), extra-bright `--da-hover-super` + calm glow `.da-super` (Export, Create account); delete = red outline → solid red/white. Selected bars never disappear on hover; `SlidingSelection.tsx` slides the highlight between choices in any choice group. Sliders bright on hover.
+- RULE (Arthur): blue glows reveal a dot grid (`.da-polished-page`, Home, auth, Assistant, notifications).
+- Loading screen `PageLoadingMark.tsx` (.da-loading). Plans: real plan ids are basic/creator/studio (labels Basic/Pro/Creator); Pro + Creator light bright on hover. Assistant fills the full width when opened from the editor (was hugging the left inside the flex overlay).
+- Editor: behaviour untouched, only hover looks. Tests: drawing sweeps 15/15 + 7/7, tsc clean, pictures of every changed screen.
+- Not done yet: guided tour for the new Home; editor redesign (together with Arthur).
+
 ### D-0217 — Assets: drop images anywhere in the editor; delete buttons always red-outline (App PM, 2026-10-26)
 
 - Arthur passed 2026-10-26. Copy `diamond-review/assets-drop` (branch `claude/assets-drop`), product commit `17684b9` fast-forwarded into main.

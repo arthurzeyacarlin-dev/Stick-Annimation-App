@@ -13,7 +13,8 @@
 - [x] **EXPORT-CLICK-TO-OPEN** — passed D-0216 (`1e87b79`): click to open, library-style Export page.
 - [x] **ASSETS-DROP + DELETE-RED** — passed D-0217 (`17684b9`).
 - [x] **REDESIGN (outside the editor)** — passed D-0218 (`dd5bb9f`).
-- [ ] **HOME-TOUR** — guided tour must point at the new Home controls.
+- [x] **HOME-TOUR** — passed D-0219 (`bfa8238`): tour back on, 7 new Home steps, Help in the menu.
+- [ ] **WELCOME-NEW-USER** — Home says "Welcome back" to brand-new users; say "Welcome" instead.
 - [ ] **EDITOR-REDESIGN** — redesign the editor's look together with Arthur (behaviour unchanged).
 - [ ] **ASSET-PACKS** — ready-made original asset packs (blocks, characters); own art only, no Minecraft/Roblox art or names (plan first).
 - [ ] **NEXT-APP-CHANGE** — Arthur's next change; then polish.

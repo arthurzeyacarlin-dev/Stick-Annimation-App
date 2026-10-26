@@ -12,6 +12,10 @@
 
 **HANDOFF AT 60% CHAT MEMORY (dad, Oct 16):** at 50% start keeping docs current; at 60%: (1) write everything still only in the chat into the spec, this file, CURRENT_STATE/TODO if app-relevant, memory, and the board; (2) refresh `/Users/arthurcarlin/Projects/diamond-review/board/HANDOFF_MESSAGE.md` (self-contained: who, read-first list, where we are, next, rules); (3) `python3 board.py handoff` — the board's Handoff button turns green (yellow from 50%); (4) tell Arthur: click it, open a NEW Claude chat in this project, paste. Nothing may survive only inside a chat.
 
+## App PM update 8 (Mon 2026-10-26)
+
+D-0219 merged (`bfa8238`): guided tour back on (7 steps on the new Home, new look, data-tour tags); menu has Help · Ask the Assistant. Test copies `redesign` and `home-tour` can be retired. Next: editor redesign together with Arthur.
+
 ## App PM update 7 (Mon 2026-10-26)
 
 D-0218 merged (`dd5bb9f`): the redesign — new look for every screen outside the editor (auth, Home, shared top bar, AI Dashboard, hover levels, glows with dots, sliding highlights, loading screen). Test copy `redesign` can be retired. Next: guided tour for the new Home, then the editor redesign together with Arthur.

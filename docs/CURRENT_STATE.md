@@ -1,6 +1,10 @@
 # Current State
 
-## D-0218 — App PM: the redesign — new look for every screen outside the editor (current)
+## D-0219 — App PM: guided tour back on the new Home; Help in the menu (current)
+
+Arthur passed 2026-10-26. The tour shows once for new users and restarts from Settings: 7 steps (New project, Open project, Pick up where you left off, AI Dashboard, bell + menu, Export, your account) in the new look. The menu has "Help · Ask the Assistant". See DECISIONS D-0219.
+
+## D-0218 — App PM: the redesign — new look for every screen outside the editor
 
 Arthur passed 2026-10-26. New sign-up/log-in, new Home, one shared top bar (AI Dashboard, bell, menu, Export everywhere, avatar menu), polished AI Dashboard with a usage line, new loading screen, three hover levels (dull / bright / extra-bright) + red delete, blue glows with dot grids, sliding selected highlights. Editor behaviour unchanged (only hover looks); the editor redesign comes later, together with Arthur. See DECISIONS D-0218.
 

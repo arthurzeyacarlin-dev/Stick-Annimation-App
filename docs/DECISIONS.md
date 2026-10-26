@@ -1885,6 +1885,16 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0219 — Guided tour back on the new Home; Help in the menu (App PM, 2026-10-26)
+
+- Arthur passed 2026-10-26. Copy `diamond-review/home-tour` (branch `claude/home-tour`), product commit `bfa8238` fast-forwarded into main.
+- Bug found: the redesign (D-0218) left `<LearnMode />` out of `app/layout.tsx`, so Settings' "Start guided tour" did nothing; old steps also searched button words that no longer exist ("New Project", "Ask the Assistant", "Export animation"). Mounted again (`{session && <LearnMode />}`).
+- RULE: tour steps find controls by `data-tour` tags (MainScreen: new-project, open-project, recent; AppHeader: ai-dashboard, bell-menu, export, account), never by button words.
+- New look in `LearnMode.tsx` (classes in LEARN_CSS): welcome card with glowing logo + dot grid, pulsing ring that glides between steps, "Step N of 7" cards, bottom progress bar, bright Next (super hover), quiet Stop.
+- Menu (AppHeader drawer, Support): "Help · Ask the Assistant" → /assistant, so Help is reachable from Home again.
+- Tests: fresh account at 1440×900 and 390×844: welcome card, all 7 steps found (none lost), cards on screen, Finish ends, Settings restarts at step 1, Escape → Stop dialog, Help link opens /assistant, no page errors.
+- Not done yet: a new user sees "Welcome back" on Home (offered one-line fix).
+
 ### D-0218 — Redesign: new look for every screen outside the editor (App PM, 2026-10-26)
 
 - Arthur passed 2026-10-26 after rounds A, B, C. Copy `diamond-review/redesign` (branch `claude/redesign`), product commit `dd5bb9f` fast-forwarded into main. Goal (Arthur): erase the old look, keep the code; Viewer-Magnet-level polish (not copied), same blue palette, one color system, logo always solid white.

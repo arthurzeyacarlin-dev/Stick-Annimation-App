@@ -449,7 +449,7 @@ button[class*="danger" i]:disabled, button[class*="destructive" i]:disabled, but
 .workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button) { display: inline-flex !important; flex-wrap: nowrap !important; gap: 2px !important; padding: 3px; border: 1px solid var(--da-border, #244267); border-radius: 11px; background: var(--da-page, #030914); width: fit-content; max-width: 100%; }
 .workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button) > button { height: 32px; min-height: 32px; padding: 0 14px; border: 0 !important; border-radius: 8px !important; margin: 0 !important; background: transparent !important; color: var(--da-text-3, #a8bddd) !important; font-size: 13px; font-weight: 600; box-shadow: none; }
 .workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button) > button:not([style*="background: var(--da-panel"]):not([data-hover="danger"]):not([class*="delete" i]) { background: var(--da-selected-bg, #0f2a52) !important; color: #ffffff !important; box-shadow: inset 0 0 0 1px var(--da-selected-border, #3a6aa3); }
-.workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button) > button:hover { background: var(--da-hover, #0066ff) !important; color: #ffffff !important; }
+.workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button) > button:hover { background: var(--da-hover-soft, #0066ff) !important; color: #ffffff !important; }
 .workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button):has(> button[data-hover="danger"], > button[class*="delete" i]) { display: flex !important; gap: 0 !important; padding: 0; border: 0; border-radius: 0; background: transparent; width: auto; }
 .workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button):has(> button[data-hover="danger"], > button[class*="delete" i]) > button { border: 1px solid var(--da-border, #244267) !important; border-radius: 0 !important; margin-left: -1px !important; background: #0d1c36 !important; }
 .workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button):has(> button[data-hover="danger"], > button[class*="delete" i]) > button:first-child { border-radius: 10px 0 0 10px !important; margin-left: 0 !important; }
@@ -474,7 +474,7 @@ button[data-hover="danger"] *, button[style*="color: var(--da-danger"]:not([data
 
 /* On/Off switch (OnOffSwitch): exactly the Settings switch. Pointing at it lights its outline blue (on or off). */
 button.da-switch { min-height: 0 !important; height: 24px !important; width: 44px !important; border-radius: 999px !important; padding: 0 !important; }
-button.da-switch:hover { border-color: var(--da-hover, #0066ff) !important; box-shadow: none !important; }
+button.da-switch:hover { border-color: var(--da-hover-soft, #0066ff) !important; box-shadow: none !important; }
 button.da-switch:not([aria-checked="true"]) { background: var(--da-panel, #071120) !important; }
 button.da-switch[aria-checked="true"] { background: var(--da-hover, #0066ff) !important; border-color: var(--da-hover, #0066ff) !important; }
 /* Every on/off switch slides its knob and fades its colors (Arthur 2026-10-25: "no teleporting"). The same timing as the
@@ -486,7 +486,7 @@ button.da-switch > span { transition: transform var(--da-switch-motion), backgro
 
 /* A plain outlined button (used by Settings → Learn mode): blue and white on hover, instantly. */
 .da-plain-button { min-height: 36px; padding: 0 16px; border: 1px solid var(--da-border, #244267); border-radius: 10px; background: transparent; color: var(--da-text, #f6f9ff); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: none; }
-.da-plain-button:hover { background: var(--da-hover, #0066ff); border-color: var(--da-hover, #0066ff); color: #ffffff; }
+.da-plain-button:hover { background: var(--da-hover-soft, #0066ff); border-color: var(--da-hover-soft, #0066ff); color: #ffffff; }
 
 /* SPEC-0022 Phase 9 (Arthur 2026-10-13): tablets and phones. The right panel becomes a bottom sheet with a Panel button;
    the tool row takes the whole width and scrolls sideways if it must. Computers (> 900 px) are untouched. */
@@ -517,7 +517,7 @@ button.da-switch > span { transition: transform var(--da-switch-motion), backgro
   .da-sheet-tabs { display: grid; grid-template-columns: repeat(4, 1fr); position: fixed; left: 0; right: 0; bottom: 56px; height: 46px; z-index: 65; background: var(--da-panel, #071120); border-top: 1px solid var(--da-line, #163058); }
   .da-sheet-tabs button { border: 0; background: transparent; color: var(--da-text-3, #a8bddd); font: inherit; font-size: 13px; font-weight: 650; cursor: pointer; }
   .da-sheet-tabs button[aria-selected="true"] { color: #fff; background: var(--da-selected-bg, #0f2a52); box-shadow: inset 0 -2px 0 #0066ff; }
-  .da-sheet-tabs button:hover { background: var(--da-hover, #0066ff); color: #fff; }
+  .da-sheet-tabs button:hover { background: var(--da-hover-soft, #0066ff); color: #fff; }
   .drawing-topbar { padding: 0 8px !important; gap: 6px !important; }
   .drawing-topbar-menus { flex: 1 1 auto !important; overflow-x: auto; scrollbar-width: none; }
   .drawing-topbar-title { display: none; }
@@ -540,7 +540,7 @@ button.da-switch > span { transition: transform var(--da-switch-motion), backgro
   box-shadow: inset 0 -3px 0 #0066ff !important;
 }
 [class*="segmented"] button[aria-pressed="true"]:hover,
-[role="group"][aria-label="Right panel"] button[aria-pressed="true"]:hover { background: var(--da-hover, #0066ff) !important; box-shadow: none !important; }
+[role="group"][aria-label="Right panel"] button[aria-pressed="true"]:hover { background: var(--da-hover-soft, #0066ff) !important; box-shadow: inset 0 -3px 0 var(--da-hover, #0066ff) !important; } /* the selected bar stays on hover (Arthur) */
 .da-sheet-tabs button[aria-selected="true"] { box-shadow: inset 0 -3px 0 #0066ff; }
 
 @media (max-width: 900px) {
@@ -574,7 +574,7 @@ button.da-switch > span { transition: transform var(--da-switch-motion), backgro
 .da-sheet-close { display: none; }
 @media (max-width: 900px) {
   .da-sheet-close { display: flex; align-items: center; justify-content: center; flex: 0 0 auto; min-height: 36px; border: 0; border-bottom: 1px solid var(--da-line, #163058); background: transparent; color: var(--da-text-3, #a8bddd); font: inherit; font-size: 12px; font-weight: 650; cursor: pointer; }
-  .da-sheet-close:hover { background: var(--da-hover, #0066ff); color: #fff; }
+  .da-sheet-close:hover { background: var(--da-hover-soft, #0066ff); color: #fff; }
   [class*="workspaceTheme_workspace"] { overflow: hidden !important; overscroll-behavior: none; }
   body:has(.drawing-right-panel) { touch-action: manipulation; }
 }
@@ -657,7 +657,7 @@ button.da-switch > span { transition: transform var(--da-switch-motion), backgro
   .da-sheet-tabs .da-sheet-handle { display: block; position: absolute; left: 0; right: 0; top: -8px; height: 16px; padding: 0; border: 0; background: transparent; cursor: ns-resize; z-index: 2; }
   .da-sheet-tabs .da-sheet-handle:hover { background: transparent; }
   .da-sheet-tabs:has(.da-sheet-handle:hover), .da-sheet-tabs:has(.da-sheet-handle:focus-visible),
-  .da-sheet[data-sheet-dragging] > .da-sheet-tabs { border-top-color: var(--da-hover, #0066ff) !important; }
+  .da-sheet[data-sheet-dragging] > .da-sheet-tabs { border-top-color: var(--da-hover-soft, #0066ff) !important; }
   .da-sheet[data-sheet-size="small"] .da-sheet-tab-row button[aria-selected="true"] { background: transparent; color: #fff; }
 }
 @media (max-width: 900px) {
@@ -681,3 +681,58 @@ button[data-file-target="true"], [class*="workspaceTheme_workspace"] button[data
   animation: daDropPulse 1.1s ease-out infinite !important;
 }
 @media (prefers-reduced-motion: reduce) { .da-file-drop-overlay { animation: none; } button[data-file-target="true"] { animation: none !important; } }
+
+/* Redesign (Arthur 2026-10-26): Profile, Settings, Plans, AI Dashboard and Problem reports in the new look — the same
+   deep navy with one soft blue glow at the top and the new heading font. Content, sizes and controls are unchanged. */
+.da-polished-page { position: relative; background:
+  radial-gradient(ellipse 900px 420px at 50% -60px, rgba(0, 102, 255, .22), rgba(0, 102, 255, .06) 55%, transparent 80%), var(--da-page, #030914) !important; }
+.da-polished-page h1 { font-family: var(--font-display), var(--font-geist-sans), sans-serif; font-weight: 800; letter-spacing: -.03em; }
+.da-polished-page h2 { font-family: var(--font-display), var(--font-geist-sans), sans-serif; letter-spacing: -.015em; }
+
+/* ===== Redesign button levels (Arthur 2026-10-26), app-wide incl. the editor (behaviour unchanged) =====
+   1 normal = dull blue box on hover · 2 special = bright blue · 3 super special (Export, Create account) = extra-bright blue
+   with a glow · danger = red outline, see-through; on hover fully red with white text. Hover is instant. */
+:root { --da-hover-soft: color-mix(in srgb, var(--da-hover, #0066ff) 26%, #071120); --da-hover-super: color-mix(in srgb, var(--da-hover, #0066ff) 78%, #ffffff); }
+button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-hover="icon"]) { border-width: 1.5px !important; }
+.da-super, .da-super:hover { transition: none; }
+.da-super:hover:enabled, a.da-super:hover { background: var(--da-hover-super) !important; border-color: var(--da-hover-super) !important; color: #fff !important; box-shadow: 0 10px 26px rgba(0, 102, 255, .45) !important; }
+
+/* Loading screen (redesign). */
+.da-loading { position: fixed; inset: 0; z-index: 9999; display: grid; place-items: center; pointer-events: none; color: #fff;
+  background: radial-gradient(ellipse 620px 420px at 50% 46%, rgba(0, 102, 255, .26), transparent 70%), #030914;
+  transition: opacity 260ms ease-out, visibility 0s linear 260ms; }
+.da-loading::before { content: ""; position: absolute; inset: 0; background-image: radial-gradient(circle, rgba(92, 140, 220, .45) 1.3px, transparent 1.8px); background-size: 26px 26px;
+  -webkit-mask-image: radial-gradient(ellipse 520px 360px at 50% 46%, #000 0%, transparent 75%); mask-image: radial-gradient(ellipse 520px 360px at 50% 46%, #000 0%, transparent 75%); }
+.da-loading[data-ready] { opacity: 0; visibility: hidden; }
+.da-loading-mark { position: relative; display: grid; justify-items: center; gap: 14px; }
+.da-loading-logo { line-height: 0; filter: drop-shadow(0 0 18px rgba(0, 102, 255, .85)) drop-shadow(0 0 40px rgba(0, 102, 255, .35)); animation: daLoadBreathe 1.8s ease-in-out infinite; }
+.da-loading-name { font-family: var(--font-display), var(--font-geist-sans), sans-serif; font-size: 20px; font-weight: 800; letter-spacing: -.02em; }
+.da-loading-track { position: relative; width: 160px; height: 3px; overflow: hidden; border-radius: 999px; background: rgba(36, 66, 103, .7); }
+.da-loading-track span { position: absolute; top: 0; bottom: 0; width: 40%; border-radius: 999px; background: linear-gradient(90deg, transparent, #4d94ff, transparent); animation: daLoadSweep 1.1s ease-in-out infinite; }
+@keyframes daLoadSweep { from { left: -40%; } to { left: 100%; } }
+@keyframes daLoadBreathe { 0%, 100% { opacity: .85; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .da-loading-logo, .da-loading-track span { animation: none; } }
+
+/* Glows reveal the dot grid (Arthur): on every polished page the top glow lights up a field of dots. */
+.da-polished-page::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 560px; pointer-events: none;
+  background-image: radial-gradient(circle, rgba(92, 140, 220, .4) 1.3px, transparent 1.8px); background-size: 26px 26px;
+  -webkit-mask-image: radial-gradient(ellipse 760px 380px at 50% 0%, #000 0%, transparent 75%); mask-image: radial-gradient(ellipse 760px 380px at 50% 0%, #000 0%, transparent 75%); }
+.da-polished-page > * { position: relative; }
+
+/* Same polished look for the other full screens: Open Project, Export, the recovery box, reset password, trial ended. */
+[data-project-library="open-project"], [data-project-library="my-projects"], main[data-animation-export], main.recovery-shell, main[data-reset-password], [data-trial-ended] {
+  position: relative; background: radial-gradient(ellipse 900px 420px at 50% -60px, rgba(0, 102, 255, .22), rgba(0, 102, 255, .06) 55%, transparent 80%), var(--da-page, #030914) !important;
+}
+[data-project-library="open-project"]::before, [data-project-library="my-projects"]::before, main[data-animation-export]::before, main.recovery-shell::before, main[data-reset-password]::before, [data-trial-ended]::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 560px; pointer-events: none;
+  background-image: radial-gradient(circle, rgba(92, 140, 220, .4) 1.3px, transparent 1.8px); background-size: 26px 26px;
+  -webkit-mask-image: radial-gradient(ellipse 760px 380px at 50% 0%, #000 0%, transparent 75%); mask-image: radial-gradient(ellipse 760px 380px at 50% 0%, #000 0%, transparent 75%);
+}
+[data-project-library="open-project"] > *, [data-project-library="my-projects"] > *, main[data-animation-export] > *, main.recovery-shell > *, main[data-reset-password] > *, [data-trial-ended] > * { position: relative; }
+[data-project-library] h1, main[data-animation-export] h1, main.recovery-shell h1, main[data-reset-password] h1, main[data-reset-password] h2, [data-trial-ended] h1 {
+  font-family: var(--font-display), var(--font-geist-sans), sans-serif; font-weight: 800; letter-spacing: -.03em;
+}
+
+/* Selected marks never vanish on hover (Arthur 2026-10-26): any selected choice keeps its blue bar while pointed at. */
+.workspace-properties-scroll div[style*="flex-wrap: wrap"] > button[aria-pressed="true"]:hover { box-shadow: inset 0 -3px 0 var(--da-hover, #0066ff) !important; }
+.da-sheet-tabs button[aria-selected="true"]:hover { box-shadow: inset 0 -3px 0 var(--da-hover, #0066ff) !important; }

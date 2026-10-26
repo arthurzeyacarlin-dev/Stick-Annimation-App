@@ -11,7 +11,7 @@ export default async function ProblemReportsPage() {
   const session = await getServerAccountSession();
   if (!session || !isOwnerEmail(session.user.email)) notFound();
   return (
-    <div style={{ minHeight: "100vh", background: "var(--da-page)", color: "var(--da-text)" }}>
+    <div className="da-polished-page" style={{ minHeight: "100vh", background: "var(--da-page)", color: "var(--da-text)" }}>
       <AppChrome page="dashboard" />
       <ProblemReportsScreen />
     </div>

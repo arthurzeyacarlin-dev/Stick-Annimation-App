@@ -122,7 +122,7 @@ export function PlansScreen() {
               : payingNow ? `Switch to ${plan.label}`
               : `Choose ${plan.label}`;
             return (
-              <button key={id} type="button" className={`${styles.plan}${id === "creator" ? ` ${styles.popular}` : ""}`}
+              <button key={id} type="button" data-plan={id} className={`${styles.plan}${id === "creator" ? ` ${styles.popular}` : ""}`}
                 disabled={mode !== "test" || busy !== null} onClick={() => void choose(id)}
                 aria-label={`${label}, ${price}, ${number(plan.credits)} AI credits every month`}>
                 {body}

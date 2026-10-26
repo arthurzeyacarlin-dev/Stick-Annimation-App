@@ -12,7 +12,7 @@
 .select { min-height: 42px; cursor: pointer; }
 .textarea::placeholder { color: var(--da-muted); }
 .textarea:focus-visible, .select:focus-visible { outline: 2px solid var(--da-focus); outline-offset: 1px; }
-.select:hover { border-color: var(--da-hover); }
+.select:hover { border-color: var(--da-hover-soft); }
 .counter { align-self: flex-end; color: var(--da-muted); font-size: 12px; font-variant-numeric: tabular-nums; }
 .fileInput { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; opacity: 0; }
 .pictureRow { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
@@ -23,10 +23,14 @@
   border: 1px solid var(--da-border); border-radius: var(--da-radius-control); background: var(--da-panel);
   color: var(--da-text-2); font: inherit; font-size: 13px; font-weight: 650; cursor: pointer; appearance: none;
 }
-.button:hover:not(:disabled) { border-color: var(--da-hover); background: var(--da-hover); color: white; }
+.button:hover:not(:disabled) { border-color: var(--da-hover-soft); background: var(--da-hover-soft); color: white; }
 .button:disabled { opacity: .6; cursor: default; }
 .button:focus-visible { outline: 2px solid var(--da-focus); outline-offset: 2px; }
 .primary { border-color: var(--da-selected-border); background: var(--da-selected-bg); color: var(--da-on-selected, var(--da-text)); }
 .actions { display: flex; justify-content: flex-end; }
 .error { margin: 0; color: var(--da-danger); font-size: 13px; }
 .thanks { margin: 0; color: var(--da-text-2); font-size: 15px; }
+
+/* Redesign (Arthur 2026-10-26): the main action is a special button: bright blue at rest and on hover. */
+.button.primary:not(:disabled) { border-color: var(--da-hover, #0066ff) !important; background: linear-gradient(180deg, #2b7bff, var(--da-hover, #0066ff)) !important; color: #fff !important; box-shadow: 0 8px 22px rgba(0, 102, 255, .32); }
+.button.primary:hover:not(:disabled) { background: var(--da-hover-super, #3d8bff) !important; border-color: var(--da-hover-super, #3d8bff) !important; box-shadow: 0 10px 26px rgba(0, 102, 255, .45); }

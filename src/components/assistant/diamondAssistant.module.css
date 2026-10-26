@@ -4,9 +4,12 @@
   --assistant-muted: var(--da-muted, #8fabd0);
   --assistant-blue: var(--da-link, #8cbbf3);
   --assistant-focus: var(--da-focus, #66c7ff);
-  --assistant-hover: var(--da-hover, #0066ff);
+  --assistant-hover: var(--da-hover-soft, #0066ff);
   --assistant-sidebar-width: 256px;
   position: relative;
+  /* Full width even when the editor shows it inside a flex overlay (Arthur 2026-10-26: it hugged the left). */
+  flex: 1 1 auto;
+  width: 100%;
   display: grid;
   grid-template-columns: var(--assistant-sidebar-width) minmax(0, 1fr);
   height: 100vh;
@@ -273,7 +276,7 @@
 @media (max-width: 760px) {
   .screen { grid-template-columns: 1fr !important; grid-template-rows: minmax(0, 1fr) !important; }
   .drawerToggle { display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border: 1px solid var(--da-border, #244267); border-radius: 10px; background: transparent; color: var(--da-text, #f6f9ff); font-size: 13px; font-weight: 650; cursor: pointer; }
-  .drawerToggle:hover { background: var(--da-hover, #0066ff); border-color: var(--da-hover, #0066ff); color: #fff; }
+  .drawerToggle:hover { background: var(--da-hover-soft, #0066ff); border-color: var(--da-hover-soft, #0066ff); color: #fff; }
   .sidebar { position: fixed !important; z-index: 80; left: 0; top: 0; bottom: 0; width: min(300px, 86vw); display: flex !important; flex-direction: column; padding: 18px 14px 28px !important; border-right: 1px solid var(--da-line, #163058) !important; border-bottom: 0 !important; overflow-y: auto !important; transform: translateX(-102%); transition: transform 200ms ease; }
   .screen[data-drawer-open="true"] .sidebar { transform: none; box-shadow: 18px 0 44px rgba(0, 0, 0, .5); }
   .screen[data-drawer-open="true"] .drawerScrim { display: block; position: fixed; inset: 0; z-index: 70; border: 0; background: rgba(3, 9, 20, .6); }
@@ -282,3 +285,13 @@
   .chatCard { flex: none !important; border-color: transparent; } /* like the computer: only the selected / pointed-at chat gets a border */
   .sidebarFoot { display: block !important; }
 }
+
+/* Redesign polish (Arthur 2026-10-26): the same blue glow that reveals a dot grid as every other page, behind the greeting. */
+.main { position: relative; isolation: isolate; background: radial-gradient(ellipse 760px 460px at 50% 42%, rgba(0, 102, 255, .16), rgba(0, 102, 255, .04) 55%, transparent 78%), var(--da-page, #030914); }
+.main::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background-image: radial-gradient(circle, rgba(92, 140, 220, .38) 1.3px, transparent 1.8px); background-size: 26px 26px;
+  -webkit-mask-image: radial-gradient(ellipse 620px 380px at 50% 42%, #000 0%, transparent 75%); mask-image: radial-gradient(ellipse 620px 380px at 50% 42%, #000 0%, transparent 75%); }
+.heroMark { filter: drop-shadow(0 0 16px rgba(0, 102, 255, .7)); }
+.greeting h1, .greeting h2 { font-family: var(--font-display), var(--font-geist-sans), sans-serif; letter-spacing: -.03em; }
+.composer { box-shadow: 0 14px 38px rgba(0, 0, 0, .35); }
+.composer:focus-within { border-color: var(--da-c-2b4f7d, #2b4f7d); box-shadow: 0 0 0 3px rgba(0, 102, 255, .14), 0 14px 38px rgba(0, 0, 0, .35); }

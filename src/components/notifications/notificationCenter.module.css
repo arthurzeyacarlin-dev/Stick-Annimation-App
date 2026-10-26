@@ -27,12 +27,12 @@
 .panelHeader h2 { margin: 0; color: var(--da-text, #f6f9ff); font-size: 17px; line-height: 1.3; }
 .panelHeader p { margin: 3px 0 0; color: var(--da-muted, #8fabd0); font-size: 12px; }
 .close, .markAll, .fault button { min-height: 36px; padding: 7px 12px; border: 1px solid var(--da-border, #244267); border-radius: var(--da-radius-control, 10px); background: var(--da-panel, #071120); color: var(--da-text-2, #c9d6ea); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; transition: none; }
-.close:hover, .markAll:hover, .fault button:hover { border-color: var(--da-hover, #0066ff); background: var(--da-hover, #0066ff); color: #fff; }
+.close:hover, .markAll:hover, .fault button:hover { border-color: var(--da-hover-soft, #0066ff); background: var(--da-hover-soft, #0066ff); color: #fff; }
 .list { min-height: 0; margin: 0; padding: 8px; overflow-y: auto; list-style: none; scrollbar-width: thin; scrollbar-color: var(--da-border, #244267) transparent; }
 .list li + li { margin-top: 6px; }
 .row { display: flex; flex-direction: column; width: 100%; padding: 12px; border: 1px solid var(--da-line, #163058); border-radius: var(--da-radius-control, 10px); background: var(--da-page, #030914); color: var(--da-text, #f6f9ff); font: inherit; text-align: left; cursor: pointer; transition: none; }
 .row[data-unread="true"] { border-color: var(--da-selected-border, #3a6aa3); background: var(--da-selected-bg, #0f2a52); }
-.row:hover { border-color: var(--da-hover, #0066ff); }
+.row:hover { border-color: var(--da-hover-soft, #0066ff); }
 .rowTop { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 .rowTop strong { color: var(--da-text, #f6f9ff); font-size: 13px; line-height: 1.35; }
 .unreadText { flex: none; color: var(--da-link, #8cbbf3); font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; }
@@ -96,3 +96,10 @@
   .panel { top: 0; bottom: auto; right: 0; left: 0; width: 100vw !important; height: auto !important; max-height: 70dvh; border-left: 0; border-bottom: 1px solid var(--da-line, #163058); border-radius: 0 0 16px 16px; animation: notificationDropIn 200ms ease-out; }
   @keyframes notificationDropIn { from { transform: translateY(-100%); } to { transform: translateY(0); } }
 }
+
+/* Redesign polish (Arthur 2026-10-26): a soft blue glow with the dot grid at the top of the panel. */
+.panel { isolation: isolate; background: radial-gradient(ellipse 380px 220px at 50% -40px, rgba(0, 102, 255, .2), transparent 75%), var(--da-panel, #071120); box-shadow: -24px 0 60px rgba(0, 0, 0, .45); }
+.panel::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 240px; z-index: -1; pointer-events: none;
+  background-image: radial-gradient(circle, rgba(92, 140, 220, .38) 1.3px, transparent 1.8px); background-size: 26px 26px;
+  -webkit-mask-image: radial-gradient(ellipse 300px 180px at 50% 0%, #000 0%, transparent 75%); mask-image: radial-gradient(ellipse 300px 180px at 50% 0%, #000 0%, transparent 75%); }
+.panelHeader h2 { font-family: var(--font-display), var(--font-geist-sans), sans-serif; font-size: 19px; font-weight: 800; letter-spacing: -.02em; }

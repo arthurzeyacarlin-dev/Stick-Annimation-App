@@ -46,8 +46,8 @@
 }
 
 .backButton:hover {
-  border-color: var(--da-hover, #0066ff);
-  background: var(--da-hover, #0066ff);
+  border-color: var(--da-hover-soft, #0066ff);
+  background: var(--da-hover-soft, #0066ff);
   color: #fff;
 }
 

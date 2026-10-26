@@ -11,7 +11,7 @@
 .screen button { border: 0; background: transparent; color: inherit; cursor: pointer; font: inherit; transition: none; animation: none; }
 .screen button:focus-visible { outline: 2px solid var(--da-focus, #66c7ff); outline-offset: 4px; }
 .screen .back { align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px; border: 1px solid var(--da-border, #244267); border-radius: 10px; background: var(--da-panel, #071120); color: var(--da-text-2, #c9d6ea); font-size: 13px; font-weight: 600; }
-.screen .back:hover { border-color: var(--da-hover, #0066ff); background: var(--da-hover, #0066ff); color: #fff; }
+.screen .back:hover { border-color: var(--da-hover-soft, #0066ff); background: var(--da-hover-soft, #0066ff); color: #fff; }
 .backRow { position: absolute; top: 20px; left: clamp(16px, 3vw, 32px); }
 .intro { display: flex; flex-direction: column; gap: 8px; }
 .heading { margin: 0; font-size: clamp(36px, 4vw, 52px); font-weight: 740; line-height: 1.05; letter-spacing: -.05em; }
@@ -23,7 +23,7 @@
 .text strong { font-size: 23px; font-weight: 680; letter-spacing: -.03em; }
 .text small { color: var(--da-muted, #8fabd0); font-size: 13px; line-height: 1.5; }
 .text em { margin-top: 14px; color: var(--da-link, #8cbbf3); font-size: 11px; font-style: normal; font-weight: 720; letter-spacing: .13em; text-transform: uppercase; }
-.screen .choice:hover { border-color: var(--da-hover, #0066ff); background: var(--da-hover, #0066ff); color: #fff; }
+.screen .choice:hover { border-color: var(--da-hover-soft, #0066ff); background: var(--da-hover-soft, #0066ff); color: #fff; }
 .choice:hover .icon, .choice:hover small, .choice:hover em { color: #fff; }
 @media (max-width: 760px) {
   .choices { grid-template-columns: 1fr; }

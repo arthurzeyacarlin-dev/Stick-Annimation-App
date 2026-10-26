@@ -217,7 +217,7 @@
 }
 
 .card:hover:not(:disabled) {
-  border-color: var(--da-hover);
+  border-color: var(--da-hover-soft);
 }
 
 .card[aria-busy="true"] {
@@ -396,7 +396,7 @@
 }
 
 .tile:hover:not(:disabled) {
-  border-color: var(--da-hover);
+  border-color: var(--da-hover-soft);
 }
 
 .tile[aria-pressed="true"] {
@@ -601,8 +601,8 @@
 
 /* Same hover as every other button in the app: accent fill, white text, instantly. */
 .formatButton:hover:not(:disabled) {
-  background: var(--da-hover);
-  border-color: var(--da-hover);
+  background: var(--da-hover-soft);
+  border-color: var(--da-hover-soft);
   color: #fff;
 }
 
@@ -722,3 +722,15 @@
   .chooseHeading .chooseTitle { font-size: 24px; }
   .chooseSearch { flex: 1 1 auto; }
 }
+
+/* Redesign polish (Arthur 2026-10-26): the export screen gets the app's blues. The Export / Save button looks like
+   "Choose a plan" (bright blue at rest) and turns the super-bright blue on hover with the same calm glow. */
+.primaryButton.primaryButton { border: 0 !important; color: #fff !important; background: linear-gradient(180deg, #1673ff, #0052d1) !important; box-shadow: 0 10px 26px rgba(0, 82, 209, .45), inset 0 1px 0 rgba(255, 255, 255, .22) !important; }
+.primaryButton.primaryButton:hover:not(:disabled) { background: var(--da-hover-super, #4d94ff) !important; box-shadow: 0 10px 26px rgba(0, 102, 255, .45), inset 0 1px 0 rgba(255, 255, 255, .3) !important; }
+.primaryButton.primaryButton:disabled { opacity: .55; box-shadow: none !important; }
+.playerFrame { border: 1px solid rgba(64, 140, 255, .45); box-shadow: 0 0 0 1px rgba(0, 102, 255, .12), 0 24px 60px rgba(0, 40, 120, .45); }
+.settingsColumn { padding: 20px; border-radius: 20px; border: 1px solid var(--da-border, #244267); background: linear-gradient(180deg, rgba(10, 22, 44, .92), rgba(6, 14, 30, .95)); box-shadow: 0 24px 60px rgba(0, 0, 0, .35); }
+.formatButton { border-radius: 14px; background: rgba(10, 22, 44, .8); }
+.formatButton[aria-checked="true"] { background: linear-gradient(160deg, rgba(0, 102, 255, .32), rgba(0, 72, 190, .14)) !important; border-color: rgba(64, 140, 255, .8) !important; color: #fff !important; box-shadow: 0 10px 26px rgba(0, 60, 180, .35); }
+.formatButton svg { color: #9fc8ff; }
+.formatButton[aria-checked="true"] svg { color: #fff; }

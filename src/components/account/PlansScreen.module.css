@@ -26,10 +26,10 @@
 .choose { margin-top: auto; color: var(--da-link, #8cbbf3); font-size: 14px; font-weight: 700; }
 .yours { margin-top: auto; color: var(--da-text, #f6f9ff); font-size: 14px; font-weight: 700; }
 .manage { display: inline-flex; align-items: center; min-height: 40px; padding: 0 16px; border: 1px solid var(--da-selected-border, #3a6aa3); border-radius: var(--da-radius-control, 10px); background: var(--da-panel, #071120); color: var(--da-text, #f6f9ff); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
-.manage:hover:not(:disabled) { border-color: var(--da-hover, #0066ff); background: var(--da-hover, #0066ff); color: #fff; }
+.manage:hover:not(:disabled) { border-color: var(--da-hover-soft, #0066ff); background: var(--da-hover-soft, #0066ff); color: #fff; }
 .manage:focus-visible { outline: 2px solid var(--da-focus, #66c7ff); outline-offset: 3px; }
 .manage:disabled { cursor: default; }
-.plan:hover:not(:disabled):not(.current) { border-color: var(--da-hover, #0066ff); background: var(--da-hover, #0066ff); }
+.plan:hover:not(:disabled):not(.current) { border-color: var(--da-hover-soft, #0066ff); background: var(--da-hover-soft, #0066ff); }
 .plan:hover:not(:disabled):not(.current) ul, .plan:hover:not(:disabled):not(.current) .choose, .plan:hover:not(:disabled):not(.current) .saving { color: #fff; }
 .plan:disabled { cursor: default; }
 .plan:disabled .choose { color: var(--da-label, #7895bc); }
@@ -62,4 +62,8 @@
 .intervals { gap: 2px; padding: 3px; border: 1px solid var(--da-border, #244267); border-radius: 12px; width: min(100%, 520px); }
 .interval { flex: 1 1 0; padding: 8px 10px; border-radius: 8px; text-align: center; font-size: 14.5px; text-decoration: none; }
 .interval[aria-pressed="true"] { background: var(--da-selected-bg, #0f2a52); color: #fff; text-decoration: none; box-shadow: inset 0 -3px 0 #0066ff; }
-.interval:hover { background: var(--da-hover, #0066ff); color: #fff; }
+.interval:hover { background: var(--da-hover-soft, #0066ff); color: #fff; }
+
+/* Pro and Creator are the special plans: they light up bright blue on hover (Basic uses the normal dull blue). */
+.plan[data-plan="creator"]:hover:not(:disabled), .plan[data-plan="studio"]:hover:not(:disabled) { border-color: var(--da-hover, #0066ff); background: var(--da-hover, #0066ff); box-shadow: 0 14px 36px rgba(0, 102, 255, .35); }
+.plan[data-plan="creator"]:hover:not(:disabled) :is(.choose, li, p, span), .plan[data-plan="studio"]:hover:not(:disabled) :is(.choose, li, p, span) { color: #fff; }

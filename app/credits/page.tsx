@@ -10,7 +10,7 @@ export default async function CreditsPage() {
   // SPEC-0020 Phase 2 + 9: a locked account (trial or plan over) sees the locked screen on Home (watch and export only).
   if (getAccountPlanStatus(session.user.id).locked) redirect("/");
   return (
-    <div style={{ minHeight: "100vh", background: "var(--da-page, #030914)", color: "var(--da-text, #f6f9ff)" }}>
+    <div className="da-polished-page" style={{ minHeight: "100vh", background: "var(--da-page, #030914)", color: "var(--da-text, #f6f9ff)" }}>
       <AppChrome page="dashboard" />
       {/* SPEC-0020 Phase 9: the test controls exist only in development (the server decides; /api/dev/plan is 404 elsewhere). */}
       <AiDashboardScreen />

@@ -1,7 +1,5 @@
 "use client";
 
-import { PencilIcon } from "@/src/components/ui/ToolIcons";
-import { AppChrome as MainScreenHeader } from "@/src/components/chrome/AIcreditspage";
 import { AnimationWorkspace } from "@/src/components/workspace/AnimationWorkspace";
 import { AnimationExportFlow } from "@/src/components/export/AnimationExportFlow";
 import { ProjectRecoveryPrompt } from "@/src/components/recovery/ProjectRecoveryPrompt";
@@ -9,7 +7,7 @@ import { ProjectLibrary } from "@/src/components/project-library/ProjectLibrary"
 import { ProjectPoster } from "@/src/components/project-library/ProjectPoster";
 import { createProjectLibraryController } from "@/src/lib/project-library/projectLibraryController";
 import { filterAndSortProjectEntries, formatProjectEditedAgo, type ProjectLibrarySnapshot } from "@/src/lib/project-library/projectLibraryModel";
-import homeStyles from "@/src/components/home/HomeWorkspace.module.css";
+import { MainScreen } from "@/src/components/main/MainScreen";
 import { createUntitledWorkspace, prepareCollectionWorkspace, prepareRecoveryWorkspace, WorkspaceBootstrap, type MountedWorkspace } from "@/src/lib/animation/unifiedWorkspaceBootstrap";
 import { createAccountProjectRepositoryV2, createAccountProjectSourceReader, readAccountProjectV2 } from "@/src/lib/account/projectClient";
 import { withAccountProjectWrite } from "@/src/lib/account/projectPending";
@@ -80,6 +78,12 @@ export default function Page() {
     "home" | "help" | "tutorials" | "openProject" | "animationWorkspace" | "animationExport"
   >("home");
   const [exportOrigin, setExportOrigin] = useState<"home" | "workspace">("home");
+  // The header's Export on other pages links to "/#export": open the export screen straight away.
+  useEffect(() => {
+    if (window.location.hash !== "#export") return;
+    window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    setExportOrigin("home"); setView("animationExport");
+  }, []);
   const [exportProjectId, setExportProjectId] = useState<string | null>(null);
   const [bootstrap] = useState(() => new WorkspaceBootstrap());
   const [workspace, setWorkspace] = useState<MountedWorkspace | null>(null);
@@ -430,121 +434,58 @@ export default function Page() {
     overflow: "hidden", // IMPORTANT: keep page scrollbar from being on <body>
   }}
 >
-      {(view === "home" || view === "help") && <MainScreenHeader theme="home" />}
-
-{/* SPEC-0020 Phase 6 (Arthur): the first-time "guided setup" welcome was removed (maybe in Version 2). */}
-      {/* HOME: presentation and the account's most recently saved project. */}
+      {/* Redesign Phase 2 (Arthur 2026-10-26): the new main screen. Same actions and data as before (new project, the
+          most recent project, Open Project, Export, Log out); only the look is new. */}
       {view === "home" && (
-        <main ref={homeMainRef} className={`home-main-scroll ${homeStyles.main}`}>
-          <div className={homeStyles.frame}>
-            <section className={homeStyles.hero} aria-labelledby="home-heading">
-              <div className={homeStyles.heroCopy}>
-                <p className={homeStyles.eyebrow}><span aria-hidden="true" />YOUR CREATIVE STUDIO</p>
-                <h1 id="home-heading" className={homeStyles.heading}>Make something move.</h1>
-                <p className={homeStyles.description}>Bring an idea to life, pick up where you left off, or explore what your animation can become.</p>
-                <button ref={newProjectButtonRef} type="button" className={homeStyles.newProject}
-                  onClick={(event) => {
-                    event.currentTarget.blur();
-                    homeFocusRef.current = "new";
-                    setBootstrapMessage("Creating project");
-                    void bootstrap.open(async () => {
-                      if (!ownerId) throw new Error("account_session_required");
-                      // SPEC-0020 Phase 3: new projects start at Settings → Frames per second.
-                      const { newProjectFps } = await getAppSettings();
-                      const candidate = await createUntitledWorkspace({ fps: newProjectFps });
-                      const saved = await withAccountProjectWrite(ownerId, () => createAccountProjectRepositoryV2(ownerId).save(candidate.editor.project));
-                      candidate.editor.project = saved;
-                      candidate.id = saved.projectId;
-                      candidate.title = saved.title;
-                      candidate.digest = await digestUnifiedProjectV2(saved);
-                      return candidate;
-                    }).then((result) => {
-                      if (result.status === "opened") { setWorkspace(result.root); setView("animationWorkspace"); setBootstrapMessage(null); }
-                      else if (result.status === "failed") setBootstrapMessage(`Could not create project (${result.code}).`);
-                    });
-                  }}>
-                  <span className={homeStyles.plus} aria-hidden="true">+</span>
-                  <span><strong>New Project</strong><small>Start with a blank canvas</small></span>
-                </button>
-              </div>
-              <div className={homeStyles.recent} aria-label="Recently edited project">
-                {recentProject.status === "ready" ? (
-                  <button ref={recentButtonRef} type="button" className={homeStyles.recentProjectButton}
-                    aria-label={`Continue creating ${recentProject.entry.title}`}
-                    onClick={() => {
-                      homeFocusRef.current = "recent";
-                      setRecentNotice(null);
-                      // Same path as clicking the project in Open Project.
-                      void openProject(recentProject.entry).then(result => {
-                        if (result.status === "failed") setRecentNotice("This project couldn't be opened. Nothing was changed. Try it from Open Project.");
-                      }).catch(() => setRecentNotice("This project couldn't be opened. Nothing was changed. Try it from Open Project."));
-                    }}>
-                    <p className={homeStyles.recentLabel}>PICK UP WHERE YOU LEFT OFF</p>
-                    <div className={homeStyles.poster}>
-                      {recentProject.project
-                        ? <ProjectPoster key={recentProject.project.snapshot.projectDigest} project={recentProject.project} />
-                        : <span className={homeStyles.posterStatus}>{recentProject.previewFailed ? "Preview unavailable" : "Loading preview"}</span>}
-                    </div>
-                    <div className={homeStyles.recentFooter}>
-                      <div className={homeStyles.recentTitle}><strong>{recentProject.entry.title}</strong><span>{formatProjectEditedAgo(recentProject.entry.updatedAt)}</span></div>
-                      <span className={homeStyles.continue}>
-                        Continue creating <span aria-hidden="true">→</span>
-                      </span>
-                    </div>
-                  </button>
-                ) : (
-                  <div className={homeStyles.emptyRecent}>
-                    {/* SPEC-0020 Phase 3 (Arthur): the same brush as the editor's Brush tool, not a pencil. */}
-                    <PencilIcon size={40} className={homeStyles.emptyMark} />
-                    {recentProject.status === "loading" ? <p>Loading your recent project</p>
-                      : recentProject.status === "failed" ? <><p>Couldn&apos;t load your recent project</p><small>Your projects are still in Open Project.</small></>
-                      : <><p>No recent projects edited</p><small>Your next creation starts here.</small></>}
-                  </div>
-                )}
-                {recentNotice && <p className={homeStyles.recentNotice} role="status">{recentNotice}</p>}
-              </div>
-            </section>
-            <nav className={homeStyles.shortcuts} aria-label="Studio shortcuts">
-              <section className={homeStyles.shortcutGroup} aria-label="Projects">
-                <button ref={openProjectButtonRef} type="button" className={homeStyles.shortcut}
-                  onClick={(event) => {
-                    event.currentTarget.blur();
-                    homeFocusRef.current = "open";
-                    setBootstrapMessage(null);
-                    bootstrap.cancel();
-                    setView("openProject");
-                  }}>
-                  <svg className={homeStyles.paperIcon} viewBox="0 0 36 36" fill="none" aria-hidden="true">
-                    <rect x="5" y="3" width="26" height="30" rx="2" fill="currentColor" />
-                    <path d="M10 10h16M10 16h17M10 22h14" stroke="#163663" strokeWidth="2" strokeLinecap="round" />
-                  </svg>
-                  <span><strong>Open Project</strong><small>Continue a saved animation.</small></span>
-                </button>
-              </section>
-              <section className={homeStyles.shortcutGroup} aria-label="Help">
-                <button id="ai-assistant" ref={assistantButtonRef} type="button" className={homeStyles.shortcut}
-                  onClick={(event) => {
-                    event.currentTarget.blur();
-                    router.push("/assistant");
-                  }}>
-                  <svg className={homeStyles.robotIcon} viewBox="0 -2 34 36" fill="none" aria-hidden="true">
-                    <path d="M17.55 10.2V8.15l-1.8-1.6 1.8-1.5v-2.6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    <circle cx="17.55" cy="1.15" r="2.15" fill="currentColor" />
-                    <rect x="7.4" y="10.6" width="19.2" height="15.6" rx="4.2" stroke="currentColor" strokeWidth="2.05" />
-                    <path d="M7.4 16.45H4.45M29.55 16.45H26.6" stroke="currentColor" strokeWidth="2.05" strokeLinecap="round" />
-                    <ellipse cx="13.5" cy="17.5" rx="1.7" ry="2.05" fill="currentColor" />
-                    <ellipse cx="20.5" cy="17.5" rx="1.7" ry="2.05" fill="currentColor" />
-                  </svg>
-                  <span><strong>Help</strong><small>Ask the Assistant.</small></span>
-                </button>
-              </section>
-            </nav>
-            <div className={homeStyles.utility}>
-              <span>Finished an animation? Take it with you.</span>
-              <button type="button" onClick={() => { setExportOrigin("home"); setView("animationExport"); }}>Export animation <span aria-hidden="true">↗</span></button>
-            </div>
-          </div>
-        </main>
+        <MainScreen
+          firstName={(account?.name ?? "").trim().split(/\s+/)[0] || null}
+          mainRef={homeMainRef}
+          newProjectButtonRef={newProjectButtonRef}
+          recentButtonRef={recentButtonRef}
+          openProjectButtonRef={openProjectButtonRef}
+          creating={bootstrapMessage === "Creating project"}
+          recent={recentProject.status === "ready"
+            ? { status: "ready", title: recentProject.entry.title, edited: formatProjectEditedAgo(recentProject.entry.updatedAt),
+                poster: recentProject.project ? <ProjectPoster key={recentProject.project.snapshot.projectDigest} project={recentProject.project} /> : null,
+                previewFailed: recentProject.previewFailed }
+            : { status: recentProject.status }}
+          recentNotice={recentNotice}
+          onNewProject={() => {
+            homeFocusRef.current = "new";
+            setBootstrapMessage("Creating project");
+            void bootstrap.open(async () => {
+              if (!ownerId) throw new Error("account_session_required");
+              // SPEC-0020 Phase 3: new projects start at Settings → Frames per second.
+              const { newProjectFps } = await getAppSettings();
+              const candidate = await createUntitledWorkspace({ fps: newProjectFps });
+              const saved = await withAccountProjectWrite(ownerId, () => createAccountProjectRepositoryV2(ownerId).save(candidate.editor.project));
+              candidate.editor.project = saved;
+              candidate.id = saved.projectId;
+              candidate.title = saved.title;
+              candidate.digest = await digestUnifiedProjectV2(saved);
+              return candidate;
+            }).then((result) => {
+              if (result.status === "opened") { setWorkspace(result.root); setView("animationWorkspace"); setBootstrapMessage(null); }
+              else if (result.status === "failed") setBootstrapMessage(`Could not create project (${result.code}).`);
+            });
+          }}
+          onContinueRecent={() => {
+            if (recentProject.status !== "ready") return;
+            homeFocusRef.current = "recent";
+            setRecentNotice(null);
+            // Same path as clicking the project in Open Project.
+            void openProject(recentProject.entry).then(result => {
+              if (result.status === "failed") setRecentNotice("This project couldn't be opened. Nothing was changed. Try it from Open Project.");
+            }).catch(() => setRecentNotice("This project couldn't be opened. Nothing was changed. Try it from Open Project."));
+          }}
+          onOpenProjects={() => {
+            homeFocusRef.current = "open";
+            setBootstrapMessage(null);
+            bootstrap.cancel();
+            setView("openProject");
+          }}
+          onExport={() => { setExportOrigin("home"); setView("animationExport"); }}
+        />
       )}
 {bootstrapMessage && view === "home" ? <div role="status" style={{ position: "fixed", bottom: 12, left: 12, color: "#f6f9ff", background: "#071120", border: "1px solid #163058", padding: 12, borderRadius: 12 }}>{bootstrapMessage}</div> : null}
 {workspace && (view === "animationWorkspace" || (view === "animationExport" && exportOrigin === "workspace")) && (

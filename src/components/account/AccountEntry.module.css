@@ -125,7 +125,7 @@
 }
 
 .button:hover:not(:disabled),
-.plan:hover { border-color: var(--da-hover, #0066ff); background: var(--da-hover, #0066ff); color: #ffffff; }
+.plan:hover { border-color: var(--da-hover-soft, #0066ff); background: var(--da-hover-soft, #0066ff); color: #ffffff; }
 /* Text link: only the text turns var(--da-hover, #0066ff) on hover, no fill. */
 .switch:hover:not(:disabled) { background: transparent; color: var(--da-hover, #0066ff); }
 

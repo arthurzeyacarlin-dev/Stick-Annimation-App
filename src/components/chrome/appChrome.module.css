@@ -25,14 +25,14 @@
 .homeMenu, .homeAvatar { display: grid; place-items: center; width: 44px; height: 44px; flex: 0 0 auto; padding: 0; border: 1px solid var(--da-border, #244267); border-radius: 10px; background: var(--da-panel, #071120); color: var(--da-text-2, #c9d6ea); cursor: pointer; }
 .homeMenu svg { width: 23px; height: 23px; }
 .homeMenu[aria-expanded='true'] { border-color: var(--da-selected-border, #3a6aa3); background: var(--da-selected-bg, #0f2a52); color: var(--da-on-selected, #eaf3ff); }
-.homeMenu:hover { border-color: var(--da-hover, #0066ff); background: var(--da-hover, #0066ff); color: #fff; }
+.homeMenu:hover { border-color: var(--da-hover-soft, #0066ff); background: var(--da-hover-soft, #0066ff); color: #fff; }
 /* SPEC-0020 Phase 1 (Arthur): the profile circle shows your picture (or your first letter) inside a dim outline;
    on hover — and while its menu is open — the outline glows var(--da-hover, #0066ff), instantly (no fade). */
 .homeAvatar { overflow: hidden; border: 2px solid var(--da-border, #244267); border-radius: 50%; background: var(--da-selected-bg, #0f2a52); color: #fff; font: inherit; font-size: 16px; font-weight: 750; }
 /* SPEC-0020 Phase 3 (Arthur): with a picture only the outline glows (the picture stays visible);
    with no picture (just the letter) the whole circle turns var(--da-hover, #0066ff) with white text, instantly. */
-.homeAvatar[data-has-image]:hover, .homeAvatar[data-has-image][aria-expanded='true'] { border-color: var(--da-hover, #0066ff); box-shadow: 0 0 0 3px color-mix(in srgb, var(--da-hover, #0066ff) 30%, transparent), 0 0 16px color-mix(in srgb, var(--da-hover, #0066ff) 65%, transparent); }
-.homeAvatar:not([data-has-image]):hover, .homeAvatar:not([data-has-image])[aria-expanded='true'] { border-color: var(--da-hover, #0066ff); background: var(--da-hover, #0066ff); color: #fff; }
+.homeAvatar[data-has-image]:hover, .homeAvatar[data-has-image][aria-expanded='true'] { border-color: var(--da-hover-soft, #0066ff); box-shadow: 0 0 0 3px color-mix(in srgb, var(--da-hover-soft, #0066ff) 30%, transparent), 0 0 16px color-mix(in srgb, var(--da-hover-soft, #0066ff) 65%, transparent); }
+.homeAvatar:not([data-has-image]):hover, .homeAvatar:not([data-has-image])[aria-expanded='true'] { border-color: var(--da-hover-soft, #0066ff); background: var(--da-hover-soft, #0066ff); color: #fff; }
 
 /* Account popover */
 .accountShell { position: relative; }
@@ -43,7 +43,7 @@
 .accountLinks { display: flex; flex-direction: column; gap: 2px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--da-line, #163058); }
 .accountLink { display: flex; align-items: center; gap: 10px; min-height: 38px; padding: 0 10px; border: 1px solid transparent; border-radius: 9px; color: var(--da-text-2, #c9d6ea); font-size: 13px; font-weight: 620; text-decoration: none; }
 .accountLink svg { width: 17px; height: 17px; flex: 0 0 auto; color: var(--da-muted, #8fabd0); }
-.accountLink:hover { border-color: var(--da-hover, #0066ff); background: var(--da-hover, #0066ff); color: #fff; }
+.accountLink:hover { border-color: var(--da-hover-soft, #0066ff); background: var(--da-hover-soft, #0066ff); color: #fff; }
 .accountLink:hover svg { color: #fff; }
 .accountPopover a:focus-visible { outline: 2px solid var(--da-focus, #66c7ff); outline-offset: 2px; }
 .accountPopover { position: absolute; z-index: 70; top: calc(100% + 12px); right: 0; width: min(280px, calc(100vw - 28px)); padding: 16px; border: 1px solid var(--da-line, #163058); border-radius: 12px; background: var(--da-panel, #071120); box-shadow: 0 18px 44px rgba(0, 0, 0, .45); color: var(--da-text, #f6f9ff); font-size: 12px; line-height: 1.5; }
@@ -69,7 +69,7 @@
 
 .panelButton { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; min-height: 42px; padding: 0 14px; border: 1px solid var(--da-border, #244267); border-radius: 10px; background: var(--da-panel, #071120); color: var(--da-text-2, #c9d6ea); font: inherit; font-size: 13px; font-weight: 600; text-align: left; cursor: pointer; appearance: none; }
 .panelButton svg { width: 16px; height: 16px; flex: 0 0 auto; color: var(--da-muted, #8fabd0); }
-.panelButton:hover { border-color: var(--da-hover, #0066ff); background: var(--da-hover, #0066ff); color: #fff; }
+.panelButton:hover { border-color: var(--da-hover-soft, #0066ff); background: var(--da-hover-soft, #0066ff); color: #fff; }
 .panelButton:hover svg { color: #fff; }
 .panelButton { text-decoration: none; }
 /* Canonical back control (40px, inline width, arrow/text inherit). */
@@ -82,7 +82,7 @@
 
 .iconButton { display: grid; place-items: center; width: 36px; height: 36px; flex: 0 0 auto; padding: 0; border: 1px solid var(--da-border, #244267); border-radius: 10px; background: var(--da-panel, #071120); color: var(--da-text-2, #c9d6ea); cursor: pointer; appearance: none; }
 .iconButton svg { width: 16px; height: 16px; }
-.iconButton:hover { border-color: var(--da-hover, #0066ff); background: var(--da-hover, #0066ff); color: #fff; }
+.iconButton:hover { border-color: var(--da-hover-soft, #0066ff); background: var(--da-hover-soft, #0066ff); color: #fff; }
 
 /* About / Terms dialogs */
 .modalScrim { position: fixed; inset: 0; z-index: 80; display: flex; align-items: center; justify-content: center; padding: 18px; background: rgba(3, 9, 20, .72); }

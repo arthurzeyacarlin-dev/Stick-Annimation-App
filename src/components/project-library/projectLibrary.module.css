@@ -9,7 +9,7 @@
   --library-text-2: var(--da-text-2, #c9d6ea);
   --library-muted: var(--da-muted, #8fabd0);
   --library-label: var(--da-label, #7895bc);
-  --library-hover: var(--da-hover, #0066ff);
+  --library-hover: var(--da-hover-soft, #13305c); /* normal level; only primary buttons are bright */
   --library-focus: var(--da-focus, #66c7ff);
   --library-danger: var(--da-danger, #ff8a95);
 }
@@ -257,12 +257,12 @@
 .rowAction:disabled { opacity: .45; cursor: default; }
 .rowAction:focus-visible { outline: 2px solid var(--library-focus); outline-offset: -4px; }
 .library button, .library input, .library select, .contextMenu button, .managementDialog button { transition: none; animation: none; }
-.primaryButton:hover:not(:disabled) { background: var(--library-hover); border-color: var(--library-hover); color: #fff; }
+.primaryButton:hover:not(:disabled) { background: var(--da-hover, #0066ff); border-color: var(--da-hover, #0066ff); color: #fff; }
 .toolbar input:hover, .toolbar select:hover { border-color: var(--da-selected-border, #3a6aa3); }
 .toolbar input:focus, .toolbar input:focus-visible, .toolbar select:focus, .toolbar select:focus-visible { border-color: var(--da-selected-border, #3a6aa3); outline: 2px solid var(--library-focus); outline-offset: 2px; }
 .card:has(.cardButton:hover:not([aria-disabled="true"])) { border-color: var(--library-hover); }
 .cardButton:not([aria-disabled="true"]):hover {
-  background: var(--da-hover, #0066ff);
+  background: var(--da-hover-soft, #0066ff);
   color: #fff;
 }
 .cardButton:hover:not([aria-disabled="true"]) .cardBody > *,

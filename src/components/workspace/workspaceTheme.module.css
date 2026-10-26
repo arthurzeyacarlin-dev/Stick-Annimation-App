@@ -14,8 +14,8 @@
 }
 
 .workspace :global(button:not(:disabled):not([aria-disabled="true"]):not([data-hover="outline"]):not([data-hover="icon"]):not([data-hover="danger"]):hover:not([data-workspace-theme-exempt] *)) {
-  background: var(--da-hover, #0066ff) !important;
-  border-color: var(--da-hover, #0066ff) !important;
+  background: var(--da-hover-soft, #0066ff) !important;
+  border-color: var(--da-hover-soft, #0066ff) !important;
   color: #ffffff !important;
   box-shadow: none !important;
 }
@@ -51,7 +51,7 @@
 .workspace :global([data-unified-workspace-area="true"] input[type="range"]:not(:disabled):hover),
 .workspace :global([data-unified-workspace-area="true"] input[type="range"]:not(:disabled):active),
 .workspace :global([data-unified-workspace-area="true"] input[type="range"]:focus-visible) {
-  --slider-color: var(--da-hover, #0066ff);
+  --slider-color: var(--da-hover, #0066ff); /* sliders turn bright blue on hover (Arthur) */
 }
 .workspace :global([data-unified-workspace-area="true"] input[type="range"]:disabled) {
   opacity: 0.45;
@@ -89,10 +89,11 @@
 
 /* SPEC-0020 Phase 4 (Arthur): bare symbol buttons (Add layer, Onion skin) — no box; hover turns the symbol
    (and its fading copies) the accent color, instantly. */
+/* Redesign (Arthur 2026-10-26): hovering always shows a box — symbol buttons get the dull blue box too (no behaviour change). */
 .workspace :global(button[data-hover="icon"]:not(:disabled):hover) {
-  background: transparent !important;
-  border-color: transparent !important;
-  color: var(--da-hover, #0066ff) !important;
+  background: var(--da-hover-soft, #13305c) !important;
+  border-color: var(--da-hover-soft, #13305c) !important;
+  color: #ffffff !important;
 }
 
 /* SPEC-0020 Phase 4 (Arthur): a quick name label when you point at a tool or symbol button

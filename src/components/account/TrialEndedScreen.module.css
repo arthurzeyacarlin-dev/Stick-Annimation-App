@@ -10,7 +10,7 @@
 .actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .button { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 0 16px; border: 1px solid var(--da-border); border-radius: var(--da-radius-control, 10px); background: var(--da-panel); color: var(--da-text-2); font: inherit; font-size: 14px; font-weight: 650; text-decoration: none; cursor: pointer; transition: none; }
 .primary { border-color: var(--da-selected-border); background: var(--da-selected-bg); color: #ffffff; }
-.button:hover:not(:disabled) { border-color: var(--da-hover); background: var(--da-hover); color: #ffffff; }
+.button:hover:not(:disabled) { border-color: var(--da-hover-soft); background: var(--da-hover-soft); color: #ffffff; }
 .button:focus-visible { outline: 2px solid var(--da-focus); outline-offset: 2px; }
 .button:disabled { opacity: .5; cursor: not-allowed; }
 .error { flex-basis: 100%; margin: 0; color: var(--da-danger); font-size: 13px; line-height: 1.45; }

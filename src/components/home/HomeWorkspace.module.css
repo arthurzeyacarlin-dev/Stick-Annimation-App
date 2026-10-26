@@ -33,7 +33,7 @@
 .emptyRecent small { color: var(--da-c-6b86a9, #6b86a9); font-size: 12px; }
 .recentLabel { display: block; margin: 0 0 15px; color: var(--da-label, #7895bc); font-size: 10px; font-weight: 720; letter-spacing: .13em; }
 .main .recentProjectButton { display: block; width: 100%; padding: 16px; border: 1px solid var(--da-border, #244267); border-radius: 14px; background: var(--da-panel, #071120); text-align: left; }
-.main .recentProjectButton:hover { border-color: var(--da-hover, #0066ff); background: var(--da-panel, #071120); color: var(--da-text, #f6f9ff); }
+.main .recentProjectButton:hover { border-color: var(--da-hover-soft, #0066ff); background: var(--da-panel, #071120); color: var(--da-text, #f6f9ff); }
 .poster { display: grid; place-items: center; position: relative; width: 100%; aspect-ratio: 16 / 10; overflow: hidden; }
 .poster img, .poster canvas { max-width: 100%; max-height: 100%; object-fit: contain; }
 .posterStatus { color: var(--da-muted); font-size: 12px; }
@@ -59,7 +59,7 @@
 .utility button { min-height: 44px; padding: 8px 0; color: var(--da-link, #8cbbf3); font-size: 13px; font-weight: 650; }
 .utility button span { margin-left: 6px; }
 .main .secondary:hover, .utility button:hover { color: var(--da-hover, #0066ff); }
-.main .newProject:hover, .main .shortcutGroup:hover .shortcut { border-color: var(--da-hover, #0066ff); background: var(--da-hover, #0066ff); color: #fff; }
+.main .newProject:hover, .main .shortcutGroup:hover .shortcut { border-color: var(--da-hover-soft, #0066ff); background: var(--da-hover-soft, #0066ff); color: #fff; }
 .main .newProject:hover .plus, .main .newProject:hover small, .main .shortcutGroup:hover .shortcut svg, .main .shortcutGroup:hover .shortcut small { color: #fff; }
 /* The shared card stays highlighted (var(--da-hover, #0066ff) fill) while its independent inner link is hovered,
    so the link text stays white there; no underline or glow. */

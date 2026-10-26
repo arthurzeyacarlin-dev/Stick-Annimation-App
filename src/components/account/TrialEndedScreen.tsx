@@ -34,7 +34,7 @@ export function TrialEndedScreen({ name, lockReason = "trial_ended", showTestLin
     }
   };
   return (
-    <main className={styles.page} aria-labelledby="trial-ended-title">
+    <main className={styles.page} aria-labelledby="trial-ended-title" data-trial-ended>
       <header className={styles.top}>
         <div className={styles.message}>
           <DiamondLogo className={styles.logo} size={36} />

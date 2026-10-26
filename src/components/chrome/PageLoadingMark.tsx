@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import { DiamondLogo } from "@/src/components/chrome/DiamondLogo";
 
-// Arthur 2026-10-13: whenever a page is (re)loaded, show the Diamond logo, small and 50% see-through, centered on the
-// dark navy, until the page has something to show. It is in the server HTML (visible at once) and fades away when the
-// page is ready. It never blocks clicks.
+// Shown whenever a page is (re)loaded until it has something to show (in the server HTML, so it is visible at once),
+// then it fades away; it never blocks clicks. Redesign (Arthur 2026-10-26): the deep navy with a blue glow that lights
+// the dot grid, the glowing Diamond logo with the name, and a thin light sweeping under it while loading.
 export function PageLoadingMark() {
   const [ready, setReady] = useState(false);
   useEffect(() => {
@@ -14,15 +14,12 @@ export function PageLoadingMark() {
     return () => window.clearTimeout(timer);
   }, []);
   return (
-    <div
-      aria-hidden="true"
-      style={{
-        position: "fixed", inset: 0, zIndex: 9999, display: "grid", placeItems: "center", background: "#030914",
-        color: "#ffffff", opacity: ready ? 0 : 1, visibility: ready ? "hidden" : "visible", pointerEvents: "none",
-        transition: "opacity 220ms ease-out, visibility 0s linear 220ms",
-      }}
-    >
-      <span style={{ opacity: 0.5, display: "block", lineHeight: 0 }}><DiamondLogo size={72} /></span>
+    <div aria-hidden="true" className="da-loading" data-ready={ready ? "true" : undefined}>
+      <div className="da-loading-mark">
+        <span className="da-loading-logo"><DiamondLogo size={64} /></span>
+        <span className="da-loading-name">Diamond Animator</span>
+        <span className="da-loading-track"><span /></span>
+      </div>
     </div>
   );
 }

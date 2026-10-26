@@ -41,7 +41,7 @@ export function ResetPasswordScreen({ token }: { token: string | null }) {
   };
 
   return (
-    <main className={`${styles.page} da-keep-dark`}>
+    <main className={`${styles.page} da-keep-dark`} data-reset-password>
       <section aria-labelledby="reset-title" className={styles.card}>
         <div className={styles.brand}><DiamondLogo className={styles.logo} size={24} />Diamond Animator</div>
         <h1 id="reset-title" className={`${styles.title} ${styles.formTitle}`}>{done ? "Password changed" : "Choose a new password"}</h1>

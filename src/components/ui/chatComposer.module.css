@@ -11,7 +11,7 @@
 .tools { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 6px; }
 .reasoning { display: flex; align-items: center; gap: 6px; min-width: 0; font-size: 12px; color: var(--da-muted, #8fabd0); }
 .reasoning select { min-height: 32px; max-width: 140px; border: 1px solid var(--da-border, #244267); border-radius: 10px; padding: 4px 8px; color: var(--da-text-2, #c9d6ea); background: var(--da-panel, #071120); font: inherit; font-size: 12px; cursor: pointer; transition: none; }
-.reasoning select:hover:enabled { border-color: var(--da-hover, #0066ff); background: var(--da-hover, #0066ff); color: #fff; }
+.reasoning select:hover:enabled { border-color: var(--da-hover-soft, #0066ff); background: var(--da-hover-soft, #0066ff); color: #fff; }
 .reasoning select:disabled { opacity: .45; cursor: not-allowed; }
 .reasoning select:focus-visible { outline: 2px solid var(--da-focus, #66c7ff); outline-offset: 2px; }
 
@@ -20,7 +20,7 @@
 .iconButton { width: 34px; height: 34px; display: grid; place-items: center; padding: 8px; border: 1px solid transparent; border-radius: 10px; background: transparent; color: #ffffff; cursor: pointer; transition: none; }
 .iconButton svg { width: 100%; height: 100%; }
 .iconButton:focus-visible { outline: 2px solid var(--da-focus, #66c7ff); outline-offset: 2px; }
-.iconButton:hover:enabled { border-color: var(--da-hover, #0066ff); background: var(--da-hover, #0066ff); color: #fff; }
+.iconButton:hover:enabled { border-color: var(--da-hover-soft, #0066ff); background: var(--da-hover-soft, #0066ff); color: #fff; }
 .iconButton:disabled { opacity: .45; cursor: not-allowed; }
 
 /* Dictation (Arthur 2026-10-25): ✕ far left, ✓ far right (same size), round dots evenly spaced across the whole box
@@ -42,7 +42,7 @@
 .effortButton { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 9px; border: 1px solid var(--da-border, #244267); border-radius: 8px; background: transparent; color: var(--da-text-2, #c9d6ea); font: inherit; font-size: 11.5px; line-height: 1; cursor: pointer; }
 .effortName { color: var(--da-muted, #8fabd0); }
 .effortValue { color: var(--da-text, #f6f9ff); font-weight: 600; }
-.effortButton:hover:enabled { border-color: var(--da-hover, #0066ff); background: var(--da-hover, #0066ff); }
+.effortButton:hover:enabled { border-color: var(--da-hover-soft, #0066ff); background: var(--da-hover-soft, #0066ff); }
 .effortButton:hover:enabled .effortName, .effortButton:hover:enabled .effortValue { color: #fff; }
 .effortButton:disabled { opacity: .45; cursor: not-allowed; }
 .effortButton:focus-visible { outline: 2px solid var(--da-focus, #66c7ff); outline-offset: 2px; }

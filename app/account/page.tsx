@@ -7,7 +7,7 @@ import { getServerAccountSession } from "@/src/lib/account/access";
 export default async function AccountPage() {
   if (!await getServerAccountSession()) redirect("/");
   return (
-    <div style={{ minHeight: "100vh", background: "var(--da-page, #030914)", color: "var(--da-text, #f6f9ff)" }}>
+    <div className="da-polished-page" style={{ minHeight: "100vh", background: "var(--da-page, #030914)", color: "var(--da-text, #f6f9ff)" }}>
       <AppChrome page="dashboard" />
       <AccountProfileScreen />
     </div>

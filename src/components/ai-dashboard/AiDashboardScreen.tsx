@@ -156,7 +156,7 @@ export function AiDashboardScreen() {
           {issues.length > 0 && <div className={styles.partial} role="status"><strong>Some usage couldn&apos;t be read.</strong><ul>{[...new Set(issues)].map((issue) => <li key={issue}>{issue}</li>)}</ul></div>}
           {snapshot && buckets.length === 0 && !partial && <p className={styles.empty}>No AI usage to show here yet.</p>}
           {snapshot && <AiUsageChart key={`${filter}-${interval}`} buckets={buckets} filter={filter} complete={complete} capacity={intervalSpec[interval].count} roof={roof} />}
-          <p className={styles.chartNote}>Each bar adds up the AI credits you used so far this week. It is the same list as the bar above, so the numbers match.</p>
+          <p className={styles.chartNote}>Each point is the AI credits you used so far this week, so the line climbs as you use them and drops back to zero when your credits refill. It uses the same list as the bar above, so the numbers match.</p>
         </section>
 
         <BuyCreditsPanel />

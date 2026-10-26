@@ -68,8 +68,8 @@
 .exportPlayButton:hover:not(:disabled),
 .viewerControlButton:hover:not(:disabled),
 .viewerClose:hover:not(:disabled) {
-  border-color: var(--da-hover);
-  background: var(--da-hover);
+  border-color: var(--da-hover-soft);
+  background: var(--da-hover-soft);
   color: #ffffff;
 }
 

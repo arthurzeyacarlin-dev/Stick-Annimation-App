@@ -43,8 +43,8 @@ export const EraserIcon = ({ size = 24, className }: IconProps) => (
 export const FillIcon = ({ size = 24, className }: IconProps) => (
   <svg {...base(size)} strokeWidth={1.6} className={className}>
     {/* "fill" as one simple symbol: a drop of paint, solid, with a small arc inside so it reads as liquid */}
-    <path d="M12 2.6C12 2.6 5.2 9.6 5.2 14.8a6.8 6.8 0 0 0 13.6 0C18.8 9.6 12 2.6 12 2.6Z" fill="currentColor" />
-    <path d="M8.7 15.2a3.4 3.4 0 0 0 2.6 3.2" stroke="var(--da-page, #030914)" strokeWidth={1.6} />
+    <path d="M12 2.6C12 2.6 5.2 9.6 5.2 14.8a6.8 6.8 0 0 0 13.6 0C18.8 9.6 12 2.6 12 2.6Z" />
+    <path d="M8.7 15.2a3.4 3.4 0 0 0 2.6 3.2" />
   </svg>
 );
 
@@ -53,5 +53,24 @@ export const TextIcon = ({ size = 24, className }: IconProps) => (
     <path d="M4 7V4h16v3" />
     <path d="M12 4v16" />
     <path d="M9 20h6" />
+  </svg>
+);
+
+// Workspace makeover: Knife and Shape live here too, so the tool bar and the Properties heading use the exact same icon.
+export const KnifeIcon = ({ size = 24, className }: IconProps) => (
+  <svg {...base(size)} className={className}>
+    {/* A kitchen knife (Arthur 2026-10-27): handle bottom-left, blade with a curved edge pointing top-right. */}
+    <g transform="translate(12 12) rotate(-45) scale(1.16) translate(-12 -12)" strokeWidth={1.64}>
+      {/* One connected outline: rounded handle flowing into the blade (flat spine, curved edge, sharp tip). */}
+      <path d="M3 11H9.5V8.6H20.8L23.2 9.1C21.8 13.6 17.6 16.4 12.6 16.4H9.5V15.4H3A2.2 2.2 0 0 1 3 11Z" />
+    </g>
+  </svg>
+);
+
+export const ShapeIcon = ({ size = 24, className }: IconProps) => (
+  <svg {...base(size)} className={className}>
+    <path d="M12 3l4.5 7.5h-9Z" />
+    <circle cx="7" cy="17" r="3.6" />
+    <rect x="13.4" y="13.4" width="7.2" height="7.2" rx="1" />
   </svg>
 );

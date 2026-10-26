@@ -480,11 +480,11 @@ function SelectPropertiesTabContent({
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
       <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-        <div style={{ color: "rgba(255,255,255,0.92)", fontSize: 14, fontWeight: 800, letterSpacing: 0.4 }}>SELECT TOOL</div>
+        <div style={{ color: "rgba(255,255,255,0.92)", fontSize: 14, fontWeight: 800, letterSpacing: 0.4 }}>Select tool</div>
         <div style={{ color: "rgba(255,255,255,0.62)", fontSize: 12 }}>Navigate and move the canvas</div>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <div style={{ color: "rgba(255,255,255,0.52)", fontSize: 11, fontWeight: 700, letterSpacing: 0.7 }}>VIEW</div>
+        <div style={{ color: "rgba(255,255,255,0.52)", fontSize: 11, fontWeight: 700, letterSpacing: 0.7 }}>View</div>
         <label style={{ display: "flex", flexDirection: "column", gap: 8, color: "rgba(255,255,255,0.76)", fontSize: 12 }}>
           Zoom
           <input
@@ -530,7 +530,7 @@ function SelectPropertiesTabContent({
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <div style={{ color: "rgba(255,255,255,0.52)", fontSize: 11, fontWeight: 700, letterSpacing: 0.7 }}>CANVAS</div>
+        <div style={{ color: "rgba(255,255,255,0.52)", fontSize: 11, fontWeight: 700, letterSpacing: 0.7 }}>Canvas</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <div style={{ color: "rgba(255,255,255,0.76)", fontSize: 12 }}>Show Canvas</div>
           <OnOffSwitch label="On or off" checked={canvasMovementEnabled} onChange={onCanvasMovementChange} />

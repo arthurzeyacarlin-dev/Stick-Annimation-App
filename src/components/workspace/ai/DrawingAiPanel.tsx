@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent, KeyboardEvent } from "react";
+import { DiamondLogo } from "@/src/components/chrome/DiamondLogo";
 import {
   AI_ANIMATOR_MODEL,
   AI_ANIMATOR_REASONING_EFFORT,
@@ -558,7 +559,18 @@ export function DrawingAiPanel({
               {engineDrawing && <EngineDrawingTools bridge={engineDrawing} readOnly={readOnly} />}
             </section>
           )}
-          {ledger.messages.length === 0 && !activeJob && <div style={{ margin: "auto", maxWidth: 240, textAlign: "center", color: workspaceColors.textMuted, fontSize: 12, lineHeight: 1.55 }}>Ask the AI Animator anything about your animation. Creating and editing frames comes later.</div>}
+          {ledger.messages.length === 0 && !activeJob && (
+            // Workspace redesign (Arthur 2026-10-26): a finished welcome, never "coming later" wording.
+            <div className="drawing-ai-empty">
+              <span className="drawing-ai-logo" aria-hidden="true"><DiamondLogo size={48} /></span>
+              <strong>AI Animator</strong>
+              <span>Ask about your animation: ideas, timing, poses, and how to make a move look right.</span>
+            </div>
+          )}
+          {ledger.messages.length > 0 && (
+            // Arthur 2026-10-27: once the chat starts, the glowing Diamond logo stays at the top so it never feels plain.
+            <div className="drawing-ai-thread-head" aria-hidden="true"><span className="drawing-ai-logo drawing-ai-logo-small"><DiamondLogo size={26} /></span><span>AI Animator</span></div>
+          )}
           {ledger.messages.map((message) => message.role === "user"
             ? <div className="ai-animator-message" data-ai-user-message={message.id} key={message.id} style={{ alignSelf: "flex-end", maxWidth: "88%", padding: "9px 11px", borderRadius: 12, whiteSpace: "pre-wrap", color: "#eaf3ff", background: workspaceColors.selectedFill, border: `1px solid ${workspaceColors.selectedBorder}`, fontSize: 12, lineHeight: 1.48 }}>{message.content}</div>
             : <AiAnimatorAssistantReply key={message.id} message={message} animate={pendingRevealMessageIdsRef.current.has(message.id)} onRevealComplete={finishAssistantReveal} />)}

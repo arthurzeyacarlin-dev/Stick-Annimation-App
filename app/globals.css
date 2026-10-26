@@ -459,7 +459,7 @@ button[class*="danger" i]:disabled, button[class*="destructive" i]:disabled, but
 /* SPEC-0022 Phase 4: the right panel is the app's dark navy page color (same as the AI Animator tab), so unselected
    buttons inside it are lifted to a brighter navy with a brighter outline and do not blend into the background. */
 .workspace-properties-scroll button[style*="background: var(--da-panel"]:not(.da-switch):not([data-hover="danger"]):not([class*="delete" i]):not([style*="color: var(--da-danger"]) {
-  background: #0d1c36 !important; border-color: #2f527f !important;
+  background: #0c1628 !important; border-color: #22375a !important; border-radius: 8px !important; color: #d6e0f0 !important; /* workspace makeover: calmer, darker */
 }
 
 /* Delete rule everywhere (Arthur 2026-10-26): anything that deletes is see-through with red text and a red outline, and
@@ -736,3 +736,146 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
 /* Selected marks never vanish on hover (Arthur 2026-10-26): any selected choice keeps its blue bar while pointed at. */
 .workspace-properties-scroll div[style*="flex-wrap: wrap"] > button[aria-pressed="true"]:hover { box-shadow: inset 0 -3px 0 var(--da-hover, #0066ff) !important; }
 .da-sheet-tabs button[aria-selected="true"]:hover { box-shadow: inset 0 -3px 0 var(--da-hover, #0066ff) !important; }
+
+/* AI Animator welcome: glow + dots, finished wording. */
+.drawing-ai-empty { position: relative; isolation: isolate; margin: auto; display: grid; justify-items: center; gap: 8px; max-width: 280px; padding: 34px 18px; text-align: center; }
+.drawing-ai-empty::before { content: ""; position: absolute; inset: -40px -30px; z-index: -1; pointer-events: none;
+  background: radial-gradient(circle, rgba(110, 155, 230, .34) 1.2px, transparent 1.7px) 0 0 / 22px 22px, radial-gradient(ellipse 50% 45% at 50% 40%, rgba(0, 102, 255, .22), transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 55% 50% at 50% 40%, #000 0%, transparent 80%); mask-image: radial-gradient(ellipse 55% 50% at 50% 40%, #000 0%, transparent 80%); }
+.drawing-ai-empty-mark { display: grid; place-items: center; width: 48px; height: 48px; margin-bottom: 4px; border-radius: 14px; border: 1px solid #2b5c99; background: linear-gradient(180deg, #0f2a52, #0a1a33); color: #cfe2ff; box-shadow: 0 0 24px rgba(0, 102, 255, .35); }
+.drawing-ai-empty-mark svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+.drawing-ai-empty strong { font-family: var(--font-display), var(--font-geist-sans), sans-serif; font-size: 18px; font-weight: 800; letter-spacing: -.02em; color: #f6f9ff; }
+.drawing-ai-empty span:last-child { color: #a9bcd8; font-size: 13px; line-height: 1.55; }
+
+/* ===== Workspace makeover (Arthur 2026-10-26) =====
+   Recipe from the AI Animator panel: light from inside (glow + dots), one clear focus per area, calm spacing,
+   soft edges instead of bright lines, darker cooler colors. Rules: blue gets brighter on hover, never dimmer;
+   selected stays bright; plain things get the dull box; delete turns red. Frames, sliders and tabs keep their look. */
+
+/* Top bar */
+.drawing-topbar { background: linear-gradient(180deg, #08101d, #060b14) !important; border-bottom: 1px solid #0f1b2e !important; box-shadow: 0 1px 0 rgba(0, 0, 0, .6), 0 8px 24px rgba(0, 0, 0, .25); position: relative; z-index: 60; } /* above everything so File/Edit/View menus open on top */
+.drawing-topbar-logo { display: inline-flex; align-items: center; line-height: 0; color: #fff; padding: 0 14px 0 2px; margin-right: 2px; height: 22px; border-right: 1px solid #16253d; filter: drop-shadow(0 0 10px rgba(0, 102, 255, .6)); }
+.drawing-topbar-menus button { color: #b9c6db !important; font-weight: 500 !important; border-radius: 7px !important; }
+.drawing-topbar-menus button[aria-expanded="true"] { background: #0f2a52 !important; border-color: #2b5c99 !important; color: #fff !important; }
+.drawing-topbar-title { font-family: var(--font-display), var(--font-geist-sans), sans-serif; font-size: 14px !important; font-weight: 700 !important; letter-spacing: -.01em; color: #f2f6ff !important; }
+.drawing-topbar [data-project-recovery-state] [role="status"] { background: transparent !important; border-color: #16253d !important; color: #93a5c3 !important; font-weight: 500 !important; }
+.drawing-topbar-export { display: inline-flex; align-items: center; gap: 7px; height: 30px; padding: 0 14px; border: 1px solid #2b7bff; border-radius: 8px;
+  background: linear-gradient(180deg, #2b7bff, #0066ff); color: #fff; font: inherit; font-size: 13px; font-weight: 650; cursor: pointer; transition: none;
+  box-shadow: 0 6px 18px rgba(0, 102, 255, .3), inset 0 1px 0 rgba(255, 255, 255, .18); }
+.drawing-topbar-export:hover { background: var(--da-hover-super) !important; border-color: var(--da-hover-super) !important; box-shadow: 0 8px 24px rgba(0, 102, 255, .5), inset 0 1px 0 rgba(255, 255, 255, .25) !important; color: #fff !important; }
+.drawing-topbar-export svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2.1; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Timeline: a darker track under a clean header, the controls as one transport group (frames untouched). */
+.drawing-timeline { background: #060b14 !important; border-bottom: 1px solid #0f1b2e !important; box-shadow: 0 4px 14px rgba(0, 0, 0, .25); }
+.drawing-timeline-controls { gap: 4px !important; padding: 0 12px 0 10px; border-right: 1px solid #0f1b2e; }
+.drawing-timeline-controls > * { height: 32px; }
+.drawing-timeline-frames, .drawing-timeline-frames [data-timeline-panel], .drawing-timeline-frames [data-timeline-panel] > div { background: #03070e !important; }
+.drawing-timeline-frames [data-timeline-panel] > div:first-child { background: #060b14 !important; border-bottom: 1px solid #0f1b2e; }
+.drawing-timeline-frames [data-timeline-panel] > div:first-child * { color: #5f7397 !important; font-variant-numeric: tabular-nums; }
+.drawing-fps { border: 1px solid #1a2b45 !important; border-radius: 8px; padding: 0 8px 0 10px !important; height: 32px !important; background: #0b1424 !important; transition: none; }
+.drawing-fps span { letter-spacing: .04em !important; text-transform: none !important; color: #7d91b3 !important; font-weight: 600 !important; font-size: 11.5px !important; }
+.drawing-fps:hover { background: var(--da-hover-soft) !important; border-color: var(--da-hover-soft) !important; }
+.drawing-fps:hover span, .drawing-fps:hover input { color: #fff !important; }
+.drawing-fps:focus-within { border-color: #2b7bff !important; background: rgba(0, 102, 255, .12) !important; box-shadow: 0 0 0 3px rgba(0, 102, 255, .15); }
+.drawing-timeline-controls [data-hover="icon"] { width: 32px !important; height: 32px !important; border-radius: 8px !important; }
+.drawing-timeline-controls [data-hover="icon"]:not([aria-pressed="true"]) { color: #8fa3c4 !important; }
+.drawing-timeline-controls .drawing-play { width: 36px !important; min-width: 36px !important; max-width: 36px !important; height: 32px !important; padding: 0 !important; justify-content: center !important; margin-left: 4px;
+  border: 1px solid #2f6fd6 !important; border-radius: 8px !important; background: linear-gradient(135deg, #0d2a5c, #071733 70%) !important; color: #fff !important; box-shadow: 0 0 12px rgba(0, 102, 255, .22) !important; } /* rest: dark navy + blue outline, like the New project tile (Arthur) */
+/* Play (Arthur): hover = solid bright blue; while playing = dark navy with a blue outline, like the New project tile. */
+.drawing-timeline-controls .drawing-play:hover { background: #0066ff !important; border-color: #0066ff !important; box-shadow: 0 5px 16px rgba(0, 102, 255, .4) !important; }
+.drawing-timeline-controls .drawing-play[aria-label="Pause"] { background: linear-gradient(135deg, #0d2a5c, #071733 70%) !important; border-color: #2f6fd6 !important; box-shadow: 0 0 14px rgba(0, 102, 255, .3) !important; color: #fff !important; }
+.drawing-timeline-controls .drawing-play[aria-label="Pause"]:hover { background: #0066ff !important; border-color: #0066ff !important; }
+
+/* Canvas area: the darkest shade, lit from the middle with dots; outside the camera box is dark (Arthur), the stage glows. */
+.drawing-canvas-area { background: #02050b !important; position: relative; }
+.drawing-canvas-area > [data-workspace-canvas-host] { border: 1px solid #0f1b2e !important; border-radius: 10px !important; background: radial-gradient(ellipse 60% 55% at 50% 50%, rgba(0, 102, 255, .13), transparent 72%), #050a14 !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .03), 0 0 0 1px rgba(0, 0, 0, .5); }
+.drawing-canvas-area > [data-workspace-canvas-host]::before { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background-image: radial-gradient(circle, rgba(130, 170, 240, .28) 1.3px, transparent 1.8px); background-size: 22px 22px;
+  -webkit-mask-image: radial-gradient(ellipse 95% 90% at 50% 50%, #000 35%, rgba(0, 0, 0, .45) 100%); mask-image: radial-gradient(ellipse 95% 90% at 50% 50%, #000 35%, rgba(0, 0, 0, .45) 100%); }
+[data-workspace-stage-guide] { box-shadow: 0 24px 70px rgba(0, 0, 0, .65), 0 0 60px rgba(0, 102, 255, .14); }
+
+/* Tool dock: evenly spaced, names under the icons, the chosen tool solid bright blue and only ever brighter on hover. */
+.drawing-toolbar { background: linear-gradient(0deg, #08101d, #060b14) !important; border-top: 1px solid #0f1b2e !important; box-shadow: 0 -8px 24px rgba(0, 0, 0, .3); justify-items: center; }
+.drawing-tool-label { font-size: 10.5px; font-weight: 600; letter-spacing: .01em; line-height: 1; }
+.drawing-tool-button { color: #8698b8 !important; }
+.drawing-tool-button:not([data-selected]):hover { background: var(--da-hover-soft) !important; border-color: var(--da-hover-soft) !important; color: #fff !important; }
+.drawing-tool-button[data-selected] { background: #0066ff !important; border-color: #0066ff !important; color: #fff !important; box-shadow: 0 5px 16px rgba(0, 102, 255, .4) !important; } /* solid blue, like Play on hover (Arthur 2026-10-27) */
+.drawing-tool-button[data-selected]:hover { background: #1a75ff !important; border-color: #1a75ff !important; box-shadow: 0 6px 18px rgba(0, 102, 255, .5) !important; }
+@media (max-width: 900px) { .drawing-tool-label { display: none; } .drawing-tool-button { width: 44px !important; height: 40px !important; } }
+
+/* Right panel: same chrome shade, a soft glow at the top like the AI Animator, calm sentence-case labels, compact buttons. */
+.drawing-right-panel, .drawing-right-panel .workspace-properties-scroll, .drawing-right-panel [role="group"][aria-label="Right panel"] { background-color: #060b14 !important; }
+.drawing-right-panel { border-left: 1px solid #0f1b2e !important; box-shadow: -10px 0 30px rgba(0, 0, 0, .3); }
+.drawing-right-panel [aria-label="Workspace panels"] { background: radial-gradient(ellipse 70% 120% at 50% 0%, rgba(0, 102, 255, .10), transparent 70%); border-bottom: 1px solid #0f1b2e; }
+.drawing-right-panel [role="group"][aria-label="Right panel"] { border-color: #16253d !important; background: #03070e !important; }
+.workspace-properties-scroll [style*="text-transform: uppercase"] { text-transform: none !important; letter-spacing: 0 !important; font-size: 12.5px !important; font-weight: 650 !important; color: #c6d1e3 !important; }
+.workspace-properties-scroll button:not([data-hover]):not([role="switch"]):not([aria-pressed="true"]):not([style*="--da-danger"]):not([class*="delete" i]) { min-height: 32px; border-radius: 8px !important; border-color: #1a2b45 !important; background: #0b1424 !important; color: #d6e0f0 !important; font-weight: 600 !important; }
+.workspace-properties-scroll input:not([type="range"]):not([type="checkbox"]):not([type="color"]), .workspace-properties-scroll select { border-color: #1a2b45 !important; background: #03070e !important; border-radius: 8px !important; }
+
+/* Phones: everything fits in one row. */
+@media (max-width: 600px) {
+  .drawing-topbar-logo, .drawing-topbar-export { display: none; }
+  .drawing-topbar { padding: 0 10px !important; gap: 8px !important; }
+  .drawing-topbar-menus { gap: 6px !important; }
+  .drawing-topbar-menus button { padding-left: 7px !important; padding-right: 7px !important; }
+  .drawing-topbar [data-project-recovery-state] [role="status"] { font-size: 0 !important; gap: 0 !important; padding: 0 9px !important; }
+}
+/* Right panel: a real heading per tool, calm sections. */
+.workspace-properties-scroll > div > div:first-child > div:first-child { font-family: var(--font-display), var(--font-geist-sans), sans-serif !important; font-size: 16px !important; font-weight: 800 !important; letter-spacing: -.015em !important; color: #f2f6ff !important; text-transform: none !important; }
+.workspace-properties-scroll > div > div + div { border-top: 1px solid #0f1b2e; padding-top: 14px; }
+/* Empty states in the panel: a soft lit card instead of a dashed box. */
+.workspace-properties-scroll div[style*="dashed"] { border: 1px solid #16253d !important; border-radius: 12px !important; background: radial-gradient(ellipse 80% 120% at 50% 0%, rgba(0, 102, 255, .09), transparent 70%), #08101d !important; color: #a9bcd8 !important; }
+
+/* Round 3 (Arthur): on/off icons show "on" clearly — a lit blue box. */
+.drawing-timeline-controls [data-hover="icon"][aria-pressed="true"] { background: rgba(0, 102, 255, .18) !important; border: 1px solid #2b7bff !important; color: #ffffff !important; box-shadow: 0 0 12px rgba(0, 102, 255, .35); }
+.drawing-timeline-controls [data-hover="icon"][aria-pressed="true"]:hover { background: var(--da-hover) !important; border-color: var(--da-hover) !important; }
+
+/* Choice groups (Square / Triangle / Circle, Draw / Cutout…): only the chosen one looks chosen. */
+.workspace-properties-scroll div[style*="flex-wrap: wrap"] > button:not([aria-pressed="true"]):not([data-hover="danger"]):not([style*="--da-danger"]):not([class*="delete" i]) { background: transparent !important; border-color: transparent !important; color: #9aabc8 !important; }
+.workspace-properties-scroll div[style*="flex-wrap: wrap"] > button:not([aria-pressed="true"]):not([data-hover="danger"]):not([style*="--da-danger"]):not([class*="delete" i]):hover { background: var(--da-hover-soft) !important; color: #fff !important; }
+
+/* Timeline layers: the current layer's controls light up with its row; calm column. */
+.drawing-timeline [data-layer-controls-active] { background: rgba(0, 102, 255, .08); box-shadow: inset 2px 0 0 #2b7bff; }
+.drawing-timeline-frames > div > div[style*="flex: 0 0 62px"] { background: #060b14 !important; }
+
+/* Tool heading in Properties: glowing mark, tool name, one friendly line. */
+.drawing-tool-head { display: flex; align-items: center; gap: 12px; padding: 4px 0 10px; }
+.drawing-tool-head-mark { flex: 0 0 auto; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 11px; border: 1px solid #2b5c99; background: linear-gradient(180deg, #0f2a52, #0a1a33); color: #cfe2ff; box-shadow: 0 0 18px rgba(0, 102, 255, .35); }
+.drawing-tool-head-mark svg, .drawing-ai-empty-mark svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.drawing-tool-head strong { display: block; font-family: var(--font-display), var(--font-geist-sans), sans-serif; font-size: 16px; font-weight: 800; letter-spacing: -.015em; color: #f2f6ff; }
+.drawing-tool-head small { display: block; margin-top: 2px; font-size: 12.5px; color: #93a6c4; }
+
+/* Hero (Assets / Library empty): same as the AI Animator welcome, plus a bright main button. */
+.drawing-ai-empty-text { color: #a9bcd8; font-size: 13px; line-height: 1.55; }
+.drawing-hero-button { margin-top: 8px; height: 36px; padding: 0 18px; border: 1px solid #2b7bff; border-radius: 9px; background: linear-gradient(180deg, #2b7bff, #0066ff); color: #fff; font: inherit; font-size: 13px; font-weight: 650; cursor: pointer; box-shadow: 0 6px 18px rgba(0, 102, 255, .35), inset 0 1px 0 rgba(255, 255, 255, .18); transition: none; }
+.drawing-hero-button:hover:enabled { background: var(--da-hover-super) !important; border-color: var(--da-hover-super) !important; box-shadow: 0 8px 24px rgba(0, 102, 255, .55) !important; color: #fff !important; }
+.drawing-hero-note { color: #6f84a6; font-size: 11.5px; }
+
+/* Round 4 (Arthur). Delete stays red everywhere in the editor: red text + red outline, solid red with white text on hover. */
+.workspace button[style*="--da-danger"]:not([data-hover="icon"]), .workspace button[class*="delete" i], .workspace button[data-hover="danger"] { background: transparent !important; color: #ff8a95 !important; border: 1px solid #ff8a95 !important; box-shadow: none !important; }
+.workspace button[style*="--da-danger"]:not([data-hover="icon"]):hover:not(:disabled), .workspace button[class*="delete" i]:hover:not(:disabled), .workspace button[data-hover="danger"]:hover:not(:disabled) { background: #ff8a95 !important; border-color: #ff8a95 !important; color: #fff !important; }
+.workspace button[style*="--da-danger"]:not([data-hover="icon"]) *, .workspace button[class*="delete" i] * { color: inherit !important; }
+
+/* Library / Assets: a glowing icon with no box; a clean title row once there are things in the tab. */
+.drawing-hero-icon { display: grid; place-items: center; color: #cfe2ff; margin-bottom: 2px; filter: drop-shadow(0 0 12px rgba(0, 102, 255, .75)); }
+.drawing-hero-icon svg { width: 34px; height: 34px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.drawing-panel-title { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 2px 0 8px; border-bottom: 1px solid #0f1b2e; }
+.drawing-panel-title strong { font-family: var(--font-display), var(--font-geist-sans), sans-serif; font-size: 16px; font-weight: 800; letter-spacing: -.015em; color: #f2f6ff; }
+.drawing-panel-title small { margin-left: 8px; font-size: 12px; color: #7d91b3; }
+.drawing-hero-button.drawing-hero-button-small { margin-top: 0; height: 32px !important; padding: 0 14px !important; border: 1px solid #2b7bff !important; border-radius: 8px !important; background: linear-gradient(180deg, #2b7bff, #0066ff) !important; color: #fff !important; font-size: 12.5px !important; }
+
+/* Round 5 (Arthur). AI Animator: the Diamond logo instead of the icon card, same size, glowing. */
+.drawing-ai-logo { display: grid; place-items: center; width: 48px; height: 48px; margin-bottom: 4px; color: #fff; line-height: 0; filter: drop-shadow(0 0 16px rgba(0, 102, 255, .8)) drop-shadow(0 0 36px rgba(0, 102, 255, .35)); }
+/* Properties: a soft light behind the tool heading with a few dots, like the AI Animator, never a flashlight. */
+.workspace-properties-scroll { position: relative; isolation: isolate; }
+.workspace-properties-scroll::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 190px; z-index: -1; pointer-events: none;
+  background: radial-gradient(circle, rgba(110, 155, 230, .34) 1.2px, transparent 1.7px) 0 0 / 20px 20px, radial-gradient(ellipse 60% 100% at 18% 0%, rgba(0, 102, 255, .21), transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 65% 90% at 20% 0%, #000 0%, transparent 78%); mask-image: radial-gradient(ellipse 65% 90% at 20% 0%, #000 0%, transparent 78%); }
+
+/* AI Animator chat: the glowing logo heads the conversation, over a soft light with dots. */
+.drawing-ai-thread-head { position: relative; isolation: isolate; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 0 18px; color: #cdd8ea; font-family: var(--font-display), var(--font-geist-sans), sans-serif; font-size: 13px; font-weight: 800; letter-spacing: -.01em; align-self: stretch; }
+.drawing-ai-thread-head::before { content: ""; position: absolute; inset: -10px 10% 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(circle, rgba(110, 155, 230, .3) 1.2px, transparent 1.7px) 0 0 / 20px 20px, radial-gradient(ellipse 50% 60% at 50% 35%, rgba(0, 102, 255, .2), transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 50% 60% at 50% 35%, #000 0%, transparent 80%); mask-image: radial-gradient(ellipse 50% 60% at 50% 35%, #000 0%, transparent 80%); }
+.drawing-ai-logo.drawing-ai-logo-small { width: 26px; height: 26px; margin: 0; }

@@ -176,7 +176,8 @@ const contextMenuItemStyle = (enabled: boolean, tone: "default" | "danger" = "de
 });
 
 const FRAME_CELL_WIDTH = 17;
-const TIMELINE_RULER_HEIGHT = 10;
+// Workspace makeover (Arthur 2026-10-26): a taller, pro ruler — ticks rise from a baseline, numbers sit above.
+const TIMELINE_RULER_HEIGHT = 18;
 const TIMELINE_RULER_INTERVAL = 5;
 const TIMELINE_MAX_FRAME_RANGE = 10000;
 const TIMELINE_SCROLL_END_PADDING = FRAME_CELL_WIDTH * 2;
@@ -201,7 +202,7 @@ const TIMELINE_SOUND_SLOT_FILL = "rgba(88, 44, 168, 0.92)";
 const TIMELINE_SOUND_SLOT_BORDER = "rgba(58, 26, 116, 1)";
 const TIMELINE_KEYFRAME_DOT = "#111111";
 const TIMELINE_SPAN_DOT_LINE_GAP = 14;
-const TIMELINE_LEFT_RAIL_HEIGHT = 54;
+const TIMELINE_LEFT_RAIL_HEIGHT = 62;
 const TIMELINE_LAYER_ROW_HEIGHT = 38;
 const LAYER_CONTROLS_WIDTH = 62;
 const layerControlButtonStyle: CSSProperties = {
@@ -434,7 +435,8 @@ const TimelineLayerLane = memo(function TimelineLayerLane({
         minWidth: rulerWidth,
         height: TIMELINE_LAYER_ROW_HEIGHT,
         position: "relative",
-        background: showActiveBackground ? "rgba(15,42,82,0.55)" : "transparent",
+        // Workspace makeover: the current layer is a soft blue band, matching its controls on the left.
+        background: showActiveBackground ? "rgba(0,102,255,0.08)" : "transparent",
         borderBottom: `1px solid ${workspaceColors.divider}`,
       }}
     >
@@ -1308,21 +1310,22 @@ export function DrawingTimelineRow({
               style={{
                 position: "absolute",
                 left: 0,
-                top: 0,
+                bottom: 0,
                 width: 1,
-                height: 6,
-                background: workspaceColors.label,
+                height: 10,
+                background: "#6a7fa3",
               }}
             />
             <div
               style={{
                 position: "absolute",
                 left: labelLeft,
-                top: 1,
-                color: workspaceColors.label,
-                fontSize: 8,
-                fontWeight: 700,
-                lineHeight: "8px",
+                top: 0,
+                color: "#9aabc8",
+                fontSize: 10,
+                fontWeight: 600,
+                lineHeight: "10px",
+                fontVariantNumeric: "tabular-nums",
                 userSelect: "none",
                 whiteSpace: "nowrap",
               }}
@@ -1599,6 +1602,8 @@ export function DrawingTimelineRow({
                 width: rulerWidth,
                 minWidth: rulerWidth,
                 height: TIMELINE_RULER_HEIGHT,
+                borderBottom: "1px solid #1a2b45",
+                boxSizing: "border-box",
               }}
             >
               {visibleMinorTickNumbers.map((tickNumber) => (
@@ -1607,10 +1612,10 @@ export function DrawingTimelineRow({
                   style={{
                     position: "absolute",
                     left: tickNumber * FRAME_CELL_WIDTH - FRAME_CELL_WIDTH / 2,
-                    top: 0,
+                    bottom: 0,
                     width: 1,
-                    height: 2,
-                    background: "#3d5a82",
+                    height: 4,
+                    background: "#3d5579",
                     pointerEvents: "none",
                   }}
                 />
@@ -1622,10 +1627,10 @@ export function DrawingTimelineRow({
                   style={{
                     position: "absolute",
                     left: tickNumber * FRAME_CELL_WIDTH - FRAME_CELL_WIDTH / 2,
-                    top: 0,
+                    bottom: 0,
                     width: 1,
-                    height: 5,
-                    background: "#557399",
+                    height: 7,
+                    background: "#5a7299",
                     pointerEvents: "none",
                   }}
                 />
@@ -1653,7 +1658,7 @@ export function DrawingTimelineRow({
               {renderedLayers.map((layer) => {
                 const isHidden = hiddenLayerIds.includes(layer.id);
                 return (
-                  <div key={`${isOverlay ? "overlay" : "baseline"}-controls-${layer.id}`} style={{ height: TIMELINE_LAYER_ROW_HEIGHT, display: "flex", alignItems: "center", justifyContent: "center", gap: 2, boxSizing: "border-box", borderBottom: `1px solid ${workspaceColors.divider}` }}>
+                  <div key={`${isOverlay ? "overlay" : "baseline"}-controls-${layer.id}`} data-layer-controls-active={layer.id === activeLayerId ? "true" : undefined} style={{ height: TIMELINE_LAYER_ROW_HEIGHT, display: "flex", alignItems: "center", justifyContent: "center", gap: 2, boxSizing: "border-box", borderBottom: `1px solid ${workspaceColors.divider}` }}>
                     <button type="button" data-hover="icon" data-tooltip={isHidden ? "Show layer" : "Hide layer"} data-tooltip-side="right"
                       aria-label={`${isHidden ? "Show" : "Hide"} ${layer.name}`} aria-pressed={isHidden}
                       onClick={() => onToggleLayerVisibility?.(layer.id)} style={layerControlButtonStyle}>
@@ -1921,24 +1926,11 @@ export function DrawingTimelineRow({
           flexShrink: 0,
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            fontSize: 10.5,
-            letterSpacing: "0.14em",
-            textTransform: "uppercase",
-            color: workspaceColors.label,
-            fontWeight: 700,
-            userSelect: "none",
-            whiteSpace: "nowrap",
-            marginRight: 2,
-          }}
-        >
-          Timeline
-        </div>
+        {/* Workspace makeover: no "Timeline" label; the controls sit together as one transport group. */}
 
         <label
+          className="drawing-fps"
+          title="Frames per second"
           style={{
             display: "flex",
             alignItems: "center",
@@ -2032,6 +2024,7 @@ export function DrawingTimelineRow({
           <button
             type="button"
             onClick={isPlaying ? onPause : onPlay}
+            className="drawing-play" data-hover="bright"
             aria-label={isPlaying ? "Pause" : "Play"}
             style={{
               ...(isPlaying ? timelineSelectedButtonStyle : timelineButtonStyle),
@@ -2040,16 +2033,16 @@ export function DrawingTimelineRow({
             }}
           >
             {isPlaying ? (
-              <svg aria-hidden="true" width="11" height="11" viewBox="0 0 12 12" style={{ flexShrink: 0 }}>
+              <svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" style={{ flexShrink: 0 }}>
                 <rect x="2" y="1.5" width="3" height="9" rx="1" fill="currentColor" />
                 <rect x="7" y="1.5" width="3" height="9" rx="1" fill="currentColor" />
               </svg>
             ) : (
-              <svg aria-hidden="true" width="11" height="11" viewBox="0 0 12 12" style={{ flexShrink: 0 }}>
+              <svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" style={{ flexShrink: 0 }}>
                 <path d="M3 1.6v8.8a.6.6 0 0 0 .9.52l7.2-4.4a.6.6 0 0 0 0-1.04L3.9 1.08A.6.6 0 0 0 3 1.6Z" fill="currentColor" />
               </svg>
             )}
-            <span>{isPlaying ? "Pause" : "Play"}</span>
+
           </button>
         </div>
       </div>

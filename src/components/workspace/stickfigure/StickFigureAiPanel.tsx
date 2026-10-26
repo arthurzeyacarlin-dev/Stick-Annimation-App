@@ -31,7 +31,7 @@ type PreviewState = {
 const PREVIEW_COPY = "Understood: one stick figure, a three-pose wave, 12 frames at 12 FPS. No changes have been made.";
 const UNSUPPORTED_COPY = "I couldn’t safely match that request to the one supported result: one stick figure, a three-pose wave, 12 frames at 12 FPS. No changes were made.";
 const IDLE_COPY = "Ask the assistant for help with your stick figure.";
-const POST_APPLY_COPY = "AI editing comes later; use manual tools.";
+const POST_APPLY_COPY = "Added. Adjust it with the drawing tools.";
 const REQUEST_TIMEOUT_MS = 10_000;
 
 const availabilityCopy = (availability: AvailabilityState) => {

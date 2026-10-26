@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { DiamondLogo } from "@/src/components/chrome/DiamondLogo";
 
 type DrawingTopBarProps = {
   projectTitle?: string;
@@ -215,6 +216,8 @@ export function DrawingTopBar({
       }}
     >
       <div className="drawing-topbar-menus" style={{ flex: "1 1 0", display: "flex", alignItems: "center", gap: 12 }}>
+        {/* Workspace makeover (Arthur 2026-10-26): the solid white logo anchors the header, like every other screen. */}
+        <span className="drawing-topbar-logo" aria-hidden="true"><DiamondLogo size={22} /></span>
         <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
           <div ref={fileMenuRef} style={{ position: "relative", display: "flex", alignItems: "center" }}>
             <button
@@ -369,6 +372,7 @@ export function DrawingTopBar({
 
       <div
         className="drawing-topbar-title"
+        data-saved-state={hasSaveProblem ? "problem" : undefined}
         title={projectTitle}
         style={{
           flex: "0 1 auto",
@@ -417,6 +421,13 @@ export function DrawingTopBar({
           <span aria-hidden="true" style={{ width: 6, height: 6, borderRadius: 999, background: statusDotColor, flexShrink: 0 }} />
           {saveStateLabel}
         </div>
+        {/* Same action as File → Export; the header's one extra-bright button. */}
+        {onExport ? (
+          <button type="button" className="drawing-topbar-export" data-hover="bright" onClick={() => runFileAction(onExport)}>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4m0 0-4 4m4-4 4 4" /><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" /></svg>
+            Export
+          </button>
+        ) : null}
       </div>
     </div>
   );

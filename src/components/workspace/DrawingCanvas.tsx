@@ -1,4 +1,5 @@
 import { OnOffSwitch } from "@/src/components/ui/OnOffSwitch";
+import { PanelHero, PanelTitle, ToolHeader } from "./PanelHero";
 import { canonicalPaint, compositeRasterPaint, mergePaintPixel, rasterCommandDigest, RASTER_ALGORITHM_VERSION, RASTER_GESTURE_COMMAND, RasterGestureDraft, unionRect, type RasterGestureCommandV2, type RasterPreview, type RasterRect } from "@/src/lib/animation/editorCommands/rasterGesture";
 import type { SceneForPage } from "@/src/lib/animator/stageFit";
 import type { EngineDrawingBridge } from "./ai/engineDrawingBridge";
@@ -9864,7 +9865,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       emptyMessage: string,
     ) => (
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <div style={{ color: "var(--da-text, #f6f9ff)", fontSize: 13, fontWeight: 600 }}>{title}</div>
+        {title === "Text" ? <ToolHeader tool="Text" /> : <div style={{ color: "var(--da-text, #f6f9ff)", fontSize: 13, fontWeight: 600 }}>{title}</div>}
         {!canEditTextInCurrentFrame ? (
           <div style={{ color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
             Text can be added on existing frame content boxes. Select a non-empty frame to place text.
@@ -10101,11 +10102,11 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     activeTool === "Select" ? (
       <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-          <div style={{ color: "var(--da-text, #f6f9ff)", fontSize: 13, fontWeight: 600, letterSpacing: 0.4 }}>SELECT TOOL</div>
+          <div style={{ color: "var(--da-text, #f6f9ff)", fontSize: 13, fontWeight: 600, letterSpacing: 0.4 }}>Select tool</div>
           <div style={{ color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>Navigate and move the canvas</div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <div style={{ color: "var(--da-label, #7895bc)", fontSize: 11, fontWeight: 700, letterSpacing: 0.7 }}>VIEW</div>
+          <div style={{ color: "var(--da-label, #7895bc)", fontSize: 11, fontWeight: 700, letterSpacing: 0.7 }}>View</div>
           <label style={{ display: "flex", flexDirection: "column", gap: 8, color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
             Zoom
             <input
@@ -10151,7 +10152,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <div style={{ color: "var(--da-label, #7895bc)", fontSize: 11, fontWeight: 700, letterSpacing: 0.7 }}>CANVAS</div>
+          <div style={{ color: "var(--da-label, #7895bc)", fontSize: 11, fontWeight: 700, letterSpacing: 0.7 }}>Canvas</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             <div style={{ color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>Show Canvas</div>
             <OnOffSwitch label="On or off" checked={canvasMovementEnabled} onChange={setCanvasMovementEnabled} />
@@ -10432,7 +10433,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       </div>
     ) : activeTool === "Brush" ? (
       <div style={{ display: "flex", flexDirection: "column", gap: 8, paddingBottom: 0 }}>
-        <div style={{ color: "var(--da-text, #f6f9ff)", fontSize: 13, fontWeight: 600 }}>Tool: Pencil</div>
+        <ToolHeader tool="Pencil" />
         <label style={{ display: "flex", flexDirection: "column", gap: 5, color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
           {brushToolVariant === "Brush" ? "Pencil" : brushToolVariant === "Pencil" ? "Graphite" : brushToolVariant} size: {brushSize}
           <input
@@ -10546,7 +10547,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       </div>
     ) : activeTool === "Eraser" ? (
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <div style={{ color: "var(--da-text, #f6f9ff)", fontSize: 13, fontWeight: 600 }}>Tool: Eraser</div>
+        <ToolHeader tool="Eraser" />
         <div style={{ color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>Mode: Erase</div>
         <label style={{ display: "flex", flexDirection: "column", gap: 8, color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
           Eraser size: {eraserSize}
@@ -10563,7 +10564,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       </div>
     ) : activeTool === "Fill" ? (
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <div style={{ color: "var(--da-text, #f6f9ff)", fontSize: 13, fontWeight: 600 }}>Tool: Fill</div>
+        <ToolHeader tool="Fill" />
         <label style={{ display: "flex", flexDirection: "column", gap: 8, color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
           Fill color
           <input
@@ -10593,10 +10594,10 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
         </label>
       </div>
     ) : activeTool === "Text" ? (
-      renderTextPropertiesEditor("Tool: Text", "Click the canvas to create a text object.")
+      renderTextPropertiesEditor("Text", "Click the canvas to create a text object.")
     ) : activeTool === "Lasso" ? (
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-        <div style={{ color: "var(--da-text, #f6f9ff)", fontSize: 13, fontWeight: 600 }}>Tool: Lasso</div>
+        <ToolHeader tool="Lasso" />
         {!activeLassoSelection ? (
           <div style={{ color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>Draw around an area to select it.</div>
         ) : (
@@ -10764,7 +10765,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       </div>
     ) : activeTool === "Knife" ? (
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <div style={{ color: "var(--da-text, #f6f9ff)", fontSize: 13, fontWeight: 600 }}>Tool: Knife</div>
+        <ToolHeader tool="Knife" />
         {activeKnifePieces.length > 0 && (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             <div style={{ color: "var(--da-muted, #8fabd0)", fontSize: 11 }}>Selection actions</div>
@@ -10939,7 +10940,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       </div>
     ) : activeTool === "Shape" ? (
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <div style={{ color: "var(--da-text, #f6f9ff)", fontSize: 13, fontWeight: 600 }}>Tool: Shape</div>
+        <ToolHeader tool="Shape" />
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <div style={{ color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>Shape type</div>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -11064,10 +11065,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
         outlineOffset: 4,
       }}
     >
-      <div style={{ color: "var(--da-text, #f6f9ff)", fontSize: 13, fontWeight: 600 }}>Assets</div>
-      <div style={{ color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
-        Drop or import static PNG, JPEG, and WebP images. Up to 32 images per batch and 16 MB per image.
-      </div>
+      {importedAssets.length > 0 && <PanelTitle title="Assets" meta={`${importedAssets.length} ${importedAssets.length === 1 ? "image" : "images"}`} />}
       <input
         ref={assetInputRef}
         aria-label="Choose asset images"
@@ -11077,8 +11075,10 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
         onChange={handleAssetImport}
         style={{ display: "none" }}
       />
-      <button
+      {importedAssets.length > 0 && <button
         type="button"
+        className="drawing-hero-button drawing-hero-button-small"
+        data-hover="bright"
         onClick={() => assetInputRef.current?.click()}
         disabled={assetImportBusy}
         style={{
@@ -11095,19 +11095,14 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
         }}
       >
         {assetImportBusy ? "Checking Images" : "Import Images"}
-      </button>
+      </button>}
       {importedAssets.length === 0 ? (
-        <div
-          style={{
-            border: "1px dashed var(--da-border, #244267)",
-            borderRadius: 10,
-            padding: "12px 10px",
-            color: "var(--da-muted, #8fabd0)",
-            fontSize: 12,
-          }}
-        >
-          No imported assets yet.
-        </div>
+        <PanelHero icon="assets" title="Assets" text="Bring in your own pictures and use them in any frame.">
+          <button type="button" className="drawing-hero-button" data-hover="bright" onClick={() => assetInputRef.current?.click()} disabled={assetImportBusy}>
+            {assetImportBusy ? "Checking Images" : "Import Images"}
+          </button>
+          <small className="drawing-hero-note">PNG, JPEG or WebP · up to 16 MB each · or drop them anywhere</small>
+        </PanelHero>
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, alignContent: "start" }}>
           {importedAssets.map((asset) => (
@@ -11204,25 +11199,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
 
   const libraryTabContent = (
     <div style={{ display: "flex", flexDirection: "column", gap: 8, minHeight: 0, height: "100%" }}>
-      <div style={{ color: "var(--da-text, #f6f9ff)", fontSize: 13, fontWeight: 600 }}>Library</div>
-      <div style={{ color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>
-        Store reusable project-created symbols, poses, drawings, and effects.
-      </div>
+      {librarySymbols.length > 0 && <PanelTitle title="Library" meta={`${librarySymbols.length} ${librarySymbols.length === 1 ? "symbol" : "symbols"}`} />}
       {librarySymbols.length === 0 ? (
-        <div
-          style={{
-            border: "1px dashed var(--da-border, #244267)",
-            borderRadius: 10,
-            padding: "12px 10px",
-            color: "var(--da-muted, #8fabd0)",
-            fontSize: 12,
-            lineHeight: 1.45,
-          }}
-        >
-          No symbols yet.
-          <br />
-          To make one, select a drawing with the Select or Lasso tool, then click Convert to Symbol in Properties.
-        </div>
+        <PanelHero icon="library" title="Library" text="Your reusable symbols live here. Select a drawing with Select or Lasso, then choose Convert to Symbol in Properties." />
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
           {librarySymbols.map((item) => (

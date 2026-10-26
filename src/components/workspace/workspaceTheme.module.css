@@ -13,14 +13,14 @@
   animation: none !important;
 }
 
-.workspace :global(button:not(:disabled):not([aria-disabled="true"]):not([data-hover="outline"]):not([data-hover="icon"]):not([data-hover="danger"]):hover:not([data-workspace-theme-exempt] *)) {
+.workspace :global(button:not(:disabled):not([aria-disabled="true"]):not([data-hover="outline"]):not([data-hover="icon"]):not([data-hover="danger"]):not([data-hover="bright"]):not([style*="--da-danger"]):not([class*="delete" i]):not([aria-pressed="true"]):not([aria-selected="true"]):not([data-selected]):hover:not([data-workspace-theme-exempt] *)) {
   background: var(--da-hover-soft, #0066ff) !important;
   border-color: var(--da-hover-soft, #0066ff) !important;
   color: #ffffff !important;
   box-shadow: none !important;
 }
 
-.workspace :global(button:not(:disabled):not([aria-disabled="true"]):not([data-hover="outline"]):not([data-hover="icon"]):not([data-hover="danger"]):hover:not([data-workspace-theme-exempt] *) *) {
+.workspace :global(button:not(:disabled):not([aria-disabled="true"]):not([data-hover="outline"]):not([data-hover="icon"]):not([data-hover="danger"]):not([data-hover="bright"]):not([style*="--da-danger"]):not([class*="delete" i]):not([aria-pressed="true"]):not([aria-selected="true"]):not([data-selected]):hover:not([data-workspace-theme-exempt] *) *) {
   color: #ffffff !important;
 }
 
@@ -129,3 +129,19 @@
   color: #ffffff !important;
 }
 .workspace :global([data-tooltip][data-tooltip-side="right"]:hover::after) { left: calc(100% + 6px); top: 50%; transform: translateY(-50%); }
+
+/*
+ * Workspace makeover (Arthur 2026-10-26): darker, cooler colors so the editor feels like a pro studio. Areas are
+ * separated by three dark shades instead of bright lines. Selected colors (frames, tabs) are unchanged on purpose.
+ */
+.workspace {
+  --da-page: #02050b;
+  --da-panel: #060b14;
+  --da-line: #0f1b2e;
+  --da-border: #1a2b45;
+  --da-label: #6d82a6;
+  --da-muted: #8698b8;
+  --da-text-2: #c6d1e3;
+  --da-icon: #8096b8;
+  --da-raised: #0b1424;
+}

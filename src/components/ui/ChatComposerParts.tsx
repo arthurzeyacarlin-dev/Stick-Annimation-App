@@ -48,8 +48,9 @@ export function ChatEffortPicker({ value, onChange, disabled }: { value: ChatEff
   const choose = (next: number) => { const stop = EFFORT_STOPS[Math.min(last, Math.max(0, next))]; if (stop.value !== value) onChange(stop.value); };
   return (
     <div className={styles.effort} ref={rootRef}>
-      <button type="button" className={styles.effortButton} disabled={disabled} aria-expanded={open} aria-haspopup="dialog" onClick={() => setOpen((was) => !was)}>
-        <span className={styles.effortName}>Effort</span><span className={styles.effortValue}>{EFFORT_STOPS[index].label}</span>
+      <button type="button" className={styles.effortButton} disabled={disabled} aria-expanded={open} aria-haspopup="dialog" aria-label={`Effort: ${EFFORT_STOPS[index].label}`} onClick={() => setOpen((was) => !was)}>
+        {/* Arthur 2026-10-27: just the level (Auto, Low, Medium, High), no "Effort" word. */}
+        <span className={styles.effortValue}>{EFFORT_STOPS[index].label}</span>
       </button>
       {open && <div className={styles.effortPopover} role="dialog" aria-label="Effort">
         <div className={styles.effortTop}><span className={styles.effortTitle}>Effort</span><span className={styles.effortHint}>{EFFORT_STOPS[index].hint}</span></div>

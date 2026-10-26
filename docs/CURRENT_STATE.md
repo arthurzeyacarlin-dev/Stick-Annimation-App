@@ -1,6 +1,10 @@
 # Current State
 
-## D-0220 — App PM: first visit says "Welcome, Name" with brand-new words (current)
+## D-0221 — App PM: workspace makeover — the editor looks like a pro creative hub (current)
+
+Arthur passed 2026-10-27. Darker cooler colors, glowing logo + Export in the top bar, pro timeline ruler and grouped controls, dark dotted area outside the camera box, evenly spaced labelled tools with one matching icon set (real knife), tool headings, Library/Assets hero states, red delete buttons, AI Animator logo. Behaviour unchanged; frames, sliders and tabs keep their look. See DECISIONS D-0221.
+
+## D-0220 — App PM: first visit says "Welcome, Name" with brand-new words
 
 Arthur passed 2026-10-26. A brand-new person's first visit: "Welcome, Name", a first-animation line and "Your latest animation". After they leave and come back: "Welcome back, Name" and the jump-back words. See DECISIONS D-0220.
 

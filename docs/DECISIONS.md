@@ -1885,6 +1885,20 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0221 — Workspace makeover: the editor as a pro creative hub (App PM, 2026-10-27)
+
+- Arthur passed 2026-10-27 after many review rounds. Copy `diamond-review/workspace-polish` (branch `claude/workspace-polish`), product commit `b978bad` fast-forwarded into main.
+- Audit finding (why the AI Animator panel felt pro and the rest didn't): light from inside (glow + dots), one clear focus, calm spacing, soft edges instead of bright lines, darker cooler colors. That recipe now runs through the whole workspace.
+- Colors: workspace-scoped tokens in `workspaceTheme.module.css` (`--da-page #02050b`, `--da-panel #060b14`, `--da-line #0f1b2e`, `--da-border #1a2b45`…); selected colors unchanged on purpose. Styles in the "Workspace makeover" blocks of `app/globals.css`.
+- RULES (Arthur): blue only gets brighter on hover, never dimmer; selected stays bright (tools = solid #0066ff); plain things get the dull box; extra-bright only for special buttons (Export); delete/warnings = red outline + red text, full red with white text on hover; frames, sliders and tab switching keep their exact look; outside the camera box is dark (replaces the Phase 4 white-everywhere rule); no "comes later"/demo wording anywhere.
+- Top bar: white logo (`DiamondLogo`), Export (`data-hover="bright"`, same as File → Export), menus on top (z-index 60). Timeline: no "Timeline" word; FPS box with hover/focus; Play = symbol, navy + blue outline at rest/playing, bright blue on hover, no hover label; ruler 18px with small/medium/tall ticks (`TIMELINE_RULER_HEIGHT` 18, left rail 62); current layer row + controls highlighted together; onion skin "on" = lit blue box.
+- Tools: evenly spaced grid, names under icons, `aria-pressed`/`data-selected`; one icon set in `ToolIcons.tsx` incl. new `KnifeIcon` (one-piece kitchen knife) and `ShapeIcon`, used by the tool bar and the Properties headings.
+- Right panel: `PanelHero.tsx` (`ToolHeader`, `PanelHero`, `PanelTitle`): tool headings with the tool's icon + a fun line; Library/Assets empty heroes (glowing icon, no box; Assets has a bright Import Images) and clean title rows with counts when filled; sentence-case labels; choice groups only light the chosen one.
+- AI Animator: Diamond logo (48px, glow) instead of the icon card; logo heads the chat once it starts; effort chip shows just Auto/Low/Medium/High (shared chat box, Help Assistant too).
+- Bugs fixed (both were in main from D-0218): the blanket editor hover no longer dims selected/bright/red buttons; `SlidingSelection` no longer blinks words and leaves the panel tabs' own animation alone.
+- Tests: drawing sweeps 15/15 + 7/7, tsc clean, measured hover colors (selected tool, Export, Play, Delete), File menu on top, onion state, tab words visible during switch, phone top bar fits.
+- Not done yet: with 2+ layers the expanded timeline covers the top of the right panel and blocks its tabs (pre-existing, also before this round). AI chat logo not seen live (needs a paid AI message).
+
 ### D-0220 — Home greeting: first visit vs coming back (App PM, 2026-10-26)
 
 - Arthur passed 2026-10-26. Copy `diamond-review/home-tour` (branch `claude/welcome-new`), product commit `6a2f017` fast-forwarded into main. File: `src/components/main/MainScreen.tsx` (`useGreeting`).

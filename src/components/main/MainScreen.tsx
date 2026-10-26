@@ -45,17 +45,17 @@ export function MainScreen(props: Props) {
         </section>
 
         <section className={styles.actions} aria-label="Start">
-          <button ref={props.newProjectButtonRef} type="button" className={`${styles.tile} ${styles.tilePrimary}`} onClick={props.onNewProject} disabled={props.creating}>
+          <button ref={props.newProjectButtonRef} type="button" data-tour="new-project" className={`${styles.tile} ${styles.tilePrimary}`} onClick={props.onNewProject} disabled={props.creating}>
             <span className={styles.tileIcon}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg></span>
             <span className={styles.tileText}><strong>{props.creating ? "Creating your project…" : "New project"}</strong><small>Start with a blank canvas</small></span>
           </button>
-          <button ref={props.openProjectButtonRef} type="button" className={styles.tile} onClick={props.onOpenProjects}>
+          <button ref={props.openProjectButtonRef} type="button" data-tour="open-project" className={styles.tile} onClick={props.onOpenProjects}>
             <span className={styles.tileIcon}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z" /></svg></span>
             <span className={styles.tileText}><strong>Open project</strong><small>All your saved animations</small></span>
           </button>
         </section>
 
-        <section className={styles.recentSection} aria-labelledby="recent-heading">
+        <section className={styles.recentSection} aria-labelledby="recent-heading" data-tour="recent">
           <h2 id="recent-heading" className={styles.sectionTitle}>Pick up where you left off</h2>
           {recent.status === "ready" ? (
             <button ref={props.recentButtonRef} type="button" className={styles.recent} onClick={props.onContinueRecent} aria-label={`Continue ${recent.title}`}>

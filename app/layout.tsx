@@ -12,6 +12,7 @@ import { APPEARANCE_COOKIE, parseAppearanceCookie } from "@/src/lib/account/appe
 import { ChunkReloadGuard } from "@/src/components/chrome/ChunkReloadGuard";
 import { PageLoadingMark } from "@/src/components/chrome/PageLoadingMark";
 import { SlidingSelection } from "@/src/components/chrome/SlidingSelection";
+import { LearnMode } from "@/src/components/learn/LearnMode";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -52,6 +53,8 @@ export default async function RootLayout({
             {children}
             <PageLoadingMark />
             <SlidingSelection />
+            {/* The guided tour (it was left out by the redesign; Arthur 2026-10-26 put it back). */}
+            {session && <LearnMode />}
           </NotificationCenterProvider>
         </AccountSessionProvider>
       </body>

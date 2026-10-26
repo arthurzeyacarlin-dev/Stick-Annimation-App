@@ -73,13 +73,13 @@ export function AppHeader({ page, onExport }: { page: "home" | "dashboard" | "ot
               <span className={styles.label}>Home</span>
             </Link>
           ) : (
-            <Link href="/credits" className={styles.ghost} aria-label="Open AI Dashboard">
+            <Link href="/credits" className={styles.ghost} aria-label="Open AI Dashboard" data-tour="ai-dashboard">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" /></svg>
               <span className={styles.label}>AI Dashboard</span>
               {status && <span className={styles.badge} title="AI credits left">{status.creditsLeft}</span>}
             </Link>
           )}
-          <div className={styles.group}>
+          <div className={styles.group} data-tour="bell-menu">
             <span className={styles.bell}><NotificationTrigger view="home" /></span>
             <span className={styles.groupLine} aria-hidden="true" />
             <button type="button" className={styles.icon} aria-label="Menu" aria-expanded={menuOpen} aria-controls="app-menu" onClick={() => { setMenuOpen((open) => !open); setAccountOpen(false); }}>
@@ -88,19 +88,19 @@ export function AppHeader({ page, onExport }: { page: "home" | "dashboard" | "ot
           </div>
           {/* Export on every page: Home opens it in place; other pages go to Home's export screen. */}
           {onExport ? (
-            <button type="button" className={`${styles.ghost} ${styles.special}`} onClick={onExport}>
+            <button type="button" className={`${styles.ghost} ${styles.special}`} onClick={onExport} data-tour="export">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4m0 0-4 4m4-4 4 4" /><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" /></svg>
               <span className={styles.label}>Export</span>
             </button>
           ) : (
-            <Link href="/#export" className={`${styles.ghost} ${styles.special}`}>
+            <Link href="/#export" className={`${styles.ghost} ${styles.special}`} data-tour="export">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4m0 0-4 4m4-4 4 4" /><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" /></svg>
               <span className={styles.label}>Export</span>
             </Link>
           )}
           {account && (
             <div className={styles.accountShell} ref={accountRef}>
-              <button type="button" className={styles.avatar} data-has-image={account.image ? "true" : undefined} aria-label={`Account for ${account.name || account.email}`} aria-expanded={accountOpen}
+              <button type="button" className={styles.avatar} data-tour="account" data-has-image={account.image ? "true" : undefined} aria-label={`Account for ${account.name || account.email}`} aria-expanded={accountOpen}
                 onClick={() => { setAccountOpen((open) => !open); setLogoutError(null); setMenuOpen(false); }}>
                 <AccountAvatarContent account={account} imageClassName={styles.avatarImage} />
               </button>
@@ -144,6 +144,8 @@ export function AppHeader({ page, onExport }: { page: "home" | "dashboard" | "ot
         </section>
         <section className={styles.drawerSection}>
           <p className={styles.drawerLabel}>Support</p>
+          {/* Help is back on Home (Arthur 2026-10-26): the Assistant answers questions about Diamond Animator. */}
+          <Link href="/assistant" className={styles.drawerItem}><span>Help · Ask the Assistant</span><Chevron /></Link>
           <button type="button" className={styles.drawerItem} onClick={() => { setMenuOpen(false); setReportOpen(true); }}>Report a Problem<Chevron /></button>
           {problemReports.owner && (
             <Link href="/reports" className={styles.drawerItem}><span>Problem reports{problemReports.newCount > 0 ? ` (${problemReports.newCount} new)` : ""}</span><Chevron /></Link>

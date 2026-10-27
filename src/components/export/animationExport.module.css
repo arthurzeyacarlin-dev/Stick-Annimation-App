@@ -511,10 +511,13 @@
   color: var(--da-text-2);
 }
 
-.progressBar {
-  width: 100%;
-  accent-color: var(--da-selected-border);
-}
+.progressTop { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; color: var(--da-text, #f6f9ff); font-size: 14px; font-weight: 600; }
+.progressTop strong { color: #7fb0ff; font-variant-numeric: tabular-nums; }
+.progressBar { position: relative; height: 10px; border-radius: 999px; background: #0b1a33; box-shadow: inset 0 1px 2px rgba(0, 0, 0, .55); overflow: hidden; }
+.progressBar i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 999px; background: linear-gradient(90deg, #0052cc, #0066ff 60%, #4d94ff); box-shadow: 0 0 16px rgba(0, 102, 255, .6); transition: width 300ms ease; }
+.progressBar[data-waiting] i { width: 35%; animation: exportSweep 1.2s ease-in-out infinite; }
+@keyframes exportSweep { from { left: -35%; } to { left: 100%; } }
+@media (prefers-reduced-motion: reduce) { .progressBar[data-waiting] i { animation: none; left: 0; } .progressBar i { transition: none; } }
 
 .actions {
   display: flex;

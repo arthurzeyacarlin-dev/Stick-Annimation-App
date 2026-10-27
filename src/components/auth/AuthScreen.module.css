@@ -180,3 +180,12 @@
 @media (prefers-reduced-motion: reduce) { .planRow, .planDot { transition: none; } }
 .switcher button[aria-pressed="true"] { color: #fff; }
 @media (max-width: 420px) { .switcher button { font-size: 12.5px; } }
+
+/* One centered card (reset password, Arthur 2026-10-27): same glow + dots, no hero. */
+.screenCenter { grid-template-columns: minmax(0, 440px); justify-content: center; align-content: center; }
+.screenCenter .glow { left: 50%; top: 45%; }
+.screenCenter .lattice { -webkit-mask-image: radial-gradient(ellipse 60% 60% at 50% 45%, #000 0%, transparent 75%); mask-image: radial-gradient(ellipse 60% 60% at 50% 45%, #000 0%, transparent 75%); }
+.cardCompact.cardCompact { min-height: 0; margin-top: 0; grid-template-rows: none; }
+a.primary { display: grid; place-items: center; text-decoration: none; color: #fff; }
+.screenCenter > .lattice, .screenCenter > .glow { position: absolute !important; }
+.screenCenter .cardCompact { align-self: center; }

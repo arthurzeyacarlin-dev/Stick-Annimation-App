@@ -18,6 +18,8 @@ await page.locator("input:not([type=email]):not([type=password])").first().fill(
 await page.fill('input[type="email"]', email);
 await page.fill('input[type="password"]', pw);
 await page.getByRole("button", { name: "Create account", exact: true }).click();
+// D-0228: Create account has a step 2 (choose a plan) — start the free trial.
+await page.getByRole("button", { name: "Start free trial" }).click({ timeout: 90000 });
 await page.getByRole("button", { name: /New Project/i }).first().waitFor({ timeout: 120000 });
 await page.waitForTimeout(3000);
 const dont = page.getByRole("button", { name: /Don.?t show again/i });

@@ -10373,7 +10373,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     )}
     {(layerDeleteRequest || layerDeleteNotice) && (
       <div role="presentation" className={workspaceThemeStyles.workspace} onClick={() => { setLayerDeleteRequest(null); setLayerDeleteNotice(null); }} style={{ position: "fixed", inset: 0, zIndex: 1000, display: "grid", placeItems: "center", background: "var(--da-scrim, rgba(3, 9, 20, 0.72))" }}>
-        <div role="alertdialog" aria-modal="true" aria-label={layerDeleteRequest ? "Delete layer" : "Layer"} onClick={(event) => event.stopPropagation()} style={{ width: "min(420px, calc(100vw - 32px))", padding: 22, border: "1px solid var(--da-line, #163058)", borderRadius: 16, background: "var(--da-panel, #071120)", color: "var(--da-text, #f6f9ff)", boxShadow: "var(--da-shadow-pop, 0 18px 44px rgba(0,0,0,.45))", display: "grid", gap: 12 }}>
+        <div role="alertdialog" aria-modal="true" className={layerDeleteRequest ? "da-danger-dialog" : undefined} aria-label={layerDeleteRequest ? "Delete layer" : "Layer"} onClick={(event) => event.stopPropagation()} style={{ width: "min(420px, calc(100vw - 32px))", padding: 22, border: "1px solid var(--da-line, #163058)", borderRadius: 16, background: "var(--da-panel, #071120)", color: "var(--da-text, #f6f9ff)", boxShadow: "var(--da-shadow-pop, 0 18px 44px rgba(0,0,0,.45))", display: "grid", gap: 12 }}>
           {layerDeleteRequest ? (
             <>
               <strong style={{ fontSize: 18 }}>Delete &ldquo;{layerDeleteRequest.name}&rdquo;?</strong>

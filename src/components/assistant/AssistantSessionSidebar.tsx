@@ -49,7 +49,7 @@ export function AssistantSessionSidebar({ chats, mark }: { chats: Chats; mark: R
       </div>
     </div>
     <div className={styles.sidebarFoot}><span className={styles.previewDot} aria-hidden="true" /> A space for your questions</div>
-    {dialog && <dialog ref={dialogRef} className={styles.chatDialog} aria-labelledby="chat-dialog-title" aria-describedby="chat-dialog-description" onCancel={event => { event.preventDefault(); close(); }}>
+    {dialog && <dialog ref={dialogRef} className={`${styles.chatDialog}${dialog.kind === "delete" ? " da-danger-dialog" : ""}`} aria-labelledby="chat-dialog-title" aria-describedby="chat-dialog-description" onCancel={event => { event.preventDefault(); close(); }}>
       <form onSubmit={event => { event.preventDefault(); void submit(); }}>
         <h2 id="chat-dialog-title">{dialog.kind === "rename" ? "Rename chat" : "Delete chat?"}</h2>
         <p id="chat-dialog-description">{dialog.kind === "rename" ? "Your chosen name stays in charge of this chat." : `“${dialog.target.title}” and its conversation will be deleted from your account.`}</p>

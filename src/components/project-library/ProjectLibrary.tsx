@@ -483,7 +483,7 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
 
       {dialog && !readOnly ? (
         <div className={styles.dialogBackdrop} onPointerDown={event => { if (event.target === event.currentTarget) closeDialog(); }}>
-          <div className={styles.managementDialog} role="dialog" aria-modal="true" aria-labelledby="management-dialog-title" aria-describedby="management-dialog-description" onKeyDown={handleDialogKeys}>
+          <div className={`${styles.managementDialog}${dialog.kind === "delete" ? " da-danger-dialog" : ""}`} role="dialog" aria-modal="true" aria-labelledby="management-dialog-title" aria-describedby="management-dialog-description" onKeyDown={handleDialogKeys}>
             <h2 id="management-dialog-title">{dialog.kind === "rename" ? "Rename project" : dialog.kind === "duplicate" ? "Duplicate project" : "Delete project?"}</h2>
             {dialog.kind === "delete" ? (
               <><p id="management-dialog-description">Delete <strong>{dialog.entry.title}</strong>? It will be removed from your account for good. This can&apos;t be undone.</p>

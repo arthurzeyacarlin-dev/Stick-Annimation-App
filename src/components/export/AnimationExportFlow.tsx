@@ -445,8 +445,11 @@ export function ExportAnimationPlayer({ snapshot, onChange, ownerId, changeLabel
             <div className={styles.summaryLine}>{summary}</div>
 
             {progress ? <div role="status" aria-live="polite" className={styles.progress}>
-              <div>{progress.label}{progress.percent !== null ? ` ${progress.percent}%` : ""}</div>
-              <progress aria-label="Export progress" max={100} value={progress.percent ?? undefined} className={styles.progressBar} />
+              <div className={styles.progressTop}><span>{progress.label === "Getting ready" ? "Getting your export ready…" : progress.label}</span>{progress.percent !== null && <strong>{progress.percent}%</strong>}</div>
+              {/* Arthur (2026-10-27): a glowing blue bar instead of the grey browser bar; it sweeps while the percent is unknown. */}
+              <div role="progressbar" aria-label="Export progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress.percent ?? undefined} className={styles.progressBar} data-waiting={progress.percent === null ? "true" : undefined}>
+                <i style={progress.percent === null ? undefined : { width: `${progress.percent}%` }} />
+              </div>
             </div> : null}
             {message ? <div role={runState === "failed" ? "alert" : "status"} className={runState === "done" ? styles.resultSuccess : runState === "failed" ? styles.resultError : styles.resultNote}>{message}</div> : null}
 

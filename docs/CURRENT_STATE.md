@@ -1,6 +1,10 @@
 # Current State
 
-## D-0222 — App PM: shared button system (current)
+## D-0223 — App PM: free-trial AI Dashboard makeover; Help Assistant answers cost credits (current)
+
+Arthur passed 2026-10-27. The free-trial AI Dashboard has a glowing dotted hero (days left, credits left, bright Choose a plan), a bar that fades blue → green → yellow → orange → pure red at 0, and a split of credits used by the AI Animator and the Help Assistant. Every Help Assistant answer now costs 1 credit (refused at 0 before any AI call); voice typing stays free. See DECISIONS D-0223.
+
+## D-0222 — App PM: shared button system
 
 Arthur passed 2026-10-27. Every row of choices slides a pill like the Create account / Log in switch; hovering a selected choice changes nothing; three button types (plain like Open project, blue outline like New project, special like Export) and one red delete style, all shared app-wide. See DECISIONS D-0222.
 

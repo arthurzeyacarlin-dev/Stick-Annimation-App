@@ -1885,6 +1885,16 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0223 — Free-trial AI Dashboard makeover; Help Assistant answers cost credits (App PM, 2026-10-27)
+
+- Arthur passed 2026-10-27. Copy `diamond-review/trial-dashboard` (branch `claude/trial-dashboard`), product commit `f5a4ad1` fast-forwarded into main.
+- Free-trial dashboard (`AiDashboardScreen.tsx` `TrialHero`, "Free-trial dashboard" block in `AiDashboard.module.css`): one glowing hero with a dot grid — "Free trial" tag, "N days left" big, end date, bright Choose a plan (`da-super`, brightest on hover); right side "N of 75 left" with the credits bar and "X used / 75 total"; numbers row = used in trial / by the AI Animator / by the Help Assistant (plain, dividers). Paid plans keep the old top part (next round).
+- Calm empty chart ("No AI usage yet"): controls and chart note hidden; RULE (Arthur): a glow never has a hard cut edge — center it and fade on every side.
+- RULE (Arthur): the credits bar fades smoothly blue → green → yellow → orange → red as credits run out; PURE red only at 0 credits (`creditMeterStops`: 0 #0066ff, 35 green, 60 yellow, 80 orange, 100 #ff0000). The trial bar shows credits LEFT; at 0 the empty bar turns red.
+- RULE (Arthur, money): every Help Assistant answer costs AI credits — 1 credit (`AI_ACTION_CREDITS.assistant`, `ASSISTANT_ANSWER_CREDITS`). Checked before the AI call in `DiamondAssistantJobService.submit` (refused → 402 with the plain reason, shown in the chat), spent once when the answer is done (kind `assistant`); failed/stopped/timed-out answers are free. Voice typing stays free (Arthur). Replaces D-0186's "Help Assistant is free". Dad should know about this price change.
+- Dashboard chart's Assistant view reads `kind === "assistant"` credit uses. "Assistant is free" wording fixed on the dashboard, Plans, Description and in the Assistant's knowledge (also corrected its old 150-credit / old plan numbers).
+- Tests: `assistantJobService.credits.test.ts` (pretend AI: 1 credit once, refused at 0 before any call, failed free), approved prices + bar colors in `plans.test.ts` (18/18 credit tests); real app: 3 Assistant + 1 Animator spend → 70 of 75, split shown; at 0 the Assistant refused with 402 and no AI call. tsc + eslint clean. No paid AI call made; a real paid Assistant answer was not tested.
+
 ### D-0222 — Shared button system (App PM, 2026-10-27)
 
 - Arthur passed 2026-10-27. Copy `diamond-review/button-system` (branch `claude/button-system`), product commit `8e2e30d` fast-forwarded into main. A first attempt (per-group ghost) was rejected and undone.

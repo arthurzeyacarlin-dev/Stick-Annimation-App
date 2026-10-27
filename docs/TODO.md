@@ -7,6 +7,8 @@
 - [ ] **PHONE-PROPERTIES-SECTIONS** — fold-out sections in Properties on phones, if Arthur still wants them.
 - [ ] **PHONE-CANVAS-CLIP** — drawings drawn on the computer poke past the 16:9 canvas on phones (display-only clip, D-0204; protected drawing area — plan first).
 - [x] **PHONE-WHOLE-APP-CHECK** — done D-0213 (`6523575`): 16 screens checked; Help chat list, Export, Open Project fixed.
+- [x] **AI-DASHBOARD-TRIAL** — passed D-0223 (`f5a4ad1`): free-trial dashboard makeover; Help Assistant answers cost 1 credit.
+- [ ] **AI-DASHBOARD-PAID** — same polish for people who have a plan (top part still the old look).
 - [ ] **REPORTS-OWNER-ONLY** — "Problem reports" shows for every account in dev (D-0201); owner-only before online.
 - [x] **CHAT-BOX-TWEAKS** — passed D-0214 (`b5d0ad5`): quiet mic, dot waves, Effort slider with Auto, bigger check.
 - [x] **SMOOTH-SWITCHES** — passed D-0215 (`e6475bc`): every on/off switch slides and fades.

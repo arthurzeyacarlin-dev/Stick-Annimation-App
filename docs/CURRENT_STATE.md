@@ -1,6 +1,10 @@
 # Current State
 
-## D-0229 — App PM: Problem reports owner-only everywhere (current)
+## D-0230 — App PM: last old-look screens polished (current)
+
+Arthur passed 2026-10-27. Reset password, the 404 page, the export progress bar and every delete pop-up now have the app's polished look (glow, dots, bright buttons, red warning icon on deletes). See DECISIONS D-0230.
+
+## D-0229 — App PM: Problem reports owner-only everywhere
 
 Arthur passed 2026-10-27. Only the owner account can read Problem reports, on every copy; everyone can still send one. The thank-you after sending is now "Thanks for letting us know. We'll look into it and work on a fix." See DECISIONS D-0229.
 

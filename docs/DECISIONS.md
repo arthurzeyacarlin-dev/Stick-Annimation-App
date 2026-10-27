@@ -1885,6 +1885,16 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0230 — Last old-look screens polished: reset password, 404, export progress, delete pop-ups (App PM, 2026-10-27)
+
+- Arthur passed 2026-10-27. Copy `diamond-review/polish-screens` (branch `claude/polish-screens`), product commit `74d1ec0` fast-forwarded into main. Behaviour unchanged; looks only.
+- Reset password (`ResetPasswordScreen.tsx`) uses the AuthScreen card (`.screenCenter`, `.cardCompact`): glow + dots, eye buttons, bright button; expired/done states match.
+- 404 (`app/not-found.tsx`, "Not found page" block in globals.css): glow + dots, glowing logo, "404", bright Go to Home.
+- Export: glowing blue progress bar (`role=progressbar`; sweeps while the percent is unknown, fills with %), "Getting your export ready…".
+- RULE: every delete pop-up gets `da-danger-dialog` (globals.css): round red trash icon + soft red glow (project, layer, Help chat). The red delete button rule stays.
+- Drawing sweeps updated for D-0228 (click "Start free trial" after Create account) — they had broken silently; now 15/15 + 7/7.
+- Tests: after pictures of each screen; sweeps 15/15 + 7/7; tsc clean. Layer and chat pop-ups not photographed.
+
 ### D-0229 — Problem reports owner-only everywhere; professional report thank-you (App PM, 2026-10-27)
 
 - Arthur passed 2026-10-27. Copy `diamond-review/reports-owner` (branch `claude/reports-owner`), product commit `82f3d91` fast-forwarded into main. Closes TODO REPORTS-OWNER-ONLY.

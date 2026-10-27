@@ -169,7 +169,7 @@ export function AccountProfileScreen() {
             <label className={styles.label} htmlFor="profile-name">Display name
               <input id="profile-name" className={styles.input} required maxLength={80} value={name} onChange={(event) => setName(event.target.value)} />
             </label>
-            <button type="submit" className={`${styles.button} ${styles.primary}`} disabled={profileBusy}>Save name</button>
+            <button type="submit" className={`${styles.button} da-btn-outline`} disabled={profileBusy}>Save name</button>
           </form>
           <div className={styles.label}>Email<span className={styles.readOnly}>{account.email}</span></div>
           {profileStatus && <p role={profileStatus.kind === "error" ? "alert" : "status"} className={profileStatus.kind === "error" ? styles.error : styles.ok}>{profileStatus.text}</p>}

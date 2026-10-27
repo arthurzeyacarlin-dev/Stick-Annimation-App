@@ -182,7 +182,7 @@
 .planActions { display: flex; gap: 10px; align-items: center; }
 .planButton.planButton { display: inline-flex; align-items: center; height: 44px; padding: 0 20px; border-radius: 12px; border: 0 !important; color: #fff !important; font-weight: 700; text-decoration: none;
   background: linear-gradient(180deg, #1673ff, #0052d1) !important; box-shadow: 0 10px 26px rgba(0, 82, 209, .45), inset 0 1px 0 rgba(255, 255, 255, .22) !important; transition: none; }
-.planButton.planButton:hover { background: var(--da-hover, #0066ff) !important; box-shadow: 0 12px 32px rgba(0, 102, 255, .6), inset 0 1px 0 rgba(255, 255, 255, .25) !important; }
+.planButton.planButton:hover { background: var(--da-hover-super, #3d8bff) !important; /* special: brightest blue on hover (Arthur) */ box-shadow: 0 12px 32px rgba(0, 102, 255, .6), inset 0 1px 0 rgba(255, 255, 255, .25) !important; }
 .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 20px 0; border-top: 1px solid var(--da-line, #163058); border-bottom: 1px solid var(--da-line, #163058); }
 .stats > div { display: grid; gap: 6px; padding: 4px 24px; border-left: 1px solid var(--da-line, #163058); }
 .stats > div:first-child { padding-left: 0; border-left: 0; }

@@ -10951,6 +10951,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                   key={option}
                   type="button"
                   onClick={() => onShapeTypeChange(option)}
+                  aria-pressed={isSelected}
                   style={{
                     minHeight: 34,
                     padding: "6px 10px",
@@ -10978,6 +10979,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                   key={option}
                   type="button"
                   onClick={() => setShapeMode(option)}
+                  aria-pressed={isSelected}
                   style={{
                     minHeight: 34,
                     padding: "6px 10px",

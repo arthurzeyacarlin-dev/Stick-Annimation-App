@@ -105,7 +105,7 @@
 .popPlan:hover { background: var(--blue); border-color: var(--blue); }
 
 /* Account circle: dark at rest; on hover the dull blue fill keeps the outline, so it never looks like it vanished. */
-.avatar:hover { background: var(--da-hover-soft, #13305c) !important; border-color: #3d6fb0 !important; }
+.avatar:hover { background: #0066ff !important; border-color: #0066ff !important; color: #fff !important; } /* blue outline -> solid blue, like New project */
 /* Bigger brand (Arthur). */
 .brandMark svg { width: 42px; height: 42px; }
 .brandName { font-size: 19px; }

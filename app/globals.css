@@ -879,3 +879,35 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
   background: radial-gradient(circle, rgba(110, 155, 230, .3) 1.2px, transparent 1.7px) 0 0 / 20px 20px, radial-gradient(ellipse 50% 60% at 50% 35%, rgba(0, 102, 255, .2), transparent 75%);
   -webkit-mask-image: radial-gradient(ellipse 50% 60% at 50% 35%, #000 0%, transparent 80%); mask-image: radial-gradient(ellipse 50% 60% at 50% 35%, #000 0%, transparent 80%); }
 .drawing-ai-logo.drawing-ai-logo-small { width: 26px; height: 26px; margin: 0; }
+
+/* ===== SHARED BUTTON SYSTEM (Arthur 2026-10-27) — one set of rules for the whole app =====
+   Choice rows work like Create account / Log in: a pill under the selected choice slides to the new one
+   (ChoicePills.tsx). Hovering the selected choice changes NOTHING; hovering another choice = the dull blue box. */
+:root .da-choice-pill { position: absolute; left: 0; top: 0; z-index: 0; pointer-events: none; background: var(--da-selected-bg, #0f2a52); box-shadow: inset 0 -3px 0 #0066ff;
+  transition: transform 240ms cubic-bezier(.2, .8, .2, 1), width 240ms cubic-bezier(.2, .8, .2, 1), height 240ms cubic-bezier(.2, .8, .2, 1), opacity 120ms !important; } /* wins over pages that turn animations off */
+.drawing-toolbar > .da-choice-pill { background: #0066ff; box-shadow: 0 5px 16px rgba(0, 102, 255, .4); }
+[data-da-choice-row] > button, [data-da-choice-row] > * > button { position: relative; z-index: 1; }
+[data-da-choice-row][data-da-choice-row] :is(button):is([aria-pressed="true"], [aria-selected="true"], [aria-checked="true"], [data-selected]),
+[data-da-choice-row][data-da-choice-row] :is(button):is([aria-pressed="true"], [aria-selected="true"], [aria-checked="true"], [data-selected]):hover {
+  background: transparent !important; box-shadow: none !important; border-color: transparent !important; color: #ffffff !important; }
+[data-da-choice-row][data-da-choice-row] :is(button):is([aria-pressed="true"], [aria-selected="true"], [aria-checked="true"], [data-selected]):hover * { color: #ffffff !important; }
+@media (prefers-reduced-motion: reduce) { :root .da-choice-pill { transition: none !important; } }
+/* The Create account / Log in switch follows the same rule: its selected tab doesn't change on hover. */
+[role="tablist"][data-mode] button[aria-selected="true"]:hover { background: transparent !important; color: #fff !important; }
+
+/* Button types — the whole app uses these three, plus red for delete:
+   1 plain (like Open project): the dull blue box on hover — the shared hover rules already do this.
+   2 blue outline (like New project): navy with a blue outline; on hover the whole button turns solid blue, text white.
+   3 special glowing (like Export, Choose a plan): bright blue; on hover the brightest blue in the app (.da-super / the
+     page's own special class). A bright button never gets darker on hover. */
+.da-btn-outline { border: 1px solid #2f6fd6 !important; background: linear-gradient(135deg, #0d2a5c, #071733 70%) !important; color: #fff !important; box-shadow: 0 0 12px rgba(0, 102, 255, .18); }
+.da-btn-outline:hover:not(:disabled) { background: #0066ff !important; border-color: #0066ff !important; color: #fff !important; box-shadow: 0 5px 16px rgba(0, 102, 255, .4) !important; }
+.da-btn-outline:hover:not(:disabled) * { color: #fff !important; }
+
+/* Delete, discard and warnings — ONE style everywhere: thick red outline + red text; on hover the whole button is red
+   and everything inside turns white. (Icon-only trash buttons keep their icon hover.) */
+:root :is(button[data-hover="danger"], button[style*="--da-danger"]:not([data-hover="icon"]), button[class*="danger" i], button[class*="destructive" i], button[class*="delete" i]:not([data-hover="icon"]), button[class*="discard" i]:not([data-hover="icon"])) {
+  background: transparent !important; color: var(--da-danger, #ff8a95) !important; border: 2px solid var(--da-danger, #ff8a95) !important; box-shadow: none !important; }
+:root :is(button[data-hover="danger"], button[style*="--da-danger"]:not([data-hover="icon"]), button[class*="danger" i], button[class*="destructive" i], button[class*="delete" i]:not([data-hover="icon"]), button[class*="discard" i]:not([data-hover="icon"])):hover:not(:disabled) {
+  background: var(--da-danger-solid, #d23a52) !important; border-color: var(--da-danger-solid, #d23a52) !important; color: #ffffff !important; }
+:root :is(button[data-hover="danger"], button[style*="--da-danger"]:not([data-hover="icon"]), button[class*="danger" i], button[class*="destructive" i], button[class*="delete" i]:not([data-hover="icon"]), button[class*="discard" i]:not([data-hover="icon"])) * { color: inherit !important; }

@@ -12,6 +12,10 @@
 
 **HANDOFF AT 60% CHAT MEMORY (dad, Oct 16):** at 50% start keeping docs current; at 60%: (1) write everything still only in the chat into the spec, this file, CURRENT_STATE/TODO if app-relevant, memory, and the board; (2) refresh `/Users/arthurcarlin/Projects/diamond-review/board/HANDOFF_MESSAGE.md` (self-contained: who, read-first list, where we are, next, rules); (3) `python3 board.py handoff` — the board's Handoff button turns green (yellow from 50%); (4) tell Arthur: click it, open a NEW Claude chat in this project, paste. Nothing may survive only inside a chat.
 
+## App PM update 13 (Tue 2026-10-27)
+
+D-0224 merged (`550fc73`): AI Dashboard for plan members, the climbing color line (drops at the refill), Home icon + colored credits number, temporary dashboard test buttons (development only). Test copies `trial-dashboard` and `paid-dashboard` can be retired. Next: "coming later" wording, owner-only problem reports, old-look screens, phone review; remove the test buttons before going live.
+
 ## App PM update 12 (Tue 2026-10-27)
 
 D-0223 merged (`f5a4ad1`): free-trial AI Dashboard makeover + every Help Assistant answer costs 1 credit (voice typing free). Test copy `trial-dashboard` can be retired. Next: the AI Dashboard for people who HAVE a plan, then "coming later" wording, owner-only problem reports, old-look screens, phone review.

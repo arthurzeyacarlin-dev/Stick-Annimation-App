@@ -1885,6 +1885,17 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0224 — AI Dashboard for plan members; the climbing color line; temporary test buttons (App PM, 2026-10-27)
+
+- Arthur passed 2026-10-27. Copy `diamond-review/paid-dashboard` (branch `claude/paid-dashboard`), product commit `550fc73` fast-forwarded into main.
+- One hero for the trial AND every plan (`PlanHero` in `AiDashboardScreen.tsx`): plan tag, "Refills in N days" (or "Plan ends …"), price · credits · refill date, bright Change plan (`da-super`), Manage plan (`da-btn-outline`); credits left of plan + extra, the fading bar, "X used / total" or "incl. N extra". Numbers row: used this month / by the AI Animator / by the Help Assistant (test uses not split).
+- RULE (Arthur): the extra-credit packs are blue-outline buttons like New project — outline at rest, plain bright blue (#0066ff, not the extra-bright special blue) with white inside on hover. TEST MODE is a small calm label.
+- RULE (Arthur): the usage line climbs from the ground until the REFILL, then drops straight to zero and climbs again (not a weekly reset): `buildBuckets(..., refillAt)` compares sample periods; `getCreditUseEvents` also returns last month's uses. The line and dots fade blue → green → yellow → orange → red by height (same `creditMeterStops` as the bar); a dot at the red ceiling shows whole.
+- Show / Group by stay visible once there is any usage (an empty Assistant view can be switched back). Plain local time under the chart.
+- Home: the AI Dashboard button uses the white chart icon (same shape as "No AI usage yet"); the credits number takes the bar's color.
+- Temporary test buttons (Arthur, remove before going live): the full `TestPlanControls` at the bottom of the dashboard, development only (`process.env.NODE_ENV`; `/api/dev/plan` is 404 elsewhere). New: Refill now (new month starts now), Spend a Help Assistant answer. Use-up / only-5-left / −25 / −100 now record `kind = 'test'` credit uses so the line moves with them.
+- Tests: real app with backdated test uses (Hour view): zigzag to the ceiling, last dot 100% #ff0000; Refill now → straight drop then climb; Assistant view keeps controls; Home badge rgb(0,102,255) at 420, orange at 157, red at 0; pack hover (47,111,214) outline → (0,102,255); Change plan brighter, Manage plan see-through → solid blue. 21/21 credit + dashboard tests, tsc + eslint clean. Stripe Buy/Manage plan not pressed.
+
 ### D-0223 — Free-trial AI Dashboard makeover; Help Assistant answers cost credits (App PM, 2026-10-27)
 
 - Arthur passed 2026-10-27. Copy `diamond-review/trial-dashboard` (branch `claude/trial-dashboard`), product commit `f5a4ad1` fast-forwarded into main.

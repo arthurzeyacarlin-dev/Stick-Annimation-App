@@ -1,6 +1,10 @@
 # Current State
 
-## D-0223 — App PM: free-trial AI Dashboard makeover; Help Assistant answers cost credits (current)
+## D-0224 — App PM: AI Dashboard for plan members; climbing color line (current)
+
+Arthur passed 2026-10-27. Plan members get the same glowing dashboard hero as the trial, blue-outline extra-credit buttons, and a usage line that climbs (fading blue → red) until the refill, then drops to zero. Home's AI Dashboard button has a white chart icon and the credits number in the bar's color. Temporary test buttons sit at the bottom of the dashboard in development only — remove before going live. See DECISIONS D-0224.
+
+## D-0223 — App PM: free-trial AI Dashboard makeover; Help Assistant answers cost credits
 
 Arthur passed 2026-10-27. The free-trial AI Dashboard has a glowing dotted hero (days left, credits left, bright Choose a plan), a bar that fades blue → green → yellow → orange → pure red at 0, and a split of credits used by the AI Animator and the Help Assistant. Every Help Assistant answer now costs 1 credit (refused at 0 before any AI call); voice typing stays free. See DECISIONS D-0223.
 

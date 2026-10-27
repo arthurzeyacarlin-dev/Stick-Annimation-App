@@ -4,7 +4,6 @@
 .panel *, .panel *::before, .panel *::after { box-sizing: border-box; transition: none; animation: none; }
 .heading { margin: 0; color: var(--da-text, #f6f9ff); font-size: 16px; font-weight: 720; }
 .text { margin: 0; color: var(--da-text-3, #a8bddd); font-size: 13.5px; }
-.testMode { margin: 0; color: var(--da-warning, #f3d89c); font-size: 13px; font-weight: 600; }
 .packs { display: flex; flex-wrap: wrap; gap: 10px; }
 .button { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 0 18px; border: 1px solid var(--da-border, #244267); border-radius: var(--da-radius-control, 10px); background: var(--da-panel, #071120); color: var(--da-text, #f6f9ff); font: inherit; font-size: 14px; font-weight: 700; text-decoration: none; cursor: pointer; }
 .button:hover:not(:disabled) { border-color: var(--da-hover-soft, #0066ff); background: var(--da-hover-soft, #0066ff); color: #fff; }

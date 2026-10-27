@@ -46,8 +46,6 @@ export function takeCheckoutReturn(flag: "checkout" | "topup"): { result: "done"
   return { result, sessionId };
 }
 
-export const TEST_CARD_NOTE = "TEST MODE — use the fake card 4242 4242 4242 4242, any future date, any 3 digits for the card security code. No real money.";
-
 /** Goes to Stripe's page (only ever an https address on stripe.com). */
 export function goToStripe(url: string) {
   const target = new URL(url);

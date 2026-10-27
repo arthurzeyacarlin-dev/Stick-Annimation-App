@@ -13,6 +13,6 @@ export default async function Page() {
   if (!session) return <AuthScreen />;
   // After the free trial (or a plan) ends, the main screen is replaced by the locked screen (unchanged, SPEC-0020).
   const plan = getAccountPlanStatus(session.user.id);
-  if (plan.locked) return <TrialEndedScreen name={session.user.name} lockReason={plan.lockReason} showTestLink={process.env.NODE_ENV === "development"} />;
+  if (plan.locked) return <TrialEndedScreen name={session.user.name} lockReason={plan.lockReason} />;
   return <ExistingHome />;
 }

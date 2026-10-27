@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { topUpPacksFor, type TopUpPackId } from "@/src/lib/account/plans";
-import { goToStripe, postBilling, takeCheckoutReturn, TEST_CARD_NOTE, useBillingMode } from "./billingClient";
+import { goToStripe, postBilling, takeCheckoutReturn, useBillingMode } from "./billingClient";
 import { ACCOUNT_PLAN_CHANGED_EVENT, useAccountPlan } from "./useAccountPlan";
 import styles from "./Billing.module.css";
 
@@ -62,7 +62,6 @@ export function BuyCreditsPanel() {
       <h2 id="buy-credits-heading" className={styles.heading}>Buy extra credits</h2>
       {member && <p className={styles.text}>Ran out before your refill? Buy extra AI credits for your plan. They stay until you use them.</p>}
       {notice && <p className={styles.success} role="status">{notice}</p>}
-      {canBuy && <p className={styles.testMode} role="note">{TEST_CARD_NOTE}</p>}
       {packs.length > 0 && <div className={styles.packGrid}>
         {packs.map((pack) => (
           <button key={pack.id} type="button" className={styles.pack} disabled={!canBuy || busy !== null} onClick={() => void buy(pack.id)}
@@ -76,7 +75,7 @@ export function BuyCreditsPanel() {
         <p className={styles.text}>Your last payment didn&apos;t go through. Update your card in Manage plan, then you can buy extra credits.</p>
       ) : !member ? (
         <p className={styles.text}>Extra credits are for plan members. <Link href="/plans" prefetch={false} className={styles.link}>Choose a plan</Link></p>
-      ) : mode === "off" ? <p className={styles.text}>Payments open soon.</p> : null}
+      ) : mode === "off" ? <p className={styles.text}>Buying extra credits isn&apos;t available right now.</p> : null}
       {error && <p role="alert" className={styles.error}>{error}</p>}
     </section>
   );

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ACCOUNT_PLANS, PAID_PLAN_IDS, type BillingInterval, type PaidPlanId } from "@/src/lib/account/plans";
-import { goToStripe, postBilling, takeCheckoutReturn, TEST_CARD_NOTE, useBillingMode } from "./billingClient";
+import { goToStripe, postBilling, takeCheckoutReturn, useBillingMode } from "./billingClient";
 import { ManagePlanButton } from "./ManagePlanButton";
 import { ACCOUNT_PLAN_CHANGED_EVENT, useAccountPlan } from "./useAccountPlan";
 import styles from "./PlansScreen.module.css";
@@ -79,7 +79,6 @@ export function PlansScreen() {
         <p className={styles.eyebrow}>Plans</p>
         <h1 className={styles.title}>Choose your plan</h1>
         <p className={styles.lead}>{lead}</p>
-        {mode === "test" && <p className={styles.testMode} role="note">{TEST_CARD_NOTE}</p>}
         {notice && <p className={styles.notice} role="status">{notice}</p>}
 
         <p className={styles.note}>Show prices for:</p>
@@ -117,7 +116,7 @@ export function PlansScreen() {
                 </div>
               );
             }
-            const label = mode === "off" ? "Payments open soon"
+            const label = mode === "off" ? "Not available right now"
               : busy === id ? "Opening Stripe"
               : payingNow ? `Switch to ${plan.label}`
               : `Choose ${plan.label}`;

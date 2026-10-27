@@ -11,11 +11,9 @@ import styles from "./TrialEndedScreen.module.css";
 // people can still open, WATCH and EXPORT what they made (dad's decision). This screen replaces Home, so the editor
 // can't be reached; Choose a plan, Profile and Log out stay open. Projects are never deleted.
 
-export function TrialEndedScreen({ name, lockReason = "trial_ended", showTestLink = false }: {
+export function TrialEndedScreen({ name, lockReason = "trial_ended" }: {
   name: string;
   lockReason?: "trial_ended" | "plan_ended" | null;
-  /** Development only: a link to the test controls, so a locked test account can be unlocked again. */
-  showTestLink?: boolean;
 }) {
   const account = useAccountSession();
   const [busy, setBusy] = useState(false);
@@ -52,7 +50,6 @@ export function TrialEndedScreen({ name, lockReason = "trial_ended", showTestLin
           <button type="button" className={styles.button} onClick={() => void logOut()} disabled={busy}>{busy ? "Logging out" : "Log out"}</button>
         </div>
         {error && <p role="alert" className={styles.error}>{error}</p>}
-        {showTestLink && <p className={styles.testLink}>TEST ONLY (developer): <Link href="/dev/plan">open the test controls</Link> to unlock this account again.</p>}
       </header>
       <div className={styles.library}>
         {account?.id ? <ProjectLibrary readOnly surface="combined" ownerId={account.id} />

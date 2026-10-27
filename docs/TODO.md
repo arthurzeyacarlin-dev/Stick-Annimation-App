@@ -9,6 +9,7 @@
 - [x] **PHONE-WHOLE-APP-CHECK** — done D-0213 (`6523575`): 16 screens checked; Help chat list, Export, Open Project fixed.
 - [x] **AI-DASHBOARD-TRIAL** — passed D-0223 (`f5a4ad1`): free-trial dashboard makeover; Help Assistant answers cost 1 credit.
 - [x] **AI-DASHBOARD-PAID** — passed D-0224 (`550fc73`): plan hero, climbing color line, Home icon + colored credits number.
+- [x] **NO-TUTORIALS** — passed D-0225 (`d4ef79c`): Tutorials removed everywhere; guides = tour + Help Assistant.
 - [ ] **REMOVE-DASHBOARD-TEST-BUTTONS** — temporary test buttons at the bottom of the AI Dashboard (development only, D-0224); remove before going live.
 - [ ] **REPORTS-OWNER-ONLY** — "Problem reports" shows for every account in dev (D-0201); owner-only before online.
 - [x] **CHAT-BOX-TWEAKS** — passed D-0214 (`b5d0ad5`): quiet mic, dot waves, Effort slider with Auto, bigger check.

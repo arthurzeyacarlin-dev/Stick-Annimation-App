@@ -1,6 +1,10 @@
 # Current State
 
-## D-0224 — App PM: AI Dashboard for plan members; climbing color line (current)
+## D-0225 — App PM: no Tutorials anywhere (current)
+
+Arthur passed 2026-10-27. There is no Tutorials button, screen or section; the guides are the guided tour and the Help Assistant (and editor Keyboard Shortcuts). The hidden Tutorials screen and old Help page are deleted, and the Help Assistant no longer mentions Tutorials. See DECISIONS D-0225.
+
+## D-0224 — App PM: AI Dashboard for plan members; climbing color line
 
 Arthur passed 2026-10-27. Plan members get the same glowing dashboard hero as the trial, blue-outline extra-credit buttons, and a usage line that climbs (fading blue → red) until the refill, then drops to zero. Home's AI Dashboard button has a white chart icon and the credits number in the bar's color. Temporary test buttons sit at the bottom of the dashboard in development only — remove before going live. See DECISIONS D-0224.
 

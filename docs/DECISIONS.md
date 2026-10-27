@@ -1885,6 +1885,13 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0225 — No Tutorials anywhere (App PM, 2026-10-27)
+
+- Arthur passed 2026-10-27. Copy `diamond-review/no-tutorials` (branch `claude/no-tutorials`), product commit `d4ef79c` fast-forwarded into main.
+- RULE (Arthur, HARD): there is NO Tutorials button, screen or section anywhere. The only guides are the guided tour (new accounts, Settings → Start guided tour) and the Help Assistant (plus editor Help → Keyboard Shortcuts). Supersedes the old Help → Tutorials ("Coming later") screen and the App Store/tutorials "very last" plan.
+- Finding: since D-0218 nothing rendered the Tutorials screen or the old HelpHub, but the Help Assistant's knowledge still told users "Home → Help → Tutorials (Coming later)". Deleted `src/components/tutorials/`, `src/lib/tutorials/`, `src/components/help/` and the SPEC-0003 Tutorials proof scripts; knowledge entry `help` rewritten (id `help` replaces `tutorials` in the mandatory set); Home view type trimmed.
+- Tests: fresh account, no "tutorial" text or markup on Home (with tour), menu, /assistant, /settings, /plans, /credits, /account, 404, editor Help menu; no page errors; tsc clean.
+
 ### D-0224 — AI Dashboard for plan members; the climbing color line; temporary test buttons (App PM, 2026-10-27)
 
 - Arthur passed 2026-10-27. Copy `diamond-review/paid-dashboard` (branch `claude/paid-dashboard`), product commit `550fc73` fast-forwarded into main.

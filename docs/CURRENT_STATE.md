@@ -1,6 +1,10 @@
 # Current State
 
-## D-0221 — App PM: workspace makeover — the editor looks like a pro creative hub (current)
+## D-0222 — App PM: shared button system (current)
+
+Arthur passed 2026-10-27. Every row of choices slides a pill like the Create account / Log in switch; hovering a selected choice changes nothing; three button types (plain like Open project, blue outline like New project, special like Export) and one red delete style, all shared app-wide. See DECISIONS D-0222.
+
+## D-0221 — App PM: workspace makeover — the editor looks like a pro creative hub
 
 Arthur passed 2026-10-27. Darker cooler colors, glowing logo + Export in the top bar, pro timeline ruler and grouped controls, dark dotted area outside the camera box, evenly spaced labelled tools with one matching icon set (real knife), tool headings, Library/Assets hero states, red delete buttons, AI Animator logo. Behaviour unchanged; frames, sliders and tabs keep their look. See DECISIONS D-0221.
 

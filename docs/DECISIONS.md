@@ -1885,6 +1885,15 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0222 — Shared button system (App PM, 2026-10-27)
+
+- Arthur passed 2026-10-27. Copy `diamond-review/button-system` (branch `claude/button-system`), product commit `8e2e30d` fast-forwarded into main. A first attempt (per-group ghost) was rejected and undone.
+- Audit (216 buttons measured rest vs hover on every page/editor tab): selected choices changed on hover everywhere; the old slide was nearly invisible (blend mode) and skipped the panel tabs; Settings/Plans turned transitions off; Shape choices had no aria-pressed; delete outlines were 1px or 1.5px; Save name was styled special; AI Dashboard Choose a plan got darker on hover.
+- RULE (Arthur, HARD): choice rows work like Create account / Log in — `src/components/chrome/ChoicePills.tsx` puts one `.da-choice-pill` under the selected choice and slides it (240 ms, cubic-bezier(.2,.8,.2,1)); buttons stay see-through so hovering the selected choice changes NOTHING. Rows listed in `CHOICE_ROWS` (segmented, editor panel tabs, Plans intervals, phone sheet tabs, tool bar, workspace flex-wrap choices). New choice rows: add the selector there, never a per-page animation. Toggles that can both be on (Bold/Italic) are not choice rows.
+- RULE (Arthur): three button types app-wide — plain (like Open project) = dull blue box on hover; blue outline (like New project, `.da-btn-outline`) = whole button solid blue, white inside on hover; special (like Export / Choose a plan) = brightest blue on hover. A bright button never gets darker.
+- RULE (Arthur): delete / discard / danger = one style (`:root :is(...)` block at the end of `app/globals.css`): 2px red outline + red text; hover solid red (`--da-danger-solid`), white inside. Icon-only trash buttons keep their icon hover.
+- Tests: re-audit 216 buttons → 0 problems; every choice row: pill present, hover-on-selected unchanged, pill x moves over frames; Assets Delete measured 2px red / solid red + white; drawing sweeps 15/15 + 7/7; tsc + eslint clean.
+
 ### D-0221 — Workspace makeover: the editor as a pro creative hub (App PM, 2026-10-27)
 
 - Arthur passed 2026-10-27 after many review rounds. Copy `diamond-review/workspace-polish` (branch `claude/workspace-polish`), product commit `b978bad` fast-forwarded into main.
@@ -1897,7 +1906,8 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - AI Animator: Diamond logo (48px, glow) instead of the icon card; logo heads the chat once it starts; effort chip shows just Auto/Low/Medium/High (shared chat box, Help Assistant too).
 - Bugs fixed (both were in main from D-0218): the blanket editor hover no longer dims selected/bright/red buttons; `SlidingSelection` no longer blinks words and leaves the panel tabs' own animation alone.
 - Tests: drawing sweeps 15/15 + 7/7, tsc clean, measured hover colors (selected tool, Export, Play, Delete), File menu on top, onion state, tab words visible during switch, phone top bar fits.
-- Not done yet: with 2+ layers the expanded timeline covers the top of the right panel and blocks its tabs (pre-existing, also before this round). AI chat logo not seen live (needs a paid AI message).
+- RULE (Arthur 2026-10-27): with 2+ layers the expanded timeline going over the right panel is INTENTIONAL (more frames visible; drag the edge under it to shrink it). Not a bug — never "fix" it.
+- Not done yet: AI chat logo not seen live (needs a paid AI message).
 
 ### D-0220 — Home greeting: first visit vs coming back (App PM, 2026-10-26)
 

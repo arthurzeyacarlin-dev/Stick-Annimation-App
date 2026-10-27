@@ -16,7 +16,7 @@
 - [x] **HOME-TOUR** — passed D-0219 (`bfa8238`): tour back on, 7 new Home steps, Help in the menu.
 - [x] **WELCOME-NEW-USER** — passed D-0220 (`6a2f017`): first visit "Welcome, Name" + new words; "Welcome back" after coming back.
 - [x] **EDITOR-REDESIGN** — passed D-0221 (`b978bad`): workspace makeover.
-- [ ] **TIMELINE-COVERS-TABS** — with 2+ layers the expanded timeline covers the right panel's tabs; keep it from overlapping.
+- [x] **BUTTON-SYSTEM** — passed D-0222 (`8e2e30d`): shared choice pills, hover types, delete style.
 - [ ] **ASSET-PACKS** — ready-made original asset packs (blocks, characters); own art only, no Minecraft/Roblox art or names (plan first).
 - [ ] **NEXT-APP-CHANGE** — Arthur's next change; then polish.
 - [ ] **AI-ANIMATOR-FRAMES** — the app's AI panel still only chats; wire the passed engine (PM v9 owns the engine).

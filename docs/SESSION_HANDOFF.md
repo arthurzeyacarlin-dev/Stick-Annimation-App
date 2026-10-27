@@ -12,9 +12,13 @@
 
 **HANDOFF AT 60% CHAT MEMORY (dad, Oct 16):** at 50% start keeping docs current; at 60%: (1) write everything still only in the chat into the spec, this file, CURRENT_STATE/TODO if app-relevant, memory, and the board; (2) refresh `/Users/arthurcarlin/Projects/diamond-review/board/HANDOFF_MESSAGE.md` (self-contained: who, read-first list, where we are, next, rules); (3) `python3 board.py handoff` — the board's Handoff button turns green (yellow from 50%); (4) tell Arthur: click it, open a NEW Claude chat in this project, paste. Nothing may survive only inside a chat.
 
+## App PM update 11 (Tue 2026-10-27)
+
+D-0222 merged (`8e2e30d`): shared button system (sliding choice pills, selected never changes on hover, three button types, one delete style). Test copy `button-system` can be retired. Next: Arthur's next change.
+
 ## App PM update 10 (Tue 2026-10-27)
 
-D-0221 merged (`b978bad`): workspace makeover (pro creative-hub look, same behaviour). Test copy `workspace-polish` can be retired. Next: fix the expanded timeline covering the right panel's tabs with 2+ layers.
+D-0221 merged (`b978bad`): workspace makeover (pro creative-hub look, same behaviour). Test copy `workspace-polish` can be retired. The expanded timeline covering the right panel with 2+ layers is intentional (Arthur) — not a bug. Next: Arthur's next change.
 
 ## App PM update 9 (Mon 2026-10-26)
 

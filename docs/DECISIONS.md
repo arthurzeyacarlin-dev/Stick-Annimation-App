@@ -1885,6 +1885,14 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0229 — Problem reports owner-only everywhere; professional report thank-you (App PM, 2026-10-27)
+
+- Arthur passed 2026-10-27. Copy `diamond-review/reports-owner` (branch `claude/reports-owner`), product commit `82f3d91` fast-forwarded into main. Closes TODO REPORTS-OWNER-ONLY.
+- Finding: real builds were already owner-only; the D-0201 development shortcut in `isOwnerEmail` let ANY signed-in account read reports on development copies (Arthur's Mac). Removed: only `OWNER_EMAILS` (arthurzeyacarlin@gmail.com) can open /reports, its API and screenshots; the menu row follows the summary API (404 → hidden). Sending a report stays open to everyone.
+- Report thank-you (Arthur: professional): "Thanks for letting us know. We'll look into it and work on a fix." (was "Thanks — Arthur will read this.").
+- Note: each test copy has its own account store; to test as owner in a copy use Forgot password → /dev/mail.
+- Tests: beta account → /reports 404, API 404, no menu row; owner → /reports 200, API 200; Arthur logged in as owner in the copy; tsc clean.
+
 ### D-0228 — Create account step 2: choose a free trial or a plan (App PM, 2026-10-27)
 
 - Arthur passed 2026-10-27 (a first try — a plans page after sign-up with four equal cards — was rejected and undone). Copy `diamond-review/choose-plan` (branch `claude/choose-plan`), product commit `3387dec` fast-forwarded into main.

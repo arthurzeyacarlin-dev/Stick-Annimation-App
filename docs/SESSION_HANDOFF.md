@@ -12,6 +12,10 @@
 
 **HANDOFF AT 60% CHAT MEMORY (dad, Oct 16):** at 50% start keeping docs current; at 60%: (1) write everything still only in the chat into the spec, this file, CURRENT_STATE/TODO if app-relevant, memory, and the board; (2) refresh `/Users/arthurcarlin/Projects/diamond-review/board/HANDOFF_MESSAGE.md` (self-contained: who, read-first list, where we are, next, rules); (3) `python3 board.py handoff` — the board's Handoff button turns green (yellow from 50%); (4) tell Arthur: click it, open a NEW Claude chat in this project, paste. Nothing may survive only inside a chat.
 
+## App PM update 18 (Tue 2026-10-27)
+
+D-0229 merged: Problem reports owner-only everywhere; professional report thank-you. Test copy `reports-owner` can be retired. Next (recommended): ask dad about a real email service for Forgot password (beta users are otherwise locked out), old-look screens, phone check of today's screens, one paid sign-up test with Stripe's test card.
+
 ## App PM update 17 (Tue 2026-10-27)
 
 D-0228 merged: Create account step 2 "Choose your plan" (trial or paid, before the app opens). Test copy `choose-plan` can be retired. Next: Arthur's pick.

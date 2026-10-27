@@ -14,7 +14,8 @@
 - [x] **SIGNUP-CHOOSE-PLAN** — passed D-0228: plan chosen as step 2 of Create account.
 - [x] **BETA-WORDING** — passed D-0227: no test/demo/soon/later words users can see or hear.
 - [x] **AUTO-SAVE-ONLY** — passed D-0226 (`68449fb`): no Save, Close workspace, no browser backup / recovery box.
-- [ ] **REPORTS-OWNER-ONLY** — "Problem reports" shows for every account in dev (D-0201); owner-only before online.
+- [x] **REPORTS-OWNER-ONLY** — done D-0229: owner-only on every copy.
+- [ ] **RESET-EMAIL** — Forgot password emails only reach /dev/mail; beta needs a real email service (dad decides; Resend keys).
 - [x] **CHAT-BOX-TWEAKS** — passed D-0214 (`b5d0ad5`): quiet mic, dot waves, Effort slider with Auto, bigger check.
 - [x] **SMOOTH-SWITCHES** — passed D-0215 (`e6475bc`): every on/off switch slides and fades.
 - [x] **EXPORT-CLICK-TO-OPEN** — passed D-0216 (`1e87b79`): click to open, library-style Export page.

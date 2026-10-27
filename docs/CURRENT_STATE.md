@@ -1,6 +1,10 @@
 # Current State
 
-## D-0228 — App PM: Create account step 2 — choose a free trial or a plan (current)
+## D-0229 — App PM: Problem reports owner-only everywhere (current)
+
+Arthur passed 2026-10-27. Only the owner account can read Problem reports, on every copy; everyone can still send one. The thank-you after sending is now "Thanks for letting us know. We'll look into it and work on a fix." See DECISIONS D-0229.
+
+## D-0228 — App PM: Create account step 2 — choose a free trial or a plan
 
 Arthur passed 2026-10-27. Creating an account has two steps in the same card: the account, then "Choose your plan" (Free trial, Basic, Pro, Creator; monthly or yearly). Free trial opens the app; paid plans open Stripe (test mode, no real money). See DECISIONS D-0228.
 

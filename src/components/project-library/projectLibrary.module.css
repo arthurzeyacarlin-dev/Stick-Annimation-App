@@ -93,7 +93,7 @@
   color: #fff;
 }
 
-/* Canonical Back button (same as Help, Tutorials and Export). */
+/* Canonical Back button (same as Export). */
 .header .backButton {
   display: inline-flex;
   align-items: center;

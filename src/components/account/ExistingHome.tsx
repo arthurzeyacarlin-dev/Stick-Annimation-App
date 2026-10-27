@@ -75,7 +75,7 @@ export default function Page() {
   const { snapshot: notificationSnapshot } = useNotificationCenterV1();
   const terraTargetKey = useMemo(() => JSON.stringify(notificationSnapshot.rows.filter(row => row.target.kind === "workspace-terra-turn").map(row => row.target)), [notificationSnapshot.rows]);
   const [view, setView] = useState<
-    "home" | "help" | "tutorials" | "openProject" | "animationWorkspace" | "animationExport"
+    "home" | "openProject" | "animationWorkspace" | "animationExport"
   >("home");
   const [exportOrigin, setExportOrigin] = useState<"home" | "workspace">("home");
   // The header's Export on other pages links to "/#export": open the export screen straight away.

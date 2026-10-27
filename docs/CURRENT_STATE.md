@@ -1,6 +1,10 @@
 # Current State
 
-## D-0226 — App PM: work saves itself; Close workspace; no recovery box; dashboard test buttons removed (current)
+## D-0227 — App PM: beta wording — nothing says test, demo, soon or later (current)
+
+Arthur passed 2026-10-27. No TEST MODE / fake-card notes, no "TEST ONLY (developer)" line on the trial-ended screen, no "Payments open soon", and the Help Assistant no longer mentions Tutorials, "comes later" or "computers only". "Version 1 is all about stick figures" stays. See DECISIONS D-0227.
+
+## D-0226 — App PM: work saves itself; Close workspace; no recovery box; dashboard test buttons removed 
 
 Arthur passed 2026-10-27. The editor has no Save: work saves itself to the account, and File → Close workspace finishes saving and goes Home. The browser-only backup and its "Unsaved work found" / "Unsaved draft found" messages are gone. The AI Dashboard's temporary test buttons are removed. See DECISIONS D-0226.
 

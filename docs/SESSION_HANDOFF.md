@@ -12,6 +12,10 @@
 
 **HANDOFF AT 60% CHAT MEMORY (dad, Oct 16):** at 50% start keeping docs current; at 60%: (1) write everything still only in the chat into the spec, this file, CURRENT_STATE/TODO if app-relevant, memory, and the board; (2) refresh `/Users/arthurcarlin/Projects/diamond-review/board/HANDOFF_MESSAGE.md` (self-contained: who, read-first list, where we are, next, rules); (3) `python3 board.py handoff` — the board's Handoff button turns green (yellow from 50%); (4) tell Arthur: click it, open a NEW Claude chat in this project, paste. Nothing may survive only inside a chat.
 
+## App PM update 16 (Tue 2026-10-27)
+
+D-0227 merged: beta wording audit (44 screens) — test/soon/later words removed; "Version 1" kept. Test copy `beta-wording` can be retired. Pass on to the AI Animator PM: old voice "placeholder" text in app/api/ai/route.ts. Next: Arthur's pick.
+
 ## App PM update 15 (Tue 2026-10-27)
 
 D-0226 merged (`68449fb`): no Save (work saves itself), Save and Exit → Close workspace, browser backup + "Unsaved work found" removed (autosave fixed to run without it), dashboard test buttons removed. Test copy `auto-save` can be retired. Next: Arthur's pick (old-look screens, owner-only problem reports, phone review).

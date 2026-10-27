@@ -1885,6 +1885,14 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0227 — Beta wording: nothing says test, demo, soon or later (App PM, 2026-10-27)
+
+- Arthur passed 2026-10-27. Copy `diamond-review/beta-wording` (branch `claude/beta-wording`), product commit `96d0b1a` fast-forwarded into main.
+- RULE (Arthur, HARD): beta users must never see or hear test mode, demo, layout only, coming soon/later, fake card, developer, dad/approval or similar. "Version 1 is all about stick figures" stays (true).
+- Audit: crawled 44 screens/states (signed out, trial, Pro, payment problem, out of credits, plan ended, trial ended, every menu/editor tab/tool, phone) + code search. Fixed: TrialEndedScreen "TEST ONLY (developer)" link (showed on development copies); TEST_CARD_NOTE removed from Plans + Buy extra credits; "Payments open soon" -> "Not available right now"; Help Assistant knowledge cleaned (Tutorials Coming later — missed in D-0225 —, comes later, later features, payments open soon, computers only, deleted tutorials source).
+- Left hidden, not reachable: old stick-figure screens ("Layout only for now"), AI Animator developer engine-test panel (env switch), old AI voice "placeholder" text in app/api/ai/route.ts (AI Animator PM's area — pass on).
+- Tests: re-crawl of the 44 screens: only hits = "Version 1" (kept) and the test account email; tsc clean.
+
 ### D-0226 — Work saves itself: no Save, Close workspace, no browser backup; dashboard test buttons removed (App PM, 2026-10-27)
 
 - Arthur passed 2026-10-27 (approved plan; saving is a protected system). Copy `diamond-review/auto-save` (branch `claude/auto-save`), product commit `68449fb` fast-forwarded into main.

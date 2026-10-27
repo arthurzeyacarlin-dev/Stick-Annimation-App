@@ -1885,6 +1885,13 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0228 — Create account step 2: choose a free trial or a plan (App PM, 2026-10-27)
+
+- Arthur passed 2026-10-27 (a first try — a plans page after sign-up with four equal cards — was rejected and undone). Copy `diamond-review/choose-plan` (branch `claude/choose-plan`), product commit `3387dec` fast-forwarded into main.
+- RULE (Arthur): the plan is chosen WHILE creating the account, before the app opens. `AuthScreen.tsx`: after the sign-up call succeeds the same card shows "Step 2 of 2 · Choose your plan" — Monthly/Yearly slider (same pill as Create account / Log in), a list of rows (Free trial "Start here", Basic, Pro "Most popular", Creator; credits + one line left, price right; chosen row = blue outline, filled dot, glow), one bright button. Free trial → Home; paid → `/api/account/billing/checkout` → Stripe (test mode: no real money). Log in unchanged.
+- RULE (Arthur): professional = not equal squares in one row; a calm list fits better.
+- Tests: trial → Home; Pro and Creator (phone) → checkout.stripe.com test session (not paid); no page errors; tsc + eslint clean.
+
 ### D-0227 — Beta wording: nothing says test, demo, soon or later (App PM, 2026-10-27)
 
 - Arthur passed 2026-10-27. Copy `diamond-review/beta-wording` (branch `claude/beta-wording`), product commit `96d0b1a` fast-forwarded into main.

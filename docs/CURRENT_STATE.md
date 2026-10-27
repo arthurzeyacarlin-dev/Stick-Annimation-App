@@ -1,6 +1,10 @@
 # Current State
 
-## D-0227 — App PM: beta wording — nothing says test, demo, soon or later (current)
+## D-0228 — App PM: Create account step 2 — choose a free trial or a plan (current)
+
+Arthur passed 2026-10-27. Creating an account has two steps in the same card: the account, then "Choose your plan" (Free trial, Basic, Pro, Creator; monthly or yearly). Free trial opens the app; paid plans open Stripe (test mode, no real money). See DECISIONS D-0228.
+
+## D-0227 — App PM: beta wording — nothing says test, demo, soon or later
 
 Arthur passed 2026-10-27. No TEST MODE / fake-card notes, no "TEST ONLY (developer)" line on the trial-ended screen, no "Payments open soon", and the Help Assistant no longer mentions Tutorials, "comes later" or "computers only". "Version 1 is all about stick figures" stays. See DECISIONS D-0227.
 

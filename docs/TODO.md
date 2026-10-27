@@ -11,6 +11,7 @@
 - [x] **AI-DASHBOARD-PAID** — passed D-0224 (`550fc73`): plan hero, climbing color line, Home icon + colored credits number.
 - [x] **NO-TUTORIALS** — passed D-0225 (`d4ef79c`): Tutorials removed everywhere; guides = tour + Help Assistant.
 - [x] **REMOVE-DASHBOARD-TEST-BUTTONS** — done D-0226 (`68449fb`).
+- [x] **SIGNUP-CHOOSE-PLAN** — passed D-0228: plan chosen as step 2 of Create account.
 - [x] **BETA-WORDING** — passed D-0227: no test/demo/soon/later words users can see or hear.
 - [x] **AUTO-SAVE-ONLY** — passed D-0226 (`68449fb`): no Save, Close workspace, no browser backup / recovery box.
 - [ ] **REPORTS-OWNER-ONLY** — "Problem reports" shows for every account in dev (D-0201); owner-only before online.

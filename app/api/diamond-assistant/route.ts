@@ -5,10 +5,11 @@ import { generateAssistantReply } from "@/src/lib/assistant/assistantProvider";
 import { recordUsageEvent } from "@/src/lib/usage-journal/usageJournalRuntime";
 import { requireAccountRequest } from "@/src/lib/account/access";
 import { withAccountUsageOwner } from "@/src/lib/account-usage/accountUsageStore";
+import { accountAiCreditGate } from "@/src/lib/account/aiCredits";
 
 export const runtime = "nodejs";
-const owner = globalThis as typeof globalThis & { diamondGuidanceAssistantV1?: DiamondAssistantJobService };
-const jobs = owner.diamondGuidanceAssistantV1 ??= new DiamondAssistantJobService(generateAssistantReply, undefined, undefined, recordUsageEvent);
+const owner = globalThis as typeof globalThis & { diamondGuidanceAssistantV2?: DiamondAssistantJobService };
+const jobs = owner.diamondGuidanceAssistantV2 ??= new DiamondAssistantJobService(generateAssistantReply, undefined, undefined, recordUsageEvent, accountAiCreditGate);
 const respond = (value: unknown, status = 200) => NextResponse.json(value, { status, headers: { "Cache-Control": "no-store" } });
 const localRequest = (request: Request) => {
   const host = request.headers.get("host") ?? ""; const origin = request.headers.get("origin");
@@ -28,7 +29,7 @@ export async function POST(request: Request) {
   if (!localRequest(request)) return respond({ error: "Assistant access is limited to this local review app." }, 403);
   try { const body = await boundedJson(request); return respond(withAccountUsageOwner(access.session.user.id,
     () => jobs.submit(body, access.session.user.id)), 202); }
-  catch (error) { return respond({ error: error instanceof AssistantError ? error.message : "The Assistant request could not be read." }, error instanceof AssistantError && error.code === "conflict" ? 409 : error instanceof AssistantError && error.code === "capacity" ? 429 : 400); }
+  catch (error) { return respond({ error: error instanceof AssistantError ? error.message : "The Assistant request could not be read." }, error instanceof AssistantError && error.code === "conflict" ? 409 : error instanceof AssistantError && error.code === "capacity" ? 429 : error instanceof AssistantError && error.code === "credits" ? 402 : 400); }
 }
 export async function GET(request: Request) {
   const access = await requireAccountRequest(request);

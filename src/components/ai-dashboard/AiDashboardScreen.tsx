@@ -44,6 +44,50 @@ function PlanWarnings({ plan, trial }: { plan: AccountPlanStatus; trial: boolean
   </>;
 }
 
+/** Free-trial header (Arthur 2026-10-27): days left big, credits left with an app-blue bar, bright Choose a plan. */
+function TrialHero({ plan, byKind }: { plan: AccountPlanStatus; byKind: { animator: number; assistant: number } }) {
+  const days = plan.trialDaysLeft ?? 0;
+  const left = plan.creditsLeft;
+  const total = Math.max(1, plan.creditsTotal);
+  const leftPercent = Math.max(0, Math.min(100, (left / total) * 100));
+  const tone = left === 0 ? "out" : plan.low ? "low" : "ok";
+  return <>
+    <section className={styles.trialHero} aria-labelledby="dashboard-heading">
+      <div className={styles.trialMain}>
+        <p className={styles.trialBadge}><span aria-hidden="true" />Free trial</p>
+        <h2 id="dashboard-heading" className={styles.trialDays}>{plural(days, "day", "days")} left</h2>
+        <p className={styles.trialEnds}>Your free trial ends <time dateTime={new Date(plan.windowEnd).toISOString()}>{longDay(plan.windowEnd)}</time>. Your projects stay safe either way.</p>
+        <Link href="/plans" className={`${styles.trialCta} da-super`}>Choose a plan</Link>
+      </div>
+      <div className={styles.trialCredits} data-tone={tone}>
+        <p className={styles.trialCreditsLabel}>AI credits</p>
+        <p className={styles.trialCreditsBig}><strong>{number(left)}</strong> <span>of {number(plan.creditsTotal)} left</span></p>
+        <div className={styles.trialBar} role="meter" aria-valuemin={0} aria-valuemax={plan.creditsTotal} aria-valuenow={left}
+          aria-label={`${number(left)} of ${number(plan.creditsTotal)} AI credits left`}>
+          <i data-testid="credit-meter-fill" style={{ width: `${leftPercent}%`, backgroundColor: creditMeterColor(100 - leftPercent), color: creditMeterColor(100 - leftPercent) }} />
+        </div>
+        <div className={styles.trialBarLabels}><span>{number(plan.creditsUsed)} used</span><span>{number(plan.creditsTotal)} total</span></div>
+      </div>
+    </section>
+    <section className={styles.stats} aria-label="Your AI usage">
+      <div><strong>{number(plan.creditsUsed)}</strong><span>Used in your trial</span></div>
+      <div><strong>{number(byKind.animator)}</strong><span>By the AI Animator</span></div>
+      <div><strong>{number(byKind.assistant)}</strong><span>By the Help Assistant</span></div>
+    </section>
+    <PlanWarnings plan={plan} trial />
+  </>;
+}
+
+function EmptyUsage() {
+  return <div className={styles.emptyUsage}>
+    <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M3 20h18" /><path d="M5 16l4-5 4 3 6-8" />
+    </svg>
+    <strong>No AI usage yet</strong>
+    <span>Your usage line shows up here once you start animating with the AI Animator.</span>
+  </div>;
+}
+
 export function AiDashboardScreen() {
   const account = useAccountSession();
   const ownerId = account?.id ?? null;
@@ -95,7 +139,7 @@ export function AiDashboardScreen() {
   const now = snapshot ? Math.max(snapshot.readAt, ...creditEvents.map((event) => event.at)) : 0;
   const complete = !!snapshot && !readError && [snapshot.project.state, snapshot.assistant.state].every((state) => state === "ready" || state === "absent");
   const allReceipts = useMemo(() => creditEvents.map((event, index) => ({
-    id: `credit-${event.at}-${index}`, source: "project" as const, at: event.at, inputTokens: null, outputTokens: null, totalTokens: event.credits,
+    id: `credit-${event.at}-${index}`, source: event.kind === "assistant" ? "assistant" as const : "project" as const, at: event.at, inputTokens: null, outputTokens: null, totalTokens: event.credits,
     estimatedCostUsd: null, priceDate: null, model: null, reasoning: null, toolCalls: 0,
   })), [creditEvents]);
   const roof = plan ? Math.max(1, plan.creditsTotal) : 1;
@@ -109,6 +153,7 @@ export function AiDashboardScreen() {
   const weekStart = snapshot ? nextUtcWeek(now) - WEEK_MS : 0;
   const week = summarizeReceipts(allReceipts, weekStart, now);
   const trial = plan?.plan === "trial";
+  const byKind = creditEvents.reduce((sum, event) => event.kind === "assistant" ? { ...sum, assistant: sum.assistant + event.credits } : { ...sum, animator: sum.animator + event.credits }, { animator: 0, assistant: 0 });
   const paid = !!plan && !trial && !plan.locked;
   const usedPercent = plan ? creditMeterPercent(plan.creditsUsed, plan.creditsTotal, plan.topUpCredits) : 0;
   const refill = plan ? plan.refillsAt ?? plan.windowEnd : 0;
@@ -117,6 +162,7 @@ export function AiDashboardScreen() {
   return (
     <main className={styles.main}>
       <div className={styles.content}>
+        {trial && plan ? <TrialHero plan={plan} byKind={byKind} /> : <>
         <section className={styles.top} aria-labelledby="dashboard-heading">
           <p className={styles.eyebrow}>AI Dashboard</p>
           <h2 id="dashboard-heading" className={styles.headline}>
@@ -144,19 +190,19 @@ export function AiDashboardScreen() {
           <i data-testid="credit-meter-fill" style={{ width: `${usedPercent}%`, backgroundColor: creditMeterColor(usedPercent) }} />
         </div>}
         {plan && <PlanWarnings plan={plan} trial={trial} />}
-        <p className={styles.scope}>The bar fills up as you use your AI credits. The Help Assistant and voice typing are free.</p>
+        <p className={styles.scope}>The bar fills up as you use your AI credits. Every AI Animator and Help Assistant answer uses credits.</p>
+        </>}
 
         <section className={styles.chartCard} aria-labelledby="usage-heading">
-          <div className={styles.cardHeading}><div><p className={styles.eyebrow}>Details · credits</p><h3 id="usage-heading">Usage over time</h3></div></div>
-          <div className={styles.controls}><fieldset><legend>Show</legend><div className={styles.segmented}>{filters.map((option) =>
+          <div className={styles.cardHeading}><h3 id="usage-heading">Usage over time</h3></div>
+          <div className={styles.controls} style={snapshot && buckets.length === 0 && !partial ? { display: "none" } : undefined}><fieldset><legend>Show</legend><div className={styles.segmented}>{filters.map((option) =>
             <button type="button" key={option.value} aria-pressed={filter === option.value} onClick={() => setFilter(option.value)}>{option.label}</button>)}</div></fieldset>
             <fieldset><legend>Group by</legend><div className={styles.segmented}>{intervals.map((option) =>
               <button type="button" key={option.value} aria-pressed={interval === option.value} onClick={() => setInterval(option.value)}>{option.label}</button>)}</div></fieldset></div>
           {readError && <p className={styles.partial} role="alert">Couldn&apos;t update your usage. The numbers may be out of date; it tries again by itself.</p>}
           {issues.length > 0 && <div className={styles.partial} role="status"><strong>Some usage couldn&apos;t be read.</strong><ul>{[...new Set(issues)].map((issue) => <li key={issue}>{issue}</li>)}</ul></div>}
-          {snapshot && buckets.length === 0 && !partial && <p className={styles.empty}>No AI usage to show here yet.</p>}
-          {snapshot && <AiUsageChart key={`${filter}-${interval}`} buckets={buckets} filter={filter} complete={complete} capacity={intervalSpec[interval].count} roof={roof} />}
-          <p className={styles.chartNote}>Each point is the AI credits you used so far this week, so the line climbs as you use them and drops back to zero when your credits refill. It uses the same list as the bar above, so the numbers match.</p>
+          {snapshot && buckets.length === 0 && !partial ? <EmptyUsage /> : snapshot && <AiUsageChart key={`${filter}-${interval}`} buckets={buckets} filter={filter} complete={complete} capacity={intervalSpec[interval].count} roof={roof} />}
+          {!(snapshot && buckets.length === 0 && !partial) && <p className={styles.chartNote}>The line shows your AI credits used so far this week. It matches the bar above.</p>}
         </section>
 
         <BuyCreditsPanel />

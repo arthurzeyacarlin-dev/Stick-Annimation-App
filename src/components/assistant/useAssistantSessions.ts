@@ -12,6 +12,11 @@ import {
   subscribeAssistantObserverV1,
 } from "../../lib/notifications/assistantCompletionObserver";
 
+// Arthur (2026-10-27): Help Assistant answers cost AI credits; when there aren't enough, show the server's plain reason.
+const creditMessage = async (response: Response) => {
+  try { const value = await response.json() as { error?: unknown }; if (typeof value.error === "string" && value.error) return value.error.slice(0, 240); } catch { /* fall through */ }
+  return "You're out of AI credits. Choose a plan or wait for your refill. Your message is saved.";
+};
 const readableError = (error: unknown) => error instanceof AssistantError ? error.message : "The Assistant could not connect. Your saved chats and unsent draft are kept. Try again when the connection returns.";
 export const ASSISTANT_LONG_WAIT_MS = 8000;
 export function useAssistantSessions() {
@@ -101,7 +106,8 @@ export function useAssistantSessions() {
       const response = await fetch("/api/diamond-assistant", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(requestFor(created, turn)), signal: AbortSignal.timeout(15000) });
       if (!response.ok && response.status >= 500) throw new Error("uncertain-submission");
       if (!response.ok) {
-        const text = response.status === 429 ? "Two answers are running or the server limit is reached. Your message is saved; try again later." : "This answer could not start. Your message is saved. Nothing was retried.";
+        const text = response.status === 429 ? "Two answers are running or the server limit is reached. Your message is saved; try again later."
+          : response.status === 402 ? await creditMessage(response) : "This answer could not start. Your message is saved. Nothing was retried.";
         await commitAssistantInterruptedV1(created, turn.jobId, text); setNotice(text);
       } else await acceptAssistantJobSnapshotV1(created, await response.json());
     } catch (error) { setNotice(readableError(error)); }
@@ -122,7 +128,7 @@ export function useAssistantSessions() {
       setSessions(current => [prepared!, ...current.filter(session => session.id !== prepared!.id)]);
       const response = await fetch("/api/diamond-assistant", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(requestFor(prepared, turn)), signal: AbortSignal.timeout(15000) });
       if (!response.ok && response.status >= 500) throw new Error("uncertain-submission");
-      if (!response.ok) await commitAssistantInterruptedV1(prepared, turn.jobId, "This answer could not start. Your question is saved. Nothing was retried automatically.");
+      if (!response.ok) await commitAssistantInterruptedV1(prepared, turn.jobId, response.status === 402 ? await creditMessage(response) : "This answer could not start. Your question is saved. Nothing was retried automatically.");
       else await acceptAssistantJobSnapshotV1(prepared, await response.json());
     } catch (error) { setNotice(readableError(error)); }
     finally {

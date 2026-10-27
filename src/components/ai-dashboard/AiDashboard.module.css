@@ -204,3 +204,46 @@
   .chartCard { padding: 20px 16px; }
   .segmented { flex-wrap: wrap; }
 }
+
+/* ===== Free-trial dashboard (Arthur 2026-10-27): one glowing hero with a dot grid, days left big, credits in app blue,
+   bright Choose a plan; a calm chart card. Plain numbers keep dividers, no boxes. ===== */
+.trialHero { position: relative; overflow: hidden; isolation: isolate; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 36px; align-items: center;
+  padding: 40px 42px; border-radius: 24px; border: 1px solid rgba(61, 139, 255, .28);
+  background: radial-gradient(ellipse 620px 340px at 18% 0%, rgba(0, 102, 255, .30), transparent 70%), radial-gradient(ellipse 480px 300px at 100% 100%, rgba(0, 102, 255, .14), transparent 70%), linear-gradient(180deg, #081631, #050c1c);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, .45), 0 0 0 1px rgba(0, 102, 255, .06), inset 0 1px 0 rgba(255, 255, 255, .06); }
+.trialHero::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background-image: radial-gradient(circle, rgba(110, 160, 240, .42) 1.2px, transparent 1.7px); background-size: 22px 22px;
+  -webkit-mask-image: radial-gradient(ellipse 520px 300px at 18% 0%, #000 0%, transparent 78%); mask-image: radial-gradient(ellipse 520px 300px at 18% 0%, #000 0%, transparent 78%); }
+.trialMain { display: grid; justify-items: start; gap: 12px; }
+.trialBadge { display: inline-flex; align-items: center; gap: 8px; margin: 0; padding: 5px 12px 5px 10px; border-radius: 999px; border: 1px solid rgba(61, 139, 255, .45); background: rgba(0, 102, 255, .12);
+  color: #bcd6ff; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.trialBadge span { width: 7px; height: 7px; border-radius: 50%; background: #3d8bff; box-shadow: 0 0 10px #3d8bff; }
+.trialDays { margin: 4px 0 0; font-family: var(--font-display), var(--font-geist-sans), sans-serif; font-size: clamp(40px, 5.4vw, 64px); font-weight: 800; line-height: 1; letter-spacing: -.04em; color: #fff; }
+.trialEnds { margin: 0; max-width: 46ch; color: var(--da-text-2, #c9d6ea); font-size: 16px; line-height: 1.5; }
+.trialCta.trialCta { display: inline-flex; align-items: center; height: 46px; margin-top: 10px; padding: 0 24px; border-radius: 12px; border: 0; color: #fff; font-size: 15px; font-weight: 700; text-decoration: none;
+  background: #0066ff; box-shadow: 0 10px 28px rgba(0, 102, 255, .45), inset 0 1px 0 rgba(255, 255, 255, .22); transition: none; }
+.trialCta.trialCta:hover { background: var(--da-hover-super, #4d94ff) !important; box-shadow: 0 14px 36px rgba(0, 102, 255, .65), inset 0 1px 0 rgba(255, 255, 255, .28) !important; }
+.trialCta:focus-visible { outline: 2px solid var(--da-focus, #66c7ff); outline-offset: 3px; }
+.trialCredits { display: grid; gap: 10px; padding-left: 36px; border-left: 1px solid rgba(61, 139, 255, .2); }
+.trialCreditsLabel { margin: 0; color: var(--da-label, #7895bc); font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.trialCreditsBig { margin: 0; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.trialCreditsBig strong { font-family: var(--font-display), var(--font-geist-sans), sans-serif; font-size: clamp(40px, 4.6vw, 56px); font-weight: 800; line-height: 1; letter-spacing: -.035em; color: #fff; }
+.trialCreditsBig span { color: var(--da-text-3, #a8bddd); font-size: 17px; }
+.trialBar { height: 12px; margin-top: 6px; border-radius: 999px; background: #0b1a33; box-shadow: inset 0 1px 2px rgba(0, 0, 0, .55); overflow: hidden; }
+.trialBar i { display: block; height: 100%; min-width: 0; border-radius: 999px; background-image: linear-gradient(90deg, rgba(0, 0, 0, .18), rgba(255, 255, 255, .14)); box-shadow: 0 0 16px currentColor; transition: width 400ms cubic-bezier(.2, .8, .2, 1), background-color 400ms ease; }
+/* No credits left: the empty bar itself turns pure red (Arthur: pure red = no credits). */
+.trialCredits[data-tone="out"] .trialBar { background: #3a0608; box-shadow: inset 0 0 0 1px #ff0000, 0 0 14px rgba(255, 0, 0, .45); }
+.trialBarLabels { display: flex; justify-content: space-between; color: var(--da-muted, #8fabd0); font-size: 13px; }
+.emptyUsage { position: relative; display: grid; justify-items: center; gap: 8px; margin-top: 18px; padding: 48px 20px; text-align: center; color: #7fb0ff; border-radius: 16px;
+  background: radial-gradient(ellipse 340px 150px at 50% 50%, rgba(0, 102, 255, .16), transparent 72%); }
+.emptyUsage::before { content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  background-image: radial-gradient(circle, rgba(110, 160, 240, .32) 1.1px, transparent 1.6px); background-size: 20px 20px;
+  -webkit-mask-image: radial-gradient(ellipse 280px 130px at 50% 50%, #000, transparent 75%); mask-image: radial-gradient(ellipse 280px 130px at 50% 50%, #000, transparent 75%); }
+.emptyUsage svg { filter: drop-shadow(0 0 10px rgba(0, 102, 255, .7)); }
+.emptyUsage strong { position: relative; color: #fff; font-size: 17px; }
+.emptyUsage span { position: relative; max-width: 40ch; color: var(--da-text-3, #a8bddd); font-size: 14px; line-height: 1.5; }
+@media (prefers-reduced-motion: reduce) { .trialBar i { transition: none; } }
+@media (max-width: 760px) {
+  .trialHero { grid-template-columns: 1fr; gap: 26px; padding: 28px 22px; border-radius: 20px; }
+  .trialCredits { padding-left: 0; padding-top: 24px; border-left: 0; border-top: 1px solid rgba(61, 139, 255, .2); }
+}

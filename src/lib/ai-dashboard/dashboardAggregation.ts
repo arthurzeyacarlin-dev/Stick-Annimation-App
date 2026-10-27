@@ -45,15 +45,13 @@ function blendStops(stops: { percent: number; rgb: number[] }[], value: number):
 
 export const colorForPercent = (value: number): string => blendStops(colorStops, value);
 
-// SPEC-0020 Phase 9 (Arthur): the credits bar fades like the chart's bars — blue → green → yellow, amber once 75% of
-// the plan credits are used, red once 90% are used (10% left), and red to the end.
+// Arthur (2026-10-27): as credits run out the bar fades smoothly blue → green → yellow → orange → red;
+// pure red only when no credits are left.
 const creditMeterStops = [
-  { percent: 0, rgb: [37, 99, 235] },
-  { percent: 25, rgb: [14, 165, 233] },
-  { percent: 45, rgb: [34, 197, 94] },
-  { percent: 62, rgb: [234, 179, 8] },
-  { percent: 75, rgb: [245, 158, 11] },
-  { percent: 90, rgb: [255, 0, 0] },
+  { percent: 0, rgb: [0, 102, 255] },
+  { percent: 35, rgb: [34, 197, 94] },
+  { percent: 60, rgb: [234, 179, 8] },
+  { percent: 80, rgb: [249, 115, 22] },
   { percent: 100, rgb: [255, 0, 0] },
 ];
 

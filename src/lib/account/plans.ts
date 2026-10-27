@@ -1,7 +1,7 @@
 // SPEC-0020 Phase 9 (Pricing v1, D-0193, approved by Arthur's dad 2026-10-12): plans, credits and the 14-day
 // free trial — pure rules, used by the server and the screens.
 // 1 credit = about 1¢ of AI cost. Every AI action is priced at its WORST-CASE cost and shown before it runs;
-// a refused or failed animation is free. The Help Assistant and voice typing are free.
+// a refused or failed animation is free. A Help Assistant answer costs 1 credit (Arthur 2026-10-27); voice typing is free.
 // Plan credits refill on the same date every month, from the day the plan started (yearly plans refill monthly too) and don't
 // roll over. Extra credits (top-up packs) are kept until used. Numbers must match the website's pricing.
 
@@ -24,13 +24,15 @@ export const ACCOUNT_PLANS: Record<AccountPlanId, { label: string; credits: numb
 };
 
 /** What each AI action costs, in credits (its worst-case AI cost). Shown on the button before it runs. */
-export const AI_ACTION_CREDITS = { chat: 2, edit: 2, simple: 25, big: 90 } as const;
+// Arthur (2026-10-27): every AI call costs credits — a Help Assistant answer costs 1 (the trial's 75 go 74, 73…).
+export const AI_ACTION_CREDITS = { chat: 2, edit: 2, simple: 25, big: 90, assistant: 1 } as const;
 export type AiActionKind = keyof typeof AI_ACTION_CREDITS;
 export const AI_ACTION_LABELS: Record<AiActionKind, string> = {
   chat: "Chat message",
   edit: "Small edit (like “make him green”)",
   simple: "Simple animation",
   big: "Big animation",
+  assistant: "Help Assistant answer",
 };
 export const isAiActionKind = (value: unknown): value is AiActionKind =>
   typeof value === "string" && Object.prototype.hasOwnProperty.call(AI_ACTION_CREDITS, value);
@@ -191,7 +193,7 @@ export function checkAiCredit(status: AccountPlanStatus, reservedCredits = 0, co
     ok: false,
     code: "no_credits",
     message: status.plan === "trial"
-      ? `This needs ${cost} credits and your free trial has ${status.creditsLeft} left. Choose a plan to keep animating. Your projects are safe.`
-      : `This needs ${cost} credits and you have ${status.creditsLeft}. Your credits refill on ${refillDay(status.refillsAt ?? status.windowEnd)}, or buy extra credits. No animation changed.`,
+      ? `This needs ${cost} ${cost === 1 ? "credit" : "credits"} and your free trial has ${status.creditsLeft} left. Choose a plan to keep animating. Your projects are safe.`
+      : `This needs ${cost} ${cost === 1 ? "credit" : "credits"} and you have ${status.creditsLeft}. Your credits refill on ${refillDay(status.refillsAt ?? status.windowEnd)}, or buy extra credits. No animation changed.`,
   };
 }

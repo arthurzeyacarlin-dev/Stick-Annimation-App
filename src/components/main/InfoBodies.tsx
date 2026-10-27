@@ -20,8 +20,8 @@ export function AboutBody() {
                 <li>Get answers any time from the Help Assistant</li>
               </ul>
               <p>
-                Your projects are saved to your account. The AI Animator uses credits; drawing, exporting and the Help
-                Assistant are free.
+                Your projects are saved to your account. The AI Animator and the Help Assistant use AI credits; drawing
+                and exporting are free.
               </p>
               <p className={styles.dialogMuted}>
                 Diamond Animator is made by Arthur and gets better with every update. Found a problem? Use Report a Problem

@@ -135,7 +135,7 @@ export function PlansScreen() {
 
         <p className={styles.note}>
           AI credits refill every month on the day your plan started (yearly plans refill every month too). You can cancel any time
-          in Manage plan. The Help Assistant and voice typing are free.
+          in Manage plan. Every AI Animator and Help Assistant answer uses credits.
         </p>
       </div>
     </main>

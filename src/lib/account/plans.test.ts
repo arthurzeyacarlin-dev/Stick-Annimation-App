@@ -8,8 +8,8 @@ const start = Date.UTC(2026, 9, 11, 12);
 const trial = (overrides: Partial<AccountPlanRecord> = {}): AccountPlanRecord =>
   ({ plan: "trial", trialStartedAt: start, periodStartedAt: start, testUsedExtra: 0, ...overrides });
 
-test("the approved prices: chat/edit 2, simple 25, big 90; plans 180 / 420 / 750; trial 75", () => {
-  assert.deepEqual(AI_ACTION_CREDITS, { chat: 2, edit: 2, simple: 25, big: 90 });
+test("the approved prices: chat/edit 2, simple 25, big 90, Help Assistant answer 1; plans 180 / 420 / 750; trial 75", () => {
+  assert.deepEqual(AI_ACTION_CREDITS, { chat: 2, edit: 2, simple: 25, big: 90, assistant: 1 });
   assert.equal(accountPlanStatus(trial(), 0, start).creditsTotal, 75);
   assert.equal(accountPlanStatus(trial({ plan: "starter" }), 0, start).creditsTotal, 180);
   assert.equal(accountPlanStatus(trial({ plan: "creator" }), 0, start).creditsTotal, 420);
@@ -95,14 +95,15 @@ test("the test-only buttons: used-up and extra credits", () => {
   assert.equal(plus.creditsUsed, 0);
 });
 
-test("the credits bar fades blue → green → yellow → amber at 75% used → red at 90% used", async () => {
+test("the credits bar fades blue → green → yellow → orange → pure red only at 0 credits left", async () => {
   const { creditMeterColor, colorForPercent } = await import("../ai-dashboard/dashboardAggregation.ts");
-  assert.equal(creditMeterColor(0), "#2563eb");
-  assert.equal(creditMeterColor(45), "#22c55e");
-  assert.equal(creditMeterColor(75), "#f59e0b");
-  assert.equal(creditMeterColor(90), "#ff0000");
+  assert.equal(creditMeterColor(0), "#0066ff");
+  assert.equal(creditMeterColor(35), "#22c55e");
+  assert.equal(creditMeterColor(60), "#eab308");
+  assert.equal(creditMeterColor(80), "#f97316");
+  assert.notEqual(creditMeterColor(95), "#ff0000", "almost out is still a little orange");
   assert.equal(creditMeterColor(100), "#ff0000");
-  assert.notEqual(creditMeterColor(82), creditMeterColor(75), "between amber and red it blends smoothly");
+  assert.notEqual(creditMeterColor(82), creditMeterColor(80), "between orange and red it blends smoothly");
   assert.equal(colorForPercent(0), "#2563eb", "the chart's colors stay the same");
   assert.equal(colorForPercent(100), "#ff0000");
 });

@@ -149,12 +149,6 @@
 .list .listTotal { border-bottom: 0; }
 .list .listTotal span, .list .listTotal strong { color: var(--da-text); font-weight: 750; }
 .listNote { margin: 10px 0 0; color: var(--da-muted); font-size: 13px; line-height: 1.5; }
-.testPanel { padding: 16px 18px; border: 1px dashed var(--da-warning-border); border-radius: var(--da-radius-card, 14px); }
-.testPanel > summary { color: var(--da-warning); font-size: 12px; font-weight: 750; letter-spacing: .08em; cursor: pointer; }
-.testPanel > summary:hover { color: var(--da-text); }
-.testPanel > summary:focus-visible { outline: 2px solid var(--da-focus); outline-offset: 3px; }
-.testPanel[open] > summary { margin-bottom: 4px; }
-.testPanel > p { margin: 0 0 14px; }
 @media (max-width: 760px) {
   .lists { grid-template-columns: 1fr; gap: 22px; }
 }
@@ -249,7 +243,7 @@
 }
 
 /* ===== Plan dashboard (Arthur 2026-10-27): the same hero for every plan, Manage plan as a blue-outline button, the
-   extra-credit packs as glowing clickable cards, and the temporary test buttons (development only). ===== */
+   extra-credit packs as glowing clickable cards. ===== */
 .heroActions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 10px; }
 .heroActions .trialCta { margin-top: 0; }
 .heroActions > div { display: contents; }
@@ -266,9 +260,6 @@
   box-shadow: 0 14px 36px rgba(0, 102, 255, .28); }
 .extraCredits button:disabled { cursor: default; opacity: .7; }
 .extraCredits button:focus-visible { outline: 2px solid var(--da-focus, #66c7ff); outline-offset: 3px; }
-.testPanel { display: grid; gap: 8px; margin-top: 18px; padding: 22px 24px; border-radius: 16px; border: 1px dashed rgba(245, 158, 11, .45); background: rgba(245, 158, 11, .04); }
-.testPanel h3 { margin: 0; color: #f3d89c; font-size: 16px; }
-.testPanel > p { margin: 0 0 6px; color: var(--da-text-3, #a8bddd); font-size: 13px; }
 /* Arthur (2026-10-27): the extra-credit packs are blue-outline buttons like New project — outline at rest, bright blue
    (not the extra-bright special blue) with white inside on hover. */
 .extraCredits button { border: 1px solid #2f6fd6 !important; background: linear-gradient(135deg, #0d2a5c, #071733 70%) !important; box-shadow: 0 0 12px rgba(0, 102, 255, .18); }

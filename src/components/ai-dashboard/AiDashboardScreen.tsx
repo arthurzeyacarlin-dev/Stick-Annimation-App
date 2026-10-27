@@ -13,7 +13,6 @@ import { ACCOUNT_PLANS, PAYMENT_GRACE_DAYS, type AccountPlanStatus } from "../..
 import styles from "./AiDashboard.module.css";
 import { BuyCreditsPanel } from "../account/BuyCreditsPanel";
 import { ManagePlanButton } from "../account/ManagePlanButton";
-import { TestPlanControls } from "./TestPlanControls";
 
 const filters: { value: DashboardFilter; label: string }[] = [
   { value: "combined", label: "All" }, { value: "project", label: "AI Animator" }, { value: "assistant", label: "Assistant" },
@@ -189,13 +188,6 @@ export function AiDashboardScreen() {
         </section>
 
         {plan && plan.plan !== "trial" && <div className={styles.extraCredits}><BuyCreditsPanel /></div>}
-        {/* Arthur (2026-10-27): temporary test buttons to add, use and pretend-buy credits. Development only (the server's
-            /api/dev/plan answers 404 elsewhere); remove before going live. */}
-        {process.env.NODE_ENV === "development" && <section className={styles.testPanel} aria-labelledby="test-buttons-heading">
-          <h3 id="test-buttons-heading">Test buttons</h3>
-          <p>Temporary, only on this test copy. No real money, and no AI runs.</p>
-          <TestPlanControls />
-        </section>}
 
       </div>
     </main>

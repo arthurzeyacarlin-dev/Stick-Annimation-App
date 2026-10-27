@@ -105,16 +105,19 @@ export default function Page() {
 
   useEffect(() => {
     let cancelled = false;
-    void inspectProjectRecoveryDraftV1(ownerId).then(result => {
-      if (cancelled) return;
-      if (result.kind === "none") setStartupRecovery({ kind: "home" });
-      else if (result.kind === "valid") setStartupRecovery({ kind: "valid", envelope: result.envelope });
-      else setStartupRecovery({
-        kind: "invalid",
-        error: result.error,
-        envelope: result.envelope,
-        message: recoveryProblemMessage(result.error),
-      });
+    // Arthur (2026-10-27): work saves itself to the account, so the browser-only backup and its "Unsaved work found"
+    // box are gone. A leftover backup from before is cleared quietly; Home always opens.
+    void inspectProjectRecoveryDraftV1(ownerId).then(async result => {
+      if (result.kind === "valid") await discardProjectRecoveryDraftV1({
+        kind: "valid",
+        ownerSessionId: result.envelope.ownerSessionId,
+        workspaceInstanceId: result.envelope.workspaceInstanceId,
+        draftSequence: result.envelope.draftSequence,
+        candidateDigest: result.envelope.candidateDigest,
+      }, ownerId).catch(() => undefined);
+      else if (result.kind !== "none") await discardProjectRecoveryDraftV1({ kind: "invalid" }, ownerId).catch(() => undefined);
+    }).catch(() => undefined).finally(() => {
+      if (!cancelled) setStartupRecovery({ kind: "home" });
     });
     return () => { cancelled = true; };
   }, [ownerId]);

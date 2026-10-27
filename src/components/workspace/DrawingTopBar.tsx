@@ -243,15 +243,6 @@ export function DrawingTopBar({
                   type="button"
                   role="menuitem"
                   disabled={isSaving}
-                  onClick={() => runFileAction(onSave)}
-                  style={menuItemStyle(!isSaving)}
-                >
-                  {shortcutLabel("Save", fileShortcut.save)}
-                </button>
-                <button
-                  type="button"
-                  role="menuitem"
-                  disabled={isSaving}
                   onClick={() => runFileAction(onSaveAs)}
                   style={menuItemStyle(!isSaving)}
                 >
@@ -277,7 +268,7 @@ export function DrawingTopBar({
                       onClick={() => runFileAction(onSaveAndExit)}
                       style={menuItemStyle(!isSaving)}
                     >
-                      {shortcutLabel("Save and Exit", fileShortcut.exit)}
+                      {shortcutLabel("Close workspace", fileShortcut.exit)}
                     </button>
                   </>
                 ) : null}

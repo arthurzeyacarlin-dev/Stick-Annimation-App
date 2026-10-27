@@ -94,8 +94,6 @@ import { rebindPendingTerraProjectV1 } from "@/src/lib/notifications/terraComple
 import { digestUnifiedProjectV2 } from "@/src/lib/animation/unifiedProjectStorageV2";
 import {
   clearProjectRecoveryDraftV1,
-  getOrCreateProjectRecoverySessionIdV1,
-  inspectProjectRecoveryDraftV1,
   writeProjectRecoveryDraftV1,
 } from "@/src/lib/animation/projectRecoveryStorageV1";
 import type { RecoveredWorkspaceClaimV1 } from "@/src/lib/animation/unifiedWorkspaceBootstrap";
@@ -7859,7 +7857,6 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
 
   const queueRecoveryDraftWrite = useCallback(() => {
     if (!recoveryInitializedRef.current) return;
-    if (!recoveryEnabledRef.current) return;
     recoveryDraftSequenceRef.current += 1;
     recoveryWorkspaceGenerationRef.current += 1;
     recoveryLatestMeaningfulEditAtRef.current = new Date().toISOString();
@@ -7874,6 +7871,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         runBackgroundSaveRef.current();
       }, 10_000);
     }
+    // Arthur (2026-10-27): the account autosave above always runs; the browser-only backup below is off.
+    if (!recoveryEnabledRef.current) return;
     setProjectRecoveryState("pending");
     const lastWriteMs = lastRecoveryWriteMsRef.current;
     const remainingMaximumWait = Math.max(0, projectRecoveryMaxWaitFor(lastWriteMs) - (performance.now() - recoveryFirstPendingAtRef.current));
@@ -7944,20 +7943,11 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
 
   useEffect(() => {
     if (recoveryClaim) return;
-    let cancelled = false;
-    recoverySessionIdRef.current = getOrCreateProjectRecoverySessionIdV1(ownerId);
-    void inspectProjectRecoveryDraftV1(ownerId).then(result => {
-      if (cancelled || !workspaceMountedRef.current) return;
-      recoveryInitializedRef.current = true;
-      if (result.kind === "none") {
-        recoveryEnabledRef.current = true;
-        setProjectRecoveryState("idle");
-        return;
-      }
-      recoveryEnabledRef.current = false;
-      setProjectRecoveryState(result.kind === "valid" ? "blocked" : "unavailable");
-    });
-    return () => { cancelled = true; };
+    // Arthur (2026-10-27): the work saves itself to the account (autosave), so the browser-only safety backup is off:
+    // nothing is written to it and the top bar never shows "Unsaved draft found". Account saving is unchanged.
+    recoveryInitializedRef.current = true;
+    recoveryEnabledRef.current = false;
+    setProjectRecoveryState("idle");
   }, [ownerId, queueRecoveryDraftWrite, recoveryClaim]);
 
   useEffect(() => {
@@ -10413,7 +10403,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
             <strong style={{ fontSize: 18 }}>Keyboard shortcuts</strong>
             <CloseButton label="Close keyboard shortcuts" onClick={() => setIsShortcutsOpen(false)} />
           </div>
-          {[["Save", `${mod}S`], ["Save As", isMac ? "⇧⌘S" : "Ctrl+Shift+S"], ["Export", `${mod}E`], ["Save and Exit", isMac ? "⌥⌘S" : "Ctrl+Alt+S"], ["Undo", `${mod}Z`], ["Redo", isMac ? "⇧⌘Z" : "Ctrl+Y"], ["Insert Frame", "F5"], ["Insert Keyframe", "F6"], ["Insert Blank Keyframe", "F7"],
+          {[["Save As", isMac ? "⇧⌘S" : "Ctrl+Shift+S"], ["Export", `${mod}E`], ["Close workspace", isMac ? "⌥⌘S" : "Ctrl+Alt+S"], ["Undo", `${mod}Z`], ["Redo", isMac ? "⇧⌘Z" : "Ctrl+Y"], ["Insert Frame", "F5"], ["Insert Keyframe", "F6"], ["Insert Blank Keyframe", "F7"],
             ["Play / Pause", "Enter"], ["Select tool", "M"], ["Lasso", "L"], ["Pencil", "P"], ["Eraser", "E"], ["Fill", "F"], ["Text", "T"], ["Shape", "S"], ["Knife", "K"], ["Copy frames", `${mod}C`], ["Paste frames", `${mod}V`], ["Zoom In", `${mod}+`], ["Zoom Out", `${mod}−`], ["Reset View", `${mod}0`]].map(([label, keys]) => (
             <div key={label} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderTop: "1px solid var(--da-line, #163058)", fontSize: 14, color: "var(--da-text-2, #c9d6ea)" }}>
               <span>{label}</span><kbd style={{ fontFamily: "inherit", color: "var(--da-text, #f6f9ff)", fontWeight: 650 }}>{keys}</kbd>

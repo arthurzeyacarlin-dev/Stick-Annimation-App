@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { DiamondLogo } from "@/src/components/chrome/DiamondLogo";
+import { ACCOUNT_PLANS, PAID_PLAN_IDS, type BillingInterval, type PaidPlanId } from "@/src/lib/account/plans";
+import { goToStripe, postBilling } from "@/src/components/account/billingClient";
 import styles from "./AuthScreen.module.css";
 
 // The new first screen (redesign Phase 1, Arthur 2026-10-26): a polished welcome with one card for Create account,
@@ -10,6 +12,14 @@ import styles from "./AuthScreen.module.css";
 const display = Plus_Jakarta_Sans({ subsets: ["latin"], weight: ["600", "700", "800"], variable: "--auth-display" });
 
 type Mode = "signup" | "login" | "forgot";
+type PlanChoice = "trial" | PaidPlanId;
+const PLAN_LINE: Record<PlanChoice, string> = {
+  trial: "Try everything for 14 days. No card needed.",
+  starter: "For getting started",
+  creator: "For regular animators",
+  studio: "For big projects",
+};
+const money = (value: number) => (Number.isInteger(value) ? `$${value}` : `$${value.toFixed(2)}`);
 const RETURNING_KEY = "diamond.returningUser.v1";
 
 export function AuthScreen() {
@@ -24,6 +34,11 @@ export function AuthScreen() {
   const [error, setError] = useState<string | null>(null);
   const [resetSent, setResetSent] = useState(false);
   const firstFieldRef = useRef<HTMLInputElement | null>(null);
+  // Arthur (2026-10-27): Create account has two steps — the account, then the plan (free trial or a paid plan), all
+  // before the app opens. Paid plans go to Stripe's page (test mode: no real money).
+  const [step, setStep] = useState<"account" | "plan">("account");
+  const [plan, setPlan] = useState<PlanChoice>("trial");
+  const [interval, setInterval] = useState<BillingInterval>("month");
 
   useEffect(() => { firstFieldRef.current?.focus({ preventScroll: true }); }, [mode]);
 
@@ -57,6 +72,7 @@ export function AuthScreen() {
         return;
       }
       try { window.localStorage.setItem(RETURNING_KEY, "1"); } catch { /* storage blocked */ }
+      if (mode === "signup") { setStep("plan"); setBusy(false); return; }
       window.location.assign("/");
     } catch {
       setError("We couldn't reach Diamond Animator. Check your connection and try again.");
@@ -64,8 +80,21 @@ export function AuthScreen() {
     }
   };
 
+  const startPlan = async () => {
+    if (busy) return;
+    if (plan === "trial") { window.location.assign("/"); return; }
+    setBusy(true); setError(null);
+    try {
+      const { url } = await postBilling<{ url: string }>("/api/account/billing/checkout", { plan, interval });
+      goToStripe(url);
+    } catch (problem) {
+      setError(problem instanceof Error ? problem.message : "That plan couldn't be started. Try again, or start with the free trial.");
+      setBusy(false);
+    }
+  };
+
   const heading = mode === "signup" ? "Create your account" : mode === "login" ? "Welcome back" : "Reset your password";
-  const lead = mode === "signup" ? "Free for 14 days. No card needed." : mode === "login" ? "Log in to pick up where you left off." : "We'll email you a link to choose a new password.";
+  const lead = mode === "signup" ? "Step 1 of 2 · then choose a free trial or a plan." : mode === "login" ? "Log in to pick up where you left off." : "We'll email you a link to choose a new password.";
   const action = mode === "signup" ? (busy ? "Creating your account…" : "Create account") : mode === "login" ? (busy ? "Logging in…" : "Log in") : (busy ? "Sending…" : "Send reset link");
 
   return (
@@ -79,6 +108,47 @@ export function AuthScreen() {
         <p className={styles.subtitle}>Version 1 is all about stick figures, one or a whole cast. Draw them frame by frame, or tell the AI Animator what to make.</p>
       </section>
 
+      {step === "plan" ? (
+      <section className={styles.card} aria-labelledby="plan-heading">
+        <div className={styles.cardHead}>
+          <p className={styles.stepTag}>Step 2 of 2</p>
+          <h2 id="plan-heading">Choose your plan</h2>
+          <p>Start free, or pick a plan now. You can change it any time.</p>
+        </div>
+        <div className={styles.switcher} role="group" aria-label="Pay monthly or yearly" data-mode={interval === "year" ? "login" : "signup"}>
+          <span className={styles.switcherPill} aria-hidden="true" />
+          <button type="button" aria-pressed={interval === "month"} onClick={() => setInterval("month")}>Monthly</button>
+          <button type="button" aria-pressed={interval === "year"} onClick={() => setInterval("year")}>Yearly · 2 months free</button>
+        </div>
+        <div className={styles.planList} role="radiogroup" aria-label="Plans">
+          {(["trial", ...PAID_PLAN_IDS] as PlanChoice[]).map((id) => {
+            const info = ACCOUNT_PLANS[id];
+            const price = id === "trial" ? "Free" : interval === "month" ? money(info.monthlyUsd) : money(info.yearlyUsd);
+            const per = id === "trial" ? "14 days" : interval === "month" ? "a month" : "a year";
+            return (
+              <button key={id} type="button" role="radio" aria-checked={plan === id} className={styles.planRow} data-plan={id} onClick={() => setPlan(id)}>
+                <span className={styles.planDot} aria-hidden="true" />
+                <span className={styles.planText}>
+                  <span className={styles.planName}>{id === "trial" ? "Free trial" : info.label}
+                    {id === "trial" && <em className={styles.planBadge}>Start here</em>}
+                    {id === "creator" && <em className={styles.planBadge}>Most popular</em>}
+                  </span>
+                  <span className={styles.planLine}>{info.credits.toLocaleString("en-US")} AI credits{id === "trial" ? "" : " every month"} · {PLAN_LINE[id]}</span>
+                </span>
+                <span className={styles.planPrice}><strong>{price}</strong><small>{per}</small></span>
+              </button>
+            );
+          })}
+        </div>
+        {error && <p className={styles.error} role="alert"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7.5v5.5M12 16.5v.01" /></svg>{error}</p>}
+        <div className={styles.cardFoot}>
+          <button type="button" className={styles.primary} disabled={busy} onClick={() => void startPlan()}>
+            {plan === "trial" ? "Start free trial" : busy ? "Opening secure payment…" : `Continue with ${ACCOUNT_PLANS[plan].label}`}
+          </button>
+          <p className={styles.fine}>{plan === "trial" ? "No card needed. Choose a plan any time in Plans." : "You'll pay on Stripe's secure page. Cancel any time in Manage plan."}</p>
+        </div>
+      </section>
+      ) : (
       <section className={styles.card} aria-labelledby="auth-heading">
         {mode !== "forgot" && (
           <div className={styles.switcher} role="tablist" aria-label="Create account or log in" data-mode={mode}>
@@ -137,6 +207,7 @@ export function AuthScreen() {
           {mode === "forgot" && !resetSent && <p className={styles.fine}>Remembered it? <button type="button" className={styles.inlineLink} onClick={() => switchMode("login")}>Back to log in</button></p>}
         </div>
       </section>
+      )}
 
       <footer className={styles.footer}>© 2026 Diamond Animator</footer>
     </main>

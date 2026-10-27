@@ -156,3 +156,27 @@
 /* Super-special (Create account / Log in): extra-bright blue with a glow on hover. */
 .primary:hover:enabled { background: var(--da-hover-super, #4d94ff); box-shadow: 0 10px 26px rgba(0, 102, 255, .45), inset 0 1px 0 rgba(255, 255, 255, .3); }
 .switcher button:hover, .eye:hover { background: var(--da-hover-soft, #13305c); }
+
+/* ===== Create account step 2: choose a plan (Arthur 2026-10-27). One calm list of rows inside the card — the chosen
+   row gets a blue outline, a filled dot and a soft glow; prices line up on the right. ===== */
+.stepTag { margin: 0; color: #7fb0ff !important; font-size: 11.5px !important; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.planList { display: grid; gap: 8px; }
+.planRow { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 14px; width: 100%; padding: 14px 16px; border-radius: 14px;
+  border: 1px solid var(--line-2); background: var(--field); color: var(--ink); font: inherit; text-align: left; cursor: pointer; transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease; }
+.planRow:hover { border-color: #2f6fd6; background: rgba(0, 102, 255, .08); }
+.planRow[aria-checked="true"] { border-color: var(--blue); background: radial-gradient(ellipse 220px 90px at 0% 50%, rgba(0, 102, 255, .22), transparent 75%), rgba(0, 102, 255, .08);
+  box-shadow: 0 0 0 1px var(--blue) inset, 0 8px 24px rgba(0, 102, 255, .18); }
+.planRow:focus-visible { outline: 2px solid var(--da-focus, #66c7ff); outline-offset: 2px; }
+.planDot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--line-2); transition: border-color 160ms ease, box-shadow 160ms ease; }
+.planRow[aria-checked="true"] .planDot { border-color: var(--blue); box-shadow: inset 0 0 0 4px var(--field), inset 0 0 0 10px var(--blue); }
+.planText { display: grid; gap: 3px; min-width: 0; }
+.planName { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700; }
+.planBadge { padding: 2px 8px; border-radius: 999px; background: rgba(0, 102, 255, .16); border: 1px solid rgba(61, 139, 255, .45); color: #bcd6ff; font-size: 10.5px; font-style: normal; font-weight: 700; letter-spacing: .04em; }
+.planLine { color: var(--ink-3); font-size: 12.5px; line-height: 1.4; }
+.planPrice { display: grid; justify-items: end; gap: 1px; }
+.planPrice strong { font-family: var(--auth-display), var(--font-geist-sans), sans-serif; font-size: 18px; font-weight: 800; letter-spacing: -.02em; }
+.planPrice small { color: var(--ink-3); font-size: 11.5px; }
+.cardFoot .primary { width: 100%; margin-bottom: 12px; }
+@media (prefers-reduced-motion: reduce) { .planRow, .planDot { transition: none; } }
+.switcher button[aria-pressed="true"] { color: #fff; }
+@media (max-width: 420px) { .switcher button { font-size: 12.5px; } }

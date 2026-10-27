@@ -47,6 +47,7 @@ export const TEST_PLAN_GROUPS: { title: string; buttons: TestButton[] }[] = [
     title: "Refill timing",
     buttons: [
       { action: "wait_for_refill", label: "Waiting for refill", hint: "0 credits, refill in 3 days" },
+      { action: "refill_now", label: "Refill now", hint: "A new month starts now · the chart drops to zero" },
       { action: "refill_tomorrow", label: "Refill tomorrow", hint: "The month ends tomorrow" },
     ],
   },
@@ -54,6 +55,7 @@ export const TEST_PLAN_GROUPS: { title: string; buttons: TestButton[] }[] = [
     title: "Pretend AI use",
     buttons: [
       { action: "spend_chat", label: "Spend a chat", hint: `−${AI_ACTION_CREDITS.chat} credits · no AI runs` },
+      { action: "spend_assistant", label: "Spend a Help Assistant answer", hint: `−${AI_ACTION_CREDITS.assistant} credit · no AI runs` },
       { action: "spend_simple", label: "Spend a simple animation", hint: `−${AI_ACTION_CREDITS.simple} credits · no AI runs` },
       { action: "spend_big", label: "Spend a big animation", hint: `−${AI_ACTION_CREDITS.big} credits · no AI runs` },
     ],

@@ -1,6 +1,7 @@
 "use client";
 
 import { useLayoutEffect, useRef, useState } from "react";
+import { creditMeterColor } from "../../lib/ai-dashboard/dashboardAggregation";
 import { TEST_WEEKLY_TOKENS, type DashboardBucket, type DashboardFilter } from "../../lib/ai-dashboard/dashboardContract";
 import styles from "./AiDashboard.module.css";
 
@@ -17,6 +18,8 @@ const localRange = (start: number, end: number) => {
 const sourceName: Record<DashboardFilter, string> = {
   combined: "All", project: "AI Animator", assistant: "Assistant",
 };
+
+const LINE_STOPS = [0, 35, 60, 80, 100];
 
 // Column centers in the 0–100 drawing space (the plot's columns are equal), and the climbing / dropping line.
 const slotX = (index: number, capacity: number) => ((index + 0.5) / Math.max(1, capacity)) * 100;
@@ -89,14 +92,18 @@ export function AiUsageChart({ buckets, filter, complete, capacity, roof = TEST_
             climbs as credits are used; at a refill (a new period) it drops straight down to zero and starts again. */}
         <svg className={styles.usageLine} viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
           <defs>
-            <linearGradient id="usageFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#0066ff" stopOpacity=".35" />
-              <stop offset="100%" stopColor="#0066ff" stopOpacity="0" />
+            {/* Arthur (2026-10-27): the higher the line climbs, the more it fades blue → green → yellow → orange → red,
+                like the credits bar — pure red at the red ceiling (all credits used). */}
+            <linearGradient id="usageStroke" gradientUnits="userSpaceOnUse" x1="0" y1="100" x2="0" y2="0">
+              {LINE_STOPS.map((percent) => <stop key={percent} offset={`${percent}%`} stopColor={creditMeterColor(percent)} />)}
+            </linearGradient>
+            <linearGradient id="usageFill" gradientUnits="userSpaceOnUse" x1="0" y1="100" x2="0" y2="0">
+              {LINE_STOPS.map((percent) => <stop key={percent} offset={`${percent}%`} stopColor={creditMeterColor(percent)} stopOpacity={percent === 0 ? 0.04 : 0.22} />)}
             </linearGradient>
           </defs>
           {usagePath(buckets, capacity) && <>
             <path d={`${usagePath(buckets, capacity)} L ${slotX(buckets.length - 1, capacity)} 100 L 0 100 Z`} fill="url(#usageFill)" />
-            <path d={usagePath(buckets, capacity)} fill="none" stroke="#3d8bff" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+            <path d={usagePath(buckets, capacity)} fill="none" stroke="url(#usageStroke)" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
           </>}
         </svg>
         <div className={styles.plot} style={{ gridTemplateColumns: `repeat(${capacity}, minmax(0, 1fr))` }}>
@@ -151,7 +158,7 @@ export function AiUsageChart({ buckets, filter, complete, capacity, roof = TEST_
             ].filter(Boolean).join(" · ")}</small>}
         </div>}
       </div>
-      {buckets.length > 0 && <p className={styles.chartRange}>{`${time(buckets[0].start)} → ${time(buckets[buckets.length - 1].sampleAt)} · UTC · oldest to newest`}</p>}
+      {buckets.length > 0 && <p className={styles.chartRange}>{localRange(buckets[0].start, buckets[buckets.length - 1].sampleAt)} · oldest to newest</p>}
     </div>
   );
 }

@@ -141,8 +141,10 @@ export function spendAiCredit(ownerId: string, jobId: string, credits: number = 
 export function getCreditUseEvents(ownerId: string, now = Date.now()) {
   const record = readAccountPlanRecord(ownerId, now);
   const { start, end } = creditWindow(record, now);
+  // Arthur (2026-10-27): the chart climbs until the refill, then drops to zero — so it also reads last month's uses.
+  const from = record.plan === "trial" ? start : addMonths(start, -1);
   return database().prepare("SELECT used_at AS at, credits, kind FROM account_credit_use_v1 WHERE owner_id = ? AND used_at >= ? AND used_at < ? ORDER BY used_at")
-    .all(ownerId, start, end) as { at: number; credits: number; kind: string }[];
+    .all(ownerId, from, end) as { at: number; credits: number; kind: string }[];
 }
 
 export function getCreditUseByKind(ownerId: string, now = Date.now()) {
@@ -216,9 +218,9 @@ export const accountAiCreditGate: AiCreditGate = { assertAvailable: assertAiCred
 // Nothing here is charged and nothing calls the AI: it only changes this account's local plan record.
 
 /** "Pretend AI use": records a FAKE usage entry (job id "test:…") so the dashboard's usage rows can be previewed. No AI runs. */
-export const TEST_SPEND_ACTIONS = ["spend_chat", "spend_simple", "spend_big"] as const;
+export const TEST_SPEND_ACTIONS = ["spend_chat", "spend_assistant", "spend_simple", "spend_big"] as const;
 export type TestSpendAction = (typeof TEST_SPEND_ACTIONS)[number];
-const TEST_SPEND_KIND: Record<TestSpendAction, AiActionKind> = { spend_chat: "chat", spend_simple: "simple", spend_big: "big" };
+const TEST_SPEND_KIND: Record<TestSpendAction, AiActionKind> = { spend_chat: "chat", spend_assistant: "assistant", spend_simple: "simple", spend_big: "big" };
 export const isTestSpendAction = (value: unknown): value is TestSpendAction => (TEST_SPEND_ACTIONS as readonly unknown[]).includes(value);
 
 /** "Pretend buy": adds an extra-credit pack like a finished purchase, with the same members-only rule. No Stripe. */
@@ -228,7 +230,7 @@ const isTestBuyAction = (value: unknown): value is TestBuyAction => (TEST_BUY_AC
 
 export const TEST_PLAN_ACTIONS = [
   "trial_new", "trial_day_13", "trial_ended", "low_credits", "no_credits", "starter", "creator", "studio",
-  "plus_25", "minus_25", "plus_100", "minus_100", "refill_full", "wait_for_refill", "refill_tomorrow",
+  "plus_25", "minus_25", "plus_100", "minus_100", "refill_full", "refill_now", "wait_for_refill", "refill_tomorrow",
   "payment_failed", "payment_failed_locked", "payment_fixed", "plan_ended", "clear_extra",
   ...TEST_SPEND_ACTIONS, ...TEST_BUY_ACTIONS,
 ] as const;
@@ -251,6 +253,12 @@ function applyTestPlanActionNow(ownerId: string, action: TestPlanAction, now: nu
   const status = () => getAccountPlanStatus(ownerId, now);
   const realUsed = () => { const { start, end } = creditWindow(readAccountPlanRecord(ownerId, now), now); return planCreditsUsed(ownerId, start, end); };
   const total = ACCOUNT_PLANS[record.plan].credits;
+  // Arthur (2026-10-27): test buttons that use credits record a real (test) credit use, so the dashboard's line climbs
+  // with them and reaches the red ceiling when every credit is used.
+  const testUse = (credits: number) => {
+    if (credits > 0) db.prepare("INSERT INTO account_credit_use_v1 (owner_id, job_id, used_at, credits, kind, source) VALUES (?, ?, ?, ?, 'test', 'plan')")
+      .run(ownerId, `test:use:${now}:${Math.random().toString(36).slice(2, 8)}`, now, credits);
+  };
   if (isTestSpendAction(action)) {
     // Like a real AI action that succeeded: the same credit check first (throws the friendly 402), then the spend.
     const kind = TEST_SPEND_KIND[action];
@@ -268,16 +276,22 @@ function applyTestPlanActionNow(ownerId: string, action: TestPlanAction, now: nu
     case "trial_new": return set("trial", now);
     case "trial_day_13": return set("trial", now - (TRIAL_DAYS - 2) * DAY_MS);
     case "trial_ended": return set("trial", now - (TRIAL_DAYS + 1) * DAY_MS);
-    case "low_credits": return update("test_used_extra = ?, top_up_credits = 0", total - 5 - realUsed());
-    case "no_credits": return update("test_used_extra = ?, top_up_credits = 0", total - realUsed());
+    case "low_credits": case "no_credits": {
+      const target = action === "low_credits" ? total - 5 : total;
+      update("test_used_extra = 0, top_up_credits = 0");
+      const missing = target - realUsed();
+      if (missing < 0) return update("test_used_extra = ?", missing);
+      testUse(missing);
+      return status();
+    }
     case "plus_25": case "plus_100": {
       const amount = action === "plus_25" ? 25 : 100;
       // Give back used plan credits first; past a full plan, the test count goes negative (credits above the plan).
       return update("test_used_extra = test_used_extra - ?", amount);
     }
     case "minus_25": case "minus_100": {
-      const amount = Math.min(action === "minus_25" ? 25 : 100, status().planCreditsLeft);
-      return update("test_used_extra = test_used_extra + ?", amount);
+      testUse(Math.min(action === "minus_25" ? 25 : 100, status().planCreditsLeft));
+      return status();
     }
     case "refill_full": {
       // A pretend refill also forgets this month's pretend AI use, so "Used this month" matches the meter.
@@ -290,6 +304,11 @@ function applyTestPlanActionNow(ownerId: string, action: TestPlanAction, now: nu
       const periodStart = addMonths(now + 3 * DAY_MS, -1);
       update("plan = ?, period_started_at = ?, billing_status = 'active', plan_ended = 0, top_up_credits = 0, test_used_extra = 0", plan, periodStart);
       return update("test_used_extra = ?", ACCOUNT_PLANS[plan].credits - realUsed());
+    }
+    case "refill_now": {
+      // A pretend refill that starts a new month right now (this month's use stays in last month, so the chart drops).
+      if (record.plan === "trial") return update("plan = plan");
+      return update("period_started_at = ?, test_used_extra = 0, billing_status = 'active', plan_ended = 0", now);
     }
     case "refill_tomorrow": {
       const plan = record.plan === "trial" ? "starter" : record.plan;

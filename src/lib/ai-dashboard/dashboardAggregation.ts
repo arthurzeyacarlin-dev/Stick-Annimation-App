@@ -77,8 +77,11 @@ export function currentWeekTotals(receipts: DashboardReceipt[], now: number) {
   return { projectTokens, assistantTokens, combinedTokens: projectTokens + assistantTokens };
 }
 
-export function buildBuckets(receipts: DashboardReceipt[], interval: DashboardInterval, filter: DashboardFilter, now: number, roof: number = TEST_WEEKLY_TOKENS): DashboardBucket[] {
+/** `refillAt` (Arthur 2026-10-27): the line climbs from the ground until this refill, then drops to zero and climbs
+ *  again — instead of resetting every UTC week. Without it the old weekly reset is kept. */
+export function buildBuckets(receipts: DashboardReceipt[], interval: DashboardInterval, filter: DashboardFilter, now: number, roof: number = TEST_WEEKLY_TOKENS, refillAt?: number): DashboardBucket[] {
   if (now <= 0) return [];
+  const periodOf = (at: number) => refillAt === undefined ? utcWeekStart(at) : at >= refillAt ? refillAt : 0;
   const { duration } = intervalSpec[interval];
   const firstStart = windowStart(interval, now);
   const currentStart = interval === "week" ? utcWeekStart(now) : Math.floor(now / duration) * duration;
@@ -91,7 +94,7 @@ export function buildBuckets(receipts: DashboardReceipt[], interval: DashboardIn
     const end = start + duration;
     const isCurrent = start === currentStart;
     const sampleAt = isCurrent ? now : end;
-    const weekStart = utcWeekStart(isCurrent ? now : end - 1);
+    const weekStart = periodOf(isCurrent ? now : end - 1);
     const sampleExclusive = isCurrent ? now + 1 : end;
     let projectTokens = 0;
     let assistantTokens = 0;
@@ -108,7 +111,8 @@ export function buildBuckets(receipts: DashboardReceipt[], interval: DashboardIn
     const selectedTokens = filter === "project" ? projectTokens : filter === "assistant" ? assistantTokens : combinedTokens;
     const selectedPercent = selectedTokens / roof * 100;
     const previous = index > 0 ? activeStarts[index - 1] : null;
-    const firstInWeek = previous === null || utcWeekStart(previous) !== utcWeekStart(start);
+    // Compare the periods of the samples (a refill can fall inside a group, e.g. "Refill now" in this hour).
+    const firstInWeek = previous === null || periodOf(previous + duration - 1) !== weekStart;
     const previousSelectedTokens = firstInWeek ? null : filter === "project" ?
       safe.filter((receipt) => receipt.source === "project" && receipt.at >= weekStart && receipt.at < previous! + duration)
         .reduce((total, receipt) => total + (receipt.totalTokens as number), 0) :
@@ -121,7 +125,7 @@ export function buildBuckets(receipts: DashboardReceipt[], interval: DashboardIn
       intervalSelectedTokens, sincePreviousSelectedTokens: previousSelectedTokens === null ? null : selectedTokens - previousSelectedTokens,
       firstInWeek,
       selectedPercent, combinedPercent: combinedTokens / roof * 100,
-      color: colorForPercent(selectedPercent), resetAfter: index < activeStarts.length - 1 && utcWeekStart(activeStarts[index + 1]) !== utcWeekStart(start), isCurrent,
+      color: refillAt === undefined ? colorForPercent(selectedPercent) : creditMeterColor(selectedPercent), resetAfter: index < activeStarts.length - 1 && periodOf(activeStarts[index + 1] === currentStart ? now : activeStarts[index + 1] + duration - 1) !== weekStart, isCurrent,
     };
   });
 }

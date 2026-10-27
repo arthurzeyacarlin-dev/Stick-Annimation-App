@@ -11,7 +11,16 @@ import { AccountAvatarContent } from "@/src/components/account/AccountAvatar";
 import { runAccountProjectLogout } from "@/src/lib/account/projectPending";
 import { subscribeProblemReportSummaryV1, type ProblemReportSummaryStateV1 } from "@/src/lib/notifications/problemReportObserver";
 import { AboutBody, TermsBody } from "./InfoBodies";
+import { creditMeterPercent } from "@/src/lib/ai-dashboard/creditMeter";
+import { creditMeterColor } from "@/src/lib/ai-dashboard/dashboardAggregation";
+import type { AccountPlanStatus } from "@/src/lib/account/plans";
 import styles from "./AppHeader.module.css";
+
+/** Arthur (2026-10-27): the credits number on Home takes the credits bar's color (blue → green → yellow → orange → red). */
+const creditBadgeStyle = (status: AccountPlanStatus) => {
+  const color = creditMeterColor(creditMeterPercent(status.creditsUsed, status.creditsTotal, status.topUpCredits));
+  return { color, borderColor: color, background: `color-mix(in srgb, ${color} 16%, transparent)` };
+};
 
 // Redesign (Arthur 2026-10-26): one header for every screen. Everything the old header had is here — AI Dashboard (or
 // Home), notifications, the menu (Description, Terms of Service, Settings, Report a Problem, Problem reports for the
@@ -74,9 +83,9 @@ export function AppHeader({ page, onExport }: { page: "home" | "dashboard" | "ot
             </Link>
           ) : (
             <Link href="/credits" className={styles.ghost} aria-label="Open AI Dashboard" data-tour="ai-dashboard">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" /></svg>
+              <svg viewBox="0 0 24 24" aria-hidden="true" style={{ stroke: "#fff" }}><path d="M3 20h18" /><path d="M5 16l4-5 3 3 6-8" /></svg>
               <span className={styles.label}>AI Dashboard</span>
-              {status && <span className={styles.badge} title="AI credits left">{status.creditsLeft}</span>}
+              {status && <span className={styles.badge} title="AI credits left" style={creditBadgeStyle(status)}>{status.creditsLeft}</span>}
             </Link>
           )}
           <div className={styles.group} data-tour="bell-menu">

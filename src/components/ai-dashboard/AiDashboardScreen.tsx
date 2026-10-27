@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AiUsageChart } from "./AiUsageChart";
 import { creditMeterPercent } from "../../lib/ai-dashboard/creditMeter";
-import { buildBuckets, creditMeterColor, intervalSpec, nextUtcWeek, summarizeReceipts } from "../../lib/ai-dashboard/dashboardAggregation";
+import { buildBuckets, creditMeterColor, intervalSpec } from "../../lib/ai-dashboard/dashboardAggregation";
 import { type DashboardFilter, type DashboardInterval, type DashboardSnapshot } from "../../lib/ai-dashboard/dashboardContract";
 import { subscribeDashboardChanges } from "../../lib/ai-dashboard/dashboardSources";
 import { useAccountSession } from "../account/AccountSessionProvider";
@@ -13,6 +13,7 @@ import { ACCOUNT_PLANS, PAYMENT_GRACE_DAYS, type AccountPlanStatus } from "../..
 import styles from "./AiDashboard.module.css";
 import { BuyCreditsPanel } from "../account/BuyCreditsPanel";
 import { ManagePlanButton } from "../account/ManagePlanButton";
+import { TestPlanControls } from "./TestPlanControls";
 
 const filters: { value: DashboardFilter; label: string }[] = [
   { value: "combined", label: "All" }, { value: "project", label: "AI Animator" }, { value: "assistant", label: "Assistant" },
@@ -24,7 +25,6 @@ const intervals: { value: DashboardInterval; label: string }[] = [
 const number = (value: number) => value.toLocaleString("en-US");
 const plural = (count: number, one: string, many: string) => `${number(count)} ${count === 1 ? one : many}`;
 const longDay = (value: number) => new Date(value).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
-const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
 /** The plan's warnings, most serious first. Outlined boxes are the only non-clickable boxes (Arthur: warnings stand out). */
 function PlanWarnings({ plan, trial }: { plan: AccountPlanStatus; trial: boolean }) {
@@ -44,47 +44,61 @@ function PlanWarnings({ plan, trial }: { plan: AccountPlanStatus; trial: boolean
   </>;
 }
 
-/** Free-trial header (Arthur 2026-10-27): days left big, credits left with an app-blue bar, bright Choose a plan. */
-function TrialHero({ plan, byKind }: { plan: AccountPlanStatus; byKind: { animator: number; assistant: number } }) {
-  const days = plan.trialDaysLeft ?? 0;
+const DAY_MS = 24 * 60 * 60 * 1000;
+const daysUntil = (at: number) => Math.max(0, Math.ceil((at - Date.now()) / DAY_MS));
+const inDays = (days: number) => days === 0 ? "today" : days === 1 ? "tomorrow" : `in ${number(days)} days`;
+
+/** The dashboard's header (Arthur 2026-10-27): one glowing dotted box — on the trial the days left big, on a plan when
+ *  it refills; credits left with the fading bar; the bright plan button. Same look for the trial and every plan. */
+function PlanHero({ plan, byKind }: { plan: AccountPlanStatus; byKind: { animator: number; assistant: number } }) {
+  const trial = plan.plan === "trial";
+  const refill = plan.refillsAt ?? plan.windowEnd;
+  const days = trial ? plan.trialDaysLeft ?? 0 : daysUntil(refill);
   const left = plan.creditsLeft;
-  const total = Math.max(1, plan.creditsTotal);
-  const leftPercent = Math.max(0, Math.min(100, (left / total) * 100));
+  const usedPercent = creditMeterPercent(plan.creditsUsed, plan.creditsTotal, plan.topUpCredits);
   const tone = left === 0 ? "out" : plan.low ? "low" : "ok";
+  const price = trial ? "" : plan.interval === "year" ? `$${ACCOUNT_PLANS[plan.plan].yearlyUsd} a year` : ACCOUNT_PLANS[plan.plan].price;
+  const ending = !trial && plan.cancelAtPeriodEnd;
+  const headline = trial ? `${plural(days, "day", "days")} left` : ending ? `Plan ends ${inDays(days)}` : `Refills ${inDays(days)}`;
   return <>
     <section className={styles.trialHero} aria-labelledby="dashboard-heading">
       <div className={styles.trialMain}>
-        <p className={styles.trialBadge}><span aria-hidden="true" />Free trial</p>
-        <h2 id="dashboard-heading" className={styles.trialDays}>{plural(days, "day", "days")} left</h2>
-        <p className={styles.trialEnds}>Your free trial ends <time dateTime={new Date(plan.windowEnd).toISOString()}>{longDay(plan.windowEnd)}</time>. Your projects stay safe either way.</p>
-        <Link href="/plans" className={`${styles.trialCta} da-super`}>Choose a plan</Link>
+        <p className={styles.trialBadge}><span aria-hidden="true" />{trial ? "Free trial" : `${plan.label} plan`}</p>
+        <h2 id="dashboard-heading" className={styles.trialDays}>{headline}</h2>
+        {trial
+          ? <p className={styles.trialEnds}>Your free trial ends <time dateTime={new Date(plan.windowEnd).toISOString()}>{longDay(plan.windowEnd)}</time>. Your projects stay safe either way.</p>
+          : <p className={styles.trialEnds}>{price} · {number(plan.creditsTotal)} AI credits every month · {ending ? "ends" : "refills"} <time dateTime={new Date(refill).toISOString()}>{longDay(refill)}</time></p>}
+        <div className={styles.heroActions}>
+          <Link href="/plans" className={`${styles.trialCta} da-super`}>{trial ? "Choose a plan" : "Change plan"}</Link>
+          {!trial && !plan.locked && <ManagePlanButton returnTo="/credits" className={`${styles.heroOutline} da-btn-outline`} />}
+        </div>
       </div>
       <div className={styles.trialCredits} data-tone={tone}>
         <p className={styles.trialCreditsLabel}>AI credits</p>
-        <p className={styles.trialCreditsBig}><strong>{number(left)}</strong> <span>of {number(plan.creditsTotal)} left</span></p>
-        <div className={styles.trialBar} role="meter" aria-valuemin={0} aria-valuemax={plan.creditsTotal} aria-valuenow={left}
-          aria-label={`${number(left)} of ${number(plan.creditsTotal)} AI credits left`}>
-          <i data-testid="credit-meter-fill" style={{ width: `${leftPercent}%`, backgroundColor: creditMeterColor(100 - leftPercent), color: creditMeterColor(100 - leftPercent) }} />
+        <p className={styles.trialCreditsBig}><strong>{number(left)}</strong> <span>of {number(plan.creditsTotal + plan.topUpCredits)} left</span></p>
+        <div className={styles.trialBar} role="meter" aria-valuemin={0} aria-valuemax={plan.creditsTotal + plan.topUpCredits} aria-valuenow={left}
+          aria-label={`${number(left)} AI credits left`}>
+          <i data-testid="credit-meter-fill" style={{ width: `${100 - usedPercent}%`, backgroundColor: creditMeterColor(usedPercent), color: creditMeterColor(usedPercent) }} />
         </div>
-        <div className={styles.trialBarLabels}><span>{number(plan.creditsUsed)} used</span><span>{number(plan.creditsTotal)} total</span></div>
+        <div className={styles.trialBarLabels}><span>{number(plan.creditsUsed)} used</span><span>{plan.topUpCredits > 0 ? `incl. ${number(plan.topUpCredits)} extra` : `${number(plan.creditsTotal)} total`}</span></div>
       </div>
     </section>
     <section className={styles.stats} aria-label="Your AI usage">
-      <div><strong>{number(plan.creditsUsed)}</strong><span>Used in your trial</span></div>
+      <div><strong>{number(plan.creditsUsed)}</strong><span>{trial ? "Used in your trial" : "Used this month"}</span></div>
       <div><strong>{number(byKind.animator)}</strong><span>By the AI Animator</span></div>
       <div><strong>{number(byKind.assistant)}</strong><span>By the Help Assistant</span></div>
     </section>
-    <PlanWarnings plan={plan} trial />
+    <PlanWarnings plan={plan} trial={trial} />
   </>;
 }
 
-function EmptyUsage() {
+function EmptyUsage({ filter }: { filter: DashboardFilter | null }) {
   return <div className={styles.emptyUsage}>
     <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M3 20h18" /><path d="M5 16l4-5 4 3 6-8" />
     </svg>
-    <strong>No AI usage yet</strong>
-    <span>Your usage line shows up here once you start animating with the AI Animator.</span>
+    <strong>{filter === "assistant" ? "No Help Assistant usage here yet" : filter === "project" ? "No AI Animator usage here yet" : "No AI usage yet"}</strong>
+    <span>{filter ? "Nothing in this time range. Try another view or a longer Group by." : "Your usage line shows up here once you start animating with the AI Animator."}</span>
   </div>;
 }
 
@@ -143,69 +157,45 @@ export function AiDashboardScreen() {
     estimatedCostUsd: null, priceDate: null, model: null, reasoning: null, toolCalls: 0,
   })), [creditEvents]);
   const roof = plan ? Math.max(1, plan.creditsTotal) : 1;
-  const buckets = useMemo(() => buildBuckets(allReceipts, interval, filter, now, roof), [allReceipts, interval, filter, now, roof]);
+  const refillAt = plan?.windowStart;
+  const buckets = useMemo(() => buildBuckets(allReceipts, interval, filter, now, roof, refillAt), [allReceipts, interval, filter, now, roof, refillAt]);
   const issues = snapshot ? [...snapshot.project.issues, ...snapshot.assistant.issues] : [];
   const partial = !!snapshot && !complete;
 
-  // SPEC-0020 Phase 9 (Arthur's review): back to the Phase 2 layout he liked — the refill date big at the top, the
-  // plan with its buttons, every number in one plain row (credits AND tokens and cost), the credits bar, the chart.
-  // Below the chart: only the extra-credit packs (Arthur: no cost lists — the AI engine will keep changing).
-  const weekStart = snapshot ? nextUtcWeek(now) - WEEK_MS : 0;
-  const week = summarizeReceipts(allReceipts, weekStart, now);
-  const trial = plan?.plan === "trial";
-  const byKind = creditEvents.reduce((sum, event) => event.kind === "assistant" ? { ...sum, assistant: sum.assistant + event.credits } : { ...sum, animator: sum.animator + event.credits }, { animator: 0, assistant: 0 });
-  const paid = !!plan && !trial && !plan.locked;
-  const usedPercent = plan ? creditMeterPercent(plan.creditsUsed, plan.creditsTotal, plan.topUpCredits) : 0;
-  const refill = plan ? plan.refillsAt ?? plan.windowEnd : 0;
-  const price = plan ? (plan.interval === "year" ? `$${ACCOUNT_PLANS[plan.plan].yearlyUsd} a year` : ACCOUNT_PLANS[plan.plan].price) : "";
+  // Arthur (2026-10-27): one header for the trial and every plan (PlanHero), the numbers split by AI Animator and Help
+  // Assistant, the chart, then the extra-credit packs for plan members.
+  // Show / Group by stay visible once there is any usage, so an empty view (like Assistant) can be switched back.
+  const noUsageAtAll = !!snapshot && !partial && allReceipts.length === 0;
+  const byKind = creditEvents.filter((event) => event.kind !== "test" && (!plan || event.at >= plan.windowStart)).reduce((sum, event) => event.kind === "assistant" ? { ...sum, assistant: sum.assistant + event.credits } : { ...sum, animator: sum.animator + event.credits }, { animator: 0, assistant: 0 });
 
   return (
     <main className={styles.main}>
       <div className={styles.content}>
-        {trial && plan ? <TrialHero plan={plan} byKind={byKind} /> : <>
-        <section className={styles.top} aria-labelledby="dashboard-heading">
+        {plan ? <PlanHero plan={plan} byKind={byKind} /> : <section className={styles.top} aria-labelledby="dashboard-heading">
           <p className={styles.eyebrow}>AI Dashboard</p>
-          <h2 id="dashboard-heading" className={styles.headline}>
-            {!plan ? (planFailed ? "Your credits couldn't be read. Try again in a moment." : "Loading your credits")
-              : trial ? <>Free trial ends <time dateTime={new Date(plan.windowEnd).toISOString()}>{longDay(plan.windowEnd)}</time></>
-              : plan.cancelAtPeriodEnd ? <>Plan ends <time dateTime={new Date(refill).toISOString()}>{longDay(refill)}</time></>
-              : <>Next refill: <time dateTime={new Date(refill).toISOString()}>{longDay(refill)}</time></>}
-          </h2>
-          {plan && <div className={styles.planRow}>
-            <p className={styles.planLine}><strong>{trial ? "Free trial" : `${plan.label} plan`}</strong> · {price} · {number(plan.creditsTotal)} AI credits {trial ? "" : "every month"}{trial ? ` · ${plural(plan.trialDaysLeft ?? 0, "day", "days")} left` : ""}</p>
-            <div className={styles.planActions}>
-              <Link href="/plans" className={styles.planButton}>{trial ? "Choose a plan" : "Change plan"}</Link>
-              {paid && <ManagePlanButton returnTo="/credits" />}
-            </div>
-          </div>}
-        </section>
-
-        <section className={styles.stats} aria-label="Your AI credits and usage">
-          <div><strong>{plan ? number(plan.creditsLeft) : "—"}</strong><span>AI credits left{plan && plan.topUpCredits > 0 ? ` (${number(plan.topUpCredits)} extra)` : ""}</span></div>
-          <div><strong>{plan ? number(plan.creditsUsed) : "—"}</strong><span>AI credits used {trial ? "in your trial" : "this month"}</span></div>
-          <div><strong>{snapshot ? number(week.total) : "—"}</strong><span>AI credits used this week</span></div>
-        </section>
-        {plan && <div className={styles.creditMeter} role="meter" aria-valuemin={0} aria-valuemax={plan.creditsTotal} aria-valuenow={plan.creditsUsed}
-          aria-label={`${number(plan.creditsUsed)} of ${number(plan.creditsTotal)} plan credits used`}>
-          <i data-testid="credit-meter-fill" style={{ width: `${usedPercent}%`, backgroundColor: creditMeterColor(usedPercent) }} />
-        </div>}
-        {plan && <PlanWarnings plan={plan} trial={trial} />}
-        <p className={styles.scope}>The bar fills up as you use your AI credits. Every AI Animator and Help Assistant answer uses credits.</p>
-        </>}
+          <h2 id="dashboard-heading" className={styles.headline}>{planFailed ? "Your credits couldn't be read. Try again in a moment." : "Loading your credits"}</h2>
+        </section>}
 
         <section className={styles.chartCard} aria-labelledby="usage-heading">
           <div className={styles.cardHeading}><h3 id="usage-heading">Usage over time</h3></div>
-          <div className={styles.controls} style={snapshot && buckets.length === 0 && !partial ? { display: "none" } : undefined}><fieldset><legend>Show</legend><div className={styles.segmented}>{filters.map((option) =>
+          <div className={styles.controls} style={noUsageAtAll ? { display: "none" } : undefined}><fieldset><legend>Show</legend><div className={styles.segmented}>{filters.map((option) =>
             <button type="button" key={option.value} aria-pressed={filter === option.value} onClick={() => setFilter(option.value)}>{option.label}</button>)}</div></fieldset>
             <fieldset><legend>Group by</legend><div className={styles.segmented}>{intervals.map((option) =>
               <button type="button" key={option.value} aria-pressed={interval === option.value} onClick={() => setInterval(option.value)}>{option.label}</button>)}</div></fieldset></div>
           {readError && <p className={styles.partial} role="alert">Couldn&apos;t update your usage. The numbers may be out of date; it tries again by itself.</p>}
           {issues.length > 0 && <div className={styles.partial} role="status"><strong>Some usage couldn&apos;t be read.</strong><ul>{[...new Set(issues)].map((issue) => <li key={issue}>{issue}</li>)}</ul></div>}
-          {snapshot && buckets.length === 0 && !partial ? <EmptyUsage /> : snapshot && <AiUsageChart key={`${filter}-${interval}`} buckets={buckets} filter={filter} complete={complete} capacity={intervalSpec[interval].count} roof={roof} />}
-          {!(snapshot && buckets.length === 0 && !partial) && <p className={styles.chartNote}>The line shows your AI credits used so far this week. It matches the bar above.</p>}
+          {snapshot && buckets.length === 0 && !partial ? <EmptyUsage filter={noUsageAtAll ? null : filter} /> : snapshot && <AiUsageChart key={`${filter}-${interval}`} buckets={buckets} filter={filter} complete={complete} capacity={intervalSpec[interval].count} roof={roof} />}
+          {!noUsageAtAll && <p className={styles.chartNote}>The line climbs as you use AI credits and drops back to zero when they refill. Its color matches the bar above.</p>}
         </section>
 
-        <BuyCreditsPanel />
+        {plan && plan.plan !== "trial" && <div className={styles.extraCredits}><BuyCreditsPanel /></div>}
+        {/* Arthur (2026-10-27): temporary test buttons to add, use and pretend-buy credits. Development only (the server's
+            /api/dev/plan answers 404 elsewhere); remove before going live. */}
+        {process.env.NODE_ENV === "development" && <section className={styles.testPanel} aria-labelledby="test-buttons-heading">
+          <h3 id="test-buttons-heading">Test buttons</h3>
+          <p>Temporary, only on this test copy. No real money, and no AI runs.</p>
+          <TestPlanControls />
+        </section>}
 
       </div>
     </main>

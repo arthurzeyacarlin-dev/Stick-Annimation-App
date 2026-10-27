@@ -247,3 +247,32 @@
   .trialHero { grid-template-columns: 1fr; gap: 26px; padding: 28px 22px; border-radius: 20px; }
   .trialCredits { padding-left: 0; padding-top: 24px; border-left: 0; border-top: 1px solid rgba(61, 139, 255, .2); }
 }
+
+/* ===== Plan dashboard (Arthur 2026-10-27): the same hero for every plan, Manage plan as a blue-outline button, the
+   extra-credit packs as glowing clickable cards, and the temporary test buttons (development only). ===== */
+.heroActions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 10px; }
+.heroActions .trialCta { margin-top: 0; }
+.heroActions > div { display: contents; }
+.heroOutline.heroOutline { height: 46px; padding: 0 22px; border-radius: 12px; font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
+.extraCredits section { display: grid; gap: 10px; margin: 8px 0 0; padding: 0; border: 0; background: none; }
+.extraCredits h2 { margin: 0; font-family: var(--font-display), var(--font-geist-sans), sans-serif; font-size: clamp(19px, 2.6vw, 23px); letter-spacing: -.015em; color: #fff; }
+.extraCredits p { margin: 0; color: var(--da-text-3, #a8bddd); font-size: 14px; line-height: 1.5; }
+.extraCredits p[role="note"] { justify-self: start; padding: 4px 10px; border-radius: 999px; border: 1px solid rgba(245, 158, 11, .35); background: rgba(245, 158, 11, .08); color: #f3d89c; font-size: 12px; }
+.extraCredits button { display: grid; justify-items: start; gap: 4px; padding: 20px 22px; border-radius: 16px; border: 1px solid var(--da-border, #244267) !important;
+  background: linear-gradient(180deg, rgba(10, 22, 44, .92), rgba(6, 14, 30, .95)) !important; color: #fff; text-align: left; cursor: pointer; transition: none; }
+.extraCredits button strong { font-family: var(--font-display), var(--font-geist-sans), sans-serif; font-size: 22px; font-weight: 800; letter-spacing: -.02em; }
+.extraCredits button span { color: var(--da-text-2, #c9d6ea); font-size: 15px; font-weight: 600; }
+.extraCredits button:hover:enabled { border-color: #0066ff !important; background: radial-gradient(ellipse 220px 120px at 50% 0%, rgba(0, 102, 255, .28), transparent 75%), linear-gradient(180deg, #0b1d3d, #071328) !important;
+  box-shadow: 0 14px 36px rgba(0, 102, 255, .28); }
+.extraCredits button:disabled { cursor: default; opacity: .7; }
+.extraCredits button:focus-visible { outline: 2px solid var(--da-focus, #66c7ff); outline-offset: 3px; }
+.testPanel { display: grid; gap: 8px; margin-top: 18px; padding: 22px 24px; border-radius: 16px; border: 1px dashed rgba(245, 158, 11, .45); background: rgba(245, 158, 11, .04); }
+.testPanel h3 { margin: 0; color: #f3d89c; font-size: 16px; }
+.testPanel > p { margin: 0 0 6px; color: var(--da-text-3, #a8bddd); font-size: 13px; }
+/* Arthur (2026-10-27): the extra-credit packs are blue-outline buttons like New project — outline at rest, bright blue
+   (not the extra-bright special blue) with white inside on hover. */
+.extraCredits button { border: 1px solid #2f6fd6 !important; background: linear-gradient(135deg, #0d2a5c, #071733 70%) !important; box-shadow: 0 0 12px rgba(0, 102, 255, .18); }
+.extraCredits button:hover:enabled { border-color: #0066ff !important; background: #0066ff !important; box-shadow: 0 5px 16px rgba(0, 102, 255, .4); }
+.extraCredits button:hover:enabled span { color: #fff; }
+/* Arthur (2026-10-27): a dot that reaches the red ceiling shows whole, not cut in half by the chart edge. */
+.plotWrap.plotWrap { overflow: visible; }

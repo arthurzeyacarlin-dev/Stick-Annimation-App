@@ -1885,6 +1885,16 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0226 — Work saves itself: no Save, Close workspace, no browser backup; dashboard test buttons removed (App PM, 2026-10-27)
+
+- Arthur passed 2026-10-27 (approved plan; saving is a protected system). Copy `diamond-review/auto-save` (branch `claude/auto-save`), product commit `68449fb` fast-forwarded into main.
+- RULE (Arthur): the editor has no Save. File menu = Save As, Export, **Close workspace** (the old Save and Exit: it still finishes saving before closing; ⌥⌘S). ⌘S still quietly saves but is not shown. Work saves itself to the account (about 10–13 s after the last edit).
+- RULE (Arthur): no "Unsaved work found" box and no "Unsaved draft found — use Save" — they lied (the account autosave had already saved). The browser-only safety backup (projectRecoveryStorageV1) is OFF: `DrawingWorkspace` never enables it; `ExistingHome` quietly discards any leftover backup and always opens Home. Accepted risk (Arthur): edits in the last ~10–13 s before a crash, or while offline, can be lost.
+- Bug found while testing: the account autosave timer was scheduled inside `queueRecoveryDraftWrite` after the backup on/off check, so turning the backup off stopped autosave (also true in main whenever a leftover draft blocked the backup). Fixed: autosave is scheduled first, the backup part returns after.
+- Help Assistant knowledge + Keyboard Shortcuts: no Save; Close workspace.
+- AI Dashboard: the temporary test buttons (D-0224) are removed (Arthur). `/dev/plan` stays as a development-only page (404 outside development). Buying extra credits/plans goes through Stripe (still test mode on purpose; real payments are another PM's).
+- Tests: stroke → "Saved" ~13 s later; stroke + immediate Close workspace; stroke + wait + close the tab without anything; reopened: all 3 strokes, no recovery box. Drawing sweeps 15/15 + 7/7, tsc + eslint clean, no page errors. Dashboard trial + Pro: no test buttons, hero and packs fine. Not tested: clearing an old leftover backup (this copy can no longer make one).
+
 ### D-0225 — No Tutorials anywhere (App PM, 2026-10-27)
 
 - Arthur passed 2026-10-27. Copy `diamond-review/no-tutorials` (branch `claude/no-tutorials`), product commit `d4ef79c` fast-forwarded into main.

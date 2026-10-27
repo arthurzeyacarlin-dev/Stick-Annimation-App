@@ -10,7 +10,8 @@
 - [x] **AI-DASHBOARD-TRIAL** — passed D-0223 (`f5a4ad1`): free-trial dashboard makeover; Help Assistant answers cost 1 credit.
 - [x] **AI-DASHBOARD-PAID** — passed D-0224 (`550fc73`): plan hero, climbing color line, Home icon + colored credits number.
 - [x] **NO-TUTORIALS** — passed D-0225 (`d4ef79c`): Tutorials removed everywhere; guides = tour + Help Assistant.
-- [ ] **REMOVE-DASHBOARD-TEST-BUTTONS** — temporary test buttons at the bottom of the AI Dashboard (development only, D-0224); remove before going live.
+- [x] **REMOVE-DASHBOARD-TEST-BUTTONS** — done D-0226 (`68449fb`).
+- [x] **AUTO-SAVE-ONLY** — passed D-0226 (`68449fb`): no Save, Close workspace, no browser backup / recovery box.
 - [ ] **REPORTS-OWNER-ONLY** — "Problem reports" shows for every account in dev (D-0201); owner-only before online.
 - [x] **CHAT-BOX-TWEAKS** — passed D-0214 (`b5d0ad5`): quiet mic, dot waves, Effort slider with Auto, bigger check.
 - [x] **SMOOTH-SWITCHES** — passed D-0215 (`e6475bc`): every on/off switch slides and fades.

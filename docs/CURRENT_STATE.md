@@ -1,6 +1,10 @@
 # Current State
 
-## D-0225 — App PM: no Tutorials anywhere (current)
+## D-0226 — App PM: work saves itself; Close workspace; no recovery box; dashboard test buttons removed (current)
+
+Arthur passed 2026-10-27. The editor has no Save: work saves itself to the account, and File → Close workspace finishes saving and goes Home. The browser-only backup and its "Unsaved work found" / "Unsaved draft found" messages are gone. The AI Dashboard's temporary test buttons are removed. See DECISIONS D-0226.
+
+## D-0225 — App PM: no Tutorials anywhere
 
 Arthur passed 2026-10-27. There is no Tutorials button, screen or section; the guides are the guided tour and the Help Assistant (and editor Keyboard Shortcuts). The hidden Tutorials screen and old Help page are deleted, and the Help Assistant no longer mentions Tutorials. See DECISIONS D-0225.
 

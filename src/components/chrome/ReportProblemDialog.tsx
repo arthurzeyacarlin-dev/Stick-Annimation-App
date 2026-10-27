@@ -11,7 +11,7 @@ import {
 
 // SPEC-0020 Phase 6: "Report a Problem" (side menu → Support). What happened + where + an optional screenshot.
 // The screenshot is shrunk here (≤ 1600 px, JPEG) so it stays small; the server checks everything again.
-const THANKS = "Thanks — Arthur will read this.";
+const THANKS = "Thanks for letting us know. We'll look into it and work on a fix.";
 
 /** A first guess for "Where were you?" from the page the menu was opened on. */
 function guessScreen(pathname: string): ProblemReportScreen {

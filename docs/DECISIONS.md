@@ -1885,6 +1885,18 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0231 — Editor made for upright phones (App PM, 2026-10-28)
+
+- Arthur passed 2026-10-28. Copy `diamond-review/phone-layout` (branch `claude/phone-layout`), product commit `a247d1d` fast-forwarded into main. Looks/layout only; drawing, saving and AI unchanged.
+- Upright phone (<=600px): slim top bar (File/Edit/View/Window/Help kept), Export as an icon, timeline at the bottom above the panel chips, bigger canvas; panels start closed (`DrawingRightPanel` sheet starts "small" and sizes half/full for a bottom timeline).
+- Panel chips use the segmented choice-row look (one rounded box, chosen = navy with blue bar; no chosen look while closed).
+- Layer list (2+ layers) opens UPWARD on phones with the grab bar on top: drag down hides, drag up shows (`DrawingTimelineRow` `opensUpward`).
+- RULE: the panel is always over the timeline. Root cause: the panel's holder had z-index 10 under the timeline's 28, so a dragged panel slid behind it. Holder lifts to 40 while open or dragged, with a see-through background.
+- Play/onion/layers/FPS row evenly spaced (38px buttons); Play = navy + blue outline, turns bright blue on hover.
+- AI Animator on phones: see-through message box (glow not cut) and a compact welcome that always shows its text (scoped to `.drawing-ai-tab`; Library/Assets look like the computer).
+- Short-window fixes (100dvh workspace, panel scrolls to the bottom) and sideways rules (tool rail left, short timeline) — Arthur chose not to focus on sideways.
+- Tests: sweeps 15/15 + 7/7; tsc clean; mid-drag screenshot checked. Not built: pinch-to-zoom.
+
 ### D-0230 — Last old-look screens polished: reset password, 404, export progress, delete pop-ups (App PM, 2026-10-27)
 
 - Arthur passed 2026-10-27. Copy `diamond-review/polish-screens` (branch `claude/polish-screens`), product commit `74d1ec0` fast-forwarded into main. Behaviour unchanged; looks only.

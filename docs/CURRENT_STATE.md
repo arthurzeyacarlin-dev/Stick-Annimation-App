@@ -1,6 +1,10 @@
 # Current State
 
-## D-0230 — App PM: last old-look screens polished (current)
+## D-0231 — App PM: editor made for upright phones (current)
+
+Arthur passed 2026-10-28. On an upright phone the timeline sits at the bottom, the canvas is bigger, panel chips use the choice-row look, the layer list opens upward, the panel always covers the timeline, and the play row is evenly spaced. See DECISIONS D-0231.
+
+## D-0230 — App PM: last old-look screens polished
 
 Arthur passed 2026-10-27. Reset password, the 404 page, the export progress bar and every delete pop-up now have the app's polished look (glow, dots, bright buttons, red warning icon on deletes). See DECISIONS D-0230.
 

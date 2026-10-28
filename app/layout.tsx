@@ -41,8 +41,11 @@ export default async function RootLayout({
   // SPEC-0020 Phase 3: Settings → Appearance, rendered on the first paint from the cookie (signed out = default).
   const appearance = session ? parseAppearanceCookie((await cookies()).get(APPEARANCE_COOKIE)?.value) : parseAppearanceCookie(null);
   return (
-    <html lang="en" data-theme={appearance.theme} data-accent={appearance.accent}>
+    // Browser add-ons (Grammarly, dark-mode, translators, phone browsers) change <html>/<body> before the app starts;
+    // that made Next.js show a "didn't match" error. Only these two tags ignore it — the app's own parts still check.
+    <html lang="en" data-theme={appearance.theme} data-accent={appearance.accent} suppressHydrationWarning>
       <body
+        suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} ${display.variable} antialiased`}
       >
         <AccountSessionProvider user={session ? toAccountPublicUser(session) : null}>

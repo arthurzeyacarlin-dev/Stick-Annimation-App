@@ -113,7 +113,10 @@ export function DrawingRightPanel({
 }: DrawingRightPanelProps) {
   // SPEC-0022 Phase 4: the AI Animator is a fourth tab with the whole panel (it no longer sits in the bottom corner).
   // Phones (≤ 640 px) open on the AI Animator tab: tell it what you want instead of drawing frame by frame.
-  const [aiTabActive, setAiTabActive] = useState(() => typeof window !== "undefined" && window.innerWidth <= 640);
+  // Starts false on the server AND in the browser (the first drawing must match, or Next.js shows a hydration error);
+  // phones switch to the AI Animator tab right after the page is up.
+  const [aiTabActive, setAiTabActive] = useState(false);
+  useEffect(() => { if (window.innerWidth <= 640) setAiTabActive(true); }, []);
   // Phones and tablets: like the computer, the panel is always there and one tab is always selected (no hide button).
   const [seenPanelTab, setSeenPanelTab] = useState(rightPanelTab);
   if (seenPanelTab !== rightPanelTab) { setSeenPanelTab(rightPanelTab); setAiTabActive(false); }

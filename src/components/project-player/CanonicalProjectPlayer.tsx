@@ -425,7 +425,7 @@ export const CanonicalProjectPlayer = forwardRef<CanonicalProjectPlayerHandle, P
       <div ref={rootRef} className={styles.exportPlayer} data-canonical-project-player="export">
         <div className={styles.exportStage}>
           {canvas}
-          {contentRect ? (
+          {contentRect && !(contentRect.x <= 0 && contentRect.y <= 0 && contentRect.width >= canvasWidth && contentRect.height >= canvasHeight) ? (
             <div
               data-export-content-rect-overlay="true"
               aria-hidden="true"
@@ -446,8 +446,13 @@ export const CanonicalProjectPlayer = forwardRef<CanonicalProjectPlayerHandle, P
             onClick={togglePlayback}
             disabled={playbackDisabled}
             className={styles.exportPlayButton}
+            aria-label={playing ? "Pause" : "Play"}
           >
-            {playing ? "Pause" : "Play"}
+            {playing ? (
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1.2" fill="currentColor" /><rect x="14" y="5" width="4" height="14" rx="1.2" fill="currentColor" /></svg>
+            ) : (
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5.6v12.8a1 1 0 0 0 1.5.86l10.2-6.4a1 1 0 0 0 0-1.72L9.5 4.74A1 1 0 0 0 8 5.6Z" fill="currentColor" /></svg>
+            )}
           </button>
           <input
             aria-label="Animation position"
@@ -460,7 +465,8 @@ export const CanonicalProjectPlayer = forwardRef<CanonicalProjectPlayerHandle, P
             style={seekFillStyle(Math.min(displayFrame, exportFrameMaximum), exportFrameMaximum)}
           />
           <div className={styles.time} aria-label={`${mediaTimeSeconds.toFixed(3)} seconds of ${durationSeconds.toFixed(3)} seconds`}>
-            {`${mediaTimeSeconds.toFixed(1)}s / ${formatExportDuration(durationSeconds)} · Frame ${visibleFrameNumber}/${snapshot.frameCount}`}
+            <span className={styles.timeNow}>{`${mediaTimeSeconds.toFixed(1)}s / ${formatExportDuration(durationSeconds)}`}</span>
+            <span className={styles.timeFrame}>{`Frame ${visibleFrameNumber}/${snapshot.frameCount}`}</span>
           </div>
         </div>
       </div>

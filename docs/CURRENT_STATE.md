@@ -1,6 +1,10 @@
 # Current State
 
-## D-0231 — App PM: editor made for upright phones (current)
+## D-0232 — App PM: no add-on hydration error; professional export player (current)
+
+Arthur passed 2026-10-29 and says the app UI is ready for users. The red "didn't match" box from browser add-ons is gone, and the export player has an edge-to-edge video with a round Play icon and one clean control bar. Next: the website. See DECISIONS D-0232.
+
+## D-0231 — App PM: editor made for upright phones
 
 Arthur passed 2026-10-28. On an upright phone the timeline sits at the bottom, the canvas is bigger, panel chips use the choice-row look, the layer list opens upward, the panel always covers the timeline, and the play row is evenly spaced. See DECISIONS D-0231.
 

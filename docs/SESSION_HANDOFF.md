@@ -12,6 +12,10 @@
 
 **HANDOFF AT 60% CHAT MEMORY (dad, Oct 16):** at 50% start keeping docs current; at 60%: (1) write everything still only in the chat into the spec, this file, CURRENT_STATE/TODO if app-relevant, memory, and the board; (2) refresh `/Users/arthurcarlin/Projects/diamond-review/board/HANDOFF_MESSAGE.md` (self-contained: who, read-first list, where we are, next, rules); (3) `python3 board.py handoff` — the board's Handoff button turns green (yellow from 50%); (4) tell Arthur: click it, open a NEW Claude chat in this project, paste. Nothing may survive only inside a chat.
 
+## App PM update 21 (Thu 2026-10-29)
+
+D-0232 merged: add-on hydration error fixed (html/body only), export player redesigned. Arthur: the app UI is READY FOR USERS. Test copies `phone-layout` and `hydration-fix` can be retired. Next: the website; then plan prices for the AI Animator (measure real cost per animation, dad approves, 50% profit floor); RESET-EMAIL (dad); one Stripe test sign-up.
+
 ## App PM update 20 (Wed 2026-10-28)
 
 D-0231 merged: editor made for upright phones (timeline at bottom, choice-row chips, layer list opens upward, panel always over the timeline, even play row). Test copy `phone-layout` can be retired. Next: pinch-to-zoom (not built), dad's email-service decision, one paid sign-up test with Stripe's test card.

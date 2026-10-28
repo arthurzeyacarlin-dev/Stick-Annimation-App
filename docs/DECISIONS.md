@@ -1885,6 +1885,15 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0232 — No hydration error from browser add-ons; professional export player (App PM, 2026-10-29)
+
+- Arthur passed 2026-10-29 ("the app copy a pass"). Copy `diamond-review/hydration-fix` (branch `claude/hydration-fix`), product commit `194ead3` fast-forwarded into main.
+- Root cause of the red "attributes didn't match" box: browser add-ons / phone browsers change `<html>`/`<body>` before React starts. RULE: only those two tags have `suppressHydrationWarning` (app/layout.tsx); every other part still checks. Proof: a fake add-on gave 4 errors before, 0 after (phone + computer). The box is dev-only; real users never see it.
+- RULE: never read `window` in a first render (`useState` initial value). `DrawingRightPanel` now starts on the normal tab and switches phones to the AI Animator tab after mount.
+- Export player (`CanonicalProjectPlayer` export mode + projectPlayer.module.css): video edge to edge on a dark stage; one control bar with a round Play/Pause icon (navy + blue outline, bright blue on hover; aria-label stays "Play"/"Pause"), progress bar, time + small frame count. The crop outline shows only when the chosen shape really crops.
+- Tests: sweeps 15/15 + 7/7; tsc clean; phone/computer pictures.
+- Arthur 2026-10-29: the app UI is ready for users. Left: the website, plan prices for the AI Animator (dad decides, 50% profit floor), RESET-EMAIL (dad), one Stripe test sign-up.
+
 ### D-0231 — Editor made for upright phones (App PM, 2026-10-28)
 
 - Arthur passed 2026-10-28. Copy `diamond-review/phone-layout` (branch `claude/phone-layout`), product commit `a247d1d` fast-forwarded into main. Looks/layout only; drawing, saving and AI unchanged.

@@ -94,6 +94,8 @@ type TimelinePanelResizeState = {
   pointerId: number;
   startY: number;
   startRowsHeight: number;
+  /** Phones (Arthur 2026-10-28): the list opens upward with its grab bar on top, so dragging up shows more layers. */
+  opensUpward?: boolean;
 };
 
 type TimelineSpanBounds = {
@@ -1478,7 +1480,7 @@ export function DrawingTimelineRow({
     const handlePointerMove = (event: PointerEvent) => {
       if (event.pointerId !== panelResizeState.pointerId) return;
 
-      const deltaY = event.clientY - panelResizeState.startY;
+      const deltaY = panelResizeState.opensUpward ? panelResizeState.startY - event.clientY : event.clientY - panelResizeState.startY;
       const nextRowsHeight = Math.max(
         TIMELINE_MIN_PANEL_ROWS_HEIGHT,
         Math.min(maxRowsHeight, panelResizeState.startRowsHeight + deltaY),
@@ -1786,6 +1788,8 @@ export function DrawingTimelineRow({
                 pointerId: event.pointerId,
                 startY: event.clientY,
                 startRowsHeight: rowsHeight,
+                // Same screens as the "opens upward" rule in globals.css.
+                opensUpward: window.matchMedia("(max-width: 600px), (max-height: 500px) and (orientation: landscape) and (max-width: 950px)").matches,
               });
             }}
           >

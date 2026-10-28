@@ -491,7 +491,7 @@ button.da-switch > span { transition: transform var(--da-switch-motion), backgro
 /* SPEC-0022 Phase 9 (Arthur 2026-10-13): tablets and phones. The right panel becomes a bottom sheet with a Panel button;
    the tool row takes the whole width and scrolls sideways if it must. Computers (> 900 px) are untouched. */
 .da-sheet-toggle { display: none; }
-@media (max-width: 900px) {
+@media (max-width: 900px), (max-height: 500px) and (orientation: landscape) {
   .drawing-right-panel {
     position: fixed !important; inset: auto 0 102px 0 !important; width: 100% !important; max-width: none !important; flex: none !important;
     height: min(54dvh, 460px) !important; max-height: calc(100dvh - 300px) !important; z-index: 60 !important; transform: translateY(140%); transition: transform 200ms ease;
@@ -513,7 +513,7 @@ button.da-switch > span { transition: transform var(--da-switch-motion), backgro
 /* SPEC-0022 Phase 9 Build 2: the phone editor. A tab bar sits above the tool row (Properties · Library · Assets · AI);
    tapping a tab slides the sheet up, tapping it again closes it. The top bar loses its long labels so nothing is cut off. */
 .da-sheet-tabs { display: none; }
-@media (max-width: 900px) {
+@media (max-width: 900px), (max-height: 500px) and (orientation: landscape) {
   .da-sheet-tabs { display: grid; grid-template-columns: repeat(4, 1fr); position: fixed; left: 0; right: 0; bottom: 56px; height: 46px; z-index: 65; background: var(--da-panel, #071120); border-top: 1px solid var(--da-line, #163058); }
   .da-sheet-tabs button { border: 0; background: transparent; color: var(--da-text-3, #a8bddd); font: inherit; font-size: 13px; font-weight: 650; cursor: pointer; }
   .da-sheet-tabs button[aria-selected="true"] { color: #fff; background: var(--da-selected-bg, #0f2a52); box-shadow: inset 0 -2px 0 #0066ff; }
@@ -526,7 +526,7 @@ button.da-switch > span { transition: transform var(--da-switch-motion), backgro
 }
 
 /* Build 2: the bottom tab bar replaces the panel's own tab group on phones and tablets (no duplicate tabs). */
-@media (max-width: 900px) {
+@media (max-width: 900px), (max-height: 500px) and (orientation: landscape) {
   .drawing-right-panel > div:has(> [role="group"][aria-label="Right panel"]) { display: none !important; }
 }
 
@@ -543,7 +543,7 @@ button.da-switch > span { transition: transform var(--da-switch-motion), backgro
 [role="group"][aria-label="Right panel"] button[aria-pressed="true"]:hover { background: var(--da-hover-soft, #0066ff) !important; box-shadow: inset 0 -3px 0 var(--da-hover, #0066ff) !important; } /* the selected bar stays on hover (Arthur) */
 .da-sheet-tabs button[aria-selected="true"] { box-shadow: inset 0 -3px 0 #0066ff; }
 
-@media (max-width: 900px) {
+@media (max-width: 900px), (max-height: 500px) and (orientation: landscape) {
   /* Nothing cut off, no stray page scroll in the editor. */
   html:has(.drawing-right-panel), body:has(.drawing-right-panel) { height: 100dvh; overflow: hidden; overscroll-behavior: none; }
   .drawing-toolbar { margin-top: 46px; }
@@ -561,7 +561,7 @@ button.da-switch > span { transition: transform var(--da-switch-motion), backgro
 
 /* The AI Animator's older phone style made its panel float over everything ("popping out", cutting things off).
    Inside the bottom sheet it is a plain part of the sheet and fills it exactly. */
-@media (max-width: 900px) {
+@media (max-width: 900px), (max-height: 500px) and (orientation: landscape) {
   .drawing-right-panel { min-height: 240px !important; }
   .drawing-ai-tab { overflow: hidden; }
   .drawing-ai-tab > .workspace-ai-panel-shell {
@@ -572,7 +572,7 @@ button.da-switch > span { transition: transform var(--da-switch-motion), backgro
 
 /* The panel's "Hide panel" handle (only on phones and tablets), the editor never scrolls as a page. */
 .da-sheet-close { display: none; }
-@media (max-width: 900px) {
+@media (max-width: 900px), (max-height: 500px) and (orientation: landscape) {
   .da-sheet-close { display: flex; align-items: center; justify-content: center; flex: 0 0 auto; min-height: 36px; border: 0; border-bottom: 1px solid var(--da-line, #163058); background: transparent; color: var(--da-text-3, #a8bddd); font: inherit; font-size: 12px; font-weight: 650; cursor: pointer; }
   .da-sheet-close:hover { background: var(--da-hover-soft, #0066ff); color: #fff; }
   [class*="workspaceTheme_workspace"] { overflow: hidden !important; overscroll-behavior: none; }
@@ -580,7 +580,7 @@ button.da-switch > span { transition: transform var(--da-switch-motion), backgro
 }
 
 /* ===== SPEC-0022 Phase 9 Build 2 (final pass, Arthur): no hiding, no stray scrolling, no hover jumps ===== */
-@media (max-width: 900px) {
+@media (max-width: 900px), (max-height: 500px) and (orientation: landscape) {
   :root { --da-sheet-h: min(44dvh, 380px); }
   .da-sheet-close { display: none !important; }
   /* The panel is always there, one tab always selected, and the canvas gets the space that is left. */
@@ -604,7 +604,7 @@ button.da-switch > span { transition: transform var(--da-switch-motion), backgro
 
 /* ===== Final layout for phones and tablets: everything in the normal flow, nothing floats or overlaps =====
    column: canvas (takes what is left) → tab bar → the panel → tool row. Same order of things as the computer. */
-@media (max-width: 900px) {
+@media (max-width: 900px), (max-height: 500px) and (orientation: landscape) {
   div:has(> .drawing-canvas-area) { flex-direction: column !important; }
   div:has(> .drawing-canvas-area) > .drawing-canvas-area { flex: 1 1 0 !important; min-height: 0 !important; width: 100% !important; }
   .da-sheet-tabs { position: static !important; flex: 0 0 46px; z-index: auto; }
@@ -618,7 +618,7 @@ button.da-switch > span { transition: transform var(--da-switch-motion), backgro
 
 /* ===== SPEC-0022 Phase 9: the canvas has the SAME SHAPE on phones and tablets (16:9, the whole picture, centered) =====
    Display only: the drawing area is shaped like the picture and fitted into the space that is left. The computer is untouched. */
-@media (max-width: 900px) {
+@media (max-width: 900px), (max-height: 500px) and (orientation: landscape) {
   .drawing-canvas-area { container-type: size; display: flex !important; align-items: center; justify-content: center; }
   .drawing-canvas-area > [data-workspace-canvas-host="true"] {
     flex: 0 0 auto !important;
@@ -634,7 +634,7 @@ button.da-switch > span { transition: transform var(--da-switch-motion), backgro
    pointed at, like the computer's resize edge. Computers (> 900 px) are untouched: .da-sheet is display: contents. */
 .da-sheet { display: contents; }
 .da-sheet-handle { display: none; }
-@media (max-width: 900px) {
+@media (max-width: 900px), (max-height: 500px) and (orientation: landscape) {
   div:has(> .da-sheet) { position: relative !important; display: block !important; overflow: hidden !important; }
   /* The canvas is anchored (Arthur): the timeline floats on top and grows down OVER the canvas when layers are added;
      the canvas area always starts where a one-layer timeline ends (--da-timeline-base, set by DrawingRightPanel). */
@@ -660,7 +660,7 @@ button.da-switch > span { transition: transform var(--da-switch-motion), backgro
   .da-sheet[data-sheet-dragging] > .da-sheet-tabs { border-top-color: var(--da-hover-soft, #0066ff) !important; }
   .da-sheet[data-sheet-size="small"] .da-sheet-tab-row button[aria-selected="true"] { background: transparent; color: #fff; }
 }
-@media (max-width: 900px) {
+@media (max-width: 900px), (max-height: 500px) and (orientation: landscape) {
   /* All 8 tools fit the width (the last one was cut off on phones under 380 px). */
   .drawing-toolbar.drawing-toolbar { grid-template-columns: repeat(8, minmax(0, 1fr)) !important; overflow: hidden !important; }
   .drawing-toolbar.drawing-toolbar > * { min-width: 0 !important; }
@@ -802,7 +802,7 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
 .drawing-tool-button:not([data-selected]):hover { background: var(--da-hover-soft) !important; border-color: var(--da-hover-soft) !important; color: #fff !important; }
 .drawing-tool-button[data-selected] { background: #0066ff !important; border-color: #0066ff !important; color: #fff !important; box-shadow: 0 5px 16px rgba(0, 102, 255, .4) !important; } /* solid blue, like Play on hover (Arthur 2026-10-27) */
 .drawing-tool-button[data-selected]:hover { background: #1a75ff !important; border-color: #1a75ff !important; box-shadow: 0 6px 18px rgba(0, 102, 255, .5) !important; }
-@media (max-width: 900px) { .drawing-tool-label { display: none; } .drawing-tool-button { width: 44px !important; height: 40px !important; } }
+@media (max-width: 900px), (max-height: 500px) and (orientation: landscape) { .drawing-tool-label { display: none; } .drawing-tool-button { width: 44px !important; height: 40px !important; } }
 
 /* Right panel: same chrome shade, a soft glow at the top like the AI Animator, calm sentence-case labels, compact buttons. */
 .drawing-right-panel, .drawing-right-panel .workspace-properties-scroll, .drawing-right-panel [role="group"][aria-label="Right panel"] { background-color: #060b14 !important; }
@@ -933,3 +933,163 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
 .da-danger-dialog::before { content: ""; display: block; width: 44px; height: 44px; margin: 0 0 12px; border-radius: 50%;
   background: rgba(255, 64, 80, .14) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ff6b78' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7h16M9 7V4h6v3M6.5 7l1 13h9l1-13M10 11v6M14 11v6'/%3E%3C/svg%3E") center / 22px 22px no-repeat;
   box-shadow: 0 0 0 1px rgba(255, 92, 105, .35), 0 0 22px rgba(255, 64, 80, .25); }
+
+/* ===== Phone layout (Arthur 2026-10-28): made for phones, not a squeezed computer screen =====
+   Upright: one slim top bar (File · Edit · View · Window · Help, Undo/Redo, Export); the canvas gets the middle; the
+   frames, Play and the panel chips sit at the bottom near the thumbs, above the tools. Sideways: tools in a column on the
+   left, frames along the bottom, the canvas as big as the screen allows. The canvas never changes size when a panel
+   opens (panels slide over it). Computers and tablets keep their layout. */
+@media (max-width: 600px) {
+  :root { --da-tl-h: 104px; --da-chips-h: 48px; --da-tools-h: 58px; }
+  /* Top bar: everything fits, Export is visible. */
+  .drawing-topbar { padding: 0 6px !important; gap: 4px !important; }
+  .drawing-topbar-menus { gap: 4px !important; }
+  .drawing-topbar-menus > div:first-of-type button { padding: 0 6px !important; font-size: 13.5px !important; }
+  .drawing-topbar-menus > div[aria-hidden="true"] { display: none !important; }
+  .drawing-topbar .drawing-topbar-export { display: inline-flex !important; height: 32px; padding: 0 11px; font-size: 13px; border-radius: 10px; }
+  .drawing-topbar .drawing-topbar-export svg { display: none; }
+  /* The timeline moves to the bottom, just above the chips; Play first, round and bright. */
+  [class*="workspaceTheme_workspace"]:has(.da-sheet) > .drawing-timeline {
+    top: auto !important; bottom: calc(var(--da-tools-h) + var(--da-chips-h)) !important; z-index: 28 !important;
+    background: var(--da-panel, #060b14); border-top: 1px solid var(--da-line, #0f1b2e); max-height: none !important; overflow: visible !important;
+  }
+  .drawing-timeline-controls { min-height: 0 !important; height: 44px; padding: 0 10px !important; }
+  .drawing-timeline-controls .drawing-play { order: -1; width: 40px !important; height: 40px !important; min-width: 40px !important; border-radius: 50% !important;
+    background: #0066ff !important; border-color: #0066ff !important; color: #fff !important; box-shadow: 0 6px 16px rgba(0, 102, 255, .45); }
+  .drawing-timeline-controls .drawing-fps { order: 9; }
+  /* The canvas: the whole middle, from under the top bar to above the timeline. */
+  div:has(> .da-sheet) > .drawing-canvas-area.drawing-canvas-area.drawing-canvas-area.drawing-canvas-area {
+    inset: 0 0 calc(var(--da-chips-h) + var(--da-tl-h)) 0 !important; padding: 10px 8px !important;
+  }
+  /* Panel chips (Properties · Library · Assets · AI): calm pills; a tap opens the panel over the canvas. */
+  .da-sheet-tab-row { height: var(--da-chips-h) !important; gap: 6px; padding: 7px 10px; align-items: center; }
+  .da-sheet-tab-row button { height: 34px; border: 1px solid var(--da-border, #1a2b45) !important; border-radius: 999px !important; font-size: 13px !important; box-shadow: none !important; }
+  .da-sheet:not([data-sheet-size="small"]) .da-sheet-tab-row button[aria-selected="true"] { background: var(--da-selected-bg, #0f2a52) !important; border-color: #0066ff !important; color: #fff !important; }
+  /* Tools: big, thumb-friendly. */
+  .drawing-toolbar.drawing-toolbar { height: var(--da-tools-h); padding-bottom: env(safe-area-inset-bottom); }
+}
+
+/* Sideways phones: tools become a column on the left; the frames run along the bottom. */
+@media (max-height: 500px) and (orientation: landscape) {
+  :root { --da-tl-h: 96px; --da-chips-h: 44px; --da-rail-w: 60px; }
+  [class*="workspaceTheme_workspace"]:has(.da-sheet) { padding-left: var(--da-rail-w) !important; }
+  .drawing-toolbar.drawing-toolbar { position: fixed !important; left: 0; top: 0; bottom: 0; width: var(--da-rail-w) !important; height: auto !important; margin: 0 !important;
+    grid-template-columns: 1fr !important; grid-template-rows: repeat(8, minmax(0, 1fr)) !important; padding: 6px 0 !important; border-right: 1px solid var(--da-line, #0f1b2e); border-top: 0 !important; z-index: 40; }
+  .drawing-toolbar .da-choice-pill { display: none !important; }
+  .drawing-toolbar .drawing-tool-button[aria-pressed="true"] { background: #0066ff !important; color: #fff !important; border-radius: 12px; }
+  .drawing-toolbar.drawing-toolbar > * { justify-content: center; align-items: center; }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  [class*="workspaceTheme_workspace"]:has(.da-sheet) > .drawing-timeline { top: auto !important; bottom: var(--da-chips-h) !important; left: var(--da-rail-w) !important; z-index: 28 !important; background: var(--da-panel, #060b14); border-top: 1px solid var(--da-line, #0f1b2e); }
+  .drawing-timeline-controls { height: 40px; min-height: 0 !important; }
+  .drawing-timeline-controls .drawing-play { order: -1; width: 36px !important; height: 36px !important; min-width: 36px !important; border-radius: 50% !important; background: #0066ff !important; color: #fff !important; }
+  div:has(> .da-sheet) > .drawing-canvas-area.drawing-canvas-area.drawing-canvas-area.drawing-canvas-area { inset: 0 0 calc(var(--da-chips-h) + var(--da-tl-h)) 0 !important; padding: 6px !important; }
+  .da-sheet-tab-row { height: var(--da-chips-h) !important; }
+}
+/* Phone layout fixes: Export as a compact icon button (nothing cut off); chips never look chosen while the panel is
+   closed; sideways bars are slimmer so the canvas is bigger; the chosen tool lights up in the side column. */
+@media (max-width: 600px) {
+  .drawing-topbar .drawing-topbar-export { width: 38px; padding: 0 !important; justify-content: center; font-size: 0 !important; gap: 0 !important; }
+  .drawing-topbar .drawing-topbar-export svg { display: block !important; width: 17px; height: 17px; }
+  .drawing-timeline-controls { justify-content: flex-start !important; gap: 14px !important; }
+  .drawing-timeline-controls .drawing-fps { margin-left: auto; }
+}
+@media (max-width: 950px), (max-height: 500px) and (orientation: landscape) {
+  .da-sheet[data-sheet-size="small"] .da-sheet-tab-row button[aria-selected="true"] { background: transparent !important; box-shadow: none !important; color: var(--da-text-3, #a8bddd) !important; }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  :root { --da-tl-h: 58px; --da-chips-h: 38px; }
+  .da-sheet-tab-row button { font-size: 12.5px !important; }
+  .drawing-toolbar .drawing-tool-button[data-selected="true"], .drawing-toolbar .drawing-tool-button[aria-pressed="true"] { background: #0066ff !important; color: #fff !important; border-radius: 12px; }
+}
+@media (max-width: 600px) { :root { --da-tl-h: 126px; } }
+@media (max-height: 500px) and (orientation: landscape) { :root { --da-tl-h: 62px; } }
+/* An open panel covers the timeline (it slides over everything below the top bar). */
+@media (max-width: 950px), (max-height: 500px) and (orientation: landscape) {
+  [class*="workspaceTheme_workspace"]:has(.da-sheet:not([data-sheet-size="small"])) > .drawing-timeline { z-index: 1 !important; }
+  div:has(> .da-sheet) { z-index: 2; }
+}
+
+/* ===== Final pass (Arthur 2026-10-28) ===== */
+/* Short windows: the whole editor fits the window, so every panel scrolls to its very bottom. */
+@media (max-height: 500px) {
+  [class*="workspaceTheme_workspace"] { height: 100dvh !important; min-height: 0 !important; max-height: 100dvh !important; overflow: hidden !important; }
+  [class*="workspaceTheme_workspace"] > div:has(> .drawing-right-panel), [class*="workspaceTheme_workspace"] > div:has(> div > .drawing-right-panel) { min-height: 0 !important; flex: 1 1 0 !important; }
+  .drawing-right-panel { min-height: 0 !important; max-height: 100% !important; }
+  .workspace-properties-scroll { overscroll-behavior: contain; }
+}
+/* AI Animator: the message box is see-through, so the glow behind it is never blocked; on short screens the welcome
+   is compact so it shows whole without scrolling. */
+.drawing-ai-tab form[aria-label="AI Animator message composer"] { background: rgba(6, 11, 20, .35) !important; backdrop-filter: none !important; }
+@media (max-height: 560px) {
+  .drawing-ai-tab .drawing-ai-logo:not(.drawing-ai-logo-small) svg { width: 30px !important; height: 30px !important; }
+  .drawing-ai-tab h2, .drawing-ai-tab h3 { margin-top: 2px !important; font-size: 17px !important; }
+}
+/* The phone panel chips use the app's one choice-row look (like Group by on the AI Dashboard): one rounded box, the
+   chosen one filled with the blue bar under it. */
+@media (max-width: 950px), (max-height: 500px) and (orientation: landscape) {
+  .da-sheet-tab-row { gap: 0 !important; margin: 6px 10px; padding: 4px !important; height: auto !important; border: 1px solid var(--da-border, #1a2b45); border-radius: 14px; background: var(--da-page, #02050b); }
+  .da-sheet-tab-row button { height: 36px; border: 0 !important; border-radius: 10px !important; background: transparent; }
+  .da-sheet:not([data-sheet-size="small"]) .da-sheet-tab-row button[aria-selected="true"] { background: var(--da-selected-bg, #0f2a52) !important; color: #fff !important; box-shadow: inset 0 -3px 0 #0066ff !important; border: 0 !important; }
+}
+@media (max-width: 950px), (max-height: 500px) and (orientation: landscape) { :root { --da-chips-h: 56px; } }
+@media (max-height: 560px) {
+  .drawing-ai-tab .drawing-ai-empty { padding: 6px 12px !important; gap: 4px !important; }
+  .drawing-ai-tab .drawing-ai-empty::before { inset: -6px -20px !important; }
+  .drawing-ai-tab .drawing-ai-empty > span:not(.drawing-ai-logo) { font-size: 12.5px; line-height: 1.4; }
+  .drawing-ai-tab .drawing-ai-empty .drawing-ai-logo svg { width: 30px !important; height: 30px !important; }
+  .drawing-ai-tab form[aria-label="AI Animator message composer"] textarea { min-height: 26px !important; height: 26px !important; }
+  .drawing-ai-tab form[aria-label="AI Animator message composer"] { padding-top: 8px !important; padding-bottom: 8px !important; }
+}
+/* Very short windows: only the glowing logo shows (the tab already says AI Animator), so nothing is cut. */
+@media (max-height: 500px) and (orientation: landscape) {
+  :root { --da-chips-h: 44px; }
+  .da-sheet-tab-row { margin: 3px 8px !important; padding: 3px !important; }
+  .da-sheet-tab-row button { height: 30px !important; }
+}
+/* A closed panel shows no chosen chip; the chosen tool in the side column is lit blue. */
+@media (max-width: 950px), (max-height: 500px) and (orientation: landscape) {
+  .da-sheet[data-sheet-size="small"] .da-sheet-tab-row .da-choice-pill { opacity: 0 !important; }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  [class*="workspaceTheme_workspace"] .drawing-toolbar.drawing-toolbar .drawing-tool-button[aria-pressed="true"] { background: #0066ff !important; color: #fff !important; border-radius: 12px !important; }
+}
+/* The panel always slides OVER the timeline, also while it is being dragged up (Arthur 2026-10-28). */
+@media (max-width: 950px) { div:has(> .da-sheet) { z-index: 30 !important; } }
+/* Phones (upright and sideways): with 2+ layers the expanded layer list opens UPWARD over the canvas, where there is
+   room — never down over the chips and tools (Arthur 2026-10-28). Computers keep it opening down. */
+@media (max-width: 600px), (max-height: 500px) and (orientation: landscape) and (max-width: 950px) {
+  [class*="workspaceTheme_workspace"]:has(.da-sheet) [data-timeline-panel="overlay"] { top: auto !important; bottom: 0 !important; border-radius: 10px 10px 0 0 !important; box-shadow: 0 -16px 32px rgba(0, 0, 0, .45) !important; }
+}
+/* Phones: the layer list's grab bar sits on TOP (it opens upward): drag up = more layers, drag down = fewer. */
+@media (max-width: 600px), (max-height: 500px) and (orientation: landscape) and (max-width: 950px) {
+  [class*="workspaceTheme_workspace"]:has(.da-sheet) [data-timeline-panel="overlay"] { display: flex !important; flex-direction: column !important; }
+  [class*="workspaceTheme_workspace"]:has(.da-sheet) [data-timeline-panel="overlay"] > [data-timeline-panel-resizer] { order: -1; border-top: 0 !important; border-bottom: 1px solid var(--da-line, #0f1b2e); flex: 0 0 auto; }
+}
+/* Upright phone: the timeline controls are one tidy row — Play, onion skin and layers grouped together on the left,
+   FPS on the right, all the same height. Play looks and hovers like on the computer (navy + blue outline → bright blue). */
+@media (max-width: 600px) {
+  .drawing-timeline-controls { justify-content: flex-start !important; gap: 8px !important; padding: 0 12px !important; height: 50px !important; }
+  .drawing-timeline-controls > * { flex: 0 0 auto !important; }
+  .drawing-timeline-controls button { min-width: 0 !important; min-height: 0 !important; width: 38px !important; height: 38px !important; border-radius: 10px !important; display: grid !important; place-items: center !important; }
+  .drawing-timeline-controls .drawing-play { order: -1; width: 38px !important; height: 38px !important; border-radius: 10px !important; background: var(--da-selected-bg, #0f2a52) !important; border: 1px solid #0066ff !important; color: #fff !important; box-shadow: none !important; }
+  .drawing-timeline-controls .drawing-play:hover { background: #0066ff !important; border-color: #0066ff !important; box-shadow: 0 6px 16px rgba(0, 102, 255, .45) !important; }
+  .drawing-timeline-controls button:not(.drawing-play):hover { background: var(--da-hover-soft) !important; }
+  .drawing-timeline-controls .drawing-fps { order: 9; margin-left: auto !important; height: 38px !important; }
+}
+/* While the panel is being dragged up it already covers the timeline (it slides over everything, Arthur). */
+@media (max-width: 950px), (max-height: 500px) and (orientation: landscape) {
+  /* Root cause: the area that holds the panel sits on layer 10 and the timeline on 28, so while open or dragged
+     that area is lifted above the timeline. */
+  [class*="workspaceTheme_workspace"]:has(.da-sheet[data-sheet-dragging]) > div:has(.da-sheet),
+  [class*="workspaceTheme_workspace"]:has(.da-sheet:not([data-sheet-size="small"])) > div:has(.da-sheet) { z-index: 40 !important; }
+}
+/* Upright phone: Play, onion skin, layers and FPS spread evenly across the row (no empty gap in the middle). */
+@media (max-width: 600px) {
+  .drawing-timeline-controls { justify-content: space-evenly !important; gap: 0 !important; }
+  .drawing-timeline-controls .drawing-fps { margin-left: 0 !important; }
+}
+@media (max-width: 950px), (max-height: 500px) and (orientation: landscape) {
+  /* The holders around the canvas and panel are see-through, so lifting them never hides the timeline. */
+  [class*="workspaceTheme_workspace"] > div:has(.da-sheet), div:has(> .da-sheet), div:has(> .da-sheet) > .drawing-canvas-area { background: transparent !important; }
+}

@@ -120,7 +120,8 @@ export function DrawingRightPanel({
   // Phones and tablets (Arthur 2026-10-24: "so cramped"): the panel is a sheet with three sizes that slides OVER the canvas
   // — the canvas never changes size (Arthur). Small = tabs only, half = up to the canvas's bottom edge, full = up to just
   // under the timeline (a small gap stays). Drag the sheet's top edge or tap a tab. Computers ignore all of this.
-  const [sheetSize, setSheetSize] = useState<SheetSize>(() => readSheetSizes().last);
+  // Phone layout (Arthur 2026-10-28): the panel starts closed so the canvas is free; tap a chip to open it.
+  const [sheetSize, setSheetSize] = useState<SheetSize>("small");
   const sheetRef = useRef<HTMLDivElement | null>(null);
   const suppressTabClickRef = useRef(false);
   const [sheetLiveHeight, setSheetLiveHeight] = useState<number | null>(null);
@@ -150,6 +151,14 @@ export function DrawingRightPanel({
     if (timeline?.parentElement && topbar) timeline.parentElement.style.setProperty("--da-topbar-h", `${topbar.offsetHeight}px`);
     const splitHeight = split.clientHeight;
     const small = tabs.offsetHeight;
+    // Phone layout (Arthur 2026-10-28): the timeline sits at the bottom, so the panel slides up from there over the
+    // canvas — half = about half the screen, full = up to just under the top bar.
+    if (timeline && timeline.getBoundingClientRect().top > splitBox.top + splitBox.height / 2) {
+      const phoneFull = Math.max(small, splitHeight - SHEET_TOP_GAP_PX);
+      // Short screens (a phone turned sideways): a panel opens full height, so it shows just like on a computer.
+      const halfPhone = window.innerHeight <= 500 ? phoneFull : Math.min(phoneFull, Math.max(small, Math.round(splitHeight * 0.55)));
+      return { small, half: halfPhone, full: phoneFull };
+    }
     const full = Math.max(small, splitBox.bottom - timelineBottom - SHEET_TOP_GAP_PX);
     // Half keeps its height from when the canvas sat at the top (12 px padding); the centered canvas slides under it.
     const canvasBottom = timelineBase + SHEET_TOP_GAP_PX + host.getBoundingClientRect().height;

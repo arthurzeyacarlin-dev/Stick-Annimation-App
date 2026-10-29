@@ -14,7 +14,7 @@
 
 ## App PM update 22 (Thu 2026-10-29)
 
-D-0233: website pro redesign merged into diamond-website main and pushed (`ac91bf3`); NOT deployed to diamondanimator.com yet (Arthur decides). Home = the one AI Animator page. Test copy `website-pro` (port 3102, launch entry "website-pro") can be retired. Next: deploy when Arthur says (full real test first); fresh V1 clips when the AI Animator is ready; plan prices (dad).
+D-0233: website pro redesign merged into diamond-website main and pushed (`ac91bf3`) — that push made it LIVE on diamondanimator.com (Cloudflare deploys main by itself). Live check: 0 FAIL, 3 beta sign-ups intact. RULE: pushing diamond-website main = going live. Home = the one AI Animator page. Test copy `website-pro` (port 3102, launch entry "website-pro") can be retired. Next: fresh V1 clips when the AI Animator is ready; plan prices (dad).
 
 ## App PM update 21 (Thu 2026-10-29)
 

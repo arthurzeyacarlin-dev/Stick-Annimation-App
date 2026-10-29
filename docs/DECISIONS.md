@@ -1887,7 +1887,7 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 
 ### D-0233 — Website pro redesign; the AI Animator is the home page (App PM, 2026-10-29)
 
-- Arthur passed 2026-10-29. Website copy `diamond-review/website-pro` (branch `claude/website-pro`), commit `ac91bf3` fast-forwarded into diamond-website main and pushed. NOT deployed: diamondanimator.com changes only when Arthur says (deploy is a separate step; see diamond-website docs/GO-LIVE.md).
+- Arthur passed 2026-10-29. Website copy `diamond-review/website-pro` (branch `claude/website-pro`), commit `ac91bf3` fast-forwarded into diamond-website main and pushed. CORRECTION: pushing diamond-website main makes Cloudflare Pages deploy it by itself (~1 min), so it went LIVE on diamondanimator.com right away. RULE: a push to diamond-website main = going live; only push with Arthur's go-live OK and after a full preview test. Live check after: `node scripts/qa/site-check.mjs https://diamondanimator.com` = 0 FAIL (20 pages × 3 devices, links, hovers, countdown, cookie banner, popup, spots API 47 of 50 left — the 3 beta sign-ups are intact); only WARNs from the old "4 colors" rule.
 - Look: the app's new look on every page (glows that reveal the dot grid, glass header + one trial button, glowing cards/buttons, Plus Jakarta Sans headings). RULE kept: every button turns #0066ff instantly on hover.
 - RULE: ONE AI Animator page, and it is the home page ("the reason we built Diamond Animator", never an add-on). One message box that looks like the app's (navy box, white text, white check-mark Send, no logo) and types "Animate …" ideas fast but readable (24 ms/letter, 1.3 s hold). Menu "AI Animator", the logo and /ai-animator/ (public/_redirects + client backup) all open it.
 - Sections: real clips, Arthur's quote ("Animation apps are easy to build…"), one editable timeline you and the AI share, Version 1 examples, beginners/visionaries/professionals, V1→V5 cards that get cooler as they climb (V5 "The dream" most special; V2–V5 are goals with no dates).
@@ -1895,7 +1895,7 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Phones: the app works on phones (Oct 24), so the "computers only" notice and wording are gone; QA scripts now check the notice is absent.
 - No empty gaps: centered page tops/text, half-empty blocks fold to one column, tighter section spacing; fixed the cut "g" in glowing words.
 - Tests: 65/65 unit tests; site check passes except /api/* (server parts only run on Cloudflare). Phone + computer pictures.
-- Open: fresh real V1 clips once the new AI Animator is ready; deploy to diamondanimator.com when Arthur says.
+- Open: fresh real V1 clips once the new AI Animator is ready; update the QA color warning list for the glow look.
 
 ### D-0232 — No hydration error from browser add-ons; professional export player (App PM, 2026-10-29)
 

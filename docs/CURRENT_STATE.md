@@ -2,7 +2,7 @@
 
 ## D-0233 — App PM: website pro redesign; the AI Animator is the home page (current)
 
-Arthur passed 2026-10-29. The website (diamond-website main, pushed, not deployed yet) has the app's glowing look on every page, and ONE AI Animator page that is the home page, with an app-style message box typing ideas. It only claims what Version 1 does and says it works on phones. See DECISIONS D-0233.
+Arthur passed 2026-10-29. The website (diamond-website main, pushed = LIVE on diamondanimator.com; live check 0 FAIL, 3 sign-ups intact) has the app's glowing look on every page, and ONE AI Animator page that is the home page, with an app-style message box typing ideas. It only claims what Version 1 does and says it works on phones. See DECISIONS D-0233.
 
 ## D-0232 — App PM: no add-on hydration error; professional export player
 

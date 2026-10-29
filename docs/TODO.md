@@ -18,7 +18,9 @@
 - [x] **PHONE-CHECK-OCT27** — done D-0231: editor made for upright phones.
 - [x] **HYDRATION-ERROR** — done D-0232: add-on changes to html/body no longer show the red box.
 - [x] **EXPORT-PLAYER-LOOK** — done D-0232: professional export player.
-- [ ] **WEBSITE** — next (Arthur 2026-10-29: app UI ready for users).
+- [x] **WEBSITE** — passed D-0233 (`ac91bf3` in diamond-website, pushed): pro redesign, AI Animator = home page.
+- [ ] **WEBSITE-DEPLOY** — put the redesign on diamondanimator.com when Arthur says (full real test of the preview first).
+- [ ] **WEBSITE-V1-CLIPS** — swap in fresh real clips from the new AI Animator once it's ready.
 - [ ] **AI-ANIMATOR-PRICES** — new plan prices/credits once the AI Animator's real cost is measured (dad decides; 50% profit floor).
 - [ ] **PHONE-PINCH-ZOOM** — pinch-to-zoom on the phone canvas (not built; drawing area is protected — plan first).
 - [x] **REPORTS-OWNER-ONLY** — done D-0229: owner-only on every copy.

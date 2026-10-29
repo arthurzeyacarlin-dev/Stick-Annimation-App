@@ -12,6 +12,10 @@
 
 **HANDOFF AT 60% CHAT MEMORY (dad, Oct 16):** at 50% start keeping docs current; at 60%: (1) write everything still only in the chat into the spec, this file, CURRENT_STATE/TODO if app-relevant, memory, and the board; (2) refresh `/Users/arthurcarlin/Projects/diamond-review/board/HANDOFF_MESSAGE.md` (self-contained: who, read-first list, where we are, next, rules); (3) `python3 board.py handoff` — the board's Handoff button turns green (yellow from 50%); (4) tell Arthur: click it, open a NEW Claude chat in this project, paste. Nothing may survive only inside a chat.
 
+## App PM update 22 (Thu 2026-10-29)
+
+D-0233: website pro redesign merged into diamond-website main and pushed (`ac91bf3`); NOT deployed to diamondanimator.com yet (Arthur decides). Home = the one AI Animator page. Test copy `website-pro` (port 3102, launch entry "website-pro") can be retired. Next: deploy when Arthur says (full real test first); fresh V1 clips when the AI Animator is ready; plan prices (dad).
+
 ## App PM update 21 (Thu 2026-10-29)
 
 D-0232 merged: add-on hydration error fixed (html/body only), export player redesigned. Arthur: the app UI is READY FOR USERS. Test copies `phone-layout` and `hydration-fix` can be retired. Next: the website; then plan prices for the AI Animator (measure real cost per animation, dad approves, 50% profit floor); RESET-EMAIL (dad); one Stripe test sign-up.

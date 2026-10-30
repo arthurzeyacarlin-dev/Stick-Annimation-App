@@ -1,5 +1,9 @@
 # Session Handoff
 
+## AI ANIMATOR ENGINE — Oct 30 (PM11) — READ FIRST
+
+Passed today (D-0234): the Kimodo -> Seedance switch looks the same on both sides (one pen) and slow-motion capture removed the teleports. Next: Round 2 = a real app copy with the AI Animator connected (plan in diamond-review/board/final-plan/). Rules: never hard-coded (engine_book.json), one change at a time proven at $0 first, every paid call needs dad, never push/merge main for the AI Animator until Arthur says V1 is ready, the app copy only after the engine passes.
+
 ## AI ANIMATOR PM — START HERE (written by PM v2 AI Animator, Thu 2026-10-16)
 
 **Who:** Arthur (owner, says he is 12) reviews; his dad decides direction and money. Plain, short words; answer first; end with exactly what to review. The APP + WEBSITE project manager is a separate session ("pm v4 app and website") — don't step on its work; the planning advisor is "AI Animator October path planning" (Fable), reachable with SendMessage.

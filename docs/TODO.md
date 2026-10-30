@@ -1,5 +1,13 @@
 # TODO
 
+## AI Animator queue (D-0234, 2026-10-30)
+
+- [x] **ENGINE-SWITCH-LOOK** — passed D-0234: one pen at the Kimodo -> Seedance switch.
+- [x] **ENGINE-TELEPORT** — passed D-0234: slow-motion capture.
+- [ ] **ROUND-2-APP** — real app copy + AI Animator connected (director plan -> engine -> editable layers); plan first, Arthur GO.
+- [ ] **ENGINE-NEW-SCENES** — a batch of brand-new scenes with both fixes (needs dad's money).
+- [ ] **ENGINE-IN-GIT** — the engine folder (diamond-review/ltx-effects) is not in git; decide where it lives.
+
 ## App PM queue — beta on phones + workspace (D-0212, 2026-10-25)
 
 - [x] **PHONE-WORKSPACE-PANEL** — passed D-0212 (`b1021e9`): drag-able sheet (small/half/full), anchored centered canvas, 8 tools fit.

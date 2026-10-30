@@ -1,6 +1,10 @@
 # Current State
 
-## D-0233 — App PM: website pro redesign; the AI Animator is the home page (current)
+## D-0234 — AI Animator engine: invisible switch + teleport fix (current)
+
+Arthur passed 2026-10-30. Engine path decided by his 20-video hard test: Kimodo walk-up -> Seedance contact -> physics (Seedance-alone lost). PASSED: (1) ONE PEN at the Kimodo->Seedance switch (same colour, crisp edge, same width; no converter, Seedance's own shapes); (2) SLOW-MOTION CAPTURE (Seedance films at half speed, every 2nd picture kept: roundhouse fall jump 46.6% -> 5.2% of height, freeze-then-teleport gone). Engine is local in diamond-review/ltx-effects (not in git; frozen backup diamond-review/backups/ARTHUR-PASS-ENGINE-ONEPEN-SLOWMO-1030.tgz). App wiring is in the test copy diamond-review/wired-v1 (branch claude/wired-v1, not live). Live app + website unchanged. See DECISIONS D-0234.
+
+## D-0233 — App PM: website pro redesign; the AI Animator is the home page
 
 Arthur passed 2026-10-29. The website (diamond-website main, pushed = LIVE on diamondanimator.com; live check 0 FAIL, 3 sign-ups intact) has the app's glowing look on every page, and ONE AI Animator page that is the home page, with an app-style message box typing ideas. It only claims what Version 1 does and says it works on phones. See DECISIONS D-0233.
 

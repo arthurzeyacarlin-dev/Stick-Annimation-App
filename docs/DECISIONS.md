@@ -1885,6 +1885,17 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Order agreed for what's next (Arthur asked PM3 to choose): plans that work → website → online → Mac App Store (last).
 - Publication: product commit `134bbcb` fast-forwarded into main and pushed, then this records commit and a clean-tree commit.
 
+### D-0234 — AI Animator engine: Kimodo + Seedance switch made invisible; teleport fixed (PM11, 2026-10-30)
+
+- Arthur passed 2026-10-30. Engine (diamond-review/ltx-effects/seedance, local, rules in engine_book.json - never hard-coded). Plans: diamond-review/board/final-plan/PLAN_WIRED_V1_OCT30.md, PLAN_MOTION_FINAL_OCT30.md, AUDIT_ROUND1B.md, AUDIT_MOTION_OCT30.md.
+- Hard test (16 new scenes): Kimodo walk-up + Seedance beat Seedance-alone -> the path stays Kimodo -> Seedance -> physics engine.
+- RULE: no converter. rawcut.py keeps Seedance's own pixels (one layer per figure); lookfix.py = ONE PEN at the switch (story colour, crisp edge, Kimodo width). Measured: edges 2 -> 8-22 before, equal now; colour diff 9-56 -> 0.
+- RULE: slow-motion capture. Seedance films the action at half speed (book seedance.slowmo_factor + timing_words); the join keeps every 2nd picture only for clips whose words asked for it. Before/after on the same scenes: roundhouse fall jump 46.6% -> 5.2% of height, jab-cross freeze 14 pictures -> 0. Arthur passed all 3.
+- LESSON: "full force" strike words doubled the teleport jumps (5.4 -> 10.7); power = poses + reaction, not speed.
+- Also built: plan_to_steps.py (director plan -> engine steps + route), approach_walkup.py (Kimodo walk-ups made automatically, cached), switch at rest, gate motion rulers. App wiring in test copy diamond-review/wired-v1 (branch claude/wired-v1, port 58683), NOT live.
+- Money: dad OK'd each Seedance raise; ledger $30.82 of $30.83. New scenes need dad.
+- Saved: frozen backup diamond-review/backups/ARTHUR-PASS-ENGINE-ONEPEN-SLOWMO-1030.tgz (the engine folder is not in git).
+
 ### D-0233 — Website pro redesign; the AI Animator is the home page (App PM, 2026-10-29)
 
 - Arthur passed 2026-10-29. Website copy `diamond-review/website-pro` (branch `claude/website-pro`), commit `ac91bf3` fast-forwarded into diamond-website main and pushed. CORRECTION: pushing diamond-website main makes Cloudflare Pages deploy it by itself (~1 min), so it went LIVE on diamondanimator.com right away. RULE: a push to diamond-website main = going live; only push with Arthur's go-live OK and after a full preview test. Live check after: `node scripts/qa/site-check.mjs https://diamondanimator.com` = 0 FAIL (20 pages × 3 devices, links, hovers, countdown, cookie banner, popup, spots API 47 of 50 left — the 3 beta sign-ups are intact); only WARNs from the old "4 colors" rule.

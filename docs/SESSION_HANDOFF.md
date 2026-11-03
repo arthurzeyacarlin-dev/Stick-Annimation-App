@@ -1,5 +1,9 @@
 # Session Handoff
 
+## LAUNCH DATE — Nov 3 (side PM) — READ FIRST
+
+Final beta/launch date = **Friday, November 13, 2026** (2nd delay; Arthur + dad say it's the last). Website live with it (D-0235, diamond-website `d538b5c`). Day-by-day plan + dad's list: diamond-review/board/LAUNCH_ROADMAP.md. The site now promises one stick figure, incl. "hop over the spike I drew" — the drawing-seeing fix must land by Nov 13 or those examples come off. Website test copy diamond-review/website-nov13 can be retired.
+
 ## AI ANIMATOR ENGINE — Oct 30 (PM11) — READ FIRST
 
 Passed today (D-0234): the Kimodo -> Seedance switch looks the same on both sides (one pen) and slow-motion capture removed the teleports. Next: Round 2 = a real app copy with the AI Animator connected (plan in diamond-review/board/final-plan/). Rules: never hard-coded (engine_book.json), one change at a time proven at $0 first, every paid call needs dad, never push/merge main for the AI Animator until Arthur says V1 is ready, the app copy only after the engine passes.

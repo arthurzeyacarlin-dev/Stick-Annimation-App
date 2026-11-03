@@ -1,6 +1,10 @@
 # Current State
 
-## D-0234 — AI Animator engine: invisible switch + teleport fix (current)
+## D-0235 — Website: final beta date November 13; Version 1 = one stick figure (current)
+
+Arthur + dad OK'd 2026-11-03. diamondanimator.com (diamond-website `d538b5c`, pushed = live) counts down to November 13, 2026 with a short "Why November 13?" note (2nd delay, final date), and every page says Version 1 animates ONE stick figure. Launch roadmap: diamond-review/board/LAUNCH_ROADMAP.md. See DECISIONS D-0235.
+
+## D-0234 — AI Animator engine: invisible switch + teleport fix
 
 Arthur passed 2026-10-30. Engine path decided by his 20-video hard test: Kimodo walk-up -> Seedance contact -> physics (Seedance-alone lost). PASSED: (1) ONE PEN at the Kimodo->Seedance switch (same colour, crisp edge, same width; no converter, Seedance's own shapes); (2) SLOW-MOTION CAPTURE (Seedance films at half speed, every 2nd picture kept: roundhouse fall jump 46.6% -> 5.2% of height, freeze-then-teleport gone). Engine is local in diamond-review/ltx-effects (not in git; frozen backup diamond-review/backups/ARTHUR-PASS-ENGINE-ONEPEN-SLOWMO-1030.tgz). App wiring is in the test copy diamond-review/wired-v1 (branch claude/wired-v1, not live). Live app + website unchanged. See DECISIONS D-0234.
 

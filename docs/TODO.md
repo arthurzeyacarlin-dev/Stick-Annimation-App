@@ -49,6 +49,11 @@
 
 ## Website PM queue (D-0211, 2026-10-22)
 
+- [x] **WEBSITE-DATE-NOV13** — done D-0235 (`d538b5c`, live): final date November 13, short why-note, Version 1 = one stick figure.
+- [ ] **ASK DAD (Nov 3):** email the 6 people who reserved about November 13? Nothing sent.
+- [ ] **LAUNCH-ROADMAP** — follow diamond-review/board/LAUNCH_ROADMAP.md (launch Fri Nov 13; dad's keys + Apple Developer account by Nov 9).
+- [ ] **SPIKE/FLY PROMISE** — site examples "hop over the spike I drew" / "swat the fly I animated" must work by Nov 13, or remove them.
+
 - [x] **WEBSITE-DATE-NOV3** — beta date November 3 everywhere, "Why November 3?" note, roadmap/FAQ/story/home words (`ef244a5`).
 - [x] **WEBSITE-SIGNUP-FIX** — repeat emails join the list, bot box never fakes "ok", reserve screen remembered/"already on the list", bar fade, spot #N (`556dc54`).
 - [x] **WEBSITE-STORY-PHOTO** — Arthur's photo in the story hero (`1445eed`).

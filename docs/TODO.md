@@ -49,8 +49,12 @@
 
 ## Website PM queue (D-0211, 2026-10-22)
 
+- [x] **WEBSITE-NOV11** — done D-0236 (`079d2ea`, live): new examples, YouTube launch card, new prices.
+- [ ] **STRIPE-NEW-PRICES** — dad: create 6 new Stripe prices ($7.99/$79, $14.99/$149, $24.99/$249) and swap STRIPE_PRICE_* env vars.
+- [ ] **APP-PLANS-MATCH** — app src/lib/account/plans.ts must match config/pricing.ts (credits 370/710/1,150, trial 105, actions 35/20/6, packs).
+
 - [x] **WEBSITE-DATE-NOV13** — done D-0235 (`d538b5c`, live): final date November 13, short why-note, Version 1 = one stick figure.
-- [ ] **ASK DAD (Nov 3):** email the 6 people who reserved about November 13? Nothing sent.
+- [x] **NEW-DATE EMAIL (Nov 3)** — sent by Claude from Arthur's Gmail on his order: 6 sign-ups (Bcc), Arthur's own words.
 - [ ] **LAUNCH-ROADMAP** — follow diamond-review/board/LAUNCH_ROADMAP.md (launch Fri Nov 13; dad's keys + Apple Developer account by Nov 9).
 - [ ] **SPIKE/FLY PROMISE** — site examples "hop over the spike I drew" / "swat the fly I animated" must work by Nov 13, or remove them.
 

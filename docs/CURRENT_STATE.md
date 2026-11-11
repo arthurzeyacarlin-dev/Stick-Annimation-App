@@ -1,6 +1,10 @@
 # Current State
 
-## D-0235 — Website: final beta date November 13; Version 1 = one stick figure (current)
+## D-0236 — Website: new AI Animator examples, YouTube launch card, new prices (current)
+
+Arthur passed 2026-11-11. diamondanimator.com (diamond-website `079d2ea`, live): one-stick-figure examples incl. complex moves and "He acts, you draw"; Beta page sends people to the YouTube launch video; prices Basic $7.99 / Pro $14.99 / Creator $24.99 (370/710/1,150 credits), trial 105 credits. Stripe prices + the app's plans.ts not updated yet. See DECISIONS D-0236.
+
+## D-0235 — Website: final beta date November 13; Version 1 = one stick figure
 
 Arthur + dad OK'd 2026-11-03. diamondanimator.com (diamond-website `d538b5c`, pushed = live) counts down to November 13, 2026 with a short "Why November 13?" note (2nd delay, final date), and every page says Version 1 animates ONE stick figure. Launch roadmap: diamond-review/board/LAUNCH_ROADMAP.md. See DECISIONS D-0235.
 

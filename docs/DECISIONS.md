@@ -2330,3 +2330,11 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - diamond-website `d538b5c` (pushed = LIVE): config/site.ts betaDateIso 2026-11-13T00:00:00-06:00, short "Why November 13?" note in Arthur's words (2nd delay; teleporting + couldn't see drawings; final). Version 1 = ONE stick figure everywhere (home/AI Animator, How it works, Roadmap, FAQ, Story, Free guide): no two-figure fights, high fives, effects; carousel drops the fist-fight clip. Built in copy diamond-review/website-nov13 (branch website-nov13). Tests 65/65, build OK.
 - RISK: the site promises "hop over the spike I drew" / "swat the fly I animated" — needs the planned drawing-seeing fix by Nov 13, or those examples come off before launch.
 - Open: dad decides whether to email the 6 people who reserved about the new date (nothing sent). Dad's list by Nov 9: server keys, Resend, Stripe live keys, Apple Developer account (start now; LLC may take 1-2 weeks), under-13 rule.
+
+### D-0236 — Website: new AI Animator examples, YouTube launch video card, new plan prices (side PM, 2026-11-11)
+
+- Arthur OK'd + "push it" Nov 11 (prices approved by Arthur + dad via PM12). diamond-website `079d2ea` (pushed = LIVE), built in copy diamond-review/website-nov11.
+- Examples: one stick figure, simple or complex (double backflip, punch barrage, gorilla ground pound); "He acts, you draw" — he acts out swords/fire/powers and the user draws them on top. All "spike I drew"/"fly I animated" claims removed.
+- Beta page: "Watch Diamond Animator go live" card -> Animator Builder YouTube (launch video "around opening day", no fixed time).
+- Prices (config/pricing.ts): Basic $7.99/$79 370 credits (~10 animations), Pro $14.99/$149 710 (~20), Creator $24.99/$249 1,150 (~33); trial 14 days 105 credits (~3); new animation 35, edit 20, chat 6; packs Basic 35/70/105 for $1.49/$2.49/$3.49, Pro 70/140/210 for $2.49/$4.49/$5.99, Creator 105/210/350 for $3.49/$5.99/$9.99. Plans 50-52% profit after Stripe at full use, packs 62-69%. Kept: first-50 25% off (11 taken live), YouTube 10%, 30% max.
+- OPEN: dad must create the 6 new Stripe prices (STRIPE_PRICE_* env vars still old); the app's src/lib/account/plans.ts must be matched (PM12).

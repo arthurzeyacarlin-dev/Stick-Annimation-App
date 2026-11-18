@@ -1,6 +1,10 @@
 # Current State
 
-## D-0236 — Website: new AI Animator examples, YouTube launch card, new prices (current)
+## D-0237 — New sign-in look in the main app (current)
+
+Arthur passed 2026-11-18 and asked for it in main. Sign-up, log-in, forgot password, plan step, reset password and the loading screen now use one look: almost-black gray, Geist, instant gray hover, blue only on the main action, the white logo with a soft white spotlight. The moving figures on the first screen are a hand-made sample until a real AI Animator clip replaces it. The rest of the app still has the old look; the full redesign continues in the copy `diamond-review/app-look-v2` (localhost:58680).
+
+## D-0236 — Website: new AI Animator examples, YouTube launch card, new prices
 
 Arthur passed 2026-11-11. diamondanimator.com (diamond-website `079d2ea`, live): one-stick-figure examples incl. complex moves and "He acts, you draw"; Beta page sends people to the YouTube launch video; prices Basic $7.99 / Pro $14.99 / Creator $24.99 (370/710/1,150 credits), trial 105 credits. Stripe prices + the app's plans.ts not updated yet. See DECISIONS D-0236.
 

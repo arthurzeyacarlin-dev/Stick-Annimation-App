@@ -1,15 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { Plus_Jakarta_Sans } from "next/font/google";
 import { DiamondLogo } from "@/src/components/chrome/DiamondLogo";
 import { ACCOUNT_PLANS, PAID_PLAN_IDS, type BillingInterval, type PaidPlanId } from "@/src/lib/account/plans";
 import { goToStripe, postBilling } from "@/src/components/account/billingClient";
+import { AuthShowcase } from "./AuthShowcase";
 import styles from "./AuthScreen.module.css";
 
 // The new first screen (redesign Phase 1, Arthur 2026-10-26): a polished welcome with one card for Create account,
 // Log in and Forgot password. It uses the same account endpoints as before; only the look is new.
-const display = Plus_Jakarta_Sans({ subsets: ["latin"], weight: ["600", "700", "800"], variable: "--auth-display" });
 
 type Mode = "signup" | "login" | "forgot";
 type PlanChoice = "trial" | PaidPlanId;
@@ -94,18 +93,19 @@ export function AuthScreen() {
   };
 
   const heading = mode === "signup" ? "Create your account" : mode === "login" ? "Welcome back" : "Reset your password";
-  const lead = mode === "signup" ? "Step 1 of 2 · then choose a free trial or a plan." : mode === "login" ? "Log in to pick up where you left off." : "We'll email you a link to choose a new password.";
+  const lead = mode === "signup" ? "Free for 14 days. No card needed." : mode === "login" ? "Log in to pick up where you left off." : "We'll email you a link to choose a new password.";
   const action = mode === "signup" ? (busy ? "Creating your account…" : "Create account") : mode === "login" ? (busy ? "Logging in…" : "Log in") : (busy ? "Sending…" : "Send reset link");
 
   return (
-    <main className={`${styles.screen} ${display.variable}`}>
-      <div className={styles.lattice} aria-hidden="true" />
-      <div className={styles.glow} aria-hidden="true" />
+    <main className={styles.screen}>
 
       <section className={styles.hero}>
-        <div className={styles.mark}><DiamondLogo size={40} /><span className={styles.markName}>Diamond Animator</span></div>
-        <h1 className={styles.title}>Bring your <span className={styles.accent}>stories</span> to life</h1>
-        <p className={styles.subtitle}>Version 1 is all about stick figures, one or a whole cast. Draw them frame by frame, or tell the AI Animator what to make.</p>
+        <div className={styles.mark}><DiamondLogo size={30} /><span className={styles.markName}>Diamond Animator</span></div>
+        <div className={styles.heroWords}>
+          <h1 className={styles.title}>Bring your stories to life.</h1>
+          <p className={styles.subtitle}>Your creative hub for animation. Tell the AI your story, then fine-tune every detail on your own timeline.</p>
+        </div>
+        <AuthShowcase />
       </section>
 
       {step === "plan" ? (
@@ -150,13 +150,6 @@ export function AuthScreen() {
       </section>
       ) : (
       <section className={styles.card} aria-labelledby="auth-heading">
-        {mode !== "forgot" && (
-          <div className={styles.switcher} role="tablist" aria-label="Create account or log in" data-mode={mode}>
-            <span className={styles.switcherPill} aria-hidden="true" />
-            <button type="button" role="tab" aria-selected={mode === "signup"} onClick={() => switchMode("signup")}>Create account</button>
-            <button type="button" role="tab" aria-selected={mode === "login"} onClick={() => switchMode("login")}>Log in</button>
-          </div>
-        )}
         <div className={styles.cardHead}>
           <h2 id="auth-heading">{heading}</h2>
           <p>{lead}</p>
@@ -200,8 +193,8 @@ export function AuthScreen() {
             <button type="submit" className={styles.primary} disabled={busy}>{action}</button>
           </form>
         )}
-        {/* A line pinned to the card's bottom, so the card is one size in every mode and the space looks intended. */}
-        <div className={styles.cardFoot}>
+                <div className={styles.cardFoot}>
+          {mode === "signup" && <p className={styles.fine}>Already have an account? <button type="button" className={styles.inlineLink} onClick={() => switchMode("login")}>Log in</button></p>}
           {mode === "signup" && <p className={styles.fine}>By creating an account you agree to the Terms of Service and Privacy Policy.</p>}
           {mode === "login" && <p className={styles.fine}>New to Diamond Animator? <button type="button" className={styles.inlineLink} onClick={() => switchMode("signup")}>Create an account</button></p>}
           {mode === "forgot" && !resetSent && <p className={styles.fine}>Remembered it? <button type="button" className={styles.inlineLink} onClick={() => switchMode("login")}>Back to log in</button></p>}

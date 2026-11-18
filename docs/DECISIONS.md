@@ -2338,3 +2338,12 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Beta page: "Watch Diamond Animator go live" card -> Animator Builder YouTube (launch video "around opening day", no fixed time).
 - Prices (config/pricing.ts): Basic $7.99/$79 370 credits (~10 animations), Pro $14.99/$149 710 (~20), Creator $24.99/$249 1,150 (~33); trial 14 days 105 credits (~3); new animation 35, edit 20, chat 6; packs Basic 35/70/105 for $1.49/$2.49/$3.49, Pro 70/140/210 for $2.49/$4.49/$5.99, Creator 105/210/350 for $3.49/$5.99/$9.99. Plans 50-52% profit after Stripe at full use, packs 62-69%. Kept: first-50 25% off (11 taken live), YouTube 10%, 30% max.
 - OPEN: dad must create the 6 new Stripe prices (STRIPE_PRICE_* env vars still old); the app's src/lib/account/plans.ts must be matched (PM12).
+
+### D-0237 — One professional look starts with the sign-in screens (side PM, 2026-11-18)
+
+- Arthur + dad: the app and website must look like one product. One background, panel, line color, hover, special color, focus ring and font everywhere, down to the loading screen.
+- Look: page #111113, panel #1a1a1e, line #2c2c32, hover #3a3a41 with no fade, text #f5f5f6, muted #a3a3ab, blue #0066ff only on the main action, Geist for all words. The logo stays solid white.
+- Built and passed in `diamond-review/app-look-v2`, then moved to main as design only. Main keeps its own account, plan and credit logic.
+- Product wording says animation and stories, not "stick figure animation".
+- Checked in main: sign-up, log-in and forgot-password screens, wrong-password message, no sideways scroll, types and lint. No account was created in main, so the plan step was tested only in the copy.
+- Order: finish the app redesign in the copy, then make the videos, then rebuild the website.

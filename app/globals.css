@@ -697,21 +697,16 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
 .da-super, .da-super:hover { transition: none; }
 .da-super:hover:enabled, a.da-super:hover { background: var(--da-hover-super) !important; border-color: var(--da-hover-super) !important; color: #fff !important; box-shadow: 0 10px 26px rgba(0, 102, 255, .45) !important; }
 
-/* Loading screen (redesign). */
-.da-loading { position: fixed; inset: 0; z-index: 9999; display: grid; place-items: center; pointer-events: none; color: #fff;
-  background: radial-gradient(ellipse 620px 420px at 50% 46%, rgba(0, 102, 255, .26), transparent 70%), #030914;
-  transition: opacity 260ms ease-out, visibility 0s linear 260ms; }
-.da-loading::before { content: ""; position: absolute; inset: 0; background-image: radial-gradient(circle, rgba(92, 140, 220, .45) 1.3px, transparent 1.8px); background-size: 26px 26px;
-  -webkit-mask-image: radial-gradient(ellipse 520px 360px at 50% 46%, #000 0%, transparent 75%); mask-image: radial-gradient(ellipse 520px 360px at 50% 46%, #000 0%, transparent 75%); }
-.da-loading[data-ready] { opacity: 0; visibility: hidden; }
-.da-loading-mark { position: relative; display: grid; justify-items: center; gap: 14px; }
-.da-loading-logo { line-height: 0; filter: drop-shadow(0 0 18px rgba(0, 102, 255, .85)) drop-shadow(0 0 40px rgba(0, 102, 255, .35)); animation: daLoadBreathe 1.8s ease-in-out infinite; }
-.da-loading-name { font-family: var(--font-display), var(--font-geist-sans), sans-serif; font-size: 20px; font-weight: 800; letter-spacing: -.02em; }
-.da-loading-track { position: relative; width: 160px; height: 3px; overflow: hidden; border-radius: 999px; background: rgba(36, 66, 103, .7); }
-.da-loading-track span { position: absolute; top: 0; bottom: 0; width: 40%; border-radius: 999px; background: linear-gradient(90deg, transparent, #4d94ff, transparent); animation: daLoadSweep 1.1s ease-in-out infinite; }
-@keyframes daLoadSweep { from { left: -40%; } to { left: 100%; } }
-@keyframes daLoadBreathe { 0%, 100% { opacity: .85; } 50% { opacity: 1; } }
-@media (prefers-reduced-motion: reduce) { .da-loading-logo, .da-loading-track span { animation: none; } }
+/* Loading screen (new look, Nov 18): the same gray, white logo and one plain white line as the sign-in screen. */
+.da-loading { position: fixed; inset: 0; z-index: 9999; display: grid; place-items: center; pointer-events: none; color: #fff; background: #111113; }
+.da-loading[data-ready] { display: none; }
+.da-loading-mark { position: relative; display: grid; justify-items: center; gap: 16px; }
+.da-loading-logo { line-height: 0; }
+.da-loading-name { font-family: var(--font-geist-sans), system-ui, sans-serif; font-size: 18px; font-weight: 600; letter-spacing: -.015em; }
+.da-loading-track { position: relative; width: 148px; height: 2px; overflow: hidden; background: #2c2c32; }
+.da-loading-track span { position: absolute; top: 0; bottom: 0; width: 36%; background: #fff; animation: daLoadSweep 1s linear infinite; }
+@keyframes daLoadSweep { from { left: -36%; } to { left: 100%; } }
+@media (prefers-reduced-motion: reduce) { .da-loading-track span { animation: none; left: 32%; } }
 
 /* Glows reveal the dot grid (Arthur): on every polished page the top glow lights up a field of dots. */
 .da-polished-page::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 560px; pointer-events: none;

@@ -1,5 +1,12 @@
 # TODO
 
+## Professional redesign queue (D-0237, 2026-11-18)
+
+- [x] **LOOK-SIGN-IN** — sign-in, log-in, plan step, reset password and loading screen in main.
+- [ ] **LOOK-APP** — full layout redesign of the rest of the app in `diamond-review/app-look-v2`, same look everywhere; Arthur reviews before main.
+- [ ] **LOOK-REAL-CLIP** — replace the hand-made sign-in sample with a real AI Animator clip.
+- [ ] **LOOK-WEBSITE** — after the app: real videos, same look, remove "stick figure animation" wording.
+
 ## AI Animator queue (D-0234, 2026-10-30)
 
 - [x] **ENGINE-SWITCH-LOOK** — passed D-0234: one pen at the Kimodo -> Seedance switch.

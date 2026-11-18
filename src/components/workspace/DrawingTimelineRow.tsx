@@ -170,7 +170,7 @@ const contextMenuItemStyle = (enabled: boolean, tone: "default" | "danger" = "de
         : "rgba(255,138,149,0.38)"
       : enabled
         ? workspaceColors.textSecondary
-        : "rgba(201,214,234,0.36)",
+        : "rgba(255,255,255,0.3)",
   fontSize: 12,
   fontWeight: 500,
   textAlign: "left",
@@ -438,7 +438,7 @@ const TimelineLayerLane = memo(function TimelineLayerLane({
         height: TIMELINE_LAYER_ROW_HEIGHT,
         position: "relative",
         // Workspace makeover: the current layer is a soft blue band, matching its controls on the left.
-        background: showActiveBackground ? "rgba(0,102,255,0.08)" : "transparent",
+        background: showActiveBackground ? "rgba(255,255,255,0.05)" : "transparent",
         borderBottom: `1px solid ${workspaceColors.divider}`,
       }}
     >
@@ -1068,6 +1068,15 @@ export function DrawingTimelineRow({
   const [resizeState, setResizeState] = useState<TimelineResizeState | null>(null);
   const [panelResizeState, setPanelResizeState] = useState<TimelinePanelResizeState | null>(null);
   const [timelineRowsHeight, setTimelineRowsHeight] = useState(TIMELINE_MIN_PANEL_ROWS_HEIGHT);
+  // Where the timeline sits at the bottom of the screen, its layers open upward, so the edge you drag is on top.
+  const [resizerOnTop, setResizerOnTop] = useState(false);
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 600px), (min-width: 901px) and (min-height: 501px), (max-height: 500px) and (orientation: landscape) and (max-width: 950px)");
+    const update = () => setResizerOnTop(query.matches);
+    update();
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
   // SPEC-0020 Phase 7 (Arthur's "empty layer disappears after reopening"): the layer was never lost — a reopened
   // project started with the timeline folded to one row, which only shows the active layer. Starting the count
   // at 1 makes a project that opens with 2+ layers unfold to show them, the same as adding a layer does.
@@ -1315,7 +1324,7 @@ export function DrawingTimelineRow({
                 bottom: 0,
                 width: 1,
                 height: 10,
-                background: "#6a7fa3",
+                background: "var(--da-icon)",
               }}
             />
             <div
@@ -1323,7 +1332,7 @@ export function DrawingTimelineRow({
                 position: "absolute",
                 left: labelLeft,
                 top: 0,
-                color: "#9aabc8",
+                color: "var(--da-muted)",
                 fontSize: 10,
                 fontWeight: 600,
                 lineHeight: "10px",
@@ -1555,7 +1564,9 @@ export function DrawingTimelineRow({
           height: panelHeight,
           overflow: "hidden",
           display: "grid",
-          gridTemplateRows: `${TIMELINE_RULER_HEIGHT}px ${rowsHeight}px ${TIMELINE_BOTTOM_SCROLLBAR_HEIGHT}px ${panelResizeEdgeHeight}px`,
+          gridTemplateRows: resizerOnTop && panelResizeEdgeHeight > 0
+            ? `${panelResizeEdgeHeight}px ${TIMELINE_RULER_HEIGHT}px ${rowsHeight}px ${TIMELINE_BOTTOM_SCROLLBAR_HEIGHT}px`
+            : `${TIMELINE_RULER_HEIGHT}px ${rowsHeight}px ${TIMELINE_BOTTOM_SCROLLBAR_HEIGHT}px ${panelResizeEdgeHeight}px`,
           background: TIMELINE_LANE_BACKGROUND,
           zIndex: isOverlay ? 20 : 1,
           border: isOverlay ? `1px solid ${workspaceColors.border}` : "none",
@@ -1604,7 +1615,7 @@ export function DrawingTimelineRow({
                 width: rulerWidth,
                 minWidth: rulerWidth,
                 height: TIMELINE_RULER_HEIGHT,
-                borderBottom: "1px solid #1a2b45",
+                borderBottom: "1px solid var(--da-line)",
                 boxSizing: "border-box",
               }}
             >
@@ -1617,7 +1628,7 @@ export function DrawingTimelineRow({
                     bottom: 0,
                     width: 1,
                     height: 4,
-                    background: "#3d5579",
+                    background: "var(--da-line)",
                     pointerEvents: "none",
                   }}
                 />
@@ -1632,7 +1643,7 @@ export function DrawingTimelineRow({
                     bottom: 0,
                     width: 1,
                     height: 7,
-                    background: "#5a7299",
+                    background: "var(--da-selected-border)",
                     pointerEvents: "none",
                   }}
                 />
@@ -1733,7 +1744,7 @@ export function DrawingTimelineRow({
                     width: (box.end - box.start + 1) * FRAME_CELL_WIDTH + 4,
                     height: box.rows * TIMELINE_LAYER_ROW_HEIGHT + 4,
                     boxSizing: "border-box",
-                    border: "2px solid #0066ff",
+                    border: "2px solid var(--da-text)",
                     pointerEvents: "none",
                     zIndex: 5,
                   }}
@@ -1770,14 +1781,17 @@ export function DrawingTimelineRow({
         {panelResizeEdgeHeight > 0 && (
           <div
             data-timeline-panel-resizer="true"
+            aria-label="Drag to resize the layers"
             style={{
+              order: resizerOnTop ? -1 : 0,
               width: "100%",
               height: resizeEdgeHeight,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               cursor: "ns-resize",
-              borderTop: `1px solid ${workspaceColors.divider}`,
+              borderTop: resizerOnTop ? 0 : `1px solid ${workspaceColors.divider}`,
+              borderBottom: resizerOnTop ? `1px solid ${workspaceColors.divider}` : 0,
               background: workspaceColors.chrome,
               zIndex: 7,
             }}
@@ -1789,20 +1803,10 @@ export function DrawingTimelineRow({
                 startY: event.clientY,
                 startRowsHeight: rowsHeight,
                 // Same screens as the "opens upward" rule in globals.css.
-                opensUpward: window.matchMedia("(max-width: 600px), (max-height: 500px) and (orientation: landscape) and (max-width: 950px)").matches,
+                opensUpward: window.matchMedia("(max-width: 600px), (min-width: 901px) and (min-height: 501px), (max-height: 500px) and (orientation: landscape) and (max-width: 950px)").matches,
               });
             }}
           >
-            <div
-              style={{
-                width: 36,
-                height: 3,
-                borderRadius: 999,
-                background: "var(--da-c-3a5a85, #3a5a85)",
-                boxShadow: `0 5px 0 ${workspaceColors.border}`,
-                pointerEvents: "none",
-              }}
-            />
           </div>
         )}
       </div>

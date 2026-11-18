@@ -2347,3 +2347,10 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Product wording says animation and stories, not "stick figure animation".
 - Checked in main: sign-up, log-in and forgot-password screens, wrong-password message, no sideways scroll, types and lint. No account was created in main, so the plan step was tested only in the copy.
 - Order: finish the app redesign in the copy, then make the videos, then rebuild the website.
+
+### D-0238 — The professional look becomes the main app (side PM, 2026-11-18)
+
+- Arthur reviewed the redesign copy and said to make it the real Diamond Animator.
+- Moved as design only from `diamond-review/app-redesign`. Conflicts kept main's logic: plans still show main's credits, and the unfinished AI Animator V1 code stays out of main.
+- Editor layout: tools on the left, wide 16:9 canvas, dark right panel, timeline at the bottom, layers opening upward and resized from their top edge. Timeline frame colors stay exactly as they were.
+- Blue is only for main actions. Normal hover is gray with no fade. Red, green and amber stay only where they mean danger, success or warning.

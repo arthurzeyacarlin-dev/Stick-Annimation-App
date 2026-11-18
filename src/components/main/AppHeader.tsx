@@ -16,9 +16,11 @@ import { creditMeterColor } from "@/src/lib/ai-dashboard/dashboardAggregation";
 import type { AccountPlanStatus } from "@/src/lib/account/plans";
 import styles from "./AppHeader.module.css";
 
-/** Arthur (2026-10-27): the credits number on Home takes the credits bar's color (blue → green → yellow → orange → red). */
 const creditBadgeStyle = (status: AccountPlanStatus) => {
-  const color = creditMeterColor(creditMeterPercent(status.creditsUsed, status.creditsTotal, status.topUpCredits));
+  const used = creditMeterPercent(status.creditsUsed, status.creditsTotal, status.topUpCredits);
+  // One calm gray badge; it only takes the warning color when the AI money is running low.
+  if (used < 75) return { color: "var(--da-text-2)", borderColor: "var(--da-border)", background: "transparent" };
+  const color = creditMeterColor(used);
   return { color, borderColor: color, background: `color-mix(in srgb, ${color} 16%, transparent)` };
 };
 
@@ -74,7 +76,7 @@ export function AppHeader({ page, onExport }: { page: "home" | "dashboard" | "ot
   return (
     <>
       <header className={styles.bar}>
-        <Link href="/" className={styles.brand} aria-label="Diamond Animator, main screen"><span className={styles.brandMark}><DiamondLogo size={34} /></span><span className={styles.brandName}>Diamond Animator</span></Link>
+        <Link href="/" className={styles.brand} aria-label="Diamond Animator, main screen"><span className={styles.brandMark}><DiamondLogo size={30} /></span><span className={styles.brandName}>Diamond Animator</span></Link>
         <div className={styles.actions}>
           {page === "dashboard" ? (
             <Link href="/" className={styles.ghost}>

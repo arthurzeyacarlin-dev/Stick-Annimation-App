@@ -3,20 +3,20 @@
 /* === Diamond Animator design kit (SPEC-0016 Phase 6) ===
    One palette for every screen. Use these variables instead of new hex values. */
 :root {
-  --da-page: #030914;          /* dark navy: page and work areas */
-  --da-panel: #071120;         /* brighter navy: bars, panels, cards, chat boxes, buttons at rest */
-  --da-line: #163058;          /* dividers and card/dialog borders */
-  --da-border: #244267;        /* button and input borders */
-  --da-selected-bg: #0f2a52;   /* selected / primary (dull blue) */
-  --da-selected-border: #3a6aa3;
-  --da-hover: #0066ff;         /* hover: filled buttons turn this with white text; links/bell change text only */
-  --da-text: #f6f9ff;
-  --da-text-2: #c9d6ea;
-  --da-text-3: #a8bddd;
-  --da-muted: #8fabd0;
-  --da-label: #7895bc;         /* small uppercase labels */
-  --da-link: #8cbbf3;          /* text links at rest */
-  --da-focus: #66c7ff;         /* keyboard focus ring */
+  --da-page: #111113;          /* dark navy: page and work areas */
+  --da-panel: #1a1a1e;         /* brighter navy: bars, panels, cards, chat boxes, buttons at rest */
+  --da-line: #2c2c32;          /* dividers and card/dialog borders */
+  --da-border: #2c2c32;        /* button and input borders */
+  --da-selected-bg: #3a3a41;   /* selected / primary (dull blue) */
+  --da-selected-border: #55555e;
+  --da-hover: #3a3a41;         /* hover: filled buttons turn this with white text; links/bell change text only */
+  --da-text: #f5f5f6;
+  --da-text-2: #d2d2d7;
+  --da-text-3: #b8b8bf;
+  --da-muted: #a3a3ab;
+  --da-label: #85858e;         /* small uppercase labels */
+  --da-link: #d2d2d7;          /* text links at rest */
+  --da-focus: #4d94ff;         /* keyboard focus ring */
   --da-danger: #ff8a95;
   --da-danger-border: rgba(255, 138, 149, 0.35);
   --da-danger-solid: #d23a52;
@@ -24,11 +24,19 @@
   --da-warning-border: rgba(255, 190, 65, 0.35);
   --da-success: #7fd8a6;
   --da-success-border: rgba(127, 216, 166, 0.35);
-  --da-scrim: rgba(3, 9, 20, 0.72);
+  --da-scrim: rgba(0, 0, 0, 0.72);
   --da-radius-control: 10px;
   --da-radius-card: 16px;
   --da-shadow-pop: 0 18px 44px rgba(0, 0, 0, 0.45);
-  --da-icon: #7296bd;           /* resting icons (e.g. Home cards) */
+  --da-icon: #85858e;           /* resting icons (e.g. Home cards) */
+  --da-accent: #0066ff;        /* the one special color: main actions only */
+  --da-accent-hover: #1f7aff;
+  --da-hover-soft: #3a3a41;
+  --da-hover-super: #1f7aff;
+  --da-accent: #0066ff;        /* the one special color: main actions only */
+  --da-accent-hover: #1f7aff;
+  --da-hover-soft: #3a3a41;
+  --da-hover-super: #1f7aff;
   --background: var(--da-page);
   --foreground: var(--da-text);
 }
@@ -39,14 +47,14 @@
    (cookie, so no flash). */
 /* The Diamond logo is always solid white (Arthur), so the places that show it stay navy in Bright mode. */
 html[data-theme="light"] .da-keep-dark {
-  --da-page: #030914; --da-panel: #071120; --da-line: #163058; --da-border: #244267;
-  --da-selected-bg: #0f2a52; --da-selected-border: #3a6aa3; --da-text: #f6f9ff; --da-text-2: #c9d6ea;
-  --da-text-3: #a8bddd; --da-muted: #8fabd0; --da-label: #7895bc; --da-link: #8cbbf3; --da-focus: #66c7ff;
-  --da-danger: #ff8a95; --da-icon: #7296bd; --da-scrim: rgba(3, 9, 20, 0.72); --da-shadow-pop: 0 18px 44px rgba(0, 0, 0, 0.45);
+  --da-page: #111113; --da-panel: #1a1a1e; --da-line: #2c2c32; --da-border: #2c2c32;
+  --da-selected-bg: #3a3a41; --da-selected-border: #55555e; --da-text: #f5f5f6; --da-text-2: #d2d2d7;
+  --da-text-3: #b8b8bf; --da-muted: #a3a3ab; --da-label: #85858e; --da-link: #d2d2d7; --da-focus: #4d94ff;
+  --da-danger: #ff8a95; --da-icon: #85858e; --da-scrim: rgba(0, 0, 0, 0.72); --da-shadow-pop: 0 18px 44px rgba(0, 0, 0, 0.45);
   color-scheme: dark;
 }
 /* Bright mode: the logo stays solid white on a small dark tile in the theme's own color (themes.css). */
-html[data-theme="light"] .da-logo:not(.da-keep-dark .da-logo) { color: #ffffff !important; background: var(--da-logo-tile, #071120); box-shadow: 0 0 0 6px var(--da-logo-tile, #071120); border-radius: 4px; }
+html[data-theme="light"] .da-logo:not(.da-keep-dark .da-logo) { color: #ffffff !important; background: var(--da-logo-tile, #1a1a1e); box-shadow: 0 0 0 6px var(--da-logo-tile, #1a1a1e); border-radius: 4px; }
 
 @theme inline {
   --color-background: var(--background);
@@ -62,13 +70,14 @@ html, body {
   background: var(--da-page);
   color-scheme: dark;
 }
+body { background: transparent; } /* the page color sits on <html>, so the header spotlight can show behind every main screen */
 html[data-theme="light"], html[data-theme="light"] body { color-scheme: light; }
 
 body {
   padding: 0;
   min-height: 100vh;
   color: var(--da-text);
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-family:  var(--font-geist-sans), system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
 
 #__next {
@@ -90,7 +99,7 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 16px 18px;
-  background: rgba(20,26,36,0.85);
+  background: rgba(0, 0, 0,0.85);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(255,255,255,0.08);
 }
@@ -183,37 +192,37 @@ body {
 
 .primaryBtn
 .secondaryBtn {
-  border-radius: 14px;
+  border-radius: 12px;
   padding: 12px 16px;
   font-weight: 700;
   cursor: pointer;
-  border: 1px solid rgba(77,163,255,0.45);
+  border: 1px solid rgba(255, 255, 255, 0.144);
 }
 
 .primaryBtn {
-  background: rgba(77,163,255,0.22);
+  background: rgba(255, 255, 255, 0.07);
   color: rgba(235,245,255,0.98);
 }
 
 .primaryBtn:hover {
-  border-color: rgba(50,138,255,0.98);
-  background: rgba(27,102,214,0.40);
+  border-color: rgba(255, 255, 255, 0.314);
+  background: rgba(255, 255, 255, 0.128);
 }
 
 .secondaryBtn {
-  background: rgba(20,28,40,0.65);
+  background: rgba(0, 0, 0,0.65);
   color: rgba(235,245,255,0.92);
 }
 
 .secondaryBtn:hover {
-  border-color: rgba(50,138,255,0.90);
+  border-color: rgba(255, 255, 255, 0.288);
 }
 
 /* Small info card */
 .infoCard {
   margin-top: 16px;
   padding: 14px 14px;
-  border-radius: 14px;
+  border-radius: 12px;
   background: rgba(255,255,255,0.06);
   border: 1px solid rgba(255,255,255,0.10);
   color: rgba(235,245,255,0.90);
@@ -223,11 +232,11 @@ body {
   font-size: 11px;               /* slightly smaller */
   font-weight: 600;
   letter-spacing: 0.08em;
-  color: #7fb9e8;                /* darker blue */
+  color: #b8b8bf;                /* darker blue */
 }
 
 .animateWord {
-  color: rgba(77, 163, 255, 0.8);     /* visible blue */
+  color: rgba(255, 255, 255, 0.256);     /* visible blue */
   font-size: 9.5px;                   /* slightly smaller */
   font-weight: 700;
 }
@@ -237,12 +246,12 @@ html {
 }
 
 :root {
-  --app-scrollbar-track: rgba(10, 15, 24, 0);
-  --app-scrollbar-track-hover: rgba(10, 15, 24, 0);
-  --app-scrollbar-thumb: rgba(34, 47, 65, 0.92);
+  --app-scrollbar-track: rgba(0, 0, 0, 0);
+  --app-scrollbar-track-hover: rgba(0, 0, 0, 0);
+  --app-scrollbar-thumb: rgba(0, 0, 0, 0.92);
   --app-scrollbar-thumb-hover: rgba(43, 58, 78, 0.96);
-  --app-scrollbar-track-idle: rgba(10, 15, 24, 0);
-  --app-scrollbar-thumb-idle: rgba(4, 8, 14, 0);
+  --app-scrollbar-track-idle: rgba(0, 0, 0, 0);
+  --app-scrollbar-thumb-idle: rgba(0, 0, 0, 0);
   --app-scrollbar-fade-in: 60ms ease;
   --app-scrollbar-fade-out: 150ms ease;
 }
@@ -256,7 +265,7 @@ html {
 *::-webkit-scrollbar-track {
   background: var(--app-scrollbar-track-idle);
   border-radius: 999px;
-  transition: background-color var(--app-scrollbar-fade-out);
+  transition: none;
 }
 
 *::-webkit-scrollbar-thumb {
@@ -264,18 +273,18 @@ html {
   border-radius: 999px;
   border: 2px solid transparent;
   background-clip: padding-box;
-  transition: background-color var(--app-scrollbar-fade-out), border-color var(--app-scrollbar-fade-out);
+  transition: none;
 }
 
 .is-scroll-active::-webkit-scrollbar-track {
   background: var(--app-scrollbar-track);
-  transition: background-color var(--app-scrollbar-fade-in);
+  transition: none;
 }
 
 .is-scroll-active::-webkit-scrollbar-thumb {
   background: var(--app-scrollbar-thumb-idle);
   border-color: var(--app-scrollbar-track);
-  transition: background-color var(--app-scrollbar-fade-in), border-color var(--app-scrollbar-fade-in);
+  transition: none;
 }
 
 .is-scroll-active::-webkit-scrollbar-thumb:hover,
@@ -297,15 +306,15 @@ html {
 
 .home-main-scroll::-webkit-scrollbar-track {
   background: var(--app-scrollbar-track-idle);
-  transition: background-color var(--app-scrollbar-fade-out);
+  transition: none;
 }
 
 .home-main-scroll::-webkit-scrollbar-thumb {
   border-radius: 999px;
-  border: 2px solid rgba(10, 15, 24, 0);
+  border: 2px solid rgba(0, 0, 0, 0);
   background: var(--app-scrollbar-thumb-idle);
   background-clip: padding-box;
-  transition: background-color var(--app-scrollbar-fade-out), border-color var(--app-scrollbar-fade-out);
+  transition: none;
 }
 
 .home-main-scroll.is-scroll-active {
@@ -314,13 +323,13 @@ html {
 
 .home-main-scroll.is-scroll-active::-webkit-scrollbar-track {
   background: var(--app-scrollbar-track);
-  transition: background-color var(--app-scrollbar-fade-in);
+  transition: none;
 }
 
 .home-main-scroll.is-scroll-active::-webkit-scrollbar-thumb {
   border: 2px solid var(--app-scrollbar-track);
   background: var(--app-scrollbar-thumb-idle);
-  transition: background-color var(--app-scrollbar-fade-in), border-color var(--app-scrollbar-fade-in);
+  transition: none;
 }
 
 .home-main-scroll.is-scroll-active::-webkit-scrollbar-thumb:hover {
@@ -362,7 +371,7 @@ html {
 .stick-figure-right-panel-scroll::-webkit-scrollbar-track {
   background: var(--app-scrollbar-track-idle) !important;
   border-radius: 999px;
-  transition: background-color var(--app-scrollbar-fade-out);
+  transition: none;
 }
 
 .darkScroll::-webkit-scrollbar-thumb,
@@ -371,10 +380,10 @@ html {
 .workspace-properties-scroll::-webkit-scrollbar-thumb,
 .stick-figure-right-panel-scroll::-webkit-scrollbar-thumb {
   background: var(--app-scrollbar-thumb-idle) !important;
-  border: 2px solid rgba(10, 15, 24, 0) !important;
+  border: 2px solid rgba(0, 0, 0, 0) !important;
   border-radius: 999px;
   background-clip: padding-box;
-  transition: background-color var(--app-scrollbar-fade-out), border-color var(--app-scrollbar-fade-out);
+  transition: none;
 }
 
 .darkScroll.is-scroll-active::-webkit-scrollbar-track,
@@ -383,7 +392,7 @@ html {
 .workspace-properties-scroll.is-scroll-active::-webkit-scrollbar-track,
 .stick-figure-right-panel-scroll.is-scroll-active::-webkit-scrollbar-track {
   background: var(--app-scrollbar-track) !important;
-  transition: background-color var(--app-scrollbar-fade-in);
+  transition: none;
 }
 
 .darkScroll.is-scroll-active::-webkit-scrollbar-thumb,
@@ -393,7 +402,7 @@ html {
 .stick-figure-right-panel-scroll.is-scroll-active::-webkit-scrollbar-thumb {
   background: var(--app-scrollbar-thumb-idle) !important;
   border-color: var(--app-scrollbar-track) !important;
-  transition: background-color var(--app-scrollbar-fade-in), border-color var(--app-scrollbar-fade-in);
+  transition: none;
 }
 
 .darkScroll.is-scroll-active::-webkit-scrollbar-thumb:hover,
@@ -417,13 +426,13 @@ html {
   opacity: 0;
   pointer-events: none;
   transform: translate3d(-999px, -999px, 0);
-  transition: opacity var(--app-scrollbar-fade-out);
+  transition: none;
   will-change: opacity, transform, height;
 }
 
 .app-scrollbar-overlay.is-visible {
   opacity: 1;
-  transition: opacity var(--app-scrollbar-fade-in);
+  transition: none;
 }
 
 /* SPEC-0022 Phase 3 (Arthur 2026-10-13): every red / delete / warning button looks the same everywhere:
@@ -446,12 +455,12 @@ button[class*="danger" i]:disabled, button[class*="destructive" i]:disabled, but
 /* SPEC-0022 Phase 4 (Arthur 2026-10-13): choices with 2+ options in the workspace right panel look like the Properties /
    Library / Assets tab group: one rounded bar, the selected option highlighted inside it. A delete button in the row stands
    apart. (Yes/no choices are OnOffSwitch toggles instead.) */
-.workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button) { display: inline-flex !important; flex-wrap: nowrap !important; gap: 2px !important; padding: 3px; border: 1px solid var(--da-border, #244267); border-radius: 11px; background: var(--da-page, #030914); width: fit-content; max-width: 100%; }
-.workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button) > button { height: 32px; min-height: 32px; padding: 0 14px; border: 0 !important; border-radius: 8px !important; margin: 0 !important; background: transparent !important; color: var(--da-text-3, #a8bddd) !important; font-size: 13px; font-weight: 600; box-shadow: none; }
-.workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button) > button:not([style*="background: var(--da-panel"]):not([data-hover="danger"]):not([class*="delete" i]) { background: var(--da-selected-bg, #0f2a52) !important; color: #ffffff !important; box-shadow: inset 0 0 0 1px var(--da-selected-border, #3a6aa3); }
-.workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button) > button:hover { background: var(--da-hover-soft, #0066ff) !important; color: #ffffff !important; }
+.workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button) { display: inline-flex !important; flex-wrap: nowrap !important; gap: 2px !important; padding: 3px; border: 1px solid var(--da-border, #2c2c32); border-radius: 10px; background: var(--da-page, #111113); width: fit-content; max-width: 100%; }
+.workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button) > button { height: 32px; min-height: 32px; padding: 0 14px; border: 0 !important; border-radius: 8px !important; margin: 0 !important; background: transparent !important; color: var(--da-text-3, #b8b8bf) !important; font-size: 13px; font-weight: 600; box-shadow: none; }
+.workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button) > button:not([style*="background: var(--da-panel"]):not([data-hover="danger"]):not([class*="delete" i]) { background: var(--da-selected-bg, #3a3a41) !important; color: #ffffff !important; box-shadow: none; }
+.workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button) > button:hover { background: var(--da-hover) !important; color: #ffffff !important; }
 .workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button):has(> button[data-hover="danger"], > button[class*="delete" i]) { display: flex !important; gap: 0 !important; padding: 0; border: 0; border-radius: 0; background: transparent; width: auto; }
-.workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button):has(> button[data-hover="danger"], > button[class*="delete" i]) > button { border: 1px solid var(--da-border, #244267) !important; border-radius: 0 !important; margin-left: -1px !important; background: #0d1c36 !important; }
+.workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button):has(> button[data-hover="danger"], > button[class*="delete" i]) > button { border: 1px solid var(--da-border, #2c2c32) !important; border-radius: 0 !important; margin-left: -1px !important; background: #1a1a1e !important; }
 .workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button):has(> button[data-hover="danger"], > button[class*="delete" i]) > button:first-child { border-radius: 10px 0 0 10px !important; margin-left: 0 !important; }
 .workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button):has(> button[data-hover="danger"], > button[class*="delete" i]) > button:has(+ button[data-hover="danger"]), .workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button):has(> button[data-hover="danger"], > button[class*="delete" i]) > button:has(+ button[class*="delete" i]) { border-radius: 0 10px 10px 0 !important; }
 .workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button):has(> button[data-hover="danger"], > button[class*="delete" i]) > button[data-hover="danger"], .workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button):has(> button[data-hover="danger"], > button[class*="delete" i]) > button[class*="delete" i] { border-radius: 10px !important; margin-left: 12px !important; background: transparent !important; }
@@ -459,7 +468,7 @@ button[class*="danger" i]:disabled, button[class*="destructive" i]:disabled, but
 /* SPEC-0022 Phase 4: the right panel is the app's dark navy page color (same as the AI Animator tab), so unselected
    buttons inside it are lifted to a brighter navy with a brighter outline and do not blend into the background. */
 .workspace-properties-scroll button[style*="background: var(--da-panel"]:not(.da-switch):not([data-hover="danger"]):not([class*="delete" i]):not([style*="color: var(--da-danger"]) {
-  background: #0c1628 !important; border-color: #22375a !important; border-radius: 8px !important; color: #d6e0f0 !important; /* workspace makeover: calmer, darker */
+  background: #1a1a1e !important; border-color: #3a3a41 !important; border-radius: 8px !important; color: #d2d2d7 !important; /* workspace makeover: calmer, darker */
 }
 
 /* Delete rule everywhere (Arthur 2026-10-26): anything that deletes is see-through with red text and a red outline, and
@@ -468,25 +477,25 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
   background: transparent !important; color: var(--da-danger, #ff8a95) !important; border: 1px solid var(--da-danger, #ff8a95) !important; box-shadow: none !important;
 }
 button[data-hover="danger"]:hover:not(:disabled), button[style*="color: var(--da-danger"]:not([data-hover="icon"]):hover:not(:disabled) {
-  background: var(--da-danger, #ff8a95) !important; color: #fff !important; border-color: var(--da-danger, #ff8a95) !important;
+  background: var(--da-danger, #ff8a95) !important; color: #ffffff !important; border-color: var(--da-danger, #ff8a95) !important;
 }
 button[data-hover="danger"] *, button[style*="color: var(--da-danger"]:not([data-hover="icon"]) * { color: inherit !important; }
 
 /* On/Off switch (OnOffSwitch): exactly the Settings switch. Pointing at it lights its outline blue (on or off). */
 button.da-switch { min-height: 0 !important; height: 24px !important; width: 44px !important; border-radius: 999px !important; padding: 0 !important; }
-button.da-switch:hover { border-color: var(--da-hover-soft, #0066ff) !important; box-shadow: none !important; }
-button.da-switch:not([aria-checked="true"]) { background: var(--da-panel, #071120) !important; }
-button.da-switch[aria-checked="true"] { background: var(--da-hover, #0066ff) !important; border-color: var(--da-hover, #0066ff) !important; }
+button.da-switch:hover { border-color: var(--da-hover) !important; box-shadow: none !important; }
+button.da-switch:not([aria-checked="true"]) { background: var(--da-panel) !important; }
+button.da-switch[aria-checked="true"] { background: var(--da-accent) !important; border-color: var(--da-accent) !important; }
 /* Every on/off switch slides its knob and fades its colors (Arthur 2026-10-25: "no teleporting"). The same timing as the
    Effort dot. The switch is the one exception to the editor's instant-buttons rule (workspaceTheme: transition none). */
 :root { --da-switch-motion: 220ms cubic-bezier(.2, .8, .2, 1); }
-button.da-switch, [class*="workspaceTheme_workspace"] button.da-switch { transition: background-color var(--da-switch-motion), border-color var(--da-switch-motion) !important; }
-button.da-switch > span { transition: transform var(--da-switch-motion), background-color var(--da-switch-motion) !important; }
+button.da-switch, [class*="workspaceTheme_workspace"] button.da-switch { transition: none !important; }
+button.da-switch > span { transition: none !important; }
 @media (prefers-reduced-motion: reduce) { button.da-switch, button.da-switch > span { transition: none !important; } }
 
 /* A plain outlined button (used by Settings → Learn mode): blue and white on hover, instantly. */
-.da-plain-button { min-height: 36px; padding: 0 16px; border: 1px solid var(--da-border, #244267); border-radius: 10px; background: transparent; color: var(--da-text, #f6f9ff); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: none; }
-.da-plain-button:hover { background: var(--da-hover-soft, #0066ff); border-color: var(--da-hover-soft, #0066ff); color: #ffffff; }
+.da-plain-button { min-height: 36px; padding: 0 16px; border: 1px solid var(--da-border, #2c2c32); border-radius: 10px; background: transparent; color: var(--da-text, #f5f5f6); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: none; }
+.da-plain-button:hover { background: var(--da-hover); border-color: var(--da-hover); color: #ffffff; }
 
 /* SPEC-0022 Phase 9 (Arthur 2026-10-13): tablets and phones. The right panel becomes a bottom sheet with a Panel button;
    the tool row takes the whole width and scrolls sideways if it must. Computers (> 900 px) are untouched. */
@@ -495,15 +504,15 @@ button.da-switch > span { transition: transform var(--da-switch-motion), backgro
   .drawing-right-panel {
     position: fixed !important; inset: auto 0 102px 0 !important; width: 100% !important; max-width: none !important; flex: none !important;
     height: min(54dvh, 460px) !important; max-height: calc(100dvh - 300px) !important; z-index: 60 !important; transform: translateY(140%); transition: transform 200ms ease;
-    border-top: 1px solid var(--da-line, #163058); border-radius: 16px 16px 0 0; box-shadow: 0 -18px 44px rgba(0, 0, 0, .5);
+    border-top: 1px solid var(--da-line, #2c2c32); border-radius: 12px 12px 0 0; box-shadow: none;
   }
   .drawing-right-panel[data-sheet-open="true"] { transform: none; }
   .drawing-right-panel-resizer { display: none !important; }
   .da-sheet-toggle {
     display: flex; position: fixed; right: 12px; bottom: 72px; z-index: 70; min-height: 40px; align-items: center; padding: 0 16px;
-    border: 1px solid #3a6aa3; border-radius: 12px; background: #1b3358; color: #fff; font: inherit; font-size: 14px; font-weight: 650; cursor: pointer;
+    border: 1px solid #55555e; border-radius: 12px; background: #3a3a41; color: #ffffff; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
   }
-  .da-sheet-toggle:hover { background: #0066ff; border-color: #0066ff; }
+  .da-sheet-toggle:hover { background: #3a3a41; border-color: #3a3a41; }
   .drawing-toolbar { width: 100% !important; overflow-x: auto; grid-template-columns: repeat(8, minmax(46px, 1fr)) !important; }
 }
 @media (max-width: 640px) {
@@ -514,10 +523,10 @@ button.da-switch > span { transition: transform var(--da-switch-motion), backgro
    tapping a tab slides the sheet up, tapping it again closes it. The top bar loses its long labels so nothing is cut off. */
 .da-sheet-tabs { display: none; }
 @media (max-width: 900px), (max-height: 500px) and (orientation: landscape) {
-  .da-sheet-tabs { display: grid; grid-template-columns: repeat(4, 1fr); position: fixed; left: 0; right: 0; bottom: 56px; height: 46px; z-index: 65; background: var(--da-panel, #071120); border-top: 1px solid var(--da-line, #163058); }
-  .da-sheet-tabs button { border: 0; background: transparent; color: var(--da-text-3, #a8bddd); font: inherit; font-size: 13px; font-weight: 650; cursor: pointer; }
-  .da-sheet-tabs button[aria-selected="true"] { color: #fff; background: var(--da-selected-bg, #0f2a52); box-shadow: inset 0 -2px 0 #0066ff; }
-  .da-sheet-tabs button:hover { background: var(--da-hover-soft, #0066ff); color: #fff; }
+  .da-sheet-tabs { display: grid; grid-template-columns: repeat(4, 1fr); position: fixed; left: 0; right: 0; bottom: 56px; height: 46px; z-index: 65; background: var(--da-panel, #1a1a1e); border-top: 1px solid var(--da-line, #2c2c32); }
+  .da-sheet-tabs button { border: 0; background: transparent; color: var(--da-text-3, #b8b8bf); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .da-sheet-tabs button[aria-selected="true"] { color: #ffffff; background: var(--da-selected-bg, #3a3a41); box-shadow: none; }
+  .da-sheet-tabs button:hover { background: var(--da-hover); color: #ffffff; }
   .drawing-topbar { padding: 0 8px !important; gap: 6px !important; }
   .drawing-topbar-menus { flex: 1 1 auto !important; overflow-x: auto; scrollbar-width: none; }
   .drawing-topbar-title { display: none; }
@@ -536,12 +545,12 @@ button.da-switch > span { transition: transform var(--da-switch-motion), backgro
 [class*="segmented"] button[aria-pressed="true"],
 [role="group"][aria-label="Right panel"] button[aria-pressed="true"],
 .workspace-properties-scroll div[style*="flex-wrap: wrap"] > button:not([style*="background: var(--da-panel"]):not([data-hover="danger"]):not([class*="delete" i]) {
-  background: var(--da-selected-bg, #0f2a52) !important; color: #ffffff !important; border-color: transparent !important;
-  box-shadow: inset 0 -3px 0 #0066ff !important;
+  background: var(--da-selected-bg, #3a3a41) !important; color: #ffffff !important; border-color: transparent !important;
+  box-shadow: none;
 }
 [class*="segmented"] button[aria-pressed="true"]:hover,
-[role="group"][aria-label="Right panel"] button[aria-pressed="true"]:hover { background: var(--da-hover-soft, #0066ff) !important; box-shadow: inset 0 -3px 0 var(--da-hover, #0066ff) !important; } /* the selected bar stays on hover (Arthur) */
-.da-sheet-tabs button[aria-selected="true"] { box-shadow: inset 0 -3px 0 #0066ff; }
+[role="group"][aria-label="Right panel"] button[aria-pressed="true"]:hover { background: var(--da-hover) !important; box-shadow: none !important; } /* the selected bar stays on hover (Arthur) */
+.da-sheet-tabs button[aria-selected="true"] { box-shadow: none; }
 
 @media (max-width: 900px), (max-height: 500px) and (orientation: landscape) {
   /* Nothing cut off, no stray page scroll in the editor. */
@@ -573,8 +582,8 @@ button.da-switch > span { transition: transform var(--da-switch-motion), backgro
 /* The panel's "Hide panel" handle (only on phones and tablets), the editor never scrolls as a page. */
 .da-sheet-close { display: none; }
 @media (max-width: 900px), (max-height: 500px) and (orientation: landscape) {
-  .da-sheet-close { display: flex; align-items: center; justify-content: center; flex: 0 0 auto; min-height: 36px; border: 0; border-bottom: 1px solid var(--da-line, #163058); background: transparent; color: var(--da-text-3, #a8bddd); font: inherit; font-size: 12px; font-weight: 650; cursor: pointer; }
-  .da-sheet-close:hover { background: var(--da-hover-soft, #0066ff); color: #fff; }
+  .da-sheet-close { display: flex; align-items: center; justify-content: center; flex: 0 0 auto; min-height: 36px; border: 0; border-bottom: 1px solid var(--da-line, #2c2c32); background: transparent; color: var(--da-text-3, #b8b8bf); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .da-sheet-close:hover { background: var(--da-hover); color: #ffffff; }
   [class*="workspaceTheme_workspace"] { overflow: hidden !important; overscroll-behavior: none; }
   body:has(.drawing-right-panel) { touch-action: manipulation; }
 }
@@ -646,7 +655,7 @@ button.da-switch > span { transition: transform var(--da-switch-motion), backgro
   }
   .da-sheet {
     display: flex; flex-direction: column; position: absolute; left: 0; right: 0; bottom: 0; z-index: 30;
-    height: var(--da-sheet-px, min(44dvh, 380px)); box-shadow: 0 -12px 28px rgba(0, 0, 0, .35);
+    height: var(--da-sheet-px, min(44dvh, 380px)); box-shadow: none;
     min-height: 0 !important; max-height: none !important; /* small goes all the way down to the tools (an old rule held it at 200 px) */
   }
   .da-sheet[data-sheet-size="small"]:not([data-sheet-dragging]) { box-shadow: none; }
@@ -657,8 +666,8 @@ button.da-switch > span { transition: transform var(--da-switch-motion), backgro
   .da-sheet-tabs .da-sheet-handle { display: block; position: absolute; left: 0; right: 0; top: -8px; height: 16px; padding: 0; border: 0; background: transparent; cursor: ns-resize; z-index: 2; }
   .da-sheet-tabs .da-sheet-handle:hover { background: transparent; }
   .da-sheet-tabs:has(.da-sheet-handle:hover), .da-sheet-tabs:has(.da-sheet-handle:focus-visible),
-  .da-sheet[data-sheet-dragging] > .da-sheet-tabs { border-top-color: var(--da-hover-soft, #0066ff) !important; }
-  .da-sheet[data-sheet-size="small"] .da-sheet-tab-row button[aria-selected="true"] { background: transparent; color: #fff; }
+  .da-sheet[data-sheet-dragging] > .da-sheet-tabs { border-top-color: var(--da-hover) !important; }
+  .da-sheet[data-sheet-size="small"] .da-sheet-tab-row button[aria-selected="true"] { background: transparent; color: #ffffff; }
 }
 @media (max-width: 900px), (max-height: 500px) and (orientation: landscape) {
   /* All 8 tools fit the width (the last one was cut off on phones under 380 px). */
@@ -669,13 +678,13 @@ button.da-switch > span { transition: transform var(--da-switch-motion), backgro
 /* Drag image files over the editor (Arthur 2026-10-26): a dashed frame and a drop card appear (no dimming, so the tab stays bright), and the
    Assets tab (computer tabs and phone tab bar) turns blue and pulses. The overlay never blocks the drop. */
 .da-file-drop-overlay { position: fixed; inset: 0; z-index: 1100; pointer-events: none; display: grid; place-items: center; background: transparent; animation: daDropFade 140ms ease-out; }
-.da-file-drop-overlay::before { content: ""; position: absolute; inset: 14px; border: 2px dashed var(--da-hover, #0066ff); border-radius: 18px; }
-.da-file-drop-card { position: relative; display: grid; justify-items: center; gap: 8px; padding: 26px 34px; border: 1px solid var(--da-selected-border, #3a6aa3); border-radius: 16px; background: var(--da-panel, #071120); box-shadow: 0 24px 60px rgba(0, 0, 0, .55); color: var(--da-text, #f6f9ff); text-align: center; }
-.da-file-drop-card svg { color: var(--da-hover, #0066ff); }
-.da-file-drop-card strong { font-size: 15px; font-weight: 650; }
-.da-file-drop-card span { color: var(--da-muted, #8fabd0); font-size: 12.5px; }
+.da-file-drop-overlay::before { content: ""; position: absolute; inset: 14px; border: 2px dashed var(--da-hover); border-radius: 12px; }
+.da-file-drop-card { position: relative; display: grid; justify-items: center; gap: 8px; padding: 26px 34px; border: 1px solid var(--da-selected-border, #55555e); border-radius: 12px; background: var(--da-panel, #1a1a1e); box-shadow: var(--da-shadow-pop); color: var(--da-text, #f5f5f6); text-align: center; }
+.da-file-drop-card svg { color: var(--da-hover); }
+.da-file-drop-card strong { font-size: 15px; font-weight: 600; }
+.da-file-drop-card span { color: var(--da-muted, #a3a3ab); font-size: 12.5px; }
 @keyframes daDropFade { from { opacity: 0; } to { opacity: 1; } }
-@keyframes daDropPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(0, 102, 255, .6); } 60% { box-shadow: 0 0 0 7px rgba(0, 102, 255, 0); } }
+@keyframes daDropPulse { 0%, 100% { box-shadow: none; } 60% { box-shadow: none; } }
 button[data-file-target="true"], [class*="workspaceTheme_workspace"] button[data-file-target="true"] {
   background: var(--da-hover, #0066ff) !important; color: #fff !important; border-color: var(--da-hover, #0066ff) !important;
   animation: daDropPulse 1.1s ease-out infinite !important;
@@ -685,62 +694,62 @@ button[data-file-target="true"], [class*="workspaceTheme_workspace"] button[data
 /* Redesign (Arthur 2026-10-26): Profile, Settings, Plans, AI Dashboard and Problem reports in the new look — the same
    deep navy with one soft blue glow at the top and the new heading font. Content, sizes and controls are unchanged. */
 .da-polished-page { position: relative; background:
-  radial-gradient(ellipse 900px 420px at 50% -60px, rgba(0, 102, 255, .22), rgba(0, 102, 255, .06) 55%, transparent 80%), var(--da-page, #030914) !important; }
-.da-polished-page h1 { font-family: var(--font-display), var(--font-geist-sans), sans-serif; font-weight: 800; letter-spacing: -.03em; }
-.da-polished-page h2 { font-family: var(--font-display), var(--font-geist-sans), sans-serif; letter-spacing: -.015em; }
+  transparent !important; }
+.da-polished-page h1 { font-family: var(--font-geist-sans), sans-serif; font-weight: 700; letter-spacing: -.03em; }
+.da-polished-page h2 { font-family: var(--font-geist-sans), sans-serif; letter-spacing: -.015em; }
 
 /* ===== Redesign button levels (Arthur 2026-10-26), app-wide incl. the editor (behaviour unchanged) =====
    1 normal = dull blue box on hover · 2 special = bright blue · 3 super special (Export, Create account) = extra-bright blue
    with a glow · danger = red outline, see-through; on hover fully red with white text. Hover is instant. */
-:root { --da-hover-soft: color-mix(in srgb, var(--da-hover, #0066ff) 26%, #071120); --da-hover-super: color-mix(in srgb, var(--da-hover, #0066ff) 78%, #ffffff); }
+/* hover colors live in the design kit above */ :root { }
 button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-hover="icon"]) { border-width: 1.5px !important; }
 .da-super, .da-super:hover { transition: none; }
-.da-super:hover:enabled, a.da-super:hover { background: var(--da-hover-super) !important; border-color: var(--da-hover-super) !important; color: #fff !important; box-shadow: 0 10px 26px rgba(0, 102, 255, .45) !important; }
+.da-super:hover:enabled, a.da-super:hover { background: var(--da-accent-hover) !important; border-color: var(--da-accent-hover) !important; color: #ffffff !important; box-shadow: none !important; }
 
 /* Loading screen (new look, Nov 18): the same gray, white logo and one plain white line as the sign-in screen. */
-.da-loading { position: fixed; inset: 0; z-index: 9999; display: grid; place-items: center; pointer-events: none; color: #fff; background: #111113; }
+.da-loading { position: fixed; inset: 0; z-index: 9999; display: grid; place-items: center; pointer-events: none; color: #ffffff; background: #111113; }
 .da-loading[data-ready] { display: none; }
 .da-loading-mark { position: relative; display: grid; justify-items: center; gap: 16px; }
 .da-loading-logo { line-height: 0; }
 .da-loading-name { font-family: var(--font-geist-sans), system-ui, sans-serif; font-size: 18px; font-weight: 600; letter-spacing: -.015em; }
 .da-loading-track { position: relative; width: 148px; height: 2px; overflow: hidden; background: #2c2c32; }
-.da-loading-track span { position: absolute; top: 0; bottom: 0; width: 36%; background: #fff; animation: daLoadSweep 1s linear infinite; }
+.da-loading-track span { position: absolute; top: 0; bottom: 0; width: 36%; background: #ffffff; animation: daLoadSweep 1s linear infinite; }
 @keyframes daLoadSweep { from { left: -36%; } to { left: 100%; } }
 @media (prefers-reduced-motion: reduce) { .da-loading-track span { animation: none; left: 32%; } }
 
 /* Glows reveal the dot grid (Arthur): on every polished page the top glow lights up a field of dots. */
 .da-polished-page::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 560px; pointer-events: none;
-  background-image: radial-gradient(circle, rgba(92, 140, 220, .4) 1.3px, transparent 1.8px); background-size: 26px 26px;
-  -webkit-mask-image: radial-gradient(ellipse 760px 380px at 50% 0%, #000 0%, transparent 75%); mask-image: radial-gradient(ellipse 760px 380px at 50% 0%, #000 0%, transparent 75%); }
+  background-image: none; background-size: 26px 26px;
+  -webkit-mask-image: radial-gradient(ellipse 760px 380px at 50% 0%, #000000 0%, transparent 75%); mask-image: radial-gradient(ellipse 760px 380px at 50% 0%, #000000 0%, transparent 75%); }
 .da-polished-page > * { position: relative; }
 
 /* Same polished look for the other full screens: Open Project, Export, the recovery box, reset password, trial ended. */
 [data-project-library="open-project"], [data-project-library="my-projects"], main[data-animation-export], main.recovery-shell, main[data-reset-password], [data-trial-ended] {
-  position: relative; background: radial-gradient(ellipse 900px 420px at 50% -60px, rgba(0, 102, 255, .22), rgba(0, 102, 255, .06) 55%, transparent 80%), var(--da-page, #030914) !important;
+  position: relative; background: transparent !important;
 }
 [data-project-library="open-project"]::before, [data-project-library="my-projects"]::before, main[data-animation-export]::before, main.recovery-shell::before, main[data-reset-password]::before, [data-trial-ended]::before {
   content: ""; position: absolute; left: 0; right: 0; top: 0; height: 560px; pointer-events: none;
-  background-image: radial-gradient(circle, rgba(92, 140, 220, .4) 1.3px, transparent 1.8px); background-size: 26px 26px;
-  -webkit-mask-image: radial-gradient(ellipse 760px 380px at 50% 0%, #000 0%, transparent 75%); mask-image: radial-gradient(ellipse 760px 380px at 50% 0%, #000 0%, transparent 75%);
+  background-image: none; background-size: 26px 26px;
+  -webkit-mask-image: radial-gradient(ellipse 760px 380px at 50% 0%, #000000 0%, transparent 75%); mask-image: radial-gradient(ellipse 760px 380px at 50% 0%, #000000 0%, transparent 75%);
 }
 [data-project-library="open-project"] > *, [data-project-library="my-projects"] > *, main[data-animation-export] > *, main.recovery-shell > *, main[data-reset-password] > *, [data-trial-ended] > * { position: relative; }
 [data-project-library] h1, main[data-animation-export] h1, main.recovery-shell h1, main[data-reset-password] h1, main[data-reset-password] h2, [data-trial-ended] h1 {
-  font-family: var(--font-display), var(--font-geist-sans), sans-serif; font-weight: 800; letter-spacing: -.03em;
+  font-family: var(--font-geist-sans), sans-serif; font-weight: 700; letter-spacing: -.03em;
 }
 
 /* Selected marks never vanish on hover (Arthur 2026-10-26): any selected choice keeps its blue bar while pointed at. */
-.workspace-properties-scroll div[style*="flex-wrap: wrap"] > button[aria-pressed="true"]:hover { box-shadow: inset 0 -3px 0 var(--da-hover, #0066ff) !important; }
-.da-sheet-tabs button[aria-selected="true"]:hover { box-shadow: inset 0 -3px 0 var(--da-hover, #0066ff) !important; }
+.workspace-properties-scroll div[style*="flex-wrap: wrap"] > button[aria-pressed="true"]:hover { box-shadow: none !important; }
+.da-sheet-tabs button[aria-selected="true"]:hover { box-shadow: none !important; }
 
 /* AI Animator welcome: glow + dots, finished wording. */
 .drawing-ai-empty { position: relative; isolation: isolate; margin: auto; display: grid; justify-items: center; gap: 8px; max-width: 280px; padding: 34px 18px; text-align: center; }
 .drawing-ai-empty::before { content: ""; position: absolute; inset: -40px -30px; z-index: -1; pointer-events: none;
-  background: radial-gradient(circle, rgba(110, 155, 230, .34) 1.2px, transparent 1.7px) 0 0 / 22px 22px, radial-gradient(ellipse 50% 45% at 50% 40%, rgba(0, 102, 255, .22), transparent 75%);
-  -webkit-mask-image: radial-gradient(ellipse 55% 50% at 50% 40%, #000 0%, transparent 80%); mask-image: radial-gradient(ellipse 55% 50% at 50% 40%, #000 0%, transparent 80%); }
-.drawing-ai-empty-mark { display: grid; place-items: center; width: 48px; height: 48px; margin-bottom: 4px; border-radius: 14px; border: 1px solid #2b5c99; background: linear-gradient(180deg, #0f2a52, #0a1a33); color: #cfe2ff; box-shadow: 0 0 24px rgba(0, 102, 255, .35); }
+  background: transparent;
+  -webkit-mask-image: radial-gradient(ellipse 55% 50% at 50% 40%, #000000 0%, transparent 80%); mask-image: radial-gradient(ellipse 55% 50% at 50% 40%, #000000 0%, transparent 80%); }
+.drawing-ai-empty-mark { display: grid; place-items: center; width: 48px; height: 48px; margin-bottom: 4px; border-radius: 12px; border: 1px solid #55555e; background: var(--da-panel); color: #d2d2d7; box-shadow: none; }
 .drawing-ai-empty-mark svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
-.drawing-ai-empty strong { font-family: var(--font-display), var(--font-geist-sans), sans-serif; font-size: 18px; font-weight: 800; letter-spacing: -.02em; color: #f6f9ff; }
-.drawing-ai-empty span:last-child { color: #a9bcd8; font-size: 13px; line-height: 1.55; }
+.drawing-ai-empty strong { font-family: var(--font-geist-sans), sans-serif; font-size: 18px; font-weight: 700; letter-spacing: -.02em; color: #f5f5f6; }
+.drawing-ai-empty span:last-child { color: #b8b8bf; font-size: 13px; line-height: 1.55; }
 
 /* ===== Workspace makeover (Arthur 2026-10-26) =====
    Recipe from the AI Animator panel: light from inside (glow + dots), one clear focus per area, calm spacing,
@@ -748,65 +757,65 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
    selected stays bright; plain things get the dull box; delete turns red. Frames, sliders and tabs keep their look. */
 
 /* Top bar */
-.drawing-topbar { background: linear-gradient(180deg, #08101d, #060b14) !important; border-bottom: 1px solid #0f1b2e !important; box-shadow: 0 1px 0 rgba(0, 0, 0, .6), 0 8px 24px rgba(0, 0, 0, .25); position: relative; z-index: 60; } /* above everything so File/Edit/View menus open on top */
-.drawing-topbar-logo { display: inline-flex; align-items: center; line-height: 0; color: #fff; padding: 0 14px 0 2px; margin-right: 2px; height: 22px; border-right: 1px solid #16253d; filter: drop-shadow(0 0 10px rgba(0, 102, 255, .6)); }
-.drawing-topbar-menus button { color: #b9c6db !important; font-weight: 500 !important; border-radius: 7px !important; }
-.drawing-topbar-menus button[aria-expanded="true"] { background: #0f2a52 !important; border-color: #2b5c99 !important; color: #fff !important; }
-.drawing-topbar-title { font-family: var(--font-display), var(--font-geist-sans), sans-serif; font-size: 14px !important; font-weight: 700 !important; letter-spacing: -.01em; color: #f2f6ff !important; }
-.drawing-topbar [data-project-recovery-state] [role="status"] { background: transparent !important; border-color: #16253d !important; color: #93a5c3 !important; font-weight: 500 !important; }
-.drawing-topbar-export { display: inline-flex; align-items: center; gap: 7px; height: 30px; padding: 0 14px; border: 1px solid #2b7bff; border-radius: 8px;
-  background: linear-gradient(180deg, #2b7bff, #0066ff); color: #fff; font: inherit; font-size: 13px; font-weight: 650; cursor: pointer; transition: none;
-  box-shadow: 0 6px 18px rgba(0, 102, 255, .3), inset 0 1px 0 rgba(255, 255, 255, .18); }
-.drawing-topbar-export:hover { background: var(--da-hover-super) !important; border-color: var(--da-hover-super) !important; box-shadow: 0 8px 24px rgba(0, 102, 255, .5), inset 0 1px 0 rgba(255, 255, 255, .25) !important; color: #fff !important; }
+.drawing-topbar { background: var(--da-panel) !important; border-bottom: 1px solid #232328 !important; box-shadow: none; position: relative; z-index: 60; } /* above everything so File/Edit/View menus open on top */
+.drawing-topbar-logo { display: inline-flex; align-items: center; line-height: 0; color: #ffffff; padding: 0 14px 0 2px; margin-right: 2px; height: 22px; border-right: 1px solid #2c2c32; filter: none; }
+.drawing-topbar-menus button { color: #d2d2d7 !important; font-weight: 500 !important; border-radius: 7px !important; }
+.drawing-topbar-menus button[aria-expanded="true"] { background: #3a3a41 !important; border-color: #55555e !important; color: #ffffff !important; }
+.drawing-topbar-title { font-family: var(--font-geist-sans), sans-serif; font-size: 14px !important; font-weight: 700 !important; letter-spacing: -.01em; color: #f5f5f6 !important; }
+.drawing-topbar [data-project-recovery-state] [role="status"] { background: transparent !important; border-color: #2c2c32 !important; color: #a3a3ab !important; font-weight: 500 !important; }
+.drawing-topbar-export { display: inline-flex; align-items: center; gap: 7px; height: 30px; padding: 0 14px; border: 1px solid var(--da-accent); border-radius: 8px;
+  background: var(--da-accent); color: #ffffff; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; transition: none;
+  box-shadow: none; }
+.drawing-topbar-export:hover { background: var(--da-accent-hover) !important; border-color: var(--da-accent-hover) !important; box-shadow: none !important; color: #ffffff !important; }
 .drawing-topbar-export svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2.1; stroke-linecap: round; stroke-linejoin: round; }
 
 /* Timeline: a darker track under a clean header, the controls as one transport group (frames untouched). */
-.drawing-timeline { background: #060b14 !important; border-bottom: 1px solid #0f1b2e !important; box-shadow: 0 4px 14px rgba(0, 0, 0, .25); }
-.drawing-timeline-controls { gap: 4px !important; padding: 0 12px 0 10px; border-right: 1px solid #0f1b2e; }
+.drawing-timeline { background: #111113 !important; border-bottom: 1px solid #232328 !important; box-shadow: none; }
+.drawing-timeline-controls { gap: 4px !important; padding: 0 12px 0 10px; border-right: 1px solid #232328; }
 .drawing-timeline-controls > * { height: 32px; }
-.drawing-timeline-frames, .drawing-timeline-frames [data-timeline-panel], .drawing-timeline-frames [data-timeline-panel] > div { background: #03070e !important; }
-.drawing-timeline-frames [data-timeline-panel] > div:first-child { background: #060b14 !important; border-bottom: 1px solid #0f1b2e; }
-.drawing-timeline-frames [data-timeline-panel] > div:first-child * { color: #5f7397 !important; font-variant-numeric: tabular-nums; }
-.drawing-fps { border: 1px solid #1a2b45 !important; border-radius: 8px; padding: 0 8px 0 10px !important; height: 32px !important; background: #0b1424 !important; transition: none; }
-.drawing-fps span { letter-spacing: .04em !important; text-transform: none !important; color: #7d91b3 !important; font-weight: 600 !important; font-size: 11.5px !important; }
-.drawing-fps:hover { background: var(--da-hover-soft) !important; border-color: var(--da-hover-soft) !important; }
-.drawing-fps:hover span, .drawing-fps:hover input { color: #fff !important; }
-.drawing-fps:focus-within { border-color: #2b7bff !important; background: rgba(0, 102, 255, .12) !important; box-shadow: 0 0 0 3px rgba(0, 102, 255, .15); }
+.drawing-timeline-frames, .drawing-timeline-frames [data-timeline-panel], .drawing-timeline-frames [data-timeline-panel] > div { background: #111113 !important; }
+.drawing-timeline-frames [data-timeline-panel] > div:first-child { background: #111113 !important; border-bottom: 1px solid #232328; }
+.drawing-timeline-frames [data-timeline-panel] > div:first-child * { color: #85858e !important; font-variant-numeric: tabular-nums; }
+.drawing-fps { border: 1px solid #2c2c32 !important; border-radius: 8px; padding: 0 8px 0 10px !important; height: 32px !important; background: #1a1a1e !important; transition: none; }
+.drawing-fps span { letter-spacing: .04em !important; text-transform: none !important; color: #a3a3ab !important; font-weight: 600 !important; font-size: 11.5px !important; }
+.drawing-fps:hover { background: var(--da-hover) !important; border-color: var(--da-hover) !important; }
+.drawing-fps:hover span, .drawing-fps:hover input { color: #ffffff !important; }
+.drawing-fps:focus-within { border-color: var(--da-text) !important; background: rgba(255, 255, 255, 0.038) !important; box-shadow: none; }
 .drawing-timeline-controls [data-hover="icon"] { width: 32px !important; height: 32px !important; border-radius: 8px !important; }
-.drawing-timeline-controls [data-hover="icon"]:not([aria-pressed="true"]) { color: #8fa3c4 !important; }
+.drawing-timeline-controls [data-hover="icon"]:not([aria-pressed="true"]) { color: #a3a3ab !important; }
 .drawing-timeline-controls .drawing-play { width: 36px !important; min-width: 36px !important; max-width: 36px !important; height: 32px !important; padding: 0 !important; justify-content: center !important; margin-left: 4px;
-  border: 1px solid #2f6fd6 !important; border-radius: 8px !important; background: linear-gradient(135deg, #0d2a5c, #071733 70%) !important; color: #fff !important; box-shadow: 0 0 12px rgba(0, 102, 255, .22) !important; } /* rest: dark navy + blue outline, like the New project tile (Arthur) */
+  border: 1px solid #55555e !important; border-radius: 8px !important; background: var(--da-panel) !important; color: #ffffff !important; box-shadow: none !important; } /* rest: dark navy + blue outline, like the New project tile (Arthur) */
 /* Play (Arthur): hover = solid bright blue; while playing = dark navy with a blue outline, like the New project tile. */
-.drawing-timeline-controls .drawing-play:hover { background: #0066ff !important; border-color: #0066ff !important; box-shadow: 0 5px 16px rgba(0, 102, 255, .4) !important; }
-.drawing-timeline-controls .drawing-play[aria-label="Pause"] { background: linear-gradient(135deg, #0d2a5c, #071733 70%) !important; border-color: #2f6fd6 !important; box-shadow: 0 0 14px rgba(0, 102, 255, .3) !important; color: #fff !important; }
-.drawing-timeline-controls .drawing-play[aria-label="Pause"]:hover { background: #0066ff !important; border-color: #0066ff !important; }
+.drawing-timeline-controls .drawing-play:hover { background: #3a3a41 !important; border-color: #3a3a41 !important; box-shadow: none !important; }
+.drawing-timeline-controls .drawing-play[aria-label="Pause"] { background: var(--da-panel) !important; border-color: #55555e !important; box-shadow: none !important; color: #ffffff !important; }
+.drawing-timeline-controls .drawing-play[aria-label="Pause"]:hover { background: #3a3a41 !important; border-color: #3a3a41 !important; }
 
 /* Canvas area: the darkest shade, lit from the middle with dots; outside the camera box is dark (Arthur), the stage glows. */
-.drawing-canvas-area { background: #02050b !important; position: relative; }
-.drawing-canvas-area > [data-workspace-canvas-host] { border: 1px solid #0f1b2e !important; border-radius: 10px !important; background: radial-gradient(ellipse 60% 55% at 50% 50%, rgba(0, 102, 255, .13), transparent 72%), #050a14 !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .03), 0 0 0 1px rgba(0, 0, 0, .5); }
+.drawing-canvas-area { background: #111113 !important; position: relative; }
+.drawing-canvas-area > [data-workspace-canvas-host] { border: 1px solid #232328 !important; border-radius: 10px !important; background: transparent !important;
+  box-shadow: none; }
 .drawing-canvas-area > [data-workspace-canvas-host]::before { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0;
-  background-image: radial-gradient(circle, rgba(130, 170, 240, .28) 1.3px, transparent 1.8px); background-size: 22px 22px;
-  -webkit-mask-image: radial-gradient(ellipse 95% 90% at 50% 50%, #000 35%, rgba(0, 0, 0, .45) 100%); mask-image: radial-gradient(ellipse 95% 90% at 50% 50%, #000 35%, rgba(0, 0, 0, .45) 100%); }
-[data-workspace-stage-guide] { box-shadow: 0 24px 70px rgba(0, 0, 0, .65), 0 0 60px rgba(0, 102, 255, .14); }
+  background-image: none; background-size: 22px 22px;
+  -webkit-mask-image: radial-gradient(ellipse 95% 90% at 50% 50%, #000000 35%, rgba(0, 0, 0, .45) 100%); mask-image: radial-gradient(ellipse 95% 90% at 50% 50%, #000000 35%, rgba(0, 0, 0, .45) 100%); }
+[data-workspace-stage-guide] { box-shadow: none; }
 
 /* Tool dock: evenly spaced, names under the icons, the chosen tool solid bright blue and only ever brighter on hover. */
-.drawing-toolbar { background: linear-gradient(0deg, #08101d, #060b14) !important; border-top: 1px solid #0f1b2e !important; box-shadow: 0 -8px 24px rgba(0, 0, 0, .3); justify-items: center; }
+.drawing-toolbar { background: var(--da-panel) !important; border-top: 1px solid #232328 !important; box-shadow: none; justify-items: center; }
 .drawing-tool-label { font-size: 10.5px; font-weight: 600; letter-spacing: .01em; line-height: 1; }
-.drawing-tool-button { color: #8698b8 !important; }
-.drawing-tool-button:not([data-selected]):hover { background: var(--da-hover-soft) !important; border-color: var(--da-hover-soft) !important; color: #fff !important; }
-.drawing-tool-button[data-selected] { background: #0066ff !important; border-color: #0066ff !important; color: #fff !important; box-shadow: 0 5px 16px rgba(0, 102, 255, .4) !important; } /* solid blue, like Play on hover (Arthur 2026-10-27) */
-.drawing-tool-button[data-selected]:hover { background: #1a75ff !important; border-color: #1a75ff !important; box-shadow: 0 6px 18px rgba(0, 102, 255, .5) !important; }
+.drawing-tool-button { color: #a3a3ab !important; }
+.drawing-tool-button:not([data-selected]):hover { background: var(--da-hover) !important; border-color: var(--da-hover) !important; color: #ffffff !important; }
+.drawing-tool-button[data-selected] { background: var(--da-hover) !important; border-color: var(--da-text) !important; color: #ffffff !important; box-shadow: none !important; } /* solid blue, like Play on hover (Arthur 2026-10-27) */
+.drawing-tool-button[data-selected]:hover { background: var(--da-hover) !important; border-color: var(--da-text) !important; box-shadow: none !important; }
 @media (max-width: 900px), (max-height: 500px) and (orientation: landscape) { .drawing-tool-label { display: none; } .drawing-tool-button { width: 44px !important; height: 40px !important; } }
 
 /* Right panel: same chrome shade, a soft glow at the top like the AI Animator, calm sentence-case labels, compact buttons. */
-.drawing-right-panel, .drawing-right-panel .workspace-properties-scroll, .drawing-right-panel [role="group"][aria-label="Right panel"] { background-color: #060b14 !important; }
-.drawing-right-panel { border-left: 1px solid #0f1b2e !important; box-shadow: -10px 0 30px rgba(0, 0, 0, .3); }
-.drawing-right-panel [aria-label="Workspace panels"] { background: radial-gradient(ellipse 70% 120% at 50% 0%, rgba(0, 102, 255, .10), transparent 70%); border-bottom: 1px solid #0f1b2e; }
-.drawing-right-panel [role="group"][aria-label="Right panel"] { border-color: #16253d !important; background: #03070e !important; }
-.workspace-properties-scroll [style*="text-transform: uppercase"] { text-transform: none !important; letter-spacing: 0 !important; font-size: 12.5px !important; font-weight: 650 !important; color: #c6d1e3 !important; }
-.workspace-properties-scroll button:not([data-hover]):not([role="switch"]):not([aria-pressed="true"]):not([style*="--da-danger"]):not([class*="delete" i]) { min-height: 32px; border-radius: 8px !important; border-color: #1a2b45 !important; background: #0b1424 !important; color: #d6e0f0 !important; font-weight: 600 !important; }
-.workspace-properties-scroll input:not([type="range"]):not([type="checkbox"]):not([type="color"]), .workspace-properties-scroll select { border-color: #1a2b45 !important; background: #03070e !important; border-radius: 8px !important; }
+.drawing-right-panel, .drawing-right-panel .workspace-properties-scroll, .drawing-right-panel [role="group"][aria-label="Right panel"] { background-color: #111113 !important; }
+.drawing-right-panel { border-left: 1px solid #232328 !important; box-shadow: none; }
+.drawing-right-panel [aria-label="Workspace panels"] { background: transparent; border-bottom: 1px solid #232328; }
+.drawing-right-panel [role="group"][aria-label="Right panel"] { border-color: #2c2c32 !important; background: #111113 !important; }
+.workspace-properties-scroll [style*="text-transform: uppercase"] { text-transform: none !important; letter-spacing: 0 !important; font-size: 12.5px !important; font-weight: 600 !important; color: #d2d2d7 !important; }
+.workspace-properties-scroll button:not([data-hover]):not([role="switch"]):not([aria-pressed="true"]):not([style*="--da-danger"]):not([class*="delete" i]) { min-height: 32px; border-radius: 8px !important; border-color: #2c2c32 !important; background: #1a1a1e !important; color: #d2d2d7 !important; font-weight: 600 !important; }
+.workspace-properties-scroll input:not([type="range"]):not([type="checkbox"]):not([type="color"]), .workspace-properties-scroll select { border-color: #2c2c32 !important; background: #111113 !important; border-radius: 8px !important; }
 
 /* Phones: everything fits in one row. */
 @media (max-width: 600px) {
@@ -817,35 +826,35 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
   .drawing-topbar [data-project-recovery-state] [role="status"] { font-size: 0 !important; gap: 0 !important; padding: 0 9px !important; }
 }
 /* Right panel: a real heading per tool, calm sections. */
-.workspace-properties-scroll > div > div:first-child > div:first-child { font-family: var(--font-display), var(--font-geist-sans), sans-serif !important; font-size: 16px !important; font-weight: 800 !important; letter-spacing: -.015em !important; color: #f2f6ff !important; text-transform: none !important; }
-.workspace-properties-scroll > div > div + div { border-top: 1px solid #0f1b2e; padding-top: 14px; }
+.workspace-properties-scroll > div > div:first-child > div:first-child { font-family: var(--font-geist-sans), sans-serif !important; font-size: 16px !important; font-weight: 700 !important; letter-spacing: -.015em !important; color: #f5f5f6 !important; text-transform: none !important; }
+.workspace-properties-scroll > div > div + div { border-top: 1px solid #232328; padding-top: 14px; }
 /* Empty states in the panel: a soft lit card instead of a dashed box. */
-.workspace-properties-scroll div[style*="dashed"] { border: 1px solid #16253d !important; border-radius: 12px !important; background: radial-gradient(ellipse 80% 120% at 50% 0%, rgba(0, 102, 255, .09), transparent 70%), #08101d !important; color: #a9bcd8 !important; }
+.workspace-properties-scroll div[style*="dashed"] { border: 1px solid #2c2c32 !important; border-radius: 12px !important; background: transparent !important; color: #b8b8bf !important; }
 
 /* Round 3 (Arthur): on/off icons show "on" clearly — a lit blue box. */
-.drawing-timeline-controls [data-hover="icon"][aria-pressed="true"] { background: rgba(0, 102, 255, .18) !important; border: 1px solid #2b7bff !important; color: #ffffff !important; box-shadow: 0 0 12px rgba(0, 102, 255, .35); }
+.drawing-timeline-controls [data-hover="icon"][aria-pressed="true"] { background: rgba(255, 255, 255, 0.058) !important; border: 1px solid var(--da-text) !important; color: #ffffff !important; box-shadow: none; }
 .drawing-timeline-controls [data-hover="icon"][aria-pressed="true"]:hover { background: var(--da-hover) !important; border-color: var(--da-hover) !important; }
 
 /* Choice groups (Square / Triangle / Circle, Draw / Cutout…): only the chosen one looks chosen. */
-.workspace-properties-scroll div[style*="flex-wrap: wrap"] > button:not([aria-pressed="true"]):not([data-hover="danger"]):not([style*="--da-danger"]):not([class*="delete" i]) { background: transparent !important; border-color: transparent !important; color: #9aabc8 !important; }
-.workspace-properties-scroll div[style*="flex-wrap: wrap"] > button:not([aria-pressed="true"]):not([data-hover="danger"]):not([style*="--da-danger"]):not([class*="delete" i]):hover { background: var(--da-hover-soft) !important; color: #fff !important; }
+.workspace-properties-scroll div[style*="flex-wrap: wrap"] > button:not([aria-pressed="true"]):not([data-hover="danger"]):not([style*="--da-danger"]):not([class*="delete" i]) { background: transparent !important; border-color: transparent !important; color: #a3a3ab !important; }
+.workspace-properties-scroll div[style*="flex-wrap: wrap"] > button:not([aria-pressed="true"]):not([data-hover="danger"]):not([style*="--da-danger"]):not([class*="delete" i]):hover { background: var(--da-hover) !important; color: #ffffff !important; }
 
 /* Timeline layers: the current layer's controls light up with its row; calm column. */
-.drawing-timeline [data-layer-controls-active] { background: rgba(0, 102, 255, .08); box-shadow: inset 2px 0 0 #2b7bff; }
-.drawing-timeline-frames > div > div[style*="flex: 0 0 62px"] { background: #060b14 !important; }
+.drawing-timeline [data-layer-controls-active] { background: rgba(255, 255, 255, 0.026); box-shadow: none; }
+.drawing-timeline-frames > div > div[style*="flex: 0 0 62px"] { background: #111113 !important; }
 
 /* Tool heading in Properties: glowing mark, tool name, one friendly line. */
 .drawing-tool-head { display: flex; align-items: center; gap: 12px; padding: 4px 0 10px; }
-.drawing-tool-head-mark { flex: 0 0 auto; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 11px; border: 1px solid #2b5c99; background: linear-gradient(180deg, #0f2a52, #0a1a33); color: #cfe2ff; box-shadow: 0 0 18px rgba(0, 102, 255, .35); }
+.drawing-tool-head-mark { flex: 0 0 auto; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 10px; border: 1px solid #55555e; background: var(--da-panel); color: #d2d2d7; box-shadow: none; }
 .drawing-tool-head-mark svg, .drawing-ai-empty-mark svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.drawing-tool-head strong { display: block; font-family: var(--font-display), var(--font-geist-sans), sans-serif; font-size: 16px; font-weight: 800; letter-spacing: -.015em; color: #f2f6ff; }
-.drawing-tool-head small { display: block; margin-top: 2px; font-size: 12.5px; color: #93a6c4; }
+.drawing-tool-head strong { display: block; font-family: var(--font-geist-sans), sans-serif; font-size: 16px; font-weight: 700; letter-spacing: -.015em; color: #f5f5f6; }
+.drawing-tool-head small { display: block; margin-top: 2px; font-size: 12.5px; color: #a3a3ab; }
 
 /* Hero (Assets / Library empty): same as the AI Animator welcome, plus a bright main button. */
-.drawing-ai-empty-text { color: #a9bcd8; font-size: 13px; line-height: 1.55; }
-.drawing-hero-button { margin-top: 8px; height: 36px; padding: 0 18px; border: 1px solid #2b7bff; border-radius: 9px; background: linear-gradient(180deg, #2b7bff, #0066ff); color: #fff; font: inherit; font-size: 13px; font-weight: 650; cursor: pointer; box-shadow: 0 6px 18px rgba(0, 102, 255, .35), inset 0 1px 0 rgba(255, 255, 255, .18); transition: none; }
-.drawing-hero-button:hover:enabled { background: var(--da-hover-super) !important; border-color: var(--da-hover-super) !important; box-shadow: 0 8px 24px rgba(0, 102, 255, .55) !important; color: #fff !important; }
-.drawing-hero-note { color: #6f84a6; font-size: 11.5px; }
+.drawing-ai-empty-text { color: #b8b8bf; font-size: 13px; line-height: 1.55; }
+.drawing-hero-button { margin-top: 8px; height: 36px; padding: 0 18px; border: 1px solid var(--da-accent); border-radius: 9px; background: var(--da-accent); color: #ffffff; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: none; transition: none; }
+.drawing-hero-button:hover:enabled { background: var(--da-accent-hover) !important; border-color: var(--da-accent-hover) !important; box-shadow: none !important; color: #ffffff !important; }
+.drawing-hero-note { color: #85858e; font-size: 11.5px; }
 
 /* Round 4 (Arthur). Delete stays red everywhere in the editor: red text + red outline, solid red with white text on hover. */
 .workspace button[style*="--da-danger"]:not([data-hover="icon"]), .workspace button[class*="delete" i], .workspace button[data-hover="danger"] { background: transparent !important; color: #ff8a95 !important; border: 1px solid #ff8a95 !important; box-shadow: none !important; }
@@ -853,34 +862,34 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
 .workspace button[style*="--da-danger"]:not([data-hover="icon"]) *, .workspace button[class*="delete" i] * { color: inherit !important; }
 
 /* Library / Assets: a glowing icon with no box; a clean title row once there are things in the tab. */
-.drawing-hero-icon { display: grid; place-items: center; color: #cfe2ff; margin-bottom: 2px; filter: drop-shadow(0 0 12px rgba(0, 102, 255, .75)); }
+.drawing-hero-icon { display: grid; place-items: center; color: #d2d2d7; margin-bottom: 2px; filter: none; }
 .drawing-hero-icon svg { width: 34px; height: 34px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-.drawing-panel-title { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 2px 0 8px; border-bottom: 1px solid #0f1b2e; }
-.drawing-panel-title strong { font-family: var(--font-display), var(--font-geist-sans), sans-serif; font-size: 16px; font-weight: 800; letter-spacing: -.015em; color: #f2f6ff; }
-.drawing-panel-title small { margin-left: 8px; font-size: 12px; color: #7d91b3; }
-.drawing-hero-button.drawing-hero-button-small { margin-top: 0; height: 32px !important; padding: 0 14px !important; border: 1px solid #2b7bff !important; border-radius: 8px !important; background: linear-gradient(180deg, #2b7bff, #0066ff) !important; color: #fff !important; font-size: 12.5px !important; }
+.drawing-panel-title { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 2px 0 8px; border-bottom: 1px solid #232328; }
+.drawing-panel-title strong { font-family: var(--font-geist-sans), sans-serif; font-size: 16px; font-weight: 700; letter-spacing: -.015em; color: #f5f5f6; }
+.drawing-panel-title small { margin-left: 8px; font-size: 12px; color: #a3a3ab; }
+.drawing-hero-button.drawing-hero-button-small { margin-top: 0; height: 32px !important; padding: 0 14px !important; border: 1px solid var(--da-accent) !important; border-radius: 8px !important; background: var(--da-accent) !important; color: #ffffff !important; font-size: 12.5px !important; }
 
 /* Round 5 (Arthur). AI Animator: the Diamond logo instead of the icon card, same size, glowing. */
-.drawing-ai-logo { display: grid; place-items: center; width: 48px; height: 48px; margin-bottom: 4px; color: #fff; line-height: 0; filter: drop-shadow(0 0 16px rgba(0, 102, 255, .8)) drop-shadow(0 0 36px rgba(0, 102, 255, .35)); }
+.drawing-ai-logo { display: grid; place-items: center; width: 48px; height: 48px; margin-bottom: 4px; color: #ffffff; line-height: 0; filter: none; }
 /* Properties: a soft light behind the tool heading with a few dots, like the AI Animator, never a flashlight. */
 .workspace-properties-scroll { position: relative; isolation: isolate; }
 .workspace-properties-scroll::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 190px; z-index: -1; pointer-events: none;
-  background: radial-gradient(circle, rgba(110, 155, 230, .34) 1.2px, transparent 1.7px) 0 0 / 20px 20px, radial-gradient(ellipse 60% 100% at 18% 0%, rgba(0, 102, 255, .21), transparent 75%);
-  -webkit-mask-image: radial-gradient(ellipse 65% 90% at 20% 0%, #000 0%, transparent 78%); mask-image: radial-gradient(ellipse 65% 90% at 20% 0%, #000 0%, transparent 78%); }
+  background: transparent;
+  -webkit-mask-image: radial-gradient(ellipse 65% 90% at 20% 0%, #000000 0%, transparent 78%); mask-image: radial-gradient(ellipse 65% 90% at 20% 0%, #000000 0%, transparent 78%); }
 
 /* AI Animator chat: the glowing logo heads the conversation, over a soft light with dots. */
-.drawing-ai-thread-head { position: relative; isolation: isolate; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 0 18px; color: #cdd8ea; font-family: var(--font-display), var(--font-geist-sans), sans-serif; font-size: 13px; font-weight: 800; letter-spacing: -.01em; align-self: stretch; }
+.drawing-ai-thread-head { position: relative; isolation: isolate; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 0 18px; color: #d2d2d7; font-family: var(--font-geist-sans), sans-serif; font-size: 13px; font-weight: 700; letter-spacing: -.01em; align-self: stretch; }
 .drawing-ai-thread-head::before { content: ""; position: absolute; inset: -10px 10% 0; z-index: -1; pointer-events: none;
-  background: radial-gradient(circle, rgba(110, 155, 230, .3) 1.2px, transparent 1.7px) 0 0 / 20px 20px, radial-gradient(ellipse 50% 60% at 50% 35%, rgba(0, 102, 255, .2), transparent 75%);
-  -webkit-mask-image: radial-gradient(ellipse 50% 60% at 50% 35%, #000 0%, transparent 80%); mask-image: radial-gradient(ellipse 50% 60% at 50% 35%, #000 0%, transparent 80%); }
+  background: transparent;
+  -webkit-mask-image: radial-gradient(ellipse 50% 60% at 50% 35%, #000000 0%, transparent 80%); mask-image: radial-gradient(ellipse 50% 60% at 50% 35%, #000000 0%, transparent 80%); }
 .drawing-ai-logo.drawing-ai-logo-small { width: 26px; height: 26px; margin: 0; }
 
 /* ===== SHARED BUTTON SYSTEM (Arthur 2026-10-27) — one set of rules for the whole app =====
    Choice rows work like Create account / Log in: a pill under the selected choice slides to the new one
    (ChoicePills.tsx). Hovering the selected choice changes NOTHING; hovering another choice = the dull blue box. */
-:root .da-choice-pill { position: absolute; left: 0; top: 0; z-index: 0; pointer-events: none; background: var(--da-selected-bg, #0f2a52); box-shadow: inset 0 -3px 0 #0066ff;
-  transition: transform 240ms cubic-bezier(.2, .8, .2, 1), width 240ms cubic-bezier(.2, .8, .2, 1), height 240ms cubic-bezier(.2, .8, .2, 1), opacity 120ms !important; } /* wins over pages that turn animations off */
-.drawing-toolbar > .da-choice-pill { background: #0066ff; box-shadow: 0 5px 16px rgba(0, 102, 255, .4); }
+:root .da-choice-pill { position: absolute; left: 0; top: 0; z-index: 0; pointer-events: none; background: var(--da-selected-bg, #3a3a41); box-shadow: none;
+  transition: none !important; } /* wins over pages that turn animations off */
+.drawing-toolbar > .da-choice-pill { background: var(--da-hover); box-shadow: none; }
 [data-da-choice-row] > button, [data-da-choice-row] > * > button { position: relative; z-index: 1; }
 [data-da-choice-row][data-da-choice-row] :is(button):is([aria-pressed="true"], [aria-selected="true"], [aria-checked="true"], [data-selected]),
 [data-da-choice-row][data-da-choice-row] :is(button):is([aria-pressed="true"], [aria-selected="true"], [aria-checked="true"], [data-selected]):hover {
@@ -888,16 +897,16 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
 [data-da-choice-row][data-da-choice-row] :is(button):is([aria-pressed="true"], [aria-selected="true"], [aria-checked="true"], [data-selected]):hover * { color: #ffffff !important; }
 @media (prefers-reduced-motion: reduce) { :root .da-choice-pill { transition: none !important; } }
 /* The Create account / Log in switch follows the same rule: its selected tab doesn't change on hover. */
-[role="tablist"][data-mode] button[aria-selected="true"]:hover { background: transparent !important; color: #fff !important; }
+[role="tablist"][data-mode] button[aria-selected="true"]:hover { background: transparent !important; color: #ffffff !important; }
 
 /* Button types — the whole app uses these three, plus red for delete:
    1 plain (like Open project): the dull blue box on hover — the shared hover rules already do this.
    2 blue outline (like New project): navy with a blue outline; on hover the whole button turns solid blue, text white.
    3 special glowing (like Export, Choose a plan): bright blue; on hover the brightest blue in the app (.da-super / the
      page's own special class). A bright button never gets darker on hover. */
-.da-btn-outline { border: 1px solid #2f6fd6 !important; background: linear-gradient(135deg, #0d2a5c, #071733 70%) !important; color: #fff !important; box-shadow: 0 0 12px rgba(0, 102, 255, .18); }
-.da-btn-outline:hover:not(:disabled) { background: #0066ff !important; border-color: #0066ff !important; color: #fff !important; box-shadow: 0 5px 16px rgba(0, 102, 255, .4) !important; }
-.da-btn-outline:hover:not(:disabled) * { color: #fff !important; }
+.da-btn-outline { border: 1px solid var(--da-border) !important; background: var(--da-panel) !important; color: var(--da-text) !important; box-shadow: none; }
+.da-btn-outline:hover:not(:disabled) { background: #3a3a41 !important; border-color: #3a3a41 !important; color: #ffffff !important; box-shadow: none !important; }
+.da-btn-outline:hover:not(:disabled) * { color: #ffffff !important; }
 
 /* Delete, discard and warnings — ONE style everywhere: thick red outline + red text; on hover the whole button is red
    and everything inside turns white. (Icon-only trash buttons keep their icon hover.) */
@@ -908,26 +917,26 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
 :root :is(button[data-hover="danger"], button[style*="--da-danger"]:not([data-hover="icon"]), button[class*="danger" i], button[class*="destructive" i], button[class*="delete" i]:not([data-hover="icon"]), button[class*="discard" i]:not([data-hover="icon"])) * { color: inherit !important; }
 
 /* ===== Not found page (Arthur 2026-10-27): glow + dots, glowing logo, bright Go to Home. ===== */
-.da-notfound { position: relative; min-height: 100vh; display: grid; place-items: center; padding: 24px; overflow: hidden; color: var(--da-text, #f6f9ff);
-  background: radial-gradient(ellipse 700px 460px at 50% 45%, rgba(0, 102, 255, .26), rgba(0, 102, 255, .07) 55%, transparent 80%), var(--da-page, #030914); }
+.da-notfound { position: relative; min-height: 100vh; display: grid; place-items: center; padding: 24px; overflow: hidden; color: var(--da-text, #f5f5f6);
+  background: transparent; }
 .da-notfound::before { content: ""; position: absolute; inset: 0; pointer-events: none;
-  background-image: radial-gradient(circle, rgba(92, 140, 220, .42) 1.3px, transparent 1.8px); background-size: 26px 26px;
-  -webkit-mask-image: radial-gradient(ellipse 560px 380px at 50% 45%, #000 0%, transparent 75%); mask-image: radial-gradient(ellipse 560px 380px at 50% 45%, #000 0%, transparent 75%); }
+  background-image: none; background-size: 26px 26px;
+  -webkit-mask-image: radial-gradient(ellipse 560px 380px at 50% 45%, #000000 0%, transparent 75%); mask-image: radial-gradient(ellipse 560px 380px at 50% 45%, #000000 0%, transparent 75%); }
 .da-notfound-card { position: relative; display: grid; justify-items: center; gap: 10px; max-width: 420px; text-align: center; }
-.da-notfound-logo { line-height: 0; color: #fff; filter: drop-shadow(0 0 18px rgba(0, 102, 255, .85)) drop-shadow(0 0 40px rgba(0, 102, 255, .35)); }
-.da-notfound-code { margin: 10px 0 0; color: #7fb0ff; font-size: 13px; font-weight: 800; letter-spacing: .3em; }
-.da-notfound h1 { margin: 0; font-family: var(--font-display), var(--font-geist-sans), sans-serif; font-size: clamp(28px, 4vw, 38px); font-weight: 800; letter-spacing: -.03em; }
-.da-notfound-card > p:not(.da-notfound-code) { margin: 0; color: var(--da-text-3, #a8bddd); font-size: 16px; line-height: 1.55; }
-.da-notfound-home { margin-top: 14px; display: inline-flex; align-items: center; height: 46px; padding: 0 26px; border-radius: 12px; background: #0066ff; color: #fff; font-size: 15px; font-weight: 700; text-decoration: none;
-  box-shadow: 0 10px 28px rgba(0, 102, 255, .45), inset 0 1px 0 rgba(255, 255, 255, .22); }
-.da-notfound-home:focus-visible { outline: 2px solid var(--da-focus, #66c7ff); outline-offset: 3px; }
+.da-notfound-logo { line-height: 0; color: #ffffff; filter: none; }
+.da-notfound-code { margin: 10px 0 0; color: #d2d2d7; font-size: 13px; font-weight: 700; letter-spacing: .3em; }
+.da-notfound h1 { margin: 0; font-family: var(--font-geist-sans), sans-serif; font-size: clamp(28px, 4vw, 38px); font-weight: 700; letter-spacing: -.03em; }
+.da-notfound-card > p:not(.da-notfound-code) { margin: 0; color: var(--da-text-3, #b8b8bf); font-size: 16px; line-height: 1.55; }
+.da-notfound-home { margin-top: 14px; display: inline-flex; align-items: center; height: 46px; padding: 0 26px; border-radius: 12px; background: var(--da-accent); color: #ffffff; font-size: 15px; font-weight: 700; text-decoration: none;
+  box-shadow: none; }
+.da-notfound-home:focus-visible { outline: 2px solid var(--da-focus, #4d94ff); outline-offset: 3px; }
 
 /* ===== Delete pop-ups (Arthur 2026-10-27): one look for every "Delete …?" — a round red warning icon on top and a
    soft glow behind the box. Add the class `da-danger-dialog` to the dialog box. ===== */
-.da-danger-dialog { position: relative; box-shadow: 0 24px 60px rgba(0, 0, 0, .55), 0 0 0 1px rgba(255, 92, 105, .18), 0 0 60px rgba(255, 64, 80, .10) !important; }
+.da-danger-dialog { position: relative; box-shadow: var(--da-shadow-pop) !important; }
 .da-danger-dialog::before { content: ""; display: block; width: 44px; height: 44px; margin: 0 0 12px; border-radius: 50%;
   background: rgba(255, 64, 80, .14) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ff6b78' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7h16M9 7V4h6v3M6.5 7l1 13h9l1-13M10 11v6M14 11v6'/%3E%3C/svg%3E") center / 22px 22px no-repeat;
-  box-shadow: 0 0 0 1px rgba(255, 92, 105, .35), 0 0 22px rgba(255, 64, 80, .25); }
+  box-shadow: var(--da-shadow-pop); }
 
 /* ===== Phone layout (Arthur 2026-10-28): made for phones, not a squeezed computer screen =====
    Upright: one slim top bar (File · Edit · View · Window · Help, Undo/Redo, Export); the canvas gets the middle; the
@@ -946,11 +955,11 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
   /* The timeline moves to the bottom, just above the chips; Play first, round and bright. */
   [class*="workspaceTheme_workspace"]:has(.da-sheet) > .drawing-timeline {
     top: auto !important; bottom: calc(var(--da-tools-h) + var(--da-chips-h)) !important; z-index: 28 !important;
-    background: var(--da-panel, #060b14); border-top: 1px solid var(--da-line, #0f1b2e); max-height: none !important; overflow: visible !important;
+    background: var(--da-panel, #111113); border-top: 1px solid var(--da-line, #232328); max-height: none !important; overflow: visible !important;
   }
   .drawing-timeline-controls { min-height: 0 !important; height: 44px; padding: 0 10px !important; }
   .drawing-timeline-controls .drawing-play { order: -1; width: 40px !important; height: 40px !important; min-width: 40px !important; border-radius: 50% !important;
-    background: #0066ff !important; border-color: #0066ff !important; color: #fff !important; box-shadow: 0 6px 16px rgba(0, 102, 255, .45); }
+    background: var(--da-hover) !important; border-color: var(--da-text) !important; color: #ffffff !important; box-shadow: none; }
   .drawing-timeline-controls .drawing-fps { order: 9; }
   /* The canvas: the whole middle, from under the top bar to above the timeline. */
   div:has(> .da-sheet) > .drawing-canvas-area.drawing-canvas-area.drawing-canvas-area.drawing-canvas-area {
@@ -958,8 +967,8 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
   }
   /* Panel chips (Properties · Library · Assets · AI): calm pills; a tap opens the panel over the canvas. */
   .da-sheet-tab-row { height: var(--da-chips-h) !important; gap: 6px; padding: 7px 10px; align-items: center; }
-  .da-sheet-tab-row button { height: 34px; border: 1px solid var(--da-border, #1a2b45) !important; border-radius: 999px !important; font-size: 13px !important; box-shadow: none !important; }
-  .da-sheet:not([data-sheet-size="small"]) .da-sheet-tab-row button[aria-selected="true"] { background: var(--da-selected-bg, #0f2a52) !important; border-color: #0066ff !important; color: #fff !important; }
+  .da-sheet-tab-row button { height: 34px; border: 1px solid var(--da-border, #2c2c32) !important; border-radius: 999px !important; font-size: 13px !important; box-shadow: none !important; }
+  .da-sheet:not([data-sheet-size="small"]) .da-sheet-tab-row button[aria-selected="true"] { background: var(--da-selected-bg, #3a3a41) !important; border-color: var(--da-text) !important; color: #ffffff !important; }
   /* Tools: big, thumb-friendly. */
   .drawing-toolbar.drawing-toolbar { height: var(--da-tools-h); padding-bottom: env(safe-area-inset-bottom); }
 }
@@ -969,15 +978,15 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
   :root { --da-tl-h: 96px; --da-chips-h: 44px; --da-rail-w: 60px; }
   [class*="workspaceTheme_workspace"]:has(.da-sheet) { padding-left: var(--da-rail-w) !important; }
   .drawing-toolbar.drawing-toolbar { position: fixed !important; left: 0; top: 0; bottom: 0; width: var(--da-rail-w) !important; height: auto !important; margin: 0 !important;
-    grid-template-columns: 1fr !important; grid-template-rows: repeat(8, minmax(0, 1fr)) !important; padding: 6px 0 !important; border-right: 1px solid var(--da-line, #0f1b2e); border-top: 0 !important; z-index: 40; }
+    grid-template-columns: 1fr !important; grid-template-rows: repeat(8, minmax(0, 1fr)) !important; padding: 6px 0 !important; border-right: 1px solid var(--da-line, #232328); border-top: 0 !important; z-index: 40; }
   .drawing-toolbar .da-choice-pill { display: none !important; }
-  .drawing-toolbar .drawing-tool-button[aria-pressed="true"] { background: #0066ff !important; color: #fff !important; border-radius: 12px; }
+  .drawing-toolbar .drawing-tool-button[aria-pressed="true"] { background: var(--da-hover) !important; color: #ffffff !important; border-radius: 12px; }
   .drawing-toolbar.drawing-toolbar > * { justify-content: center; align-items: center; }
 }
 @media (max-height: 500px) and (orientation: landscape) {
-  [class*="workspaceTheme_workspace"]:has(.da-sheet) > .drawing-timeline { top: auto !important; bottom: var(--da-chips-h) !important; left: var(--da-rail-w) !important; z-index: 28 !important; background: var(--da-panel, #060b14); border-top: 1px solid var(--da-line, #0f1b2e); }
+  [class*="workspaceTheme_workspace"]:has(.da-sheet) > .drawing-timeline { top: auto !important; bottom: var(--da-chips-h) !important; left: var(--da-rail-w) !important; z-index: 28 !important; background: var(--da-panel, #111113); border-top: 1px solid var(--da-line, #232328); }
   .drawing-timeline-controls { height: 40px; min-height: 0 !important; }
-  .drawing-timeline-controls .drawing-play { order: -1; width: 36px !important; height: 36px !important; min-width: 36px !important; border-radius: 50% !important; background: #0066ff !important; color: #fff !important; }
+  .drawing-timeline-controls .drawing-play { order: -1; width: 36px !important; height: 36px !important; min-width: 36px !important; border-radius: 50% !important; background: var(--da-hover) !important; color: #ffffff !important; }
   div:has(> .da-sheet) > .drawing-canvas-area.drawing-canvas-area.drawing-canvas-area.drawing-canvas-area { inset: 0 0 calc(var(--da-chips-h) + var(--da-tl-h)) 0 !important; padding: 6px !important; }
   .da-sheet-tab-row { height: var(--da-chips-h) !important; }
 }
@@ -990,12 +999,12 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
   .drawing-timeline-controls .drawing-fps { margin-left: auto; }
 }
 @media (max-width: 950px), (max-height: 500px) and (orientation: landscape) {
-  .da-sheet[data-sheet-size="small"] .da-sheet-tab-row button[aria-selected="true"] { background: transparent !important; box-shadow: none !important; color: var(--da-text-3, #a8bddd) !important; }
+  .da-sheet[data-sheet-size="small"] .da-sheet-tab-row button[aria-selected="true"] { background: transparent !important; box-shadow: none !important; color: var(--da-text-3, #b8b8bf) !important; }
 }
 @media (max-height: 500px) and (orientation: landscape) {
   :root { --da-tl-h: 58px; --da-chips-h: 38px; }
   .da-sheet-tab-row button { font-size: 12.5px !important; }
-  .drawing-toolbar .drawing-tool-button[data-selected="true"], .drawing-toolbar .drawing-tool-button[aria-pressed="true"] { background: #0066ff !important; color: #fff !important; border-radius: 12px; }
+  .drawing-toolbar .drawing-tool-button[data-selected="true"], .drawing-toolbar .drawing-tool-button[aria-pressed="true"] { background: var(--da-hover) !important; color: #ffffff !important; border-radius: 12px; }
 }
 @media (max-width: 600px) { :root { --da-tl-h: 126px; } }
 @media (max-height: 500px) and (orientation: landscape) { :root { --da-tl-h: 62px; } }
@@ -1015,7 +1024,7 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
 }
 /* AI Animator: the message box is see-through, so the glow behind it is never blocked; on short screens the welcome
    is compact so it shows whole without scrolling. */
-.drawing-ai-tab form[aria-label="AI Animator message composer"] { background: rgba(6, 11, 20, .35) !important; backdrop-filter: none !important; }
+.drawing-ai-tab form[aria-label="AI Animator message composer"] { background: rgba(0, 0, 0, .35) !important; backdrop-filter: none !important; }
 @media (max-height: 560px) {
   .drawing-ai-tab .drawing-ai-logo:not(.drawing-ai-logo-small) svg { width: 30px !important; height: 30px !important; }
   .drawing-ai-tab h2, .drawing-ai-tab h3 { margin-top: 2px !important; font-size: 17px !important; }
@@ -1023,9 +1032,9 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
 /* The phone panel chips use the app's one choice-row look (like Group by on the AI Dashboard): one rounded box, the
    chosen one filled with the blue bar under it. */
 @media (max-width: 950px), (max-height: 500px) and (orientation: landscape) {
-  .da-sheet-tab-row { gap: 0 !important; margin: 6px 10px; padding: 4px !important; height: auto !important; border: 1px solid var(--da-border, #1a2b45); border-radius: 14px; background: var(--da-page, #02050b); }
+  .da-sheet-tab-row { gap: 0 !important; margin: 6px 10px; padding: 4px !important; height: auto !important; border: 1px solid var(--da-border, #2c2c32); border-radius: 12px; background: var(--da-page, #111113); }
   .da-sheet-tab-row button { height: 36px; border: 0 !important; border-radius: 10px !important; background: transparent; }
-  .da-sheet:not([data-sheet-size="small"]) .da-sheet-tab-row button[aria-selected="true"] { background: var(--da-selected-bg, #0f2a52) !important; color: #fff !important; box-shadow: inset 0 -3px 0 #0066ff !important; border: 0 !important; }
+  .da-sheet:not([data-sheet-size="small"]) .da-sheet-tab-row button[aria-selected="true"] { background: var(--da-selected-bg, #3a3a41) !important; color: #ffffff !important; box-shadow: none !important; border: 0 !important; }
 }
 @media (max-width: 950px), (max-height: 500px) and (orientation: landscape) { :root { --da-chips-h: 56px; } }
 @media (max-height: 560px) {
@@ -1047,19 +1056,19 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
   .da-sheet[data-sheet-size="small"] .da-sheet-tab-row .da-choice-pill { opacity: 0 !important; }
 }
 @media (max-height: 500px) and (orientation: landscape) {
-  [class*="workspaceTheme_workspace"] .drawing-toolbar.drawing-toolbar .drawing-tool-button[aria-pressed="true"] { background: #0066ff !important; color: #fff !important; border-radius: 12px !important; }
+  [class*="workspaceTheme_workspace"] .drawing-toolbar.drawing-toolbar .drawing-tool-button[aria-pressed="true"] { background: var(--da-hover) !important; color: #ffffff !important; border-radius: 12px !important; }
 }
 /* The panel always slides OVER the timeline, also while it is being dragged up (Arthur 2026-10-28). */
 @media (max-width: 950px) { div:has(> .da-sheet) { z-index: 30 !important; } }
 /* Phones (upright and sideways): with 2+ layers the expanded layer list opens UPWARD over the canvas, where there is
    room — never down over the chips and tools (Arthur 2026-10-28). Computers keep it opening down. */
 @media (max-width: 600px), (max-height: 500px) and (orientation: landscape) and (max-width: 950px) {
-  [class*="workspaceTheme_workspace"]:has(.da-sheet) [data-timeline-panel="overlay"] { top: auto !important; bottom: 0 !important; border-radius: 10px 10px 0 0 !important; box-shadow: 0 -16px 32px rgba(0, 0, 0, .45) !important; }
+  [class*="workspaceTheme_workspace"]:has(.da-sheet) [data-timeline-panel="overlay"] { top: auto !important; bottom: 0 !important; border-radius: 10px 10px 0 0 !important; box-shadow: none !important; }
 }
 /* Phones: the layer list's grab bar sits on TOP (it opens upward): drag up = more layers, drag down = fewer. */
 @media (max-width: 600px), (max-height: 500px) and (orientation: landscape) and (max-width: 950px) {
   [class*="workspaceTheme_workspace"]:has(.da-sheet) [data-timeline-panel="overlay"] { display: flex !important; flex-direction: column !important; }
-  [class*="workspaceTheme_workspace"]:has(.da-sheet) [data-timeline-panel="overlay"] > [data-timeline-panel-resizer] { order: -1; border-top: 0 !important; border-bottom: 1px solid var(--da-line, #0f1b2e); flex: 0 0 auto; }
+  [class*="workspaceTheme_workspace"]:has(.da-sheet) [data-timeline-panel="overlay"] > [data-timeline-panel-resizer] { order: -1; border-top: 0 !important; border-bottom: 1px solid var(--da-line, #232328); flex: 0 0 auto; }
 }
 /* Upright phone: the timeline controls are one tidy row — Play, onion skin and layers grouped together on the left,
    FPS on the right, all the same height. Play looks and hovers like on the computer (navy + blue outline → bright blue). */
@@ -1067,9 +1076,9 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
   .drawing-timeline-controls { justify-content: flex-start !important; gap: 8px !important; padding: 0 12px !important; height: 50px !important; }
   .drawing-timeline-controls > * { flex: 0 0 auto !important; }
   .drawing-timeline-controls button { min-width: 0 !important; min-height: 0 !important; width: 38px !important; height: 38px !important; border-radius: 10px !important; display: grid !important; place-items: center !important; }
-  .drawing-timeline-controls .drawing-play { order: -1; width: 38px !important; height: 38px !important; border-radius: 10px !important; background: var(--da-selected-bg, #0f2a52) !important; border: 1px solid #0066ff !important; color: #fff !important; box-shadow: none !important; }
-  .drawing-timeline-controls .drawing-play:hover { background: #0066ff !important; border-color: #0066ff !important; box-shadow: 0 6px 16px rgba(0, 102, 255, .45) !important; }
-  .drawing-timeline-controls button:not(.drawing-play):hover { background: var(--da-hover-soft) !important; }
+  .drawing-timeline-controls .drawing-play { order: -1; width: 38px !important; height: 38px !important; border-radius: 10px !important; background: var(--da-selected-bg, #3a3a41) !important; border: 1px solid var(--da-text) !important; color: #ffffff !important; box-shadow: none !important; }
+  .drawing-timeline-controls .drawing-play:hover { background: #3a3a41 !important; border-color: #3a3a41 !important; box-shadow: none !important; }
+  .drawing-timeline-controls button:not(.drawing-play):hover { background: var(--da-hover) !important; }
   .drawing-timeline-controls .drawing-fps { order: 9; margin-left: auto !important; height: 38px !important; }
 }
 /* While the panel is being dragged up it already covers the timeline (it slides over everything, Arthur). */
@@ -1088,3 +1097,84 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
   /* The holders around the canvas and panel are see-through, so lifting them never hides the timeline. */
   [class*="workspaceTheme_workspace"] > div:has(.da-sheet), div:has(> .da-sheet), div:has(> .da-sheet) > .drawing-canvas-area { background: transparent !important; }
 }
+
+/* ===== Editor, new layout (Nov 18): canvas in the middle, slim tools on the left, panel on the right, timeline along the bottom.
+   Timeline frame colors are not changed here. Phones and small tablets keep their own layout. ===== */
+.drawing-canvas-area, .drawing-canvas-area > [data-workspace-canvas-host] { background: var(--da-page) !important; }
+.drawing-canvas-area > [data-workspace-canvas-host] { border: 0 !important; border-radius: 0 !important; box-shadow: none !important; }
+.drawing-canvas-area > [data-workspace-canvas-host]::before { display: none !important; }
+.drawing-topbar { height: 48px; background: var(--da-panel) !important; border-bottom: 1px solid var(--da-line) !important; box-shadow: none !important; }
+.drawing-topbar-logo { border-right-color: var(--da-line); }
+.drawing-topbar-menus button { color: var(--da-text-2) !important; font-size: 13.5px !important; }
+.drawing-topbar-title { font-weight: 600 !important; }
+.drawing-topbar-export { height: 32px; border-radius: 10px; font-weight: 600; }
+.drawing-timeline { background: var(--da-panel) !important; box-shadow: none !important; }
+.drawing-timeline-frames, .drawing-timeline-frames [data-timeline-panel], .drawing-timeline-frames [data-timeline-panel] > div,
+.drawing-timeline-frames [data-timeline-panel] > div:first-child, .drawing-timeline-frames > div > div[style*="flex: 0 0 62px"] { background: var(--da-panel) !important; }
+.drawing-timeline-frames [data-timeline-panel] > div:first-child { border-bottom-color: var(--da-line) !important; }
+.drawing-timeline-frames [data-timeline-panel] > div:first-child * { color: var(--da-muted) !important; }
+.drawing-timeline-controls { border-right-color: var(--da-line) !important; }
+.drawing-timeline-controls [data-hover="icon"]:not([aria-pressed="true"]) { color: var(--da-muted) !important; }
+.drawing-timeline-controls [data-hover="icon"][aria-pressed="true"] { background: var(--da-hover) !important; border: 1px solid var(--da-hover) !important; }
+.drawing-timeline-controls [data-hover="icon"], .drawing-timeline-controls .drawing-play, .drawing-fps { border-radius: 10px !important; }
+.drawing-timeline-controls .drawing-play { background: var(--da-text) !important; border-color: var(--da-text) !important; color: var(--da-page) !important; }
+.drawing-timeline-controls .drawing-play:hover { background: #ffffff !important; border-color: #ffffff !important; color: var(--da-page) !important; }
+.drawing-timeline-controls .drawing-play[aria-label="Pause"], .drawing-timeline-controls .drawing-play[aria-label="Pause"]:hover { background: var(--da-text) !important; border-color: var(--da-text) !important; color: var(--da-page) !important; }
+.drawing-fps { background: var(--da-page) !important; border-color: var(--da-line) !important; }
+.drawing-timeline [data-layer-controls-active] { background: rgba(255, 255, 255, .05); box-shadow: inset 2px 0 0 var(--da-text); }
+.drawing-right-panel, .drawing-right-panel .workspace-properties-scroll, .drawing-right-panel [role="group"][aria-label="Right panel"] { background-color: var(--da-panel) !important; }
+.drawing-right-panel { border-left: 1px solid var(--da-line) !important; box-shadow: none !important; }
+.drawing-right-panel [aria-label="Workspace panels"] { border-bottom-color: var(--da-line) !important; }
+.drawing-right-panel [role="group"][aria-label="Right panel"] { background-color: var(--da-page) !important; border-color: var(--da-line) !important; border-radius: 10px !important; }
+.drawing-right-panel [role="group"][aria-label="Right panel"] button { font-size: 12.5px !important; font-weight: 500 !important; }
+.drawing-toolbar > .da-choice-pill { background: var(--da-text) !important; border-radius: 8px !important; }
+.drawing-tool-button { color: var(--da-muted) !important; }
+.drawing-tool-button:not([data-selected]):hover { background: var(--da-hover) !important; border-color: var(--da-hover) !important; color: #fff !important; }
+.drawing-toolbar .drawing-tool-button.drawing-tool-button[data-selected], .drawing-toolbar .drawing-tool-button.drawing-tool-button[data-selected]:hover { background: transparent !important; border-color: transparent !important; color: var(--da-page) !important; }
+.drawing-toolbar .drawing-tool-button[data-selected] svg, .drawing-toolbar .drawing-tool-button[data-selected] svg * { color: var(--da-page) !important; }
+.drawing-toolbar:not([data-da-choice-row]) .drawing-tool-button[data-selected] { background: var(--da-text) !important; }
+@media (min-width: 901px) and (min-height: 501px) {
+  .drawing-timeline { order: 3; border-top: 1px solid var(--da-line) !important; border-bottom: 0 !important; }
+  [data-unified-workspace-area="true"] { order: 2; }
+  .drawing-timeline-frames [data-timeline-panel="overlay"] { top: auto !important; bottom: 0 !important; border-radius: 10px 10px 0 0 !important; box-shadow: var(--da-shadow-pop) !important; }
+  .drawing-toolbar { position: fixed !important; z-index: 11; left: 0; top: 48px; bottom: 62px; display: flex !important; flex-direction: column; align-items: center; justify-content: space-evenly; gap: 0 !important; width: 60px !important; height: auto !important; padding: 10px 0 !important; border: 0 !important; border-radius: 0; background: transparent !important; box-shadow: none !important; }
+  .drawing-toolbar > div { min-width: 0 !important; }
+  .drawing-right-panel { top: 0 !important; bottom: var(--da-timeline-under, 0px) !important; }
+  .drawing-tool-label { display: none !important; }
+  .drawing-tool-button { width: 44px !important; height: 44px !important; border-radius: 10px !important; }
+  .drawing-toolbar > .da-choice-pill { border-radius: 10px !important; }
+  .drawing-canvas-area { container-type: size; display: flex; align-items: center; justify-content: center; padding: 8px 8px 8px 64px !important; }
+  /* The drawing area is always the wide 16:9 video shape, the same shape as the finished animation. */
+  .drawing-canvas-area > [data-workspace-canvas-host] { flex: 0 0 auto; width: min(100cqw, calc(100cqh * 16 / 9)) !important; height: auto !important; aspect-ratio: 16 / 9; }
+}
+
+.drawing-right-panel .workspace-properties-scroll [style*="letter-spacing: 0.7px"] { color: var(--da-muted) !important; font-size: 12.5px !important; font-weight: 500 !important; letter-spacing: 0 !important; text-transform: none !important; }
+@media (min-width: 901px) and (min-height: 501px) {
+  .drawing-timeline-controls [data-tooltip]:hover::after { top: auto !important; bottom: calc(100% + 8px) !important; }
+}
+@media (max-width: 900px), (max-height: 500px) and (orientation: landscape) {
+  .drawing-toolbar { background: var(--da-panel) !important; border-top: 1px solid var(--da-line) !important; }
+  .drawing-toolbar .drawing-tool-button.drawing-tool-button[data-selected], .drawing-toolbar .drawing-tool-button.drawing-tool-button[data-selected]:hover { background: var(--da-text) !important; border-color: var(--da-text) !important; }
+}
+
+/* AI Animator tab: the same panel color as every other tab, and it only scrolls up and down when there is more to read. */
+.drawing-ai-tab, .drawing-ai-tab .workspace-ai-panel-shell, .drawing-ai-tab .workspace-ai-panel-shell > div, .drawing-ai-tab .workspace-ai-messages-scroll { background-color: var(--da-panel) !important; }
+.drawing-ai-tab, .drawing-ai-tab .workspace-ai-panel-shell { min-width: 0; overflow: hidden; }
+.drawing-ai-tab .workspace-ai-messages-scroll { overflow-x: hidden !important; overflow-y: auto !important; overscroll-behavior: contain; }
+.drawing-ai-empty::before, .drawing-ai-thread-head::before, .workspace-properties-scroll::before { display: none !important; }
+.drawing-ai-tab form[aria-label="AI Animator message composer"] { border-color: var(--da-line) !important; border-radius: 12px !important; background: var(--da-page) !important; box-shadow: none !important; }
+.drawing-ai-examples button { border-color: var(--da-line); border-radius: 10px; background: var(--da-page); color: var(--da-text-2); font-weight: 500; }
+.drawing-ai-examples button:hover:enabled { border-color: var(--da-hover); background: var(--da-hover); color: #fff; }
+[data-timeline-panel-resizer]:hover { background: var(--da-hover) !important; }
+
+/* Right panel: every tab has the same dark background; boxes and the message field sit on top of it. */
+.drawing-right-panel, .drawing-right-panel .workspace-properties-scroll, .drawing-ai-tab, .drawing-ai-tab .workspace-ai-panel-shell, .drawing-ai-tab .workspace-ai-panel-shell > div, .drawing-ai-tab .workspace-ai-messages-scroll { background-color: var(--da-page) !important; }
+.drawing-right-panel [role="group"][aria-label="Right panel"] { background-color: var(--da-panel) !important; }
+.drawing-ai-tab form[aria-label="AI Animator message composer"], .drawing-ai-examples button { background: var(--da-panel) !important; }
+.drawing-ai-examples button:hover:enabled { background: var(--da-hover) !important; }
+.drawing-right-panel input:not([type="range"]):not([type="color"]):not([type="checkbox"]), .drawing-right-panel select, .drawing-right-panel textarea:not(.workspace-ai-composer-textarea) { background-color: var(--da-panel) !important; border-color: var(--da-line) !important; }
+/* The timeline's scroll bar: one thin, quiet line. */
+.timeline-bottom-scrollbar-slider { height: 6px !important; }
+.timeline-bottom-scrollbar-slider::-webkit-slider-runnable-track { height: 4px !important; border-radius: 999px !important; background: var(--da-line) !important; }
+.timeline-bottom-scrollbar-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 72px !important; height: 4px !important; margin-top: 0 !important; border: 0 !important; border-radius: 999px !important; background: var(--da-selected-border) !important; box-shadow: none !important; }
+.timeline-bottom-scrollbar-slider:hover::-webkit-slider-thumb { background: var(--da-muted) !important; }

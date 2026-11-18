@@ -3,105 +3,105 @@
    selected var(--da-selected-bg, #0f2a52)/var(--da-selected-border, #3a6aa3), hover var(--da-hover, #0066ff) + white. Hover is native :hover only and instant. */
 
 /* Arthur (Phase 9): the Diamond Animator header stays at the top while you scroll, everywhere. */
-.homeBar { position: sticky; top: 0; z-index: 50; flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 86px; padding: 14px clamp(20px, 4vw, 56px); border-bottom: 1px solid var(--da-header-line, var(--da-line, #163058)); background: var(--da-header, var(--da-panel, #071120)); color: var(--da-text, #f6f9ff); }
+.homeBar { position: sticky; top: 0; z-index: 50; flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 86px; padding: 14px clamp(20px, 4vw, 56px); border-bottom: 1px solid var(--da-header-line, var(--da-line, #2c2c32)); background: var(--da-header, var(--da-panel, #1a1a1e)); color: var(--da-text, #f5f5f6); }
 .homeBrand { display: inline-flex; align-items: center; gap: 15px; min-width: 0; color: inherit; cursor: default; }
-.brandDiamond { width: 46px; height: 46px; flex: 0 0 auto; color: #fff; }
+.brandDiamond { width: 46px; height: 46px; flex: 0 0 auto; color: #ffffff; }
 .homeBrandText { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
-.homeBrandText strong { font-size: 19px; font-weight: 750; letter-spacing: -.025em; white-space: nowrap; }
-.homeBrandText small { font-size: 10px; font-weight: 650; letter-spacing: .055em; color: var(--da-c-507caf, #507caf); }
+.homeBrandText strong { font-size: 19px; font-weight: 700; letter-spacing: -.025em; white-space: nowrap; }
+.homeBrandText small { font-size: 10px; font-weight: 600; letter-spacing: .055em; color: var(--da-c-507caf, #85858e); }
 .homeActions { display: flex; align-items: center; gap: 18px; min-width: 0; }
 .homeBell { display: grid; place-items: center; }
 /* Hover stays instant (no transitions). Animations are allowed so the notification bell can ring (SPEC-0020 Phase 3 fix). */
 .homeBar a, .homeBar button, .homeBar svg { transition: none !important; }
 .homeBell button { border: 1px solid transparent !important; border-radius: 10px !important; background: transparent !important; box-shadow: none !important; }
-.homeBell button[aria-expanded='true'] { color: var(--da-link, #8cbbf3) !important; }
+.homeBell button[aria-expanded='true'] { color: var(--da-link, #d2d2d7) !important; }
 /* Bell and nav link: only the icon/text turns var(--da-hover, #0066ff) on hover — no filled box (matches "Continue creating"). */
-.homeBell button:hover { border-color: transparent !important; background: transparent !important; color: var(--da-hover, #0066ff) !important; filter: none !important; }
+.homeBell button:hover { border-color: transparent !important; background: transparent !important; color: var(--da-hover) !important; filter: none !important; }
 
-.navLink { display: inline-flex; align-items: center; gap: 9px; min-height: 44px; padding: 0 12px; border: 1px solid transparent; border-radius: 10px; color: var(--da-c-abcdfc, #abcdfc); font-size: 13px; font-weight: 680; text-decoration: none; white-space: nowrap; }
+.navLink { display: inline-flex; align-items: center; gap: 9px; min-height: 44px; padding: 0 12px; border: 1px solid transparent; border-radius: 10px; color: var(--da-c-abcdfc, #d2d2d7); font-size: 13px; font-weight: 600; text-decoration: none; white-space: nowrap; }
 .navLink svg { width: 18px; height: 18px; flex: 0 0 auto; }
-.navLink:hover { color: var(--da-hover, #0066ff); }
+.navLink:hover { color: var(--da-hover); }
 
-.homeMenu, .homeAvatar { display: grid; place-items: center; width: 44px; height: 44px; flex: 0 0 auto; padding: 0; border: 1px solid var(--da-border, #244267); border-radius: 10px; background: var(--da-panel, #071120); color: var(--da-text-2, #c9d6ea); cursor: pointer; }
+.homeMenu, .homeAvatar { display: grid; place-items: center; width: 44px; height: 44px; flex: 0 0 auto; padding: 0; border: 1px solid var(--da-border, #2c2c32); border-radius: 10px; background: var(--da-panel, #1a1a1e); color: var(--da-text-2, #d2d2d7); cursor: pointer; }
 .homeMenu svg { width: 23px; height: 23px; }
-.homeMenu[aria-expanded='true'] { border-color: var(--da-selected-border, #3a6aa3); background: var(--da-selected-bg, #0f2a52); color: var(--da-on-selected, #eaf3ff); }
-.homeMenu:hover { border-color: var(--da-hover-soft, #0066ff); background: var(--da-hover-soft, #0066ff); color: #fff; }
+.homeMenu[aria-expanded='true'] { border-color: var(--da-selected-border, #55555e); background: var(--da-selected-bg, #3a3a41); color: var(--da-on-selected, #f5f5f6); }
+.homeMenu:hover { border-color: var(--da-hover); background: var(--da-hover); color: #ffffff; }
 /* SPEC-0020 Phase 1 (Arthur): the profile circle shows your picture (or your first letter) inside a dim outline;
    on hover — and while its menu is open — the outline glows var(--da-hover, #0066ff), instantly (no fade). */
-.homeAvatar { overflow: hidden; border: 2px solid var(--da-border, #244267); border-radius: 50%; background: var(--da-selected-bg, #0f2a52); color: #fff; font: inherit; font-size: 16px; font-weight: 750; }
+.homeAvatar { overflow: hidden; border: 2px solid var(--da-border, #2c2c32); border-radius: 50%; background: var(--da-selected-bg, #3a3a41); color: #ffffff; font: inherit; font-size: 16px; font-weight: 700; }
 /* SPEC-0020 Phase 3 (Arthur): with a picture only the outline glows (the picture stays visible);
    with no picture (just the letter) the whole circle turns var(--da-hover, #0066ff) with white text, instantly. */
-.homeAvatar[data-has-image]:hover, .homeAvatar[data-has-image][aria-expanded='true'] { border-color: var(--da-hover-soft, #0066ff); box-shadow: 0 0 0 3px color-mix(in srgb, var(--da-hover-soft, #0066ff) 30%, transparent), 0 0 16px color-mix(in srgb, var(--da-hover-soft, #0066ff) 65%, transparent); }
-.homeAvatar:not([data-has-image]):hover, .homeAvatar:not([data-has-image])[aria-expanded='true'] { border-color: var(--da-hover-soft, #0066ff); background: var(--da-hover-soft, #0066ff); color: #fff; }
+.homeAvatar[data-has-image]:hover, .homeAvatar[data-has-image][aria-expanded='true'] { border-color: var(--da-hover); box-shadow: none; }
+.homeAvatar:not([data-has-image]):hover, .homeAvatar:not([data-has-image])[aria-expanded='true'] { border-color: var(--da-hover); background: var(--da-hover); color: #ffffff; }
 
 /* Account popover */
 .accountShell { position: relative; }
 .avatarImage { display: block; width: 100%; height: 100%; object-fit: cover; }
 .accountHead { display: flex; align-items: center; gap: 12px; min-width: 0; }
-.accountHeadAvatar { display: grid; place-items: center; width: 48px; height: 48px; flex: 0 0 auto; overflow: hidden; border: 2px solid var(--da-border, #244267); border-radius: 50%; background: var(--da-selected-bg, #0f2a52); color: #fff; font-size: 19px; font-weight: 750; }
+.accountHeadAvatar { display: grid; place-items: center; width: 48px; height: 48px; flex: 0 0 auto; overflow: hidden; border: 2px solid var(--da-border, #2c2c32); border-radius: 50%; background: var(--da-selected-bg, #3a3a41); color: #ffffff; font-size: 19px; font-weight: 700; }
 .accountHeadText { min-width: 0; }
-.accountLinks { display: flex; flex-direction: column; gap: 2px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--da-line, #163058); }
-.accountLink { display: flex; align-items: center; gap: 10px; min-height: 38px; padding: 0 10px; border: 1px solid transparent; border-radius: 9px; color: var(--da-text-2, #c9d6ea); font-size: 13px; font-weight: 620; text-decoration: none; }
-.accountLink svg { width: 17px; height: 17px; flex: 0 0 auto; color: var(--da-muted, #8fabd0); }
-.accountLink:hover { border-color: var(--da-hover-soft, #0066ff); background: var(--da-hover-soft, #0066ff); color: #fff; }
-.accountLink:hover svg { color: #fff; }
-.accountPopover a:focus-visible { outline: 2px solid var(--da-focus, #66c7ff); outline-offset: 2px; }
-.accountPopover { position: absolute; z-index: 70; top: calc(100% + 12px); right: 0; width: min(280px, calc(100vw - 28px)); padding: 16px; border: 1px solid var(--da-line, #163058); border-radius: 12px; background: var(--da-panel, #071120); box-shadow: 0 18px 44px rgba(0, 0, 0, .45); color: var(--da-text, #f6f9ff); font-size: 12px; line-height: 1.5; }
+.accountLinks { display: flex; flex-direction: column; gap: 2px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--da-line, #2c2c32); }
+.accountLink { display: flex; align-items: center; gap: 10px; min-height: 38px; padding: 0 10px; border: 1px solid transparent; border-radius: 10px; color: var(--da-text-2, #d2d2d7); font-size: 13px; font-weight: 600; text-decoration: none; }
+.accountLink svg { width: 17px; height: 17px; flex: 0 0 auto; color: var(--da-muted, #a3a3ab); }
+.accountLink:hover { border-color: var(--da-hover); background: var(--da-hover); color: #ffffff; }
+.accountLink:hover svg { color: #ffffff; }
+.accountPopover a:focus-visible { outline: 2px solid var(--da-focus, #4d94ff); outline-offset: 2px; }
+.accountPopover { position: absolute; z-index: 70; top: calc(100% + 12px); right: 0; width: min(280px, calc(100vw - 28px)); padding: 16px; border: 1px solid var(--da-line, #2c2c32); border-radius: 12px; background: var(--da-panel, #1a1a1e); box-shadow: var(--da-shadow-pop); color: var(--da-text, #f5f5f6); font-size: 12px; line-height: 1.5; }
 .accountPopover strong { display: block; font-size: 13px; overflow-wrap: anywhere; }
-.accountEmail { display: block; color: var(--da-text-3, #a8bddd); overflow-wrap: anywhere; }
-.accountPlan { margin: 12px 0 0; padding-top: 12px; border-top: 1px solid var(--da-line, #163058); color: var(--da-text-2, #c9d6ea); }
-.accountNote { display: block; color: var(--da-muted, #8fabd0); }
-.logoutButton { display: block; width: 100%; min-height: 40px; margin-top: 14px; padding: 0 12px; border: 1px solid rgba(255, 138, 149, .35); border-radius: 10px; background: var(--da-panel, #071120); color: var(--da-danger, #ff8a95); cursor: pointer; font: inherit; font-weight: 700; text-align: center; }
-.logoutButton:hover:not(:disabled) { border-color: var(--da-danger-solid, #d23a52); background: var(--da-danger-solid, #d23a52); color: #fff; }
+.accountEmail { display: block; color: var(--da-text-3, #b8b8bf); overflow-wrap: anywhere; }
+.accountPlan { margin: 12px 0 0; padding-top: 12px; border-top: 1px solid var(--da-line, #2c2c32); color: var(--da-text-2, #d2d2d7); }
+.accountNote { display: block; color: var(--da-muted, #a3a3ab); }
+.logoutButton { display: block; width: 100%; min-height: 40px; margin-top: 14px; padding: 0 12px; border: 1px solid rgba(255, 138, 149, .35); border-radius: 10px; background: var(--da-panel, #1a1a1e); color: var(--da-danger, #ff8a95); cursor: pointer; font: inherit; font-weight: 700; text-align: center; }
+.logoutButton:hover:not(:disabled) { border-color: var(--da-danger-solid, #d23a52); background: var(--da-danger-solid, #d23a52); color: #ffffff; }
 .logoutButton:disabled { opacity: .6; cursor: wait; }
 .accountError { color: var(--da-danger, #ff8a95); margin-top: 8px; }
 
 /* Side Menu panel */
-.menuScrim { position: fixed; inset: 0; z-index: 45; background: rgba(3, 9, 20, .72); }
+.menuScrim { position: fixed; inset: 0; z-index: 45; background: rgba(0, 0, 0, .72); }
 .menuScrimClosed { display: none; }
-.menuPanel { position: fixed; top: 0; right: 0; z-index: 50; display: flex; flex-direction: column; gap: 16px; width: min(320px, 100vw); height: 100vh; padding: 20px 18px 26px; overflow-y: auto; border-left: 1px solid var(--da-line, #163058); background: var(--da-panel, #071120); box-shadow: -24px 0 48px rgba(0, 0, 0, .4); color: var(--da-text, #f6f9ff); }
+.menuPanel { position: fixed; top: 0; right: 0; z-index: 50; display: flex; flex-direction: column; gap: 16px; width: min(320px, 100vw); height: 100vh; padding: 20px 18px 26px; overflow-y: auto; border-left: 1px solid var(--da-line, #2c2c32); background: var(--da-panel, #1a1a1e); box-shadow: var(--da-shadow-pop); color: var(--da-text, #f5f5f6); }
 .menuPanelClosed { visibility: hidden; transform: translateX(100%); pointer-events: none; }
 .menuHead { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.menuTitle { font-size: 15px; font-weight: 750; letter-spacing: -.01em; color: var(--da-text, #f6f9ff); }
-.divider { height: 1px; flex: 0 0 auto; background: var(--da-line, #163058); }
+.menuTitle { font-size: 15px; font-weight: 700; letter-spacing: -.01em; color: var(--da-text, #f5f5f6); }
+.divider { height: 1px; flex: 0 0 auto; background: var(--da-line, #2c2c32); }
 .section { display: flex; flex-direction: column; gap: 8px; }
-.sectionLabel { margin-bottom: 2px; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--da-label, #7895bc); }
+.sectionLabel { margin-bottom: 2px; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--da-label, #85858e); }
 
-.panelButton { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; min-height: 42px; padding: 0 14px; border: 1px solid var(--da-border, #244267); border-radius: 10px; background: var(--da-panel, #071120); color: var(--da-text-2, #c9d6ea); font: inherit; font-size: 13px; font-weight: 600; text-align: left; cursor: pointer; appearance: none; }
-.panelButton svg { width: 16px; height: 16px; flex: 0 0 auto; color: var(--da-muted, #8fabd0); }
-.panelButton:hover { border-color: var(--da-hover-soft, #0066ff); background: var(--da-hover-soft, #0066ff); color: #fff; }
-.panelButton:hover svg { color: #fff; }
+.panelButton { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; min-height: 42px; padding: 0 14px; border: 1px solid var(--da-border, #2c2c32); border-radius: 10px; background: var(--da-panel, #1a1a1e); color: var(--da-text-2, #d2d2d7); font: inherit; font-size: 13px; font-weight: 600; text-align: left; cursor: pointer; appearance: none; }
+.panelButton svg { width: 16px; height: 16px; flex: 0 0 auto; color: var(--da-muted, #a3a3ab); }
+.panelButton:hover { border-color: var(--da-hover); background: var(--da-hover); color: #ffffff; }
+.panelButton:hover svg { color: #ffffff; }
 .panelButton { text-decoration: none; }
 /* Canonical back control (40px, inline width, arrow/text inherit). */
 .backButton { justify-content: center; align-self: flex-start; width: auto; height: 40px; min-height: 40px; padding: 0 14px; }
 
-.staticCard { padding: 12px 14px; border: 1px solid var(--da-line, #163058); border-radius: 10px; background: var(--da-page, #030914); color: var(--da-text-3, #a8bddd); font-size: 13px; }
-.settingsCard { display: flex; flex-direction: column; gap: 8px; padding: 14px; border: 1px solid var(--da-line, #163058); border-radius: 12px; background: var(--da-page, #030914); font-size: 13px; line-height: 1.5; }
-.settingsCard strong { color: var(--da-text, #f6f9ff); font-size: 14px; }
-.settingsCard p { margin: 0 0 6px; color: var(--da-text-3, #a8bddd); }
+.staticCard { padding: 12px 14px; border: 1px solid var(--da-line, #2c2c32); border-radius: 10px; background: var(--da-page, #111113); color: var(--da-text-3, #b8b8bf); font-size: 13px; }
+.settingsCard { display: flex; flex-direction: column; gap: 8px; padding: 14px; border: 1px solid var(--da-line, #2c2c32); border-radius: 12px; background: var(--da-page, #111113); font-size: 13px; line-height: 1.5; }
+.settingsCard strong { color: var(--da-text, #f5f5f6); font-size: 14px; }
+.settingsCard p { margin: 0 0 6px; color: var(--da-text-3, #b8b8bf); }
 
-.iconButton { display: grid; place-items: center; width: 36px; height: 36px; flex: 0 0 auto; padding: 0; border: 1px solid var(--da-border, #244267); border-radius: 10px; background: var(--da-panel, #071120); color: var(--da-text-2, #c9d6ea); cursor: pointer; appearance: none; }
+.iconButton { display: grid; place-items: center; width: 36px; height: 36px; flex: 0 0 auto; padding: 0; border: 1px solid var(--da-border, #2c2c32); border-radius: 10px; background: var(--da-panel, #1a1a1e); color: var(--da-text-2, #d2d2d7); cursor: pointer; appearance: none; }
 .iconButton svg { width: 16px; height: 16px; }
-.iconButton:hover { border-color: var(--da-hover-soft, #0066ff); background: var(--da-hover-soft, #0066ff); color: #fff; }
+.iconButton:hover { border-color: var(--da-hover); background: var(--da-hover); color: #ffffff; }
 
 /* About / Terms dialogs */
-.modalScrim { position: fixed; inset: 0; z-index: 80; display: flex; align-items: center; justify-content: center; padding: 18px; background: rgba(3, 9, 20, .72); }
-.modal { width: min(880px, calc(100vw - 36px)); max-height: calc(100vh - 36px); overflow: auto; padding: 24px; border: 1px solid var(--da-line, #163058); border-radius: 16px; background: var(--da-panel, #071120); box-shadow: 0 18px 44px rgba(0, 0, 0, .45); color: var(--da-text, #f6f9ff); }
-.modalHead { position: sticky; top: -24px; z-index: 2; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin: -24px -24px 18px; padding: 24px 24px 12px; background: var(--da-panel, #071120); }
+.modalScrim { position: fixed; inset: 0; z-index: 80; display: flex; align-items: center; justify-content: center; padding: 18px; background: rgba(0, 0, 0, .72); }
+.modal { width: min(880px, calc(100vw - 36px)); max-height: calc(100vh - 36px); overflow: auto; padding: 24px; border: 1px solid var(--da-line, #2c2c32); border-radius: 12px; background: var(--da-panel, #1a1a1e); box-shadow: var(--da-shadow-pop); color: var(--da-text, #f5f5f6); }
+.modalHead { position: sticky; top: -24px; z-index: 2; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin: -24px -24px 18px; padding: 24px 24px 12px; background: var(--da-panel, #1a1a1e); }
 .modalTitleGroup { display: flex; flex-direction: column; gap: 6px; }
-.modalTitle { margin: 0; font-size: 26px; font-weight: 750; letter-spacing: -.02em; color: var(--da-text, #f6f9ff); }
-.modalBody { color: var(--da-text-3, #a8bddd); font-size: 14px; line-height: 1.65; }
+.modalTitle { margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -.02em; color: var(--da-text, #f5f5f6); }
+.modalBody { color: var(--da-text-3, #b8b8bf); font-size: 14px; line-height: 1.65; }
 .modalBody p { margin: 0 0 12px; }
 .modalBody ul { margin: 0 0 12px; padding-left: 20px; }
 .modalBody li { margin-bottom: 4px; }
-.modalBody b { color: var(--da-text, #f6f9ff); font-weight: 700; }
-.modalBody h3 { margin: 0 0 12px; font-size: 20px; font-weight: 750; letter-spacing: -.01em; color: var(--da-text, #f6f9ff); }
-.modalBody h4 { margin: 18px 0 6px; font-size: 14px; font-weight: 700; color: var(--da-text, #f6f9ff); }
+.modalBody b { color: var(--da-text, #f5f5f6); font-weight: 700; }
+.modalBody h3 { margin: 0 0 12px; font-size: 20px; font-weight: 700; letter-spacing: -.01em; color: var(--da-text, #f5f5f6); }
+.modalBody h4 { margin: 18px 0 6px; font-size: 14px; font-weight: 700; color: var(--da-text, #f5f5f6); }
 .modalBody > :last-child { margin-bottom: 0; }
-.modalMuted { color: var(--da-muted, #8fabd0); }
+.modalMuted { color: var(--da-muted, #a3a3ab); }
 
 .homeBar a:focus-visible, .homeBar button:focus-visible,
-.menuPanel button:focus-visible, .modal button:focus-visible { outline: 2px solid var(--da-focus, #66c7ff); outline-offset: 3px; }
+.menuPanel button:focus-visible, .modal button:focus-visible { outline: 2px solid var(--da-focus, #4d94ff); outline-offset: 3px; }
 
 @media (max-width: 760px) {
   .homeBar { flex-wrap: wrap; gap: 12px; padding-inline: 24px; }
@@ -127,19 +127,19 @@
 .menuScrim[data-reduce-motion] { animation: none; }
 @media (prefers-reduced-motion: reduce) { .menuPanel, .menuPanelClosed { transition: none; } .menuScrim { animation: none; } }
 /* The menu's close X: just the icon, no box; turns var(--da-hover, #0066ff) on hover. */
-.menuClose { display: grid; place-items: center; width: 36px; height: 36px; flex: 0 0 auto; padding: 0; border: 0; border-radius: 8px; background: transparent; color: var(--da-text-2, #c9d6ea); cursor: pointer; appearance: none; }
+.menuClose { display: grid; place-items: center; width: 36px; height: 36px; flex: 0 0 auto; padding: 0; border: 0; border-radius: 8px; background: transparent; color: var(--da-text-2, #d2d2d7); cursor: pointer; appearance: none; }
 .menuClose svg { width: 20px; height: 20px; }
-.menuClose:hover { color: var(--da-hover, #0066ff); }
-.menuPanel .menuClose:focus-visible { outline: 2px solid var(--da-focus, #66c7ff); outline-offset: 2px; }
+.menuClose:hover { color: var(--da-hover); }
+.menuPanel .menuClose:focus-visible { outline: 2px solid var(--da-focus, #4d94ff); outline-offset: 2px; }
 
 /* SPEC-0020 Phase 3 (Arthur): in Bright mode the top bar is a darker shade of the accent with white text, so the
    white logo sits right on it — no tile behind the logo. Pop-ups opened from it keep the page's bright colors. */
 :global(html[data-theme="light"]) .homeBrandText strong { color: #ffffff; }
-:global(html[data-theme="light"]) .homeBrandText small { color: var(--da-header-sub, #c9d6ea); }
+:global(html[data-theme="light"]) .homeBrandText small { color: var(--da-header-sub, #d2d2d7); }
 :global(html[data-theme="light"]) .navLink { color: #ffffff; }
 :global(html[data-theme="light"]) .homeBell [data-notification-trigger] { color: #ffffff !important; }
-:global(html[data-theme="light"]) .homeBell [data-notification-trigger]:hover { color: var(--da-header-hover, #7ab0ff) !important; }
-:global(html[data-theme="light"]) .navLink:hover { color: var(--da-header-hover, #7ab0ff); }
+:global(html[data-theme="light"]) .homeBell [data-notification-trigger]:hover { color: var(--da-header-hover, #d2d2d7) !important; }
+:global(html[data-theme="light"]) .navLink:hover { color: var(--da-header-hover, #d2d2d7); }
 
 /* SPEC-0022 Phase 9: phones. Two tidy rows: brand (with its tagline) on top; bell, AI Dashboard (with its name), menu and
    profile grouped together on the right. The menu becomes a full-screen page. */

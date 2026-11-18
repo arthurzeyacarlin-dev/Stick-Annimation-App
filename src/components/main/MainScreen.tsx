@@ -2,13 +2,11 @@
 
 import { useEffect, useState, type ReactNode, type RefObject } from "react";
 import { useAccountSession } from "@/src/components/account/AccountSessionProvider";
-import { Plus_Jakarta_Sans } from "next/font/google";
 import { AppHeader } from "./AppHeader";
 import styles from "./MainScreen.module.css";
 
 // Redesign Phase 2 (Arthur 2026-10-26): the main screen after logging in. It only draws; every action is passed in
 // from ExistingHome, which keeps the same project, recent-project and export code as before.
-const display = Plus_Jakarta_Sans({ subsets: ["latin"], weight: ["600", "700", "800"], variable: "--main-display" });
 
 type Recent =
   | { status: "ready"; title: string; edited: string; poster: ReactNode | null; previewFailed: boolean }
@@ -56,23 +54,22 @@ export function MainScreen(props: Props) {
   // The first visit gets brand-new words everywhere (Arthur): nothing about "jumping back" or "where you left off".
   const firstVisit = greeting !== "Welcome back";
   return (
-    <div className={`${styles.screen} ${display.variable}`}>
-      <div className={styles.lattice} aria-hidden="true" />
-      <div className={styles.glow} aria-hidden="true" />
+    <div className={styles.screen}>
 
       <AppHeader page="home" onExport={props.onExport} />
 
       <main ref={mainRef} className={styles.main}>
+        <div className={styles.start}>
         <section className={styles.hero} aria-labelledby="main-heading">
           {/* Arthur 2026-10-26: the first visit says "Welcome, Name"; after they leave and come back, "Welcome back, Name".
               Hidden (space kept) until we know which, so the words never flip. */}
           <p className={styles.eyebrow} style={greeting ? undefined : { visibility: "hidden" }}>
             {`${greeting ?? "Welcome"}${firstName ? `, ${firstName}` : ""}`}
           </p>
-          <h1 id="main-heading" className={styles.title}>What story will you <span className={styles.accent}>animate</span> today?</h1>
+          <h1 id="main-heading" className={styles.title}>What story will you animate today?</h1>
           <p className={styles.subtitle} style={greeting ? undefined : { visibility: "hidden" }}>{firstVisit
-            ? "Your first animation starts here. Draw it yourself, or let the AI Animator help."
-            : "Start a fresh canvas, or jump back into something you were making."}</p>
+            ? "Tell the AI your story, or draw every frame yourself."
+            : "Start something new, or keep going where you left off."}</p>
         </section>
 
         <section className={styles.actions} aria-label="Start">
@@ -85,6 +82,8 @@ export function MainScreen(props: Props) {
             <span className={styles.tileText}><strong>Open project</strong><small>All your saved animations</small></span>
           </button>
         </section>
+
+        </div>
 
         <section className={styles.recentSection} aria-labelledby="recent-heading" data-tour="recent">
           <h2 id="recent-heading" className={styles.sectionTitle}>{firstVisit ? "Your latest animation" : "Pick up where you left off"}</h2>

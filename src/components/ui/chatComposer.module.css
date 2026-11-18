@@ -1,26 +1,26 @@
 /* Shared chat box used by the Assistant and the editor's AI Animator.
    Brighter navy box with var(--da-border, #244267) outline on a dark area; dull blue at rest; native :hover -> var(--da-hover, #0066FF). */
-.box { background: var(--da-panel, #071120); border: 1px solid var(--da-border, #244267); border-radius: 14px; padding: 10px 12px 8px; }
-.box:focus-within { border-color: #31588a; }
-.box textarea { display: block; width: 100%; min-height: 44px; max-height: 150px; resize: none; background: transparent; color: var(--da-text, #f6f9ff); border: 0; padding: 2px 4px; font: inherit; font-size: 14px; line-height: 1.5; overflow-y: auto; overflow-wrap: anywhere; scrollbar-width: thin; scrollbar-color: var(--da-border, #244267) transparent; }
+.box { background: var(--da-panel, #1a1a1e); border: 1px solid var(--da-border, #2c2c32); border-radius: 12px; padding: 10px 12px 8px; }
+.box:focus-within { border-color: #55555e; }
+.box textarea { display: block; width: 100%; min-height: 44px; max-height: 150px; resize: none; background: transparent; color: var(--da-text, #f5f5f6); border: 0; padding: 2px 4px; font: inherit; font-size: 14px; line-height: 1.5; overflow-y: auto; overflow-wrap: anywhere; scrollbar-width: thin; scrollbar-color: var(--da-border, #2c2c32) transparent; }
 .box textarea:focus, .box textarea:focus-visible { outline: none; }
-.box textarea::placeholder { color: var(--da-c-6f8db4, #6f8db4); }
+.box textarea::placeholder { color: var(--da-c-6f8db4, #85858e); }
 .box textarea:disabled { opacity: .6; }
 .compact textarea { min-height: 38px; max-height: 96px; font-size: 13px; }
 
 .tools { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 6px; }
-.reasoning { display: flex; align-items: center; gap: 6px; min-width: 0; font-size: 12px; color: var(--da-muted, #8fabd0); }
-.reasoning select { min-height: 32px; max-width: 140px; border: 1px solid var(--da-border, #244267); border-radius: 10px; padding: 4px 8px; color: var(--da-text-2, #c9d6ea); background: var(--da-panel, #071120); font: inherit; font-size: 12px; cursor: pointer; transition: none; }
-.reasoning select:hover:enabled { border-color: var(--da-hover-soft, #0066ff); background: var(--da-hover-soft, #0066ff); color: #fff; }
+.reasoning { display: flex; align-items: center; gap: 6px; min-width: 0; font-size: 12px; color: var(--da-muted, #a3a3ab); }
+.reasoning select { min-height: 32px; max-width: 140px; border: 1px solid var(--da-border, #2c2c32); border-radius: 10px; padding: 4px 8px; color: var(--da-text-2, #d2d2d7); background: var(--da-panel, #1a1a1e); font: inherit; font-size: 12px; cursor: pointer; transition: none; }
+.reasoning select:hover:enabled { border-color: var(--da-hover); background: var(--da-hover); color: #ffffff; }
 .reasoning select:disabled { opacity: .45; cursor: not-allowed; }
-.reasoning select:focus-visible { outline: 2px solid var(--da-focus, #66c7ff); outline-offset: 2px; }
+.reasoning select:focus-visible { outline: 2px solid var(--da-focus, #4d94ff); outline-offset: 2px; }
 
 .actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 /* Dictate, Send (check) and Stop (X): plain white icons, no bubble; the blue fill appears only on hover. */
 .iconButton { width: 34px; height: 34px; display: grid; place-items: center; padding: 8px; border: 1px solid transparent; border-radius: 10px; background: transparent; color: #ffffff; cursor: pointer; transition: none; }
 .iconButton svg { width: 100%; height: 100%; }
-.iconButton:focus-visible { outline: 2px solid var(--da-focus, #66c7ff); outline-offset: 2px; }
-.iconButton:hover:enabled { border-color: var(--da-hover-soft, #0066ff); background: var(--da-hover-soft, #0066ff); color: #fff; }
+.iconButton:focus-visible { outline: 2px solid var(--da-focus, #4d94ff); outline-offset: 2px; }
+.iconButton:hover:enabled { border-color: var(--da-hover); background: var(--da-hover); color: #ffffff; }
 .iconButton:disabled { opacity: .45; cursor: not-allowed; }
 
 /* Dictation (Arthur 2026-10-25): ✕ far left, ✓ far right (same size), round dots evenly spaced across the whole box
@@ -28,9 +28,13 @@
    no warm-up animation. Spacing and size must match ChatComposerParts (WAVE_DOT 4 px, WAVE_GAP 9 px). */
 .dictationPanel { display: flex; align-items: center; gap: 10px; margin-top: 6px; min-height: 40px; }
 .waveform { flex: 1; min-width: 0; height: 30px; display: flex; align-items: center; justify-content: space-between; overflow: hidden; }
-.waveform span { flex: 0 0 4px; width: 4px; height: calc(4px + var(--wave, 0) * 26px); border-radius: 2px; background: var(--da-link, #8cbbf3) !important; transition: height 110ms ease-out; }
+.waveform span { flex: 0 0 4px; width: 4px; height: calc(4px + var(--wave, 0) * 26px); border-radius: 2px; background: var(--da-link, #d2d2d7) !important; transition: height 110ms ease-out; }
 .waveform[data-live="false"] span { transition-duration: 450ms; }
-@media (prefers-reduced-motion: reduce) { .waveform span { transition: none; } }
+/* (Nov 18, Arthur: dictation should look more professional - "glowing or whatever") listening: the waves glow softly; turning into text: they pulse gently */
+.dictationPanel[data-dictation-phase="recording"] .waveform span { box-shadow: none; }
+.dictationPanel[data-dictation-phase="transcribing"] .waveform span, .dictationPanel[data-dictation-phase="stopping"] .waveform span { animation: dictationPulse 1.2s ease-in-out infinite; }
+@keyframes dictationPulse { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .waveform span { transition: none; animation: none !important; } }
 .srOnly { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
 /* Send / Done / Cancel: bigger icons with thicker lines (Arthur 2026-10-25). */
@@ -39,30 +43,30 @@
 /* Effort: a small "Effort · Auto" button; clicking opens a card with a sentence for the chosen stop, a thick bar with a
    tick per stop and a dot that slides smoothly, the stop names, and "Auto-pick … Smarter" at the ends. */
 .effort { position: relative; min-width: 0; }
-.effortButton { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 9px; border: 1px solid var(--da-border, #244267); border-radius: 8px; background: transparent; color: var(--da-text-2, #c9d6ea); font: inherit; font-size: 11.5px; line-height: 1; cursor: pointer; }
-.effortName { color: var(--da-muted, #8fabd0); }
-.effortValue { color: var(--da-text, #f6f9ff); font-weight: 600; }
-.effortButton:hover:enabled { border-color: var(--da-hover-soft, #0066ff); background: var(--da-hover-soft, #0066ff); }
-.effortButton:hover:enabled .effortName, .effortButton:hover:enabled .effortValue { color: #fff; }
+.effortButton { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 9px; border: 1px solid var(--da-border, #2c2c32); border-radius: 8px; background: transparent; color: var(--da-text-2, #d2d2d7); font: inherit; font-size: 11.5px; line-height: 1; cursor: pointer; }
+.effortName { color: var(--da-muted, #a3a3ab); }
+.effortValue { color: var(--da-text, #f5f5f6); font-weight: 600; }
+.effortButton:hover:enabled { border-color: var(--da-hover); background: var(--da-hover); }
+.effortButton:hover:enabled .effortName, .effortButton:hover:enabled .effortValue { color: #ffffff; }
 .effortButton:disabled { opacity: .45; cursor: not-allowed; }
-.effortButton:focus-visible { outline: 2px solid var(--da-focus, #66c7ff); outline-offset: 2px; }
-.effortPopover { position: absolute; left: 0; bottom: calc(100% + 8px); z-index: 40; width: min(320px, calc(100vw - 48px)); padding: 14px 18px 12px; border: 1px solid var(--da-border, #244267); border-radius: 14px; background: var(--da-panel, #071120); box-shadow: 0 16px 40px rgba(0, 0, 0, .5); }
+.effortButton:focus-visible { outline: 2px solid var(--da-focus, #4d94ff); outline-offset: 2px; }
+.effortPopover { position: absolute; left: 0; bottom: calc(100% + 8px); z-index: 40; width: min(320px, calc(100vw - 48px)); padding: 14px 18px 12px; border: 1px solid var(--da-border, #2c2c32); border-radius: 12px; background: var(--da-panel, #1a1a1e); box-shadow: var(--da-shadow-pop); }
 .effortTop { display: grid; gap: 3px; margin-bottom: 14px; }
-.effortTitle { color: var(--da-text, #f6f9ff); font-size: 13px; font-weight: 650; }
-.effortHint { color: var(--da-muted, #8fabd0); font-size: 12px; line-height: 1.4; min-height: 17px; }
+.effortTitle { color: var(--da-text, #f5f5f6); font-size: 13px; font-weight: 600; }
+.effortHint { color: var(--da-muted, #a3a3ab); font-size: 12px; line-height: 1.4; min-height: 17px; }
 .effortSlider { padding: 9px 9px; margin: 0 -9px; cursor: pointer; touch-action: none; outline: none; }
-.effortSlider:focus-visible { outline: 2px solid var(--da-focus, #66c7ff); outline-offset: 2px; border-radius: 10px; }
-.effortTrack { position: relative; height: 6px; border-radius: 3px; background: var(--da-border, #244267); }
-.effortFill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: var(--da-hover, #0066ff); transition: width 220ms cubic-bezier(.2, .8, .2, 1); }
-.effortTick { position: absolute; top: 50%; width: 2px; height: 12px; border-radius: 1px; background: var(--da-border, #244267); transform: translate(-50%, -50%); }
-.effortTick[data-on="true"] { background: var(--da-hover, #0066ff); }
-.effortThumb { position: absolute; top: 50%; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: 0 1px 5px rgba(0, 0, 0, .55); transform: translate(-50%, -50%); transition: left 220ms cubic-bezier(.2, .8, .2, 1); }
+.effortSlider:focus-visible { outline: 2px solid var(--da-focus, #4d94ff); outline-offset: 2px; border-radius: 10px; }
+.effortTrack { position: relative; height: 6px; border-radius: 3px; background: var(--da-border, #2c2c32); }
+.effortFill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: var(--da-text); transition: width 220ms cubic-bezier(.2, .8, .2, 1); }
+.effortTick { position: absolute; top: 50%; width: 2px; height: 12px; border-radius: 1px; background: var(--da-border, #2c2c32); transform: translate(-50%, -50%); }
+.effortTick[data-on="true"] { background: var(--da-text); }
+.effortThumb { position: absolute; top: 50%; width: 18px; height: 18px; border-radius: 50%; background: #ffffff; box-shadow: none; transform: translate(-50%, -50%); transition: left 220ms cubic-bezier(.2, .8, .2, 1); }
 .effortSlider[data-dragging="true"] .effortThumb { transform: translate(-50%, -50%) scale(1.1); }
 .effortStops { position: relative; height: 18px; margin-top: 8px; }
-.effortStops button { position: absolute; top: 0; transform: translateX(-50%); padding: 0 2px; border: 0; background: transparent; color: var(--da-muted, #8fabd0); font: inherit; font-size: 12px; white-space: nowrap; cursor: pointer; }
+.effortStops button { position: absolute; top: 0; transform: translateX(-50%); padding: 0 2px; border: 0; background: transparent; color: var(--da-muted, #a3a3ab); font: inherit; font-size: 12px; white-space: nowrap; cursor: pointer; }
 .effortStops button:first-child { transform: none; margin-left: -2px; }
 .effortStops button:last-child { transform: translateX(-100%); margin-left: 2px; }
-.effortStops button[data-selected="true"] { color: #fff; font-weight: 600; }
-.effortStops button:hover { color: var(--da-hover, #0066ff); }
-.effortEnds { display: flex; justify-content: space-between; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--da-line, #163058); color: var(--da-muted, #8fabd0); font-size: 11px; letter-spacing: .02em; }
+.effortStops button[data-selected="true"] { color: #ffffff; font-weight: 600; }
+.effortStops button:hover { color: var(--da-hover); }
+.effortEnds { display: flex; justify-content: space-between; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--da-line, #2c2c32); color: var(--da-muted, #a3a3ab); font-size: 11px; letter-spacing: .02em; }
 @media (prefers-reduced-motion: reduce) { .effortFill, .effortThumb { transition: none; } }

@@ -1,6 +1,10 @@
 # Current State
 
-## D-0237 — New sign-in look in the main app (current)
+## D-0238 — New professional look across the main app (current)
+
+Arthur approved it 2026-11-18 and asked for it in main. Home, AI Dashboard, Plans, Settings, Profile, Assistant, Open Project, Export, menus, notifications and the editor use one look: gray surfaces, Geist, instant gray hover, blue only on main actions. The editor has evenly spaced tools on the left, a wide 16:9 canvas, a 440 px dark right panel and the timeline along the bottom, with layers opening upward. Main keeps its own account, credit, plan, saving, AI and export logic. Checked in a clean main checkout with a throwaway test account: Home, new project, pencil drawing, AI tab and Save. Types pass. See DECISIONS D-0238.
+
+## D-0237 — New sign-in look in the main app
 
 Arthur passed 2026-11-18 and asked for it in main. Sign-up, log-in, forgot password, plan step, reset password and the loading screen now use one look: almost-black gray, Geist, instant gray hover, blue only on the main action, the white logo with a soft white spotlight. The moving figures on the first screen are a hand-made sample until a real AI Animator clip replaces it. The rest of the app still has the old look; the full redesign continues in the copy `diamond-review/app-look-v2` (localhost:58680).
 

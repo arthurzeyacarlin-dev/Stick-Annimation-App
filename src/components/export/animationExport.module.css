@@ -102,9 +102,9 @@
 }
 
 .primaryButton {
-  background: var(--da-selected-bg);
-  border-color: var(--da-selected-border);
-  color: #fff;
+  background: var(--da-accent);
+  border-color: var(--da-accent);
+  color: #ffffff;
 }
 
 .wideButton {
@@ -116,7 +116,7 @@
 .backButton:hover:not(:disabled) {
   background: var(--da-hover);
   border-color: var(--da-hover);
-  color: #fff;
+  color: #ffffff;
 }
 
 .button:disabled,
@@ -217,7 +217,7 @@
 }
 
 .card:hover:not(:disabled) {
-  border-color: var(--da-hover-soft);
+  border-color: var(--da-hover);
 }
 
 .card[aria-busy="true"] {
@@ -328,7 +328,7 @@
 
 .input {
   min-height: 42px;
-  border-radius: 9px;
+  border-radius: 10px;
   border: 1px solid var(--da-border);
   background: var(--da-page);
   color: var(--da-text);
@@ -396,7 +396,7 @@
 }
 
 .tile:hover:not(:disabled) {
-  border-color: var(--da-hover-soft);
+  border-color: var(--da-hover);
 }
 
 .tile[aria-pressed="true"] {
@@ -414,12 +414,12 @@
   height: 32px;
   display: grid;
   place-items: center;
-  border-radius: 9px;
+  border-radius: 10px;
   background: var(--da-panel);
   border: 1px solid var(--da-line);
   color: var(--da-text-3);
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .tileName {
@@ -511,10 +511,10 @@
   color: var(--da-text-2);
 }
 
-.progressTop { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; color: var(--da-text, #f6f9ff); font-size: 14px; font-weight: 600; }
-.progressTop strong { color: #7fb0ff; font-variant-numeric: tabular-nums; }
-.progressBar { position: relative; height: 10px; border-radius: 999px; background: #0b1a33; box-shadow: inset 0 1px 2px rgba(0, 0, 0, .55); overflow: hidden; }
-.progressBar i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 999px; background: linear-gradient(90deg, #0052cc, #0066ff 60%, #4d94ff); box-shadow: 0 0 16px rgba(0, 102, 255, .6); transition: width 300ms ease; }
+.progressTop { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; color: var(--da-text, #f5f5f6); font-size: 14px; font-weight: 600; }
+.progressTop strong { color: #d2d2d7; font-variant-numeric: tabular-nums; }
+.progressBar { position: relative; height: 10px; border-radius: 999px; background: #1a1a1e; box-shadow: none; overflow: hidden; }
+.progressBar i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 999px; background: var(--da-text); box-shadow: none; transition: width 300ms ease; }
 .progressBar[data-waiting] i { width: 35%; animation: exportSweep 1.2s ease-in-out infinite; }
 @keyframes exportSweep { from { left: -35%; } to { left: 100%; } }
 @media (prefers-reduced-motion: reduce) { .progressBar[data-waiting] i { animation: none; left: 0; } .progressBar i { transition: none; } }
@@ -604,9 +604,9 @@
 
 /* Same hover as every other button in the app: accent fill, white text, instantly. */
 .formatButton:hover:not(:disabled) {
-  background: var(--da-hover-soft);
-  border-color: var(--da-hover-soft);
-  color: #fff;
+  background: var(--da-hover);
+  border-color: var(--da-hover);
+  color: #ffffff;
 }
 
 .formatButton:hover:not(:disabled) .formatDetail {
@@ -728,12 +728,12 @@
 
 /* Redesign polish (Arthur 2026-10-26): the export screen gets the app's blues. The Export / Save button looks like
    "Choose a plan" (bright blue at rest) and turns the super-bright blue on hover with the same calm glow. */
-.primaryButton.primaryButton { border: 0 !important; color: #fff !important; background: linear-gradient(180deg, #1673ff, #0052d1) !important; box-shadow: 0 10px 26px rgba(0, 82, 209, .45), inset 0 1px 0 rgba(255, 255, 255, .22) !important; }
-.primaryButton.primaryButton:hover:not(:disabled) { background: var(--da-hover-super, #4d94ff) !important; box-shadow: 0 10px 26px rgba(0, 102, 255, .45), inset 0 1px 0 rgba(255, 255, 255, .3) !important; }
+.primaryButton.primaryButton { border: 0 !important; color: #ffffff !important; background: var(--da-accent) !important; box-shadow: none; }
+.primaryButton.primaryButton:hover:not(:disabled) { background: var(--da-accent-hover) !important; box-shadow: none !important; }
 .primaryButton.primaryButton:disabled { opacity: .55; box-shadow: none !important; }
-.playerFrame { border: 1px solid rgba(64, 140, 255, .45); box-shadow: 0 0 0 1px rgba(0, 102, 255, .12), 0 24px 60px rgba(0, 40, 120, .45); }
-.settingsColumn { padding: 20px; border-radius: 20px; border: 1px solid var(--da-border, #244267); background: linear-gradient(180deg, rgba(10, 22, 44, .92), rgba(6, 14, 30, .95)); box-shadow: 0 24px 60px rgba(0, 0, 0, .35); }
-.formatButton { border-radius: 14px; background: rgba(10, 22, 44, .8); }
-.formatButton[aria-checked="true"] { background: linear-gradient(160deg, rgba(0, 102, 255, .32), rgba(0, 72, 190, .14)) !important; border-color: rgba(64, 140, 255, .8) !important; color: #fff !important; box-shadow: 0 10px 26px rgba(0, 60, 180, .35); }
-.formatButton svg { color: #9fc8ff; }
-.formatButton[aria-checked="true"] svg { color: #fff; }
+.playerFrame { border: 1px solid rgba(255, 255, 255, 0.144); box-shadow: none; }
+.settingsColumn { padding: 20px; border-radius: 12px; border: 1px solid var(--da-border, #2c2c32); background: var(--da-panel); box-shadow: none; }
+.formatButton { border-radius: 12px; background: rgba(0, 0, 0, .8); }
+.formatButton[aria-checked="true"] { background: var(--da-hover) !important; border-color: rgba(255, 255, 255, 0.256) !important; color: #ffffff !important; box-shadow: none; }
+.formatButton svg { color: #d2d2d7; }
+.formatButton[aria-checked="true"] svg { color: #ffffff; }

@@ -171,7 +171,16 @@ export function DrawingRightPanel({
   useEffect(() => {
     const split = sheetRef.current?.parentElement;
     if (!split) return;
-    const update = () => setSheetHeights((previous) => {
+    // The timeline sits at the bottom and its layers open upward, so on a computer the panel ends where they begin.
+    const clearLayers = () => {
+      const box = split.getBoundingClientRect();
+      const timelineBox = document.querySelector<HTMLElement>(".drawing-timeline")?.getBoundingClientRect();
+      const tops = [...document.querySelectorAll<HTMLElement>(".drawing-timeline [data-timeline-panel]")].map((panel) => panel.getBoundingClientRect().top);
+      const under = timelineBox && timelineBox.top >= box.top + box.height / 2 && tops.length ? Math.max(0, Math.round(box.bottom - Math.min(...tops))) : 0;
+      split.style.setProperty("--da-timeline-under", `${under}px`);
+    };
+    const update = () => { clearLayers(); updateHeights(); };
+    const updateHeights = () => setSheetHeights((previous) => {
       const next = measureSheetHeights();
       if (!next || (previous && previous.small === next.small && previous.half === next.half && previous.full === next.full)) return next ?? previous;
       return next;
@@ -525,7 +534,7 @@ export function DrawingRightPanel({
       )}
 
       <div className="drawing-ai-tab" style={{ display: aiTabActive ? "flex" : "none", flex: "1 1 0", minHeight: 0, flexDirection: "column" }}>
-        <style>{`.drawing-ai-tab > .workspace-ai-panel-shell { flex: 1 1 0 !important; border-top: 0 !important; background: var(--da-page, #030914) !important; } .drawing-ai-tab .workspace-ai-messages-scroll { background: transparent !important; } .drawing-ai-tab .workspace-ai-panel-shell > style + div { display: none !important; } .drawing-ai-tab .workspace-ai-panel-shell > * { background: var(--da-page, #030914) !important; }`}</style>
+        <style>{`.drawing-ai-tab > .workspace-ai-panel-shell { flex: 1 1 0 !important; border-top: 0 !important; background: var(--da-panel) !important; } .drawing-ai-tab .workspace-ai-messages-scroll { background: transparent !important; } .drawing-ai-tab .workspace-ai-panel-shell > style + div { display: none !important; } .drawing-ai-tab .workspace-ai-panel-shell > * { background: var(--da-page, #030914) !important; }`}</style>
       <DrawingAiPanel
         workspaceContext={workspaceContext}
         projectAiMemory={projectAiMemory}

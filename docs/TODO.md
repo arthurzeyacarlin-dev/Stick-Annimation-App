@@ -3,7 +3,9 @@
 ## Professional redesign queue (D-0237, 2026-11-18)
 
 - [x] **LOOK-SIGN-IN** — sign-in, log-in, plan step, reset password and loading screen in main.
-- [ ] **LOOK-APP** — full layout redesign of the rest of the app in `diamond-review/app-look-v2`, same look everywhere; Arthur reviews before main.
+- [x] **LOOK-APP** — full redesign of the rest of the app, in main (D-0238).
+- [ ] **LOOK-OLD-DRAWINGS** — drawings made on the older, squarer canvas can look cut off in the wide editor; Arthur decides whether to fit them.
+- [ ] **LOOK-V1-COPY** — the AI Animator work copy (`diamond-review/v1-single`) does not have this look yet; bring it over when Arthur says.
 - [ ] **LOOK-REAL-CLIP** — replace the hand-made sign-in sample with a real AI Animator clip.
 - [ ] **LOOK-WEBSITE** — after the app: real videos, same look, remove "stick figure animation" wording.
 

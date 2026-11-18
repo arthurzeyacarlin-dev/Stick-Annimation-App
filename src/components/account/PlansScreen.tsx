@@ -12,11 +12,8 @@ import { BackButton } from "@/src/components/ui/BackButton";
 // page (cards are typed there, never here); coming back with ?checkout=done&session_id=… applies the new plan.
 // Someone who already pays switches or cancels in "Manage plan" (Stripe's page) so there's never a second plan.
 // (The old Phase 2 "choosing switches right away" shortcut is gone from here; the /dev/plan test page keeps it.)
-const PLAN_NOTE: Record<PaidPlanId, string> = {
-  starter: "For getting started",
-  creator: "Most popular",
-  studio: "For big projects",
-};
+const PLAN_POINTS = ["AI Animator and Help Assistant", "All drawing and animation tools", "Export videos to share anywhere"];
+const PLAN_FOR: Record<PaidPlanId, string> = { starter: "For getting started", creator: "For regular animators", studio: "For big projects" };
 const number = (value: number) => value.toLocaleString("en-US");
 const usd = (value: number) => (Number.isInteger(value) ? `$${value}` : `$${value.toFixed(2)}`);
 export function PlansScreen() {
@@ -76,16 +73,17 @@ export function PlansScreen() {
     <main className={styles.main}>
       <div className={styles.frame}>
         <BackButton href="/">Back to Home</BackButton>
-        <p className={styles.eyebrow}>Plans</p>
-        <h1 className={styles.title}>Choose your plan</h1>
-        <p className={styles.lead}>{lead}</p>
-        {notice && <p className={styles.notice} role="status">{notice}</p>}
-
-        <p className={styles.note}>Show prices for:</p>
-        <div className={styles.intervals} role="group" aria-label="Show prices for paying monthly or yearly">
-          <button type="button" className={styles.interval} aria-pressed={billingInterval === "month"} onClick={() => setBillingInterval("month")}>Monthly</button>
-          <button type="button" className={styles.interval} aria-pressed={billingInterval === "year"} onClick={() => setBillingInterval("year")}>Yearly — 2 months free</button>
-        </div>
+        <header className={styles.head}>
+          <div className={styles.headWords}>
+            <p className={styles.lead}>{lead}</p>
+            <h1 className={styles.title}>Choose your plan</h1>
+            {notice && <p className={styles.notice} role="status">{notice}</p>}
+          </div>
+          <div className={styles.intervals} role="group" aria-label="Show prices for paying monthly or yearly">
+            <button type="button" className={styles.interval} aria-pressed={billingInterval === "month"} onClick={() => setBillingInterval("month")}>Monthly</button>
+            <button type="button" className={styles.interval} aria-pressed={billingInterval === "year"} onClick={() => setBillingInterval("year")}>Yearly <span>2 months free</span></button>
+          </div>
+        </header>
 
         <div className={styles.plans}>
           {PAID_PLAN_IDS.map((id) => {
@@ -94,17 +92,17 @@ export function PlansScreen() {
             // Arthur: your own plan always shows what YOU pay (monthly or yearly), never the other price.
             const shownInterval = current ? status?.interval ?? "month" : billingInterval;
             const price = shownInterval === "month" ? `${usd(plan.monthlyUsd)} a month` : `${usd(plan.yearlyUsd)} a year`;
-            const points = [
-              `${number(plan.credits)} AI credits every month`,
-              "All drawing and animation tools",
-              PLAN_NOTE[id],
-            ];
+            const amount = usd(shownInterval === "month" ? plan.monthlyUsd : plan.yearlyUsd);
             const body = (
               <>
-                <span className={styles.planName}>{plan.label}</span>
-                <span className={styles.price}>{price}</span>
-                <span className={styles.saving}>{shownInterval === "year" ? "2 months free" : " "}</span>
-                <ul>{points.map((point) => <li key={point}>{point}</li>)}</ul>
+                <span className={styles.planTop}>
+                  <span className={styles.planName}>{plan.label}</span>
+                  {id === "creator" && <span className={styles.badge}>Most popular</span>}
+                </span>
+                <span className={styles.planFor}>{PLAN_FOR[id]}</span>
+                <span className={styles.price}><strong>{amount}</strong><small>{shownInterval === "month" ? "a month" : "a year"}</small></span>
+                <span className={styles.allowance}><strong>{number(plan.credits)} AI credits</strong><small>every month</small></span>
+                <ul>{PLAN_POINTS.map((point) => <li key={point}>{point}</li>)}</ul>
               </>
             );
             if (current) {
@@ -125,17 +123,18 @@ export function PlansScreen() {
                 disabled={mode !== "test" || busy !== null} onClick={() => void choose(id)}
                 aria-label={`${label}, ${price}, ${number(plan.credits)} AI credits every month`}>
                 {body}
-                <span className={styles.choose}>{label}</span>
+                <span className={`${styles.choose}${id === "creator" ? ` ${styles.choosePrimary}` : ""}`}>{label}</span>
               </button>
             );
           })}
         </div>
         {error && <p role="alert" className={styles.error}>{error}</p>}
 
-        <p className={styles.note}>
-          AI credits refill every month on the day your plan started (yearly plans refill every month too). You can cancel any time
-          in Manage plan. Every AI Animator and Help Assistant answer uses credits.
-        </p>
+        <ul className={styles.promises}>
+          <li><strong>Cancel any time</strong><span>Change or stop your plan in Manage plan.</span></li>
+          <li><strong>Refills every month</strong><span>Your AI credits come back on the day your plan started.</span></li>
+          <li><strong>Secure payment</strong><span>You pay on Stripe&apos;s page. We never see your card.</span></li>
+        </ul>
       </div>
     </main>
   );

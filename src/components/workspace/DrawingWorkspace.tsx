@@ -3694,7 +3694,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
   );
   const [activeTool, setActiveTool] = useState<DrawingToolName>(initialWorkspaceState.activeTool);
   const [drawingToolActivationId, setDrawingToolActivationId] = useState(0);
-  const [rightPanelWidth, setRightPanelWidth] = useState(420);
+  const [rightPanelWidth, setRightPanelWidth] = useState(440);
   const [brushSize, setBrushSize] = useState(initialWorkspaceState.brushSize);
   const [eraserSize, setEraserSize] = useState(initialWorkspaceState.eraserSize);
   const [fillColor, setFillColor] = useState(initialWorkspaceState.fillColor);

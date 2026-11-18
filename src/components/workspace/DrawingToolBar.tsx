@@ -43,7 +43,7 @@ export function DrawingToolBar({
               type="button"
               aria-label={t === "Shape" ? "Shape tool" : t === "Knife" ? "Knife tool" : t === "Brush" ? "Pencil" : t}
               data-tooltip={t === "Shape" ? "Shape tool" : t === "Knife" ? "Knife tool" : t === "Brush" ? "Pencil" : t}
-              data-tooltip-side="above"
+              data-tooltip-side="right"
               onClick={() => onToolSelect(t)}
               aria-pressed={isSelected}
               data-selected={isSelected ? "true" : undefined}

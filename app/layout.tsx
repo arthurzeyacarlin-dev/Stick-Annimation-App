@@ -1,7 +1,7 @@
 import "./globals.css";
 import "./themes.css";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import { ScrollbarActivity } from "./ScrollbarActivity";
 import { NotificationCenterProvider } from "@/src/components/notifications/NotificationCenterProvider";
 import { AccountSessionProvider } from "@/src/components/account/AccountSessionProvider";
@@ -18,9 +18,6 @@ const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
-
-// Redesign: the heading font used across the new screens.
-const display = Plus_Jakarta_Sans({ subsets: ["latin"], weight: ["600", "700", "800"], variable: "--font-display" });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -46,7 +43,7 @@ export default async function RootLayout({
     <html lang="en" data-theme={appearance.theme} data-accent={appearance.accent} suppressHydrationWarning>
       <body
         suppressHydrationWarning
-        className={`${geistSans.variable} ${geistMono.variable} ${display.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AccountSessionProvider user={session ? toAccountPublicUser(session) : null}>
           {session && <AppearanceSync />}

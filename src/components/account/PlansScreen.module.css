@@ -1,68 +1,52 @@
-/* SPEC-0020 Phase 2 + 9: plans page. Only clickable things are boxes (Arthur); hover = var(--da-hover, #0066ff), white text, instant.
-   The monthly/yearly choice is two plain text buttons (no segmented control): the chosen one is bold and underlined. */
-.main { padding: 40px clamp(20px, 4vw, 56px) 64px; }
+/* New plans page (Nov 18): a clear decision. Three plans side by side, Pro stands out, one blue button. */
+.main { position: relative; padding: clamp(24px, 4vh, 44px) clamp(20px, 4vw, 56px) 64px; font-family: var(--font-geist-sans), system-ui, sans-serif; }
 .main *, .main *::before, .main *::after { box-sizing: border-box; transition: none; animation: none; }
-.frame { display: flex; flex-direction: column; gap: 12px; width: min(960px, 100%); margin: 0 auto; }
-.eyebrow { margin: 0; color: var(--da-label, #7895bc); font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
-.title { margin: 0; color: var(--da-text, #f6f9ff); font-size: 34px; font-weight: 760; letter-spacing: -.03em; }
-.lead { margin: 0; color: var(--da-text-3, #a8bddd); font-size: 15px; }
-.notice { margin: 4px 0 0; color: var(--da-success, #7fd8a6); font-size: 15px; font-weight: 650; }
-
-.intervals { display: flex; flex-wrap: wrap; gap: 22px; margin-top: 14px; }
-.interval { padding: 4px 0; border: 0; background: transparent; color: var(--da-text-3, #a8bddd); font: inherit; font-size: 14.5px; font-weight: 500; text-decoration: none; text-underline-offset: 6px; cursor: pointer; }
-.interval[aria-pressed="true"] { color: var(--da-text, #f6f9ff); font-weight: 750; text-decoration: underline; text-decoration-thickness: 2px; }
-.interval:hover { color: var(--da-hover, #0066ff); }
-.interval:focus-visible { outline: 2px solid var(--da-focus, #66c7ff); outline-offset: 3px; border-radius: 4px; }
-
-.plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 8px; }
-.plan { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 22px; border: 1px solid var(--da-border, #244267); border-radius: 14px; background: var(--da-panel, #071120); color: var(--da-text, #f6f9ff); font: inherit; text-align: left; cursor: pointer; }
-.plan ul { margin: 6px 0 8px; padding-left: 18px; color: var(--da-text-3, #a8bddd); font-size: 13.5px; line-height: 1.6; }
-.popular { border-color: var(--da-selected-border, #3a6aa3); }
-.current { border-color: var(--da-selected-border, #3a6aa3); background: var(--da-selected-bg, #0f2a52); cursor: default; }
-.planName { font-size: 18px; font-weight: 750; }
-.price { color: var(--da-text, #f6f9ff); font-size: 26px; font-weight: 760; letter-spacing: -.02em; }
-.saving { min-height: 1.2em; color: var(--da-success, #7fd8a6); font-size: 13px; font-weight: 650; white-space: pre; }
-.choose { margin-top: auto; color: var(--da-link, #8cbbf3); font-size: 14px; font-weight: 700; }
-.yours { margin-top: auto; color: var(--da-text, #f6f9ff); font-size: 14px; font-weight: 700; }
-.manage { display: inline-flex; align-items: center; min-height: 40px; padding: 0 16px; border: 1px solid var(--da-selected-border, #3a6aa3); border-radius: var(--da-radius-control, 10px); background: var(--da-panel, #071120); color: var(--da-text, #f6f9ff); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
-.manage:hover:not(:disabled) { border-color: var(--da-hover-soft, #0066ff); background: var(--da-hover-soft, #0066ff); color: #fff; }
-.manage:focus-visible { outline: 2px solid var(--da-focus, #66c7ff); outline-offset: 3px; }
-.manage:disabled { cursor: default; }
-.plan:hover:not(:disabled):not(.current) { border-color: var(--da-hover-soft, #0066ff); background: var(--da-hover-soft, #0066ff); }
-.plan:hover:not(:disabled):not(.current) ul, .plan:hover:not(:disabled):not(.current) .choose, .plan:hover:not(:disabled):not(.current) .saving { color: #fff; }
+.frame { display: grid; gap: 28px; width: min(1160px, 100%); margin: 0 auto; }
+.head { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 20px 40px; }
+.headWords { display: grid; gap: 10px; min-width: 0; }
+.lead { margin: 0; color: var(--da-muted); font-size: 16px; }
+.title { margin: 0; color: var(--da-text); font-size: clamp(42px, 5.4vw, 72px); line-height: 1; font-weight: 700; letter-spacing: -.05em; }
+.notice { margin: 4px 0 0; color: var(--da-success); font-size: 15px; font-weight: 500; }
+.intervals { flex: 0 0 auto; display: flex; gap: 3px; width: min(100%, 340px); padding: 3px; border: 1px solid var(--da-line); border-radius: 10px; background: var(--da-page); }
+.interval { flex: 1 1 0; min-height: 36px; padding: 0 12px; border: 0; border-radius: 7px; background: transparent; color: var(--da-muted); font: inherit; font-size: 14px; font-weight: 500; cursor: pointer; }
+.interval span { color: inherit; font-size: 12px; opacity: .8; }
+.interval[aria-pressed="true"], .interval:hover { background: var(--da-hover); color: #fff; }
+.interval:focus-visible, .plan:focus-visible, .manage:focus-visible { outline: 2px solid var(--da-focus); outline-offset: 2px; }
+.plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; align-items: stretch; }
+.plan { min-width: 0; display: flex; flex-direction: column; align-items: stretch; gap: 0; padding: 24px; border: 1px solid var(--da-line); border-radius: 12px; background: var(--da-panel); color: var(--da-text); font: inherit; text-align: left; cursor: pointer; }
+.popular { border-color: var(--da-text); }
+.current { border-color: var(--da-text); cursor: default; }
+.planTop { min-height: 26px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.planName { font-size: 20px; font-weight: 600; letter-spacing: -.02em; }
+.badge { padding: 4px 9px; border-radius: 999px; background: var(--da-text); color: var(--da-page); font-size: 12px; font-weight: 600; white-space: nowrap; }
+.planFor { margin-top: 3px; color: var(--da-muted); font-size: 14px; }
+.price { display: flex; align-items: baseline; gap: 7px; margin-top: 26px; }
+.price strong { font-size: clamp(38px, 4vw, 52px); line-height: 1; font-weight: 700; letter-spacing: -.05em; font-variant-numeric: tabular-nums; }
+.price small { color: var(--da-muted); font-size: 15px; }
+.allowance { display: grid; gap: 2px; margin-top: 22px; padding-block: 15px; border-block: 1px solid var(--da-line); }
+.allowance strong { font-size: 15px; font-weight: 600; }
+.allowance small { color: var(--da-muted); font-size: 13.5px; line-height: 1.35; }
+.plan ul { display: grid; gap: 10px; margin: 18px 0 24px; padding: 0; list-style: none; color: var(--da-text-2); font-size: 14px; line-height: 1.35; }
+.plan li { position: relative; padding-left: 22px; }
+.plan li::before { content: ""; position: absolute; left: 2px; top: 3px; width: 10px; height: 5px; border-left: 1.7px solid var(--da-text); border-bottom: 1.7px solid var(--da-text); transform: rotate(-45deg); }
+.choose, .yours { min-height: 44px; display: grid; place-items: center; margin-top: auto; padding: 0 12px; border: 1px solid var(--da-border); border-radius: 10px; background: var(--da-page); color: var(--da-text); font-size: 15px; font-weight: 600; text-align: center; }
+.choosePrimary { border-color: var(--da-accent); background: var(--da-accent); color: #fff; }
+.yours { border-color: transparent; background: transparent; color: var(--da-muted); font-size: 14px; font-weight: 500; }
+.manage { min-height: 44px; display: grid; place-items: center; width: 100%; padding: 0 12px; border: 1px solid var(--da-border); border-radius: 10px; background: var(--da-page); color: var(--da-text); font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; }
+.manage:hover:not(:disabled) { border-color: var(--da-hover); background: var(--da-hover); color: #fff; }
+.manage:disabled { cursor: default; opacity: .6; }
+.plan:hover:not(:disabled):not(.current) .choose { border-color: var(--da-hover); background: var(--da-hover); }
+.plan:hover:not(:disabled):not(.current) .choosePrimary { border-color: var(--da-accent-hover); background: var(--da-accent-hover); }
 .plan:disabled { cursor: default; }
-.plan:disabled .choose { color: var(--da-label, #7895bc); }
-.plan:focus-visible { outline: 2px solid var(--da-focus, #66c7ff); outline-offset: 3px; }
-.error { margin: 0; color: var(--da-danger, #ff8a95); font-size: 13px; }
-
-.costsTitle { margin: 26px 0 0; color: var(--da-text, #f6f9ff); font-size: 18px; font-weight: 720; }
-.costs { margin: 4px 0 0; padding: 0; max-width: 520px; }
-.costRow { display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--da-line, #163058); font-size: 14px; }
-.costRow:first-child { border-top: 1px solid var(--da-line, #163058); }
-.costRow dt { color: var(--da-text-2, #c9d6ea); }
-.costRow dd { margin: 0; color: var(--da-text, #f6f9ff); font-weight: 700; }
-.note { margin: 10px 0 0; max-width: 720px; color: var(--da-muted, #8fabd0); font-size: 13px; line-height: 1.55; }
-@media (max-width: 860px) { .plans { grid-template-columns: 1fr; } }
-
-.frame > :first-child { margin-bottom: 14px; }
-
-/* SPEC-0022 Phase 9: phones. Compact plan cards (no blank gaps). Monthly / Yearly keeps the same underlined look as the computer. */
-@media (max-width: 640px) {
-  .main { padding: 16px 14px 40px; }
-  .title { font-size: 26px; }
-  .plans { gap: 10px; margin-top: 4px; }
-  .plan { padding: 16px; gap: 6px; }
-  .price { font-size: 22px; }
-  .saving { min-height: 0; }
+.plan:disabled .choose { border-color: var(--da-line); background: transparent; color: var(--da-muted); }
+.error { margin: 0; color: var(--da-danger); font-size: 14px; }
+.promises { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0; padding: 18px 0 0; border-top: 1px solid var(--da-line); list-style: none; }
+.promises li { display: grid; gap: 2px; padding-inline: 2px; }
+.promises strong { color: var(--da-text); font-size: 14px; font-weight: 600; }
+.promises span { color: var(--da-muted); font-size: 13.5px; line-height: 1.4; }
+@media (max-width: 860px) {
+  .plans, .promises { grid-template-columns: minmax(0, 1fr); }
+  .intervals { width: 100%; }
+  .plan { padding: 20px; }
+  .price { margin-top: 18px; }
 }
-
-/* SPEC-0022 (Arthur): Monthly / Yearly uses the same choice bar as everywhere else, on every device:
-   a rounded bar, the selected one a filled block with a blue bar under it. */
-.intervals { gap: 2px; padding: 3px; border: 1px solid var(--da-border, #244267); border-radius: 12px; width: min(100%, 520px); }
-.interval { flex: 1 1 0; padding: 8px 10px; border-radius: 8px; text-align: center; font-size: 14.5px; text-decoration: none; }
-.interval[aria-pressed="true"] { background: var(--da-selected-bg, #0f2a52); color: #fff; text-decoration: none; box-shadow: inset 0 -3px 0 #0066ff; }
-.interval:hover { background: var(--da-hover-soft, #0066ff); color: #fff; }
-
-/* Pro and Creator are the special plans: they light up bright blue on hover (Basic uses the normal dull blue). */
-.plan[data-plan="creator"]:hover:not(:disabled), .plan[data-plan="studio"]:hover:not(:disabled) { border-color: var(--da-hover, #0066ff); background: var(--da-hover, #0066ff); box-shadow: 0 14px 36px rgba(0, 102, 255, .35); }
-.plan[data-plan="creator"]:hover:not(:disabled) :is(.choose, li, p, span), .plan[data-plan="studio"]:hover:not(:disabled) :is(.choose, li, p, span) { color: #fff; }

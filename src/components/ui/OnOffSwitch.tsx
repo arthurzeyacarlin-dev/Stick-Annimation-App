@@ -16,8 +16,8 @@ export function OnOffSwitch({ checked, onChange, label }: { checked: boolean; on
       style={{
         boxSizing: "border-box", position: "relative", width: 44, height: 24, minHeight: 0, padding: 0, margin: 0, flex: "0 0 auto",
         borderRadius: 999, cursor: "pointer",
-        border: checked ? "1px solid var(--da-hover, #0066ff)" : "1px solid var(--da-border, #244267)",
-        background: checked ? "var(--da-hover, #0066ff)" : "var(--da-panel, #071120)",
+        border: checked ? "1px solid var(--da-hover, #3a3a41)" : "1px solid var(--da-border, #2c2c32)",
+        background: checked ? "var(--da-hover, #3a3a41)" : "var(--da-panel, #1a1a1e)",
       }}
     >
       <span
@@ -25,7 +25,7 @@ export function OnOffSwitch({ checked, onChange, label }: { checked: boolean; on
         style={{
           position: "absolute", top: 3, left: 3, width: 16, height: 16, borderRadius: "50%",
           transform: checked ? "translateX(20px)" : "translateX(0)",
-          background: checked ? "#ffffff" : "var(--da-muted, #8fabd0)",
+          background: checked ? "#ffffff" : "var(--da-muted, #a3a3ab)",
         }}
       />
     </button>

@@ -1,4 +1,4 @@
-/* SPEC-0020 Phase 3: Settings. No boxes except clickable things (Arthur); hover var(--da-hover, #0066ff), instant. */
+/* SPEC-0020 Phase 3: Settings. No boxes except clickable things (Arthur); hover var(--da-hover, #3a3a41), instant. */
 .main { padding: 36px clamp(20px, 4vw, 56px) 64px; }
 .main *, .main *::before, .main *::after { box-sizing: border-box; transition: none; animation: none; }
 .frame { display: flex; flex-direction: column; gap: 6px; width: min(720px, 100%); margin: 0 auto; }

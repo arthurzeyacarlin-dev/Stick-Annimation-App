@@ -29,9 +29,9 @@ const topBarButtonStyle = (isActive = false, cursor: "pointer" | "default" = "de
     height: 30,
     padding: "0 10px",
     borderRadius: 8,
-    border: isActive ? "1px solid var(--da-selected-border, #3a6aa3)" : "1px solid transparent",
-    background: isActive ? "var(--da-selected-bg, #0f2a52)" : "transparent",
-    color: isActive ? "var(--da-on-selected, #eaf3ff)" : "var(--da-text-2, #c9d6ea)",
+    border: isActive ? "1px solid var(--da-selected-border, #55555e)" : "1px solid transparent",
+    background: isActive ? "var(--da-selected-bg, #3a3a41)" : "transparent",
+    color: isActive ? "var(--da-on-selected, #f5f5f6)" : "var(--da-text-2, #d2d2d7)",
     fontSize: 13,
     fontWeight: 500,
     fontFamily: "inherit",
@@ -51,7 +51,7 @@ const historyButtonStyle = (isEnabled: boolean) =>
     borderRadius: 8,
     border: "1px solid transparent",
     background: "transparent",
-    color: "var(--da-muted, #8fabd0)",
+    color: "var(--da-muted, #a3a3ab)",
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
@@ -76,8 +76,8 @@ const menuStyle = (minWidth: number) =>
     minWidth,
     padding: 4,
     borderRadius: 12,
-    border: "1px solid var(--da-line, #163058)",
-    background: "var(--da-panel, #071120)",
+    border: "1px solid var(--da-line, #2c2c32)",
+    background: "var(--da-panel, #1a1a1e)",
     boxShadow: "0 18px 44px rgba(0,0,0,0.45)",
     display: "flex",
     flexDirection: "column" as const,
@@ -92,7 +92,7 @@ const menuItemStyle = (isEnabled = true) =>
     border: "1px solid transparent",
     borderRadius: 7,
     background: "transparent",
-    color: "var(--da-text-2, #c9d6ea)",
+    color: "var(--da-text-2, #d2d2d7)",
     fontSize: 13,
     fontFamily: "inherit",
     textAlign: "left" as const,
@@ -161,7 +161,7 @@ export function DrawingTopBar({
   const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform);
   const fileShortcut = { save: isMac ? "⌘S" : "Ctrl+S", saveAs: isMac ? "⇧⌘S" : "Ctrl+Shift+S", export: isMac ? "⌘E" : "Ctrl+E", exit: isMac ? "⌥⌘S" : "Ctrl+Alt+S" };
   const shortcutLabel = (label: string, keys: string) => (
-    <span style={{ display: "flex", alignItems: "center", gap: 16, width: "100%" }}><span style={{ flex: 1 }}>{label}</span><span style={{ color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>{keys}</span></span>
+    <span style={{ display: "flex", alignItems: "center", gap: 16, width: "100%" }}><span style={{ flex: 1 }}>{label}</span><span style={{ color: "var(--da-muted, #a3a3ab)", fontSize: 12 }}>{keys}</span></span>
   );
   const runFileAction = (action?: () => void | Promise<void>) => {
     setIsFileMenuOpen(false);
@@ -198,7 +198,7 @@ export function DrawingTopBar({
     : saveState === "saved" || saveState === "quiet-saved"
       ? "#7fd8a6"
       : saveState === "saving"
-        ? "var(--da-link, #8cbbf3)"
+        ? "var(--da-link, #d2d2d7)"
         : "#f3d89c";
 
   return (
@@ -210,8 +210,8 @@ export function DrawingTopBar({
         alignItems: "center",
         gap: 12,
         padding: "0 16px",
-        background: "var(--da-panel, #071120)",
-        borderBottom: "1px solid var(--da-line, #163058)",
+        background: "var(--da-panel, #1a1a1e)",
+        borderBottom: "1px solid var(--da-line, #2c2c32)",
         flexShrink: 0,
       }}
     >
@@ -260,7 +260,7 @@ export function DrawingTopBar({
                 ) : null}
                 {onSaveAndExit ? (
                   <>
-                    <div aria-hidden="true" style={{ height: 1, margin: "2px 6px", background: "var(--da-line, #163058)" }} />
+                    <div aria-hidden="true" style={{ height: 1, margin: "2px 6px", background: "var(--da-line, #2c2c32)" }} />
                     <button
                       type="button"
                       role="menuitem"
@@ -293,7 +293,7 @@ export function DrawingTopBar({
                 {openMenu === menu.label && (
                   <div role="menu" aria-label={menu.label} style={menuStyle(220)}>
                     {menu.items.map((item, index) => item.kind === "separator"
-                      ? <div key={`sep-${index}`} aria-hidden="true" style={{ height: 1, margin: "2px 6px", background: "var(--da-line, #163058)" }} />
+                      ? <div key={`sep-${index}`} aria-hidden="true" style={{ height: 1, margin: "2px 6px", background: "var(--da-line, #2c2c32)" }} />
                       : (
                         <button
                           key={item.label}
@@ -306,7 +306,7 @@ export function DrawingTopBar({
                         >
                           <span aria-hidden="true" style={{ width: 12, flexShrink: 0, textAlign: "center" }}>{item.checked ? "✓" : ""}</span>
                           <span style={{ flex: 1 }}>{item.label}</span>
-                          {item.shortcut ? <span style={{ color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>{item.shortcut}</span> : null}
+                          {item.shortcut ? <span style={{ color: "var(--da-muted, #a3a3ab)", fontSize: 12 }}>{item.shortcut}</span> : null}
                         </button>
                       ))}
                   </div>
@@ -318,7 +318,7 @@ export function DrawingTopBar({
 
         {hasHistoryControls && (
           <>
-            <div aria-hidden="true" style={{ width: 1, height: 18, background: "var(--da-line, #163058)", flexShrink: 0 }} />
+            <div aria-hidden="true" style={{ width: 1, height: 18, background: "var(--da-line, #2c2c32)", flexShrink: 0 }} />
             <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
               <button
                 type="button"
@@ -371,7 +371,7 @@ export function DrawingTopBar({
           maxWidth: "40%",
           fontSize: 13,
           fontWeight: 600,
-          color: "var(--da-text, #f6f9ff)",
+          color: "var(--da-text, #f5f5f6)",
           textAlign: "center",
           whiteSpace: "nowrap",
           overflow: "hidden",
@@ -389,7 +389,7 @@ export function DrawingTopBar({
         {hasRecoveryWarning ? (
           <span style={{ fontSize: 12, fontWeight: 500, color: "var(--da-danger, #ff8a95)" }}>{recoveryStateLabel}</span>
         ) : null}
-        {isLegacyProject ? <span style={{ fontSize: 12, color: "var(--da-muted, #8fabd0)" }}>{syncLabel}</span> : null}
+        {isLegacyProject ? <span style={{ fontSize: 12, color: "var(--da-muted, #a3a3ab)" }}>{syncLabel}</span> : null}
         <div
           role="status"
           aria-live="polite"
@@ -401,9 +401,9 @@ export function DrawingTopBar({
             gap: 7,
             padding: "0 10px",
             borderRadius: 999,
-            border: "1px solid var(--da-line, #163058)",
-            background: "var(--da-page, #030914)",
-            color: hasSaveProblem ? "var(--da-danger, #ff8a95)" : "var(--da-text-2, #c9d6ea)",
+            border: "1px solid var(--da-line, #2c2c32)",
+            background: "var(--da-page, #111113)",
+            color: hasSaveProblem ? "var(--da-danger, #ff8a95)" : "var(--da-text-2, #d2d2d7)",
             fontSize: 12,
             fontWeight: 500,
             userSelect: "none",

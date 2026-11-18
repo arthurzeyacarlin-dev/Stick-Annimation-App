@@ -10367,29 +10367,29 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
   return (
     <>
     {isAssistantOpen && (
-      <div data-workspace-theme-exempt="true" style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", background: "var(--da-page, #030914)" }}>
+      <div data-workspace-theme-exempt="true" style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", background: "var(--da-page, #111113)" }}>
         <DiamondAssistantScreen onClose={() => setIsAssistantOpen(false)} />
       </div>
     )}
     {(layerDeleteRequest || layerDeleteNotice) && (
-      <div role="presentation" className={workspaceThemeStyles.workspace} onClick={() => { setLayerDeleteRequest(null); setLayerDeleteNotice(null); }} style={{ position: "fixed", inset: 0, zIndex: 1000, display: "grid", placeItems: "center", background: "var(--da-scrim, rgba(3, 9, 20, 0.72))" }}>
-        <div role="alertdialog" aria-modal="true" className={layerDeleteRequest ? "da-danger-dialog" : undefined} aria-label={layerDeleteRequest ? "Delete layer" : "Layer"} onClick={(event) => event.stopPropagation()} style={{ width: "min(420px, calc(100vw - 32px))", padding: 22, border: "1px solid var(--da-line, #163058)", borderRadius: 16, background: "var(--da-panel, #071120)", color: "var(--da-text, #f6f9ff)", boxShadow: "var(--da-shadow-pop, 0 18px 44px rgba(0,0,0,.45))", display: "grid", gap: 12 }}>
+      <div role="presentation" className={workspaceThemeStyles.workspace} onClick={() => { setLayerDeleteRequest(null); setLayerDeleteNotice(null); }} style={{ position: "fixed", inset: 0, zIndex: 1000, display: "grid", placeItems: "center", background: "var(--da-scrim, var(--da-scrim))" }}>
+        <div role="alertdialog" aria-modal="true" className={layerDeleteRequest ? "da-danger-dialog" : undefined} aria-label={layerDeleteRequest ? "Delete layer" : "Layer"} onClick={(event) => event.stopPropagation()} style={{ width: "min(420px, calc(100vw - 32px))", padding: 22, border: "1px solid var(--da-line, #2c2c32)", borderRadius: 16, background: "var(--da-panel, #1a1a1e)", color: "var(--da-text, #f5f5f6)", boxShadow: "var(--da-shadow-pop, 0 18px 44px rgba(0,0,0,.45))", display: "grid", gap: 12 }}>
           {layerDeleteRequest ? (
             <>
               <strong style={{ fontSize: 18 }}>Delete &ldquo;{layerDeleteRequest.name}&rdquo;?</strong>
-              <p style={{ margin: 0, color: "var(--da-text-2, #c9d6ea)", fontSize: 14, lineHeight: 1.5 }}>
+              <p style={{ margin: 0, color: "var(--da-text-2, #d2d2d7)", fontSize: 14, lineHeight: 1.5 }}>
                 {layerDeleteRequest.isOnlyLayer ? "It's your only layer, so a new empty layer takes its place. " : ""}You can bring it back with Undo.
               </p>
               <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
-                <button type="button" autoFocus onClick={() => setLayerDeleteRequest(null)} style={{ minHeight: 38, padding: "0 16px", border: "1px solid var(--da-border, #244267)", borderRadius: 10, background: "var(--da-panel, #071120)", color: "var(--da-text-2, #c9d6ea)", font: "inherit", fontWeight: 650, cursor: "pointer" }}>Cancel</button>
+                <button type="button" autoFocus onClick={() => setLayerDeleteRequest(null)} style={{ minHeight: 38, padding: "0 16px", border: "1px solid var(--da-border, #2c2c32)", borderRadius: 10, background: "var(--da-panel, #1a1a1e)", color: "var(--da-text-2, #d2d2d7)", font: "inherit", fontWeight: 650, cursor: "pointer" }}>Cancel</button>
                 <button type="button" data-hover="danger" onClick={() => { const request = layerDeleteRequest; setLayerDeleteRequest(null); performLayerDelete(request.layerId); }} style={{ minHeight: 38, padding: "0 16px", border: "1px solid var(--da-danger-solid, #d23a52)", borderRadius: 10, background: "transparent", color: "var(--da-danger-solid, #d23a52)", font: "inherit", fontWeight: 700, cursor: "pointer" }}>Delete layer</button>
               </div>
             </>
           ) : (
             <>
-              <p style={{ margin: 0, color: "var(--da-text-2, #c9d6ea)", fontSize: 14, lineHeight: 1.5 }}>{layerDeleteNotice}</p>
+              <p style={{ margin: 0, color: "var(--da-text-2, #d2d2d7)", fontSize: 14, lineHeight: 1.5 }}>{layerDeleteNotice}</p>
               <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <button type="button" autoFocus onClick={() => setLayerDeleteNotice(null)} style={{ minHeight: 38, padding: "0 16px", border: "1px solid var(--da-border, #244267)", borderRadius: 10, background: "var(--da-panel, #071120)", color: "var(--da-text-2, #c9d6ea)", font: "inherit", fontWeight: 650, cursor: "pointer" }}>OK</button>
+                <button type="button" autoFocus onClick={() => setLayerDeleteNotice(null)} style={{ minHeight: 38, padding: "0 16px", border: "1px solid var(--da-border, #2c2c32)", borderRadius: 10, background: "var(--da-panel, #1a1a1e)", color: "var(--da-text-2, #d2d2d7)", font: "inherit", fontWeight: 650, cursor: "pointer" }}>OK</button>
               </div>
             </>
           )}
@@ -10397,16 +10397,16 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       </div>
     )}
     {isShortcutsOpen && (
-      <div role="presentation" onClick={() => setIsShortcutsOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 1000, display: "grid", placeItems: "center", background: "var(--da-scrim, rgba(3, 9, 20, 0.72))" }}>
-        <div role="dialog" aria-label="Keyboard shortcuts" onClick={(event) => event.stopPropagation()} style={{ width: "min(420px, calc(100vw - 32px))", maxHeight: "calc(100vh - 32px)", overflowY: "auto", padding: 22, border: "1px solid var(--da-line, #163058)", borderRadius: 16, background: "var(--da-panel, #071120)", color: "var(--da-text, #f6f9ff)", boxShadow: "var(--da-shadow-pop, 0 18px 44px rgba(0,0,0,.45))" }}>
+      <div role="presentation" onClick={() => setIsShortcutsOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 1000, display: "grid", placeItems: "center", background: "var(--da-scrim, var(--da-scrim))" }}>
+        <div role="dialog" aria-label="Keyboard shortcuts" onClick={(event) => event.stopPropagation()} style={{ width: "min(420px, calc(100vw - 32px))", maxHeight: "calc(100vh - 32px)", overflowY: "auto", padding: 22, border: "1px solid var(--da-line, #2c2c32)", borderRadius: 16, background: "var(--da-panel, #1a1a1e)", color: "var(--da-text, #f5f5f6)", boxShadow: "var(--da-shadow-pop, 0 18px 44px rgba(0,0,0,.45))" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
             <strong style={{ fontSize: 18 }}>Keyboard shortcuts</strong>
             <CloseButton label="Close keyboard shortcuts" onClick={() => setIsShortcutsOpen(false)} />
           </div>
           {[["Save As", isMac ? "⇧⌘S" : "Ctrl+Shift+S"], ["Export", `${mod}E`], ["Close workspace", isMac ? "⌥⌘S" : "Ctrl+Alt+S"], ["Undo", `${mod}Z`], ["Redo", isMac ? "⇧⌘Z" : "Ctrl+Y"], ["Insert Frame", "F5"], ["Insert Keyframe", "F6"], ["Insert Blank Keyframe", "F7"],
             ["Play / Pause", "Enter"], ["Select tool", "M"], ["Lasso", "L"], ["Pencil", "P"], ["Eraser", "E"], ["Fill", "F"], ["Text", "T"], ["Shape", "S"], ["Knife", "K"], ["Copy frames", `${mod}C`], ["Paste frames", `${mod}V`], ["Zoom In", `${mod}+`], ["Zoom Out", `${mod}−`], ["Reset View", `${mod}0`]].map(([label, keys]) => (
-            <div key={label} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderTop: "1px solid var(--da-line, #163058)", fontSize: 14, color: "var(--da-text-2, #c9d6ea)" }}>
-              <span>{label}</span><kbd style={{ fontFamily: "inherit", color: "var(--da-text, #f6f9ff)", fontWeight: 650 }}>{keys}</kbd>
+            <div key={label} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderTop: "1px solid var(--da-line, #2c2c32)", fontSize: 14, color: "var(--da-text-2, #d2d2d7)" }}>
+              <span>{label}</span><kbd style={{ fontFamily: "inherit", color: "var(--da-text, #f5f5f6)", fontWeight: 650 }}>{keys}</kbd>
             </div>
           ))}
         </div>
@@ -10416,7 +10416,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       className={workspaceThemeStyles.workspace}
       style={{
         height: "100vh",
-        background: "var(--da-page, #030914)",
+        background: "var(--da-page, #111113)",
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",
@@ -10425,14 +10425,14 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       <style>{`
           [data-unified-workspace-area="true"] + div button:focus-visible,
           [data-unified-workspace-area="true"] [aria-label="Workspace panels"] button:focus-visible {
-            outline: 2px solid var(--da-focus, #66c7ff) !important;
+            outline: 2px solid var(--da-focus, #4d94ff) !important;
             outline-offset: 2px;
           }
           #save-as-project-name:focus {
-            border-color: var(--da-selected-border, #3a6aa3) !important;
+            border-color: var(--da-selected-border, #55555e) !important;
           }
           #save-as-project-name:focus-visible {
-            outline: 2px solid var(--da-focus, #66c7ff);
+            outline: 2px solid var(--da-focus, #4d94ff);
             outline-offset: 2px;
           }
           @media (max-width: 640px) {
@@ -10450,7 +10450,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
               min-height: 200px;
               flex: 0 0 200px !important;
               border-left: 0 !important;
-              border-top: 1px solid var(--da-line, #163058);
+              border-top: 1px solid var(--da-line, #2c2c32);
             }
             [data-unified-workspace-area="true"] + div {
               width: 100% !important;
@@ -10488,8 +10488,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
             opacity: saveNotification.isVisible ? 1 : 0,
             padding: "12px 16px",
             borderRadius: 12,
-            border: "1px solid var(--da-line, #163058)",
-            background: "var(--da-panel, #071120)",
+            border: "1px solid var(--da-line, #2c2c32)",
+            background: "var(--da-panel, #1a1a1e)",
             boxShadow: "0 18px 44px rgba(0,0,0,0.45)",
             display: "flex",
             flexDirection: "column",
@@ -10500,8 +10500,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
             textAlign: "center",
           }}
         >
-          <div style={{ color: "var(--da-text, #f6f9ff)", fontSize: 14, fontWeight: 700 }}>Project saved</div>
-          <div style={{ color: "var(--da-muted, #8fabd0)", fontSize: 12 }}>{saveNotification.projectName}</div>
+          <div style={{ color: "var(--da-text, #f5f5f6)", fontSize: 14, fontWeight: 700 }}>Project saved</div>
+          <div style={{ color: "var(--da-muted, #a3a3ab)", fontSize: 12 }}>{saveNotification.projectName}</div>
         </div>
       )}
       <MemoizedDrawingTimelineRow
@@ -10626,7 +10626,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
                 orient="auto"
                 markerUnits="strokeWidth"
               >
-                <path d="M0,0 L9,4.5 L0,9 z" fill="rgba(78, 168, 255, 0.94)" />
+                <path d="M0,0 L9,4.5 L0,9 z" fill="rgba(77, 148, 255, 0.94)" />
               </marker>
             </defs>
             <rect
@@ -10634,8 +10634,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
               y={tweenGuideOverlay.startRect.top}
               width={tweenGuideOverlay.startRect.width}
               height={tweenGuideOverlay.startRect.height}
-              fill="rgba(78, 168, 255, 0.06)"
-              stroke="rgba(78, 168, 255, 0.55)"
+              fill="rgba(77, 148, 255, 0.06)"
+              stroke="rgba(77, 148, 255, 0.55)"
               strokeDasharray="4 4"
             />
             <rect
@@ -10643,8 +10643,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
               y={tweenGuideOverlay.endRect.top}
               width={tweenGuideOverlay.endRect.width}
               height={tweenGuideOverlay.endRect.height}
-              fill="rgba(78, 168, 255, 0.1)"
-              stroke="rgba(78, 168, 255, 0.78)"
+              fill="rgba(77, 148, 255, 0.1)"
+              stroke="rgba(77, 148, 255, 0.78)"
               strokeDasharray="4 4"
             />
             <line
@@ -10652,7 +10652,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
               y1={tweenGuideOverlay.startCenterY}
               x2={tweenGuideOverlay.endCenterX}
               y2={tweenGuideOverlay.endCenterY}
-              stroke="rgba(78, 168, 255, 0.94)"
+              stroke="rgba(77, 148, 255, 0.94)"
               strokeWidth="2"
               strokeDasharray="8 6"
               markerEnd="url(#diamond-tween-arrow)"
@@ -10661,15 +10661,15 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
               cx={tweenGuideOverlay.startCenterX}
               cy={tweenGuideOverlay.startCenterY}
               r="4"
-              fill="rgba(18, 27, 38, 0.98)"
-              stroke="rgba(78, 168, 255, 0.96)"
+              fill="rgba(26, 26, 30, 0.98)"
+              stroke="rgba(77, 148, 255, 0.96)"
               strokeWidth="1.5"
             />
             <circle
               cx={tweenGuideOverlay.endCenterX}
               cy={tweenGuideOverlay.endCenterY}
               r="4"
-              fill="rgba(78, 168, 255, 0.96)"
+              fill="rgba(77, 148, 255, 0.96)"
             />
           </svg>
         )}
@@ -10689,7 +10689,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
           alignItems: "center",
           justifyContent: "center",
           padding: 20,
-          background: "rgba(3, 9, 20, 0.72)",
+          background: "var(--da-scrim)",
         }}
       >
         <form
@@ -10711,19 +10711,19 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
             gap: 16,
             padding: 24,
             borderRadius: 16,
-            border: "1px solid var(--da-line, #163058)",
-            background: "var(--da-panel, #071120)",
+            border: "1px solid var(--da-line, #2c2c32)",
+            background: "var(--da-panel, #1a1a1e)",
             boxShadow: "0 18px 44px rgba(0,0,0,0.45)",
-            color: "var(--da-text, #f6f9ff)",
+            color: "var(--da-text, #f5f5f6)",
           }}
         >
           <div>
             <h2 id="save-as-dialog-title" style={{ margin: 0, fontSize: 20 }}>Save project as</h2>
-            <p id="save-as-dialog-help" style={{ margin: "7px 0 0", color: "var(--da-muted, #8fabd0)", fontSize: 13 }}>
+            <p id="save-as-dialog-help" style={{ margin: "7px 0 0", color: "var(--da-muted, #a3a3ab)", fontSize: 13 }}>
               Save a new copy to your account. The current project stays unchanged until saving succeeds.
             </p>
           </div>
-          <label htmlFor="save-as-project-name" style={{ display: "flex", flexDirection: "column", gap: 7, color: "var(--da-text-3, #a8bddd)", fontSize: 13 }}>
+          <label htmlFor="save-as-project-name" style={{ display: "flex", flexDirection: "column", gap: 7, color: "var(--da-text-3, #b8b8bf)", fontSize: 13 }}>
             Project name
             <input
               id="save-as-project-name"
@@ -10738,9 +10738,9 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
                 boxSizing: "border-box",
                 padding: "11px 12px",
                 borderRadius: 9,
-                border: saveAsDialog.error ? "1px solid rgba(255,138,149,0.6)" : "1px solid var(--da-border, #244267)",
-                background: "var(--da-page, #030914)",
-                color: "var(--da-text, #f6f9ff)",
+                border: saveAsDialog.error ? "1px solid rgba(255,138,149,0.6)" : "1px solid var(--da-border, #2c2c32)",
+                background: "var(--da-page, #111113)",
+                color: "var(--da-text, #f5f5f6)",
                 fontSize: 15,
               }}
             />
@@ -10751,14 +10751,14 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
               type="button"
               disabled={saveAsDialog.submitting}
               onClick={cancelSaveAsDialog}
-              style={{ minWidth: 88, minHeight: 40, borderRadius: 10, border: "1px solid var(--da-border, #244267)", background: "var(--da-panel, #071120)", color: "var(--da-text-2, #c9d6ea)", cursor: saveAsDialog.submitting ? "default" : "pointer" }}
+              style={{ minWidth: 88, minHeight: 40, borderRadius: 10, border: "1px solid var(--da-border, #2c2c32)", background: "var(--da-panel, #1a1a1e)", color: "var(--da-text-2, #d2d2d7)", cursor: saveAsDialog.submitting ? "default" : "pointer" }}
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saveAsDialog.submitting}
-              style={{ minWidth: 88, minHeight: 40, borderRadius: 10, border: "1px solid var(--da-selected-border, #3a6aa3)", background: "var(--da-selected-bg, #0f2a52)", color: "#fff", cursor: saveAsDialog.submitting ? "default" : "pointer", fontWeight: 700 }}
+              style={{ minWidth: 88, minHeight: 40, borderRadius: 10, border: "1px solid var(--da-selected-border, #55555e)", background: "var(--da-selected-bg, #3a3a41)", color: "#fff", cursor: saveAsDialog.submitting ? "default" : "pointer", fontWeight: 700 }}
             >
               {saveAsDialog.submitting ? "Saving" : "Save copy"}
             </button>

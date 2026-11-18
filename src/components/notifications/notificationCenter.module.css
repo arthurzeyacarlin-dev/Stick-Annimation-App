@@ -1,8 +1,8 @@
 .owner { position: relative; display: inline-flex; align-items: center; color-scheme: dark; }
 .trigger { position: relative; display: grid; place-items: center; width: 42px; height: 42px; margin: 0; padding: 8px; border: 1px solid transparent; border-radius: 12px; background: transparent; color: var(--da-text-2, #d2d2d7); cursor: pointer; appearance: none; transition: none; }
-/* Every bell: only the icon changes color (no box). Hover = var(--da-hover, #0066FF), open = soft blue. */
+/* Every bell: only the icon changes color (no box). Hover = var(--da-hover, #3a3a41), open = soft blue. */
 .trigger[aria-expanded="true"] { color: var(--da-link, #d2d2d7); border-color: transparent; background: transparent; }
-.trigger:hover { color: var(--da-hover); border-color: transparent; background: transparent; }
+.trigger:hover { color: var(--da-hover-text); border-color: transparent; background: transparent; }
 .trigger:focus-visible, .panel button:focus-visible { outline: 2px solid var(--da-focus, #4d94ff); outline-offset: 3px; }
 .trigger svg { display: block; width: 24px; height: 24px; transform-origin: 50% 12%; }
 .dot { position: absolute; top: 4px; right: 4px; width: 8px; height: 8px; border: 2px solid var(--da-panel, #1a1a1e); border-radius: 999px; background: var(--da-link, #d2d2d7); box-shadow: none; }

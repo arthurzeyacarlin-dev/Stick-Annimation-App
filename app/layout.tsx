@@ -6,9 +6,8 @@ import { ScrollbarActivity } from "./ScrollbarActivity";
 import { NotificationCenterProvider } from "@/src/components/notifications/NotificationCenterProvider";
 import { AccountSessionProvider } from "@/src/components/account/AccountSessionProvider";
 import { getServerAccountSession, toAccountPublicUser } from "@/src/lib/account/access";
-import { cookies } from "next/headers";
 import { AppearanceSync } from "@/src/components/account/AppearanceSync";
-import { APPEARANCE_COOKIE, parseAppearanceCookie } from "@/src/lib/account/appearance";
+import { parseAppearanceCookie } from "@/src/lib/account/appearance";
 import { ChunkReloadGuard } from "@/src/components/chrome/ChunkReloadGuard";
 import { PageLoadingMark } from "@/src/components/chrome/PageLoadingMark";
 import { ChoicePills } from "@/src/components/chrome/ChoicePills";
@@ -35,8 +34,8 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const session = await getServerAccountSession();
-  // SPEC-0020 Phase 3: Settings → Appearance, rendered on the first paint from the cookie (signed out = default).
-  const appearance = session ? parseAppearanceCookie((await cookies()).get(APPEARANCE_COOKIE)?.value) : parseAppearanceCookie(null);
+  // One look for everyone: dark with Diamond blue.
+  const appearance = parseAppearanceCookie(null); // always the one look; older saved choices are ignored
   return (
     // Browser add-ons (Grammarly, dark-mode, translators, phone browsers) change <html>/<body> before the app starts;
     // that made Next.js show a "didn't match" error. Only these two tags ignore it — the app's own parts still check.

@@ -63,7 +63,7 @@ export function WorkspaceAiPanelShell({
         }
 
         .workspace-ai-composer:focus-within {
-          border-color: #31588a;
+          border-color: #55555e;
         }
 
         @media (max-width: 600px) {

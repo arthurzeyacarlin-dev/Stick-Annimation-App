@@ -2354,3 +2354,5 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Moved as design only from `diamond-review/app-redesign`. Conflicts kept main's logic: plans still show main's credits, and the unfinished AI Animator V1 code stays out of main.
 - Editor layout: tools on the left, wide 16:9 canvas, dark right panel, timeline at the bottom, layers opening upward and resized from their top edge. Timeline frame colors stay exactly as they were.
 - Blue is only for main actions. Normal hover is gray with no fade. Red, green and amber stay only where they mean danger, success or warning.
+- Final audit, same day: hover text and icons now turn white (they had turned dark gray and nearly vanished), hover fills are gray, danger hover is one red, old navy and cyan colors are gone from styles and editor overlays, unused theme colors are removed, and the app always opens in the one dark look.
+- Known limit, not a look issue: drawings are stored at a fixed pixel size, so opening one in a smaller window or on a phone shows it too large for the canvas. The drawing engine is protected, so this waits for Arthur's decision.

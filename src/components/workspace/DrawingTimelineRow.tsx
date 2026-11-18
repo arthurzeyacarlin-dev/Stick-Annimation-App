@@ -127,7 +127,7 @@ const timelineIconButtonStyle = (isOn: boolean): CSSProperties => ({
   border: 0,
   borderRadius: 8,
   background: "transparent",
-  color: isOn ? "var(--da-hover, #0066ff)" : "var(--da-text-2, #c9d6ea)",
+  color: isOn ? "var(--da-hover, #3a3a41)" : "var(--da-text-2, #d2d2d7)",
   cursor: "pointer",
 });
 
@@ -153,7 +153,7 @@ const timelineSelectedButtonStyle: CSSProperties = {
   ...timelineButtonStyle,
   border: `1px solid ${workspaceColors.selectedBorder}`,
   background: workspaceColors.selectedFill,
-  color: "var(--da-on-selected, #eaf3ff)",
+  color: "var(--da-on-selected, #f5f5f6)",
 };
 
 const contextMenuItemStyle = (enabled: boolean, tone: "default" | "danger" = "default"): CSSProperties => ({
@@ -184,9 +184,9 @@ const TIMELINE_RULER_INTERVAL = 5;
 const TIMELINE_MAX_FRAME_RANGE = 10000;
 const TIMELINE_SCROLL_END_PADDING = FRAME_CELL_WIDTH * 2;
 // Frames are gray with black keyframe dots (classic animation-app look) on a navy lane.
-// Current frame: dull blue outline. Hover: bright var(--da-hover, #0066FF) outline via data-hover="outline".
+// Current frame: dull blue outline. Hover: bright var(--da-hover, #3a3a41) outline via data-hover="outline".
 const TIMELINE_LANE_BACKGROUND = workspaceColors.chrome;
-const TIMELINE_EMPTY_SLOT_FILL = "var(--da-panel, #071120)";
+const TIMELINE_EMPTY_SLOT_FILL = "var(--da-panel, #1a1a1e)";
 const TIMELINE_EMPTY_SLOT_BORDER = workspaceColors.divider;
 const TIMELINE_SELECTED_SLOT_OUTLINE = `2px solid ${workspaceColors.selectedBorder}`;
 const TIMELINE_SELECTED_SLOT_BORDER = workspaceColors.selectedBorder;
@@ -217,7 +217,7 @@ const layerControlButtonStyle: CSSProperties = {
   border: 0,
   borderRadius: 6,
   background: "transparent",
-  color: "var(--da-text-2, #c9d6ea)",
+  color: "var(--da-text-2, #d2d2d7)",
   cursor: "pointer",
 };
 const TIMELINE_BOTTOM_SCROLLBAR_HEIGHT = 6;
@@ -1893,7 +1893,7 @@ export function DrawingTimelineRow({
 
         .timeline-bottom-scrollbar-slider::-webkit-slider-runnable-track {
           height: 3px;
-          background: var(--da-line, #163058);
+          background: var(--da-line, #2c2c32);
           border-radius: 999px;
         }
 
@@ -1905,12 +1905,12 @@ export function DrawingTimelineRow({
           margin-top: -1.5px;
           border: none;
           border-radius: 999px;
-          background: var(--da-c-3a5a85, #3a5a85);
+          background: var(--da-c-3a5a85, #55555e);
         }
 
         .timeline-bottom-scrollbar-slider::-moz-range-track {
           height: 3px;
-          background: var(--da-line, #163058);
+          background: var(--da-line, #2c2c32);
           border-radius: 999px;
         }
 
@@ -1919,7 +1919,7 @@ export function DrawingTimelineRow({
           height: 6px;
           border: none;
           border-radius: 999px;
-          background: var(--da-c-3a5a85, #3a5a85);
+          background: var(--da-c-3a5a85, #55555e);
         }
       `}</style>
 
@@ -2089,7 +2089,7 @@ export function DrawingTimelineRow({
         {moveUi?.line && (
           <div
             aria-hidden="true"
-            style={{ position: "fixed", left: moveUi.line.left, top: moveUi.line.top - 2, width: 5, height: moveUi.line.height + 4, background: "#1f7bff", borderRadius: 3, boxShadow: "0 0 0 1px #ffffff, 0 0 10px 2px rgba(0, 102, 255, 0.85)", pointerEvents: "none", zIndex: 60 }}
+            style={{ position: "fixed", left: moveUi.line.left, top: moveUi.line.top - 2, width: 5, height: moveUi.line.height + 4, background: "var(--da-accent-hover)", borderRadius: 3, boxShadow: "0 0 0 1px #ffffff", pointerEvents: "none", zIndex: 60 }}
           />
         )}
         {moveUi && (

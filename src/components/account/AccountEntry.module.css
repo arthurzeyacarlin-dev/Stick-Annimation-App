@@ -126,8 +126,8 @@
 
 .button:hover:not(:disabled),
 .plan:hover { border-color: var(--da-hover); background: var(--da-hover); color: #ffffff; }
-/* Text link: only the text turns var(--da-hover, #0066ff) on hover, no fill. */
-.switch:hover:not(:disabled) { background: transparent; color: var(--da-hover); }
+/* Text link: only the text turns var(--da-hover, #3a3a41) on hover, no fill. */
+.switch:hover:not(:disabled) { background: transparent; color: var(--da-hover-text); }
 
 /* Back (the non-primary button beside the submit action): canonical back control. */
 .actions { align-items: center; }

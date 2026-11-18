@@ -10,7 +10,7 @@ export default async function SettingsPage() {
   if (!session) redirect("/");
   if (getAccountPlanStatus(session.user.id).locked) redirect("/");
   return (
-    <div className="da-polished-page" style={{ minHeight: "100vh", background: "var(--da-page, #030914)", color: "var(--da-text, #f6f9ff)" }}>
+    <div className="da-polished-page" style={{ minHeight: "100vh", background: "var(--da-page, #111113)", color: "var(--da-text, #f5f5f6)" }}>
       <AppChrome page="dashboard" />
       <SettingsScreen />
     </div>

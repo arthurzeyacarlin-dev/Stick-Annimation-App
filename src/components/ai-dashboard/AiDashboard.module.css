@@ -116,7 +116,7 @@
 }
 
 /* SPEC-0020 Phase 2 (Arthur): the chart's "Show" and "Group by" controls as one clean toolbar —
-   each is a single joined segmented control; the chosen option is filled; hover var(--da-hover, #0066ff) instantly. */
+   each is a single joined segmented control; the chosen option is filled; hover var(--da-hover, #3a3a41) instantly. */
 .controls { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 14px 24px; margin: 16px 0 14px; padding-bottom: 16px; border-bottom: 1px solid var(--da-line, #2c2c32); }
 .controls legend { margin-bottom: 7px; color: var(--da-label, #85858e); font-size: 10.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
 .segmented { display: inline-flex; flex-wrap: nowrap; gap: 2px; padding: 3px; border: 1px solid var(--da-border, #2c2c32); border-radius: 10px; background: var(--da-page, #111113); }

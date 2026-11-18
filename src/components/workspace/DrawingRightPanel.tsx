@@ -304,7 +304,7 @@ export function DrawingRightPanel({
         flex: `0 0 ${panelWidth}px`,
         maxWidth: "none",
         borderLeft: 0,
-        background: "var(--da-page, #030914)",
+        background: "var(--da-page, #111113)",
         display: "flex",
         flexDirection: "column",
         minHeight: 0,
@@ -319,17 +319,17 @@ export function DrawingRightPanel({
           position: absolute;
           inset: 0 auto 0 4px;
           width: 1px;
-          background: var(--da-line, #163058);
+          background: var(--da-line, #2c2c32);
         }
 
         .drawing-right-panel-resizer:hover::after,
         .drawing-right-panel-resizer:focus-visible::after,
         .drawing-right-panel-resizer[data-resizing="true"]::after {
-          background: var(--da-hover, #0066ff);
+          background: var(--da-hover, #3a3a41);
         }
 
         .drawing-right-panel-resizer:focus-visible {
-          outline: 2px solid var(--da-focus, #66c7ff);
+          outline: 2px solid var(--da-focus, #4d94ff);
           outline-offset: -2px;
         }
 
@@ -346,7 +346,7 @@ export function DrawingRightPanel({
 
         .workspace-properties-scroll {
           scrollbar-width: thin;
-          scrollbar-color: var(--da-border, #244267) var(--da-panel, #071120);
+          scrollbar-color: var(--da-border, #2c2c32) var(--da-panel, #1a1a1e);
         }
 
         .workspace-properties-scroll::-webkit-scrollbar {
@@ -354,17 +354,17 @@ export function DrawingRightPanel({
         }
 
         .workspace-properties-scroll::-webkit-scrollbar-track {
-          background: var(--da-panel, #071120);
+          background: var(--da-panel, #1a1a1e);
         }
 
         .workspace-properties-scroll::-webkit-scrollbar-thumb {
-          background: var(--da-border, #244267);
+          background: var(--da-border, #2c2c32);
           border-radius: 999px;
-          border: 2px solid var(--da-panel, #071120);
+          border: 2px solid var(--da-panel, #1a1a1e);
         }
 
         .workspace-properties-scroll::-webkit-scrollbar-thumb:hover {
-          background: var(--da-selected-border, #3a6aa3);
+          background: var(--da-selected-border, #55555e);
         }
       `}</style>
 
@@ -405,11 +405,11 @@ export function DrawingRightPanel({
           display: "flex",
           gap: 8,
           padding: "10px 10px 8px 10px",
-          borderBottom: "1px solid var(--da-line, #163058)",
+          borderBottom: "1px solid var(--da-line, #2c2c32)",
           flexShrink: 0,
         }}
       >
-        <div role="group" aria-label="Right panel" style={{ display: "flex", gap: 2, padding: 3, width: "100%", border: "1px solid var(--da-border, #244267)", borderRadius: 11, background: "var(--da-page, #030914)" }}>
+        <div role="group" aria-label="Right panel" style={{ display: "flex", gap: 2, padding: 3, width: "100%", border: "1px solid var(--da-border, #2c2c32)", borderRadius: 11, background: "var(--da-page, #111113)" }}>
         {RIGHT_PANEL_TABS.map((tab) => {
           const isActiveTab = !aiTabActive && rightPanelTab === tab;
 
@@ -426,9 +426,9 @@ export function DrawingRightPanel({
                 padding: "0 12px",
                 borderRadius: 8,
                 border: 0,
-                background: isActiveTab ? "var(--da-selected-bg, #0f2a52)" : "transparent",
-                boxShadow: isActiveTab ? "inset 0 0 0 1px var(--da-selected-border, #3a6aa3)" : "none",
-                color: isActiveTab ? "#ffffff" : "var(--da-text-3, #a8bddd)",
+                background: isActiveTab ? "var(--da-selected-bg, #3a3a41)" : "transparent",
+                boxShadow: isActiveTab ? "inset 0 0 0 1px var(--da-selected-border, #55555e)" : "none",
+                color: isActiveTab ? "#ffffff" : "var(--da-text-3, #b8b8bf)",
                 fontSize: 13,
                 fontWeight: 600,
                 userSelect: "none",
@@ -447,9 +447,9 @@ export function DrawingRightPanel({
           aria-pressed={aiTabActive}
           style={{
             flex: 1, height: 32, padding: "0 12px", borderRadius: 8, border: 0,
-            background: aiTabActive ? "var(--da-selected-bg, #0f2a52)" : "transparent",
-            boxShadow: aiTabActive ? "inset 0 0 0 1px var(--da-selected-border, #3a6aa3)" : "none",
-            color: aiTabActive ? "#ffffff" : "var(--da-text-3, #a8bddd)",
+            background: aiTabActive ? "var(--da-selected-bg, #3a3a41)" : "transparent",
+            boxShadow: aiTabActive ? "inset 0 0 0 1px var(--da-selected-border, #55555e)" : "none",
+            color: aiTabActive ? "#ffffff" : "var(--da-text-3, #b8b8bf)",
             fontSize: 13, fontWeight: 600, userSelect: "none", cursor: "pointer", outline: "none", appearance: "none", whiteSpace: "nowrap",
           }}
         >
@@ -468,15 +468,15 @@ export function DrawingRightPanel({
           minHeight: 0,
           padding: rightPanelTab === "Assets" ? "12px 12px 8px 12px" : rightPanelTab === "Library" ? "12px 12px 6px 12px" : 12,
           boxSizing: "border-box",
-          borderBottom: "1px solid var(--da-line, #163058)",
-          background: "var(--da-page, #030914)",
-          color: "var(--da-muted, #8fabd0)",
+          borderBottom: "1px solid var(--da-line, #2c2c32)",
+          background: "var(--da-page, #111113)",
+          color: "var(--da-muted, #a3a3ab)",
           fontSize: 12,
           lineHeight: 1.5,
           overflowX: "hidden",
           overflowY: "auto",
           scrollbarWidth: "thin",
-          scrollbarColor: "var(--da-border, #244267) var(--da-panel, #071120)",
+          scrollbarColor: "var(--da-border, #2c2c32) var(--da-panel, #1a1a1e)",
         }}
       >
         {rightPanelContent}
@@ -495,8 +495,8 @@ export function DrawingRightPanel({
             gap: 4,
             padding: 6,
             borderRadius: 12,
-            border: "1px solid var(--da-line, #163058)",
-            background: "var(--da-panel, #071120)",
+            border: "1px solid var(--da-line, #2c2c32)",
+            background: "var(--da-panel, #1a1a1e)",
             boxShadow: "0 18px 44px rgba(0,0,0,0.45)",
             zIndex: 30,
             transformOrigin: "bottom center",
@@ -517,9 +517,9 @@ export function DrawingRightPanel({
                   minHeight: 34,
                   padding: "8px 12px",
                   borderRadius: 10,
-                  border: isSelected ? "1px solid var(--da-selected-border, #3a6aa3)" : "1px solid var(--da-border, #244267)",
-                  background: isSelected ? "var(--da-selected-bg, #0f2a52)" : "var(--da-panel, #071120)",
-                  color: isSelected ? "var(--da-on-selected, #eaf3ff)" : "var(--da-text-2, #c9d6ea)",
+                  border: isSelected ? "1px solid var(--da-selected-border, #55555e)" : "1px solid var(--da-border, #2c2c32)",
+                  background: isSelected ? "var(--da-selected-bg, #3a3a41)" : "var(--da-panel, #1a1a1e)",
+                  color: isSelected ? "var(--da-on-selected, #f5f5f6)" : "var(--da-text-2, #d2d2d7)",
                   fontSize: 12,
                   fontWeight: 700,
                   cursor: "pointer",
@@ -534,7 +534,7 @@ export function DrawingRightPanel({
       )}
 
       <div className="drawing-ai-tab" style={{ display: aiTabActive ? "flex" : "none", flex: "1 1 0", minHeight: 0, flexDirection: "column" }}>
-        <style>{`.drawing-ai-tab > .workspace-ai-panel-shell { flex: 1 1 0 !important; border-top: 0 !important; background: var(--da-panel) !important; } .drawing-ai-tab .workspace-ai-messages-scroll { background: transparent !important; } .drawing-ai-tab .workspace-ai-panel-shell > style + div { display: none !important; } .drawing-ai-tab .workspace-ai-panel-shell > * { background: var(--da-page, #030914) !important; }`}</style>
+        <style>{`.drawing-ai-tab > .workspace-ai-panel-shell { flex: 1 1 0 !important; border-top: 0 !important; background: var(--da-panel) !important; } .drawing-ai-tab .workspace-ai-messages-scroll { background: transparent !important; } .drawing-ai-tab .workspace-ai-panel-shell > style + div { display: none !important; } .drawing-ai-tab .workspace-ai-panel-shell > * { background: var(--da-page, #111113) !important; }`}</style>
       <DrawingAiPanel
         workspaceContext={workspaceContext}
         projectAiMemory={projectAiMemory}

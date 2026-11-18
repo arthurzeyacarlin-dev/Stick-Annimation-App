@@ -62,7 +62,7 @@
 
 .exportPlayButton {
   padding: 10px 16px;
-  font-weight: 750;
+  font-weight: 600;
 }
 
 .exportPlayButton:hover:not(:disabled),
@@ -82,7 +82,7 @@
 /*
  * Seek sliders are drawn by hand so the browser never tints them.
  * --player-seek-fill is the played fraction (set inline from the slider value).
- * Rest: dull var(--da-selected-border, #3a6aa3) fill/thumb; hover or drag: var(--da-hover, #0066ff). Track: var(--da-line, #163058).
+ * Rest: dull var(--da-selected-border, #55555e) fill/thumb; hover or drag: var(--da-hover, #3a3a41). Track: var(--da-line, #2c2c32).
  */
 .seek,
 .viewerSeek {
@@ -358,7 +358,7 @@
   border: 1px solid var(--da-border);
   background: var(--da-panel);
   color: var(--da-text-2);
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .viewerSeek {
@@ -575,13 +575,13 @@
   padding: 0;
   border-radius: 50%;
   border: 1px solid rgba(255, 255, 255, 0.272);
-  background: #3a3a41;
+  background: #232328;
   color: #ffffff;
-  box-shadow: 0 6px 18px rgba(0, 60, 180, .35);
+  box-shadow: none;
 }
 .exportPlayButton svg { margin-left: 1px; }
 .exportPlayButton[aria-label="Pause"] svg { margin-left: 0; }
-.exportPlayButton:hover:not(:disabled) { border-color: #0066ff; background: #0066ff; }
+.exportPlayButton:hover:not(:disabled) { border-color: var(--da-hover); background: var(--da-hover); }
 .exportPlayButton:disabled { opacity: .45; box-shadow: none; }
 .seek { flex: 1 1 auto; width: auto; }
 .time { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; min-width: 0; width: auto; text-align: right; line-height: 1.2; white-space: nowrap; }

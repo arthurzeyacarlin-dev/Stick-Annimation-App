@@ -37,7 +37,7 @@ async function pictureToDataUrl(file: File): Promise<string> {
   canvas.height = PICTURE_SIZE;
   const context = canvas.getContext("2d");
   if (!context) throw new Error("picture_unreadable");
-  context.fillStyle = "#0f2a52";
+  context.fillStyle = "#232328";
   context.fillRect(0, 0, PICTURE_SIZE, PICTURE_SIZE);
   context.drawImage(bitmap, (bitmap.width - side) / 2, (bitmap.height - side) / 2, side, side, 0, 0, PICTURE_SIZE, PICTURE_SIZE);
   bitmap.close();

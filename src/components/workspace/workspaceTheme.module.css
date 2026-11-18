@@ -1,6 +1,6 @@
 /*
  * Editor (drawing workspace) theme — matches Home/Help/Assistant.
- * Rest: dull navy/blue. Pointer hover: instant var(--da-hover, #0066FF) with white text/icons.
+ * Rest: dull navy/blue. Pointer hover: instant var(--da-hover, #3a3a41) with white text/icons.
  * Hover uses the browser's native :hover, so clicks elsewhere never disable it.
  * Elements marked data-hover="outline" (timeline frames, color swatches) get a
  * bright outline instead of a blue fill. Help overlays opt out with
@@ -35,7 +35,7 @@
 }
 
 /*
- * Property sliders (canvas/side-panel area): dull blue at rest, bright var(--da-hover, #0066FF)
+ * Property sliders (canvas/side-panel area): dull blue at rest, bright var(--da-hover, #3a3a41)
  * while hovered or dragged. Custom-drawn so the browser never darkens it on hover.
  */
 .workspace :global([data-unified-workspace-area="true"] input[type="range"]) {

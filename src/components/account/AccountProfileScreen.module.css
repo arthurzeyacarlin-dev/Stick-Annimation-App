@@ -1,5 +1,5 @@
-/* SPEC-0020 Phase 1: Profile and Settings page. App palette (page var(--da-page, #030914), panels var(--da-panel, #071120), outlines var(--da-border, #244267),
-   selected var(--da-selected-bg, #0f2a52)); every button turns var(--da-hover, #0066ff) with white text instantly on hover (no fade). */
+/* SPEC-0020 Phase 1: Profile and Settings page. App palette (page var(--da-page, #111113), panels var(--da-panel, #1a1a1e), outlines var(--da-border, #2c2c32),
+   selected var(--da-selected-bg, #3a3a41)); every button turns var(--da-hover, #3a3a41) with white text instantly on hover (no fade). */
 .main { padding: 36px clamp(20px, 4vw, 56px) 64px; }
 .main *, .main *::before, .main *::after { box-sizing: border-box; transition: none; animation: none; }
 .frame { display: flex; flex-direction: column; gap: 18px; width: min(720px, 100%); margin: 0 auto; }

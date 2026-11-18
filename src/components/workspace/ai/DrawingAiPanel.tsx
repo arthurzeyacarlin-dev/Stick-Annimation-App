@@ -460,21 +460,21 @@ export function DrawingAiPanel({
         @keyframes ai-animator-reveal { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
         .ai-animator-assistant-message { padding: 0; border: 0; border-radius: 0; background: transparent; white-space: pre-wrap; }
         .ai-animator-assistant-visual { white-space: pre-wrap; }
-        .ai-animator-typewriter-edge { color: transparent; background: linear-gradient(90deg, #89bfff 0%, #71e7ff 62%, rgba(255,255,255,.92) 100%); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 10px rgba(79,181,255,.18); }
+        .ai-animator-typewriter-edge { color: transparent; background: linear-gradient(90deg, #a3a3ab 0%, #d2d2d7 62%, #ffffff 100%); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .ai-animator-reduced-copy { display: none; white-space: pre-wrap; }
-        .animator-engine-test { display: grid; gap: 8px; padding: 10px; border: 1px solid ${workspaceColors.border}; border-radius: 10px; background: #071120; }
+        .animator-engine-test { display: grid; gap: 8px; padding: 10px; border: 1px solid ${workspaceColors.border}; border-radius: 10px; background: #1a1a1e; }
         .animator-engine-test h3 { margin: 0; font-size: 12px; font-weight: 700; color: #f6f9ff; }
-        .animator-engine-test p { margin: 0; font-size: 11px; line-height: 1.45; color: #8fabd0; }
+        .animator-engine-test p { margin: 0; font-size: 11px; line-height: 1.45; color: #a3a3ab; }
         .animator-engine-test-list { display: flex; flex-wrap: wrap; gap: 6px; }
-        .animator-engine-test-list button { min-height: 30px; padding: 4px 10px; border-radius: 10px; border: 1px solid #3a6aa3; background: #0f2a52; color: #f6f9ff; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; transition: none; }
+        .animator-engine-test-list button { min-height: 30px; padding: 4px 10px; border-radius: 10px; border: 1px solid #3a3a41; background: #232328; color: #f6f9ff; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; transition: none; }
         .animator-engine-test-list button:hover:enabled { border-color: #0066ff; background: #0066ff; color: #fff; }
         .animator-engine-test-list button:disabled { opacity: .45; cursor: not-allowed; }
-        .animator-engine-test-list button:focus-visible { outline: 2px solid #66c7ff; outline-offset: 2px; }
+        .animator-engine-test-list button:focus-visible { outline: 2px solid #4d94ff; outline-offset: 2px; }
         .animator-moves { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 6px; align-items: end; }
-        .animator-moves label { display: grid; gap: 3px; font-size: 11px; color: #8fabd0; }
-        .animator-moves select { min-height: 30px; border: 1px solid #244267; border-radius: 10px; padding: 3px 6px; color: #c9d6ea; background: #030914; font: inherit; font-size: 12px; cursor: pointer; transition: none; }
+        .animator-moves label { display: grid; gap: 3px; font-size: 11px; color: #a3a3ab; }
+        .animator-moves select { min-height: 30px; border: 1px solid #3a3a41; border-radius: 10px; padding: 3px 6px; color: #d2d2d7; background: #111113; font: inherit; font-size: 12px; cursor: pointer; transition: none; }
         .animator-moves select:hover { border-color: #0066ff; background: #0066ff; color: #fff; }
-        .animator-moves select:focus-visible { outline: 2px solid #66c7ff; outline-offset: 2px; }
+        .animator-moves select:focus-visible { outline: 2px solid #4d94ff; outline-offset: 2px; }
         .ai-animator-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
         @media (prefers-reduced-motion: reduce) { .ai-animator-message { animation: none; } .ai-animator-assistant-visual { display: none; } .ai-animator-reduced-copy { display: inline; } }
       `}</style>
@@ -572,7 +572,7 @@ export function DrawingAiPanel({
             <div className="drawing-ai-thread-head" aria-hidden="true"><span className="drawing-ai-logo drawing-ai-logo-small"><DiamondLogo size={26} /></span><span>AI Animator</span></div>
           )}
           {ledger.messages.map((message) => message.role === "user"
-            ? <div className="ai-animator-message" data-ai-user-message={message.id} key={message.id} style={{ alignSelf: "flex-end", maxWidth: "88%", padding: "9px 11px", borderRadius: 12, whiteSpace: "pre-wrap", color: "#eaf3ff", background: workspaceColors.selectedFill, border: `1px solid ${workspaceColors.selectedBorder}`, fontSize: 12, lineHeight: 1.48 }}>{message.content}</div>
+            ? <div className="ai-animator-message" data-ai-user-message={message.id} key={message.id} style={{ alignSelf: "flex-end", maxWidth: "88%", padding: "9px 11px", borderRadius: 12, whiteSpace: "pre-wrap", color: "#f5f5f6", background: workspaceColors.selectedFill, border: `1px solid ${workspaceColors.selectedBorder}`, fontSize: 12, lineHeight: 1.48 }}>{message.content}</div>
             : <AiAnimatorAssistantReply key={message.id} message={message} animate={pendingRevealMessageIdsRef.current.has(message.id)} onRevealComplete={finishAssistantReveal} />)}
           {/* (Arthur, 2026-10-08: the AI Animator and the Help Assistant show "Thinking" exactly alike — the same component.) */}
           {activeJob && <div aria-label="AI Animator request status" style={{ alignSelf: "flex-start", padding: "8px 4px" }}><AssistantActivity label="Thinking" /></div>}

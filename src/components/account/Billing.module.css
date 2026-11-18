@@ -10,7 +10,7 @@
 .button:focus-visible { outline: 2px solid var(--da-focus, #4d94ff); outline-offset: 3px; }
 .button:disabled { color: var(--da-label, #85858e); border-color: var(--da-line, #2c2c32); cursor: not-allowed; }
 .link { color: var(--da-link, #d2d2d7); font-weight: 700; text-decoration: none; }
-.link:hover { color: var(--da-hover); }
+.link:hover { color: var(--da-hover-text); }
 .success { margin: 0; color: var(--da-success, #7fd8a6); font-size: 14px; font-weight: 600; }
 .error { margin: 0; color: var(--da-danger, #ff8a95); font-size: 13px; }
 .packGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }

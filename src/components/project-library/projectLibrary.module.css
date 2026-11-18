@@ -469,7 +469,8 @@
   color: inherit;
   padding: 9px 11px;
   text-align: left;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
 }
 
@@ -490,6 +491,8 @@
 
 .contextMenu .destructiveMenuItem:not(:disabled) {
   color: var(--library-danger);
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .contextMenu .destructiveMenuItem:hover:not(:disabled) {
@@ -754,7 +757,7 @@
 .searchLabel { flex: 1 1 320px; max-width: 460px; }
 .sortLabel { flex: 0 0 200px; }
 .searchLabel > span, .sortLabel > span { color: var(--library-muted) !important; font-size: 13px !important; font-weight: 500 !important; letter-spacing: 0 !important; text-transform: none !important; }
-.toolbar input, .toolbar select { height: 42px !important; border: 1px solid var(--library-line) !important; border-radius: 10px !important; background: var(--library-surface) !important; color: var(--library-text) !important; font-size: 14px !important; }
+.toolbar input, .toolbar select { height: 42px !important; border: 1px solid var(--library-line) !important; border-radius: 10px !important; background: var(--library-surface) !important; color: var(--library-text) !important; font-size: 14px !important; font-weight: 500 !important; }
 .grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)) !important; gap: 16px !important; }
 .card { overflow: hidden; border: 1px solid var(--library-line) !important; border-radius: 12px !important; background: var(--library-surface) !important; box-shadow: none !important; }
 .card:hover { border-color: var(--da-hover) !important; }

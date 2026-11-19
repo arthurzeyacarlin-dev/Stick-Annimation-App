@@ -12,7 +12,6 @@ import { runAccountProjectLogout } from "@/src/lib/account/projectPending";
 import { subscribeProblemReportSummaryV1, type ProblemReportSummaryStateV1 } from "@/src/lib/notifications/problemReportObserver";
 import { AboutBody, TermsBody } from "./InfoBodies";
 import { creditMeterPercent } from "@/src/lib/ai-dashboard/creditMeter";
-import { creditMeterColor } from "@/src/lib/ai-dashboard/dashboardAggregation";
 import type { AccountPlanStatus } from "@/src/lib/account/plans";
 import styles from "./AppHeader.module.css";
 
@@ -20,14 +19,14 @@ const creditBadgeStyle = (status: AccountPlanStatus) => {
   const used = creditMeterPercent(status.creditsUsed, status.creditsTotal, status.topUpCredits);
   // One calm gray badge; it only takes the warning color when the AI money is running low.
   if (used < 75) return { color: "var(--da-text-2)", borderColor: "var(--da-border)", background: "transparent" };
-  const color = creditMeterColor(used);
+  const color = used >= 90 ? "var(--da-danger)" : "var(--da-warning)";
   return { color, borderColor: color, background: `color-mix(in srgb, ${color} 16%, transparent)` };
 };
 
 // Redesign (Arthur 2026-10-26): one header for every screen. Everything the old header had is here — AI Dashboard (or
 // Home), notifications, the menu (Description, Terms of Service, Settings, Report a Problem, Problem reports for the
 // owner) and the account panel (Profile, Settings, Plans, Log out with the unsaved-work check) — in the new look.
-export function AppHeader({ page, onExport }: { page: "home" | "dashboard" | "other"; onExport?: () => void }) {
+export function AppHeader({ page, onExport, bellView = "home" }: { page: "home" | "dashboard" | "other"; onExport?: () => void; bellView?: "home" | "assistant" }) {
   const account = useAccountSession();
   const { status } = useAccountPlan();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -91,7 +90,7 @@ export function AppHeader({ page, onExport }: { page: "home" | "dashboard" | "ot
             </Link>
           )}
           <div className={styles.group} data-tour="bell-menu">
-            <span className={styles.bell}><NotificationTrigger view="home" /></span>
+            <span className={styles.bell}><NotificationTrigger view={bellView} /></span>
             <span className={styles.groupLine} aria-hidden="true" />
             <button type="button" className={styles.icon} aria-label="Menu" aria-expanded={menuOpen} aria-controls="app-menu" onClick={() => { setMenuOpen((open) => !open); setAccountOpen(false); }}>
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>

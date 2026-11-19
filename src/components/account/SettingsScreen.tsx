@@ -37,7 +37,6 @@ export function SettingsScreen() {
     <main className={styles.main}>
       <div className={styles.frame}>
         <BackButton href="/">Back to Home</BackButton>
-        <p className={styles.eyebrow}>Diamond Animator</p>
         <h1 className={styles.title}>Settings</h1>
 
         <section className={styles.section} aria-labelledby="settings-notifications">
@@ -76,7 +75,7 @@ export function SettingsScreen() {
         </section>
 
         <section className={styles.section} aria-labelledby="settings-learn">
-          <h2 id="settings-learn" className={styles.sectionTitle}>Guided tour</h2>
+          <h2 id="settings-learn" className={styles.sectionTitle}>Help</h2>
           <div className={`${styles.row} ${styles.choiceRow}`}>
             <span className={styles.text}><strong>Guided tour</strong><small>A short walk through the main controls on Home.</small></span>
             <button type="button" className="da-plain-button" onClick={() => { startLearnMode(); router.push("/"); }}>Start guided tour</button>

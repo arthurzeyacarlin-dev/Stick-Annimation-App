@@ -45,14 +45,10 @@ function blendStops(stops: { percent: number; rgb: number[] }[], value: number):
 
 export const colorForPercent = (value: number): string => blendStops(colorStops, value);
 
-// Arthur (2026-10-27): as credits run out the bar fades smoothly blue → green → yellow → orange → red;
-// pure red only when no credits are left.
+// Arthur (Nov 18): analytics use the app's own blue at every level, never a rainbow.
 const creditMeterStops = [
   { percent: 0, rgb: [0, 102, 255] },
-  { percent: 35, rgb: [34, 197, 94] },
-  { percent: 60, rgb: [234, 179, 8] },
-  { percent: 80, rgb: [249, 115, 22] },
-  { percent: 100, rgb: [255, 0, 0] },
+  { percent: 100, rgb: [0, 102, 255] },
 ];
 
 /** The credits bar's color for how much of the plan credits are used (0–100). */

@@ -92,10 +92,10 @@ export function ChatDictateButton({ onClick, disabled }: { onClick: () => void; 
   );
 }
 
-export function ChatSendButton({ disabled, label = "Send" }: { disabled?: boolean; label?: string }) {
+export function ChatSendButton({ disabled, label = "Send", icon = "check" }: { disabled?: boolean; label?: string; icon?: "check" | "arrow" }) {
   return (
     <button className={`${styles.iconButton} ${styles.sendButton}`} type="submit" disabled={disabled} aria-label={label} title={label}>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6" /></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={icon === "arrow" ? "M12 20V5M5.5 11.5 12 5l6.5 6.5" : "M4 12.5 9.5 18 20 6"} /></svg>
     </button>
   );
 }

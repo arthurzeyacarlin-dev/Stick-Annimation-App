@@ -15,7 +15,7 @@
   min-height: 100dvh;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(400px, 500px);
-  background: var(--page);
+  background: var(--da-page-glow);
   color: var(--ink);
   font-family: var(--font);
   color-scheme: dark;
@@ -25,11 +25,6 @@
 
 /* Left: name, big promise, moving timeline. */
 .hero { position: relative; isolation: isolate; overflow: hidden; min-width: 0; display: grid; grid-template-rows: auto 1fr auto; gap: 36px; padding: 36px clamp(32px, 5vw, 76px); }
-/* One soft white spotlight from above the logo. It stays still and is never blue: blue is only for the main button. */
-.hero::before {
-  content: ""; position: absolute; z-index: -1; inset: 0; pointer-events: none;
-  background: radial-gradient(ellipse 760px 520px at 150px -70px, rgba(255, 255, 255, .13) 0%, rgba(255, 255, 255, .075) 28%, rgba(255, 255, 255, .03) 55%, rgba(255, 255, 255, .008) 78%, transparent 100%);
-}
 .mark { display: inline-flex; align-items: center; gap: 11px; color: #fff; line-height: 1; }
 .markName { font-size: 18px; font-weight: 600; letter-spacing: -.015em; color: #fff; }
 .heroWords { align-self: center; display: grid; gap: 20px; max-width: 760px; }
@@ -124,14 +119,13 @@ a.primary { display: grid; place-items: center; color: #fff; text-decoration: no
 .cardCompact .mark { margin-bottom: 18px; }
 
 /* Signed-in placeholder (same job, same colors). */
-.blank { position: relative; min-height: 100dvh; background: #111113; }
+.blank { position: relative; min-height: 100dvh; background: var(--da-page-glow); }
 .blankLogout { position: absolute; top: 18px; right: 18px; height: 36px; padding: 0 14px; border: 1px solid #2c2c32; border-radius: 10px; background: #1a1a1e; color: #f5f5f6; font: inherit; font-size: 14px; font-weight: 500; cursor: pointer; transition: none; }
 .blankLogout:hover:enabled { border-color: #3a3a41; background: #3a3a41; }
 
 @media (max-width: 980px) {
   .screen:not(.screenCenter) { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr; }
   .hero { grid-template-rows: auto auto; gap: 30px; padding: 24px 20px 28px; }
-  .hero::before { background: radial-gradient(ellipse 420px 300px at 90px -40px, rgba(255, 255, 255, .12) 0%, rgba(255, 255, 255, .06) 34%, rgba(255, 255, 255, .018) 68%, transparent 100%); }
   .title { font-size: clamp(42px, 12vw, 68px); }
   .subtitle { font-size: 16px; }
   .showcase { display: none; }
@@ -151,3 +145,6 @@ a.primary { display: grid; place-items: center; color: #fff; text-decoration: no
   .frameStill { opacity: 1; }
   .playhead { left: 42%; }
 }
+
+/* The form sits on the same page light as the rest of the app. */
+.card:not(.cardCompact) { background: rgba(255, 255, 255, .018); }

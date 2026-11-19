@@ -104,8 +104,7 @@
 .primaryButton {
   background: var(--da-accent);
   border-color: var(--da-accent);
-  color: #ffffff;
-}
+  color: #ffffff; box-shadow: var(--da-glow-primary); }
 
 .wideButton {
   min-width: 190px;
@@ -116,8 +115,7 @@
 .backButton:hover:not(:disabled) {
   background: var(--da-hover);
   border-color: var(--da-hover);
-  color: #ffffff;
-}
+  color: #ffffff; box-shadow: var(--da-glow-hover); }
 
 .button:disabled,
 .primaryButton:disabled,
@@ -606,8 +604,7 @@
 .formatButton:hover:not(:disabled) {
   background: var(--da-hover);
   border-color: var(--da-hover);
-  color: #ffffff;
-}
+  color: #ffffff; box-shadow: var(--da-glow-hover); }
 
 .formatButton:hover:not(:disabled) .formatDetail {
   color: inherit;
@@ -728,11 +725,11 @@
 
 /* Redesign polish (Arthur 2026-10-26): the export screen gets the app's blues. The Export / Save button looks like
    "Choose a plan" (bright blue at rest) and turns the super-bright blue on hover with the same calm glow. */
-.primaryButton.primaryButton { border: 0 !important; color: #ffffff !important; background: var(--da-accent) !important; box-shadow: none; }
-.primaryButton.primaryButton:hover:not(:disabled) { background: var(--da-accent-hover) !important; box-shadow: none !important; }
+.primaryButton.primaryButton { border: 0 !important; color: #ffffff !important; background: var(--da-accent) !important; box-shadow: var(--da-glow-primary); }
+.primaryButton.primaryButton:hover:not(:disabled) { background: var(--da-accent-hover) !important; box-shadow: var(--da-glow-primary-hover) !important; }
 .primaryButton.primaryButton:disabled { opacity: .55; box-shadow: none !important; }
 .playerFrame { border: 1px solid rgba(255, 255, 255, 0.144); box-shadow: none; }
-.settingsColumn { padding: 20px; border-radius: 12px; border: 1px solid var(--da-border, #2c2c32); background: var(--da-panel); box-shadow: none; }
+.settingsColumn { padding: 20px; border-radius: 12px; border: 1px solid var(--da-border, #2c2c32); background: var(--da-card-fill); box-shadow: var(--da-card-shadow); }
 .formatButton { border-radius: 12px; background: rgba(0, 0, 0, .8); }
 .formatButton[aria-checked="true"] { background: var(--da-hover) !important; border-color: rgba(255, 255, 255, 0.256) !important; color: #ffffff !important; box-shadow: none; }
 .formatButton svg { color: #d2d2d7; }

@@ -32,7 +32,7 @@ export function AssistantSessionSidebar({ chats, mark }: { chats: Chats; mark: R
     finally { setSaving(false); }
   };
   return <aside className={styles.sidebar} aria-label="Chat sessions">
-    <div className={styles.brand}><span className={styles.brandMark}>{mark}</span><span>Diamond Animator<span className={styles.brandSubtitle}>Assistant</span></span></div>
+    {mark && <div className={styles.brand}><span className={styles.brandMark}>{mark}</span><span>Diamond Animator<span className={styles.brandSubtitle}>Assistant</span></span></div>}
     <button ref={newRef} className={styles.newChat} type="button" disabled={!chats.ready || chats.storageBlocked || chats.busy || chats.sessions.length >= 50} aria-describedby="assistant-sessions-note" onClick={chats.newChat}><span aria-hidden="true">＋</span> New Chat</button>
     <div className={styles.sessionList} data-full={chats.sessions.length >= 50}>
       <h2>Your chats</h2>
@@ -48,7 +48,6 @@ export function AssistantSessionSidebar({ chats, mark }: { chats: Chats; mark: R
         </div>)}
       </div>
     </div>
-    <div className={styles.sidebarFoot}><span className={styles.previewDot} aria-hidden="true" /> A space for your questions</div>
     {dialog && <dialog ref={dialogRef} className={`${styles.chatDialog}${dialog.kind === "delete" ? " da-danger-dialog" : ""}`} aria-labelledby="chat-dialog-title" aria-describedby="chat-dialog-description" onCancel={event => { event.preventDefault(); close(); }}>
       <form onSubmit={event => { event.preventDefault(); void submit(); }}>
         <h2 id="chat-dialog-title">{dialog.kind === "rename" ? "Rename chat" : "Delete chat?"}</h2>

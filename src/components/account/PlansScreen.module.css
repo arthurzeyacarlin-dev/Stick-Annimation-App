@@ -10,10 +10,10 @@
 .intervals { flex: 0 0 auto; display: flex; gap: 3px; width: min(100%, 340px); padding: 3px; border: 1px solid var(--da-line); border-radius: 10px; background: var(--da-page); }
 .interval { flex: 1 1 0; min-height: 36px; padding: 0 12px; border: 0; border-radius: 7px; background: transparent; color: var(--da-muted); font: inherit; font-size: 14px; font-weight: 500; cursor: pointer; }
 .interval span { color: inherit; font-size: 12px; opacity: .8; }
-.interval[aria-pressed="true"], .interval:hover { background: var(--da-hover); color: #fff; }
+.interval[aria-pressed="true"], .interval:hover { background: var(--da-hover); color: #fff; box-shadow: var(--da-glow-hover); }
 .interval:focus-visible, .plan:focus-visible, .manage:focus-visible { outline: 2px solid var(--da-focus); outline-offset: 2px; }
 .plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; align-items: stretch; }
-.plan { min-width: 0; display: flex; flex-direction: column; align-items: stretch; gap: 0; padding: 24px; border: 1px solid var(--da-line); border-radius: 12px; background: var(--da-panel); color: var(--da-text); font: inherit; text-align: left; cursor: pointer; }
+.plan { min-width: 0; display: flex; flex-direction: column; align-items: stretch; gap: 0; padding: 24px; border: 1px solid var(--da-line); border-radius: 12px; background: var(--da-card-fill); color: var(--da-text); font: inherit; text-align: left; cursor: pointer; box-shadow: var(--da-card-shadow); }
 .popular { border-color: var(--da-text); }
 .current { border-color: var(--da-text); cursor: default; }
 .planTop { min-height: 26px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
@@ -30,13 +30,13 @@
 .plan li { position: relative; padding-left: 22px; }
 .plan li::before { content: ""; position: absolute; left: 2px; top: 3px; width: 10px; height: 5px; border-left: 1.7px solid var(--da-text); border-bottom: 1.7px solid var(--da-text); transform: rotate(-45deg); }
 .choose, .yours { min-height: 44px; display: grid; place-items: center; margin-top: auto; padding: 0 12px; border: 1px solid var(--da-border); border-radius: 10px; background: var(--da-page); color: var(--da-text); font-size: 15px; font-weight: 600; text-align: center; }
-.choosePrimary { border-color: var(--da-accent); background: var(--da-accent); color: #fff; }
+.choosePrimary { border-color: var(--da-accent); background: var(--da-accent); color: #fff; box-shadow: var(--da-glow-primary); }
 .yours { border-color: transparent; background: transparent; color: var(--da-muted); font-size: 14px; font-weight: 500; }
 .manage { min-height: 44px; display: grid; place-items: center; width: 100%; padding: 0 12px; border: 1px solid var(--da-border); border-radius: 10px; background: var(--da-page); color: var(--da-text); font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; }
-.manage:hover:not(:disabled) { border-color: var(--da-hover); background: var(--da-hover); color: #fff; }
+.manage:hover:not(:disabled) { border-color: var(--da-hover); background: var(--da-hover); color: #fff; box-shadow: var(--da-glow-hover); }
 .manage:disabled { cursor: default; opacity: .6; }
-.plan:hover:not(:disabled):not(.current) .choose { border-color: var(--da-hover); background: var(--da-hover); }
-.plan:hover:not(:disabled):not(.current) .choosePrimary { border-color: var(--da-accent-hover); background: var(--da-accent-hover); }
+.plan:hover:not(:disabled):not(.current) .choose { border-color: var(--da-hover); background: var(--da-hover); box-shadow: var(--da-glow-hover); }
+.plan:hover:not(:disabled):not(.current) .choosePrimary { border-color: var(--da-accent-hover); background: var(--da-accent-hover); box-shadow: var(--da-glow-primary-hover); }
 .plan:disabled { cursor: default; }
 .plan:disabled .choose { border-color: var(--da-line); background: transparent; color: var(--da-muted); }
 .error { margin: 0; color: var(--da-danger); font-size: 14px; }

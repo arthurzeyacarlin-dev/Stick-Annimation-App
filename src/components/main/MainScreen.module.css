@@ -1,42 +1,56 @@
-/* New Home (Nov 18): start on the left, your latest animation large on the right. Same look as sign-in. */
-.screen { --ink: var(--da-text); --ink-2: var(--da-text-2); --ink-3: var(--da-muted); position: relative; height: 100dvh; min-height: 0; display: flex; flex-direction: column; overflow: hidden; background: var(--da-page); color: var(--ink); font-family: var(--font-geist-sans), system-ui, sans-serif; }
-.main { flex: 1 1 auto; min-height: 0; width: min(100%, 1360px); margin: 0 auto; display: grid; grid-template-columns: minmax(340px, 5fr) minmax(0, 7fr); align-items: center; gap: clamp(36px, 6vw, 96px); padding: clamp(24px, 4vh, 48px) clamp(20px, 4vw, 56px); overflow: auto; }
-.start { min-width: 0; display: grid; gap: clamp(24px, 4vh, 38px); }
-.hero { display: grid; gap: 14px; }
+/* Home: one clear column, the same width as the AI Dashboard. Two big choices, then the animation you were working on. */
+.screen { --ink: var(--da-text); --ink-3: var(--da-muted); position: relative; height: 100dvh; min-height: 0; display: flex; flex-direction: column; overflow: hidden; background: var(--da-page-glow); color: var(--ink); font-family: var(--font-geist-sans), system-ui, sans-serif; }
+.main { flex: 1 1 auto; min-height: 0; display: flex; padding: 24px clamp(20px, 4vw, 40px); overflow: auto; }
+.frame { width: min(100%, 960px); margin: auto; display: grid; gap: clamp(24px, 3.6vh, 34px); }
+.srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+.hero { display: grid; gap: 10px; }
 .eyebrow { margin: 0; color: var(--ink-3); font-size: 15px; font-weight: 500; }
-.title { margin: 0; color: var(--ink); font-size: clamp(42px, 4.8vw, 72px); line-height: 1; font-weight: 700; letter-spacing: -.05em; text-wrap: balance; }
-.subtitle { margin: 0; max-width: 460px; color: var(--ink-3); font-size: 17px; line-height: 1.45; letter-spacing: -.01em; }
-.actions { display: grid; gap: 10px; max-width: 460px; }
-.tile { width: 100%; min-height: 66px; display: flex; align-items: center; gap: 13px; padding: 11px 14px; border: 1px solid var(--da-line); border-radius: 10px; background: var(--da-panel); color: var(--ink); font: inherit; text-align: left; cursor: pointer; transition: none; }
-.tile:hover:enabled { border-color: var(--da-hover); background: var(--da-hover); }
-.tile:disabled { cursor: default; opacity: .7; }
-.tilePrimary { border-color: var(--da-accent); background: var(--da-accent); color: #ffffff; }
-.tilePrimary:hover:enabled { border-color: var(--da-accent-hover); background: var(--da-accent-hover); }
-.tileIcon { flex: 0 0 auto; display: grid; place-items: center; width: 36px; height: 36px; }
-.tileIcon svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.tileText { min-width: 0; display: grid; gap: 2px; }
-.tileText strong { font-size: 16px; font-weight: 600; letter-spacing: -.01em; }
-.tileText small { color: var(--ink-3); font-size: 13.5px; }
-.tilePrimary .tileText small { color: rgba(255, 255, 255, .82); }
-.tile:focus-visible, .recent:focus-visible { outline: 2px solid var(--da-focus); outline-offset: 2px; }
-.recentSection { min-width: 0; display: grid; gap: 12px; }
-.sectionTitle { margin: 0; color: var(--ink-3); font-size: 15px; font-weight: 500; }
-.recent { width: 100%; display: grid; padding: 0; overflow: hidden; border: 1px solid var(--da-line); border-radius: 10px; background: var(--da-panel); color: var(--ink); font: inherit; text-align: left; cursor: pointer; transition: none; }
-.recent:hover { border-color: var(--da-hover); background: var(--da-hover); }
-.poster { display: grid; place-items: center; width: 100%; aspect-ratio: 16 / 9; max-height: min(58dvh, 620px); overflow: hidden; background: #ffffff; }
+.title { margin: 0; color: #ffffff; font-size: clamp(36px, min(5vw, 7.4vh), 56px); line-height: 1.05; font-weight: 700; letter-spacing: -.045em; text-wrap: balance; }
+.subtitle { margin: 2px 0 0; color: var(--ink-3); font-size: clamp(16px, 1.4vw, 18px); line-height: 1.4; letter-spacing: -.01em; }
+
+.work { display: grid; gap: 12px; }
+.actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.action, .recent, .recentEmpty { border: 1px solid var(--da-line); border-radius: 12px; background: var(--da-card-fill); color: var(--ink); box-shadow: var(--da-card-shadow); transition: none; }
+.action { height: 86px; display: flex; align-items: center; gap: 16px; padding: 0 22px; font: inherit; text-align: left; cursor: pointer; }
+.action svg { flex: 0 0 auto; width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.action:hover:enabled { border-color: var(--da-hover); background: var(--da-hover); box-shadow: var(--da-glow-hover); }
+.action:disabled { cursor: default; opacity: .7; }
+.actionPrimary { border-color: var(--da-accent); background: var(--da-accent); color: #ffffff; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2); }
+.actionPrimary:hover:enabled { border-color: var(--da-accent-hover); background: var(--da-accent-hover); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .24); }
+.actionText { min-width: 0; display: grid; gap: 1px; }
+.actionText strong { font-size: 16.5px; line-height: 1.25; font-weight: 600; letter-spacing: -.015em; }
+.actionText small { overflow: hidden; color: var(--ink-3); font-size: 13.5px; line-height: 1.35; text-overflow: ellipsis; white-space: nowrap; }
+.actionPrimary .actionText small { color: rgba(255, 255, 255, .84); }
+.action:hover:enabled .actionText small { color: #ffffff; }
+
+.recent { width: 100%; height: clamp(144px, 22.4vh, 172px); display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 24px; padding: 10px 24px 10px 10px; font: inherit; text-align: left; cursor: pointer; }
+.recent:hover { border-color: var(--da-hover); background: var(--da-hover); box-shadow: var(--da-glow-hover); }
+.poster { align-self: stretch; display: grid; place-items: center; height: 100%; min-height: 0; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 7px; background: #ffffff; box-shadow: 0 0 0 1px rgba(255, 255, 255, .08); }
 .poster > * { width: 100%; height: 100%; }
-.posterNote { display: grid; place-items: center; background: var(--da-page); color: var(--ink-3); font-size: 14px; }
-.recentInfo { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 2px 16px; padding: 13px 15px; }
-.recentLabel { grid-column: 1; color: var(--ink-3); font-size: 13px; }
-.recentTitle { grid-column: 1; overflow: hidden; color: var(--ink); font-size: 18px; font-weight: 600; letter-spacing: -.015em; text-overflow: ellipsis; white-space: nowrap; }
-.recentCta { grid-column: 2; grid-row: 1 / span 2; color: var(--ink); font-size: 14px; font-weight: 500; }
-.recentEmpty { min-height: 280px; display: grid; align-content: center; justify-items: center; gap: 5px; border-block: 1px solid var(--da-line); color: var(--ink-3); font-size: 14px; text-align: center; }
-.recentEmpty strong { color: var(--ink); font-size: 17px; font-weight: 600; }
-.notice { margin: 0; color: var(--da-danger); font-size: 13.5px; }
-@media (max-width: 900px) {
-  .screen { height: auto; min-height: 100dvh; overflow: visible; }
-  .main { grid-template-columns: minmax(0, 1fr); align-items: start; gap: 30px; overflow: visible; padding: 24px 20px 32px; }
-  .title { font-size: clamp(38px, 11vw, 58px); }
-  .actions, .subtitle { max-width: none; }
-  .recentEmpty { min-height: 160px; }
+.posterNote { display: grid; place-items: center; background: var(--da-page); color: var(--ink-3); font-size: 12.5px; }
+.recentInfo { min-width: 0; display: grid; gap: 3px; }
+.recentEyebrow { margin-bottom: 5px; color: var(--ink-3); font-size: 13px; font-weight: 500; }
+.recentTitle { overflow: hidden; color: #ffffff; font-size: clamp(20px, 2.1vw, 24px); line-height: 1.2; font-weight: 600; letter-spacing: -.025em; text-overflow: ellipsis; white-space: nowrap; }
+.recentLabel { color: var(--ink-3); font-size: 14px; }
+.recent:hover .recentLabel, .recent:hover .recentEyebrow { color: #ffffff; }
+.recentCta { display: inline-flex; align-items: center; height: 40px; padding: 0 20px; border-radius: 10px; background: #f5f5f6; color: #111113; font-size: 14.5px; font-weight: 600; }
+.recent:hover .recentCta { background: #ffffff; }
+.recentEmpty { display: grid; gap: 3px; padding: 22px 24px; color: var(--ink-3); font-size: 14px; }
+.recentEmpty strong { color: var(--ink); font-size: 18px; font-weight: 600; letter-spacing: -.02em; }
+.notice { margin: 10px 0 0; color: var(--da-danger); font-size: 13.5px; }
+.action:focus-visible, .recent:focus-visible { outline: 2px solid var(--da-focus); outline-offset: 2px; }
+
+@media (max-width: 700px) {
+  .screen { overflow-y: auto; }
+  .main { flex: 0 0 auto; overflow: visible; padding: 24px 20px 32px; }
+  .frame { margin: 0; }
+  .title { font-size: clamp(36px, 10.5vw, 52px); }
+  .actions { grid-template-columns: minmax(0, 1fr); }
+  .action { height: 76px; padding: 0 18px; }
+  .recent { height: auto; grid-template-columns: minmax(0, 1fr) auto; gap: 14px 12px; padding: 10px 14px 14px 10px; }
+  .poster { grid-column: 1 / -1; width: 100%; height: auto; }
+  .recentInfo { padding-left: 4px; }
+  .recentEyebrow { margin-bottom: 2px; }
+  .recentCta { height: 36px; padding: 0 14px; font-size: 13.5px; }
 }

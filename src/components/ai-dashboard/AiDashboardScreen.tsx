@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AiUsageChart } from "./AiUsageChart";
 import { creditMeterPercent } from "../../lib/ai-dashboard/creditMeter";
-import { buildBuckets, creditMeterColor, intervalSpec } from "../../lib/ai-dashboard/dashboardAggregation";
+import { buildBuckets, intervalSpec } from "../../lib/ai-dashboard/dashboardAggregation";
 import { type DashboardFilter, type DashboardInterval, type DashboardSnapshot } from "../../lib/ai-dashboard/dashboardContract";
 import { subscribeDashboardChanges } from "../../lib/ai-dashboard/dashboardSources";
 import { useAccountSession } from "../account/AccountSessionProvider";
@@ -55,6 +55,10 @@ function PlanHero({ plan, byKind }: { plan: AccountPlanStatus; byKind: { animato
   const days = trial ? plan.trialDaysLeft ?? 0 : daysUntil(refill);
   const left = plan.creditsLeft;
   const usedPercent = creditMeterPercent(plan.creditsUsed, plan.creditsTotal, plan.topUpCredits);
+  const leftPercent = Math.max(0, Math.min(100, 100 - usedPercent));
+  const total = plan.creditsTotal + plan.topUpCredits;
+  const spent = byKind.animator + byKind.assistant;
+  const animatorShare = spent > 0 ? (byKind.animator / spent) * 100 : 0;
   const tone = left === 0 ? "out" : plan.low ? "low" : "ok";
   const price = trial ? "" : plan.interval === "year" ? `$${ACCOUNT_PLANS[plan.plan].yearlyUsd} a year` : ACCOUNT_PLANS[plan.plan].price;
   const ending = !trial && plan.cancelAtPeriodEnd;
@@ -73,19 +77,31 @@ function PlanHero({ plan, byKind }: { plan: AccountPlanStatus; byKind: { animato
         </div>
       </div>
       <div className={styles.trialCredits} data-tone={tone}>
-        <p className={styles.trialCreditsLabel}>AI credits</p>
-        <p className={styles.trialCreditsBig}><strong>{number(left)}</strong> <span>of {number(plan.creditsTotal + plan.topUpCredits)} left</span></p>
-        <div className={styles.trialBar} role="meter" aria-valuemin={0} aria-valuemax={plan.creditsTotal + plan.topUpCredits} aria-valuenow={left}
-          aria-label={`${number(left)} AI credits left`}>
-          <i data-testid="credit-meter-fill" style={{ width: `${100 - usedPercent}%`, backgroundColor: creditMeterColor(usedPercent), color: creditMeterColor(usedPercent) }} />
+        <div className={styles.ring} role="meter" aria-valuemin={0} aria-valuemax={total} aria-valuenow={left} aria-valuetext={`${number(left)} credits left`} aria-label={`${number(left)} AI credits left`}>
+          <svg viewBox="0 0 120 120" aria-hidden="true">
+            <defs><linearGradient id="aiRing" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#4d94ff" /><stop offset="100%" stopColor="#0066ff" /></linearGradient></defs>
+            <circle className={styles.ringTrack} cx="60" cy="60" r="52" />
+            <circle className={styles.ringValue} data-testid="credit-meter-fill" cx="60" cy="60" r="52" pathLength={100} strokeDasharray={`${leftPercent} 100`} />
+          </svg>
+          <div><strong>{number(left)}</strong><span>left</span></div>
         </div>
-        <div className={styles.trialBarLabels}><span>{number(plan.creditsUsed)} used</span><span>{plan.topUpCredits > 0 ? `incl. ${number(plan.topUpCredits)} extra` : `${number(plan.creditsTotal)} total`}</span></div>
+        <div className={styles.ringFacts}>
+          <p className={styles.trialCreditsLabel}>AI credits</p>
+          <dl>
+            <div><dt>Total</dt><dd>{number(total)}</dd></div>
+            <div><dt>Used</dt><dd>{number(plan.creditsUsed)}</dd></div>
+            {plan.topUpCredits > 0 && <div><dt>Extra</dt><dd>{number(plan.topUpCredits)}</dd></div>}
+          </dl>
+        </div>
       </div>
     </section>
-    <section className={styles.stats} aria-label="Your AI usage">
-      <div><strong>{number(plan.creditsUsed)}</strong><span>{trial ? "Used in your trial" : "Used this month"}</span></div>
-      <div><strong>{number(byKind.animator)}</strong><span>By the AI Animator</span></div>
-      <div><strong>{number(byKind.assistant)}</strong><span>By the Help Assistant</span></div>
+    <section className={styles.split} aria-label="Where your AI credits went">
+      <div className={styles.splitHead}><h3>Where it went</h3><span>{number(spent)}</span></div>
+      <div className={styles.splitBar} aria-hidden="true"><i style={{ width: `${animatorShare}%` }} /><b style={{ width: `${spent > 0 ? 100 - animatorShare : 0}%` }} /></div>
+      <div className={styles.splitKeys}>
+        <span><i aria-hidden="true" />AI Animator <strong>{number(byKind.animator)}</strong></span>
+        <span><b aria-hidden="true" />Help Assistant <strong>{number(byKind.assistant)}</strong></span>
+      </div>
     </section>
     <PlanWarnings plan={plan} trial={trial} />
   </>;
@@ -97,7 +113,7 @@ function EmptyUsage({ filter }: { filter: DashboardFilter | null }) {
       <path d="M3 20h18" /><path d="M5 16l4-5 4 3 6-8" />
     </svg>
     <strong>{filter === "assistant" ? "No Help Assistant usage here yet" : filter === "project" ? "No AI Animator usage here yet" : "No AI usage yet"}</strong>
-    <span>{filter ? "Nothing in this time range. Try another view or a longer Group by." : "Your usage line shows up here once you start animating with the AI Animator."}</span>
+    <span>{filter ? "Nothing in this time range. Try another view or a longer Group by." : "Your usage bars show up here once you start animating with the AI Animator."}</span>
   </div>;
 }
 
@@ -184,7 +200,7 @@ export function AiDashboardScreen() {
           {readError && <p className={styles.partial} role="alert">Couldn&apos;t update your usage. The numbers may be out of date; it tries again by itself.</p>}
           {issues.length > 0 && <div className={styles.partial} role="status"><strong>Some usage couldn&apos;t be read.</strong><ul>{[...new Set(issues)].map((issue) => <li key={issue}>{issue}</li>)}</ul></div>}
           {snapshot && buckets.length === 0 && !partial ? <EmptyUsage filter={noUsageAtAll ? null : filter} /> : snapshot && <AiUsageChart key={`${filter}-${interval}`} buckets={buckets} filter={filter} complete={complete} capacity={intervalSpec[interval].count} roof={roof} />}
-          {!noUsageAtAll && <p className={styles.chartNote}>The line climbs as you use AI credits and drops back to zero when they refill. Its color matches the bar above.</p>}
+          {!noUsageAtAll && <p className={styles.chartNote}>Each bar is the AI credits you used in that stretch of time. Point at a bar for details.</p>}
         </section>
 
         {plan && plan.plan !== "trial" && <div className={styles.extraCredits}><BuyCreditsPanel /></div>}

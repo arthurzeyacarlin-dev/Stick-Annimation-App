@@ -70,8 +70,7 @@
 .viewerClose:hover:not(:disabled) {
   border-color: var(--da-hover-soft);
   background: var(--da-hover-soft);
-  color: #ffffff;
-}
+  color: #ffffff; box-shadow: var(--da-glow-hover); }
 
 .exportPlayButton:disabled,
 .viewerControlButton:disabled {
@@ -581,7 +580,7 @@
 }
 .exportPlayButton svg { margin-left: 1px; }
 .exportPlayButton[aria-label="Pause"] svg { margin-left: 0; }
-.exportPlayButton:hover:not(:disabled) { border-color: var(--da-hover); background: var(--da-hover); }
+.exportPlayButton:hover:not(:disabled) { border-color: var(--da-hover); background: var(--da-hover); box-shadow: var(--da-glow-hover); }
 .exportPlayButton:disabled { opacity: .45; box-shadow: none; }
 .seek { flex: 1 1 auto; width: auto; }
 .time { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; min-width: 0; width: auto; text-align: right; line-height: 1.2; white-space: nowrap; }

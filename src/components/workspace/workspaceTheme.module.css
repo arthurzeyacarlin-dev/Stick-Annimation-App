@@ -17,7 +17,7 @@
   background: var(--da-hover) !important;
   border-color: var(--da-hover) !important;
   color: #ffffff !important;
-  box-shadow: none !important;
+  box-shadow: var(--da-glow-hover) !important;
 }
 
 .workspace :global(button:not(:disabled):not([aria-disabled="true"]):not([data-hover="outline"]):not([data-hover="icon"]):not([data-hover="danger"]):not([data-hover="bright"]):not([style*="--da-danger"]):not([class*="delete" i]):not([aria-pressed="true"]):not([aria-selected="true"]):not([data-selected]):hover:not([data-workspace-theme-exempt] *) *) {
@@ -93,8 +93,7 @@
 .workspace :global(button[data-hover="icon"]:not(:disabled):hover) {
   background: var(--da-hover) !important;
   border-color: var(--da-hover) !important;
-  color: #ffffff !important;
-}
+  color: #ffffff !important; box-shadow: var(--da-glow-hover); }
 
 /* SPEC-0020 Phase 4 (Arthur): a quick name label when you point at a tool or symbol button
    (data-tooltip="…", data-tooltip-side="above" | "below"). Shows instantly; never blocks clicks. */

@@ -2,7 +2,7 @@
    Brighter navy box with var(--da-border, #2c2c32) outline on a dark area; dull blue at rest; native :hover -> var(--da-hover, #3a3a41). */
 .box { background: var(--da-panel, #1a1a1e); border: 1px solid var(--da-border, #2c2c32); border-radius: 12px; padding: 10px 12px 8px; }
 .box:focus-within { border-color: #55555e; }
-.box textarea { display: block; width: 100%; min-height: 44px; max-height: 150px; resize: none; background: transparent; color: var(--da-text, #f5f5f6); border: 0; padding: 2px 4px; font: inherit; font-size: 14px; line-height: 1.5; overflow-y: auto; overflow-wrap: anywhere; scrollbar-width: thin; scrollbar-color: var(--da-border, #2c2c32) transparent; }
+.box textarea { display: block; width: 100%; min-height: 44px; max-height: 150px; resize: none; background: transparent; color: var(--da-text, #f5f5f6); border: 0; padding: 2px 4px; font: inherit; font-size: 14px; line-height: 1.5; overflow-y: auto; overflow-wrap: anywhere; scrollbar-width: thin; scrollbar-color: var(--da-scroll-thumb) transparent; }
 .box textarea:focus, .box textarea:focus-visible { outline: none; }
 .box textarea::placeholder { color: var(--da-c-6f8db4, #85858e); }
 .box textarea:disabled { opacity: .6; }
@@ -11,7 +11,7 @@
 .tools { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 6px; }
 .reasoning { display: flex; align-items: center; gap: 6px; min-width: 0; font-size: 12px; color: var(--da-muted, #a3a3ab); }
 .reasoning select { min-height: 32px; max-width: 140px; border: 1px solid var(--da-border, #2c2c32); border-radius: 10px; padding: 4px 8px; color: var(--da-text-2, #d2d2d7); background: var(--da-panel, #1a1a1e); font: inherit; font-size: 12px; cursor: pointer; transition: none; }
-.reasoning select:hover:enabled { border-color: var(--da-hover); background: var(--da-hover); color: #ffffff; }
+.reasoning select:hover:enabled { border-color: var(--da-hover); background: var(--da-hover); color: #ffffff; box-shadow: var(--da-glow-hover); }
 .reasoning select:disabled { opacity: .45; cursor: not-allowed; }
 .reasoning select:focus-visible { outline: 2px solid var(--da-focus, #4d94ff); outline-offset: 2px; }
 
@@ -20,7 +20,7 @@
 .iconButton { width: 34px; height: 34px; display: grid; place-items: center; padding: 8px; border: 1px solid transparent; border-radius: 10px; background: transparent; color: #ffffff; cursor: pointer; transition: none; }
 .iconButton svg { width: 100%; height: 100%; }
 .iconButton:focus-visible { outline: 2px solid var(--da-focus, #4d94ff); outline-offset: 2px; }
-.iconButton:hover:enabled { border-color: var(--da-hover); background: var(--da-hover); color: #ffffff; }
+.iconButton:hover:enabled { border-color: var(--da-hover); background: var(--da-hover); color: #ffffff; box-shadow: var(--da-glow-hover); }
 .iconButton:disabled { opacity: .45; cursor: not-allowed; }
 
 /* Dictation (Arthur 2026-10-25): ✕ far left, ✓ far right (same size), round dots evenly spaced across the whole box
@@ -46,11 +46,11 @@
 .effortButton { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 9px; border: 1px solid var(--da-border, #2c2c32); border-radius: 8px; background: transparent; color: var(--da-text-2, #d2d2d7); font: inherit; font-size: 11.5px; line-height: 1; cursor: pointer; }
 .effortName { color: var(--da-muted, #a3a3ab); }
 .effortValue { color: var(--da-text, #f5f5f6); font-weight: 600; }
-.effortButton:hover:enabled { border-color: var(--da-hover); background: var(--da-hover); }
+.effortButton:hover:enabled { border-color: var(--da-hover); background: var(--da-hover); box-shadow: var(--da-glow-hover); }
 .effortButton:hover:enabled .effortName, .effortButton:hover:enabled .effortValue { color: #ffffff; }
 .effortButton:disabled { opacity: .45; cursor: not-allowed; }
 .effortButton:focus-visible { outline: 2px solid var(--da-focus, #4d94ff); outline-offset: 2px; }
-.effortPopover { position: absolute; left: 0; bottom: calc(100% + 8px); z-index: 40; width: min(320px, calc(100vw - 48px)); padding: 14px 18px 12px; border: 1px solid var(--da-border, #2c2c32); border-radius: 12px; background: var(--da-panel, #1a1a1e); box-shadow: var(--da-shadow-pop); }
+.effortPopover { position: absolute; left: 0; bottom: calc(100% + 8px); z-index: 40; width: min(320px, calc(100vw - 48px)); padding: 14px 18px 12px; border: 1px solid var(--da-border, #2c2c32); border-radius: 12px; background: var(--da-card-fill); box-shadow: var(--da-card-shadow); }
 .effortTop { display: grid; gap: 3px; margin-bottom: 14px; }
 .effortTitle { color: var(--da-text, #f5f5f6); font-size: 13px; font-weight: 600; }
 .effortHint { color: var(--da-muted, #a3a3ab); font-size: 12px; line-height: 1.4; min-height: 17px; }

@@ -23,14 +23,14 @@
   border: 1px solid var(--da-border); border-radius: var(--da-radius-control); background: var(--da-panel);
   color: var(--da-text-2); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; appearance: none;
 }
-.button:hover:not(:disabled) { border-color: var(--da-hover); background: var(--da-hover); color: white; }
+.button:hover:not(:disabled) { border-color: var(--da-hover); background: var(--da-hover); color: white; box-shadow: var(--da-glow-hover); }
 .button:disabled { opacity: .6; cursor: default; }
 .button:focus-visible { outline: 2px solid var(--da-focus); outline-offset: 2px; }
-.primary { border-color: var(--da-accent); background: var(--da-accent); color: var(--da-on-selected, var(--da-text)); }
+.primary { border-color: var(--da-accent); background: var(--da-accent); color: var(--da-on-selected, var(--da-text)); box-shadow: var(--da-glow-primary); }
 .actions { display: flex; justify-content: flex-end; }
 .error { margin: 0; color: var(--da-danger); font-size: 13px; }
 .thanks { margin: 0; color: var(--da-text-2); font-size: 15px; }
 
 /* Redesign (Arthur 2026-10-26): the main action is a special button: bright blue at rest and on hover. */
-.button.primary:not(:disabled) { border-color: var(--da-accent) !important; background: var(--da-accent) !important; color: #ffffff !important; box-shadow: none; }
-.button.primary:hover:not(:disabled) { background: var(--da-accent-hover) !important; border-color: var(--da-accent-hover) !important; box-shadow: none; }
+.button.primary:not(:disabled) { border-color: var(--da-accent) !important; background: var(--da-accent) !important; color: #ffffff !important; box-shadow: var(--da-glow-primary); }
+.button.primary:hover:not(:disabled) { background: var(--da-accent-hover) !important; border-color: var(--da-accent-hover) !important; box-shadow: var(--da-glow-primary-hover); }

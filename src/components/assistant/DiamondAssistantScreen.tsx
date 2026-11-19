@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties, KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent } from "react";
 import styles from "./diamondAssistant.module.css";
@@ -8,7 +7,7 @@ import { AssistantSessionSidebar } from "./AssistantSessionSidebar";
 import { AssistantConversation } from "./AssistantConversation";
 import { AssistantComposer } from "./AssistantComposer";
 import { useAssistantSessions } from "./useAssistantSessions";
-import { NotificationTrigger } from "@/src/components/notifications/NotificationTrigger";
+import { AppHeader } from "@/src/components/main/AppHeader";
 import { DiamondLogo } from "@/src/components/chrome/DiamondLogo";
 import {
   clearNotificationNavigationIntentV1,
@@ -35,7 +34,6 @@ export function DiamondAssistantScreen({ onClose }: DiamondAssistantScreenProps 
   const chats = useAssistantSessions();
   const [composerGeneration, setComposerGeneration] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false); // phones: the chat list is a drawer from the left, like ChatGPT
-  const backRef = useRef<HTMLAnchorElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const screenRef = useRef<HTMLDivElement>(null);
   const sidebarResizeRef = useRef<{ pointerId: number; startX: number; startWidth: number } | null>(null);
@@ -43,7 +41,7 @@ export function DiamondAssistantScreen({ onClose }: DiamondAssistantScreenProps 
   const [sidebarMaxWidth, setSidebarMaxWidth] = useState(SIDEBAR_MAX_WIDTH);
   const [sidebarResizing, setSidebarResizing] = useState(false);
   const [navigationVersion, setNavigationVersion] = useState(0);
-  useEffect(() => { (closeRef.current ?? backRef.current)?.focus({ preventScroll: true }); }, []);
+  useEffect(() => { closeRef.current?.focus({ preventScroll: true }); }, []);
   useEffect(() => {
     const changed = () => setNavigationVersion(version => version + 1);
     window.addEventListener("hashchange", changed);
@@ -188,7 +186,7 @@ export function DiamondAssistantScreen({ onClose }: DiamondAssistantScreenProps 
     }
   };
 
-  return (
+  const screen = (
     <div
       ref={screenRef}
       className={styles.screen}
@@ -198,7 +196,7 @@ export function DiamondAssistantScreen({ onClose }: DiamondAssistantScreenProps 
       onClickCapture={(event) => { if (drawerOpen && (event.target as HTMLElement).closest("aside button")) window.setTimeout(() => setDrawerOpen(false), 0); }}
       style={{ "--assistant-sidebar-width": `${sidebarWidth}px` } as CSSProperties}
     >
-      <AssistantSessionSidebar chats={{ ...chats, newChat: () => { setComposerGeneration(value => value + 1); chats.newChat(); } }} mark={<DiamondLogo />} />
+      <AssistantSessionSidebar chats={{ ...chats, newChat: () => { setComposerGeneration(value => value + 1); chats.newChat(); } }} mark={onClose ? <DiamondLogo /> : null} />
       <button type="button" className={styles.drawerScrim} aria-label="Close chat list" onClick={() => setDrawerOpen(false)} />
       <div
         className={styles.sidebarResizer}
@@ -222,26 +220,19 @@ export function DiamondAssistantScreen({ onClose }: DiamondAssistantScreenProps 
         onKeyDown={resizeSidebarWithKeyboard}
       />
       <main id="assistant-conversation-main" className={styles.main}>
-        <header className={styles.header}>
-          {onClose ? (
+        <header className={styles.header} data-page-header={onClose ? undefined : "true"}>
+          {onClose && (
             <button ref={closeRef} type="button" onClick={onClose} className={BACK_BUTTON_CLASS} aria-label="Back to drawing" title="Back to drawing">
               <BackChevron />
             </button>
-          ) : (
-            <Link ref={backRef} href="/#help" prefetch={false} className={BACK_BUTTON_CLASS} aria-label="Back to Help" title="Back to Help">
-              <BackChevron />
-            </Link>
           )}
           <button type="button" className={styles.drawerToggle} onClick={() => setDrawerOpen(true)} aria-label="Show chats">Chats</button>
-          {onClose ? null : (
-            <span className={styles.headerActions}>
-              <NotificationTrigger view="assistant" />
-            </span>
-          )}
         </header>
         <AssistantConversation key={chats.selectedId ?? "blank"} chats={chats} mark={<DiamondLogo />} />
         <AssistantComposer key={`${chats.selectedId ?? "blank"}:${composerGeneration}`} chats={chats} />
       </main>
     </div>
   );
+  // On its own page it sits under the same header as every other screen; over the editor it stands alone.
+  return onClose ? screen : <div className={styles.page}><AppHeader page="dashboard" bellView="assistant" />{screen}</div>;
 }

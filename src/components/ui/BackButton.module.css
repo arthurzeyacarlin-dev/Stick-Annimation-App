@@ -2,5 +2,5 @@
    The class is doubled (.back.back) so a screen's own "button { … }" rules can never restyle it. */
 .back.back { box-sizing: border-box; display: inline-grid; place-items: center; align-self: flex-start; width: 40px; height: 40px; min-height: 40px; margin: 0 0 0 -8px; padding: 0; border: 0; border-radius: 10px; background: transparent; color: var(--da-text-2, #d2d2d7); font: inherit; text-decoration: none; cursor: pointer; appearance: none; transition: none; }
 .back.back svg { width: 26px; height: 26px; }
-.back.back:hover { border: 0; background: transparent; color: var(--da-hover-text); }
+.back.back:hover { border: 0; background: transparent; color: #ffffff; filter: var(--da-icon-glow); }
 .back.back:focus-visible { outline: 2px solid var(--da-focus, #4d94ff); outline-offset: 2px; }

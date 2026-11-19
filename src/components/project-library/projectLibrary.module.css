@@ -89,8 +89,7 @@
 .inlineButton:hover {
   border-color: var(--library-hover);
   background: var(--library-hover);
-  color: #ffffff;
-}
+  color: #ffffff; box-shadow: var(--da-glow-hover); }
 
 /* Canonical Back button (same as Export). */
 .header .backButton {
@@ -111,15 +110,13 @@
 .header .backButton:hover {
   border-color: var(--library-hover);
   background: var(--library-hover);
-  color: #ffffff;
-}
+  color: #ffffff; box-shadow: var(--da-glow-hover); }
 
 .primaryButton {
   padding: 10px 16px;
   border: 1px solid var(--da-selected-border, #55555e);
   background: var(--da-accent);
-  color: #ffffff;
-}
+  color: #ffffff; box-shadow: var(--da-glow-primary); }
 
 .inlineButton {
   flex: 0 0 auto;
@@ -232,8 +229,7 @@
 .overflowButton:hover,
 .rowAction:hover:not(:disabled) {
   color: #ffffff;
-  background: var(--library-hover);
-}
+  background: var(--library-hover); box-shadow: var(--da-glow-hover); }
 
 .rowAction {
   display: flex;
@@ -256,14 +252,13 @@
 .rowAction:disabled { opacity: .45; cursor: default; }
 .rowAction:focus-visible { outline: 2px solid var(--library-focus); outline-offset: -4px; }
 .library button, .library input, .library select, .contextMenu button, .managementDialog button { transition: none; animation: none; }
-.primaryButton:hover:not(:disabled) { background: var(--da-accent-hover); border-color: var(--da-accent-hover); color: #ffffff; }
+.primaryButton:hover:not(:disabled) { background: var(--da-accent-hover); border-color: var(--da-accent-hover); color: #ffffff; box-shadow: var(--da-glow-primary-hover); }
 .toolbar input:hover, .toolbar select:hover { border-color: var(--da-selected-border, #55555e); }
 .toolbar input:focus, .toolbar input:focus-visible, .toolbar select:focus, .toolbar select:focus-visible { border-color: var(--da-selected-border, #55555e); outline: 2px solid var(--library-focus); outline-offset: 2px; }
 .card:has(.cardButton:hover:not([aria-disabled="true"])) { border-color: var(--library-hover); }
 .cardButton:not([aria-disabled="true"]):hover {
   background: var(--da-hover);
-  color: #ffffff;
-}
+  color: #ffffff; box-shadow: var(--da-glow-hover); }
 .cardButton:hover:not([aria-disabled="true"]) .cardBody > *,
 .cardButton:hover:not([aria-disabled="true"]) .titleRow > *,
 .cardButton:hover:not([aria-disabled="true"]) .metadata { color: #ffffff; }
@@ -476,8 +471,7 @@
 
 .contextMenu button:hover:not(:disabled) {
   background: var(--library-hover);
-  color: #ffffff;
-}
+  color: #ffffff; box-shadow: var(--da-glow-hover); }
 
 .contextMenu button:focus-visible {
   outline: 2px solid var(--library-focus);
@@ -524,10 +518,10 @@
   box-sizing: border-box;
   border: 1px solid var(--da-line, #2c2c32);
   border-radius: 12px;
-  background: var(--da-panel, #1a1a1e);
+  background: var(--da-card-fill);
   color: var(--da-text, #f5f5f6);
   padding: clamp(20px, 4vw, 28px);
-  box-shadow: none;
+  box-shadow: var(--da-card-shadow);
 }
 
 .managementDialog h2 {
@@ -612,22 +606,20 @@
 .managementDialog .primaryButton {
   border: 1px solid var(--da-selected-border, #55555e);
   background: var(--da-accent);
-  color: #ffffff;
-}
+  color: #ffffff; box-shadow: var(--da-glow-primary); }
 
-.managementDialog .secondaryButton:hover:not(:disabled) { border-color: var(--da-hover); background: var(--da-hover); color: #fff; }
-.managementDialog .primaryButton:hover:not(:disabled) { border-color: var(--da-accent-hover); background: var(--da-accent-hover); color: #fff; }
+.managementDialog .secondaryButton:hover:not(:disabled) { border-color: var(--da-hover); background: var(--da-hover); color: #fff; box-shadow: var(--da-glow-hover); }
+.managementDialog .primaryButton:hover:not(:disabled) { border-color: var(--da-accent-hover); background: var(--da-accent-hover); color: #fff; box-shadow: var(--da-glow-primary-hover); }
 
 .deleteButton {
   min-height: 42px;
   border: 1px solid rgba(255, 138, 149, 0.35);
   border-radius: 10px;
-  background: var(--da-panel, #1a1a1e);
+  background: var(--da-card-fill);
   color: var(--da-danger, #ff8a95);
   padding: 10px 16px;
   font-weight: 700;
-  cursor: pointer;
-}
+  cursor: pointer; box-shadow: var(--da-card-shadow); }
 
 .deleteButton:hover:not(:disabled) {
   border-color: var(--da-danger-solid, #d23a52);
@@ -762,7 +754,7 @@
 .card { overflow: hidden; border: 1px solid var(--library-line) !important; border-radius: 12px !important; background: var(--library-surface) !important; box-shadow: none !important; }
 .card:hover { border-color: var(--da-hover) !important; }
 .cardButton { background: transparent !important; }
-.cardButton:not([aria-disabled="true"]):hover { background: var(--da-hover) !important; }
+.cardButton:not([aria-disabled="true"]):hover { background: var(--da-hover) !important; box-shadow: var(--da-glow-hover); }
 .posterFrame { display: block; aspect-ratio: 16 / 9; border: 0 !important; border-radius: 0 !important; background: #fff !important; }
 .cardBody { display: grid; gap: 3px; padding: 13px 14px !important; }
 .projectTitle { font-size: 16px !important; font-weight: 600 !important; letter-spacing: -.015em; }
@@ -781,8 +773,13 @@
 .rowAction, .overflowButton { position: static !important; display: flex !important; flex-direction: row !important; align-items: center; justify-content: center; gap: 7px; min-width: 0 !important; min-height: 44px !important; height: 44px; padding: 0 8px !important; border: 0 !important; border-top: 1px solid var(--library-line) !important; border-radius: 0 !important; background: transparent !important; color: var(--library-text-2) !important; }
 .rowAction + .rowAction, .overflowButton { border-left: 1px solid var(--library-line) !important; }
 .rowAction svg { width: 17px !important; height: 17px !important; }
-.rowAction:hover:not(:disabled), .overflowButton:hover:not(:disabled) { background: var(--da-hover) !important; color: #fff !important; }
+.rowAction:hover:not(:disabled), .overflowButton:hover:not(:disabled) { background: var(--da-hover) !important; color: #fff !important; box-shadow: var(--da-glow-hover); }
 .cardButton:not([aria-disabled="true"]):hover .updatedAt, .cardButton:not([aria-disabled="true"]):hover .metadata, .cardButton:not([aria-disabled="true"]):hover .classification { color: #d2d2d7 !important; }
 .card:hover, .card:has(.cardButton:hover:not([aria-disabled="true"])) { border-color: var(--library-line) !important; }
 .library { position: relative; isolation: isolate; }
-.library::before { content: ""; position: absolute; z-index: -1; top: 0; left: 0; width: min(100%, 980px); height: 620px; pointer-events: none; background: radial-gradient(ellipse 760px 520px at 150px -70px, rgba(255, 255, 255, .13) 0%, rgba(255, 255, 255, .075) 28%, rgba(255, 255, 255, .03) 55%, rgba(255, 255, 255, .008) 78%, transparent 100%); }
+
+/* Cards match the AI Dashboard. A first row of projects always fits, so a short list never scrolls. */
+.card { border-color: var(--da-line); background: var(--da-card-fill); box-shadow: var(--da-card-shadow); }
+.library { padding-bottom: 24px; }
+.results { margin-top: 16px; }
+.grid .posterFrame { max-height: max(110px, calc(100dvh - 596px)); }

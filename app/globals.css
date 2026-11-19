@@ -9,6 +9,24 @@
   --da-border: #2c2c32;        /* button and input borders */
   --da-selected-bg: #3a3a41;   /* selected / primary (dull blue) */
   --da-selected-border: #55555e;
+  /* Studio finish (Nov 18): one set of depth and glow values for the whole app. */
+  /* The ONLY page glows, on every screen except the editor: top right, top left and bottom, all the same brightness. */
+  --da-glow-layers:
+    radial-gradient(62vw 58vh at 96% -8%, rgba(0, 102, 255, .1), transparent 70%) fixed,
+    radial-gradient(62vw 58vh at 4% -8%, rgba(255, 255, 255, .062), transparent 70%) fixed,
+    radial-gradient(62vw 58vh at 50% 108%, rgba(0, 102, 255, .1), transparent 70%) fixed;
+  --da-page-glow: var(--da-glow-layers), var(--da-page);
+  --da-icon-glow: drop-shadow(0 0 6px rgba(255, 255, 255, .6));
+  --da-scroll-thumb: rgba(255, 255, 255, .2);
+  --da-scroll-thumb-hover: rgba(255, 255, 255, .38);
+  --da-edge: inset 0 1px 0 rgba(255, 255, 255, .055);
+  --da-glow-primary: inset 0 1px 0 rgba(255, 255, 255, .2);
+  --da-glow-primary-hover: inset 0 1px 0 rgba(255, 255, 255, .24);
+  --da-glow-hover: inset 0 1px 0 rgba(255, 255, 255, .09), 0 0 16px rgba(255, 255, 255, .05);
+  --da-glow-selected: inset 0 1px 0 rgba(255, 255, 255, .1), 0 0 0 1px rgba(255, 255, 255, .05), 0 0 14px rgba(255, 255, 255, .05);
+  --da-card-fill: linear-gradient(180deg, #1e1e23 0%, #18181c 100%);
+  --da-card-shadow: inset 0 1px 0 rgba(255, 255, 255, .05), 0 1px 2px rgba(0, 0, 0, .4), 0 14px 36px rgba(0, 0, 0, .28);
+  --da-pop-shadow: inset 0 1px 0 rgba(255, 255, 255, .07), 0 0 0 1px rgba(0, 0, 0, .35), 0 24px 64px rgba(0, 0, 0, .6);
   --da-hover-text: #ffffff;    /* text and icons that brighten on hover */
   --da-hover: #3a3a41;         /* hover: filled buttons turn this with white text; links/bell change text only */
   --da-text: #f5f5f6;
@@ -246,194 +264,15 @@ html {
   color-scheme: dark;
 }
 
-:root {
-  --app-scrollbar-track: rgba(0, 0, 0, 0);
-  --app-scrollbar-track-hover: rgba(0, 0, 0, 0);
-  --app-scrollbar-thumb: rgba(0, 0, 0, 0.92);
-  --app-scrollbar-thumb-hover: rgba(85, 85, 94, 0.96);
-  --app-scrollbar-track-idle: rgba(0, 0, 0, 0);
-  --app-scrollbar-thumb-idle: rgba(0, 0, 0, 0);
-  --app-scrollbar-fade-in: 60ms ease;
-  --app-scrollbar-fade-out: 150ms ease;
-}
-
-*::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-  background: var(--app-scrollbar-track-idle);
-}
-
-*::-webkit-scrollbar-track {
-  background: var(--app-scrollbar-track-idle);
-  border-radius: 999px;
-  transition: none;
-}
-
-*::-webkit-scrollbar-thumb {
-  background: var(--app-scrollbar-thumb-idle);
-  border-radius: 999px;
-  border: 2px solid transparent;
-  background-clip: padding-box;
-  transition: none;
-}
-
-.is-scroll-active::-webkit-scrollbar-track {
-  background: var(--app-scrollbar-track);
-  transition: none;
-}
-
-.is-scroll-active::-webkit-scrollbar-thumb {
-  background: var(--app-scrollbar-thumb-idle);
-  border-color: var(--app-scrollbar-track);
-  transition: none;
-}
-
-.is-scroll-active::-webkit-scrollbar-thumb:hover,
-*::-webkit-scrollbar-thumb:hover {
-  background: var(--app-scrollbar-thumb-idle);
-  border-color: var(--app-scrollbar-track-hover);
-}
-
-.home-main-scroll {
-  scrollbar-width: thin;
-  scrollbar-color: transparent transparent;
-  scrollbar-gutter: stable;
-}
-
-.home-main-scroll::-webkit-scrollbar {
-  width: 12px;
-  background: var(--app-scrollbar-track-idle);
-}
-
-.home-main-scroll::-webkit-scrollbar-track {
-  background: var(--app-scrollbar-track-idle);
-  transition: none;
-}
-
-.home-main-scroll::-webkit-scrollbar-thumb {
-  border-radius: 999px;
-  border: 2px solid rgba(0, 0, 0, 0);
-  background: var(--app-scrollbar-thumb-idle);
-  background-clip: padding-box;
-  transition: none;
-}
-
-.home-main-scroll.is-scroll-active {
-  scrollbar-color: var(--app-scrollbar-thumb) var(--app-scrollbar-track);
-}
-
-.home-main-scroll.is-scroll-active::-webkit-scrollbar-track {
-  background: var(--app-scrollbar-track);
-  transition: none;
-}
-
-.home-main-scroll.is-scroll-active::-webkit-scrollbar-thumb {
-  border: 2px solid var(--app-scrollbar-track);
-  background: var(--app-scrollbar-thumb-idle);
-  transition: none;
-}
-
-.home-main-scroll.is-scroll-active::-webkit-scrollbar-thumb:hover {
-  background: var(--app-scrollbar-thumb-idle);
-  border-color: var(--app-scrollbar-track-hover);
-}
-
-.darkScroll,
-.workspace-ai-messages-scroll,
-.workspace-ai-composer-textarea,
-.workspace-properties-scroll,
-.stick-figure-right-panel-scroll {
-  scrollbar-width: thin !important;
-  scrollbar-color: transparent transparent !important;
-}
-
-.darkScroll.is-scroll-active,
-.workspace-ai-messages-scroll.is-scroll-active,
-.workspace-ai-composer-textarea.is-scroll-active,
-.workspace-properties-scroll.is-scroll-active,
-.stick-figure-right-panel-scroll.is-scroll-active {
-  scrollbar-color: var(--app-scrollbar-thumb) var(--app-scrollbar-track) !important;
-}
-
-.darkScroll::-webkit-scrollbar,
-.workspace-ai-messages-scroll::-webkit-scrollbar,
-.workspace-ai-composer-textarea::-webkit-scrollbar,
-.workspace-properties-scroll::-webkit-scrollbar,
-.stick-figure-right-panel-scroll::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-  background: var(--app-scrollbar-track-idle) !important;
-}
-
-.darkScroll::-webkit-scrollbar-track,
-.workspace-ai-messages-scroll::-webkit-scrollbar-track,
-.workspace-ai-composer-textarea::-webkit-scrollbar-track,
-.workspace-properties-scroll::-webkit-scrollbar-track,
-.stick-figure-right-panel-scroll::-webkit-scrollbar-track {
-  background: var(--app-scrollbar-track-idle) !important;
-  border-radius: 999px;
-  transition: none;
-}
-
-.darkScroll::-webkit-scrollbar-thumb,
-.workspace-ai-messages-scroll::-webkit-scrollbar-thumb,
-.workspace-ai-composer-textarea::-webkit-scrollbar-thumb,
-.workspace-properties-scroll::-webkit-scrollbar-thumb,
-.stick-figure-right-panel-scroll::-webkit-scrollbar-thumb {
-  background: var(--app-scrollbar-thumb-idle) !important;
-  border: 2px solid rgba(0, 0, 0, 0) !important;
-  border-radius: 999px;
-  background-clip: padding-box;
-  transition: none;
-}
-
-.darkScroll.is-scroll-active::-webkit-scrollbar-track,
-.workspace-ai-messages-scroll.is-scroll-active::-webkit-scrollbar-track,
-.workspace-ai-composer-textarea.is-scroll-active::-webkit-scrollbar-track,
-.workspace-properties-scroll.is-scroll-active::-webkit-scrollbar-track,
-.stick-figure-right-panel-scroll.is-scroll-active::-webkit-scrollbar-track {
-  background: var(--app-scrollbar-track) !important;
-  transition: none;
-}
-
-.darkScroll.is-scroll-active::-webkit-scrollbar-thumb,
-.workspace-ai-messages-scroll.is-scroll-active::-webkit-scrollbar-thumb,
-.workspace-ai-composer-textarea.is-scroll-active::-webkit-scrollbar-thumb,
-.workspace-properties-scroll.is-scroll-active::-webkit-scrollbar-thumb,
-.stick-figure-right-panel-scroll.is-scroll-active::-webkit-scrollbar-thumb {
-  background: var(--app-scrollbar-thumb-idle) !important;
-  border-color: var(--app-scrollbar-track) !important;
-  transition: none;
-}
-
-.darkScroll.is-scroll-active::-webkit-scrollbar-thumb:hover,
-.workspace-ai-messages-scroll.is-scroll-active::-webkit-scrollbar-thumb:hover,
-.workspace-ai-composer-textarea.is-scroll-active::-webkit-scrollbar-thumb:hover,
-.workspace-properties-scroll.is-scroll-active::-webkit-scrollbar-thumb:hover,
-.stick-figure-right-panel-scroll.is-scroll-active::-webkit-scrollbar-thumb:hover {
-  background: var(--app-scrollbar-thumb-idle) !important;
-  border-color: var(--app-scrollbar-track-hover) !important;
-}
-
-.app-scrollbar-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 2147483647;
-  width: 5px;
-  min-height: 36px;
-  border-radius: 999px;
-  background: var(--app-scrollbar-thumb);
-  opacity: 0;
-  pointer-events: none;
-  transform: translate3d(-999px, -999px, 0);
-  transition: none;
-  will-change: opacity, transform, height;
-}
-
-.app-scrollbar-overlay.is-visible {
-  opacity: 1;
-  transition: none;
+/* One scrollbar for the whole app: same look everywhere, on the right of whatever scrolls. */
+*::-webkit-scrollbar { width: 8px; height: 8px; background: transparent; }
+*::-webkit-scrollbar-track, *::-webkit-scrollbar-corner { background: transparent; }
+*::-webkit-scrollbar-thumb { border: 1px solid transparent; border-radius: 999px; background: var(--da-scroll-thumb); background-clip: padding-box; }
+*::-webkit-scrollbar-thumb:hover { background: var(--da-scroll-thumb-hover); background-clip: padding-box; }
+*::-webkit-scrollbar-thumb:horizontal { background: transparent; }
+/* The editor's panels keep their slim width, so nothing there moves; only the color is shared. */
+.darkScroll, .workspace-ai-messages-scroll, .workspace-ai-composer-textarea, .workspace-properties-scroll, .stick-figure-right-panel-scroll {
+  scrollbar-width: thin !important; scrollbar-color: var(--da-scroll-thumb) transparent !important;
 }
 
 /* SPEC-0022 Phase 3 (Arthur 2026-10-13): every red / delete / warning button looks the same everywhere:
@@ -459,7 +298,7 @@ button[class*="danger" i]:disabled, button[class*="destructive" i]:disabled, but
 .workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button) { display: inline-flex !important; flex-wrap: nowrap !important; gap: 2px !important; padding: 3px; border: 1px solid var(--da-border, #2c2c32); border-radius: 10px; background: var(--da-page, #111113); width: fit-content; max-width: 100%; }
 .workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button) > button { height: 32px; min-height: 32px; padding: 0 14px; border: 0 !important; border-radius: 8px !important; margin: 0 !important; background: transparent !important; color: var(--da-text-3, #b8b8bf) !important; font-size: 13px; font-weight: 600; box-shadow: none; }
 .workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button) > button:not([style*="background: var(--da-panel"]):not([data-hover="danger"]):not([class*="delete" i]) { background: var(--da-selected-bg, #3a3a41) !important; color: #ffffff !important; box-shadow: none; }
-.workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button) > button:hover { background: var(--da-hover) !important; color: #ffffff !important; }
+.workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button) > button:hover { background: var(--da-hover) !important; color: #ffffff !important; box-shadow: var(--da-glow-hover); }
 .workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button):has(> button[data-hover="danger"], > button[class*="delete" i]) { display: flex !important; gap: 0 !important; padding: 0; border: 0; border-radius: 0; background: transparent; width: auto; }
 .workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button):has(> button[data-hover="danger"], > button[class*="delete" i]) > button { border: 1px solid var(--da-border, #2c2c32) !important; border-radius: 0 !important; margin-left: -1px !important; background: #1a1a1e !important; }
 .workspace-properties-scroll div[style*="flex-wrap: wrap"]:not(:has(> :not(button))):not(:has(input)):not(:has(> button:nth-child(7))):has(> button + button):has(> button[data-hover="danger"], > button[class*="delete" i]) > button:first-child { border-radius: 10px 0 0 10px !important; margin-left: 0 !important; }
@@ -486,7 +325,7 @@ button[data-hover="danger"] *, button[style*="color: var(--da-danger"]:not([data
 button.da-switch { min-height: 0 !important; height: 24px !important; width: 44px !important; border-radius: 999px !important; padding: 0 !important; }
 button.da-switch:hover { border-color: var(--da-hover) !important; box-shadow: none !important; }
 button.da-switch:not([aria-checked="true"]) { background: var(--da-panel) !important; }
-button.da-switch[aria-checked="true"] { background: var(--da-accent) !important; border-color: var(--da-accent) !important; }
+button.da-switch[aria-checked="true"] { background: var(--da-accent) !important; border-color: var(--da-accent) !important; box-shadow: var(--da-glow-primary); }
 /* Every on/off switch slides its knob and fades its colors (Arthur 2026-10-25: "no teleporting"). The same timing as the
    Effort dot. The switch is the one exception to the editor's instant-buttons rule (workspaceTheme: transition none). */
 :root { --da-switch-motion: 220ms cubic-bezier(.2, .8, .2, 1); }
@@ -496,7 +335,7 @@ button.da-switch > span { transition: none !important; }
 
 /* A plain outlined button (used by Settings → Learn mode): blue and white on hover, instantly. */
 .da-plain-button { min-height: 36px; padding: 0 16px; border: 1px solid var(--da-border, #2c2c32); border-radius: 10px; background: transparent; color: var(--da-text, #f5f5f6); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: none; }
-.da-plain-button:hover { background: var(--da-hover); border-color: var(--da-hover); color: #ffffff; }
+.da-plain-button:hover { background: var(--da-hover); border-color: var(--da-hover); color: #ffffff; box-shadow: var(--da-glow-hover); }
 
 /* SPEC-0022 Phase 9 (Arthur 2026-10-13): tablets and phones. The right panel becomes a bottom sheet with a Panel button;
    the tool row takes the whole width and scrolls sideways if it must. Computers (> 900 px) are untouched. */
@@ -513,7 +352,7 @@ button.da-switch > span { transition: none !important; }
     display: flex; position: fixed; right: 12px; bottom: 72px; z-index: 70; min-height: 40px; align-items: center; padding: 0 16px;
     border: 1px solid #55555e; border-radius: 12px; background: #3a3a41; color: #ffffff; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
   }
-  .da-sheet-toggle:hover { background: #3a3a41; border-color: #3a3a41; }
+  .da-sheet-toggle:hover { background: #3a3a41; border-color: #3a3a41; box-shadow: var(--da-glow-hover); }
   .drawing-toolbar { width: 100% !important; overflow-x: auto; grid-template-columns: repeat(8, minmax(46px, 1fr)) !important; }
 }
 @media (max-width: 640px) {
@@ -527,7 +366,7 @@ button.da-switch > span { transition: none !important; }
   .da-sheet-tabs { display: grid; grid-template-columns: repeat(4, 1fr); position: fixed; left: 0; right: 0; bottom: 56px; height: 46px; z-index: 65; background: var(--da-panel, #1a1a1e); border-top: 1px solid var(--da-line, #2c2c32); }
   .da-sheet-tabs button { border: 0; background: transparent; color: var(--da-text-3, #b8b8bf); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
   .da-sheet-tabs button[aria-selected="true"] { color: #ffffff; background: var(--da-selected-bg, #3a3a41); box-shadow: none; }
-  .da-sheet-tabs button:hover { background: var(--da-hover); color: #ffffff; }
+  .da-sheet-tabs button:hover { background: var(--da-hover); color: #ffffff; box-shadow: var(--da-glow-hover); }
   .drawing-topbar { padding: 0 8px !important; gap: 6px !important; }
   .drawing-topbar-menus { flex: 1 1 auto !important; overflow-x: auto; scrollbar-width: none; }
   .drawing-topbar-title { display: none; }
@@ -550,7 +389,7 @@ button.da-switch > span { transition: none !important; }
   box-shadow: none;
 }
 [class*="segmented"] button[aria-pressed="true"]:hover,
-[role="group"][aria-label="Right panel"] button[aria-pressed="true"]:hover { background: var(--da-hover) !important; box-shadow: none !important; } /* the selected bar stays on hover (Arthur) */
+[role="group"][aria-label="Right panel"] button[aria-pressed="true"]:hover { background: var(--da-hover) !important; box-shadow: var(--da-glow-hover) !important; } /* the selected bar stays on hover (Arthur) */
 .da-sheet-tabs button[aria-selected="true"] { box-shadow: none; }
 
 @media (max-width: 900px), (max-height: 500px) and (orientation: landscape) {
@@ -584,7 +423,7 @@ button.da-switch > span { transition: none !important; }
 .da-sheet-close { display: none; }
 @media (max-width: 900px), (max-height: 500px) and (orientation: landscape) {
   .da-sheet-close { display: flex; align-items: center; justify-content: center; flex: 0 0 auto; min-height: 36px; border: 0; border-bottom: 1px solid var(--da-line, #2c2c32); background: transparent; color: var(--da-text-3, #b8b8bf); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
-  .da-sheet-close:hover { background: var(--da-hover); color: #ffffff; }
+  .da-sheet-close:hover { background: var(--da-hover); color: #ffffff; box-shadow: var(--da-glow-hover); }
   [class*="workspaceTheme_workspace"] { overflow: hidden !important; overscroll-behavior: none; }
   body:has(.drawing-right-panel) { touch-action: manipulation; }
 }
@@ -680,7 +519,7 @@ button.da-switch > span { transition: none !important; }
    Assets tab (computer tabs and phone tab bar) turns blue and pulses. The overlay never blocks the drop. */
 .da-file-drop-overlay { position: fixed; inset: 0; z-index: 1100; pointer-events: none; display: grid; place-items: center; background: transparent; animation: daDropFade 140ms ease-out; }
 .da-file-drop-overlay::before { content: ""; position: absolute; inset: 14px; border: 2px dashed var(--da-hover); border-radius: 12px; }
-.da-file-drop-card { position: relative; display: grid; justify-items: center; gap: 8px; padding: 26px 34px; border: 1px solid var(--da-selected-border, #55555e); border-radius: 12px; background: var(--da-panel, #1a1a1e); box-shadow: var(--da-shadow-pop); color: var(--da-text, #f5f5f6); text-align: center; }
+.da-file-drop-card { position: relative; display: grid; justify-items: center; gap: 8px; padding: 26px 34px; border: 1px solid var(--da-selected-border, #55555e); border-radius: 12px; background: var(--da-card-fill); box-shadow: var(--da-card-shadow); color: var(--da-text, #f5f5f6); text-align: center; }
 .da-file-drop-card svg { color: var(--da-hover-text); }
 .da-file-drop-card strong { font-size: 15px; font-weight: 600; }
 .da-file-drop-card span { color: var(--da-muted, #a3a3ab); font-size: 12.5px; }
@@ -705,10 +544,10 @@ button[data-file-target="true"], [class*="workspaceTheme_workspace"] button[data
 /* hover colors live in the design kit above */ :root { }
 button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-hover="icon"]) { border-width: 1.5px !important; }
 .da-super, .da-super:hover { transition: none; }
-.da-super:hover:enabled, a.da-super:hover { background: var(--da-accent-hover) !important; border-color: var(--da-accent-hover) !important; color: #ffffff !important; box-shadow: none !important; }
+.da-super:hover:enabled, a.da-super:hover { background: var(--da-accent-hover) !important; border-color: var(--da-accent-hover) !important; color: #ffffff !important; box-shadow: var(--da-glow-primary-hover) !important; }
 
 /* Loading screen (new look, Nov 18): the same gray, white logo and one plain white line as the sign-in screen. */
-.da-loading { position: fixed; inset: 0; z-index: 9999; display: grid; place-items: center; pointer-events: none; color: #ffffff; background: #111113; }
+.da-loading { position: fixed; inset: 0; z-index: 9999; display: grid; place-items: center; pointer-events: none; color: #ffffff; background: var(--da-page-glow); }
 .da-loading[data-ready] { display: none; }
 .da-loading-mark { position: relative; display: grid; justify-items: center; gap: 16px; }
 .da-loading-logo { line-height: 0; }
@@ -726,7 +565,7 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
 
 /* Same polished look for the other full screens: Open Project, Export, the recovery box, reset password, trial ended. */
 [data-project-library="open-project"], [data-project-library="my-projects"], main[data-animation-export], main.recovery-shell, main[data-reset-password], [data-trial-ended] {
-  position: relative; background: transparent !important;
+  position: relative; background: var(--da-page-glow) !important;
 }
 [data-project-library="open-project"]::before, [data-project-library="my-projects"]::before, main[data-animation-export]::before, main.recovery-shell::before, main[data-reset-password]::before, [data-trial-ended]::before {
   content: ""; position: absolute; left: 0; right: 0; top: 0; height: 560px; pointer-events: none;
@@ -747,10 +586,15 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
 .drawing-ai-empty::before { content: ""; position: absolute; inset: -40px -30px; z-index: -1; pointer-events: none;
   background: transparent;
   -webkit-mask-image: radial-gradient(ellipse 55% 50% at 50% 40%, #000000 0%, transparent 80%); mask-image: radial-gradient(ellipse 55% 50% at 50% 40%, #000000 0%, transparent 80%); }
-.drawing-ai-empty-mark { display: grid; place-items: center; width: 48px; height: 48px; margin-bottom: 4px; border-radius: 12px; border: 1px solid #55555e; background: var(--da-panel); color: #d2d2d7; box-shadow: none; }
+.drawing-ai-empty-mark { display: grid; place-items: center; width: 48px; height: 48px; margin-bottom: 4px; border-radius: 12px; border: 1px solid #55555e; background: var(--da-card-fill); color: #d2d2d7; box-shadow: var(--da-card-shadow); }
 .drawing-ai-empty-mark svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
 .drawing-ai-empty strong { font-family: var(--font-geist-sans), sans-serif; font-size: 18px; font-weight: 700; letter-spacing: -.02em; color: #f5f5f6; }
 .drawing-ai-empty span:last-child { color: #b8b8bf; font-size: 13px; line-height: 1.55; }
+/* UX Step 1 (Nov 11): tap-to-try examples + the cost line under the AI Animator welcome. */
+.drawing-ai-examples { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 4px; }
+.drawing-ai-examples button { height: 30px; padding: 0 12px; border: 1px solid #55555e; border-radius: 999px; background: rgba(255, 255, 255, 0.038); color: #d2d2d7; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: none; }
+.drawing-ai-examples button:hover:enabled { background: var(--da-accent-hover); border-color: var(--da-accent-hover); color: #ffffff; box-shadow: var(--da-glow-primary-hover); }
+.drawing-ai-empty .drawing-ai-cost { color: #85858e; font-size: 11.5px; line-height: 1.4; }
 
 /* ===== Workspace makeover (Arthur 2026-10-26) =====
    Recipe from the AI Animator panel: light from inside (glow + dots), one clear focus per area, calm spacing,
@@ -766,8 +610,8 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
 .drawing-topbar [data-project-recovery-state] [role="status"] { background: transparent !important; border-color: #2c2c32 !important; color: #a3a3ab !important; font-weight: 500 !important; }
 .drawing-topbar-export { display: inline-flex; align-items: center; gap: 7px; height: 30px; padding: 0 14px; border: 1px solid var(--da-accent); border-radius: 8px;
   background: var(--da-accent); color: #ffffff; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; transition: none;
-  box-shadow: none; }
-.drawing-topbar-export:hover { background: var(--da-accent-hover) !important; border-color: var(--da-accent-hover) !important; box-shadow: none !important; color: #ffffff !important; }
+  box-shadow: var(--da-glow-primary); }
+.drawing-topbar-export:hover { background: var(--da-accent-hover) !important; border-color: var(--da-accent-hover) !important; box-shadow: var(--da-glow-primary-hover) !important; color: #ffffff !important; }
 .drawing-topbar-export svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2.1; stroke-linecap: round; stroke-linejoin: round; }
 
 /* Timeline: a darker track under a clean header, the controls as one transport group (frames untouched). */
@@ -779,7 +623,7 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
 .drawing-timeline-frames [data-timeline-panel] > div:first-child * { color: #85858e !important; font-variant-numeric: tabular-nums; }
 .drawing-fps { border: 1px solid #2c2c32 !important; border-radius: 8px; padding: 0 8px 0 10px !important; height: 32px !important; background: #1a1a1e !important; transition: none; }
 .drawing-fps span { letter-spacing: .04em !important; text-transform: none !important; color: #a3a3ab !important; font-weight: 600 !important; font-size: 11.5px !important; }
-.drawing-fps:hover { background: var(--da-hover) !important; border-color: var(--da-hover) !important; }
+.drawing-fps:hover { background: var(--da-hover) !important; border-color: var(--da-hover) !important; box-shadow: var(--da-glow-hover); }
 .drawing-fps:hover span, .drawing-fps:hover input { color: #ffffff !important; }
 .drawing-fps:focus-within { border-color: var(--da-text) !important; background: rgba(255, 255, 255, 0.038) !important; box-shadow: none; }
 .drawing-timeline-controls [data-hover="icon"] { width: 32px !important; height: 32px !important; border-radius: 8px !important; }
@@ -787,9 +631,9 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
 .drawing-timeline-controls .drawing-play { width: 36px !important; min-width: 36px !important; max-width: 36px !important; height: 32px !important; padding: 0 !important; justify-content: center !important; margin-left: 4px;
   border: 1px solid #55555e !important; border-radius: 8px !important; background: var(--da-panel) !important; color: #ffffff !important; box-shadow: none !important; } /* rest: dark navy + blue outline, like the New project tile (Arthur) */
 /* Play (Arthur): hover = solid bright blue; while playing = dark navy with a blue outline, like the New project tile. */
-.drawing-timeline-controls .drawing-play:hover { background: #3a3a41 !important; border-color: #3a3a41 !important; box-shadow: none !important; }
+.drawing-timeline-controls .drawing-play:hover { background: #3a3a41 !important; border-color: #3a3a41 !important; box-shadow: var(--da-glow-hover) !important; }
 .drawing-timeline-controls .drawing-play[aria-label="Pause"] { background: var(--da-panel) !important; border-color: #55555e !important; box-shadow: none !important; color: #ffffff !important; }
-.drawing-timeline-controls .drawing-play[aria-label="Pause"]:hover { background: #3a3a41 !important; border-color: #3a3a41 !important; }
+.drawing-timeline-controls .drawing-play[aria-label="Pause"]:hover { background: #3a3a41 !important; border-color: #3a3a41 !important; box-shadow: var(--da-glow-hover); }
 
 /* Canvas area: the darkest shade, lit from the middle with dots; outside the camera box is dark (Arthur), the stage glows. */
 .drawing-canvas-area { background: #111113 !important; position: relative; }
@@ -804,9 +648,9 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
 .drawing-toolbar { background: var(--da-panel) !important; border-top: 1px solid #232328 !important; box-shadow: none; justify-items: center; }
 .drawing-tool-label { font-size: 10.5px; font-weight: 600; letter-spacing: .01em; line-height: 1; }
 .drawing-tool-button { color: #a3a3ab !important; }
-.drawing-tool-button:not([data-selected]):hover { background: var(--da-hover) !important; border-color: var(--da-hover) !important; color: #ffffff !important; }
+.drawing-tool-button:not([data-selected]):hover { background: var(--da-hover) !important; border-color: var(--da-hover) !important; color: #ffffff !important; box-shadow: var(--da-glow-hover); }
 .drawing-tool-button[data-selected] { background: var(--da-hover) !important; border-color: var(--da-text) !important; color: #ffffff !important; box-shadow: none !important; } /* solid blue, like Play on hover (Arthur 2026-10-27) */
-.drawing-tool-button[data-selected]:hover { background: var(--da-hover) !important; border-color: var(--da-text) !important; box-shadow: none !important; }
+.drawing-tool-button[data-selected]:hover { background: var(--da-hover) !important; border-color: var(--da-text) !important; box-shadow: var(--da-glow-hover) !important; }
 @media (max-width: 900px), (max-height: 500px) and (orientation: landscape) { .drawing-tool-label { display: none; } .drawing-tool-button { width: 44px !important; height: 40px !important; } }
 
 /* Right panel: same chrome shade, a soft glow at the top like the AI Animator, calm sentence-case labels, compact buttons. */
@@ -834,11 +678,11 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
 
 /* Round 3 (Arthur): on/off icons show "on" clearly — a lit blue box. */
 .drawing-timeline-controls [data-hover="icon"][aria-pressed="true"] { background: rgba(255, 255, 255, 0.058) !important; border: 1px solid var(--da-text) !important; color: #ffffff !important; box-shadow: none; }
-.drawing-timeline-controls [data-hover="icon"][aria-pressed="true"]:hover { background: var(--da-hover) !important; border-color: var(--da-hover) !important; }
+.drawing-timeline-controls [data-hover="icon"][aria-pressed="true"]:hover { background: var(--da-hover) !important; border-color: var(--da-hover) !important; box-shadow: var(--da-glow-hover); }
 
 /* Choice groups (Square / Triangle / Circle, Draw / Cutout…): only the chosen one looks chosen. */
 .workspace-properties-scroll div[style*="flex-wrap: wrap"] > button:not([aria-pressed="true"]):not([data-hover="danger"]):not([style*="--da-danger"]):not([class*="delete" i]) { background: transparent !important; border-color: transparent !important; color: #a3a3ab !important; }
-.workspace-properties-scroll div[style*="flex-wrap: wrap"] > button:not([aria-pressed="true"]):not([data-hover="danger"]):not([style*="--da-danger"]):not([class*="delete" i]):hover { background: var(--da-hover) !important; color: #ffffff !important; }
+.workspace-properties-scroll div[style*="flex-wrap: wrap"] > button:not([aria-pressed="true"]):not([data-hover="danger"]):not([style*="--da-danger"]):not([class*="delete" i]):hover { background: var(--da-hover) !important; color: #ffffff !important; box-shadow: var(--da-glow-hover); }
 
 /* Timeline layers: the current layer's controls light up with its row; calm column. */
 .drawing-timeline [data-layer-controls-active] { background: rgba(255, 255, 255, 0.026); box-shadow: none; }
@@ -846,15 +690,15 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
 
 /* Tool heading in Properties: glowing mark, tool name, one friendly line. */
 .drawing-tool-head { display: flex; align-items: center; gap: 12px; padding: 4px 0 10px; }
-.drawing-tool-head-mark { flex: 0 0 auto; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 10px; border: 1px solid #55555e; background: var(--da-panel); color: #d2d2d7; box-shadow: none; }
+.drawing-tool-head-mark { flex: 0 0 auto; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 10px; border: 1px solid #55555e; background: var(--da-card-fill); color: #d2d2d7; box-shadow: var(--da-card-shadow); }
 .drawing-tool-head-mark svg, .drawing-ai-empty-mark svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .drawing-tool-head strong { display: block; font-family: var(--font-geist-sans), sans-serif; font-size: 16px; font-weight: 700; letter-spacing: -.015em; color: #f5f5f6; }
 .drawing-tool-head small { display: block; margin-top: 2px; font-size: 12.5px; color: #a3a3ab; }
 
 /* Hero (Assets / Library empty): same as the AI Animator welcome, plus a bright main button. */
 .drawing-ai-empty-text { color: #b8b8bf; font-size: 13px; line-height: 1.55; }
-.drawing-hero-button { margin-top: 8px; height: 36px; padding: 0 18px; border: 1px solid var(--da-accent); border-radius: 9px; background: var(--da-accent); color: #ffffff; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: none; transition: none; }
-.drawing-hero-button:hover:enabled { background: var(--da-accent-hover) !important; border-color: var(--da-accent-hover) !important; box-shadow: none !important; color: #ffffff !important; }
+.drawing-hero-button { margin-top: 8px; height: 36px; padding: 0 18px; border: 1px solid var(--da-accent); border-radius: 9px; background: var(--da-accent); color: #ffffff; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: var(--da-glow-primary); transition: none; }
+.drawing-hero-button:hover:enabled { background: var(--da-accent-hover) !important; border-color: var(--da-accent-hover) !important; box-shadow: var(--da-glow-primary-hover) !important; color: #ffffff !important; }
 .drawing-hero-note { color: #85858e; font-size: 11.5px; }
 
 /* Round 4 (Arthur). Delete stays red everywhere in the editor: red text + red outline, solid red with white text on hover. */
@@ -868,7 +712,7 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
 .drawing-panel-title { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 2px 0 8px; border-bottom: 1px solid #232328; }
 .drawing-panel-title strong { font-family: var(--font-geist-sans), sans-serif; font-size: 16px; font-weight: 700; letter-spacing: -.015em; color: #f5f5f6; }
 .drawing-panel-title small { margin-left: 8px; font-size: 12px; color: #a3a3ab; }
-.drawing-hero-button.drawing-hero-button-small { margin-top: 0; height: 32px !important; padding: 0 14px !important; border: 1px solid var(--da-accent) !important; border-radius: 8px !important; background: var(--da-accent) !important; color: #ffffff !important; font-size: 12.5px !important; }
+.drawing-hero-button.drawing-hero-button-small { margin-top: 0; height: 32px !important; padding: 0 14px !important; border: 1px solid var(--da-accent) !important; border-radius: 8px !important; background: var(--da-accent) !important; color: #ffffff !important; font-size: 12.5px !important; box-shadow: var(--da-glow-primary); }
 
 /* Round 5 (Arthur). AI Animator: the Diamond logo instead of the icon card, same size, glowing. */
 .drawing-ai-logo { display: grid; place-items: center; width: 48px; height: 48px; margin-bottom: 4px; color: #ffffff; line-height: 0; filter: none; }
@@ -906,7 +750,7 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
    3 special glowing (like Export, Choose a plan): bright blue; on hover the brightest blue in the app (.da-super / the
      page's own special class). A bright button never gets darker on hover. */
 .da-btn-outline { border: 1px solid var(--da-border) !important; background: var(--da-panel) !important; color: var(--da-text) !important; box-shadow: none; }
-.da-btn-outline:hover:not(:disabled) { background: #3a3a41 !important; border-color: #3a3a41 !important; color: #ffffff !important; box-shadow: none !important; }
+.da-btn-outline:hover:not(:disabled) { background: #3a3a41 !important; border-color: #3a3a41 !important; color: #ffffff !important; box-shadow: var(--da-glow-hover) !important; }
 .da-btn-outline:hover:not(:disabled) * { color: #ffffff !important; }
 
 /* Delete, discard and warnings — ONE style everywhere: thick red outline + red text; on hover the whole button is red
@@ -929,7 +773,7 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
 .da-notfound h1 { margin: 0; font-family: var(--font-geist-sans), sans-serif; font-size: clamp(28px, 4vw, 38px); font-weight: 700; letter-spacing: -.03em; }
 .da-notfound-card > p:not(.da-notfound-code) { margin: 0; color: var(--da-text-3, #b8b8bf); font-size: 16px; line-height: 1.55; }
 .da-notfound-home { margin-top: 14px; display: inline-flex; align-items: center; height: 46px; padding: 0 26px; border-radius: 12px; background: var(--da-accent); color: #ffffff; font-size: 15px; font-weight: 700; text-decoration: none;
-  box-shadow: none; }
+  box-shadow: var(--da-glow-primary); }
 .da-notfound-home:focus-visible { outline: 2px solid var(--da-focus, #4d94ff); outline-offset: 3px; }
 
 /* ===== Delete pop-ups (Arthur 2026-10-27): one look for every "Delete …?" — a round red warning icon on top and a
@@ -1078,8 +922,8 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
   .drawing-timeline-controls > * { flex: 0 0 auto !important; }
   .drawing-timeline-controls button { min-width: 0 !important; min-height: 0 !important; width: 38px !important; height: 38px !important; border-radius: 10px !important; display: grid !important; place-items: center !important; }
   .drawing-timeline-controls .drawing-play { order: -1; width: 38px !important; height: 38px !important; border-radius: 10px !important; background: var(--da-selected-bg, #3a3a41) !important; border: 1px solid var(--da-text) !important; color: #ffffff !important; box-shadow: none !important; }
-  .drawing-timeline-controls .drawing-play:hover { background: #3a3a41 !important; border-color: #3a3a41 !important; box-shadow: none !important; }
-  .drawing-timeline-controls button:not(.drawing-play):hover { background: var(--da-hover) !important; }
+  .drawing-timeline-controls .drawing-play:hover { background: #3a3a41 !important; border-color: #3a3a41 !important; box-shadow: var(--da-glow-hover) !important; }
+  .drawing-timeline-controls button:not(.drawing-play):hover { background: var(--da-hover) !important; box-shadow: var(--da-glow-hover); }
   .drawing-timeline-controls .drawing-fps { order: 9; margin-left: auto !important; height: 38px !important; }
 }
 /* While the panel is being dragged up it already covers the timeline (it slides over everything, Arthur). */
@@ -1130,7 +974,7 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
 .drawing-right-panel [role="group"][aria-label="Right panel"] button { font-size: 12.5px !important; font-weight: 500 !important; }
 .drawing-toolbar > .da-choice-pill { background: var(--da-text) !important; border-radius: 8px !important; }
 .drawing-tool-button { color: var(--da-muted) !important; }
-.drawing-tool-button:not([data-selected]):hover { background: var(--da-hover) !important; border-color: var(--da-hover) !important; color: #fff !important; }
+.drawing-tool-button:not([data-selected]):hover { background: var(--da-hover) !important; border-color: var(--da-hover) !important; color: #fff !important; box-shadow: var(--da-glow-hover); }
 .drawing-toolbar .drawing-tool-button.drawing-tool-button[data-selected], .drawing-toolbar .drawing-tool-button.drawing-tool-button[data-selected]:hover { background: transparent !important; border-color: transparent !important; color: var(--da-page) !important; }
 .drawing-toolbar .drawing-tool-button[data-selected] svg, .drawing-toolbar .drawing-tool-button[data-selected] svg * { color: var(--da-page) !important; }
 .drawing-toolbar:not([data-da-choice-row]) .drawing-tool-button[data-selected] { background: var(--da-text) !important; }
@@ -1165,14 +1009,14 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
 .drawing-ai-empty::before, .drawing-ai-thread-head::before, .workspace-properties-scroll::before { display: none !important; }
 .drawing-ai-tab form[aria-label="AI Animator message composer"] { border-color: var(--da-line) !important; border-radius: 12px !important; background: var(--da-page) !important; box-shadow: none !important; }
 .drawing-ai-examples button { border-color: var(--da-line); border-radius: 10px; background: var(--da-page); color: var(--da-text-2); font-weight: 500; }
-.drawing-ai-examples button:hover:enabled { border-color: var(--da-hover); background: var(--da-hover); color: #fff; }
-[data-timeline-panel-resizer]:hover { background: var(--da-hover) !important; }
+.drawing-ai-examples button:hover:enabled { border-color: var(--da-hover); background: var(--da-hover); color: #fff; box-shadow: var(--da-glow-hover); }
+[data-timeline-panel-resizer]:hover { background: var(--da-hover) !important; box-shadow: var(--da-glow-hover); }
 
 /* Right panel: every tab has the same dark background; boxes and the message field sit on top of it. */
 .drawing-right-panel, .drawing-right-panel .workspace-properties-scroll, .drawing-ai-tab, .drawing-ai-tab .workspace-ai-panel-shell, .drawing-ai-tab .workspace-ai-panel-shell > div, .drawing-ai-tab .workspace-ai-messages-scroll { background-color: var(--da-page) !important; }
 .drawing-right-panel [role="group"][aria-label="Right panel"] { background-color: var(--da-panel) !important; }
 .drawing-ai-tab form[aria-label="AI Animator message composer"], .drawing-ai-examples button { background: var(--da-panel) !important; }
-.drawing-ai-examples button:hover:enabled { background: var(--da-hover) !important; }
+.drawing-ai-examples button:hover:enabled { background: var(--da-hover) !important; box-shadow: var(--da-glow-hover); }
 .drawing-right-panel input:not([type="range"]):not([type="color"]):not([type="checkbox"]), .drawing-right-panel select, .drawing-right-panel textarea:not(.workspace-ai-composer-textarea) { background-color: var(--da-panel) !important; border-color: var(--da-line) !important; }
 /* The timeline's scroll bar: one thin, quiet line. */
 .timeline-bottom-scrollbar-slider { height: 6px !important; }

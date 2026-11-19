@@ -43,7 +43,7 @@ export function AssistantComposer({ chats }: { chats: ReturnType<typeof useAssis
           left={<ChatEffortPicker value={effort} onChange={setEffort} disabled={chats.busy || chats.storageBlocked} />}
           right={<>
             <ChatDictateButton disabled={active} onClick={() => void capture.current?.start()} />
-            {pending ? <ChatStopButton label="Cancel answer" onClick={() => void chats.cancel()} /> : <ChatSendButton disabled={disabled || !chats.draft.trim()} />}
+            {pending ? <ChatStopButton label="Cancel answer" onClick={() => void chats.cancel()} /> : <ChatSendButton icon="arrow" disabled={disabled || !chats.draft.trim()} />}
           </>}
         />}
     </form>

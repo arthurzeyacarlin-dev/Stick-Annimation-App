@@ -1,8 +1,8 @@
 import "./globals.css";
 import "./themes.css";
+import "./studio.css";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { ScrollbarActivity } from "./ScrollbarActivity";
 import { NotificationCenterProvider } from "@/src/components/notifications/NotificationCenterProvider";
 import { AccountSessionProvider } from "@/src/components/account/AccountSessionProvider";
 import { getServerAccountSession, toAccountPublicUser } from "@/src/lib/account/access";
@@ -25,7 +25,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Diamond Animator",
-  description: "Bring your stories to life. Stick figure animation, drawn by you or animated by AI.",
+  description: "Bring your stories to life. Animation drawn by you or animated by AI, on a timeline you can edit.",
 };
 
 export default async function RootLayout({
@@ -47,7 +47,6 @@ export default async function RootLayout({
         <AccountSessionProvider user={session ? toAccountPublicUser(session) : null}>
           {session && <AppearanceSync />}
           <NotificationCenterProvider>
-            <ScrollbarActivity />
             <ChunkReloadGuard />
             {children}
             <PageLoadingMark />

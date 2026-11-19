@@ -6,7 +6,7 @@
 .text { margin: 0; color: var(--da-text-3, #b8b8bf); font-size: 13.5px; }
 .packs { display: flex; flex-wrap: wrap; gap: 10px; }
 .button { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 0 18px; border: 1px solid var(--da-border, #2c2c32); border-radius: var(--da-radius-control, 10px); background: var(--da-panel, #1a1a1e); color: var(--da-text, #f5f5f6); font: inherit; font-size: 14px; font-weight: 700; text-decoration: none; cursor: pointer; }
-.button:hover:not(:disabled) { border-color: var(--da-hover); background: var(--da-hover); color: #ffffff; }
+.button:hover:not(:disabled) { border-color: var(--da-hover); background: var(--da-hover); color: #ffffff; box-shadow: var(--da-glow-hover); }
 .button:focus-visible { outline: 2px solid var(--da-focus, #4d94ff); outline-offset: 3px; }
 .button:disabled { color: var(--da-label, #85858e); border-color: var(--da-line, #2c2c32); cursor: not-allowed; }
 .link { color: var(--da-link, #d2d2d7); font-weight: 700; text-decoration: none; }
@@ -17,7 +17,7 @@
 .pack { display: grid; justify-items: start; gap: 4px; padding: 16px 18px; border: 1px solid var(--da-border, #2c2c32); border-radius: var(--da-radius-card, 12px); background: var(--da-panel, #1a1a1e); color: var(--da-text-3, #b8b8bf); font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
 .pack strong { color: var(--da-text, #f5f5f6); font-size: 20px; font-weight: 700; }
 .pack .packPrice { color: var(--da-text, #f5f5f6); font-size: 16px; font-weight: 700; }
-.pack:hover:not(:disabled) { border-color: var(--da-hover); background: var(--da-hover); }
+.pack:hover:not(:disabled) { border-color: var(--da-hover); background: var(--da-hover); box-shadow: var(--da-glow-hover); }
 .pack:hover:not(:disabled), .pack:hover:not(:disabled) strong, .pack:hover:not(:disabled) span { color: #ffffff; }
 .pack:focus-visible { outline: 2px solid var(--da-focus, #4d94ff); outline-offset: 3px; }
 .pack:disabled { cursor: not-allowed; opacity: .55; }

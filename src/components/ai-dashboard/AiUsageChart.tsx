@@ -1,7 +1,6 @@
 "use client";
 
 import { useLayoutEffect, useRef, useState } from "react";
-import { creditMeterColor } from "../../lib/ai-dashboard/dashboardAggregation";
 import { TEST_WEEKLY_TOKENS, type DashboardBucket, type DashboardFilter } from "../../lib/ai-dashboard/dashboardContract";
 import styles from "./AiDashboard.module.css";
 
@@ -18,24 +17,6 @@ const localRange = (start: number, end: number) => {
 const sourceName: Record<DashboardFilter, string> = {
   combined: "All", project: "AI Animator", assistant: "Assistant",
 };
-
-const LINE_STOPS = [0, 35, 60, 80, 100];
-
-// Column centers in the 0–100 drawing space (the plot's columns are equal), and the climbing / dropping line.
-const slotX = (index: number, capacity: number) => ((index + 0.5) / Math.max(1, capacity)) * 100;
-function usagePath(buckets: DashboardBucket[], capacity: number) {
-  if (buckets.length === 0) return "";
-  const y = (bucket: DashboardBucket) => 100 - Math.max(0, Math.min(100, bucket.selectedPercent));
-  let d = `M 0 100 L ${slotX(0, capacity)} ${y(buckets[0])}`; // always rises from the ground, never a floating dot
-  for (let i = 1; i < buckets.length; i++) {
-    if (buckets[i].firstInWeek) {
-      const mid = (slotX(i - 1, capacity) + slotX(i, capacity)) / 2;
-      d += ` L ${mid} ${y(buckets[i - 1])} L ${mid} 100`; // refill: straight down, then climb again
-    }
-    d += ` L ${slotX(i, capacity)} ${y(buckets[i])}`;
-  }
-  return d;
-}
 
 export function AiUsageChart({ buckets, filter, complete, capacity, roof = TEST_WEEKLY_TOKENS }: { buckets: DashboardBucket[]; filter: DashboardFilter; complete: boolean; capacity: number; roof?: number }) {
   type ActiveBar = { index: number; left: number; centerY: number; mode: "hover" | "focus" | "touch" };
@@ -76,44 +57,32 @@ export function AiUsageChart({ buckets, filter, complete, capacity, roof = TEST_
     buckets[index].intervalSelectedTokens - buckets[index - 1].intervalSelectedTokens;
   const detail = active ? buckets[active.index] : null;
   const detailChange = active ? intervalChange(active.index) : null;
+  // Arthur (Nov 18): usage as bars in the app's one blue. Taller bar = more credits used in that stretch of time.
+  const peak = Math.max(1, ...buckets.map((bucket) => bucket.intervalSelectedTokens));
+  const total = buckets.reduce((sum, bucket) => sum + bucket.intervalSelectedTokens, 0);
+  const empties = Math.max(0, capacity - buckets.length);
   return (
-    <div className={styles.chartArea} aria-label={`${sourceName[filter]} weekly test preview chart`}>
-      <div className={styles.thresholdLegend} aria-label="Preview limit markers">
-        <span><i className={styles.roofKey} aria-hidden="true" />Red line: all {number(roof)} credits of your plan</span>
-        <span><i className={styles.warningKey} aria-hidden="true" />Dashed line: 90% of your plan</span>
+    <div className={styles.chartArea} aria-label={`${sourceName[filter]} credits chart`}>
+      <div className={styles.chartSummary}>
+        <div><span>Used in this view</span><strong>{number(total)}</strong></div>
+        <div><span>Biggest moment</span><strong>{number(buckets.length ? peak : 0)}</strong></div>
+        <div><span>Your plan</span><strong>{number(roof)}</strong></div>
       </div>
       <div className={styles.plotWrap} ref={plotRef}
         onPointerDown={(event) => {
           if (event.pointerType === "touch" && !(event.target as HTMLElement).closest("[data-testid='usage-bar']")) setActive(null);
         }}>
-        <div className={styles.roof} aria-hidden="true" />
-        <div className={styles.warningLine} aria-hidden="true" />
-        {/* Redesign (Arthur 2026-10-26): a line instead of bars. Each point is the running total this period, so the line
-            climbs as credits are used; at a refill (a new period) it drops straight down to zero and starts again. */}
-        <svg className={styles.usageLine} viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-          <defs>
-            {/* Arthur (2026-10-27): the higher the line climbs, the more it fades blue → green → yellow → orange → red,
-                like the credits bar — pure red at the red ceiling (all credits used). */}
-            <linearGradient id="usageStroke" gradientUnits="userSpaceOnUse" x1="0" y1="100" x2="0" y2="0">
-              {LINE_STOPS.map((percent) => <stop key={percent} offset={`${percent}%`} stopColor={creditMeterColor(percent)} />)}
-            </linearGradient>
-            <linearGradient id="usageFill" gradientUnits="userSpaceOnUse" x1="0" y1="100" x2="0" y2="0">
-              {LINE_STOPS.map((percent) => <stop key={percent} offset={`${percent}%`} stopColor={creditMeterColor(percent)} stopOpacity={percent === 0 ? 0.04 : 0.22} />)}
-            </linearGradient>
-          </defs>
-          {usagePath(buckets, capacity) && <>
-            <path d={`${usagePath(buckets, capacity)} L ${slotX(buckets.length - 1, capacity)} 100 L 0 100 Z`} fill="url(#usageFill)" />
-            <path d={usagePath(buckets, capacity)} fill="none" stroke="url(#usageStroke)" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-          </>}
-        </svg>
+        <div className={styles.gridLines} aria-hidden="true">
+          {[1, 0.5, 0].map((part) => <span key={part}><em>{number(Math.round(peak * part))}</em></span>)}
+        </div>
         <div className={styles.plot} style={{ gridTemplateColumns: `repeat(${capacity}, minmax(0, 1fr))` }}>
           {buckets.map((bucket, index) => {
-            const level = `${Math.max(0, Math.min(100, bucket.selectedPercent))}%`;
+            const level = `${Math.max(3, (bucket.intervalSelectedTokens / peak) * 100)}%`;
             const remaining = Math.max(0, roof - bucket.combinedTokens);
             const change = intervalChange(index);
             const label = `${sourceName[filter]} activity interval, local ${localRange(bucket.start, bucket.end)}; UTC ${time(bucket.start)} to ${time(bucket.end)}; spent ${number(bucket.intervalSelectedTokens)} credits in interval; cumulative selected source ${number(bucket.selectedTokens)} of your plan's ${number(roof)} credits, ${bucket.selectedPercent.toFixed(1)}%; all AI ${number(bucket.combinedTokens)}, ${number(remaining)} left in the preview${change === null ? "" : `; interval spend change since last plotted bar ${signedNumber(change)} credits in this UTC week`}${bucket.resetAfter ? "; UTC-week reset follows" : ""}${bucket.isCurrent ? "; interval in progress" : ""}${complete ? "" : "; partial data"}`;
             return (
-              <div key={bucket.start} className={`${styles.barSlot} ${bucket.resetAfter ? styles.resetAfter : ""}`}>
+              <div key={bucket.start} className={styles.barSlot}>
                 <button type="button" className={styles.barButton} aria-label={label}
                   onFocus={(event) => {
                     if (event.currentTarget.matches(":focus-visible")) {
@@ -129,8 +98,8 @@ export function AiUsageChart({ buckets, filter, complete, capacity, roof = TEST_
                       if (bar) show(index, bar, "focus");
                     }
                   }}>
-                  <span className={styles.dot} data-testid="usage-bar" data-start={bucket.start} data-interval-tokens={bucket.intervalSelectedTokens} data-selected-tokens={bucket.selectedTokens}
-                    data-combined-tokens={bucket.combinedTokens} data-color={bucket.color} data-active={active?.index === index ? "true" : undefined}
+                  <span className={styles.costBar} data-testid="usage-bar" data-start={bucket.start} data-interval-tokens={bucket.intervalSelectedTokens} data-selected-tokens={bucket.selectedTokens}
+                    data-combined-tokens={bucket.combinedTokens} data-active={active?.index === index ? "true" : undefined} data-current={bucket.isCurrent ? "true" : undefined}
                     onPointerEnter={(event) => { if (event.pointerType !== "touch") show(index, event.currentTarget, "hover"); }}
                     onPointerLeave={(event) => { if (event.pointerType !== "touch") hide(index, "hover"); }}
                     onPointerUp={(event) => {
@@ -138,11 +107,12 @@ export function AiUsageChart({ buckets, filter, complete, capacity, roof = TEST_
                       const next = positionFor(index, event.currentTarget, "touch");
                       if (next) setActive((current) => current?.mode === "touch" && current.index === index ? null : next);
                     }}
-                    style={{ bottom: level, borderColor: bucket.color }} />
+                    style={{ height: level }} />
                 </button>
               </div>
             );
           })}
+          {Array.from({ length: empties }, (_, index) => <div key={`empty-${index}`} className={styles.barSlot}><span className={styles.emptyBar} aria-hidden="true" /></div>)}
         </div>
         {detail && active && <div ref={tooltipRef} className={styles.barTooltip} data-testid="usage-tooltip"
           style={{ left: active.left }} aria-hidden="true">

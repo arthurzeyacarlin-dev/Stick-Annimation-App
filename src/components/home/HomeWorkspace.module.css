@@ -21,7 +21,7 @@
 .main button { border: 0; background: transparent; color: inherit; cursor: pointer; font: inherit; transition: none; animation: none; }
 .main button:hover { color: var(--da-hover-text); }
 .main button:focus-visible { outline: 2px solid var(--da-focus, #4d94ff); outline-offset: 5px; }
-.main .newProject { display: flex; align-items: center; gap: 18px; width: min(100%, 380px); min-height: 84px; padding: 15px 20px; border: 1px solid var(--da-border, #2c2c32); border-radius: 14px; background: var(--da-panel, #1a1a1e); text-align: left; }
+.main .newProject { display: flex; align-items: center; gap: 18px; width: min(100%, 380px); min-height: 84px; padding: 15px 20px; border: 1px solid var(--da-border, #2c2c32); border-radius: 14px; background: var(--da-card-fill); text-align: left; box-shadow: var(--da-card-shadow); }
 .plus { display: grid; place-items: center; width: 42px; height: 42px; color: var(--da-icon, #85858e); font-size: 44px; font-weight: 300; line-height: 1; }
 .newProject > span:nth-child(2) { display: flex; flex-direction: column; gap: 4px; }
 .newProject strong { font-size: 25px; font-weight: 730; letter-spacing: -.025em; }
@@ -32,7 +32,7 @@
 .emptyRecent p { color: var(--da-c-8aa4c5, #a3a3ab); font-size: 17px; font-weight: 550; margin: 0 0 8px; }
 .emptyRecent small { color: var(--da-c-6b86a9, #85858e); font-size: 12px; }
 .recentLabel { display: block; margin: 0 0 15px; color: var(--da-label, #85858e); font-size: 10px; font-weight: 720; letter-spacing: .13em; }
-.main .recentProjectButton { display: block; width: 100%; padding: 16px; border: 1px solid var(--da-border, #2c2c32); border-radius: 14px; background: var(--da-panel, #1a1a1e); text-align: left; }
+.main .recentProjectButton { display: block; width: 100%; padding: 16px; border: 1px solid var(--da-border, #2c2c32); border-radius: 14px; background: var(--da-card-fill); text-align: left; box-shadow: var(--da-card-shadow); }
 .main .recentProjectButton:hover { border-color: var(--da-hover); background: var(--da-panel, #1a1a1e); color: var(--da-text, #f5f5f6); }
 .poster { display: grid; place-items: center; position: relative; width: 100%; aspect-ratio: 16 / 10; overflow: hidden; }
 .poster img, .poster canvas { max-width: 100%; max-height: 100%; object-fit: contain; }
@@ -47,7 +47,7 @@
 .recentNotice { font-size: 12px; line-height: 1.5; color: #b8b8bf; }
 .shortcuts { display: grid; grid-template-columns: 1.12fr 1fr; gap: 64px; padding-top: 30px; border-top: 1px solid var(--da-line, #2c2c32); }
 .shortcutGroup { position: relative; min-height: 154px; }
-.main .shortcut { position: absolute; inset: 0; display: flex; align-items: flex-start; gap: 21px; width: 100%; padding: 22px 24px 66px; border: 1px solid var(--da-border, #2c2c32); border-radius: 14px; background: var(--da-panel, #1a1a1e); text-align: left; }
+.main .shortcut { position: absolute; inset: 0; display: flex; align-items: flex-start; gap: 21px; width: 100%; padding: 22px 24px 66px; border: 1px solid var(--da-border, #2c2c32); border-radius: 14px; background: var(--da-card-fill); text-align: left; box-shadow: var(--da-card-shadow); }
 .shortcut > span { display: flex; flex-direction: column; gap: 7px; }
 .shortcut strong { font-size: 23px; font-weight: 680; letter-spacing: -.03em; }
 .shortcut small { color: var(--da-muted, #a3a3ab); font-size: 13px; }
@@ -59,7 +59,7 @@
 .utility button { min-height: 44px; padding: 8px 0; color: var(--da-link, #d2d2d7); font-size: 13px; font-weight: 650; }
 .utility button span { margin-left: 6px; }
 .main .secondary:hover, .utility button:hover { color: var(--da-hover-text); }
-.main .newProject:hover, .main .shortcutGroup:hover .shortcut { border-color: var(--da-hover); background: var(--da-hover); color: #fff; }
+.main .newProject:hover, .main .shortcutGroup:hover .shortcut { border-color: var(--da-hover); background: var(--da-hover); color: #fff; box-shadow: var(--da-glow-hover); }
 .main .newProject:hover .plus, .main .newProject:hover small, .main .shortcutGroup:hover .shortcut svg, .main .shortcutGroup:hover .shortcut small { color: #fff; }
 /* The shared card stays highlighted (var(--da-hover, #3a3a41) fill) while its independent inner link is hovered,
    so the link text stays white there; no underline or glow. */

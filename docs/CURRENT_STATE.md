@@ -1,6 +1,10 @@
 # Current State
 
-## D-0238 — New professional look across the main app (current)
+## D-0239 — Final interface polish in the main app (current)
+
+Arthur approved it 2026-11-19 and asked for it in main. Every screen outside the editor has three subtle page glows (top left, top right, bottom) and no other page light. Home has a clear headline, matching New project and Open project buttons, and a larger continue card. The Assistant uses the normal app header and one calm column. AI Dashboard has the ring, split bar and usage bars. The app has one scrollbar style, and X and Back buttons share one hover. The AI Animator work and its saving changes stay out of main; main keeps its own accounts, saving and credits.
+
+## D-0238 — New professional look across the main app
 
 Arthur approved it 2026-11-18 and asked for it in main. Home, AI Dashboard, Plans, Settings, Profile, Assistant, Open Project, Export, menus, notifications and the editor use one look: gray surfaces, Geist, instant gray hover, blue only on main actions. The editor has evenly spaced tools on the left, a wide 16:9 canvas, a 440 px dark right panel and the timeline along the bottom, with layers opening upward. Main keeps its own account, credit, plan, saving, AI and export logic. Checked in a clean main checkout with a throwaway test account: Home, new project, pencil drawing, AI tab and Save. Types pass. See DECISIONS D-0238.
 

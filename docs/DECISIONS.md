@@ -2356,3 +2356,13 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Blue is only for main actions. Normal hover is gray with no fade. Red, green and amber stay only where they mean danger, success or warning.
 - Final audit, same day: hover text and icons now turn white (they had turned dark gray and nearly vanished), hover fills are gray, danger hover is one red, old navy and cyan colors are gone from styles and editor overlays, unused theme colors are removed, and the app always opens in the one dark look.
 - Known limit, not a look issue: drawings are stored at a fixed pixel size, so opening one in a smaller window or on a phone shows it too large for the canvas. The drawing engine is protected, so this waits for Arthur's decision.
+
+### D-0239 — Final interface polish becomes the main app (side PM, 2026-11-19)
+
+- Arthur reviewed `diamond-review/app-redesign` and said to make it the main Diamond Animator, then move on to the website.
+- Moved as design only, the same way as D-0238. Main keeps its own accounts, saving and credits, and the unfinished AI Animator work stays out.
+- Page glows: exactly three, on every screen except the editor. Blue top right and bottom match; the white top left is tuned by eye so it reads as equal. Old white spotlights and blue button halos outside the editor are gone.
+- Home: headline, New project and Open project at one height, and a continue card about twice that height. The Assistant uses the normal app header.
+- AI Dashboard keeps its ring, split bar and usage bars, worded in credits because main still counts credits.
+- One scrollbar style across the app. Every X matches the Back arrow on hover.
+- Checked in a local copy of main with a throwaway account: sign-up, plan step, Home, new project, drawing, save, reopen preview, editor menus, AI Dashboard with sample usage, Assistant start screen, Settings, Profile, Plans and Open Project. Types pass for the changed screens, and the credit meter test passes. A production build and a real Assistant reply were not run.

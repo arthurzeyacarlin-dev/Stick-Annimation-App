@@ -6,7 +6,7 @@ Final beta/launch date = **Friday, November 13, 2026** (2nd delay; Arthur + dad 
 
 ## NEW LOOK — Nov 18 (side PM)
 
-The new look is in main (D-0238). `diamond-review/v1-single` does not have it yet. Website rebuild comes after the videos. Credits plan waits for the Stripe stage.
+The final polish is in main (D-0239). `diamond-review/v1-single` does not have it yet. Website polish is next (Arthur, Nov 19). Credits plan waits for the Stripe stage.
 
 ## AI ANIMATOR ENGINE — Oct 30 (PM11) — READ FIRST
 

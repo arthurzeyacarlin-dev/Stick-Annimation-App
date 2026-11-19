@@ -4,10 +4,11 @@
 
 - [x] **LOOK-SIGN-IN** — sign-in, log-in, plan step, reset password and loading screen in main.
 - [x] **LOOK-APP** — full redesign of the rest of the app, in main (D-0238).
+- [x] **LOOK-POLISH** — final interface polish, in main (D-0239).
 - [ ] **LOOK-DRAWING-FIT** — drawings keep a fixed pixel size, so older drawings, smaller windows and phones can show them too large or cut off; fixing it changes the protected drawing engine, so Arthur decides.
 - [ ] **LOOK-V1-COPY** — the AI Animator work copy (`diamond-review/v1-single`) does not have this look yet; bring it over when Arthur says.
 - [ ] **LOOK-REAL-CLIP** — replace the hand-made sign-in sample with a real AI Animator clip.
-- [ ] **LOOK-WEBSITE** — after the app: real videos, same look, remove "stick figure animation" wording.
+- [ ] **LOOK-WEBSITE** — next: plan and polish the website with the same look, real videos and "animation" wording.
 
 ## AI Animator queue (D-0234, 2026-10-30)
 

@@ -2366,3 +2366,21 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - AI Dashboard keeps its ring, split bar and usage bars, worded in credits because main still counts credits.
 - One scrollbar style across the app. Every X matches the Back arrow on hover.
 - Checked in a local copy of main with a throwaway account: sign-up, plan step, Home, new project, drawing, save, reopen preview, editor menus, AI Dashboard with sample usage, Assistant start screen, Settings, Profile, Plans and Open Project. Types pass for the changed screens, and the credit meter test passes. A production build and a real Assistant reply were not run.
+
+### D-0240 — Website rebuilt in the app's look and made live (side PM, 2026-11-19)
+
+- Arthur OK'd a full website polish in a copy (`diamond-review/website-polish`), reviewed it and said "put this in a real main website".
+- Same colors, three glows, Geist, buttons and hovers as the app; highlighted headline words are the app blue (Arthur: "It should be blue").
+- Home: "Describe it. It animates it. You edit every frame." with a sped-up demo box (one canvas, one chat): dig a hole, a car, "Make the car green.", a robot smashing a vending machine, then a bulldozer add-on. Every video was made on Nov 19 in the app copy (`diamond-review/v1-single`); old test clips removed. Three real screen recordings: making, editing by asking, editing frames by hand.
+- The selling point and offer on every page: an animation app with an AI animator inside and a timeline you both share; anything except backgrounds and effects. Lead popup after 60 s so it doesn't cover the demo.
+- Pushed diamond-website `2b0699d` and `0a929e0` to main (live). Live site check: 0 FAIL, 0 WARN, spots 37 of 50.
+- Found while recording: in the app copy, "Make the stick figure blue" on a default black figure charged 20¢ and changed nothing; the site does not promise it.
+
+### D-0241 — Website in credits with dad's new plans, plus a brand kit (side PM, 2026-11-20)
+
+- Arthur: "Everything should be in credits. Once you used up all your credits, you cannot use any more AI." Built in a copy (`diamond-review/website-credits`); Arthur said make it the main website.
+- Prices from dad's credits plan (Nov 17): Basic $9.99 / 470 credits, Pro $24.99 / 1,200, Creator $49.99 / 2,400; yearly $99 / $249 / $499 (2 months free); first 50: $7.49 / $18.74 / $37.49; trial 150 credits; packs 250 / 500 / 1,000 credits for $5.49 / $10.99 / $20.99 on any plan, never expire.
+- 1 credit = 1 cent of real AI cost: 4 credits a second, 12 for a new animation's opening scene, 15 a reply, 1 a Help Assistant answer; at zero credits the AI stops. Every website number comes from `config/pricing.ts`. No cents or "AI money" anywhere, including Terms and AI Credits Terms (dated Nov 20).
+- New `/brand/` page (dad's request): logo with clear space and do/don't, downloadable logo files, app icon, social card, colors, Geist, the look, how we talk, app pictures, one zip.
+- Pushed diamond-website `39f7169` to main (live). Live site check: 0 FAIL, 0 WARN, spots 37 of 50.
+- Open: the app does not charge this way yet (the app copy charges a flat 35¢ an animation). The credits plan (charge by seconds, card shows credits, hold and give back, stop at zero, daily limit, trial in credits) must be built in the app before launch. Dad sets the prices in Stripe and decides the trial size and the yearly discount.

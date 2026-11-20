@@ -8,7 +8,10 @@
 - [ ] **LOOK-DRAWING-FIT** — drawings keep a fixed pixel size, so older drawings, smaller windows and phones can show them too large or cut off; fixing it changes the protected drawing engine, so Arthur decides.
 - [ ] **LOOK-V1-COPY** — the AI Animator work copy (`diamond-review/v1-single`) does not have this look yet; bring it over when Arthur says.
 - [ ] **LOOK-REAL-CLIP** — replace the hand-made sign-in sample with a real AI Animator clip.
-- [ ] **LOOK-WEBSITE** — next: plan and polish the website with the same look, real videos and "animation" wording.
+- [x] **LOOK-WEBSITE** — website in the app's look with real app videos, live (D-0240).
+- [x] **WEBSITE-CREDITS** — website in credits with dad's new plans, plus a brand kit at /brand/, live (D-0241).
+- [ ] **APP-CREDITS** — build dad's credits plan in the app (charge by seconds, card shows credits, hold and give back, stop at zero, daily limit, trial 150) so the app matches the website before launch.
+- [ ] **ONE-PROGRESS-BAR** — one progress bar and loader style everywhere (app, app copy, website): app blue on a gray track. Audit Nov 20: 8 bars in 7 styles, no shared component.
 
 ## AI Animator queue (D-0234, 2026-10-30)
 

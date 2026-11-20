@@ -6,7 +6,7 @@ Final beta/launch date = **Friday, November 13, 2026** (2nd delay; Arthur + dad 
 
 ## NEW LOOK — Nov 18 (side PM)
 
-The final polish is in main (D-0239). `diamond-review/v1-single` does not have it yet. Website polish is next (Arthur, Nov 19). Credits plan waits for the Stripe stage.
+The final polish is in main (D-0239). The website is in the app look (D-0240) and in credits with dad's new plans plus a brand kit (D-0241), live on diamondanimator.com (diamond-website `39f7169`). `diamond-review/v1-single` does not have the new look yet. Next for money: build the credits plan in the app so it matches the website (TODO APP-CREDITS).
 
 ## AI ANIMATOR ENGINE — Oct 30 (PM11) — READ FIRST
 

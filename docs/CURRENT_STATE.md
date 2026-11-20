@@ -1,6 +1,14 @@
 # Current State
 
-## D-0239 — Final interface polish in the main app (current)
+## D-0241 — Website in credits with the new plans, plus a brand kit (current)
+
+Arthur said make it the main website 2026-11-20. diamondanimator.com (diamond-website `39f7169`) shows dad's credits plans: Basic $9.99 / 470 credits, Pro $24.99 / 1,200, Creator $49.99 / 2,400, first 50 at 25% off, trial 150 credits, packs on any plan. Costs are in credits only (4 a second, 12 for a new animation's scene, 15 a reply); at zero credits the AI stops. A brand kit is at /brand/. The app does not charge this way yet: the credits plan must be built in the app before launch.
+
+## D-0240 — Website rebuilt in the app's look
+
+Live since 2026-11-19 (diamond-website `0a929e0`): the app's colors, glows, font and hovers; a sped-up AI Animator demo box on Home; only videos made by the app on Nov 19; the selling point and offer on every page.
+
+## D-0239 — Final interface polish in the main app
 
 Arthur approved it 2026-11-19 and asked for it in main. Every screen outside the editor has three subtle page glows (top left, top right, bottom) and no other page light. Home has a clear headline, matching New project and Open project buttons, and a larger continue card. The Assistant uses the normal app header and one calm column. AI Dashboard has the ring, split bar and usage bars. The app has one scrollbar style, and X and Back buttons share one hover. The AI Animator work and its saving changes stay out of main; main keeps its own accounts, saving and credits.
 

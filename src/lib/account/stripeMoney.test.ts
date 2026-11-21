@@ -639,3 +639,49 @@ test("31. the same payment start asked twice at the same moment is ONE payment (
   assert.equal(one.clientSecret, two.clientSecret);
   assert.equal([...stripe.subs.values()].filter((sub) => sub.customer === customerOf(o)).length, 1);
 });
+
+test("32. real money on (Nov 21, '100% NOT test mode'): test-card plans, packs and payments and the test buttons are wiped; real-money rows stay", async () => {
+  at(T0);
+  const paidTest = "u_testcard_plan";
+  await buy(paidTest);
+  await sync(paidTest);
+  await buyPack(paidTest, "pack_100");
+  await sync(paidTest);
+  assert.equal(status(paidTest).plan, "starter");
+  assert.equal(status(paidTest).topUpCredits, 100);
+  assert.ok(credits.listPayments(paidTest).length >= 2, "test payments are recorded in test mode");
+  const button = "u_testbutton_plan";
+  credits.applyTestPlanAction(button, "creator");
+  assert.equal(status(button).plan, "creator", "the test button gave a free plan in test mode");
+  const plainTrial = "u_plain_trial";
+  assert.equal(status(plainTrial).plan, "trial");
+  try {
+    process.env.STRIPE_SECRET_KEY = "rk_live_fake_for_unit_tests";
+    process.env.STRIPE_LIVE_OK = "yes";
+    assert.equal(billing.billingMode(), "live");
+    // The very next read already runs on real money: nothing from the test card counts.
+    for (const owner of [paidTest, button]) {
+      const now = status(owner);
+      assert.equal(now.plan, "trial", `${owner}: back to the free trial clock`);
+      assert.equal(now.topUpCredits, 0, `${owner}: no test packs`);
+      assert.equal(now.paymentProblem, false);
+      assert.equal(credits.readAccountBillingIds(owner).customerId, null, `${owner}: no test-mode customer`);
+      assert.equal(credits.listPayments(owner).length, 0, `${owner}: no test payments`);
+    }
+    assert.equal(status(plainTrial).plan, "trial", "a plain trial is untouched");
+    assert.throws(() => credits.applyTestPlanAction(button, "studio"), /test buttons are off/);
+    assert.equal(status(button).plan, "trial", "the test buttons can't give a plan on real money");
+    // A real-money pack is marked as real money and is never wiped, even if the server goes test → live again.
+    const real = "u_real_money";
+    assert.equal(credits.addTopUpCredits(real, 100, "evt_live_pack_1"), true);
+    process.env.STRIPE_SECRET_KEY = "sk_test_fake_for_unit_tests";
+    delete process.env.STRIPE_LIVE_OK;
+    status(real);
+    process.env.STRIPE_SECRET_KEY = "rk_live_fake_for_unit_tests";
+    process.env.STRIPE_LIVE_OK = "yes";
+    assert.equal(status(real).topUpCredits, 100, "real money stays");
+  } finally {
+    process.env.STRIPE_SECRET_KEY = "sk_test_fake_for_unit_tests";
+    delete process.env.STRIPE_LIVE_OK;
+  }
+});

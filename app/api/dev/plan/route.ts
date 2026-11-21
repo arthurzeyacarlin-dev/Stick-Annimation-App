@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import { requireAccountRequest } from "@/src/lib/account/access";
-import { applyTestPlanAction, getAccountPlanStatus, getCreditUseByKind, TEST_PLAN_ACTIONS, type TestPlanAction } from "@/src/lib/account/aiCredits";
+import { applyTestPlanAction, getAccountPlanStatus, getCreditUseByKind, moneyMode, TEST_PLAN_ACTIONS, type TestPlanAction } from "@/src/lib/account/aiCredits";
 
 // SPEC-0020 Phase 2 (development only): the test switch for plans, credits and the trial clock.
 // 404 outside development. Nothing is charged and no AI runs: it only changes this account's local plan record
 // ("Pretend AI use" adds a fake usage entry). Phase 9 adds the credit, refill, payment and pretend-use buttons.
 export const runtime = "nodejs";
 export async function POST(request: Request) {
-  if (process.env.NODE_ENV !== "development") return new NextResponse(null, { status: 404 });
+  // Real money on (Nov 21): the test buttons don't exist, even on this Mac.
+  if (process.env.NODE_ENV !== "development" || moneyMode() === "live") return new NextResponse(null, { status: 404 });
   const access = await requireAccountRequest(request);
   if ("response" in access) return access.response;
   const body = await request.json().catch(() => null) as { action?: unknown } | null;

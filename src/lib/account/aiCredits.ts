@@ -18,6 +18,12 @@ import {
 } from "./plans.ts";
 import { creditsText } from "./credits.ts";
 import { ownerAlert } from "./ownerAlerts.ts";
+import { billingModeForKey } from "./stripeBillingRules.ts";
+
+/** "live" (real money), "test" (fake cards) or "off", from the server's Stripe settings. Nov 21 (Arthur: "100% NOT test
+ *  mode"): in live mode nothing from test mode may count — not a plan, pack or payment made with a test card, and not the
+ *  development test buttons. */
+export const moneyMode = () => billingModeForKey(process.env.STRIPE_SECRET_KEY, process.env.STRIPE_LIVE_OK?.trim() === "yes");
 
 type PlanRow = {
   plan: string; trial_started_at: number; period_started_at: number; test_used_extra: number;
@@ -31,7 +37,7 @@ type PaymentRow = {
   period_from: number | null; period_until: number | null; paid_at: number; charge_id: string | null; payment_intent_id: string | null;
   subscription_id: string | null; refunded_cents: number; taken_credits: number; free_refund_cents: number;
 };
-type CreditsGlobal = typeof globalThis & { diamondAccountPlansDatabase?: Database.Database; diamondAccountPlansSchema?: number };
+type CreditsGlobal = typeof globalThis & { diamondAccountPlansDatabase?: Database.Database; diamondAccountPlansSchema?: number; diamondAccountPlansMoneyMode?: string };
 
 const owner = globalThis as CreditsGlobal;
 
@@ -39,11 +45,15 @@ const owner = globalThis as CreditsGlobal;
 const TEST_PAID_UNTIL = Date.UTC(2100, 0, 1);
 /** Raise this whenever a table or column is added: a server that keeps running (or new code dropped into it) adds them at once.
  *  (Nov 20, live: the app copy's running server kept its open database from before the payments table, so every plan read failed.) */
-const SCHEMA_VERSION = 2;
+const SCHEMA_VERSION = 3;
 
 function database() {
   const cached = owner.diamondAccountPlansDatabase;
-  if (cached && owner.diamondAccountPlansSchema === SCHEMA_VERSION) return cached;
+  if (cached && owner.diamondAccountPlansSchema === SCHEMA_VERSION) {
+    // The Stripe settings changed while the server kept running (test → live): clear test money before anything is read.
+    if (owner.diamondAccountPlansMoneyMode !== moneyMode()) forgetTestMoney(cached);
+    return cached;
+  }
   const root = path.resolve(process.cwd(), ".local/spec0015-phase3");
   const file = path.join(root, "account-plans.sqlite");
   const db: Database.Database = cached ?? (() => {
@@ -115,6 +125,9 @@ function database() {
   addColumn("account_plan_v1", "period_ends_at", "INTEGER");
   addColumn("account_plan_v1", "billing_notice", "TEXT");
   addColumn("account_plan_v1", "billing_notice_at", "INTEGER");
+  // Which money a row's Stripe facts belong to ("test" or "live"); rows from before Nov 21 are all test mode (NULL).
+  addColumn("account_plan_v1", "money_mode", "TEXT");
+  addColumn("account_payment_v1", "money_mode", "TEXT");
   addColumn("account_credit_use_v1", "credits", "INTEGER NOT NULL DEFAULT 1");
   addColumn("account_credit_use_v1", "kind", "TEXT NOT NULL DEFAULT 'chat'");
   addColumn("account_credit_use_v1", "source", "TEXT NOT NULL DEFAULT 'plan'");
@@ -125,7 +138,30 @@ function database() {
   try { fs.chmodSync(file, 0o600); } catch { /* the file is already private */ }
   owner.diamondAccountPlansDatabase = db;
   owner.diamondAccountPlansSchema = SCHEMA_VERSION;
+  forgetTestMoney(db);
   return db;
+}
+
+/** Nov 21 (Arthur: "100% NOT test mode"). When the server runs on real money, everything paid with a test card is wiped:
+ *  test plans, test packs, test payments, test Stripe customers, and plans set by the development test buttons. The account
+ *  goes back to its free trial clock (over = locked until a real payment). Its AI use history stays (that AI really ran).
+ *  Real-money rows are marked "live" when written, so they are never touched. In test mode nothing is wiped. */
+export function forgetTestMoney(db: Database.Database = database(), now = Date.now()) {
+  const mode = moneyMode();
+  owner.diamondAccountPlansMoneyMode = mode;
+  if (mode !== "live") return { accounts: 0, payments: 0 };
+  return db.transaction(() => {
+    const accounts = db.prepare(`UPDATE account_plan_v1 SET plan = 'trial', paid_plan = NULL, paid_from = NULL, paid_until = NULL,
+        billing_interval = NULL, billing_status = NULL, past_due_since = NULL, cancel_at_period_end = 0, plan_ended = 0,
+        stripe_customer_id = NULL, stripe_subscription_id = NULL, billing_synced_at = NULL, disputed = 0, period_ends_at = NULL,
+        billing_notice = NULL, billing_notice_at = NULL, top_up_credits = 0, test_used_extra = 0, money_mode = 'live', updated_at = ?
+      WHERE COALESCE(money_mode, 'test') != 'live' AND (stripe_customer_id IS NOT NULL OR stripe_subscription_id IS NOT NULL
+        OR paid_plan IS NOT NULL OR plan != 'trial' OR top_up_credits != 0 OR test_used_extra != 0 OR plan_ended != 0
+        OR billing_status IS NOT NULL OR disputed != 0)`).run(now).changes;
+    const payments = db.prepare("DELETE FROM account_payment_v1 WHERE COALESCE(money_mode, 'test') != 'live'").run().changes;
+    if (accounts || payments) console.warn(`[billing] real money is on: cleared test-mode plans/packs on ${accounts} account(s) and ${payments} test payment(s).`);
+    return { accounts, payments };
+  }).immediate();
 }
 
 const creditError = (message: string, code: string) => Object.assign(new Error(message), { status: 402, code });
@@ -277,7 +313,7 @@ export function readAccountBillingIds(ownerId: string, now = Date.now()): Accoun
 
 export function setStripeCustomerId(ownerId: string, customerId: string, now = Date.now()) {
   readPlanRow(ownerId, now);
-  database().prepare("UPDATE account_plan_v1 SET stripe_customer_id = ?, updated_at = ? WHERE owner_id = ?").run(customerId, now, ownerId);
+  database().prepare("UPDATE account_plan_v1 SET stripe_customer_id = ?, money_mode = ?, updated_at = ? WHERE owner_id = ?").run(customerId, moneyMode(), now, ownerId);
 }
 
 /** The account a Stripe customer belongs to (the webhook doorbell). */
@@ -316,10 +352,10 @@ export function applySubscriptionState(ownerId: string, state: SubscriptionState
       row.paid_from !== paidFrom || row.paid_until !== paidUntil;
     db.prepare(`UPDATE account_plan_v1 SET plan = ?, billing_interval = ?, billing_status = ?, period_started_at = ?,
         cancel_at_period_end = ?, plan_ended = ?, past_due_since = ?, stripe_subscription_id = ?, stripe_customer_id = COALESCE(?, stripe_customer_id),
-        paid_plan = ?, paid_from = ?, paid_until = ?, period_ends_at = ?,
+        paid_plan = ?, paid_from = ?, paid_until = ?, period_ends_at = ?, money_mode = ?,
         billing_synced_at = ?, test_used_extra = CASE WHEN plan = ? THEN test_used_extra ELSE 0 END, updated_at = ? WHERE owner_id = ?`)
       .run(nextPlan, state.interval, state.status, state.periodStartedAt, state.cancelAtPeriodEnd ? 1 : 0, ended ? 1 : 0, pastDueSince,
-        state.subscriptionId, state.customerId ?? null, paidPlan, paidFrom, paidUntil, state.periodEndsAt, now, state.plan, now, ownerId);
+        state.subscriptionId, state.customerId ?? null, paidPlan, paidFrom, paidUntil, state.periodEndsAt, moneyMode(), now, state.plan, now, ownerId);
     return changed;
   }).immediate();
 }
@@ -345,7 +381,7 @@ export function addTopUpCredits(ownerId: string, credits: number, eventId: strin
   return db.transaction(() => {
     if (!claimBillingEvent(ownerId, eventId, "topup", now)) return false;
     readPlanRow(ownerId, now);
-    db.prepare("UPDATE account_plan_v1 SET top_up_credits = top_up_credits + ?, updated_at = ? WHERE owner_id = ?").run(Math.max(0, Math.round(credits)), now, ownerId);
+    db.prepare("UPDATE account_plan_v1 SET top_up_credits = top_up_credits + ?, money_mode = ?, updated_at = ? WHERE owner_id = ?").run(Math.max(0, Math.round(credits)), moneyMode(), now, ownerId);
     return true;
   }).immediate();
 }
@@ -366,9 +402,9 @@ const toPayment = (row: PaymentRow): PaymentRecord => ({
 export function recordPayment(payment: Omit<PaymentRecord, "refundedCents" | "takenCredits" | "freeRefundCents">): boolean {
   const db = database();
   const result = db.prepare(`INSERT OR IGNORE INTO account_payment_v1 (stripe_id, owner_id, kind, amount_cents, credits, plan, period_from, period_until,
-      paid_at, charge_id, payment_intent_id, subscription_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+      paid_at, charge_id, payment_intent_id, subscription_id, money_mode) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
     .run(payment.stripeId, payment.ownerId, payment.kind, Math.max(0, Math.round(payment.amountCents)), Math.max(0, Math.round(payment.credits)),
-      payment.plan, payment.periodFrom, payment.periodUntil, payment.paidAt, payment.chargeId, payment.paymentIntentId, payment.subscriptionId);
+      payment.plan, payment.periodFrom, payment.periodUntil, payment.paidAt, payment.chargeId, payment.paymentIntentId, payment.subscriptionId, moneyMode());
   if (result.changes === 0 && (payment.chargeId || payment.paymentIntentId)) {
     db.prepare("UPDATE account_payment_v1 SET charge_id = COALESCE(charge_id, ?), payment_intent_id = COALESCE(payment_intent_id, ?) WHERE stripe_id = ?")
       .run(payment.chargeId, payment.paymentIntentId, payment.stripeId);
@@ -482,6 +518,8 @@ export const TEST_PLAN_ACTIONS = [
 export type TestPlanAction = (typeof TEST_PLAN_ACTIONS)[number];
 
 export function applyTestPlanAction(ownerId: string, action: TestPlanAction, now = Date.now()) {
+  // Real money: the test buttons can never give a plan, credits or a pack for free (Nov 21, "100% NOT test mode").
+  if (moneyMode() === "live") throw Object.assign(new Error("The test buttons are off while real money is on."), { status: 404 });
   // A test state (payment failed, waiting for refill…) must not be undone a minute later by the Stripe check:
   // pause that check for this account for an hour after any test button.
   readPlanRow(ownerId, now);

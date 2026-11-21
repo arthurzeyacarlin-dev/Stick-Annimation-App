@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ACCOUNT_PLANS, AI_ACTION_CREDITS } from "@/src/lib/account/plans";
 import type { AccountPlanStatus } from "@/src/lib/account/plans";
+import { creditsText } from "@/src/lib/account/credits";
 import { ACCOUNT_PLAN_CHANGED_EVENT } from "@/src/components/account/useAccountPlan";
 import styles from "./TestPlanControls.module.css";
 
@@ -11,42 +12,42 @@ import styles from "./TestPlanControls.module.css";
 // outside development (/api/dev/plan answers 404). Used on /dev/plan and at the bottom of the AI Dashboard.
 
 type TestButton = { action: string; label: string; hint: string };
-const credits = (value: number) => `${value.toLocaleString("en-US")} credits`;
+const credits = (value: number) => creditsText(value);
 
 export const TEST_PLAN_GROUPS: { title: string; buttons: TestButton[] }[] = [
   {
     title: "Pretend I have a plan (not a trial)",
     buttons: [
-      { action: "starter", label: `${ACCOUNT_PLANS.starter.label} plan`, hint: `${credits(ACCOUNT_PLANS.starter.credits)} a month · no payment` },
-      { action: "creator", label: `${ACCOUNT_PLANS.creator.label} plan`, hint: `${credits(ACCOUNT_PLANS.creator.credits)} a month · no payment` },
-      { action: "studio", label: `${ACCOUNT_PLANS.studio.label} plan`, hint: `${credits(ACCOUNT_PLANS.studio.credits)} a month · no payment` },
+      { action: "starter", label: `${ACCOUNT_PLANS.starter.label} plan`, hint: `${credits(ACCOUNT_PLANS.starter.credits)} a cycle · no payment` },
+      { action: "creator", label: `${ACCOUNT_PLANS.creator.label} plan`, hint: `${credits(ACCOUNT_PLANS.creator.credits)} a cycle · no payment` },
+      { action: "studio", label: `${ACCOUNT_PLANS.studio.label} plan`, hint: `${credits(ACCOUNT_PLANS.studio.credits)} a cycle · no payment` },
     ],
   },
   {
     title: "Pretend buy extra credits (plan members only, like the real thing)",
     buttons: [
-      { action: "buy_small", label: "Buy the small pack", hint: "Your plan's smallest · no Stripe, no money" },
-      { action: "buy_medium", label: "Buy the middle pack", hint: "No Stripe, no money" },
-      { action: "buy_large", label: "Buy the big pack", hint: "Half your plan's credits · no Stripe, no money" },
+      { action: "buy_small", label: "Buy the small pack", hint: "Your plan's smallest · no payment, no money" },
+      { action: "buy_medium", label: "Buy the middle pack", hint: "No payment, no money" },
+      { action: "buy_large", label: "Buy the big pack", hint: "Your plan's biggest · no payment, no real money" },
     ],
   },
   {
     title: "Credits",
     buttons: [
-      { action: "plus_25", label: "+25 credits", hint: "Adds 25 plan credits" },
-      { action: "minus_25", label: "−25 credits", hint: "Uses 25 plan credits" },
-      { action: "plus_100", label: "+100 credits", hint: "Adds 100 plan credits" },
-      { action: "minus_100", label: "−100 credits", hint: "Uses 100 plan credits" },
+      { action: "plus_25", label: `+${creditsText(25)}`, hint: `Adds ${creditsText(25)} of plan credits` },
+      { action: "minus_25", label: creditsText(-25), hint: `Uses ${creditsText(25)} of plan credits` },
+      { action: "plus_100", label: `+${creditsText(100)}`, hint: `Adds ${creditsText(100)} of plan credits` },
+      { action: "minus_100", label: creditsText(-100), hint: `Uses ${creditsText(100)} of plan credits` },
       { action: "refill_full", label: "Refill to 100%", hint: "All plan credits back" },
       { action: "no_credits", label: "Use up all credits", hint: "0 left · the AI Animator stops" },
-      { action: "low_credits", label: "Only 5 left", hint: "The bar turns red" },
+      { action: "low_credits", label: `Only ${creditsText(5)} left`, hint: "The bar turns red" },
       { action: "clear_extra", label: "Clear extra credits", hint: "Removes bought extra credits" },
     ],
   },
   {
     title: "Refill timing",
     buttons: [
-      { action: "wait_for_refill", label: "Waiting for refill", hint: "0 credits, refill in 3 days" },
+      { action: "wait_for_refill", label: "Waiting for refill", hint: `${creditsText(0)} left, refill in 3 days` },
       { action: "refill_now", label: "Refill now", hint: "A new month starts now · the chart drops to zero" },
       { action: "refill_tomorrow", label: "Refill tomorrow", hint: "The month ends tomorrow" },
     ],
@@ -54,10 +55,10 @@ export const TEST_PLAN_GROUPS: { title: string; buttons: TestButton[] }[] = [
   {
     title: "Pretend AI use",
     buttons: [
-      { action: "spend_chat", label: "Spend a chat", hint: `−${AI_ACTION_CREDITS.chat} credits · no AI runs` },
-      { action: "spend_assistant", label: "Spend a Help Assistant answer", hint: `−${AI_ACTION_CREDITS.assistant} credit · no AI runs` },
-      { action: "spend_simple", label: "Spend a simple animation", hint: `−${AI_ACTION_CREDITS.simple} credits · no AI runs` },
-      { action: "spend_big", label: "Spend a big animation", hint: `−${AI_ACTION_CREDITS.big} credits · no AI runs` },
+      { action: "spend_chat", label: "Spend a chat", hint: `${creditsText(-AI_ACTION_CREDITS.chat)} · no AI runs` },
+      { action: "spend_assistant", label: "Spend a Help Assistant answer", hint: `${creditsText(-AI_ACTION_CREDITS.assistant)} · no AI runs` },
+      { action: "spend_simple", label: "Spend a 10-second animation", hint: `−67 credits · no AI runs` },
+      { action: "spend_big", label: "Spend a 2-minute animation", hint: `−507 credits · no AI runs` },
     ],
   },
   {

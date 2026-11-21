@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { DiamondLogo } from "@/src/components/chrome/DiamondLogo";
-import { ACCOUNT_PLANS, PAID_PLAN_IDS, type BillingInterval, type PaidPlanId } from "@/src/lib/account/plans";
-import { goToStripe, postBilling } from "@/src/components/account/billingClient";
+import { ACCOUNT_PLANS, CYCLE_WORD, PAID_PLAN_IDS, PLAN_CYCLE, type BillingInterval, type PaidPlanId } from "@/src/lib/account/plans";
+import { PaymentDialog } from "@/src/components/account/PaymentDialog";
 import { AuthShowcase } from "./AuthShowcase";
+import { creditsText } from "@/src/lib/account/credits";
 import styles from "./AuthScreen.module.css";
 
 // The new first screen (redesign Phase 1, Arthur 2026-10-26): a polished welcome with one card for Create account,
@@ -37,7 +38,7 @@ export function AuthScreen() {
   // before the app opens. Paid plans go to Stripe's page (test mode: no real money).
   const [step, setStep] = useState<"account" | "plan">("account");
   const [plan, setPlan] = useState<PlanChoice>("trial");
-  const [interval, setInterval] = useState<BillingInterval>("month");
+  const [interval, setInterval] = useState<BillingInterval>(PLAN_CYCLE);
 
   useEffect(() => { firstFieldRef.current?.focus({ preventScroll: true }); }, [mode]);
 
@@ -79,17 +80,13 @@ export function AuthScreen() {
     }
   };
 
-  const startPlan = async () => {
+  // Nov 21 (Arthur: "You never see Stripe"): a paid plan is paid right here, in the app's own card dialog.
+  const [paying, setPaying] = useState(false);
+  const startPlan = () => {
     if (busy) return;
     if (plan === "trial") { window.location.assign("/"); return; }
-    setBusy(true); setError(null);
-    try {
-      const { url } = await postBilling<{ url: string }>("/api/account/billing/checkout", { plan, interval });
-      goToStripe(url);
-    } catch (problem) {
-      setError(problem instanceof Error ? problem.message : "That plan couldn't be started. Try again, or start with the free trial.");
-      setBusy(false);
-    }
+    setError(null);
+    setPaying(true);
   };
 
   const heading = mode === "signup" ? "Create your account" : mode === "login" ? "Welcome back" : "Reset your password";
@@ -117,14 +114,14 @@ export function AuthScreen() {
         </div>
         <div className={styles.switcher} role="group" aria-label="Pay monthly or yearly" data-mode={interval === "year" ? "login" : "signup"}>
           <span className={styles.switcherPill} aria-hidden="true" />
-          <button type="button" aria-pressed={interval === "month"} onClick={() => setInterval("month")}>Monthly</button>
+          <button type="button" aria-pressed={interval === PLAN_CYCLE} onClick={() => setInterval(PLAN_CYCLE)}>{PLAN_CYCLE === "week" ? "Weekly" : "Monthly"}</button>
           <button type="button" aria-pressed={interval === "year"} onClick={() => setInterval("year")}>Yearly · 2 months free</button>
         </div>
         <div className={styles.planList} role="radiogroup" aria-label="Plans">
           {(["trial", ...PAID_PLAN_IDS] as PlanChoice[]).map((id) => {
             const info = ACCOUNT_PLANS[id];
-            const price = id === "trial" ? "Free" : interval === "month" ? money(info.monthlyUsd) : money(info.yearlyUsd);
-            const per = id === "trial" ? "14 days" : interval === "month" ? "a month" : "a year";
+            const price = id === "trial" ? "Free" : interval === "year" ? money(info.yearlyUsd) : money(info.monthlyUsd);
+            const per = id === "trial" ? "14 days" : interval === "year" ? "a year" : `a ${CYCLE_WORD}`;
             return (
               <button key={id} type="button" role="radio" aria-checked={plan === id} className={styles.planRow} data-plan={id} onClick={() => setPlan(id)}>
                 <span className={styles.planDot} aria-hidden="true" />
@@ -133,7 +130,7 @@ export function AuthScreen() {
                     {id === "trial" && <em className={styles.planBadge}>Start here</em>}
                     {id === "creator" && <em className={styles.planBadge}>Most popular</em>}
                   </span>
-                  <span className={styles.planLine}>{info.credits.toLocaleString("en-US")} AI credits{id === "trial" ? "" : " every month"} · {PLAN_LINE[id]}</span>
+                  <span className={styles.planLine}>{creditsText(info.credits)}{id === "trial" ? "" : ` every ${CYCLE_WORD}`} · {PLAN_LINE[id]}</span>
                 </span>
                 <span className={styles.planPrice}><strong>{price}</strong><small>{per}</small></span>
               </button>
@@ -145,7 +142,7 @@ export function AuthScreen() {
           <button type="button" className={styles.primary} disabled={busy} onClick={() => void startPlan()}>
             {plan === "trial" ? "Start free trial" : busy ? "Opening secure payment…" : `Continue with ${ACCOUNT_PLANS[plan].label}`}
           </button>
-          <p className={styles.fine}>{plan === "trial" ? "No card needed. Choose a plan any time in Plans." : "You'll pay on Stripe's secure page. Cancel any time in Manage plan."}</p>
+          <p className={styles.fine}>{plan === "trial" ? "No card needed. Choose a plan any time in Plans." : "You pay right here, securely. Cancel any time in Plans."}</p>
         </div>
       </section>
       ) : (
@@ -203,6 +200,7 @@ export function AuthScreen() {
       )}
 
       <footer className={styles.footer}>© 2026 Diamond Animator</footer>
+      {paying && plan !== "trial" && <PaymentDialog payFor={{ kind: "plan", plan, interval }} onClose={() => setPaying(false)} onDone={() => window.location.assign("/credits")} />}
     </main>
   );
 }

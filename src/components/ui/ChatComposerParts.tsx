@@ -92,18 +92,22 @@ export function ChatDictateButton({ onClick, disabled }: { onClick: () => void; 
   );
 }
 
-export function ChatSendButton({ disabled, label = "Send", icon = "check" }: { disabled?: boolean; label?: string; icon?: "check" | "arrow" }) {
+export function ChatSendButton({ disabled, label = "Send" }: { disabled?: boolean; label?: string; icon?: "check" | "arrow" }) {
+  // Nov 21: one send button for both AIs: the blue arrow (the AI Animator's old check mark is gone).
   return (
-    <button className={`${styles.iconButton} ${styles.sendButton}`} type="submit" disabled={disabled} aria-label={label} title={label}>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={icon === "arrow" ? "M12 20V5M5.5 11.5 12 5l6.5 6.5" : "M4 12.5 9.5 18 20 6"} /></svg>
+    // data-hover="bright" (Nov 21, Arthur): a blue button gets BRIGHTER blue on hover, never gray, in the editor too (like New project)
+    <button className={`${styles.iconButton} ${styles.sendButton}`} type="submit" disabled={disabled} aria-label={label} title={label} data-hover="bright">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 20V5M5.5 11.5 12 5l6.5 6.5" /></svg>
     </button>
   );
 }
 
 export function ChatStopButton({ onClick, label }: { onClick: () => void; label: string }) {
+  // Nov 21 (Arthur: "the stop button should look professional too, not the X"): the same blue button as Send, with a
+  // white rounded square, in both AIs.
   return (
-    <button className={styles.iconButton} type="button" onClick={onClick} aria-label={label} title={label}>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M6.5 6.5 17.5 17.5M17.5 6.5 6.5 17.5" /></svg>
+    <button className={`${styles.iconButton} ${styles.sendButton} ${styles.stopButton}`} type="button" onClick={onClick} aria-label={label} title="Stop" data-hover="bright">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2.2" fill="currentColor" /></svg>
     </button>
   );
 }

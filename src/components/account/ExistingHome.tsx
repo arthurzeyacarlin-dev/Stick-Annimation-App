@@ -10,7 +10,11 @@ import { filterAndSortProjectEntries, formatProjectEditedAgo, type ProjectLibrar
 import { MainScreen } from "@/src/components/main/MainScreen";
 import { createUntitledWorkspace, prepareCollectionWorkspace, prepareRecoveryWorkspace, WorkspaceBootstrap, type MountedWorkspace } from "@/src/lib/animation/unifiedWorkspaceBootstrap";
 import { createAccountProjectRepositoryV2, createAccountProjectSourceReader, readAccountProjectV2 } from "@/src/lib/account/projectClient";
-import { withAccountProjectWrite } from "@/src/lib/account/projectPending";
+import { saveOpenProjectBeforeLeaving, withAccountProjectWrite } from "@/src/lib/account/projectPending";
+import { AppHeader } from "@/src/components/main/AppHeader";
+import { AiDashboardScreen } from "@/src/components/ai-dashboard/AiDashboardScreen";
+import { OPEN_AI_DASHBOARD_EVENT } from "@/src/components/account/CreditRing";
+import { LEAVE_BLOCKED_EVENT } from "@/src/components/account/billingClient";
 import { digestUnifiedProjectV2 } from "@/src/lib/animation/unifiedProjectStorageV2";
 import { useAccountSession } from "@/src/components/account/AccountSessionProvider";
 import { acquireProjectOpenLeaseV2 } from "@/src/lib/animation/unifiedProjectManagementV2";
@@ -75,8 +79,23 @@ export default function Page() {
   const { snapshot: notificationSnapshot } = useNotificationCenterV1();
   const terraTargetKey = useMemo(() => JSON.stringify(notificationSnapshot.rows.filter(row => row.target.kind === "workspace-terra-turn").map(row => row.target)), [notificationSnapshot.rows]);
   const [view, setView] = useState<
-    "home" | "openProject" | "animationWorkspace" | "animationExport"
+    "home" | "openProject" | "animationWorkspace" | "animationExport" | "aiDashboard"
   >("home");
+  // Nov 21 (Arthur): the AI Animator's credits circle opens the AI Dashboard ON TOP of the open project (the project stays
+  // open, like Export), and "Back" returns to it exactly as it was. Leaving for another page from there saves first.
+  const [leaveNotice, setLeaveNotice] = useState<string | null>(null);
+  useEffect(() => {
+    const open = (event: Event) => {
+      if (view !== "animationWorkspace") return;
+      event.preventDefault();
+      setLeaveNotice(null);
+      setView("aiDashboard");
+    };
+    const blocked = () => setLeaveNotice("Your project couldn't be saved, so you stayed here. Go Back to it and try again.");
+    window.addEventListener(OPEN_AI_DASHBOARD_EVENT, open);
+    window.addEventListener(LEAVE_BLOCKED_EVENT, blocked);
+    return () => { window.removeEventListener(OPEN_AI_DASHBOARD_EVENT, open); window.removeEventListener(LEAVE_BLOCKED_EVENT, blocked); };
+  }, [view]);
   const [exportOrigin, setExportOrigin] = useState<"home" | "workspace">("home");
   // The header's Export on other pages links to "/#export": open the export screen straight away.
   useEffect(() => {
@@ -491,7 +510,38 @@ export default function Page() {
         />
       )}
 {bootstrapMessage && view === "home" ? <div role="status" style={{ position: "fixed", bottom: 12, left: 12, color: "#f5f5f6", background: "#1a1a1e", border: "1px solid #2c2c32", padding: 12, borderRadius: 12 }}>{bootstrapMessage}</div> : null}
-{workspace && (view === "animationWorkspace" || (view === "animationExport" && exportOrigin === "workspace")) && (
+{view === "aiDashboard" && workspace && (
+  <div className="da-polished-page" style={{ flex: 1, minHeight: 0, overflowY: "auto", color: "var(--da-text, #f5f5f6)" }}
+    onClickCapture={(event) => {
+      // A link to another page (Change plan, Profile...) would close the project: save it first, then go.
+      const link = (event.target as HTMLElement).closest("a[href]") as HTMLAnchorElement | null;
+      if (!link || link.target === "_blank") return;
+      const url = new URL(link.href, window.location.href);
+      if (url.origin !== window.location.origin || (url.pathname === window.location.pathname && url.hash)) return;
+      event.preventDefault();
+      event.stopPropagation();
+      setLeaveNotice("Saving your project");
+      void saveOpenProjectBeforeLeaving().then((saved) => {
+        if (saved) router.push(url.pathname + url.search + url.hash);
+        else setLeaveNotice("Your project couldn't be saved, so you stayed here. Go Back to it and try again.");
+      });
+    }}>
+    <AppHeader page="dashboard" back={{ label: "Back to your project", onClick: () => { setLeaveNotice(null); setView("animationWorkspace"); } }}
+      onExport={() => {
+        // the same as the editor's own Export: save first, then open this project in Export (a failed save says so there)
+        setLeaveNotice("Saving your project");
+        void saveOpenProjectBeforeLeaving().then((saved) => {
+          setLeaveNotice(null);
+          setExportProjectId(saved ? workspace.candidate.id : null);
+          setExportOrigin("workspace");
+          setView("animationExport");
+        });
+      }} />
+    {leaveNotice && <p role="status" style={{ margin: "12px auto 0", width: "min(1160px, calc(100% - 40px))", color: "var(--da-muted)", fontSize: 14 }}>{leaveNotice}</p>}
+    <AiDashboardScreen />
+  </div>
+)}
+{workspace && (view === "animationWorkspace" || view === "aiDashboard" || (view === "animationExport" && exportOrigin === "workspace")) && (
   <div style={{ display: view === "animationWorkspace" ? "contents" : "none" }}>
     <AnimationWorkspace
       root={workspace}

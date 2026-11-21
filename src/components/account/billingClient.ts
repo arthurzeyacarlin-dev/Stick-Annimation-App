@@ -1,24 +1,55 @@
 "use client";
 
+import { saveOpenProjectBeforeLeaving } from "@/src/lib/account/projectPending";
+
 import { useEffect, useState } from "react";
 
-// SPEC-0020 Phase 9: small browser helpers for Stripe billing (test mode). The browser never sees the Stripe key:
-// it only asks the app's own /api/account/billing/* routes, which answer with a Stripe page address to go to.
-export type BillingMode = "test" | "off";
+// Small browser helpers for Stripe billing. The browser never sees the Stripe key: it only asks the app's own
+// /api/account/billing/* routes, which answer with a Stripe page address to go to.
+export type BillingMode = "test" | "live" | "off";
+export type BillingInfo = {
+  mode: BillingMode | null;
+  /** Stripe's own facts (Nov 20): the last payment that went through, when the next one is due, and any notice. */
+  lastPayment: { cents: number; at: number; kind: "plan" | "pack" } | null;
+  nextPaymentAt: number | null;
+  notice: string | null;
+  /** Nov 21: the public key the in-app card form needs (null = card payments aren't set up). */
+  cardKey: string | null;
+};
 
-/** "test" when payments run in Stripe test mode, "off" when they aren't set up yet, null while loading. */
-export function useBillingMode() {
-  const [mode, setMode] = useState<BillingMode | null>(null);
+/** Payments can be made ("test" = Stripe's test mode with fake cards; "live" = real money). */
+export const canPay = (mode: BillingMode | null) => mode === "test" || mode === "live";
+
+/** The billing mode and Stripe's facts for this account; null mode while loading. `version` re-reads them. */
+export function useBillingInfo(version = 0): BillingInfo {
+  const [info, setInfo] = useState<BillingInfo>({ mode: null, lastPayment: null, nextPaymentAt: null, notice: null, cardKey: null });
+  const [tick, setTick] = useState(0);
+  useEffect(() => {   // read again whenever the plan changes (a payment confirmed, back from Stripe's page)
+    const again = () => setTick((value) => value + 1);
+    window.addEventListener("diamond-account-plan-changed", again);
+    return () => window.removeEventListener("diamond-account-plan-changed", again);
+  }, []);
   useEffect(() => {
     let alive = true;
     fetch("/api/account/plan", { cache: "no-store" })
       .then((response) => (response.ok ? response.json() : null))
-      .then((body: { billing?: { mode?: string } } | null) => { if (alive) setMode(body?.billing?.mode === "test" ? "test" : "off"); })
-      .catch(() => { if (alive) setMode("off"); });
+      .then((body: { billing?: Partial<BillingInfo> & { mode?: string } } | null) => {
+        if (!alive) return;
+        const billing = body?.billing ?? {};
+        setInfo({
+          mode: billing.mode === "test" || billing.mode === "live" ? billing.mode : "off",
+          lastPayment: billing.lastPayment ?? null, nextPaymentAt: billing.nextPaymentAt ?? null, notice: billing.notice ?? null,
+          cardKey: typeof billing.cardKey === "string" && /^pk_(test|live)_/.test(billing.cardKey) ? billing.cardKey : null,
+        });
+      })
+      .catch(() => { if (alive) setInfo((current) => ({ ...current, mode: "off" })); });
     return () => { alive = false; };
-  }, []);
-  return mode;
+  }, [version, tick]);
+  return info;
 }
+
+/** "test", "live" or "off" (null while loading). */
+export const useBillingMode = () => useBillingInfo().mode;
 
 /** POSTs to a billing route; returns its JSON or throws an Error whose message is safe to show. */
 export async function postBilling<T>(path: string, body: Record<string, unknown> = {}): Promise<T> {
@@ -26,19 +57,32 @@ export async function postBilling<T>(path: string, body: Record<string, unknown>
   try {
     response = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), cache: "no-store" });
   } catch {
-    throw new Error("The app couldn't reach the server. Check your connection and try again.");
+    throw new Error("The app couldn't reach the server. Nothing was charged. Check your connection and try again.");
   }
   const data = await response.json().catch(() => null) as (T & { error?: string }) | null;
-  if (!response.ok || !data) throw new Error(data?.error || "Something went wrong. Try again in a moment.");
+  if (!response.ok || !data) throw new Error(data?.error || "Something went wrong. Nothing was charged. Try again in a moment.");
   return data;
 }
 
-/** Reads (and then removes) the ?<flag>=done|canceled&session_id=… that Stripe's page sends people back with. */
-export function takeCheckoutReturn(flag: "checkout" | "topup"): { result: "done" | "canceled"; sessionId: string | null } | null {
+type CheckoutReturn = { result: "done" | "canceled"; sessionId: string | null };
+
+/** Reads (and then removes) the ?<flag>=done|canceled&session_id=… that Stripe's page sends people back with.
+ *  (Nov 20, live test) the app's loading screen can re-open the page right after the return, after the address was already cleaned:
+ *  the return is kept for one minute in this tab's sessionStorage, so the re-opened page still confirms it and says so.
+ *  Confirming twice is always safe (the server applies a payment exactly once). */
+export function takeCheckoutReturn(flag: "checkout" | "topup" | "card"): CheckoutReturn | null {
+  const key = `diamond-checkout-return-${flag}`;
   const params = new URLSearchParams(window.location.search);
   const result = params.get(flag);
-  if (result !== "done" && result !== "canceled") return null;
+  if (result !== "done" && result !== "canceled") {
+    try {
+      const saved = JSON.parse(window.sessionStorage.getItem(key) ?? "null") as (CheckoutReturn & { at: number }) | null;
+      window.sessionStorage.removeItem(key);
+      return saved && Date.now() - saved.at < 60_000 ? { result: saved.result, sessionId: saved.sessionId } : null;
+    } catch { return null; }
+  }
   const sessionId = params.get("session_id");
+  try { window.sessionStorage.setItem(key, JSON.stringify({ result, sessionId, at: Date.now() })); } catch { /* storage off: the first page still confirms it */ }
   params.delete(flag);
   params.delete("session_id");
   const query = params.toString();
@@ -46,11 +90,26 @@ export function takeCheckoutReturn(flag: "checkout" | "topup"): { result: "done"
   return { result, sessionId };
 }
 
+/** The return was confirmed and said: forget it (so it is never said again). */
+export function forgetCheckoutReturn(flag: "checkout" | "topup" | "card") {
+  try { window.sessionStorage.removeItem(`diamond-checkout-return-${flag}`); } catch { /* nothing kept */ }
+}
+
 /** Goes to Stripe's page (only ever an https address on stripe.com). */
 export function goToStripe(url: string) {
   const target = new URL(url);
   if (target.protocol !== "https:" || !(target.hostname === "stripe.com" || target.hostname.endsWith(".stripe.com"))) {
-    throw new Error("The payment page address looked wrong, so it wasn't opened. Try again.");
+    throw new Error("The payment page address looked wrong, so it wasn't opened. Nothing was charged. Try again.");
   }
-  window.location.assign(target.toString());
+  // Nov 21: opened from on top of a project (the AI Dashboard inside the editor)? Save the project first, never lose work.
+  void saveOpenProjectBeforeLeaving().then((saved) => {
+    if (saved) window.location.assign(target.toString());
+    else window.dispatchEvent(new CustomEvent(LEAVE_BLOCKED_EVENT));
+  });
 }
+
+/** Sent when leaving was stopped because the open project couldn't be saved (the page shows a message). */
+export const LEAVE_BLOCKED_EVENT = "diamond-leave-blocked-unsaved";
+
+/** "November 9" (UTC, like Stripe's billing dates). */
+export const billingDay = (at: number) => new Date(at).toLocaleDateString("en-US", { month: "long", day: "numeric", timeZone: "UTC" });

@@ -11,7 +11,9 @@ export class AssistantDictationCapture {
   private disposed = false;
   private readonly changed: (view: DictationView) => void;
   private readonly insert: (text: string) => boolean;
-  constructor(changed: (view: DictationView) => void, insert: (text: string) => boolean) { this.changed = changed; this.insert = insert; }
+  // Nov 21: `place` only says which box the voice typing is for, so its credits are counted there (nothing else changes).
+  private place: "assistant" | "animator";
+  constructor(changed: (view: DictationView) => void, insert: (text: string) => boolean, place: "assistant" | "animator" = "animator") { this.changed = changed; this.insert = insert; this.place = place; }
   private publish(view: DictationView) { this.view = view; if (!this.disposed) this.changed(view); }
   private current(a: Attempt) { return this.active === a && !this.disposed; }
   private releaseCapture(a: Attempt) {
@@ -114,7 +116,7 @@ export class AssistantDictationCapture {
       this.publish({ ...this.view, phase: "transcribing", message: "Transcribing… You can keep typing or cancel." });
       a.timer = setTimeout(() => this.fail(a, "timeout"), LIMITS.timeoutMs);
       a.dispatched = true;
-      const response = await fetch("/api/diamond-assistant-transcription", { method: "POST", headers: { "Content-Type": "audio/wav", "X-Dictation-Id": a.id }, body: bytes, signal: a.abort.signal, cache: "no-store" });
+      const response = await fetch(this.place === "assistant" ? "/api/diamond-assistant-transcription?for=assistant" : "/api/diamond-assistant-transcription", { method: "POST", headers: { "Content-Type": "audio/wav", "X-Dictation-Id": a.id }, body: bytes, signal: a.abort.signal, cache: "no-store" });
       bytes.fill(0); a.bytes = undefined;
       if (!this.current(a)) return;
       const reader = response.body?.getReader(); if (!reader) throw new DictationError("invalid");

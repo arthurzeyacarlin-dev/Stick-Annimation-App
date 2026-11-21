@@ -89,6 +89,25 @@ export const withAccountProjectWrite = async <T>(ownerId: string, work: () => Pr
   }
 };
 
+/** Nov 21 (money copy): before going to another page from on top of the open editor (the AI Dashboard's Change plan,
+ *  Stripe's card page...), save the open project and wait for its writes, exactly like logging out does first, without
+ *  logging out. True = everything is saved (or nothing was open); false = something couldn't be saved, so stay. */
+export const saveOpenProjectBeforeLeaving = async (): Promise<boolean> => {
+  try {
+    const open = editor;
+    if (!open) return true;
+    if (open.dirty) {
+      const saved = await open.save();
+      if (!saved || open.dirty) return false;
+    }
+    const writes = [...pending].filter(entry => entry.ownerId === open.ownerId);
+    const results = await Promise.allSettled(writes.map(entry => entry.promise));
+    return !results.some(result => result.status === "rejected") && !failedOwners.has(open.ownerId);
+  } catch {
+    return false;
+  }
+};
+
 export const runAccountProjectLogout = async (ownerId: string, signOut: () => Promise<void>) => {
   if (editor?.ownerId === ownerId && editor.dirty) {
     const saved = await editor.save();

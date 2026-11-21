@@ -1,0 +1,32 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "incremental": false,
+    "skipLibCheck": true
+  },
+  "include": [
+    "next-env.d.ts",
+    "src/types/**/*.d.ts",
+    "src/lib/account/*.ts",
+    "src/lib/assistant/*.ts",
+    "src/lib/ai/aiAnimatorJobService.ts",
+    "app/api/**/*.ts",
+    "app/page.tsx",
+    "app/settings/page.tsx",
+    "app/assistant/page.tsx",
+    "app/credits/**/*.tsx",
+    "app/plans/**/*.tsx",
+    "app/account/**/*.tsx",
+    "app/dev/plan/*.tsx",
+    "src/components/account/*.tsx",
+    "src/components/account/*.ts",
+    "src/components/ai-dashboard/*.tsx",
+    "src/components/main/AppHeader.tsx",
+    "src/components/auth/AuthScreen.tsx",
+    "src/components/assistant/*.tsx",
+    "src/components/ui/ChatComposerParts.tsx",
+    "src/components/workspace/ai/DrawingAiPanel.tsx",
+    "src/lib/ai-dashboard/*.ts"
+  ]
+}

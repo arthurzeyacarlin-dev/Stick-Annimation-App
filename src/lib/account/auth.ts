@@ -78,6 +78,15 @@ export const auth = betterAuth({
     deleteUser: {
       enabled: true,
       beforeDelete: async (user) => {
+        // Nov 20 (the money system): the plan is stopped and the refund made FIRST. If Stripe can't be reached, nothing is
+        // deleted, so nobody is ever charged for an account that's gone.
+        const { closeBillingForDeletion, BillingError } = await import("./stripeBilling");
+        try {
+          await closeBillingForDeletion(user.id);
+        } catch (error) {
+          const { APIError } = await import("better-auth/api");
+          throw new APIError("SERVICE_UNAVAILABLE", { message: error instanceof BillingError ? error.message : "Your account wasn't deleted. Try again in a minute." });
+        }
         const [{ deleteAllAccountProjects }, { deleteAllAccountDataForOwner }, { deleteAccountPlan }] = await Promise.all([import("./projectServer"), import("./accountDataServer"), import("./aiCredits")]);
         await deleteAllAccountProjects(user.id);
         deleteAllAccountDataForOwner(user.id);

@@ -14,12 +14,22 @@ export function useAccountPlan() {
 
   const refresh = useCallback(async () => {
     try {
-      const response = await fetch("/api/account/plan", { cache: "no-store" });
+      // (Nov 20) back from Stripe's page (?portal=back or ?checkout=done): ask the server to check with Stripe right now
+      const params = new URLSearchParams(window.location.search);
+      const fromPortal = params.get("portal") === "back";
+      const back = fromPortal || params.get("checkout") === "done" || params.get("topup") === "done";
+      if (fromPortal) {
+        params.delete("portal");
+        const query = params.toString();
+        window.history.replaceState(window.history.state, "", `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`);
+      }
+      const response = await fetch(back ? "/api/account/plan?fresh=1" : "/api/account/plan", { cache: "no-store" });
       if (!response.ok) throw new Error("plan_unavailable");
       const body = await response.json() as { schema?: string; status?: AccountPlanStatus };
       if (body.schema !== "diamond-account-plan/v1" || !body.status) throw new Error("plan_invalid");
       setStatus(body.status);
       setFailed(false);
+      if (fromPortal) window.dispatchEvent(new Event(ACCOUNT_PLAN_CHANGED_EVENT));   // once (the address is already cleaned): every other reader reads it again
     } catch {
       setFailed(true);
     }

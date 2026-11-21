@@ -3,9 +3,10 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { TEST_WEEKLY_TOKENS, type DashboardBucket, type DashboardFilter } from "../../lib/ai-dashboard/dashboardContract";
 import styles from "./AiDashboard.module.css";
+import { creditsText } from "../../lib/account/credits";
 
 const number = (value: number) => value.toLocaleString("en-US");
-const signedNumber = (value: number) => `${value > 0 ? "+" : ""}${number(value)}`;
+const signedMoney = (value: number) => `${value > 0 ? "+" : ""}${creditsText(value)}`;
 const time = (value: number) => new Date(value).toISOString().replace(".000Z", "Z");
 const localRange = (start: number, end: number) => {
   const first = new Date(start);
@@ -80,7 +81,7 @@ export function AiUsageChart({ buckets, filter, complete, capacity, roof = TEST_
             const level = `${Math.max(3, (bucket.intervalSelectedTokens / peak) * 100)}%`;
             const remaining = Math.max(0, roof - bucket.combinedTokens);
             const change = intervalChange(index);
-            const label = `${sourceName[filter]} activity interval, local ${localRange(bucket.start, bucket.end)}; UTC ${time(bucket.start)} to ${time(bucket.end)}; spent ${number(bucket.intervalSelectedTokens)} credits in interval; cumulative selected source ${number(bucket.selectedTokens)} of your plan's ${number(roof)} credits, ${bucket.selectedPercent.toFixed(1)}%; all AI ${number(bucket.combinedTokens)}, ${number(remaining)} left in the preview${change === null ? "" : `; interval spend change since last plotted bar ${signedNumber(change)} credits in this UTC week`}${bucket.resetAfter ? "; UTC-week reset follows" : ""}${bucket.isCurrent ? "; interval in progress" : ""}${complete ? "" : "; partial data"}`;
+            const label = `${sourceName[filter]} activity interval, local ${localRange(bucket.start, bucket.end)}; UTC ${time(bucket.start)} to ${time(bucket.end)}; used ${creditsText(bucket.intervalSelectedTokens)} in interval; cumulative selected source ${creditsText(bucket.selectedTokens)} of your plan's ${creditsText(roof)}, ${bucket.selectedPercent.toFixed(1)}%; all AI ${creditsText(bucket.combinedTokens)}, ${creditsText(remaining)} left in the preview${change === null ? "" : `; interval spend change since last plotted bar ${signedMoney(change)} in this UTC week`}${bucket.resetAfter ? "; UTC-week reset follows" : ""}${bucket.isCurrent ? "; interval in progress" : ""}${complete ? "" : "; partial data"}`;
             return (
               <div key={bucket.start} className={styles.barSlot}>
                 <button type="button" className={styles.barButton} aria-label={label}
@@ -117,10 +118,10 @@ export function AiUsageChart({ buckets, filter, complete, capacity, roof = TEST_
         {detail && active && <div ref={tooltipRef} className={styles.barTooltip} data-testid="usage-tooltip"
           style={{ left: active.left }} aria-hidden="true">
           <strong>{sourceName[filter]} · {localRange(detail.start, detail.end)}</strong>
-          <span>Used here: {number(detail.intervalSelectedTokens)} credits</span>
+          <span>Used here: {creditsText(detail.intervalSelectedTokens)}</span>
           {detailChange !== null &&
-            <span>Since the last point: {signedNumber(detailChange)} credits</span>}
-          <span>This week so far: {number(detail.selectedTokens)} ({detail.selectedPercent.toFixed(1)}%) of your plan&apos;s {number(roof)} credits</span>
+            <span>Since the last point: {signedMoney(detailChange)}</span>}
+          <span>Used this week so far: {creditsText(detail.selectedTokens)} ({detail.selectedPercent.toFixed(1)}%) of your plan&apos;s {creditsText(roof)}</span>
           {((detail.firstInWeek && active.index > 0) || detail.isCurrent) &&
             <small>{[
               detail.firstInWeek && active.index > 0 ? "UTC week reset" : "",

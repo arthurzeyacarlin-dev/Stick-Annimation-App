@@ -3,9 +3,12 @@ import {
   assistantAcceptedEvent, assistantTerminalEvent, noUsageEventRecorder, type UsageEventRecorder,
 } from "../usage-journal/usageJournalEvents.ts";
 import type { AiCreditGate } from "../account/aiCredits.ts";
+import { creditsForCostUsd, MIN_ANSWER_CREDITS } from "../account/plans.ts";
 
-/** Arthur (2026-10-27): every Help Assistant answer costs AI credits (failed, stopped or timed-out answers are free). */
-export const ASSISTANT_ANSWER_CREDITS = 1;
+/** Arthur (2026-10-27): every Help Assistant answer costs AI credits (failed, stopped or timed-out answers are free).
+ *  Nov 21: it costs what the AI really cost (1 credit per started cent, at least 1): a normal answer is 1 credit, one that
+ *  searched the web 2-3. Checked with the smallest price before; the real price is spent after. */
+export const ASSISTANT_ANSWER_CREDITS = MIN_ANSWER_CREDITS;
 
 export const ASSISTANT_FINALIZING_MS = 3000;
 const ASSISTANT_JOB_EVENT_LIMIT = 8;
@@ -40,7 +43,7 @@ export class DiamondAssistantJobService {
     if (this.jobs.size >= 500) throw new AssistantError("capacity", "This review server has reached its request limit. Restart it before starting more answers.");
     // Credits are checked before the paid call starts; running answers reserve theirs (same rule as the AI Animator).
     try { this.credits?.assertAvailable(ownerId, active.length * ASSISTANT_ANSWER_CREDITS, ASSISTANT_ANSWER_CREDITS); }
-    catch (error) { throw new AssistantError("credits", error instanceof Error ? error.message : "You don't have enough AI credits for this answer."); }
+    catch (error) { throw new AssistantError("credits", error instanceof Error ? error.message : "You don't have enough credits left for this answer."); }
     const snapshot: JobSnapshot = { schema: "diamond-assistant-job/v1", jobId: request.jobId, sessionId: request.sessionId, turnId: request.turnId, reasoning: request.reasoningLevel, catalogVersion: CATALOG_VERSION, status: "thinking", events: [{ sequence: 1, at: Date.now(), status: "thinking" }], result: null, error: null };
     const job: Job = { ownerId, request, fingerprint, snapshot, controller: new AbortController(), timer: null }; this.jobs.set(request.jobId, job);
     this.meter(assistantAcceptedEvent(request, snapshot.events[0].at));
@@ -75,7 +78,7 @@ export class DiamondAssistantJobService {
       this.finishTimer(job);
       if (status === "done") {
         this.meter(assistantTerminalEvent(job.request, "succeeded", event.at));
-        try { this.credits?.spend(job.ownerId, job.request.jobId, ASSISTANT_ANSWER_CREDITS, "assistant"); } catch { /* The answer is already shown; a failed count must not break it. */ }
+        try { this.credits?.spend(job.ownerId, job.request.jobId, creditsForCostUsd(result?.usage.estimatedCostUsd), "assistant"); } catch { /* The answer is already shown; a failed count must not break it. */ }
       }
       else if (status === "cancelled") this.meter(assistantTerminalEvent(job.request, "cancelled", event.at));
     }

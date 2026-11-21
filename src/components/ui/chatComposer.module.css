@@ -39,6 +39,12 @@
 
 /* Send / Done / Cancel: bigger icons with thicker lines (Arthur 2026-10-25). */
 .sendButton { padding: 5px; }
+/* Nov 21: Send and Stop look the same in both AIs: a solid blue button (gray while there is nothing to send). */
+.tools button.sendButton:enabled, .stopButton { border-color: var(--da-accent); background: var(--da-accent); color: #ffffff; }
+.tools button.sendButton:hover:enabled, .stopButton:hover { border-color: var(--da-accent-hover); background: var(--da-accent-hover); box-shadow: none; }
+.tools button.sendButton[type="submit"]:disabled { border-color: transparent; background: var(--da-line); color: var(--da-label); opacity: 1; }
+.stopButton { padding: 7px; }
+.creditSlot { display: inline-flex; align-items: center; }
 
 /* Effort: a small "Effort · Auto" button; clicking opens a card with a sentence for the chosen stop, a thick bar with a
    tick per stop and a dot that slides smoothly, the stop names, and "Auto-pick … Smarter" at the ends. */

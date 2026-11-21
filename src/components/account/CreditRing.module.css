@@ -1,0 +1,18 @@
+/* The small credits circle (Nov 21). Same blue as the AI Dashboard's big ring; the gray track is the used part. */
+.ring { position: relative; display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; height: 30px; padding: 0 6px; border: 1px solid transparent; border-radius: 8px; color: var(--da-text-2); font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; text-decoration: none; cursor: pointer; }
+a.ring:hover, a.ring:focus-visible { background: var(--da-hover); border-color: var(--da-hover); color: #ffffff; }
+a.ring:focus-visible { outline: 2px solid var(--da-focus); outline-offset: 2px; }
+.svg { display: block; transform: rotate(-90deg); overflow: visible; }
+.track, .value { fill: none; stroke-width: 3.2; }
+.track { stroke: var(--da-line); }
+.value { stroke: #0066ff; stroke-linecap: round; filter: drop-shadow(0 0 2.5px rgba(0, 102, 255, .6)); }
+.value[data-full="true"] { stroke-linecap: butt; }
+.ring[data-tone="out"] .value { stroke: var(--da-danger); filter: none; }
+.number { color: inherit; line-height: 1; }
+
+/* Pointing at it (or tabbing to it) shows the numbers, in the same card as the chart's tooltips. */
+.tip { position: absolute; right: 0; z-index: 60; display: none; gap: 2px; min-width: 190px; padding: 9px 11px; border: 1px solid var(--da-border); border-radius: 10px; background: var(--da-card-fill); box-shadow: var(--da-pop-shadow); color: var(--da-muted); font-size: 12px; font-weight: 500; line-height: 1.4; text-align: left; white-space: nowrap; pointer-events: none; }
+.tip strong { color: var(--da-text); font-size: 13px; font-weight: 600; }
+.tip[data-side="above"] { bottom: calc(100% + 8px); }
+.tip[data-side="below"] { top: calc(100% + 8px); }
+.ring:hover .tip, .ring:focus-visible .tip, :global(a):hover > .ring .tip { display: grid; }

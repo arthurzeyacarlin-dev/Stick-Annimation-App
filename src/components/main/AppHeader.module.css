@@ -110,3 +110,7 @@
 .brandName { font-size: 19px; }
 .bar { padding-left: clamp(12px, 2.4vw, 28px); }
 
+
+/* Nov 21: the credits circle in the top bar (same circle as the chat boxes and the AI Dashboard). */
+.ringLink { height: 38px; padding: 0 10px; border: 1px solid var(--line-2); border-radius: 10px; }
+.ringBadge { height: 22px; padding: 0 2px 0 4px; }

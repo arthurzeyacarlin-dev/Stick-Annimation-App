@@ -1,3 +1,7 @@
+import { randomUUID } from "node:crypto";
+import { assertAiCreditAvailable, spendAiCredit } from "@/src/lib/account/aiCredits";
+import { AI_ACTION_CREDITS } from "@/src/lib/account/plans";
+import { readBytes } from "@/src/lib/account/readJson";
 import {
   DRAWING_AI_FALLBACK_OUTPUT,
   DRAWING_AI_EDITED_FOLLOW_UP_FALLBACK_OUTPUT,
@@ -2053,7 +2057,24 @@ export async function GET(req: Request) {
   return handleStickFigureAiAvailabilityGet(req);
 }
 
+// (money system) every drawing-AI answer costs a credit, like a Help Assistant answer: nothing paid is free. Checked before, spent after a
+// successful answer; a refused or failed one costs nothing.
 export async function POST(req: Request) {
+  const access = await requireAccountRequest(req);
+  if ("response" in access) return access.response;
+  const ownerId = access.session.user.id;
+  try { assertAiCreditAvailable(ownerId, 0, AI_ACTION_CREDITS.drawing); }
+  catch (error) { return Response.json({ error: error instanceof Error ? error.message : "Not enough credits left." }, { status: 402 }); }
+  // the body is read ONCE here, at most 8 MB, before anything else looks at it
+  let bounded: Request;
+  try { bounded = new Request(req.url, { method: "POST", headers: req.headers, body: await readBytes(req, 8 * 1024 * 1024) }); }
+  catch { return Response.json({ error: "Request is too large." }, { status: 413 }); }
+  const response = await drawingAiPost(bounded);
+  if (response?.ok) { try { spendAiCredit(ownerId, randomUUID(), AI_ACTION_CREDITS.drawing, "drawing"); } catch { /* the answer is already given */ } }
+  return response as Response;
+}
+
+async function drawingAiPost(req: Request): Promise<Response | undefined> {
   const access = await requireAccountRequest(req);
   if ("response" in access) return access.response;
   const stickFigureAiResponse = await dispatchStickFigureAiPost(req);

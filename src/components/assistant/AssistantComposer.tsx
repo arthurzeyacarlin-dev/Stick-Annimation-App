@@ -3,6 +3,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { AssistantDictationCapture, type DictationView } from "../../lib/assistant/assistantDictationCapture";
 import type { useAssistantSessions } from "./useAssistantSessions";
 import styles from "./diamondAssistant.module.css";
+import { CreditRing } from "../account/CreditRing";
 import { ChatDictateButton, ChatDictationPanel, ChatDictationStatus, ChatEffortPicker, ChatSendButton, ChatStopButton, ChatToolsRow, chatComposerStyles, pickAutoEffort, type ChatEffort } from "../ui/ChatComposerParts";
 
 export function AssistantComposer({ chats }: { chats: ReturnType<typeof useAssistantSessions> }) {
@@ -21,7 +22,7 @@ export function AssistantComposer({ chats }: { chats: ReturnType<typeof useAssis
       const next = current.draft ? `${current.draft}${/\s$/.test(current.draft) ? "" : " "}${text}` : text;
       if (next.length > 12000) return false;
       current.setDraft(next); input.current?.focus(); return true;
-    });
+    }, "assistant");
     capture.current = controller;
     const leave = () => controller.cancel("Dictation stopped because you left the Assistant. Nothing was inserted.");
     const hide = () => { if (document.hidden) leave(); };
@@ -42,8 +43,9 @@ export function AssistantComposer({ chats }: { chats: ReturnType<typeof useAssis
         : <ChatToolsRow
           left={<ChatEffortPicker value={effort} onChange={setEffort} disabled={chats.busy || chats.storageBlocked} />}
           right={<>
+            <CreditRing busy={pending} />
             <ChatDictateButton disabled={active} onClick={() => void capture.current?.start()} />
-            {pending ? <ChatStopButton label="Cancel answer" onClick={() => void chats.cancel()} /> : <ChatSendButton icon="arrow" disabled={disabled || !chats.draft.trim()} />}
+            {pending ? <ChatStopButton label="Cancel answer" onClick={() => void chats.cancel()} /> : <ChatSendButton disabled={disabled || !chats.draft.trim()} />}
           </>}
         />}
     </form>

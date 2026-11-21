@@ -247,24 +247,13 @@
 .heroActions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 10px; }
 .heroActions .trialCta { margin-top: 0; }
 .heroActions > div { display: contents; }
-.heroOutline.heroOutline { height: 46px; padding: 0 22px; border-radius: 12px; font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
+.heroOutline.heroOutline { box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; height: 44px; padding: 0 22px; border-radius: 10px; font: inherit; font-size: 15px; font-weight: 600; line-height: 1; text-decoration: none; cursor: pointer; }
+/* Nov 21: Manage plan is a link now (it opens your plan in the app): same size and centred text as Change plan beside it. */
 .extraCredits section { display: grid; gap: 10px; margin: 8px 0 0; padding: 0; border: 0; background: none; }
 .extraCredits h2 { margin: 0; font-family: var(--font-geist-sans), sans-serif; font-size: clamp(19px, 2.6vw, 23px); letter-spacing: -.015em; color: #ffffff; }
 .extraCredits p { margin: 0; color: var(--da-text-3, #b8b8bf); font-size: 14px; line-height: 1.5; }
 .extraCredits p[role="note"] { justify-self: start; padding: 4px 10px; border-radius: 999px; border: 1px solid rgba(245, 158, 11, .35); background: rgba(245, 158, 11, .08); color: #f3d89c; font-size: 12px; }
-.extraCredits button { display: grid; justify-items: start; gap: 4px; padding: 20px 22px; border-radius: 12px; border: 1px solid var(--da-border, #2c2c32) !important;
-  background: var(--da-card-fill) !important; color: #ffffff; text-align: left; cursor: pointer; transition: none; box-shadow: var(--da-card-shadow); }
-.extraCredits button strong { font-family: var(--font-geist-sans), sans-serif; font-size: 22px; font-weight: 700; letter-spacing: -.02em; }
-.extraCredits button span { color: var(--da-text-2, #d2d2d7); font-size: 15px; font-weight: 600; }
-.extraCredits button:hover:enabled { border-color: #3a3a41 !important; background: transparent !important;
-  box-shadow: none; }
-.extraCredits button:disabled { cursor: default; opacity: .7; }
-.extraCredits button:focus-visible { outline: 2px solid var(--da-focus, #4d94ff); outline-offset: 3px; }
-/* Arthur (2026-10-27): the extra-credit packs are blue-outline buttons like New project — outline at rest, bright blue
-   (not the extra-bright special blue) with white inside on hover. */
-.extraCredits button { border: 1px solid #55555e !important; background: var(--da-panel) !important; box-shadow: none; }
-.extraCredits button:hover:enabled { border-color: #3a3a41 !important; background: #3a3a41 !important; box-shadow: var(--da-glow-hover); }
-.extraCredits button:hover:enabled span { color: #ffffff; }
+/* Nov 21: the extra-credit packs are now tiered cards styled in Billing.module.css (Top-up, Boost, Power pack). */
 /* Arthur (2026-10-27): a dot that reaches the red ceiling shows whole, not cut in half by the chart edge. */
 .plotWrap.plotWrap { overflow: visible; }
 
@@ -333,3 +322,19 @@
 .barSlot:has(.emptyBar) { justify-content: center; }
 .barTooltip { background: var(--da-card-fill); box-shadow: var(--da-pop-shadow); }
 @media (max-width: 760px) { .trialCredits { flex-wrap: wrap; justify-content: center; } .plot.plot { padding-right: 34px; gap: 2px; } }
+
+/* Nov 20 (the money system): each kind of AI use, plain text with dividers, under the split bar. */
+.kinds { margin: 4px 0 0; display: grid; }
+.kinds > div { display: flex; justify-content: space-between; gap: 16px; padding: 9px 0; border-top: 1px solid var(--da-line); font-size: 13.5px; }
+.kinds dt { color: var(--da-muted); }
+.kinds dd { margin: 0; color: var(--da-text); font-weight: 600; }
+
+/* Nov 21: the split bar can be pointed at; each part lights up and a small card says what it is. */
+.splitWrap { position: relative; }
+.splitBar > span { display: block; height: 100%; cursor: default; outline: none; }
+.splitAnimator { background: linear-gradient(90deg, #0066ff, #4d94ff); box-shadow: 0 0 14px rgba(0, 102, 255, .55); }
+.splitOther { background: #d2d2d7; }
+.splitBar > span[data-active="true"] { filter: brightness(1.25); }
+.splitBar > span:focus-visible { outline: 2px solid var(--da-focus); outline-offset: 2px; }
+.splitTip { position: absolute; bottom: calc(100% + 10px); z-index: 30; display: grid; gap: 2px; padding: 9px 12px; border: 1px solid var(--da-border); border-radius: 10px; background: var(--da-card-fill); box-shadow: var(--da-pop-shadow); color: var(--da-muted); font-size: 12.5px; white-space: nowrap; transform: translateX(-50%); pointer-events: none; }
+.splitTip strong { color: var(--da-text); font-size: 13px; font-weight: 600; }

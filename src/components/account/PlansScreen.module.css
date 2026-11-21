@@ -35,10 +35,6 @@
 .manage { min-height: 44px; display: grid; place-items: center; width: 100%; padding: 0 12px; border: 1px solid var(--da-border); border-radius: 10px; background: var(--da-page); color: var(--da-text); font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; }
 .manage:hover:not(:disabled) { border-color: var(--da-hover); background: var(--da-hover); color: #fff; box-shadow: var(--da-glow-hover); }
 .manage:disabled { cursor: default; opacity: .6; }
-.plan:hover:not(:disabled):not(.current) .choose { border-color: var(--da-hover); background: var(--da-hover); box-shadow: var(--da-glow-hover); }
-.plan:hover:not(:disabled):not(.current) .choosePrimary { border-color: var(--da-accent-hover); background: var(--da-accent-hover); box-shadow: var(--da-glow-primary-hover); }
-.plan:disabled { cursor: default; }
-.plan:disabled .choose { border-color: var(--da-line); background: transparent; color: var(--da-muted); }
 .error { margin: 0; color: var(--da-danger); font-size: 14px; }
 .promises { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0; padding: 18px 0 0; border-top: 1px solid var(--da-line); list-style: none; }
 .promises li { display: grid; gap: 2px; padding-inline: 2px; }
@@ -50,3 +46,79 @@
   .plan { padding: 20px; }
   .price { margin-top: 18px; }
 }
+
+/* Nov 20 (the money system): Stripe's own facts, test mode, and the two optional discount codes. Same gray tokens as the rest. */
+.facts { margin: 0; color: var(--da-text-2); font-size: 14px; font-weight: 500; }
+.testMode { margin: 2px 0 0; color: var(--da-muted); font-size: 13.5px; }
+.note { margin: 0; color: var(--da-muted); font-size: 13.5px; line-height: 1.4; }
+.codes { display: grid; gap: 10px; padding: 18px 20px; border: 1px solid var(--da-line); border-radius: 12px; background: var(--da-card-fill); }
+.codesTitle { margin: 0; color: var(--da-text); font-size: 15px; font-weight: 600; }
+.codeRow { display: flex; flex-wrap: wrap; gap: 12px; }
+.codeField { display: grid; gap: 6px; width: min(100%, 260px); color: var(--da-muted); font-size: 13px; font-weight: 500; }
+.codeField input { height: 42px; padding: 0 12px; border: 1px solid var(--da-border); border-radius: 10px; background: var(--da-page); color: var(--da-text); font: inherit; font-size: 14.5px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+.codeField input::placeholder { color: var(--da-muted); letter-spacing: 0; text-transform: none; font-weight: 400; }
+.codeField input:hover { border-color: var(--da-text-2); }
+.codeField input:focus-visible { outline: 2px solid var(--da-focus); outline-offset: 2px; }
+
+/* Nov 21 (Arthur): three levels, never three equals. Tier 1 = Basic (plainest), tier 2 = Pro (stands out), tier 3 =
+   Creator (the most powerful). Blue light grows with the tier; WHITE is only for the plan you have (or the free trial). */
+.plan[data-tier="1"] { border-color: var(--da-line); background: var(--da-card-fill); box-shadow: none; }
+.plan[data-tier="1"] .planName, .plan[data-tier="1"] .price strong { color: var(--da-text-2); }
+.plan[data-tier="2"] { border-color: rgba(77, 148, 255, .38); background: linear-gradient(180deg, rgba(0, 102, 255, .08), rgba(0, 102, 255, 0) 45%), var(--da-card-fill); box-shadow: 0 16px 44px rgba(0, 0, 0, .38); }
+.plan[data-tier="3"] { border-color: rgba(77, 148, 255, .8); background: radial-gradient(120% 75% at 100% 0%, rgba(0, 102, 255, .30), rgba(0, 102, 255, 0) 62%), linear-gradient(180deg, rgba(0, 102, 255, .13), rgba(0, 102, 255, .02) 72%), var(--da-card-fill); box-shadow: 0 0 0 1px rgba(0, 102, 255, .25), 0 24px 64px rgba(0, 102, 255, .24); }
+.plan[data-tier="3"] .badge { background: linear-gradient(90deg, #0066ff, #4d94ff); color: #ffffff; box-shadow: 0 0 14px rgba(0, 102, 255, .55); }
+.plan[data-tier="3"] li::before { border-color: #4d94ff; }
+.plan[data-tier="3"] .allowance { border-color: rgba(77, 148, 255, .28); }
+.plan[data-tier="3"] .choosePrimary { box-shadow: 0 0 26px rgba(0, 102, 255, .55); }
+.plan.current, .plan.current[data-tier] { border: 1.5px solid #ffffff; }
+.yoursBadge { padding: 3px 9px; border: 1px solid #ffffff; border-radius: 999px; color: #ffffff; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.trialCard { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 14px; padding: 16px 22px; border: 1.5px solid #ffffff; border-radius: 12px; background: var(--da-card-fill); }
+.trialName { color: var(--da-text); font-size: 18px; font-weight: 600; letter-spacing: -.02em; }
+.trialFacts { margin-left: auto; color: var(--da-muted); font-size: 14px; }
+@media (max-width: 860px) { .trialFacts { margin-left: 0; width: 100%; } }
+
+/* Nov 21 (Arthur): what the credits really make, said exactly (how many, how long each, credits each, total). */
+.allowance .allowanceMakes { margin-top: 6px; color: var(--da-text-2); font-size: 13px; line-height: 1.4; }
+.trialMakes { color: var(--da-text-2); font-size: 13px; }
+
+/* Nov 21: managing a plan here (switch now, change card, cancel, keep), in the app's own look; no Stripe page except for a card. */
+.planActions { display: grid; gap: 8px; margin-top: 10px; }
+.managePrimary { border-color: var(--da-accent); background: var(--da-accent); color: #ffffff; }
+.managePrimary:hover:not(:disabled) { border-color: var(--da-accent-hover); background: var(--da-accent-hover); box-shadow: var(--da-glow-primary-hover); }
+.manageQuiet { min-height: 36px; border: 0; background: transparent; color: var(--da-muted); font: inherit; font-size: 14px; font-weight: 500; cursor: pointer; border-radius: 10px; }
+.manageQuiet:hover:not(:disabled) { background: var(--da-hover); color: #ffffff; }
+.manageQuiet:focus-visible { outline: 2px solid var(--da-focus); outline-offset: 2px; }
+.dialogBackdrop { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 16px; background: var(--da-scrim, rgba(0, 0, 0, .72)); }
+.dialog { display: grid; gap: 14px; width: min(480px, 100%); padding: 24px; border: 1px solid var(--da-border); border-radius: 14px; background: var(--da-panel); box-shadow: var(--da-pop-shadow); }
+.dialogTitle { margin: 0; color: var(--da-text); font-size: 20px; font-weight: 700; letter-spacing: -.02em; }
+.dialogText { margin: 0; color: var(--da-muted); font-size: 14px; line-height: 1.5; }
+.switchFacts { display: grid; margin: 0; border-top: 1px solid var(--da-line); }
+.switchFacts > div { display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--da-line); font-size: 14.5px; }
+.switchFacts dt { color: var(--da-muted); }
+.switchFacts dd { margin: 0; color: var(--da-text); font-weight: 600; text-align: right; }
+.dialogButtons { display: grid; gap: 8px; margin-top: 4px; }
+.dialogPrimary, .dialogPlain, .dialogDanger { min-height: 44px; padding: 0 16px; border: 1px solid var(--da-border); border-radius: 10px; background: var(--da-page); color: var(--da-text); font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; }
+.dialogPrimary { border-color: var(--da-accent); background: var(--da-accent); color: #ffffff; }
+.dialogPrimary:hover:not(:disabled) { border-color: var(--da-accent-hover); background: var(--da-accent-hover); box-shadow: var(--da-glow-primary-hover); }
+.dialogPlain:hover:not(:disabled) { border-color: var(--da-hover); background: var(--da-hover); color: #ffffff; box-shadow: var(--da-glow-hover); }
+.dialogDanger { border-color: var(--da-danger-border, var(--da-border)); color: var(--da-danger); }
+.dialogDanger:hover:not(:disabled) { background: var(--da-danger-solid, #c2414c); border-color: var(--da-danger-solid, #c2414c); color: #ffffff; }
+.dialogPrimary:disabled, .dialogPlain:disabled, .dialogDanger:disabled { opacity: .55; cursor: default; }
+.dialogPrimary:focus-visible, .dialogPlain:focus-visible, .dialogDanger:focus-visible { outline: 2px solid var(--da-focus); outline-offset: 2px; }
+
+/* Nov 21 (Arthur): a card never lights up; only its button does, when the pointer is ON the button. Cards and buttons by level,
+   the same on the plans and the packs: Basic / Top-up = no card outline + outline button; Pro / Boost = gray card outline + gray
+   button; Creator / Power pack = blue card outline + blue button. Blue is only on the best one. */
+.plan { cursor: default; }
+button.choose { width: 100%; font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; }
+.chooseOutline { border-color: #55555e; background: transparent; color: var(--da-text); box-shadow: none; }
+.chooseGray { border-color: #2c2c32; background: #2c2c32; color: var(--da-text); box-shadow: none; }
+.chooseOutline:hover:not(:disabled), .chooseGray:hover:not(:disabled) { border-color: var(--da-hover); background: var(--da-hover); color: #ffffff; box-shadow: var(--da-glow-hover); }
+.chooseBlue { border-color: var(--da-accent); background: var(--da-accent); color: #ffffff; box-shadow: var(--da-glow-primary); }
+.chooseBlue:hover:not(:disabled) { border-color: var(--da-accent-hover); background: var(--da-accent-hover); box-shadow: var(--da-glow-primary-hover); }
+.plan[data-tier="3"] .chooseBlue { box-shadow: 0 0 26px rgba(0, 102, 255, .55); }
+button.choose:disabled { cursor: default; opacity: .5; }
+button.choose:focus-visible { outline: 2px solid var(--da-focus); outline-offset: 2px; }
+.plan[data-tier="1"] { border-color: transparent; }
+.plan[data-tier="2"] { border-color: #55555e; background: var(--da-card-fill); box-shadow: 0 16px 44px rgba(0, 0, 0, .38); }
+.plan.current, .plan.current[data-tier] { border: 1.5px solid #ffffff; }

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { CreditRingView } from "@/src/components/account/CreditRing";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { DiamondLogo } from "@/src/components/chrome/DiamondLogo";
 import { NotificationTrigger } from "@/src/components/notifications/NotificationTrigger";
@@ -11,22 +12,17 @@ import { AccountAvatarContent } from "@/src/components/account/AccountAvatar";
 import { runAccountProjectLogout } from "@/src/lib/account/projectPending";
 import { subscribeProblemReportSummaryV1, type ProblemReportSummaryStateV1 } from "@/src/lib/notifications/problemReportObserver";
 import { AboutBody, TermsBody } from "./InfoBodies";
-import { creditMeterPercent } from "@/src/lib/ai-dashboard/creditMeter";
-import type { AccountPlanStatus } from "@/src/lib/account/plans";
+import { creditsText } from "@/src/lib/account/credits";
 import styles from "./AppHeader.module.css";
-
-const creditBadgeStyle = (status: AccountPlanStatus) => {
-  const used = creditMeterPercent(status.creditsUsed, status.creditsTotal, status.topUpCredits);
-  // One calm gray badge; it only takes the warning color when the AI money is running low.
-  if (used < 75) return { color: "var(--da-text-2)", borderColor: "var(--da-border)", background: "transparent" };
-  const color = used >= 90 ? "var(--da-danger)" : "var(--da-warning)";
-  return { color, borderColor: color, background: `color-mix(in srgb, ${color} 16%, transparent)` };
-};
 
 // Redesign (Arthur 2026-10-26): one header for every screen. Everything the old header had is here — AI Dashboard (or
 // Home), notifications, the menu (Description, Terms of Service, Settings, Report a Problem, Problem reports for the
 // owner) and the account panel (Profile, Settings, Plans, Log out with the unsaved-work check) — in the new look.
-export function AppHeader({ page, onExport, bellView = "home" }: { page: "home" | "dashboard" | "other"; onExport?: () => void; bellView?: "home" | "assistant" }) {
+/** Nov 21 (Arthur): opened from the Help Assistant or from inside a project, the AI Dashboard shows "Back" (to where you
+ *  were) instead of Home. From Home it still shows Home. */
+export type HeaderBack = { label?: string; href?: string; onClick?: () => void };
+
+export function AppHeader({ page, onExport, bellView = "home", back }: { page: "home" | "dashboard" | "other"; onExport?: () => void; bellView?: "home" | "assistant"; back?: HeaderBack }) {
   const account = useAccountSession();
   const { status } = useAccountPlan();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -77,7 +73,17 @@ export function AppHeader({ page, onExport, bellView = "home" }: { page: "home" 
       <header className={styles.bar}>
         <Link href="/" className={styles.brand} aria-label="Diamond Animator, main screen"><span className={styles.brandMark}><DiamondLogo size={30} /></span><span className={styles.brandName}>Diamond Animator</span></Link>
         <div className={styles.actions}>
-          {page === "dashboard" ? (
+          {page === "dashboard" && back ? (
+            back.onClick
+              ? <button type="button" className={styles.ghost} onClick={back.onClick} aria-label={back.label ?? "Back"}>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5" /><path d="m11 6-6 6 6 6" /></svg>
+                  <span className={styles.label}>Back</span>
+                </button>
+              : <Link href={back.href ?? "/"} className={styles.ghost} aria-label={back.label ?? "Back"}>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5" /><path d="m11 6-6 6 6 6" /></svg>
+                  <span className={styles.label}>Back</span>
+                </Link>
+          ) : page === "dashboard" ? (
             <Link href="/" className={styles.ghost}>
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11 12 4.5l8 6.5" /><path d="M6.5 9.5V19.5h11V9.5M10 19.5v-5h4v5" /></svg>
               <span className={styles.label}>Home</span>
@@ -86,7 +92,7 @@ export function AppHeader({ page, onExport, bellView = "home" }: { page: "home" 
             <Link href="/credits" className={styles.ghost} aria-label="Open AI Dashboard" data-tour="ai-dashboard">
               <svg viewBox="0 0 24 24" aria-hidden="true" style={{ stroke: "#fff" }}><path d="M3 20h18" /><path d="M5 16l4-5 3 3 6-8" /></svg>
               <span className={styles.label}>AI Dashboard</span>
-              {status && <span className={styles.badge} title="AI credits left" style={creditBadgeStyle(status)}>{status.creditsLeft}</span>}
+              {status && <CreditRingView status={status} link={false} showNumber size={18} tip="below" className={styles.ringBadge} />}
             </Link>
           )}
           <div className={styles.group} data-tour="bell-menu">
@@ -122,7 +128,7 @@ export function AppHeader({ page, onExport, bellView = "home" }: { page: "home" 
                   </div>
                   {status && (
                     <Link href="/plans" className={styles.popPlan}>
-                      <span><strong>{status.label}</strong><small>{status.creditsLeft} AI credits left</small></span>
+                      <span><strong>{status.label}</strong><small>{creditsText(status.creditsLeft)} left</small></span>
                       <span className={styles.popPlanCta}>{status.plan === "trial" ? "Choose a plan" : "Change plan"}</span>
                     </Link>
                   )}

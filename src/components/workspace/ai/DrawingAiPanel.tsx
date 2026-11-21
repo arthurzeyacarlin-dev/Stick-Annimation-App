@@ -44,6 +44,7 @@ import type { NotificationTargetV1 } from "@/src/lib/notifications/notificationC
 import { WorkspaceAiPanelShell } from "./WorkspaceAiPanelShell";
 import { AssistantActivity } from "@/src/components/assistant/AssistantText";
 import { AssistantDictationCapture, type DictationView } from "@/src/lib/assistant/assistantDictationCapture";
+import { CreditRing } from "@/src/components/account/CreditRing";
 import { ChatDictateButton, ChatDictationPanel, ChatDictationStatus, ChatEffortPicker, ChatSendButton, ChatStopButton, ChatToolsRow, chatComposerStyles, pickAutoEffort, type ChatEffort } from "@/src/components/ui/ChatComposerParts";
 import { workspaceColors } from "../workspaceTheme";
 import type { SceneForPage } from "@/src/lib/animator/stageFit";
@@ -585,6 +586,7 @@ export function DrawingAiPanel({
             : <ChatToolsRow
               left={<ChatEffortPicker value={effort} onChange={setEffort} disabled={reasoningDisabled} />}
               right={<>
+                <CreditRing busy={Boolean(activeJob)} />
                 <ChatDictateButton disabled={dictationActive || Boolean(activeJob) || readOnly} onClick={() => void dictationRef.current?.start()} />
                 {activeJob
                   ? <ChatStopButton label={`Cancel AI Animator job ${activeJob.jobId}`} onClick={cancelActiveJob} />

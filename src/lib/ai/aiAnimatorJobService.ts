@@ -13,7 +13,7 @@ import {
   noUsageEventRecorder, projectAcceptedEvent, projectTerminalEvent, type UsageEventRecorder,
 } from "../usage-journal/usageJournalEvents.ts";
 import { accountAiCreditGate, type AiCreditGate } from "../account/aiCredits.ts";
-import { AI_ACTION_CREDITS } from "../account/plans.ts";
+import { creditsForCostUsd, MIN_ANSWER_CREDITS } from "../account/plans.ts";
 
 type Provider = (request: AiAnimatorRequest, options: { signal: AbortSignal }) => Promise<AiAnimatorProviderResult>;
 type InternalJob = AiAnimatorJobSnapshot & { ownerId: string; abortController: AbortController };
@@ -64,9 +64,9 @@ export class AiAnimatorJobService {
     if (environmentActiveCount >= 2) {
       throw Object.assign(new Error("AI Animator is busy. Try again after an active request finishes."), { status: 429 });
     }
-    // Pricing v1 (D-0193): today's AI Animator chat costs AI_ACTION_CREDITS.chat per answered message; running
-    // messages reserve their credits. (When animations arrive, the engine passes the action's own cost.)
-    this.credits.assertAvailable(ownerId, environmentActiveCount * AI_ACTION_CREDITS.chat, AI_ACTION_CREDITS.chat);
+    // Arthur, Nov 21 ("as cheap as possible"): an answered chat message costs what the AI really cost (1 credit per started
+    // cent, at least 1); Luna's chat answers are well under a cent, so 1 credit. Running messages reserve theirs.
+    this.credits.assertAvailable(ownerId, environmentActiveCount * MIN_ANSWER_CREDITS, MIN_ANSWER_CREDITS);
 
     const now = new Date().toISOString();
     const event: AiAnimatorJobEvent = { sequence: 1, status: "thinking", createdAt: now };
@@ -174,7 +174,7 @@ export class AiAnimatorJobService {
         usage: result.usage,
       };
       this.meter(projectTerminalEvent(request, "succeeded", Date.parse(job.completedAt)));
-      try { this.credits.spend(job.ownerId, job.jobId, AI_ACTION_CREDITS.chat, "chat"); } catch { /* The answer is already shown; a failed count must not break it. */ }
+      try { this.credits.spend(job.ownerId, job.jobId, creditsForCostUsd(result.usage?.estimatedCostUsd), "chat"); } catch { /* The answer is already shown; a failed count must not break it. */ }
     } catch (error) {
       if (isAiAnimatorTerminalStatus(job.status)) {
         return;

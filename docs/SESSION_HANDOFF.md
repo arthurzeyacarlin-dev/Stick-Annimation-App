@@ -1,5 +1,10 @@
 # Session Handoff
 
+## MONEY SYSTEM — Nov 21 (PM) — READ FIRST
+
+The money system is in main (D-0242): credits everywhere, payments and plan changes inside the app, Stripe behind the scenes, passed by Arthur in test mode. Arthur's rules for it: people never see Stripe (no Stripe pages or words); everything in credits; plans and packs keep about half profit; deleting = zero profit, they pay only their AI and the card fee. Live money waits for dad (TODO LIVE-MONEY: his bank account and live keys in Stripe, hosting, webhook). Money tests: `node --import ./scripts/money-test-loader.mjs --test src/lib/account/*.test.ts`.
+
+
 ## LAUNCH DATE — Nov 3 (side PM) — READ FIRST
 
 Final beta/launch date = **Friday, November 13, 2026** (2nd delay; Arthur + dad say it's the last). Website live with it (D-0235, diamond-website `d538b5c`). Day-by-day plan + dad's list: diamond-review/board/LAUNCH_ROADMAP.md. The site now promises one stick figure, incl. "hop over the spike I drew" — the drawing-seeing fix must land by Nov 13 or those examples come off. Website test copy diamond-review/website-nov13 can be retired.

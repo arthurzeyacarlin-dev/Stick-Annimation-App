@@ -2384,3 +2384,18 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - New `/brand/` page (dad's request): logo with clear space and do/don't, downloadable logo files, app icon, social card, colors, Geist, the look, how we talk, app pictures, one zip.
 - Pushed diamond-website `39f7169` to main (live). Live site check: 0 FAIL, 0 WARN, spots 37 of 50.
 - Open: the app does not charge this way yet (the app copy charges a flat 35¢ an animation). The credits plan (charge by seconds, card shows credits, hold and give back, stop at zero, daily limit, trial in credits) must be built in the app before launch. Dad sets the prices in Stripe and decides the trial size and the yearly discount.
+
+### D-0242 — Money system in the app (PM, 2026-11-21)
+
+- Arthur passed it in Stripe test mode and said make it the main Diamond Animator. Built in `diamond-review/money-main` (main + the money system).
+- Everything in credits. A chat answer costs what the AI really cost (1 credit per started cent, at least 1). Plans and extra packs keep about half profit after the card fee even if every credit is used (monthly 47-49%, packs 46-49%; yearly about 40% because of 2 months free).
+- Packs fit the plan: Basic 100 / 200 / 400 ($2.59 / $4.49 / $8.79), Pro 250 / 500 / 1,000 (dad's), Creator 500 / 1,000 / 2,000 ($41.99). Dad should OK the per-plan packs before launch.
+- Arthur: "You never see Stripe." Paying, packs and card changes happen in the app's own card dialog (the payment company's secure card fields in the app's look). Switching plans happens at once inside the app (full new price, fresh month with full credits, the rest of the old payment given back by the delete rule). Cancel and keep are one click. Stripe's checkout and portal pages are no longer used.
+- Stripe is the truth behind the scenes: one sync applies every payment, refund and dispute once; a second plan is refunded; deleting an account stops the plan first and gives back everything but the AI used and the card fee.
+- Test mode only. Live money needs dad: an activated Stripe account with his bank account (he types it in Stripe himself), a restricted live key + the live public key + STRIPE_LIVE_OK=yes on the server where the app runs online, the webhook, and Stripe's own emails and statement name set to Diamond Animator.
+
+### D-0243 — Website: exact animation wording and plan levels (PM, 2026-11-21)
+
+- Arthur: never "about N short animations". Every plan now says how many, how long each, credits each and the total ("Enough for 7 animations, each 10 seconds long, 67 credits each: 1 minute 10 seconds of animation in total"), whole animations only.
+- Plan cards look like the app's: Basic plainest, Pro "Most popular", Creator "Most power" and glowing.
+- Pushed diamond-website `0011524` (live). Live site check: 0 FAIL, 0 WARN, spots 36 of 50.

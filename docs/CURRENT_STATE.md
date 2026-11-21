@@ -1,6 +1,15 @@
 # Current State
 
-## D-0241 — Website in credits with the new plans, plus a brand kit (current)
+## D-0242 — Money system in the app (current, 2026-11-21)
+
+The main app has dad's credits plans and payments, passed by Arthur in Stripe test mode (`diamond-review/money-main`, merged). Everything is in credits; the credits circle shows in the AI chat boxes and the top bar; the AI Dashboard splits credits by AI Animator and Help Assistant with one rule. Paying, extra packs (sized per plan) and card changes happen in the app's own card dialog; plans switch at once, cancel and keep in one click; deleting an account refunds all but the AI used and the card fee. Stripe stays behind the scenes and is the truth (sync, refunds, disputes, duplicates). Test mode only until dad sets up live money (TODO LIVE-MONEY). 85 money tests; whole-app type check clean.
+
+## D-0243 — Website: exact animation wording and plan levels (2026-11-21)
+
+diamondanimator.com (diamond-website `0011524`) says exactly what each plan's credits make and shows the plans in three levels like the app.
+
+
+## D-0241 — Website in credits with the new plans, plus a brand kit
 
 Arthur said make it the main website 2026-11-20. diamondanimator.com (diamond-website `39f7169`) shows dad's credits plans: Basic $9.99 / 470 credits, Pro $24.99 / 1,200, Creator $49.99 / 2,400, first 50 at 25% off, trial 150 credits, packs on any plan. Costs are in credits only (4 a second, 12 for a new animation's scene, 15 a reply); at zero credits the AI stops. A brand kit is at /brand/. The app does not charge this way yet: the credits plan must be built in the app before launch.
 

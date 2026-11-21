@@ -1,5 +1,13 @@
 # TODO
 
+## Live money (D-0242, 2026-11-21)
+
+- [ ] **LIVE-MONEY-DAD** — dad activates the Stripe account and adds his bank account in Stripe himself (payouts go there), creates a restricted live key, and gives the live public key; both go into the online server's settings with STRIPE_LIVE_OK=yes (never into chat or the repo).
+- [ ] **LIVE-MONEY-HOST** — the app must run online (hosting + account database) before strangers can pay; then add the Stripe webhook (STRIPE_WEBHOOK_SECRET) and the live codes (DIAMOND_FIRST50_CODE, DIAMOND_YOUTUBE_CODE).
+- [ ] **LIVE-MONEY-STRIPE-SETTINGS** — Stripe emails and receipts in Diamond Animator's name (or off), statement name DIAMOND ANIMATOR, Smart Retries, Radar.
+- [ ] **LIVE-MONEY-PROOF** — one real payment and one real refund in live mode before announcing.
+- [ ] **PACKS-DAD-OK** — dad OKs the per-plan packs; then the website's pack line matches the app.
+
 ## Professional redesign queue (D-0237, 2026-11-18)
 
 - [x] **LOOK-SIGN-IN** — sign-in, log-in, plan step, reset password and loading screen in main.
@@ -10,7 +18,7 @@
 - [ ] **LOOK-REAL-CLIP** — replace the hand-made sign-in sample with a real AI Animator clip.
 - [x] **LOOK-WEBSITE** — website in the app's look with real app videos, live (D-0240).
 - [x] **WEBSITE-CREDITS** — website in credits with dad's new plans, plus a brand kit at /brand/, live (D-0241).
-- [ ] **APP-CREDITS** — build dad's credits plan in the app (charge by seconds, card shows credits, hold and give back, stop at zero, daily limit, trial 150) so the app matches the website before launch.
+- [x] **APP-CREDITS** — dad's credits plan in the app, payments inside the app, passed in test mode (D-0242).
 - [ ] **ONE-PROGRESS-BAR** — one progress bar and loader style everywhere (app, app copy, website): app blue on a gray track. Audit Nov 20: 8 bars in 7 styles, no shared component.
 
 ## AI Animator queue (D-0234, 2026-10-30)

@@ -1,6 +1,10 @@
 # Current State
 
-## D-0244 — Real money is on in the app on this Mac (current, 2026-11-21)
+## D-0245 — Follow-up emails and the app's trial signals (current, 2026-11-21)
+
+Four follow-up email flows (26 emails: Arthur's story, the 14-day trial with reminders, after the trial, long-term tips) are built in the email service as drafts; nothing sends until dad and Arthur switch them on. The app tells the email service once when an account's trial starts and when it picks a plan (`src/lib/account/emailSignals.ts`, setting `DIAMOND_EMAIL_SITE_ID`). Checked in the main app on real money: the signal arrives once, no screen shows the payment or email service's name, and two opened payment boxes leave one unpaid start and no charge. Still unproven: a real card payment reaching the bank.
+
+## D-0244 — Real money is on in the app on this Mac (2026-11-21)
 
 The main app and the copy `diamond-review/money-main` now run on Stripe's live key (private `.env.local` only, never in the repo). The look is unchanged. Test-card plans, packs and payments are wiped when real money is on, and the test buttons page is off. Checked in the real app copy: no test text, the card dialog loads with the live public key. Not done yet: one real payment and refund as proof, hosting the app online with the webhook, the real discount codes. Payouts go to the bank dad linked in Stripe. 77 money tests; type check clean.
 

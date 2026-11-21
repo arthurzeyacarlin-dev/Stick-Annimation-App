@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAccountRequest } from "@/src/lib/account/access";
 import { getAccountPlanStatus } from "@/src/lib/account/aiCredits";
+import { sendEmailSignals } from "@/src/lib/account/emailSignals";
 import { billingFacts, billingMode, ensureBillingPublicKey, startBillingSweeper, syncWithStripe } from "@/src/lib/account/stripeBilling";
 
 // This account's plan, credits and trial days (the credits counter, the AI Dashboard, the Plans screen).
@@ -16,7 +17,10 @@ export async function GET(request: Request) {
   try { await syncWithStripe(ownerId, { fresh }); } catch { /* keep the last saved plan */ }
   startBillingSweeper();
   try {
-    return NextResponse.json({ schema: "diamond-account-plan/v1", status: getAccountPlanStatus(ownerId), billing: { mode: billingMode(), cardKey: await ensureBillingPublicKey(), ...billingFacts(ownerId) } },
+    const status = getAccountPlanStatus(ownerId);
+    // Follow-up emails (dad, Nov 21): tell the email service once that the trial started / a plan was picked. Never waits.
+    sendEmailSignals(ownerId, access.session.user.email, status);
+    return NextResponse.json({ schema: "diamond-account-plan/v1", status, billing: { mode: billingMode(), cardKey: await ensureBillingPublicKey(), ...billingFacts(ownerId) } },
       { headers: { "Cache-Control": "no-store" } });
   } catch {
     return NextResponse.json({ error: "Your plan couldn't be read. Try again." }, { status: 503, headers: { "Cache-Control": "no-store" } });

@@ -7,6 +7,8 @@
 - [ ] **LIVE-MONEY-HOST** — the app must run online (hosting + account database) before strangers can pay; then add the Stripe webhook (STRIPE_WEBHOOK_SECRET) and the live codes (DIAMOND_FIRST50_CODE, DIAMOND_YOUTUBE_CODE).
 - [x] **LIVE-MONEY-STRIPE-SETTINGS (checked 2026-11-21)** — public name Diamond Animator, statement name DIAMOND ANIMATOR; all of Stripe's customer emails off (receipts, refunds, renewals, failed payments, expiring cards, 3-D Secure links); Smart Retries on (8 tries in 2 weeks, then the plan ends); Radar on.
 - [ ] **LIVE-MONEY-PROOF** — one real payment and one real refund in live mode before announcing.
+- [ ] **EMAIL-FLOWS-ON (D-0245)** — dad and Arthur read the 26 follow-up emails (drafts in the email service; words in `diamond-review/website-exact/docs/klaviyo/`), then switch the four flows and the welcome flow on. Before that: the free plan allows only 250 contacts and 500 sends a month; add a DMARC record and a branded sending domain; the trial emails' links go to diamondanimator.com until the app has its online address.
+- [ ] **EMAIL-PRIVACY (D-0245)** — the privacy and children's pages must say that app sign-ups' email addresses go to the email service (the website copy's pages mention it but are not pushed). Dad decides.
 - [ ] **PACKS-WEBSITE** — dad OKed the per-plan packs and the 1,500/day limit (2026-11-21); the website's pack line still lists the same 3 packs for every plan and should match the app.
 
 ## Professional redesign queue (D-0237, 2026-11-18)

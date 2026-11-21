@@ -2,7 +2,7 @@
 
 ## D-0245 — Follow-up emails and the app's trial signals (current, 2026-11-21)
 
-Four follow-up email flows (26 emails: Arthur's story, the 14-day trial with reminders, after the trial, long-term tips) are built in the email service as drafts; nothing sends until dad and Arthur switch them on. The app tells the email service once when an account's trial starts and when it picks a plan (`src/lib/account/emailSignals.ts`, setting `DIAMOND_EMAIL_SITE_ID`). Checked in the main app on real money: the signal arrives once, no screen shows the payment or email service's name, and two opened payment boxes leave one unpaid start and no charge. Still unproven: a real card payment reaching the bank.
+Four follow-up email flows (26 emails: Arthur's story, the 14-day trial with reminders, after the trial, long-term tips) and the welcome flow are live in the email service since 2026-11-21 (Arthur's order); a new trial sign-up in the main app made it send the first trial email within a minute. The app tells the email service once when an account's trial starts and when it picks a plan (`src/lib/account/emailSignals.ts`, setting `DIAMOND_EMAIL_SITE_ID`). Checked in the main app on real money: the signal arrives once, no screen shows the payment or email service's name, and two opened payment boxes leave one unpaid start and no charge. Still unproven: a real card payment reaching the bank.
 
 ## D-0244 — Real money is on in the app on this Mac (2026-11-21)
 

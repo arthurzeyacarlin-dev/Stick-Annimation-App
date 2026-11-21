@@ -2,7 +2,7 @@
 
 ## MONEY SYSTEM — Nov 21 (PM) — READ FIRST
 
-The money system is in main (D-0242): credits everywhere, payments and plan changes inside the app, Stripe behind the scenes, passed by Arthur in test mode. Arthur's rules for it: people never see Stripe (no Stripe pages or words); everything in credits; plans and packs keep about half profit; deleting = zero profit, they pay only their AI and the card fee. Live money waits for dad (TODO LIVE-MONEY: his bank account and live keys in Stripe, hosting, webhook). Money tests: `node --import ./scripts/money-test-loader.mjs --test src/lib/account/*.test.ts`.
+The money system is in main (D-0242): credits everywhere, payments and plan changes inside the app, Stripe behind the scenes, passed by Arthur in test mode. Arthur's rules for it: people never see Stripe (no Stripe pages or words); everything in credits; plans and packs keep about half profit; deleting = zero profit, they pay only their AI and the card fee. Real money is ON on this Mac since Nov 21 (D-0244): main and `diamond-review/money-main` run on the restricted live key in their private `.env.local` (never in the repo); test plans and payments were wiped, the test buttons page is off. Still open: one real payment and refund as proof, hosting with the webhook, the real discount codes (TODO LIVE-MONEY). Payouts go to the bank dad linked in Stripe. Money tests: `node --import ./scripts/money-test-loader.mjs --test src/lib/account/*.test.ts`.
 
 
 ## LAUNCH DATE — Nov 3 (side PM) — READ FIRST

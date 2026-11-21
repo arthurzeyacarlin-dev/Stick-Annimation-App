@@ -1,8 +1,12 @@
 # Current State
 
-## D-0242 — Money system in the app (current, 2026-11-21)
+## D-0244 — Real money is on in the app on this Mac (current, 2026-11-21)
 
-The main app has dad's credits plans and payments, passed by Arthur in Stripe test mode (`diamond-review/money-main`, merged). Everything is in credits; the credits circle shows in the AI chat boxes and the top bar; the AI Dashboard splits credits by AI Animator and Help Assistant with one rule. Paying, extra packs (sized per plan) and card changes happen in the app's own card dialog; plans switch at once, cancel and keep in one click; deleting an account refunds all but the AI used and the card fee. Stripe stays behind the scenes and is the truth (sync, refunds, disputes, duplicates). Test mode only until dad sets up live money (TODO LIVE-MONEY). 85 money tests; whole-app type check clean.
+The main app and the copy `diamond-review/money-main` now run on Stripe's live key (private `.env.local` only, never in the repo). The look is unchanged. Test-card plans, packs and payments are wiped when real money is on, and the test buttons page is off. Checked in the real app copy: no test text, the card dialog loads with the live public key. Not done yet: one real payment and refund as proof, hosting the app online with the webhook, the real discount codes. Payouts go to the bank dad linked in Stripe. 77 money tests; type check clean.
+
+## D-0242 — Money system in the app (2026-11-21)
+
+The main app has dad's credits plans and payments, passed by Arthur in Stripe test mode (`diamond-review/money-main`, merged). Everything is in credits; the credits circle shows in the AI chat boxes and the top bar; the AI Dashboard splits credits by AI Animator and Help Assistant with one rule. Paying, extra packs (sized per plan) and card changes happen in the app's own card dialog; plans switch at once, cancel and keep in one click; deleting an account refunds all but the AI used and the card fee. Stripe stays behind the scenes and is the truth (sync, refunds, disputes, duplicates). Real money since D-0244. 85 money tests; whole-app type check clean.
 
 ## D-0243 — Website: exact animation wording and plan levels (2026-11-21)
 

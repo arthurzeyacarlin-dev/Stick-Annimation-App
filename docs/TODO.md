@@ -2,11 +2,12 @@
 
 ## Live money (D-0242, 2026-11-21)
 
-- [ ] **LIVE-MONEY-DAD** — dad activates the Stripe account and adds his bank account in Stripe himself (payouts go there), creates a restricted live key, and gives the live public key; both go into the online server's settings with STRIPE_LIVE_OK=yes (never into chat or the repo).
+- [x] **LIVE-MONEY-DAD (Stripe part, done 2026-11-21)** — the live account "Diamond Animator" is verified with no open tasks; payments and payouts are active; dad linked the payout bank himself (USD default, automatic daily payouts).
+- [x] **LIVE-MONEY-KEYS (this Mac, done 2026-11-21, D-0244)** — the restricted live key "Diamond Animator app", the live public key and STRIPE_LIVE_OK=yes are in the private `.env.local` of main and of `diamond-review/money-main`. At hosting time the same three go into the online server's settings (never into chat or the repo).
 - [ ] **LIVE-MONEY-HOST** — the app must run online (hosting + account database) before strangers can pay; then add the Stripe webhook (STRIPE_WEBHOOK_SECRET) and the live codes (DIAMOND_FIRST50_CODE, DIAMOND_YOUTUBE_CODE).
-- [ ] **LIVE-MONEY-STRIPE-SETTINGS** — Stripe emails and receipts in Diamond Animator's name (or off), statement name DIAMOND ANIMATOR, Smart Retries, Radar.
+- [x] **LIVE-MONEY-STRIPE-SETTINGS (checked 2026-11-21)** — public name Diamond Animator, statement name DIAMOND ANIMATOR; all of Stripe's customer emails off (receipts, refunds, renewals, failed payments, expiring cards, 3-D Secure links); Smart Retries on (8 tries in 2 weeks, then the plan ends); Radar on.
 - [ ] **LIVE-MONEY-PROOF** — one real payment and one real refund in live mode before announcing.
-- [ ] **PACKS-DAD-OK** — dad OKs the per-plan packs; then the website's pack line matches the app.
+- [ ] **PACKS-WEBSITE** — dad OKed the per-plan packs and the 1,500/day limit (2026-11-21); the website's pack line still lists the same 3 packs for every plan and should match the app.
 
 ## Professional redesign queue (D-0237, 2026-11-18)
 

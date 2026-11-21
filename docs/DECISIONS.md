@@ -2399,3 +2399,12 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Arthur: never "about N short animations". Every plan now says how many, how long each, credits each and the total ("Enough for 7 animations, each 10 seconds long, 67 credits each: 1 minute 10 seconds of animation in total"), whole animations only.
 - Plan cards look like the app's: Basic plainest, Pro "Most popular", Creator "Most power" and glowing.
 - Pushed diamond-website `0011524` (live). Live site check: 0 FAIL, 0 WARN, spots 36 of 50.
+
+### D-0244 — Real money is on in the app on this Mac (PM, 2026-11-21)
+
+- Arthur: "make the app copy 100% NOT test mode", UI unchanged, then make it main. Done in `diamond-review/money-main`, fast-forwarded into main (`2330c8c`).
+- Stripe live account "Diamond Animator": a restricted live key "Diamond Animator app" was made after Stripe's two security checks (email link, then the authenticator code, typed in by Arthur and dad). 14 permissions: write on Customers, Subscriptions, Invoices, Charges and Refunds, Checkout Sessions, Payment Intents, Setup Intents, Payment Methods, Products, Prices, Coupons, Promotion Codes; read on Balance and Payment Disputes.
+- The key, the live public key and STRIPE_LIVE_OK=yes are only in the private `.env.local` of money-main and of main on this Mac (git-ignored; the old test key stays as a comment). Never in chat or the repo. Script: `.local/switch-to-live.sh` (reads the key from the clipboard, never prints it).
+- Code: on real money every test-card plan, pack and payment and every test-button plan is wiped and the account goes back to its trial clock; real rows are marked "live" and kept. `/dev/plan` and `/api/dev/plan` return 404. Money test 32 covers it; 77/77 money tests pass; type check clean.
+- Checked in the real app copy (localhost:58680, throwaway account): Plans page and the card dialog show no test text and no Stripe word; the card form loads with the live public key and the price ($9.99 for Basic); the old test plans and 15 test payments were cleared (backup of the plans database from before: `.local/before-real-money-nov21/`).
+- Not done, on purpose: no real payment has been made (TODO LIVE-MONEY-PROOF); the app is not online, so strangers can't pay and there is no webhook yet (LIVE-MONEY-HOST); the two discount codes are off on real money until the real codes are set. The bank is the one dad linked in Stripe.

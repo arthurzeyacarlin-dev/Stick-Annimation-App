@@ -5,7 +5,7 @@ import { AsyncLocalStorage } from "node:async_hooks";
 // ~30 s for the whole card. Nothing here changes the answer: the turn's result is exactly what it was. Kept in memory only (one server),
 // only for the owner who sent the turn, and dropped as soon as the turn is answered.
 
-export type V1Live = { say: string; searching: string[]; at: number };
+export type V1Live = { say: string; searching: string[]; at: number; phase?: "thinking" | "searching" | "finalizing" };   // (Nov 22) phase = what he is really doing
 type Entry = V1Live & { ownerId: string };
 const g = globalThis as typeof globalThis & { diamondV1Live?: Map<string, Entry>; diamondV1LiveScope?: AsyncLocalStorage<string> };
 const live = (g.diamondV1Live ??= new Map());   // (survives hot reloads like the runner)
@@ -29,7 +29,7 @@ export function v1LiveReporter(): ((patch: Partial<V1Live>) => void) | null {
 
 export function readV1Live(key: string, ownerId: string): V1Live | null {
   const e = live.get(key);
-  return e && e.ownerId === ownerId ? { say: e.say, searching: e.searching, at: e.at } : null;
+  return e && e.ownerId === ownerId ? { say: e.say, searching: e.searching, at: e.at, ...(e.phase ? { phase: e.phase } : {}) } : null;
 }
 
 // The "say" text of a tool answer that is still being written (its JSON arrives in pieces). say is the 2nd key of the turn schema

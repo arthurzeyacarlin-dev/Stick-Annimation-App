@@ -587,8 +587,9 @@ test("view: Thinking gradient line, Animating card, frames line + marks, Undo/Re
   assert.match(full, /class="v1-pct" aria-hidden="true">100%</, "the card shows the full bar once it is on the canvas");
 
   // (Nov 17, Part 2) thinking: the changing words line, his words as he writes them, and the folded grey line with its arrow
-  const writing = render({ ...emptyV1PanelState(), busy: "thinking", activity: "Thinking", thinking: { since: 0, words: ["Noodling", "Almost done thinking"], say: "Here is the plan" }, lines: [{ id: 1, kind: "user", text: "FIXTURE story" }] });
-  assert.match(writing, /data-text="Noodling"/, "the book's words");
+  const writing = render({ ...emptyV1PanelState(), busy: "thinking", activity: "Thinking", thinking: { since: 0, words: ["Noodling", "Almost done thinking"], say: "Here is the plan", phase: "finalizing" }, lines: [{ id: 1, kind: "user", text: "FIXTURE story" }] });
+  assert.match(writing, /data-text="Finalizing answer"/, "(Nov 22) what he really does, in the Help Assistant's words - never made-up words");
+  assert.doesNotMatch(writing, /Noodling/);
   assert.match(writing, /data-v1-live=""[^]*Here is the plan/, "his words show as he writes them");
   const folded = render({ ...emptyV1PanelState(), lines: [{ id: 1, kind: "work", summary: "Thought for 7 seconds, made the plan", steps: ["Thought for 7 seconds", "Made the plan"] }] });
   assert.match(folded, /<details class="v1-work" data-v1-work=""><summary>Thought for 7 seconds, made the plan<span class="v1-work-arrow" aria-hidden="true">›<\/span><\/summary>/, "ONE grey line with a small arrow, closed by default");

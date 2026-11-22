@@ -11,8 +11,6 @@ import { V1_PANEL_WORDS, gentleBarPct, progressWords, undoRedoState, v1ReplyBloc
 
 // (Nov 17, Part 2) the changing words while he thinks (the server sends the book's list; these until it does). Never an "almost done" word:
 // nothing knows when his thinking is almost done.
-const THINKING_WORDS = ["Thinking", "Noodling", "Cooking", "Stirring", "Sketching the shots"];
-const THINKING_WORD_MS = 2400;
 
 // AI Animator V1 — what the chat shows (no fetching here; v1AnimatorController.ts owns the flow).
 // Arthur's rules: only buttons and cards (the Animating card, the Undo / Redo card) get boxes; text and numbers stay
@@ -114,9 +112,26 @@ export const v1ThreadStyles = `
   .v1-swatch { width: 14px; height: 14px; border-radius: 4px; border: 1px solid ${workspaceColors.border}; flex: 0 0 auto; }
   .v1-gate-not { margin: 0; padding: 0 2px; font-size: 11.5px; color: ${workspaceColors.textMuted}; }
   .v1-gate-lines { margin: 0; padding: 0 2px 0 18px; display: grid; gap: 4px; list-style: disc outside; font-size: 12px; line-height: 1.5; color: ${workspaceColors.textSecondary}; }
+  /* (Nov 22, D-0246, Arthur: "a quick summary ... not a book", "more professional and polished") the card: numbered short steps with
+     their seconds, one quiet line of facts, the animator's exact words folded away */
+  .v1-gate-steps { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+  .v1-gate-steps li { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; align-items: start; gap: 10px; font-size: 12.5px; line-height: 1.5; color: var(--da-text-2, #d2d2d7); }
+  .v1-step-n { display: grid; place-items: center; width: 20px; height: 20px; margin-top: -1px; border-radius: 50%; background: var(--da-line, #2c2c32); color: var(--da-muted, #a3a3ab); font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .v1-step-s { padding-top: 1px; color: var(--da-muted, #a3a3ab); font-size: 11.5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .v1-gate-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin: 0; padding: 0 2px; font-size: 11.5px; color: var(--da-muted, #a3a3ab); font-variant-numeric: tabular-nums; }
+  .v1-gate-meta .v1-swatch { width: 10px; height: 10px; border-radius: 50%; border-color: rgba(255,255,255,.45); }   /* a colour dot, never a box that reads as a checkbox */
+  .v1-gate-note { margin: 0; padding: 0 2px; font-size: 11.5px; line-height: 1.45; color: var(--da-muted, #a3a3ab); }
+  .v1-gate-exact { margin: 0; padding: 0 2px; font-size: 11.5px; color: var(--da-muted, #a3a3ab); }
+  .v1-gate-exact summary { width: fit-content; cursor: pointer; list-style: none; border-radius: 6px; }
+  .v1-gate-exact summary::-webkit-details-marker { display: none; }
+  .v1-gate-exact summary::before { content: "›"; display: inline-block; width: 12px; transition: transform .12s; }
+  .v1-gate-exact[open] summary::before { transform: rotate(90deg); }
+  .v1-gate-exact summary:hover { color: #fff; }
+  .v1-gate-exact summary:focus-visible { outline: 2px solid var(--da-focus, #4d94ff); outline-offset: 2px; }
+  .v1-gate-exact ol { margin: 8px 0 0; padding: 0 0 0 18px; display: grid; gap: 6px; max-height: 240px; overflow-y: auto; line-height: 1.5; }
   .v1-gate-lines li::marker { color: ${workspaceColors.accentMuted}; }
-  .v1-gate-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 0 2px 9px; border-bottom: 1px solid ${workspaceColors.divider}; font-size: 13px; font-weight: 700; color: ${workspaceColors.textPrimary}; }
-  .v1-gate-cost { font-size: 10.5px; font-weight: 500; letter-spacing: .04em; text-transform: uppercase; color: ${workspaceColors.textMuted}; font-variant-numeric: tabular-nums; }
+  .v1-gate-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 2px 10px; border-bottom: 1px solid ${workspaceColors.divider}; font-size: 13.5px; font-weight: 650; letter-spacing: -.005em; color: ${workspaceColors.textPrimary}; }
+  .v1-gate-cost { padding: 3px 9px; border-radius: 999px; background: var(--da-line, #2c2c32); font-size: 11.5px; font-weight: 600; color: var(--da-text-2, #d2d2d7); font-variant-numeric: tabular-nums; }
   /* (Nov 22, Arthur: one picture with everything in it, a click makes it almost full screen) the gate card's first picture */
   .v1-gate-pic { display: block; width: 100%; padding: 0; border: 1px solid ${workspaceColors.border}; border-radius: 10px; overflow: hidden; background: #fff; cursor: zoom-in; text-align: left; }
   .v1-gate-pic img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: contain; }
@@ -164,8 +179,8 @@ export const v1ThreadStyles = `
   .v1-out .v1-actions a { display: inline-flex; align-items: center; justify-content: center; min-width: 0; min-height: 34px; padding: 6px 12px; border-radius: 10px; border: 1px solid var(--da-border, #2c2c32); background: var(--da-card-fill, #1a1a1e); color: var(--da-text-2, #d2d2d7); box-shadow: var(--da-card-shadow); font: inherit; font-size: 12px; font-weight: 600; letter-spacing: .01em; text-align: center; text-decoration: none; cursor: pointer; transition: none; }
   .v1-out .v1-actions a:hover { border-color: var(--da-hover, #3a3a41) !important; background: var(--da-hover, #3a3a41) !important; background-image: none !important; color: #fff !important; box-shadow: var(--da-glow-hover) !important; transition: none; }
   .v1-out .v1-actions a:active { background: var(--da-hover, #3a3a41); background-image: none; box-shadow: inset 0 1px 3px rgba(0,0,0,.35); }
-  .v1-out .v1-actions a:first-child { border-color: var(--da-accent, #0066ff); background: var(--da-accent, #0066ff); color: #fff; box-shadow: var(--da-glow-primary); }
-  .v1-out .v1-actions a:first-child:hover { border-color: var(--da-accent-hover, #1f7aff) !important; background: var(--da-accent-hover, #1f7aff) !important; box-shadow: var(--da-glow-primary-hover) !important; }
+  .v1-out .v1-actions a:last-child { border-color: var(--da-accent, #0066ff); background: var(--da-accent, #0066ff); color: #fff; box-shadow: var(--da-glow-primary); }
+  .v1-out .v1-actions a:last-child:hover { border-color: var(--da-accent-hover, #1f7aff) !important; background: var(--da-accent-hover, #1f7aff) !important; box-shadow: var(--da-glow-primary-hover) !important; }
   .v1-out .v1-actions a:focus-visible { outline: 2px solid var(--da-focus, #4d94ff); outline-offset: 2px; }
   @media (pointer: coarse) { .v1-actions button, .v1-versions .v1-actions button, .v1-out .v1-actions a { min-height: 40px; padding: 6px 16px; } .v1-x { width: 40px; height: 40px; } }
   @media (prefers-reduced-motion: reduce) { .v1-bar-fill { transition: none; } .v1-bar-fill::after { animation: none; display: none; } }
@@ -330,17 +345,11 @@ function ParagraphReply({ id, text, animate, onRevealComplete }: { id: string; t
 
 // (Nov 17, Part 2) while he thinks: the gradient line with changing words; his words show below it as he writes them (no typing effect:
 // they are real as they come)
-function ThinkingLine({ words }: { words: string[] }) {
-  const list = (words.length ? words : THINKING_WORDS).filter((w) => !/^almost\b/i.test(w.trim()));
-  const shownList = list.length ? list : THINKING_WORDS;
-  const reduced = useReducedMotion();
-  const [i, setI] = useState(0);
-  useEffect(() => {
-    if (reduced || shownList.length < 2) return;
-    const timer = setInterval(() => setI((k) => k + 1), THINKING_WORD_MS);
-    return () => clearInterval(timer);
-  }, [reduced, shownList.length]);
-  return <div className="v1-activity" aria-label="AI Animator status"><AssistantActivity label={shownList[i % shownList.length]} /></div>;
+// (Nov 22, Arthur: "is he even doing any of that? ... both Sonnets think the same") what he REALLY does now, read from his answer as it
+// streams, in the Help Assistant's own words: Thinking, Searching the web, Finalizing answer
+function ThinkingLine({ phase }: { phase?: "thinking" | "searching" | "finalizing" }) {
+  const label = phase === "searching" ? "Searching the web…" : phase === "finalizing" ? "Finalizing answer" : "Thinking";
+  return <div className="v1-activity" aria-label="AI Animator status"><AssistantActivity label={label} /></div>;
 }
 function LiveWords({ text }: { text: string }) {
   const blocks = v1ReplyBlocks(text);
@@ -398,13 +407,23 @@ function GatePictureBox({ picture }: { picture: V1GatePicture }) {
     </>
   );
 }
-function GateCard({ credits, lines, notDrawn, colour, picture, busy, readOnly, onAnimate, onChange }: { credits: number; lines: string[]; notDrawn: string[]; colour: string | null; picture?: V1GatePicture; busy: boolean; readOnly: boolean; onAnimate: () => void; onChange: () => void }) {
+// (Nov 22, Arthur: "a quick summary ... with all the details needed", "more professional and polished") a line "words (N s)" is a step;
+// "24 fps" is a fact; anything else is a note
+const STEP_LINE = /^([\s\S]*) \((\d+(?:\.\d+)?) s\)$/;
+function GateCard({ credits, lines, exact, notDrawn, colour, picture, busy, readOnly, onAnimate, onChange }: { credits: number; lines: string[]; exact?: string[]; notDrawn: string[]; colour: string | null; picture?: V1GatePicture; busy: boolean; readOnly: boolean; onAnimate: () => void; onChange: () => void }) {
   const drawing = picture?.state === "drawing";
+  const steps = lines.flatMap((l) => { const m = STEP_LINE.exec(l); return m ? [{ text: m[1].trim(), secs: Number(m[2]) }] : []; });
+  const facts = lines.filter((l) => !STEP_LINE.test(l) && /^\d+(?:\.\d+)? fps$/.test(l.trim()));
+  const notes = lines.filter((l) => !STEP_LINE.test(l) && !facts.includes(l));
+  const total = Math.round(steps.reduce((t, s) => t + s.secs, 0) * 10) / 10;
   return (
     <div className="v1-card v1-versions v1-gate" data-v1-gate="" data-workspace-theme-exempt="">
       <div className="v1-gate-head"><span>Ready to animate</span><span className="v1-gate-cost">{creditsText(credits)}</span></div>
       {picture && <GatePictureBox picture={picture} />}
-      {(lines.length > 0 || colour) && <ul className="v1-gate-lines">{colour && <li className="v1-gate-colour"><span className="v1-swatch" style={{ background: colour }} aria-hidden="true" />Stick figure: {colour.toUpperCase()}</li>}{lines.map((l, i) => <li key={i}>{l}</li>)}</ul>}
+      {steps.length > 0 && <ol className="v1-gate-steps">{steps.map((s, i) => <li key={i}><span className="v1-step-n" aria-hidden="true">{i + 1}</span><span>{s.text}</span><span className="v1-step-s">{s.secs} s</span></li>)}</ol>}
+      {notes.map((n, i) => <p key={i} className="v1-gate-note">{n}</p>)}
+      {(colour || total > 0 || facts.length > 0) && <p className="v1-gate-meta">{colour && <><span className="v1-swatch" style={{ background: colour }} aria-hidden="true" /><span>Stick figure</span></>}{total > 0 && <span>{total} seconds</span>}{facts.map((f) => <span key={f}>{f}</span>)}</p>}
+      {exact && exact.length > 0 && <details className="v1-gate-exact"><summary>Exact steps for the animator</summary><ol>{exact.map((l, i) => <li key={i}>{l}</li>)}</ol></details>}
       {notDrawn.length > 0 && <p className="v1-gate-not">Not drawn: {notDrawn.join(", ")}</p>}
       <div className="v1-actions" role="group" aria-label="Animate this plan">
         <button type="button" title={drawing ? "The first picture is being drawn" : "Make this animation"} disabled={readOnly || busy || drawing} onClick={onAnimate} className="v1-primary"><PlayIcon />Animate</button>
@@ -474,12 +493,12 @@ export function V1AnimatorThread({ state, readOnly, onRevealed, onUndo, onRedo, 
         if (line.kind === "work") return <WorkLine key={line.id} line={line} />;
         if (line.kind === "note") return <div className="ai-animator-message v1-note" role="status" key={line.id}>{line.text}</div>;
         if (line.kind === "question") return line.answered ? null : <QuestionCard key={line.id} questions={line.questions} busy={Boolean(state.busy)} readOnly={readOnly} onDone={(a) => onAnswer?.(a)} onOwn={() => onChangePlan?.()} />;
-        if (line.kind === "gate") return line.state === "waiting" ? <GateCard key={line.id} credits={line.credits} lines={line.lines} notDrawn={line.notDrawn} colour={line.colour} picture={line.picture} busy={Boolean(state.busy)} readOnly={readOnly} onAnimate={() => onAnimate?.(line.id)} onChange={() => onChangePlan?.()} /> : null;
+        if (line.kind === "gate") return line.state === "waiting" ? <GateCard key={line.id} credits={line.credits} lines={line.lines} exact={line.exact} notDrawn={line.notDrawn} colour={line.colour} picture={line.picture} busy={Boolean(state.busy)} readOnly={readOnly} onAnimate={() => onAnimate?.(line.id)} onChange={() => onChangePlan?.()} /> : null;
         return <ResultLine key={line.id} line={line} isLatest={line.id === latestResult} state={state} readOnly={readOnly} onUndo={onUndo} onRedo={onRedo} />;
       })}
       {/* (Nov 2, Arthur: never interrupt the user — a version waiting for a busy canvas is placed by itself, no button) */}
       {/* (Nov 17, Part 2) while he answers: the changing words, then his own words as he writes them */}
-      {state.busy === "thinking" && state.thinking && <ThinkingLine words={state.thinking.words} />}
+      {state.busy === "thinking" && state.thinking && <ThinkingLine phase={state.thinking.phase} />}
       {state.busy === "thinking" && state.thinking?.say.trim() ? <LiveWords text={state.thinking.say} /> : null}
       {/* (Nov 17) the word above the bar = the engine's real stage (Planning the moves, Animating, Drawing ..., Putting it on the canvas) */}
       {animating && <AnimatingCard progress={state.progress} cancelling={state.busy === "cancelling"} readOnly={readOnly || state.busy === "finishing"} onCancel={onCancel} word={state.stage ?? v1WorkWord(state.snapshot)} />}

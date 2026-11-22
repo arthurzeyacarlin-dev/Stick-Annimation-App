@@ -97,7 +97,7 @@ export type V1TurnRequest = { ownerId: string; projectId: string; animationId: s
   queued?: boolean; // (Nov 20) the app's own "add the next part" turn of a long story: never saved as his chat line
   effort?: V1Effort | null }; // (Nov 2 final round) the chat's Effort button, as sent (the Sonnet brain resolves auto by the book's rule)
 export type V1TurnOutcome =
-  | { ok: true; turn: V1LunaTurn; animation: V1AnimationSnapshot | null; started: boolean; gate?: { credits: number; lines: string[]; notDrawn: string[]; colour: string | null; picture?: "first" | "new" } }
+  | { ok: true; turn: V1LunaTurn; animation: V1AnimationSnapshot | null; started: boolean; gate?: { credits: number; lines: string[]; exact?: string[]; notDrawn: string[]; colour: string | null; picture?: "first" | "new" } }   // (Nov 22) exact = the animator's own words, when the lines are the briefs
   | { ok: false; status: number; error: string };
 export type V1ActionOutcome =
   | { ok: true; animation: V1AnimationSnapshot }
@@ -1363,7 +1363,13 @@ export function createV1Animator(deps: V1CoreDeps) {
     const colour = colourOp ? colourOp.colour : g.isNew && g.plan.noFigure !== true ? g.plan.colour : null;   // (Nov 14, live: a bare red square on a ball's card) his colour only when he is in it   // (Nov 11) the card shows the exact colour as a swatch (Nov 11 night: a new animation's always - it is never asked, so it is always shown)
     const picture = gatePictureKind(g);
     if (picture) ensureGatePicture(g);   // (Nov 22, Arthur: "the image needs to come faster") drawn from the moment the card exists
-    return { ok: true as const, turn, animation: g.isNew ? null : snapshot(g.anim), started: false, gate: { credits: g.price.credits, lines: [...lines, ...(turn.lookBriefs ?? [])], notDrawn: [], colour, ...(picture ? { picture } : {}) } };   // (Nov 14, Arthur: a card always means "I can make exactly this" - nothing on it is "not drawn")
+    // (Nov 22, Arthur: "I don't want to read a book ... a quick summary, easy to understand, with all the details needed") each step's
+    // line on the card is Sonnet's own short brief of it (written with the step, never sent to the animator), with its seconds; the exact
+    // words the animator gets stay one tap away (exact). A line without a brief stays as it was.
+    const briefOf = new Map((turn.kimodoSteps ?? []).map((s, i) => [String(s.text ?? "").trim(), String(turn.stepBriefs?.[i] ?? "").trim()] as const));
+    let briefed = false;
+    const short = lines.map((l) => { const m = /^([\s\S]*) \((\d+(?:\.\d+)?) s\)$/.exec(l); const b = m ? briefOf.get(m[1].trim()) : ""; if (!m || !b) return l; briefed = true; return `${b} (${m[2]} s)`; });
+    return { ok: true as const, turn, animation: g.isNew ? null : snapshot(g.anim), started: false, gate: { credits: g.price.credits, lines: [...short, ...(turn.lookBriefs ?? [])], ...(briefed ? { exact: lines } : {}), notDrawn: [], colour, ...(picture ? { picture } : {}) } };   // (Nov 14, Arthur: a card always means "I can make exactly this" - nothing on it is "not drawn")
   };
   // (Nov 19 eve, Arthur: "one flowing system ... for any length" - measured: a part written before the part before it existed began with three
   // logs already stacked, then they vanished) THE NEXT PART OF A LONG STORY IS WRITTEN FROM THE REAL LAST PICTURE: the moment a part is done,

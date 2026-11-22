@@ -27,7 +27,7 @@ type Env = Record<string, string | undefined>;
 export type FetchLike = (url: string, init: { method: string; headers: Record<string, string>; body: string; signal?: AbortSignal }) =>
   Promise<{ ok: boolean; status: number; json(): Promise<unknown>; body?: ReadableStream<Uint8Array> | null; headers?: { get(name: string): string | null } }>;
 // (Nov 17, Part 2: "his words appear as he writes them") what the turn tells the panel while it is still being written
-export type V1SonnetLive = (patch: { say?: string; searching?: string[] }) => void;
+export type V1SonnetLive = (patch: { say?: string; searching?: string[]; phase?: "thinking" | "searching" | "finalizing" }) => void;   // (Nov 22) phase = what he is really doing now
 export type LedgerIO = { read(path: string): unknown; write(path: string, data: unknown): void };
 export type V1SonnetBooks = V1LunaBooks & { brain: SonnetBrain; effort?: SonnetEffortBook | null }; // effort: the book's "effort" section (absent = low)
 export type V1SonnetOutcome =
@@ -100,7 +100,15 @@ async function readAnswer(res: Awaited<ReturnType<FetchLike>>, live: V1SonnetLiv
   const onEvent = (e: Record<string, unknown>) => {
     const i = Number(e.index);
     if (e.type === "message_start" && e.message && typeof e.message === "object") Object.assign(msg, e.message, { content: blocks });
-    else if (e.type === "content_block_start") blocks[i] = { ...(e.content_block as Block) };
+    else if (e.type === "content_block_start") {
+      blocks[i] = { ...(e.content_block as Block) };
+      // (Nov 22, Arthur: "is he even doing any of that?") the panel says what he REALLY does, like the Help Assistant: thinking,
+      // searching the web, or writing his answer (finalizing). Only reported; the answer itself is unchanged.
+      const kind = blocks[i].type;
+      if (kind === "thinking" || kind === "redacted_thinking") live!({ phase: "thinking" });
+      else if (kind === "server_tool_use") live!({ phase: "searching" });
+      else if (kind === "tool_use" || kind === "text") live!({ phase: "finalizing" });
+    }
     else if (e.type === "content_block_delta" && blocks[i]) {
       const d = e.delta as Record<string, unknown>, b = blocks[i];
       if (d.type === "text_delta") b.text = `${b.text ?? ""}${d.text ?? ""}`;

@@ -19,8 +19,11 @@ test("a new animation's card = Sonnet's own sentence for every step, with its se
   const out = await animator.turn({ ownerId: "o", projectId: "p", animationId: null, message: "a stick figure does a few jumping jacks and then a front flip", recentConversation: [], projectFps: 12 });
   assert.ok(out.ok && out.gate && !out.started, JSON.stringify(out));
   const steps = out.ok ? out.turn.kimodoSteps! : [], lines = out.ok ? out.gate!.lines : [];
-  assert.deepEqual(lines, [...steps.map((s) => `${s.text.trim()} (${s.seconds} s)`), "12 fps"], "one line for every step that will be made: its own sentence, then its seconds");
-  assert.ok(steps.length >= 2 && !lines.some((l) => /A PROMISE NOBODY SENT/.test(l)));
+  // (Nov 22, Arthur: "I don't want to read a book ... a quick summary") each step's line is Sonnet's short brief of it, with its seconds;
+  // the exact words the animator is sent are on the card too, folded (exact): what is made is still one tap away
+  assert.deepEqual(lines, [...steps.map((s, i) => `A PROMISE NOBODY SENT ${i} (${s.seconds} s)`), "12 fps"], "one short line for every step that will be made, then its seconds");
+  assert.deepEqual(out.ok ? out.gate!.exact : [], [...steps.map((s) => `${s.text.trim()} (${s.seconds} s)`), "12 fps"], "the animator's own words, every step");
+  assert.ok(steps.length >= 2);
   assert.match(out.ok ? out.gate!.colour ?? "" : "", /^#[0-9a-f]{6}$/i, "the colour he will be is on the card even when he named none");
 });
 

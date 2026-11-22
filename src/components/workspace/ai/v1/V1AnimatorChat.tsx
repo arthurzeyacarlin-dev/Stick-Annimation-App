@@ -150,7 +150,7 @@ export function V1AnimatorChat({ projectId, copiedFrom, bridge, readOnly, Reply,
           {!started && (
             <div className="drawing-ai-empty">
               <span className="drawing-ai-logo" aria-hidden="true"><DiamondLogo size={48} /></span>
-              <strong>AI Animator</strong>
+              <strong>What do you want to animate?</strong>
               <span className="drawing-ai-empty-text">Tell him what should happen, in plain words. He puts it on the canvas as its own layer, and you can change any frame after.</span>
               <div className="drawing-ai-examples" role="group" aria-label="Try an example">
                 {V1_EXAMPLES.map((text) => (
@@ -185,7 +185,7 @@ export function V1AnimatorChat({ projectId, copiedFrom, bridge, readOnly, Reply,
         composer={<>
           {outOfCredits && <V1OutOfCreditsCard view={outOfCredits} />}
           <form onSubmit={submit} className={`${chatComposerStyles.box} ${chatComposerStyles.compact} ${chatComposerStyles.quiet}`} aria-label="AI Animator message composer">
-          <textarea ref={composerRef} aria-label="Message AI Animator" value={input} onChange={(event) => onInputChange(event.target.value)} onKeyDown={handleKeyDown} placeholder="Tell the AI Animator what happens next…" disabled={Boolean(state.busy) || readOnly} rows={2} />
+          <textarea ref={composerRef} aria-label="Message AI Animator" value={input} onChange={(event) => onInputChange(event.target.value)} onKeyDown={handleKeyDown} placeholder="Tell the AI Animator what to animate…" disabled={Boolean(state.busy) || readOnly} rows={2} />
           {dictationActive
             ? <ChatDictationPanel dictation={dictation} onCancel={onDictateCancel} onStop={onDictateStop} />
             : <ChatToolsRow

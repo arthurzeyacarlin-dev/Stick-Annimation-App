@@ -3966,7 +3966,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
   const drawingCanvasRef = useRef<DrawingCanvasHandle | null>(null);
   // (Nov 22, layouts) where the AI Animator sits (ai/aiDock.tsx); only its place changes, never what it does
   const aiLayout = useAiLayout();
-  const aiLayoutTopField = aiLayout.layout === "top" || aiLayout.layout === "spot" ? <AiTopBarSlot layout={aiLayout.layout} /> : undefined;
+  const aiLayoutTopField = aiLayout.layout === "spot" ? <AiTopBarSlot /> : undefined;
   const saveCurrentFrameSnapshotRef = useRef<((frameIndex?: number, layerId?: string, options?: {
     captureOptions?: DrawingCanvasSnapshotOptions;
     debugCaller?: string;
@@ -10955,7 +10955,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         data-unified-workspace-area="true"
         style={{ flex: 1, minHeight: 0, position: "relative", zIndex: 10, display: "flex" }}
       >
-        <AiAnimatorDock layout={aiLayout.layout} chosen={aiLayout.chosen} rightInset={rightPanelWidth} />
+        <AiAnimatorDock layout={aiLayout.layout} />
         {isTimelinePlaying && (
           <div
             aria-hidden="true"

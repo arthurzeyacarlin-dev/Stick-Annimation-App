@@ -79,12 +79,13 @@ test("meter -> the SAME stores the AI Dashboard reads (account usage + credits):
   const before = getAccountPlanStatus(ME.ownerId).creditsUsed;
 
   assert.equal(meter.creditsShort!(ME.ownerId, 15), null);
-  meter.turnAnswered!({ ...ME, turnId: "turn-1" });
+  meter.turnAnswered!({ ...ME, turnId: "turn-1" });   // cost unknown: the old average, 15
+  meter.turnAnswered!({ ...ME, turnId: "turn-2", costUsd: 0.0732 });   // (Nov 22) its real cost: 8 credits (1 per started cent)
   meter.engineRun!({ ...ME, runId: "run-1", kind: "create", status: "done", report: report(), startedAtMs: start, finishedAtMs: Date.now(), price: { credits: 27, kind: "animation" } });
 
   const credits = getCreditUseEvents(ME.ownerId).map((e) => [e.kind, e.credits]);
-  assert.deepEqual(credits, [["chat", 15], ["animation", 27]]); // (Nov 20) a chat turn = 15; the run = exactly its card's price
-  assert.equal(getAccountPlanStatus(ME.ownerId).creditsUsed - before, 42, "the credits bar moved by the chat turn + the card's price");
+  assert.deepEqual(credits, [["chat", 15], ["chat", 8], ["animation", 27]]); // an answer = its real cost (15 only when unknown); the run = exactly its card's price
+  assert.equal(getAccountPlanStatus(ME.ownerId).creditsUsed - before, 50, "the credits bar moved by the two answers + the card's price");
 
   const { rows, gap, readAt } = readAccountUsageRows(ME.ownerId);
   const snap = projectAccountUsage(rows, readAt, gap);
@@ -95,7 +96,7 @@ test("meter -> the SAME stores the AI Dashboard reads (account usage + credits):
 
   // a failed run: the Claude call it really made is recorded; no credits
   meter.engineRun!({ ...ME, runId: "run-2", kind: "edit", status: "failed", report: null, startedAtMs: start, finishedAtMs: Date.now() });
-  assert.equal(getCreditUseEvents(ME.ownerId).length, 2, "a failed run costs no credits");
+  assert.equal(getCreditUseEvents(ME.ownerId).length, 3, "a failed run costs no credits");
   const after = projectAccountUsage(readAccountUsageRows(ME.ownerId).rows, Date.now(), false);
   assert.equal(after.project.receipts.length, 3);
   assert.equal(after.project.failed, 1);

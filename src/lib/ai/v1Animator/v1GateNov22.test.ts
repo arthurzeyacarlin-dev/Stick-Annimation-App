@@ -20,6 +20,8 @@ const me = { ownerId: "o", projectId: "p" };
 async function made(animator: ReturnType<typeof createV1Animator>) {
   const first = await animator.turn({ ...me, animationId: null, message: "a stick figure does a few jumping jacks and then a front flip", recentConversation: [] });
   assert.ok(first.ok && first.gate && !first.gate.picture, "no scene sentence = no picture");
+  // (Nov 22, Arthur: "not ridiculous amounts") the card is the animator's price only (his answer was paid when answered): 4 x (5.9 s + 3 s) = 36
+  assert.equal(first.ok && first.gate ? first.gate.credits : 0, 36);
   const go = animator.confirm(me.ownerId, me.projectId); assert.ok(go.ok && go.animation);
   const id = go.ok && go.animation ? go.animation.animationId : "";
   await until(() => animator.get(me.ownerId, me.projectId, id)!.versions[0].status === "done");

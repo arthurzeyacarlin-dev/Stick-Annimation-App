@@ -1,4 +1,4 @@
-import { AI_ACTION_CREDITS, CREDIT_RATES } from "../../account/plans.ts";
+import { AI_ACTION_CREDITS, CREDIT_RATES, creditsForCostUsd } from "../../account/plans.ts";
 import type { AiCreditGate } from "../../account/aiCredits.ts";
 import type { UsageEventRecorder } from "../../usage-journal/usageJournalEvents.ts";
 import type { UsageJournalEventInput, UsageOutcome } from "../../usage-journal/usageJournalContract.ts";
@@ -95,8 +95,11 @@ export function createV1UsageMeter(deps: V1UsageMeterDeps): V1UsageHooks {
       try { deps.credits.assertAvailable(ownerId, held, credits); return null; }
       catch (error) { return error instanceof Error ? error.message : String(error); }
     },
-    turnAnswered({ ownerId, turnId }) {
-      try { deps.credits.spend(ownerId, turnId, AI_ACTION_CREDITS.chat, "chat"); } catch { /* the answer is already shown */ }
+    // (Nov 22, Arthur: "as cheap as possible") an answer costs what it really cost: 1 credit per started cent (at least 1); the old
+    // average (15) only when the cost is unknown
+    turnAnswered({ ownerId, turnId, costUsd }) {
+      const credits = typeof costUsd === "number" && Number.isFinite(costUsd) && costUsd > 0 ? creditsForCostUsd(costUsd) : AI_ACTION_CREDITS.chat;
+      try { deps.credits.spend(ownerId, turnId, credits, "chat"); } catch { /* the answer is already shown */ }
     },
     engineRun(run) {
       let claude: ClaudeSpend = { calls: 0, inputTokens: 0, outputTokens: 0, usd: 0, model: null };

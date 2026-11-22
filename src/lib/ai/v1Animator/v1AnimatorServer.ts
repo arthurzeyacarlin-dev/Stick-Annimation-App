@@ -95,7 +95,7 @@ const luna: V1LunaCall = (input) => withAccountUsageOwner(input.ownerId, async (
     if (!out.ok) console.warn(`[v1 brain] ${out.failure}: ${out.detail}`); // (Nov 2: a failed answer is never silent in the server log)
     // (Nov 13, live: "no stick figure" was on the card but never reached the engine) what a new animation's answer says about him is in the log
     else if (out.turn.intent === "create") console.info(`[v1 brain] new animation: noFigure=${out.turn.noFigure === true}, ${out.turn.kimodoSteps?.length ?? 0} step(s)`);
-    return out.ok ? { ok: true, turn: out.turn } : { ok: false, failure: out.failure, detail: out.detail };
+    return out.ok ? { ok: true, turn: out.turn, costUsd: out.usage?.estimatedCostUsd ?? null } : { ok: false, failure: out.failure, detail: out.detail };
   } finally {
     clearTimeout(timer);
   }

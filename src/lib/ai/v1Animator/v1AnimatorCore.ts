@@ -52,7 +52,7 @@ export type V1LunaCallInput = {
   lastMirrored?: boolean; // the animation is shown mirrored: that picture is given as the animator sees it
   effort?: V1Effort | null; // (Nov 2 final round) the chat's Effort button (auto / low / medium / high); absent = low (today's call)
 };
-export type V1LunaCall = (input: V1LunaCallInput) => Promise<{ ok: true; turn: V1LunaTurn } | { ok: false; failure: string; detail: string }>;
+export type V1LunaCall = (input: V1LunaCallInput) => Promise<{ ok: true; turn: V1LunaTurn; costUsd?: number | null } | { ok: false; failure: string; detail: string }>;   // (Nov 22) costUsd = what the answer really cost
 export type V1Books = { book: LunaBook; words: EngineWords };
 export type V1ViewerCall = (input: { ownerId: string; projectId: string; runId: string; sheetPath: string; words: string; moves: string[]; book: LunaBook; steps?: V1KimodoStep[] })
   => Promise<{ ok: true; showsRequest: boolean; missing: string; fixedSteps?: V1KimodoStep[] | null } | { ok: false; detail: string }>;
@@ -86,7 +86,7 @@ export type V1EngineRunEnd = { ownerId: string; projectId: string; runId: string
   report: V1Report | null; startedAtMs: number; finishedAtMs: number; price?: V1Price | null };
 export type V1UsageHooks = {
   creditsShort?(ownerId: string, credits: number, held?: number): string | null;
-  turnAnswered?(input: { ownerId: string; projectId: string; turnId: string }): void;
+  turnAnswered?(input: { ownerId: string; projectId: string; turnId: string; costUsd?: number | null }): void;   // (Nov 22) costUsd = what this answer really cost
   engineRun?(run: V1EngineRunEnd): void;
   pictureCharge?(ownerId: string, runId: string, credits: number): void; // (Nov 22) a paid gate picture that was not animated
 };
@@ -1625,7 +1625,7 @@ export function createV1Animator(deps: V1CoreDeps) {
       saveLine(request.ownerId, request.projectId, request.animationId, { role: "user", text: request.message }); saveLine(request.ownerId, request.projectId, request.animationId, { role: "assistant", text: error });
       return { ok: false, status: 502, error };
     }
-    if (!request.queued) { try { deps.usage?.turnAnswered?.({ ownerId: request.ownerId, projectId: request.projectId, turnId: newId() }); } catch { /* metering never breaks a reply */ } }
+    if (!request.queued) { try { deps.usage?.turnAnswered?.({ ownerId: request.ownerId, projectId: request.projectId, turnId: newId(), costUsd: asked.costUsd ?? null }); } catch { /* metering never breaks a reply */ } }
     let said = asked.turn;
     // every turn is kept on disk (the user's words + what was said back), so a reload / restart shows the same chat
     // (kind "plan" = a story plan was proposed: a later long create is the agreed plan's part 1)
@@ -1664,8 +1664,10 @@ export function createV1Animator(deps: V1CoreDeps) {
       // (Nov 20, money) ONE price for the whole animation, every part of a long story included: 4 × (seconds + 3-second scene) + the chat
       // turn (v1Price.ts). The first part is charged its own share; the later parts share what is left, never more.
       const stepSeconds = (steps: V1KimodoStep[] | null | undefined) => (steps ?? []).reduce((t, s) => t + (Number(s.seconds) || 0), 0);
-      const wholePrice = priceOf({ newSeconds: stepSeconds(allSteps ?? said.kimodoSteps) || planSeconds(firstPlan) });
-      const firstPrice = partsOf.length > 1 ? priceOf({ newSeconds: stepSeconds(partsOf[0]) }) : wholePrice;
+      // (Nov 22, Arthur: "the credits always gotta pay for Sonnet and fal, but not ridiculous amounts" - measured: his turn was paid twice,
+      // once when answered and once inside the card) the card is the animator's price only; his answer was already paid, at its real cost
+      const wholePrice = priceOf({ newSeconds: stepSeconds(allSteps ?? said.kimodoSteps) || planSeconds(firstPlan), chat: false });
+      const firstPrice = partsOf.length > 1 ? priceOf({ newSeconds: stepSeconds(partsOf[0]), chat: false }) : wholePrice;
       const runShort = creditsShortFor(request.ownerId, wholePrice.credits);
       if (runShort) return { ok: false, status: 402, error: runShort };
       const animationId = newId();
@@ -1760,7 +1762,7 @@ export function createV1Animator(deps: V1CoreDeps) {
       const editPrice = priceOf({
         remadeSeconds: remade || (motionOps && !editSteps ? planSeconds(base.plan) : 0), added: added > 0, newTake: newLook,
         fillLooks: pictureLooks.filter((p) => lookKindOf(p) === "fill").length, redrawLooks: pictureLooks.filter((p) => lookKindOf(p) === "redraw").length,
-        animationSeconds: planSeconds(base.plan), removeOnly: !madeAgain.length && (said.removeSteps?.length ?? 0) > 0, chat: !request.queued,
+        animationSeconds: planSeconds(base.plan), removeOnly: !madeAgain.length && (said.removeSteps?.length ?? 0) > 0, chat: false,   // (Nov 22) his answer was already paid when answered
       });
       const payShort = creditsShortFor(request.ownerId, editPrice.credits);   // (Nov 11) never a card the account cannot pay for
       if (payShort) return { ok: false, status: 402, error: payShort };

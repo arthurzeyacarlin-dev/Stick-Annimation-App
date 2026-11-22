@@ -603,7 +603,7 @@ export function DrawingAiPanel({
             <div className="drawing-ai-thread-head" aria-hidden="true"><span className="drawing-ai-logo drawing-ai-logo-small"><DiamondLogo size={26} /></span><span>AI Animator</span></div>
           )}
           {ledger.messages.map((message) => message.role === "user"
-            ? <div className="ai-animator-message" data-ai-user-message={message.id} key={message.id} style={{ alignSelf: "flex-end", maxWidth: "88%", padding: "9px 11px", borderRadius: 12, whiteSpace: "pre-wrap", color: "#f5f5f6", background: workspaceColors.selectedFill, border: `1px solid ${workspaceColors.selectedBorder}`, fontSize: 12, lineHeight: 1.48 }}>{message.content}</div>
+            ? <div className="ai-animator-message" data-ai-user-message={message.id} key={message.id} style={{ alignSelf: "flex-end", maxWidth: "88%", padding: "9px 12px", borderRadius: 14, whiteSpace: "pre-wrap", color: "#f5f5f6", background: "#2c2c31", border: 0, fontSize: 12, lineHeight: 1.48 }}>{message.content}</div>
             : <AiAnimatorAssistantReply key={message.id} message={message} animate={pendingRevealMessageIdsRef.current.has(message.id)} onRevealComplete={finishAssistantReveal} />)}
           {/* (Arthur, 2026-10-08: the AI Animator and the Help Assistant show "Thinking" exactly alike — the same component.) */}
           {activeJob && <div aria-label="AI Animator request status" style={{ alignSelf: "flex-start", padding: "8px 4px" }}><AssistantActivity label="Thinking" /></div>}

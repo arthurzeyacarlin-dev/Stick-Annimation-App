@@ -45,7 +45,7 @@ const seconds = (value: number) => `${value >= 10 ? Math.round(value) : Math.rou
 const V1_BRAND_GRADIENT = "linear-gradient(90deg, var(--da-accent, #0066ff) 0%, var(--da-accent-hover, #1f7aff) 100%)";   // (Nov 22, D-0246) main's one blue, no glow
 
 export const v1ThreadStyles = `
-  .v1-user { align-self: flex-end; max-width: 88%; padding: 9px 11px; border-radius: 12px; white-space: pre-wrap; color: var(--da-text, #f5f5f6); background: ${workspaceColors.selectedFill}; border: 1px solid ${workspaceColors.selectedBorder}; font-size: 12px; line-height: 1.48; }
+  .v1-user { align-self: flex-end; max-width: 88%; padding: 9px 12px; border-radius: 14px; white-space: pre-wrap; color: var(--da-text, #f5f5f6); background: #2c2c31; border: 0; font-size: 12px; line-height: 1.48; }   /* (Nov 22, Arthur) the same bubble as the Help Assistant: dark, no border */
   /* (Nov 18, Arthur: 'a copy and paste button' under my message and the AI's reply, like Claude's) */
   .v1-copy { margin-top: -6px; display: inline-flex; align-items: center; gap: 4px; padding: 3px 6px; border: 0; border-radius: 6px; background: transparent; color: ${workspaceColors.textSecondary}; font-size: 11px; cursor: pointer; opacity: .7; }
   .v1-copy:hover, .v1-copy:focus-visible { opacity: 1; background: ${workspaceColors.selectedFill}; }

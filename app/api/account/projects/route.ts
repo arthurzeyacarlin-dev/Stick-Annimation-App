@@ -1,14 +1,21 @@
 import { NextResponse } from "next/server";
 import { requireAccountRequest } from "@/src/lib/account/access";
+import { BodyTooLarge, readBytes } from "@/src/lib/account/readJson";
 import { listAccountProjectHeads, saveAccountProjectBundle } from "@/src/lib/account/projectServer";
 
 export const runtime = "nodejs";
 
+// (Nov 4 PM12) the real reason, not a general 503. (Nov 12 security) only these known codes reach the client; any other error is "account_project_failed".
+const KNOWN_CODES: Record<string, number> = {   // every code projectServer itself makes, with the status it always had
+  stale_revision: 409, account_project_import_forbidden: 403, project_too_large: 413, account_storage_full: 413, project_limit_reached: 422,
+  bundle_invalid: 400, account_project_invalid_scope: 400, account_project_deleted: 503, account_project_not_found: 503, account_project_readback_failed: 503,
+  account_project_read_failed: 503, account_project_write_failed: 503, account_project_upload_failed: 503, account_project_delete_failed: 503,
+  account_project_pictures_missing: 424,   // (Nov 14) a project description named a picture the account does not hold: nothing is saved, the next save sends it
+};
 const responseForError = (error: unknown) => {
-  const code = error instanceof Error ? error.message : "account_project_failed";
-  const status = code === "stale_revision" ? 409 : code === "account_project_import_forbidden" ? 403 :
-    code === "project_too_large" ? 413 : code === "bundle_invalid" || code === "account_project_invalid_scope" ? 400 : 503;
-  return NextResponse.json({ error: code }, { status });
+  if (error instanceof BodyTooLarge) return NextResponse.json({ error: "project_too_large" }, { status: 413 });
+  const code = error instanceof Error && error.message in KNOWN_CODES ? error.message : "account_project_failed";
+  return NextResponse.json({ error: code }, { status: KNOWN_CODES[code] ?? 503 });
 };
 
 export async function GET(request: Request) {
@@ -31,7 +38,7 @@ export async function POST(request: Request) {
   const length = Number(request.headers.get("content-length") ?? 0);
   if (length > 140_000_000) return NextResponse.json({ error: "project_too_large" }, { status: 413 });
   try {
-    const raw = new Uint8Array(await request.arrayBuffer());
+    const raw = new Uint8Array(await readBytes(request, 140_000_000));   // (Nov 12 security) counted in bytes, not trusted from the header
     const expectedRevision = expectedHeader === "new" ? null : Number(expectedHeader);
     const receipt = await saveAccountProjectBundle(access.session.user.id, raw, expectedRevision);
     if (!receipt) return NextResponse.json({ error: "account_project_readback_failed" }, { status: 503 });

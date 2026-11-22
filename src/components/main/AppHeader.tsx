@@ -14,6 +14,7 @@ import { AboutBody, TermsBody } from "./InfoBodies";
 import { creditMeterPercent } from "@/src/lib/ai-dashboard/creditMeter";
 import { creditMeterColor } from "@/src/lib/ai-dashboard/dashboardAggregation";
 import type { AccountPlanStatus } from "@/src/lib/account/plans";
+import { creditsText } from "@/src/lib/account/credits";
 import styles from "./AppHeader.module.css";
 
 /** Arthur (2026-10-27): the credits number on Home takes the credits bar's color (blue → green → yellow → orange → red). */
@@ -85,7 +86,7 @@ export function AppHeader({ page, onExport }: { page: "home" | "dashboard" | "ot
             <Link href="/credits" className={styles.ghost} aria-label="Open AI Dashboard" data-tour="ai-dashboard">
               <svg viewBox="0 0 24 24" aria-hidden="true" style={{ stroke: "#fff" }}><path d="M3 20h18" /><path d="M5 16l4-5 3 3 6-8" /></svg>
               <span className={styles.label}>AI Dashboard</span>
-              {status && <span className={styles.badge} title="AI credits left" style={creditBadgeStyle(status)}>{status.creditsLeft}</span>}
+              {status && <span className={styles.badge} title="Credits left" style={creditBadgeStyle(status)}>{creditsText(status.creditsLeft)}</span>}
             </Link>
           )}
           <div className={styles.group} data-tour="bell-menu">
@@ -121,7 +122,7 @@ export function AppHeader({ page, onExport }: { page: "home" | "dashboard" | "ot
                   </div>
                   {status && (
                     <Link href="/plans" className={styles.popPlan}>
-                      <span><strong>{status.label}</strong><small>{status.creditsLeft} AI credits left</small></span>
+                      <span><strong>{status.label}</strong><small>{creditsText(status.creditsLeft)} left</small></span>
                       <span className={styles.popPlanCta}>{status.plan === "trial" ? "Choose a plan" : "Change plan"}</span>
                     </Link>
                   )}

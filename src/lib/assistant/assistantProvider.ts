@@ -29,10 +29,10 @@ function clientFactory(apiKey: string): AssistantResponsesClient {
 export function providerInput(request: AssistantRequest) {
   const decision = decideAssistantSearch(request);
   const knowledge = retrieveKnowledge(request);
-  const input = decision.mode === "required"
-    ? JSON.stringify({ catalogVersion: request.catalogVersion, knowledge, publicQuestion: decision.publicQuery })
-    : JSON.stringify({ catalogVersion: request.catalogVersion, knowledge, recentConversation: request.recentConversation.map(m => ({ role: m.role, text: m.text })), userTurn: request.message });
-  const instructions = decision.mode === "required" ? ASSISTANT_SEARCH_INSTRUCTIONS : ASSISTANT_INSTRUCTIONS;
+  // Search-enabled turns keep the recent conversation so follow-ups can be searched in
+  // context; the user turn is the privacy-checked public projection (links reduced to hosts).
+  const input = JSON.stringify({ catalogVersion: request.catalogVersion, knowledge, recentConversation: request.recentConversation.map(m => ({ role: m.role, text: m.text })), userTurn: decision.mode === "auto" ? decision.publicQuery : request.message });
+  const instructions = decision.mode === "auto" ? ASSISTANT_SEARCH_INSTRUCTIONS : ASSISTANT_INSTRUCTIONS;
   const estimatedTokens = byteSize(input) + byteSize(instructions) + 512;
   insist(estimatedTokens <= ASSISTANT_LIMITS.inputTokens, "input", "This conversation is too large for one answer. Start a new chat with a shorter question.");
   return { input, instructions, estimatedTokens, decision };
@@ -51,8 +51,8 @@ export function buildAssistantResponseRequest(request: AssistantRequest) {
     parallel_tool_calls: false,
     text: { format: { type: "json_schema" as const, name: "diamond_assistant_answer", strict: true, schema: { type: "object", properties: { answer: { type: "string" }, title: { type: "string" } }, required: ["answer", "title"], additionalProperties: false } } },
   };
-  const body: AssistantResponseRequest = prepared.decision.mode === "required"
-    ? { ...common, tools: [{ type: "web_search", search_context_size: "low" }], tool_choice: "required", max_tool_calls: ASSISTANT_SEARCH_LIMITS.toolCalls, include: ["web_search_call.action.sources"] }
+  const body: AssistantResponseRequest = prepared.decision.mode === "auto"
+    ? { ...common, tools: [{ type: "web_search", search_context_size: "low" }], tool_choice: "auto", max_tool_calls: ASSISTANT_SEARCH_LIMITS.toolCalls, include: ["web_search_call.action.sources"] }
     : { ...common, tools: [] };
   return { ...prepared, body };
 }
@@ -153,7 +153,7 @@ function consultedSourceTitle(url: string) {
   return title;
 }
 
-function searchResult(final: OpenAI.Responses.Response, raw: string, annotations: OpenAI.Responses.ResponseOutputText.URLCitation[], decision: Extract<SearchDecision, { mode: "required" }>): { answer: Answer; search: SearchReceipt } {
+function searchResult(final: OpenAI.Responses.Response, raw: string, annotations: OpenAI.Responses.ResponseOutputText.URLCitation[], decision: Extract<SearchDecision, { mode: "auto" }>): { answer: Answer; search: SearchReceipt } {
   const calls = final.output.filter((item): item is OpenAI.Responses.ResponseFunctionWebSearch => item.type === "web_search_call");
   insist(calls.length >= 1 && calls.length <= ASSISTANT_SEARCH_LIMITS.toolCalls && calls.every(call => call.status === "completed"), "output", "Current public information could not be verified. Your message is saved.");
   const actionRecords = calls.map(actionRecord); const actualUrls = new Set(actionRecords.flatMap(record => record.urls));
@@ -209,7 +209,7 @@ export function createAssistantProvider(factory: AssistantClientFactory = client
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) throw new AssistantError("configuration", "The assistant is not configured on this review server. Your message is saved.");
     const prepared = buildAssistantResponseRequest(request); if (options.signal.aborted) throw new AssistantError("cancelled", "Cancelled");
-    const maximumToolCost = prepared.decision.mode === "required" ? ASSISTANT_SEARCH_LIMITS.toolCalls * ASSISTANT_SEARCH_PRICE.webSearchCallUsd : 0;
+    const maximumToolCost = prepared.decision.mode === "auto" ? ASSISTANT_SEARCH_LIMITS.toolCalls * ASSISTANT_SEARCH_PRICE.webSearchCallUsd : 0;
     const maximumCostUsd = (prepared.estimatedTokens * ASSISTANT_PRICE.inputPerMillion + ASSISTANT_LIMITS.outputTokens * ASSISTANT_PRICE.outputPerMillion) / 1000000 + maximumToolCost;
     insist(maximumCostUsd <= ASSISTANT_PRICE.requestUsd, "input", "This answer exceeds the per-request cost limit. Shorten your question or start a new chat.");
     const started = performance.now(); const client = factory(apiKey); const searchAbort = new AbortController();
@@ -218,7 +218,7 @@ export function createAssistantProvider(factory: AssistantClientFactory = client
     const startSearch = (id: string) => {
       if (completedSearchIds.has(id) || activeSearchId === id) return;
       insist(activeSearchId === null, "output", "The assistant returned an overlapping search lifecycle. Your message is saved.");
-      activeSearchId = id; emit(options, { type: "search-start", topic: prepared.decision.mode === "required" ? prepared.decision.topic : "current public information" });
+      activeSearchId = id; emit(options, { type: "search-start", topic: prepared.decision.mode === "auto" ? prepared.decision.topic : "current public information" });
       searchTimer = setTimeout(() => searchAbort.abort("search-timeout"), searchDeadlineMs);
     };
     const endSearch = (id: string) => {
@@ -229,12 +229,12 @@ export function createAssistantProvider(factory: AssistantClientFactory = client
     };
     const endActiveSearch = () => { if (activeSearchId) endSearch(activeSearchId); };
     try {
-      const operationKind = prepared.decision.mode === "required" ? "hosted_search" : "conversation";
+      const operationKind = prepared.decision.mode === "auto" ? "hosted_search" : "conversation";
       meter(assistantDispatchedEvent(request, Date.now(), operationKind, ASSISTANT_MODEL));
       const stream = await client.create(prepared.body, { signal });
       for await (const event of stream) {
-        if (prepared.decision.mode === "required" && event.type === "response.output_item.added" && event.item.type === "web_search_call") startSearch(event.item.id);
-        else if (prepared.decision.mode === "required" && (event.type === "response.web_search_call.in_progress" || event.type === "response.web_search_call.searching")) startSearch(event.item_id);
+        if (prepared.decision.mode === "auto" && event.type === "response.output_item.added" && event.item.type === "web_search_call") startSearch(event.item.id);
+        else if (prepared.decision.mode === "auto" && (event.type === "response.web_search_call.in_progress" || event.type === "response.web_search_call.searching")) startSearch(event.item_id);
         else if (event.type === "response.web_search_call.completed") endSearch(event.item_id);
         if (event.type === "response.completed") {
           final = event.response;
@@ -254,7 +254,7 @@ export function createAssistantProvider(factory: AssistantClientFactory = client
     } catch (error) {
       if (searchAbort.signal.aborted && !options.signal.aborted) throw new AssistantError("search", "Current public information could not be verified before the search deadline. Your message is saved.");
       if (!options.signal.aborted && error instanceof Error && (error instanceof TypeError || /^(?:APIConnectionError|APIConnectionTimeoutError)$/.test(error.name))) {
-        throw new AssistantError("network", prepared.decision.mode === "required"
+        throw new AssistantError("network", activeSearchId || completedSearchIds.size
           ? "Could not reach web search. Check your internet connection. Your question is saved; no current answer was published. Reconnect, then choose Retry."
           : "The assistant could not connect. Your question is saved; no answer was published. Reconnect, then choose Retry.");
       }
@@ -265,7 +265,9 @@ export function createAssistantProvider(factory: AssistantClientFactory = client
     insist(final.output.every(item => item.type === "message" || item.type === "reasoning" || item.type === "web_search_call"), "output", "An unexpected tool response was rejected. Your message is saved.");
     const textParts = final.output.filter(item => item.type === "message").flatMap(item => item.content).filter((part): part is OpenAI.Responses.ResponseOutputText => part.type === "output_text");
     const raw = textParts.map(part => part.text).join(""); let reply: Answer; let search: SearchReceipt | undefined;
-    if (prepared.decision.mode === "required") {
+    // With tool_choice "auto" the model may answer without searching; only a turn that
+    // actually searched takes the verified-citation path.
+    if (prepared.decision.mode === "auto" && final.output.some(item => item.type === "web_search_call")) {
       let offset = 0; const annotations: OpenAI.Responses.ResponseOutputText.URLCitation[] = [];
       for (const part of textParts) { for (const annotation of part.annotations ?? []) if (annotation.type === "url_citation") annotations.push({ ...annotation, start_index: annotation.start_index + offset, end_index: annotation.end_index + offset }); offset += part.text.length; }
       ({ answer: reply, search } = searchResult(final, raw, annotations, prepared.decision));

@@ -13,6 +13,7 @@ import { ChunkReloadGuard } from "@/src/components/chrome/ChunkReloadGuard";
 import { PageLoadingMark } from "@/src/components/chrome/PageLoadingMark";
 import { ChoicePills } from "@/src/components/chrome/ChoicePills";
 import { LearnMode } from "@/src/components/learn/LearnMode";
+import { IconNames } from "@/src/components/chrome/IconNames";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -57,6 +58,7 @@ export default async function RootLayout({
             <PageLoadingMark />
             <ChoicePills />
             {/* The guided tour (it was left out by the redesign; Arthur 2026-10-26 put it back). */}
+            <IconNames />
             {session && <LearnMode />}
           </NotificationCenterProvider>
         </AccountSessionProvider>

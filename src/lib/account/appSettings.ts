@@ -29,7 +29,7 @@ export type AppSettingsV1 = {
 };
 
 export const DEFAULT_APP_SETTINGS: AppSettingsV1 = {
-  schema: "account-app-settings/v1", notificationSound: true, notificationVolume: "normal", bellRing: true, newProjectFps: 12, theme: "dark", accent: "blue",
+  schema: "account-app-settings/v1", notificationSound: true, notificationVolume: "normal", bellRing: true, newProjectFps: 24, theme: "dark", accent: "blue",
 };
 
 const normalize = (value: unknown): AppSettingsV1 => {

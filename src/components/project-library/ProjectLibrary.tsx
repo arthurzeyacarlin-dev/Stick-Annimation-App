@@ -274,7 +274,8 @@ export function ProjectLibrary({ onBack, surface = "watch", onOpenProject, owner
         setNotice(null);
       } else {
         const result = await onOpenProject?.(entry);
-        if (!result || result.status === "failed") setNotice("This project couldn't be opened. Nothing was changed.");
+        if (result?.status === "failed" && result.code === "project_too_large") setNotice("This animation is too big for this computer's memory right now. Nothing was changed. Close other tabs and apps, then try again.");
+        else if (!result || result.status === "failed") setNotice("This project couldn't be opened. Nothing was changed.");
         else if (result.status === "stale") setNotice("Open cancelled. Nothing was changed.");
       }
     } catch (error) {

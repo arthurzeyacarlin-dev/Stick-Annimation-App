@@ -2,6 +2,7 @@
 // (password reset) land here instead of being sent. 404 outside development.
 import { notFound } from "next/navigation";
 import { readAccountMailOutbox } from "@/src/lib/account/accountMail";
+import { headers } from "next/headers";
 
 export const dynamic = "force-dynamic";
 
@@ -15,8 +16,9 @@ const samePagePath = (link: string) => {
   }
 };
 
-export default function DevMailPage() {
+export default async function DevMailPage() {
   if (process.env.NODE_ENV !== "development") notFound();
+  if (!/^(127\.0\.0\.1|localhost)(:\d+)?$/.test((await headers()).get("host") ?? "")) notFound();   // (Nov 12 security) this computer only, never the network
   const mail = readAccountMailOutbox();
   return (
     <main style={{ minHeight: "100vh", padding: "32px 24px", background: "var(--da-page, #030914)", color: "var(--da-text, #f6f9ff)", font: "14px/1.55 system-ui, sans-serif" }}>

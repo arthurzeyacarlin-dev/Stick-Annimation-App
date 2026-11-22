@@ -1,5 +1,6 @@
 import { assertUnifiedAnimationProjectV2, type UnifiedAnimationProjectV2 } from "./unifiedAnimationContractV2.ts";
 import { assertStructuredSymbolDigestsV2 } from "./unifiedProjectCatalogV2.ts";
+import { knownRasterCropDigest, rasterCropOf, readRasterCrop, rememberOpenedPictureDigest, rememberRasterCropDigest, type RasterCrop } from "./rasterCropV1.ts";
 
 const DB_NAME = "diamond-animation-unified-v2";
 const DB_VERSION = 2;
@@ -7,9 +8,12 @@ const STORES = Object.freeze({ projects: "projects", heads: "heads", versions: "
 const PROJECT_LIMIT = 64;
 // Bytes stored for one project (a version's storedByteLength: after compression, if any).
 const PROJECT_BYTE_LIMIT = 134_217_728;
-// Bytes of the project once opened (pictures uncompressed). Also caps how much compressed
-// pictures may grow back to, so a broken or hostile file can never expand without limit.
-const PROJECT_DECODED_BYTE_LIMIT = 1_073_741_824;
+// (Nov 14) There is no limit on the whole project's opened size any more: a 25 s full-page AI animation is 606
+// pictures, 5 GB opened, and the editor already holds it. What still protects something: ONE picture may open to at
+// most this (the same ceiling the project contract gives a picture), so a broken or hostile record can never make
+// the page reserve memory without limit; a one-file bundle may open to 1 GiB (projectBundle.ts: the server opens it
+// whole); the account's own stored-size limits are the server's (projectServer.ts).
+const ASSET_DECODED_BYTE_LIMIT = 268_435_456;
 const COLLECTION_BYTE_LIMIT = 536_870_912;
 
 // SPEC-0017 (Arthur's Option A): frame pictures (typed arrays) can be stored losslessly compressed
@@ -145,8 +149,18 @@ const inflateExact = async (input: Uint8Array, byteLength: number) => {
   return output;
 };
 
-const storedAssetByteLength = (asset: Pick<UnifiedEncodedAssetV2, "byteLength" | "compression" | "compressedByteLength">) =>
+export const storedAssetByteLength = (asset: Pick<UnifiedEncodedAssetV2, "byteLength" | "compression" | "compressedByteLength">) =>
   asset.compression === undefined ? asset.byteLength : asset.compressedByteLength ?? Number.NaN;
+
+// One asset as it is stored: a frame picture (typed array) is compressed when that makes it smaller.
+export const compressUnifiedAssetV2 = async (asset: UnifiedEncodedAssetV2): Promise<UnifiedEncodedAssetV2> => {
+  if (asset.encoding !== "typed-array" || asset.compression !== undefined || asset.byteLength < MIN_COMPRESSIBLE_BYTES) return asset;
+  const compressed = await deflateBytes(asset.bytes);
+  return compressed.byteLength < asset.byteLength
+    ? { assetId: asset.assetId, sha256: asset.sha256, byteLength: asset.byteLength, encoding: asset.encoding,
+        compression: ASSET_COMPRESSION, compressedByteLength: compressed.byteLength, bytes: compressed }
+    : asset;
+};
 
 // Turns a prepared (raw) project into what is stored: every frame picture (typed array) is
 // compressed when that makes it smaller. The digest, asset ids and assetIds stay the same;
@@ -161,14 +175,7 @@ export const compressUnifiedProjectStorageV2 = async (
   const assets: UnifiedEncodedAssetV2[] = [];
   let storedByteLength = prepared.version.metadataByteLength;
   for (const asset of prepared.assets) {
-    let stored = asset;
-    if (asset.encoding === "typed-array" && asset.compression === undefined && asset.byteLength >= MIN_COMPRESSIBLE_BYTES) {
-      const compressed = await deflateBytes(asset.bytes);
-      if (compressed.byteLength < asset.byteLength) {
-        stored = { assetId: asset.assetId, sha256: asset.sha256, byteLength: asset.byteLength, encoding: asset.encoding,
-          compression: ASSET_COMPRESSION, compressedByteLength: compressed.byteLength, bytes: compressed };
-      }
-    }
+    const stored = await compressUnifiedAssetV2(asset);
     storedByteLength += storedAssetByteLength(stored);
     if (storedByteLength > PROJECT_BYTE_LIMIT) fail("project_too_large");
     assets.push(stored);
@@ -180,9 +187,43 @@ export const compressUnifiedProjectStorageV2 = async (
 // just checked, and used right away): the same bytes always give the same digest, so they are not hashed a second time.
 type VerifiedDigestsV2 = { views: WeakMap<object, string>; strings: Map<string, string> };
 
-export const prepareUnifiedProjectStorageV2 = async (project: UnifiedAnimationProjectV2, hooks: UnifiedStorageFaultHooksV2 = {}, verified?: VerifiedDigestsV2) => {
+// (Nov 14, picture-by-picture saving) `sink`: every asset is handed over the moment it is fingerprinted and is not kept:
+// the returned `assets` is then empty. The sink gets what the asset is and `read()`, its bytes; `read()` is valid only
+// until the sink returns (every picture goes through ONE reused buffer, so saving never holds a second copy of a
+// picture, let alone of the animation). The fingerprint and the bytes can never disagree, whatever the editor does
+// meanwhile: both come from that same buffer. A picture that was not copied out of its frame (rasterCropV1.ts) and
+// was fingerprinted before is not even read again unless the sink asks for its bytes. Pictures are walked one by one.
+export type UnifiedAssetSinkV2 = (asset: Omit<UnifiedEncodedAssetV2, "bytes">, read: () => Uint8Array) => Promise<void>;
+export const prepareUnifiedProjectStorageV2 = async (project: UnifiedAnimationProjectV2, hooks: UnifiedStorageFaultHooksV2 = {}, verified?: VerifiedDigestsV2,
+  sink?: UnifiedAssetSinkV2) => {
   hooks.encode?.();
   const assets = new Map<string, UnifiedEncodedAssetV2>();
+  let assetByteLength = 0;
+  const keep = async (asset: Omit<UnifiedEncodedAssetV2, "bytes">, read: () => Uint8Array) => {
+    if (assets.has(asset.assetId)) return;
+    assetByteLength += asset.byteLength;
+    if (sink) { await sink(asset, read); assets.set(asset.assetId, { ...asset, bytes: new Uint8Array() }); }
+    else assets.set(asset.assetId, { ...asset, bytes: read() });
+  };
+  let buffer = new Uint8Array(0);
+  const reused = (byteLength: number) => {
+    if (buffer.byteLength < byteLength) buffer = new Uint8Array(byteLength);
+    return buffer.subarray(0, byteLength);
+  };
+  const typedArrayReference = (assetId: string, constructorName: "Uint8Array" | "Uint8ClampedArray", byteLength: number) =>
+    ({ __unifiedAssetRef: assetId, encoding: "typed-array", constructorName, byteLength }) satisfies EncodedAssetReferenceV2;
+  // A picture still sitting in its frame (sink mode only): fingerprinted from the reused buffer the first time, by memory after.
+  const visitCrop = async (crop: RasterCrop) => {
+    const byteLength = crop.width * crop.height * 4;
+    let bytes: Uint8Array | null = null;
+    const read = () => bytes ??= readRasterCrop(crop, reused(byteLength));
+    hooks.hash?.();
+    let digest = knownRasterCropDigest(crop);
+    if (!digest) { digest = await sha256Hex(read()); rememberRasterCropDigest(crop, digest); }
+    const assetId = `sha256:${digest}`;
+    await keep({ assetId, sha256: digest, byteLength, encoding: "typed-array" }, read);
+    return typedArrayReference(assetId, "Uint8ClampedArray", byteLength);
+  };
   type Ancestor = { value: object; parent: Ancestor | null };
   const visit = async (value: unknown, parent: Ancestor | null): Promise<unknown> => {
     if (typeof value === "string" && /^data:(?:image|audio)\//.test(value)) {
@@ -190,23 +231,20 @@ export const prepareUnifiedProjectStorageV2 = async (project: UnifiedAnimationPr
       hooks.hash?.();
       const digest = verified?.strings.get(value) ?? await sha256Hex(bytes);
       const assetId = `sha256:${digest}`;
-      assets.set(assetId, { assetId, sha256: digest, byteLength: bytes.byteLength, encoding: "data-url", bytes });
+      await keep({ assetId, sha256: digest, byteLength: bytes.byteLength, encoding: "data-url" }, () => bytes);
       return { __unifiedAssetRef: assetId, encoding: "data-url", constructorName: null, byteLength: bytes.byteLength } satisfies EncodedAssetReferenceV2;
     }
     if (ArrayBuffer.isView(value)) {
       const view = value as Uint8Array | Uint8ClampedArray;
       if (!(view instanceof Uint8Array) && !(view instanceof Uint8ClampedArray)) fail("encode_failed");
-      const bytes = new Uint8Array(view.buffer, view.byteOffset, view.byteLength);
+      const live = new Uint8Array(view.buffer, view.byteOffset, view.byteLength);
+      let bytes = live;
+      if (sink) { bytes = reused(live.byteLength); bytes.set(live); }
       hooks.hash?.();
       const digest = verified?.views.get(view) ?? await sha256Hex(bytes);
       const assetId = `sha256:${digest}`;
-      assets.set(assetId, { assetId, sha256: digest, byteLength: bytes.byteLength, encoding: "typed-array", bytes });
-      return {
-        __unifiedAssetRef: assetId,
-        encoding: "typed-array",
-        constructorName: value instanceof Uint8ClampedArray ? "Uint8ClampedArray" : "Uint8Array",
-        byteLength: bytes.byteLength,
-      } satisfies EncodedAssetReferenceV2;
+      await keep({ assetId, sha256: digest, byteLength: bytes.byteLength, encoding: "typed-array" }, () => bytes);
+      return typedArrayReference(assetId, value instanceof Uint8ClampedArray ? "Uint8ClampedArray" : "Uint8Array", bytes.byteLength);
     }
     if (value === null || typeof value === "string" || typeof value === "number" || typeof value === "boolean") return value;
     if (value === undefined || typeof value !== "object") fail("encode_failed");
@@ -217,10 +255,16 @@ export const prepareUnifiedProjectStorageV2 = async (project: UnifiedAnimationPr
     const ancestors = { value: objectValue, parent };
     let encoded: unknown;
     if (Array.isArray(value)) {
-      encoded = await Promise.all(value.map(entry => visit(entry, ancestors)));
+      // One after the other: fingerprinting hundreds of pictures at once would hold a second copy of all of them.
+      const entries: unknown[] = [];
+      for (const entry of value) entries.push(await visit(entry, ancestors));
+      encoded = entries;
     } else {
       const result: Record<string, unknown> = {};
-      for (const [key, entry] of Object.entries(value as Record<string, unknown>)) {
+      const crop = sink ? rasterCropOf(objectValue) : null;
+      for (const key of Object.keys(objectValue)) {
+        if (crop && key === "data") { result[key] = await visitCrop(crop); continue; }
+        const entry = (objectValue as Record<string, unknown>)[key];
         if (entry === undefined) continue;
         result[key] = await visit(entry, ancestors);
       }
@@ -236,10 +280,9 @@ export const prepareUnifiedProjectStorageV2 = async (project: UnifiedAnimationPr
   // Raw (uncompressed) size. The stored-size limit is checked by each writer: write() (browser
   // database, raw) and compressUnifiedProjectStorageV2 (account bundle). Recovery drafts keep
   // their own limit (PROJECT_RECOVERY_BYTE_LIMIT_V1).
-  const storedByteLength = metadataByteLength + [...assets.values()].reduce((total, asset) => total + asset.byteLength, 0);
-  if (storedByteLength > PROJECT_DECODED_BYTE_LIMIT) fail("project_too_large");
+  const storedByteLength = metadataByteLength + assetByteLength;
   return {
-    assets: [...assets.values()].sort((left, right) => left.assetId.localeCompare(right.assetId)),
+    assets: sink ? [] : [...assets.values()].sort((left, right) => left.assetId.localeCompare(right.assetId)),
     version: {
       projectId: project.projectId,
       revision: project.revision,
@@ -256,13 +299,14 @@ export const hydrateUnifiedProjectStorageV2 = async (
   version: UnifiedProjectVersionV2,
   assets: readonly UnifiedEncodedAssetV2[],
   hooks: UnifiedStorageFaultHooksV2 = {},
+  // (Nov 14) `part`: the description was cut down on purpose (a project's poster needs one frame, not all of them):
+  // every picture given is still checked against its fingerprint, only the whole-project comparison is left out.
+  part = false,
 ) => {
   hooks.decode?.();
   const byId = new Map(assets.map(asset => [asset.assetId, asset]));
-  // Never decompress more than an opened project may hold.
-  let declaredByteLength = Number.isSafeInteger(version.metadataByteLength) ? version.metadataByteLength : 0;
-  for (const asset of byId.values()) if (Number.isSafeInteger(asset.byteLength) && asset.byteLength > 0) declaredByteLength += asset.byteLength;
-  if (!(declaredByteLength <= PROJECT_DECODED_BYTE_LIMIT)) fail("project_too_large");
+  // Never decompress a picture into more than one picture may hold.
+  for (const asset of byId.values()) if (!(asset.byteLength <= ASSET_DECODED_BYTE_LIMIT)) fail("project_too_large");
   // Verified uncompressed bytes per asset. A freshly decompressed buffer belongs to nobody yet, so
   // the first typed array made from it can use it without another copy.
   const verifiedBytes = new Map<string, Uint8Array>();
@@ -308,11 +352,17 @@ export const hydrateUnifiedProjectStorageV2 = async (
       if (hydrated) {
         hydratedTypedArrays.set(hydratedKey, hydrated);
         verifiedDigests.views.set(hydrated, asset.sha256);
+        rememberOpenedPictureDigest(hydrated, asset.sha256);
         return hydrated;
       }
       fail("decode_failed");
     }
-    if (Array.isArray(value)) return Promise.all(value.map(visit));
+    if (Array.isArray(value)) {
+      // One after the other (see prepare): never hundreds of pictures being unpacked and checked at once.
+      const entries: unknown[] = [];
+      for (const entry of value) entries.push(await visit(entry));
+      return entries;
+    }
     if (object(value)) {
       const result: Record<string, unknown> = {};
       for (const [key, entry] of Object.entries(value)) result[key] = await visit(entry);
@@ -322,6 +372,7 @@ export const hydrateUnifiedProjectStorageV2 = async (
   };
   const project = assertUnifiedAnimationProjectV2(await visit(version.encodedProject) as UnifiedAnimationProjectV2);
   await assertStructuredSymbolDigestsV2(project.document.catalogs.symbols);
+  if (part) return project;
   const prepared = await prepareUnifiedProjectStorageV2(project, {}, verifiedDigests);
   // storedByteLength = metadata + the bytes stored for each asset (raw or compressed). For raw
   // records (every save before compression) this is exactly the old check against the raw size.
@@ -694,8 +745,9 @@ const browserAdapter: UnifiedProjectStorageAdapterV2 = {
 
 const browserStorage = () => createUnifiedProjectStorageV2(browserAdapter);
 
+// (Nov 14) only the fingerprint is wanted: no picture is kept while it is worked out
 export const digestUnifiedProjectV2 = async (project: UnifiedAnimationProjectV2) =>
-  (await prepareUnifiedProjectStorageV2(assertUnifiedAnimationProjectV2(project))).version.projectDigest;
+  (await prepareUnifiedProjectStorageV2(assertUnifiedAnimationProjectV2(project), {}, undefined, async () => undefined)).version.projectDigest;
 export const listUnifiedProjectHeadsV2 = () => browserStorage().listHeads();
 export const listUnifiedProjectsV2 = async () => Promise.all((await listUnifiedProjectHeadsV2()).map(head => readUnifiedProjectV2(head.projectId)));
 export const readUnifiedProjectV2 = (projectId: string) => browserStorage().read(projectId);

@@ -5,7 +5,10 @@ type PlaybackFrameLike = {
 const MIN_PLAYBACK_FPS = 1;
 const MAX_PLAYBACK_FPS = 55;
 const MAX_CATCH_UP_FRAMES = 5;
-const MAX_VISUAL_ADVANCE_PER_TICK = 1;
+// (Nov 14, Arthur: "some stuff is slow, some stuff is normal speed") it was 1: a picture that took longer than its own time to draw was
+// shown late and the lost time thrown away, so a stretch of heavy pictures played in slow motion (measured with this rule at 24 fps: a
+// picture every 70 ms = 60 % speed, every 120 ms = 35 %). Now the player keeps real time: a late tick moves on by the pictures that are due.
+const MAX_VISUAL_ADVANCE_PER_TICK = MAX_CATCH_UP_FRAMES;
 const PLAYBACK_UI_SYNC_INTERVAL_MS = 48;
 const AI_GENERATED_SEQUENCE_FPS_SOFT_CAP = 18;
 const AI_GENERATED_SEQUENCE_FPS_HARD_CAP = 15;
@@ -91,12 +94,23 @@ export const resolvePlaybackRenderScale = ({
   totalLayerCount,
   timelineFps,
   performanceProtectionTriggered = false,
+  pictureLayerCount,
 }: {
   authoredFrameCount: number;
   totalLayerCount: number;
   timelineFps: number;
   performanceProtectionTriggered?: boolean;
+  pictureLayerCount?: number;
 }) => {
+  // (Nov 15, Arthur: "in the app the animation looks blurry and laggy, the raw video does not" - measured in the app on his 35-second
+  // story, 844 pictures at 24 a second: drawn at 60 % size every picture is squeezed, so it looks blurred and jagged next to the paused
+  // picture; drawn at full size the Mac shows the same 24 of 24 pictures a second) ONE layer with pictures plays at full size, however
+  // long it is. Several layers with pictures: the sizes below, as before.
+  // (Nov 19 eve, Arthur: "Always the highest quality... not optional") up to 3 layers with pictures also play at full size.
+  if (!performanceProtectionTriggered && pictureLayerCount !== undefined && pictureLayerCount >= 1 && pictureLayerCount <= 3) {
+    return 1;
+  }
+
   if (performanceProtectionTriggered || authoredFrameCount >= 24 || totalLayerCount >= 6 || timelineFps >= 24) {
     return PLAYBACK_RENDER_SCALE_PROTECTED;
   }

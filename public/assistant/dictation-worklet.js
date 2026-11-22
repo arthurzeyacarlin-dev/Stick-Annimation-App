@@ -2,7 +2,7 @@
 class AssistantDictationProcessor extends AudioWorkletProcessor {
   constructor() {
     super();
-    this.remaining = Math.min(Math.floor(sampleRate * 120), Math.floor((20 * 1024 * 1024 - 44) / 2));
+    this.remaining = Math.min(Math.floor(sampleRate * 600), Math.floor((20 * 1024 * 1024 - 44) / 2));   // (Nov 18: 10 minutes, as assistantDictationContract.ts)
     this.chunk = new Int16Array(2048);
     this.used = 0;
     this.stopped = false;

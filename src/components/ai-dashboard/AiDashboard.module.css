@@ -267,3 +267,11 @@
 .extraCredits button:hover:enabled span { color: #fff; }
 /* Arthur (2026-10-27): a dot that reaches the red ceiling shows whole, not cut in half by the chart edge. */
 .plotWrap.plotWrap { overflow: visible; }
+
+/* Nov 20 (the money system): where your credits went, one line per kind of AI use. Plain text with dividers (no boxes). */
+.kinds { margin-top: 14px; }
+.kinds h3 { margin: 0 0 6px; color: var(--da-text, #f6f9ff); font-size: 15px; font-weight: 720; }
+.kinds dl { margin: 0; max-width: 520px; }
+.kinds dl > div { display: flex; justify-content: space-between; gap: 16px; padding: 8px 0; border-bottom: 1px solid var(--da-line, #163058); font-size: 13.5px; }
+.kinds dt { color: var(--da-text-2, #c9d6ea); }
+.kinds dd { margin: 0; color: var(--da-text, #f6f9ff); font-weight: 700; }

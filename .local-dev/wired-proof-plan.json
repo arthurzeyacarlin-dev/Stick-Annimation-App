@@ -1,0 +1,5 @@
+{"label":"PM-written plan (proof)","sentence":"Indigo walks up to Amber and kicks her in the head",
+ "blocks":[{"say":"Indigo and Amber walk up to each other, then Indigo kicks Amber in the head and she falls.","sentence":"Indigo walks up to Amber and kicks her in the head",
+  "plan":{"figures":[{"name":"Indigo","id":"indigo"},{"name":"Amber","id":"amber"}],"beats":[
+   {"id":"walk","when":"start","who":"indigo","does":"move","move":"walks up to Amber","everyone":[{"who":"indigo","body":"walks toward Amber","goes":"toward","of":"amber","faces":"amber","touches":"none","effect":"none"},{"who":"amber","body":"walks toward Indigo","goes":"toward","of":"indigo","faces":"indigo","touches":"none","effect":"none"}]},
+   {"id":"kick","when":"after walk","who":"indigo","does":"strike","target":"amber","strikes":["high kick"],"reaction_hint":"spins and falls face down","everyone":[{"who":"indigo","body":"kicks","goes":"stays","of":"amber","faces":"amber","touches":"amber","effect":"none"},{"who":"amber","body":"falls","goes":"stays","of":"indigo","faces":"indigo","touches":"none","effect":"none"}]}],"unknown":[]}}]}

@@ -31,7 +31,7 @@ export function AssistantConversation({ chats, mark }: { chats: ReturnType<typeo
           </article>;
         })}
         {chats.showLongWaitProgress && <p className={styles.longWaitProgress} data-assistant-progress={turn!.jobId} role="status"><AssistantText key={turn!.jobId} text="I’m putting together a clear, simple explanation" animate /></p>}
-        {turn?.status === "pending" && !paused && !chats.storageBlocked && (live?.status === "thinking" || live?.status === "searching" || live?.status === "finalizing") && <AssistantActivity label={live.status === "thinking" ? "Thinking" : live.status === "searching" ? `Searching ${live.events.at(-1)?.topic}` : "Finalizing answer"} />}
+        {turn?.status === "pending" && !paused && !chats.storageBlocked && (live?.status === "thinking" || live?.status === "searching" || live?.status === "finalizing") && <AssistantActivity label={live.status === "thinking" ? "Thinking" : live.status === "searching" ? "Searching YouTube, YouTube Shorts and more…" : "Finalizing answer"} />}
         {turn?.status === "pending" && !live && !paused && <p className={styles.turnNote} role="status">Connecting</p>}
         {turn && turn.status !== "pending" && turn.status !== "done" && <div className={styles.turnNote} role="status" data-assistant-terminal-turn={turn.id} data-assistant-terminal-job={turn.jobId} tabIndex={-1}><span>{turn.error}</span><button className={styles.reconnect} type="button" disabled={chats.busy || chats.storageBlocked || (turn.priorAttempts?.length ?? 0) >= 10} onClick={() => void chats.retry()}>Retry answer</button></div>}
         {session.messages.length > 32 && <p className={styles.contextNote}>Replies use a bounded recent part of this chat.</p>}

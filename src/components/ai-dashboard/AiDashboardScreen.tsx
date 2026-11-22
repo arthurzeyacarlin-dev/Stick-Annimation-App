@@ -9,10 +9,11 @@ import { subscribeDashboardChanges } from "../../lib/ai-dashboard/dashboardSourc
 import { useAccountSession } from "../account/AccountSessionProvider";
 import { useAccountPlan } from "../account/useAccountPlan";
 import Link from "next/link";
-import { ACCOUNT_PLANS, PAYMENT_GRACE_DAYS, type AccountPlanStatus } from "../../lib/account/plans";
+import { ACCOUNT_PLANS, AI_ACTION_LABELS, CYCLE_WORD, isAiActionKind, type AccountPlanStatus } from "../../lib/account/plans";
 import styles from "./AiDashboard.module.css";
 import { BuyCreditsPanel } from "../account/BuyCreditsPanel";
 import { ManagePlanButton } from "../account/ManagePlanButton";
+import { creditsText } from "../../lib/account/credits";
 
 const filters: { value: DashboardFilter; label: string }[] = [
   { value: "combined", label: "All" }, { value: "project", label: "AI Animator" }, { value: "assistant", label: "Assistant" },
@@ -29,17 +30,22 @@ const longDay = (value: number) => new Date(value).toLocaleDateString("en-US", {
 function PlanWarnings({ plan, trial }: { plan: AccountPlanStatus; trial: boolean }) {
   const refill = plan.refillsAt ?? plan.windowEnd;
   return <>
-    {plan.paymentProblem && <p className={styles.exhausted} role="alert">
-      Your last payment didn&apos;t go through — update your card in Manage plan.{" "}
-      {plan.aiLocked ? "The AI Animator is waiting until it's fixed." : `The AI Animator keeps working for up to ${PAYMENT_GRACE_DAYS} days.`} Your projects are safe.
+    {plan.aiLocked && <p className={styles.exhausted} role="alert">
+      A payment on your account is being checked by your bank, so the AI waits until that&apos;s settled. Your projects are safe.
     </p>}
-    {plan.creditsLeft === 0 && <p className={styles.exhausted} role="status">{trial
+    {plan.paymentProblem && <p className={styles.exhausted} role="alert">
+      Your last payment didn&apos;t go through — update your card in Manage plan and this {CYCLE_WORD}&apos;s credits come right away. Extra pack credits still work. Your projects are safe.
+    </p>}
+    {plan.waitingForPayment && !plan.paymentProblem && <p className={styles.warning} role="status">
+      This {CYCLE_WORD}&apos;s credits come the moment your payment goes through (usually within a minute).
+    </p>}
+    {plan.creditsLeft === 0 && !plan.waitingForPayment && <p className={styles.exhausted} role="status">{trial
       ? "Out of credits — choose a plan to keep animating. Your projects are safe."
-      : `Out of credits — refills on ${longDay(refill)} or buy extra credits.`}</p>}
-    {plan.low && <p className={styles.warning} role="status">Almost out: only {plural(plan.creditsLeft, "credit", "credits")} left.</p>}
+      : `Out of credits — they refill on ${longDay(refill)}, or buy an extra pack.`}</p>}
+    {plan.low && <p className={styles.warning} role="status">Almost out: only {creditsText(plan.creditsLeft)} left.</p>}
     {plan.cancelAtPeriodEnd && <p className={styles.warning} role="status">{plan.interval === "year"
       ? "Your plan won't renew. It ends when your paid year is over; you can use your credits until then."
-      : `Your plan ends on ${longDay(refill)}. You can use your credits until then.`}</p>}
+      : `Your plan ends on ${longDay(refill)}. You can use your credits until then, and you won't be charged again.`}</p>}
   </>;
 }
 
@@ -49,7 +55,7 @@ const inDays = (days: number) => days === 0 ? "today" : days === 1 ? "tomorrow" 
 
 /** The dashboard's header (Arthur 2026-10-27): one glowing dotted box — on the trial the days left big, on a plan when
  *  it refills; credits left with the fading bar; the bright plan button. Same look for the trial and every plan. */
-function PlanHero({ plan, byKind }: { plan: AccountPlanStatus; byKind: { animator: number; assistant: number } }) {
+function PlanHero({ plan, byKind }: { plan: AccountPlanStatus; byKind: { animator: number; assistant: number; lines: [string, number][] } }) {
   const trial = plan.plan === "trial";
   const refill = plan.refillsAt ?? plan.windowEnd;
   const days = trial ? plan.trialDaysLeft ?? 0 : daysUntil(refill);
@@ -66,27 +72,31 @@ function PlanHero({ plan, byKind }: { plan: AccountPlanStatus; byKind: { animato
         <h2 id="dashboard-heading" className={styles.trialDays}>{headline}</h2>
         {trial
           ? <p className={styles.trialEnds}>Your free trial ends <time dateTime={new Date(plan.windowEnd).toISOString()}>{longDay(plan.windowEnd)}</time>. Your projects stay safe either way.</p>
-          : <p className={styles.trialEnds}>{price} · {number(plan.creditsTotal)} AI credits every month · {ending ? "ends" : "refills"} <time dateTime={new Date(refill).toISOString()}>{longDay(refill)}</time></p>}
+          : <p className={styles.trialEnds}>{price} · {creditsText(ACCOUNT_PLANS[plan.plan].credits)} every {CYCLE_WORD} · {ending ? "ends" : "refills"} <time dateTime={new Date(refill).toISOString()}>{longDay(refill)}</time></p>}
         <div className={styles.heroActions}>
           <Link href="/plans" className={`${styles.trialCta} da-super`}>{trial ? "Choose a plan" : "Change plan"}</Link>
           {!trial && !plan.locked && <ManagePlanButton returnTo="/credits" className={`${styles.heroOutline} da-btn-outline`} />}
         </div>
       </div>
       <div className={styles.trialCredits} data-tone={tone}>
-        <p className={styles.trialCreditsLabel}>AI credits</p>
-        <p className={styles.trialCreditsBig}><strong>{number(left)}</strong> <span>of {number(plan.creditsTotal + plan.topUpCredits)} left</span></p>
+        <p className={styles.trialCreditsLabel}>Credits</p>
+        <p className={styles.trialCreditsBig}><strong>{left.toLocaleString("en-US")}</strong> <span>of {creditsText(plan.creditsTotal + plan.topUpCredits)} left</span></p>
         <div className={styles.trialBar} role="meter" aria-valuemin={0} aria-valuemax={plan.creditsTotal + plan.topUpCredits} aria-valuenow={left}
-          aria-label={`${number(left)} AI credits left`}>
+          aria-valuetext={`${creditsText(left)} left`} aria-label={`${creditsText(left)} left`}>
           <i data-testid="credit-meter-fill" style={{ width: `${100 - usedPercent}%`, backgroundColor: creditMeterColor(usedPercent), color: creditMeterColor(usedPercent) }} />
         </div>
-        <div className={styles.trialBarLabels}><span>{number(plan.creditsUsed)} used</span><span>{plan.topUpCredits > 0 ? `incl. ${number(plan.topUpCredits)} extra` : `${number(plan.creditsTotal)} total`}</span></div>
+        <div className={styles.trialBarLabels}><span>Used so far: {creditsText(plan.creditsUsed)}</span><span>{plan.topUpCredits > 0 ? `incl. ${creditsText(plan.topUpCredits)} from packs` : `${creditsText(plan.creditsTotal)} total`}</span></div>
       </div>
     </section>
-    <section className={styles.stats} aria-label="Your AI usage">
-      <div><strong>{number(plan.creditsUsed)}</strong><span>{trial ? "Used in your trial" : "Used this month"}</span></div>
-      <div><strong>{number(byKind.animator)}</strong><span>By the AI Animator</span></div>
-      <div><strong>{number(byKind.assistant)}</strong><span>By the Help Assistant</span></div>
+    <section className={styles.stats} aria-label="Your credits">
+      <div><strong>{creditsText(plan.creditsUsed)}</strong><span>{trial ? "Used in your trial" : `Used this ${CYCLE_WORD}`}</span></div>
+      <div><strong>{creditsText(byKind.animator)}</strong><span>AI Animator</span></div>
+      <div><strong>{creditsText(byKind.assistant)}</strong><span>Help Assistant</span></div>
     </section>
+    {byKind.lines.length > 0 && <section className={styles.kinds} aria-label="Where your credits went">
+      <h3>Where your credits went</h3>
+      <dl>{byKind.lines.map(([kind, credits]) => <div key={kind}><dt>{isAiActionKind(kind) ? AI_ACTION_LABELS[kind] : kind}</dt><dd>{creditsText(credits)}</dd></div>)}</dl>
+    </section>}
     <PlanWarnings plan={plan} trial={trial} />
   </>;
 }
@@ -96,8 +106,8 @@ function EmptyUsage({ filter }: { filter: DashboardFilter | null }) {
     <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M3 20h18" /><path d="M5 16l4-5 4 3 6-8" />
     </svg>
-    <strong>{filter === "assistant" ? "No Help Assistant usage here yet" : filter === "project" ? "No AI Animator usage here yet" : "No AI usage yet"}</strong>
-    <span>{filter ? "Nothing in this time range. Try another view or a longer Group by." : "Your usage line shows up here once you start animating with the AI Animator."}</span>
+    <strong>{filter === "assistant" ? "No Help Assistant credits used here yet" : filter === "project" ? "No AI Animator credits used here yet" : "No credits used yet"}</strong>
+    <span>{filter ? "Nothing in this time range. Try another view or a longer Group by." : "Your credits line shows up here once you start animating with the AI Animator."}</span>
   </div>;
 }
 
@@ -165,7 +175,15 @@ export function AiDashboardScreen() {
   // Assistant, the chart, then the extra-credit packs for plan members.
   // Show / Group by stay visible once there is any usage, so an empty view (like Assistant) can be switched back.
   const noUsageAtAll = !!snapshot && !partial && allReceipts.length === 0;
-  const byKind = creditEvents.filter((event) => event.kind !== "test" && (!plan || event.at >= plan.windowStart)).reduce((sum, event) => event.kind === "assistant" ? { ...sum, assistant: sum.assistant + event.credits } : { ...sum, animator: sum.animator + event.credits }, { animator: 0, assistant: 0 });
+  // (Nov 20) every AI spend has its own line ("Where your credits went"): new animation, add-on, change, look, chat, Help, voice typing, drawing AI
+  const thisCycle = creditEvents.filter((event) => event.kind !== "test" && (!plan || event.at >= plan.windowStart));
+  const perKind = new Map<string, number>();
+  for (const event of thisCycle) perKind.set(event.kind, (perKind.get(event.kind) ?? 0) + event.credits);
+  const byKind = {
+    animator: thisCycle.filter((event) => ["animation", "addon", "edit", "look", "chat", "simple", "big"].includes(event.kind)).reduce((t, event) => t + event.credits, 0),
+    assistant: perKind.get("assistant") ?? 0,
+    lines: [...perKind].filter(([, credits]) => credits > 0).sort((a, b) => b[1] - a[1]),
+  };
 
   return (
     <main className={styles.main}>
@@ -176,15 +194,15 @@ export function AiDashboardScreen() {
         </section>}
 
         <section className={styles.chartCard} aria-labelledby="usage-heading">
-          <div className={styles.cardHeading}><h3 id="usage-heading">Usage over time</h3></div>
+          <div className={styles.cardHeading}><h3 id="usage-heading">Credits over time</h3></div>
           <div className={styles.controls} style={noUsageAtAll ? { display: "none" } : undefined}><fieldset><legend>Show</legend><div className={styles.segmented}>{filters.map((option) =>
             <button type="button" key={option.value} aria-pressed={filter === option.value} onClick={() => setFilter(option.value)}>{option.label}</button>)}</div></fieldset>
             <fieldset><legend>Group by</legend><div className={styles.segmented}>{intervals.map((option) =>
               <button type="button" key={option.value} aria-pressed={interval === option.value} onClick={() => setInterval(option.value)}>{option.label}</button>)}</div></fieldset></div>
-          {readError && <p className={styles.partial} role="alert">Couldn&apos;t update your usage. The numbers may be out of date; it tries again by itself.</p>}
-          {issues.length > 0 && <div className={styles.partial} role="status"><strong>Some usage couldn&apos;t be read.</strong><ul>{[...new Set(issues)].map((issue) => <li key={issue}>{issue}</li>)}</ul></div>}
+          {readError && <p className={styles.partial} role="alert">Couldn&apos;t update your credits. The numbers may be out of date; it tries again by itself.</p>}
+          {issues.length > 0 && <div className={styles.partial} role="status"><strong>Some of your credit use couldn&apos;t be read.</strong><ul>{[...new Set(issues)].map((issue) => <li key={issue}>{issue}</li>)}</ul></div>}
           {snapshot && buckets.length === 0 && !partial ? <EmptyUsage filter={noUsageAtAll ? null : filter} /> : snapshot && <AiUsageChart key={`${filter}-${interval}`} buckets={buckets} filter={filter} complete={complete} capacity={intervalSpec[interval].count} roof={roof} />}
-          {!noUsageAtAll && <p className={styles.chartNote}>The line climbs as you use AI credits and drops back to zero when they refill. Its color matches the bar above.</p>}
+          {!noUsageAtAll && <p className={styles.chartNote}>The line climbs with the credits your AI use takes and drops back to zero when your credits refill. Its color matches the bar above.</p>}
         </section>
 
         {plan && plan.plan !== "trial" && <div className={styles.extraCredits}><BuyCreditsPanel /></div>}

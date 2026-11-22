@@ -1,40 +1,64 @@
 import "server-only";
 
-// SPEC-0020 Phase 9: Stripe billing in TEST MODE ONLY. Real money is impossible here: every call first checks that
-// STRIPE_SECRET_KEY is a Stripe test key (sk_test_/rk_test_) and refuses otherwise. Cards are typed only on Stripe's
-// own hosted Checkout page; this app never sees card numbers. There are no webhooks while the app is local: after a
-// checkout the screen asks the server to read the finished session (completeCheckout), and the plan status route
-// "pulls" the subscription from Stripe at most once a minute (syncSubscription). The pure rules are in
-// stripeBillingRules.ts (tested without network).
+// Stripe billing (Nov 20 rebuild, Arthur: "People are taking out their wallet and giving me money... it has to be perfect").
+// ONE rule: Stripe is the truth, and the app always asks Stripe. syncWithStripe() reads this account's subscriptions, bills,
+// refunds, disputes and finished checkout pages fresh from Stripe and applies them the same way every time, each Stripe
+// object once. It runs when the plan loads (at most once a minute), when the person comes back from Stripe's page, when
+// Stripe rings the webhook doorbell, and once a day for every paying account (the match check, which tells the owner).
+//   - One plan only: any second live subscription is stopped at once and its payment refunded in full.
+//   - A cycle's plan credits come only once that cycle is paid; an upgrade is charged at once, a downgrade waits for the
+//     next cycle (the Manage plan page's settings).
+//   - A refund takes that payment's credits back; a dispute pauses the AI.
+//   - Deleting an account stops the plan first and gives back everything but the AI it used and Stripe's fee.
+// Cards are typed only on Stripe's own pages; this app never sees a card number. Real money runs only with dad's
+// restricted live key AND STRIPE_LIVE_OK=yes; otherwise test mode (fake cards) or off.
 import {
-  addTopUpCredits, applySubscriptionState, getAccountPlanStatus, markBillingSynced, readAccountBillingIds, readAccountPlanRecord, setStripeCustomerId,
+  addFreeRefund, addTopUpCredits, applyRefundTotal, applySubscriptionState, claimBillingEvent, findOwnerByStripeCustomer,
+  findPaymentByCharge, getAccountPlanStatus, listBillingOwners, listPayments, markBillingSynced, planCreditsUsedSince,
+  readAccountBillingIds, readAccountPlanRecord, readBillingFacts, recordPayment, releaseBillingEvent, setBillingNotice,
+  setDisputed, setStripeCustomerId,
 } from "./aiCredits";
-import { ACCOUNT_PLANS, isPaidPlanId, PAID_PLAN_IDS, TOP_UP_PACKS, type BillingInterval, type PaidPlanId, type TopUpPackId, isTopUpPackId } from "./plans";
 import {
-  assertTestStripeKey, BillingError, billingModeForKey, encodeStripeForm, isBillingInterval, mapSubscriptionStatus, planLookupKey,
-  STRIPE_CATALOG, subscriptionPeriodStartMs, subscriptionPlan, type BillingMode, type CatalogEntry, type FormValue,
+  ACCOUNT_PLANS, addCycles, creditWindow, isPaidPlanId, PAID_PLAN_IDS, PLAN_CYCLE, TOP_UP_PACKS,
+  type BillingInterval, type PaidPlanId, isTopUpPackId,
+} from "./plans";
+import { dollarsText, creditsText } from "./credits";
+import {
+  assertAllowedStripeKey, BillingError, billingModeForKey, BOTH_EXTRA_PERCENT, deletionRefund, encodeStripeForm, estimateStripeFeeCents,
+  idempotencyKey, isBillingInterval, isChargingSubscriptionStatus, isLiveSubscriptionStatus, mapSubscriptionStatus, pickOffer, planLookupKey, planUnitAmount,
+  STRIPE_API_VERSION, STRIPE_CATALOG, subscriptionPeriodEndMs, subscriptionPeriodStartMs, subscriptionPlan, verifyStripeSignature,
+  type BillingMode, type CatalogEntry, type DeletionRefund, type FormValue, type Offer, type RefundablePayment,
 } from "./stripeBillingRules";
+import { ownerAlert } from "./ownerAlerts";
 
 export { BillingError } from "./stripeBillingRules";
 
 const STRIPE_API = "https://api.stripe.com/v1";
 const SYNC_EVERY_MS = 60_000;
-const SERVICE_PROBLEM = "The payment service had a problem. Try again in a moment.";
+const SERVICE_PROBLEM = "The payment service had a problem. Nothing was charged. Try again in a moment.";
 
 /** A Stripe API error, kept in plain words for the person; the Stripe code is only for our own checks. */
 class StripeApiError extends BillingError {
   stripeCode: string | null;
+  httpStatus: number;
   constructor(status: number, stripeCode: string | null) {
     super(SERVICE_PROBLEM, status >= 500 ? 502 : status === 429 ? 503 : 502);
     this.stripeCode = stripeCode;
+    this.httpStatus = status;
   }
 }
 
-/** "test" when a Stripe test key is set, otherwise "off". The key itself never leaves the server. */
-export const billingMode = (): BillingMode => billingModeForKey(process.env.STRIPE_SECRET_KEY);
+const liveOk = () => process.env.STRIPE_LIVE_OK?.trim() === "yes";
+const stripeKey = () => assertAllowedStripeKey(process.env.STRIPE_SECRET_KEY, liveOk());
 
-/** The app's own address for Stripe's return links (only local hosts pass requireAccountRequest). */
-export const billingOrigin = (request: Request) => `http://${request.headers.get("host") ?? "localhost:3000"}`;
+/** "test", "live" or "off". The key itself never leaves the server. */
+export const billingMode = (): BillingMode => billingModeForKey(process.env.STRIPE_SECRET_KEY, liveOk());
+
+/** The app's own address for Stripe's return links. */
+export const billingOrigin = (request: Request) => {
+  const https = request.headers.get("x-forwarded-proto") === "https" || billingMode() === "live";
+  return `${https ? "https" : "http"}://${request.headers.get("host") ?? "localhost:3000"}`;
+};
 
 /** Turns any error into a plain-words message + status for the API routes. */
 export function billingErrorResponse(error: unknown): { error: string; status: number } {
@@ -43,37 +67,45 @@ export function billingErrorResponse(error: unknown): { error: string; status: n
   return { error: SERVICE_PROBLEM, status: 500 };
 }
 
-async function stripeRequest<T>(method: "GET" | "POST", path: string, params: Record<string, FormValue> = {}): Promise<T> {
-  const key = assertTestStripeKey(process.env.STRIPE_SECRET_KEY);
+// Tests replace the network with a pretend Stripe here (globalThis.diamondStripeFetch); the app always uses fetch.
+type Transport = (url: string, init: RequestInit) => Promise<Response>;
+const transport = (): Transport => (globalThis as { diamondStripeFetch?: Transport }).diamondStripeFetch ?? fetch;
+
+/** One request to Stripe. POST/DELETE with an idempotency key are retried once on a network problem or a Stripe hiccup:
+ *  the same key makes Stripe do it only once, so a retry can never charge, refund or create anything twice. */
+async function stripeRequest<T>(method: "GET" | "POST" | "DELETE", path: string, params: Record<string, FormValue> = {}, key?: string): Promise<T> {
+  const secret = stripeKey();
   const body = encodeStripeForm(params);
-  const url = method === "GET" && body ? `${STRIPE_API}${path}?${body}` : `${STRIPE_API}${path}`;
-  let response: Response;
-  try {
-    response = await fetch(url, {
-      method,
-      headers: { Authorization: `Bearer ${key}`, ...(method === "POST" ? { "Content-Type": "application/x-www-form-urlencoded" } : {}) },
-      body: method === "POST" ? body : undefined,
-      cache: "no-store",
-      signal: AbortSignal.timeout(20_000),
-    });
-  } catch {
-    throw new BillingError("The payment service didn't answer. Try again in a moment.", 502);
-  }
-  const data = await response.json().catch(() => null) as (T & { error?: { type?: string; code?: string } }) | null;
-  if (!response.ok || !data) {
+  const url = method !== "POST" && body ? `${STRIPE_API}${path}?${body}` : `${STRIPE_API}${path}`;
+  const headers: Record<string, string> = { Authorization: `Bearer ${secret}`, "Stripe-Version": STRIPE_API_VERSION };
+  if (method === "POST") headers["Content-Type"] = "application/x-www-form-urlencoded";
+  if (key && method !== "GET") headers["Idempotency-Key"] = key;
+  for (let attempt = 0; ; attempt++) {
+    const mayRetry = attempt === 0 && (method === "GET" || Boolean(key));
+    let response: Response;
+    try {
+      response = await transport()(url, { method, headers, body: method === "POST" ? body : undefined, cache: "no-store", signal: AbortSignal.timeout(20_000) });
+    } catch {
+      if (mayRetry) { await new Promise((done) => setTimeout(done, 800)); continue; }
+      throw new BillingError("The payment service didn't answer. Nothing was charged. Try again in a moment.", 502);
+    }
+    const data = await response.json().catch(() => null) as (T & { error?: { type?: string; code?: string } }) | null;
+    if (response.ok && data) return data;
+    if (mayRetry && (response.status >= 500 || response.status === 429)) { await new Promise((done) => setTimeout(done, 800)); continue; }
     const code = data?.error?.code ?? null;
     console.warn(`[billing] Stripe ${method} ${path.split("/").slice(0, 3).join("/")} failed: ${response.status} ${data?.error?.type ?? ""} ${code ?? ""}`);
     throw new StripeApiError(response.status, code);
   }
-  return data;
 }
+
+const idOf = (value: string | { id: string } | null | undefined) => (typeof value === "string" ? value : value?.id ?? null);
 
 // ---------- Catalog (products + prices found or created by lookup key) and the customer portal ----------
 
 type StripeProductRef = string | { id: string; active?: boolean; deleted?: boolean };
 type StripePrice = {
   id: string; lookup_key: string | null; unit_amount: number | null; currency: string; active: boolean;
-  recurring: { interval: string } | null; product: StripeProductRef;
+  recurring: { interval: string } | null; product: StripeProductRef; metadata?: Record<string, string> | null;
 };
 export type StripeCatalog = Record<string, { priceId: string; productId: string }>;
 
@@ -81,9 +113,9 @@ type BillingGlobal = typeof globalThis & {
   diamondStripeCatalog?: Promise<StripeCatalog>;
   diamondStripeCatalogKey?: string;
   diamondStripePortalConfig?: Promise<string>;
-  diamondStripeSyncs?: Map<string, Promise<void>>;
-  diamondStripeReconciles?: Map<string, number>;
+  diamondStripeSyncs?: Map<string, Promise<SyncReport>>;
   diamondStripeCustomers?: Map<string, Promise<string>>;
+  diamondStripeSweeper?: boolean;
 };
 const cache = globalThis as BillingGlobal;
 
@@ -105,16 +137,15 @@ async function loadCatalog(): Promise<StripeCatalog> {
     prices.push(...list.data);
   }
   const found = new Map(prices.filter((price) => price.lookup_key).map((price) => [price.lookup_key as string, price]));
-  // Month and year prices of one plan share one product: reuse whichever product already exists.
+  // All prices of one plan share one product: reuse whichever product already exists.
   const products = new Map<string, string>();
   for (const entry of STRIPE_CATALOG) {
     const price = found.get(entry.lookupKey);
     if (price && productUsable(price.product) && !products.has(entry.productKey)) products.set(entry.productKey, productIdOf(price.product));
   }
-  // Keep product names current (plans were renamed: "Creator" at $11.99 is now "Pro").
   for (const entry of STRIPE_CATALOG) {
     const id = products.get(entry.productKey);
-    if (id && entry.kind === "plan" && entry.interval === "month") await stripeRequest("POST", `/products/${id}`, { name: entry.productName });
+    if (id && (entry.kind === "topup" || entry.interval === PLAN_CYCLE)) await stripeRequest("POST", `/products/${id}`, { name: entry.productName });
   }
   const catalog: StripeCatalog = {};
   for (const entry of STRIPE_CATALOG) {
@@ -127,27 +158,27 @@ async function loadCatalog(): Promise<StripeCatalog> {
     if (!productId) {
       const product = await stripeRequest<{ id: string }>("POST", "/products", {
         name: entry.productName, metadata: { diamond_key: entry.productKey },
-      });
+      }, idempotencyKey("product", entry.productKey));
       productId = product.id;
       products.set(entry.productKey, productId);
     }
-    // transfer_lookup_key moves the key from an old (changed or archived) price to this new one.
+    // transfer_lookup_key moves the key from an old (changed or archived) price to this new one; the price's own
+    // metadata keeps its diamond_key, so people still on the old price stay recognised (subscriptionPlan).
     const price = await stripeRequest<StripePrice>("POST", "/prices", {
       product: productId, currency: "usd", unit_amount: entry.unitAmount, lookup_key: entry.lookupKey, transfer_lookup_key: true,
-      nickname: entry.productName + (entry.kind === "plan" ? (entry.interval === "month" ? " (monthly)" : " (yearly)") : ""),
+      nickname: entry.productName + (entry.kind === "plan" ? ` (${entry.interval === "year" ? "yearly" : PLAN_CYCLE === "week" ? "weekly" : "monthly"})` : ""),
       recurring: entry.kind === "plan" ? { interval: entry.interval } : undefined,
       metadata: { diamond_key: entry.lookupKey },
-    });
+    }, idempotencyKey("price", entry.lookupKey, entry.unitAmount, productId));
     catalog[entry.lookupKey] = { priceId: price.id, productId };
   }
   return catalog;
 }
 
-/** Finds or creates the 9 prices (6 plan prices, 3 credit packs) once per server start. */
+/** Finds or creates the plan prices and the 3 packs once per server start (again when a price changes). */
 export function ensureStripeCatalog(): Promise<StripeCatalog> {
-  // Reload when the plans or packs change (a server that stays running keeps this cache).
-  const key = TOP_UP_PACKS.map((pack) => `${pack.id}:${pack.usd}`).join(",");
-  if (cache.diamondStripeCatalogKey !== key) { cache.diamondStripeCatalog = undefined; cache.diamondStripeCatalogKey = key; }
+  const key = STRIPE_CATALOG.map((entry) => `${entry.lookupKey}:${entry.unitAmount}`).join(",");
+  if (cache.diamondStripeCatalogKey !== key) { cache.diamondStripeCatalog = undefined; cache.diamondStripePortalConfig = undefined; cache.diamondStripeCatalogKey = key; }
   if (!cache.diamondStripeCatalog) {
     cache.diamondStripeCatalog = loadCatalog().catch((error) => { cache.diamondStripeCatalog = undefined; throw error; });
   }
@@ -156,10 +187,9 @@ export function ensureStripeCatalog(): Promise<StripeCatalog> {
 
 async function configurePortal(): Promise<string> {
   const catalog = await ensureStripeCatalog();
-  // Each plan product with its prices (normally one product holding the month + year price).
   const byProduct = new Map<string, string[]>();
   for (const plan of PAID_PLAN_IDS) {
-    for (const interval of ["month", "year"] as const) {
+    for (const interval of [PLAN_CYCLE, "year"] as const) {
       const item = catalog[planLookupKey(plan, interval)];
       if (!item) continue;
       byProduct.set(item.productId, [...(byProduct.get(item.productId) ?? []), item.priceId]);
@@ -167,7 +197,11 @@ async function configurePortal(): Promise<string> {
   }
   const features: Record<string, FormValue> = {
     subscription_update: {
-      enabled: true, default_allowed_updates: ["price"], proration_behavior: "create_prorations",
+      enabled: true, default_allowed_updates: ["price"],
+      // An upgrade is charged right away (so its bigger credits are paid for before they arrive); a downgrade or a
+      // shorter interval waits for the end of the paid cycle (the person keeps what they paid for).
+      proration_behavior: "always_invoice",
+      schedule_at_period_end: { conditions: [{ type: "decreasing_item_amount" }, { type: "shortening_interval" }] },
       products: [...byProduct].map(([product, prices]) => ({ product, prices })),
     },
     subscription_cancel: { enabled: true, mode: "at_period_end" },
@@ -182,11 +216,11 @@ async function configurePortal(): Promise<string> {
   }
   const created = await stripeRequest<{ id: string }>("POST", "/billing_portal/configurations", {
     features, business_profile: { headline: "Diamond Animator: manage your plan" },
-  });
+  }, idempotencyKey("portal", JSON.stringify(features)));
   return created.id;
 }
 
-/** Sets up the "Manage plan" page (cancel at period end, switch between the 3 plans, card, invoices) once per server start. */
+/** Sets up the "Manage plan" page (cancel at period end, switch plans, card, invoices) once per server start. */
 export function ensurePortalConfiguration(): Promise<string> {
   if (!cache.diamondStripePortalConfig) {
     cache.diamondStripePortalConfig = configurePortal().catch((error) => { cache.diamondStripePortalConfig = undefined; throw error; });
@@ -194,11 +228,18 @@ export function ensurePortalConfiguration(): Promise<string> {
   return cache.diamondStripePortalConfig;
 }
 
-// ---------- Customers ----------
+// ---------- Customers: exactly one per account ----------
 
 export type BillingUser = { email: string; name?: string | null };
 
-/** This account's Stripe customer (made on first checkout; remade if the saved one is gone). */
+async function findCustomerByOwner(ownerId: string): Promise<string | null> {
+  const query = `metadata['owner_id']:'${ownerId.replace(/['\\]/g, "")}'`;
+  const found = await stripeRequest<{ data: { id: string; deleted?: boolean }[] }>("GET", "/customers/search", { query, limit: 3 });
+  return found.data.find((customer) => !customer.deleted)?.id ?? null;
+}
+
+/** This account's Stripe customer. The saved one is used; if none is saved, Stripe is searched first, and a new one is
+ *  made with an idempotency key from the account, so a retry or two tabs can never make a second customer. */
 export function getOrCreateCustomer(ownerId: string, email: string, name?: string | null): Promise<string> {
   const pending = (cache.diamondStripeCustomers ??= new Map());
   const running = pending.get(ownerId);
@@ -213,9 +254,11 @@ export function getOrCreateCustomer(ownerId: string, email: string, name?: strin
         if (!(error instanceof StripeApiError && error.stripeCode === "resource_missing")) throw error;
       }
     }
+    const existing = await findCustomerByOwner(ownerId);
+    if (existing) { setStripeCustomerId(ownerId, existing); return existing; }
     const created = await stripeRequest<{ id: string }>("POST", "/customers", {
       email, name: name || undefined, metadata: { owner_id: ownerId },
-    });
+    }, idempotencyKey("customer", ownerId, customerId ?? "first"));
     setStripeCustomerId(ownerId, created.id);
     return created.id;
   })().finally(() => pending.delete(ownerId));
@@ -223,131 +266,383 @@ export function getOrCreateCustomer(ownerId: string, email: string, name?: strin
   return work;
 }
 
-// ---------- Subscriptions ----------
+// ---------- The sync: Stripe is the truth ----------
 
+type StripeInvoice = {
+  id: string; status: string | null; amount_paid: number; created: number; charge: string | { id: string } | null;
+  payment_intent: string | { id: string } | null; subscription: string | { id: string } | null; billing_reason?: string | null;
+  lines?: { data?: { period?: { start?: number; end?: number } | null }[] } | null;
+};
 type StripeSubscription = {
-  id: string; status: string; customer: string | { id: string } | null; cancel_at_period_end?: boolean; cancel_at?: number | null;
-  current_period_start?: number | null;
-  items?: { data?: { current_period_start?: number | null; price?: { lookup_key?: string | null; recurring?: { interval?: string | null } | null } | null }[] } | null;
+  id: string; status: string; created: number; customer: string | { id: string } | null; cancel_at_period_end?: boolean; cancel_at?: number | null;
+  current_period_start?: number | null; current_period_end?: number | null; metadata?: Record<string, string> | null;
+  latest_invoice?: string | StripeInvoice | null;
+  items?: { data?: { current_period_start?: number | null; current_period_end?: number | null; price?: { lookup_key?: string | null; metadata?: Record<string, string> | null; recurring?: { interval?: string | null } | null; unit_amount?: number | null } | null }[] } | null;
+};
+type StripeCheckoutSession = {
+  id: string; mode: string; status: string | null; payment_status: string; client_reference_id: string | null; url?: string | null;
+  metadata: Record<string, string> | null; subscription: string | StripeSubscription | null; amount_total?: number | null;
+  payment_intent?: string | { id: string } | null; created?: number;
+};
+type StripeCharge = {
+  id: string; amount: number; amount_refunded: number; payment_intent: string | { id: string } | null; disputed?: boolean;
+  dispute?: string | { id: string; status: string } | null; balance_transaction?: string | { fee?: number } | null;
 };
 
-/** Saves what Stripe says about a subscription. Returns the plan, or null if the subscription isn't one of ours. */
-function applyFromSubscription(ownerId: string, subscription: StripeSubscription) {
-  const planAndInterval = subscriptionPlan(subscription);
-  const status = mapSubscriptionStatus(subscription.status);
-  if (!planAndInterval || status === "none") return null;
-  applySubscriptionState(ownerId, {
-    plan: planAndInterval.plan,
-    interval: planAndInterval.interval,
-    status,
-    periodStartedAt: subscriptionPeriodStartMs(subscription, readAccountPlanRecord(ownerId).periodStartedAt),
-    cancelAtPeriodEnd: Boolean(subscription.cancel_at_period_end || subscription.cancel_at),
-    subscriptionId: subscription.id,
-    customerId: typeof subscription.customer === "string" ? subscription.customer : subscription.customer?.id ?? null,
-  });
-  return { ...planAndInterval, status };
-}
+export type SyncReport = { changed: string[] };
 
-/**
- * Pulls the subscription from Stripe (at most once a minute unless forced) — this replaces webhooks while the app is
- * local. Never throws: on any problem the last saved state stays.
- */
-// Found in testing (2026-10-12): if the account isn't signed in when Stripe sends the buyer back (session
-// expired, another tab signed out), the return page can't finish the payment and the credits/plan would be
-// missing. So, at most once a minute, the app looks at the customer's recent finished Checkout pages and
-// finishes any it missed. Each one is applied once (top-ups are claimed by session id; a plan only if the
-// account doesn't already have that subscription). Webhooks replace this when the app is online.
-const RECONCILE_EVERY_MS = 60_000;
-async function reconcileRecentCheckouts(ownerId: string) {
+const LIVE_ORDER = (a: StripeSubscription, b: StripeSubscription) => {
+  // Keep the oldest PAYING subscription; only if none is paying, the oldest one.
+  const paying = (s: StripeSubscription) => (s.status === "active" || s.status === "trialing" ? 0 : 1);
+  return paying(a) - paying(b) || a.created - b.created;
+};
+
+/** Reads everything about this account from Stripe and applies it, each Stripe object once. Never throws (a Stripe problem
+ *  keeps the last saved state); `force` skips the once-a-minute wait. */
+export async function syncWithStripe(ownerId: string, options: { force?: boolean; fresh?: boolean; alert?: boolean } = {}): Promise<SyncReport> {
+  const empty: SyncReport = { changed: [] };
+  if (billingMode() === "off") return empty;
   const ids = readAccountBillingIds(ownerId);
-  if (!ids.customerId) return;
-  const times = (cache.diamondStripeReconciles ??= new Map());
-  if (Date.now() - (times.get(ownerId) ?? 0) < RECONCILE_EVERY_MS) return;
-  times.set(ownerId, Date.now());
-  const list = await stripeRequest<{ data: StripeCheckoutSession[] }>("GET", "/checkout/sessions", { customer: ids.customerId, status: "complete", limit: 10 });
-  for (const session of list.data ?? []) {
-    if (session.client_reference_id !== ownerId) continue;
-    const kind = session.metadata?.kind;
-    const subscriptionId = typeof session.subscription === "string" ? session.subscription : session.subscription?.id;
-    const missedPlan = kind === "plan" && subscriptionId && subscriptionId !== readAccountBillingIds(ownerId).subscriptionId;
-    if (kind !== "topup" && !missedPlan) continue;
-    try { await completeCheckout(ownerId, session.id); } catch { /* not paid yet, or already handled */ }
-  }
+  // `fresh` = the person just came back from Stripe's page: check now, but never more than once every 10 seconds per account
+  const gap = options.force ? 0 : options.fresh ? 10_000 : SYNC_EVERY_MS;
+  if (gap > 0 && ids.syncedAt && Date.now() - ids.syncedAt < gap) return empty;
+  const pending = (cache.diamondStripeSyncs ??= new Map());
+  const running = pending.get(ownerId);
+  if (running) return running;
+  const work = (async (): Promise<SyncReport> => {
+    const report: SyncReport = { changed: [] };
+    try {
+      await syncNow(ownerId, report, Boolean(options.force), Boolean(options.fresh));
+    } catch (error) {
+      console.warn("[billing] check with Stripe failed; keeping the last saved plan:", error instanceof BillingError ? error.message : "unknown");
+    }
+    try { markBillingSynced(ownerId); } catch { /* keep the last state */ }
+    if (options.alert && report.changed.length) {
+      ownerAlert(`match:${ownerId}:${report.changed.join("|")}`, `The daily payments check fixed account ${ownerId}: ${report.changed.join("; ")}.`);
+    }
+    return report;
+  })().finally(() => pending.delete(ownerId));
+  pending.set(ownerId, work);
+  return work;
 }
 
-export async function syncSubscription(ownerId: string, options: { force?: boolean } = {}): Promise<void> {
-  try {
-    if (billingMode() !== "test") return;
-    try { await reconcileRecentCheckouts(ownerId); } catch { /* keep going: the plan status must always load */ }
-    const ids = readAccountBillingIds(ownerId);
-    if (!ids.subscriptionId) return;
-    // A canceled subscription never comes back in Stripe; a new plan arrives through completeCheckout.
-    if (readAccountPlanRecord(ownerId).billingStatus === "canceled") return;
-    if (!options.force && ids.syncedAt && Date.now() - ids.syncedAt < SYNC_EVERY_MS) return;
-    const pending = (cache.diamondStripeSyncs ??= new Map());
-    const running = pending.get(ownerId);
-    if (running) return await running;
-    const subscriptionId = ids.subscriptionId;
-    const work = (async () => {
-      try {
-        const subscription = await stripeRequest<StripeSubscription>("GET", `/subscriptions/${encodeURIComponent(subscriptionId)}`);
-        if (!applyFromSubscription(ownerId, subscription)) markBillingSynced(ownerId);
-      } catch (error) {
-        console.warn("[billing] subscription check failed; keeping the last saved plan:", error instanceof BillingError ? error.message : "unknown");
-        try { markBillingSynced(ownerId); } catch { /* keep the last state */ }
+async function syncNow(ownerId: string, report: SyncReport, force: boolean, cameBack = false) {
+  let customerId = readAccountBillingIds(ownerId).customerId;
+  if (!customerId && force) {
+    customerId = await findCustomerByOwner(ownerId);
+    if (customerId) { setStripeCustomerId(ownerId, customerId); report.changed.push("found its Stripe customer"); }
+  }
+  if (!customerId) return;
+
+  // 1. Subscriptions: exactly one may be live.
+  const subs = await stripeRequest<{ data: StripeSubscription[] }>("GET", "/subscriptions", {
+    customer: customerId, status: "all", limit: 20, expand: ["data.latest_invoice"],
+  });
+  const ours = (subs.data ?? []).filter((sub) => subscriptionPlan(sub));
+  const live = ours.filter((sub) => isChargingSubscriptionStatus(sub.status)).sort(LIVE_ORDER);
+  const keep = live[0] ?? null;
+  for (const extra of live.slice(1)) await stopDuplicate(ownerId, extra, report);
+  // No live plan: only a plan that was really paid can "end" (a first payment that never finished leaves the trial as it is).
+  const saved = readAccountBillingIds(ownerId).subscriptionId;
+  const ended = keep ? null : ours.find((sub) => sub.id === saved && listPayments(ownerId).some((payment) => payment.subscriptionId === sub.id)) ?? null;
+  const current = keep ?? ended;
+  if (keep && (await payRenewalNow(ownerId, keep) !== "skipped" || (cameBack && await retryUnpaidBill(keep)))) {
+    // the renewal was just tried: read the subscription again (paid = this cycle counts at once; declined = it shows the problem at once)
+    const fresh = await stripeRequest<StripeSubscription>("GET", `/subscriptions/${encodeURIComponent(keep.id)}`, { expand: ["latest_invoice"] });
+    Object.assign(keep, fresh);
+  }
+  if (current) {
+    if (applyKeep(ownerId, current)) report.changed.push(`plan is now ${current.status} (${subscriptionPlan(current)?.plan})`);
+    await recordPlanPayments(ownerId, current, report);
+    if (keep) await giveBothCodesBonus(ownerId, keep, report);
+  }
+
+  // 2. Finished checkout pages: packs (each once), and any open plan page left over once a plan exists.
+  const done = await stripeRequest<{ data: StripeCheckoutSession[] }>("GET", "/checkout/sessions", { customer: customerId, status: "complete", limit: 20 });
+  for (const session of done.data ?? []) {
+    if (session.client_reference_id !== ownerId || session.mode !== "payment" || session.metadata?.kind !== "topup") continue;
+    if (session.payment_status !== "paid") continue;
+    const credits = packCreditsOf(session);
+    if (credits <= 0) continue;
+    recordPayment({
+      stripeId: session.id, ownerId, kind: "pack", amountCents: session.amount_total ?? 0, credits, plan: null, periodFrom: null, periodUntil: null,
+      paidAt: (session.created ?? Math.floor(Date.now() / 1000)) * 1000, chargeId: null, paymentIntentId: idOf(session.payment_intent ?? null), subscriptionId: null,
+    });
+    if (addTopUpCredits(ownerId, credits, session.id)) report.changed.push(`added a ${creditsText(credits)} pack`);
+  }
+  if (keep) await closeOpenPlanPages(customerId, null);
+
+  // 3. Refunds and disputes, read from the charges themselves.
+  const charges = await stripeRequest<{ data: StripeCharge[] }>("GET", "/charges", { customer: customerId, limit: 40, expand: ["data.dispute"] });
+  let disputed = false;
+  for (const charge of charges.data ?? []) {
+    const payment = findPaymentByCharge(charge.id, idOf(charge.payment_intent));
+    if (payment && charge.amount_refunded > payment.refundedCents) {
+      const taken = applyRefundTotal(payment.stripeId, charge.amount_refunded);
+      if (taken > 0) report.changed.push(`a refund took back ${creditsText(taken)}`);
+    }
+    const dispute = typeof charge.dispute === "object" && charge.dispute ? charge.dispute : null;
+    if (dispute && dispute.status !== "won" && dispute.status !== "warning_closed") {
+      disputed = true;
+      if (claimBillingEvent(ownerId, `dispute:${dispute.id}`, "dispute")) {
+        ownerAlert(`dispute:${dispute.id}`, `A payment on account ${ownerId} is disputed with the bank (${dollarsText(charge.amount)}). The AI is paused for this account. Answer it in the Stripe dashboard.`);
       }
-    })().finally(() => pending.delete(ownerId));
-    pending.set(ownerId, work);
-    await work;
+    }
+  }
+  if (setDisputed(ownerId, disputed)) report.changed.push(disputed ? "a dispute paused the AI" : "a dispute ended; the AI runs again");
+}
+
+/** Saves what Stripe says about the subscription that counts. Its latest bill decides whether this cycle is paid. */
+function applyKeep(ownerId: string, sub: StripeSubscription): boolean {
+  const planAndInterval = subscriptionPlan(sub)!;
+  const status = mapSubscriptionStatus(sub.status);
+  const record = readAccountPlanRecord(ownerId);
+  const periodStartedAt = subscriptionPeriodStartMs(sub, record.periodStartedAt);
+  const periodEndsAt = subscriptionPeriodEndMs(sub);
+  const invoice = typeof sub.latest_invoice === "object" && sub.latest_invoice ? sub.latest_invoice : null;
+  // Paid = the newest bill is paid AND it belongs to this period (a renewal's bill is made at the period's start; an
+  // upgrade's bill in the middle). A bill from the last period never pays for this one.
+  const paidNow = status !== "canceled" && invoice?.status === "paid" && invoice.created * 1000 >= periodStartedAt - 12 * 60 * 60 * 1000;
+  return applySubscriptionState(ownerId, {
+    plan: planAndInterval.plan, interval: planAndInterval.interval, status, periodStartedAt, periodEndsAt,
+    cancelAtPeriodEnd: Boolean(sub.cancel_at_period_end || sub.cancel_at), subscriptionId: sub.id, customerId: idOf(sub.customer),
+    paid: paidNow ? { plan: planAndInterval.plan, from: periodStartedAt, until: periodEndsAt ?? addCycles(periodStartedAt, 1) } : null,
+  });
+}
+
+/** A renewal's bill waits about an hour at Stripe before the card is charged; until then the new cycle's credits would be 0.
+ *  So the first time the app sees a renewal bill that was never tried, it asks Stripe to charge it now (once; an invoice can only
+ *  ever be paid once). A declined card simply leaves it to Stripe's own retries, and the credits wait. */
+async function payRenewalNow(ownerId: string, sub: StripeSubscription): Promise<"paid" | "declined" | "skipped"> {
+  const invoice = typeof sub.latest_invoice === "object" && sub.latest_invoice ? sub.latest_invoice : null;
+  if (!invoice || invoice.billing_reason !== "subscription_cycle" || (invoice.status !== "draft" && invoice.status !== "open")) return "skipped";
+  if ((invoice as { attempt_count?: number }).attempt_count) return "skipped";
+  if (!claimBillingEvent(ownerId, `pay-now:${invoice.id}`, "renewal")) return "skipped";
+  try {
+    if (invoice.status === "draft") await stripeRequest("POST", `/invoices/${encodeURIComponent(invoice.id)}/finalize`, {}, idempotencyKey("finalize", invoice.id));
+    const paid = await stripeRequest<StripeInvoice>("POST", `/invoices/${encodeURIComponent(invoice.id)}/pay`, {}, idempotencyKey("pay", invoice.id));
+    return paid.status === "paid" ? "paid" : "declined";
   } catch {
-    // Never break the caller (the plan status must always load).
+    return "declined";   // declined or not ready: Stripe's own retries go on; the credits wait for the payment
   }
 }
 
-/** True when this account already pays for a plan (so a second subscription must not be made). */
+/** The person just came back from Stripe's page (maybe after putting in a new card) while a bill is unpaid: try that bill again now,
+ *  so the credits come back at once instead of days later at Stripe's next retry. At most once a minute per bill; an invoice can only
+ *  ever be paid once, so this can never charge twice. Returns true when it tried. */
+async function retryUnpaidBill(sub: StripeSubscription): Promise<boolean> {
+  const invoice = typeof sub.latest_invoice === "object" && sub.latest_invoice ? sub.latest_invoice : null;
+  if (!invoice || invoice.status !== "open" || (sub.status !== "past_due" && sub.status !== "unpaid")) return false;
+  try {
+    await stripeRequest("POST", `/invoices/${encodeURIComponent(invoice.id)}/pay`, {}, idempotencyKey("retry", invoice.id, Math.floor(Date.now() / 60_000)));
+  } catch { /* still declined: the plan screen keeps saying so */ }
+  return true;
+}
+
+/** Every paid bill of the subscription that counts, recorded once (the "last payment" line, refunds, deleting). */
+async function recordPlanPayments(ownerId: string, sub: StripeSubscription, report: SyncReport) {
+  const plan = subscriptionPlan(sub)!.plan;
+  const invoices = await stripeRequest<{ data: StripeInvoice[] }>("GET", "/invoices", { subscription: sub.id, status: "paid", limit: 12 });
+  for (const invoice of invoices.data ?? []) {
+    if (invoice.amount_paid <= 0) continue;
+    const period = invoice.lines?.data?.[0]?.period;
+    const added = recordPayment({
+      stripeId: invoice.id, ownerId, kind: "plan", amountCents: invoice.amount_paid, credits: ACCOUNT_PLANS[plan].credits, plan,
+      periodFrom: period?.start ? period.start * 1000 : null, periodUntil: period?.end ? period.end * 1000 : null,
+      paidAt: invoice.created * 1000, chargeId: idOf(invoice.charge), paymentIntentId: idOf(invoice.payment_intent), subscriptionId: sub.id,
+    });
+    if (added) report.changed.push(`recorded a ${dollarsText(invoice.amount_paid)} payment`);
+  }
+}
+
+/** A second live subscription (two checkout pages paid): stopped at once and every one of its payments refunded in full. */
+async function stopDuplicate(ownerId: string, sub: StripeSubscription, report: SyncReport) {
+  const event = `duplicate:${sub.id}`;
+  if (!claimBillingEvent(ownerId, event, "duplicate")) return;
+  try {
+    await stopSubscription(sub.id, "cancel-duplicate");
+    const invoices = await stripeRequest<{ data: StripeInvoice[] }>("GET", "/invoices", { subscription: sub.id, status: "paid", limit: 12 });
+    let refunded = 0;
+    for (const invoice of invoices.data ?? []) {
+      const intent = idOf(invoice.payment_intent);
+      if (!intent || invoice.amount_paid <= 0) continue;
+      await stripeRequest("POST", "/refunds", {
+        payment_intent: intent, reason: "duplicate", metadata: { owner_id: ownerId, why: "second_plan_by_mistake" },
+      }, idempotencyKey("refund-duplicate", invoice.id));
+      refunded += invoice.amount_paid;
+    }
+    setBillingNotice(ownerId, `You started a second plan by mistake, so we stopped it at once and refunded that payment in full (${dollarsText(refunded)}). Your plan stays as it was.`);
+    ownerAlert(event, `Account ${ownerId} paid for a second plan (two checkout pages). It was stopped and ${dollarsText(refunded)} refunded in full.`);
+    report.changed.push(`stopped a second plan and refunded ${dollarsText(refunded)}`);
+  } catch (error) {
+    releaseBillingEvent(event);   // try again on the next check
+    throw error;
+  }
+}
+
+/** Both codes = 30% off the first cycle: the first-50 code took 25% at checkout; 5% of the list price comes back once. */
+async function giveBothCodesBonus(ownerId: string, sub: StripeSubscription, report: SyncReport) {
+  if (sub.metadata?.offer !== "both") return;
+  const first = listPayments(ownerId).filter((payment) => payment.kind === "plan" && payment.subscriptionId === sub.id).at(-1);
+  if (!first?.paymentIntentId) return;
+  const event = `both-bonus:${sub.id}`;
+  if (!claimBillingEvent(ownerId, event, "offer")) return;
+  const { plan, interval } = subscriptionPlan(sub)!;
+  const cents = Math.min(first.amountCents, Math.round((planUnitAmount(plan, interval) * BOTH_EXTRA_PERCENT) / 100));
+  addFreeRefund(first.stripeId, cents);
+  try {
+    await stripeRequest("POST", "/refunds", {
+      payment_intent: first.paymentIntentId, amount: cents, metadata: { owner_id: ownerId, why: "youtube_code_with_first50" },
+    }, idempotencyKey("refund-both-bonus", sub.id));
+    setBillingNotice(ownerId, `Your YouTube bonus: we gave back ${dollarsText(cents)} of your first payment, so your first ${PLAN_CYCLE} is 30% off.`);
+    report.changed.push(`gave the both-codes bonus (${dollarsText(cents)})`);
+  } catch (error) {
+    addFreeRefund(first.stripeId, -cents);
+    releaseBillingEvent(event);
+    throw error;
+  }
+}
+
+/** Stops a subscription at once (no new bill), and voids any bill of it still waiting, so Stripe never retries it later. */
+async function stopSubscription(subscriptionId: string, why: string) {
+  await stripeRequest("DELETE", `/subscriptions/${encodeURIComponent(subscriptionId)}`, { prorate: false, invoice_now: false }, idempotencyKey(why, subscriptionId));
+  const open = await stripeRequest<{ data: StripeInvoice[] }>("GET", "/invoices", { subscription: subscriptionId, status: "open", limit: 10 });
+  for (const invoice of open.data ?? []) {
+    await stripeRequest("POST", `/invoices/${encodeURIComponent(invoice.id)}/void`, {}, idempotencyKey("void", invoice.id));
+  }
+}
+
+/** Closes open plan checkout pages (all, or all but `except`), so an old page can never be paid after a plan exists. */
+async function closeOpenPlanPages(customerId: string, except: string | null) {
+  const open = await stripeRequest<{ data: StripeCheckoutSession[] }>("GET", "/checkout/sessions", { customer: customerId, status: "open", limit: 20 });
+  for (const session of open.data ?? []) {
+    if (session.mode !== "subscription" || session.id === except) continue;
+    try {
+      await stripeRequest("POST", `/checkout/sessions/${encodeURIComponent(session.id)}/expire`, {}, idempotencyKey("expire", session.id));
+    } catch { /* already finished or expired */ }
+  }
+}
+
+const packCreditsOf = (session: StripeCheckoutSession) => {
+  const pack = TOP_UP_PACKS.find((entry) => entry.id === session.metadata?.pack);
+  const fromMetadata = Number(session.metadata?.credits);   // set by this server when the page was made
+  return pack?.credits ?? (Number.isFinite(fromMetadata) && fromMetadata > 0 ? Math.round(fromMetadata) : 0);
+};
+
+/** True when this account already has a plan that can charge it (so a second one must never be made). */
 function hasLiveSubscription(ownerId: string) {
   const ids = readAccountBillingIds(ownerId);
-  const status = getAccountPlanStatus(ownerId);
-  return Boolean(ids.subscriptionId) && status.plan !== "trial" && (status.billingStatus === "active" || status.billingStatus === "past_due");
+  const record = readAccountPlanRecord(ownerId);
+  return Boolean(ids.subscriptionId) && record.plan !== "trial" && !record.planEnded && (record.billingStatus === "active" || record.billingStatus === "past_due");
+}
+
+// ---------- The daily match check ----------
+
+/** Starts (once per server) the daily check of every paying account. Any difference it fixes is told to the owner. */
+export function startBillingSweeper() {
+  if (cache.diamondStripeSweeper || billingMode() === "off") return;
+  cache.diamondStripeSweeper = true;
+  const sweep = async () => {
+    for (const ownerId of listBillingOwners()) {
+      await syncWithStripe(ownerId, { force: true, alert: true });
+      await new Promise((done) => setTimeout(done, 1500));
+    }
+  };
+  setTimeout(() => { void sweep(); setInterval(() => void sweep(), 24 * 60 * 60 * 1000).unref?.(); }, 5 * 60 * 1000).unref?.();
+}
+
+// ---------- Discount codes ----------
+
+const OFFER_COUPONS: Record<"first50" | "youtube", { id: string; percent_off: number; duration: "once" | "repeating"; months?: number; name: string; max?: number }> = {
+  first50: { id: "diamond-first50-25", percent_off: 25, duration: "repeating", months: 12, name: "First 50: 25% off the first year", max: 50 },
+  youtube: { id: "diamond-youtube-10", percent_off: 10, duration: "once", name: "YouTube: 10% off the first payment" },
+};
+/** The real codes people type (settings; in test mode they default to test codes). */
+const offerCodes = () => ({
+  first50: process.env.DIAMOND_FIRST50_CODE?.trim() || (billingMode() === "test" ? "FIRST50TEST" : null),
+  youtube: process.env.DIAMOND_YOUTUBE_CODE?.trim() || (billingMode() === "test" ? "YOUTUBETEST" : null),
+});
+
+/** The Stripe promotion code for an offer (made once, with its limits: the first-50 code works 50 times, both once per person). */
+async function promotionCodeFor(offer: "first50" | "youtube"): Promise<string> {
+  const coupon = OFFER_COUPONS[offer];
+  const code = offerCodes()[offer];
+  if (!code) throw new BillingError("That code isn't available right now.", 409);
+  try {
+    await stripeRequest("GET", `/coupons/${coupon.id}`);
+  } catch (error) {
+    if (!(error instanceof StripeApiError && error.stripeCode === "resource_missing")) throw error;
+    await stripeRequest("POST", "/coupons", {
+      id: coupon.id, percent_off: coupon.percent_off, duration: coupon.duration, duration_in_months: coupon.months, name: coupon.name,
+    }, idempotencyKey("coupon", coupon.id));
+  }
+  const found = await stripeRequest<{ data: { id: string; active: boolean; max_redemptions: number | null; times_redeemed: number; coupon: { id: string } }[] }>(
+    "GET", "/promotion_codes", { code, limit: 5 });
+  let promo = found.data.find((entry) => entry.coupon.id === coupon.id) ?? null;
+  if (!promo) {
+    promo = await stripeRequest("POST", "/promotion_codes", {
+      coupon: coupon.id, code, max_redemptions: coupon.max, restrictions: { first_time_transaction: true },
+    }, idempotencyKey("promotion-code", coupon.id, code));
+  }
+  if (!promo!.active || (promo!.max_redemptions != null && promo!.times_redeemed >= promo!.max_redemptions)) {
+    throw new BillingError(offer === "first50" ? "All 50 first-50 discounts have been used." : "That YouTube code isn't active anymore.", 409);
+  }
+  return promo!.id;
 }
 
 // ---------- Checkout, completion, portal ----------
 
 /** Stripe's "Manage plan" page for this account. */
 export async function createPortalSession(ownerId: string, origin: string, returnPath = "/credits"): Promise<{ url: string }> {
-  assertTestStripeKey(process.env.STRIPE_SECRET_KEY);
+  stripeKey();
   const { customerId } = readAccountBillingIds(ownerId);
   if (!customerId) throw new BillingError("There's no plan to manage yet. Choose a plan first.", 409);
   let configuration: string | undefined;
   try { configuration = await ensurePortalConfiguration(); } catch { configuration = undefined; /* fall back to Stripe's default page */ }
   const session = await stripeRequest<{ url: string }>("POST", "/billing_portal/sessions", {
-    customer: customerId, return_url: `${origin}${returnPath}`, configuration,
+    customer: customerId, return_url: `${origin}${returnPath}?portal=back`, configuration,
   });
+  startBillingSweeper();
   return { url: session.url };
 }
 
-/** Starts paying for a plan on Stripe's page. If a plan is already paid for, opens Manage plan instead (switching happens there). */
-export async function createPlanCheckout(ownerId: string, user: BillingUser, plan: unknown, interval: unknown, origin: string): Promise<{ url: string; portal: boolean }> {
-  assertTestStripeKey(process.env.STRIPE_SECRET_KEY);
-  if (!isPaidPlanId(plan)) throw new BillingError("Choose Starter, Creator or Studio.");
-  if (!isBillingInterval(interval)) throw new BillingError("Choose monthly or yearly.");
-  await syncSubscription(ownerId, { force: true });
+/** Starts paying for a plan on Stripe's page. If a plan is already paid for, opens Manage plan instead (switching happens there).
+ *  Only ONE open plan page per account: asking again gives back the same page; a different choice closes the old page. */
+export async function createPlanCheckout(ownerId: string, user: BillingUser, plan: unknown, interval: unknown, origin: string,
+  codes: { first50?: unknown; youtube?: unknown } = {}): Promise<{ url: string; portal: boolean }> {
+  stripeKey();
+  if (!isPaidPlanId(plan)) throw new BillingError("Choose Basic, Pro or Creator.");
+  if (!isBillingInterval(interval)) throw new BillingError(`Choose ${PLAN_CYCLE === "week" ? "weekly" : "monthly"} or yearly.`);
+  const offer = pickOffer(codes, offerCodes(), interval);
+  if (!offer.ok) throw new BillingError(offer.message, 400);
+  await syncWithStripe(ownerId, { force: true });
   if (hasLiveSubscription(ownerId)) return { ...(await createPortalSession(ownerId, origin, "/plans")), portal: true };
   const catalog = await ensureStripeCatalog();
   const price = catalog[planLookupKey(plan, interval)];
   if (!price) throw new BillingError("That plan isn't ready yet. Try again in a moment.", 503);
   const customer = await getOrCreateCustomer(ownerId, user.email, user.name);
+  const offerName: Offer | "none" = offer.offer ?? "none";
+  const open = await stripeRequest<{ data: StripeCheckoutSession[] }>("GET", "/checkout/sessions", { customer, status: "open", limit: 20 });
+  const same = (open.data ?? []).find((session) => session.mode === "subscription" && session.url && session.metadata?.plan === plan &&
+    session.metadata?.interval === interval && (session.metadata?.offer ?? "none") === offerName);
+  await closeOpenPlanPages(customer, same?.id ?? null);
+  startBillingSweeper();
+  if (same?.url) return { url: same.url, portal: false };
+  const discounts = offer.apply ? [{ promotion_code: await promotionCodeFor(offer.apply) }] : undefined;
   const session = await stripeRequest<{ url: string | null }>("POST", "/checkout/sessions", {
     mode: "subscription",
-    adaptive_pricing: { enabled: false }, // USD only: no THB/USD switch (Arthur 2026-10-13)
+    // (Nov 20, live test) cards only (Apple Pay and Google Pay are cards too): a card is paid at once, so credits never wait days for a
+    // bank transfer to clear, and nothing is ever given before the money is really there.
+    payment_method_types: ["card"],
+    adaptive_pricing: { enabled: false }, // USD only (Arthur 2026-10-13)
     customer,
     client_reference_id: ownerId,
     line_items: [{ price: price.priceId, quantity: 1 }],
-    metadata: { owner_id: ownerId, kind: "plan", plan, interval },
-    subscription_data: { metadata: { owner_id: ownerId, plan, interval } },
+    metadata: { owner_id: ownerId, kind: "plan", plan, interval, offer: offerName },
+    subscription_data: { metadata: { owner_id: ownerId, plan, interval, offer: offerName } },
     success_url: `${origin}/plans?checkout=done&session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${origin}/plans?checkout=canceled`,
-    allow_promotion_codes: true,
+    discounts,
   });
   if (!session.url) throw new BillingError(SERVICE_PROBLEM, 502);
   return { url: session.url, portal: false };
@@ -355,25 +650,25 @@ export async function createPlanCheckout(ownerId: string, user: BillingUser, pla
 
 /** Buys an extra credit pack on Stripe's page (members with a paid plan only). */
 export async function createTopUpCheckout(ownerId: string, user: BillingUser, packId: unknown, origin: string): Promise<{ url: string }> {
-  assertTestStripeKey(process.env.STRIPE_SECRET_KEY);
+  stripeKey();
   if (!isTopUpPackId(packId)) throw new BillingError("Choose a credit pack.");
-  await syncSubscription(ownerId);
+  await syncWithStripe(ownerId, { force: true });
   const status = getAccountPlanStatus(ownerId);
-  if (status.plan === "trial" || status.locked || status.billingStatus === "canceled" || status.billingStatus === "none") {
-    throw new BillingError("Extra credits are for members — choose a plan first", 403);
+  if (status.plan === "trial" || status.locked || status.billingStatus === "canceled") {
+    throw new BillingError("Extra packs are for plan members. Choose a plan first.", 403);
   }
   if (status.billingStatus === "past_due") {
     throw new BillingError("Your last payment didn't go through. Update your card in Manage plan first.", 409);
   }
   const pack = TOP_UP_PACKS.find((entry) => entry.id === packId)!;
-  if (pack.plan !== status.plan) throw new BillingError("That pack is for a different plan. Pick one of your plan's packs.", 403);
   const catalog = await ensureStripeCatalog();
   const price = catalog[packId];
   if (!price) throw new BillingError("That pack isn't ready yet. Try again in a moment.", 503);
   const customer = await getOrCreateCustomer(ownerId, user.email, user.name);
   const session = await stripeRequest<{ url: string | null }>("POST", "/checkout/sessions", {
     mode: "payment",
-    adaptive_pricing: { enabled: false }, // USD only: no THB/USD switch (Arthur 2026-10-13)
+    payment_method_types: ["card"],
+    adaptive_pricing: { enabled: false },
     customer,
     client_reference_id: ownerId,
     line_items: [{ price: price.priceId, quantity: 1 }],
@@ -383,23 +678,20 @@ export async function createTopUpCheckout(ownerId: string, user: BillingUser, pa
     cancel_url: `${origin}/credits?topup=canceled`,
   });
   if (!session.url) throw new BillingError(SERVICE_PROBLEM, 502);
+  startBillingSweeper();
   return { url: session.url };
 }
 
-type StripeCheckoutSession = {
-  id: string; mode: string; status: string | null; payment_status: string; client_reference_id: string | null;
-  metadata: Record<string, string> | null; subscription: string | StripeSubscription | null;
-};
-
 export type CheckoutResult =
-  | { kind: "plan"; plan: PaidPlanId; label: string; credits: number; interval: BillingInterval; billingStatus: string }
-  | { kind: "topup"; pack: TopUpPackId; credits: number; added: boolean };
+  | { kind: "plan"; plan: PaidPlanId; label: string; credits: number; interval: BillingInterval; billingStatus: string; waitingForPayment: boolean }
+  | { kind: "topup"; pack: string; credits: number; added: boolean };
 
-/** Reads a finished Stripe checkout and applies it to this account (safe to call more than once). */
+/** After Stripe's page sends the person back: checks that page belongs to this account, then runs the sync (which applies
+ *  it exactly once) and says what arrived. Safe to call any number of times. */
 export async function completeCheckout(ownerId: string, sessionId: unknown): Promise<CheckoutResult> {
-  assertTestStripeKey(process.env.STRIPE_SECRET_KEY);
+  stripeKey();
   if (typeof sessionId !== "string" || !/^cs_[A-Za-z0-9_]{6,200}$/.test(sessionId)) throw new BillingError("That payment couldn't be found.", 404);
-  const session = await stripeRequest<StripeCheckoutSession>("GET", `/checkout/sessions/${encodeURIComponent(sessionId)}`, { expand: ["subscription"] });
+  const session = await stripeRequest<StripeCheckoutSession>("GET", `/checkout/sessions/${encodeURIComponent(sessionId)}`);
   if (session.client_reference_id !== ownerId || (session.metadata?.owner_id && session.metadata.owner_id !== ownerId)) {
     throw new BillingError("That payment belongs to a different account.", 403);
   }
@@ -408,23 +700,167 @@ export async function completeCheckout(ownerId: string, sessionId: unknown): Pro
   if (session.payment_status !== "paid" && session.payment_status !== "no_payment_required") {
     throw new BillingError("Your payment is still being processed. Check again in a few minutes.", 409);
   }
-  const kind = session.metadata?.kind;
-  if (kind === "plan" && session.mode === "subscription" && session.subscription) {
-    const subscription = typeof session.subscription === "string"
-      ? await stripeRequest<StripeSubscription>("GET", `/subscriptions/${encodeURIComponent(session.subscription)}`)
-      : session.subscription;
-    const applied = applyFromSubscription(ownerId, subscription);
-    if (!applied) throw new BillingError("That plan couldn't be read. Try again in a moment.", 502);
+  await syncWithStripe(ownerId, { force: true });
+  if (session.metadata?.kind === "plan" && session.mode === "subscription") {
+    const status = getAccountPlanStatus(ownerId);
+    const plan = isPaidPlanId(status.plan) ? status.plan : isPaidPlanId(session.metadata.plan) ? session.metadata.plan : null;
+    if (!plan) throw new BillingError("Your plan is being set up. Refresh in a moment.", 502);
     return {
-      kind: "plan", plan: applied.plan, label: ACCOUNT_PLANS[applied.plan].label, credits: ACCOUNT_PLANS[applied.plan].credits,
-      interval: applied.interval, billingStatus: applied.status,
+      kind: "plan", plan, label: ACCOUNT_PLANS[plan].label, credits: status.creditsTotal || ACCOUNT_PLANS[plan].credits,
+      interval: status.interval ?? PLAN_CYCLE, billingStatus: status.billingStatus, waitingForPayment: status.waitingForPayment,
     };
   }
-  if (kind === "topup" && session.mode === "payment") {
-    const pack = TOP_UP_PACKS.find((entry) => entry.id === session.metadata?.pack);
-    if (!pack) throw new BillingError("That credit pack couldn't be read.", 502);
-    const added = addTopUpCredits(ownerId, pack.credits, session.id);
-    return { kind: "topup", pack: pack.id, credits: pack.credits, added };
+  if (session.metadata?.kind === "topup" && session.mode === "payment") {
+    const credits = packCreditsOf(session);
+    if (credits <= 0) throw new BillingError("That credit pack couldn't be read.", 502);
+    return { kind: "topup", pack: session.metadata.pack ?? "", credits, added: listPayments(ownerId).some((payment) => payment.stripeId === session.id) };
   }
   throw new BillingError("That payment couldn't be read.", 400);
+}
+
+// ---------- The webhook doorbell ----------
+
+/** Stripe rang: if the signature is right, check that account with Stripe now. The event itself is never trusted for what it
+ *  says; the sync reads the fresh facts, so a late, repeated or out-of-order event can't put in a wrong state. */
+export function handleStripeWebhook(payload: string, signature: string | null): { status: number; body: Record<string, unknown> } {
+  const secret = process.env.STRIPE_WEBHOOK_SECRET?.trim();
+  if (!secret || billingMode() === "off") return { status: 503, body: { error: "not_ready" } };
+  if (!verifyStripeSignature(payload, signature, secret)) return { status: 400, body: { error: "bad_signature" } };
+  let event: { livemode?: boolean; data?: { object?: { object?: string; id?: string; customer?: string | { id: string } | null; metadata?: Record<string, string> | null } } };
+  try { event = JSON.parse(payload); } catch { return { status: 400, body: { error: "bad_payload" } }; }
+  if (Boolean(event.livemode) !== (billingMode() === "live")) return { status: 200, body: { received: true, ignored: "other_mode" } };
+  const object = event.data?.object;
+  const customer = object?.object === "customer" ? object.id ?? null : idOf(object?.customer ?? null);
+  const ownerId = customer ? findOwnerByStripeCustomer(customer) : null;
+  if (ownerId) void syncWithStripe(ownerId, { force: true });
+  startBillingSweeper();
+  return { status: 200, body: { received: true } };
+}
+
+// ---------- Deleting an account ----------
+
+export type DeletionPreview = DeletionRefund & { hasPlan: boolean };
+
+async function feeCentsOf(chargeId: string | null, paymentIntentId: string | null, amountCents: number): Promise<number> {
+  try {
+    const charge = chargeId
+      ? await stripeRequest<StripeCharge>("GET", `/charges/${encodeURIComponent(chargeId)}`, { expand: ["balance_transaction"] })
+      : paymentIntentId
+        ? (await stripeRequest<{ data: StripeCharge[] }>("GET", "/charges", { payment_intent: paymentIntentId, limit: 1, expand: ["data.balance_transaction"] })).data[0]
+        : null;
+    const fee = typeof charge?.balance_transaction === "object" ? charge?.balance_transaction?.fee : undefined;
+    if (typeof fee === "number" && fee >= 0) return fee;
+  } catch { /* fall back to Stripe's usual US fee */ }
+  return estimateStripeFeeCents(amountCents);
+}
+
+const CANT_REACH = "We couldn't reach the payment service, so your account wasn't deleted (so you're never charged after it's gone). Nothing was changed. Try again in a minute.";
+
+/** What deleting this account would give back right now (shown in the Delete dialog before anything happens). Reads Stripe
+ *  fresh and strictly: if Stripe can't be reached, it says so instead of guessing. */
+export async function previewAccountDeletion(ownerId: string): Promise<DeletionPreview> {
+  const zero: DeletionPreview = { hasPlan: false, planPaidCents: 0, aiCostCents: 0, feeCents: 0, planRefundCents: 0, packRefundCents: 0, refundCents: 0, lines: [] };
+  const saved = readAccountBillingIds(ownerId);
+  if (!saved.customerId) return zero;
+  if (billingMode() === "off") {
+    if (saved.subscriptionId || listPayments(ownerId).length) throw new BillingError(CANT_REACH, 503);
+    return zero;   // a customer that never paid anything: nothing to stop or give back
+  }
+  try { await syncNow(ownerId, { changed: [] }, true); markBillingSynced(ownerId); } catch { throw new BillingError(CANT_REACH, 503); }
+  const ids = readAccountBillingIds(ownerId);
+  const record = readAccountPlanRecord(ownerId);
+  const status = getAccountPlanStatus(ownerId);
+  const hasPlan = hasLiveSubscription(ownerId);
+  const { start } = creditWindow(record, Date.now());
+  const payments = listPayments(ownerId);
+  // The plan payments that pay for today: this cycle's bill (and an upgrade's), or a yearly plan's year. A cycle that
+  // isn't paid (its renewal failed) has nothing to give back; its waiting bill is voided when the plan stops.
+  const paidFrom = record.paidFrom ?? start;
+  const cyclePaid = hasPlan && !status.waitingForPayment;
+  const planPaymentsRaw = cyclePaid ? payments.filter((payment) => payment.kind === "plan" && payment.subscriptionId === ids.subscriptionId &&
+    payment.paidAt >= paidFrom - 12 * 60 * 60 * 1000) : [];
+  const toRefundable = async (payment: (typeof payments)[number]): Promise<RefundablePayment> => ({
+    stripeId: payment.stripeId, paymentIntentId: payment.paymentIntentId, kind: payment.kind, amountCents: payment.amountCents,
+    refundedCents: payment.refundedCents, credits: payment.credits, feeCents: await feeCentsOf(payment.chargeId, payment.paymentIntentId, payment.amountCents),
+  });
+  const planPayments = await Promise.all(planPaymentsRaw.map(toRefundable));
+  const packPayments = await Promise.all(payments.filter((payment) => payment.kind === "pack" && payment.refundedCents < payment.amountCents).map(toRefundable));
+  const aiCost = cyclePaid ? planCreditsUsedSince(ownerId, Math.min(paidFrom, start)) : 0;
+  return { hasPlan, ...deletionRefund(planPayments, aiCost, packPayments, status.topUpCredits) };
+}
+
+/** Before an account is deleted: stop every plan at once (never charged again), void waiting bills, close open payment pages,
+ *  and give back everything but the AI it used and Stripe's fee. If Stripe can't be reached, this throws and the account is
+ *  NOT deleted. Safe to run again after a failure: every step has its own idempotency key, and the refund is worked out
+ *  again from what Stripe says is already refunded. */
+export async function closeBillingForDeletion(ownerId: string): Promise<DeletionPreview> {
+  const { customerId } = readAccountBillingIds(ownerId);
+  if (!customerId) return previewAccountDeletion(ownerId);
+  try {
+    const preview = await previewAccountDeletion(ownerId);
+    const subs = await stripeRequest<{ data: StripeSubscription[] }>("GET", "/subscriptions", { customer: customerId, status: "all", limit: 20 });
+    for (const sub of subs.data ?? []) {
+      if (isLiveSubscriptionStatus(sub.status)) await stopSubscription(sub.id, "cancel-delete");
+    }
+    await closeOpenPlanPages(customerId, null);
+    for (const line of preview.lines) {
+      await stripeRequest("POST", "/refunds", {
+        payment_intent: line.paymentIntentId, amount: line.cents, reason: "requested_by_customer", metadata: { owner_id: ownerId, why: "account_deleted" },
+      }, idempotencyKey("refund-delete", line.paymentIntentId, line.cents));
+    }
+    if (preview.hasPlan || preview.refundCents > 0) {
+      ownerAlert(`deleted:${ownerId}`, `An account with a plan was deleted. Its plan was stopped and ${dollarsText(preview.refundCents)} given back (paid this ${PLAN_CYCLE} ${dollarsText(preview.planPaidCents)}, its AI ${dollarsText(preview.aiCostCents)}, Stripe's fee ${dollarsText(preview.feeCents)}; unused pack credits ${dollarsText(preview.packRefundCents)}).`);
+    }
+    return preview;
+  } catch (error) {
+    console.warn("[billing] closing billing before delete failed:", error instanceof BillingError ? error.message : "unknown");
+    throw new BillingError(CANT_REACH, 503);
+  }
+}
+
+/** The Plans screen's facts from Stripe: last payment, next payment, any notice. */
+export const billingFacts = (ownerId: string) => readBillingFacts(ownerId);
+
+// ---------- Development only: Stripe test clocks (prove renewal day on the real Stripe, in test mode) ----------
+
+export type DevClockAction = "start" | "advance" | "card_fails" | "card_works" | "state";
+
+/** Development + Stripe test mode only (the route is 404 elsewhere). "start" gives this account a Stripe test customer on a test
+ *  clock (before it buys a plan); "advance" moves that clock `days` ahead (Stripe renews, retries, ends plans as if time passed);
+ *  "card_fails"/"card_works" swap the customer's card for Stripe's test card that is always declined / always works. */
+export async function devTestClock(ownerId: string, user: BillingUser, action: DevClockAction, days = 0): Promise<Record<string, unknown>> {
+  if (process.env.NODE_ENV !== "development" || billingMode() !== "test") throw new BillingError("Test clocks are for development in test mode only.", 404);
+  const { customerId } = readAccountBillingIds(ownerId);
+  if (action === "start") {
+    if (customerId) throw new BillingError("This account already has a Stripe customer; use a new test account.", 409);
+    const clock = await stripeRequest<{ id: string }>("POST", "/test_helpers/test_clocks", { frozen_time: Math.floor(Date.now() / 1000), name: `dev ${ownerId}` });
+    const customer = await stripeRequest<{ id: string }>("POST", "/customers", { email: user.email, name: user.name || undefined, test_clock: clock.id, metadata: { owner_id: ownerId } });
+    setStripeCustomerId(ownerId, customer.id);
+    return { clock: clock.id, customer: customer.id };
+  }
+  if (!customerId) throw new BillingError("Start a test clock first.", 409);
+  const customer = await stripeRequest<{ test_clock: string | null }>("GET", `/customers/${encodeURIComponent(customerId)}`);
+  if (!customer.test_clock) throw new BillingError("This customer has no test clock.", 409);
+  const clockPath = `/test_helpers/test_clocks/${encodeURIComponent(customer.test_clock)}`;
+  if (action === "advance") {
+    const clock = await stripeRequest<{ frozen_time: number }>("GET", clockPath);
+    const to = clock.frozen_time + Math.round(Math.max(0, days) * 86400);
+    await stripeRequest("POST", `${clockPath}/advance`, { frozen_time: to });
+    for (let i = 0; i < 40; i++) {   // the clock moves in the background: wait until Stripe is done (renewals, retries)
+      const now = await stripeRequest<{ status: string; frozen_time: number }>("GET", clockPath);
+      if (now.status === "ready") return { frozenTime: new Date(now.frozen_time * 1000).toISOString() };
+      await new Promise((done) => setTimeout(done, 1500));
+    }
+    return { frozenTime: null, note: "still advancing" };
+  }
+  if (action === "card_fails" || action === "card_works") {
+    const token = action === "card_fails" ? "pm_card_chargeCustomerFail" : "pm_card_visa";
+    const pm = await stripeRequest<{ id: string }>("POST", `/payment_methods/${token}/attach`, { customer: customerId });
+    await stripeRequest("POST", `/customers/${encodeURIComponent(customerId)}`, { invoice_settings: { default_payment_method: pm.id } });
+    const { subscriptionId } = readAccountBillingIds(ownerId);
+    if (subscriptionId) await stripeRequest("POST", `/subscriptions/${encodeURIComponent(subscriptionId)}`, { default_payment_method: pm.id });
+    return { card: action };
+  }
+  const clock = await stripeRequest<{ frozen_time: number; status: string }>("GET", clockPath);
+  return { frozenTime: new Date(clock.frozen_time * 1000).toISOString(), status: clock.status };
 }

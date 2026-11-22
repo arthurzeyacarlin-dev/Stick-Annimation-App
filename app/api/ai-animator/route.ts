@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readJson } from "@/src/lib/account/readJson";
 import { normalizeAiAnimatorRequest } from "@/src/lib/ai/aiAnimatorContract";
 import { AiAnimatorJobService } from "@/src/lib/ai/aiAnimatorJobService";
 import { generateAiAnimatorReply } from "@/src/lib/openai/generateAiAnimatorReply";
@@ -17,7 +18,8 @@ const safeError = (error: unknown) => {
   const status = typeof error === "object" && error !== null && "status" in error && typeof error.status === "number"
     ? error.status
     : 500;
-  const message = error instanceof Error ? error.message : "AI Animator could not start the request.";
+  // (Nov 12 security) errors made for the user carry a status and keep their sentence; anything else (library, network) stays server-side
+  const message = status !== 500 && error instanceof Error ? error.message : "AI Animator could not start the request.";
   return NextResponse.json({ error: message }, { status });
 };
 
@@ -26,7 +28,7 @@ export async function POST(request: Request) {
   if ("response" in access) return access.response;
   let body: unknown;
   try {
-    body = await request.json();
+    body = await readJson(request);
   } catch {
     return NextResponse.json({ error: "AI Animator request JSON is invalid." }, { status: 400 });
   }
@@ -68,7 +70,7 @@ export async function DELETE(request: Request) {
   if ("response" in access) return access.response;
   let body: { jobId?: unknown; projectId?: unknown } | null = null;
   try {
-    body = await request.json();
+    body = await readJson(request);
   } catch {
     return NextResponse.json({ error: "Cancellation request JSON is invalid." }, { status: 400 });
   }

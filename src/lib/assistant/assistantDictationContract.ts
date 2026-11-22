@@ -1,5 +1,6 @@
 // Shared by the microphone and its separate server boundary. No chat/project state.
-export const DICTATION_LIMITS = Object.freeze({ seconds: 120, bytes: 20 * 1024 * 1024, timeoutMs: 45000, permissionMs: 30000, outputChars: 6000, outputBytes: 12000, responseBytes: 64000, active: 2, identities: 500, usdPerMinute: 0.0045, maxUsd: 0.009 });
+// (Nov 18, Arthur: "it deletes whatever I say if it goes over a certain time limit" - longer dictation) 10 minutes (was 2): 16 kHz mono = 19.2 MB, under the 20 MB cap; the transcript and its wait grow with it.
+export const DICTATION_LIMITS = Object.freeze({ seconds: 600, bytes: 20 * 1024 * 1024, timeoutMs: 120000, permissionMs: 30000, outputChars: 30000, outputBytes: 60000, responseBytes: 160000, active: 2, identities: 500, usdPerMinute: 0.0045, maxUsd: 0.05 });
 export const TRANSCRIPTION_MODEL = "gpt-transcribe";
 export type DictationCode = "permission" | "device" | "unsupported" | "empty" | "format" | "limit" | "offline" | "provider" | "timeout" | "cancelled" | "capacity" | "invalid" | "configuration";
 export class DictationError extends Error {

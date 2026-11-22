@@ -40,7 +40,7 @@ export class DiamondAssistantJobService {
     if (this.jobs.size >= 500) throw new AssistantError("capacity", "This review server has reached its request limit. Restart it before starting more answers.");
     // Credits are checked before the paid call starts; running answers reserve theirs (same rule as the AI Animator).
     try { this.credits?.assertAvailable(ownerId, active.length * ASSISTANT_ANSWER_CREDITS, ASSISTANT_ANSWER_CREDITS); }
-    catch (error) { throw new AssistantError("credits", error instanceof Error ? error.message : "You don't have enough AI credits for this answer."); }
+    catch (error) { throw new AssistantError("credits", error instanceof Error ? error.message : "You don't have enough credits left for this answer."); }
     const snapshot: JobSnapshot = { schema: "diamond-assistant-job/v1", jobId: request.jobId, sessionId: request.sessionId, turnId: request.turnId, reasoning: request.reasoningLevel, catalogVersion: CATALOG_VERSION, status: "thinking", events: [{ sequence: 1, at: Date.now(), status: "thinking" }], result: null, error: null };
     const job: Job = { ownerId, request, fingerprint, snapshot, controller: new AbortController(), timer: null }; this.jobs.set(request.jobId, job);
     this.meter(assistantAcceptedEvent(request, snapshot.events[0].at));

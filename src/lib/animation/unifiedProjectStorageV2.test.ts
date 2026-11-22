@@ -176,7 +176,8 @@ test("broken or hostile compressed records are refused (never wrong pixels, neve
   assert.ok(zeros.bytes.byteLength < 10_000, "4 MB of empty pixels squeeze to a few KB");
   await assert.rejects(tryOpen({ bytes: zeros.bytes, compressedByteLength: zeros.bytes.byteLength }), { message: "asset_digest_mismatch" });
   // A record claiming more than an opened project may hold is refused before decompressing.
-  await assert.rejects(tryOpen({ byteLength: 2_000_000_000 }), { message: "project_too_large" });
+  // (Nov 14: an opened project may hold 4 GiB; a one-file bundle still only 1 GiB, see projectPictures.test.ts)
+  await assert.rejects(tryOpen({ byteLength: 5_000_000_000 }), { message: "project_too_large" });
 });
 
 // The old-format (v1, raw) account bundle exactly as the code before compression built it.

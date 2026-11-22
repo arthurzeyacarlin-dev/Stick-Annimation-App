@@ -4,6 +4,7 @@ import { shouldRejectStaleDrawingProjectAiMemorySave } from "@/src/lib/ai/drawin
 import { getSupabaseAdminClient, isSupabaseAdminConfigured } from "@/src/lib/dbAdmin";
 import { NextRequest, NextResponse } from "next/server";
 import { requireAccountRequest } from "@/src/lib/account/access";
+import { readJson } from "@/src/lib/account/readJson";
 import { accountProjectBelongsToOwner } from "@/src/lib/account/projectServer";
 
 /**
@@ -69,7 +70,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const access = await requireAccountRequest(request);
   if ("response" in access) return access.response;
-  const body = (await request.json().catch(() => null)) as { projectId?: unknown; memory?: unknown } | null;
+  const body = (await readJson(request).catch(() => null)) as { projectId?: unknown; memory?: unknown } | null;
   const projectId = typeof body?.projectId === "string" ? body.projectId.trim() : "";
   const memory = scopeIncomingProjectAiMemory(body?.memory ?? null, projectId);
 

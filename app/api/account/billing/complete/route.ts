@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readJson } from "@/src/lib/account/readJson";
 import { requireAccountRequest } from "@/src/lib/account/access";
 import { billingErrorResponse, completeCheckout } from "@/src/lib/account/stripeBilling";
 
@@ -10,7 +11,7 @@ const NO_STORE = { "Cache-Control": "no-store" };
 export async function POST(request: Request) {
   const access = await requireAccountRequest(request);
   if ("response" in access) return access.response;
-  const body = await request.json().catch(() => null) as { sessionId?: unknown } | null;
+  const body = await readJson(request).catch(() => null) as { sessionId?: unknown } | null;
   try {
     const status = await completeCheckout(access.session.user.id, body?.sessionId);
     return NextResponse.json({ status }, { headers: NO_STORE });

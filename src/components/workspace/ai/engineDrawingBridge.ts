@@ -32,10 +32,32 @@ export type EngineDrawingBridge = {
   info: () => EngineDrawingInfo | null;
   goToFrame: (frameIndex: number) => void;
   pageMap: () => PageToCanvasMap | null;
+  // (Nov 14, V1 AI Animator: "trees getting cut off") the page's own shape right now [width, height] (any unit): a new animation is made in it
+  pageSize?: () => [number, number] | null;
+  // (Nov 15 night, V1 AI Animator: "the frames are supposed to be there when I come in") does the canvas hold this layer with at least one
+  // picture on it? Reads only.
+  hasLayer?: (layerId: string) => boolean;
+  // (Nov 15 night) when the project that is open was last saved (ms; null = never saved). Reads only.
+  savedAt?: () => number | null;
   // The active layer's picture on a frame (a held cell gives the picture it holds), as page-space ink for the
   // engine's eyes; null when that cell has no drawing (or the canvas isn't ready). The frame being drawn on is
   // saved first, so a stroke just made counts.
   frameInk: (frameIndex: number) => InkImage | null;
+  // (V1 AI Animator) set the project's pictures per second, so the engine's pictures all play (none thrown away)
+  setFps?: (fps: number) => void;
+  // (V1 AI Animator, Nov 2: never interrupt the user) is the timeline playing; pause it (true = it was playing); play it again
+  isPlaying?: () => boolean;
+  pausePlayback?: () => boolean;
+  resumePlayback?: () => void;
+  // (V1 AI Animator, Nov 2) clear the canvas in ONE Undo step: the named AI layers (by id, or by their AI name) are removed; all = also
+  // every other layer's frames (each left with one blank frame). false = could not (playing, a stroke being drawn): nothing changed.
+  clearCanvas?: (request: { layerIds: string[]; layerNames: string[]; all: boolean }) => boolean;
+  // (V1 AI Animator, Nov 2 final round: the AI sees the canvas) the current frame of every layer EXCEPT the named AI layers, as page-space
+  // pieces (the bitmaps + where the canvas shows them). Reads only. null = canvas not ready / playing. (v1CanvasPicture.ts makes the picture.)
+  userFrame?: (skip: { layerIds: string[]; layerNames: string[] }) => { bitmaps: ImageData[]; canvas: { width: number; height: number }; map: PageToCanvasMap } | null;
+  // (V1 AI Animator, Nov 2 night) the user's layers ACROSS the timeline: up to max frames where they change (v1SheetFrames), each frame's
+  // pictures on every user layer. null = fewer than 2 changing frames / busy. Reads only.
+  userSheet?: (skip: { layerIds: string[]; layerNames: string[] }, max: number) => { frames: { index: number; bitmaps: ImageData[] }[]; canvas: { width: number; height: number }; map: PageToCanvasMap } | null;
 };
 
 // How much of the page a picture may cover (a stray dot far off the page must not make the picture huge).

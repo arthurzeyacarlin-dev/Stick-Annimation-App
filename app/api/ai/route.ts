@@ -40,6 +40,10 @@ import {
   type DrawingAiWorkspaceContext,
 } from "@/src/lib/ai/drawingAiContract";
 import { requireAccountRequest } from "@/src/lib/account/access";
+import { randomUUID } from "node:crypto";
+import { assertAiCreditAvailable, spendAiCredit } from "@/src/lib/account/aiCredits";
+import { AI_ACTION_CREDITS } from "@/src/lib/account/plans";
+import { BodyTooLarge, readBytes, readJson } from "@/src/lib/account/readJson";
 import { accountProjectBelongsToOwner } from "@/src/lib/account/projectServer";
 import {
   appendDevAiCostLogEntry,
@@ -2053,7 +2057,24 @@ export async function GET(req: Request) {
   return handleStickFigureAiAvailabilityGet(req);
 }
 
+// (Nov 11 security) every drawing-AI answer costs a credit, like a Help Assistant answer: nothing paid is free. Checked before, spent after a
+// successful answer; a refused or failed one costs nothing.
 export async function POST(req: Request) {
+  const access = await requireAccountRequest(req);
+  if ("response" in access) return access.response;
+  const ownerId = access.session.user.id;
+  try { assertAiCreditAvailable(ownerId, 0, AI_ACTION_CREDITS.drawing); }
+  catch (error) { return Response.json({ error: error instanceof Error ? error.message : "Not enough credits left." }, { status: 402 }); }
+  // (Nov 12 security) the body is read ONCE here, at most 8 MB, before anything else looks at it; a chunked flood is refused the same way
+  let bounded: Request;
+  try { bounded = new Request(req.url, { method: "POST", headers: req.headers, body: await readBytes(req, 8 * 1024 * 1024) }); }
+  catch { return Response.json({ error: "Request is too large." }, { status: 413 }); }
+  const response = await drawingAiPost(bounded);
+  if (response?.ok) { try { spendAiCredit(ownerId, randomUUID(), AI_ACTION_CREDITS.drawing, "drawing"); } catch { /* the answer is already given */ } }
+  return response as Response;
+}
+
+async function drawingAiPost(req: Request): Promise<Response | undefined> {
   const access = await requireAccountRequest(req);
   if ("response" in access) return access.response;
   const stickFigureAiResponse = await dispatchStickFigureAiPost(req);
@@ -2119,7 +2140,7 @@ export async function POST(req: Request) {
   };
 
   try {
-    const requestBody: unknown = await req.json();
+    const requestBody: unknown = await readJson(req, 8 * 1024 * 1024);
     prompt = getPromptFromRequestBody(requestBody) ?? "";
     requestedSearch = getShouldSearchFromRequestBody(requestBody);
     const warnings: string[] = [];
@@ -6112,13 +6133,11 @@ export async function POST(req: Request) {
     }
 
     console.error("OpenAI route error:", error);
-    const errorMessage =
-      error instanceof Error && error.message.trim().length > 0
-        ? error.message.trim()
-        : "Failed to generate response";
+    // (Nov 12 security) the real error is in the server log above; the client gets one plain sentence, never a library's text
+    const tooLarge = error instanceof BodyTooLarge;
     return respondJson(
-      { error: errorMessage },
-      { status: 500 },
+      { error: tooLarge ? "Request is too large." : "The AI could not answer right now. Try again." },
+      { status: tooLarge ? 413 : 500 },
     );
   } finally {
     if (shouldLogDevAiCostRequest) {

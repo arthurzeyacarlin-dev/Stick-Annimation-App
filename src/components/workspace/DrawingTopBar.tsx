@@ -414,7 +414,7 @@ export function DrawingTopBar({
         </div>
         {/* Same action as File → Export; the header's one extra-bright button. */}
         {onExport ? (
-          <button type="button" className="drawing-topbar-export" data-hover="bright" onClick={() => runFileAction(onExport)}>
+          <button type="button" className="drawing-topbar-export" data-hover="bright" data-tour="editor-export" onClick={() => runFileAction(onExport)}>
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4m0 0-4 4m4-4 4 4" /><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" /></svg>
             Export
           </button>

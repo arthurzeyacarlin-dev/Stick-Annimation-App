@@ -1,15 +1,16 @@
 "use client";
 
-import { AnimationWorkspace } from "@/src/components/workspace/AnimationWorkspace";
+import { AnimationWorkspace, prepareAnimationWorkspaceEditor } from "@/src/components/workspace/AnimationWorkspace";
 import { AnimationExportFlow } from "@/src/components/export/AnimationExportFlow";
 import { ProjectRecoveryPrompt } from "@/src/components/recovery/ProjectRecoveryPrompt";
 import { ProjectLibrary } from "@/src/components/project-library/ProjectLibrary";
-import { ProjectPoster } from "@/src/components/project-library/ProjectPoster";
+import { ProjectPoster, SavedPoster } from "@/src/components/project-library/ProjectPoster";
+import { readHomePoster, writeHomePoster } from "@/src/components/project-library/homePosterStore";
 import { createProjectLibraryController } from "@/src/lib/project-library/projectLibraryController";
 import { filterAndSortProjectEntries, formatProjectEditedAgo, type ProjectLibrarySnapshot } from "@/src/lib/project-library/projectLibraryModel";
 import { MainScreen } from "@/src/components/main/MainScreen";
 import { createUntitledWorkspace, prepareCollectionWorkspace, prepareRecoveryWorkspace, WorkspaceBootstrap, type MountedWorkspace } from "@/src/lib/animation/unifiedWorkspaceBootstrap";
-import { createAccountProjectRepositoryV2, createAccountProjectSourceReader, readAccountProjectV2 } from "@/src/lib/account/projectClient";
+import { ACCOUNT_SAVE_DROPPED_EVENT, createAccountProjectRepositoryV2, createAccountProjectSourceReader, readAccountProjectV2 } from "@/src/lib/account/projectClient";
 import { withAccountProjectWrite } from "@/src/lib/account/projectPending";
 import { digestUnifiedProjectV2 } from "@/src/lib/animation/unifiedProjectStorageV2";
 import { useAccountSession } from "@/src/components/account/AccountSessionProvider";
@@ -95,6 +96,12 @@ export default function Page() {
   const [recentProject, setRecentProject] = useState<RecentHomeState>(() => ownerId ? { status: "loading" } : { status: "empty" });
   const recentPreviewRef = useRef<{ key: string; project: ProjectLibrarySnapshot } | null>(null);
   const [recentNotice, setRecentNotice] = useState<string | null>(null);
+  // (Nov 15) A save the browser could not keep (it closed in the middle of it) is said here, in plain words.
+  useEffect(() => {
+    const said = (event: Event) => { const message = (event as CustomEvent<{ message?: unknown }>).detail?.message; if (typeof message === "string") setRecentNotice(message); };
+    window.addEventListener(ACCOUNT_SAVE_DROPPED_EVENT, said);
+    return () => window.removeEventListener(ACCOUNT_SAVE_DROPPED_EVENT, said);
+  }, []);
   const newProjectButtonRef = useRef<HTMLButtonElement | null>(null);
   const openProjectButtonRef = useRef<HTMLButtonElement | null>(null);
   const restoreHomeFocus = useRef(false);
@@ -249,7 +256,13 @@ export default function Page() {
   }, [view, ownerId, createReader]);
 
   const openProject = useCallback(async (entry: ProjectCollectionEntry) => {
-    const result = await bootstrap.open(() => prepareCollectionWorkspace(createReader(), entry));
+    const result = await bootstrap.open(async () => {
+      const candidate = await prepareCollectionWorkspace(createReader(), entry);
+      // (Nov 14) the editor's frame pictures are built here, before the editor is shown: one copy of the pictures in
+      // memory, and a project too big for this computer ends as a message below, never as a broken page
+      prepareAnimationWorkspaceEditor(candidate.editor.project);
+      return candidate;
+    });
     if (result.status === "opened") { setWorkspace(result.root); setView("animationWorkspace"); }
     return result;
   }, [bootstrap, createReader]);
@@ -449,27 +462,44 @@ export default function Page() {
           creating={bootstrapMessage === "Creating project"}
           recent={recentProject.status === "ready"
             ? { status: "ready", title: recentProject.entry.title, edited: formatProjectEditedAgo(recentProject.entry.updatedAt),
-                poster: recentProject.project ? <ProjectPoster key={recentProject.project.snapshot.projectDigest} project={recentProject.project} /> : null,
+                // (Nov 15 night, Arthur: "I want it to pop up as soon as it can") the small picture kept in this browser shows at once. It stays
+                // when it is NEWER than the saved project (an animation that landed and is not saved yet); else the real one replaces it
+                poster: (() => {
+                  const kept = readHomePoster(recentProject.entry.id), savedAt = (recentProject.entry.updatedAt ? Date.parse(recentProject.entry.updatedAt) : 0) || 0;
+                  if (kept && (!recentProject.project || kept.at > savedAt)) return <SavedPoster imageUrl={kept.url} title={recentProject.entry.title} />;
+                  return recentProject.project
+                    ? <ProjectPoster key={recentProject.project.snapshot.projectDigest} project={recentProject.project} onRendered={(url) => writeHomePoster(recentProject.entry.id, url, savedAt)} />
+                    : null;
+                })(),
                 previewFailed: recentProject.previewFailed }
             : { status: recentProject.status }}
           recentNotice={recentNotice}
           onNewProject={() => {
             homeFocusRef.current = "new";
             setBootstrapMessage("Creating project");
+            // (Nov 16, Arthur: "It says invalid something. You should change it to saying too many projects. Delete one of them to
+            // create a new one.") The real reason is kept: the opener below only knows a general "invalid_record".
+            let reason: string | null = null;
             void bootstrap.open(async () => {
-              if (!ownerId) throw new Error("account_session_required");
-              // SPEC-0020 Phase 3: new projects start at Settings → Frames per second.
-              const { newProjectFps } = await getAppSettings();
-              const candidate = await createUntitledWorkspace({ fps: newProjectFps });
-              const saved = await withAccountProjectWrite(ownerId, () => createAccountProjectRepositoryV2(ownerId).save(candidate.editor.project));
-              candidate.editor.project = saved;
-              candidate.id = saved.projectId;
-              candidate.title = saved.title;
-              candidate.digest = await digestUnifiedProjectV2(saved);
-              return candidate;
+              try {
+                if (!ownerId) throw new Error("account_session_required");
+                // SPEC-0020 Phase 3: new projects start at Settings → Frames per second.
+                const { newProjectFps } = await getAppSettings();
+                const candidate = await createUntitledWorkspace({ fps: newProjectFps });
+                const saved = await withAccountProjectWrite(ownerId, () => createAccountProjectRepositoryV2(ownerId).save(candidate.editor.project));
+                candidate.editor.project = saved;
+                candidate.id = saved.projectId;
+                candidate.title = saved.title;
+                candidate.digest = await digestUnifiedProjectV2(saved);
+                return candidate;
+              } catch (error) { reason = error instanceof Error ? error.message : null; throw error; }
             }).then((result) => {
               if (result.status === "opened") { setWorkspace(result.root); setView("animationWorkspace"); setBootstrapMessage(null); }
-              else if (result.status === "failed") setBootstrapMessage(`Could not create project (${result.code}).`);
+              else if (result.status === "failed") setBootstrapMessage(reason === "project_limit_reached"
+                ? "Too many projects. Delete one of them to create a new one."
+                : reason === "account_project_not_saved" || reason === "account_project_read_failed"
+                  ? "Your projects can't be reached right now, so a new one couldn't be made. Nothing is lost. Try again in a moment."
+                  : `Could not create project (${result.code}).`);
             });
           }}
           onContinueRecent={() => {
@@ -478,7 +508,9 @@ export default function Page() {
             setRecentNotice(null);
             // Same path as clicking the project in Open Project.
             void openProject(recentProject.entry).then(result => {
-              if (result.status === "failed") setRecentNotice("This project couldn't be opened. Nothing was changed. Try it from Open Project.");
+              if (result.status === "failed") setRecentNotice(result.code === "project_too_large"
+                ? "This animation is too big for this computer's memory right now. Nothing was changed. Close other tabs and apps, then try again."
+                : "This project couldn't be opened. Nothing was changed. Try it from Open Project.");
             }).catch(() => setRecentNotice("This project couldn't be opened. Nothing was changed. Try it from Open Project."));
           }}
           onOpenProjects={() => {

@@ -2,13 +2,12 @@
 
 import Link from "next/link";
 import { useAccountPlan } from "@/src/components/account/useAccountPlan";
+import { creditsText } from "@/src/lib/account/credits";
 import { TestPlanControls } from "@/src/components/ai-dashboard/TestPlanControls";
 
 // SPEC-0020 Phase 2 + 9 (development only): pretend clock, plan switch, credits, refill timing, pretend AI use and
 // payment problems, so every state can be tried without waiting, paying or calling the AI. The same buttons sit at
 // the bottom of the AI Dashboard (development only).
-
-const number = (value: number) => value.toLocaleString("en-US");
 
 export function TestPlanSwitch() {
   const { status, refresh } = useAccountPlan();
@@ -22,7 +21,7 @@ export function TestPlanSwitch() {
         </div>
         <p style={{ margin: 0, padding: "12px 0", borderTop: "1px solid var(--da-line)", borderBottom: "1px solid var(--da-line)" }}>
           {status ? <>
-            <strong>{status.label}</strong>{status.interval === "year" ? " · Yearly" : ""} · {number(status.creditsLeft)} credits left ({number(status.planCreditsLeft)} of {number(status.creditsTotal)} plan + {number(status.topUpCredits)} extra)
+            <strong>{status.label}</strong>{status.interval === "year" ? " · Yearly" : ""} · {creditsText(status.creditsLeft)} of credits left ({creditsText(status.planCreditsLeft)} of {creditsText(status.creditsTotal)} plan + {creditsText(status.topUpCredits)} extra)
             {status.trialDaysLeft !== null ? ` · ${status.trialDaysLeft} days left` : ""}
             {status.paymentProblem ? status.aiLocked ? " · PAYMENT FAILED (AI waits)" : " · PAYMENT FAILED (warning)" : ""}
             {status.locked ? ` · LOCKED (${status.lockReason === "plan_ended" ? "plan ended" : "trial ended"})` : ""}

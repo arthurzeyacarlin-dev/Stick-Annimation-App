@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { compactRasterFromCrop } from "@/src/lib/animation/compactRasterBitmap";
+import { savedPictureInFrame } from "@/src/lib/animation/rasterCropV1";
 import { DrawingWorkspace } from "./DrawingWorkspace";
 import type { MountedWorkspace } from "@/src/lib/animation/unifiedWorkspaceBootstrap";
 import type { DrawingProjectData, DrawingProjectOpenCandidate, StoredDrawingTextObject } from "@/src/lib/drawingProjectStorage";
@@ -57,7 +58,14 @@ const hydrateDrawingCompatibility = (project: UnifiedAnimationProjectV2, source:
     layer.timelineFrames.forEach((frame, frameIndex) => {
       const raster = unifiedLayer?.cells[frameIndex]?.content?.items.find(item => item.kind === "drawing-raster/v1");
       if (raster?.kind === "drawing-raster/v1") {
-        frame.bitmap = raster.motionTween || raster.tweenEndBitmap ? placeBitmap(raster.bitmap) : placeCompactBitmap(raster.bitmap);
+        if (raster.motionTween || raster.tweenEndBitmap) frame.bitmap = placeBitmap(raster.bitmap);
+        else {
+          const placed = placeCompactBitmap(raster.bitmap);
+          frame.bitmap = placed;
+          // (Nov 14) ONE copy of the pictures while a project opens: now that this frame picture exists, the opened
+          // saved picture is let go (it becomes the same box read from the frame picture, rasterCropV1.ts).
+          if (placed && raster.bitmap) raster.bitmap = savedPictureInFrame(raster.bitmap, placed) ?? raster.bitmap;
+        }
         frame.tweenEndBitmap = placeBitmap(raster.tweenEndBitmap);
         frame.motionTween = raster.motionTween ? {
           mode: raster.motionTween.mode,
@@ -157,29 +165,31 @@ const hydrateUnifiedItemCompatibility = (project: UnifiedAnimationProjectV2, dra
   return { stickByCell: {}, symbolInstancesByCell };
 };
 
+// The editor's frame pictures for an opened project. Built ONCE for a project (the page asks twice while it draws, and a
+// long animation built twice does not fit in memory), and built before the editor is shown when the project is opened
+// from Home or the project list (ExistingHome.openProject), so an animation too big for this computer's memory ends
+// as a plain "couldn't be opened" message there instead of breaking the page.
+type AnimationWorkspaceEditor = { initialProject: DrawingProjectOpenCandidate; hydratedUnifiedProject: UnifiedAnimationProjectV2 };
+const builtEditors = new WeakMap<UnifiedAnimationProjectV2, AnimationWorkspaceEditor>();
+export const prepareAnimationWorkspaceEditor = (project: UnifiedAnimationProjectV2): AnimationWorkspaceEditor => {
+  const built = builtEditors.get(project);
+  if (built) return built;
+  const compatibilityDrawingData = project.compatibility?.drawingData as DrawingProjectData | undefined;
+  const compatibilitySource = compatibilityDrawingData ?? createDrawingCompatibilityProjection(project);
+  const drawingData = hydrateDrawingCompatibility(project, compatibilitySource);
+  const itemCompatibility = hydrateUnifiedItemCompatibility(project, drawingData);
+  const initialProject: DrawingProjectOpenCandidate = {
+    kind: project.provenance?.kind === "legacy-adoption" && project.provenance.adoptedAt === null ? "legacy" : "v2",
+    project: { id: project.projectId, name: project.title, data: drawingData, previewDataUrl: null, aiMemory: sanitizeDrawingAiProjectMemory(project.auxiliary?.drawingAiMemory) ?? null, created_at: project.createdAt, updated_at: project.updatedAt },
+    head: null, record: null, legacyRecordDigest: null,
+  };
+  const editor = { initialProject, hydratedUnifiedProject: { ...project, compatibility: { ...project.compatibility, drawingData: compatibilitySource, ...itemCompatibility } } };
+  builtEditors.set(project, editor);
+  return editor;
+};
+
 export function AnimationWorkspace({ root, onExport, onExit }: { root: MountedWorkspace; onExport?: (savedProjectId: string | null) => void; onExit?: () => void }) {
   const editor = root.candidate.editor;
-  const { initialProject, hydratedUnifiedProject } = useMemo(() => {
-    const compatibilityDrawingData = editor.project.compatibility?.drawingData as DrawingProjectData | undefined;
-    const compatibilitySource = compatibilityDrawingData ?? createDrawingCompatibilityProjection(editor.project);
-    const drawingData = hydrateDrawingCompatibility(editor.project, compatibilitySource);
-    const itemCompatibility = hydrateUnifiedItemCompatibility(editor.project, drawingData);
-    const nextInitialProject: DrawingProjectOpenCandidate = {
-      kind: editor.project.provenance?.kind === "legacy-adoption" && editor.project.provenance.adoptedAt === null ? "legacy" : "v2",
-      project: { id: editor.project.projectId, name: editor.project.title, data: drawingData, previewDataUrl: null, aiMemory: sanitizeDrawingAiProjectMemory(editor.project.auxiliary?.drawingAiMemory) ?? null, created_at: editor.project.createdAt, updated_at: editor.project.updatedAt },
-      head: null, record: null, legacyRecordDigest: null,
-    };
-    return {
-      initialProject: nextInitialProject,
-      hydratedUnifiedProject: {
-        ...editor.project,
-        compatibility: {
-          ...editor.project.compatibility,
-          drawingData: compatibilitySource,
-          ...itemCompatibility,
-        },
-      },
-    };
-  }, [editor.project]);
+  const { initialProject, hydratedUnifiedProject } = useMemo(() => prepareAnimationWorkspaceEditor(editor.project), [editor.project]);
   return <DrawingWorkspace initialProject={initialProject} initialTitle={editor.project.title} unifiedProject={hydratedUnifiedProject} recoveryClaim={root.candidate.recoveryClaim} onExport={onExport} onExit={onExit} />;
 }

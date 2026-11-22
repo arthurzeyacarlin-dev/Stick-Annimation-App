@@ -11,6 +11,8 @@ type DirtyEditor = { ownerId: string; dirty: boolean; save: () => Promise<boolea
 let editor: DirtyEditor | null = null;
 
 const lockName = (ownerId: string) => `diamond-p4u-owner-write:${ownerId}`;
+// (Nov 14) the same lock, for finishing saves the browser still holds (projectClient.ts): only when nothing is being edited or saved
+export const ownerWriteLockName = lockName;
 const activeLeases = (ownerId: string) => {
   const now = Date.now();
   let count = 0;

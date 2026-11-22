@@ -1,3 +1,4 @@
+import { readBytes } from "@/src/lib/account/readJson";
 export const STICK_AI_REQUEST_BYTE_LIMIT = 16_384 as const;
 
 export const STICK_JSON_MARKER_PATHS = [
@@ -287,5 +288,6 @@ export const parseStrictStickJsonBytes = (rawBytesInput: Uint8Array): StrictStic
   return {ok: true, rawBytes, rawUtf8ByteLength, rawText, parsedValue: parsed.value!, markers: parsed.markers};
 };
 
+// (Nov 12 security) at most 64 KB is ever read; the 16 KB rule below still decides what is valid
 export const readStrictStickJson = async (request: Request): Promise<StrictStickJsonResult> =>
-  parseStrictStickJsonBytes(new Uint8Array(await request.arrayBuffer()));
+  parseStrictStickJsonBytes(new Uint8Array(await readBytes(request, 64 * 1024)));

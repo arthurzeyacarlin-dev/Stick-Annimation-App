@@ -31,7 +31,7 @@ const search = buildAssistantResponseRequest(searchRequest());
 equal(search.body.tools?.[0]?.type, 'web_search', 'current public fact offers hosted search');
 equal(search.body.max_tool_calls, 2, 'hosted tool call ceiling sent to provider');
 equal(search.body.store, false, 'search provider store disabled');
-check(providerInput(searchRequest()).decision.mode === 'required', 'external question is search eligible');
+check(providerInput(searchRequest()).decision.mode === 'auto', 'external question is search eligible');
 process.env.OPENAI_API_KEY = 'deterministic-test-key';
 try {
   const broken = createAssistantProvider(() => ({ create: async () => { throw new TypeError('simulated network loss'); } }));

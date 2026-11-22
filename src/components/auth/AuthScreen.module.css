@@ -113,6 +113,9 @@
 .link:hover { color: var(--blue); }
 .link { color: var(--da-link, #8cbbf3); }
 .fine { margin: 0; text-align: center; color: #5d7396; font-size: 12px; line-height: 1.5; }
+.agree { display: flex; align-items: flex-start; gap: 10px; color: var(--ink-2); font-size: 13px; line-height: 1.45; cursor: pointer; }
+.agree input { flex: 0 0 auto; width: 18px; height: 18px; margin: 1px 0 0; accent-color: var(--blue, #0066ff); cursor: pointer; }
+.agree a { text-decoration: none; }
 .sent { display: grid; gap: 8px; justify-items: start; padding: 16px; border-radius: 14px; border: 1px solid var(--line-2); background: var(--field); color: var(--ink-2); font-size: 14px; line-height: 1.5; }
 .sent strong { color: var(--ink); font-size: 15px; }
 .sent .link { justify-self: start; padding-left: 0; }

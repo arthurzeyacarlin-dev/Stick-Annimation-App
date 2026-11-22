@@ -20,7 +20,7 @@ export function AboutBody() {
                 <li>Get answers any time from the Help Assistant</li>
               </ul>
               <p>
-                Your projects are saved to your account. The AI Animator and the Help Assistant use AI credits; drawing
+                Your projects are saved to your account. The AI Animator and the Help Assistant use AI money; drawing
                 and exporting are free.
               </p>
               <p className={styles.dialogMuted}>

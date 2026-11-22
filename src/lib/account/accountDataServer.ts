@@ -84,6 +84,7 @@ const namespaceLimits: Record<AccountDataNamespace, number> = {
   preferences: 64 * 1024,
 };
 const OWNER_TOTAL_LIMIT = 256 * 1024 * 1024;
+export const ACCOUNT_DATA_MAX_BYTES = Math.max(...Object.values(namespaceLimits));
 
 const digestBytes = (payload: Uint8Array) => createHash("sha256").update(payload).digest("hex");
 const validKey = (value: string) => value === value.normalize("NFC") && /^[A-Za-z0-9._~%-]{1,512}$/.test(value);

@@ -166,7 +166,8 @@ export class WorkspaceBootstrap {
     } catch (error) {
       if (ticket !== this.ticket) return { status: "stale" };
       const allowed = ["source_changed", "duplicate_identity", "invalid_record", "unsupported_version", "asset_missing", "asset_digest_mismatch", "storage_read_failed", "project_too_large", "source_digest_mismatch", "invalid_cell_owner", "source_space_inconsistent", "decode_failed", "version_mismatch", "readback_failed", "rig_migration_renderer_unavailable", "rig_migration_digest_failed", "rig_migration_incomplete"];
-      const code = error instanceof Error && allowed.includes(error.message) ? error.message : "invalid_record";
+      // (Nov 14) the browser could not give the memory for the pictures (a RangeError): said as "too large", not as a broken project
+      const code = error instanceof RangeError ? "project_too_large" : error instanceof Error && allowed.includes(error.message) ? error.message : "invalid_record";
       return { status: "failed", code };
     }
   }

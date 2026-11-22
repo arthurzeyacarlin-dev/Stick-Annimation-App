@@ -25,6 +25,10 @@ export type ProjectSource = {
 export type ProjectSourceReader = {
   list: () => Promise<ProjectSource[]>;
   readNativeProject?: (projectId: string) => Promise<UnifiedAnimationProjectV2>;
+  // (Nov 14) What a project's poster needs, without opening the whole project: the project with only its first `cells`
+  // frames' pictures (`complete` = that was all of them) and the WHOLE project's fingerprint. null = not available
+  // for this project: open it whole (readNativeProject).
+  readPosterProject?: (projectId: string, cells: number) => Promise<{ project: UnifiedAnimationProjectV2; projectDigest: string; complete: boolean } | null>;
 };
 const object = (value: unknown): Record<string, unknown> => value !== null && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
 const label = (value: unknown, fallback: string) => typeof value === "string" && value.trim() ? value.slice(0, 512) : fallback;

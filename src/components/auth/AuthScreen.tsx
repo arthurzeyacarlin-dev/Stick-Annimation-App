@@ -3,8 +3,9 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { DiamondLogo } from "@/src/components/chrome/DiamondLogo";
-import { ACCOUNT_PLANS, PAID_PLAN_IDS, type BillingInterval, type PaidPlanId } from "@/src/lib/account/plans";
+import { ACCOUNT_PLANS, CYCLE_WORD, PAID_PLAN_IDS, PLAN_CYCLE, type BillingInterval, type PaidPlanId } from "@/src/lib/account/plans";
 import { goToStripe, postBilling } from "@/src/components/account/billingClient";
+import { creditsText } from "@/src/lib/account/credits";
 import styles from "./AuthScreen.module.css";
 
 // The new first screen (redesign Phase 1, Arthur 2026-10-26): a polished welcome with one card for Create account,
@@ -30,15 +31,17 @@ export function AuthScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [agreed, setAgreed] = useState(false); // (UX Step 1, Nov 11) 13 or older + the Terms, before Create account
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [resetSent, setResetSent] = useState(false);
+  const [verifySent, setVerifySent] = useState(false); // (Nov 11 security) real mail: the account opens after its email link is clicked
   const firstFieldRef = useRef<HTMLInputElement | null>(null);
   // Arthur (2026-10-27): Create account has two steps — the account, then the plan (free trial or a paid plan), all
   // before the app opens. Paid plans go to Stripe's page (test mode: no real money).
   const [step, setStep] = useState<"account" | "plan">("account");
   const [plan, setPlan] = useState<PlanChoice>("trial");
-  const [interval, setInterval] = useState<BillingInterval>("month");
+  const [interval, setInterval] = useState<BillingInterval>(PLAN_CYCLE);
 
   useEffect(() => { firstFieldRef.current?.focus({ preventScroll: true }); }, [mode]);
 
@@ -66,13 +69,18 @@ export function AuthScreen() {
         const code = String(((await response.json().catch(() => null)) as { code?: unknown } | null)?.code ?? "");
         setError(mode === "signup" && code.startsWith("USER_ALREADY_EXISTS") ? "That email already has an account. Log in instead."
           : code === "PASSWORD_TOO_SHORT" ? "Use a password with at least 8 characters."
+          : code === "EMAIL_NOT_VERIFIED" ? "Check your email first: click the link we sent to open your account."
           : mode === "signup" ? "We couldn't create that account. Check your details or try another email."
           : "That email and password don't match. New here? Create an account first.");
         setBusy(false);
         return;
       }
       try { window.localStorage.setItem(RETURNING_KEY, "1"); } catch { /* storage blocked */ }
-      if (mode === "signup") { setStep("plan"); setBusy(false); return; }
+      if (mode === "signup") {
+        const signedUp = (await response.json().catch(() => null)) as { token?: unknown } | null;
+        if (!signedUp?.token) { setVerifySent(true); setBusy(false); return; } // no session yet = verify the email first
+        setStep("plan"); setBusy(false); return;
+      }
       window.location.assign("/");
     } catch {
       setError("We couldn't reach Diamond Animator. Check your connection and try again.");
@@ -117,14 +125,14 @@ export function AuthScreen() {
         </div>
         <div className={styles.switcher} role="group" aria-label="Pay monthly or yearly" data-mode={interval === "year" ? "login" : "signup"}>
           <span className={styles.switcherPill} aria-hidden="true" />
-          <button type="button" aria-pressed={interval === "month"} onClick={() => setInterval("month")}>Monthly</button>
+          <button type="button" aria-pressed={interval === PLAN_CYCLE} onClick={() => setInterval(PLAN_CYCLE)}>{PLAN_CYCLE === "week" ? "Weekly" : "Monthly"}</button>
           <button type="button" aria-pressed={interval === "year"} onClick={() => setInterval("year")}>Yearly · 2 months free</button>
         </div>
         <div className={styles.planList} role="radiogroup" aria-label="Plans">
           {(["trial", ...PAID_PLAN_IDS] as PlanChoice[]).map((id) => {
             const info = ACCOUNT_PLANS[id];
-            const price = id === "trial" ? "Free" : interval === "month" ? money(info.monthlyUsd) : money(info.yearlyUsd);
-            const per = id === "trial" ? "14 days" : interval === "month" ? "a month" : "a year";
+            const price = id === "trial" ? "Free" : interval === "year" ? money(info.yearlyUsd) : money(info.monthlyUsd);
+            const per = id === "trial" ? "14 days" : interval === "year" ? "a year" : `a ${CYCLE_WORD}`;
             return (
               <button key={id} type="button" role="radio" aria-checked={plan === id} className={styles.planRow} data-plan={id} onClick={() => setPlan(id)}>
                 <span className={styles.planDot} aria-hidden="true" />
@@ -133,7 +141,7 @@ export function AuthScreen() {
                     {id === "trial" && <em className={styles.planBadge}>Start here</em>}
                     {id === "creator" && <em className={styles.planBadge}>Most popular</em>}
                   </span>
-                  <span className={styles.planLine}>{info.credits.toLocaleString("en-US")} AI credits{id === "trial" ? "" : " every month"} · {PLAN_LINE[id]}</span>
+                  <span className={styles.planLine}>{creditsText(info.credits)}{id === "trial" ? "" : ` every ${CYCLE_WORD}`} · {PLAN_LINE[id]}</span>
                 </span>
                 <span className={styles.planPrice}><strong>{price}</strong><small>{per}</small></span>
               </button>
@@ -162,7 +170,13 @@ export function AuthScreen() {
           <p>{lead}</p>
         </div>
 
-        {mode === "forgot" && resetSent ? (
+        {mode === "signup" && verifySent ? (
+          <div className={styles.sent} role="status">
+            <strong>Check your email</strong>
+            <span>We sent a link to {email.trim()}. One click opens your account and your free trial.</span>
+            <button type="button" className={styles.link} onClick={() => { setVerifySent(false); switchMode("login"); }}>Back to log in</button>
+          </div>
+        ) : mode === "forgot" && resetSent ? (
           <div className={styles.sent} role="status">
             <strong>Check your email</strong>
             <span>If an account uses {email.trim() || "that email"}, a reset link is on its way.</span>
@@ -197,12 +211,18 @@ export function AuthScreen() {
               </div>
             )}
             {error && <p className={styles.error} role="alert"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7.5v5.5M12 16.5v.01" /></svg>{error}</p>}
-            <button type="submit" className={styles.primary} disabled={busy}>{action}</button>
+            {mode === "signup" && (
+              <label className={styles.agree}>
+                <input type="checkbox" checked={agreed} onChange={(event) => setAgreed(event.target.checked)} />
+                <span>I&apos;m 13 or older and I agree to the <a href="https://diamondanimator.com/legal/terms/" target="_blank" rel="noreferrer" className={styles.inlineLink}>Terms of Service</a> and <a href="https://diamondanimator.com/legal/privacy/" target="_blank" rel="noreferrer" className={styles.inlineLink}>Privacy Policy</a>.</span>
+              </label>
+            )}
+            <button type="submit" className={styles.primary} disabled={busy || (mode === "signup" && !agreed)}>{action}</button>
           </form>
         )}
         {/* A line pinned to the card's bottom, so the card is one size in every mode and the space looks intended. */}
         <div className={styles.cardFoot}>
-          {mode === "signup" && <p className={styles.fine}>By creating an account you agree to the Terms of Service and Privacy Policy.</p>}
+          {mode === "signup" && <p className={styles.fine}>Free for 14 days, no card needed. Under 13? Ask a parent to sign up for you.</p>}
           {mode === "login" && <p className={styles.fine}>New to Diamond Animator? <button type="button" className={styles.inlineLink} onClick={() => switchMode("signup")}>Create an account</button></p>}
           {mode === "forgot" && !resetSent && <p className={styles.fine}>Remembered it? <button type="button" className={styles.inlineLink} onClick={() => switchMode("login")}>Back to log in</button></p>}
         </div>

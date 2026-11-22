@@ -12,3 +12,10 @@ export type AccountSaveOutcomeV1 = {
 
 export const accountSaveStatusV1 = (outcome: AccountSaveOutcomeV1): "saved" | "unsaved" =>
   outcome.officialWriteSucceeded && outcome.coversCurrentGeneration ? "saved" : "unsaved";
+
+// (Nov 14) How long each step of a save took, readable in the page afterwards (nothing is printed):
+// performance.getEntriesByType("measure") lists "save:previews" (the frames' small preview pictures), "save:snapshot"
+// (the project put together), "save:pictures" (pictures fingerprinted, packed, kept in the browser) and "save:send".
+export const measureSaveStepV1 = (step: "previews" | "snapshot" | "pictures" | "send", startedAt: number) => {
+  try { performance.measure(`save:${step}`, { start: startedAt, end: performance.now() }); } catch { /* measuring never breaks a save */ }
+};

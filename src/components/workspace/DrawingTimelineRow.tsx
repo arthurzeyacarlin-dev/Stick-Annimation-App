@@ -2028,7 +2028,7 @@ export function DrawingTimelineRow({
           <button
             type="button"
             onClick={isPlaying ? onPause : onPlay}
-            className="drawing-play" data-hover="bright"
+            className="drawing-play" data-hover="bright" data-tour="play"
             aria-label={isPlaying ? "Pause" : "Play"}
             style={{
               ...(isPlaying ? timelineSelectedButtonStyle : timelineButtonStyle),
@@ -2053,6 +2053,7 @@ export function DrawingTimelineRow({
 
       <div
         className="drawing-timeline-frames"
+        data-tour="timeline"
         style={{
           gridColumn: 2,
           flex: 1,

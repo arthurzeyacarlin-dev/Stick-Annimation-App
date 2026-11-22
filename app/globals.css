@@ -746,6 +746,11 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
 .drawing-ai-empty-mark svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
 .drawing-ai-empty strong { font-family: var(--font-display), var(--font-geist-sans), sans-serif; font-size: 18px; font-weight: 800; letter-spacing: -.02em; color: #f6f9ff; }
 .drawing-ai-empty span:last-child { color: #a9bcd8; font-size: 13px; line-height: 1.55; }
+/* UX Step 1 (Nov 11): tap-to-try examples + the cost line under the AI Animator welcome. */
+.drawing-ai-examples { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 4px; }
+.drawing-ai-examples button { height: 30px; padding: 0 12px; border: 1px solid #2b5c99; border-radius: 999px; background: rgba(0, 102, 255, .12); color: #cfe2ff; font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: none; }
+.drawing-ai-examples button:hover:enabled { background: var(--da-hover-super, #3d8bff); border-color: var(--da-hover-super, #3d8bff); color: #fff; }
+.drawing-ai-empty .drawing-ai-cost { color: #6f84a6; font-size: 11.5px; line-height: 1.4; }
 
 /* ===== Workspace makeover (Arthur 2026-10-26) =====
    Recipe from the AI Animator panel: light from inside (glow + dots), one clear focus per area, calm spacing,

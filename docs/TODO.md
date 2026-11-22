@@ -5,6 +5,7 @@
 - [ ] **STRIPE-UNKNOWN (sticky note, Nov 22)** — Stripe is UNKNOWN: no real card payment has been made. Dad does the one $9.99 Basic test (tomorrow or later, his choice; his step-by-step briefing is a Claude Doc Arthur has). Frozen until then: no money code changes. Same as LIVE-MONEY-PROOF.
 - [x] **AI-INTO-MAIN** — done 2026-11-22 (D-0247): main = the copy's code; main's look and money system won.
 - [x] **AI-LOOK** — done 2026-11-22: gray buttons and hovers, blue only on Animate, gray thinking shimmer, real thinking steps, a polished card.
+- [x] **AI-LAYOUT** — done 2026-11-22 (D-0248): the AI Animator is the editor's command (top bar field + Cmd/Ctrl+K, terminal-like window), Arthur's pick.
 - [ ] **AI-MANY-PEOPLE** — many people at once: today the whole app makes ONE animation at a time, and a second person is told "Another animation is still being made". Needed: one animation per person, several people at the same time up to a set limit, and a fair waiting line ("You're number 3").
 - [ ] **AI-MAIN-TEST** — full test in the real app (new animation, edit, added part, save, open, export, phone).
 - [ ] **AI-HOSTING** — the engine needs an online server before strangers can use the AI Animator (together with LIVE-MONEY-HOST).

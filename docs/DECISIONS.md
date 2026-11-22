@@ -2430,3 +2430,9 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - Checked: a clean copy of main type-checks with 0 errors; 102/102 money tests; 206 AI tests pass in the copy (one old "pro-chat replies" wording test fails the same way in the AI copy); all 208 engine files byte-identical to Arthur's passed backup; the $0 live check opened the real $9.99 Basic box with no billing errors.
 - Stripe = UNKNOWN: no real card payment yet (TODO STRIPE-UNKNOWN). The money code stays frozen until dad's test.
 - Next for the AI Animator: many people at once (TODO AI-MANY-PEOPLE), then the full test in main (TODO AI-MAIN-TEST).
+
+### D-0248 — The AI Animator is the editor's command (PM, 2026-11-22)
+
+- Arthur, Nov 22 evening: the AI Animator on the right "feels like an add-on"; it is "the whole point of Diamond Animator". Four layouts were built and tried in the real app (timeline button, director bar under the canvas, command bar in the top bar, Spotlight). His final pick: Spotlight, "like a terminal: simple, professional, powerful" - not another chat.
+- Built: `src/components/workspace/ai/aiDock.tsx` moves the same AI panel (portal into one host) into a command window opened from the top bar's field or Cmd/Ctrl+K; the top bar shows thinking / animating % / plan ready / Done (`sendAiStatus` from V1AnimatorChat, a look only); it closes once Animate really starts. The right panel keeps Properties, Library and Assets; phones keep the AI sheet tab.
+- Checked in the real app copy at computer size and phone size; type check clean; 29/29 AI panel tests. Making and editing unchanged (no engine or AI logic file touched).

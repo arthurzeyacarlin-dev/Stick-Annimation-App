@@ -1,6 +1,10 @@
 # Current State
 
-## D-0247 — The AI Animator is in main; Stripe is UNKNOWN and paused (current, 2026-11-22)
+## D-0248 — The AI Animator is the editor's command (current, 2026-11-22)
+
+Arthur picked the "Spotlight" layout out of four and asked for a command-terminal feel. On a computer the AI Animator is no longer a right-panel tab: a field in the middle of the editor's top bar ("Tell the AI Animator what to animate…", Cmd/Ctrl+K from anywhere) opens a big command window over the dimmed editor - his messages as prompt lines, a ready / thinking / animating status, the message box at the bottom, key hints. Once Animate really starts it closes and the top bar shows "Animating 42%", then "Done". Only where the panel sits changed (the same panel is moved with a React portal); making and editing are unchanged. Phones keep the AI sheet. The panel no longer says "stick figure" or "a refused idea is free". Stripe is still UNKNOWN (D-0247).
+
+## D-0247 — The AI Animator is in main; Stripe is UNKNOWN and paused (2026-11-22)
 
 Main now has the finished AI Animator in main's gray look, with main's money system: the same code as the copy `diamond-review/money-main`, which keeps running on this Mac for dad's test. It runs behind its switches (`diamond-review/backups/start-main-ai.sh`); without them main looks as before. Credits pay the real AI cost once: the animator 4 credits a second (plus the settle second fal is paid for), Sonnet's reply at its real cost. The card shows Sonnet's short line per step with the exact animator words folded, and the real thinking steps ("Thinking", "Searching the web…", "Finalizing answer"). Payments are ready for the first real card payment: paying with a saved card always asks for the account password (packs, plans and paid plan switches; 5 wrong tries wait 15 minutes), at most 3 packs a day, and never "nothing was charged" after money moved. **STRIPE = UNKNOWN (sticky note):** no real card payment has been made yet; dad does the one $9.99 Basic test later (tomorrow or after, his choice). Until then the money code is frozen. Still open for the AI Animator: many people at once (today one animation at a time for everyone), the full test in main (edit, added part, save, open, export, phone), and hosting (an online server for the engine, the Stripe webhook).
 

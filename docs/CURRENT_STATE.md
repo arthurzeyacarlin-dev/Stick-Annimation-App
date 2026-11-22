@@ -1,5 +1,9 @@
 # Current State
 
+## D-0246 — The AI Animator is finished and moves into main (current, 2026-11-22)
+
+Arthur passed the AI Animator (copy `diamond-review/v1-single`): making and editing any animation, the picture on the card before Animate (everything that will be in the animation, with a caption that looks can't change once animated), new beginnings asked first, looks fixed after Animate, short animations made again whole on a motion change, the even-rate playback fix, a progress bar that runs on real job times, and Sonnet reading requests the way a person pictures them. Next: the AI Animator moves into a copy of main (`diamond-review/money-main`), gets main's gray look, then becomes main after a full test. How animations are made and edited does not change; the engine stays outside the repo on this Mac.
+
 ## D-0245 — Follow-up emails and the app's trial signals (current, 2026-11-21)
 
 Four follow-up email flows (26 emails: Arthur's story, the 14-day trial with reminders, after the trial, long-term tips) and the welcome flow are live in the email service since 2026-11-21 (Arthur's order); a new trial sign-up in the main app made it send the first trial email within a minute. The app tells the email service once when an account's trial starts and when it picks a plan (`src/lib/account/emailSignals.ts`, setting `DIAMOND_EMAIL_SITE_ID`). Checked in the main app on real money: the signal arrives once, no screen shows the payment or email service's name, and two opened payment boxes leave one unpaid start and no charge. Still unproven: a real card payment reaching the bank.

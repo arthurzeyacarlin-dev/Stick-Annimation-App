@@ -1,5 +1,11 @@
 # TODO
 
+## AI Animator into main (D-0246, 2026-11-22)
+
+- [ ] **AI-INTO-MAIN** — move the finished AI Animator from `diamond-review/v1-single` into `diamond-review/money-main`; main's look and money system win; old projects open, draw, save and open again.
+- [ ] **AI-LOOK** — the AI panel in main's gray look: button colours and hovers, a professional gray or blue thinking gradient, polished cards.
+- [ ] **AI-MAIN-TEST** — full test in the real app (new animation, edit, added part, save, open, export, phone), then main; push only on Arthur's word.
+
 ## Live money (D-0242, 2026-11-21)
 
 - [x] **LIVE-MONEY-DAD (Stripe part, done 2026-11-21)** — the live account "Diamond Animator" is verified with no open tasks; payments and payouts are active; dad linked the payout bank himself (USD default, automatic daily payouts).

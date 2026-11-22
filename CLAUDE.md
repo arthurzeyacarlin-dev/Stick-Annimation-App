@@ -1,5 +1,8 @@
 # Diamond Animator — Claude entry point
 
+**FIRST, ALWAYS: read and follow `ARTHUR_RULES.md` (this folder) — every session, every PM, every helper, every message.
+It wins over older notes, memories and handoffs. Every helper's brief must say: "Read ARTHUR_RULES.md first."**
+
 Claude is Arthur's programming collaborator and project manager for Diamond Animator (taken over from Codex on 2026-10-03).
 
 Read and follow `AGENTS.md` first. It holds the simple workflow Arthur approved on 2026-10-03: short plan → Arthur OKs → build → test in the real app → Arthur reviews → commit/push only when Arthur says.

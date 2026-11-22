@@ -9,6 +9,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { DiamondLogo } from "@/src/components/chrome/DiamondLogo";
+import { CloseButton } from "@/src/components/ui/CloseButton";
 import workspaceThemeStyles from "../workspaceTheme.module.css";
 
 export type AiLayout = "panel" | "spot";
@@ -31,7 +32,7 @@ export function useAiLayout(): { layout: AiLayout; phone: boolean } {
 }
 
 // ---- what the AI Animator is doing (sent by V1AnimatorChat; a look only)
-export type AiStatus = { busy: string | null; phase: string | null; pct: number | null; part: [number, number] | null; waiting: boolean };
+export type AiStatus = { busy: string | null; phase: string | null; pct: number | null; part: [number, number] | null; waiting: boolean; listening?: boolean };
 type AiSlots = { tab: HTMLElement | null; dock: HTMLElement | null; current: AiLayout };
 type AiWindow = Window & { __diamondAiStatus?: AiStatus; __diamondAiHost?: HTMLDivElement; __diamondAiSlots?: AiSlots };
 export function sendAiStatus(status: AiStatus) {
@@ -51,6 +52,7 @@ function useAiStatus(): AiStatus | null {
 const isMaking = (s: AiStatus | null) => Boolean(s && (s.busy === "running" || s.busy === "finishing" || s.busy === "placing" || s.busy === "switching"));
 function statusWords(s: AiStatus | null): { text: string; tone: "work" | "ready" } | null {
   if (!s) return null;
+  if (s.listening) return { text: "Listening…", tone: "work" };   // (Nov 23) dictating: the status says so, the waves show the voice
   if (s.busy === "thinking") return { text: s.phase === "searching" ? "Searching the web…" : s.phase === "finalizing" ? "Finalizing the plan…" : "Thinking…", tone: "work" };
   if (s.busy === "running" || s.busy === "finishing") {
     const part = s.part && s.part[1] > 1 ? ` · part ${s.part[0]} of ${s.part[1]}` : "";
@@ -107,14 +109,14 @@ export function AiTopBarSlot() {
   const words = statusWords(status);
   const pct = animatingPct(status);
   return (
-    <button type="button" className="ai-top-field" onClick={openAiAnimator} aria-label="Open the AI Animator" data-workspace-theme-exempt=""
+    <button type="button" className="ai-top-field" onClick={openAiAnimator} aria-label="Make an animation" data-workspace-theme-exempt=""
       data-state={words ? words.tone : done ? "done" : undefined}>
       <span className="ai-top-spark"><Spark size={13} /></span>
       {words
         ? <span className="ai-top-text"><span className="ai-top-dot" aria-hidden="true" />{words.text}</span>
         : done
           ? <span className="ai-top-text"><svg aria-hidden="true" width="13" height="13" viewBox="0 0 12 12" style={{ flexShrink: 0 }}><path d="M2.5 6.2 5 8.6l4.6-5" stroke="currentColor" strokeWidth="1.7" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>Done · it&apos;s on your canvas</span>
-          : <span className="ai-top-text ai-top-placeholder">Tell the AI Animator what to animate…</span>}
+          : <span className="ai-top-text ai-top-placeholder">Make an animation of anything…</span>}
       <kbd>{mac ? "⌘" : "Ctrl"} K</kbd>
       {pct !== null && <span className="ai-field-progress" aria-hidden="true"><span style={{ width: `${pct}%` }} /></span>}
     </button>
@@ -169,22 +171,19 @@ export function AiAnimatorDock({ layout }: { layout: AiLayout }) {
       {createPortal(
         <div className={workspaceThemeStyles.workspace} style={{ display: "contents" }}>
           <div className="ai-spot-scrim" data-open={open ? "true" : undefined} onPointerDown={(e) => { if (e.target === e.currentTarget) setOpen(false); }}>
-            <section className="ai-spot" role="dialog" aria-modal="true" aria-label="AI Animator" data-working={working ? "true" : undefined}
+            <section className="ai-spot" role="dialog" aria-modal="true" aria-label="Make an animation" data-working={working ? "true" : undefined}
               onClickCapture={(e) => { const b = (e.target as HTMLElement).closest("button"); if (b && /^\s*Animate\b/.test(b.textContent ?? "")) pressedAnimate.current = true; }}>
-              <header className="ai-spot-head">
+              {/* (Nov 23, Arthur: "I don't want it to sound like AI Animator anymore"; the X = the app's one close X) */}
+              <header className="ai-spot-head" data-workspace-theme-exempt="">
                 <span className="ai-spot-logo" aria-hidden="true"><DiamondLogo size={18} /></span>
-                <span className="ai-spot-title">AI Animator</span>
                 <span className="ai-spot-status" data-tone={words ? words.tone : "idle"}><span className="ai-top-dot" aria-hidden="true" />{words ? words.text.toLowerCase() : "ready"}</span>
-                <button type="button" className="ai-spot-close" onClick={() => setOpen(false)} aria-label="Close the AI Animator" data-workspace-theme-exempt="">
-                  <kbd>Esc</kbd>
-                  <svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12"><path d="M2.5 2.5l7 7M9.5 2.5l-7 7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg>
-                </button>
+                <CloseButton label="Close" onClick={() => setOpen(false)} className="ai-spot-close" />
               </header>
               <div className="ai-spot-line" data-mode={pct !== null ? "progress" : working ? "work" : undefined} aria-hidden="true">{pct !== null && <span style={{ width: `${pct}%` }} />}</div>
               <div ref={slotRef} className="ai-dock-slot" />
               <footer className="ai-spot-hints" aria-hidden="true">
                 <span><kbd>↵</kbd> send</span><span><kbd>⇧ ↵</kbd> new line</span><span><kbd>esc</kbd> close</span>
-                <span className="ai-spot-hints-end">every new animation goes on its own layer · fine-tune any frame after</span>
+                <span className="ai-spot-hints-end">anything except backgrounds and effects · each animation gets its own layer</span>
               </footer>
             </section>
           </div>
@@ -211,7 +210,7 @@ const aiDockStyles = `
 .ai-top-text { display: inline-flex; align-items: center; gap: 8px; flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--da-text-2, #d2d2d7); }
 .ai-top-placeholder { color: inherit; }
 .ai-top-field[data-state="done"] .ai-top-text { color: #fff; }
-.ai-top-field kbd, .ai-spot-close kbd, .ai-spot-hints kbd { font: inherit; font-size: 11px; line-height: 16px; color: var(--da-muted, #a3a3ab); border: 1px solid var(--da-border, #2c2c32); border-radius: 6px; padding: 1px 6px; background: var(--da-panel, #1a1a1e); }
+.ai-top-field kbd, .ai-spot-hints kbd { font: inherit; font-size: 11px; line-height: 16px; color: var(--da-muted, #a3a3ab); border: 1px solid var(--da-border, #2c2c32); border-radius: 6px; padding: 1px 6px; background: var(--da-panel, #1a1a1e); }
 .ai-top-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--da-text-2, #d2d2d7); flex-shrink: 0; animation: ai-pulse 1.4s ease-in-out infinite; }
 [data-state="ready"] .ai-top-dot, [data-tone="ready"] .ai-top-dot { background: var(--da-accent, #0066ff); animation: none; }
 .ai-field-progress { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--da-line, #2c2c32); pointer-events: none; }
@@ -227,17 +226,11 @@ const aiDockStyles = `
   transform: translateY(8px) scale(.985); transition: transform .16s cubic-bezier(.2,.8,.2,1); }
 .ai-spot-scrim[data-open] .ai-spot { transform: none; }
 
-.ai-spot-head { display: flex; align-items: center; gap: 10px; padding: 14px 12px 12px 18px; min-width: 0; flex-shrink: 0; }
+.ai-spot-head { display: flex; align-items: center; gap: 10px; padding: 8px 8px 8px 18px; min-width: 0; flex-shrink: 0; }
 .ai-spot-logo { display: inline-flex; color: #fff; }
-.ai-spot-title { font-size: 15px; font-weight: 650; letter-spacing: -.01em; white-space: nowrap; }
-.ai-spot-sub { font-size: 13px; color: var(--da-muted, #a3a3ab); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .ai-spot-status { display: inline-flex; align-items: center; gap: 8px; height: 26px; padding: 0 10px; border-radius: 8px; background: var(--da-page, #111113); border: 1px solid var(--da-border, #2c2c32);
   font-size: 12px; font-weight: 500; color: var(--da-text-2, #d2d2d7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
-.ai-spot-close { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; height: 30px; padding: 0 8px 0 6px; border-radius: 8px; border: 0; background: transparent;
-  color: var(--da-muted, #a3a3ab); font: inherit; cursor: pointer; flex-shrink: 0; transition: none; }
-.ai-spot-close:hover { background: var(--da-hover, #3a3a41); color: #fff; }
-.ai-spot-close:hover kbd { color: #fff; border-color: #55555e; background: transparent; }
-.ai-spot-close:focus-visible { outline: 2px solid var(--da-focus, #4d94ff); outline-offset: 1px; }
+.ai-spot-head .ai-spot-close { margin-left: auto !important; }
 
 /* the line under the head: still when idle, a moving sweep while he thinks, the blue bar while he animates */
 .ai-spot-line { position: relative; height: 1px; flex-shrink: 0; background: var(--da-line, #2c2c32); overflow: hidden; }
@@ -290,7 +283,7 @@ const aiDockStyles = `
 .ai-spot form[aria-label="AI Animator message composer"] { display: flex !important; flex-direction: row !important; align-items: flex-start !important; gap: 10px !important;
   border: 0 !important; border-radius: 0 !important; background: transparent !important; box-shadow: none !important; padding: 14px 14px 12px 20px !important; min-height: 0 !important; }
 .ai-spot form[aria-label="AI Animator message composer"]::before { content: "›"; font-family: var(--ai-mono); font-size: 18px; line-height: 24px; font-weight: 600; color: #fff; flex: 0 0 auto; }
-.ai-spot form[aria-label="AI Animator message composer"] textarea { flex: 1 1 auto !important; min-width: 0; font-family: var(--ai-mono) !important; font-size: 14px !important; line-height: 24px !important;
+.ai-spot form[aria-label="AI Animator message composer"] textarea { flex: 1 1 0 !important; width: auto !important; min-width: 0; font-family: var(--ai-mono) !important; font-size: 14px !important; line-height: 24px !important;
   min-height: 48px !important; max-height: 168px; padding: 0 !important; caret-color: #fff; border: 0 !important; outline: none !important; box-shadow: none !important; background: transparent !important; }
 .ai-spot form[aria-label="AI Animator message composer"] textarea::placeholder { color: #6e6e76; }
 .ai-spot form[aria-label="AI Animator message composer"]:not(:focus-within)::before { color: var(--da-muted, #a3a3ab); }
@@ -312,6 +305,17 @@ const aiDockStyles = `
 .ai-spot .drawing-ai-examples button::before { content: "›" !important; width: auto !important; height: auto !important; flex: 0 0 auto !important; background: none !important; -webkit-mask: none !important; mask: none !important; font-weight: 600; color: var(--da-muted, #a3a3ab); }
 .ai-spot .drawing-ai-examples button:hover:enabled::before { color: #fff; }
 .ai-spot .drawing-ai-cost { font-family: var(--ai-mono); font-size: 11.5px !important; color: var(--da-muted, #a3a3ab) !important; }
+
+/* (Nov 23) talking: the waves get their own full line under what is typed (they were squeezed to one dot), white like the prompt */
+.ai-spot form[aria-label="AI Animator message composer"] { flex-wrap: wrap !important; }
+.ai-spot form[aria-label="AI Animator message composer"] > [class*="dictationPanel"] { flex: 1 0 100% !important; margin: 2px 0 0 !important; min-height: 44px !important; gap: 14px !important; }
+.ai-spot [class*="dictationPanel"] [class*="waveform"] { height: 38px !important; }
+.ai-spot [class*="dictationPanel"] [class*="waveform"] span { background: #fff !important; height: calc(4px + var(--wave, 0) * 34px) !important; }
+/* (Nov 23) his words and the answers read like one session: the same type, no bubbles */
+.ai-spot .v1-reply { font-family: var(--ai-mono); font-size: 13px !important; line-height: 1.65 !important; color: #c8c8ce !important; max-width: 100% !important; }
+.ai-spot .v1-reply strong, .ai-spot .v1-reply h4 { color: #fff !important; }
+.ai-spot .v1-note, .ai-spot .v1-error, .ai-spot .v1-activity { font-family: var(--ai-mono); font-size: 12px !important; }
+.ai-spot [class*="effortButton"] { font-family: var(--ai-mono); }
 
 @media (prefers-reduced-motion: reduce) { .ai-spot-scrim, .ai-spot, .ai-top-dot, .ai-spot-line::after { transition: none !important; animation: none !important; } }
 @media (max-width: 640px) { .ai-spot-scrim { display: none !important; } }

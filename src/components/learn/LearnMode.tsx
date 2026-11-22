@@ -39,7 +39,7 @@ const STEPS: Step[] = [
   // UX Step 1 (Arthur, Nov 11): the same tour walks on into the editor, so a stranger knows what to do first.
   { where: "editor", title: "Draw here", text: "This is your canvas. Pick a tool at the bottom (Pencil to draw, Eraser, Fill, Text…) and draw your stick figure or anything else.", find: byTour("canvas") },
   { where: "editor", title: "The timeline", text: "Every picture of your animation lives here, one frame after another. Click a frame to draw on it. Played in a row, the pictures move.", find: byTour("timeline") },
-  { where: "editor", title: "AI Animator", text: "Tell him what should happen, in plain words: “do a cartwheel”. He puts the animation on the timeline as its own layer, and you can change any move after.", find: byAiTab },
+  { where: "editor", title: "Animate anything", text: "Type what should happen, in plain words: “do a cartwheel”. It goes on the timeline as its own layer, and you can change any move after.", find: byAiTab },
   { where: "editor", title: "Play", text: "Press Play to watch your animation. Press it again to pause.", find: byTour("play") },
   { where: "editor", title: "Export", text: "Done? Export turns your animation into a video, a GIF or pictures you can share anywhere.", find: byTour("editor-export") },
 ];

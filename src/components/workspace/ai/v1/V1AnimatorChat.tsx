@@ -134,8 +134,8 @@ export function V1AnimatorChat({ projectId, copiedFrom, bridge, readOnly, Reply,
   // (Nov 22, layouts) the editor's top bar shows what the AI Animator is doing - a look only; nothing here changes what it does
   const waitingGate = state.lines.some((l) => l.kind === "gate" && l.state === "waiting");
   useEffect(() => {
-    sendAiStatus({ busy: state.busy, phase: state.thinking?.phase ?? null, pct: state.progress?.pct ?? null, part: state.progress?.part ?? null, waiting: waitingGate });
-  }, [state.busy, state.thinking?.phase, state.progress?.pct, state.progress?.part, waitingGate]);
+    sendAiStatus({ busy: state.busy, phase: state.thinking?.phase ?? null, pct: state.progress?.pct ?? null, part: state.progress?.part ?? null, waiting: waitingGate, listening: dictation.phase === "recording" });
+  }, [state.busy, state.thinking?.phase, state.progress?.pct, state.progress?.part, waitingGate, dictation.phase]);
 
   const dictationActive = dictation.phase !== "idle";
   const started = state.lines.length > 0 || Boolean(state.busy);
@@ -150,8 +150,9 @@ export function V1AnimatorChat({ projectId, copiedFrom, bridge, readOnly, Reply,
           {!started && (
             <div className="drawing-ai-empty">
               <span className="drawing-ai-logo" aria-hidden="true"><DiamondLogo size={48} /></span>
-              <strong>What do you want to animate?</strong>
-              <span className="drawing-ai-empty-text">Tell him what should happen, in plain words. He puts it on the canvas as its own layer, and you can change any frame after.</span>
+              <strong>Type it. Watch it come to life.</strong>
+              {/* (Nov 23, Arthur: "whatever you say here, it's able to be animated ... except backgrounds and effects") */}
+              <span className="drawing-ai-empty-text">Describe any animation in plain words: a move, a stunt, a whole story. Anything except backgrounds and effects. It lands on your canvas as its own layer, and every frame stays yours to change.</span>
               <div className="drawing-ai-examples" role="group" aria-label="Try an example">
                 {V1_EXAMPLES.map((text) => (
                   <button key={text} type="button" disabled={readOnly} onClick={() => { onInputChange(text); composerRef.current?.focus(); }}>{text}</button>
@@ -185,7 +186,7 @@ export function V1AnimatorChat({ projectId, copiedFrom, bridge, readOnly, Reply,
         composer={<>
           {outOfCredits && <V1OutOfCreditsCard view={outOfCredits} />}
           <form onSubmit={submit} className={`${chatComposerStyles.box} ${chatComposerStyles.compact} ${chatComposerStyles.quiet}`} aria-label="AI Animator message composer">
-          <textarea ref={composerRef} aria-label="Message AI Animator" value={input} onChange={(event) => onInputChange(event.target.value)} onKeyDown={handleKeyDown} placeholder="Tell the AI Animator what to animate…" disabled={Boolean(state.busy) || readOnly} rows={2} />
+          <textarea ref={composerRef} aria-label="Message AI Animator" value={input} onChange={(event) => onInputChange(event.target.value)} onKeyDown={handleKeyDown} placeholder={state.animationId ? "Change anything, or say what happens next…" : "Make an animation of…"} disabled={Boolean(state.busy) || readOnly} rows={2} />
           {dictationActive
             ? <ChatDictationPanel dictation={dictation} onCancel={onDictateCancel} onStop={onDictateStop} />
             : <ChatToolsRow

@@ -1,10 +1,12 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import type { KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent, ReactNode, RefObject } from "react";
 import type { SceneForPage } from "@/src/lib/animator/stageFit";
 import type { EngineDrawingBridge } from "./ai/engineDrawingBridge";
 
 import { DrawingAiPanel } from "./ai/DrawingAiPanel";
+import { aiPanelHost, registerAiSlot, useAiLayout } from "./ai/aiDock";
 import type { DrawingAiActionPlan, DrawingAiProjectMemory, DrawingAiWorkspaceContext } from "@/src/lib/ai/drawingAiContract";
 import type { GeneratedFrameRenderResult } from "@/src/lib/ai/drawingFrameExecutor";
 
@@ -118,6 +120,13 @@ export function DrawingRightPanel({
   // phones switch to the AI Animator tab right after the page is up.
   const [aiTabActive, setAiTabActive] = useState(false);
   useEffect(() => { if (window.innerWidth <= 640) setAiTabActive(true); }, []);
+  // (Nov 22, layouts) on a computer with layout 1-3 the AI Animator is no longer a tab here: the same panel is moved (aiDock.tsx)
+  const { layout: aiLayout } = useAiLayout();
+  const aiInTab = aiLayout === "panel";
+  useEffect(() => { if (!aiInTab) setAiTabActive(false); }, [aiInTab]);
+  const [aiHost, setAiHost] = useState<HTMLDivElement | null>(null);
+  useEffect(() => { setAiHost(aiPanelHost()); }, []);
+  const aiTabSlot = useCallback((el: HTMLDivElement | null) => registerAiSlot("tab", el), []);
   // Phones and tablets: like the computer, the panel is always there and one tab is always selected (no hide button).
   const [seenPanelTab, setSeenPanelTab] = useState(rightPanelTab);
   if (seenPanelTab !== rightPanelTab) { setSeenPanelTab(rightPanelTab); setAiTabActive(false); }
@@ -463,7 +472,7 @@ export function DrawingRightPanel({
             </button>
           );
         })}
-        <button
+        {aiInTab && <button
           type="button"
           onClick={() => setAiTabActive(true)}
           aria-pressed={aiTabActive}
@@ -476,7 +485,7 @@ export function DrawingRightPanel({
           }}
         >
           AI Animator
-        </button>
+        </button>}
         </div>
       </div>
 
@@ -555,9 +564,9 @@ export function DrawingRightPanel({
         </div>
       )}
 
-      <div className="drawing-ai-tab" style={{ display: aiTabActive ? "flex" : "none", flex: "1 1 0", minHeight: 0, flexDirection: "column" }}>
-        <style>{`.drawing-ai-tab > .workspace-ai-panel-shell { flex: 1 1 0 !important; border-top: 0 !important; background: var(--da-panel) !important; } .drawing-ai-tab .workspace-ai-messages-scroll { background: transparent !important; } .drawing-ai-tab .workspace-ai-panel-shell > style + div { display: none !important; } .drawing-ai-tab .workspace-ai-panel-shell > * { background: var(--da-page, #111113) !important; }`}</style>
-      <DrawingAiPanel
+      <div ref={aiTabSlot} className="drawing-ai-tab" style={{ display: aiTabActive ? "flex" : "none", flex: "1 1 0", minHeight: 0, flexDirection: "column" }}>
+        <style>{`.drawing-ai-tab .workspace-ai-panel-shell { flex: 1 1 0 !important; border-top: 0 !important; background: var(--da-panel) !important; } .drawing-ai-tab .workspace-ai-messages-scroll { background: transparent !important; } .drawing-ai-tab .workspace-ai-panel-shell > style + div { display: none !important; } .drawing-ai-tab .workspace-ai-panel-shell > * { background: var(--da-page, #111113) !important; }`}</style>
+      {aiHost && createPortal(<DrawingAiPanel
         workspaceContext={workspaceContext}
         projectAiMemory={projectAiMemory}
         onProjectAiMemoryChange={onProjectAiMemoryChange}
@@ -565,7 +574,7 @@ export function DrawingRightPanel({
         onExecuteActionPlan={onExecuteActionPlan}
         onApplyAnimatorScene={onApplyAnimatorScene}
         engineDrawing={engineDrawing}
-      />
+      />, aiHost)}
       </div>
     </div>
     </div>

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import type { ReactNode } from "react";
 import { DiamondLogo } from "@/src/components/chrome/DiamondLogo";
 
 type DrawingTopBarProps = {
@@ -17,6 +18,7 @@ type DrawingTopBarProps = {
   canRedo?: boolean;
   /** SPEC-0020 Phase 4: Edit / View / Window / Help menus, built by DrawingWorkspace from its own handlers. */
   menus?: TopBarMenu[];
+  centerSlot?: ReactNode; // (Nov 22, layout 3) the "Ask the AI Animator" field
 };
 
 export type TopBarMenuItem =
@@ -115,6 +117,7 @@ export function DrawingTopBar({
   canUndo = false,
   canRedo = false,
   menus = [],
+  centerSlot,
 }: DrawingTopBarProps) {
   const [openMenu, setOpenMenu] = useState<TopBarMenu["label"] | null>(null);
   const menuBarRef = useRef<HTMLDivElement | null>(null);
@@ -364,11 +367,11 @@ export function DrawingTopBar({
       <div
         className="drawing-topbar-title"
         data-saved-state={hasSaveProblem ? "problem" : undefined}
-        title={projectTitle}
+        title={centerSlot ? undefined : projectTitle}
         style={{
           flex: "0 1 auto",
           minWidth: 0,
-          maxWidth: "40%",
+          maxWidth: centerSlot ? "46%" : "40%",
           fontSize: 13,
           fontWeight: 600,
           color: "var(--da-text, #f5f5f6)",
@@ -379,7 +382,7 @@ export function DrawingTopBar({
           userSelect: "none",
         }}
       >
-        {projectTitle}
+        {centerSlot ?? projectTitle}
       </div>
 
       <div
@@ -390,6 +393,7 @@ export function DrawingTopBar({
           <span style={{ fontSize: 12, fontWeight: 500, color: "var(--da-danger, #ff8a95)" }}>{recoveryStateLabel}</span>
         ) : null}
         {isLegacyProject ? <span style={{ fontSize: 12, color: "var(--da-muted, #a3a3ab)" }}>{syncLabel}</span> : null}
+        {centerSlot ? <span title={projectTitle} style={{ fontSize: 13, fontWeight: 600, color: "var(--da-text, #f5f5f6)", maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{projectTitle}</span> : null}
         <div
           role="status"
           aria-live="polite"

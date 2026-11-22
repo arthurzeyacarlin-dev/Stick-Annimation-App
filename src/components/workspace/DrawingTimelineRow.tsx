@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import type { CSSProperties, DragEvent, MouseEvent } from "react";
+import type { CSSProperties, DragEvent, MouseEvent, ReactNode } from "react";
 import {
   DRAWING_AI_SOUND_OPTION_DRAG_TYPE,
   isDrawingAiSoundOption,
@@ -35,6 +35,7 @@ export type TimelineLayer = {
 type DrawingTimelineRowProps = {
   responsiveLayout?: boolean;
   desktopRightInset?: number;
+  aiButton?: ReactNode; // (Nov 22, layout 1) the AI Animator button inside the timeline
   fps: number;
   isPlaying: boolean;
   isOnionEnabled: boolean;
@@ -764,6 +765,7 @@ const TimelineLayerLane = memo(function TimelineLayerLane({
 export function DrawingTimelineRow({
   responsiveLayout = false,
   desktopRightInset = 0,
+  aiButton,
   fps,
   isPlaying,
   isOnionEnabled,
@@ -1998,6 +2000,7 @@ export function DrawingTimelineRow({
         <div style={{ display: "flex", alignItems: "center", gap: 6, margin: "0 0 0 2px", flexShrink: 0 }}>
           {/* SPEC-0020 Phase 4 (Arthur): Layer and Onion are symbols only (Play keeps its word).
               Add layer = stacked squares fading back; Onion skin = a stick figure with fading "ghost" copies. */}
+          {aiButton}
           <button
             type="button"
             onClick={onAddLayer}

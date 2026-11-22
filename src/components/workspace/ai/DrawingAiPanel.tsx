@@ -50,6 +50,10 @@ import { workspaceColors } from "../workspaceTheme";
 import type { SceneForPage } from "@/src/lib/animator/stageFit";
 import type { EngineDrawingBridge } from "./engineDrawingBridge";
 import { EngineDrawingTools } from "./EngineDrawingTools";
+import { EngineBlocksChat } from "./EngineBlocksChat";
+import { ENGINE_BLOCKS_UI_ENABLED } from "@/src/lib/ai/engineBlocks/engineBlocksContract";
+import { V1_ANIMATOR_UI_ENABLED } from "@/src/lib/ai/v1Animator/v1AnimatorContract";
+import { V1AnimatorChat } from "./v1/V1AnimatorChat";
 import { FIGURE_COLOR_NAMES, FIGURE_COLORS, type FigureColorName } from "@/src/lib/animator/colors";
 import { ENGINE_TEST_SCENES } from "@/src/lib/animator/testScenes";
 import { LIBRARY_MOVES, MOVE_SPEEDS, MOVE_STYLES, makeMoveTestScene, type LibraryMoveId, type MoveSpeed, type MoveStyle } from "@/src/lib/animator/moves";
@@ -454,35 +458,8 @@ export function DrawingAiPanel({
   const dictationActive = dictation.phase !== "idle";
   const sendDisabled = !inputValue.trim() || readOnly || !workspaceContext;
 
-  return (
-    <>
-      <style>{`
-        .ai-animator-message { animation: ai-animator-reveal .18s ease-out both; overflow-wrap: anywhere; }
-        @keyframes ai-animator-reveal { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
-        .ai-animator-assistant-message { padding: 0; border: 0; border-radius: 0; background: transparent; white-space: pre-wrap; }
-        .ai-animator-assistant-visual { white-space: pre-wrap; }
-        .ai-animator-typewriter-edge { color: transparent; background: linear-gradient(90deg, #a3a3ab 0%, #d2d2d7 62%, #ffffff 100%); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .ai-animator-reduced-copy { display: none; white-space: pre-wrap; }
-        .animator-engine-test { display: grid; gap: 8px; padding: 10px; border: 1px solid ${workspaceColors.border}; border-radius: 10px; background: #1a1a1e; }
-        .animator-engine-test h3 { margin: 0; font-size: 12px; font-weight: 700; color: #f6f9ff; }
-        .animator-engine-test p { margin: 0; font-size: 11px; line-height: 1.45; color: #a3a3ab; }
-        .animator-engine-test-list { display: flex; flex-wrap: wrap; gap: 6px; }
-        .animator-engine-test-list button { min-height: 30px; padding: 4px 10px; border-radius: 10px; border: 1px solid #3a3a41; background: #232328; color: #f6f9ff; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; transition: none; }
-        .animator-engine-test-list button:hover:enabled { border-color: #0066ff; background: #0066ff; color: #fff; }
-        .animator-engine-test-list button:disabled { opacity: .45; cursor: not-allowed; }
-        .animator-engine-test-list button:focus-visible { outline: 2px solid #4d94ff; outline-offset: 2px; }
-        .animator-moves { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 6px; align-items: end; }
-        .animator-moves label { display: grid; gap: 3px; font-size: 11px; color: #a3a3ab; }
-        .animator-moves select { min-height: 30px; border: 1px solid #3a3a41; border-radius: 10px; padding: 3px 6px; color: #d2d2d7; background: #111113; font: inherit; font-size: 12px; cursor: pointer; transition: none; }
-        .animator-moves select:hover { border-color: #0066ff; background: #0066ff; color: #fff; }
-        .animator-moves select:focus-visible { outline: 2px solid #4d94ff; outline-offset: 2px; }
-        .ai-animator-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
-        @media (prefers-reduced-motion: reduce) { .ai-animator-message { animation: none; } .ai-animator-assistant-visual { display: none; } .ai-animator-reduced-copy { display: inline; } }
-      `}</style>
-      <WorkspaceAiPanelShell
-        shellRef={shellRef}
-        bodyRef={bodyRef}
-        body={<>
+  // Review-only sections behind their own switches (shown above the chat, in both panels).
+  const devSections = <>
           {ENGINE_TEST_ENABLED && onApplyAnimatorScene && (
             <section className="animator-engine-test" aria-label="Engine test">
               <h3>Engine test</h3>
@@ -560,6 +537,59 @@ export function DrawingAiPanel({
               {engineDrawing && <EngineDrawingTools bridge={engineDrawing} readOnly={readOnly} />}
             </section>
           )}
+          {ENGINE_BLOCKS_UI_ENABLED && engineDrawing && workspaceContext && <EngineBlocksChat projectId={projectId} bridge={engineDrawing} readOnly={readOnly} />}
+  </>;
+  // (V1 switch on AND the canvas bridge + project ready; otherwise today's panel, exactly as before.)
+  const v1Animator = V1_ANIMATOR_UI_ENABLED && workspaceContext ? engineDrawing ?? null : null;
+
+  return (
+    <>
+      <style>{`
+        .ai-animator-message { animation: ai-animator-reveal .18s ease-out both; overflow-wrap: anywhere; }
+        @keyframes ai-animator-reveal { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+        .ai-animator-assistant-message { padding: 0; border: 0; border-radius: 0; background: transparent; white-space: pre-wrap; }
+        .ai-animator-assistant-visual { white-space: pre-wrap; }
+        .ai-animator-typewriter-edge { color: transparent; background: linear-gradient(90deg, #a3a3ab 0%, #d2d2d7 62%, #ffffff 100%); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .ai-animator-reduced-copy { display: none; white-space: pre-wrap; }
+        .animator-engine-test { display: grid; gap: 8px; padding: 10px; border: 1px solid ${workspaceColors.border}; border-radius: 10px; background: #1a1a1e; }
+        .animator-engine-test h3 { margin: 0; font-size: 12px; font-weight: 700; color: #f6f9ff; }
+        .animator-engine-test p { margin: 0; font-size: 11px; line-height: 1.45; color: #a3a3ab; }
+        .animator-engine-test-list { display: flex; flex-wrap: wrap; gap: 6px; }
+        .animator-engine-test-list button { min-height: 30px; padding: 4px 10px; border-radius: 10px; border: 1px solid #3a3a41; background: #232328; color: #f6f9ff; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; transition: none; }
+        .animator-engine-test-list button:hover:enabled { border-color: #0066ff; background: #0066ff; color: #fff; }
+        .animator-engine-test-list button:disabled { opacity: .45; cursor: not-allowed; }
+        .animator-engine-test-list button:focus-visible { outline: 2px solid #4d94ff; outline-offset: 2px; }
+        .animator-moves { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 6px; align-items: end; }
+        .animator-moves label { display: grid; gap: 3px; font-size: 11px; color: #a3a3ab; }
+        .animator-moves select { min-height: 30px; border: 1px solid #3a3a41; border-radius: 10px; padding: 3px 6px; color: #d2d2d7; background: #111113; font: inherit; font-size: 12px; cursor: pointer; transition: none; }
+        .animator-moves select:hover { border-color: #0066ff; background: #0066ff; color: #fff; }
+        .animator-moves select:focus-visible { outline: 2px solid #4d94ff; outline-offset: 2px; }
+        .ai-animator-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+        @media (prefers-reduced-motion: reduce) { .ai-animator-message { animation: none; } .ai-animator-assistant-visual { display: none; } .ai-animator-reduced-copy { display: inline; } }
+      `}</style>
+      {v1Animator ? (
+        // AI Animator VERSION 1 (Nov 1, switch NEXT_PUBLIC_DIAMOND_V1_ANIMATOR=1): one stick figure, Luna + the V1K engine.
+        <V1AnimatorChat
+          projectId={projectId}
+          copiedFrom={workspaceContext?.copiedFromProjectId ?? null}
+          bridge={v1Animator}
+          readOnly={readOnly}
+          Reply={AiAnimatorAssistantReply}
+          input={inputValue}
+          onInputChange={setInputValue}
+          composerRef={composerRef}
+          dictation={dictation}
+          onDictateStart={() => void dictationRef.current?.start()}
+          onDictateStop={() => void dictationRef.current?.stop()}
+          onDictateCancel={() => { dictationRef.current?.cancel(); composerRef.current?.focus(); }}
+          onSent={() => dictationRef.current?.cancel("")}
+          extraTop={devSections}
+        />
+      ) : <WorkspaceAiPanelShell
+        shellRef={shellRef}
+        bodyRef={bodyRef}
+        body={<>
+          {devSections}
           {ledger.messages.length === 0 && !activeJob && (
             // Workspace redesign (Arthur 2026-10-26): a finished welcome, never "coming later" wording.
             <div className="drawing-ai-empty">
@@ -595,7 +625,7 @@ export function DrawingAiPanel({
             />}
           <ChatDictationStatus dictation={dictation} />
         </form>}
-      />
+      />}
     </>
   );
 }

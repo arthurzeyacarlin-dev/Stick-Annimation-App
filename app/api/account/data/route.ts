@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { requireAccountRequest } from "@/src/lib/account/access";
+import { BodyTooLarge, readBytes } from "@/src/lib/account/readJson";
 import {
+  ACCOUNT_DATA_MAX_BYTES,
   AccountDataConflictError,
   assertAccountDataIdentity,
   deleteAccountDataRecord,
@@ -31,9 +33,10 @@ const recordHeaders = (record: { revision: number; digest: string; updatedAt: st
 
 const safeError = (error: unknown) => {
   if (error instanceof AccountDataConflictError) return NextResponse.json({ error: error.message }, { status: 409 });
+  if (error instanceof BodyTooLarge) return NextResponse.json({ error: "account_data_capacity" }, { status: 413 });
   const code = error instanceof Error ? error.message : "account_data_failed";
   const status = code.includes("capacity") ? 413 : code.includes("identity") || code.includes("revision") ? 400 : 500;
-  return NextResponse.json({ error: code }, { status });
+  return NextResponse.json({ error: status === 500 ? "account_data_failed" : code }, { status });   // (Nov 12 security) an unexpected error never shows its text
 };
 
 export async function GET(request: Request) {
@@ -61,7 +64,7 @@ export async function PUT(request: Request) {
   try {
     const { namespace, key } = identity(request);
     const expectedRevision = revision(request, true);
-    const record = writeAccountDataRecord(access.session.user.id, namespace, key, expectedRevision, new Uint8Array(await request.arrayBuffer()));
+    const record = writeAccountDataRecord(access.session.user.id, namespace, key, expectedRevision, new Uint8Array(await readBytes(request, ACCOUNT_DATA_MAX_BYTES)));
     return NextResponse.json({ revision: record.revision, digest: record.digest, updatedAt: record.updatedAt }, { headers: recordHeaders(record) });
   } catch (error) { return safeError(error); }
 }

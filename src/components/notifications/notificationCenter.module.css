@@ -83,6 +83,9 @@
 .toneDot[data-tone="bad"] { background: #ff8a95; }
 .toneDot[data-tone="news"] { background: #85858e; }
 .dots[data-count="2"] .toneDot { min-width: 16px; height: 16px; font-size: 9px; padding: 0 3px; }
+/* Two dots: a linked pair (like ∞) on the bell's corner, overlapping slightly — never drifting onto the Menu button. */
+.dots[data-count="2"] { left: calc(100% - 26px); gap: 0; }
+.dots[data-count="2"] .toneDot + .toneDot { margin-left: -5px; }
 .dots[data-count="3"] { display: grid; grid-template-columns: 15px 15px; grid-template-rows: 15px 15px; gap: 0 1px; top: -9px; }
 .dots[data-count="3"] .toneDot { min-width: 15px; height: 15px; padding: 0; font-size: 8.5px; }
 .dots[data-count="3"] .toneDot[data-tone="news"] { grid-column: 1 / span 2; justify-self: center; margin-bottom: -2px; position: relative; z-index: 1; }

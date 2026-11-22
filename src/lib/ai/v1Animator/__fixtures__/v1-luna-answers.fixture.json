@@ -1,0 +1,673 @@
+{
+ "_label": "TEST FIXTURES ONLY (hand-written, labelled): Luna's raw answers in the SAME-ENGINE turn shape (contract v1-blocks: create -> blocks [{sentence}], edit -> ops). Never real model output; fed through the REAL normaliser ($0).",
+ "create_jacks_flip": {
+  "intent": "create",
+  "say": "I'll make him do a few jumping jacks and then a front flip.",
+  "blocks": [
+   {
+    "sentence": "A stick figure does a few jumping jacks and then a front flip."
+   }
+  ],
+  "colour": null,
+  "ops": null
+ },
+ "create_blue_wave_bow": {
+  "intent": "create",
+  "say": "I'll make a blue stick figure wave hello and then bow.",
+  "blocks": [
+   {
+    "sentence": "A stick figure waves hello and then bows."
+   }
+  ],
+  "colour": "#2563eb",
+  "ops": null
+ },
+ "create_long_first_block": {
+  "intent": "create",
+  "say": "I'll make the first part now - he wakes up and stretches. Then tell me the next part and I'll add it.",
+  "blocks": [
+   {
+    "sentence": "A stick figure wakes up and stretches."
+   }
+  ],
+  "colour": null,
+  "ops": null
+ },
+ "create_two_blocks": {
+  "intent": "create",
+  "say": "Two parts.",
+  "blocks": [
+   {
+    "sentence": "A stick figure jumps."
+   },
+   {
+    "sentence": "A stick figure bows."
+   }
+  ],
+  "colour": null,
+  "ops": null
+ },
+ "create_empty_sentence": {
+  "intent": "create",
+  "say": "Hmm.",
+  "blocks": [
+   {
+    "sentence": "  "
+   }
+  ],
+  "colour": null,
+  "ops": null
+ },
+ "edit_backflip": {
+  "intent": "edit",
+  "say": "I'll change the front flip into a backflip.",
+  "blocks": null,
+  "colour": null,
+  "ops": [
+   {
+    "op": "rewrite",
+    "block": "b1",
+    "sentence": "A stick figure does a few jumping jacks and then a backflip."
+   }
+  ]
+ },
+ "edit_next_part": {
+  "intent": "edit",
+  "say": "I'll add the next part: he sits down on the floor.",
+  "blocks": null,
+  "colour": null,
+  "ops": [
+   {
+    "op": "append",
+    "sentence": "A stick figure sits down on the floor."
+   }
+  ]
+ },
+ "edit_black_other_way": {
+  "intent": "edit",
+  "say": "I'll make him black and flip him the other way.",
+  "blocks": null,
+  "colour": null,
+  "ops": [
+   {
+    "op": "colour",
+    "colour": "#111111"
+   },
+   {
+    "op": "mirror"
+   }
+  ]
+ },
+ "edit_old_look": {
+  "intent": "edit",
+  "say": "I'll draw him with the neck line again.",
+  "blocks": null,
+  "colour": null,
+  "ops": [
+   {
+    "op": "look",
+    "look": "passed"
+   }
+  ]
+ },
+ "edit_redo_b1": {
+  "intent": "edit",
+  "say": "I'll try that part again.",
+  "blocks": null,
+  "colour": null,
+  "ops": [
+   {
+    "op": "redo",
+    "block": "b1"
+   }
+  ]
+ },
+ "edit_delete_b2": {
+  "intent": "edit",
+  "say": "I'll remove the second part.",
+  "blocks": null,
+  "colour": null,
+  "ops": [
+   {
+    "op": "delete",
+    "block": "b2"
+   }
+  ]
+ },
+ "edit_unknown_block": {
+  "intent": "edit",
+  "say": "I'll change part 7.",
+  "blocks": null,
+  "colour": null,
+  "ops": [
+   {
+    "op": "rewrite",
+    "block": "b7",
+    "sentence": "A stick figure jumps."
+   }
+  ]
+ },
+ "edit_unknown_op": {
+  "intent": "edit",
+  "say": "Spinning it.",
+  "blocks": null,
+  "colour": null,
+  "ops": [
+   {
+    "op": "spin",
+    "block": "b1"
+   }
+  ]
+ },
+ "edit_bad_look": {
+  "intent": "edit",
+  "say": "Anime look.",
+  "blocks": null,
+  "colour": null,
+  "ops": [
+   {
+    "op": "look",
+    "look": "anime"
+   }
+  ]
+ },
+ "refuse_two_people": {
+  "intent": "refuse",
+  "say": "Version 1 can't make two people.",
+  "blocks": null,
+  "colour": null,
+  "ops": null
+ },
+ "conversation": {
+  "intent": "conversation",
+  "say": "Hi! Tell me what your stick figure should do.",
+  "blocks": null,
+  "colour": null,
+  "ops": null
+ },
+ "clarify": {
+  "intent": "clarify",
+  "say": "Do you want a new animation, or should I change this one?",
+  "blocks": null,
+  "colour": null,
+  "ops": null
+ },
+ "edit_tinier": {
+  "_": "FIXTURE (labelled, not a real Luna answer): 'make this stick figure tinier'",
+  "intent": "edit",
+  "say": "I'll make him smaller.",
+  "blocks": null,
+  "colour": null,
+  "ops": [
+   {
+    "op": "size",
+    "size": 0.7
+   }
+  ]
+ },
+ "edit_smoother": {
+  "_": "FIXTURE (labelled, not a real Luna answer): 'make it smoother, 60 fps'",
+  "intent": "edit",
+  "say": "I'll make it play at 60 pictures per second.",
+  "blocks": null,
+  "colour": null,
+  "ops": [
+   {
+    "op": "fps",
+    "fps": 60
+   }
+  ]
+ },
+ "edit_fps12": {
+  "_": "FIXTURE (labelled, not a real Luna answer): 'play it at 12 fps'",
+  "intent": "edit",
+  "say": "I'll play it at 12 pictures per second.",
+  "blocks": null,
+  "colour": null,
+  "ops": [
+   {
+    "op": "fps",
+    "fps": 12
+   }
+  ]
+ },
+ "refuse_honest_3d": {
+  "_": "FIXTURE (labelled, not a real Luna answer): 'add a second guy who fights him'",
+  "intent": "refuse",
+  "say": "Version 1 can't make a second person.",
+  "blocks": null,
+  "colour": null,
+  "ops": null
+ },
+ "create_part_colours_tiny": {
+  "_label": "TEST FIXTURE (Nov 2): part colours + a really tiny size at create",
+  "intent": "create",
+  "say": "I'll make a really tiny stick figure with green legs, a blue spine and a yellow head and arms who waves.\n\nAfter that you could add a part where he bows.",
+  "blocks": [
+   {
+    "sentence": "A stick figure waves."
+   }
+  ],
+  "colour": null,
+  "partColours": {
+   "head": "#facc15",
+   "arms": "#facc15",
+   "body": "#2563eb",
+   "legs": "#16a34a"
+  },
+  "size": 0.35,
+  "still": null,
+  "ops": null
+ },
+ "create_still_standing": {
+  "_label": "TEST FIXTURE (Nov 2): one still pose",
+  "intent": "create",
+  "say": "I'll draw one stick figure standing still.\n\nYou could make him wave next, or change his colours.",
+  "blocks": [
+   {
+    "sentence": "A stick figure stands still."
+   }
+  ],
+  "colour": null,
+  "partColours": null,
+  "size": null,
+  "still": true,
+  "ops": null
+ },
+ "edit_part_colours": {
+  "_label": "TEST FIXTURE (Nov 2): part colours edit",
+  "intent": "edit",
+  "say": "I'll make his legs green and his spine blue.\n\nYou could also give him a yellow head.",
+  "blocks": null,
+  "colour": null,
+  "partColours": null,
+  "size": null,
+  "still": null,
+  "ops": [
+   {
+    "op": "partColours",
+    "partColours": {
+     "head": null,
+     "arms": null,
+     "body": "#2563eb",
+     "legs": "#16a34a"
+    }
+   }
+  ]
+ },
+ "guided_dot_story": {
+  "_": "FIXTURE (labelled, not a real Luna answer): the book's story_guide example 1, 'a stick figure trying to catch a floating dot, about a minute'",
+  "intent": "create",
+  "say": "Love this story! Here's the plan: I'll animate the stick figure reaching, jumping and chasing, and you can draw the floating dot (and a background if you like) yourself on the canvas, so it looks like he's going after it.\n\nA minute is a long scene, so I'll make it in short parts. I'm starting with the first part now (about 10 seconds), so it costs fewer credits and you can check it before I make more. Then just tell me what happens next.",
+  "blocks": [
+   {
+    "sentence": "A stick figure reaches up for something floating above him, jumps up to grab it, misses, and chases after it."
+   }
+  ],
+  "colour": null,
+  "partColours": null,
+  "style": null,
+  "size": null,
+  "still": false,
+  "ops": null
+ },
+ "guided_i_draw_dot": {
+  "_": "FIXTURE (labelled, not a real Luna answer): the book's story_guide example 2, 'I'll draw the dot'",
+  "intent": "conversation",
+  "say": "Great plan! Add a new layer above his layer and draw the dot a little higher than his hand, moving it a bit each frame so it floats just out of reach.\n\nWhen you're ready, tell me the next part, like him finally catching it or falling over trying.",
+  "blocks": null,
+  "colour": null,
+  "ops": null
+ },
+ "edit_faster": {
+  "_": "FIXTURE (labelled, not a real Luna answer): 'make him faster'",
+  "intent": "edit",
+  "say": "I'll make him faster.\n\nYou could also make him slower again or change his colour.",
+  "blocks": null,
+  "colour": null,
+  "ops": [
+   {
+    "op": "speed",
+    "speed": 1.5
+   }
+  ]
+ },
+ "edit_normal_speed": {
+  "_": "FIXTURE (labelled, not a real Luna answer): 'normal speed again'",
+  "intent": "edit",
+  "say": "Back to his normal speed.\n\nYou could add the next part now.",
+  "blocks": null,
+  "colour": null,
+  "ops": [
+   {
+    "op": "speed",
+    "speed": 1
+   }
+  ]
+ },
+ "plan_mosquito_rushed_create": {
+  "_label": "FIXTURE: a brain that ignores the book and tries to START a 2-minute story at once (the server guard must stop it)",
+  "intent": "create",
+  "say": "I'm making it now.",
+  "blocks": [
+   {
+    "sentence": "A stick figure hears a buzz and looks around for it."
+   }
+  ],
+  "colour": null,
+  "ops": null,
+  "requestedSeconds": 120,
+  "storyPlan": {
+   "parts": [
+    {
+     "seconds": 10,
+     "says": "He hears a buzz and looks around for it."
+    },
+    {
+     "seconds": 10,
+     "says": "He swats at the air and misses."
+    }
+   ]
+  }
+ },
+ "plan_mosquito_rushed_no_plan": {
+  "_label": "FIXTURE: same, with no storyPlan (server uses the book words)",
+  "intent": "create",
+  "say": "I'm making it now.",
+  "blocks": [
+   {
+    "sentence": "A stick figure swats at the air."
+   }
+  ],
+  "colour": null,
+  "ops": null,
+  "requestedSeconds": 120,
+  "storyPlan": null
+ },
+ "plan_mosquito_clarify": {
+  "_label": "FIXTURE: the book's way - clarify with a plan",
+  "intent": "clarify",
+  "say": "Here's my plan: about 12 parts of about 10 seconds. I animate the stick figure; you draw the mosquito on its own layer. Shall I start part 1?",
+  "blocks": null,
+  "colour": null,
+  "ops": null,
+  "requestedSeconds": 120,
+  "storyPlan": {
+   "parts": [
+    {
+     "seconds": 10,
+     "says": "He hears a buzz and looks around for it."
+    },
+    {
+     "seconds": 10,
+     "says": "He swats at the air and misses."
+    }
+   ]
+  }
+ },
+ "plan_mosquito_yes_part1": {
+  "_label": "FIXTURE: after the user agrees - create part 1 of the plan",
+  "intent": "create",
+  "say": "Starting part 1: he hears a buzz and looks around for it.",
+  "blocks": [
+   {
+    "sentence": "A stick figure hears a buzz and looks around for it."
+   }
+  ],
+  "colour": null,
+  "ops": null,
+  "requestedSeconds": 120,
+  "storyPlan": {
+   "parts": [
+    {
+     "seconds": 10,
+     "says": "He hears a buzz and looks around for it."
+    },
+    {
+     "seconds": 10,
+     "says": "He swats at the air and misses."
+    }
+   ]
+  }
+ },
+ "plan_next_part": {
+  "_label": "FIXTURE: 'next part' after part 1 = append",
+  "intent": "edit",
+  "say": "Adding part 2: he swats at the air and misses. This part is about 10 seconds.",
+  "blocks": null,
+  "colour": null,
+  "ops": [
+   {
+    "op": "append",
+    "sentence": "A stick figure swats at the air and misses."
+   }
+  ],
+  "requestedSeconds": null,
+  "storyPlan": null
+ },
+ "create_two_seconds": {
+  "_label": "FIXTURE: 'make him jump, two seconds long'",
+  "intent": "create",
+  "say": "I'll make him jump.",
+  "blocks": [
+   {
+    "sentence": "A stick figure jumps."
+   }
+  ],
+  "colour": null,
+  "ops": null,
+  "requestedSeconds": 2,
+  "storyPlan": null
+ },
+ "clarify_city_friends": {
+  "_label": "FIXTURE: 'a stick figure in the city with his friends'",
+  "intent": "clarify",
+  "say": "Version 1 animates one stick figure, so I'll animate him and you can draw his friends. You can draw the city on a layer behind him. What should he do there?",
+  "blocks": null,
+  "colour": null,
+  "ops": null,
+  "requestedSeconds": null,
+  "storyPlan": null
+ },
+ "create_flip_point_parts": {
+  "_": "FIXTURE (labelled, not a real AI answer): 'he does a front flip, then points at the camera'",
+  "intent": "create",
+  "say": "I'll make it in two parts: first the front flip, then the point.",
+  "blocks": [
+   {
+    "sentence": "A stick figure does a front flip, then points forward.",
+    "parts": [
+     "A stick figure does a front flip.",
+     "A stick figure points forward."
+    ]
+   }
+  ],
+  "colour": null,
+  "ops": null
+ },
+ "edit_point_only": {
+  "_": "FIXTURE (labelled, not a real AI answer): 'he doesn't really point, make the point clearer'",
+  "intent": "edit",
+  "say": "I'll try the point again - only that part; the check will tell us.",
+  "blocks": null,
+  "colour": null,
+  "ops": [
+   {
+    "op": "rewrite",
+    "block": "b2",
+    "sentence": "A stick figure points forward with a straight arm and holds it.",
+    "parts": null
+   }
+  ]
+ },
+ "edit_resplit_b1": {
+  "_": "FIXTURE (labelled, not a real AI answer): 'the point is missing' (one block that holds both actions)",
+  "intent": "edit",
+  "say": "I'll split it so the point gets its own part.",
+  "blocks": null,
+  "colour": null,
+  "ops": [
+   {
+    "op": "rewrite",
+    "block": "b1",
+    "sentence": "A stick figure does a front flip, then points forward.",
+    "parts": [
+     "A stick figure does a front flip.",
+     "A stick figure points forward."
+    ]
+   }
+  ]
+ },
+ "edit_clear_ai": {
+  "_": "FIXTURE (labelled, not a real AI answer): 'remove all the frames and start fresh'",
+  "intent": "edit",
+  "say": "I'll clear the animation off the canvas. Undo brings it back.",
+  "blocks": null,
+  "colour": null,
+  "ops": [
+   {
+    "op": "clear",
+    "scope": "ai",
+    "confirmed": null
+   }
+  ]
+ },
+ "edit_clear_all": {
+  "_": "FIXTURE (labelled, not a real AI answer): 'delete every frame on the canvas, my drawings too'",
+  "intent": "edit",
+  "say": "I'll clear every frame.",
+  "blocks": null,
+  "colour": null,
+  "ops": [
+   {
+    "op": "clear",
+    "scope": "all",
+    "confirmed": null
+   }
+  ]
+ },
+ "edit_clear_all_yes": {
+  "_": "FIXTURE (labelled, not a real AI answer): 'yes' (after the clear-all question)",
+  "intent": "edit",
+  "say": "Clearing every frame now. Undo brings them back.",
+  "blocks": null,
+  "colour": null,
+  "ops": [
+   {
+    "op": "clear",
+    "scope": "all",
+    "confirmed": true
+   }
+  ]
+ },
+ "edit_bigger": {
+  "_": "FIXTURE (labelled, not a real AI answer): 'make him bigger'",
+  "intent": "edit",
+  "say": "I'll make him bigger.",
+  "blocks": null,
+  "colour": null,
+  "ops": [
+   {
+    "op": "size",
+    "size": 1.4
+   }
+  ]
+ },
+ "create_detailed_45s": {
+  "_label": "FIXTURE (labelled, not a real AI answer; Nov 2 final round): a DETAILED 45-second story (within max_story_s) - made at once, whole",
+  "intent": "create",
+  "say": "I'll make him look around, swat at the air twice, then clap his hands and check them.",
+  "blocks": [
+   {
+    "sentence": "A stick figure hears a buzz and looks around for it, swats at the air twice and misses, then claps his hands together and checks them.",
+    "parts": [
+     "A stick figure hears a buzz and looks around for it.",
+     "A stick figure swats at the air twice and misses.",
+     "A stick figure claps his hands together and checks them."
+    ]
+   }
+  ],
+  "colour": null,
+  "ops": null,
+  "requestedSeconds": 45,
+  "storyPlan": null
+ },
+ "create_camera_still": {
+  "_label": "FIXTURE (labelled; Nov 2 final round): 'he walks to the right and off the screen, the camera stays still'",
+  "intent": "create",
+  "say": "I'll make him walk to the right. The camera stays still, so he can walk right off the screen.",
+  "blocks": [
+   {
+    "sentence": "A stick figure walks forward."
+   }
+  ],
+  "colour": null,
+  "ops": null,
+  "camera": "still",
+  "requestedSeconds": null,
+  "storyPlan": null
+ },
+ "edit_camera_still": {
+  "_label": "FIXTURE (labelled; Nov 2 final round): 'let him leave the screen' after an animation",
+  "intent": "edit",
+  "say": "The camera will stay still, so he can leave the screen.",
+  "blocks": null,
+  "colour": null,
+  "ops": [
+   {
+    "op": "camera",
+    "camera": "still"
+   }
+  ],
+  "requestedSeconds": null,
+  "storyPlan": null
+ },
+ "edit_camera_follow": {
+  "_label": "FIXTURE (labelled; Nov 2 final round): 'make the camera follow him again'",
+  "intent": "edit",
+  "say": "The camera will follow him again.",
+  "blocks": null,
+  "colour": null,
+  "ops": [
+   {
+    "op": "camera",
+    "camera": "follow"
+   }
+  ],
+  "requestedSeconds": null,
+  "storyPlan": null
+ },
+ "create_jacks_flip_steps": {
+  "intent": "create",
+  "say": "I'll make him do a few jumping jacks and then a front flip.",
+  "blocks": [
+   {
+    "sentence": "A stick figure does a few jumping jacks and then a front flip."
+   }
+  ],
+  "colour": null,
+  "ops": null,
+  "kimodoSteps": [
+   {
+    "text": "A person does jumping jacks.",
+    "seconds": 3.5,
+    "travels": false
+   },
+   {
+    "text": "A person does a front flip.",
+    "seconds": 2.4,
+    "travels": false
+   }
+  ],
+  "askedDetails": [
+   {
+    "said": "a few jumping jacks",
+    "step": 1
+   },
+   {
+    "said": "a front flip",
+    "step": 2
+   }
+  ]
+ }
+}

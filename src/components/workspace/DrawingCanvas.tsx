@@ -4758,14 +4758,12 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
         preparedRasterCommandRef.current = command;
         if (onAuthoringActionCommitted?.("stroke", command) === false) throw new Error("raster_commit_rejected");
       }
-    } catch (error) {
-      if (canvas) {
-        renderRasterBitmapsToAuthoringSurface(canvas, [authoringCommittedBitmapRef.current]);
-        attachBitmapPaintCoverage(canvas, projectRasterCoverageToAuthoringSurface(canvas, authoringCommittedBitmapRef.current));
-      }
-      hasPendingAuthoringChangesRef.current = false;
+    } catch {
+      // Nov 12 (Arthur: never "That stroke didn't stick"): a stroke the user drew is never wiped. It stays on the
+      // canvas as a pending change, and the next save (next stroke, frame/layer switch, autosave) keeps the whole
+      // canvas exactly as it is on screen.
+      authoringDirtyCaptureModeRef.current = "full";
       authoringDirtyRectRef.current = null;
-      setWorkspaceNotice("That stroke didn't stick. Your drawing is safe — please draw it again.");
     }
     preparedRasterCommandRef.current = null;
     if (canvas?.hasPointerCapture(e.pointerId)) canvas.releasePointerCapture(e.pointerId);
@@ -7879,9 +7877,8 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     const y = point.pixelY;
     if (x < 0 || y < 0 || x >= canvas.width || y >= canvas.height) return;
 
-    const rollbackImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const rollbackCoverage = getBitmapPaintCoverage(canvas);
-    const imageData = new ImageData(new Uint8ClampedArray(rollbackImage.data), canvas.width, canvas.height);
+    const sourceImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const imageData = new ImageData(new Uint8ClampedArray(sourceImage.data), canvas.width, canvas.height);
     const committed = authoringCommittedBitmapRef.current;
     if (committed) {
       const viewport = getAuthoringSurfaceViewport(canvas);
@@ -8015,12 +8012,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     markAuthoringDirty();
     preparedFillSnapshotRef.current = attachBitmapPaintCoverage(imageData, filledCoverage);
     try {
-      if (onAuthoringActionCommitted?.("fill") === false) throw new Error("fill_commit_failed");
+      onAuthoringActionCommitted?.("fill");
     } catch {
-      ctx.putImageData(rollbackImage, 0, 0);
-      attachBitmapPaintCoverage(canvas, rollbackCoverage);
-      markAuthoringChangesCommitted();
-      setWorkspaceNotice("That fill didn't stick. Your drawing is safe — please fill again.");
+      // Nov 12: a fill is never wiped either. It stays on the canvas as a pending change; the next save keeps it.
     } finally {
       preparedFillSnapshotRef.current = null;
     }
@@ -11460,6 +11454,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     >
       <div
         className="drawing-canvas-area"
+        data-tour="canvas"
         data-workspace-canvas-area="true"
         style={{
           width: `calc(100% - ${rightPanelBounds.defaultWidth}px)`,

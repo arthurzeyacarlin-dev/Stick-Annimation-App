@@ -101,6 +101,7 @@ export type DrawingAiWorkspaceSoundSummary = {
 export type DrawingAiWorkspaceContext = {
   projectId: string | null;
   workspaceIdentity: string;
+  copiedFromProjectId?: string | null; // (Nov 11) the project this one is a copy of (a recovered copy after a crash, a duplicate): the AI Animator's chat follows it
   projectGeneration: number;
   projectTitle: string;
   activeLayerId: string;

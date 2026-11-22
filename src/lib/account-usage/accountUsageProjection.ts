@@ -51,7 +51,8 @@ export function projectAccountUsage(rows: AccountUsageRow[], readAt: number, gap
       priceDate: event.pricingVersion ?? null, model: event.returnedModel ?? event.requestedModel ?? null,
       reasoning: event.reasoning ?? null, toolCalls: event.toolCalls ?? 0,
     };
-    if (receipt.totalTokens === null && attempt.kind !== "dictation") {
+    // dictation is billed by seconds, an animation job's Kimodo calls by calls (toolCalls): neither has tokens
+    if (receipt.totalTokens === null && attempt.kind !== "dictation" && attempt.kind !== "animation_job") {
       target.state = "partial"; target.issues.push("A provider did not report token usage.");
     }
     if (event.transportAttemptCoverage === "sdk_aggregate_unknown" ||

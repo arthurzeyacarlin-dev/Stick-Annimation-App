@@ -83,7 +83,9 @@ export const loadExportProjectSnapshot = async (
   }
   if (currentEntry.updatedAt && project.updatedAt !== currentEntry.updatedAt) throw new Error("source_changed");
 
-  const immutableProject = structuredClone(project);
+  // (Nov 14) this project was just read for this call and belongs to nobody else: it is not copied again (a long AI
+  // animation is 5 GB of pictures; with the copy, Watch and Export held it twice)
+  const immutableProject = project;
   const projectDigest = await digestUnifiedProjectV2(immutableProject);
   const frameCount = getExportAuthoredFrameCount(immutableProject);
   return {

@@ -39,6 +39,8 @@ export class AssistantDictationCapture {
   }
   dispose() { this.disposed = true; this.cancel(""); }
   private fail(a: Attempt, code: DictationCode) { if (this.current(a)) this.cancel(DICTATION_MESSAGES[code]); }
+  // (Nov 18, Arthur: it deleted what he said past the time limit) at the limit the recording STOPS and is turned into text, exactly like pressing Done
+  private finish(a: Attempt) { if (this.current(a) && this.view.phase === "recording") void this.stop(); }
   async start() {
     if (this.active || this.disposed) return;
     if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia || !window.AudioContext || !window.AudioWorkletNode) { this.publish(idle(DICTATION_MESSAGES.unsupported)); return; }
@@ -67,20 +69,20 @@ export class AssistantDictationCapture {
         const chunk = event.data.samples;
         if (!this.current(a)) { if (chunk instanceof Int16Array) chunk.fill(0); return; }
         if (chunk instanceof Int16Array) {
-          if ((a.count + chunk.length) * 2 + 44 > LIMITS.bytes || a.count + chunk.length > context.sampleRate * LIMITS.seconds) { chunk.fill(0); this.fail(a, "limit"); return; }
+          if ((a.count + chunk.length) * 2 + 44 > LIMITS.bytes || a.count + chunk.length > context.sampleRate * LIMITS.seconds) { chunk.fill(0); this.finish(a); return; }
           a.chunks.push(chunk as Int16Array<ArrayBuffer>); a.count += chunk.length;
         }
-        if (event.data.limit) this.fail(a, "limit");
+        if (event.data.limit) this.finish(a);
         if (event.data.stopped) a.flush?.();
       };
       a.started = performance.now(); clearTimeout(a.timer);
-      a.timer = setTimeout(() => this.fail(a, "limit"), LIMITS.seconds * 1000);
+      a.timer = setTimeout(() => this.finish(a), LIMITS.seconds * 1000);
       context.onstatechange = () => { if (this.current(a) && this.view.phase === "recording" && context.state !== "running") this.fail(a, "device"); };
       this.publish({ ...idle("Listening. Stop to turn your recording into editable text."), phase: "recording" });
       let lastDraw = 0;
       const draw = (now: number) => {
         if (!this.current(a) || this.view.phase !== "recording" || !a.samples) return;
-        if (now - a.started >= LIMITS.seconds * 1000) { this.fail(a, "limit"); return; }
+        if (now - a.started >= LIMITS.seconds * 1000) { this.finish(a); return; }
         if (now - lastDraw >= 50) {
           lastDraw = now; analyser.getFloatTimeDomainData(a.samples);
           const levels = Array.from({ length: 32 }, (_, bin) => {

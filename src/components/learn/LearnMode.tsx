@@ -17,16 +17,30 @@ const visible = (element: Element | null | undefined): HTMLElement | null => {
   return box.width > 0 && box.height > 0 ? element as HTMLElement : null;
 };
 // Each step finds its control by a data-tour tag, so renaming a button's words can never break the tour again.
-const byTour = (name: string) => () => visible(document.querySelector(`[data-tour="${name}"]`));
+// The first VISIBLE match: the editor keeps a second, hidden copy of some controls for phones, so the first in the page
+// can be the hidden one.
+const firstVisible = (elements: Iterable<Element>) => { for (const element of elements) { const found = visible(element); if (found) return found; } return null; };
+const byTour = (name: string) => () => firstVisible(document.querySelectorAll(`[data-tour="${name}"]`));
+// The AI Animator tab lives in the right panel (its file is shared with the AI work, so it has no tag): the tab by its name, or the
+// open panel's message box on phones, where the tab is already open.
+const byAiTab = () => firstVisible([...document.querySelectorAll("button")].filter((tab) => tab.textContent?.trim() === "AI Animator"))
+  ?? firstVisible(document.querySelectorAll(".workspace-ai-panel-shell"))   // phones: the open AI sheet itself
+  ?? firstVisible(document.querySelectorAll('form[aria-label="AI Animator message composer"]'));
 
 const STEPS: Step[] = [
   { where: "home", title: "New project", text: "Start a blank animation. Every animation you make begins here.", find: byTour("new-project") },
   { where: "home", title: "Open project", text: "All your saved animations. Edit, watch or export any of them.", find: byTour("open-project") },
   { where: "home", title: "Your latest animation", text: "Your most recent animation waits here. Click it to keep going.", find: byTour("recent") },
-  { where: "home", title: "AI Dashboard", text: "See your AI credits and how many you have used.", find: byTour("ai-dashboard") },
+  { where: "home", title: "AI Dashboard", text: "See how much AI money you have left and how much you have used.", find: byTour("ai-dashboard") },
   { where: "home", title: "Notifications and Menu", text: "The bell shows new messages. The menu has Help (ask the Assistant anything), Report a Problem and more.", find: byTour("bell-menu") },
   { where: "home", title: "Export", text: "Turn an animation into a video, a GIF or pictures you can share.", find: byTour("export") },
   { where: "home", title: "Your account", text: "Your profile, settings and plan, and Log out.", find: byTour("account") },
+  // UX Step 1 (Arthur, Nov 11): the same tour walks on into the editor, so a stranger knows what to do first.
+  { where: "editor", title: "Draw here", text: "This is your canvas. Pick a tool at the bottom (Pencil to draw, Eraser, Fill, Text…) and draw your stick figure or anything else.", find: byTour("canvas") },
+  { where: "editor", title: "The timeline", text: "Every picture of your animation lives here, one frame after another. Click a frame to draw on it. Played in a row, the pictures move.", find: byTour("timeline") },
+  { where: "editor", title: "AI Animator", text: "Tell him what your stick figure should do, in plain words: “do a cartwheel”. He puts the animation on the timeline as its own layer, and you can change any move after.", find: byAiTab },
+  { where: "editor", title: "Play", text: "Press Play to watch your animation. Press it again to pause.", find: byTour("play") },
+  { where: "editor", title: "Export", text: "Done? Export turns your animation into a video, a GIF or pictures you can share anywhere.", find: byTour("editor-export") },
 ];
 
 type Saved = { seen: boolean; active: boolean; step: number };
@@ -146,7 +160,7 @@ export function LearnMode() {
           <button type="button" className="da-learn-close" aria-label="Close" onClick={() => closeWelcome(false)}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg></button>
           <span className="da-learn-logo"><DiamondLogo size={44} /></span>
           <h2>Welcome to Diamond Animator</h2>
-          <p>Want a quick guided tour? It takes about a minute and shows you the important parts.</p>
+          <p>Want a quick guided tour? About two minutes: the main screen first, then the editor where you draw and animate.</p>
           <div className="da-learn-actions">
             <button type="button" className="da-learn-primary" onClick={() => closeWelcome(true)}>Start guided tour</button>
             <button type="button" className="da-learn-quiet" onClick={() => closeWelcome(false)}>Don&apos;t show again</button>
@@ -159,7 +173,19 @@ export function LearnMode() {
   const step = STEPS[stepIndex] ?? STEPS[0];
   const last = stepIndex >= STEPS.length - 1;
   const pad = 6;
-  const below = rect ? rect.top + rect.height + 170 < innerHeight : true;
+  // (Nov 11, Arthur) the glow frame never leaves the screen, and the card never covers the bars: below the control when there is
+  // room, else above it, else (a tall thing like the canvas) inside its lower part.
+  const CARD = 170;
+  const ring = rect ? (() => {
+    const left = Math.max(4, rect.left - pad), top = Math.max(4, rect.top - pad);
+    return { left, top, width: Math.min(innerWidth - 4, rect.left + rect.width + pad) - left, height: Math.min(innerHeight - 4, rect.top + rect.height + pad) - top };
+  })() : null;
+  // the side with more room wins (the Stop / Next bar takes the bottom 76 px); a target with no room on either side gets the card inside.
+  const roomBelow = ring ? innerHeight - 76 - (ring.top + ring.height) : 0, roomAbove = ring ? ring.top : 0;
+  const place = !ring ? "below" : roomBelow >= CARD && roomBelow >= roomAbove ? "below" : roomAbove >= CARD ? "above" : roomBelow >= CARD ? "below" : "inside";
+  const below = place === "below";
+  const cardTop = !ring ? undefined : place === "below" ? ring.top + ring.height + 14 : place === "inside" ? Math.max(12, Math.min(ring.top + ring.height - CARD + 8, innerHeight - 76 - CARD)) : undefined;
+  const cardBottom = ring && place === "above" ? Math.max(innerHeight - ring.top + 14, 84) : undefined;   // (84: clear of the Stop / Next bar)
   const cardLeft = rect ? Math.min(Math.max(12, rect.left + rect.width / 2 - 170), innerWidth - 352) : 0;
   const finish = () => { setFinishing(false); save({ seen: true, active: false, step: 0 }); };
   const filled = finishing ? STEPS.length : stepIndex;
@@ -173,12 +199,12 @@ export function LearnMode() {
     <>
       <style>{LEARN_CSS}</style>
       <div onMouseDown={(event) => event.preventDefault()} onClick={(event) => event.preventDefault()} style={{ position: "fixed", inset: 0, zIndex: 9000, cursor: "default" }} />
-      {rect && (
-        <div aria-hidden="true" className="da-learn-ring" style={{ left: rect.left - pad, top: rect.top - pad, width: rect.width + pad * 2, height: rect.height + pad * 2 }} />
+      {ring && (
+        <div aria-hidden="true" className="da-learn-ring" style={{ left: ring.left, top: ring.top, width: ring.width, height: ring.height }} />
       )}
       {rect && (
-        <div role="status" className="da-learn-card" style={{ left: Math.max(12, cardLeft), top: below ? rect.top + rect.height + pad + 14 : undefined, bottom: below ? undefined : innerHeight - rect.top + pad + 14 }}>
-          <span aria-hidden="true" className="da-learn-tip" data-below={below ? "true" : undefined} style={{ left: Math.min(Math.max(rect.left + rect.width / 2 - Math.max(12, cardLeft), 20), 320) - 7 }} />
+        <div role="status" className="da-learn-card" style={{ left: Math.max(12, cardLeft), top: cardTop, bottom: cardBottom }}>
+          {place !== "inside" && <span aria-hidden="true" className="da-learn-tip" data-below={below ? "true" : undefined} style={{ left: Math.min(Math.max(rect.left + rect.width / 2 - Math.max(12, cardLeft), 20), 320) - 7 }} />}
           <span className="da-learn-count">Step {stepIndex + 1} of {STEPS.length}</span>
           <strong>{step.title}</strong>
           <span className="da-learn-text">{step.text}</span>

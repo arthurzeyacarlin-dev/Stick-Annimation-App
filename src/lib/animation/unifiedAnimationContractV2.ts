@@ -7,6 +7,8 @@ import type {
 import type { StickAiCreationLatchV1 } from "../stickfigure/stickProjectHistory";
 import { sanitizeDrawingAiProjectMemory } from "../ai/drawingAiContract.ts";
 import { assertRasterPaintCoverageV1, forEachPaintCoverage } from "./unifiedRasterPaintCoverageV1.ts";
+import { rasterCropOf } from "./rasterCropV1.ts";
+import { pixelDataByteLength, readablePixelData } from "./framePictureStore.ts";
 
 // Optional extension: absence means an existing raster-only definition. Never
 // infer a rig from a category label or thumbnail. New rig definitions carry v1.
@@ -140,8 +142,17 @@ const validTimestamp = (value: unknown) => typeof value === "string" && Number.i
 
 const assertRasterBitmap = (bitmap: UnifiedRasterBitmapV2 | null | undefined) => {
   if (bitmap == null) return;
-  if (!Number.isInteger(bitmap.width) || bitmap.width < 1 || !Number.isInteger(bitmap.height) || bitmap.height < 1 ||
-    !(bitmap.data instanceof Uint8ClampedArray) || bitmap.data.byteLength !== bitmap.width * bitmap.height * 4 || bitmap.data.byteLength > 268_435_456) throw new Error("invalid_record");
+  // (Nov 14) A picture the save has not copied out of its frame (rasterCropV1.ts) is checked where it sits, without reading it out.
+  const crop = rasterCropOf(bitmap);
+  if (crop && (crop.width !== bitmap.width || crop.height !== bitmap.height || crop.left < 0 || crop.top < 0 || crop.left + crop.width > crop.sourceWidth ||
+    ((crop.top + crop.height) * crop.sourceWidth) * 4 > pixelDataByteLength(crop.source))) throw new Error("invalid_record");
+  if (!Number.isInteger(bitmap.width) || bitmap.width < 1 || !Number.isInteger(bitmap.height) || bitmap.height < 1 || bitmap.width * bitmap.height * 4 > 268_435_456 ||
+    (!crop && (!(bitmap.data instanceof Uint8ClampedArray) || bitmap.data.byteLength !== bitmap.width * bitmap.height * 4))) throw new Error("invalid_record");
+  // (a picture that is kept packed is read through framePictureStore.ts, and only if a pixel is really asked for)
+  let cropPixels: Uint8ClampedArray | null = null;
+  const alphaAt = crop
+    ? (localX: number, localY: number) => (cropPixels ??= readablePixelData(crop.source))[((crop.top + localY) * crop.sourceWidth + crop.left + localX) * 4 + 3]
+    : (localX: number, localY: number) => bitmap.data[(localY * bitmap.width + localX) * 4 + 3];
   for (const value of [bitmap.x ?? 0, bitmap.y ?? 0, bitmap.stageWidth ?? bitmap.width, bitmap.stageHeight ?? bitmap.height]) if (!finite(value)) throw new Error("invalid_record");
   if (Object.prototype.hasOwnProperty.call(bitmap, "paintCoverage")) {
     const coverage = assertRasterPaintCoverageV1(bitmap.paintCoverage!, bitmap.stageWidth ?? bitmap.width, bitmap.stageHeight ?? bitmap.height);
@@ -150,7 +161,7 @@ const assertRasterBitmap = (bitmap: UnifiedRasterBitmapV2 | null | undefined) =>
     forEachPaintCoverage(coverage, (pixel, x, y) => {
       const localX = x - originX, localY = y - originY;
       if (localX < 0 || localY < 0 || localX >= bitmap.width || localY >= bitmap.height ||
-        bitmap.data[(localY * bitmap.width + localX) * 4 + 3] < pixel.coverage) throw new Error("invalid_record");
+        alphaAt(localX, localY) < pixel.coverage) throw new Error("invalid_record");
     });
   }
 };

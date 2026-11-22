@@ -458,7 +458,7 @@ export function ExportAnimationPlayer({ snapshot, onChange, ownerId, changeLabel
                 ? <button type="button" onClick={cancelExport} disabled={runState === "cancelling"} className={styles.button}>{runState === "cancelling" ? "Stopping" : "Stop"}</button>
                 : <button type="button" disabled={Boolean(customDimensionError) || snapshot.frameCount === 0} onClick={() => void runExport()} className={`${styles.primaryButton} ${styles.exportButton}`}>{exportLabel}</button>}
             </div>
-            <div className={styles.footnote}>Exporting doesn&apos;t use AI credits.</div>
+            <div className={styles.footnote}>Exporting is free: it costs no AI money.</div>
           </div>
         </div>
       </div>

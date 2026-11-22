@@ -7,7 +7,10 @@ import { DiamondAssistantScreen } from "@/src/components/assistant/DiamondAssist
 import { CloseButton } from "@/src/components/ui/CloseButton";
 import { bitmapCenterOffset } from "@/src/lib/animation/unifiedStageGeometry";
 import { buildScene as buildAnimatorScene, type Scene as AnimatorScene } from "@/src/lib/animator/engine";
-import { captureRasterReferencePatch, compactOrigin, copyRasterReferenceSize, getRasterReferenceSize, mergeRasterReferencePatch, resolveRasterReferenceSize } from "@/src/lib/animation/compactRasterBitmap";
+import { enginePrebuiltEffectLayers, enginePrebuiltFigureLayers, enginePrebuiltFrames, rasterizeEnginePictures } from "@/src/lib/ai/engineBlocks/engineBlockScene";
+import { knownRasterCropDigest, rasterCropBitmap, rasterCropOf, readRasterCrop, rememberRasterCropDigest, stablePaintedBounds, type RasterCrop } from "@/src/lib/animation/rasterCropV1";
+import { arePixelsLost, framePixels, isFramePicturePacked, isPixelDataSettled, knownSamePixels, packPixelData, rememberSamePixels } from "@/src/lib/animation/framePictureStore";
+import { captureRasterReferencePatch, compactOrigin, copyRasterReferenceSize, getRasterReferenceSize, mergeRasterReferencePatch, paintedBounds, resolveRasterReferenceSize } from "@/src/lib/animation/compactRasterBitmap";
 import {
   authoringSurfaceWorldTransform,
   getAuthoringSurfaceViewport,
@@ -16,6 +19,7 @@ import {
 import { openedHiddenLayerIdsV1, savedHiddenLayerIdsV1 } from "@/src/lib/animation/editorHiddenLayersV1";
 import { rasterizeFrames as rasterizeAnimatorFrames, rasterizeShapeFrames as rasterizeAnimatorShapeFrames, sceneEffectLayers as animatorSceneEffectLayers } from "@/src/lib/animator/toFrames";
 import { centerAnimation, effectFitBounds, visibleStageWidth, type SceneForPage } from "@/src/lib/animator/stageFit";
+import { v1SheetFrames, v1UserLayers } from "./ai/v1/v1CanvasPicture";
 import { bitmapToInk, type AnimatorScenePlacement, type DrawnSpan, type EngineDrawingBridge, type PageToCanvasMap } from "./ai/engineDrawingBridge";
 import { movingBackgroundLayers } from "@/src/lib/animator/effects/movingBackground";
 import { cameraMovingBackground } from "@/src/lib/animator/cameraLayers";
@@ -116,7 +120,7 @@ import {
 import { addSymbolInstancesToCellsV2, createSymbolInstanceV2, symbolCellKeyV2 } from "@/src/lib/animation/unifiedSymbolLibraryV2";
 import { prepareAnimatorSceneSymbolsV1, prepareEffectSymbolsV1, type AnimatorSymbolPlacementV1 } from "@/src/lib/animation/animatorSceneSymbolsV1";
 import { authorizeDestructiveCommand, isAuthoringSnapshotCurrent, type AuthoringSnapshotIdentity } from "@/src/lib/animation/editorCommands/destructiveRegistry";
-import { accountSaveStatusV1 } from "@/src/lib/animation/projectSaveStatusV1";
+import { accountSaveStatusV1, measureSaveStepV1 } from "@/src/lib/animation/projectSaveStatusV1";
 import {
   requireManualEditorCommand,
   type ManualEditorCommandId,
@@ -529,7 +533,7 @@ const bitmapHasInk = (bitmap: ImageData | null | undefined, previewUrl: string |
   if (!bitmap) return Boolean(previewUrl);
   const cached = inkCache.get(bitmap);
   if (cached !== undefined) return cached;
-  const data = bitmap.data;
+  const data = framePixels(bitmap).data;
   let ink = false;
   for (let index = 3; index < data.length; index += 4) {
     if (data[index] !== 0) { ink = true; break; }
@@ -587,10 +591,12 @@ const getExpectedBitmapDataLength = (width: number, height: number) => {
   return expectedLength;
 };
 
-const isBitmapDataShapeValid = (bitmap: { width: number; height: number; data: { length: number } } | null | undefined) => {
+const isBitmapDataShapeValid = (bitmap: { width: number; height: number; data: { length: number; buffer?: ArrayBufferLike } } | null | undefined) => {
   if (!bitmap) {
     return false;
   }
+  // (light memory) a picture that is no longer on the canvas is kept packed (framePictureStore.ts): it is as good as ever
+  if (isFramePicturePacked(bitmap)) return true;
 
   const expectedLength = getExpectedBitmapDataLength(bitmap.width, bitmap.height);
   return expectedLength !== null && bitmap.data.length >= expectedLength;
@@ -621,10 +627,14 @@ const createImageDataSafely = (
   }
 };
 
-const getUsableBitmap = (bitmap: ImageData | null) => (isBitmapDataShapeValid(bitmap) ? bitmap : null);
+// (light memory) the picture for READING: a packed picture comes back as a stand-in with its unpacked pixels
+const getUsableBitmap = (bitmap: ImageData | null) => (bitmap && isBitmapDataShapeValid(bitmap) ? framePixels(bitmap) : null);
 
 const cloneBitmap = (bitmap: ImageData | null) => {
   if (bitmap === null) return null;
+  // (light memory) a packed picture is a compact picture: it is never changed in place (an edit replaces it), so its "copy"
+  // is the picture itself. Undo / Redo of a long animation used to copy every picture of the step (2.1 GB and 4-8 s for 449).
+  if (isFramePicturePacked(bitmap)) return bitmap;
   const usableBitmap = getUsableBitmap(bitmap);
   if (!usableBitmap) {
     throw new Error("invalid_bitmap_clone_source");
@@ -632,10 +642,33 @@ const cloneBitmap = (bitmap: ImageData | null) => {
 
   const cloned = createImageDataSafely(usableBitmap.data, usableBitmap.width, usableBitmap.height);
   if (!cloned) throw new Error("bitmap_clone_failed");
+  // (a compact picture is never changed in place: the copy and its source are known to be the same without reading them)
+  if (getRasterReferenceSize(usableBitmap)) rememberSamePixels(cloned, usableBitmap);
   return copyRasterReferenceSize(usableBitmap, copyBitmapPaintCoverage(usableBitmap, cloned));
 };
 
 const bitmapCanvasCache = new WeakMap<ImageData, HTMLCanvasElement>();
+// (Nov 14, measured on a 25 s AI animation: 606 pictures = 5 GB of frame pictures AND 5 GB of ready-made playback canvases, one a
+// frame, kept for ever - on an 8 GB Mac that is permanent swap, and the pictures then draw late) the ready-made canvases have a budget:
+// past it the oldest is let go (never cleared: whoever still holds it keeps a good canvas) and is simply made again when it is drawn next.
+// (Nov 14, light memory) 1.5 GB -> 400 MB: every ready-made canvas is paid for twice (measured: the tab AND Chrome's graphics
+// process, 1.9-2.6 GB there); a canvas that was let go is made again in about 1 ms when its picture is drawn (playback measured
+// at 24 pictures a second while making every canvas on the spot).
+const BITMAP_CANVAS_BUDGET_BYTES = 400_000_000;
+const bitmapCanvasOrder: { bitmap: WeakRef<ImageData>; bytes: number }[] = [];
+let bitmapCanvasBytes = 0;
+const rememberBitmapCanvas = (bitmap: ImageData, canvas: HTMLCanvasElement) => {
+  bitmapCanvasCache.set(bitmap, canvas);
+  const bytes = canvas.width * canvas.height * 4;
+  bitmapCanvasOrder.push({ bitmap: new WeakRef(bitmap), bytes });
+  bitmapCanvasBytes += bytes;
+  while (bitmapCanvasBytes > BITMAP_CANVAS_BUDGET_BYTES && bitmapCanvasOrder.length > 1) {
+    const oldest = bitmapCanvasOrder.shift()!;
+    bitmapCanvasBytes -= oldest.bytes;
+    const old = oldest.bitmap.deref();
+    if (old && old !== bitmap) bitmapCanvasCache.delete(old);
+  }
+};
 const bitmapStoredPreviewUrlCache = new WeakMap<ImageData, string | null>();
 
 const invalidateBitmapRenderCaches = (bitmap: ImageData | null) => {
@@ -741,9 +774,10 @@ const findBitmapBoundsWithAlphaThreshold = (bitmap: ImageData | null, alphaThres
   let maxX = -1;
   let maxY = -1;
 
+  const data = framePixels(bitmap).data;
   for (let y = 0; y < bitmap.height; y += 1) {
     for (let x = 0; x < bitmap.width; x += 1) {
-      const alpha = bitmap.data[(y * bitmap.width + x) * 4 + 3];
+      const alpha = data[(y * bitmap.width + x) * 4 + 3];
       if (alpha <= alphaThreshold) {
         continue;
       }
@@ -774,8 +808,9 @@ const isBitmapEmpty = (bitmap: ImageData | null) => {
     return true;
   }
 
-  for (let index = 3; index < bitmap.data.length; index += 4) {
-    if (bitmap.data[index] > SAVE_PATH_ALPHA_THRESHOLD) {
+  const data = framePixels(bitmap).data;
+  for (let index = 3; index < data.length; index += 4) {
+    if (data[index] > SAVE_PATH_ALPHA_THRESHOLD) {
       return false;
     }
   }
@@ -896,7 +931,7 @@ const materializeSnapshotBitmap = (
     if (
       options?.mutateCurrentBitmap &&
       currentBitmap &&
-      !getRasterReferenceSize(currentBitmap) &&
+      !getRasterReferenceSize(currentBitmap) && !isFramePicturePacked(currentBitmap) &&
       currentBitmap.width === snapshot.bitmapWidth &&
       currentBitmap.height === snapshot.bitmapHeight
     ) {
@@ -1033,6 +1068,13 @@ const spliceAnimatorFrames = (frames: WorkspaceTimelineFrame[], start: number, c
 };
 
 const serializeBitmap = (bitmap: ImageData | null, preserveDataReference = false): PaintSerializedBitmap | null => {
+  // (never save an empty frame over a drawing: a picture whose pixels cannot be given back stops the save instead)
+  if (bitmap && arePixelsLost(bitmap)) throw new Error("frame_picture_pixels_missing");
+  // (light memory) a packed picture is handed on as it is (the save reads its bytes through framePictureStore.ts when it needs them)
+  if (bitmap && preserveDataReference && isFramePicturePacked(bitmap)) {
+    return copyRasterReferenceSize(bitmap, { width: bitmap.width, height: bitmap.height, data: bitmap.data,
+      ...(getBitmapPaintCoverage(bitmap) ? { paintCoverage: getBitmapPaintCoverage(bitmap)! } : {}) });
+  }
   const usableBitmap = getUsableBitmap(bitmap);
   return usableBitmap
     ? copyRasterReferenceSize(usableBitmap, {
@@ -1116,6 +1158,12 @@ const serializeTimelineFrame = (frame: WorkspaceTimelineFrame, preserveBitmapRef
 
 const deserializeTimelineFrame = (frame: StoredDrawingTimelineFrame, reuseClampedData = false): WorkspaceTimelineFrame => {
   const isBlankKeyframe = frame.isBlank === true || frame.cellType === "blank-keyframe";
+  const bitmap = isBlankKeyframe ? null : deserializeBitmap(frame.bitmap, reuseClampedData);
+  const tweenEndBitmap = isBlankKeyframe ? null : deserializeBitmap(frame.tweenEndBitmap, reuseClampedData);
+  // (Nov 14) The stored preview picture was made from exactly this picture when it was saved. It is remembered for it, so
+  // the first save after opening a project does not make every frame's preview again (minutes on a long animation).
+  if (bitmap && frame.previewUrl) bitmapStoredPreviewUrlCache.set(bitmap, frame.previewUrl);
+  if (tweenEndBitmap && frame.tweenEndPreviewUrl) bitmapStoredPreviewUrlCache.set(tweenEndBitmap, frame.tweenEndPreviewUrl);
 
   return {
     id: frame.id,
@@ -1124,9 +1172,9 @@ const deserializeTimelineFrame = (frame: StoredDrawingTimelineFrame, reuseClampe
     stateId: frame.stateId,
     isBlank: isBlankKeyframe,
     hasTweenEndpoint: Boolean(frame.hasTweenEndpoint),
-    bitmap: isBlankKeyframe ? null : deserializeBitmap(frame.bitmap, reuseClampedData),
+    bitmap,
     previewUrl: isBlankKeyframe ? null : (frame.previewUrl ?? null),
-    tweenEndBitmap: isBlankKeyframe ? null : deserializeBitmap(frame.tweenEndBitmap, reuseClampedData),
+    tweenEndBitmap,
     tweenEndPreviewUrl: isBlankKeyframe ? null : (frame.tweenEndPreviewUrl ?? null),
     motionTween: isBlankKeyframe ? null : deserializeMotionTweenData(frame.motionTween, reuseClampedData),
     soundAttachment: isBlankKeyframe ? null : deserializeSoundAttachment(frame.soundAttachment),
@@ -1171,7 +1219,7 @@ const createDefaultDrawingWorkspaceState = (
     brushSize: 4,
     eraserSize: 12,
     fillColor: "#000000",
-    timelineFps: 12,
+    timelineFps: 24, // (Nov 14, Arthur: "on default I want 24") the animator draws 24 pictures a second
     shapeType: "Square",
     layers,
     activeLayerId: layers[0].id,
@@ -1901,7 +1949,7 @@ const primeOpaqueBoundsCacheFromDirtyPatch = (
         currentBitmap &&
         currentBitmap.width === snapshot.bitmapWidth &&
         currentBitmap.height === snapshot.bitmapHeight
-          ? currentBitmap.data[(y * currentBitmap.width + x) * 4 + 3]
+          ? framePixels(currentBitmap).data[(y * currentBitmap.width + x) * 4 + 3]
           : 0;
       const newAlpha = usableDirtyPatchBitmap.data[(row * dirtyPatchRect.width + column) * 4 + 3];
       const oldOpaque = oldAlpha > OPAQUE_PIXEL_ALPHA_THRESHOLD;
@@ -1970,14 +2018,14 @@ const padBitmapBounds = (
 };
 
 const createBitmapCanvas = (bitmap: ImageData) => {
+  const cachedCanvas = bitmapCanvasCache.get(bitmap);
+  if (cachedCanvas) {
+    return cachedCanvas;
+  }
+
   const usableBitmap = getUsableBitmap(bitmap);
   if (!usableBitmap) {
     return null;
-  }
-
-  const cachedCanvas = bitmapCanvasCache.get(usableBitmap);
-  if (cachedCanvas) {
-    return cachedCanvas;
   }
 
   const canvas = document.createElement("canvas");
@@ -1991,7 +2039,7 @@ const createBitmapCanvas = (bitmap: ImageData) => {
   } catch {
     return null;
   }
-  bitmapCanvasCache.set(usableBitmap, canvas);
+  rememberBitmapCanvas(bitmap, canvas);
   return canvas;
 };
 
@@ -2069,16 +2117,17 @@ const downscaleCanvasForPreview = (
   return workingCanvas;
 };
 
-const createCompactBitmapDataUrl = (
-  bitmap: ImageData | null,
-  options?: {
-    maxLength?: number;
-    mimeType?: string;
-    qualities?: number[];
-    flattenBackground?: string | null;
-    maxDimension?: number;
-  },
-) => {
+type CompactBitmapDataUrlOptions = {
+  maxLength?: number;
+  mimeType?: string;
+  qualities?: number[];
+  flattenBackground?: string | null;
+  maxDimension?: number;
+};
+// (Nov 14, LAG) One small picture takes up to 15 tries (each try packs the whole picture once, about 0.1 s), and all the tries of
+// one picture used to run in one go: about 1 s of frozen page per picture. The same work is now a list of STEPS, one try each:
+// whoever runs it may let the page breathe between two steps. Run to the end it gives the very same picture as before.
+function* compactBitmapDataUrlSteps(bitmap: ImageData | null, options?: CompactBitmapDataUrlOptions): Generator<void, string | null, void> {
   if (!bitmap) {
     return null;
   }
@@ -2129,12 +2178,32 @@ const createCompactBitmapDataUrl = (
       if (nextDataUrl.length <= targetMaxLength) {
         return nextDataUrl;
       }
+      yield;
     }
   }
 
   return smallestDataUrl ?? exportCanvasToDataUrl(sourceCanvas, "image/png");
+}
+const createCompactBitmapDataUrl = (bitmap: ImageData | null, options?: CompactBitmapDataUrlOptions) => {
+  const steps = compactBitmapDataUrlSteps(bitmap, options);
+  for (;;) {
+    const step = steps.next();
+    if (step.done) return step.value;
+  }
 };
 
+const STORED_PREVIEW_OPTIONS: CompactBitmapDataUrlOptions = {
+  maxLength: STORED_FRAME_IMAGE_MAX_LENGTH,
+  mimeType: "image/webp",
+  qualities: [0.42, 0.28, 0.16],
+  maxDimension: STORED_FRAME_IMAGE_MAX_DIMENSION,
+};
+
+// (Nov 16, Arthur: "when I click close workspace or save as, I want it to be like the refresh button") A Save the user asked for
+// does not wait for the frames' small preview pictures any more (measured: 75 s of a save's wait for 122 pictures, 194 s for 258):
+// while it puts the project together (storedPreviewsReadOnly > 0) a preview that is not made yet is simply left out. The frame's
+// own picture is saved as always; the small pictures are made afterwards, a few at a time, and whenever a project opens.
+let storedPreviewsReadOnly = 0;
 const createStoredBitmapPreviewUrl = (bitmap: ImageData | null) => {
   if (!bitmap) {
     return null;
@@ -2143,14 +2212,9 @@ const createStoredBitmapPreviewUrl = (bitmap: ImageData | null) => {
   if (bitmapStoredPreviewUrlCache.has(bitmap)) {
     return bitmapStoredPreviewUrlCache.get(bitmap) ?? null;
   }
+  if (storedPreviewsReadOnly > 0) return null;
 
-  const previewUrl =
-    createCompactBitmapDataUrl(bitmap, {
-      maxLength: STORED_FRAME_IMAGE_MAX_LENGTH,
-      mimeType: "image/webp",
-      qualities: [0.42, 0.28, 0.16],
-      maxDimension: STORED_FRAME_IMAGE_MAX_DIMENSION,
-    }) ?? null;
+  const previewUrl = createCompactBitmapDataUrl(bitmap, STORED_PREVIEW_OPTIONS) ?? null;
   bitmapStoredPreviewUrlCache.set(bitmap, previewUrl);
   return previewUrl;
 };
@@ -2159,7 +2223,6 @@ const createStoredBitmapPreviewUrl = (bitmap: ImageData | null) => {
 // safety backup — seconds (simple frames) to minutes (colourful ones) of frozen page on a 300-frame project. The pictures
 // are made AHEAD, a few at a time with pauses between (the page never freezes), so a save only reads them back. Same
 // function, same bitmap: the very same bytes are saved.
-const STORED_PREVIEW_SLICE_MS = 12;
 const unpreparedStoredPreviewBitmaps = (layers: readonly WorkspaceLayer[]) => {
   const pending: ImageData[] = [];
   for (const layer of layers) {
@@ -2184,26 +2247,161 @@ const yieldToPage = () => new Promise<void>((resolve) => {
   pageYieldQueue.push(resolve);
   pageYieldChannel.port2.postMessage(null);
 });
+// The page draws one frame, then the caller carries on (a hidden tab draws no frames: there it is the plain pause).
+const pageBreath = () => typeof document !== "undefined" && document.visibilityState === "visible" && typeof requestAnimationFrame === "function"
+  ? new Promise<void>((resolve) => { requestAnimationFrame(() => { void yieldToPage().then(resolve); }); })
+  : yieldToPage();
+// true = the user pressed, dragged, scrolled or typed a moment ago: background work that takes the page for a tenth of a second
+// waits. A Save the user asked for does not wait (storedPreviewsWanted).
+const USER_WORKING_MS = 600;
+let lastUserInputAt = -Infinity, userInputWatched = false, storedPreviewsWanted = 0;
+const watchUserInput = () => {
+  if (userInputWatched || typeof window === "undefined") return;
+  userInputWatched = true;
+  const mark = () => { lastUserInputAt = performance.now(); };
+  for (const type of ["pointerdown", "pointerup", "keydown", "wheel"] as const) window.addEventListener(type, mark, { capture: true, passive: true });
+  window.addEventListener("pointermove", (event) => { if (event.buttons !== 0) mark(); }, { capture: true, passive: true });
+};
+const userIsWorking = () => storedPreviewsWanted === 0 && performance.now() - lastUserInputAt < USER_WORKING_MS;
 let storedPreviewWarming: Promise<void> | null = null;
+let picturePackingRuns = 0;   // (packPicturesOffCanvas is at work)
 const prepareStoredPreviews = (getLayers: () => readonly WorkspaceLayer[], isBusy: () => boolean = () => false): Promise<void> => {
   if (storedPreviewWarming) return storedPreviewWarming;
+  watchUserInput();
   const run = async () => {
     for (;;) {
-      if (isBusy()) { await new Promise<void>((resolve) => setTimeout(resolve, 250)); continue; }
+      // (light memory: the pictures are packed first - a few seconds - then the preview pictures are made, as before)
+      if (isBusy() || picturePackingRuns > 0 || userIsWorking()) { await new Promise<void>((resolve) => setTimeout(resolve, 250)); continue; }
       const pending = unpreparedStoredPreviewBitmaps(getLayers());
       if (pending.length === 0) return;
-      const sliceStart = performance.now();
-      for (const bitmap of pending) {
-        createStoredBitmapPreviewUrl(bitmap);
-        if (performance.now() - sliceStart >= STORED_PREVIEW_SLICE_MS) break;
+      // (Nov 14, LAG, measured: after a version landed the page was busy 100 % of the time with tasks of 1.0-1.1 s, one per
+      // picture, for 4.5 minutes with 258 pictures) ONE picture, ONE try per turn: the page draws a frame between two tries,
+      // and nothing is made while the user is drawing, scrubbing, typing or playing. Same tries, same order, same picture.
+      const bitmap = pending[0];
+      const steps = compactBitmapDataUrlSteps(bitmap, STORED_PREVIEW_OPTIONS);
+      for (;;) {
+        const step = steps.next();
+        if (step.done) { if (!bitmapStoredPreviewUrlCache.has(bitmap)) bitmapStoredPreviewUrlCache.set(bitmap, step.value ?? null); break; }
+        await pageBreath();
+        while (isBusy() || userIsWorking()) await new Promise<void>((resolve) => setTimeout(resolve, 120));
       }
-      await yieldToPage();
+      await pageBreath();
     }
   };
   // (Cleared only once it has really finished — even when there was nothing to do and it finished straight away.)
   const warming: Promise<void> = run().finally(() => { if (storedPreviewWarming === warming) storedPreviewWarming = null; });
   storedPreviewWarming = warming;
   return warming;
+};
+
+// (Nov 14, LIGHT MEMORY) A frame picture is a raw bitmap of 4-7 MB, and every one of them stayed in memory raw: the whole
+// animation on the canvas, and every version of it that was replaced (the undo steps, the project as it was opened and the last
+// saved project each keep its pictures - measured: open 258, place 449, place 258 again = 965 raw pictures, 4.6 GB).
+// A compact picture that is not at the playhead is packed (framePictureStore.ts: lossless, 5-6 times smaller) a few at a time in
+// the background. Nothing about the pictures, undo or saving changes: whoever needs a packed picture's pixels (drawing it,
+// playing it, Undo, Redo, a save) gets the same pixels back in 2-3 ms.
+// The fingerprint of a saved picture's bytes (the same SHA-256 the save itself takes), worked out off the page's thread from a
+// copy of those bytes and remembered for the picture (rasterCropV1.ts).
+const rememberCropDigestSoon = (crop: RasterCrop) => {
+  if (knownRasterCropDigest(crop) || typeof crypto === "undefined" || !crypto.subtle) return;
+  void crypto.subtle.digest("SHA-256", readRasterCrop(crop) as BufferSource)
+    .then((digest) => { rememberRasterCropDigest(crop, [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("")); })
+    .catch(() => undefined);
+};
+const PACK_SLICE_MS = 10;
+const PACK_KEEP_AROUND_PLAYHEAD = 2;
+type OffCanvasPictureSources = {
+  layers: readonly WorkspaceLayer[];
+  currentFrameIndex: number;
+  history: readonly { layers: readonly WorkspaceLayer[] }[];
+  projects: readonly (UnifiedAnimationProjectV2 | null | undefined)[];
+};
+const packPicturesOffCanvas = async (getSources: () => OffCanvasPictureSources | null, isBusy: () => boolean): Promise<void> => {
+  picturePackingRuns += 1;
+  try { await packPicturesOffCanvasNow(getSources, isBusy); } finally { picturePackingRuns -= 1; }
+};
+const packPicturesOffCanvasNow = async (getSources: () => OffCanvasPictureSources | null, isBusy: () => boolean): Promise<void> => {
+  for (;;) {
+    const sources = getSources();
+    if (!sources) return;
+    if (isBusy()) { await new Promise<void>((resolve) => setTimeout(resolve, 500)); continue; }
+    // The pictures at the playhead (the frame shown, two before and two after, on every layer; a held cell = the picture
+    // it holds) stay unpacked: they are the ones being looked at, drawn on and shown as onion skins.
+    const atPlayhead = new Set<ArrayBufferLike>();
+    for (const layer of sources.layers) {
+      const frames = layer.timelineFrames;
+      for (let index = sources.currentFrameIndex - PACK_KEEP_AROUND_PLAYHEAD; index <= sources.currentFrameIndex + PACK_KEEP_AROUND_PLAYHEAD; index += 1) {
+        const frame = frames[index];
+        if (!frame) continue;
+        const owner = frames[resolveStateStartIndex(frames as WorkspaceTimelineFrame[], index)] ?? frame;
+        for (const shown of [frame, owner]) {
+          if (shown.bitmap) atPlayhead.add(shown.bitmap.data.buffer);
+          if (shown.tweenEndBitmap) atPlayhead.add(shown.tweenEndBitmap.data.buffer);
+        }
+      }
+    }
+    const sliceStart = performance.now();
+    let moreLeft = false;
+    // false = this slice's time is up
+    const pack = (data: Uint8ClampedArray, picture: ImageData | null = null) => {
+      if (atPlayhead.has(data.buffer) || isPixelDataSettled(data)) return true;
+      if (performance.now() - sliceStart >= PACK_SLICE_MS) { moreLeft = true; return false; }
+      // (what a save asks of a picture - its painted box and the fingerprint of that box - is found now, while the pixels are
+      // at hand: the save then reads no packed picture. Measured when each had to be unpacked for it: 777 ms in one block for
+      // the boxes and 1,335 ms in one block for the fingerprints, 258 pictures.)
+      if (picture) {
+        const bounds = stablePaintedBounds(data, picture.width, picture.height);
+        if (bounds) rememberCropDigestSoon({ source: data, sourceWidth: picture.width, ...bounds });
+      }
+      packPixelData(data);
+      return true;
+    };
+    scan: {
+      for (const entry of [{ layers: sources.layers }, ...sources.history]) {
+        for (const layer of entry.layers) {
+          for (const frame of layer.timelineFrames) {
+            // (only a compact picture: it is never changed in place - an edit replaces it)
+            if (frame.bitmap && getRasterReferenceSize(frame.bitmap) && !pack(frame.bitmap.data, frame.bitmap)) break scan;
+          }
+        }
+      }
+      // (a saved picture of a compact frame is a box read from that frame's own pixels: rasterCropV1.ts)
+      for (const project of sources.projects) {
+        for (const layer of project?.document.layers ?? []) {
+          for (const cell of layer.cells) {
+            for (const item of cell.content?.items ?? []) {
+              if (item.kind !== "drawing-raster/v1") continue;
+              const source = rasterCropOf(item.bitmap)?.source;
+              if (source && !pack(source)) break scan;
+            }
+          }
+        }
+      }
+    }
+    if (!moreLeft) return;
+    await yieldToPage();
+  }
+};
+
+// (Nov 2, LAG) Playback draws each frame from its cached canvas (createBitmapCanvas); the first play made every one on the spot.
+// This makes them ahead (and draws each once, so the browser has it ready), a few per slice, yielding to the page between slices.
+const WARM_SLICE_MS = 8;
+const warmPlaybackBitmaps = async (layers: readonly WorkspaceLayer[]): Promise<void> => {
+  if (typeof document === "undefined") return;
+  const bitmaps = [...new Set(layers.flatMap((layer) => layer.timelineFrames.map((frame) => frame.bitmap)).filter((bitmap): bitmap is ImageData => Boolean(bitmap)))];
+  const scratch = document.createElement("canvas");
+  scratch.width = 1; scratch.height = 1;
+  const ctx = scratch.getContext("2d");
+  let index = 0;
+  while (index < bitmaps.length) {
+    const sliceStart = performance.now();
+    if (bitmapCanvasBytes > BITMAP_CANVAS_BUDGET_BYTES * 0.9) return;   // (the budget is full: the rest are made as they are played)
+    while (index < bitmaps.length && performance.now() - sliceStart < WARM_SLICE_MS) {
+      const canvas = createBitmapCanvas(bitmaps[index++]);
+      if (canvas && ctx && canvas.width > 0 && canvas.height > 0) { try { ctx.drawImage(canvas, 0, 0, 1, 1); } catch { /* best effort */ } }
+    }
+    await yieldToPage();
+  }
 };
 
 const cropBitmapToBounds = (bitmap: ImageData, bounds: BitmapBounds) => {
@@ -2604,13 +2802,22 @@ const bitmapsEqual = (left: ImageData | null, right: ImageData | null) => {
   if (left === right) return true;
   if (!left && !right) return true;
   if (!left || !right) return false;
-  if (left.width !== right.width || left.height !== right.height || left.data.length !== right.data.length) {
+  if (left.width !== right.width || left.height !== right.height) {
     return false;
   }
-
-  for (let index = 0; index < left.data.length; index += 1) {
-    if (left.data[index] !== right.data[index]) {
+  // (light memory) a copy and its source, or two packed pictures, are compared without reading every pixel
+  const known = knownSamePixels(left, right);
+  if (known === false) return false;
+  if (known === null) {
+    const leftData = framePixels(left).data, rightData = framePixels(right).data;
+    if (leftData.length !== rightData.length) {
       return false;
+    }
+
+    for (let index = 0; index < leftData.length; index += 1) {
+      if (leftData[index] !== rightData[index]) {
+        return false;
+      }
     }
   }
 
@@ -3685,7 +3892,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
   const account = useAccountSession();
   const ownerId = account?.id;
   const openedInitialProject = initialProject.project;
-  const initialWorkspaceState = createDrawingWorkspaceInitialState(openedInitialProject, true);
+  // (light memory) built once: it used to be built again on every redraw (one new picture object per frame, each time)
+  const [initialWorkspaceState] = useState(() => createDrawingWorkspaceInitialState(openedInitialProject, true));
   const [projectId, setProjectId] = useState<string | null>(initialWorkspaceState.projectId);
   const [projectTitle, setProjectTitle] = useState(initialWorkspaceState.projectTitle);
   const [projectGeneration, setProjectGeneration] = useState(0);
@@ -3764,7 +3972,9 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
   const layersRef = useRef<WorkspaceLayer[]>(layers);
   // (LAG: a safety backup / background save waits for the frames' stored preview pictures at most once each time.)
   const recoveryWaitedForPreviewsRef = useRef(false);
-  const backgroundSaveWaitedForPreviewsRef = useRef(false);
+  const backgroundSaveWaitedForPreviewsRef = useRef(-1);   // (the edit the background save last waited for its preview pictures)
+  const backgroundSaveWaitingForPreviewsRef = useRef(false);
+  const backgroundSaveRetryMsRef = useRef(0);
   const timelineRowLayersSourceRef = useRef<WorkspaceLayer[]>(layers);
   const timelineRowLayersViewRef = useRef<TimelineLayer[]>(
     layers.map((layer) => ({
@@ -4359,8 +4569,9 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         authoredFrameCount: authoredPlaybackFrameCount,
         totalLayerCount: layers.length,
         timelineFps,
+        pictureLayerCount: layers.filter((layer) => layer.timelineFrames.some((frame) => frame.bitmap)).length,
       }),
-    [authoredPlaybackFrameCount, layers.length, timelineFps],
+    [authoredPlaybackFrameCount, layers, timelineFps],
   );
 
   // (LAG: after the frames change — a project opened, a scene added, a frame drawn — their stored preview pictures are
@@ -4369,6 +4580,24 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     const handle = window.setTimeout(() => { void prepareStoredPreviews(() => layersRef.current, () => isTimelinePlayingRef.current); }, 400);
     return () => window.clearTimeout(handle);
   }, [layers]);
+
+  // (LIGHT MEMORY: a few seconds after the frames, the saved project or the playhead change, the pictures that are not at the
+  // playhead are packed in the background - see packPicturesOffCanvas.)
+  const offCanvasPackingRef = useRef(false);
+  const lastFramesChangeAtRef = useRef(0);
+  useEffect(() => {
+    lastFramesChangeAtRef.current = performance.now();
+    const handle = window.setTimeout(() => {
+      if (offCanvasPackingRef.current) return;
+      offCanvasPackingRef.current = true;
+      void packPicturesOffCanvas(
+        () => workspaceMountedRef.current ? { layers: layersRef.current, currentFrameIndex: currentFrameIndexRef.current, history: historyEntriesRef.current, projects: [activeUnifiedProjectRef.current, unifiedProject] } : null,
+        // (never while something is being played, placed or undone, nor in the first seconds after the frames changed)
+        () => isTimelinePlayingRef.current || isApplyingGeneratedFramesRef.current || isApplyingHistoryRef.current || performance.now() - lastFramesChangeAtRef.current < 2500,
+      ).catch(() => undefined).finally(() => { offCanvasPackingRef.current = false; });
+    }, 3000);
+    return () => window.clearTimeout(handle);
+  }, [activeUnifiedProject, currentFrameIndex, isTimelinePlaying, layers, unifiedProject]);
 
   useEffect(() => {
     layersRef.current = layers;
@@ -4389,12 +4618,17 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     timelineFramesRef.current = activeLayer?.timelineFrames ?? [];
   }, [activeLayer, activeLayerId]);
 
+  // (Nov 15, measured in the app on Arthur's 35-second story: 24 draws a second but only 13-16 NEW pictures - every other picture was
+  // drawn twice, so it played slow and jerky) while it plays, the player's own frame number is the truth. The page's number is only
+  // synced now and then for the timeline's look and arrives a moment late - the longer the timeline, the later - and copying it here
+  // pulled the player BACK by a picture or two each time. It is copied only while nothing plays (Play, Pause and the player set their
+  // own number).
   useEffect(() => {
-    currentFrameIndexRef.current = currentFrameIndex;
+    if (!isTimelinePlayingRef.current) currentFrameIndexRef.current = currentFrameIndex;
   }, [currentFrameIndex]);
 
   useEffect(() => {
-    selectedTimelineIndexRef.current = selectedTimelineIndex;
+    if (!isTimelinePlayingRef.current) selectedTimelineIndexRef.current = selectedTimelineIndex;
   }, [selectedTimelineIndex]);
 
   useEffect(() => {
@@ -4723,13 +4957,13 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
   const restoreBitmapToCanvas = useCallback(
     (bitmap: ImageData | null) => {
       if (drawingCanvasRef.current?.hasActiveBitmapSelectionSession()) {
-        drawingCanvasRef.current?.markAuthoringChangesCommitted(bitmap);
+        drawingCanvasRef.current?.markAuthoringChangesCommitted(bitmap && framePixels(bitmap));
         return;
       }
 
       const canvas = getDrawingCanvas();
       restoreBitmapToTargetCanvas(canvas, bitmap);
-      drawingCanvasRef.current?.markAuthoringChangesCommitted(bitmap);
+      drawingCanvasRef.current?.markAuthoringChangesCommitted(bitmap && framePixels(bitmap));
     },
     [getDrawingCanvas, restoreBitmapToTargetCanvas],
   );
@@ -6741,7 +6975,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       useLocalDrawingHistory &&
       currentStateFrame.bitmap?.width === snapshot.bitmapWidth &&
       currentStateFrame.bitmap?.height === snapshot.bitmapHeight &&
-      !getRasterReferenceSize(currentStateFrame.bitmap) &&
+      !getRasterReferenceSize(currentStateFrame.bitmap) && !isFramePicturePacked(currentStateFrame.bitmap) &&
       ensureDetachedLocalHistoryBitmap(localDrawingContext, currentStateFrame.bitmap);
     if (canMutateCurrentBitmap) {
       invalidateBitmapRenderCaches(currentStateFrame.bitmap);
@@ -6934,7 +7168,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       useLocalDrawingHistory &&
       ownerFrame?.tweenEndBitmap?.width === snapshot.bitmapWidth &&
       ownerFrame?.tweenEndBitmap?.height === snapshot.bitmapHeight &&
-      !getRasterReferenceSize(ownerFrame?.tweenEndBitmap) &&
+      !getRasterReferenceSize(ownerFrame?.tweenEndBitmap) && !isFramePicturePacked(ownerFrame?.tweenEndBitmap) &&
       ensureDetachedLocalHistoryBitmap(localDrawingContext, ownerFrame?.tweenEndBitmap ?? null);
     if (canMutateCurrentBitmap) {
       invalidateBitmapRenderCaches(ownerFrame?.tweenEndBitmap ?? null);
@@ -7096,7 +7330,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       if (
         currentBitmap &&
         hasSnapshotDirtyPatch(snapshot) &&
-        !getRasterReferenceSize(currentBitmap) &&
+        !getRasterReferenceSize(currentBitmap) && !isFramePicturePacked(currentBitmap) &&
         currentBitmap.width === snapshot.bitmapWidth &&
         currentBitmap.height === snapshot.bitmapHeight
       ) rollbackPatch = captureBitmapPatch(currentBitmap, snapshot.dirtyPatchRect, { width: snapshot.bitmapWidth, height: snapshot.bitmapHeight });
@@ -7287,14 +7521,14 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       return false;
     }
 
-    if (reason === "stroke") {
-      const identity = drawingCanvasRef.current.getAuthoringSnapshotIdentity();
-      const before = resolveTimelineSnapshot(timelineFramesRef.current, currentFrameIndexRef.current);
-      if (!command || !validateRasterGestureCommand(command, { ...identity, bitmap: before.bitmap })) {
-        setSaveState("failed");
-        return false;
-      }
-    }
+    // Nov 12 (Arthur: "That stroke didn't stick... I can draw whatever I want"): what you see is what gets kept.
+    // The exact stroke check only picks the fast path (save just the stroke's tiles). When it disagrees with the
+    // stored frame (AI-made frames, tween frames, loaded projects), the stroke is never thrown away: the whole
+    // canvas, exactly as it is on screen, is saved instead.
+    const strokeMatchesFrame = reason !== "stroke" || Boolean(command && validateRasterGestureCommand(command, {
+      ...drawingCanvasRef.current.getAuthoringSnapshotIdentity(),
+      bitmap: resolveTimelineSnapshot(timelineFramesRef.current, currentFrameIndexRef.current).bitmap,
+    }));
 
     const currentFrame = timelineFramesRef.current[currentFrameIndexRef.current] ?? null;
     if (!currentFrame || currentFrame.cellType === "empty") {
@@ -7349,7 +7583,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
 
     try {
       return Boolean(saveCurrentFrameSnapshot(currentFrameIndexRef.current, activeLayerIdRef.current, {
-        captureOptions: { includePreviewUrl: false, preferIncrementalBitmapCapture: true },
+        captureOptions: { includePreviewUrl: false, preferIncrementalBitmapCapture: strokeMatchesFrame },
         debugCaller: `canvas-action:${reason}`,
         forceCapture: true,
       }));
@@ -7765,11 +7999,19 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
           if (reference) {
             // Compact picture: save it exactly as its full-size version would have been saved.
             const originX = compactOrigin(reference.width, sourceBitmap.width), originY = compactOrigin(reference.height, sourceBitmap.height);
-            const crop = cropBitmapRaw(sourceBitmap);
             const coverage = (sourceBitmap as PaintSerializedBitmap).paintCoverage ?? getBitmapPaintCoverage(sourceBitmap);
+            const stage = (x: number, y: number) => ({ x: x + originX, y: y + originY, stageWidth: reference.width, stageHeight: reference.height,
+              ...(coverage ? { paintCoverage: cropPaintCoverage(coverage, -originX, -originY, reference.width, reference.height)! } : {}) });
+            // (Nov 14) A compact picture is never changed in place (an edit replaces it), so its painted box is found once
+            // and its pixels are NOT copied out for the save: the same bytes are read from the frame when a save needs them
+            // (rasterCropV1.ts). A long AI animation used to be copied whole, and read whole, for every save.
+            if (sourceBitmap.data instanceof Uint8ClampedArray) {
+              const bounds = stablePaintedBounds(sourceBitmap.data, sourceBitmap.width, sourceBitmap.height);
+              return bounds ? rasterCropBitmap({ source: sourceBitmap.data, sourceWidth: sourceBitmap.width, ...bounds }, stage(bounds.left, bounds.top)) : null;
+            }
+            const crop = cropBitmapRaw(sourceBitmap);
             if (!crop) return null;
-            return { ...crop, x: crop.x + originX, y: crop.y + originY, stageWidth: reference.width, stageHeight: reference.height,
-              ...(coverage ? { paintCoverage: cropPaintCoverage(coverage, -originX, -originY, reference.width, reference.height)! } : {}) };
+            return { ...crop, ...stage(crop.x, crop.y) };
           }
           return cropBitmapRaw(sourceBitmap);
         };
@@ -7777,14 +8019,9 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
           const sourceData = sourceBitmap.data instanceof Uint8ClampedArray
             ? sourceBitmap.data
             : Uint8ClampedArray.from(sourceBitmap.data);
-          let left = sourceBitmap.width, top = sourceBitmap.height, right = -1, bottom = -1;
-          for (let y = 0; y < sourceBitmap.height; y += 1) for (let x = 0; x < sourceBitmap.width; x += 1) {
-            if (sourceData[(y * sourceBitmap.width + x) * 4 + 3] > SAVE_PATH_ALPHA_THRESHOLD) {
-              left = Math.min(left, x); top = Math.min(top, y); right = Math.max(right, x); bottom = Math.max(bottom, y);
-            }
-          }
-          if (right < left || bottom < top) return null;
-          const bounds = { left, top, width: right - left + 1, height: bottom - top + 1 };
+          // (Nov 14) the same box as before (every pixel with alpha > 0), found without reading every byte of every picture
+          const bounds = paintedBounds(sourceData, sourceBitmap.width, sourceBitmap.height);
+          if (!bounds) return null;
           if (bounds.left === 0 && bounds.top === 0 && bounds.width === sourceBitmap.width && bounds.height === sourceBitmap.height) {
             return { width: sourceBitmap.width, height: sourceBitmap.height, data: sourceData, x: 0, y: 0, stageWidth: sourceBitmap.width, stageHeight: sourceBitmap.height,
               ...((sourceBitmap as PaintSerializedBitmap).paintCoverage ? { paintCoverage: (sourceBitmap as PaintSerializedBitmap).paintCoverage } : {}) };
@@ -8696,33 +8933,36 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     [stopTimelinePlaybackAudio],
   );
 
+  // (Nov 14, measured in the app at 24 fps: 20 pictures a second instead of 24) this effect starts again whenever the page redraws
+  // during playback, and each start used to forget the time already passed. The player's clock now lives through those restarts
+  // and is set back only when playback stops.
+  const playbackClockRef = useRef({ lastStepTime: 0, accumulatorMs: 0 });
   useEffect(() => {
-    if (!isTimelinePlaying || authoredPlaybackFrameCount <= 1) return;
+    if (!isTimelinePlaying || authoredPlaybackFrameCount <= 1) { playbackClockRef.current = { lastStepTime: 0, accumulatorMs: 0 }; return; }
 
     const frameDurationMs = getClampedPlaybackFrameDurationMs(timelineFps);
     let rafId = 0;
-    let lastStepTime = 0;
-    let accumulatorMs = 0;
+    const clock = playbackClockRef.current;
 
     const stepPlayback = (timestamp: number) => {
       if (!isTimelinePlayingRef.current) {
         return;
       }
 
-      if (lastStepTime === 0) {
-        lastStepTime = timestamp;
+      if (clock.lastStepTime === 0) {
+        clock.lastStepTime = timestamp;
         rafId = window.requestAnimationFrame(stepPlayback);
         return;
       }
 
       const { accumulatorMs: nextAccumulatorMs, steps, droppedSteps } = advancePlaybackAccumulator(
-        accumulatorMs,
-        timestamp - lastStepTime,
+        clock.accumulatorMs,
+        timestamp - clock.lastStepTime,
         frameDurationMs,
       );
 
-      accumulatorMs = nextAccumulatorMs;
-      lastStepTime = timestamp;
+      clock.accumulatorMs = nextAccumulatorMs;
+      clock.lastStepTime = timestamp;
 
       if (steps > 0) {
         const syncUiState = shouldSyncPlaybackUiState({
@@ -8860,7 +9100,14 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
   const saveProject = useCallback(async () => {
     requireManualEditorCommand("project.save/v2", "DrawingWorkspace.saveProject");
     if (isTimelinePlayingRef.current) {
-      return { officialWriteSucceeded: false, coversCurrentGeneration: false, recoveryDraftCleared: false, notificationRebindSucceeded: false };
+      // (Nov 16, live: an AI version plays by itself when it lands, and Save / Close workspace during playback did NOTHING at all - no
+      // word, no save) Playback is paused first, exactly as the Pause button does it; then it saves.
+      handlePauseTimeline();
+      for (let tries = 0; tries < 80 && isTimelinePlayingRef.current; tries += 1) await new Promise(resolve => setTimeout(resolve, 25));
+      await new Promise(resolve => setTimeout(resolve, 60));
+      if (isTimelinePlayingRef.current) {
+        return { officialWriteSucceeded: false, coversCurrentGeneration: false, recoveryDraftCleared: false, notificationRebindSucceeded: false };
+      }
     }
     if (backgroundSavePromiseRef.current) await backgroundSavePromiseRef.current;
     if (ownerId && !accountDirtyRef.current && activeUnifiedProjectRef.current.revision > 0 &&
@@ -8876,10 +9123,18 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     const capturedWorkspaceInstanceId = workspaceInstanceIdRef.current;
     saveInFlightRef.current = true; setSaveState("saving");
     try {
-      // (LAG: the frames' stored preview pictures are made first, a few at a time, so the page never freezes while saving.)
-      await prepareStoredPreviews(() => layersRef.current).catch(() => undefined);
+      // (Nov 16) the save no longer waits for the frames' small preview pictures: see storedPreviewsReadOnly. They go on being made
+      // in the background, exactly as after a version lands.
+      const previewsStart = performance.now();
+      measureSaveStepV1("previews", previewsStart);
+      const snapshotStart = performance.now();
       if (!commitCurrentFrameSnapshotWithoutHistory("unified:save")) throw new Error("snapshot_capture_failed");
-      const candidate = buildUnifiedProjectSnapshot(createPersistedProjectSnapshot());
+      // (Nov 14) the pictures are not copied for the save (as the background save never did): a long AI animation is over 1 GB of them
+      let candidate: ReturnType<typeof buildUnifiedProjectSnapshot>;
+      storedPreviewsReadOnly += 1;
+      try { candidate = buildUnifiedProjectSnapshot(createPersistedProjectSnapshot({ preserveBitmapReferences: true })); } finally { storedPreviewsReadOnly -= 1; }
+      void prepareStoredPreviews(() => layersRef.current, () => isTimelinePlayingRef.current).catch(() => undefined);
+      measureSaveStepV1("snapshot", snapshotStart);
       if (!candidate) throw new Error("invalid_record");
       const recoverySourceProject = activeUnifiedProjectRef.current;
       const capturedGeneration = documentGenerationRef.current;
@@ -8927,7 +9182,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       return { officialWriteSucceeded: false, coversCurrentGeneration: false, recoveryDraftCleared: false, notificationRebindSucceeded: false };
     }
     finally { saveInFlightRef.current = false; }
-  }, [buildUnifiedProjectSnapshot, clearCoveredRecoveryDraft, commitCurrentFrameSnapshotWithoutHistory, createPersistedProjectSnapshot, openedInitialProject.id, ownerId, projectId, publishAndClearCoveredRecoveryDraft, showSaveNotification]);
+  }, [buildUnifiedProjectSnapshot, clearCoveredRecoveryDraft, commitCurrentFrameSnapshotWithoutHistory, createPersistedProjectSnapshot, handlePauseTimeline, openedInitialProject.id, ownerId, projectId, publishAndClearCoveredRecoveryDraft, showSaveNotification]);
 
   // SPEC-0020 Phase 5: Export always saves first, so the export has your newest drawing, then opens on this project.
   const exportProject = useCallback(async () => {
@@ -8954,18 +9209,28 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       return;
     }
     // (LAG: the frames' stored preview pictures are made first, a few at a time — then the save runs, exactly as before.)
-    if (!backgroundSaveWaitedForPreviewsRef.current && unpreparedStoredPreviewBitmaps(layersRef.current).length > 0) {
-      backgroundSaveWaitedForPreviewsRef.current = true;
-      void prepareStoredPreviews(() => layersRef.current, () => isTimelinePlayingRef.current).catch(() => undefined).finally(() => armBackgroundSave(0));
-      return;
+    // (Nov 14, measured: a version placed while this was still waiting started the save a second time, and that second start
+    // made every missing preview picture itself in ONE go - 258 pictures = 194 s, 449 pictures = 311 s of frozen page.) While it
+    // waits, a second start does nothing (the wait starts the save again when the pictures are made); and it waits once for
+    // each state of the frames, not once in all. Preview pictures that are still missing after that are made by the save, as before.
+    if (unpreparedStoredPreviewBitmaps(layersRef.current).length > 0) {
+      if (backgroundSaveWaitingForPreviewsRef.current) return;
+      if (backgroundSaveWaitedForPreviewsRef.current !== lastAccountEditAtRef.current) {
+        backgroundSaveWaitedForPreviewsRef.current = lastAccountEditAtRef.current;
+        backgroundSaveWaitingForPreviewsRef.current = true;
+        void prepareStoredPreviews(() => layersRef.current, () => isTimelinePlayingRef.current).catch(() => undefined)
+          .finally(() => { backgroundSaveWaitingForPreviewsRef.current = false; armBackgroundSave(0); });
+        return;
+      }
     }
-    backgroundSaveWaitedForPreviewsRef.current = false;
     const workspaceInstanceId = workspaceInstanceIdRef.current;
     const capturedGeneration = documentGenerationRef.current;
     const capturedRecoveryGeneration = recoveryWorkspaceGenerationRef.current;
     let candidate: UnifiedAnimationProjectV2;
     try {
+      const snapshotStart = performance.now();
       candidate = buildUnifiedProjectSnapshot(createPersistedProjectSnapshot({ preserveBitmapReferences: true }));
+      measureSaveStepV1("snapshot", snapshotStart);
     } catch { return; }
     saveInFlightRef.current = true;
     const operation = withAccountProjectWrite(ownerId, () => createAccountProjectRepositoryV2(ownerId).save(candidate))
@@ -8985,12 +9250,20 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
           }
         }
       })
-      .catch(() => { /* Keep the local recovery draft and retry only after a later edit or explicit Save. */ })
+      .then(() => { backgroundSaveRetryMsRef.current = 0; })
+      .catch((error: unknown) => {
+        // (Nov 14) The account could not be reached (no network, the server away). A long project is already safe in the
+        // browser's own store (projectPictures.ts); the save is tried again by itself, a little later each time (30 s up
+        // to 5 minutes), until it goes through. Any other failure waits for a later edit or an explicit Save, as before.
+        backgroundSaveRetryMsRef.current = error instanceof Error && error.message === "account_project_not_saved"
+          ? Math.min(300_000, Math.max(30_000, backgroundSaveRetryMsRef.current * 2)) : 0;
+      })
       .finally(() => {
         saveInFlightRef.current = false;
         backgroundSavePromiseRef.current = null;
         if (accountDirtyRef.current && lastAccountEditAtRef.current > 0 &&
           Date.now() - lastAccountEditAtRef.current < 10_000) armBackgroundSave(10_000);
+        else if (accountDirtyRef.current && backgroundSaveRetryMsRef.current > 0) armBackgroundSave(backgroundSaveRetryMsRef.current);
       });
     backgroundSavePromiseRef.current = operation;
   }, [armBackgroundSave, buildUnifiedProjectSnapshot, clearCoveredRecoveryDraft, createPersistedProjectSnapshot, ownerId]);
@@ -9364,7 +9637,9 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     isApplyingGeneratedFramesRef.current = true;
     try {
       const startMs = performance.now();
-      const built = buildAnimatorScene(scene, timelineFps);
+      // AI Animator engine blocks: a block the engine already DREW arrives as finished frames (prebuiltFrames); every
+      // other scene is built exactly as before.
+      const built = enginePrebuiltFrames(scene) ?? buildAnimatorScene(scene, timelineFps);
       // The whole animation (figures and objects) is centered on the page (slid as one piece; sizes and motion untouched).
       // (Effects at fixed spots that say so count too — an explosion far away: effectFitBounds; none for other scenes.)
       const centered = place
@@ -9406,6 +9681,14 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       // AI layer ("AI: <title> lasers"), so they are drawn over the head symbols; the glowing eyes are placed on it,
       // over the beams. Only a scene that has them; any other scene is drawn exactly as before.
       const topRaster = effectLayers.top ? rasterizeAnimatorShapeFrames(effectLayers.top, canvasWidth, canvasHeight, map, { maxBytes: 256 * 1024 * 1024, ...skipSymbols, ...(built.camera ? { mustDraw: built.camera.redraw } : {}) }) : null;
+      // AI Animator engine blocks: the engine page's own effects (pictures) on their own layers, UNDER and OVER the
+      // figures' layer, picture for picture. Only a block that has them; every other scene is exactly as before.
+      // (wired V1) story-path figures: each figure's own drawn pictures on its own layer ("AI: <title> <figure>")
+      const engineFigs = enginePrebuiltFigureLayers(scene);
+      const engineFigRasters = engineFigs ? engineFigs.layers.map((layer) => ({ name: layer.name, pictures: rasterizeEnginePictures(layer.pictures, engineFigs.stage, engineFigs.shift, canvasWidth, canvasHeight, map, engineFigs.inkBox || engineFigs.fitExtra?.whole ? { inkBox: engineFigs.inkBox ?? [0, 0, engineFigs.stage[0], engineFigs.stage[1]], pageLeftPx: (layout.stageDisplayRect.left - layout.worldDisplayRect.left) * pixelsPerCssPixel, pageWidthPx: pageWidth * pixelsPerCssPixel, pageTopPx: (layout.stageDisplayRect.top - layout.worldDisplayRect.top) * pixelsPerCssPixel, pageHeightPx: pageHeight * pixelsPerCssPixel, ...(engineFigs.fitExtra ?? {}) } : null) })) : [];
+      const engineFx = enginePrebuiltEffectLayers(scene);
+      const engineFxRasters = engineFx ? (["under", "over"] as const).flatMap((side) => engineFx[side].some(Boolean)
+        ? [{ side, pictures: rasterizeEnginePictures(engineFx[side], engineFx.stage, engineFx.shift, canvasWidth, canvasHeight, map) }] : []) : [];
       recordUndoSnapshot();
       // Pictures → ordinary timeline frames (a hold continues the picture before it).
       // ("Finish my animation": the scene's first picture IS the user's last drawing, so it is left out there.)
@@ -9443,8 +9726,13 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       };
       const ownTimeline = toTimelineFrames(raster);
       const replaceLayer = place?.mode === "replace" ? getLayerById(layersRef.current, place.layerId) : null;
+      // (V1 AI Animator, Nov 1) replacing a layer with a scene drawn as ONE engine figure layer: the figure's own
+      // pictures replace that layer's frames (the same layer every version, never a new layer each time). Only the V1
+      // panel places this way; every other placement is exactly as before.
+      const figureReplace = replaceLayer && engineFigRasters.length === 1 ? toTimelineFrames(engineFigRasters[0].pictures) : null;
+      const replacing = figureReplace ?? ownTimeline;
       const { timelineFrames: frames, keys: keyframes } = replaceLayer && place?.mode === "replace"
-        ? { ...ownTimeline, timelineFrames: spliceAnimatorFrames(ensureTimelineLength(replaceLayer.timelineFrames, place.frameIndex - 1), place.frameIndex, place.count, ownTimeline.timelineFrames) }
+        ? { ...replacing, timelineFrames: spliceAnimatorFrames(ensureTimelineLength(replaceLayer.timelineFrames, place.frameIndex - 1), place.frameIndex, place.count, replacing.timelineFrames) }
         : leadIn(ownTimeline);
       const layerId = replaceLayer ? replaceLayer.id : `layer-${nextLayerNumberRef.current}`;
       if (!replaceLayer) nextLayerNumberRef.current += 1;
@@ -9459,6 +9747,18 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       });
       const topTimeline = topRaster ? { ...leadIn(toTimelineFrames(topRaster)), id: `layer-${nextLayerNumberRef.current}` } : null;
       if (topTimeline) nextLayerNumberRef.current += 1;
+      const engineFxTimelines = engineFxRasters.map(({ side, pictures }) => {
+        const timeline = { ...leadIn(toTimelineFrames(pictures)), id: `layer-${nextLayerNumberRef.current}`, side };
+        nextLayerNumberRef.current += 1;
+        return timeline;
+      });
+      const engineFigTimelines = figureReplace ? [] : engineFigRasters.map(({ name, pictures }) => {
+        const timeline = { ...leadIn(toTimelineFrames(pictures)), id: `layer-${nextLayerNumberRef.current}`, name };
+        nextLayerNumberRef.current += 1;
+        return timeline;
+      });
+      const engineFxLayer = (side: "under" | "over") => engineFxTimelines.filter((timeline) => timeline.side === side)
+        .map((timeline) => ({ id: timeline.id, name: `AI: ${scene.title} effects ${side === "over" ? "in front" : "behind"}`, orderIndex: side === "over" ? 0 : 1, timelineFrames: timeline.timelineFrames }));
       const symbolCatalogs = effectSymbolPlan?.catalogs ?? symbolPlan?.catalogs;
       if (symbolCatalogs) {
         // One set of instances per keyframe; its holds share them (same stateId). On the AI layer: effect symbols
@@ -9494,16 +9794,27 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       const nextLayers = normalizeLayerOrder([
         // (Named for what is on it: "lasers" when laser beams are; otherwise "over heads" — a worn cap or hat.)
         ...(topTimeline ? [{ id: topTimeline.id, name: `AI: ${scene.title} ${((scene as { effects?: { kind: string; layer?: string }[] }).effects ?? []).some((e) => e.layer === "top" && /laser/i.test(e.kind)) ? "lasers" : "over heads"}`, orderIndex: 0, timelineFrames: topTimeline.timelineFrames }] : []),
-        ...(replaceLayer ? [] : [{ id: layerId, name: `AI: ${scene.title}`, orderIndex: 0, timelineFrames: frames }]),
+        ...engineFxLayer("over"),
+        ...engineFigTimelines.map((timeline) => ({ id: timeline.id, name: `AI: ${scene.title} ${timeline.name}`, orderIndex: 0, timelineFrames: timeline.timelineFrames })),
+        ...(replaceLayer || engineFigTimelines.length ? [] : [{ id: layerId, name: `AI: ${scene.title}`, orderIndex: 0, timelineFrames: frames }]),
+        ...engineFxLayer("under"),
         ...movingTimelines.map((timeline, k) => ({ id: timeline.id, name: `AI: ${scene.title} ${movingBackground?.layers[k].name ?? "moving background"}`, orderIndex: 1, timelineFrames: timeline.timelineFrames })),
         ...(backgroundFrames && backgroundLayerId ? [{ id: backgroundLayerId, name: `AI: ${scene.title} background`, orderIndex: 1, timelineFrames: backgroundFrames }] : []),
         ...(replaceLayer ? layersRef.current.map((layer) => layer.id === replaceLayer.id ? { ...layer, timelineFrames: frames } : layer) : layersRef.current),
       ]);
       layersRef.current = nextLayers;
       setLayers(nextLayers);
-      activeLayerIdRef.current = layerId;
-      timelineFramesRef.current = frames;
-      setActiveLayerId(layerId);
+      // (Nov 2, LAG: the first play of a placed animation was laggy) the placed layers' pictures are made ready for playback
+      // now, a few at a time in the background, so the first play is as smooth as the second.
+      const placedIds = new Set([layerId, ...engineFigTimelines.map((timeline) => timeline.id)]);
+      void warmPlaybackBitmaps(nextLayers.filter((layer) => placedIds.has(layer.id)));
+      // (A scene drawn only as engine figure layers has no own "AI:" layer: its first figure layer becomes the active
+      // layer, so the active layer is always a real one.)
+      const figureOnly = !replaceLayer && engineFigTimelines.length > 0;
+      const activeId = figureOnly ? engineFigTimelines[0].id : layerId;
+      activeLayerIdRef.current = activeId;
+      timelineFramesRef.current = figureOnly ? engineFigTimelines[0].timelineFrames : frames;
+      setActiveLayerId(activeId);
       const startFrame = place ? Math.max(0, place.frameIndex) : 0;
       currentFrameIndexRef.current = startFrame;
       setCurrentFrameIndex(startFrame);
@@ -9519,7 +9830,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         setSaveState("unsaved");
       }
       window.requestAnimationFrame(() => {
-        renderWorkspaceCanvases(nextLayers, startFrame, { activeLayerId: layerId, debugCaller: "ai:apply-animator-scene" });
+        renderWorkspaceCanvases(nextLayers, startFrame, { activeLayerId: activeId, debugCaller: "ai:apply-animator-scene" });
       });
       console.info("[animator] scene applied", {
         ...(place ? { place } : {}),
@@ -9535,6 +9846,50 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     }
   }, [commitCurrentHistoryState, ensureTimelineLength, recordUndoSnapshot, renderWorkspaceCanvases, saveCurrentFrameSnapshot, symbolImageCache, timelineFps]);
   const applyAnimatorScene = useCallback((source: SceneForPage) => placeAnimatorScene(source, null), [placeAnimatorScene]);
+  // (V1 AI Animator, Nov 2) CLEAR CANVAS in ONE Undo step: the AI layers (by id, or by their AI name) are removed; `all` = every other
+  // layer's frames too (each left with one blank frame). A project always keeps one layer. false = could not right now: nothing changed.
+  const clearAiCanvas = useCallback((request: { layerIds: string[]; layerNames: string[]; all: boolean }) => {
+    if (isTimelinePlayingRef.current || isApplyingGeneratedFramesRef.current) return false;
+    saveCurrentFrameSnapshot(currentFrameIndexRef.current, activeLayerIdRef.current, {
+      debugCaller: "clearAiCanvas",
+      forceCapture: drawingCanvasRef.current?.hasPendingAuthoringChanges() ?? true,
+    });
+    if (drawingCanvasRef.current?.hasPendingAuthoringChanges()) return false;
+    const ids = new Set(request.layerIds), names = new Set(request.layerNames);
+    const current = layersRef.current;
+    const isAi = (layer: (typeof current)[number]) => ids.has(layer.id) || names.has(layer.name);
+    if (!request.all && !current.some(isAi)) return true; // (nothing of the AI on the canvas: already clear)
+    const blankFrames = () => {
+      const id = nextTimelineFrameIdRef.current;
+      nextTimelineFrameIdRef.current += 1;
+      return [createTimelineFrame(id, "keyframe", "blank-keyframe", id, { bitmap: null, previewUrl: null })];
+    };
+    let kept = current.filter((layer) => !isAi(layer));
+    if (request.all) kept = kept.map((layer) => ({ ...layer, timelineFrames: blankFrames() }));
+    if (!kept.length) {
+      const number = nextLayerNumberRef.current;
+      nextLayerNumberRef.current += 1;
+      kept = [{ id: `layer-${number}`, name: `Layer ${number}`, orderIndex: 0, timelineFrames: blankFrames() }];
+    }
+    recordUndoSnapshot();
+    const nextLayers = normalizeLayerOrder(kept);
+    const active = nextLayers.find((layer) => layer.id === activeLayerIdRef.current) ?? nextLayers[0];
+    layersRef.current = nextLayers;
+    setLayers(nextLayers);
+    activeLayerIdRef.current = active.id;
+    timelineFramesRef.current = active.timelineFrames;
+    setActiveLayerId(active.id);
+    currentFrameIndexRef.current = 0;
+    setCurrentFrameIndex(0);
+    selectedTimelineIndexRef.current = 0;
+    setSelectedTimelineIndex(0);
+    drawingCanvasRef.current?.clearTransientEditingState();
+    commitCurrentHistoryState({ assumeChanged: true });
+    window.requestAnimationFrame(() => {
+      renderWorkspaceCanvases(nextLayers, 0, { activeLayerId: active.id, debugCaller: "ai:clear-canvas" });
+    });
+    return true;
+  }, [commitCurrentHistoryState, recordUndoSnapshot, renderWorkspaceCanvases, saveCurrentFrameSnapshot]);
   // SPEC-0017 "50-50": page → drawing-canvas pixels (the same map applyAnimatorScene draws with).
   const enginePageMap = useCallback((): PageToCanvasMap | null => {
     const layout = drawingCanvasRef.current?.getPlaybackSurfaceLayout() ?? null;
@@ -9563,7 +9918,55 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       return { frameIndex: currentFrameIndexRef.current, layerId: layer.id, layerName: layer.name, fps: timelineFps, spans };
     },
     goToFrame: (frameIndex) => switchToFrame(frameIndex),
+    // (the same clamp as the timeline's fps box)
+    setFps: (nextFps) => setTimelineFps(Math.max(1, Math.min(60, Math.round(nextFps)))),
+    // (V1 AI Animator, Nov 2: a finished animation never interrupts the user — playing is paused for the placement, then resumed)
+    isPlaying: () => isTimelinePlayingRef.current,
+    pausePlayback: () => { if (!isTimelinePlayingRef.current) return false; handlePauseTimeline(); return true; },
+    resumePlayback: () => { if (!isTimelinePlayingRef.current) handlePlayTimeline(); },
+    clearCanvas: (request) => clearAiCanvas(request),
+    savedAt: () => { const at = Date.parse(activeUnifiedProjectRef.current?.updatedAt ?? ""); return Number.isFinite(at) ? at : null; },   // (reads only)
+    hasLayer: (layerId) => layersRef.current.some((layer) => layer.id === layerId && layer.timelineFrames.some((frame) => frame.cellType !== "empty")),   // (reads only)
     pageMap: () => enginePageMap(),
+    pageSize: () => { const r = drawingCanvasRef.current?.getPlaybackSurfaceLayout()?.stageDisplayRect; return r && r.width > 0 && r.height > 0 ? [r.width, r.height] : null; },   // (Nov 14) the page's own shape: a new AI animation is made in it
+    // (V1 AI Animator, Nov 2 final round: the AI sees the canvas) the current frame's picture on every USER layer (the AI's layers left
+    // out; a held cell gives the picture it holds). The frame being drawn on is saved first so a fresh stroke counts. Reads only.
+    userFrame: (skip) => {
+      if (isTimelinePlayingRef.current || isApplyingGeneratedFramesRef.current) return null;
+      saveCurrentFrameSnapshot(currentFrameIndexRef.current, activeLayerIdRef.current, { debugCaller: "engineUserFrame" });
+      const layout = drawingCanvasRef.current?.getPlaybackSurfaceLayout() ?? null, map = enginePageMap();
+      if (!layout?.drawingCanvasWidth || !layout.drawingCanvasHeight || !map) return null;
+      const frameIndex = currentFrameIndexRef.current;
+      const bitmaps: ImageData[] = [];
+      for (const layer of v1UserLayers(layersRef.current, skip)) {
+        const frames = layer.timelineFrames;
+        let owner = frameIndex;
+        while (owner > 0 && frames[owner] && frames[owner].cellType === "hold" && frames[owner - 1]?.cellType !== "empty" && frames[owner - 1]?.stateId === frames[owner].stateId) owner -= 1;
+        const bitmap = frames[owner] && frames[owner].cellType !== "empty" ? getUsableBitmap(frames[owner].bitmap) : null;
+        if (bitmap) bitmaps.push(bitmap);
+      }
+      return { bitmaps, canvas: { width: layout.drawingCanvasWidth, height: layout.drawingCanvasHeight }, map };
+    },
+    // (V1 AI Animator, Nov 2 night: the AI sees the TIMELINE) up to max frames where the user's own layers change (v1SheetFrames), each
+    // frame's pictures on every user layer (a held cell gives the picture it holds). Reads only.
+    userSheet: (skip, max) => {
+      if (isTimelinePlayingRef.current || isApplyingGeneratedFramesRef.current) return null;
+      saveCurrentFrameSnapshot(currentFrameIndexRef.current, activeLayerIdRef.current, { debugCaller: "engineUserSheet" });
+      const layout = drawingCanvasRef.current?.getPlaybackSurfaceLayout() ?? null, map = enginePageMap();
+      if (!layout?.drawingCanvasWidth || !layout.drawingCanvasHeight || !map) return null;
+      const users = v1UserLayers(layersRef.current, skip);
+      const ownerOf = (frames: (typeof users)[number]["timelineFrames"], i: number) => {
+        let owner = i;
+        while (owner > 0 && frames[owner] && frames[owner].cellType === "hold" && frames[owner - 1]?.cellType !== "empty" && frames[owner - 1]?.stateId === frames[owner].stateId) owner -= 1;
+        return frames[owner] && frames[owner].cellType !== "empty" ? owner : -1;
+      };
+      const count = Math.max(0, ...users.map((l) => l.timelineFrames.length));
+      const keys = Array.from({ length: count }, (_, i) => users.map((l) => { const o = ownerOf(l.timelineFrames, i); return o < 0 ? "" : `${o}:${l.timelineFrames[o].stateId}`; }).join("|").replace(/^\|+$/, ""));
+      const picked = v1SheetFrames(keys, max);
+      if (!picked) return null;
+      const frames = picked.map((index) => ({ index, bitmaps: users.map((l) => { const o = ownerOf(l.timelineFrames, index); return o < 0 ? null : getUsableBitmap(l.timelineFrames[o].bitmap); }).filter((b): b is ImageData => Boolean(b)) }));
+      return { frames, canvas: { width: layout.drawingCanvasWidth, height: layout.drawingCanvasHeight }, map };
+    },
     // (The engine LOOKS at the drawing: a frame's picture on the active layer as page-space ink. A held cell gives the
     // picture it holds; the frame being drawn on is saved first so a fresh stroke counts. Reads only — changes nothing.)
     frameInk: (frameIndex) => {
@@ -9591,7 +9994,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       } : undefined;
       try { return bitmapToInk(bitmap, layout.drawingCanvasWidth, layout.drawingCanvasHeight, map, overlay); } catch { return null; }
     },
-  }), [enginePageMap, placeAnimatorScene, saveCurrentFrameSnapshot, switchToFrame, symbolImageCache, timelineFps]);
+  }), [clearAiCanvas, enginePageMap, handlePauseTimeline, handlePlayTimeline, placeAnimatorScene, saveCurrentFrameSnapshot, switchToFrame, symbolImageCache, timelineFps]);
 
   const handleSaveAs = useCallback(() => {
     requireManualEditorCommand("project.save-as/v2", "DrawingWorkspace.handleSaveAs");
@@ -9628,7 +10031,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       setSaveAsDialog(current => current ? { ...current, error: "Finish the current edit, then try again.", submitting: false } : current);
       return;
     }
-    const candidate = buildUnifiedProjectSnapshot(createPersistedProjectSnapshot());
+    const candidate = buildUnifiedProjectSnapshot(createPersistedProjectSnapshot({ preserveBitmapReferences: true }));
     if (!candidate) {
       setSaveAsDialog(current => current ? { ...current, error: "This project could not be prepared for saving.", submitting: false } : current);
       return;
@@ -9693,6 +10096,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     return {
       projectId,
       workspaceIdentity: projectId ?? openedInitialProject.id,
+      copiedFromProjectId: activeUnifiedProject.provenance?.kind === "copy" ? activeUnifiedProject.provenance.parentProjectId : null,
       projectGeneration,
       projectTitle,
       activeLayerId: activeLayerForContext?.id ?? activeLayerId,
@@ -9740,6 +10144,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     activeLayer,
     activeLayerId,
     activeTool,
+    activeUnifiedProject.provenance,
     authoredPlaybackFrameCount,
     currentFrameIndex,
     getDrawingCanvas,
@@ -9864,8 +10269,8 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
 
   useLayoutEffect(() => {
     drawingCanvasRef.current?.setOnionOverlayContent({
-      previousBitmap: previousFrameBitmap,
-      nextBitmap: nextFrameBitmap,
+      previousBitmap: previousFrameBitmap && framePixels(previousFrameBitmap),
+      nextBitmap: nextFrameBitmap && framePixels(nextFrameBitmap),
       previousTextObjects: previousFrameTextObjects,
       nextTextObjects: nextFrameTextObjects,
       previousStickContent: onionFramePreviews.previous.stickContent ?? null,

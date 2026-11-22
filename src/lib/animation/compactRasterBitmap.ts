@@ -1,5 +1,6 @@
 import { bitmapCenterOffset } from "./unifiedStageGeometry.ts";
 import { attachBitmapPaintCoverage, cropPaintCoverage, getBitmapPaintCoverage, patchPaintCoverage, type UnifiedRasterPaintCoverageV1 } from "./unifiedRasterPaintCoverageV1.ts";
+import { framePixels } from "./framePictureStore.ts";
 
 // SPEC-0017 compact frames.
 // A frame picture used to be the full "authoring world" size (about 21x the visible page).
@@ -38,6 +39,34 @@ const centeredLength = (full: number, start: number, end: number) => {
   return Math.min(full, half * 2);
 };
 
+// The alpha byte of a pixel read as one 32-bit word (whatever the computer's byte order).
+const ALPHA_MASK = new Uint32Array(new Uint8Array([0, 0, 0, 255]).buffer)[0];
+
+// (Nov 14) The smallest box that holds every pixel that is not fully clear (alpha > 0); null = nothing painted.
+// The save path asks this for every frame picture of the project, on the page's own thread, so it reads one whole
+// pixel at a time and, inside the painted rows, only each row's two ends as far as the box found so far.
+export function paintedBounds(data: Uint8ClampedArray, width: number, height: number): { left: number; top: number; width: number; height: number } | null {
+  const total = width * height;
+  const words = data.byteOffset % 4 === 0 ? new Uint32Array(data.buffer, data.byteOffset, total) : new Uint32Array(data.slice(0, total * 4).buffer);
+  let first = 0;
+  while (first < total && (words[first] & ALPHA_MASK) === 0) first += 1;
+  if (first === total) return null;
+  let last = total - 1;
+  while ((words[last] & ALPHA_MASK) === 0) last -= 1;
+  const top = Math.floor(first / width), bottom = Math.floor(last / width);
+  let left = width, right = -1;
+  for (let y = top; y <= bottom; y += 1) {
+    const row = y * width;
+    let x = 0;
+    while (x < left && (words[row + x] & ALPHA_MASK) === 0) x += 1;
+    left = x;
+    x = width - 1;
+    while (x > right && (words[row + x] & ALPHA_MASK) === 0) x -= 1;
+    right = x;
+  }
+  return { left, top, width: right - left + 1, height: bottom - top + 1 };
+}
+
 // Where the compact box starts, measured in full-size pixels (matches bitmapCenterOffset placement).
 export const compactOrigin = (full: number, compact: number) => bitmapCenterOffset(full, compact);
 
@@ -69,7 +98,8 @@ export function compactRasterFromCrop(source: CropSource): ImageData {
 // Shrinks a picture (full-size or already compact) to its smallest centered box. Lossless.
 export function compactRaster(bitmap: ImageData): ImageData {
   const reference = resolveRasterReferenceSize(bitmap);
-  const { width, height, data } = bitmap;
+  const { width, height } = bitmap;
+  const data = framePixels(bitmap).data;   // (a packed picture's pixels are read through framePictureStore.ts)
   let left = width, top = height, right = -1, bottom = -1;
   const words = new Uint32Array(data.buffer, data.byteOffset, width * height);
   for (let y = 0; y < height; y += 1) {
@@ -105,8 +135,9 @@ export function expandRaster(bitmap: ImageData): ImageData {
   if (!reference) return bitmap;
   const out = new ImageData(reference.width, reference.height);
   const x = compactOrigin(reference.width, bitmap.width), y = compactOrigin(reference.height, bitmap.height);
+  const data = framePixels(bitmap).data;
   for (let row = 0; row < bitmap.height; row += 1) {
-    out.data.set(bitmap.data.subarray(row * bitmap.width * 4, (row + 1) * bitmap.width * 4), ((y + row) * reference.width + x) * 4);
+    out.data.set(data.subarray(row * bitmap.width * 4, (row + 1) * bitmap.width * 4), ((y + row) * reference.width + x) * 4);
   }
   const coverage = getBitmapPaintCoverage(bitmap);
   if (coverage) attachBitmapPaintCoverage(out, cropPaintCoverage(coverage, -x, -y, reference.width, reference.height));
@@ -127,10 +158,11 @@ export function captureRasterReferencePatch(
   const top = Math.max(rect.top, sourceTop);
   const right = Math.min(rect.left + rect.width, sourceLeft + bitmap.width);
   const bottom = Math.min(rect.top + rect.height, sourceTop + bitmap.height);
+  const data = framePixels(bitmap).data;
   for (let y = top; y < bottom; y += 1) {
     const sourceStart = ((y - sourceTop) * bitmap.width + left - sourceLeft) * 4;
     const targetStart = ((y - rect.top) * rect.width + left - rect.left) * 4;
-    out.data.set(bitmap.data.subarray(sourceStart, sourceStart + (right - left) * 4), targetStart);
+    out.data.set(data.subarray(sourceStart, sourceStart + (right - left) * 4), targetStart);
   }
   const coverage = getBitmapPaintCoverage(bitmap);
   if (coverage) {
@@ -167,9 +199,10 @@ export function mergeRasterReferencePatch(
   const originY = compactOrigin(reference.height, height);
   const out = new ImageData(width, height);
   if (bitmap) {
+    const data = framePixels(bitmap).data;
     for (let y = 0; y < bitmap.height; y += 1) {
       out.data.set(
-        bitmap.data.subarray(y * bitmap.width * 4, (y + 1) * bitmap.width * 4),
+        data.subarray(y * bitmap.width * 4, (y + 1) * bitmap.width * 4),
         ((sourceTop - originY + y) * width + sourceLeft - originX) * 4,
       );
     }

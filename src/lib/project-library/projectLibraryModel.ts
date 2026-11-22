@@ -54,7 +54,7 @@ const bitmapHasVisiblePixel = (bitmap: UnifiedRasterBitmapV2) => {
   return false;
 };
 
-const frameHasVisibleCanonicalContent = (project: UnifiedAnimationProjectV2, frameIndex: number) => {
+export const frameHasVisibleCanonicalContent = (project: UnifiedAnimationProjectV2, frameIndex: number) => {
   const definitions = new Map(project.document.catalogs.symbols.map(definition => [definition.definitionId, definition.definitionDigest]));
   for (const layer of project.document.layers) {
     if (!layer.visible) continue;

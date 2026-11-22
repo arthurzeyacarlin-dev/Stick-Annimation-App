@@ -168,7 +168,9 @@ export function WorkspaceAiPanelShell({
         {body}
       </div>
 
+      {/* (the message box slot: on phones and tablets the bottom sheet is never shorter than this, so Send is always whole) */}
       <div
+        className="workspace-ai-composer-slot"
         style={{
           padding: "8px 10px 10px",
           background: workspaceColors.stage,

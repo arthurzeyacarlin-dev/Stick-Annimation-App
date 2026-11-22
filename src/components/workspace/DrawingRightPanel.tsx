@@ -19,6 +19,7 @@ const BRUSH_TOOLS: BrushToolVariant[] = ["Brush", "Pixelate", "Sketch", "Pencil"
 // last size the user chose (this browser only — a convenience, not project data).
 type SheetSize = "small" | "half" | "full";
 const SHEET_TOP_GAP_PX = 12; // full size stops just under the timeline, so it is not a wall of settings
+const AI_SHEET_MESSAGE_ROOM_PX = 72; // an open AI Animator sheet always shows its message box whole plus a line of the chat
 const SHEET_SIZES_KEY = "diamond.phoneSheetSizes.v1";
 const isSheetSize = (value: unknown): value is SheetSize => value === "small" || value === "half" || value === "full";
 function readSheetSizes(): { ai: SheetSize; panels: SheetSize; last: SheetSize } {
@@ -154,19 +155,26 @@ export function DrawingRightPanel({
     if (timeline?.parentElement && topbar) timeline.parentElement.style.setProperty("--da-topbar-h", `${topbar.offsetHeight}px`);
     const splitHeight = split.clientHeight;
     const small = tabs.offsetHeight;
+    // (Nov 3) The AI Animator's message box is always whole above the tools: on the AI tab an open sheet is never shorter
+    // than the tab row + that box (+ anything pinned above it, like the out-of-credits card). A short window used to squeeze
+    // the sheet so Send sat under the tool row and could not be clicked. The canvas never changes size (the sheet is over it).
+    const aiTab = sheet.querySelector<HTMLElement>(".drawing-ai-tab");
+    const aiSlot = aiTab && getComputedStyle(aiTab).display !== "none" ? aiTab.querySelector<HTMLElement>(".workspace-ai-composer-slot") : null;
+    const openFloor = aiTab && aiSlot ? Math.min(splitHeight, small + aiSlot.offsetHeight + (parseFloat(getComputedStyle(aiTab).paddingBottom) || 0) + AI_SHEET_MESSAGE_ROOM_PX) : small;
+    const open = (height: number) => Math.max(openFloor, height);
     // Phone layout (Arthur 2026-10-28): the timeline sits at the bottom, so the panel slides up from there over the
     // canvas — half = about half the screen, full = up to just under the top bar.
     if (timeline && timeline.getBoundingClientRect().top > splitBox.top + splitBox.height / 2) {
       const phoneFull = Math.max(small, splitHeight - SHEET_TOP_GAP_PX);
       // Short screens (a phone turned sideways): a panel opens full height, so it shows just like on a computer.
       const halfPhone = window.innerHeight <= 500 ? phoneFull : Math.min(phoneFull, Math.max(small, Math.round(splitHeight * 0.55)));
-      return { small, half: halfPhone, full: phoneFull };
+      return { small, half: open(halfPhone), full: open(phoneFull) };
     }
     const full = Math.max(small, splitBox.bottom - timelineBottom - SHEET_TOP_GAP_PX);
     // Half keeps its height from when the canvas sat at the top (12 px padding); the centered canvas slides under it.
     const canvasBottom = timelineBase + SHEET_TOP_GAP_PX + host.getBoundingClientRect().height;
     const half = Math.min(full, Math.max(small, splitHeight - canvasBottom - SHEET_TOP_GAP_PX));
-    return { small, half, full };
+    return { small, half: open(half), full: open(full) };
   };
   useEffect(() => {
     const split = sheetRef.current?.parentElement;
@@ -190,8 +198,21 @@ export function DrawingRightPanel({
     observer.observe(split);
     const timeline = document.querySelector(".drawing-timeline");
     if (timeline) observer.observe(timeline); // a layer added makes the timeline taller: full stops at its new bottom
+    const frames = document.querySelector(".drawing-timeline-frames");   // (its layers' panel comes and goes with the second layer, and grows with every layer)
+    const watchPanels = () => { frames?.querySelectorAll(":scope > [data-timeline-panel]").forEach((panel) => observer.observe(panel)); update(); };
+    const panelMounts = frames ? new MutationObserver(watchPanels) : null;
+    if (frames) { panelMounts?.observe(frames, { childList: true }); watchPanels(); }
+    // The AI tab shown / hidden, and its message box growing (voice typing, the out-of-credits card): the floor moves with it.
+    const aiTab = sheetRef.current?.querySelector<HTMLElement>(".drawing-ai-tab") ?? null;
+    const watchAiSlot = () => {
+      const slot = aiTab?.querySelector(".workspace-ai-composer-slot");
+      if (slot) observer.observe(slot);
+      update();
+    };
+    const aiMounts = aiTab ? new MutationObserver(watchAiSlot) : null; // (the chat panel mounts its box after the page is up)
+    if (aiTab) { observer.observe(aiTab); aiMounts?.observe(aiTab, { childList: true }); watchAiSlot(); }
     window.addEventListener("resize", update);
-    return () => { observer.disconnect(); window.removeEventListener("resize", update); };
+    return () => { observer.disconnect(); aiMounts?.disconnect(); panelMounts?.disconnect(); window.removeEventListener("resize", update); };
   }, []);
   const chooseSheetSize = (size: SheetSize, forAi: boolean) => {
     setSheetSize(size);
@@ -368,7 +389,8 @@ export function DrawingRightPanel({
         }
       `}</style>
 
-      <div
+      {/* (Nov 2, Arthur) no resize grab line on the AI Animator panel: it slides over the canvas, which never resizes */}
+      {!aiTabActive && <div
         role="separator"
         aria-label="Resize workspace sidebar"
         aria-orientation="vertical"
@@ -397,7 +419,7 @@ export function DrawingRightPanel({
           touchAction: "none",
           userSelect: "none",
         }}
-      />
+      />}
 
       <div
         ref={rightPanelTabsRef}

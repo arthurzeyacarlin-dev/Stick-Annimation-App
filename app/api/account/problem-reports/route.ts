@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readBytes } from "@/src/lib/account/readJson";
 import packageInfo from "@/package.json";
 import { requireAccountRequest } from "@/src/lib/account/access";
 import { isOwnerEmail } from "@/src/lib/account/owner";
@@ -20,10 +21,8 @@ const json = (body: unknown, status = 200) => NextResponse.json(body, { status, 
 const notFound = () => json({ error: "Not found." }, 404);
 
 async function readJson(request: Request) {
-  const length = Number(request.headers.get("content-length") ?? "0");
-  if (Number.isFinite(length) && length > MAX_BODY_BYTES) return { tooBig: true } as const;
-  const text = await request.text();
-  if (text.length > MAX_BODY_BYTES * 1.1) return { tooBig: true } as const;
+  let text: string;   // (Nov 12 security) counted in bytes as they arrive, never trusted from the header
+  try { text = Buffer.from(await readBytes(request, MAX_BODY_BYTES)).toString("utf8"); } catch { return { tooBig: true } as const; }
   try { return { body: JSON.parse(text) as unknown } as const; } catch { return { body: null } as const; }
 }
 

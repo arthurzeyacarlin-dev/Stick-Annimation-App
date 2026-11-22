@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { readUsageSummary } from "@/src/lib/usage-journal/usageJournalRuntime";
 import { requireAccountRequest } from "@/src/lib/account/access";
+import { isOwnerEmail } from "@/src/lib/account/owner";
 
 export const runtime = "nodejs";
 const localRequest = (request: Request) => {
@@ -14,6 +15,7 @@ export async function GET(request: Request) {
   const access = await requireAccountRequest(request);
   if ("response" in access) return access.response;
   if (!localRequest(request)) return NextResponse.json({ error: "Usage records are limited to this local app." }, { status: 403 });
+  if (!isOwnerEmail(access.session.user.email)) return NextResponse.json({ error: "Not found." }, { status: 404 });   // (Nov 12 security) the whole app's records: owner only
   try {
     return NextResponse.json(await readUsageSummary(), { headers: { "Cache-Control": "no-store" } });
   } catch {

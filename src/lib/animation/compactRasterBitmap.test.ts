@@ -76,3 +76,30 @@ test("a small patch edits an old large reference without expanding it", () => {
   assert.equal(first.data[0], 20);
   assert.equal(second.data[0], 90);
 });
+
+// (Nov 14) The save path's box of painted pixels: the fast reader must give exactly the box the old pixel-by-pixel loop gave.
+test("paintedBounds = the old every-pixel loop (alpha > 0), on every kind of picture", async () => {
+  const { paintedBounds } = await import("./compactRasterBitmap.ts");
+  const slow = (data: Uint8ClampedArray, width: number, height: number) => {
+    let left = width, top = height, right = -1, bottom = -1;
+    for (let y = 0; y < height; y += 1) for (let x = 0; x < width; x += 1) {
+      if (data[(y * width + x) * 4 + 3] > 0) { left = Math.min(left, x); top = Math.min(top, y); right = Math.max(right, x); bottom = Math.max(bottom, y); }
+    }
+    return right < left || bottom < top ? null : { left, top, width: right - left + 1, height: bottom - top + 1 };
+  };
+  let state = 12345;
+  const random = (limit: number) => { state ^= state << 13; state ^= state >>> 17; state ^= state << 5; return (state >>> 0) % limit; };
+  for (let round = 0; round < 400; round += 1) {
+    const width = 1 + random(40), height = 1 + random(40);
+    const data = new Uint8ClampedArray(width * height * 4);
+    // Colour without alpha is NOT paint (the old loop looked at alpha only).
+    for (let i = 0; i < random(6); i += 1) data.set([200, 100, 50, 0], (random(height) * width + random(width)) * 4);
+    for (let i = 0; i < random(5); i += 1) data.set([random(256), random(256), random(256), 1 + random(255)], (random(height) * width + random(width)) * 4);
+    assert.deepEqual(paintedBounds(data, width, height), slow(data, width, height), `round ${round} (${width}x${height})`);
+  }
+  // A view that does not start on a 4-byte border (never an ImageData's, but never a wrong box either).
+  const shifted = new Uint8ClampedArray(new ArrayBuffer(4 * 12 + 1), 1, 4 * 12);
+  shifted.set([1, 2, 3, 9], (1 * 4 + 2) * 4);
+  assert.deepEqual(paintedBounds(shifted, 4, 3), { left: 2, top: 1, width: 1, height: 1 });
+  assert.equal(paintedBounds(new Uint8ClampedArray(0), 0, 0), null);
+});

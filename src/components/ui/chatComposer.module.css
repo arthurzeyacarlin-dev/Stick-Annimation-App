@@ -7,6 +7,7 @@
 .box textarea::placeholder { color: var(--da-c-6f8db4, #85858e); }
 .box textarea:disabled { opacity: .6; }
 .compact textarea { min-height: 38px; max-height: 96px; font-size: 13px; }
+.quiet textarea::placeholder { color: var(--da-c-6f8db4, #6f8db4); opacity: .6; } /* (Nov 11, Arthur) the AI Animator box: fainter placeholder words */
 
 .tools { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 6px; }
 .reasoning { display: flex; align-items: center; gap: 6px; min-width: 0; font-size: 12px; color: var(--da-muted, #a3a3ab); }

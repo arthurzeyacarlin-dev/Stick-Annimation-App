@@ -5,7 +5,7 @@ import type { ProjectLibrarySnapshot } from "@/src/lib/project-library/projectLi
 import { renderCanonicalExportFrame } from "@/src/lib/export/exportRenderer";
 import styles from "./projectLibrary.module.css";
 
-type Props = { project: ProjectLibrarySnapshot };
+type Props = { project: ProjectLibrarySnapshot; onRendered?: (imageUrl: string) => void };
 
 const posterCanvasSize = (stageWidth: number, stageHeight: number) => {
   const scale = Math.min(480 / Math.max(1, stageWidth), 270 / Math.max(1, stageHeight), 1);
@@ -15,7 +15,15 @@ const posterCanvasSize = (stageWidth: number, stageHeight: number) => {
   };
 };
 
-export function ProjectPoster({ project }: Props) {
+/** (Nov 15 night) the small picture kept from last time, shown at once while the project is still loading (homePosterStore.ts) */
+export function SavedPoster({ imageUrl, title }: { imageUrl: string; title: string }) {
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src={imageUrl} alt={`Preview of ${title}`} className={styles.posterImage} />;
+}
+
+export function ProjectPoster({ project, onRendered }: Props) {
+  const onRenderedRef = useRef(onRendered);
+  useEffect(() => { onRenderedRef.current = onRendered; }, [onRendered]);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);
@@ -30,7 +38,9 @@ export function ProjectPoster({ project }: Props) {
       .then(() => {
         if (!active) return;
         try {
-          setImageUrl(canvas.toDataURL("image/png"));
+          const url = canvas.toDataURL("image/png");
+          setImageUrl(url);
+          onRenderedRef.current?.(url);
         } catch {
           setFailed(true);
         }

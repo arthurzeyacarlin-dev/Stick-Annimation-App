@@ -1,0 +1,199 @@
+{
+ "stories": [
+  {
+   "label": "PM-written plan",
+   "sentence": "Red trips and falls, then gets back up, then waves",
+   "blocks": [
+    {
+     "say": "Red trips, falls down and gets back up.",
+     "sentence": "Red trips and falls, then gets back up",
+     "plan": {
+      "figures": [
+       {
+        "name": "Red",
+        "id": "red"
+       }
+      ],
+      "beats": [
+       {
+        "id": "trip",
+        "when": "start",
+        "who": "red",
+        "does": "move",
+        "move": "trips and falls, then gets back up"
+       }
+      ],
+      "unknown": []
+     },
+     "reuseScene": "mv2-3"
+    },
+    {
+     "say": "Red waves.",
+     "sentence": "Red waves",
+     "plan": {
+      "figures": [
+       {
+        "name": "Red",
+        "id": "red"
+       }
+      ],
+      "beats": [
+       {
+        "id": "wave",
+        "when": "start",
+        "who": "red",
+        "does": "move",
+        "move": "waves"
+       }
+      ],
+      "unknown": []
+     }
+    }
+   ]
+  },
+  {
+   "label": "PM-written plan",
+   "sentence": "Blue does jumping jacks, then does a forward roll",
+   "blocks": [
+    {
+     "say": "Blue does jumping jacks.",
+     "sentence": "Blue does jumping jacks",
+     "plan": {
+      "figures": [
+       {
+        "name": "Blue",
+        "id": "blue"
+       }
+      ],
+      "beats": [
+       {
+        "id": "jacks",
+        "when": "start",
+        "who": "blue",
+        "does": "move",
+        "move": "does jumping jacks"
+       }
+      ],
+      "unknown": []
+     }
+    },
+    {
+     "say": "Blue does a forward roll.",
+     "sentence": "Blue does a forward roll",
+     "plan": {
+      "figures": [
+       {
+        "name": "Blue",
+        "id": "blue"
+       }
+      ],
+      "beats": [
+       {
+        "id": "roll",
+        "when": "start",
+        "who": "blue",
+        "does": "move",
+        "move": "does a forward roll"
+       }
+      ],
+      "unknown": []
+     }
+    }
+   ]
+  },
+  {
+   "label": "PM-written plan",
+   "sentence": "Red sneaks up, then Blue does jumping jacks",
+   "blocks": [
+    {
+     "say": "Red sneaks up.",
+     "sentence": "Red sneaks up",
+     "reuseScene": "h3r3-c1",
+     "plan": {
+      "label": "PM-written plan",
+      "figures": [
+       {
+        "name": "Red",
+        "id": "red"
+       }
+      ],
+      "unknown": [],
+      "beats": [
+       {
+        "id": "sneak",
+        "when": "start",
+        "who": "red",
+        "does": "move",
+        "move": "sneaks up"
+       }
+      ]
+     }
+    },
+    {
+     "say": "Blue does jumping jacks (Red stays where block 1 ended).",
+     "sentence": "Blue does jumping jacks",
+     "reuseScene": "h3r3-c2",
+     "plan": {
+      "label": "PM-written plan",
+      "figures": [
+       {
+        "name": "Red",
+        "id": "red"
+       },
+       {
+        "name": "Blue",
+        "id": "blue"
+       }
+      ],
+      "unknown": [],
+      "beats": [
+       {
+        "id": "jacks",
+        "when": "start",
+        "who": "blue",
+        "does": "move",
+        "move": "does jumping jacks"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "label": "PM-written plan",
+   "sentence": "Blue throws a fireball at Red",
+   "blocks": [
+    {
+     "say": "Blue throws a fireball at Red.",
+     "sentence": "Blue throws a fireball at Red",
+     "reuseScene": "rdt-fb",
+     "plan": {
+      "label": "PM-written plan",
+      "figures": [
+       {
+        "name": "Red",
+        "id": "red"
+       },
+       {
+        "name": "Blue",
+        "id": "blue"
+       }
+      ],
+      "unknown": [],
+      "beats": [
+       {
+        "id": "ball",
+        "when": "start",
+        "who": "blue",
+        "does": "cast",
+        "kind": "fireball",
+        "from": "throw",
+        "target": "red"
+       }
+      ]
+     }
+    }
+   ]
+  }
+ ]
+}

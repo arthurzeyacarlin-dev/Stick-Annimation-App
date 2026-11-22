@@ -1,0 +1,51 @@
+{
+ "_": "TEST FIXTURES ONLY (Nov 2, Luna director): hand-labelled Luna director answers. 'sprint_ok' = the passed engine's cached director plan for this sentence (out/solid-sd/xlast/final/01-...director.json, label removed) with the nulls Luna writes in strict mode for unsaid fields; 'bad_no_beats' = a broken answer the checker rejects. No AI made these. (Nov 4) 'sprint_ok' beats also carry the planner's motion + real_moves (luna-director engineQuestion); the sprint = travel, 1 move.",
+ "sentence": "A stick figure sprints from one side of the screen to the other.",
+ "sprint_ok": {
+  "figures": [
+   {
+    "said_as": "A stick figure",
+    "name": "figure",
+    "id": "figure"
+   }
+  ],
+  "beats": [
+   {
+    "id": "sprint",
+    "when": "start",
+    "who": "figure",
+    "does": "move",
+    "move": "sprints from one side of the screen to the other",
+    "everyone": [
+     {
+      "who": "figure",
+      "body": "sprints forward fast",
+      "goes": "forward",
+      "of": "none",
+      "faces": "travel",
+      "touches": "none",
+      "effect": "none"
+     }
+    ],
+    "motion": "travel",
+    "real_moves": 1
+   }
+  ],
+  "unknown": [],
+  "label": null,
+  "floor": null
+ },
+ "bad_no_beats": {
+  "figures": [
+   {
+    "said_as": "A stick figure",
+    "name": "figure",
+    "id": "figure"
+   }
+  ],
+  "beats": [],
+  "unknown": [],
+  "label": null,
+  "floor": null
+ }
+}

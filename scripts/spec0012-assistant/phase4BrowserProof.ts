@@ -30,7 +30,7 @@ const metadataRecoveryProvider = createAssistantProvider(() => ({ create: async 
 } }));
 const jobs = new DiamondAssistantJobService(async (request, options) => {
   providerCalls++; captured.push(request); await pause(650);
-  if (decideAssistantSearch(request).mode === "required") {
+  if (decideAssistantSearch(request).mode === "auto") {
     return metadataRecoveryProvider(request, options);
   }
   await pause(350);

@@ -6,6 +6,7 @@ import {
   writeUnifiedProjectV2,
 } from "./unifiedProjectStorageV2.ts";
 import { sanitizeDrawingAiProjectMemory } from "../ai/drawingAiContract.ts";
+import { rasterCropOf } from "./rasterCropV1.ts";
 import { bindDrawingAiProjectMemoryToProject } from "../ai/drawingAiProjectMemory.ts";
 
 type UnifiedRepositoryStorageV2 = {
@@ -29,8 +30,16 @@ const announceEditorProjectIdentity = (project: UnifiedAnimationProjectV2) => {
 
 const sanitizeTitle = (title: string) => title.trim() || "Untitled Project";
 
+// (Nov 14) A copy of a project that SHARES its pictures' bytes. A long AI animation holds over 1 GB of pictures; a full
+// copy of them for every save (structuredClone) is what froze the page. Nothing here ever changes a picture. (A picture
+// the save has not copied out of its frame, rasterCropV1.ts, is passed on as it is.)
+const copyProject = <T>(value: T): T =>
+  value === null || typeof value !== "object" || ArrayBuffer.isView(value) || rasterCropOf(value) ? value
+    : Array.isArray(value) ? value.map(copyProject) as T
+    : Object.fromEntries(Object.entries(value).map(([key, entry]) => [key, copyProject(entry)])) as T;
+
 const rebindProject = (project: UnifiedAnimationProjectV2, projectId: string): UnifiedAnimationProjectV2 => {
-  const rebound = structuredClone(project);
+  const rebound = copyProject(project);
   rebound.projectId = projectId;
   rebound.document.projectId = projectId;
   if (rebound.auxiliary?.stickAiCreationLatch) rebound.auxiliary.stickAiCreationLatch.projectId = projectId;
@@ -59,7 +68,7 @@ export const createUnifiedProjectRepositoryV2 = (options: UnifiedProjectReposito
         candidate.provenance = { ...candidate.provenance!, adoptedAt: timestamp } as Extract<UnifiedAnimationProjectV2["provenance"], { kind: "legacy-adoption" }>;
         return storage.write(candidate, null);
       }
-      const candidate = structuredClone(project);
+      const candidate = copyProject(project);
       candidate.updatedAt = timestamp;
       candidate.revision = project.revision + 1;
       candidate.title = sanitizeTitle(candidate.title);
@@ -88,7 +97,7 @@ export const createUnifiedProjectRepositoryV2 = (options: UnifiedProjectReposito
     async rename(projectId: string, expectedRevision: number, expectedDigest: string, title: string) {
       const current = await storage.read(projectId);
       if (current.revision !== expectedRevision || await digestUnifiedProjectV2(current) !== expectedDigest) throw new Error("stale_revision");
-      const candidate = structuredClone(current);
+      const candidate = copyProject(current);
       candidate.title = title;
       candidate.updatedAt = now();
       candidate.revision = current.revision + 1;

@@ -1,5 +1,6 @@
 import { bitmapCenterOffset } from "./unifiedStageGeometry.ts";
 import { attachBitmapPaintCoverage, cropPaintCoverage, getBitmapPaintCoverage } from "./unifiedRasterPaintCoverageV1.ts";
+import { framePixels } from "./framePictureStore.ts";
 
 export const AUTHORING_CANVAS_BYTE_BUDGET = 32 * 1024 * 1024;
 export const AUTHORING_CANVAS_PIXEL_BUDGET = AUTHORING_CANVAS_BYTE_BUDGET / 4;
@@ -124,7 +125,9 @@ export const setAuthoringSurfaceViewport = (canvas: HTMLCanvasElement, viewport:
 export const getAuthoringSurfaceViewport = (canvas: HTMLCanvasElement | null | undefined) =>
   canvas ? canvasViewports.get(canvas) ?? null : null;
 
-const bitmapCanvas = (bitmap: ImageData) => {
+const bitmapCanvas = (picture: ImageData) => {
+  // (light memory) a packed picture is drawn from its unpacked stand-in; its ready-made canvas lives as long as that stand-in
+  const bitmap = framePixels(picture);
   let canvas = bitmapCanvases.get(bitmap);
   if (canvas) return canvas;
   canvas = document.createElement("canvas");
@@ -154,7 +157,7 @@ export const drawRasterBitmapToAuthoringSurface = (
     Math.abs(scaleX - 1) <= 1e-6 && Math.abs(scaleY - 1) <= 1e-6 &&
     Number.isInteger(targetLeft) && Number.isInteger(targetTop)
   ) {
-    ctx.putImageData(bitmap, targetLeft, targetTop);
+    ctx.putImageData(framePixels(bitmap), targetLeft, targetTop);
     return;
   }
   ctx.drawImage(
@@ -237,7 +240,7 @@ export const renderRasterBitmapsToAuthoringSurface = (
   if (!viewport) {
     for (const bitmap of bitmaps) {
       if (!bitmap) continue;
-      ctx.putImageData(bitmap, bitmapCenterOffset(canvas.width, bitmap.width), bitmapCenterOffset(canvas.height, bitmap.height));
+      ctx.putImageData(framePixels(bitmap), bitmapCenterOffset(canvas.width, bitmap.width), bitmapCenterOffset(canvas.height, bitmap.height));
     }
     ctx.restore();
     return;

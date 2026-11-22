@@ -23,7 +23,13 @@ export type V1PriceInput = {
   removeOnly?: boolean;
   /** One chat turn is part of the price, except for a long story's own next-part turns (the story paid it once). */
   chat?: boolean;
+  /** (Nov 22) an edit whose last clip ends the animation (an added part he asked for, or the whole animation made again): its settle second. */
+  ending?: boolean;
 };
+
+// (Nov 22, Arthur: "the credits always gotta pay for Sonnet and fal") measured: the last clip of a new animation or an added part is
+// made 1 s longer than its steps (kimodo/wan.py settle_s: room to come to rest), and fal is paid for it - 4 credits the price never held.
+export const END_SECONDS = 1;
 
 const seconds = (value: number | undefined) => Math.max(0, Number(value) || 0);
 
@@ -32,11 +38,11 @@ export function priceOf(input: V1PriceInput): V1Price {
   const rate = CREDIT_RATES.perSecond;
   const chat = input.chat === false ? 0 : AI_ACTION_CREDITS.chat;
   if (input.newSeconds !== undefined) {
-    return { credits: Math.ceil(rate * (seconds(input.newSeconds) + CREDIT_RATES.sceneSeconds) + chat), kind: "animation" };
+    return { credits: Math.ceil(rate * (seconds(input.newSeconds) + CREDIT_RATES.sceneSeconds + END_SECONDS) + chat), kind: "animation" };
   }
   const length = seconds(input.animationSeconds);
   // a new take makes the whole animation again, scene clip included: a new animation's price
-  const remade = input.newTake ? Math.max(length, seconds(input.remadeSeconds)) + CREDIT_RATES.sceneSeconds : seconds(input.remadeSeconds);
+  const remade = (input.newTake ? Math.max(length, seconds(input.remadeSeconds)) + CREDIT_RATES.sceneSeconds : seconds(input.remadeSeconds)) + (input.ending ? END_SECONDS : 0);
   const looks = (input.fillLooks ?? 0) * CREDIT_RATES.fillPerSecond * length + (input.redrawLooks ?? 0) * CREDIT_RATES.redrawPerSecond * length;
   const join = input.removeOnly && remade === 0 ? rate : 0;
   const credits = Math.ceil(rate * remade + looks + join + chat);

@@ -78,6 +78,7 @@ export type V1CoreDeps = {
   // (Nov 2, usage) the AI Dashboard's meter: the SAME credits + usage records as the Help Assistant (v1UsageMeter.ts). Absent = not metered.
   usage?: V1UsageHooks;
   gate?: boolean; // (Nov 11) true = a new animation waits at the gate card until confirm() (the app); absent = made at once (as before)
+  ownerAlert?: (key: string, text: string) => void; // (Nov 22) tells Arthur (his in-app inbox, once a day per key): the animator's provider refused
 };
 // creditsShort: the account's plain words when it cannot pay `credits` now, with `held` credits already held by its running and
 // waiting runs (null = it can); checked BEFORE the paid call. turnAnswered: one chat turn really answered (after the AI call).
@@ -1063,9 +1064,16 @@ export function createV1Animator(deps: V1CoreDeps) {
     const raw = rawNotes(job);
     // (a change the engine refused on purpose and said why, e.g. "That colour was not found ...": its own honest sentence)
     const own = !NO_VIDEO.test(raw) ? [...(report?.labels ?? []), ...(report?.blocks ?? []).flatMap((b) => b.labels ?? [])].map((x) => String(x).trim().replace(/[.\s]+$/, "")).find((x) => x.length > 0) : undefined;
-    const why = NO_MONEY.test(raw) ? "the animator's account (fal) has run out of money and has to be topped up"
-      : NO_CAP.test(raw) ? "the app's spending limit for the animator is reached"
-      : NO_SPACE.test(raw) ? "the computer that makes the animations is out of storage space"
+    // (Nov 22, plan hour 5: "if fal says no: a plain message, the credits given back, and an alert to you") the user is never told about
+    // our provider's money: a plain sentence (nothing is charged for a run that made nothing); Arthur is told in his inbox what to do
+    if (NO_MONEY.test(raw) || NO_CAP.test(raw)) {
+      try { deps.ownerAlert?.(NO_MONEY.test(raw) ? "ai-animator-fal-balance" : "ai-animator-fal-cap", NO_MONEY.test(raw)
+        ? "The AI Animator could not make an animation: fal says its balance is used up. Top up fal (dad's fal login) - users were told nothing was made and no credits were taken."
+        : "The AI Animator could not make an animation: the app's own fal spending cap is reached (ltx-effects/seedance/spend.json cap). Raise the cap - users were told nothing was made and no credits were taken."); } catch { /* the user's words below still go out */ }
+      return `The animator can't make animations right now. Nothing was made and no credits were taken - we've been told and are fixing it. Your animation is exactly as it was; please try again a little later.`
+        + (job.storyPart ? ` The rest of your story is kept: press "Make the rest of my story" when you are ready.` : "");
+    }
+    const why = NO_SPACE.test(raw) ? "the computer that makes the animations is out of storage space"
       : NO_VIDEO.test(raw) ? "the animator (H3) gave no video back for part of it, so nothing was kept"
       : own ?? "the animator could not make this change - nothing in the animation changed";   // (also a look change the engine refused on purpose: nothing changed)
     return `Nothing new was made - ${why}. Your animation is exactly as it was, and your next change starts from it.`
@@ -1769,6 +1777,7 @@ export function createV1Animator(deps: V1CoreDeps) {
         remadeSeconds: remade || (motionOps && !editSteps ? planSeconds(base.plan) : 0), added: added > 0, newTake: newLook,
         fillLooks: pictureLooks.filter((p) => lookKindOf(p) === "fill").length, redrawLooks: pictureLooks.filter((p) => lookKindOf(p) === "redraw").length,
         animationSeconds: planSeconds(base.plan), removeOnly: !madeAgain.length && (said.removeSteps?.length ?? 0) > 0, chat: false,   // (Nov 22) his answer was already paid when answered
+        ending: (added > 0 && !request.queued) || remakeAll,   // (Nov 22) its last clip ends the animation: the settle second fal is paid for
       });
       const payShort = creditsShortFor(request.ownerId, editPrice.credits);   // (Nov 11) never a card the account cannot pay for
       if (payShort) return { ok: false, status: 402, error: payShort };

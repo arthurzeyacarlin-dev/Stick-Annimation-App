@@ -270,7 +270,9 @@ test("(Nov 20) an edit that changed no picture made nothing: an honest failure w
   const snap = t.animator.get(ME.ownerId, ME.projectId, id)!;
   assert.equal(snap.versions[1].status, "failed", "nothing made is never a version");
   assert.equal(snap.current, 1, "the animation stays the last good version");
-  assert.match(String(snap.versions[1].message), /^Nothing new was made - the animator's account \(fal\) has run out of money/);
+  // (Nov 22, plan hour 5) the user gets plain words - never our provider's name or its money; Arthur gets the alert (ownerAlert)
+  assert.match(String(snap.versions[1].message), /^The animator can't make animations right now\. Nothing was made and no credits were taken/);
+  assert.doesNotMatch(String(snap.versions[1].message), /fal|top(ped)? up|balance/i);
 });
 
 // (Nov 20, Arthur: "it cuts off halfway") the app restarted between part 1 and part 2 of his story: the story goes on by itself from the
@@ -352,7 +354,7 @@ test("(Nov 20) a story part that got no video (fal had no money): the rest is KE
   assert.equal(held.current, 1, "the failed part is never a version");
   assert.equal(held.storyPartsHeld, 1, "the rest of the story is kept");
   assert.equal(held.storyPartsLeft, undefined, "nothing is being made: his box is free");
-  assert.match(String(held.versions[1].message), /run out of money.*press "Make the rest of my story"/);
+  assert.match(String(held.versions[1].message), /can't make animations right now.*press "Make the rest of my story"/);
   assert.equal(JSON.parse(readFileSync(`${dir}/story-pending.json`, "utf8")).held, true, "kept on disk too (a restart keeps it, never makes it by itself)");
   broke.on = false;   // (fal is topped up)
   const go = app.continueStory(ME.ownerId, ME.projectId, id);

@@ -1,8 +1,8 @@
 # Session Handoff
 
-## Nov 22 — READ FIRST
+## Nov 22 (evening) — READ FIRST
 
-The AI Animator is finished (D-0246). It is moving from `diamond-review/v1-single` into `diamond-review/money-main` (a copy of main), with main's gray look; then a full test, then main. Never change how animations are made or edited (the engine files are checked byte for byte against Arthur's passed backup).
+The AI Animator is in main (D-0247): the same code as `diamond-review/money-main`, behind its switches (`diamond-review/backups/start-main-ai.sh`: port 58680, its own accounts store on 58703). **Stripe = UNKNOWN and frozen** until dad's one real $9.99 Basic payment (tomorrow or later): no money code changes before it. Next: many people at once (TODO AI-MANY-PEOPLE), then the full test in main (TODO AI-MAIN-TEST). Never change how animations are made or edited (the engine files are checked byte for byte against Arthur's passed backup).
 
 ## MONEY SYSTEM — Nov 21 (PM) — READ FIRST
 

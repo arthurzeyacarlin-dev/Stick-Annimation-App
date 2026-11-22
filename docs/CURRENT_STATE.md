@@ -1,6 +1,10 @@
 # Current State
 
-## D-0246 — The AI Animator is finished and moves into main (current, 2026-11-22)
+## D-0247 — The AI Animator is in main; Stripe is UNKNOWN and paused (current, 2026-11-22)
+
+Main now has the finished AI Animator in main's gray look, with main's money system: the same code as the copy `diamond-review/money-main`, which keeps running on this Mac for dad's test. It runs behind its switches (`diamond-review/backups/start-main-ai.sh`); without them main looks as before. Credits pay the real AI cost once: the animator 4 credits a second (plus the settle second fal is paid for), Sonnet's reply at its real cost. The card shows Sonnet's short line per step with the exact animator words folded, and the real thinking steps ("Thinking", "Searching the web…", "Finalizing answer"). Payments are ready for the first real card payment: paying with a saved card always asks for the account password (packs, plans and paid plan switches; 5 wrong tries wait 15 minutes), at most 3 packs a day, and never "nothing was charged" after money moved. **STRIPE = UNKNOWN (sticky note):** no real card payment has been made yet; dad does the one $9.99 Basic test later (tomorrow or after, his choice). Until then the money code is frozen. Still open for the AI Animator: many people at once (today one animation at a time for everyone), the full test in main (edit, added part, save, open, export, phone), and hosting (an online server for the engine, the Stripe webhook).
+
+## D-0246 — The AI Animator is finished and moves into main (2026-11-22)
 
 Arthur passed the AI Animator (copy `diamond-review/v1-single`): making and editing any animation, the picture on the card before Animate (everything that will be in the animation, with a caption that looks can't change once animated), new beginnings asked first, looks fixed after Animate, short animations made again whole on a motion change, the even-rate playback fix, a progress bar that runs on real job times, and Sonnet reading requests the way a person pictures them. Next: the AI Animator moves into a copy of main (`diamond-review/money-main`), gets main's gray look, then becomes main after a full test. How animations are made and edited does not change; the engine stays outside the repo on this Mac.
 

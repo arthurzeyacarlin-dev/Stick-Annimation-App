@@ -1,10 +1,13 @@
 # TODO
 
-## AI Animator into main (D-0246, 2026-11-22)
+## AI Animator in main (D-0246, D-0247, 2026-11-22)
 
-- [ ] **AI-INTO-MAIN** — move the finished AI Animator from `diamond-review/v1-single` into `diamond-review/money-main`; main's look and money system win; old projects open, draw, save and open again.
-- [ ] **AI-LOOK** — the AI panel in main's gray look: button colours and hovers, a professional gray or blue thinking gradient, polished cards.
-- [ ] **AI-MAIN-TEST** — full test in the real app (new animation, edit, added part, save, open, export, phone), then main; push only on Arthur's word.
+- [ ] **STRIPE-UNKNOWN (sticky note, Nov 22)** — Stripe is UNKNOWN: no real card payment has been made. Dad does the one $9.99 Basic test (tomorrow or later, his choice; his step-by-step briefing is a Claude Doc Arthur has). Frozen until then: no money code changes. Same as LIVE-MONEY-PROOF.
+- [x] **AI-INTO-MAIN** — done 2026-11-22 (D-0247): main = the copy's code; main's look and money system won.
+- [x] **AI-LOOK** — done 2026-11-22: gray buttons and hovers, blue only on Animate, gray thinking shimmer, real thinking steps, a polished card.
+- [ ] **AI-MANY-PEOPLE** — many people at once: today the whole app makes ONE animation at a time, and a second person is told "Another animation is still being made". Needed: one animation per person, several people at the same time up to a set limit, and a fair waiting line ("You're number 3").
+- [ ] **AI-MAIN-TEST** — full test in the real app (new animation, edit, added part, save, open, export, phone).
+- [ ] **AI-HOSTING** — the engine needs an online server before strangers can use the AI Animator (together with LIVE-MONEY-HOST).
 
 ## Live money (D-0242, 2026-11-21)
 
@@ -12,7 +15,7 @@
 - [x] **LIVE-MONEY-KEYS (this Mac, done 2026-11-21, D-0244)** — the restricted live key "Diamond Animator app", the live public key and STRIPE_LIVE_OK=yes are in the private `.env.local` of main and of `diamond-review/money-main`. At hosting time the same three go into the online server's settings (never into chat or the repo).
 - [ ] **LIVE-MONEY-HOST** — the app must run online (hosting + account database) before strangers can pay; then add the Stripe webhook (STRIPE_WEBHOOK_SECRET) and the live codes (DIAMOND_FIRST50_CODE, DIAMOND_YOUTUBE_CODE).
 - [x] **LIVE-MONEY-STRIPE-SETTINGS (checked 2026-11-21)** — public name Diamond Animator, statement name DIAMOND ANIMATOR; all of Stripe's customer emails off (receipts, refunds, renewals, failed payments, expiring cards, 3-D Secure links); Smart Retries on (8 tries in 2 weeks, then the plan ends); Radar on.
-- [ ] **LIVE-MONEY-PROOF** — one real payment and one real refund in live mode before announcing.
+- [ ] **LIVE-MONEY-PROOF** — one real payment and one real refund in live mode before announcing. Stripe = UNKNOWN until then (STRIPE-UNKNOWN; dad's test, tomorrow or later).
 - [x] **EMAIL-FLOWS-ON (D-0245)** — done 2026-11-21 on Arthur's order: the welcome flow and the four follow-up flows (29 emails) are live in the email service. Proven from the main app: a new trial sign-up made the service send the first trial email 23 seconds later (to a made-up test address, so it bounced). Still open for dad: the free plan allows only 250 contacts and 500 sends a month; add a DMARC record and a branded sending domain; the trial emails' links go to diamondanimator.com until the app has its online address.
 - [ ] **EMAIL-PRIVACY (D-0245)** — the privacy and children's pages must say that app sign-ups' email addresses go to the email service (the website copy's pages mention it but are not pushed). Dad decides.
 - [ ] **PACKS-WEBSITE** — dad OKed the per-plan packs and the 1,500/day limit (2026-11-21); the website's pack line still lists the same 3 packs for every plan and should match the app.

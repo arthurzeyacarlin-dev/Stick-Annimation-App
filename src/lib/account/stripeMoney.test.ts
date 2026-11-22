@@ -685,3 +685,51 @@ test("32. real money on (Nov 21, '100% NOT test mode'): test-card plans, packs a
     delete process.env.STRIPE_LIVE_OK;
   }
 });
+
+test("33. (Nov 22, Arthur: 'a baby that tops up 15 times') the card on file is never one click: its id never reaches the browser, the server pays with it (after the password), at most 3 packs a day", async () => {
+  at(T0);
+  const o = "u_saved_card";
+  const { start: plan } = await buyInApp(o);
+  await billing.completePlanPayment(o, plan.ref);
+  const first = await billing.startPackPayment(o, "pack_100");
+  assert.equal(first.savedCard?.last4, "4242");
+  assert.equal((first.savedCard as unknown as Record<string, unknown>).id, undefined, "the saved card's id never reaches the browser");
+  assert.equal((await billing.payWithSavedCard(o, "pack", first.ref)).status, "succeeded");
+  assert.equal((await billing.payWithSavedCard(o, "pack", first.ref)).status, "succeeded", "pressed twice: still one payment");
+  await billing.completePackPayment(o, first.ref);
+  assert.equal(status(o).topUpCredits, 100);
+  assert.equal([...stripe.charges.values()].filter((charge) => charge.customer === customerOf(o) && charge.amount === 259).length, 1, "one pack, one charge");
+  await assert.rejects(billing.payWithSavedCard("someone_else", "pack", first.ref), /different account/);
+  // a declined saved card: plain words, nothing charged, and it may be tried again
+  const second = await billing.startPackPayment(o, "pack_100");
+  stripe.cardWorks = false;
+  await assert.rejects(billing.payWithSavedCard(o, "pack", second.ref), /wasn't accepted.*Nothing was charged/);
+  stripe.cardWorks = true;
+  assert.equal((await billing.payWithSavedCard(o, "pack", second.ref)).status, "succeeded");
+  await billing.completePackPayment(o, second.ref);
+  const third = await billing.startPackPayment(o, "pack_100");
+  await billing.payWithSavedCard(o, "pack", third.ref);
+  await billing.completePackPayment(o, third.ref);
+  assert.equal(status(o).topUpCredits, 300);
+  await assert.rejects(billing.startPackPayment(o, "pack_100"), /at most 3 credit packs can be bought in one day/, "the 4th pack in a day is refused before anything is charged");
+  at(T0 + 25 * 60 * 60 * 1000);
+  assert.ok((await billing.startPackPayment(o, "pack_100")).clientSecret, "the next day, packs can be bought again");
+});
+
+test("34. (Nov 22, Fable) Basic, then Pro, then Basic again within one minute: the last start is a fresh one that can really be paid, one plan, one charge", async () => {
+  at(T0);
+  const o = "u_flip_flop";
+  const basic = await billing.startPlanPayment(o, user(o), "starter", "month");
+  const pro = await billing.startPlanPayment(o, user(o), "creator", "month");
+  assert.equal(stripe.subs.get(basic.ref)!.status, "canceled", "the unpaid Basic start was stopped when Pro was picked");
+  const again = await billing.startPlanPayment(o, user(o), "starter", "month");
+  assert.notEqual(again.ref, basic.ref, "never the stopped start again");
+  assert.notEqual(stripe.subs.get(again.ref)!.status, "canceled");
+  assert.equal(stripe.subs.get(pro.ref)!.status, "canceled", "Pro was stopped when Basic was picked again");
+  stripe.cardFormPays(again.clientSecret!);
+  const done = await billing.completePlanPayment(o, again.ref);
+  assert.equal(done.kind === "plan" ? done.plan : null, "starter");
+  assert.deepEqual([status(o).plan, status(o).planCreditsLeft], ["starter", 470]);
+  assert.deepEqual([...stripe.charges.values()].filter((charge) => charge.customer === customerOf(o)).map((charge) => charge.amount), [999], "one plan, one charge");
+});
+

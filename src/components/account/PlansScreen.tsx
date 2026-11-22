@@ -254,6 +254,7 @@ function SwitchDialog({ target, current, onClose, onDone }: {
   const [preview, setPreview] = useState<SwitchPreview | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [password, setPassword] = useState("");   // (Nov 22) a switch that charges the saved card needs the account's password
   useEffect(() => {
     let alive = true;
     postBilling<{ preview: SwitchPreview }>("/api/account/billing/switch", { plan: target.plan, interval: target.interval })
@@ -267,7 +268,7 @@ function SwitchDialog({ target, current, onClose, onDone }: {
     setProblem(null);
     try {
       const { switched } = await postBilling<{ switched: { label: string; credits: number; paidCents: number; refundCents: number } }>(
-        "/api/account/billing/switch", { plan: target.plan, interval: target.interval, confirm: true });
+        "/api/account/billing/switch", { plan: target.plan, interval: target.interval, confirm: true, password });
       onDone(`You're on ${switched.label}! ${creditsText(switched.credits)} are ready.${switched.refundCents > 0 ? ` ${dollarsText(switched.refundCents)} of your last payment is on its way back to your card.` : ""}`);
     } catch (error) {
       setProblem(error instanceof Error ? error.message : "The switch didn't happen. Nothing changed. Try again.");
@@ -297,10 +298,15 @@ function SwitchDialog({ target, current, onClose, onDone }: {
           {preview.refundCents > 0 && <p className={styles.dialogText}>From your {current} payment: you paid {dollarsText(preview.paidCents)}, used {creditsText(preview.aiCostCents)} (that&apos;s {dollarsText(preview.aiCostCents)}) and the card fee was {dollarsText(preview.feeCents)}, so {dollarsText(preview.refundCents)} comes back. Refunds reach your card in about 5 to 10 days.</p>}
           {preview.packCredits > 0 && <p className={styles.dialogText}>Your {creditsText(preview.packCredits)} from packs stay.</p>}
           <p className={styles.dialogText}>It&apos;s paid with the card you already use. If the card is declined, nothing changes.</p>
+          {preview.chargeCents > 0 && <label className={styles.dialogLabel}>Your Diamond Animator password
+            <input className={styles.dialogInput} type="password" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete="current-password" placeholder="Your password" maxLength={256}
+              onKeyDown={(event) => { if (event.key === "Enter" && password && !busy) void confirm(); }} />
+            <span className={styles.dialogHint}>For your safety, paying with your saved card always asks for your password.</span>
+          </label>}
         </>}
         {problem && <p role="alert" className={styles.error}>{problem}</p>}
         <div className={styles.dialogButtons}>
-          <button type="button" className={styles.dialogPrimary} disabled={!preview || busy} onClick={() => void confirm()}>
+          <button type="button" className={styles.dialogPrimary} disabled={!preview || busy || (preview.chargeCents > 0 && !password)} onClick={() => void confirm()}>
             {busy ? "Switching" : preview ? `Switch now · pay ${dollarsText(preview.chargeCents)}` : "Switch now"}
           </button>
           <button type="button" className={styles.dialogPlain} disabled={busy} onClick={onClose}>Not now</button>

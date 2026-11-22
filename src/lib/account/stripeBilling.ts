@@ -755,8 +755,10 @@ export async function createTopUpCheckout(ownerId: string, user: BillingUser, pa
 }
 
 export type CheckoutResult =
-  | { kind: "plan"; plan: PaidPlanId; label: string; credits: number; interval: BillingInterval; billingStatus: string; waitingForPayment: boolean }
-  | { kind: "topup"; pack: string; credits: number; added: boolean };
+  | { kind: "plan"; plan: PaidPlanId; label: string; credits: number; interval: BillingInterval; billingStatus: string; waitingForPayment: boolean; arriving?: boolean }
+  | { kind: "topup"; pack: string; credits: number; added: boolean; arriving?: boolean };
+// (Nov 22, Fable's money check before dad's one real payment) arriving = the money really moved, the credits are a moment behind:
+// the person is told "your payment went through", never "nothing was charged, try again" (which could make them pay twice)
 
 /** After Stripe's page sends the person back: checks that page belongs to this account, then runs the sync (which applies
  *  it exactly once) and says what arrived. Safe to call any number of times. */
@@ -900,10 +902,14 @@ export async function closeBillingForDeletion(ownerId: string): Promise<Deletion
 export type CardPaymentStart = {
   /** What the card form confirms (a payment, or saving a card). Null when nothing has to be paid. */
   clientSecret: string | null; intent: "payment" | "setup"; ref: string; amountCents: number;
-  /** The card already on file (paying with it is one click), if any. */
-  savedCard: SavedCard | null;
+  /** The card already on file, if any: only its brand and last 4 digits (Nov 22: its id stays on the server; paying with it needs the password). */
+  savedCard: { brand: string; last4: string } | null;
 };
 export type SavedCard = { id: string; brand: string; last4: string };
+/** What the browser is told about the saved card: never its id. */
+const shownCard = (card: SavedCard | null) => (card ? { brand: card.brand, last4: card.last4 } : null);
+/** (Nov 22, Arthur: "a baby that tops up 15 times") at most this many credit packs in one day per account. */
+export const PACKS_PER_DAY = 3;
 
 const packCreditsOfIntent = (intent: StripePaymentIntent) => {
   const pack = TOP_UP_PACKS.find((entry) => entry.id === intent.metadata?.pack);
@@ -982,23 +988,36 @@ async function startPlanPaymentNow(ownerId: string, user: BillingUser, plan: unk
     const invoice = typeof sub.latest_invoice === "object" && sub.latest_invoice ? sub.latest_invoice as StripeInvoice & { payment_intent?: StripePaymentIntent | string | null } : null;
     const intent = invoice && typeof invoice.payment_intent === "object" ? invoice.payment_intent : null;
     if (choice?.plan === plan && choice.interval === interval && (sub.metadata?.offer ?? "none") === offerName && intent?.client_secret && intent.status !== "succeeded") {
-      return { clientSecret: intent.client_secret, intent: "payment", ref: sub.id, amountCents: intent.amount, savedCard: await savedCardOf(ownerId) };
+      return { clientSecret: intent.client_secret, intent: "payment", ref: sub.id, amountCents: intent.amount, savedCard: shownCard(await savedCardOf(ownerId)) };
     }
     await stopSubscription(sub.id, "cancel-unpaid-start");
   }
   await closeOpenPlanPages(customer, null);
   const discounts = offer.apply ? [{ promotion_code: await promotionCodeFor(offer.apply) }] : undefined;
-  const sub = await stripeRequest<StripeSubscription>("POST", "/subscriptions", {
+  let sub = await stripeRequest<StripeSubscription>("POST", "/subscriptions", {
     customer, items: [{ price: price.priceId }],
     payment_behavior: "default_incomplete",
     payment_settings: { save_default_payment_method: "on_subscription", payment_method_types: ["card"] },
     discounts, metadata: { owner_id: ownerId, plan, interval, offer: offerName },
     expand: ["latest_invoice.payment_intent"],
   }, idempotencyKey("app-plan", ownerId, plan, interval, offerName, Math.floor(Date.now() / 60_000)));
+  // (Nov 22, Fable: Basic, then Pro, then Basic again within one minute replayed the first start, which had been stopped - its payment
+  // could only fail) a stopped start is never handed out again: the next one is made, with a key that follows it
+  let made = sub;
+  for (let step = 0; step < 5; step++) {
+    const now = await stripeRequest<StripeSubscription>("GET", `/subscriptions/${encodeURIComponent(made.id)}`);
+    if (now.status !== "canceled" && now.status !== "incomplete_expired") break;
+    made = await stripeRequest<StripeSubscription>("POST", "/subscriptions", {
+      customer, items: [{ price: price.priceId }], payment_behavior: "default_incomplete",
+      payment_settings: { save_default_payment_method: "on_subscription", payment_method_types: ["card"] },
+      discounts, metadata: { owner_id: ownerId, plan, interval, offer: offerName }, expand: ["latest_invoice.payment_intent"],
+    }, idempotencyKey("app-plan", ownerId, plan, interval, offerName, Math.floor(Date.now() / 60_000), "after", made.id));
+  }
+  sub = made;
   startBillingSweeper();
   const invoice = typeof sub.latest_invoice === "object" && sub.latest_invoice ? sub.latest_invoice as StripeInvoice & { payment_intent?: StripePaymentIntent | string | null; amount_due?: number } : null;
   const intent = invoice && typeof invoice.payment_intent === "object" ? invoice.payment_intent : null;
-  return { clientSecret: intent?.client_secret ?? null, intent: "payment", ref: sub.id, amountCents: intent?.amount ?? invoice?.amount_due ?? 0, savedCard: await savedCardOf(ownerId) };
+  return { clientSecret: intent?.client_secret ?? null, intent: "payment", ref: sub.id, amountCents: intent?.amount ?? invoice?.amount_due ?? 0, savedCard: shownCard(await savedCardOf(ownerId)) };
 }
 
 /** After the card form says it's paid: checks with Stripe (the sync) and says what arrived. Safe to call any number of times. */
@@ -1007,10 +1026,27 @@ export async function completePlanPayment(ownerId: string, subscriptionId: unkno
   if (typeof subscriptionId !== "string" || !/^sub_[A-Za-z0-9_]{6,200}$/.test(subscriptionId)) throw new BillingError("That payment couldn't be found.", 404);
   const sub = await stripeRequest<StripeSubscription>("GET", `/subscriptions/${encodeURIComponent(subscriptionId)}`);
   if (sub.metadata?.owner_id !== ownerId || idOf(sub.customer) !== readAccountBillingIds(ownerId).customerId) throw new BillingError("That payment belongs to a different account.", 403);
-  await syncWithStripe(ownerId, { force: true });
-  const status = getAccountPlanStatus(ownerId);
+  // (Nov 22) the payment company can take a moment to mark a just-paid plan active: checked again for about 6 seconds
+  let status = getAccountPlanStatus(ownerId);
+  for (let tries = 0; tries < 4; tries++) {
+    await syncWithStripe(ownerId, { force: true });
+    status = getAccountPlanStatus(ownerId);
+    if (isPaidPlanId(status.plan)) break;
+    if (tries < 3) await new Promise((done) => setTimeout(done, 2000));
+  }
   const plan = isPaidPlanId(status.plan) ? status.plan : subscriptionPlan(sub)?.plan ?? null;
-  if (!plan || status.plan === "trial") throw new BillingError("Your payment didn't go through yet. Nothing was charged. Try again.", 409);
+  if (!plan || status.plan === "trial") {
+    // the money moved but the plan is not saved yet: say so - the next check (at the latest the next page load) gives it, once
+    const again = await stripeRequest<StripeSubscription>("GET", `/subscriptions/${encodeURIComponent(subscriptionId)}`, { expand: ["latest_invoice.payment_intent"] });
+    const invoice = typeof again.latest_invoice === "object" && again.latest_invoice ? again.latest_invoice as StripeInvoice & { payment_intent?: StripePaymentIntent | string | null } : null;
+    const intent = invoice && typeof invoice.payment_intent === "object" ? invoice.payment_intent : null;
+    const chosen = subscriptionPlan(again)?.plan ?? null;
+    if (chosen && (intent?.status === "succeeded" || intent?.status === "processing" || invoice?.status === "paid")) {
+      return { kind: "plan", plan: chosen, label: ACCOUNT_PLANS[chosen].label, credits: ACCOUNT_PLANS[chosen].credits, interval: subscriptionPlan(again)?.interval ?? PLAN_CYCLE,
+        billingStatus: again.status, waitingForPayment: true, arriving: true };
+    }
+    throw new BillingError("Your payment didn't go through yet. Nothing was charged. Try again.", 409);
+  }
   return {
     kind: "plan", plan, label: ACCOUNT_PLANS[plan].label, credits: status.creditsTotal || ACCOUNT_PLANS[plan].credits,
     interval: status.interval ?? PLAN_CYCLE, billingStatus: status.billingStatus, waitingForPayment: status.waitingForPayment,
@@ -1031,15 +1067,29 @@ async function startPackPaymentNow(ownerId: string, packId: unknown): Promise<Ca
   if (status.billingStatus === "past_due") throw new BillingError("Your last payment didn't go through. Change your card first.", 409);
   const pack = TOP_UP_PACKS.find((entry) => entry.id === packId)!;
   if (!(pack.plans as readonly string[]).includes(status.plan)) throw new BillingError("That pack isn't on your plan. Pick one of the packs shown.", 403);
+  const dayAgo = Date.now() - 24 * 60 * 60 * 1000;
+  if (listPayments(ownerId).filter((payment) => payment.kind === "pack" && payment.paidAt >= dayAgo).length >= PACKS_PER_DAY) {
+    throw new BillingError(`For your safety, at most ${PACKS_PER_DAY} credit packs can be bought in one day. You can buy more tomorrow. Nothing was charged.`, 429);
+  }
   const { customerId } = readAccountBillingIds(ownerId);
   if (!customerId) throw new BillingError("Choose a plan first.", 409);
-  const intent = await stripeRequest<StripePaymentIntent>("POST", "/payment_intents", {
+  const packParams = {
     amount: Math.round(pack.usd * 100), currency: "usd", customer: customerId, payment_method_types: ["card"],
     description: `Diamond Animator: ${creditsText(pack.credits)}`,
     metadata: { owner_id: ownerId, kind: "topup", pack: pack.id, credits: pack.credits },
-  }, idempotencyKey("app-pack", ownerId, pack.id, Math.floor(Date.now() / 60_000)));
+  };
+  const minute = Math.floor(Date.now() / 60_000);
+  let intent = await stripeRequest<StripePaymentIntent>("POST", "/payment_intents", packParams, idempotencyKey("app-pack", ownerId, pack.id, minute));
+  // (Nov 22) a double click shares the minute's payment; but once that payment is PAID, a second pack in the same minute is a new
+  // purchase on purpose - never the old, already-paid payment again (that said "added" and added nothing)
+  // (a repeated request gets Stripe's FIRST answer back, "not paid yet": its state now is read before it is reused)
+  for (let step = 0; step < PACKS_PER_DAY + 2; step++) {   // (each paid one points to the next: pack 1, then 2, then 3 in the same minute)
+    const now = await stripeRequest<StripePaymentIntent>("GET", `/payment_intents/${encodeURIComponent(intent.id)}`);
+    if (now.status !== "succeeded" && now.status !== "processing") break;
+    intent = await stripeRequest<StripePaymentIntent>("POST", "/payment_intents", packParams, idempotencyKey("app-pack", ownerId, pack.id, minute, "after", intent.id));
+  }
   startBillingSweeper();
-  return { clientSecret: intent.client_secret ?? null, intent: "payment", ref: intent.id, amountCents: intent.amount, savedCard: await savedCardOf(ownerId) };
+  return { clientSecret: intent.client_secret ?? null, intent: "payment", ref: intent.id, amountCents: intent.amount, savedCard: shownCard(await savedCardOf(ownerId)) };
 }
 
 /** After the card form says the pack is paid: added exactly once (also by the sync, if this is never called). */
@@ -1048,9 +1098,43 @@ export async function completePackPayment(ownerId: string, paymentIntentId: unkn
   if (typeof paymentIntentId !== "string" || !/^pi_[A-Za-z0-9_]{6,200}$/.test(paymentIntentId)) throw new BillingError("That payment couldn't be found.", 404);
   const intent = await stripeRequest<StripePaymentIntent>("GET", `/payment_intents/${encodeURIComponent(paymentIntentId)}`);
   if (intent.metadata?.owner_id !== ownerId || intent.metadata?.kind !== "topup") throw new BillingError("That payment belongs to a different account.", 403);
+  if (intent.status === "processing") return { kind: "topup", pack: intent.metadata?.pack ?? "", credits: packCreditsOfIntent(intent), added: false, arriving: true };   // (Nov 22) paid, the bank is still finishing: the sync adds it, once
   if (intent.status !== "succeeded") throw new BillingError("That payment didn't go through. Nothing was charged.", 409);
   applyPackIntent(ownerId, intent);
   return { kind: "topup", pack: intent.metadata?.pack ?? "", credits: packCreditsOfIntent(intent), added: listPayments(ownerId).some((payment) => payment.stripeId === intent.id) };
+}
+
+// (Nov 22, Arthur: "if we do top up, there needs to be a verification ... a stranger, a hacker or a baby that tops up 15 times")
+// A SAVED CARD IS NEVER ONE CLICK. The card on file is used only here, on the server, after the pay route checked the account's
+// password; its id never reaches the browser, so a page cannot pay with it by itself. A typed card is its own proof (the old way).
+// The same payment pressed twice is one charge (a payment can only ever be paid once). 3-D Secure still works: when the bank asks, the browser
+// finishes it with the payment's own secret.
+export async function payWithSavedCard(ownerId: string, kind: unknown, ref: unknown): Promise<{ status: string; clientSecret: string | null }> {
+  stripeKey();
+  let intent: StripePaymentIntent | null = null;
+  if (kind === "pack") {
+    if (typeof ref !== "string" || !/^pi_[A-Za-z0-9_]{6,200}$/.test(ref)) throw new BillingError("That payment couldn't be found. Nothing was charged.", 404);
+    intent = await stripeRequest<StripePaymentIntent>("GET", `/payment_intents/${encodeURIComponent(ref)}`);
+    if (intent.metadata?.owner_id !== ownerId || intent.metadata?.kind !== "topup") throw new BillingError("That payment belongs to a different account.", 403);
+  } else if (kind === "plan") {
+    if (typeof ref !== "string" || !/^sub_[A-Za-z0-9_]{6,200}$/.test(ref)) throw new BillingError("That payment couldn't be found. Nothing was charged.", 404);
+    const sub = await stripeRequest<StripeSubscription>("GET", `/subscriptions/${encodeURIComponent(ref)}`, { expand: ["latest_invoice.payment_intent"] });
+    if (sub.metadata?.owner_id !== ownerId || idOf(sub.customer) !== readAccountBillingIds(ownerId).customerId) throw new BillingError("That payment belongs to a different account.", 403);
+    const invoice = typeof sub.latest_invoice === "object" && sub.latest_invoice ? sub.latest_invoice as StripeInvoice & { payment_intent?: StripePaymentIntent | string | null } : null;
+    intent = invoice && typeof invoice.payment_intent === "object" ? invoice.payment_intent : null;
+    if (!intent) throw new BillingError("That payment couldn't be found. Nothing was charged.", 404);
+  } else throw new BillingError("Unknown payment.", 400);
+  if (intent.status === "succeeded") return { status: "succeeded", clientSecret: null };
+  const card = await savedCardOf(ownerId);
+  if (!card) throw new BillingError("Your saved card couldn't be found. Use a different card. Nothing was charged.", 409);
+  try {
+    const confirmed = await stripeRequest<StripePaymentIntent>("POST", `/payment_intents/${encodeURIComponent(intent.id)}/confirm`,
+      { payment_method: card.id, use_stripe_sdk: true });   // (one payment can only ever be paid once: pressing twice is never two charges; a declined card may be tried again)
+    return { status: confirmed.status, clientSecret: confirmed.client_secret ?? null };
+  } catch (error) {
+    if (error instanceof StripeApiError && error.httpStatus === 402) throw new BillingError("Your card wasn't accepted. Nothing was charged. Try a different card.", 402);
+    throw error;
+  }
 }
 
 /** Starts saving a new card IN THE APP (nothing is charged). */

@@ -29,6 +29,7 @@ export class FakeStripe {
   down = false;
   /** The person's card works (false = declined). */
   cardWorks = true;
+  savedConfirms = 0;   // (Nov 22) how many times the server paid with the card on file
   calls: { method: string; path: string; key: string | null }[] = [];
   /** Plan changes made through the subscription update (counts them), and schedules let go. */
   switches = 0;
@@ -202,6 +203,16 @@ export class FakeStripe {
     if (a === "payment_intents" && !b && method === "POST") {
       const meta = Object.fromEntries([...p.entries()].filter(([k]) => k.startsWith("metadata[")).map(([k, v]) => [k.slice(9, -1), v]));
       return [200, structuredClone(this.newIntent(p.get("customer")!, Number(p.get("amount")), { metadata: meta }))];
+    }
+    // (Nov 22) the app's server pays with the card on file (after the password): confirms the payment with that card
+    if (a === "payment_intents" && b && c === "confirm" && method === "POST") {
+      const intent = this.intents.get(b);
+      if (!intent) return missing();
+      if (intent.status === "succeeded") return [200, structuredClone(intent)];
+      this.savedConfirms = (this.savedConfirms ?? 0) + 1;
+      if (!this.cardWorks) return [402, { error: { type: "card_error", code: "card_declined" } }] as const;
+      this.cardFormPays(intent.client_secret);
+      return [200, structuredClone(this.intents.get(b))];
     }
     if (a === "payment_intents" && b && method === "GET") return this.intents.has(b) ? [200, structuredClone(this.intents.get(b))] : missing();
     if (a === "payment_intents" && !b && method === "GET") {

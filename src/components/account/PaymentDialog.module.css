@@ -22,6 +22,7 @@
 .box[data-focus="true"], .input:focus { outline: none; border-color: var(--da-accent); box-shadow: 0 0 0 3px rgba(0, 102, 255, .22); }
 .input { width: 100%; color: var(--da-text); font: inherit; font-size: 15px; font-weight: 500; }
 .input::placeholder { color: var(--da-label, #85858e); }
+.hint { color: var(--da-label, #85858e); font-size: 12px; font-weight: 400; line-height: 1.4; }   /* (Nov 22) the saved card password note */
 .test { margin: 0; color: var(--da-muted); font-size: 13px; }
 .problem { margin: 0; color: var(--da-danger); font-size: 14px; line-height: 1.45; }
 .buttons { display: grid; gap: 8px; margin-top: 2px; }

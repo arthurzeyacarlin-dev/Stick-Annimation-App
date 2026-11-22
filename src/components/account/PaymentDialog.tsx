@@ -16,8 +16,8 @@ export type PaymentFor =
   | { kind: "pack"; pack: TopUpPackId }
   | { kind: "card" };
 
-type Start = { clientSecret: string | null; intent: "payment" | "setup"; ref: string; amountCents: number; savedCard: { id: string; brand: string; last4: string } | null };
-type PlanDone = { status: { kind: string; label?: string; credits: number; waitingForPayment?: boolean } };
+type Start = { clientSecret: string | null; intent: "payment" | "setup"; ref: string; amountCents: number; savedCard: { brand: string; last4: string } | null };   // (Nov 22) the saved card's id never comes to the browser
+type PlanDone = { status: { kind: string; label?: string; credits: number; waitingForPayment?: boolean; arriving?: boolean; added?: boolean } };
 
 // The same start asked twice at once (the page drawing twice, a double click) shares ONE answer, so it is one payment.
 const starts = new Map<string, Promise<Start>>();
@@ -69,13 +69,28 @@ const nextPaymentDay = (interval: BillingInterval) => {
   return date.toLocaleDateString("en-US", { month: "long", day: "numeric", timeZone: "UTC" });
 };
 
-export function PaymentDialog({ payFor, onClose, onDone }: { payFor: PaymentFor; onClose: () => void; onDone: (words: string) => void }) {
+// (Nov 22, Fable's money check) after a real payment: one more fresh check with the payment company a few seconds later, and every
+// credits counter reads again - a plan or pack that was a moment behind shows without waiting for the minute's check
+function checkAgainSoon() {
+  window.setTimeout(() => {
+    void fetch("/api/account/plan?fresh=1", { cache: "no-store" }).catch(() => undefined)
+      .finally(() => window.dispatchEvent(new Event("diamond-account-plan-changed")));
+  }, 5000);
+}
+
+export function PaymentDialog({ payFor, onClose: close, onDone: done }: { payFor: PaymentFor; onClose: () => void; onDone: (words: string) => void }) {
   const billing = useBillingInfo();
   const [start, setStart] = useState<Start | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [useSaved, setUseSaved] = useState(true);
   const [name, setName] = useState("");
+  const [password, setPassword] = useState("");   // (Nov 22) paying with the saved card needs the account's password
+  // (Nov 22, Fable's money check) once the money really moved, this dialog never pays again and never says "nothing was charged"
+  const paidRef = useRef(false);
+  const [paid, setPaid] = useState(false);
+  const onClose = () => { if (paidRef.current) checkAgainSoon(); close(); };
+  const onDone = (words: string) => { if (paidRef.current) checkAgainSoon(); done(words); };
   const [ready, setReady] = useState({ number: false, expiry: false, cvc: false });
   const [focus, setFocus] = useState<"number" | "expiry" | "cvc" | null>(null);
   const numberRef = useRef<HTMLDivElement | null>(null);
@@ -129,41 +144,68 @@ export function PaymentDialog({ payFor, onClose, onDone }: { payFor: PaymentFor;
     setBusy(true);
     setProblem(null);
     try {
-      if (start.clientSecret) {
+      if (start.clientSecret && !paidRef.current) {
         await loadCardScript();
         cardScript.current ??= window.Stripe ? window.Stripe(billing.cardKey!) : null;
         if (!cardScript.current) throw new Error("The card form couldn't load. Nothing was charged. Try again.");
-        const card = useSaved && start.savedCard ? start.savedCard.id : { card: numberField.current, billing_details: { name: name.trim() || undefined } };
-        const result = start.intent === "setup"
-          ? await cardScript.current.confirmCardSetup(start.clientSecret, { payment_method: card })
-          : await cardScript.current.confirmCardPayment(start.clientSecret, { payment_method: card });
-        if (result.error) throw new Error(`${result.error.message ?? "Your card wasn't accepted."} Nothing was charged.`);
-      }
-      if (payFor.kind === "plan") {
-        const { status } = await postBilling<PlanDone>("/api/account/billing/pay", { step: "done", kind: "plan", ref: start.ref });
-        onDone(status.waitingForPayment
-          ? `You're on ${status.label}! Your ${creditsText(status.credits)} come the moment your payment goes through.`
-          : `You're on ${status.label}! ${creditsText(status.credits)} are ready.`);
-      } else if (payFor.kind === "pack") {
-        const { status } = await postBilling<PlanDone>("/api/account/billing/pay", { step: "done", kind: "pack", ref: start.ref });
-        onDone(`${creditsText(status.credits)} added. They never expire.`);
-      } else {
-        const result = await postBilling<{ paymentProblem: boolean }>("/api/account/billing/pay", { step: "done", kind: "card", ref: start.ref });
-        onDone(result.paymentProblem ? "Your new card is saved, but the payment still didn't go through. Try another card." : "Your new card is saved. Every payment uses it from now on.");
+        if (useSaved && start.savedCard && payFor.kind !== "card") {
+          // (Nov 22, Arthur: "there needs to be a verification ... a stranger or a baby that tops up 15 times") the saved card is charged by
+          // the app's server, and only after it checked the password; when the bank asks (3-D Secure) the card form finishes it here
+          const saved = await postBilling<{ status: string; clientSecret: string | null }>("/api/account/billing/pay", { step: "saved", kind: payFor.kind, ref: start.ref, password });
+          if (saved.status === "requires_action" && saved.clientSecret) {
+            const bank = await cardScript.current.confirmCardPayment(saved.clientSecret, {});
+            if (bank.error) throw new Error(`${bank.error.message ?? "Your bank didn't confirm the payment."} Nothing was charged.`);
+          } else if (saved.status !== "succeeded" && saved.status !== "processing") throw new Error("Your card wasn't accepted. Nothing was charged. Try a different card.");
+        } else {
+          const card = { card: numberField.current, billing_details: { name: name.trim() || undefined } };
+          const result = start.intent === "setup"
+            ? await cardScript.current.confirmCardSetup(start.clientSecret, { payment_method: card })
+            : await cardScript.current.confirmCardPayment(start.clientSecret, { payment_method: card });
+          if (result.error) throw new Error(`${result.error.message ?? "Your card wasn't accepted."} Nothing was charged.`);
+        }
+        paidRef.current = true;
+        setPaid(true);
       }
     } catch (error) {
       setProblem(error instanceof Error ? error.message : "That didn't go through. Nothing was charged. Try again.");
       setBusy(false);
+      return;
+    }
+    // the money moved (or nothing had to be paid): the app's server says what arrived - asked again on a hiccup, never paid again
+    for (let attempt = 0; ; attempt++) {
+      try {
+        if (payFor.kind === "plan") {
+          const { status } = await postBilling<PlanDone>("/api/account/billing/pay", { step: "done", kind: "plan", ref: start.ref });
+          onDone(status.arriving ? `Your payment went through! You're on ${status.label}, and your ${creditsText(status.credits)} arrive within a minute.`
+            : status.waitingForPayment ? `You're on ${status.label}! Your ${creditsText(status.credits)} come the moment your payment goes through.`
+            : `You're on ${status.label}! ${creditsText(status.credits)} are ready.`);
+        } else if (payFor.kind === "pack") {
+          const { status } = await postBilling<PlanDone>("/api/account/billing/pay", { step: "done", kind: "pack", ref: start.ref });
+          onDone(status.arriving ? `Your payment went through! Your ${creditsText(status.credits)} arrive within a minute. They never expire.` : `${creditsText(status.credits)} added. They never expire.`);
+        } else {
+          const result = await postBilling<{ paymentProblem: boolean }>("/api/account/billing/pay", { step: "done", kind: "card", ref: start.ref });
+          onDone(result.paymentProblem ? "Your new card is saved, but the payment still didn't go through. Try another card." : "Your new card is saved. Every payment uses it from now on.");
+        }
+        return;
+      } catch (error) {
+        if (paidRef.current && attempt < 2) { await new Promise((done) => window.setTimeout(done, 2000)); continue; }
+        setProblem(paidRef.current
+          ? "Your payment went through. Your credits will show within a minute - please don't pay again. If they don't show, reload the page."
+          : error instanceof Error ? error.message : "That didn't go through. Nothing was charged. Try again.");
+        setBusy(false);
+        return;
+      }
     }
   };
 
   const title = payFor.kind === "plan" ? `Pay for ${ACCOUNT_PLANS[payFor.plan].label}`
     : payFor.kind === "pack" ? `Buy ${creditsText(TOP_UP_PACKS.find((pack) => pack.id === payFor.pack)?.credits ?? 0)}` : "Change your card";
   const typedReady = ready.number && ready.expiry && ready.cvc;
-  const canSubmit = Boolean(start) && !busy && Boolean(billing.cardKey) && (useSaved && start?.savedCard ? true : typedReady);
+  const usingSaved = Boolean(useSaved && start?.savedCard && payFor.kind !== "card");
+  const canSubmit = Boolean(start) && !busy && Boolean(billing.cardKey) && (paid || (usingSaved ? password.length > 0 : typedReady));
   const amount = start ? dollarsText(start.amountCents) : "";
-  const label = busy ? (payFor.kind === "card" ? "Saving" : "Paying")
-    : payFor.kind === "card" ? "Save card" : start ? `Pay ${amount}` : "Pay";
+  const label = busy ? (paid ? "Checking" : payFor.kind === "card" ? "Saving" : "Paying")
+    : paid ? "Check again" : payFor.kind === "card" ? "Save card" : start ? `Pay ${amount}` : "Pay";
 
   return (
     <div className={styles.backdrop} role="dialog" aria-modal="true" aria-labelledby="pay-title" onClick={(event) => { if (event.target === event.currentTarget && !busy) onClose(); }}>
@@ -193,6 +235,12 @@ export function PaymentDialog({ payFor, onClose, onDone }: { payFor: PaymentFor;
             <span>Use a different card</span>
           </button>
         </div>}
+
+        {usingSaved && <label className={styles.label}>Your Diamond Animator password
+          <input className={styles.input} type="password" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete="current-password" placeholder="Your password" maxLength={256}
+            onKeyDown={(event) => { if (event.key === "Enter" && canSubmit) void pay(); }} />
+          <span className={styles.hint}>For your safety, paying with your saved card always asks for your password.</span>
+        </label>}
 
         {start && !billing.cardKey && billing.mode !== null && !showCardBoxes && <p className={styles.problem} role="alert">Card payments aren&apos;t set up yet. Nothing was charged.</p>}
         {start && showCardBoxes && (billing.cardKey ? <div className={styles.card}>

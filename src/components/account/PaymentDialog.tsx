@@ -75,7 +75,7 @@ function checkAgainSoon() {
   window.setTimeout(() => {
     void fetch("/api/account/plan?fresh=1", { cache: "no-store" }).catch(() => undefined)
       .finally(() => window.dispatchEvent(new Event("diamond-account-plan-changed")));
-  }, 5000);
+  }, 12000);   // (after the server's 10-second gap between fresh checks, so this one really asks)
 }
 
 export function PaymentDialog({ payFor, onClose: close, onDone: done }: { payFor: PaymentFor; onClose: () => void; onDone: (words: string) => void }) {
@@ -189,8 +189,8 @@ export function PaymentDialog({ payFor, onClose: close, onDone: done }: { payFor
         return;
       } catch (error) {
         if (paidRef.current && attempt < 2) { await new Promise((done) => window.setTimeout(done, 2000)); continue; }
-        setProblem(paidRef.current
-          ? "Your payment went through. Your credits will show within a minute - please don't pay again. If they don't show, reload the page."
+        setProblem(paidRef.current && payFor.kind === "card" ? "Your new card is saved. Reload the page to see it."
+          : paidRef.current ? "Your payment went through. Your credits will show within a minute - please don't pay again. If they don't show, reload the page."
           : error instanceof Error ? error.message : "That didn't go through. Nothing was charged. Try again.");
         setBusy(false);
         return;

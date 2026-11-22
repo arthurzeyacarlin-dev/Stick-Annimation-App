@@ -18,7 +18,11 @@ export async function passwordCheck(request: Request, ownerId: string, password:
     await auth.api.verifyPassword({ body: { password: password.slice(0, 256) }, headers: request.headers });
     wrong.delete(ownerId);
     return { ok: true };
-  } catch {
+  } catch (error) {
+    // only a wrong password counts toward the wait; a hiccup of the login system never locks the box
+    const said = error as { body?: { code?: string; message?: string }; message?: string } | null;
+    const isWrong = said?.body?.code === "INVALID_PASSWORD" || /invalid password/i.test(String(said?.body?.message ?? said?.message ?? ""));
+    if (!isWrong) return { ok: false, error: "Your password couldn't be checked just now. Nothing was charged. Try again in a moment.", status: 503 };
     recent.push(now);
     wrong.set(ownerId, recent);
     return { ok: false, error: "That password isn't right. Nothing was charged.", status: 403 };

@@ -19,6 +19,7 @@ import { useAccountPlan } from "@/src/components/account/useAccountPlan";
 import { V1OutOfCreditsCard, announceAccountPlanChanged, v1OutOfCreditsView } from "./V1OutOfCreditsCard";
 import { SHORT_ANIMATION_CREDITS } from "@/src/lib/account/plans";
 import { creditsText } from "@/src/lib/account/credits";
+import { sendAiStatus } from "../aiDock";
 
 // AI Animator VERSION 1 panel (switch NEXT_PUBLIC_DIAMOND_V1_ANIMATOR=1, default OFF — off, DrawingAiPanel is exactly
 // today's). Chat with Luna; ONE stick figure lands on the canvas as an editable "AI:" layer; edits replace that layer's
@@ -130,6 +131,12 @@ export function V1AnimatorChat({ projectId, copiedFrom, bridge, readOnly, Reply,
   };
   const onRevealed = useCallback((messageId: string) => controllerRef.current?.revealed(v1LineIdFromReply(messageId)), []);
 
+  // (Nov 22, layouts) the editor's top bar shows what the AI Animator is doing - a look only; nothing here changes what it does
+  const waitingGate = state.lines.some((l) => l.kind === "gate" && l.state === "waiting");
+  useEffect(() => {
+    sendAiStatus({ busy: state.busy, phase: state.thinking?.phase ?? null, pct: state.progress?.pct ?? null, part: state.progress?.part ?? null, waiting: waitingGate });
+  }, [state.busy, state.thinking?.phase, state.progress?.pct, state.progress?.part, waitingGate]);
+
   const dictationActive = dictation.phase !== "idle";
   const started = state.lines.length > 0 || Boolean(state.busy);
 
@@ -144,13 +151,13 @@ export function V1AnimatorChat({ projectId, copiedFrom, bridge, readOnly, Reply,
             <div className="drawing-ai-empty">
               <span className="drawing-ai-logo" aria-hidden="true"><DiamondLogo size={48} /></span>
               <strong>AI Animator</strong>
-              <span className="drawing-ai-empty-text">Tell him what your stick figure should do, in plain words. He puts it on the canvas as its own layer, and you can change any move after.</span>
+              <span className="drawing-ai-empty-text">Tell him what should happen, in plain words. He puts it on the canvas as its own layer, and you can change any frame after.</span>
               <div className="drawing-ai-examples" role="group" aria-label="Try an example">
                 {V1_EXAMPLES.map((text) => (
                   <button key={text} type="button" disabled={readOnly} onClick={() => { onInputChange(text); composerRef.current?.focus(); }}>{text}</button>
                 ))}
               </div>
-              <span className="drawing-ai-cost">About {creditsText(SHORT_ANIMATION_CREDITS)} for a 10-second animation · the card shows the exact price first · a refused idea is free</span>
+              <span className="drawing-ai-cost">About {creditsText(SHORT_ANIMATION_CREDITS)} for a 10-second animation · the card shows the exact price before anything is made</span>
             </div>
           )}
           {started && <div className="drawing-ai-thread-head" aria-hidden="true"><span className="drawing-ai-logo drawing-ai-logo-small"><DiamondLogo size={26} /></span><span>AI Animator</span></div>}
@@ -178,7 +185,7 @@ export function V1AnimatorChat({ projectId, copiedFrom, bridge, readOnly, Reply,
         composer={<>
           {outOfCredits && <V1OutOfCreditsCard view={outOfCredits} />}
           <form onSubmit={submit} className={`${chatComposerStyles.box} ${chatComposerStyles.compact} ${chatComposerStyles.quiet}`} aria-label="AI Animator message composer">
-          <textarea ref={composerRef} aria-label="Message AI Animator" value={input} onChange={(event) => onInputChange(event.target.value)} onKeyDown={handleKeyDown} placeholder="Describe the stick figure animation you want…" disabled={Boolean(state.busy) || readOnly} rows={2} />
+          <textarea ref={composerRef} aria-label="Message AI Animator" value={input} onChange={(event) => onInputChange(event.target.value)} onKeyDown={handleKeyDown} placeholder="Tell the AI Animator what happens next…" disabled={Boolean(state.busy) || readOnly} rows={2} />
           {dictationActive
             ? <ChatDictationPanel dictation={dictation} onCancel={onDictateCancel} onStop={onDictateStop} />
             : <ChatToolsRow

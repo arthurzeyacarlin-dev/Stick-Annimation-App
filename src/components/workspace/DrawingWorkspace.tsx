@@ -44,7 +44,7 @@ import type { DrawingShapeType, DrawingToolName } from "./DrawingToolBar";
 import { DrawingTimelineRow } from "./DrawingTimelineRow";
 import type { TimelineFrame, TimelineFrameCellType, TimelineFrameKind, TimelineLayer } from "./DrawingTimelineRow";
 import { DrawingTopBar } from "./DrawingTopBar";
-import { AiAnimatorDock, AiTimelineButton, AiTopBarField, useAiDockOpen, useAiLayout } from "./ai/aiDock";
+import { AiAnimatorDock, AiTopBarSlot, useAiLayout } from "./ai/aiDock";
 import {
   advancePlaybackAccumulator,
   getAuthoredPlaybackFrameCount,
@@ -3966,9 +3966,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
   const drawingCanvasRef = useRef<DrawingCanvasHandle | null>(null);
   // (Nov 22, layouts) where the AI Animator sits (ai/aiDock.tsx); only its place changes, never what it does
   const aiLayout = useAiLayout();
-  const aiDockOpen = useAiDockOpen();
-  const aiLayoutTimelineButton = useMemo(() => (aiLayout.layout === "timeline" ? <AiTimelineButton open={aiDockOpen} /> : undefined), [aiLayout.layout, aiDockOpen]);
-  const aiLayoutTopField = useMemo(() => (aiLayout.layout === "top" ? <AiTopBarField /> : undefined), [aiLayout.layout]);
+  const aiLayoutTopField = aiLayout.layout === "top" || aiLayout.layout === "spot" ? <AiTopBarSlot layout={aiLayout.layout} /> : undefined;
   const saveCurrentFrameSnapshotRef = useRef<((frameIndex?: number, layerId?: string, options?: {
     captureOptions?: DrawingCanvasSnapshotOptions;
     debugCaller?: string;
@@ -10917,7 +10915,6 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         </div>
       )}
       <MemoizedDrawingTimelineRow
-        aiButton={aiLayoutTimelineButton}
         responsiveLayout
         desktopRightInset={rightPanelWidth}
         fps={timelineFps}

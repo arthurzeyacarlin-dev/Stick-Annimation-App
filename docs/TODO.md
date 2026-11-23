@@ -1,5 +1,13 @@
 # TODO
 
+## First steps and sign-up film (D-0249, 2026-11-23)
+
+- [x] **GUIDED-START** — done 2026-11-23: Home's line auto-starts the AI Animator in a new project, the window opens by itself, the "It's yours" card, random ideas, the welcome card's two buttons.
+- [x] **SIGNUP-FILM** — done 2026-11-23: the sign-up page's left side shows the editor in miniature (animate with AI, edit with AI, draw it yourself) for four real stories.
+- [x] **WIFI-BLIP** — done 2026-11-23: a short Wi-Fi drop no longer ends an animation.
+- [ ] **EMAIL-DELETED-FILTER** — in the email service, add the "Deleted Account" filter to the follow-up flows so deleted accounts get no more emails (the app already sends the signal). Dad, with the email service login.
+- [ ] **DISK-SPACE** — the Mac has about 2 GB free; renders can fail with "out of storage space". Arthur frees old Adobe versions.
+
 ## AI Animator in main (D-0246, D-0247, 2026-11-22)
 
 - [ ] **STRIPE-UNKNOWN (sticky note, Nov 22)** — Stripe is UNKNOWN: no real card payment has been made. Dad does the one $9.99 Basic test (tomorrow or later, his choice; his step-by-step briefing is a Claude Doc Arthur has). Frozen until then: no money code changes. Same as LIVE-MONEY-PROOF.

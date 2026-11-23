@@ -761,6 +761,45 @@ const TimelineLayerLane = memo(function TimelineLayerLane({
   );
 });
 
+// (Nov 23, Arthur) while an animation plays, a thin white line glides smoothly across the frames at the animation's own
+// frames per second (between two frames it moves on by itself; each new frame puts it back exactly on that frame).
+// A look only: it reads the playing frame and the fps, it never changes them.
+function TimelinePlayheadLine({ frameIndex, fps, playing, height }: { frameIndex: number; fps: number; playing: boolean; height: number }) {
+  const lineRef = useRef<HTMLDivElement | null>(null);
+  const frameStartRef = useRef({ index: frameIndex, at: 0 });
+  useEffect(() => {
+    frameStartRef.current = { index: frameIndex, at: typeof performance === "undefined" ? 0 : performance.now() };
+  }, [frameIndex]);
+  useEffect(() => {
+    if (!playing) return;
+    let raf = 0;
+    const tick = () => {
+      const line = lineRef.current;
+      if (line) {
+        const { index, at } = frameStartRef.current;
+        const within = Math.min(1, Math.max(0, ((performance.now() - at) * Math.max(1, fps || 24)) / 1000));
+        line.style.transform = `translateX(${(index + within) * FRAME_CELL_WIDTH}px)`;
+      }
+      raf = window.requestAnimationFrame(tick);
+    };
+    raf = window.requestAnimationFrame(tick);
+    return () => window.cancelAnimationFrame(raf);
+  }, [playing, fps]);
+  if (!playing) return null;
+  return (
+    <div
+      ref={lineRef}
+      aria-hidden="true"
+      data-timeline-playhead="true"
+      style={{
+        position: "absolute", left: -1, top: 0, width: 2, height, zIndex: 6, pointerEvents: "none", borderRadius: 1,
+        background: "#ffffff", boxShadow: "0 0 8px rgba(255, 255, 255, 0.55)",
+        transform: `translateX(${frameIndex * FRAME_CELL_WIDTH}px)`, willChange: "transform",
+      }}
+    />
+  );
+}
+
 export function DrawingTimelineRow({
   responsiveLayout = false,
   desktopRightInset = 0,
@@ -1709,6 +1748,7 @@ export function DrawingTimelineRow({
             }}
           >
             <div style={{ width: rulerWidth, minWidth: rulerWidth, height: rowLanesHeight, position: "relative" }}>
+              <TimelinePlayheadLine frameIndex={currentFrameIndex} fps={fps} playing={isPlaying} height={rowLanesHeight} />
               {renderedLayers.map((layer) => {
                 const isActiveLayer = layer.id === activeLayerId;
                 const highlightedSpanBounds = isActiveLayer

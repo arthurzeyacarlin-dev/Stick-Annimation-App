@@ -664,6 +664,8 @@ export type DrawingCanvasHandle = {
   // Places an asset/symbol that was dropped on the canvas but not committed yet (so Play keeps it).
   commitPendingPlacement: () => void;
   getPlaybackSurfaceLayout: () => DrawingCanvasPlaybackSurfaceLayout | null;
+  /** How far the canvas is moved and zoomed on screen (Move Canvas / zoom), so Play draws on the moved canvas. */
+  getPlaybackCameraView: () => { panX: number; panY: number; zoom: number };
   hasActiveBitmapSelectionSession: () => boolean;
   /** Cmd+C / Cmd+V on a drawing: true when a Select / Lasso / Knife selection (or selected text) can be copied. */
   hasCopyableSelection: () => boolean;
@@ -1918,6 +1920,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
   const playbackOverlayDebugLoggedRef = useRef(false);
   const [cameraZoom, setCameraZoom] = useState(DEFAULT_CAMERA_ZOOM);
   const [cameraPan, setCameraPan] = useState(DEFAULT_CAMERA_PAN);
+  // (Nov 23, Arthur) where the canvas is moved/zoomed to, read by Play so the playing picture sits on the moved canvas
+  const cameraViewRef = useRef({ panX: 0, panY: 0, zoom: 1 });
+  cameraViewRef.current = { panX: cameraPan.x, panY: cameraPan.y, zoom: cameraZoom };
   const [isPanning, setIsPanning] = useState(false);
   const [zoomInputValue, setZoomInputValue] = useState(`${Math.round(DEFAULT_CAMERA_ZOOM * 100)}%`);
   const [canvasMovementEnabled, setCanvasMovementEnabled] = useState(false);
@@ -2270,7 +2275,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     if (!host || !playbackCanvas) return;
 
     const resizePlaybackCanvas = () => {
-      const rect = getCanvasAreaContentRect(host);
+      const rect = playbackCanvas.getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
       const playbackScale = Math.min(1, Math.max(0.5, playbackRenderScale));
       const playbackDpr = Math.max(1, dpr * playbackScale);
@@ -2292,12 +2297,13 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     resizePlaybackCanvas();
     const observer = new ResizeObserver(resizePlaybackCanvas);
     observer.observe(host);
+    observer.observe(playbackCanvas);
     window.addEventListener("resize", resizePlaybackCanvas);
     return () => {
       observer.disconnect();
       window.removeEventListener("resize", resizePlaybackCanvas);
     };
-  }, [getCanvasAreaContentRect, playbackRenderScale]);
+  }, [playbackRenderScale]);
 
   useEffect(() => {
     const handleLayoutChange = () => {
@@ -7263,6 +7269,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
         if (activePlacedImageAssetRef.current) commitPlacedImageAssetToCanvasRef.current?.();
       },
       getPlaybackSurfaceLayout,
+      getPlaybackCameraView: () => cameraViewRef.current,
       hasActiveBitmapSelectionSession: () => Boolean(bitmapSelectionSessionRef.current?.items.length),
       hasCopyableSelection: () => Boolean(bitmapSelectionSessionRef.current?.items.length || activeLassoSelectionRef.current || activeBoxSelectionRef.current),
       copySelectionToClipboard,
@@ -10167,7 +10174,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <div style={{ color: "var(--da-label, #85858e)", fontSize: 11, fontWeight: 700, letterSpacing: 0.7 }}>Canvas</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            <div style={{ color: "var(--da-muted, #a3a3ab)", fontSize: 12 }}>Show Canvas</div>
+            <div style={{ color: "var(--da-muted, #a3a3ab)", fontSize: 12 }}>Move Canvas</div>
             <OnOffSwitch label="On or off" checked={canvasMovementEnabled} onChange={setCanvasMovementEnabled} />
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "flex-start" }}>
@@ -11481,6 +11488,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
           transform: `translateX(${(rightPanelBounds.defaultWidth - rightPanelWidth) / 2}px)`,
           boxSizing: "border-box",
           minWidth: 0,
+          overflow: "hidden",
           padding: 14,
           // SPEC-0020 Phase 4 (Arthur): outside the drawing area's black border stays navy. Inside it (below) is
           // the canvas color everywhere, so things drawn off-screen (a figure about to run in) are visible.
@@ -11498,7 +11506,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
             border: "1px solid var(--da-line, #2c2c32)",
             background: backgroundColor,
             position: "relative",
-            overflow: "hidden",
+            // (Nov 23, Arthur) a moved canvas shows anywhere in the canvas area: the area clips it at its own edges, not this
+            // box (it stayed where the canvas started, so a canvas moved past it was cut off)
+            overflow: "visible",
             containerType: "size",
           }}
         >
@@ -11527,6 +11537,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
               height: `${AUTHORING_WORLD_SCALE * 100}%`,
               transform: `translate(${cameraPan.x}px, ${cameraPan.y}px) scale(${cameraZoom})`,
               transformOrigin: "center center",
+              // (Nov 23, Arthur) the canvas shows exactly the canvas box it always showed, and that box moves with the
+              // canvas, so a moved canvas is never cut off and nothing extra appears around it
+              clipPath: `inset(${Math.max(0, 50 - 50 / (AUTHORING_WORLD_SCALE * Math.max(0.01, cameraZoom)))}%)`,
             }}
           >
             <div
@@ -11691,23 +11704,12 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
             )}
           </div>
           </div>
-          <canvas
-            ref={playbackCanvasRef}
-            data-workspace-canvas="playback"
-            style={{
-              position: "absolute",
-              inset: 0,
-              width: "100%",
-              height: "100%",
-              pointerEvents: "none",
-              opacity: isTimelinePlaying ? 1 : 0,
-              transition: "opacity 120ms ease",
-            }}
-          />
           <div
             style={{
               position: "absolute",
-              inset: 0,
+              // (Nov 23) with Move Canvas on, the whole canvas area can be grabbed (the area clips this layer at its edges),
+              // so a canvas moved far away can always be grabbed and brought back
+              inset: canvasMovementEnabled ? -4000 : 0,
               pointerEvents: activeTool === "Select" && canvasInteractionOwner === "drawing" && canvasMovementEnabled && !activePlacedImageAsset ? "auto" : "none",
               cursor:
                 activeTool === "Select" && canvasInteractionOwner === "drawing" && canvasMovementEnabled && !activePlacedImageAsset
@@ -11725,6 +11727,21 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
             onWheel={zoomCanvas}
           />
         </div>
+        {/* (Nov 23, Arthur) the playing picture covers the whole canvas area, so a moved canvas plays right where it is
+            (it was locked to the canvas's starting box, so a moved canvas showed twice while playing) */}
+        <canvas
+          ref={playbackCanvasRef}
+          data-workspace-canvas="playback"
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            pointerEvents: "none",
+            opacity: isTimelinePlaying ? 1 : 0,
+            transition: "opacity 120ms ease",
+          }}
+        />
       </div>
 
       <DrawingRightPanel

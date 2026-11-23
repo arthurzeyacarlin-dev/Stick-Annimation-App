@@ -532,7 +532,7 @@ function SelectPropertiesTabContent({
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         <div style={{ color: "rgba(255,255,255,0.52)", fontSize: 11, fontWeight: 700, letterSpacing: 0.7 }}>Canvas</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <div style={{ color: "rgba(255,255,255,0.76)", fontSize: 12 }}>Show Canvas</div>
+          <div style={{ color: "rgba(255,255,255,0.76)", fontSize: 12 }}>Move Canvas</div>
           <OnOffSwitch label="On or off" checked={canvasMovementEnabled} onChange={onCanvasMovementChange} />
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "flex-start" }}>

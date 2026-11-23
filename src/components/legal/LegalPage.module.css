@@ -1,5 +1,5 @@
 /* The in-app Privacy Policy and Terms of Service (Nov 23): the app's dark look, one readable column, no hover fades. */
-.page { min-height: 100dvh; padding: 32px 20px 64px; background: var(--da-page); color: var(--da-text); font: 16px/1.6 var(--font-geist-sans), system-ui, -apple-system, "Segoe UI", sans-serif; color-scheme: dark; }
+.page { min-height: 100dvh; padding: 32px 20px 64px; background: var(--da-page-glow); color: var(--da-text); font: 16px/1.6 var(--font-geist-sans), system-ui, -apple-system, "Segoe UI", sans-serif; color-scheme: dark; }
 .page *, .page *::before, .page *::after { box-sizing: border-box; }
 .column { max-width: 760px; margin: 0 auto; display: grid; gap: 20px; }
 .top { display: flex; align-items: center; justify-content: space-between; gap: 16px; }

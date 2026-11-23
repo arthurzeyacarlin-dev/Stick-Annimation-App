@@ -138,10 +138,12 @@ export function V1AnimatorChat({ projectId, copiedFrom, bridge, readOnly, Reply,
 
   // (Nov 22, layouts) the editor's top bar shows what the AI Animator is doing - a look only; nothing here changes what it does
   const waitingGate = state.lines.some((l) => l.kind === "gate" && l.state === "waiting");
+  // (Nov 23, Arthur) what he first asked for in this project: an unnamed project is named after it when an animation lands
+  const firstAsk = state.lines.find((l) => l.kind === "user")?.text ?? null;
   useEffect(() => {
-    sendAiStatus({ busy: state.busy, phase: state.thinking?.phase ?? null, pct: state.progress?.pct ?? null, part: state.progress?.part ?? null, waiting: waitingGate, listening: dictation.phase === "recording",
+    sendAiStatus({ ask: firstAsk, busy: state.busy, phase: state.thinking?.phase ?? null, pct: state.progress?.pct ?? null, part: state.progress?.part ?? null, waiting: waitingGate, listening: dictation.phase === "recording",
       placed: state.placedVersion ?? null, hasAnimation: Boolean(state.animationId), fresh: state.lines.length === 0 && !state.busy });
-  }, [state.busy, state.thinking?.phase, state.progress?.pct, state.progress?.part, waitingGate, dictation.phase, state.placedVersion, state.animationId, state.lines.length]);
+  }, [state.busy, state.thinking?.phase, state.progress?.pct, state.progress?.part, waitingGate, dictation.phase, state.placedVersion, state.animationId, state.lines.length, firstAsk]);
   // (Nov 23, Arthur: "when I click Animate I want the panel open and it automatically sends") words typed on Home are sent
   // here by themselves, exactly like pressing send: only in a brand-new chat, and only after the panel has finished opening
   // (the saved chat check), so the turn is the same as a typed one. Anything else (a busy panel, an older chat) just leaves

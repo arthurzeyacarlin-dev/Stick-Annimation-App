@@ -44,7 +44,8 @@ import type { DrawingShapeType, DrawingToolName } from "./DrawingToolBar";
 import { DrawingTimelineRow } from "./DrawingTimelineRow";
 import type { TimelineFrame, TimelineFrameCellType, TimelineFrameKind, TimelineLayer } from "./DrawingTimelineRow";
 import { DrawingTopBar } from "./DrawingTopBar";
-import { AiAnimatorDock, AiTopBarSlot, useAiLayout } from "./ai/aiDock";
+import { AiAnimatorDock, AiTopBarSlot, LANDED_EVENT, useAiLayout } from "./ai/aiDock";
+import { aiProjectName, isUnnamedProject } from "./ai/aiProjectName";
 import {
   advancePlaybackAccumulator,
   getAuthoredPlaybackFrameCount,
@@ -234,6 +235,7 @@ type PlaybackSurfaceMetrics = {
   stageDisplayRect: CanvasOverlayRect | null;
   hostBackgroundColor: string;
   stageBackgroundColor: string;
+  viewKey: string;
 };
 
 type PlaybackReturnState = {
@@ -5007,8 +5009,11 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     const drawingCanvas = getDrawingCanvas();
     const stableLayout = drawingCanvasRef.current?.getPlaybackSurfaceLayout() ?? null;
     const cachedMetrics = playbackSurfaceMetricsRef.current;
+    const cameraView = drawingCanvasRef.current?.getPlaybackCameraView?.() ?? { panX: 0, panY: 0, zoom: 1 };
+    const viewKey = `${cameraView.panX}:${cameraView.panY}:${cameraView.zoom}`;
     if (
       cachedMetrics &&
+      cachedMetrics.viewKey === viewKey &&
       cachedMetrics.canvasWidth === playbackCanvas.width &&
       cachedMetrics.canvasHeight === playbackCanvas.height &&
       cachedMetrics.drawingCanvasWidth === (stableLayout?.drawingCanvasWidth ?? drawingCanvas?.width ?? null) &&
@@ -5040,6 +5045,20 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       },
     };
     const resolvedLayout = stableLayout ?? fallbackLayout;
+    // (Nov 23, Arthur) the playing picture sits exactly on the moved canvas (the same move as the canvas itself), at the
+    // size Play always used, so there is only ever one canvas on screen
+    const pageCenter = stableLayout?.stageDisplayRect ? true : null;
+    // (the layout is measured from the canvas box; the playing layer covers the whole canvas area around it)
+    const host = playbackCanvas.parentElement?.querySelector<HTMLElement>('[data-workspace-canvas-host="true"]') ?? null;
+    const hostBox = host?.getBoundingClientRect() ?? null;
+    const shiftX = hostBox && host ? hostBox.left + host.clientLeft - playbackRect.left : 0;
+    const shiftY = hostBox && host ? hostBox.top + host.clientTop - playbackRect.top : 0;
+    const onMovedCanvas = (rect: CanvasOverlayRect): CanvasOverlayRect => pageCenter ? {
+      left: rect.left + shiftX + cameraView.panX,
+      top: rect.top + shiftY + cameraView.panY,
+      width: rect.width,
+      height: rect.height,
+    } : rect;
     const nextMetrics: PlaybackSurfaceMetrics = {
       canvasWidth: playbackCanvas.width,
       canvasHeight: playbackCanvas.height,
@@ -5049,10 +5068,11 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       worldHeight: resolvedLayout.worldHeight,
       cssWidth,
       cssHeight,
-      worldDisplayRect: resolvedLayout.worldDisplayRect,
-      stageDisplayRect: resolvedLayout.stageDisplayRect,
-      hostBackgroundColor: playbackCanvas.parentElement
-        ? window.getComputedStyle(playbackCanvas.parentElement).backgroundColor || WORKSPACE_HOST_BACKGROUND_FALLBACK
+      worldDisplayRect: onMovedCanvas(resolvedLayout.worldDisplayRect),
+      stageDisplayRect: resolvedLayout.stageDisplayRect ? onMovedCanvas(resolvedLayout.stageDisplayRect) : null,
+      viewKey,
+      hostBackgroundColor: host
+        ? window.getComputedStyle(host).backgroundColor || WORKSPACE_HOST_BACKGROUND_FALLBACK
         : WORKSPACE_HOST_BACKGROUND_FALLBACK,
       stageBackgroundColor: stageGuide
         ? window.getComputedStyle(stageGuide).backgroundColor || WORKSPACE_STAGE_BACKGROUND_FALLBACK
@@ -5089,12 +5109,17 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.restore();
 
+      const playWindow = stageDisplayRect ?? { left: 0, top: 0, width: cssWidth, height: cssHeight };
       ctx.fillStyle = hostBackgroundColor;
-      ctx.fillRect(0, 0, cssWidth, cssHeight);
+      ctx.fillRect(playWindow.left, playWindow.top, playWindow.width, playWindow.height);
       if (stageDisplayRect) {
         ctx.fillStyle = stageBackgroundColor;
         ctx.fillRect(stageDisplayRect.left, stageDisplayRect.top, stageDisplayRect.width, stageDisplayRect.height);
       }
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(playWindow.left, playWindow.top, playWindow.width, playWindow.height);
+      ctx.clip();
       // (frame pictures are stage pixels, shown at the screen's size: scaled smoothly, never blocky)
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = "high";
@@ -5160,6 +5185,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         }
         drawPlaybackSymbols(resolution.symbolInstances);
       }
+      ctx.restore();
     },
     [getPlaybackCanvas, getPlaybackSurfaceMetrics, symbolImageCache],
   );
@@ -8103,6 +8129,24 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     }, Math.max(0, delayMs));
   }, []);
 
+  // (Nov 23, Arthur: "I always forget to name it") when an AI animation is on the timeline and the project still has no
+  // name, the project is named after what he asked for, and saved like any change. A name he gave is never replaced.
+  const projectTitleNowRef = useRef(projectTitle);
+  projectTitleNowRef.current = projectTitle;
+  const queueRecoveryDraftWriteRef = useRef<() => void>(() => {});
+  useEffect(() => {
+    const onLanded = (event: Event) => {
+      if (!isUnnamedProject(projectTitleNowRef.current)) return;
+      const name = aiProjectName((event as CustomEvent<{ ask?: string | null }>).detail?.ask);
+      if (!name) return;
+      projectTitleNowRef.current = name;
+      setProjectTitle(name);
+      window.setTimeout(() => queueRecoveryDraftWriteRef.current(), 0);
+    };
+    window.addEventListener(LANDED_EVENT, onLanded);
+    return () => window.removeEventListener(LANDED_EVENT, onLanded);
+  }, []);
+
   const queueRecoveryDraftWrite = useCallback(() => {
     if (!recoveryInitializedRef.current) return;
     recoveryDraftSequenceRef.current += 1;
@@ -8126,6 +8170,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
     const remainingMaximumWait = Math.max(0, projectRecoveryMaxWaitFor(lastWriteMs) - (performance.now() - recoveryFirstPendingAtRef.current));
     armRecoveryDraftWrite(Math.min(projectRecoveryDebounceFor(lastWriteMs), remainingMaximumWait));
   }, [armRecoveryDraftWrite, ownerId]);
+  queueRecoveryDraftWriteRef.current = queueRecoveryDraftWrite;
 
   const runRecoveryDraftWrite = useCallback(() => {
     if (!recoveryEnabledRef.current || !recoverySessionIdRef.current) return;

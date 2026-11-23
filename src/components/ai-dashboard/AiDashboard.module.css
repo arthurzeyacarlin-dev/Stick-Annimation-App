@@ -1,4 +1,4 @@
-.main { min-height: calc(100vh - 100px); padding: 28px 20px 72px; background: var(--da-page, #111113); color: var(--da-text, #f5f5f6); }
+.main { min-height: calc(100vh - 100px); padding: 28px 20px 72px; background: var(--da-page-glow); /* (Nov 23) the glows on every screen but the editor */ color: var(--da-text, #f5f5f6); }
 .content { width: min(1100px,100%); margin: 0 auto; display: grid; gap: 16px; }
 .hero,.previewCard,.chartCard,.summaryCard,.realPlan { border: 1px solid var(--da-line, #2c2c32); border-radius: 12px; background: var(--da-card-fill); box-shadow: var(--da-card-shadow); }
 .hero { padding: 24px 26px; }

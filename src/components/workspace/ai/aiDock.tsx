@@ -38,7 +38,7 @@ export function useAiLayout(): { layout: AiLayout; phone: boolean } {
 
 // ---- what the AI Animator is doing (sent by V1AnimatorChat; a look only)
 export type AiStatus = { busy: string | null; phase: string | null; pct: number | null; part: [number, number] | null; waiting: boolean; listening?: boolean;
-  placed?: number | null; hasAnimation?: boolean; fresh?: boolean };   // fresh = nothing said yet in this project   // (Nov 23) placed = the version on the canvas; "Done" only when a NEW one landed
+  placed?: number | null; hasAnimation?: boolean; fresh?: boolean; ask?: string | null };   // fresh = nothing said yet in this project   // (Nov 23) placed = the version on the canvas; "Done" only when a NEW one landed
 type AiSlots = { tab: HTMLElement | null; dock: HTMLElement | null; current: AiLayout };
 type AiWindow = Window & { __diamondAiStatus?: AiStatus; __diamondAiHost?: HTMLDivElement; __diamondAiSlots?: AiSlots };
 export function sendAiStatus(status: AiStatus) {
@@ -75,7 +75,7 @@ const animatingPct = (s: AiStatus | null) => (s && typeof s.pct === "number" && 
 // (Nov 23) a NEW animation really landed: it was being animated, the work is over, and the canvas shows a new version.
 // (Undo / Redo / reopening a project also place a version, but they never animate, so they never count; a failed run
 // changes no version, so it never says "Done".)
-const LANDED_EVENT = "diamond-ai-landed";
+export const LANDED_EVENT = "diamond-ai-landed";
 function useLandingWatch(status: AiStatus | null) {
   const startPlaced = useRef<number | null | undefined>(undefined);
   useEffect(() => {
@@ -85,7 +85,7 @@ function useLandingWatch(status: AiStatus | null) {
     if (startPlaced.current === undefined || status.busy) return;
     const landed = status.placed != null && status.placed !== startPlaced.current;
     startPlaced.current = undefined;
-    if (landed) window.dispatchEvent(new CustomEvent(LANDED_EVENT, { detail: { count: noteLanded() } }));
+    if (landed) window.dispatchEvent(new CustomEvent(LANDED_EVENT, { detail: { count: noteLanded(), ask: status.ask ?? null } }));
   }, [status]);
 }
 function useLanded(): { count: number; at: number } {

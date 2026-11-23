@@ -1,6 +1,6 @@
 /* SPEC-0020 Phase 9: the locked screen (trial or plan ended): a short message with Choose a plan / Profile / Log out
    on top, and the read-only library (Watch + Export) filling the rest. Text is plain; only buttons are boxes. */
-.page { height: 100vh; display: flex; flex-direction: column; overflow: hidden; background: var(--da-page); color: var(--da-text); }
+.page { height: 100vh; display: flex; flex-direction: column; overflow: hidden; background: var(--da-page-glow); color: var(--da-text); }
 .page *, .page *::before, .page *::after { box-sizing: border-box; }
 .top { flex: none; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px 24px; padding: 20px clamp(16px, 4vw, 46px) 18px; border-bottom: 1px solid var(--da-line); }
 .message { display: flex; align-items: flex-start; gap: 14px; min-width: 0; flex: 1 1 420px; }

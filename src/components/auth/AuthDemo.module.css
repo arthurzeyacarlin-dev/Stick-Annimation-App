@@ -13,14 +13,15 @@
 .saved { color: #8b8b94; }
 .export { padding: 4px 11px; border-radius: 7px; background: #0066ff; color: #fff; font-weight: 600; }
 
-.body { display: grid; grid-template-columns: 46px minmax(0, 1fr) clamp(220px, 33%, 340px); min-height: 0; }
+/* (Nov 23, Arthur: the video bigger, not taller) a slimmer AI panel and tighter edges give the canvas the room */
+.body { display: grid; grid-template-columns: 42px minmax(0, 1fr) clamp(190px, 24%, 280px); min-height: 0; }
 .rail { display: flex; flex-direction: column; align-items: center; gap: 8px; padding-top: 14px; border-right: 1px solid #1f1f23; background: #121214; }
 .tool, .toolOn { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 8px; color: #8b8b94; transition: background .2s ease, color .2s ease; }
 .toolOn { background: #f2f2f4; color: #111113; }
 .tool svg, .toolOn svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
 .main { display: grid; grid-template-rows: minmax(0, 1fr) 46px; min-width: 0; background: radial-gradient(ellipse 70% 60% at 50% 60%, #18181c 0%, #0f0f11 75%); }
-.area { container-type: size; display: grid; place-items: end center; min-height: 0; padding: 14px 20px 16px; transition: opacity .6s ease; }
+.area { container-type: size; display: grid; place-items: end center; min-height: 0; padding: 6px 8px 8px; transition: opacity .6s ease; }
 .canvas { position: relative; width: min(100cqw, calc(100cqh * 16 / 9)); aspect-ratio: 16 / 9; overflow: hidden; border-radius: 3px; background: #fff;
   box-shadow: 0 0 0 1px rgba(255, 255, 255, .08), 0 22px 70px rgba(0, 0, 0, .6), 0 0 90px rgba(0, 102, 255, .08); }
 .clip { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .5s ease; }

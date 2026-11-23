@@ -180,7 +180,7 @@ export function AuthDemo() {
         await progress("animating", st.split / (v?.duration || st.split * 2), 1, 550);
         add("done", "Added after part 1 · the rest stays as it is");
         await wait(100);
-        if (v) await playTo(v, st.split, v.duration || st.split * 2);
+        if (v) await playTo(v, 0, v.duration || st.split * 2);   // (Nov 23, Arthur) after the edit the whole animation plays, start to finish
         await wait(150);
 
         // 3. or draw it yourself

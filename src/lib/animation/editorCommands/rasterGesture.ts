@@ -1,5 +1,6 @@
 import { assertRasterPaintCoverageV1, cropPaintCoverage, getBitmapPaintCoverage, mergeSketchOwners, paintCoveragesEqual, type UnifiedRasterPaintCoverageV1, type RasterPaintKeyV1, type RasterPaintPixelV1 } from '../unifiedRasterPaintCoverageV1.ts';
 import { bitmapCenterOffset } from '../unifiedStageGeometry.ts';
+import { rasterInSpace } from '../compactRasterBitmap.ts';
 import { DrawRigCorridor } from './drawRigCorridor.ts';
 
 /** Deterministic authoring geometry and maximum masks. No browser or clock state. */
@@ -110,6 +111,8 @@ export function validateRasterGestureCommand(
       i > 0 && Math.hypot(point.x - command.samples[i - 1].x, point.y - command.samples[i - 1].y) < .25) return false;
   }
   const { width, height } = command.options;
+  // (the stroke was made on the frame's picture as the canvas shows it: in the canvas's own pixel space)
+  current = { ...current, bitmap: rasterInSpace(current.bitmap, { width, height }) };
   if (command.baseCoverage !== null) assertRasterPaintCoverageV1(command.baseCoverage, width, height);
   if (command.preparedCoverage !== null) assertRasterPaintCoverageV1(command.preparedCoverage, width, height);
   const offsetX = current.bitmap ? bitmapCenterOffset(width, current.bitmap.width) : 0;

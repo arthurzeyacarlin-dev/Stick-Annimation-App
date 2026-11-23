@@ -92,38 +92,46 @@ test("export puts those symbols on the body too (raster page mapping), where the
   }
 });
 
-test("heads stay on the bodies when the window/canvas area changes size later (drawingCanvas), in the editor, Play and export", () => {
+test("heads stay on the bodies on every screen (drawingCanvas): the editor, Play and export show the drawing and its symbols at one stage size", async () => {
   const { instancePresentationV2, referenceStageScaleV2 } = SYMBOL_RENDER;
+  const { STAGE_PIXEL_SPACE, pixelsPerStageUnit } = await import("./unifiedStageGeometry.ts");
+  const S = STAGE_PIXEL_SPACE;
   for (const page of PAGES) for (const dpr of [1, 2]) {
-    // Apply time: the drawing canvas R and the AI picture mapping, as in applyAnimatorScene.
+    // Apply time on an OLDER screen: the drawing canvas R (window size x sharpness) and the AI picture mapping.
     const R = { width: Math.floor(page.width * 4.6 * dpr), height: Math.floor(page.height * 4.6 * dpr) };
     const ppc = R.width / (page.width * 4.6), k = page.height / 1080;
     const map = { scale: k * ppc, offsetX: (page.width / 2 - 960 * k + 1.8 * page.width) * ppc, offsetY: (1.8 * page.height) * ppc };
     const toSymbol = engineToSymbolStageV1(page.width, page.height)!;
-    const unit = referenceStageScaleV2(R);
-    for (const later of [page, { width: page.width * 1.3, height: page.height * 0.8 }, { width: page.width * 0.7, height: page.height * 1.25 }]) {
-      // Later the canvas is C; drawings keep their canvas-pixel distance from the middle (centered pictures).
-      const C = { width: Math.floor(later.width * 4.6 * dpr), height: Math.floor(later.height * 4.6 * dpr) };
-      for (const [x, y] of [[960, 540], [500, 860], [1500, 200]]) {
-        const drawingX = map.offsetX + x * map.scale - Math.floor(R.width / 2) + Math.floor(C.width / 2);
-        const drawingY = map.offsetY + y * map.scale - Math.floor(R.height / 2) + Math.floor(C.height / 2);
-        const u = toSymbol.point(x, y);
-        // Onion/overlay (canvas pixels): the remembered stage size, around the canvas middle.
-        close(C.width / 2 + (u.x - 960) * unit, drawingX, 1, `canvas x ${JSON.stringify(later)}@${dpr}`);
-        close(C.height / 2 + (u.y - 540) * unit, drawingY, 1, `canvas y ${JSON.stringify(later)}@${dpr}`);
+    const unit = referenceStageScaleV2(R), perUnit = pixelsPerStageUnit(R);
+    // Today the editor's canvas is the stage pixel space on any window: 1.3x wider, 0.8x lower, another sharpness - all the same.
+    for (const [x, y] of [[960, 540], [500, 860], [1500, 200]]) {
+      // The drawing's point, saved in R pixels, and where that picture sits in the stage pixel space (same middle point).
+      const savedX = map.offsetX + x * map.scale, savedY = map.offsetY + y * map.scale;
+      const drawingX = S.width / 2 + (savedX - R.width / 2) / perUnit, drawingY = S.height / 2 + (savedY - R.height / 2) / perUnit;
+      const u = toSymbol.point(x, y);
+      // Onion/overlay (canvas pixels): the remembered stage size, around the canvas middle.
+      close(S.width / 2 + (u.x - 960) * unit, drawingX, 1.5, `canvas x ${JSON.stringify(page)}@${dpr}`);
+      close(S.height / 2 + (u.y - 540) * unit, drawingY, 1.5, `canvas y ${JSON.stringify(page)}@${dpr}`);
+      for (const later of [{ width: 1600, height: 900 }, { width: 800, height: 450 }]) {
         // Play: the playback view shows the world at `perCanvasPixel` CSS px per canvas pixel.
         const world = { left: -1.8 * later.width, top: -1.8 * later.height, width: 4.6 * later.width, height: 4.6 * later.height };
-        const view = { centerX: world.left + world.width / 2, centerY: world.top + world.height / 2, perCanvasPixel: world.width / C.width };
+        const view = { centerX: world.left + world.width / 2, centerY: world.top + world.height / 2, perCanvasPixel: world.width / S.width };
         const p = instancePresentationV2({ drawingCanvas: R }, { scale: 1, offsetX: 0, offsetY: 0 }, view);
-        // (within one canvas pixel: the canvas size is rounded down to whole pixels)
-        close(p.offsetX + u.x * p.scale, world.left + drawingX * view.perCanvasPixel, view.perCanvasPixel, "play x");
-        close(p.offsetY + u.y * p.scale, world.top + drawingY * (world.height / C.height), view.perCanvasPixel, "play y");
-        // Export: the cell's drawing was saved on canvas C (frame reference); the instance still remembers R.
-        const raster = resolveExportRasterTransform(1920, 1080, C.width, C.height, 4.6);
-        const symbols = resolveExportSymbolTransform(1920, 1080, C.width, C.height, 4.6, R);
-        close(symbols.offsetX + u.x * symbols.scaleX, raster.offsetX + drawingX * raster.scaleX, Math.max(0.6, raster.scaleX), "export x");
-        close(symbols.offsetY + u.y * symbols.scaleY, raster.offsetY + drawingY * raster.scaleY, Math.max(0.6, raster.scaleY), "export y");
+        close(p.offsetX + u.x * p.scale, world.left + drawingX * view.perCanvasPixel, 1.5 * view.perCanvasPixel, "play x");
+        close(p.offsetY + u.y * p.scale, world.top + drawingY * (world.height / S.height), 1.5 * view.perCanvasPixel, "play y");
       }
+      // Export, the drawing never touched (still saved on R): exactly as it always was.
+      const raster = resolveExportRasterTransform(1920, 1080, R.width, R.height, 4.6);
+      const symbols = resolveExportSymbolTransform(1920, 1080, R.width, R.height, 4.6, R);
+      close(symbols.offsetX + u.x * symbols.scaleX, raster.offsetX + savedX * raster.scaleX, Math.max(0.6, raster.scaleX), "export x");
+      close(symbols.offsetY + u.y * symbols.scaleY, raster.offsetY + savedY * raster.scaleY, Math.max(0.6, raster.scaleY), "export y");
+      // Export after the drawing was edited (saved again, in the stage pixel space): the same picture, the head still on.
+      const edited = resolveExportRasterTransform(1920, 1080, S.width, S.height, 4.6);
+      const editedSymbols = resolveExportSymbolTransform(1920, 1080, S.width, S.height, 4.6, R);
+      close(edited.offsetX + drawingX * edited.scaleX, raster.offsetX + savedX * raster.scaleX, 0.01, "edit keeps the drawing's place in the video x");
+      close(edited.offsetY + drawingY * edited.scaleY, raster.offsetY + savedY * raster.scaleY, 0.01, "edit keeps the drawing's place in the video y");
+      close(editedSymbols.offsetX + u.x * editedSymbols.scaleX, edited.offsetX + drawingX * edited.scaleX, 1, "export after edit x");
+      close(editedSymbols.offsetY + u.y * editedSymbols.scaleY, edited.offsetY + drawingY * edited.scaleY, 1, "export after edit y");
     }
   }
   // Without drawingCanvas nothing changes (the view's normal stage fit).

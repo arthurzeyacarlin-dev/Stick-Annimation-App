@@ -1,7 +1,7 @@
 import type { UnifiedSymbolInstanceItemV2 } from "./unifiedAnimationContentV2";
 import type { UnifiedBitmapSymbolDefinitionV2 } from "./unifiedAnimationContractV2";
 import { resolveStructuredSymbolGeometryV2 } from "./unifiedProjectCatalogV2.ts";
-import { fitAuthoredStage, type StagePresentation } from "./unifiedStageGeometry.ts";
+import { fitAuthoredStage, pixelsPerStageUnit, type StagePresentation } from "./unifiedStageGeometry.ts";
 
 // Draws Library symbol instances onto a 2D canvas (used by the editor's Play view).
 // It follows the editor's symbol overlay exactly: the 1920x1080 stage is fitted
@@ -22,8 +22,10 @@ export const AUTHORING_WORLD_SCALE_V2 = 4.6;
 
 // Drawing-canvas pixels per stage unit for an instance placed against a drawing canvas of this
 // size: the stage fitted whole in that moment's page (page = canvas / 4.6), around the canvas middle.
+// (Nov 23) Measured in STAGE pixels (unifiedStageGeometry.ts): the drawing canvas the instance remembers may be an
+// older screen's, and the editor's canvas is now always the stage pixel space. On today's canvas this is exactly 1.
 export const referenceStageScaleV2 = (drawingCanvas: { width: number; height: number }, worldScale = AUTHORING_WORLD_SCALE_V2) =>
-  Math.min(drawingCanvas.width / worldScale / 1920, drawingCanvas.height / worldScale / 1080);
+  Math.min(drawingCanvas.width / worldScale / 1920, drawingCanvas.height / worldScale / 1080) / pixelsPerStageUnit(drawingCanvas);
 
 // Where an instance is drawn in a view. Instances without `drawingCanvas` use the view's normal
 // stage fit (`base`). Instances with it are drawn like drawings: `view.perCanvasPixel` is the

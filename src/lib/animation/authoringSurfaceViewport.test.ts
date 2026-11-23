@@ -16,7 +16,6 @@ test("retina laptop authoring surfaces stay inside 32 MiB", () => {
       zoom,
       panX: 0,
       panY: 0,
-      devicePixelRatio: 2,
     });
     assert.ok(viewport.pixelWidth * viewport.pixelHeight * 4 <= AUTHORING_CANVAS_BYTE_BUDGET);
     assert.ok(viewport.worldWidth >= Math.min(viewport.fullWorldWidth, 990 / zoom));
@@ -25,8 +24,8 @@ test("retina laptop authoring surfaces stay inside 32 MiB", () => {
 });
 
 test("phone and tablet viewports keep their full visible world covered", () => {
-  for (const [hostWidth, hostHeight, dpr] of [[390, 600, 3], [900, 500, 2]] as const) {
-    const viewport = createAuthoringSurfaceViewport({ hostWidth, hostHeight, worldScale: 4.6, zoom: 0.85, panX: 0, panY: 0, devicePixelRatio: dpr });
+  for (const [hostWidth, hostHeight] of [[390, 600], [900, 500]] as const) {
+    const viewport = createAuthoringSurfaceViewport({ hostWidth, hostHeight, worldScale: 4.6, zoom: 0.85, panX: 0, panY: 0 });
     assert.ok(viewport.worldWidth >= hostWidth / 0.85);
     assert.ok(viewport.worldHeight >= hostHeight / 0.85);
     assert.ok(viewport.pixelWidth * viewport.pixelHeight * 4 <= AUTHORING_CANVAS_BYTE_BUDGET);

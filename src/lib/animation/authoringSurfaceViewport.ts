@@ -1,4 +1,5 @@
-import { bitmapCenterOffset } from "./unifiedStageGeometry.ts";
+import { AUTHORED_STAGE, bitmapCenterOffset } from "./unifiedStageGeometry.ts";
+import { rasterInSpace } from "./compactRasterBitmap.ts";
 import { attachBitmapPaintCoverage, cropPaintCoverage, getBitmapPaintCoverage } from "./unifiedRasterPaintCoverageV1.ts";
 import { framePixels } from "./framePictureStore.ts";
 
@@ -23,14 +24,17 @@ export type AuthoringSurfaceViewport = {
   pixelHeight: number;
 };
 
+// hostWidth x hostHeight: the page (the 16:9 stage as shown on screen, CSS pixels). viewWidth x viewHeight: the whole
+// canvas area around it that can be seen (same middle point); left out = the page itself.
 type ViewportInput = {
   hostWidth: number;
   hostHeight: number;
+  viewWidth?: number;
+  viewHeight?: number;
   worldScale: number;
   zoom: number;
   panX: number;
   panY: number;
-  devicePixelRatio: number;
 };
 
 const clamp = (value: number, minimum: number, maximum: number) =>
@@ -43,46 +47,55 @@ export const createAuthoringSurfaceViewport = ({
   zoom,
   panX,
   panY,
-  devicePixelRatio,
+  viewWidth,
+  viewHeight,
 }: ViewportInput): AuthoringSurfaceViewport => {
   const safeHostWidth = Math.max(1, hostWidth);
   const safeHostHeight = Math.max(1, hostHeight);
   const safeWorldScale = Math.max(1, worldScale);
   const safeZoom = Math.max(0.01, zoom);
-  const safeDpr = Math.max(1, devicePixelRatio);
+  const safeViewWidth = Math.max(safeHostWidth, viewWidth ?? 0);
+  const safeViewHeight = Math.max(safeHostHeight, viewHeight ?? 0);
   const fullWorldWidth = safeHostWidth * safeWorldScale;
   const fullWorldHeight = safeHostHeight * safeWorldScale;
   const worldCenterX = fullWorldWidth / 2;
   const worldCenterY = fullWorldHeight / 2;
-  const visibleWidth = Math.min(fullWorldWidth, safeHostWidth / safeZoom);
-  const visibleHeight = Math.min(fullWorldHeight, safeHostHeight / safeZoom);
+  const visibleWidth = Math.min(fullWorldWidth, safeViewWidth / safeZoom);
+  const visibleHeight = Math.min(fullWorldHeight, safeViewHeight / safeZoom);
   const visibleLeft = clamp(
-    worldCenterX + (-safeHostWidth / 2 - panX) / safeZoom,
+    worldCenterX + (-safeViewWidth / 2 - panX) / safeZoom,
     0,
     Math.max(0, fullWorldWidth - visibleWidth),
   );
   const visibleTop = clamp(
-    worldCenterY + (-safeHostHeight / 2 - panY) / safeZoom,
+    worldCenterY + (-safeViewHeight / 2 - panY) / safeZoom,
     0,
     Math.max(0, fullWorldHeight - visibleHeight),
   );
-  const margin = AUTHORING_VIEWPORT_MARGIN_PX / safeZoom;
-  let worldLeft = Math.max(0, visibleLeft - margin);
-  let worldTop = Math.max(0, visibleTop - margin);
-  let worldRight = Math.min(fullWorldWidth, visibleLeft + visibleWidth + margin);
-  let worldBottom = Math.min(fullWorldHeight, visibleTop + visibleHeight + margin);
-  const referenceWidth = Math.max(1, Math.floor(fullWorldWidth * safeDpr));
-  const referenceHeight = Math.max(1, Math.floor(fullWorldHeight * safeDpr));
-  const referenceLeft = Math.max(0, Math.floor(worldLeft * referenceWidth / fullWorldWidth));
-  const referenceTop = Math.max(0, Math.floor(worldTop * referenceHeight / fullWorldHeight));
-  const referenceRight = Math.min(referenceWidth, Math.ceil(worldRight * referenceWidth / fullWorldWidth));
-  const referenceBottom = Math.min(referenceHeight, Math.ceil(worldBottom * referenceHeight / fullWorldHeight));
+  // THE STAGE PIXEL SPACE: the drawing world is always the same pixels (the 1920x1080 stage x the world scale),
+  // whatever the window size or the screen's sharpness. The screen only scales how it is shown.
+  const referenceWidth = Math.round(AUTHORED_STAGE.width * safeWorldScale);
+  const referenceHeight = Math.round(AUTHORED_STAGE.height * safeWorldScale);
+  const spanWith = (margin: number) => {
+    const left = Math.max(0, visibleLeft - margin), top = Math.max(0, visibleTop - margin);
+    const right = Math.min(fullWorldWidth, visibleLeft + visibleWidth + margin), bottom = Math.min(fullWorldHeight, visibleTop + visibleHeight + margin);
+    const referenceLeft = Math.max(0, Math.floor(left * referenceWidth / fullWorldWidth));
+    const referenceTop = Math.max(0, Math.floor(top * referenceHeight / fullWorldHeight));
+    const referenceRight = Math.min(referenceWidth, Math.ceil(right * referenceWidth / fullWorldWidth));
+    const referenceBottom = Math.min(referenceHeight, Math.ceil(bottom * referenceHeight / fullWorldHeight));
+    return { referenceLeft, referenceTop, referenceRight, referenceBottom };
+  };
+  // The margin around what is seen is a comfort for panning. Where the exact canvas would not fit the memory budget
+  // with it (a small or tall screen shows a lot of the world), it is given up first, so drawing stays exact.
+  let span = spanWith(AUTHORING_VIEWPORT_MARGIN_PX / safeZoom);
+  if ((span.referenceRight - span.referenceLeft) * (span.referenceBottom - span.referenceTop) > AUTHORING_CANVAS_PIXEL_BUDGET) span = spanWith(0);
+  const { referenceLeft, referenceTop, referenceRight, referenceBottom } = span;
   const referenceSpanWidth = Math.max(1, referenceRight - referenceLeft);
   const referenceSpanHeight = Math.max(1, referenceBottom - referenceTop);
-  worldLeft = referenceLeft * fullWorldWidth / referenceWidth;
-  worldTop = referenceTop * fullWorldHeight / referenceHeight;
-  worldRight = referenceRight * fullWorldWidth / referenceWidth;
-  worldBottom = referenceBottom * fullWorldHeight / referenceHeight;
+  const worldLeft = referenceLeft * fullWorldWidth / referenceWidth;
+  const worldTop = referenceTop * fullWorldHeight / referenceHeight;
+  const worldRight = referenceRight * fullWorldWidth / referenceWidth;
+  const worldBottom = referenceBottom * fullWorldHeight / referenceHeight;
   const worldWidth = Math.max(1, worldRight - worldLeft);
   const worldHeight = Math.max(1, worldBottom - worldTop);
   const desiredPixels = referenceSpanWidth * referenceSpanHeight;
@@ -142,9 +155,11 @@ const bitmapCanvas = (picture: ImageData) => {
 
 export const drawRasterBitmapToAuthoringSurface = (
   ctx: CanvasRenderingContext2D,
-  bitmap: ImageData,
+  picture: ImageData,
   viewport: AuthoringSurfaceViewport,
 ) => {
+  // (a picture saved in another pixel space is shown - and from here on edited - in the stage pixel space)
+  const bitmap = rasterInSpace(picture, { width: viewport.referenceWidth, height: viewport.referenceHeight });
   const source = bitmapCanvas(bitmap);
   if (!source) return;
   const scaleX = ctx.canvas.width / viewport.referenceSpanWidth;
@@ -259,9 +274,10 @@ export const renderRasterBitmapsToAuthoringSurface = (
 
 export const projectRasterCoverageToAuthoringSurface = (
   canvas: HTMLCanvasElement,
-  bitmap: ImageData | null | undefined,
+  picture: ImageData | null | undefined,
 ) => {
   const viewport = getAuthoringSurfaceViewport(canvas);
+  const bitmap = viewport ? rasterInSpace(picture, { width: viewport.referenceWidth, height: viewport.referenceHeight }) : picture;
   const coverage = getBitmapPaintCoverage(bitmap);
   if (!viewport || !bitmap || !coverage) return null;
   const scaleX = canvas.width / viewport.referenceSpanWidth;

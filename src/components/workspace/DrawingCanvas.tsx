@@ -47,6 +47,7 @@ import {
   authoredStagePoint,
   bitmapCenterOffset,
   fitAuthoredStage,
+  fitStagePage,
   presentStagePoint,
 } from "@/src/lib/animation/unifiedStageGeometry";
 import {
@@ -61,7 +62,7 @@ import {
   setAuthoringSurfaceViewport,
   type AuthoringSurfaceViewport,
 } from "@/src/lib/animation/authoringSurfaceViewport";
-import { captureRasterReferencePatch, compactOrigin, compactRaster, compactRasterFromCrop } from "@/src/lib/animation/compactRasterBitmap";
+import { captureRasterReferencePatch, compactOrigin, compactRaster, compactRasterFromCrop, rasterInSpace } from "@/src/lib/animation/compactRasterBitmap";
 
 type LassoPoint = {
   x: number;
@@ -2137,7 +2138,8 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     }
   }, [measureRightPanelBounds, resetRightPanelWidth, resolveRightPanelWidth]);
 
-  const getCanvasHostContentRect = useCallback((host: HTMLDivElement) => {
+  // The whole canvas area (inside its border).
+  const getCanvasAreaContentRect = useCallback((host: HTMLDivElement) => {
     const borderRect = host.getBoundingClientRect();
     const style = window.getComputedStyle(host);
     const borderLeft = Number.parseFloat(style.borderLeftWidth) || 0;
@@ -2151,6 +2153,15 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       Math.max(0, borderRect.height - borderTop - borderBottom),
     );
   }, []);
+
+  // THE PAGE: the 16:9 stage, fitted whole and centred in the canvas area (the same box the page element below gets from
+  // CSS). Everything on the canvas is measured from this box, never from the window: the page is always the whole
+  // exported picture, on any window shape. The area around it shows the off-page drawing world.
+  const getCanvasHostContentRect = useCallback((host: HTMLDivElement) => {
+    const area = getCanvasAreaContentRect(host);
+    const page = fitStagePage(area.width, area.height);
+    return new DOMRect(area.left + page.left, area.top + page.top, page.width, page.height);
+  }, [getCanvasAreaContentRect]);
 
   const setOnionOverlayContent = useCallback((content: OnionOverlayContent) => {
     const current = onionOverlayContentRef.current;
@@ -2183,15 +2194,16 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
 
     const resizeAuthoringCanvases = () => {
       const rect = getCanvasHostContentRect(host);
-      const dpr = window.devicePixelRatio || 1;
+      const area = getCanvasAreaContentRect(host);
       const viewport = createAuthoringSurfaceViewport({
         hostWidth: rect.width,
         hostHeight: rect.height,
+        viewWidth: area.width,
+        viewHeight: area.height,
         worldScale: AUTHORING_WORLD_SCALE,
         zoom: cameraZoom,
         panX: cameraPan.x,
         panY: cameraPan.y,
-        devicePixelRatio: dpr,
       });
       const width = viewport.pixelWidth;
       const height = viewport.pixelHeight;
@@ -2250,7 +2262,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       observer.disconnect();
       window.removeEventListener("resize", resizeAuthoringCanvases);
     };
-  }, [AUTHORING_WORLD_SCALE, cameraPan.x, cameraPan.y, cameraZoom, getCanvasHostContentRect, invalidateAuthoringMetrics, onAuthoringSurfaceViewportChange]);
+  }, [AUTHORING_WORLD_SCALE, cameraPan.x, cameraPan.y, cameraZoom, getCanvasAreaContentRect, getCanvasHostContentRect, invalidateAuthoringMetrics, onAuthoringSurfaceViewportChange]);
 
   useEffect(() => {
     const host = canvasHostRef.current;
@@ -2258,7 +2270,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     if (!host || !playbackCanvas) return;
 
     const resizePlaybackCanvas = () => {
-      const rect = getCanvasHostContentRect(host);
+      const rect = getCanvasAreaContentRect(host);
       const dpr = window.devicePixelRatio || 1;
       const playbackScale = Math.min(1, Math.max(0.5, playbackRenderScale));
       const playbackDpr = Math.max(1, dpr * playbackScale);
@@ -2285,7 +2297,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       observer.disconnect();
       window.removeEventListener("resize", resizePlaybackCanvas);
     };
-  }, [getCanvasHostContentRect, playbackRenderScale]);
+  }, [getCanvasAreaContentRect, playbackRenderScale]);
 
   useEffect(() => {
     const handleLayoutChange = () => {
@@ -2415,6 +2427,9 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
     }
 
     const hostRect = getCanvasHostContentRect(host);
+    const area = getCanvasAreaContentRect(host);
+    // (the page's place inside the whole canvas area, which the playback canvas covers)
+    const pageLeft = hostRect.left - area.left, pageTop = hostRect.top - area.top;
     const viewport = getAuthoringSurfaceViewport(canvas);
     return {
       drawingCanvasWidth: viewport?.referenceWidth ?? canvas.width,
@@ -2422,19 +2437,19 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       worldWidth: hostRect.width * AUTHORING_WORLD_SCALE,
       worldHeight: hostRect.height * AUTHORING_WORLD_SCALE,
       worldDisplayRect: {
-        left: ((1 - AUTHORING_WORLD_SCALE) / 2) * hostRect.width,
-        top: ((1 - AUTHORING_WORLD_SCALE) / 2) * hostRect.height,
+        left: pageLeft + ((1 - AUTHORING_WORLD_SCALE) / 2) * hostRect.width,
+        top: pageTop + ((1 - AUTHORING_WORLD_SCALE) / 2) * hostRect.height,
         width: AUTHORING_WORLD_SCALE * hostRect.width,
         height: AUTHORING_WORLD_SCALE * hostRect.height,
       },
       stageDisplayRect: {
-        left: 0,
-        top: 0,
+        left: pageLeft,
+        top: pageTop,
         width: hostRect.width,
         height: hostRect.height,
       },
     };
-  }, [AUTHORING_WORLD_SCALE, getCanvasHostContentRect]);
+  }, [AUTHORING_WORLD_SCALE, getCanvasAreaContentRect, getCanvasHostContentRect]);
 
   const clampPan = (pan: { x: number; y: number }, zoom: number) => {
     const host = canvasHostRef.current;
@@ -3131,7 +3146,11 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
       // still contains only the backdrop. Keep its existing matching companion;
       // compositing/restoring the selection owns both its pixels and coverage.
       if (canvas && !bitmapSelectionSessionRef.current?.items.length) attachBitmapPaintCoverage(canvas, preparedCoverage);
-      authoringCommittedBitmapRef.current = committedBitmap ?? null;
+      // (a picture saved in another pixel space: the canvas shows and edits it in the stage pixel space)
+      const viewport = getAuthoringSurfaceViewport(canvas);
+      authoringCommittedBitmapRef.current = (viewport
+        ? rasterInSpace(committedBitmap, { width: viewport.referenceWidth, height: viewport.referenceHeight })
+        : committedBitmap) ?? null;
     }
     hasPendingAuthoringChangesRef.current = false;
     authoringDirtyRectRef.current = null;
@@ -11480,12 +11499,28 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
             background: backgroundColor,
             position: "relative",
             overflow: "hidden",
+            containerType: "size",
           }}
         >
+          {/* THE PAGE: the 16:9 stage fitted whole and centred in the canvas area (getCanvasHostContentRect measures the
+              same box). The drawing world hangs on the page, so it is the same on every window shape. */}
+          <div
+            aria-hidden="true"
+            data-workspace-stage-page="true"
+            style={{
+              position: "absolute",
+              inset: 0,
+              margin: "auto",
+              width: "min(100cqw, 100cqh * 16 / 9)",
+              height: "min(100cqh, 100cqw * 9 / 16)",
+              pointerEvents: "none",
+            }}
+          >
           <div
             aria-hidden="true"
             style={{
               position: "absolute",
+              pointerEvents: "auto",
               left: `${((1 - AUTHORING_WORLD_SCALE) / 2) * 100}%`,
               top: `${((1 - AUTHORING_WORLD_SCALE) / 2) * 100}%`,
               width: `${AUTHORING_WORLD_SCALE * 100}%`,
@@ -11654,6 +11689,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 }}
               />
             )}
+          </div>
           </div>
           <canvas
             ref={playbackCanvasRef}

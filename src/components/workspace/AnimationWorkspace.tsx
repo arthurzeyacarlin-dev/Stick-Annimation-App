@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
-import { compactRasterFromCrop } from "@/src/lib/animation/compactRasterBitmap";
+import { compactRaster, compactRasterFromCrop, fullRasterInSpace, getRasterReferenceSize, motionTweenInSpace } from "@/src/lib/animation/compactRasterBitmap";
+import { samePixelSpace, STAGE_PIXEL_SPACE } from "@/src/lib/animation/unifiedStageGeometry";
 import { savedPictureInFrame } from "@/src/lib/animation/rasterCropV1";
 import { DrawingWorkspace } from "./DrawingWorkspace";
 import type { MountedWorkspace } from "@/src/lib/animation/unifiedWorkspaceBootstrap";
@@ -51,14 +52,28 @@ const hydrateDrawingCompatibility = (project: UnifiedAnimationProjectV2, source:
   const placeCompactBitmap = (bitmap: UnifiedRasterBitmapV2 | null | undefined) => {
     if (!bitmap) return null;
     const reference = { width: bitmap.stageWidth ?? bitmap.width, height: bitmap.stageHeight ?? bitmap.height };
-    return compactRasterFromCrop({ width: bitmap.width, height: bitmap.height, data: bitmap.data, x: bitmap.x ?? 0, y: bitmap.y ?? 0, reference, paintCoverage: bitmap.paintCoverage ?? null });
+    const placed = compactRasterFromCrop({ width: bitmap.width, height: bitmap.height, data: bitmap.data, x: bitmap.x ?? 0, y: bitmap.y ?? 0, reference, paintCoverage: bitmap.paintCoverage ?? null });
+    // (Nov 23, one pixel space) A compact picture remembers the pixel space it was saved in, and is shown and edited at
+    // its own stage size from there (compactRasterBitmap.ts). The rare picture that fills its whole old space cannot
+    // remember it, so it is drawn in the stage pixel space right here.
+    if (getRasterReferenceSize(placed) || samePixelSpace(placed, STAGE_PIXEL_SPACE)) return placed;
+    const full = fullRasterInSpace(placed, STAGE_PIXEL_SPACE);
+    return compactRaster(new ImageData(new Uint8ClampedArray(full.data), full.width, full.height));
+  };
+  // A motion tween's pictures stay full size (as before); saved on an older screen, they are drawn in the stage pixel
+  // space once, here, so a tween is always measured in one space.
+  const placeTweenBitmap = (bitmap: UnifiedRasterBitmapV2 | null | undefined) => {
+    const placed = placeBitmap(bitmap);
+    if (!placed || !bitmap || bitmap.stageWidth === undefined || bitmap.stageHeight === undefined) return placed;
+    const full = fullRasterInSpace({ width: placed.width, height: placed.height, data: placed.data }, STAGE_PIXEL_SPACE);
+    return full === placed || (full.width === placed.width && full.height === placed.height && full.data === placed.data) ? placed : { width: full.width, height: full.height, data: full.data };
   };
   drawingData.layers.forEach((layer, layerIndex) => {
     const unifiedLayer = project.document.layers[layerIndex];
     layer.timelineFrames.forEach((frame, frameIndex) => {
       const raster = unifiedLayer?.cells[frameIndex]?.content?.items.find(item => item.kind === "drawing-raster/v1");
       if (raster?.kind === "drawing-raster/v1") {
-        if (raster.motionTween || raster.tweenEndBitmap) frame.bitmap = placeBitmap(raster.bitmap);
+        if (raster.motionTween || raster.tweenEndBitmap) frame.bitmap = placeTweenBitmap(raster.bitmap);
         else {
           const placed = placeCompactBitmap(raster.bitmap);
           frame.bitmap = placed;
@@ -66,15 +81,15 @@ const hydrateDrawingCompatibility = (project: UnifiedAnimationProjectV2, source:
           // saved picture is let go (it becomes the same box read from the frame picture, rasterCropV1.ts).
           if (placed && raster.bitmap) raster.bitmap = savedPictureInFrame(raster.bitmap, placed) ?? raster.bitmap;
         }
-        frame.tweenEndBitmap = placeBitmap(raster.tweenEndBitmap);
-        frame.motionTween = raster.motionTween ? {
+        frame.tweenEndBitmap = placeTweenBitmap(raster.tweenEndBitmap);
+        frame.motionTween = raster.motionTween ? motionTweenInSpace({
           mode: raster.motionTween.mode,
           stageWidth: raster.motionTween.stageWidth,
           stageHeight: raster.motionTween.stageHeight,
           spriteBitmap: placeBitmap(raster.motionTween.spriteBitmap),
           startOrigin: structuredClone(raster.motionTween.startOrigin),
           endOrigin: structuredClone(raster.motionTween.endOrigin),
-        } : null;
+        }, STAGE_PIXEL_SPACE) : null;
       }
       if (unifiedLayer?.cells[frameIndex]?.content) frame.soundAttachment = structuredClone(unifiedLayer.cells[frameIndex].content!.soundAttachment);
     });
@@ -159,7 +174,16 @@ const hydrateUnifiedItemCompatibility = (project: UnifiedAnimationProjectV2, dra
     layer.timelineFrames.forEach((frame, frameIndex) => {
       const items = unifiedLayer?.cells[frameIndex]?.content?.items ?? [];
       const instances = items.filter(item => item.kind === "symbol-instance/v1");
-      if (instances.length > 0) symbolInstancesByCell[`${layer.id}:${frame.stateId}`] = structuredClone(instances);
+      if (instances.length === 0) return;
+      // (Nov 23, one pixel space) A Library symbol sitting on a drawing was lined up with that drawing on the page of
+      // the screen it was saved on. It now remembers that drawing canvas (as AI-placed symbols always did), so it keeps
+      // its size and place next to the drawing on every screen, and when the drawing is edited. Export reads the same
+      // canvas from the drawing today, so the exported picture does not change.
+      const raster = items.find(item => item.kind === "drawing-raster/v1");
+      const saved = raster?.kind === "drawing-raster/v1" ? raster.bitmap : null;
+      const canvas = saved && saved.stageWidth !== undefined && saved.stageHeight !== undefined ? { width: saved.stageWidth, height: saved.stageHeight } : null;
+      symbolInstancesByCell[`${layer.id}:${frame.stateId}`] = structuredClone(instances).map(instance =>
+        instance.kind === "symbol-instance/v1" && !instance.drawingCanvas && canvas && !samePixelSpace(canvas, STAGE_PIXEL_SPACE) ? { ...instance, drawingCanvas: canvas } : instance);
     });
   });
   return { stickByCell: {}, symbolInstancesByCell };

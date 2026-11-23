@@ -77,7 +77,12 @@ export const resolveExportSymbolTransform = (
   const safeWorldScale = Math.max(1, authoringWorldScale);
   const stagePage = instanceCanvas ?? { width: safeReferenceWidth, height: safeReferenceHeight };
   // Drawing-canvas pixels per stage unit; the stage's middle sits at the canvas middle.
-  const stageScale = Math.min(Math.max(1, stagePage.width) / safeWorldScale / 1920, Math.max(1, stagePage.height) / safeWorldScale / 1080);
+  // (Nov 23) An instance that remembers its drawing canvas keeps its own size on the stage even when the cell's
+  // drawing is later saved in another pixel space (the editor now re-saves an edited drawing in the one stage pixel
+  // space): its remembered pixels are counted in the saved picture's pixels. Same canvas = exactly as before.
+  const perStageUnit = (page: { width: number; height: number }) => Math.max(page.width / (1920 * safeWorldScale), page.height / (1080 * safeWorldScale));
+  const sameSpace = instanceCanvas ? perStageUnit({ width: safeReferenceWidth, height: safeReferenceHeight }) / perStageUnit(instanceCanvas) : 1;
+  const stageScale = Math.min(Math.max(1, stagePage.width) / safeWorldScale / 1920, Math.max(1, stagePage.height) / safeWorldScale / 1080) * sameSpace;
   const stageLeft = safeReferenceWidth / 2 - 960 * stageScale;
   const stageTop = safeReferenceHeight / 2 - 540 * stageScale;
   return {

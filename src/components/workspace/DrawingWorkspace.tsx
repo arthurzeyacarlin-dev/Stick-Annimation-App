@@ -5,12 +5,12 @@ import { DrawingCanvas } from "./DrawingCanvas";
 import type { TopBarMenu } from "./DrawingTopBar";
 import { DiamondAssistantScreen } from "@/src/components/assistant/DiamondAssistantScreen";
 import { CloseButton } from "@/src/components/ui/CloseButton";
-import { bitmapCenterOffset } from "@/src/lib/animation/unifiedStageGeometry";
+import { bitmapCenterOffset, samePixelSpace, STAGE_PIXEL_SPACE } from "@/src/lib/animation/unifiedStageGeometry";
 import { buildScene as buildAnimatorScene, type Scene as AnimatorScene } from "@/src/lib/animator/engine";
 import { enginePrebuiltEffectLayers, enginePrebuiltFigureLayers, enginePrebuiltFrames, rasterizeEnginePictures } from "@/src/lib/ai/engineBlocks/engineBlockScene";
 import { knownRasterCropDigest, rasterCropBitmap, rasterCropOf, readRasterCrop, rememberRasterCropDigest, stablePaintedBounds, type RasterCrop } from "@/src/lib/animation/rasterCropV1";
 import { arePixelsLost, framePixels, isFramePicturePacked, isPixelDataSettled, knownSamePixels, packPixelData, rememberSamePixels } from "@/src/lib/animation/framePictureStore";
-import { captureRasterReferencePatch, compactOrigin, copyRasterReferenceSize, getRasterReferenceSize, mergeRasterReferencePatch, paintedBounds, resolveRasterReferenceSize } from "@/src/lib/animation/compactRasterBitmap";
+import { captureRasterReferencePatch, compactOrigin, copyRasterReferenceSize, getRasterReferenceSize, mergeRasterReferencePatch, paintedBounds, rasterBoxInSpace, rasterInSpace, resolveRasterReferenceSize } from "@/src/lib/animation/compactRasterBitmap";
 import {
   authoringSurfaceWorldTransform,
   getAuthoringSurfaceViewport,
@@ -961,7 +961,11 @@ const normalizeCapturedSnapshotExtent = (snapshot: DrawingCanvasSnapshot, curren
   const viewHeight = dirty ? snapshot.bitmapHeight : snapshotReference?.height;
   if (!viewWidth || !viewHeight) throw new Error("missing_snapshot_extent");
   // A compact frame stands for its full reference size; keep that size so export framing never changes.
-  const reference = resolveRasterReferenceSize(current);
+  // (Nov 23) Only a picture in the SAME pixel space as the canvas: a picture saved in another space (an older screen's)
+  // is first drawn in the canvas's space when the change is laid in (compactRasterBitmap.ts), so its old size has no say.
+  const view = { width: viewWidth, height: viewHeight };
+  const currentSpace = resolveRasterReferenceSize(current);
+  const reference = getRasterReferenceSize(current) && !samePixelSpace(currentSpace, view) ? view : currentSpace;
   const width = Math.max(viewWidth, reference.width), height = Math.max(viewHeight, reference.height);
   if (getExpectedBitmapDataLength(width, height) === null) throw new Error("snapshot_extent_limit");
   if (dirty && viewWidth === width && viewHeight === height) return snapshot;
@@ -2445,7 +2449,9 @@ type DerivedMotionTweenSpritePayload = DerivedMotionTweenOriginPayload & {
   spriteBitmap: ImageData;
 };
 
-const deriveMotionTweenOriginFromBitmap = (bitmap: ImageData | null): DerivedMotionTweenOriginPayload | null => {
+const deriveMotionTweenOriginFromBitmap = (picture: ImageData | null): DerivedMotionTweenOriginPayload | null => {
+  // (a tween is always measured in the stage pixel space, also from a picture saved in an older screen's space)
+  const bitmap = rasterInSpace(picture, STAGE_PIXEL_SPACE);
   if (!bitmap) {
     return null;
   }
@@ -2468,7 +2474,8 @@ const deriveMotionTweenOriginFromBitmap = (bitmap: ImageData | null): DerivedMot
   };
 };
 
-const deriveMotionTweenSpriteAndOrigin = (bitmap: ImageData | null): DerivedMotionTweenSpritePayload | null => {
+const deriveMotionTweenSpriteAndOrigin = (picture: ImageData | null): DerivedMotionTweenSpritePayload | null => {
+  const bitmap = rasterInSpace(picture, STAGE_PIXEL_SPACE);
   const originPayload = deriveMotionTweenOriginFromBitmap(bitmap);
   if (!bitmap || !originPayload) {
     return null;
@@ -4912,15 +4919,19 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
           if (!source) throw new Error("bitmap_presentation_failed");
           const scaleX = canvas.width / viewport.referenceSpanWidth;
           const scaleY = canvas.height / viewport.referenceSpanHeight;
-          const left = bitmapCenterOffset(viewport.referenceWidth, resolution.bitmap.width);
-          const top = bitmapCenterOffset(viewport.referenceHeight, resolution.bitmap.height);
+          // (where the picture sits in the stage pixel space: a picture saved in another space is shown at its own
+          // stage size, scaled by the screen - it is not drawn again just to be looked at)
+          const box = rasterBoxInSpace(resolution.bitmap, { width: viewport.referenceWidth, height: viewport.referenceHeight });
+          ctx.imageSmoothingEnabled = box.width !== resolution.bitmap.width || Math.abs(scaleX - 1) > 1e-6;
+          if (ctx.imageSmoothingEnabled) ctx.imageSmoothingQuality = "high";
           ctx.drawImage(
             source,
-            (left - viewport.referenceLeft) * scaleX,
-            (top - viewport.referenceTop) * scaleY,
-            resolution.bitmap.width * scaleX,
-            resolution.bitmap.height * scaleY,
+            (box.left - viewport.referenceLeft) * scaleX,
+            (box.top - viewport.referenceTop) * scaleY,
+            box.width * scaleX,
+            box.height * scaleY,
           );
+          ctx.imageSmoothingEnabled = false;
         } else {
           const source = createBitmapCanvas(resolution.bitmap);
           if (!source) throw new Error("bitmap_presentation_failed");
@@ -5084,7 +5095,9 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         ctx.fillStyle = stageBackgroundColor;
         ctx.fillRect(stageDisplayRect.left, stageDisplayRect.top, stageDisplayRect.width, stageDisplayRect.height);
       }
-      ctx.imageSmoothingEnabled = false;
+      // (frame pictures are stage pixels, shown at the screen's size: scaled smoothly, never blocky)
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
       // Symbols use the canvas overlay's stage fit (whole 1920x1080 stage, centered in the page).
       const symbolPresentation = resolveSymbolStagePresentationV2(
         stageDisplayRect ?? { left: 0, top: 0, width: cssWidth, height: cssHeight },
@@ -5126,20 +5139,14 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
           continue;
         }
 
-        const drawWidth = sourceCanvas
-          ? worldDisplayRect.width * (sourceCanvas.width / referenceWidth)
-          : worldDisplayRect.width;
-        const drawHeight = sourceCanvas
-          ? worldDisplayRect.height * (sourceCanvas.height / referenceHeight)
-          : worldDisplayRect.height;
-        const drawLeft = sourceCanvas
-          ? worldDisplayRect.left + bitmapCenterOffset(referenceWidth, sourceCanvas.width) * (worldDisplayRect.width / referenceWidth)
-          : worldDisplayRect.left;
-        const drawTop = sourceCanvas
-          ? worldDisplayRect.top + bitmapCenterOffset(referenceHeight, sourceCanvas.height) * (worldDisplayRect.height / referenceHeight)
-          : worldDisplayRect.top;
-        if (sourceCanvas) {
-          ctx.drawImage(sourceCanvas, drawLeft, drawTop, drawWidth, drawHeight);
+        // (where the picture sits in the stage pixel space; a picture saved in another pixel space plays at its own
+        // stage size - the same size and place export gives it)
+        const box = sourceCanvas
+          ? rasterBoxInSpace(bitmap && bitmap.width === sourceCanvas.width && bitmap.height === sourceCanvas.height ? bitmap : sourceCanvas, { width: referenceWidth, height: referenceHeight })
+          : null;
+        if (sourceCanvas && box) {
+          const perPixelX = worldDisplayRect.width / referenceWidth, perPixelY = worldDisplayRect.height / referenceHeight;
+          ctx.drawImage(sourceCanvas, worldDisplayRect.left + box.left * perPixelX, worldDisplayRect.top + box.top * perPixelY, box.width * perPixelX, box.height * perPixelY);
         }
         const textScaleX = worldDisplayRect.width / Math.max(1, worldWidth);
         const textScaleY = worldDisplayRect.height / Math.max(1, worldHeight);
@@ -9310,7 +9317,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
 
     const stageBitmaps = [...layersRef.current]
       .reverse()
-      .map((layer) => resolveTimelineBitmap(layer.timelineFrames, currentFrameIndexRef.current))
+      .map((layer) => rasterInSpace(resolveTimelineBitmap(layer.timelineFrames, currentFrameIndexRef.current), STAGE_PIXEL_SPACE))
       .filter((bitmap): bitmap is ImageData => Boolean(bitmap));
     const referenceBitmap = stageBitmaps[0] ?? null;
     if (!referenceBitmap) {
@@ -9946,7 +9953,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         const frames = layer.timelineFrames;
         let owner = frameIndex;
         while (owner > 0 && frames[owner] && frames[owner].cellType === "hold" && frames[owner - 1]?.cellType !== "empty" && frames[owner - 1]?.stateId === frames[owner].stateId) owner -= 1;
-        const bitmap = frames[owner] && frames[owner].cellType !== "empty" ? getUsableBitmap(frames[owner].bitmap) : null;
+        const bitmap = frames[owner] && frames[owner].cellType !== "empty" ? rasterInSpace(getUsableBitmap(frames[owner].bitmap), STAGE_PIXEL_SPACE) : null;
         if (bitmap) bitmaps.push(bitmap);
       }
       return { bitmaps, canvas: { width: layout.drawingCanvasWidth, height: layout.drawingCanvasHeight }, map };
@@ -9968,7 +9975,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       const keys = Array.from({ length: count }, (_, i) => users.map((l) => { const o = ownerOf(l.timelineFrames, i); return o < 0 ? "" : `${o}:${l.timelineFrames[o].stateId}`; }).join("|").replace(/^\|+$/, ""));
       const picked = v1SheetFrames(keys, max);
       if (!picked) return null;
-      const frames = picked.map((index) => ({ index, bitmaps: users.map((l) => { const o = ownerOf(l.timelineFrames, index); return o < 0 ? null : getUsableBitmap(l.timelineFrames[o].bitmap); }).filter((b): b is ImageData => Boolean(b)) }));
+      const frames = picked.map((index) => ({ index, bitmaps: users.map((l) => { const o = ownerOf(l.timelineFrames, index); return o < 0 ? null : rasterInSpace(getUsableBitmap(l.timelineFrames[o].bitmap), STAGE_PIXEL_SPACE); }).filter((b): b is ImageData => Boolean(b)) }));
       return { frames, canvas: { width: layout.drawingCanvasWidth, height: layout.drawingCanvasHeight }, map };
     },
     // (The engine LOOKS at the drawing: a frame's picture on the active layer as page-space ink. A held cell gives the
@@ -9980,7 +9987,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       const frames = getLayerById(layersRef.current, activeLayerIdRef.current)?.timelineFrames ?? [];
       let owner = frameIndex;
       while (owner > 0 && frames[owner] && frames[owner].cellType === "hold" && frames[owner - 1]?.cellType !== "empty" && frames[owner - 1]?.stateId === frames[owner].stateId) owner -= 1;
-      const bitmap = frames[owner] && frames[owner].cellType !== "empty" ? getUsableBitmap(frames[owner].bitmap) : null;
+      const bitmap = frames[owner] && frames[owner].cellType !== "empty" ? rasterInSpace(getUsableBitmap(frames[owner].bitmap), STAGE_PIXEL_SPACE) : null;
       if (!layout?.drawingCanvasWidth || !layout.drawingCanvasHeight || !map || !bitmap) return null;
       // (An engine-drawn figure's head is a Library symbol placed on the cell, not in its picture: drawn in too, the
       // same way the canvas draws it, so the engine can read its own figures again.)
@@ -10113,12 +10120,16 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
       selectedTimelineIndex,
       currentFrameHasBitmap: Boolean(currentBounds),
       currentFrameBounds: currentBounds && currentBitmap
-        ? {
-            left: currentBounds.left + compactOrigin(resolveRasterReferenceSize(currentBitmap).width, currentBitmap.width),
-            top: currentBounds.top + compactOrigin(resolveRasterReferenceSize(currentBitmap).height, currentBitmap.height),
-            width: currentBounds.width,
-            height: currentBounds.height,
-          }
+        ? (() => {
+            // (in the stage pixel space, also for a picture saved in an older screen's space)
+            const box = rasterBoxInSpace(currentBitmap, STAGE_PIXEL_SPACE), scale = box.width / Math.max(1, currentBitmap.width);
+            return {
+              left: Math.round(box.left + currentBounds.left * scale),
+              top: Math.round(box.top + currentBounds.top * scale),
+              width: Math.round(currentBounds.width * scale),
+              height: Math.round(currentBounds.height * scale),
+            };
+          })()
         : null,
       previousFilledFrameIndex: previousFilledFrameIndex >= 0 ? previousFilledFrameIndex : null,
       nextFilledFrameIndex: nextFilledFrameIndex >= 0 ? nextFilledFrameIndex : null,
@@ -10555,10 +10566,12 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         continue;
       }
 
-      const ownerFrame = timelineFrames[segment.ownerIndex];
-      if (!ownerFrame?.bitmap || !ownerFrame.tweenEndBitmap) {
+      const storedOwnerFrame = timelineFrames[segment.ownerIndex];
+      if (!storedOwnerFrame?.bitmap || !storedOwnerFrame.tweenEndBitmap) {
         continue;
       }
+      // (both ends read in the stage pixel space)
+      const ownerFrame = { bitmap: rasterInSpace(storedOwnerFrame.bitmap, STAGE_PIXEL_SPACE), tweenEndBitmap: rasterInSpace(storedOwnerFrame.tweenEndBitmap, STAGE_PIXEL_SPACE) };
 
       const startBounds = findOpaqueBitmapBounds(ownerFrame.bitmap);
       const endBounds = findOpaqueBitmapBounds(ownerFrame.tweenEndBitmap);

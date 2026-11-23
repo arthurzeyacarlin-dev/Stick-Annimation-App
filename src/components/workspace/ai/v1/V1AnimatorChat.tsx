@@ -19,7 +19,10 @@ import { useAccountPlan } from "@/src/components/account/useAccountPlan";
 import { V1OutOfCreditsCard, announceAccountPlanChanged, v1OutOfCreditsView } from "./V1OutOfCreditsCard";
 import { SHORT_ANIMATION_CREDITS } from "@/src/lib/account/plans";
 import { creditsText } from "@/src/lib/account/credits";
-import { sendAiStatus } from "../aiDock";
+import { sendAiStatus, useAiPrefill } from "../aiDock";
+import { pickIdeaChips } from "../aiStart";
+import { useTypedPlaceholder } from "../useTypedExample";
+import { CreditRing } from "@/src/components/account/CreditRing";
 
 // AI Animator VERSION 1 panel (switch NEXT_PUBLIC_DIAMOND_V1_ANIMATOR=1, default OFF — off, DrawingAiPanel is exactly
 // today's). Chat with Luna; ONE stick figure lands on the canvas as an editable "AI:" layer; edits replace that layer's
@@ -44,7 +47,8 @@ type Props = {
 };
 
 // (UX Step 1, Nov 11) three examples a stranger can tap: they only fill the message box (the website's own examples).
-const V1_EXAMPLES = ["Do a cartwheel", "A punch barrage", "Pound the ground like a gorilla"];
+// (Nov 23) the ideas show the range (a robot, an animal, a knight ...), three new random ones each time the window starts fresh
+const V1_EXAMPLES = ["A robot does a funny dance, then takes a bow", "A cat sneaks up on a ball of yarn and pounces on it", "A samurai slices a falling apple in half"];
 
 // (the browser's storage for the remembered Effort level; reading it can throw when site data is blocked)
 const effortStorage = () => { try { return typeof window === "undefined" ? null : window.localStorage; } catch { return null; } };
@@ -94,6 +98,7 @@ export function V1AnimatorChat({ projectId, copiedFrom, bridge, readOnly, Reply,
     return frame ? makeV1GroundLines(frame.bitmaps, frame.canvas, frame.map, rule, maxPx) : null; // (lines + the user's drawn things)
   }, [placer]);
   const controllerRef = useRef<V1AnimatorController | null>(null);
+  const restoreRef = useRef<Promise<void> | null>(null);   // (Nov 23) the panel's opening (the saved chat coming back), for Home's auto-send
 
   // One controller per project (a new project = a new chat; the canvas layer it made stays a normal layer).
   useEffect(() => {
@@ -105,7 +110,7 @@ export function V1AnimatorChat({ projectId, copiedFrom, bridge, readOnly, Reply,
       live: { everyMs: 600 } });   // (Nov 17, Part 2) his words show as he writes them
     controllerRef.current = controller;
     setState(controller.current);
-    void controller.restore(); // (a reload / server restart: the same chat + animation come back)
+    restoreRef.current = controller.restore(); // (a reload / server restart: the same chat + animation come back)
     const look = setInterval(() => controller.noticeLayer(), 2000); // (Nov 15 night: a layer he took off the canvas himself is never put back)
     return () => { clearInterval(look); controller.dispose(); if (controllerRef.current === controller) controllerRef.current = null; };
   }, [ground, picture, placer, projectId, sheet]);
@@ -134,8 +139,34 @@ export function V1AnimatorChat({ projectId, copiedFrom, bridge, readOnly, Reply,
   // (Nov 22, layouts) the editor's top bar shows what the AI Animator is doing - a look only; nothing here changes what it does
   const waitingGate = state.lines.some((l) => l.kind === "gate" && l.state === "waiting");
   useEffect(() => {
-    sendAiStatus({ busy: state.busy, phase: state.thinking?.phase ?? null, pct: state.progress?.pct ?? null, part: state.progress?.part ?? null, waiting: waitingGate, listening: dictation.phase === "recording" });
-  }, [state.busy, state.thinking?.phase, state.progress?.pct, state.progress?.part, waitingGate, dictation.phase]);
+    sendAiStatus({ busy: state.busy, phase: state.thinking?.phase ?? null, pct: state.progress?.pct ?? null, part: state.progress?.part ?? null, waiting: waitingGate, listening: dictation.phase === "recording",
+      placed: state.placedVersion ?? null, hasAnimation: Boolean(state.animationId), fresh: state.lines.length === 0 && !state.busy });
+  }, [state.busy, state.thinking?.phase, state.progress?.pct, state.progress?.part, waitingGate, dictation.phase, state.placedVersion, state.animationId, state.lines.length]);
+  // (Nov 23, Arthur: "when I click Animate I want the panel open and it automatically sends") words typed on Home are sent
+  // here by themselves, exactly like pressing send: only in a brand-new chat, and only after the panel has finished opening
+  // (the saved chat check), so the turn is the same as a typed one. Anything else (a busy panel, an older chat) just leaves
+  // the words in the box.
+  const sendRef = useRef({ effort, readOnly, onInputChange, onSent });
+  sendRef.current = { effort, readOnly, onInputChange, onSent };
+  useAiPrefill(useCallback((text: string) => {
+    onInputChange(text);
+    void (async () => {
+      await (restoreRef.current ?? Promise.resolve()).catch(() => {});
+      await new Promise((done) => window.setTimeout(done, 120));
+      const controller = controllerRef.current;
+      const now = sendRef.current;
+      if (!controller || now.readOnly || controller.current.busy || controller.current.lines.length) {
+        const box = composerRef.current; if (box) { box.focus(); box.setSelectionRange(box.value.length, box.value.length); }
+        return;
+      }
+      now.onInputChange(""); now.onSent();
+      void controller.send(text, now.effort);
+    })();
+  }, [onInputChange, composerRef]));
+  const [ideas, setIdeas] = useState<string[]>(V1_EXAMPLES);
+  useEffect(() => { setIdeas(pickIdeaChips(3)); }, [projectId]);
+  const placeholder = state.animationId ? "Say what to change, or what happens next…" : "Type what you want to see…";
+  useTypedPlaceholder(composerRef, !input && !state.animationId && !state.busy && !readOnly, placeholder);
 
   const dictationActive = dictation.phase !== "idle";
   const started = state.lines.length > 0 || Boolean(state.busy);
@@ -152,13 +183,14 @@ export function V1AnimatorChat({ projectId, copiedFrom, bridge, readOnly, Reply,
               <span className="drawing-ai-logo" aria-hidden="true"><DiamondLogo size={48} /></span>
               <strong>Type it. Watch it come to life.</strong>
               {/* (Nov 23, Arthur: "whatever you say here, it's able to be animated ... except backgrounds and effects") */}
-              <span className="drawing-ai-empty-text">Describe any animation in plain words: a move, a stunt, a whole story. Anything except backgrounds and effects. It lands on your canvas as its own layer, and every frame stays yours to change.</span>
+              <span className="drawing-ai-empty-text">Say it in plain words: a move, a stunt, a whole story. The AI animates it for real, frame by frame, and puts it on your canvas. Then every frame is yours to change. Anything except backgrounds and effects.</span>
               <div className="drawing-ai-examples" role="group" aria-label="Try an example">
-                {V1_EXAMPLES.map((text) => (
+                {ideas.map((text) => (
                   <button key={text} type="button" disabled={readOnly} onClick={() => { onInputChange(text); composerRef.current?.focus(); }}>{text}</button>
                 ))}
               </div>
-              <span className="drawing-ai-cost">About {creditsText(SHORT_ANIMATION_CREDITS)} for a 10-second animation · the card shows the exact price before anything is made</span>
+              <span className="drawing-ai-cost">About {creditsText(SHORT_ANIMATION_CREDITS)} for a 10-second animation, replies included · the card shows the exact price before anything is made</span>
+              <span className="drawing-ai-esc">Rather draw it yourself? Press Esc and pick a tool on the left.</span>
             </div>
           )}
           {started && <div className="drawing-ai-thread-head" aria-hidden="true"><span className="drawing-ai-logo drawing-ai-logo-small"><DiamondLogo size={26} /></span><span>AI Animator</span></div>}
@@ -186,12 +218,13 @@ export function V1AnimatorChat({ projectId, copiedFrom, bridge, readOnly, Reply,
         composer={<>
           {outOfCredits && <V1OutOfCreditsCard view={outOfCredits} />}
           <form onSubmit={submit} className={`${chatComposerStyles.box} ${chatComposerStyles.compact} ${chatComposerStyles.quiet}`} aria-label="AI Animator message composer">
-          <textarea ref={composerRef} aria-label="Message AI Animator" value={input} onChange={(event) => onInputChange(event.target.value)} onKeyDown={handleKeyDown} placeholder={state.animationId ? "Change anything, or say what happens next…" : "Make an animation of…"} disabled={Boolean(state.busy) || readOnly} rows={2} />
+          <textarea ref={composerRef} aria-label="Message AI Animator" value={input} onChange={(event) => onInputChange(event.target.value)} onKeyDown={handleKeyDown} placeholder={placeholder} disabled={Boolean(state.busy) || readOnly} rows={2} />
           {dictationActive
             ? <ChatDictationPanel dictation={dictation} onCancel={onDictateCancel} onStop={onDictateStop} />
             : <ChatToolsRow
               left={<ChatEffortPicker value={effort} onChange={chooseEffort} disabled={Boolean(state.busy) || readOnly} />}
               right={<>
+                <CreditRing busy={Boolean(state.busy)} />
                 <ChatDictateButton disabled={dictationActive || Boolean(state.busy) || readOnly} onClick={onDictateStart} />
                 {/* (Cancel lives in the Animating card, Nov 1) */}
                 <ChatSendButton disabled={!input.trim() || Boolean(state.busy) || readOnly} />

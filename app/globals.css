@@ -775,6 +775,10 @@ button[data-hover="danger"], button[style*="color: var(--da-danger"]:not([data-h
 .da-notfound-home { margin-top: 14px; display: inline-flex; align-items: center; height: 46px; padding: 0 26px; border-radius: 12px; background: var(--da-accent); color: #ffffff; font-size: 15px; font-weight: 700; text-decoration: none;
   box-shadow: var(--da-glow-primary); }
 .da-notfound-home:focus-visible { outline: 2px solid var(--da-focus, #4d94ff); outline-offset: 3px; }
+.da-notfound-home:hover { background: var(--da-accent-hover); }
+/* (Nov 23) the crash page's second button: the app's gray button (gray hover, white text) */
+.da-notfound-quiet.da-notfound-quiet { background: transparent; border: 1px solid var(--da-border, #2c2c32); box-shadow: none; color: #fff; }
+.da-notfound-quiet.da-notfound-quiet:hover { background: var(--da-hover); border-color: var(--da-hover); box-shadow: var(--da-glow-hover); }
 
 /* ===== Delete pop-ups (Arthur 2026-10-27): one look for every "Delete …?" — a round red warning icon on top and a
    soft glow behind the box. Add the class `da-danger-dialog` to the dialog box. ===== */

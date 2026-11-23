@@ -422,7 +422,7 @@ function GateCard({ credits, lines, exact, notDrawn, colour, picture, busy, read
       {picture && <GatePictureBox picture={picture} />}
       {steps.length > 0 && <ol className="v1-gate-steps">{steps.map((s, i) => <li key={i}><span className="v1-step-n" aria-hidden="true">{i + 1}</span><span>{s.text}</span><span className="v1-step-s">{s.secs} s</span></li>)}</ol>}
       {notes.map((n, i) => <p key={i} className="v1-gate-note">{n}</p>)}
-      {(colour || total > 0 || facts.length > 0) && <p className="v1-gate-meta">{colour && <><span className="v1-swatch" style={{ background: colour }} aria-hidden="true" /><span>Stick figure</span></>}{total > 0 && <span>{total} seconds</span>}{facts.map((f) => <span key={f}>{f}</span>)}</p>}
+      {(colour || total > 0 || facts.length > 0) && <p className="v1-gate-meta">{colour && <><span className="v1-swatch" style={{ background: colour }} aria-hidden="true" /><span>Colour</span></>}{total > 0 && <span>{total} seconds</span>}{facts.map((f) => <span key={f}>{f}</span>)}</p>}
       {exact && exact.length > 0 && <details className="v1-gate-exact"><summary>Exact steps for the animator</summary><ol>{exact.map((l, i) => <li key={i}>{l}</li>)}</ol></details>}
       {notDrawn.length > 0 && <p className="v1-gate-not">Not drawn: {notDrawn.join(", ")}</p>}
       <div className="v1-actions" role="group" aria-label="Animate this plan">

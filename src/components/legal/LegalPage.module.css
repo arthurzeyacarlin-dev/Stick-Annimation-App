@@ -1,0 +1,27 @@
+/* The in-app Privacy Policy and Terms of Service (Nov 23): the app's dark look, one readable column, no hover fades. */
+.page { min-height: 100dvh; padding: 32px 20px 64px; background: var(--da-page); color: var(--da-text); font: 16px/1.6 var(--font-geist-sans), system-ui, -apple-system, "Segoe UI", sans-serif; color-scheme: dark; }
+.page *, .page *::before, .page *::after { box-sizing: border-box; }
+.column { max-width: 760px; margin: 0 auto; display: grid; gap: 20px; }
+.top { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.mark { display: inline-flex; align-items: center; gap: 10px; color: #fff; font-size: 16px; font-weight: 600; letter-spacing: -.015em; line-height: 1; }
+.head h1 { margin: 0 0 6px; font-size: 32px; font-weight: 600; letter-spacing: -.02em; line-height: 1.15; }
+.head p { margin: 0; color: var(--da-muted); }
+.updated { font-size: 14px; }
+.card { padding: 8px 28px; border: 1px solid var(--da-border); border-radius: 14px; background: var(--da-panel); }
+.section { padding: 20px 0; border-top: 1px solid var(--da-border); }
+.section:first-child { border-top: 0; }
+.section h2 { margin: 0 0 8px; font-size: 19px; font-weight: 600; letter-spacing: -.01em; }
+.section h3 { margin: 14px 0 6px; font-size: 16px; font-weight: 600; }
+.section p, .section ul { margin: 0 0 10px; color: var(--da-text-2, var(--da-text)); }
+.section p:last-child, .section ul:last-child { margin-bottom: 0; }
+.section ul { padding-left: 20px; display: grid; gap: 6px; list-style: disc; }
+.section strong { color: var(--da-text); font-weight: 600; }
+.page a { color: var(--da-text); font-weight: 500; text-decoration: underline; text-decoration-color: #66666f; text-underline-offset: 3px; }
+.page a:hover { color: #4d94ff; text-decoration-color: currentColor; }
+.page a:focus-visible { outline: 2px solid var(--da-focus, #4d94ff); outline-offset: 2px; }
+.foot { display: flex; flex-wrap: wrap; gap: 8px 20px; color: var(--da-muted); font-size: 14px; }
+@media (max-width: 560px) {
+  .page { padding: 20px 14px 48px; }
+  .card { padding: 4px 18px; }
+  .head h1 { font-size: 26px; }
+}

@@ -100,7 +100,7 @@ export function AuthScreen() {
         <div className={styles.mark}><DiamondLogo size={30} /><span className={styles.markName}>Diamond Animator</span></div>
         <div className={styles.heroWords}>
           <h1 className={styles.title}>Bring your stories to life.</h1>
-          <p className={styles.subtitle}>Your creative hub for animation. Tell the AI your story, then fine-tune every detail on your own timeline.</p>
+          <p className={styles.subtitle}>Type what you want to see and the AI Animator animates it for real. Then fine-tune every frame on your own timeline.</p>
         </div>
         <AuthShowcase />
       </section>
@@ -192,7 +192,8 @@ export function AuthScreen() {
         )}
                 <div className={styles.cardFoot}>
           {mode === "signup" && <p className={styles.fine}>Already have an account? <button type="button" className={styles.inlineLink} onClick={() => switchMode("login")}>Log in</button></p>}
-          {mode === "signup" && <p className={styles.fine}>By creating an account you agree to the Terms of Service and Privacy Policy.</p>}
+          {mode === "signup" && <p className={styles.fine}>By creating an account you agree to the <a className={styles.inlineLink} href="/terms" target="_blank" rel="noopener">Terms of Service</a> and <a className={styles.inlineLink} href="/privacy" target="_blank" rel="noopener">Privacy Policy</a>.</p>}
+          {mode === "signup" && <p className={styles.fine}>We&apos;ll email you tips during your free trial. Unsubscribe any time.</p>}
           {mode === "login" && <p className={styles.fine}>New to Diamond Animator? <button type="button" className={styles.inlineLink} onClick={() => switchMode("signup")}>Create an account</button></p>}
           {mode === "forgot" && !resetSent && <p className={styles.fine}>Remembered it? <button type="button" className={styles.inlineLink} onClick={() => switchMode("login")}>Back to log in</button></p>}
         </div>

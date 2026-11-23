@@ -92,6 +92,14 @@ export const auth = betterAuth({
         deleteAllAccountDataForOwner(user.id);
         deleteAccountPlan(user.id);
       },
+      // Nov 23: the account is gone, so the email service is told once and its follow-up emails stop. Best effort: it
+      // never waits and never fails, so it can't hold up or undo a deletion.
+      afterDelete: async (user) => {
+        try {
+          const { sendAccountDeletedSignal } = await import("./emailSignals");
+          sendAccountDeletedSignal(user.id, user.email);
+        } catch { /* the deletion is already done */ }
+      },
     },
   },
   // SPEC-0020 Phase 1: a profile picture must be a small image (resized in the browser); anything else is refused.

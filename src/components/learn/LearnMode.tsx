@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAccountSession } from "@/src/components/account/AccountSessionProvider";
 import { DiamondLogo } from "@/src/components/chrome/DiamondLogo";
+import { queueAnimateStart } from "@/src/components/workspace/ai/aiStart";
 
 // SPEC-0022 Phase 6 (Arthur 2026-10-13): the one-time guided setup ("learn mode"). Steps across the new Home (redesign
 // 2026-10-26). Each step outlines ONE thing with a blue glow and a card that explains it. Nothing can be clicked while
@@ -23,25 +24,24 @@ const firstVisible = (elements: Iterable<Element>) => { for (const element of el
 const byTour = (name: string) => () => firstVisible(document.querySelectorAll(`[data-tour="${name}"]`));
 // The AI Animator tab lives in the right panel (its file is shared with the AI work, so it has no tag): the tab by its name, or the
 // open panel's message box on phones, where the tab is already open.
-const byAiTab = () => firstVisible([...document.querySelectorAll("button")].filter((tab) => tab.textContent?.trim() === "AI Animator"))
+// (Nov 23) the top-bar field first: the closed command window keeps a (hidden) panel with a size, which must never be outlined
+const byAiTab = () => firstVisible(document.querySelectorAll(".ai-top-field"))
+  ?? firstVisible([...document.querySelectorAll("button")].filter((tab) => tab.textContent?.trim() === "AI Animator"))
   ?? firstVisible(document.querySelectorAll(".workspace-ai-panel-shell"))   // phones: the open AI sheet itself
   ?? firstVisible(document.querySelectorAll('form[aria-label="AI Animator message composer"]'))
-  ?? firstVisible(document.querySelectorAll(".ai-top-field, .ai-cmd"));   // (Nov 22, layouts) the AI Animator in the top bar
+  ?? firstVisible(document.querySelectorAll(".ai-cmd"));
 
+// (Nov 23, Arthur: "any person ... will still get guided"; the old tour was 12 steps, 7 of them on Home before anything was
+// made, and the AI was step 10) seven short steps: how to animate first, then the editor's four main places.
 const STEPS: Step[] = [
-  { where: "home", title: "New project", text: "Start a blank animation. Every animation you make begins here.", find: byTour("new-project") },
-  { where: "home", title: "Open project", text: "All your saved animations. Edit, watch or export any of them.", find: byTour("open-project") },
-  { where: "home", title: "Your latest animation", text: "Your most recent animation waits here. Click it to keep going.", find: byTour("recent") },
-  { where: "home", title: "AI Dashboard", text: "See how much AI money you have left and how much you have used.", find: byTour("ai-dashboard") },
-  { where: "home", title: "Notifications and Menu", text: "The bell shows new messages. The menu has Help (ask the Assistant anything), Report a Problem and more.", find: byTour("bell-menu") },
-  { where: "home", title: "Export", text: "Turn an animation into a video, a GIF or pictures you can share.", find: byTour("export") },
-  { where: "home", title: "Your account", text: "Your profile, settings and plan, and Log out.", find: byTour("account") },
+  { where: "home", title: "Type it, it gets animated", text: "Type what you want to see, in plain words: “a robot does a funny dance”. The AI animates it for real and opens it in a new project.", find: byTour("animate-home") },
+  { where: "home", title: "Your projects", text: "Every animation you make is saved here. Open any of them to watch, change or export it.", find: byTour("open-project") },
+  { where: "home", title: "Your AI credits", text: "Animating with AI uses credits. This shows how many you have left and what you used.", find: byTour("ai-dashboard") },
   // UX Step 1 (Arthur, Nov 11): the same tour walks on into the editor, so a stranger knows what to do first.
-  { where: "editor", title: "Draw here", text: "This is your canvas. Pick a tool at the bottom (Pencil to draw, Eraser, Fill, Text…) and draw your stick figure or anything else.", find: byTour("canvas") },
-  { where: "editor", title: "The timeline", text: "Every picture of your animation lives here, one frame after another. Click a frame to draw on it. Played in a row, the pictures move.", find: byTour("timeline") },
-  { where: "editor", title: "Animate anything", text: "Type what should happen, in plain words: “do a cartwheel”. It goes on the timeline as its own layer, and you can change any move after.", find: byAiTab },
-  { where: "editor", title: "Play", text: "Press Play to watch your animation. Press it again to pause.", find: byTour("play") },
-  { where: "editor", title: "Export", text: "Done? Export turns your animation into a video, a GIF or pictures you can share anywhere.", find: byTour("editor-export") },
+  { where: "editor", title: "Animate anything", text: "Type here (or press ⌘K) and say what should happen. You see the plan and its exact price before anything is made.", find: byAiTab },
+  { where: "editor", title: "Or draw it yourself", text: "This is your canvas. Pick a tool on the left (Pencil, Eraser, Fill, Text…) and draw on any frame, also on what the AI made.", find: byTour("canvas") },
+  { where: "editor", title: "The timeline", text: "Every frame of your animation, one after another. Click a frame to see it or draw on it.", find: byTour("timeline") },
+  { where: "editor", title: "Play and Export", text: "Press Play to watch it. When it looks right, Export (top right) turns it into a video or a GIF you can share.", find: byTour("play") },
 ];
 
 type Saved = { seen: boolean; active: boolean; step: number };
@@ -151,6 +151,8 @@ export function LearnMode() {
   if (!userId || !saved) return null;
 
   const closeWelcome = (start: boolean) => { setWelcome(false); save({ seen: true, active: start, step: 0 }); };
+  // (Nov 23) the welcome's main button goes straight to making one: a new project with the animate window open
+  const makeFirst = () => { closeWelcome(false); queueAnimateStart(""); byTour("new-project")()?.click(); };
 
   if (!active) {
     if (!welcome) return null;
@@ -161,10 +163,10 @@ export function LearnMode() {
           <button type="button" className="da-learn-close" aria-label="Close" onClick={() => closeWelcome(false)}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg></button>
           <span className="da-learn-logo"><DiamondLogo size={44} /></span>
           <h2>Welcome to Diamond Animator</h2>
-          <p>Want a quick guided tour? About two minutes: the main screen first, then the editor where you draw and animate.</p>
+          <p>Type what you want to see, and the AI animates it for real. Make your first animation now, or take a one-minute tour first.</p>
           <div className="da-learn-actions">
-            <button type="button" className="da-learn-primary" onClick={() => closeWelcome(true)}>Start guided tour</button>
-            <button type="button" className="da-learn-quiet" onClick={() => closeWelcome(false)}>Don&apos;t show again</button>
+            <button type="button" className="da-learn-primary" onClick={makeFirst}>Make my first animation</button>
+            <button type="button" className="da-learn-quiet" onClick={() => closeWelcome(true)}>Show me around</button>
           </div>
         </div>
       </div>

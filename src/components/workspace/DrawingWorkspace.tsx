@@ -10812,7 +10812,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
             <strong style={{ fontSize: 18 }}>Keyboard shortcuts</strong>
             <CloseButton label="Close keyboard shortcuts" onClick={() => setIsShortcutsOpen(false)} />
           </div>
-          {[["Save As", isMac ? "⇧⌘S" : "Ctrl+Shift+S"], ["Export", `${mod}E`], ["Close workspace", isMac ? "⌥⌘S" : "Ctrl+Alt+S"], ["Undo", `${mod}Z`], ["Redo", isMac ? "⇧⌘Z" : "Ctrl+Y"], ["Insert Frame", "F5"], ["Insert Keyframe", "F6"], ["Insert Blank Keyframe", "F7"],
+          {[["Save As", isMac ? "⇧⌘S" : "Ctrl+Shift+S"], ["Export", `${mod}E`], ["Back to Home", isMac ? "⌥⌘S" : "Ctrl+Alt+S"], ["Undo", `${mod}Z`], ["Redo", isMac ? "⇧⌘Z" : "Ctrl+Y"], ["Insert Frame", "F5"], ["Insert Keyframe", "F6"], ["Insert Blank Keyframe", "F7"],
             ["Play / Pause", "Enter"], ["Select tool", "M"], ["Lasso", "L"], ["Pencil", "P"], ["Eraser", "E"], ["Fill", "F"], ["Text", "T"], ["Shape", "S"], ["Knife", "K"], ["Copy frames", `${mod}C`], ["Paste frames", `${mod}V`], ["Zoom In", `${mod}+`], ["Zoom Out", `${mod}−`], ["Reset View", `${mod}0`]].map(([label, keys]) => (
             <div key={label} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderTop: "1px solid var(--da-line, #2c2c32)", fontSize: 14, color: "var(--da-text-2, #d2d2d7)" }}>
               <span>{label}</span><kbd style={{ fontFamily: "inherit", color: "var(--da-text, #f5f5f6)", fontWeight: 650 }}>{keys}</kbd>
@@ -10955,7 +10955,7 @@ export function DrawingWorkspace({ initialProject, initialTitle, unifiedProject,
         data-unified-workspace-area="true"
         style={{ flex: 1, minHeight: 0, position: "relative", zIndex: 10, display: "flex" }}
       >
-        <AiAnimatorDock layout={aiLayout.layout} />
+        <AiAnimatorDock layout={aiLayout.layout} onPlay={togglePlayback} onExport={onExport ? () => void exportProject() : undefined} />
         {isTimelinePlaying && (
           <div
             aria-hidden="true"

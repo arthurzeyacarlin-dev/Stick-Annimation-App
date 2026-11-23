@@ -10534,7 +10534,7 @@ export const DrawingCanvas = forwardRef<DrawingCanvasHandle, DrawingCanvasProps>
                 textAlign: "left",
               }}
             >
-              Pencil Tools: {brushToolVariant === "Brush" ? "Pencil" : brushToolVariant === "Pencil" ? "Graphite" : brushToolVariant}
+              Pencil type: {brushToolVariant === "Brush" ? "Pencil" : brushToolVariant === "Pencil" ? "Graphite" : brushToolVariant} ▾
             </button>
           </div>
         </div>

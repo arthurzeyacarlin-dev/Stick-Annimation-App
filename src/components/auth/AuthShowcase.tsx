@@ -1,94 +1,142 @@
-import type { CSSProperties } from "react";
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 import styles from "./AuthScreen.module.css";
+import { AuthDemo } from "./AuthDemo";
 
-// The moving picture on the first screen: a hand-made sample (two stick figures on a timeline) until a real
-// AI Animator clip replaces it. Pure drawing: it touches no account, no saving and no animation engine.
-type Pose = { x: number; y: number; lean: number; front: [number, number]; back: [number, number]; legA: [number, number]; legB: [number, number] };
-type Key = { at: number; pose: Pose };
+// (Nov 23, Arthur: "replace them with AI animated videos ... one animation, then once it's fully done, a professional,
+// polished transition to the next") The first screen plays REAL animations made by the app's AI Animator, one at a time.
+// Each one starts with the exact words that made it typing themselves in, then the animation plays, then a soft
+// cross-fade brings the next. Pure playback: it touches no account, no saving and no animation engine.
+type Clip = { src: string; poster: string; tag: string; kept?: string[]; typed: string[] };
 
-const FRAMES = 36;
-const LIMB = 31;
-const TORSO = 60;
-const stance = (x: number): Pose => ({ x, y: 192, lean: 8, front: [60, 122], back: [22, 108], legA: [35, -5], legB: [-5, -38] });
-
-const hero: Key[] = [
-  { at: 0, pose: stance(112) },
-  { at: 0.18, pose: { x: 205, y: 196, lean: 22, front: [72, 135], back: [-42, 38], legA: [70, 5], legB: [-25, -84] } },
-  { at: 0.34, pose: { x: 278, y: 207, lean: 30, front: [14, 100], back: [-30, 42], legA: [50, -20], legB: [-20, -60] } },
-  { at: 0.44, pose: { x: 320, y: 178, lean: -8, front: [100, 125], back: [-32, 40], legA: [15, -5], legB: [-25, -40] } },
-  { at: 0.58, pose: { x: 326, y: 188, lean: -3, front: [132, 165], back: [-24, 44], legA: [20, -8], legB: [-18, -30] } },
-  { at: 1, pose: { x: 332, y: 192, lean: 4, front: [64, 120], back: [18, 104], legA: [32, -6], legB: [-8, -36] } },
-];
-const rival: Key[] = [
-  { at: 0, pose: stance(486) },
-  { at: 0.18, pose: stance(452) },
-  { at: 0.34, pose: { ...stance(410), lean: 12 } },
-  { at: 0.44, pose: { x: 385, y: 192, lean: 15, front: [52, 110], back: [20, 96], legA: [34, -6], legB: [-8, -36] } },
-  { at: 0.58, pose: { x: 468, y: 116, lean: -58, front: [-120, -150], back: [-70, -105], legA: [42, 74], legB: [12, 50] } },
-  { at: 0.76, pose: { x: 558, y: 158, lean: -96, front: [-145, -165], back: [-105, -130], legA: [70, 92], legB: [38, 78] } },
-  { at: 0.88, pose: { x: 592, y: 232, lean: -98, front: [-110, -92], back: [-82, -90], legA: [-82, -88], legB: [-96, -84] } },
-  { at: 1, pose: { x: 596, y: 234, lean: -98, front: [-104, -90], back: [-84, -90], legA: [-84, -90], legB: [-94, -86] } },
+const CLIPS: Clip[] = [   // (Nov 23) the same three new stories, with the exact words that made them
+  { src: "/showcase/new-box-robot.mp4", poster: "/showcase/new-box-robot.jpg", tag: "One typed request", typed: ["A pile of brown cardboard boxes jumps up and snaps together, box by box, into a cardboard robot. The robot blinks, looks at its hands, then starts dancing: it pops and locks, spins on its back like a breakdancer, flips up onto its feet and freezes in a cool pose with one arm up."] },
+  { src: "/showcase/new-chef-pizza.mp4", poster: "/showcase/new-chef-pizza.jpg", tag: "One typed request", typed: ["A chef stick figure in a white chef hat spins pizza dough on his finger, then tosses it higher and higher. The last toss goes so high it flies out of sight; he looks up, confused, and it falls back down onto his head. He peels it off and it has turned into a perfect pizza, and he takes a big bite."] },
+  { src: "/showcase/new-boulder-car.mp4", poster: "/showcase/new-boulder-car.jpg", tag: "One typed request", typed: ["A stick figure stands at a wall on the left that has a big lever and a red button on it. A red car is parked in the middle of the screen. A long rail runs along the top of the screen, and at the top left a giant grey boulder hangs from a rope tied to a hook on the rail. The stick figure pulls the lever: the hook slides along the rail and carries the hanging boulder from the top left to the top center, right above the car. Then he presses the red button: the rope's loop opens and lets go of the boulder. The rope stays tied up on the rail, empty, and only the boulder falls straight down by itself and smashes the car flat into pieces."] },
 ];
 
-const mix = (a: number, b: number, t: number) => a + (b - a) * t;
-const ease = (t: number) => t * t * (3 - 2 * t);
-const mixPair = (a: [number, number], b: [number, number], t: number): [number, number] => [mix(a[0], b[0], t), mix(a[1], b[1], t)];
+const TYPE_MS = 16;        // per letter
+const LINE_PAUSE_MS = 380; // between two commands
+const BEFORE_PLAY_MS = 420;
+const HOLD_END_MS = 900;   // the last picture stays a moment before the next one fades in
 
-function poseAt(keys: Key[], time: number): Pose {
-  const next = Math.max(1, keys.findIndex((key) => key.at >= time));
-  const from = keys[next - 1], to = keys[next];
-  const t = ease((time - from.at) / (to.at - from.at || 1));
-  return {
-    x: mix(from.pose.x, to.pose.x, t), y: mix(from.pose.y, to.pose.y, t), lean: mix(from.pose.lean, to.pose.lean, t),
-    front: mixPair(from.pose.front, to.pose.front, t), back: mixPair(from.pose.back, to.pose.back, t),
-    legA: mixPair(from.pose.legA, to.pose.legA, t), legB: mixPair(from.pose.legB, to.pose.legB, t),
-  };
-}
-
-const n = (value: number) => value.toFixed(1);
-
-function figure(pose: Pose, facing: 1 | -1) {
-  const turn = (deg: number) => (deg * facing * Math.PI) / 180;
-  const step = (x: number, y: number, deg: number, length: number) => [x + Math.sin(turn(deg)) * length, y + Math.cos(turn(deg)) * length] as const;
-  const neck = [pose.x + Math.sin(turn(pose.lean)) * TORSO, pose.y - Math.cos(turn(pose.lean)) * TORSO] as const;
-  const head = [neck[0] + Math.sin(turn(pose.lean)) * 19, neck[1] - Math.cos(turn(pose.lean)) * 19] as const;
-  const limb = (x: number, y: number, [a, b]: [number, number], length: number) => {
-    const joint = step(x, y, a, length), end = step(joint[0], joint[1], b, length);
-    return `M${n(x)} ${n(y)}L${n(joint[0])} ${n(joint[1])}L${n(end[0])} ${n(end[1])}`;
-  };
-  const shoulderY = neck[1] + 5;
-  return {
-    head,
-    path: `M${n(neck[0])} ${n(neck[1])}L${n(pose.x)} ${n(pose.y)}${limb(neck[0], shoulderY, pose.back, 28)}${limb(neck[0], shoulderY, pose.front, 28)}${limb(pose.x, pose.y, pose.legB, LIMB)}${limb(pose.x, pose.y, pose.legA, LIMB)}`,
-  };
-}
-
-const frames = Array.from({ length: FRAMES }, (_, index) => {
-  const time = index / (FRAMES - 1);
-  return { index, hero: figure(poseAt(hero, time), 1), rival: figure(poseAt(rival, time), -1) };
-});
-const KEY_FRAMES = new Set([0, 6, 12, 15, 20, 27, 31, 35]);
-const IMPACT = 15;
-
+// (Nov 23, Arthur: "it needs to look like the website ... full screen at the left side") The sign-up page's left side is the
+// editor in miniature (AuthDemo): his four stories, each made with the AI Animator, made longer with "then ...", and drawn on with
+// the pencil. The page's soft fade sits on top. Plain playback: no account, saving or animation engine is touched.
 export function AuthShowcase() {
   return (
-    <div className={styles.showcase} aria-hidden="true">
-      <svg className={styles.stage} viewBox="0 0 680 290" focusable="false">
-        <path className={styles.ground} d="M36 252H644" />
-        {frames.map((frame) => (
-          <g key={frame.index} className={`${styles.frame} ${frame.index === IMPACT ? styles.frameStill : ""}`} style={{ "--i": frame.index } as CSSProperties}>
-            {[frame.hero, frame.rival].map((body, index) => (
-              <g key={index}><circle cx={n(body.head[0])} cy={n(body.head[1])} r="16" /><path d={body.path} /></g>
-            ))}
-          </g>
-        ))}
-      </svg>
-      <div className={styles.timeline}>
-        <div className={styles.cells} style={{ "--frames": FRAMES } as CSSProperties}>
-          {frames.map((frame) => <span key={frame.index} data-key={KEY_FRAMES.has(frame.index) || undefined} />)}
-          <i className={styles.playhead} />
-        </div>
-      </div>
+    <div className={styles.storyStage} aria-hidden="true">
+      <AuthDemo />
+      <div className={styles.storyFade} />
     </div>
+  );
+}
+
+/** The same reel, as the sign-up page's big picture ("auth") or as the proof strip in the editor's animate window ("window"). */
+export function ShowcaseReel({ variant }: { variant: "auth" | "window" }) {
+  const [index, setIndex] = useState(0);
+  const [lines, setLines] = useState<string[]>([]);  // the commands typed so far for this clip (the last one may be partial)
+  const [typing, setTyping] = useState(true);
+  const [progress, setProgress] = useState(0);
+  const videos = useRef<(HTMLVideoElement | null)[]>([]);
+
+  useEffect(() => {
+    const clip = CLIPS[index];
+    const video = videos.current[index];
+    let alive = true;
+    const timers: number[] = [];
+    const later = (ms: number) => new Promise<void>((done) => { timers.push(window.setTimeout(done, ms)); });
+    const next = () => { if (alive) setIndex((i) => (i + 1) % CLIPS.length); };
+    let reduce = false;
+    try { reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch { /* old browser */ }
+    setProgress(0);
+    setTyping(true);
+    if (video) { video.pause(); try { video.currentTime = 0; } catch { /* not loaded yet */ } }
+
+    const run = async () => {
+      if (reduce) setLines(clip.typed);
+      else {
+        setLines([]);
+        await later(260);
+        for (let l = 0; l < clip.typed.length && alive; l++) {
+          const text = clip.typed[l];
+          for (let c = 2; c <= text.length + 1 && alive; c += 2) {
+            setLines([...clip.typed.slice(0, l), text.slice(0, c)]);
+            await later(TYPE_MS * 2);
+          }
+          if (l < clip.typed.length - 1) await later(LINE_PAUSE_MS);
+        }
+      }
+      if (!alive) return;
+      setLines(clip.typed);
+      setTyping(false);
+      await later(BEFORE_PLAY_MS);
+      if (!alive || !video) return;
+      try { await video.play(); } catch { await later(5000); next(); }   // (autoplay refused: the still stays, the reel still moves on)
+    };
+    const onTime = () => { if (video && video.duration) setProgress(Math.min(1, video.currentTime / video.duration)); };
+    const onEnd = () => { setProgress(1); void later(HOLD_END_MS).then(next); };
+    video?.addEventListener("timeupdate", onTime);
+    video?.addEventListener("ended", onEnd);
+    void run();
+    return () => {
+      alive = false;
+      timers.forEach((t) => window.clearTimeout(t));
+      video?.removeEventListener("timeupdate", onTime);
+      video?.removeEventListener("ended", onEnd);
+    };
+  }, [index]);
+
+  // a hidden tab never plays in the background
+  useEffect(() => {
+    const onVisible = () => {
+      const v = videos.current[index];
+      if (!v) return;
+      if (document.hidden) v.pause();
+      else if (!typing && v.paused && !v.ended) void v.play().catch(() => {});
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, [index, typing]);
+
+  const clip = CLIPS[index];
+  const bar = (
+    <div className={styles.reelBar}>
+      {(clip.kept ?? []).map((text) => <p key={`k-${text}`} className={styles.reelKept}><span aria-hidden="true">›</span><span>{text}</span></p>)}
+      {lines.map((text, i) => (
+        <p key={`${index}-${i}`} className={styles.reelLine}>
+          <span aria-hidden="true">›</span><span>{text}{typing && i === lines.length - 1 && <i className={styles.reelCaret} aria-hidden="true" />}</span>
+        </p>
+      ))}
+      {lines.length === 0 && <p className={styles.reelLine}><span aria-hidden="true">›</span><span><i className={styles.reelCaret} aria-hidden="true" /></span></p>}
+    </div>
+  );
+  const stage = (
+    <div className={styles.reelStage}>
+      {CLIPS.map((c, i) => (
+        <video key={c.src} ref={(el) => { videos.current[i] = el; }} className={styles.reelVideo} data-on={i === index ? "true" : undefined}
+          src={c.src} poster={c.poster} muted playsInline preload={i === index || i === (index + 1) % CLIPS.length ? "auto" : "metadata"} aria-hidden={i !== index} tabIndex={-1} />
+      ))}
+    </div>
+  );
+  const foot = (
+    <div className={styles.reelFoot}>
+      <span className={styles.reelTrack} aria-hidden="true"><span style={{ width: `${progress * 100}%` }} /></span>
+      <span className={styles.reelDots} aria-hidden="true">{CLIPS.map((c, i) => <i key={c.src} data-on={i === index ? "true" : undefined} />)}</span>
+      <span className={styles.reelTag}>{clip.tag}</span>
+    </div>
+  );
+  if (variant === "window") return (
+    <figure className={styles.reelSide} aria-label="Real animations made by typing them here">
+      {stage}
+      <div className={styles.reelSideText}>{bar}{foot}<figcaption className={styles.reelSideNote}>Typed in this box. Made by the app. Not drawn by hand.</figcaption></div>
+    </figure>
+  );
+  return (
+    <figure className={styles.showcase} aria-label="Animations made by typing them in Diamond Animator">
+      <div className={styles.reel}>{bar}{stage}{foot}</div>
+      <figcaption className={styles.reelCaption}>Every one of these was typed, not drawn. Made with the AI Animator in this app.</figcaption>
+    </figure>
   );
 }

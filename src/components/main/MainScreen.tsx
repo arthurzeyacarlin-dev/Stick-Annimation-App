@@ -1,7 +1,10 @@
 "use client";
 
-import { useEffect, useState, type ReactNode, type RefObject } from "react";
+import { useEffect, useRef, useState, type FormEvent, type ReactNode, type RefObject } from "react";
 import { useAccountSession } from "@/src/components/account/AccountSessionProvider";
+import { V1_ANIMATOR_UI_ENABLED } from "@/src/lib/ai/v1Animator/v1AnimatorContract";
+import { landedCount, queueAnimateStart } from "@/src/components/workspace/ai/aiStart";
+import { useTypedPlaceholder } from "@/src/components/workspace/ai/useTypedExample";
 import { AppHeader } from "./AppHeader";
 import styles from "./MainScreen.module.css";
 
@@ -53,6 +56,20 @@ export function MainScreen(props: Props) {
   const greeting = useGreeting(useAccountSession()?.id ?? null);
   // The first visit gets brand-new words everywhere (Arthur): nothing about "jumping back" or "where you left off".
   const firstVisit = greeting !== "Welcome back";
+  // (Nov 23, Arthur: "Home asks a question with no answer box") the answer box: type it here, and a new project opens with the
+  // animate window ready and these words already typed. Nothing is sent or paid until they press send and Animate there.
+  const [idea, setIdea] = useState("");
+  const [ideaFocused, setIdeaFocused] = useState(false);
+  const ideaRef = useRef<HTMLInputElement | null>(null);
+  useTypedPlaceholder(ideaRef, V1_ANIMATOR_UI_ENABLED && !idea && !ideaFocused, "Type what you want to see…");
+  const startAnimating = (event: FormEvent) => {
+    event.preventDefault();
+    if (props.creating) return;
+    queueAnimateStart(idea.trim());
+    props.onNewProject();
+  };
+  // a blank project still opens the animate window for someone who has never made an animation (Esc closes it)
+  const newProject = () => { if (V1_ANIMATOR_UI_ENABLED && landedCount() === 0) queueAnimateStart(""); props.onNewProject(); };
   return (
     <div className={styles.screen}>
 
@@ -67,12 +84,24 @@ export function MainScreen(props: Props) {
               {`${greeting ?? "Welcome"}${firstName ? `, ${firstName}` : ""}`}
             </p>
             <h1 id="main-heading" className={styles.title}>What story will you animate today?</h1>
-            <p className={styles.subtitle}>Tell the AI your story, or draw every frame yourself.</p>
+            <p className={styles.subtitle}>{V1_ANIMATOR_UI_ENABLED ? "Type what you want to see and the AI animates it for real. Or draw every frame yourself." : "Tell the AI your story, or draw every frame yourself."}</p>
+            {V1_ANIMATOR_UI_ENABLED && (
+              <form className={styles.prompt} onSubmit={startAnimating} aria-label="Animate with AI" data-tour="animate-home">
+                <span className={styles.promptMark} aria-hidden="true">›</span>
+                <input ref={ideaRef} className={styles.promptInput} value={idea} onChange={(event) => setIdea(event.target.value)} onFocus={() => setIdeaFocused(true)} onBlur={() => setIdeaFocused(false)}
+                  placeholder="Type what you want to see…" aria-label="What do you want to animate?" maxLength={2000} autoComplete="off" spellCheck />
+                <button type="submit" className={styles.promptGo} disabled={props.creating}>
+                  {props.creating ? "Opening…" : "Animate"}
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+                </button>
+              </form>
+            )}
+            {V1_ANIMATOR_UI_ENABLED && <p className={styles.promptNote}>A move, a stunt or a whole story. You see the plan and its exact price before anything is made.</p>}
           </section>
 
           <div className={styles.work}>
             <section className={styles.actions} aria-label="Start">
-              <button ref={newProjectButtonRef} type="button" data-tour="new-project" className={`${styles.action} ${styles.actionPrimary}`} onClick={props.onNewProject} disabled={props.creating}>
+              <button ref={newProjectButtonRef} type="button" data-tour="new-project" className={`${styles.action} ${styles.actionPrimary}`} onClick={newProject} disabled={props.creating}>
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
                 <span className={styles.actionText}><strong>{props.creating ? "Creating your project…" : "New project"}</strong><small>Start with a blank canvas</small></span>
               </button>
@@ -97,7 +126,7 @@ export function MainScreen(props: Props) {
               ) : (
                 <div className={styles.recentEmpty}>
                   <strong>{recent.status === "loading" ? "Loading your latest project…" : recent.status === "failed" ? "Your latest project couldn't load" : "No animations yet"}</strong>
-                  <span>{recent.status === "failed" ? "It's safe. Find it in Open project." : recent.status === "empty" ? "Your first one starts with New project." : ""}</span>
+                  <span>{recent.status === "failed" ? "It's safe. Find it in Open project." : recent.status === "empty" ? V1_ANIMATOR_UI_ENABLED ? "Type one above, or start with New project." : "Your first one starts with New project." : ""}</span>
                 </div>
               )}
               {props.recentNotice && <p className={styles.notice} role="status">{props.recentNotice}</p>}

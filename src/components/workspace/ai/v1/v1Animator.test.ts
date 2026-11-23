@@ -857,3 +857,20 @@ test("(Nov 21, Arthur: edited parts look laggy) one even rate on screen: a mix o
   const still = Array.from({ length: 96 }, () => true);
   assert.deepEqual(v1EvenRateIndices(still), Array.from({ length: 96 }, (_, i) => i), "a held pose: nothing changes");
 });
+
+test("(Nov 23) a short Wi-Fi blip while a NEW animation is made: the panel keeps waiting, never says 'send again', and places it when the connection is back", async () => {
+  const { server, controller, placed, tick } = rig();
+  server.answer("turn", json(turnAnswer("FIXTURE: Sure, a backflip.", "create", snap([version(1, {})], 0))));
+  await controller.send("FIXTURE do a backflip");
+  assert.equal(controller.current.busy, "running");
+  for (let i = 0; i < 10; i++) { server.answer("get", new Response("down", { status: 502 })); await tick(); }   // ~15 s with no answer
+  assert.equal(controller.current.busy, "running", "a 15 s blip is not the end: the server is still making it");
+  assert.ok(controller.current.lines.every((l) => !(l.kind === "ai" && l.tone === "error")), "no error line during a short blip");
+  const made = snap([version(1, { status: "done", report: doneReport([{ sentence: "does a backflip", made: "new", frames: 60 }]) })], 1);
+  server.answer("get", json(noPictures(made)));
+  server.answer("pictures", json(withPictures(made, 1)));
+  await tick();
+  assert.deepEqual(placed, [1], "once the connection is back the animation is put on the canvas, exactly once");
+  assert.equal(controller.current.busy, null);
+  assert.ok(controller.current.lines.every((l) => !(l.kind === "ai" && /send your message again/i.test(l.text))), "never tells him to send it again");
+});

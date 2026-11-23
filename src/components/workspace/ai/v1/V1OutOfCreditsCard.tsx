@@ -29,7 +29,7 @@ export function v1OutOfCreditsView(status: AccountPlanStatus | null): V1OutOfCre
   if (left >= AI_ACTION_CREDITS.chat) return null;
   const trial = status.plan === "trial";
   return {
-    title: status.waitingForPayment ? "Your credits are on their way" : "You're out of credits",
+    title: status.waitingForPayment ? "Your credits are on their way" : status.creditsLeft > 0 ? "Not enough credits to keep animating" : "You're out of credits",
     line: trial
       ? `${creditsWord(left)} · free trial ends on ${refillDay(status.trialEndsAt ?? status.windowEnd)}`
       : status.waitingForPayment

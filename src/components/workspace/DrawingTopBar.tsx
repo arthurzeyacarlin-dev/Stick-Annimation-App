@@ -271,7 +271,7 @@ export function DrawingTopBar({
                       onClick={() => runFileAction(onSaveAndExit)}
                       style={menuItemStyle(!isSaving)}
                     >
-                      {shortcutLabel("Close workspace", fileShortcut.exit)}
+                      {shortcutLabel("Back to Home", fileShortcut.exit)}
                     </button>
                   </>
                 ) : null}
@@ -387,13 +387,13 @@ export function DrawingTopBar({
 
       <div
         data-project-recovery-state={recoveryState}
-        style={{ flex: "1 1 0", display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 10, whiteSpace: "nowrap" }}
+        style={{ flex: "1 1 0", minWidth: 0, display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 10, whiteSpace: "nowrap" }}
       >
         {hasRecoveryWarning ? (
           <span style={{ fontSize: 12, fontWeight: 500, color: "var(--da-danger, #ff8a95)" }}>{recoveryStateLabel}</span>
         ) : null}
         {isLegacyProject ? <span style={{ fontSize: 12, color: "var(--da-muted, #a3a3ab)" }}>{syncLabel}</span> : null}
-        {centerSlot ? <span title={projectTitle} style={{ fontSize: 13, fontWeight: 600, color: "var(--da-text, #f5f5f6)", maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{projectTitle}</span> : null}
+        {centerSlot ? <span className="drawing-topbar-project" title={projectTitle} style={{ minWidth: 0, flexShrink: 1, fontSize: 13, fontWeight: 600, color: "var(--da-text, #f5f5f6)", maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{projectTitle}</span> : null}
         <div
           role="status"
           aria-live="polite"

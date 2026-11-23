@@ -15,7 +15,7 @@ import {
 // Arthur (2026-10-27): Help Assistant answers cost AI credits; when there aren't enough, show the server's plain reason.
 const creditMessage = async (response: Response) => {
   try { const value = await response.json() as { error?: unknown }; if (typeof value.error === "string" && value.error) return value.error.slice(0, 240); } catch { /* fall through */ }
-  return "You're out of AI money. Choose a plan or wait for your refill. Your message is saved.";
+  return "You're out of credits. Choose a plan or wait for your refill. Your message is saved.";
 };
 const readableError = (error: unknown) => error instanceof AssistantError ? error.message : "The Assistant could not connect. Your saved chats and unsent draft are kept. Try again when the connection returns.";
 export const ASSISTANT_LONG_WAIT_MS = 8000;

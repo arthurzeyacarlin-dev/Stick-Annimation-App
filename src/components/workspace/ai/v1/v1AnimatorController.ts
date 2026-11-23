@@ -13,7 +13,10 @@ export const V1_KEPT_PICTURE_TEXT = 200_000_000;
 export const V1_LAYER_REMOVED = "removed-by-user";
 export const V1_LOOK_AGAIN_MS = 1500; // (characters) the picture text of versions the panel keeps for an instant Undo / Redo
 export const V1_POLL_MS = 1500;
-const MAX_POLL_MISSES = 6; // ~9 s without an answer -> say so honestly
+// (Nov 23, Arthur's OK "if it's a priority, then do it", audited: only poll() reads it) a short Wi-Fi blip said "nothing
+// was added, send it again" after 9 s while the server was still making (and charging) it, so a resend paid twice. The
+// panel now waits like a story already does (~2 min) before it says anything. Making, editing and placing never read it.
+const MAX_POLL_MISSES = 80; // ~2 min without an answer -> say so honestly
 const MAX_STORY_MISSES = 80; // (Nov 20, Fable) a story in parts: ~2 min - a restarting server takes longer than 9 s, and it goes on with the story itself
 const STORY_WAIT = -1; // (Nov 20) what the panel "watches" between two parts of a story: the next version the server adds
 const RECENT_LINES = 12;
@@ -767,7 +770,7 @@ export class V1AnimatorController {
       const story = this.watching === STORY_WAIT || Number(this.state.snapshot?.storyPartsLeft) > 0;   // (Nov 20) a story waits longer: the server goes on with it after a restart
       if (this.misses >= (story ? MAX_STORY_MISSES : MAX_POLL_MISSES)) {
         this.watching = null; this.storyWait = null; this.misses = 0; this.idle();
-        this.push({ kind: "ai", tone: "error", text: story ? "I lost the connection while your story was being made. Everything made so far stays - open the project again in a minute to see the rest." : "I lost the connection while making it, so nothing was added to the canvas. Please send your message again." });
+        this.push({ kind: "ai", tone: "error", text: story ? "I lost the connection while your story was being made. Everything made so far stays - open the project again in a minute to see the rest." : "I lost the connection while it was being made. It may still finish: open the project again in a minute to see it." });
         return;
       }
     }

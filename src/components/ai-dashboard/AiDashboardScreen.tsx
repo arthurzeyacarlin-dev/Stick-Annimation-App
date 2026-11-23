@@ -228,6 +228,7 @@ export function AiDashboardScreen() {
     lines: [...perKind].filter(([, credits]) => credits > 0).sort((a, b) => b[1] - a[1]),
   };
 
+  const userIssues = [...new Set(issues)].filter((issue) => !/Provider-internal retries/i.test(issue));
   return (
     <main className={styles.main}>
       <div className={styles.content}>
@@ -243,7 +244,8 @@ export function AiDashboardScreen() {
             <fieldset><legend>Group by</legend><div className={styles.segmented}>{intervals.map((option) =>
               <button type="button" key={option.value} aria-pressed={interval === option.value} onClick={() => setInterval(option.value)}>{option.label}</button>)}</div></fieldset></div>
           {readError && <p className={styles.partial} role="alert">Couldn&apos;t update your credits. The numbers may be out of date; it tries again by itself.</p>}
-          {issues.length > 0 && <div className={styles.partial} role="status"><strong>Some of your credit use couldn&apos;t be read.</strong><ul>{[...new Set(issues)].map((issue) => <li key={issue}>{issue}</li>)}</ul></div>}
+          {/* (Nov 23) the always-true engineering note about provider retries is not news for a user: only real gaps are shown */}
+          {userIssues.length > 0 && <div className={styles.partial} role="status"><strong>Some of your credit use couldn&apos;t be read.</strong><ul>{userIssues.map((issue) => <li key={issue}>{issue}</li>)}</ul></div>}
           {snapshot && buckets.length === 0 && !partial ? <EmptyUsage filter={noUsageAtAll ? null : filter} /> : snapshot && <AiUsageChart key={`${filter}-${interval}`} buckets={buckets} filter={filter} complete={complete} capacity={intervalSpec[interval].count} roof={roof} />}
           {!noUsageAtAll && <p className={styles.chartNote}>Each bar is the credits you used in that stretch of time. Point at a bar for details.</p>}
         </section>

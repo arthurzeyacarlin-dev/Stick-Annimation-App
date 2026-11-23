@@ -1,6 +1,10 @@
 # Current State
 
-## D-0250 — Drawings keep their real size on every screen (current, 2026-11-23)
+## D-0251 — Polish round: glows, anchored header, sign-up film, playhead, Move Canvas, auto-named projects (current, 2026-11-23)
+
+Arthur passed the polish round in the copy `diamond-review/polish` and it moved into main. Every page except the editor has the page glows (export, AI dashboard, trial-ended, Terms/Privacy). The top header stays anchored at the top with the website's blur. The sign-up film plays the whole animation after the edit, in a bigger video area that is not taller. While playing, a smooth white line runs across the timeline at the animation's FPS. "Show Canvas" is now "Move Canvas": a moved canvas is never cut off (it shows exactly the box it always showed, and that box moves with it), and Play on a moved canvas shows ONE canvas, right where it is (the playing layer covers the whole canvas area and follows the move; it was locked to the starting box, so two copies showed). When an AI animation lands on the timeline of a project that still has no name, the project is named after his first request (tidied into a short title on the device, no AI call); a name he gave is never replaced. How animations are made, edited and placed is unchanged.
+
+## D-0250 — Drawings keep their real size on every screen (2026-11-23)
 
 Arthur passed the drawing fix in the copy `diamond-review/draw-fix` and it moved into main. Every frame picture now lives in ONE fixed pixel space tied to the 1920x1080 stage (`STAGE_PIXEL_SPACE` in `src/lib/animation/unifiedStageGeometry.ts`); the window size, screen sharpness and browser zoom only change how big it is shown. Before, a picture kept the pixel size of the screen it was made on: the canvas showed AI animations too big (cut off) or too small on another screen or window, and drawing on a frame re-saved that frame at the wrong size, so the figure jumped in the exported video. Older projects open right: a picture saved in an older screen's space is shown at its own stage size and converted when it is edited. Only the drawing engine changed (11 files); the AI Animator, saving format, sign-up, Home and looks are unchanged.
 

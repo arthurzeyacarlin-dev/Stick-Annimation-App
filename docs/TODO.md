@@ -5,6 +5,7 @@
 - [x] **GUIDED-START** — done 2026-11-23: Home's line auto-starts the AI Animator in a new project, the window opens by itself, the "It's yours" card, random ideas, the welcome card's two buttons.
 - [x] **SIGNUP-FILM** — done 2026-11-23: the sign-up page's left side shows the editor in miniature (animate with AI, edit with AI, draw it yourself) for four real stories.
 - [x] **WIFI-BLIP** — done 2026-11-23: a short Wi-Fi drop no longer ends an animation.
+- [x] **DRAW-SIZE** — done 2026-11-23 (D-0250): drawings keep their real size on every screen; drawing never changes a frame's size in the video.
 - [ ] **EMAIL-DELETED-FILTER** — in the email service, add the "Deleted Account" filter to the follow-up flows so deleted accounts get no more emails (the app already sends the signal). Dad, with the email service login.
 - [ ] **DISK-SPACE** — the Mac has about 2 GB free; renders can fail with "out of storage space". Arthur frees old Adobe versions.
 
@@ -34,7 +35,7 @@
 - [x] **LOOK-SIGN-IN** — sign-in, log-in, plan step, reset password and loading screen in main.
 - [x] **LOOK-APP** — full redesign of the rest of the app, in main (D-0238).
 - [x] **LOOK-POLISH** — final interface polish, in main (D-0239).
-- [ ] **LOOK-DRAWING-FIT** — drawings keep a fixed pixel size, so older drawings, smaller windows and phones can show them too large or cut off; fixing it changes the protected drawing engine, so Arthur decides.
+- [x] **LOOK-DRAWING-FIT** — done 2026-11-23 (D-0250): every picture lives in one fixed stage pixel space; the canvas matches the export on any screen, window or zoom, and drawing never changes a frame's size.
 - [ ] **LOOK-V1-COPY** — the AI Animator work copy (`diamond-review/v1-single`) does not have this look yet; bring it over when Arthur says.
 - [ ] **LOOK-REAL-CLIP** — replace the hand-made sign-in sample with a real AI Animator clip.
 - [x] **LOOK-WEBSITE** — website in the app's look with real app videos, live (D-0240).

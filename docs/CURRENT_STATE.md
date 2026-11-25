@@ -1,6 +1,10 @@
 # Current State
 
-## D-0253 — The fal money watch: the owner is told BEFORE the animator's money runs out (current, 2026-11-25)
+## D-0254 — Ready for dad's test; one price decision open (current, 2026-11-25)
+
+fal's automatic top-up is on (dad, 10:09), so nobody tops up fal by hand. A real animation as a brand-new trial customer worked end to end: the answer in 9 seconds, the animation on the canvas 30 seconds after Animate, charged exactly its card's 36 credits. One open decision for dad: the first AI answer after a quiet hour is charged about 36 credits instead of 4 (the AI's instructions are loaded fresh, a real 35-cent cost), which can leave the trial 2 credits short of its promised 2 animations; the proposed cap (an answer never costs more than 15) is written down but not applied. Also known: password emails are not connected to a real sender yet. Both are in dad's briefing.
+
+## D-0253 — The fal money watch: the owner is told BEFORE the animator's money runs out (2026-11-25)
 
 fal (the company whose AI makes the animations) is paid in advance from one account, the business's own; a customer never pays or sees fal. When it is empty every animation stops. The app already handled that honestly (a plain sentence, no credits taken, an alert to the owner), but only after someone was stopped. Now, while the AI Animator is in use, the app asks fal at most once every 10 minutes how much money is left (fal's free account call; it makes nothing and costs nothing) and tells the owner in the in-app inbox when it is low ($10, about 15 short animations) or almost empty ($3), and at once when fal has locked the account. It only reads: it never pays, never moves money, and changes nothing about how animations are made, charged or refunded. Found by it on Nov 25: fal had locked the account for an empty balance since 06:28, so the AI Animator could not make animations until money was added. Not possible in code: paying fal from the app. Keeping fal funded stays the owner's job (fal's own automatic refill, if fal offers it on the account, or a buffer plus this warning).
 

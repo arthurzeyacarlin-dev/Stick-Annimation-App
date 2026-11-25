@@ -1,7 +1,7 @@
 // SPEC-0020 Phase 1 (dev only): the local test inbox. Until the real email service is connected, account emails
 // (password reset) land here instead of being sent. 404 outside development.
 import { notFound } from "next/navigation";
-import { readAccountMailOutbox } from "@/src/lib/account/accountMail";
+import { readAccountMailOutbox, realMailSender } from "@/src/lib/account/accountMail";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +18,7 @@ const samePagePath = (link: string) => {
 export default function DevMailPage() {
   if (process.env.NODE_ENV !== "development") notFound();
   const mail = readAccountMailOutbox();
+  const realSender = realMailSender() !== null;
   return (
     <main style={{ minHeight: "100vh", padding: "32px 24px", background: "var(--da-page, #030914)", color: "var(--da-text, #f6f9ff)", font: "14px/1.55 system-ui, sans-serif" }}>
       <div style={{ maxWidth: 760, margin: "0 auto", display: "grid", gap: 16 }}>
@@ -25,6 +26,12 @@ export default function DevMailPage() {
           <p style={{ margin: 0, color: "var(--da-label, #7895bc)", fontSize: 11, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase" }}>Developer only</p>
           <h1 style={{ margin: "6px 0 4px", fontSize: 26 }}>Test inbox</h1>
           <p style={{ margin: 0, color: "var(--da-text-3, #a8bddd)" }}>Emails the app would send. Nothing here was sent over the internet. Newest first.</p>
+          {/* (Nov 25) says plainly where account emails go right now, so a tester knows whether to look in a real inbox or here */}
+          <p data-real-mail={realSender ? "on" : "off"} style={{ margin: "8px 0 0", fontWeight: 700, color: realSender ? "#8fe3a8" : "#f0c36d" }}>
+            {realSender
+              ? "Real email is ON: password emails go to people's real inboxes and do not show on this page."
+              : "Real email is OFF: password emails are not sent. They land on this page only."}
+          </p>
         </div>
         {mail.length === 0 && <p style={{ color: "var(--da-muted, #8fabd0)" }}>No emails yet. Try Log in → Forgot password?</p>}
         {mail.map((item) => {

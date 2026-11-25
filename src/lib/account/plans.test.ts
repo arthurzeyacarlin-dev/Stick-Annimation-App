@@ -192,3 +192,16 @@ test("one rule says AI Animator or Help Assistant, so the credits bar and the ch
   for (const kind of ["assistant", "assistant_voice"]) assert.equal(creditSourceOf(kind), "assistant", kind);
   for (const kind of ["test", "refund"]) assert.equal(creditSourceOf(kind), null, kind);
 });
+
+test("(Nov 25, Arthur) a trial that ENDED and then chose a plan, weeks later, is unlocked at once with the plan's full credits", () => {
+  // the trial started Nov 9 and ended Nov 23; the plan is paid on Dec 20, long after
+  const chosen = Date.UTC(2026, 11, 20, 12), until = Date.UTC(2027, 0, 20, 12);
+  const before = accountPlanStatus(trial(), 150, chosen);
+  assert.equal(before.locked, true);
+  assert.equal(before.lockReason, "trial_ended");
+  const after = accountPlanStatus(trial({ plan: "starter", billingStatus: "active", paidPlan: "starter", paidFrom: chosen, paidUntil: until, periodStartedAt: chosen }), 0, chosen);
+  assert.equal(after.locked, false);
+  assert.equal(after.lockReason, null);
+  assert.equal(after.creditsLeft, 470);
+  assert.deepEqual(checkAiCredit(after, 0, 67), { ok: true });
+});

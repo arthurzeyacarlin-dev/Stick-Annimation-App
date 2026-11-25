@@ -7,6 +7,7 @@
 - [x] **WIFI-BLIP** — done 2026-11-23: a short Wi-Fi drop no longer ends an animation.
 - [x] **DRAW-SIZE** — done 2026-11-23 (D-0250): drawings keep their real size on every screen; drawing never changes a frame's size in the video.
 - [x] **FAL-MONEY-WATCH** — done 2026-11-25 (D-0253): the owner is told before fal's money runs out; the app never pays fal itself.
+- [ ] **REAL-EMAIL-SENDER** — found 2026-11-25: password emails are NOT sent to real inboxes (the dev-only test inbox `/dev/mail` now says "Real email is OFF"). Before going live dad sets up Resend and its two settings (`RESEND_API_KEY`, `ACCOUNT_MAIL_FROM`); the code is ready (accountMail.ts).
 - [ ] **FAL-ADMIN-KEY** — dad: make a fal key with the Admin scope and add `FAL_ADMIN_KEY=...` to `diamond-engine/.env.local`; without it the fal money watch may not read the balance (fal refused the engine's key).
 - [ ] **FAL-FUNDED** — dad: add money to fal (it was EMPTY on Nov 25, the AI Animator cannot animate until then) and turn on fal's automatic refill if his billing page offers it.
 - [x] **PHONE-APP** — done 2026-11-25 (D-0252): the same app on a phone and tablet, passed by Arthur on his iPhone; the keyboard no longer breaks the editor; strokes are fast; delete menu fixed.

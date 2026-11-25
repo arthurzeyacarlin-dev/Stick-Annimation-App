@@ -1,5 +1,18 @@
 # Session Handoff
 
+## Nov 25 (15:05) — LIVE at https://app.diamondanimator.com — READ FIRST
+
+Served from this Mac through a free Cloudflare tunnel until the DigitalOcean server is rented. Run by `.claude/launch.json`:
+`live-store` (free project store, `diamond-review/live-store`), `live-app` (`diamond-review/backups/start-live-mac.sh app`: the
+production build of `diamond-review/money-main`, fast-forwarded to main, because its private settings hold the AI key; the live
+app reads `.env.production.local`, a copy Arthur made of `.env.development.local`), `live-tunnel` (`start-live-tunnel.sh`,
+tunnel "diamond-app"). The Mac is kept awake (caffeinate). Proven on the real address as a stranger: sign-up, 150-credit
+trial, saving + reopening on a wiped browser, phone layout, a real AI animation ("It's yours"), the live $9.99 card form.
+Done with Arthur's OK: Stripe webhook "Diamond Animator app" (8 events; its whsec_ secret still to paste via
+`backups/finish-keys.sh`), Klaviyo send.diamondanimator.com activated, Cloudflare Always Use HTTPS on. Stripe receipt emails off.
+Open: Resend key (password emails), the webhook secret, dad's real payment, the server, the website's Open app button.
+Dad's briefing: https://claude.ai/artifact/AgpftqQiyZQBvGe1sD31bZ (rewritten for the live address).
+
 ## Nov 25 (afternoon) — GOING ONLINE — READ FIRST
 
 Dad's finish line: the app on https://app.diamondanimator.com, tested by me on the real address before he pays for real. Done (D-0255): the address setting `DIAMOND_PUBLIC_ORIGIN`, the server kit in `deploy/`, emails verified (Resend; Klaviyo needs Activate). Done the same afternoon: the free project store (NO paid Supabase - his Nov 16 rule), proven in the real app. Next: the work into main (needs Arthur's words: the Mac's safety check blocks merging/pushing main without them), the real address from this Mac through a free Cloudflare tunnel for my own stranger test (Arthur clicks Authorize in Cloudflare), then dad only for the server rental and the real payment. Found while testing: FIRST-STROKE-NEW-FRAME (TODO). Everything to do and why: `docs/GO_LIVE_CHECKLIST.md`. Engine folders the server needs (traced with a free cached run, Nov 25): `ltx-effects` (v1k, seedance, director), `kimodo`, `kimodo-combo`, `harness-phase4`; the fal key file is `diamond-engine/.env.local` next to them. This Mac has under 1 GB free: no production build here until space is freed (Arthur's yes needed for any delete).

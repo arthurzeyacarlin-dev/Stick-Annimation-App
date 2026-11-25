@@ -8,6 +8,8 @@
 - [x] **DRAW-SIZE** — done 2026-11-23 (D-0250): drawings keep their real size on every screen; drawing never changes a frame's size in the video.
 - [x] **GO-LIVE-PROJECT-STORE** — built Nov 25 (`deploy/project-store.mjs`), proven in the real app (D-0255).
 - [ ] **FIRST-STROKE-NEW-FRAME** — found Nov 25 while testing with the automated mouse: right after "Insert Blank Keyframe", the first line drawn starts about 120 screen pixels late (same on screen and when saved; not the store). Frames drawn right after opening a project were fine. May be the test mouse (it jumps in a few big moves; a hand makes hundreds) meeting the Pencil's smoothest setting; needs a check with a real hand and, if real, Arthur's OK to fix (drawing engine).
+- [x] **LIVE-FROM-MAC** — Nov 25: app.diamondanimator.com live from this Mac (Cloudflare tunnel); stranger test passed incl. a real AI animation.
+- [ ] **LIVE-KEYS** — Arthur: Resend key + Stripe webhook secret via `diamond-review/backups/finish-keys.sh` (then restart live-app).
 - [ ] **GO-LIVE-SERVER** — dad rents the DigitalOcean server (4 vCPU / 8 GB, Ubuntu 24.04); I run `deploy/server-setup.sh`, `deploy/engine-sync.sh`, then build and start (`docs/GO_LIVE_CHECKLIST.md`).
 - [ ] **GO-LIVE-SETTINGS** — dad pastes the secret settings on the server (`deploy/server-settings.example`, names only) and the fal key file; the Resend key is made in Resend (Sending access).
 - [ ] **GO-LIVE-DNS-WEBHOOK** — Cloudflare record `app` → the server; the payments webhook to https://app.diamondanimator.com; Klaviyo Activate click.

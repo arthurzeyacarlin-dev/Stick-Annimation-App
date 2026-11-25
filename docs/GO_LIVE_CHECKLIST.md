@@ -37,6 +37,17 @@ what truly needs him, and I open every page in Chrome so he only clicks.
 9. **Dad:** the real card payment, and a refund check.
 10. **Me:** the website's "Open app" button → app.diamondanimator.com, pushed last. Live.
 
+## Live from this Mac first (Nov 25, Arthur's OK) — so I can test on the REAL address before the server is rented
+- `diamond-review/backups/start-live-mac.sh store|app`: main's production build with main's own private settings (never read by
+  Claude), the AI Animator switches Arthur passed, the free project store (`diamond-review/live-store`), the public address.
+- `diamond-review/backups/start-live-tunnel.sh`: Cloudflare's free tunnel "diamond-app" -> app.diamondanimator.com (Arthur
+  authorized it in his Cloudflare account). Only port 3000 is reachable; the Mac must stay on and awake while people use it.
+- Password emails: the Resend key goes in `diamond-review/live-store/.resend-key` (Arthur pastes it; Claude never reads it).
+- Moving to the DigitalOcean server later = copy `.local/spec0015-phase3` + `live-store` to /srv/diamond, point the DNS record
+  at the server; nobody's account or project changes.
+- Main's type check skips the Mac-only test folders (review-videos*, output, .local-plan, .local): one of them held an old
+  test file pointing at an old copy, which stopped main's build on this Mac (the server package never had them).
+
 ## Known risks (honest)
 - The engine has never run on Linux. Its packages exist for Linux, but the first real animation on the server is the proof.
 - The engine reaches into several old folders; a real (paid) animation may touch a file the free trace did not. The sync

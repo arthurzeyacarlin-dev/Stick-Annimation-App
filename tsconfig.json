@@ -40,6 +40,10 @@
     ".next-b/dev/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "review-videos*",
+    "output",
+    ".local-plan",
+    ".local"
   ]
 }

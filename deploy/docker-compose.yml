@@ -1,18 +1,20 @@
-# Diamond Animator on one DigitalOcean server. Start: docker compose --env-file /srv/diamond/build.env -f deploy/docker-compose.yml up -d --build
+# Diamond Animator on one DigitalOcean server. Start: docker compose -f deploy/docker-compose.yml up -d --build
 # Folders on the server (made by deploy/server-setup.sh):
 #   /srv/diamond/settings.env   the app's secret settings (dad pastes them; never in git)   -> see deploy/server-settings.example
 #   /srv/diamond/data           accounts, credits, usage, problem reports (sqlite)          -> backed up every night
+#   /srv/diamond/projects       every customer's saved projects (the project store)          -> backed up every night
 #   /srv/diamond/engine         the AI Animator engine (copied by deploy/engine-sync.sh) + its fal key file
 #   /srv/diamond/caddy          the https certificates Caddy gets by itself
 services:
   app:
+    image: diamond-animator:latest
     build:
       context: ..
       dockerfile: deploy/Dockerfile
       args:
-        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
-        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
-        NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
+        # The project store inside the server (never on the internet); the app talks to it the way it talked to Supabase.
+        NEXT_PUBLIC_SUPABASE_URL: http://store:58700
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: unused-by-the-app
     restart: always
     env_file: /srv/diamond/settings.env
     environment:
@@ -21,7 +23,21 @@ services:
       - /srv/diamond/data:/app/.local
       - /srv/diamond/engine:/srv/engine
     expose: ["3000"]
+    depends_on: [store]
     mem_limit: 6g
+
+  store:
+    image: diamond-animator:latest
+    restart: always
+    env_file: /srv/diamond/settings.env
+    command: ["node", "deploy/project-store.mjs", "58700", "/data", "0.0.0.0"]
+    volumes:
+      - /srv/diamond/projects:/data
+    expose: ["58700"]
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:58700/__health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
 
   caddy:
     image: caddy:2.10.0

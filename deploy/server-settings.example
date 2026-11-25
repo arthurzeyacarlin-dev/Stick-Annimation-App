@@ -18,15 +18,14 @@ DIAMOND_V1_SCOPE=objects
 DIRECTOR_CAP_USD=17.5
 CLAUDE_TEST_BUDGET_USD=
 
-# --- projects storage (the free store on the server disk; the app talks to it like Supabase) ---
-SUPABASE_SERVICE_ROLE_KEY=
-# NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY go in /srv/diamond/build.env (they are built into the page)
+# --- projects storage: the free project store on the server disk (deploy/project-store.mjs) ---
+# STORE_KEY and SUPABASE_SERVICE_ROLE_KEY are written here BY deploy/server-setup.sh (a random key, nobody types it).
 
 # --- payments ---
 STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
 STRIPE_LIVE_OK=1
-# NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY goes in /srv/diamond/build.env
+STRIPE_PUBLISHABLE_KEY=
 
 # --- email ---
 RESEND_API_KEY=

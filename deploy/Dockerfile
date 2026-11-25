@@ -15,10 +15,9 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
-# The browser-side settings are fixed when the app is built (these four are not secret: they are sent to every browser anyway).
+# Fixed when the app is built (not secret): where the project store is (set by docker-compose.yml) and the AI Animator switch.
 ARG NEXT_PUBLIC_SUPABASE_URL
 ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
-ARG NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
 ARG NEXT_PUBLIC_DIAMOND_V1_ANIMATOR=1
 ENV NEXT_TELEMETRY_DISABLED=1
 # --webpack: the same builder the app has always been tested with (next dev --webpack).

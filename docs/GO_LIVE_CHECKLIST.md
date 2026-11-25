@@ -19,15 +19,16 @@ what truly needs him, and I open every page in Chrome so he only clicks.
   `deploy/start.sh` now runs the project's own setup step (secret made once, never replaced) and creates the sign-in tables.
 
 ## The order from here
-1. **Me (needs Arthur's "program": saving is protected): a free project store on the server's own disk.** Arthur's rule
-   (Nov 16): no paid Supabase until the app earns. It answers the same calls the app already makes (the app's saving code is
-   not changed), keeps projects in sqlite + files on the server disk, backed up nightly with the accounts. On this Mac
-   projects save into a test stand-in that must never hold customers' work.
+1. ✅ **The free project store** (`deploy/project-store.mjs`, built Nov 25 with Arthur's OK; his rule: no paid Supabase until
+   the app earns). Same answers as the stand-in he saved with for 9 days (24/24, `deploy/tests/store-same-answers.mjs`), but
+   SQLite + safe file writes + a key + private inside the server. Proven in the real app (production build): sign up, new
+   project, save, picture-by-picture saving (736 pieces), reopen with the browser wiped (all 7 frames back), Delete (every
+   file really removed). Backed up nightly with the accounts; its key is made by server-setup.sh (nobody types it).
 2. **Dad: rent the server** — DigitalOcean, Ubuntu 24.04, 4 vCPU / 8 GB (about $48/month), with my ssh key added.
 3. **Me:** `deploy/server-setup.sh` on the server, then `deploy/engine-sync.sh root@<server>`, then copy the app (git clone).
-4. **Dad: paste the settings** into `/srv/diamond/settings.env` + `/srv/diamond/build.env`, and the fal key file
+4. **Dad: paste the settings** into `/srv/diamond/settings.env`, and the fal key file
    `/srv/diamond/engine/diamond-engine/.env.local` (one line `FAL_KEY=...`). Make the Resend key (Sending access).
-5. **Me:** build and start (`docker compose --env-file /srv/diamond/build.env -f deploy/docker-compose.yml up -d --build`).
+5. **Me:** build and start (`docker compose -f deploy/docker-compose.yml up -d --build`).
 6. **Dad clicks:** Cloudflare record `app` → the server's address (DNS only); Klaviyo Activate.
 7. **Me:** payments webhook → `https://app.diamondanimator.com/api/account/billing/webhook` (new signing secret into
    settings); time one real animation on the server (the AI costs about what one animation always costs).

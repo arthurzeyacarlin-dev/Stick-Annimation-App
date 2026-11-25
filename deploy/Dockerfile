@@ -22,7 +22,11 @@ ARG NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
 ARG NEXT_PUBLIC_DIAMOND_V1_ANIMATOR=1
 ENV NEXT_TELEMETRY_DISABLED=1
 # --webpack: the same builder the app has always been tested with (next dev --webpack).
-RUN npx next build --webpack && npm prune --omit=dev
+# The build loads the sign-in code, which needs an account folder: a throwaway one is made for the build and deleted right
+# after (the real one is the server's /srv/diamond/data, made by deploy/start.sh on the first start). Found Nov 25: without
+# it a fresh server cannot build. All packages are kept (the sign-in table tool "auth" is a developer package).
+RUN node scripts/spec0015-account/phase3/prepare-local-store.mjs && node_modules/.bin/auth migrate --config src/lib/account/auth.ts --yes \
+ && npx next build --webpack && rm -rf .local
 
 # ---- the running server ----
 FROM python:3.9-slim-bookworm
@@ -38,4 +42,4 @@ ENV NODE_ENV=production PORT=3000 HOSTNAME=0.0.0.0 NEXT_TELEMETRY_DISABLED=1 \
 EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=60s CMD node -e "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 ENTRYPOINT ["/usr/bin/tini", "--"]
-CMD ["node_modules/.bin/next", "start", "-p", "3000", "-H", "0.0.0.0"]
+CMD ["/bin/sh", "deploy/start.sh"]

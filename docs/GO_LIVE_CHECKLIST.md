@@ -13,6 +13,10 @@ what truly needs him, and I open every page in Chrome so he only clicks.
   `/api/health`. Not yet run on a real server.
 - **Emails:** Resend verified (diamondanimator.com, us-east-1); Klaviyo send.diamondanimator.com verified (Activate left).
 - DMARC fixed; fal automatic top-up on.
+- **The final version builds** (`next build --webpack`, Nov 25 13:24) and runs in online mode: a brand-new stranger signs up,
+  gets the free trial (150 credits), the sign-in cookie is Secure + HttpOnly, a wrong site / wrong password / wrong address is
+  refused. Found and fixed by the build: a fresh server had no sign-in secret file, so the app could not build or start;
+  `deploy/start.sh` now runs the project's own setup step (secret made once, never replaced) and creates the sign-in tables.
 
 ## The order from here
 1. **Dad: Supabase paid plan** (about $25/month). Projects must save to the real Supabase online: the app was built and

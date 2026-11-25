@@ -6,6 +6,10 @@
 - [x] **SIGNUP-FILM** — done 2026-11-23: the sign-up page's left side shows the editor in miniature (animate with AI, edit with AI, draw it yourself) for four real stories.
 - [x] **WIFI-BLIP** — done 2026-11-23: a short Wi-Fi drop no longer ends an animation.
 - [x] **DRAW-SIZE** — done 2026-11-23 (D-0250): drawings keep their real size on every screen; drawing never changes a frame's size in the video.
+- [x] **PHONE-APP** — done 2026-11-25 (D-0252): the same app on a phone and tablet, passed by Arthur on his iPhone; the keyboard no longer breaks the editor; strokes are fast; delete menu fixed.
+- [ ] **PHONE-DICTATION** — a phone only allows the microphone on a secure address; the copy has one (`backups/phone-https/proxy.mjs`), not yet proven on Arthur's iPhone.
+- [ ] **PHONE-LIFT-FREEZE** — 0.3 to 0.75 s freeze when the finger lifts on a phone (stroke check against the whole picture's brush history). Touches the save check, so it waits for Arthur's OK.
+- [ ] **DAD-BETA-TEST** — next: dad's full test with his briefing document (https://claude.ai/artifact/AgpftqQiyZQBvGe1sD31bZ).
 - [x] **POLISH-ROUND** — done 2026-11-23 (D-0251): glows on every page but the editor, anchored blurred header, whole animation in the sign-up film, smooth playhead line, Move Canvas (never cut off, one canvas while playing), unnamed projects named after the first AI request.
 - [ ] **SAVE-FAILED-RETRY** — a failed explicit save says "Save failed" with no retry; proposed fix: retry it by itself. Saving is protected, so it waits for Arthur's OK.
 - [ ] **EMAIL-DELETED-FILTER** — in the email service, add the "Deleted Account" filter to the follow-up flows so deleted accounts get no more emails (the app already sends the signal). Dad, with the email service login.

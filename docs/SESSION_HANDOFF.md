@@ -1,5 +1,9 @@
 # Session Handoff
 
+## Nov 25 — READ FIRST
+
+The phone app is in main (D-0252): one app, `data-device` on `<html>`, phone rules scoped to phone/tablet, computer look unchanged. Passed by Arthur on his iPhone in the copy `diamond-review/puppet` (branch `claude/phone`), which still holds the home Wi-Fi test access that must NOT come to main without his OK (see D-0252). To test on his phone: the copy on port 58696 (`diamond-review/backups/start-phone-58696.sh`), the local account store on 58703, and the secure door `node diamond-review/backups/phone-https/proxy.mjs` (https://192.168.0.70:58697; the plain address sends phone pages there). Lesson of the day: a phone problem is measured on the phone, never on the Mac (the Mac was wrong by 1,000x), and a layout rule that only shows with the on-screen keyboard is never sent to his phone blind. Next: dad's full test with his briefing document (https://claude.ai/artifact/AgpftqQiyZQBvGe1sD31bZ).
+
 ## Nov 22 (evening) — READ FIRST
 
 The AI Animator is in main (D-0247): the same code as `diamond-review/money-main`, behind its switches (`diamond-review/backups/start-main-ai.sh`: port 58680, its own accounts store on 58703). **Stripe = UNKNOWN and frozen** until dad's one real $9.99 Basic payment (tomorrow or later): no money code changes before it. Next: many people at once (TODO AI-MANY-PEOPLE), then the full test in main (TODO AI-MAIN-TEST). Never change how animations are made or edited (the engine files are checked byte for byte against Arthur's passed backup).
@@ -8,6 +12,20 @@ The AI Animator is in main (D-0247): the same code as `diamond-review/money-main
 
 The money system is in main (D-0242): credits everywhere, payments and plan changes inside the app, Stripe behind the scenes, passed by Arthur in test mode. Arthur's rules for it: people never see Stripe (no Stripe pages or words); everything in credits; plans and packs keep about half profit; deleting = zero profit, they pay only their AI and the card fee. Real money is ON on this Mac since Nov 21 (D-0244): main and `diamond-review/money-main` run on the restricted live key in their private `.env.local` (never in the repo); test plans and payments were wiped, the test buttons page is off. Still open: one real payment and refund as proof, hosting with the webhook, the real discount codes (TODO LIVE-MONEY). Payouts go to the bank dad linked in Stripe. Follow-up emails (D-0245): four flows with 26 emails are built in the email service as drafts, and the app sends it two signals (trial started, plan started) from `src/lib/account/emailSignals.ts`; dad and Arthur switch the flows on after reading them (TODO EMAIL-FLOWS-ON). Money tests: `node --import ./scripts/money-test-loader.mjs --test src/lib/account/*.test.ts`.
 
+## Nov 7 — READ FIRST (after ARTHUR_RULES.md)
+
+- **Arthur's rules:** `ARTHUR_RULES.md` (repo root) loads with every message via `.claude/settings.json` hooks. It wins over every older note below.
+- **State:** both Wan rounds (Nov 6–7) undone; engine = the pre-Wan Nov 6 11:48 state (backups `diamond-review/backups/ALL-WAN-WORK-nov6-7-before-undo.tgz`, `ROUND-WAN-ANIMATES-nov7-before-undo.tgz`). Not the great-night (Nov 4–5) design — frozen copy `backups/FROZEN-nov5/frozen-nov5-morning.tgz`.
+- **Audit (read before planning):** `review-videos-nov7/AUDIT_HISTORY_NOV7.md` (why we keep failing, what every pass shared, the Seedance switch, 26 audits), `GATE_REQUESTS.md` (re-run before showing anything), `PROPOSED_RULES_ADDITIONS.md` (waits for Arthur).
+- **Key lesson:** Arthur's Nov 6 Wan plan (`diamond-review/board/v1-single/PLAN_WAN_FINAL_NOV6.md`) was right — Seedance way, Wan's own pixels + one pen, never a skeleton read. Build it exactly.
+- **Blocked now:** Claude test budget past its stop line (chat refuses); fal ~$3 left; Kimodo 190 calls left; app job limit back to 20 min (long jobs lost).
+- **Beta:** launch Fri Nov 13 (D-0235); AI Animator V1 ready by Mon Nov 9. Website promises drawing interactions the animator can't do yet (decision for Arthur + dad).
+
+## PM12 — Nov 4 — READ FIRST
+
+Root problem found: a "Telephone game" (user words -> chat AI -> planner -> code steps -> Kimodo scrambled them). Fixed: Sonnet now writes Kimodo's own steps and they go to Kimodo word for word; 107/107 app tests pass; real app test worked.
+Open: Kimodo call cap reached (332/332, needs dad's OK), 26-pass lock interrupted, tsc not run.
+Full status: `/Users/arthurcarlin/Projects/diamond-review/board/v1-single/PM12_STATUS_NOV4.md`
 
 ## LAUNCH DATE — Nov 3 (side PM) — READ FIRST
 

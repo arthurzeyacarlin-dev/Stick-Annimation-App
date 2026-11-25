@@ -10,7 +10,7 @@ tunnel "diamond-app"). The Mac is kept awake (caffeinate). Proven on the real ad
 trial, saving + reopening on a wiped browser, phone layout, a real AI animation ("It's yours"), the live $9.99 card form.
 Done with Arthur's OK: Stripe webhook "Diamond Animator app" (8 events; its whsec_ secret still to paste via
 `backups/finish-keys.sh`), Klaviyo send.diamondanimator.com activated, Cloudflare Always Use HTTPS on. Stripe receipt emails off.
-Open: Resend key (password emails), the webhook secret, dad's real payment, the server, the website's Open app button.
+Since 15:20: password emails Delivered (Resend key in), Klaviyo Started Trial arrives (DIAMOND_EMAIL_SITE_ID=RQs9Z2, the PUBLIC site id, in start-live-mac.sh); the Stripe webhook is DISABLED until its whsec_ secret is saved (payment credits do not need it: completePlanPayment syncs with Stripe directly). Still running and harmless: the old test store on 58703 and the phone-test proxy door.mjs (58696 itself is stopped). Open: the webhook secret, dad's real payment, the server, the website's Open app button.
 Dad's briefing: https://claude.ai/artifact/AgpftqQiyZQBvGe1sD31bZ (rewritten for the live address).
 
 ## Nov 25 (afternoon) — GOING ONLINE — READ FIRST

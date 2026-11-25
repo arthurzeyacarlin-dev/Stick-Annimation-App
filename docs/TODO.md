@@ -6,6 +6,8 @@
 - [x] **SIGNUP-FILM** — done 2026-11-23: the sign-up page's left side shows the editor in miniature (animate with AI, edit with AI, draw it yourself) for four real stories.
 - [x] **WIFI-BLIP** — done 2026-11-23: a short Wi-Fi drop no longer ends an animation.
 - [x] **DRAW-SIZE** — done 2026-11-23 (D-0250): drawings keep their real size on every screen; drawing never changes a frame's size in the video.
+- [x] **FAL-MONEY-WATCH** — done 2026-11-25 (D-0253): the owner is told before fal's money runs out; the app never pays fal itself.
+- [ ] **FAL-FUNDED** — dad: add money to fal (it was EMPTY on Nov 25, the AI Animator cannot animate until then) and turn on fal's automatic refill if his billing page offers it.
 - [x] **PHONE-APP** — done 2026-11-25 (D-0252): the same app on a phone and tablet, passed by Arthur on his iPhone; the keyboard no longer breaks the editor; strokes are fast; delete menu fixed.
 - [ ] **PHONE-DICTATION** — a phone only allows the microphone on a secure address; the copy has one (`backups/phone-https/proxy.mjs`), not yet proven on Arthur's iPhone.
 - [ ] **PHONE-LIFT-FREEZE** — 0.3 to 0.75 s freeze when the finger lifts on a phone (stroke check against the whole picture's brush history). Touches the save check, so it waits for Arthur's OK.

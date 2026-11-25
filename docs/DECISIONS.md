@@ -2476,3 +2476,14 @@ Format: append new decisions; supersede old decisions explicitly rather than rew
 - NOT in main (copy only, Arthur's rule): the home Wi-Fi test access (`DIAMOND_PHONE_TEST_HOST` in `accountConfig.ts`, `wifiTestShim.ts`, `allowedDevOrigins`, the assistant route's phone address, the redirect to the secure door `backups/phone-https/proxy.mjs`).
 - Checks in main: its own files type-check clean; 40 drawing and AI panel tests pass. Not proven: dictation on a phone; the finger-lift freeze on a phone (0.3 to 0.75 s, the finished stroke is checked against the whole picture's brush history); the short freeze on Send while the keyboard closes; late taps on the Projects page.
 
+
+### D-0253 — The fal money watch (PM, 2026-11-25)
+
+- Arthur: "Why do we still need to top up fal separately? Doesn't Stripe already do that? ... my dad should not find this problem."
+- The facts: Stripe takes the customers' money IN (to dad's bank). fal is a supplier paid OUT, in advance, from the business's one fal account. No customer ever tops up fal. 1 credit = 1 cent of real AI cost and a plan sells credits at about twice that (Basic $9.99 = 470 credits = at most $4.70 of AI), so the customers' payments always arrive before, and are larger than, the fal bill they cause.
+- New `src/lib/account/falBalanceWatch.ts` (+ 6 tests): reads `https://api.fal.ai/v1/account/billing?expand=credits` with the engine's own key (`diamond-engine/.env.local`, never logged), at most once per 10 minutes, in the background, never throwing. Below $10 (`DIAMOND_FAL_LOW_USD` changes it) the owner gets "getting low: $X left, about N short animations"; below $3 "almost empty"; a locked account "EMPTY". Alerts go through `ownerAlert` (in-app inbox, once a day per kind).
+- One call site: `app/api/ai-animator/v1/route.ts`, after the account and project checks pass (`void watchFalBalance()`). Nothing in `src/lib/ai` changed.
+- Not built on purpose: any code that pays fal or moves money. Unknown: whether fal offers automatic refill for this account (their docs only describe topping up by hand); dad checks his fal billing page.
+- Checks: 6 new tests; account 76, money scenarios 39, AI 210, drawing 70 pass in the copy; main's own files type-check clean. Live in the copy the watch reached fal and got 403; the engine's ledger shows fal locked the account at 06:28 ("Exhausted balance").
+- Also verified by hand in the copy, computer view, as a new customer: sign-up, plan step, welcome card, the animate window, plans page, the pay box (look only; neither Stripe nor Klaviyo is named), AI dashboard, log out, log in, wrong password, forgot password, the reset link and choosing a new password. One local-only oddity: the reset link finishes on 127.0.0.1 instead of localhost (the same Mac); on the real site it is the site's own address.
+\n

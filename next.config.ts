@@ -11,6 +11,9 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // (Nov 25) the developer badge (a round "N" in the bottom-left corner) is hidden: on this Mac it sat on top of the editor's
+  // FPS label, and nobody testing the app should see developer chrome. It never exists on the real site; this changes nothing else.
+  devIndicators: false,
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },

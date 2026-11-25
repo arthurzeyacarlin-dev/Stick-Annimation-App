@@ -2,7 +2,7 @@
 
 ## Nov 25 (afternoon) — GOING ONLINE — READ FIRST
 
-Dad's finish line: the app on https://app.diamondanimator.com, tested by me on the real address before he pays for real. Done (D-0255): the address setting `DIAMOND_PUBLIC_ORIGIN`, the server kit in `deploy/`, emails verified (Resend; Klaviyo needs Activate). Waiting on dad, in order: Supabase paid plan (projects must not save in the test stand-in), rent the server, paste the settings, then I set it up and test. Everything to do and why: `docs/GO_LIVE_CHECKLIST.md`. Engine folders the server needs (traced with a free cached run, Nov 25): `ltx-effects` (v1k, seedance, director), `kimodo`, `kimodo-combo`, `harness-phase4`; the fal key file is `diamond-engine/.env.local` next to them. This Mac has under 1 GB free: no production build here until space is freed (Arthur's yes needed for any delete).
+Dad's finish line: the app on https://app.diamondanimator.com, tested by me on the real address before he pays for real. Done (D-0255): the address setting `DIAMOND_PUBLIC_ORIGIN`, the server kit in `deploy/`, emails verified (Resend; Klaviyo needs Activate). Next: a free project store on the server's disk (Arthur's "program"; NO paid Supabase - his Nov 16 rule), then dad rents the server and pastes the settings, then I set it up and test. Everything to do and why: `docs/GO_LIVE_CHECKLIST.md`. Engine folders the server needs (traced with a free cached run, Nov 25): `ltx-effects` (v1k, seedance, director), `kimodo`, `kimodo-combo`, `harness-phase4`; the fal key file is `diamond-engine/.env.local` next to them. This Mac has under 1 GB free: no production build here until space is freed (Arthur's yes needed for any delete).
 
 ## Nov 25 — READ FIRST
 

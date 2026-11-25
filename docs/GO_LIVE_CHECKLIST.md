@@ -19,8 +19,10 @@ what truly needs him, and I open every page in Chrome so he only clicks.
   `deploy/start.sh` now runs the project's own setup step (secret made once, never replaced) and creates the sign-in tables.
 
 ## The order from here
-1. **Dad: Supabase paid plan** (about $25/month). Projects must save to the real Supabase online: the app was built and
-   proven for it. On this Mac they save into a test stand-in that must never hold customers' work.
+1. **Me (needs Arthur's "program": saving is protected): a free project store on the server's own disk.** Arthur's rule
+   (Nov 16): no paid Supabase until the app earns. It answers the same calls the app already makes (the app's saving code is
+   not changed), keeps projects in sqlite + files on the server disk, backed up nightly with the accounts. On this Mac
+   projects save into a test stand-in that must never hold customers' work.
 2. **Dad: rent the server** — DigitalOcean, Ubuntu 24.04, 4 vCPU / 8 GB (about $48/month), with my ssh key added.
 3. **Me:** `deploy/server-setup.sh` on the server, then `deploy/engine-sync.sh root@<server>`, then copy the app (git clone).
 4. **Dad: paste the settings** into `/srv/diamond/settings.env` + `/srv/diamond/build.env`, and the fal key file

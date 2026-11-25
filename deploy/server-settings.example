@@ -18,7 +18,7 @@ DIAMOND_V1_SCOPE=objects
 DIRECTOR_CAP_USD=17.5
 CLAUDE_TEST_BUDGET_USD=
 
-# --- projects storage (Supabase, paid plan) ---
+# --- projects storage (the free store on the server disk; the app talks to it like Supabase) ---
 SUPABASE_SERVICE_ROLE_KEY=
 # NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY go in /srv/diamond/build.env (they are built into the page)
 

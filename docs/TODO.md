@@ -6,7 +6,7 @@
 - [x] **SIGNUP-FILM** — done 2026-11-23: the sign-up page's left side shows the editor in miniature (animate with AI, edit with AI, draw it yourself) for four real stories.
 - [x] **WIFI-BLIP** — done 2026-11-23: a short Wi-Fi drop no longer ends an animation.
 - [x] **DRAW-SIZE** — done 2026-11-23 (D-0250): drawings keep their real size on every screen; drawing never changes a frame's size in the video.
-- [ ] **GO-LIVE-SUPABASE** — DAD DECIDES (D-0255): upgrade the Supabase project to its paid plan (about $25/month) so projects save for real online; then I check every saving test against it.
+- [ ] **GO-LIVE-PROJECT-STORE** — ARTHUR'S "program" (D-0255): a free project store on the server's disk answering the calls the app already makes (no paid Supabase until the app earns); tested with the saving tests.
 - [ ] **GO-LIVE-SERVER** — dad rents the DigitalOcean server (4 vCPU / 8 GB, Ubuntu 24.04); I run `deploy/server-setup.sh`, `deploy/engine-sync.sh`, then build and start (`docs/GO_LIVE_CHECKLIST.md`).
 - [ ] **GO-LIVE-SETTINGS** — dad pastes the secret settings on the server (`deploy/server-settings.example`, names only) and the fal key file; the Resend key is made in Resend (Sending access).
 - [ ] **GO-LIVE-DNS-WEBHOOK** — Cloudflare record `app` → the server; the payments webhook to https://app.diamondanimator.com; Klaviyo Activate click.

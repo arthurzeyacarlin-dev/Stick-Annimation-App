@@ -19,6 +19,10 @@ import { accountAiCreditGate } from "@/src/lib/account/aiCredits";
 import type { UsageEventRecorder } from "@/src/lib/usage-journal/usageJournalEvents";
 import { createV1UsageMeter } from "./v1UsageMeter";
 import { ownerAlert } from "@/src/lib/account/ownerAlerts";
+
+// (Nov 25, many people at once) how many animations this machine makes at the same time: the server setting DIAMOND_ANIMATIONS_AT_ONCE
+// (read at every start; 1 when unset). The Mac (8 GB) stays at 1; a bigger server raises it once one real job has been measured there.
+const animationsAtOnce = () => { const n = Math.floor(Number(process.env.DIAMOND_ANIMATIONS_AT_ONCE)); return Number.isFinite(n) && n >= 1 ? n : 1; };
 import { v1LiveReporter } from "./v1TurnLive";
 
 // SERVER SIDE OF THE AI ANIMATOR VERSION 1 (helper B2, board/v1-single/PLAN_PARTB.md). Default OFF:
@@ -168,7 +172,7 @@ export const v1Animator = (): V1Animator => {
     if (old.idle ? old.idle() : true) { g.diamondV1Animator = undefined; console.info("[v1] the AI Animator's code changed: its runner is made again from the new code."); }
     else console.warn("[v1] the AI Animator's code changed while something is being made or a card is waiting: this server still runs the OLD code until that is done.");
   }
-  if (!g.diamondV1Animator) { g.diamondV1Animator = createV1Animator({ config: () => v1EngineConfig(), books, luna, director, spawn: spawnEngine, usage, gate: true, ownerAlert }); g.diamondV1AnimatorCode = LOADED; }
+  if (!g.diamondV1Animator) { g.diamondV1Animator = createV1Animator({ config: () => v1EngineConfig(), books, luna, director, spawn: spawnEngine, usage, gate: true, ownerAlert, atOnce: animationsAtOnce }); g.diamondV1AnimatorCode = LOADED; }
   return g.diamondV1Animator;
 };
 

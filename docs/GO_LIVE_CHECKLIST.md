@@ -1,6 +1,6 @@
 # Going online at app.diamondanimator.com — checklist (Nov 25, D-0255)
 
-Nothing is rented, deployed or live yet. Dad's rules: I test everything myself on the real address first; he only does
+(Nov 25 evening) Live from Arthur's Mac through a tunnel; the server is not rented yet. Dad's rules: I test everything myself on the real address first; he only does
 what truly needs him, and I open every page in Chrome so he only clicks.
 
 ## Done and checked
@@ -18,24 +18,27 @@ what truly needs him, and I open every page in Chrome so he only clicks.
   refused. Found and fixed by the build: a fresh server had no sign-in secret file, so the app could not build or start;
   `deploy/start.sh` now runs the project's own setup step (secret made once, never replaced) and creates the sign-in tables.
 
-## The order from here
-1. ✅ **The free project store** (`deploy/project-store.mjs`, built Nov 25 with Arthur's OK; his rule: no paid Supabase until
-   the app earns). Same answers as the stand-in he saved with for 9 days (24/24, `deploy/tests/store-same-answers.mjs`), but
-   SQLite + safe file writes + a key + private inside the server. Proven in the real app (production build): sign up, new
-   project, save, picture-by-picture saving (736 pieces), reopen with the browser wiped (all 7 frames back), Delete (every
-   file really removed). Backed up nightly with the accounts; its key is made by server-setup.sh (nobody types it).
-2. **Dad: rent the server** — DigitalOcean, Ubuntu 24.04, 4 vCPU / 8 GB (about $48/month), with my ssh key added.
-3. **Me:** `deploy/server-setup.sh` on the server, then `deploy/engine-sync.sh root@<server>`, then copy the app (git clone).
-4. **Dad: paste the settings** into `/srv/diamond/settings.env`, and the fal key file
-   `/srv/diamond/engine/diamond-engine/.env.local` (one line `FAL_KEY=...`). Make the Resend key (Sending access).
-5. **Me:** build and start (`docker compose -f deploy/docker-compose.yml up -d --build`).
-6. **Dad clicks:** Cloudflare record `app` → the server's address (DNS only); Klaviyo Activate.
-7. **Me:** payments webhook → `https://app.diamondanimator.com/api/account/billing/webhook` (new signing secret into
-   settings); time one real animation on the server (the AI costs about what one animation always costs).
-8. **Me, as a stranger, on the real address:** sign up, password email arrives, trial credits, animate, edit, save, reopen,
-   delete, phone + computer, the Help assistant. Fix anything found.
-9. **Dad:** the real card payment, and a refund check.
-10. **Me:** the website's "Open app" button → app.diamondanimator.com, pushed last. Live.
+## The order from here (rewritten Nov 25 21:45 — the whole path, nothing else)
+Today the app is LIVE on app.diamondanimator.com but SERVED FROM ARTHUR'S MAC through the Cloudflare tunnel. The server replaces the Mac.
+1. ✅ The free project store (`deploy/project-store.mjs`; no paid Supabase until the app earns).
+2. ✅ Many people at once (Nov 25): nobody is told "another animation is being made"; up to `DIAMOND_ANIMATIONS_AT_ONCE` are
+   made side by side, the rest start by themselves. Two engine money fixes (fal ledger written whole; a first picture counts only
+   its own cost) live OUTSIDE this public repo in `diamond-review/engine-fixes/` and reach the server through `engine-sync.sh`.
+3. ✅ Keys without pasting: `deploy/send-keys.sh` (run by Arthur on the Mac; Claude never sees a key). The 15 switches that are not
+   secret are written by `server-setup.sh` itself. Was missing until today: OPENAI_API_KEY (Help assistant + dictation).
+4. **Dad (10 min): rent the server** — DigitalOcean, Ubuntu 24.04, 4 vCPU / 8 GB (about $48/month), Arthur's Mac ssh key
+   (`~/.ssh/id_ed25519.pub`) added. Tell Claude the server's address.
+5. **Claude:** `git clone` main on the server + `bash deploy/server-setup.sh`; on the Mac `deploy/engine-sync.sh root@<server>`.
+6. **Arthur (1 command):** `deploy/send-keys.sh root@<server>`.
+7. **Claude:** build + start (`docker compose -f deploy/docker-compose.yml up -d --build`); one real animation timed on the server
+   (`https://<server address>` test first, ~$0.30 of AI).
+8. **Moving day (~5 min offline):** Claude stops the Mac's live app, `deploy/move-accounts.sh root@<server>` (every account,
+   credit and project), restarts the server app. **Dad clicks:** Cloudflare DNS record `app` → the server's address (the tunnel
+   record is replaced). Claude stops the Mac tunnel. From here the Mac runs nothing.
+9. **Claude, as a stranger, on the real address:** sign up, password email, trial credits, animate, 2 people at once, edit, save,
+   reopen, delete, phone + computer, Help assistant. Fix anything found.
+10. **Dad:** the real card payment + a refund check (money proof). Optional: Stripe webhook secret (payments work without it).
+11. ✅ The website switches itself to "Start your free trial" → app.diamondanimator.com at Dec 1, 00:00 US Central.
 
 ## Live from this Mac first (Nov 25, Arthur's OK) — so I can test on the REAL address before the server is rented
 - `diamond-review/backups/start-live-mac.sh store|app`: main's production build with main's own private settings (never read by
@@ -52,5 +55,6 @@ what truly needs him, and I open every page in Chrome so he only clicks.
 - The engine has never run on Linux. Its packages exist for Linux, but the first real animation on the server is the proof.
 - The engine reaches into several old folders; a real (paid) animation may touch a file the free trace did not. The sync
   copies those four folders whole to cover it; anything missing shows as a clear error on the first test, never to a customer.
-- One animation at a time (as today); others wait in line. Enough for the beta; more at once later on a bigger server.
+- 2 animations at the same time on the 4 vCPU / 8 GB server (fal's own limit is 2 at once today, rising with spend to 40): about
+  4 animations a minute. More people simply wait a little, with the normal card. A bigger server = raise one setting.
 - This Mac has under 1 GB free disk: no production build here. The first production build happens on the server.

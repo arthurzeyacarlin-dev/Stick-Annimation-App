@@ -14,4 +14,11 @@ ssh "$SERVER" 'mkdir -p /srv/diamond/engine/diamond-engine /srv/diamond/engine/l
 cd "$SRC"
 # The four folders the engine uses (traced Nov 25 with a free cached run + its own path links):
 rsync -az --info=stats1 "${EXCLUDES[@]}" ltx-effects kimodo kimodo-combo harness-phase4 "$SERVER":/srv/diamond/engine/
+# (Nov 25, many people at once) two engine files fixed for several animations at the same moment, kept OUTSIDE this public repo and
+# outside the Mac's live engine: kimodo/wan.py (the shared fal money file is written whole, never read half-written) and
+# ltx-effects/gate-picture/sitecustomize.py (a first picture counts only its own cost, never another person's). They replace the
+# Mac's copies on the server only. Missing folder = stop: the server must never run without them.
+FIXES="${DIAMOND_ENGINE_FIXES:-$SRC/engine-fixes}"
+test -f "$FIXES/kimodo/wan.py" && test -f "$FIXES/ltx-effects/gate-picture/sitecustomize.py" || { echo "MISSING: the engine fixes in $FIXES"; exit 1; }
+rsync -az "$FIXES/" "$SERVER":/srv/diamond/engine/
 ssh "$SERVER" 'chown -R 1000:1000 /srv/diamond/engine && test -f /srv/diamond/engine/diamond-engine/.env.local || echo "STILL NEEDED: the fal key file /srv/diamond/engine/diamond-engine/.env.local (dad)"'

@@ -3,6 +3,8 @@
 
 # --- the AI ---
 ANTHROPIC_API_KEY=
+# the Help assistant + dictation (OpenAI)
+OPENAI_API_KEY=
 # (fal's key is NOT here: the engine reads it from /srv/diamond/engine/diamond-engine/.env.local -> FAL_KEY=...)
 FAL_ADMIN_KEY=
 
@@ -15,8 +17,15 @@ DIAMOND_ENGINE_ALLOW_KIMODO=1
 DIRECTOR_LISTEN=off
 DIAMOND_V1_JOB_TIMEOUT_MS=2400000
 DIAMOND_V1_SCOPE=objects
-DIRECTOR_CAP_USD=17.5
-CLAUDE_TEST_BUDGET_USD=
+DIRECTOR_CAP_USD=100000
+# (same as the live app on the Mac, Nov 25) the owner account's own storage room: 10 GB
+DIAMOND_OWNER_BYTES_LIMIT=10737418240
+# ONE Sonnet money brake for the WHOLE app (every user's chats added up, for ever: $284 already on Nov 25). When reached, NOBODY can
+# chat with the AI Animator. Empty = 0 = everyone blocked. Each chat is already paid by the user's own credits, so it is set very high:
+CLAUDE_TEST_BUDGET_USD=100000
+# (Nov 25, many people at once) how many animations the server makes at the same time; more wait and start by themselves (nobody is
+# ever told another animation is being made). 2 = the 4 vCPU / 8 GB server and fal's 2-at-once limit; raise with a bigger server.
+DIAMOND_ANIMATIONS_AT_ONCE=2
 
 # --- projects storage: the free project store on the server disk (deploy/project-store.mjs) ---
 # STORE_KEY and SUPABASE_SERVICE_ROLE_KEY are written here BY deploy/server-setup.sh (a random key, nobody types it).
@@ -30,4 +39,4 @@ STRIPE_PUBLISHABLE_KEY=
 # --- email ---
 RESEND_API_KEY=
 ACCOUNT_MAIL_FROM=Diamond Animator <support@diamondanimator.com>
-DIAMOND_EMAIL_SITE_ID=
+DIAMOND_EMAIL_SITE_ID=RQs9Z2

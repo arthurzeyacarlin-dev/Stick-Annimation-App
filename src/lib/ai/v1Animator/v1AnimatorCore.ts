@@ -21,7 +21,8 @@ import { actionCount, actionPieces, askedForMore, retryWords, sizeVerdict, split
 //             (a block whose sentence + seed_bump are unchanged is the same folder: identical pictures, 0 Kimodo calls)
 //   ops that cannot apply (no such block, ...) -> ONE Luna retry with the words, then an honest failure ($0, nothing spawned)
 //   ERROR (exit 2) = the engine's plain words (director could not plan, budget, not V1) -> failed with those words; refused -> "refused"
-//   ONE engine job at a time (beta): a second create / edit is told plainly, never queued silently
+//   (Nov 25) SEVERAL engine jobs side by side, up to deps.atOnce() (the machine's size); more wait in line and start by themselves.
+//   Nobody is told "another animation is being made" any more: only HIS OWN animation that is being made says so.
 //   Undo / Redo = move `current` between DONE versions (instant, $0, every output kept). Cancel kills the child.
 // `current` = the version on the canvas; 0 = nothing made yet. A failed / refused / cancelled version never becomes current.
 
@@ -78,6 +79,9 @@ export type V1CoreDeps = {
   // (Nov 2, usage) the AI Dashboard's meter: the SAME credits + usage records as the Help Assistant (v1UsageMeter.ts). Absent = not metered.
   usage?: V1UsageHooks;
   gate?: boolean; // (Nov 11) true = a new animation waits at the gate card until confirm() (the app); absent = made at once (as before)
+  // (Nov 25, many people at once) how many engine jobs may run at the same time on this machine (read at every start, so a server
+  // setting can change it). Absent / below 1 = 1. Jobs over it wait in line (first come, first served) and start by themselves.
+  atOnce?: () => number;
   ownerAlert?: (key: string, text: string) => void; // (Nov 22) tells Arthur (his in-app inbox, once a day per key): the animator's provider refused
 };
 // creditsShort: the account's plain words when it cannot pay `credits` now, with `held` credits already held by its running and
@@ -751,7 +755,14 @@ export function createV1Animator(deps: V1CoreDeps) {
   const now = deps.now ?? (() => new Date().toISOString());
   const newId = deps.newId ?? (() => randomUUID());
   const animations = new Map<string, Animation>();
-  let running: Running | null = null;
+  // (Nov 25, Arthur: "never ever say again another animation is being made" - many people at once) the engine jobs running now,
+  // up to atOnce(); a job over that waits in `waiting` (below) and starts the moment one ends. Each job keeps its own child + timer.
+  const runningJobs = new Map<Job, Running>();
+  const atOnce = () => { let n = 1; try { n = Math.floor(Number(deps.atOnce?.() ?? 1)); } catch { n = 1; } return Number.isFinite(n) && n >= 1 ? n : 1; };
+  const runOf = (job: Job) => runningJobs.get(job);
+  // the job of THIS animation that is running or waiting (one animation is only ever made by one job at a time)
+  const busyWith = (anim: Animation): Job | null => [...runningJobs.keys(), ...waiting].find((j) => j.anim === anim) ?? null;
+  const startNext = () => { while (runningJobs.size < atOnce() && waiting.length) { const next = waiting.shift()!; if (next.version.status === "running") beginJob(next); } };
   // (Nov 20, Arthur: "it cuts off halfway" - measured on his boulder and jackhammer stories: part 1 of a long story landed as "Version 1",
   // he answered what he saw before part 2 came, and the app re-made a part that was right) A STORY IS ONE STORY: while its next part is
   // being made, the animation is busy - his new message is answered at once (no minute of Sonnet), and part 1 says the rest is coming
@@ -771,7 +782,7 @@ export function createV1Animator(deps: V1CoreDeps) {
   // new request never bounces: it waits here (its card shows it is being made) and starts by itself the moment the running one ends
   const waiting: Job[] = [];
   // (Nov 20, money) what this account's running and waiting runs already hold, so two runs can never spend more than it has
-  const heldBy = (ownerId: string) => [running?.job, ...waiting].reduce((t, j) => t + (j && j.anim.ownerId === ownerId ? j.price?.credits ?? 0 : 0), 0);
+  const heldBy = (ownerId: string) => [...runningJobs.keys(), ...waiting].reduce((t, j) => t + (j && j.anim.ownerId === ownerId ? j.price?.credits ?? 0 : 0), 0);
   const creditsShortFor = (ownerId: string, credits: number) => deps.usage?.creditsShort?.(ownerId, credits, heldBy(ownerId)) ?? null;
   // (Nov 20, money) a long story's next part: its own seconds, from what is left of the story's one price (never more than the first card)
   const nextPartCredits = (job: Job) => {
@@ -938,7 +949,7 @@ export function createV1Animator(deps: V1CoreDeps) {
       // (Nov 2) the FIRST done version's page fit is the animation's fit for good (later versions never move his feet)
       if (!anim.fit && version.report?.inkBox) anim.fit = { inkBox: [...version.report.inkBox] as V1Fit["inkBox"], mirror: version.plan.mirror === true };
     }
-    if (running?.job === job) { if (running.timer) clearTimeout(running.timer); running = null; }
+    { const r = runOf(job); if (r) { if (r.timer) clearTimeout(r.timer); runningJobs.delete(job); } }
     const wi = waiting.indexOf(job); if (wi >= 0) waiting.splice(wi, 1);   // (a waiting request that was stopped never starts)
     persist(anim);
     // (Nov 17, PLAN_FINAL_NOV17) a story over 15 s: the next part is made the moment this one is done, exactly as "add the next part" -
@@ -953,7 +964,7 @@ export function createV1Animator(deps: V1CoreDeps) {
     if (heldParts?.length) holdStory(anim, heldParts, partShort ? job : { ...job, storyLeft: job.storyLeft !== undefined ? job.storyLeft + (job.price?.credits ?? 0) : undefined });   // (Fable: the failed part was not charged - its share goes back to the story)
     if (partShort) saveLine(anim.ownerId, anim.projectId, anim.animationId, { role: "assistant", kind: "error", version: version.n, text: partShort });
     else if (moreParts) void nextPart(anim, job, version.n);
-    if (!running) { const next = waiting.shift(); if (next && next.version.status === "running") beginJob(next); }   // the next one in line starts by itself
+    startNext();   // the next one in line starts by itself (as many as fit)
     // (usage) the run is metered once it ends, whatever the status: what it really spent (a failed / refused run costs no credits)
     try {
       // (Nov 3 key 2) a viewer re-try: the same run (one charge); the Kimodo calls of every take it made are recorded
@@ -976,12 +987,13 @@ export function createV1Animator(deps: V1CoreDeps) {
     catch { return null; }
   };
   const watch = (job: Job, child: ChildLike) => {
-    if (running?.job !== job) return;
-    running.child = child;
-    if (running.timer) clearTimeout(running.timer);
+    const r = runOf(job);
+    if (!r) return;
+    r.child = child;
+    if (r.timer) clearTimeout(r.timer);
     // (Nov 2 night, attack 8) a long one take gets the time it needs: at least 2 x the book's making-time estimate for the asked seconds
     const needMs = job.askedS ? 2 * 1000 * makeSecondsOf(job.askedS, job.books.book) : 0;
-    running.timer = setTimeout(() => { child.kill("SIGTERM"); finish(job, "failed", serverWord(job.books.book, "timeout")); }, Math.max(job.config.timeoutMs, needMs));
+    r.timer = setTimeout(() => { child.kill("SIGTERM"); finish(job, "failed", serverWord(job.books.book, "timeout")); }, Math.max(job.config.timeoutMs, needMs));
   };
 
   // the director step first (Luna plans the NEW blocks), then the engine; a stop meanwhile wins (nothing spawned)
@@ -1023,7 +1035,7 @@ export function createV1Animator(deps: V1CoreDeps) {
     child.on("close", (code, signal) => {
       out.end(); err.end();
       if (job.version.status !== "running") return;
-      if (running?.job === job) { running.child = null; if (running.timer) { clearTimeout(running.timer); running.timer = null; } }
+      { const r = runOf(job); if (r) { r.child = null; if (r.timer) { clearTimeout(r.timer); r.timer = null; } } }
       if (resultPath) { void wholeThenSettle(job, inputPath, prevDir, directorDir, resolveEnginePath(job.config, vDir, resultPath)); return; }
       // ERROR = the engine's own plain words (the director could not plan, budget used up, not cached, not V1): said as they are, no retry
       // (Nov 20, Arthur: a stopped job said "PROGRESS 5 60") a stop, or a last line that is only the engine's own progress talk, is said plainly
@@ -1278,7 +1290,7 @@ export function createV1Animator(deps: V1CoreDeps) {
     const version: V1Version = { n, plan, edits, ...(still ? { still: true } : {}), status: "running", stage: stageOf(ctx.books, "planning"), progress: null, report: null, message: null, createdAt: now(), finishedAt: null };
     anim.versions.push(version);
     const job: Job = { anim, version, kind, retried: false, ...ctx, runId: newId(), startedAtMs: Date.now() };
-    if (running) { waiting.push(job); return; }
+    if (runningJobs.size >= atOnce()) { waiting.push(job); return; }
     beginJob(job);
   }
   // (Nov 22, hour 2, Arthur: "the progress bar has to be genuinely accurate") THE BAR RUNS ON REAL TIMES. The engine's PROGRESS guess
@@ -1316,7 +1328,7 @@ export function createV1Animator(deps: V1CoreDeps) {
     else if (!job.storyPart) storyTotal.delete(anim.animationId);
     const total = storyTotal.get(anim.animationId);
     if (total && total > 1) job.part = [Math.max(1, total - (job.parts?.length ?? 0)), total];
-    running = { job, child: null, timer: null };
+    runningJobs.set(job, { job, child: null, timer: null });
     const vDir = versionDir(anim, n);
     try { mkdirSync(vDir, { recursive: true }); } catch { finish(job, "failed", serverWord(ctx.books.book, "failed_engine", { words: "" })); return; }
     if (kind === "edit") { runEdit(job); return; }
@@ -1416,7 +1428,7 @@ export function createV1Animator(deps: V1CoreDeps) {
   function confirm(ownerId: string, projectId: string): V1TurnOutcome {
     const key = `${ownerId}|${projectId}`, g = gated.get(key);
     if (!g) return { ok: false, status: 409, error: "That plan is no longer waiting. Please send your message again - nothing was charged." };
-    if (running) return { ok: false, status: 409, error: "Another animation is still being made. Press Animate again when it is done - nothing was charged." };
+    if (!g.isNew && busyWith(g.anim)) return { ok: false, status: 409, error: plain("edit_while_running") };   // (Nov 25) only HIS animation being made can wait; anyone else's never blocks
     const pic = gatePics.get(g);
     if (pic && !pic.state.done) return { ok: false, status: 409, error: "The first picture is still being drawn. Press Animate when it shows - nothing was charged." };
     const runShort = creditsShortFor(ownerId, g.price.credits);
@@ -1702,7 +1714,7 @@ export function createV1Animator(deps: V1CoreDeps) {
     const clearOp = said.intent === "edit" ? said.ops?.find((op): op is Extract<V1EditOp, { op: "clear" }> => op.op === "clear") : undefined;
     if (clearOp) {
       if (clearOp.scope === "all" && !clearOp.confirmed) return keep({ ok: true, turn: { intent: "clarify", say: serverWord(book, "clear_all_confirm") }, animation: anim ? snapshot(anim) : null, started: false });
-      if (running) return told("busy");
+      if (anim && busyWith(anim)) return told("edit_while_running");   // (Nov 25) only this animation being made blocks a clear
       if (anim) { anim.layerId = null; anim.layerCount = null; persist(anim); }
       return keep({ ok: true, turn: { intent: "edit", say: said.say, ops: [clearOp], clear: { scope: clearOp.scope } }, animation: null, started: false });
     }
@@ -1734,7 +1746,7 @@ export function createV1Animator(deps: V1CoreDeps) {
       const lookOrder = engineOps.some((op) => op.op === "colour" || op.op === "style" || op.op === "look")
         || (said.kimodoSteps ?? []).some((s) => (s.step ?? 0) > 0 && typeof s.look === "string" && s.look.trim() !== "");
       if (lookOrder) return keep({ ok: true, turn: { intent: "clarify", say: LOOKS_STAY }, animation: snapshot(anim), started: false });
-      if (running) return told(running.job.anim === anim ? "edit_while_running" : "busy");
+      if (busyWith(anim)) return told("edit_while_running");   // (Nov 25) another person's animation never blocks an edit: it waits in line if the machine is full
       const editShort = request.queued ? null : creditsShortFor(request.ownerId, AI_ACTION_CREDITS.chat);   // (the exact price is checked below, once it is known)
       if (editShort) return { ok: false, status: 402, error: editShort };
       const prevDir = base.status === "done" ? versionDir(anim, base.n) : null;
@@ -1850,7 +1862,7 @@ export function createV1Animator(deps: V1CoreDeps) {
     if (!anim) return { ok: false, status: 404, error: plain("animation_missing") };
     const held = storyHeld.get(anim.animationId);
     if (!held || storyBusy.has(anim.animationId)) return { ok: false, status: 409, error: "There is no unfinished story to make right now." };
-    if (running || waiting.length) return { ok: false, status: 409, error: "Another animation is still being made. Press it again when it is done - nothing was charged." };
+    if (busyWith(anim)) return { ok: false, status: 409, error: plain("edit_while_running") };
     if (!(anim.current > 0 && anim.versions.find((v) => v.n === anim.current)?.status === "done")) return { ok: false, status: 409, error: "There is no finished animation on the canvas to go on from." };
     storyHeld.delete(anim.animationId);
     storyBusy.set(anim.animationId, held.parts.length);
@@ -1862,13 +1874,14 @@ export function createV1Animator(deps: V1CoreDeps) {
   function cancel(ownerId: string, projectId: string, animationId: string): V1ActionOutcome {
     const anim = own(ownerId, projectId, animationId);
     if (!anim) return { ok: false, status: 404, error: plain("animation_missing") };
-    if ((!running || running.job.anim !== anim) && storyBusy.has(anim.animationId)) {   // (Nov 20, Fable) Stop between two parts of a story: the rest is not made
+    const mine = busyWith(anim);   // (Nov 25) running or waiting in line
+    if (!mine && storyBusy.has(anim.animationId)) {   // (Nov 20, Fable) Stop between two parts of a story: the rest is not made
       storyBusy.delete(anim.animationId); clearPending(anim);
       saveLine(ownerId, projectId, anim.animationId, { role: "assistant", text: "Stopped. The rest of your story was not made - everything made so far stays on the canvas." });
       return { ok: true, animation: snapshot(anim) };
     }
-    if (!running || running.job.anim !== anim) return { ok: false, status: 409, error: plain("not_running") };
-    const { job, child } = running;
+    if (!mine) return { ok: false, status: 409, error: plain("not_running") };
+    const job = mine, child = runOf(job)?.child ?? null;   // a job still waiting in line has no child: it just never starts
     child?.kill("SIGTERM");
     finish(job, "cancelled", serverWord(job.books.book, "cancelled"));
     return { ok: true, animation: snapshot(anim) };
@@ -1915,7 +1928,7 @@ export function createV1Animator(deps: V1CoreDeps) {
   }
 
   return {
-    idle: () => !running && gated.size === 0 && storyBusy.size === 0,   // (Nov 20: and no story is between two parts - a new runner would read its saved parts and make the next part a second time)   // (Nov 14) nothing is being made and no card is waiting: a dev server may load a code change now (v1AnimatorServer.ts)
+    idle: () => runningJobs.size === 0 && waiting.length === 0 && gated.size === 0 && storyBusy.size === 0,   // (Nov 20: and no story is between two parts - a new runner would read its saved parts and make the next part a second time)   // (Nov 14) nothing is being made and no card is waiting: a dev server may load a code change now (v1AnimatorServer.ts)
     turn,
     confirm,
     gatePicture,
@@ -1929,7 +1942,7 @@ export function createV1Animator(deps: V1CoreDeps) {
     continueStory,
     dropStory,
     currentResult,
-    busy: () => running !== null,
+    busy: () => runningJobs.size > 0,
     // (Nov 2 final round) the book's canvas picture limits for the panel (null = off, or no engine / book here)
     canvasLimits: () => { const config = deps.config(); if (!config) return null; try { return v1CanvasLimits(deps.books(config).book); } catch { return null; } },
     say: plain, // a server line from Luna's book by key (for the route's own answers)

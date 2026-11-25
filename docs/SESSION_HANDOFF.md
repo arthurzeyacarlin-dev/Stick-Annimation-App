@@ -1,5 +1,16 @@
 # Session Handoff
 
+## Nov 25 (21:50) — MANY PEOPLE AT ONCE + SERVER KIT READY — READ FIRST
+
+Many people at once is built and proven (branch many-at-once-nov25): nobody is told "another animation is being made" because of
+someone else; `DIAMOND_ANIMATIONS_AT_ONCE` animations are made side by side (2 on the 4 vCPU / 8 GB server), the rest start by
+themselves with the normal card. Two engine money fixes (fal ledger written whole; a first picture counts only its own cost - that
+second bug also exists in the Mac's live app today) live in `diamond-review/engine-fixes/` (NOT in this public repo) and reach the
+server through `deploy/engine-sync.sh`. New: `deploy/send-keys.sh` (Arthur runs it; keys go Mac -> server, Claude never sees one),
+`deploy/move-accounts.sh` (moving day), `server-setup.sh` writes the 15 non-secret switches itself, OPENAI_API_KEY was missing.
+The app is still served from Arthur's Mac; the order and who does what: `docs/GO_LIVE_CHECKLIST.md`. Dad's page (DigitalOcean
+clicks + payment): https://claude.ai/artifact/AgpftqQiyZQBvGe1sD31bZ
+
 ## Nov 25 (15:05) — LIVE at https://app.diamondanimator.com — READ FIRST
 
 Served from this Mac through a free Cloudflare tunnel until the DigitalOcean server is rented. Run by `.claude/launch.json`:

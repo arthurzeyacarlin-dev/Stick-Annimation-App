@@ -18,6 +18,11 @@ if ! grep -q '^STORE_KEY=' /srv/diamond/settings.env; then
   k=$(head -c 48 /dev/urandom | base64 | tr -d '/+=\n')
   printf 'STORE_KEY=%s\nSUPABASE_SERVICE_ROLE_KEY=%s\n' "$k" "$k" >> /srv/diamond/settings.env
 fi
+# (Nov 25) the switches that are not secret (every line of server-settings.example that already has a value) are written here, so
+# nobody types them; a name already in settings.env is never changed. The secret keys come from deploy/send-keys.sh (run on the Mac).
+grep -E '^[A-Z0-9_]+=.+' "$(dirname "$0")/server-settings.example" | while IFS= read -r line; do
+  grep -q "^${line%%=*}=" /srv/diamond/settings.env || printf '%s\n' "$line" >> /srv/diamond/settings.env
+done
 # Nightly backup, 7 nights kept: a safe copy of every database (works while the app runs) + a snapshot of every project file
 # (hard links: a file kept from the night before costs no extra space; a file deleted by the app stays in the backups 7 days).
 cat > /etc/cron.daily/diamond-backup <<'EOF'
@@ -32,5 +37,5 @@ else rsync -a /srv/diamond/projects/files/ "$d/files/"; fi
 ls -1d /srv/diamond/backups/*/ | head -n -7 | xargs -r rm -rf
 EOF
 chmod +x /etc/cron.daily/diamond-backup
-echo "Server ready. Next: dad fills /srv/diamond/settings.env (see deploy/server-settings.example), then:"
+echo "Server ready. Next: on the Mac, deploy/engine-sync.sh root@<server> and deploy/send-keys.sh root@<server> (the keys), then here:"
 echo "  docker compose -f deploy/docker-compose.yml up -d --build"

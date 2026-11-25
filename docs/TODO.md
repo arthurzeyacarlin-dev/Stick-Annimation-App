@@ -9,7 +9,7 @@
 - [x] **FAL-MONEY-WATCH** — done 2026-11-25 (D-0253): the owner is told before fal's money runs out; the app never pays fal itself.
 - [ ] **REAL-EMAIL-SENDER** — found 2026-11-25: password emails are NOT sent to real inboxes (the dev-only test inbox `/dev/mail` now says "Real email is OFF"). Before going live dad sets up Resend and its two settings (`RESEND_API_KEY`, `ACCOUNT_MAIL_FROM`); the code is ready (accountMail.ts).
 - [ ] **FAL-ADMIN-KEY** — dad: make a fal key with the Admin scope and add `FAL_ADMIN_KEY=...` to `diamond-engine/.env.local`; without it the fal money watch may not read the balance (fal refused the engine's key).
-- [ ] **FAL-FUNDED** — dad: add money to fal (it was EMPTY on Nov 25, the AI Animator cannot animate until then) and turn on fal's automatic refill if his billing page offers it.
+- [x] **FAL-FUNDED** — done 2026-11-25 10:09 by dad on fal's Credits & Tiers page: automatic top-up is ON (at $10 fal adds $20 from the card on file), balance $19.91. Nobody tops up fal by hand any more.
 - [x] **PHONE-APP** — done 2026-11-25 (D-0252): the same app on a phone and tablet, passed by Arthur on his iPhone; the keyboard no longer breaks the editor; strokes are fast; delete menu fixed.
 - [ ] **PHONE-DICTATION** — a phone only allows the microphone on a secure address; the copy has one (`backups/phone-https/proxy.mjs`), not yet proven on Arthur's iPhone.
 - [ ] **PHONE-LIFT-FREEZE** — 0.3 to 0.75 s freeze when the finger lifts on a phone (stroke check against the whole picture's brush history). Touches the save check, so it waits for Arthur's OK.

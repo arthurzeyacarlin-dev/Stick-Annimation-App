@@ -6,6 +6,7 @@ import { normalizeV1Conversation, V1_MAX_MESSAGE } from "@/src/lib/ai/v1Animator
 import { v1Animator, v1AnimatorServerEnabled, v1ThinkingWords } from "@/src/lib/ai/v1Animator/v1AnimatorServer";
 import { isV1LiveKey, readV1Live, withV1Live } from "@/src/lib/ai/v1Animator/v1TurnLive";
 import { isV1Effort } from "@/src/lib/ai/v1Animator/v1LunaBook";
+import { watchFalBalance } from "@/src/lib/account/falBalanceWatch";
 
 // AI ANIMATOR VERSION 1 (switch DIAMOND_V1_ANIMATOR=1, default OFF -> 404). The same account + project-owner checks as
 // /api/ai-animator/engine. The runner (Luna turn, engine jobs, versions, undo / redo / cancel) is v1AnimatorCore.ts.
@@ -43,6 +44,9 @@ async function owner(request: Request, projectId: string | null) {
   if (!await belongsWithRetry(access.session.user.id, projectId)) {
     return { response: NextResponse.json({ error: "Project is not available to this account." }, { status: 403 }) };
   }
+  // (Nov 25) while the AI Animator is in use, the fal money watch looks (at most every 10 minutes, in the background) whether
+  // the animator's money account is getting low and tells the owner before anyone is stopped. It only reads; see falBalanceWatch.ts.
+  void watchFalBalance();
   return { ownerId: access.session.user.id };
 }
 

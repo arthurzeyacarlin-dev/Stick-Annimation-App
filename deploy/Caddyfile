@@ -1,0 +1,23 @@
+# The front door: real https for app.diamondanimator.com (Caddy gets and renews the certificate by itself),
+# then hands every visit to the app. Plain http is moved to https. The app only trusts https://app.diamondanimator.com.
+app.diamondanimator.com {
+	encode zstd gzip
+	request_body {
+		max_size 200MB
+	}
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		-Server
+	}
+	reverse_proxy app:3000 {
+		header_up Host {host}
+		header_up X-Forwarded-Proto https
+		header_up -X-Forwarded-Host
+		transport http {
+			read_timeout 45m
+			write_timeout 45m
+		}
+	}
+}

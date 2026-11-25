@@ -1,0 +1,34 @@
+# The app's settings on the server: /srv/diamond/settings.env (only root can read it). NAMES ONLY here — dad pastes the values.
+# Never put this file in git, never send it in chat.
+
+# --- the AI ---
+ANTHROPIC_API_KEY=
+# (fal's key is NOT here: the engine reads it from /srv/diamond/engine/diamond-engine/.env.local -> FAL_KEY=...)
+FAL_ADMIN_KEY=
+
+# --- the AI Animator, exactly as Arthur passed it (v1-single, Nov 21) ---
+DIAMOND_V1_ANIMATOR=1
+DIAMOND_V1_BRAIN=sonnet
+DIAMOND_V1_DIRECTOR=luna
+DIRECTOR_V1_LESSONS=0
+DIAMOND_ENGINE_ALLOW_KIMODO=1
+DIRECTOR_LISTEN=off
+DIAMOND_V1_JOB_TIMEOUT_MS=2400000
+DIAMOND_V1_SCOPE=objects
+DIRECTOR_CAP_USD=17.5
+CLAUDE_TEST_BUDGET_USD=
+
+# --- projects storage (Supabase, paid plan) ---
+SUPABASE_SERVICE_ROLE_KEY=
+# NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY go in /srv/diamond/build.env (they are built into the page)
+
+# --- payments ---
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+STRIPE_LIVE_OK=1
+# NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY goes in /srv/diamond/build.env
+
+# --- email ---
+RESEND_API_KEY=
+ACCOUNT_MAIL_FROM=Diamond Animator <support@diamondanimator.com>
+DIAMOND_EMAIL_SITE_ID=

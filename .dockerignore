@@ -1,0 +1,20 @@
+# Nothing secret, no account data and nothing big ever goes into the server package.
+.env*
+!.env.example
+**/.env*
+.local
+**/.local
+*.sqlite
+*.sqlite-*
+node_modules
+.next
+.next-*
+.git
+output
+backups
+review-videos*
+*.tgz
+*.mp4
+*.mov
+tsconfig.tsbuildinfo
+.claude

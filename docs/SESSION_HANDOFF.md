@@ -1,5 +1,9 @@
 # Session Handoff
 
+## Nov 25 (afternoon) — GOING ONLINE — READ FIRST
+
+Dad's finish line: the app on https://app.diamondanimator.com, tested by me on the real address before he pays for real. Done (D-0255): the address setting `DIAMOND_PUBLIC_ORIGIN`, the server kit in `deploy/`, emails verified (Resend; Klaviyo needs Activate). Waiting on dad, in order: Supabase paid plan (projects must not save in the test stand-in), rent the server, paste the settings, then I set it up and test. Everything to do and why: `docs/GO_LIVE_CHECKLIST.md`. Engine folders the server needs (traced with a free cached run, Nov 25): `ltx-effects` (v1k, seedance, director), `kimodo`, `kimodo-combo`, `harness-phase4`; the fal key file is `diamond-engine/.env.local` next to them. This Mac has under 1 GB free: no production build here until space is freed (Arthur's yes needed for any delete).
+
 ## Nov 25 — READ FIRST
 
 The phone app is in main (D-0252): one app, `data-device` on `<html>`, phone rules scoped to phone/tablet, computer look unchanged. Passed by Arthur on his iPhone in the copy `diamond-review/puppet` (branch `claude/phone`), which still holds the home Wi-Fi test access that must NOT come to main without his OK (see D-0252). To test on his phone: the copy on port 58696 (`diamond-review/backups/start-phone-58696.sh`), the local account store on 58703, and the secure door `node diamond-review/backups/phone-https/proxy.mjs` (https://192.168.0.70:58697; the plain address sends phone pages there). Lesson of the day: a phone problem is measured on the phone, never on the Mac (the Mac was wrong by 1,000x), and a layout rule that only shows with the on-screen keyboard is never sent to his phone blind. Next: dad's full test with his briefing document (https://claude.ai/artifact/AgpftqQiyZQBvGe1sD31bZ).

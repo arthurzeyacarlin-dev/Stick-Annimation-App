@@ -6,6 +6,11 @@
 - [x] **SIGNUP-FILM** — done 2026-11-23: the sign-up page's left side shows the editor in miniature (animate with AI, edit with AI, draw it yourself) for four real stories.
 - [x] **WIFI-BLIP** — done 2026-11-23: a short Wi-Fi drop no longer ends an animation.
 - [x] **DRAW-SIZE** — done 2026-11-23 (D-0250): drawings keep their real size on every screen; drawing never changes a frame's size in the video.
+- [ ] **GO-LIVE-SUPABASE** — DAD DECIDES (D-0255): upgrade the Supabase project to its paid plan (about $25/month) so projects save for real online; then I check every saving test against it.
+- [ ] **GO-LIVE-SERVER** — dad rents the DigitalOcean server (4 vCPU / 8 GB, Ubuntu 24.04); I run `deploy/server-setup.sh`, `deploy/engine-sync.sh`, then build and start (`docs/GO_LIVE_CHECKLIST.md`).
+- [ ] **GO-LIVE-SETTINGS** — dad pastes the secret settings on the server (`deploy/server-settings.example`, names only) and the fal key file; the Resend key is made in Resend (Sending access).
+- [ ] **GO-LIVE-DNS-WEBHOOK** — Cloudflare record `app` → the server; the payments webhook to https://app.diamondanimator.com; Klaviyo Activate click.
+- [ ] **GO-LIVE-STRANGER-TEST** — I test everything on the real address first (sign up, password email, animate, edit, save, reopen, phone + computer); then dad's real card payment.
 - [ ] **COLD-ANSWER-PRICE** — DAD DECIDES (D-0254): the first AI answer after a quiet hour costs about 36 credits instead of 4 and can break the trial's "2 animations". Proposed: never charge an answer more than 15. One line in `v1UsageMeter.ts`, not applied.
 - [x] **FAL-MONEY-WATCH** — done 2026-11-25 (D-0253): the owner is told before fal's money runs out; the app never pays fal itself.
 - [ ] **REAL-EMAIL-SENDER** — found 2026-11-25: password emails are NOT sent to real inboxes (the dev-only test inbox `/dev/mail` now says "Real email is OFF"). Before going live dad sets up Resend and its two settings (`RESEND_API_KEY`, `ACCOUNT_MAIL_FROM`); the code is ready (accountMail.ts).

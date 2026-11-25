@@ -1,15 +1,12 @@
 import { NextResponse } from "next/server";
 import { readUsageSummary } from "@/src/lib/usage-journal/usageJournalRuntime";
-import { requireAccountRequest } from "@/src/lib/account/access";
+import { requireAccountRequest, isTrustedAccountRequest } from "@/src/lib/account/access";
 import { isOwnerEmail } from "@/src/lib/account/owner";
 
 export const runtime = "nodejs";
-const localRequest = (request: Request) => {
-  const host = request.headers.get("host") ?? "";
-  const origin = request.headers.get("origin");
-  return /^(127\.0\.0\.1|localhost|\[::1\]):\d{1,5}$/.test(host) && (!origin || origin === `http://${host}`) &&
-    !["cross-site", "same-site"].includes(request.headers.get("sec-fetch-site") ?? "");
-};
+// (Nov 25, going online) "this app only": the same check as accounts use - this Mac's own address here, the one public
+// https address online (accountConfig.ts). The account check before it still decides who may use it.
+const localRequest = (request: Request) => isTrustedAccountRequest(request);
 
 export async function GET(request: Request) {
   const access = await requireAccountRequest(request);

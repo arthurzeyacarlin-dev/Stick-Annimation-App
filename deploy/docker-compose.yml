@@ -1,0 +1,33 @@
+# Diamond Animator on one DigitalOcean server. Start: docker compose --env-file /srv/diamond/build.env -f deploy/docker-compose.yml up -d --build
+# Folders on the server (made by deploy/server-setup.sh):
+#   /srv/diamond/settings.env   the app's secret settings (dad pastes them; never in git)   -> see deploy/server-settings.example
+#   /srv/diamond/data           accounts, credits, usage, problem reports (sqlite)          -> backed up every night
+#   /srv/diamond/engine         the AI Animator engine (copied by deploy/engine-sync.sh) + its fal key file
+#   /srv/diamond/caddy          the https certificates Caddy gets by itself
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      args:
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+        NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
+    restart: always
+    env_file: /srv/diamond/settings.env
+    environment:
+      DIAMOND_PUBLIC_ORIGIN: https://app.diamondanimator.com
+    volumes:
+      - /srv/diamond/data:/app/.local
+      - /srv/diamond/engine:/srv/engine
+    expose: ["3000"]
+    mem_limit: 6g
+
+  caddy:
+    image: caddy:2.10.0
+    restart: always
+    ports: ["80:80", "443:443", "443:443/udp"]
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - /srv/diamond/caddy:/data
+    depends_on: [app]

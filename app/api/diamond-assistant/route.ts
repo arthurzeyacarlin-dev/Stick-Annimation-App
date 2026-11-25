@@ -3,7 +3,7 @@ import { AssistantError, isId } from "@/src/lib/assistant/assistantContracts";
 import { DiamondAssistantJobService } from "@/src/lib/assistant/assistantJobService";
 import { generateAssistantReply } from "@/src/lib/assistant/assistantProvider";
 import { recordUsageEvent } from "@/src/lib/usage-journal/usageJournalRuntime";
-import { requireAccountRequest } from "@/src/lib/account/access";
+import { requireAccountRequest, isTrustedAccountRequest } from "@/src/lib/account/access";
 import { withAccountUsageOwner } from "@/src/lib/account-usage/accountUsageStore";
 import { accountAiCreditGate } from "@/src/lib/account/aiCredits";
 
@@ -11,11 +11,9 @@ export const runtime = "nodejs";
 const owner = globalThis as typeof globalThis & { diamondGuidanceAssistantV2?: DiamondAssistantJobService };
 const jobs = owner.diamondGuidanceAssistantV2 ??= new DiamondAssistantJobService(generateAssistantReply, undefined, undefined, recordUsageEvent, accountAiCreditGate);
 const respond = (value: unknown, status = 200) => NextResponse.json(value, { status, headers: { "Cache-Control": "no-store" } });
-const localRequest = (request: Request) => {
-  const host = request.headers.get("host") ?? ""; const origin = request.headers.get("origin");
-  // This phase is a local review surface, not a public unauthenticated paid endpoint.
-  return /^(127\.0\.0\.1|localhost|\[::1\]):\d{1,5}$/.test(host) && (!origin || origin === `http://${host}`) && !["cross-site", "same-site"].includes(request.headers.get("sec-fetch-site") ?? "");
-};
+// (Nov 25, going online) "this app only": the same check as accounts use - this Mac's own address here, the one public
+// https address online (accountConfig.ts). The account check before it still decides who may use it.
+const localRequest = (request: Request) => isTrustedAccountRequest(request);
 async function boundedJson(request: Request, max = 256000): Promise<unknown> {
   if (Number(request.headers.get("content-length") ?? 0) > max) throw new AssistantError("invalid", "The Assistant request is too large.");
   const reader = request.body?.getReader(); if (!reader) throw new AssistantError("invalid", "A request body is required.");
